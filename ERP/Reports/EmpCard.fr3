@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<TfrxReport Version="5.3.14" DotMatrixReport="False" IniFile="\Software\Fast Reports" PreviewOptions.Buttons="4095" PreviewOptions.Zoom="1" PrintOptions.Printer="Default" PrintOptions.PrintOnSheet="0" ReportOptions.CreateDate="43633,6382539815" ReportOptions.Description.Text="" ReportOptions.LastChange="43633,6845734954" ScriptLanguage="PascalScript" ScriptText.Text="begin&#13;&#10;&#13;&#10;end.">
+  <Datasets>
+    <item DataSet="frxDBDataset1" DataSetName="frxDBDataset1"/>
+  </Datasets>
+  <TfrxDataPage Name="Data" Height="1000" Left="0" Top="0" Width="1000"/>
+  <TfrxReportPage Name="Page1" PaperWidth="210" PaperHeight="297" PaperSize="9" LeftMargin="10" RightMargin="10" TopMargin="10" BottomMargin="10" ColumnWidth="0" ColumnPositions.Text="" HGuides.Text="" VGuides.Text="">
+    <TfrxReportTitle Name="ReportTitle1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="22,67718" Left="0" Top="18,89765" Width="718,1107">
+      <TfrxMemoView Name="Memo1" Left="139,84261" Top="3,5527136788005E-15" Width="207,87415" Height="15,11812" Text="Title Başlık"/>
+    </TfrxReportTitle>
+    <TfrxPageHeader Name="PageHeader1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="52,91342" Left="0" Top="64,25201" Width="718,1107">
+      <TfrxMemoView Name="mmoBaslik" Left="498,89796" Top="0" Width="219,21274" Height="22,67718" Font.Charset="162" Font.Color="0" Font.Height="-16" Font.Name="Tahoma" Font.Style="1" ParentFont="False" Text="Page Header - Üst Bilgi"/>
+      <TfrxMemoView Name="Memo4" Left="3,77953" Top="30,23624" Width="113,3859" Height="18,89765" Font.Charset="162" Font.Color="0" Font.Height="-16" Font.Name="Tahoma" Font.Style="1" ParentFont="False" Text="Language"/>
+      <TfrxMemoView Name="Memo5" Left="124,72449" Top="30,23624" Width="136,06308" Height="18,89765" Font.Charset="162" Font.Color="0" Font.Height="-16" Font.Name="Tahoma" Font.Style="1" ParentFont="False" Text="Code"/>
+    </TfrxPageHeader>
+    <TfrxPageFooter Name="PageFooter1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="22,67718" Left="0" Top="1024,25263" Width="718,1107">
+      <TfrxMemoView Name="Memo3" Left="136,06308" Top="0" Width="207,87415" Height="22,67718" Text="Page Footer - Alt Bilgi"/>
+    </TfrxPageFooter>
+    <TfrxReportSummary Name="ReportSummary1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="823,93754" Left="0" Top="177,63791" Width="718,1107">
+      <TfrxMemoView Name="mmolang" Left="3,77953" Top="0" Width="113,3859" Height="18,89765" DataField="lang" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="162" Font.Color="0" Font.Height="-12" Font.Name="Tahoma" Font.Style="0" ParentFont="False" Text="[frxDBDataset1.&#34;lang&#34;]"/>
+      <TfrxMemoView Name="mmocode" Left="124,72449" Top="0" Width="136,06308" Height="18,89765" DataField="code" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="162" Font.Color="0" Font.Height="-12" Font.Name="Tahoma" Font.Style="0" ParentFont="False" Text="[frxDBDataset1.&#34;code&#34;]"/>
+      <TfrxMemoView Name="mmoval" Left="464,88219" Top="0" Width="249,44898" Height="18,89765" DataField="val" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="162" Font.Color="0" Font.Height="-12" Font.Name="Tahoma" Font.Style="0" ParentFont="False" Text="[frxDBDataset1.&#34;val&#34;]"/>
+      <TfrxMemoView Name="mmocontent_type" Left="260,78757" Top="0" Width="204,09462" Height="18,89765" DataField="content_type" DataSet="frxDBDataset1" DataSetName="frxDBDataset1" Font.Charset="162" Font.Color="0" Font.Height="-12" Font.Name="Tahoma" Font.Style="0" ParentFont="False" Text="[frxDBDataset1.&#34;content_type&#34;]"/>
+    </TfrxReportSummary>
+  </TfrxReportPage>
+</TfrxReport>
