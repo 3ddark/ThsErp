@@ -90,12 +90,12 @@ begin
         TableName + '.' + FGiderAdi.FieldName,
         TableName + '.' + FFiyat.FieldName,
         TableName + '.' + FOlcuBirimiID.FieldName,
-        FBirim.TableName + '.' + FBirim.OlcuBirimi.FieldName + ' as ' + FOlcuBirimi.FieldName,
+        addField(FBirim.TableName, FBirim.OlcuBirimi.FieldName, FOlcuBirimi.FieldName),
         TableName + '.' + FGiderTipiID.FieldName,
-        FSetGiderTipi.TableName + '.' + FSetGiderTipi.GiderTipi.FieldName + ' as ' + FGiderTipi.FieldName
+        addField(FSetGiderTipi.TableName, FSetGiderTipi.GiderTipi.FieldName, FGiderTipi.FieldName)
       ], [
-        ' LEFT JOIN ' + FBirim.TableName + ' ON ' + FBirim.TableName + '.' + FBirim.Id.FieldName + '=' + FOlcuBirimiID.FieldName,
-        ' LEFT JOIN ' + FSetGiderTipi.TableName + ' ON ' + FSetGiderTipi.TableName + '.' + FSetGiderTipi.Id.FieldName + '=' + FGiderTipiID.FieldName,
+        addJoin(jtLeft, FBirim.TableName, FBirim.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
+        addJoin(jtLeft, FSetGiderTipi.TableName, FSetGiderTipi.Id.FieldName, TableName, FGiderTipiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -120,12 +120,12 @@ begin
         TableName + '.' + FGiderAdi.FieldName,
         TableName + '.' + FFiyat.FieldName,
         TableName + '.' + FOlcuBirimiID.FieldName,
-        FBirim.TableName + '.' + FBirim.OlcuBirimi.FieldName + ' as ' + FOlcuBirimi.FieldName,
+        addField(FBirim.TableName, FBirim.OlcuBirimi.FieldName, FOlcuBirimi.FieldName),
         TableName + '.' + FGiderTipiID.FieldName,
-        FSetGiderTipi.TableName + '.' + FSetGiderTipi.GiderTipi.FieldName + ' as ' + FGiderTipi.FieldName
+        addField(FSetGiderTipi.TableName, FSetGiderTipi.GiderTipi.FieldName, FGiderTipi.FieldName)
       ], [
-        ' LEFT JOIN ' + FBirim.TableName + ' ON ' + FBirim.TableName + '.' + FBirim.Id.FieldName + '=' + FOlcuBirimiID.FieldName,
-        ' LEFT JOIN ' + FSetGiderTipi.TableName + ' ON ' + FSetGiderTipi.TableName + '.' + FSetGiderTipi.Id.FieldName + '=' + FGiderTipiID.FieldName,
+        addJoin(jtLeft, FBirim.TableName, FBirim.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
+        addJoin(jtLeft, FSetGiderTipi.TableName, FSetGiderTipi.Id.FieldName, TableName, FGiderTipiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;

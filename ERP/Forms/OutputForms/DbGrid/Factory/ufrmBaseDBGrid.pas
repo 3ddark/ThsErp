@@ -723,7 +723,10 @@ end;
 procedure TfrmBaseDBGrid.FormDestroy(Sender: TObject);
 begin
 //  Table.Database.EventAlerter.Active := False;
-  Table.Database.EventAlerter.Names.Delete(Table.Database.EventAlerter.Names.IndexOf(Table.TableName));
+  if not FIsHelper then
+  begin
+    Table.Database.EventAlerter.Names.Delete(Table.Database.EventAlerter.Names.IndexOf(Table.TableName));
+  end;
 
   FreeAndNil(FGridColWidth);
 
@@ -1420,9 +1423,12 @@ begin
     btnAccept.Width := Max(100, Canvas.TextWidth(btnAccept.Caption) + 70);
   end;
 
-  Table.Database.EventAlerter.OnAlert := EventAlerterAlert;
-  Table.Database.EventAlerter.Names.Add(Table.TableName);
-  Table.Database.EventAlerter.Active := False;
+  if not FIsHelper then
+  begin
+    Table.Database.EventAlerter.OnAlert := EventAlerterAlert;
+    Table.Database.EventAlerter.Names.Add(Table.TableName);
+    Table.Database.EventAlerter.Active := False;
+  end;
 
   PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
 end;

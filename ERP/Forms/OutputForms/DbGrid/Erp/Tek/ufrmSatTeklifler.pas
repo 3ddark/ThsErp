@@ -59,7 +59,6 @@ type
   TfrmSatTeklifler = class(TfrmBaseDBGrid)
     mniSipariseAktar: TMenuItem;
     rgFiltre: TRadioGroup;
-    procedure qryDetayMasterSetValues(DataSet: TFDDataSet);
     procedure mniSipariseAktarClick(Sender: TObject);
     procedure FormShow(Sender: TObject); override;
     procedure HizliFiltre(Sender: TObject);
@@ -80,17 +79,14 @@ const
 implementation
 
 uses
-    ufrmSatTeklifDetaylar
-  , Ths.Erp.Database.Table.SatTeklif
-  , Ths.Erp.Database.Singleton
-  , Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , ufrmSatSiparisDetaylar
-  , Ths.Erp.Database.Table.SatSiparis
-  , Ths.Erp.Database.Table.ChHesapKarti
-  , Ths.Erp.Database.Table.SysParaBirimi
-  , Ths.Erp.Database.Table.SysErisimHakki
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table.SatTeklif, ufrmSatTeklifDetaylar,
+  Ths.Erp.Database.Table.SatSiparis, ufrmSatSiparisDetaylar,
+  Ths.Erp.Database.Table.ChHesapKarti,
+  Ths.Erp.Database.Table.SysParaBirimi,
+  Ths.Erp.Database.Table.SysErisimHakki;
 
 {$R *.dfm}
 
@@ -102,9 +98,7 @@ begin
   else if (pFormMode = ifmNewRecord) then
     Result := TfrmSatTeklifDetaylar.Create(Application, Self, TSatTeklif.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
-  begin
     Result := TfrmSatTeklifDetaylar.Create(Application, Self, Table.Clone(), pFormMode);
-  end;
 end;
 
 procedure TfrmSatTeklifler.mniPrintClick(Sender: TObject);
@@ -213,16 +207,10 @@ end;
 procedure TfrmSatTeklifler.mniSipariseAktarClick(Sender: TObject);
 var
   LSatSip, ASiparis: TSatSiparis;
-  LRights: TSysErisimHakki;
 begin
-  LRights := TSysErisimHakki.Create(GDataBase);
   LSatSip := TSatSiparis.Create(GDataBase);
   try
-    LRights.SelectToList(
-      ' AND ' + LRights.TableName + '.' + LRights.KullaniciID.FieldName + '=' + VarToStr(GSysKullanici.Id.Value) +
-      ' AND ' + LRights.KaynakKodu.FieldName + '=' + QuotedStr(LSatSip.TableSourceCode)
-      , False, False);
-    if (LRights.List.Count = 1) and LRights.IsYeniKayit.Value then
+    if LSatSip.IsAuthorized(ptAddRecord, True, False) then
     begin
       ASiparis := TSatSiparis(TSatTeklif(Table).ToSiparis);
       TfrmSatSiparisDetaylar.Create(Application, Self, ASiparis, TInputFormMode.ifmCopyNewRecord).Show;
@@ -236,7 +224,6 @@ begin
         mbNo,
         'Erişim Hakkı Uyarı');
   finally
-    LRights.Free;
     LSatSip.Free;
   end;
 end;
@@ -248,12 +235,6 @@ begin
     mniSipariseAktar.Enabled := False
   else
     mniSipariseAktar.Enabled := True;
-end;
-
-procedure TfrmSatTeklifler.qryDetayMasterSetValues(DataSet: TFDDataSet);
-begin
-  inherited;
-  DataSet.MasterFields := 'sat_teklif.id';
 end;
 
 procedure TfrmSatTeklifler.FormShow(Sender: TObject);

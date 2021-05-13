@@ -496,6 +496,7 @@ var
   LFrmTasima: TfrmSetEinvTasimaUcretleri;
   LFrmOdeme: TfrmSetEinvOdemeSekilleri;
   LFrmTeslim: TfrmSetEinvTeslimSekilleri;
+  LTeslim: TSetEinvTeslimSekli;
 begin
   if Sender.ClassType = TEdit then
   begin
@@ -640,7 +641,9 @@ begin
       end
       else if TEdit(Sender).Name = edtteslim_sekli_id.Name then
       begin
-        LFrmTeslim := TfrmSetEinvTeslimSekilleri.Create(TEdit(Sender), Self, TSetEinvTeslimSekli.Create(GDataBase), fomNormal, True);
+        LTeslim := TSetEinvTeslimSekli.Create(GDataBase);
+        LFrmTeslim := TfrmSetEinvTeslimSekilleri.Create(TEdit(Sender), Self, LTeslim, fomNormal, True);
+        LFrmTeslim.QueryDefaultFilterUserDefined := ' AND ' + LTeslim.IsActive.QryName + '=True';
         try
           LFrmTeslim.ShowModal;
           if LFrmTeslim.DataAktar then
@@ -652,8 +655,8 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := FormatedVariantVal(TSetEinvTeslimSekli(LFrmTeslim.Table).TeslimSekli);
-              TSatTeklif(Table).TeslimSekliID.Value := LFrmTeslim.Table.Id.Value;
+              TEdit(Sender).Text := FormatedVariantVal(LTeslim.TeslimSekli);
+              TSatTeklif(Table).TeslimSekliID.Value := LTeslim.Id.Value;
             end;
           end;
         finally

@@ -28,7 +28,7 @@ type
   public
     procedure CloneDetayLists(ADest: TTableDetailed);
 
-    procedure AddDetay(ATable: TTable); virtual; abstract;
+    procedure AddDetay(ATable: TTable; ALastItem: Boolean = False); virtual; abstract;
     procedure UpdateDetay(ATable: TTable); virtual; abstract;
     procedure RemoveDetay(ATable: TTable); virtual; abstract;
   end;

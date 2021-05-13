@@ -127,17 +127,7 @@ begin
       TRctReceteYanUrun(Table).Miktar.Value := StrToFloatDef(edtMiktar.Text, 0);
       TRctReceteYanUrun(Table).OlcuBirimi.Value := lblmiktar_birim.Caption;
 
-      if (FormMode = ifmUpdate) then
-      begin
-        TRctRecete(TfrmRctReceteDetaylar(ParentForm).Table).UpdateDetay(Table);
-        TfrmRctReceteDetaylar(ParentForm).UpdateDetay(Table, Grid);
-      end
-      else if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
-      begin
-        TRctRecete(TfrmRctReceteDetaylar(ParentForm).Table).AddDetay( TRctReceteYanUrun(TRctReceteYanUrun(Table).Clone) );
-        TfrmRctReceteDetaylar(ParentForm).AddDetay(Table, Grid);
-      end;
-      Close;
+      inherited;
     end;
   end
   else

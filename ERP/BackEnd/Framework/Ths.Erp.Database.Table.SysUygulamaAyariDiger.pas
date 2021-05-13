@@ -74,12 +74,12 @@ begin
   TableSourceCode := '1';
   inherited Create(ADatabase);
 
-  FIsEDefterAktif := TFieldDB.Create('is_edefter_aktif', ftBoolean, False, Self, '');
-  FIsEFaturaAktif := TFieldDB.Create('is_efatura_aktif', ftBoolean, False, Self, '');
-  FIsEIrsaliyeAktif := TFieldDB.Create('is_eirsaliye_aktif', ftBoolean, False, Self, '');
-  FPathGuncelleme := TFieldDB.Create('path_guncelleme', ftString, '', Self, '');
-  FPathStokResim := TFieldDB.Create('path_stok_resim', ftString, '', Self, '');
-  FPathUTD := TFieldDB.Create('path_utd', ftString, '', Self, '');
+  FIsEDefterAktif := TFieldDB.Create('is_edefter_aktif', ftBoolean, False, Self, 'E-Defter Aktif');
+  FIsEFaturaAktif := TFieldDB.Create('is_efatura_aktif', ftBoolean, False, Self, 'E-Fatura Aktif');
+  FIsEIrsaliyeAktif := TFieldDB.Create('is_eirsaliye_aktif', ftBoolean, False, Self, 'E-Irsaliye');
+  FPathGuncelleme := TFieldDB.Create('path_guncelleme', ftString, '', Self, 'Dosya Yolu Güncelleme');
+  FPathStokResim := TFieldDB.Create('path_stok_resim', ftString, '', Self, 'Dosya Yolu Stok Kartý Resim');
+  FPathUTD := TFieldDB.Create('path_utd', ftString, '', Self, 'Dosya Yolu Üretim Teknik Doküman');
 end;
 
 procedure TSysUygulamaAyariDiger.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -102,14 +102,6 @@ begin
       ], AAllColumn, AHelper);
       Open;
       Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FIsEDefterAktif, 'E-Defter Aktif', QueryOfDS);
-      setFieldTitle(FIsEFaturaAktif, 'E-Fatura Aktif', QueryOfDS);
-      setFieldTitle(FIsEIrsaliyeAktif, 'E-Irsaliye', QueryOfDS);
-      setFieldTitle(FPathGuncelleme, 'Dosya Yolu Güncelleme', QueryOfDS);
-      setFieldTitle(FPathStokResim, 'Dosya Yolu Stok Kartý Resim', QueryOfDS);
-      setFieldTitle(FPathUTD, 'Dosya Yolu Üretim Teknik Doküman', QueryOfDS);
     end;
   end;
 end;
@@ -172,10 +164,9 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-        AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-      else
-        AID := 0;
+      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      else  AID := 0;
 
       EmptyDataSet;
       Close;

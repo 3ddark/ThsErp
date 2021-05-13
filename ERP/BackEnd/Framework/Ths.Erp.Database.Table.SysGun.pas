@@ -59,9 +59,6 @@ begin
       ], AAllColumn, AHelper);
       Open;
       Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FGunAdi, 'Gün Adý', QueryOfDS);
     end;
   end;
 end;
@@ -89,9 +86,7 @@ begin
       List.Clear;
       while NOT EOF do
       begin
-        setFieldValue(Self.Id, QueryOfList);
-        setFieldValue(FGunAdi, QueryOfList);
-
+        PrepareTableClassFromQuery(QueryOfList);
         List.Add(Self.Clone);
 
         Next;
@@ -116,10 +111,9 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-        AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-      else
-        AID := 0;
+      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      else  AID := 0;
 
       EmptyDataSet;
       Close;

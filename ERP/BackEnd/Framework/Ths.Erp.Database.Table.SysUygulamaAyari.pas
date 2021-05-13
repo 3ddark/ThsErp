@@ -37,11 +37,11 @@ type
     FFormRengi: TFieldDB;
     FDonem: TFieldDB;
     FMukellefTipiID: TFieldDB;
-    FMukellefTipi: TFieldDB;  //veri tabaný alaný deðil not a database field
+    FMukellefTipi: TFieldDB;
     FUlkeID: TFieldDB;
-    FUlke: TFieldDB; //veri tabaný alaný deðil not a database field
+    FUlke: TFieldDB;
     FSehirID: TFieldDB;
-    FSehir: TFieldDB;  //veri tabaný alaný deðil not a database field
+    FSehir: TFieldDB;
     FIlce: TFieldDB;
     FMahalle: TFieldDB;
     FCadde: TFieldDB;
@@ -134,10 +134,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  , Ths.Erp.Globals
-  ;
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton,
+  Ths.Erp.Globals;
 
 constructor TSysUygulamaAyari.Create(ADatabase: TDatabase);
 begin

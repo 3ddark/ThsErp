@@ -15,12 +15,6 @@ type
   TfrmSetStkUrunTipi = class(TfrmBaseInputDB)
     lblurun_tipi: TLabel;
     edturun_tipi: TEdit;
-    chkis_hammadde: TCheckBox;
-    lblis_hammadde: TLabel;
-    chkis_yari_mamul: TCheckBox;
-    lblis_yari_mamul: TLabel;
-    chkis_mamul: TCheckBox;
-    lblis_mamul: TLabel;
   published
     procedure btnAcceptClick(Sender: TObject); override;
     procedure RefreshData; override;
@@ -41,9 +35,6 @@ begin
     if (ValidateInput) then
     begin
       TSetStkUrunTipi(Table).UrunTipi.Value := edturun_tipi.Text;
-      TSetStkUrunTipi(Table).IsHammadde.Value := chkis_hammadde.Checked;
-      TSetStkUrunTipi(Table).IsYariMamul.Value := chkis_yari_mamul.Checked;
-      TSetStkUrunTipi(Table).IsMamul.Value := chkis_mamul.Checked;
 
       inherited;
     end;
@@ -55,9 +46,6 @@ end;
 procedure TfrmSetStkUrunTipi.RefreshData;
 begin
   edturun_tipi.Text := FormatedVariantVal(TSetStkUrunTipi(Table).UrunTipi);
-  chkis_hammadde.Checked := TSetStkUrunTipi(Table).IsHammadde.Value;
-  chkis_yari_mamul.Checked := TSetStkUrunTipi(Table).IsYariMamul.Value;
-  chkis_mamul.Checked := TSetStkUrunTipi(Table).IsMamul.Value;
 end;
 
 end.

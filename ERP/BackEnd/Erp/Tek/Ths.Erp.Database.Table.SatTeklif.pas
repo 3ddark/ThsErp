@@ -9,6 +9,7 @@ uses
   System.Classes,
   System.Types,
   Data.DB,
+  System.Generics.Collections,
   Ths.Erp.Database,
   Ths.Erp.Database.Table,
   Ths.Erp.Database.TableDetailed,
@@ -181,7 +182,7 @@ type
     procedure BusinessDelete(APermissionControl: Boolean); override;
 
     procedure RefreshHeader; override;
-    function ValidateDetay(pTable: TTable): Boolean; override;
+    function ValidateDetay(ATable: TTable): Boolean; override;
   published
     FFaturaTipi: TSetEinvFaturaTipi;
     FSysCountry: TSysUlke;
@@ -203,13 +204,11 @@ type
 
     function Clone: TTable; override;
 
-    function ToSiparis: TSatSiparis;
-
-    procedure AddDetay(ATable: TTable); override;
+    procedure AddDetay(ATable: TTable; ALastItem: Boolean = False); override;
     procedure UpdateDetay(ATable: TTable); override;
     procedure RemoveDetay(ATable: TTable); override;
 
-    function CopyDetail(ASrc: TSatTeklifDetay): TSatTeklifDetay;
+    function ToSiparis: TSatSiparis;
 
     function GetAddress: string;
 
@@ -320,7 +319,7 @@ end;
 
 destructor TSatTeklifDetay.Destroy;
 begin
-  FStok.Free;
+  FreeAndNil(FStok);
   inherited;
 end;
 
@@ -1083,11 +1082,6 @@ begin
   end;
 end;
 
-function TSatTeklif.CopyDetail(ASrc: TSatTeklifDetay): TSatTeklifDetay;
-begin
-  Result := TSatTeklifDetay(ASrc.Clone)
-end;
-
 function TSatTeklif.GetAddress: string;
 begin
   Result := '';
@@ -1222,11 +1216,11 @@ begin
       TSatTeklifDetay(Self.ListSilinenDetay[n1]).Delete(False);
 end;
 
-procedure TSatTeklif.AddDetay(ATable: TTable);
+procedure TSatTeklif.AddDetay(ATable: TTable; ALastItem: Boolean = False);
 begin
   TSatTeklifDetay(ATable).Teklif := Self;
-  Self.ListDetay.Add(ATable);
-  RefreshHeader;
+  Self.ListDetay.Add(TSatTeklifDetay(ATable));
+  if ALastItem then RefreshHeader;
 end;
 
 procedure TSatTeklif.UpdateDetay(ATable: TTable);
@@ -1235,7 +1229,7 @@ begin
   RefreshHeader;
 end;
 
-function TSatTeklif.ValidateDetay(pTable: TTable): Boolean;
+function TSatTeklif.ValidateDetay(ATable: TTable): Boolean;
 begin
   Result := True;
 end;

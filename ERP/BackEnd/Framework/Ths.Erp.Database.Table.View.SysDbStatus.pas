@@ -5,21 +5,11 @@ interface
 {$I ThsERP.inc}
 
 uses
-    SysUtils
-  , Classes
-  , Dialogs
-  , Forms
-  , Windows
-  , Controls
-  , Types
-  , DateUtils
-  , FireDAC.Stan.Param
-  , System.Variants
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  , Ths.Erp.Database.Table.View
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table,
+  Ths.Erp.Database.Table.View;
 
 type
   TSysDBStatus = class(TView)
@@ -52,9 +42,8 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Database.Singleton;
 
 constructor TSysDBStatus.Create(OwnerDatabase:TDatabase);
 begin
@@ -92,21 +81,11 @@ begin
       ], AAllColumn, AHelper);
 		  Open;
 		  Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FPID, 'Process ID', QueryOfDS);
-      setFieldTitle(FDBName, 'DB Name', QueryOfDS);
-      setFieldTitle(FAppName, 'App Name', QueryOfDS);
-      setFieldTitle(FUserName, 'User Name', QueryOfDS);
-      setFieldTitle(FClientAddress, 'Client Address', QueryOfDS);
-      setFieldTitle(FQuery, 'Query', QueryOfDS);
-      setFieldTitle(FLockedTables, 'Locked Tables', QueryOfDS);
 	  end;
   end;
 end;
 
-procedure TSysDBStatus.SelectToList(pFilter: string; pLock: Boolean;
-  pPermissionControl: Boolean=True);
+procedure TSysDBStatus.SelectToList(pFilter: string; pLock: Boolean; pPermissionControl: Boolean=True);
 begin
   if IsAuthorized(ptRead, pPermissionControl) then
   begin

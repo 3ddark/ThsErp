@@ -5,11 +5,10 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TSysOndalikHane = class(TTable)
@@ -49,10 +48,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSysOndalikHane.Create(ADatabase: TDatabase);
 begin
@@ -96,18 +94,6 @@ begin
       ], AAllColumn, AHelper);
       Open;
       Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FHesapBakiye, 'Hesap Bakiye', QueryOfDS);
-      setFieldTitle(FAlimMiktar, 'Alýþ Miktar', QueryOfDS);
-      setFieldTitle(FAlimFiyat, 'Alýþ Fiyat', QueryOfDS);
-      setFieldTitle(FAlimTutar, 'Alýþ Tutar', QueryOfDS);
-      setFieldTitle(FSatisMiktar, 'Satýþ Miktar', QueryOfDS);
-      setFieldTitle(FSatisFiyat, 'Satýþ Fiyat', QueryOfDS);
-      setFieldTitle(FSatisTutar, 'Satýþ Tutar', QueryOfDS);
-      setFieldTitle(FStokMiktar, 'Stok Miktar', QueryOfDS);
-      setFieldTitle(FStokFiyat, 'Stok Fiyat', QueryOfDS);
-      setFieldTitle(FDovizKuru, 'Döviz Kuru', QueryOfDS);
     end;
   end;
 end;

@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.5
--- Dumped by pg_dump version 12.5
+-- Dumped from database version 12.2
+-- Dumped by pg_dump version 12.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2003,7 +2003,6 @@ CREATE TABLE public.rct_recete (
     recete_kodu character varying(32) NOT NULL,
     recete_adi character varying(128) NOT NULL,
     ornek_uretim_miktari double precision DEFAULT 0,
-    fire_orani double precision,
     aciklama character varying(128)
 );
 
@@ -4896,6 +4895,40 @@ ALTER SEQUENCE public.set_prs_yeterlilik_belgesi_id_seq OWNED BY public.set_prs_
 
 
 --
+-- Name: set_rct_iscilik_gider_tipi; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.set_rct_iscilik_gider_tipi (
+    id integer NOT NULL,
+    gider_tipi character varying(16) NOT NULL
+);
+
+
+ALTER TABLE public.set_rct_iscilik_gider_tipi OWNER TO ths_admin;
+
+--
+-- Name: set_rct_iscilik_gider_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+CREATE SEQUENCE public.set_rct_iscilik_gider_tipi_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.set_rct_iscilik_gider_tipi_id_seq OWNER TO ths_admin;
+
+--
+-- Name: set_rct_iscilik_gider_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
+--
+
+ALTER SEQUENCE public.set_rct_iscilik_gider_tipi_id_seq OWNED BY public.set_rct_iscilik_gider_tipi.id;
+
+
+--
 -- Name: set_sat_siparis_durum_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
@@ -4993,10 +5026,7 @@ ALTER SEQUENCE public.set_stk_hareket_tipi_id_seq OWNED BY public.set_stk_hareke
 
 CREATE TABLE public.set_stk_urun_tipi (
     id integer NOT NULL,
-    urun_tipi character varying(16) NOT NULL,
-    is_hammadde boolean DEFAULT false NOT NULL,
-    is_yari_mamul boolean DEFAULT false NOT NULL,
-    is_mamul boolean DEFAULT false NOT NULL
+    urun_tipi character varying(16) NOT NULL
 );
 
 
@@ -5021,40 +5051,6 @@ ALTER TABLE public.set_stk_urun_tipi_id_seq OWNER TO ths_admin;
 --
 
 ALTER SEQUENCE public.set_stk_urun_tipi_id_seq OWNED BY public.set_stk_urun_tipi.id;
-
-
---
--- Name: set_urt_iscilik_gider_tipi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_urt_iscilik_gider_tipi (
-    id integer NOT NULL,
-    gider_tipi character varying(16) NOT NULL
-);
-
-
-ALTER TABLE public.set_urt_iscilik_gider_tipi OWNER TO ths_admin;
-
---
--- Name: set_urt_iscilik_gider_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.set_urt_iscilik_gider_tipi_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_urt_iscilik_gider_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_urt_iscilik_gider_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_urt_iscilik_gider_tipi_id_seq OWNED BY public.set_urt_iscilik_gider_tipi.id;
 
 
 --
@@ -7075,6 +7071,13 @@ ALTER TABLE ONLY public.set_prs_yeterlilik_belgesi ALTER COLUMN id SET DEFAULT n
 
 
 --
+-- Name: set_rct_iscilik_gider_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_rct_iscilik_gider_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_rct_iscilik_gider_tipi_id_seq'::regclass);
+
+
+--
 -- Name: set_sat_siparis_durum id; Type: DEFAULT; Schema: public; Owner: ths_admin
 --
 
@@ -7100,13 +7103,6 @@ ALTER TABLE ONLY public.set_stk_hareket_tipi ALTER COLUMN id SET DEFAULT nextval
 --
 
 ALTER TABLE ONLY public.set_stk_urun_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_stk_urun_tipi_id_seq'::regclass);
-
-
---
--- Name: set_urt_iscilik_gider_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_urt_iscilik_gider_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_urt_iscilik_gider_tipi_id_seq'::regclass);
 
 
 --
@@ -8749,18 +8745,18 @@ ALTER TABLE ONLY public.set_stk_urun_tipi
 
 
 --
--- Name: set_urt_iscilik_gider_tipi set_urt_iscilik_gider_tipi_gider_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_rct_iscilik_gider_tipi set_urt_iscilik_gider_tipi_gider_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_urt_iscilik_gider_tipi
+ALTER TABLE ONLY public.set_rct_iscilik_gider_tipi
     ADD CONSTRAINT set_urt_iscilik_gider_tipi_gider_tipi_key UNIQUE (gider_tipi);
 
 
 --
--- Name: set_urt_iscilik_gider_tipi set_urt_iscilik_gider_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_rct_iscilik_gider_tipi set_urt_iscilik_gider_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_urt_iscilik_gider_tipi
+ALTER TABLE ONLY public.set_rct_iscilik_gider_tipi
     ADD CONSTRAINT set_urt_iscilik_gider_tipi_pkey PRIMARY KEY (id);
 
 
@@ -9412,10 +9408,10 @@ CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.set_iscilik_gide
 
 
 --
--- Name: set_urt_iscilik_gider_tipi audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: set_rct_iscilik_gider_tipi audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.set_urt_iscilik_gider_tipi FOR EACH ROW EXECUTE FUNCTION public.audit();
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.set_rct_iscilik_gider_tipi FOR EACH ROW EXECUTE FUNCTION public.audit();
 
 
 --
@@ -9981,7 +9977,7 @@ ALTER TABLE ONLY public.rct_iscilik_gideri
 --
 
 ALTER TABLE ONLY public.rct_iscilik_gideri
-    ADD CONSTRAINT urt_iscilik_gideri_gider_tipi_id_fkey FOREIGN KEY (gider_tipi_id) REFERENCES public.set_urt_iscilik_gider_tipi(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT urt_iscilik_gideri_gider_tipi_id_fkey FOREIGN KEY (gider_tipi_id) REFERENCES public.set_rct_iscilik_gider_tipi(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

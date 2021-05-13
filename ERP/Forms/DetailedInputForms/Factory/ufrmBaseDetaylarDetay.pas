@@ -24,8 +24,7 @@ uses
   ufrmBaseDetaylar,
 
   Ths.Erp.Database.Table,
-  Ths.Erp.Database.TableDetailed
-  ;
+  Ths.Erp.Database.TableDetailed;
 
 type
   TfrmBaseDetaylarDetay = class(TfrmBaseInput)
@@ -59,10 +58,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 {$R *.dfm}
 
@@ -144,7 +142,7 @@ begin
   end
   else if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
-    TTableDetailed(TfrmBaseDetaylar(ParentForm).Table).AddDetay( Table.Clone );
+    TTableDetailed(TfrmBaseDetaylar(ParentForm).Table).AddDetay(Table.Clone, True);
     TfrmBaseDetaylar(ParentForm).AddDetay(Table, FGrid);
   end;
   Close;

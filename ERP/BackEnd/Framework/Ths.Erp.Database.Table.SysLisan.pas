@@ -5,11 +5,10 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TSysLisan = class(TTable)
@@ -31,10 +30,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSysLisan.Create(ADatabase: TDatabase);
 begin
@@ -61,9 +59,6 @@ begin
       ], AAllColumn, AHelper);
       Open;
       Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FLisan, 'Lisan', QueryOfDS);
     end;
   end;
 end;

@@ -12,20 +12,20 @@ inherited frmBaseDetaylarDetay: TfrmBaseDetaylarDetay
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 670
-    Height = 402
+    Height = 416
     ExplicitWidth = 670
-    ExplicitHeight = 402
+    ExplicitHeight = 416
     inherited pgcMain: TPageControl
       Width = 668
-      Height = 400
+      Height = 414
       ExplicitWidth = 668
-      ExplicitHeight = 400
+      ExplicitHeight = 414
     end
   end
   inherited pnlBottom: TPanel
-    Top = 406
+    Top = 420
     Width = 670
-    ExplicitTop = 406
+    ExplicitTop = 420
     ExplicitWidth = 670
     inherited btnAccept: TButton
       Left = 461

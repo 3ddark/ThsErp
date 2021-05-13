@@ -12,6 +12,7 @@ uses
   System.Actions,
   System.Classes,
   System.SysUtils,
+  System.DateUtils,
   System.Rtti,
   System.ImageList,
   System.Threading,
@@ -57,7 +58,8 @@ uses
   ufrmBase,
   ufrmBaseDBGrid,
   Ths.Erp.Database.TableDetailed,
-  Ths.Erp.Database.Table;
+  Ths.Erp.Database.Table, System.Net.URLClient, System.Net.HttpClient,
+  System.Net.HttpClientComponent;
 
 type
   TfrmMain = class(TfrmBase)
@@ -230,6 +232,12 @@ type
     btnbbk_kayit_asansor: TButton;
     tsrecete: TTabSheet;
     btnrct_recete: TButton;
+    actset_rct_iscilik_gider_tipi: TAction;
+    actrct_iscilik_gideri: TAction;
+    actrct_paket_hammadde: TAction;
+    btnrct_iscilik_gideri: TButton;
+    btnrct_paket_hammadde: TButton;
+    btnset_rct_iscilik_gider_tipi: TButton;
 
 /// <summary>
 ///   Kullanýcýnýn eriþim yetkisine göre yapýlacak iþlemler burada olacak
@@ -331,6 +339,9 @@ type
     procedure actset_prs_servis_araciExecute(Sender: TObject);
     procedure actsat_siparis_raporExecute(Sender: TObject);
     procedure actsat_siparisExecute(Sender: TObject);
+    procedure actrct_iscilik_gideriExecute(Sender: TObject);
+    procedure actrct_paket_hammaddeExecute(Sender: TObject);
+    procedure actset_rct_iscilik_gider_tipiExecute(Sender: TObject);
   private
     procedure SetTitleFromLangContent(Sender: TControl = nil);
     procedure SetButtonPopup(Sender: TControl = nil);
@@ -366,6 +377,7 @@ uses
   Ths.Erp.Database.Singleton,
   ufrmSysLisanGuiIcerik,
   ufrmSysSifreGuncelle,
+  NetGsm_SMS,
 
   Ths.Erp.Database.Table.SysUlke, ufrmSysUlkeler,
   Ths.Erp.Database.Table.SysSehir, ufrmSysSehirler,
@@ -696,6 +708,49 @@ begin
   TfrmSetPrsYeterlilikBelgeleri.Create(Self, Self, TSetPrsYeterlilikBelgesi.Create(GDataBase), fomNormal).Show;
 end;
 
+procedure TfrmMain.actset_rct_iscilik_gider_tipiExecute(Sender: TObject);
+//var
+//  LServis: smsnn;
+//  LCevap: string;
+//  HTTPCli: TNetHTTPClient;
+//  rsp: IHTTPResponse;
+begin
+  TfrmSetRctIscilikGiderTipleri.Create(Self, Self, TSetRctIscilikGiderTipi.Create(GDataBase), fomNormal).Show;
+//  LServis := Getsmsnn();
+//  LCevap := LServis.smsGonder1NV2(
+//    '2163945055',
+//    'AYBEY5055',
+//    'AYBEY ELEK.',
+//    'Delphi SOAP mesaj gönderme örek',
+//    ['905556258796'],
+//    'TR',
+//    '',
+//    '',
+//    '1834siner',
+//    0);
+//
+//
+//  try
+//    HTTPCli := TNetHTTPClient.Create(nil);
+//    try
+//      rsp := HTTPCli.Get('https://api.netgsm.com.tr/sms/send/get/?' +
+//        'usercode=' + '2163945055' + '&' +
+//        'password=' + 'AYBEY5055' + '&' +
+//        'gsmno=' + '5556258796' + '&' +
+//        'message=' + 'Delphi7 Indy sms ornek' + '&' +
+//        'msgheader=' + 'AYBEY ELEK.');
+//      LCevap := rsp.ContentAsString(TEncoding.UTF8);
+//    finally
+//      HTTPCli.Free;
+//    end;
+//  except
+//    on E: Exception do
+//      ShowMessage(E.ClassName, ': ', E.Message);
+//  end;
+//
+//  ShowMessage(LCevap);
+end;
+
 procedure TfrmMain.actset_stk_urun_tipiExecute(Sender: TObject);
 begin
   TfrmSetStkUrunTipleri.Create(Self, Self, TSetStkUrunTipi.Create(GDataBase), fomNormal).Show;
@@ -910,6 +965,16 @@ begin
     mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], mbNo, 'Güncelleme Onayý') = mrYes
   then
     UpdateApplicationExe;
+end;
+
+procedure TfrmMain.actrct_iscilik_gideriExecute(Sender: TObject);
+begin
+  TfrmRctIscilikGiderleri.Create(Self, Self, TRctIscilikGideri.Create(GDataBase), fomNormal).Show;
+end;
+
+procedure TfrmMain.actrct_paket_hammaddeExecute(Sender: TObject);
+begin
+  TfrmRctPaketHammaddeler.Create(Self, Self, TRctPaketHammadde.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmMain.actrct_receteExecute(Sender: TObject);
@@ -1426,7 +1491,9 @@ begin
 
           if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_RCT_RECETE_AYAR then
           begin
-
+            btnrct_paket_hammadde.Enabled := True;
+            btnrct_iscilik_gideri.Enabled := True;
+            btnset_rct_iscilik_gider_tipi.Enabled := True;
           end
           else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_RCT_RECETE_KAYIT then
           begin

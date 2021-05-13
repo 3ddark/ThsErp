@@ -10,17 +10,17 @@ inherited frmRctReceteIscilik: TfrmRctReceteIscilik
     Width = 344
     Height = 141
     ExplicitWidth = 344
-    ExplicitHeight = 127
+    ExplicitHeight = 141
     inherited pgcMain: TPageControl
       Width = 342
       Height = 139
       ExplicitWidth = 342
-      ExplicitHeight = 125
+      ExplicitHeight = 139
       inherited tsMain: TTabSheet
         ExplicitLeft = 4
         ExplicitTop = 24
         ExplicitWidth = 334
-        ExplicitHeight = 97
+        ExplicitHeight = 111
         object lblmiktar: TLabel
           Left = 86
           Top = 53
@@ -141,7 +141,7 @@ inherited frmRctReceteIscilik: TfrmRctReceteIscilik
   inherited pnlBottom: TPanel
     Top = 145
     Width = 344
-    ExplicitTop = 131
+    ExplicitTop = 145
     ExplicitWidth = 344
     inherited btnAccept: TButton
       Left = 135

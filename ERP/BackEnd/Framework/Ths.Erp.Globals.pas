@@ -1302,6 +1302,16 @@ begin
     Result.Success := False;
     Result.Msg := 'Mesaj baþlýðýnýzýn (gönderici adýnýzýn) sistemde tanýmlý olmadýðýný ifade eder. Gönderici adlarýnýzý API ile sorgulayarak kontrol edebilirsiniz.';
   end
+  else if Result.BulkID = '50' then
+  begin
+    Result.Success := False;
+    Result.Msg := 'Abone hesabýnýz ile ÝYS kontrollü gönderimler yapýlamamaktadýr.';
+  end
+  else if Result.BulkID = '51' then
+  begin
+    Result.Success := False;
+    Result.Msg := 'Aboneliðinize tanýmlý ÝYS Marka bilgisi bulunamadýðýný ifade eder.';
+  end
   else if Result.BulkID = '70' then
   begin
     Result.Success := False;
@@ -1311,6 +1321,11 @@ begin
   begin
     Result.Success := False;
     Result.Msg := 'Gönderim sýnýr aþýmý';
+  end
+  else if Result.BulkID = '85' then
+  begin
+    Result.Success := False;
+    Result.Msg := 'Mükerrer Gönderim sýnýr aþýmý. Ayný numaraya 1 dakika içerisinde 20 den fazla görev oluþturulamaz.';
   end
   else if (Result.BulkID = '100') or (Result.BulkID = '101') then
   begin

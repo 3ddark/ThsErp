@@ -313,7 +313,7 @@
       Left = 58
       Top = 2
       Width = 207
-      Height = 25
+      Height = 36
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -327,6 +327,7 @@
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitHeight = 25
     end
     object tlbMain: TToolBar
       Left = 655
@@ -408,10 +409,6 @@
       TabOrder = 0
       object tsGenel: TTabSheet
         Caption = 'Genel'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnutd_dokuman: TButton
           Left = 2
           Top = 186
@@ -454,10 +451,6 @@
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -526,10 +519,6 @@
       object tsstok: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -630,10 +619,6 @@
       object tsch: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnDovizKurlari: TButton
           Left = 318
           Top = 2
@@ -818,10 +803,6 @@
       object tspersonel: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnprs_personel: TButton
           Left = 2
           Top = 2
@@ -1162,10 +1143,6 @@
       object tsrecete: TTabSheet
         Caption = 'Re'#231'eteler'
         ImageIndex = 5
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnrct_recete: TButton
           Left = 2
           Top = 2
@@ -1180,6 +1157,54 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 0
+          WordWrap = True
+        end
+        object btnrct_iscilik_gideri: TButton
+          Left = 158
+          Top = 2
+          Width = 150
+          Height = 36
+          Action = actrct_iscilik_gideri
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          Images = dm.il32
+          ParentFont = False
+          TabOrder = 1
+          WordWrap = True
+        end
+        object btnrct_paket_hammadde: TButton
+          Left = 158
+          Top = 44
+          Width = 150
+          Height = 36
+          Action = actrct_paket_hammadde
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          Images = dm.il32
+          ParentFont = False
+          TabOrder = 2
+          WordWrap = True
+        end
+        object btnset_rct_iscilik_gider_tipi: TButton
+          Left = 158
+          Top = 86
+          Width = 150
+          Height = 36
+          Action = actset_rct_iscilik_gider_tipi
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          Images = dm.il32
+          ParentFont = False
+          TabOrder = 3
           WordWrap = True
         end
       end
@@ -1538,6 +1563,21 @@
       Caption = 'Re'#231'eteler'
       ImageIndex = 66
       OnExecute = actrct_receteExecute
+    end
+    object actrct_iscilik_gideri: TAction
+      Caption = #304#351#231'ilik Giderleri'
+      ImageIndex = 76
+      OnExecute = actrct_iscilik_gideriExecute
+    end
+    object actrct_paket_hammadde: TAction
+      Caption = 'Paket Hammaddeler'
+      ImageIndex = 76
+      OnExecute = actrct_paket_hammaddeExecute
+    end
+    object actset_rct_iscilik_gider_tipi: TAction
+      Caption = #304#351#231'ilik Gider Tipleri'
+      ImageIndex = 76
+      OnExecute = actset_rct_iscilik_gider_tipiExecute
     end
     object actx5: TAction
       Caption = 'actx5'

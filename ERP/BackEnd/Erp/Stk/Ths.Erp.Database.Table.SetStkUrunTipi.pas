@@ -11,12 +11,10 @@ uses
   Ths.Erp.Database.Table;
 
 type
+  TStkUrunTipi = (sutHammadde=1, sutYariMamul, sutMamul, sutHizmet);
   TSetStkUrunTipi = class(TTable)
   private
     FUrunTipi: TFieldDB;
-    FIsHammadde: TFieldDB;
-    FIsYariMamul: TFieldDB;
-    FIsMamul: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -28,9 +26,6 @@ type
     function Clone: TTable; override;
 
     Property UrunTipi: TFieldDB read FUrunTipi write FUrunTipi;
-    Property IsHammadde: TFieldDB read FIsHammadde write FIsHammadde;
-    Property IsYariMamul: TFieldDB read FIsYariMamul write FIsYariMamul;
-    Property IsMamul: TFieldDB read FIsMamul write FIsMamul;
   end;
 
 implementation
@@ -47,9 +42,6 @@ begin
   inherited Create(ADatabase);
 
   FUrunTipi := TFieldDB.Create('urun_tipi', ftString, '', Self, 'Tip');
-  FIsHammadde := TFieldDB.Create('is_hammadde', ftBoolean, False, Self, 'Hammadde?');
-  FIsYariMamul := TFieldDB.Create('is_yari_mamul', ftBoolean, False, Self, 'Yarý Mamül?');
-  FIsMamul := TFieldDB.Create('is_mamul', ftBoolean, False, Self, 'Mamül?');
 end;
 
 procedure TSetStkUrunTipi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -61,10 +53,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FUrunTipi.FieldName,
-        TableName + '.' + FIsHammadde.FieldName,
-        TableName + '.' + FIsYariMamul.FieldName,
-        TableName + '.' + FIsMamul.FieldName
+        TableName + '.' + FUrunTipi.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
@@ -86,10 +75,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FUrunTipi.FieldName,
-        TableName + '.' + FIsHammadde.FieldName,
-        TableName + '.' + FIsYariMamul.FieldName,
-        TableName + '.' + FIsMamul.FieldName
+        TableName + '.' + FUrunTipi.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -119,10 +105,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-        FUrunTipi.FieldName,
-        FIsHammadde.FieldName,
-        FIsYariMamul.FieldName,
-        FIsMamul.FieldName
+        FUrunTipi.FieldName
       ]);
 
       PrepareInsertQueryParams;
@@ -148,10 +131,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-        FUrunTipi.FieldName,
-        FIsHammadde.FieldName,
-        FIsYariMamul.FieldName,
-        FIsMamul.FieldName
+        FUrunTipi.FieldName
       ]);
 
       PrepareUpdateQueryParams;

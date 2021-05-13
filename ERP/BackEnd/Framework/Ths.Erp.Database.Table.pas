@@ -86,6 +86,7 @@ type
 
     procedure Clone(var pField: TFieldDB);
     //procedure SetControlProperty(const pTableName: string; pControl: TWinControl);
+    function QryName: string;
   end;
 
   TTable = class
@@ -179,6 +180,10 @@ type
     procedure Update(APermissionControl: Boolean=True); virtual; abstract;
     //delete record from the database
     procedure Delete(APermissionControl: Boolean=True); virtual;
+    //delete record from the database with filter
+    procedure DeleteWith(AIDs: TArray<Integer>; APermissionControl: Boolean=True); virtual;
+    procedure DeleteWithCustom(AIDs: TArray<Integer>; ATableName: string; APermissionControl: Boolean=True); virtual;
+
     //clear to class attributes
     procedure Clear; virtual;
     //clone to class attribute into new class
@@ -525,6 +530,11 @@ end;
 destructor TFieldDB.Destroy;
 begin
   inherited;
+end;
+
+function TFieldDB.QryName: string;
+begin
+  Result := Self.FOwnerTable.TableName + '.' + Self.FieldName;
 end;
 
 function TFieldDB.GetValue: Variant;
@@ -981,6 +991,98 @@ begin
       end;
       Self.Notify;
     {$ENDIF}
+  end;
+end;
+
+procedure TTable.DeleteWith(AIDs: TArray<Integer>; APermissionControl: Boolean=True);
+var
+  LSb: TStringBuilder;
+  n1: Integer;
+  LIDs: string;
+begin
+  if Self.IsAuthorized(ptDelete, APermissionControl) then
+  begin
+    if Length(AIDs) > 0 then
+    begin
+      LSb := TStringBuilder.Create;
+      try
+        LSb.Clear;
+        for n1 := 0 to High(AIDs) do
+        begin
+          LSb.Append(IntToStr(AIDs[n1]));
+          if n1 < High(AIDs) then
+            LSb.Append(',');
+        end;
+        LIDs := LSb.ToString;
+      finally
+        LSb.Free;
+      end;
+
+      if LIDs <> '' then
+      begin
+        {$IFDEF CRUD_MODE_SP}
+          SpDelete.ExecProc;
+          Self.Notify;
+        {$ELSE IFDEF CRUD_MODE_PURE_SQL}
+          with QueryOfDelete do
+          begin
+            Close;
+            SQL.Clear;
+            SQL.Text := 'DELETE FROM ' + TableName + ' WHERE id in (:id);';
+            ParamByName(Self.Id.FieldName).Value := LIDs;
+            ExecSQL;
+            Close;
+          end;
+          Self.Notify;
+        {$ENDIF}
+      end;
+    end;
+  end;
+end;
+
+procedure TTable.DeleteWithCustom(AIDs: TArray<Integer>; ATableName: string; APermissionControl: Boolean=True);
+var
+  LSb: TStringBuilder;
+  n1: Integer;
+  LIDs: string;
+begin
+  if Self.IsAuthorized(ptDelete, APermissionControl) then
+  begin
+    if Length(AIDs) > 0 then
+    begin
+      LSb := TStringBuilder.Create;
+      try
+        LSb.Clear;
+        for n1 := 0 to High(AIDs) do
+        begin
+          LSb.Append(IntToStr(AIDs[n1]));
+          if n1 < High(AIDs) then
+            LSb.Append(',');
+        end;
+        LIDs := LSb.ToString;
+      finally
+        LSb.Free;
+      end;
+
+      if LIDs <> '' then
+      begin
+        {$IFDEF CRUD_MODE_SP}
+          SpDelete.ExecProc;
+          Self.Notify;
+        {$ELSE IFDEF CRUD_MODE_PURE_SQL}
+          with QueryOfDelete do
+          begin
+            Close;
+            SQL.Clear;
+            SQL.Text := 'DELETE FROM ' + ATableName + ' WHERE id in (:id);';
+            ParamByName(Self.Id.FieldName).Value := LIDs;
+            ExecSQL;
+            Close;
+          end;
+          Self.Notify;
+        {$ENDIF}
+      end;
+    end;
   end;
 end;
 

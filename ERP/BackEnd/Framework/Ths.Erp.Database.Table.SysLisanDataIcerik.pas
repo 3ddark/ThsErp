@@ -77,13 +77,6 @@ begin
       ], AAllColumn, AHelper);
       Open;
       Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FLisan, 'Lisan', QueryOfDS);
-      setFieldTitle(FTabloAdi, 'Tablo Adý', QueryOfDS);
-      setFieldTitle(FKolonAdi, 'Kolon Adý', QueryOfDS);
-      setFieldTitle(FRowID, 'Row Id', QueryOfDS);
-      setFieldTitle(FDeger, 'Deðer', QueryOfDS);
     end;
   end;
 end;
@@ -144,10 +137,9 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-        AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-      else
-        AID := 0;
+      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      else  AID := 0;
 
       EmptyDataSet;
       Close;
@@ -181,6 +173,12 @@ begin
   end;
 end;
 
+function TSysLisanDataIcerik.Clone: TTable;
+begin
+  Result := TSysLisanDataIcerik.Create(Database);
+  CloneClassContent(Self, Result);
+end;
+
 procedure TSysLisanDataIcerik.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
 var
   LLangCntt: TSysLisanDataIcerik;
@@ -203,12 +201,6 @@ begin
   finally
     FreeAndNil(LLangCntt)
   end;
-end;
-
-function TSysLisanDataIcerik.Clone: TTable;
-begin
-  Result := TSysLisanDataIcerik.Create(Database);
-  CloneClassContent(Self, Result);
 end;
 
 end.

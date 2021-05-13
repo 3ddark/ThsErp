@@ -5,8 +5,8 @@ interface
 {$I ThsERP.inc}
 
 uses
-  SysUtils, Classes, Dialogs, Forms, Windows, Controls, Types, DateUtils,
-  FireDAC.Stan.Param, System.Variants, Data.DB,
+  System.SysUtils,
+  Data.DB,
   Ths.Erp.Database,
   Ths.Erp.Database.Table,
   Ths.Erp.Database.Table.View;
@@ -32,10 +32,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSysViewTables.Create(OwnerDatabase:TDatabase);
 begin
@@ -71,8 +70,7 @@ begin
   end;
 end;
 
-procedure TSysViewTables.SelectToList(pFilter: string; pLock: Boolean;
-  pPermissionControl: Boolean=True);
+procedure TSysViewTables.SelectToList(pFilter: string; pLock: Boolean; pPermissionControl: Boolean=True);
 begin
   if IsAuthorized(ptRead, pPermissionControl) then
   begin

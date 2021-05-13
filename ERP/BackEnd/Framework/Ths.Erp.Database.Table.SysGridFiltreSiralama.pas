@@ -66,11 +66,6 @@ begin
       ], AAllColumn, AHelper);
       Open;
       Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FTabloAdi, 'Tablo Adý', QueryOfDS);
-      setFieldTitle(FDeger, 'Deðer', QueryOfDS);
-      setFieldTitle(FIsSiralama, 'Sýralama?', QueryOfDS);
     end;
   end;
 end;
@@ -127,10 +122,9 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-        AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-      else
-        AID := 0;
+      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      else  AID := 0;
 
       EmptyDataSet;
       Close;

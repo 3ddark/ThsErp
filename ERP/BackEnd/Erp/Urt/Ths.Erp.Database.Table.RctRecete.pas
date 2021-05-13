@@ -9,6 +9,7 @@ uses
   System.Classes,
   System.SysUtils,
   Data.DB,
+  System.Generics.Collections,
   Ths.Erp.Database,
   Ths.Erp.Database.Table,
   Ths.Erp.Database.TableDetailed,
@@ -165,7 +166,6 @@ type
     FReceteKodu: TFieldDB;
     FReceteAdi: TFieldDB;
     FOrnekUretimMiktari: TFieldDB;
-    FFireOrani: TFieldDB;
     FAciklama: TFieldDB;
   protected
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
@@ -177,6 +177,7 @@ type
     function ValidateDetay(ATable: TTable): Boolean; override;
   published
     constructor Create(ADatabase: TDatabase); override;
+    destructor Destroy; override;
   public
     ReceteMaliyet: TReceteTotals;
 
@@ -187,18 +188,13 @@ type
 
     function Clone: TTable; override;
 
-    procedure AddDetay(ATable: TRctReceteHammadde); reintroduce; overload;
-    procedure AddDetay(ATable: TRctReceteIscilik); reintroduce; overload;
-    procedure AddDetay(ATable: TRctReceteYanUrun); reintroduce; overload;
+    procedure AddDetay(ATable: TTable; ALastItem: Boolean = False); override;
     procedure UpdateDetay(ATable: TTable); override;
     procedure RemoveDetay(ATable: TTable); override;
-
-    function CopyDetail(ASrc: TRctReceteHammadde): TRctReceteHammadde;
 
     Property ReceteKodu: TFieldDB read FReceteKodu write FReceteKodu;
     Property ReceteAdi: TFieldDB read FReceteAdi write FReceteAdi;
     Property OrnekUretimMiktari: TFieldDB read FOrnekUretimMiktari write FOrnekUretimMiktari;
-    Property FireOrani: TFieldDB read FFireOrani write FFireOrani;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
   end;
 
@@ -211,7 +207,7 @@ uses
 
 constructor TRctReceteHammadde.Create(ADatabase: TDatabase; ARecete: TRctRecete);
 begin
-  TableName := 'urt_recete_hammadde';
+  TableName := 'rct_recete_hammadde';
   TableSourceCode := MODULE_RCT_RECETE_KAYIT;
   inherited Create(ADatabase);
 
@@ -372,7 +368,7 @@ end;
 
 constructor TRctReceteIscilik.Create(ADatabase: TDatabase; ARecete: TRctRecete);
 begin
-  TableName := 'urt_recete_iscilik';
+  TableName := 'rct_recete_iscilik';
   TableSourceCode := MODULE_RCT_RECETE_KAYIT;
   inherited Create(ADatabase);
 
@@ -522,7 +518,7 @@ end;
 
 constructor TRctReceteYanUrun.Create(ADatabase: TDatabase; ARecete: TRctRecete);
 begin
-  TableName := 'urt_recete_yan_urun';
+  TableName := 'rct_recete_yan_urun';
   TableSourceCode := MODULE_RCT_RECETE_KAYIT;
   inherited Create(ADatabase);
 
@@ -671,15 +667,9 @@ begin
   CloneClassContent(Self, Result);
 end;
 
-function TRctRecete.CopyDetail(ASrc: TRctReceteHammadde): TRctReceteHammadde;
-begin
-  Result := TRctReceteHammadde(ASrc.Clone);
-  Result.Recete := Self;
-end;
-
 constructor TRctRecete.Create(ADatabase: TDatabase);
 begin
-  TableName := 'urt_recete';
+  TableName := 'rct_recete';
   TableSourceCode := MODULE_RCT_RECETE_KAYIT;
   inherited Create(ADatabase);
 
@@ -687,11 +677,15 @@ begin
   ReceteMaliyet.IscilikCount := 0;
   ReceteMaliyet.YanUrunCount := 0;
 
-  FReceteKodu := TFieldDB.Create('recete_kodu', ftString, '', Self, '');
-  FReceteAdi := TFieldDB.Create('recete_adi', ftString, '', Self, '');
-  FOrnekUretimMiktari := TFieldDB.Create('ornek_uretim_miktari', ftFloat, 0, Self, '');
-  FFireOrani := TFieldDB.Create('fire_orani', ftFloat, 0, Self, '');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, '');
+  FReceteKodu := TFieldDB.Create('recete_kodu', ftString, '', Self, 'Reçete Kodu');
+  FReceteAdi := TFieldDB.Create('recete_adi', ftString, '', Self, 'Reçete Adý');
+  FOrnekUretimMiktari := TFieldDB.Create('ornek_uretim_miktari', ftFloat, 0, Self, 'Örnek Üretim Miktarý');
+  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
+end;
+
+destructor TRctRecete.Destroy;
+begin
+  inherited;
 end;
 
 procedure TRctRecete.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -703,12 +697,11 @@ begin
       Close;
       SQL.Clear;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FReceteKodu.FieldName,
-        TableName + '.' + FReceteAdi.FieldName,
-        TableName + '.' + FOrnekUretimMiktari.FieldName,
-        TableName + '.' + FFireOrani.FieldName,
-        TableName + '.' + FAciklama.FieldName
+        Self.Id.QryName,
+        FReceteKodu.QryName,
+        FReceteAdi.QryName,
+        FOrnekUretimMiktari.QryName,
+        FAciklama.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -723,18 +716,17 @@ begin
   if IsAuthorized(ptRead, APermissionControl) then
   begin
     if (ALock) then
-      AFilter := AFilter + ' FOR UPDATE OR ' + TableName + ' NOWAIT; ';
+      AFilter := AFilter + ' FOR UPDATE OF ' + TableName + ' NOWAIT; ';
 
     with QueryOfList do
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FReceteKodu.FieldName,
-        TableName + '.' + FReceteAdi.FieldName,
-        TableName + '.' + FOrnekUretimMiktari.FieldName,
-        TableName + '.' + FFireOrani.FieldName,
-        TableName + '.' + FAciklama.FieldName
+        Self.Id.QryName,
+        FReceteKodu.QryName,
+        FReceteAdi.QryName,
+        FOrnekUretimMiktari.QryName,
+        FAciklama.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -767,7 +759,6 @@ begin
         FReceteKodu.FieldName,
         FReceteAdi.FieldName,
         FOrnekUretimMiktari.FieldName,
-        FFireOrani.FieldName,
         FAciklama.FieldName
       ]);
 
@@ -797,7 +788,6 @@ begin
         FReceteKodu.FieldName,
         FReceteAdi.FieldName,
         FOrnekUretimMiktari.FieldName,
-        FFireOrani.FieldName,
         FAciklama.FieldName
       ]);
 
@@ -810,20 +800,42 @@ begin
   end;
 end;
 
-procedure TRctRecete.AddDetay(ATable: TRctReceteHammadde);
+procedure TRctRecete.AddDetay(ATable: TTable; ALastItem: Boolean = False);
 var
   n1: Integer;
   LExistsSameCode: Boolean;
 begin
-  TRctReceteHammadde(ATable).Recete := Self;
   LExistsSameCode := False;
-  for n1 := 0 to Self.ListDetay.Count-1 do
+  for n1 := 0 to ListDetay.Count-1 do
   begin
-    if TObject(Self.ListDetay[n1]).ClassType = TRctReceteHammadde then
+    if (TObject(ListDetay[n1]).ClassType = TRctReceteHammadde) and (ATable.ClassType = TRctReceteHammadde) then
     begin
-      if TRctReceteHammadde(Self.ListDetay[n1]).FStokKodu.Value = ATable.FStokKodu.Value then
+      TRctReceteHammadde(ATable).Recete := Self;
+      if TRctReceteHammadde(ListDetay[n1]).FStokKodu.Value = TRctReceteHammadde(ATable).FStokKodu.Value then
       begin
-        TRctReceteHammadde(Self.ListDetay[n1]).FMiktar.Value := TRctReceteHammadde(Self.ListDetay[n1]).FMiktar.Value + ATable.Miktar.Value;
+        TRctReceteHammadde(ListDetay[n1]).FMiktar.Value := TRctReceteHammadde(ListDetay[n1]).FMiktar.Value + TRctReceteHammadde(ATable).Miktar.Value;
+        LExistsSameCode := True;
+        FreeAndNil(ATable);
+        Break;
+      end;
+    end
+    else if (TObject(ListDetay[n1]).ClassType = TRctReceteIscilik) and (ATable.ClassType = TRctReceteIscilik) then
+    begin
+      TRctReceteIscilik(ATable).Recete := Self;
+      if TRctReceteIscilik(ListDetay[n1]).FGiderKodu.Value = TRctReceteIscilik(ATable).FGiderKodu.Value then
+      begin
+        TRctReceteIscilik(ListDetay[n1]).FMiktar.Value := TRctReceteIscilik(ListDetay[n1]).FMiktar.Value + TRctReceteIscilik(ATable).FMiktar.Value;
+        LExistsSameCode := True;
+        FreeAndNil(ATable);
+        Break;
+      end;
+    end
+    else if (TObject(ListDetay[n1]).ClassType = TRctReceteYanUrun) and (ATable.ClassType = TRctReceteYanUrun) then
+    begin
+      TRctReceteYanUrun(ATable).Recete := Self;
+      if TRctReceteYanUrun(ListDetay[n1]).FStokKodu.Value = TRctReceteYanUrun(ATable).FStokKodu.Value then
+      begin
+        TRctReceteYanUrun(ListDetay[n1]).FMiktar.Value := TRctReceteYanUrun(ListDetay[n1]).FMiktar.Value + TRctReceteYanUrun(ATable).FMiktar.Value;
         LExistsSameCode := True;
         FreeAndNil(ATable);
         Break;
@@ -832,63 +844,9 @@ begin
   end;
 
   if not LExistsSameCode then
-    Self.ListDetay.Add(ATable);
+    ListDetay.Add(ATable);
 
-  RefreshHeader;
-end;
-
-procedure TRctRecete.AddDetay(ATable: TRctReceteIscilik);
-var
-  n1: Integer;
-  LExistsSameCode: Boolean;
-begin
-  TRctReceteIscilik(ATable).Recete := Self;
-  LExistsSameCode := False;
-  for n1 := 0 to Self.ListDetay.Count-1 do
-  begin
-    if TObject(Self.ListDetay[n1]).ClassType = TRctReceteIscilik then
-    begin
-      if TRctReceteIscilik(Self.ListDetay[n1]).GiderKodu.Value = ATable.GiderKodu.Value then
-      begin
-        TRctReceteIscilik(Self.ListDetay[n1]).FMiktar.Value := TRctReceteIscilik(Self.ListDetay[n1]).FMiktar.Value + ATable.Miktar.Value;
-        LExistsSameCode := True;
-        FreeAndNil(ATable);
-        Break;
-      end;
-    end;
-  end;
-
-  if not LExistsSameCode then
-    Self.ListDetay.Add(ATable);
-
-  RefreshHeader;
-end;
-
-procedure TRctRecete.AddDetay(ATable: TRctReceteYanUrun);
-var
-  n1: Integer;
-  LExistsSameCode: Boolean;
-begin
-  TRctReceteYanUrun(ATable).Recete := Self;
-  LExistsSameCode := False;
-  for n1 := 0 to Self.ListDetay.Count-1 do
-  begin
-    if TObject(Self.ListDetay[n1]).ClassType = TRctReceteYanUrun then
-    begin
-      if TRctReceteYanUrun(Self.ListDetay[n1]).StokKodu.Value = ATable.StokKodu.Value then
-      begin
-        TRctReceteYanUrun(Self.ListDetay[n1]).FMiktar.Value := TRctReceteYanUrun(Self.ListDetay[n1]).FMiktar.Value + ATable.Miktar.Value;
-        LExistsSameCode := True;
-        FreeAndNil(ATable);
-        Break;
-      end;
-    end;
-  end;
-
-  if not LExistsSameCode then
-    Self.ListDetay.Add(ATable);
-
-  RefreshHeader;
+  if ALastItem then RefreshHeader;
 end;
 
 procedure TRctRecete.UpdateDetay(ATable: TTable);
@@ -900,7 +858,7 @@ end;
 procedure TRctRecete.RemoveDetay(ATable: TTable);
 begin
   if ATable.Id.Value > 0 then
-    ListSilinenDetay.Add(ATable);
+    ListSilinenDetay.Add(ATable.Clone);
   ListDetay.Remove(ATable);
   RefreshHeader;
 end;
@@ -923,21 +881,21 @@ begin
 
   for n1 := 0 to Self.ListDetay.Count - 1 do
   begin
-    if TObject(Self.ListDetay[n1]).ClassType = TRctReceteHammadde then
+    if TObject(ListDetay[n1]).ClassType = TRctReceteHammadde then
     begin
       ReceteMaliyet.HammaddeCount := ReceteMaliyet.HammaddeCount + 1;
-      ReceteMaliyet.MaliyetHam := ReceteMaliyet.MaliyetHam + TRctReceteHammadde(ListDetay[n1]).Fiyat.Value * TRctReceteHammadde(ListDetay[n1]).Miktar.Value
+      ReceteMaliyet.MaliyetHam := ReceteMaliyet.MaliyetHam + FormatedVariantVal(TRctReceteHammadde(ListDetay[n1]).Fiyat) * FormatedVariantVal(TRctReceteHammadde(ListDetay[n1]).Miktar)
     end
-    else if TObject(Self.ListDetay[n1]).ClassType = TRctReceteIscilik then
+    else if TObject(ListDetay[n1]).ClassType = TRctReceteIscilik then
     begin
       ReceteMaliyet.IscilikCount := ReceteMaliyet.IscilikCount + 1;
-      ReceteMaliyet.MaliyetIsc := ReceteMaliyet.MaliyetIsc + TRctReceteIscilik(ListDetay[n1]).Fiyat.Value * TRctReceteIscilik(ListDetay[n1]).Miktar.Value
+      ReceteMaliyet.MaliyetIsc := ReceteMaliyet.MaliyetIsc + FormatedVariantVal(TRctReceteIscilik(ListDetay[n1]).Fiyat) * FormatedVariantVal(TRctReceteIscilik(ListDetay[n1]).Miktar)
     end
-    else if TObject(Self.ListDetay[n1]).ClassType = TRctReceteYanUrun then
+    else if TObject(ListDetay[n1]).ClassType = TRctReceteYanUrun then
     begin
       ReceteMaliyet.YanUrunCount := ReceteMaliyet.YanUrunCount + 1;
-      ReceteMaliyet.MaliyetYan := ReceteMaliyet.MaliyetYan + TRctReceteYanUrun(ListDetay[n1]).Fiyat.Value * TRctReceteYanUrun(ListDetay[n1]).Miktar.Value
-    end
+      ReceteMaliyet.MaliyetYan := ReceteMaliyet.MaliyetYan + FormatedVariantVal(TRctReceteYanUrun(ListDetay[n1]).Fiyat) * FormatedVariantVal(TRctReceteYanUrun(ListDetay[n1]).Miktar)
+    end;
   end;
 end;
 
@@ -953,23 +911,23 @@ var
 begin
   Self.Insert(vID, APermissionControl);
   Self.Id.Value := vID;
-  for n1 := 0 to Self.ListDetay.Count - 1 do
+  for n1 := 0 to ListDetay.Count - 1 do
   begin
-    if TObject(Self.ListDetay[n1]).ClassType = TRctReceteHammadde then
+    if TObject(ListDetay[n1]).ClassType = TRctReceteHammadde then
     begin
-      TRctReceteHammadde(Self.ListDetay[n1]).HeaderID.Value := Self.Id.Value;
-      TRctReceteHammadde(Self.ListDetay[n1]).Insert(vID, True);
+      TRctReceteHammadde(ListDetay[n1]).HeaderID.Value := Self.Id.Value;
+      TRctReceteHammadde(ListDetay[n1]).Insert(vID, True);
     end
-    else if TObject(Self.ListDetay[n1]).ClassType = TRctReceteIscilik then
+    else if TObject(ListDetay[n1]).ClassType = TRctReceteIscilik then
     begin
-      TRctReceteIscilik(Self.ListDetay[n1]).HeaderID.Value := Self.Id.Value;
-      TRctReceteIscilik(Self.ListDetay[n1]).Insert(vID, True);
+      TRctReceteIscilik(ListDetay[n1]).HeaderID.Value := Self.Id.Value;
+      TRctReceteIscilik(ListDetay[n1]).Insert(vID, True);
     end
-    else if TObject(Self.ListDetay[n1]).ClassType = TRctReceteYanUrun then
+    else if TObject(ListDetay[n1]).ClassType = TRctReceteYanUrun then
     begin
-      TRctReceteYanUrun(Self.ListDetay[n1]).HeaderID.Value := Self.Id.Value;
-      TRctReceteYanUrun(Self.ListDetay[n1]).Insert(vID, True);
-    end
+      TRctReceteYanUrun(ListDetay[n1]).HeaderID.Value := Self.Id.Value;
+      TRctReceteYanUrun(ListDetay[n1]).Insert(vID, True);
+    end;
   end;
 end;
 
@@ -988,17 +946,19 @@ begin
   LIsc := TRctReceteIscilik.Create(Database);
   LYan := TRctReceteYanUrun.Create(Database);
   try
-    LHam.SelectToList(' AND ' + LHam.TableName + '.' + LHam.HeaderID.FieldName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
+    LHam.SelectToList(' AND ' + LHam.HeaderID.QryName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
     for n1 := 0 to LHam.List.Count - 1 do
-      TRctRecete(Self).AddDetay(TRctReceteHammadde(TRctReceteHammadde(LHam.List[n1]).Clone));
+      AddDetay(TRctReceteHammadde(TRctReceteHammadde(LHam.List[n1]).Clone));
 
-    LIsc.SelectToList(' AND ' + LIsc.TableName + '.' + LIsc.HeaderID.FieldName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
+    LIsc.SelectToList(' AND ' + LIsc.HeaderID.QryName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
     for n1 := 0 to LIsc.List.Count - 1 do
-      TRctRecete(Self).AddDetay(TRctReceteIscilik(TRctReceteIscilik(LIsc.List[n1]).Clone));
+      AddDetay(TRctReceteIscilik(TRctReceteIscilik(LIsc.List[n1]).Clone));
 
-    LYan.SelectToList(' AND ' + LYan.TableName + '.' + LYan.HeaderID.FieldName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
+    LYan.SelectToList(' AND ' + LYan.HeaderID.QryName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
     for n1 := 0 to LYan.List.Count - 1 do
-      TRctRecete(Self).AddDetay(TRctReceteYanUrun(TRctReceteYanUrun(LYan.List[n1]).Clone));
+      AddDetay(TRctReceteYanUrun(TRctReceteYanUrun(LYan.List[n1]).Clone), n1 = LYan.List.Count-1);
+
+    RefreshHeader;
   finally
     FreeAndNil(LHam);
     FreeAndNil(LIsc);
@@ -1008,47 +968,39 @@ end;
 
 procedure TRctRecete.BusinessUpdate(APermissionControl: Boolean);
 var
-  n1, vID: Integer;
+  n1, LID: Integer;
 begin
-  Self.Update(APermissionControl);
+  Update(APermissionControl);
 
-  for n1 := 0 to Self.ListDetay.Count - 1 do
+  for n1 := 0 to ListDetay.Count - 1 do
   begin
-    if TObject(Self.ListDetay[n1]).ClassType = TRctReceteHammadde then
+    if TObject(ListDetay[n1]).ClassType = TRctReceteHammadde then
+      TRctReceteHammadde(ListDetay[n1]).HeaderID.Value := Self.Id.Value
+    else if TObject(ListDetay[n1]).ClassType = TRctReceteIscilik then
+      TRctReceteIscilik(ListDetay[n1]).HeaderID.Value := Self.Id.Value
+    else if TObject(ListDetay[n1]).ClassType = TRctReceteYanUrun then
+      TRctReceteYanUrun(ListDetay[n1]).HeaderID.Value := Self.Id.Value;
+
+    if TTable(ListDetay[n1]).Id.Value > 0 then
+      TTable(ListDetay[n1]).Update(False)
+    else
     begin
-      TRctReceteHammadde(Self.ListDetay[n1]).HeaderID.Value := Self.Id.Value;
-      if TRctReceteHammadde(Self.ListDetay[n1]).Id.Value > 0 then
-        TRctReceteHammadde(Self.ListDetay[n1]).Update(True)
-      else
-        TRctReceteHammadde(Self.ListDetay[n1]).Insert(vID, True)
-    end
-    else if TObject(Self.ListDetay[n1]).ClassType = TRctReceteIscilik then
-    begin
-      TRctReceteIscilik(Self.ListDetay[n1]).HeaderID.Value := Self.Id.Value;
-      if TRctReceteIscilik(Self.ListDetay[n1]).Id.Value > 0 then
-        TRctReceteIscilik(Self.ListDetay[n1]).Update(True)
-      else
-        TRctReceteIscilik(Self.ListDetay[n1]).Insert(vID, True)
-    end
-    else if TObject(Self.ListDetay[n1]).ClassType = TRctReceteYanUrun then
-    begin
-      TRctReceteYanUrun(Self.ListDetay[n1]).HeaderID.Value := Self.Id.Value;
-      if TRctReceteYanUrun(Self.ListDetay[n1]).Id.Value > 0 then
-        TRctReceteYanUrun(Self.ListDetay[n1]).Update(True)
-      else
-        TRctReceteYanUrun(Self.ListDetay[n1]).Insert(vID, True)
-    end
+      TTable(ListDetay[n1]).Insert(LID, False);
+      TTable(ListDetay[n1]).Id.Value := LID;
+    end;
   end;
 
-  for n1 := 0 to Self.ListSilinenDetay.Count - 1 do
-    if TTable(Self.ListSilinenDetay[n1]).Id.Value > 0 then
-      TTable(Self.ListSilinenDetay[n1]).Delete(True);
+  for n1 := 0 to ListSilinenDetay.Count - 1 do
+    if TTable(ListSilinenDetay[n1]).Id.Value > 0 then
+      TTable(ListSilinenDetay[n1]).Delete(False);
 end;
 
 function TRctRecete.Clone: TTable;
 begin
   Result := TRctRecete.Create(Database);
   CloneClassContent(Self, Result);
+  CloneDetayLists(TTableDetailed(Result));
+  TRctRecete(Result).RefreshHeader;
 end;
 
 end.

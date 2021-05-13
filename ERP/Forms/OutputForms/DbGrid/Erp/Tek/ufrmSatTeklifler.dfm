@@ -3,13 +3,18 @@ inherited frmSatTeklifler: TfrmSatTeklifler
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
+    inherited pnlHeader: TPanel
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
+    end
     inherited pnlButtons: TPanel
       inherited pnlButtonRight: TPanel
         object rgFiltre: TRadioGroup
           Left = 0
           Top = 0
           Width = 185
-          Height = 52
+          Height = 92
           Align = alClient
           Caption = 'H'#305'zl'#305' Filtre'
           Items.Strings = (

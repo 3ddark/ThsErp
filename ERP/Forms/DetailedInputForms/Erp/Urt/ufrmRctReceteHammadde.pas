@@ -106,7 +106,8 @@ end;
 
 procedure TfrmRctReceteHammadde.HelperProcess(Sender: TObject);
 var
-  LFrmStokKarti: TfrmStkStokKartlari;
+  LFrm: TfrmStkStokKartlari;
+  LStk: TStkStokKarti;
   LRecete: TRctRecete;
   n1: Integer;
 begin
@@ -116,31 +117,35 @@ begin
     begin
       if TEdit(Sender).Name = edtstok_kodu.Name then
       begin
-        LFrmStokKarti := TfrmStkStokKartlari.Create(edtstok_kodu, Self, TStkStokKarti.Create(Table.Database), fomNormal, True);
-        LRecete := TRctRecete.Create(GDataBase);
+        LStk := TStkStokKarti.Create(Table.Database);
+        LFrm := TfrmStkStokKartlari.Create(edtstok_kodu, Self, LStk, fomNormal, True);
         try
-          LFrmStokKarti.ShowModal;
-
-          if LFrmStokKarti.DataAktar then
+          LFrm.QueryDefaultFilterUserDefined := ' AND ' + LStk.StokKodu.QryName + '!=' + QuotedStr(TfrmRctReceteDetaylar(ParentForm).edturun_kodu.Text);
+          LFrm.ShowModal;
+          if LFrm.DataAktar then
           begin
-            edtstok_kodu.Text := TStkStokKarti(LFrmStokKarti.Table).StokKodu.Value;
-            lblstok_aciklama.Caption := TStkStokKarti(LFrmStokKarti.Table).StokAdi.Value;
-            lblmiktar_birim.Caption := TStkStokKarti(LFrmStokKarti.Table).OlcuBirimi.Value;
-            TRctReceteHammadde(Table).Fiyat.Value := TStkStokKarti(LFrmStokKarti.Table).AlisFiyat.Value;
+            edtstok_kodu.Text := TStkStokKarti(LFrm.Table).StokKodu.Value;
+            lblstok_aciklama.Caption := TStkStokKarti(LFrm.Table).StokAdi.Value;
+            lblmiktar_birim.Caption := TStkStokKarti(LFrm.Table).OlcuBirimi.Value;
+            TRctReceteHammadde(Table).Fiyat.Value := TStkStokKarti(LFrm.Table).AlisFiyat.Value;
 
-            LRecete.SelectToList(' AND ' + LRecete.ReceteKodu.FieldName + '=' + QuotedStr(edtstok_kodu.Text), False, False);
-            if LRecete.List.Count > 0 then
-            begin
-              cbbrecete.Clear;
-              for n1 := 0 to LRecete.List.Count-1 do
-                cbbrecete.Items.AddObject(TRctRecete(LRecete.List[n1]).ReceteKodu.Value, TRctRecete(TRctRecete(LRecete.List[n1]).Clone));
+            LRecete := TRctRecete.Create(GDataBase);
+            try
+              LRecete.SelectToList(' AND ' + LRecete.ReceteKodu.FieldName + '=' + QuotedStr(edtstok_kodu.Text), False, False);
+              if LRecete.List.Count > 0 then
+              begin
+                cbbrecete.Clear;
+                for n1 := 0 to LRecete.List.Count-1 do
+                  cbbrecete.Items.AddObject(TRctRecete(LRecete.List[n1]).ReceteKodu.Value, TRctRecete(TRctRecete(LRecete.List[n1]).Clone));
 
-              cbbrecete.ItemIndex := 0;
+                cbbrecete.ItemIndex := 0;
+              end;
+            finally
+              LRecete.Free;
             end;
           end;
         finally
-          LFrmStokKarti.Free;
-          LRecete.Free;
+          LFrm.Free;
         end;
       end;
     end;
@@ -174,17 +179,7 @@ begin
           TRctReceteHammadde(Table).ReceteID.Value := TRctRecete(cbbrecete.Items.Objects[cbbrecete.ItemIndex]).Id.Value;
         end;
 
-      if (FormMode = ifmUpdate) then
-      begin
-        TRctRecete(TfrmRctReceteDetaylar(ParentForm).Table).UpdateDetay(Table);
-        TfrmRctReceteDetaylar(ParentForm).UpdateDetay(Table, Grid);
-      end
-      else if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
-      begin
-        TRctRecete(TfrmRctReceteDetaylar(ParentForm).Table).AddDetay( TRctReceteHammadde(TRctReceteHammadde(Table).Clone) );
-        TfrmRctReceteDetaylar(ParentForm).AddDetay(Table, Grid);
-      end;
-      Close;
+      inherited;
     end;
   end
   else

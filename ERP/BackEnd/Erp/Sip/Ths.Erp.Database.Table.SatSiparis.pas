@@ -9,6 +9,7 @@ uses
   System.Classes,
   System.Types,
   Data.DB,
+  System.Generics.Collections,
   Ths.Erp.Database,
   Ths.Erp.Database.Table,
   Ths.Erp.Database.TableDetailed,
@@ -212,14 +213,11 @@ type
 
     function Clone: TTable; override;
 
-    function getNewSiparisNo: string;
-
-    procedure AddDetay(ATable: TTable); override;
+    procedure AddDetay(ATable: TTable; ALastItem: Boolean = False); override;
     procedure UpdateDetay(ATable: TTable); override;
     procedure RemoveDetay(ATable: TTable); override;
 
-    function CopyDetail(ASrc: TSatSiparisDetay): TSatSiparisDetay;
-
+    function getNewSiparisNo: string;
     function GetAddress: string;
 
     Property TeklifID: TFieldDB read FTeklifID write FTeklifID;
@@ -1006,12 +1004,7 @@ function TSatSiparis.Clone: TTable;
 begin
   Result := TSatSiparis.Create(Database);
   CloneClassContent(Self, Result);
-  CloneDetayLists(TSatSiparis(Result));
-end;
-
-function TSatSiparis.CopyDetail(ASrc: TSatSiparisDetay): TSatSiparisDetay;
-begin
-  Result := TSatSiparisDetay(ASrc.Clone)
+  CloneDetayLists(TTableDetailed(Result));
 end;
 
 function TSatSiparis.getNewSiparisNo: string;
@@ -1176,11 +1169,11 @@ begin
       TSatSiparisDetay(Self.ListSilinenDetay[n1]).Delete(False);
 end;
 
-procedure TSatSiparis.AddDetay(ATable: TTable);
+procedure TSatSiparis.AddDetay(ATable: TTable; ALastItem: Boolean = False);
 begin
   TSatSiparisDetay(ATable).Siparis := Self;
   Self.ListDetay.Add(ATable);
-  RefreshHeader;
+  if ALastItem then RefreshHeader;
 end;
 
 procedure TSatSiparis.UpdateDetay(ATable: TTable);

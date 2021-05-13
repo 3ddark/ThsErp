@@ -98,6 +98,7 @@ type
 
     procedure DoubleToMoney();
     procedure DatePickerCloseUp(Sender: TObject);
+    procedure DblClick; override;
   published
     {$IFDEF VER150}
     property thsAlignment            : TAlignment      read FAlignment             write SetAlignment;
@@ -470,6 +471,48 @@ begin
   if Assigned(DatePicker) then
     DatePicker.Free;
   Self.SetFocus;
+end;
+
+procedure TEdit.DblClick;
+begin
+  inherited;
+  if thsInputDataType = itDate then
+  begin
+    if Self.Enabled and not Self.ReadOnly then
+    begin
+      if FPickerReturn then
+      begin
+        FPickerReturn := False;
+        Exit;
+      end;
+
+      DatePicker := TDateTimePicker.Create(Self);
+      DatePicker.Visible := False;
+      DatePicker.OnCloseUp := DatePickerCloseUp;
+      DatePicker.Parent := Self.Parent;
+      DatePicker.SendToBack;
+
+      if (Self.Text <> '') then
+        DatePicker.DateTime := StrTodateTime( Self.Text )
+      else
+        DatePicker.DateTime := Int(Now);
+
+      DatePicker.Left  := Self.Left;
+      DatePicker.Top   := Self.Top;
+      DatePicker.Width := Self.Width;
+
+      DatePicker.Visible := True;
+      DatePicker.Perform(WM_KEYDOWN, VK_F4, 0);
+//        DatePicker.Perform( WM_KEYUP, VK_F4, 0);
+
+      DatePicker.Visible := True;
+    end;
+  end
+  else
+  begin
+    if Assigned(FOnHelperProcess) then
+      FOnHelperProcess(Self);
+  end;
 end;
 
 destructor TEdit.Destroy;

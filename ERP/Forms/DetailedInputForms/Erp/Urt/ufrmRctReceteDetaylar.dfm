@@ -10,7 +10,7 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
     Width = 779
     Height = 509
     ExplicitWidth = 779
-    ExplicitHeight = 495
+    ExplicitHeight = 509
     inherited splLeft: TSplitter
       Top = 109
       Height = 399
@@ -30,10 +30,12 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
       Height = 399
       ExplicitTop = 109
       ExplicitWidth = 671
-      ExplicitHeight = 385
+      ExplicitHeight = 399
       inherited tsMain: TTabSheet
+        ExplicitLeft = 4
+        ExplicitTop = 24
         ExplicitWidth = 663
-        ExplicitHeight = 357
+        ExplicitHeight = 371
       end
     end
     inherited pnlHeader: TPanel
@@ -48,6 +50,8 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
         ExplicitHeight = 100
         inherited tsHeader: TTabSheet
           Caption = 'Genel'
+          ExplicitLeft = 24
+          ExplicitTop = 4
           ExplicitWidth = 743
           ExplicitHeight = 92
           object lblurun_kodu: TLabel
@@ -92,20 +96,6 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
             Font.Style = [fsBold]
             ParentFont = False
           end
-          object lblfire_orani: TLabel
-            Left = 439
-            Top = 49
-            Width = 56
-            Height = 13
-            Alignment = taRightJustify
-            Caption = 'Fire Oran'#305
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-          end
           object lblaciklama: TLabel
             Left = 78
             Top = 71
@@ -143,19 +133,12 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
             Height = 21
             TabOrder = 2
           end
-          object edtfire_orani: TEdit
-            Left = 496
-            Top = 46
-            Width = 78
-            Height = 21
-            TabOrder = 3
-          end
           object edtaciklama: TEdit
             Left = 131
             Top = 68
             Width = 443
             Height = 21
-            TabOrder = 4
+            TabOrder = 3
           end
         end
         inherited tsHeaderDiger: TTabSheet
@@ -172,22 +155,24 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
       Height = 399
       ExplicitTop = 109
       ExplicitWidth = 671
-      ExplicitHeight = 385
+      ExplicitHeight = 399
       inherited pgcContent: TPageControl
         Width = 669
         Height = 395
         ActivePage = ts3
         OnChange = pgcContentChange
         ExplicitWidth = 669
-        ExplicitHeight = 381
+        ExplicitHeight = 395
         inherited ts1: TTabSheet
+          ExplicitLeft = 4
+          ExplicitTop = 24
           ExplicitWidth = 661
-          ExplicitHeight = 353
+          ExplicitHeight = 367
           inherited pnl1: TPanel
-            Top = 287
+            Top = 301
             Width = 661
             Height = 66
-            ExplicitTop = 287
+            ExplicitTop = 301
             ExplicitWidth = 661
             ExplicitHeight = 66
             inherited grpGenelToplamKalan: TGroupBox
@@ -239,33 +224,33 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
           end
           inherited strngrd1: TStringGrid
             Width = 661
-            Height = 287
+            Height = 301
             ExplicitWidth = 661
-            ExplicitHeight = 287
+            ExplicitHeight = 301
           end
         end
         inherited ts2: TTabSheet
           ExplicitLeft = 4
           ExplicitTop = 24
           ExplicitWidth = 661
-          ExplicitHeight = 353
+          ExplicitHeight = 367
           inherited pnl2: TPanel
-            Top = 287
+            Top = 301
             Width = 661
             Height = 66
-            ExplicitTop = 287
+            ExplicitTop = 301
             ExplicitWidth = 661
             ExplicitHeight = 66
             inherited flwpnl2: TFlowPanel
               Width = 655
               Height = 60
               ExplicitWidth = 655
-              ExplicitHeight = 46
+              ExplicitHeight = 60
             end
           end
           inherited strngrd2: TStringGrid
             Width = 661
-            Height = 287
+            Height = 301
             ExplicitWidth = 661
             ExplicitHeight = 301
           end
@@ -274,18 +259,18 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
           ExplicitLeft = 4
           ExplicitTop = 24
           ExplicitWidth = 661
-          ExplicitHeight = 353
+          ExplicitHeight = 367
           inherited strngrd3: TStringGrid
             Width = 661
-            Height = 287
+            Height = 301
             ExplicitWidth = 661
-            ExplicitHeight = 287
+            ExplicitHeight = 301
           end
           inherited pnl3: TPanel
-            Top = 287
+            Top = 301
             Width = 661
             Height = 66
-            ExplicitTop = 287
+            ExplicitTop = 301
             ExplicitWidth = 661
             ExplicitHeight = 66
             inherited flwpnl3: TFlowPanel
@@ -308,13 +293,13 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
       Top = 110
       Height = 396
       ExplicitTop = 110
-      ExplicitHeight = 382
+      ExplicitHeight = 396
     end
   end
   inherited pnlBottom: TPanel
     Top = 513
     Width = 779
-    ExplicitTop = 499
+    ExplicitTop = 513
     ExplicitWidth = 779
     inherited btnAccept: TButton
       Left = 570

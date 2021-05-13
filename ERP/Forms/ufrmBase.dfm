@@ -116,7 +116,7 @@ object frmBase: TfrmBase
       ImageMargins.Right = 2
       Images = dm.il16
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 1
       OnClick = btnAcceptClick
     end
     object btnClose: TButton
@@ -142,7 +142,7 @@ object frmBase: TfrmBase
       ImageMargins.Right = 2
       Images = dm.il16
       ParentFont = False
-      TabOrder = 3
+      TabOrder = 2
       OnClick = btnCloseClick
     end
     object btnDelete: TButton
@@ -168,7 +168,7 @@ object frmBase: TfrmBase
       ImageMargins.Right = 2
       Images = dm.il16
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 3
       OnClick = btnDeleteClick
     end
   end

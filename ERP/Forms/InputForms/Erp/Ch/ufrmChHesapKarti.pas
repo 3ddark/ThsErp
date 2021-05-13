@@ -565,6 +565,7 @@ begin
     cbbson_hesap_kodu.ItemIndex := cbbson_hesap_kodu.Items.IndexOf(LSplit[2]);
     cbbson_hesap_koduExit(cbbson_hesap_kodu);
   end;
+  SetLength(LSplit, 0);
   edthesap_kodu.Text := TChHesapKarti(Table).HesapKodu.Value;
 
   edthesap_ismi.Text := TChHesapKarti(Table).HesapIsmi.Value;

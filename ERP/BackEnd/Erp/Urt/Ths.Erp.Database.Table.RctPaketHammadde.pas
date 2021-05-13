@@ -9,6 +9,7 @@ uses
   System.Classes,
   System.SysUtils,
   Data.DB,
+  System.Generics.Collections,
   Ths.Erp.Database,
   Ths.Erp.Database.Table,
   Ths.Erp.Database.TableDetailed,
@@ -81,6 +82,7 @@ type
     function ValidateDetay(ATable: TTable): Boolean; override;
   published
     constructor Create(ADatabase: TDatabase); override;
+    destructor Destroy; override;
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
@@ -89,11 +91,9 @@ type
 
     function Clone: TTable; override;
 
-    procedure AddDetay(ATable: TRctPaketHammaddeDetay); reintroduce; overload;
+    procedure AddDetay(ATable: TTable; ALastItem: Boolean = False); override;
     procedure UpdateDetay(ATable: TTable); override;
     procedure RemoveDetay(ATable: TTable); override;
-
-    function CopyDetail(ASrc: TRctPaketHammaddeDetay): TRctPaketHammaddeDetay;
 
     Property PaketAdi: TFieldDB read FPaketAdi write FPaketAdi;
   end;
@@ -266,12 +266,6 @@ begin
   CloneClassContent(Self, Result);
 end;
 
-function TRctPaketHammadde.CopyDetail(ASrc: TRctPaketHammaddeDetay): TRctPaketHammaddeDetay;
-begin
-  Result := TRctPaketHammaddeDetay(ASrc.Clone);
-  Result.PaketHammadde := Self;
-end;
-
 constructor TRctPaketHammadde.Create(ADatabase: TDatabase);
 begin
   TableName := 'rct_paket_hammadde';
@@ -279,6 +273,11 @@ begin
   inherited Create(ADatabase);
 
   FPaketAdi := TFieldDB.Create('paket_adi', ftString, '', Self, '');
+end;
+
+destructor TRctPaketHammadde.Destroy;
+begin
+  inherited;
 end;
 
 procedure TRctPaketHammadde.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -381,20 +380,20 @@ begin
   end;
 end;
 
-procedure TRctPaketHammadde.AddDetay(ATable: TRctPaketHammaddeDetay);
+procedure TRctPaketHammadde.AddDetay(ATable: TTable; ALastItem: Boolean = False);
 var
   n1: Integer;
   LExistsSameCode: Boolean;
 begin
-  ATable.PaketHammadde := Self;
+  TRctPaketHammaddeDetay(ATable).PaketHammadde := Self;
   LExistsSameCode := False;
-  for n1 := 0 to Self.ListDetay.Count-1 do
+  for n1 := 0 to ListDetay.Count-1 do
   begin
-    if TObject(Self.ListDetay[n1]).ClassType = TRctPaketHammaddeDetay then
+    if TObject(ListDetay[n1]).ClassType = TRctPaketHammaddeDetay then
     begin
-      if TRctPaketHammaddeDetay(Self.ListDetay[n1]).FStokKodu.Value = ATable.FStokKodu.Value then
+      if TRctPaketHammaddeDetay(ListDetay[n1]).FStokKodu.Value = TRctPaketHammaddeDetay(ATable).FStokKodu.Value then
       begin
-        TRctPaketHammaddeDetay(Self.ListDetay[n1]).FMiktar.Value := TRctPaketHammaddeDetay(Self.ListDetay[n1]).FMiktar.Value + ATable.Miktar.Value;
+        TRctPaketHammaddeDetay(ListDetay[n1]).FMiktar.Value := TRctPaketHammaddeDetay(ListDetay[n1]).FMiktar.Value + TRctPaketHammaddeDetay(ATable).Miktar.Value;
         LExistsSameCode := True;
         FreeAndNil(ATable);
         Break;
@@ -405,7 +404,7 @@ begin
   if not LExistsSameCode then
     Self.ListDetay.Add(ATable);
 
-  RefreshHeader;
+  if ALastItem then RefreshHeader;
 end;
 
 procedure TRctPaketHammadde.UpdateDetay(ATable: TTable);
@@ -499,6 +498,7 @@ function TRctPaketHammadde.Clone: TTable;
 begin
   Result := TRctPaketHammadde.Create(Database);
   CloneClassContent(Self, Result);
+  CloneDetayLists(TTableDetailed(Result));
 end;
 
 end.

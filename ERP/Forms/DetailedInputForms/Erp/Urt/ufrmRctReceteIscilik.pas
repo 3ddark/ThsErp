@@ -143,17 +143,7 @@ begin
       TRctReceteIscilik(Table).Birim.Value := lblmiktar_birim.Caption;
       TRctReceteIscilik(Table).Fiyat.Value := StrToFloatDef(edtfiyat.Text, 0);
 
-      if (FormMode = ifmUpdate) then
-      begin
-        TRctRecete(TfrmRctReceteDetaylar(ParentForm).Table).UpdateDetay(Table);
-        TfrmRctReceteDetaylar(ParentForm).UpdateDetay(Table, Grid);
-      end
-      else if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
-      begin
-        TRctRecete(TfrmRctReceteDetaylar(ParentForm).Table).AddDetay( TRctReceteIscilik(TRctReceteIscilik(Table).Clone) );
-        TfrmRctReceteDetaylar(ParentForm).AddDetay(Table, Grid);
-      end;
-      Close;
+      inherited;
     end;
   end
   else

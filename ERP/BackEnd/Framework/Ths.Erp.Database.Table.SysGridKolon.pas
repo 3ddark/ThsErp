@@ -107,23 +107,6 @@ begin
   FEskiDeger := 0;
 end;
 
-function TSysGridKolon.GetMaxSequenceNo(ATableName: string): Integer;
-var
-  LGridKolon: TSysGridKolon;
-begin
-  Result := 0;
-  LGridKolon := TSysGridKolon.Create(Database);
-  try
-    LGridKolon.SelectToList(
-      ' AND ' + TableName + '.' + TabloAdi.FieldName + '=' + QuotedStr(ATableName) +
-      ' ORDER BY ' + TableName + '.' + FSiraNo.FieldName + ' DESC ', False, False);
-    if LGridKolon.List.Count > 0 then
-      Result := TSysGridKolon(LGridKolon.List[0]).FSiraNo.Value;
-  finally
-    LGridKolon.Free;
-  end;
-end;
-
 procedure TSysGridKolon.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
 begin
   if IsAuthorized(ptRead, APermissionControl) then
@@ -154,25 +137,6 @@ begin
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
 		  Open;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FTabloAdi, 'Tablo Adý', QueryOfDS);
-      setFieldTitle(FKolonAdi, 'Kolon Adý', QueryOfDS);
-      setFieldTitle(FSiraNo, 'Sýra No', QueryOfDS);
-      setFieldTitle(FGenislik, 'Geniþlik', QueryOfDS);
-      setFieldTitle(FDataFormat, 'Format', QueryOfDS);
-      setFieldTitle(FIsGorunsun, 'Herzaman Görünsün', QueryOfDS);
-      setFieldTitle(FIsGorunsunHelperForm, 'Yardýmcý Ekranda Görünsün', QueryOfDS);
-      setFieldTitle(FMinDeger, 'Min Deðer', QueryOfDS);
-      setFieldTitle(FMinRenk, 'Min Renk', QueryOfDS);
-      setFieldTitle(FMaksDeger, 'Maks.Deðer', QueryOfDS);
-      setFieldTitle(FMaksRenk, 'Maks.Renk', QueryOfDS);
-      setFieldTitle(FMaksDegerYuzde, 'Maks.Deðer Yüzde', QueryOfDS);
-      setFieldTitle(FRenkBar, 'Renk Bar', QueryOfDS);
-      setFieldTitle(FRenkBarArka, 'Renk Bar Arka', QueryOfDS);
-      setFieldTitle(FRenkBarYazi, 'Renk Bar Yazý', QueryOfDS);
-      setFieldTitle(FOzetTipi, 'Özet Tipi', QueryOfDS);
-      setFieldTitle(FOzetFormat, 'Özet Format', QueryOfDS);
 	  end;
   end;
 end;
@@ -306,6 +270,21 @@ begin
   end;
 end;
 
+procedure TSysGridKolon.Clear;
+begin
+  inherited;
+  FSiraDurum := ssNone;
+end;
+
+function TSysGridKolon.Clone: TTable;
+begin
+  Result := TSysGridKolon.Create(Database);
+  CloneClassContent(Self, Result);
+
+  TSysGridKolon(Result).FSiraDurum := FSiraDurum;
+  TSysGridKolon(Result).FEskiDeger := FEskiDeger;
+end;
+
 procedure TSysGridKolon.BusinessDelete(APermissionControl: Boolean);
 var
   LGridKolon: TSysGridKolon;
@@ -426,19 +405,21 @@ begin
   end;
 end;
 
-procedure TSysGridKolon.Clear;
+function TSysGridKolon.GetMaxSequenceNo(ATableName: string): Integer;
+var
+  LGridKolon: TSysGridKolon;
 begin
-  inherited;
-  FSiraDurum := ssNone;
-end;
-
-function TSysGridKolon.Clone: TTable;
-begin
-  Result := TSysGridKolon.Create(Database);
-  CloneClassContent(Self, Result);
-
-  TSysGridKolon(Result).FSiraDurum := FSiraDurum;
-  TSysGridKolon(Result).FEskiDeger := FEskiDeger;
+  Result := 0;
+  LGridKolon := TSysGridKolon.Create(Database);
+  try
+    LGridKolon.SelectToList(
+      ' AND ' + TableName + '.' + TabloAdi.FieldName + '=' + QuotedStr(ATableName) +
+      ' ORDER BY ' + TableName + '.' + FSiraNo.FieldName + ' DESC ', False, False);
+    if LGridKolon.List.Count > 0 then
+      Result := TSysGridKolon(LGridKolon.List[0]).FSiraNo.Value;
+  finally
+    LGridKolon.Free;
+  end;
 end;
 
 end.

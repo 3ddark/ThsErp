@@ -66,11 +66,6 @@ begin
       ], AAllColumn, AHelper);
       Open;
       Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FTarih, 'Tarih', QueryOfDS);
-      setFieldTitle(FParaBirimi, 'Birim', QueryOfDS);
-      setFieldTitle(FKur, 'Kur', QueryOfDS);
     end;
   end;
 end;

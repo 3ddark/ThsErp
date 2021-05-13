@@ -46,12 +46,10 @@ type
     lblurun_kodu: TLabel;
     lblurun_adi: TLabel;
     lblornek_uretm_miktari: TLabel;
-    lblfire_orani: TLabel;
     lblaciklama: TLabel;
     edturun_kodu: TEdit;
     edturun_adi: TEdit;
     edtornek_uretm_miktari: TEdit;
-    edtfire_orani: TEdit;
     edtaciklama: TEdit;
     procedure btnAcceptClick(Sender: TObject);override;
     procedure cbbpara_birimiChange(Sender: TObject);
@@ -84,7 +82,8 @@ uses
   ufrmRctReceteIscilik,
   ufrmRctReceteYanUrun,
   ufrmStkStokKartlari,
-  Ths.Erp.Database.Table.StkStokKarti;
+  Ths.Erp.Database.Table.StkStokKarti,
+  Ths.Erp.Database.Table.SetStkUrunTipi;
 
 {$R *.dfm}
 
@@ -97,7 +96,6 @@ begin
       TRctRecete(Table).ReceteKodu.Value := edturun_kodu.Text;
       TRctRecete(Table).ReceteAdi.Value := edturun_adi.Text;
       TRctRecete(Table).OrnekUretimMiktari.Value := edtornek_uretm_miktari.Text;
-      TRctRecete(Table).FireOrani.Value := edtfire_orani.Text;
       TRctRecete(Table).Aciklama.Value := edtaciklama.Text;
 
       inherited;
@@ -196,12 +194,12 @@ begin
 
         strngrd1.Objects[COLUMN_GRID_OBJECT, strngrd1.Row] := TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]);
 
-        strngrd1.Cells[RH_MAL_KODU, strngrd1.Row] := TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).StokKodu.Value;
-        strngrd1.Cells[RH_MAL_ADI, strngrd1.Row] := TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).StokAdi.Value;
-        strngrd1.Cells[RH_MIKTAR, strngrd1.Row] := TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).Miktar.Value;
-        strngrd1.Cells[RH_BIRIM, strngrd1.Row] := TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).OlcuBirimi.Value;
-        strngrd1.Cells[RH_FIRE_ORANI, strngrd1.Row] := TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).FireOrani.Value;
-        strngrd1.Cells[RH_FIYAT, strngrd1.Row] := TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).Fiyat.Value;
+        strngrd1.Cells[RH_MAL_KODU, strngrd1.Row] := FormatedVariantVal(TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).StokKodu);
+        strngrd1.Cells[RH_MAL_ADI, strngrd1.Row] := FormatedVariantVal(TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).StokAdi);
+        strngrd1.Cells[RH_MIKTAR, strngrd1.Row] := FormatedVariantVal(TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).Miktar);
+        strngrd1.Cells[RH_BIRIM, strngrd1.Row] := FormatedVariantVal(TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).OlcuBirimi);
+        strngrd1.Cells[RH_FIRE_ORANI, strngrd1.Row] := FormatedVariantVal(TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).FireOrani);
+        strngrd1.Cells[RH_FIYAT, strngrd1.Row] := FormatedVariantVal(TRctReceteHammadde(TRctRecete(Table).ListDetay[n1]).Fiyat);
       end
       else if TObject(TRctRecete(Table).ListDetay[n1]).ClassType = TRctReceteIscilik then
       begin
@@ -211,11 +209,11 @@ begin
 
         strngrd2.Objects[COLUMN_GRID_OBJECT, strngrd2.Row] := TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]);
 
-        strngrd2.Cells[RI_GIDER_KODU, strngrd2.Row] := TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]).GiderKodu.Value;
-        strngrd2.Cells[RI_GIDER_ADI, strngrd2.Row] := TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]).GiderAdi.Value;
-        strngrd2.Cells[RI_MIKTAR, strngrd2.Row] := TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]).Miktar.Value;
-        strngrd2.Cells[RI_BIRIM, strngrd2.Row] := TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]).Birim.Value;
-        strngrd2.Cells[RI_FIYAT, strngrd2.Row] := TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]).Fiyat.Value;
+        strngrd2.Cells[RI_GIDER_KODU, strngrd2.Row] := FormatedVariantVal(TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]).GiderKodu);
+        strngrd2.Cells[RI_GIDER_ADI, strngrd2.Row] := FormatedVariantVal(TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]).GiderAdi);
+        strngrd2.Cells[RI_MIKTAR, strngrd2.Row] := FormatedVariantVal(TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]).Miktar);
+        strngrd2.Cells[RI_BIRIM, strngrd2.Row] := FormatedVariantVal(TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]).Birim);
+        strngrd2.Cells[RI_FIYAT, strngrd2.Row] := FormatedVariantVal(TRctReceteIscilik(TRctRecete(Table).ListDetay[n1]).Fiyat);
       end
       else if TObject(TRctRecete(Table).ListDetay[n1]).ClassType = TRctReceteYanUrun then
       begin
@@ -225,12 +223,12 @@ begin
 
         strngrd3.Objects[COLUMN_GRID_OBJECT, strngrd3.Row] := TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]);
 
-        strngrd3.Cells[RY_MAL_KODU, strngrd3.Row] := TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).StokKodu.Value;
-        strngrd3.Cells[RY_MAL_ADI, strngrd3.Row] := TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).StokAdi.Value;
-        strngrd3.Cells[RY_MIKTAR, strngrd3.Row] := TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).Miktar.Value;
-        strngrd3.Cells[RY_BIRIM, strngrd3.Row] := TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).OlcuBirimi.Value;
-        strngrd3.Cells[RY_FIYAT, strngrd3.Row] := TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).Fiyat.Value;
-        strngrd3.Cells[RY_FIRE_ORANI, strngrd3.Row] := TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).FireOrani.Value;
+        strngrd3.Cells[RY_MAL_KODU, strngrd3.Row] := FormatedVariantVal(TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).StokKodu);
+        strngrd3.Cells[RY_MAL_ADI, strngrd3.Row] := FormatedVariantVal(TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).StokAdi);
+        strngrd3.Cells[RY_MIKTAR, strngrd3.Row] := FormatedVariantVal(TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).Miktar);
+        strngrd3.Cells[RY_BIRIM, strngrd3.Row] := FormatedVariantVal(TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).OlcuBirimi);
+        strngrd3.Cells[RY_FIYAT, strngrd3.Row] := FormatedVariantVal(TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).Fiyat);
+        strngrd3.Cells[RY_FIRE_ORANI, strngrd3.Row] := FormatedVariantVal(TRctReceteYanUrun(TRctRecete(Table).ListDetay[n1]).FireOrani);
       end
     end;
 
@@ -380,12 +378,9 @@ end;
 
 procedure TfrmRctReceteDetaylar.RefreshData;
 begin
-  inherited;
-
   edturun_kodu.Text := TRctRecete(Table).ReceteKodu.Value;
   edturun_adi.Text := TRctRecete(Table).ReceteAdi.Value;
   edtornek_uretm_miktari.Text := TRctRecete(Table).OrnekUretimMiktari.Value;
-  edtfire_orani.Text := TRctRecete(Table).FireOrani.Value;
   edtaciklama.Text := TRctRecete(Table).Aciklama.Value;
 
   GridFill();
@@ -410,7 +405,8 @@ begin
       begin
         LStokKarti := TStkStokKarti.Create(Table.Database);
         LFrmStokKarti := TfrmStkStokKartlari.Create(TEdit(Sender), Self, LStokKarti, fomNormal, True);
-        //LFrmStokKarti.QueryDefaultFilterUserDefined := ' AND ' + LStokKarti.StokKodu.FieldName + '=' + Ord(TChHesapTipi.Son).ToString;
+        LFrmStokKarti.QueryDefaultFilterUserDefined := ' AND (' + LStokKarti.UrunTipiID.FieldName + '=' + Ord(TStkUrunTipi.sutMamul).ToString + ' OR ' +
+                                                                  LStokKarti.UrunTipiID.FieldName + '=' + Ord(TStkUrunTipi.sutYariMamul).ToString + ')';
         try
           LFrmStokKarti.ShowModal;
 

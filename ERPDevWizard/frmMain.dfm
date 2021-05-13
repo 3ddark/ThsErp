@@ -557,10 +557,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     object tsOutput: TTabSheet
       Caption = 'Output Form Section'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Splitter1: TSplitter
         Left = 500
         Top = 0
@@ -654,10 +650,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     object tsInput: TTabSheet
       Caption = 'Input Form Caption'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Splitter2: TSplitter
         Left = 420
         Top = 0
@@ -764,19 +756,17 @@ object frmMainClassGenerator: TfrmMainClassGenerator
   end
   object con1: TFDConnection
     Params.Strings = (
-      'Database=ths_erp'
+      'Database=ths_erp_per'
       'User_Name=ths_admin'
       'Password=THS'
       'CharacterSet=UTF8'
       'Server=127.0.0.1'
-      'MetaDefSchema=publicx'
       'DriverID=PG')
     LoginPrompt = False
     Left = 592
     Top = 104
   end
   object FDPhysPgDriverLink1: TFDPhysPgDriverLink
-    VendorHome = 'D:\Projects\Delphi\SVN\YilmazEt\ERPDevWizard'
     Left = 664
     Top = 104
   end

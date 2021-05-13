@@ -59,11 +59,11 @@ function TfrmRctReceteler.CreateInputForm(Sender: TObject; pFormMode: TInputForm
 begin
   Result := nil;
   if (pFormMode = ifmRewiev) then
-    Result := TfrmRctReceteDetaylar.Create(Application, Self, Table.Clone(), pFormMode)
+    Result := TfrmRctReceteDetaylar.Create(Application, Self, TRctRecete(Table).Clone(), pFormMode)
   else if (pFormMode = ifmNewRecord) then
     Result := TfrmRctReceteDetaylar.Create(Application, Self, TRctRecete.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmRctReceteDetaylar.Create(Application, Self, Table.Clone(), pFormMode);
+    Result := TfrmRctReceteDetaylar.Create(Application, Self, TRctRecete(Table).Clone(), pFormMode);
 end;
 
 end.
