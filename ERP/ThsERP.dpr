@@ -385,6 +385,9 @@ begin
   ReportMemoryLeaksOnShutdown := {$IFDEF MSWINDOWS}DebugHook <> 0;{$ELSE}True;{$ENDIF MSWINDOWS}
   {$ENDIF}
 {$WARN SYMBOL_PLATFORM ON}
+
+  ReportMemoryLeaksOnShutdown := True;
+
   AddExitProc(MemLeakFix);
 
   TStyleManager.TrySetStyle('Amakrits');

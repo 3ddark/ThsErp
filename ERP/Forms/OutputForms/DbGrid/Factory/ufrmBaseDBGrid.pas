@@ -106,6 +106,17 @@ type
 type
   TValLowHigh = (vlLow, vlHigh, vlEqual);
 
+
+type
+  ThreadRefresh = class(TThread)
+  private
+    FOwner: TForm;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(AOwner: TForm; ACreateSuspended: Boolean); overload;
+  end;
+
 type
   TfrmBaseDBGrid = class(TfrmBaseOutput)
     pnlButtons: TPanel;
@@ -264,7 +275,7 @@ type
     function IsYuzdeCizimAlaniVar(pFieldName: string): Boolean; virtual;
     function IsRenkliRakamVar(pFieldName: string): Boolean; virtual;
 
-    procedure EventAlerterAlert(ASender: TFDCustomEventAlerter; const AEventName: string; const AArgument: Variant);
+//    procedure EventAlerterAlert(ASender: TFDCustomEventAlerter; const AEventName: string; const AArgument: Variant);
   public
     spDS: TFDStoredProc;
 
@@ -315,6 +326,8 @@ type
 
     procedure StatusBarDuzenle();
   published
+    FRefresher: ThreadRefresh;
+
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);override;
     procedure stbBaseDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect); override;
     procedure WmAfterShow(var Msg: TMessage); message WM_AFTER_SHOW;
@@ -335,6 +348,7 @@ uses
   Ths.Erp.Globals,
   ufrmBaseInputDB,
   ufrmFilterDBGrid,
+  FireDAC.Phys.PGWrapper,
   Ths.Erp.Database.Table.SysKaliteFormTipi;
 
 {$R *.dfm}
@@ -722,9 +736,13 @@ end;
 
 procedure TfrmBaseDBGrid.FormDestroy(Sender: TObject);
 begin
-//  Table.Database.EventAlerter.Active := False;
   if not FIsHelper then
   begin
+//    FRefresher.Terminate;
+//    Sleep(50);
+//    Table.Unlisten;
+
+    Table.Database.EventAlerter.Active := False;
     Table.Database.EventAlerter.Names.Delete(Table.Database.EventAlerter.Names.IndexOf(Table.TableName));
   end;
 
@@ -1257,8 +1275,7 @@ begin
 //  edtFilterHelper.SelStart := Length(edtFilterHelper.Text);
 end;
 
-procedure TfrmBaseDBGrid.edtFilterHelperKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfrmBaseDBGrid.edtFilterHelperKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   inherited;
   //helper için aşağı yukarıda key up eventte sadece grid hareket etsin.
@@ -1266,23 +1283,22 @@ begin
 //  edtFilterHelper.SelStart := Length(edtFilterHelper.Text);
 end;
 
-procedure TfrmBaseDBGrid.EventAlerterAlert(ASender: TFDCustomEventAlerter;
-  const AEventName: string; const AArgument: Variant);
-var
-  sMesaj: string;
-  n1: Integer;
-begin
+//procedure TfrmBaseDBGrid.EventAlerterAlert(ASender: TFDCustomEventAlerter; const AEventName: string; const AArgument: Variant);
+//var
+//  sMesaj: string;
+//  n1: Integer;
+//begin
 //  ASender.Unregister;
-  if VarIsArray( AArgument ) then
-    for n1 := VarArrayLowBound(AArgument, 1) to VarArrayHighBound(AArgument, 1) do
-      if n1 = 0 then
-        sMesaj := sMesaj + 'Process ID (pID):' + VarToStr(AArgument[n1]) + ', '
-      else if n1 = 1 then
-        sMesaj := sMesaj + 'Notify Value:' + VarToStr(AArgument[n1]) + ', '
-      else
-        sMesaj := sMesaj + ' ' + VarToStr(AArgument[n1]) + ', ';
-  ShowMessage(sMesaj);
-end;
+//  if VarIsArray( AArgument ) then
+//    for n1 := VarArrayLowBound(AArgument, 1) to VarArrayHighBound(AArgument, 1) do
+//      if n1 = 0 then
+//        sMesaj := sMesaj + 'Process ID (pID):' + VarToStr(AArgument[n1]) + ', '
+//      else if n1 = 1 then
+//        sMesaj := sMesaj + 'Notify Value:' + VarToStr(AArgument[n1]) + ', '
+//      else
+//        sMesaj := sMesaj + ' ' + VarToStr(AArgument[n1]) + ', ';
+//  grd.DataSource.DataSet.Refresh;
+//end;
 
 procedure TfrmBaseDBGrid.FormResize(Sender: TObject);
 begin
@@ -1425,9 +1441,15 @@ begin
 
   if not FIsHelper then
   begin
-    Table.Database.EventAlerter.OnAlert := EventAlerterAlert;
-    Table.Database.EventAlerter.Names.Add(Table.TableName);
-    Table.Database.EventAlerter.Active := False;
+    if Assigned(Table) then
+    begin
+//      Table.Listen;
+//      Sleep(50);
+//      FRefresher := ThreadRefresh.Create(Self, False);
+    end;
+//    Table.Database.EventAlerter.OnAlert := dm.EventAlerterAlert;
+    Table.Database.EventAlerter.Names.AddObject(Table.TableName, Table.QueryOfDS);
+    Table.Database.EventAlerter.Active := True;
   end;
 
   PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
@@ -2543,6 +2565,44 @@ procedure TfrmBaseDBGrid.WriteRecordCount(pCount: Integer);
 begin
 //  if (TSingletonDB.GetInstance.DataBase.Connection.Connected) and (stbBase.Panels.Count > 0) then
 //    stbBase.Panels.Items[STATUS_SQL_SERVER].Text := TranslateText('Total', FrameworkLang.GeneralRecordCount, LngGeneral, LngSystem) + ': ' + pCount.ToString;
+end;
+
+{ ThreadRefresh }
+
+constructor ThreadRefresh.Create(AOwner: TForm; ACreateSuspended: Boolean);
+begin
+  inherited Create(ACreateSuspended);
+  FreeOnTerminate := True;
+  NameThreadForDebugging('ThreadRefreshData');
+  FOwner := AOwner;
+end;
+
+procedure ThreadRefresh.Execute;
+var
+  oConn: TPgConnection;
+  sName, sParam: String;
+  iProcID, n1: Integer;
+begin
+  while not Terminated do
+  try
+    Sleep(100);
+    if GDataBase.FDPhyPG.DriverIntf.ConnectionCount > 0 then
+    begin
+      for n1 := 0 to GDataBase.FDPhyPG.DriverIntf.ConnectionCount-1 do
+      begin
+        if GDataBase.FDPhyPG.DriverIntf.Connections[n1].CliObj <> nil then
+        begin
+          oConn := GDataBase.FDPhyPG.DriverIntf.Connections[n1].CliObj;
+          if oConn.CheckForInput() then
+            while oConn.ReadNotifies(sName, iProcID, sParam) do
+              Synchronize(TfrmBaseDBGrid(FOwner).RefreshData);
+          Break;
+        end;
+      end;
+    end;
+  except
+    Terminate;
+  end;
 end;
 
 end.

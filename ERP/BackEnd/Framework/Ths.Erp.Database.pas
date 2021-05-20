@@ -95,7 +95,7 @@ type
     function NewConnection(): TFDConnection;
 
     function getVarsayilanParaBirimi(): string;
-//    procedure EventAlerterAlert(ASender: TFDCustomEventAlerter; const AEventName: string; const AArgument: Variant); virtual;
+    procedure EventAlerterAlert(ASender: TFDCustomEventAlerter; const AEventName: string; const AArgument: Variant); virtual;
   published
     destructor Destroy();Override;
     function GetToday():TDateTime;
@@ -144,7 +144,7 @@ begin
 
   FConManager.AddConnectionDef('Ths_Erp_Framework_Pooled', 'PG', FConnection.Params);
   FConnection.ConnectionDefName := 'Ths_Erp_Framework_Pooled';
-//  FEventAlerter.OnAlert := EventAlerterAlert;
+  FEventAlerter.OnAlert := EventAlerterAlert;
 end;
 
 procedure TDatabase.ConnAfterCommit(Sender: TObject);
@@ -368,15 +368,14 @@ begin
   inherited;
 end;
 
-//procedure TDatabase.EventAlerterAlert(ASender: TFDCustomEventAlerter;
-//  const AEventName: string; const AArgument: Variant);
+procedure TDatabase.EventAlerterAlert(ASender: TFDCustomEventAlerter;
+  const AEventName: string; const AArgument: Variant);
 //var
 //  sMesaj: string;
 //  n1: Integer;
-//begin
+begin
 //  ASender.Unregister;
-//
-//  ShowMessage(AEventName);
+
 //  if VarIsArray( AArgument ) then
 //    for n1 := VarArrayLowBound(AArgument, 1) to VarArrayHighBound(AArgument, 1) do
 //      if n1 = 0 then
@@ -385,7 +384,7 @@ end;
 //        sMesaj := sMesaj + 'Notify Value:' + VarToStr(AArgument[n1]) + ', ';
 //
 //  ShowMessage(sMesaj);
-//end;
+end;
 
 function TDatabase.GetNewRecordId: Integer;
 begin

@@ -24,7 +24,7 @@
     DisplayMode = svmOverlay
     OpenedWidth = 250
     Placement = svpLeft
-    TabOrder = 1
+    TabOrder = 2
     object catMenuItems: TCategoryButtons
       Left = 0
       Top = 0
@@ -382,7 +382,7 @@
     Width = 737
     Height = 404
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 3
     ExplicitTop = 42
     ExplicitWidth = 737
     ExplicitHeight = 404
@@ -409,6 +409,10 @@
       TabOrder = 0
       object tsGenel: TTabSheet
         Caption = 'Genel'
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnutd_dokuman: TButton
           Left = 2
           Top = 186
@@ -451,6 +455,10 @@
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -519,6 +527,10 @@
       object tsstok: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -619,6 +631,10 @@
       object tsch: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnDovizKurlari: TButton
           Left = 318
           Top = 2
@@ -803,6 +819,10 @@
       object tspersonel: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnprs_personel: TButton
           Left = 2
           Top = 2

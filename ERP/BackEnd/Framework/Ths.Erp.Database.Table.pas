@@ -1326,13 +1326,12 @@ end;
 
 procedure TTable.Listen;
 begin
-  with QueryOfOther do
+  with QueryOfInfo do
   begin
     Close;
     SQL.Clear;
-    SQL.Text := 'listen ' + self.TableName + ';';
+    SQL.Text := 'listen ' + Self.TableName + ';';
     ExecSQL;
-    Close;
   end;
 end;
 
@@ -1460,13 +1459,12 @@ end;
 
 procedure TTable.Unlisten;
 begin
-  with QueryOfOther do
+  with QueryOfInfo do
   begin
     Close;
     SQL.Clear;
     SQL.Text := 'unlisten ' + self.TableName + ';';
     ExecSQL;
-    Close;
   end;
 end;
 

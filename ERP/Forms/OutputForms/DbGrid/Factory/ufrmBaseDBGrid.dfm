@@ -37,7 +37,7 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         Left = 4
         Top = 4
         Width = 87
-        Height = 13
+        Height = 22
         Align = alLeft
         Alignment = taRightJustify
         Caption = 'Anahtar Kelime'
@@ -48,6 +48,7 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlCenter
+        ExplicitHeight = 13
       end
       object edtFilterHelper: TEdit
         AlignWithMargins = True

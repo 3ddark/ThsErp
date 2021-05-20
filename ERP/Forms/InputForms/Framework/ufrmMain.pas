@@ -753,7 +753,8 @@ end;
 
 procedure TfrmMain.actset_stk_urun_tipiExecute(Sender: TObject);
 begin
-  TfrmSetStkUrunTipleri.Create(Self, Self, TSetStkUrunTipi.Create(GDataBase), fomNormal).Show;
+  if not ExistForm(TfrmSetStkUrunTipleri) then
+    TfrmSetStkUrunTipleri.Create(Self, Self, TSetStkUrunTipi.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmMain.actset_prs_personel_tipiExecute(Sender: TObject);

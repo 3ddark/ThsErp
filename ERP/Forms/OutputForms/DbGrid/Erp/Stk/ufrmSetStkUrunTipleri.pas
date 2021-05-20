@@ -40,6 +40,9 @@ type
     function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm; override;
   end;
 
+var
+  frmSetStkUrunTipleri: TfrmSetStkUrunTipleri;
+
 implementation
 
 uses

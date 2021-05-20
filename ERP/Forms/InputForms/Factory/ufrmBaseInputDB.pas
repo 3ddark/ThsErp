@@ -47,6 +47,16 @@ uses
   Ths.Erp.Database.Table;
 
 type
+  ThreadRefresh = class(TThread)
+  private
+    FOwner: TForm;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(AOwner: TForm; ACreateSuspended: Boolean); overload;
+  end;
+
+type
   TfrmBaseInputDB = class(TfrmBaseInput)
     procedure btnSpinDownClick(Sender: TObject); override;
     procedure btnSpinUpClick(Sender: TObject); override;
@@ -69,6 +79,8 @@ type
     procedure HelperProcess(Sender: TObject);virtual;
     procedure OnCalculate(Sender: TObject);
   published
+//    FRefresher: ThreadRefresh;
+
 /// <summary>
 ///  InputDB formlarýndaki Edit Memo ComboBox gibi kontrollerin zorunlu alan, maks leng, charcase gibi özelliklerini form ilk açýlýþta ayarlýyor.
 /// </summary>
@@ -104,13 +116,13 @@ type
 implementation
 
 uses
-    ufrmCalculator
-  , ufrmBaseDBGrid
-  , Ths.Erp.Database.Singleton
-  , Ths.Erp.Constants
-  , Ths.Erp.Globals
-  , Ths.Erp.Database.Table.View.SysViewColumns
-  ;
+  ufrmCalculator,
+  ufrmBaseDBGrid,
+  Ths.Erp.Database.Singleton,
+  Ths.Erp.Constants,
+  Ths.Erp.Globals,
+  FireDAC.Phys.PGWrapper, //thread listen unlisten
+  Ths.Erp.Database.Table.View.SysViewColumns;
 
 {$R *.dfm}
 
@@ -444,6 +456,8 @@ begin
 
   if Assigned(Table) then
   begin
+//    FRefresher := ThreadRefresh.Create(Self, True);
+
     Table.SetFieldDBPropsFromDbInfo;
 
     ResetSession();
@@ -486,7 +500,10 @@ begin
 
   //sadece sayýsal alanlarýn gösterim þeklini (basamaklý ve ondalýklý) düzeltmek için yazýldý
   if Assigned(Table) then
+  begin
+//    FRefresher.Start;
     SetControlDBProperty(True);
+  end;
   Repaint;
 end;
 
@@ -571,6 +588,9 @@ end;
 
 procedure TfrmBaseInputDB.FormDestroy(Sender: TObject);
 begin
+//  if ParentForm = nil then
+//    Table.Unlisten;
+//  FRefresher.Terminate;
   GDatabase.Connection.Rollback;
   inherited;
 end;
@@ -1149,6 +1169,43 @@ begin
   begin
     dm.il16.Draw(StatusBar.Canvas, Rect.Left, Rect.Top, vIco);
     Panel.Width := stbBase.Width;
+  end;
+end;
+
+{ ThreadRefresh }
+
+constructor ThreadRefresh.Create(AOwner: TForm; ACreateSuspended: Boolean);
+begin
+  inherited Create(ACreateSuspended);
+  FreeOnTerminate := True;
+  FOwner := AOwner;
+end;
+
+procedure ThreadRefresh.Execute;
+var
+  oConn: TPgConnection;
+  sName, sParam: String;
+  iProcID: Integer;
+begin
+//  TfrmBaseInputDB(FOwner).Table.Listen;
+  while not Terminated do
+  try
+    Sleep(1000);
+    if GDataBase.FDPhyPG.DriverIntf.ConnectionCount > 0 then
+    begin
+      if GDataBase.FDPhyPG.DriverIntf.Connections[0].CliObj <> nil then
+      begin
+        oConn := GDataBase.FDPhyPG.DriverIntf.Connections[0].CliObj;
+        if oConn.CheckForInput() then
+          while oConn.ReadNotifies(sName, iProcID, sParam) do
+          begin
+            if TfrmBaseInputDB(FOwner).FormMode = ifmRewiev then
+              TfrmBaseInputDB(FOwner).RefreshData;
+          end;
+      end;
+    end;
+  except
+    Terminate;
   end;
 end;
 
