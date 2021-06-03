@@ -102,7 +102,15 @@ begin
     end;
   end
   else
+  begin
     inherited;
+    if pgcContent.ActivePage.Name = ts1.Name then
+      strngrd1.SetFocus
+    else if pgcContent.ActivePage.Name = ts2.Name then
+      strngrd2.SetFocus
+    else if pgcContent.ActivePage.Name = ts3.Name then
+      strngrd3.SetFocus;
+  end;
 end;
 
 procedure TfrmRctReceteDetaylar.cbbpara_birimiChange(Sender: TObject);

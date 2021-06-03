@@ -32,8 +32,6 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
       ExplicitWidth = 671
       ExplicitHeight = 399
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 663
         ExplicitHeight = 371
       end
@@ -50,8 +48,6 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
         ExplicitHeight = 100
         inherited tsHeader: TTabSheet
           Caption = 'Genel'
-          ExplicitLeft = 24
-          ExplicitTop = 4
           ExplicitWidth = 743
           ExplicitHeight = 92
           object lblurun_kodu: TLabel
@@ -142,8 +138,6 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
           end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitLeft = 24
-          ExplicitTop = 4
           ExplicitWidth = 743
           ExplicitHeight = 92
         end
@@ -159,13 +153,11 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
       inherited pgcContent: TPageControl
         Width = 669
         Height = 395
-        ActivePage = ts3
+        ActivePage = ts2
         OnChange = pgcContentChange
         ExplicitWidth = 669
         ExplicitHeight = 395
         inherited ts1: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 661
           ExplicitHeight = 367
           inherited pnl1: TPanel
@@ -230,8 +222,6 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
           end
         end
         inherited ts2: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 661
           ExplicitHeight = 367
           inherited pnl2: TPanel
@@ -256,8 +246,6 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
           end
         end
         inherited ts3: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 661
           ExplicitHeight = 367
           inherited strngrd3: TStringGrid

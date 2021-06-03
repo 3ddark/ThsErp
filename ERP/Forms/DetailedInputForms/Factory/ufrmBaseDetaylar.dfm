@@ -48,8 +48,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       ExplicitWidth = 964
       ExplicitHeight = 437
       inherited tsMain: TTabSheet
-        ExplicitLeft = 0
-        ExplicitTop = 0
         ExplicitWidth = 956
         ExplicitHeight = 409
       end
@@ -79,18 +77,10 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         TabPosition = tpLeft
         object tsHeader: TTabSheet
           Caption = 'Header'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsHeaderDiger: TTabSheet
           Caption = 'Di'#287'er'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
       end
     end
@@ -118,15 +108,11 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         Margins.Top = 2
         Margins.Right = 0
         Margins.Bottom = 0
-        ActivePage = ts1
+        ActivePage = ts3
         Align = alClient
         TabOrder = 1
         object ts1: TTabSheet
           Caption = 'ts1'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnl1: TPanel
             AlignWithMargins = True
             Left = 0
@@ -508,14 +494,10 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         object ts2: TTabSheet
           Caption = 'ts2'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnl2: TPanel
             AlignWithMargins = True
             Left = 0
-            Top = 257
+            Top = 271
             Width = 954
             Height = 134
             Margins.Left = 0
@@ -524,7 +506,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
             Margins.Bottom = 0
             Align = alBottom
             BevelOuter = bvNone
-            TabOrder = 0
+            TabOrder = 1
             object flwpnl2: TFlowPanel
               AlignWithMargins = True
               Left = 3
@@ -540,12 +522,12 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
             Left = 0
             Top = 0
             Width = 954
-            Height = 257
+            Height = 271
             Align = alClient
             DefaultRowHeight = 20
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSizing, goColSizing, goRowMoving, goColMoving, goTabs, goFixedColClick, goFixedRowClick, goFixedHotTrack]
             PopupMenu = pm2
-            TabOrder = 1
+            TabOrder = 0
             StyleElements = []
             OnDblClick = GridDblClick
             OnDrawCell = GridDrawCell
@@ -560,15 +542,11 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         object ts3: TTabSheet
           Caption = 'ts3'
           ImageIndex = 2
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object strngrd3: TStringGrid
             Left = 0
             Top = 0
             Width = 954
-            Height = 257
+            Height = 271
             Align = alClient
             DefaultRowHeight = 20
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSizing, goColSizing, goRowMoving, goColMoving, goTabs, goFixedColClick, goFixedRowClick, goFixedHotTrack]
@@ -587,7 +565,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
           object pnl3: TPanel
             AlignWithMargins = True
             Left = 0
-            Top = 257
+            Top = 271
             Width = 954
             Height = 134
             Margins.Left = 0

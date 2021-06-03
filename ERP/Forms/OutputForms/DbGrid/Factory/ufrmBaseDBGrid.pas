@@ -736,15 +736,15 @@ end;
 
 procedure TfrmBaseDBGrid.FormDestroy(Sender: TObject);
 begin
-  if not FIsHelper then
-  begin
-//    FRefresher.Terminate;
-//    Sleep(50);
-//    Table.Unlisten;
+//  FRefresher.Terminate;
+//  Sleep(50);
+//  Table.Unlisten;
 
-    Table.Database.EventAlerter.Active := False;
-    Table.Database.EventAlerter.Names.Delete(Table.Database.EventAlerter.Names.IndexOf(Table.TableName));
-  end;
+//  if not FIsHelper then
+//  begin
+//    Table.Database.EventAlerter.Active := False;
+//    Table.Database.EventAlerter.Names.Delete(Table.Database.EventAlerter.Names.IndexOf(Table.TableName));
+//  end;
 
   FreeAndNil(FGridColWidth);
 
@@ -1443,13 +1443,13 @@ begin
   begin
     if Assigned(Table) then
     begin
-//      Table.Listen;
-//      Sleep(50);
-//      FRefresher := ThreadRefresh.Create(Self, False);
+      //Table.Listen;
+      //Sleep(50);
+      //FRefresher := ThreadRefresh.Create(Self, False);
     end;
 //    Table.Database.EventAlerter.OnAlert := dm.EventAlerterAlert;
-    Table.Database.EventAlerter.Names.AddObject(Table.TableName, Table.QueryOfDS);
-    Table.Database.EventAlerter.Active := True;
+//    Table.Database.EventAlerter.Names.AddObject(Table.TableName, Table.QueryOfDS);
+//    Table.Database.EventAlerter.Active := True;
   end;
 
   PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
@@ -2582,9 +2582,11 @@ var
   oConn: TPgConnection;
   sName, sParam: String;
   iProcID, n1: Integer;
+  LRefresh: Boolean;
 begin
   while not Terminated do
   try
+    LRefresh := False;
     Sleep(100);
     if GDataBase.FDPhyPG.DriverIntf.ConnectionCount > 0 then
     begin
@@ -2595,11 +2597,15 @@ begin
           oConn := GDataBase.FDPhyPG.DriverIntf.Connections[n1].CliObj;
           if oConn.CheckForInput() then
             while oConn.ReadNotifies(sName, iProcID, sParam) do
-              Synchronize(TfrmBaseDBGrid(FOwner).RefreshData);
+              if sName = TfrmBaseDBGrid(FOwner).Table.TableName then
+                LRefresh := True;
           Break;
         end;
       end;
     end;
+
+    if LRefresh then
+      Synchronize(TfrmBaseDBGrid(FOwner).RefreshData);
   except
     Terminate;
   end;

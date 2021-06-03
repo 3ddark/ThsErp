@@ -630,6 +630,11 @@ procedure TfrmHesapKarti.ShowHideMukellefTipi;
 begin
   if edtmukellef_tipi_id.Text = 'TCKN' then
   begin
+    lblvergi_dairesi.Visible := False;
+    edtvergi_dairesi.Visible := False;
+    lblvergi_no.Visible := False;
+    edtvergi_no.Visible := False;
+
     lblmukellef_adi.Visible := True;
     edtmukellef_adi.Visible := True;
     lblmukellef_ikinci_adi.Visible := True;
@@ -639,6 +644,11 @@ begin
   end
   else
   begin
+    lblvergi_dairesi.Visible := True;
+    edtvergi_dairesi.Visible := True;
+    lblvergi_no.Visible := True;
+    edtvergi_no.Visible := True;
+
     lblmukellef_adi.Visible := False;
     edtmukellef_adi.Visible := False;
     lblmukellef_ikinci_adi.Visible := False;
