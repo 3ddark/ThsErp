@@ -29,8 +29,8 @@ uses
 
   Ths.Erp.Helper.BaseTypes,
   Ths.Erp.Helper.Edit,
-  Ths.Erp.Helper.ComboBox,
   Ths.Erp.Helper.Memo,
+  Ths.Erp.Helper.ComboBox,
   Ths.Erp.Helper.StringGrid,
 
   ufrmBase,
@@ -413,8 +413,8 @@ begin
       begin
         LStokKarti := TStkStokKarti.Create(Table.Database);
         LFrmStokKarti := TfrmStkStokKartlari.Create(TEdit(Sender), Self, LStokKarti, fomNormal, True);
-        LFrmStokKarti.QueryDefaultFilterUserDefined := ' AND (' + LStokKarti.UrunTipiID.FieldName + '=' + Ord(TStkUrunTipi.sutMamul).ToString + ' OR ' +
-                                                                  LStokKarti.UrunTipiID.FieldName + '=' + Ord(TStkUrunTipi.sutYariMamul).ToString + ')';
+        LFrmStokKarti.QryFiltreVarsayilanKullanici := ' AND (' + LStokKarti.UrunTipiID.FieldName + '=' + Ord(TStkUrunTipi.sutMamul).ToString + ' OR ' +
+                                                                 LStokKarti.UrunTipiID.FieldName + '=' + Ord(TStkUrunTipi.sutYariMamul).ToString + ')';
         try
           LFrmStokKarti.ShowModal;
 

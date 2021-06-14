@@ -167,11 +167,16 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     ExplicitWidth = 817
     inherited btnAccept: TButton
       Left = 608
+      TabOrder = 2
       ExplicitLeft = 608
     end
     inherited btnClose: TButton
       Left = 712
+      TabOrder = 3
       ExplicitLeft = 712
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar
@@ -386,5 +391,20 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     OnTimer = Timer1Timer
     Left = 248
     Top = 368
+  end
+  object frxXLSExport1: TfrxXLSExport
+    UseFileCache = True
+    ShowProgress = True
+    OverwritePrompt = False
+    DataOnly = False
+    ExportEMF = True
+    AsText = False
+    Background = True
+    FastExport = True
+    PageBreaks = True
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 312
+    Top = 312
   end
 end

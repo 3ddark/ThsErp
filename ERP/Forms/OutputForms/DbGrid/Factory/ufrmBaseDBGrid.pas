@@ -76,7 +76,7 @@ uses
   Ths.Erp.Database.Table.SysLisanDataIcerik,
   ufrmSysLisanDataIcerik,
   Ths.Erp.Database.Table.SysLisanGuiIcerik,
-  ufrmSysLisanGuiIcerik;
+  ufrmSysLisanGuiIcerik, frxExportXLS;
 
 type
   TSortType = (stNone, stAsc, stDesc);
@@ -163,6 +163,7 @@ type
     actfilter_exclude: TAction;
     actfilter_remove: TAction;
     Timer1: TTimer;
+    frxXLSExport1: TfrxXLSExport;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
     procedure FormResize(Sender: TObject); override;
@@ -301,7 +302,7 @@ type
     function GetPercentMaxVal(pField: TField): Double;virtual;
 
     property QryFiltreVarsayilan: string read FQryFiltreVarsayilan write FQryFiltreVarsayilan;
-    property QueryDefaultFilterUserDefined: string read FQryFiltreVarsayilanKullanici write FQryFiltreVarsayilanKullanici;
+    property QryFiltreVarsayilanKullanici: string read FQryFiltreVarsayilanKullanici write FQryFiltreVarsayilanKullanici;
     property QueryDefaultOrder: string read FQrySiralamaVarsayilan write FQrySiralamaVarsayilan;
     property FiltreGrid: TStringList read FFiltreGrid write FFiltreGrid;
 
@@ -2000,9 +2001,17 @@ begin
 
             if Assigned(ACol) then
             begin
-              ACol.Index := VarToInt(FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).SiraNo));
-              ACol.Width := VarToInt(FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).Genislik));
-              ACol.Visible := FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).IsGorunsun);
+              with TSysGridKolon(FGridColWidth.List[n1]) do
+              try
+                ACol.Index := VarToInt(FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).SiraNo));
+                ACol.Width := VarToInt(FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).Genislik));
+                ACol.Visible := FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).IsGorunsun);
+              except
+                on E: Exception do
+                begin
+                  ShowMessage(E.Message + AddLBs(2) + ACol.FieldName + ' bulunamadı!');
+                end;
+              end;
             end;
             Break;
           end;
@@ -2425,25 +2434,26 @@ begin
 end;
 
 procedure TfrmBaseDBGrid.TransferToExcelAll();
-//var
-//  vFileName: string;
 var
-//  nR: Integer;
+  vFileName: string;
+var
+  nR: Integer;
   nC: Integer;
-//  SaveDialogExcelFile:TSaveDialog;
+  SaveDialogExcelFile:TSaveDialog;
   strTemp:string;
-//  dTemp:double;
+  dTemp:double;
 
-//  strFileName:string;
-//  rs:TResourceStream;
-//  nVisilbeColCount:integer;
-//  nVisibleColNumber:array of integer;
-//  qry: TFDQuery;
+  strFileName:string;
+  rs:TResourceStream;
+  nVisilbeColCount:integer;
+  nVisibleColNumber:array of integer;
+  qry: TFDQuery;
   ATable: TTable;
   AGridFilter: string;
-//  OpenWithControl: Boolean;
+  OpenWithControl: Boolean;
+  //dxSpreadSheet1: TdxSpreadSheet;
 begin
-//  OpenWithControl := isCtrlDown;
+  OpenWithControl := isCtrlDown;
 
   dlgSave.Filter := FILE_FILTER_XLSX;
   dlgSave.DefaultExt := FILE_EXT_XLSX;
@@ -2466,19 +2476,19 @@ begin
   ATable.SelectToDatasource(AGridFilter, False, True, False);
   ATable.QueryOfDS.DisableControls;
   try
-//    for nC := 0 to ATable.QueryOfDS.FieldCount-1 do
-//    begin
+    for nC := 0 to ATable.QueryOfDS.FieldCount-1 do
+    begin
 //      if OpenWithControl then
-//        ATable.QueryOfDS.Fields.Fields[nC].DisplayName + '['+ATable.QueryOfDS.Fields.Fields[nC].FieldName+']'
-//      else
-//        ATable.QueryOfDS.Fields.Fields[nC].DisplayName;
+//        ATable.QueryOfDS.Fields.Fields[nC].DisplayName + '['+ATable.QueryOfDS.Fields.Fields[nC].FieldName+']';
+//
+//      dxSpreadSheet1.ActiveSheetAsTable.Columns.Items[0].Cells
 //      Font.Style := [fsBold];
 //      AlignHorz := ssahCenter;
 //      AlignVert := ssavCenter;
 //      BackgroundColor := clLtGray;
-//    end;
+    end;
 
-//    nR := 1;
+    nR := 1;
     ATable.QueryOfDS.First;
     while not ATable.QueryOfDS.Eof do
     begin
@@ -2494,7 +2504,7 @@ begin
         begin
           if strTemp <> '' then
           begin
-//            StrToDateTime(strTemp);
+            StrToDateTime(strTemp);
 //            FormatCode := 'DD.MM.YYYY';
           end;
         end
@@ -2503,7 +2513,7 @@ begin
         begin
           if strTemp <> '' then
           begin
-//            dTemp := StrToFloat(strTemp);
+            dTemp := StrToFloat(strTemp);
 //            AsFloat := dTemp;
 //            FormatCode := '0.00';
           end;
@@ -2526,12 +2536,12 @@ begin
 //          AsString := strTemp
       end;
       ATable.QueryOfDS.Next;
-//      Inc(nR);
+      Inc(nR);
     end;
 
 //    for nC := 0 to dxSpreadSheet1.ActiveSheetAsTable.Columns.Count-1 do
 //      dxSpreadSheet1.ActiveSheetAsTable.Columns.Items[nC].ApplyBestFit;
-
+//
 //    dxSpreadSheet1.SaveToFile(dlgSave.FileName);
   finally
     FreeAndNil(ATable);

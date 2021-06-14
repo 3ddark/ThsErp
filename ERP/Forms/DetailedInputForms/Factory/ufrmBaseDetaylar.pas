@@ -713,7 +713,7 @@ var
         TEdit(vControl).CharCase := VCL.StdCtrls.ecUpperCase;
         TEdit(vControl).MaxLength := pColumns.CharacterMaximumLength.Value;
         TEdit(vControl).thsDBFieldName := pColumns.OrjColumnName.Value;
-        TEdit(vControl).thsRequiredData := pColumns.IsNullable.Value = 'NO';
+        TEdit(vControl).thsRequiredData := not pColumns.IsNullable.Value;
         TEdit(vControl).thsActiveYear4Digit := GSysUygulamaAyari.Donem.Value;
         TEdit(vControl).OnCalculatorProcess := nil;
 
@@ -774,7 +774,7 @@ var
         TMemo(vControl).CharCase := VCL.StdCtrls.ecUpperCase;
         TMemo(vControl).MaxLength := pColumns.CharacterMaximumLength.Value;
         TMemo(vControl).thsDBFieldName := pColumns.OrjColumnName.Value;
-        TMemo(vControl).thsRequiredData := pColumns.IsNullable.Value = 'NO';
+        TMemo(vControl).thsRequiredData := not pColumns.IsNullable.Value;
 
         if (pColumns.DataType.Value = 'text')
         or (pColumns.DataType.Value = 'character varying')
@@ -829,7 +829,7 @@ var
         if (pColumns.DataType.Value = 'smallint') then
           TCombobox(vControl).MaxLength := IfThen(pColumns.CharacterMaximumLength.Value > 5, 5, pColumns.CharacterMaximumLength.Value);
         TCombobox(vControl).thsDBFieldName := pColumns.OrjColumnName.Value;
-        TCombobox(vControl).thsRequiredData := pColumns.IsNullable.Value = 'NO';
+        TCombobox(vControl).thsRequiredData := not pColumns.IsNullable.Value;
 
         TCombobox(vControl).thsInputDataType := itString;
 
@@ -873,8 +873,9 @@ begin
     for n1 := 0 to TPageControl(vPageControl).PageCount-1 do
     begin
       vParent := TPageControl(vPageControl).Pages[n1];
-      for n2 := 0 to SysTableInfo.List.Count-1 do
-        SubSetControlProperty(vParent, TSysViewColumns(SysTableInfo.List[n2]));
+      for n2 := 0 to GSysTableInfo.List.Count-1 do
+        if TSysViewColumns(GSysTableInfo.List[n2]).OrjTableName.Value = Table.TableName then
+          SubSetControlProperty(vParent, TSysViewColumns(GSysTableInfo.List[n2]));
     end;
 
     //is_contain_table(Table) evet ise control set yap hayýr ise çýk
@@ -913,8 +914,8 @@ begin
   else
   begin
     vParent := pnlMain;
-    for n1 := 0 to SysTableInfo.List.Count-1 do
-      SubSetControlProperty(vParent, TSysViewColumns(SysTableInfo.List[n1]));
+    for n1 := 0 to GSysTableInfo.List.Count-1 do
+      SubSetControlProperty(vParent, TSysViewColumns(GSysTableInfo.List[n1]));
     //ilk önce sýnýfa ait tüm kontrolleri düzenle
     //daha sonra rtti ile table sýnýfý taranacak ve içinde ttable tipinden bir field varsa
     //table sýnýfý bulunup buradan sysviewcolums bilgileri çekilecek.

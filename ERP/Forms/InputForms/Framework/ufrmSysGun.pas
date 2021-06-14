@@ -35,6 +35,7 @@ type
   published
     procedure btnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject);override;
+    procedure RefreshData; override;
   end;
 
 implementation
@@ -63,6 +64,11 @@ procedure TfrmSysGun.FormCreate(Sender: TObject);
 begin
   inherited;
   edtgun_adi.CharCase := ecNormal;
+end;
+
+procedure TfrmSysGun.RefreshData;
+begin
+  edtgun_adi.Text := VarToStr(TSysGun(Table).GunAdi.Value);
 end;
 
 end.

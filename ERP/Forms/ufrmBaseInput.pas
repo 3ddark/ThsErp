@@ -71,8 +71,6 @@ type
     procedure SetControlDBProperty(pIsOnlyRepaint: Boolean = False; AParent: TControl = nil);
 
     procedure OnCalculate(Sender: TObject);
-  private
-    FSysTableInfo: TSysViewColumns;
   published
     function getContainTable(pTable: TTable): TTable;
   protected
@@ -80,11 +78,6 @@ type
     procedure SetControlsDisabledOrEnabled(pPanelGroupboxPagecontrolTabsheet: TWinControl = nil; pIsDisable: Boolean = True);
     procedure SetCaptionFromLangContent();
     procedure SetLabelPopup(Sender: TControl = nil);
-
-    /// <summary>
-    ///  Table sýnýfýndaki field özelliklerini almak için kullanýlýyor.
-    /// </summary>
-    property SysTableInfo: TSysViewColumns read FSysTableInfo write FSysTableInfo;
   published
     procedure FormShow(Sender: TObject); override;
     procedure FormDestroy(Sender: TObject); override;
@@ -125,17 +118,8 @@ procedure TfrmBaseInput.FormCreate(Sender: TObject);
 begin
   inherited;
 
-  if Assigned(Table) then
-  begin
-    FSysTableInfo := TSysViewColumns.Create(Table.Database);
-    FSysTableInfo.SelectToList(' AND ' + FSysTableInfo.TableName + '.' + FSysTableInfo.OrjTableName.FieldName + '=' + QuotedStr(Table.TableName), False, False);
-  end;
-
   pmLabels.Images := dm.il16;
   mniAddLanguageContent.ImageIndex := IMG_ADD_DATA;
-
-  if Assigned(Table) then
-    GSysOndalikHane.SelectToList('', False, False);
 
   pnlBottom.Visible := False;
   stbBase.Visible := True;
@@ -144,7 +128,6 @@ end;
 
 procedure TfrmBaseInput.FormDestroy(Sender: TObject);
 begin
-  FSysTableInfo.Free;
   inherited;
 end;
 
@@ -496,7 +479,7 @@ var
         AEdit.CharCase := VCL.StdCtrls.ecUpperCase;
         AEdit.MaxLength := pColumns.CharacterMaximumLength.Value;
         AEdit.thsDBFieldName := pColumns.OrjColumnName.Value;
-        AEdit.thsRequiredData := pColumns.IsNullable.Value = 'NO';
+        AEdit.thsRequiredData := not pColumns.IsNullable.Value;
         AEdit.thsActiveYear4Digit := GSysUygulamaAyari.Donem.Value;
         AEdit.OnCalculatorProcess := nil;
 
@@ -553,7 +536,7 @@ var
         AMemo.CharCase := VCL.StdCtrls.ecUpperCase;
         AMemo.MaxLength := pColumns.CharacterMaximumLength.Value;
         AMemo.thsDBFieldName := pColumns.OrjColumnName.Value;
-        AMemo.thsRequiredData := pColumns.IsNullable.Value = 'NO';
+        AMemo.thsRequiredData := not pColumns.IsNullable.Value;
 
         if (pColumns.DataType.Value = 'text')
         or (pColumns.DataType.Value = 'character varying') then
@@ -602,7 +585,7 @@ var
         if (pColumns.DataType.Value = 'smallint') then
           ACombo.MaxLength := IfThen(pColumns.CharacterMaximumLength.Value > 5, 5, pColumns.CharacterMaximumLength.Value);
         ACombo.thsDBFieldName := pColumns.OrjColumnName.Value;
-        ACombo.thsRequiredData := pColumns.IsNullable.Value = 'NO';
+        ACombo.thsRequiredData := not pColumns.IsNullable.Value;
 
         ACombo.thsInputDataType := itString;
 
@@ -644,8 +627,8 @@ begin
         for I2 := 0 to TPageControl(vPageControl).PageCount-1 do
         begin
           vParent := TPageControl(vPageControl).Pages[I2];
-          for n1 := 0 to FSysTableInfo.List.Count-1 do
-            SubSetControlProperty(vParent, TSysViewColumns(FSysTableInfo.List[n1]));
+          for n1 := 0 to GSysTableInfo.List.Count-1 do
+            SubSetControlProperty(vParent, TSysViewColumns(GSysTableInfo.List[n1]));
         end;
       end;
     end;

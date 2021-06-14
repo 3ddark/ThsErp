@@ -212,6 +212,8 @@ const
 
 
 
+  MODULE_DEVELOPER = '100000';      //Geliştiri Ayarları Hakkı
+
   MODULE_CH_AYAR = '1030';          //Cari Hesap Kartı Ayar
   MODULE_CH_KAYIT = '1031';         //Cari Hesap Kartı Kayıt
   MODULE_CH: TArray<string> = [MODULE_CH_AYAR, MODULE_CH_KAYIT];

@@ -564,6 +564,11 @@ var
   /// </summary>
   GParaBirimi: TSysParaBirimi;
 
+  /// <summary>
+  ///  Table sýnýfýndaki field özelliklerini almak için kullanýlýyor.
+  /// </summary>
+  GSysTableInfo: TSysViewColumns;
+
 implementation
 
 class function TObjectClone.From<T>(Source: T): T;
@@ -2463,7 +2468,7 @@ begin
     vSysInputGui.SelectToList(' AND ' + vSysInputGui.TableName + '.' + vSysInputGui.TableName1.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(pTableName)) +
                               ' AND ' + vSysInputGui.TableName + '.' + vSysInputGui.ColumnName.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(pFieldName)), False, False);
     if vSysInputGui.List.Count=1 then
-      Result := TSysViewColumns(vSysInputGui.List[0]).IsNullable.Value = 'NO';
+      Result := not TSysViewColumns(vSysInputGui.List[0]).IsNullable.Value;
   finally
     vSysInputGui.Free;
   end;
@@ -2656,5 +2661,6 @@ finalization
   GSysGun.Free;
   GSysAy.Free;
   GParaBirimi.Free;
+  GSysTableInfo.Free;
 end.
 

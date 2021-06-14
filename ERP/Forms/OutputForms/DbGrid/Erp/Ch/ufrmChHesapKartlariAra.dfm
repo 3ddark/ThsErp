@@ -5,7 +5,7 @@ inherited frmHesapKartlariAra: TfrmHesapKartlariAra
   inherited pnlMain: TPanel
     inherited pnlHeader: TPanel
       inherited lblFilterHelper: TLabel
-        Height = 22
+        Height = 13
       end
     end
   end

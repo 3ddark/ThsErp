@@ -29,6 +29,7 @@ uses
 
   Ths.Erp.Helper.BaseTypes,
   Ths.Erp.Helper.Edit,
+  Ths.Erp.Helper.Memo,
   Ths.Erp.Helper.ComboBox,
   Ths.Erp.Helper.StringGrid,
 
@@ -478,7 +479,7 @@ begin
       begin
         LCH := TChHesapKarti.Create(Table.Database);
         LFrmCH := TfrmHesapKartlari.Create(TEdit(Sender), Self, LCH, fomNormal, True);
-        LFrmCH.QueryDefaultFilterUserDefined := ' AND ' + LCH.TableName + '.' + LCH.HesapTipiID.FieldName + '=' + Ord(TChHesapTipi.Son).ToString;
+        LFrmCH.QryFiltreVarsayilanKullanici := ' AND ' + LCH.TableName + '.' + LCH.HesapTipiID.FieldName + '=' + Ord(TChHesapTipi.Son).ToString;
         try
           LFrmCH.ShowModal;
           if LFrmCH.DataAktar then

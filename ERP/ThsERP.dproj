@@ -366,6 +366,9 @@
         <DCCReference Include="BackEnd\Framework\Ths.Erp.Database.Table.View.SysViewColumns.pas"/>
         <DCCReference Include="BackEnd\Framework\Ths.Erp.Database.Table.View.SysDbStatus.pas"/>
         <DCCReference Include="BackEnd\Framework\Ths.Erp.Database.Table.View.SysViewTables.pas"/>
+        <DCCReference Include="Forms\OtherForms\ufrmViewerExcel.pas">
+            <Form>FrmViewerExcel</Form>
+        </DCCReference>
         <DCCReference Include="Forms\OutputForms\DbGrid\Framework\ufrmSysTables.pas">
             <Form>frmSysTables</Form>
         </DCCReference>

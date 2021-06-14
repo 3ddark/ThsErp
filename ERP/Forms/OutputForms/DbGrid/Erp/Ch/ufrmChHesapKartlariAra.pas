@@ -39,7 +39,7 @@ uses
   frxExportBaseDialog,
   frxExportPDF,
   ufrmBase,
-  ufrmBaseDBGrid;
+  ufrmBaseDBGrid, frxExportXLS;
 
 type
   TfrmHesapKartlariAra = class(TfrmBaseDBGrid)
@@ -73,7 +73,7 @@ end;
 
 procedure TfrmHesapKartlariAra.FormShow(Sender: TObject);
 begin
-  QueryDefaultFilterUserDefined :=
+  QryFiltreVarsayilanKullanici :=
   ' AND (' + Table.TableName + '.' + TChHesapKartiAra(Table).HesapTipiID.FieldName + '=' + IntToStr(Ord(htAra)) +
    ' OR (' + TChHesapKartiAra(Table).SeviyeSayisi.FieldName + '=' + IntToStr(2) + ' AND '
            + Table.TableName + '.' + TChHesapKartiAra(Table).HesapTipiID.FieldName + '=' + IntToStr(Ord(htAna)) + '))';

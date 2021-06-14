@@ -188,7 +188,7 @@ end;
 
 procedure TfrmBaseDetaylarDetay.FormDestroy(Sender: TObject);
 begin
-  SysTableInfo.Free;
+  GSysTableInfo.Free;
   frmConfirmation.Free;
 
   if FormMode = ifmNewRecord then

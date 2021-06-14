@@ -32,8 +32,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
       ExplicitWidth = 792
       ExplicitHeight = 175
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 784
         ExplicitHeight = 147
       end
@@ -50,8 +48,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
         ExplicitHeight = 324
         inherited tsHeader: TTabSheet
           Caption = 'Genel'
-          ExplicitLeft = 16
-          ExplicitTop = 4
           ExplicitWidth = 864
           ExplicitHeight = 316
           object lblsiparis_no: TLabel
@@ -710,8 +706,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitLeft = 24
-          ExplicitTop = 4
           ExplicitWidth = 864
           ExplicitHeight = 316
         end
@@ -730,8 +724,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
         ExplicitWidth = 790
         ExplicitHeight = 171
         inherited ts1: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 782
           ExplicitHeight = 143
           inherited pnl1: TPanel
@@ -760,14 +752,11 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited ts2: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 782
           ExplicitHeight = 143
           inherited pnl2: TPanel
             Top = 9
             Width = 782
-            TabOrder = 1
             ExplicitTop = 9
             ExplicitWidth = 782
             inherited flwpnl2: TFlowPanel
@@ -778,14 +767,11 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           inherited strngrd2: TStringGrid
             Width = 782
             Height = 9
-            TabOrder = 0
             ExplicitWidth = 782
             ExplicitHeight = 9
           end
         end
         inherited ts3: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 782
           ExplicitHeight = 143
           inherited strngrd3: TStringGrid

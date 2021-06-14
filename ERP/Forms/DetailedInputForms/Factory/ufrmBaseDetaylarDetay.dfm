@@ -20,6 +20,12 @@ inherited frmBaseDetaylarDetay: TfrmBaseDetaylarDetay
       Height = 414
       ExplicitWidth = 668
       ExplicitHeight = 414
+      inherited tsMain: TTabSheet
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
+      end
     end
   end
   inherited pnlBottom: TPanel

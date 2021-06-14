@@ -680,8 +680,6 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
           end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitLeft = 24
-          ExplicitTop = 4
           ExplicitWidth = 864
           ExplicitHeight = 315
           object lblProformaNo: TLabel
@@ -1005,14 +1003,11 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
           end
         end
         inherited ts2: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 782
           ExplicitHeight = 144
           inherited pnl2: TPanel
             Top = 42
             Width = 782
-            TabOrder = 1
             ExplicitTop = 10
             ExplicitWidth = 782
             inherited flwpnl2: TFlowPanel
@@ -1023,26 +1018,23 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
           inherited strngrd2: TStringGrid
             Width = 782
             Height = 42
-            TabOrder = 0
             ExplicitWidth = 782
             ExplicitHeight = 10
           end
         end
         inherited ts3: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 782
-          ExplicitHeight = 144
+          ExplicitHeight = 176
           inherited strngrd3: TStringGrid
             Width = 782
             Height = 42
             ExplicitWidth = 782
-            ExplicitHeight = 10
+            ExplicitHeight = 42
           end
           inherited pnl3: TPanel
             Top = 42
             Width = 782
-            ExplicitTop = 10
+            ExplicitTop = 42
             ExplicitWidth = 782
             inherited flwpnl3: TFlowPanel
               Width = 776

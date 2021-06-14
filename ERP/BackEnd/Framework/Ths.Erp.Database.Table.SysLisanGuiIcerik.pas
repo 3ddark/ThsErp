@@ -206,7 +206,7 @@ begin
   vSysLangGuiContent := TSysLisanGuiIcerik.Create(Self.Database);
   try
     if FormatedVariantVal(FTabloAdi.DataType, FTabloAdi.Value) <> '' then
-      vDmpFilter := ' AND table_name=' + QuotedStr(FormatedVariantVal(FTabloAdi.DataType, FTabloAdi.Value));
+      vDmpFilter := ' AND ' + vSysLangGuiContent.FTabloAdi.QryName + '=' + QuotedStr(FormatedVariantVal(FTabloAdi.DataType, FTabloAdi.Value));
 
     vSysLangGuiContent.SelectToList(' AND ' + TableName + '.' + FLisan.FieldName + '=' + QuotedStr(FormatedVariantVal(FLisan.DataType, FLisan.Value)) +
                                     ' AND ' + TableName + '.' + FKod.FieldName + '=' + QuotedStr(FormatedVariantVal(FKod.DataType, FKod.Value)) +

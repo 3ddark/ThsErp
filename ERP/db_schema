@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.2
--- Dumped by pg_dump version 12.2
+-- Dumped from database version 12.5
+-- Dumped by pg_dump version 12.5
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,6 +15,20 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS dblink WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION dblink; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION dblink IS 'connect to other PostgreSQL databases from within a database';
+
 
 --
 -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
@@ -155,61 +169,67 @@ ALTER FUNCTION public.audit() OWNER TO ths_admin;
 
 CREATE FUNCTION public.audit_old() RETURNS trigger
     LANGUAGE plpgsql SECURITY DEFINER
-    AS $$DECLARE
-	_username varchar;
-	_ip varchar;
-	_table_name varchar;
-	_orj_table_name varchar;
-	_row_id integer;
-	_access_type varchar;
-	_time_of_change timestamp without time zone;
-	_db_name varchar;
-	_old_data text;
-    BEGIN
-	_username 		:= (upper(session_user)); 
-	_ip 			:= (inet_client_addr());
-	_table_name 		:= (upper(TG_TABLE_NAME)); 
-	_orj_table_name		:= (TG_TABLE_NAME);
-	_time_of_change 	:= (now());
-	_db_name 		:= (current_database());
-	_old_data		:= '';
-
-	IF (TG_OP = 'INSERT') THEN
-		_access_type 	:= (TG_OP);
-		_row_id 	:= (NEW.id);
-        END IF;
-
-        IF (TG_OP = 'UPDATE') THEN
-	    IF (OLD.validity = TRUE  AND  NEW.validity = FALSE) THEN
-		_access_type 	:= quote_literal('VIRTUAL_DELETE');
-		_row_id 	:= quote_literal(OLD.id);
-	    ELSE
-		_access_type 	:= (TG_OP);
-		_row_id 	:= (OLD.id);
-		--_old_data	:= (SELECT * FROM _orj_table_name);
-	    END IF;
-	END IF;
-
-	IF (TG_OP = 'DELETE') THEN
-            _access_type	:= (TG_OP);
-            _row_id 		:= (OLD.id);
-        END IF;
-
-
-	PERFORM dblink('host=localhost user=postgres password=123 dbname=ths_erp2017_log port=5432', 
-	'INSERT INTO audit(username, ip, table_name, access_type, time_of_change, row_id, db_name, old_data) ' || 
-	'VALUES(' || 
-		(quote_literal(_username)) || ',' || 
-		(quote_literal(_ip)) || ',' ||  
-		(quote_literal(upper(_table_name))) || ',' || 
-		(quote_literal(_access_type)) || ',' || 
-		(quote_literal(_time_of_change)) || ',' ||
-		(quote_literal(_row_id)) || ',' || 
-		(quote_literal(_db_name)) || ',' ||
-		(quote_literal(_old_data)) || ');');
-	    
-        RETURN NULL;
-    END;
+    AS $$
+DECLARE
+	_username varchar;
+	_client_user varchar;
+	_ip varchar;
+	_table_name varchar;
+	_orj_table_name varchar;
+	_row_id integer;
+	_access_type varchar;
+	_time_of_change timestamp without time zone;
+	_db_name varchar;
+	_db_name_log varchar;
+	_old_data text;
+	_new_data text;
+BEGIN
+	_username			:= upper(session_user);
+	_ip					:= inet_client_addr()::text;
+	_client_user		:= (SELECT coalesce(kullanici_adi, '') FROM sys_kullanici WHERE ip_adres=inet_client_addr()::text LIMIT 1);
+	_table_name 		:= TG_TABLE_NAME; 
+	_orj_table_name		:= TG_TABLE_NAME;
+	_time_of_change 	:= now();
+	_db_name			:= current_database();
+	_db_name_log		:= _db_name || '_log';
+	_old_data			:= '';
+	_new_data			:= '';
+	_access_type 	:= (TG_OP);
+
+	IF (TG_OP = 'INSERT') THEN
+		_row_id			:= (NEW.id);
+		_new_data		:= row_to_json(NEW);
+	END IF;
+
+	IF (TG_OP = 'UPDATE') THEN
+		IF OLD.* = NEW.* THEN
+			RETURN NULL;
+		END IF;
+		
+		_row_id 	:= (OLD.id);
+		_old_data	:= row_to_json(OLD);
+		_new_data		:= row_to_json(NEW);
+	END IF;
+
+	IF (TG_OP = 'DELETE') THEN
+		_row_id			:= (OLD.id);
+		_old_data		:= row_to_json(OLD);
+	END IF;
+
+	PERFORM dblink('host=127.0.0.1 port=5432 user=ths_admin password=THS ' || 'dbname=' || _db_name_log,
+		'INSERT INTO audit(uname, ip, table_name, access_type, time_of_change, row_id, old_val, new_val) ' ||
+		'VALUES(' ||
+			(quote_literal(_username)) || ',' ||
+			(quote_literal(_ip)) || ',' ||
+			(quote_literal(upper(_table_name))) || ',' ||
+			(quote_literal(_access_type)) || ',' ||
+			(quote_literal(_time_of_change)) || ',' ||
+			(quote_literal(_row_id)) || ',' ||
+			(quote_literal(_old_data)) || ',' ||
+			(quote_literal(_new_data)) || ');');
+
+	RETURN NULL;
+END;
 $$;
 
 
@@ -342,50 +362,6 @@ $$;
 
 
 ALTER FUNCTION public.spget_crypted_data(pval text) OWNER TO postgres;
-
---
--- Name: spget_default_para_birimi(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spget_default_para_birimi() RETURNS character varying
-    LANGUAGE sql
-    AS $$SELECT code FROM public.sys_unit_currency WHERE is_default limit 1$$;
-
-
-ALTER FUNCTION public.spget_default_para_birimi() OWNER TO postgres;
-
---
--- Name: spget_default_para_birimi_id(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spget_default_para_birimi_id() RETURNS integer
-    LANGUAGE sql
-    AS $$SELECT id FROM public.para_birimi WHERE is_varsayilan limit 1$$;
-
-
-ALTER FUNCTION public.spget_default_para_birimi_id() OWNER TO postgres;
-
---
--- Name: spget_default_stok_tipi(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spget_default_stok_tipi() RETURNS integer
-    LANGUAGE sql
-    AS $$SELECT id FROM ayar_stk_stok_tipi WHERE is_default=true$$;
-
-
-ALTER FUNCTION public.spget_default_stok_tipi() OWNER TO postgres;
-
---
--- Name: spget_default_urun_tipi(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spget_default_urun_tipi() RETURNS integer
-    LANGUAGE sql
-    AS $$SELECT id FROM public.set_stk_urun_tipi WHERE is_default=true limit 1$$;
-
-
-ALTER FUNCTION public.spget_default_urun_tipi() OWNER TO postgres;
 
 --
 -- Name: spget_emp_card_id_list(); Type: FUNCTION; Schema: public; Owner: postgres
@@ -528,6 +504,112 @@ $$;
 
 
 ALTER FUNCTION public.spget_quality_form_no(ptable_name text, pform_type_id integer) OWNER TO postgres;
+
+--
+-- Name: spget_rct_hammadde_maliyet(bigint); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.spget_rct_hammadde_maliyet(prct_recete_id bigint) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	_row record;
+	_toplam numeric;
+BEGIN
+	_toplam := 0;
+	FOR _row IN
+		SELECT h.miktar * s.alis_fiyat tutar FROM rct_recete_hammadde h
+		LEFT JOIN stk_stok_karti s ON s.stok_kodu = h.stok_kodu
+		WHERE h.header_id = prct_recete_id
+	LOOP
+		_toplam := _toplam + coalesce(_row.tutar, 0);
+	END LOOP;
+	
+	RETURN _toplam;
+END;
+$$;
+
+
+ALTER FUNCTION public.spget_rct_hammadde_maliyet(prct_recete_id bigint) OWNER TO postgres;
+
+--
+-- Name: spget_rct_iscilik_maliyet(bigint); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.spget_rct_iscilik_maliyet(prct_recete_id bigint) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	_row record;
+	_toplam numeric;
+BEGIN
+	_toplam := 0;
+	FOR _row IN
+		SELECT (i.miktar * ig.fiyat) tutar FROM rct_recete_iscilik i
+		LEFT JOIN rct_iscilik_gideri ig ON i.gider_kodu = ig.gider_kodu
+		WHERE i.header_id = prct_recete_id
+	LOOP
+		_toplam := _toplam + coalesce(_row.tutar, 0);
+	END LOOP;
+	
+	RETURN _toplam;
+END;
+$$;
+
+
+ALTER FUNCTION public.spget_rct_iscilik_maliyet(prct_recete_id bigint) OWNER TO postgres;
+
+--
+-- Name: spget_rct_toplam(bigint); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.spget_rct_toplam(prct_recete_id bigint) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	_tmp numeric;
+	_toplam numeric;
+BEGIN
+	_toplam := 0;
+	SELECT spget_rct_hammadde_maliyet(prct_recete_id) INTO _tmp;
+	_toplam := _toplam + _tmp;
+	SELECT spget_rct_iscilik_maliyet(prct_recete_id) INTO _tmp;
+	_toplam := _toplam + _tmp;
+	SELECT spget_rct_yan_urun_maliyet(prct_recete_id) INTO _tmp;
+	_toplam := _toplam - _tmp;
+	RETURN _toplam;
+END;
+$$;
+
+
+ALTER FUNCTION public.spget_rct_toplam(prct_recete_id bigint) OWNER TO postgres;
+
+--
+-- Name: spget_rct_yan_urun_maliyet(bigint); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.spget_rct_yan_urun_maliyet(prct_recete_id bigint) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	_row record;
+	_toplam numeric;
+BEGIN
+	_toplam := 0;
+	FOR _row IN
+		SELECT (yu.miktar * s.alis_fiyat) tutar FROM rct_recete_yan_urun yu
+		LEFT JOIN stk_stok_karti s ON s.stok_kodu = yu.stok_kodu
+		WHERE yu.header_id = prct_recete_id
+	LOOP
+		_toplam := _toplam - coalesce(_row.tutar, 0);
+	END LOOP;
+
+	RETURN _toplam;
+END;
+$$;
+
+
+ALTER FUNCTION public.spget_rct_yan_urun_maliyet(prct_recete_id bigint) OWNER TO postgres;
 
 --
 -- Name: spget_set_ch_hesap_tipi_id(integer); Type: FUNCTION; Schema: public; Owner: postgres
@@ -722,6 +804,45 @@ $$;
 ALTER FUNCTION public.spset_user_password(oldpass text, newpass text, userid integer) OWNER TO postgres;
 
 --
+-- Name: spvarsayilan_para_birimi(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.spvarsayilan_para_birimi() RETURNS character varying
+    LANGUAGE sql
+    AS $$
+	SELECT para_birimi FROM sys_para_birimi WHERE is_varsayilan LIMIT 1;
+$$;
+
+
+ALTER FUNCTION public.spvarsayilan_para_birimi() OWNER TO postgres;
+
+--
+-- Name: spvarsayilan_para_birimi_id(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.spvarsayilan_para_birimi_id() RETURNS integer
+    LANGUAGE sql
+    AS $$
+	SELECT id FROM sys_para_birimi WHERE is_varsayilan LIMIT 1;
+$$;
+
+
+ALTER FUNCTION public.spvarsayilan_para_birimi_id() OWNER TO postgres;
+
+--
+-- Name: spvarsayilan_urun_tipi_id(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.spvarsayilan_urun_tipi_id() RETURNS integer
+    LANGUAGE sql
+    AS $$
+	SELECT id FROM set_stk_urun_tipi WHERE urun_tipi='HAMMADDE';
+$$;
+
+
+ALTER FUNCTION public.spvarsayilan_urun_tipi_id() OWNER TO postgres;
+
+--
 -- Name: table_listen(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -790,39 +911,6 @@ $$;
 
 
 ALTER FUNCTION public.table_unlisten(table_name text) OWNER TO postgres;
-
---
--- Name: ths_get_varsayilan_para_birimi_id(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.ths_get_varsayilan_para_birimi_id() RETURNS integer
-    LANGUAGE sql
-    AS $$
-SELECT id FROM public.sys_para_birimi WHERE is_varsayilan limit 1
-$$;
-
-
-ALTER FUNCTION public.ths_get_varsayilan_para_birimi_id() OWNER TO postgres;
-
---
--- Name: log_server; Type: SERVER; Schema: -; Owner: postgres
---
-
-CREATE SERVER log_server FOREIGN DATA WRAPPER postgres_fdw OPTIONS (
-    dbname 'ths_erp_log',
-    host '127.0.0.1',
-    port '5432'
-);
-
-
-ALTER SERVER log_server OWNER TO postgres;
-
---
--- Name: USER MAPPING ths_admin SERVER log_server; Type: USER MAPPING; Schema: -; Owner: postgres
---
-
-CREATE USER MAPPING FOR ths_admin SERVER log_server;
-
 
 SET default_tablespace = '';
 
@@ -2400,15 +2488,15 @@ CREATE TABLE public.stk_stok_karti (
     stok_adi character varying(128) NOT NULL,
     stok_grubu_id integer NOT NULL,
     olcu_birimi_id integer NOT NULL,
-    urun_tipi_id integer DEFAULT public.spget_default_urun_tipi() NOT NULL,
+    urun_tipi_id integer DEFAULT public.spvarsayilan_urun_tipi_id() NOT NULL,
     alis_iskonto numeric(5,2) DEFAULT 0,
     satis_iskonto numeric(5,2) DEFAULT 0,
     alis_fiyat numeric(18,6) DEFAULT 0,
-    alis_para character varying(3) DEFAULT public.ths_get_varsayilan_para_birimi_id() NOT NULL,
+    alis_para character varying(3) DEFAULT public.spvarsayilan_para_birimi() NOT NULL,
     satis_fiyat numeric(18,6) DEFAULT 0,
-    satis_para character varying(3) DEFAULT public.ths_get_varsayilan_para_birimi_id() NOT NULL,
+    satis_para character varying(3) DEFAULT public.spvarsayilan_para_birimi() NOT NULL,
     ihrac_fiyat numeric(18,6) DEFAULT 0,
-    ihrac_para character varying(3) DEFAULT public.ths_get_varsayilan_para_birimi_id() NOT NULL,
+    ihrac_para character varying(3) DEFAULT public.spvarsayilan_para_birimi() NOT NULL,
     ortalama_maliyet numeric(18,6) DEFAULT 0,
     en double precision DEFAULT 0,
     boy double precision DEFAULT 0,
@@ -6293,7 +6381,10 @@ CREATE VIEW public.sys_view_columns AS
  SELECT (row_number() OVER (ORDER BY vt.table_type, columns.table_name, columns.ordinal_position))::integer AS id,
     initcap(replace((columns.table_name)::text, '_'::text, ' '::text)) AS table_name,
     initcap(replace((columns.column_name)::text, '_'::text, ' '::text)) AS column_name,
-    columns.is_nullable,
+        CASE columns.is_nullable
+            WHEN 'YES'::text THEN true
+            ELSE false
+        END AS is_nullable,
     (columns.data_type)::text AS data_type,
     (columns.character_maximum_length)::integer AS character_maximum_length,
     (columns.ordinal_position)::integer AS ordinal_position,
@@ -9415,10 +9506,19 @@ CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.set_rct_iscilik_
 
 
 --
+-- Name: set_stk_urun_tipi audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.set_stk_urun_tipi FOR EACH ROW EXECUTE FUNCTION public.audit_old();
+
+
+--
 -- Name: stk_cins_ozelligi audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.stk_cins_ozelligi FOR EACH ROW EXECUTE FUNCTION public.audit();
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.stk_cins_ozelligi FOR EACH ROW EXECUTE FUNCTION public.audit_old();
+
+ALTER TABLE public.stk_cins_ozelligi DISABLE TRIGGER audit;
 
 
 --
@@ -9478,10 +9578,19 @@ CREATE TRIGGER table_notify AFTER INSERT OR DELETE OR UPDATE ON public.arc_arac 
 
 
 --
+-- Name: set_stk_urun_tipi table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER table_notify BEFORE INSERT OR DELETE OR UPDATE ON public.set_stk_urun_tipi FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
 -- Name: stk_cins_ozelligi table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
 CREATE TRIGGER table_notify BEFORE INSERT OR DELETE OR UPDATE ON public.stk_cins_ozelligi FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+ALTER TABLE public.stk_cins_ozelligi DISABLE TRIGGER table_notify;
 
 
 --
@@ -10397,37 +10506,6 @@ GRANT ALL ON FUNCTION public.spget_crypted_data(pval text) TO ths_admin;
 
 
 --
--- Name: FUNCTION spget_default_para_birimi(); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.spget_default_para_birimi() FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spget_default_para_birimi() TO ths_admin;
-
-
---
--- Name: FUNCTION spget_default_para_birimi_id(); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.spget_default_para_birimi_id() FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spget_default_para_birimi_id() TO ths_admin;
-
-
---
--- Name: FUNCTION spget_default_stok_tipi(); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.spget_default_stok_tipi() FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spget_default_stok_tipi() TO ths_admin;
-
-
---
--- Name: FUNCTION spget_default_urun_tipi(); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.spget_default_urun_tipi() TO ths_admin;
-
-
---
 -- Name: FUNCTION spget_emp_card_id_list(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -10473,6 +10551,38 @@ GRANT ALL ON FUNCTION public.spget_lang_text(_default_value text, _table_name te
 
 REVOKE ALL ON FUNCTION public.spget_quality_form_no(ptable_name text, pform_type_id integer) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.spget_quality_form_no(ptable_name text, pform_type_id integer) TO ths_admin;
+
+
+--
+-- Name: FUNCTION spget_rct_hammadde_maliyet(prct_recete_id bigint); Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON FUNCTION public.spget_rct_hammadde_maliyet(prct_recete_id bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.spget_rct_hammadde_maliyet(prct_recete_id bigint) TO ths_admin;
+
+
+--
+-- Name: FUNCTION spget_rct_iscilik_maliyet(prct_recete_id bigint); Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON FUNCTION public.spget_rct_iscilik_maliyet(prct_recete_id bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.spget_rct_iscilik_maliyet(prct_recete_id bigint) TO ths_admin;
+
+
+--
+-- Name: FUNCTION spget_rct_toplam(prct_recete_id bigint); Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON FUNCTION public.spget_rct_toplam(prct_recete_id bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.spget_rct_toplam(prct_recete_id bigint) TO ths_admin;
+
+
+--
+-- Name: FUNCTION spget_rct_yan_urun_maliyet(prct_recete_id bigint); Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON FUNCTION public.spget_rct_yan_urun_maliyet(prct_recete_id bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.spget_rct_yan_urun_maliyet(prct_recete_id bigint) TO ths_admin;
 
 
 --
@@ -10529,6 +10639,30 @@ GRANT ALL ON FUNCTION public.spset_user_password(oldpass text, newpass text, use
 
 
 --
+-- Name: FUNCTION spvarsayilan_para_birimi(); Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON FUNCTION public.spvarsayilan_para_birimi() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.spvarsayilan_para_birimi() TO ths_admin;
+
+
+--
+-- Name: FUNCTION spvarsayilan_para_birimi_id(); Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON FUNCTION public.spvarsayilan_para_birimi_id() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.spvarsayilan_para_birimi_id() TO ths_admin;
+
+
+--
+-- Name: FUNCTION spvarsayilan_urun_tipi_id(); Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON FUNCTION public.spvarsayilan_urun_tipi_id() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.spvarsayilan_urun_tipi_id() TO ths_admin;
+
+
+--
 -- Name: FUNCTION table_listen(table_name text); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -10558,13 +10692,6 @@ GRANT ALL ON FUNCTION public.table_notify(table_name text) TO ths_admin;
 
 REVOKE ALL ON FUNCTION public.table_unlisten(table_name text) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
-
-
---
--- Name: TABLE sys_view_columns; Type: ACL; Schema: public; Owner: ths_admin
---
-
-REVOKE ALL ON TABLE public.sys_view_columns FROM ths_admin;
 
 
 --

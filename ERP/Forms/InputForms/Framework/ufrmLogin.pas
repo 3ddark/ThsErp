@@ -83,25 +83,25 @@ const
 implementation
 
 uses
-    Vcl.Themes
-  , Vcl.Styles
-  , Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Connection.Settings
-  , Ths.Erp.Database.Table
-  , Ths.Erp.Database.Table.SysKullanici
-  , Ths.Erp.Database.Table.SysLisan
-  , Ths.Erp.Database.Table.SysLisanGuiIcerik
-  , Ths.Erp.Database.Table.SysOndalikHane
-  , Ths.Erp.Database.Table.SysUygulamaAyari
-  , Ths.Erp.Database.Table.SysUygulamaAyariDiger
-  , Ths.Erp.Database.Table.SysGun
-  , Ths.Erp.Database.Table.SysAy
-  , Ths.Erp.Database.Table.SysParaBirimi
-  , ufrmMain
-  ;
+  Vcl.Themes,
+  Vcl.Styles,
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Connection.Settings,
+  Ths.Erp.Database.Table,
+  Ths.Erp.Database.Table.SysKullanici,
+  Ths.Erp.Database.Table.SysLisan,
+  Ths.Erp.Database.Table.SysLisanGuiIcerik,
+  Ths.Erp.Database.Table.SysOndalikHane,
+  Ths.Erp.Database.Table.SysUygulamaAyari,
+  Ths.Erp.Database.Table.SysUygulamaAyariDiger,
+  Ths.Erp.Database.Table.SysGun,
+  Ths.Erp.Database.Table.SysAy,
+  Ths.Erp.Database.Table.SysParaBirimi,
+  Ths.Erp.Database.Table.View.SysViewColumns,
+  ufrmMain;
 
 {$R *.dfm}
 
@@ -172,6 +172,8 @@ begin
         GSysAy := TSysAy.Create(GDataBase);
       if GParaBirimi = nil then
         GParaBirimi := TSysParaBirimi.Create(GDataBase);
+      if GSysTableInfo = nil then
+        GSysTableInfo := TSysViewColumns.Create(GDataBase);
 
       //if AppVersion is wrong then
       //call before the login for use UpdateApplicationExe in Main form
@@ -208,6 +210,8 @@ begin
 
       GSysGun.SelectToList(' ORDER BY 1 ', False, False);
       GSysAy.SelectToList(' ORDER BY 1 ', False, False);
+      GSysTableInfo.SelectToList('', False, False);
+      GSysOndalikHane.SelectToList('', False, False);
 
       ModalResult := mrYes;
 

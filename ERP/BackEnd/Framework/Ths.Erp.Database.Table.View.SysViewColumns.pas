@@ -62,7 +62,7 @@ begin
 
   FTableName  := TFieldDB.Create('table_name', ftString, '', Self, 'Tablo Adý');
   FColumnName := TFieldDB.Create('column_name', ftString, '', Self, 'Kolon Adý');
-  FIsNullable := TFieldDB.Create('is_nullable', ftString, '', Self, 'Null Olabilir');
+  FIsNullable := TFieldDB.Create('is_nullable', ftBoolean, False, Self, 'Null Olabilir');
   FDataType := TFieldDB.Create('data_type', ftString, '', Self, 'Veri Tipi');
   FCharacterMaximumLength := TFieldDB.Create('character_maximum_length', ftInteger, 0, Self, 'Maks Uzunluk');
   FOrdinalPosition := TFieldDB.Create('ordinal_position', ftInteger, 0, Self, 'Kolon Sýrasý');
@@ -170,7 +170,7 @@ end;
 procedure TSysViewColumns.Clear();
 begin
   inherited;
-  FIsNullable.Value := '';
+  FIsNullable.Value := False;
 end;
 
 function TSysViewColumns.Clone: TTable;

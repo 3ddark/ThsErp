@@ -1226,7 +1226,7 @@ begin
           else if (TSysViewColumns(LCols.List[n1]).DataType.Value = 'timestamp without time zone') then
             AField.DataType := ftDateTime;
 
-          AField.IsNullable := VarToStr(FormatedVariantVal(TSysViewColumns(LCols.List[n1]).IsNullable)) = 'YES';
+          AField.IsNullable := TSysViewColumns(LCols.List[n1]).IsNullable.Value;
           break;
         end;
       end;

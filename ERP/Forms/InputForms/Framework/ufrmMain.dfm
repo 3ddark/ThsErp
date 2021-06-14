@@ -402,17 +402,13 @@
       Top = 0
       Width = 737
       Height = 378
-      ActivePage = tsrecete
+      ActivePage = tsch
       Align = alClient
       MultiLine = True
       OwnerDraw = True
       TabOrder = 0
       object tsGenel: TTabSheet
         Caption = 'Genel'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnutd_dokuman: TButton
           Left = 2
           Top = 186
@@ -455,10 +451,6 @@
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -527,10 +519,6 @@
       object tsstok: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -631,10 +619,6 @@
       object tsch: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnDovizKurlari: TButton
           Left = 318
           Top = 2
@@ -647,7 +631,7 @@
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 1
         end
         object btnch_hesap_karti: TButton
           Left = 2
@@ -662,7 +646,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 9
+          TabOrder = 7
         end
         object btnch_hesap_karti_ara: TButton
           Left = 2
@@ -677,7 +661,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 5
           WordWrap = True
         end
         object btnch_banka: TButton
@@ -693,7 +677,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 3
+          TabOrder = 2
         end
         object btnch_banka_subesi: TButton
           Left = 2
@@ -708,37 +692,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 5
-        end
-        object btnset_ch_firma_tipi: TButton
-          Left = 160
-          Top = 2
-          Width = 150
-          Height = 36
-          Action = actset_ch_firma_tipi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 1
-        end
-        object btnset_ch_firma_turu: TButton
-          Left = 160
-          Top = 44
-          Width = 150
-          Height = 36
-          Action = actset_ch_firma_turu
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 4
+          TabOrder = 3
         end
         object btnset_ch_grup: TButton
           Left = 160
@@ -753,7 +707,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 4
         end
         object btnset_ch_hesap_plani: TButton
           Left = 160
@@ -768,22 +722,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 8
-        end
-        object btnset_ch_hesap_tipi: TButton
-          Left = 160
-          Top = 170
-          Width = 150
-          Height = 36
-          Action = actset_ch_hesap_tipi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 10
+          TabOrder = 6
         end
         object btnset_ch_vergi_orani: TButton
           Left = 160
@@ -798,7 +737,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 11
+          TabOrder = 8
         end
         object btnch_bolge: TButton
           Left = 2
@@ -819,10 +758,6 @@
       object tspersonel: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnprs_personel: TButton
           Left = 2
           Top = 2
@@ -1209,22 +1144,6 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 2
-          WordWrap = True
-        end
-        object btnset_rct_iscilik_gider_tipi: TButton
-          Left = 158
-          Top = 86
-          Width = 150
-          Height = 36
-          Action = actset_rct_iscilik_gider_tipi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 3
           WordWrap = True
         end
       end

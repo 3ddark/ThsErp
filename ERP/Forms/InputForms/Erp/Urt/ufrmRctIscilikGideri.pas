@@ -122,8 +122,8 @@ begin
         LHesapKarti := TChHesapKarti.Create(Table.Database);
         LFrmHesapKarti := TfrmHesapKartlari.Create(TEdit(Sender), Self, LHesapKarti, fomNormal, True);
         try
-          LFrmHesapKarti.QueryDefaultFilterUserDefined :=
-            ' AND ' + LHesapKarti.TableName + '.' + LHesapKarti.HesapKodu.FieldName + ' LIKE ''7%'' ' +
+          LFrmHesapKarti.QryFiltreVarsayilanKullanici :=
+            ' AND ' + LHesapKarti.TableName + '.' + LHesapKarti.HesapKodu.FieldName + ' LIKE ''72%'' ' +
             ' AND ' + LHesapKarti.TableName + '.' + LHesapKarti.HesapTipiID.FieldName + '=' + Ord(TChHesapTipi.Son).ToString;
           LFrmHesapKarti.ShowModal;
 

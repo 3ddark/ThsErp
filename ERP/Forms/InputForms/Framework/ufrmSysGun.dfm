@@ -11,20 +11,19 @@ inherited frmSysGun: TfrmSysGun
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 350
-    Height = 55
+    Height = 69
     Color = clWindow
+    ParentColor = False
     ExplicitWidth = 350
-    ExplicitHeight = 58
+    ExplicitHeight = 69
     inherited pgcMain: TPageControl
       Width = 348
-      Height = 53
+      Height = 67
       ExplicitWidth = 348
-      ExplicitHeight = 56
+      ExplicitHeight = 67
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 340
-        ExplicitHeight = 28
+        ExplicitHeight = 39
         object lblgun_adi: TLabel
           Left = 65
           Top = 5
@@ -52,9 +51,9 @@ inherited frmSysGun: TfrmSysGun
     end
   end
   inherited pnlBottom: TPanel
-    Top = 59
+    Top = 73
     Width = 350
-    ExplicitTop = 62
+    ExplicitTop = 73
     ExplicitWidth = 350
     inherited btnAccept: TButton
       Left = 141
@@ -68,7 +67,7 @@ inherited frmSysGun: TfrmSysGun
   inherited stbBase: TStatusBar
     Top = 103
     Width = 354
-    ExplicitTop = 106
+    ExplicitTop = 103
     ExplicitWidth = 354
   end
 end

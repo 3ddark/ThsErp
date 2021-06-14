@@ -120,7 +120,7 @@ begin
         LStk := TStkStokKarti.Create(Table.Database);
         LFrm := TfrmStkStokKartlari.Create(edtstok_kodu, Self, LStk, fomNormal, True);
         try
-          LFrm.QueryDefaultFilterUserDefined := ' AND ' + LStk.StokKodu.QryName + '!=' + QuotedStr(TfrmRctReceteDetaylar(ParentForm).edturun_kodu.Text);
+          LFrm.QryFiltreVarsayilanKullanici := ' AND ' + LStk.StokKodu.QryName + '!=' + QuotedStr(TfrmRctReceteDetaylar(ParentForm).edturun_kodu.Text);
           LFrm.ShowModal;
           if LFrm.DataAktar then
           begin

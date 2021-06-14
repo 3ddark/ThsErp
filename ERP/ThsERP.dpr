@@ -113,6 +113,7 @@ uses
   Ths.Erp.Database.Table.View.SysViewColumns in 'BackEnd\Framework\Ths.Erp.Database.Table.View.SysViewColumns.pas',
   Ths.Erp.Database.Table.View.SysDbStatus in 'BackEnd\Framework\Ths.Erp.Database.Table.View.SysDbStatus.pas',
   Ths.Erp.Database.Table.View.SysViewTables in 'BackEnd\Framework\Ths.Erp.Database.Table.View.SysViewTables.pas',
+  ufrmViewerExcel in 'Forms\OtherForms\ufrmViewerExcel.pas' {FrmViewerExcel},
   ufrmSysTables in 'Forms\OutputForms\DbGrid\Framework\ufrmSysTables.pas' {frmSysTables},
   ufrmSysSifreGuncelle in 'Forms\InputForms\Framework\ufrmSysSifreGuncelle.pas' {frmSysSifreGuncelle},
   ufrmSysDbStatus in 'Forms\OutputForms\DbGrid\Framework\ufrmSysDbStatus.pas' {frmSysDbStatus},

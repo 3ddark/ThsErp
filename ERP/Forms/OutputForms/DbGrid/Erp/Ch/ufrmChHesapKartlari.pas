@@ -32,7 +32,7 @@ uses
   ufrmBase,
   ufrmBaseDBGrid, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
-  System.Actions, Vcl.ActnList;
+  System.Actions, Vcl.ActnList, frxExportXLS;
 
 type
   TfrmHesapKartlari = class(TfrmBaseDBGrid)
@@ -67,7 +67,7 @@ end;
 
 procedure TfrmHesapKartlari.FormShow(Sender: TObject);
 begin
-  QueryDefaultFilterUserDefined := ' AND ' + Table.TableName + '.' + TChHesapKarti(Table).HesapTipiID.FieldName + '=' + getSetChHesapTipiID(htSon).ToString;
+  QryFiltreVarsayilanKullanici := QryFiltreVarsayilanKullanici + ' AND ' + Table.TableName + '.' + TChHesapKarti(Table).HesapTipiID.FieldName + '=' + getSetChHesapTipiID(htSon).ToString;
   inherited;
 end;
 

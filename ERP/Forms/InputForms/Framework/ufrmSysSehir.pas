@@ -62,7 +62,10 @@ begin
   begin
     if (ValidateInput) then
     begin
-      btnAcceptAuto;
+      TSysSehir(Table).SehirAdi.Value := edtsehir_adi.Text;
+      TSysSehir(Table).PlakaKodu.Value := edtplaka_kodu.Text;
+      if cbbulke_adi_id.ItemIndex > -1 then
+        TSysSehir(Table).UlkeID.Value := TSysUlke(cbbulke_adi_id.Items.Objects[cbbulke_adi_id.ItemIndex]).Id.Value;
 
       inherited;
     end;

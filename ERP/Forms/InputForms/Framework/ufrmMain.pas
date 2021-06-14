@@ -181,11 +181,8 @@ type
     actset_ch_hesap_plani: TAction;
     actset_ch_hesap_tipi: TAction;
     actset_ch_vergi_orani: TAction;
-    btnset_ch_firma_tipi: TButton;
-    btnset_ch_firma_turu: TButton;
     btnset_ch_grup: TButton;
     btnset_ch_hesap_plani: TButton;
-    btnset_ch_hesap_tipi: TButton;
     btnset_ch_vergi_orani: TButton;
     actch_bolge: TAction;
     actch_hesap_karti: TAction;
@@ -237,7 +234,6 @@ type
     actrct_paket_hammadde: TAction;
     btnrct_iscilik_gideri: TButton;
     btnrct_paket_hammadde: TButton;
-    btnset_rct_iscilik_gider_tipi: TButton;
 
 /// <summary>
 ///   Kullanýcýnýn eriþim yetkisine göre yapýlacak iþlemler burada olacak
@@ -1449,11 +1445,8 @@ begin
 
           if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_CH_AYAR then
           begin
-            btnset_ch_firma_tipi.Enabled := True;
-            btnset_ch_firma_turu.Enabled := True;
             btnset_ch_grup.Enabled := True;
             btnset_ch_hesap_plani.Enabled := True;
-            btnset_ch_hesap_tipi.Enabled := True;
             btnset_ch_vergi_orani.Enabled := True;
           end
           else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_CH_KAYIT then
@@ -1494,7 +1487,6 @@ begin
           begin
             btnrct_paket_hammadde.Enabled := True;
             btnrct_iscilik_gideri.Enabled := True;
-            btnset_rct_iscilik_gider_tipi.Enabled := True;
           end
           else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_RCT_RECETE_KAYIT then
           begin

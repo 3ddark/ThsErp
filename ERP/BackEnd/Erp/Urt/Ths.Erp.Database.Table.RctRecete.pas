@@ -167,6 +167,10 @@ type
     FReceteAdi: TFieldDB;
     FOrnekUretimMiktari: TFieldDB;
     FAciklama: TFieldDB;
+    FMaliyet: TFieldDB;
+    FHammaddeMaliyet: TFieldDB;
+    FIscilikMaliyet: TFieldDB;
+    FYanUrunMaliyet: TFieldDB;
   protected
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
     procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
@@ -196,6 +200,10 @@ type
     Property ReceteAdi: TFieldDB read FReceteAdi write FReceteAdi;
     Property OrnekUretimMiktari: TFieldDB read FOrnekUretimMiktari write FOrnekUretimMiktari;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
+    property Maliyet: TFieldDB read FMaliyet write FMaliyet;
+    property HammaddeMaliyet: TFieldDB read FHammaddeMaliyet write FHammaddeMaliyet;
+    property IscilikMaliyet: TFieldDB read FIscilikMaliyet write FIscilikMaliyet;
+    property YanUrunMaliyet: TFieldDB read FYanUrunMaliyet write FYanUrunMaliyet;
   end;
 
 implementation
@@ -681,6 +689,10 @@ begin
   FReceteAdi := TFieldDB.Create('recete_adi', ftString, '', Self, 'Reçete Adý');
   FOrnekUretimMiktari := TFieldDB.Create('ornek_uretim_miktari', ftFloat, 0, Self, 'Örnek Üretim Miktarý');
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
+  FMaliyet := TFieldDB.Create('maliyet', ftBCD, 0, Self, 'Maliyet');
+  FHammaddeMaliyet := TFieldDB.Create('hammadde_maliyet', ftBCD, 0, Self, 'Hammadde Maliyet');
+  FIscilikMaliyet := TFieldDB.Create('iscilik_maliyet', ftBCD, 0, Self, 'Ýþçilik Maliyet');
+  FYanUrunMaliyet := TFieldDB.Create('yan_urun_maliyet', ftBCD, 0, Self, 'Yan Ürün Maliyet');
 end;
 
 destructor TRctRecete.Destroy;
@@ -701,7 +713,11 @@ begin
         FReceteKodu.QryName,
         FReceteAdi.QryName,
         FOrnekUretimMiktari.QryName,
-        FAciklama.QryName
+        FAciklama.QryName,
+        'spget_rct_toplam('           + Self.Id.QryName + '::bigint) ' + FMaliyet.FieldName,
+        'spget_rct_hammadde_maliyet(' + Self.Id.QryName + '::bigint) ' + FHammaddeMaliyet.FieldName,
+        'spget_rct_iscilik_maliyet('  + Self.Id.QryName + '::bigint) ' + FIscilikMaliyet.FieldName,
+        'spget_rct_yan_urun_maliyet(' + Self.Id.QryName + '::bigint) ' + FYanUrunMaliyet.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -726,7 +742,11 @@ begin
         FReceteKodu.QryName,
         FReceteAdi.QryName,
         FOrnekUretimMiktari.QryName,
-        FAciklama.QryName
+        FAciklama.QryName,
+        'spget_rct_toplam('           + Self.Id.QryName + '::bigint) ' + FMaliyet.FieldName,
+        'spget_rct_hammadde_maliyet(' + Self.Id.QryName + '::bigint) ' + FHammaddeMaliyet.FieldName,
+        'spget_rct_iscilik_maliyet('  + Self.Id.QryName + '::bigint) ' + FIscilikMaliyet.FieldName,
+        'spget_rct_yan_urun_maliyet(' + Self.Id.QryName + '::bigint) ' + FYanUrunMaliyet.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -894,7 +914,7 @@ begin
     else if TObject(ListDetay[n1]).ClassType = TRctReceteYanUrun then
     begin
       ReceteMaliyet.YanUrunCount := ReceteMaliyet.YanUrunCount + 1;
-      ReceteMaliyet.MaliyetYan := ReceteMaliyet.MaliyetYan + FormatedVariantVal(TRctReceteYanUrun(ListDetay[n1]).Fiyat) * FormatedVariantVal(TRctReceteYanUrun(ListDetay[n1]).Miktar)
+      ReceteMaliyet.MaliyetYan := ReceteMaliyet.MaliyetYan - FormatedVariantVal(TRctReceteYanUrun(ListDetay[n1]).Fiyat) * FormatedVariantVal(TRctReceteYanUrun(ListDetay[n1]).Miktar)
     end;
   end;
 end;

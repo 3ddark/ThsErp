@@ -23,8 +23,6 @@ inherited frmHesapKartiAra: TfrmHesapKartiAra
       ExplicitWidth = 696
       ExplicitHeight = 97
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 688
         ExplicitHeight = 69
         object lblhesap_kodu: TLabel
@@ -132,7 +130,7 @@ inherited frmHesapKartiAra: TfrmHesapKartiAra
     ExplicitWidth = 698
     inherited btnAccept: TButton
       Left = 489
-      TabOrder = 2
+      TabOrder = 3
       ExplicitLeft = 489
     end
     inherited btnClose: TButton

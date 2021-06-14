@@ -17,12 +17,12 @@ inherited frmRctIscilikGideri: TfrmRctIscilikGideri
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
-    ExplicitHeight = 146
+    ExplicitHeight = 160
     inherited pgcMain: TPageControl
       Width = 338
       Height = 158
       ExplicitWidth = 338
-      ExplicitHeight = 144
+      ExplicitHeight = 158
       inherited tsMain: TTabSheet
         ExplicitWidth = 330
         ExplicitHeight = 130
@@ -149,7 +149,7 @@ inherited frmRctIscilikGideri: TfrmRctIscilikGideri
   inherited pnlBottom: TPanel
     Top = 164
     Width = 340
-    ExplicitTop = 150
+    ExplicitTop = 164
     ExplicitWidth = 340
     inherited btnAccept: TButton
       Left = 131

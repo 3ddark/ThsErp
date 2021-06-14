@@ -89,7 +89,7 @@ begin
   cbbrefresh_periodChange(cbbrefresh_period);
   pnlHeader.Visible := True;
   edtFilterHelper.Visible := False;
-  lblFilterHelper.Caption := 'Refresh Period';
+  lblFilterHelper.Caption := 'Yenileme';
 end;
 
 procedure TfrmSysDbStatus.mnicopy_recordClick(Sender: TObject);
@@ -113,17 +113,18 @@ begin
 
       LBtnResult :=
         CustomMsgDlg(
-        TranslateText('Are you want to do kill user connection?', FrameworkLang.MessageUpdateRecord, LngMsgData, LngSystem),
-        mtConfirmation, mbYesNo, [TranslateText('Yes', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                                  TranslateText('No', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
-                                  TranslateText('Confirmation', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem));
+        TranslateText('Kullanýcýnýn baðlantýsýný sonlandýrmak istediðinden emin misin?', FrameworkLang.MessageUpdateRecord, LngMsgData, LngSystem),
+        mtConfirmation, mbYesNo, [TranslateText('Evet', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
+                                  TranslateText('Hayýr', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
+                                  TranslateText('Kullanýcý Onayý', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem));
       if LBtnResult = mrYes then
       begin
         LQry := GDataBase.NewQuery();
         try
           LQry.SQL.Text := 'SELECT pg_terminate_backend(' + LPid.ToString + ') FROM pg_stat_activity WHERE datname = current_database();';
           LQry.Open;
-          ShowMessage('Successfull');
+          ShowMessage('Kullanýcý sonlandýrma iþlemi baþarýlý bir þekilde yapýldý.');
+          grd.DataSource.DataSet.Refresh;
         finally
           LQry.Free;
         end;

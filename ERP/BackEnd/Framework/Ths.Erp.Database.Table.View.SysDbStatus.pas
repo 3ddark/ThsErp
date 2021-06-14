@@ -19,6 +19,7 @@ type
     FAppName: TFieldDB;
     FUserName: TFieldDB;
     FClientAddress: TFieldDB;
+    FState: TFieldDB;
     FQuery: TFieldDB;
     FLockedTables: TFieldDB;
   protected
@@ -35,6 +36,7 @@ type
     Property AppName: TFieldDB read FAppName write FAppName;
     Property UserName: TFieldDB read FUserName write FUserName;
     Property ClientAddress: TFieldDB read FClientAddress write FClientAddress;
+    Property State: TFieldDB read FState write FState;
     Property Query: TFieldDB read FQuery write FQuery;
     Property LockedTables: TFieldDB read FLockedTables write FLockedTables;
   end;
@@ -43,19 +45,21 @@ implementation
 
 uses
   Ths.Erp.Globals,
+  Ths.Erp.Constants,
   Ths.Erp.Database.Singleton;
 
 constructor TSysDBStatus.Create(OwnerDatabase:TDatabase);
 begin
   TableName := 'sys_db_status';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_DEVELOPER;
   inherited Create(OwnerDatabase);
 
   FPID := TFieldDB.Create('pid', ftInteger, 0, Self, 'PID');
   FDBName := TFieldDB.Create('db_name', ftString, '', Self, 'DB Name');
-  FAppName := TFieldDB.Create('app_name', ftString, '', Self, 'Uygulama Adý');
-  FUserName := TFieldDB.Create('user_name', ftString, '', Self, 'Kullanýcý Adý');
+  FAppName := TFieldDB.Create('app_name', ftString, '', Self, 'App Name');
+  FUserName := TFieldDB.Create('user_name', ftString, '', Self, 'User Name');
   FClientAddress := TFieldDB.Create('client_address', ftString, '', Self, 'Client IP Adres');
+  FState := TFieldDB.Create('state', ftString, '', Self, 'State');
   FQuery := TFieldDB.Create('query', ftString, '', Self, 'Query');
   FLockedTables := TFieldDB.Create('locked_tables', ftString, '', Self, 'Locked Tables');
 end;
@@ -74,6 +78,7 @@ begin
         TableName + '.' + FAppName.FieldName+'::varchar(128)',
         TableName + '.' + FUserName.FieldName,
         TableName + '.' + FClientAddress.FieldName,
+        TableName + '.' + FState.FieldName,
         TableName + '.' + FQuery.FieldName,
         TableName + '.' + FLockedTables.FieldName
       ], [
@@ -89,9 +94,6 @@ procedure TSysDBStatus.SelectToList(pFilter: string; pLock: Boolean; pPermission
 begin
   if IsAuthorized(ptRead, pPermissionControl) then
   begin
-	  if (pLock) then
-		  pFilter := pFilter + ' FOR UPDATE OF ' + TableName + ' NOWAIT';
-
 	  with QueryOfList do
 	  begin
 		  Close;
@@ -102,6 +104,7 @@ begin
         TableName + '.' + FAppName.FieldName,
         TableName + '.' + FUserName.FieldName,
         TableName + '.' + FClientAddress.FieldName,
+        TableName + '.' + FState.FieldName,
         TableName + '.' + FQuery.FieldName,
         TableName + '.' + FLockedTables.FieldName
       ], [
@@ -113,16 +116,9 @@ begin
 		  List.Clear;
 		  while NOT EOF do
 		  begin
-		    setFieldValue(Self.Id, QueryOfList);
-        setFieldValue(FPID, QueryOfList);
-        setFieldValue(FDBName, QueryOfList);
-        setFieldValue(FAppName, QueryOfList);
-        setFieldValue(FUserName, QueryOfList);
-        setFieldValue(FClientAddress, QueryOfList);
-        setFieldValue(FQuery, QueryOfList);
-        setFieldValue(FLockedTables, QueryOfList);
+        PrepareTableClassFromQuery(QueryOfList);
 
-		    List.Add(Self.Clone());
+		    List.Add(Self.Clone);
 
 		    Next;
 		  end;

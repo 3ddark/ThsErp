@@ -12,20 +12,19 @@ inherited frmSysSehir: TfrmSysSehir
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 372
-    Height = 100
+    Height = 114
     Color = clWindow
+    ParentColor = False
     ExplicitWidth = 372
-    ExplicitHeight = 100
+    ExplicitHeight = 114
     inherited pgcMain: TPageControl
       Width = 370
-      Height = 98
+      Height = 112
       ExplicitWidth = 370
-      ExplicitHeight = 98
+      ExplicitHeight = 112
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 362
-        ExplicitHeight = 70
+        ExplicitHeight = 84
         object lblulke_adi_id: TLabel
           Left = 62
           Top = 5
@@ -99,9 +98,9 @@ inherited frmSysSehir: TfrmSysSehir
     end
   end
   inherited pnlBottom: TPanel
-    Top = 104
+    Top = 118
     Width = 372
-    ExplicitTop = 104
+    ExplicitTop = 118
     ExplicitWidth = 372
     inherited btnAccept: TButton
       Left = 163

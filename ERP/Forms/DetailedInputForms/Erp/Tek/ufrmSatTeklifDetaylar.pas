@@ -29,6 +29,7 @@ uses
 
   Ths.Erp.Helper.BaseTypes,
   Ths.Erp.Helper.Edit,
+  Ths.Erp.Helper.Memo,
   Ths.Erp.Helper.ComboBox,
   Ths.Erp.Helper.StringGrid,
 
@@ -506,7 +507,7 @@ begin
       begin
         LCH := TChHesapKarti.Create(Table.Database);
         LFrmCH := TfrmHesapKartlari.Create(TEdit(Sender), Self, LCH, fomNormal, True);
-        LFrmCH.QueryDefaultFilterUserDefined := ' AND ' + LCH.TableName + '.' + LCH.HesapTipiID.FieldName + '=' + Ord(TChHesapTipi.Son).ToString;
+        LFrmCH.QryFiltreVarsayilanKullanici := ' AND ' + LCH.TableName + '.' + LCH.HesapTipiID.FieldName + '=' + Ord(TChHesapTipi.Son).ToString;
         try
           LFrmCH.ShowModal;
           if LFrmCH.DataAktar then
@@ -643,7 +644,7 @@ begin
       begin
         LTeslim := TSetEinvTeslimSekli.Create(GDataBase);
         LFrmTeslim := TfrmSetEinvTeslimSekilleri.Create(TEdit(Sender), Self, LTeslim, fomNormal, True);
-        LFrmTeslim.QueryDefaultFilterUserDefined := ' AND ' + LTeslim.IsActive.QryName + '=True';
+        LFrmTeslim.QryFiltreVarsayilanKullanici := ' AND ' + LTeslim.IsActive.QryName + '=True';
         try
           LFrmTeslim.ShowModal;
           if LFrmTeslim.DataAktar then

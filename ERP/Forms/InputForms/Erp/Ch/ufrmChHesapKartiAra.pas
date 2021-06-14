@@ -151,7 +151,7 @@ begin
         LfrmHesapPlani := TfrmSetChHesapPlanlari.Create(TEdit(Sender), Self, LHesapPlani, fomNormal, True);
         try
           //Hesap Planýnda seviyesi 3 olanlarýn ara hesabý olabilir. Bu nedenle 3 seviyeliler acýlýr
-          LFrmHesapPlani.QueryDefaultFilterUserDefined := ' AND ' +
+          LFrmHesapPlani.QryFiltreVarsayilanKullanici := ' AND ' +
             LHesapPlani.TableName + '.' + LHesapPlani.SeviyeSayisi.FieldName + '=' + IntToStr(3);
           LFrmHesapPlani.ShowModal;
 
