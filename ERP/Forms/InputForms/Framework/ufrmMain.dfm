@@ -364,11 +364,16 @@
     ExplicitWidth = 737
     inherited btnAccept: TButton
       Left = 528
+      TabOrder = 2
       ExplicitLeft = 528
     end
     inherited btnClose: TButton
       Left = 632
+      TabOrder = 3
       ExplicitLeft = 632
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar [3]
@@ -402,7 +407,7 @@
       Top = 0
       Width = 737
       Height = 378
-      ActivePage = tsch
+      ActivePage = tsstok
       Align = alClient
       MultiLine = True
       OwnerDraw = True
@@ -565,6 +570,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 3
+          Visible = False
           WordWrap = True
         end
         object btnstk_stok_grubu: TButton
@@ -597,6 +603,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 5
+          Visible = False
           WordWrap = True
         end
         object btnset_stk_urun_tipi: TButton
@@ -613,6 +620,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 2
+          Visible = False
           WordWrap = True
         end
       end
@@ -632,6 +640,7 @@
           Font.Style = [fsBold]
           ParentFont = False
           TabOrder = 1
+          Visible = False
         end
         object btnch_hesap_karti: TButton
           Left = 2
@@ -678,6 +687,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 2
+          Visible = False
         end
         object btnch_banka_subesi: TButton
           Left = 2
@@ -693,6 +703,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 3
+          Visible = False
         end
         object btnset_ch_grup: TButton
           Left = 160
@@ -723,6 +734,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 6
+          Visible = False
         end
         object btnset_ch_vergi_orani: TButton
           Left = 160
@@ -738,6 +750,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 8
+          Visible = False
         end
         object btnch_bolge: TButton
           Left = 2
@@ -836,6 +849,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 9
+          Visible = False
           WordWrap = True
         end
         object btnset_prs_cinsiyet: TButton
@@ -852,6 +866,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 10
+          Visible = False
           WordWrap = True
         end
         object btnset_prs_medeni_durum: TButton
@@ -868,6 +883,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 13
+          Visible = False
           WordWrap = True
         end
         object btnset_prs_askerlik_durumu: TButton
@@ -884,6 +900,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 15
+          Visible = False
           WordWrap = True
         end
         object btnset_prs_servis_araci: TButton
@@ -932,6 +949,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 5
+          Visible = False
           WordWrap = True
         end
         object btnset_prs_yeterlilik_belgesi: TButton
@@ -980,6 +998,7 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 16
+          Visible = False
           WordWrap = True
         end
         object btnset_prs_ehliyet: TButton

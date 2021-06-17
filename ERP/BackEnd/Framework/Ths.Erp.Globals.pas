@@ -3,56 +3,57 @@ unit Ths.Erp.Globals;
 interface
 
 uses
-    NetGsm_SMS  //NetGSM SMS SOAP Web service
-  , Ths.Erp.Database
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  , Ths.Erp.Database.Table
-  , Ths.Erp.Database.Table.SysKullanici
-  , Ths.Erp.Database.Table.SysLisan
-  , Ths.Erp.Database.Table.SysOndalikHane
-  , Ths.Erp.Database.Table.SysUygulamaAyari
-  , Ths.Erp.Database.Table.SysUygulamaAyariDiger
-  , Ths.Erp.Database.Table.SysGun
-  , Ths.Erp.Database.Table.SysAy
-  , Ths.Erp.Database.Table.SysParaBirimi
-  , Ths.Erp.Database.Table.SysKaliteFormTipi
-  , Ths.Erp.Database.Table.SysKaliteFormNo
-  , Ths.Erp.Database.Table.SysGridKolon
-  , Ths.Erp.Database.Table.SysGridFiltreSiralama
-  , Ths.Erp.Database.Table.SysLisanDataIcerik
-  , Ths.Erp.Database.Table.SysLisanGuiIcerik
-  , Ths.Erp.Database.Table.View.SysViewColumns
+  NetGsm_SMS,  //NetGSM SMS SOAP Web service
+  Ths.Erp.Database,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton,
+  Ths.Erp.Database.Table,
+  Ths.Erp.Database.Table.SysKullanici,
+  Ths.Erp.Database.Table.SysLisan,
+  Ths.Erp.Database.Table.SysOndalikHane,
+  Ths.Erp.Database.Table.SysUygulamaAyari,
+  Ths.Erp.Database.Table.SysUygulamaAyariDiger,
+  Ths.Erp.Database.Table.SysGun,
+  Ths.Erp.Database.Table.SysAy,
+  Ths.Erp.Database.Table.SysParaBirimi,
+  Ths.Erp.Database.Table.SysKaliteFormTipi,
+  Ths.Erp.Database.Table.SysKaliteFormNo,
+  Ths.Erp.Database.Table.SysGridKolon,
+  Ths.Erp.Database.Table.SysGridFiltreSiralama,
+  Ths.Erp.Database.Table.SysLisanDataIcerik,
+  Ths.Erp.Database.Table.SysLisanGuiIcerik,
+  Ths.Erp.Database.Table.View.SysViewColumns,
 
-  , System.Classes
-  , System.Types
-  , System.Variants
-  , System.SysUtils
-  , System.StrUtils
-  , System.Math
-  , System.UITypes
-  , System.IOUtils
-  , System.RTTI
-  , System.TypInfo
-  , System.Hash
-  , System.AnsiStrings
+  System.Classes,
+  System.Types,
+  System.Variants,
+  System.SysUtils,
+  System.StrUtils,
+  System.Math,
+  System.UITypes,
+  System.IOUtils,
+  System.RTTI,
+  System.TypInfo,
+  System.Hash,
+  System.AnsiStrings,
 
-  , Winapi.Windows
-  , Winapi.Messages
-  , Winapi.IpTypes
-  , Winapi.IpHlpApi
-  , Winapi.TlHelp32
-  , Winapi.PsAPI
+  Winapi.Windows,
+  Winapi.Messages,
+  Winapi.IpTypes,
+  Winapi.IpHlpApi,
+  Winapi.TlHelp32,
+  Winapi.PsAPI,
+  Winapi.ShellAPI,
 
-  , Vcl.Forms
-  , Vcl.Controls
-  , Vcl.StdCtrls
-  , Vcl.Dialogs
-  , Vcl.Grids
-  , Vcl.Graphics
-  , Vcl.ExtCtrls
-  , Vcl.Imaging.jpeg
-  , Vcl.Imaging.pngimage
+  Vcl.Forms,
+  Vcl.Controls,
+  Vcl.StdCtrls,
+  Vcl.Dialogs,
+  Vcl.Grids,
+  Vcl.Graphics,
+  Vcl.ExtCtrls,
+  Vcl.Imaging.jpeg,
+  Vcl.Imaging.pngimage
 
   , Data.DB
   , Vcl.DBGrids
@@ -493,7 +494,7 @@ type
   function ExistForm(AFormClassType: TClass): Boolean;
 
   function FormatMoney(AValue: Double): string;
-
+  function DoDatabaseBackup(): string;
 var
   GDosyaUzantilari: TArray<string>;
 
@@ -2625,6 +2626,26 @@ begin
                         FormatSettings.ThousandSeparator +
                         FormatSettings.DecimalSeparator +
                         StringOfChar('0', VarToInt(GSysOndalikHane.SatisFiyat.Value)), AValue);
+end;
+
+function DoDatabaseBackup: string;
+var
+  LParams: string;
+begin
+  ForceDirectories(GUygulamaAnaDizin + PathDelim + 'Tools\');
+  ForceDirectories(GUygulamaAnaDizin + PathDelim + 'Backups\');
+
+  if not FileExists(GUygulamaAnaDizin + 'Tools\yedekle.exe') then
+    raise Exception.Create('Yedekleme programý bulunamadý. Lütfen Tools dizini altýndaki yedekleme uygulamasýný kontrol edin.');
+
+  LParams :=
+    '/c Tools\yedekle.exe' +
+    ' -Fc postgresql://' +
+    GDataBase.Connection.Params.UserName + ':' + GDataBase.Connection.Params.Password + '@' +
+    GDataBase.ConnSetting.SQLServer + ':' + GDataBase.ConnSetting.DBPortNo.ToString + '/' +
+    GDataBase.Connection.Params.Database + ' > Backups\' + FormatDateTime('YYYY_MM_DD_HH_MM_SS', Now) + '&&exit';
+
+  ShellExecute(0, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
 end;
 
 initialization

@@ -2045,7 +2045,7 @@ begin
 
 
       //todo sayısal renklendirme işlemini yap
-      SetLength(FColoredNumericColNames, Table.DataSource.DataSet.FieldCount);
+      SetLength(FColoredNumericColNames, FGridColWidth.List.Count);
       for n1 := 0 to Length(FColoredNumericColNames)-1 do
       begin
         LColColor.FieldName := '';

@@ -440,9 +440,13 @@ function GetVarArrayByteSize(AField: TFieldDB): Int64;
 begin
   Result := 0;
   if AField.DataType = ftBytes then
+  begin
+    if AField.Value = 0 then
+      Exit;
     Result := ( VarArrayHighBound(AField.Value, 1) -
                 VarArrayLowBound(AField.Value, 1) + 1
               ) * TVarData(AField.Value).VArray^.ElementSize;
+  end;
 end;
 
 procedure setValueFromImage(AField: TFieldDB; AImage: TImage);
@@ -484,6 +488,9 @@ begin
     ms := TMemoryStream.Create;
     try
       LSize := GetVarArrayByteSize(AField);
+      if LSize = 0 then
+        Exit;
+
       ms.Write(AField.Value, 0, LSize);
       ms.Position := 0;
       LPic.LoadFromStream(ms);
