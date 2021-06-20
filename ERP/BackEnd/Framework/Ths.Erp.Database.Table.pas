@@ -87,6 +87,7 @@ type
     procedure Clone(var pField: TFieldDB);
     //procedure SetControlProperty(const pTableName: string; pControl: TWinControl);
     function QryName: string;
+    function AsString: string;
   end;
 
   TTable = class
@@ -441,7 +442,7 @@ begin
   Result := 0;
   if AField.DataType = ftBytes then
   begin
-    if AField.Value = 0 then
+    if Length(AField.Value) = 0 then
       Exit;
     Result := ( VarArrayHighBound(AField.Value, 1) -
                 VarArrayLowBound(AField.Value, 1) + 1
@@ -635,6 +636,11 @@ begin
       ftObject: ;
       ftSingle: ;
     end;
+end;
+
+function TFieldDB.AsString: string;
+begin
+  Result := VarToStr(FValue);
 end;
 
 procedure TFieldDB.Clone(var pField: TFieldDB);

@@ -207,12 +207,15 @@ end;
 procedure TfrmSatTeklifler.mniSipariseAktarClick(Sender: TObject);
 var
   LSatSip, ASiparis: TSatSiparis;
+  LTeklif: TSatTeklif;
 begin
   LSatSip := TSatSiparis.Create(GDataBase);
+  LTeklif := TSatTeklif.Create(GDataBase);
   try
     if LSatSip.IsAuthorized(ptAddRecord, True, False) then
     begin
-      ASiparis := TSatSiparis(TSatTeklif(Table).ToSiparis);
+      LTeklif.SelectToList(' AND ' + LTeklif.Id.QryName + '=' + VarToStr(Table.Id.AsString) , False, False);
+      ASiparis := TSatSiparis(LTeklif.ToSiparis);
       TfrmSatSiparisDetaylar.Create(Application, Self, ASiparis, TInputFormMode.ifmCopyNewRecord).Show;
     end
     else
@@ -225,6 +228,7 @@ begin
         'Erişim Hakkı Uyarı');
   finally
     LSatSip.Free;
+    LTeklif.Free;
   end;
 end;
 

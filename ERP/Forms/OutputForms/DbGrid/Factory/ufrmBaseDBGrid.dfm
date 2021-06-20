@@ -24,13 +24,11 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     inherited pnlLeft: TPanel
       Height = 392
       Caption = ''
-      TabOrder = 1
       ExplicitHeight = 392
     end
     inherited pnlHeader: TPanel
       Width = 811
       Caption = ''
-      TabOrder = 0
       ExplicitWidth = 811
       object lblFilterHelper: TLabel
         AlignWithMargins = True
@@ -167,16 +165,11 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     ExplicitWidth = 817
     inherited btnAccept: TButton
       Left = 608
-      TabOrder = 2
       ExplicitLeft = 608
     end
     inherited btnClose: TButton
       Left = 712
-      TabOrder = 3
       ExplicitLeft = 712
-    end
-    inherited btnDelete: TButton
-      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

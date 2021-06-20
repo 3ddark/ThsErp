@@ -250,13 +250,6 @@
             <Form>frmSysGun</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Framework\Ths.Erp.Database.Table.SysOndalikHane.pas"/>
-        <DCCReference Include="BackEnd\Framework\Ths.Erp.Database.Table.SysDovizKuru.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Framework\ufrmSysDovizKurlari.pas">
-            <Form>frmSysDovizKurlari</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Framework\ufrmSysDovizKuru.pas">
-            <Form>frmSysDovizKuru</Form>
-        </DCCReference>
         <DCCReference Include="BackEnd\Framework\Ths.Erp.Database.Table.SysGridKolon.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\Framework\ufrmSysGridKolonlar.pas">
             <Form>frmSysGridKolonlar</Form>
@@ -426,6 +419,13 @@
         </DCCReference>
         <DCCReference Include="Forms\InputForms\ufrmAyarEFaturaIletisimKanali.pas">
             <Form>frmAyarEFaturaIletisimKanali</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Erp\Mhs\Ths.Erp.Database.Table.MhsDovizKuru.pas"/>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Erp\Mhs\ufrmMhsDovizKurlari.pas">
+            <Form>frmMhsDovizKurlari</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\InputForms\Erp\Mhs\ufrmMhsDovizKuru.pas">
+            <Form>frmMhsDovizKuru</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Erp\Urt\Ths.Erp.Database.Table.RctIscilikGideri.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\Erp\Urt\ufrmRctIscilikGiderleri.pas">

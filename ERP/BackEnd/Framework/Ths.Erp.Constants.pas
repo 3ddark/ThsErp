@@ -62,6 +62,10 @@ const
   LangEnglish = 'English EN';
   LangFrench = 'French FR';
 
+  ParaTL = 'TL';
+  ParaUSD = 'USD';
+  ParaEUR = 'EUR';
+
   IMG_ACCEPT = 0;
   IMG_ADD = 1;
   IMG_ADD_DATA = 2;
@@ -217,6 +221,10 @@ const
   MODULE_CH_AYAR = '1030';          //Cari Hesap Kartı Ayar
   MODULE_CH_KAYIT = '1031';         //Cari Hesap Kartı Kayıt
   MODULE_CH: TArray<string> = [MODULE_CH_AYAR, MODULE_CH_KAYIT];
+
+  MODULE_MHS_AYAR = '3000';          //Muhasebe Ayar
+  MODULE_MHS_DOVIZ_KURU = '3001';         //Muhasebe Doviz Kuru Kayıt
+  MODULE_MHS: TArray<string> = [MODULE_MHS_AYAR, MODULE_MHS_DOVIZ_KURU];
 
   MODULE_STK_AYAR = '1040';         //Stok Kartı Ayar
   MODULE_STK_KAYIT = '1041';        //Stok Kartı Kayıt

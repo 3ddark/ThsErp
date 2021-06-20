@@ -25,13 +25,11 @@ inherited frmStkStokKarti: TfrmStkStokKarti
       ExplicitHeight = 494
       inherited tsMain: TTabSheet
         Caption = 'Genel'
-        ExplicitLeft = 0
-        ExplicitTop = 0
         ExplicitWidth = 635
         ExplicitHeight = 466
         object lblortalama_maliyet_brm: TLabel
           Left = 302
-          Top = 201
+          Top = 199
           Width = 16
           Height = 13
           Caption = 'TL'
@@ -76,7 +74,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblstok_grubu_id: TLabel
           Left = 81
-          Top = 61
+          Top = 59
           Width = 65
           Height = 13
           Alignment = taRightJustify
@@ -92,7 +90,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblolcu_birimi_id: TLabel
           Left = 85
-          Top = 83
+          Top = 81
           Width = 61
           Height = 13
           Alignment = taRightJustify
@@ -107,8 +105,8 @@ inherited frmStkStokKarti: TfrmStkStokKarti
           ParentFont = False
         end
         object lblen_az_stok_seviyesi: TLabel
-          Left = 358
-          Top = 335
+          Left = 31
+          Top = 339
           Width = 115
           Height = 13
           Alignment = taRightJustify
@@ -124,7 +122,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblalis_iskonto: TLabel
           Left = 352
-          Top = 61
+          Top = 59
           Width = 67
           Height = 13
           Alignment = taRightJustify
@@ -140,7 +138,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblsatis_iskonto: TLabel
           Left = 344
-          Top = 83
+          Top = 81
           Width = 75
           Height = 13
           Alignment = taRightJustify
@@ -156,7 +154,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblsatis_fiyat: TLabel
           Left = 86
-          Top = 157
+          Top = 155
           Width = 60
           Height = 13
           Alignment = taRightJustify
@@ -172,7 +170,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblihrac_fiyat: TLabel
           Left = 82
-          Top = 179
+          Top = 177
           Width = 64
           Height = 13
           Alignment = taRightJustify
@@ -188,7 +186,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblortalama_maliyet: TLabel
           Left = 51
-          Top = 201
+          Top = 199
           Width = 95
           Height = 13
           Alignment = taRightJustify
@@ -220,7 +218,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblozel_kod: TLabel
           Left = 94
-          Top = 253
+          Top = 251
           Width = 52
           Height = 13
           Alignment = taRightJustify
@@ -236,7 +234,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbltanim: TLabel
           Left = 111
-          Top = 379
+          Top = 383
           Width = 35
           Height = 13
           Alignment = taRightJustify
@@ -252,7 +250,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblurun_tipi_id: TLabel
           Left = 93
-          Top = 105
+          Top = 103
           Width = 53
           Height = 13
           Alignment = taRightJustify
@@ -268,7 +266,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblen: TLabel
           Left = 457
-          Top = 247
+          Top = 251
           Width = 16
           Height = 13
           Alignment = taRightJustify
@@ -284,7 +282,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblboy: TLabel
           Left = 451
-          Top = 269
+          Top = 273
           Width = 22
           Height = 13
           Alignment = taRightJustify
@@ -300,7 +298,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblyukseklik: TLabel
           Left = 417
-          Top = 291
+          Top = 295
           Width = 56
           Height = 13
           Alignment = taRightJustify
@@ -315,8 +313,8 @@ inherited frmStkStokKarti: TfrmStkStokKarti
           ParentFont = False
         end
         object lblhacim: TLabel
-          Left = 548
-          Top = 271
+          Left = 437
+          Top = 316
           Width = 36
           Height = 13
           Alignment = taRightJustify
@@ -329,11 +327,12 @@ inherited frmStkStokKarti: TfrmStkStokKarti
           ParentFont = False
         end
         object lblvalue_hacim: TLabel
-          Left = 592
-          Top = 271
-          Width = 24
+          Left = 511
+          Top = 316
+          Width = 26
           Height = 13
-          Caption = '0m3'
+          Alignment = taRightJustify
+          Caption = '0,00'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -343,7 +342,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblen_boy_yuseklik_brm: TLabel
           Left = 541
-          Top = 247
+          Top = 251
           Width = 17
           Height = 13
           Caption = 'cm'
@@ -356,7 +355,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblmarka: TLabel
           Left = 110
-          Top = 275
+          Top = 273
           Width = 36
           Height = 13
           Alignment = taRightJustify
@@ -372,7 +371,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblagirlik: TLabel
           Left = 437
-          Top = 313
+          Top = 339
           Width = 36
           Height = 13
           Alignment = taRightJustify
@@ -388,7 +387,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbldiib_urun_tanimi: TLabel
           Left = 47
-          Top = 357
+          Top = 361
           Width = 98
           Height = 13
           Alignment = taRightJustify
@@ -404,7 +403,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblmensei_id: TLabel
           Left = 104
-          Top = 313
+          Top = 298
           Width = 41
           Height = 13
           Alignment = taRightJustify
@@ -420,7 +419,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblgtip_no: TLabel
           Left = 95
-          Top = 335
+          Top = 317
           Width = 50
           Height = 13
           Alignment = taRightJustify
@@ -436,7 +435,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbltemin_suresi: TLabel
           Left = 72
-          Top = 231
+          Top = 229
           Width = 74
           Height = 13
           Alignment = taRightJustify
@@ -452,7 +451,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblalis_fiyat: TLabel
           Left = 94
-          Top = 136
+          Top = 134
           Width = 52
           Height = 13
           Alignment = taRightJustify
@@ -468,7 +467,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblagirlik_birim: TLabel
           Left = 541
-          Top = 313
+          Top = 339
           Width = 12
           Height = 13
           Caption = 'gr'
@@ -481,10 +480,49 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbltemin_suresi_brm: TLabel
           Left = 217
-          Top = 231
+          Top = 229
           Width = 22
           Height = 13
           Caption = 'g'#252'n'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object Label1: TLabel
+          Left = 541
+          Top = 273
+          Width = 17
+          Height = 13
+          Caption = 'cm'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object Label2: TLabel
+          Left = 541
+          Top = 295
+          Width = 17
+          Height = 13
+          Caption = 'cm'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object Label3: TLabel
+          Left = 541
+          Top = 316
+          Width = 17
+          Height = 13
+          Caption = 'm3'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -508,42 +546,42 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object edtstok_grubu_id: TEdit
           Left = 150
-          Top = 58
+          Top = 56
           Width = 150
           Height = 21
           TabOrder = 3
         end
         object edtolcu_birimi_id: TEdit
           Left = 150
-          Top = 80
+          Top = 78
           Width = 150
           Height = 21
           TabOrder = 6
         end
         object edtalis_iskonto: TEdit
           Left = 423
-          Top = 58
+          Top = 56
           Width = 48
           Height = 21
           TabOrder = 4
         end
         object edtsatis_iskonto: TEdit
           Left = 423
-          Top = 80
+          Top = 78
           Width = 48
           Height = 21
           TabOrder = 7
         end
         object edturun_tipi_id: TEdit
           Left = 150
-          Top = 102
+          Top = 100
           Width = 150
           Height = 21
           TabOrder = 8
         end
         object edtalis_fiyat: TEdit
           Left = 150
-          Top = 132
+          Top = 130
           Width = 104
           Height = 21
           Alignment = taRightJustify
@@ -551,7 +589,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object edtsatis_fiyat: TEdit
           Left = 150
-          Top = 154
+          Top = 152
           Width = 104
           Height = 21
           Alignment = taRightJustify
@@ -559,7 +597,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object edtihrac_fiyat: TEdit
           Left = 150
-          Top = 176
+          Top = 174
           Width = 104
           Height = 21
           Alignment = taRightJustify
@@ -567,91 +605,94 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object edtortalama_maliyet: TEdit
           Left = 150
-          Top = 198
-          Width = 149
+          Top = 196
+          Width = 150
           Height = 21
           TabOrder = 15
         end
         object edttemin_suresi: TEdit
           Left = 150
-          Top = 228
+          Top = 226
           Width = 62
           Height = 21
           TabOrder = 17
         end
         object edtozel_kod: TEdit
           Left = 150
-          Top = 250
+          Top = 248
           Width = 150
           Height = 21
-          TabOrder = 19
+          TabOrder = 18
         end
         object edtmarka: TEdit
           Left = 150
-          Top = 272
+          Top = 270
           Width = 150
           Height = 21
-          TabOrder = 21
+          TabOrder = 20
         end
         object edtmensei_id: TEdit
           Left = 150
-          Top = 310
+          Top = 292
           Width = 150
           Height = 21
-          TabOrder = 23
+          TabOrder = 22
         end
         object edtgtip_no: TEdit
           Left = 150
-          Top = 332
+          Top = 314
+          Width = 150
+          Height = 21
+          TabOrder = 24
+        end
+        object edten: TEdit
+          Left = 477
+          Top = 248
+          Width = 60
+          Height = 21
+          TabOrder = 19
+          OnChange = edtenChange
+        end
+        object edtboy: TEdit
+          Left = 477
+          Top = 270
+          Width = 60
+          Height = 21
+          TabOrder = 21
+          OnChange = edtenChange
+        end
+        object edtyukseklik: TEdit
+          Left = 477
+          Top = 292
+          Width = 60
+          Height = 21
+          TabOrder = 23
+          OnChange = edtenChange
+        end
+        object edtagirlik: TEdit
+          Left = 477
+          Top = 336
+          Width = 60
+          Height = 21
+          TabOrder = 26
+        end
+        object edten_az_stok_seviyesi: TEdit
+          Left = 150
+          Top = 336
           Width = 150
           Height = 21
           TabOrder = 25
         end
-        object edten: TEdit
-          Left = 477
-          Top = 244
-          Width = 60
-          Height = 21
-          TabOrder = 18
-        end
-        object edtboy: TEdit
-          Left = 477
-          Top = 266
-          Width = 60
-          Height = 21
-          TabOrder = 20
-        end
-        object edtyukseklik: TEdit
-          Left = 477
-          Top = 288
-          Width = 60
-          Height = 21
-          TabOrder = 22
-        end
-        object edtagirlik: TEdit
-          Left = 477
-          Top = 310
-          Width = 60
-          Height = 21
-          TabOrder = 24
-        end
-        object edten_az_stok_seviyesi: TEdit
-          Left = 477
-          Top = 332
-          Width = 104
-          Height = 21
-          TabOrder = 26
-        end
         object edtdiib_urun_tanimi: TEdit
           Left = 150
-          Top = 354
+          Top = 358
           Width = 477
           Height = 21
           TabOrder = 27
         end
         object mmotanim: TMemo
           Left = 150
-          Top = 376
+          Top = 380
           Width = 477
           Height = 68
           TabOrder = 28
@@ -666,7 +707,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object btnstok_resim: TBitBtn
           Left = 477
-          Top = 208
+          Top = 205
           Width = 150
           Height = 25
           TabOrder = 16
@@ -675,7 +716,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object pnlstok_resim: TPanel
           Left = 477
-          Top = 58
+          Top = 56
           Width = 150
           Height = 150
           BevelInner = bvLowered
@@ -695,21 +736,21 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object edtalis_para: TEdit
           Left = 256
-          Top = 132
+          Top = 130
           Width = 44
           Height = 21
           TabOrder = 10
         end
         object edtsatis_para: TEdit
           Left = 256
-          Top = 154
+          Top = 152
           Width = 44
           Height = 21
           TabOrder = 12
         end
         object edtihrac_para: TEdit
           Left = 256
-          Top = 176
+          Top = 174
           Width = 44
           Height = 21
           TabOrder = 14
@@ -718,13 +759,9 @@ inherited frmStkStokKarti: TfrmStkStokKarti
       object tsCinsOzelligi: TTabSheet
         Caption = 'Cins '#214'zelli'#287'i'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lbld3: TLabel
           Left = 132
-          Top = 391
+          Top = 389
           Width = 17
           Height = 13
           Alignment = taRightJustify
@@ -740,7 +777,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbld2: TLabel
           Left = 132
-          Top = 369
+          Top = 367
           Width = 17
           Height = 13
           Alignment = taRightJustify
@@ -756,7 +793,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbld1: TLabel
           Left = 132
-          Top = 347
+          Top = 345
           Width = 17
           Height = 13
           Alignment = taRightJustify
@@ -772,7 +809,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbli3: TLabel
           Left = 137
-          Top = 303
+          Top = 301
           Width = 12
           Height = 13
           Alignment = taRightJustify
@@ -788,7 +825,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbli2: TLabel
           Left = 137
-          Top = 281
+          Top = 279
           Width = 12
           Height = 13
           Alignment = taRightJustify
@@ -804,7 +841,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbli1: TLabel
           Left = 137
-          Top = 259
+          Top = 257
           Width = 12
           Height = 13
           Alignment = taRightJustify
@@ -820,7 +857,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbls6: TLabel
           Left = 133
-          Top = 193
+          Top = 191
           Width = 16
           Height = 13
           Alignment = taRightJustify
@@ -836,7 +873,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbls5: TLabel
           Left = 133
-          Top = 171
+          Top = 169
           Width = 16
           Height = 13
           Alignment = taRightJustify
@@ -852,7 +889,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbls4: TLabel
           Left = 133
-          Top = 149
+          Top = 147
           Width = 16
           Height = 13
           Alignment = taRightJustify
@@ -868,7 +905,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbls3: TLabel
           Left = 133
-          Top = 127
+          Top = 125
           Width = 16
           Height = 13
           Alignment = taRightJustify
@@ -884,7 +921,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbls2: TLabel
           Left = 133
-          Top = 105
+          Top = 103
           Width = 16
           Height = 13
           Alignment = taRightJustify
@@ -900,7 +937,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbls1: TLabel
           Left = 133
-          Top = 83
+          Top = 81
           Width = 16
           Height = 13
           Alignment = taRightJustify
@@ -916,7 +953,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lblcins_id: TLabel
           Left = 124
-          Top = 61
+          Top = 59
           Width = 25
           Height = 13
           Alignment = taRightJustify
@@ -932,7 +969,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbls8: TLabel
           Left = 133
-          Top = 237
+          Top = 235
           Width = 16
           Height = 13
           Alignment = taRightJustify
@@ -948,7 +985,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbls7: TLabel
           Left = 133
-          Top = 215
+          Top = 213
           Width = 16
           Height = 13
           Alignment = taRightJustify
@@ -964,7 +1001,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbli4: TLabel
           Left = 137
-          Top = 325
+          Top = 323
           Width = 12
           Height = 13
           Alignment = taRightJustify
@@ -980,7 +1017,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object lbld4: TLabel
           Left = 132
-          Top = 413
+          Top = 411
           Width = 17
           Height = 13
           Alignment = taRightJustify
@@ -996,7 +1033,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object edtcins_id: TEdit
           Left = 153
-          Top = 58
+          Top = 56
           Width = 160
           Height = 21
           TabOrder = 1
@@ -1004,112 +1041,112 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         end
         object edts1: TEdit
           Left = 153
-          Top = 80
+          Top = 78
           Width = 160
           Height = 21
           TabOrder = 2
         end
         object edts2: TEdit
           Left = 153
-          Top = 102
+          Top = 100
           Width = 160
           Height = 21
           TabOrder = 3
         end
         object edts3: TEdit
           Left = 153
-          Top = 124
+          Top = 122
           Width = 160
           Height = 21
           TabOrder = 4
         end
         object edts4: TEdit
           Left = 153
-          Top = 146
+          Top = 144
           Width = 160
           Height = 21
           TabOrder = 5
         end
         object edts5: TEdit
           Left = 153
-          Top = 168
+          Top = 166
           Width = 160
           Height = 21
           TabOrder = 6
         end
         object edts6: TEdit
           Left = 153
-          Top = 190
+          Top = 188
           Width = 160
           Height = 21
           TabOrder = 7
         end
         object edti1: TEdit
           Left = 153
-          Top = 256
+          Top = 254
           Width = 160
           Height = 21
           TabOrder = 10
         end
         object edti2: TEdit
           Left = 153
-          Top = 278
+          Top = 276
           Width = 160
           Height = 21
           TabOrder = 11
         end
         object edti3: TEdit
           Left = 153
-          Top = 300
+          Top = 298
           Width = 160
           Height = 21
           TabOrder = 12
         end
         object edtd1: TEdit
           Left = 153
-          Top = 344
+          Top = 342
           Width = 160
           Height = 21
           TabOrder = 14
         end
         object edtd2: TEdit
           Left = 153
-          Top = 366
+          Top = 364
           Width = 160
           Height = 21
           TabOrder = 15
         end
         object edtd3: TEdit
           Left = 153
-          Top = 388
+          Top = 386
           Width = 160
           Height = 21
           TabOrder = 16
         end
         object edts7: TEdit
           Left = 153
-          Top = 212
+          Top = 210
           Width = 160
           Height = 21
           TabOrder = 8
         end
         object edts8: TEdit
           Left = 153
-          Top = 234
+          Top = 232
           Width = 160
           Height = 21
           TabOrder = 9
         end
         object edti4: TEdit
           Left = 153
-          Top = 322
+          Top = 320
           Width = 160
           Height = 21
           TabOrder = 13
         end
         object edtd4: TEdit
           Left = 153
-          Top = 410
+          Top = 408
           Width = 160
           Height = 21
           TabOrder = 17
@@ -1131,10 +1168,6 @@ inherited frmStkStokKarti: TfrmStkStokKarti
       object tsOzetler: TTabSheet
         Caption = #214'zetler'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object pnlOzetHeader: TPanel
           AlignWithMargins = True
           Left = 3
@@ -1779,10 +1812,6 @@ inherited frmStkStokKarti: TfrmStkStokKarti
       object tsGrupOzellikleri: TTabSheet
         Caption = 'Grup '#214'zellikleri'
         ImageIndex = 4
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object pnlGrupHeader: TPanel
           AlignWithMargins = True
           Left = 3
@@ -1864,7 +1893,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 50
+            Width = 621
             Height = 13
             Align = alTop
             Alignment = taCenter
@@ -1875,6 +1904,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
+            ExplicitWidth = 50
           end
           object lblgrup_kdv_orani: TLabel
             Left = 122
@@ -2059,7 +2089,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 127
+            Width = 621
             Height = 13
             Hint = 'Hide'
             Align = alTop
@@ -2071,6 +2101,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
+            ExplicitWidth = 127
           end
           object strngrdAmbar: TStringGrid
             AlignWithMargins = True
@@ -2111,11 +2142,16 @@ inherited frmStkStokKarti: TfrmStkStokKarti
     ExplicitWidth = 645
     inherited btnAccept: TButton
       Left = 436
+      TabOrder = 2
       ExplicitLeft = 436
     end
     inherited btnClose: TButton
       Left = 540
+      TabOrder = 3
       ExplicitLeft = 540
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

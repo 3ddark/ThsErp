@@ -59,22 +59,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblkullanici_aciklama: TLabel
-          Left = 43
-          Top = 182
-          Width = 52
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'A'#231#305'klama'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
         object lblfiyat: TLabel
           Left = 67
           Top = 50
@@ -178,6 +162,22 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           Height = 131
           Stretch = True
         end
+        object lblkullanici_aciklama: TLabel
+          Left = 43
+          Top = 182
+          Width = 52
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'A'#231#305'klama'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
         object edtstok_kodu: TEdit
           Left = 97
           Top = 3
@@ -198,6 +198,8 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           Width = 110
           Height = 21
           TabOrder = 2
+          OnChange = edtfiyatChange
+          OnExit = edtfiyatExit
           OnKeyUp = edtFiyatKeyUp
         end
         object edtmiktar: TEdit
@@ -206,6 +208,8 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           Width = 110
           Height = 21
           TabOrder = 3
+          OnChange = edtmiktarChange
+          OnExit = edtmiktarExit
           OnKeyUp = edtMiktarKeyUp
         end
         object edtiskonto_orani: TEdit
@@ -214,6 +218,8 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           Width = 110
           Height = 21
           TabOrder = 5
+          OnChange = edtiskonto_oraniChange
+          OnExit = edtiskonto_oraniExit
         end
         object edtgtip_no: TEdit
           Left = 97
@@ -221,13 +227,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           Width = 150
           Height = 21
           TabOrder = 7
-        end
-        object edtkullanici_aciklama: TEdit
-          Left = 97
-          Top = 179
-          Width = 312
-          Height = 21
-          TabOrder = 8
         end
         object PanelBilgilendirme: TPanel
           Left = 97
@@ -496,6 +495,8 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           Width = 110
           Height = 21
           TabOrder = 6
+          OnChange = edtkdv_oraniChange
+          OnExit = edtkdv_oraniExit
         end
         object edtolcu_birimi: TEdit
           Left = 97
@@ -504,6 +505,13 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           Height = 21
           TabOrder = 4
           OnKeyUp = edtMiktarKeyUp
+        end
+        object edtkullanici_aciklama: TEdit
+          Left = 97
+          Top = 179
+          Width = 312
+          Height = 21
+          TabOrder = 8
         end
       end
     end
@@ -515,11 +523,16 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
     ExplicitWidth = 422
     inherited btnAccept: TButton
       Left = 213
+      TabOrder = 2
       ExplicitLeft = 213
     end
     inherited btnClose: TButton
       Left = 317
+      TabOrder = 3
       ExplicitLeft = 317
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

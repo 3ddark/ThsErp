@@ -29,6 +29,7 @@ uses
   System.Variants,
   System.SysUtils,
   System.StrUtils,
+  System.DateUtils,
   System.Math,
   System.UITypes,
   System.IOUtils,
@@ -36,6 +37,9 @@ uses
   System.TypInfo,
   System.Hash,
   System.AnsiStrings,
+  System.Net.HttpClientComponent,
+  Xml.XMLIntf,
+  Xml.XMLDoc,
 
   Winapi.Windows,
   Winapi.Messages,
@@ -53,22 +57,23 @@ uses
   Vcl.Graphics,
   Vcl.ExtCtrls,
   Vcl.Imaging.jpeg,
-  Vcl.Imaging.pngimage
+  Vcl.Imaging.pngimage,
 
-  , Data.DB
-  , Vcl.DBGrids
-  , Data.FmtBcd
+  Data.DB,
+  Vcl.DBGrids,
+  Data.FmtBcd,
 
   //#######*****for Indy components*****#######
-  , IdFTP
-  , IdFTPCommon
-  , IdAntiFreeze
+  IdFTP,
+  IdFTPCommon,
+  IdAntiFreeze,
   //#######*****for Indy components*****#######
 
   //for TFDStorecProc class
-  , FireDAC.Comp.Client
-  , FireDAC.Stan.Param
+  FireDAC.Comp.Client,
+  FireDAC.Stan.Param
   ;
+
 
 type
   TEmployeeID = class
@@ -113,6 +118,20 @@ type
   TObjectClone = record
     class function From<T: class>(Source: T): T; static;
   end;
+
+type
+  TTCMBDovizKuru = record
+    Tarih: TDate;
+    Kod: string;
+    Aciklama: string;
+    ForexBuying: Double;
+    ForexSelling: Double;
+    BanknoteBuying: Double;
+    BanknoteSelling: Double;
+  end;
+
+type
+  TTCMBDovizKuruList = TArray<TTCMBDovizKuru>;
 
 type
   TLang = record
@@ -182,6 +201,7 @@ type
     MessageTitleObjectNotFound: string;
     MessageTitleError: string;
     MessageTitleUyari: string;
+    MessageOtomatikDovizKuru: string;
 
     PopupAddLangDataContent: string;
     PopupAddLangGuiContent: string;
@@ -224,6 +244,9 @@ type
   function FormatedVariantVal(pField: TFieldDB): Variant; overload;
 
   function GetTempFolder(): string;
+
+  function TCMB_DovizKurlari: TTCMBDovizKuruList;
+
 
   /// <summary>
   ///   Framework içinde kullanýlan sabit dil içeriklieri için bilgilerin olduðu record.
@@ -847,19 +870,24 @@ begin
   begin
     if not VarIsNull(pVal) then
     begin
-      //variant data uzunluðu > 10 olduðunda Datetime tipi olarak kabul et
-      if VarToStr(pVal).Length > 10 then
-      begin
-        TryStrToDate(VarToStr(pVal), vValueDateTime);
-        vDump := DateToStr(vValueDateTime);
-      end
-      else
-        vDump := VarToStr(pVal);
-
-      if TryStrToDate(vDump, vValueDateTime) then
+      if TryStrToDateTime(VarToStr(pVal), vValueDateTime) then
         Result := vValueDateTime
       else
-        Result := 0;
+        Result := pVal;
+
+//      //variant data uzunluðu > 10 olduðunda Datetime tipi olarak kabul et
+//      if VarToStr(pVal).Length > 10 then
+//      begin
+//        TryStrToDate(VarToStr(pVal), vValueDateTime);
+//        vDump := DateToStr(vValueDateTime);
+//      end
+//      else
+//        vDump := VarToStr(pVal);
+//
+//      if TryStrToDate(vDump, vValueDateTime) then
+//        Result := vValueDateTime
+//      else
+//        Result := 0;
     end
     else
       Result := 0;
@@ -1059,6 +1087,44 @@ begin
   Result := TPath.GetTempPath;
 end;
 
+function TCMB_DovizKurlari: TTCMBDovizKuruList;
+var
+  LClient: System.Net.HttpClientComponent.TNetHTTPClient;
+  LXMLDocument: IXMLDocument;
+  LXML: string;
+  LNode: IXMLNode;
+begin
+  SetLength(Result, 0);
+  //XML downloader with SSL/"https" support...
+  LClient := TNetHTTPClient.Create(nil);
+  try
+    LXML := LClient.Get( 'https://www.tcmb.gov.tr/kurlar/today.xml' ).ContentAsString;
+
+    LXMLDocument := TXMLDocument.Create(nil);
+    LXMLDocument.ParseOptions := LXMLDocument.ParseOptions + [poPreserveWhiteSpace];
+    LXMLDocument.LoadFromXML(LXML);
+
+    LNode :=  LXMLDocument.DocumentElement.ChildNodes.FindNode('Currency');
+    while LNode <> nil do
+    begin
+      SetLength(Result, Length(Result)+1);
+
+      Result[Length(Result)-1].Tarih := GDataBase.DateDB;
+      Result[Length(Result)-1].Kod := LNode.Attributes['Kod'];
+      Result[Length(Result)-1].Aciklama := LNode.ChildNodes.Nodes['Isim'].Text;
+      Result[Length(Result)-1].ForexBuying := StrToFloatDef(LNode.ChildNodes.Nodes['ForexBuying'].Text.Replace('.', ','), 0);
+      Result[Length(Result)-1].ForexSelling := StrToFloatDef(LNode.ChildNodes.Nodes['ForexSelling'].Text.Replace('.', ','), 0);
+      Result[Length(Result)-1].BanknoteBuying := StrToFloatDef(LNode.ChildNodes.Nodes['BanknoteBuying'].Text.Replace('.', ','), 0);
+      Result[Length(Result)-1].BanknoteSelling := StrToFloatDef(LNode.ChildNodes.Nodes['BanknoteSelling'].Text.Replace('.', ','), 0);
+
+      LNode := LNode.NextSibling; // ntTEXT
+      LNode := LNode.NextSibling; // Currency
+    end;
+  finally
+    LClient.Free;
+  end;
+end;
+
 function FrameworkLang: TLang;
 begin
   if Result.StatusAccept = '' then
@@ -1121,6 +1187,7 @@ begin
     Result.MessageUpdateRecord := '160';
     Result.MessageUpdateColumnWidth := '161';
     Result.MessageKillProcess := '166';
+    Result.MessageOtomatikDovizKuru := '189';
 
     Result.WarningActiveTransaction := '162';
     Result.WarningLockedRecord := '163';

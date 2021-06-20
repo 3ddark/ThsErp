@@ -209,6 +209,7 @@ begin
         raise Exception.Create(TranslateText('Kullanýcý Adý/Þifre tanýmlý veya doðru deðil!', FrameworkLang.ErrorLogin, LngMsgError, LngSystem));
 
       GSysGun.SelectToList(' ORDER BY 1 ', False, False);
+      GParaBirimi.SelectToList(' ORDER BY 1 ', False, False);
       GSysAy.SelectToList(' ORDER BY 1 ', False, False);
       GSysTableInfo.SelectToList('', False, False);
       GSysOndalikHane.SelectToList('', False, False);

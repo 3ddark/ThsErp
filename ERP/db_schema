@@ -1656,6 +1656,34 @@ ALTER SEQUENCE public.ch_hesap_karti_id_seq OWNED BY public.ch_hesap_karti.id;
 
 
 --
+-- Name: mhs_doviz_kuru; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.mhs_doviz_kuru (
+    id bigint NOT NULL,
+    tarih date NOT NULL,
+    para_birimi character varying(3) NOT NULL,
+    kur numeric(7,4) NOT NULL
+);
+
+
+ALTER TABLE public.mhs_doviz_kuru OWNER TO ths_admin;
+
+--
+-- Name: mhs_doviz_kuru_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.mhs_doviz_kuru ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.mhs_doviz_kuru_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: prs_ehliyet_bilgisi; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -2306,25 +2334,25 @@ ALTER SEQUENCE public.rct_recete_yan_urun_id_seq OWNED BY public.rct_recete_yan_
 --
 
 CREATE TABLE public.sat_siparis (
-    id integer NOT NULL,
-    teklif_id integer,
-    irsaliye_id integer,
-    fatura_id integer,
-    tutar double precision DEFAULT 0 NOT NULL,
-    iskonto_tutar double precision DEFAULT 0 NOT NULL,
-    ara_toplam double precision DEFAULT 0 NOT NULL,
-    kdv_oran1 double precision DEFAULT 0 NOT NULL,
-    kdv_tutar1 double precision DEFAULT 0 NOT NULL,
-    kdv_oran2 double precision DEFAULT 0 NOT NULL,
-    kdv_tutar2 double precision DEFAULT 0 NOT NULL,
-    kdv_oran3 double precision DEFAULT 0 NOT NULL,
-    kdv_tutar3 double precision DEFAULT 0 NOT NULL,
-    kdv_oran4 double precision DEFAULT 0 NOT NULL,
-    kdv_tutar4 double precision DEFAULT 0 NOT NULL,
-    kdv_oran5 double precision DEFAULT 0 NOT NULL,
-    kdv_tutar5 double precision DEFAULT 0 NOT NULL,
-    genel_toplam double precision DEFAULT 0 NOT NULL,
-    islem_tipi_id integer,
+    id bigint NOT NULL,
+    teklif_id bigint,
+    irsaliye_id bigint,
+    fatura_id bigint,
+    tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    iskonto_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    ara_toplam numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran1 integer DEFAULT 0 NOT NULL,
+    kdv_tutar1 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran2 integer DEFAULT 0 NOT NULL,
+    kdv_tutar2 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran3 integer DEFAULT 0 NOT NULL,
+    kdv_tutar3 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran4 integer DEFAULT 0 NOT NULL,
+    kdv_tutar4 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran5 integer DEFAULT 0 NOT NULL,
+    kdv_tutar5 numeric(18,6) DEFAULT 0 NOT NULL,
+    genel_toplam numeric(18,6) DEFAULT 0 NOT NULL,
+    islem_tipi_id bigint,
     siparis_no character varying(16),
     siparis_tarihi date,
     teslim_tarihi date,
@@ -2332,8 +2360,8 @@ CREATE TABLE public.sat_siparis (
     musteri_adi character varying(128),
     vergi_dairesi character varying(32),
     vergi_no character varying(32),
-    ulke_id integer,
-    sehir_id integer,
+    ulke_id bigint,
+    sehir_id bigint,
     ilce character varying(32),
     mahalle character varying(40),
     cadde character varying(40),
@@ -2341,19 +2369,19 @@ CREATE TABLE public.sat_siparis (
     posta_kodu character varying(7),
     bina_adi character varying(40),
     kapi_no character varying(6),
-    musteri_temsilcisi_id integer,
+    musteri_temsilcisi_id bigint,
     muhattap_ad character varying(32),
     referans character varying(128),
     para_birimi character varying(3) NOT NULL,
-    kur_dolar double precision DEFAULT 1,
-    kur_euro double precision DEFAULT 1,
+    kur_dolar numeric(7,4) DEFAULT 1,
+    kur_euro numeric(7,4) DEFAULT 1,
     aciklama character varying(128),
     proforma_no integer,
-    siparis_durum_id integer,
-    teslim_sekli_id integer,
-    odeme_sekli_id integer,
-    paket_tipi_id integer,
-    tasima_ucreti_id integer
+    siparis_durum_id bigint,
+    teslim_sekli_id bigint,
+    odeme_sekli_id bigint,
+    paket_tipi_id bigint,
+    tasima_ucreti_id bigint
 );
 
 
@@ -2364,39 +2392,39 @@ ALTER TABLE public.sat_siparis OWNER TO ths_admin;
 --
 
 CREATE TABLE public.sat_siparis_detay (
-    id integer NOT NULL,
-    header_id integer,
-    teklif_detay_id integer,
-    irsaliye_detay_id integer,
-    fatura_detay_id integer,
+    id bigint NOT NULL,
+    header_id bigint,
+    teklif_detay_id bigint,
+    irsaliye_detay_id bigint,
+    fatura_detay_id bigint,
     stok_kodu character varying(32),
     stok_aciklama character varying(128),
     kullanici_aciklama character varying(128),
     referans character varying(128),
     miktar double precision DEFAULT 1 NOT NULL,
     olcu_birimi character varying(8),
-    iskonto_orani double precision DEFAULT 0,
+    iskonto_orani numeric(6,3) DEFAULT 0,
     kdv_orani integer DEFAULT 0,
-    fiyat double precision DEFAULT 0,
-    net_fiyat double precision DEFAULT 0 NOT NULL,
-    tutar double precision DEFAULT 0 NOT NULL,
-    iskonto_tutar double precision DEFAULT 0 NOT NULL,
-    net_tutar double precision DEFAULT 0 NOT NULL,
-    kdv_tutar double precision DEFAULT 0 NOT NULL,
-    toplam_tutar double precision DEFAULT 0 NOT NULL,
+    fiyat numeric(18,6) DEFAULT 0,
+    net_fiyat numeric(18,6) DEFAULT 0 NOT NULL,
+    tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    iskonto_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    net_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    toplam_tutar numeric(18,6) DEFAULT 0 NOT NULL,
     is_ana_urun boolean DEFAULT false NOT NULL,
-    ana_urun_id integer,
-    referans_ana_urun_id integer,
+    ana_urun_id bigint,
+    referans_ana_urun_id bigint,
     vergi_kodu character varying(4),
     vergi_muafiyet_kodu character varying(4),
     diger_vergi_kodu character varying(4),
     gtip_no character varying(16),
-    en double precision DEFAULT 0,
-    boy double precision DEFAULT 0,
-    yukseklik double precision DEFAULT 0,
-    net_agirlik double precision DEFAULT 0,
-    brut_agirlik double precision DEFAULT 0,
-    hacim double precision DEFAULT 0,
+    en numeric(12,6) DEFAULT 0,
+    boy numeric(12,6) DEFAULT 0,
+    yukseklik numeric(12,6) DEFAULT 0,
+    net_agirlik numeric(12,6) DEFAULT 0,
+    brut_agirlik numeric(12,6) DEFAULT 0,
+    hacim numeric(12,6) DEFAULT 0,
     kab integer
 );
 
@@ -2407,44 +2435,28 @@ ALTER TABLE public.sat_siparis_detay OWNER TO ths_admin;
 -- Name: sat_siparis_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sat_siparis_detay_id_seq
-    AS integer
+ALTER TABLE public.sat_siparis_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sat_siparis_detay_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sat_siparis_detay_id_seq OWNER TO ths_admin;
-
---
--- Name: sat_siparis_detay_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sat_siparis_detay_id_seq OWNED BY public.sat_siparis_detay.id;
+    CACHE 1
+);
 
 
 --
 -- Name: sat_siparis_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sat_siparis_id_seq
-    AS integer
+ALTER TABLE public.sat_siparis ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sat_siparis_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sat_siparis_id_seq OWNER TO ths_admin;
-
---
--- Name: sat_siparis_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sat_siparis_id_seq OWNED BY public.sat_siparis.id;
+    CACHE 1
+);
 
 
 --
@@ -2626,26 +2638,26 @@ ALTER TABLE public.sat_siparis_rapor OWNER TO ths_admin;
 --
 
 CREATE TABLE public.sat_teklif (
-    id integer NOT NULL,
-    siparis_id integer,
-    irsaliye_id integer,
-    fatura_id integer,
+    id bigint NOT NULL,
+    siparis_id bigint,
+    irsaliye_id bigint,
+    fatura_id bigint,
     is_siparislesti boolean NOT NULL,
-    tutar double precision DEFAULT 0 NOT NULL,
-    iskonto_tutar double precision DEFAULT 0 NOT NULL,
-    ara_toplam double precision DEFAULT 0 NOT NULL,
-    kdv_oran1 double precision DEFAULT 0 NOT NULL,
-    kdv_tutar1 double precision DEFAULT 0 NOT NULL,
-    kdv_oran2 double precision DEFAULT 0 NOT NULL,
-    kdv_tutar2 double precision DEFAULT 0 NOT NULL,
-    kdv_oran3 double precision DEFAULT 0 NOT NULL,
-    kdv_tutar3 double precision DEFAULT 0 NOT NULL,
-    kdv_oran4 double precision DEFAULT 0 NOT NULL,
-    kdv_tutar4 double precision DEFAULT 0 NOT NULL,
-    kdv_oran5 double precision DEFAULT 0 NOT NULL,
-    kdv_tutar5 double precision DEFAULT 0 NOT NULL,
-    genel_toplam double precision DEFAULT 0 NOT NULL,
-    islem_tipi_id integer,
+    tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    iskonto_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    ara_toplam numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran1 integer DEFAULT 0 NOT NULL,
+    kdv_tutar1 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran2 integer DEFAULT 0 NOT NULL,
+    kdv_tutar2 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran3 integer DEFAULT 0 NOT NULL,
+    kdv_tutar3 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran4 integer DEFAULT 0 NOT NULL,
+    kdv_tutar4 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran5 integer DEFAULT 0 NOT NULL,
+    kdv_tutar5 numeric(18,6) DEFAULT 0 NOT NULL,
+    genel_toplam numeric(18,6) DEFAULT 0 NOT NULL,
+    islem_tipi_id bigint,
     teklif_no character varying(16),
     teklif_tarihi date,
     gecerlilik_tarihi date,
@@ -2653,8 +2665,8 @@ CREATE TABLE public.sat_teklif (
     musteri_adi character varying(128),
     vergi_dairesi character varying(32),
     vergi_no character varying(32),
-    ulke_id integer,
-    sehir_id integer,
+    ulke_id bigint,
+    sehir_id bigint,
     ilce character varying(32),
     mahalle character varying(40),
     cadde character varying(40),
@@ -2662,19 +2674,19 @@ CREATE TABLE public.sat_teklif (
     posta_kodu character varying(7),
     bina_adi character varying(40),
     kapi_no character varying(6),
-    musteri_temsilcisi_id integer,
+    musteri_temsilcisi_id bigint,
     muhattap_ad character varying(32),
     muhattap_telefon character varying(24),
     referans character varying(128),
     para_birimi character varying(3) NOT NULL,
-    kur_dolar double precision DEFAULT 1,
-    kur_euro double precision DEFAULT 1,
+    kur_dolar numeric(7,4) DEFAULT 1,
+    kur_euro numeric(7,4) DEFAULT 1,
     aciklama character varying(128),
     proforma_no integer,
-    teslim_sekli_id integer,
-    odeme_sekli_id integer,
-    paket_tipi_id integer,
-    tasima_ucreti_id integer
+    teslim_sekli_id bigint,
+    odeme_sekli_id bigint,
+    paket_tipi_id bigint,
+    tasima_ucreti_id bigint
 );
 
 
@@ -2685,29 +2697,29 @@ ALTER TABLE public.sat_teklif OWNER TO ths_admin;
 --
 
 CREATE TABLE public.sat_teklif_detay (
-    id integer NOT NULL,
-    header_id integer,
-    siparis_detay_id integer,
-    irsaliye_detay_id integer,
-    fatura_detay_id integer,
+    id bigint NOT NULL,
+    header_id bigint,
+    siparis_detay_id bigint,
+    irsaliye_detay_id bigint,
+    fatura_detay_id bigint,
     stok_kodu character varying(32),
     stok_aciklama character varying(128),
     kullanici_aciklama character varying(128),
     referans character varying(128),
     miktar double precision DEFAULT 1 NOT NULL,
     olcu_birimi character varying(8),
-    iskonto_orani double precision DEFAULT 0,
+    iskonto_orani numeric(6,3) DEFAULT 0,
     kdv_orani integer DEFAULT 0,
-    fiyat double precision DEFAULT 0,
-    net_fiyat double precision DEFAULT 0 NOT NULL,
-    tutar double precision DEFAULT 0 NOT NULL,
-    iskonto_tutar double precision DEFAULT 0 NOT NULL,
-    net_tutar double precision DEFAULT 0 NOT NULL,
-    kdv_tutar double precision DEFAULT 0 NOT NULL,
-    toplam_tutar double precision DEFAULT 0 NOT NULL,
+    fiyat numeric(18,6) DEFAULT 0,
+    net_fiyat numeric(18,6) DEFAULT 0 NOT NULL,
+    tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    iskonto_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    net_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    toplam_tutar numeric(18,6) DEFAULT 0 NOT NULL,
     is_ana_urun boolean DEFAULT false NOT NULL,
-    ana_urun_id integer,
-    referans_ana_urun_id integer,
+    ana_urun_id bigint,
+    referans_ana_urun_id bigint,
     transfer_hesap_kodu character varying(16),
     kdv_transfer_hesap_kodu character varying(16),
     vergi_kodu character varying(4),
@@ -2723,44 +2735,28 @@ ALTER TABLE public.sat_teklif_detay OWNER TO ths_admin;
 -- Name: sat_teklif_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sat_teklif_detay_id_seq
-    AS integer
+ALTER TABLE public.sat_teklif_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sat_teklif_detay_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sat_teklif_detay_id_seq OWNER TO ths_admin;
-
---
--- Name: sat_teklif_detay_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sat_teklif_detay_id_seq OWNED BY public.sat_teklif_detay.id;
+    CACHE 1
+);
 
 
 --
 -- Name: sat_teklif_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sat_teklif_id_seq
-    AS integer
+ALTER TABLE public.sat_teklif ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sat_teklif_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sat_teklif_id_seq OWNER TO ths_admin;
-
---
--- Name: sat_teklif_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sat_teklif_id_seq OWNED BY public.sat_teklif.id;
+    CACHE 1
+);
 
 
 --
@@ -5523,41 +5519,6 @@ CREATE VIEW public.sys_db_status AS
 ALTER TABLE public.sys_db_status OWNER TO ths_admin;
 
 --
--- Name: sys_doviz_kuru; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_doviz_kuru (
-    id integer NOT NULL,
-    tarih date NOT NULL,
-    para_birimi character varying(3) NOT NULL,
-    kur numeric(7,4) NOT NULL
-);
-
-
-ALTER TABLE public.sys_doviz_kuru OWNER TO ths_admin;
-
---
--- Name: sys_doviz_kuru_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.sys_doviz_kuru_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_doviz_kuru_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_doviz_kuru_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_doviz_kuru_id_seq OWNED BY public.sys_doviz_kuru.id;
-
-
---
 -- Name: sys_erisim_hakki; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -6693,34 +6654,6 @@ ALTER TABLE ONLY public.rct_recete_yan_urun ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
--- Name: sat_siparis id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sat_siparis ALTER COLUMN id SET DEFAULT nextval('public.sat_siparis_id_seq'::regclass);
-
-
---
--- Name: sat_siparis_detay id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sat_siparis_detay ALTER COLUMN id SET DEFAULT nextval('public.sat_siparis_detay_id_seq'::regclass);
-
-
---
--- Name: sat_teklif id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sat_teklif ALTER COLUMN id SET DEFAULT nextval('public.sat_teklif_id_seq'::regclass);
-
-
---
--- Name: sat_teklif_detay id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sat_teklif_detay ALTER COLUMN id SET DEFAULT nextval('public.sat_teklif_detay_id_seq'::regclass);
-
-
---
 -- Name: satis_fatura id; Type: DEFAULT; Schema: public; Owner: ths_admin
 --
 
@@ -7267,13 +7200,6 @@ ALTER TABLE ONLY public.sys_bolge ALTER COLUMN id SET DEFAULT nextval('public.sy
 
 
 --
--- Name: sys_doviz_kuru id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_doviz_kuru ALTER COLUMN id SET DEFAULT nextval('public.sys_doviz_kuru_id_seq'::regclass);
-
-
---
 -- Name: sys_erisim_hakki id; Type: DEFAULT; Schema: public; Owner: ths_admin
 --
 
@@ -7721,6 +7647,22 @@ ALTER TABLE ONLY public.prs_src_bilgisi
 
 ALTER TABLE ONLY public.prs_src_bilgisi
     ADD CONSTRAINT emp_src_ability_src_type_id_emp_card_id_key UNIQUE (src_tipi_id, personel_id);
+
+
+--
+-- Name: mhs_doviz_kuru mhs_doviz_kuru_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.mhs_doviz_kuru
+    ADD CONSTRAINT mhs_doviz_kuru_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: mhs_doviz_kuru mhs_doviz_kuru_tarih_para_birimi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.mhs_doviz_kuru
+    ADD CONSTRAINT mhs_doviz_kuru_tarih_para_birimi_key UNIQUE (tarih, para_birimi);
 
 
 --
@@ -9004,22 +8946,6 @@ ALTER TABLE ONLY public.sys_bolge
 
 
 --
--- Name: sys_doviz_kuru sys_doviz_kuru_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_doviz_kuru
-    ADD CONSTRAINT sys_doviz_kuru_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_doviz_kuru sys_doviz_kuru_tarih_para_birimi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_doviz_kuru
-    ADD CONSTRAINT sys_doviz_kuru_tarih_para_birimi_key UNIQUE (tarih, para_birimi);
-
-
---
 -- Name: sys_erisim_hakki sys_erisim_hakki_kaynak_id_kullanici_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -9642,6 +9568,14 @@ ALTER TABLE ONLY public.ch_hesap_karti
 
 
 --
+-- Name: mhs_doviz_kuru mhs_doviz_kuru_para_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.mhs_doviz_kuru
+    ADD CONSTRAINT mhs_doviz_kuru_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimi(para_birimi) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: rct_paket_hammadde_detay rct_paket_hammadde_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -9983,14 +9917,6 @@ ALTER TABLE ONLY public.sys_adres
 
 ALTER TABLE ONLY public.sys_adres
     ADD CONSTRAINT sys_adres_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulke(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sys_doviz_kuru sys_doviz_kuru_para_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_doviz_kuru
-    ADD CONSTRAINT sys_doviz_kuru_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimi(para_birimi) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

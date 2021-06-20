@@ -145,6 +145,7 @@ begin
 		  List.Clear;
 		  while NOT EOF do
 		  begin
+//        PrepareTableClassFromQuery(QueryOfList);
 		    setFieldValue(Self.Id, QueryOfList);
         setFieldValue(FTableName, QueryOfList);
         setFieldValue(FColumnName, QueryOfList);

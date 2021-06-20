@@ -72,7 +72,6 @@ type
     tsstok: TTabSheet;
     tsch: TTabSheet;
     tspersonel: TTabSheet;
-    btnDovizKurlari: TButton;
     btnch_hesap_karti: TButton;
     ActionListMain: TActionList;
     actsys_kalite_form_tipi: TAction;
@@ -118,7 +117,7 @@ type
     catMenuItems: TCategoryButtons;
     actsys_ulke: TAction;
     actsys_sehir: TAction;
-    actdoviz_kuru: TAction;
+    actmhs_doviz_kuru: TAction;
     actsys_para_birimleri: TAction;
     actsys_olcu_birimleri: TAction;
     tlbMain: TToolBar;
@@ -234,6 +233,8 @@ type
     actrct_paket_hammadde: TAction;
     btnrct_iscilik_gideri: TButton;
     btnrct_paket_hammadde: TButton;
+    tsmhs: TTabSheet;
+    btnmhs_doviz_kuru: TButton;
 
 /// <summary>
 ///   Kullanýcýnýn eriþim yetkisine göre yapýlacak iþlemler burada olacak
@@ -280,7 +281,7 @@ type
     procedure imgMenuClick(Sender: TObject);
     procedure actsys_ulkeExecute(Sender: TObject);
     procedure actsys_sehirExecute(Sender: TObject);
-    procedure actdoviz_kuruExecute(Sender: TObject);
+    procedure actmhs_doviz_kuruExecute(Sender: TObject);
     procedure actset_prs_bolumExecute(Sender: TObject);
     procedure actset_prs_egitim_seviyesiExecute(Sender: TObject);
     procedure actset_prs_tatil_tipiExecute(Sender: TObject);
@@ -338,7 +339,9 @@ type
     procedure actrct_iscilik_gideriExecute(Sender: TObject);
     procedure actrct_paket_hammaddeExecute(Sender: TObject);
     procedure actset_rct_iscilik_gider_tipiExecute(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
   private
+    FIsFormShow: Boolean;
     procedure SetTitleFromLangContent(Sender: TControl = nil);
     procedure SetButtonPopup(Sender: TControl = nil);
   published
@@ -377,7 +380,6 @@ uses
 
   Ths.Erp.Database.Table.SysUlke, ufrmSysUlkeler,
   Ths.Erp.Database.Table.SysSehir, ufrmSysSehirler,
-  Ths.Erp.Database.Table.SysDovizKuru, ufrmSysDovizKurlari,
   Ths.Erp.Database.Table.SysKullanici, ufrmSysKullanicilar,
   Ths.Erp.Database.Table.SysErisimHakki, ufrmSysErisimHaklari,
   Ths.Erp.Database.Table.SysKaynakGrup, ufrmSysKaynakGruplari,
@@ -397,6 +399,8 @@ uses
   Ths.Erp.Database.Table.SysUygulamaAyari, ufrmSysUygulamaAyari,
   Ths.Erp.Database.Table.SysUygulamaAyariDiger, ufrmSysUygulamaAyariDiger,
   Ths.Erp.Database.Table.View.SysDbStatus, ufrmSysDbStatus,
+
+  Ths.Erp.Database.Table.MhsDovizKuru, ufrmMhsDovizKurlari,
 
   Ths.Erp.Database.Table.PrsPersonel, ufrmPrsPersoneller,
   Ths.Erp.Database.Table.PrsPersonelGecmisi,
@@ -843,9 +847,9 @@ begin
   TfrmSysGridFiltreSiralamalar.Create(Self, Self, TSysGridFiltreSiralama.Create(GDataBase), fomNormal).Show;
 end;
 
-procedure TfrmMain.actdoviz_kuruExecute(Sender: TObject);
+procedure TfrmMain.actmhs_doviz_kuruExecute(Sender: TObject);
 begin
-  TfrmSysDovizKurlari.Create(Self, Self, TSysDovizKuru.Create(GDataBase), fomNormal).Show;
+  TfrmMhsDovizKurlari.Create(Self, Self, TMhsDovizKuru.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmMain.actsys_lisanExecute(Sender: TObject);
@@ -1191,17 +1195,65 @@ begin
   inherited;
 end;
 
+procedure TfrmMain.FormActivate(Sender: TObject);
+var
+  LKurList: TTCMBDovizKuruList;
+  LDovizKuru: TMhsDovizKuru;
+  n1: Integer;
+  n2: Integer;
+  LID: Integer;
+begin
+  if not FIsFormShow then
+  begin
+    FIsFormShow := True;
+
+    LDovizKuru := TMhsDovizKuru.Create(GDataBase);
+    try
+      LDovizKuru.SelectToList(' AND ' + LDovizKuru.Tarih.QryName + '=' + QuotedStr(DateToStr(GDataBase.DateDB)), False, False);
+      if LDovizKuru.List.Count = 0 then
+      begin
+        if CustomMsgDlg(
+          TranslateText('Döviz kuru girilmemiþ otomatik olarak TCMB Döviz kurlarýndan girilmesini ister misin?', FrameworkLang.MessageOtomatikDovizKuru, LngMsgData, LngSystem),
+          mtConfirmation, mbYesNo, [TranslateText('Evet', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
+                                    TranslateText('Hayýr', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
+                                    TranslateText('Onay', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes
+        then
+        begin
+          LKurList := TCMB_DovizKurlari;
+          for n1 := 0 to Length(LKurList)-1 do
+          begin
+            for n2 := 0 to GParaBirimi.List.Count-1 do
+            begin
+              if LKurList[n1].Kod = TSysParaBirimi(GParaBirimi.List[n2]).ParaBirimi.Value then
+              begin
+                LDovizKuru.Clear;
+                LDovizKuru.Tarih.Value := LKurList[n1].Tarih;
+                LDovizKuru.ParaBirimi.Value := LKurList[n1].Kod;
+                LDovizKuru.Kur.Value := LKurList[n1].ForexSelling;
+                LDovizKuru.Insert(LID, False);
+              end;
+            end;
+
+          end;
+        end;
+      end;
+    finally
+      LDovizKuru.Free;
+    end;
+
+  end;
+end;
+
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action := caFree;
   inherited;
-  Application.Terminate;
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   inherited;
-
+  FIsFormShow := False;
   GUygulamaAnaDizin := ExtractFilePath(Application.ExeName);
 
   btnClose.Visible := True;
@@ -1458,6 +1510,23 @@ begin
             btnch_hesap_karti_ara.Enabled := True;
           end;
         end
+
+        //Muhasebe
+        else if CheckStringInArray(MODULE_MHS, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
+        begin
+          if not tsmhs.TabVisible then
+            tsmhs.TabVisible := True;
+
+          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_MHS_AYAR then
+          begin
+            
+          end
+          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_MHS_DOVIZ_KURU then
+          begin
+            btnmhs_doviz_kuru.Enabled := True;
+          end;
+        end
+
         //Stok Kartý
         else if CheckStringInArray(MODULE_STK, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
         begin

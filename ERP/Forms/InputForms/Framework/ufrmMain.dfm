@@ -11,6 +11,7 @@
   ParentFont = True
   Position = poScreenCenter
   Scaled = False
+  OnActivate = FormActivate
   ExplicitWidth = 747
   ExplicitHeight = 525
   PixelsPerInch = 96
@@ -98,7 +99,7 @@
               Action = actsys_database_durum
             end
             item
-              Action = actdoviz_kuru
+              Action = actmhs_doviz_kuru
             end
             item
               Caption = 'Ondal'#305'k Haneler'
@@ -407,13 +408,17 @@
       Top = 0
       Width = 737
       Height = 378
-      ActivePage = tsstok
+      ActivePage = tsmhs
       Align = alClient
       MultiLine = True
       OwnerDraw = True
       TabOrder = 0
       object tsGenel: TTabSheet
         Caption = 'Genel'
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnutd_dokuman: TButton
           Left = 2
           Top = 186
@@ -456,6 +461,10 @@
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -524,6 +533,10 @@
       object tsstok: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -627,21 +640,10 @@
       object tsch: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
-        object btnDovizKurlari: TButton
-          Left = 318
-          Top = 2
-          Width = 150
-          Height = 36
-          Caption = 'D'#246'viz Kurlar'#305
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          TabOrder = 1
-          Visible = False
-        end
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnch_hesap_karti: TButton
           Left = 2
           Top = 170
@@ -655,7 +657,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 6
         end
         object btnch_hesap_karti_ara: TButton
           Left = 2
@@ -670,7 +672,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 4
           WordWrap = True
         end
         object btnch_banka: TButton
@@ -686,7 +688,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 1
           Visible = False
         end
         object btnch_banka_subesi: TButton
@@ -702,7 +704,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 3
+          TabOrder = 2
           Visible = False
         end
         object btnset_ch_grup: TButton
@@ -718,7 +720,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 4
+          TabOrder = 3
         end
         object btnset_ch_hesap_plani: TButton
           Left = 160
@@ -733,7 +735,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 5
           Visible = False
         end
         object btnset_ch_vergi_orani: TButton
@@ -749,7 +751,7 @@
           Font.Style = [fsBold]
           Images = dm.il32
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 7
           Visible = False
         end
         object btnch_bolge: TButton
@@ -771,6 +773,10 @@
       object tspersonel: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnprs_personel: TButton
           Left = 2
           Top = 2
@@ -1117,6 +1123,10 @@
       object tsrecete: TTabSheet
         Caption = 'Re'#231'eteler'
         ImageIndex = 5
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnrct_recete: TButton
           Left = 2
           Top = 2
@@ -1166,6 +1176,25 @@
           WordWrap = True
         end
       end
+      object tsmhs: TTabSheet
+        Caption = 'Muhasebe'
+        ImageIndex = 6
+        object btnmhs_doviz_kuru: TButton
+          Left = 326
+          Top = 10
+          Width = 150
+          Height = 36
+          Action = actmhs_doviz_kuru
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          Images = dm.il32
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
     end
   end
   inherited AppEvntsBase: TApplicationEvents
@@ -1193,12 +1222,12 @@
     object actsys_bolge: TAction
       Caption = 'B'#246'lgeler'
       ImageIndex = 68
-      OnExecute = actdoviz_kuruExecute
+      OnExecute = actmhs_doviz_kuruExecute
     end
-    object actdoviz_kuru: TAction
+    object actmhs_doviz_kuru: TAction
       Caption = 'D'#246'viz Kurlar'#305
       ImageIndex = 68
-      OnExecute = actdoviz_kuruExecute
+      OnExecute = actmhs_doviz_kuruExecute
     end
     object actsys_erisim_hakki: TAction
       Caption = 'Kullan'#305'c'#305' Eri'#351'im Haklar'#305

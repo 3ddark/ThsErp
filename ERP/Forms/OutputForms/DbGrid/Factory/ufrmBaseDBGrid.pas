@@ -777,7 +777,8 @@ begin
       if (grd.Focused) then
       begin
         Key := 0;
-        mniPreview.Click;
+        if (not FIsHelper) then
+          mniPreview.Click;
       end;
     end
     else if  (Key = Ord('T')) then  //CTRL + SHIFT + ALT + T show all columns(show hide columns)
@@ -915,6 +916,7 @@ procedure TfrmBaseDBGrid.grdDblClick(Sender: TObject);
 begin
   if FIsHelper then
   begin
+    //ferhat
     SelectCurrentRecord;
   end
   else
@@ -1899,7 +1901,7 @@ var
     end;
   end;
 
-  procedure SetDisplayFormat(AFieldDB: TFieldDB; AGridField: TField);
+  procedure SetDisplayFormat(AFieldDB: TFieldDB; AGridField: TField; AGridKolonProp: TSysGridKolon);
   begin
     if((AFieldDB.DataType = Data.DB.ftSmallint)
     or (AFieldDB.DataType = Data.DB.ftInteger)
@@ -1908,19 +1910,39 @@ var
     or (AFieldDB.DataType = Data.DB.ftLongWord))
     and (AFieldDB.FieldName <> 'id')
     then
-      TIntegerField(AGridField).DisplayFormat := '0'
+    begin
+      TIntegerField(AGridField).DisplayFormat := '0';
+      if AGridKolonProp.DataFormat.Value <> '' then
+        TIntegerField(AGridField).DisplayFormat := AGridKolonProp.DataFormat.Value;
+    end
     else
     if (AFieldDB.DataType = Data.DB.ftFloat)
     or (AFieldDB.DataType = Data.DB.ftBCD)
     then
-      TFloatField(AGridField).DisplayFormat := '#' + FormatSettings.DecimalSeparator + StringOfChar('#', vHaneSayisi) + '0' + FormatSettings.ThousandSeparator + StringOfChar('0', vHaneSayisi)
+    begin
+      TFloatField(AGridField).DisplayFormat := '#' + FormatSettings.DecimalSeparator + StringOfChar('#', vHaneSayisi) + '0' + FormatSettings.ThousandSeparator + StringOfChar('0', vHaneSayisi);
+      if AGridKolonProp.DataFormat.Value <> '' then
+        TFloatField(AGridField).DisplayFormat := AGridKolonProp.DataFormat.Value;
+    end
     else if (AFieldDB.DataType = Data.DB.ftDate) then
-      TDateField(AGridField).DisplayFormat := 'dd' + FormatSettings.DateSeparator + 'mm' + FormatSettings.DateSeparator + 'yyyy'
+    begin
+      TDateField(AGridField).DisplayFormat := 'dd' + FormatSettings.DateSeparator + 'mm' + FormatSettings.DateSeparator + 'yyyy';
+      if AGridKolonProp.DataFormat.Value <> '' then
+        TDateField(AGridField).DisplayFormat := AGridKolonProp.DataFormat.Value;
+    end
     else if (AFieldDB.DataType = Data.DB.ftTime) then
-      TDateField(AGridField).DisplayFormat := 'hh' + FormatSettings.TimeSeparator + 'nn' + FormatSettings.DateSeparator + 'ss'
+    begin
+      TDateField(AGridField).DisplayFormat := 'hh' + FormatSettings.TimeSeparator + 'nn' + FormatSettings.DateSeparator + 'ss';
+      if AGridKolonProp.DataFormat.Value <> '' then
+        TDateField(AGridField).DisplayFormat := AGridKolonProp.DataFormat.Value;
+    end
     else if (AFieldDB.DataType = Data.DB.ftDateTime) then
+    begin
       TDateField(AGridField).DisplayFormat := 'dd' + FormatSettings.DateSeparator + 'mm' + FormatSettings.DateSeparator + 'yyyy' + ' ' +
                                               'hh' + FormatSettings.TimeSeparator + 'nn' + FormatSettings.DateSeparator + 'ss';
+      if AGridKolonProp.DataFormat.Value <> '' then
+        TDateField(AGridField).DisplayFormat := AGridKolonProp.DataFormat.Value;
+    end;
   end;
 
 begin
@@ -1997,7 +2019,7 @@ begin
               AFieldDB := Table.GetFieldByFieldName(AField.FieldName);
             //display formatlarını ayarla
             if AFieldDB <> nil then
-              SetDisplayFormat(AFieldDB, AField);
+              SetDisplayFormat(AFieldDB, AField, TSysGridKolon(FGridColWidth.List[n1]));
 
             if Assigned(ACol) then
             begin
@@ -2240,6 +2262,7 @@ begin
   if grd.DataSource.DataSet.RecordCount > 0 then
   begin
     SetSelectedItem;
+    Table.SelectToList(' AND ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value), False, False);
     TableHelper := Table.Clone;
   end;
   btnCloseClick(btnClose);

@@ -142,7 +142,8 @@ uses
   Ths.Erp.Database.Table.SetEinvPaketTipi, ufrmSetEinvPaketTipleri,
   Ths.Erp.Database.Table.SetEinvTasimaUcreti, ufrmSetEinvTasimaUcretleri,
   Ths.Erp.Database.Table.SetEinvOdemeSekli, ufrmSetEinvOdemeSekilleri,
-  Ths.Erp.Database.Table.SetEinvTeslimSekli, ufrmSetEinvTeslimSekilleri;
+  Ths.Erp.Database.Table.SetEinvTeslimSekli, ufrmSetEinvTeslimSekilleri,
+  Ths.Erp.Database.Table.MhsDovizKuru;
 
 {$R *.dfm}
 
@@ -337,7 +338,7 @@ begin
 
   ts1.Caption := 'Sipariş Detayları';
 
-  GridReset();
+  GridReset;
 end;
 
 procedure TfrmSatSiparisDetaylar.FormDestroy(Sender: TObject);
@@ -347,6 +348,9 @@ begin
 end;
 
 procedure TfrmSatSiparisDetaylar.FormShow(Sender: TObject);
+var
+  LKur: TMhsDovizKuru;
+  n1: Integer;
 begin
   inherited;
   splHeader.Visible := False;
@@ -358,8 +362,20 @@ begin
     edtmusteri_temsilcisi_id.Text := GSysKullanici.PersonelAdSoyad.Value;
     edtsiparis_tarihi.Text := DateToStr(GDataBase.DateDB);
     edtsiparis_no.Text := TSatSiparis(Table).getNewSiparisNo;
-    edtkur_euro.Text := '1';
-    edtkur_dolar.Text := '1';
+
+    LKur := TMhsDovizKuru.Create(GDataBase);
+    try
+      LKur.SelectToList(' AND ' + LKur.Tarih.QryName + '=' + QuotedStr(DateToStr(GDataBase.DateDB)), False, False);
+      for n1 := 0 to LKur.List.Count-1 do
+      begin
+        if TMhsDovizKuru(LKur.List[n1]).ParaBirimi.Value = ParaEUR then
+          edtkur_euro.Text := FloatToStr(TMhsDovizKuru(LKur.List[n1]).Kur.Value)
+        else if TMhsDovizKuru(LKur.List[n1]).ParaBirimi.Value = ParaUSD then
+          edtkur_dolar.Text := FloatToStr(TMhsDovizKuru(LKur.List[n1]).Kur.Value);
+      end;
+    finally
+      LKur.Free;
+    end;
   end
   else
     btnHeaderShowHide.Click;

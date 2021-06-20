@@ -208,12 +208,16 @@ type
     edtalis_para: TEdit;
     edtsatis_para: TEdit;
     edtihrac_para: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     procedure FormCreate(Sender: TObject);override;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject);override;
     procedure edtcins_idChange(Sender: TObject);
     procedure pgcMainChange(Sender: TObject);
     procedure btnstok_resimClick(Sender: TObject);
+    procedure edtenChange(Sender: TObject);
   public
     procedure Repaint; override;
   published
@@ -405,6 +409,16 @@ begin
       LCins.Free;
     end;
   end;
+end;
+
+procedure TfrmStkStokKarti.edtenChange(Sender: TObject);
+begin
+  lblvalue_hacim.Caption :=
+    FormatFloat('0.0000',
+      (StrToFloatDef(edten.Text, 0) *
+       StrToFloatDef(edtboy.Text, 0) *
+       StrToFloatDef(edtyukseklik.Text, 0)) / 1000000
+    );
 end;
 
 procedure TfrmStkStokKarti.FormCreate(Sender: TObject);

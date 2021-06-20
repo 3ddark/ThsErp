@@ -200,9 +200,9 @@ type
 implementation
 
 uses
-    ufrmBaseDBGrid
-  , Ths.Erp.Globals
-  ;
+  ufrmBaseDBGrid,
+  Ths.Erp.Globals,
+  Ths.Erp.Database.Table.SysKaliteFormTipi;
 
 {$R *.dfm}
 
@@ -379,14 +379,100 @@ begin
 end;
 
 procedure TfrmBaseDetaylar.FormShow(Sender: TObject);
+var
+  n1: Integer;
 begin
-  inherited;
+  //ufrmBase kodu
+  FocusedFirstControl(pnlMain);
+
+
+
+  //ufrmBaseInput kodu
+  stbBase.Panels.Add;
+  for n1 := 0 to stbBase.Panels.Count - 1 do
+    stbBase.Panels.Items[n1].Style := psOwnerDraw;
+
+  if Assigned(Table) then
+    if GDataBase.Connection.Connected then
+    begin
+      if GSysUygulamaAyari.IsKaliteFormNoKullan.Value then
+      begin
+        stbBase.Panels.Items[STATUS_SQL_SERVER].Text := GetKaliteFormNo(Table.TableName, QtyInput);
+        stbBase.Panels.Items[STATUS_SQL_SERVER].Width := stbBase.Width;
+      end;
+    end;
+
+  //form ve page control page 0 caption bilgisini dil dosyasýna göre doldur
+  //page control page 0 için isternise miras alan formda deðiþiklik yapýlabilir.
+  if Assigned(Table) then
+  begin
+    Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
+    pgcMain.Pages[0].Caption := Self.Caption;
+  end;
+
+  //burasý yukarýdaki caption doldurma kodundan sonra gelmeli pagecontrol tablardaki baþlýklarý düzenliyor.
+  SetCaptionFromLangContent();
+
+  if Self.FormMode = ifmRewiev then
+  begin
+    //eðer baþka pencerede açýk transaction varsa güncelleme moduna hiç girilmemli
+    if (Table.Database.Connection.InTransaction) then
+    begin
+      btnAccept.Visible   := False;
+      btnDelete.Visible     := False;
+      btnAccept.OnClick   := nil;
+      btnDelete.OnClick     := nil;
+    end;
+
+    if ParentForm <> nil then
+    begin
+      btnSpin.Visible := True;
+    end;
+
+    //Burada inceleme modunda olduðu için bütün kontrolleri kapatmak gerekiyor.
+    SetControlsDisabledOrEnabled(pnlMain, True);
+  end
+  else
+  begin
+    //Burada yeni kayýt, kopya yeni kayýt veya güncelleme modunda olduðu için bütün kontrolleri açmak gerekiyor.
+    SetControlsDisabledOrEnabled(pnlMain, False);
+  end;
+
+  mniAddLanguageContent.Visible := False;
+  if (GSysKullanici.IsSuperKullanici.Value) and (FormMode = ifmRewiev) then
+  begin
+    //yeni kayýtta transactionlardan dolayý sorun oluyor. Düzeltmek için uðralýlmadý
+    SetLabelPopup();
+    mniAddLanguageContent.Visible := True;
+  end;
+
+//  if (FormMode <> ifmNewRecord ) then
+//    RefreshData;
+//ferhat buraya bak normal input db formlarda iki kere refreshdata yapýyor. Bunu engelle
+//detaylý formlarda da refresh yapmalý fakat input db formlarýndan gelmediði için burada yapýldý.
+//yapýyý gözden geçir
+
+  Application.ProcessMessages;
+
+  PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
+
+
+
+  //ufrmBaseInputDB kodu
+  if pgcMain.Visible and pgcMain.Enabled and tsMain.TabVisible and tsMain.Enabled then
+    pgcMain.ActivePageIndex := tsMain.TabIndex;
+
+  if (FormMode <> ifmNewRecord ) then
+    RefreshData;
 
   //sadece sayýsal alanlarýn gösterim þeklini (basamaklý ve ondalýklý) düzeltmek için yazýldý
   if Assigned(Table) then
     SetControlDBProperty(True);
   Repaint;
 
+
+
+  //BaseDetaylar kodu
   if (FormMode = ifmNewRecord) then
     GridReset()
   else if (FormMode = ifmCopyNewRecord) then

@@ -14,6 +14,7 @@ uses
   System.DateUtils,
   System.NetEncoding,
   System.Math,
+  System.Types,
   Vcl.Graphics,
   Vcl.Controls,
   Vcl.Forms,
@@ -40,7 +41,6 @@ type
   TfrmSatisTeklifDetay = class(TfrmBaseDetaylarDetay)
     lblstok_kodu: TLabel;
     lblstok_aciklama: TLabel;
-    lblkullanici_aciklama: TLabel;
     lblfiyat: TLabel;
     lbliskonto_orani: TLabel;
     lblkdv_orani: TLabel;
@@ -54,7 +54,6 @@ type
     edtmiktar: TEdit;
     edtiskonto_orani: TEdit;
     edtgtip_no: TEdit;
-    edtkullanici_aciklama: TEdit;
     PanelBilgilendirme: TPanel;
     lbltutar: TLabel;
     lbltutar_val: TLabel;
@@ -76,6 +75,8 @@ type
     lblnet_tutar_brm: TLabel;
     edtkdv_orani: TEdit;
     edtolcu_birimi: TEdit;
+    lblkullanici_aciklama: TLabel;
+    edtkullanici_aciklama: TEdit;
     procedure FormCreate(Sender: TObject);override;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject);override;
@@ -84,6 +85,14 @@ type
     procedure edtiskonto_oraniKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure cbbkdv_oraniChange(Sender: TObject);
     procedure FormShow(Sender: TObject); override;
+    procedure edtfiyatExit(Sender: TObject);
+    procedure edtmiktarExit(Sender: TObject);
+    procedure edtiskonto_oraniExit(Sender: TObject);
+    procedure edtkdv_oraniExit(Sender: TObject);
+    procedure edtfiyatChange(Sender: TObject);
+    procedure edtmiktarChange(Sender: TObject);
+    procedure edtiskonto_oraniChange(Sender: TObject);
+    procedure edtkdv_oraniChange(Sender: TObject);      
   private
     FNetFiyat,
     FTutar,
@@ -93,6 +102,9 @@ type
     FToplamTutar: Double;
 
     procedure CalculateTotals();
+  protected
+    function ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl = nil): Boolean;
+      override;
   public
     procedure ClearTotalLabels;
   published
@@ -123,10 +135,10 @@ begin
   vKDVOrani := 0;
 
   if edtFiyat.Text <> '' then
-    vFiyat := StrToFloatDef(edtFiyat.Text, 0);
+    vFiyat := edtFiyat.toMoneyToDouble;
 
   if edtMiktar.Text <> '' then
-    vMiktar := StrToFloatDef(edtMiktar.Text, 0);
+    vMiktar := edtMiktar.toMoneyToDouble;
 
   if edtiskonto_orani.Text <> '' then
     vIskontoOrani  := StrToFloatDef(edtiskonto_orani.Text, 0);
@@ -186,13 +198,61 @@ begin
   lbltoplam_tutar_brm.Caption := LMoneySign;
 end;
 
+procedure TfrmSatisTeklifDetay.edtfiyatChange(Sender: TObject);
+begin
+  inherited;
+  CalculateTotals;
+end;
+
+procedure TfrmSatisTeklifDetay.edtfiyatExit(Sender: TObject);
+begin
+  inherited;
+  CalculateTotals;
+end;
+
 procedure TfrmSatisTeklifDetay.edtfiyatKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   inherited;
   CalculateTotals;
 end;
 
+procedure TfrmSatisTeklifDetay.edtiskonto_oraniChange(Sender: TObject);
+begin
+  inherited;
+  CalculateTotals;
+end;
+
+procedure TfrmSatisTeklifDetay.edtiskonto_oraniExit(Sender: TObject);
+begin
+  inherited;
+  CalculateTotals;
+end;
+
 procedure TfrmSatisTeklifDetay.edtiskonto_oraniKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  CalculateTotals;
+end;
+
+procedure TfrmSatisTeklifDetay.edtkdv_oraniChange(Sender: TObject);
+begin
+  inherited;
+  CalculateTotals;
+end;
+
+procedure TfrmSatisTeklifDetay.edtkdv_oraniExit(Sender: TObject);
+begin
+  inherited;
+  CalculateTotals;
+end;
+
+procedure TfrmSatisTeklifDetay.edtmiktarChange(Sender: TObject);
+begin
+  inherited;
+  CalculateTotals;
+end;
+
+procedure TfrmSatisTeklifDetay.edtmiktarExit(Sender: TObject);
 begin
   inherited;
   CalculateTotals;
@@ -306,6 +366,11 @@ begin
     LoadImageFromDB(TSatTeklifDetay(Table).StokResim, imgstok_resim);
 end;
 
+function TfrmSatisTeklifDetay.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
+begin
+  Result := inherited ValidateInput(panel_groupbox_pagecontrol_tabsheet);
+end;
+
 procedure TfrmSatisTeklifDetay.btnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
@@ -318,14 +383,13 @@ begin
 
       TSatTeklifDetay(Table).StokKodu.Value := edtstok_kodu.Text;
       TSatTeklifDetay(Table).StokAciklama.Value := edtstok_aciklama.Text;
-      TSatTeklifDetay(Table).KullaniciAciklama.Value := edtkullanici_aciklama.Text;
       TSatTeklifDetay(Table).Referans.Value := '';
       TSatTeklifDetay(Table).Miktar.Value := edtMiktar.Text;
       TSatTeklifDetay(Table).OlcuBirimi.Value := edtolcu_birimi.Text;
 
       TSatTeklifDetay(Table).IskontoOrani.Value := edtiskonto_orani.Text;
       TSatTeklifDetay(Table).KdvOrani.Value := edtkdv_orani.Text;
-      TSatTeklifDetay(Table).Fiyat.Value := edtFiyat.Text;
+      TSatTeklifDetay(Table).Fiyat.Value := edtFiyat.toMoneyToDouble;
       TSatTeklifDetay(Table).NetFiyat.Value := FNetFiyat;
       TSatTeklifDetay(Table).Tutar.Value := FTutar;
       TSatTeklifDetay(Table).IskontoTutar.Value := FIskontoTutar;
@@ -341,6 +405,9 @@ begin
       TSatTeklifDetay(Table).VergiMuafiyetKodu.Value := '';
       TSatTeklifDetay(Table).DigerVergiKodu.Value := '';
       TSatTeklifDetay(Table).GtipNo.Value := edtgtip_no.Text;
+      TSatTeklifDetay(Table).KullaniciAciklama.Value := edtkullanici_aciklama.Text;
+
+      (TfrmSatTeklifDetaylar(ParentForm).Table as TSatTeklif).ValidateDetay(TSatTeklifDetay(Table));
 
       inherited;
     end;

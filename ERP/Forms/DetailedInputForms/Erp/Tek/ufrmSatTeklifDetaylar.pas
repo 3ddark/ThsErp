@@ -162,7 +162,8 @@ uses
   Ths.Erp.Database.Table.SetEinvPaketTipi, ufrmSetEinvPaketTipleri,
   Ths.Erp.Database.Table.SetEinvTasimaUcreti, ufrmSetEinvTasimaUcretleri,
   Ths.Erp.Database.Table.SetEinvOdemeSekli, ufrmSetEinvOdemeSekilleri,
-  Ths.Erp.Database.Table.SetEinvTeslimSekli, ufrmSetEinvTeslimSekilleri;
+  Ths.Erp.Database.Table.SetEinvTeslimSekli, ufrmSetEinvTeslimSekilleri,
+  Ths.Erp.Database.Table.MhsDovizKuru;
 
 {$R *.dfm}
 
@@ -376,6 +377,9 @@ begin
 end;
 
 procedure TfrmSatTeklifDetaylar.FormShow(Sender: TObject);
+var
+  LKur: TMhsDovizKuru;
+  n1: Integer;
 begin
   inherited;
   splHeader.Visible := False;
@@ -385,8 +389,20 @@ begin
     edtteklif_tarihi.Text := DateToStr(GDataBase.DateDB);
     edtgecerlilik_tarihi.Text := DateToStr(IncDay(GDataBase.DateDB, 30));
     edtteklif_no.Text := getTeklifNo;
-    edtkur_euro.Text := '1';
-    edtkur_dolar.Text := '1';
+
+    LKur := TMhsDovizKuru.Create(GDataBase);
+    try
+      LKur.SelectToList(' AND ' + LKur.Tarih.QryName + '=' + QuotedStr(DateToStr(GDataBase.DateDB)), False, False);
+      for n1 := 0 to LKur.List.Count-1 do
+      begin
+        if TMhsDovizKuru(LKur.List[n1]).ParaBirimi.Value = ParaEUR then
+          edtkur_euro.Text := FloatToStr(TMhsDovizKuru(LKur.List[n1]).Kur.Value)
+        else if TMhsDovizKuru(LKur.List[n1]).ParaBirimi.Value = ParaUSD then
+          edtkur_dolar.Text := FloatToStr(TMhsDovizKuru(LKur.List[n1]).Kur.Value);
+      end;
+    finally
+      LKur.Free;
+    end;
   end
   else
     btnHeaderShowHide.Click;
@@ -507,7 +523,11 @@ begin
       begin
         LCH := TChHesapKarti.Create(Table.Database);
         LFrmCH := TfrmHesapKartlari.Create(TEdit(Sender), Self, LCH, fomNormal, True);
-        LFrmCH.QryFiltreVarsayilanKullanici := ' AND ' + LCH.TableName + '.' + LCH.HesapTipiID.FieldName + '=' + Ord(TChHesapTipi.Son).ToString;
+        LFrmCH.QryFiltreVarsayilanKullanici :=
+          ' AND ' + LCH.HesapTipiID.QryName + '=' + Ord(TChHesapTipi.Son).ToString +
+          ' AND (' + LCH.HesapKodu.QryName + ' LIKE ' + QuotedStr('120%') + ' OR ' +
+                     LCH.HesapKodu.QryName + ' LIKE ' + QuotedStr('159%') +
+                ')';
         try
           LFrmCH.ShowModal;
           if LFrmCH.DataAktar then
@@ -519,7 +539,9 @@ begin
               edtvergi_dairesi.Clear;
               edtvergi_no.Clear;
               edtulke_id.Clear;
+              TSatTeklif(Table).UlkeID.Value := 0;
               edtsehir_id.Clear;
+              TSatTeklif(Table).SehirID.Value := 0;
               edtilce.Clear;
               edtmahalle.Clear;
               edtcadde.Clear;
@@ -529,9 +551,7 @@ begin
               edtposta_kodu.Clear;
               edtmuhattap_ad.Clear;
               edtmuhattap_telefon.Clear;
-
-              TSatTeklif(Table).UlkeID.Value := 0;
-              TSatTeklif(Table).SehirID.Value := 0;
+              edtpara_birimi.Clear;
             end
             else
             begin
@@ -540,7 +560,9 @@ begin
               edtvergi_dairesi.Text := FormatedVariantVal(LCH.VergiDairesi);
               edtvergi_no.Text := FormatedVariantVal(LCH.VergiNo);
               edtulke_id.Text := FormatedVariantVal(LCH.Ulke);
+              TSatTeklif(Table).UlkeID.Value := FormatedVariantVal(LCH.UlkeID);
               edtsehir_id.Text := FormatedVariantVal(LCH.Sehir);
+              TSatTeklif(Table).SehirID.Value := FormatedVariantVal(LCH.SehirID);
               edtilce.Text := FormatedVariantVal(LCH.Ilce);
               edtmahalle.Text := FormatedVariantVal(LCH.Mahalle);
               edtcadde.Text := FormatedVariantVal(LCH.Cadde);
@@ -550,9 +572,7 @@ begin
               edtposta_kodu.Text := FormatedVariantVal(LCH.PostaKodu);
               edtmuhattap_ad.Text := FormatedVariantVal(LCH.Yetkili1);
               edtmuhattap_telefon.Text := FormatedVariantVal(LCH.Yetkili1Tel);
-
-              TSatTeklif(Table).UlkeID.Value := FormatedVariantVal(LCH.UlkeID);
-              TSatTeklif(Table).SehirID.Value := FormatedVariantVal(LCH.SehirID);
+              edtpara_birimi.Text := FormatedVariantVal(LCH.ParaBirimi);
             end;
           end;
         finally

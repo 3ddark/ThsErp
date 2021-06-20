@@ -590,7 +590,10 @@ begin
 
   //Aradan bilgi girilemez
   if (Length(Self.Text) > Self.SelStart) and (pKey <> #13) then
-    pKey := #0;
+  begin
+    if ContainsStr(Self.Text, FormatSettings.DecimalSeparator) then
+      pKey := #0;
+  end;
 
   //tanýmlý tuþlar harici tuþlar girilmez veya seperator sadece bir kere girilebilir
   if not CharInSet(pKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then
