@@ -480,6 +480,7 @@ var
   LPic: TPicture;
   LSize: Int64;
 begin
+  AImage.Picture.Assign(nil);
   if AField.DataType <> ftBytes then
     Exit;
 

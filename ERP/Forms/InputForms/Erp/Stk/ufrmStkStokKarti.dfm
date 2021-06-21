@@ -20,6 +20,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
     inherited pgcMain: TPageControl
       Width = 643
       Height = 494
+      ActivePage = tsGrupOzellikleri
       OnChange = pgcMainChange
       ExplicitWidth = 643
       ExplicitHeight = 494
@@ -1168,6 +1169,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
       object tsOzetler: TTabSheet
         Caption = #214'zetler'
         ImageIndex = 3
+        TabVisible = False
         object pnlOzetHeader: TPanel
           AlignWithMargins = True
           Left = 3
@@ -2085,6 +2087,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
           Height = 236
           Align = alBottom
           TabOrder = 2
+          Visible = False
           object lblAmbarlar: TLabel
             AlignWithMargins = True
             Left = 4

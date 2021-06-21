@@ -495,7 +495,11 @@ begin
       begin
         LCH := TChHesapKarti.Create(Table.Database);
         LFrmCH := TfrmHesapKartlari.Create(TEdit(Sender), Self, LCH, fomNormal, True);
-        LFrmCH.QryFiltreVarsayilanKullanici := ' AND ' + LCH.TableName + '.' + LCH.HesapTipiID.FieldName + '=' + Ord(TChHesapTipi.Son).ToString;
+        LFrmCH.QryFiltreVarsayilanKullanici :=
+          ' AND ' + LCH.HesapTipiID.QryName + '=' + Ord(TChHesapTipi.Son).ToString +
+          ' AND (' + LCH.HesapKodu.QryName + ' LIKE ' + QuotedStr('120%') + ' OR ' +
+                     LCH.HesapKodu.QryName + ' LIKE ' + QuotedStr('159%') +
+                ')';
         try
           LFrmCH.ShowModal;
           if LFrmCH.DataAktar then
