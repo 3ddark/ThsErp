@@ -677,9 +677,9 @@ begin
       else
         TPrsPersonel(Table).AskerlikDurumuID.Value := 0;
 
-      TPrsPersonel(Table).Maas.Value := edtsalary.toMoneyToDouble;
+      TPrsPersonel(Table).Maas.Value := edtsalary.moneyToDouble;
       TPrsPersonel(Table).IkramiyeSayisi.Value := edtbonus.Text;
-      TPrsPersonel(Table).IkramiyeTutar.Value := edtbonus_amount.toMoneyToDouble;
+      TPrsPersonel(Table).IkramiyeTutar.Value := edtbonus_amount.moneyToDouble;
       TPrsPersonel(Table).OzelNot.Value := mmospecial_note.Text;
 
 //      TEmpCard(Table).DriverLicenseAbility.List.Clear;

@@ -81,6 +81,10 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         object tsHeaderDiger: TTabSheet
           Caption = 'Di'#287'er'
           ImageIndex = 1
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
       end
     end
@@ -113,6 +117,10 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         TabOrder = 1
         object ts1: TTabSheet
           Caption = 'ts1'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object pnl1: TPanel
             AlignWithMargins = True
             Left = 0
@@ -494,6 +502,10 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         object ts2: TTabSheet
           Caption = 'ts2'
           ImageIndex = 1
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object pnl2: TPanel
             AlignWithMargins = True
             Left = 0

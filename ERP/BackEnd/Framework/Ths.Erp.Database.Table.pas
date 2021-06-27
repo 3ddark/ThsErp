@@ -87,7 +87,15 @@ type
     procedure Clone(var pField: TFieldDB);
     //procedure SetControlProperty(const pTableName: string; pControl: TWinControl);
     function QryName: string;
+
     function AsString: string;
+    function AsFloat: Double;
+    function AsInteger: Integer;
+    function AsInt64: Int64;
+    function AsBoolean: Boolean;
+    function AsDate: TDate;
+    function AsDateTime: TDateTime;
+    function AsTime: TTime;
   end;
 
   TTable = class
@@ -199,6 +207,8 @@ type
     procedure PrepareTableClassFromQuery(AQuery: TFDQuery);
     procedure PrepareInsertQueryParams;
     procedure PrepareUpdateQueryParams;
+
+    procedure PrepareTableRequiredValues;
 
     procedure CloneClassContent(ASrc, ADes: TTable);
 
@@ -639,9 +649,44 @@ begin
     end;
 end;
 
+function TFieldDB.AsBoolean: Boolean;
+begin
+  Result := StrToBool(System.Variants.VarToStr(FValue))
+end;
+
+function TFieldDB.AsDate: TDate;
+begin
+  Result := System.Variants.VarToDateTime(FValue)
+end;
+
+function TFieldDB.AsDateTime: TDateTime;
+begin
+  Result := System.Variants.VarToDateTime(FValue);
+end;
+
+function TFieldDB.AsFloat: Double;
+begin
+  Result := FValue;
+end;
+
+function TFieldDB.AsInt64: Int64;
+begin
+  Result := VarToInt64(FValue);
+end;
+
+function TFieldDB.AsInteger: Integer;
+begin
+  Result := VarToInt(FValue);
+end;
+
 function TFieldDB.AsString: string;
 begin
   Result := VarToStr(FValue);
+end;
+
+function TFieldDB.AsTime: TTime;
+begin
+  Result := StrToTimeDef(VarToStr(FValue), 0);
 end;
 
 procedure TFieldDB.Clone(var pField: TFieldDB);
@@ -1432,6 +1477,23 @@ var
 begin
   for n1 := 0 to Length(Self.Fields)-1 do
     setFieldValue(Self.Fields[n1], AQuery);
+end;
+
+procedure TTable.PrepareTableRequiredValues;
+var
+  n1: Integer;
+  n2: Integer;
+begin
+  for n1 := 0 to GSysTableInfo.List.Count-1 do
+  begin
+    if VarToStr(TSysViewColumns(GSysTableInfo.List[n1]).OrjTableName.Value) = FTableName then
+      for n2 := 0 to Length(Fields)-1 do
+      begin
+        if VarToStr(TSysViewColumns(GSysTableInfo.List[n1]).OrjColumnName.Value) = FFields[n2].FieldName then
+          FFields[n2].FIsNullable := TSysViewColumns(GSysTableInfo.List[n1]).IsNullable.Value;
+          FFields[n2].FSize := TSysViewColumns(GSysTableInfo.List[n1]).CharacterMaximumLength.Value;
+      end;
+  end;
 end;
 
 procedure TTable.PrepareInsertQueryParams;

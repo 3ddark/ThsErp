@@ -387,8 +387,6 @@ begin
   {$ENDIF}
 {$WARN SYMBOL_PLATFORM ON}
 
-  ReportMemoryLeaksOnShutdown := True;
-
   AddExitProc(MemLeakFix);
 
   TStyleManager.TrySetStyle('Amakrits');

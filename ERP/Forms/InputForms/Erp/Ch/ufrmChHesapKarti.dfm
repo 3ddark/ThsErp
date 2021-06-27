@@ -500,12 +500,8 @@ inherited frmHesapKarti: TfrmHesapKarti
         end
       end
       object tsAdres: TTabSheet
-        Caption = 'tsAdres'
+        Caption = 'Adres'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblposta_kutusu: TLabel
           Left = 412
           Top = 201
@@ -738,12 +734,8 @@ inherited frmHesapKarti: TfrmHesapKarti
         end
       end
       object tsIletisim: TTabSheet
-        Caption = 'tsIletisim'
+        Caption = #304'leti'#351'im'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblyetkili2: TLabel
           Left = 75
           Top = 91
@@ -1053,11 +1045,16 @@ inherited frmHesapKarti: TfrmHesapKarti
     ExplicitWidth = 698
     inherited btnAccept: TButton
       Left = 489
+      TabOrder = 2
       ExplicitLeft = 489
     end
     inherited btnClose: TButton
       Left = 593
+      TabOrder = 3
       ExplicitLeft = 593
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

@@ -37,7 +37,7 @@ uses
   frxExportBaseDialog,
   frxExportPDF,
   ufrmBase,
-  ufrmBaseDBGrid;
+  ufrmBaseDBGrid, frxExportXLS;
 
 type
   TfrmRctReceteler = class(TfrmBaseDBGrid)
@@ -59,11 +59,11 @@ function TfrmRctReceteler.CreateInputForm(Sender: TObject; pFormMode: TInputForm
 begin
   Result := nil;
   if (pFormMode = ifmRewiev) then
-    Result := TfrmRctReceteDetaylar.Create(Application, Self, TRctRecete(Table).Clone(), pFormMode)
+    Result := TfrmRctReceteDetaylar.Create(Application, Self, TRctRecete(Table.List[0]).Clone, pFormMode)
   else if (pFormMode = ifmNewRecord) then
     Result := TfrmRctReceteDetaylar.Create(Application, Self, TRctRecete.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmRctReceteDetaylar.Create(Application, Self, TRctRecete(Table).Clone(), pFormMode);
+    Result := TfrmRctReceteDetaylar.Create(Application, Self, TRctRecete(Table.List[0]).Clone, pFormMode);
 end;
 
 end.

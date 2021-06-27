@@ -410,9 +410,16 @@ type
   function VarToInt(const pVal: Variant): Integer;
 
   /// <summary>
+  ///  Variant To Integer data convert
+  /// </summary>
+  function VarToInt64(const pVal: Variant): Int64;
+
+  /// <summary>
   ///  Variant To string data convert
   /// </summary>
   function VarToStr(const pVal: Variant): string;
+
+  function PermissionTypeAsString(APermissionType: TPermissionType): string;
 
 
   function GetDialogColor(pColor: TColor): TColor;
@@ -844,7 +851,6 @@ var
   vValueBool: Boolean;
   vValueDateTime: TDateTime;
   vValueBCD: TBcd;
-  vDump: string;
 begin
   if (pType = ftString)
   or (pType = ftMemo)
@@ -1618,9 +1624,25 @@ begin
   Result := StrToIntDef(VarToStr(pVal), 0);
 end;
 
+function VarToInt64(const pVal: Variant): Int64;
+begin
+  Result := StrToInt64Def(VarToStr(pVal), 0);
+end;
+
 function VarToStr(const pVal: Variant): string;
 begin
   Result := System.Variants.VarToStr(pVal);
+end;
+
+function PermissionTypeAsString(APermissionType: TPermissionType): string;
+begin
+  case APermissionType of
+    ptRead: Result := 'OKUMA';
+    ptAddRecord: Result := 'KAYIT EKLEME';
+    ptUpdate: Result := 'GÜNCELLEME';
+    ptDelete: Result := 'KAYIT SÝLME';
+    ptSpeacial: Result := 'ÖZEL HAK';
+  end;
 end;
 
 function VirguldenSonraHaneSayisi(deger: double; hanesayisi: integer): string;

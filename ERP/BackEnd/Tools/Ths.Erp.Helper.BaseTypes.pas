@@ -13,7 +13,7 @@ type
   function LowCase(pKey: Char): Char;
   function LowCaseTr(pKey: Char): Char;
   function UpCaseTr(pKey: Char): Char;
-  function toMoneyToDouble(pVal: string; pInputType: TInputType): Double;
+  function moneyToDouble(pVal: string; pInputType: TInputType): Double;
 
 implementation
 
@@ -57,7 +57,7 @@ begin
   Result := pKey;
 end;
 
-function toMoneyToDouble(pVal: string; pInputType: TInputType): Double;
+function moneyToDouble(pVal: string; pInputType: TInputType): Double;
 begin
   Result := 0;
   if (pInputType = itMoney)

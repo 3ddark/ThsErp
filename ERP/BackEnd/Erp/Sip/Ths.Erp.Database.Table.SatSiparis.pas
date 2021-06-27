@@ -170,8 +170,7 @@ type
     FMuhattapAd: TFieldDB;
     FReferans: TFieldDB;
     FParaBirimi: TFieldDB;
-    FDolarKur: TFieldDB;
-    FEuroKur: TFieldDB;
+    FDovizKuru: TFieldDB;
     FAciklama: TFieldDB;
     FProformaNo: TFieldDB;
     FSiparisDurumID: TFieldDB;
@@ -262,8 +261,7 @@ type
     Property MuhattapAd: TFieldDB read FMuhattapAd write FMuhattapAd;
     Property Referans: TFieldDB read FReferans write FReferans;
     Property ParaBirimi: TFieldDB read FParaBirimi write FParaBirimi;
-    Property DolarKur: TFieldDB read FDolarKur write FDolarKur;
-    Property EuroKur: TFieldDB read FEuroKur write FEuroKur;
+    Property DovizKuru: TFieldDB read FDovizKuru write FDovizKuru;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
     Property ProformaNo: TFieldDB read FProformaNo write FProformaNo;
     Property SiparisDurumID: TFieldDB read FSiparisDurumID write FSiparisDurumID;
@@ -330,6 +328,9 @@ begin
   FNetAgirlik := TFieldDB.Create('net_agirlik', ftBCD, 0, Self, '');
   FBrutAgirlik := TFieldDB.Create('brut_agirlik', ftBCD, 0, Self, '');
   FKab := TFieldDB.Create('kab', ftInteger, 0, Self, '');
+  FStokResim := TFieldDB.Create(FStok.StokResim.FieldName, FStok.StokResim.DataType, FStok.StokResim.Value, Self, 'Stok Resim');
+
+  PrepareTableRequiredValues;
 end;
 
 destructor TSatSiparisDetay.Destroy;
@@ -571,7 +572,7 @@ end;
 
 function TSatSiparisDetay.Clone: TTable;
 begin
-  Result := TSatSiparisDetay.Create(Database);
+  Result := TSatSiparisDetay.Create(Database, Self.Siparis);
   CloneClassContent(Self, Result);
 end;
 
@@ -633,20 +634,21 @@ begin
   FMuhattapAd := TFieldDB.Create('muhattap_ad', ftString, '', Self, 'Muhattap Ad');
   FReferans := TFieldDB.Create('referans', ftString, '', Self, 'Referans');
   FParaBirimi := TFieldDB.Create('para_birimi', ftString, '', Self, 'Para Birimi');
-  FDolarKur := TFieldDB.Create('kur_dolar', ftBCD, 0, Self, 'Dolar Kuru');
-  FEuroKur := TFieldDB.Create('kur_euro', ftBCD, 0, Self, 'Euro Kuru');
+  FDovizKuru := TFieldDB.Create('doviz_kuru', ftBCD, 0, Self, 'Döviz Kuru');
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
   FProformaNo := TFieldDB.Create('proforma_no', ftInteger, 0, Self, 'Proforma No');
   FSiparisDurumID := TFieldDB.Create('siparis_durum_id', ftInteger, 0, Self, 'Sipariþ Durum ID');
   FSiparisDurum := TFieldDB.Create(FSetSiparisDurum.SiparisDurum.FieldName, FSetSiparisDurum.SiparisDurum.DataType, '', Self, 'Sipariþ Durum');
   FTeslimSekliID := TFieldDB.Create('teslim_sekli_id', ftInteger, 0, Self, 'Teslim Þekli ID');
-  FTeslimSekli := TFieldDB.Create(FSetTeslimSekli.Aciklama.FieldName, FSetTeslimSekli.Aciklama.DataType, '', Self, 'Teslim Þekli');
+  FTeslimSekli := TFieldDB.Create(FSetTeslimSekli.TeslimSekli.FieldName, FSetTeslimSekli.TeslimSekli.DataType, '', Self, 'Teslim Þekli');
   FOdemeSekliID := TFieldDB.Create('odeme_sekli_id', ftInteger, 0, Self, 'Ödeme Þekli ID');
   FOdemeSekli := TFieldDB.Create(FSetOdemeSekli.OdemeSekli.FieldName, FSetOdemeSekli.OdemeSekli.DataType, '', Self, 'Ödeme Þekli');
   FPaketTipiID := TFieldDB.Create('paket_tipi_id', ftInteger, 0, Self, 'Paket Tipi ID');
   FPaketTipi := TFieldDB.Create(FSetPaketTipi.PaketTipi.FieldName, FSetPaketTipi.PaketTipi.DataType, '', Self, 'Paket Tipi');
   FTasimaUcretiID := TFieldDB.Create('tasima_ucreti_id', ftInteger, 0, Self, 'Nakliye Ücreti ID');
   FTasimaUcreti := TFieldDB.Create(FSetNakliyeUcreti.TasimaUcreti.FieldName, FSetNakliyeUcreti.TasimaUcreti.DataType, '', Self, 'Nakliye Ücreti');
+
+  PrepareTableRequiredValues;
 end;
 
 destructor TSatSiparis.Destroy;
@@ -667,17 +669,17 @@ end;
 function TSatSiparis.GetAddress: string;
 begin
   Result := '';
-  if FMahalle.Value <> '' then
-    Result := Result + FMahalle.Value + ' MAH. ';
+  if FMahalle.AsString <> '' then
+    Result := Result + FMahalle.AsString + ' MAH. ';
 
-  if FCadde.Value <> '' then
-    Result := Result + FCadde.Value + ' CD. ';
+  if FCadde.AsString <> '' then
+    Result := Result + FCadde.AsString + ' CD. ';
 
-  if FSokak.Value <> '' then
-    Result := Result + FSokak.Value + ' SK. ';
+  if FSokak.AsString <> '' then
+    Result := Result + FSokak.AsString + ' SK. ';
 
-  if FKapiNo.Value <> '' then
-    Result := Result + ' NO: ' + FKapiNo.Value;
+  if FKapiNo.AsString <> '' then
+    Result := Result + ' NO: ' + FKapiNo.AsString;
 end;
 
 procedure TSatSiparis.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -731,14 +733,13 @@ begin
         TableName + '.' + FMuhattapAd.FieldName,
         TableName + '.' + FReferans.FieldName,
         TableName + '.' + FParaBirimi.FieldName,
-        TableName + '.' + FDolarKur.FieldName,
-        TableName + '.' + FEuroKur.FieldName,
+        TableName + '.' + FDovizKuru.FieldName,
         TableName + '.' + FAciklama.FieldName,
         TableName + '.' + FProformaNo.FieldName,
         TableName + '.' + FSiparisDurumID.FieldName,
         addField(FSetSiparisDurum.TableName, FSetSiparisDurum.SiparisDurum.FieldName, FSiparisDurum.FieldName),
         TableName + '.' + FTeslimSekliID.FieldName,
-        addField(FSetTeslimSekli.TableName, FSetTeslimSekli.TeslimSekli.FieldName, FTeslimSekli.FieldName),
+        addField(FSetTeslimSekli.TableName, FSetTeslimSekli.Aciklama.FieldName, FTeslimSekli.FieldName),
         TableName + '.' + FOdemeSekliID.FieldName,
         addField(FSetOdemeSekli.TableName, FSetOdemeSekli.OdemeSekli.FieldName, FOdemeSekli.FieldName),
         TableName + '.' + FPaketTipiID.FieldName,
@@ -817,14 +818,13 @@ begin
         TableName + '.' + FMuhattapAd.FieldName,
         TableName + '.' + FReferans.FieldName,
         TableName + '.' + FParaBirimi.FieldName,
-        TableName + '.' + FDolarKur.FieldName,
-        TableName + '.' + FEuroKur.FieldName,
+        TableName + '.' + FDovizKuru.FieldName,
         TableName + '.' + FAciklama.FieldName,
         TableName + '.' + FProformaNo.FieldName,
         TableName + '.' + FSiparisDurumID.FieldName,
         addField(FSetSiparisDurum.TableName, FSetSiparisDurum.SiparisDurum.FieldName, FSiparisDurum.FieldName),
         TableName + '.' + FTeslimSekliID.FieldName,
-        addField(FSetTeslimSekli.TableName, FSetTeslimSekli.TeslimSekli.FieldName, FTeslimSekli.FieldName),
+        addField(FSetTeslimSekli.TableName, FSetTeslimSekli.Aciklama.FieldName, FTeslimSekli.FieldName),
         TableName + '.' + FOdemeSekliID.FieldName,
         addField(FSetOdemeSekli.TableName, FSetOdemeSekli.OdemeSekli.FieldName, FOdemeSekli.FieldName),
         TableName + '.' + FPaketTipiID.FieldName,
@@ -907,8 +907,7 @@ begin
         FMuhattapAd.FieldName,
         FReferans.FieldName,
         FParaBirimi.FieldName,
-        FDolarKur.FieldName,
-        FEuroKur.FieldName,
+        FDovizKuru.FieldName,
         FAciklama.FieldName,
         FProformaNo.FieldName,
         FSiparisDurumID.FieldName,
@@ -980,8 +979,7 @@ begin
         FMuhattapAd.FieldName,
         FReferans.FieldName,
         FParaBirimi.FieldName,
-        FDolarKur.FieldName,
-        FEuroKur.FieldName,
+        FDovizKuru.FieldName,
         FAciklama.FieldName,
         FProformaNo.FieldName,
         FSiparisDurumID.FieldName,
@@ -1127,20 +1125,26 @@ end;
 
 procedure TSatSiparis.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
 var
-  n1: Integer;
+  n1, n2: Integer;
   LDetay: TSatSiparisDetay;
+  ASiparis: TSatSiparis;
 begin
   FreeDetayListContent;
 
   Self.SelectToList(AFilter, ALock, APermissionControl);
 
-  LDetay := TSatSiparisDetay.Create(Database);
-  try
-    LDetay.SelectToList(' AND ' + LDetay.TableName + '.' + LDetay.HeaderID.FieldName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
-    for n1 := 0 to LDetay.List.Count-1 do
-      Self.AddDetay(TSatSiparisDetay(TSatSiparisDetay(LDetay.List[n1]).Clone));
-  finally
-    LDetay.Free;
+  for n1 := 0 to List.Count-1 do
+  begin
+    ASiparis := TSatSiparis(List[n1]);
+
+    LDetay := TSatSiparisDetay.Create(Database, ASiparis);
+    try
+      LDetay.SelectToList(' AND ' + LDetay.HeaderID.QryName + '=' + ASiparis.Id.AsString, ALock, APermissionControl);
+      for n2 := 0 to LDetay.List.Count-1 do
+        ASiparis.AddDetay(TSatSiparisDetay(LDetay.List[n2]).Clone, n2 = LDetay.List.Count-1);
+    finally
+      LDetay.Free;
+    end;
   end;
 end;
 

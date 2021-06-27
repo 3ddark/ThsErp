@@ -55,8 +55,7 @@ type
     lblvergi_dairesi: TLabel;
     lblvergi_no: TLabel;
     lblpara_birimi: TLabel;
-    lblkur_dolar: TLabel;
-    lblkur_euro: TLabel;
+    lbldoviz_kuru: TLabel;
     lblmusteri_temsilcisi_id: TLabel;
     lblteslim_sekli_id: TLabel;
     lblodeme_sekli_id: TLabel;
@@ -91,8 +90,7 @@ type
     edtkapi_no: TEdit;
     edtposta_kodu: TEdit;
     edtteslim_tarihi: TEdit;
-    edtkur_dolar: TEdit;
-    edtkur_euro: TEdit;
+    edtdoviz_kuru: TEdit;
     edtmusteri_temsilcisi_id: TEdit;
     edtmuhattap_ad: TEdit;
     edtreferans: TEdit;
@@ -107,11 +105,13 @@ type
     procedure btnAddDetailClick(Sender: TObject);
     procedure btnAcceptClick(Sender: TObject);override;
     procedure cbbpara_birimiChange(Sender: TObject);
+    procedure edtpara_birimiChange(Sender: TObject);
   private
     FSiparisDurum: TSetSatSiparisDurum;
 
     procedure FillLabels();
   public
+    function GetDovizKuru: Double;
     procedure RefreshData; override;
     function CreateDetailInputForm1(pFormMode: TInputFormMode; AGrid: TStringGrid): TForm; override;
     procedure GridReset(); override;
@@ -151,7 +151,7 @@ procedure TfrmSatSiparisDetaylar.btnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
-    if (ValidateInput) then
+    if (ValidateInput(pgcHeader)) then
     begin
 //      TSatSiparis(Table).TeklifID.Value := 0;
 //      TSatSiparis(Table).IrsaliyeID.Value := 0;
@@ -176,8 +176,7 @@ begin
       TSatSiparis(Table).SiparisTarihi.Value := StrToDateDef(edtsiparis_tarihi.Text, 0);
       TSatSiparis(Table).TeslimTarihi.Value := StrToDateDef(edtteslim_tarihi.Text, 0);
       TSatSiparis(Table).ParaBirimi.Value := edtpara_birimi.Text;
-      TSatSiparis(Table).DolarKur.Value := StrToFloatDef(edtkur_dolar.Text, 1);
-      TSatSiparis(Table).EuroKur.Value := StrToFloatDef(edtkur_euro.Text, 1);
+      TSatSiparis(Table).DovizKuru.Value := StrToFloatDef(edtdoviz_kuru.Text, 1);
 
       TSatSiparis(Table).MusteriTemsilcisi.Value := edtmusteri_temsilcisi_id.Text;
       TSatSiparis(Table).MusteriTemsilcisiID.Value := GSysKullanici.PersonelKartiID.Value;
@@ -219,6 +218,33 @@ begin
   begin
     if Assigned(AGrid.Objects[COLUMN_GRID_OBJECT, AGrid.Row]) then
       Result := TfrmSatSiparisDetay.Create(Application, AGrid, Self, TSatSiparisDetay(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd1.Row]), pFormMode);
+  end;
+end;
+
+procedure TfrmSatSiparisDetaylar.edtpara_birimiChange(Sender: TObject);
+begin
+  edtdoviz_kuru.Text := GetDovizKuru.ToString;
+  GridFill();
+end;
+
+function TfrmSatSiparisDetaylar.GetDovizKuru: Double;
+var
+  LKur: TMhsDovizKuru;
+  n1: Integer;
+begin
+  Result := 1;
+
+  LKur := TMhsDovizKuru.Create(GDataBase);
+  try
+    LKur.SelectToList(' AND ' + LKur.Tarih.QryName + '=' + QuotedStr(DateToStr(GDataBase.DateDB)), False, False);
+    for n1 := 0 to LKur.List.Count-1 do
+      if TMhsDovizKuru(LKur.List[n1]).ParaBirimi.Value = edtpara_birimi.Text then
+      begin
+        Result := TMhsDovizKuru(LKur.List[n1]).Kur.AsFloat;
+        Break;
+      end;
+  finally
+    LKur.Free;
   end;
 end;
 
@@ -319,9 +345,6 @@ begin
   edtteslim_sekli_id.OnHelperProcess := HelperProcess;
   edtpara_birimi.OnHelperProcess := HelperProcess;
 
-  edtkur_dolar.thsDecimalDigitCount := 6;
-  edtkur_euro.thsDecimalDigitCount := 6;
-
   for n1 := 0 to GParaBirimi.List.Count-1 do
   begin
     if TSysParaBirimi(GParaBirimi.List[n1]).IsVarsayilan.Value then
@@ -348,9 +371,6 @@ begin
 end;
 
 procedure TfrmSatSiparisDetaylar.FormShow(Sender: TObject);
-var
-  LKur: TMhsDovizKuru;
-  n1: Integer;
 begin
   inherited;
   splHeader.Visible := False;
@@ -362,20 +382,6 @@ begin
     edtmusteri_temsilcisi_id.Text := GSysKullanici.PersonelAdSoyad.Value;
     edtsiparis_tarihi.Text := DateToStr(GDataBase.DateDB);
     edtsiparis_no.Text := TSatSiparis(Table).getNewSiparisNo;
-
-    LKur := TMhsDovizKuru.Create(GDataBase);
-    try
-      LKur.SelectToList(' AND ' + LKur.Tarih.QryName + '=' + QuotedStr(DateToStr(GDataBase.DateDB)), False, False);
-      for n1 := 0 to LKur.List.Count-1 do
-      begin
-        if TMhsDovizKuru(LKur.List[n1]).ParaBirimi.Value = ParaEUR then
-          edtkur_euro.Text := FloatToStr(TMhsDovizKuru(LKur.List[n1]).Kur.Value)
-        else if TMhsDovizKuru(LKur.List[n1]).ParaBirimi.Value = ParaUSD then
-          edtkur_dolar.Text := FloatToStr(TMhsDovizKuru(LKur.List[n1]).Kur.Value);
-      end;
-    finally
-      LKur.Free;
-    end;
   end
   else
     btnHeaderShowHide.Click;
@@ -388,10 +394,8 @@ begin
   if (FormMode = ifmNewRecord) then
     FillLabels;
 
-  edtkur_dolar.thsDecimalDigitCount := GSysOndalikHane.DovizKuru.Value;
-  edtkur_euro.thsDecimalDigitCount := GSysOndalikHane.DovizKuru.Value;
-  edtkur_dolar.MaxLength := 7;
-  edtkur_euro.MaxLength := 7;
+  edtdoviz_kuru.thsDecimalDigitCount := GSysOndalikHane.DovizKuru.Value;
+  edtdoviz_kuru.MaxLength := 7;
 end;
 
 procedure TfrmSatSiparisDetaylar.GridReset();
@@ -452,8 +456,7 @@ begin
   then  edtteslim_tarihi.Text := DateToStr(TSatSiparis(Table).TeslimTarihi.Value)
   else  edtteslim_tarihi.Clear;
   edtpara_birimi.Text := FormatedVariantVal(TSatSiparis(Table).ParaBirimi);
-  edtkur_dolar.Text := FloatToStr(FormatedVariantVal(TSatSiparis(Table).DolarKur));
-  edtkur_euro.Text := FloatToStr(FormatedVariantVal(TSatSiparis(Table).EuroKur));
+  edtdoviz_kuru.Text := FloatToStr(FormatedVariantVal(TSatSiparis(Table).DovizKuru));
 
   edtmusteri_temsilcisi_id.Text := TSatSiparis(Table).MusteriTemsilcisi.Value;
   edtmuhattap_ad.Text := TSatSiparis(Table).MuhattapAd.Value;
@@ -542,6 +545,7 @@ begin
               edtposta_kodu.Text := FormatedVariantVal(LCH.PostaKodu);
               edtmuhattap_ad.Text := FormatedVariantVal(LCH.Yetkili1);
               edtmuhattap_telefon.Text := FormatedVariantVal(LCH.Yetkili1Tel);
+              edtpara_birimi.Text := LCH.ParaBirimi.AsString;
 
               TSatSiparis(Table).UlkeID.Value := FormatedVariantVal(LCH.UlkeID);
               TSatSiparis(Table).SehirID.Value := FormatedVariantVal(LCH.SehirID);

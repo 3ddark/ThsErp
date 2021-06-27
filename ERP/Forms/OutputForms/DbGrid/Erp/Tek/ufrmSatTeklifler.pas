@@ -66,7 +66,6 @@ type
     procedure pmDBPopup(Sender: TObject); override;
   private
     FHizliFilterActive: Boolean;
-    FHizliFilter: string;
   protected
     function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm; override;
   end;
@@ -94,11 +93,11 @@ function TfrmSatTeklifler.CreateInputForm(Sender: TObject; pFormMode: TInputForm
 begin
   Result := nil;
   if (pFormMode = ifmRewiev) then
-    Result := TfrmSatTeklifDetaylar.Create(Application, Self, Table.Clone(), pFormMode)
+    Result := TfrmSatTeklifDetaylar.Create(Application, Self, TSatTeklif(Table.List[0]).Clone, pFormMode)
   else if (pFormMode = ifmNewRecord) then
     Result := TfrmSatTeklifDetaylar.Create(Application, Self, TSatTeklif.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmSatTeklifDetaylar.Create(Application, Self, Table.Clone(), pFormMode);
+    Result := TfrmSatTeklifDetaylar.Create(Application, Self, TSatTeklif(Table.List[0]).Clone, pFormMode);
 end;
 
 procedure TfrmSatTeklifler.mniPrintClick(Sender: TObject);
@@ -235,10 +234,7 @@ end;
 procedure TfrmSatTeklifler.pmDBPopup(Sender: TObject);
 begin
   inherited;
-  if TSatTeklif(Table).IsSiparislesti.Value then
-    mniSipariseAktar.Enabled := False
-  else
-    mniSipariseAktar.Enabled := True;
+  mniSipariseAktar.Enabled := not TSatTeklif(Table).IsSiparislesti.AsBoolean;
 end;
 
 procedure TfrmSatTeklifler.FormShow(Sender: TObject);
@@ -259,31 +255,18 @@ begin
   begin
     if FHizliFilterActive then
     begin
-      grd.DataSource.DataSet.DisableControls;
-      try
-        FHizliFilterActive := False;
-        grd.DataSource.DataSet.Filter := ReplaceStr(grd.DataSource.DataSet.Filter, FHizliFilter, '');
-
-        FHizliFilter := '';
-
+//      grd.DataSource.DataSet.DisableControls;
+//      try
         if rgFiltre.ItemIndex = FILTRE_BEKLEYEN then
-          FHizliFilter := TSatTeklif(Table).IsSiparislesti.FieldName + '=False'
+          QryFiltreVarsayilan := ' AND ' + TSatTeklif(Table).IsSiparislesti.FieldName + '=False'
         else if rgFiltre.ItemIndex = FILTRE_SIPARIS_OLAN then
-          FHizliFilter := TSatTeklif(Table).IsSiparislesti.FieldName + '=True'
+          QryFiltreVarsayilan := ' AND ' + TSatTeklif(Table).IsSiparislesti.FieldName + '=True'
         else if rgFiltre.ItemIndex = FILTRE_TUMU then
-          FHizliFilter := '';
-
-
-        if grd.DataSource.DataSet.Filter <> '' then
-          FHizliFilter := ' AND ' + FHizliFilter;
-        grd.DataSource.DataSet.Filter := FHizliFilter;
-        if grd.DataSource.DataSet.Filter <> '' then
-          grd.DataSource.DataSet.Filtered := True;
-
-      finally
-        FHizliFilterActive := True;
-        grd.DataSource.DataSet.EnableControls;
-      end;
+          QryFiltreVarsayilan := '';
+        RefreshDataFirst;
+//      finally
+//        grd.DataSource.DataSet.EnableControls;
+//      end;
     end;
   end;
 end;

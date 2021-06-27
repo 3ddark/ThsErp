@@ -953,36 +953,42 @@ end;
 
 procedure TRctRecete.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
 var
+  ARecete: TRctRecete;
   LHam: TRctReceteHammadde;
   LIsc: TRctReceteIscilik;
   LYan: TRctReceteYanUrun;
+  n2: Integer;
   n1: Integer;
 begin
   FreeDetayListContent;
 
   Self.SelectToList(AFilter, ALock, APermissionControl);
+  for n1 := 0 to List.Count-1 do
+  begin
+    ARecete := TRctRecete(List[n1]);
 
-  LHam := TRctReceteHammadde.Create(Database);
-  LIsc := TRctReceteIscilik.Create(Database);
-  LYan := TRctReceteYanUrun.Create(Database);
-  try
-    LHam.SelectToList(' AND ' + LHam.HeaderID.QryName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
-    for n1 := 0 to LHam.List.Count - 1 do
-      AddDetay(TRctReceteHammadde(TRctReceteHammadde(LHam.List[n1]).Clone));
+    LHam := TRctReceteHammadde.Create(Database, ARecete);
+    LIsc := TRctReceteIscilik.Create(Database, ARecete);
+    LYan := TRctReceteYanUrun.Create(Database, ARecete);
+    try
+      LHam.SelectToList(' AND ' + LHam.HeaderID.QryName + '=' + ARecete.Id.AsString, ALock, APermissionControl);
+      for n2 := 0 to LHam.List.Count - 1 do
+        ARecete.AddDetay(TRctReceteHammadde(TRctReceteHammadde(LHam.List[n2]).Clone));
 
-    LIsc.SelectToList(' AND ' + LIsc.HeaderID.QryName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
-    for n1 := 0 to LIsc.List.Count - 1 do
-      AddDetay(TRctReceteIscilik(TRctReceteIscilik(LIsc.List[n1]).Clone));
+      LIsc.SelectToList(' AND ' + LIsc.HeaderID.QryName + '=' + ARecete.Id.AsString, ALock, APermissionControl);
+      for n2 := 0 to LIsc.List.Count - 1 do
+        ARecete.AddDetay(TRctReceteIscilik(TRctReceteIscilik(LIsc.List[n2]).Clone));
 
-    LYan.SelectToList(' AND ' + LYan.HeaderID.QryName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
-    for n1 := 0 to LYan.List.Count - 1 do
-      AddDetay(TRctReceteYanUrun(TRctReceteYanUrun(LYan.List[n1]).Clone), n1 = LYan.List.Count-1);
+      LYan.SelectToList(' AND ' + LYan.HeaderID.QryName + '=' + ARecete.Id.AsString, ALock, APermissionControl);
+      for n2 := 0 to LYan.List.Count - 1 do
+        ARecete.AddDetay(TRctReceteYanUrun(TRctReceteYanUrun(LYan.List[n2]).Clone));
 
-    RefreshHeader;
-  finally
-    FreeAndNil(LHam);
-    FreeAndNil(LIsc);
-    FreeAndNil(LYan);
+      RefreshHeader;
+    finally
+      FreeAndNil(LHam);
+      FreeAndNil(LIsc);
+      FreeAndNil(LYan);
+    end;
   end;
 end;
 

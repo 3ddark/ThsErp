@@ -313,6 +313,7 @@ end;
 procedure TfrmBaseInputDB.btnAcceptClick(Sender: TObject);
 var
   id, nIndex : integer;
+  LTable: TTable;
 begin
   id := 0;
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
@@ -407,6 +408,12 @@ begin
             AddLBs(2) +
             TranslateText('Check the current records again!', FrameworkLang.ErrorRecordDeletedMessage, LngMsgError, LngSystem)
           );
+        end
+        else
+        begin
+          LTable := TTable(Table.List[0]).Clone;
+          Table.Destroy;
+          Table := LTable;
         end;
 
         btnSpin.Visible := false;

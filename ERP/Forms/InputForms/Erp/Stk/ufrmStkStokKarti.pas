@@ -795,11 +795,11 @@ begin
       TStkStokKarti(Table).UrunTipi.Value := edturun_tipi_id.Text;
       TStkStokKarti(Table).AlisIskonto.Value := StrToFloatDef(edtalis_iskonto.Text, 0);
       TStkStokKarti(Table).SatisIskonto.Value := StrToFloatDef(edtsatis_iskonto.Text, 0);
-      TStkStokKarti(Table).AlisFiyat.Value := edtalis_fiyat.toMoneyToDouble;
+      TStkStokKarti(Table).AlisFiyat.Value := edtalis_fiyat.moneyToDouble;
       TStkStokKarti(Table).AlisPara.Value := edtalis_para.Text;
-      TStkStokKarti(Table).SatisFiyat.Value := edtsatis_fiyat.toMoneyToDouble;
+      TStkStokKarti(Table).SatisFiyat.Value := edtsatis_fiyat.moneyToDouble;
       TStkStokKarti(Table).SatisPara.Value := edtsatis_para.Text;
-      TStkStokKarti(Table).IhracFiyat.Value := edtihrac_fiyat.toMoneyToDouble;
+      TStkStokKarti(Table).IhracFiyat.Value := edtihrac_fiyat.moneyToDouble;
       TStkStokKarti(Table).IhracPara.Value := edtihrac_para.Text;
       TStkStokKarti(Table).En.Value := StrToFloatDef(edten.Text, 0);
       TStkStokKarti(Table).Boy.Value := StrToFloatDef(edtboy.Text, 0);

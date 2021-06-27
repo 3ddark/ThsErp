@@ -373,9 +373,9 @@ begin
       ftFloat:        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
       ftCurrency:     LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
       ftBCD:          LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftDate:         LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftTime:         LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftDateTime:     LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftDate:         LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftTime:         LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftDateTime:     LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
       ftBytes:        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
       ftVarBytes:     LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
       ftAutoInc:      LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
@@ -1383,7 +1383,7 @@ begin
     mniFormTitleByLang.Visible := True;
     mniColumnTitleByLang.Visible := True;
     mniUpdateColWidth.Visible := True;
-    mniColumnSummary.Visible := True;
+//    mniColumnSummary.Visible := True;
     mniLangDataContent.Visible := True;
   end;
 
@@ -1886,6 +1886,21 @@ var
   LColPercent: TColPercent;
   LColColor: TColColor;
 
+  function ExistsGridColumn(AFieldName: string): Boolean;
+  var
+    nx: Integer;
+  begin
+    Result := False;
+    for nx := 0 to grd.Columns.Count-1 do
+    begin
+      if AFieldName = grd.Columns.Items[nx].FieldName then
+      begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+
   procedure AddColumn(AFieldName, ATitle: string; AVisible: Boolean=False);
   begin
     with grd.Columns.Add do
@@ -1990,10 +2005,10 @@ begin
 
     for n2 := 0 to Table.QueryOfDS.FieldCount-1 do
     begin
-      AFieldDB := Table.GetFieldByFieldName(Table.QueryOfDS.Fields.Fields[n2].FieldName);
-      if AFieldDB <> nil then
-      begin
-        AddColumn(Table.QueryOfDS.Fields.Fields[n2].FieldName, AFieldDB.Title);
+      if not ExistsGridColumn(Table.QueryOfDS.Fields.Fields[n2].FieldName) then
+      begin  AFieldDB := Table.GetFieldByFieldName(Table.QueryOfDS.Fields.Fields[n2].FieldName);
+        if AFieldDB <> nil then
+          AddColumn(Table.QueryOfDS.Fields.Fields[n2].FieldName, AFieldDB.Title);
       end;
     end;
 
@@ -2347,7 +2362,7 @@ begin
   then
   begin
     if (pFormType = ifmRewiev) or (pFormType = ifmCopyNewRecord) then
-      Table.LogicalSelect(' AND ' + Table.TableName + '.' + Table.Id.FieldName + '=' + IntToStr(Table.Id.Value), False, False, False);
+      Table.LogicalSelect(' AND ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value), False, False, False);
 
     LForm := CreateInputForm(Sender, pFormType);
     if Table is TTableDetailed then

@@ -26,7 +26,7 @@ type
     pnlHeader: TPanel;
     pnlContent: TPanel;
     pmDB: TPopupMenu;
-    procedure FormCreate(Sender: TObject);override;
+    procedure FormCreate(Sender: TObject); override;
   private
     { Private declarations }
   public

@@ -5,24 +5,23 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , System.Classes
-  , Vcl.Controls
-  , Vcl.StdCtrls
-  , Vcl.Forms
-  , Vcl.Graphics
-  , Winapi.Messages
-  , Winapi.Windows
-  , System.StrUtils
-  , System.DateUtils
-  , Vcl.Themes
-  , Vcl.Mask
-  , Vcl.ExtCtrls
-  , Vcl.ComCtrls
-  , System.UITypes
-  , Ths.Erp.Constants
-  , Ths.Erp.Helper.BaseTypes
-  ;
+  System.SysUtils,
+  System.Classes,
+  Vcl.Controls,
+  Vcl.StdCtrls,
+  Vcl.Forms,
+  Vcl.Graphics,
+  Winapi.Messages,
+  Winapi.Windows,
+  System.StrUtils,
+  System.DateUtils,
+  Vcl.Themes,
+  Vcl.Mask,
+  Vcl.ExtCtrls,
+  Vcl.ComCtrls,
+  System.UITypes,
+  Ths.Erp.Constants,
+  Ths.Erp.Helper.BaseTypes;
 
 {$M+}
 
@@ -115,7 +114,7 @@ type
     property thsInfo                 : string          read FInfo;
     property thsWrongDateMessage     : string          read FWrongDateMessage      write FWrongDateMessage;
 
-    function toMoneyToDouble(): Double;
+    function moneyToDouble: Double;
   end;
 
   procedure DrawHelperSing(Sender: TEdit);
@@ -169,12 +168,10 @@ begin
       Brush.Color := TWinControlH(Control).Color;
       FontColor := TWinControlH(Control).Font.Color;
 
-      if TEdit(Control).thsRequiredData then
-        Brush.Color := TEdit(Control).FColorRequiredInput;
-
       Brush.Color := TEdit(Control).FColorDefault;
       if TEdit(Control).thsRequiredData then
-        Brush.Color := TEdit(Control).FColorRequiredInput;
+        if TEdit(Control).Showing and (TEdit(Control).Text = '') then
+          Brush.Color := TEdit(Control).FColorRequiredInput;
       if TEdit(Control).Focused then
         Brush.Color := TEdit(Control).FColorActive;
     end
@@ -186,7 +183,8 @@ begin
 
       Brush.Color := TEdit(Control).FColorDefault;
       if TEdit(Control).thsRequiredData then
-        Brush.Color := TEdit(Control).FColorRequiredInput;
+        if TEdit(Control).Showing and (TEdit(Control).Text = '') then
+          Brush.Color := TEdit(Control).FColorRequiredInput;
       if TEdit(Control).Focused then
         Brush.Color := TEdit(Control).FColorActive;
     end;
@@ -337,7 +335,7 @@ begin
     Self.Text := FormatFloat('0' + FormatSettings.ThousandSeparator +
                              FormatSettings.DecimalSeparator +
                              StringOfChar('0', Self.FDecimalDigitCount),
-                             toMoneyToDouble);
+                             moneyToDouble);
 end;
 
 procedure TEdit.KeyPress(var Key: Char);
@@ -564,11 +562,11 @@ begin
   FInputDataType := Value;
 end;
 
-function TEdit.toMoneyToDouble: Double;
+function TEdit.moneyToDouble: Double;
 begin
   Result := 0.0;
   if Trim(Text) <> '' then
-    Result := Ths.Erp.Helper.BaseTypes.toMoneyToDouble(Text, thsInputDataType);
+    Result := Ths.Erp.Helper.BaseTypes.moneyToDouble(Text, thsInputDataType);
 end;
 
 function TEdit.FloatKeyControl(pKey: Char; pDecimalDigits: Integer): Char;

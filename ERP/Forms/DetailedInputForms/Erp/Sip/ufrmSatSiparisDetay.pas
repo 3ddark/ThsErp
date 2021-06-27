@@ -135,14 +135,13 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  , Ths.Erp.Database.Table.SysParaBirimi
-  , ufrmSatSiparisDetaylar
-  , Ths.Erp.Database.Table.SatSiparis
-  , ufrmStkStokKartlari
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton,
+  Ths.Erp.Database.Table.SysParaBirimi,
+  ufrmSatSiparisDetaylar,
+  Ths.Erp.Database.Table.SatSiparis,
+  ufrmStkStokKartlari;
 
 {$R *.dfm}
 
@@ -215,6 +214,7 @@ end;
 
 procedure TfrmSatSiparisDetay.ClearTotalLabels;
 var
+  n1: Integer;
   LMoneySign: WideString;
 begin
   lblnet_fiyat_val.Caption := '0.00';
@@ -224,13 +224,13 @@ begin
   lblkdv_tutar_val.Caption := '0.00';
   lbltoplam_tutar_val.Caption := '0.00';
 
-//  LMoneySign := '';
-//  for n1 := 0 to GParaBirimi.List.Count-1 do
-//    if (TfrmSatSiparisDetaylar(ParentForm).Table as TSatSiparis).ParaBirimi.Value = TSysParaBirimi(GParaBirimi.List[n1]).ParaBirimi.Value then
-//    begin
-//      LMoneySign := TSysParaBirimi(GParaBirimi.List[n1]).Sembol.Value;
-//      Break;
-//    end;
+  LMoneySign := '';
+  for n1 := 0 to GParaBirimi.List.Count-1 do
+    if TfrmSatSiparisDetaylar(ParentForm).edtpara_birimi.Text = TSysParaBirimi(GParaBirimi.List[n1]).ParaBirimi.AsString then
+    begin
+      LMoneySign := TSysParaBirimi(GParaBirimi.List[n1]).Sembol.Value;
+      Break;
+    end;
 
   lblnet_fiyat_brm.Caption := LMoneySign;
   lbltutar_brm.Caption := LMoneySign;
@@ -281,9 +281,6 @@ var
 begin
   inherited;
 
-  ClearTotalLabels;
-  ClearHacimLabels;
-
   LVergiOrani := TSetChVergiOrani.Create(Table.Database);
   LOlcuBirimi := TSysOlcuBirimi.Create(Table.Database);
   try
@@ -308,6 +305,9 @@ begin
   edtstok_kodu.OnHelperProcess := HelperProcess;
 
   inherited;
+
+  ClearTotalLabels;
+  ClearHacimLabels;
 
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin

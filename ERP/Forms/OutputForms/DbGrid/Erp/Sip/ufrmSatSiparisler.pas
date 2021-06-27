@@ -33,7 +33,7 @@ uses
   ufrmBase,
   ufrmBaseDBGrid, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
-  System.Actions, Vcl.ActnList;
+  System.Actions, Vcl.ActnList, frxExportXLS;
 
 type
   TfrmSatSiparisler = class(TfrmBaseDBGrid)
@@ -77,11 +77,11 @@ function TfrmSatSiparisler.CreateInputForm(Sender: TObject; pFormMode: TInputFor
 begin
   Result := nil;
   if (pFormMode = ifmRewiev) then
-    Result := TfrmSatSiparisDetaylar.Create(Application, Self, Table.Clone(), pFormMode)
+    Result := TfrmSatSiparisDetaylar.Create(Application, Self, TSatSiparis(Table.List[0]).Clone, pFormMode)
   else if (pFormMode = ifmNewRecord) then
     Result := TfrmSatSiparisDetaylar.Create(Application, Self, TSatsiparis.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmSatSiparisDetaylar.Create(Application, Self, Table.Clone(), pFormMode);
+    Result := TfrmSatSiparisDetaylar.Create(Application, Self, TSatSiparis(Table.List[0]).Clone, pFormMode);
 end;
 
 procedure TfrmSatSiparisler.FormShow(Sender: TObject);
@@ -221,83 +221,92 @@ begin
 end;
 
 procedure TfrmSatSiparisler.mniSiparisDurumGuncelleClick(Sender: TObject);
+var
+  LSip: TSatSiparis;
 begin
   if Table.IsAuthorized(ptSpeacial, True, False) then
   begin
     SetSelectedItem;
-    if isCtrlDown then
-    begin
-      if TSatSiparis(Table).SiparisDurumID.Value = Ord(TSatSiparisDurum.Hazir) then
+    LSip := TSatSiparis.Create(GDataBase);
+    try
+      LSip.SelectToList(' AND ' + LSip.Id.QryName + '=' + IntToStr(VarToInt(TSatSiparis(Table).Id.Value)) , False, False);
+      if isCtrlDown then
       begin
-        if CustomMsgDlg(
-          'Sipariþ Durum "Hazýr" dan "Bekleme" ye geri alýnsýn mý?',
-          mtConfirmation,
-          mbYesNo,
-          ['Evet', 'Hayýr'],
-          mbNo,
-          'Sipariþ Durum Geri Alma Onayý') = mrYes
-        then
+        if LSip.SiparisDurumID.Value = Ord(TSatSiparisDurum.Hazir) then
         begin
-          TSatSiparis(Table).SiparisDurumID.Value := Ord(TSatSiparisDurum.Beklemede);
-          TSatSiparis(Table).Update();
-          TSatSiparis(Table).QueryOfDS.Refresh;
+          if CustomMsgDlg(
+            'Sipariþ Durum "Hazýr" dan "Bekleme" ye geri alýnsýn mý?',
+            mtConfirmation,
+            mbYesNo,
+            ['Evet', 'Hayýr'],
+            mbNo,
+            'Sipariþ Durum Geri Alma Onayý') = mrYes
+          then
+          begin
+            LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Beklemede);
+            LSip.Update();
+            TSatSiparis(Table).QueryOfDS.Refresh;
+          end;
+        end
+        else if LSip.SiparisDurumID.Value = Ord(TSatSiparisDurum.Gitti) then
+        begin
+          if CustomMsgDlg(
+            'Sipariþ Durum "Gitti" den "Hazýr" a geri alýnsýn mý?',
+            mtConfirmation,
+            mbYesNo,
+            ['Evet', 'Hayýr'],
+            mbNo,
+            'Sipariþ Durum Geri Alma Onayý') = mrYes
+          then
+          begin
+            LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Hazir);
+            LSip.Update();
+            TSatSiparis(Table).QueryOfDS.Refresh;
+          end;
         end;
       end
-      else if TSatSiparis(Table).SiparisDurumID.Value = Ord(TSatSiparisDurum.Gitti) then
+      else
       begin
-        if CustomMsgDlg(
-          'Sipariþ Durum "Gitti" den "Hazýr" a geri alýnsýn mý?',
-          mtConfirmation,
-          mbYesNo,
-          ['Evet', 'Hayýr'],
-          mbNo,
-          'Sipariþ Durum Geri Alma Onayý') = mrYes
-        then
+        if LSip.SiparisDurumID.Value = Ord(TSatSiparisDurum.Beklemede) then
         begin
-          TSatSiparis(Table).SiparisDurumID.Value := Ord(TSatSiparisDurum.Hazir);
-          TSatSiparis(Table).Update();
-          TSatSiparis(Table).QueryOfDS.Refresh;
+          if CustomMsgDlg(
+            'Sipariþ Durum "Bekleme" den "Hazýr" a getirilsin mi?',
+            mtConfirmation,
+            mbYesNo,
+            ['Evet', 'Hayýr'],
+            mbNo,
+            'Sipariþ Durum Deðiþiklik Onayý') = mrYes
+          then
+          begin
+            LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Hazir);
+            LSip.Update();
+            TSatSiparis(Table).QueryOfDS.Refresh;
+          end;
+        end
+        else if TSatSiparis(Table).SiparisDurumID.Value = Ord(TSatSiparisDurum.Hazir) then
+        begin
+          if CustomMsgDlg(
+            'Sipariþ Durum "Hazýr" dan "Gitti" ye getirilsin mi?',
+            mtConfirmation,
+            mbYesNo,
+            ['Evet', 'Hayýr'],
+            mbNo,
+            'Sipariþ Durum Deðiþiklik Onayý') = mrYes
+          then
+          begin
+            LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Gitti);
+            LSip.Update();
+            TSatSiparis(Table).QueryOfDS.Refresh;
+          end;
         end;
       end;
-    end
-    else
-    begin
-      if TSatSiparis(Table).SiparisDurumID.Value = Ord(TSatSiparisDurum.Beklemede) then
-      begin
-        if CustomMsgDlg(
-          'Sipariþ Durum "Bekleme" den "Hazýr" a getirilsin mi?',
-          mtConfirmation,
-          mbYesNo,
-          ['Evet', 'Hayýr'],
-          mbNo,
-          'Sipariþ Durum Deðiþiklik Onayý') = mrYes
-        then
-        begin
-          TSatSiparis(Table).SiparisDurumID.Value := Ord(TSatSiparisDurum.Hazir);
-          TSatSiparis(Table).Update();
-          TSatSiparis(Table).QueryOfDS.Refresh;
-        end;
-      end
-      else if TSatSiparis(Table).SiparisDurumID.Value = Ord(TSatSiparisDurum.Hazir) then
-      begin
-        if CustomMsgDlg(
-          'Sipariþ Durum "Hazýr" dan "Gitti" ye getirilsin mi?',
-          mtConfirmation,
-          mbYesNo,
-          ['Evet', 'Hayýr'],
-          mbNo,
-          'Sipariþ Durum Deðiþiklik Onayý') = mrYes
-        then
-        begin
-          TSatSiparis(Table).SiparisDurumID.Value := Ord(TSatSiparisDurum.Gitti);
-          TSatSiparis(Table).Update();
-          TSatSiparis(Table).QueryOfDS.Refresh;
-        end;
-      end;
+    finally
+      LSip.Free;
     end;
   end
   else
-    CustomMsgDlg('Durum Güncelleme hakkýnýz olmadýðý için bu iþlemi yapamazsýnýz.', mtInformation, [mbOK], ['Tamam'], mbOK, 'Ýþlem Hakký Bilgilendirme');
+    CustomMsgDlg('Durum Güncelleme hakkýnýz olmadýðý için bu iþlemi yapamazsýnýz.' + AddLBs(3) +
+                 Table.TableSourceCode + ' ' + PermissionTypeAsString(ptSpeacial), mtInformation, [mbOK], ['Tamam'], mbOK, 'Ýþlem Hakký Bilgilendirme');
 end;
 
 end.

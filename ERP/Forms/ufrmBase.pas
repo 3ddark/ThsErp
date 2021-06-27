@@ -429,8 +429,8 @@ procedure TfrmBase.FormCreate(Sender: TObject);
 begin
   if Table <> nil then
   begin
-    if Table.Id.Value > 0 then
-      FDefaultSelectFilter := ' and ' + Table.TableName + '.id=' + IntToStr(Table.Id.Value);
+    if Table.Id.AsInteger > 0 then
+      FDefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + Table.Id.AsString;
 
 //    if (FormMode = ifmNewRecord)
 //    or (FormMode = ifmCopyNewRecord)
@@ -722,6 +722,9 @@ begin
         Result := ValidateSubControls(TMemo(PanelContainer.Controls[nIndex]), LControlName)
       else if PanelContainer.Controls[nIndex].ClassType = TCombobox then
         Result := ValidateSubControls(TCombobox(PanelContainer.Controls[nIndex]), LControlName);
+
+      if not Result then
+        Break;
     end;
   end;
 

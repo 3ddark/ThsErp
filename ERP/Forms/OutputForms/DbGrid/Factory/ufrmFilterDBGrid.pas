@@ -139,12 +139,15 @@ begin
             or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftDateTime)
             then
             begin
-              if  (rgFilterCriter.ItemIndex <> 1)
-              and (rgFilterCriter.ItemIndex <> 2)
-              and (rgFilterCriter.ItemIndex <> 3)
-              and (rgFilterCriter.ItemIndex <> 4)
-              then
-                vFilter := vFilter + TFieldName(chklstFields.Items.Objects[n1]).FieldName + vFilterCriter + QuotedStr(vStartLike + edtFilter.Text + vEndLike);
+//              if  (rgFilterCriter.ItemIndex <> 1)
+//              and (rgFilterCriter.ItemIndex <> 2)
+//              and (rgFilterCriter.ItemIndex <> 3)
+//              and (rgFilterCriter.ItemIndex <> 4)
+//              then
+                vFilter := vFilter +
+                           TFieldName(chklstFields.Items.Objects[n1]).FieldName +
+                           vFilterCriter +
+                           QuotedStr(vStartLike + edtFilter.Text + vEndLike);
             end;
           end;
         end;

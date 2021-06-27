@@ -146,27 +146,13 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Style = [fsBold]
             ParentFont = False
           end
-          object lblkur_dolar: TLabel
-            Left = 624
+          object lbldoviz_kuru: TLabel
+            Left = 622
             Top = 116
-            Width = 61
+            Width = 63
             Height = 13
             Alignment = taRightJustify
-            Caption = 'Dolar Kuru'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-          end
-          object lblkur_euro: TLabel
-            Left = 628
-            Top = 138
-            Width = 57
-            Height = 13
-            Alignment = taRightJustify
-            Caption = 'Euro Kuru'
+            Caption = 'D'#246'viz Kuru'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
@@ -528,42 +514,42 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Top = 156
             Width = 150
             Height = 21
-            TabOrder = 18
+            TabOrder = 17
           end
           object edtcadde: TEdit
             Left = 115
             Top = 178
             Width = 150
             Height = 21
-            TabOrder = 20
+            TabOrder = 19
           end
           object edtsokak: TEdit
             Left = 115
             Top = 200
             Width = 150
             Height = 21
-            TabOrder = 22
+            TabOrder = 21
           end
           object edtbina_adi: TEdit
             Left = 115
             Top = 222
             Width = 150
             Height = 21
-            TabOrder = 24
+            TabOrder = 23
           end
           object edtkapi_no: TEdit
             Left = 115
             Top = 244
             Width = 150
             Height = 21
-            TabOrder = 26
+            TabOrder = 25
           end
           object edtposta_kodu: TEdit
             Left = 115
             Top = 266
             Width = 150
             Height = 21
-            TabOrder = 27
+            TabOrder = 26
           end
           object edtteklif_no: TEdit
             Left = 686
@@ -586,19 +572,12 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Height = 21
             TabOrder = 6
           end
-          object edtkur_dolar: TEdit
+          object edtdoviz_kuru: TEdit
             Left = 686
             Top = 112
             Width = 90
             Height = 21
             TabOrder = 14
-          end
-          object edtkur_euro: TEdit
-            Left = 686
-            Top = 134
-            Width = 90
-            Height = 21
-            TabOrder = 17
           end
           object edtmusteri_temsilcisi_id: TEdit
             Left = 408
@@ -619,14 +598,14 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Top = 200
             Width = 368
             Height = 21
-            TabOrder = 23
+            TabOrder = 22
           end
           object mmoaciklama: TMemo
             Left = 408
             Top = 222
             Width = 368
             Height = 65
-            TabOrder = 25
+            TabOrder = 24
           end
           object edtproforma_no: TEdit
             Left = 408
@@ -634,7 +613,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Width = 150
             Height = 21
             MaxLength = 10
-            TabOrder = 28
+            TabOrder = 27
           end
           object edtmuhattap_telefon: TEdit
             Left = 408
@@ -663,20 +642,21 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Width = 90
             Height = 21
             TabOrder = 11
+            OnChange = edtpara_birimiChange
           end
           object edtodeme_sekli_id: TEdit
             Left = 408
             Top = 156
             Width = 368
             Height = 21
-            TabOrder = 19
+            TabOrder = 18
           end
           object edtteslim_sekli_id: TEdit
             Left = 408
             Top = 178
             Width = 368
             Height = 21
-            TabOrder = 21
+            TabOrder = 20
           end
         end
         inherited tsHeaderDiger: TTabSheet
@@ -1004,11 +984,11 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
         end
         inherited ts2: TTabSheet
           ExplicitWidth = 782
-          ExplicitHeight = 144
+          ExplicitHeight = 176
           inherited pnl2: TPanel
             Top = 42
             Width = 782
-            ExplicitTop = 10
+            ExplicitTop = 42
             ExplicitWidth = 782
             inherited flwpnl2: TFlowPanel
               Width = 776
@@ -1019,7 +999,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Width = 782
             Height = 42
             ExplicitWidth = 782
-            ExplicitHeight = 10
+            ExplicitHeight = 42
           end
         end
         inherited ts3: TTabSheet

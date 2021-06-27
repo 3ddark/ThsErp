@@ -474,9 +474,9 @@ begin
 
   //BaseDetaylar kodu
   if (FormMode = ifmNewRecord) then
-    GridReset()
+    GridReset
   else if (FormMode = ifmCopyNewRecord) then
-    GridFill();
+    GridFill;
 end;
 
 procedure TfrmBaseDetaylar.GridClearRowsByRowNo(pGrid: TStringGrid; pRowNo: Integer);

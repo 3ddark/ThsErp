@@ -24,6 +24,8 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       ExplicitWidth = 629
       ExplicitHeight = 411
       inherited tsMain: TTabSheet
+        ExplicitLeft = 0
+        ExplicitTop = 0
         ExplicitWidth = 621
         ExplicitHeight = 397
         object lblis_active: TLabel
@@ -632,6 +634,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       object tsSpecial: TTabSheet
         Caption = 'tsSpecial'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblsalary: TLabel
           Left = 93
           Top = 224
