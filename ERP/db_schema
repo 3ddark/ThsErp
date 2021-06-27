@@ -921,7 +921,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.alis_teklif (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     teklif_no integer NOT NULL,
     teklif_tarihi timestamp without time zone NOT NULL,
     cari_kod character varying(16),
@@ -964,8 +964,8 @@ ALTER TABLE public.alis_teklif OWNER TO ths_admin;
 --
 
 CREATE TABLE public.alis_teklif_detay (
-    id integer NOT NULL,
-    header_id integer
+    id bigint NOT NULL,
+    header_id bigint
 );
 
 
@@ -975,42 +975,28 @@ ALTER TABLE public.alis_teklif_detay OWNER TO ths_admin;
 -- Name: alis_teklif_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.alis_teklif_detay_id_seq
+ALTER TABLE public.alis_teklif_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.alis_teklif_detay_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.alis_teklif_detay_id_seq OWNER TO ths_admin;
-
---
--- Name: alis_teklif_detay_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.alis_teklif_detay_id_seq OWNED BY public.alis_teklif_detay.id;
+    CACHE 1
+);
 
 
 --
 -- Name: alis_teklif_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.alis_teklif_id_seq
+ALTER TABLE public.alis_teklif ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.alis_teklif_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.alis_teklif_id_seq OWNER TO ths_admin;
-
---
--- Name: alis_teklif_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.alis_teklif_id_seq OWNED BY public.alis_teklif.id;
+    CACHE 1
+);
 
 
 --
@@ -2607,8 +2593,9 @@ ALTER TABLE public.sys_sehir OWNER TO ths_admin;
 
 CREATE VIEW public.sat_siparis_rapor AS
  SELECT sd.id,
+    s.musteri_kodu,
     s.musteri_adi,
-    ct.sehir_adi AS city,
+    ct.sehir_adi,
     sg.stok_grubu,
     sd.stok_kodu,
     sd.stok_aciklama,
@@ -6404,20 +6391,6 @@ ALTER TABLE public.urun_kabul_red_nedeni_id_seq OWNER TO ths_admin;
 --
 
 ALTER SEQUENCE public.urun_kabul_red_nedeni_id_seq OWNED BY public.urun_kabul_red_nedeni.id;
-
-
---
--- Name: alis_teklif id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.alis_teklif ALTER COLUMN id SET DEFAULT nextval('public.alis_teklif_id_seq'::regclass);
-
-
---
--- Name: alis_teklif_detay id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.alis_teklif_detay ALTER COLUMN id SET DEFAULT nextval('public.alis_teklif_detay_id_seq'::regclass);
 
 
 --

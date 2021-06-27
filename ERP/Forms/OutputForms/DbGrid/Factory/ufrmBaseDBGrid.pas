@@ -2174,7 +2174,7 @@ begin
         dGridWidth := dGridWidth + IndicatorWidth;
 
       //çıkan scroll için width bunun kontrolü eklenmeli. Şimdilik sabit bilgi olarak girildi
-      dGridWidth := dGridWidth + 24;
+      dGridWidth := dGridWidth + 40;
 
       Width := dGridWidth;
     end;

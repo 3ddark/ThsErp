@@ -16,19 +16,18 @@ inherited frmPrsPersonel: TfrmPrsPersonel
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 631
-    ExplicitHeight = 413
+    ExplicitHeight = 427
     inherited pgcMain: TPageControl
       Width = 629
       Height = 425
       OnChange = pgcMainChange
       ExplicitWidth = 629
-      ExplicitHeight = 411
+      ExplicitHeight = 425
       inherited tsMain: TTabSheet
-        ExplicitLeft = 0
-        ExplicitTop = 0
+        Caption = 'Genel'
         ExplicitWidth = 621
         ExplicitHeight = 397
-        object lblis_active: TLabel
+        object lblis_aktif: TLabel
           Left = 80
           Top = 10
           Width = 44
@@ -44,14 +43,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblemp_name: TLabel
-          Left = 33
+        object lblad: TLabel
+          Left = 108
           Top = 32
-          Width = 91
+          Width = 16
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Employee Name'
+          Caption = 'Ad'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -60,14 +59,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblemp_surname: TLabel
-          Left = 320
+        object lblsoyad: TLabel
+          Left = 392
           Top = 32
-          Width = 108
+          Width = 36
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Employee Surname'
+          Caption = 'Soyad'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -76,77 +75,77 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblemp_type_id: TLabel
-          Left = 37
-          Top = 54
-          Width = 87
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Employee Type'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblemp_section_id: TLabel
-          Left = 80
-          Top = 76
-          Width = 44
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Section'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblemp_unit_id: TLabel
-          Left = 100
-          Top = 98
-          Width = 24
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Unit'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblemp_task_id: TLabel
-          Left = 95
-          Top = 120
-          Width = 29
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Task'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblemp_transport_id: TLabel
-          Left = 357
+        object lblpersonel_tipi_id: TLabel
+          Left = 49
           Top = 54
           Width = 75
           Height = 13
           Alignment = taRightJustify
-          Caption = 'Transport No'
+          BiDiMode = bdLeftToRight
+          Caption = 'Personel Tipi'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblbolum_id: TLabel
+          Left = 89
+          Top = 76
+          Width = 35
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'B'#246'l'#252'm'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblbirim_id: TLabel
+          Left = 96
+          Top = 98
+          Width = 28
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Birim'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblgorev_id: TLabel
+          Left = 89
+          Top = 120
+          Width = 35
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'G'#246'rev'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lbltasima_servisi_id: TLabel
+          Left = 376
+          Top = 54
+          Width = 56
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Servis No'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -154,7 +153,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblgeneral_note: TLabel
+        object lblgenel_not: TLabel
           Left = 66
           Top = 142
           Width = 58
@@ -168,49 +167,49 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object imgPersonelResim: TImage
+        object imgpersonel_resim: TImage
           Left = 433
           Top = 73
           Width = 180
           Height = 180
           Stretch = True
         end
-        object chkis_active: TCheckBox
+        object chkis_aktif: TCheckBox
           Left = 130
           Top = 7
           Width = 184
           Height = 21
           TabOrder = 0
         end
-        object edtemp_name: TEdit
+        object edtad: TEdit
           Left = 130
           Top = 29
           Width = 180
           Height = 21
           TabOrder = 1
         end
-        object edtemp_surname: TEdit
+        object edtsoyad: TEdit
           Left = 434
           Top = 29
           Width = 180
           Height = 21
           TabOrder = 2
         end
-        object cbbemp_type_id: TComboBox
+        object cbbpersonel_tipi_id: TComboBox
           Left = 130
           Top = 51
           Width = 180
           Height = 21
           TabOrder = 3
         end
-        object cbbemp_transport_id: TComboBox
+        object cbbtasima_servisi_id: TComboBox
           Left = 433
           Top = 51
           Width = 180
           Height = 21
           TabOrder = 4
         end
-        object mmogeneral_note: TMemo
+        object mmogenel_not: TMemo
           Left = 130
           Top = 139
           Width = 298
@@ -219,21 +218,21 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ScrollBars = ssVertical
           TabOrder = 8
         end
-        object edtemp_section_id: TEdit
+        object edtbolum_id: TEdit
           Left = 130
           Top = 73
           Width = 180
           Height = 21
           TabOrder = 5
         end
-        object edtemp_unit_id: TEdit
+        object edtbirim_id: TEdit
           Left = 130
           Top = 95
           Width = 180
           Height = 21
           TabOrder = 6
         end
-        object edtemp_task_id: TEdit
+        object edtgorev_id: TEdit
           Left = 130
           Top = 117
           Width = 180
@@ -242,20 +241,16 @@ inherited frmPrsPersonel: TfrmPrsPersonel
         end
       end
       object tsDetail: TTabSheet
-        Caption = 'tsDetail'
+        Caption = 'Adres'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
-        object lblpostal_box: TLabel
-          Left = 65
+        object lblposta_kutusu: TLabel
+          Left = 50
           Top = 230
-          Width = 61
+          Width = 76
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Postal Box'
+          Caption = 'Posta Kutusu'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -264,142 +259,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblbuilding_name: TLabel
-          Left = 44
-          Top = 186
-          Width = 82
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Building Name'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblstreet: TLabel
-          Left = 91
-          Top = 164
-          Width = 35
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Street'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblroad: TLabel
-          Left = 95
-          Top = 142
-          Width = 31
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Road'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lbldistrict: TLabel
-          Left = 85
-          Top = 120
-          Width = 41
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'District'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lbltown: TLabel
-          Left = 94
-          Top = 98
-          Width = 32
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Town'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblcity_id: TLabel
-          Left = 104
-          Top = 76
-          Width = 22
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'City'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblcountry_id: TLabel
-          Left = 82
-          Top = 54
-          Width = 44
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Country'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblpostal_code: TLabel
-          Left = 57
-          Top = 252
-          Width = 69
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Postal Code'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lbldoor_no: TLabel
+        object lblbina_adi: TLabel
           Left = 78
-          Top = 208
+          Top = 186
           Width = 48
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Door No'
+          Caption = 'Bina Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -408,70 +275,198 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edttown: TEdit
+        object lblsokak: TLabel
+          Left = 89
+          Top = 164
+          Width = 37
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Sokak'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblcadde: TLabel
+          Left = 89
+          Top = 142
+          Width = 37
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Cadde'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblmahalle: TLabel
+          Left = 81
+          Top = 120
+          Width = 45
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Mahalle'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblilce: TLabel
+          Left = 104
+          Top = 98
+          Width = 22
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = #304'l'#231'e'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblsehir_id: TLabel
+          Left = 74
+          Top = 76
+          Width = 52
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = #350'ehir Ad'#305
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblulke_id: TLabel
+          Left = 77
+          Top = 54
+          Width = 49
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = #220'lke Ad'#305
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblposta_kodu: TLabel
+          Left = 60
+          Top = 252
+          Width = 66
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Posta Kodu'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblkapi_no: TLabel
+          Left = 80
+          Top = 208
+          Width = 46
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Kap'#305' No'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object edtilce: TEdit
           Left = 130
           Top = 95
           Width = 180
           Height = 21
           TabOrder = 2
         end
-        object edtdistrict: TEdit
+        object edtmahalle: TEdit
           Left = 130
           Top = 117
           Width = 180
           Height = 21
           TabOrder = 3
         end
-        object edtroad: TEdit
+        object edtcadde: TEdit
           Left = 130
           Top = 139
           Width = 180
           Height = 21
           TabOrder = 4
         end
-        object edtstreet: TEdit
+        object edtsokak: TEdit
           Left = 130
           Top = 161
           Width = 180
           Height = 21
           TabOrder = 5
         end
-        object edtbuilding_name: TEdit
+        object edtbina_adi: TEdit
           Left = 130
           Top = 183
           Width = 180
           Height = 21
           TabOrder = 6
         end
-        object edtdoor_no: TEdit
+        object edtkapi_no: TEdit
           Left = 130
           Top = 205
           Width = 180
           Height = 21
           TabOrder = 7
         end
-        object edtpostal_box: TEdit
+        object edtposta_kutusu: TEdit
           Left = 130
           Top = 227
           Width = 180
           Height = 21
           TabOrder = 8
         end
-        object edtpostal_code: TEdit
+        object edtposta_kodu: TEdit
           Left = 130
           Top = 249
           Width = 180
           Height = 21
           TabOrder = 9
         end
-        object edtcountry_id: TEdit
+        object edtulke_id: TEdit
           Left = 130
           Top = 51
           Width = 180
           Height = 21
           TabOrder = 0
         end
-        object edtcity_id: TEdit
+        object edtsehir_id: TEdit
           Left = 130
           Top = 73
           Width = 180
@@ -480,12 +475,9 @@ inherited frmPrsPersonel: TfrmPrsPersonel
         end
       end
       object tsAbility: TTabSheet
-        Caption = 'tsAbility'
+        Caption = 'Yetenekler'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        TabVisible = False
         object strngrdDriverLicenseAbility: TStringGrid
           Left = 20
           Top = 59
@@ -552,7 +544,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 8
           ColWidths = (
             24
             24
@@ -569,7 +561,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Top = 178
           Width = 20
           Height = 25
-          TabOrder = 3
+          TabOrder = 2
           OnClick = btnDriverLicenseAddClick
         end
         object btnDriverLicenseEdit: TButton
@@ -577,21 +569,21 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Top = 178
           Width = 20
           Height = 25
-          TabOrder = 4
+          TabOrder = 3
         end
         object btnDriverLicenseRemove: TButton
           Left = 72
           Top = 178
           Width = 20
           Height = 25
-          TabOrder = 5
+          TabOrder = 4
         end
         object Button1: TButton
           Left = 278
           Top = 178
           Width = 20
           Height = 25
-          TabOrder = 6
+          TabOrder = 5
           OnClick = btnDriverLicenseAddClick
         end
         object Button2: TButton
@@ -599,14 +591,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Top = 178
           Width = 20
           Height = 25
-          TabOrder = 7
+          TabOrder = 6
         end
         object Button3: TButton
           Left = 330
           Top = 178
           Width = 20
           Height = 25
-          TabOrder = 8
+          TabOrder = 7
         end
         object Button4: TButton
           Left = 20
@@ -632,19 +624,15 @@ inherited frmPrsPersonel: TfrmPrsPersonel
         end
       end
       object tsSpecial: TTabSheet
-        Caption = 'tsSpecial'
+        Caption = #214'zel Bilgiler'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
-        object lblsalary: TLabel
-          Left = 93
+        object lblmaas: TLabel
+          Left = 98
           Top = 224
-          Width = 36
+          Width = 31
           Height = 13
           Alignment = taRightJustify
-          Caption = 'Salary'
+          Caption = 'Maa'#351
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -652,13 +640,13 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblspecial_note: TLabel
-          Left = 55
+        object lblozel_not: TLabel
+          Left = 79
           Top = 268
-          Width = 74
+          Width = 50
           Height = 13
           Alignment = taRightJustify
-          Caption = 'Special Note'
+          Caption = #214'zel Not'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -666,13 +654,13 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblbonus: TLabel
-          Left = 93
+        object lblikramiye_sayisi: TLabel
+          Left = 44
           Top = 246
-          Width = 36
+          Width = 85
           Height = 13
           Alignment = taRightJustify
-          Caption = 'Bonus'
+          Caption = #304'kramiye Say'#305's'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -680,13 +668,13 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblbonus_amount: TLabel
+        object lblikramiye_tutar: TLabel
           Left = 351
           Top = 246
           Width = 82
           Height = 13
           Alignment = taRightJustify
-          Caption = 'Bonus Amount'
+          Caption = #304'kramiye Tutar'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -694,14 +682,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblphone1: TLabel
-          Left = 81
+        object lbltel1: TLabel
+          Left = 74
           Top = 54
-          Width = 48
+          Width = 55
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Phone 1'
+          Caption = 'Telefon 1'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -710,14 +698,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblphone2: TLabel
-          Left = 81
+        object lbltel2: TLabel
+          Left = 74
           Top = 76
-          Width = 48
+          Width = 55
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Phone 2'
+          Caption = 'Telefon 2'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -726,14 +714,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblclose_phone: TLabel
-          Left = 57
+        object lblyakin_telefon: TLabel
+          Left = 42
           Top = 142
-          Width = 72
+          Width = 87
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Close Phone'
+          Caption = 'Yak'#305'n Telefonu'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -742,14 +730,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblclose_name: TLabel
-          Left = 61
+        object lblyakin_adi: TLabel
+          Left = 74
           Top = 120
-          Width = 68
+          Width = 55
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Close Name'
+          Caption = 'Yak'#305'n Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -774,13 +762,13 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblshoe_no: TLabel
-          Left = 78
+        object lblayakkabi_no: TLabel
+          Left = 55
           Top = 164
-          Width = 50
+          Width = 73
           Height = 13
           Alignment = taRightJustify
-          Caption = 'Shoe No'
+          Caption = 'Ayakkab'#305' No'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -788,42 +776,58 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lbldress_size: TLabel
-          Left = 67
+        object lblelbise_bedeni: TLabel
+          Left = 50
           Top = 186
+          Width = 78
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Elbise Bedeni'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object lblkimlik_no: TLabel
+          Left = 378
+          Top = 54
+          Width = 54
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Kimlik No'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object lbldogum_tarihi: TLabel
+          Left = 356
+          Top = 76
+          Width = 76
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Do'#287'um Tarihi'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblkan_grubu: TLabel
+          Left = 371
+          Top = 98
           Width = 61
           Height = 13
           Alignment = taRightJustify
-          Caption = 'Dress Size'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object lblemp_goverment_id: TLabel
-          Left = 353
-          Top = 54
-          Width = 79
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'Goverment ID'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object lblbirth_date: TLabel
-          Left = 374
-          Top = 76
-          Width = 58
-          Height = 13
-          Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Birth Date'
+          Caption = 'Kan Grubu'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -832,30 +836,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblblood: TLabel
-          Left = 399
-          Top = 98
-          Width = 33
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Blood'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblemp_gender_id: TLabel
-          Left = 390
+        object lblcinsiyet_id: TLabel
+          Left = 387
           Top = 120
-          Width = 42
+          Width = 45
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Gender'
+          Caption = 'Cinsiyet'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -864,14 +852,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblemp_marital_kind_id: TLabel
-          Left = 364
+        object lblmedeni_durumu_id: TLabel
+          Left = 350
           Top = 142
-          Width = 68
+          Width = 82
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Marital Kind'
+          Caption = 'Medeni Durum'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -880,14 +868,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblemp_military_kind_id: TLabel
-          Left = 362
+        object lblaskerlik_durumu_id: TLabel
+          Left = 339
           Top = 186
-          Width = 70
+          Width = 93
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Military Kind'
+          Caption = 'Askerlik Durumu'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -896,14 +884,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblchild: TLabel
-          Left = 403
+        object lblcocuk_sayisi: TLabel
+          Left = 358
           Top = 164
-          Width = 29
+          Width = 74
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Child'
+          Caption = #199'ocuk Say'#305's'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -912,14 +900,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtphone1: TEdit
+        object edttel1: TEdit
           Left = 130
           Top = 51
           Width = 180
           Height = 21
           TabOrder = 0
         end
-        object edtphone2: TEdit
+        object edttel2: TEdit
           Left = 130
           Top = 73
           Width = 180
@@ -933,21 +921,21 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Height = 21
           TabOrder = 4
         end
-        object edtclose_name: TEdit
+        object edtyakin_adi: TEdit
           Left = 130
           Top = 117
           Width = 180
           Height = 21
           TabOrder = 6
         end
-        object edtclose_phone: TEdit
+        object edtyakin_telefon: TEdit
           Left = 130
           Top = 139
           Width = 180
           Height = 21
           TabOrder = 8
         end
-        object edtshoe_no: TEdit
+        object edtayakkabi_no: TEdit
           Left = 131
           Top = 161
           Width = 180
@@ -955,7 +943,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           MaxLength = 2
           TabOrder = 10
         end
-        object edtdress_size: TEdit
+        object edtelbise_bedeni: TEdit
           Left = 131
           Top = 183
           Width = 180
@@ -963,7 +951,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           MaxLength = 4
           TabOrder = 12
         end
-        object edtemp_goverment_id: TEdit
+        object edtkimlik_no: TEdit
           Left = 434
           Top = 51
           Width = 180
@@ -971,51 +959,51 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           MaxLength = 11
           TabOrder = 1
         end
-        object edtbirth_date: TEdit
+        object edtdogum_tarihi: TEdit
           Left = 434
           Top = 73
           Width = 180
           Height = 21
           TabOrder = 3
         end
-        object cbbblood: TComboBox
+        object cbbkan_grubu: TComboBox
           Left = 434
           Top = 95
           Width = 180
           Height = 21
           TabOrder = 5
         end
-        object cbbemp_gender_id: TComboBox
+        object cbbcinsiyet_id: TComboBox
           Left = 434
           Top = 117
           Width = 180
           Height = 21
           TabOrder = 7
-          OnChange = cbbemp_gender_idChange
+          OnChange = cbbcinsiyet_idChange
         end
-        object cbbemp_marital_kind_id: TComboBox
+        object cbbmedeni_durumu_id: TComboBox
           Left = 434
           Top = 139
           Width = 180
           Height = 21
           TabOrder = 9
-          OnChange = cbbemp_marital_kind_idChange
+          OnChange = cbbmedeni_durumu_idChange
         end
-        object edtchild: TEdit
+        object edtcocuk_sayisi: TEdit
           Left = 434
           Top = 161
           Width = 180
           Height = 21
           TabOrder = 11
         end
-        object cbbemp_military_kind_id: TComboBox
+        object cbbaskerlik_durumu_id: TComboBox
           Left = 434
           Top = 183
           Width = 180
           Height = 21
           TabOrder = 13
         end
-        object edtsalary: TEdit
+        object edtmaas: TEdit
           Left = 130
           Top = 221
           Width = 180
@@ -1023,7 +1011,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           MaxLength = 10
           TabOrder = 14
         end
-        object edtbonus: TEdit
+        object edtikramiye_sayisi: TEdit
           Left = 130
           Top = 243
           Width = 180
@@ -1031,7 +1019,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           MaxLength = 16
           TabOrder = 15
         end
-        object edtbonus_amount: TEdit
+        object edtikramiye_tutar: TEdit
           Left = 434
           Top = 243
           Width = 180
@@ -1039,7 +1027,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           MaxLength = 16
           TabOrder = 16
         end
-        object mmospecial_note: TMemo
+        object mmoozel_not: TMemo
           Left = 130
           Top = 265
           Width = 484
@@ -1054,15 +1042,20 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   inherited pnlBottom: TPanel
     Top = 431
     Width = 631
-    ExplicitTop = 417
+    ExplicitTop = 431
     ExplicitWidth = 631
     inherited btnAccept: TButton
       Left = 422
+      TabOrder = 2
       ExplicitLeft = 422
     end
     inherited btnClose: TButton
       Left = 526
+      TabOrder = 3
       ExplicitLeft = 526
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

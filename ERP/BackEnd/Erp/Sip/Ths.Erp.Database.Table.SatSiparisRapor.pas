@@ -17,8 +17,9 @@ uses
 type
   TSatSiparisRapor = class(TView)
   private
+    FMusteriKodu: TFieldDB;
     FMusteriAdi: TFieldDB;
-    FCity: TFieldDB;
+    FSehir: TFieldDB;
     FStokGrubu: TFieldDB;
     FStokKodu: TFieldDB;
     FStokAciklama: TFieldDB;
@@ -40,7 +41,7 @@ type
     function Clone: TTable; override;
 
     Property MusteriAdi: TFieldDB read FMusteriAdi write FMusteriAdi;
-    Property City: TFieldDB read FCity write FCity;
+    Property City: TFieldDB read FSehir write FSehir;
     Property StokGrubu: TFieldDB read FStokGrubu write FStokGrubu;
     Property StokKodu: TFieldDB read FStokKodu write FStokKodu;
     Property StokAciklama: TFieldDB read FStokAciklama write FStokAciklama;
@@ -68,20 +69,21 @@ begin
   TableSourceCode := MODULE_SAT_SIP_RAPOR;
   inherited Create(ADatabase);
 
-  FMusteriAdi := TFieldDB.Create('musteri_adi', ftString, '', Self, '');
-  FCity := TFieldDB.Create('city', ftString, '', Self, '');
-  FStokGrubu := TFieldDB.Create('stok_grubu', ftString, '', Self, '');
-  FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self, '');
-  FStokAciklama := TFieldDB.Create('stok_aciklama', ftString, '', Self, '');
-  FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self, '');
-  FOlcuBirimi := TFieldDB.Create('olcu_birimi', ftString, '', Self, '');
-  FSiparisNo := TFieldDB.Create('siparis_no', ftString, '', Self, '');
-  FSiparisTarihi := TFieldDB.Create('siparis_tarihi', ftDate, 0, Self, '');
-  FTeslimTarihi := TFieldDB.Create('teslim_tarihi', ftDate, 0, Self, '');
-  FSiparisDurum := TFieldDB.Create('siparis_durum', ftString, '', Self, '');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, '');
-  FReferans := TFieldDB.Create('referans', ftString, '', Self, '');
-  FReferansSatir := TFieldDB.Create('referans_satir', ftString, '', Self, '');
+  FMusteriKodu := TFieldDB.Create('musteri_kodu', ftString, '', Self, 'Müþteri Kodu');
+  FMusteriAdi := TFieldDB.Create('musteri_adi', ftString, '', Self, 'Müþteri Adý');
+  FSehir := TFieldDB.Create('sehir_adi', ftString, '', Self, 'Þehir');
+  FStokGrubu := TFieldDB.Create('stok_grubu', ftString, '', Self, 'Stok Grubu');
+  FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self, 'Stok Kodu');
+  FStokAciklama := TFieldDB.Create('stok_aciklama', ftString, '', Self, 'Stok Açýklama');
+  FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self, 'Miktar');
+  FOlcuBirimi := TFieldDB.Create('olcu_birimi', ftString, '', Self, 'Ölçü Birimi');
+  FSiparisNo := TFieldDB.Create('siparis_no', ftString, '', Self, 'Sipariþ No');
+  FSiparisTarihi := TFieldDB.Create('siparis_tarihi', ftDate, 0, Self, 'Sipariþ Tarihi');
+  FTeslimTarihi := TFieldDB.Create('teslim_tarihi', ftDate, 0, Self, 'Teslim Tarihi');
+  FSiparisDurum := TFieldDB.Create('siparis_durum', ftString, '', Self, 'Sipariþ Durum');
+  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
+  FReferans := TFieldDB.Create('referans', ftString, '', Self, 'Referans');
+  FReferansSatir := TFieldDB.Create('referans_satir', ftString, '', Self, 'Satýr Referans');
 end;
 
 procedure TSatSiparisRapor.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -92,42 +94,27 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FMusteriAdi.FieldName,
-        TableName + '.' + FCity.FieldName,
-        TableName + '.' + FStokGrubu.FieldName,
-        TableName + '.' + FStokKodu.FieldName,
-        TableName + '.' + FStokAciklama.FieldName,
-        TableName + '.' + FMiktar.FieldName,
-        TableName + '.' + FOlcuBirimi.FieldName,
-        TableName + '.' + FSiparisNo.FieldName,
-        TableName + '.' + FSiparisTarihi.FieldName,
-        TableName + '.' + FTeslimTarihi.FieldName,
-        TableName + '.' + FSiparisDurum.FieldName,
-        TableName + '.' + FAciklama.FieldName,
-        TableName + '.' + FReferans.FieldName,
-        TableName + '.' + FReferansSatir.FieldName
+        Self.Id.QryName,
+        FMusteriKodu.QryName,
+        FMusteriAdi.QryName,
+        FSehir.QryName,
+        FStokGrubu.QryName,
+        FStokKodu.QryName,
+        FStokAciklama.QryName,
+        FMiktar.QryName,
+        FOlcuBirimi.QryName,
+        FSiparisNo.QryName,
+        FSiparisTarihi.QryName,
+        FTeslimTarihi.QryName,
+        FSiparisDurum.QryName,
+        FAciklama.QryName,
+        FReferans.QryName,
+        FReferansSatir.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
       Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FMusteriAdi, 'Müþteri Adý', QueryOfDS);
-      setFieldTitle(FCity, 'Þehir', QueryOfDS);
-      setFieldTitle(FStokGrubu, 'Stok Grubu', QueryOfDS);
-      setFieldTitle(FStokKodu, 'Stok Kodu', QueryOfDS);
-      setFieldTitle(FStokAciklama, 'Stok Açýklama', QueryOfDS);
-      setFieldTitle(FMiktar, 'Miktar', QueryOfDS);
-      setFieldTitle(FOlcuBirimi, 'Ölçü Birimi', QueryOfDS);
-      setFieldTitle(FSiparisNo, 'Sipariþ No', QueryOfDS);
-      setFieldTitle(FSiparisTarihi, 'Sipariþ Tarihi', QueryOfDS);
-      setFieldTitle(FTeslimTarihi, 'Teslim Tarihi', QueryOfDS);
-      setFieldTitle(FSiparisDurum, 'Durum', QueryOfDS);
-      setFieldTitle(FAciklama, 'Açýklama', QueryOfDS);
-      setFieldTitle(FReferans, 'Referans', QueryOfDS);
-      setFieldTitle(FReferansSatir, 'Referans Satýr', QueryOfDS);
     end;
   end;
 end;
@@ -143,21 +130,22 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FMusteriAdi.FieldName,
-        TableName + '.' + FCity.FieldName,
-        TableName + '.' + FStokGrubu.FieldName,
-        TableName + '.' + FStokKodu.FieldName,
-        TableName + '.' + FStokAciklama.FieldName,
-        TableName + '.' + FMiktar.FieldName,
-        TableName + '.' + FOlcuBirimi.FieldName,
-        TableName + '.' + FSiparisNo.FieldName,
-        TableName + '.' + FSiparisTarihi.FieldName,
-        TableName + '.' + FTeslimTarihi.FieldName,
-        TableName + '.' + FSiparisDurum.FieldName,
-        TableName + '.' + FAciklama.FieldName,
-        TableName + '.' + FReferans.FieldName,
-        TableName + '.' + FReferansSatir.FieldName
+        Self.Id.QryName,
+        FMusteriKodu.QryName,
+        FMusteriAdi.QryName,
+        FSehir.QryName,
+        FStokGrubu.QryName,
+        FStokKodu.QryName,
+        FStokAciklama.QryName,
+        FMiktar.QryName,
+        FOlcuBirimi.QryName,
+        FSiparisNo.QryName,
+        FSiparisTarihi.QryName,
+        FTeslimTarihi.QryName,
+        FSiparisDurum.QryName,
+        FAciklama.QryName,
+        FReferans.QryName,
+        FReferansSatir.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);

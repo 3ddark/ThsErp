@@ -3,6 +3,11 @@ inherited frmSatSiparislerRapor: TfrmSatSiparislerRapor
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
+    inherited pnlHeader: TPanel
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
+    end
     inherited pnlButtons: TPanel
       inherited pnlButtonRight: TPanel
         Left = 592
@@ -13,7 +18,7 @@ inherited frmSatSiparislerRapor: TfrmSatSiparislerRapor
           Left = 0
           Top = 0
           Width = 223
-          Height = 80
+          Height = 92
           Align = alClient
           Caption = 'Filtre'
           Columns = 2
