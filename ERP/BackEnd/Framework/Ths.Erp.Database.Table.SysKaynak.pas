@@ -53,7 +53,7 @@ uses
 constructor TSysKaynak.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_kaynak';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FSysKaynakGrp := TSysKaynakGrup.Create(ADatabase);

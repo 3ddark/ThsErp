@@ -37,7 +37,7 @@ uses
   frxExportBaseDialog,
   frxExportPDF,
   ufrmBase,
-  ufrmBaseDBGrid, System.Actions, Vcl.ActnList;
+  ufrmBaseDBGrid, System.Actions, Vcl.ActnList, frxExportXLS;
 
 type
   TfrmSysLisanlar = class(TfrmBaseDBGrid)

@@ -48,7 +48,7 @@ uses
 constructor TSysLisanDataIcerik.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_lisan_data_icerik';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FLisan := TFieldDB.Create('lisan', ftString, '', Self, 'Lisan');

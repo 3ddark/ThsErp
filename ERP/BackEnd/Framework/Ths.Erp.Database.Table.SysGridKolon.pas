@@ -82,7 +82,7 @@ uses
 constructor TSysGridKolon.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_grid_kolon';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FTabloAdi := TFieldDB.Create('tablo_adi', ftString, '', Self, 'Tablo Adý');

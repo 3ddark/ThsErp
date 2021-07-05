@@ -46,6 +46,8 @@ type
     lblpath_utd: TLabel;
     edtpath_utd: TEdit;
     btnpath_utd: TButton;
+    lbltemin_suresi_birim: TLabel;
+    cbbtemin_suresi_birim: TComboBox;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject); override;
     procedure btnpath_stok_resimClick(Sender: TObject);

@@ -77,7 +77,7 @@ uses
 constructor TSysKullanici.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_kullanici';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FPersonelKarti := TPrsPersonel.Create(Database);

@@ -56,6 +56,7 @@ uses
   frxClass,
   frxUtils,
   frxExportPDF,
+  frxExportXLS,
   frxPreview,
   frxExportBaseDialog,
   frxDBSet,
@@ -76,7 +77,7 @@ uses
   Ths.Erp.Database.Table.SysLisanDataIcerik,
   ufrmSysLisanDataIcerik,
   Ths.Erp.Database.Table.SysLisanGuiIcerik,
-  ufrmSysLisanGuiIcerik, frxExportXLS;
+  ufrmSysLisanGuiIcerik;
 
 type
   TSortType = (stNone, stAsc, stDesc);

@@ -45,7 +45,7 @@ uses
 constructor TSysParaBirimi.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_para_birimi';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
   FParaBirimi := TFieldDB.Create('para_birimi', ftString, '', Self, 'Para Birimi');

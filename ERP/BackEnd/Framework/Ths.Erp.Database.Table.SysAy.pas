@@ -37,7 +37,7 @@ uses
 constructor TSysAy.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_ay';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FAyAdi := TFieldDB.Create('ay_adi', ftString, '', Self, 'Ay Adý');

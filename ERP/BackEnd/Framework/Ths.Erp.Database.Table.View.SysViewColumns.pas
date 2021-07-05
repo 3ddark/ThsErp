@@ -56,7 +56,7 @@ uses
 constructor TSysViewColumns.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_view_columns';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FTableName  := TFieldDB.Create('table_name', ftString, '', Self, 'Tablo Adý');

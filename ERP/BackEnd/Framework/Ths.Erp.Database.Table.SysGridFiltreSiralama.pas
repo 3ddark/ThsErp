@@ -41,7 +41,7 @@ uses
 constructor TSysGridFiltreSiralama.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_grid_filtre_siralama';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FTabloAdi := TFieldDB.Create('tablo_adi', ftString, '', Self, 'Tablo Adý');

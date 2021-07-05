@@ -39,7 +39,7 @@ uses
   FireDAC.Comp.Client,
   FireDAC.Comp.DataSet,
   System.Actions, 
-  Vcl.ActnList;
+  Vcl.ActnList, frxExportXLS;
 
 type
   TfrmSysAylar = class(TfrmBaseDBGrid)

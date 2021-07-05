@@ -47,7 +47,7 @@ uses
 constructor TSysQualityFormNumber.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_kalite_form_no';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FQtyFormType := TSysKaliteFormTipi.Create(Database);

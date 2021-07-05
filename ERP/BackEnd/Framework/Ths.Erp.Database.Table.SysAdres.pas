@@ -70,7 +70,7 @@ uses
 constructor TSysAdres.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_adres';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
   FSysUlke := TSysUlke.Create(Database);

@@ -20,14 +20,11 @@ inherited frmStkStokKarti: TfrmStkStokKarti
     inherited pgcMain: TPageControl
       Width = 643
       Height = 494
-      ActivePage = tsGrupOzellikleri
       OnChange = pgcMainChange
       ExplicitWidth = 643
       ExplicitHeight = 494
       inherited tsMain: TTabSheet
         Caption = 'Genel'
-        ExplicitLeft = 0
-        ExplicitTop = 0
         ExplicitWidth = 635
         ExplicitHeight = 466
         object lblortalama_maliyet_brm: TLabel
@@ -762,10 +759,6 @@ inherited frmStkStokKarti: TfrmStkStokKarti
       object tsCinsOzelligi: TTabSheet
         Caption = 'Cins '#214'zelli'#287'i'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lbld3: TLabel
           Left = 132
           Top = 389
@@ -1176,10 +1169,6 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         Caption = #214'zetler'
         ImageIndex = 3
         TabVisible = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object pnlOzetHeader: TPanel
           AlignWithMargins = True
           Left = 3
@@ -1824,10 +1813,6 @@ inherited frmStkStokKarti: TfrmStkStokKarti
       object tsGrupOzellikleri: TTabSheet
         Caption = 'Grup '#214'zellikleri'
         ImageIndex = 4
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object pnlGrupHeader: TPanel
           AlignWithMargins = True
           Left = 3
@@ -1909,7 +1894,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 50
+            Width = 621
             Height = 13
             Align = alTop
             Alignment = taCenter
@@ -1920,6 +1905,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
+            ExplicitWidth = 50
           end
           object lblgrup_kdv_orani: TLabel
             Left = 122
@@ -2105,7 +2091,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 127
+            Width = 621
             Height = 13
             Hint = 'Hide'
             Align = alTop
@@ -2117,6 +2103,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
+            ExplicitWidth = 127
           end
           object strngrdAmbar: TStringGrid
             AlignWithMargins = True

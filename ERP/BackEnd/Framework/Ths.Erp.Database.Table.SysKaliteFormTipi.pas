@@ -39,7 +39,7 @@ uses
 constructor TSysKaliteFormTipi.Create(ADatabase:TDatabase);
 begin
   TableName := 'sys_kalite_form_tipi';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FFormTipi := TFieldDB.Create('form_tipi', ftString, '', Self, 'Form Tipi');

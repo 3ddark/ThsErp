@@ -55,7 +55,7 @@ uses
 constructor TSysOndalikHane.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_ondalik_hane';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
   FHesapBakiye := TFieldDB.Create('hesap_bakiye', ftInteger, 2, Self, 'Hesap Bakiye');

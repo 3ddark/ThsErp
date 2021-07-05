@@ -42,7 +42,7 @@ uses
 constructor TSysMukellefTipi.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_mukellef_tipi';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FMukellefTipi := TFieldDB.Create('mukellef_tipi', ftString, '', Self, 'Mükellef Tipi');

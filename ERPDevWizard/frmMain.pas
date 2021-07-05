@@ -71,7 +71,6 @@ type
     pnlOutputDFM: TPanel;
     mmoOutputDFM: TMemo;
     pnlOutputBottomDFM: TPanel;
-    btnAddOutputDFMToMemo: TButton;
     Splitter1: TSplitter;
     pnlOutputPAS: TPanel;
     mmoOutputPAS: TMemo;
@@ -80,7 +79,6 @@ type
     pnlInputDFM: TPanel;
     mmoInputDFM: TMemo;
     pnlInputBottomDFM: TPanel;
-    btnAddInputDFMToMemo: TButton;
     Splitter2: TSplitter;
     pnlInputPAS: TPanel;
     mmoInputPAS: TMemo;
@@ -142,9 +140,7 @@ type
     procedure btnAddClassToMemoClick(Sender: TObject);
     procedure btnSaveToFilesClick(Sender: TObject);
     procedure edtMainProjectDirectoryDblClick(Sender: TObject);
-    procedure btnAddOutputDFMToMemoClick(Sender: TObject);
     procedure btnAddOutputPASToMemoClick(Sender: TObject);
-    procedure btnAddInputDFMToMemoClick(Sender: TObject);
     procedure btnAddInputPASToMemoClick(Sender: TObject);
     procedure mmoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure actConnectExecute(Sender: TObject);
@@ -166,7 +162,6 @@ type
   end;
 
   function CapitalizeString(const s: string; const CapitalizeFirst: Boolean = True): string;
-
 
 var
   frmMainClassGenerator: TfrmMainClassGenerator;
@@ -442,19 +437,9 @@ begin
   end;
 end;
 
-procedure TfrmMainClassGenerator.btnAddInputDFMToMemoClick(Sender: TObject);
-begin
-  GenerateInput;
-end;
-
 procedure TfrmMainClassGenerator.btnAddInputPASToMemoClick(Sender: TObject);
 begin
   GenerateInput;
-end;
-
-procedure TfrmMainClassGenerator.btnAddOutputDFMToMemoClick(Sender: TObject);
-begin
-  GenerareOutput;
 end;
 
 procedure TfrmMainClassGenerator.btnAddOutputPASToMemoClick(Sender: TObject);
@@ -495,12 +480,17 @@ begin
 end;
 
 procedure TfrmMainClassGenerator.GenerareOutput;
+var
+  LTipOut: string;
+  LTipIn: string;
 begin
   mmoOutputDFM.Clear;
   mmoOutputDFM.Lines.BeginUpdate;
   FOutputDfm.Text := '';
+  LTipOut := 'T' + Copy(edtOutputFormName.Text, 2, Length(edtOutputFormName.Text)-1);
+  LTipIn := 'T' + Copy(edtInputFormName.Text, 2, Length(edtInputFormName.Text)-1);
   try
-    FOutputDfm.Add('inherited frm' + edtOutputFormName.Text + ': Tfrm' + edtOutputFormName.Text);
+    FOutputDfm.Add('inherited ' + MidStr(LTipOut, 2, Length(LTipOut)-1) + ': ' + LTipOut);
     FOutputDfm.Add('  Caption = ' + QuotedStr(edtOutputFormCaption.Text));
     FOutputDfm.Add('end');
   finally
@@ -514,51 +504,78 @@ begin
   mmoOutputPAS.Lines.BeginUpdate;
   FOutputPas.Text := '';
   try
-    FOutputPas.Add('unit ufrm' + edtOutputFormName.Text + ';');
+    FOutputPas.Add('unit ' + edtOutputFormName.Text + ';');
     FOutputPas.Add('');
     FOutputPas.Add('interface');
     FOutputPas.Add('');
     FOutputPas.Add('{$I ThsERP.inc}');
     FOutputPas.Add('');
     FOutputPas.Add('uses');
+    FOutputPas.Add('  Winapi.Windows,');
+    FOutputPas.Add('  Winapi.Messages,');
     FOutputPas.Add('  System.SysUtils,');
+    FOutputPas.Add('  System.Variants,');
+    FOutputPas.Add('  System.Types,');
     FOutputPas.Add('  System.Classes,');
-    FOutputPas.Add('  System.ImageList,');
+    FOutputPas.Add('  System.Math,');
+    FOutputPas.Add('  System.StrUtils,');
+    FOutputPas.Add('  System.UITypes,');
+    FOutputPas.Add('  System.Rtti,');
+    FOutputPas.Add('  System.Diagnostics,');
+    FOutputPas.Add('  System.TimeSpan,');
+    FOutputPas.Add('  System.TypInfo,');
     FOutputPas.Add('  System.Actions,');
+    FOutputPas.Add('  Vcl.ImgList,');
+    FOutputPas.Add('  Vcl.Menus,');
+    FOutputPas.Add('  Vcl.Graphics,');
     FOutputPas.Add('  Vcl.Controls,');
     FOutputPas.Add('  Vcl.Forms,');
-    FOutputPas.Add('  Vcl.DBGrids,');
-    FOutputPas.Add('  Vcl.Menus,');
-    FOutputPas.Add('  Vcl.AppEvnts,');
-    FOutputPas.Add('  Vcl.ComCtrls,');
-    FOutputPas.Add('  Vcl.ExtCtrls,');
-    FOutputPas.Add('  Vcl.ImgList,');
-    FOutputPas.Add('  Vcl.Samples.Spin,');
-    FOutputPas.Add('  Vcl.StdCtrls,');
-    FOutputPas.Add('  Vcl.Grids,');
     FOutputPas.Add('  Vcl.Dialogs,');
+    FOutputPas.Add('  Vcl.ExtCtrls,');
+    FOutputPas.Add('  Vcl.ComCtrls,');
+    FOutputPas.Add('  Vcl.Grids,');
+    FOutputPas.Add('  Vcl.DBGrids,');
+    FOutputPas.Add('  Vcl.AppEvnts,');
+    FOutputPas.Add('  Vcl.StdCtrls,');
+    FOutputPas.Add('  Vcl.Samples.Spin,');
+    FOutputPas.Add('  Vcl.Clipbrd,');
     FOutputPas.Add('  Vcl.ActnList,');
     FOutputPas.Add('  Data.DB,');
-    FOutputPas.Add('  frxClass,');
-    FOutputPas.Add('  frxDBSet,');
-    FOutputPas.Add('  frxExportBaseDialog,');
-    FOutputPas.Add('  frxExportPDF,');
-    FOutputPas.Add('  ufrmBase,');
-    FOutputPas.Add('  ufrmBaseDBGrid,');
-    FOutputPas.Add('  FireDAC.Phys.Intf,');
-    FOutputPas.Add('  FireDAC.Stan.Option,');
-    FOutputPas.Add('  FireDAC.Stan.Intf,');
-    FOutputPas.Add('  FireDAC.Stan.Param, ');
-    FOutputPas.Add('  FireDAC.Stan.Error, ');
-    FOutputPas.Add('  FireDAC.Stan.Async, ');
     FOutputPas.Add('  FireDAC.DatS,');
-    FOutputPas.Add('  FireDAC.DApt,');
     FOutputPas.Add('  FireDAC.DApt.Intf,');
+    FOutputPas.Add('  FireDAC.DApt,');
+    FOutputPas.Add('  FireDAC.UI.Intf,');
+    FOutputPas.Add('  FireDAC.VCLUI.Wait,');
+    FOutputPas.Add('  FireDAC.Comp.DataSet,');
     FOutputPas.Add('  FireDAC.Comp.Client,');
-    FOutputPas.Add('  FireDAC.Comp.DataSet;');
+    FOutputPas.Add('  FireDAC.Stan.Param,');
+    FOutputPas.Add('  FireDAC.Stan.Intf,');
+    FOutputPas.Add('  FireDAC.Stan.Option,');
+    FOutputPas.Add('  FireDAC.Stan.Error,');
+    FOutputPas.Add('  FireDAC.Stan.Async,');
+    FOutputPas.Add('  FireDAC.Stan.Def,');
+    FOutputPas.Add('  FireDAC.Stan.Pool,');
+    FOutputPas.Add('  FireDAC.Phys,');
+    FOutputPas.Add('  FireDAC.Phys.Intf,');
+    FOutputPas.Add('  FireDAC.Phys.PG,');
+    FOutputPas.Add('  FireDAC.Phys.PGDef,');
+    FOutputPas.Add('  frxClass,');
+    FOutputPas.Add('  frxUtils,');
+    FOutputPas.Add('  frxExportPDF,');
+    FOutputPas.Add('  frxExportXLS,');
+    FOutputPas.Add('  frxPreview,');
+    FOutputPas.Add('  frxExportBaseDialog,');
+    FOutputPas.Add('  frxDBSet,');
+    FOutputPas.Add('  Ths.Erp.Helper.BaseTypes,');
+    FOutputPas.Add('  Ths.Erp.Helper.Edit,');
+    FOutputPas.Add('  Ths.Erp.Helper.Memo,');
+    FOutputPas.Add('  Ths.Erp.Helper.ComboBox,');
+    FOutputPas.Add('  udm,');
+    FOutputPas.Add('  ufrmBase,');
+    FOutputPas.Add('  ufrmBaseDBGrid;');
     FOutputPas.Add('');
     FOutputPas.Add('type');
-    FOutputPas.Add('  Tfrm' + edtOutputFormName.Text + ' = class(TfrmBaseDBGrid)');
+    FOutputPas.Add('  ' + LTipOut + ' = class(TfrmBaseDBGrid)');
     FOutputPas.Add('  protected');
     FOutputPas.Add('    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm; override;');
     FOutputPas.Add('  end;');
@@ -568,20 +585,20 @@ begin
     FOutputPas.Add('uses');
     FOutputPas.Add('  Ths.Erp.Database.Singleton,');
     FOutputPas.Add('  Ths.Erp.Constants,');
-    FOutputPas.Add('  ufrm' + edtInputFormName.Text + ',');
+    FOutputPas.Add('  ' + edtInputFormName.Text + ',');
     FOutputPas.Add('  ' + PROJECT_UNITNAME + edtClassType.Text + ';');
     FOutputPas.Add('');
     FOutputPas.Add('{$R *.dfm}');
     FOutputPas.Add('');
-    FOutputPas.Add('function Tfrm' + edtOutputFormName.Text + '.CreateInputForm(Sender: TObject; pFormMode: TInputFormMod): TForm;');
+    FOutputPas.Add('function ' + LTipOut + '.CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm;');
     FOutputPas.Add('begin');
     FOutputPas.Add('  Result := nil;');
     FOutputPas.Add('  if (pFormMode = ifmRewiev) then');
-    FOutputPas.Add('    Result := Tfrm' + edtInputFormName.Text + '.Create(Application, Self, Table.Clone(), True, pFormMode)');
+    FOutputPas.Add('    Result := ' + LTipIn + '.Create(Application, Self, Table.Clone(), pFormMode)');
     FOutputPas.Add('  else if (pFormMode = ifmNewRecord) then');
-    FOutputPas.Add('    Result := Tfrm' + edtInputFormName.Text + '.Create(Application, Self, T' + edtClassType.Text + '.Create(Table.Database), True, pFormMode)');
+    FOutputPas.Add('    Result := ' + LTipIn + '.Create(Application, Self, T' + edtClassType.Text + '.Create(Table.Database), pFormMode)');
     FOutputPas.Add('  else if (pFormMode = ifmCopyNewRecord) then');
-    FOutputPas.Add('    Result := Tfrm' + edtInputFormName.Text + '.Create(Application, Self, Table.Clone(), True, pFormMode);');
+    FOutputPas.Add('    Result := ' + LTipIn + '.Create(Application, Self, Table.Clone(), pFormMode);');
     FOutputPas.Add('end;');
     FOutputPas.Add('');
     FOutputPas.Add('end.');
@@ -680,7 +697,11 @@ begin
         begin
           Ls := CapitalizeString(tblColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
           LDataTypeVal := GetDataTypeFromQry(LNumeric, tblColumns.FieldByName('field_name').AsString);
-          FClass.Add('  F' + Ls + ' := TFieldDB.Create(' + QuotedStr(tblColumns.FieldByName('field_name').AsString) + ', ' + LDataTypeVal + ', Self, ' + QuotedStr(Ls) + ');');
+          FClass.Add('  F' + Ls + ' := TFieldDB.Create(' +
+              QuotedStr(tblColumns.FieldByName('field_name').AsString) + ', ' +
+              LDataTypeVal + ', ' +
+              'Self, ' +
+              QuotedStr(tblColumns.FieldByName('column_caption').AsString) + ');');
         end;
       end;
       tblColumns.Next;
@@ -695,7 +716,7 @@ begin
     FClass.Add('    begin');
     FClass.Add('      Close;');
     FClass.Add('      Database.GetSQLSelectCmd(QueryOfDS, TableName, [');
-    FClass.Add('        TableName + ''.'' + Self.Id.FieldName,');
+    FClass.Add('        Self.Id.QryName,');
     tblColumns.First;
     while not tblColumns.Eof do
     begin
@@ -704,7 +725,7 @@ begin
         if not tblColumns.Fields[0].IsNull then
         begin
           Ls := CapitalizeString(tblColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
-          FClass.Add('        F' + Ls + '.FieldName,');
+          FClass.Add('        F' + Ls + '.QryName,');
         end;
       end;
       tblColumns.Next;
@@ -725,13 +746,13 @@ begin
     FClass.Add('  if IsAuthorized(ptRead, APermissionControl) then');
     FClass.Add('  begin');
     FClass.Add('    if (ALock) then');
-    FClass.Add('      AFilter := AFilter + '' FOR UPDATE NOWAIT; '';');
+    FClass.Add('      AFilter := AFilter + '' FOR UPDATE OF '' + TableName + '' NOWAIT; '';');
     FClass.Add('');
     FClass.Add('    with QueryOfList do');
     FClass.Add('    begin');
     FClass.Add('      Close;');
     FClass.Add('      Database.GetSQLSelectCmd(QueryOfList, TableName, [');
-    FClass.Add('        TableName + ''.'' + Self.Id.FieldName,');
+    FClass.Add('        Self.Id.QryName,');
     tblColumns.First;
     while not tblColumns.Eof do
     begin
@@ -740,7 +761,7 @@ begin
         if tblColumns.FieldByName('field_name').AsString <> 'id' then
         begin
           Ls := CapitalizeString(tblColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
-          FClass.Add('        F' + Ls + '.FieldName,');
+          FClass.Add('        F' + Ls + '.QryName,');
         end;
       end;
       tblColumns.Next;
@@ -815,7 +836,7 @@ begin
     FClass.Add('    begin');
     FClass.Add('      Close;');
     FClass.Add('      SQL.Clear;');
-    FClass.Add('      SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH [');
+    FClass.Add('      SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [');
     FQryColProp.First;
     while not FQryColProp.Eof do
     begin
@@ -861,9 +882,11 @@ procedure TfrmMainClassGenerator.GenerateInput;
 var
   LMaxCaptionLen, LGuiCount, LOrder: Integer;
   LStr, LFld: string;
+  LTipIn: string;
 begin
   LGuiCount := 0;
   LMaxCaptionLen := 0;
+  LTipIn := 'T' + Copy(edtInputFormName.Text, 2, Length(edtInputFormName.Text)-1);
 
   tblColumns.BeginBatch;
   try
@@ -886,7 +909,7 @@ begin
   FInputDfm.Clear;
   tblColumns.BeginBatch;
   try
-    FInputDfm.Add('inherited frm' + edtInputFormName.Text + ': Tfrm' + edtInputFormName.Text);
+    FInputDfm.Add('inherited ' + MidStr(LTipIn, 2, Length(LTipIn)-1) + ': ' + LTipIn);
     FInputDfm.Add('  PixelsPerInch = 96');
     FInputDfm.Add('  TextHeight = 13');
     FInputDfm.Add('  Caption = ' + QuotedStr(edtInputFormCaption.Text));
@@ -904,15 +927,15 @@ begin
     begin
       if tblColumns.FieldByName('is_gui').AsBoolean then
       begin
-        FInputDfm.Add('      object lbl' + tblColumns.FieldByName('field_name').AsString + ': TLabel');
-        FInputDfm.Add('        Left = ' + IntToStr(32 + LMaxCaptionLen-Canvas.TextWidth(tblColumns.FieldByName('column_caption').AsString)) );
-        FInputDfm.Add('        Top = ' + (6+(LOrder*22)).ToString);
-        FInputDfm.Add('        Width = ' + IntToStr(Canvas.TextWidth(tblColumns.FieldByName('input_caption').AsString) + 16) );
-        FInputDfm.Add('        Height = 13');
-        FInputDfm.Add('        Alignment = taRightJustify');
-        FInputDfm.Add('        Caption = ' + QuotedStr(tblColumns.FieldByName('input_caption').AsString) );
-        FInputDfm.Add('        Font.Style = [fsBold]');
-        FInputDfm.Add('      end');
+        FInputDfm.Add('        object lbl' + tblColumns.FieldByName('field_name').AsString + ': TLabel');
+        FInputDfm.Add('          Left = ' + IntToStr(32 + LMaxCaptionLen-Canvas.TextWidth(tblColumns.FieldByName('column_caption').AsString)) );
+        FInputDfm.Add('          Top = ' + (6+(LOrder*22)).ToString);
+        FInputDfm.Add('          Width = ' + IntToStr(Canvas.TextWidth(tblColumns.FieldByName('input_caption').AsString) + 16) );
+        FInputDfm.Add('          Height = 13');
+        FInputDfm.Add('          Alignment = taRightJustify');
+        FInputDfm.Add('          Caption = ' + QuotedStr(tblColumns.FieldByName('input_caption').AsString));
+        FInputDfm.Add('          Font.Style = [fsBold]');
+        FInputDfm.Add('        end');
 
         Inc(LOrder);
       end;
@@ -927,39 +950,40 @@ begin
       begin
         if (tblColumns.FieldByName('input_type').AsString = 'Edit') then
         begin
-          FInputDfm.Add('      object edt' + tblColumns.FieldByName('field_name').AsString + ': TEdit');
-          FInputDfm.Add('        Height = 21');
+          FInputDfm.Add('        object edt' + tblColumns.FieldByName('field_name').AsString + ': TEdit');
+          FInputDfm.Add('          Height = 21');
         end
         else if (tblColumns.FieldByName('input_type').AsString = 'Memo') then
         begin
-          FInputDfm.Add('      object mmo' + tblColumns.FieldByName('field_name').AsString + ': TMemo');
-          FInputDfm.Add('        Height = 21');
+          FInputDfm.Add('        object mmo' + tblColumns.FieldByName('field_name').AsString + ': TMemo');
+          FInputDfm.Add('          Height = 21');
         end
         else if (tblColumns.FieldByName('input_type').AsString = 'ComboBox') then
         begin
-          FInputDfm.Add('      object cbb' + tblColumns.FieldByName('field_name').AsString + ': TComboBox');
-          FInputDfm.Add('        Height = 21');
+          FInputDfm.Add('        object cbb' + tblColumns.FieldByName('field_name').AsString + ': TComboBox');
+          FInputDfm.Add('          Height = 21');
         end
         else if (tblColumns.FieldByName('input_type').AsString = 'CheckBox') then
         begin
-          FInputDfm.Add('      object chk' + tblColumns.FieldByName('field_name').AsString + ': TCheckBox');
-          FInputDfm.Add('        Height = 17');
+          FInputDfm.Add('        object chk' + tblColumns.FieldByName('field_name').AsString + ': TCheckBox');
+          FInputDfm.Add('          Height = 17');
         end;
 
-        FInputDfm.Add('        Left = ' + IntToStr(32 + LMaxCaptionLen + 16 + 4));
-        FInputDfm.Add('        Width = 200');
-        FInputDfm.Add('        TabOrder = ' + LOrder.ToString);
+        FInputDfm.Add('          Left = ' + IntToStr(32 + LMaxCaptionLen + 16 + 4));
+        FInputDfm.Add('          Width = 200');
+        FInputDfm.Add('          TabOrder = ' + LOrder.ToString);
 
         if (tblColumns.FieldByName('input_type').AsString = 'CheckBox') then
-          FInputDfm.Add('        Top = ' + (3+(LOrder*23)).ToString)
+          FInputDfm.Add('          Top = ' + (3+(LOrder*23)).ToString)
         else
-          FInputDfm.Add('        Top = ' + (3+(LOrder*22)).ToString);
-        FInputDfm.Add('      end');
+          FInputDfm.Add('          Top = ' + (3+(LOrder*22)).ToString);
+        FInputDfm.Add('        end');
 
         Inc(LOrder);
       end;
       tblColumns.Next;
     end;
+    FInputDfm.Add('      end');
     FInputDfm.Add('    end');
     FInputDfm.Add('  end');
     FInputDfm.Add('end');
@@ -978,7 +1002,7 @@ begin
   FInputPas.Clear;
   tblColumns.BeginBatch;
   try
-    FInputPas.Add('unit ufrm' + edtClassType.Text + ';');
+    FInputPas.Add('unit ' + edtInputFormName.Text + ';');
     FInputPas.Add('');
     FInputPas.Add('interface');
     FInputPas.Add('');
@@ -1008,7 +1032,7 @@ begin
     FInputPas.Add('  ufrmBaseInputDB;');
     FInputPas.Add('');
     FInputPas.Add('type');
-    FInputPas.Add('  Tfrm' + edtInputFormName.Text + ' = class(TfrmBaseInputDB)');
+    FInputPas.Add('  ' + LTipIn + ' = class(TfrmBaseInputDB)');
 
     tblColumns.First;
     while not tblColumns.Eof do
@@ -1037,13 +1061,13 @@ begin
     FInputPas.Add('');
     FInputPas.Add('uses');
     FInputPas.Add('  Ths.Erp.Globals,');
-    FInputPas.Add('  ufrm' + edtOutputFormName.Text + ',');
+    FInputPas.Add('  ' + edtOutputFormName.Text + ',');
     FInputPas.Add('  Ths.Erp.Database.Singleton,');
     FInputPas.Add('  ' + PROJECT_UNITNAME + edtClassType.Text + ';');
     FInputPas.Add('');
     FInputPas.Add('{$R *.dfm}');
     FInputPas.Add('');
-    FInputPas.Add('procedure Tfrm' + edtInputFormName.Text + '.RefreshData;');
+    FInputPas.Add('procedure ' + LTipIn + '.RefreshData;');
     FInputPas.Add('begin');
 
     tblColumns.First;
@@ -1067,7 +1091,7 @@ begin
 
     FInputPas.Add('end;');
     FInputPas.Add('');
-    FInputPas.Add('procedure Tfrm' + edtInputFormName.Text + '.btnAcceptClick(Sender: TObject);');
+    FInputPas.Add('procedure ' + LTipIn + '.btnAcceptClick(Sender: TObject);');
     FInputPas.Add('begin');
     FInputPas.Add('  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then');
     FInputPas.Add('  begin');
@@ -1135,20 +1159,18 @@ begin
   if edtMainProjectDirectory.Text <> '' then
   begin
     btnAddClassToMemo.Click;
-    btnAddOutputDFMToMemo.Click;
     btnAddOutputPASToMemo.Click;
-    btnAddInputDFMToMemo.Click;
     btnAddInputPASToMemo.Click;
 
     vPath := ExtractFilePath(edtMainProjectDirectory.Text);
     vFileNameClass := vPath + 'BackEnd\' + PROJECT_UNITNAME + edtClassType.Text + '.pas';
-    vFileNameOutput := vPath + 'Forms\OutputForms\DbGrid\ufrm' + edtOutputFormName.Text + '.pas';
-    vFileNameInput := vPath + 'Forms\InputForms\ufrm' + edtInputFormName.Text + '.pas';
+    vFileNameOutput := vPath + 'Forms\OutputForms\DbGrid\' + edtOutputFormName.Text + '.pas';
+    vFileNameInput := vPath + 'Forms\InputForms\' + edtInputFormName.Text + '.pas';
 
     mmoClass.Lines.SaveToFile(vFileNameClass);
-    mmoOutputDFM.Lines.SaveToFile(vPath + 'Forms\OutputForms\DbGrid\ufrm' + edtOutputFormName.Text + '.dfm');
+    mmoOutputDFM.Lines.SaveToFile(vPath + 'Forms\OutputForms\DbGrid\' + edtOutputFormName.Text + '.dfm', TEncoding.UTF8);
     mmoOutputPAS.Lines.SaveToFile(vFileNameOutput);
-    mmoInputDFM.Lines.SaveToFile(vPath + 'Forms\InputForms\ufrm' + edtInputFormName.Text + '.dfm');
+    mmoInputDFM.Lines.SaveToFile(vPath + 'Forms\InputForms\' + edtInputFormName.Text + '.dfm', TEncoding.UTF8);
     mmoInputPAS.Lines.SaveToFile(vFileNameInput);
 
     vFileDPR := TStringList.Create;
@@ -1161,8 +1183,8 @@ begin
       vFileDPR.Strings[n1-2] := LeftStr(vFileDPR.Strings[n1-2], Length(vFileDPR.Strings[n1-2])-1) + ',';
 
       //eklenen sýnýf, output ve input formlarýný projeye dahil et
-      vFileDPR.Insert(n1-1, '  ufrm' + edtInputFormName.Text + ' in ''Forms\InputForms\' + 'ufrm' + edtInputFormName.Text + '.pas'' {frm' + edtInputFormName.Text + '};');
-      vFileDPR.Insert(n1-1, '  ufrm' + edtOutputFormName.Text + ' in ''Forms\OutputForms\DbGrid\' + 'ufrm' + edtOutputFormName.Text + '.pas'' {frm' + edtOutputFormName.Text + '},');
+      vFileDPR.Insert(n1-1, '  ' + edtInputFormName.Text + ' in ''Forms\InputForms\' + edtInputFormName.Text + '.pas'' {' + MidStr(edtInputFormName.Text, 2, Length(edtInputFormName.Text)) + '};');
+      vFileDPR.Insert(n1-1, '  ' + edtOutputFormName.Text + ' in ''Forms\OutputForms\DbGrid\' + edtOutputFormName.Text + '.pas'' {' + MidStr(edtOutputFormName.Text, 2, Length(edtOutputFormName.Text)) + '},');
       vFileDPR.Insert(n1-1, '  ' + PROJECT_UNITNAME + edtClassType.Text + ' in ''BackEnd\' + PROJECT_UNITNAME + edtClassType.Text + '.pas'',');
 
       vFileDPR.SaveToFile(edtMainProjectDirectory.Text);

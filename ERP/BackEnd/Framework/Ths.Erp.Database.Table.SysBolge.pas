@@ -37,7 +37,7 @@ uses
 constructor TSysBolge.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_bolge';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
   FBolgeAdi := TFieldDB.Create('bolge_adi', ftString, '', Self, 'Bölge Adı');

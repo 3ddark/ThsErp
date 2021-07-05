@@ -32,7 +32,7 @@ uses
   ufrmBase,
   ufrmBaseDBGrid, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
-  System.Actions, Vcl.ActnList;
+  System.Actions, Vcl.ActnList, frxExportXLS;
 
 type
   TfrmSysKaliteFormNolar = class(TfrmBaseDBGrid)

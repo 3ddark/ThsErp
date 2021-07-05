@@ -19,7 +19,7 @@ type
   private
     FMusteriKodu: TFieldDB;
     FMusteriAdi: TFieldDB;
-    FSehir: TFieldDB;
+    FSehirAdi: TFieldDB;
     FStokGrubu: TFieldDB;
     FStokKodu: TFieldDB;
     FStokAciklama: TFieldDB;
@@ -40,8 +40,9 @@ type
 
     function Clone: TTable; override;
 
+    Property MusteriKodu: TFieldDB read FMusteriKodu write FMusteriKodu;
     Property MusteriAdi: TFieldDB read FMusteriAdi write FMusteriAdi;
-    Property City: TFieldDB read FSehir write FSehir;
+    Property SehirAdi: TFieldDB read FSehirAdi write FSehirAdi;
     Property StokGrubu: TFieldDB read FStokGrubu write FStokGrubu;
     Property StokKodu: TFieldDB read FStokKodu write FStokKodu;
     Property StokAciklama: TFieldDB read FStokAciklama write FStokAciklama;
@@ -71,7 +72,7 @@ begin
 
   FMusteriKodu := TFieldDB.Create('musteri_kodu', ftString, '', Self, 'Müþteri Kodu');
   FMusteriAdi := TFieldDB.Create('musteri_adi', ftString, '', Self, 'Müþteri Adý');
-  FSehir := TFieldDB.Create('sehir_adi', ftString, '', Self, 'Þehir');
+  FSehirAdi := TFieldDB.Create('sehir_adi', ftString, '', Self, 'Þehir');
   FStokGrubu := TFieldDB.Create('stok_grubu', ftString, '', Self, 'Stok Grubu');
   FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self, 'Stok Kodu');
   FStokAciklama := TFieldDB.Create('stok_aciklama', ftString, '', Self, 'Stok Açýklama');
@@ -97,7 +98,7 @@ begin
         Self.Id.QryName,
         FMusteriKodu.QryName,
         FMusteriAdi.QryName,
-        FSehir.QryName,
+        FSehirAdi.QryName,
         FStokGrubu.QryName,
         FStokKodu.QryName,
         FStokAciklama.QryName,
@@ -133,7 +134,7 @@ begin
         Self.Id.QryName,
         FMusteriKodu.QryName,
         FMusteriAdi.QryName,
-        FSehir.QryName,
+        FSehirAdi.QryName,
         FStokGrubu.QryName,
         FStokKodu.QryName,
         FStokAciklama.QryName,

@@ -17,6 +17,7 @@ uses
   Ths.Erp.Helper.CustomFileDialog in 'BackEnd\Tools\Ths.Erp.Helper.CustomFileDialog.pas',
   Ths.Erp.Helper.Edit in 'BackEnd\Tools\Ths.Erp.Helper.Edit.pas',
   Ths.Erp.Helper.Memo in 'BackEnd\Tools\Ths.Erp.Helper.Memo.pas',
+  Ths.Erp.Helper.SpinEdit in 'BackEnd\Tools\Ths.Erp.Helper.SpinEdit.pas',
   Ths.Erp.Helper.StringGrid in 'BackEnd\Tools\Ths.Erp.Helper.StringGrid.pas',
   Ths.Erp.Utils.SevenZip in 'BackEnd\Tools\Ths.Erp.Utils.SevenZip.pas',
   Ths.Erp.Utils.FluentXML in 'BackEnd\Tools\Ths.Erp.Utils.FluentXML.pas',
@@ -110,7 +111,6 @@ uses
   Ths.Erp.Database.Table.View.SysViewColumns in 'BackEnd\Framework\Ths.Erp.Database.Table.View.SysViewColumns.pas',
   Ths.Erp.Database.Table.View.SysDbStatus in 'BackEnd\Framework\Ths.Erp.Database.Table.View.SysDbStatus.pas',
   Ths.Erp.Database.Table.View.SysViewTables in 'BackEnd\Framework\Ths.Erp.Database.Table.View.SysViewTables.pas',
-  ufrmViewerExcel in 'Forms\OtherForms\ufrmViewerExcel.pas' {FrmViewerExcel},
   ufrmSysTables in 'Forms\OutputForms\DbGrid\Framework\ufrmSysTables.pas' {frmSysTables},
   ufrmSysSifreGuncelle in 'Forms\InputForms\Framework\ufrmSysSifreGuncelle.pas' {frmSysSifreGuncelle},
   ufrmSysDbStatus in 'Forms\OutputForms\DbGrid\Framework\ufrmSysDbStatus.pas' {frmSysDbStatus},
@@ -358,7 +358,9 @@ uses
   ufrmBbkBolgeSehirler in 'Forms\OutputForms\DbGrid\BilgiBankasi\ufrmBbkBolgeSehirler.pas' {frmBbkBolgeSehirler},
   ufrmBbkBolgeSehir in 'Forms\InputForms\BilgiBankasi\ufrmBbkBolgeSehir.pas' {frmBbkBolgeSehir},
   Ths.Erp.Database.Table.ChHesapHareketi in 'BackEnd\Erp\Ch\Ths.Erp.Database.Table.ChHesapHareketi.pas',
-  Ths.Erp.Helper.SpinEdit in 'BackEnd\Tools\Ths.Erp.Helper.SpinEdit.pas';
+  Ths.Erp.Database.Table.SysOlcuBirimiTipi in 'BackEnd\Ths.Erp.Database.Table.SysOlcuBirimiTipi.pas',
+  ufrmSysOlcuBirimiTipleri in 'Forms\OutputForms\DbGrid\ufrmSysOlcuBirimiTipleri.pas' {frmSysOlcuBirimiTipleri},
+  ufrmSysOlcuBirimiTipi in 'Forms\InputForms\ufrmSysOlcuBirimiTipi.pas' {frmSysOlcuBirimiTipi};
 
 {$R *.res}
 

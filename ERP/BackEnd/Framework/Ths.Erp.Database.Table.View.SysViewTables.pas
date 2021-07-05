@@ -39,7 +39,7 @@ uses
 constructor TSysViewTables.Create(OwnerDatabase:TDatabase);
 begin
   TableName := 'sys_view_tables';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(OwnerDatabase);
 
   FTableName  := TFieldDB.Create('table_name', ftString, '', Self, 'Tablo Adý');

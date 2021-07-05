@@ -8,7 +8,8 @@ uses
   System.SysUtils,
   Data.DB,
   Ths.Erp.Database,
-  Ths.Erp.Database.Table;
+  Ths.Erp.Database.Table,
+  Ths.Erp.Database.Table.SysOlcuBirimiTipi;
 
 type
   TSysOlcuBirimi = class(TTable)
@@ -17,8 +18,12 @@ type
     FOlcuBirimiEInv: TFieldDB;
     FAciklama: TFieldDB;
     FIsOndalik: TFieldDB;
+    FOlcuBirimiTipiID: TFieldDB;
+    FOlcuBirimiTipi: TFieldDB;
   published
+    FBirimTipi: TSysOlcuBirimiTipi;
     constructor Create(ADatabase: TDatabase); override;
+    destructor Destroy; override;
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
@@ -31,6 +36,8 @@ type
     Property OlcuBirimiEInv: TFieldDB read FOlcuBirimiEInv write FOlcuBirimiEInv;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
     Property IsOndalik: TFieldDB read FIsOndalik write FIsOndalik;
+    Property OlcuBirimiTipiID: TFieldDB read FOlcuBirimiTipiID write FOlcuBirimiTipiID;
+    Property OlcuBirimiTipi: TFieldDB read FOlcuBirimiTipi write FOlcuBirimiTipi;
   end;
 
 implementation
@@ -43,13 +50,23 @@ uses
 constructor TSysOlcuBirimi.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_olcu_birimi';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
+
+  FBirimTipi := TSysOlcuBirimiTipi.Create(ADatabase);
 
   FOlcuBirimi := TFieldDB.Create('olcu_birimi', ftString, '', Self, 'Ölçü Birimi');
   FOlcuBirimiEInv := TFieldDB.Create('olcu_birimi_einv', ftString, '', Self, 'E-Fatura Birim');
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
   FIsOndalik := TFieldDB.Create('is_ondalik', ftBoolean, False, Self, 'Ondalýk?');
+  FOlcuBirimiTipiID := TFieldDB.Create('olcu_birimi_tipi_id', ftInteger, 0, Self, 'Ölçü Birimi Tipi ID');
+  FOlcuBirimiTipi := TFieldDB.Create(FBirimTipi.OlcuBirimiTipi.FieldName, FBirimTipi.OlcuBirimiTipi.DataType, '', Self, 'Ölçü Birimi Tipi');
+end;
+
+destructor TSysOlcuBirimi.Destroy;
+begin
+  FBirimTipi.Free;
+  inherited;
 end;
 
 procedure TSysOlcuBirimi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -60,12 +77,15 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FOlcuBirimi.FieldName,
-        TableName + '.' + FOlcuBirimiEInv.FieldName,
-        TableName + '.' + FAciklama.FieldName,
-        TableName + '.' + FIsOndalik.FieldName
+        Self.Id.QryName,
+        FOlcuBirimi.QryName,
+        FOlcuBirimiEInv.QryName,
+        FAciklama.QryName,
+        FIsOndalik.QryName,
+        FOlcuBirimiTipiID.QryName,
+        addField(FBirimTipi.TableName, FBirimTipi.OlcuBirimiTipi.FieldName, FOlcuBirimiTipi.FieldName)
       ], [
+        addJoin(jtLeft, FBirimTipi.TableName, FBirimTipi.Id.FieldName, TableName, FOlcuBirimiTipiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
@@ -85,12 +105,15 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FOlcuBirimi.FieldName,
-        TableName + '.' + FOlcuBirimiEInv.FieldName,
-        TableName + '.' + FAciklama.FieldName,
-        TableName + '.' + FIsOndalik.FieldName
+        Self.Id.QryName,
+        FOlcuBirimi.QryName,
+        FOlcuBirimiEInv.QryName,
+        FAciklama.QryName,
+        FIsOndalik.QryName,
+        FOlcuBirimiTipiID.QryName,
+        addField(FBirimTipi.TableName, FBirimTipi.OlcuBirimiTipi.FieldName, FOlcuBirimiTipi.FieldName)
       ], [
+        addJoin(jtLeft, FBirimTipi.TableName, FBirimTipi.Id.FieldName, TableName, FOlcuBirimiTipiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -122,7 +145,8 @@ begin
         FOlcuBirimi.FieldName,
         FOlcuBirimiEInv.FieldName,
         FAciklama.FieldName,
-        FIsOndalik.FieldName
+        FIsOndalik.FieldName,
+        FOlcuBirimiTipiID.FieldName
       ]);
 
       PrepareInsertQueryParams;
@@ -151,7 +175,8 @@ begin
         FOlcuBirimi.FieldName,
         FOlcuBirimiEInv.FieldName,
         FAciklama.FieldName,
-        FIsOndalik.FieldName
+        FIsOndalik.FieldName,
+        FOlcuBirimiTipiID.FieldName
       ]);
 
       PrepareUpdateQueryParams;

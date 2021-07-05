@@ -273,7 +273,7 @@ object frmMainClassGenerator: TfrmMainClassGenerator
         Width = 112
         Height = 21
         TabOrder = 2
-        Text = 'ths_erp'
+        Text = 'ths_erp_per'
       end
       object edtport_name: TEdit
         Left = 124
@@ -485,6 +485,11 @@ object frmMainClassGenerator: TfrmMainClassGenerator
           Alignment = taCenter
           Expanded = False
           FieldName = 'input_type'
+          PickList.Strings = (
+            'Edit'
+            'ComboBox'
+            'Memo'
+            'CheckBox')
           Title.Alignment = taCenter
           Title.Caption = 'Input Type'
           Title.Font.Charset = DEFAULT_CHARSET
@@ -517,11 +522,15 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     Top = 311
     Width = 1062
     Height = 314
-    ActivePage = tsClass
+    ActivePage = tsInput
     Align = alClient
     TabOrder = 1
     object tsClass: TTabSheet
       Caption = 'Class Section'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object mmoClass: TMemo
         AlignWithMargins = True
         Left = 3
@@ -557,6 +566,10 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     object tsOutput: TTabSheet
       Caption = 'Output Form Section'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Splitter1: TSplitter
         Left = 500
         Top = 0
@@ -592,17 +605,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
           Height = 40
           Align = alBottom
           TabOrder = 1
-          object btnAddOutputDFMToMemo: TButton
-            AlignWithMargins = True
-            Left = 407
-            Top = 4
-            Width = 75
-            Height = 32
-            Align = alRight
-            Caption = 'Add Memo'
-            TabOrder = 0
-            OnClick = btnAddOutputDFMToMemoClick
-          end
         end
       end
       object pnlOutputPAS: TPanel
@@ -685,17 +687,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
           Height = 40
           Align = alBottom
           TabOrder = 1
-          object btnAddInputDFMToMemo: TButton
-            AlignWithMargins = True
-            Left = 327
-            Top = 4
-            Width = 75
-            Height = 32
-            Align = alRight
-            Caption = 'Add Memo'
-            TabOrder = 0
-            OnClick = btnAddInputDFMToMemoClick
-          end
         end
       end
       object pnlInputPAS: TPanel

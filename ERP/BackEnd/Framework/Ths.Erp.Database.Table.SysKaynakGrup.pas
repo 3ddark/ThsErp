@@ -37,7 +37,7 @@ uses
 constructor TSysKaynakGrup.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_kaynak_grup';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FKaynakGrup := TFieldDB.Create('kaynak_grup', ftString, '', Self, 'Kaynak Grup');

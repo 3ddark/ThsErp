@@ -22,7 +22,7 @@ inherited frmSysDbStatus: TfrmSysDbStatus
         Left = 97
         Top = 4
         Width = 145
-        Height = 21
+        Height = 22
         Align = alLeft
         Style = csDropDownList
         TabOrder = 0

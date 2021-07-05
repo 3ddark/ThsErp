@@ -235,6 +235,7 @@ type
     btnrct_paket_hammadde: TButton;
     tsmhs: TTabSheet;
     btnmhs_doviz_kuru: TButton;
+    actsys_olcu_birimi_tipleri: TAction;
 
 /// <summary>
 ///   Kullanýcýnýn eriþim yetkisine göre yapýlacak iþlemler burada olacak
@@ -340,6 +341,7 @@ type
     procedure actrct_paket_hammaddeExecute(Sender: TObject);
     procedure actset_rct_iscilik_gider_tipiExecute(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure actsys_olcu_birimi_tipleriExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
     procedure SetTitleFromLangContent(Sender: TControl = nil);
@@ -394,6 +396,7 @@ uses
   Ths.Erp.Database.Table.SysKaliteFormTipi, ufrmSysKaliteFormTipleri,
   Ths.Erp.Database.Table.SysGridFiltreSiralama, ufrmSysGridFiltreSiralamalar,
   Ths.Erp.Database.Table.SysOlcuBirimi, ufrmSysOlcuBirimleri,
+  Ths.Erp.Database.Table.SysOlcuBirimiTipi, ufrmSysOlcuBirimiTipleri,
   Ths.Erp.Database.Table.SysParaBirimi, ufrmSysParaBirimleri,
   Ths.Erp.Database.Table.SysMukellefTipi, ufrmSysMukellefTipleri,
   Ths.Erp.Database.Table.SysUygulamaAyari, ufrmSysUygulamaAyari,
@@ -709,46 +712,8 @@ begin
 end;
 
 procedure TfrmMain.actset_rct_iscilik_gider_tipiExecute(Sender: TObject);
-//var
-//  LServis: smsnn;
-//  LCevap: string;
-//  HTTPCli: TNetHTTPClient;
-//  rsp: IHTTPResponse;
 begin
   TfrmSetRctIscilikGiderTipleri.Create(Self, Self, TSetRctIscilikGiderTipi.Create(GDataBase), fomNormal).Show;
-//  LServis := Getsmsnn();
-//  LCevap := LServis.smsGonder1NV2(
-//    '2163945055',
-//    'AYBEY5055',
-//    'AYBEY ELEK.',
-//    'Delphi SOAP mesaj gönderme örek',
-//    ['905556258796'],
-//    'TR',
-//    '',
-//    '',
-//    '1834siner',
-//    0);
-//
-//
-//  try
-//    HTTPCli := TNetHTTPClient.Create(nil);
-//    try
-//      rsp := HTTPCli.Get('https://api.netgsm.com.tr/sms/send/get/?' +
-//        'usercode=' + '2163945055' + '&' +
-//        'password=' + 'AYBEY5055' + '&' +
-//        'gsmno=' + '5556258796' + '&' +
-//        'message=' + 'Delphi7 Indy sms ornek' + '&' +
-//        'msgheader=' + 'AYBEY ELEK.');
-//      LCevap := rsp.ContentAsString(TEncoding.UTF8);
-//    finally
-//      HTTPCli.Free;
-//    end;
-//  except
-//    on E: Exception do
-//      ShowMessage(E.ClassName, ': ', E.Message);
-//  end;
-//
-//  ShowMessage(LCevap);
 end;
 
 procedure TfrmMain.actset_stk_urun_tipiExecute(Sender: TObject);
@@ -870,6 +835,11 @@ end;
 procedure TfrmMain.actsys_ayExecute(Sender: TObject);
 begin
   TfrmSysAylar.Create(Self, Self, TSysAy.Create(GDataBase), fomNormal).Show;
+end;
+
+procedure TfrmMain.actsys_olcu_birimi_tipleriExecute(Sender: TObject);
+begin
+  TfrmSysOlcuBirimiTipleri.Create(Self, Self, TSysOlcuBirimiTipi.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmMain.actsys_olcu_birimleriExecute(Sender: TObject);

@@ -46,7 +46,7 @@ uses
 constructor TSysUlke.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_ulke';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
   FUlkeKodu := TFieldDB.Create('ulke_kodu', ftString, '', Self, 'Ülke Kodu');

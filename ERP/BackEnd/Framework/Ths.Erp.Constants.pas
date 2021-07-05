@@ -215,8 +215,9 @@ const
   SQL_ON = ' ON ';
 
 
-
-  MODULE_DEVELOPER = '100000';      //Geliştiri Ayarları Hakkı
+  MODULE_SISTEM_AYAR = '1';         //Sistem Ayarları Hakkı
+  MODULE_SISTEM_DIGER = '2';        //Sistem Bölge, Ondalık, Ölçü, Para Birimi, ... Hakkı
+  MODULE_SISTEM: TArray<string> = [MODULE_SISTEM_AYAR, MODULE_SISTEM_DIGER];
 
   MODULE_CH_AYAR = '1030';          //Cari Hesap Kartı Ayar
   MODULE_CH_KAYIT = '1031';         //Cari Hesap Kartı Kayıt
@@ -248,8 +249,6 @@ const
                                 MODULE_RCT_RECETE_KAYIT];
 
 
-  MODULE_FRM_DOVIZ_KURU = '1009';
-
   MODULE_PRS_AYAR = '1020';         //Personel Kartı Ayar
   MODULE_PRS_KAYIT = '1021';        //Personel Kartı Kayıt
 
@@ -259,21 +258,15 @@ const
   MODULE_UTD_DOKUMAN = '7411';      //Üretim Teknik Döküman Kayıt
   MODULE_BBK_AYAR = '6520';         //Bilgi Bankası Ayar
   MODULE_BBK_KAYIT = '6521';        //Bilgi Bankası Kayıt
-  MODULE_FIY_KAYIT = '3170';        //Fiyat Listesi Kayıt
   MODULE_ARC_AYAR = '8000';         //Araç Takip Ayar
   MODULE_ARC_KAYIT = '8001';        //Araç Takip Kayıt
-  MODULE_PCB_AYAR = '10200';        //PCB Ayar
-  MODULE_PCB_KAYIT = '10201';       //PCB Kayıt
 
   MODULE_GENEL: TArray<string> = [MODULE_UTD_AYAR,
                                   MODULE_UTD_DOKUMAN,
                                   MODULE_BBK_AYAR,
                                   MODULE_BBK_KAYIT,
-                                  MODULE_FIY_KAYIT,
                                   MODULE_ARC_AYAR,
-                                  MODULE_ARC_KAYIT,
-                                  MODULE_PCB_AYAR,
-                                  MODULE_PCB_KAYIT];
+                                  MODULE_ARC_KAYIT];
 
 implementation
 

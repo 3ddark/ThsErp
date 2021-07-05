@@ -141,7 +141,7 @@ uses
 constructor TSysUygulamaAyari.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_uygulama_ayari';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FSysMukellef := TSysMukellefTipi.Create(Database);

@@ -51,7 +51,7 @@ uses
 constructor TSysSehir.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_sehir';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
   FSysUlke := TSysUlke.Create(Database);

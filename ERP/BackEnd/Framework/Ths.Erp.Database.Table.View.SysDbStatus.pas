@@ -29,7 +29,7 @@ type
     procedure SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(pFilter: string; pLock: Boolean; pPermissionControl: Boolean=True); override;
 
-    function Clone():TTable;override;
+    function Clone: TTable; override;
 
     Property PID: TFieldDB read FPID write FPID;
     Property DBName: TFieldDB read FDBName write FDBName;
@@ -51,7 +51,7 @@ uses
 constructor TSysDBStatus.Create(OwnerDatabase:TDatabase);
 begin
   TableName := 'sys_db_status';
-  TableSourceCode := MODULE_DEVELOPER;
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(OwnerDatabase);
 
   FPID := TFieldDB.Create('pid', ftInteger, 0, Self, 'PID');

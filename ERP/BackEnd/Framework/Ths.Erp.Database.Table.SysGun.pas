@@ -37,7 +37,7 @@ uses
 constructor TSysGun.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_gun';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FGunAdi := TFieldDB.Create('gun_adi', ftString, '', Self, 'Gün Adý');

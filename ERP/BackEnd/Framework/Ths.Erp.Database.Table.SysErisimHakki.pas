@@ -63,7 +63,7 @@ uses
 constructor TSysErisimHakki.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_erisim_hakki';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FPermSrc := TSysKaynak.Create(Database);

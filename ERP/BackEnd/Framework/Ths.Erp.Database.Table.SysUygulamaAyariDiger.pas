@@ -71,7 +71,7 @@ uses
 constructor TSysUygulamaAyariDiger.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_uygulama_ayari_diger';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FIsEDefterAktif := TFieldDB.Create('is_edefter_aktif', ftBoolean, False, Self, 'E-Defter Aktif');

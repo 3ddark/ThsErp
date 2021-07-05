@@ -110,6 +110,22 @@ inherited frmSysUygulamaAyariDiger: TfrmSysUygulamaAyariDiger
           Font.Style = [fsBold]
           ParentFont = False
         end
+        object lbltemin_suresi_birim: TLabel
+          Left = 51
+          Top = 147
+          Width = 105
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Temin S'#252'resi Birim'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
         object chkis_edefter_aktif: TCheckBox
           Left = 160
           Top = 2
@@ -179,6 +195,14 @@ inherited frmSysUygulamaAyariDiger: TfrmSysUygulamaAyariDiger
           TabOrder = 8
           OnClick = btnpath_utdClick
         end
+        object cbbtemin_suresi_birim: TComboBox
+          Left = 160
+          Top = 144
+          Width = 145
+          Height = 21
+          Style = csDropDownList
+          TabOrder = 9
+        end
       end
     end
   end
@@ -189,11 +213,16 @@ inherited frmSysUygulamaAyariDiger: TfrmSysUygulamaAyariDiger
     ExplicitWidth = 665
     inherited btnAccept: TButton
       Left = 456
+      TabOrder = 2
       ExplicitLeft = 456
     end
     inherited btnClose: TButton
       Left = 560
+      TabOrder = 3
       ExplicitLeft = 560
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

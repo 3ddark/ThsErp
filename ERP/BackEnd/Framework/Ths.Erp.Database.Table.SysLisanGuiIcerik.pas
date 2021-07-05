@@ -45,15 +45,14 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSysLisanGuiIcerik.Create(ADatabase: TDatabase);
 begin
   TableName := 'sys_lisan_gui_icerik';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FLisan := TFieldDB.Create('lisan', ftString, '', Self, 'Lisan');

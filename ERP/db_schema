@@ -1004,7 +1004,7 @@ ALTER TABLE public.alis_teklif ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 --
 
 CREATE TABLE public.arc_arac (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     marka character varying(32),
     model character varying(32),
     plaka character varying(16),
@@ -1025,21 +1025,14 @@ ALTER TABLE public.arc_arac OWNER TO ths_admin;
 -- Name: arc_arac_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.arc_arac_id_seq
+ALTER TABLE public.arc_arac ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.arc_arac_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.arc_arac_id_seq OWNER TO ths_admin;
-
---
--- Name: arc_arac_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.arc_arac_id_seq OWNED BY public.arc_arac.id;
+    CACHE 1
+);
 
 
 --
@@ -1047,7 +1040,7 @@ ALTER SEQUENCE public.arc_arac_id_seq OWNED BY public.arc_arac.id;
 --
 
 CREATE TABLE public.audit (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     user_name character varying(16) NOT NULL,
     ip_address character varying(32) NOT NULL,
     table_name character varying(36) NOT NULL,
@@ -1066,330 +1059,14 @@ ALTER TABLE public.audit OWNER TO ths_admin;
 -- Name: audit_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.audit_id_seq
-    AS integer
+ALTER TABLE public.audit ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.audit_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.audit_id_seq OWNER TO ths_admin;
-
---
--- Name: audit_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.audit_id_seq OWNED BY public.audit.id;
-
-
---
--- Name: ayar_cek_senet_cash_edici_tipi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.ayar_cek_senet_cash_edici_tipi (
-    id integer NOT NULL,
-    deger character varying(32)
+    CACHE 1
 );
-
-
-ALTER TABLE public.ayar_cek_senet_cash_edici_tipi OWNER TO ths_admin;
-
---
--- Name: ayar_cek_senet_cash_edici_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.ayar_cek_senet_cash_edici_tipi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ayar_cek_senet_cash_edici_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: ayar_cek_senet_cash_edici_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ayar_cek_senet_cash_edici_tipi_id_seq OWNED BY public.ayar_cek_senet_cash_edici_tipi.id;
-
-
---
--- Name: ayar_cek_senet_tahsil_odeme_tipi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.ayar_cek_senet_tahsil_odeme_tipi (
-    id integer NOT NULL,
-    deger character varying(32) NOT NULL
-);
-
-
-ALTER TABLE public.ayar_cek_senet_tahsil_odeme_tipi OWNER TO ths_admin;
-
---
--- Name: ayar_cek_senet_tahsil_odeme_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.ayar_cek_senet_tahsil_odeme_tipi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ayar_cek_senet_tahsil_odeme_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: ayar_cek_senet_tahsil_odeme_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ayar_cek_senet_tahsil_odeme_tipi_id_seq OWNED BY public.ayar_cek_senet_tahsil_odeme_tipi.id;
-
-
---
--- Name: ayar_cek_senet_tipi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.ayar_cek_senet_tipi (
-    id integer NOT NULL,
-    deger character varying(32) NOT NULL
-);
-
-
-ALTER TABLE public.ayar_cek_senet_tipi OWNER TO ths_admin;
-
---
--- Name: ayar_cek_senet_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.ayar_cek_senet_tipi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ayar_cek_senet_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: ayar_cek_senet_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ayar_cek_senet_tipi_id_seq OWNED BY public.ayar_cek_senet_tipi.id;
-
-
---
--- Name: ayar_fatura_no_serisi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.ayar_fatura_no_serisi (
-    id integer NOT NULL,
-    fatura_seri_id integer NOT NULL,
-    deger character varying(16) NOT NULL
-);
-
-
-ALTER TABLE public.ayar_fatura_no_serisi OWNER TO ths_admin;
-
---
--- Name: ayar_fatura_no_serisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.ayar_fatura_no_serisi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ayar_fatura_no_serisi_id_seq OWNER TO ths_admin;
-
---
--- Name: ayar_fatura_no_serisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ayar_fatura_no_serisi_id_seq OWNED BY public.ayar_fatura_no_serisi.id;
-
-
---
--- Name: ayar_fis_tipi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.ayar_fis_tipi (
-    id integer NOT NULL,
-    deger character varying(32) NOT NULL
-);
-
-
-ALTER TABLE public.ayar_fis_tipi OWNER TO ths_admin;
-
---
--- Name: TABLE ayar_fis_tipi; Type: COMMENT; Schema: public; Owner: ths_admin
---
-
-COMMENT ON TABLE public.ayar_fis_tipi IS 'Muhasebe fişlerinin tip bilgisini tutar Örnek: MAHSUP, AÇILIŞ, KAPANIŞ, ÖDEME, TAHSİL';
-
-
---
--- Name: ayar_fis_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.ayar_fis_tipi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ayar_fis_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: ayar_fis_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ayar_fis_tipi_id_seq OWNED BY public.ayar_fis_tipi.id;
-
-
---
--- Name: ayar_irsaliye_fatura_no_serisi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.ayar_irsaliye_fatura_no_serisi (
-    id integer NOT NULL,
-    deger character varying(8),
-    is_fatura boolean DEFAULT false NOT NULL,
-    is_irsaliye boolean DEFAULT false NOT NULL
-);
-
-
-ALTER TABLE public.ayar_irsaliye_fatura_no_serisi OWNER TO ths_admin;
-
---
--- Name: ayar_irsaliye_fatura_no_serisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.ayar_irsaliye_fatura_no_serisi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ayar_irsaliye_fatura_no_serisi_id_seq OWNER TO ths_admin;
-
---
--- Name: ayar_irsaliye_fatura_no_serisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ayar_irsaliye_fatura_no_serisi_id_seq OWNED BY public.ayar_irsaliye_fatura_no_serisi.id;
-
-
---
--- Name: ayar_irsaliye_no_serisi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.ayar_irsaliye_no_serisi (
-    id integer NOT NULL,
-    irsaliye_seri_id integer NOT NULL,
-    deger character varying(16) NOT NULL
-);
-
-
-ALTER TABLE public.ayar_irsaliye_no_serisi OWNER TO ths_admin;
-
---
--- Name: ayar_irsaliye_no_serisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.ayar_irsaliye_no_serisi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ayar_irsaliye_no_serisi_id_seq OWNER TO ths_admin;
-
---
--- Name: ayar_irsaliye_no_serisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ayar_irsaliye_no_serisi_id_seq OWNED BY public.ayar_irsaliye_no_serisi.id;
-
-
---
--- Name: ayar_modul_tipi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.ayar_modul_tipi (
-    id integer NOT NULL,
-    deger character varying(16)
-);
-
-
-ALTER TABLE public.ayar_modul_tipi OWNER TO ths_admin;
-
---
--- Name: ayar_modul_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.ayar_modul_tipi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ayar_modul_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: ayar_modul_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ayar_modul_tipi_id_seq OWNED BY public.ayar_modul_tipi.id;
-
-
---
--- Name: ayar_musteri_firma_turu; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.ayar_musteri_firma_turu (
-    id integer NOT NULL,
-    deger character varying(64) NOT NULL
-);
-
-
-ALTER TABLE public.ayar_musteri_firma_turu OWNER TO ths_admin;
-
---
--- Name: ayar_musteri_firma_turu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.ayar_musteri_firma_turu_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ayar_musteri_firma_turu_id_seq OWNER TO ths_admin;
-
---
--- Name: ayar_musteri_firma_turu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ayar_musteri_firma_turu_id_seq OWNED BY public.ayar_musteri_firma_turu.id;
 
 
 --
@@ -1397,7 +1074,7 @@ ALTER SEQUENCE public.ayar_musteri_firma_turu_id_seq OWNED BY public.ayar_muster
 --
 
 CREATE TABLE public.bb_kayitlar (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     firma_adi character varying(96),
     tel1 character varying(24),
     tel2 character varying(24),
@@ -1443,21 +1120,14 @@ ALTER TABLE public.bb_kayitlar OWNER TO ths_admin;
 -- Name: bb_kayitlar_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.bb_kayitlar_id_seq
+ALTER TABLE public.bb_kayitlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.bb_kayitlar_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.bb_kayitlar_id_seq OWNER TO ths_admin;
-
---
--- Name: bb_kayitlar_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.bb_kayitlar_id_seq OWNED BY public.bb_kayitlar.id;
+    CACHE 1
+);
 
 
 --
@@ -1465,7 +1135,7 @@ ALTER SEQUENCE public.bb_kayitlar_id_seq OWNED BY public.bb_kayitlar.id;
 --
 
 CREATE TABLE public.ch_banka (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     banka_adi character varying(64) NOT NULL,
     swift_kodu character varying(16),
     is_active boolean DEFAULT true NOT NULL
@@ -1478,21 +1148,14 @@ ALTER TABLE public.ch_banka OWNER TO ths_admin;
 -- Name: ch_banka_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.ch_banka_id_seq
+ALTER TABLE public.ch_banka ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.ch_banka_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ch_banka_id_seq OWNER TO ths_admin;
-
---
--- Name: ch_banka_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ch_banka_id_seq OWNED BY public.ch_banka.id;
+    CACHE 1
+);
 
 
 --
@@ -1500,7 +1163,7 @@ ALTER SEQUENCE public.ch_banka_id_seq OWNED BY public.ch_banka.id;
 --
 
 CREATE TABLE public.ch_banka_subesi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     banka_id integer NOT NULL,
     sube_kodu integer NOT NULL,
     sube_adi character varying(64) NOT NULL,
@@ -1514,21 +1177,14 @@ ALTER TABLE public.ch_banka_subesi OWNER TO ths_admin;
 -- Name: ch_banka_subesi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.ch_banka_subesi_id_seq
+ALTER TABLE public.ch_banka_subesi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.ch_banka_subesi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ch_banka_subesi_id_seq OWNER TO ths_admin;
-
---
--- Name: ch_banka_subesi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ch_banka_subesi_id_seq OWNED BY public.ch_banka_subesi.id;
+    CACHE 1
+);
 
 
 --
@@ -1536,7 +1192,7 @@ ALTER SEQUENCE public.ch_banka_subesi_id_seq OWNED BY public.ch_banka_subesi.id;
 --
 
 CREATE TABLE public.ch_bolge (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     bolge character varying(32) NOT NULL
 );
 
@@ -1547,21 +1203,14 @@ ALTER TABLE public.ch_bolge OWNER TO ths_admin;
 -- Name: ch_bolge_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.ch_bolge_id_seq
+ALTER TABLE public.ch_bolge ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.ch_bolge_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ch_bolge_id_seq OWNER TO ths_admin;
-
---
--- Name: ch_bolge_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ch_bolge_id_seq OWNED BY public.ch_bolge.id;
+    CACHE 1
+);
 
 
 --
@@ -1569,7 +1218,7 @@ ALTER SEQUENCE public.ch_bolge_id_seq OWNED BY public.ch_bolge.id;
 --
 
 CREATE TABLE public.ch_hesap_karti (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     hesap_kodu character varying(16) NOT NULL,
     hesap_ismi character varying(128) NOT NULL,
     muhasebe_kodu character varying(16),
@@ -1623,22 +1272,14 @@ ALTER TABLE public.ch_hesap_karti OWNER TO ths_admin;
 -- Name: ch_hesap_karti_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.ch_hesap_karti_id_seq
-    AS integer
+ALTER TABLE public.ch_hesap_karti ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.ch_hesap_karti_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.ch_hesap_karti_id_seq OWNER TO ths_admin;
-
---
--- Name: ch_hesap_karti_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.ch_hesap_karti_id_seq OWNED BY public.ch_hesap_karti.id;
+    CACHE 1
+);
 
 
 --
@@ -1674,7 +1315,7 @@ ALTER TABLE public.mhs_doviz_kuru ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 --
 
 CREATE TABLE public.prs_ehliyet_bilgisi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     ehliyet_id integer,
     personel_id integer,
     is_aktif boolean DEFAULT false NOT NULL
@@ -1687,21 +1328,14 @@ ALTER TABLE public.prs_ehliyet_bilgisi OWNER TO ths_admin;
 -- Name: prs_ehliyet_bilgisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.prs_ehliyet_bilgisi_id_seq
+ALTER TABLE public.prs_ehliyet_bilgisi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prs_ehliyet_bilgisi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.prs_ehliyet_bilgisi_id_seq OWNER TO ths_admin;
-
---
--- Name: prs_ehliyet_bilgisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.prs_ehliyet_bilgisi_id_seq OWNED BY public.prs_ehliyet_bilgisi.id;
+    CACHE 1
+);
 
 
 --
@@ -1709,7 +1343,7 @@ ALTER SEQUENCE public.prs_ehliyet_bilgisi_id_seq OWNED BY public.prs_ehliyet_bil
 --
 
 CREATE TABLE public.prs_lisan_bilgisi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     lisan_id integer,
     okuma_id integer,
     yazma_id integer,
@@ -1724,21 +1358,14 @@ ALTER TABLE public.prs_lisan_bilgisi OWNER TO ths_admin;
 -- Name: prs_lisan_bilgisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.prs_lisan_bilgisi_id_seq
+ALTER TABLE public.prs_lisan_bilgisi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prs_lisan_bilgisi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.prs_lisan_bilgisi_id_seq OWNER TO ths_admin;
-
---
--- Name: prs_lisan_bilgisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.prs_lisan_bilgisi_id_seq OWNED BY public.prs_lisan_bilgisi.id;
+    CACHE 1
+);
 
 
 --
@@ -1746,7 +1373,7 @@ ALTER SEQUENCE public.prs_lisan_bilgisi_id_seq OWNED BY public.prs_lisan_bilgisi
 --
 
 CREATE TABLE public.prs_personel (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     is_aktif boolean DEFAULT true NOT NULL,
     ad character varying(24) NOT NULL,
     soyad character varying(24) NOT NULL,
@@ -1797,7 +1424,7 @@ ALTER TABLE public.prs_personel OWNER TO ths_admin;
 --
 
 CREATE TABLE public.prs_personel_gecmisi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     personel_id integer,
     baslama_tarihi date NOT NULL,
     ayrilma_tarihi date,
@@ -1812,42 +1439,28 @@ ALTER TABLE public.prs_personel_gecmisi OWNER TO ths_admin;
 -- Name: prs_personel_gecmisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.prs_personel_gecmisi_id_seq
+ALTER TABLE public.prs_personel_gecmisi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prs_personel_gecmisi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.prs_personel_gecmisi_id_seq OWNER TO ths_admin;
-
---
--- Name: prs_personel_gecmisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.prs_personel_gecmisi_id_seq OWNED BY public.prs_personel_gecmisi.id;
+    CACHE 1
+);
 
 
 --
 -- Name: prs_personel_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.prs_personel_id_seq
+ALTER TABLE public.prs_personel ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prs_personel_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.prs_personel_id_seq OWNER TO ths_admin;
-
---
--- Name: prs_personel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.prs_personel_id_seq OWNED BY public.prs_personel.id;
+    CACHE 1
+);
 
 
 --
@@ -1855,7 +1468,7 @@ ALTER SEQUENCE public.prs_personel_id_seq OWNED BY public.prs_personel.id;
 --
 
 CREATE TABLE public.prs_src_bilgisi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     src_tipi_id integer,
     personel_id integer
 );
@@ -1867,21 +1480,14 @@ ALTER TABLE public.prs_src_bilgisi OWNER TO ths_admin;
 -- Name: prs_src_bilgisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.prs_src_bilgisi_id_seq
+ALTER TABLE public.prs_src_bilgisi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prs_src_bilgisi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.prs_src_bilgisi_id_seq OWNER TO ths_admin;
-
---
--- Name: prs_src_bilgisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.prs_src_bilgisi_id_seq OWNED BY public.prs_src_bilgisi.id;
+    CACHE 1
+);
 
 
 --
@@ -1889,7 +1495,7 @@ ALTER SEQUENCE public.prs_src_bilgisi_id_seq OWNED BY public.prs_src_bilgisi.id;
 --
 
 CREATE TABLE public.quality_form_mail_reciever (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     mail_adresi character varying(128) NOT NULL
 );
 
@@ -1900,21 +1506,14 @@ ALTER TABLE public.quality_form_mail_reciever OWNER TO ths_admin;
 -- Name: quality_form_mail_reciever_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.quality_form_mail_reciever_id_seq
+ALTER TABLE public.quality_form_mail_reciever ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.quality_form_mail_reciever_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.quality_form_mail_reciever_id_seq OWNER TO ths_admin;
-
---
--- Name: quality_form_mail_reciever_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.quality_form_mail_reciever_id_seq OWNED BY public.quality_form_mail_reciever.id;
+    CACHE 1
+);
 
 
 --
@@ -1922,7 +1521,7 @@ ALTER SEQUENCE public.quality_form_mail_reciever_id_seq OWNED BY public.quality_
 --
 
 CREATE TABLE public.rct_iscilik_gideri (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     gider_kodu character varying(16) NOT NULL,
     gider_adi character varying(128),
     fiyat double precision NOT NULL,
@@ -1937,22 +1536,14 @@ ALTER TABLE public.rct_iscilik_gideri OWNER TO ths_admin;
 -- Name: rct_iscilik_gideri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_iscilik_gideri_id_seq
-    AS integer
+ALTER TABLE public.rct_iscilik_gideri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_iscilik_gideri_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_iscilik_gideri_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_iscilik_gideri_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_iscilik_gideri_id_seq OWNED BY public.rct_iscilik_gideri.id;
+    CACHE 1
+);
 
 
 --
@@ -1987,42 +1578,28 @@ ALTER TABLE public.rct_paket_hammadde_detay OWNER TO ths_admin;
 -- Name: rct_paket_hammadde_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_paket_hammadde_detay_id_seq
+ALTER TABLE public.rct_paket_hammadde_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_paket_hammadde_detay_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_paket_hammadde_detay_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_paket_hammadde_detay_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_paket_hammadde_detay_id_seq OWNED BY public.rct_paket_hammadde_detay.id;
+    CACHE 1
+);
 
 
 --
 -- Name: rct_paket_hammadde_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_paket_hammadde_id_seq
+ALTER TABLE public.rct_paket_hammadde ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_paket_hammadde_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_paket_hammadde_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_paket_hammadde_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_paket_hammadde_id_seq OWNED BY public.rct_paket_hammadde.id;
+    CACHE 1
+);
 
 
 --
@@ -2030,7 +1607,7 @@ ALTER SEQUENCE public.rct_paket_hammadde_id_seq OWNED BY public.rct_paket_hammad
 --
 
 CREATE TABLE public.rct_paket_iscilik (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     paket_adi character varying(128) NOT NULL
 );
 
@@ -2042,7 +1619,7 @@ ALTER TABLE public.rct_paket_iscilik OWNER TO ths_admin;
 --
 
 CREATE TABLE public.rct_paket_iscilik_detay (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     header_id integer NOT NULL,
     gider_kodu character varying(32) NOT NULL,
     miktar double precision NOT NULL,
@@ -2056,44 +1633,28 @@ ALTER TABLE public.rct_paket_iscilik_detay OWNER TO ths_admin;
 -- Name: rct_paket_iscilik_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_paket_iscilik_detay_id_seq
-    AS integer
+ALTER TABLE public.rct_paket_iscilik_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_paket_iscilik_detay_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_paket_iscilik_detay_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_paket_iscilik_detay_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_paket_iscilik_detay_id_seq OWNED BY public.rct_paket_iscilik_detay.id;
+    CACHE 1
+);
 
 
 --
 -- Name: rct_paket_iscilik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_paket_iscilik_id_seq
-    AS integer
+ALTER TABLE public.rct_paket_iscilik ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_paket_iscilik_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_paket_iscilik_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_paket_iscilik_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_paket_iscilik_id_seq OWNED BY public.rct_paket_iscilik.id;
+    CACHE 1
+);
 
 
 --
@@ -2101,7 +1662,7 @@ ALTER SEQUENCE public.rct_paket_iscilik_id_seq OWNED BY public.rct_paket_iscilik
 --
 
 CREATE TABLE public.rct_recete (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     recete_kodu character varying(32) NOT NULL,
     recete_adi character varying(128) NOT NULL,
     ornek_uretim_miktari double precision DEFAULT 0,
@@ -2116,7 +1677,7 @@ ALTER TABLE public.rct_recete OWNER TO ths_admin;
 --
 
 CREATE TABLE public.rct_recete_hammadde (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     header_id integer NOT NULL,
     recete_id integer,
     stok_kodu character varying(32) NOT NULL,
@@ -2131,44 +1692,28 @@ ALTER TABLE public.rct_recete_hammadde OWNER TO ths_admin;
 -- Name: rct_recete_hammadde_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_recete_hammadde_id_seq
-    AS integer
+ALTER TABLE public.rct_recete_hammadde ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_recete_hammadde_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_recete_hammadde_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_recete_hammadde_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_recete_hammadde_id_seq OWNED BY public.rct_recete_hammadde.id;
+    CACHE 1
+);
 
 
 --
 -- Name: rct_recete_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_recete_id_seq
-    AS integer
+ALTER TABLE public.rct_recete ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_recete_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_recete_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_recete_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_recete_id_seq OWNED BY public.rct_recete.id;
+    CACHE 1
+);
 
 
 --
@@ -2176,7 +1721,7 @@ ALTER SEQUENCE public.rct_recete_id_seq OWNED BY public.rct_recete.id;
 --
 
 CREATE TABLE public.rct_recete_iscilik (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     header_id integer NOT NULL,
     gider_kodu character varying(16) NOT NULL,
     miktar double precision NOT NULL
@@ -2189,22 +1734,14 @@ ALTER TABLE public.rct_recete_iscilik OWNER TO ths_admin;
 -- Name: rct_recete_iscilik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_recete_iscilik_id_seq
-    AS integer
+ALTER TABLE public.rct_recete_iscilik ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_recete_iscilik_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_recete_iscilik_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_recete_iscilik_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_recete_iscilik_id_seq OWNED BY public.rct_recete_iscilik.id;
+    CACHE 1
+);
 
 
 --
@@ -2225,21 +1762,14 @@ ALTER TABLE public.rct_recete_paket_hammadde OWNER TO ths_admin;
 -- Name: rct_recete_paket_hammadde_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_recete_paket_hammadde_id_seq
+ALTER TABLE public.rct_recete_paket_hammadde ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_recete_paket_hammadde_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_recete_paket_hammadde_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_recete_paket_hammadde_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_recete_paket_hammadde_id_seq OWNED BY public.rct_recete_paket_hammadde.id;
+    CACHE 1
+);
 
 
 --
@@ -2247,7 +1777,7 @@ ALTER SEQUENCE public.rct_recete_paket_hammadde_id_seq OWNED BY public.rct_recet
 --
 
 CREATE TABLE public.rct_recete_paket_iscilik (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     header_id integer NOT NULL,
     paket_id integer NOT NULL,
     miktar double precision
@@ -2260,22 +1790,14 @@ ALTER TABLE public.rct_recete_paket_iscilik OWNER TO ths_admin;
 -- Name: rct_recete_paket_iscilik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_recete_paket_iscilik_id_seq
-    AS integer
+ALTER TABLE public.rct_recete_paket_iscilik ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_recete_paket_iscilik_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_recete_paket_iscilik_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_recete_paket_iscilik_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_recete_paket_iscilik_id_seq OWNED BY public.rct_recete_paket_iscilik.id;
+    CACHE 1
+);
 
 
 --
@@ -2283,7 +1805,7 @@ ALTER SEQUENCE public.rct_recete_paket_iscilik_id_seq OWNED BY public.rct_recete
 --
 
 CREATE TABLE public.rct_recete_yan_urun (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     header_id integer NOT NULL,
     stok_kodu character varying(32) NOT NULL,
     miktar double precision NOT NULL,
@@ -2297,22 +1819,14 @@ ALTER TABLE public.rct_recete_yan_urun OWNER TO ths_admin;
 -- Name: rct_recete_yan_urun_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.rct_recete_yan_urun_id_seq
-    AS integer
+ALTER TABLE public.rct_recete_yan_urun ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.rct_recete_yan_urun_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rct_recete_yan_urun_id_seq OWNER TO ths_admin;
-
---
--- Name: rct_recete_yan_urun_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.rct_recete_yan_urun_id_seq OWNED BY public.rct_recete_yan_urun.id;
+    CACHE 1
+);
 
 
 --
@@ -2449,7 +1963,7 @@ ALTER TABLE public.sat_siparis ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 --
 
 CREATE TABLE public.set_sat_siparis_durum (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     siparis_durum character varying(32) NOT NULL,
     aciklama character varying(64),
     is_active boolean DEFAULT true NOT NULL
@@ -2463,7 +1977,7 @@ ALTER TABLE public.set_sat_siparis_durum OWNER TO ths_admin;
 --
 
 CREATE TABLE public.stk_stok_grubu (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     stok_grubu character varying(32) NOT NULL,
     kdv_orani double precision,
     ihracat_kodu character varying(32),
@@ -2479,7 +1993,7 @@ ALTER TABLE public.stk_stok_grubu OWNER TO ths_admin;
 --
 
 CREATE TABLE public.stk_stok_karti (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     is_satilabilir boolean DEFAULT true NOT NULL,
     stok_kodu character varying(32) NOT NULL,
     stok_adi character varying(128) NOT NULL,
@@ -2577,7 +2091,7 @@ COMMENT ON COLUMN public.stk_stok_karti.tanim IS 'Ürüne ait detaylı bilgiler 
 --
 
 CREATE TABLE public.sys_sehir (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     sehir_adi character varying(32) NOT NULL,
     plaka_kodu integer,
     ulke_id integer,
@@ -2749,7 +2263,7 @@ ALTER TABLE public.sat_teklif ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 --
 
 CREATE TABLE public.satis_fatura (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     fatura_no character varying(16),
     fatura_tarihi timestamp without time zone,
     teklif_id integer,
@@ -2765,7 +2279,7 @@ ALTER TABLE public.satis_fatura OWNER TO ths_admin;
 --
 
 CREATE TABLE public.satis_fatura_detay (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     header_id integer,
     teklif_detay_id integer,
     siparis_detay_id integer,
@@ -2779,42 +2293,28 @@ ALTER TABLE public.satis_fatura_detay OWNER TO ths_admin;
 -- Name: satis_fatura_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.satis_fatura_detay_id_seq
+ALTER TABLE public.satis_fatura_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.satis_fatura_detay_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.satis_fatura_detay_id_seq OWNER TO ths_admin;
-
---
--- Name: satis_fatura_detay_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.satis_fatura_detay_id_seq OWNED BY public.satis_fatura_detay.id;
+    CACHE 1
+);
 
 
 --
 -- Name: satis_fatura_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.satis_fatura_id_seq
+ALTER TABLE public.satis_fatura ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.satis_fatura_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.satis_fatura_id_seq OWNER TO ths_admin;
-
---
--- Name: satis_fatura_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.satis_fatura_id_seq OWNED BY public.satis_fatura.id;
+    CACHE 1
+);
 
 
 --
@@ -2822,7 +2322,7 @@ ALTER SEQUENCE public.satis_fatura_id_seq OWNED BY public.satis_fatura.id;
 --
 
 CREATE TABLE public.satis_irsaliye (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     irsaliye_no character varying(16),
     irsaliye_tarihi timestamp without time zone,
     teklif_id integer,
@@ -2838,7 +2338,7 @@ ALTER TABLE public.satis_irsaliye OWNER TO ths_admin;
 --
 
 CREATE TABLE public.satis_irsaliye_detay (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     header_id integer,
     teklif_detay_id integer,
     siparis_detay_id integer,
@@ -2852,42 +2352,28 @@ ALTER TABLE public.satis_irsaliye_detay OWNER TO ths_admin;
 -- Name: satis_irsaliye_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.satis_irsaliye_detay_id_seq
+ALTER TABLE public.satis_irsaliye_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.satis_irsaliye_detay_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.satis_irsaliye_detay_id_seq OWNER TO ths_admin;
-
---
--- Name: satis_irsaliye_detay_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.satis_irsaliye_detay_id_seq OWNED BY public.satis_irsaliye_detay.id;
+    CACHE 1
+);
 
 
 --
 -- Name: satis_irsaliye_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.satis_irsaliye_id_seq
+ALTER TABLE public.satis_irsaliye ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.satis_irsaliye_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.satis_irsaliye_id_seq OWNER TO ths_admin;
-
---
--- Name: satis_irsaliye_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.satis_irsaliye_id_seq OWNED BY public.satis_irsaliye.id;
+    CACHE 1
+);
 
 
 --
@@ -2895,7 +2381,7 @@ ALTER SEQUENCE public.satis_irsaliye_id_seq OWNED BY public.satis_irsaliye.id;
 --
 
 CREATE TABLE public.set_bb_calisma_durumu (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     calisma_durumu character varying(32) NOT NULL
 );
 
@@ -2906,21 +2392,14 @@ ALTER TABLE public.set_bb_calisma_durumu OWNER TO ths_admin;
 -- Name: set_bb_calisma_durumu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_bb_calisma_durumu_id_seq
+ALTER TABLE public.set_bb_calisma_durumu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_bb_calisma_durumu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_bb_calisma_durumu_id_seq OWNER TO ths_admin;
-
---
--- Name: set_bb_calisma_durumu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_bb_calisma_durumu_id_seq OWNED BY public.set_bb_calisma_durumu.id;
+    CACHE 1
+);
 
 
 --
@@ -2928,7 +2407,7 @@ ALTER SEQUENCE public.set_bb_calisma_durumu_id_seq OWNED BY public.set_bb_calism
 --
 
 CREATE TABLE public.set_bb_finans_durumu (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     finans_durumu character varying(32) NOT NULL
 );
 
@@ -2939,21 +2418,14 @@ ALTER TABLE public.set_bb_finans_durumu OWNER TO ths_admin;
 -- Name: set_bb_finans_durumu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_bb_finans_durumu_id_seq
+ALTER TABLE public.set_bb_finans_durumu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_bb_finans_durumu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_bb_finans_durumu_id_seq OWNER TO ths_admin;
-
---
--- Name: set_bb_finans_durumu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_bb_finans_durumu_id_seq OWNED BY public.set_bb_finans_durumu.id;
+    CACHE 1
+);
 
 
 --
@@ -2961,7 +2433,7 @@ ALTER SEQUENCE public.set_bb_finans_durumu_id_seq OWNED BY public.set_bb_finans_
 --
 
 CREATE TABLE public.set_bb_firma_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     firma_tipi character varying(32) NOT NULL
 );
 
@@ -2972,21 +2444,14 @@ ALTER TABLE public.set_bb_firma_tipi OWNER TO ths_admin;
 -- Name: set_bb_firma_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_bb_firma_tipi_id_seq
+ALTER TABLE public.set_bb_firma_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_bb_firma_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_bb_firma_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_bb_firma_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_bb_firma_tipi_id_seq OWNED BY public.set_bb_firma_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -2994,7 +2459,7 @@ ALTER SEQUENCE public.set_bb_firma_tipi_id_seq OWNED BY public.set_bb_firma_tipi
 --
 
 CREATE TABLE public.set_ch_firma_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     firma_turu_id integer NOT NULL,
     firma_tipi character varying(48) NOT NULL
 );
@@ -3006,21 +2471,14 @@ ALTER TABLE public.set_ch_firma_tipi OWNER TO ths_admin;
 -- Name: set_ch_firma_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_ch_firma_tipi_id_seq
+ALTER TABLE public.set_ch_firma_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_ch_firma_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_ch_firma_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_ch_firma_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_ch_firma_tipi_id_seq OWNED BY public.set_ch_firma_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -3028,7 +2486,7 @@ ALTER SEQUENCE public.set_ch_firma_tipi_id_seq OWNED BY public.set_ch_firma_tipi
 --
 
 CREATE TABLE public.set_ch_firma_turu (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     firma_turu character varying(32) NOT NULL
 );
 
@@ -3039,21 +2497,14 @@ ALTER TABLE public.set_ch_firma_turu OWNER TO ths_admin;
 -- Name: set_ch_firma_turu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_ch_firma_turu_id_seq
+ALTER TABLE public.set_ch_firma_turu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_ch_firma_turu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_ch_firma_turu_id_seq OWNER TO ths_admin;
-
---
--- Name: set_ch_firma_turu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_ch_firma_turu_id_seq OWNED BY public.set_ch_firma_turu.id;
+    CACHE 1
+);
 
 
 --
@@ -3061,7 +2512,7 @@ ALTER SEQUENCE public.set_ch_firma_turu_id_seq OWNED BY public.set_ch_firma_turu
 --
 
 CREATE TABLE public.set_ch_grup (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     grup character varying(16) NOT NULL
 );
 
@@ -3072,21 +2523,14 @@ ALTER TABLE public.set_ch_grup OWNER TO ths_admin;
 -- Name: set_ch_grup_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_ch_grup_id_seq
+ALTER TABLE public.set_ch_grup ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_ch_grup_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_ch_grup_id_seq OWNER TO ths_admin;
-
---
--- Name: set_ch_grup_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_ch_grup_id_seq OWNED BY public.set_ch_grup.id;
+    CACHE 1
+);
 
 
 --
@@ -3094,7 +2538,7 @@ ALTER SEQUENCE public.set_ch_grup_id_seq OWNED BY public.set_ch_grup.id;
 --
 
 CREATE TABLE public.set_ch_hesap_plani (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     tek_duzen_kodu character varying(16) NOT NULL,
     aciklama character varying(128) NOT NULL,
     seviye_sayisi smallint NOT NULL
@@ -3107,21 +2551,14 @@ ALTER TABLE public.set_ch_hesap_plani OWNER TO ths_admin;
 -- Name: set_ch_hesap_plani_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_ch_hesap_plani_id_seq
+ALTER TABLE public.set_ch_hesap_plani ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_ch_hesap_plani_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_ch_hesap_plani_id_seq OWNER TO ths_admin;
-
---
--- Name: set_ch_hesap_plani_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_ch_hesap_plani_id_seq OWNED BY public.set_ch_hesap_plani.id;
+    CACHE 1
+);
 
 
 --
@@ -3129,7 +2566,7 @@ ALTER SEQUENCE public.set_ch_hesap_plani_id_seq OWNED BY public.set_ch_hesap_pla
 --
 
 CREATE TABLE public.set_ch_hesap_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     hesap_tipi character varying(16) NOT NULL,
     is_ana_hesap boolean DEFAULT false NOT NULL,
     is_ara_hesap boolean DEFAULT false NOT NULL,
@@ -3143,21 +2580,14 @@ ALTER TABLE public.set_ch_hesap_tipi OWNER TO ths_admin;
 -- Name: set_ch_hesap_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_ch_hesap_tipi_id_seq
+ALTER TABLE public.set_ch_hesap_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_ch_hesap_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_ch_hesap_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_ch_hesap_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_ch_hesap_tipi_id_seq OWNED BY public.set_ch_hesap_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -3165,7 +2595,7 @@ ALTER SEQUENCE public.set_ch_hesap_tipi_id_seq OWNED BY public.set_ch_hesap_tipi
 --
 
 CREATE TABLE public.set_ch_vergi_orani (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     vergi_orani double precision NOT NULL,
     satis_kodu character varying(16) NOT NULL,
     satis_iade_kodu character varying(16) NOT NULL,
@@ -3180,21 +2610,14 @@ ALTER TABLE public.set_ch_vergi_orani OWNER TO ths_admin;
 -- Name: set_ch_vergi_orani_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_ch_vergi_orani_id_seq
+ALTER TABLE public.set_ch_vergi_orani ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_ch_vergi_orani_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_ch_vergi_orani_id_seq OWNER TO ths_admin;
-
---
--- Name: set_ch_vergi_orani_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_ch_vergi_orani_id_seq OWNED BY public.set_ch_vergi_orani.id;
+    CACHE 1
+);
 
 
 --
@@ -3202,7 +2625,7 @@ ALTER SEQUENCE public.set_ch_vergi_orani_id_seq OWNED BY public.set_ch_vergi_ora
 --
 
 CREATE TABLE public.set_einv_alici_bilgisi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     alias character varying(128),
     title character varying(256),
     type_ character varying(128),
@@ -3219,22 +2642,14 @@ ALTER TABLE public.set_einv_alici_bilgisi OWNER TO ths_admin;
 -- Name: set_einv_alici_bilgisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_alici_bilgisi_id_seq
-    AS integer
+ALTER TABLE public.set_einv_alici_bilgisi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_alici_bilgisi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_alici_bilgisi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_alici_bilgisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_alici_bilgisi_id_seq OWNED BY public.set_einv_alici_bilgisi.id;
+    CACHE 1
+);
 
 
 --
@@ -3242,7 +2657,7 @@ ALTER SEQUENCE public.set_einv_alici_bilgisi_id_seq OWNED BY public.set_einv_ali
 --
 
 CREATE TABLE public.set_einv_evrak_cinsi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     evrak_cinsi character varying(32)
 );
 
@@ -3253,22 +2668,14 @@ ALTER TABLE public.set_einv_evrak_cinsi OWNER TO ths_admin;
 -- Name: set_einv_evrak_cinsi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_evrak_cinsi_id_seq
-    AS integer
+ALTER TABLE public.set_einv_evrak_cinsi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_evrak_cinsi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_evrak_cinsi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_evrak_cinsi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_evrak_cinsi_id_seq OWNED BY public.set_einv_evrak_cinsi.id;
+    CACHE 1
+);
 
 
 --
@@ -3276,7 +2683,7 @@ ALTER SEQUENCE public.set_einv_evrak_cinsi_id_seq OWNED BY public.set_einv_evrak
 --
 
 CREATE TABLE public.set_einv_evrak_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     evrak_tipi character varying(32)
 );
 
@@ -3288,7 +2695,7 @@ ALTER TABLE public.set_einv_evrak_tipi OWNER TO ths_admin;
 --
 
 CREATE TABLE public.set_einv_evrak_tipi_cinsi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     evrak_tipi_id integer,
     evrak_cinsi_id integer
 );
@@ -3300,44 +2707,28 @@ ALTER TABLE public.set_einv_evrak_tipi_cinsi OWNER TO ths_admin;
 -- Name: set_einv_evrak_tipi_cinsi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_evrak_tipi_cinsi_id_seq
-    AS integer
+ALTER TABLE public.set_einv_evrak_tipi_cinsi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_evrak_tipi_cinsi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_evrak_tipi_cinsi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_evrak_tipi_cinsi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_evrak_tipi_cinsi_id_seq OWNED BY public.set_einv_evrak_tipi_cinsi.id;
+    CACHE 1
+);
 
 
 --
 -- Name: set_einv_evrak_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_evrak_tipi_id_seq
-    AS integer
+ALTER TABLE public.set_einv_evrak_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_evrak_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_evrak_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_evrak_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_evrak_tipi_id_seq OWNED BY public.set_einv_evrak_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -3345,7 +2736,7 @@ ALTER SEQUENCE public.set_einv_evrak_tipi_id_seq OWNED BY public.set_einv_evrak_
 --
 
 CREATE TABLE public.set_einv_fatura_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     fatura_tipi character varying(32) NOT NULL
 );
 
@@ -3363,22 +2754,14 @@ COMMENT ON TABLE public.set_einv_fatura_tipi IS 'eFatura Evrak Tipi';
 -- Name: set_einv_fatura_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_fatura_tipi_id_seq
-    AS integer
+ALTER TABLE public.set_einv_fatura_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_fatura_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_fatura_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_fatura_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_fatura_tipi_id_seq OWNED BY public.set_einv_fatura_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -3386,7 +2769,7 @@ ALTER SEQUENCE public.set_einv_fatura_tipi_id_seq OWNED BY public.set_einv_fatur
 --
 
 CREATE TABLE public.set_einv_gonderici_bilgisi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     alias character varying(128),
     title character varying(256),
     type_ character varying(128),
@@ -3403,22 +2786,14 @@ ALTER TABLE public.set_einv_gonderici_bilgisi OWNER TO ths_admin;
 -- Name: set_einv_gonderici_bilgisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_gonderici_bilgisi_id_seq
-    AS integer
+ALTER TABLE public.set_einv_gonderici_bilgisi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_gonderici_bilgisi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_gonderici_bilgisi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_gonderici_bilgisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_gonderici_bilgisi_id_seq OWNED BY public.set_einv_gonderici_bilgisi.id;
+    CACHE 1
+);
 
 
 --
@@ -3426,7 +2801,7 @@ ALTER SEQUENCE public.set_einv_gonderici_bilgisi_id_seq OWNED BY public.set_einv
 --
 
 CREATE TABLE public.set_einv_gonderim_sekli (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     gonderim_sekli character varying(8),
     aciklama character varying(1024),
     is_active boolean DEFAULT true NOT NULL
@@ -3439,22 +2814,14 @@ ALTER TABLE public.set_einv_gonderim_sekli OWNER TO ths_admin;
 -- Name: set_einv_gonderim_sekli_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_gonderim_sekli_id_seq
-    AS integer
+ALTER TABLE public.set_einv_gonderim_sekli ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_gonderim_sekli_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_gonderim_sekli_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_gonderim_sekli_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_gonderim_sekli_id_seq OWNED BY public.set_einv_gonderim_sekli.id;
+    CACHE 1
+);
 
 
 --
@@ -3462,7 +2829,7 @@ ALTER SEQUENCE public.set_einv_gonderim_sekli_id_seq OWNED BY public.set_einv_go
 --
 
 CREATE TABLE public.set_einv_ihrac_kayitli_fatura_sebebi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     ihrac_kayitli_fatura_sebebi character varying(3),
     aciklama character varying(256)
 );
@@ -3474,22 +2841,14 @@ ALTER TABLE public.set_einv_ihrac_kayitli_fatura_sebebi OWNER TO ths_admin;
 -- Name: set_einv_ihrac_kayitli_fatura_sebebi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_ihrac_kayitli_fatura_sebebi_id_seq
-    AS integer
+ALTER TABLE public.set_einv_ihrac_kayitli_fatura_sebebi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_ihrac_kayitli_fatura_sebebi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_ihrac_kayitli_fatura_sebebi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_ihrac_kayitli_fatura_sebebi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_ihrac_kayitli_fatura_sebebi_id_seq OWNED BY public.set_einv_ihrac_kayitli_fatura_sebebi.id;
+    CACHE 1
+);
 
 
 --
@@ -3497,7 +2856,7 @@ ALTER SEQUENCE public.set_einv_ihrac_kayitli_fatura_sebebi_id_seq OWNED BY publi
 --
 
 CREATE TABLE public.set_einv_iletisim_kanali (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     iletisim_kanali character varying(2) NOT NULL,
     aciklama character varying(512)
 );
@@ -3509,22 +2868,14 @@ ALTER TABLE public.set_einv_iletisim_kanali OWNER TO ths_admin;
 -- Name: set_einv_iletisim_kanali_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_iletisim_kanali_id_seq
-    AS integer
+ALTER TABLE public.set_einv_iletisim_kanali ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_iletisim_kanali_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_iletisim_kanali_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_iletisim_kanali_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_iletisim_kanali_id_seq OWNED BY public.set_einv_iletisim_kanali.id;
+    CACHE 1
+);
 
 
 --
@@ -3532,7 +2883,7 @@ ALTER SEQUENCE public.set_einv_iletisim_kanali_id_seq OWNED BY public.set_einv_i
 --
 
 CREATE TABLE public.set_einv_istisna_kodu (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     istisna_kodu character varying(4) NOT NULL,
     aciklama character varying(512) NOT NULL,
     is_tam_istisna boolean DEFAULT true NOT NULL,
@@ -3546,22 +2897,14 @@ ALTER TABLE public.set_einv_istisna_kodu OWNER TO ths_admin;
 -- Name: set_einv_istisna_kodu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_istisna_kodu_id_seq
-    AS integer
+ALTER TABLE public.set_einv_istisna_kodu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_istisna_kodu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_istisna_kodu_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_istisna_kodu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_istisna_kodu_id_seq OWNED BY public.set_einv_istisna_kodu.id;
+    CACHE 1
+);
 
 
 --
@@ -3569,7 +2912,7 @@ ALTER SEQUENCE public.set_einv_istisna_kodu_id_seq OWNED BY public.set_einv_isti
 --
 
 CREATE TABLE public.set_einv_odeme_sekli (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     is_active boolean DEFAULT false NOT NULL,
     odeme_sekli character varying(96),
     kod character varying(16),
@@ -3584,22 +2927,14 @@ ALTER TABLE public.set_einv_odeme_sekli OWNER TO ths_admin;
 -- Name: set_einv_odeme_sekli_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_odeme_sekli_id_seq
-    AS integer
+ALTER TABLE public.set_einv_odeme_sekli ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_odeme_sekli_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_odeme_sekli_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_odeme_sekli_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_odeme_sekli_id_seq OWNED BY public.set_einv_odeme_sekli.id;
+    CACHE 1
+);
 
 
 --
@@ -3607,7 +2942,7 @@ ALTER SEQUENCE public.set_einv_odeme_sekli_id_seq OWNED BY public.set_einv_odeme
 --
 
 CREATE TABLE public.set_einv_paket_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     kod character varying(2),
     paket_tipi character varying(128),
@@ -3621,22 +2956,14 @@ ALTER TABLE public.set_einv_paket_tipi OWNER TO ths_admin;
 -- Name: set_einv_paket_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_paket_tipi_id_seq
-    AS integer
+ALTER TABLE public.set_einv_paket_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_paket_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_paket_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_paket_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_paket_tipi_id_seq OWNED BY public.set_einv_paket_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -3644,7 +2971,7 @@ ALTER SEQUENCE public.set_einv_paket_tipi_id_seq OWNED BY public.set_einv_paket_
 --
 
 CREATE TABLE public.set_einv_response_code (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     response_code character varying(8)
 );
 
@@ -3655,22 +2982,14 @@ ALTER TABLE public.set_einv_response_code OWNER TO ths_admin;
 -- Name: set_einv_response_code_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_response_code_id_seq
-    AS integer
+ALTER TABLE public.set_einv_response_code ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_response_code_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_response_code_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_response_code_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_response_code_id_seq OWNED BY public.set_einv_response_code.id;
+    CACHE 1
+);
 
 
 --
@@ -3678,7 +2997,7 @@ ALTER SEQUENCE public.set_einv_response_code_id_seq OWNED BY public.set_einv_res
 --
 
 CREATE TABLE public.set_einv_senaryo_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     senaryo_tipi character varying(32) NOT NULL,
     aciklama character varying(64)
 );
@@ -3697,22 +3016,14 @@ COMMENT ON TABLE public.set_einv_senaryo_tipi IS 'e-Fatura Senaryo tipleri';
 -- Name: set_einv_senaryo_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_senaryo_tipi_id_seq
-    AS integer
+ALTER TABLE public.set_einv_senaryo_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_senaryo_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_senaryo_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_senaryo_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_senaryo_tipi_id_seq OWNED BY public.set_einv_senaryo_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -3720,7 +3031,7 @@ ALTER SEQUENCE public.set_einv_senaryo_tipi_id_seq OWNED BY public.set_einv_sena
 --
 
 CREATE TABLE public.set_einv_tasima_ucreti (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     tasima_ucreti character varying(16)
 );
@@ -3732,22 +3043,14 @@ ALTER TABLE public.set_einv_tasima_ucreti OWNER TO ths_admin;
 -- Name: set_einv_tasima_ucreti_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_tasima_ucreti_id_seq
-    AS integer
+ALTER TABLE public.set_einv_tasima_ucreti ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_tasima_ucreti_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_tasima_ucreti_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_tasima_ucreti_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_tasima_ucreti_id_seq OWNED BY public.set_einv_tasima_ucreti.id;
+    CACHE 1
+);
 
 
 --
@@ -3755,7 +3058,7 @@ ALTER SEQUENCE public.set_einv_tasima_ucreti_id_seq OWNED BY public.set_einv_tas
 --
 
 CREATE TABLE public.set_einv_teslim_sekli (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     teslim_sekli character varying(16) NOT NULL,
     aciklama character varying(96) NOT NULL,
@@ -3769,22 +3072,14 @@ ALTER TABLE public.set_einv_teslim_sekli OWNER TO ths_admin;
 -- Name: set_einv_teslim_sekli_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_teslim_sekli_id_seq
-    AS integer
+ALTER TABLE public.set_einv_teslim_sekli ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_teslim_sekli_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_teslim_sekli_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_teslim_sekli_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_teslim_sekli_id_seq OWNED BY public.set_einv_teslim_sekli.id;
+    CACHE 1
+);
 
 
 --
@@ -3792,7 +3087,7 @@ ALTER SEQUENCE public.set_einv_teslim_sekli_id_seq OWNED BY public.set_einv_tesl
 --
 
 CREATE TABLE public.set_einv_tevkifat_kodu (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     tevkifat_kodu character varying(3),
     aciklama character varying(256),
     oran character varying(8),
@@ -3807,22 +3102,14 @@ ALTER TABLE public.set_einv_tevkifat_kodu OWNER TO ths_admin;
 -- Name: set_einv_tevkifat_kodu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_tevkifat_kodu_id_seq
-    AS integer
+ALTER TABLE public.set_einv_tevkifat_kodu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_tevkifat_kodu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_tevkifat_kodu_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_tevkifat_kodu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_tevkifat_kodu_id_seq OWNED BY public.set_einv_tevkifat_kodu.id;
+    CACHE 1
+);
 
 
 --
@@ -3830,7 +3117,7 @@ ALTER SEQUENCE public.set_einv_tevkifat_kodu_id_seq OWNED BY public.set_einv_tev
 --
 
 CREATE TABLE public.set_einv_vergi_kodu (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     vergi_kodu character varying(4),
     aciklama character varying(128),
     kisaltma character varying(32),
@@ -3844,22 +3131,14 @@ ALTER TABLE public.set_einv_vergi_kodu OWNER TO ths_admin;
 -- Name: set_einv_vergi_kodu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_einv_vergi_kodu_id_seq
-    AS integer
+ALTER TABLE public.set_einv_vergi_kodu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_einv_vergi_kodu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_einv_vergi_kodu_id_seq OWNER TO ths_admin;
-
---
--- Name: set_einv_vergi_kodu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_einv_vergi_kodu_id_seq OWNED BY public.set_einv_vergi_kodu.id;
+    CACHE 1
+);
 
 
 --
@@ -3867,7 +3146,7 @@ ALTER SEQUENCE public.set_einv_vergi_kodu_id_seq OWNED BY public.set_einv_vergi_
 --
 
 CREATE TABLE public.set_iml_cins (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     cins_kodu character varying(32),
     aciklama character varying(64)
 );
@@ -3879,21 +3158,14 @@ ALTER TABLE public.set_iml_cins OWNER TO ths_admin;
 -- Name: set_iml_cins_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_iml_cins_id_seq
+ALTER TABLE public.set_iml_cins ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_iml_cins_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iml_cins_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iml_cins_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iml_cins_id_seq OWNED BY public.set_iml_cins.id;
+    CACHE 1
+);
 
 
 --
@@ -3901,7 +3173,7 @@ ALTER SEQUENCE public.set_iml_cins_id_seq OWNED BY public.set_iml_cins.id;
 --
 
 CREATE TABLE public.set_iml_cins_sureci (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     cins_id integer,
     baslangic_surec_id integer
 );
@@ -3913,21 +3185,14 @@ ALTER TABLE public.set_iml_cins_sureci OWNER TO ths_admin;
 -- Name: set_iml_cins_sureci_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_iml_cins_sureci_id_seq
+ALTER TABLE public.set_iml_cins_sureci ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_iml_cins_sureci_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iml_cins_sureci_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iml_cins_sureci_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iml_cins_sureci_id_seq OWNED BY public.set_iml_cins_sureci.id;
+    CACHE 1
+);
 
 
 --
@@ -3935,7 +3200,7 @@ ALTER SEQUENCE public.set_iml_cins_sureci_id_seq OWNED BY public.set_iml_cins_su
 --
 
 CREATE TABLE public.set_iml_imalat_surec_tanimi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     imalat_turu character varying(32),
     imalat_tipi character varying(32),
     marka character varying(16),
@@ -3949,134 +3214,14 @@ ALTER TABLE public.set_iml_imalat_surec_tanimi OWNER TO ths_admin;
 -- Name: set_iml_imalat_surec_tanimi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_iml_imalat_surec_tanimi_id_seq
+ALTER TABLE public.set_iml_imalat_surec_tanimi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_iml_imalat_surec_tanimi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iml_imalat_surec_tanimi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iml_imalat_surec_tanimi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iml_imalat_surec_tanimi_id_seq OWNED BY public.set_iml_imalat_surec_tanimi.id;
-
-
---
--- Name: set_iml_kaset_aylik_hedef; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iml_kaset_aylik_hedef (
-    id integer NOT NULL,
-    ocak integer DEFAULT 0 NOT NULL,
-    subat integer DEFAULT 0 NOT NULL,
-    mart integer DEFAULT 0 NOT NULL,
-    nisan integer DEFAULT 0 NOT NULL,
-    mayis integer DEFAULT 0 NOT NULL,
-    haziran integer DEFAULT 0 NOT NULL,
-    temmuz integer DEFAULT 0 NOT NULL,
-    agustos integer DEFAULT 0 NOT NULL,
-    eylul integer DEFAULT 0 NOT NULL,
-    ekim integer DEFAULT 0 NOT NULL,
-    kasim integer DEFAULT 0 NOT NULL,
-    aralik integer DEFAULT 0 NOT NULL,
-    urun_tipi_id integer NOT NULL,
-    donem integer NOT NULL
+    CACHE 1
 );
-
-
-ALTER TABLE public.set_iml_kaset_aylik_hedef OWNER TO ths_admin;
-
---
--- Name: set_iml_kaset_aylik_hedef_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.set_iml_kaset_aylik_hedef_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iml_kaset_aylik_hedef_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iml_kaset_aylik_hedef_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iml_kaset_aylik_hedef_id_seq OWNED BY public.set_iml_kaset_aylik_hedef.id;
-
-
---
--- Name: set_iml_kaset_musteri_temsilcisi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iml_kaset_musteri_temsilcisi (
-    id integer NOT NULL,
-    ad_soyad character varying(48) NOT NULL,
-    is_active boolean DEFAULT true NOT NULL
-);
-
-
-ALTER TABLE public.set_iml_kaset_musteri_temsilcisi OWNER TO ths_admin;
-
---
--- Name: set_iml_kaset_musteri_temsilcisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.set_iml_kaset_musteri_temsilcisi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iml_kaset_musteri_temsilcisi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iml_kaset_musteri_temsilcisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iml_kaset_musteri_temsilcisi_id_seq OWNED BY public.set_iml_kaset_musteri_temsilcisi.id;
-
-
---
--- Name: set_iml_kaset_urun_tipi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iml_kaset_urun_tipi (
-    id integer NOT NULL,
-    urun_tipi character varying(24) NOT NULL
-);
-
-
-ALTER TABLE public.set_iml_kaset_urun_tipi OWNER TO ths_admin;
-
---
--- Name: set_iml_kaset_urun_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.set_iml_kaset_urun_tipi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iml_kaset_urun_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iml_kaset_urun_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iml_kaset_urun_tipi_id_seq OWNED BY public.set_iml_kaset_urun_tipi.id;
 
 
 --
@@ -4084,7 +3229,7 @@ ALTER SEQUENCE public.set_iml_kaset_urun_tipi_id_seq OWNED BY public.set_iml_kas
 --
 
 CREATE TABLE public.set_iml_operator_tezgah (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     operator_id integer,
     tezgah_id integer
 );
@@ -4096,21 +3241,14 @@ ALTER TABLE public.set_iml_operator_tezgah OWNER TO ths_admin;
 -- Name: set_iml_operator_tezgah_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_iml_operator_tezgah_id_seq
+ALTER TABLE public.set_iml_operator_tezgah ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_iml_operator_tezgah_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iml_operator_tezgah_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iml_operator_tezgah_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iml_operator_tezgah_id_seq OWNED BY public.set_iml_operator_tezgah.id;
+    CACHE 1
+);
 
 
 --
@@ -4118,7 +3256,7 @@ ALTER SEQUENCE public.set_iml_operator_tezgah_id_seq OWNED BY public.set_iml_ope
 --
 
 CREATE TABLE public.set_iml_surec (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     surec_kodu character varying(16),
     onceki_durum_kodu character varying(16),
     is_periodik_islem boolean DEFAULT false NOT NULL,
@@ -4140,7 +3278,7 @@ ALTER TABLE public.set_iml_surec OWNER TO ths_admin;
 --
 
 CREATE TABLE public.set_iml_surec_durum_kodu (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     uretim_durumu character varying(16),
     is_ilk_durum boolean DEFAULT false NOT NULL
 );
@@ -4152,42 +3290,28 @@ ALTER TABLE public.set_iml_surec_durum_kodu OWNER TO ths_admin;
 -- Name: set_iml_surec_durum_kodu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_iml_surec_durum_kodu_id_seq
+ALTER TABLE public.set_iml_surec_durum_kodu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_iml_surec_durum_kodu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iml_surec_durum_kodu_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iml_surec_durum_kodu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iml_surec_durum_kodu_id_seq OWNED BY public.set_iml_surec_durum_kodu.id;
+    CACHE 1
+);
 
 
 --
 -- Name: set_iml_surec_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_iml_surec_id_seq
+ALTER TABLE public.set_iml_surec ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_iml_surec_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iml_surec_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iml_surec_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iml_surec_id_seq OWNED BY public.set_iml_surec.id;
+    CACHE 1
+);
 
 
 --
@@ -4195,7 +3319,7 @@ ALTER SEQUENCE public.set_iml_surec_id_seq OWNED BY public.set_iml_surec.id;
 --
 
 CREATE TABLE public.set_iml_tezgah (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     tezgah character varying(32) NOT NULL,
     aciklama character varying(64)
 );
@@ -4207,21 +3331,14 @@ ALTER TABLE public.set_iml_tezgah OWNER TO ths_admin;
 -- Name: set_iml_tezgah_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_iml_tezgah_id_seq
+ALTER TABLE public.set_iml_tezgah ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_iml_tezgah_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iml_tezgah_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iml_tezgah_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iml_tezgah_id_seq OWNED BY public.set_iml_tezgah.id;
+    CACHE 1
+);
 
 
 --
@@ -4229,7 +3346,7 @@ ALTER SEQUENCE public.set_iml_tezgah_id_seq OWNED BY public.set_iml_tezgah.id;
 --
 
 CREATE TABLE public.set_iscilik_gider_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     gider_tipi character varying(16) NOT NULL
 );
 
@@ -4240,22 +3357,14 @@ ALTER TABLE public.set_iscilik_gider_tipi OWNER TO ths_admin;
 -- Name: set_iscilik_gider_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_iscilik_gider_tipi_id_seq
-    AS integer
+ALTER TABLE public.set_iscilik_gider_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_iscilik_gider_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_iscilik_gider_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_iscilik_gider_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_iscilik_gider_tipi_id_seq OWNED BY public.set_iscilik_gider_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -4263,7 +3372,7 @@ ALTER SEQUENCE public.set_iscilik_gider_tipi_id_seq OWNED BY public.set_iscilik_
 --
 
 CREATE TABLE public.set_odeme_baslangic_donemi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     odeme_baslangic_donemi character varying(32) NOT NULL,
     aciklama character varying(64),
     is_active boolean DEFAULT true NOT NULL
@@ -4276,22 +3385,14 @@ ALTER TABLE public.set_odeme_baslangic_donemi OWNER TO ths_admin;
 -- Name: set_odeme_baslangic_donemi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_odeme_baslangic_donemi_id_seq
-    AS integer
+ALTER TABLE public.set_odeme_baslangic_donemi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_odeme_baslangic_donemi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_odeme_baslangic_donemi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_odeme_baslangic_donemi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_odeme_baslangic_donemi_id_seq OWNED BY public.set_odeme_baslangic_donemi.id;
+    CACHE 1
+);
 
 
 --
@@ -4299,7 +3400,7 @@ ALTER SEQUENCE public.set_odeme_baslangic_donemi_id_seq OWNED BY public.set_odem
 --
 
 CREATE TABLE public.set_prs_askerlik_durumu (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     askerlik_durumu character varying(16) NOT NULL
 );
 
@@ -4310,21 +3411,14 @@ ALTER TABLE public.set_prs_askerlik_durumu OWNER TO ths_admin;
 -- Name: set_prs_askerlik_durumu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_askerlik_durumu_id_seq
+ALTER TABLE public.set_prs_askerlik_durumu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_askerlik_durumu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_askerlik_durumu_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_askerlik_durumu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_askerlik_durumu_id_seq OWNED BY public.set_prs_askerlik_durumu.id;
+    CACHE 1
+);
 
 
 --
@@ -4332,7 +3426,7 @@ ALTER SEQUENCE public.set_prs_askerlik_durumu_id_seq OWNED BY public.set_prs_ask
 --
 
 CREATE TABLE public.set_prs_ayrilma_nedeni (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     ayrilma_nedeni character varying(32) NOT NULL
 );
 
@@ -4343,21 +3437,14 @@ ALTER TABLE public.set_prs_ayrilma_nedeni OWNER TO ths_admin;
 -- Name: set_prs_ayrilma_nedeni_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_ayrilma_nedeni_id_seq
+ALTER TABLE public.set_prs_ayrilma_nedeni ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_ayrilma_nedeni_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_ayrilma_nedeni_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_ayrilma_nedeni_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_ayrilma_nedeni_id_seq OWNED BY public.set_prs_ayrilma_nedeni.id;
+    CACHE 1
+);
 
 
 --
@@ -4365,7 +3452,7 @@ ALTER SEQUENCE public.set_prs_ayrilma_nedeni_id_seq OWNED BY public.set_prs_ayri
 --
 
 CREATE TABLE public.set_prs_ayrilma_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     ayrilma_tipi character varying(32) NOT NULL
 );
 
@@ -4376,21 +3463,14 @@ ALTER TABLE public.set_prs_ayrilma_tipi OWNER TO ths_admin;
 -- Name: set_prs_ayrilma_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_ayrilma_tipi_id_seq
+ALTER TABLE public.set_prs_ayrilma_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_ayrilma_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_ayrilma_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_ayrilma_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_ayrilma_tipi_id_seq OWNED BY public.set_prs_ayrilma_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -4398,7 +3478,7 @@ ALTER SEQUENCE public.set_prs_ayrilma_tipi_id_seq OWNED BY public.set_prs_ayrilm
 --
 
 CREATE TABLE public.set_prs_birim (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     birim character varying(32) NOT NULL,
     bolum_id integer
 );
@@ -4410,21 +3490,14 @@ ALTER TABLE public.set_prs_birim OWNER TO ths_admin;
 -- Name: set_prs_birim_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_birim_id_seq
+ALTER TABLE public.set_prs_birim ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_birim_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_birim_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_birim_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_birim_id_seq OWNED BY public.set_prs_birim.id;
+    CACHE 1
+);
 
 
 --
@@ -4432,7 +3505,7 @@ ALTER SEQUENCE public.set_prs_birim_id_seq OWNED BY public.set_prs_birim.id;
 --
 
 CREATE TABLE public.set_prs_bolum (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     bolum character varying(32) NOT NULL
 );
 
@@ -4443,21 +3516,14 @@ ALTER TABLE public.set_prs_bolum OWNER TO ths_admin;
 -- Name: set_prs_bolum_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_bolum_id_seq
+ALTER TABLE public.set_prs_bolum ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_bolum_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_bolum_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_bolum_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_bolum_id_seq OWNED BY public.set_prs_bolum.id;
+    CACHE 1
+);
 
 
 --
@@ -4465,7 +3531,7 @@ ALTER SEQUENCE public.set_prs_bolum_id_seq OWNED BY public.set_prs_bolum.id;
 --
 
 CREATE TABLE public.set_prs_cinsiyet (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     cinsiyet character varying(32) NOT NULL,
     is_erkek boolean DEFAULT false NOT NULL
 );
@@ -4477,21 +3543,14 @@ ALTER TABLE public.set_prs_cinsiyet OWNER TO ths_admin;
 -- Name: set_prs_cinsiyet_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_cinsiyet_id_seq
+ALTER TABLE public.set_prs_cinsiyet ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_cinsiyet_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_cinsiyet_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_cinsiyet_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_cinsiyet_id_seq OWNED BY public.set_prs_cinsiyet.id;
+    CACHE 1
+);
 
 
 --
@@ -4499,7 +3558,7 @@ ALTER SEQUENCE public.set_prs_cinsiyet_id_seq OWNED BY public.set_prs_cinsiyet.i
 --
 
 CREATE TABLE public.set_prs_egitim_seviyesi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     egitim_seviyesi character varying(32) NOT NULL
 );
 
@@ -4510,21 +3569,14 @@ ALTER TABLE public.set_prs_egitim_seviyesi OWNER TO ths_admin;
 -- Name: set_prs_egitim_seviyesi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_egitim_seviyesi_id_seq
+ALTER TABLE public.set_prs_egitim_seviyesi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_egitim_seviyesi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_egitim_seviyesi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_egitim_seviyesi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_egitim_seviyesi_id_seq OWNED BY public.set_prs_egitim_seviyesi.id;
+    CACHE 1
+);
 
 
 --
@@ -4532,7 +3584,7 @@ ALTER SEQUENCE public.set_prs_egitim_seviyesi_id_seq OWNED BY public.set_prs_egi
 --
 
 CREATE TABLE public.set_prs_ehliyet (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     ehliyet character varying(32) NOT NULL
 );
 
@@ -4543,21 +3595,14 @@ ALTER TABLE public.set_prs_ehliyet OWNER TO ths_admin;
 -- Name: set_prs_ehliyet_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_ehliyet_id_seq
+ALTER TABLE public.set_prs_ehliyet ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_ehliyet_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_ehliyet_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_ehliyet_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_ehliyet_id_seq OWNED BY public.set_prs_ehliyet.id;
+    CACHE 1
+);
 
 
 --
@@ -4565,7 +3610,7 @@ ALTER SEQUENCE public.set_prs_ehliyet_id_seq OWNED BY public.set_prs_ehliyet.id;
 --
 
 CREATE TABLE public.set_prs_gecis_sistemi_karti (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     kart_id character varying(8),
     personel_no integer NOT NULL,
     kart_no integer NOT NULL,
@@ -4579,21 +3624,14 @@ ALTER TABLE public.set_prs_gecis_sistemi_karti OWNER TO ths_admin;
 -- Name: set_prs_gecis_sistemi_karti_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_gecis_sistemi_karti_id_seq
+ALTER TABLE public.set_prs_gecis_sistemi_karti ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_gecis_sistemi_karti_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_gecis_sistemi_karti_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_gecis_sistemi_karti_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_gecis_sistemi_karti_id_seq OWNED BY public.set_prs_gecis_sistemi_karti.id;
+    CACHE 1
+);
 
 
 --
@@ -4601,7 +3639,7 @@ ALTER SEQUENCE public.set_prs_gecis_sistemi_karti_id_seq OWNED BY public.set_prs
 --
 
 CREATE TABLE public.set_prs_gorev (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     gorev character varying(32) NOT NULL
 );
 
@@ -4612,21 +3650,14 @@ ALTER TABLE public.set_prs_gorev OWNER TO ths_admin;
 -- Name: set_prs_gorev_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_gorev_id_seq
+ALTER TABLE public.set_prs_gorev ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_gorev_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_gorev_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_gorev_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_gorev_id_seq OWNED BY public.set_prs_gorev.id;
+    CACHE 1
+);
 
 
 --
@@ -4634,7 +3665,7 @@ ALTER SEQUENCE public.set_prs_gorev_id_seq OWNED BY public.set_prs_gorev.id;
 --
 
 CREATE TABLE public.set_prs_lisan (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     lisan character varying(16) NOT NULL
 );
 
@@ -4645,21 +3676,14 @@ ALTER TABLE public.set_prs_lisan OWNER TO ths_admin;
 -- Name: set_prs_lisan_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_lisan_id_seq
+ALTER TABLE public.set_prs_lisan ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_lisan_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_lisan_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_lisan_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_lisan_id_seq OWNED BY public.set_prs_lisan.id;
+    CACHE 1
+);
 
 
 --
@@ -4667,7 +3691,7 @@ ALTER SEQUENCE public.set_prs_lisan_id_seq OWNED BY public.set_prs_lisan.id;
 --
 
 CREATE TABLE public.set_prs_lisan_seviyesi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     lisan_seviyesi character varying(16) NOT NULL
 );
 
@@ -4678,21 +3702,14 @@ ALTER TABLE public.set_prs_lisan_seviyesi OWNER TO ths_admin;
 -- Name: set_prs_lisan_seviyesi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_lisan_seviyesi_id_seq
+ALTER TABLE public.set_prs_lisan_seviyesi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_lisan_seviyesi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_lisan_seviyesi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_lisan_seviyesi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_lisan_seviyesi_id_seq OWNED BY public.set_prs_lisan_seviyesi.id;
+    CACHE 1
+);
 
 
 --
@@ -4700,7 +3717,7 @@ ALTER SEQUENCE public.set_prs_lisan_seviyesi_id_seq OWNED BY public.set_prs_lisa
 --
 
 CREATE TABLE public.set_prs_medeni_durum (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     medeni_durum character varying(32) NOT NULL,
     is_evli boolean DEFAULT false NOT NULL
 );
@@ -4712,21 +3729,14 @@ ALTER TABLE public.set_prs_medeni_durum OWNER TO ths_admin;
 -- Name: set_prs_medeni_durum_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_medeni_durum_id_seq
+ALTER TABLE public.set_prs_medeni_durum ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_medeni_durum_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_medeni_durum_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_medeni_durum_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_medeni_durum_id_seq OWNED BY public.set_prs_medeni_durum.id;
+    CACHE 1
+);
 
 
 --
@@ -4734,7 +3744,7 @@ ALTER SEQUENCE public.set_prs_medeni_durum_id_seq OWNED BY public.set_prs_medeni
 --
 
 CREATE TABLE public.set_prs_mektup_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     mektup_tipi character varying(32) NOT NULL
 );
 
@@ -4745,21 +3755,14 @@ ALTER TABLE public.set_prs_mektup_tipi OWNER TO ths_admin;
 -- Name: set_prs_mektup_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_mektup_tipi_id_seq
+ALTER TABLE public.set_prs_mektup_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_mektup_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_mektup_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_mektup_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_mektup_tipi_id_seq OWNED BY public.set_prs_mektup_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -4767,7 +3770,7 @@ ALTER SEQUENCE public.set_prs_mektup_tipi_id_seq OWNED BY public.set_prs_mektup_
 --
 
 CREATE TABLE public.set_prs_personel_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     personel_tipi character varying(32) NOT NULL
 );
 
@@ -4778,21 +3781,14 @@ ALTER TABLE public.set_prs_personel_tipi OWNER TO ths_admin;
 -- Name: set_prs_personel_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_personel_tipi_id_seq
+ALTER TABLE public.set_prs_personel_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_personel_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_personel_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_personel_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_personel_tipi_id_seq OWNED BY public.set_prs_personel_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -4800,7 +3796,7 @@ ALTER SEQUENCE public.set_prs_personel_tipi_id_seq OWNED BY public.set_prs_perso
 --
 
 CREATE TABLE public.set_prs_rapor_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     rapor_tipi character varying(32) NOT NULL
 );
 
@@ -4811,21 +3807,14 @@ ALTER TABLE public.set_prs_rapor_tipi OWNER TO ths_admin;
 -- Name: set_prs_rapor_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_rapor_tipi_id_seq
+ALTER TABLE public.set_prs_rapor_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_rapor_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_rapor_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_rapor_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_rapor_tipi_id_seq OWNED BY public.set_prs_rapor_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -4833,7 +3822,7 @@ ALTER SEQUENCE public.set_prs_rapor_tipi_id_seq OWNED BY public.set_prs_rapor_ti
 --
 
 CREATE TABLE public.set_prs_servis_araci (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     arac_no smallint NOT NULL,
     arac_adi character varying(32) NOT NULL,
     rota double precision[]
@@ -4846,21 +3835,14 @@ ALTER TABLE public.set_prs_servis_araci OWNER TO ths_admin;
 -- Name: set_prs_servis_araci_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_servis_araci_id_seq
+ALTER TABLE public.set_prs_servis_araci ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_servis_araci_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_servis_araci_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_servis_araci_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_servis_araci_id_seq OWNED BY public.set_prs_servis_araci.id;
+    CACHE 1
+);
 
 
 --
@@ -4868,7 +3850,7 @@ ALTER SEQUENCE public.set_prs_servis_araci_id_seq OWNED BY public.set_prs_servis
 --
 
 CREATE TABLE public.set_prs_src_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     src_tipi character varying(32) NOT NULL
 );
 
@@ -4879,21 +3861,14 @@ ALTER TABLE public.set_prs_src_tipi OWNER TO ths_admin;
 -- Name: set_prs_src_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_src_tipi_id_seq
+ALTER TABLE public.set_prs_src_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_src_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_src_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_src_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_src_tipi_id_seq OWNED BY public.set_prs_src_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -4901,7 +3876,7 @@ ALTER SEQUENCE public.set_prs_src_tipi_id_seq OWNED BY public.set_prs_src_tipi.i
 --
 
 CREATE TABLE public.set_prs_tatil_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     tatil_tipi character varying(32) NOT NULL,
     is_resmi_tatil boolean DEFAULT true NOT NULL
 );
@@ -4913,21 +3888,14 @@ ALTER TABLE public.set_prs_tatil_tipi OWNER TO ths_admin;
 -- Name: set_prs_tatil_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_tatil_tipi_id_seq
+ALTER TABLE public.set_prs_tatil_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_tatil_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_tatil_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_tatil_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_tatil_tipi_id_seq OWNED BY public.set_prs_tatil_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -4935,7 +3903,7 @@ ALTER SEQUENCE public.set_prs_tatil_tipi_id_seq OWNED BY public.set_prs_tatil_ti
 --
 
 CREATE TABLE public.set_prs_yeterlilik_belgesi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     yeterlilik_belgesi character varying(32) NOT NULL
 );
 
@@ -4946,21 +3914,14 @@ ALTER TABLE public.set_prs_yeterlilik_belgesi OWNER TO ths_admin;
 -- Name: set_prs_yeterlilik_belgesi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_prs_yeterlilik_belgesi_id_seq
+ALTER TABLE public.set_prs_yeterlilik_belgesi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_prs_yeterlilik_belgesi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_prs_yeterlilik_belgesi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_prs_yeterlilik_belgesi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_prs_yeterlilik_belgesi_id_seq OWNED BY public.set_prs_yeterlilik_belgesi.id;
+    CACHE 1
+);
 
 
 --
@@ -4968,7 +3929,7 @@ ALTER SEQUENCE public.set_prs_yeterlilik_belgesi_id_seq OWNED BY public.set_prs_
 --
 
 CREATE TABLE public.set_rct_iscilik_gider_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     gider_tipi character varying(16) NOT NULL
 );
 
@@ -4979,44 +3940,28 @@ ALTER TABLE public.set_rct_iscilik_gider_tipi OWNER TO ths_admin;
 -- Name: set_rct_iscilik_gider_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_rct_iscilik_gider_tipi_id_seq
-    AS integer
+ALTER TABLE public.set_rct_iscilik_gider_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_rct_iscilik_gider_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_rct_iscilik_gider_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_rct_iscilik_gider_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_rct_iscilik_gider_tipi_id_seq OWNED BY public.set_rct_iscilik_gider_tipi.id;
+    CACHE 1
+);
 
 
 --
 -- Name: set_sat_siparis_durum_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_sat_siparis_durum_id_seq
-    AS integer
+ALTER TABLE public.set_sat_siparis_durum ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_sat_siparis_durum_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_sat_siparis_durum_id_seq OWNER TO ths_admin;
-
---
--- Name: set_sat_siparis_durum_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_sat_siparis_durum_id_seq OWNED BY public.set_sat_siparis_durum.id;
+    CACHE 1
+);
 
 
 --
@@ -5024,7 +3969,7 @@ ALTER SEQUENCE public.set_sat_siparis_durum_id_seq OWNED BY public.set_sat_sipar
 --
 
 CREATE TABLE public.set_sat_teklif_durum (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     teklif_durum character varying(32) NOT NULL,
     aciklama character varying(64),
     is_active boolean DEFAULT true NOT NULL
@@ -5037,22 +3982,14 @@ ALTER TABLE public.set_sat_teklif_durum OWNER TO ths_admin;
 -- Name: set_sat_teklif_durum_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_sat_teklif_durum_id_seq
-    AS integer
+ALTER TABLE public.set_sat_teklif_durum ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_sat_teklif_durum_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_sat_teklif_durum_id_seq OWNER TO ths_admin;
-
---
--- Name: set_sat_teklif_durum_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_sat_teklif_durum_id_seq OWNED BY public.set_sat_teklif_durum.id;
+    CACHE 1
+);
 
 
 --
@@ -5060,7 +3997,7 @@ ALTER SEQUENCE public.set_sat_teklif_durum_id_seq OWNED BY public.set_sat_teklif
 --
 
 CREATE TABLE public.set_stk_hareket_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     deger character varying(8) NOT NULL,
     is_input boolean DEFAULT false NOT NULL
 );
@@ -5072,21 +4009,14 @@ ALTER TABLE public.set_stk_hareket_tipi OWNER TO ths_admin;
 -- Name: set_stk_hareket_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_stk_hareket_tipi_id_seq
+ALTER TABLE public.set_stk_hareket_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_stk_hareket_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_stk_hareket_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_stk_hareket_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_stk_hareket_tipi_id_seq OWNED BY public.set_stk_hareket_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -5094,7 +4024,7 @@ ALTER SEQUENCE public.set_stk_hareket_tipi_id_seq OWNED BY public.set_stk_hareke
 --
 
 CREATE TABLE public.set_stk_urun_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     urun_tipi character varying(16) NOT NULL
 );
 
@@ -5105,21 +4035,14 @@ ALTER TABLE public.set_stk_urun_tipi OWNER TO ths_admin;
 -- Name: set_stk_urun_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.set_stk_urun_tipi_id_seq
+ALTER TABLE public.set_stk_urun_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.set_stk_urun_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.set_stk_urun_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: set_stk_urun_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.set_stk_urun_tipi_id_seq OWNED BY public.set_stk_urun_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -5127,7 +4050,7 @@ ALTER SEQUENCE public.set_stk_urun_tipi_id_seq OWNED BY public.set_stk_urun_tipi
 --
 
 CREATE TABLE public.stk_cins_ailesi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     aile character varying(16) NOT NULL
 );
 
@@ -5138,21 +4061,14 @@ ALTER TABLE public.stk_cins_ailesi OWNER TO ths_admin;
 -- Name: stk_cins_ailesi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.stk_cins_ailesi_id_seq
+ALTER TABLE public.stk_cins_ailesi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_cins_ailesi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.stk_cins_ailesi_id_seq OWNER TO ths_admin;
-
---
--- Name: stk_cins_ailesi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.stk_cins_ailesi_id_seq OWNED BY public.stk_cins_ailesi.id;
+    CACHE 1
+);
 
 
 --
@@ -5160,7 +4076,7 @@ ALTER SEQUENCE public.stk_cins_ailesi_id_seq OWNED BY public.stk_cins_ailesi.id;
 --
 
 CREATE TABLE public.stk_cins_ozelligi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     cins character varying(32) NOT NULL,
     aciklama character varying(128),
     s1 character varying(24),
@@ -5188,21 +4104,14 @@ ALTER TABLE public.stk_cins_ozelligi OWNER TO ths_admin;
 -- Name: stk_cins_ozelligi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.stk_cins_ozelligi_id_seq
+ALTER TABLE public.stk_cins_ozelligi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_cins_ozelligi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.stk_cins_ozelligi_id_seq OWNER TO ths_admin;
-
---
--- Name: stk_cins_ozelligi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.stk_cins_ozelligi_id_seq OWNED BY public.stk_cins_ozelligi.id;
+    CACHE 1
+);
 
 
 --
@@ -5210,7 +4119,7 @@ ALTER SEQUENCE public.stk_cins_ozelligi_id_seq OWNED BY public.stk_cins_ozelligi
 --
 
 CREATE TABLE public.stk_stok_ambar (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     ambar_adi character varying(32),
     is_hammadde_ambari boolean DEFAULT false NOT NULL,
     is_uretim_ambari boolean DEFAULT false NOT NULL,
@@ -5231,43 +4140,28 @@ COMMENT ON TABLE public.stk_stok_ambar IS 'Stok hareketlerinin tutulduğu ambar 
 -- Name: stk_stok_ambar_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.stk_stok_ambar_id_seq
+ALTER TABLE public.stk_stok_ambar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_stok_ambar_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.stk_stok_ambar_id_seq OWNER TO ths_admin;
-
---
--- Name: stk_stok_ambar_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.stk_stok_ambar_id_seq OWNED BY public.stk_stok_ambar.id;
+    CACHE 1
+);
 
 
 --
 -- Name: stk_stok_grubu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.stk_stok_grubu_id_seq
-    AS integer
+ALTER TABLE public.stk_stok_grubu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_stok_grubu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.stk_stok_grubu_id_seq OWNER TO ths_admin;
-
---
--- Name: stk_stok_grubu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.stk_stok_grubu_id_seq OWNED BY public.stk_stok_grubu.id;
+    CACHE 1
+);
 
 
 --
@@ -5275,7 +4169,7 @@ ALTER SEQUENCE public.stk_stok_grubu_id_seq OWNED BY public.stk_stok_grubu.id;
 --
 
 CREATE TABLE public.stk_stok_grubu_turu (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     stok_grubu_tur character varying(32) NOT NULL
 );
 
@@ -5286,21 +4180,14 @@ ALTER TABLE public.stk_stok_grubu_turu OWNER TO ths_admin;
 -- Name: stk_stok_grubu_turu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.stk_stok_grubu_turu_id_seq
+ALTER TABLE public.stk_stok_grubu_turu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_stok_grubu_turu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.stk_stok_grubu_turu_id_seq OWNER TO ths_admin;
-
---
--- Name: stk_stok_grubu_turu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.stk_stok_grubu_turu_id_seq OWNED BY public.stk_stok_grubu_turu.id;
+    CACHE 1
+);
 
 
 --
@@ -5327,43 +4214,28 @@ ALTER TABLE public.stk_stok_hareketi OWNER TO ths_admin;
 -- Name: stk_stok_hareketi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.stk_stok_hareketi_id_seq
+ALTER TABLE public.stk_stok_hareketi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_stok_hareketi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.stk_stok_hareketi_id_seq OWNER TO ths_admin;
-
---
--- Name: stk_stok_hareketi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.stk_stok_hareketi_id_seq OWNED BY public.stk_stok_hareketi.id;
+    CACHE 1
+);
 
 
 --
 -- Name: stk_stok_karti_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.stk_stok_karti_id_seq
-    AS integer
+ALTER TABLE public.stk_stok_karti ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_stok_karti_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.stk_stok_karti_id_seq OWNER TO ths_admin;
-
---
--- Name: stk_stok_karti_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.stk_stok_karti_id_seq OWNED BY public.stk_stok_karti.id;
+    CACHE 1
+);
 
 
 --
@@ -5371,7 +4243,7 @@ ALTER SEQUENCE public.stk_stok_karti_id_seq OWNED BY public.stk_stok_karti.id;
 --
 
 CREATE TABLE public.sys_adres (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     ulke_id integer,
     sehir_id integer,
     ilce character varying(64),
@@ -5393,21 +4265,14 @@ ALTER TABLE public.sys_adres OWNER TO ths_admin;
 -- Name: sys_adres_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_adres_id_seq
+ALTER TABLE public.sys_adres ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_adres_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_adres_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_adres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_adres_id_seq OWNED BY public.sys_adres.id;
+    CACHE 1
+);
 
 
 --
@@ -5415,7 +4280,7 @@ ALTER SEQUENCE public.sys_adres_id_seq OWNED BY public.sys_adres.id;
 --
 
 CREATE TABLE public.sys_ay (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     ay_adi character varying(16) NOT NULL
 );
 
@@ -5426,21 +4291,14 @@ ALTER TABLE public.sys_ay OWNER TO ths_admin;
 -- Name: sys_ay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_ay_id_seq
+ALTER TABLE public.sys_ay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_ay_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_ay_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_ay_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_ay_id_seq OWNED BY public.sys_ay.id;
+    CACHE 1
+);
 
 
 --
@@ -5459,21 +4317,14 @@ ALTER TABLE public.sys_bolge OWNER TO ths_admin;
 -- Name: sys_bolge_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_bolge_id_seq
+ALTER TABLE public.sys_bolge ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_bolge_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_bolge_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_bolge_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_bolge_id_seq OWNED BY public.sys_bolge.id;
+    CACHE 1
+);
 
 
 --
@@ -5508,7 +4359,7 @@ ALTER TABLE public.sys_db_status OWNER TO ths_admin;
 --
 
 CREATE TABLE public.sys_erisim_hakki (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     kaynak_id integer,
     is_okuma boolean DEFAULT false NOT NULL,
     is_yeni_kayit boolean DEFAULT false NOT NULL,
@@ -5525,21 +4376,14 @@ ALTER TABLE public.sys_erisim_hakki OWNER TO ths_admin;
 -- Name: sys_erisim_hakki_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_erisim_hakki_id_seq
+ALTER TABLE public.sys_erisim_hakki ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_erisim_hakki_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_erisim_hakki_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_erisim_hakki_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_erisim_hakki_id_seq OWNED BY public.sys_erisim_hakki.id;
+    CACHE 1
+);
 
 
 --
@@ -5547,7 +4391,7 @@ ALTER SEQUENCE public.sys_erisim_hakki_id_seq OWNED BY public.sys_erisim_hakki.i
 --
 
 CREATE TABLE public.sys_grid_filtre_siralama (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     tablo_adi character varying(32),
     deger character varying,
     is_siralama boolean DEFAULT false NOT NULL
@@ -5560,21 +4404,14 @@ ALTER TABLE public.sys_grid_filtre_siralama OWNER TO ths_admin;
 -- Name: sys_grid_filtre_siralama_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_grid_filtre_siralama_id_seq
+ALTER TABLE public.sys_grid_filtre_siralama ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_grid_filtre_siralama_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_grid_filtre_siralama_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_grid_filtre_siralama_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_grid_filtre_siralama_id_seq OWNED BY public.sys_grid_filtre_siralama.id;
+    CACHE 1
+);
 
 
 --
@@ -5609,21 +4446,14 @@ ALTER TABLE public.sys_grid_kolon OWNER TO ths_admin;
 -- Name: sys_grid_kolon_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_grid_kolon_id_seq
+ALTER TABLE public.sys_grid_kolon ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_grid_kolon_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_grid_kolon_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_grid_kolon_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_grid_kolon_id_seq OWNED BY public.sys_grid_kolon.id;
+    CACHE 1
+);
 
 
 --
@@ -5631,7 +4461,7 @@ ALTER SEQUENCE public.sys_grid_kolon_id_seq OWNED BY public.sys_grid_kolon.id;
 --
 
 CREATE TABLE public.sys_gun (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     gun_adi character varying(16) NOT NULL
 );
 
@@ -5642,21 +4472,14 @@ ALTER TABLE public.sys_gun OWNER TO ths_admin;
 -- Name: sys_gun_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_gun_id_seq
+ALTER TABLE public.sys_gun ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_gun_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_gun_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_gun_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_gun_id_seq OWNED BY public.sys_gun.id;
+    CACHE 1
+);
 
 
 --
@@ -5676,21 +4499,14 @@ ALTER TABLE public.sys_ilce OWNER TO ths_admin;
 -- Name: sys_ilce_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_ilce_id_seq
+ALTER TABLE public.sys_ilce ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_ilce_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_ilce_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_ilce_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_ilce_id_seq OWNED BY public.sys_ilce.id;
+    CACHE 1
+);
 
 
 --
@@ -5698,7 +4514,7 @@ ALTER SEQUENCE public.sys_ilce_id_seq OWNED BY public.sys_ilce.id;
 --
 
 CREATE TABLE public.sys_kalite_form_no (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     tablo_adi character varying NOT NULL,
     form_no character varying(16) NOT NULL,
     form_tipi_id integer NOT NULL
@@ -5711,21 +4527,14 @@ ALTER TABLE public.sys_kalite_form_no OWNER TO ths_admin;
 -- Name: sys_kalite_form_no_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_kalite_form_no_id_seq
+ALTER TABLE public.sys_kalite_form_no ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_kalite_form_no_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_kalite_form_no_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_kalite_form_no_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_kalite_form_no_id_seq OWNED BY public.sys_kalite_form_no.id;
+    CACHE 1
+);
 
 
 --
@@ -5733,7 +4542,7 @@ ALTER SEQUENCE public.sys_kalite_form_no_id_seq OWNED BY public.sys_kalite_form_
 --
 
 CREATE TABLE public.sys_kalite_form_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     form_tipi character varying(16) NOT NULL
 );
 
@@ -5744,21 +4553,14 @@ ALTER TABLE public.sys_kalite_form_tipi OWNER TO ths_admin;
 -- Name: sys_kalite_form_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_kalite_form_tipi_id_seq
+ALTER TABLE public.sys_kalite_form_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_kalite_form_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_kalite_form_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_kalite_form_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_kalite_form_tipi_id_seq OWNED BY public.sys_kalite_form_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -5766,7 +4568,7 @@ ALTER SEQUENCE public.sys_kalite_form_tipi_id_seq OWNED BY public.sys_kalite_for
 --
 
 CREATE TABLE public.sys_kaynak (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     kaynak_kodu integer,
     kaynak_adi character varying(64),
     kaynak_grup_id integer
@@ -5780,7 +4582,7 @@ ALTER TABLE public.sys_kaynak OWNER TO ths_admin;
 --
 
 CREATE TABLE public.sys_kaynak_grup (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     kaynak_grup character varying(64)
 );
 
@@ -5791,42 +4593,28 @@ ALTER TABLE public.sys_kaynak_grup OWNER TO ths_admin;
 -- Name: sys_kaynak_grup_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_kaynak_grup_id_seq
+ALTER TABLE public.sys_kaynak_grup ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_kaynak_grup_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_kaynak_grup_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_kaynak_grup_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_kaynak_grup_id_seq OWNED BY public.sys_kaynak_grup.id;
+    CACHE 1
+);
 
 
 --
 -- Name: sys_kaynak_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_kaynak_id_seq
+ALTER TABLE public.sys_kaynak ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_kaynak_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_kaynak_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_kaynak_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_kaynak_id_seq OWNED BY public.sys_kaynak.id;
+    CACHE 1
+);
 
 
 --
@@ -5834,7 +4622,7 @@ ALTER SEQUENCE public.sys_kaynak_id_seq OWNED BY public.sys_kaynak.id;
 --
 
 CREATE TABLE public.sys_kullanici (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     kullanici_adi character varying(32) NOT NULL,
     kullanici_sifre text NOT NULL,
     is_aktif boolean DEFAULT false NOT NULL,
@@ -5860,21 +4648,14 @@ COMMENT ON COLUMN public.sys_kullanici.mac_adres IS 'Uygulamaya giriş yapılır
 -- Name: sys_kullanici_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_kullanici_id_seq
+ALTER TABLE public.sys_kullanici ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_kullanici_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_kullanici_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_kullanici_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_kullanici_id_seq OWNED BY public.sys_kullanici.id;
+    CACHE 1
+);
 
 
 --
@@ -5882,7 +4663,7 @@ ALTER SEQUENCE public.sys_kullanici_id_seq OWNED BY public.sys_kullanici.id;
 --
 
 CREATE TABLE public.sys_lisan (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     lisan character varying(16) NOT NULL
 );
 
@@ -5894,7 +4675,7 @@ ALTER TABLE public.sys_lisan OWNER TO ths_admin;
 --
 
 CREATE TABLE public.sys_lisan_data_icerik (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     lisan character varying(16) NOT NULL,
     tablo_adi character varying NOT NULL,
     kolon_adi character varying NOT NULL,
@@ -5909,21 +4690,14 @@ ALTER TABLE public.sys_lisan_data_icerik OWNER TO ths_admin;
 -- Name: sys_lisan_data_icerik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_lisan_data_icerik_id_seq
+ALTER TABLE public.sys_lisan_data_icerik ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_lisan_data_icerik_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_lisan_data_icerik_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_lisan_data_icerik_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_lisan_data_icerik_id_seq OWNED BY public.sys_lisan_data_icerik.id;
+    CACHE 1
+);
 
 
 --
@@ -5931,7 +4705,7 @@ ALTER SEQUENCE public.sys_lisan_data_icerik_id_seq OWNED BY public.sys_lisan_dat
 --
 
 CREATE TABLE public.sys_lisan_gui_icerik (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     lisan character varying(16) NOT NULL,
     kod character varying(64) NOT NULL,
     deger text,
@@ -5948,42 +4722,28 @@ ALTER TABLE public.sys_lisan_gui_icerik OWNER TO ths_admin;
 -- Name: sys_lisan_gui_icerik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_lisan_gui_icerik_id_seq
+ALTER TABLE public.sys_lisan_gui_icerik ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_lisan_gui_icerik_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_lisan_gui_icerik_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_lisan_gui_icerik_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_lisan_gui_icerik_id_seq OWNED BY public.sys_lisan_gui_icerik.id;
+    CACHE 1
+);
 
 
 --
 -- Name: sys_lisan_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_lisan_id_seq
+ALTER TABLE public.sys_lisan ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_lisan_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_lisan_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_lisan_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_lisan_id_seq OWNED BY public.sys_lisan.id;
+    CACHE 1
+);
 
 
 --
@@ -5991,7 +4751,7 @@ ALTER SEQUENCE public.sys_lisan_id_seq OWNED BY public.sys_lisan.id;
 --
 
 CREATE TABLE public.sys_mukellef_tipi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     mukellef_tipi character varying(32) NOT NULL,
     is_varsayilan boolean DEFAULT false NOT NULL
 );
@@ -6003,21 +4763,14 @@ ALTER TABLE public.sys_mukellef_tipi OWNER TO ths_admin;
 -- Name: sys_mukellef_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_mukellef_tipi_id_seq
+ALTER TABLE public.sys_mukellef_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_mukellef_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_mukellef_tipi_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_mukellef_tipi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_mukellef_tipi_id_seq OWNED BY public.sys_mukellef_tipi.id;
+    CACHE 1
+);
 
 
 --
@@ -6025,11 +4778,12 @@ ALTER SEQUENCE public.sys_mukellef_tipi_id_seq OWNED BY public.sys_mukellef_tipi
 --
 
 CREATE TABLE public.sys_olcu_birimi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     olcu_birimi character varying(16) NOT NULL,
     olcu_birimi_einv character varying(3),
     aciklama character varying(64),
-    is_ondalik boolean DEFAULT false NOT NULL
+    is_ondalik boolean DEFAULT false NOT NULL,
+    olcu_birimi_tipi_id bigint
 );
 
 
@@ -6039,21 +4793,40 @@ ALTER TABLE public.sys_olcu_birimi OWNER TO ths_admin;
 -- Name: sys_olcu_birimi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_olcu_birimi_id_seq
+ALTER TABLE public.sys_olcu_birimi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_olcu_birimi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
+    CACHE 1
+);
 
-
-ALTER TABLE public.sys_olcu_birimi_id_seq OWNER TO ths_admin;
 
 --
--- Name: sys_olcu_birimi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
+-- Name: sys_olcu_birimi_tipi; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-ALTER SEQUENCE public.sys_olcu_birimi_id_seq OWNED BY public.sys_olcu_birimi.id;
+CREATE TABLE public.sys_olcu_birimi_tipi (
+    id bigint NOT NULL,
+    olcu_birimi_tipi character varying(16) NOT NULL
+);
+
+
+ALTER TABLE public.sys_olcu_birimi_tipi OWNER TO ths_admin;
+
+--
+-- Name: sys_olcu_birimi_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_olcu_birimi_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_olcu_birimi_tipi_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
 
 
 --
@@ -6061,7 +4834,7 @@ ALTER SEQUENCE public.sys_olcu_birimi_id_seq OWNED BY public.sys_olcu_birimi.id;
 --
 
 CREATE TABLE public.sys_ondalik_hane (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     hesap_bakiye integer DEFAULT 2,
     alim_miktar integer DEFAULT 2,
     alim_fiyat integer DEFAULT 2,
@@ -6081,21 +4854,14 @@ ALTER TABLE public.sys_ondalik_hane OWNER TO ths_admin;
 -- Name: sys_ondalik_hane_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_ondalik_hane_id_seq
+ALTER TABLE public.sys_ondalik_hane ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_ondalik_hane_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_ondalik_hane_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_ondalik_hane_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_ondalik_hane_id_seq OWNED BY public.sys_ondalik_hane.id;
+    CACHE 1
+);
 
 
 --
@@ -6103,7 +4869,7 @@ ALTER SEQUENCE public.sys_ondalik_hane_id_seq OWNED BY public.sys_ondalik_hane.i
 --
 
 CREATE TABLE public.sys_para_birimi (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     para_birimi character varying(3) NOT NULL,
     sembol character varying(3) NOT NULL,
     aciklama character varying(128),
@@ -6117,42 +4883,28 @@ ALTER TABLE public.sys_para_birimi OWNER TO ths_admin;
 -- Name: sys_para_birimi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_para_birimi_id_seq
+ALTER TABLE public.sys_para_birimi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_para_birimi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_para_birimi_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_para_birimi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_para_birimi_id_seq OWNED BY public.sys_para_birimi.id;
+    CACHE 1
+);
 
 
 --
 -- Name: sys_sehir_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_sehir_id_seq
+ALTER TABLE public.sys_sehir ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_sehir_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_sehir_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_sehir_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_sehir_id_seq OWNED BY public.sys_sehir.id;
+    CACHE 1
+);
 
 
 --
@@ -6160,7 +4912,7 @@ ALTER SEQUENCE public.sys_sehir_id_seq OWNED BY public.sys_sehir.id;
 --
 
 CREATE TABLE public.sys_ulke (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     ulke_kodu character varying(2) NOT NULL,
     ulke_adi character varying(128) NOT NULL,
     iso_yil integer,
@@ -6175,21 +4927,14 @@ ALTER TABLE public.sys_ulke OWNER TO ths_admin;
 -- Name: sys_ulke_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_ulke_id_seq
+ALTER TABLE public.sys_ulke ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_ulke_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_ulke_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_ulke_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_ulke_id_seq OWNED BY public.sys_ulke.id;
+    CACHE 1
+);
 
 
 --
@@ -6197,7 +4942,7 @@ ALTER SEQUENCE public.sys_ulke_id_seq OWNED BY public.sys_ulke.id;
 --
 
 CREATE TABLE public.sys_uygulama_ayari (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     logo bytea,
     unvan character varying(128) DEFAULT 'THUNDERSOFT A.Ş.'::character varying NOT NULL,
     tel1 character varying(24) DEFAULT '0123 456 78 90'::character varying NOT NULL,
@@ -6250,7 +4995,7 @@ ALTER TABLE public.sys_uygulama_ayari OWNER TO ths_admin;
 --
 
 CREATE TABLE public.sys_uygulama_ayari_diger (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     is_edefter_aktif boolean DEFAULT false NOT NULL,
     is_efatura_aktif boolean DEFAULT false NOT NULL,
     is_eirsaliye_aktif boolean DEFAULT false NOT NULL,
@@ -6266,42 +5011,28 @@ ALTER TABLE public.sys_uygulama_ayari_diger OWNER TO ths_admin;
 -- Name: sys_uygulama_ayari_diger_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_uygulama_ayari_diger_id_seq
+ALTER TABLE public.sys_uygulama_ayari_diger ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_uygulama_ayari_diger_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_uygulama_ayari_diger_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_uygulama_ayari_diger_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_uygulama_ayari_diger_id_seq OWNED BY public.sys_uygulama_ayari_diger.id;
+    CACHE 1
+);
 
 
 --
 -- Name: sys_uygulama_ayari_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.sys_uygulama_ayari_id_seq
+ALTER TABLE public.sys_uygulama_ayari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_uygulama_ayari_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.sys_uygulama_ayari_id_seq OWNER TO ths_admin;
-
---
--- Name: sys_uygulama_ayari_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.sys_uygulama_ayari_id_seq OWNED BY public.sys_uygulama_ayari.id;
+    CACHE 1
+);
 
 
 --
@@ -6365,7 +5096,7 @@ ALTER TABLE public.sys_view_databases OWNER TO ths_admin;
 --
 
 CREATE TABLE public.urun_kabul_red_nedeni (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     deger character varying(64) NOT NULL
 );
 
@@ -6376,952 +5107,14 @@ ALTER TABLE public.urun_kabul_red_nedeni OWNER TO ths_admin;
 -- Name: urun_kabul_red_nedeni_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE SEQUENCE public.urun_kabul_red_nedeni_id_seq
+ALTER TABLE public.urun_kabul_red_nedeni ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urun_kabul_red_nedeni_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.urun_kabul_red_nedeni_id_seq OWNER TO ths_admin;
-
---
--- Name: urun_kabul_red_nedeni_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.urun_kabul_red_nedeni_id_seq OWNED BY public.urun_kabul_red_nedeni.id;
-
-
---
--- Name: arc_arac id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.arc_arac ALTER COLUMN id SET DEFAULT nextval('public.arc_arac_id_seq'::regclass);
-
-
---
--- Name: audit id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.audit ALTER COLUMN id SET DEFAULT nextval('public.audit_id_seq'::regclass);
-
-
---
--- Name: ayar_cek_senet_cash_edici_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_cek_senet_cash_edici_tipi ALTER COLUMN id SET DEFAULT nextval('public.ayar_cek_senet_cash_edici_tipi_id_seq'::regclass);
-
-
---
--- Name: ayar_cek_senet_tahsil_odeme_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_cek_senet_tahsil_odeme_tipi ALTER COLUMN id SET DEFAULT nextval('public.ayar_cek_senet_tahsil_odeme_tipi_id_seq'::regclass);
-
-
---
--- Name: ayar_cek_senet_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_cek_senet_tipi ALTER COLUMN id SET DEFAULT nextval('public.ayar_cek_senet_tipi_id_seq'::regclass);
-
-
---
--- Name: ayar_fatura_no_serisi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_fatura_no_serisi ALTER COLUMN id SET DEFAULT nextval('public.ayar_fatura_no_serisi_id_seq'::regclass);
-
-
---
--- Name: ayar_fis_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_fis_tipi ALTER COLUMN id SET DEFAULT nextval('public.ayar_fis_tipi_id_seq'::regclass);
-
-
---
--- Name: ayar_irsaliye_fatura_no_serisi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_irsaliye_fatura_no_serisi ALTER COLUMN id SET DEFAULT nextval('public.ayar_irsaliye_fatura_no_serisi_id_seq'::regclass);
-
-
---
--- Name: ayar_irsaliye_no_serisi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_irsaliye_no_serisi ALTER COLUMN id SET DEFAULT nextval('public.ayar_irsaliye_no_serisi_id_seq'::regclass);
-
-
---
--- Name: ayar_modul_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_modul_tipi ALTER COLUMN id SET DEFAULT nextval('public.ayar_modul_tipi_id_seq'::regclass);
-
-
---
--- Name: ayar_musteri_firma_turu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_musteri_firma_turu ALTER COLUMN id SET DEFAULT nextval('public.ayar_musteri_firma_turu_id_seq'::regclass);
-
-
---
--- Name: bb_kayitlar id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.bb_kayitlar ALTER COLUMN id SET DEFAULT nextval('public.bb_kayitlar_id_seq'::regclass);
-
-
---
--- Name: ch_banka id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ch_banka ALTER COLUMN id SET DEFAULT nextval('public.ch_banka_id_seq'::regclass);
-
-
---
--- Name: ch_banka_subesi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ch_banka_subesi ALTER COLUMN id SET DEFAULT nextval('public.ch_banka_subesi_id_seq'::regclass);
-
-
---
--- Name: ch_bolge id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ch_bolge ALTER COLUMN id SET DEFAULT nextval('public.ch_bolge_id_seq'::regclass);
-
-
---
--- Name: ch_hesap_karti id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ch_hesap_karti ALTER COLUMN id SET DEFAULT nextval('public.ch_hesap_karti_id_seq'::regclass);
-
-
---
--- Name: prs_ehliyet_bilgisi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_ehliyet_bilgisi ALTER COLUMN id SET DEFAULT nextval('public.prs_ehliyet_bilgisi_id_seq'::regclass);
-
-
---
--- Name: prs_lisan_bilgisi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_lisan_bilgisi ALTER COLUMN id SET DEFAULT nextval('public.prs_lisan_bilgisi_id_seq'::regclass);
-
-
---
--- Name: prs_personel id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_personel ALTER COLUMN id SET DEFAULT nextval('public.prs_personel_id_seq'::regclass);
-
-
---
--- Name: prs_personel_gecmisi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_personel_gecmisi ALTER COLUMN id SET DEFAULT nextval('public.prs_personel_gecmisi_id_seq'::regclass);
-
-
---
--- Name: prs_src_bilgisi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_src_bilgisi ALTER COLUMN id SET DEFAULT nextval('public.prs_src_bilgisi_id_seq'::regclass);
-
-
---
--- Name: quality_form_mail_reciever id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.quality_form_mail_reciever ALTER COLUMN id SET DEFAULT nextval('public.quality_form_mail_reciever_id_seq'::regclass);
-
-
---
--- Name: rct_iscilik_gideri id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_iscilik_gideri ALTER COLUMN id SET DEFAULT nextval('public.rct_iscilik_gideri_id_seq'::regclass);
-
-
---
--- Name: rct_paket_hammadde id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_paket_hammadde ALTER COLUMN id SET DEFAULT nextval('public.rct_paket_hammadde_id_seq'::regclass);
-
-
---
--- Name: rct_paket_hammadde_detay id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_paket_hammadde_detay ALTER COLUMN id SET DEFAULT nextval('public.rct_paket_hammadde_detay_id_seq'::regclass);
-
-
---
--- Name: rct_paket_iscilik id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_paket_iscilik ALTER COLUMN id SET DEFAULT nextval('public.rct_paket_iscilik_id_seq'::regclass);
-
-
---
--- Name: rct_paket_iscilik_detay id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_paket_iscilik_detay ALTER COLUMN id SET DEFAULT nextval('public.rct_paket_iscilik_detay_id_seq'::regclass);
-
-
---
--- Name: rct_recete id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_recete ALTER COLUMN id SET DEFAULT nextval('public.rct_recete_id_seq'::regclass);
-
-
---
--- Name: rct_recete_hammadde id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_recete_hammadde ALTER COLUMN id SET DEFAULT nextval('public.rct_recete_hammadde_id_seq'::regclass);
-
-
---
--- Name: rct_recete_iscilik id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_recete_iscilik ALTER COLUMN id SET DEFAULT nextval('public.rct_recete_iscilik_id_seq'::regclass);
-
-
---
--- Name: rct_recete_paket_hammadde id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_recete_paket_hammadde ALTER COLUMN id SET DEFAULT nextval('public.rct_recete_paket_hammadde_id_seq'::regclass);
-
-
---
--- Name: rct_recete_paket_iscilik id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_recete_paket_iscilik ALTER COLUMN id SET DEFAULT nextval('public.rct_recete_paket_iscilik_id_seq'::regclass);
-
-
---
--- Name: rct_recete_yan_urun id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_recete_yan_urun ALTER COLUMN id SET DEFAULT nextval('public.rct_recete_yan_urun_id_seq'::regclass);
-
-
---
--- Name: satis_fatura id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.satis_fatura ALTER COLUMN id SET DEFAULT nextval('public.satis_fatura_id_seq'::regclass);
-
-
---
--- Name: satis_fatura_detay id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.satis_fatura_detay ALTER COLUMN id SET DEFAULT nextval('public.satis_fatura_detay_id_seq'::regclass);
-
-
---
--- Name: satis_irsaliye id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.satis_irsaliye ALTER COLUMN id SET DEFAULT nextval('public.satis_irsaliye_id_seq'::regclass);
-
-
---
--- Name: satis_irsaliye_detay id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.satis_irsaliye_detay ALTER COLUMN id SET DEFAULT nextval('public.satis_irsaliye_detay_id_seq'::regclass);
-
-
---
--- Name: set_bb_calisma_durumu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_bb_calisma_durumu ALTER COLUMN id SET DEFAULT nextval('public.set_bb_calisma_durumu_id_seq'::regclass);
-
-
---
--- Name: set_bb_finans_durumu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_bb_finans_durumu ALTER COLUMN id SET DEFAULT nextval('public.set_bb_finans_durumu_id_seq'::regclass);
-
-
---
--- Name: set_bb_firma_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_bb_firma_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_bb_firma_tipi_id_seq'::regclass);
-
-
---
--- Name: set_ch_firma_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_ch_firma_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_ch_firma_tipi_id_seq'::regclass);
-
-
---
--- Name: set_ch_firma_turu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_ch_firma_turu ALTER COLUMN id SET DEFAULT nextval('public.set_ch_firma_turu_id_seq'::regclass);
-
-
---
--- Name: set_ch_grup id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_ch_grup ALTER COLUMN id SET DEFAULT nextval('public.set_ch_grup_id_seq'::regclass);
-
-
---
--- Name: set_ch_hesap_plani id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_ch_hesap_plani ALTER COLUMN id SET DEFAULT nextval('public.set_ch_hesap_plani_id_seq'::regclass);
-
-
---
--- Name: set_ch_hesap_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_ch_hesap_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_ch_hesap_tipi_id_seq'::regclass);
-
-
---
--- Name: set_ch_vergi_orani id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_ch_vergi_orani ALTER COLUMN id SET DEFAULT nextval('public.set_ch_vergi_orani_id_seq'::regclass);
-
-
---
--- Name: set_einv_alici_bilgisi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_alici_bilgisi ALTER COLUMN id SET DEFAULT nextval('public.set_einv_alici_bilgisi_id_seq'::regclass);
-
-
---
--- Name: set_einv_evrak_cinsi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_evrak_cinsi ALTER COLUMN id SET DEFAULT nextval('public.set_einv_evrak_cinsi_id_seq'::regclass);
-
-
---
--- Name: set_einv_evrak_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_evrak_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_einv_evrak_tipi_id_seq'::regclass);
-
-
---
--- Name: set_einv_evrak_tipi_cinsi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_evrak_tipi_cinsi ALTER COLUMN id SET DEFAULT nextval('public.set_einv_evrak_tipi_cinsi_id_seq'::regclass);
-
-
---
--- Name: set_einv_fatura_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_fatura_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_einv_fatura_tipi_id_seq'::regclass);
-
-
---
--- Name: set_einv_gonderici_bilgisi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_gonderici_bilgisi ALTER COLUMN id SET DEFAULT nextval('public.set_einv_gonderici_bilgisi_id_seq'::regclass);
-
-
---
--- Name: set_einv_gonderim_sekli id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_gonderim_sekli ALTER COLUMN id SET DEFAULT nextval('public.set_einv_gonderim_sekli_id_seq'::regclass);
-
-
---
--- Name: set_einv_ihrac_kayitli_fatura_sebebi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_ihrac_kayitli_fatura_sebebi ALTER COLUMN id SET DEFAULT nextval('public.set_einv_ihrac_kayitli_fatura_sebebi_id_seq'::regclass);
-
-
---
--- Name: set_einv_iletisim_kanali id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_iletisim_kanali ALTER COLUMN id SET DEFAULT nextval('public.set_einv_iletisim_kanali_id_seq'::regclass);
-
-
---
--- Name: set_einv_istisna_kodu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_istisna_kodu ALTER COLUMN id SET DEFAULT nextval('public.set_einv_istisna_kodu_id_seq'::regclass);
-
-
---
--- Name: set_einv_odeme_sekli id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_odeme_sekli ALTER COLUMN id SET DEFAULT nextval('public.set_einv_odeme_sekli_id_seq'::regclass);
-
-
---
--- Name: set_einv_paket_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_paket_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_einv_paket_tipi_id_seq'::regclass);
-
-
---
--- Name: set_einv_response_code id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_response_code ALTER COLUMN id SET DEFAULT nextval('public.set_einv_response_code_id_seq'::regclass);
-
-
---
--- Name: set_einv_senaryo_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_senaryo_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_einv_senaryo_tipi_id_seq'::regclass);
-
-
---
--- Name: set_einv_tasima_ucreti id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_tasima_ucreti ALTER COLUMN id SET DEFAULT nextval('public.set_einv_tasima_ucreti_id_seq'::regclass);
-
-
---
--- Name: set_einv_teslim_sekli id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_teslim_sekli ALTER COLUMN id SET DEFAULT nextval('public.set_einv_teslim_sekli_id_seq'::regclass);
-
-
---
--- Name: set_einv_tevkifat_kodu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_tevkifat_kodu ALTER COLUMN id SET DEFAULT nextval('public.set_einv_tevkifat_kodu_id_seq'::regclass);
-
-
---
--- Name: set_einv_vergi_kodu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_einv_vergi_kodu ALTER COLUMN id SET DEFAULT nextval('public.set_einv_vergi_kodu_id_seq'::regclass);
-
-
---
--- Name: set_iml_cins id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_cins ALTER COLUMN id SET DEFAULT nextval('public.set_iml_cins_id_seq'::regclass);
-
-
---
--- Name: set_iml_cins_sureci id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_cins_sureci ALTER COLUMN id SET DEFAULT nextval('public.set_iml_cins_sureci_id_seq'::regclass);
-
-
---
--- Name: set_iml_imalat_surec_tanimi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_imalat_surec_tanimi ALTER COLUMN id SET DEFAULT nextval('public.set_iml_imalat_surec_tanimi_id_seq'::regclass);
-
-
---
--- Name: set_iml_kaset_aylik_hedef id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_kaset_aylik_hedef ALTER COLUMN id SET DEFAULT nextval('public.set_iml_kaset_aylik_hedef_id_seq'::regclass);
-
-
---
--- Name: set_iml_kaset_musteri_temsilcisi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_kaset_musteri_temsilcisi ALTER COLUMN id SET DEFAULT nextval('public.set_iml_kaset_musteri_temsilcisi_id_seq'::regclass);
-
-
---
--- Name: set_iml_kaset_urun_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_kaset_urun_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_iml_kaset_urun_tipi_id_seq'::regclass);
-
-
---
--- Name: set_iml_operator_tezgah id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_operator_tezgah ALTER COLUMN id SET DEFAULT nextval('public.set_iml_operator_tezgah_id_seq'::regclass);
-
-
---
--- Name: set_iml_surec id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_surec ALTER COLUMN id SET DEFAULT nextval('public.set_iml_surec_id_seq'::regclass);
-
-
---
--- Name: set_iml_surec_durum_kodu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_surec_durum_kodu ALTER COLUMN id SET DEFAULT nextval('public.set_iml_surec_durum_kodu_id_seq'::regclass);
-
-
---
--- Name: set_iml_tezgah id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_tezgah ALTER COLUMN id SET DEFAULT nextval('public.set_iml_tezgah_id_seq'::regclass);
-
-
---
--- Name: set_iscilik_gider_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iscilik_gider_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_iscilik_gider_tipi_id_seq'::regclass);
-
-
---
--- Name: set_odeme_baslangic_donemi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_odeme_baslangic_donemi ALTER COLUMN id SET DEFAULT nextval('public.set_odeme_baslangic_donemi_id_seq'::regclass);
-
-
---
--- Name: set_prs_askerlik_durumu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_askerlik_durumu ALTER COLUMN id SET DEFAULT nextval('public.set_prs_askerlik_durumu_id_seq'::regclass);
-
-
---
--- Name: set_prs_ayrilma_nedeni id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_ayrilma_nedeni ALTER COLUMN id SET DEFAULT nextval('public.set_prs_ayrilma_nedeni_id_seq'::regclass);
-
-
---
--- Name: set_prs_ayrilma_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_ayrilma_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_prs_ayrilma_tipi_id_seq'::regclass);
-
-
---
--- Name: set_prs_birim id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_birim ALTER COLUMN id SET DEFAULT nextval('public.set_prs_birim_id_seq'::regclass);
-
-
---
--- Name: set_prs_bolum id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_bolum ALTER COLUMN id SET DEFAULT nextval('public.set_prs_bolum_id_seq'::regclass);
-
-
---
--- Name: set_prs_cinsiyet id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_cinsiyet ALTER COLUMN id SET DEFAULT nextval('public.set_prs_cinsiyet_id_seq'::regclass);
-
-
---
--- Name: set_prs_egitim_seviyesi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_egitim_seviyesi ALTER COLUMN id SET DEFAULT nextval('public.set_prs_egitim_seviyesi_id_seq'::regclass);
-
-
---
--- Name: set_prs_ehliyet id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_ehliyet ALTER COLUMN id SET DEFAULT nextval('public.set_prs_ehliyet_id_seq'::regclass);
-
-
---
--- Name: set_prs_gecis_sistemi_karti id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_gecis_sistemi_karti ALTER COLUMN id SET DEFAULT nextval('public.set_prs_gecis_sistemi_karti_id_seq'::regclass);
-
-
---
--- Name: set_prs_gorev id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_gorev ALTER COLUMN id SET DEFAULT nextval('public.set_prs_gorev_id_seq'::regclass);
-
-
---
--- Name: set_prs_lisan id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_lisan ALTER COLUMN id SET DEFAULT nextval('public.set_prs_lisan_id_seq'::regclass);
-
-
---
--- Name: set_prs_lisan_seviyesi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_lisan_seviyesi ALTER COLUMN id SET DEFAULT nextval('public.set_prs_lisan_seviyesi_id_seq'::regclass);
-
-
---
--- Name: set_prs_medeni_durum id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_medeni_durum ALTER COLUMN id SET DEFAULT nextval('public.set_prs_medeni_durum_id_seq'::regclass);
-
-
---
--- Name: set_prs_mektup_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_mektup_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_prs_mektup_tipi_id_seq'::regclass);
-
-
---
--- Name: set_prs_personel_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_personel_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_prs_personel_tipi_id_seq'::regclass);
-
-
---
--- Name: set_prs_rapor_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_rapor_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_prs_rapor_tipi_id_seq'::regclass);
-
-
---
--- Name: set_prs_servis_araci id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_servis_araci ALTER COLUMN id SET DEFAULT nextval('public.set_prs_servis_araci_id_seq'::regclass);
-
-
---
--- Name: set_prs_src_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_src_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_prs_src_tipi_id_seq'::regclass);
-
-
---
--- Name: set_prs_tatil_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_tatil_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_prs_tatil_tipi_id_seq'::regclass);
-
-
---
--- Name: set_prs_yeterlilik_belgesi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_yeterlilik_belgesi ALTER COLUMN id SET DEFAULT nextval('public.set_prs_yeterlilik_belgesi_id_seq'::regclass);
-
-
---
--- Name: set_rct_iscilik_gider_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_rct_iscilik_gider_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_rct_iscilik_gider_tipi_id_seq'::regclass);
-
-
---
--- Name: set_sat_siparis_durum id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_sat_siparis_durum ALTER COLUMN id SET DEFAULT nextval('public.set_sat_siparis_durum_id_seq'::regclass);
-
-
---
--- Name: set_sat_teklif_durum id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_sat_teklif_durum ALTER COLUMN id SET DEFAULT nextval('public.set_sat_teklif_durum_id_seq'::regclass);
-
-
---
--- Name: set_stk_hareket_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_stk_hareket_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_stk_hareket_tipi_id_seq'::regclass);
-
-
---
--- Name: set_stk_urun_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_stk_urun_tipi ALTER COLUMN id SET DEFAULT nextval('public.set_stk_urun_tipi_id_seq'::regclass);
-
-
---
--- Name: stk_cins_ailesi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_cins_ailesi ALTER COLUMN id SET DEFAULT nextval('public.stk_cins_ailesi_id_seq'::regclass);
-
-
---
--- Name: stk_cins_ozelligi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_cins_ozelligi ALTER COLUMN id SET DEFAULT nextval('public.stk_cins_ozelligi_id_seq'::regclass);
-
-
---
--- Name: stk_stok_ambar id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_ambar ALTER COLUMN id SET DEFAULT nextval('public.stk_stok_ambar_id_seq'::regclass);
-
-
---
--- Name: stk_stok_grubu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_grubu ALTER COLUMN id SET DEFAULT nextval('public.stk_stok_grubu_id_seq'::regclass);
-
-
---
--- Name: stk_stok_grubu_turu id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_grubu_turu ALTER COLUMN id SET DEFAULT nextval('public.stk_stok_grubu_turu_id_seq'::regclass);
-
-
---
--- Name: stk_stok_hareketi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_hareketi ALTER COLUMN id SET DEFAULT nextval('public.stk_stok_hareketi_id_seq'::regclass);
-
-
---
--- Name: stk_stok_karti id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_karti ALTER COLUMN id SET DEFAULT nextval('public.stk_stok_karti_id_seq'::regclass);
-
-
---
--- Name: sys_adres id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_adres ALTER COLUMN id SET DEFAULT nextval('public.sys_adres_id_seq'::regclass);
-
-
---
--- Name: sys_ay id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_ay ALTER COLUMN id SET DEFAULT nextval('public.sys_ay_id_seq'::regclass);
-
-
---
--- Name: sys_bolge id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_bolge ALTER COLUMN id SET DEFAULT nextval('public.sys_bolge_id_seq'::regclass);
-
-
---
--- Name: sys_erisim_hakki id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_erisim_hakki ALTER COLUMN id SET DEFAULT nextval('public.sys_erisim_hakki_id_seq'::regclass);
-
-
---
--- Name: sys_grid_filtre_siralama id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_grid_filtre_siralama ALTER COLUMN id SET DEFAULT nextval('public.sys_grid_filtre_siralama_id_seq'::regclass);
-
-
---
--- Name: sys_grid_kolon id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_grid_kolon ALTER COLUMN id SET DEFAULT nextval('public.sys_grid_kolon_id_seq'::regclass);
-
-
---
--- Name: sys_gun id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_gun ALTER COLUMN id SET DEFAULT nextval('public.sys_gun_id_seq'::regclass);
-
-
---
--- Name: sys_ilce id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_ilce ALTER COLUMN id SET DEFAULT nextval('public.sys_ilce_id_seq'::regclass);
-
-
---
--- Name: sys_kalite_form_no id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_kalite_form_no ALTER COLUMN id SET DEFAULT nextval('public.sys_kalite_form_no_id_seq'::regclass);
-
-
---
--- Name: sys_kalite_form_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_kalite_form_tipi ALTER COLUMN id SET DEFAULT nextval('public.sys_kalite_form_tipi_id_seq'::regclass);
-
-
---
--- Name: sys_kaynak id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_kaynak ALTER COLUMN id SET DEFAULT nextval('public.sys_kaynak_id_seq'::regclass);
-
-
---
--- Name: sys_kaynak_grup id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_kaynak_grup ALTER COLUMN id SET DEFAULT nextval('public.sys_kaynak_grup_id_seq'::regclass);
-
-
---
--- Name: sys_kullanici id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_kullanici ALTER COLUMN id SET DEFAULT nextval('public.sys_kullanici_id_seq'::regclass);
-
-
---
--- Name: sys_lisan id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_lisan ALTER COLUMN id SET DEFAULT nextval('public.sys_lisan_id_seq'::regclass);
-
-
---
--- Name: sys_lisan_data_icerik id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_lisan_data_icerik ALTER COLUMN id SET DEFAULT nextval('public.sys_lisan_data_icerik_id_seq'::regclass);
-
-
---
--- Name: sys_lisan_gui_icerik id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_lisan_gui_icerik ALTER COLUMN id SET DEFAULT nextval('public.sys_lisan_gui_icerik_id_seq'::regclass);
-
-
---
--- Name: sys_mukellef_tipi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_mukellef_tipi ALTER COLUMN id SET DEFAULT nextval('public.sys_mukellef_tipi_id_seq'::regclass);
-
-
---
--- Name: sys_olcu_birimi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_olcu_birimi ALTER COLUMN id SET DEFAULT nextval('public.sys_olcu_birimi_id_seq'::regclass);
-
-
---
--- Name: sys_ondalik_hane id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_ondalik_hane ALTER COLUMN id SET DEFAULT nextval('public.sys_ondalik_hane_id_seq'::regclass);
-
-
---
--- Name: sys_para_birimi id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_para_birimi ALTER COLUMN id SET DEFAULT nextval('public.sys_para_birimi_id_seq'::regclass);
-
-
---
--- Name: sys_sehir id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_sehir ALTER COLUMN id SET DEFAULT nextval('public.sys_sehir_id_seq'::regclass);
-
-
---
--- Name: sys_ulke id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_ulke ALTER COLUMN id SET DEFAULT nextval('public.sys_ulke_id_seq'::regclass);
-
-
---
--- Name: sys_uygulama_ayari id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_uygulama_ayari ALTER COLUMN id SET DEFAULT nextval('public.sys_uygulama_ayari_id_seq'::regclass);
-
-
---
--- Name: sys_uygulama_ayari_diger id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_uygulama_ayari_diger ALTER COLUMN id SET DEFAULT nextval('public.sys_uygulama_ayari_diger_id_seq'::regclass);
-
-
---
--- Name: urun_kabul_red_nedeni id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.urun_kabul_red_nedeni ALTER COLUMN id SET DEFAULT nextval('public.urun_kabul_red_nedeni_id_seq'::regclass);
+    CACHE 1
+);
 
 
 --
@@ -7354,150 +5147,6 @@ ALTER TABLE ONLY public.arc_arac
 
 ALTER TABLE ONLY public.audit
     ADD CONSTRAINT audit_pkey PRIMARY KEY (id);
-
-
---
--- Name: ayar_cek_senet_cash_edici_tipi ayar_cek_senet_cash_edici_tipi_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_cek_senet_cash_edici_tipi
-    ADD CONSTRAINT ayar_cek_senet_cash_edici_tipi_deger_key UNIQUE (deger);
-
-
---
--- Name: ayar_cek_senet_cash_edici_tipi ayar_cek_senet_cash_edici_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_cek_senet_cash_edici_tipi
-    ADD CONSTRAINT ayar_cek_senet_cash_edici_tipi_pkey PRIMARY KEY (id);
-
-
---
--- Name: ayar_cek_senet_tahsil_odeme_tipi ayar_cek_senet_tahsil_odeme_tipi_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_cek_senet_tahsil_odeme_tipi
-    ADD CONSTRAINT ayar_cek_senet_tahsil_odeme_tipi_deger_key UNIQUE (deger);
-
-
---
--- Name: ayar_cek_senet_tahsil_odeme_tipi ayar_cek_senet_tahsil_odeme_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_cek_senet_tahsil_odeme_tipi
-    ADD CONSTRAINT ayar_cek_senet_tahsil_odeme_tipi_pkey PRIMARY KEY (id);
-
-
---
--- Name: ayar_cek_senet_tipi ayar_cek_senet_tipi_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_cek_senet_tipi
-    ADD CONSTRAINT ayar_cek_senet_tipi_deger_key UNIQUE (deger);
-
-
---
--- Name: ayar_cek_senet_tipi ayar_cek_senet_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_cek_senet_tipi
-    ADD CONSTRAINT ayar_cek_senet_tipi_pkey PRIMARY KEY (id);
-
-
---
--- Name: ayar_fatura_no_serisi ayar_fatura_no_serisi_fatura_seri_id_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_fatura_no_serisi
-    ADD CONSTRAINT ayar_fatura_no_serisi_fatura_seri_id_deger_key UNIQUE (fatura_seri_id, deger);
-
-
---
--- Name: ayar_fatura_no_serisi ayar_fatura_no_serisi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_fatura_no_serisi
-    ADD CONSTRAINT ayar_fatura_no_serisi_pkey PRIMARY KEY (id);
-
-
---
--- Name: ayar_fis_tipi ayar_fis_tipi_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_fis_tipi
-    ADD CONSTRAINT ayar_fis_tipi_deger_key UNIQUE (deger);
-
-
---
--- Name: ayar_fis_tipi ayar_fis_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_fis_tipi
-    ADD CONSTRAINT ayar_fis_tipi_pkey PRIMARY KEY (id);
-
-
---
--- Name: ayar_irsaliye_fatura_no_serisi ayar_irsaliye_fatura_no_serisi_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_irsaliye_fatura_no_serisi
-    ADD CONSTRAINT ayar_irsaliye_fatura_no_serisi_deger_key UNIQUE (deger);
-
-
---
--- Name: ayar_irsaliye_fatura_no_serisi ayar_irsaliye_fatura_no_serisi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_irsaliye_fatura_no_serisi
-    ADD CONSTRAINT ayar_irsaliye_fatura_no_serisi_pkey PRIMARY KEY (id);
-
-
---
--- Name: ayar_irsaliye_no_serisi ayar_irsaliye_no_serisi_irsaliye_seri_id_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_irsaliye_no_serisi
-    ADD CONSTRAINT ayar_irsaliye_no_serisi_irsaliye_seri_id_deger_key UNIQUE (irsaliye_seri_id, deger);
-
-
---
--- Name: ayar_irsaliye_no_serisi ayar_irsaliye_no_serisi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_irsaliye_no_serisi
-    ADD CONSTRAINT ayar_irsaliye_no_serisi_pkey PRIMARY KEY (id);
-
-
---
--- Name: ayar_modul_tipi ayar_modul_tipi_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_modul_tipi
-    ADD CONSTRAINT ayar_modul_tipi_deger_key UNIQUE (deger);
-
-
---
--- Name: ayar_modul_tipi ayar_modul_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_modul_tipi
-    ADD CONSTRAINT ayar_modul_tipi_pkey PRIMARY KEY (id);
-
-
---
--- Name: ayar_musteri_firma_turu ayar_musteri_firma_turu_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_musteri_firma_turu
-    ADD CONSTRAINT ayar_musteri_firma_turu_deger_key UNIQUE (deger);
-
-
---
--- Name: ayar_musteri_firma_turu ayar_musteri_firma_turu_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_musteri_firma_turu
-    ADD CONSTRAINT ayar_musteri_firma_turu_pkey PRIMARY KEY (id);
 
 
 --
@@ -8218,54 +5867,6 @@ ALTER TABLE ONLY public.set_iml_imalat_surec_tanimi
 
 ALTER TABLE ONLY public.set_iml_imalat_surec_tanimi
     ADD CONSTRAINT set_iml_imalat_surec_tanimi_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_kaset_aylik_hedef set_iml_kaset_aylik_hedef_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_kaset_aylik_hedef
-    ADD CONSTRAINT set_iml_kaset_aylik_hedef_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_kaset_aylik_hedef set_iml_kaset_aylik_hedef_urun_tipi_id_donem_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_kaset_aylik_hedef
-    ADD CONSTRAINT set_iml_kaset_aylik_hedef_urun_tipi_id_donem_key UNIQUE (urun_tipi_id, donem);
-
-
---
--- Name: set_iml_kaset_musteri_temsilcisi set_iml_kaset_musteri_temsilcisi_ad_soyad_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_kaset_musteri_temsilcisi
-    ADD CONSTRAINT set_iml_kaset_musteri_temsilcisi_ad_soyad_key UNIQUE (ad_soyad);
-
-
---
--- Name: set_iml_kaset_musteri_temsilcisi set_iml_kaset_musteri_temsilcisi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_kaset_musteri_temsilcisi
-    ADD CONSTRAINT set_iml_kaset_musteri_temsilcisi_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_kaset_urun_tipi set_iml_kaset_urun_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_kaset_urun_tipi
-    ADD CONSTRAINT set_iml_kaset_urun_tipi_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_kaset_urun_tipi set_iml_kaset_urun_tipi_urun_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_kaset_urun_tipi
-    ADD CONSTRAINT set_iml_kaset_urun_tipi_urun_tipi_key UNIQUE (urun_tipi);
 
 
 --
@@ -9173,6 +6774,22 @@ ALTER TABLE ONLY public.sys_olcu_birimi
 
 
 --
+-- Name: sys_olcu_birimi_tipi sys_olcu_birimi_tipi_olcu_birimi_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_olcu_birimi_tipi
+    ADD CONSTRAINT sys_olcu_birimi_tipi_olcu_birimi_tipi_key UNIQUE (olcu_birimi_tipi);
+
+
+--
+-- Name: sys_olcu_birimi_tipi sys_olcu_birimi_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_olcu_birimi_tipi
+    ADD CONSTRAINT sys_olcu_birimi_tipi_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sys_ondalik_hane sys_ondalik_hane_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -9499,22 +7116,6 @@ ALTER TABLE ONLY public.alis_teklif_detay
 
 
 --
--- Name: ayar_fatura_no_serisi ayar_fatura_no_serisi_fatura_seri_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_fatura_no_serisi
-    ADD CONSTRAINT ayar_fatura_no_serisi_fatura_seri_id_fkey FOREIGN KEY (fatura_seri_id) REFERENCES public.ayar_irsaliye_fatura_no_serisi(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: ayar_irsaliye_no_serisi ayar_irsaliye_no_serisi_irsaliye_seri_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ayar_irsaliye_no_serisi
-    ADD CONSTRAINT ayar_irsaliye_no_serisi_irsaliye_seri_id_fkey FOREIGN KEY (irsaliye_seri_id) REFERENCES public.ayar_irsaliye_fatura_no_serisi(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: ch_banka_subesi ch_banka_subesi_banka_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -9779,14 +7380,6 @@ ALTER TABLE ONLY public.set_iml_cins_sureci
 
 
 --
--- Name: set_iml_kaset_aylik_hedef set_iml_kaset_aylik_hedef_urun_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_kaset_aylik_hedef
-    ADD CONSTRAINT set_iml_kaset_aylik_hedef_urun_tipi_id_fkey FOREIGN KEY (urun_tipi_id) REFERENCES public.set_iml_kaset_urun_tipi(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
 -- Name: set_iml_operator_tezgah set_iml_operator_tezgah_tezgah_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -9952,6 +7545,14 @@ ALTER TABLE ONLY public.sys_lisan_gui_icerik
 
 ALTER TABLE ONLY public.sys_lisan_data_icerik
     ADD CONSTRAINT sys_lisan_data_icerik_lisan_fkey FOREIGN KEY (lisan) REFERENCES public.sys_lisan(lisan) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sys_olcu_birimi sys_olcu_birimi_olcu_birimi_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_olcu_birimi
+    ADD CONSTRAINT sys_olcu_birimi_olcu_birimi_tipi_id_fkey FOREIGN KEY (olcu_birimi_tipi_id) REFERENCES public.sys_olcu_birimi_tipi(id) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
 
 
 --

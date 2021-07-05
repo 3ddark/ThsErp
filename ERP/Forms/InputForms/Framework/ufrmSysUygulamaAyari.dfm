@@ -17,18 +17,16 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 694
-    ExplicitHeight = 301
+    ExplicitHeight = 315
     inherited pgcMain: TPageControl
       Width = 692
       Height = 313
       ActivePage = tsAdres
       ExplicitWidth = 692
-      ExplicitHeight = 299
+      ExplicitHeight = 313
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 684
-        ExplicitHeight = 271
+        ExplicitHeight = 285
         object lblunvan: TLabel
           Left = 81
           Top = 5
@@ -224,12 +222,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
         end
       end
       object tsDiger: TTabSheet
-        Caption = 'tsDiger'
+        Caption = 'Di'#287'er'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblgrid_color_1: TLabel
           Left = 63
           Top = 6
@@ -516,7 +510,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Top = 25
           Width = 130
           Height = 21
-          TabOrder = 1
+          TabOrder = 2
           OnDblClick = edtgrid_color_2DblClick
           OnExit = edtgrid_color_2Exit
         end
@@ -525,7 +519,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Top = 47
           Width = 130
           Height = 21
-          TabOrder = 2
+          TabOrder = 4
           OnDblClick = edtgrid_color_activeDblClick
           OnExit = edtgrid_color_activeExit
         end
@@ -537,7 +531,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           MaxLength = 5
           MaxValue = 65535
           MinValue = 0
-          TabOrder = 3
+          TabOrder = 6
           Value = 0
         end
         object edtform_rengi: TEdit
@@ -545,7 +539,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Top = 92
           Width = 130
           Height = 21
-          TabOrder = 4
+          TabOrder = 8
           OnDblClick = edtform_rengiDblClick
           OnExit = edtform_rengiExit
         end
@@ -554,21 +548,21 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Top = 114
           Width = 130
           Height = 21
-          TabOrder = 5
+          TabOrder = 10
         end
         object edtmail_host_name: TEdit
           Left = 477
           Top = 3
           Width = 200
           Height = 21
-          TabOrder = 8
+          TabOrder = 1
         end
         object edtmail_host_user: TEdit
           Left = 477
           Top = 25
           Width = 200
           Height = 21
-          TabOrder = 9
+          TabOrder = 3
         end
         object edtmail_host_pass: TEdit
           Left = 477
@@ -576,42 +570,42 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Width = 200
           Height = 21
           PasswordChar = '#'
-          TabOrder = 10
+          TabOrder = 5
         end
         object edtmail_host_smtp_port: TEdit
           Left = 477
           Top = 69
           Width = 200
           Height = 21
-          TabOrder = 11
+          TabOrder = 7
         end
         object chkis_kalite_form_no_kullan: TCheckBox
           Left = 477
           Top = 94
           Width = 130
           Height = 17
-          TabOrder = 12
+          TabOrder = 9
         end
         object edtuygulama_lisan: TEdit
           Left = 137
           Top = 136
           Width = 130
           Height = 21
-          TabOrder = 6
+          TabOrder = 11
         end
         object edtsms_service_provider: TEdit
           Left = 477
           Top = 158
           Width = 200
           Height = 21
-          TabOrder = 13
+          TabOrder = 12
         end
         object edtsms_user: TEdit
           Left = 477
           Top = 180
           Width = 200
           Height = 21
-          TabOrder = 14
+          TabOrder = 13
         end
         object edtsms_password: TEdit
           Left = 477
@@ -619,7 +613,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Width = 200
           Height = 21
           PasswordChar = '#'
-          TabOrder = 15
+          TabOrder = 14
         end
         object edtsms_title: TEdit
           Left = 477
@@ -633,16 +627,12 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Top = 224
           Width = 130
           Height = 21
-          TabOrder = 7
+          TabOrder = 15
         end
       end
       object tsAdres: TTabSheet
-        Caption = 'tsAdres'
+        Caption = 'Adres'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblmukellef_tipi_id: TLabel
           Left = 46
           Top = 10
@@ -1017,15 +1007,20 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
   inherited pnlBottom: TPanel
     Top = 319
     Width = 694
-    ExplicitTop = 305
+    ExplicitTop = 319
     ExplicitWidth = 694
     inherited btnAccept: TButton
       Left = 485
+      TabOrder = 2
       ExplicitLeft = 485
     end
     inherited btnClose: TButton
       Left = 589
+      TabOrder = 3
       ExplicitLeft = 589
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

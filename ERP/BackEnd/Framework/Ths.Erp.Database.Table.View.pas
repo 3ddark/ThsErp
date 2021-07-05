@@ -33,12 +33,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Database.Singleton
-  , Ths.Erp.Constants
-  , Ths.Erp.Globals
-  ;
-
-{ TView }
+  Ths.Erp.Database.Singleton,
+  Ths.Erp.Constants,
+  Ths.Erp.Globals;
 
 procedure TView.Listen;
 begin
