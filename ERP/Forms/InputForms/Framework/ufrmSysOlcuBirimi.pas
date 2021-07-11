@@ -41,6 +41,8 @@ type
     chkis_ondalik: TCheckBox;
     lblolcu_birimi_tipi_id: TLabel;
     edtolcu_birimi_tipi_id: TEdit;
+    lblcarpan: TLabel;
+    edtcarpan: TEdit;
   protected
     procedure HelperProcess(Sender: TObject); override;
   published
@@ -68,7 +70,7 @@ begin
       TSysOlcuBirimi(Table).Aciklama.Value := edtaciklama.Text;
       TSysOlcuBirimi(Table).IsOndalik.Value := chkis_ondalik.Checked;
       TSysOlcuBirimi(Table).OlcuBirimiTipi.Value := edtolcu_birimi_tipi_id.Text;
-
+      TSysOlcuBirimi(Table).Carpan.Value := edtcarpan.Text;
       inherited;
     end;
   end
@@ -121,6 +123,7 @@ begin
   edtaciklama.Text := TSysOlcuBirimi(Table).Aciklama.AsString;
   chkis_ondalik.Checked := TSysOlcuBirimi(Table).IsOndalik.AsBoolean;
   edtolcu_birimi_tipi_id.Text := TSysOlcuBirimi(Table).OlcuBirimiTipi.AsString;
+  edtcarpan.Text := TSysOlcuBirimi(Table).Carpan.AsString;
 end;
 
 end.

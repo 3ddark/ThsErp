@@ -147,7 +147,6 @@ type
     actset_bbk_calisma_durumu: TAction;
     actset_bbk_finans_durumu: TAction;
     actset_bbk_firma_tipi: TAction;
-    actset_bbk_fuar: TAction;
     actbbk_bolge_sehir: TAction;
     actbbk_kayit_asansor: TAction;
     actsat_teklif: TAction;
@@ -311,7 +310,6 @@ type
     procedure actset_bbk_calisma_durumuExecute(Sender: TObject);
     procedure actset_bbk_finans_durumuExecute(Sender: TObject);
     procedure actset_bbk_firma_tipiExecute(Sender: TObject);
-    procedure actset_bbk_fuarExecute(Sender: TObject);
     procedure actbbk_bolge_sehirExecute(Sender: TObject);
     procedure actbbk_kayit_asansorExecute(Sender: TObject);
     procedure actsat_teklifExecute(Sender: TObject);
@@ -481,7 +479,6 @@ uses
   Ths.Erp.Database.Table.SetBbkCalismaDurumu, ufrmSetBbkCalismaDurumlari,
   Ths.Erp.Database.Table.SetBbkFinansDurumu, ufrmSetBbkFinansDurumlari,
   Ths.Erp.Database.Table.SetBbkFirmatipi, ufrmSetBbkFirmaTipleri,
-  Ths.Erp.Database.Table.SetBbkFuar, ufrmSetBbkFuarlar,
   Ths.Erp.Database.Table.BbkBolgeSehir, ufrmBbkBolgeSehirler,
   Ths.Erp.Database.Table.BbkKayit, ufrmBbkKayitlar;
 
@@ -589,11 +586,6 @@ end;
 procedure TfrmMain.actset_bbk_firma_tipiExecute(Sender: TObject);
 begin
   TfrmSetBbkFirmaTipleri.Create(Self, Self, TSetBbkFirmaTipi.Create(GDataBase), fomNormal).Show;
-end;
-
-procedure TfrmMain.actset_bbk_fuarExecute(Sender: TObject);
-begin
-  TfrmSetBbkFuarlar.Create(Self, Self, TSetBbkFuar.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmMain.actset_bbk_kayit_tipiExecute(Sender: TObject);
@@ -1459,8 +1451,24 @@ begin
       or (TSysErisimHakki(LRights.List[n1]).IsOzel.Value)
       then
       begin
+        //Genel
+        if CheckStringInArray(MODULE_GENEL, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
+        begin
+          if not tsStok.TabVisible then
+            tsStok.TabVisible := True;
+
+          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_BBK_AYAR then
+          begin
+            //
+          end
+          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_BBK_KAYIT then
+          begin
+            btnbbk_kayit_asansor.Enabled := True;
+          end;
+        end
+
         //Cari Hesap
-        if CheckStringInArray(MODULE_CH, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
+        else if CheckStringInArray(MODULE_CH, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
         begin
           if not tsch.TabVisible then
             tsch.TabVisible := True;

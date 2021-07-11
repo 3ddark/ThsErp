@@ -926,26 +926,12 @@
         <DCCReference Include="Forms\InputForms\BilgiBankasi\ufrmSetBbkFirmaTipi.pas">
             <Form>frmSetBbkFirmaTipi</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\BilgiBankasi\Ths.Erp.Database.Table.SetBbkFuar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\BilgiBankasi\ufrmSetBbkFuarlar.pas">
-            <Form>frmSetBbkFuarlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\BilgiBankasi\ufrmSetBbkFuar.pas">
-            <Form>frmSetBbkFuar</Form>
-        </DCCReference>
         <DCCReference Include="BackEnd\BilgiBankasi\Ths.Erp.Database.Table.SetBbkKayitTipi.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\BilgiBankasi\ufrmSetBbkKayitTipleri.pas">
             <Form>frmSetBbkKayitTipleri</Form>
         </DCCReference>
         <DCCReference Include="Forms\InputForms\BilgiBankasi\ufrmSetBbkKayitTipi.pas">
             <Form>frmSetBbkKayitTipi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\BilgiBankasi\Ths.Erp.Database.Table.BbkFuarKatilim.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\BilgiBankasi\ufrmBbkFuarKatilimlar.pas">
-            <Form>frmBbkFuarKatilimlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\BilgiBankasi\ufrmBbkFuarKatilim.pas">
-            <Form>frmBbkFuarKatilim</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\BilgiBankasi\Ths.Erp.Database.Table.BbkKayit.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\BilgiBankasi\ufrmBbkKayitlar.pas">
@@ -1006,6 +992,12 @@
             </Platforms>
             <Deployment Version="3">
                 <DeployFile LocalName="ThsERP.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>ThsERP.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ThsERP.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>ThsERP.exe</RemoteName>
                         <Overwrite>true</Overwrite>

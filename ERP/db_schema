@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.5
--- Dumped by pg_dump version 12.5
+-- Dumped from database version 12.2
+-- Dumped by pg_dump version 12.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1070,10 +1070,10 @@ ALTER TABLE public.audit ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- Name: bb_kayitlar; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: bbk_kayit; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.bb_kayitlar (
+CREATE TABLE public.bbk_kayit (
     id bigint NOT NULL,
     firma_adi character varying(96),
     tel1 character varying(24),
@@ -1114,13 +1114,13 @@ CREATE TABLE public.bb_kayitlar (
 );
 
 
-ALTER TABLE public.bb_kayitlar OWNER TO ths_admin;
+ALTER TABLE public.bbk_kayit OWNER TO ths_admin;
 
 --
 -- Name: bb_kayitlar_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.bb_kayitlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.bbk_kayit ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.bb_kayitlar_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -4783,7 +4783,8 @@ CREATE TABLE public.sys_olcu_birimi (
     olcu_birimi_einv character varying(3),
     aciklama character varying(64),
     is_ondalik boolean DEFAULT false NOT NULL,
-    olcu_birimi_tipi_id bigint
+    olcu_birimi_tipi_id bigint,
+    carpan integer
 );
 
 
@@ -5150,10 +5151,10 @@ ALTER TABLE ONLY public.audit
 
 
 --
--- Name: bb_kayitlar bb_kayitlar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: bbk_kayit bb_kayitlar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.bb_kayitlar
+ALTER TABLE ONLY public.bbk_kayit
     ADD CONSTRAINT bb_kayitlar_pkey PRIMARY KEY (id);
 
 

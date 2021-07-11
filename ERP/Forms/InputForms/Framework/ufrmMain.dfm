@@ -25,7 +25,7 @@
     DisplayMode = svmOverlay
     OpenedWidth = 250
     Placement = svpLeft
-    TabOrder = 2
+    TabOrder = 1
     object catMenuItems: TCategoryButtons
       Left = 0
       Top = 0
@@ -391,7 +391,7 @@
     Width = 737
     Height = 404
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 2
     ExplicitTop = 42
     ExplicitWidth = 737
     ExplicitHeight = 404
@@ -411,17 +411,13 @@
       Top = 0
       Width = 737
       Height = 378
-      ActivePage = tsmhs
+      ActivePage = tsGenel
       Align = alClient
       MultiLine = True
       OwnerDraw = True
       TabOrder = 0
       object tsGenel: TTabSheet
         Caption = 'Genel'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnutd_dokuman: TButton
           Left = 2
           Top = 186
@@ -464,10 +460,6 @@
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -536,10 +528,6 @@
       object tsstok: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -643,10 +631,6 @@
       object tsch: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnch_hesap_karti: TButton
           Left = 2
           Top = 170
@@ -776,10 +760,6 @@
       object tspersonel: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnprs_personel: TButton
           Left = 2
           Top = 2
@@ -1126,10 +1106,6 @@
       object tsrecete: TTabSheet
         Caption = 'Re'#231'eteler'
         ImageIndex = 5
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnrct_recete: TButton
           Left = 2
           Top = 2
@@ -1658,11 +1634,6 @@
       Caption = 'Bilgi Bankas'#305' Firma Tipi'
       ImageIndex = 71
       OnExecute = actset_bbk_firma_tipiExecute
-    end
-    object actset_bbk_fuar: TAction
-      Caption = 'Bilgi Bankas'#305' Fuar'
-      ImageIndex = 84
-      OnExecute = actset_bbk_fuarExecute
     end
     object actbbk_bolge_sehir: TAction
       Caption = 'Bilgi Bankas'#305' B'#246'lge '#350'ehir'

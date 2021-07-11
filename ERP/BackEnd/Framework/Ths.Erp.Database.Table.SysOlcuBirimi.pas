@@ -20,6 +20,7 @@ type
     FIsOndalik: TFieldDB;
     FOlcuBirimiTipiID: TFieldDB;
     FOlcuBirimiTipi: TFieldDB;
+    FCarpan: TFieldDB;
   published
     FBirimTipi: TSysOlcuBirimiTipi;
     constructor Create(ADatabase: TDatabase); override;
@@ -38,6 +39,7 @@ type
     Property IsOndalik: TFieldDB read FIsOndalik write FIsOndalik;
     Property OlcuBirimiTipiID: TFieldDB read FOlcuBirimiTipiID write FOlcuBirimiTipiID;
     Property OlcuBirimiTipi: TFieldDB read FOlcuBirimiTipi write FOlcuBirimiTipi;
+    Property Carpan: TFieldDB read FCarpan write FCarpan;
   end;
 
 implementation
@@ -61,6 +63,7 @@ begin
   FIsOndalik := TFieldDB.Create('is_ondalik', ftBoolean, False, Self, 'Ondalýk?');
   FOlcuBirimiTipiID := TFieldDB.Create('olcu_birimi_tipi_id', ftInteger, 0, Self, 'Ölçü Birimi Tipi ID');
   FOlcuBirimiTipi := TFieldDB.Create(FBirimTipi.OlcuBirimiTipi.FieldName, FBirimTipi.OlcuBirimiTipi.DataType, '', Self, 'Ölçü Birimi Tipi');
+  FCarpan := TFieldDB.Create('carpan', ftInteger, 0, Self, 'Çarpan');
 end;
 
 destructor TSysOlcuBirimi.Destroy;
@@ -83,7 +86,8 @@ begin
         FAciklama.QryName,
         FIsOndalik.QryName,
         FOlcuBirimiTipiID.QryName,
-        addField(FBirimTipi.TableName, FBirimTipi.OlcuBirimiTipi.FieldName, FOlcuBirimiTipi.FieldName)
+        addField(FBirimTipi.TableName, FBirimTipi.OlcuBirimiTipi.FieldName, FOlcuBirimiTipi.FieldName),
+        FCarpan.QryName
       ], [
         addJoin(jtLeft, FBirimTipi.TableName, FBirimTipi.Id.FieldName, TableName, FOlcuBirimiTipiID.FieldName),
         ' WHERE 1=1 ', AFilter
@@ -111,7 +115,8 @@ begin
         FAciklama.QryName,
         FIsOndalik.QryName,
         FOlcuBirimiTipiID.QryName,
-        addField(FBirimTipi.TableName, FBirimTipi.OlcuBirimiTipi.FieldName, FOlcuBirimiTipi.FieldName)
+        addField(FBirimTipi.TableName, FBirimTipi.OlcuBirimiTipi.FieldName, FOlcuBirimiTipi.FieldName),
+        FCarpan.QryName
       ], [
         addJoin(jtLeft, FBirimTipi.TableName, FBirimTipi.Id.FieldName, TableName, FOlcuBirimiTipiID.FieldName),
         ' WHERE 1=1 ', AFilter
@@ -146,7 +151,8 @@ begin
         FOlcuBirimiEInv.FieldName,
         FAciklama.FieldName,
         FIsOndalik.FieldName,
-        FOlcuBirimiTipiID.FieldName
+        FOlcuBirimiTipiID.FieldName,
+        FCarpan.FieldName
       ]);
 
       PrepareInsertQueryParams;
@@ -176,7 +182,8 @@ begin
         FOlcuBirimiEInv.FieldName,
         FAciklama.FieldName,
         FIsOndalik.FieldName,
-        FOlcuBirimiTipiID.FieldName
+        FOlcuBirimiTipiID.FieldName,
+        FCarpan.FieldName
       ]);
 
       PrepareUpdateQueryParams;

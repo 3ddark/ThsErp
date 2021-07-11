@@ -3,24 +3,24 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
   Top = 443
   ActiveControl = btnClose
   Caption = 'Sistem '#214'l'#231#252' Birimi'
-  ClientHeight = 207
+  ClientHeight = 226
   ClientWidth = 344
   ParentFont = True
   Position = poDesktopCenter
   ExplicitWidth = 350
-  ExplicitHeight = 236
+  ExplicitHeight = 255
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 340
-    Height = 155
+    Height = 174
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
     ExplicitHeight = 155
     inherited pgcMain: TPageControl
       Width = 338
-      Height = 153
+      Height = 172
       ExplicitWidth = 338
       ExplicitHeight = 153
       inherited tsMain: TTabSheet
@@ -106,6 +106,22 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
           ParentBiDiMode = False
           ParentFont = False
         end
+        object lblcarpan: TLabel
+          Left = 73
+          Top = 120
+          Width = 40
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = #199'arpan'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
         object edtolcu_birimi: TEdit
           Left = 117
           Top = 3
@@ -141,11 +157,18 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
           Height = 21
           TabOrder = 4
         end
+        object edtcarpan: TEdit
+          Left = 117
+          Top = 117
+          Width = 200
+          Height = 21
+          TabOrder = 5
+        end
       end
     end
   end
   inherited pnlBottom: TPanel
-    Top = 159
+    Top = 178
     Width = 340
     ExplicitTop = 159
     ExplicitWidth = 340
@@ -164,7 +187,7 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
     end
   end
   inherited stbBase: TStatusBar
-    Top = 189
+    Top = 208
     Width = 344
     ExplicitTop = 189
     ExplicitWidth = 344

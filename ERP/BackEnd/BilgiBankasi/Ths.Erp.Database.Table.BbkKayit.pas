@@ -131,7 +131,7 @@ uses
 constructor TBbkKayit.Create(ADatabase: TDatabase);
 begin
   TableName := 'bbk_kayit';
-  TableSourceCode := '6521';
+  TableSourceCode := MODULE_BBK_KAYIT;
   inherited Create(ADatabase);
 
   FSetBbkFirmaTipi := TSetBbkFirmaTipi.Create(Database);
