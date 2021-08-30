@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.2
--- Dumped by pg_dump version 12.2
+-- Dumped from database version 13.3
+-- Dumped by pg_dump version 13.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1088,40 +1088,33 @@ CREATE TABLE public.bbk_kayit (
     yetkili2 character varying(64),
     yetkili2_tel character varying(24),
     yetkili2_email character varying(80),
-    merkez_adres character varying(160),
-    merkez_semt character varying(32),
-    merkez_il character varying(32),
-    sube_adres character varying(160),
-    sube_semt character varying(32),
-    sube_il character varying(32),
+    adres character varying(160),
+    sehir_adi_id integer,
+    ulke_adi_idx integer,
+    bolge_adi_idx integer,
     not1 character varying(384),
     not2 character varying(384),
     not3 character varying(384),
-    firma_tipi character varying(32),
-    calisma_durumu character varying(16),
-    kac_yillik_firma character varying(10),
-    vergi_numarasi character varying(24),
+    firma_tipi_id integer,
     vergi_dairesi character varying(48),
-    yillik_asansor_sayisi smallint,
-    ziyaret_edilmesin boolean DEFAULT false NOT NULL,
-    calisma_durumu_aybey character varying(16),
-    calisma_durumu_bulut character varying(16),
+    vergi_numarasi character varying(24),
+    kac_yillik_firma character varying(10),
+    calisma_durumu_id integer,
     calistigi_tedarikciler character varying(96),
-    finans_durumu character varying(32),
+    finans_durumu_id integer,
     sevkiyat_yetkilisi character varying(48),
-    sevkiyat_yetkilisi_tel character varying(24),
-    fuar_id integer
+    sevkiyat_yetkilisi_tel character varying(24)
 );
 
 
 ALTER TABLE public.bbk_kayit OWNER TO ths_admin;
 
 --
--- Name: bb_kayitlar_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: bbk_kayit_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE public.bbk_kayit ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.bb_kayitlar_id_seq
+    SEQUENCE NAME public.bbk_kayit_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2094,8 +2087,8 @@ CREATE TABLE public.sys_sehir (
     id bigint NOT NULL,
     sehir_adi character varying(32) NOT NULL,
     plaka_kodu integer,
-    ulke_id integer,
-    bolge_id integer
+    ulke_adi_id integer,
+    bolge_adi_id integer
 );
 
 
@@ -2377,22 +2370,22 @@ ALTER TABLE public.satis_irsaliye ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 
 --
--- Name: set_bb_calisma_durumu; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: set_bbk_calisma_durumu; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.set_bb_calisma_durumu (
+CREATE TABLE public.set_bbk_calisma_durumu (
     id bigint NOT NULL,
     calisma_durumu character varying(32) NOT NULL
 );
 
 
-ALTER TABLE public.set_bb_calisma_durumu OWNER TO ths_admin;
+ALTER TABLE public.set_bbk_calisma_durumu OWNER TO ths_admin;
 
 --
 -- Name: set_bb_calisma_durumu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_bb_calisma_durumu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_bbk_calisma_durumu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_bb_calisma_durumu_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2403,22 +2396,22 @@ ALTER TABLE public.set_bb_calisma_durumu ALTER COLUMN id ADD GENERATED ALWAYS AS
 
 
 --
--- Name: set_bb_finans_durumu; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: set_bbk_finans_durumu; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.set_bb_finans_durumu (
+CREATE TABLE public.set_bbk_finans_durumu (
     id bigint NOT NULL,
     finans_durumu character varying(32) NOT NULL
 );
 
 
-ALTER TABLE public.set_bb_finans_durumu OWNER TO ths_admin;
+ALTER TABLE public.set_bbk_finans_durumu OWNER TO ths_admin;
 
 --
 -- Name: set_bb_finans_durumu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_bb_finans_durumu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_bbk_finans_durumu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_bb_finans_durumu_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2429,22 +2422,22 @@ ALTER TABLE public.set_bb_finans_durumu ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 
 --
--- Name: set_bb_firma_tipi; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: set_bbk_firma_tipi; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.set_bb_firma_tipi (
+CREATE TABLE public.set_bbk_firma_tipi (
     id bigint NOT NULL,
     firma_tipi character varying(32) NOT NULL
 );
 
 
-ALTER TABLE public.set_bb_firma_tipi OWNER TO ths_admin;
+ALTER TABLE public.set_bbk_firma_tipi OWNER TO ths_admin;
 
 --
 -- Name: set_bb_firma_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_bb_firma_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_bbk_firma_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_bb_firma_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -4499,7 +4492,7 @@ ALTER TABLE public.sys_ilce OWNER TO ths_admin;
 -- Name: sys_ilce_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_ilce ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_ilce ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
     SEQUENCE NAME public.sys_ilce_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -4631,7 +4624,7 @@ CREATE TABLE public.sys_kullanici (
     is_super_kullanici boolean DEFAULT false NOT NULL,
     ip_adres character varying(32) DEFAULT '127.0.0.1'::character varying NOT NULL,
     mac_adres character varying(32),
-    personel_karti_id integer NOT NULL
+    personel_id integer NOT NULL
 );
 
 
@@ -4738,6 +4731,34 @@ ALTER TABLE public.sys_lisan_gui_icerik ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 ALTER TABLE public.sys_lisan ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_lisan_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sys_mahalle; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_mahalle (
+    id bigint NOT NULL,
+    mahalle_adi character varying(96) NOT NULL,
+    posta_kodu character varying(5),
+    semt_id integer
+);
+
+
+ALTER TABLE public.sys_mahalle OWNER TO ths_admin;
+
+--
+-- Name: sys_mahalle_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_mahalle ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_mahalle_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -4909,6 +4930,33 @@ ALTER TABLE public.sys_sehir ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: sys_semt; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_semt (
+    id bigint NOT NULL,
+    semt_adi character varying(32) NOT NULL,
+    ilce_id integer
+);
+
+
+ALTER TABLE public.sys_semt OWNER TO ths_admin;
+
+--
+-- Name: sys_semt_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_semt ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_semt_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sys_ulke; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -5002,7 +5050,9 @@ CREATE TABLE public.sys_uygulama_ayari_diger (
     is_eirsaliye_aktif boolean DEFAULT false NOT NULL,
     path_guncelleme character varying(255),
     path_stok_resim character varying(255),
-    path_utd character varying(255)
+    path_utd character varying(255),
+    temin_suresi_birim character varying(16),
+    stok_en_boy_yukseklik_birim character varying(16)
 );
 
 
@@ -5151,11 +5201,11 @@ ALTER TABLE ONLY public.audit
 
 
 --
--- Name: bbk_kayit bb_kayitlar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: bbk_kayit bbk_kayit_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.bbk_kayit
-    ADD CONSTRAINT bb_kayitlar_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT bbk_kayit_pkey PRIMARY KEY (id);
 
 
 --
@@ -5423,51 +5473,51 @@ ALTER TABLE ONLY public.satis_irsaliye
 
 
 --
--- Name: set_bb_calisma_durumu set_bb_calisma_durumu_calisma_durumu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_bbk_calisma_durumu set_bbk_calisma_durumu_calisma_durumu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_bb_calisma_durumu
-    ADD CONSTRAINT set_bb_calisma_durumu_calisma_durumu_key UNIQUE (calisma_durumu);
-
-
---
--- Name: set_bb_calisma_durumu set_bb_calisma_durumu_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_bb_calisma_durumu
-    ADD CONSTRAINT set_bb_calisma_durumu_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.set_bbk_calisma_durumu
+    ADD CONSTRAINT set_bbk_calisma_durumu_calisma_durumu_key UNIQUE (calisma_durumu);
 
 
 --
--- Name: set_bb_finans_durumu set_bb_finans_durumu_finans_durumu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_bbk_calisma_durumu set_bbk_calisma_durumu_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_bb_finans_durumu
-    ADD CONSTRAINT set_bb_finans_durumu_finans_durumu_key UNIQUE (finans_durumu);
-
-
---
--- Name: set_bb_finans_durumu set_bb_finans_durumu_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_bb_finans_durumu
-    ADD CONSTRAINT set_bb_finans_durumu_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.set_bbk_calisma_durumu
+    ADD CONSTRAINT set_bbk_calisma_durumu_pkey PRIMARY KEY (id);
 
 
 --
--- Name: set_bb_firma_tipi set_bb_firma_tipi_firma_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_bbk_finans_durumu set_bbk_finans_durumu_finans_durumu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_bb_firma_tipi
-    ADD CONSTRAINT set_bb_firma_tipi_firma_tipi_key UNIQUE (firma_tipi);
+ALTER TABLE ONLY public.set_bbk_finans_durumu
+    ADD CONSTRAINT set_bbk_finans_durumu_finans_durumu_key UNIQUE (finans_durumu);
 
 
 --
--- Name: set_bb_firma_tipi set_bb_firma_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_bbk_finans_durumu set_bbk_finans_durumu_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_bb_firma_tipi
-    ADD CONSTRAINT set_bb_firma_tipi_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.set_bbk_finans_durumu
+    ADD CONSTRAINT set_bbk_finans_durumu_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: set_bbk_firma_tipi set_bbk_firma_tipi_firma_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_bbk_firma_tipi
+    ADD CONSTRAINT set_bbk_firma_tipi_firma_tipi_key UNIQUE (firma_tipi);
+
+
+--
+-- Name: set_bbk_firma_tipi set_bbk_firma_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_bbk_firma_tipi
+    ADD CONSTRAINT set_bbk_firma_tipi_pkey PRIMARY KEY (id);
 
 
 --
@@ -6735,6 +6785,22 @@ ALTER TABLE ONLY public.sys_lisan
 
 
 --
+-- Name: sys_mahalle sys_mahalle_mahalle_adi_semt_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_mahalle
+    ADD CONSTRAINT sys_mahalle_mahalle_adi_semt_id_key UNIQUE (mahalle_adi, semt_id);
+
+
+--
+-- Name: sys_mahalle sys_mahalle_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_mahalle
+    ADD CONSTRAINT sys_mahalle_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sys_mukellef_tipi sys_mukellef_tipi_mukellef_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -6828,6 +6894,22 @@ ALTER TABLE ONLY public.sys_para_birimi
 
 ALTER TABLE ONLY public.sys_sehir
     ADD CONSTRAINT sys_sehir_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_semt sys_semt_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_semt
+    ADD CONSTRAINT sys_semt_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_semt sys_semt_semt_adi_ilce_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_semt
+    ADD CONSTRAINT sys_semt_semt_adi_ilce_id_key UNIQUE (semt_adi, ilce_id);
 
 
 --
@@ -7525,11 +7607,11 @@ ALTER TABLE ONLY public.sys_kaynak
 
 
 --
--- Name: sys_kullanici sys_kullanici_personel_karti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_kullanici sys_kullanici_personel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_kullanici
-    ADD CONSTRAINT sys_kullanici_personel_karti_id_fkey FOREIGN KEY (personel_karti_id) REFERENCES public.prs_personel(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sys_kullanici_personel_id_fkey FOREIGN KEY (personel_id) REFERENCES public.prs_personel(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -7549,6 +7631,14 @@ ALTER TABLE ONLY public.sys_lisan_data_icerik
 
 
 --
+-- Name: sys_mahalle sys_mahalle_semt_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_mahalle
+    ADD CONSTRAINT sys_mahalle_semt_id_fkey FOREIGN KEY (semt_id) REFERENCES public.sys_semt(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sys_olcu_birimi sys_olcu_birimi_olcu_birimi_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -7561,7 +7651,7 @@ ALTER TABLE ONLY public.sys_olcu_birimi
 --
 
 ALTER TABLE ONLY public.sys_sehir
-    ADD CONSTRAINT sys_sehir_bolge_id_fkey FOREIGN KEY (bolge_id) REFERENCES public.sys_bolge(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sys_sehir_bolge_id_fkey FOREIGN KEY (bolge_adi_id) REFERENCES public.sys_bolge(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -7569,7 +7659,15 @@ ALTER TABLE ONLY public.sys_sehir
 --
 
 ALTER TABLE ONLY public.sys_sehir
-    ADD CONSTRAINT sys_sehir_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulke(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sys_sehir_ulke_id_fkey FOREIGN KEY (ulke_adi_id) REFERENCES public.sys_ulke(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sys_semt sys_semt_ilce_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_semt
+    ADD CONSTRAINT sys_semt_ilce_id_fkey FOREIGN KEY (ilce_id) REFERENCES public.sys_ilce(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

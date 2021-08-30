@@ -79,8 +79,6 @@ type
     edtkullanici_aciklama: TEdit;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject);override;
-    procedure edtfiyatKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure edtmiktarKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure edtiskonto_oraniKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure cbbkdv_oraniChange(Sender: TObject);
     procedure FormShow(Sender: TObject); override;
@@ -209,12 +207,6 @@ begin
   CalculateTotals;
 end;
 
-procedure TfrmSatisTeklifDetay.edtfiyatKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  inherited;
-  CalculateTotals;
-end;
-
 procedure TfrmSatisTeklifDetay.edtiskonto_oraniChange(Sender: TObject);
 begin
   inherited;
@@ -257,12 +249,6 @@ begin
   CalculateTotals;
 end;
 
-procedure TfrmSatisTeklifDetay.edtmiktarKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  inherited;
-  CalculateTotals;
-end;
-
 procedure TfrmSatisTeklifDetay.FormShow(Sender: TObject);
 begin
   edtstok_kodu.OnHelperProcess := HelperProcess;
@@ -270,10 +256,9 @@ begin
 
   inherited;
 
-  ClearTotalLabels;
-
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
+    ClearTotalLabels;
     edtkdv_orani.Text := '18';
   end;
 end;

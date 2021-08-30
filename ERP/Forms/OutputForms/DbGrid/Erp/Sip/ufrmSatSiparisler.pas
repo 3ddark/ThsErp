@@ -17,6 +17,7 @@ uses
   Vcl.ComCtrls,
   Vcl.ExtCtrls,
   Vcl.ImgList,
+  Vcl.Graphics,
   Vcl.Samples.Spin,
   Vcl.StdCtrls,
   Vcl.Grids,
@@ -33,7 +34,7 @@ uses
   ufrmBase,
   ufrmBaseDBGrid, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
-  System.Actions, Vcl.ActnList, frxExportXLS;
+  System.Actions, Vcl.ActnList;
 
 type
   TfrmSatSiparisler = class(TfrmBaseDBGrid)
@@ -46,7 +47,7 @@ type
     procedure mniPrintPackingListClick(Sender: TObject);
   private
     FHizliFilterActive: Boolean;
-    FHizliFilter: string;
+//    FHizliFilter: string;
   protected
     function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm; override;
   end;
@@ -69,7 +70,8 @@ uses
   Ths.Erp.Database.Table.SatSiparis,
   Ths.Erp.Database.Table.SetSatSiparisDurum,
   Ths.Erp.Database.Table.SysErisimHakki,
-  Ths.Erp.Database.Table.ChHesapKarti;
+  Ths.Erp.Database.Table.ChHesapKarti,
+  Ths.Erp.Database.Table.SysKaliteFormTipi;
 
 {$R *.dfm}
 
@@ -100,33 +102,20 @@ begin
   begin
     if FHizliFilterActive then
     begin
-      grd.DataSource.DataSet.DisableControls;
-      try
-        FHizliFilterActive := False;
-        grd.DataSource.DataSet.Filter := ReplaceStr(grd.DataSource.DataSet.Filter, FHizliFilter, '');
-
-        FHizliFilter := '';
-
+//      grd.DataSource.DataSet.DisableControls;
+//      try
         if rgFiltre.ItemIndex = FILTRE_BEKLEYEN then
-          FHizliFilter := TSatSiparis(Table).SiparisDurumID.FieldName + '=' + QuotedStr( Ord(TSatSiparisDurum.Beklemede).ToString )
+          QryFiltreVarsayilan := ' AND ' + TSatSiparis(Table).SiparisDurumID.FieldName + '=' + Ord(TSatSiparisDurum.Beklemede).ToString
         else if rgFiltre.ItemIndex = FILTRE_HAZIR then
-          FHizliFilter := TSatSiparis(Table).SiparisDurumID.FieldName + '=' + QuotedStr( Ord(TSatSiparisDurum.Hazir).ToString )
+          QryFiltreVarsayilan := ' AND ' + TSatSiparis(Table).SiparisDurumID.FieldName + '=' + Ord(TSatSiparisDurum.Hazir).ToString
         else if rgFiltre.ItemIndex = FILTRE_GIDEN then
-          FHizliFilter := TSatSiparis(Table).SiparisDurumID.FieldName + '=' + QuotedStr( Ord(TSatSiparisDurum.Gitti).ToString )
+          QryFiltreVarsayilan := ' AND ' + TSatSiparis(Table).SiparisDurumID.FieldName + '=' + Ord(TSatSiparisDurum.Gitti).ToString
         else if rgFiltre.ItemIndex = FILTRE_TUMU then
-          FHizliFilter := '';
-
-
-        if grd.DataSource.DataSet.Filter <> '' then
-          FHizliFilter := ' AND ' + FHizliFilter;
-        grd.DataSource.DataSet.Filter := FHizliFilter;
-        if grd.DataSource.DataSet.Filter <> '' then
-          grd.DataSource.DataSet.Filtered := True;
-
-      finally
-        FHizliFilterActive := True;
-        grd.DataSource.DataSet.EnableControls;
-      end;
+          QryFiltreVarsayilan := '';
+        RefreshDataFirst;
+//      finally
+//        grd.DataSource.DataSet.EnableControls;
+//      end;
     end;
   end;
 end;

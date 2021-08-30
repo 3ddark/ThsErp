@@ -11,18 +11,17 @@ inherited frmSysGridKolon: TfrmSysGridKolon
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 597
-    Height = 369
+    Height = 383
     Color = clWindow
+    ParentColor = False
     ExplicitWidth = 597
     ExplicitHeight = 369
     inherited pgcMain: TPageControl
       Width = 595
-      Height = 367
+      Height = 381
       ExplicitWidth = 595
       ExplicitHeight = 367
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 587
         ExplicitHeight = 339
         object lbltablo_adi: TLabel
@@ -433,7 +432,7 @@ inherited frmSysGridKolon: TfrmSysGridKolon
     end
   end
   inherited pnlBottom: TPanel
-    Top = 373
+    Top = 387
     Width = 597
     ExplicitTop = 373
     ExplicitWidth = 597

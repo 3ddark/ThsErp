@@ -8,6 +8,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.Types,
+  System.Math,
   Data.DB,
   System.Generics.Collections,
   Ths.Erp.Database,
@@ -190,7 +191,6 @@ type
     procedure BusinessDelete(APermissionControl: Boolean); override;
 
     procedure RefreshHeader; override;
-    function ValidateDetay(ATable: TTable): Boolean; override;
   published
     FFaturaTipi: TSetEinvFaturaTipi;
     FSysCountry: TSysUlke;
@@ -218,6 +218,7 @@ type
 
     function getNewSiparisNo: string;
     function GetAddress: string;
+    function ValidateDetay(ATable: TTable): Boolean; override;
 
     Property TeklifID: TFieldDB read FTeklifID write FTeklifID;
     Property IrsaliyeID: TFieldDB read FIrsaliyeID write FIrsaliyeID;
@@ -1189,6 +1190,8 @@ end;
 function TSatSiparis.ValidateDetay(ATable: TTable): Boolean;
 begin
   Result := True;
+  if CompareValue(TSatSiparisDetay(ATable).Miktar.Value, 0, EPSILON) = EqualsValue then
+    raise Exception.Create('Sýfýr miktar ile kayýt yapýlamaz!');
 end;
 
 procedure TSatSiparis.RemoveDetay(ATable: TTable);

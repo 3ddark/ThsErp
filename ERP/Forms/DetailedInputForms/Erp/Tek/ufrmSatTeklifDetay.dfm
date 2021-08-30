@@ -200,7 +200,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           TabOrder = 2
           OnChange = edtfiyatChange
           OnExit = edtfiyatExit
-          OnKeyUp = edtFiyatKeyUp
         end
         object edtmiktar: TEdit
           Left = 97
@@ -210,7 +209,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           TabOrder = 3
           OnChange = edtmiktarChange
           OnExit = edtmiktarExit
-          OnKeyUp = edtMiktarKeyUp
         end
         object edtiskonto_orani: TEdit
           Left = 97
@@ -504,7 +502,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           Width = 110
           Height = 21
           TabOrder = 4
-          OnKeyUp = edtMiktarKeyUp
         end
         object edtkullanici_aciklama: TEdit
           Left = 97

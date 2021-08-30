@@ -22,6 +22,8 @@ type
     FPathGuncelleme: TFieldDB;
     FPathStokResim: TFieldDB;
     FPathUTD: TFieldDB;
+    FTeminSuresiBirim: TFieldDB;
+    FStokEnBoyYukseklikBirim: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -59,6 +61,9 @@ type
     /// Að üzerinde paylaþýma açýlmýþ klasör yolu.
     /// </summary>
     Property PathUTD: TFieldDB read FPathUTD write FPathUTD;
+
+    property TeminSuresiBirim: TFieldDB read FTeminSuresiBirim write FTeminSuresiBirim;
+    property StokEnBoyYukseklikBirim: TFieldDB read FStokEnBoyYukseklikBirim write FStokEnBoyYukseklikBirim;
   end;
 
 implementation
@@ -80,6 +85,8 @@ begin
   FPathGuncelleme := TFieldDB.Create('path_guncelleme', ftString, '', Self, 'Dosya Yolu Güncelleme');
   FPathStokResim := TFieldDB.Create('path_stok_resim', ftString, '', Self, 'Dosya Yolu Stok Kartý Resim');
   FPathUTD := TFieldDB.Create('path_utd', ftString, '', Self, 'Dosya Yolu Üretim Teknik Doküman');
+  FTeminSuresiBirim := TFieldDB.Create('temin_suresi_birim', ftString, '', Self, 'Temin Süresi Birim');
+  FStokEnBoyYukseklikBirim := TFieldDB.Create('stok_en_boy_yukseklik_birim', ftString, '', Self, 'Stok Kartý En Boy Yükseklik Birim');
 end;
 
 procedure TSysUygulamaAyariDiger.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -90,13 +97,15 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsEDefterAktif.FieldName,
-        TableName + '.' + FIsEFaturaAktif.FieldName,
-        TableName + '.' + FIsEIrsaliyeAktif.FieldName,
-        TableName + '.' + FPathGuncelleme.FieldName,
-        TableName + '.' + FPathStokResim.FieldName,
-        TableName + '.' + FPathUTD.FieldName
+        Self.Id.QryName,
+        FIsEDefterAktif.QryName,
+        FIsEFaturaAktif.QryName,
+        FIsEIrsaliyeAktif.QryName,
+        FPathGuncelleme.QryName,
+        FPathStokResim.QryName,
+        FPathUTD.QryName,
+        FTeminSuresiBirim.QryName,
+        FStokEnBoyYukseklikBirim.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
@@ -117,13 +126,15 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsEDefterAktif.FieldName,
-        TableName + '.' + FIsEFaturaAktif.FieldName,
-        TableName + '.' + FIsEIrsaliyeAktif.FieldName,
-        TableName + '.' + FPathGuncelleme.FieldName,
-        TableName + '.' + FPathStokResim.FieldName,
-        TableName + '.' + FPathUTD.FieldName
+        Self.Id.QryName,
+        FIsEDefterAktif.QryName,
+        FIsEFaturaAktif.QryName,
+        FIsEIrsaliyeAktif.QryName,
+        FPathGuncelleme.QryName,
+        FPathStokResim.QryName,
+        FPathUTD.QryName,
+        FTeminSuresiBirim.QryName,
+        FStokEnBoyYukseklikBirim.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -158,7 +169,9 @@ begin
         FIsEIrsaliyeAktif.FieldName,
         FPathGuncelleme.FieldName,
         FPathStokResim.FieldName,
-        FPathUTD.FieldName
+        FPathUTD.FieldName,
+        FTeminSuresiBirim.FieldName,
+        FStokEnBoyYukseklikBirim.FieldName
       ]);
 
       PrepareInsertQueryParams;
@@ -189,7 +202,9 @@ begin
         FIsEIrsaliyeAktif.FieldName,
         FPathGuncelleme.FieldName,
         FPathStokResim.FieldName,
-        FPathUTD.FieldName
+        FPathUTD.FieldName,
+        FTeminSuresiBirim.FieldName,
+        FStokEnBoyYukseklikBirim.FieldName
       ]);
 
       PrepareUpdateQueryParams;

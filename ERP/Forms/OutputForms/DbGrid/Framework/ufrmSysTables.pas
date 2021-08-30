@@ -37,7 +37,7 @@ uses
   frxExportBaseDialog,
   frxExportPDF,
   ufrmBase,
-  ufrmBaseDBGrid, frxExportXLS, System.Actions, Vcl.ActnList;
+  ufrmBaseDBGrid, System.Actions, Vcl.ActnList;
 
 type
   TfrmSysTables = class(TfrmBaseDBGrid)

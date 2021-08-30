@@ -184,6 +184,21 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     ExplicitTop = 559
     ExplicitWidth = 821
   end
+  object ProgressBar1: TProgressBar [3]
+    Left = 360
+    Top = 224
+    Width = 150
+    Height = 17
+    DoubleBuffered = False
+    ParentDoubleBuffered = False
+    Position = 50
+    Smooth = True
+    Style = pbstMarquee
+    MarqueeInterval = 1
+    Step = 1
+    TabOrder = 3
+    Visible = False
+  end
   inherited pmDB: TPopupMenu
     Images = dm.il16
     OnChange = pmDBChange
@@ -278,7 +293,7 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     end
   end
   object frxrprtBase: TfrxReport
-    Version = '6.5'
+    Version = '6.3.1'
     DotMatrixReport = False
     IniFile = '\Software\Fast Reports'
     PreviewOptions.Buttons = [pbPrint, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbNavigator]
@@ -286,7 +301,7 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     PrintOptions.Printer = 'Default'
     PrintOptions.PrintOnSheet = 0
     ReportOptions.CreateDate = 43704.572072824100000000
-    ReportOptions.LastChange = 43710.700858703710000000
+    ReportOptions.LastChange = 43710.700858703700000000
     ScriptLanguage = 'PascalScript'
     StoreInDFM = False
     OnPreview = frxrprtBasePreview
@@ -391,20 +406,5 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     OnTimer = Timer1Timer
     Left = 248
     Top = 368
-  end
-  object frxXLSExport1: TfrxXLSExport
-    UseFileCache = True
-    ShowProgress = True
-    OverwritePrompt = False
-    DataOnly = False
-    ExportEMF = True
-    AsText = False
-    Background = True
-    FastExport = True
-    PageBreaks = True
-    EmptyLines = True
-    SuppressPageHeadersFooters = False
-    Left = 312
-    Top = 312
   end
 end

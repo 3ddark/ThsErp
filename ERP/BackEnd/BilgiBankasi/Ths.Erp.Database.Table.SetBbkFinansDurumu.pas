@@ -5,11 +5,10 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TBbkFinansDurumu = (Olumlu=1, Olumsuz);
@@ -33,15 +32,14 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSetBbkFinansDurumu.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_bbk_finans_durumu';
-  TableSourceCode := '6520';
+  TableSourceCode := MODULE_BBK_AYAR;
   inherited Create(ADatabase);
 
   FFinansDurumu := TFieldDB.Create('finans_durumu', ftString, '', Self, '');

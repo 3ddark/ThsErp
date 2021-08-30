@@ -5,11 +5,10 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TBbkCalismaDurumu = (Calisabilir=1, Calisiyor, Calisamaz);
@@ -33,15 +32,14 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSetBbkCalismaDurumu.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_bbk_calisma_durumu';
-  TableSourceCode := '6520';
+  TableSourceCode := MODULE_BBK_AYAR;
   inherited Create(ADatabase);
 
   FCalismaDurumu := TFieldDB.Create('calisma_durumu', ftString, '', Self, '');

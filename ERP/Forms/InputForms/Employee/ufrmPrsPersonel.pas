@@ -44,6 +44,8 @@ uses
   ufrmSetPrsServisAraclari,
   ufrmSysUlkeler,
   ufrmSysSehirler,
+  ufrmSysIlceler,
+  ufrmSysMahalleler,
   Ths.Erp.Database.Table.SetPrsPersonelTipi,
   Ths.Erp.Database.Table.SetPrsBolum,
   Ths.Erp.Database.Table.SetPrsBirim,
@@ -57,6 +59,8 @@ uses
   Ths.Erp.Database.Table.SysAdres,
   Ths.Erp.Database.Table.SysUlke,
   Ths.Erp.Database.Table.SysSehir,
+  Ths.Erp.Database.Table.SysIlce,
+  Ths.Erp.Database.Table.SysMahalle,
   Ths.Erp.Database.Table.PrsEhliyetBilgisi,
   Ths.Erp.Database.Table.PrsLisanBilgisi,
   Ths.Erp.Database.Table.PrsSrcBilgisi,
@@ -167,8 +171,6 @@ type
     FSetEmpMilitaryState: TSetPrsAskerlikDurumu;
     FSetEmpMaritalType: TSetPrsMedeniDurum;
     FSetEmpTransportVehicle: TSetPrsServisAraci;
-    FSysCountry: TSysUlke;
-    FSysCity: TSysSehir;
 
     procedure resizeGrid(pGrid: TStringGrid; pCols: Array of Integer);
 //    procedure setTitleDriverLicenseAbility(pAbility: TEmpDriverLicenseAbility);
@@ -324,8 +326,6 @@ begin
   FSetEmpMilitaryState := TSetPrsAskerlikDurumu.Create(Table.Database);
   FSetEmpMaritalType := TSetPrsMedeniDurum.Create(Table.Database);
   FSetEmpTransportVehicle := TSetPrsServisAraci.Create(Table.Database);
-  FSysCountry := TSysUlke.Create(Table.Database);
-  FSysCity := TSysSehir.Create(Table.Database);
 
   FSetEmpWorkerType.SelectToList('', False, False);
   cbbpersonel_tipi_id.Clear;
@@ -386,10 +386,6 @@ begin
     FSetEmpMaritalType.Free;
   if Assigned(FSetEmpTransportVehicle) then
     FSetEmpTransportVehicle.Free;
-  if Assigned(FSysCountry) then
-    FSysCountry.Free;
-  if Assigned(FSysCity) then
-    FSysCity.Free;
   inherited;
 end;
 
@@ -400,6 +396,8 @@ begin
   edtgorev_id.OnHelperProcess := HelperProcess;
   edtulke_id.OnHelperProcess := HelperProcess;
   edtsehir_id.OnHelperProcess := HelperProcess;
+//  edtilce.OnHelperProcess := HelperProcess;
+  edtmahalle.OnHelperProcess := HelperProcess;
 
   inherited;
 
@@ -410,16 +408,18 @@ end;
 
 procedure TfrmPrsPersonel.HelperProcess(Sender: TObject);
 var
-  LFrmSection: TfrmSetPrsBolumler;
-  LSection: TSetPrsBolum;
-  LFrmUnit: TfrmSetPrsBirimler;
-  LUnit: TSetPrsBirim;
-  LFrmTask: TfrmSetPrsGorevler;
-  LTask: TSetPrsGorev;
-  LFrmCountry: TfrmSysUlkeler;
-  LCountry: TSysUlke;
-  LFrmCity: TfrmSysSehirler;
-  LCity: TSysSehir;
+  LFrmBolum: TfrmSetPrsBolumler;
+  LBolum: TSetPrsBolum;
+  LFrmBirim: TfrmSetPrsBirimler;
+  LBirim: TSetPrsBirim;
+  LFrmGorev: TfrmSetPrsGorevler;
+  LGorev: TSetPrsGorev;
+  LFrmUlke: TfrmSysUlkeler;
+  LUlke: TSysUlke;
+  LFrmSehir: TfrmSysSehirler;
+  LSehir: TSysSehir;
+  LFrmMahalle: TfrmSysMahalleler;
+  LMahlle: TSysMahalle;
 begin
   if Sender.ClassType = TEdit then
   begin
@@ -427,78 +427,143 @@ begin
     begin
       if TEdit(Sender).Name = edtbolum_id.Name then
       begin
-        LSection := TSetPrsBolum.Create(Table.Database);
-        LFrmSection := TfrmSetPrsBolumler.Create(TEdit(Sender), Self, LSection, fomNormal, True);
+        LBolum := TSetPrsBolum.Create(Table.Database);
+        LFrmBolum := TfrmSetPrsBolumler.Create(TEdit(Sender), Self, LBolum, fomNormal, True);
         try
-          LFrmSection.ShowModal;
-          if LFrmSection.DataAktar then
+          LFrmBolum.ShowModal;
+          if LFrmBolum.DataAktar then
           begin
-            TPrsPersonel(Table).BolumID.Value := LFrmSection.Table.Id.Value;
-            TEdit(Sender).Text := LSection.Bolum.Value;
+            TPrsPersonel(Table).BolumID.Value := LFrmBolum.Table.Id.Value;
+            TEdit(Sender).Text := LBolum.Bolum.Value;
 
             TPrsPersonel(Table).BirimID.Value := 0;
             edtbirim_id.Clear;
           end;
         finally
-          LFrmSection.Free;
+          LFrmBolum.Free;
         end;
       end else if (TEdit(Sender).Name = edtbirim_id.Name) and (StrToIntDef(VarToStr(TPrsPersonel(Table).BolumID.Value), 0) <> 0) then
       begin
-        LUnit := TSetPrsBirim.Create(Table.Database);
-        LFrmUnit := TfrmSetPrsBirimler.Create(TEdit(Sender), Self, LUnit, fomNormal, True);
+        LBirim := TSetPrsBirim.Create(Table.Database);
+        LFrmBirim := TfrmSetPrsBirimler.Create(TEdit(Sender), Self, LBirim, fomNormal, True);
         try
-          LFrmUnit.QryFiltreVarsayilan := ' AND ' + LUnit.TableName + '.' + LUnit.BolumID.FieldName + '=' + VarToStr(TPrsPersonel(Table).BolumID.Value);
-          LFrmUnit.ShowModal;
-          if LFrmUnit.DataAktar then
+          LFrmBirim.QryFiltreVarsayilan := ' AND ' + LBirim.TableName + '.' + LBirim.BolumID.FieldName + '=' + VarToStr(TPrsPersonel(Table).BolumID.Value);
+          LFrmBirim.ShowModal;
+          if LFrmBirim.DataAktar then
           begin
-            TPrsPersonel(Table).BirimID.Value := LFrmUnit.Table.Id.Value;
-            TEdit(Sender).Text := LUnit.Birim.Value;
+            TPrsPersonel(Table).BirimID.Value := LFrmBirim.Table.Id.Value;
+            TEdit(Sender).Text := LBirim.Birim.Value;
           end;
         finally
-          LFrmUnit.Free;
+          LFrmBirim.Free;
         end;
       end else if (TEdit(Sender).Name = edtgorev_id.Name) then
       begin
-        LTask := TSetPrsGorev.Create(Table.Database);
-        LFrmTask := TfrmSetPrsGorevler.Create(TEdit(Sender), Self, LTask, fomNormal, True);
+        LGorev := TSetPrsGorev.Create(Table.Database);
+        LFrmGorev := TfrmSetPrsGorevler.Create(TEdit(Sender), Self, LGorev, fomNormal, True);
         try
-          LFrmTask.ShowModal;
-          if LFrmTask.DataAktar then
+          LFrmGorev.ShowModal;
+          if LFrmGorev.DataAktar then
           begin
-            TPrsPersonel(Table).GorevID.Value := LFrmTask.Table.Id.Value;
-            TEdit(Sender).Text := LTask.Gorev.Value;
+            TPrsPersonel(Table).GorevID.Value := LFrmGorev.Table.Id.Value;
+            TEdit(Sender).Text := LGorev.Gorev.Value;
           end;
         finally
-          LFrmTask.Free;
+          LFrmGorev.Free;
         end;
       end else if (TEdit(Sender).Name = edtulke_id.Name) then
       begin
-        LCountry := TSysUlke.Create(Table.Database);
-        LFrmCountry := TfrmSysUlkeler.Create(TEdit(Sender), Self, LCountry, fomNormal, True);
+        LUlke := TSysUlke.Create(Table.Database);
+        LFrmUlke := TfrmSysUlkeler.Create(TEdit(Sender), Self, LUlke, fomNormal, True);
         try
-          LFrmCountry.ShowModal;
-          if LFrmCountry.DataAktar then
+          LFrmUlke.ShowModal;
+          if LFrmUlke.DataAktar then
           begin
-            TPrsPersonel(Table).UlkeID.Value := LFrmCountry.Table.Id.Value;
-            TEdit(Sender).Text := LCountry.UlkeAdi.Value;
+            if LFrmUlke.CleanAndClose then
+            begin
+              TPrsPersonel(Table).UlkeID.Value := 0;
+              TPrsPersonel(Table).SehirID.Value := 0;
+              TEdit(Sender).Clear;
+              edtsehir_id.Clear;
+              edtilce.Clear;
+              edtmahalle.Clear;
+              edtposta_kodu.Clear;
+            end
+            else
+            begin
+              if TPrsPersonel(Table).UlkeID.AsInteger <> LFrmUlke.Table.Id.AsInteger then
+              begin
+                TPrsPersonel(Table).SehirID.Value := 0;
+                edtsehir_id.Clear;
+                edtilce.Clear;
+                edtmahalle.Clear;
+                edtposta_kodu.Clear;
+              end;
+
+              TPrsPersonel(Table).UlkeID.Value := LFrmUlke.Table.Id.AsInteger;
+              TEdit(Sender).Text := LUlke.UlkeAdi.AsString;
+            end;
           end;
         finally
-          LFrmCountry.Free;
+          LFrmUlke.Free;
         end;
       end else if (TEdit(Sender).Name = edtsehir_id.Name) then
       begin
-        LCity := TSysSehir.Create(Table.Database);
-        LFrmCity := TfrmSysSehirler.Create(TEdit(Sender), Self, LCity, fomNormal, True);
+        LSehir := TSysSehir.Create(Table.Database);
+        LFrmSehir := TfrmSysSehirler.Create(TEdit(Sender), Self, LSehir, fomNormal, True);
         try
-          LFrmCity.QryFiltreVarsayilan := ' AND ' + LCity.TableName + '.' + LCity.UlkeID.FieldName + '=' + VarToStr(TPrsPersonel(Table).UlkeID.Value);
-          LFrmCity.ShowModal;
-          if LFrmCity.DataAktar then
+          LFrmSehir.QryFiltreVarsayilan := ' AND ' + LSehir.TableName + '.' + LSehir.UlkeAdiID.FieldName + '=' + VarToStr(TPrsPersonel(Table).UlkeID.Value);
+          LFrmSehir.ShowModal;
+          if LFrmSehir.DataAktar then
           begin
-            TPrsPersonel(Table).SehirID.Value := LFrmCity.Table.Id.Value;
-            TEdit(Sender).Text := LCity.SehirAdi.Value;
+            if LFrmSehir.CleanAndClose then
+            begin
+              TEdit(Sender).Clear;
+              edtilce.Clear;
+              edtmahalle.Clear;
+              edtposta_kodu.Clear;
+            end
+            else
+            begin
+              if TPrsPersonel(Table).SehirID.AsInteger <> LFrmSehir.Table.Id.AsInteger then
+              begin
+                edtilce.Clear;
+                edtmahalle.Clear;
+                edtposta_kodu.Clear;
+              end;
+            end;
+
+            TPrsPersonel(Table).SehirID.Value := LFrmSehir.Table.Id.AsInteger;
+            TEdit(Sender).Text := LSehir.SehirAdi.AsString;
           end;
         finally
-          LFrmCity.Free;
+          LFrmSehir.Free;
+        end;
+      end
+      else if (TEdit(Sender).Name = edtmahalle.Name) then
+      begin
+        LMahlle := TSysMahalle.Create(Table.Database);
+        LFrmMahalle := TfrmSysMahalleler.Create(TEdit(Sender), Self, LMahlle, fomNormal, True);
+        try
+          LFrmMahalle.QryFiltreVarsayilan := ' AND ' + LMahlle.SehirAdi.FieldName + '=' + QuotedStr(edtsehir_id.Text);
+          LFrmMahalle.ShowModal;
+          if LFrmMahalle.DataAktar then
+          begin
+            if LFrmMahalle.CleanAndClose then
+            begin
+              edtilce.Clear;
+              TEdit(Sender).Clear;
+              edtposta_kodu.Clear;
+            end
+            else
+            begin
+              edtilce.Text := LMahlle.IlceAdi.AsString;
+              TEdit(Sender).Text := LMahlle.MahalleAdi.AsString;
+              edtposta_kodu.Text := LMahlle.PostaKodu.AsString;
+            end;
+          end;
+        finally
+          LFrmMahalle.Free;
         end;
       end
     end;
@@ -603,9 +668,10 @@ begin
     lblis_aktif.Visible := True;
   end;
 
-  edtbolum_id.ReadOnly := True;
-  edtbirim_id.ReadOnly := True;
-  edtgorev_id.ReadOnly := True;
+//  edtbolum_id.ReadOnly := True;
+//  edtbirim_id.ReadOnly := True;
+//  edtgorev_id.ReadOnly := True;
+  edtilce.ReadOnly := True;
 end;
 
 procedure TfrmPrsPersonel.btnAcceptClick(Sender: TObject);

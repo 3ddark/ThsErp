@@ -73,13 +73,6 @@ inherited frmSysSehir: TfrmSysSehir
           ParentBiDiMode = False
           ParentFont = False
         end
-        object cbbulke_adi_id: TComboBox
-          Left = 114
-          Top = 2
-          Width = 239
-          Height = 21
-          TabOrder = 0
-        end
         object edtsehir_adi: TEdit
           Left = 114
           Top = 24
@@ -93,6 +86,13 @@ inherited frmSysSehir: TfrmSysSehir
           Width = 239
           Height = 21
           TabOrder = 2
+        end
+        object edtulke_adi_id: TEdit
+          Left = 114
+          Top = 2
+          Width = 239
+          Height = 21
+          TabOrder = 0
         end
       end
     end

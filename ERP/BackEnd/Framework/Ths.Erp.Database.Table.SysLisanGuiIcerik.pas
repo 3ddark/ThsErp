@@ -7,9 +7,21 @@ interface
 uses
   System.SysUtils,
   Data.DB,
+  System.Generics.Collections,
   Ths.Erp.Database,
   Ths.Erp.Database.Table,
   Ths.Erp.Database.Table.SysLisan;
+
+type
+  TGuiIcerik = record
+    FLisan: string;
+    FKod: string;
+    FIcerikTipi: string;
+    FTabloAdi: string;
+    FDeger: string;
+    FIsFabrikaAyari: Boolean;
+    FFormAdi: string;
+  end;
 
 type
   TSysLisanGuiIcerik = class(TTable)

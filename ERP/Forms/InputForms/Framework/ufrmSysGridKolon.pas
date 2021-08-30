@@ -234,22 +234,22 @@ end;
 procedure TfrmSysGridKolon.RefreshData();
 begin
   //control içeriðini table class ile doldur
-  cbbtablo_adi.ItemIndex := cbbtablo_adi.Items.IndexOf(TSysGridKolon(Table).TabloAdi.Value);
+  cbbtablo_adi.ItemIndex := cbbtablo_adi.Items.IndexOf(TSysGridKolon(Table).TabloAdi.AsString);
   cbbtablo_adiChange(cbbtablo_adi);
-  if cbbkolon_adi.Items.IndexOf(TSysGridKolon(Table).KolonAdi.Value) = -1 then
-    cbbkolon_adi.Items.Add(TSysGridKolon(Table).KolonAdi.Value);
-  cbbkolon_adi.ItemIndex := cbbkolon_adi.Items.IndexOf(TSysGridKolon(Table).KolonAdi.Value);
-  edtsira_no.Text := TSysGridKolon(Table).SiraNo.Value;
-  edtgenislik.Text := TSysGridKolon(Table).Genislik.Value;
-  edtdata_format.Text := TSysGridKolon(Table).DataFormat.Value;
-  chkis_gorunsun.Checked := TSysGridKolon(Table).IsGorunsun.Value;
-  chkis_gorunsun_helper_form.Checked := TSysGridKolon(Table).IsGorunsunHelperForm.Value;
+  if cbbkolon_adi.Items.IndexOf(TSysGridKolon(Table).KolonAdi.AsString) = -1 then
+    cbbkolon_adi.Items.Add(TSysGridKolon(Table).KolonAdi.AsString);
+  cbbkolon_adi.ItemIndex := cbbkolon_adi.Items.IndexOf(TSysGridKolon(Table).KolonAdi.AsString);
+  edtsira_no.Text := TSysGridKolon(Table).SiraNo.AsString;
+  edtgenislik.Text := TSysGridKolon(Table).Genislik.AsString;
+  edtdata_format.Text := TSysGridKolon(Table).DataFormat.AsString;
+  chkis_gorunsun.Checked := TSysGridKolon(Table).IsGorunsun.AsBoolean;
+  chkis_gorunsun_helper_form.Checked := TSysGridKolon(Table).IsGorunsunHelperForm.AsBoolean;
 
-  edtmin_deger.Text := VarToStr(TSysGridKolon(Table).MinDeger.Value);
+  edtmin_deger.Text := TSysGridKolon(Table).MinDeger.AsString;
   SetColor(StrToIntDef(edtmin_renk.Text, 0), edtmin_renk);
-  edtmaks_deger.Text := VarToStr(TSysGridKolon(Table).MaksDeger.Value);
+  edtmaks_deger.Text := TSysGridKolon(Table).MaksDeger.AsString;
   SetColor(StrToIntDef(edtmaks_renk.Text, 0), edtmaks_renk);
-  edtmaks_deger_yuzde.Text := VarToStr(TSysGridKolon(Table).MaksDegerYuzde.Value);
+  edtmaks_deger_yuzde.Text := TSysGridKolon(Table).MaksDegerYuzde.AsString;
 
 
 

@@ -37,7 +37,7 @@ uses
   frxExportBaseDialog,
   frxExportPDF,
   ufrmBase,
-  ufrmBaseDBGrid;
+  ufrmBaseDBGrid, System.Actions, Vcl.ActnList;
 
 type
   TfrmSetEinvTasimaUcretleri = class(TfrmBaseDBGrid)

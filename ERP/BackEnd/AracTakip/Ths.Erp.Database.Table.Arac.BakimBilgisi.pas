@@ -5,12 +5,10 @@ interface
 {$I ThsERP.inc}
 
 uses
-  SysUtils, Classes, Dialogs, Forms, Windows, Controls, Types, DateUtils,
-  FireDAC.Stan.Param, System.Variants, Data.DB,
-
-    Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  ;
+  SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TBakimBilgisi = class(TTable)
@@ -23,16 +21,15 @@ type
     FTrafikSigortaTarihi: TFieldDB;
     FAracMuayeneTarihi: TFieldDB;
     FAracKM: TFieldDB;
-  protected
   published
-    constructor Create(OwnerDatabase:TDatabase);override;
+    constructor Create(ADatabase: TDatabase); override;
   public
     procedure SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(pFilter: string; pLock: Boolean; pPermissionControl: Boolean=True); override;
     procedure Insert(out pID: Integer; pPermissionControl: Boolean=True); override;
     procedure Update(pPermissionControl: Boolean=True); override;
 
-    function Clone():TTable;override;
+    function Clone: TTable; override;
 
     property Plaka: TFieldDB read FPlaka write FPlaka;
     property BakimTarihi: TFieldDB read FBakimTarihi write FBakimTarihi;
@@ -47,16 +44,15 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
-constructor TBakimBilgisi.Create(OwnerDatabase:TDatabase);
+constructor TBakimBilgisi.Create(ADatabase: TDatabase);
 begin
   TableName := 'arac_bakim_bilgisi';
   TableSourceCode := '1000';
-  inherited Create(OwnerDatabase);
+  inherited Create(ADatabase);
 
   FPlaka := TFieldDB.Create('plaka', ftString, '', Self, '');
   FBakimTarihi := TFieldDB.Create('bakim_tarihi', ftDate, 0, Self, '');
@@ -90,16 +86,6 @@ begin
       ], AAllColumn, AHelper);
       Open;
       Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FPlaka, 'Ad Soyad', QueryOfDS);
-      setFieldTitle(FBakimTarihi, 'Açýklama', QueryOfDS);
-      setFieldTitle(FBakimNotu, 'Görev Verebilir?', QueryOfDS);
-      setFieldTitle(FBakimYapanServis, 'Araç Sürebilir?', QueryOfDS);
-      setFieldTitle(FPeriyodikBakimKM, 'Periyodik Bakým KM', QueryOfDS);
-      setFieldTitle(FTrafikSigortaTarihi, 'Trafik Sigorta Tarihi', QueryOfDS);
-      setFieldTitle(FAracMuayeneTarihi, 'Muayene Tarihi', QueryOfDS);
-      setFieldTitle(FAracKM, 'Araç KM', QueryOfDS);
     end;
   end;
 end;
@@ -133,20 +119,13 @@ begin
       List.Clear;
       while NOT EOF do
       begin
-        setFieldValue(Self.Id, QueryOfList);
-        setFieldValue(FPlaka, QueryOfList);
-        setFieldValue(FBakimTarihi, QueryOfList);
-        setFieldValue(FBakimNotu, QueryOfList);
-        setFieldValue(FBakimYapanServis, QueryOfList);
-        setFieldValue(FPeriyodikBakimKM, QueryOfList);
-        setFieldValue(FTrafikSigortaTarihi, QueryOfList);
-        setFieldValue(FAracMuayeneTarihi, QueryOfList);
-        setFieldValue(FAracKM, QueryOfList);
+        PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone());
+        List.Add(Self.Clone);
 
         Next;
       end;
+
       Close;
     end;
   end;
@@ -171,20 +150,13 @@ begin
         FAracKM.FieldName
       ]);
 
-      NewParamForQuery(QueryOfInsert, FPlaka);
-      NewParamForQuery(QueryOfInsert, FBakimTarihi);
-      NewParamForQuery(QueryOfInsert, FBakimNotu);
-      NewParamForQuery(QueryOfInsert, FBakimYapanServis);
-      NewParamForQuery(QueryOfInsert, FPeriyodikBakimKM);
-      NewParamForQuery(QueryOfInsert, FTrafikSigortaTarihi);
-      NewParamForQuery(QueryOfInsert, FAracMuayeneTarihi);
-      NewParamForQuery(QueryOfInsert, FAracKM);
+      PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-        pID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-      else
-        pID := 0;
+
+      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
+      then  pID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      else  pID := 0;
 
       EmptyDataSet;
       Close;
@@ -212,16 +184,7 @@ begin
         FAracKM.FieldName
       ]);
 
-      NewParamForQuery(QueryOfUpdate, FPlaka);
-      NewParamForQuery(QueryOfUpdate, FBakimTarihi);
-      NewParamForQuery(QueryOfUpdate, FBakimNotu);
-      NewParamForQuery(QueryOfUpdate, FBakimYapanServis);
-      NewParamForQuery(QueryOfUpdate, FPeriyodikBakimKM);
-      NewParamForQuery(QueryOfUpdate, FTrafikSigortaTarihi);
-      NewParamForQuery(QueryOfUpdate, FAracMuayeneTarihi);
-      NewParamForQuery(QueryOfUpdate, FAracKM);
-
-      NewParamForQuery(QueryOfUpdate, Id);
+      PrepareUpdateQueryParams;
 
       ExecSQL;
       Close;
@@ -230,20 +193,10 @@ begin
   end;
 end;
 
-function TBakimBilgisi.Clone():TTable;
+function TBakimBilgisi.Clone: TTable;
 begin
   Result := TBakimBilgisi.Create(Database);
-
-  Self.Id.Clone(TBakimBilgisi(Result).Id);
-
-  FPlaka.Clone(TBakimBilgisi(Result).FPlaka);
-  FBakimTarihi.Clone(TBakimBilgisi(Result).FBakimTarihi);
-  FBakimNotu.Clone(TBakimBilgisi(Result).FBakimNotu);
-  FBakimYapanServis.Clone(TBakimBilgisi(Result).FBakimYapanServis);
-  FPeriyodikBakimKM.Clone(TBakimBilgisi(Result).FPeriyodikBakimKM);
-  FTrafikSigortaTarihi.Clone(TBakimBilgisi(Result).FTrafikSigortaTarihi);
-  FAracMuayeneTarihi.Clone(TBakimBilgisi(Result).FAracMuayeneTarihi);
-  FAracKM.Clone(TBakimBilgisi(Result).FAracKM);
+  CloneClassContent(Self, Result);
 end;
 
 end.

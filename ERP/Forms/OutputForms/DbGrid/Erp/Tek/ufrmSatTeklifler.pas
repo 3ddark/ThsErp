@@ -53,7 +53,7 @@ uses
   FireDAC.Phys.PG,
   FireDAC.Phys.PGDef,
   FireDAC.VCLUI.Wait,
-  udm, frxExportXLS;
+  udm;
 
 type
   TfrmSatTeklifler = class(TfrmBaseDBGrid)

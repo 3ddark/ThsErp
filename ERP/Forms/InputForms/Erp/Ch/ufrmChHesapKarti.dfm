@@ -24,6 +24,8 @@ inherited frmHesapKarti: TfrmHesapKarti
       ExplicitWidth = 696
       ExplicitHeight = 320
       inherited tsMain: TTabSheet
+        ExplicitLeft = 0
+        ExplicitTop = 0
         ExplicitWidth = 688
         ExplicitHeight = 292
         object lblhesap_kodu: TLabel
@@ -502,6 +504,10 @@ inherited frmHesapKarti: TfrmHesapKarti
       object tsAdres: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblposta_kutusu: TLabel
           Left = 412
           Top = 201
@@ -736,6 +742,10 @@ inherited frmHesapKarti: TfrmHesapKarti
       object tsIletisim: TTabSheet
         Caption = #304'leti'#351'im'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblyetkili2: TLabel
           Left = 75
           Top = 91

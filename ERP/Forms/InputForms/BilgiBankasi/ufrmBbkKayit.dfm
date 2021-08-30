@@ -12,24 +12,22 @@ inherited frmBbkKayit: TfrmBbkKayit
     Width = 872
     Height = 463
     ExplicitWidth = 872
-    ExplicitHeight = 449
+    ExplicitHeight = 463
     inherited pgcMain: TPageControl
       Width = 870
       Height = 461
       ExplicitWidth = 870
-      ExplicitHeight = 447
+      ExplicitHeight = 461
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 862
-        ExplicitHeight = 419
+        ExplicitHeight = 433
         object lblfirma_adi: TLabel
           Left = 84
           Top = 5
           Width = 53
           Height = 13
           Alignment = taRightJustify
-          Caption = 'Frima Ad'#305
+          Caption = 'Firma Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -107,7 +105,7 @@ inherited frmBbkKayit: TfrmBbkKayit
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblweb_adres: TLabel
+        object lblweb: TLabel
           Left = 74
           Top = 137
           Width = 63
@@ -261,7 +259,7 @@ inherited frmBbkKayit: TfrmBbkKayit
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblsehir_id: TLabel
+        object lblsehir_adi_id: TLabel
           Left = 347
           Top = 94
           Width = 30
@@ -275,7 +273,7 @@ inherited frmBbkKayit: TfrmBbkKayit
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblulke_id: TLabel
+        object lblulke_adi_id: TLabel
           Left = 350
           Top = 116
           Width = 27
@@ -331,20 +329,6 @@ inherited frmBbkKayit: TfrmBbkKayit
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblis_ziyaret_edilmesin: TLabel
-          Left = 568
-          Top = 189
-          Width = 97
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'Ziyaret Edilmesin'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
         object lblcalistigi_tedarikciler: TLabel
           Left = 378
           Top = 189
@@ -381,20 +365,6 @@ inherited frmBbkKayit: TfrmBbkKayit
           Height = 13
           Alignment = taRightJustify
           Caption = 'Firma Ka'#231' Senelik'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object lblyillik_asansor_sayisi: TLabel
-          Left = 575
-          Top = 285
-          Width = 114
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'Y'#305'll'#305'k Asans'#246'r Say'#305's'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -447,7 +417,7 @@ inherited frmBbkKayit: TfrmBbkKayit
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblbolge_id: TLabel
+        object lblbolge_adi_id: TLabel
           Left = 344
           Top = 138
           Width = 33
@@ -503,7 +473,7 @@ inherited frmBbkKayit: TfrmBbkKayit
           Height = 21
           TabOrder = 11
         end
-        object edtweb_adres: TEdit
+        object edtweb: TEdit
           Left = 138
           Top = 134
           Width = 145
@@ -529,28 +499,28 @@ inherited frmBbkKayit: TfrmBbkKayit
           Top = 208
           Width = 145
           Height = 21
-          TabOrder = 21
+          TabOrder = 20
         end
         object edtyetkili2: TEdit
           Left = 138
           Top = 238
           Width = 145
           Height = 21
-          TabOrder = 22
+          TabOrder = 21
         end
         object edtyetkili2_tel: TEdit
           Left = 138
           Top = 260
           Width = 145
           Height = 21
-          TabOrder = 24
+          TabOrder = 23
         end
         object edtyetkili2_email: TEdit
           Left = 138
           Top = 282
           Width = 145
           Height = 21
-          TabOrder = 26
+          TabOrder = 25
         end
         object edtfirma_tipi_id: TEdit
           Left = 378
@@ -580,14 +550,14 @@ inherited frmBbkKayit: TfrmBbkKayit
           Height = 21
           TabOrder = 7
         end
-        object edtsehir_id: TEdit
+        object edtsehir_adi_id: TEdit
           Left = 378
           Top = 90
           Width = 145
           Height = 21
           TabOrder = 9
         end
-        object edtulke_id: TEdit
+        object edtulke_adi_id: TEdit
           Left = 378
           Top = 112
           Width = 145
@@ -608,63 +578,49 @@ inherited frmBbkKayit: TfrmBbkKayit
           Height = 21
           TabOrder = 13
         end
-        object chkis_ziyaret_edilmesin: TCheckBox
-          Left = 670
-          Top = 188
-          Width = 145
-          Height = 17
-          TabOrder = 19
-        end
         object mmocalistigi_tedarikciler: TMemo
           Left = 378
           Top = 205
           Width = 185
           Height = 80
-          TabOrder = 20
+          TabOrder = 19
         end
         object edtfinans_durumu_id: TEdit
           Left = 694
           Top = 238
           Width = 121
           Height = 21
-          TabOrder = 23
+          TabOrder = 22
         end
         object edtkac_yillik_firma: TEdit
           Left = 694
           Top = 260
           Width = 121
           Height = 21
-          TabOrder = 25
-        end
-        object edtyillik_asansor_sayisi: TEdit
-          Left = 694
-          Top = 282
-          Width = 121
-          Height = 21
-          TabOrder = 27
+          TabOrder = 24
         end
         object mmonot1: TMemo
           Left = 138
           Top = 332
           Width = 185
           Height = 80
-          TabOrder = 28
+          TabOrder = 26
         end
         object mmonot2: TMemo
           Left = 378
           Top = 332
           Width = 185
           Height = 80
-          TabOrder = 29
+          TabOrder = 27
         end
         object mmonot3: TMemo
           Left = 630
           Top = 332
           Width = 185
           Height = 80
-          TabOrder = 30
+          TabOrder = 28
         end
-        object edtbolge_id: TEdit
+        object edtbolge_adi_id: TEdit
           Left = 378
           Top = 134
           Width = 145
@@ -684,7 +640,7 @@ inherited frmBbkKayit: TfrmBbkKayit
   inherited pnlBottom: TPanel
     Top = 467
     Width = 872
-    ExplicitTop = 453
+    ExplicitTop = 467
     ExplicitWidth = 872
     inherited btnAccept: TButton
       Left = 663

@@ -34,6 +34,8 @@ uses
   Vcl.Samples.Spin,
   Vcl.Clipbrd,
   Vcl.ActnList,
+  System.Win.ComObj,
+  //Excel97,
   Data.DB,
   FireDAC.DatS,
   FireDAC.DApt.Intf,
@@ -56,7 +58,6 @@ uses
   frxClass,
   frxUtils,
   frxExportPDF,
-  frxExportXLS,
   frxPreview,
   frxExportBaseDialog,
   frxDBSet,
@@ -164,7 +165,7 @@ type
     actfilter_exclude: TAction;
     actfilter_remove: TAction;
     Timer1: TTimer;
-    frxXLSExport1: TfrxXLSExport;
+    ProgressBar1: TProgressBar;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
     procedure FormResize(Sender: TObject); override;
@@ -269,7 +270,7 @@ type
     FQrySiralamaVarsayilan: string;
     FFiltreGrid: TStringList;
 
-    procedure TransferToExcel();
+    procedure TransferToExcel(AAllColumn: Boolean = False);
     procedure TransferToExcelAll();
 
     function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm;virtual;
@@ -2461,38 +2462,142 @@ begin
   //
 end;
 
-procedure TfrmBaseDBGrid.TransferToExcel();
+procedure TfrmBaseDBGrid.TransferToExcel(AAllColumn: Boolean = False);
+var
+  ExcelApplication, Sheet: Variant;
+  LRecPozisyon: Integer;
+  LColCount, LLastCol, LRow, LRowCount: Integer;
+  ADataSet: TDataSet;
+  LDosyaAdi: string;
+  n1: Integer;
 begin
   dlgSave.Filter := FILE_FILTER_XLSX;
   dlgSave.DefaultExt := FILE_EXT_XLSX;
   dlgSave.FileName := Self.Caption + ' ' + DateToStr(Table.Database.GetToday);
+  dlgSave.InitialDir := '%USERPROFILE%\desktop';
   if not dlgSave.Execute then
     Exit;
 
-  //ExportGridToXLSX(dlgSave.FileName, grdBase, True, True, True);
+  LDosyaAdi := dlgSave.FileName;
+
+  Cursor := crHourGlass;
+  try
+    ExcelApplication := CreateOleObject('Excel.Application');
+    ExcelApplication.Visible := False;  //let's make visible
+  except
+    Showmessage('Excel dosya oluşturulamadı,' + AddLBs(2) +
+                'Bilgisayarında Microsoft Excel kurulu olduğundan emin misin?');
+    Application.Terminate;
+  end;
+  ADataSet := grd.DataSource.DataSet;
+
+  ADataSet.DisableControls;
+  LRowCount := ADataSet.RecordCount;
+  LRecPozisyon := ADataSet.RecNo;
+  try
+    ADataSet.RecNo := 1;
+
+    ExcelApplication.WorkBooks.Add(-4167);   //Add excel workbook
+    ExcelApplication.WorkBooks[1].WorkSheets[1].Name := 'Sayfa1';
+    Sheet := ExcelApplication.WorkBooks[1].WorkSheets['Sayfa1'];
+
+    LColCount := 0;
+    for n1 := 0 to grd.Columns.Count-1 do
+      if grd.Columns.Items[n1].Visible then
+        Inc(LColCount);
+    LLastCol := 64 + LColCount;
+
+    //Format cells in excel sheet
+    Sheet.Range['A1:' + Chr(LLastCol) + IntToStr(LRowCount+1)].Borders.LineStyle := 7;
+    Sheet.Range['A1:' + Chr(LLastCol) + IntToStr(LRowCount+1)].Borders.color := clGray;
+  //  Sheet.Range['A1:' + Chr(LLastCol) + IntToStr(LRowCount+1)].HorizontalAlignment := xlLeft;
+
+    LColCount := 0;
+    for n1 := 0 to grd.Columns.Count-1 do
+      if grd.Columns.Items[n1].Visible then
+      begin
+        Inc(LColCount);
+        Sheet.Cells[1, LColCount].Interior.Color := clMoneyGreen; //grd.Columns.Items[n1].Title.Color;
+        Sheet.Cells[1, LColCount].Font.Bold := fsBold in grd.Columns.Items[n1].Title.Font.Style;
+        Sheet.Columns[LColCount].ColumnWidth := (((grd.Columns.Items[n1].Width / 28) * 5.1425) - 0.71);
+        Sheet.Cells[1, LColCount] := grd.Columns.Items[n1].Title.Caption;
+      end;
+
+    ProgressBar1.Max := ADataSet.RecordCount;
+    ProgressBar1.Position := 0;
+    ProgressBar1.Visible := True;
+
+    //now copy from table to excel cells
+    for LRow := 1 to ADataSet.RecordCount do
+    begin
+      LColCount := 0;
+      for n1 := 0 to grd.Columns.Count-1 do
+        if grd.Columns[n1].Visible then
+        begin
+          Inc(LColCount);
+          if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftString)
+          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftWideString)
+          then
+            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsString
+          else
+          if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftLargeint)
+          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftInteger)
+          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftSmallint)
+          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftShortint)
+          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftWord)
+          then
+            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsInteger
+          else
+          if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftDate)
+          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftDateTime)
+          then
+            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsDateTime
+          else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftBoolean) then
+            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsBoolean
+          else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftBCD) then
+            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsFloat
+        end;
+      ProgressBar1.Position := LRow;
+      ADataSet.Next;
+    end;
+
+    DeleteFile(LDosyaAdi);
+    Sheet.SaveAs(LDosyaAdi);
+
+    ExcelApplication.Visible := True;
+//    ExcelApplication.Quit; //Quit excel
+    ExcelApplication := Unassigned;
+    Sheet := Unassigned;
+  finally
+    ProgressBar1.Visible := False;
+    ProgressBar1.Position := 0;
+    Screen.Cursor := crDefault;
+    ADataSet.RecNo := LRecPozisyon;
+    ADataSet.EnableControls;
+  end;
 end;
 
 procedure TfrmBaseDBGrid.TransferToExcelAll();
+//var
+//  vFileName: string;
 var
-  vFileName: string;
-var
-  nR: Integer;
+//  nR: Integer;
   nC: Integer;
-  SaveDialogExcelFile:TSaveDialog;
+//  SaveDialogExcelFile:TSaveDialog;
   strTemp:string;
-  dTemp:double;
+//  dTemp:double;
 
-  strFileName:string;
-  rs:TResourceStream;
-  nVisilbeColCount:integer;
-  nVisibleColNumber:array of integer;
-  qry: TFDQuery;
+//  strFileName:string;
+//  rs:TResourceStream;
+//  nVisilbeColCount:integer;
+//  nVisibleColNumber:array of integer;
+//  qry: TFDQuery;
   ATable: TTable;
   AGridFilter: string;
-  OpenWithControl: Boolean;
+//  OpenWithControl: Boolean;
   //dxSpreadSheet1: TdxSpreadSheet;
 begin
-  OpenWithControl := isCtrlDown;
+//  OpenWithControl := isCtrlDown;
 
   dlgSave.Filter := FILE_FILTER_XLSX;
   dlgSave.DefaultExt := FILE_EXT_XLSX;
@@ -2527,7 +2632,7 @@ begin
 //      BackgroundColor := clLtGray;
     end;
 
-    nR := 1;
+//    nR := 1;
     ATable.QueryOfDS.First;
     while not ATable.QueryOfDS.Eof do
     begin
@@ -2552,7 +2657,7 @@ begin
         begin
           if strTemp <> '' then
           begin
-            dTemp := StrToFloat(strTemp);
+//            dTemp := StrToFloat(strTemp);
 //            AsFloat := dTemp;
 //            FormatCode := '0.00';
           end;
@@ -2575,7 +2680,7 @@ begin
 //          AsString := strTemp
       end;
       ATable.QueryOfDS.Next;
-      Inc(nR);
+//      Inc(nR);
     end;
 
 //    for nC := 0 to dxSpreadSheet1.ActiveSheetAsTable.Columns.Count-1 do

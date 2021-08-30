@@ -197,6 +197,9 @@ const
   FILE_FILTER_DXF = 'Cad File|*.' + FILE_EXT_DXF;
   FILE_FILTER_DWG = 'Cad File|*.' + FILE_EXT_DWG;
 
+  FILE_FILTER_IMAGE = 'Image File *.(' + FILE_EXT_PNG + ',' + FILE_EXT_JPG + ',' + FILE_EXT_BMP + ')|' +
+                                  '*.' + FILE_EXT_PNG+';*.' + FILE_EXT_JPG+';*.' + FILE_EXT_BMP;
+
   PATH_SETTINGS = 'Settings';
   PATH_PRINT_FORMS = '';
 

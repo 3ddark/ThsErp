@@ -107,7 +107,7 @@ type
 
     FFields: TArray<TFieldDB>;
 
-    function GetTableName(): string;
+    function GetTableName: string;
     procedure SetTableName(ATableName: string);
   protected
     //record list storage in selected rows
@@ -154,6 +154,7 @@ type
     property Database: TDatabase read FDatabase;
 
     property List: TList read FList;  //TDictionary<string, TTable>
+
     property DataSource: TDataSource read FDataSource;
 
     property Fields: TArray<TFieldDB> read FFields write FFields;
@@ -175,9 +176,9 @@ type
     property QueryOfInfo: TFDQuery read FQueryOfInfo write FQueryOfInfo;
 
     //for Postgres
-    procedure Listen(); virtual;
-    procedure Unlisten(); virtual;
-    procedure Notify(); virtual;
+    procedure Listen; virtual;
+    procedure Unlisten; virtual;
+    procedure Notify; virtual;
 
     //get records from the database for dbgrid
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); virtual; abstract;

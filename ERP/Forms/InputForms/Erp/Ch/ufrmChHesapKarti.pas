@@ -484,7 +484,7 @@ begin
               TEdit(Sender).Text := VarToStr(FormatedVariantVal(TSysSehir(LFrmSehir.Table).SehirAdi));
               TChHesapKarti(Table).SehirID.Value := LFrmSehir.Table.Id.Value;
               edtulke_id.Text := VarToStr(FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeAdi));
-              TChHesapKarti(Table).UlkeID.Value := TSysSehir(LFrmSehir.Table).UlkeID.Value;
+              TChHesapKarti(Table).UlkeID.Value := TSysSehir(LFrmSehir.Table).UlkeAdiID.Value;
             end;
           end;
         finally

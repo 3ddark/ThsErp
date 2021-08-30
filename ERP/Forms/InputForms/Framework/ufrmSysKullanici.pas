@@ -139,7 +139,7 @@ begin
           LFrmEmpCard.ShowModal;
           if LFrmEmpCard.DataAktar then
           begin
-            TSysKullanici(Table).PersonelKartiID.Value := LFrmEmpCard.Table.Id.Value;
+            TSysKullanici(Table).PersonelID.Value := LFrmEmpCard.Table.Id.Value;
             TEdit(Sender).Text := LEmpCard.AdSoyad.Value;
           end;
         finally
@@ -160,7 +160,7 @@ begin
   chkis_super_kullanici.Checked := TSysKullanici(Table).IsSuperKullanici.Value;
   edtip_adres.Text := TSysKullanici(Table).IpAdres.Value;
   edtmac_adres.Text := TSysKullanici(Table).MacAdres.Value;
-  edtpersonel_ad_soyad_id.Text := TSysKullanici(Table).PersonelAdSoyad.Value;
+  edtpersonel_ad_soyad_id.Text := TSysKullanici(Table).AdSoyad.Value;
 
   edtkullanici_sifre.Clear;
   edtkullanici_sifre.MaxLength := 16;

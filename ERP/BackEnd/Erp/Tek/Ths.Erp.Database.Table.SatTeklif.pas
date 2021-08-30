@@ -1044,8 +1044,8 @@ begin
     ASip.PostaKodu.Value := Self.PostaKodu.Value;
     ASip.BinaAdi.Value := Self.BinaAdi.Value;
     ASip.KapiNo.Value := Self.KapiNo.Value;
-    ASip.MusteriTemsilcisiID.Value := GSysKullanici.PersonelKartiID.Value;
-    ASip.MusteriTemsilcisi.Value := GSysKullanici.PersonelAdSoyad.Value;
+    ASip.MusteriTemsilcisiID.Value := GSysKullanici.PersonelID.Value;
+    ASip.MusteriTemsilcisi.Value := GSysKullanici.AdSoyad.Value;
     ASip.MuhattapAd.Value := Self.MuhattapAd.Value;
     ASip.Referans.Value := Self.Referans.Value;
     ASip.ParaBirimi.Value := Self.ParaBirimi.Value;

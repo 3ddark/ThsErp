@@ -22,12 +22,13 @@ uses
   Vcl.AppEvnts,
   Vcl.Menus,
   Vcl.Samples.Spin,
+  Vcl.Imaging.pngimage,
   Ths.Erp.Helper.BaseTypes,
   Ths.Erp.Helper.Edit,
   Ths.Erp.Helper.Memo,
   Ths.Erp.Helper.ComboBox,
   ufrmBase,
-  ufrmBaseInputDB;
+  ufrmBaseInputDB, Vcl.Imaging.jpeg;
 
 type
   TfrmSysUygulamaAyari = class(TfrmBaseInputDB)
@@ -146,6 +147,7 @@ uses
   Ths.Erp.Database.Singleton,
   Ths.Erp.Globals,
   Ths.Erp.Constants,
+  Ths.Erp.Database.Table,
   Ths.Erp.Database.Table.SysLisan,
   Ths.Erp.Database.Table.SysUygulamaAyari,
   Ths.Erp.Database.Table.SysUlke,
@@ -284,7 +286,7 @@ begin
 
           TSysUygulamaAyari(Table).SehirID.Value := LFrmCity.Table.Id.Value;
           TEdit(Sender).Text := TSysSehir(LFrmCity.Table).SehirAdi.Value;
-          TSysUygulamaAyari(Table).UlkeID.Value := TSysSehir(LFrmCity.Table).UlkeID.Value;
+          TSysUygulamaAyari(Table).UlkeID.Value := TSysSehir(LFrmCity.Table).UlkeAdiID.Value;
           edtulke_id.Text := TSysSehir(LFrmCity.Table).UlkeAdi.Value;
         finally
           LFrmCity.Free;
@@ -329,11 +331,11 @@ begin
         'Kayýt Onayý') = mrYes
     then
     begin
-      imglogo.Picture.SaveToFile(GetDialogSave('', FILE_FILTER_JPG, ''));
+      imglogo.Picture.SaveToFile(GetDialogSave('', FILE_FILTER_IMAGE, ''));
     end
     else
     begin
-      LFileName := GetDialogOpen(FILE_FILTER_JPG);
+      LFileName := GetDialogOpen(FILE_FILTER_IMAGE);
       if (LFileName <> '') and FileExists(LFileName) then
         LoadImage(LFileName);
     end;
@@ -342,10 +344,46 @@ end;
 
 procedure TfrmSysUygulamaAyari.LoadImage(pFileName: string);
 var
-  vRightOrigin: Integer;
+  LRightOrigin: Integer;
+  LImgJ: TJPEGImage;
+  LImgP: TPngImage;
+  LStream: TMemoryStream;
 begin
-  vRightOrigin := imgLogo.Left + imgLogo.Width;
-  imgLogo.Picture.LoadFromFile(pFileName);
+  LRightOrigin := imgLogo.Left + imgLogo.Width;
+
+  LStream := TMemoryStream.Create;
+  try
+    if ExtractFileExt(pFileName).Replace('.', '') = FILE_EXT_BMP then
+    begin
+      imglogo.Picture.Bitmap.LoadFromFile(pFileName);
+    end
+    else if ExtractFileExt(pFileName).Replace('.', '') = FILE_EXT_JPG then
+    begin
+      LImgJ := TJPEGImage.Create;
+      try
+        LStream.LoadFromFile(pFileName);
+        LStream.Position := 0;
+        LImgJ.LoadFromStream(LStream);
+        imglogo.Picture.Graphic.Assign(LImgJ);
+      finally
+        LImgJ.Free;
+      end;
+    end
+    else if ExtractFileExt(pFileName).Replace('.', '') = FILE_EXT_PNG then
+    begin
+      LImgP := TPngImage.Create;
+      try
+        LStream.LoadFromFile(pFileName);
+        LStream.Position := 0;
+        LImgP.LoadFromStream(LStream);
+        imglogo.Picture.Graphic.Assign(LImgP);
+      finally
+        LImgP.Free;
+      end;
+    end;
+  finally
+    LStream.Free;
+  end;
 
   if imgLogo.Picture.Bitmap.Width > 640 then
   begin
@@ -362,7 +400,7 @@ begin
 
   imgLogo.Width := imgLogo.Picture.Bitmap.Width;
   imgLogo.Height := imgLogo.Picture.Bitmap.Height;
-  imgLogo.Left := vRightOrigin-imgLogo.Width;
+  imgLogo.Left := LRightOrigin-imgLogo.Width;
 end;
 
 procedure TfrmSysUygulamaAyari.RefreshData();
@@ -376,17 +414,7 @@ begin
   edtfaks1.Text := FormatedVariantVal(TSysUygulamaAyari(Table).Faks1);
   edtfaks2.Text := FormatedVariantVal(TSysUygulamaAyari(Table).Faks2);
 
-  if TSysUygulamaAyari(Table).Logo.Value <> null then
-  begin
-    ByteArrayToFile(TSysUygulamaAyari(Table).Logo.Value, GUygulamaAnaDizin + 'logo_dmp.bmp');
-    try
-      LoadImage(GUygulamaAnaDizin + 'logo_dmp.bmp');
-    finally
-      DeleteFile(GUygulamaAnaDizin + 'logo_dmp.bmp');
-    end;
-  end
-  else
-    DrawEmptyImage();
+  LoadImageFromDB(TSysUygulamaAyari(Table).Logo, imglogo);
 
   edtgrid_color_1.Text := FormatedVariantVal(TSysUygulamaAyari(Table).GridColor1);
   edtgrid_color_2.Text := FormatedVariantVal(TSysUygulamaAyari(Table).GridColor2);
@@ -442,8 +470,7 @@ begin
   editColor.Repaint;
 end;
 
-function TfrmSysUygulamaAyari.ValidateInput(
-  panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
+function TfrmSysUygulamaAyari.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
 begin
   Result := inherited ValidateInput(panel_groupbox_pagecontrol_tabsheet);
 
@@ -465,7 +492,8 @@ begin
       TSysUygulamaAyari(Table).Tel5.Value := edttel5.Text;
       TSysUygulamaAyari(Table).Faks1.Value := edtfaks1.Text;
       TSysUygulamaAyari(Table).Faks2.Value := edtfaks2.Text;
-      TSysUygulamaAyari(Table).FLogoVal := imgLogo.Picture.Bitmap;
+
+      setValueFromImage(TSysUygulamaAyari(Table).Logo, imglogo);
 
       TSysUygulamaAyari(Table).GridColor1.Value := edtgrid_color_1.Text;
       TSysUygulamaAyari(Table).GridColor2.Value := edtgrid_color_2.Text;

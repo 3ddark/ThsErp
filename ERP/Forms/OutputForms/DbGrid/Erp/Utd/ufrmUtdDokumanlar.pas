@@ -33,7 +33,9 @@ uses
   frxExportBaseDialog,
   frxExportPDF,
   ufrmBase,
-  ufrmBaseDBGrid;
+  ufrmBaseDBGrid, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, System.Actions,
+  Vcl.ActnList, FireDAC.Comp.DataSet;
 
 type
   TfrmUtdDokumanlar = class(TfrmBaseDBGrid)

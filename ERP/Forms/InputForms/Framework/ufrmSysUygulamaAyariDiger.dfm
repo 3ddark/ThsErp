@@ -126,6 +126,22 @@ inherited frmSysUygulamaAyariDiger: TfrmSysUygulamaAyariDiger
           ParentBiDiMode = False
           ParentFont = False
         end
+        object lblstok_en_boy_yukseklik_birim: TLabel
+          Left = 65
+          Top = 169
+          Width = 91
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Stok E-B-Y Birim'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
         object chkis_edefter_aktif: TCheckBox
           Left = 160
           Top = 2
@@ -195,13 +211,19 @@ inherited frmSysUygulamaAyariDiger: TfrmSysUygulamaAyariDiger
           TabOrder = 8
           OnClick = btnpath_utdClick
         end
-        object cbbtemin_suresi_birim: TComboBox
+        object edtstok_en_boy_yukseklik_birim: TEdit
+          Left = 160
+          Top = 166
+          Width = 145
+          Height = 21
+          TabOrder = 9
+        end
+        object edttemin_suresi_birim: TEdit
           Left = 160
           Top = 144
           Width = 145
           Height = 21
-          Style = csDropDownList
-          TabOrder = 9
+          TabOrder = 10
         end
       end
     end

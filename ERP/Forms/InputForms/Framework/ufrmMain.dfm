@@ -40,7 +40,7 @@
       ButtonOptions = [boFullSize, boShowCaptions, boBoldCaptions, boUsePlusMinus, boCaptionOnlyBorder]
       Categories = <
         item
-          Caption = 'Sistem Ayarlar'#305' [1]'
+          Caption = 'Sistem Ayarlar'#305' [1, 2]'
           Color = 16771818
           Collapsed = True
           GradientColor = 16776176
@@ -50,12 +50,6 @@
             end
             item
               Action = actsys_uygulama_ayari_diger
-            end
-            item
-              Action = actsys_ulke
-            end
-            item
-              Action = actsys_sehir
             end
             item
               Action = actsys_kullanici
@@ -102,19 +96,6 @@
               Action = actmhs_doviz_kuru
             end
             item
-              Caption = 'Ondal'#305'k Haneler'
-              ImageIndex = 66
-            end
-            item
-              Action = actsys_para_birimleri
-            end
-            item
-              Action = actsys_olcu_birimi_tipleri
-            end
-            item
-              Action = actsys_olcu_birimleri
-            end
-            item
               Action = actsys_kaynak_grubu
             end
             item
@@ -139,30 +120,61 @@
             item
               Caption = 'Grid Kolon Y'#252'zdelik Renkleri'
               ImageIndex = 33
+            end
+            item
+              Caption = '===================='
+            end
+            item
+              Action = actsys_mahalle
+            end
+            item
+              Action = actsys_semt
+            end
+            item
+              Action = actsys_ilce
+            end
+            item
+              Action = actsys_sehir
+            end
+            item
+              Action = actsys_bolge
+            end
+            item
+              Action = actsys_ulke
+            end
+            item
+              Caption = 'Ondal'#305'k Haneler'
+              ImageIndex = 66
+            end
+            item
+              Action = actsys_para_birimleri
+            end
+            item
+              Action = actsys_olcu_birimi_tipleri
+            end
+            item
+              Action = actsys_olcu_birimleri
             end>
         end
         item
-          Caption = 'Personel Bilgisi [1020]'
+          Caption = 'Personel Bilgisi [1020, 1021]'
           Color = 15400959
           Collapsed = True
           Items = <
-            item
-              Action = actset_prs_personel_tipi
-            end
-            item
-              Action = actset_prs_bolum
-            end
-            item
-              Action = actset_prs_birim
-            end
-            item
-              Action = actset_prs_gorev
-            end
             item
               Action = actset_prs_askerlik_durumu
             end
             item
               Action = actset_prs_ayrilma_nedeni
+            end
+            item
+              Action = actset_prs_ayrilma_tipi
+            end
+            item
+              Action = actset_prs_birim
+            end
+            item
+              Action = actset_prs_bolum
             end
             item
               Action = actset_prs_cinsiyet
@@ -174,8 +186,10 @@
               Action = actset_prs_ehliyet
             end
             item
-              Caption = #304'zin Tipleri'
-              ImageIndex = 76
+              Action = actset_prs_gecis_sistemi_karti
+            end
+            item
+              Action = actset_prs_gorev
             end
             item
               Action = actset_prs_lisan
@@ -190,33 +204,43 @@
               Action = actset_prs_mektup_tipi
             end
             item
-              Action = actset_prs_yeterlilik_belgesi
+              Action = actset_prs_personel_tipi
             end
             item
               Action = actset_prs_rapor_tipi
+            end
+            item
+              Action = actset_prs_servis_araci
             end
             item
               Action = actset_prs_src_tipi
             end
             item
               Action = actset_prs_tatil_tipi
+            end
+            item
+              Action = actset_prs_yeterlilik_belgesi
+            end
+            item
+              Caption = '==============='
+            end
+            item
+              Action = actprs_personel
             end>
         end
         item
-          Caption = 'Stok'
+          Caption = 'Stok Kart'#305' [1040, 1041]'
           Color = 16771839
           Collapsed = True
           Items = <
             item
-              Caption = 'Stok Grubu T'#252'r'#252
-              ImageIndex = 70
+              Action = actset_stk_urun_tipi
+            end
+            item
+              Caption = '============================'
             end
             item
               Action = actstk_stok_grubu
-            end
-            item
-              Caption = 'Cins Ailesi'
-              ImageIndex = 70
             end
             item
               Action = actstk_cins_ozelligi
@@ -226,7 +250,7 @@
             end>
         end
         item
-          Caption = 'Cari Hesap'
+          Caption = 'Hesap Kart'#305' [1030, 1031]'
           Color = 16771839
           Collapsed = True
           Items = <
@@ -249,6 +273,9 @@
               Action = actset_ch_vergi_orani
             end
             item
+              Caption = '==============='
+            end
+            item
               Action = actch_banka
             end
             item
@@ -262,6 +289,27 @@
             end
             item
               Action = actch_hesap_karti_ara
+            end>
+        end
+        item
+          Caption = 'Bilgi Bankas'#305' [6520, 6521]'
+          Color = 15400959
+          Collapsed = True
+          Items = <
+            item
+              Action = actset_bbk_calisma_durumu
+            end
+            item
+              Action = actset_bbk_finans_durumu
+            end
+            item
+              Action = actset_bbk_firma_tipi
+            end
+            item
+              Caption = '==============='
+            end
+            item
+              Action = actbbk_kayit
             end>
         end>
       Font.Charset = DEFAULT_CHARSET
@@ -418,12 +466,12 @@
       TabOrder = 0
       object tsGenel: TTabSheet
         Caption = 'Genel'
-        object btnutd_dokuman: TButton
+        object btnbbk_kayit: TButton
           Left = 2
-          Top = 186
+          Top = 228
           Width = 150
           Height = 36
-          Action = actutd_dokuman
+          Action = actbbk_kayit
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -434,12 +482,12 @@
           TabOrder = 0
           WordWrap = True
         end
-        object btnbbk_kayit_asansor: TButton
+        object btnutd_dokuman: TButton
           Left = 2
-          Top = 228
+          Top = 186
           Width = 150
           Height = 36
-          Action = actbbk_kayit_asansor
+          Action = actutd_dokuman
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -1201,7 +1249,7 @@
     object actsys_bolge: TAction
       Caption = 'B'#246'lgeler'
       ImageIndex = 68
-      OnExecute = actmhs_doviz_kuruExecute
+      OnExecute = actsys_bolgeExecute
     end
     object actmhs_doviz_kuru: TAction
       Caption = 'D'#246'viz Kurlar'#305
@@ -1287,6 +1335,21 @@
       Caption = 'Para Birimleri'
       ImageIndex = 68
       OnExecute = actsys_para_birimleriExecute
+    end
+    object actsys_mahalle: TAction
+      Caption = 'Mahalleler'
+      ImageIndex = 71
+      OnExecute = actsys_mahalleExecute
+    end
+    object actsys_semt: TAction
+      Caption = 'Semtler'
+      ImageIndex = 71
+      OnExecute = actsys_semtExecute
+    end
+    object actsys_ilce: TAction
+      Caption = #304'l'#231'eler'
+      ImageIndex = 71
+      OnExecute = actsys_ilceExecute
     end
     object actsys_sehir: TAction
       Caption = #350'ehirler'
@@ -1606,44 +1669,25 @@
     object actx8: TAction
       Caption = 'actx8'
     end
-    object actset_bbk_kayit_tipi: TAction
-      Caption = 'Bilgi Bankas'#305' Kay'#305't Tipi'
-      ImageIndex = 18
-      OnExecute = actset_bbk_kayit_tipiExecute
-    end
-    object actset_bbk_bolge: TAction
-      Caption = 'Bilgi Bankas'#305' B'#246'lge'
-      ImageIndex = 72
-      OnExecute = actset_bbk_bolgeExecute
-    end
     object actset_bbk_calisma_durumu: TAction
-      Caption = 'Bilgi Bankas'#305' '#199'al'#305#351'ma Durumu'
+      Caption = #199'al'#305#351'ma Durumu'
       ImageIndex = 93
       OnExecute = actset_bbk_calisma_durumuExecute
     end
-    object actprs_personel_karti: TAction
-      Caption = 'Personel Kart'#305
-      ImageIndex = 64
-    end
     object actset_bbk_finans_durumu: TAction
-      Caption = 'Bilgi Bankas'#305' Finans Durumu'
+      Caption = 'Finans Durumu'
       ImageIndex = 69
       OnExecute = actset_bbk_finans_durumuExecute
     end
     object actset_bbk_firma_tipi: TAction
-      Caption = 'Bilgi Bankas'#305' Firma Tipi'
+      Caption = 'Firma Tipi'
       ImageIndex = 71
       OnExecute = actset_bbk_firma_tipiExecute
     end
-    object actbbk_bolge_sehir: TAction
-      Caption = 'Bilgi Bankas'#305' B'#246'lge '#350'ehir'
-      ImageIndex = 70
-      OnExecute = actbbk_bolge_sehirExecute
-    end
-    object actbbk_kayit_asansor: TAction
-      Caption = 'Bilgi Bankas'#305' Asans'#246'r'
+    object actbbk_kayit: TAction
+      Caption = 'Bilgi Bankas'#305
       ImageIndex = 18
-      OnExecute = actbbk_kayit_asansorExecute
+      OnExecute = actbbk_kayitExecute
     end
     object actx9: TAction
       Caption = 'actx9'
@@ -1671,7 +1715,6 @@
     object actset_efatura_iletisim_kanali: TAction
       Caption = 'E-Fatura '#304'leti'#351'im Kanal'#305
       ImageIndex = 91
-      OnExecute = actset_efatura_iletisim_kanaliExecute
     end
     object actset_efatura_istisna_kodu: TAction
       Caption = 'E-Fatura '#304'stisna Kodu'

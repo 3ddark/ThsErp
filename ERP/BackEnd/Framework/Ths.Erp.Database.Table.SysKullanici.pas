@@ -30,8 +30,8 @@ type
     FIsSuperKullanici: TFieldDB;
     FIpAdres: TFieldDB;
     FMacAdres: TFieldDB;
-    FPersonelKartiID: TFieldDB;
-    FPersonelAdSoyad: TFieldDB;
+    FPersonelID: TFieldDB;
+    FAdSoyad: TFieldDB;
 
     FPersonelKarti: TPrsPersonel;
   protected
@@ -61,8 +61,8 @@ type
     property IsSuperKullanici: TFieldDB read FIsSuperKullanici write FIsSuperKullanici;
     property IpAdres: TFieldDB read FIpAdres write FIpAdres;
     property MacAdres: TFieldDB read FMacAdres write FMacAdres;
-    property PersonelKartiID: TFieldDB read FPersonelKartiID write FPersonelKartiID;
-    property PersonelAdSoyad: TFieldDB read FPersonelAdSoyad write FPersonelAdSoyad;
+    property PersonelID: TFieldDB read FPersonelID write FPersonelID;
+    property AdSoyad: TFieldDB read FAdSoyad write FAdSoyad;
   end;
 
 implementation
@@ -92,8 +92,8 @@ begin
   FIsSuperKullanici := TFieldDB.Create('is_super_kullanici', ftBoolean, False, Self, 'Süper Kullanýcý?');
   FIpAdres := TFieldDB.Create('ip_adres', ftString, '', Self, 'Ip Adresi');
   FMacAdres := TFieldDB.Create('mac_adres', ftString, '', Self, 'Mac Adresi');
-  FPersonelKartiID := TFieldDB.Create('personel_karti_id', ftInteger, 0, Self, 'Personel Adý ID');
-  FPersonelAdSoyad := TFieldDB.Create(FPersonelKarti.AdSoyad.FieldName, FPersonelKarti.AdSoyad.DataType, FPersonelKarti.AdSoyad.Value, Self, 'Personel Adý');
+  FPersonelID := TFieldDB.Create('personel_id', ftInteger, 0, Self, 'Personel ID');
+  FAdSoyad := TFieldDB.Create(FPersonelKarti.AdSoyad.FieldName, FPersonelKarti.AdSoyad.DataType, FPersonelKarti.AdSoyad.Value, Self, 'Personel Adý');
 end;
 
 destructor TSysKullanici.Destroy;
@@ -139,26 +139,14 @@ begin
         TableName + '.' + FIsSuperKullanici.FieldName,
         TableName + '.' + FIpAdres.FieldName,
         TableName + '.' + FMacAdres.FieldName,
-        TableName + '.' + FPersonelKartiID.FieldName,
-        addLangField(FPersonelAdSoyad.FieldName)
+        TableName + '.' + FPersonelID.FieldName,
+        addField(FPersonelKarti.TableName, FPersonelKarti.AdSoyad.FieldName, FAdSoyad.FieldName)
       ], [
-        addLeftJoin(FPersonelAdSoyad.FieldName, TableName + '.' + FPersonelKartiID.FieldName, FPersonelKarti.TableName),
+        addJoin(jtLeft, FPersonelKarti.TableName, FPersonelKarti.Id.FieldName, TableName, FPersonelID.FieldName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
 		  Open;
 		  Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FKullaniciAdi, 'Kullanýcý Adý', QueryOfDS);
-      setFieldTitle(FKullaniciSifre, 'Kullanýcý Þifresi', QueryOfDS);
-      setFieldTitle(FIsAktif, 'Aktif?', QueryOfDS);
-      setFieldTitle(FIsBagli, 'Baðlý?', QueryOfDS);
-      setFieldTitle(FIsYonetici, 'Yönetici?', QueryOfDS);
-      setFieldTitle(FIsSuperKullanici, 'Süper Kullanýcý?', QueryOfDS);
-      setFieldTitle(FIpAdres, 'IP Adresi', QueryOfDS);
-      setFieldTitle(FMacAdres, 'MAC Adresi', QueryOfDS);
-      setFieldTitle(FPersonelKartiID, 'Personel ID', QueryOfDS);
-      setFieldTitle(FPersonelAdSoyad, 'Personel Adý', QueryOfDS);
  	  end;
   end;
 end;
@@ -183,10 +171,10 @@ begin
         TableName + '.' + FIsSuperKullanici.FieldName,
         TableName + '.' + FIpAdres.FieldName,
         TableName + '.' + FMacAdres.FieldName,
-        TableName + '.' + FPersonelKartiID.FieldName,
-        addLangField(FPersonelAdSoyad.FieldName)
+        TableName + '.' + FPersonelID.FieldName,
+        addField(FPersonelKarti.TableName, FPersonelKarti.AdSoyad.FieldName, FAdSoyad.FieldName)
       ], [
-        addLeftJoin(FPersonelAdSoyad.FieldName, TableName + '.' + FPersonelKartiID.FieldName, FPersonelKarti.TableName),
+        addJoin(jtLeft, FPersonelKarti.TableName, FPersonelKarti.Id.FieldName, TableName, FPersonelID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
 		  Open;
@@ -195,17 +183,7 @@ begin
 		  List.Clear;
 		  while NOT EOF do
 		  begin
-        setFieldValue(Self.Id, QueryOfList);
-		    setFieldValue(FKullaniciAdi, QueryOfList);
-        setFieldValue(FKullaniciSifre, QueryOfList);
-        setFieldValue(FIsAktif, QueryOfList);
-        setFieldValue(FIsBagli, QueryOfList);
-        setFieldValue(FIsYonetici, QueryOfList);
-        setFieldValue(FIsSuperKullanici, QueryOfList);
-        setFieldValue(FIpAdres, QueryOfList);
-        setFieldValue(FMacAdres, QueryOfList);
-        setFieldValue(FPersonelKartiID, QueryOfList);
-        setFieldValue(FPersonelAdSoyad, QueryOfList);
+        PrepareTableClassFromQuery(QueryOfList);
 
 		    List.Add(Self.Clone);
 
@@ -234,7 +212,7 @@ begin
         FIsSuperKullanici.FieldName,
         FIpAdres.FieldName,
         FMacAdres.FieldName,
-        FPersonelKartiID.FieldName
+        FPersonelID.FieldName
       ]);
 
       if IsSifreDegisti then
@@ -275,7 +253,7 @@ begin
         FIsSuperKullanici.FieldName,
         FIpAdres.FieldName,
         FMacAdres.FieldName,
-        FPersonelKartiID.FieldName
+        FPersonelID.FieldName
       ]);
 
       if IsSifreDegisti then

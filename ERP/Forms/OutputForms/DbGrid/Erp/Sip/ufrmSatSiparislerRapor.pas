@@ -34,7 +34,7 @@ uses
   ufrmBase,
   ufrmBaseDBGrid, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
-  System.Actions, Vcl.ActnList, frxExportXLS;
+  System.Actions, Vcl.ActnList;
 
 type
   TfrmSatSiparislerRapor = class(TfrmBaseDBGrid)

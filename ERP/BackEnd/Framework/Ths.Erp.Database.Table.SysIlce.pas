@@ -8,15 +8,21 @@ uses
   System.SysUtils,
   Data.DB,
   Ths.Erp.Database,
-  Ths.Erp.Database.Table;
+  Ths.Erp.Database.Table,
+  Ths.Erp.Database.Table.SysSehir,
+  Ths.Erp.Database.Table.SysUlke;
 
 type
   TSysIlce = class(TTable)
   private
     FIlceAdi: TFieldDB;
     FSehirId: TFieldDB;
+    FSehirAdi: TFieldDB;
+
+    FSysSehir: TSysSehir;
   published
     constructor Create(ADatabase: TDatabase); override;
+    destructor Destroy; override;
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
@@ -27,6 +33,7 @@ type
 
     Property IlceAdi: TFieldDB read FIlceAdi write FIlceAdi;
     Property SehirId: TFieldDB read FSehirId write FSehirId;
+    Property SehirAdi: TFieldDB read FSehirAdi write FSehirAdi;
   end;
 
 implementation
@@ -38,12 +45,21 @@ uses
 
 constructor TSysIlce.Create(ADatabase: TDatabase);
 begin
-  inherited Create(ADatabase);
   TableName := 'sys_ilce';
-  TableSourceCode := '1000';
+  TableSourceCode := MODULE_SISTEM_DIGER;
+  inherited Create(ADatabase);
 
-  FIlceAdi := TFieldDB.Create('ilce_adi', ftWideString, '', Self, 'IlceAdi');
-  FSehirId := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'SehirId');
+  FSysSehir := TSysSehir.Create(ADatabase);
+
+  FIlceAdi := TFieldDB.Create('ilce_adi', ftWideString, '', Self, 'Ýlçe Adý');
+  FSehirId := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Þehir Id');
+  FSehirAdi := TFieldDB.Create(FSysSehir.SehirAdi.FieldName, FSysSehir.SehirAdi.DataType, '', Self, 'Þehir Adý');
+end;
+
+destructor TSysIlce.Destroy;
+begin
+  FreeAndNil(FSysSehir);
+  inherited;
 end;
 
 procedure TSysIlce.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
@@ -53,13 +69,14 @@ begin
     with QueryOfDS do
     begin
       Close;
-      SQL.Clear;
-      SQL.Text := Database.GetSQLSelectCmd(TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        FIlceAdi.FieldName,
-        FSehirId.FieldName
+      Database.GetSQLSelectCmd(QueryOfDS, TableName, [
+        Self.Id.QryName,
+        FIlceAdi.QryName,
+        FSehirId.QryName,
+        addField(FSysSehir.TableName, FSysSehir.SehirAdi.FieldName, FSehirAdi.FieldName)
       ], [
-        'WHERE 1=1 ' + AFilter
+        addJoin(jtLeft, FSysSehir.TableName, FSysSehir.Id.FieldName, TableName, FSehirId.FieldName),
+        ' WHERE 1=1 ' + AFilter
       ], AAllColumn, AHelper);
       Open;
       Active := True;
@@ -72,17 +89,19 @@ begin
   if IsAuthorized(ptRead, APermissionControl) then
   begin
     if (ALock) then
-      AFilter := AFilter + ' FOR UPDATE NOWAIT; ';
+      AFilter := AFilter + ' FOR UPDATE OF ' + TableName + ' NOWAIT; ';
 
     with QueryOfList do
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        FIlceAdi.FieldName,
-        FSehirId.FieldName
+        Self.Id.QryName,
+        FIlceAdi.QryName,
+        FSehirId.QryName,
+        addField(FSysSehir.TableName, FSysSehir.SehirAdi.FieldName, FSehirAdi.FieldName)
       ], [
-        'WHERE 1=1 ', AFilter
+        addJoin(jtLeft, FSysSehir.TableName, FSysSehir.Id.FieldName, TableName, FSehirId.FieldName),
+        ' WHERE 1=1 ', AFilter
       ]);
       Open;
 
@@ -136,7 +155,7 @@ begin
     begin
       Close;
       SQL.Clear;
-      SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH [
+      SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
         FIlceAdi.FieldName,
         FSehirId.FieldName
       ]);

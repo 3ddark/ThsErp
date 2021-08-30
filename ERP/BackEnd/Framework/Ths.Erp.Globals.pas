@@ -33,6 +33,7 @@ uses
   System.Math,
   System.UITypes,
   System.IOUtils,
+  System.Generics.Collections,
   System.RTTI,
   System.TypInfo,
   System.Hash,
@@ -600,6 +601,8 @@ var
   /// </summary>
   GSysTableInfo: TSysViewColumns;
 
+  GGuiIcerik: TDictionary<string, TGuiIcerik>;
+
 implementation
 
 class function TObjectClone.From<T>(Source: T): T;
@@ -1035,14 +1038,15 @@ end;
 
 function TranslateText(ADefault, ACode, ATip: string; ATable: string; ALang: string): string;
 var
-  Query: TFDQuery;
-  LFilter: string;
-  LGui: TSysLisanGuiIcerik;
+  LItem: TGuiIcerik;
+//  Query: TFDQuery;
+//  LFilter: string;
+//  LGui: TSysLisanGuiIcerik;
 begin
   Result := ADefault;
+{
   LGui := TSysLisanGuiIcerik.Create(GDataBase);
   try
-
     LFilter := LGui.Lisan.FieldName      + '=' + QRY_PAR_CH + LGui.Lisan.FieldName + ' AND ' +
                LGui.Kod.FieldName        + '=' + QRY_PAR_CH + LGui.Kod.FieldName   + ' AND ' +
                LGui.IcerikTipi.FieldName + '=' + QRY_PAR_CH + LGui.IcerikTipi.FieldName;
@@ -1080,12 +1084,16 @@ begin
         Query.Free;
       end;
     end;
+}
+//  LItem :=
+  if GGuiIcerik.TryGetValue(ACode, LItem) then
+    Result := GGuiIcerik.Items[ACode].FDeger;
 
-    if (ATip = LngMsgError) then
-      Result := 'Hata Kodu = ' + ACode + AddLBs(2) + Result;
-  finally
-    LGui.Free;
-  end;
+  if (ATip = LngMsgError) then
+    Result := 'Hata Kodu = ' + ACode + AddLBs(2) + Result;
+//  finally
+//    LGui.Free;
+//  end;
 end;
 
 function GetTempFolder: string;
@@ -2772,5 +2780,6 @@ finalization
   GSysAy.Free;
   GParaBirimi.Free;
   GSysTableInfo.Free;
+  GGuiIcerik.Free;
 end.
 

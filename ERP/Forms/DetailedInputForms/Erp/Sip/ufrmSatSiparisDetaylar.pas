@@ -179,7 +179,7 @@ begin
       TSatSiparis(Table).DovizKuru.Value := StrToFloatDef(edtdoviz_kuru.Text, 1);
 
       TSatSiparis(Table).MusteriTemsilcisi.Value := edtmusteri_temsilcisi_id.Text;
-      TSatSiparis(Table).MusteriTemsilcisiID.Value := GSysKullanici.PersonelKartiID.Value;
+      TSatSiparis(Table).MusteriTemsilcisiID.Value := GSysKullanici.PersonelID.Value;
       TSatSiparis(Table).MuhattapAd.Value := edtmuhattap_ad.Text;
 
       TSatSiparis(Table).PaketTipi.Value := edtpaket_tipi_id.Text;
@@ -379,7 +379,7 @@ begin
     cbbsiparis_durum_id.ItemIndex := 0;  //bekliyor
     cbbsiparis_durum_id.Enabled := False;
 
-    edtmusteri_temsilcisi_id.Text := GSysKullanici.PersonelAdSoyad.Value;
+    edtmusteri_temsilcisi_id.Text := GSysKullanici.AdSoyad.Value;
     edtsiparis_tarihi.Text := DateToStr(GDataBase.DateDB);
     edtsiparis_no.Text := TSatSiparis(Table).getNewSiparisNo;
   end
@@ -667,7 +667,7 @@ begin
           TSatSiparis(Table).SehirID.Value := FormatedVariantVal(TSysSehir(LFrmSehir.Table).Id);
 
           edtulke_id.Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeAdi);
-          TSatSiparis(Table).UlkeID.Value := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeID);
+          TSatSiparis(Table).UlkeID.Value := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeAdiID);
         finally
           LFrmSehir.Free;
         end;

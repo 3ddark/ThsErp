@@ -39,7 +39,7 @@ uses
   frxExportBaseDialog,
   frxExportPDF,
   ufrmBase,
-  ufrmBaseDBGrid, frxExportXLS;
+  ufrmBaseDBGrid;
 
 type
   TfrmHesapKartlariAra = class(TfrmBaseDBGrid)

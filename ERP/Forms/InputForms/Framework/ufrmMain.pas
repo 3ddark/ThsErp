@@ -5,6 +5,7 @@ interface
 {$I ThsERP.inc}
 
 uses
+Ths.Erp.Database.Table.Arac.BakimBilgisi,
   Winapi.Windows,
   System.Variants,
   System.Math,
@@ -142,13 +143,10 @@ type
     actset_utd_dokuman_tipi: TAction;
     actset_utd_dosya_uzantisi: TAction;
     actutd_dokuman: TAction;
-    actset_bbk_kayit_tipi: TAction;
-    actset_bbk_bolge: TAction;
     actset_bbk_calisma_durumu: TAction;
     actset_bbk_finans_durumu: TAction;
     actset_bbk_firma_tipi: TAction;
-    actbbk_bolge_sehir: TAction;
-    actbbk_kayit_asansor: TAction;
+    actbbk_kayit: TAction;
     actsat_teklif: TAction;
     actsat_teklif_rapor: TAction;
     actsat_siparis: TAction;
@@ -160,7 +158,6 @@ type
     actx2: TAction;
     actx3: TAction;
     actx4: TAction;
-    actprs_personel_karti: TAction;
     actsys_bolge: TAction;
     actx5: TAction;
     actx6: TAction;
@@ -223,8 +220,7 @@ type
     btnset_prs_rapor_tipi: TButton;
     btnset_prs_src_tipi: TButton;
     btnset_prs_tatil_tipi: TButton;
-    btnutd_dokuman: TButton;
-    btnbbk_kayit_asansor: TButton;
+    btnbbk_kayit: TButton;
     tsrecete: TTabSheet;
     btnrct_recete: TButton;
     actset_rct_iscilik_gider_tipi: TAction;
@@ -235,6 +231,10 @@ type
     tsmhs: TTabSheet;
     btnmhs_doviz_kuru: TButton;
     actsys_olcu_birimi_tipleri: TAction;
+    btnutd_dokuman: TButton;
+    actsys_ilce: TAction;
+    actsys_semt: TAction;
+    actsys_mahalle: TAction;
 
 /// <summary>
 ///   Kullanýcýnýn eriþim yetkisine göre yapýlacak iþlemler burada olacak
@@ -270,7 +270,6 @@ type
     procedure actset_teklif_tipleriExecute(Sender: TObject);
     procedure actteklif_durumlariExecute(Sender: TObject);
     procedure actset_efatura_fatura_tipiExecute(Sender: TObject);
-    procedure actset_efatura_iletisim_kanaliExecute(Sender: TObject);
     procedure actset_efatura_istisna_koduExecute(Sender: TObject);
     procedure actsys_database_durumExecute(Sender: TObject);
     procedure actsys_hakkindaExecute(Sender: TObject);
@@ -304,14 +303,10 @@ type
     procedure actsys_olcu_birimleriExecute(Sender: TObject);
     procedure actset_utd_dokuman_tipiExecute(Sender: TObject);
     procedure actset_utd_dosya_uzantisiExecute(Sender: TObject);
-    procedure actutd_dokumanExecute(Sender: TObject);
-    procedure actset_bbk_kayit_tipiExecute(Sender: TObject);
-    procedure actset_bbk_bolgeExecute(Sender: TObject);
     procedure actset_bbk_calisma_durumuExecute(Sender: TObject);
     procedure actset_bbk_finans_durumuExecute(Sender: TObject);
     procedure actset_bbk_firma_tipiExecute(Sender: TObject);
-    procedure actbbk_bolge_sehirExecute(Sender: TObject);
-    procedure actbbk_kayit_asansorExecute(Sender: TObject);
+    procedure actbbk_kayitExecute(Sender: TObject);
     procedure actsat_teklifExecute(Sender: TObject);
     procedure actrct_receteExecute(Sender: TObject);
     procedure actstk_stok_grubuExecute(Sender: TObject);
@@ -340,6 +335,11 @@ type
     procedure actset_rct_iscilik_gider_tipiExecute(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure actsys_olcu_birimi_tipleriExecute(Sender: TObject);
+    procedure actutd_dokumanExecute(Sender: TObject);
+    procedure actsys_bolgeExecute(Sender: TObject);
+    procedure actsys_ilceExecute(Sender: TObject);
+    procedure actsys_semtExecute(Sender: TObject);
+    procedure actsys_mahalleExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
     procedure SetTitleFromLangContent(Sender: TControl = nil);
@@ -378,8 +378,12 @@ uses
   ufrmSysSifreGuncelle,
   NetGsm_SMS,
 
-  Ths.Erp.Database.Table.SysUlke, ufrmSysUlkeler,
+  Ths.Erp.Database.Table.SysMahalle, ufrmSysMahalleler,
+  Ths.Erp.Database.Table.SysSemt, ufrmSysSemtler,
+  Ths.Erp.Database.Table.SysIlce, ufrmSysIlceler,
   Ths.Erp.Database.Table.SysSehir, ufrmSysSehirler,
+  Ths.Erp.Database.Table.SysBolge, ufrmSysBolgeler,
+  Ths.Erp.Database.Table.SysUlke, ufrmSysUlkeler,
   Ths.Erp.Database.Table.SysKullanici, ufrmSysKullanicilar,
   Ths.Erp.Database.Table.SysErisimHakki, ufrmSysErisimHaklari,
   Ths.Erp.Database.Table.SysKaynakGrup, ufrmSysKaynakGruplari,
@@ -467,19 +471,15 @@ uses
   Ths.Erp.Database.Table.SetUtdDosyaUzantisi, ufrmSetUtdDosyaUzantilari,
   Ths.Erp.Database.Table.UtdDokuman, ufrmUtdDokumanlar,
 
-  Ths.Erp.Database.Table.AyarEFaturaIletisimKanali, ufrmAyarEFaturaIletisimKanallari,
   Ths.Erp.Database.Table.UrunKabulRedNedeni, ufrmUrunKabulRedNedenleri,
   Ths.Erp.Database.Table.OthMailReciever, ufrmOthMailRecievers,
   Ths.Erp.Database.Table.SetOdemeBaslangicDonemi, ufrmSetOdemeBaslangicDonemleri,
 
   Ths.Erp.Database.Table.Arac.Arac, ufrmAracTakipAraclar,
 
-  Ths.Erp.Database.Table.SetBbkKayitTipi, ufrmSetBbkKayitTipleri,
-  Ths.Erp.Database.Table.SetBbkBolge, ufrmSetBbkBolgeler,
   Ths.Erp.Database.Table.SetBbkCalismaDurumu, ufrmSetBbkCalismaDurumlari,
   Ths.Erp.Database.Table.SetBbkFinansDurumu, ufrmSetBbkFinansDurumlari,
   Ths.Erp.Database.Table.SetBbkFirmatipi, ufrmSetBbkFirmaTipleri,
-  Ths.Erp.Database.Table.BbkBolgeSehir, ufrmBbkBolgeSehirler,
   Ths.Erp.Database.Table.BbkKayit, ufrmBbkKayitlar;
 
 procedure TfrmMain.actsys_hakkindaExecute(Sender: TObject);
@@ -494,12 +494,12 @@ begin
     PageControl1.ActivePage := LTs;
 end;
 
-procedure TfrmMain.actbbk_bolge_sehirExecute(Sender: TObject);
+procedure TfrmMain.actsys_ilceExecute(Sender: TObject);
 begin
-  TfrmBbkBolgeSehirler.Create(Self, Self, TBbkBolgeSehir.Create(GDataBase), fomNormal).Show;
+  TfrmSysIlceler.Create(Self, Self, TSysIlce.Create(GDataBase)).Show;
 end;
 
-procedure TfrmMain.actbbk_kayit_asansorExecute(Sender: TObject);
+procedure TfrmMain.actbbk_kayitExecute(Sender: TObject);
 begin
   TfrmBbkKayitlar.Create(Self, Self, TBbkKayit.Create(GDataBase), fomNormal).Show;
 end;
@@ -539,8 +539,8 @@ end;
 
 procedure TfrmMain.ActionListMainExecute(Action: TBasicAction; var Handled: Boolean);
 begin
-  if SV.Opened then
-    SV.Opened := not SV.Opened;
+//  if SV.Opened then
+//    SV.Opened := not SV.Opened;
 end;
 
 procedure TfrmMain.actodeme_baslangic_donemleriExecute(Sender: TObject);
@@ -568,11 +568,6 @@ begin
   TfrmSatTeklifler.Create(Self, Self, TSatTeklif.Create(GDataBase), fomNormal).Show;
 end;
 
-procedure TfrmMain.actset_bbk_bolgeExecute(Sender: TObject);
-begin
-  TfrmSetBbkBolgeler.Create(Self, Self, TSetBbkBolge.Create(GDataBase), fomNormal).Show;
-end;
-
 procedure TfrmMain.actset_bbk_calisma_durumuExecute(Sender: TObject);
 begin
   TfrmSetBbkCalismaDurumlari.Create(Self, Self, TSetBbkCalismaDurumu.Create(GDataBase), fomNormal).Show;
@@ -586,11 +581,6 @@ end;
 procedure TfrmMain.actset_bbk_firma_tipiExecute(Sender: TObject);
 begin
   TfrmSetBbkFirmaTipleri.Create(Self, Self, TSetBbkFirmaTipi.Create(GDataBase), fomNormal).Show;
-end;
-
-procedure TfrmMain.actset_bbk_kayit_tipiExecute(Sender: TObject);
-begin
-  TfrmSetBbkKayitTipleri.Create(Self, Self, TSetBbkKayitTipi.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmMain.actset_ch_firma_tipiExecute(Sender: TObject);
@@ -626,11 +616,6 @@ end;
 procedure TfrmMain.actset_efatura_fatura_tipiExecute(Sender: TObject);
 begin
   TfrmSetEinvFaturaTipleri.Create(Self, Self, TSetEinvFaturaTipi.Create(GDataBase), fomNormal).Show;
-end;
-
-procedure TfrmMain.actset_efatura_iletisim_kanaliExecute(Sender: TObject);
-begin
-  TfrmAyarEFaturaIletisimKanallari.Create(Self, Self, TAyarEFaturaIletisimKanali.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmMain.actset_efatura_istisna_koduExecute(Sender: TObject);
@@ -779,6 +764,11 @@ begin
   TfrmSysSehirler.Create(Self, Self, TSysSehir.Create(GDataBase), fomNormal).Show;
 end;
 
+procedure TfrmMain.actsys_semtExecute(Sender: TObject);
+begin
+  TfrmSysSemtler.Create(Self, Self, TSysSemt.Create(GDataBase)).Show;
+end;
+
 procedure TfrmMain.actsys_grid_kolonExecute(Sender: TObject);
 begin
   TfrmSysGridKolonlar.Create(Self, Self, TSysGridKolon.Create(GDataBase), fomNormal).Show;
@@ -827,6 +817,11 @@ end;
 procedure TfrmMain.actsys_ayExecute(Sender: TObject);
 begin
   TfrmSysAylar.Create(Self, Self, TSysAy.Create(GDataBase), fomNormal).Show;
+end;
+
+procedure TfrmMain.actsys_bolgeExecute(Sender: TObject);
+begin
+  TfrmSysBolgeler.Create(Self, Self, TSysBolge.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmMain.actsys_olcu_birimi_tipleriExecute(Sender: TObject);
@@ -892,6 +887,11 @@ begin
     TfrmSysUygulamaAyari.Create(Self, nil, vApplicationSetting, ifmRewiev).ShowModal;
 end;
 
+procedure TfrmMain.actsys_mahalleExecute(Sender: TObject);
+begin
+  TfrmSysMahalleler.Create(Self, Self, TSysMahalle.Create(GDataBase)).Show;
+end;
+
 procedure TfrmMain.actsys_mukellef_tipiExecute(Sender: TObject);
 begin
   TfrmSysMukellefTipleri.Create(Self, Self, TSysMukellefTipi.Create(GDataBase), fomNormal).Show;
@@ -952,7 +952,7 @@ end;
 
 procedure TfrmMain.actutd_dokumanExecute(Sender: TObject);
 begin
-  TfrmUtdDokumanlar.Create(Self, Self, TUtdDokuman.Create(GDataBase), fomNormal).Show;
+  TfrmUtdDokumanlar.Create(Self, Self, TUtdDokuman.Create(GDataBase)).Show;
 end;
 
 procedure TfrmMain.btnCloseClick(Sender: TObject);
@@ -1463,7 +1463,7 @@ begin
           end
           else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_BBK_KAYIT then
           begin
-            btnbbk_kayit_asansor.Enabled := True;
+            btnbbk_kayit.Enabled := True;
           end;
         end
 

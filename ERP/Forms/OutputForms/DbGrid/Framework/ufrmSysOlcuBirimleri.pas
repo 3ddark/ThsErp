@@ -56,7 +56,6 @@ uses
   frxClass,
   frxUtils,
   frxExportPDF,
-  frxExportXLS,
   frxPreview,
   frxExportBaseDialog,
   frxDBSet,

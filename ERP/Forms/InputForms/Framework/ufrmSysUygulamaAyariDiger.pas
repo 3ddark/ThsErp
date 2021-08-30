@@ -47,7 +47,9 @@ type
     edtpath_utd: TEdit;
     btnpath_utd: TButton;
     lbltemin_suresi_birim: TLabel;
-    cbbtemin_suresi_birim: TComboBox;
+    lblstok_en_boy_yukseklik_birim: TLabel;
+    edtstok_en_boy_yukseklik_birim: TEdit;
+    edttemin_suresi_birim: TEdit;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject); override;
     procedure btnpath_stok_resimClick(Sender: TObject);
@@ -98,6 +100,8 @@ procedure TfrmSysUygulamaAyariDiger.RefreshData();
 begin
   edtpath_guncelleme.Text := FormatedVariantVal(TSysUygulamaAyariDiger(Table).PathUpdate);
   edtpath_utd.Text := FormatedVariantVal(TSysUygulamaAyariDiger(Table).PathUTD);
+  edttemin_suresi_birim.Text := TSysUygulamaAyariDiger(Table).TeminSuresiBirim.AsString;
+  edtstok_en_boy_yukseklik_birim.Text := TSysUygulamaAyariDiger(Table).StokEnBoyYukseklikBirim.AsString;
 end;
 
 procedure TfrmSysUygulamaAyariDiger.Repaint;
@@ -150,6 +154,8 @@ begin
     begin
       TSysUygulamaAyariDiger(Table).PathUpdate.Value := edtpath_guncelleme.Text;
       TSysUygulamaAyariDiger(Table).PathUTD.Value := edtpath_utd.Text;
+      TSysUygulamaAyariDiger(Table).TeminSuresiBirim.Value := edttemin_suresi_birim.Text;
+      TSysUygulamaAyariDiger(Table).StokEnBoyYukseklikBirim.Value := edtstok_en_boy_yukseklik_birim.Text;
       inherited;
     end;
   end

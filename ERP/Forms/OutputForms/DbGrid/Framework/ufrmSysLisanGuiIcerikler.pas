@@ -37,7 +37,7 @@ uses
   frxExportBaseDialog,
   frxExportPDF,
   ufrmBase,
-  ufrmBaseDBGrid, System.Actions, Vcl.ActnList, frxExportXLS;
+  ufrmBaseDBGrid, System.Actions, Vcl.ActnList;
 
 type
   TfrmSysLisanGuiIcerikler = class(TfrmBaseDBGrid)

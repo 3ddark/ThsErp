@@ -17,9 +17,9 @@ type
   private
     FSehirAdi: TFieldDB;
     FPlakaKodu: TFieldDB;
-    FUlkeID: TFieldDB;
+    FUlkeAdiID: TFieldDB;
     FUlkeAdi: TFieldDB;
-    FBolgeID: TFieldDB;
+    FBolgeAdiID: TFieldDB;
     FBolgeAdi: TFieldDB;
 
     FSysUlke: TSysUlke;
@@ -37,8 +37,10 @@ type
 
     property SehirAdi: TFieldDB read FSehirAdi write FSehirAdi;
     property PlakaKodu: TFieldDB read FPlakaKodu write FPlakaKodu;
-    property UlkeID: TFieldDB read FUlkeID write FUlkeID;
+    property UlkeAdiID: TFieldDB read FUlkeAdiID write FUlkeAdiID;
     property UlkeAdi: TFieldDB read FUlkeAdi write FUlkeAdi;
+    property BolgeAdiID: TFieldDB read FBolgeAdiID write FBolgeAdiID;
+    property BolgeAdi: TFieldDB read FBolgeAdi write FBolgeAdi;
   end;
 
 implementation
@@ -59,10 +61,10 @@ begin
 
   FSehirAdi := TFieldDB.Create('sehir_adi', ftString, '', Self, 'Þehir');
   FPlakaKodu := TFieldDB.Create('plaka_kodu', ftInteger, 0, Self, 'Plaka Kodu');
-  FUlkeID := TFieldDB.Create('ulke_id', ftInteger, 0, Self, 'Ülke ID');
-  FUlkeAdi := TFieldDB.Create(FSysUlke.UlkeAdi.FieldName, FSysUlke.UlkeAdi.DataType, '', Self, 'Ülke');
-  FBolgeID := TFieldDB.Create('bolge_id', ftInteger, 0, Self, 'Bölge ID');
-  FBolgeAdi := TFieldDB.Create(FSysBolge.BolgeAdi.FieldName, FSysBolge.BolgeAdi.DataType, '', Self, 'Bölge');
+  FUlkeAdiID := TFieldDB.Create('ulke_adi_id', ftInteger, 0, Self, 'Ülke Adý ID');
+  FUlkeAdi := TFieldDB.Create(FSysUlke.UlkeAdi.FieldName, FSysUlke.UlkeAdi.DataType, '', Self, 'Ülke Adý');
+  FBolgeAdiID := TFieldDB.Create('bolge_adi_id', ftInteger, 0, Self, 'Bölge Adý ID');
+  FBolgeAdi := TFieldDB.Create(FSysBolge.BolgeAdi.FieldName, FSysBolge.BolgeAdi.DataType, '', Self, 'Bölge Adý');
 end;
 
 destructor TSysSehir.Destroy;
@@ -83,13 +85,13 @@ begin
         TableName + '.' + Self.Id.FieldName,
         TableName + '.' + FSehirAdi.FieldName,
         TableName + '.' + FPlakaKodu.FieldName,
-        TableName + '.' + FUlkeID.FieldName,
+        TableName + '.' + FUlkeAdiID.FieldName,
         addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
-        TableName + '.' + FBolgeID.FieldName,
+        TableName + '.' + FBolgeAdiID.FieldName,
         addField(FSysBolge.TableName, FSysBolge.BolgeAdi.FieldName, FBolgeAdi.FieldName)
       ], [
-        addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FUlkeID.FieldName),
-        addJoin(jtLeft, FSysBolge.TableName, FSysBolge.Id.FieldName, TableName, FBolgeID.FieldName),
+        addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FUlkeAdiID.FieldName),
+        addJoin(jtLeft, FSysBolge.TableName, FSysBolge.Id.FieldName, TableName, FBolgeAdiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
@@ -98,9 +100,9 @@ begin
       setFieldTitle(Self.Id, 'ID', QueryOfDS);
       setFieldTitle(FSehirAdi, 'Þehir Adý', QueryOfDS);
       setFieldTitle(FPlakaKodu, 'Plaka Kodu', QueryOfDS);
-      setFieldTitle(FUlkeID, 'Ülke ID', QueryOfDS);
+      setFieldTitle(FUlkeAdiID, 'Ülke ID', QueryOfDS);
       setFieldTitle(FUlkeAdi, 'Ülke Adý', QueryOfDS);
-      setFieldTitle(FBolgeID, 'Bölge ID', QueryOfDS);
+      setFieldTitle(FBolgeAdiID, 'Bölge ID', QueryOfDS);
       setFieldTitle(FBolgeAdi, 'Bölge Adý', QueryOfDS);
     end;
   end;
@@ -120,13 +122,13 @@ begin
         TableName + '.' + Self.Id.FieldName,
         TableName + '.' + FSehirAdi.FieldName,
         TableName + '.' + FPlakaKodu.FieldName,
-        TableName + '.' + FUlkeID.FieldName,
+        TableName + '.' + FUlkeAdiID.FieldName,
         addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
-        TableName + '.' + FBolgeID.FieldName,
+        TableName + '.' + FBolgeAdiID.FieldName,
         addField(FSysBolge.TableName, FSysBolge.BolgeAdi.FieldName, FBolgeAdi.FieldName)
       ], [
-        addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FUlkeID.FieldName),
-        addJoin(jtLeft, FSysBolge.TableName, FSysBolge.Id.FieldName, TableName, FBolgeID.FieldName),
+        addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FUlkeAdiID.FieldName),
+        addJoin(jtLeft, FSysBolge.TableName, FSysBolge.Id.FieldName, TableName, FBolgeAdiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -158,8 +160,8 @@ begin
       SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
         FSehirAdi.FieldName,
         FPlakaKodu.FieldName,
-        FUlkeID.FieldName,
-        FBolgeID.FieldName
+        FUlkeAdiID.FieldName,
+        FBolgeAdiID.FieldName
       ]);
 
       PrepareInsertQueryParams;
@@ -187,8 +189,8 @@ begin
 		  SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
         FSehirAdi.FieldName,
         FPlakaKodu.FieldName,
-        FUlkeID.FieldName,
-        FBolgeID.FieldName
+        FUlkeAdiID.FieldName,
+        FBolgeAdiID.FieldName
       ]);
 
       PrepareUpdateQueryParams;

@@ -412,55 +412,41 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 47
           Width = 110
           Height = 21
-          TabOrder = 3
-          OnKeyUp = edtfiyatKeyUp
+          TabOrder = 2
+          OnChange = edtfiyatChange
+          OnExit = edtfiyatExit
         end
         object edtmiktar: TEdit
           Left = 97
           Top = 69
           Width = 110
           Height = 21
-          TabOrder = 5
-          OnKeyUp = edtmiktarKeyUp
-        end
-        object cbbolcu_birimi: TComboBox
-          Left = 97
-          Top = 91
-          Width = 110
-          Height = 21
-          Style = csDropDownList
-          TabOrder = 7
+          TabOrder = 3
+          OnChange = edtmiktarChange
+          OnExit = edtmiktarExit
         end
         object edtiskonto_orani: TEdit
           Left = 97
           Top = 113
           Width = 110
           Height = 21
-          TabOrder = 8
-          OnKeyUp = edtiskonto_oraniKeyUp
-        end
-        object cbbkdv_orani: TComboBox
-          Left = 97
-          Top = 135
-          Width = 110
-          Height = 21
-          Style = csDropDownList
-          TabOrder = 10
-          OnChange = cbbkdv_oraniChange
+          TabOrder = 5
+          OnChange = edtiskonto_oraniChange
+          OnExit = edtiskonto_oraniExit
         end
         object edtgtip_no: TEdit
           Left = 97
           Top = 157
           Width = 150
           Height = 21
-          TabOrder = 12
+          TabOrder = 7
         end
         object edtkullanici_aciklama: TEdit
           Left = 97
           Top = 179
           Width = 312
           Height = 21
-          TabOrder = 14
+          TabOrder = 8
         end
         object PanelBilgilendirme: TPanel
           Left = 97
@@ -469,7 +455,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Height = 106
           BevelInner = bvLowered
           ParentColor = True
-          TabOrder = 15
+          TabOrder = 9
           object lbltutar: TLabel
             Left = 96
             Top = 21
@@ -723,12 +709,28 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             ParentFont = False
           end
         end
+        object edtolcu_birimi: TEdit
+          Left = 97
+          Top = 91
+          Width = 110
+          Height = 21
+          TabOrder = 4
+        end
+        object edtkdv_orani: TEdit
+          Left = 97
+          Top = 135
+          Width = 110
+          Height = 21
+          TabOrder = 6
+          OnChange = edtkdv_oraniChange
+          OnExit = edtkdv_oraniExit
+        end
         object edten: TEdit
           Left = 486
           Top = 25
           Width = 60
           Height = 21
-          TabOrder = 2
+          TabOrder = 10
           OnChange = edtenChange
         end
         object edtboy: TEdit
@@ -736,7 +738,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 47
           Width = 60
           Height = 21
-          TabOrder = 4
+          TabOrder = 11
           OnChange = edtboyChange
         end
         object edtyukseklik: TEdit
@@ -744,7 +746,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 69
           Width = 60
           Height = 21
-          TabOrder = 6
+          TabOrder = 12
           OnChange = edtyukseklikChange
         end
         object edtnet_agirlik: TEdit
@@ -752,21 +754,21 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 121
           Width = 60
           Height = 21
-          TabOrder = 9
+          TabOrder = 13
         end
         object edtbrut_agirlik: TEdit
           Left = 486
           Top = 143
           Width = 60
           Height = 21
-          TabOrder = 11
+          TabOrder = 14
         end
         object edtkab: TEdit
           Left = 486
           Top = 175
           Width = 60
           Height = 21
-          TabOrder = 13
+          TabOrder = 15
         end
       end
     end
@@ -778,11 +780,16 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
     ExplicitWidth = 603
     inherited btnAccept: TButton
       Left = 394
+      TabOrder = 2
       ExplicitLeft = 394
     end
     inherited btnClose: TButton
       Left = 498
+      TabOrder = 3
       ExplicitLeft = 498
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

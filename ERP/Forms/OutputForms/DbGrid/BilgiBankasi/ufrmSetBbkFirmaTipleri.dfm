@@ -13,12 +13,6 @@ inherited frmSetBbkFirmaTipleri: TfrmSetBbkFirmaTipleri
     inherited btnAccept: TButton
       Caption = 'KAYDET'
     end
-    inherited btnDelete: TButton
-      Caption = 'S'#304'L'
-    end
-    inherited btnClose: TButton
-      Caption = 'KAPAT'
-    end
   end
   inherited frxrprtBase: TfrxReport
     ScriptText.Strings = ()

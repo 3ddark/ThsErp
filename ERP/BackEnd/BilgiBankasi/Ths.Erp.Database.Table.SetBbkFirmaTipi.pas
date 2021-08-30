@@ -5,21 +5,15 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  , Ths.Erp.Database.Table.SetBbkKayitTipi
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TSetBbkFirmaTipi = class(TTable)
   private
     FFirmaTipi: TFieldDB;
-    FKayitTipiID: TFieldDB;
-    FKayitTipi: TFieldDB;
-
-    FSetBbkKayitTipi: TSetBbkKayitTipi;
   published
     constructor Create(ADatabase: TDatabase); override;
     destructor Destroy; override;
@@ -32,34 +26,26 @@ type
     function Clone: TTable; override;
 
     Property FirmaTipi: TFieldDB read FFirmaTipi write FFirmaTipi;
-    Property KayitTipiID: TFieldDB read FKayitTipiID write FKayitTipiID;
-    Property KayitTipi: TFieldDB read FKayitTipi write FKayitTipi;
   end;
 
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSetBbkFirmaTipi.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_bbk_firma_tipi';
-  TableSourceCode := '6520';
+  TableSourceCode := MODULE_BBK_AYAR;
   inherited Create(ADatabase);
 
-  FSetBbkKayitTipi := TSetBbkKayitTipi.Create(ADatabase);
-
   FFirmaTipi := TFieldDB.Create('firma_tipi', ftString, '', Self, '');
-  FKayitTipiID := TFieldDB.Create('kayit_tipi_id', ftInteger, 0, Self, '');
-  FKayitTipi := TFieldDB.Create(FSetBbkKayitTipi.KayitTipi.FieldName, FSetBbkKayitTipi.KayitTipi.DataType, '', Self, '');
 end;
 
 destructor TSetBbkFirmaTipi.Destroy;
 begin
-  FreeAndNil(FSetBbkKayitTipi);
   inherited;
 end;
 
@@ -72,20 +58,12 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FFirmaTipi.FieldName,
-        TableName + '.' + FKayitTipiID.FieldName,
-        addField(FSetBbkKayitTipi.TableName, FSetBbkKayitTipi.KayitTipi.FieldName, FKayitTipi.FieldName)
+        TableName + '.' + FFirmaTipi.FieldName
       ], [
-        addJoin(jtLeft, FSetBbkKayitTipi.TableName, FSetBbkKayitTipi.Id.FieldName, Self.TableName, FKayitTipiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
       Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FFirmaTipi, 'Firma Tipi', QueryOfDS);
-      setFieldTitle(FKayitTipiID, 'Kayýt Tipi ID', QueryOfDS);
-      setFieldTitle(FKayitTipi, 'Kayýt Tipi', QueryOfDS);
     end;
   end;
 end;
@@ -102,11 +80,8 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FFirmaTipi.FieldName,
-        TableName + '.' + FKayitTipiID.FieldName,
-        addField(FSetBbkKayitTipi.TableName, FSetBbkKayitTipi.KayitTipi.FieldName, FKayitTipi.FieldName)
+        TableName + '.' + FFirmaTipi.FieldName
       ], [
-        addJoin(jtLeft, FSetBbkKayitTipi.TableName, FSetBbkKayitTipi.Id.FieldName, Self.TableName, FKayitTipiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -141,17 +116,15 @@ begin
         SQL.Clear;
 
         SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-          FFirmaTipi.FieldName,
-          FKayitTipiID.FieldName
+          FFirmaTipi.FieldName
         ]);
 
         PrepareInsertQueryParams;
 
         Open;
-        if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-          AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-        else
-          AID := 0;
+        if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
+        then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+        else  AID := 0;
 
         EmptyDataSet;
         Close;
@@ -174,8 +147,7 @@ begin
         Close;
         SQL.Clear;
         SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-          FFirmaTipi.FieldName,
-          FKayitTipiID.FieldName
+          FFirmaTipi.FieldName
         ]);
 
         PrepareUpdateQueryParams;

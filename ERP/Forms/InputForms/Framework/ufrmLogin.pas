@@ -8,6 +8,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.StrUtils,
+  System.Generics.Collections,
   System.Threading,
   Vcl.Controls,
   Vcl.Forms,
@@ -120,7 +121,10 @@ end;
 
 procedure TfrmLogin.btnAcceptClick(Sender: TObject);
 var
-  vUserID: Integer;
+  LUserID: Integer;
+  LGuiIcerik: TSysLisanGuiIcerik;
+  LGuiContent: TGuiIcerik;
+  n1: Integer;
 begin
   if (edtUserName.Text <> '') and (edtPassword.Text <> '') then
   begin
@@ -156,7 +160,7 @@ begin
     begin
       GDataBase.DateDB := GDataBase.GetToday;
 
-      if GSysKullanici = nil then
+     if GSysKullanici = nil then
         GSysKullanici := TSysKullanici.Create(GDataBase);
       if GSysOndalikHane = nil then
         GSysOndalikHane := TSysOndalikHane.Create(GDataBase);
@@ -175,25 +179,46 @@ begin
       if GSysTableInfo = nil then
         GSysTableInfo := TSysViewColumns.Create(GDataBase);
 
+      if GGuiIcerik = nil then
+        GGuiIcerik := TDictionary<string, TGuiIcerik>.Create;
+
+      LGuiIcerik := TSysLisanGuiIcerik.Create(GDataBase);
+      try
+        LGuiIcerik.SelectToList(' AND ' + LGuiIcerik.Lisan.QryName + '=' + QuotedStr(cbbLanguage.Text), False, False);
+        for n1 := 0 to LGuiIcerik.List.Count-1 do
+        begin
+          LGuiContent.FLisan := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).Lisan.AsString;
+          LGuiContent.FKod := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).Kod.AsString;
+          LGuiContent.FIcerikTipi := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).IcerikTipi.AsString;
+          LGuiContent.FTabloAdi := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).TabloAdi.AsString;
+          LGuiContent.FDeger := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).Deger.AsString;
+          LGuiContent.FIsFabrikaAyari := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).IsFabrikaAyari.AsBoolean;
+          LGuiContent.FFormAdi := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).FormAdi.AsString;
+
+          GGuiIcerik.AddOrSetValue(TSysLisanGuiIcerik(LGuiIcerik.List[n1]).Kod.AsString, LGuiContent);
+        end;
+      finally
+        LGuiIcerik.Free;
+      end;
       //if AppVersion is wrong then
       //call before the login for use UpdateApplicationExe in Main form
 
       GSysUygulamaAyari.SelectToList('', False, False);
       GSysUygulamaAyariDiger.SelectToList('', False, False);
 
-      vUserID := Login(edtUserName.Text, edtPassword.Text);
+      LUserID := Login(edtUserName.Text, edtPassword.Text);
 
 
-      if vUserID = -1 then
+      if LUserID = -1 then
         raise Exception.Create(edtUserName.Text + ': böyle bir kullanýcý yok')
-      else if vUserID = -2 then
+      else if LUserID = -2 then
         raise Exception.Create(edtUserName.Text + ' kullanýcýsý aktif deðil!')
 //        else if vUserID = -3 then
 //          raise Exception.Create(edtUserName.Text + ' kullanýcýsý bu bilgisayardan programý çalýþtýramaz!' + AddLBs(2) +
 //                                 'IP Adres Hatasý' + FERHAT_UYARI)
-      else if vUserID = -4 then
+      else if LUserID = -4 then
         raise Exception.Create('Geçersiz Kullanýcý Þifresi!')
-      else if vUserID = -6 then begin
+      else if LUserID = -6 then begin
         Application.MessageBox('Yeni bir güncellemeniz var.', 'Güncelleme', MB_ICONINFORMATION);
         TfrmMain(Application.MainForm).UpdateApplicationExe();
         Exit;
@@ -203,7 +228,7 @@ begin
 //                                 'MAC Adres Hatasý' + FERHAT_UYARI);
 
 
-      GSysKullanici.SelectToList(' AND ' + GSysKullanici.TableName + '.' + GSysKullanici.Id.FieldName + '=' + IntToStr(vUserID), False, False);
+      GSysKullanici.SelectToList(' AND ' + GSysKullanici.TableName + '.' + GSysKullanici.Id.FieldName + '=' + IntToStr(LUserID), False, False);
       GSysLisan.SelectToList(' AND ' + GSysLisan.TableName + '.' + GSysLisan.Lisan.FieldName + '=' + QuotedStr(cbbLanguage.Text), False, False);
       if GSysKullanici.List.Count = 0 then
         raise Exception.Create(TranslateText('Kullanýcý Adý/Þifre tanýmlý veya doðru deðil!', FrameworkLang.ErrorLogin, LngMsgError, LngSystem));

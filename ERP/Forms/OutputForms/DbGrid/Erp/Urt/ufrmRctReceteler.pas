@@ -37,7 +37,7 @@ uses
   frxExportBaseDialog,
   frxExportPDF,
   ufrmBase,
-  ufrmBaseDBGrid, frxExportXLS;
+  ufrmBaseDBGrid;
 
 type
   TfrmRctReceteler = class(TfrmBaseDBGrid)

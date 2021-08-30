@@ -1,4 +1,4 @@
-unit ufrmSysOlcuBirimiTipis;
+unit ufrmSysIlceler;
 
 interface
 
@@ -69,7 +69,7 @@ uses
   ufrmBaseDBGrid;
 
 type
-  TfrmSysOlcuBirimiTipis = class(TfrmBaseDBGrid)
+  TfrmSysIlceler = class(TfrmBaseDBGrid)
   protected
     function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm; override;
   end;
@@ -79,20 +79,20 @@ implementation
 uses
   Ths.Erp.Database.Singleton,
   Ths.Erp.Constants,
-  ufrmSysOlcuBirimiTipi,
-  Ths.Erp.Database.Table.SysOlcuBirimiTipi;
+  ufrmSysIlce,
+  Ths.Erp.Database.Table.SysIlce;
 
 {$R *.dfm}
 
-function TfrmSysOlcuBirimiTipis.CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm;
+function TfrmSysIlceler.CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm;
 begin
   Result := nil;
   if (pFormMode = ifmRewiev) then
-    Result := TfrmSysOlcuBirimiTipi.Create(Application, Self, Table.Clone(), pFormMode)
+    Result := TfrmSysIlce.Create(Application, Self, Table.Clone(), pFormMode)
   else if (pFormMode = ifmNewRecord) then
-    Result := TfrmSysOlcuBirimiTipi.Create(Application, Self, TSysOlcuBirimiTipi.Create(Table.Database), pFormMode)
+    Result := TfrmSysIlce.Create(Application, Self, TSysIlce.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysOlcuBirimiTipi.Create(Application, Self, Table.Clone(), pFormMode);
+    Result := TfrmSysIlce.Create(Application, Self, Table.Clone(), pFormMode);
 end;
 
 end.

@@ -28,31 +28,32 @@ uses
   Ths.Erp.Helper.ComboBox,
   ufrmBase,
   ufrmBaseInputDB,
-  Ths.Erp.Database.Table.SysUlke;
+  Ths.Erp.Globals,
+  Ths.Erp.Database.Table;
 
 type
   TfrmSysSehir = class(TfrmBaseInputDB)
     lblulke_adi_id: TLabel;
     lblsehir_adi: TLabel;
     lblplaka_kodu: TLabel;
-    cbbulke_adi_id: TComboBox;
     edtsehir_adi: TEdit;
     edtplaka_kodu: TEdit;
-    procedure btnAcceptClick(Sender: TObject);override;
-  private
-    FSysUlke: TSysUlke;
-  public
+    edtulke_adi_id: TEdit;
   protected
+    procedure HelperProcess(Sender: TObject); override;
   published
-    procedure FormCreate(Sender: TObject); override;
-    procedure FormDestroy(Sender: TObject); override;
+    procedure btnAcceptClick(Sender: TObject); override;
+    procedure RefreshData; override;
+    procedure FormShow(Sender: TObject); override;
   end;
 
 implementation
 
 uses
   Ths.Erp.Database.Singleton,
-  Ths.Erp.Database.Table.SysSehir;
+  Ths.Erp.Database.Table.SysSehir,
+  Ths.Erp.Database.Table.SysUlke,
+  ufrmSysUlkeler;
 
 {$R *.dfm}
 
@@ -64,8 +65,6 @@ begin
     begin
       TSysSehir(Table).SehirAdi.Value := edtsehir_adi.Text;
       TSysSehir(Table).PlakaKodu.Value := edtplaka_kodu.Text;
-      if cbbulke_adi_id.ItemIndex > -1 then
-        TSysSehir(Table).UlkeID.Value := TSysUlke(cbbulke_adi_id.Items.Objects[cbbulke_adi_id.ItemIndex]).Id.Value;
 
       inherited;
     end;
@@ -74,17 +73,50 @@ begin
     inherited;
 end;
 
-procedure TfrmSysSehir.FormCreate(Sender: TObject);
+procedure TfrmSysSehir.FormShow(Sender: TObject);
 begin
+  edtulke_adi_id.OnHelperProcess := HelperProcess;
   inherited;
-  FSysUlke := TSysUlke.Create(Table.Database);
-  fillComboBoxData(cbbulke_adi_id, FSysUlke, [FSysUlke.UlkeAdi.FieldName], '', True);
 end;
 
-procedure TfrmSysSehir.FormDestroy(Sender: TObject);
+procedure TfrmSysSehir.HelperProcess(Sender: TObject);
+var
+  LFrm: TfrmSysUlkeler;
 begin
-  FSysUlke.Free;
+  if (FormMode = ifmNewRecord) or (FormMode = ifmUpdate) then
+  begin
+    if Sender.ClassType = TEdit then
+    begin
+      if TEdit(Sender).Name = edtulke_adi_id.Name then
+      begin
+        LFrm := TfrmSysUlkeler.Create(TEdit(Sender), Self, TSysUlke.Create(Table.Database), fomNormal, True);
+        try
+          LFrm.ShowModal;
+          if LFrm.DataAktar then
+          begin
+            if LFrm.CleanAndClose then
+            begin
+              TEdit(Sender).Clear;
+              TSysSehir(Table).UlkeAdiID.Value := 0;
+            end
+            else
+            begin
+              TSysSehir(Table).UlkeAdiID.Value := FormatedVariantVal(LFrm.Table.Id);
+              TEdit(Sender).Text := FormatedVariantVal(TSysUlke(LFrm.Table).UlkeAdi);
+            end;
+          end;
+        finally
+          LFrm.Free;
+        end;
+      end
+    end;
+  end;
+end;
+
+procedure TfrmSysSehir.RefreshData;
+begin
   inherited;
+  //
 end;
 
 end.

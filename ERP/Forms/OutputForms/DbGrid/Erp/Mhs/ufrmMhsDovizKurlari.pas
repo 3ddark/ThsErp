@@ -29,7 +29,6 @@ uses
   frxDBSet,
   frxExportBaseDialog,
   frxExportPDF,
-  frxExportXLS,
   ufrmBase,
   ufrmBaseDBGrid, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,

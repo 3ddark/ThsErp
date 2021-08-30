@@ -69,8 +69,6 @@ type
     FSysUlke: TSysUlke;
     FSysSehir: TSysSehir;
   published
-    FLogoVal: TBitmap;
-
     constructor Create(ADatabase: TDatabase); override;
     destructor Destroy; override;
   public
@@ -148,7 +146,7 @@ begin
   FSysUlke := TSysUlke.Create(Database);
   FSysSehir := TSysSehir.Create(Database);
 
-  FLogo := TFieldDB.Create('logo', ftBlob, null, Self, '');
+  FLogo := TFieldDB.Create('logo', ftBytes, 0, Self, 'Logo');
   FUnvan := TFieldDB.Create('unvan', ftString, '', Self, '');
   FTel1 := TFieldDB.Create('tel1', ftString, '', Self, '');
   FTel2 := TFieldDB.Create('tel2', ftString, '', Self, '');
@@ -257,46 +255,6 @@ begin
       ], AAllColumn, AHelper);
       Open;
       Active := True;
-{
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FLogo, 'Logo', QueryOfDS);
-      setFieldTitle(FCopanyName, 'Ünvan', QueryOfDS);
-      setFieldTitle(FPhone1, 'Tel1', QueryOfDS);
-      setFieldTitle(FPhone2, 'Tel2', QueryOfDS);
-      setFieldTitle(FPhone3, 'Tel3', QueryOfDS);
-      setFieldTitle(FPhone4, 'Tel4', QueryOfDS);
-      setFieldTitle(FPhone5, 'Tel5', QueryOfDS);
-      setFieldTitle(FFax1, 'Faks1', QueryOfDS);
-      setFieldTitle(FFax2, 'Faks2', QueryOfDS);
-      setFieldTitle(FMersisNo, 'Mersis No', QueryOfDS);
-      setFieldTitle(FWebSitesi, 'Web Sitesi', QueryOfDS);
-      setFieldTitle(FEPostaAdresi, 'e-Posta Adresi', QueryOfDS);
-      setFieldTitle(FVergiDairesi, 'Vergi Dairesi', QueryOfDS);
-      setFieldTitle(FVergiNo, 'Vergi No', QueryOfDS);
-      setFieldTitle(FFormRengi, 'Form Rengi', QueryOfDS);
-      setFieldTitle(FDonem, 'Dönem', QueryOfDS);
-      setFieldTitle(FMukellefTipi, 'Mükellef Tipi', QueryOfDS);
-      setFieldTitle(FUlkeID, 'Ülke ID', QueryOfDS);
-      setFieldTitle(FSehirID, 'Þehir ID', QueryOfDS);
-      setFieldTitle(FIlce, 'Ýlçe', QueryOfDS);
-      setFieldTitle(FMahalle, 'Mahalle', QueryOfDS);
-      setFieldTitle(FCadde, 'Cadde', QueryOfDS);
-      setFieldTitle(FSokak, 'Sokak', QueryOfDS);
-      setFieldTitle(FPostaKodu, 'Posta Kodu', QueryOfDS);
-      setFieldTitle(FBina, 'Bina', QueryOfDS);
-      setFieldTitle(FKapiNo, 'Kapý No', QueryOfDS);
-      setFieldTitle(FSistemDili, 'Sistem Dili', QueryOfDS);
-      setFieldTitle(FMailSunucuAdres, 'Mail Gönderecek Adres', QueryOfDS);
-      setFieldTitle(FMailSunucuKullanici, Mail Sunucu Kullanýcý', QueryOfDS);
-      setFieldTitle(FMailSunucuSifre, 'Mail Sunucu Þifre', QueryOfDS);
-      setFieldTitle(FMailSunucuPort, 'Mail Sunucu Port', QueryOfDS);
-      setFieldTitle(FGridColor1, 'Grid Rengi 1', QueryOfDS);
-      setFieldTitle(FGridColor2, 'Grid Rengi 2', QueryOfDS);
-      setFieldTitle(FGridColorActive, 'Grid Rengi Aktif', QueryOfDS);
-      setFieldTitle(FCryptKey, 'Þifreleme Anahtarý', QueryOfDS);
-      setFieldTitle(FIsKaliteFormNumarasiKullan, 'Kalite Form Numarasý Kullanýlsýn mý?', QueryOfDS);
-      setFieldTitle(FAppVersion, 'Uygulama Versionu', QueryOfDS);
-}
     end;
   end;
 end;
@@ -436,13 +394,6 @@ begin
 
       PrepareInsertQueryParams;
 
-      FLogoVal.SaveToFile('logo_dmp.bmp');
-      try
-        ParamByName(FLogo.FieldName).LoadFromFile(GUygulamaAnaDizin + 'logo_dmp.bmp', ftBlob);
-      finally
-        DeleteFile('logo_dmp.bmp');
-      end;
-
       Open;
       if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
       then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
@@ -509,13 +460,6 @@ begin
       ]);
 
       PrepareUpdateQueryParams;
-
-      FLogoVal.SaveToFile('logo_dmp.bmp');
-      try
-        ParamByName(FLogo.FieldName).LoadFromFile(GUygulamaAnaDizin + 'logo_dmp.bmp', ftBlob);
-      finally
-        DeleteFile('logo_dmp.bmp');
-      end;
 
       ExecSQL;
       Close;

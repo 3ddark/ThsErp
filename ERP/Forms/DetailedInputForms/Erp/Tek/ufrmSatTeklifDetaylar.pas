@@ -214,7 +214,7 @@ begin
       TSatTeklif(Table).DovizKuru.Value := StrToFloatDef(edtdoviz_kuru.Text, 1);
 
       TSatTeklif(Table).MusteriTemsilcisi.Value := edtmusteri_temsilcisi_id.Text;
-      TSatTeklif(Table).MusteriTemsilcisiID.Value := GSysKullanici.PersonelKartiID.Value;
+      TSatTeklif(Table).MusteriTemsilcisiID.Value := GSysKullanici.PersonelID.Value;
       TSatTeklif(Table).MuhattapAd.Value := edtmuhattap_ad.Text;
       TSatTeklif(Table).MuhattapTelefon.Value := edtmuhattap_telefon.Text;
 
@@ -378,7 +378,7 @@ begin
   splHeader.Visible := False;
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
-    edtmusteri_temsilcisi_id.Text := GSysKullanici.PersonelAdSoyad.Value;
+    edtmusteri_temsilcisi_id.Text := GSysKullanici.AdSoyad.Value;
     edtteklif_tarihi.Text := DateToStr(GDataBase.DateDB);
     edtgecerlilik_tarihi.Text := DateToStr(IncDay(GDataBase.DateDB, 30));
     edtteklif_no.Text := getTeklifNo;
@@ -691,7 +691,7 @@ begin
           TSatTeklif(Table).SehirID.Value := FormatedVariantVal(TSysSehir(LFrmSehir.Table).Id);
 
           edtulke_id.Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeAdi);
-          TSatTeklif(Table).UlkeID.Value := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeID);
+          TSatTeklif(Table).UlkeID.Value := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeAdiID);
         finally
           LFrmSehir.Free;
         end;

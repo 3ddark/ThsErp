@@ -243,6 +243,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       object tsDetail: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblposta_kutusu: TLabel
           Left = 50
           Top = 230
@@ -478,6 +482,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
         Caption = 'Yetenekler'
         ImageIndex = 2
         TabVisible = False
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object strngrdDriverLicenseAbility: TStringGrid
           Left = 20
           Top = 59

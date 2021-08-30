@@ -31,7 +31,8 @@ uses
   frxExportPDF,
   ufrmBase,
   ufrmBaseDBGrid, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet;
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
+  System.Actions, Vcl.ActnList;
 
 type
   TfrmChBolgeler = class(TfrmBaseDBGrid)
