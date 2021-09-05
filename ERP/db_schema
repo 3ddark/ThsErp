@@ -1972,7 +1972,7 @@ ALTER TABLE public.set_sat_siparis_durum OWNER TO ths_admin;
 CREATE TABLE public.stk_stok_grubu (
     id bigint NOT NULL,
     stok_grubu character varying(32) NOT NULL,
-    kdv_orani double precision,
+    kdv_orani double precision NOT NULL,
     ihracat_kodu character varying(32),
     hammadde_kodu character varying(32),
     mamul_kodu character varying(32)

@@ -469,6 +469,18 @@ begin
     edtyukseklik.Text := '0.00';
     edtagirlik.Text := '0.00';
     edten_az_stok_seviyesi.Text := '0.00';
+
+    if (FormMode = ifmCopyNewRecord) then
+    begin
+      lblgrup_kdv_orani_val.Caption := '';
+      lblgrup_hammadde_val.Caption := '';
+      lblgrup_mamul_val.Caption := '';
+      lblgrup_ihracat_val.Caption := '';
+      lblgrup_alis_kodu_val.Caption := '';
+      lblgrup_satis_iade_kodu_val.Caption := '';
+      lblgrup_satis_kodu_val.Caption := '';
+      lblgrup_alis_iade_kodu_val.Caption := '';
+    end;
   end;
 end;
 

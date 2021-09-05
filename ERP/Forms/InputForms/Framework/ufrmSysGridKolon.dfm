@@ -15,15 +15,15 @@ inherited frmSysGridKolon: TfrmSysGridKolon
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 597
-    ExplicitHeight = 369
+    ExplicitHeight = 383
     inherited pgcMain: TPageControl
       Width = 595
       Height = 381
       ExplicitWidth = 595
-      ExplicitHeight = 367
+      ExplicitHeight = 381
       inherited tsMain: TTabSheet
         ExplicitWidth = 587
-        ExplicitHeight = 339
+        ExplicitHeight = 353
         object lbltablo_adi: TLabel
           Left = 104
           Top = 5
@@ -365,6 +365,7 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           Width = 150
           Height = 21
           TabOrder = 8
+          OnDblClick = edtmin_renkDblClick
         end
         object edtmaks_deger: TEdit
           Left = 162
@@ -372,7 +373,6 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           Width = 150
           Height = 21
           TabOrder = 9
-          OnDblClick = edtmaks_degerDblClick
         end
         object edtmaks_renk: TEdit
           Left = 162
@@ -434,7 +434,7 @@ inherited frmSysGridKolon: TfrmSysGridKolon
   inherited pnlBottom: TPanel
     Top = 387
     Width = 597
-    ExplicitTop = 373
+    ExplicitTop = 387
     ExplicitWidth = 597
     inherited btnAccept: TButton
       Left = 388

@@ -200,26 +200,6 @@ type
     actset_prs_servis_araci: TAction;
     actprs_personel: TAction;
     btnprs_personel: TButton;
-    btnset_prs_bolum: TButton;
-    btnset_prs_birim: TButton;
-    btnset_prs_gorev: TButton;
-    btnset_prs_personel_tipi: TButton;
-    btnset_prs_cinsiyet: TButton;
-    btnset_prs_medeni_durum: TButton;
-    btnset_prs_askerlik_durumu: TButton;
-    btnset_prs_servis_araci: TButton;
-    btnset_prs_lisan: TButton;
-    btnset_prs_lisan_seviyesi: TButton;
-    btnset_prs_yeterlilik_belgesi: TButton;
-    btnset_prs_mektup_tipi: TButton;
-    btnset_prs_egitim_seviyesi: TButton;
-    btnset_prs_ehliyet: TButton;
-    btnset_prs_ayrilma_nedeni: TButton;
-    btnset_prs_ayrilma_tipi: TButton;
-    btnset_prs_gecis_sistemi_karti: TButton;
-    btnset_prs_rapor_tipi: TButton;
-    btnset_prs_src_tipi: TButton;
-    btnset_prs_tatil_tipi: TButton;
     btnbbk_kayit: TButton;
     tsrecete: TTabSheet;
     btnrct_recete: TButton;
@@ -1547,26 +1527,7 @@ begin
             tsPersonel.TabVisible := True;
           if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_PRS_AYAR then
           begin
-            btnset_prs_bolum.Enabled := True;
-            btnset_prs_birim.Enabled := True;
-            btnset_prs_gorev.Enabled := True;
-            btnset_prs_personel_tipi.Enabled := True;
-            btnset_prs_cinsiyet.Enabled := True;
-            btnset_prs_medeni_durum.Enabled := True;
-            btnset_prs_askerlik_durumu.Enabled := True;
-            btnset_prs_servis_araci.Enabled := True;
-            btnset_prs_lisan.Enabled := True;
-            btnset_prs_lisan_seviyesi.Enabled := True;
-            btnset_prs_yeterlilik_belgesi.Enabled := True;
-            btnset_prs_mektup_tipi.Enabled := True;
-            btnset_prs_egitim_seviyesi.Enabled := True;
-            btnset_prs_ehliyet.Enabled := True;
-            btnset_prs_ayrilma_nedeni.Enabled := True;
-            btnset_prs_ayrilma_tipi.Enabled := True;
-            btnset_prs_gecis_sistemi_karti.Enabled := True;
-            btnset_prs_rapor_tipi.Enabled := True;
-            btnset_prs_src_tipi.Enabled := True;
-            btnset_prs_tatil_tipi.Enabled := True;
+
           end
           else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_PRS_KAYIT then
           begin

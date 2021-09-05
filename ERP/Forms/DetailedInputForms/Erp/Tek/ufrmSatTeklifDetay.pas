@@ -266,6 +266,7 @@ end;
 procedure TfrmSatisTeklifDetay.HelperProcess(Sender: TObject);
 var
   LFrmStk: TfrmStkStokKartlari;
+  LStk: TStkStokKarti;
   LFrmVergi: TfrmSetChVergiOranlari;
   LKur: Double;
   n1: Integer;
@@ -276,8 +277,10 @@ begin
     begin
       if TEdit(Sender).Name = edtstok_kodu.Name then
       begin
-        LFrmStk := TfrmStkStokKartlari.Create(edtstok_kodu, Self, TStkStokKarti.Create(Table.Database), fomNormal, True);
+        LStk := TStkStokKarti.Create(GDataBase);
+        LFrmStk := TfrmStkStokKartlari.Create(edtstok_kodu, Self, LStk, fomNormal, True);
         try
+          LFrmStk.QryFiltreVarsayilan := ' AND ' + LStk.IsSatilabilir.FieldName + '=True';
           LFrmStk.ShowModal;
 
           if LFrmStk.DataAktar then

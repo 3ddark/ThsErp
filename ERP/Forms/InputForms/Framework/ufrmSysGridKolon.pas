@@ -73,11 +73,11 @@ type
     procedure btnAcceptClick(Sender: TObject);override;
     procedure cbbtablo_adiChange(Sender: TObject);
     procedure edtmaks_renkDblClick(Sender: TObject);
-    procedure edtmaks_degerDblClick(Sender: TObject);
     procedure edtrenk_barDblClick(Sender: TObject);
     procedure edtrenk_bar_arkaDblClick(Sender: TObject);
     procedure edtrenk_bar_yaziDblClick(Sender: TObject);
     procedure edtcolor_bar_text_activeDblClick(Sender: TObject);
+    procedure edtmin_renkDblClick(Sender: TObject);
   private
     FSysViewTables: TSysViewTables;
 
@@ -205,7 +205,7 @@ begin
   SetColor(GetDialogColor(StrToIntDef(edtmaks_renk.Text, 0)), edtmaks_renk);
 end;
 
-procedure TfrmSysGridKolon.edtmaks_degerDblClick(Sender: TObject);
+procedure TfrmSysGridKolon.edtmin_renkDblClick(Sender: TObject);
 begin
   SetColor(GetDialogColor(StrToIntDef(edtmin_renk.Text, 0)), edtmin_renk);
 end;
@@ -222,12 +222,12 @@ begin
   fillComboBoxData(cbbtablo_adi, FSysViewTables, [FSysViewTables.TableName1.FieldName], '');
   cbbtablo_adiChange(cbbtablo_adi);
 
-  cbbozet_tipi.Items.Add('0 NONE');
-  cbbozet_tipi.Items.Add('1 SUM');
-  cbbozet_tipi.Items.Add('2 MIN');
-  cbbozet_tipi.Items.Add('3 MAX');
-  cbbozet_tipi.Items.Add('4 COUNT');
-  cbbozet_tipi.Items.Add('5 AVG');
+  cbbozet_tipi.Items.Add('0 YOK');
+  cbbozet_tipi.Items.Add('1 TOPLAM MÝKTAR');
+  cbbozet_tipi.Items.Add('2 EN KÜÇÜK');
+  cbbozet_tipi.Items.Add('3 EN BÜYÜK');
+  cbbozet_tipi.Items.Add('4 TOPLAM SAYI');
+  cbbozet_tipi.Items.Add('5 ORTALAMA MÝKTAR');
   cbbozet_tipi.ItemIndex := 0;
 end;
 

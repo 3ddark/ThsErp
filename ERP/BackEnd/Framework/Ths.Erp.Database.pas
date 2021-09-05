@@ -78,30 +78,30 @@ type
     property DateDB: TDate read FDateDB write FDateDB;
 
     constructor Create;
-    function GetNewRecordId():Integer;
+    function GetNewRecordId: Integer;
 
     //get easy SELECT ... FROM ... sql code
     procedure GetSQLSelectCmd(AQry: TFDQuery; ATableName: string; AFieldNames: TArray<string>; AWhereJoin: TArray<string>; AAllColumn: Boolean=True; AHelper: Boolean=False);
     //get easy INSERT INTO .. (...) VALUES(...) RETURNIN ID
-    function GetSQLInsertCmd(pTableName: string; pParamDelimiter: Char; pArrFieldNames: TArray<string>): string;
+    function GetSQLInsertCmd(ATableName: string; AParamDelimiter: Char; AArrFieldNames: TArray<string>): string;
     //get easy UPDATE .. SET ..... WHERE id=...
-    function GetSQLUpdateCmd(pTableName: string; pParamDelimiter: Char; pArrFieldNames: TArray<string>): string;
+    function GetSQLUpdateCmd(ATableName: string; AParamDelimiter: Char; AArrFieldNames: TArray<string>): string;
     //if don't want 0, '' value call this routine (string '' = null) (integer or double 0 = null)
-    procedure SetQueryParamsDefaultValue(pQuery: TFDQuery; pInput: Boolean = True);
+    procedure SetQueryParamsDefaultValue(AQuery: TFDQuery; AInput: Boolean = True);
 
-    function NewQuery(pConnection: TFDConnection = nil): TFDQuery;
-    function NewStoredProcedure(pConnection: TFDConnection = nil): TFDStoredProc;
-    function NewDataSource(pDataset: TDataSet): TDataSource;
-    function NewConnection(): TFDConnection;
+    function NewQuery(AConnection: TFDConnection = nil): TFDQuery;
+    function NewStoredProcedure(AConnection: TFDConnection = nil): TFDStoredProc;
+    function NewDataSource(ADataset: TDataSet): TDataSource;
+    function NewConnection: TFDConnection;
 
-    function getVarsayilanParaBirimi(): string;
+    function getVarsayilanParaBirimi: string;
     procedure EventAlerterAlert(ASender: TFDCustomEventAlerter; const AEventName: string; const AArgument: Variant); virtual;
   published
-    destructor Destroy();Override;
-    function GetToday():TDateTime;
-    function GetNow(OnlyTime: Boolean = True):TDateTime;
-    procedure runCustomSQL(pSQL: string);
-    procedure ConfigureConnection();
+    destructor Destroy; override;
+    function GetToday: TDateTime;
+    function GetNow(AOnlyTime: Boolean = True): TDateTime;
+    procedure runCustomSQL(ASQL: string);
+    procedure ConfigureConnection;
   end;
 
 implementation
@@ -392,7 +392,7 @@ begin
   Result := FNewRecordId;
 end;
 
-function TDatabase.GetNow(OnlyTime: Boolean = True): TDateTime;
+function TDatabase.GetNow(AOnlyTime: Boolean = True): TDateTime;
 begin
   Result := 0;
   with QueryOfDataBase do
@@ -409,12 +409,12 @@ begin
     Close;
   end;
 
-  if OnlyTime then
+  if AOnlyTime then
     Result := TimeOf(Result);
 end;
 
-function TDatabase.GetSQLInsertCmd(pTableName: string; pParamDelimiter: Char;
-  pArrFieldNames: TArray<string>): string;
+function TDatabase.GetSQLInsertCmd(ATableName: string; AParamDelimiter: Char;
+  AArrFieldNames: TArray<string>): string;
 var
   nIndex: Integer;
   sFields, sParams: string;
@@ -426,20 +426,20 @@ begin
     sFields := '';
     sParams := '';
 
-    vSQL.Add('INSERT INTO ' + pTableName + '(');
+    vSQL.Add('INSERT INTO ' + ATableName + '(');
 
-    for nIndex := 0 to Length(pArrFieldNames)-1 do
+    for nIndex := 0 to Length(AArrFieldNames)-1 do
     begin
-      if pArrFieldNames[nIndex] <> '' then
+      if AArrFieldNames[nIndex] <> '' then
       begin
-        sFields := sFields + pArrFieldNames[nIndex] + ',';
-        sParams := sParams + pParamDelimiter + pArrFieldNames[nIndex] + ',';
+        sFields := sFields + AArrFieldNames[nIndex] + ',';
+        sParams := sParams + AParamDelimiter + AArrFieldNames[nIndex] + ',';
       end;
 
-      if (nIndex = Length(pArrFieldNames)-1) and (sFields <> '') then
+      if (nIndex = Length(AArrFieldNames)-1) and (sFields <> '') then
         sFields := LeftStr(sFields, Length(sFields)-1);
 
-      if (nIndex = Length(pArrFieldNames)-1) and (sParams <> '') then
+      if (nIndex = Length(AArrFieldNames)-1) and (sParams <> '') then
         sParams := LeftStr(sParams, Length(sParams)-1);
     end;
 
@@ -564,7 +564,7 @@ begin
   end;
 end;
 
-function TDatabase.GetSQLUpdateCmd(pTableName: string; pParamDelimiter: Char; pArrFieldNames: TArray<string>): string;
+function TDatabase.GetSQLUpdateCmd(ATableName: string; AParamDelimiter: Char; AArrFieldNames: TArray<string>): string;
 var
   nIndex: Integer;
   sFields: string;
@@ -575,15 +575,15 @@ begin
   try
     sFields := '';
 
-    vSQL.Add('UPDATE ' + pTableName + ' SET ');
+    vSQL.Add('UPDATE ' + ATableName + ' SET ');
 
-    for nIndex := 0 to Length(pArrFieldNames)-1 do
+    for nIndex := 0 to Length(AArrFieldNames)-1 do
     begin
-      if pArrFieldNames[nIndex] <> '' then
-        sFields := sFields + pArrFieldNames[nIndex] + '=' + pParamDelimiter +
-            RightStr(pArrFieldNames[nIndex], Length(pArrFieldNames[nIndex])- Pos('.', pArrFieldNames[nIndex])) + ', ';
+      if AArrFieldNames[nIndex] <> '' then
+        sFields := sFields + AArrFieldNames[nIndex] + '=' + AParamDelimiter +
+            RightStr(AArrFieldNames[nIndex], Length(AArrFieldNames[nIndex])- Pos('.', AArrFieldNames[nIndex])) + ', ';
 
-      if (nIndex = Length(pArrFieldNames)-1) and (sFields <> '') then
+      if (nIndex = Length(AArrFieldNames)-1) and (sFields <> '') then
         sFields := LeftStr(sFields, Length(sFields)-2);
     end;
 
@@ -592,7 +592,7 @@ begin
 
     vSQL.Add(sFields);
 
-    vSQL.Add(' WHERE id=' + pParamDelimiter + 'id;');
+    vSQL.Add(' WHERE id=' + AParamDelimiter + 'id;');
   finally
     vSQL.LineBreak := '';
     Result := vSQL.Text;
@@ -654,48 +654,48 @@ begin
   Result := TFDConnection.Create(nil);
 end;
 
-function TDatabase.NewQuery(pConnection: TFDConnection = nil): TFDQuery;
+function TDatabase.NewQuery(AConnection: TFDConnection = nil): TFDQuery;
 begin
   Result := TFDQuery.Create(nil);
   Result.ResourceOptions.DirectExecute := True;
   Result.FetchOptions.Mode := fmAll;
   Result.FormatOptions.StrsEmpty2Null := True;
 
-  if pConnection = nil then
+  if AConnection = nil then
     Result.Connection := Self.FConnection
   else
-    Result.Connection := pConnection;
+    Result.Connection := AConnection;
 end;
 
-function TDatabase.NewStoredProcedure(pConnection: TFDConnection = nil): TFDStoredProc;
+function TDatabase.NewStoredProcedure(AConnection: TFDConnection = nil): TFDStoredProc;
 begin
   Result := TFDStoredProc.Create(nil);
   Result.ResourceOptions.DirectExecute := True;
   Result.FetchOptions.Mode := fmAll;
   Result.FormatOptions.StrsEmpty2Null := True;
 
-  if pConnection = nil then
+  if AConnection = nil then
     Result.Connection := Self.FConnection
   else
-    Result.Connection := pConnection;
+    Result.Connection := AConnection;
 end;
 
-function TDatabase.NewDataSource(pDataset: TDataSet): TDataSource;
+function TDatabase.NewDataSource(ADataset: TDataSet): TDataSource;
 begin
   Result := TDataSource.Create(nil);
-  Result.DataSet := pDataset;
+  Result.DataSet := ADataset;
   Result.Enabled := True;
   Result.AutoEdit := True;
 end;
 
-procedure TDatabase.runCustomSQL(pSQL: string);
+procedure TDatabase.runCustomSQL(ASQL: string);
 begin
-  if pSQL <> '' then
+  if ASQL <> '' then
   begin
     with QueryOfDataBase do
     begin
       Close;
-      SQL.Text := pSQL;
+      SQL.Text := ASQL;
       ExecSQL;
 
       SQL.Clear;
@@ -704,55 +704,55 @@ begin
   end;
 end;
 
-procedure TDatabase.SetQueryParamsDefaultValue(pQuery: TFDQuery; pInput: Boolean = True);
+procedure TDatabase.SetQueryParamsDefaultValue(AQuery: TFDQuery; AInput: Boolean = True);
 var
   nIndex: Integer;
 begin
-  for nIndex := 0 to pQuery.ParamCount-1 do
+  for nIndex := 0 to AQuery.ParamCount-1 do
   begin
-    pQuery.Params.Items[nIndex].ParamType := ptInput;
+    AQuery.Params.Items[nIndex].ParamType := ptInput;
 
-    if (pQuery.Params.Items[nIndex].DataType = ftString)
-    or (pQuery.Params.Items[nIndex].DataType = ftMemo)
-    or (pQuery.Params.Items[nIndex].DataType = ftWideString)
-    or (pQuery.Params.Items[nIndex].DataType = ftWideMemo)
-    or (pQuery.Params.Items[nIndex].DataType = ftFixedChar)
-    or (pQuery.Params.Items[nIndex].DataType = ftFixedWideChar)
+    if (AQuery.Params.Items[nIndex].DataType = ftString)
+    or (AQuery.Params.Items[nIndex].DataType = ftMemo)
+    or (AQuery.Params.Items[nIndex].DataType = ftWideString)
+    or (AQuery.Params.Items[nIndex].DataType = ftWideMemo)
+    or (AQuery.Params.Items[nIndex].DataType = ftFixedChar)
+    or (AQuery.Params.Items[nIndex].DataType = ftFixedWideChar)
     then
     begin
-      if pQuery.Params.Items[nIndex].Value = '' then
-        pQuery.Params.Items[nIndex].Value := Null;
+      if AQuery.Params.Items[nIndex].Value = '' then
+        AQuery.Params.Items[nIndex].Value := Null;
     end
     else
-    if (pQuery.Params.Items[nIndex].DataType = ftSmallint)
-    or (pQuery.Params.Items[nIndex].DataType = ftInteger)
-    or (pQuery.Params.Items[nIndex].DataType = ftWord)
-    or (pQuery.Params.Items[nIndex].DataType = ftFloat)
-    or (pQuery.Params.Items[nIndex].DataType = ftCurrency)
-    or (pQuery.Params.Items[nIndex].DataType = ftBCD)
-    or (pQuery.Params.Items[nIndex].DataType = ftBytes)
-    or (pQuery.Params.Items[nIndex].DataType = ftLargeint)
-    or (pQuery.Params.Items[nIndex].DataType = ftLongWord)
-    or (pQuery.Params.Items[nIndex].DataType = ftShortint)
-    or (pQuery.Params.Items[nIndex].DataType = ftByte)
+    if (AQuery.Params.Items[nIndex].DataType = ftSmallint)
+    or (AQuery.Params.Items[nIndex].DataType = ftInteger)
+    or (AQuery.Params.Items[nIndex].DataType = ftWord)
+    or (AQuery.Params.Items[nIndex].DataType = ftFloat)
+    or (AQuery.Params.Items[nIndex].DataType = ftCurrency)
+    or (AQuery.Params.Items[nIndex].DataType = ftBCD)
+    or (AQuery.Params.Items[nIndex].DataType = ftBytes)
+    or (AQuery.Params.Items[nIndex].DataType = ftLargeint)
+    or (AQuery.Params.Items[nIndex].DataType = ftLongWord)
+    or (AQuery.Params.Items[nIndex].DataType = ftShortint)
+    or (AQuery.Params.Items[nIndex].DataType = ftByte)
     then
     begin
-      if pQuery.Params.Items[nIndex].Value = 0 then
-        pQuery.Params.Items[nIndex].Value := Null;
+      if AQuery.Params.Items[nIndex].Value = 0 then
+        AQuery.Params.Items[nIndex].Value := Null;
     end
     else
-    if (pQuery.Params.Items[nIndex].DataType = ftDate)
-    or (pQuery.Params.Items[nIndex].DataType = ftTime)
-    or (pQuery.Params.Items[nIndex].DataType = ftDateTime)
-    or (pQuery.Params.Items[nIndex].DataType = ftTimeStamp)
+    if (AQuery.Params.Items[nIndex].DataType = ftDate)
+    or (AQuery.Params.Items[nIndex].DataType = ftTime)
+    or (AQuery.Params.Items[nIndex].DataType = ftDateTime)
+    or (AQuery.Params.Items[nIndex].DataType = ftTimeStamp)
     then
     begin
-      if pQuery.Params.Items[nIndex].Value = 0 then
-        pQuery.Params.Items[nIndex].Value := Null;
+      if AQuery.Params.Items[nIndex].Value = 0 then
+        AQuery.Params.Items[nIndex].Value := Null;
     end;
   end;
 
-  pQuery.SQL.Text := StringReplace(pQuery.SQL.Text, AddLBs, '', [rfReplaceAll]);
+  AQuery.SQL.Text := StringReplace(AQuery.SQL.Text, AddLBs, '', [rfReplaceAll]);
 end;
 
 end.

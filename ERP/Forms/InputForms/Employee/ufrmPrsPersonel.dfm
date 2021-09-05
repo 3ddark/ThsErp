@@ -20,11 +20,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
     inherited pgcMain: TPageControl
       Width = 629
       Height = 425
+      ActivePage = tsDetail
       OnChange = pgcMainChange
       ExplicitWidth = 629
       ExplicitHeight = 425
       inherited tsMain: TTabSheet
         Caption = 'Genel'
+        ExplicitLeft = 0
+        ExplicitTop = 0
         ExplicitWidth = 621
         ExplicitHeight = 397
         object lblis_aktif: TLabel
@@ -243,26 +246,6 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       object tsDetail: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
-        object lblposta_kutusu: TLabel
-          Left = 50
-          Top = 230
-          Width = 76
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Posta Kutusu'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
         object lblbina_adi: TLabel
           Left = 78
           Top = 186
@@ -407,6 +390,22 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentBiDiMode = False
           ParentFont = False
         end
+        object lblposta_kutusu: TLabel
+          Left = 50
+          Top = 230
+          Width = 76
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Posta Kutusu'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
         object edtilce: TEdit
           Left = 130
           Top = 95
@@ -449,19 +448,12 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Height = 21
           TabOrder = 7
         end
-        object edtposta_kutusu: TEdit
-          Left = 130
-          Top = 227
-          Width = 180
-          Height = 21
-          TabOrder = 8
-        end
         object edtposta_kodu: TEdit
           Left = 130
           Top = 249
           Width = 180
           Height = 21
-          TabOrder = 9
+          TabOrder = 8
         end
         object edtulke_id: TEdit
           Left = 130
@@ -476,6 +468,13 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Width = 180
           Height = 21
           TabOrder = 1
+        end
+        object edtposta_kutusu: TEdit
+          Left = 130
+          Top = 227
+          Width = 180
+          Height = 21
+          TabOrder = 9
         end
       end
       object tsAbility: TTabSheet
@@ -634,6 +633,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       object tsSpecial: TTabSheet
         Caption = #214'zel Bilgiler'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblmaas: TLabel
           Left = 98
           Top = 224

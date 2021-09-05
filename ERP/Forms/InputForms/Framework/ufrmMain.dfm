@@ -3,8 +3,8 @@
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Main'
-  ClientHeight = 496
-  ClientWidth = 741
+  ClientHeight = 414
+  ClientWidth = 737
   Constraints.MinHeight = 300
   Constraints.MinWidth = 400
   DefaultMonitor = dmDesktop
@@ -12,25 +12,26 @@
   Position = poScreenCenter
   Scaled = False
   OnActivate = FormActivate
-  ExplicitWidth = 747
-  ExplicitHeight = 525
+  ExplicitWidth = 743
+  ExplicitHeight = 443
   PixelsPerInch = 96
   TextHeight = 13
   object SV: TSplitView [0]
     Left = 0
     Top = 40
     Width = 250
-    Height = 406
+    Height = 324
     Color = clBlack
     DisplayMode = svmOverlay
     OpenedWidth = 250
     Placement = svpLeft
     TabOrder = 1
+    ExplicitHeight = 406
     object catMenuItems: TCategoryButtons
       Left = 0
       Top = 0
       Width = 250
-      Height = 406
+      Height = 324
       Align = alClient
       BackgroundGradientColor = 16776176
       BorderStyle = bsNone
@@ -322,18 +323,20 @@
       RegularButtonColor = clNone
       SelectedButtonColor = clNone
       TabOrder = 0
+      ExplicitHeight = 406
     end
   end
   object pnlToolbar: TPanel [1]
     Left = 0
     Top = 0
-    Width = 741
+    Width = 737
     Height = 40
     Align = alTop
     BevelOuter = bvNone
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 741
     object imgMenu: TImage
       AlignWithMargins = True
       Left = 9
@@ -382,7 +385,7 @@
       ExplicitHeight = 25
     end
     object tlbMain: TToolBar
-      Left = 655
+      Left = 651
       Top = 0
       Width = 86
       Height = 40
@@ -395,6 +398,7 @@
       List = True
       ShowCaptions = True
       TabOrder = 0
+      ExplicitLeft = 655
       object btnabout: TToolButton
         Left = 0
         Top = 0
@@ -407,20 +411,20 @@
     end
   end
   inherited pnlBottom: TPanel [2]
-    Top = 448
-    Width = 737
+    Top = 366
+    Width = 733
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 4
     ExplicitTop = 448
     ExplicitWidth = 737
     inherited btnAccept: TButton
-      Left = 528
+      Left = 524
       TabOrder = 2
       ExplicitLeft = 528
     end
     inherited btnClose: TButton
-      Left = 632
+      Left = 628
       TabOrder = 3
       ExplicitLeft = 632
     end
@@ -429,15 +433,15 @@
     end
   end
   inherited stbBase: TStatusBar [3]
-    Top = 478
-    Width = 741
+    Top = 396
+    Width = 737
     ExplicitTop = 478
     ExplicitWidth = 741
   end
   inherited pnlMain: TPanel [4]
     Top = 42
-    Width = 737
-    Height = 404
+    Width = 733
+    Height = 322
     BevelOuter = bvNone
     TabOrder = 2
     ExplicitTop = 42
@@ -445,27 +449,33 @@
     ExplicitHeight = 404
     object pb1: TProgressBar
       Left = 0
-      Top = 378
-      Width = 737
+      Top = 296
+      Width = 733
       Height = 26
       Align = alBottom
       DoubleBuffered = True
       ParentDoubleBuffered = False
       Smooth = True
       TabOrder = 1
+      ExplicitTop = 378
+      ExplicitWidth = 737
     end
     object PageControl1: TPageControl
       Left = 0
       Top = 0
-      Width = 737
-      Height = 378
+      Width = 733
+      Height = 296
       ActivePage = tsGenel
       Align = alClient
       MultiLine = True
       OwnerDraw = True
       TabOrder = 0
+      ExplicitWidth = 737
+      ExplicitHeight = 378
       object tsGenel: TTabSheet
         Caption = 'Genel'
+        ExplicitWidth = 729
+        ExplicitHeight = 350
         object btnbbk_kayit: TButton
           Left = 2
           Top = 228
@@ -508,6 +518,8 @@
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
+        ExplicitWidth = 729
+        ExplicitHeight = 350
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -576,6 +588,8 @@
       object tsstok: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
+        ExplicitWidth = 729
+        ExplicitHeight = 350
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -679,6 +693,8 @@
       object tsch: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
+        ExplicitWidth = 729
+        ExplicitHeight = 350
         object btnch_hesap_karti: TButton
           Left = 2
           Top = 170
@@ -808,6 +824,8 @@
       object tspersonel: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
+        ExplicitWidth = 729
+        ExplicitHeight = 350
         object btnprs_personel: TButton
           Left = 2
           Top = 2
@@ -824,336 +842,12 @@
           TabOrder = 0
           WordWrap = True
         end
-        object btnset_prs_bolum: TButton
-          Left = 160
-          Top = 2
-          Width = 150
-          Height = 36
-          Action = actset_prs_bolum
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 1
-          WordWrap = True
-        end
-        object btnset_prs_birim: TButton
-          Left = 160
-          Top = 44
-          Width = 150
-          Height = 36
-          Action = actset_prs_birim
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 4
-          WordWrap = True
-        end
-        object btnset_prs_gorev: TButton
-          Left = 160
-          Top = 86
-          Width = 150
-          Height = 36
-          Action = actset_prs_gorev
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 7
-          WordWrap = True
-        end
-        object btnset_prs_personel_tipi: TButton
-          Left = 160
-          Top = 128
-          Width = 150
-          Height = 36
-          Action = actset_prs_personel_tipi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 9
-          Visible = False
-          WordWrap = True
-        end
-        object btnset_prs_cinsiyet: TButton
-          Left = 160
-          Top = 170
-          Width = 150
-          Height = 36
-          Action = actset_prs_cinsiyet
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 10
-          Visible = False
-          WordWrap = True
-        end
-        object btnset_prs_medeni_durum: TButton
-          Left = 160
-          Top = 212
-          Width = 150
-          Height = 36
-          Action = actset_prs_medeni_durum
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 13
-          Visible = False
-          WordWrap = True
-        end
-        object btnset_prs_askerlik_durumu: TButton
-          Left = 160
-          Top = 254
-          Width = 150
-          Height = 36
-          Action = actset_prs_askerlik_durumu
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 15
-          Visible = False
-          WordWrap = True
-        end
-        object btnset_prs_servis_araci: TButton
-          Left = 160
-          Top = 296
-          Width = 150
-          Height = 36
-          Action = actset_prs_servis_araci
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 18
-          WordWrap = True
-        end
-        object btnset_prs_lisan: TButton
-          Left = 318
-          Top = 2
-          Width = 150
-          Height = 36
-          Action = actset_prs_lisan
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 2
-          WordWrap = True
-        end
-        object btnset_prs_lisan_seviyesi: TButton
-          Left = 318
-          Top = 44
-          Width = 150
-          Height = 36
-          Action = actset_prs_lisan_seviyesi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 5
-          Visible = False
-          WordWrap = True
-        end
-        object btnset_prs_yeterlilik_belgesi: TButton
-          Left = 318
-          Top = 170
-          Width = 150
-          Height = 36
-          Action = actset_prs_yeterlilik_belgesi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 11
-          WordWrap = True
-        end
-        object btnset_prs_mektup_tipi: TButton
-          Left = 318
-          Top = 212
-          Width = 150
-          Height = 36
-          Action = actset_prs_mektup_tipi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 14
-          WordWrap = True
-        end
-        object btnset_prs_egitim_seviyesi: TButton
-          Left = 318
-          Top = 254
-          Width = 150
-          Height = 36
-          Action = actset_prs_egitim_seviyesi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 16
-          Visible = False
-          WordWrap = True
-        end
-        object btnset_prs_ehliyet: TButton
-          Left = 318
-          Top = 296
-          Width = 150
-          Height = 36
-          Action = actset_prs_ehliyet
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 19
-          WordWrap = True
-        end
-        object btnset_prs_ayrilma_nedeni: TButton
-          Left = 476
-          Top = 2
-          Width = 150
-          Height = 36
-          Action = actset_prs_ayrilma_nedeni
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 3
-          WordWrap = True
-        end
-        object btnset_prs_ayrilma_tipi: TButton
-          Left = 476
-          Top = 44
-          Width = 150
-          Height = 36
-          Action = actset_prs_ayrilma_tipi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 6
-          WordWrap = True
-        end
-        object btnset_prs_gecis_sistemi_karti: TButton
-          Left = 476
-          Top = 86
-          Width = 150
-          Height = 36
-          Action = actset_prs_gecis_sistemi_karti
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 8
-          WordWrap = True
-        end
-        object btnset_prs_rapor_tipi: TButton
-          Left = 476
-          Top = 170
-          Width = 150
-          Height = 36
-          Action = actset_prs_rapor_tipi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 12
-          WordWrap = True
-        end
-        object btnset_prs_src_tipi: TButton
-          Left = 476
-          Top = 254
-          Width = 150
-          Height = 36
-          Action = actset_prs_src_tipi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 17
-          WordWrap = True
-        end
-        object btnset_prs_tatil_tipi: TButton
-          Left = 476
-          Top = 296
-          Width = 150
-          Height = 36
-          Action = actset_prs_tatil_tipi
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 20
-          WordWrap = True
-        end
       end
       object tsrecete: TTabSheet
         Caption = 'Re'#231'eteler'
         ImageIndex = 5
+        ExplicitWidth = 729
+        ExplicitHeight = 350
         object btnrct_recete: TButton
           Left = 2
           Top = 2
@@ -1200,12 +894,15 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 2
+          Visible = False
           WordWrap = True
         end
       end
       object tsmhs: TTabSheet
         Caption = 'Muhasebe'
         ImageIndex = 6
+        ExplicitWidth = 729
+        ExplicitHeight = 350
         object btnmhs_doviz_kuru: TButton
           Left = 326
           Top = 10

@@ -497,7 +497,7 @@ type
   ///   <code lang="Delphi">NewParamForQuery(QueryOfInsert, FBirim)</code>
   ///  </example>
   /// </summary>
-  procedure NewParamForQuery(pQuery: TFDQuery; pField: TFieldDB);
+  procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);
 
   /// <summary>
   ///  Bu fonksiyon DBGrid üzerinde gösterilen sütunlarýn geniþlik deðerini deðiþtirmek için kullanýlýr.
@@ -2414,77 +2414,77 @@ begin
 	  ')::varchar as ' + pBaseColName                                                                         }
 end;
 
-procedure NewParamForQuery(pQuery: TFDQuery; pField: TFieldDB);
+procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);
 begin
-  pQuery.Params.ParamByName(pField.FieldName).DataType := pField.DataType;
-  pQuery.Params.ParamByName(pField.FieldName).Value := FormatedVariantVal(pField);
+  AQuery.Params.ParamByName(AField.FieldName).DataType := AField.DataType;
+  AQuery.Params.ParamByName(AField.FieldName).Value := FormatedVariantVal(AField);
 
-  if pField.DataType = ftBytes then
+  if AField.DataType = ftBytes then
   begin
 
   end;
 
-  if pField.IsNullable then
+  if AField.IsNullable then
   begin
-    if (pField.DataType = ftString)
-    or (pField.DataType = ftMemo)
-    or (pField.DataType = ftWideString)
-    or (pField.DataType = ftWideMemo)
-    or (pField.DataType = ftWord)
+    if (AField.DataType = ftString)
+    or (AField.DataType = ftMemo)
+    or (AField.DataType = ftWideString)
+    or (AField.DataType = ftWideMemo)
+    or (AField.DataType = ftWord)
     then
     begin
-      if pQuery.Params.ParamByName(pField.FieldName).Value = '' then
-        pQuery.Params.ParamByName(pField.FieldName).Value := Null
+      if AQuery.Params.ParamByName(AField.FieldName).Value = '' then
+        AQuery.Params.ParamByName(AField.FieldName).Value := Null
     end
     else
-    if (pField.DataType = ftSmallint)
-    or (pField.DataType = ftShortint)
-    or (pField.DataType = ftInteger)
-    or (pField.DataType = ftLargeint)
-    or (pField.DataType = ftByte)
+    if (AField.DataType = ftSmallint)
+    or (AField.DataType = ftShortint)
+    or (AField.DataType = ftInteger)
+    or (AField.DataType = ftLargeint)
+    or (AField.DataType = ftByte)
     then
     begin
-      if pQuery.Params.ParamByName(pField.FieldName).AsInteger = 0 then
-        pQuery.Params.ParamByName(pField.FieldName).Value := Null
+      if AQuery.Params.ParamByName(AField.FieldName).AsInteger = 0 then
+        AQuery.Params.ParamByName(AField.FieldName).Value := Null
     end
-    else if (pField.DataType = ftDate) then
+    else if (AField.DataType = ftDate) then
     begin
-      if pQuery.Params.ParamByName(pField.FieldName).AsDate = 0 then
-        pQuery.Params.ParamByName(pField.FieldName).Value := Null
+      if AQuery.Params.ParamByName(AField.FieldName).AsDate = 0 then
+        AQuery.Params.ParamByName(AField.FieldName).Value := Null
     end
-    else if (pField.DataType = ftDateTime) then
+    else if (AField.DataType = ftDateTime) then
     begin
-      if pQuery.Params.ParamByName(pField.FieldName).AsDateTime = 0 then
-        pQuery.Params.ParamByName(pField.FieldName).Value := Null
+      if AQuery.Params.ParamByName(AField.FieldName).AsDateTime = 0 then
+        AQuery.Params.ParamByName(AField.FieldName).Value := Null
     end
     else
-    if (pField.DataType = ftTime)
-    or (pField.DataType = ftTimeStamp)
+    if (AField.DataType = ftTime)
+    or (AField.DataType = ftTimeStamp)
     then
     begin
-      if pQuery.Params.ParamByName(pField.FieldName).AsTime = 0 then
-        pQuery.Params.ParamByName(pField.FieldName).Value := Null;
+      if AQuery.Params.ParamByName(AField.FieldName).AsTime = 0 then
+        AQuery.Params.ParamByName(AField.FieldName).Value := Null;
     end
     else
-    if (pField.DataType = ftFloat)
-    or (pField.DataType = ftCurrency)
-    or (pField.DataType = ftSingle)
-    or (pField.DataType = ftBCD)
-    or (pField.DataType = ftFMTBcd)
+    if (AField.DataType = ftFloat)
+    or (AField.DataType = ftCurrency)
+    or (AField.DataType = ftSingle)
+    or (AField.DataType = ftBCD)
+    or (AField.DataType = ftFMTBcd)
     then
     begin
-      if pQuery.Params.ParamByName(pField.FieldName).Value = 0 then
-        pQuery.Params.ParamByName(pField.FieldName).Value := Null;
+      if AQuery.Params.ParamByName(AField.FieldName).Value = 0 then
+        AQuery.Params.ParamByName(AField.FieldName).Value := Null;
     end
-    else if (pField.DataType = ftBlob) then
+    else if (AField.DataType = ftBlob) then
     begin
-      if pQuery.Params.ParamByName(pField.FieldName).Value = 0 then
-        pQuery.Params.ParamByName(pField.FieldName).Value := Null;
+      if AQuery.Params.ParamByName(AField.FieldName).Value = 0 then
+        AQuery.Params.ParamByName(AField.FieldName).Value := Null;
     end;
 
 
-    if pQuery.Params.ParamByName(pField.FieldName).Value = Null then
-      pQuery.Params.ParamByName(pField.FieldName).DataType := pField.DataType;
+    if AQuery.Params.ParamByName(AField.FieldName).Value = Null then
+      AQuery.Params.ParamByName(AField.FieldName).DataType := AField.DataType;
   end;
 end;
 

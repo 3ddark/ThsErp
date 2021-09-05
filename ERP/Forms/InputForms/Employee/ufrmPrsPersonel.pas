@@ -75,7 +75,6 @@ type
     lblozel_not: TLabel;
     lblikramiye_sayisi: TLabel;
     lblikramiye_tutar: TLabel;
-    lblposta_kutusu: TLabel;
     lblbina_adi: TLabel;
     lblsokak: TLabel;
     lblcadde: TLabel;
@@ -124,7 +123,6 @@ type
     edtsokak: TEdit;
     edtbina_adi: TEdit;
     edtkapi_no: TEdit;
-    edtposta_kutusu: TEdit;
     edtposta_kodu: TEdit;
     lblad: TLabel;
     edtad: TEdit;
@@ -158,6 +156,8 @@ type
     edtgorev_id: TEdit;
     edtulke_id: TEdit;
     edtsehir_id: TEdit;
+    lblposta_kutusu: TLabel;
+    edtposta_kutusu: TEdit;
     procedure pgcMainChange(Sender: TObject);
     procedure cbbcinsiyet_idChange(Sender: TObject);
     procedure cbbmedeni_durumu_idChange(Sender: TObject);
@@ -396,7 +396,6 @@ begin
   edtgorev_id.OnHelperProcess := HelperProcess;
   edtulke_id.OnHelperProcess := HelperProcess;
   edtsehir_id.OnHelperProcess := HelperProcess;
-//  edtilce.OnHelperProcess := HelperProcess;
   edtmahalle.OnHelperProcess := HelperProcess;
 
   inherited;
@@ -668,10 +667,8 @@ begin
     lblis_aktif.Visible := True;
   end;
 
-//  edtbolum_id.ReadOnly := True;
-//  edtbirim_id.ReadOnly := True;
-//  edtgorev_id.ReadOnly := True;
   edtilce.ReadOnly := True;
+  edtposta_kodu.ReadOnly := True;
 end;
 
 procedure TfrmPrsPersonel.btnAcceptClick(Sender: TObject);

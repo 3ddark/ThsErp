@@ -20,6 +20,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
     inherited pgcMain: TPageControl
       Width = 643
       Height = 494
+      ActivePage = tsGrupOzellikleri
       OnChange = pgcMainChange
       ExplicitWidth = 643
       ExplicitHeight = 494
@@ -759,6 +760,10 @@ inherited frmStkStokKarti: TfrmStkStokKarti
       object tsCinsOzelligi: TTabSheet
         Caption = 'Cins '#214'zelli'#287'i'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lbld3: TLabel
           Left = 132
           Top = 389
@@ -1169,6 +1174,10 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         Caption = #214'zetler'
         ImageIndex = 3
         TabVisible = False
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object pnlOzetHeader: TPanel
           AlignWithMargins = True
           Left = 3

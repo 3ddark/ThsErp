@@ -58,11 +58,11 @@ function TfrmStkStokKartlari.CreateInputForm(Sender: TObject; pFormMode: TInputF
 begin
   Result := nil;
   if (pFormMode = ifmRewiev) then
-    Result := TfrmStkStokKarti.Create(Application, Self, Table.Clone(), pFormMode)
+    Result := TfrmStkStokKarti.Create(Application, Self, Table.Clone, pFormMode)
   else if (pFormMode = ifmNewRecord) then
     Result := TfrmStkStokKarti.Create(Application, Self, TStkStokKarti.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmStkStokKarti.Create(Application, Self, Table.Clone(), pFormMode);
+    Result := TfrmStkStokKarti.Create(Application, Self, Table.Clone, pFormMode);
 end;
 
 procedure TfrmStkStokKartlari.FormShow(Sender: TObject);

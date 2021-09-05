@@ -154,8 +154,8 @@ begin
   FNot3 := TFieldDB.Create('not3', ftString, '', Self, 'Not 3');
   FFirmaTipiID := TFieldDB.Create('firma_tipi_id', ftInteger, 0, Self, 'Firma Tipi ID');
   FFirmaTipi := TFieldDB.Create(FBbkFirmaTipi.FirmaTipi.FieldName, FBbkFirmaTipi.FirmaTipi.DataType, '', Self, 'Firma Tipi');
-  FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftString, '', Self, 'Vergi Dairesi');
-  FVergiNumarasi := TFieldDB.Create('vergi_numarasi', ftString, '', Self, 'Veri Numarasý');
+  FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftString, '', Self, 'Vergi D.');
+  FVergiNumarasi := TFieldDB.Create('vergi_numarasi', ftString, '', Self, 'Vergi No');
   FKacYillikFirma := TFieldDB.Create('kac_yillik_firma', ftInteger, 0, Self, 'Kaç Yýllýk Firma');
   FCalismaDurumuId := TFieldDB.Create('calisma_durumu_id', ftInteger, 0, Self, 'Çalýþma Durumu ID');
   FCalismaDurumu := TFieldDB.Create(FBbkCalismaDurumu.CalismaDurumu.FieldName, FBbkCalismaDurumu.CalismaDurumu.DataType, '', Self, 'Çalýþma Durumu');
@@ -248,7 +248,7 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-                Self.Id.QryName,
+        Self.Id.QryName,
         FFirmaAdi.QryName,
         FTel1.QryName,
         FTel2.QryName,
@@ -290,7 +290,7 @@ begin
         addJoin(jtLeft, FBbkFinansDurumu.TableName, FBbkFinansDurumu.Id.FieldName, TableName, FFinansDurumuID.FieldName),
         addJoin(jtLeft, FSysSehir.TableName, FSysSehir.Id.FieldName, TableName, FSehirAdiID.FieldName),
         addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, FSysSehir.TableName, FSysSehir.UlkeAdiID.FieldName),
-        addJoin(jtLeft, FSysBolge.TableName, FSysBolge.Id.FieldName, TableName, FBolgeAdiID.FieldName),
+        addJoin(jtLeft, FSysBolge.TableName, FSysBolge.Id.FieldName, FSysSehir.TableName, FBolgeAdiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;

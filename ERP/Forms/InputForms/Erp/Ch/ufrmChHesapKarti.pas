@@ -5,9 +5,29 @@ interface
 {$I ThsERP.inc}
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls, Vcl.Menus, System.StrUtils,
-  System.Types, Vcl.AppEvnts, System.ImageList, Vcl.ImgList, Vcl.Samples.Spin,
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  System.StrUtils,
+  System.Math,
+  System.UITypes,
+  System.Types,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.StdCtrls,
+  Vcl.ExtCtrls,
+  Vcl.ComCtrls,
+  Vcl.AppEvnts,
+  Vcl.Menus,
+  Vcl.Samples.Spin,
+  Vcl.Mask,
+  Data.DB,
+  Vcl.Grids,
+  Vcl.DBGrids,
   FireDAC.Comp.Client,
   FireDAC.Stan.Param,
   Ths.Erp.Helper.BaseTypes,
@@ -152,7 +172,9 @@ uses
   Ths.Erp.Database.Table.SysUlke, ufrmSysUlkeler,
   Ths.Erp.Database.Table.SysSehir, ufrmSysSehirler,
   Ths.Erp.Database.Table.SysParaBirimi, ufrmSysParaBirimleri,
-  Ths.Erp.Database.Table.SysAdres;
+  Ths.Erp.Database.Table.SysAdres,
+  Ths.Erp.Database.Table.SysIlce, ufrmSysIlceler,
+  Ths.Erp.Database.Table.SysMahalle, ufrmSysMahalleler;
 
 {$R *.dfm}
 
@@ -294,7 +316,9 @@ begin
   edtmukellef_tipi_id.OnHelperProcess := HelperProcess;
   edtpara_birimi.OnHelperProcess := HelperProcess;
   edtiban_para.OnHelperProcess := HelperProcess;
+  edtulke_id.OnHelperProcess := HelperProcess;
   edtsehir_id.OnHelperProcess := HelperProcess;
+  edtmahalle.OnHelperProcess := HelperProcess;
 
   inherited;
 
@@ -326,7 +350,13 @@ var
   LFrmBolge: TfrmChBolgeler;
   LFrmMukellef: TfrmSysMukellefTipleri;
   LFrmPara: TfrmSysParaBirimleri;
+
+  LFrmUlke: TfrmSysUlkeler;
+  LUlke: TSysUlke;
   LFrmSehir: TfrmSysSehirler;
+  LSehir: TSysSehir;
+  LFrmMahalle: TfrmSysMahalleler;
+  LMahlle: TSysMahalle;
 begin
   if Sender.ClassType = TEdit then
   begin
@@ -465,33 +495,101 @@ begin
         finally
           LFrmPara.Free;
         end;
-      end
-      else if TEdit(Sender).Name = edtsehir_id.Name then
+      end else if (TEdit(Sender).Name = edtulke_id.Name) then
       begin
-        LFrmSehir := TfrmSysSehirler.Create(TEdit(Sender), Self, TSysSehir.Create(Table.Database), fomNormal, True);
+        LUlke := TSysUlke.Create(Table.Database);
+        LFrmUlke := TfrmSysUlkeler.Create(TEdit(Sender), Self, LUlke, fomNormal, True);
         try
-          LFrmSehir.ShowModal;
+          LFrmUlke.ShowModal;
+          if LFrmUlke.DataAktar then
+          begin
+            if LFrmUlke.CleanAndClose then
+            begin
+              TPrsPersonel(Table).UlkeID.Value := 0;
+              TPrsPersonel(Table).SehirID.Value := 0;
+              TEdit(Sender).Clear;
+              edtsehir_id.Clear;
+              edtilce.Clear;
+              edtmahalle.Clear;
+              edtposta_kodu.Clear;
+            end
+            else
+            begin
+              if TPrsPersonel(Table).UlkeID.AsInteger <> LFrmUlke.Table.Id.AsInteger then
+              begin
+                TPrsPersonel(Table).SehirID.Value := 0;
+                edtsehir_id.Clear;
+                edtilce.Clear;
+                edtmahalle.Clear;
+                edtposta_kodu.Clear;
+              end;
 
+              TPrsPersonel(Table).UlkeID.Value := LFrmUlke.Table.Id.AsInteger;
+              TEdit(Sender).Text := LUlke.UlkeAdi.AsString;
+            end;
+          end;
+        finally
+          LFrmUlke.Free;
+        end;
+      end else if (TEdit(Sender).Name = edtsehir_id.Name) then
+      begin
+        LSehir := TSysSehir.Create(Table.Database);
+        LFrmSehir := TfrmSysSehirler.Create(TEdit(Sender), Self, LSehir, fomNormal, True);
+        try
+          LFrmSehir.QryFiltreVarsayilan := ' AND ' + LSehir.TableName + '.' + LSehir.UlkeAdiID.FieldName + '=' + VarToStr(TPrsPersonel(Table).UlkeID.Value);
+          LFrmSehir.ShowModal;
           if LFrmSehir.DataAktar then
           begin
             if LFrmSehir.CleanAndClose then
             begin
               TEdit(Sender).Clear;
-              edtulke_id.Clear;
+              edtilce.Clear;
+              edtmahalle.Clear;
+              edtposta_kodu.Clear;
             end
             else
             begin
-              TEdit(Sender).Text := VarToStr(FormatedVariantVal(TSysSehir(LFrmSehir.Table).SehirAdi));
-              TChHesapKarti(Table).SehirID.Value := LFrmSehir.Table.Id.Value;
-              edtulke_id.Text := VarToStr(FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeAdi));
-              TChHesapKarti(Table).UlkeID.Value := TSysSehir(LFrmSehir.Table).UlkeAdiID.Value;
+              if TPrsPersonel(Table).SehirID.AsInteger <> LFrmSehir.Table.Id.AsInteger then
+              begin
+                edtilce.Clear;
+                edtmahalle.Clear;
+                edtposta_kodu.Clear;
+              end;
             end;
+
+            TPrsPersonel(Table).SehirID.Value := LFrmSehir.Table.Id.AsInteger;
+            TEdit(Sender).Text := LSehir.SehirAdi.AsString;
           end;
         finally
           LFrmSehir.Free;
         end;
       end
-
+      else if (TEdit(Sender).Name = edtmahalle.Name) then
+      begin
+        LMahlle := TSysMahalle.Create(Table.Database);
+        LFrmMahalle := TfrmSysMahalleler.Create(TEdit(Sender), Self, LMahlle, fomNormal, True);
+        try
+          LFrmMahalle.QryFiltreVarsayilan := ' AND ' + LMahlle.SehirAdi.FieldName + '=' + QuotedStr(edtsehir_id.Text);
+          LFrmMahalle.ShowModal;
+          if LFrmMahalle.DataAktar then
+          begin
+            if LFrmMahalle.CleanAndClose then
+            begin
+              edtilce.Clear;
+              TEdit(Sender).Clear;
+              edtposta_kodu.Clear;
+            end
+            else
+            begin
+              edtilce.Text := LMahlle.IlceAdi.AsString;
+              TEdit(Sender).Text := LMahlle.MahalleAdi.AsString;
+              edtposta_kodu.Text := LMahlle.PostaKodu.AsString;
+            end;
+          end;
+        finally
+          LFrmMahalle.Free;
+        end;
+      end
     end;
   end
 end;
@@ -624,16 +722,20 @@ begin
   or (FormMode = ifmUpdate)
   then
     edthesap_iskonto.ReadOnly := False;
+
+  edtilce.ReadOnly := True;
+  edtposta_kodu.ReadOnly := True;
 end;
 
 procedure TfrmHesapKarti.ShowHideMukellefTipi;
 begin
   if edtmukellef_tipi_id.Text = 'TCKN' then
   begin
-    lblvergi_dairesi.Visible := False;
-    edtvergi_dairesi.Visible := False;
-    lblvergi_no.Visible := False;
-    edtvergi_no.Visible := False;
+//    lblvergi_dairesi.Visible := False;
+//    edtvergi_dairesi.Visible := False;
+//    lblvergi_no.Visible := False;
+//    edtvergi_no.Visible := False;
+    edtvergi_no.MaxLength := 11;
 
     lblmukellef_adi.Visible := True;
     edtmukellef_adi.Visible := True;
@@ -644,10 +746,11 @@ begin
   end
   else
   begin
-    lblvergi_dairesi.Visible := True;
-    edtvergi_dairesi.Visible := True;
-    lblvergi_no.Visible := True;
-    edtvergi_no.Visible := True;
+//    lblvergi_dairesi.Visible := True;
+//    edtvergi_dairesi.Visible := True;
+//    lblvergi_no.Visible := True;
+//    edtvergi_no.Visible := True;
+    edtvergi_no.MaxLength := 10;
 
     lblmukellef_adi.Visible := False;
     edtmukellef_adi.Visible := False;

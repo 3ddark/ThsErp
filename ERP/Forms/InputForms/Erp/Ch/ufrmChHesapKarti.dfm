@@ -20,12 +20,11 @@ inherited frmHesapKarti: TfrmHesapKarti
     inherited pgcMain: TPageControl
       Width = 696
       Height = 320
+      ActivePage = tsAdres
       OnChange = pgcMainChange
       ExplicitWidth = 696
       ExplicitHeight = 320
       inherited tsMain: TTabSheet
-        ExplicitLeft = 0
-        ExplicitTop = 0
         ExplicitWidth = 688
         ExplicitHeight = 292
         object lblhesap_kodu: TLabel
@@ -504,10 +503,6 @@ inherited frmHesapKarti: TfrmHesapKarti
       object tsAdres: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblposta_kutusu: TLabel
           Left = 412
           Top = 201
