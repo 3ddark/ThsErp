@@ -11,6 +11,8 @@ uses
   Ths.Erp.Database.Table;
 
 type
+  TOlcuBirimiTipi = (Zaman=1, Agirlik, Uzunluk, Birim);
+
   TSysOlcuBirimiTipi = class(TTable)
   private
     FOlcuBirimiTipi: TFieldDB;

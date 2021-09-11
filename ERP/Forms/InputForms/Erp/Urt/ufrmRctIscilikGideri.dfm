@@ -132,16 +132,16 @@ inherited frmRctIscilikGideri: TfrmRctIscilikGideri
           Top = 68
           Width = 200
           Height = 21
+          Style = csDropDownList
           TabOrder = 3
-          Text = 'cbbolcu_birimi_id'
         end
         object cbbgider_tipi_id: TComboBox
           Left = 106
           Top = 90
           Width = 200
           Height = 21
+          Style = csDropDownList
           TabOrder = 4
-          Text = 'ComboBox1'
         end
       end
     end

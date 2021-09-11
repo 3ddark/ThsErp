@@ -98,6 +98,11 @@ type
     function AsTime: TTime;
   end;
 
+  TTableData = class
+  public
+    Id: TFieldDB;//property olarak tanımlamıyoruz. Field Clone içinde hata veriyor
+  end;
+
   TTable = class
   private
     FTableName: string; //database table name
@@ -148,6 +153,8 @@ type
     Deleted: Boolean;
 
     Id: TFieldDB;//property olarak tanımlamıyoruz. Field Clone içinde hata veriyor
+
+    ListData: TObjectDictionary<string, TTableData>;
 
     property TableName: string read GetTableName write SetTableName;
     property TableSourceCode: string read FTableSourceCode write FTableSourceCode;

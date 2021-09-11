@@ -60,6 +60,7 @@ implementation
 uses
   Ths.Erp.Database.Singleton,
   Ths.Erp.Database.Table.RctIscilikGideri,
+  Ths.Erp.Database.Table.SysOlcuBirimiTipi,
   Ths.Erp.Database.Table.ChHesapKarti,
   ufrmChHesapKartlari;
 
@@ -103,7 +104,7 @@ begin
   FGider := TSetRctIscilikGiderTipi.Create(Table.Database);
   FBirim := TSysOlcuBirimi.Create(Table.Database);
 
-  fillComboBoxData(cbbolcu_birimi_id, FBirim, [FBirim.OlcuBirimi.FieldName], '', True);
+  fillComboBoxData(cbbolcu_birimi_id, FBirim, [FBirim.OlcuBirimi.FieldName], ' AND ' + FBirim.OlcuBirimiTipiID.QryName + '=' + IntToStr(Ord(TOlcuBirimiTipi.Zaman)) , True);
   fillComboBoxData(cbbgider_tipi_id, FGider, [FGider.GiderTipi.FieldName], '', True);
 end;
 

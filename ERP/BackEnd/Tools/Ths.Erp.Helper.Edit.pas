@@ -19,6 +19,7 @@ uses
   Vcl.Mask,
   Vcl.ExtCtrls,
   Vcl.ComCtrls,
+  ClipBrd,
   System.UITypes,
   Ths.Erp.Constants,
   Ths.Erp.Helper.BaseTypes;
@@ -377,6 +378,8 @@ begin
 end;
 
 procedure TEdit.MyOnKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  LVal: Double;
 begin
   if (Key = VK_F1) then
   begin
@@ -409,6 +412,8 @@ begin
 //        DatePicker.Perform( WM_KEYUP, VK_F4, 0);
 
         DatePicker.Visible := True;
+        DatePicker.BringToFront;
+
       end;
     end
     else
@@ -433,6 +438,26 @@ begin
   begin
     if Assigned(FOnCalculatorProcess) then
       FOnCalculatorProcess(Self);
+  end
+  else
+  begin
+    if ssCtrl in Shift then
+    begin
+      if (Key = Ord('v')) or (Key = Ord('V')) then
+      begin
+        Key := 0;
+        Shift := [];
+        if TryStrToFloat(Clipboard.AsText, LVal) then
+          Self.Text := Clipboard.AsText;
+      end
+      else if (Key = Ord('x')) or (Key = Ord('X')) then
+      begin
+        Key := 0;
+        Shift := [];
+        Clipboard.Clear;
+        Clipboard.AsText := Self.Text;
+      end;
+    end;
   end;
 end;
 

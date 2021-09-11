@@ -6,6 +6,7 @@ interface
 
 uses
   System.SysUtils,
+  System.Generics.Collections,
   Data.DB,
   Ths.Erp.Database,
   Ths.Erp.Database.Table;

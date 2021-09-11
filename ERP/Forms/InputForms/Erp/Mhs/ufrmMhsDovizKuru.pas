@@ -63,9 +63,9 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TMhsDovizKuru(Table).Tarih.Value := edttarih.Text;
+      TMhsDovizKuru(Table).Tarih.Value := StrToDateDef(edttarih.Text, 0);
       TMhsDovizKuru(Table).ParaBirimi.Value := edtpara_birimi.Text;
-      TMhsDovizKuru(Table).Kur.Value := edtkur.Text;
+      TMhsDovizKuru(Table).Kur.Value := StrToFloatDef(edtkur.Text, 0);
 
       inherited;
     end;
@@ -76,13 +76,20 @@ end;
 
 procedure TfrmMhsDovizKuru.FormShow(Sender: TObject);
 begin
+  edtpara_birimi.OnHelperProcess := HelperProcess;
   inherited;
-  edtkur.thsDecimalDigitCount := FormatedVariantVal(GSysOndalikHane.DovizKuru);
+  edtkur.thsDecimalDigitCount := GSysOndalikHane.DovizKuru.AsInteger;
+
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
+  begin
+    edttarih.Text := DateToStr(GDataBase.DateDB);
+  end;
 end;
 
 procedure TfrmMhsDovizKuru.HelperProcess(Sender: TObject);
 var
   LFrm: TfrmSysParaBirimleri;
+  LPara: TSysParaBirimi;
 begin
   if Sender.ClassType = TEdit then
   begin
@@ -90,7 +97,9 @@ begin
     begin
       if TEdit(Sender).Name = edtpara_birimi.Name then
       begin
-        LFrm := TfrmSysParaBirimleri.Create(TEdit(Sender), Self, TSysParaBirimi.Create(Table.Database), fomNormal, True);
+        LPara := TSysParaBirimi.Create(Table.Database);
+        LFrm := TfrmSysParaBirimleri.Create(TEdit(Sender), Self, LPara, fomNormal, True);
+        LFrm.QryFiltreVarsayilan := ' AND ' + LPara.IsVarsayilan.FieldName + '=False';
         try
           LFrm.ShowModal;
           if LFrm.DataAktar then
@@ -98,7 +107,7 @@ begin
             if LFrm.CleanAndClose then
               TEdit(Sender).Clear
             else
-            TEdit(Sender).Text := FormatedVariantVal(TSysParaBirimi(LFrm.Table).ParaBirimi);
+              TEdit(Sender).Text := FormatedVariantVal(TSysParaBirimi(LFrm.Table).ParaBirimi);
           end;
         finally
           LFrm.Free;
@@ -110,9 +119,9 @@ end;
 
 procedure TfrmMhsDovizKuru.RefreshData;
 begin
-  edttarih.Text := FormatedVariantVal(TMhsDovizKuru(Table).Tarih);
-  edtpara_birimi.Text := FormatedVariantVal(TMhsDovizKuru(Table).ParaBirimi);
-  edtkur.Text := FormatedVariantVal(TMhsDovizKuru(Table).Kur);
+  edttarih.Text := TMhsDovizKuru(Table).Tarih.AsString;
+  edtpara_birimi.Text := TMhsDovizKuru(Table).ParaBirimi.AsString;
+  edtkur.Text := TMhsDovizKuru(Table).Kur.AsString;
 end;
 
 end.
