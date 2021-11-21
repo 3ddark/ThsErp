@@ -3,6 +3,11 @@ inherited frmSatTeklifler: TfrmSatTeklifler
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
+    inherited pnlHeader: TPanel
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
+    end
     inherited pnlButtons: TPanel
       inherited pnlButtonRight: TPanel
         object rgFiltre: TRadioGroup
@@ -30,7 +35,7 @@ inherited frmSatTeklifler: TfrmSatTeklifler
     end
   end
   inherited frxrprtBase: TfrxReport
-    ReportOptions.LastChange = 44108.460726712960000000
+    ReportOptions.LastChange = 44108.463658495400000000
     ScriptText.Strings = ()
   end
 end

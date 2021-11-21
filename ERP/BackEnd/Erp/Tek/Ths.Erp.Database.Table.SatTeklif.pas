@@ -1083,17 +1083,17 @@ end;
 function TSatTeklif.GetAddress: string;
 begin
   Result := '';
-  if FMahalle.Value <> '' then
-    Result := Result + FMahalle.Value + ' MAH. ';
+  if FMahalle.AsString <> '' then
+    Result := Result + FMahalle.AsString + ' MAH. ';
 
-  if FCadde.Value <> '' then
-    Result := Result + FCadde.Value + ' CD. ';
+  if FCadde.AsString <> '' then
+    Result := Result + FCadde.AsString + ' CD. ';
 
-  if FSokak.Value <> '' then
-    Result := Result + FSokak.Value + ' SK. ';
+  if FSokak.AsString <> '' then
+    Result := Result + FSokak.AsString + ' SK. ';
 
-  if FKapiNo.Value <> '' then
-    Result := Result + ' NO: ' + FKapiNo.Value;
+  if FKapiNo.AsString <> '' then
+    Result := Result + ' NO: ' + FKapiNo.AsString;
 end;
 
 procedure TSatTeklif.RefreshHeader;

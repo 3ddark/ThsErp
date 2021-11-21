@@ -48,6 +48,8 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       ExplicitWidth = 964
       ExplicitHeight = 437
       inherited tsMain: TTabSheet
+        ExplicitLeft = 0
+        ExplicitTop = 0
         ExplicitWidth = 956
         ExplicitHeight = 409
       end
@@ -77,6 +79,10 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         TabPosition = tpLeft
         object tsHeader: TTabSheet
           Caption = 'Header'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
         object tsHeaderDiger: TTabSheet
           Caption = 'Di'#287'er'
@@ -554,6 +560,10 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         object ts3: TTabSheet
           Caption = 'ts3'
           ImageIndex = 2
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object strngrd3: TStringGrid
             Left = 0
             Top = 0
@@ -736,7 +746,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
     Top = 256
   end
   object frxrprtBase: TfrxReport
-    Version = '6.5'
+    Version = '6.3.1'
     DotMatrixReport = False
     IniFile = '\Software\Fast Reports'
     PreviewOptions.Buttons = [pbPrint, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbNavigator]

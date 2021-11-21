@@ -16,17 +16,15 @@ inherited frmSysKullanici: TfrmSysKullanici
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 372
-    ExplicitHeight = 241
+    ExplicitHeight = 255
     inherited pgcMain: TPageControl
       Width = 370
       Height = 253
       ExplicitWidth = 370
       ExplicitHeight = 253
       inherited tsMain: TTabSheet
-        ExplicitLeft = 0
-        ExplicitTop = 0
         ExplicitWidth = 362
-        ExplicitHeight = 211
+        ExplicitHeight = 225
         object lblkullanici_adi: TLabel
           Left = 41
           Top = 10
@@ -241,7 +239,7 @@ inherited frmSysKullanici: TfrmSysKullanici
   inherited pnlBottom: TPanel
     Top = 259
     Width = 372
-    ExplicitTop = 245
+    ExplicitTop = 259
     ExplicitWidth = 372
     inherited btnAccept: TButton
       Left = 163

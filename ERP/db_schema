@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 13.3
--- Dumped by pg_dump version 13.3
+-- Dumped by pg_dump version 14.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1000,42 +1000,6 @@ ALTER TABLE public.alis_teklif ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
--- Name: arc_arac; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.arc_arac (
-    id bigint NOT NULL,
-    marka character varying(32),
-    model character varying(32),
-    plaka character varying(16),
-    renk character varying(16),
-    gelis_tarihi date,
-    gelis_km integer,
-    gelis_yeri character varying(64),
-    aciklama character varying(128),
-    is_active boolean DEFAULT true NOT NULL,
-    aktif_km integer,
-    aktif_konum character varying(64)
-);
-
-
-ALTER TABLE public.arc_arac OWNER TO ths_admin;
-
---
--- Name: arc_arac_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.arc_arac ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.arc_arac_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
 -- Name: audit; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -1484,32 +1448,6 @@ ALTER TABLE public.prs_src_bilgisi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENT
 
 
 --
--- Name: quality_form_mail_reciever; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.quality_form_mail_reciever (
-    id bigint NOT NULL,
-    mail_adresi character varying(128) NOT NULL
-);
-
-
-ALTER TABLE public.quality_form_mail_reciever OWNER TO ths_admin;
-
---
--- Name: quality_form_mail_reciever_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.quality_form_mail_reciever ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.quality_form_mail_reciever_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
 -- Name: rct_iscilik_gideri; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -1814,6 +1752,124 @@ ALTER TABLE public.rct_recete_yan_urun OWNER TO ths_admin;
 
 ALTER TABLE public.rct_recete_yan_urun ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.rct_recete_yan_urun_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sat_fatura; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sat_fatura (
+    id bigint NOT NULL,
+    fatura_no character varying(16),
+    fatura_tarihi timestamp without time zone,
+    teklif_id integer,
+    siparis_id integer,
+    irsaliye_id integer
+);
+
+
+ALTER TABLE public.sat_fatura OWNER TO ths_admin;
+
+--
+-- Name: sat_fatura_detay; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sat_fatura_detay (
+    id bigint NOT NULL,
+    header_id integer,
+    teklif_detay_id integer,
+    siparis_detay_id integer,
+    irsaliye_detay_id integer
+);
+
+
+ALTER TABLE public.sat_fatura_detay OWNER TO ths_admin;
+
+--
+-- Name: sat_fatura_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sat_fatura_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sat_fatura_detay_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sat_fatura_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sat_fatura ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sat_fatura_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sat_irsaliye; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sat_irsaliye (
+    id bigint NOT NULL,
+    irsaliye_no character varying(16),
+    irsaliye_tarihi timestamp without time zone,
+    teklif_id integer,
+    siparis_id integer,
+    fatura_id integer
+);
+
+
+ALTER TABLE public.sat_irsaliye OWNER TO ths_admin;
+
+--
+-- Name: sat_irsaliye_detay; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sat_irsaliye_detay (
+    id bigint NOT NULL,
+    header_id integer,
+    teklif_detay_id integer,
+    siparis_detay_id integer,
+    fatura_detay_id integer
+);
+
+
+ALTER TABLE public.sat_irsaliye_detay OWNER TO ths_admin;
+
+--
+-- Name: sat_irsaliye_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sat_irsaliye_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sat_irsaliye_detay_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sat_irsaliye_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sat_irsaliye ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sat_irsaliye_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2243,124 +2299,6 @@ ALTER TABLE public.sat_teklif_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 ALTER TABLE public.sat_teklif ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sat_teklif_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: satis_fatura; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.satis_fatura (
-    id bigint NOT NULL,
-    fatura_no character varying(16),
-    fatura_tarihi timestamp without time zone,
-    teklif_id integer,
-    siparis_id integer,
-    irsaliye_id integer
-);
-
-
-ALTER TABLE public.satis_fatura OWNER TO ths_admin;
-
---
--- Name: satis_fatura_detay; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.satis_fatura_detay (
-    id bigint NOT NULL,
-    header_id integer,
-    teklif_detay_id integer,
-    siparis_detay_id integer,
-    irsaliye_detay_id integer
-);
-
-
-ALTER TABLE public.satis_fatura_detay OWNER TO ths_admin;
-
---
--- Name: satis_fatura_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.satis_fatura_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.satis_fatura_detay_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: satis_fatura_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.satis_fatura ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.satis_fatura_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: satis_irsaliye; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.satis_irsaliye (
-    id bigint NOT NULL,
-    irsaliye_no character varying(16),
-    irsaliye_tarihi timestamp without time zone,
-    teklif_id integer,
-    siparis_id integer,
-    fatura_id integer
-);
-
-
-ALTER TABLE public.satis_irsaliye OWNER TO ths_admin;
-
---
--- Name: satis_irsaliye_detay; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.satis_irsaliye_detay (
-    id bigint NOT NULL,
-    header_id integer,
-    teklif_detay_id integer,
-    siparis_detay_id integer,
-    fatura_detay_id integer
-);
-
-
-ALTER TABLE public.satis_irsaliye_detay OWNER TO ths_admin;
-
---
--- Name: satis_irsaliye_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.satis_irsaliye_detay ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.satis_irsaliye_detay_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: satis_irsaliye_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.satis_irsaliye ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.satis_irsaliye_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3126,232 +3064,6 @@ ALTER TABLE public.set_einv_vergi_kodu OWNER TO ths_admin;
 
 ALTER TABLE public.set_einv_vergi_kodu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_einv_vergi_kodu_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: set_iml_cins; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iml_cins (
-    id bigint NOT NULL,
-    cins_kodu character varying(32),
-    aciklama character varying(64)
-);
-
-
-ALTER TABLE public.set_iml_cins OWNER TO ths_admin;
-
---
--- Name: set_iml_cins_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.set_iml_cins ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_iml_cins_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: set_iml_cins_sureci; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iml_cins_sureci (
-    id bigint NOT NULL,
-    cins_id integer,
-    baslangic_surec_id integer
-);
-
-
-ALTER TABLE public.set_iml_cins_sureci OWNER TO ths_admin;
-
---
--- Name: set_iml_cins_sureci_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.set_iml_cins_sureci ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_iml_cins_sureci_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: set_iml_imalat_surec_tanimi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iml_imalat_surec_tanimi (
-    id bigint NOT NULL,
-    imalat_turu character varying(32),
-    imalat_tipi character varying(32),
-    marka character varying(16),
-    cins_id integer
-);
-
-
-ALTER TABLE public.set_iml_imalat_surec_tanimi OWNER TO ths_admin;
-
---
--- Name: set_iml_imalat_surec_tanimi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.set_iml_imalat_surec_tanimi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_iml_imalat_surec_tanimi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: set_iml_operator_tezgah; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iml_operator_tezgah (
-    id bigint NOT NULL,
-    operator_id integer,
-    tezgah_id integer
-);
-
-
-ALTER TABLE public.set_iml_operator_tezgah OWNER TO ths_admin;
-
---
--- Name: set_iml_operator_tezgah_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.set_iml_operator_tezgah ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_iml_operator_tezgah_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: set_iml_surec; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iml_surec (
-    id bigint NOT NULL,
-    surec_kodu character varying(16),
-    onceki_durum_kodu character varying(16),
-    is_periodik_islem boolean DEFAULT false NOT NULL,
-    ana_surec_adi character varying(32),
-    alt_surec_adi character varying(32),
-    islem_sirasi integer DEFAULT 1 NOT NULL,
-    tezgah_id integer,
-    cins_kodu character varying(32),
-    uretim_durum_kodu_id integer,
-    is_mudahale_edilemez boolean DEFAULT false NOT NULL,
-    ara_islem_sirasi integer
-);
-
-
-ALTER TABLE public.set_iml_surec OWNER TO ths_admin;
-
---
--- Name: set_iml_surec_durum_kodu; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iml_surec_durum_kodu (
-    id bigint NOT NULL,
-    uretim_durumu character varying(16),
-    is_ilk_durum boolean DEFAULT false NOT NULL
-);
-
-
-ALTER TABLE public.set_iml_surec_durum_kodu OWNER TO ths_admin;
-
---
--- Name: set_iml_surec_durum_kodu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.set_iml_surec_durum_kodu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_iml_surec_durum_kodu_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: set_iml_surec_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.set_iml_surec ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_iml_surec_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: set_iml_tezgah; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iml_tezgah (
-    id bigint NOT NULL,
-    tezgah character varying(32) NOT NULL,
-    aciklama character varying(64)
-);
-
-
-ALTER TABLE public.set_iml_tezgah OWNER TO ths_admin;
-
---
--- Name: set_iml_tezgah_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.set_iml_tezgah ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_iml_tezgah_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: set_iscilik_gider_tipi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_iscilik_gider_tipi (
-    id bigint NOT NULL,
-    gider_tipi character varying(16) NOT NULL
-);
-
-
-ALTER TABLE public.set_iscilik_gider_tipi OWNER TO ths_admin;
-
---
--- Name: set_iscilik_gider_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.set_iscilik_gider_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_iscilik_gider_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -5143,32 +4855,6 @@ CREATE VIEW public.sys_view_databases AS
 ALTER TABLE public.sys_view_databases OWNER TO ths_admin;
 
 --
--- Name: urun_kabul_red_nedeni; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.urun_kabul_red_nedeni (
-    id bigint NOT NULL,
-    deger character varying(64) NOT NULL
-);
-
-
-ALTER TABLE public.urun_kabul_red_nedeni OWNER TO ths_admin;
-
---
--- Name: urun_kabul_red_nedeni_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.urun_kabul_red_nedeni ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.urun_kabul_red_nedeni_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
 -- Name: alis_teklif_detay alis_teklif_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5182,14 +4868,6 @@ ALTER TABLE ONLY public.alis_teklif_detay
 
 ALTER TABLE ONLY public.alis_teklif
     ADD CONSTRAINT alis_teklif_pkey PRIMARY KEY (id);
-
-
---
--- Name: arc_arac arc_arac_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.arc_arac
-    ADD CONSTRAINT arc_arac_pkey PRIMARY KEY (id);
 
 
 --
@@ -5345,22 +5023,6 @@ ALTER TABLE ONLY public.prs_personel
 
 
 --
--- Name: quality_form_mail_reciever quality_form_mail_reciever_mail_adresi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.quality_form_mail_reciever
-    ADD CONSTRAINT quality_form_mail_reciever_mail_adresi_key UNIQUE (mail_adresi);
-
-
---
--- Name: quality_form_mail_reciever quality_form_mail_reciever_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.quality_form_mail_reciever
-    ADD CONSTRAINT quality_form_mail_reciever_pkey PRIMARY KEY (id);
-
-
---
 -- Name: rct_paket_hammadde_detay rct_paket_hammadde_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5409,6 +5071,38 @@ ALTER TABLE ONLY public.rct_recete_paket_hammadde
 
 
 --
+-- Name: sat_fatura_detay sat_fatura_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_fatura_detay
+    ADD CONSTRAINT sat_fatura_detay_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sat_fatura sat_fatura_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_fatura
+    ADD CONSTRAINT sat_fatura_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sat_irsaliye_detay sat_irsaliye_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_irsaliye_detay
+    ADD CONSTRAINT sat_irsaliye_detay_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sat_irsaliye sat_irsaliye_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_irsaliye
+    ADD CONSTRAINT sat_irsaliye_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sat_siparis_detay sat_siparis_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5438,38 +5132,6 @@ ALTER TABLE ONLY public.sat_teklif_detay
 
 ALTER TABLE ONLY public.sat_teklif
     ADD CONSTRAINT sat_teklif_pkey PRIMARY KEY (id);
-
-
---
--- Name: satis_fatura_detay satis_fatura_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.satis_fatura_detay
-    ADD CONSTRAINT satis_fatura_detay_pkey PRIMARY KEY (id);
-
-
---
--- Name: satis_fatura satis_fatura_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.satis_fatura
-    ADD CONSTRAINT satis_fatura_pkey PRIMARY KEY (id);
-
-
---
--- Name: satis_irsaliye_detay satis_irsaliye_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.satis_irsaliye_detay
-    ADD CONSTRAINT satis_irsaliye_detay_pkey PRIMARY KEY (id);
-
-
---
--- Name: satis_irsaliye satis_irsaliye_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.satis_irsaliye
-    ADD CONSTRAINT satis_irsaliye_pkey PRIMARY KEY (id);
 
 
 --
@@ -5870,134 +5532,6 @@ ALTER TABLE ONLY public.set_einv_vergi_kodu
 
 ALTER TABLE ONLY public.set_einv_vergi_kodu
     ADD CONSTRAINT set_einv_vergi_kodu_vergi_kodu_key UNIQUE (vergi_kodu);
-
-
---
--- Name: set_iml_cins set_iml_cins_cins_kodu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_cins
-    ADD CONSTRAINT set_iml_cins_cins_kodu_key UNIQUE (cins_kodu);
-
-
---
--- Name: set_iml_cins set_iml_cins_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_cins
-    ADD CONSTRAINT set_iml_cins_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_cins_sureci set_iml_cins_sureci_cins_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_cins_sureci
-    ADD CONSTRAINT set_iml_cins_sureci_cins_id_key UNIQUE (cins_id);
-
-
---
--- Name: set_iml_cins_sureci set_iml_cins_sureci_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_cins_sureci
-    ADD CONSTRAINT set_iml_cins_sureci_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_imalat_surec_tanimi set_iml_imalat_surec_tanimi_imalat_turu_imalat_tipi_marka_c_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_imalat_surec_tanimi
-    ADD CONSTRAINT set_iml_imalat_surec_tanimi_imalat_turu_imalat_tipi_marka_c_key UNIQUE (imalat_turu, imalat_tipi, marka, cins_id);
-
-
---
--- Name: set_iml_imalat_surec_tanimi set_iml_imalat_surec_tanimi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_imalat_surec_tanimi
-    ADD CONSTRAINT set_iml_imalat_surec_tanimi_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_operator_tezgah set_iml_operator_tezgah_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_operator_tezgah
-    ADD CONSTRAINT set_iml_operator_tezgah_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_surec set_iml_surec_cins_kodu_surec_kodu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_surec
-    ADD CONSTRAINT set_iml_surec_cins_kodu_surec_kodu_key UNIQUE (cins_kodu, surec_kodu);
-
-
---
--- Name: set_iml_surec_durum_kodu set_iml_surec_durum_kodu_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_surec_durum_kodu
-    ADD CONSTRAINT set_iml_surec_durum_kodu_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_surec_durum_kodu set_iml_surec_durum_kodu_uretim_durumu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_surec_durum_kodu
-    ADD CONSTRAINT set_iml_surec_durum_kodu_uretim_durumu_key UNIQUE (uretim_durumu);
-
-
---
--- Name: set_iml_surec set_iml_surec_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_surec
-    ADD CONSTRAINT set_iml_surec_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_surec set_iml_surec_surec_kodu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_surec
-    ADD CONSTRAINT set_iml_surec_surec_kodu_key UNIQUE (surec_kodu);
-
-
---
--- Name: set_iml_tezgah set_iml_tezgah_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_tezgah
-    ADD CONSTRAINT set_iml_tezgah_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iml_tezgah set_iml_tezgah_tezgah_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_tezgah
-    ADD CONSTRAINT set_iml_tezgah_tezgah_key UNIQUE (tezgah);
-
-
---
--- Name: set_iscilik_gider_tipi set_iscilik_gider_tipi_gider_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iscilik_gider_tipi
-    ADD CONSTRAINT set_iscilik_gider_tipi_gider_tipi_key UNIQUE (gider_tipi);
-
-
---
--- Name: set_iscilik_gider_tipi set_iscilik_gider_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iscilik_gider_tipi
-    ADD CONSTRAINT set_iscilik_gider_tipi_pkey PRIMARY KEY (id);
 
 
 --
@@ -7073,29 +6607,6 @@ ALTER TABLE ONLY public.rct_recete_yan_urun
 
 
 --
--- Name: urun_kabul_red_nedeni urun_kabul_red_nedeni_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.urun_kabul_red_nedeni
-    ADD CONSTRAINT urun_kabul_red_nedeni_deger_key UNIQUE (deger);
-
-
---
--- Name: urun_kabul_red_nedeni urun_kabul_red_nedeni_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.urun_kabul_red_nedeni
-    ADD CONSTRAINT urun_kabul_red_nedeni_pkey PRIMARY KEY (id);
-
-
---
--- Name: set_iscilik_gider_tipi audit; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.set_iscilik_gider_tipi FOR EACH ROW EXECUTE FUNCTION public.audit();
-
-
---
 -- Name: set_rct_iscilik_gider_tipi audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -7116,13 +6627,6 @@ CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.set_stk_urun_tip
 CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.stk_cins_ozelligi FOR EACH ROW EXECUTE FUNCTION public.audit_old();
 
 ALTER TABLE public.stk_cins_ozelligi DISABLE TRIGGER audit;
-
-
---
--- Name: urun_kabul_red_nedeni audit; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.urun_kabul_red_nedeni FOR EACH ROW EXECUTE FUNCTION public.audit();
 
 
 --
@@ -7165,13 +6669,6 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.ch_bolge FOR EA
 --
 
 CREATE TRIGGER sys_grid_col_width_table_notify AFTER INSERT OR DELETE OR UPDATE ON public.sys_grid_kolon FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: arc_arac table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER table_notify AFTER INSERT OR DELETE OR UPDATE ON public.arc_arac FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -7260,6 +6757,22 @@ ALTER TABLE ONLY public.rct_recete_paket_hammadde
 
 ALTER TABLE ONLY public.rct_recete_paket_hammadde
     ADD CONSTRAINT rct_recete_paket_hammadde_paket_id_fkey FOREIGN KEY (paket_id) REFERENCES public.rct_paket_hammadde(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_fatura_detay sat_fatura_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_fatura_detay
+    ADD CONSTRAINT sat_fatura_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sat_fatura(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sat_irsaliye_detay sat_irsaliye_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_irsaliye_detay
+    ADD CONSTRAINT sat_irsaliye_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sat_irsaliye(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -7367,22 +6880,6 @@ ALTER TABLE ONLY public.sat_teklif
 
 
 --
--- Name: satis_fatura_detay satis_fatura_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.satis_fatura_detay
-    ADD CONSTRAINT satis_fatura_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.satis_fatura(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: satis_irsaliye_detay satis_irsaliye_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.satis_irsaliye_detay
-    ADD CONSTRAINT satis_irsaliye_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.satis_irsaliye(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: set_ch_firma_tipi set_ch_firma_tipi_firma_turu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -7444,46 +6941,6 @@ ALTER TABLE ONLY public.set_einv_evrak_tipi_cinsi
 
 ALTER TABLE ONLY public.set_einv_istisna_kodu
     ADD CONSTRAINT set_einv_istisna_kodu_fatura_tip_id_fkey FOREIGN KEY (fatura_tip_id) REFERENCES public.set_einv_fatura_tipi(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: set_iml_cins_sureci set_iml_cins_sureci_baslangic_surec_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_cins_sureci
-    ADD CONSTRAINT set_iml_cins_sureci_baslangic_surec_id_fkey FOREIGN KEY (baslangic_surec_id) REFERENCES public.set_iml_surec(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: set_iml_cins_sureci set_iml_cins_sureci_cins_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_cins_sureci
-    ADD CONSTRAINT set_iml_cins_sureci_cins_id_fkey FOREIGN KEY (cins_id) REFERENCES public.set_iml_cins(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: set_iml_operator_tezgah set_iml_operator_tezgah_tezgah_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_operator_tezgah
-    ADD CONSTRAINT set_iml_operator_tezgah_tezgah_id_fkey FOREIGN KEY (tezgah_id) REFERENCES public.set_iml_tezgah(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: set_iml_surec set_iml_surec_cins_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_surec
-    ADD CONSTRAINT set_iml_surec_cins_kodu_fkey FOREIGN KEY (cins_kodu) REFERENCES public.set_iml_cins(cins_kodu) ON UPDATE CASCADE;
-
-
---
--- Name: set_iml_surec set_iml_surec_tezgah_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_iml_surec
-    ADD CONSTRAINT set_iml_surec_tezgah_id_fkey FOREIGN KEY (tezgah_id) REFERENCES public.set_iml_tezgah(id) ON UPDATE CASCADE;
 
 
 --

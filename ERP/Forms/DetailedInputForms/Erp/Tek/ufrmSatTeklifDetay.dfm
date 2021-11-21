@@ -263,19 +263,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             Font.Style = []
             ParentFont = False
           end
-          object lbltutar_brm: TLabel
-            Left = 248
-            Top = 21
-            Width = 6
-            Height = 13
-            Caption = #8378
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = []
-            ParentFont = False
-          end
           object lbliskonto_tutar: TLabel
             Left = 44
             Top = 38
@@ -298,19 +285,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             Alignment = taRightJustify
             AutoSize = False
             Caption = 'ValueIskontoTutar'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = []
-            ParentFont = False
-          end
-          object lbliskonto_tutar_brm: TLabel
-            Left = 248
-            Top = 38
-            Width = 6
-            Height = 13
-            Caption = #8378
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
@@ -347,19 +321,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             Font.Style = []
             ParentFont = False
           end
-          object lblkdv_tutar_brm: TLabel
-            Left = 248
-            Top = 72
-            Width = 6
-            Height = 13
-            Caption = #8378
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = []
-            ParentFont = False
-          end
           object lbltoplam_tutar: TLabel
             Left = 48
             Top = 89
@@ -382,19 +343,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             Alignment = taRightJustify
             AutoSize = False
             Caption = 'ValueToplamTutar'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = []
-            ParentFont = False
-          end
-          object lbltoplam_tutar_brm: TLabel
-            Left = 248
-            Top = 89
-            Width = 6
-            Height = 13
-            Caption = #8378
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
@@ -431,19 +379,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             Font.Style = []
             ParentFont = False
           end
-          object lblnet_fiyat_brm: TLabel
-            Left = 248
-            Top = 4
-            Width = 6
-            Height = 13
-            Caption = #8378
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = []
-            ParentFont = False
-          end
           object lblnet_tutar: TLabel
             Left = 69
             Top = 55
@@ -466,19 +401,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             Alignment = taRightJustify
             AutoSize = False
             Caption = 'ValueTutar'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = []
-            ParentFont = False
-          end
-          object lblnet_tutar_brm: TLabel
-            Left = 248
-            Top = 55
-            Width = 6
-            Height = 13
-            Caption = #8378
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11

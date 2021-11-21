@@ -5,7 +5,6 @@ interface
 {$I ThsERP.inc}
 
 uses
-Ths.Erp.Database.Table.Arac.BakimBilgisi,
   Winapi.Windows,
   System.Variants,
   System.Math,
@@ -211,7 +210,6 @@ type
     tsmhs: TTabSheet;
     btnmhs_doviz_kuru: TButton;
     actsys_olcu_birimi_tipleri: TAction;
-    btnutd_dokuman: TButton;
     actsys_ilce: TAction;
     actsys_semt: TAction;
     actsys_mahalle: TAction;
@@ -244,7 +242,6 @@ type
     procedure actsys_guýnExecute(Sender: TObject);
     procedure actsys_kalite_form_tipiExecute(Sender: TObject);
     procedure actsys_kalite_form_noExecute(Sender: TObject);
-    procedure acturun_kabul_red_nedenleriExecute(Sender: TObject);
     procedure actquality_form_mail_recieversExecute(Sender: TObject);
     procedure actodeme_baslangic_donemleriExecute(Sender: TObject);
     procedure actset_teklif_tipleriExecute(Sender: TObject);
@@ -281,8 +278,6 @@ type
     procedure ActionListMainExecute(Action: TBasicAction; var Handled: Boolean);
     procedure actsys_para_birimleriExecute(Sender: TObject);
     procedure actsys_olcu_birimleriExecute(Sender: TObject);
-    procedure actset_utd_dokuman_tipiExecute(Sender: TObject);
-    procedure actset_utd_dosya_uzantisiExecute(Sender: TObject);
     procedure actset_bbk_calisma_durumuExecute(Sender: TObject);
     procedure actset_bbk_finans_durumuExecute(Sender: TObject);
     procedure actset_bbk_firma_tipiExecute(Sender: TObject);
@@ -315,7 +310,6 @@ type
     procedure actset_rct_iscilik_gider_tipiExecute(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure actsys_olcu_birimi_tipleriExecute(Sender: TObject);
-    procedure actutd_dokumanExecute(Sender: TObject);
     procedure actsys_bolgeExecute(Sender: TObject);
     procedure actsys_ilceExecute(Sender: TObject);
     procedure actsys_semtExecute(Sender: TObject);
@@ -447,15 +441,8 @@ uses
   Ths.Erp.Database.Table.StkStokHareketi, ufrmStkStokHareketleri,
   Ths.Erp.Database.Table.StkStokAmbar, ufrmStkStokAmbarlar,
 
-  Ths.Erp.Database.Table.SetUtdDokumanTipi, ufrmSetUtdDokumanTipleri,
-  Ths.Erp.Database.Table.SetUtdDosyaUzantisi, ufrmSetUtdDosyaUzantilari,
-  Ths.Erp.Database.Table.UtdDokuman, ufrmUtdDokumanlar,
-
-  Ths.Erp.Database.Table.UrunKabulRedNedeni, ufrmUrunKabulRedNedenleri,
   Ths.Erp.Database.Table.OthMailReciever, ufrmOthMailRecievers,
   Ths.Erp.Database.Table.SetOdemeBaslangicDonemi, ufrmSetOdemeBaslangicDonemleri,
-
-  Ths.Erp.Database.Table.Arac.Arac, ufrmAracTakipAraclar,
 
   Ths.Erp.Database.Table.SetBbkCalismaDurumu, ufrmSetBbkCalismaDurumlari,
   Ths.Erp.Database.Table.SetBbkFinansDurumu, ufrmSetBbkFinansDurumlari,
@@ -704,16 +691,6 @@ begin
   TfrmSetPrsTatilTipleri.Create(Self, Self, TSetPrsTatilTipi.Create(GDataBase), fomNormal).Show;
 end;
 
-procedure TfrmMain.actset_utd_dokuman_tipiExecute(Sender: TObject);
-begin
-  TfrmSetUtdDokumanTipleri.Create(Self, Self, TSetUtdDokumanTipi.Create(GDataBase), fomNormal).Show;
-end;
-
-procedure TfrmMain.actset_utd_dosya_uzantisiExecute(Sender: TObject);
-begin
-  TfrmSetUtdDosyaUzantilari.Create(Self, Self, TSetUtdDosyaUzantisi.Create(GDataBase), fomNormal).Show;
-end;
-
 procedure TfrmMain.actstk_cins_ozelligiExecute(Sender: TObject);
 begin
   TfrmStkCinsOzellikleri.Create(Self, Self, TStkCinsOzelligi.Create(GDataBase), fomNormal).Show;
@@ -923,16 +900,6 @@ end;
 procedure TfrmMain.actrct_receteExecute(Sender: TObject);
 begin
   TfrmRctReceteler.Create(Self, Self, TRctRecete.Create(GDataBase), fomNormal).Show;
-end;
-
-procedure TfrmMain.acturun_kabul_red_nedenleriExecute(Sender: TObject);
-begin
-  TfrmUrunKabulRedNedenleri.Create(Self, Self, TUrunKabulRedNedeni.Create(GDataBase), fomNormal).Show;
-end;
-
-procedure TfrmMain.actutd_dokumanExecute(Sender: TObject);
-begin
-  TfrmUtdDokumanlar.Create(Self, Self, TUtdDokuman.Create(GDataBase)).Show;
 end;
 
 procedure TfrmMain.btnCloseClick(Sender: TObject);

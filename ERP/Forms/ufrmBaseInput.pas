@@ -180,7 +180,7 @@ begin
   if Self.FormMode = ifmRewiev then
   begin
     //eðer baþka pencerede açýk transaction varsa güncelleme moduna hiç girilmemli
-    if (Table.Database.Connection.InTransaction) then
+    if (GDatabase.Connection.InTransaction) then
     begin
       btnAccept.Visible   := False;
       btnDelete.Visible     := False;

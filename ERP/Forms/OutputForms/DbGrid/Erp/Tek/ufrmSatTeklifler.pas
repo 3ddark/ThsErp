@@ -106,6 +106,7 @@ var
   LReportFileName: string;
   LTitle: string;
   LDump: string;
+  Header: TSatTeklif;
   Detay: TSatTeklifDetay;
   LCH: TChHesapKarti;
   n1: Integer;
@@ -139,10 +140,12 @@ begin
 
   if frxrprtBase.LoadFromFile(LReportFileName, True) then
   begin
+    Header := TSatTeklif.Create(Table.Database);
     Detay := TSatTeklifDetay.Create(Table.Database, TSatTeklif(Table));
     LCH := TChHesapKarti.Create(Table.Database);
     try
-      Detay.SelectToDatasource(' AND header_id=' + IntToStr(Table.Id.Value), False);
+      Header.SelectToList(' AND ' + Header.Id.QryName + '=' + IntToStr(Table.Id.Value), False, False);
+      Detay.SelectToDatasource(' AND header_id=' + IntToStr(Table.Id.Value), False, False);
       LCH.SelectToList(' AND ' + LCH.HesapKodu.FieldName + '=' + QuotedStr(TSatTeklif(Table).MusteriKodu.Value), False ,False);
 
       frxdbdtstBase.DataSet := Detay.QueryOfDS;
@@ -157,25 +160,24 @@ begin
       SetControlField('tutar');
       SetControlField('net_tutar');
 
-      SetControlValue('teklif_no', TSatTeklif(Table).TeklifNo.Value);
-      SetControlValue('teklif_tarihi', TSatTeklif(Table).TeklifTarihi.Value);
+      SetControlValue('teklif_no', Header.TeklifNo.Value);
+      SetControlValue('teklif_tarihi', Header.TeklifTarihi.Value);
 
-      SetControlValue('musteri_adi', TSatTeklif(Table).MusteriAdi.Value);
-      SetControlValue('adres', TSatTeklif(Table).GetAddress);
-      SetControlValue('muhattap_ad', TSatTeklif(Table).MuhattapAd.Value);
-      SetControlValue('telefon', LCH.Yetkili1Tel.Value);
+      SetControlValue('musteri_adi', Header.MusteriAdi.Value);
+      SetControlValue('adres', Header.GetAddress);
+      SetControlValue('muhattap_ad', Header.MuhattapAd.Value);
+      SetControlValue('telefon', Header.MuhattapTelefon.Value);
       SetControlValue('faks', LCH.Faks.Value);
-      SetControlValue('vergi_dairesi', TSatTeklif(Table).VergiDairesi.Value + ' / ' + TSatTeklif(Table).VergiNo.Value);
+      SetControlValue('vergi_dairesi', Header.VergiDairesi.Value + ' / ' + Header.VergiNo.Value);
       SetControlValue('email', LCH.eMail.Value);
 
-      SetControlValue('musteri_temsilcisi', TSatTeklif(Table).MusteriTemsilcisi.Value);
-      SetControlValue('aciklama', TSatTeklif(Table).Aciklama.Value);
-      SetControlValue('odeme_sekli', TSatTeklif(Table).OdemeSekli.Value);
-      SetControlValue('gecerlilik_tarihi', TSatTeklif(Table).GecerlilikTarihi.Value);
-      SetControlValue('teslim_sekli', TSatTeklif(Table).TeslimSekli.Value);
-      SetControlValue('paket_tipi', TSatTeklif(Table).PaketTipi.Value);
-      SetControlValue('tasima_ucreti', TSatTeklif(Table).TasimaUcreti.Value);
-
+      SetControlValue('musteri_temsilcisi', Header.MusteriTemsilcisi.Value);
+      SetControlValue('aciklama', Header.Aciklama.Value);
+      SetControlValue('odeme_sekli', Header.OdemeSekli.Value);
+      SetControlValue('gecerlilik_tarihi', Header.GecerlilikTarihi.Value);
+      SetControlValue('teslim_sekli', Header.TeslimSekli.Value);
+      SetControlValue('paket_tipi', Header.PaketTipi.Value);
+      SetControlValue('tasima_ucreti', Header.TasimaUcreti.Value);
 
       SetControlValue('buyer_tel', GSysUygulamaAyari.Tel1.Value);
       SetControlValue('buyer_faks', GSysUygulamaAyari.Faks1.Value);
@@ -197,6 +199,7 @@ begin
     finally
       FormatSettings.CurrencyString := LDump;
       frxdbdtstBase.DataSet := nil;
+      Header.Free;
       Detay.Free;
       LCH.Free;
     end;

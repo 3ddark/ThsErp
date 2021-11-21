@@ -435,7 +435,7 @@ begin
 //    if (FormMode = ifmNewRecord)
 //    or (FormMode = ifmCopyNewRecord)
 //    then
-//      Table.Database.Connection.StartTransaction;
+//      GDatabase.Connection.StartTransaction;
   end;
 
   frmConfirmation := TfrmConfirmation.Create;

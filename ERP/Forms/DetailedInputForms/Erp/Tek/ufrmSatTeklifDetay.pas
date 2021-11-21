@@ -57,22 +57,16 @@ type
     PanelBilgilendirme: TPanel;
     lbltutar: TLabel;
     lbltutar_val: TLabel;
-    lbltutar_brm: TLabel;
     lbliskonto_tutar: TLabel;
     lbliskonto_tutar_val: TLabel;
-    lbliskonto_tutar_brm: TLabel;
     lblkdv_tutar: TLabel;
     lblkdv_tutar_val: TLabel;
-    lblkdv_tutar_brm: TLabel;
     lbltoplam_tutar: TLabel;
     lbltoplam_tutar_val: TLabel;
-    lbltoplam_tutar_brm: TLabel;
     lblnet_fiyat: TLabel;
     lblnet_fiyat_val: TLabel;
-    lblnet_fiyat_brm: TLabel;
     lblnet_tutar: TLabel;
     lblnet_tutar_val: TLabel;
-    lblnet_tutar_brm: TLabel;
     edtkdv_orani: TEdit;
     edtolcu_birimi: TEdit;
     lblkullanici_aciklama: TLabel;
@@ -152,12 +146,12 @@ begin
     FKDVTutar := FNetTutar * (vKDVOrani)/100;
     FToplamTutar := FNetTutar + FKDVTutar;
 
-    lblnet_fiyat_val.Caption := FloatToStrF(FNetFiyat, TFloatFormat.ffFixed, 10, GSysOndalikHane.SatisMiktar.Value);
-    lbltutar_val.Caption := FloatToStrF(FTutar, TFloatFormat.ffFixed, 10, GSysOndalikHane.SatisMiktar.Value);
-    lbliskonto_tutar_val.Caption := FloatToStrF(FIskontoTutar, TFloatFormat.ffFixed, 10, GSysOndalikHane.SatisMiktar.Value);
-    lblnet_tutar_val.Caption := FloatToStrF(FNetTutar, TFloatFormat.ffFixed, 10, GSysOndalikHane.SatisMiktar.Value);
-    lblkdv_tutar_val.Caption := FloatToStrF(FKDVTutar, TFloatFormat.ffFixed, 10, GSysOndalikHane.SatisMiktar.Value);
-    lbltoplam_tutar_val.Caption := FloatToStrF(FToplamTutar, TFloatFormat.ffFixed, 10, GSysOndalikHane.SatisMiktar.Value);
+    lblnet_fiyat_val.Caption := FloatToStrF(FNetFiyat, ffCurrency, 10, GSysOndalikHane.SatisMiktar.AsInteger);
+    lbltutar_val.Caption := FloatToStrF(FTutar, ffCurrency, 10, GSysOndalikHane.SatisMiktar.AsInteger);
+    lbliskonto_tutar_val.Caption := FloatToStrF(FIskontoTutar, ffCurrency, 10, GSysOndalikHane.SatisMiktar.AsInteger);
+    lblnet_tutar_val.Caption := FloatToStrF(FNetTutar, ffCurrency, 10, GSysOndalikHane.SatisMiktar.AsInteger);
+    lblkdv_tutar_val.Caption := FloatToStrF(FKDVTutar, ffCurrency, 10, GSysOndalikHane.SatisMiktar.AsInteger);
+    lbltoplam_tutar_val.Caption := FloatToStrF(FToplamTutar, ffCurrency, 10, GSysOndalikHane.SatisMiktar.AsInteger);
   end;
 end;
 
@@ -170,29 +164,22 @@ end;
 procedure TfrmSatisTeklifDetay.ClearTotalLabels;
 var
   n1: Integer;
-  LMoneySign: WideString;
+  LFmt: TFormatSettings;
 begin
-  lblnet_fiyat_val.Caption := '0.00';
-  lbltutar_val.Caption := '0.00';
-  lbliskonto_tutar_val.Caption := '0.00';
-  lblnet_tutar_val.Caption := '0.00';
-  lblkdv_tutar_val.Caption := '0.00';
-  lbltoplam_tutar_val.Caption := '0.00';
-
-  LMoneySign := '';
+  LFmt := FormatSettings;
   for n1 := 0 to GParaBirimi.List.Count-1 do
     if TfrmSatTeklifDetaylar(ParentForm).edtpara_birimi.Text = TSysParaBirimi(GParaBirimi.List[n1]).ParaBirimi.AsString then
     begin
-      LMoneySign := TSysParaBirimi(GParaBirimi.List[n1]).Sembol.Value;
+      LFmt.CurrencyString := TSysParaBirimi(GParaBirimi.List[n1]).Sembol.Value;
       Break;
     end;
 
-  lblnet_fiyat_brm.Caption := LMoneySign;
-  lbltutar_brm.Caption := LMoneySign;
-  lbliskonto_tutar_brm.Caption := LMoneySign;
-  lblnet_tutar_brm.Caption := LMoneySign;
-  lblkdv_tutar_brm.Caption := LMoneySign;
-  lbltoplam_tutar_brm.Caption := LMoneySign;
+  lblnet_fiyat_val.Caption := FloatToStrF(0, ffCurrency, 10, 2, LFmt);
+  lbltutar_val.Caption := FloatToStrF(0, ffCurrency, 10, 2, LFmt);
+  lbliskonto_tutar_val.Caption := FloatToStrF(0, ffCurrency, 10, 2, LFmt);
+  lblnet_tutar_val.Caption := FloatToStrF(0, ffCurrency, 10, 2, LFmt);
+  lblkdv_tutar_val.Caption := FloatToStrF(0, ffCurrency, 10, 2, LFmt);
+  lbltoplam_tutar_val.Caption := FloatToStrF(0, ffCurrency, 10, 2, LFmt);
 end;
 
 procedure TfrmSatisTeklifDetay.edtfiyatChange(Sender: TObject);
@@ -278,7 +265,7 @@ begin
       if TEdit(Sender).Name = edtstok_kodu.Name then
       begin
         LStk := TStkStokKarti.Create(GDataBase);
-        LFrmStk := TfrmStkStokKartlari.Create(edtstok_kodu, Self, LStk, fomNormal, True);
+        LFrmStk := TfrmStkStokKartlari.Create(TEdit(Sender), Self, LStk, fomNormal, True);
         try
           LFrmStk.QryFiltreVarsayilan := ' AND ' + LStk.IsSatilabilir.FieldName + '=True';
           LFrmStk.ShowModal;
@@ -325,7 +312,7 @@ begin
       end
       else if TEdit(Sender).Name = edtkdv_orani.Name then
       begin
-        LFrmVergi := TfrmSetChVergiOranlari.Create(edtstok_kodu, Self, TSetChVergiOrani.Create(Table.Database), fomNormal, True);
+        LFrmVergi := TfrmSetChVergiOranlari.Create(TEdit(Sender), Self, TSetChVergiOrani.Create(Table.Database), fomNormal, True);
         try
           LFrmVergi.ShowModal;
           if LFrmVergi.DataAktar then

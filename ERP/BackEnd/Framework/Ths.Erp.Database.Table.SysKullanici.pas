@@ -357,22 +357,25 @@ end;
 procedure TSysKullanici.CopyFromRights(FromUserID, ToUserID: Integer);
 var
   LQry: TFDQuery;
+  LErs: TSysErisimHakki;
 begin
   LQry := GDataBase.NewQuery();
+  LErs := TSysErisimHakki.Create(GDataBase);
   try
     LQry.SQL.Clear;
     LQry.SQL.Text :=
-      'UPDATE public.sys_user_access_right ri SET ' +
-		    'is_read =       (SELECT is_read       FROM sys_user_access_right r WHERE r.user_name_id = ' + IntToStr(FromUserID) + ' and r.source_name_id = ri.source_name_id), ' +
-		    'is_add_record = (SELECT is_add_record FROM sys_user_access_right r WHERE r.user_name_id = ' + IntToStr(FromUserID) + ' and r.source_name_id = ri.source_name_id), ' +
-		    'is_update =     (SELECT is_update     FROM sys_user_access_right r WHERE r.user_name_id = ' + IntToStr(FromUserID) + ' and r.source_name_id = ri.source_name_id), ' +
-		    'is_delete =     (SELECT is_delete     FROM sys_user_access_right r WHERE r.user_name_id = ' + IntToStr(FromUserID) + ' and r.source_name_id = ri.source_name_id), ' +
-		    'is_special =    (SELECT is_special    FROM sys_user_access_right r WHERE r.user_name_id = ' + IntToStr(FromUserID) + ' and r.source_name_id = ri.source_name_id) ' +
-      'WHERE user_name_id=' + IntToStr(ToUserID) +
-       ' and source_name_id in (SELECT source_name_id FROM sys_user_access_right rf WHERE user_name_id=' + IntToStr(FromUserID) + ')';
+      'UPDATE ' + LErs.TableName + ' ri SET ' +
+		    LErs.IsOkuma.FieldName + '=(SELECT ' + LErs.IsOkuma.FieldName + ' FROM ' + LErs.TableName + ' r WHERE r.' + LErs.KullaniciID.FieldName + '=' + IntToStr(FromUserID) + ' AND r.' + LErs.KaynakID.FieldName + '=ri.' + LErs.KaynakID.FieldName + '), ' +
+		    LErs.IsYeniKayit.FieldName + '=(SELECT ' + LErs.IsYeniKayit.FieldName + ' FROM ' + LErs.TableName + ' r WHERE r.' + LErs.KullaniciID.FieldName + '=' + IntToStr(FromUserID) + ' AND r.' + LErs.KaynakID.FieldName + '=ri.' + LErs.KaynakID.FieldName + '), ' +
+		    LErs.IsGuncelleme.FieldName + '=(SELECT ' + LErs.IsGuncelleme.FieldName + ' FROM ' + LErs.TableName + ' r WHERE r.' + LErs.KullaniciID.FieldName + '=' + IntToStr(FromUserID) + ' AND r.' + LErs.KaynakID.FieldName + '=ri.' + LErs.KaynakID.FieldName + '), ' +
+		    LErs.IsSilme.FieldName + '=(SELECT ' + LErs.IsSilme.FieldName + ' FROM ' + LErs.TableName + ' r WHERE r.' + LErs.KullaniciID.FieldName + '=' + IntToStr(FromUserID) + ' AND r.' + LErs.KaynakID.FieldName + '=ri.' + LErs.KaynakID.FieldName + '), ' +
+		    LErs.IsOzel.FieldName + '=(SELECT ' + LErs.IsOzel.FieldName + ' FROM ' + LErs.TableName + ' r WHERE r.' + LErs.KullaniciID.FieldName + '=' + IntToStr(FromUserID) + ' AND r.' + LErs.KaynakID.FieldName + '=ri.' + LErs.KaynakID.FieldName + ') ' +
+      'WHERE ' + LErs.KullaniciID.FieldName + '=' + IntToStr(ToUserID) +
+       ' and ' + LErs.KaynakID.FieldName + ' in (SELECT ' + LErs.KaynakID.FieldName + ' FROM ' + LErs.TableName + ' rf WHERE ' + LErs.KullaniciID.FieldName + '=' + IntToStr(FromUserID) + ')';
     LQry.ExecSQL;
   finally
     LQry.Free;
+    LErs.Free;
   end;
 end;
 

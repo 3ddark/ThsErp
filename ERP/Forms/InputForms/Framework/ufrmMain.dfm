@@ -26,7 +26,6 @@
     OpenedWidth = 250
     Placement = svpLeft
     TabOrder = 1
-    ExplicitHeight = 406
     object catMenuItems: TCategoryButtons
       Left = 0
       Top = 0
@@ -323,7 +322,6 @@
       RegularButtonColor = clNone
       SelectedButtonColor = clNone
       TabOrder = 0
-      ExplicitHeight = 406
     end
   end
   object pnlToolbar: TPanel [1]
@@ -336,7 +334,6 @@
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 741
     object imgMenu: TImage
       AlignWithMargins = True
       Left = 9
@@ -398,7 +395,6 @@
       List = True
       ShowCaptions = True
       TabOrder = 0
-      ExplicitLeft = 655
       object btnabout: TToolButton
         Left = 0
         Top = 0
@@ -416,17 +412,17 @@
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 4
-    ExplicitTop = 448
-    ExplicitWidth = 737
+    ExplicitTop = 366
+    ExplicitWidth = 733
     inherited btnAccept: TButton
       Left = 524
       TabOrder = 2
-      ExplicitLeft = 528
+      ExplicitLeft = 524
     end
     inherited btnClose: TButton
       Left = 628
       TabOrder = 3
-      ExplicitLeft = 632
+      ExplicitLeft = 628
     end
     inherited btnDelete: TButton
       TabOrder = 1
@@ -435,8 +431,8 @@
   inherited stbBase: TStatusBar [3]
     Top = 396
     Width = 737
-    ExplicitTop = 478
-    ExplicitWidth = 741
+    ExplicitTop = 396
+    ExplicitWidth = 737
   end
   inherited pnlMain: TPanel [4]
     Top = 42
@@ -445,8 +441,8 @@
     BevelOuter = bvNone
     TabOrder = 2
     ExplicitTop = 42
-    ExplicitWidth = 737
-    ExplicitHeight = 404
+    ExplicitWidth = 733
+    ExplicitHeight = 322
     object pb1: TProgressBar
       Left = 0
       Top = 296
@@ -457,8 +453,6 @@
       ParentDoubleBuffered = False
       Smooth = True
       TabOrder = 1
-      ExplicitTop = 378
-      ExplicitWidth = 737
     end
     object PageControl1: TPageControl
       Left = 0
@@ -470,15 +464,11 @@
       MultiLine = True
       OwnerDraw = True
       TabOrder = 0
-      ExplicitWidth = 737
-      ExplicitHeight = 378
       object tsGenel: TTabSheet
         Caption = 'Genel'
-        ExplicitWidth = 729
-        ExplicitHeight = 350
         object btnbbk_kayit: TButton
-          Left = 2
-          Top = 228
+          Left = 3
+          Top = 229
           Width = 150
           Height = 36
           Action = actbbk_kayit
@@ -492,22 +482,6 @@
           TabOrder = 0
           WordWrap = True
         end
-        object btnutd_dokuman: TButton
-          Left = 2
-          Top = 186
-          Width = 150
-          Height = 36
-          Action = actutd_dokuman
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 1
-          WordWrap = True
-        end
       end
       object tssatis: TTabSheet
         Caption = 'Sat'#305#351'lar'
@@ -518,8 +492,10 @@
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
-        ExplicitWidth = 729
-        ExplicitHeight = 350
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -588,8 +564,10 @@
       object tsstok: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
-        ExplicitWidth = 729
-        ExplicitHeight = 350
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -693,8 +671,10 @@
       object tsch: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
-        ExplicitWidth = 729
-        ExplicitHeight = 350
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnch_hesap_karti: TButton
           Left = 2
           Top = 170
@@ -824,8 +804,10 @@
       object tspersonel: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
-        ExplicitWidth = 729
-        ExplicitHeight = 350
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnprs_personel: TButton
           Left = 2
           Top = 2
@@ -846,8 +828,10 @@
       object tsrecete: TTabSheet
         Caption = 'Re'#231'eteler'
         ImageIndex = 5
-        ExplicitWidth = 729
-        ExplicitHeight = 350
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnrct_recete: TButton
           Left = 2
           Top = 2
@@ -901,8 +885,10 @@
       object tsmhs: TTabSheet
         Caption = 'Muhasebe'
         ImageIndex = 6
-        ExplicitWidth = 729
-        ExplicitHeight = 350
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnmhs_doviz_kuru: TButton
           Left = 326
           Top = 10
@@ -1351,17 +1337,14 @@
     object actset_utd_dokuman_tipi: TAction
       Caption = 'UTD Dok'#252'man Tipi'
       ImageIndex = 76
-      OnExecute = actset_utd_dokuman_tipiExecute
     end
     object actset_utd_dosya_uzantisi: TAction
       Caption = 'UTD Dosya Uzant'#305's'#305
       ImageIndex = 76
-      OnExecute = actset_utd_dosya_uzantisiExecute
     end
     object actutd_dokuman: TAction
       Caption = 'UTD Dok'#252'manlar'
       ImageIndex = 16
-      OnExecute = actutd_dokumanExecute
     end
     object actx8: TAction
       Caption = 'actx8'
@@ -1397,7 +1380,6 @@
     object acturun_kabul_red_nedenleri: TAction
       Caption = #220'r'#252'n Kabul-Red Nedenleri'
       ImageIndex = 82
-      OnExecute = acturun_kabul_red_nedenleriExecute
     end
     object actodeme_baslangic_donemleri: TAction
       Caption = #214'deme Ba'#351'lang'#305#231' D'#246'nemleri'

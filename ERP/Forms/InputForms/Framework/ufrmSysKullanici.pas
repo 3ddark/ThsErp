@@ -106,7 +106,7 @@ procedure TfrmSysKullanici.FormCreate(Sender: TObject);
 begin
   inherited;
 
-  edtkullanici_adi.OnHelperProcess := HelperProcess;
+  edtpersonel_ad_soyad_id.OnHelperProcess := HelperProcess;
 
   //encrypted data can be lowercase characters
   edtkullanici_sifre.CharCase := ecNormal;

@@ -805,50 +805,12 @@
         <DCCReference Include="Forms\InputForms\Employee\ufrmPrsEhliyetBilgisi.pas">
             <Form>frmEmpDriverLicenseAbility</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\Erp\Utd\Ths.Erp.Database.Table.SetUtdDokumanTipi.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Erp\Utd\ufrmSetUtdDokumanTipleri.pas">
-            <Form>frmSetUtdDokumanTipleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Erp\Utd\ufrmSetUtdDokumanTipi.pas">
-            <Form>frmSetUtdDokumanTipi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Erp\Utd\Ths.Erp.Database.Table.SetUtdDosyaUzantisi.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Erp\Utd\ufrmSetUtdDosyaUzantilari.pas">
-            <Form>frmSetUtdDosyaUzantilari</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Erp\Utd\ufrmSetUtdDosyaUzantisi.pas">
-            <Form>frmSetUtdDosyaUzantisi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Erp\Utd\Ths.Erp.Database.Table.UtdDokuman.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Erp\Utd\ufrmUtdDokumanlar.pas">
-            <Form>frmUtdDokumanlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Erp\Utd\ufrmUtdDokuman.pas">
-            <Form>frmUtdDokuman</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Ths.Erp.Database.Table.UrunKabulRedNedeni.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\ufrmUrunKabulRedNedenleri.pas">
-            <Form>frmUrunKabulRedNedenleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\ufrmUrunKabulRedNedeni.pas">
-            <Form>frmUrunKabulRedNedeni</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Ths.Erp.Database.Table.SetOdemeBaslangicDonemi.pas"/>
+        <DCCReference Include="BackEnd\Erp\Ths.Erp.Database.Table.SetOdemeBaslangicDonemi.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\ufrmSetOdemeBaslangicDonemleri.pas">
             <Form>frmSetOdemeBaslangicDonemleri</Form>
         </DCCReference>
         <DCCReference Include="Forms\InputForms\ufrmSetOdemeBaslangicDonemi.pas">
             <Form>frmSetOdemeBaslangicDonemi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\AracTakip\Ths.Erp.Database.Table.Arac.YetkiliSurucu.pas"/>
-        <DCCReference Include="BackEnd\AracTakip\Ths.Erp.Database.Table.Arac.BakimBilgisi.pas"/>
-        <DCCReference Include="BackEnd\AracTakip\Ths.Erp.Database.Table.Arac.Hareket.pas"/>
-        <DCCReference Include="BackEnd\AracTakip\Ths.Erp.Database.Table.Arac.Arac.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\AracTakip\ufrmAracTakipAraclar.pas">
-            <Form>frmAracTakipAraclar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\AracTakip\ufrmAracTakipArac.pas">
-            <Form>frmAracTakipArac</Form>
         </DCCReference>
         <DCCReference Include="Forms\InputForms\Tools\ufrmTarihHaftaSecici.pas">
             <Form>frmTarihHaftaSecici</Form>

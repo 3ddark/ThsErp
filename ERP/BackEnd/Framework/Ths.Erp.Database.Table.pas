@@ -98,11 +98,6 @@ type
     function AsTime: TTime;
   end;
 
-  TTableData = class
-  public
-    Id: TFieldDB;//property olarak tanımlamıyoruz. Field Clone içinde hata veriyor
-  end;
-
   TTable = class
   private
     FTableName: string; //database table name
@@ -153,8 +148,6 @@ type
     Deleted: Boolean;
 
     Id: TFieldDB;//property olarak tanımlamıyoruz. Field Clone içinde hata veriyor
-
-    ListData: TObjectDictionary<string, TTableData>;
 
     property TableName: string read GetTableName write SetTableName;
     property TableSourceCode: string read FTableSourceCode write FTableSourceCode;
@@ -1415,17 +1408,17 @@ begin
   Result := True;
   try
     if AWithBegin then
-      Self.Database.Connection.StartTransaction;
+      GDatabase.Connection.StartTransaction;
     Self.BusinessInsert(AID, APermissionControl);
     Self.Id.Value := AID;
     if AWithCommit then
-      Self.Database.Connection.Commit;
+      GDatabase.Connection.Commit;
   except
     on E: Exception do
     begin
-      ShowMessage(E.Message);
+      GDatabase.Connection.Rollback;
       Result := False;
-      Self.Database.Connection.Rollback;
+      ShowMessage(E.Message);
     end;
   end;
 end;
@@ -1456,13 +1449,13 @@ begin
   try
     Self.BusinessUpdate(APermissionControl);
     if AWithCommit then
-      Self.Database.Connection.Commit;
+      GDatabase.Connection.Commit;
   except
     on E: Exception do
     begin
       ShowMessage(E.Message);
       Result := False;
-      Self.Database.Connection.Rollback;
+      GDatabase.Connection.Rollback;
     end;
   end;
 end;

@@ -339,9 +339,8 @@ begin
 
           //eðer begin transaction demiyosa insert pencere kapansýn çünkü rollback yapýld artýk insert etmemeli
           //önceki iþlemler geri alýndýðý için
-          if (Table.Database.Connection.InTransaction) then
+          if (GDatabase.Connection.InTransaction) then
             Close;
-          Table.Database.Connection.StartTransaction;
         end;
       end
       else
@@ -395,10 +394,10 @@ begin
     //burada güncelleme modunda olduðu için bütün kontrolleri açmak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, False);
 
-    if (not Table.Database.Connection.InTransaction) then
+    if (not GDatabase.Connection.InTransaction) then
     begin
       //kayýt kilitle, eðer baþka kullanýcý tarfýndan bu esnada silinmemiþse
-      if (Table.LogicalSelect(DefaultSelectFilter, True, ( not Table.Database.Connection.InTransaction), True)) then
+      if (Table.LogicalSelect(DefaultSelectFilter, True, ( not GDatabase.Connection.InTransaction), True)) then
       begin
         //eðer aranan kayýt baþka bir kullanýcý tarafýndan silinmiþse count 0 kalýr
         if (Table.List.Count = 0) then

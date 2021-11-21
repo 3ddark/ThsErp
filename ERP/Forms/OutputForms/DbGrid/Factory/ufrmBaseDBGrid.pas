@@ -35,7 +35,6 @@ uses
   Vcl.Clipbrd,
   Vcl.ActnList,
   System.Win.ComObj,
-  //Excel97,
   Data.DB,
   FireDAC.DatS,
   FireDAC.DApt.Intf,
@@ -1677,7 +1676,8 @@ end;
 
 procedure TfrmBaseDBGrid.mniexport_excel_allClick(Sender: TObject);
 begin
-  TransferToExcelAll();
+  TransferToExcel(True);
+  //TransferToExcelAll();
 end;
 
 procedure TfrmBaseDBGrid.mniexport_excelClick(Sender: TObject);
@@ -2360,7 +2360,7 @@ var
   LForm: TForm;
 begin
   if (pFormType = ifmRewiev)
-  or ((not Table.Database.Connection.InTransaction) and ((pFormType = ifmNewRecord) or (pFormType = ifmCopyNewRecord)))
+  or ((not GDatabase.Connection.InTransaction) and ((pFormType = ifmNewRecord) or (pFormType = ifmCopyNewRecord)))
   then
   begin
     if (pFormType = ifmRewiev) or (pFormType = ifmCopyNewRecord) then
@@ -2466,9 +2466,9 @@ procedure TfrmBaseDBGrid.TransferToExcel(AAllColumn: Boolean = False);
 var
   ExcelApplication, Sheet: Variant;
   LRecPozisyon: Integer;
-  LColCount, LLastCol, LRow, LRowCount: Integer;
+  LColCount, LRow, LRowCount, LWidth: Integer;
   ADataSet: TDataSet;
-  LDosyaAdi: string;
+  LDosyaAdi, LRange: string;
   n1: Integer;
 begin
   dlgSave.Filter := FILE_FILTER_XLSX;
@@ -2503,24 +2503,36 @@ begin
 
     LColCount := 0;
     for n1 := 0 to grd.Columns.Count-1 do
-      if grd.Columns.Items[n1].Visible then
+      if grd.Columns.Items[n1].Visible or AAllColumn then
         Inc(LColCount);
-    LLastCol := 64 + LColCount;
+
+    LRange := 'A1:' + Chr(64 + LColCount) + IntToStr(LRowCount+1);
+    //Col names A..Z total 26 cols After 27 col start again AA, AB ..
+    if LColCount > 26 then
+      LRange := 'A1:' + Chr(64 + LColCount div 26) + Chr(64 + LColCount mod 26) + IntToStr(LRowCount+1);
 
     //Format cells in excel sheet
-    Sheet.Range['A1:' + Chr(LLastCol) + IntToStr(LRowCount+1)].Borders.LineStyle := 7;
-    Sheet.Range['A1:' + Chr(LLastCol) + IntToStr(LRowCount+1)].Borders.color := clGray;
-  //  Sheet.Range['A1:' + Chr(LLastCol) + IntToStr(LRowCount+1)].HorizontalAlignment := xlLeft;
+    Sheet.Range[LRange].Borders.LineStyle := 7; //line style
+    Sheet.Range[LRange].Borders.color := clGray;
 
     LColCount := 0;
     for n1 := 0 to grd.Columns.Count-1 do
-      if grd.Columns.Items[n1].Visible then
+      if grd.Columns.Items[n1].Visible or AAllColumn then
       begin
         Inc(LColCount);
-        Sheet.Cells[1, LColCount].Interior.Color := clMoneyGreen; //grd.Columns.Items[n1].Title.Color;
+        Sheet.Cells[1, LColCount].Interior.Color := $004FA7FF; //grd.Columns.Items[n1].Title.Color;
         Sheet.Cells[1, LColCount].Font.Bold := fsBold in grd.Columns.Items[n1].Title.Font.Style;
-        Sheet.Columns[LColCount].ColumnWidth := (((grd.Columns.Items[n1].Width / 28) * 5.1425) - 0.71);
         Sheet.Cells[1, LColCount] := grd.Columns.Items[n1].Title.Caption;
+
+        LWidth := grd.Columns.Items[n1].Width;
+        if LWidth = -1 then
+          LWidth := 60;
+        Sheet.Columns[LColCount].ColumnWidth := (((LWidth / 28) * 5.1425) - 0.71);
+
+        if (grd.Columns.Items[n1].Field.DataType = ftBcd)
+        or (grd.Columns.Items[n1].Field.DataType = ftFMTBcd)
+        then
+          Sheet.Columns[LColCount].NumberFormat := '_-* #.##0,00 _₺_-;-* #.##0,00 _₺_-;_-* "-"?? _₺_-;_-@_-'
       end;
 
     ProgressBar1.Max := ADataSet.RecordCount;
@@ -2532,7 +2544,7 @@ begin
     begin
       LColCount := 0;
       for n1 := 0 to grd.Columns.Count-1 do
-        if grd.Columns[n1].Visible then
+        if grd.Columns[n1].Visible or AAllColumn then
         begin
           Inc(LColCount);
           if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftString)
@@ -2554,8 +2566,15 @@ begin
             Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsDateTime
           else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftBoolean) then
             Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsBoolean
-          else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftBCD) then
+          else
+          if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftBCD)
+          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftFMTBcd)
+          then
             Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsFloat
+          else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftFloat) then
+            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsFloat
+          else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftCurrency) then
+            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsCurrency
         end;
       ProgressBar1.Position := LRow;
       ADataSet.Next;
@@ -2662,6 +2681,9 @@ begin
 //            FormatCode := '0.00';
           end;
         end
+        else
+        if ATable.QueryOfDS.Fields.Fields[nC].DataType = ftCurrency then
+//          AsString := strTemp
         else
         if (ATable.QueryOfDS.Fields.Fields[nC].DataType = ftInteger)
         or (ATable.QueryOfDS.Fields.Fields[nC].DataType = ftSmallint)

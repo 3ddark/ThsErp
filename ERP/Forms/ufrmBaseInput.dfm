@@ -13,6 +13,10 @@ inherited frmBaseInput: TfrmBaseInput
       TabStop = False
       object tsMain: TTabSheet
         Caption = 'tsMain'
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
       end
     end
   end
