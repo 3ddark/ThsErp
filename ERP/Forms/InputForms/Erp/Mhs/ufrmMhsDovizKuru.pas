@@ -77,8 +77,9 @@ end;
 procedure TfrmMhsDovizKuru.FormShow(Sender: TObject);
 begin
   edtpara_birimi.OnHelperProcess := HelperProcess;
-  inherited;
   edtkur.thsDecimalDigitCount := GSysOndalikHane.DovizKuru.AsInteger;
+
+  inherited;
 
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin

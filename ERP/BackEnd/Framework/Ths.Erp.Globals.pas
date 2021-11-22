@@ -140,6 +140,7 @@ type
     StatusAdd: string;
     StatusCancel: string;
     StatusDelete: string;
+    StatusOpacity: string;
     ButtonAccept: string;
     ButtonAdd: string;
     ButtonCancel: string;
@@ -1156,6 +1157,7 @@ begin
     Result.StatusAdd := '120';
     Result.StatusCancel := '121';
     Result.StatusDelete := '122';
+    Result.StatusOpacity := '190';
 
     Result.ButtonAccept := '123';
     Result.ButtonAdd := '124';

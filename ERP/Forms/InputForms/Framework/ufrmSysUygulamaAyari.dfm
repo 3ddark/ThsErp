@@ -21,11 +21,10 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
     inherited pgcMain: TPageControl
       Width = 692
       Height = 313
+      ActivePage = tsDiger
       ExplicitWidth = 692
       ExplicitHeight = 313
       inherited tsMain: TTabSheet
-        ExplicitLeft = 0
-        ExplicitTop = 0
         ExplicitWidth = 684
         ExplicitHeight = 285
         object lblunvan: TLabel
@@ -225,10 +224,6 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
       object tsDiger: TTabSheet
         Caption = 'Di'#287'er'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblgrid_color_1: TLabel
           Left = 63
           Top = 6
@@ -533,9 +528,14 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Top = 69
           Width = 130
           Height = 22
+          Hint = 
+            #304'lk kurulum s'#305'ras'#305'nda de'#287'i'#351'tirin. Daha sonra de'#287'i'#351'tirmeyiniz. De' +
+            #287'i'#351'tirme durumunda verileriniz bozulacakt'#305'r.'
           MaxLength = 5
           MaxValue = 65535
           MinValue = 0
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 6
           Value = 0
         end
@@ -638,10 +638,6 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
       object tsAdres: TTabSheet
         Caption = 'Adres'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblmukellef_tipi_id: TLabel
           Left = 46
           Top = 10

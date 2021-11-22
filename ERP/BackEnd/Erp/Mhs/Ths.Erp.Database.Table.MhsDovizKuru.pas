@@ -147,7 +147,7 @@ begin
         FKur.FieldName
       ]);
 
-      PrepareInsertQueryParams;
+      PrepareUpdateQueryParams;
 
       ExecSQL;
       Close;

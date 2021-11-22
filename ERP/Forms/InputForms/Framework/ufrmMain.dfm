@@ -3,8 +3,8 @@
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Main'
-  ClientHeight = 414
-  ClientWidth = 737
+  ClientHeight = 412
+  ClientWidth = 767
   Constraints.MinHeight = 300
   Constraints.MinWidth = 400
   DefaultMonitor = dmDesktop
@@ -12,25 +12,25 @@
   Position = poScreenCenter
   Scaled = False
   OnActivate = FormActivate
-  ExplicitWidth = 743
-  ExplicitHeight = 443
+  ExplicitWidth = 773
   PixelsPerInch = 96
   TextHeight = 13
   object SV: TSplitView [0]
     Left = 0
     Top = 40
     Width = 250
-    Height = 324
+    Height = 322
     Color = clBlack
     DisplayMode = svmOverlay
     OpenedWidth = 250
     Placement = svpLeft
     TabOrder = 1
+    ExplicitHeight = 324
     object catMenuItems: TCategoryButtons
       Left = 0
       Top = 0
       Width = 250
-      Height = 324
+      Height = 322
       Align = alClient
       BackgroundGradientColor = 16776176
       BorderStyle = bsNone
@@ -322,18 +322,20 @@
       RegularButtonColor = clNone
       SelectedButtonColor = clNone
       TabOrder = 0
+      ExplicitHeight = 324
     end
   end
   object pnlToolbar: TPanel [1]
     Left = 0
     Top = 0
-    Width = 737
+    Width = 767
     Height = 40
     Align = alTop
     BevelOuter = bvNone
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 728
     object imgMenu: TImage
       AlignWithMargins = True
       Left = 9
@@ -382,7 +384,7 @@
       ExplicitHeight = 25
     end
     object tlbMain: TToolBar
-      Left = 651
+      Left = 681
       Top = 0
       Width = 86
       Height = 40
@@ -395,6 +397,7 @@
       List = True
       ShowCaptions = True
       TabOrder = 0
+      ExplicitLeft = 642
       object btnabout: TToolButton
         Left = 0
         Top = 0
@@ -407,65 +410,70 @@
     end
   end
   inherited pnlBottom: TPanel [2]
-    Top = 366
-    Width = 733
+    Top = 364
+    Width = 763
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 4
     ExplicitTop = 366
-    ExplicitWidth = 733
+    ExplicitWidth = 724
     inherited btnAccept: TButton
-      Left = 524
+      Left = 554
       TabOrder = 2
-      ExplicitLeft = 524
+      ExplicitLeft = 515
     end
     inherited btnClose: TButton
-      Left = 628
+      Left = 658
       TabOrder = 3
-      ExplicitLeft = 628
+      ExplicitLeft = 619
     end
     inherited btnDelete: TButton
       TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar [3]
-    Top = 396
-    Width = 737
+    Top = 394
+    Width = 767
     ExplicitTop = 396
-    ExplicitWidth = 737
+    ExplicitWidth = 728
   end
   inherited pnlMain: TPanel [4]
     Top = 42
-    Width = 733
-    Height = 322
+    Width = 763
+    Height = 320
     BevelOuter = bvNone
     TabOrder = 2
     ExplicitTop = 42
-    ExplicitWidth = 733
+    ExplicitWidth = 724
     ExplicitHeight = 322
     object pb1: TProgressBar
       Left = 0
-      Top = 296
-      Width = 733
+      Top = 294
+      Width = 763
       Height = 26
       Align = alBottom
       DoubleBuffered = True
       ParentDoubleBuffered = False
       Smooth = True
       TabOrder = 1
+      ExplicitTop = 296
+      ExplicitWidth = 724
     end
     object PageControl1: TPageControl
       Left = 0
       Top = 0
-      Width = 733
-      Height = 296
-      ActivePage = tsGenel
+      Width = 763
+      Height = 294
+      ActivePage = tsstok
       Align = alClient
       MultiLine = True
       OwnerDraw = True
       TabOrder = 0
+      ExplicitWidth = 724
+      ExplicitHeight = 296
       object tsGenel: TTabSheet
         Caption = 'Genel'
+        ExplicitWidth = 716
         object btnbbk_kayit: TButton
           Left = 3
           Top = 229
@@ -492,10 +500,7 @@
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 716
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -564,10 +569,8 @@
       object tsstok: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 716
+        ExplicitHeight = 268
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -651,7 +654,7 @@
           WordWrap = True
         end
         object btnset_stk_urun_tipi: TButton
-          Left = 318
+          Left = 314
           Top = 2
           Width = 150
           Height = 36
@@ -667,14 +670,27 @@
           Visible = False
           WordWrap = True
         end
+        object btnsys_olcu_birimleri: TButton
+          Left = 470
+          Top = 2
+          Width = 150
+          Height = 36
+          Action = actsys_olcu_birimleri
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          Images = dm.il32
+          ParentFont = False
+          TabOrder = 6
+          WordWrap = True
+        end
       end
       object tsch: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 716
         object btnch_hesap_karti: TButton
           Left = 2
           Top = 170
@@ -804,10 +820,7 @@
       object tspersonel: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 716
         object btnprs_personel: TButton
           Left = 2
           Top = 2
@@ -828,10 +841,7 @@
       object tsrecete: TTabSheet
         Caption = 'Re'#231'eteler'
         ImageIndex = 5
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 716
         object btnrct_recete: TButton
           Left = 2
           Top = 2
@@ -885,13 +895,10 @@
       object tsmhs: TTabSheet
         Caption = 'Muhasebe'
         ImageIndex = 6
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 716
         object btnmhs_doviz_kuru: TButton
-          Left = 326
-          Top = 10
+          Left = 314
+          Top = 2
           Width = 150
           Height = 36
           Action = actmhs_doviz_kuru
@@ -903,6 +910,21 @@
           Images = dm.il32
           ParentFont = False
           TabOrder = 0
+        end
+        object btnsys_para_birimleri: TButton
+          Left = 470
+          Top = 2
+          Width = 150
+          Height = 36
+          Action = actsys_para_birimleri
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          Images = dm.il32
+          ParentFont = False
+          TabOrder = 1
         end
       end
     end

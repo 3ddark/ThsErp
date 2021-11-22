@@ -707,9 +707,9 @@ begin
   actsort_initExecute(actsort_init);
 
   //bazen status bar panelin üzerinde çıkıyor bunu engellemek için bu kod yazıldı
-//  pnlBottom.Visible := False;
-//  stbBase.Visible := True;
-//  pnlBottom.Visible := True;
+  pnlBottom.Visible := False;
+  stbBase.Visible := True;
+  pnlBottom.Visible := True;
   //----------
 
 
@@ -2381,15 +2381,26 @@ procedure TfrmBaseDBGrid.StatusBarDuzenle;
 var
   vQualityFormNo: string;
   n1: Integer;
+
+  procedure addPanel(AWidth: Integer; AStyle: TStatusPanelStyle);
+  begin
+    with stbBase.Panels.Add do
+    begin
+      Width := AWidth;
+      Style := AStyle;
+    end;
+  end;
+
 begin
   //output formlar için status bar içeriği
   //kayıt sayısı | server ip adresi | dönem | firma adı | kalite form numaraları olacak şekilde kullanılıyor.
   //Toplam: 2 | 127.0.0.1 | Dönem 2018 | Firma Adı | KaliteForm No
 
-  stbBase.Panels.Add;
-  stbBase.Panels.Add;
-  stbBase.Panels.Add;
-  stbBase.Panels.Add;
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
 
   //Gösterilen Toplam Kayıt Sayısını status bara yaz. Paneli kayıt sayısı yazman anında ekleniyor
   if GDataBase.Connection.Connected then
@@ -2397,15 +2408,15 @@ begin
 
   //Server Adresini status bara yaz
   if GDataBase.Connection.Connected then
-    stbBase.Panels.Items[STATUS_SQL_SERVER].Text := GDataBase.Connection.Params.Values['Server'];
-
-  //Server Adresini status bara yaz
-  if GDataBase.Connection.Connected then
-    stbBase.Panels.Items[STATUS_DATE].Text := DateToStr(GDataBase.GetToday);
+    stbBase.Panels.Items[STATUS_DATE].Text := GDataBase.ConnSetting.SQLServer;
 
   //donem bilgsini status bara yaz
   stbBase.Panels.Items[STATUS_USERNAME].Text := TranslateText('Dönem', FrameworkLang.GeneralPeriod, LngGeneral, LngSystem) + ' ' +
                                                    VarToStr(GSysUygulamaAyari.Donem.Value);
+
+  //firma ünvan
+  if GDataBase.Connection.Connected then
+    stbBase.Panels.Items[STATUS_KEY_F4].Text := GSysUygulamaAyari.Unvan.AsString;
 
   //Form Numarası status bara yaz
   if GDataBase.Connection.Connected then
@@ -2413,14 +2424,10 @@ begin
     stbBase.Panels.Add;
     vQualityFormNo := GetKaliteFormNo(Table.TableName, QtyOutput);
     if vQualityFormNo <> '' then
-      stbBase.Panels.Items[STATUS_KEY_F4].Text := vQualityFormNo
+      stbBase.Panels.Items[STATUS_KEY_F5].Text := vQualityFormNo
     else
-      stbBase.Panels.Items[STATUS_KEY_F4].Text := '';
+      stbBase.Panels.Items[STATUS_KEY_F5].Text := '';
   end;
-
-  //statusbar manual draw mode
-  for n1 := 0 to stbBase.Panels.Count - 1 do
-    stbBase.Panels.Items[n1].Style := psOwnerDraw;
 end;
 
 procedure TfrmBaseDBGrid.stbBaseDrawPanel(StatusBar: TStatusBar;
@@ -2438,10 +2445,11 @@ begin
 
   vIco := -1;
   case Panel.Index of
-    STATUS_SQL_SERVER: vIco := IMG_SERVER;
-    STATUS_DATE: vIco := IMG_CALENDAR;
-    STATUS_USERNAME: vIco := IMG_USER_HE;
-    STATUS_KEY_F4:
+    STATUS_SQL_SERVER: vIco := IMG_SUM;
+    STATUS_DATE: vIco := IMG_SERVER;
+    STATUS_USERNAME: vIco := IMG_CALENDAR;
+    STATUS_KEY_F4: vIco := IMG_CUSTOMER;
+    STATUS_KEY_F5:
     begin
       if Panel.Text <> '' then
         vIco := IMG_QUALITY
@@ -2739,8 +2747,8 @@ end;
 
 procedure TfrmBaseDBGrid.WriteRecordCount(pCount: Integer);
 begin
-//  if (TSingletonDB.GetInstance.DataBase.Connection.Connected) and (stbBase.Panels.Count > 0) then
-//    stbBase.Panels.Items[STATUS_SQL_SERVER].Text := TranslateText('Total', FrameworkLang.GeneralRecordCount, LngGeneral, LngSystem) + ': ' + pCount.ToString;
+  if (GDataBase.Connection.Connected) and (stbBase.Panels.Count > 0) then
+    stbBase.Panels.Items[STATUS_SQL_SERVER].Text := TranslateText('Total', FrameworkLang.GeneralRecordCount, LngGeneral, LngSystem) + ': ' + pCount.ToString;
 end;
 
 { ThreadRefresh }

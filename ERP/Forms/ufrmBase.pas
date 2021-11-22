@@ -595,6 +595,7 @@ begin
     STATUS_KEY_F5: vIco := IMG_FAVORITE;
     STATUS_KEY_F6: vIco := IMG_FAVORITE;
     STATUS_KEY_F7: vIco := IMG_FAVORITE;
+    STATUS_KEY_F11: vIco := IMG_FAVORITE;
   end;
 
   if vIco > -1 then

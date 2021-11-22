@@ -213,6 +213,8 @@ type
     actsys_ilce: TAction;
     actsys_semt: TAction;
     actsys_mahalle: TAction;
+    btnsys_olcu_birimleri: TButton;
+    btnsys_para_birimleri: TButton;
 
 /// <summary>
 ///   Kullanýcýnýn eriþim yetkisine göre yapýlacak iþlemler burada olacak
@@ -1205,18 +1207,33 @@ begin
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);
+  procedure addPanel(AWidth: Integer; AStyle: TStatusPanelStyle);
+  begin
+    with stbBase.Panels.Add do
+    begin
+      Width := AWidth;
+      Style := AStyle;
+    end;
+  end;
 begin
   inherited;
 
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
+  addPanel(80, psOwnerDraw);
+
   if stbBase.Panels.Count >= STATUS_SQL_SERVER+1 then
     if GDataBase.Connection.Connected then
-      stbBase.Panels.Items[STATUS_SQL_SERVER].Text :=
-          GDataBase.Connection.Params.Values['Server'];
+      stbBase.Panels.Items[STATUS_SQL_SERVER].Text := GDataBase.ConnSetting.SQLServer;
 
   if stbBase.Panels.Count >= STATUS_DATE+1 then
     if GDataBase.Connection.Connected then
-      stbBase.Panels.Items[STATUS_DATE].Text :=
-          DateToStr(GDataBase.GetToday);
+      stbBase.Panels.Items[STATUS_DATE].Text := DateToStr(GDataBase.GetToday);
 
   if stbBase.Panels.Count >= STATUS_USERNAME+1 then
     if GDataBase.Connection.Connected then
@@ -1230,6 +1247,8 @@ begin
     stbBase.Panels.Items[STATUS_KEY_F6].Text := 'F6 ' + TranslateText('CANCEL', FrameworkLang.StatusCancel, LngStatus, LngSystem);
   if stbBase.Panels.Count >= STATUS_KEY_F7+1 then
     stbBase.Panels.Items[STATUS_KEY_F7].Text := 'F7 ' + TranslateText('ADD RECORD', FrameworkLang.StatusAdd, LngStatus, LngSystem);
+  if stbBase.Panels.Count >= STATUS_KEY_F11+1 then
+    stbBase.Panels.Items[STATUS_KEY_F11].Text := 'F11 ' + TranslateText('OPACITY', FrameworkLang.StatusOpacity, LngStatus, LngSystem);
 
   SetTitleFromLangContent();
 
@@ -1398,6 +1417,18 @@ begin
       or (TSysErisimHakki(LRights.List[n1]).IsOzel.Value)
       then
       begin
+        //Genel
+        if CheckStringInArray(MODULE_SISTEM, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
+          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_SISTEM_AYAR then
+          begin
+            //
+          end
+          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_SISTEM_DIGER then
+          begin
+            btnsys_olcu_birimleri.Enabled := True;
+            btnsys_para_birimleri.Enabled := True;
+          end;
+
         //Genel
         if CheckStringInArray(MODULE_GENEL, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
         begin

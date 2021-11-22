@@ -210,6 +210,7 @@ const
   STATUS_KEY_F5       = 4;
   STATUS_KEY_F6       = 5;
   STATUS_KEY_F7       = 6;
+  STATUS_KEY_F11      = 7;
 
   QRY_PAR_CH = ':';
   ACC_DELIM = '-';
