@@ -6,8 +6,8 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   ClientHeight = 479
   ClientWidth = 635
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 641
-  ExplicitHeight = 508
+  ExplicitWidth = 651
+  ExplicitHeight = 518
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
@@ -26,8 +26,6 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       ExplicitHeight = 425
       inherited tsMain: TTabSheet
         Caption = 'Genel'
-        ExplicitLeft = 0
-        ExplicitTop = 0
         ExplicitWidth = 621
         ExplicitHeight = 397
         object lblis_aktif: TLabel
@@ -481,10 +479,6 @@ inherited frmPrsPersonel: TfrmPrsPersonel
         Caption = 'Yetenekler'
         ImageIndex = 2
         TabVisible = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object strngrdDriverLicenseAbility: TStringGrid
           Left = 20
           Top = 59
@@ -633,10 +627,6 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       object tsSpecial: TTabSheet
         Caption = #214'zel Bilgiler'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblmaas: TLabel
           Left = 98
           Top = 224

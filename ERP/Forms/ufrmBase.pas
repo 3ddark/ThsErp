@@ -576,12 +576,13 @@ procedure TfrmBase.stbBaseDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; 
 var
   vIco: Integer;
 begin
+  stbBase.Canvas.Font.Size := 7;
   stbBase.Canvas.Font.Name := DefaultFontName;
   stbBase.Canvas.Font.Style := [fsBold];
 
   stbBase.Canvas.TextRect(Rect,
     Rect.Left + dm.il16.Width + 4,
-    Rect.Top + (stbBase.Height-Canvas.TextHeight(Panel.Text)) div 2 - 2,
+    Rect.Top + (stbBase.Height-stbBase.Canvas.TextHeight(Panel.Text)) div 2 - 2,
     Panel.Text);
 
   vIco := -1;

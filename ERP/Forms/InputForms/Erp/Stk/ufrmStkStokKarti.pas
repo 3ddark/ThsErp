@@ -250,7 +250,7 @@ begin
   begin
     LFilter := 'Image File *.(' + FILE_EXT_PNG + ',' + FILE_EXT_JPG + ',' + FILE_EXT_BMP + ')|' +
                            '*.' + FILE_EXT_PNG+';*.' + FILE_EXT_JPG+';*.' + FILE_EXT_BMP;
-    LFileName := GetDialogOpen(LFilter);
+    GetDialogOpen(LFilter, LFileName);
     if (LFileName <> '') and FileExists(LFileName) then
     begin
       if GetFileSize(LFileName) > 500000 then

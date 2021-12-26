@@ -2380,7 +2380,6 @@ end;
 procedure TfrmBaseDBGrid.StatusBarDuzenle;
 var
   vQualityFormNo: string;
-  n1: Integer;
 
   procedure addPanel(AWidth: Integer; AStyle: TStatusPanelStyle);
   begin

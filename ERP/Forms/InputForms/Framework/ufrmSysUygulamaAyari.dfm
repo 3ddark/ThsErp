@@ -7,10 +7,10 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
   ClientWidth = 698
   ParentFont = True
   Position = poDesktopCenter
-  ExplicitWidth = 704
-  ExplicitHeight = 396
+  ExplicitWidth = 714
+  ExplicitHeight = 406
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 15
   inherited pnlMain: TPanel
     Width = 694
     Height = 315
@@ -25,8 +25,9 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
       ExplicitWidth = 692
       ExplicitHeight = 313
       inherited tsMain: TTabSheet
+        ExplicitTop = 26
         ExplicitWidth = 684
-        ExplicitHeight = 285
+        ExplicitHeight = 283
         object lblunvan: TLabel
           Left = 81
           Top = 5

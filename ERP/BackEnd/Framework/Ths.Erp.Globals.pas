@@ -425,7 +425,7 @@ type
 
 
   function GetDialogColor(pColor: TColor): TColor;
-  function GetDialogOpen(pFilter: string; pInitialDir: string = ''): string;
+  function GetDialogOpen(AFilter: string; Out AFileName: string; AInitialDir: string = ''): Boolean;
   function GetDialogDirectory(pInitialDir: string = ''): string;
   function GetDialogSave(pFileName, pFilter: string; pInitialDir: string = ''): string;
   function FTPDosyaAl(pSrcFile, pDesFile: TFileName; pFtp, pRemoteDir, pLogin, pPass: string): Boolean;
@@ -526,7 +526,29 @@ type
   function ExistForm(AFormClassType: TClass): Boolean;
 
   function FormatMoney(AValue: Double): string;
-  function DoDatabaseBackup(): string;
+
+  /// <summary>
+  ///  Mevcut sistemin PostgreSQL üzeründen veritabaný yedeðini alýr
+  /// </summary>
+  procedure DoDatabaseBackup;
+
+  /// <summary>
+  ///  PostgreSQL veritabaný yedeðini geri yükler
+  /// </summary>
+  procedure DoDatabaseRestore(ABackupFilePath, ADatabaseName: string);
+
+  procedure DoDatabaseCreate(ADatabaseName: string);
+
+  procedure SendMailWithMailClient(
+     AMailClientAppPath: string;
+     ATo: TArray<string>;
+     ACC: TArray<string>;
+     ABCC: TArray<string>;
+     ASubject: string;
+     ABodyText: string;
+     AAttachedFiles: TArray<string>
+  );
+
 var
   GDosyaUzantilari: TArray<string>;
 
@@ -1712,19 +1734,24 @@ begin
 end;
 {$WARN SYMBOL_PLATFORM ON}
 
-function GetDialogOpen(pFilter: string; pInitialDir: string = ''): string;
+function GetDialogOpen(AFilter: string; Out AFileName: string; AInitialDir: string = ''): Boolean;
 var
-  vOpenDialog: TOpenDialog;
+  LOpenDialog: TOpenDialog;
 begin
-  vOpenDialog := TOpenDialog.Create(nil);
+  Result := False;
+
+  LOpenDialog := TOpenDialog.Create(nil);
   try
-    if pInitialDir = '' then
-      vOpenDialog.InitialDir := '%USERPROFILE%\desktop';
-    vOpenDialog.Filter := pFilter;
-    vOpenDialog.Execute(Application.Handle);
-    Result := vOpenDialog.FileName;
+    if AInitialDir = '' then
+      LOpenDialog.InitialDir := '%USERPROFILE%\desktop';
+    LOpenDialog.Filter := AFilter;
+    if not LOpenDialog.Execute(Application.Handle) then
+    begin
+      Result := True;
+      AFileName := LOpenDialog.FileName;
+    end;
   finally
-    vOpenDialog.Free;
+    LOpenDialog.Free;
   end;
 end;
 
@@ -2727,24 +2754,172 @@ begin
                         StringOfChar('0', VarToInt(GSysOndalikHane.SatisFiyat.Value)), AValue);
 end;
 
-function DoDatabaseBackup: string;
+procedure DoDatabaseBackup;
 var
-  LParams: string;
+  LParams, LFileName, LBackupDirectory, LToolsDirectory: string;
 begin
-  ForceDirectories(GUygulamaAnaDizin + PathDelim + 'Tools\');
-  ForceDirectories(GUygulamaAnaDizin + PathDelim + 'Backups\');
+  if CustomMsgDlg('Veritabaný yedeðini almak istediðinden emin misin?', TMsgDlgType.mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], TMsgDlgBtn.mbNo, 'Yedek Alma Onayý') <> mrYes then
+    Exit;
 
-  if not FileExists(GUygulamaAnaDizin + 'Tools\yedekle.exe') then
+  LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools\');
+  LBackupDirectory := TPath.Combine(GUygulamaAnaDizin, 'Backups\');
+
+  ForceDirectories(LToolsDirectory);
+  ForceDirectories(LBackupDirectory);
+
+  if not FileExists(GUygulamaAnaDizin + 'Tools\backup.exe') then
     raise Exception.Create('Yedekleme programý bulunamadý. Lütfen Tools dizini altýndaki yedekleme uygulamasýný kontrol edin.');
 
+  LFileName := FormatDateTime('YYYYMMDD_HHMMSS', Now);
   LParams :=
-    '/c Tools\yedekle.exe' +
+    '/c Tools\backup.exe' +
     ' -Fc postgresql://' +
     GDataBase.Connection.Params.UserName + ':' + GDataBase.Connection.Params.Password + '@' +
     GDataBase.ConnSetting.SQLServer + ':' + GDataBase.ConnSetting.DBPortNo.ToString + '/' +
-    GDataBase.Connection.Params.Database + ' > Backups\' + FormatDateTime('YYYY_MM_DD_HH_MM_SS', Now) + '&&exit';
+    GDataBase.Connection.Params.Database + ' > Backups\' + LFileNAme + '&&exit';
 
   ShellExecute(0, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
+  CustomMsgDlg(
+    'Yedekleme iþlemi tamamlandý.' + AddLBs(2) + 'Alýnan yedek dosyasý ' + TPath.Combine(LBackupDirectory, LFileName),
+    TMsgDlgType.mtInformation, [TMsgDlgBtn.mbOK], ['Tamam'], TMsgDlgBtn.mbOK, 'Bilgilendirme');
+end;
+
+procedure DoDatabaseRestore(ABackupFilePath, ADatabaseName: string);
+var
+  LParams, LToolsDirectory, LAppName: string;
+begin
+  if CustomMsgDlg('Veritabaný yedeðini geri yüklemek istediðinden emin misin?', TMsgDlgType.mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], TMsgDlgBtn.mbNo, 'Yedek Geri Yükleme Onayý') <> mrYes then
+    Exit;
+
+  LAppName := 'restore.exe';
+  LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools');
+
+  if not FileExists(TPath.Combine(LToolsDirectory, LAppName)) then
+    raise Exception.Create('Yedek Geri Yükleme programý bulunamadý. Lütfen Tools dizini altýndaki yedek geri yükleme uygulamasýný kontrol edin.');
+
+  LParams :=
+    '/c Tools\' + LAppName +
+    ' -d postgresql://' +
+    GDataBase.Connection.Params.UserName + ':' + GDataBase.Connection.Params.Password + '@' +
+    GDataBase.ConnSetting.SQLServer + ':' + GDataBase.ConnSetting.DBPortNo.ToString + '/' +
+    ADatabaseName + ' ' + ABackupFilePath + '&&exit';
+
+  ShellExecute(0, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
+end;
+
+procedure DoDatabaseCreate(ADatabaseName: string);
+var
+  LParams, LToolsDirectory, LAppName: string;
+//  LHWND: HWND;
+begin
+  LAppName := 'createdb.exe';
+  LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools');
+
+  if not FileExists(TPath.Combine(LToolsDirectory, LAppName)) then
+    raise Exception.Create('Veritabaný oluþturma programý bulunamadý. Lütfen Tools dizini altýndaki veritabaný oluþturma uygulamasýný kontrol edin.');
+
+  LParams :=
+    '/c Tools\' + LAppName +
+    ' -U ' + GDataBase.Connection.Params.UserName +
+    ' -h ' + GDataBase.ConnSetting.SQLServer +
+    ' -P ' + GDataBase.ConnSetting.DBPortNo.ToString +
+    ' -w ' + ADatabaseName + '&&exit';
+
+  //ShellExecute(LHWND, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
+end;
+
+procedure SendMailWithMailClient(
+  AMailClientAppPath: string;
+  ATo: TArray<string>;
+  ACC: TArray<string>;
+  ABCC: TArray<string>;
+  ASubject: string;
+  ABodyText: string;
+  AAttachedFiles: TArray<string>
+);
+type
+  TMailApp = (Outlook, Thunderbird);
+
+var
+  LParams: string;
+  LTO, LCC, LBCC: string;
+  LFiles: string;
+  n1: Integer;
+  LDelimeter: string;
+  LMailApp: TMailApp;
+begin
+  if not FileExists(AMailClientAppPath) then
+    raise Exception.Create('Uygulama dosya yolu hatalý.' + sLineBreak + AMailClientAppPath);
+
+  for n1 := 0 to Length(AAttachedFiles)-1 do
+    if not FileExists(AAttachedFiles[n1]) then
+      raise Exception.Create('Dosya eki verilen "' + AAttachedFiles[n1] + '" konumda bulunamadý!');
+
+  LDelimeter := '';
+  LMailApp := TMailApp.Outlook;
+  if LowerCase(ExtractFileName(AMailClientAppPath)) = LowerCase('outlook.exe') then
+  begin
+    LMailApp := TMailApp.Outlook;
+
+    //outlook cli ile sadece tek ek eklenebiliyor
+    if Length(AAttachedFiles) > 1 then
+      raise Exception.Create('Outlook CLI ile sadece 1 tane ek dosya kabul ediyor. 20.12.2021');
+
+    LDelimeter := ';'
+  end
+  else if LowerCase(ExtractFileName(AMailClientAppPath)) = LowerCase('thunderbird.exe') then
+  begin
+    LMailApp := TMailApp.Thunderbird;
+    LDelimeter := ',';
+  end;
+
+
+  LTO := '';
+  for n1 := 0 to Length(ATo)-1 do
+    LTO := LTO + ATo[n1] + LDelimeter;
+  if LTO <> '' then
+    LTO := LeftStr(LTO, Length(LTO)-1);
+
+  LCC := '';
+  for n1 := 0 to Length(ACC)-1 do
+    LCC := LCC + ACC[n1] + LDelimeter;
+  if LCC <> '' then
+    LCC := LeftStr(LCC, Length(LCC)-1);
+
+  LBCC := '';
+  for n1 := 0 to Length(ABCC)-1 do
+    LBCC := LBCC + ABCC[n1] + LDelimeter;
+  if LBCC <> '' then
+    LBCC := LeftStr(LBCC, Length(LBCC)-1);
+
+
+  if LMailApp = TMailApp.Outlook then
+  begin
+    LFiles := '';
+    if Length(AAttachedFiles) > 0 then
+      LFiles := AAttachedFiles[0];
+
+    //OUTLOOK.EXE /m "john@doe.com;jane@doe.com&cc=baby@doe.com&&subject=Hi&body=Hello Body" /a "c:\temp\file.txx"
+    LParams := Format(' /m "%s&cc=%s&bcc=%s&subject=%s&body=%s" /a "%s"', [LTO, LCC, LBCC, ASubject, ABodyText, LFiles]);
+    ShellExecute(0, 'open', PWideChar(AMailClientAppPath), PWideChar(LParams), nil, SW_SHOWNORMAL)
+  end
+  else if LMailApp = TMailApp.Thunderbird then
+  begin
+    LFiles := '';
+    for n1 := 0 to Length(AAttachedFiles)-1 do
+      LFiles := LFiles + AAttachedFiles[n1] + LDelimeter;
+    if LFiles <> '' then
+      LFiles := LeftStr(LFiles, Length(LFiles)-1);
+
+    //thunderbird.exe -compose "to='john@doe.com,jane@doe.com',cc='baby@doe.com',subject='Hi',body='Hello Body',attachment='C:\temp\1.doc,C:\temp\2.txt'"
+    LParams := Format(' -compose "to=' + QuotedStr('%s') +
+                                ',cc=' + QuotedStr('%s') +
+                                ',bcc=' + QuotedStr('%s') +
+                                ',subject=' + QuotedStr('%s') +
+                                ',body=' + QuotedStr('%s') +
+                                ',attachment=' + QuotedStr('%s') + '"', [LTO, LCC, LBCC, ASubject, ABodyText, LFiles]);
+    ShellExecute(0, 'open', PWideChar(AMailClientAppPath), PWideChar(LParams), nil, SW_SHOWNORMAL)
+  end;
 end;
 
 initialization

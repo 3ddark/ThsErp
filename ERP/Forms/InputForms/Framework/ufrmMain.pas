@@ -215,6 +215,9 @@ type
     actsys_mahalle: TAction;
     btnsys_olcu_birimleri: TButton;
     btnsys_para_birimleri: TButton;
+    N1: TMenuItem;
+    mnido_database_backup: TMenuItem;
+    actsys_do_database_backup: TAction;
 
 /// <summary>
 ///   Kullanýcýnýn eriþim yetkisine göre yapýlacak iþlemler burada olacak
@@ -316,6 +319,7 @@ type
     procedure actsys_ilceExecute(Sender: TObject);
     procedure actsys_semtExecute(Sender: TObject);
     procedure actsys_mahalleExecute(Sender: TObject);
+    procedure actsys_do_database_backupExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
     procedure SetTitleFromLangContent(Sender: TControl = nil);
@@ -746,6 +750,11 @@ end;
 procedure TfrmMain.actsys_database_durumExecute(Sender: TObject);
 begin
   TfrmSysDbStatus.Create(Self, Self, TSysDBStatus.Create(GDataBase), fomNormal).Show;
+end;
+
+procedure TfrmMain.actsys_do_database_backupExecute(Sender: TObject);
+begin
+  DoDatabaseBackup;
 end;
 
 procedure TfrmMain.actsys_grid_filtre_siralamaExecute(Sender: TObject);

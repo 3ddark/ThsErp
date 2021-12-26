@@ -6,8 +6,8 @@ inherited frmStkStokKarti: TfrmStkStokKarti
   ClientHeight = 548
   ClientWidth = 649
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 655
-  ExplicitHeight = 577
+  ExplicitWidth = 665
+  ExplicitHeight = 587
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
@@ -760,10 +760,6 @@ inherited frmStkStokKarti: TfrmStkStokKarti
       object tsCinsOzelligi: TTabSheet
         Caption = 'Cins '#214'zelli'#287'i'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lbld3: TLabel
           Left = 132
           Top = 389
@@ -1174,10 +1170,6 @@ inherited frmStkStokKarti: TfrmStkStokKarti
         Caption = #214'zetler'
         ImageIndex = 3
         TabVisible = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object pnlOzetHeader: TPanel
           AlignWithMargins = True
           Left = 3
@@ -1903,7 +1895,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 621
+            Width = 50
             Height = 13
             Align = alTop
             Alignment = taCenter
@@ -1914,7 +1906,6 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
-            ExplicitWidth = 50
           end
           object lblgrup_kdv_orani: TLabel
             Left = 122
@@ -2100,7 +2091,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 621
+            Width = 127
             Height = 13
             Hint = 'Hide'
             Align = alTop
@@ -2112,7 +2103,6 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
-            ExplicitWidth = 127
           end
           object strngrdAmbar: TStringGrid
             AlignWithMargins = True

@@ -12,9 +12,10 @@
   Position = poScreenCenter
   Scaled = False
   OnActivate = FormActivate
-  ExplicitWidth = 773
+  ExplicitWidth = 783
+  ExplicitHeight = 451
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 15
   object SV: TSplitView [0]
     Left = 0
     Top = 40
@@ -25,7 +26,6 @@
     OpenedWidth = 250
     Placement = svpLeft
     TabOrder = 1
-    ExplicitHeight = 324
     object catMenuItems: TCategoryButtons
       Left = 0
       Top = 0
@@ -322,7 +322,6 @@
       RegularButtonColor = clNone
       SelectedButtonColor = clNone
       TabOrder = 0
-      ExplicitHeight = 324
     end
   end
   object pnlToolbar: TPanel [1]
@@ -335,7 +334,6 @@
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 728
     object imgMenu: TImage
       AlignWithMargins = True
       Left = 9
@@ -384,20 +382,20 @@
       ExplicitHeight = 25
     end
     object tlbMain: TToolBar
-      Left = 681
+      Left = 674
       Top = 0
-      Width = 86
+      Width = 93
       Height = 40
       Align = alRight
       AutoSize = True
       ButtonHeight = 38
-      ButtonWidth = 86
+      ButtonWidth = 93
       Caption = 'tlbMain'
       Images = dm.il32
       List = True
       ShowCaptions = True
       TabOrder = 0
-      ExplicitLeft = 642
+      ExplicitLeft = 681
       object btnabout: TToolButton
         Left = 0
         Top = 0
@@ -415,17 +413,17 @@
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 4
-    ExplicitTop = 366
-    ExplicitWidth = 724
+    ExplicitTop = 364
+    ExplicitWidth = 763
     inherited btnAccept: TButton
       Left = 554
       TabOrder = 2
-      ExplicitLeft = 515
+      ExplicitLeft = 554
     end
     inherited btnClose: TButton
       Left = 658
       TabOrder = 3
-      ExplicitLeft = 619
+      ExplicitLeft = 658
     end
     inherited btnDelete: TButton
       TabOrder = 1
@@ -434,8 +432,8 @@
   inherited stbBase: TStatusBar [3]
     Top = 394
     Width = 767
-    ExplicitTop = 396
-    ExplicitWidth = 728
+    ExplicitTop = 394
+    ExplicitWidth = 767
   end
   inherited pnlMain: TPanel [4]
     Top = 42
@@ -444,8 +442,8 @@
     BevelOuter = bvNone
     TabOrder = 2
     ExplicitTop = 42
-    ExplicitWidth = 724
-    ExplicitHeight = 322
+    ExplicitWidth = 763
+    ExplicitHeight = 320
     object pb1: TProgressBar
       Left = 0
       Top = 294
@@ -456,8 +454,6 @@
       ParentDoubleBuffered = False
       Smooth = True
       TabOrder = 1
-      ExplicitTop = 296
-      ExplicitWidth = 724
     end
     object PageControl1: TPageControl
       Left = 0
@@ -469,11 +465,8 @@
       MultiLine = True
       OwnerDraw = True
       TabOrder = 0
-      ExplicitWidth = 724
-      ExplicitHeight = 296
       object tsGenel: TTabSheet
         Caption = 'Genel'
-        ExplicitWidth = 716
         object btnbbk_kayit: TButton
           Left = 3
           Top = 229
@@ -500,7 +493,6 @@
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
-        ExplicitWidth = 716
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -569,8 +561,6 @@
       object tsstok: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
-        ExplicitWidth = 716
-        ExplicitHeight = 268
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -690,7 +680,6 @@
       object tsch: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
-        ExplicitWidth = 716
         object btnch_hesap_karti: TButton
           Left = 2
           Top = 170
@@ -820,7 +809,6 @@
       object tspersonel: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
-        ExplicitWidth = 716
         object btnprs_personel: TButton
           Left = 2
           Top = 2
@@ -841,7 +829,6 @@
       object tsrecete: TTabSheet
         Caption = 'Re'#231'eteler'
         ImageIndex = 5
-        ExplicitWidth = 716
         object btnrct_recete: TButton
           Left = 2
           Top = 2
@@ -895,7 +882,6 @@
       object tsmhs: TTabSheet
         Caption = 'Muhasebe'
         ImageIndex = 6
-        ExplicitWidth = 716
         object btnmhs_doviz_kuru: TButton
           Left = 314
           Top = 2
@@ -1095,6 +1081,11 @@
       Caption = 'Database Monitor'
       ImageIndex = 55
       OnExecute = actsys_database_durumExecute
+    end
+    object actsys_do_database_backup: TAction
+      Caption = 'Veritaban'#305' Yedek Al'
+      ImageIndex = 18
+      OnExecute = actsys_do_database_backupExecute
     end
     object actx1: TAction
       Caption = 'actx1'
@@ -1440,6 +1431,12 @@
     end
     object mniupdate_application: TMenuItem
       Action = actsys_uygulama_guncelle
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object mnido_database_backup: TMenuItem
+      Action = actsys_do_database_backup
     end
   end
   object tmrcheck_is_update_required: TTimer

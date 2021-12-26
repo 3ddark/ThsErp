@@ -335,7 +335,7 @@ begin
     end
     else
     begin
-      LFileName := GetDialogOpen(FILE_FILTER_IMAGE);
+      GetDialogOpen(FILE_FILTER_IMAGE, LFileName);
       if (LFileName <> '') and FileExists(LFileName) then
         LoadImage(LFileName);
     end;

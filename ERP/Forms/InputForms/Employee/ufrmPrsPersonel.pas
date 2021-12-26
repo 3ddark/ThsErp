@@ -213,6 +213,9 @@ end;
 
 procedure TfrmPrsPersonel.cbbcinsiyet_idChange(Sender: TObject);
 begin
+  if cbbcinsiyet_id.ItemIndex < 0 then
+    Exit;
+
   if Assigned(cbbcinsiyet_id.Items.Objects[cbbcinsiyet_id.ItemIndex]) then
   begin
     if TSetPrsCinsiyet(cbbcinsiyet_id.Items.Objects[cbbcinsiyet_id.ItemIndex]).IsErkek.Value then
@@ -231,6 +234,9 @@ end;
 
 procedure TfrmPrsPersonel.cbbmedeni_durumu_idChange(Sender: TObject);
 begin
+  if cbbmedeni_durumu_id.ItemIndex < 0 then
+    Exit;
+
   if Assigned(cbbmedeni_durumu_id.Items.Objects[cbbmedeni_durumu_id.ItemIndex]) then
   begin
     if TSetPrsMedeniDurum(cbbmedeni_durumu_id.Items.Objects[cbbmedeni_durumu_id.ItemIndex]).IsEvli.Value then

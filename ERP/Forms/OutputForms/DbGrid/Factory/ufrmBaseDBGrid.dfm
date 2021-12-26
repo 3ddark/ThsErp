@@ -37,7 +37,7 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         Left = 4
         Top = 4
         Width = 87
-        Height = 22
+        Height = 13
         Align = alLeft
         Alignment = taRightJustify
         Caption = 'Anahtar Kelime'
@@ -48,7 +48,6 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
       object edtFilterHelper: TEdit
         AlignWithMargins = True
@@ -294,7 +293,7 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     end
   end
   object frxrprtBase: TfrxReport
-    Version = '6.3.1'
+    Version = '6.9.14'
     DotMatrixReport = False
     IniFile = '\Software\Fast Reports'
     PreviewOptions.Buttons = [pbPrint, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbNavigator]
@@ -314,6 +313,8 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     ShowProgress = True
     OverwritePrompt = False
     DataOnly = False
+    EmbedFontsIfProtected = False
+    InteractiveFormsFontSubset = 'A-Z,a-z,0-9,#43-#47 '
     OpenAfterExport = False
     PrintOptimized = False
     Outline = False
