@@ -64,21 +64,18 @@ type
     FKdvTutar: TFieldDB;
     FToplamTutar: TFieldDB;
     FIsAnaUrun: TFieldDB;
-    FAnaUrunID: TFieldDB;
     FReferansAnaUrunID: TFieldDB;
-    FVergiKodu: TFieldDB;
-    FVergiMuafiyetKodu: TFieldDB;
-    FDigerVergiKodu: TFieldDB;
     FGtipNo: TFieldDB;
     FEn: TFieldDB;
     FBoy: TFieldDB;
     FYukseklik: TFieldDB;
-    FHacim: TFieldDB;
     FNetAgirlik: TFieldDB;
     FBrutAgirlik: TFieldDB;
+    FHacim: TFieldDB;
     FKab: TFieldDB;
-    FStokResim: TFieldDB;
   published
+    FStokResim: TFieldDB;
+
     FStok: TStkStokKarti;
     constructor Create(ADatabase: TDatabase; ASiparis: TSatSiparis = nil); reintroduce; overload;
     destructor Destroy; override;
@@ -111,11 +108,7 @@ type
     Property KdvTutar: TFieldDB read FKdvTutar write FKdvTutar;
     Property ToplamTutar: TFieldDB read FToplamTutar write FToplamTutar;
     Property IsAnaUrun: TFieldDB read FIsAnaUrun write FIsAnaUrun;
-    Property AnaUrunID: TFieldDB read FAnaUrunID write FAnaUrunID;
     Property ReferansAnaUrunID: TFieldDB read FReferansAnaUrunID write FReferansAnaUrunID;
-    Property VergiKodu: TFieldDB read FVergiKodu write FVergiKodu;
-    Property VergiMuafiyetKodu: TFieldDB read FVergiMuafiyetKodu write FVergiMuafiyetKodu;
-    Property DigerVergiKodu: TFieldDB read FDigerVergiKodu write FDigerVergiKodu;
     Property GtipNo: TFieldDB read FGtipNo write FGtipNo;
     Property En: TFieldDB read FEn write FEn;
     Property Boy: TFieldDB read FBoy write FBoy;
@@ -316,11 +309,7 @@ begin
   FKdvTutar := TFieldDB.Create('kdv_tutar', ftBCD, 0, Self, '');
   FToplamTutar := TFieldDB.Create('toplam_tutar', ftBCD, 0, Self, '');
   FIsAnaUrun := TFieldDB.Create('is_ana_urun', ftBoolean, 0, Self, '');
-  FAnaUrunID := TFieldDB.Create('ana_urun_id', ftInteger, 0, Self, '');
   FReferansAnaUrunID := TFieldDB.Create('referans_ana_urun_id', ftInteger, 0, Self, '');
-  FVergiKodu := TFieldDB.Create('vergi_kodu', ftString, '', Self, '');
-  FVergiMuafiyetKodu := TFieldDB.Create('vergi_muafiyet_kodu', ftString, '', Self, '');
-  FDigerVergiKodu := TFieldDB.Create('diger_vergi_kodu', ftString, '', Self, '');
   FGtipNo := TFieldDB.Create('gtip_no', ftString, '', Self, '');
   FEn := TFieldDB.Create('en', ftBCD, 0, Self, '');
   FBoy := TFieldDB.Create('boy', ftBCD, 0, Self, '');
@@ -369,11 +358,7 @@ begin
         TableName + '.' + FKdvTutar.FieldName,
         TableName + '.' + FToplamTutar.FieldName,
         TableName + '.' + FIsAnaUrun.FieldName,
-        TableName + '.' + FAnaUrunID.FieldName,
         TableName + '.' + FReferansAnaUrunID.FieldName,
-        TableName + '.' + FVergiKodu.FieldName,
-        TableName + '.' + FVergiMuafiyetKodu.FieldName,
-        TableName + '.' + FDigerVergiKodu.FieldName,
         TableName + '.' + FGtipNo.FieldName,
         TableName + '.' + FEn.FieldName,
         TableName + '.' + FBoy.FieldName,
@@ -425,11 +410,7 @@ begin
         TableName + '.' + FKdvTutar.FieldName,
         TableName + '.' + FToplamTutar.FieldName,
         TableName + '.' + FIsAnaUrun.FieldName,
-        TableName + '.' + FAnaUrunID.FieldName,
         TableName + '.' + FReferansAnaUrunID.FieldName,
-        TableName + '.' + FVergiKodu.FieldName,
-        TableName + '.' + FVergiMuafiyetKodu.FieldName,
-        TableName + '.' + FDigerVergiKodu.FieldName,
         TableName + '.' + FGtipNo.FieldName,
         TableName + '.' + FEn.FieldName,
         TableName + '.' + FBoy.FieldName,
@@ -489,11 +470,7 @@ begin
         FKdvTutar.FieldName,
         FToplamTutar.FieldName,
         FIsAnaUrun.FieldName,
-        FAnaUrunID.FieldName,
         FReferansAnaUrunID.FieldName,
-        FVergiKodu.FieldName,
-        FVergiMuafiyetKodu.FieldName,
-        FDigerVergiKodu.FieldName,
         FGtipNo.FieldName,
         FEn.FieldName,
         FBoy.FieldName,
@@ -547,11 +524,7 @@ begin
         FKdvTutar.FieldName,
         FToplamTutar.FieldName,
         FIsAnaUrun.FieldName,
-        FAnaUrunID.FieldName,
         FReferansAnaUrunID.FieldName,
-        FVergiKodu.FieldName,
-        FVergiMuafiyetKodu.FieldName,
-        FDigerVergiKodu.FieldName,
         FGtipNo.FieldName,
         FEn.FieldName,
         FBoy.FieldName,

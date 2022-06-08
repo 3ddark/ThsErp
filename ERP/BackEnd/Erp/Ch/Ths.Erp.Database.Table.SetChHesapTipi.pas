@@ -16,12 +16,6 @@ type
   TSetChHesapTipi = class(TTable)
   private
     FHesapTipi: TFieldDB;
-    FIsAnaHesap: TFieldDB;
-    FIsAraHesap: TFieldDB;
-    FIsSonHesap: TFieldDB;
-  protected
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
-    procedure BusinessUpdate(APermissionControl: Boolean); override;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -33,9 +27,6 @@ type
     function Clone: TTable; override;
 
     Property HesapTipi: TFieldDB read FHesapTipi write FHesapTipi;
-    Property IsAnaHesap: TFieldDB read FIsAnaHesap write FIsAnaHesap;
-    Property IsAraHesap: TFieldDB read FIsAraHesap write FIsAraHesap;
-    Property IsSonHesap: TFieldDB read FIsSonHesap write FIsSonHesap;
   end;
 
 implementation
@@ -52,9 +43,6 @@ begin
   inherited Create(ADatabase);
 
   FHesapTipi := TFieldDB.Create('hesap_tipi', ftString, '', Self, 'Hesap Tipi');
-  FIsAnaHesap := TFieldDB.Create('is_ana_hesap', ftBoolean, False, Self, 'Ana Hesap');
-  FIsAraHesap := TFieldDB.Create('is_ara_hesap', ftBoolean, False, Self, 'Ara Hesap');
-  FIsSonHesap := TFieldDB.Create('is_son_hesap', ftBoolean, False, Self, 'Son Hesap');
 end;
 
 procedure TSetChHesapTipi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -66,10 +54,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FHesapTipi.FieldName,
-        TableName + '.' + FIsAnaHesap.FieldName,
-        TableName + '.' + FIsAraHesap.FieldName,
-        TableName + '.' + FIsSonHesap.FieldName
+        TableName + '.' + FHesapTipi.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
@@ -78,9 +63,6 @@ begin
 
       setFieldTitle(Self.Id, 'ID', QueryOfDS);
       setFieldTitle(FHesapTipi, 'Hesap Tipi', QueryOfDS);
-      setFieldTitle(FIsAnaHesap, 'Ana Hesap?', QueryOfDS);
-      setFieldTitle(FIsAraHesap, 'Ara Hesap?', QueryOfDS);
-      setFieldTitle(FIsAraHesap, 'Son Hesap?', QueryOfDS);
     end;
   end;
 end;
@@ -97,10 +79,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FHesapTipi.FieldName,
-        TableName + '.' + FIsAnaHesap.FieldName,
-        TableName + '.' + FIsAraHesap.FieldName,
-        TableName + '.' + FIsSonHesap.FieldName
+        TableName + '.' + FHesapTipi.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -130,19 +109,15 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-        FHesapTipi.FieldName,
-        FIsAnaHesap.FieldName,
-        FIsAraHesap.FieldName,
-        FIsSonHesap.FieldName
+        FHesapTipi.FieldName
       ]);
 
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-        AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-      else
-        AID := 0;
+      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      else  AID := 0;
 
       EmptyDataSet;
       Close;
@@ -160,10 +135,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-        FHesapTipi.FieldName,
-        FIsAnaHesap.FieldName,
-        FIsAraHesap.FieldName,
-        FIsSonHesap.FieldName
+        FHesapTipi.FieldName
       ]);
 
       PrepareUpdateQueryParams;
@@ -173,94 +145,6 @@ begin
     end;
     Self.notify;
   end;
-end;
-
-procedure TSetChHesapTipi.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
-var
-  v: TSetChHesapTipi;
-  n1: Integer;
-begin
-  v := TSetChHesapTipi.Create(Database);
-  try
-    v.SelectToList('', False, False);
-    for n1 := 0 to v.List.Count-1 do
-    begin
-      if FIsAnaHesap.Value = True then
-      begin
-        if TSetChHesapTipi(v.List[n1]).FIsAnaHesap.Value then
-        begin
-          TSetChHesapTipi(v.List[n1]).FIsAnaHesap.Value := False;
-          TSetChHesapTipi(v.List[n1]).Update(False);
-        end;
-      end;
-
-      if FIsAraHesap.Value = True then
-      begin
-        if TSetChHesapTipi(v.List[n1]).FIsAraHesap.Value then
-        begin
-          TSetChHesapTipi(v.List[n1]).FIsAraHesap.Value := False;
-          TSetChHesapTipi(v.List[n1]).Update(False);
-        end;
-      end;
-
-      if FIsSonHesap.Value = True then
-      begin
-        if TSetChHesapTipi(v.List[n1]).FIsSonHesap.Value then
-        begin
-          TSetChHesapTipi(v.List[n1]).FIsSonHesap.Value := False;
-          TSetChHesapTipi(v.List[n1]).Update(False);
-        end;
-      end;
-    end;
-  finally
-    v.Free;
-  end;
-
-  Self.Insert(AID, APermissionControl);
-end;
-
-procedure TSetChHesapTipi.BusinessUpdate(APermissionControl: Boolean);
-var
-  v: TSetChHesapTipi;
-  n1: Integer;
-begin
-  v := TSetChHesapTipi.Create(Database);
-  try
-    v.SelectToList(' AND ' + v.TableName + '.' + v.Id.FieldName + '!=' + VarToStr(Id.Value), False, False);
-    for n1 := 0 to v.List.Count-1 do
-    begin
-      if FIsAnaHesap.Value = True then
-      begin
-        if TSetChHesapTipi(v.List[n1]).FIsAnaHesap.Value then
-        begin
-          TSetChHesapTipi(v.List[n1]).FIsAnaHesap.Value := False;
-          TSetChHesapTipi(v.List[n1]).Update(False);
-        end;
-      end;
-
-      if FIsAraHesap.Value = True then
-      begin
-        if TSetChHesapTipi(v.List[n1]).FIsAraHesap.Value then
-        begin
-          TSetChHesapTipi(v.List[n1]).FIsAraHesap.Value := False;
-          TSetChHesapTipi(v.List[n1]).Update(False);
-        end;
-      end;
-
-      if FIsSonHesap.Value = True then
-      begin
-        if TSetChHesapTipi(v.List[n1]).FIsSonHesap.Value then
-        begin
-          TSetChHesapTipi(v.List[n1]).FIsSonHesap.Value := False;
-          TSetChHesapTipi(v.List[n1]).Update(False);
-        end;
-      end;
-    end;
-  finally
-    v.Free;
-  end;
-
-  Self.Update(APermissionControl);
 end;
 
 function TSetChHesapTipi.Clone: TTable;

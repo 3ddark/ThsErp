@@ -170,9 +170,7 @@ begin
       TRctReceteHammadde(Table).FireOrani.Value := StrToFloatDef(edtfire_orani.Text, 0);
       if cbbrecete.ItemIndex > -1 then
         if Assigned(cbbrecete.Items.Objects[cbbrecete.ItemIndex]) then
-        begin
           TRctReceteHammadde(Table).ReceteID.Value := TRctRecete(cbbrecete.Items.Objects[cbbrecete.ItemIndex]).Id.Value;
-        end;
 
       if (FormMode = ifmUpdate) then
       begin

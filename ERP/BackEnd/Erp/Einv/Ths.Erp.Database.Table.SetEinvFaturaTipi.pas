@@ -5,11 +5,10 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TEinvFaturaTipi = (Satis=1, Iade, Tevkifat, Istisna, OzelMatrah, IhracKayitli);
@@ -32,10 +31,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSetEinvFaturaTipi.Create(ADatabase: TDatabase);
 begin

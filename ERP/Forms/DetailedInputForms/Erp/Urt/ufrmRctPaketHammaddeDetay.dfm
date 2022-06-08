@@ -2,8 +2,8 @@ inherited frmRctPaketHammaddeDetay: TfrmRctPaketHammaddeDetay
   Caption = 'Re'#231'ete Hammadde'
   ClientHeight = 251
   ClientWidth = 348
-  ExplicitWidth = 354
-  ExplicitHeight = 280
+  ExplicitWidth = 364
+  ExplicitHeight = 290
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
@@ -17,8 +17,6 @@ inherited frmRctPaketHammaddeDetay: TfrmRctPaketHammaddeDetay
       ExplicitWidth = 342
       ExplicitHeight = 183
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 334
         ExplicitHeight = 169
         object lblfire_orani: TLabel

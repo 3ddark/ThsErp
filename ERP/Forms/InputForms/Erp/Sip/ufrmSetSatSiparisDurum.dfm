@@ -6,26 +6,25 @@ inherited frmSetSatSiparisDurum: TfrmSetSatSiparisDurum
   ClientHeight = 177
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 350
-  ExplicitHeight = 206
+  ExplicitWidth = 360
+  ExplicitHeight = 216
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 340
-    Height = 111
+    Height = 125
     Color = clWindow
+    ParentColor = False
     ExplicitWidth = 340
     ExplicitHeight = 111
     inherited pgcMain: TPageControl
       Width = 338
-      Height = 109
+      Height = 123
       ExplicitWidth = 338
       ExplicitHeight = 109
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 330
-        ExplicitHeight = 81
+        ExplicitHeight = 95
         object lblaciklama: TLabel
           Left = 36
           Top = 28
@@ -99,7 +98,7 @@ inherited frmSetSatSiparisDurum: TfrmSetSatSiparisDurum
     end
   end
   inherited pnlBottom: TPanel
-    Top = 115
+    Top = 129
     Width = 340
     ExplicitTop = 115
     ExplicitWidth = 340

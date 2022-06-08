@@ -5,16 +5,15 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TSetEinvPaketTipi = class(TTable)
   private
-    FIsActive: TFieldDB;
+    FIsAktif: TFieldDB;
     FKod: TFieldDB;
     FPaketTipi: TFieldDB;
     FAciklama: TFieldDB;
@@ -28,7 +27,7 @@ type
 
     function Clone: TTable; override;
 
-    Property IsActive: TFieldDB read FIsActive write FIsActive;
+    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
     Property Kod: TFieldDB read FKod write FKod;
     Property PaketTipi: TFieldDB read FPaketTipi write FPaketTipi;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
@@ -37,10 +36,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSetEinvPaketTipi.Create(ADatabase: TDatabase);
 begin
@@ -48,7 +46,7 @@ begin
   TableSourceCode := '1010';
   inherited Create(ADatabase);
 
-  FIsActive := TFieldDB.Create('is_active', ftBoolean, True, Self, '');
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
   FKod := TFieldDB.Create('kod', ftString, '', Self, '');
   FPaketTipi := TFieldDB.Create('paket_tipi', ftString, '', Self, '');
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, '');
@@ -63,7 +61,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsActive.FieldName,
+        TableName + '.' + FIsAktif.FieldName,
         TableName + '.' + FKod.FieldName,
         TableName + '.' + FPaketTipi.FieldName,
         TableName + '.' + FAciklama.FieldName
@@ -74,7 +72,7 @@ begin
       Active := True;
 
       setFieldTitle(Self.Id,'Id', QueryOfDS);
-      setFieldTitle(FIsActive, 'Atkif?', QueryOfDS);
+      setFieldTitle(FIsAktif, 'Atkif?', QueryOfDS);
       setFieldTitle(FKod, 'Kod', QueryOfDS);
       setFieldTitle(FPaketTipi, 'Paket Adı?', QueryOfDS);
       setFieldTitle(FAciklama, 'Açıklama', QueryOfDS);
@@ -94,7 +92,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsActive.FieldName,
+        TableName + '.' + FIsAktif.FieldName,
         TableName + '.' + FKod.FieldName,
         TableName + '.' + FPaketTipi.FieldName,
         TableName + '.' + FAciklama.FieldName
@@ -127,7 +125,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-        FIsActive.FieldName,
+        FIsAktif.FieldName,
         FKod.FieldName,
         FPaketTipi.FieldName,
         FAciklama.FieldName
@@ -156,7 +154,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-        FIsActive.FieldName,
+        FIsAktif.FieldName,
         FKod.FieldName,
         FPaketTipi.FieldName,
         FAciklama.FieldName

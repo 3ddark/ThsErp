@@ -66,14 +66,11 @@ type
     FKdvTutar: TFieldDB;
     FToplamTutar: TFieldDB;
     FIsAnaUrun: TFieldDB;
-    FAnaUrunID: TFieldDB;
     FReferansAnaUrunID: TFieldDB;
-    FVergiKodu: TFieldDB;
-    FVergiMuafiyetKodu: TFieldDB;
-    FDigerVergiKodu: TFieldDB;
     FGtipNo: TFieldDB;
-    FStokResim: TFieldDB;
   published
+    FStokResim: TFieldDB;
+
     FStok: TStkStokKarti;
     constructor Create(ADatabase: TDatabase; ATeklif: TSatTeklif = nil); reintroduce; overload;
     destructor Destroy; override;
@@ -109,11 +106,7 @@ type
     Property KdvTutar: TFieldDB read FKdvTutar write FKdvTutar;
     Property ToplamTutar: TFieldDB read FToplamTutar write FToplamTutar;
     Property IsAnaUrun: TFieldDB read FIsAnaUrun write FIsAnaUrun;
-    Property AnaUrunID: TFieldDB read FAnaUrunID write FAnaUrunID;
     Property ReferansAnaUrunID: TFieldDB read FReferansAnaUrunID write FReferansAnaUrunID;
-    Property VergiKodu: TFieldDB read FVergiKodu write FVergiKodu;
-    Property VergiMuafiyetKodu: TFieldDB read FVergiMuafiyetKodu write FVergiMuafiyetKodu;
-    Property DigerVergiKodu: TFieldDB read FDigerVergiKodu write FDigerVergiKodu;
     Property GtipNo: TFieldDB read FGtipNo write FGtipNo;
     Property StokResim: TFieldDB read FStokResim write FStokResim;
   end;
@@ -308,11 +301,7 @@ begin
   FKdvTutar := TFieldDB.Create('kdv_tutar', ftBCD, 0, Self, '');
   FToplamTutar := TFieldDB.Create('toplam_tutar', ftBCD, 0, Self, '');
   FIsAnaUrun := TFieldDB.Create('is_ana_urun', ftBoolean, 0, Self, '');
-  FAnaUrunID := TFieldDB.Create('ana_urun_id', ftInteger, 0, Self, '');
   FReferansAnaUrunID := TFieldDB.Create('referans_ana_urun_id', ftInteger, 0, Self, '');
-  FVergiKodu := TFieldDB.Create('vergi_kodu', ftString, '', Self, '');
-  FVergiMuafiyetKodu := TFieldDB.Create('vergi_muafiyet_kodu', ftString, '', Self, '');
-  FDigerVergiKodu := TFieldDB.Create('diger_vergi_kodu', ftString, '', Self, '');
   FGtipNo := TFieldDB.Create('gtip_no', ftString, '', Self, '');
   FStokResim := TFieldDB.Create(FStok.StokResim.FieldName, FStok.StokResim.DataType, FStok.StokResim.Value, Self, 'Stok Resim');
 
@@ -354,11 +343,7 @@ begin
         FKdvTutar.QryName,
         FToplamTutar.QryName,
         FIsAnaUrun.QryName,
-        FAnaUrunID.QryName,
         FReferansAnaUrunID.QryName,
-        FVergiKodu.QryName,
-        FVergiMuafiyetKodu.QryName,
-        FDigerVergiKodu.QryName,
         FGtipNo.QryName,
         addField(FStok.TableName, FStok.StokResim.FieldName, FStokResim.FieldName)
       ], [
@@ -403,11 +388,7 @@ begin
         FKdvTutar.QryName,
         FToplamTutar.QryName,
         FIsAnaUrun.QryName,
-        FAnaUrunID.QryName,
         FReferansAnaUrunID.QryName,
-        FVergiKodu.QryName,
-        FVergiMuafiyetKodu.QryName,
-        FDigerVergiKodu.QryName,
         FGtipNo.QryName,
         addField(FStok.TableName, FStok.StokResim.FieldName, FStokResim.FieldName)
       ], [
@@ -461,9 +442,6 @@ begin
     Result.ToplamTutar.Value := FToplamTutar.Value;
     Result.IsAnaUrun.Value := FIsAnaUrun.Value;
     Result.ReferansAnaUrunID.Value := FReferansAnaUrunID.Value;
-    Result.VergiKodu.Value := FVergiKodu.Value;
-    Result.VergiMuafiyetKodu.Value := FVergiMuafiyetKodu.Value;
-    Result.DigerVergiKodu.Value := FDigerVergiKodu.Value;
     Result.GtipNo.Value := FGtipNo.Value;
 
     if LStok.List.Count = 1 then
@@ -510,11 +488,7 @@ begin
         FKdvTutar.FieldName,
         FToplamTutar.FieldName,
         FIsAnaUrun.FieldName,
-        FAnaUrunID.FieldName,
         FReferansAnaUrunID.FieldName,
-        FVergiKodu.FieldName,
-        FVergiMuafiyetKodu.FieldName,
-        FDigerVergiKodu.FieldName,
         FGtipNo.FieldName
       ]);
 
@@ -561,11 +535,7 @@ begin
         FKdvTutar.FieldName,
         FToplamTutar.FieldName,
         FIsAnaUrun.FieldName,
-        FAnaUrunID.FieldName,
         FReferansAnaUrunID.FieldName,
-        FVergiKodu.FieldName,
-        FVergiMuafiyetKodu.FieldName,
-        FDigerVergiKodu.FieldName,
         FGtipNo.FieldName
       ]);
 

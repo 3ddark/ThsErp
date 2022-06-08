@@ -7,14 +7,10 @@ interface
 uses
   Forms, SysUtils, Classes, Dialogs, WinSock, System.Rtti,
   FireDAC.Stan.Param, Data.DB, FireDAC.Comp.Client,
-
   Ths.Erp.Database.Table;
 
 type
   TView = class(TTable)
-  private
-  protected
-  published
   public
     procedure Listen();override;
     procedure Unlisten();override;

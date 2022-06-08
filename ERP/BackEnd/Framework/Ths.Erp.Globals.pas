@@ -229,8 +229,6 @@ type
   function getEmployeeIDList: TEmployeeIDList;
   function getSysUserIDList: TSysUserIDList;
 
-  function getSetChHesapTipiID(pHesapTipi: THesapTipi): Integer;
-
   function Login(pUserName,pPassword: string): Integer;
   function ReplaceToRealColOrTableName(const pTableName: string): string;
   function ReplaceRealColOrTableNameTo(const pTableName: string): string;
@@ -780,25 +778,6 @@ begin
 
       LSP.Next;
     end;
-  finally
-    LSP.Free;
-  end;
-end;
-
-function getSetChHesapTipiID(pHesapTipi: THesapTipi): Integer;
-var
-  LSP: TFDStoredProc;
-begin
-  Result := 0;
-  LSP := GDataBase.NewStoredProcedure;
-  try
-    LSP.ResourceOptions.DirectExecute := False;
-    LSP.StoredProcName := 'spget_set_ch_hesap_tipi_id';
-    LSP.Prepare;
-    LSP.ParamByName('phesap_tipi').Value := Ord(pHesapTipi);
-    LSP.ExecProc;
-    if not LSP.ParamByName('result').IsNull then
-      Result := LSP.ParamByName('result').AsInteger;
   finally
     LSP.Free;
   end;
@@ -2756,31 +2735,33 @@ end;
 
 procedure DoDatabaseBackup;
 var
-  LParams, LFileName, LBackupDirectory, LToolsDirectory: string;
+  LParams, LFileName, LBackupDirectory, LToolsDirectory, LBackupTool: string;
 begin
   if CustomMsgDlg('Veritabaný yedeðini almak istediðinden emin misin?', TMsgDlgType.mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], TMsgDlgBtn.mbNo, 'Yedek Alma Onayý') <> mrYes then
     Exit;
 
-  LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools\');
-  LBackupDirectory := TPath.Combine(GUygulamaAnaDizin, 'Backups\');
+  LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools');
+  LBackupTool := TPath.Combine(LToolsDirectory, 'backup.exe');
+  LBackupDirectory := TPath.Combine(GUygulamaAnaDizin, 'Backups');
+  LFileName := TPath.Combine(LBackupDirectory, FormatDateTime('YYYYMMDD_HHMMSS', Now));
 
   ForceDirectories(LToolsDirectory);
   ForceDirectories(LBackupDirectory);
 
-  if not FileExists(GUygulamaAnaDizin + 'Tools\backup.exe') then
+  if not FileExists(LBackupTool) then
     raise Exception.Create('Yedekleme programý bulunamadý. Lütfen Tools dizini altýndaki yedekleme uygulamasýný kontrol edin.');
 
-  LFileName := FormatDateTime('YYYYMMDD_HHMMSS', Now);
+
   LParams :=
-    '/c Tools\backup.exe' +
+    '/c ' + LBackupTool +
     ' -Fc postgresql://' +
     GDataBase.Connection.Params.UserName + ':' + GDataBase.Connection.Params.Password + '@' +
     GDataBase.ConnSetting.SQLServer + ':' + GDataBase.ConnSetting.DBPortNo.ToString + '/' +
-    GDataBase.Connection.Params.Database + ' > Backups\' + LFileNAme + '&&exit';
+    GDataBase.Connection.Params.Database + ' > ' + LFileName + '&&exit';
 
   ShellExecute(0, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
   CustomMsgDlg(
-    'Yedekleme iþlemi tamamlandý.' + AddLBs(2) + 'Alýnan yedek dosyasý ' + TPath.Combine(LBackupDirectory, LFileName),
+    'Yedekleme iþlemi tamamlandý.' + AddLBs(2) + 'Alýnan yedek dosyasý ' + LFileName,
     TMsgDlgType.mtInformation, [TMsgDlgBtn.mbOK], ['Tamam'], TMsgDlgBtn.mbOK, 'Bilgilendirme');
 end;
 

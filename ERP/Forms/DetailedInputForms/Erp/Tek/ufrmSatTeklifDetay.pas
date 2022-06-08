@@ -379,12 +379,8 @@ begin
       TSatTeklifDetay(Table).ToplamTutar.Value := FToplamTutar;
 
       TSatTeklifDetay(Table).IsAnaUrun.Value := False;
-      TSatTeklifDetay(Table).AnaUrunID.Value := 0;
       TSatTeklifDetay(Table).ReferansAnaUrunID.Value := 0;
 
-      TSatTeklifDetay(Table).VergiKodu.Value := '';
-      TSatTeklifDetay(Table).VergiMuafiyetKodu.Value := '';
-      TSatTeklifDetay(Table).DigerVergiKodu.Value := '';
       TSatTeklifDetay(Table).GtipNo.Value := edtgtip_no.Text;
       TSatTeklifDetay(Table).KullaniciAciklama.Value := edtkullanici_aciklama.Text;
 

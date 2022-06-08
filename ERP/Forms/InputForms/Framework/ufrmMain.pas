@@ -1,4 +1,4 @@
-unit ufrmMain;
+ï»¿unit ufrmMain;
 
 interface
 
@@ -87,7 +87,7 @@ type
     actsys_mukellef_tipi: TAction;
     actsys_uygulama_ayari: TAction;
     actsys_uygulama_ayari_diger: TAction;
-    actsys_guýn: TAction;
+    actsys_guÄ±n: TAction;
     actsys_ay: TAction;
     actstk_stok_karti: TAction;
     acturun_kabul_red_nedenleri: TAction;
@@ -220,14 +220,14 @@ type
     actsys_do_database_backup: TAction;
 
 /// <summary>
-///   Kullanýcýnýn eriþim yetkisine göre yapýlacak iþlemler burada olacak
+///   KullanÄ±cÄ±nÄ±n eriÅŸim yetkisine gÃ¶re yapÄ±lacak iÅŸlemler burada olacak
 /// </summary>
 /// <remarks>
-///   Login olan kullanýcýya ait haklara göre yapýlacak iþlemler burada yapýlýyor.
-///   Ana formda kullanýcýnýn sahip olduðu yetkilere göre butonlar açýlýyor.
+///   Login olan kullanÄ±cÄ±ya ait haklara gÃ¶re yapÄ±lacak iÅŸlemler burada yapÄ±lÄ±yor.
+///   Ana formda kullanÄ±cÄ±nÄ±n sahip olduÄŸu yetkilere gÃ¶re butonlar aÃ§Ä±lÄ±yor.
 /// </remarks>
 /// <example>
-///   Yeni Kayýt Ekle Buton baþlýðý için ButtonAdd
+///   Yeni KayÄ±t Ekle Buton baÅŸlÄ±ÄŸÄ± iÃ§in ButtonAdd
 /// </example>
     procedure SetSession;
     procedure ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);
@@ -244,7 +244,7 @@ type
     procedure actsys_uygulama_ayariExecute(Sender: TObject);
     procedure actsys_uygulama_ayari_digerExecute(Sender: TObject);
     procedure actsys_ayExecute(Sender: TObject);
-    procedure actsys_guýnExecute(Sender: TObject);
+    procedure actsys_guÄ±nExecute(Sender: TObject);
     procedure actsys_kalite_form_tipiExecute(Sender: TObject);
     procedure actsys_kalite_form_noExecute(Sender: TObject);
     procedure actquality_form_mail_recieversExecute(Sender: TObject);
@@ -742,7 +742,7 @@ begin
   TfrmSysUlkeler.Create(Self, Self, TSysUlke.Create(GDataBase), fomNormal).Show;
 end;
 
-procedure TfrmMain.actsys_guýnExecute(Sender: TObject);
+procedure TfrmMain.actsys_guÄ±nExecute(Sender: TObject);
 begin
   TfrmSysGunler.Create(Self, Self, TSysGun.Create(GDataBase), fomNormal).Show;
 end;
@@ -892,8 +892,8 @@ end;
 
 procedure TfrmMain.actsys_uygulama_guncelleExecute(Sender: TObject);
 begin
-  if CustomMsgDlg('Güncelleme iþlemini yapmak istediðin emin misin?',
-    mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], mbNo, 'Güncelleme Onayý') = mrYes
+  if CustomMsgDlg('GÃ¼ncelleme iÅŸlemini yapmak istediÄŸin emin misin?',
+    mtConfirmation, mbYesNo, ['Evet', 'HayÄ±r'], mbNo, 'GÃ¼ncelleme OnayÄ±') = mrYes
   then
     UpdateApplicationExe;
 end;
@@ -916,9 +916,9 @@ end;
 procedure TfrmMain.btnCloseClick(Sender: TObject);
 begin
   if CustomMsgDlg(
-    TranslateText('Uygulama kapatýlacak. Kapatmak istediðine emin misin?', FrameworkLang.MessageApplicationTerminate, LngMsgData, LngSystem),
+    TranslateText('Uygulama kapatÄ±lacak. Kapatmak istediÄŸine emin misin?', FrameworkLang.MessageApplicationTerminate, LngMsgData, LngSystem),
     mtConfirmation, mbYesNo, [TranslateText('Evet', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                              TranslateText('Hayýr', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
+                              TranslateText('HayÄ±r', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
                               TranslateText('Onay', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes
   then
     inherited;
@@ -929,8 +929,8 @@ var
   n1: Integer;
   LText: string;
 begin
-  //Ana formdaki butonlarýn isimleri þu formata uygun olacak. btn + herhangi bir isim btnCity veya btncity
-  //dil dosyasýna bakarken de "ButonCaption.Main.city" þeklinde olacak
+  //Ana formdaki butonlarÄ±n isimleri ÅŸu formata uygun olacak. btn + herhangi bir isim btnCity veya btncity
+  //dil dosyasÄ±na bakarken de "ButonCaption.Main.city" ÅŸeklinde olacak
   if Sender = nil then
   begin
     Sender := pnlMain;
@@ -975,8 +975,8 @@ var
   LMr: Integer;
   LQry: TFDQuery;
 begin
-  //interval deðeri kadar süre sonrasýnda kullanýcý sürüm kotrolü yapýyor
-  //süre 60000 olarak 1 dakika olacak þekilde ayarlandý
+  //interval deÄŸeri kadar sÃ¼re sonrasÄ±nda kullanÄ±cÄ± sÃ¼rÃ¼m kotrolÃ¼ yapÄ±yor
+  //sÃ¼re 60000 olarak 1 dakika olacak ÅŸekilde ayarlandÄ±
   LQry := GDataBase.NewQuery();
   try
     LQry.SQL.Text := 'SELECT ' + GSysUygulamaAyari.UygulamaSurum.FieldName + ' FROM ' + GSysUygulamaAyari.TableName;
@@ -989,13 +989,13 @@ begin
 
   if APP_VERSION <> LSurum then
   begin
-    LMr := CustomMsgDlg(('Programda yeni bir güncellemeniz var. Þimdi güncellemek ister misin?' + AddLBs(2) +
-                         'Sistemsel hatalar veya kritik güncellemeler yapýldýðý için güncellemeyi bir an önce yapmanýz önerilir.'),
+    LMr := CustomMsgDlg(('Programda yeni bir gÃ¼ncellemeniz var. Åžimdi gÃ¼ncellemek ister misin?' + AddLBs(2) +
+                         'Sistemsel hatalar veya kritik gÃ¼ncellemeler yapÄ±ldÄ±ÄŸÄ± iÃ§in gÃ¼ncellemeyi bir an Ã¶nce yapmanÄ±z Ã¶nerilir.'),
                         mtConfirmation,
                         mbYesNo,
-                        ['Evet Güncelle', 'Hayýr Sonra Güncelle'],
+                        ['Evet GÃ¼ncelle', 'HayÄ±r Sonra GÃ¼ncelle'],
                         mbNo,
-                        'Kullanýcý Güncelleme Onayý');
+                        'KullanÄ±cÄ± GÃ¼ncelleme OnayÄ±');
     if LMr = mrYes then
       UpdateApplicationExe;
   end;
@@ -1038,7 +1038,7 @@ begin
         CopyFile(PWideChar(LNewName), PWideChar(LOldName), True); //copy remote settings file to local settings
       end
       else
-        raise Exception.Create('Ayar dosyasý güncellenemedi!!!');
+        raise Exception.Create('Ayar dosyasÄ± gÃ¼ncellenemedi!!!');
 
 
       LNewName := GSysUygulamaAyariDiger.PathUpdate.Value + PathDelim + FLD_REPORT + PathDelim;
@@ -1049,7 +1049,7 @@ begin
       LOldName := Path + FLD_RESOURCE + PathDelim;
       CopyFolder(LNewName, LOldName); //copy remote resource files to local folder
 
-      //lib klasörü yoksa kopyala
+      //lib klasÃ¶rÃ¼ yoksa kopyala
       if not DirectoryExists(Path + FLD_LIB) then
       begin
         LNewName := GSysUygulamaAyariDiger.PathUpdate.Value + PathDelim + FLD_LIB + PathDelim;
@@ -1072,10 +1072,10 @@ begin
       Application.Terminate;
     end
     else
-      raise Exception.Create(GSysUygulamaAyariDiger.PathUpdate.Value + AddLBs(2) + 'Güncelleme klasöründe dosyalar bulunamadý');
+      raise Exception.Create(GSysUygulamaAyariDiger.PathUpdate.Value + AddLBs(2) + 'GÃ¼ncelleme klasÃ¶rÃ¼nde dosyalar bulunamadÄ±');
   end
   else
-    raise Exception.Create('Güncelleme klasörü sistemde tanýmlý deðil!!!');
+    raise Exception.Create('GÃ¼ncelleme klasÃ¶rÃ¼ sistemde tanÄ±mlÄ± deÄŸil!!!');
 end;
 
 procedure TfrmMain.SetButtonPopup(Sender: TControl = nil);
@@ -1133,9 +1133,9 @@ begin
       if LDovizKuru.List.Count = 0 then
       begin
         if CustomMsgDlg(
-          TranslateText('Döviz kuru girilmemiþ otomatik olarak TCMB Döviz kurlarýndan girilmesini ister misin?', FrameworkLang.MessageOtomatikDovizKuru, LngMsgData, LngSystem),
+          TranslateText('DÃ¶viz kuru girilmemiÅŸ otomatik olarak TCMB DÃ¶viz kurlarÄ±ndan girilmesini ister misin?', FrameworkLang.MessageOtomatikDovizKuru, LngMsgData, LngSystem),
           mtConfirmation, mbYesNo, [TranslateText('Evet', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                                    TranslateText('Hayýr', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
+                                    TranslateText('HayÄ±r', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
                                     TranslateText('Onay', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes
         then
         begin
@@ -1184,15 +1184,15 @@ begin
   mniAddLanguageContent.ImageIndex := IMG_ADD_DATA;
 
 //  todo
-//  1 yapýldý permision code listesini duzenle butun erisim izinleri kodlar üzerinden yürüyecek þekilde deðiþklik yap
-//  2 standart erisim kodlarý için döküman ayarla sabit bilgi olarak girilsin
-//  3 yapýldý sys visible colum sýnýfý için ön yüz hazýrla
-//  4 kýsmen sistem ayarlarý için sýnýf tanýmla. ondalýklý hane formatý, para formatý, tarih formatý, butun sistem bu formatlar üzerinde ilerleyecek
-//  5 yapýldý Output formda arama penceresini ayarla kýsmen yapýldý. kontrol edilecek
+//  1 yapÄ±ldÄ± permision code listesini duzenle butun erisim izinleri kodlar Ã¼zerinden yÃ¼rÃ¼yecek ÅŸekilde deÄŸiÅŸklik yap
+//  2 standart erisim kodlarÄ± iÃ§in dÃ¶kÃ¼man ayarla sabit bilgi olarak girilsin
+//  3 yapÄ±ldÄ± sys visible colum sÄ±nÄ±fÄ± iÃ§in Ã¶n yÃ¼z hazÄ±rla
+//  4 kÄ±smen sistem ayarlarÄ± iÃ§in sÄ±nÄ±f tanÄ±mla. ondalÄ±klÄ± hane formatÄ±, para formatÄ±, tarih formatÄ±, butun sistem bu formatlar Ã¼zerinde ilerleyecek
+//  5 yapÄ±ldÄ± Output formda arama penceresini ayarla kÄ±smen yapÄ±ldÄ±. kontrol edilecek
 //  6 input formlar icin helper penceresi tasarla
-//  7 yapýldý excel rapor
-//  8 yazýcý ekraný
-//  9 detaylý form
+//  7 yapÄ±ldÄ± excel rapor
+//  8 yazÄ±cÄ± ekranÄ±
+//  9 detaylÄ± form
 //  10 stringgrid base form
   SV.Visible := False;
   SV.Close;
@@ -1492,7 +1492,7 @@ begin
           end;
         end
 
-        //Stok Kartý
+        //Stok KartÄ±
         else if CheckStringInArray(MODULE_STK, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
         begin
           if not tsStok.TabVisible then
@@ -1511,7 +1511,7 @@ begin
             btnstk_stok_hareketi.Enabled := True;
           end;
         end
-        //Reçete
+        //ReÃ§ete
         else if CheckStringInArray(MODULE_RCT, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
         begin
           if not tsrecete.TabVisible then
@@ -1541,7 +1541,7 @@ begin
             btnprs_personel.Enabled := True;
           end
         end
-        //Satýþ
+        //SatÄ±ÅŸ
         else if CheckStringInArray(MODULE_TSIF, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
         begin
           if not tssatis.TabVisible then
@@ -1573,6 +1573,7 @@ begin
         end
       end;
     end;
+
   finally
     LRights.Free;
   end;

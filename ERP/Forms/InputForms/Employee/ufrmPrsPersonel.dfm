@@ -20,7 +20,6 @@ inherited frmPrsPersonel: TfrmPrsPersonel
     inherited pgcMain: TPageControl
       Width = 629
       Height = 425
-      ActivePage = tsDetail
       OnChange = pgcMainChange
       ExplicitWidth = 629
       ExplicitHeight = 425

@@ -63,6 +63,8 @@ type
 
     DatePicker: TDateTimePicker;
 
+    FAllSelected: Boolean;
+
     {$IFDEF VER150}
     procedure SetAlignment(const pValue: TAlignment);
     {$ENDIF}
@@ -82,6 +84,7 @@ type
     procedure MyOnKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure HelperProcess();virtual;
     procedure CalculatorProcess();virtual;
+    procedure Change; override;
 
     procedure CreateParams(var pParams: TCreateParams); override;
   public
@@ -233,6 +236,13 @@ begin
     FActiveYear4Digit := vYear;
 end;
 
+procedure TEdit.Change;
+begin
+  if thsInputDataType = itMoney then
+    Self.Repaint;
+  inherited;
+end;
+
 constructor TEdit.Create(AOwner: TComponent);
 var
   vDay, vMonth, vYear: Word;
@@ -331,12 +341,22 @@ begin
 end;
 
 procedure TEdit.DoubleToMoney;
+var
+  LOldPos, LOldLen: Integer;
 begin
   if (Trim(Self.Text) <> '') then
+  begin
+    LOldPos := Self.SelStart;
+    LOldLen := Self.GetTextLen;
     Self.Text := FormatFloat('0' + FormatSettings.ThousandSeparator +
                              FormatSettings.DecimalSeparator +
                              StringOfChar('0', Self.FDecimalDigitCount),
                              moneyToDouble);
+    if FAllSelected then
+      Self.SelStart := LOldPos
+    else
+      Self.SelStart := LOldPos + Self.GetTextLen - LOldLen;
+  end;
 end;
 
 procedure TEdit.KeyPress(var Key: Char);
@@ -814,6 +834,8 @@ var
 begin
   Result := #0;
 
+  FAllSelected := (Length(Self.Text) = Self.SelLength);
+
   if (CharInSet(pKey, ['.', ',', FormatSettings.DecimalSeparator])) then
     pKey := FormatSettings.DecimalSeparator;
 
@@ -821,7 +843,7 @@ begin
     Self.Modified := true;
 
   //Already SelectAll clear
-  if (Length(Self.Text) = Self.SelLength) and (pKey <> #13) then
+  if FAllSelected and (pKey <> #13) then
     Self.Clear;
 
   //tanýmlý tuþlar harici tuþlar girilmez veya seperator sadece bir kere girilebilir
@@ -881,7 +903,7 @@ begin
               Result := pKey
             else
             begin
-              if (pKey = #13) or (pKey = #8) then
+              //if (pKey = #13) or (pKey = #8) then
                 Result := pKey;
             end;
           end;

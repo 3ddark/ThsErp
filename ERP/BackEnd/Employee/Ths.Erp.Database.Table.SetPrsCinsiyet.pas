@@ -11,10 +11,10 @@ uses
   Ths.Erp.Database.Table;
 
 type
+  TPrsCinsiyet = (Erkek=1, Kadin);
   TSetPrsCinsiyet = class(TTable)
   private
     FCinsiyet: TFieldDB;
-    FIsErkek: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -26,7 +26,6 @@ type
     function Clone: TTable; override;
 
     Property Cinsiyet: TFieldDB read FCinsiyet write FCinsiyet;
-    Property IsErkek: TFieldDB read FIsErkek write FIsErkek;
   end;
 
 implementation
@@ -43,7 +42,6 @@ begin
   inherited Create(ADatabase);
 
   FCinsiyet := TFieldDB.Create('cinsiyet', ftString, '', Self, 'Cinsiyet');
-  FIsErkek := TFieldDB.Create('is_erkek', ftBoolean, False, Self, 'Erkek?');
 end;
 
 procedure TSetPrsCinsiyet.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -55,8 +53,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FCinsiyet.FieldName,
-        TableName + '.' + FIsErkek.FieldName
+        TableName + '.' + FCinsiyet.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
@@ -78,8 +75,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FCinsiyet.FieldName,
-        TableName + '.' + FIsErkek.FieldName
+        TableName + '.' + FCinsiyet.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -114,8 +110,7 @@ begin
         Close;
         SQL.Clear;
         SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-          FCinsiyet.FieldName,
-          FIsErkek.FieldName
+          FCinsiyet.FieldName
         ]);
 
         PrepareInsertQueryParams;
@@ -146,8 +141,7 @@ begin
         Close;
         SQL.Clear;
         SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-          FCinsiyet.FieldName,
-          FIsErkek.FieldName
+          FCinsiyet.FieldName
         ]);
 
         PrepareUpdateQueryParams;

@@ -451,12 +451,8 @@ begin
       TSatSiparisDetay(Table).ToplamTutar.Value := FToplamTutar;
 
       TSatSiparisDetay(Table).IsAnaUrun.Value := False;
-      TSatSiparisDetay(Table).AnaUrunID.Value := 0;
       TSatSiparisDetay(Table).ReferansAnaUrunID.Value := 0;
 
-      TSatSiparisDetay(Table).VergiKodu.Value := '';
-      TSatSiparisDetay(Table).VergiMuafiyetKodu.Value := '';
-      TSatSiparisDetay(Table).DigerVergiKodu.Value := '';
       TSatSiparisDetay(Table).GtipNo.Value := edtgtip_no.Text;
 
       TSatSiparisDetay(Table).En.Value := StrToFloatDef(edten.Text, 0);

@@ -16,7 +16,7 @@ type
   private
     FSiparisDurum: TFieldDB;
     FAciklama: TFieldDB;
-    FIsActive: TFieldDB;
+    FIsAktif: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -29,7 +29,7 @@ type
 
     Property SiparisDurum: TFieldDB read FSiparisDurum write FSiparisDurum;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
-    Property IsActive: TFieldDB read FIsActive write FIsActive;
+    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
   end;
 
 implementation
@@ -47,7 +47,7 @@ begin
 
   FSiparisDurum := TFieldDB.Create('siparis_durum', ftString, '', Self, '');
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, '');
-  FIsActive := TFieldDB.Create('is_active', ftBoolean, True, Self, '');
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
 end;
 
 procedure TSetSatSiparisDurum.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -61,7 +61,7 @@ begin
         TableName + '.' + Self.Id.FieldName,
         TableName + '.' + FSiparisDurum.FieldName,
         TableName + '.' + FAciklama.FieldName,
-        TableName + '.' + FIsActive.FieldName
+        TableName + '.' + FIsAktif.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -71,7 +71,7 @@ begin
       setFieldTitle(Id, 'ID', QueryOfDS);
       setFieldTitle(FSiparisDurum, 'Siparis Durum', QueryOfDS);
       setFieldTitle(FAciklama, 'Açıklama', QueryOfDS);
-      setFieldTitle(FIsActive, 'Aktif?', QueryOfDS);
+      setFieldTitle(FIsAktif, 'Aktif?', QueryOfDS);
     end;
   end;
 end;
@@ -90,7 +90,7 @@ begin
         TableName + '.' + Self.Id.FieldName,
         TableName + '.' + FSiparisDurum.FieldName,
         TableName + '.' + FAciklama.FieldName,
-        TableName + '.' + FIsActive.FieldName
+        TableName + '.' + FIsAktif.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -122,7 +122,7 @@ begin
       SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
         FSiparisDurum.FieldName,
         FAciklama.FieldName,
-        FIsActive.FieldName
+        FIsAktif.FieldName
       ]);
 
       PrepareInsertQueryParams;
@@ -150,7 +150,7 @@ begin
       SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
         FSiparisDurum.FieldName,
         FAciklama.FieldName,
-        FIsActive.FieldName
+        FIsAktif.FieldName
       ]);
 
       PrepareUpdateQueryParams;

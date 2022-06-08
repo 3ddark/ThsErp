@@ -15,7 +15,7 @@ type
   private
     FBankaAdi: TFieldDB;
     FSwiftKodu: TFieldDB;
-    FIsActive: TFieldDB;
+    FIsAktif: TFieldDB;
   protected
   published
     constructor Create(ADatabase: TDatabase); override;
@@ -29,7 +29,7 @@ type
 
     Property BankaAdi: TFieldDB read FBankaAdi write FBankaAdi;
     Property SwiftKodu: TFieldDB read FSwiftKodu write FSwiftKodu;
-    Property IsActive: TFieldDB read FIsActive write FIsActive;
+    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
   end;
 
 implementation
@@ -47,7 +47,7 @@ begin
 
   FBankaAdi := TFieldDB.Create('banka_adi', ftString, '', Self, 'Banka Adý');
   FSwiftKodu := TFieldDB.Create('swift_kodu', ftString, '', Self, 'Swift Kodu');
-  FIsActive := TFieldDB.Create('is_active', ftBoolean, True, Self, 'Aktif');
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, 'Aktif');
 end;
 
 procedure TChBanka.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
@@ -61,7 +61,7 @@ begin
         TableName + '.' + Self.Id.FieldName,
         TableName + '.' + FBankaAdi.FieldName,
         TableName + '.' + FSwiftKodu.FieldName,
-        TableName + '.' + FIsActive.FieldName
+        TableName + '.' + FIsAktif.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
@@ -71,7 +71,7 @@ begin
       setFieldTitle(Self.Id, 'ID', QueryOfDS);
       setFieldTitle(FBankaAdi, 'Adý', QueryOfDS);
       setFieldTitle(FSwiftKodu, 'Swift Kodu', QueryOfDS);
-      setFieldTitle(FIsActive, 'Aktif?', QueryOfDS);
+      setFieldTitle(FIsAktif, 'Aktif?', QueryOfDS);
     end;
   end;
 end;
@@ -90,7 +90,7 @@ begin
         TableName + '.' + Self.Id.FieldName,
         TableName + '.' + FBankaAdi.FieldName,
         TableName + '.' + FSwiftKodu.FieldName,
-        TableName + '.' + FIsActive.FieldName
+        TableName + '.' + FIsAktif.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -122,7 +122,7 @@ begin
       SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
         FBankaAdi.FieldName,
         FSwiftKodu.FieldName,
-        FIsActive.FieldName
+        FIsAktif.FieldName
       ]);
 
       PrepareInsertQueryParams;
@@ -150,7 +150,7 @@ begin
       SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
         FBankaAdi.FieldName,
         FSwiftKodu.FieldName,
-        FIsActive.FieldName
+        FIsAktif.FieldName
       ]);
 
       PrepareUpdateQueryParams;

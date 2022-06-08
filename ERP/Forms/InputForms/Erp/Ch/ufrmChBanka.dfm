@@ -7,8 +7,8 @@ inherited frmChBanka: TfrmChBanka
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
-  ExplicitWidth = 350
-  ExplicitHeight = 197
+  ExplicitWidth = 360
+  ExplicitHeight = 207
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
@@ -25,7 +25,7 @@ inherited frmChBanka: TfrmChBanka
       ExplicitHeight = 100
       inherited tsMain: TTabSheet
         ExplicitWidth = 330
-        ExplicitHeight = 72
+        ExplicitHeight = 86
         object lblbanka_adi: TLabel
           Left = 78
           Top = 6

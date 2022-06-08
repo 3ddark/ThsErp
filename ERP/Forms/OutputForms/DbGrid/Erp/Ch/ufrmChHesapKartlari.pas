@@ -67,7 +67,7 @@ end;
 
 procedure TfrmHesapKartlari.FormShow(Sender: TObject);
 begin
-  QryFiltreVarsayilanKullanici := QryFiltreVarsayilanKullanici + ' AND ' + Table.TableName + '.' + TChHesapKarti(Table).HesapTipiID.FieldName + '=' + getSetChHesapTipiID(htSon).ToString;
+  QryFiltreVarsayilanKullanici := QryFiltreVarsayilanKullanici + ' AND ' + Table.TableName + '.' + TChHesapKarti(Table).HesapTipiID.FieldName + '=' + Ord(htSon).ToString;
   inherited;
 end;
 

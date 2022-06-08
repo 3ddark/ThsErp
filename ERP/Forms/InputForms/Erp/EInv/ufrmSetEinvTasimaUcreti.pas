@@ -56,7 +56,7 @@ uses
 procedure TfrmSetEinvTasimaUcreti.RefreshData();
 begin
   edttasima_ucreti.Text := TSetEinvTasimaUcreti(Table).TasimaUcreti.Value;
-  chkis_active.Checked := TSetEinvTasimaUcreti(Table).IsActive.Value;
+  chkis_active.Checked := TSetEinvTasimaUcreti(Table).IsAktif.Value;
 end;
 
 procedure TfrmSetEinvTasimaUcreti.btnAcceptClick(Sender: TObject);
@@ -65,7 +65,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSetEinvTasimaUcreti(Table).IsActive.Value := chkis_active.Checked;
+      TSetEinvTasimaUcreti(Table).IsAktif.Value := chkis_active.Checked;
       TSetEinvTasimaUcreti(Table).TasimaUcreti.Value := edttasima_ucreti.Text;
       inherited;
     end;

@@ -5,36 +5,35 @@ interface
 {$I ThsERP.inc}
 
 uses
-    Windows
-  , Messages
-  , SysUtils
-  , Variants
-  , Classes
-  , Graphics
-  , Controls
-  , Forms
-  , Dialogs
-  , StdCtrls
-  , ExtCtrls
-  , ComCtrls
-  , StrUtils
-  , DateUtils
-  , Vcl.Menus
-  , Vcl.Buttons
-  , Vcl.AppEvnts
-  , Vcl.Samples.Spin
-  , Vcl.ExtDlgs
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ExtCtrls,
+  ComCtrls,
+  StrUtils,
+  DateUtils,
+  Vcl.Menus,
+  Vcl.Buttons,
+  Vcl.AppEvnts,
+  Vcl.Samples.Spin,
+  Vcl.ExtDlgs,
 
-  , FireDAC.Comp.Client
+  FireDAC.Comp.Client,
 
-  , Ths.Erp.Helper.BaseTypes
-  , Ths.Erp.Helper.Edit
-  , Ths.Erp.Helper.ComboBox
-  , Ths.Erp.Helper.Memo
+  Ths.Erp.Helper.BaseTypes,
+  Ths.Erp.Helper.Edit,
+  Ths.Erp.Helper.ComboBox,
+  Ths.Erp.Helper.Memo,
 
-  , ufrmBase
-  , ufrmBaseInputDB
-  ;
+  ufrmBase,
+  ufrmBaseInputDB;
 
 type
   TfrmBbkKayit = class(TfrmBaseInputDB)
@@ -81,8 +80,6 @@ type
     lblsevkiyat_yetkilisi_tel: TLabel;
     edtsevkiyat_yetkilisi_telefon: TEdit;
     lblcalisma_durumu_id: TLabel;
-    lblcalistigi_tedarikciler: TLabel;
-    mmocalistigi_tedarikciler: TMemo;
     lblfinans_durumu_id: TLabel;
     edtfinans_durumu_id: TEdit;
     lblkac_yillik_firma: TLabel;
@@ -91,8 +88,6 @@ type
     mmonot1: TMemo;
     lblnot2: TLabel;
     mmonot2: TMemo;
-    lbl88: TLabel;
-    mmonot3: TMemo;
     lblbolge_adi_id: TLabel;
     edtbolge_adi_id: TEdit;
     edtcalisma_durumu_id: TEdit;
@@ -145,24 +140,21 @@ begin
       TBbkKayit(Table).VergiNumarasi.Value := edtvergi_numarasi.Text;
 
       TBbkKayit(Table).Adres.Value := edtadres.Text;
-      TBbkKayit(Table).SehirAdi.Value := edtsehir_adi_id.Text;
-      TBbkKayit(Table).UlkeAdi.Value := edtulke_adi_id.Text;
-      TBbkKayit(Table).BolgeAdi.Value := edtbolge_adi_id.Text;
+      TBbkKayit(Table).Sehir.Value := edtsehir_adi_id.Text;
+      TBbkKayit(Table).Ulke.Value := edtulke_adi_id.Text;
+      TBbkKayit(Table).Bolge.Value := edtbolge_adi_id.Text;
 
       TBbkKayit(Table).SevkiyatYetkilisi.Value := edtsevkiyat_yetkilisi.Text;
       TBbkKayit(Table).SevkiyatYetkilisiTel.Value := edtsevkiyat_yetkilisi_telefon.Text;
 
       TBbkKayit(Table).CalismaDurumu.Value := edtcalisma_durumu_id.Text;
-      
-      TBbkKayit(Table).CalistigiTedarikciler.Value := mmocalistigi_tedarikciler.Lines.Text;
 
       TBbkKayit(Table).FinansDurumu.Value := edtfinans_durumu_id.Text;
       TBbkKayit(Table).KacYillikFirma.Value := edtkac_yillik_firma.Text;
 
       TBbkKayit(Table).Not1.Value := mmonot1.Lines.Text;
       TBbkKayit(Table).Not2.Value := mmonot2.Lines.Text;
-      TBbkKayit(Table).Not3.Value := mmonot3.Lines.Text;
-
+      
       inherited;
     end;
   end
@@ -222,9 +214,9 @@ begin
           begin
             if LFrmSehir.CleanAndClose then
             begin
-              TBbkKayit(Table).SehirAdiID.Value := 0;
-              TBbkKayit(Table).UlkeAdiID.Value := 0;
-              TBbkKayit(Table).BolgeAdiID.Value := 0;
+              TBbkKayit(Table).SehirID.Value := 0;
+              TBbkKayit(Table).UlkeID.Value := 0;
+              TBbkKayit(Table).BolgeID.Value := 0;
               TEdit(Sender).Clear;
               edtulke_adi_id.Clear;
               edtbolge_adi_id.Clear;
@@ -234,9 +226,9 @@ begin
               TEdit(Sender).Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).SehirAdi);
               edtulke_adi_id.Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeAdi);
               edtbolge_adi_id.Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).BolgeAdi);
-              TBbkKayit(Table).SehirAdiID.Value := TSysSehir(LFrmSehir.Table).Id.Value;
-              TBbkKayit(Table).UlkeAdiID.Value := TSysSehir(LFrmSehir.Table).UlkeAdiID.Value;
-              TBbkKayit(Table).BolgeAdiID.Value := TSysSehir(LFrmSehir.Table).BolgeAdiID.Value;
+              TBbkKayit(Table).SehirID.Value := TSysSehir(LFrmSehir.Table).Id.Value;
+              TBbkKayit(Table).UlkeID.Value := TSysSehir(LFrmSehir.Table).UlkeAdiID.Value;
+              TBbkKayit(Table).BolgeID.Value := TSysSehir(LFrmSehir.Table).BolgeAdiID.Value;
             end;
           end;
         finally
@@ -316,22 +308,19 @@ begin
    edtvergi_numarasi.Text := FormatedVariantVal(TBbkKayit(Table).VergiNumarasi);
 
    edtadres.Text := FormatedVariantVal(TBbkKayit(Table).Adres);
-   edtsehir_adi_id.Text := FormatedVariantVal(TBbkKayit(Table).SehirAdi);
-   edtulke_adi_id.Text := FormatedVariantVal(TBbkKayit(Table).UlkeAdi);
-   edtbolge_adi_id.Text := FormatedVariantVal(TBbkKayit(Table).BolgeAdi);
+   edtsehir_adi_id.Text := FormatedVariantVal(TBbkKayit(Table).Sehir);
+   edtulke_adi_id.Text := FormatedVariantVal(TBbkKayit(Table).Ulke);
+   edtbolge_adi_id.Text := FormatedVariantVal(TBbkKayit(Table).Bolge);
 
    edtsevkiyat_yetkilisi.Text := FormatedVariantVal(TBbkKayit(Table).SevkiyatYetkilisi);
    edtsevkiyat_yetkilisi_telefon.Text := FormatedVariantVal(TBbkKayit(Table).SevkiyatYetkilisiTel);
    edtcalisma_durumu_id.Text := FormatedVariantVal(TBbkKayit(Table).CalismaDurumu);
-
-   mmocalistigi_tedarikciler.Lines.Text := FormatedVariantVal(TBbkKayit(Table).CalistigiTedarikciler);
 
    edtfinans_durumu_id.Text := FormatedVariantVal(TBbkKayit(Table).FinansDurumu);
    edtkac_yillik_firma.Text := FormatedVariantVal(TBbkKayit(Table).KacYillikFirma);
 
    mmonot1.Lines.Text := FormatedVariantVal(TBbkKayit(Table).Not1);
    mmonot2.Lines.Text := FormatedVariantVal(TBbkKayit(Table).Not2);
-   mmonot3.Lines.Text := FormatedVariantVal(TBbkKayit(Table).Not3);
 end;
 
 procedure TfrmBbkKayit.Repaint;
@@ -347,7 +336,6 @@ begin
   mmonot1.CharCase := ecNormal;
   mmonot1.CharCase := ecNormal;
   mmonot2.CharCase := ecNormal;
-  mmonot3.CharCase := ecNormal;
 end;
 
 end.

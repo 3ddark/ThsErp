@@ -65,7 +65,7 @@ begin
   //control içeriğini table class ile doldur
   edtteklif_durum.Text := FormatedVariantVal(TSetSatSiparisDurum(Table).SiparisDurum.DataType, TSetSatSiparisDurum(Table).SiparisDurum.Value);
   edtaciklama.Text := FormatedVariantVal(TSetSatSiparisDurum(Table).Aciklama.DataType, TSetSatSiparisDurum(Table).Aciklama.Value);
-  chkis_active.Checked := FormatedVariantVal(TSetSatSiparisDurum(Table).IsActive.DataType, TSetSatSiparisDurum(Table).IsActive.Value);
+  chkis_active.Checked := FormatedVariantVal(TSetSatSiparisDurum(Table).IsAktif.DataType, TSetSatSiparisDurum(Table).IsAktif.Value);
 end;
 
 procedure TfrmSetSatSiparisDurum.btnAcceptClick(Sender: TObject);
@@ -76,7 +76,7 @@ begin
     begin
       TSetSatSiparisDurum(Table).SiparisDurum.Value := edtteklif_durum.Text;
       TSetSatSiparisDurum(Table).Aciklama.Value := edtaciklama.Text;
-      TSetSatSiparisDurum(Table).IsActive.Value := chkis_active.Checked;
+      TSetSatSiparisDurum(Table).IsAktif.Value := chkis_active.Checked;
       inherited;
     end;
   end

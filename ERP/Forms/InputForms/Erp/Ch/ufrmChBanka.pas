@@ -40,7 +40,7 @@ procedure TfrmChBanka.RefreshData();
 begin
   edtbanka_adi.Text := FormatedVariantVal(TChBanka(Table).BankaAdi);
   edtswift_kodu.Text := FormatedVariantVal(TChBanka(Table).SwiftKodu);
-  chkis_active.Checked := FormatedVariantVal(TChBanka(Table).IsActive);
+  chkis_active.Checked := FormatedVariantVal(TChBanka(Table).IsAktif);
 end;
 
 procedure TfrmChBanka.btnAcceptClick(Sender: TObject);
@@ -51,7 +51,7 @@ begin
     begin
       TChBanka(Table).BankaAdi.Value := edtbanka_adi.Text;
       TChBanka(Table).SwiftKodu.Value := edtswift_kodu.Text;
-      TChBanka(Table).IsActive.Value := chkis_active.Checked;
+      TChBanka(Table).IsAktif.Value := chkis_active.Checked;
       inherited;
     end;
   end

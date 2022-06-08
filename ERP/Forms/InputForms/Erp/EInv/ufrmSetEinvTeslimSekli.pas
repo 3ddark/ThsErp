@@ -64,7 +64,7 @@ uses
 
 procedure TfrmSetEinvTeslimSekli.RefreshData();
 begin
-  chkis_active.Checked := TSetEinvTeslimSekli(Table).IsActive.Value;
+  chkis_active.Checked := TSetEinvTeslimSekli(Table).IsAktif.Value;
   edtkod.Text := TSetEinvTeslimSekli(Table).TeslimSekli.Value;
   edtaciklama.Text := TSetEinvTeslimSekli(Table).Aciklama.Value;
   chkis_active.Checked := TSetEinvTeslimSekli(Table).IsEFatura.Value;
@@ -76,7 +76,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSetEinvTeslimSekli(Table).IsActive.Value := chkis_active.Checked;
+      TSetEinvTeslimSekli(Table).IsAktif.Value := chkis_active.Checked;
       TSetEinvTeslimSekli(Table).TeslimSekli.Value := edtkod.Text;
       TSetEinvTeslimSekli(Table).Aciklama.Value := edtaciklama.Text;
       TSetEinvTeslimSekli(Table).IsEFatura.Value := chkis_efatura.Checked;

@@ -5,11 +5,10 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TSetOdemeBaslangicDonemi = class(TTable)
@@ -35,10 +34,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSetOdemeBaslangicDonemi.Create(ADatabase: TDatabase);
 begin

@@ -11,10 +11,10 @@ uses
   Ths.Erp.Database.Table;
 
 type
+  TPrsMedeniDurum = (Evli=1, Bekar);
   TSetPrsMedeniDurum = class(TTable)
   private
     FMedeniDurum: TFieldDB;
-    FIsEvli: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -26,7 +26,6 @@ type
     function Clone: TTable; override;
 
     Property MedeniDurum: TFieldDB read FMedeniDurum write FMedeniDurum;
-    Property IsEvli: TFieldDB read FIsEvli write FIsEvli;
   end;
 
 implementation
@@ -43,7 +42,6 @@ begin
   inherited Create(ADatabase);
 
   FMedeniDurum := TFieldDB.Create('medeni_durum', ftString, '', Self, 'Medeni Durum');
-  FIsEvli := TFieldDB.Create('is_evli', ftBoolean, False, Self, 'Evli');
 end;
 
 procedure TSetPrsMedeniDurum.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -55,8 +53,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FMedeniDurum.FieldName,
-        TableName + '.' + FIsEvli.FieldName
+        TableName + '.' + FMedeniDurum.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
@@ -78,8 +75,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FMedeniDurum.FieldName,
-        TableName + '.' + FIsEvli.FieldName
+        TableName + '.' + FMedeniDurum.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -114,8 +110,7 @@ begin
         Close;
         SQL.Clear;
         SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-          FMedeniDurum.FieldName,
-          FIsEvli.FieldName
+          FMedeniDurum.FieldName
         ]);
 
         PrepareInsertQueryParams;
@@ -146,8 +141,7 @@ begin
         Close;
         SQL.Clear;
         SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-          FMedeniDurum.FieldName,
-          FIsEvli.FieldName
+          FMedeniDurum.FieldName
         ]);
 
         PrepareUpdateQueryParams;

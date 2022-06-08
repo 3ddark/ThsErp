@@ -6,26 +6,25 @@ inherited frmSetEinvOdemeSekli: TfrmSetEinvOdemeSekli
   ClientHeight = 209
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 350
-  ExplicitHeight = 238
+  ExplicitWidth = 360
+  ExplicitHeight = 248
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 340
-    Height = 143
+    Height = 157
     Color = clWindow
+    ParentColor = False
     ExplicitWidth = 340
     ExplicitHeight = 143
     inherited pgcMain: TPageControl
       Width = 338
-      Height = 141
+      Height = 155
       ExplicitWidth = 338
       ExplicitHeight = 141
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 330
-        ExplicitHeight = 113
+        ExplicitHeight = 127
         object lblis_active: TLabel
           Left = 91
           Top = 3
@@ -145,7 +144,7 @@ inherited frmSetEinvOdemeSekli: TfrmSetEinvOdemeSekli
     end
   end
   inherited pnlBottom: TPanel
-    Top = 147
+    Top = 161
     Width = 340
     ExplicitTop = 147
     ExplicitWidth = 340

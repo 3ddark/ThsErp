@@ -16,14 +16,13 @@ type
   private
     FTableName: TFieldDB;
     FTableType: TFieldDB;
-  protected
   published
     constructor Create(OwnerDatabase:TDatabase);override;
   public
     procedure SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(pFilter: string; pLock: Boolean; pPermissionControl: Boolean=True); override;
 
-    function Clone():TTable; override;
+    function Clone: TTable; override;
 
     Property TableName1: TFieldDB read FTableName write FTableName;
     Property TableType: TFieldDB read FTableType write FTableType;

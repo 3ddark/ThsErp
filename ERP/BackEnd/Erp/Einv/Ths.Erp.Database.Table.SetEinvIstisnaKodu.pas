@@ -5,12 +5,11 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  , Ths.Erp.Database.Table.SetEInvFaturaTipi
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table,
+  Ths.Erp.Database.Table.SetEInvFaturaTipi;
 
 type
   TSetEinvIstisnaKodu = class(TTable)
@@ -43,10 +42,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSetEinvIstisnaKodu.Create(ADatabase: TDatabase);
 begin

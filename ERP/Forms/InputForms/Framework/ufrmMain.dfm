@@ -395,7 +395,6 @@
       List = True
       ShowCaptions = True
       TabOrder = 0
-      ExplicitLeft = 681
       object btnabout: TToolButton
         Left = 0
         Top = 0
@@ -632,7 +631,7 @@
           Width = 150
           Height = 36
           Action = actstk_stok_hareketi
-          Font.Charset = DEFAULT_CHARSET
+          Font.Charset = TURKISH_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'

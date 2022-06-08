@@ -259,12 +259,12 @@ begin
       vFilter :=
         ' AND ' + vHesapKarti.TableName + '.' + vHesapKarti.KokHesapKodu.FieldName + '=' + QuotedStr(pKokHesap) +
         ' AND ' + vHesapKarti.TableName + '.' + vHesapKarti.AraHesapKodu.FieldName + '=' + QuotedStr(pKokHesap + '-' + pAraHesapKodu) +
-        ' AND ' + vHesapKarti.TableName + '.' + vHesapKarti.HesapTipiID.FieldName + '=' + IntToStr(getSetChHesapTipiID(htSon))
+        ' AND ' + vHesapKarti.TableName + '.' + vHesapKarti.HesapTipiID.FieldName + '=' + IntToStr(Ord(htSon))
     else if (FormMode = ifmUpdate) OR (FormMode = ifmRewiev) OR (FormMode = ifmReadOnly) then
       vFilter :=
         ' AND ' + vHesapKarti.TableName + '.' + vHesapKarti.KokHesapKodu.FieldName + '=' + QuotedStr(pKokHesap) +
         ' AND ' + vHesapKarti.TableName + '.' + vHesapKarti.AraHesapKodu.FieldName + '=' + QuotedStr(pKokHesap + '-' + pAraHesapKodu) +
-        ' AND ' + vHesapKarti.TableName + '.' + vHesapKarti.HesapTipiID.FieldName + '=' + IntToStr(getSetChHesapTipiID(htSon)) +
+        ' AND ' + vHesapKarti.TableName + '.' + vHesapKarti.HesapTipiID.FieldName + '=' + IntToStr(Ord(htSon)) +
         ' AND ' + vHesapKarti.TableName + '.' + vHesapKarti.HesapKodu.FieldName + '!=' + QuotedStr(TChHesapKarti(Table).HesapKodu.Value);
 
     vSP.ResourceOptions.DirectExecute := False;
@@ -799,7 +799,7 @@ begin
       TChHesapKarti(Table).HesapIsmi.Value := edthesap_ismi.Text;
       TChHesapKarti(Table).MuhasebeKodu.Value := TChHesapKarti(Table).HesapKodu.Value;
 
-      TChHesapKarti(Table).HesapTipiID.Value := getSetChHesapTipiID(htSon);
+      TChHesapKarti(Table).HesapTipiID.Value := Ord(htSon);
       TChHesapKarti(Table).KokHesapKodu.Value := edtkok_hesap_kodu.Text;
       TChHesapKarti(Table).AraHesapKodu.Value := getAraHesapKodu;
       TChHesapKarti(Table).HesapGrubu.Value := edthesap_grubu_id.Text;

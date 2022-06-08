@@ -32,8 +32,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
       ExplicitWidth = 792
       ExplicitHeight = 175
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 784
         ExplicitHeight = 147
       end
@@ -50,8 +48,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
         ExplicitHeight = 324
         inherited tsHeader: TTabSheet
           Caption = 'Genel'
-          ExplicitLeft = 24
-          ExplicitTop = 4
           ExplicitWidth = 864
           ExplicitHeight = 316
           object lblsiparis_no: TLabel
@@ -690,8 +686,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitLeft = 24
-          ExplicitTop = 4
           ExplicitWidth = 864
           ExplicitHeight = 316
         end
@@ -710,8 +704,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
         ExplicitWidth = 790
         ExplicitHeight = 171
         inherited ts1: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 782
           ExplicitHeight = 143
           inherited pnl1: TPanel
@@ -740,8 +732,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited ts2: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 782
           ExplicitHeight = 143
           inherited pnl2: TPanel
@@ -762,8 +752,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited ts3: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 782
           ExplicitHeight = 143
           inherited strngrd3: TStringGrid

@@ -6,8 +6,8 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
   ClientHeight = 404
   ClientWidth = 607
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 613
-  ExplicitHeight = 433
+  ExplicitWidth = 623
+  ExplicitHeight = 443
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
@@ -23,8 +23,6 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
       ExplicitWidth = 601
       ExplicitHeight = 350
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 593
         ExplicitHeight = 322
         object lblstok_kodu: TLabel

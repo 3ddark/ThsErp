@@ -33,15 +33,14 @@ type
     FYetkili2Tel: TFieldDB;
     FYetkili2Email: TFieldDB;
     FAdres: TFieldDB;
-    FSehirAdiID: TFieldDB;
-    FSehirAdi: TFieldDB;
-    FUlkeAdiID: TFieldDB;
-    FUlkeAdi: TFieldDB;
-    FBolgeAdiID: TFieldDB;
-    FBolgeAdi: TFieldDB;
+    FSehirID: TFieldDB;
+    FSehir: TFieldDB;
+    FUlkeID: TFieldDB;
+    FUlke: TFieldDB;
+    FBolgeID: TFieldDB;
+    FBolge: TFieldDB;
     FNot1: TFieldDB;
     FNot2: TFieldDB;
-    FNot3: TFieldDB;
     FFirmaTipiID: TFieldDB;
     FFirmaTipi: TFieldDb;
     FVergiDairesi: TFieldDB;
@@ -49,7 +48,6 @@ type
     FKacYillikFirma: TFieldDB;
     FCalismaDurumuId: TFieldDB;
     FCalismaDurumu: TFieldDB;
-    FCalistigiTedarikciler: TFieldDB;
     FFinansDurumuID: TFieldDB;
     FFinansDurumu: TFieldDB;
     FSevkiyatYetkilisi: TFieldDB;
@@ -86,15 +84,14 @@ type
     Property Yetkili2Tel: TFieldDB read FYetkili2Tel write FYetkili2Tel;
     Property Yetkili2Email: TFieldDB read FYetkili2Email write FYetkili2Email;
     Property Adres: TFieldDB read FAdres write FAdres;
-    Property SehirAdiID: TFieldDB read FSehirAdiID write FSehirAdiID;
-    Property SehirAdi: TFieldDB read FSehirAdi write FSehirAdi;
-    Property UlkeAdiID: TFieldDB read FUlkeAdiID write FUlkeAdiID;
-    Property UlkeAdi: TFieldDB read FUlkeAdi write FUlkeAdi;
-    Property BolgeAdiID: TFieldDB read FBolgeAdiID write FBolgeAdiID;
-    Property BolgeAdi: TFieldDB read FBolgeAdi write FBolgeAdi;
+    Property SehirID: TFieldDB read FSehirID write FSehirID;
+    Property Sehir: TFieldDB read FSehir write FSehir;
+    Property UlkeID: TFieldDB read FUlkeID write FUlkeID;
+    Property Ulke: TFieldDB read FUlke write FUlke;
+    Property BolgeID: TFieldDB read FBolgeID write FBolgeID;
+    Property Bolge: TFieldDB read FBolge write FBolge;
     Property Not1: TFieldDB read FNot1 write FNot1;
     Property Not2: TFieldDB read FNot2 write FNot2;
-    Property Not3: TFieldDB read FNot3 write FNot3;
     Property FirmaTipiID: TFieldDB read FFirmaTipiID write FFirmaTipiID;
     Property FirmaTipi: TFieldDB read FFirmaTipi write FFirmaTipi;
     Property VergiDairesi: TFieldDB read FVergiDairesi write FVergiDairesi;
@@ -102,7 +99,6 @@ type
     Property KacYillikFirma: TFieldDB read FKacYillikFirma write FKacYillikFirma;
     Property CalismaDurumuId: TFieldDB read FCalismaDurumuId write FCalismaDurumuId;
     Property CalismaDurumu: TFieldDB read FCalismaDurumu write FCalismaDurumu;
-    Property CalistigiTedarikciler: TFieldDB read FCalistigiTedarikciler write FCalistigiTedarikciler;
     Property FinansDurumuID: TFieldDB read FFinansDurumuID write FFinansDurumuID;
     Property FinansDurumu: TFieldDB read FFinansDurumu write FFinansDurumu;
     Property SevkiyatYetkilisi: TFieldDB read FSevkiyatYetkilisi write FSevkiyatYetkilisi;
@@ -143,15 +139,14 @@ begin
   FYetkili2Tel := TFieldDB.Create('yetkili2_tel', ftString, '', Self, 'Yetkili 2 Tel');
   FYetkili2Email := TFieldDB.Create('yetkili2_email', ftString, '', Self, 'Yetkili 2 Mail');
   FAdres := TFieldDB.Create('adres', ftString, '', Self, 'Adres');
-  FSehirAdiID := TFieldDB.Create('sehir_adi_id', ftInteger, 0, Self, 'Þehir ID');
-  FSehirAdi := TFieldDB.Create(FSysSehir.SehirAdi.FieldName, FSysSehir.SehirAdi.DataType, '', Self, 'Þehir');
-  FUlkeAdiID := TFieldDB.Create(FSysSehir.UlkeAdiID.FieldName, FSysSehir.UlkeAdiID.DataType, 0, Self, 'Ülke Adý ID');
-  FUlkeAdi := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, '', Self, 'Ülke');
-  FBolgeAdiID := TFieldDB.Create(FSysSehir.BolgeAdiID.FieldName, FSysSehir.BolgeAdiID.DataType, 0, Self, 'Bölge Adý ID');
-  FBolgeAdi := TFieldDB.Create(FSysSehir.BolgeAdi.FieldName, FSysSehir.BolgeAdi.DataType, '', Self, 'Bölge');
+  FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Þehir ID');
+  FSehir := TFieldDB.Create(FSysSehir.SehirAdi.FieldName, FSysSehir.SehirAdi.DataType, '', Self, 'Þehir');
+  FUlkeID := TFieldDB.Create('ulke_id', FSysSehir.UlkeAdiID.DataType, 0, Self, 'Ülke Adý ID');
+  FUlke := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, '', Self, 'Ülke');
+  FBolgeID := TFieldDB.Create('bolge_id', FSysSehir.BolgeAdiID.DataType, 0, Self, 'Bölge Adý ID');
+  FBolge := TFieldDB.Create(FSysSehir.BolgeAdi.FieldName, FSysSehir.BolgeAdi.DataType, '', Self, 'Bölge');
   FNot1 := TFieldDB.Create('not1', ftString, '', Self, 'Not 1');
   FNot2 := TFieldDB.Create('not2', ftString, '', Self, 'Not 2');
-  FNot3 := TFieldDB.Create('not3', ftString, '', Self, 'Not 3');
   FFirmaTipiID := TFieldDB.Create('firma_tipi_id', ftInteger, 0, Self, 'Firma Tipi ID');
   FFirmaTipi := TFieldDB.Create(FBbkFirmaTipi.FirmaTipi.FieldName, FBbkFirmaTipi.FirmaTipi.DataType, '', Self, 'Firma Tipi');
   FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftString, '', Self, 'Vergi D.');
@@ -159,7 +154,6 @@ begin
   FKacYillikFirma := TFieldDB.Create('kac_yillik_firma', ftInteger, 0, Self, 'Kaç Yýllýk Firma');
   FCalismaDurumuId := TFieldDB.Create('calisma_durumu_id', ftInteger, 0, Self, 'Çalýþma Durumu ID');
   FCalismaDurumu := TFieldDB.Create(FBbkCalismaDurumu.CalismaDurumu.FieldName, FBbkCalismaDurumu.CalismaDurumu.DataType, '', Self, 'Çalýþma Durumu');
-  FCalistigiTedarikciler := TFieldDB.Create('calistigi_tedarikciler', ftString, '', Self, 'Çalýþtýðý Tedarikçiler');
   FFinansDurumuID := TFieldDB.Create('finans_durumu_id', ftInteger, 0, Self, 'Finans Durumu ID');
   FFinansDurumu := TFieldDB.Create(FBbkFinansDurumu.FinansDurumu.FieldName, FBbkFinansDurumu.FinansDurumu.DataType, '', Self, 'Finans Durumu');
   FSevkiyatYetkilisi := TFieldDB.Create('sevkiyat_yetkilisi', ftString, '', Self, 'Sevkiyat Yetkilisi');
@@ -201,15 +195,14 @@ begin
         FYetkili2Tel.QryName,
         FYetkili2Email.QryName,
         FAdres.QryName,
-        FSehirAdiID.QryName,
-        addField(FSysSehir.TableName, FSysSehir.SehirAdi.FieldName, FSehirAdi.FieldName),
-        addField(FSysSehir.TableName, FSysSehir.UlkeAdiID.FieldName, FUlkeAdiID.FieldName),
-        addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
-        addField(FSysSehir.TableName, FSysSehir.BolgeAdiID.FieldName, FBolgeAdiID.FieldName),
-        addField(FSysBolge.TableName, FSysBolge.BolgeAdi.FieldName, FBolgeAdi.FieldName),
+        FSehirID.QryName,
+        addField(FSysSehir.TableName, FSysSehir.SehirAdi.FieldName, FSehir.FieldName),
+        addField(FSysSehir.TableName, FSysSehir.UlkeAdiID.FieldName, FUlkeID.FieldName),
+        addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlke.FieldName),
+        addField(FSysSehir.TableName, FSysSehir.BolgeAdiID.FieldName, FBolgeID.FieldName),
+        addField(FSysBolge.TableName, FSysBolge.BolgeAdi.FieldName, FBolge.FieldName),
         FNot1.QryName,
         FNot2.QryName,
-        FNot3.QryName,
         FFirmaTipiID.QryName,
         addField(FBbkFirmaTipi.TableName, FBbkFirmaTipi.FirmaTipi.FieldName, FFirmaTipi.FieldName),
         FVergiDairesi.QryName,
@@ -217,7 +210,6 @@ begin
         FKacYillikFirma.QryName,
         FCalismaDurumuId.QryName,
         addField(FBbkCalismaDurumu.TableName, FBbkCalismaDurumu.CalismaDurumu.FieldName, FCalismaDurumu.FieldName),
-        FCalistigiTedarikciler.QryName,
         FFinansDurumuID.QryName,
         addField(FBbkFinansDurumu.TableName, FBbkFinansDurumu.FinansDurumu.FieldName, FFinansDurumu.FieldName),
         FSevkiyatYetkilisi.QryName,
@@ -226,9 +218,9 @@ begin
         addJoin(jtLeft, FBbkFirmaTipi.TableName, FBbkFirmaTipi.Id.FieldName, TableName, FFirmaTipiID.FieldName),
         addJoin(jtLeft, FBbkCalismaDurumu.TableName, FBbkCalismaDurumu.Id.FieldName, TableName, FCalismaDurumuId.FieldName),
         addJoin(jtLeft, FBbkFinansDurumu.TableName, FBbkFinansDurumu.Id.FieldName, TableName, FFinansDurumuID.FieldName),
-        addJoin(jtLeft, FSysSehir.TableName, FSysSehir.Id.FieldName, TableName, FSehirAdiID.FieldName),
-        addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, FSysSehir.TableName, FSysSehir.UlkeAdiID.FieldName),
-        addJoin(jtLeft, FSysBolge.TableName, FSysBolge.Id.FieldName, FSysSehir.TableName, FBolgeAdiID.FieldName),
+        addJoin(jtLeft, FSysSehir.TableName, FSysSehir.Id.FieldName, TableName, FSehirID.FieldName),
+        addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FUlkeID.FieldName),
+        addJoin(jtLeft, FSysBolge.TableName, FSysBolge.Id.FieldName, TableName, FBolgeID.FieldName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
@@ -263,15 +255,14 @@ begin
         FYetkili2Tel.QryName,
         FYetkili2Email.QryName,
         FAdres.QryName,
-        FSehirAdiID.QryName,
-        addField(FSysSehir.TableName, FSysSehir.SehirAdi.FieldName, FSehirAdi.FieldName),
-        addField(FSysSehir.TableName, FSysSehir.UlkeAdiID.FieldName, FUlkeAdiID.FieldName),
-        addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
-        addField(FSysSehir.TableName, FSysSehir.BolgeAdiID.FieldName, FBolgeAdiID.FieldName),
-        addField(FSysBolge.TableName, FSysBolge.BolgeAdi.FieldName, FBolgeAdi.FieldName),
+        FSehirID.QryName,
+        addField(FSysSehir.TableName, FSysSehir.SehirAdi.FieldName, FSehir.FieldName),
+        addField(FSysSehir.TableName, FSysSehir.UlkeAdiID.FieldName, FUlkeID.FieldName),
+        addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlke.FieldName),
+        addField(FSysSehir.TableName, FSysSehir.BolgeAdiID.FieldName, FBolgeID.FieldName),
+        addField(FSysBolge.TableName, FSysBolge.BolgeAdi.FieldName, FBolge.FieldName),
         FNot1.QryName,
         FNot2.QryName,
-        FNot3.QryName,
         FFirmaTipiID.QryName,
         addField(FBbkFirmaTipi.TableName, FBbkFirmaTipi.FirmaTipi.FieldName, FFirmaTipi.FieldName),
         FVergiDairesi.QryName,
@@ -279,7 +270,6 @@ begin
         FKacYillikFirma.QryName,
         FCalismaDurumuId.QryName,
         addField(FBbkCalismaDurumu.TableName, FBbkCalismaDurumu.CalismaDurumu.FieldName, FCalismaDurumu.FieldName),
-        FCalistigiTedarikciler.QryName,
         FFinansDurumuID.QryName,
         addField(FBbkFinansDurumu.TableName, FBbkFinansDurumu.FinansDurumu.FieldName, FFinansDurumu.FieldName),
         FSevkiyatYetkilisi.QryName,
@@ -288,9 +278,9 @@ begin
         addJoin(jtLeft, FBbkFirmaTipi.TableName, FBbkFirmaTipi.Id.FieldName, TableName, FFirmaTipiID.FieldName),
         addJoin(jtLeft, FBbkCalismaDurumu.TableName, FBbkCalismaDurumu.Id.FieldName, TableName, FCalismaDurumuId.FieldName),
         addJoin(jtLeft, FBbkFinansDurumu.TableName, FBbkFinansDurumu.Id.FieldName, TableName, FFinansDurumuID.FieldName),
-        addJoin(jtLeft, FSysSehir.TableName, FSysSehir.Id.FieldName, TableName, FSehirAdiID.FieldName),
+        addJoin(jtLeft, FSysSehir.TableName, FSysSehir.Id.FieldName, TableName, FSehirID.FieldName),
         addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, FSysSehir.TableName, FSysSehir.UlkeAdiID.FieldName),
-        addJoin(jtLeft, FSysBolge.TableName, FSysBolge.Id.FieldName, FSysSehir.TableName, FBolgeAdiID.FieldName),
+        addJoin(jtLeft, FSysBolge.TableName, FSysBolge.Id.FieldName, FSysSehir.TableName, FBolgeID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -338,16 +328,14 @@ begin
           FYetkili2Tel.FieldName,
           FYetkili2Email.FieldName,
           FAdres.FieldName,
-          FSehirAdiID.FieldName,
+          FSehirID.FieldName,
           FNot1.FieldName,
           FNot2.FieldName,
-          FNot3.FieldName,
           FFirmaTipiID.FieldName,
           FVergiDairesi.FieldName,
           FVergiNumarasi.FieldName,
           FKacYillikFirma.FieldName,
           FCalismaDurumuId.FieldName,
-          FCalistigiTedarikciler.FieldName,
           FFinansDurumuID.FieldName,
           FSevkiyatYetkilisi.FieldName,
           FSevkiyatYetkilisiTel.FieldName
@@ -395,16 +383,14 @@ begin
           FYetkili2Tel.FieldName,
           FYetkili2Email.FieldName,
           FAdres.FieldName,
-          FSehirAdiID.FieldName,
+          FSehirID.FieldName,
           FNot1.FieldName,
           FNot2.FieldName,
-          FNot3.FieldName,
           FFirmaTipiID.FieldName,
           FVergiDairesi.FieldName,
           FVergiNumarasi.FieldName,
           FKacYillikFirma.FieldName,
           FCalismaDurumuId.FieldName,
-          FCalistigiTedarikciler.FieldName,
           FFinansDurumuID.FieldName,
           FSevkiyatYetkilisi.FieldName,
           FSevkiyatYetkilisiTel.FieldName

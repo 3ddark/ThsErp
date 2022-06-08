@@ -662,7 +662,7 @@ begin
       begin
         LTeslim := TSetEinvTeslimSekli.Create(GDataBase);
         LFrmTeslim := TfrmSetEinvTeslimSekilleri.Create(TEdit(Sender), Self, LTeslim, fomNormal, True);
-        LFrmTeslim.QryFiltreVarsayilanKullanici := ' AND ' + LTeslim.IsActive.QryName + '=True';
+        LFrmTeslim.QryFiltreVarsayilanKullanici := ' AND ' + LTeslim.IsAktif.QryName + '=True';
         try
           LFrmTeslim.ShowModal;
           if LFrmTeslim.DataAktar then

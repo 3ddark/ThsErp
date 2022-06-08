@@ -5,8 +5,17 @@ interface
 {$I ThsERP.inc}
 
 uses
-  SysUtils, Classes, Dialogs, Forms, Windows, Controls, Types, DateUtils,
-  FireDAC.Stan.Param, System.Variants, Data.DB,
+  SysUtils,
+  Classes,
+  Dialogs,
+  Forms,
+  Windows,
+  Controls,
+  Types,
+  DateUtils,
+  System.Variants,
+  Data.DB,
+  FireDAC.Stan.Param,
   Ths.Erp.Database,
   Ths.Erp.Database.Table,
   Ths.Erp.Database.Table.View;
@@ -24,7 +33,6 @@ type
     FNumericScale: TFieldDB;
     FOrjTableName: TFieldDB;
     FOrjColumnName: TFieldDB;
-  protected
   published
     constructor Create(ADatabase: TDatabase); override;
   public

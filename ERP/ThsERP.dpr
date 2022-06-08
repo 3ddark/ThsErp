@@ -10,6 +10,8 @@ uses
   System.Classes,
   System.SysUtils,
   Winapi.Messages,
+  Winapi.Windows,
+  System.IOUtils,
   udm in 'BackEnd\Framework\udm.pas' {dm: TDataModule},
   Ths.Erp.Helper.BaseTypes in 'BackEnd\Tools\Ths.Erp.Helper.BaseTypes.pas',
   Ths.Erp.Helper.Button in 'BackEnd\Tools\Ths.Erp.Helper.Button.pas',
@@ -335,6 +337,7 @@ end;
 
 begin
   Application.Initialize;
+  Application.DefaultFont.Name := 'Tahoma';
 
   Application.UpdateFormatSettings := False;
   Formatsettings.ThousandSeparator := '.';

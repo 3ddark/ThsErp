@@ -64,7 +64,7 @@ uses
 
 procedure TfrmSetEinvPaketTipi.RefreshData();
 begin
-  chkis_active.Checked := TSetEinvPaketTipi(Table).IsActive.Value;
+  chkis_active.Checked := TSetEinvPaketTipi(Table).IsAktif.Value;
   edtkod.Text := TSetEinvPaketTipi(Table).Kod.Value;
   edtpaket_adi.Text := TSetEinvPaketTipi(Table).PaketTipi.Value;
   edtaciklama.Text := TSetEinvPaketTipi(Table).Aciklama.Value;
@@ -76,7 +76,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSetEinvPaketTipi(Table).IsActive.Value := chkis_active.Checked;
+      TSetEinvPaketTipi(Table).IsAktif.Value := chkis_active.Checked;
       TSetEinvPaketTipi(Table).Kod.Value := edtkod.Text;
       TSetEinvPaketTipi(Table).PaketTipi.Value := edtpaket_adi.Text;
       TSetEinvPaketTipi(Table).Aciklama.Value := edtaciklama.Text;

@@ -13,7 +13,7 @@ uses
 type
   TSetEinvTasimaUcreti = class(TTable)
   private
-    FIsActive: TFieldDB;
+    FIsAktif: TFieldDB;
     FTasimaUcreti: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
@@ -25,7 +25,7 @@ type
 
     function Clone: TTable; override;
 
-    Property IsActive: TFieldDB read FIsActive write FIsActive;
+    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
     Property TasimaUcreti: TFieldDB read FTasimaUcreti write FTasimaUcreti;
   end;
 
@@ -42,7 +42,7 @@ begin
   TableSourceCode := '1010';
   inherited Create(ADatabase);
 
-  FIsActive := TFieldDB.Create('is_active', ftBoolean, True, Self, '');
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
   FTasimaUcreti := TFieldDB.Create('tasima_ucreti', ftString, '', Self, '');
 end;
 
@@ -55,7 +55,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        FIsActive.FieldName,
+        FIsAktif.FieldName,
         FTasimaUcreti.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
@@ -64,7 +64,7 @@ begin
       Active := True;
 
       setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FIsActive, 'Aktif', QueryOfDS);
+      setFieldTitle(FIsAktif, 'Aktif', QueryOfDS);
       setFieldTitle(FTasimaUcreti, 'Taþýma Ücreti', QueryOfDS);
     end;
   end;
@@ -82,7 +82,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        FIsActive.FieldName,
+        FIsAktif.FieldName,
         FTasimaUcreti.FieldName
       ], [
         ' WHERE 1=1 ', AFilter
@@ -113,7 +113,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-        FIsActive.FieldName,
+        FIsAktif.FieldName,
         FTasimaUcreti.FieldName
       ]);
 
@@ -140,7 +140,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-        FIsActive.FieldName,
+        FIsAktif.FieldName,
         FTasimaUcreti.FieldName
       ]);
 

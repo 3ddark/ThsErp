@@ -6,26 +6,25 @@ inherited frmSetEinvTasimaUcreti: TfrmSetEinvTasimaUcreti
   ClientHeight = 144
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 350
-  ExplicitHeight = 173
+  ExplicitWidth = 360
+  ExplicitHeight = 183
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 340
-    Height = 78
+    Height = 92
     Color = clWindow
+    ParentColor = False
     ExplicitWidth = 340
     ExplicitHeight = 78
     inherited pgcMain: TPageControl
       Width = 338
-      Height = 76
+      Height = 90
       ExplicitWidth = 338
       ExplicitHeight = 76
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 330
-        ExplicitHeight = 48
+        ExplicitHeight = 62
         object lbltasima_ucreti: TLabel
           Left = 35
           Top = 5
@@ -76,7 +75,7 @@ inherited frmSetEinvTasimaUcreti: TfrmSetEinvTasimaUcreti
     end
   end
   inherited pnlBottom: TPanel
-    Top = 82
+    Top = 96
     Width = 340
     ExplicitTop = 82
     ExplicitWidth = 340

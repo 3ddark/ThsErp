@@ -6,8 +6,8 @@ inherited frmHesapKarti: TfrmHesapKarti
   ClientHeight = 374
   ClientWidth = 702
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 708
-  ExplicitHeight = 403
+  ExplicitWidth = 718
+  ExplicitHeight = 413
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
@@ -737,10 +737,6 @@ inherited frmHesapKarti: TfrmHesapKarti
       object tsIletisim: TTabSheet
         Caption = #304'leti'#351'im'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblyetkili2: TLabel
           Left = 75
           Top = 91

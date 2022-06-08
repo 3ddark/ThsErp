@@ -6,8 +6,8 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
   ClientHeight = 403
   ClientWidth = 426
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 432
-  ExplicitHeight = 432
+  ExplicitWidth = 442
+  ExplicitHeight = 442
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
@@ -23,8 +23,6 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
       ExplicitWidth = 420
       ExplicitHeight = 349
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 412
         ExplicitHeight = 321
         object lblstok_kodu: TLabel

@@ -5,16 +5,15 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TSetEinvTeslimSekli = class(TTable)
   private
-    FIsActive: TFieldDB;
+    FIsAktif: TFieldDB;
     FTeslimSekli: TFieldDB;
     FAciklama: TFieldDB;
     FIsEFatura: TFieldDB;
@@ -28,7 +27,7 @@ type
 
     function Clone: TTable; override;
 
-    Property IsActive: TFieldDB read FIsActive write FIsActive;
+    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
     Property TeslimSekli: TFieldDB read FTeslimSekli write FTeslimSekli;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
     Property IsEFatura: TFieldDB read FIsEFatura write FIsEFatura;
@@ -37,10 +36,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSetEinvTeslimSekli.Create(ADatabase: TDatabase);
 begin
@@ -48,7 +46,7 @@ begin
   TableSourceCode := '1010';
   inherited Create(ADatabase);
 
-  FIsActive := TFieldDB.Create('is_active', ftBoolean, True, Self, '');
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
   FTeslimSekli := TFieldDB.Create('teslim_sekli', ftString, '', Self, '');
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, '');
   FIsEFatura := TFieldDB.Create('is_efatura', ftBoolean, False, Self, '');
@@ -63,7 +61,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsActive.FieldName,
+        TableName + '.' + FIsAktif.FieldName,
         TableName + '.' + FTeslimSekli.FieldName,
         TableName + '.' + FAciklama.FieldName,
         TableName + '.' + FIsEfatura.FieldName
@@ -74,7 +72,7 @@ begin
       Active := True;
 
       setFieldTitle(Self.Id,'Id', QueryOfDS);
-      setFieldTitle(FIsActive, 'Atkif?', QueryOfDS);
+      setFieldTitle(FIsAktif, 'Atkif?', QueryOfDS);
       setFieldTitle(FTeslimSekli, 'Teslim Þekli', QueryOfDS);
       setFieldTitle(FAciklama, 'Açýklama', QueryOfDS);
       setFieldTitle(FIsEFatura, 'E-Fatura?', QueryOfDS);
@@ -94,7 +92,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsActive.FieldName,
+        TableName + '.' + FIsAktif.FieldName,
         TableName + '.' + FTeslimSekli.FieldName,
         TableName + '.' + FAciklama.FieldName,
         TableName + '.' + FIsEfatura.FieldName
@@ -127,7 +125,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-        FIsActive.FieldName,
+        FIsAktif.FieldName,
         FTeslimSekli.FieldName,
         FAciklama.FieldName,
         FIsEFatura.FieldName
@@ -156,7 +154,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-        FIsActive.FieldName,
+        FIsAktif.FieldName,
         FTeslimSekli.FieldName,
         FAciklama.FieldName,
         FIsEFatura.FieldName

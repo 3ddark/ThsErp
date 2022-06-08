@@ -6,26 +6,25 @@ inherited frmSetEinvPaketTipi: TfrmSetEinvPaketTipi
   ClientHeight = 195
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 350
-  ExplicitHeight = 224
+  ExplicitWidth = 360
+  ExplicitHeight = 234
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 340
-    Height = 129
+    Height = 143
     Color = clWindow
+    ParentColor = False
     ExplicitWidth = 340
     ExplicitHeight = 78
     inherited pgcMain: TPageControl
       Width = 338
-      Height = 127
+      Height = 141
       ExplicitWidth = 338
       ExplicitHeight = 76
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 330
-        ExplicitHeight = 48
+        ExplicitHeight = 113
         object lblpaket_adi: TLabel
           Left = 59
           Top = 49
@@ -122,7 +121,7 @@ inherited frmSetEinvPaketTipi: TfrmSetEinvPaketTipi
     end
   end
   inherited pnlBottom: TPanel
-    Top = 133
+    Top = 147
     Width = 340
     ExplicitTop = 82
     ExplicitWidth = 340

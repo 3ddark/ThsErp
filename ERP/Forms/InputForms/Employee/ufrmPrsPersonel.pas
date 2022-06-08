@@ -218,7 +218,7 @@ begin
 
   if Assigned(cbbcinsiyet_id.Items.Objects[cbbcinsiyet_id.ItemIndex]) then
   begin
-    if TSetPrsCinsiyet(cbbcinsiyet_id.Items.Objects[cbbcinsiyet_id.ItemIndex]).IsErkek.Value then
+    if TSetPrsCinsiyet(cbbcinsiyet_id.Items.Objects[cbbcinsiyet_id.ItemIndex]).Id.AsInteger = Ord(TPrsCinsiyet.Erkek) then
     begin
       lblaskerlik_durumu_id.Visible := True;
       cbbaskerlik_durumu_id.Visible := True;
@@ -239,7 +239,7 @@ begin
 
   if Assigned(cbbmedeni_durumu_id.Items.Objects[cbbmedeni_durumu_id.ItemIndex]) then
   begin
-    if TSetPrsMedeniDurum(cbbmedeni_durumu_id.Items.Objects[cbbmedeni_durumu_id.ItemIndex]).IsEvli.Value then
+    if TSetPrsMedeniDurum(cbbmedeni_durumu_id.Items.Objects[cbbmedeni_durumu_id.ItemIndex]).Id.AsInteger = Ord(TPrsMedeniDurum.Evli) then
     begin
       lblcocuk_sayisi.Visible := True;
       edtcocuk_sayisi.Visible := True;
@@ -278,7 +278,7 @@ end;
 //  pAbility.SelectToDatasource(' AND 1=2 ', False);
 //  strngrdDriverLicenseAbility.Cells[0, 0] := 'No';
 //  strngrdDriverLicenseAbility.Cells[1, 0] := pAbility.QueryOfDS.FieldByName(pAbility.EmpDriverLicense.FieldName).DisplayLabel;
-//  strngrdDriverLicenseAbility.Cells[2, 0] := pAbility.QueryOfDS.FieldByName(pAbility.IsActive.FieldName).DisplayLabel;
+//  strngrdDriverLicenseAbility.Cells[2, 0] := pAbility.QueryOfDS.FieldByName(pAbility.IsAktif.FieldName).DisplayLabel;
 //  pAbility.QueryOfDS.Close;
 //end;
 

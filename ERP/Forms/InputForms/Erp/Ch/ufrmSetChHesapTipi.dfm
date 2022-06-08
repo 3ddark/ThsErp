@@ -3,29 +3,29 @@ inherited frmSetChHesapTipi: TfrmSetChHesapTipi
   Top = 443
   ActiveControl = btnClose
   Caption = 'Ayar Hesap Tipi'
-  ClientHeight = 190
+  ClientHeight = 111
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 350
-  ExplicitHeight = 219
+  ExplicitWidth = 360
+  ExplicitHeight = 150
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 340
-    Height = 138
+    Height = 59
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
-    ExplicitHeight = 87
+    ExplicitHeight = 138
     inherited pgcMain: TPageControl
       Width = 338
-      Height = 136
+      Height = 57
       ExplicitWidth = 338
-      ExplicitHeight = 85
+      ExplicitHeight = 136
       inherited tsMain: TTabSheet
         ExplicitWidth = 330
-        ExplicitHeight = 57
-        object lblDeger: TLabel
+        ExplicitHeight = 29
+        object lblhesap_tipi: TLabel
           Left = 56
           Top = 6
           Width = 34
@@ -41,89 +41,20 @@ inherited frmSetChHesapTipi: TfrmSetChHesapTipi
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_ana_hesap: TLabel
-          Left = 30
-          Top = 27
-          Width = 60
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Ana Hesap'
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblis_ara_hesap: TLabel
-          Left = 32
-          Top = 47
-          Width = 58
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Ara Hesap'
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblis_son_hesap: TLabel
-          Left = 31
-          Top = 67
-          Width = 59
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Son Hesap'
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object edtDeger: TEdit
+        object edthesap_tipi: TEdit
           Left = 94
           Top = 3
           Width = 200
           Height = 21
           TabOrder = 0
         end
-        object chkis_ana_hesap: TCheckBox
-          Left = 94
-          Top = 26
-          Width = 200
-          Height = 17
-          TabOrder = 1
-        end
-        object chkis_ara_hesap: TCheckBox
-          Left = 94
-          Top = 46
-          Width = 200
-          Height = 17
-          TabOrder = 2
-        end
-        object chkis_son_hesap: TCheckBox
-          Left = 94
-          Top = 66
-          Width = 200
-          Height = 17
-          TabOrder = 3
-        end
       end
     end
   end
   inherited pnlBottom: TPanel
-    Top = 142
+    Top = 63
     Width = 340
-    ExplicitTop = 91
+    ExplicitTop = 142
     ExplicitWidth = 340
     inherited btnAccept: TButton
       Left = 131
@@ -135,9 +66,9 @@ inherited frmSetChHesapTipi: TfrmSetChHesapTipi
     end
   end
   inherited stbBase: TStatusBar
-    Top = 172
+    Top = 93
     Width = 344
-    ExplicitTop = 135
+    ExplicitTop = 172
     ExplicitWidth = 344
   end
 end

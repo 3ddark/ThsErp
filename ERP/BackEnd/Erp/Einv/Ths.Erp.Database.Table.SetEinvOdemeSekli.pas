@@ -5,16 +5,15 @@ interface
 {$I ThsERP.inc}
 
 uses
-    System.SysUtils
-  , Data.DB
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  ;
+  System.SysUtils,
+  Data.DB,
+  Ths.Erp.Database,
+  Ths.Erp.Database.Table;
 
 type
   TSetEinvOdemeSekli = class(TTable)
   private
-    FIsActive: TFieldDB;
+    FIsAktif: TFieldDB;
     FOdemeSekli: TFieldDB;
     FKod: TFieldDB;
     FAciklama: TFieldDB;
@@ -29,7 +28,7 @@ type
 
     function Clone: TTable; override;
 
-    Property IsActive: TFieldDB read FIsActive write FIsActive;
+    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
     Property OdemeSekli: TFieldDB read FOdemeSekli write FOdemeSekli;
     Property Kod: TFieldDB read FKod write FKod;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
@@ -39,10 +38,9 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Singleton
-  ;
+  Ths.Erp.Globals,
+  Ths.Erp.Constants,
+  Ths.Erp.Database.Singleton;
 
 constructor TSetEinvOdemeSekli.Create(ADatabase: TDatabase);
 begin
@@ -50,7 +48,7 @@ begin
   TableSourceCode := '1010';
   inherited Create(ADatabase);
 
-  FIsActive := TFieldDB.Create('is_active', ftBoolean, True, Self, '');
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
   FOdemeSekli := TFieldDB.Create('odeme_sekli', ftString, '', Self, '');
   FKod := TFieldDB.Create('kod', ftString, '', Self, '');
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, '');
@@ -66,7 +64,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsActive.FieldName,
+        TableName + '.' + FIsAktif.FieldName,
         TableName + '.' + FOdemeSekli.FieldName,
         TableName + '.' + FKod.FieldName,
         TableName + '.' + FAciklama.FieldName,
@@ -78,7 +76,7 @@ begin
       Active := True;
 
       setFieldTitle(Self.Id,'Id', QueryOfDS);
-      setFieldTitle(FIsActive, 'Atkif?', QueryOfDS);
+      setFieldTitle(FIsAktif, 'Atkif?', QueryOfDS);
       setFieldTitle(FOdemeSekli, 'Ödeme Þekli', QueryOfDS);
       setFieldTitle(FKod, 'Kod', QueryOfDS);
       setFieldTitle(FAciklama, 'Açýklama', QueryOfDS);
@@ -99,7 +97,7 @@ begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
         TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsActive.FieldName,
+        TableName + '.' + FIsAktif.FieldName,
         TableName + '.' + FOdemeSekli.FieldName,
         TableName + '.' + FKod.FieldName,
         TableName + '.' + FAciklama.FieldName,
@@ -133,7 +131,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-        FIsActive.FieldName,
+        FIsAktif.FieldName,
         FOdemeSekli.FieldName,
         FKod.FieldName,
         FAciklama.FieldName,
@@ -163,7 +161,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-        FIsActive.FieldName,
+        FIsAktif.FieldName,
         FOdemeSekli.FieldName,
         FKod.FieldName,
         FAciklama.FieldName,

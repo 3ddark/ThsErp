@@ -22,7 +22,6 @@ type
     FState: TFieldDB;
     FQuery: TFieldDB;
     FLockedTables: TFieldDB;
-  protected
   published
     constructor Create(OwnerDatabase:TDatabase);override;
   public

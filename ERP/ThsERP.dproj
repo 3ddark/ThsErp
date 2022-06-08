@@ -3,7 +3,7 @@
         <ProjectGuid>{BF53DEE5-1FEC-41E9-A30A-754A64CEDAE7}</ProjectGuid>
         <MainSource>ThsERP.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>1153</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
