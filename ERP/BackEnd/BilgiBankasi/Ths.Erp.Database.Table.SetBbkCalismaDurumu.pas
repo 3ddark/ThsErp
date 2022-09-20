@@ -12,7 +12,6 @@ uses
 
 type
   TBbkCalismaDurumu = (Calisabilir=1, Calisiyor, Calisamaz);
-
   TSetBbkCalismaDurumu = class(TTable)
   private
     FCalismaDurumu: TFieldDB;
@@ -33,8 +32,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSetBbkCalismaDurumu.Create(ADatabase: TDatabase);
 begin
@@ -42,7 +40,7 @@ begin
   TableSourceCode := MODULE_BBK_AYAR;
   inherited Create(ADatabase);
 
-  FCalismaDurumu := TFieldDB.Create('calisma_durumu', ftString, '', Self, '');
+  FCalismaDurumu := TFieldDB.Create('calisma_durumu', ftWideString, '', Self, '');
 end;
 
 procedure TSetBbkCalismaDurumu.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -53,16 +51,12 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FCalismaDurumu.FieldName
+        Id.QryName,
+        FCalismaDurumu.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FCalismaDurumu, 'Çalýþma Durumu', QueryOfDS);
     end;
   end;
 end;
@@ -78,8 +72,8 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FCalismaDurumu.FieldName
+        Id.QryName,
+        FCalismaDurumu.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -91,7 +85,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -107,7 +101,7 @@ begin
     {$IFDEF CRUD_MODE_SP}
       SpInsert.ExecProc;
       AID := SpInsert.ParamByName('result').AsInteger;
-      Self.Notify;
+      Notify;
     {$ELSE IFDEF CRUD_MODE_PURE_SQL}
       with QueryOfInsert do
       begin
@@ -121,15 +115,14 @@ begin
         PrepareInsertQueryParams;
 
         Open;
-        if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-          AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-        else
-          AID := 0;
+        if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+        then  AID := Fields.FieldByName(Id.FieldName).AsInteger
+        else  AID := 0;
 
         EmptyDataSet;
         Close;
       end;
-      Self.Notify;
+      Notify;
     {$ENDIF}
   end;
 end;
@@ -140,7 +133,7 @@ begin
   begin
     {$IFDEF CRUD_MODE_SP}
       SpUpdate.ExecProc;
-      Self.Notify;
+      Notify;
     {$ELSE IFDEF CRUD_MODE_PURE_SQL}
       with QueryOfUpdate do
       begin
@@ -155,7 +148,7 @@ begin
         ExecSQL;
         Close;
       end;
-      Self.Notify;
+      Notify;
     {$ENDIF}
   end;
 end;

@@ -6,8 +6,8 @@ inherited frmBaseDetaylarDetay: TfrmBaseDetaylarDetay
   ClientWidth = 674
   Constraints.MinHeight = 150
   Constraints.MinWidth = 350
-  ExplicitWidth = 680
-  ExplicitHeight = 497
+  ExplicitWidth = 690
+  ExplicitHeight = 507
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
@@ -20,6 +20,10 @@ inherited frmBaseDetaylarDetay: TfrmBaseDetaylarDetay
       Height = 414
       ExplicitWidth = 668
       ExplicitHeight = 414
+      inherited tsMain: TTabSheet
+        ExplicitWidth = 660
+        ExplicitHeight = 386
+      end
     end
   end
   inherited pnlBottom: TPanel

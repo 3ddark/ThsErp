@@ -7,10 +7,10 @@ inherited frmMhsDovizKuru: TfrmMhsDovizKuru
   ClientWidth = 344
   ParentFont = True
   Position = poDesktopCenter
-  ExplicitWidth = 350
-  ExplicitHeight = 200
+  ExplicitWidth = 362
+  ExplicitHeight = 218
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 20
   inherited pnlMain: TPanel
     Width = 340
     Height = 119
@@ -22,8 +22,9 @@ inherited frmMhsDovizKuru: TfrmMhsDovizKuru
       ExplicitWidth = 338
       ExplicitHeight = 117
       inherited tsMain: TTabSheet
+        ExplicitTop = 31
         ExplicitWidth = 330
-        ExplicitHeight = 89
+        ExplicitHeight = 82
         object lbltarih: TLabel
           Left = 84
           Top = 6
@@ -76,21 +77,21 @@ inherited frmMhsDovizKuru: TfrmMhsDovizKuru
           Left = 117
           Top = 3
           Width = 120
-          Height = 21
+          Height = 28
           TabOrder = 0
         end
         object edtpara_birimi: TEdit
           Left = 117
           Top = 25
           Width = 120
-          Height = 21
+          Height = 28
           TabOrder = 1
         end
         object edtkur: TEdit
           Left = 117
           Top = 47
           Width = 120
-          Height = 21
+          Height = 28
           TabOrder = 2
         end
       end

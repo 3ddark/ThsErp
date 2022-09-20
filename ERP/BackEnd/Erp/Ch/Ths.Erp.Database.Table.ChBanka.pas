@@ -5,8 +5,8 @@ interface
 {$I ThsERP.inc}
 
 uses
-  SysUtils, Classes, Dialogs, Forms, Windows, Controls, Types, DateUtils,
-  FireDAC.Stan.Param, System.Variants, Data.DB,
+  SysUtils,
+  Data.DB,
   Ths.Erp.Database,
   Ths.Erp.Database.Table;
 
@@ -16,7 +16,6 @@ type
     FBankaAdi: TFieldDB;
     FSwiftKodu: TFieldDB;
     FIsAktif: TFieldDB;
-  protected
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -36,8 +35,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TChBanka.Create(ADatabase: TDatabase);
 begin
@@ -45,8 +43,8 @@ begin
   TableSourceCode := MODULE_CH_KAYIT;
   inherited Create(ADatabase);
 
-  FBankaAdi := TFieldDB.Create('banka_adi', ftString, '', Self, 'Banka Adý');
-  FSwiftKodu := TFieldDB.Create('swift_kodu', ftString, '', Self, 'Swift Kodu');
+  FBankaAdi := TFieldDB.Create('banka_adi', ftWideString, '', Self, 'Banka Adý');
+  FSwiftKodu := TFieldDB.Create('swift_kodu', ftWideString, '', Self, 'Swift Kodu');
   FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, 'Aktif');
 end;
 
@@ -58,20 +56,14 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FBankaAdi.FieldName,
-        TableName + '.' + FSwiftKodu.FieldName,
-        TableName + '.' + FIsAktif.FieldName
+        Id.QryName,
+        FBankaAdi.QryName,
+        FSwiftKodu.QryName,
+        FIsAktif.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FBankaAdi, 'Adý', QueryOfDS);
-      setFieldTitle(FSwiftKodu, 'Swift Kodu', QueryOfDS);
-      setFieldTitle(FIsAktif, 'Aktif?', QueryOfDS);
     end;
   end;
 end;
@@ -87,10 +79,10 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FBankaAdi.FieldName,
-        TableName + '.' + FSwiftKodu.FieldName,
-        TableName + '.' + FIsAktif.FieldName
+        Id.QryName,
+        FBankaAdi.QryName,
+        FSwiftKodu.QryName,
+        FIsAktif.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -102,7 +94,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -128,14 +120,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -158,7 +150,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

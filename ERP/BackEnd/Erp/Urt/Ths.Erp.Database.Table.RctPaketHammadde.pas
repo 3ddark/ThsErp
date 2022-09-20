@@ -17,14 +17,6 @@ uses
   Ths.Erp.Database.Table.SysOlcuBirimi,
   Ths.Erp.Database.Table.RctRecete;
 
-const
-  PH_MAL_KODU = 1;
-  PH_MAL_ADI = 2;
-  PH_MIKTAR = 3;
-  PH_BIRIM = 4;
-  PH_FIYAT = 5;
-  PH_FIRE_ORANI = 6;
-
 type
   TRctPaketHammadde = class;
 
@@ -42,8 +34,8 @@ type
     FFiyat: TFieldDB;
   published
     FStkStokKarti: TStkStokKarti;
-    FBirim: TSysOlcuBirimi;
-    FRecete: TRctRecete;
+    FSysOlcuBirimi: TSysOlcuBirimi;
+    FRctRecete: TRctRecete;
 
     constructor Create(ADatabase: TDatabase; APaket: TRctPaketHammadde = nil); reintroduce; overload;
     destructor Destroy; override;
@@ -82,7 +74,6 @@ type
     function ValidateDetay(ATable: TTable): Boolean; override;
   published
     constructor Create(ADatabase: TDatabase); override;
-    destructor Destroy; override;
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
@@ -102,8 +93,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TRctPaketHammaddeDetay.Create(ADatabase: TDatabase; APaket: TRctPaketHammadde);
 begin
@@ -115,25 +105,25 @@ begin
     PaketHammadde := APaket;
 
   FStkStokKarti := TStkStokKarti.Create(ADatabase);
-  FBirim := TSysOlcuBirimi.Create(ADatabase);
-  FRecete := TRctRecete.Create(ADatabase);
+  FSysOlcuBirimi := TSysOlcuBirimi.Create(ADatabase);
+  FRctRecete := TRctRecete.Create(ADatabase);
 
   FHeaderID := TFieldDB.Create('header_id', ftInteger, 0, Self, '');
   FReceteID := TFieldDB.Create('recete_id', ftInteger, 0, Self, '');
-  FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self, '');
+  FStokKodu := TFieldDB.Create('stok_kodu', ftWideString, '', Self, '');
   FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self, '');
   FFireOrani := TFieldDB.Create('fire_orani', ftFloat, 0, Self, '');
-  FReceteKodu := TFieldDB.Create(FRecete.ReceteKodu.FieldName, FRecete.ReceteKodu.DataType, '', Self, '');
+  FReceteKodu := TFieldDB.Create(FRctRecete.ReceteKodu.FieldName, FRctRecete.ReceteKodu.DataType, '', Self, '');
   FStokAdi := TFieldDB.Create(FStkStokKarti.StokAdi.FieldName, FStkStokKarti.StokAdi.DataType, '', Self, '');
-  FOlcuBirimi := TFieldDB.Create(FBirim.OlcuBirimi.FieldName, FBirim.OlcuBirimi.DataType, '', Self, '');
+  FOlcuBirimi := TFieldDB.Create(FSysOlcuBirimi.OlcuBirimi.FieldName, FSysOlcuBirimi.OlcuBirimi.DataType, '', Self, '');
   FFiyat := TFieldDB.Create('fiyat', ftBCD, 0, Self, '');
 end;
 
 destructor TRctPaketHammaddeDetay.Destroy;
 begin
   FreeAndNil(FStkStokKarti);
-  FreeAndNil(FBirim);
-  FreeAndNil(FRecete);
+  FreeAndNil(FSysOlcuBirimi);
+  FreeAndNil(FRctRecete);
   inherited;
 end;
 
@@ -145,17 +135,16 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FHeaderID.FieldName,
-        TableName + '.' + FReceteID.FieldName,
-        TableName + '.' + FStokKodu.FieldName,
-        TableName + '.' + FMiktar.FieldName,
-        TableName + '.' + FFireOrani.FieldName
+        Id.QryName,
+        FHeaderID.QryName,
+        FReceteID.QryName,
+        FStokKodu.QryName,
+        FMiktar.QryName,
+        FFireOrani.QryName
       ], [
         ' WHERE 1=1 ' + AFilter
       ]);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -171,20 +160,20 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FHeaderID.FieldName,
-        TableName + '.' + FReceteID.FieldName,
-        TableName + '.' + FStokKodu.FieldName,
-        TableName + '.' + FMiktar.FieldName,
-        TableName + '.' + FFireOrani.FieldName,
-        ' rct.' + FRecete.ReceteKodu.FieldName + ' ' + FReceteKodu.FieldName,
-        ' stk.' + FStkStokKarti.StokAdi.FieldName + ' ' + FStokAdi.FieldName,
-        ' brm.' + FBirim.OlcuBirimi.FieldName + ' ' + FOlcuBirimi.FieldName,
-        ' stk.' + FStkStokKarti.AlisFiyat.FieldName + ' ' + FFiyat.FieldName
+        Id.QryName,
+        FHeaderID.QryName,
+        FReceteID.QryName,
+        FStokKodu.QryName,
+        FMiktar.QryName,
+        FFireOrani.QryName,
+        addField(FRctRecete.TableName, FRctRecete.ReceteKodu.FieldName, FReceteKodu.FieldName),
+        addField(FStkStokKarti.TableName, FStkStokKarti.StokAdi.FieldName, FStokAdi.FieldName),
+        addField(FSysOlcuBirimi.TableName, FSysOlcuBirimi.OlcuBirimi.FieldName, FOlcuBirimi.FieldName),
+        addField(FStkStokKarti.TableName, FStkStokKarti.AlisFiyat.FieldName, FFiyat.FieldName)
       ], [
-        ' LEFT JOIN ' + FRecete.TableName + ' rct ON rct.id=' + IntToStr(FReceteID.Value),
-        ' LEFT JOIN ' + FStkStokKarti.TableName + ' stk ON stk.' + FStkStokKarti.StokKodu.FieldName + '=' + TableName + '.' + Self.StokKodu.FieldName,
-        ' LEFT JOIN ' + FBirim.TableName + ' brm ON brm.' + FBirim.Id.FieldName + '=' + FStkStokKarti.OlcuBirimiID.FieldName,
+        AddJoin(jtLeft, FRctRecete.TableName, FRctRecete.Id.FieldName, TableName, FReceteID.FieldName),
+        AddJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
+        AddJoin(jtLeft, FSysOlcuBirimi.TableName, FSysOlcuBirimi.Id.FieldName, FStkStokKarti.TableName, FStkStokKarti.OlcuBirimiID.FieldName),
         ' WHERE 1=1 ' + AFilter
       ]);
 
@@ -196,7 +185,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -224,14 +213,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -256,7 +245,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -272,12 +261,7 @@ begin
   TableSourceCode := MODULE_RCT_RECETE_AYAR;
   inherited Create(ADatabase);
 
-  FPaketAdi := TFieldDB.Create('paket_adi', ftString, '', Self, '');
-end;
-
-destructor TRctPaketHammadde.Destroy;
-begin
-  inherited;
+  FPaketAdi := TFieldDB.Create('paket_adi', ftWideString, '', Self, '');
 end;
 
 procedure TRctPaketHammadde.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -289,13 +273,12 @@ begin
       Close;
       SQL.Clear;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FPaketAdi.FieldName
+        Id.QryName,
+        FPaketAdi.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -311,8 +294,8 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FPaketAdi.FieldName
+        Id.QryName,
+        FPaketAdi.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -324,7 +307,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -348,14 +331,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -376,7 +359,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -391,9 +374,9 @@ begin
   begin
     if TObject(ListDetay[n1]).ClassType = TRctPaketHammaddeDetay then
     begin
-      if TRctPaketHammaddeDetay(ListDetay[n1]).FStokKodu.Value = TRctPaketHammaddeDetay(ATable).FStokKodu.Value then
+      if TRctPaketHammaddeDetay(ListDetay[n1]).FStokKodu.AsString = TRctPaketHammaddeDetay(ATable).FStokKodu.AsString then
       begin
-        TRctPaketHammaddeDetay(ListDetay[n1]).FMiktar.Value := TRctPaketHammaddeDetay(ListDetay[n1]).FMiktar.Value + TRctPaketHammaddeDetay(ATable).Miktar.Value;
+        TRctPaketHammaddeDetay(ListDetay[n1]).FMiktar.Value := TRctPaketHammaddeDetay(ListDetay[n1]).FMiktar.AsFloat + TRctPaketHammaddeDetay(ATable).Miktar.AsFloat;
         LExistsSameCode := True;
         FreeAndNil(ATable);
         Break;
@@ -438,7 +421,7 @@ end;
 
 procedure TRctPaketHammadde.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
 var
-  n1, vID: Integer;
+  n1, LID: Integer;
 begin
   Self.Insert(AID, APermissionControl);
   Self.Id.Value := AID;
@@ -446,8 +429,8 @@ begin
   begin
     if TObject(Self.ListDetay[n1]).ClassType = TRctPaketHammaddeDetay then
     begin
-      TRctPaketHammaddeDetay(Self.ListDetay[n1]).HeaderID.Value := Self.Id.Value;
-      TRctPaketHammaddeDetay(Self.ListDetay[n1]).Insert(vID, APermissionControl);
+      TRctPaketHammaddeDetay(Self.ListDetay[n1]).HeaderID.Value := Self.Id.AsInteger;
+      TRctPaketHammaddeDetay(Self.ListDetay[n1]).Insert(LID, APermissionControl);
     end
   end;
 end;
@@ -463,7 +446,7 @@ begin
 
   LDty := TRctPaketHammaddeDetay.Create(Database);
   try
-    LDty.SelectToList(' AND ' + LDty.TableName + '.' + LDty.HeaderID.FieldName + '=' + VarToStr(Self.Id.Value), ALock, APermissionControl);
+    LDty.SelectToList(' AND ' + LDty.HeaderID.QryName + '=' + Self.Id.AsString, ALock, APermissionControl);
     for n1 := 0 to LDty.List.Count - 1 do
       TRctPaketHammadde(Self).AddDetay(TRctPaketHammaddeDetay(TRctPaketHammaddeDetay(LDty.List[n1]).Clone));
   finally
@@ -473,7 +456,7 @@ end;
 
 procedure TRctPaketHammadde.BusinessUpdate(APermissionControl: Boolean);
 var
-  n1, vID: Integer;
+  n1, LID: Integer;
 begin
   Self.Update(APermissionControl);
 
@@ -481,11 +464,11 @@ begin
   begin
     if TObject(Self.ListDetay[n1]).ClassType = TRctPaketHammaddeDetay then
     begin
-      TRctPaketHammaddeDetay(Self.ListDetay[n1]).HeaderID.Value := Self.Id.Value;
-      if TRctPaketHammaddeDetay(Self.ListDetay[n1]).Id.Value > 0 then
+      TRctPaketHammaddeDetay(Self.ListDetay[n1]).HeaderID.Value := Self.Id.AsInteger;
+      if TRctPaketHammaddeDetay(Self.ListDetay[n1]).Id.AsInteger > 0 then
         TRctPaketHammaddeDetay(Self.ListDetay[n1]).Update(APermissionControl)
       else
-        TRctPaketHammaddeDetay(Self.ListDetay[n1]).Insert(vID, APermissionControl)
+        TRctPaketHammaddeDetay(Self.ListDetay[n1]).Insert(LID, APermissionControl)
     end
   end;
 

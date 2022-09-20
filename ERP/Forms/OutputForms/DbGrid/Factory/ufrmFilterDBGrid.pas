@@ -166,7 +166,7 @@ end;
 procedure TfrmFilterDBGrid.FormCreate(Sender: TObject);
 var
   n1, LIndex: Integer;
-  vIDCiksin: Boolean;
+  LIDFiltrele: Boolean;
 begin
   inherited;
 
@@ -175,10 +175,10 @@ begin
   btnAccept.Visible := True;
   edtFilter.Clear;
 
-  vIDCiksin := GSysKullanici.IsYonetici.Value;
+  LIDFiltrele := GSysKullanici.IsYonetici.Value;
   for n1 := 0 to TfrmBaseDBGrid(ParentForm).grd.Columns.Count-1 do
   begin
-    if vIDCiksin or (TfrmBaseDBGrid(ParentForm).grd.Columns[n1].FieldName <> 'id') then
+    if LIDFiltrele or (TfrmBaseDBGrid(ParentForm).grd.Columns[n1].FieldName <> 'id') then
     begin
       LIndex := chklstFields.Items.AddObject(
           TfrmBaseDBGrid(ParentForm).grd.Columns[n1].Title.Caption,

@@ -51,8 +51,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TPrsPersonelGecmisi.Create(ADatabase: TDatabase);
 begin
@@ -69,13 +68,13 @@ begin
   FAyrilmaTarihi := TFieldDB.Create('ayrilma_tarihi', ftDate, 0, Self, 'Çýkýþ Tarihi');
   FAyrilmaNedeniID := TFieldDB.Create('ayrilma_nedeni_id', ftInteger, 0, Self, 'Ayrýlma Nedeni ID');
   FAyrilmaNedeni := TFieldDB.Create(FSetAyrilma.AyrilmaNedeni.FieldName, FSetAyrilma.AyrilmaNedeni.DataType, '', Self, 'Ayrýlma Nedeni');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açýklama');
 end;
 
 destructor TPrsPersonelGecmisi.Destroy;
 begin
-  FPrs.Free;
-  FSetAyrilma.Free;
+  FreeAndNil(FPrs);
+  FreeAndNil(FSetAyrilma);
   inherited;
 end;
 
@@ -87,21 +86,20 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FPersonelID.FieldName,
+        Id.QryName,
+        FPersonelID.QryName,
         addField(FPrs.TableName, FPrs.AdSoyad.FieldName, FPersonel.FieldName),
-        TableName + '.' + FBaslamaTarihi.FieldName,
-        TableName + '.' + FAyrilmaTarihi.FieldName,
-        TableName + '.' + FAyrilmaNedeniID.FieldName,
+        FBaslamaTarihi.QryName,
+        FAyrilmaTarihi.QryName,
+        FAyrilmaNedeniID.QryName,
         addField(FSetAyrilma.TableName, FSetAyrilma.AyrilmaNedeni.FieldName, FAyrilmaNedeni.FieldName),
-        TableName + '.' + FAciklama.FieldName
+        FAciklama.QryName
       ], [
         addJoin(jtLeft, FPrs.TableName, FPrs.Id.FieldName, TableName, FPersonelID.FieldName),
         addJoin(jtLeft, FSetAyrilma.TableName, FSetAyrilma.Id.FieldName, TableName, FAyrilmaNedeniID.FieldName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -117,14 +115,14 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FPersonelID.FieldName,
+        Id.QryName,
+        FPersonelID.QryName,
         addField(FPrs.TableName, FPrs.AdSoyad.FieldName, FPersonel.FieldName),
-        TableName + '.' + FBaslamaTarihi.FieldName,
-        TableName + '.' + FAyrilmaTarihi.FieldName,
-        TableName + '.' + FAyrilmaNedeniID.FieldName,
+        FBaslamaTarihi.QryName,
+        FAyrilmaTarihi.QryName,
+        FAyrilmaNedeniID.QryName,
         addField(FSetAyrilma.TableName, FSetAyrilma.AyrilmaNedeni.FieldName, FAyrilmaNedeni.FieldName),
-        TableName + '.' + FAciklama.FieldName
+        FAciklama.QryName
       ], [
         addJoin(jtLeft, FPrs.TableName, FPrs.Id.FieldName, TableName, FPersonelID.FieldName),
         addJoin(jtLeft, FSetAyrilma.TableName, FSetAyrilma.Id.FieldName, TableName, FAyrilmaNedeniID.FieldName),
@@ -138,7 +136,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -166,14 +164,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then AID := Fields.FieldByName(Id.FieldName).AsInteger
       else AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -198,7 +196,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

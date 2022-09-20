@@ -43,7 +43,7 @@ uses
 constructor TSetEinvPaketTipi.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_einv_paket_tipi';
-  TableSourceCode := '1010';
+  TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
   FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
@@ -60,22 +60,15 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsAktif.FieldName,
-        TableName + '.' + FKod.FieldName,
-        TableName + '.' + FPaketTipi.FieldName,
-        TableName + '.' + FAciklama.FieldName
+        Id.QryName,
+        FIsAktif.QryName,
+        FKod.QryName,
+        FPaketTipi.QryName,
+        FAciklama.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id,'Id', QueryOfDS);
-      setFieldTitle(FIsAktif, 'Atkif?', QueryOfDS);
-      setFieldTitle(FKod, 'Kod', QueryOfDS);
-      setFieldTitle(FPaketTipi, 'Paket Adı?', QueryOfDS);
-      setFieldTitle(FAciklama, 'Açıklama', QueryOfDS);
     end;
   end;
 end;
@@ -91,11 +84,11 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsAktif.FieldName,
-        TableName + '.' + FKod.FieldName,
-        TableName + '.' + FPaketTipi.FieldName,
-        TableName + '.' + FAciklama.FieldName
+        Id.QryName,
+        FIsAktif.QryName,
+        FKod.QryName,
+        FPaketTipi.QryName,
+        FAciklama.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -107,7 +100,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -134,14 +127,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -165,7 +158,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

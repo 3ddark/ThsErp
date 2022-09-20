@@ -19,7 +19,7 @@ type
     FPersonelID: TFieldDB;
     FPersonel: TFieldDB;
     FIsAktif: TFieldDB;
-
+  protected
     FSetEhliyet: TSetPrsEhliyet;
   published
     destructor Destroy; override;
@@ -44,7 +44,6 @@ implementation
 uses
   Ths.Erp.Globals,
   Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton,
   Ths.Erp.Database.Table.PrsPersonel;
 
 
@@ -89,19 +88,18 @@ begin
         Close;
         SQL.Clear;
         Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-          TableName + '.' + Self.Id.FieldName,
-          TableName + '.' + FEhliyetID.FieldName,
+          Id.QryName,
+          FEhliyetID.QryName,
           addField(FSetEhliyet.TableName, FSetEhliyet.Ehliyet.FieldName, FEhliyet.FieldName),
-          TableName + '.' + FPersonelID.FieldName,
+          FPersonelID.QryName,
           addField(LPers.TableName, LPers.AdSoyad.FieldName, FPersonel.FieldName),
-          TableName + '.' + FIsAktif.FieldName
+          FIsAktif.QryName
         ], [
           addJoin(jtLeft, FSetEhliyet.TableName, FSetEhliyet.Id.FieldName, TableName, FEhliyet.FieldName),
           addJoin(jtLeft, LPers.TableName, LPers.Id.FieldName, TableName, FPersonelID.FieldName),
           ' WHERE 1=1 ', AFilter
         ], AAllColumn, AHelper);
         Open;
-        Active := True;
       end;
     finally
       LPers.Free;
@@ -124,12 +122,12 @@ begin
       begin
         Close;
         Database.GetSQLSelectCmd(QueryOfList, TableName, [
-          TableName + '.' + Self.Id.FieldName,
-          TableName + '.' + FEhliyetID.FieldName,
+          Id.QryName,
+          FEhliyetID.QryName,
           addField(FSetEhliyet.TableName, FSetEhliyet.Ehliyet.FieldName, FEhliyet.FieldName),
-          TableName + '.' + FPersonelID.FieldName,
+          FPersonelID.QryName,
           addField(LPers.TableName, LPers.AdSoyad.FieldName, FPersonel.FieldName),
-          TableName + '.' + FIsAktif.FieldName
+          FIsAktif.QryName
         ], [
           addJoin(jtLeft, FSetEhliyet.TableName, FSetEhliyet.Id.FieldName, TableName, FEhliyet.FieldName),
           addJoin(jtLeft, LPers.TableName, LPers.Id.FieldName, TableName, FPersonelID.FieldName),
@@ -143,7 +141,7 @@ begin
         begin
           PrepareTableClassFromQuery(QueryOfList);
 
-          List.Add(Self.Clone);
+          List.Add(Clone);
 
           Next;
         end;
@@ -172,14 +170,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -202,7 +200,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

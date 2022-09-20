@@ -61,8 +61,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSatSiparisRapor.Create(ADatabase: TDatabase);
 begin
@@ -115,7 +114,6 @@ begin
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -158,7 +156,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;

@@ -2,25 +2,22 @@ inherited frmRctReceteIscilik: TfrmRctReceteIscilik
   Caption = 'Re'#231'ete '#304#351#231'ilik'
   ClientHeight = 193
   ClientWidth = 348
-  ExplicitWidth = 354
-  ExplicitHeight = 222
-  PixelsPerInch = 96
+  ExplicitWidth = 364
+  ExplicitHeight = 232
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 344
-    Height = 141
+    Width = 348
+    Height = 143
     ExplicitWidth = 344
     ExplicitHeight = 141
     inherited pgcMain: TPageControl
-      Width = 342
-      Height = 139
+      Width = 348
+      Height = 143
       ExplicitWidth = 342
       ExplicitHeight = 139
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
-        ExplicitWidth = 334
-        ExplicitHeight = 111
+        ExplicitWidth = 340
+        ExplicitHeight = 115
         object lblmiktar: TLabel
           Left = 86
           Top = 53

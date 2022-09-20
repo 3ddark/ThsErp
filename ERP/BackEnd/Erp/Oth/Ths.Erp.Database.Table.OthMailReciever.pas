@@ -5,8 +5,8 @@ interface
 {$I ThsERP.inc}
 
 uses
-  SysUtils, Classes, Dialogs, Forms, Windows, Controls, Types, DateUtils,
-  FireDAC.Stan.Param, System.Variants, Data.DB,
+  SysUtils,
+  Data.DB,
   Ths.Erp.Database,
   Ths.Erp.Database.Table;
 
@@ -14,16 +14,15 @@ type
   TOthMailReciever = class(TTable)
   private
     FMailAdresi: TFieldDB;
-  protected
   published
-    constructor Create(OwnerDatabase:TDatabase);override;
+    constructor Create(ADatabase: TDatabase); override;
   public
-    procedure SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
-    procedure SelectToList(pFilter: string; pLock: Boolean; pPermissionControl: Boolean=True); override;
-    procedure Insert(out pID: Integer; pPermissionControl: Boolean=True); override;
-    procedure Update(pPermissionControl: Boolean=True); override;
+    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
+    procedure Insert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure Update(APermissionControl: Boolean=True); override;
 
-    function Clone():TTable;override;
+    function Clone: TTable; override;
 
     Property MailAdresi: TFieldDB read FMailAdresi write FMailAdresi;
   end;
@@ -32,55 +31,50 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
-constructor TOthMailReciever.Create(OwnerDatabase:TDatabase);
+constructor TOthMailReciever.Create(ADatabase:TDatabase);
 begin
   TableName := 'quality_form_mail_reciever';
   TableSourceCode := '1000';
-  inherited Create(OwnerDatabase);
+  inherited Create(ADatabase);
 
-  FMailAdresi := TFieldDB.Create('mail_adresi', ftString, '', Self, '');
+  FMailAdresi := TFieldDB.Create('mail_adresi', ftWideString, '', Self, '');
 end;
 
-procedure TOthMailReciever.SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
+procedure TOthMailReciever.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
 begin
-  if IsAuthorized(ptRead, pPermissionControl) then
+  if IsAuthorized(ptRead, APermissionControl) then
   begin
     with QueryOfDS do
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FMailAdresi.FieldName
+        Id.QryName,
+        FMailAdresi.QryName
       ], [
-        ' WHERE 1=1 ', pFilter
+        ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FMailAdresi, 'Mail Adresi', QueryOfDS);
     end;
   end;
 end;
 
-procedure TOthMailReciever.SelectToList(pFilter: string; pLock: Boolean; pPermissionControl: Boolean=True);
+procedure TOthMailReciever.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 begin
-  if IsAuthorized(ptRead, pPermissionControl) then
+  if IsAuthorized(ptRead, APermissionControl) then
   begin
-    if (pLock) then
-		  pFilter := pFilter + ' FOR UPDATE OF ' + TableName + ' NOWAIT';
+    if (ALock) then
+		  AFilter := AFilter + ' FOR UPDATE OF ' + TableName + ' NOWAIT';
 
     with QueryOfList do
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FMailAdresi.FieldName
+        Id.QryName,
+        FMailAdresi.QryName
       ], [
-        ' WHERE 1=1 ', pFilter
+        ' WHERE 1=1 ', AFilter
       ]);
       Open;
 
@@ -88,10 +82,9 @@ begin
       List.Clear;
       while NOT EOF do
       begin
-        setFieldValue(Self.Id, QueryOfList);
-        setFieldValue(Self.FMailAdresi, QueryOfList);
+        PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone());
+        List.Add(Clone());
 
         Next;
       end;
@@ -100,9 +93,9 @@ begin
   end;
 end;
 
-procedure TOthMailReciever.Insert(out pID: Integer; pPermissionControl: Boolean=True);
+procedure TOthMailReciever.Insert(out AID: Integer; APermissionControl: Boolean=True);
 begin
-  if IsAuthorized(ptAddRecord, pPermissionControl) then
+  if IsAuthorized(ptAddRecord, APermissionControl) then
   begin
     with QueryOfInsert do
     begin
@@ -112,24 +105,23 @@ begin
         FMailAdresi.FieldName
       ]);
 
-      NewParamForQuery(QueryOfInsert, FMailAdresi);
+      PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-        pID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-      else
-        pID := 0;
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
+      else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
-procedure TOthMailReciever.Update(pPermissionControl: Boolean=True);
+procedure TOthMailReciever.Update(APermissionControl: Boolean=True);
 begin
-  if IsAuthorized(ptUpdate, pPermissionControl) then
+  if IsAuthorized(ptUpdate, APermissionControl) then
   begin
     with QueryOfUpdate do
     begin
@@ -139,24 +131,19 @@ begin
         FMailAdresi.FieldName
       ]);
 
-      NewParamForQuery(QueryOfUpdate, FMailAdresi);
-
-      NewParamForQuery(QueryOfUpdate, Id);
+      PrepareUpdateQueryParams;
 
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
 function TOthMailReciever.Clone():TTable;
 begin
   Result := TOthMailReciever.Create(Database);
-
-  Self.Id.Clone(TOthMailReciever(Result).Id);
-
-  FMailAdresi.Clone(TOthMailReciever(Result).FMailAdresi);
+  CloneClassContent(Self, Result)
 end;
 
 end.

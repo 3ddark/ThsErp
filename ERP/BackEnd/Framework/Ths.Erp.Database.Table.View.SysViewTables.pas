@@ -53,18 +53,13 @@ begin
 	  begin
 		  Close;
 		  Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FTableName.FieldName,
-        TableName + '.' + FTableType.FieldName
+        Self.Id.QryName,
+        FTableName.QryName,
+        FTableType.QryName
       ], [
         ' WHERE 1=1 ', pFilter
       ], AAllColumn, AHelper);
 		  Open;
-		  Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FTableName, 'Tablo Adý', QueryOfDS);
-      setFieldTitle(FTableType, 'Tablo Tipi', QueryOfDS);
 	  end;
   end;
 end;
@@ -80,9 +75,9 @@ begin
 	  begin
 		  Close;
 		  Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FTableName.FieldName,
-        TableName + '.' + FTableType.FieldName
+        Self.Id.QryName,
+        FTableName.QryName,
+        FTableType.QryName
       ], [
         ' WHERE 1=1 ', pFilter
       ]);
@@ -92,9 +87,7 @@ begin
 		  List.Clear;
 		  while NOT EOF do
 		  begin
-		    setFieldValue(Self.Id, QueryOfList);
-        setFieldValue(FTableName, QueryOfList);
-        setFieldValue(FTableType, QueryOfList);
+		    PrepareTableClassFromQuery(QueryOfList);
 
 		    List.Add(Self.Clone());
 
@@ -106,7 +99,7 @@ begin
   end;
 end;
 
-function TSysViewTables.Clone():TTable;
+function TSysViewTables.Clone(): TTable;
 begin
   Result := TSysViewTables.Create(Database);
   CloneClassContent(Self, Result);

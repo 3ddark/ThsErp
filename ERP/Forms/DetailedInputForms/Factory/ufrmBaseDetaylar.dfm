@@ -48,8 +48,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       ExplicitWidth = 964
       ExplicitHeight = 437
       inherited tsMain: TTabSheet
-        ExplicitLeft = 0
-        ExplicitTop = 0
         ExplicitWidth = 956
         ExplicitHeight = 409
       end
@@ -77,20 +75,13 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         MultiLine = True
         TabOrder = 0
         TabPosition = tpLeft
+        TabStop = False
         object tsHeader: TTabSheet
           Caption = 'Header'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsHeaderDiger: TTabSheet
           Caption = 'Di'#287'er'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
       end
     end
@@ -118,15 +109,11 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         Margins.Top = 2
         Margins.Right = 0
         Margins.Bottom = 0
-        ActivePage = ts3
+        ActivePage = ts1
         Align = alClient
         TabOrder = 1
         object ts1: TTabSheet
           Caption = 'ts1'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnl1: TPanel
             AlignWithMargins = True
             Left = 0
@@ -482,7 +469,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
             Top = 0
             Width = 954
             Height = 321
-            TabStop = False
             Align = alClient
             DefaultRowHeight = 20
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSizing, goColSizing, goRowMoving, goColMoving, goTabs, goFixedColClick, goFixedRowClick, goFixedHotTrack]
@@ -508,10 +494,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         object ts2: TTabSheet
           Caption = 'ts2'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnl2: TPanel
             AlignWithMargins = True
             Left = 0
@@ -560,10 +542,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         object ts3: TTabSheet
           Caption = 'ts3'
           ImageIndex = 2
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object strngrd3: TStringGrid
             Left = 0
             Top = 0
@@ -611,17 +589,19 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         end
       end
       object btnHeaderShowHide: TButton
-        Left = 873
-        Top = 0
-        Width = 86
+        Left = 929
+        Top = 1
+        Width = 30
         Height = 21
         Anchors = [akTop, akRight]
-        Caption = 'Min/Max'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
+        ImageAlignment = iaCenter
+        ImageIndex = 60
+        Images = dm.il16
         ParentFont = False
         TabOrder = 0
         OnClick = btnHeaderShowHideClick
@@ -662,6 +642,21 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
     Width = 1076
     ExplicitTop = 597
     ExplicitWidth = 1076
+  end
+  object pb1: TProgressBar [3]
+    Left = 360
+    Top = 224
+    Width = 150
+    Height = 17
+    DoubleBuffered = False
+    ParentDoubleBuffered = False
+    Position = 50
+    Smooth = True
+    Style = pbstMarquee
+    MarqueeInterval = 1
+    Step = 1
+    TabOrder = 3
+    Visible = False
   end
   object pm1: TPopupMenu
     Left = 407
@@ -723,6 +718,8 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
     ShowProgress = True
     OverwritePrompt = False
     DataOnly = False
+    EmbedFontsIfProtected = False
+    InteractiveFormsFontSubset = 'A-Z,a-z,0-9,#43-#47 '
     OpenAfterExport = False
     PrintOptimized = False
     Outline = False
@@ -746,7 +743,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
     Top = 256
   end
   object frxrprtBase: TfrxReport
-    Version = '6.3.1'
+    Version = '6.9.14'
     DotMatrixReport = False
     IniFile = '\Software\Fast Reports'
     PreviewOptions.Buttons = [pbPrint, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbNavigator]
@@ -836,5 +833,10 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       ShortCut = 16502
       OnExecute = actcopy3Execute
     end
+  end
+  object dlgSave: TSaveDialog
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 472
+    Top = 296
   end
 end

@@ -35,8 +35,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSysGridFiltreSiralama.Create(ADatabase: TDatabase);
 begin
@@ -57,15 +56,14 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FTabloAdi.FieldName,
-        TableName + '.' + FDeger.FieldName,
-        TableName + '.' + FIsSiralama.FieldName
+        Self.Id.QryName,
+        FTabloAdi.QryName,
+        FDeger.QryName,
+        FIsSiralama.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -81,10 +79,10 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FTabloAdi.FieldName,
-        TableName + '.' + FDeger.FieldName,
-        TableName + '.' + FIsSiralama.FieldName
+        Self.Id.QryName,
+        FTabloAdi.QryName,
+        FDeger.QryName,
+        FIsSiralama.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);

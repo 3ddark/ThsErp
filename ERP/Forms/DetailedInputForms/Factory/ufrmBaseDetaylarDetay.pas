@@ -217,6 +217,14 @@ begin
   begin
     if Self.FormMode = ifmUpdate then
       btnDelete.Visible := True;
+  end
+  else
+  if (TfrmBaseDetaylar(ParentForm).FormMode = ifmNewRecord)
+  or (TfrmBaseDetaylar(ParentForm).FormMode = ifmCopyNewRecord)
+  then
+  begin
+    if Self.FormMode = ifmUpdate then
+      btnDelete.Visible := True;
   end;
 
   if (TfrmBaseDetaylar(ParentForm).FormMode = ifmRewiev)

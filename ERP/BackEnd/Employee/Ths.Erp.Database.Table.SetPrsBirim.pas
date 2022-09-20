@@ -39,8 +39,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
   constructor TSetPrsBirim.Create(ADatabase:TDatabase);
 begin
@@ -52,12 +51,12 @@ begin
 
   FBolumID := TFieldDB.Create('bolum_id', ftInteger, 0, Self, 'Bölüm ID');
   FBolum := TFieldDB.Create(FSetPrsBolum.Bolum.FieldName, FSetPrsBolum.Bolum.DataType, '', Self, 'Bölüm');
-  FBirim := TFieldDB.Create('birim', ftString, '', Self, 'Birim');
+  FBirim := TFieldDB.Create('birim', ftWideString, '', Self, 'Birim');
 end;
 
 destructor TSetPrsBirim.Destroy;
 begin
-  FSetPrsBolum.Free;
+  FreeAndNil(FSetPrsBolum);
   inherited;
 end;
 
@@ -69,16 +68,15 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FBolumID.FieldName,
+        Id.QryName,
+        FBolumID.QryName,
         addField(FSetPrsBolum.TableName, FSetPrsBolum.Bolum.FieldName, FBolum.FieldName),
-        FBirim.FieldName
+        FBirim.QryName
       ], [
         addJoin(jtLeft, FSetPrsBolum.TableName, FSetPrsBolum.Id.FieldName, TableName, FBolumID.FieldName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -94,10 +92,10 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FBolumID.FieldName,
+        Id.QryName,
+        FBolumID.QryName,
         addField(FSetPrsBolum.TableName, FSetPrsBolum.Bolum.FieldName, FBolum.FieldName),
-        FBirim.FieldName
+        FBirim.QryName
       ], [
         addJoin(jtLeft, FSetPrsBolum.TableName, FSetPrsBolum.Id.FieldName, TableName, FBolumID.FieldName),
         ' WHERE 1=1 ', AFilter
@@ -110,7 +108,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -139,15 +137,15 @@ begin
         PrepareInsertQueryParams;
 
         Open;
-        if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-        then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+        if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+        then  AID := Fields.FieldByName(Id.FieldName).AsInteger
         else  AID := 0;
 
         EmptyDataSet;
         Close;
       end;
     {$ENDIF}
-    Self.Notify;
+    Notify;
   end;
 end;
 
@@ -173,7 +171,7 @@ begin
         Close;
       end;
     {$ENDIF}
-    Self.Notify;
+    Notify;
   end;
 end;
 

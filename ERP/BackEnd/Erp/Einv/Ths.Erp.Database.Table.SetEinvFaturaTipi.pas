@@ -32,16 +32,15 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSetEinvFaturaTipi.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_einv_fatura_tipi';
-  TableSourceCode := '1010';
+  TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
-  FFaturaTipi := TFieldDB.Create('fatura_tipi', ftString, '', Self, 'Fatura Tipi');
+  FFaturaTipi := TFieldDB.Create('fatura_tipi', ftWideString, '', Self, 'Fatura Tipi');
 end;
 
 procedure TSetEinvFaturaTipi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -52,16 +51,12 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        FFaturaTipi.FieldName
+        Id.QryName,
+        FFaturaTipi.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FFaturaTipi, 'Fatura Tipi', QueryOfDS);
     end;
   end;
 end;
@@ -77,8 +72,8 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        FFaturaTipi.FieldName
+        Id.QryName,
+        FFaturaTipi.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -90,7 +85,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -114,14 +109,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -142,7 +137,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

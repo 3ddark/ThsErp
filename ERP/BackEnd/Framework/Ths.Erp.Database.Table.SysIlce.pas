@@ -40,8 +40,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSysIlce.Create(ADatabase: TDatabase);
 begin
@@ -70,7 +69,7 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        Self.Id.QryName,
+        Id.QryName,
         FIlceAdi.QryName,
         FSehirId.QryName,
         addField(FSysSehir.TableName, FSysSehir.SehirAdi.FieldName, FSehirAdi.FieldName)
@@ -79,7 +78,6 @@ begin
         ' WHERE 1=1 ' + AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -95,7 +93,7 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        Self.Id.QryName,
+        Id.QryName,
         FIlceAdi.QryName,
         FSehirId.QryName,
         addField(FSysSehir.TableName, FSysSehir.SehirAdi.FieldName, FSehirAdi.FieldName)

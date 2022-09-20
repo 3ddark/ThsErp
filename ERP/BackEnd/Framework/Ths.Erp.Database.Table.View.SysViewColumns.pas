@@ -36,8 +36,8 @@ type
   published
     constructor Create(ADatabase: TDatabase); override;
   public
-    procedure SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
-    procedure SelectToList(pFilter: string; pLock: Boolean; pPermissionControl: Boolean=True); override;
+    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
 
     procedure Clear; override;
     function Clone: TTable; override;
@@ -67,84 +67,71 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FTableName  := TFieldDB.Create('table_name', ftString, '', Self, 'Tablo Adý');
-  FColumnName := TFieldDB.Create('column_name', ftString, '', Self, 'Kolon Adý');
+  FTableName  := TFieldDB.Create('table_name', ftWideString, '', Self, 'Tablo Adý');
+  FColumnName := TFieldDB.Create('column_name', ftWideString, '', Self, 'Kolon Adý');
   FIsNullable := TFieldDB.Create('is_nullable', ftBoolean, False, Self, 'Null Olabilir');
-  FDataType := TFieldDB.Create('data_type', ftString, '', Self, 'Veri Tipi');
+  FDataType := TFieldDB.Create('data_type', ftWideString, '', Self, 'Veri Tipi');
   FCharacterMaximumLength := TFieldDB.Create('character_maximum_length', ftInteger, 0, Self, 'Maks Uzunluk');
   FOrdinalPosition := TFieldDB.Create('ordinal_position', ftInteger, 0, Self, 'Kolon Sýrasý');
   FNumericPrecision := TFieldDB.Create('numeric_precision', ftInteger, 0, Self, 'Numeric Hassaslýk');
   FNumericScale := TFieldDB.Create('numeric_scale', ftInteger, 0, Self, 'Numeric Ölçek');
-  FOrjTableName  := TFieldDB.Create('orj_table_name', ftString, '', Self, 'Orj Tablo Adý');
-  FOrjColumnName := TFieldDB.Create('orj_column_name', ftString, '', Self, 'Orj Kolon Adý');
+  FOrjTableName  := TFieldDB.Create('orj_table_name', ftWideString, '', Self, 'Orj Tablo Adý');
+  FOrjColumnName := TFieldDB.Create('orj_column_name', ftWideString, '', Self, 'Orj Kolon Adý');
 end;
 
-procedure TSysViewColumns.SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
+procedure TSysViewColumns.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
 begin
-  if IsAuthorized(ptRead, pPermissionControl) then
+  if IsAuthorized(ptRead, APermissionControl) then
   begin
 	  with QueryOfDS do
 	  begin
 		  Close;
 		  SQL.Clear;
 		  Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FTableName.FieldName,
-        TableName + '.' + FColumnName.FieldName,
-        TableName + '.' + FIsNullable.FieldName,
-        TableName + '.' + FDataType.FieldName,
-        TableName + '.' + FCharacterMaximumLength.FieldName,
-        TableName + '.' + FOrdinalPosition.FieldName,
-        TableName + '.' + FNumericPrecision.FieldName,
-        TableName + '.' + FNumericScale.FieldName,
-        TableName + '.' + FOrjTableName.FieldName,
-        TableName + '.' + FOrjColumnName.FieldName
+        Id.QryName,
+        FTableName.QryName,
+        FColumnName.QryName,
+        FIsNullable.QryName,
+        FDataType.QryName,
+        FCharacterMaximumLength.QryName,
+        FOrdinalPosition.QryName,
+        FNumericPrecision.QryName,
+        FNumericScale.QryName,
+        FOrjTableName.QryName,
+        FOrjColumnName.QryName
       ],[
-        ' WHERE 1=1 ', pFilter
+        ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
 		  Open;
-		  Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FTableName, 'Table Name', QueryOfDS);
-      setFieldTitle(FColumnName, 'Column Name', QueryOfDS);
-      setFieldTitle(FIsNullable, 'Nullable?', QueryOfDS);
-      setFieldTitle(FDataType, 'Data Type', QueryOfDS);
-      setFieldTitle(FCharacterMaximumLength, 'Character Max Length', QueryOfDS);
-      setFieldTitle(FOrdinalPosition, 'Ordinal Position', QueryOfDS);
-      setFieldTitle(FNumericPrecision, 'Numeric Precision', QueryOfDS);
-      setFieldTitle(FNumericScale, 'Numeric Scale', QueryOfDS);
-      setFieldTitle(FOrjTableName, 'Orj Table Name', QueryOfDS);
-      setFieldTitle(FOrjColumnName, 'Orj Column Name', QueryOfDS);
 	  end;
   end;
 end;
 
-procedure TSysViewColumns.SelectToList(pFilter: string; pLock: Boolean; pPermissionControl: Boolean=True);
+procedure TSysViewColumns.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 begin
-  if IsAuthorized(ptRead, pPermissionControl) then
+  if IsAuthorized(ptRead, APermissionControl) then
   begin
-	  if (pLock) then
-		  pFilter := pFilter + ' FOR UPDATE OF ' + TableName + ' NOWAIT';
+	  if (ALock) then
+		  AFilter := AFilter + ' FOR UPDATE OF ' + TableName + ' NOWAIT';
 
 	  with QueryOfList do
 	  begin
 		  Close;
 		  SQL.Clear;
 		  Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FTableName.FieldName,
-        TableName + '.' + FColumnName.FieldName,
-        TableName + '.' + FIsNullable.FieldName,
-        TableName + '.' + FDataType.FieldName,
-        TableName + '.' + FCharacterMaximumLength.FieldName,
-        TableName + '.' + FOrdinalPosition.FieldName,
-        TableName + '.' + FNumericPrecision.FieldName,
-        TableName + '.' + FNumericScale.FieldName,
-        TableName + '.' + FOrjTableName.FieldName,
-        TableName + '.' + FOrjColumnName.FieldName
+        Id.QryName,
+        FTableName.QryName,
+        FColumnName.QryName,
+        FIsNullable.QryName,
+        FDataType.QryName,
+        FCharacterMaximumLength.QryName,
+        FOrdinalPosition.QryName,
+        FNumericPrecision.QryName,
+        FNumericScale.QryName,
+        FOrjTableName.QryName,
+        FOrjColumnName.QryName
       ], [
-        ' WHERE 1=1 ', pFilter
+        ' WHERE 1=1 ', AFilter
       ]);
 		  Open;
 
@@ -152,20 +139,9 @@ begin
 		  List.Clear;
 		  while NOT EOF do
 		  begin
-//        PrepareTableClassFromQuery(QueryOfList);
-		    setFieldValue(Self.Id, QueryOfList);
-        setFieldValue(FTableName, QueryOfList);
-        setFieldValue(FColumnName, QueryOfList);
-        setFieldValue(FIsNullable, QueryOfList);
-        setFieldValue(FDataType, QueryOfList);
-        setFieldValue(FCharacterMaximumLength, QueryOfList);
-        setFieldValue(FOrdinalPosition, QueryOfList);
-        setFieldValue(FNumericPrecision, QueryOfList);
-        setFieldValue(FNumericScale, QueryOfList);
-		    setFieldValue(FOrjTableName, QueryOfList);
-        setFieldValue(FOrjColumnName, QueryOfList);
+        PrepareTableClassFromQuery(QueryOfList);
 
-		    List.Add(Self.Clone());
+		    List.Add(Clone());
 
 		    Next;
 		  end;

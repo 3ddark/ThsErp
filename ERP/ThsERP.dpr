@@ -358,7 +358,6 @@ begin
 
   AddExitProc(MemLeakFix);
 
-  TStyleManager.TrySetStyle('Amakrits');
   Application.Title := 'THS ERP';
   Application.CreateForm(Tdm, dm);
   Application.CreateForm(TfrmMain, frmMain);

@@ -57,8 +57,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSysErisimHakki.Create(ADatabase: TDatabase);
 begin
@@ -91,8 +90,8 @@ end;
 procedure TSysErisimHakki.GetAccessRightBySourceCode(ASourceCode: string);
 begin
   Self.SelectToList(
-    ' AND ' + FKaynakKodu.FieldName + '=' + QuotedStr(ASourceCode) +
-    ' AND ' + FKullaniciID.FieldName + '=' + IntToStr(GSysKullanici.Id.Value) , False, False
+    ' AND ' + FKaynakKodu.QryName + '=' + QuotedStr(ASourceCode) +
+    ' AND ' + FKullaniciID.QryName + '=' + IntToStr(GSysKullanici.Id.Value) , False, False
   );
 end;
 
@@ -109,7 +108,7 @@ begin
     and (GSysUygulamaAyari.UygulamaLisan.Value <> '')
     then
     begin
-      LDump := 'LEFT JOIN ' + FPermSrc.TableName + ' ON ' + FPermSrc.TableName + '.id=' + TableName + '.' + FKaynakID.FieldName;
+      LDump := 'LEFT JOIN ' + FPermSrc.TableName + ' ON ' + FPermSrc.TableName + '.id=' + FKaynakID.QryName;
       LJoinTableName := FPermSrc.TableName;
     end;
 
@@ -117,36 +116,23 @@ begin
 	  begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FKaynakID.FieldName,
+        Self.Id.QryName,
+        FKaynakID.QryName,
         addLangField(FKaynakAdi.FieldName),
         'data_' + FKaynakAdi.FieldName + '.' + FKaynakKodu.FieldName,
-        TableName + '.' + FIsOkuma.FieldName,
-        TableName + '.' + FIsYeniKayit.FieldName,
-        TableName + '.' + FIsGuncelleme.FieldName,
-        TableName + '.' + FIsSilme.FieldName,
-        TableName + '.' + FIsOzel.FieldName,
-        TableName + '.' + FKullaniciID.FieldName,
+        FIsOkuma.QryName,
+        FIsYeniKayit.QryName,
+        FIsGuncelleme.QryName,
+        FIsSilme.QryName,
+        FIsOzel.QryName,
+        FKullaniciID.QryName,
         addLangField(FKullaniciAdi.FieldName)
       ], [
-        addLeftJoin(FKaynakAdi.FieldName, TableName + '.' + FKaynakID.FieldName, FPermSrc.TableName),
-        addLeftJoin(FKullaniciAdi.FieldName, TableName + '.' + FKullaniciID.FieldName, FSysUser.TableName),
+        addLeftJoin(FKaynakAdi.FieldName, FKaynakID.QryName, FPermSrc.TableName),
+        addLeftJoin(FKullaniciAdi.FieldName, FKullaniciID.QryName, FSysUser.TableName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FKaynakID, 'Kaynak Adý Id', QueryOfDS);
-      setFieldTitle(FKaynakAdi, 'Kaynak Adý', QueryOfDS);
-      setFieldTitle(FKaynakKodu, 'Kaynak Kodu', QueryOfDS);
-      setFieldTitle(FIsOkuma, 'Okuma?', QueryOfDS);
-      setFieldTitle(FIsYeniKayit, 'Yeni Ekleme?', QueryOfDS);
-      setFieldTitle(FIsGuncelleme, 'Güncelleme?', QueryOfDS);
-      setFieldTitle(FIsSilme, 'Silme?', QueryOfDS);
-      setFieldTitle(FIsOzel, 'Özel?', QueryOfDS);
-      setFieldTitle(FKullaniciID, 'Kullanýcý Adý Id', QueryOfDS);
-      setFieldTitle(FKullaniciAdi, 'Kullanýcý Adý', QueryOfDS);
 	  end;
   end;
 end;
@@ -167,7 +153,7 @@ begin
     and (GSysUygulamaAyari.UygulamaLisan.Value <> '')
     then
     begin
-      LDump := 'LEFT JOIN ' + FPermSrc.TableName + ' ON ' + FPermSrc.TableName + '.id=' + TableName + '.' + FKaynakID.FieldName;
+      LDump := 'LEFT JOIN ' + FPermSrc.TableName + ' ON ' + FPermSrc.TableName + '.id=' + FKaynakID.QryName;
       LJoinTableName := FPermSrc.TableName;
     end;
 
@@ -198,19 +184,9 @@ begin
       List.Clear;
       while NOT EOF do
       begin
-        setFieldValue(Self.Id, QueryOfList);
-        setFieldValue(FKaynakID, QueryOfList);
-        setFieldValue(FKaynakAdi, QueryOfList);
-        setFieldValue(FKaynakKodu, QueryOfList);
-        setFieldValue(FIsOkuma, QueryOfList);
-        setFieldValue(FIsYeniKayit, QueryOfList);
-        setFieldValue(FIsGuncelleme, QueryOfList);
-        setFieldValue(FIsSilme, QueryOfList);
-        setFieldValue(FIsOzel, QueryOfList);
-        setFieldValue(FKullaniciID, QueryOfList);
-        setFieldValue(FKullaniciAdi, QueryOfList);
+        PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -242,15 +218,13 @@ begin
 
 		  Open;
 
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
 		  EmptyDataSet;
 		  Close;
 	  end;
-
-    Self.notify;
   end;
 end;
 
@@ -277,8 +251,6 @@ begin
 		  ExecSQL;
 		  Close;
 	  end;
-
-    Self.notify;
   end;
 end;
 

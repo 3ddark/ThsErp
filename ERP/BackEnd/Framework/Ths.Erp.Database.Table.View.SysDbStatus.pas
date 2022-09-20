@@ -44,8 +44,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSysDBStatus.Create(OwnerDatabase:TDatabase);
 begin
@@ -54,13 +53,13 @@ begin
   inherited Create(OwnerDatabase);
 
   FPID := TFieldDB.Create('pid', ftInteger, 0, Self, 'PID');
-  FDBName := TFieldDB.Create('db_name', ftString, '', Self, 'DB Name');
-  FAppName := TFieldDB.Create('app_name', ftString, '', Self, 'App Name');
-  FUserName := TFieldDB.Create('user_name', ftString, '', Self, 'User Name');
-  FClientAddress := TFieldDB.Create('client_address', ftString, '', Self, 'Client IP Adres');
-  FState := TFieldDB.Create('state', ftString, '', Self, 'State');
-  FQuery := TFieldDB.Create('query', ftString, '', Self, 'Query');
-  FLockedTables := TFieldDB.Create('locked_tables', ftString, '', Self, 'Locked Tables');
+  FDBName := TFieldDB.Create('db_name', ftWideString, '', Self, 'DB Name');
+  FAppName := TFieldDB.Create('app_name', ftWideString, '', Self, 'App Name');
+  FUserName := TFieldDB.Create('user_name', ftWideString, '', Self, 'User Name');
+  FClientAddress := TFieldDB.Create('client_address', ftWideString, '', Self, 'Client IP Adres');
+  FState := TFieldDB.Create('state', ftWideString, '', Self, 'State');
+  FQuery := TFieldDB.Create('query', ftWideString, '', Self, 'Query');
+  FLockedTables := TFieldDB.Create('locked_tables', ftWideString, '', Self, 'Locked Tables');
 end;
 
 procedure TSysDBStatus.SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
@@ -71,20 +70,19 @@ begin
 	  begin
 		  Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FPID.FieldName,
-        TableName + '.' + FDBName.FieldName,
-        TableName + '.' + FAppName.FieldName+'::varchar(128)',
-        TableName + '.' + FUserName.FieldName,
-        TableName + '.' + FClientAddress.FieldName,
-        TableName + '.' + FState.FieldName,
-        TableName + '.' + FQuery.FieldName,
-        TableName + '.' + FLockedTables.FieldName
+        Id.QryName,
+        FPID.QryName,
+        FDBName.QryName,
+        FAppName.QryName+'::varchar(128)',
+        FUserName.QryName,
+        FClientAddress.QryName,
+        FState.QryName,
+        FQuery.QryName,
+        FLockedTables.QryName
       ], [
         'WHERE ' + FPID.FieldName + '<> pg_backend_pid() ', pFilter
       ], AAllColumn, AHelper);
 		  Open;
-		  Active := True;
 	  end;
   end;
 end;
@@ -97,15 +95,15 @@ begin
 	  begin
 		  Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FPID.FieldName,
-        TableName + '.' + FDBName.FieldName,
-        TableName + '.' + FAppName.FieldName,
-        TableName + '.' + FUserName.FieldName,
-        TableName + '.' + FClientAddress.FieldName,
-        TableName + '.' + FState.FieldName,
-        TableName + '.' + FQuery.FieldName,
-        TableName + '.' + FLockedTables.FieldName
+        Id.QryName,
+        FPID.QryName,
+        FDBName.QryName,
+        FAppName.QryName+'::varchar(128)',
+        FUserName.QryName,
+        FClientAddress.QryName,
+        FState.QryName,
+        FQuery.QryName,
+        FLockedTables.QryName
       ], [
         'WHERE ' + FPID.FieldName + '<> pg_backend_pid() ', pFilter
       ]);
@@ -117,7 +115,7 @@ begin
 		  begin
         PrepareTableClassFromQuery(QueryOfList);
 
-		    List.Add(Self.Clone);
+		    List.Add(Clone);
 
 		    Next;
 		  end;

@@ -346,64 +346,64 @@ begin
           edts8.Visible := True;
         end;
 
-        if LCins.I1.Value <> '' then
+        if LCins.I1.AsString <> '' then
         begin
           lbli1.Visible := True;
           edti1.Visible := True;
         end;
-        if LCins.I2.Value <> '' then
+        if LCins.I2.AsString <> '' then
         begin
           lbli2.Visible := True;
           edti2.Visible := True;
         end;
-        if LCins.I3.Value <> '' then
+        if LCins.I3.AsString <> '' then
         begin
           lbli3.Visible := True;
           edti3.Visible := True;
         end;
-        if LCins.I4.Value <> '' then
+        if LCins.I4.AsString <> '' then
         begin
           lbli4.Visible := True;
           edti4.Visible := True;
         end;
 
-        if LCins.D1.Value <> '' then
+        if LCins.D1.AsString <> '' then
         begin
           lbld1.Visible := True;
           edtd1.Visible := True;
         end;
-        if LCins.D2.Value <> '' then
+        if LCins.D2.AsString <> '' then
         begin
           lbld2.Visible := True;
           edtd2.Visible := True;
         end;
-        if LCins.D3.Value <> '' then
+        if LCins.D3.AsString <> '' then
         begin
           lbld3.Visible := True;
           edtd3.Visible := True;
         end;
-        if LCins.D4.Value <> '' then
+        if LCins.D4.AsString <> '' then
         begin
           lbld4.Visible := True;
           edtd4.Visible := True;
         end;
 
-        lbls1.Caption := LCins.S1.Value;
-        lbls2.Caption := LCins.S2.Value;
-        lbls3.Caption := LCins.S3.Value;
-        lbls4.Caption := LCins.S4.Value;
-        lbls5.Caption := LCins.S5.Value;
-        lbls6.Caption := LCins.S6.Value;
-        lbls7.Caption := LCins.S7.Value;
-        lbls8.Caption := LCins.S8.Value;
-        lbli1.Caption := LCins.I1.Value;
-        lbli2.Caption := LCins.I2.Value;
-        lbli3.Caption := LCins.I3.Value;
-        lbli4.Caption := LCins.I4.Value;
-        lbld1.Caption := LCins.D1.Value;
-        lbld2.Caption := LCins.D2.Value;
-        lbld3.Caption := LCins.D3.Value;
-        lbld4.Caption := LCins.D4.Value;
+        lbls1.Caption := LCins.S1.AsString;
+        lbls2.Caption := LCins.S2.AsString;
+        lbls3.Caption := LCins.S3.AsString;
+        lbls4.Caption := LCins.S4.AsString;
+        lbls5.Caption := LCins.S5.AsString;
+        lbls6.Caption := LCins.S6.AsString;
+        lbls7.Caption := LCins.S7.AsString;
+        lbls8.Caption := LCins.S8.AsString;
+        lbli1.Caption := LCins.I1.AsString;
+        lbli2.Caption := LCins.I2.AsString;
+        lbli3.Caption := LCins.I3.AsString;
+        lbli4.Caption := LCins.I4.AsString;
+        lbld1.Caption := LCins.D1.AsString;
+        lbld2.Caption := LCins.D2.AsString;
+        lbld3.Caption := LCins.D3.AsString;
+        lbld4.Caption := LCins.D4.AsString;
       end;
     finally
       LCins.Free;

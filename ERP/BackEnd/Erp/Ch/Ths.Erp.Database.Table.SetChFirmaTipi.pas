@@ -50,15 +50,14 @@ begin
 
   FSetChFirmaTuru := TSetChFirmaTuru.Create(Database);
 
-  FFirmaTipi := TFieldDB.Create('firma_tipi', ftString, '', Self, 'Firma Tipi');
+  FFirmaTipi := TFieldDB.Create('firma_tipi', ftWideString, '', Self, 'Firma Tipi');
   FFirmaTuruID := TFieldDB.Create('firma_turu_id', ftInteger, 0, Self, 'Firma Türü ID');
   FFirmaTuru := TFieldDB.Create(FSetChFirmaTuru.FirmaTuru.FieldName, FSetChFirmaTuru.FirmaTuru.DataType, '', Self, 'Firma Türü');
 end;
 
 destructor TSetChFirmaTipi.Destroy;
 begin
-  if Assigned(FSetChFirmaTuru) then
-    FSetChFirmaTuru.Free;
+  FSetChFirmaTuru.Free;
   inherited;
 end;
 
@@ -70,21 +69,15 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FFirmaTuruID.FieldName,
+        Id.QryName,
+        FFirmaTuruID.QryName,
         addLangField(FirmaTuru.FieldName),
-        TableName + '.' + FFirmaTipi.FieldName
+        FFirmaTipi.QryName
       ], [
         addLeftJoin(FirmaTuru.FieldName, FirmaTuruID.FieldName, FSetChFirmaTuru.TableName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FFirmaTuruID, 'Firma Türü ID', QueryOfDS);
-      setFieldTitle(FFirmaTuru, 'Firma Türü', QueryOfDS);
-      setFieldTitle(FFirmaTipi, 'Firma Tipi', QueryOfDS);
     end;
   end;
 end;
@@ -100,10 +93,10 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FFirmaTuruID.FieldName,
+        Id.QryName,
+        FFirmaTuruID.QryName,
         addLangField(FirmaTuru.FieldName),
-        TableName + '.' + FFirmaTipi.FieldName
+        FFirmaTipi.QryName
       ], [
         addLeftJoin(FirmaTuru.FieldName, FirmaTuruID.FieldName, FSetChFirmaTuru.TableName),
         ' WHERE 1=1 ', AFilter
@@ -116,7 +109,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -141,15 +134,15 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-        AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull) then
+        AID := Fields.FieldByName(Id.FieldName).AsInteger
       else
         AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -171,7 +164,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

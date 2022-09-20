@@ -49,8 +49,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TRctIscilikGideri.Create(ADatabase: TDatabase);
 begin
@@ -61,8 +60,8 @@ begin
   FSetGiderTipi := TSetRctIscilikGiderTipi.Create(ADatabase);
   FBirim := TSysOlcuBirimi.Create(ADatabase);
 
-  FGiderKodu := TFieldDB.Create('gider_kodu', ftString, '', Self, '');
-  FGiderAdi := TFieldDB.Create('gider_adi', ftString, '', Self, '');
+  FGiderKodu := TFieldDB.Create('gider_kodu', ftWideString, '', Self, '');
+  FGiderAdi := TFieldDB.Create('gider_adi', ftWideString, '', Self, '');
   FFiyat := TFieldDB.Create('fiyat', ftBCD, 0, Self, '');
   FOlcuBirimiID := TFieldDB.Create('olcu_birimi_id', ftInteger, 0, Self, '');
   FOlcuBirimi := TFieldDB.Create(FBirim.OlcuBirimi.FieldName, FBirim.OlcuBirimi.DataType, '', Self, '');
@@ -85,13 +84,13 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FGiderKodu.FieldName,
-        TableName + '.' + FGiderAdi.FieldName,
-        TableName + '.' + FFiyat.FieldName,
-        TableName + '.' + FOlcuBirimiID.FieldName,
+        Id.QryName,
+        FGiderKodu.QryName,
+        FGiderAdi.QryName,
+        FFiyat.QryName,
+        FOlcuBirimiID.QryName,
         addField(FBirim.TableName, FBirim.OlcuBirimi.FieldName, FOlcuBirimi.FieldName),
-        TableName + '.' + FGiderTipiID.FieldName,
+        FGiderTipiID.QryName,
         addField(FSetGiderTipi.TableName, FSetGiderTipi.GiderTipi.FieldName, FGiderTipi.FieldName)
       ], [
         addJoin(jtLeft, FBirim.TableName, FBirim.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
@@ -99,7 +98,6 @@ begin
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -115,13 +113,13 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FGiderKodu.FieldName,
-        TableName + '.' + FGiderAdi.FieldName,
-        TableName + '.' + FFiyat.FieldName,
-        TableName + '.' + FOlcuBirimiID.FieldName,
+        Id.QryName,
+        FGiderKodu.QryName,
+        FGiderAdi.QryName,
+        FFiyat.QryName,
+        FOlcuBirimiID.QryName,
         addField(FBirim.TableName, FBirim.OlcuBirimi.FieldName, FOlcuBirimi.FieldName),
-        TableName + '.' + FGiderTipiID.FieldName,
+        FGiderTipiID.QryName,
         addField(FSetGiderTipi.TableName, FSetGiderTipi.GiderTipi.FieldName, FGiderTipi.FieldName)
       ], [
         addJoin(jtLeft, FBirim.TableName, FBirim.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
@@ -136,7 +134,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -164,14 +162,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -196,7 +194,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

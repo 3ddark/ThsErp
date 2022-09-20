@@ -2,25 +2,22 @@ inherited frmRctReceteHammadde: TfrmRctReceteHammadde
   Caption = 'Re'#231'ete Hammadde'
   ClientHeight = 251
   ClientWidth = 348
-  ExplicitWidth = 354
-  ExplicitHeight = 280
-  PixelsPerInch = 96
+  ExplicitWidth = 364
+  ExplicitHeight = 290
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 344
-    Height = 199
+    Width = 348
+    Height = 201
     ExplicitWidth = 344
     ExplicitHeight = 199
     inherited pgcMain: TPageControl
-      Width = 342
-      Height = 197
+      Width = 348
+      Height = 201
       ExplicitWidth = 342
       ExplicitHeight = 197
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
-        ExplicitWidth = 334
-        ExplicitHeight = 169
+        ExplicitWidth = 340
+        ExplicitHeight = 173
         object lblfire_orani: TLabel
           Left = 69
           Top = 75

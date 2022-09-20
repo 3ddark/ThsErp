@@ -109,8 +109,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TBbkKayit.Create(ADatabase: TDatabase);
 begin
@@ -125,39 +124,39 @@ begin
   FSysUlke := TSysUlke.Create(Database);
   FSysBolge := TSysBolge.Create(Database);
 
-  FFirmaAdi := TFieldDB.Create('firma_adi', ftString, '', Self, 'Firma Adý');
-  FTel1 := TFieldDB.Create('tel1', ftString, '', Self, 'Tel1');
-  FTel2 := TFieldDB.Create('tel2', ftString, '', Self, 'Tel2');
-  FTel3 := TFieldDB.Create('tel3', ftString, '', Self, 'Tel3');
-  FFax := TFieldDB.Create('fax', ftString, '', Self, 'Faks');
-  FEmail := TFieldDB.Create('email', ftString, '', Self, 'E-Mail');
-  FWeb := TFieldDB.Create('web', ftString, '', Self, 'Web');
-  FYetkili1 := TFieldDB.Create('yetkili1', ftString, '', Self, 'Yetkili 1');
-  FYetkili1Tel := TFieldDB.Create('yetkili1_tel', ftString, '', Self, 'Yetkili 1 Tel');
-  FYetkili1Email := TFieldDB.Create('yetkili1_email', ftString, '', Self, 'Yetkili 1 Mail');
-  FYetkili2 := TFieldDB.Create('yetkili2', ftString, '', Self, 'Yetkili 2');
-  FYetkili2Tel := TFieldDB.Create('yetkili2_tel', ftString, '', Self, 'Yetkili 2 Tel');
-  FYetkili2Email := TFieldDB.Create('yetkili2_email', ftString, '', Self, 'Yetkili 2 Mail');
-  FAdres := TFieldDB.Create('adres', ftString, '', Self, 'Adres');
+  FFirmaAdi := TFieldDB.Create('firma_adi', ftWideString, '', Self, 'Firma Adý');
+  FTel1 := TFieldDB.Create('tel1', ftWideString, '', Self, 'Tel1');
+  FTel2 := TFieldDB.Create('tel2', ftWideString, '', Self, 'Tel2');
+  FTel3 := TFieldDB.Create('tel3', ftWideString, '', Self, 'Tel3');
+  FFax := TFieldDB.Create('fax', ftWideString, '', Self, 'Faks');
+  FEmail := TFieldDB.Create('email', ftWideString, '', Self, 'E-Mail');
+  FWeb := TFieldDB.Create('web', ftWideString, '', Self, 'Web');
+  FYetkili1 := TFieldDB.Create('yetkili1', ftWideString, '', Self, 'Yetkili 1');
+  FYetkili1Tel := TFieldDB.Create('yetkili1_tel', ftWideString, '', Self, 'Yetkili 1 Tel');
+  FYetkili1Email := TFieldDB.Create('yetkili1_email', ftWideString, '', Self, 'Yetkili 1 Mail');
+  FYetkili2 := TFieldDB.Create('yetkili2', ftWideString, '', Self, 'Yetkili 2');
+  FYetkili2Tel := TFieldDB.Create('yetkili2_tel', ftWideString, '', Self, 'Yetkili 2 Tel');
+  FYetkili2Email := TFieldDB.Create('yetkili2_email', ftWideString, '', Self, 'Yetkili 2 Mail');
+  FAdres := TFieldDB.Create('adres', ftWideString, '', Self, 'Adres');
   FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Þehir ID');
   FSehir := TFieldDB.Create(FSysSehir.SehirAdi.FieldName, FSysSehir.SehirAdi.DataType, '', Self, 'Þehir');
   FUlkeID := TFieldDB.Create('ulke_id', FSysSehir.UlkeAdiID.DataType, 0, Self, 'Ülke Adý ID');
   FUlke := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, '', Self, 'Ülke');
   FBolgeID := TFieldDB.Create('bolge_id', FSysSehir.BolgeAdiID.DataType, 0, Self, 'Bölge Adý ID');
   FBolge := TFieldDB.Create(FSysSehir.BolgeAdi.FieldName, FSysSehir.BolgeAdi.DataType, '', Self, 'Bölge');
-  FNot1 := TFieldDB.Create('not1', ftString, '', Self, 'Not 1');
-  FNot2 := TFieldDB.Create('not2', ftString, '', Self, 'Not 2');
+  FNot1 := TFieldDB.Create('not1', ftWideString, '', Self, 'Not 1');
+  FNot2 := TFieldDB.Create('not2', ftWideString, '', Self, 'Not 2');
   FFirmaTipiID := TFieldDB.Create('firma_tipi_id', ftInteger, 0, Self, 'Firma Tipi ID');
   FFirmaTipi := TFieldDB.Create(FBbkFirmaTipi.FirmaTipi.FieldName, FBbkFirmaTipi.FirmaTipi.DataType, '', Self, 'Firma Tipi');
-  FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftString, '', Self, 'Vergi D.');
-  FVergiNumarasi := TFieldDB.Create('vergi_numarasi', ftString, '', Self, 'Vergi No');
+  FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftWideString, '', Self, 'Vergi D.');
+  FVergiNumarasi := TFieldDB.Create('vergi_numarasi', ftWideString, '', Self, 'Vergi No');
   FKacYillikFirma := TFieldDB.Create('kac_yillik_firma', ftInteger, 0, Self, 'Kaç Yýllýk Firma');
   FCalismaDurumuId := TFieldDB.Create('calisma_durumu_id', ftInteger, 0, Self, 'Çalýþma Durumu ID');
   FCalismaDurumu := TFieldDB.Create(FBbkCalismaDurumu.CalismaDurumu.FieldName, FBbkCalismaDurumu.CalismaDurumu.DataType, '', Self, 'Çalýþma Durumu');
   FFinansDurumuID := TFieldDB.Create('finans_durumu_id', ftInteger, 0, Self, 'Finans Durumu ID');
   FFinansDurumu := TFieldDB.Create(FBbkFinansDurumu.FinansDurumu.FieldName, FBbkFinansDurumu.FinansDurumu.DataType, '', Self, 'Finans Durumu');
-  FSevkiyatYetkilisi := TFieldDB.Create('sevkiyat_yetkilisi', ftString, '', Self, 'Sevkiyat Yetkilisi');
-  FSevkiyatYetkilisiTel := TFieldDB.Create('sevkiyat_yetkilisi_tel', ftString, '', Self, 'Sevkiyat Yetkilisi Tel');
+  FSevkiyatYetkilisi := TFieldDB.Create('sevkiyat_yetkilisi', ftWideString, '', Self, 'Sevkiyat Yetkilisi');
+  FSevkiyatYetkilisiTel := TFieldDB.Create('sevkiyat_yetkilisi_tel', ftWideString, '', Self, 'Sevkiyat Yetkilisi Tel');
 end;
 
 destructor TBbkKayit.Destroy;
@@ -224,7 +223,6 @@ begin
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -291,7 +289,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -307,7 +305,7 @@ begin
     {$IFDEF CRUD_MODE_SP}
       SpInsert.ExecProc;
       AID := SpInsert.ParamByName('result').AsInteger;
-      Self.Notify;
+      Notify;
     {$ELSE IFDEF CRUD_MODE_PURE_SQL}
       with QueryOfInsert do
       begin
@@ -344,14 +342,14 @@ begin
         PrepareInsertQueryParams;
 
         Open;
-        if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-        then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+        if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+        then  AID := Fields.FieldByName(Id.FieldName).AsInteger
         else  AID := 0;
 
         EmptyDataSet;
         Close;
       end;
-      Self.Notify;
+      Notify;
     {$ENDIF}
   end;
 end;
@@ -362,7 +360,7 @@ begin
   begin
     {$IFDEF CRUD_MODE_SP}
       SpUpdate.ExecProc;
-      Self.Notify;
+      Notify;
     {$ELSE IFDEF CRUD_MODE_PURE_SQL}
       with QueryOfUpdate do
       begin
@@ -401,7 +399,7 @@ begin
         ExecSQL;
         Close;
       end;
-      Self.Notify;
+      Notify;
     {$ENDIF}
   end;
 end;

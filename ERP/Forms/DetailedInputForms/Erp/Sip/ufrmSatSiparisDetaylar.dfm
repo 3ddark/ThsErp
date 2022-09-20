@@ -4,51 +4,50 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
   ClientWidth = 904
   ExplicitWidth = 920
   ExplicitHeight = 600
-  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 900
-    Height = 509
-    ExplicitWidth = 900
-    ExplicitHeight = 509
+    Width = 904
+    Height = 511
+    ExplicitWidth = 904
+    ExplicitHeight = 511
     inherited splLeft: TSplitter
-      Top = 333
-      Height = 175
+      Top = 332
+      Height = 179
       ExplicitTop = 437
       ExplicitHeight = 502
     end
     inherited splHeader: TSplitter
-      Top = 330
-      Width = 898
+      Top = 329
+      Width = 904
       ExplicitLeft = 0
       ExplicitTop = 74
       ExplicitWidth = 973
     end
     inherited pgcMain: TPageControl
-      Top = 333
-      Width = 792
-      Height = 175
-      ExplicitTop = 333
-      ExplicitWidth = 792
-      ExplicitHeight = 175
+      Top = 332
+      Width = 798
+      Height = 179
+      ExplicitTop = 332
+      ExplicitWidth = 798
+      ExplicitHeight = 179
       inherited tsMain: TTabSheet
-        ExplicitWidth = 784
-        ExplicitHeight = 147
+        ExplicitWidth = 790
+        ExplicitHeight = 151
       end
     end
     inherited pnlHeader: TPanel
-      Width = 894
+      Width = 900
       Height = 326
-      ExplicitWidth = 894
+      ExplicitWidth = 900
       ExplicitHeight = 326
       inherited pgcHeader: TPageControl
-        Width = 892
+        Width = 898
         Height = 324
-        ExplicitWidth = 892
+        ExplicitWidth = 898
         ExplicitHeight = 324
         inherited tsHeader: TTabSheet
           Caption = 'Genel'
-          ExplicitWidth = 864
+          ExplicitWidth = 870
           ExplicitHeight = 316
           object lblsiparis_no: TLabel
             Left = 626
@@ -157,20 +156,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
             Height = 13
             Alignment = taRightJustify
             Caption = 'Para Birimi'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-          end
-          object lbldoviz_kuru: TLabel
-            Left = 624
-            Top = 116
-            Width = 61
-            Height = 13
-            Alignment = taRightJustify
-            Caption = 'Dolar Kuru'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
@@ -478,13 +463,41 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
             Font.Style = [fsBold]
             ParentFont = False
           end
+          object lbldoviz_kuru_usd: TLabel
+            Left = 624
+            Top = 116
+            Width = 61
+            Height = 13
+            Alignment = taRightJustify
+            Caption = 'Dolar Kuru'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object lbldoviz_kuru_eur: TLabel
+            Left = 628
+            Top = 137
+            Width = 57
+            Height = 13
+            Alignment = taRightJustify
+            Caption = 'Euro Kuru'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
           object cbbsiparis_durum_id: TComboBox
             Left = 115
             Top = 288
             Width = 150
             Height = 21
             Style = csDropDownList
-            TabOrder = 27
+            TabOrder = 26
           end
           object edtsiparis_no: TEdit
             Left = 686
@@ -547,49 +560,49 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
             Top = 134
             Width = 150
             Height = 21
-            TabOrder = 15
+            TabOrder = 14
           end
           object edtmahalle: TEdit
             Left = 115
             Top = 156
             Width = 150
             Height = 21
-            TabOrder = 17
+            TabOrder = 16
           end
           object edtcadde: TEdit
             Left = 115
             Top = 178
             Width = 150
             Height = 21
-            TabOrder = 19
+            TabOrder = 18
           end
           object edtsokak: TEdit
             Left = 115
             Top = 200
             Width = 150
             Height = 21
-            TabOrder = 21
+            TabOrder = 20
           end
           object edtbina_adi: TEdit
             Left = 115
             Top = 222
             Width = 150
             Height = 21
-            TabOrder = 23
+            TabOrder = 22
           end
           object edtkapi_no: TEdit
             Left = 115
             Top = 244
             Width = 150
             Height = 21
-            TabOrder = 25
+            TabOrder = 24
           end
           object edtposta_kodu: TEdit
             Left = 115
             Top = 266
             Width = 150
             Height = 21
-            TabOrder = 26
+            TabOrder = 25
           end
           object edtteslim_tarihi: TEdit
             Left = 686
@@ -597,13 +610,6 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
             Width = 90
             Height = 21
             TabOrder = 6
-          end
-          object edtdoviz_kuru: TEdit
-            Left = 686
-            Top = 112
-            Width = 90
-            Height = 21
-            TabOrder = 14
           end
           object edtmusteri_temsilcisi_id: TEdit
             Left = 408
@@ -624,14 +630,14 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
             Top = 200
             Width = 368
             Height = 21
-            TabOrder = 22
+            TabOrder = 21
           end
           object mmoaciklama: TMemo
             Left = 408
             Top = 222
             Width = 368
             Height = 65
-            TabOrder = 24
+            TabOrder = 23
           end
           object edtproforma_no: TEdit
             Left = 408
@@ -639,7 +645,7 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
             Width = 150
             Height = 21
             MaxLength = 10
-            TabOrder = 28
+            TabOrder = 27
           end
           object edtmuhattap_telefon: TEdit
             Left = 408
@@ -660,7 +666,7 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
             Top = 134
             Width = 150
             Height = 21
-            TabOrder = 16
+            TabOrder = 15
           end
           object edtpara_birimi: TEdit
             Left = 686
@@ -675,65 +681,83 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
             Top = 156
             Width = 368
             Height = 21
-            TabOrder = 18
+            TabOrder = 17
           end
           object edtteslim_sekli_id: TEdit
             Left = 408
             Top = 178
             Width = 368
             Height = 21
-            TabOrder = 20
+            TabOrder = 19
+          end
+          object edtdoviz_kuru_usd: TEdit
+            Left = 686
+            Top = 112
+            Width = 90
+            Height = 21
+            TabOrder = 28
+            OnEnter = edtdoviz_kuruEnter
+            OnExit = edtdoviz_kuruExit
+          end
+          object edtdoviz_kuru_eur: TEdit
+            Left = 686
+            Top = 133
+            Width = 90
+            Height = 21
+            TabOrder = 29
+            OnEnter = edtdoviz_kuruEnter
+            OnExit = edtdoviz_kuruExit
           end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitWidth = 864
+          ExplicitWidth = 870
           ExplicitHeight = 316
         end
       end
     end
     inherited pnlContent: TPanel
-      Top = 333
-      Width = 792
-      Height = 175
-      ExplicitTop = 333
-      ExplicitWidth = 792
-      ExplicitHeight = 175
+      Top = 332
+      Width = 798
+      Height = 179
+      ExplicitTop = 332
+      ExplicitWidth = 798
+      ExplicitHeight = 179
       inherited pgcContent: TPageControl
-        Width = 790
-        Height = 171
-        ExplicitWidth = 790
-        ExplicitHeight = 171
+        Width = 796
+        Height = 175
+        ExplicitWidth = 796
+        ExplicitHeight = 175
         inherited ts1: TTabSheet
-          ExplicitWidth = 782
-          ExplicitHeight = 143
+          ExplicitWidth = 788
+          ExplicitHeight = 147
           inherited pnl1: TPanel
-            Top = 59
-            Width = 782
-            ExplicitTop = 59
-            ExplicitWidth = 782
+            Top = 63
+            Width = 788
+            ExplicitTop = 63
+            ExplicitWidth = 788
             inherited grpGenelToplamKalan: TGroupBox
-              Left = 312
-              ExplicitLeft = 312
+              Left = 318
+              ExplicitLeft = 318
             end
             inherited grpGenelToplam: TGroupBox
-              Left = 547
-              ExplicitLeft = 547
+              Left = 553
+              ExplicitLeft = 553
             end
             inherited flwpnl1: TFlowPanel
-              Width = 310
-              ExplicitWidth = 310
+              Width = 316
+              ExplicitWidth = 316
             end
           end
           inherited strngrd1: TStringGrid
-            Width = 782
-            Height = 59
-            ExplicitWidth = 782
-            ExplicitHeight = 59
+            Width = 788
+            Height = 63
+            ExplicitWidth = 788
+            ExplicitHeight = 63
           end
         end
         inherited ts2: TTabSheet
-          ExplicitWidth = 782
-          ExplicitHeight = 143
+          ExplicitWidth = 788
+          ExplicitHeight = 147
           inherited pnl2: TPanel
             Top = 9
             Width = 782
@@ -752,8 +776,8 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited ts3: TTabSheet
-          ExplicitWidth = 782
-          ExplicitHeight = 143
+          ExplicitWidth = 788
+          ExplicitHeight = 147
           inherited strngrd3: TStringGrid
             Width = 782
             Height = 9
@@ -773,17 +797,15 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
         end
       end
       inherited btnHeaderShowHide: TButton
-        Left = 687
-        Width = 100
-        ExplicitLeft = 687
-        ExplicitWidth = 100
+        Left = 761
+        ExplicitLeft = 761
       end
     end
     inherited pnlLeft: TPanel
-      Top = 334
-      Height = 172
-      ExplicitTop = 334
-      ExplicitHeight = 172
+      Top = 333
+      Height = 176
+      ExplicitTop = 333
+      ExplicitHeight = 176
     end
   end
   inherited pnlBottom: TPanel
@@ -792,14 +814,14 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
     ExplicitTop = 513
     ExplicitWidth = 900
     inherited btnAccept: TButton
-      Left = 691
+      Left = 694
       TabOrder = 2
-      ExplicitLeft = 691
+      ExplicitLeft = 694
     end
     inherited btnClose: TButton
-      Left = 795
+      Left = 798
       TabOrder = 3
-      ExplicitLeft = 795
+      ExplicitLeft = 798
     end
     inherited btnDelete: TButton
       TabOrder = 1

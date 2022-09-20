@@ -24,13 +24,13 @@ uses
   FireDAC.Stan.Param,
   FireDAC.Stan.Error,
   FireDAC.DatS,
-  FireDAC.Phys.Intf,
   FireDAC.Stan.Async,
-  FireDAC.DApt.Intf,
   FireDAC.DApt,
+  FireDAC.DApt.Intf,
   FireDAC.Comp.DataSet,
   FireDAC.Stan.Option,
   FireDAC.Stan.Intf,
+  FireDAC.Phys.Intf,
   FireDAC.Comp.Client,
   frxClass,
   frxDBSet,
@@ -49,7 +49,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
+
   Ths.Erp.Database.Table.RctRecete,
   ufrmRctReceteDetaylar;
 

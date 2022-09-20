@@ -60,6 +60,7 @@ type
     FDBFieldName          : string;
     FInfo                 : string;
     FWrongDateMessage     : string;
+    FOldValue             : string;
 
     DatePicker: TDateTimePicker;
 
@@ -69,10 +70,10 @@ type
     procedure SetAlignment(const pValue: TAlignment);
     {$ENDIF}
 
-    function IntegerKeyControl(pKey: Char): Char;
-    function FloatKeyControl(pKey: Char; pDecimalDigits: Integer): Char;
-    function MoneyKeyControl(pKey: Char; pDecimalDigits: Integer): Char;
-    function DateKeyControl(pKey: Char): Char;
+    function IntegerKeyControl(AKey: Char): Char;
+    function FloatKeyControl(AKey: Char; ADecimalDigits: Integer): Char;
+    function MoneyKeyControl(AKey: Char; ADecimalDigits: Integer): Char;
+    function DateKeyControl(AKey: Char): Char;
 
     function ValidateDate():boolean;
     procedure SetHelperProcess(const Value: TNotifyEvent);
@@ -117,6 +118,7 @@ type
     property thsDBFieldName          : string          read FDBFieldName           write FDBFieldName;
     property thsInfo                 : string          read FInfo;
     property thsWrongDateMessage     : string          read FWrongDateMessage      write FWrongDateMessage;
+    property thsOldValue             : string          read FOldValue              write FOldValue;
 
     function moneyToDouble: Double;
   end;
@@ -126,7 +128,7 @@ type
 implementation
 
 uses
-    Vcl.Styles
+  Vcl.Styles
   {$IFDEF THSERP}, ufrmBaseInputDB{$ENDIF}
   ;
 
@@ -238,8 +240,10 @@ end;
 
 procedure TEdit.Change;
 begin
-  if thsInputDataType = itMoney then
-    Self.Repaint;
+//  if thsInputDataType = itMoney then
+//    Self.Repaint;
+//  if thsInputDataType = itFloat then
+//    Self.Repaint;
   inherited;
 end;
 
@@ -332,6 +336,15 @@ begin
     itInteger : ;
     itMoney   : DoubleToMoney;
     itDate    : ValidateDate;
+    itFloat   :
+    begin
+      if (RightStr(Text, 1) = FormatSettings.DecimalSeparator) then
+        Text := Text + StringOfChar('0', thsDecimalDigitCount)
+      else if (Pos(FormatSettings.DecimalSeparator, Text) = 0) then
+        Text := Text + FormatSettings.DecimalSeparator + StringOfChar('0', thsDecimalDigitCount)
+      else if (Length(Text) - Pos(FormatSettings.DecimalSeparator, Text) < thsDecimalDigitCount) then
+        Text := Text + StringOfChar('0', thsDecimalDigitCount - (Length(Text) - Pos(FormatSettings.DecimalSeparator, Text)));
+    end;
   end;
 
   if FDoTrim then
@@ -476,34 +489,39 @@ begin
         Shift := [];
         Clipboard.Clear;
         Clipboard.AsText := Self.Text;
+      end
+      else if (Key = Ord('a')) or (Key = Ord('A')) then
+      begin
+        Key := 0;
+        Self.SelectAll;
       end;
     end;
   end;
 end;
 
-function TEdit.IntegerKeyControl(pKey: Char): Char;
+function TEdit.IntegerKeyControl(AKey: Char): Char;
 begin
-  if not CharInSet(pKey, [#13{Enter}, #8{Backspace}, '0'..'9']) then
-    pKey := #0;
-  Result := pKey;
+  if not CharInSet(AKey, [#13{Enter}, #8{Backspace}, '0'..'9']) then
+    AKey := #0;
+  Result := AKey;
 end;
 
-function TEdit.DateKeyControl(pKey: Char): Char;
+function TEdit.DateKeyControl(AKey: Char): Char;
 begin
-  if (CharInSet(pKey, ['-', '/', '.', ',', FormatSettings.DateSeparator])) then
-    pKey := FormatSettings.DateSeparator;
+  if (CharInSet(AKey, ['-', '/', '.', ',', FormatSettings.DateSeparator])) then
+    AKey := FormatSettings.DateSeparator;
 
   if  (Length(Self.Text) = Self.SelLength) and (not Self.ReadOnly)
-  and (CharInSet(pKey, ['0'..'9', #8{Backspace}, FormatSettings.DateSeparator]))
+  and (CharInSet(AKey, ['0'..'9', #8{Backspace}, FormatSettings.DateSeparator]))
   then
     Self.Clear;
 
-  if not CharInSet(pKey, [#13{Return}, #8{Backspace}, '0'..'9', FormatSettings.DateSeparator])
-  or ((Length(Self.Text) = 0) and ((pKey = FormatSettings.DateSeparator)))
+  if not CharInSet(AKey, [#13{Return}, #8{Backspace}, '0'..'9', FormatSettings.DateSeparator])
+  or ((Length(Self.Text) = 0) and ((AKey = FormatSettings.DateSeparator)))
   then
-    pKey := #0;
+    AKey := #0;
 
-  Result := pKey;
+  Result := AKey;
 end;
 
 procedure TEdit.DatePickerCloseUp(Sender: TObject);
@@ -584,6 +602,16 @@ begin
   if thsInputDataType = itMoney then
     DoubleToMoney;
 
+  if thsInputDataType = itFloat then
+  begin
+    if (RightStr(Text, 1) = FormatSettings.DecimalSeparator) then
+      Text := Text + StringOfChar('0', thsDecimalDigitCount)
+    else if (Pos(FormatSettings.DecimalSeparator, Text) = 0) then
+      Text := Text + FormatSettings.DecimalSeparator + StringOfChar('0', thsDecimalDigitCount)
+    else if (Length(Text) - Pos(FormatSettings.DecimalSeparator, Text) < thsDecimalDigitCount) then
+      Text := Text + StringOfChar('0', thsDecimalDigitCount - (Length(Text) - Pos(FormatSettings.DecimalSeparator, Text)));
+  end;
+
   DrawHelperSing(Self);
 end;
 
@@ -614,98 +642,98 @@ begin
     Result := Ths.Erp.Helper.BaseTypes.moneyToDouble(Text, thsInputDataType);
 end;
 
-function TEdit.FloatKeyControl(pKey: Char; pDecimalDigits: Integer): Char;
+function TEdit.FloatKeyControl(AKey: Char; ADecimalDigits: Integer): Char;
 var
-  divided_string: TStringList;
-  strPrevious, strIntegerPart, strDecimalPart: String;
+  LDividedStr: TStringList;
+  LPrev, LIntPart, LDecimalPart: String;
 begin
   Result := #0;
 
-  if (CharInSet(pKey, ['.', ',', FormatSettings.DecimalSeparator])) then
-    pKey := FormatSettings.DecimalSeparator;
+  if (CharInSet(AKey, ['.', ',', FormatSettings.DecimalSeparator])) then
+    AKey := FormatSettings.DecimalSeparator;
 
-  if CharInSet(pKey, [#8, '0'..'9', FormatSettings.DecimalSeparator]) then
-    Self.Modified := true;
+  if CharInSet(AKey, [#8, '0'..'9', FormatSettings.DecimalSeparator]) then
+    Self.Modified := True;
 
   //Tümünü seçip yazarsa eski bilgiyi temizle
-  if (Length(Self.Text) = Self.SelLength) and (CharInSet(pKey, [#8, '0'..'9', FormatSettings.DecimalSeparator])) then
+  if (Length(Self.Text) = Self.SelLength) and (CharInSet(AKey, [#8, '0'..'9', FormatSettings.DecimalSeparator])) then
     Self.Clear;
 
   //Aradan bilgi girilemez
-  if (Length(Self.Text) > Self.SelStart) and (pKey <> #13) then
-  begin
-    if ContainsStr(Self.Text, FormatSettings.DecimalSeparator) then
-      pKey := #0;
-  end;
+//  if (Length(Self.Text) > Self.SelStart) and (AKey <> #13) then
+//  begin
+//    if ContainsStr(Self.Text, FormatSettings.DecimalSeparator) then
+//      AKey := #0;
+//  end;
 
   //tanýmlý tuþlar harici tuþlar girilmez veya seperator sadece bir kere girilebilir
-  if not CharInSet(pKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then
-    pKey := #0
-  else if (pKey = FormatSettings.DecimalSeparator) and (Pos(pKey, Self.Text) > 0) then
-    pKey := #0;
+  if not CharInSet(AKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then
+    AKey := #0;
+  if (AKey = FormatSettings.DecimalSeparator) and (Pos(AKey, Self.Text) > 0) then
+    AKey := #0;
 
-  if (Self.MaxLength <> 0) and (Length(Self.Text) = Self.MaxLength) and (not CharInSet(pKey, [#13, #8])) then
-    pKey := #0;
+  if (Self.MaxLength <> 0) and (Length(Self.Text) = Self.MaxLength) and (not CharInSet(AKey, [#13, #8])) then
+    AKey := #0;
 
-  if pKey <> #0 then
+  if AKey <> #0 then
   begin
-    strPrevious := Self.Text;
+    LPrev := Self.Text;
 
-    if (Length(strPrevious) = 0) then
+    if (Length(LPrev) = 0) then
     begin
-      if pKey = #13 then
-        Result := pKey
-      else if pKey = '0' then
+      if AKey = #13 then
+        Result := AKey
+      else if AKey = '0' then
       begin
-        Result := FormatSettings.DecimalSeparator;
-        Self.Text := '0';
+        Result := AKey
       end
-      else if pKey = FormatSettings.DecimalSeparator then
+      else if AKey = FormatSettings.DecimalSeparator then
       begin
-        Result := pKey;
+        Result := AKey;
         Self.Text := '0';
+        Self.SelStart := 1;
       end
-      else if CharInSet(pKey, ['1'..'9']) then
-        Result := pKey;
+      else if CharInSet(AKey, ['1'..'9']) then
+        Result := AKey;
     end
-    else if (Length(strPrevious) > 0) then
+    else if (Length(LPrev) > 0) then
     begin
       if (Pos(FormatSettings.DecimalSeparator, Self.Text) > 0) then
       begin
-        divided_string := TStringList.Create;
+        LDividedStr := TStringList.Create;
         try
-          Assert(Assigned(divided_string)) ;
-          divided_string.Clear;
-          divided_string.Delimiter := FormatSettings.DecimalSeparator;
-          divided_string.DelimitedText := strPrevious;
+          Assert(Assigned(LDividedStr)) ;
+          LDividedStr.Clear;
+          LDividedStr.Delimiter := FormatSettings.DecimalSeparator;
+          LDividedStr.DelimitedText := LPrev;
 
-          strIntegerPart := divided_string[0];
-          strDecimalPart := divided_string[1];
+          LIntPart := LDividedStr[0];
+          LDecimalPart := LDividedStr[1];
 
-          if (Length(strDecimalPart) < pDecimalDigits) then
+          if (Length(LDecimalPart) < ADecimalDigits) then
           begin
-            if (pKey = #13) then
-              Self.Text := Self.Text + StringOfChar('0', pDecimalDigits-Length(strDecimalPart));
-            Result := pKey;
+            if (AKey = #13) then
+              Self.Text := Self.Text + StringOfChar('0', ADecimalDigits-Length(LDecimalPart));
+            Result := AKey;
           end
           else
           begin
-            if (pKey = #13) or (pKey = #8) then
-              Result := pKey;
+            if (AKey = #13) or (AKey = #8) then
+              Result := AKey;
           end;
         finally
-          divided_string.Destroy;
+          LDividedStr.Destroy;
         end;
       end
       else
       begin
-        if (pKey = #13) then
-          Self.Text := Self.Text + FormatSettings.DecimalSeparator + StringOfChar('0', pDecimalDigits-Length(strDecimalPart));
-        Result := pKey;
+        if (AKey = #13) then
+          Self.Text := Self.Text + FormatSettings.DecimalSeparator + StringOfChar('0', ADecimalDigits-Length(LDecimalPart));
+        Result := AKey;
       end;
 
     end;
-    Self.SelStart := Length(Self.Text);
+    //Self.SelStart := Length(Self.Text);
   end;
 end;
 
@@ -826,7 +854,7 @@ begin
     end;
 end;
 
-function TEdit.MoneyKeyControl(pKey: Char; pDecimalDigits: Integer): Char;
+function TEdit.MoneyKeyControl(AKey: Char; ADecimalDigits: Integer): Char;
 var
   vDividedString: TStringList;
   vPrevious, vIntegerPart, vDecimalPart: string;
@@ -836,42 +864,41 @@ begin
 
   FAllSelected := (Length(Self.Text) = Self.SelLength);
 
-  if (CharInSet(pKey, ['.', ',', FormatSettings.DecimalSeparator])) then
-    pKey := FormatSettings.DecimalSeparator;
+  if (CharInSet(AKey, ['.', ',', FormatSettings.DecimalSeparator])) then
+    AKey := FormatSettings.DecimalSeparator;
 
-  if CharInSet(pKey, [#8, '0'..'9', FormatSettings.DecimalSeparator]) then
+  if CharInSet(AKey, [#8, '0'..'9', FormatSettings.DecimalSeparator]) then
     Self.Modified := true;
 
   //Already SelectAll clear
-  if FAllSelected and (pKey <> #13) then
+  if FAllSelected and (AKey <> #13) then
     Self.Clear;
 
   //tanýmlý tuþlar harici tuþlar girilmez veya seperator sadece bir kere girilebilir
-  if (pKey = FormatSettings.DecimalSeparator) and (Pos(pKey, Self.Text) > 0) then
-    pKey := #0
-  else if not CharInSet(pKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then
-    pKey := #0;
+  if (AKey = FormatSettings.DecimalSeparator) and (Pos(AKey, Self.Text) > 0) then
+    AKey := #0
+  else if not CharInSet(AKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then
+    AKey := #0;
 
-  if pKey <> #0 then
+  if AKey <> #0 then
   begin
     vPrevious := Self.Text;
-
     if (Length(vPrevious) = 0) then
     begin
-      if pKey = #13 then
-        Result := pKey
-      else if pKey = '0' then
+      if AKey = #13 then
+        Result := AKey
+      else if AKey = '0' then
       begin
-        Result := FormatSettings.DecimalSeparator;
-        Self.Text := '0';
+        Result := AKey
       end
-      else if pKey = FormatSettings.DecimalSeparator then
+      else if AKey = FormatSettings.DecimalSeparator then
       begin
-        Result := pKey;
+        Result := AKey;
         Self.Text := '0';
+        Self.SelStart := 1;
       end
-      else if CharInSet(pKey, ['1'..'9']) then
-        Result := pKey;
+      else if CharInSet(AKey, ['1'..'9']) then
+        Result := AKey;
     end
     else if (Length(vPrevious) > 0) then
     begin
@@ -890,21 +917,21 @@ begin
           vIntegerPart := vDividedString[0];
           vDecimalPart := vDividedString[1];
 
-          if (Length(VDecimalPart) < pDecimalDigits) then
+          if (Length(VDecimalPart) < ADecimalDigits) then
           begin
-            if (pKey = #13) then
+            if (AKey = #13) then
               Self.Text := Self.Text + StringOfChar('0', FDecimalDigitCount-Length(vDecimalPart));
 
-            Result := pKey;
+            Result := AKey;
           end
           else
           begin
             if (vPosCursor <= vPosDecimalSeparator) then
-              Result := pKey
+              Result := AKey
             else
             begin
               //if (pKey = #13) or (pKey = #8) then
-                Result := pKey;
+                Result := AKey;
             end;
           end;
 
@@ -915,9 +942,9 @@ begin
       end
       else
       begin
-        if (pKey = #13) then
+        if (AKey = #13) then
           Self.Text := Self.Text + FormatSettings.DecimalSeparator + '00';
-        Result := pKey;
+        Result := AKey;
       end;
 
     end;

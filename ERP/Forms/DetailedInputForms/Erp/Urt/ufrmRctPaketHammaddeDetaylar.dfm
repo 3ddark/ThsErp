@@ -4,54 +4,52 @@ inherited frmRctPaketHammaddeDetaylar: TfrmRctPaketHammaddeDetaylar
   ClientWidth = 783
   ExplicitWidth = 799
   ExplicitHeight = 600
-  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 779
-    Height = 509
-    ExplicitWidth = 779
-    ExplicitHeight = 495
+    Width = 783
+    Height = 511
+    ExplicitWidth = 783
+    ExplicitHeight = 511
     inherited splLeft: TSplitter
-      Top = 45
-      Height = 463
+      Top = 44
+      Height = 467
       ExplicitTop = 437
       ExplicitHeight = 502
     end
     inherited splHeader: TSplitter
-      Top = 42
-      Width = 777
+      Top = 41
+      Width = 783
       ExplicitLeft = 0
       ExplicitTop = 74
       ExplicitWidth = 973
     end
     inherited pgcMain: TPageControl
-      Top = 45
-      Width = 671
-      Height = 463
-      ExplicitTop = 109
-      ExplicitWidth = 671
-      ExplicitHeight = 385
+      Top = 44
+      Width = 677
+      Height = 467
+      ExplicitTop = 44
+      ExplicitWidth = 677
+      ExplicitHeight = 467
       inherited tsMain: TTabSheet
-        ExplicitWidth = 663
-        ExplicitHeight = 357
+        ExplicitWidth = 669
+        ExplicitHeight = 439
       end
     end
     inherited pnlHeader: TPanel
-      Width = 773
+      Width = 779
       Height = 38
-      ExplicitWidth = 773
+      ExplicitWidth = 779
       ExplicitHeight = 38
       inherited pgcHeader: TPageControl
-        Width = 771
+        Width = 777
         Height = 36
-        ExplicitWidth = 771
-        ExplicitHeight = 100
+        ExplicitWidth = 777
+        ExplicitHeight = 36
         inherited tsHeader: TTabSheet
           Caption = 'Genel'
-          ExplicitLeft = 24
-          ExplicitTop = 4
-          ExplicitWidth = 743
-          ExplicitHeight = 92
+          ExplicitLeft = 44
+          ExplicitWidth = 729
+          ExplicitHeight = 28
           object lblpaket_adi: TLabel
             Left = 80
             Top = 7
@@ -75,48 +73,45 @@ inherited frmRctPaketHammaddeDetaylar: TfrmRctPaketHammaddeDetaylar
           end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitLeft = 24
-          ExplicitTop = 4
-          ExplicitWidth = 743
-          ExplicitHeight = 92
+          ExplicitLeft = 44
+          ExplicitWidth = 729
+          ExplicitHeight = 28
         end
       end
     end
     inherited pnlContent: TPanel
-      Top = 45
-      Width = 671
-      Height = 463
-      ExplicitTop = 109
-      ExplicitWidth = 671
-      ExplicitHeight = 385
+      Top = 44
+      Width = 677
+      Height = 467
+      ExplicitTop = 44
+      ExplicitWidth = 677
+      ExplicitHeight = 467
       inherited pgcContent: TPageControl
-        Width = 669
-        Height = 459
-        ExplicitWidth = 669
-        ExplicitHeight = 381
+        Width = 675
+        Height = 463
+        ExplicitWidth = 675
+        ExplicitHeight = 463
         inherited ts1: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
-          ExplicitWidth = 661
-          ExplicitHeight = 353
+          ExplicitWidth = 667
+          ExplicitHeight = 435
           inherited pnl1: TPanel
-            Top = 351
-            Width = 661
+            Top = 369
+            Width = 667
             Height = 66
-            ExplicitTop = 287
-            ExplicitWidth = 661
+            ExplicitTop = 369
+            ExplicitWidth = 667
             ExplicitHeight = 66
             inherited grpGenelToplamKalan: TGroupBox
-              Left = 191
+              Left = 197
               Height = 62
               Visible = False
-              ExplicitLeft = 191
+              ExplicitLeft = 197
               ExplicitHeight = 62
             end
             inherited grpGenelToplam: TGroupBox
-              Left = 426
+              Left = 432
               Height = 62
-              ExplicitLeft = 426
+              ExplicitLeft = 432
               ExplicitHeight = 62
               inherited lblToplamTutar: TLabel
                 Caption = 'Toplam Maliyet'
@@ -147,24 +142,22 @@ inherited frmRctPaketHammaddeDetaylar: TfrmRctPaketHammaddeDetaylar
               end
             end
             inherited flwpnl1: TFlowPanel
-              Width = 189
+              Width = 195
               Height = 66
-              ExplicitWidth = 189
+              ExplicitWidth = 195
               ExplicitHeight = 66
             end
           end
           inherited strngrd1: TStringGrid
-            Width = 661
-            Height = 351
-            ExplicitWidth = 661
-            ExplicitHeight = 351
+            Width = 667
+            Height = 369
+            ExplicitWidth = 667
+            ExplicitHeight = 369
           end
         end
         inherited ts2: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
-          ExplicitWidth = 661
-          ExplicitHeight = 353
+          ExplicitWidth = 667
+          ExplicitHeight = 435
           inherited pnl2: TPanel
             Top = 351
             Width = 661
@@ -187,10 +180,8 @@ inherited frmRctPaketHammaddeDetaylar: TfrmRctPaketHammaddeDetaylar
           end
         end
         inherited ts3: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
-          ExplicitWidth = 661
-          ExplicitHeight = 353
+          ExplicitWidth = 667
+          ExplicitHeight = 435
           inherited strngrd3: TStringGrid
             Width = 661
             Height = 351
@@ -221,24 +212,24 @@ inherited frmRctPaketHammaddeDetaylar: TfrmRctPaketHammaddeDetaylar
       end
     end
     inherited pnlLeft: TPanel
-      Top = 46
-      Height = 460
-      ExplicitTop = 110
-      ExplicitHeight = 382
+      Top = 45
+      Height = 464
+      ExplicitTop = 45
+      ExplicitHeight = 464
     end
   end
   inherited pnlBottom: TPanel
     Top = 513
     Width = 779
-    ExplicitTop = 499
+    ExplicitTop = 513
     ExplicitWidth = 779
     inherited btnAccept: TButton
-      Left = 570
-      ExplicitLeft = 570
+      Left = 573
+      ExplicitLeft = 573
     end
     inherited btnClose: TButton
-      Left = 674
-      ExplicitLeft = 674
+      Left = 677
+      ExplicitLeft = 677
     end
   end
   inherited stbBase: TStatusBar

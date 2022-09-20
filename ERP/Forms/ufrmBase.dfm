@@ -24,21 +24,24 @@ object frmBase: TfrmBase
   OnPaint = FormPaint
   OnResize = FormResize
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMain: TPanel
-    AlignWithMargins = True
-    Left = 2
-    Top = 2
-    Width = 602
-    Height = 350
+    Left = 0
+    Top = 0
+    Width = 606
+    Height = 352
     Margins.Left = 2
     Margins.Top = 2
     Margins.Right = 2
     Margins.Bottom = 0
     Align = alClient
+    BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
+    ExplicitLeft = 2
+    ExplicitTop = 2
+    ExplicitWidth = 602
+    ExplicitHeight = 350
   end
   object pnlBottom: TPanel
     AlignWithMargins = True
@@ -51,17 +54,14 @@ object frmBase: TfrmBase
     Margins.Right = 2
     Margins.Bottom = 2
     Align = alBottom
+    BevelOuter = bvNone
     Color = 14993769
-    Padding.Left = 2
-    Padding.Top = 2
-    Padding.Right = 2
-    Padding.Bottom = 2
     TabOrder = 1
     object btnSpin: TSpinButton
-      Left = 3
-      Top = 3
+      Left = 0
+      Top = 0
       Width = 15
-      Height = 22
+      Height = 28
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
@@ -91,13 +91,16 @@ object frmBase: TfrmBase
       Visible = False
       OnDownClick = btnSpinDownClick
       OnUpClick = btnSpinUpClick
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitHeight = 24
     end
     object btnAccept: TButton
       AlignWithMargins = True
-      Left = 393
-      Top = 3
+      Left = 396
+      Top = 0
       Width = 100
-      Height = 22
+      Height = 28
       Margins.Left = 2
       Margins.Top = 0
       Margins.Right = 2
@@ -117,13 +120,16 @@ object frmBase: TfrmBase
       ParentFont = False
       TabOrder = 1
       OnClick = btnAcceptClick
+      ExplicitLeft = 394
+      ExplicitTop = 2
+      ExplicitHeight = 24
     end
     object btnClose: TButton
       AlignWithMargins = True
-      Left = 497
-      Top = 3
+      Left = 500
+      Top = 0
       Width = 100
-      Height = 22
+      Height = 28
       Margins.Left = 2
       Margins.Top = 0
       Margins.Right = 2
@@ -143,13 +149,16 @@ object frmBase: TfrmBase
       ParentFont = False
       TabOrder = 2
       OnClick = btnCloseClick
+      ExplicitLeft = 498
+      ExplicitTop = 2
+      ExplicitHeight = 24
     end
     object btnDelete: TButton
       AlignWithMargins = True
-      Left = 20
-      Top = 3
+      Left = 17
+      Top = 0
       Width = 100
-      Height = 22
+      Height = 28
       Margins.Left = 2
       Margins.Top = 0
       Margins.Right = 2
@@ -169,6 +178,9 @@ object frmBase: TfrmBase
       ParentFont = False
       TabOrder = 3
       OnClick = btnDeleteClick
+      ExplicitLeft = 19
+      ExplicitTop = 2
+      ExplicitHeight = 24
     end
   end
   object stbBase: TStatusBar

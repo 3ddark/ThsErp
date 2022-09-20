@@ -95,10 +95,10 @@ begin
 
           if LFrmStokKarti.DataAktar then
           begin
-            edtstok_kodu.Text := TStkStokKarti(LFrmStokKarti.Table).StokKodu.Value;
-            lblstok_aciklama.Caption := TStkStokKarti(LFrmStokKarti.Table).StokAdi.Value;
-            lblmiktar_birim.Caption := TStkStokKarti(LFrmStokKarti.Table).OlcuBirimi.Value;
-            TRctReceteYanUrun(Table).Fiyat.Value := TStkStokKarti(LFrmStokKarti.Table).AlisFiyat.Value;
+            edtstok_kodu.Text := TStkStokKarti(LFrmStokKarti.Table).StokKodu.AsString;
+            lblstok_aciklama.Caption := TStkStokKarti(LFrmStokKarti.Table).StokAdi.AsString;
+            lblmiktar_birim.Caption := TStkStokKarti(LFrmStokKarti.Table).OlcuBirimi.AsString;
+            TRctReceteYanUrun(Table).Fiyat.Value := TStkStokKarti(LFrmStokKarti.Table).AlisFiyat.AsFloat;
           end;
         finally
           LFrmStokKarti.Free;
@@ -110,10 +110,10 @@ end;
 
 procedure TfrmRctReceteYanUrun.RefreshData();
 begin
-  edtstok_kodu.Text := FormatedVariantVal(TRctReceteYanUrun(Table).StokKodu);
-  lblstok_aciklama.Caption := FormatedVariantVal(TRctReceteYanUrun(Table).StokAdi);
-  edtmiktar.Text := FormatedVariantVal(TRctReceteYanUrun(Table).Miktar);
-  lblmiktar_birim.Caption := FormatedVariantVal(TRctReceteYanUrun(Table).OlcuBirimi);
+  edtstok_kodu.Text := TRctReceteYanUrun(Table).StokKodu.AsString;
+  lblstok_aciklama.Caption := TRctReceteYanUrun(Table).StokAdi.AsString;
+  edtmiktar.Text := TRctReceteYanUrun(Table).Miktar.AsString;
+  lblmiktar_birim.Caption := TRctReceteYanUrun(Table).OlcuBirimi.AsString;
 end;
 
 procedure TfrmRctReceteYanUrun.btnAcceptClick(Sender: TObject);

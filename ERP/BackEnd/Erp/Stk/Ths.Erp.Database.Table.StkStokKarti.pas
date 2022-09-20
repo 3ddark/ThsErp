@@ -6,6 +6,8 @@ interface
 
 uses
   System.Variants,
+  System.SysUtils,
+  System.Math,
   Data.DB,
   Ths.Erp.Database,
   Ths.Erp.Database.Table,
@@ -13,7 +15,9 @@ uses
   Ths.Erp.Database.Table.SysOlcuBirimi,
   Ths.Erp.Database.Table.StkCinsOzelligi,
   Ths.Erp.Database.Table.SysUlke,
-  Ths.Erp.Database.Table.SetStkUrunTipi;
+  Ths.Erp.Database.Table.SetStkUrunTipi,
+  Ths.Erp.Database.Table.SysParaBirimi,
+  Ths.Erp.Database.Table.MhsDovizKuru;
 
 type
   TStkStokKarti = class(TTable)
@@ -70,10 +74,12 @@ type
     FD4: TFieldDB;
   protected
     FStkStokGrubu: TStkStokGrubu;
-    FSysBirim: TSysOlcuBirimi;
-    FCinsOzelligi: TStkCinsOzelligi;
+    FSysOlcuBirimi: TSysOlcuBirimi;
+    FStkCinsOzelligi: TStkCinsOzelligi;
     FSysUlke: TSysUlke;
     FSetStkUrunTipi: TSetStkUrunTipi;
+  public
+    function GetSatisFiyatiByDoviz(AParaBirimi: string; ADovizKuru: Double; AKurTarihi: TDateTime): Double;
   published
     constructor Create(ADatabase: TDatabase); override;
 
@@ -141,8 +147,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TStkStokKarti.Create(ADatabase: TDatabase);
 begin
@@ -151,8 +156,8 @@ begin
   inherited Create(ADatabase);
 
   FStkStokGrubu := TStkStokGrubu.Create(Database);
-  FSysBirim := TSysOlcuBirimi.Create(Database);
-  FCinsOzelligi := TStkCinsOzelligi.Create(Database);
+  FSysOlcuBirimi := TSysOlcuBirimi.Create(Database);
+  FStkCinsOzelligi := TStkCinsOzelligi.Create(Database);
   FSysUlke := TSysUlke.Create(Database);
   FSetStkUrunTipi := TSetStkUrunTipi.Create(Database);
 
@@ -162,7 +167,7 @@ begin
   FStokGrubuID := TFieldDB.Create('stok_grubu_id', ftInteger, 0, Self, 'Stok Grubu ID');
   FStokGrubu := TFieldDB.Create(FStkStokGrubu.StokGrubu.FieldName, FStkStokGrubu.StokGrubu.DataType, '', Self, 'Stok Grubu');
   FOlcuBirimiID := TFieldDB.Create('olcu_birimi_id', ftInteger, 0, Self, 'Ölçü Birimi ID');
-  FOlcuBirimi := TFieldDB.Create(FSysBirim.OlcuBirimi.FieldName, FSysBirim.OlcuBirimi.DataType, '', Self, 'Ölçü Birimi');
+  FOlcuBirimi := TFieldDB.Create(FSysOlcuBirimi.OlcuBirimi.FieldName, FSysOlcuBirimi.OlcuBirimi.DataType, '', Self, 'Ölçü Birimi');
   FUrunTipiID := TFieldDB.Create('urun_tipi_id', ftInteger, 0, Self, 'Ürün Tipi ID');
   FUrunTipi := TFieldDB.Create(FSetStkUrunTipi.UrunTipi.FieldName, FSetStkUrunTipi.UrunTipi.DataType, '', Self, 'Ürün Tipi');
   FAlisIskonto := TFieldDB.Create('alis_iskonto', ftFloat, 0, Self, 'Alýþ Ýskonto');
@@ -189,7 +194,7 @@ begin
   FTanim := TFieldDB.Create('tanim', ftString, '', Self, 'Taným');
   FStokResim := TFieldDB.Create('stok_resim', ftBytes, 0, Self, 'Stok Resim');
   FCinsID := TFieldDB.Create('cins_id', ftInteger, 0, Self, 'Cins ID');
-  FCins := TFieldDB.Create(FCinsOzelligi.Cins.FieldName, FCinsOzelligi.Cins.DataType, '', Self, 'Cins');
+  FCins := TFieldDB.Create(FStkCinsOzelligi.Cins.FieldName, FStkCinsOzelligi.Cins.DataType, '', Self, 'Cins');
   FS1 := TFieldDB.Create('s1', ftString, '', Self, 'S1');
   FS2 := TFieldDB.Create('s2', ftString, '', Self, 'S2');
   FS3 := TFieldDB.Create('s3', ftString, '', Self, 'S3');
@@ -211,11 +216,51 @@ end;
 destructor TStkStokKarti.Destroy;
 begin
   FStkStokGrubu.Free;
-  FSysBirim.Free;
-  FCinsOzelligi.Free;
+  FSysOlcuBirimi.Free;
+  FStkCinsOzelligi.Free;
   FSysUlke.Free;
   FSetStkUrunTipi.Free;
   inherited;
+end;
+
+function TStkStokKarti.GetSatisFiyatiByDoviz(AParaBirimi: string; ADovizKuru: Double; AKurTarihi: TDateTime): Double;
+var
+  n1, n2: Integer;
+  LDovizKuru: TMhsDovizKuru;
+begin
+  if AKurTarihi=0 then
+    CreateExceptionByLang('Verilen Kur tarihi "Sýfýr" olamaz!!', '888888');
+
+  Result := 0;
+  if SatisPara.AsString = AParaBirimi then
+    Result := Self.SatisFiyat.AsFloat
+  else
+  begin
+    for n1 := 0 to GParaBirimi.List.Count-1 do
+    begin
+      if (AParaBirimi = TSysParaBirimi(GParaBirimi.List[n1]).ParaBirimi.AsString) then
+      begin
+        if(TSysParaBirimi(GParaBirimi.List[n1]).IsVarsayilan.AsBoolean) then
+          Result := SatisPara.AsFloat
+        else
+        begin
+          LDovizKuru := TMhsDovizKuru.Create(Database);
+          try
+            LDovizKuru.SelectToList(' AND ' + LDovizKuru.Tarih.QryName + '=' + QuotedStr(DateToStr(AKurTarihi)), False, False);
+            for n2 := 0 to LDovizKuru.List.Count-1 do
+              if TMhsDovizKuru(LDovizKuru.List[n2]).ParaBirimi.AsString = SatisPara.AsString then
+              begin
+                Result := SimpleRoundTo(SatisFiyat.AsFloat * TMhsDovizKuru(LDovizKuru.List[n2]).Kur.AsFloat / ADovizKuru);
+                Break;
+              end;
+          finally
+            FreeAndNil(LDovizKuru);
+          end;
+        end;
+          Break;
+      end;
+    end;
+  end;
 end;
 
 procedure TStkStokKarti.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
@@ -226,63 +271,63 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsSatilabilir.FieldName,
-        TableName + '.' + FStokKodu.FieldName,
-        TableName + '.' + FStokAdi.FieldName,
-        TableName + '.' + FStokGrubuID.FieldName,
+        Id.QryName,
+        FIsSatilabilir.QryName,
+        FStokKodu.QryName,
+        FStokAdi.QryName,
+        FStokGrubuID.QryName,
         addField(FStkStokGrubu.TableName, FStkStokGrubu.StokGrubu.FieldName, FStokGrubu.FieldName),
-        TableName + '.' + FOlcuBirimiID.FieldName,
-        addField(FSysBirim.TableName, FSysBirim.OlcuBirimi.FieldName, FOlcuBirimi.FieldName),
-        TableName + '.' + FUrunTipiID.FieldName,
+        FOlcuBirimiID.QryName,
+        addField(FSysOlcuBirimi.TableName, FSysOlcuBirimi.OlcuBirimi.FieldName, FOlcuBirimi.FieldName),
+        FUrunTipiID.QryName,
         addField(FSetStkUrunTipi.TableName, FSetStkUrunTipi.UrunTipi.FieldName, FUrunTipi.FieldName),
-        TableName + '.' + FAlisIskonto.FieldName,
-        TableName + '.' + FSatisIskonto.FieldName,
-        TableName + '.' + FAlisFiyat.FieldName,
-        TableName + '.' + FAlisPara.FieldName,
-        TableName + '.' + FSatisFiyat.FieldName,
-        TableName + '.' + FSatisPara.FieldName,
-        TableName + '.' + FIhracFiyat.FieldName,
-        TableName + '.' + FIhracPara.FieldName,
-        TableName + '.' + FOrtalamaMaliyet.FieldName,
-        TableName + '.' + FEn.FieldName,
-        TableName + '.' + FBoy.FieldName,
-        TableName + '.' + FYukseklik.FieldName,
-        TableName + '.' + FAgirlik.FieldName,
-        TableName + '.' + FTeminSuresi.FieldName,
-        TableName + '.' + FOzelKod.FieldName,
-        TableName + '.' + FMarka.FieldName,
-        TableName + '.' + FMenseiID.FieldName,
+        FAlisIskonto.QryName,
+        FSatisIskonto.QryName,
+        FAlisFiyat.QryName,
+        FAlisPara.QryName,
+        FSatisFiyat.QryName,
+        FSatisPara.QryName,
+        FIhracFiyat.QryName,
+        FIhracPara.QryName,
+        FOrtalamaMaliyet.QryName,
+        FEn.QryName,
+        FBoy.QryName,
+        FYukseklik.QryName,
+        FAgirlik.QryName,
+        FTeminSuresi.QryName,
+        FOzelKod.QryName,
+        FMarka.QryName,
+        FMenseiID.QryName,
         addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FMensei.FieldName),
-        TableName + '.' + FGtipNo.FieldName,
-        TableName + '.' + FDiibUrunTanimi.FieldName,
-        TableName + '.' + FEnAzStokSeviyesi.FieldName,
-        TableName + '.' + FTanim.FieldName,
-        TableName + '.' + FStokResim.FieldName,
-        TableName + '.' + FCinsID.FieldName,
-        addField(FCinsOzelligi.TableName, FCinsOzelligi.Cins.FieldName, FCins.FieldName),
-        TableName + '.' + FS1.FieldName,
-        TableName + '.' + FS2.FieldName,
-        TableName + '.' + FS3.FieldName,
-        TableName + '.' + FS4.FieldName,
-        TableName + '.' + FS5.FieldName,
-        TableName + '.' + FS6.FieldName,
-        TableName + '.' + FS7.FieldName,
-        TableName + '.' + FS8.FieldName,
-        TableName + '.' + FI1.FieldName,
-        TableName + '.' + FI2.FieldName,
-        TableName + '.' + FI3.FieldName,
-        TableName + '.' + FI4.FieldName,
-        TableName + '.' + FD1.FieldName,
-        TableName + '.' + FD2.FieldName,
-        TableName + '.' + FD3.FieldName,
-        TableName + '.' + FD4.FieldName
+        FGtipNo.QryName,
+        FDiibUrunTanimi.QryName,
+        FEnAzStokSeviyesi.QryName,
+        FTanim.QryName,
+        FStokResim.QryName,
+        FCinsID.QryName,
+        addField(FStkCinsOzelligi.TableName, FStkCinsOzelligi.Cins.FieldName, FCins.FieldName),
+        FS1.QryName,
+        FS2.QryName,
+        FS3.QryName,
+        FS4.QryName,
+        FS5.QryName,
+        FS6.QryName,
+        FS7.QryName,
+        FS8.QryName,
+        FI1.QryName,
+        FI2.QryName,
+        FI3.QryName,
+        FI4.QryName,
+        FD1.QryName,
+        FD2.QryName,
+        FD3.QryName,
+        FD4.QryName
       ], [
         addJoin(jtLeft, FStkStokGrubu.TableName, FStkStokGrubu.Id.FieldName, TableName, FStokGrubuID.FieldName),
-        addJoin(jtLeft, FSysBirim.TableName, FSysBirim.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
+        addJoin(jtLeft, FSysOlcuBirimi.TableName, FSysOlcuBirimi.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
         addJoin(jtLeft, FSetStkUrunTipi.TableName, FSetStkUrunTipi.Id.FieldName, TableName, FUrunTipiID.FieldName),
         addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FMenseiID.FieldName),
-        addJoin(jtLeft, FCinsOzelligi.TableName, FCinsOzelligi.Id.FieldName, TableName, FCinsID.FieldName),
+        addJoin(jtLeft, FStkCinsOzelligi.TableName, FStkCinsOzelligi.Id.FieldName, TableName, FCinsID.FieldName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
@@ -302,63 +347,63 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsSatilabilir.FieldName,
-        TableName + '.' + FStokKodu.FieldName,
-        TableName + '.' + FStokAdi.FieldName,
-        TableName + '.' + FStokGrubuID.FieldName,
+        Id.QryName,
+        FIsSatilabilir.QryName,
+        FStokKodu.QryName,
+        FStokAdi.QryName,
+        FStokGrubuID.QryName,
         addField(FStkStokGrubu.TableName, FStkStokGrubu.StokGrubu.FieldName, FStokGrubu.FieldName),
-        TableName + '.' + FOlcuBirimiID.FieldName,
-        addField(FSysBirim.TableName, FSysBirim.OlcuBirimi.FieldName, FOlcuBirimi.FieldName),
-        TableName + '.' + FUrunTipiID.FieldName,
+        FOlcuBirimiID.QryName,
+        addField(FSysOlcuBirimi.TableName, FSysOlcuBirimi.OlcuBirimi.FieldName, FOlcuBirimi.FieldName),
+        FUrunTipiID.QryName,
         addField(FSetStkUrunTipi.TableName, FSetStkUrunTipi.UrunTipi.FieldName, FUrunTipi.FieldName),
-        TableName + '.' + FAlisIskonto.FieldName,
-        TableName + '.' + FSatisIskonto.FieldName,
-        TableName + '.' + FAlisFiyat.FieldName,
-        TableName + '.' + FAlisPara.FieldName,
-        TableName + '.' + FSatisFiyat.FieldName,
-        TableName + '.' + FSatisPara.FieldName,
-        TableName + '.' + FIhracFiyat.FieldName,
-        TableName + '.' + FIhracPara.FieldName,
-        TableName + '.' + FOrtalamaMaliyet.FieldName,
-        TableName + '.' + FEn.FieldName,
-        TableName + '.' + FBoy.FieldName,
-        TableName + '.' + FYukseklik.FieldName,
-        TableName + '.' + FAgirlik.FieldName,
-        TableName + '.' + FTeminSuresi.FieldName,
-        TableName + '.' + FOzelKod.FieldName,
-        TableName + '.' + FMarka.FieldName,
-        TableName + '.' + FMenseiID.FieldName,
+        FAlisIskonto.QryName,
+        FSatisIskonto.QryName,
+        FAlisFiyat.QryName,
+        FAlisPara.QryName,
+        FSatisFiyat.QryName,
+        FSatisPara.QryName,
+        FIhracFiyat.QryName,
+        FIhracPara.QryName,
+        FOrtalamaMaliyet.QryName,
+        FEn.QryName,
+        FBoy.QryName,
+        FYukseklik.QryName,
+        FAgirlik.QryName,
+        FTeminSuresi.QryName,
+        FOzelKod.QryName,
+        FMarka.QryName,
+        FMenseiID.QryName,
         addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FMensei.FieldName),
-        TableName + '.' + FGtipNo.FieldName,
-        TableName + '.' + FDiibUrunTanimi.FieldName,
-        TableName + '.' + FEnAzStokSeviyesi.FieldName,
-        TableName + '.' + FTanim.FieldName,
-        TableName + '.' + FStokResim.FieldName,
-        TableName + '.' + FCinsID.FieldName,
-        addField(FCinsOzelligi.TableName, FCinsOzelligi.Cins.FieldName, FCins.FieldName),
-        TableName + '.' + FS1.FieldName,
-        TableName + '.' + FS2.FieldName,
-        TableName + '.' + FS3.FieldName,
-        TableName + '.' + FS4.FieldName,
-        TableName + '.' + FS5.FieldName,
-        TableName + '.' + FS6.FieldName,
-        TableName + '.' + FS7.FieldName,
-        TableName + '.' + FS8.FieldName,
-        TableName + '.' + FI1.FieldName,
-        TableName + '.' + FI2.FieldName,
-        TableName + '.' + FI3.FieldName,
-        TableName + '.' + FI4.FieldName,
-        TableName + '.' + FD1.FieldName,
-        TableName + '.' + FD2.FieldName,
-        TableName + '.' + FD3.FieldName,
-        TableName + '.' + FD4.FieldName
+        FGtipNo.QryName,
+        FDiibUrunTanimi.QryName,
+        FEnAzStokSeviyesi.QryName,
+        FTanim.QryName,
+        FStokResim.QryName,
+        FCinsID.QryName,
+        addField(FStkCinsOzelligi.TableName, FStkCinsOzelligi.Cins.FieldName, FCins.FieldName),
+        FS1.QryName,
+        FS2.QryName,
+        FS3.QryName,
+        FS4.QryName,
+        FS5.QryName,
+        FS6.QryName,
+        FS7.QryName,
+        FS8.QryName,
+        FI1.QryName,
+        FI2.QryName,
+        FI3.QryName,
+        FI4.QryName,
+        FD1.QryName,
+        FD2.QryName,
+        FD3.QryName,
+        FD4.QryName
       ], [
         addJoin(jtLeft, FStkStokGrubu.TableName, FStkStokGrubu.Id.FieldName, TableName, FStokGrubuID.FieldName),
-        addJoin(jtLeft, FSysBirim.TableName, FSysBirim.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
+        addJoin(jtLeft, FSysOlcuBirimi.TableName, FSysOlcuBirimi.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
         addJoin(jtLeft, FSetStkUrunTipi.TableName, FSetStkUrunTipi.Id.FieldName, TableName, FUrunTipiID.FieldName),
         addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FMenseiID.FieldName),
-        addJoin(jtLeft, FCinsOzelligi.TableName, FCinsOzelligi.Id.FieldName, TableName, FCinsID.FieldName),
+        addJoin(jtLeft, FStkCinsOzelligi.TableName, FStkCinsOzelligi.Id.FieldName, TableName, FCinsID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -369,7 +414,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -437,14 +482,13 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
   end;
 end;
 
@@ -509,7 +553,6 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
   end;
 end;
 

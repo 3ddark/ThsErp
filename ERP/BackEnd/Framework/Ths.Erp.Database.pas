@@ -110,7 +110,6 @@ uses
   Ths.Erp.Constants,
   Ths.Erp.Globals,
   Ths.Erp.Database.Table,
-  Ths.Erp.Database.Singleton,
   Ths.Erp.Database.Table.SysParaBirimi,
   Ths.Erp.Database.Table.SysGridKolon;
 
@@ -459,8 +458,7 @@ end;
 
 procedure TDatabase.GetSQLSelectCmd(AQry: TFDQuery; ATableName: string; AFieldNames: TArray<string>; AWhereJoin: TArray<string>; AAllColumn: Boolean=True; AHelper: Boolean=False);
 var
-  nx, LPos: Integer;
-  AGridColWidth : TSysGridKolon;
+  nx, LIndex: Integer;
 
   procedure _AddAllColumns();
   var
@@ -474,16 +472,15 @@ var
 
   procedure _AddAllColumnsHelper(AColHelper: TColHelper);
   var
-    n1, n2: Integer;
+    n1, n2, LPos: Integer;
     LFieldName: string;
   begin
-    for n2 := 0 to AGridColWidth.List.Count-1 do
+    for n2 := LIndex to GGridColWidth.List.Count-1 do
     begin
       if (n2 = 0) then
-        AQry.SQL.Add(ATableName + '.' + AGridColWidth.Id.FieldName + ', ');
+        AQry.SQL.Add(ATableName + '.' + GGridColWidth.Id.FieldName + ', ');
 
-      if ((TSysGridKolon(AGridColWidth.List[n2]).IsGorunsunHelperForm.Value) and (AColHelper = Helper)) //IsShowForHelper iþaretli kolonlar gelsin
-      //or ((TSysGridColWidth(AGridColWidth.List[n2]).IsAlwaysShow.Value) and (AColHelper = Defined))
+      if ((TSysGridKolon(GGridColWidth.List[n2]).IsGorunsunHelperForm.Value) and (AColHelper = Helper))
       or (AColHelper = Defined)
       then
       begin
@@ -495,9 +492,28 @@ var
             LPos := Pos('.', AFieldNames[n1]);
           LFieldName := AFieldNames[n1].Substring(LPos);
           LFieldName := ReplaceRealColOrTableNameTo(LFieldName);
-          if (TSysGridKolon(AGridColWidth.List[n2]).KolonAdi.Value = LFieldName) then
-            AQry.SQL.Add(AFieldNames[n1] + ', ') //Select için FieldName ekleniyor
+          if (TSysGridKolon(GGridColWidth.List[n2]).KolonAdi.Value = LFieldName) then
+            AQry.SQL.Add(AFieldNames[n1] + ', ')
         end;
+      end;
+    end;
+  end;
+
+  function ExistsGridColWidth(AHelper: Boolean; out Index: Integer): Boolean;
+  var
+    n1: Integer;
+  begin
+    Result := False;
+
+    for n1 := 0 to GGridColWidth.List.Count-1 do
+    begin
+      if  (TSysGridKolon(GGridColWidth.List[n1]).TabloAdi.Value = ATableName)
+      and (TSysGridKolon(GGridColWidth.List[n1]).IsGorunsunHelperForm.AsBoolean =AHelper)
+      then
+      begin
+        Index := n1;
+        Result := True;
+        Break;
       end;
     end;
   end;
@@ -519,19 +535,10 @@ begin
       if Length(AFieldNames) = 0 then
         raise Exception.Create('Database fields are not defined!' + AddLBs + 'This process cannot be done');
 
-      AGridColWidth := TSysGridKolon.Create(GDataBase);
-      try
-        AGridColWidth.SelectToList(
-          ' AND ' + AGridColWidth.TableName + '.' + AGridColWidth.TabloAdi.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
-          ' ORDER BY ' + AGridColWidth.TableName + '.' + AGridColWidth.SiraNo.FieldName + ' ASC ', False, False);
-
-        if AGridColWidth.List.Count = 0 then
-          _AddAllColumns  //tüm kolonlar istenmemiþ olsa bile grid kolon geniþliði tanýmlanmamýþsa select içinde tanýmlanan tüm kolonlarý ekle
+        if ExistsGridColWidth(AHelper, LIndex) then
+          _AddAllColumnsHelper(Helper)
         else
-          _AddAllColumnsHelper(Helper);
-      finally
-        FreeAndNil(AGridColWidth);
-      end;
+          _AddAllColumns;  //tüm kolonlar istenmemiþ olsa bile grid kolon geniþliði tanýmlanmamýþsa select içinde tanýmlanan tüm kolonlarý ekle
     end
     else
     begin
@@ -539,19 +546,10 @@ begin
         _AddAllColumns //tüm kolonlar istenmiþse select içinde tanýmlanan tüm kolonlarý ekle
       else
       begin
-        AGridColWidth := TSysGridKolon.Create(GDataBase);
-        try
-          AGridColWidth.SelectToList(
-            ' AND ' + AGridColWidth.TableName + '.' + AGridColWidth.TabloAdi.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
-            ' ORDER BY ' + AGridColWidth.TableName + '.' + AGridColWidth.SiraNo.FieldName + ' ASC ', False, False);
-
-          if AGridColWidth.List.Count = 0 then
-            _AddAllColumns  //tüm kolonlar istenmemiþ olsa bile grid kolon geniþliði tanýmlanmamýþsa select içinde tanýmlanan tüm kolonlarý ekle
-          else
-            _AddAllColumnsHelper(Defined);  //tüm kolonlar istenmiyorsa sadece IsAlwaysShow tanýmlý kolonlar gelsin
-        finally
-          FreeAndNil(AGridColWidth);
-        end;
+        if ExistsGridColWidth(AHelper, LIndex) then
+          _AddAllColumnsHelper(Defined)  //tüm kolonlar istenmiyorsa sadece IsAlwaysShow tanýmlý kolonlar gelsin
+        else
+          _AddAllColumns;  //tüm kolonlar istenmemiþ olsa bile grid kolon geniþliði tanýmlanmamýþsa select içinde tanýmlanan tüm kolonlarý ekle
       end;
     end;
 

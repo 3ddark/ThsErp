@@ -432,7 +432,7 @@ procedure TfrmBaseInput.SetCaptionFromLangContent;
           if Assigned(vTabSheet) then
             TTabSheet(vTabSheet).Caption :=
                 TranslateText(TTabSheet(vTabSheet).Caption,
-                StringReplace(TTabSheet(vTabSheet).Name, PRX_TABSHEET, '', [rfReplaceAll]),
+                TTabSheet(vTabSheet).Name + ' ' + Name,// + StringReplace(TTabSheet(vTabSheet).Name, PRX_TABSHEET, '', [rfReplaceAll]),
                 LngTab,
                 {ReplaceRealColOrTableNameTo(Table.TableName)}Self.Name
                 );

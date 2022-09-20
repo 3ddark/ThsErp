@@ -132,6 +132,18 @@ type
   end;
 
 type
+  TTotal = record
+    Fiyat: Double;
+    Miktar: Double;
+    Tutar: Double;
+    NetFiyat: Double;
+    NetTutar: Double;
+    IskontoTutar: Double;
+    KDVTutar: Double;
+    ToplamTutar: Double;
+  end;
+
+type
   TTCMBDovizKuruList = TArray<TTCMBDovizKuru>;
 
 type
@@ -233,6 +245,8 @@ type
   function ReplaceToRealColOrTableName(const pTableName: string): string;
   function ReplaceRealColOrTableNameTo(const pTableName: string): string;
   function getFormCaptionByLang(pFormName, pDefaultVal: string): string;
+
+  function CalculateTotalValues(AFiyat, AMiktar, AIskontoOrani, AKDVOrani: Double): TTotal;
 
   function getCryptedData(pVal: string): string;
 
@@ -624,6 +638,11 @@ var
 
   GGuiIcerik: TDictionary<string, TGuiIcerik>;
 
+  /// <summary>
+  ///
+  /// </summary>
+  GGridColWidth: TSysGridKolon;
+
 implementation
 
 class function TObjectClone.From<T>(Source: T): T;
@@ -691,8 +710,8 @@ begin
     LFormNo := TSysQualityFormNumber.Create(GDataBase);
     try
       LFormNo.SelectToList(
-        ' AND ' + LFormNo.TabloAdi.FieldName + '=' + QuotedStr(ATabloAdi) +
-        ' AND ' + LFormNo.FormTipiID.FieldName + '=' + IntToStr(Ord(AKaliteFormTipi)), False, False);
+        ' AND ' + LFormNo.TabloAdi.QryName + '=' + QuotedStr(ATabloAdi) +
+        ' AND ' + LFormNo.FormTipiID.QryName + '=' + IntToStr(Ord(AKaliteFormTipi)), False, False);
 
       if LFormNo.List.Count = 1 then
         Result := VarToStr(FormatedVariantVal(LFormNo.FormNo));
@@ -832,20 +851,31 @@ begin
   Result := TranslateText(pDefaultVal, pFormName, LngFormCaption);
 end;
 
+function CalculateTotalValues(AFiyat, AMiktar, AIskontoOrani, AKDVOrani: Double): TTotal;
+begin
+  Result.Fiyat := AFiyat;
+  Result.Tutar := AFiyat * AMiktar;
+  Result.NetFiyat := AFiyat * ((100-AIskontoOrani)/100);
+  Result.NetTutar := Result.NetFiyat * AMiktar;
+  Result.IskontoTutar := Result.Tutar - Result.NetTutar;
+  Result.KDVTutar := Result.NetTutar * (AKDVOrani)/100;
+  Result.ToplamTutar := Result.NetTutar + Result.KDVTutar;
+end;
+
 function getCryptedData(pVal: string): string;
 var
-  vQry: TFDQuery;
+  LQry: TFDQuery;
 begin
-  vQry := GDataBase.NewQuery();
+  LQry := GDataBase.NewQuery();
   try
-    vQry.Close;
-    vQry.SQL.Clear;
-    vQry.SQL.Text := 'SELECT spget_crypted_data(' + QuotedStr(pVal) + ')';
-    vQry.Open();
-    Result := vQry.FieldByName('spget_crypted_data').AsString;
-    vQry.Close;
+    LQry.Close;
+    LQry.SQL.Clear;
+    LQry.SQL.Text := 'SELECT spget_crypted_data(' + QuotedStr(pVal) + ')';
+    LQry.Open();
+    Result := LQry.FieldByName('spget_crypted_data').AsString;
+    LQry.Close;
   finally
-    vQry.Free;
+    LQry.Free;
   end;
 end;
 
@@ -1089,7 +1119,7 @@ begin
 }
 //  LItem :=
   if GGuiIcerik.TryGetValue(ACode, LItem) then
-    Result := GGuiIcerik.Items[ACode].FDeger;
+    Result := LItem.FDeger;
 
   if (ATip = LngMsgError) then
     Result := 'Hata Kodu = ' + ACode + AddLBs(2) + Result;
@@ -2507,7 +2537,7 @@ begin
   try
     try
       LColWidth.Clear;
-      LColWidth.SelectToList(' AND ' + LColWidth.TableName + '.' + LColWidth.TabloAdi.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)), False, False);
+      LColWidth.SelectToList(' AND ' + LColWidth.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)), False, False);
 
       for n1 := 0 to AGrid.Columns.Count - 1 do
         for n2 := 0 to LColWidth.List.Count-1 do
@@ -2547,11 +2577,11 @@ begin
   vSysGridDefaultOrderFilter := TSysGridFiltreSiralama.Create(GDataBase);
   try
     if pIsOrder then
-      vOrderFilter := ' AND ' + vSysGridDefaultOrderFilter.TableName + '.' + vSysGridDefaultOrderFilter.IsSiralama.FieldName + '=True'
+      vOrderFilter := ' AND ' + vSysGridDefaultOrderFilter.IsSiralama.QryName + '=True'
     else
-      vOrderFilter := ' AND ' + vSysGridDefaultOrderFilter.TableName + '.' + vSysGridDefaultOrderFilter.IsSiralama.FieldName + '=False';
+      vOrderFilter := ' AND ' + vSysGridDefaultOrderFilter.IsSiralama.QryName + '=False';
 
-    vSysGridDefaultOrderFilter.SelectToList(vOrderFilter + ' AND ' + vSysGridDefaultOrderFilter.TableName + '.' + vSysGridDefaultOrderFilter.TabloAdi.FieldName + '=' + QuotedStr(pKey), False, False);
+    vSysGridDefaultOrderFilter.SelectToList(vOrderFilter + ' AND ' + vSysGridDefaultOrderFilter.TabloAdi.QryName + '=' + QuotedStr(pKey), False, False);
     if vSysGridDefaultOrderFilter.List.Count=1 then
       Result := TSysGridFiltreSiralama(vSysGridDefaultOrderFilter.List[0]).Deger.Value;
   finally
@@ -2571,8 +2601,8 @@ begin
 
   vSysInputGui := TSysViewColumns.Create(GDataBase);
   try
-    vSysInputGui.SelectToList(' AND ' + vSysInputGui.TableName + '.' + vSysInputGui.TableName1.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(pTableName)) +
-                              ' AND ' + vSysInputGui.TableName + '.' + vSysInputGui.ColumnName.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(pFieldName)), False, False);
+    vSysInputGui.SelectToList(' AND ' + vSysInputGui.TableName1.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(pTableName)) +
+                              ' AND ' + vSysInputGui.ColumnName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(pFieldName)), False, False);
     if vSysInputGui.List.Count=1 then
       Result := not TSysViewColumns(vSysInputGui.List[0]).IsNullable.Value;
   finally
@@ -2582,18 +2612,18 @@ end;
 
 function GetMaxLength(pTableName, pFieldName: string): Integer;
 var
-  vSysInputGui: TSysViewColumns;
+  LSysInputGui: TSysViewColumns;
 begin
   Result := 0;
 
-  vSysInputGui := TSysViewColumns.Create(GDataBase);
+  LSysInputGui := TSysViewColumns.Create(GDataBase);
   try
-    vSysInputGui.SelectToList(' AND ' + vSysInputGui.TableName + '.' + vSysInputGui.TableName1.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(pTableName)) +
-                              ' AND ' + vSysInputGui.TableName + '.' + vSysInputGui.ColumnName.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(pFieldName)), False, False);
-    if vSysInputGui.List.Count=1 then
-      Result := TSysViewColumns(vSysInputGui.List[0]).CharacterMaximumLength.Value;
+    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TableName1.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(pTableName)) +
+                              ' AND ' + LSysInputGui.ColumnName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(pFieldName)), False, False);
+    if LSysInputGui.List.Count=1 then
+      Result := TSysViewColumns(LSysInputGui.List[0]).CharacterMaximumLength.Value;
   finally
-    vSysInputGui.Free;
+    LSysInputGui.Free;
   end;
 end;
 
@@ -2939,5 +2969,6 @@ finalization
   GParaBirimi.Free;
   GSysTableInfo.Free;
   GGuiIcerik.Free;
+  GGridColWidth.Free;
 end.
 

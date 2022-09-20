@@ -43,19 +43,18 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSetEinvIstisnaKodu.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_einv_istisna_kodu';
-  TableSourceCode := '1010';
+  TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
   FSetEInvFaturaTipi := TSetEinvFaturaTipi.Create(Database);
 
-  FIstisnaKodu := TFieldDB.Create('istisna_kodu', ftString, '', Self, 'Ýstisna Kodu');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
+  FIstisnaKodu := TFieldDB.Create('istisna_kodu', ftWideString, '', Self, 'Ýstisna Kodu');
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açýklama');
   FIsTamIstisna := TFieldDB.Create('is_tam_istisna', ftBoolean, False, Self, 'Tam Ýstisna');
   FFaturaTipiID := TFieldDB.Create('fatura_tipi_id', ftInteger, 0, Self, 'Fatura Tipi ID');
   FFaturaTipi := TFieldDB.Create(FSetEInvFaturaTipi.FaturaTipi.FieldName, FSetEInvFaturaTipi.FaturaTipi.DataType, '', Self, 'Fatura Tipi');
@@ -63,7 +62,7 @@ end;
 
 destructor TSetEinvIstisnaKodu.Destroy;
 begin
-  FSetEInvFaturaTipi.Free;
+  FreeAndNil(FSetEInvFaturaTipi);
   inherited;
 end;
 
@@ -75,25 +74,17 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIstisnaKodu.FieldName,
-        TableName + '.' + FAciklama.FieldName,
-        TableName + '.' + FIsTamIstisna.FieldName,
-        TableName + '.' + FFaturaTipiID.FieldName,
-        addLangField(FFaturaTipi.FieldName)
+        Id.QryName,
+        FIstisnaKodu.QryName,
+        FAciklama.QryName,
+        FIsTamIstisna.QryName,
+        FFaturaTipiID.QryName,
+        addField(FSetEInvFaturaTipi.TableName, FSetEInvFaturaTipi.FaturaTipi.FieldName, FFaturaTipi.FieldName)
       ], [
-        addLeftJoin(FFaturaTipi.FieldName, FFaturaTipiID.FieldName, FSetEInvFaturaTipi.TableName),
+        addJoin(jtLeft, FSetEInvFaturaTipi.TableName, FSetEInvFaturaTipi.Id.FieldName, TableName, FFaturaTipiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id, 'Id', QueryOfDS);
-      setFieldTitle(FIstisnaKodu, 'Ýstisna Kodu', QueryOfDS);
-      setFieldTitle(FAciklama, 'Açýklama', QueryOfDS);
-      setFieldTitle(FIsTamIstisna, 'Tam Ýstisna?', QueryOfDS);
-      setFieldTitle(FFaturaTipiID, 'Fatura Tip ID', QueryOfDS);
-      setFieldTitle(FFaturaTipi, 'Fatura Tipi', QueryOfDS);
     end;
   end;
 end;
@@ -109,14 +100,14 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIstisnaKodu.FieldName,
-        TableName + '.' + FAciklama.FieldName,
-        TableName + '.' + FIsTamIstisna.FieldName,
-        TableName + '.' + FFaturaTipiID.FieldName,
-        addLangField(FFaturaTipi.FieldName)
+        Id.QryName,
+        FIstisnaKodu.QryName,
+        FAciklama.QryName,
+        FIsTamIstisna.QryName,
+        FFaturaTipiID.QryName,
+        addField(FSetEInvFaturaTipi.TableName, FSetEInvFaturaTipi.FaturaTipi.FieldName, FFaturaTipi.FieldName)
       ], [
-        addLeftJoin(FFaturaTipi.FieldName, FFaturaTipiID.FieldName, FSetEInvFaturaTipi.TableName),
+        addJoin(jtLeft, FSetEInvFaturaTipi.TableName, FSetEInvFaturaTipi.Id.FieldName, TableName, FFaturaTipiID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -127,7 +118,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -154,14 +145,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -185,7 +176,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

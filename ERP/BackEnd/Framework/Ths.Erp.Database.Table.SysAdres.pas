@@ -107,44 +107,27 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FUlkeID.FieldName,
+        Self.Id.QryName,
+        FUlkeID.QryName,
         addLangField(FUlke.FieldName),
-        TableName + '.' + FSehirID.FieldName,
+        FSehirID.QryName,
         addLangField(FSehir.FieldName),
-        TableName + '.' + FIlce.FieldName,
-        TableName + '.' + FMahalle.FieldName,
-        TableName + '.' + FCadde.FieldName,
-        TableName + '.' + FSokak.FieldName,
-        TableName + '.' + FBinaAdi.FieldName,
-        TableName + '.' + FKapiNo.FieldName,
-        TableName + '.' + FPostaKutusu.FieldName,
-        TableName + '.' + FPostaKodu.FieldName,
-        TableName + '.' + FWebSite.FieldName,
-        TableName + '.' + FEMail.FieldName
+        FIlce.QryName,
+        FMahalle.QryName,
+        FCadde.QryName,
+        FSokak.QryName,
+        FBinaAdi.QryName,
+        FKapiNo.QryName,
+        FPostaKutusu.QryName,
+        FPostaKodu.QryName,
+        FWebSite.QryName,
+        FEMail.QryName
       ], [
-        addLeftJoin(FUlke.FieldName, TableName + '.' + FUlkeID.FieldName, FSysUlke.TableName),
-        addLeftJoin(FSehir.FieldName, TableName + '.' + FSehirID.FieldName, FSysSehir.TableName),
+        addLeftJoin(FUlke.FieldName, FUlkeID.QryName, FSysUlke.TableName),
+        addLeftJoin(FSehir.FieldName, FSehirID.QryName, FSysSehir.TableName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FUlkeID, 'Ülke Id', QueryOfDS);
-      setFieldTitle(FUlke, 'Ülke Adý', QueryOfDS);
-      setFieldTitle(FSehirID, 'Þehir Id', QueryOfDS);
-      setFieldTitle(FSehir, 'Þehir Adý', QueryOfDS);
-      setFieldTitle(FIlce, 'Ýlçe', QueryOfDS);
-      setFieldTitle(FMahalle, 'Mahalle', QueryOfDS);
-      setFieldTitle(FCadde, 'Cadde', QueryOfDS);
-      setFieldTitle(FSokak, 'Sokak', QueryOfDS);
-      setFieldTitle(FBinaAdi, 'Bina Adý', QueryOfDS);
-      setFieldTitle(FKapiNo, 'Kapý No', QueryOfDS);
-      setFieldTitle(FPostaKutusu, 'Posta Kutusu', QueryOfDS);
-      setFieldTitle(FPostaKodu, 'Posta Kodu', QueryOfDS);
-      setFieldTitle(FWebSite, 'Web Sitesi', QueryOfDS);
-      setFieldTitle(FEMail, 'E-Mail', QueryOfDS);
     end;
   end;
 end;
@@ -160,24 +143,24 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FUlkeID.FieldName,
+        Self.Id.QryName,
+        FUlkeID.QryName,
         addLangField(FUlke.FieldName),
-        TableName + '.' + FSehirID.FieldName,
+        FSehirID.QryName,
         addLangField(FSehir.FieldName),
-        TableName + '.' + FIlce.FieldName,
-        TableName + '.' + FMahalle.FieldName,
-        TableName + '.' + FCadde.FieldName,
-        TableName + '.' + FSokak.FieldName,
-        TableName + '.' + FBinaAdi.FieldName,
-        TableName + '.' + FKapiNo.FieldName,
-        TableName + '.' + FPostaKutusu.FieldName,
-        TableName + '.' + FPostaKodu.FieldName,
-        TableName + '.' + FWebSite.FieldName,
-        TableName + '.' + FEMail.FieldName
+        FIlce.QryName,
+        FMahalle.QryName,
+        FCadde.QryName,
+        FSokak.QryName,
+        FBinaAdi.QryName,
+        FKapiNo.QryName,
+        FPostaKutusu.QryName,
+        FPostaKodu.QryName,
+        FWebSite.QryName,
+        FEMail.QryName
       ], [
-        addLeftJoin(FUlke.FieldName, TableName + '.' + FUlkeID.FieldName, FSysUlke.TableName),
-        addLeftJoin(FSehir.FieldName, TableName + '.' + FSehirID.FieldName, FSysSehir.TableName),
+        addLeftJoin(FUlke.FieldName, FUlkeID.QryName, FSysUlke.TableName),
+        addLeftJoin(FSehir.FieldName, FSehirID.QryName, FSysSehir.TableName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -223,14 +206,13 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
   end;
 end;
 
@@ -262,7 +244,6 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
   end;
 end;
 

@@ -28,19 +28,6 @@ uses
   Ths.Erp.Database.Table.SetSatSiparisDurum,
   Ths.Erp.Database.Table.SatSiparis;
 
-const
-  ST_MAL_KODU            = 1;
-  ST_MAL_ADI             = 2;
-  ST_MIKTAR              = 3;
-  ST_BIRIM               = 4;
-  ST_KDV_ORANI           = 5;
-  ST_FIYAT               = 6;
-  ST_ISKONTO_ORANI       = 7;
-  ST_NET_FIYAT           = 8;
-  ST_TUTAR               = 9;
-  ST_NET_TUTAR           = 10;
-  ST_REFERANS            = 11;
-
 type
   TSatTeklif = class;
 
@@ -71,7 +58,7 @@ type
   published
     FStokResim: TFieldDB;
 
-    FStok: TStkStokKarti;
+    FStkStokKarti: TStkStokKarti;
     constructor Create(ADatabase: TDatabase; ATeklif: TSatTeklif = nil); reintroduce; overload;
     destructor Destroy; override;
   public
@@ -157,7 +144,8 @@ type
     FMuhattapTelefon: TFieldDB;
     FReferans: TFieldDB;
     FParaBirimi: TFieldDB;
-    FDovizKuru: TFieldDB;
+    FDovizKuruUsd: TFieldDB;
+    FDovizKuruEur: TFieldDB;
     FAciklama: TFieldDB;
     FProformaNo: TFieldDB;
     FTeslimSekliID: TFieldDB;
@@ -205,6 +193,8 @@ type
     function GetAddress: string;
     function ValidateDetay(ATable: TTable): Boolean; override;
 
+    procedure PubRefreshHeader;
+
     Property SiparisID: TFieldDB read FSiparisID write FSiparisID;
     Property IrsaliyeID: TFieldDB read FIrsaliyeID write FIrsaliyeID;
     Property FaturaID: TFieldDB read FFaturaID write FFaturaID;
@@ -249,7 +239,8 @@ type
     Property MuhattapTelefon: TFieldDB read FMuhattapTelefon write FMuhattapTelefon;
     Property Referans: TFieldDB read FReferans write FReferans;
     Property ParaBirimi: TFieldDB read FParaBirimi write FParaBirimi;
-    Property DovizKuru: TFieldDB read FDovizKuru write FDovizKuru;
+    Property DovizKuruUsd: TFieldDB read FDovizKuruUsd write FDovizKuruUsd;
+    Property DovizKuruEur: TFieldDB read FDovizKuruEur write FDovizKuruEur;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
     Property ProformaNo: TFieldDB read FProformaNo write FProformaNo;
     Property TeslimSekliID: TFieldDB read FTeslimSekliID write FTeslimSekliID;
@@ -276,7 +267,7 @@ begin
   TableSourceCode := MODULE_SAT_TEK_KAYIT;
   inherited Create(ADatabase);
 
-  FStok := TStkStokKarti.Create(ADatabase);
+  FStkStokKarti := TStkStokKarti.Create(ADatabase);
 
   if ATeklif <> nil then
     Teklif := ATeklif;
@@ -285,12 +276,12 @@ begin
   FTeklifDetayID := TFieldDB.Create('siparis_detay_id', ftInteger, 0, Self, '');
   FIrsaliyeDetayID := TFieldDB.Create('irsaliye_detay_id', ftInteger, 0, Self, '');
   FFaturaDetayID := TFieldDB.Create('fatura_detay_id', ftInteger, 0, Self, '');
-  FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self, '');
-  FStokAciklama := TFieldDB.Create('stok_aciklama', ftString, '', Self, '');
-  FKullaniciAciklama := TFieldDB.Create('kullanici_aciklama', ftString, '', Self, '');
-  FReferans := TFieldDB.Create('referans', ftString, '', Self, '');
+  FStokKodu := TFieldDB.Create('stok_kodu', ftWideString, '', Self, '');
+  FStokAciklama := TFieldDB.Create('stok_aciklama', ftWideString, '', Self, '');
+  FKullaniciAciklama := TFieldDB.Create('kullanici_aciklama', ftWideString, '', Self, '');
+  FReferans := TFieldDB.Create('referans', ftWideString, '', Self, '');
   FMiktar := TFieldDB.Create('miktar', ftBCD, 0, Self, '');
-  FOlcuBirimi := TFieldDB.Create('olcu_birimi', ftString, '', Self, '');
+  FOlcuBirimi := TFieldDB.Create('olcu_birimi', ftWideString, '', Self, '');
   FIskontoOrani := TFieldDB.Create('iskonto_orani', ftBCD, 0, Self, '');
   FKdvOrani := TFieldDB.Create('kdv_orani', ftInteger, 0, Self, '');
   FFiyat := TFieldDB.Create('fiyat', ftBCD, 0, Self, '');
@@ -302,15 +293,15 @@ begin
   FToplamTutar := TFieldDB.Create('toplam_tutar', ftBCD, 0, Self, '');
   FIsAnaUrun := TFieldDB.Create('is_ana_urun', ftBoolean, 0, Self, '');
   FReferansAnaUrunID := TFieldDB.Create('referans_ana_urun_id', ftInteger, 0, Self, '');
-  FGtipNo := TFieldDB.Create('gtip_no', ftString, '', Self, '');
-  FStokResim := TFieldDB.Create(FStok.StokResim.FieldName, FStok.StokResim.DataType, FStok.StokResim.Value, Self, 'Stok Resim');
+  FGtipNo := TFieldDB.Create('gtip_no', ftWideString, '', Self, '');
+  FStokResim := TFieldDB.Create(FStkStokKarti.StokResim.FieldName, FStkStokKarti.StokResim.DataType, FStkStokKarti.StokResim.Value, Self, 'Stok Resim');
 
   PrepareTableRequiredValues;
 end;
 
 destructor TSatTeklifDetay.Destroy;
 begin
-  FreeAndNil(FStok);
+  FreeAndNil(FStkStokKarti);
   inherited;
 end;
 
@@ -345,13 +336,12 @@ begin
         FIsAnaUrun.QryName,
         FReferansAnaUrunID.QryName,
         FGtipNo.QryName,
-        addField(FStok.TableName, FStok.StokResim.FieldName, FStokResim.FieldName)
+        addField(FStkStokKarti.TableName, FStkStokKarti.StokResim.FieldName, FStokResim.FieldName)
       ], [
-        addJoin(jtLeft, FStok.TableName, FStok.StokKodu.FieldName, TableName, FStokKodu.FieldName),
+        addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -390,9 +380,9 @@ begin
         FIsAnaUrun.QryName,
         FReferansAnaUrunID.QryName,
         FGtipNo.QryName,
-        addField(FStok.TableName, FStok.StokResim.FieldName, FStokResim.FieldName)
+        addField(FStkStokKarti.TableName, FStkStokKarti.StokResim.FieldName, FStokResim.FieldName)
       ], [
-        addJoin(jtLeft, FStok.TableName, FStok.StokKodu.FieldName, TableName, FStokKodu.FieldName),
+        addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -403,7 +393,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -419,7 +409,7 @@ begin
   Result := TSatSiparisDetay.Create(Database);
   LStok := TStkStokKarti.Create(Database);
   try
-    LStok.SelectToList(' AND ' + LStok.TableName + '.' + LStok.StokKodu.FieldName + '=' + QuotedStr(FStokKodu.Value), False, False);
+    LStok.SelectToList(' AND ' + LStok.StokKodu.QryName + '=' + QuotedStr(FStokKodu.Value), False, False);
 
     Result.HeaderID.Value := 0;
     Result.TeklifDetayID.Value := Self.Id.Value;
@@ -495,14 +485,13 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
   end;
 end;
 
@@ -544,7 +533,6 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
   end;
 end;
 
@@ -590,32 +578,33 @@ begin
   FGenelToplam := TFieldDB.Create('genel_toplam', ftBCD, 0, Self, 'Genel Toplam');
   FIslemTipiID := TFieldDB.Create('islem_tipi_id', ftInteger, 0, Self, 'Ýþlem Tipi ID');
   FIslemTipi := TFieldDB.Create(FFaturaTipi.FaturaTipi.FieldName, FFaturaTipi.FaturaTipi.DataType, '', Self, 'Ýþlem Tipi');
-  FTeklifNo := TFieldDB.Create('teklif_no', ftString, '', Self, 'Teklif No');
+  FTeklifNo := TFieldDB.Create('teklif_no', ftWideString, '', Self, 'Teklif No');
   FTeklifTarihi := TFieldDB.Create('teklif_tarihi', ftDateTime, 0, Self, 'Teklif Tarihi');
   FGecerlilikTarihi := TFieldDB.Create('gecerlilik_tarihi', ftDateTime, 0, Self, 'Geçerlilik Tarihi');
-  FMusteriKodu := TFieldDB.Create('musteri_kodu', ftString, '', Self, 'Müþteri Kodu');
-  FMusteriAdi := TFieldDB.Create('musteri_adi', ftString, '', Self, 'Müþteri Adý');
-  FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftString, '', Self, 'Vergi Dairesi');
-  FVergiNo := TFieldDB.Create('vergi_no', ftString, '', Self, 'Vergi No');
+  FMusteriKodu := TFieldDB.Create('musteri_kodu', ftWideString, '', Self, 'Müþteri Kodu');
+  FMusteriAdi := TFieldDB.Create('musteri_adi', ftWideString, '', Self, 'Müþteri Adý');
+  FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftWideString, '', Self, 'Vergi Dairesi');
+  FVergiNo := TFieldDB.Create('vergi_no', ftWideString, '', Self, 'Vergi No');
   FUlkeID := TFieldDB.Create('ulke_id', ftInteger, 0, Self, 'Ülke ID');
   FUlke := TFieldDB.Create(FSysUlke.UlkeAdi.FieldName, FSysUlke.UlkeAdi.DataType, '', Self, 'Ülke Adý');
   FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Þehir ID');
   FSehir := TFieldDB.Create(FSysSehir.SehirAdi.FieldName, FSysSehir.SehirAdi.DataType, '', Self, 'Þehir');
-  FIlce := TFieldDB.Create('ilce', ftString, '', Self, 'Ýlçe');
-  FMahalle := TFieldDB.Create('mahalle', ftString, '', Self, 'Mahalle');
-  FCadde := TFieldDB.Create('cadde', ftString, '', Self, 'Cadde');
-  FSokak := TFieldDB.Create('sokak', ftString, '', Self, 'Sokak');
-  FPostaKodu := TFieldDB.Create('posta_kodu', ftString, '', Self, 'Posta Kodu');
-  FBinaAdi := TFieldDB.Create('bina_adi', ftString, '', Self, 'Bina Adý');
-  FKapiNo := TFieldDB.Create('kapi_no', ftString, '', Self, 'Kapý No');
+  FIlce := TFieldDB.Create('ilce', ftWideString, '', Self, 'Ýlçe');
+  FMahalle := TFieldDB.Create('mahalle', ftWideString, '', Self, 'Mahalle');
+  FCadde := TFieldDB.Create('cadde', ftWideString, '', Self, 'Cadde');
+  FSokak := TFieldDB.Create('sokak', ftWideString, '', Self, 'Sokak');
+  FPostaKodu := TFieldDB.Create('posta_kodu', ftWideString, '', Self, 'Posta Kodu');
+  FBinaAdi := TFieldDB.Create('bina_adi', ftWideString, '', Self, 'Bina Adý');
+  FKapiNo := TFieldDB.Create('kapi_no', ftWideString, '', Self, 'Kapý No');
   FMusteriTemsilcisiID := TFieldDB.Create('musteri_temsilcisi_id', ftInteger, 0, Self, 'Müþteri Temsilcisi ID');
   FMusteriTemsilcisi := TFieldDB.Create(FTemsilci.AdSoyad.FieldName, FTemsilci.AdSoyad.DataType, '', Self, 'Müþteri Temsilcisi');
-  FMuhattapAd := TFieldDB.Create('muhattap_ad', ftString, '', Self, 'Muhattap Ad');
-  FMuhattapTelefon := TFieldDB.Create('muhattap_telefon', ftString, '', Self, 'Muhattap Telefon');
-  FReferans := TFieldDB.Create('referans', ftString, '', Self, 'Referans');
-  FParaBirimi := TFieldDB.Create('para_birimi', ftString, '', Self, 'Para');
-  FDovizKuru := TFieldDB.Create('doviz_kuru', ftBCD, 0, Self, 'Döviz Kuru');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
+  FMuhattapAd := TFieldDB.Create('muhattap_ad', ftWideString, '', Self, 'Muhattap Ad');
+  FMuhattapTelefon := TFieldDB.Create('muhattap_telefon', ftWideString, '', Self, 'Muhattap Telefon');
+  FReferans := TFieldDB.Create('referans', ftWideString, '', Self, 'Referans');
+  FParaBirimi := TFieldDB.Create('para_birimi', ftWideString, '', Self, 'Para');
+  FDovizKuruUsd := TFieldDB.Create('doviz_kuru_usd', ftBCD, 0, Self, 'Döviz Kuru Usd');
+  FDovizKuruEur := TFieldDB.Create('doviz_kuru_eur', ftBCD, 0, Self, 'Döviz Kuru Eur');
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açýklama');
   FProformaNo := TFieldDB.Create('proforma_no', ftInteger, 0, Self, 'Proforma No');
   FTeslimSekliID := TFieldDB.Create('teslim_sekli_id', ftInteger, 0, Self, 'Teslim Þekli ID');
   FTeslimSekli := TFieldDB.Create(FSetTeslimSekli.TeslimSekli.FieldName, FSetTeslimSekli.TeslimSekli.DataType, '', Self, 'Teslim Þekli');
@@ -697,7 +686,8 @@ begin
         FMuhattapTelefon.QryName,
         FReferans.QryName,
         FParaBirimi.QryName,
-        FDovizKuru.QryName,
+        FDovizKuruUsd.QryName,
+        FDovizKuruEur.QryName,
         FAciklama.QryName,
         FProformaNo.QryName,
         FTeslimSekliID.QryName,
@@ -720,7 +710,6 @@ begin
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -781,7 +770,8 @@ begin
         FMuhattapTelefon.QryName,
         FReferans.QryName,
         FParaBirimi.QryName,
-        FDovizKuru.QryName,
+        FDovizKuruUsd.QryName,
+        FDovizKuruEur.QryName,
         FAciklama.QryName,
         FProformaNo.QryName,
         FTeslimSekliID.QryName,
@@ -811,7 +801,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -869,7 +859,8 @@ begin
         FMuhattapTelefon.FieldName,
         FReferans.FieldName,
         FParaBirimi.FieldName,
-        FDovizKuru.FieldName,
+        FDovizKuruUsd.FieldName,
+        FDovizKuruEur.FieldName,
         FAciklama.FieldName,
         FProformaNo.FieldName,
         FTeslimSekliID.FieldName,
@@ -889,8 +880,12 @@ begin
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
   end;
+end;
+
+procedure TSatTeklif.PubRefreshHeader;
+begin
+  RefreshHeader;
 end;
 
 procedure TSatTeklif.Update(APermissionControl: Boolean);
@@ -942,7 +937,8 @@ begin
         FMuhattapTelefon.FieldName,
         FReferans.FieldName,
         FParaBirimi.FieldName,
-        FDovizKuru.FieldName,
+        FDovizKuruUsd.FieldName,
+        FDovizKuruEur.FieldName,
         FAciklama.FieldName,
         FProformaNo.FieldName,
         FTeslimSekliID.FieldName,
@@ -956,7 +952,6 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.Notify;
   end;
 end;
 
@@ -978,7 +973,7 @@ begin
   LSiparisDurum := TSetSatSiparisDurum.Create(Database);
   LTekDetay := TSatTeklifDetay.Create(Database, Self);
   try
-    LSiparisDurum.SelectToList(' AND ' + LSiparisDurum.Id.FieldName + '=' + Ord(TSatSiparisDurum.Beklemede).ToString, False, False);
+    LSiparisDurum.SelectToList(' AND ' + LSiparisDurum.Id.QryName + '=' + Ord(TSatSiparisDurum.Beklemede).ToString, False, False);
 
     ASip := TSatSiparis.Create(Database);
     ASip.TeklifID.Value := Self.Id.Value;
@@ -1019,7 +1014,8 @@ begin
     ASip.MuhattapAd.Value := Self.MuhattapAd.Value;
     ASip.Referans.Value := Self.Referans.Value;
     ASip.ParaBirimi.Value := Self.ParaBirimi.Value;
-    ASip.DovizKuru.Value := Self.DovizKuru.Value;
+    ASip.DovizKuruUsd.Value := Self.DovizKuruUsd.Value;
+    ASip.DovizKuruEur.Value := Self.DovizKuruEur.Value;
     ASip.Aciklama.Value := Self.Aciklama.Value;
     ASip.ProformaNo.Value := Self.ProformaNo.Value;
     ASip.SiparisDurumID.Value := LSiparisDurum.Id.Value;
@@ -1034,7 +1030,7 @@ begin
     ASip.NakliyeUcreti.Value := Self.TasimaUcreti.Value;
 
 
-    LTekDetay.SelectToList(' AND ' + LTekDetay.HeaderID.FieldName + '=' + VarToStr(Self.Id.Value), False, False);
+    LTekDetay.SelectToList(' AND ' + LTekDetay.HeaderID.QryName + '=' + VarToStr(Self.Id.Value), False, False);
     for n1 := 0 to LTekDetay.List.Count-1 do
     begin
       LSipDetay := TSatTeklifDetay(LTekDetay.List[n1]).ToSiparisDetay;

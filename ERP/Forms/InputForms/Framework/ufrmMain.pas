@@ -58,8 +58,7 @@ uses
   ufrmBase,
   ufrmBaseDBGrid,
   Ths.Erp.Database.TableDetailed,
-  Ths.Erp.Database.Table, System.Net.URLClient, System.Net.HttpClient,
-  System.Net.HttpClientComponent;
+  Ths.Erp.Database.Table;
 
 type
   TfrmMain = class(TfrmBase)
@@ -218,6 +217,10 @@ type
     N1: TMenuItem;
     mnido_database_backup: TMenuItem;
     actsys_do_database_backup: TAction;
+    actset_einv_odeme_sekli: TAction;
+    actset_einv_paket_tipi: TAction;
+    actset_einv_tasima_ucreti: TAction;
+    actset_einv_teslim_sekli: TAction;
 
 /// <summary>
 ///   Kullanıcının erişim yetkisine göre yapılacak işlemler burada olacak
@@ -320,6 +323,10 @@ type
     procedure actsys_semtExecute(Sender: TObject);
     procedure actsys_mahalleExecute(Sender: TObject);
     procedure actsys_do_database_backupExecute(Sender: TObject);
+    procedure actset_einv_odeme_sekliExecute(Sender: TObject);
+    procedure actset_einv_paket_tipiExecute(Sender: TObject);
+    procedure actset_einv_tasima_ucretiExecute(Sender: TObject);
+    procedure actset_einv_teslim_sekliExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
     procedure SetTitleFromLangContent(Sender: TControl = nil);
@@ -414,6 +421,10 @@ uses
 
   Ths.Erp.Database.Table.SetEinvFaturaTipi, ufrmSetEinvFaturaTipleri,
   Ths.Erp.Database.Table.SetEinvIstisnaKodu, ufrmSetEinvIstisnaKodlari,
+  Ths.Erp.Database.Table.SetEinvTeslimSekli, ufrmSetEinvTeslimSekilleri,
+  Ths.Erp.Database.Table.SetEinvPaketTipi, ufrmSetEinvPaketTipleri,
+  Ths.Erp.Database.Table.SetEinvTasimaUcreti, ufrmSetEinvTasimaUcretleri,
+  Ths.Erp.Database.Table.SetEinvOdemeSekli, ufrmSetEinvOdemeSekilleri,
 
   Ths.Erp.Database.Table.SetTekTeklifTipi, ufrmSetTekTeklifTipleri,
   Ths.Erp.Database.Table.SetSatTeklifDurum, ufrmSetSatTeklifDurumlar,
@@ -594,6 +605,26 @@ end;
 procedure TfrmMain.actset_efatura_istisna_koduExecute(Sender: TObject);
 begin
   TfrmSetEinvIstisnaKodlari.Create(Self, Self, TSetEinvIstisnaKodu.Create(GDataBase), fomNormal).Show;
+end;
+
+procedure TfrmMain.actset_einv_odeme_sekliExecute(Sender: TObject);
+begin
+  TfrmSetEinvOdemeSekilleri.Create(Self, Self, TSetEinvOdemeSekli.Create(GDataBase), fomNormal).Show;
+end;
+
+procedure TfrmMain.actset_einv_paket_tipiExecute(Sender: TObject);
+begin
+  TfrmSetEinvPaketTipleri.Create(Self, Self, TSetEinvPaketTipi.Create(GDataBase), fomNormal).Show;
+end;
+
+procedure TfrmMain.actset_einv_tasima_ucretiExecute(Sender: TObject);
+begin
+  TfrmSetEinvTasimaUcretleri.Create(Self, Self, TSetEinvTasimaUcreti.Create(GDataBase), fomNormal).Show;
+end;
+
+procedure TfrmMain.actset_einv_teslim_sekliExecute(Sender: TObject);
+begin
+  TfrmSetEinvTeslimSekilleri.Create(Self, Self, TSetEinvTeslimSekli.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmMain.actset_prs_askerlik_durumuExecute(Sender: TObject);
@@ -1119,6 +1150,7 @@ procedure TfrmMain.FormActivate(Sender: TObject);
 var
   LKurList: TTCMBDovizKuruList;
   LDovizKuru: TMhsDovizKuru;
+  LKurOK: Boolean;
   n1: Integer;
   n2: Integer;
   LID: Integer;
@@ -1126,41 +1158,55 @@ begin
   if not FIsFormShow then
   begin
     FIsFormShow := True;
-
+    LKurOK := False;
     LDovizKuru := TMhsDovizKuru.Create(GDataBase);
     try
-      LDovizKuru.SelectToList(' AND ' + LDovizKuru.Tarih.QryName + '=' + QuotedStr(DateToStr(GDataBase.DateDB)), False, False);
-      if LDovizKuru.List.Count = 0 then
-      begin
-        if CustomMsgDlg(
-          TranslateText('Döviz kuru girilmemiş otomatik olarak TCMB Döviz kurlarından girilmesini ister misin?', FrameworkLang.MessageOtomatikDovizKuru, LngMsgData, LngSystem),
-          mtConfirmation, mbYesNo, [TranslateText('Evet', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                                    TranslateText('Hayır', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
-                                    TranslateText('Onay', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes
-        then
+      try
+        LDovizKuru.QueryOfList.Connection.StartTransaction;
+        LDovizKuru.SelectToList(' AND ' + LDovizKuru.Tarih.QryName + '=' + QuotedStr(DateToStr(GDataBase.DateDB)), False, False);
+        if LDovizKuru.List.Count = 0 then
         begin
-          LKurList := TCMB_DovizKurlari;
-          for n1 := 0 to Length(LKurList)-1 do
+          if CustomMsgDlg(
+            TranslateText('Döviz kuru girilmemiş otomatik olarak TCMB Döviz kurlarından girilmesini ister misin?', FrameworkLang.MessageOtomatikDovizKuru, LngMsgData, LngSystem),
+            mtConfirmation, mbYesNo, [TranslateText('Evet', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
+                                      TranslateText('Hayır', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
+                                      TranslateText('Onay', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes
+          then
           begin
-            for n2 := 0 to GParaBirimi.List.Count-1 do
+            LKurList := TCMB_DovizKurlari;
+            for n1 := 0 to Length(LKurList)-1 do
             begin
-              if LKurList[n1].Kod = TSysParaBirimi(GParaBirimi.List[n2]).ParaBirimi.Value then
+              for n2 := 0 to GParaBirimi.List.Count-1 do
               begin
-                LDovizKuru.Clear;
-                LDovizKuru.Tarih.Value := LKurList[n1].Tarih;
-                LDovizKuru.ParaBirimi.Value := LKurList[n1].Kod;
-                LDovizKuru.Kur.Value := LKurList[n1].ForexSelling;
-                LDovizKuru.Insert(LID, False);
+                if LKurList[n1].Kod = TSysParaBirimi(GParaBirimi.List[n2]).ParaBirimi.Value then
+                begin
+                  LDovizKuru.Clear;
+                  LDovizKuru.Tarih.Value := LKurList[n1].Tarih;
+                  LDovizKuru.ParaBirimi.Value := LKurList[n1].Kod;
+                  LDovizKuru.Kur.Value := LKurList[n1].ForexSelling;
+                  LDovizKuru.Insert(LID, False);
+
+                  LKurOK := True;
+                end;
               end;
             end;
-
           end;
         end;
+        if LKurOK then
+        begin
+          LDovizKuru.Clear;
+          LDovizKuru.Tarih.Value := GDataBase.DateDB;
+          LDovizKuru.ParaBirimi.Value := GParaBirimi.GetVarsayilanParaBirimi;
+          LDovizKuru.Kur.Value := 1;
+          LDovizKuru.Insert(LID, False);
+        end;
+      except
+        GDataBase.Connection.Rollback;
       end;
     finally
+      GDataBase.Connection.Commit;
       LDovizKuru.Free;
     end;
-
   end;
 end;
 

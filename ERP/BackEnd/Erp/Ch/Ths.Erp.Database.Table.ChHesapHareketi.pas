@@ -5,7 +5,7 @@ interface
 {$I ThsERP.inc}
 
 uses
-  System.SysUtils,
+  SysUtils,
   Data.DB,
   Ths.Erp.Database,
   Ths.Erp.Database.Table;
@@ -22,7 +22,6 @@ type
     FIsDonemBasi: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
-    destructor Destroy; override;
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
@@ -44,8 +43,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TChHesapHareketi.Create(ADatabase: TDatabase);
 begin
@@ -53,18 +51,13 @@ begin
   TableSourceCode := MODULE_STK_KAYIT;
   inherited Create(ADatabase);
 
-  FHesapKodu := TFieldDB.Create('hesap_kodu', ftString, '', Self, 'Hesap Kodu');
+  FHesapKodu := TFieldDB.Create('hesap_kodu', ftWideString, '', Self, 'Hesap Kodu');
   FTutar := TFieldDB.Create('tutar', ftBCD, 0, Self, 'Tutar');
   FTutarDoviz := TFieldDB.Create('tutar_doviz', ftBCD, 0, Self, 'Döviz Tutar');
-  FParaBirimi := TFieldDB.Create('para_birimi', ftString, '', Self, 'Para Birimi');
+  FParaBirimi := TFieldDB.Create('para_birimi', ftWideString, '', Self, 'Para Birimi');
   FIsBorc := TFieldDB.Create('is_giris', ftBoolean, True, Self, 'Borç?');
   FTarih := TFieldDB.Create('tarih', ftDate, 0, Self, 'Tarih');
   FIsDonemBasi := TFieldDB.Create('is_donem_basi', ftBoolean, False, Self, 'Dönem Baþý?');
-end;
-
-destructor TChHesapHareketi.Destroy;
-begin
-  inherited;
 end;
 
 procedure TChHesapHareketi.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
@@ -75,19 +68,18 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FHesapKodu.FieldName,
-        TableName + '.' + FTutar.FieldName,
-        TableName + '.' + FTutarDoviz.FieldName,
-        TableName + '.' + FParaBirimi.FieldName,
-        TableName + '.' + FIsBorc.FieldName,
-        TableName + '.' + FTarih.FieldName,
-        TableName + '.' + FIsDonemBasi.FieldName
+        Id.QryName,
+        FHesapKodu.QryName,
+        FTutar.QryName,
+        FTutarDoviz.QryName,
+        FParaBirimi.QryName,
+        FIsBorc.QryName,
+        FTarih.QryName,
+        FIsDonemBasi.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -103,14 +95,14 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FHesapKodu.FieldName,
-        TableName + '.' + FTutar.FieldName,
-        TableName + '.' + FTutarDoviz.FieldName,
-        TableName + '.' + FParaBirimi.FieldName,
-        TableName + '.' + FIsBorc.FieldName,
-        TableName + '.' + FTarih.FieldName,
-        TableName + '.' + FIsDonemBasi.FieldName
+        Id.QryName,
+        FHesapKodu.QryName,
+        FTutar.QryName,
+        FTutarDoviz.QryName,
+        FParaBirimi.QryName,
+        FIsBorc.QryName,
+        FTarih.QryName,
+        FIsDonemBasi.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -123,7 +115,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -154,14 +146,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -188,7 +180,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

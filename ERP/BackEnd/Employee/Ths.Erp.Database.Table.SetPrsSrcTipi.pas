@@ -6,7 +6,6 @@ interface
 
 uses
   System.SysUtils,
-  System.Generics.Collections,
   Data.DB,
   Ths.Erp.Database,
   Ths.Erp.Database.Table;
@@ -32,8 +31,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSetPrsSrcTipi.Create(ADatabase: TDatabase);
 begin
@@ -41,7 +39,7 @@ begin
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
-  FSrcTipi := TFieldDB.Create('src_tipi', ftString, '', Self, 'SRC Tipi');
+  FSrcTipi := TFieldDB.Create('src_tipi', ftWideString, '', Self, 'SRC Tipi');
 end;
 
 procedure TSetPrsSrcTipi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -52,13 +50,12 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FSrcTipi.FieldName
+        Id.QryName,
+        FSrcTipi.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -74,8 +71,8 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FSrcTipi.FieldName
+        Id.QryName,
+        FSrcTipi.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -87,7 +84,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -103,7 +100,7 @@ begin
     {$IFDEF CRUD_MODE_SP}
       SpInsert.ExecProc;
       AID := SpInsert.ParamByName('result').AsInteger;
-      Self.Notify;
+      Notify;
     {$ELSE IFDEF CRUD_MODE_PURE_SQL}
       with QueryOfInsert do
       begin
@@ -116,14 +113,14 @@ begin
         PrepareInsertQueryParams;
 
         Open;
-        if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-        then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+        if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+        then  AID := Fields.FieldByName(Id.FieldName).AsInteger
         else  AID := 0;
 
         EmptyDataSet;
         Close;
       end;
-      Self.Notify;
+      Notify;
     {$ENDIF}
   end;
 end;
@@ -134,7 +131,7 @@ begin
   begin
     {$IFDEF CRUD_MODE_SP}
       SpUpdate.ExecProc;
-      Self.Notify;
+      Notify;
     {$ELSE IFDEF CRUD_MODE_PURE_SQL}
       with QueryOfUpdate do
       begin
@@ -149,7 +146,7 @@ begin
         ExecSQL;
         Close;
       end;
-      Self.Notify;
+      Notify;
     {$ENDIF}
   end;
 end;

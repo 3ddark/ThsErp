@@ -41,6 +41,14 @@ uses
   Ths.Erp.Database.Table,
   Ths.Erp.Database.Table.RctPaketHammadde;
 
+const
+  PH_MAL_KODU = 1;
+  PH_MAL_ADI = 2;
+  PH_MIKTAR = 3;
+  PH_BIRIM = 4;
+  PH_FIYAT = 5;
+  PH_FIRE_ORANI = 6;
+
 type
   TfrmRctPaketHammaddeDetaylar = class(TfrmBaseDetaylar)
     lblpaket_adi: TLabel;

@@ -34,7 +34,8 @@ uses
   Ths.Erp.Helper.Memo,
   ufrmBase,
   ufrmBaseDetaylarDetay,
-  Ths.Erp.Database.Table;
+  Ths.Erp.Database.Table,
+  Ths.Erp.Globals;
 
 type
   TfrmSatSiparisDetay = class(TfrmBaseDetaylarDetay)
@@ -112,12 +113,7 @@ type
     procedure edtkdv_oraniChange(Sender: TObject);
     procedure edtkdv_oraniExit(Sender: TObject);
   private
-    FNetFiyat,
-    FTutar,
-    FNetTutar,
-    FIskontoTutar,
-    FKDVTutar,
-    FToplamTutar: Double;
+    FTotal: TTotal;
 
     procedure CalculateTotals();
     procedure CalculateHacim();
@@ -131,7 +127,6 @@ type
 implementation
 
 uses
-  Ths.Erp.Globals,
   Ths.Erp.Constants,
   Ths.Erp.Database.Singleton,
   Ths.Erp.Database.Table.SatSiparis, ufrmSatSiparisDetaylar,
@@ -161,40 +156,34 @@ end;
 
 procedure TfrmSatSiparisDetay.CalculateTotals();
 var
-  vFiyat, vMiktar, vIskontoOrani, vKDVOrani: Double;
+  LFiyat, LMiktar, LIskontoOrani, LKDVOrani: Double;
 begin
-  vFiyat := 0;
-  vMiktar := 0;
-  vIskontoOrani := 0;
-  vKDVOrani := 0;
+  LFiyat := 0;
+  LMiktar := 0;
+  LIskontoOrani := 0;
+  LKDVOrani := 0;
 
   if edtFiyat.Text <> '' then
-    vFiyat := edtFiyat.moneyToDouble;
+    LFiyat := edtFiyat.moneyToDouble;
 
   if edtMiktar.Text <> '' then
-    vMiktar := edtMiktar.moneyToDouble;
+    LMiktar := edtMiktar.moneyToDouble;
 
   if edtiskonto_orani.Text <> '' then
-    vIskontoOrani  := StrToFloatDef(edtiskonto_orani.Text, 0);
+    LIskontoOrani  := StrToFloatDef(edtiskonto_orani.Text, 0);
 
   if edtkdv_orani.Text <> '' then
-    vKDVOrani := StrToFloatDef(edtkdv_orani.Text, 0);
+    LKDVOrani := StrToFloatDef(edtkdv_orani.Text, 0);
 
   if ((edtFiyat.Text <> '') and (edtMiktar.Text <> '') ) then
   begin
-    FTutar := vFiyat * vMiktar;
-    FNetFiyat := vFiyat * ((100-vIskontoOrani)/100);
-    FNetTutar := FNetFiyat * vMiktar;
-    FIskontoTutar := FTutar - FNetTutar;
-    FKDVTutar := FNetTutar * (vKDVOrani)/100;
-    FToplamTutar := FNetTutar + FKDVTutar;
-
-    lblnet_fiyat_val.Caption := FloatToStrF(FNetFiyat, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
-    lbltutar_val.Caption := FloatToStrF(FTutar, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
-    lbliskonto_tutar_val.Caption := FloatToStrF(FIskontoTutar, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
-    lblnet_tutar_val.Caption := FloatToStrF(FNetTutar, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
-    lblkdv_tutar_val.Caption := FloatToStrF(FKDVTutar, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
-    lbltoplam_tutar_val.Caption := FloatToStrF(FToplamTutar, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
+    FTotal := CalculateTotalValues(LFiyat, LMiktar, LIskontoOrani, LKDVOrani);
+    lblnet_fiyat_val.Caption := FloatToStrF(FTotal.NetFiyat, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
+    lbltutar_val.Caption := FloatToStrF(FTotal.Tutar, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
+    lbliskonto_tutar_val.Caption := FloatToStrF(FTotal.IskontoTutar, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
+    lblnet_tutar_val.Caption := FloatToStrF(FTotal.NetTutar, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
+    lblkdv_tutar_val.Caption := FloatToStrF(FTotal.KDVTutar, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
+    lbltoplam_tutar_val.Caption := FloatToStrF(FTotal.ToplamTutar, TFloatFormat.ffFixed, 7, GSysOndalikHane.SatisMiktar.Value);
   end;
 end;
 
@@ -343,8 +332,8 @@ begin
             end
             else
             begin
-              edtstok_kodu.Text := FormatedVariantVal(TStkStokKarti(LFrmStk.Table).StokKodu);
-              edtstok_aciklama.Text := FormatedVariantVal(TStkStokKarti(LFrmStk.Table).StokAdi);
+              edtstok_kodu.Text := TStkStokKarti(LFrmStk.Table).StokKodu.AsString;
+              edtstok_aciklama.Text := TStkStokKarti(LFrmStk.Table).StokAdi.AsString;
 
               for n1 := 0 to GParaBirimi.List.Count-1 do
                 if TfrmSatSiparisDetaylar(ParentForm).edtpara_birimi.Text = TSysParaBirimi(GParaBirimi.List[n1]).ParaBirimi.AsString then
@@ -352,23 +341,28 @@ begin
                   if TSysParaBirimi(GParaBirimi.List[n1]).IsVarsayilan.AsBoolean then
                     LKur := 1
                   else
-                    LKur := TfrmSatSiparisDetaylar(ParentForm).edtdoviz_kuru.moneyToDouble;
-                  edtfiyat.Text := FloatToStr(TStkStokKarti(LFrmStk.Table).SatisFiyat.AsFloat * LKur);
-                  break;
+                    LKur := TfrmSatSiparisDetaylar(ParentForm).edtdoviz_kuru_usd.moneyToDouble;
+
+                  edtfiyat.Text := FloatToStr(TStkStokKarti(LFrmStk.Table).GetSatisFiyatiByDoviz(
+                    TfrmSatSiparisDetaylar(ParentForm).edtpara_birimi.Text,
+                    LKur,
+                    StrToDateDef(TfrmSatSiparisDetaylar(ParentForm).edtsiparis_tarihi.Text, 0)
+                  ));
+                  Break;
                 end;
-              edtolcu_birimi.Text := FormatedVariantVal(TStkStokKarti(LFrmStk.Table).OlcuBirimi);
+              edtolcu_birimi.Text := TStkStokKarti(LFrmStk.Table).OlcuBirimi.AsString;
 
               if (Trim(edtiskonto_orani.Text) = '') then  edtiskonto_orani.Text := '0';
 
               TSatSiparisDetay(Table).StokResim.Value := TStkStokKarti(LFrmStk.Table).StokResim.Value;
               LoadImageFromDB(TStkStokKarti(LFrmStk.Table).StokResim, imgstok_resim);
-              edtgtip_no.Text := FormatedVariantVal(TStkStokKarti(LFrmStk.Table).GtipNo);
+              edtgtip_no.Text := TStkStokKarti(LFrmStk.Table).GtipNo.AsString;
 
-              edten.Text := TStkStokKarti(LFrmStk.Table).En.Value;
-              edtboy.Text := TStkStokKarti(LFrmStk.Table).Boy.Value;
-              edtyukseklik.Text := TStkStokKarti(LFrmStk.Table).Yukseklik.Value;
-              edtnet_agirlik.Text := TStkStokKarti(LFrmStk.Table).Agirlik.Value;
-              edtbrut_agirlik.Text := TStkStokKarti(LFrmStk.Table).Agirlik.Value;
+              edten.Text := TStkStokKarti(LFrmStk.Table).En.AsString;
+              edtboy.Text := TStkStokKarti(LFrmStk.Table).Boy.AsString;
+              edtyukseklik.Text := TStkStokKarti(LFrmStk.Table).Yukseklik.AsString;
+              edtnet_agirlik.Text := TStkStokKarti(LFrmStk.Table).Agirlik.AsString;
+              edtbrut_agirlik.Text := TStkStokKarti(LFrmStk.Table).Agirlik.AsString;
             end;
           end;
         finally
@@ -384,7 +378,7 @@ begin
           begin
             if LFrmVergi.CleanAndClose
             then  TEdit(Sender).Clear
-            else  TEdit(Sender).Text := FormatedVariantVal(TSetChVergiOrani(LFrmVergi.Table).VergiOrani);
+            else  TEdit(Sender).Text := TSetChVergiOrani(LFrmVergi.Table).VergiOrani.AsString;
           end;
         finally
           LFrmVergi.Free;
@@ -443,12 +437,12 @@ begin
       TSatSiparisDetay(Table).IskontoOrani.Value := edtiskonto_orani.Text;
       TSatSiparisDetay(Table).KdvOrani.Value := edtkdv_orani.Text;
       TSatSiparisDetay(Table).Fiyat.Value := edtFiyat.moneyToDouble;
-      TSatSiparisDetay(Table).NetFiyat.Value := FNetFiyat;
-      TSatSiparisDetay(Table).Tutar.Value := FTutar;
-      TSatSiparisDetay(Table).IskontoTutar.Value := FIskontoTutar;
-      TSatSiparisDetay(Table).NetTutar.Value := FNetTutar;
-      TSatSiparisDetay(Table).KdvTutar.Value := FKDVTutar;
-      TSatSiparisDetay(Table).ToplamTutar.Value := FToplamTutar;
+      TSatSiparisDetay(Table).NetFiyat.Value := FTotal.NetFiyat;
+      TSatSiparisDetay(Table).Tutar.Value := FTotal.Tutar;
+      TSatSiparisDetay(Table).IskontoTutar.Value := FTotal.IskontoTutar;
+      TSatSiparisDetay(Table).NetTutar.Value := FTotal.NetTutar;
+      TSatSiparisDetay(Table).KdvTutar.Value := FTotal.KDVTutar;
+      TSatSiparisDetay(Table).ToplamTutar.Value := FTotal.ToplamTutar;
 
       TSatSiparisDetay(Table).IsAnaUrun.Value := False;
       TSatSiparisDetay(Table).ReferansAnaUrunID.Value := 0;

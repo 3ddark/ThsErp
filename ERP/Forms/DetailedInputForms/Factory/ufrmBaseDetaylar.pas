@@ -1,4 +1,4 @@
-unit ufrmBaseDetaylar;
+ï»¿unit ufrmBaseDetaylar;
 
 interface
 
@@ -14,6 +14,7 @@ uses
   System.Rtti,
   System.UITypes,
   System.Actions,
+  System.Win.ComObj,
   Vcl.Controls,
   Vcl.Forms,
   Vcl.ComCtrls,
@@ -135,6 +136,8 @@ type
     actcopy1: TAction;
     actcopy2: TAction;
     actcopy3: TAction;
+    dlgSave: TSaveDialog;
+    pb1: TProgressBar;
     procedure btnAcceptClick(Sender: TObject); override;
     procedure btnHeaderShowHideClick(Sender: TObject);
     procedure GridDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState); virtual;
@@ -156,10 +159,10 @@ type
     FHeaderFormMode: TInputFormMode;
 
 /// <summary>
-///  InputDB formlarýndaki Edit Memo ComboBox gibi kontrollerin zorunlu alan, maks leng, charcase gibi özelliklerini form ilk açýlýþta ayarlýyor.
+///  InputDB formlarÄ±ndaki Edit Memo ComboBox gibi kontrollerin zorunlu alan, maks leng, charcase gibi Ã¶zelliklerini form ilk aÃ§Ä±lÄ±ÅŸta ayarlÄ±yor.
 /// </summary>
 ///  <remarks>
-///  NOT: Bu kontroller direkt olarak pnlMain üzerinde veya pgcMain içindeki TabSheet ler içinde olmalý
+///  NOT: Bu kontroller direkt olarak pnlMain Ã¼zerinde veya pgcMain iÃ§indeki TabSheet ler iÃ§inde olmalÄ±
 ///  </remarks>
     procedure SetControlDBProperty(pIsOnlyRepaint: Boolean = False);
   protected
@@ -189,8 +192,7 @@ type
     procedure FormShow(Sender: TObject); override;
     procedure FormDestroy(Sender: TObject); override;
     procedure RefreshData; override;
-    procedure ExportExcel(AGrid: TStringGrid);
-    procedure ExportAllGridToExcel();
+    procedure ExportExcel(AGrid: TStringGrid; AAllColumn: Boolean = False);
 
     procedure ConditionDrawCell(Sender: TObject; ARow, ACol: Longint; var Value: string; var AStyle: TThsStyle); virtual;
     procedure btnSpinDownClick(Sender: TObject); override;
@@ -228,14 +230,18 @@ procedure TfrmBaseDetaylar.btnHeaderShowHideClick(Sender: TObject);
 begin
   pnlHeader.Visible := not pnlHeader.Visible;
   if pnlHeader.Visible then
-    btnHeaderShowHide.Caption := '-'
+    //btnHeaderShowHide.Caption := '-'
+    btnHeaderShowHide.ImageIndex := 60  //up arrow
   else
-    btnHeaderShowHide.Caption := '+';
+    //btnHeaderShowHide.Caption := '+';
+    btnHeaderShowHide.ImageIndex := 19; //down arrow
   //set max visible control top + height + 4 on the active tabsheet
   //change active tab sheet resize header panel the max visible control top + height + 4 on the active tabsheet
 end;
 
 procedure TfrmBaseDetaylar.btnSpinDownClick(Sender: TObject);
+var
+  ATable: TTable;
 begin
   if (Self.ParentForm <> nil) then
   begin
@@ -244,6 +250,9 @@ begin
       TfrmBaseDBGrid(ParentForm).MoveUp;
 
       Table.LogicalSelect(' and ' + Table.TableName + '.' + Table.Id.FieldName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), False, False, False);
+      ATable := TTableDetailed(Table.List[0]).Clone;
+      FreeAndNil(Table);
+      Table := ATable;
       DefaultSelectFilter := ' and ' + Table.TableName + '.' + Table.Id.FieldName + '=' + IntToStr(Table.Id.Value);
       RefreshData;
     end;
@@ -251,6 +260,8 @@ begin
 end;
 
 procedure TfrmBaseDetaylar.btnSpinUpClick(Sender: TObject);
+var
+  ATable: TTable;
 begin
   if (Self.ParentForm <> nil) then
   begin
@@ -259,6 +270,9 @@ begin
       TfrmBaseDBGrid(ParentForm).MoveDown;
 
       Table.LogicalSelect(' and ' + Table.TableName + '.' + Table.Id.FieldName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), False, False, False);
+      ATable := TTableDetailed(Table.List[0]).Clone;
+      FreeAndNil(Table);
+      Table := ATable;
       DefaultSelectFilter := ' and ' + Table.TableName + '.' + Table.Id.FieldName + '=' + IntToStr(Table.Id.Value);
       RefreshData;
     end;
@@ -295,18 +309,96 @@ begin
   Result := nil;
 end;
 
-procedure TfrmBaseDetaylar.ExportAllGridToExcel();
+procedure TfrmBaseDetaylar.ExportExcel(AGrid: TStringGrid; AAllColumn: Boolean);
+var
+  ExcelApplication, Sheet: Variant;
+  LColCount, nRow, nCol, LRowCount, LWidth: Integer;
+  LDosyaAdi, LRange: string;
 begin
-  //Burasý daha sonra nasýl kullanýlacaksa doldurulacak.
-  //Harici component kullanýlmadýðý için boþ býrakýldý. TMS veya DevEX ile çok kolay yapýlabilir.
-  //Burayý bilgisayarda kurulu olan Excel i kullanarak çýktý verecek þekilde düzelteceðiz.
-end;
+  dlgSave.Filter := FILE_FILTER_XLSX;
+  dlgSave.DefaultExt := FILE_EXT_XLSX;
+  dlgSave.FileName := Self.Caption + ' ' + DateToStr(Table.Database.GetToday);
+  dlgSave.InitialDir := '%USERPROFILE%\desktop';
+  if not dlgSave.Execute then
+    Exit;
 
-procedure TfrmBaseDetaylar.ExportExcel(AGrid: TStringGrid);
-begin
-  //Burasý daha sonra nasýl kullanýlacaksa doldurulacak.
-  //Harici component kullanýlmadýðý için boþ býrakýldý. TMS veya DevEX ile çok kolay yapýlabilir.
-  //Burayý bilgisayarda kurulu olan Excel i kullanarak çýktý verecek þekilde düzelteceðiz.
+  LDosyaAdi := dlgSave.FileName;
+
+  Cursor := crHourGlass;
+  try
+    ExcelApplication := CreateOleObject('Excel.Application');
+    ExcelApplication.Visible := False;
+  except
+    Showmessage('Excel dosya oluÅŸturulamadÄ±,' + AddLBs(2) +
+                'BilgisayarÄ±nda Microsoft Excel kurulu olduÄŸundan emin misin?');
+    Exit;
+  end;
+
+  LRowCount := AGrid.RowCount;
+  AGrid.BeginUpdate;
+  try
+    ExcelApplication.WorkBooks.Add(-4167);   //Add excel workbook
+    ExcelApplication.WorkBooks[1].WorkSheets[1].Name := 'Sayfa1';
+    Sheet := ExcelApplication.WorkBooks[1].WorkSheets['Sayfa1'];
+
+    LColCount := 0;
+    for nCol := 0 to AGrid.ColCount-1 do
+      if (AGrid.ColWidths[nCol] > 0) or AAllColumn then
+        Inc(LColCount);
+
+    LRange := 'A1:' + Chr(64 + LColCount) + IntToStr(LRowCount+1);
+    //Col names A..Z total 26 cols After 27 col start again AA, AB ..
+    if LColCount > 26 then
+      LRange := 'A1:' + Chr(64 + LColCount div 26) + Chr(64 + LColCount mod 26) + IntToStr(LRowCount+1);
+
+    //Format cells in excel sheet
+    Sheet.Range[LRange].Borders.LineStyle := 7; //line style
+    Sheet.Range[LRange].Borders.color := clGray;
+
+    LColCount := 0;
+    for nCol := 0 to AGrid.ColCount-1 do
+      if (AGrid.ColWidths[nCol] > 0) or AAllColumn then
+      begin
+        Inc(LColCount);
+        Sheet.Cells[1, LColCount].Interior.Color := AGrid.CellStyles[nCol, 0].Color;
+        Sheet.Cells[1, LColCount].Font.Bold := fsBold in AGrid.CellStyles[nCol, 0].Font.Style;
+        Sheet.Cells[1, LColCount] := AGrid.Cells[nCol, 0];
+
+        LWidth := 0;
+        LWidth := IfThen(LWidth = -1, 60, AGrid.ColWidths[nCol]);
+        Sheet.Columns[LColCount].ColumnWidth := (((LWidth / 28) * 5.1425) - 0.71);
+        //Sheet.Columns[LColCount].NumberFormat := '_-* #.##0,00 _â‚º_-;-* #.##0,00 _â‚º_-;_-* "-"?? _â‚º_-;_-@_-'
+      end;
+
+    pb1.Max := AGrid.RowCount;
+    pb1.Position := 0;
+    pb1.Visible := True;
+
+    for nRow := 1 to AGrid.RowCount-1 do
+    begin
+      LColCount := 0;
+      for nCol := 0 to AGrid.ColCount-1 do
+        if (AGrid.ColWidths[nCol] > 0) or AAllColumn then
+        begin
+          Inc(LColCount);
+          Sheet.Cells[nRow+1, LColCount] := AGrid.Cells[nCol, nRow];
+        end;
+      pb1.Position := nRow;
+    end;
+
+    DeleteFile(LDosyaAdi);
+    Sheet.SaveAs(LDosyaAdi);
+
+    ExcelApplication.Visible := True;
+//    ExcelApplication.Quit;
+    ExcelApplication := Unassigned;
+    Sheet := Unassigned;
+  finally
+    pb1.Visible := False;
+    pb1.Position := 0;
+    Screen.Cursor := crDefault;
+    AGrid.EndUpdate;
+  end;
 end;
 
 procedure TfrmBaseDetaylar.FormCreate(Sender: TObject);
@@ -321,7 +413,8 @@ begin
 
   pnlLeft.Visible := False;
   splLeft.Visible := False;
-  btnHeaderShowHide.Caption := '-';
+  btnHeaderShowHide.Caption := '';
+  btnHeaderShowHide.ImageIndex := 60; //up arrow
   tsHeaderDiger.TabVisible := False;
 
   ts2.TabVisible := False;
@@ -366,9 +459,9 @@ end;
 procedure TfrmBaseDetaylar.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if (btnSpin.Visible) and (Key = VK_NEXT) then  //page_down
-    btnSpinDownClick(btnSpin) //grid içinde gezinmek için burada kapatýldý.
+    btnSpinDownClick(btnSpin) //grid iÃ§inde gezinmek iÃ§in burada kapatÄ±ldÄ±.
   else if (btnSpin.Visible) and (Key = VK_PRIOR) then  //page_up
-    btnSpinUpClick(btnSpin) //grid içinde gezinmek için burada kapatýldý.
+    btnSpinUpClick(btnSpin) //grid iÃ§inde gezinmek iÃ§in burada kapatÄ±ldÄ±.
   else if (Key = VK_RETURN) then
   begin
     if Sender is TStringGrid then
@@ -402,20 +495,20 @@ begin
       end;
     end;
 
-  //form ve page control page 0 caption bilgisini dil dosyasýna göre doldur
-  //page control page 0 için isternise miras alan formda deðiþiklik yapýlabilir.
+  //form ve page control page 0 caption bilgisini dil dosyasÄ±na gÃ¶re doldur
+  //page control page 0 iÃ§in isternise miras alan formda deÄŸiÅŸiklik yapÄ±labilir.
   if Assigned(Table) then
   begin
     Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
     pgcMain.Pages[0].Caption := Self.Caption;
   end;
 
-  //burasý yukarýdaki caption doldurma kodundan sonra gelmeli pagecontrol tablardaki baþlýklarý düzenliyor.
+  //burasÄ± yukarÄ±daki caption doldurma kodundan sonra gelmeli pagecontrol tablardaki baÅŸlÄ±klarÄ± dÃ¼zenliyor.
   SetCaptionFromLangContent();
 
   if Self.FormMode = ifmRewiev then
   begin
-    //eðer baþka pencerede açýk transaction varsa güncelleme moduna hiç girilmemli
+    //eÄŸer baÅŸka pencerede aÃ§Ä±k transaction varsa gÃ¼ncelleme moduna hiÃ§ girilmemli
     if (GDatabase.Connection.InTransaction) then
     begin
       btnAccept.Visible   := False;
@@ -429,28 +522,28 @@ begin
       btnSpin.Visible := True;
     end;
 
-    //Burada inceleme modunda olduðu için bütün kontrolleri kapatmak gerekiyor.
+    //Burada inceleme modunda olduÄŸu iÃ§in bÃ¼tÃ¼n kontrolleri kapatmak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, True);
   end
   else
   begin
-    //Burada yeni kayýt, kopya yeni kayýt veya güncelleme modunda olduðu için bütün kontrolleri açmak gerekiyor.
+    //Burada yeni kayÄ±t, kopya yeni kayÄ±t veya gÃ¼ncelleme modunda olduÄŸu iÃ§in bÃ¼tÃ¼n kontrolleri aÃ§mak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, False);
   end;
 
   mniAddLanguageContent.Visible := False;
   if (GSysKullanici.IsSuperKullanici.Value) and (FormMode = ifmRewiev) then
   begin
-    //yeni kayýtta transactionlardan dolayý sorun oluyor. Düzeltmek için uðralýlmadý
+    //yeni kayÄ±tta transactionlardan dolayÄ± sorun oluyor. DÃ¼zeltmek iÃ§in uÄŸralÄ±lmadÄ±
     SetLabelPopup();
     mniAddLanguageContent.Visible := True;
   end;
 
 //  if (FormMode <> ifmNewRecord ) then
 //    RefreshData;
-//ferhat buraya bak normal input db formlarda iki kere refreshdata yapýyor. Bunu engelle
-//detaylý formlarda da refresh yapmalý fakat input db formlarýndan gelmediði için burada yapýldý.
-//yapýyý gözden geçir
+//ferhat buraya bak normal input db formlarda iki kere refreshdata yapÄ±yor. Bunu engelle
+//detaylÄ± formlarda da refresh yapmalÄ± fakat input db formlarÄ±ndan gelmediÄŸi iÃ§in burada yapÄ±ldÄ±.
+//yapÄ±yÄ± gÃ¶zden geÃ§ir
 
   Application.ProcessMessages;
 
@@ -465,7 +558,7 @@ begin
   if (FormMode <> ifmNewRecord ) then
     RefreshData;
 
-  //sadece sayýsal alanlarýn gösterim þeklini (basamaklý ve ondalýklý) düzeltmek için yazýldý
+  //sadece sayÄ±sal alanlarÄ±n gÃ¶sterim ÅŸeklini (basamaklÄ± ve ondalÄ±klÄ±) dÃ¼zeltmek iÃ§in yazÄ±ldÄ±
   if Assigned(Table) then
     SetControlDBProperty(True);
   Repaint;
@@ -964,7 +1057,7 @@ begin
           SubSetControlProperty(vParent, TSysViewColumns(GSysTableInfo.List[n2]));
     end;
 
-    //is_contain_table(Table) evet ise control set yap hayýr ise çýk
+    //is_contain_table(Table) evet ise control set yap hayÄ±r ise Ã§Ä±k
     vTable := getContainTable(Table);
     if Assigned(vTable) then
     begin
@@ -1002,11 +1095,11 @@ begin
     vParent := pnlMain;
     for n1 := 0 to GSysTableInfo.List.Count-1 do
       SubSetControlProperty(vParent, TSysViewColumns(GSysTableInfo.List[n1]));
-    //ilk önce sýnýfa ait tüm kontrolleri düzenle
-    //daha sonra rtti ile table sýnýfý taranacak ve içinde ttable tipinden bir field varsa
-    //table sýnýfý bulunup buradan sysviewcolums bilgileri çekilecek.
-    //Bu çekilen column bilgilerine uyan kontrol varmý diye tüm hepsi taranacak ve bulunanlar için bilgiler set edilecek
-    //is_contain_table(Table) evet ise control set yap hayýr ise çýk
+    //ilk Ã¶nce sÄ±nÄ±fa ait tÃ¼m kontrolleri dÃ¼zenle
+    //daha sonra rtti ile table sÄ±nÄ±fÄ± taranacak ve iÃ§inde ttable tipinden bir field varsa
+    //table sÄ±nÄ±fÄ± bulunup buradan sysviewcolums bilgileri Ã§ekilecek.
+    //Bu Ã§ekilen column bilgilerine uyan kontrol varmÄ± diye tÃ¼m hepsi taranacak ve bulunanlar iÃ§in bilgiler set edilecek
+    //is_contain_table(Table) evet ise control set yap hayÄ±r ise Ã§Ä±k
     vTable := getContainTable(Table);
     if Assigned(vTable) then
     begin

@@ -4,51 +4,50 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
   ClientWidth = 783
   ExplicitWidth = 799
   ExplicitHeight = 600
-  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 779
-    Height = 509
-    ExplicitWidth = 779
-    ExplicitHeight = 509
+    Width = 783
+    Height = 511
+    ExplicitWidth = 783
+    ExplicitHeight = 511
     inherited splLeft: TSplitter
-      Top = 109
-      Height = 399
+      Top = 108
+      Height = 403
       ExplicitTop = 437
       ExplicitHeight = 502
     end
     inherited splHeader: TSplitter
-      Top = 106
-      Width = 777
+      Top = 105
+      Width = 783
       ExplicitLeft = 0
       ExplicitTop = 74
       ExplicitWidth = 973
     end
     inherited pgcMain: TPageControl
-      Top = 109
-      Width = 671
-      Height = 399
-      ExplicitTop = 109
-      ExplicitWidth = 671
-      ExplicitHeight = 399
+      Top = 108
+      Width = 677
+      Height = 403
+      ExplicitTop = 108
+      ExplicitWidth = 677
+      ExplicitHeight = 403
       inherited tsMain: TTabSheet
-        ExplicitWidth = 663
-        ExplicitHeight = 371
+        ExplicitWidth = 669
+        ExplicitHeight = 375
       end
     end
     inherited pnlHeader: TPanel
-      Width = 773
+      Width = 779
       Height = 102
-      ExplicitWidth = 773
+      ExplicitWidth = 779
       ExplicitHeight = 102
       inherited pgcHeader: TPageControl
-        Width = 771
+        Width = 777
         Height = 100
-        ExplicitWidth = 771
+        ExplicitWidth = 777
         ExplicitHeight = 100
         inherited tsHeader: TTabSheet
           Caption = 'Genel'
-          ExplicitWidth = 743
+          ExplicitWidth = 749
           ExplicitHeight = 92
           object lblurun_kodu: TLabel
             Left = 69
@@ -108,14 +107,14 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
             ParentBiDiMode = False
             ParentFont = False
           end
-          object edturun_kodu: TEdit
+          object edtrecete_kodu: TEdit
             Left = 131
             Top = 2
             Width = 150
             Height = 21
             TabOrder = 0
           end
-          object edturun_adi: TEdit
+          object edtrecete_adi: TEdit
             Left = 131
             Top = 24
             Width = 443
@@ -138,46 +137,45 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
           end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitWidth = 743
+          ExplicitWidth = 749
           ExplicitHeight = 92
         end
       end
     end
     inherited pnlContent: TPanel
-      Top = 109
-      Width = 671
-      Height = 399
-      ExplicitTop = 109
-      ExplicitWidth = 671
-      ExplicitHeight = 399
+      Top = 108
+      Width = 677
+      Height = 403
+      ExplicitTop = 108
+      ExplicitWidth = 677
+      ExplicitHeight = 403
       inherited pgcContent: TPageControl
-        Width = 669
-        Height = 395
-        ActivePage = ts2
+        Width = 675
+        Height = 399
         OnChange = pgcContentChange
-        ExplicitWidth = 669
-        ExplicitHeight = 395
+        ExplicitWidth = 675
+        ExplicitHeight = 399
         inherited ts1: TTabSheet
-          ExplicitWidth = 661
-          ExplicitHeight = 367
+          ExplicitWidth = 667
+          ExplicitHeight = 371
           inherited pnl1: TPanel
-            Top = 301
-            Width = 661
+            Top = 305
+            Width = 667
             Height = 66
-            ExplicitTop = 301
-            ExplicitWidth = 661
+            ExplicitTop = 305
+            ExplicitWidth = 667
             ExplicitHeight = 66
             inherited grpGenelToplamKalan: TGroupBox
-              Left = 191
+              Left = 197
               Height = 62
               Visible = False
-              ExplicitLeft = 191
+              ExplicitLeft = 197
               ExplicitHeight = 62
             end
             inherited grpGenelToplam: TGroupBox
-              Left = 426
+              Left = 432
               Height = 62
-              ExplicitLeft = 426
+              ExplicitLeft = 432
               ExplicitHeight = 62
               inherited lblToplamTutar: TLabel
                 Caption = 'Toplam Maliyet'
@@ -208,22 +206,22 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
               end
             end
             inherited flwpnl1: TFlowPanel
-              Width = 189
+              Width = 195
               Height = 66
-              ExplicitWidth = 189
+              ExplicitWidth = 195
               ExplicitHeight = 66
             end
           end
           inherited strngrd1: TStringGrid
-            Width = 661
-            Height = 301
-            ExplicitWidth = 661
-            ExplicitHeight = 301
+            Width = 667
+            Height = 305
+            ExplicitWidth = 667
+            ExplicitHeight = 305
           end
         end
         inherited ts2: TTabSheet
-          ExplicitWidth = 661
-          ExplicitHeight = 367
+          ExplicitWidth = 667
+          ExplicitHeight = 371
           inherited pnl2: TPanel
             Top = 301
             Width = 661
@@ -246,8 +244,8 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
           end
         end
         inherited ts3: TTabSheet
-          ExplicitWidth = 661
-          ExplicitHeight = 367
+          ExplicitWidth = 667
+          ExplicitHeight = 371
           inherited strngrd3: TStringGrid
             Width = 661
             Height = 301
@@ -278,10 +276,10 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
       end
     end
     inherited pnlLeft: TPanel
-      Top = 110
-      Height = 396
-      ExplicitTop = 110
-      ExplicitHeight = 396
+      Top = 109
+      Height = 400
+      ExplicitTop = 109
+      ExplicitHeight = 400
     end
   end
   inherited pnlBottom: TPanel
@@ -290,12 +288,12 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
     ExplicitTop = 513
     ExplicitWidth = 779
     inherited btnAccept: TButton
-      Left = 570
-      ExplicitLeft = 570
+      Left = 573
+      ExplicitLeft = 573
     end
     inherited btnClose: TButton
-      Left = 674
-      ExplicitLeft = 674
+      Left = 677
+      ExplicitLeft = 677
     end
   end
   inherited stbBase: TStatusBar

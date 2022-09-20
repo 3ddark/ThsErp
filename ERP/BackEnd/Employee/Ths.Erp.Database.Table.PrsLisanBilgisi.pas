@@ -57,8 +57,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TPrsLisanBilgisi.Create(ADatabase: TDatabase);
 begin
@@ -84,9 +83,9 @@ end;
 
 destructor TPrsLisanBilgisi.Destroy;
 begin
-  FSetLisan.Free;
-  FSetLisanSeviye.Free;
-  FPers.Free;
+  FreeAndNil(FSetLisan);
+  FreeAndNil(FSetLisanSeviye);
+  FreeAndNil(FPers);
   inherited;
 end;
 
@@ -98,16 +97,16 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FLisanID.FieldName,
+        Id.QryName,
+        FLisanID.QryName,
         addField(FSetLisan.TableName, FSetLisan.Lisan.FieldName, FLisan.FieldName),
-        TableName + '.' + FOkumaID.FieldName,
+        FOkumaID.QryName,
         addField(FSetLisanSeviye.TableName, FSetLisanSeviye.LisanSeviyesi.FieldName, FOkuma.FieldName, 'ok'),
-        TableName + '.' + FYazmaID.FieldName,
+        FYazmaID.QryName,
         addField(FSetLisanSeviye.TableName, FSetLisanSeviye.LisanSeviyesi.FieldName, FYazma.FieldName, 'ya'),
-        TableName + '.' + FKonusmaID.FieldName,
+        FKonusmaID.QryName,
         addField(FSetLisanSeviye.TableName, FSetLisanSeviye.LisanSeviyesi.FieldName, FYazma.FieldName, 'ko'),
-        TableName + '.' + FPersonelID.FieldName,
+        FPersonelID.QryName,
         addField(FPers.TableName, FPers.AdSoyad.FieldName, FPersonel.FieldName)
       ], [
         addJoin(jtLeft, FLisan.FieldName, FLisanID.FieldName, FSetLisan.TableName, FLisanID.FieldName),
@@ -134,16 +133,16 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FLisanID.FieldName,
+        Id.QryName,
+        FLisanID.QryName,
         addField(FSetLisan.TableName, FSetLisan.Lisan.FieldName, FLisan.FieldName),
-        TableName + '.' + FOkumaID.FieldName,
+        FOkumaID.QryName,
         addField(FSetLisanSeviye.TableName, FSetLisanSeviye.LisanSeviyesi.FieldName, FOkuma.FieldName, 'ok'),
-        TableName + '.' + FYazmaID.FieldName,
+        FYazmaID.QryName,
         addField(FSetLisanSeviye.TableName, FSetLisanSeviye.LisanSeviyesi.FieldName, FYazma.FieldName, 'ya'),
-        TableName + '.' + FKonusmaID.FieldName,
+        FKonusmaID.QryName,
         addField(FSetLisanSeviye.TableName, FSetLisanSeviye.LisanSeviyesi.FieldName, FYazma.FieldName, 'ko'),
-        TableName + '.' + FPersonelID.FieldName,
+        FPersonelID.QryName,
         addField(FPers.TableName, FPers.AdSoyad.FieldName, FPersonel.FieldName)
       ], [
         addJoin(jtLeft, FLisan.FieldName, FLisanID.FieldName, FSetLisan.TableName, FLisanID.FieldName),
@@ -161,7 +160,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -189,14 +188,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -221,7 +220,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

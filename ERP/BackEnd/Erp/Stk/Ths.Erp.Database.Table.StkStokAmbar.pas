@@ -5,7 +5,7 @@ interface
 {$I ThsERP.inc}
 
 uses
-  System.SysUtils,
+  SysUtils,
   Data.DB,
   Ths.Erp.Database,
   Ths.Erp.Database.Table;
@@ -37,8 +37,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TStkStokAmbar.Create(ADatabase: TDatabase);
 begin
@@ -46,7 +45,7 @@ begin
   TableSourceCode := MODULE_STK_KAYIT;
   inherited Create(ADatabase);
 
-  FAmbarAdi := TFieldDB.Create('ambar_adi', ftString, '', Self, 'Ambar Adý');
+  FAmbarAdi := TFieldDB.Create('ambar_adi', ftWideString, '', Self, 'Ambar Adý');
   FIsHammaddeAmbari := TFieldDB.Create('is_hammadde_ambari', ftBoolean, False, Self, 'Hammadde Ambarý');
   FIsUretimAmbari := TFieldDB.Create('is_uretim_ambari', ftBoolean, False, Self, 'Üretim Ambarý');
   FIsSatisAmbari := TFieldDB.Create('is_satis_ambari', ftBoolean, False, Self, 'Satýþ Ambarý');
@@ -60,16 +59,15 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FAmbarAdi.FieldName,
-        TableName + '.' + FIsHammaddeAmbari.FieldName,
-        TableName + '.' + FIsUretimAmbari.FieldName,
-        TableName + '.' + FIsSatisAmbari.FieldName
+        Id.QryName,
+        FAmbarAdi.QryName,
+        FIsHammaddeAmbari.QryName,
+        FIsUretimAmbari.QryName,
+        FIsSatisAmbari.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -85,11 +83,11 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FAmbarAdi.FieldName,
-        TableName + '.' + FIsHammaddeAmbari.FieldName,
-        TableName + '.' + FIsUretimAmbari.FieldName,
-        TableName + '.' + FIsSatisAmbari.FieldName
+        Id.QryName,
+        FAmbarAdi.QryName,
+        FIsHammaddeAmbari.QryName,
+        FIsUretimAmbari.QryName,
+        FIsSatisAmbari.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -101,7 +99,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -128,14 +126,13 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
   end;
 end;
 
@@ -159,7 +156,6 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
   end;
 end;
 

@@ -35,17 +35,16 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TMhsDovizKuru.Create(ADatabase: TDatabase);
 begin
   TableName := 'mhs_doviz_kuru';
-  TableSourceCode := '1';
+  TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
   FTarih := TFieldDB.Create('tarih', ftDate, 0, Self, 'Tarih');
-  FParaBirimi := TFieldDB.Create('para_birimi', ftString, '', Self, 'Para Birimi');
+  FParaBirimi := TFieldDB.Create('para_birimi', ftWideString, '', Self, 'Para Birimi');
   FKur := TFieldDB.Create('kur', ftBCD, 0, Self, 'Kur');
 end;
 
@@ -57,15 +56,14 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FTarih.FieldName,
-        TableName + '.' + FParaBirimi.FieldName,
-        TableName + '.' + FKur.FieldName
+        Id.QryName,
+        FTarih.QryName,
+        FParaBirimi.QryName,
+        FKur.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -81,10 +79,10 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FTarih.FieldName,
-        TableName + '.' + FParaBirimi.FieldName,
-        TableName + '.' + FKur.FieldName
+        Id.QryName,
+        FTarih.QryName,
+        FParaBirimi.QryName,
+        FKur.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -96,7 +94,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -122,14 +120,13 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
   end;
 end;
 
@@ -152,7 +149,6 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
   end;
 end;
 

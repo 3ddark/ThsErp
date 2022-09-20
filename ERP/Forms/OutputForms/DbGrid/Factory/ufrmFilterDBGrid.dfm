@@ -1,27 +1,29 @@
 inherited frmFilterDBGrid: TfrmFilterDBGrid
+  BorderStyle = bsDialog
   Caption = 'Filter'
-  ClientHeight = 371
-  ClientWidth = 402
+  ClientHeight = 361
+  ClientWidth = 872
   Constraints.MinHeight = 350
-  ExplicitWidth = 418
-  ExplicitHeight = 410
-  PixelsPerInch = 96
+  ExplicitWidth = 888
+  ExplicitHeight = 400
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 398
-    Height = 319
-    ExplicitWidth = 398
-    ExplicitHeight = 319
+    Width = 872
+    Height = 311
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 872
+    ExplicitHeight = 311
     object lblFields: TLabel
       AlignWithMargins = True
-      Left = 4
-      Top = 103
-      Width = 390
+      Left = 3
+      Top = 57
+      Width = 866
       Height = 13
       Align = alTop
       Alignment = taCenter
       AutoSize = False
-      Caption = 'Select data fields to filter'
+      Caption = 'Filtre Edilebilir S'#252'tunlar'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -33,25 +35,26 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
       ExplicitWidth = 318
     end
     object chklstFields: TCheckListBox
-      AlignWithMargins = True
-      Left = 4
-      Top = 122
-      Width = 390
-      Height = 159
+      Left = 0
+      Top = 73
+      Width = 872
+      Height = 217
       Align = alClient
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      BorderStyle = bsNone
       Columns = 2
       ItemHeight = 13
       TabOrder = 1
     end
     object rgFilterCriter: TRadioGroup
-      AlignWithMargins = True
-      Left = 4
-      Top = 4
-      Width = 390
-      Height = 93
+      Left = 0
+      Top = 0
+      Width = 872
+      Height = 54
       Align = alTop
-      Caption = 'Filter Criteria'
-      Columns = 2
+      Caption = 'Filtreleme Kriteri'
+      Columns = 6
       ItemIndex = 0
       Items.Strings = (
         '='
@@ -67,60 +70,59 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
       TabOrder = 0
     end
     object Panel1: TPanel
-      AlignWithMargins = True
-      Left = 4
-      Top = 287
-      Width = 390
-      Height = 28
+      Left = 0
+      Top = 290
+      Width = 872
+      Height = 21
       Align = alBottom
+      BevelOuter = bvNone
       TabOrder = 2
-      DesignSize = (
-        390
-        28)
       object lblFilterKeyValue: TLabel
-        Left = 54
-        Top = 5
-        Width = 87
-        Height = 13
-        Alignment = taRightJustify
-        Caption = 'Filter Key Value'
+        Left = 0
+        Top = 0
+        Width = 83
+        Height = 21
+        Align = alLeft
+        Alignment = taCenter
+        Caption = 'Anahtar De'#287'er'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
+        Layout = tlCenter
+        ExplicitHeight = 13
       end
       object edtFilter: TEdit
-        Left = 144
-        Top = 2
-        Width = 244
+        Left = 83
+        Top = 0
+        Width = 789
         Height = 21
-        Anchors = [akLeft, akTop, akRight]
+        Align = alClient
         CharCase = ecUpperCase
         TabOrder = 0
-        Text = 'EDTFILTER'
       end
     end
   end
   inherited pnlBottom: TPanel
-    Top = 323
-    Width = 398
-    ExplicitTop = 323
-    ExplicitWidth = 398
+    Top = 313
+    Width = 868
+    ExplicitTop = 313
+    ExplicitWidth = 868
     inherited btnAccept: TButton
-      Left = 189
-      ExplicitLeft = 189
+      Left = 662
+      ExplicitLeft = 662
     end
     inherited btnClose: TButton
-      Left = 293
-      ExplicitLeft = 293
+      Left = 766
+      ExplicitLeft = 766
     end
   end
   inherited stbBase: TStatusBar
-    Top = 353
-    Width = 402
-    ExplicitTop = 353
-    ExplicitWidth = 402
+    Top = 343
+    Width = 872
+    ExplicitTop = 343
+    ExplicitWidth = 872
   end
 end

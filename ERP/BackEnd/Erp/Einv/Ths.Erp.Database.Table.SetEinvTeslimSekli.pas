@@ -37,13 +37,12 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSetEinvTeslimSekli.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_einv_teslim_sekli';
-  TableSourceCode := '1010';
+  TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
   FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
@@ -60,22 +59,15 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsAktif.FieldName,
-        TableName + '.' + FTeslimSekli.FieldName,
-        TableName + '.' + FAciklama.FieldName,
-        TableName + '.' + FIsEfatura.FieldName
+        Id.QryName,
+        FIsAktif.QryName,
+        FTeslimSekli.QryName,
+        FAciklama.QryName,
+        FIsEfatura.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id,'Id', QueryOfDS);
-      setFieldTitle(FIsAktif, 'Atkif?', QueryOfDS);
-      setFieldTitle(FTeslimSekli, 'Teslim Þekli', QueryOfDS);
-      setFieldTitle(FAciklama, 'Açýklama', QueryOfDS);
-      setFieldTitle(FIsEFatura, 'E-Fatura?', QueryOfDS);
     end;
   end;
 end;
@@ -91,11 +83,11 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsAktif.FieldName,
-        TableName + '.' + FTeslimSekli.FieldName,
-        TableName + '.' + FAciklama.FieldName,
-        TableName + '.' + FIsEfatura.FieldName
+        Id.QryName,
+        FIsAktif.QryName,
+        FTeslimSekli.QryName,
+        FAciklama.QryName,
+        FIsEfatura.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -107,7 +99,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -134,14 +126,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -165,7 +157,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

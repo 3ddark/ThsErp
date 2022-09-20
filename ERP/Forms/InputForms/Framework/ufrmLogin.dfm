@@ -176,15 +176,14 @@ inherited frmLogin: TfrmLogin
     80FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF80
     80FFFF8080FFFFFF80FFFFFFFEFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
-  ExplicitWidth = 500
-  ExplicitHeight = 440
-  PixelsPerInch = 96
+  ExplicitWidth = 510
+  ExplicitHeight = 450
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 490
-    Height = 359
-    ExplicitWidth = 490
-    ExplicitHeight = 359
+    Width = 494
+    Height = 361
+    ExplicitWidth = 494
+    ExplicitHeight = 361
     object lblUserName: TLabel
       Left = 112
       Top = 29
@@ -511,15 +510,15 @@ inherited frmLogin: TfrmLogin
     ExplicitTop = 363
     ExplicitWidth = 490
     inherited btnAccept: TButton
-      Left = 281
+      Left = 284
       Caption = 'G'#304'R'#304#350' YAP'
       HotImageIndex = 62
       ImageIndex = 62
-      ExplicitLeft = 281
+      ExplicitLeft = 284
     end
     inherited btnClose: TButton
-      Left = 385
-      ExplicitLeft = 385
+      Left = 388
+      ExplicitLeft = 388
     end
   end
   inherited stbBase: TStatusBar

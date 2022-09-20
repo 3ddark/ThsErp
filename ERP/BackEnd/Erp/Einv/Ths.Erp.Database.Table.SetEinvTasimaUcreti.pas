@@ -33,13 +33,12 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSetEinvTasimaUcreti.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_einv_tasima_ucreti';
-  TableSourceCode := '1010';
+  TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
   FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
@@ -54,18 +53,13 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        FIsAktif.FieldName,
-        FTasimaUcreti.FieldName
+        Id.QryName,
+        FIsAktif.QryName,
+        FTasimaUcreti.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FIsAktif, 'Aktif', QueryOfDS);
-      setFieldTitle(FTasimaUcreti, 'Taþýma Ücreti', QueryOfDS);
     end;
   end;
 end;
@@ -81,9 +75,9 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        FIsAktif.FieldName,
-        FTasimaUcreti.FieldName
+        Id.QryName,
+        FIsAktif.QryName,
+        FTasimaUcreti.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -95,7 +89,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -127,7 +121,7 @@ begin
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -149,7 +143,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

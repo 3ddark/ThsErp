@@ -23,7 +23,7 @@ type
     FSubeIl: TFieldDB;
   protected
     FChBanka: TChBanka;
-    FSehir: TSysSehir;
+    FSysSehir: TSysSehir;
   published
     constructor Create(ADatabase: TDatabase); override;
     destructor Destroy; override;
@@ -57,20 +57,20 @@ begin
   inherited Create(ADatabase);
 
   FChBanka := TChBanka.Create(ADatabase);
-  FSehir := TSysSehir.Create(ADatabase);
+  FSysSehir := TSysSehir.Create(ADatabase);
 
   FBankaID := TFieldDB.Create('banka_id', ftInteger, 0, Self, 'Banka ID');
   FBanka := TFieldDB.Create(FChBanka.BankaAdi.FieldName, FChBanka.BankaAdi.DataType, '', Self, 'Banka');
   FSubeKodu := TFieldDB.Create('sube_kodu', ftInteger, 0, Self, 'Þube Kodu');
   FSubeAdi := TFieldDB.Create('sube_adi', ftString, '', Self, 'Þube Adý');
   FSubeIlID := TFieldDB.Create('sube_il_id', ftInteger, 0, Self, 'Þube Ýl ID');
-  FSubeIl := TFieldDB.Create(FSehir.SehirAdi.FieldName, FSehir.SehirAdi.DataType, '', Self, 'Þube Þehir');
+  FSubeIl := TFieldDB.Create(FSysSehir.SehirAdi.FieldName, FSysSehir.SehirAdi.DataType, '', Self, 'Þube Þehir');
 end;
 
 destructor TChBankaSubesi.Destroy;
 begin
-  FChBanka.Free;
-  FSehir.Free;
+  FreeAndNil(FChBanka);
+  FreeAndNil(FSysSehir);
   inherited;
 end;
 
@@ -82,28 +82,19 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FBankaID.FieldName,
+        Id.QryName,
+        FBankaID.QryName,
         addLangField(FBanka.FieldName),
-        TableName + '.' + FSubeKodu.FieldName,
-        FSubeAdi.FieldName,
-        TableName + '.' + FSubeIlID.FieldName,
+        FSubeKodu.QryName,
+        FSubeAdi.QryName,
+        FSubeIlID.QryName,
         addLangField(FSubeIl.FieldName)
       ], [
         addLeftJoin(FBanka.FieldName, FBankaID.FieldName, FChBanka.TableName),
-        addLeftJoin(FSubeIl.FieldName, FSubeIlID.FieldName, FSehir.TableName),
+        addLeftJoin(FSubeIl.FieldName, FSubeIlID.FieldName, FSysSehir.TableName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
-
-      setFieldTitle(Self.Id, 'ID', QueryOfDS);
-      setFieldTitle(FBankaID, 'Banka ID', QueryOfDS);
-      setFieldTitle(FBanka, 'Banka', QueryOfDS);
-      setFieldTitle(FSubeKodu, 'Þube Kodu', QueryOfDS);
-      setFieldTitle(FSubeAdi, 'Þube Adý', QueryOfDS);
-      setFieldTitle(FSubeIlID, 'Þube Ýl ID', QueryOfDS);
-      setFieldTitle(FSubeIl, 'Þube Ýl', QueryOfDS);
     end;
   end;
 end;
@@ -119,16 +110,16 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FBankaID.FieldName,
+        Id.QryName,
+        FBankaID.QryName,
         addLangField(FBanka.FieldName),
-        TableName + '.' + FSubeKodu.FieldName,
-        FSubeAdi.FieldName,
-        TableName + '.' + FSubeIlID.FieldName,
+        FSubeKodu.QryName,
+        FSubeAdi.QryName,
+        FSubeIlID.QryName,
         addLangField(FSubeIl.FieldName)
       ], [
         addLeftJoin(FBanka.FieldName, FBankaID.FieldName, FChBanka.TableName),
-        addLeftJoin(FSubeIl.FieldName, FSubeIlID.FieldName, FSehir.TableName),
+        addLeftJoin(FSubeIl.FieldName, FSubeIlID.FieldName, FSysSehir.TableName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -139,7 +130,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -165,14 +156,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -196,7 +187,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

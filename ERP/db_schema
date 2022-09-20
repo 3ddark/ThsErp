@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.3
+-- Dumped from database version 14.1
 -- Dumped by pg_dump version 14.1
 
 SET statement_timeout = 0;
@@ -280,43 +280,67 @@ ALTER FUNCTION public.personel_adsoyad() OWNER TO ths_admin;
 -- Name: sp_get_ch_hesap_karti(text, text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.sp_get_ch_hesap_karti(pfilter text, plang text) RETURNS TABLE(id integer, hesap_kodu character varying, hesap_ismi character varying, muhasebe_kodu character varying, hesap_tipi_id integer, hesap_tipi character varying, hesap_grubu_id integer, grup character varying, bolge_id integer, bolge character varying, temsilci_grubu_id integer, temsilci_grup character varying, mukellef_tipi_id integer, taxpayer_type character varying, musteri_temsilcisi_id integer, emp_full_name character varying, adres_id integer, mukellef_adi character varying, mukellef_ikinci_adi character varying, mukellef_soyadi character varying, vergi_dairesi character varying, vergi_no character varying, para_birimi character varying, iban character varying, iban_para character varying, nace_kodu character varying, is_efatura_hesabi boolean, efatura_pk_name character varying, yetkili1 character varying, yetkili1_tel character varying, yetkili2 character varying, yetkili2_tel character varying, yetkili3 character varying, yetkili3_tel character varying, faks character varying, muhasebe_telefon character varying, muhasebe_eposta character varying, muhasebe_yetkili character varying, ozel_bilgi character varying, odeme_vade_gun_sayisi integer, is_acik_hesap boolean, kredi_limiti double precision, hesap_iskonto double precision, kok_hesap_kodu character varying, son_hesap_kodu character varying, is_sair_hesap boolean, is_varsayilan_alici boolean, is_varsayilan_satici boolean, kategori_id integer, kategori character varying, fason_marka_id integer, fason_marka character varying, country_id integer, country_name character varying, city_id integer, city_name character varying, town character varying, district character varying, road character varying, street character varying, building_name character varying, door_no character varying, postal_box character varying, postal_code character varying, web_site character varying, email character varying)
+CREATE FUNCTION public.sp_get_ch_hesap_karti(pfilter text, plang text) RETURNS TABLE(id bigint, hesap_kodu character varying, hesap_ismi character varying, muhasebe_kodu character varying, hesap_tipi_id bigint, hesap_tipi character varying, hesap_grubu_id bigint, grup character varying, bolge_id bigint, bolge character varying, mukellef_tipi_id bigint, mukellef_tipi character varying, mukellef_adi character varying, mukellef_ikinci_adi character varying, mukellef_soyadi character varying, vergi_dairesi character varying, vergi_no character varying, para_birimi character varying, iban character varying, iban_para character varying, nace_kodu character varying, yetkili1 character varying, yetkili1_tel character varying, yetkili2 character varying, yetkili2_tel character varying, yetkili3 character varying, yetkili3_tel character varying, faks character varying, muhasebe_telefon character varying, muhasebe_eposta character varying, muhasebe_yetkili character varying, ozel_bilgi character varying, kok_hesap_kodu character varying, ara_hesap_kodu character varying, hesap_iskonto numeric, is_efatura_hesabi boolean, efatura_pk_name character varying, ulke_id bigint, ulke_adi character varying, sehir_id bigint, sehir_adi character varying, ilce character varying, mahalle character varying, cadde character varying, sokak character varying, bina_adi character varying, kapi_no character varying, posta_kutusu character varying, posta_kodu character varying, web_site character varying, email character varying)
     LANGUAGE plpgsql
-    AS $$
-begin
-RETURN QUERY EXECUTE 
-'SELECT 
-	ch_hesap_karti.id, ch_hesap_karti.hesap_kodu, ch_hesap_karti.hesap_ismi, ch_hesap_karti.muhasebe_kodu, ch_hesap_karti.hesap_tipi_id, 
-	spget_lang_text((SELECT rawset_ch_hesap_tipi.hesap_tipi FROM set_ch_hesap_tipi as rawset_ch_hesap_tipi WHERE rawset_ch_hesap_tipi.id=ch_hesap_karti.hesap_tipi_id),''set_ch_hesap_tipi'',''hesap_tipi'', hesap_tipi_id, ' || quote_nullable(plang) || ') as hesap_tipi, 
-	ch_hesap_karti.hesap_grubu_id, 
-	spget_lang_text((SELECT rawset_ch_grup.grup FROM set_ch_grup as rawset_ch_grup WHERE rawset_ch_grup.id=ch_hesap_karti.hesap_grubu_id),''set_ch_grup2'',''grup'', hesap_grubu_id, ' || quote_nullable(plang) || ') as grup, 
-	ch_hesap_karti.bolge_id, 
-	spget_lang_text((SELECT rawch_bolge.bolge FROM ch_bolge as rawch_bolge WHERE rawch_bolge.id=ch_hesap_karti.bolge_id),''ch_bolge'',''bolge'', bolge_id, ' || quote_nullable(plang) || ') as bolge, 
-	ch_hesap_karti.temsilci_grubu_id, 
-	spget_lang_text((SELECT rawch_temsilci_grup.temsilci_grup FROM ch_temsilci_grup as rawch_temsilci_grup WHERE rawch_temsilci_grup.id=ch_hesap_karti.temsilci_grubu_id),''ch_temsilci_grup'',''temsilci_grup'', temsilci_grubu_id, ' || quote_nullable(plang) || ') as temsilci_grup, 
-	ch_hesap_karti.mukellef_tipi_id, 
-	spget_lang_text((SELECT rawsys_taxpayer_type.taxpayer_type FROM sys_taxpayer_type as rawsys_taxpayer_type WHERE rawsys_taxpayer_type.id=ch_hesap_karti.mukellef_tipi_id),''sys_taxpayer_type'',''taxpayer_type'', mukellef_tipi_id, ' || quote_nullable(plang) || ') as taxpayer_type, 
-	ch_hesap_karti.musteri_temsilcisi_id, 
-	spget_lang_text((SELECT rawemp_card.emp_full_name FROM emp_card as rawemp_card WHERE rawemp_card.id=ch_hesap_karti.musteri_temsilcisi_id),''emp_card'',''emp_full_name'', musteri_temsilcisi_id, ' || quote_nullable(plang) || ') as emp_full_name, 
-	ch_hesap_karti.adres_id, ch_hesap_karti.mukellef_adi, ch_hesap_karti.mukellef_ikinci_adi, ch_hesap_karti.mukellef_soyadi, ch_hesap_karti.vergi_dairesi, 
-	ch_hesap_karti.vergi_no, ch_hesap_karti.para_birimi, ch_hesap_karti.iban, ch_hesap_karti.iban_para, ch_hesap_karti.nace_kodu, ch_hesap_karti.is_efatura_hesabi, 
-	ch_hesap_karti.efatura_pk_name, ch_hesap_karti.yetkili1, ch_hesap_karti.yetkili1_tel, ch_hesap_karti.yetkili2, ch_hesap_karti.yetkili2_tel, ch_hesap_karti.yetkili3, 
-	ch_hesap_karti.yetkili3_tel, ch_hesap_karti.faks, ch_hesap_karti.muhasebe_telefon, ch_hesap_karti.muhasebe_eposta, ch_hesap_karti.muhasebe_yetkili, 
-	ch_hesap_karti.ozel_bilgi, ch_hesap_karti.odeme_vade_gun_sayisi, ch_hesap_karti.is_acik_hesap, ch_hesap_karti.kredi_limiti, ch_hesap_karti.hesap_iskonto, 
-	ch_hesap_karti.kok_hesap_kodu, ch_hesap_karti.ara_hesap_kodu, ch_hesap_karti.is_sair_hesap, ch_hesap_karti.is_varsayilan_alici, ch_hesap_karti.is_varsayilan_satici, 
-	ch_hesap_karti.kategori_id, 
-	spget_lang_text((SELECT rawset_ch_kategori.kategori FROM set_ch_kategori as rawset_ch_kategori WHERE rawset_ch_kategori.id=ch_hesap_karti.kategori_id),''set_ch_kategori'',''kategori'', kategori_id, ' || quote_nullable(plang) || ') as kategori, 
-	ch_hesap_karti.fason_marka_id, 
-	spget_lang_text((SELECT rawset_ch_fason_marka.fason_marka FROM set_ch_fason_marka as rawset_ch_fason_marka WHERE rawset_ch_fason_marka.id=ch_hesap_karti.fason_marka_id),''set_ch_fason_marka'',''fason_marka'', fason_marka_id, ' || quote_nullable(plang) || ') as fason_marka, 
-	sys_address.country_id, 
-	spget_lang_text((SELECT rawsys_country.country_name FROM sys_country as rawsys_country WHERE rawsys_country.id=sys_address.country_id),''sys_country'',''country_name'', country_id, ' || quote_nullable(plang) || ') as country_name, 
-	sys_address.city_id, 
-	spget_lang_text((SELECT rawsys_city.city_name FROM sys_city as rawsys_city WHERE rawsys_city.id=sys_address.city_id),''sys_city'',''city_name'', city_id, ' || quote_nullable(plang) || ') as city_name, 
-	sys_address.town, sys_address.district, sys_address.road, sys_address.street, sys_address.building_name, sys_address.door_no, sys_address.postal_box, 
-	sys_address.postal_code, sys_address.web_site, sys_address.email 
-FROM ch_hesap_karti, sys_address 
-WHERE adres_id=sys_address.id ' || pfilter;
-END
+    AS $$
+
+begin
+RETURN QUERY EXECUTE 
+'SELECT 
+	ch_hesap_karti.id, 
+	ch_hesap_karti.hesap_kodu, 
+	ch_hesap_karti.hesap_ismi, 
+	ch_hesap_karti.muhasebe_kodu, 
+	ch_hesap_karti.hesap_tipi_id, 
+	spget_lang_text((SELECT rawset_ch_hesap_tipi.hesap_tipi FROM set_ch_hesap_tipi as rawset_ch_hesap_tipi WHERE rawset_ch_hesap_tipi.id=ch_hesap_karti.hesap_tipi_id),''set_ch_hesap_tipi'',''hesap_tipi'', hesap_tipi_id, ' || quote_nullable(plang) || ') as hesap_tipi, 
+	ch_hesap_karti.hesap_grubu_id, 
+	spget_lang_text((SELECT rawset_ch_grup.grup FROM set_ch_grup as rawset_ch_grup WHERE rawset_ch_grup.id=ch_hesap_karti.hesap_grubu_id),''set_ch_grup2'',''grup'', hesap_grubu_id, ' || quote_nullable(plang) || ') as grup, 
+	ch_hesap_karti.bolge_id, 
+	spget_lang_text((SELECT rawch_bolge.bolge FROM ch_bolge as rawch_bolge WHERE rawch_bolge.id=ch_hesap_karti.bolge_id),''ch_bolge'',''bolge'', bolge_id, ' || quote_nullable(plang) || ') as bolge, 
+	ch_hesap_karti.mukellef_tipi_id, 
+	spget_lang_text((SELECT rawsys_mukellef_tipi.mukellef_tipi FROM sys_mukellef_tipi as rawsys_mukellef_tipi WHERE rawsys_mukellef_tipi.id=ch_hesap_karti.mukellef_tipi_id),''sys_mukellef_tipi'',''mukellef_tipi'', mukellef_tipi_id, ' || quote_nullable(plang) || ') as mukellef_tipi, 
+	ch_hesap_karti.mukellef_adi, 
+	ch_hesap_karti.mukellef_ikinci_adi, 
+	ch_hesap_karti.mukellef_soyadi, 
+	ch_hesap_karti.vergi_dairesi, 
+	ch_hesap_karti.vergi_no, 
+	ch_hesap_karti.para_birimi, 
+	ch_hesap_karti.iban, 
+	ch_hesap_karti.iban_para, 
+	ch_hesap_karti.nace_kodu, 
+	ch_hesap_karti.yetkili1, 
+	ch_hesap_karti.yetkili1_tel, 
+	ch_hesap_karti.yetkili2, 
+	ch_hesap_karti.yetkili2_tel, 
+	ch_hesap_karti.yetkili3, 
+	ch_hesap_karti.yetkili3_tel, 
+	ch_hesap_karti.faks, 
+	ch_hesap_karti.muhasebe_telefon, 
+	ch_hesap_karti.muhasebe_eposta, 
+	ch_hesap_karti.muhasebe_yetkili, 
+	ch_hesap_karti.ozel_bilgi, 
+	ch_hesap_karti.kok_hesap_kodu, 
+	ch_hesap_karti.ara_hesap_kodu, 
+	ch_hesap_karti.hesap_iskonto, 
+	ch_hesap_karti.is_efatura_hesabi, 
+	ch_hesap_karti.efatura_pk_name, 
+	ch_hesap_karti.ulke_id, 
+	spget_lang_text((SELECT rawsys_ulke.ulke_adi FROM sys_ulke as rawsys_ulke WHERE rawsys_ulke.id=ch_hesap_karti.ulke_id),''sys_ulke'',''ulke_adi'', ulke_id, ' || quote_nullable(plang) || ') as ulke_adi, 
+	ch_hesap_karti.sehir_id, 
+	spget_lang_text((SELECT rawsys_sehir.sehir_adi FROM sys_sehir as rawsys_sehir WHERE rawsys_sehir.id=ch_hesap_karti.sehir_id),''sys_sehir'',''sehir_adi'', sehir_id, ' || quote_nullable(plang) || ') as sehir_adi, 
+	ch_hesap_karti.ilce, 
+	ch_hesap_karti.mahalle, 
+	ch_hesap_karti.cadde, 
+	ch_hesap_karti.sokak, 
+	ch_hesap_karti.bina_adi, 
+	ch_hesap_karti.kapi_no, 
+	ch_hesap_karti.posta_kutusu, 
+	ch_hesap_karti.posta_kodu, 
+	ch_hesap_karti.web_site, 
+	ch_hesap_karti.email 
+FROM ch_hesap_karti 
+WHERE 1=1 ' || pfilter;
+END
 $$;
 
 
@@ -364,23 +388,6 @@ $$;
 ALTER FUNCTION public.spget_crypted_data(pval text) OWNER TO postgres;
 
 --
--- Name: spget_emp_card_id_list(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spget_emp_card_id_list() RETURNS TABLE(id integer, emp_name character varying, emp_surname character varying, emp_full_name character varying)
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-	RETURN QUERY
-		SELECT  emp_card.id, emp_card.emp_name, emp_card.emp_surname, emp_card.emp_full_name FROM emp_card
-		WHERE is_active ORDER BY 4;
-END
-$$;
-
-
-ALTER FUNCTION public.spget_emp_card_id_list() OWNER TO postgres;
-
---
 -- Name: spget_hesap_kodu_ara_kodlar(text, text, boolean); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -424,36 +431,33 @@ $$;
 ALTER FUNCTION public.spget_hesap_kodu_son_kodlar(pfilter text) OWNER TO postgres;
 
 --
--- Name: spget_lang_text(text, text, text, integer, text); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: spget_lang_text(text, text, text, bigint, text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.spget_lang_text(_default_value text, _table_name text, _column_name text, _row_id integer, _lang text) RETURNS character varying
+CREATE FUNCTION public.spget_lang_text(pdefault_value text, ptable_name text, pcolumn_name text, prow_id bigint, plang text) RETURNS character varying
     LANGUAGE plpgsql SECURITY DEFINER
-    AS $$declare
-	dmp text;
-	--_default_val text;
-begin
---  _default_val := exec(concat('SELECT raw', _table_name, '.', pRawTableColName, ' FROM ', _table_name, ' as raw', _table_name ' WHERE raw', _table_name, '.id=', pDataTableName, '.', pDataColName));
-
-	SELECT INTO dmp val FROM sys_lang_data_content 
-	WHERE	1=1
-		AND row_id = _row_id
-		AND lang = _lang
-		AND column_name = _column_name
-		AND table_name = _table_name
-	LIMIT 1;
-  
-	IF (dmp is null) OR (dmp = '') THEN
-		return _default_value;
-	ELSE
-		return dmp;
-	END IF;
-
-end
+    AS $$
+declare
+	dmp text;
+begin
+	SELECT INTO dmp deger FROM sys_lisan_data_icerik 
+	WHERE	row_id = prow_id
+		AND lisan = plang
+		AND kolon_adi = pcolumn_name
+		AND tablo_adi = ptable_name
+	LIMIT 1;
+  
+	IF (dmp is null) OR (dmp = '') THEN
+		return pdefault_value;
+	ELSE
+		return dmp;
+	END IF;
+
+end
 $$;
 
 
-ALTER FUNCTION public.spget_lang_text(_default_value text, _table_name text, _column_name text, _row_id integer, _lang text) OWNER TO postgres;
+ALTER FUNCTION public.spget_lang_text(pdefault_value text, ptable_name text, pcolumn_name text, prow_id bigint, plang text) OWNER TO postgres;
 
 --
 -- Name: spget_lang_text(text, text, text, text, text); Type: FUNCTION; Schema: public; Owner: postgres
@@ -488,22 +492,21 @@ $$;
 ALTER FUNCTION public.spget_lang_text(_default_value text, _table_name text, _column_name text, _data_col text, _lang text) OWNER TO postgres;
 
 --
--- Name: spget_quality_form_no(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: spget_prs_personel_id_list(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.spget_quality_form_no(ptable_name text, pform_type_id integer) RETURNS character varying
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-	formNo text;
-BEGIN
-	SELECT INTO formNo form_no FROM sys_quality_form_number WHERE table_name = ptable_name AND form_type_id = pform_type_id;
-	RETURN formNo;
-end
+CREATE FUNCTION public.spget_prs_personel_id_list() RETURNS TABLE(id integer, emp_name character varying, emp_surname character varying, emp_full_name character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+	RETURN QUERY
+		SELECT  prs_personel.id, prs_personel.ad, prs_personel.soyad, prs_personel.ad_soyad FROM prs_personel
+		WHERE is_aktif ORDER BY 4;
+END
 $$;
 
 
-ALTER FUNCTION public.spget_quality_form_no(ptable_name text, pform_type_id integer) OWNER TO postgres;
+ALTER FUNCTION public.spget_prs_personel_id_list() OWNER TO postgres;
 
 --
 -- Name: spget_rct_hammadde_maliyet(bigint); Type: FUNCTION; Schema: public; Owner: postgres
@@ -612,26 +615,23 @@ $$;
 ALTER FUNCTION public.spget_rct_yan_urun_maliyet(prct_recete_id bigint) OWNER TO postgres;
 
 --
--- Name: spget_set_ch_hesap_tipi_id(integer); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: spget_sys_kalite_form_no(text, bigint); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.spget_set_ch_hesap_tipi_id(phesap_tipi integer) RETURNS integer
+CREATE FUNCTION public.spget_sys_kalite_form_no(ptablo_adi text, pform_tipi_id bigint) RETURNS character varying
     LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-	idx Integer;
-BEGIN
-	CASE
-		WHEN phesap_tipi = 1 THEN	SELECT INTO idx id FROM set_ch_hesap_tipi WHERE is_ana_hesap=true;
-		WHEN phesap_tipi = 2 THEN	SELECT INTO idx id FROM set_ch_hesap_tipi WHERE is_ara_hesap=true;
-		WHEN phesap_tipi = 3 THEN	SELECT INTO idx id FROM set_ch_hesap_tipi WHERE is_son_hesap=true;
-	END CASE;
-	RETURN idx;
-END;
+    AS $$
+
+DECLARE
+	formNo text;
+BEGIN
+	SELECT INTO formNo form_no FROM sys_kalite_form_no WHERE tablo_adi = ptablo_adi AND form_tipi_id = pform_tipi_id;
+	RETURN formNo;
+end
 $$;
 
 
-ALTER FUNCTION public.spget_set_ch_hesap_tipi_id(phesap_tipi integer) OWNER TO postgres;
+ALTER FUNCTION public.spget_sys_kalite_form_no(ptablo_adi text, pform_tipi_id bigint) OWNER TO postgres;
 
 --
 -- Name: spget_sys_lang_id(text); Type: FUNCTION; Schema: public; Owner: postgres
@@ -679,17 +679,18 @@ ALTER FUNCTION public.spget_sys_quality_form_type_id(ptype integer) OWNER TO pos
 -- Name: spget_sys_user_id_list(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.spget_sys_user_id_list() RETURNS TABLE(id integer, user_name character varying)
+CREATE FUNCTION public.spget_sys_user_id_list() RETURNS TABLE(id bigint, user_name character varying)
     LANGUAGE plpgsql
-    AS $$
-BEGIN
-	RETURN QUERY EXECUTE 
-	'SELECT 
-		sys_user.id, sys_user.user_name
-	FROM sys_user
-	WHERE is_active ORDER BY 1';
-
-END
+    AS $$
+
+BEGIN
+	RETURN QUERY EXECUTE 
+	'SELECT 
+		sys_kullanici.id, sys_kullanici.kullanici_adi
+	FROM sys_kullanici
+	WHERE is_aktif ORDER BY 1';
+
+END
 $$;
 
 
@@ -938,7 +939,7 @@ CREATE TABLE public.alis_teklif (
     toplam_iskonto_tutar double precision DEFAULT 0 NOT NULL,
     toplam_kdv_tutar double precision DEFAULT 0 NOT NULL,
     genel_toplam double precision DEFAULT 0 NOT NULL,
-    musteri_temsilcisi_id integer,
+    musteri_temsilcisi_id bigint,
     ulke character varying(64),
     sehir character varying(32),
     adres character varying(80),
@@ -1010,7 +1011,7 @@ CREATE TABLE public.audit (
     table_name character varying(36) NOT NULL,
     access_type character varying(1) NOT NULL,
     time_of_change timestamp without time zone NOT NULL,
-    row_id integer NOT NULL,
+    row_id bigint NOT NULL,
     client_username character varying(16),
     old_val text,
     new_val text
@@ -1053,19 +1054,17 @@ CREATE TABLE public.bbk_kayit (
     yetkili2_tel character varying(24),
     yetkili2_email character varying(80),
     adres character varying(160),
-    sehir_adi_id integer,
-    ulke_adi_idx integer,
-    bolge_adi_idx integer,
+    sehir_id bigint,
+    ulke_id bigint,
+    bolge_id bigint,
     not1 character varying(384),
     not2 character varying(384),
-    not3 character varying(384),
-    firma_tipi_id integer,
+    firma_tipi_id bigint,
     vergi_dairesi character varying(48),
     vergi_numarasi character varying(24),
     kac_yillik_firma character varying(10),
-    calisma_durumu_id integer,
-    calistigi_tedarikciler character varying(96),
-    finans_durumu_id integer,
+    calisma_durumu_id bigint,
+    finans_durumu_id bigint,
     sevkiyat_yetkilisi character varying(48),
     sevkiyat_yetkilisi_tel character varying(24)
 );
@@ -1095,7 +1094,7 @@ CREATE TABLE public.ch_banka (
     id bigint NOT NULL,
     banka_adi character varying(64) NOT NULL,
     swift_kodu character varying(16),
-    is_active boolean DEFAULT true NOT NULL
+    is_aktif boolean DEFAULT true
 );
 
 
@@ -1121,10 +1120,10 @@ ALTER TABLE public.ch_banka ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 CREATE TABLE public.ch_banka_subesi (
     id bigint NOT NULL,
-    banka_id integer NOT NULL,
+    banka_id bigint NOT NULL,
     sube_kodu integer NOT NULL,
     sube_adi character varying(64) NOT NULL,
-    sube_il_id integer NOT NULL
+    sube_sehir_id bigint NOT NULL
 );
 
 
@@ -1179,10 +1178,10 @@ CREATE TABLE public.ch_hesap_karti (
     hesap_kodu character varying(16) NOT NULL,
     hesap_ismi character varying(128) NOT NULL,
     muhasebe_kodu character varying(16),
-    hesap_tipi_id integer NOT NULL,
-    hesap_grubu_id integer,
-    bolge_id integer,
-    mukellef_tipi_id integer,
+    hesap_tipi_id bigint NOT NULL,
+    hesap_grubu_id bigint,
+    bolge_id bigint,
+    mukellef_tipi_id bigint,
     mukellef_adi character varying(32),
     mukellef_ikinci_adi character varying(32),
     mukellef_soyadi character varying(32),
@@ -1205,11 +1204,11 @@ CREATE TABLE public.ch_hesap_karti (
     ozel_bilgi character varying(512),
     kok_hesap_kodu character varying(3),
     ara_hesap_kodu character varying(8),
-    hesap_iskonto double precision DEFAULT 0,
+    hesap_iskonto numeric(5,2) DEFAULT 0,
     is_efatura_hesabi boolean DEFAULT false NOT NULL,
     efatura_pk_name character varying(128),
-    ulke_id integer,
-    sehir_id integer,
+    ulke_id bigint,
+    sehir_id bigint,
     ilce character varying(64),
     mahalle character varying(64),
     cadde character varying(64),
@@ -1247,7 +1246,7 @@ CREATE TABLE public.mhs_doviz_kuru (
     id bigint NOT NULL,
     tarih date NOT NULL,
     para_birimi character varying(3) NOT NULL,
-    kur numeric(7,4) NOT NULL
+    kur numeric(10,4) NOT NULL
 );
 
 
@@ -1273,8 +1272,8 @@ ALTER TABLE public.mhs_doviz_kuru ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 CREATE TABLE public.prs_ehliyet_bilgisi (
     id bigint NOT NULL,
-    ehliyet_id integer,
-    personel_id integer,
+    ehliyet_id bigint,
+    personel_id bigint,
     is_aktif boolean DEFAULT false NOT NULL
 );
 
@@ -1301,11 +1300,11 @@ ALTER TABLE public.prs_ehliyet_bilgisi ALTER COLUMN id ADD GENERATED ALWAYS AS I
 
 CREATE TABLE public.prs_lisan_bilgisi (
     id bigint NOT NULL,
-    lisan_id integer,
-    okuma_id integer,
-    yazma_id integer,
-    konusma_id integer,
-    personel_id integer
+    lisan_id bigint,
+    okuma_id bigint,
+    yazma_id bigint,
+    konusma_id bigint,
+    personel_id bigint
 );
 
 
@@ -1331,36 +1330,36 @@ ALTER TABLE public.prs_lisan_bilgisi ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 CREATE TABLE public.prs_personel (
     id bigint NOT NULL,
-    is_aktif boolean DEFAULT true NOT NULL,
+    is_aktif boolean DEFAULT true,
     ad character varying(24) NOT NULL,
     soyad character varying(24) NOT NULL,
     ad_soyad character varying(48) NOT NULL,
     tel1 character varying(24),
     tel2 character varying(24),
-    personel_tipi_id integer NOT NULL,
-    bolum_id integer NOT NULL,
-    birim_id integer NOT NULL,
-    gorev_id integer NOT NULL,
+    personel_tipi_id bigint NOT NULL,
+    bolum_id bigint NOT NULL,
+    birim_id bigint NOT NULL,
+    gorev_id bigint NOT NULL,
     email character varying(64),
     dogum_tarihi date,
     kan_grubu character varying(8),
-    cinsiyet_id integer NOT NULL,
-    askerlik_durumu_id integer,
-    medeni_durumu_id integer NOT NULL,
-    cocuk_sayisi integer DEFAULT 0,
+    cinsiyet_id bigint NOT NULL,
+    askerlik_durumu_id bigint,
+    medeni_durumu_id bigint NOT NULL,
+    cocuk_sayisi smallint DEFAULT 0,
     yakin_adi character varying(48),
     yakin_telefon character varying(24),
-    ayakkabi_no integer,
+    ayakkabi_no smallint,
     elbise_bedeni character varying(8),
     genel_not character varying(256),
-    tasima_servisi_id integer,
+    tasima_servisi_id bigint,
     ozel_not character varying(256),
-    maas numeric,
-    ikramiye_sayisi integer,
-    ikramiye_tutar numeric,
+    maas numeric(18,2) DEFAULT 0,
+    ikramiye_sayisi integer DEFAULT 0,
+    ikramiye_tutar numeric(18,2) DEFAULT 0,
     kimlik_no text,
-    ulke_id integer,
-    sehir_id integer,
+    ulke_id bigint,
+    sehir_id bigint,
     ilce character varying(64),
     mahalle character varying(64),
     cadde character varying(64),
@@ -1370,7 +1369,7 @@ CREATE TABLE public.prs_personel (
     posta_kutusu character varying(16),
     posta_kodu character varying(16),
     web_site character varying(64),
-    personel_gecmisi_id integer
+    personel_gecmisi_id bigint
 );
 
 
@@ -1382,10 +1381,9 @@ ALTER TABLE public.prs_personel OWNER TO ths_admin;
 
 CREATE TABLE public.prs_personel_gecmisi (
     id bigint NOT NULL,
-    personel_id integer,
     baslama_tarihi date NOT NULL,
     ayrilma_tarihi date,
-    ayrilma_nedeni_id integer,
+    ayrilma_nedeni_id bigint,
     aciklama character varying(120)
 );
 
@@ -1426,8 +1424,8 @@ ALTER TABLE public.prs_personel ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 CREATE TABLE public.prs_src_bilgisi (
     id bigint NOT NULL,
-    src_tipi_id integer,
-    personel_id integer
+    src_tipi_id bigint,
+    personel_id bigint
 );
 
 
@@ -1455,9 +1453,9 @@ CREATE TABLE public.rct_iscilik_gideri (
     id bigint NOT NULL,
     gider_kodu character varying(16) NOT NULL,
     gider_adi character varying(128),
-    fiyat double precision NOT NULL,
-    olcu_birimi_id integer NOT NULL,
-    gider_tipi_id integer NOT NULL
+    fiyat numeric(18,6) NOT NULL,
+    olcu_birimi_id bigint NOT NULL,
+    gider_tipi_id bigint NOT NULL
 );
 
 
@@ -1495,11 +1493,11 @@ ALTER TABLE public.rct_paket_hammadde OWNER TO ths_admin;
 
 CREATE TABLE public.rct_paket_hammadde_detay (
     id bigint NOT NULL,
-    header_id integer NOT NULL,
-    recete_id integer,
+    header_id bigint NOT NULL,
+    recete_id bigint,
     stok_kodu character varying(32) NOT NULL,
-    miktar double precision NOT NULL,
-    fire_orani double precision
+    miktar numeric(18,6) NOT NULL,
+    fire_orani numeric(18,6) DEFAULT 0
 );
 
 
@@ -1551,10 +1549,10 @@ ALTER TABLE public.rct_paket_iscilik OWNER TO ths_admin;
 
 CREATE TABLE public.rct_paket_iscilik_detay (
     id bigint NOT NULL,
-    header_id integer NOT NULL,
+    header_id bigint NOT NULL,
     gider_kodu character varying(32) NOT NULL,
-    miktar double precision NOT NULL,
-    fire_orani double precision
+    miktar numeric(18,6) NOT NULL,
+    fire_orani numeric(18,6) DEFAULT 0
 );
 
 
@@ -1596,7 +1594,7 @@ CREATE TABLE public.rct_recete (
     id bigint NOT NULL,
     recete_kodu character varying(32) NOT NULL,
     recete_adi character varying(128) NOT NULL,
-    ornek_uretim_miktari double precision DEFAULT 0,
+    ornek_uretim_miktari numeric(18,6) DEFAULT 1,
     aciklama character varying(128)
 );
 
@@ -1609,11 +1607,11 @@ ALTER TABLE public.rct_recete OWNER TO ths_admin;
 
 CREATE TABLE public.rct_recete_hammadde (
     id bigint NOT NULL,
-    header_id integer NOT NULL,
-    recete_id integer,
+    header_id bigint NOT NULL,
+    recete_id bigint,
     stok_kodu character varying(32) NOT NULL,
-    miktar double precision NOT NULL,
-    fire_orani double precision
+    miktar numeric(18,6) NOT NULL,
+    fire_orani numeric(18,6) DEFAULT 0
 );
 
 
@@ -1653,9 +1651,9 @@ ALTER TABLE public.rct_recete ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 CREATE TABLE public.rct_recete_iscilik (
     id bigint NOT NULL,
-    header_id integer NOT NULL,
+    header_id bigint NOT NULL,
     gider_kodu character varying(16) NOT NULL,
-    miktar double precision NOT NULL
+    miktar numeric(18,6) NOT NULL
 );
 
 
@@ -1681,9 +1679,9 @@ ALTER TABLE public.rct_recete_iscilik ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 CREATE TABLE public.rct_recete_paket_hammadde (
     id bigint NOT NULL,
-    header_id integer NOT NULL,
-    paket_id integer NOT NULL,
-    miktar double precision
+    header_id bigint NOT NULL,
+    paket_id bigint NOT NULL,
+    miktar numeric(18,6)
 );
 
 
@@ -1709,9 +1707,9 @@ ALTER TABLE public.rct_recete_paket_hammadde ALTER COLUMN id ADD GENERATED ALWAY
 
 CREATE TABLE public.rct_recete_paket_iscilik (
     id bigint NOT NULL,
-    header_id integer NOT NULL,
-    paket_id integer NOT NULL,
-    miktar double precision
+    header_id bigint NOT NULL,
+    paket_id bigint NOT NULL,
+    miktar numeric(18,6)
 );
 
 
@@ -1737,10 +1735,10 @@ ALTER TABLE public.rct_recete_paket_iscilik ALTER COLUMN id ADD GENERATED ALWAYS
 
 CREATE TABLE public.rct_recete_yan_urun (
     id bigint NOT NULL,
-    header_id integer NOT NULL,
+    header_id bigint NOT NULL,
     stok_kodu character varying(32) NOT NULL,
-    miktar double precision NOT NULL,
-    fire_orani double precision
+    miktar numeric(18,6) NOT NULL,
+    fire_orani numeric(18,6) DEFAULT 0
 );
 
 
@@ -1768,9 +1766,9 @@ CREATE TABLE public.sat_fatura (
     id bigint NOT NULL,
     fatura_no character varying(16),
     fatura_tarihi timestamp without time zone,
-    teklif_id integer,
-    siparis_id integer,
-    irsaliye_id integer
+    teklif_id bigint,
+    siparis_id bigint,
+    irsaliye_id bigint
 );
 
 
@@ -1782,10 +1780,10 @@ ALTER TABLE public.sat_fatura OWNER TO ths_admin;
 
 CREATE TABLE public.sat_fatura_detay (
     id bigint NOT NULL,
-    header_id integer,
-    teklif_detay_id integer,
-    siparis_detay_id integer,
-    irsaliye_detay_id integer
+    header_id bigint,
+    teklif_detay_id bigint,
+    siparis_detay_id bigint,
+    irsaliye_detay_id bigint
 );
 
 
@@ -1827,9 +1825,9 @@ CREATE TABLE public.sat_irsaliye (
     id bigint NOT NULL,
     irsaliye_no character varying(16),
     irsaliye_tarihi timestamp without time zone,
-    teklif_id integer,
-    siparis_id integer,
-    fatura_id integer
+    teklif_id bigint,
+    siparis_id bigint,
+    fatura_id bigint
 );
 
 
@@ -1841,10 +1839,10 @@ ALTER TABLE public.sat_irsaliye OWNER TO ths_admin;
 
 CREATE TABLE public.sat_irsaliye_detay (
     id bigint NOT NULL,
-    header_id integer,
-    teklif_detay_id integer,
-    siparis_detay_id integer,
-    fatura_detay_id integer
+    header_id bigint,
+    teklif_detay_id bigint,
+    siparis_detay_id bigint,
+    fatura_detay_id bigint
 );
 
 
@@ -1922,7 +1920,8 @@ CREATE TABLE public.sat_siparis (
     muhattap_ad character varying(32),
     referans character varying(128),
     para_birimi character varying(3) NOT NULL,
-    doviz_kuru numeric(7,4) DEFAULT 1,
+    doviz_kuru_usd numeric(7,4) DEFAULT 1,
+    doviz_kuru_eur numeric(7,4) DEFAULT 1,
     aciklama character varying(128),
     proforma_no integer,
     siparis_durum_id bigint,
@@ -1949,9 +1948,10 @@ CREATE TABLE public.sat_siparis_detay (
     stok_aciklama character varying(128),
     kullanici_aciklama character varying(128),
     referans character varying(128),
-    miktar double precision DEFAULT 1 NOT NULL,
+    miktar numeric(18,6) DEFAULT 1 NOT NULL,
+    giden_miktar numeric(18,6) DEFAULT 1 NOT NULL,
     olcu_birimi character varying(8),
-    iskonto_orani numeric(6,3) DEFAULT 0,
+    iskonto_orani numeric(18,6) DEFAULT 0,
     kdv_orani integer DEFAULT 0,
     fiyat numeric(18,6) DEFAULT 0,
     net_fiyat numeric(18,6) DEFAULT 0 NOT NULL,
@@ -1961,11 +1961,7 @@ CREATE TABLE public.sat_siparis_detay (
     kdv_tutar numeric(18,6) DEFAULT 0 NOT NULL,
     toplam_tutar numeric(18,6) DEFAULT 0 NOT NULL,
     is_ana_urun boolean DEFAULT false NOT NULL,
-    ana_urun_id bigint,
     referans_ana_urun_id bigint,
-    vergi_kodu character varying(4),
-    vergi_muafiyet_kodu character varying(4),
-    diger_vergi_kodu character varying(4),
     gtip_no character varying(16),
     en numeric(12,6) DEFAULT 0,
     boy numeric(12,6) DEFAULT 0,
@@ -2015,7 +2011,7 @@ CREATE TABLE public.set_sat_siparis_durum (
     id bigint NOT NULL,
     siparis_durum character varying(32) NOT NULL,
     aciklama character varying(64),
-    is_active boolean DEFAULT true NOT NULL
+    is_aktif boolean DEFAULT true
 );
 
 
@@ -2043,12 +2039,12 @@ ALTER TABLE public.stk_stok_grubu OWNER TO ths_admin;
 
 CREATE TABLE public.stk_stok_karti (
     id bigint NOT NULL,
-    is_satilabilir boolean DEFAULT true NOT NULL,
+    is_satilabilir boolean DEFAULT true,
     stok_kodu character varying(32) NOT NULL,
     stok_adi character varying(128) NOT NULL,
-    stok_grubu_id integer NOT NULL,
-    olcu_birimi_id integer NOT NULL,
-    urun_tipi_id integer DEFAULT public.spvarsayilan_urun_tipi_id() NOT NULL,
+    stok_grubu_id bigint NOT NULL,
+    olcu_birimi_id bigint NOT NULL,
+    urun_tipi_id bigint DEFAULT public.spvarsayilan_urun_tipi_id() NOT NULL,
     alis_iskonto numeric(5,2) DEFAULT 0,
     satis_iskonto numeric(5,2) DEFAULT 0,
     alis_fiyat numeric(18,6) DEFAULT 0,
@@ -2062,16 +2058,16 @@ CREATE TABLE public.stk_stok_karti (
     boy double precision DEFAULT 0,
     yukseklik double precision DEFAULT 0,
     agirlik double precision DEFAULT 0,
-    temin_suresi integer,
+    temin_suresi smallint,
     ozel_kod character varying(16),
     marka character varying(32),
-    mensei_id integer,
+    mensei_id bigint,
     gtip_no character varying(16),
     diib_urun_tanimi character varying(64),
     en_az_stok_seviyesi double precision DEFAULT 0,
     tanim character varying(384),
     stok_resim bytea,
-    cins_id integer,
+    cins_id bigint,
     s1 character varying(32),
     s2 character varying(32),
     s3 character varying(32),
@@ -2143,8 +2139,8 @@ CREATE TABLE public.sys_sehir (
     id bigint NOT NULL,
     sehir_adi character varying(32) NOT NULL,
     plaka_kodu integer,
-    ulke_adi_id integer,
-    bolge_adi_id integer
+    ulke_adi_id bigint,
+    bolge_adi_id bigint
 );
 
 
@@ -2228,7 +2224,8 @@ CREATE TABLE public.sat_teklif (
     muhattap_telefon character varying(24),
     referans character varying(128),
     para_birimi character varying(3) NOT NULL,
-    doviz_kuru numeric(7,4) DEFAULT 1,
+    doviz_kuru_usd numeric(7,4) DEFAULT 1,
+    doviz_kuru_eur numeric(7,4) DEFAULT 1,
     aciklama character varying(128),
     proforma_no integer,
     teslim_sekli_id bigint NOT NULL,
@@ -2266,13 +2263,7 @@ CREATE TABLE public.sat_teklif_detay (
     kdv_tutar numeric(18,6) DEFAULT 0 NOT NULL,
     toplam_tutar numeric(18,6) DEFAULT 0 NOT NULL,
     is_ana_urun boolean DEFAULT false NOT NULL,
-    ana_urun_id bigint,
     referans_ana_urun_id bigint,
-    transfer_hesap_kodu character varying(16),
-    kdv_transfer_hesap_kodu character varying(16),
-    vergi_kodu character varying(4),
-    vergi_muafiyet_kodu character varying(4),
-    diger_vergi_kodu character varying(4),
     gtip_no character varying(16)
 );
 
@@ -2391,7 +2382,7 @@ ALTER TABLE public.set_bbk_firma_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 CREATE TABLE public.set_ch_firma_tipi (
     id bigint NOT NULL,
-    firma_turu_id integer NOT NULL,
+    firma_turu_id bigint NOT NULL,
     firma_tipi character varying(48) NOT NULL
 );
 
@@ -2498,10 +2489,7 @@ ALTER TABLE public.set_ch_hesap_plani ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 CREATE TABLE public.set_ch_hesap_tipi (
     id bigint NOT NULL,
-    hesap_tipi character varying(16) NOT NULL,
-    is_ana_hesap boolean DEFAULT false NOT NULL,
-    is_ara_hesap boolean DEFAULT false NOT NULL,
-    is_son_hesap boolean DEFAULT false NOT NULL
+    hesap_tipi character varying(16) NOT NULL
 );
 
 
@@ -2527,7 +2515,7 @@ ALTER TABLE public.set_ch_hesap_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 CREATE TABLE public.set_ch_vergi_orani (
     id bigint NOT NULL,
-    vergi_orani double precision NOT NULL,
+    vergi_orani numeric(5,2) NOT NULL,
     satis_kodu character varying(16) NOT NULL,
     satis_iade_kodu character varying(16) NOT NULL,
     alis_kodu character varying(16) NOT NULL,
@@ -2627,8 +2615,8 @@ ALTER TABLE public.set_einv_evrak_tipi OWNER TO ths_admin;
 
 CREATE TABLE public.set_einv_evrak_tipi_cinsi (
     id bigint NOT NULL,
-    evrak_tipi_id integer,
-    evrak_cinsi_id integer
+    evrak_tipi_id bigint,
+    evrak_cinsi_id bigint
 );
 
 
@@ -2735,7 +2723,7 @@ CREATE TABLE public.set_einv_gonderim_sekli (
     id bigint NOT NULL,
     gonderim_sekli character varying(8),
     aciklama character varying(1024),
-    is_active boolean DEFAULT true NOT NULL
+    is_aktif boolean DEFAULT true
 );
 
 
@@ -2817,8 +2805,8 @@ CREATE TABLE public.set_einv_istisna_kodu (
     id bigint NOT NULL,
     istisna_kodu character varying(4) NOT NULL,
     aciklama character varying(512) NOT NULL,
-    is_tam_istisna boolean DEFAULT true NOT NULL,
-    fatura_tip_id integer NOT NULL
+    is_tam_istisna boolean DEFAULT true,
+    fatura_tip_id bigint NOT NULL
 );
 
 
@@ -2844,11 +2832,11 @@ ALTER TABLE public.set_einv_istisna_kodu ALTER COLUMN id ADD GENERATED ALWAYS AS
 
 CREATE TABLE public.set_einv_odeme_sekli (
     id bigint NOT NULL,
-    is_active boolean DEFAULT false NOT NULL,
+    is_aktif boolean DEFAULT false,
     odeme_sekli character varying(96),
     kod character varying(16),
     aciklama character varying(512),
-    is_efatura boolean DEFAULT false NOT NULL
+    is_efatura boolean DEFAULT false
 );
 
 
@@ -2874,7 +2862,7 @@ ALTER TABLE public.set_einv_odeme_sekli ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 CREATE TABLE public.set_einv_paket_tipi (
     id bigint NOT NULL,
-    is_active boolean DEFAULT true NOT NULL,
+    is_aktif boolean DEFAULT true,
     kod character varying(2),
     paket_tipi character varying(128),
     aciklama character varying(512)
@@ -2963,7 +2951,7 @@ ALTER TABLE public.set_einv_senaryo_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS
 
 CREATE TABLE public.set_einv_tasima_ucreti (
     id bigint NOT NULL,
-    is_active boolean DEFAULT true NOT NULL,
+    is_aktif boolean DEFAULT true,
     tasima_ucreti character varying(16)
 );
 
@@ -2990,10 +2978,10 @@ ALTER TABLE public.set_einv_tasima_ucreti ALTER COLUMN id ADD GENERATED ALWAYS A
 
 CREATE TABLE public.set_einv_teslim_sekli (
     id bigint NOT NULL,
-    is_active boolean DEFAULT true NOT NULL,
+    is_aktif boolean DEFAULT true,
     teslim_sekli character varying(16) NOT NULL,
     aciklama character varying(96) NOT NULL,
-    is_efatura boolean DEFAULT false NOT NULL
+    is_efatura boolean DEFAULT false
 );
 
 
@@ -3052,7 +3040,7 @@ CREATE TABLE public.set_einv_vergi_kodu (
     vergi_kodu character varying(4),
     aciklama character varying(128),
     kisaltma character varying(32),
-    is_tevkifat boolean DEFAULT false NOT NULL
+    is_tevkifat boolean DEFAULT false
 );
 
 
@@ -3080,7 +3068,7 @@ CREATE TABLE public.set_odeme_baslangic_donemi (
     id bigint NOT NULL,
     odeme_baslangic_donemi character varying(32) NOT NULL,
     aciklama character varying(64),
-    is_active boolean DEFAULT true NOT NULL
+    is_aktif boolean DEFAULT true
 );
 
 
@@ -3185,7 +3173,7 @@ ALTER TABLE public.set_prs_ayrilma_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS 
 CREATE TABLE public.set_prs_birim (
     id bigint NOT NULL,
     birim character varying(32) NOT NULL,
-    bolum_id integer
+    bolum_id bigint
 );
 
 
@@ -3237,8 +3225,7 @@ ALTER TABLE public.set_prs_bolum ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
 
 CREATE TABLE public.set_prs_cinsiyet (
     id bigint NOT NULL,
-    cinsiyet character varying(32) NOT NULL,
-    is_erkek boolean DEFAULT false NOT NULL
+    cinsiyet character varying(32) NOT NULL
 );
 
 
@@ -3423,8 +3410,7 @@ ALTER TABLE public.set_prs_lisan_seviyesi ALTER COLUMN id ADD GENERATED ALWAYS A
 
 CREATE TABLE public.set_prs_medeni_durum (
     id bigint NOT NULL,
-    medeni_durum character varying(32) NOT NULL,
-    is_evli boolean DEFAULT false NOT NULL
+    medeni_durum character varying(32) NOT NULL
 );
 
 
@@ -3583,7 +3569,7 @@ ALTER TABLE public.set_prs_src_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 CREATE TABLE public.set_prs_tatil_tipi (
     id bigint NOT NULL,
     tatil_tipi character varying(32) NOT NULL,
-    is_resmi_tatil boolean DEFAULT true NOT NULL
+    is_resmi_tatil boolean DEFAULT true
 );
 
 
@@ -3677,7 +3663,7 @@ CREATE TABLE public.set_sat_teklif_durum (
     id bigint NOT NULL,
     teklif_durum character varying(32) NOT NULL,
     aciklama character varying(64),
-    is_active boolean DEFAULT true NOT NULL
+    is_aktif boolean DEFAULT true
 );
 
 
@@ -3703,8 +3689,7 @@ ALTER TABLE public.set_sat_teklif_durum ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 CREATE TABLE public.set_stk_hareket_tipi (
     id bigint NOT NULL,
-    deger character varying(8) NOT NULL,
-    is_input boolean DEFAULT false NOT NULL
+    stok_hareket_tipi character varying(8) NOT NULL
 );
 
 
@@ -3742,32 +3727,6 @@ ALTER TABLE public.set_stk_urun_tipi OWNER TO ths_admin;
 
 ALTER TABLE public.set_stk_urun_tipi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_stk_urun_tipi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: stk_cins_ailesi; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.stk_cins_ailesi (
-    id bigint NOT NULL,
-    aile character varying(16) NOT NULL
-);
-
-
-ALTER TABLE public.stk_cins_ailesi OWNER TO ths_admin;
-
---
--- Name: stk_cins_ailesi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.stk_cins_ailesi ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_cins_ailesi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3826,9 +3785,9 @@ ALTER TABLE public.stk_cins_ozelligi ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 CREATE TABLE public.stk_stok_ambar (
     id bigint NOT NULL,
     ambar_adi character varying(32),
-    is_hammadde_ambari boolean DEFAULT false NOT NULL,
-    is_uretim_ambari boolean DEFAULT false NOT NULL,
-    is_satis_ambari boolean DEFAULT false NOT NULL
+    is_hammadde_ambari boolean DEFAULT false,
+    is_uretim_ambari boolean DEFAULT false,
+    is_satis_ambari boolean DEFAULT false
 );
 
 
@@ -3870,32 +3829,6 @@ ALTER TABLE public.stk_stok_grubu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 
 --
--- Name: stk_stok_grubu_turu; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.stk_stok_grubu_turu (
-    id bigint NOT NULL,
-    stok_grubu_tur character varying(32) NOT NULL
-);
-
-
-ALTER TABLE public.stk_stok_grubu_turu OWNER TO ths_admin;
-
---
--- Name: stk_stok_grubu_turu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.stk_stok_grubu_turu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_stok_grubu_turu_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
 -- Name: stk_stok_hareketi; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -3906,10 +3839,10 @@ CREATE TABLE public.stk_stok_hareketi (
     tutar numeric(18,6) NOT NULL,
     tutar_doviz numeric(18,6) NOT NULL,
     para_birimi character varying(3),
-    is_giris boolean DEFAULT true NOT NULL,
+    is_giris boolean DEFAULT true,
     tarih timestamp without time zone NOT NULL,
-    ambar_id integer NOT NULL,
-    is_donem_basi boolean DEFAULT false NOT NULL
+    ambar_id bigint NOT NULL,
+    is_donem_basi boolean DEFAULT false
 );
 
 
@@ -3949,8 +3882,8 @@ ALTER TABLE public.stk_stok_karti ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 CREATE TABLE public.sys_adres (
     id bigint NOT NULL,
-    ulke_id integer,
-    sehir_id integer,
+    ulke_id bigint,
+    sehir_id bigint,
     ilce character varying(64),
     mahalle character varying(64),
     cadde character varying(64),
@@ -4039,9 +3972,9 @@ ALTER TABLE public.sys_bolge ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE VIEW public.sys_db_status AS
  SELECT (row_number() OVER (ORDER BY pa.client_addr, pa.usename))::integer AS id,
     pa.pid,
-    pa.datname AS db_name,
-    pa.application_name AS app_name,
-    pa.usename AS user_name,
+    (pa.datname)::character varying(128) AS db_name,
+    (pa.application_name)::character varying(128) AS app_name,
+    (pa.usename)::character varying(64) AS user_name,
     (pa.client_addr)::character varying(32) AS client_address,
     (pa.state)::character varying(64) AS state,
     (pa.query)::character varying(1024) AS query,
@@ -4065,13 +3998,13 @@ ALTER TABLE public.sys_db_status OWNER TO ths_admin;
 
 CREATE TABLE public.sys_erisim_hakki (
     id bigint NOT NULL,
-    kaynak_id integer,
-    is_okuma boolean DEFAULT false NOT NULL,
-    is_yeni_kayit boolean DEFAULT false NOT NULL,
-    is_guncelleme boolean DEFAULT false NOT NULL,
-    is_silme boolean DEFAULT false NOT NULL,
-    is_ozel boolean DEFAULT false NOT NULL,
-    kullanici_id integer
+    kaynak_id bigint,
+    is_okuma boolean DEFAULT false,
+    is_yeni_kayit boolean DEFAULT false,
+    is_guncelleme boolean DEFAULT false,
+    is_silme boolean DEFAULT false,
+    is_ozel boolean DEFAULT false,
+    kullanici_id bigint
 );
 
 
@@ -4099,7 +4032,7 @@ CREATE TABLE public.sys_grid_filtre_siralama (
     id bigint NOT NULL,
     tablo_adi character varying(32),
     deger character varying,
-    is_siralama boolean DEFAULT false NOT NULL
+    is_siralama boolean DEFAULT false
 );
 
 
@@ -4130,8 +4063,8 @@ CREATE TABLE public.sys_grid_kolon (
     sira_no integer DEFAULT 1 NOT NULL,
     genislik integer DEFAULT 0 NOT NULL,
     data_format character varying(16),
-    is_gorunsun boolean DEFAULT true NOT NULL,
-    is_gorunsun_helper_form boolean DEFAULT false NOT NULL,
+    is_gorunsun boolean DEFAULT true,
+    is_gorunsun_helper_form boolean DEFAULT false,
     min_deger double precision DEFAULT 0,
     min_renk integer DEFAULT 0,
     maks_deger double precision DEFAULT 0,
@@ -4194,7 +4127,7 @@ ALTER TABLE public.sys_gun ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE public.sys_ilce (
     id bigint NOT NULL,
     ilce_adi character varying(32) NOT NULL,
-    sehir_id integer
+    sehir_id bigint
 );
 
 
@@ -4222,7 +4155,7 @@ CREATE TABLE public.sys_kalite_form_no (
     id bigint NOT NULL,
     tablo_adi character varying NOT NULL,
     form_no character varying(16) NOT NULL,
-    form_tipi_id integer NOT NULL
+    form_tipi_id bigint NOT NULL
 );
 
 
@@ -4276,7 +4209,7 @@ CREATE TABLE public.sys_kaynak (
     id bigint NOT NULL,
     kaynak_kodu integer,
     kaynak_adi character varying(64),
-    kaynak_grup_id integer
+    kaynak_grup_id bigint
 );
 
 
@@ -4336,7 +4269,7 @@ CREATE TABLE public.sys_kullanici (
     is_super_kullanici boolean DEFAULT false NOT NULL,
     ip_adres character varying(32) DEFAULT '127.0.0.1'::character varying NOT NULL,
     mac_adres character varying(32),
-    personel_id integer NOT NULL
+    personel_id bigint NOT NULL
 );
 
 
@@ -4384,7 +4317,7 @@ CREATE TABLE public.sys_lisan_data_icerik (
     lisan character varying(16) NOT NULL,
     tablo_adi character varying NOT NULL,
     kolon_adi character varying NOT NULL,
-    row_id integer NOT NULL,
+    row_id bigint NOT NULL,
     deger text
 );
 
@@ -4459,7 +4392,7 @@ CREATE TABLE public.sys_mahalle (
     id bigint NOT NULL,
     mahalle_adi character varying(96) NOT NULL,
     posta_kodu character varying(5),
-    semt_id integer
+    semt_id bigint
 );
 
 
@@ -4648,7 +4581,7 @@ ALTER TABLE public.sys_sehir ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE public.sys_semt (
     id bigint NOT NULL,
     semt_adi character varying(32) NOT NULL,
-    ilce_id integer
+    ilce_id bigint
 );
 
 
@@ -4718,10 +4651,10 @@ CREATE TABLE public.sys_uygulama_ayari (
     email character varying(80) DEFAULT 'mail@mailsite.com'::character varying,
     vergi_dairesi character varying(32),
     vergi_no character varying(16),
-    mukellef_tipi_id integer,
+    mukellef_tipi_id bigint,
     ticaret_sicil_no character varying(24),
-    ulke_id integer,
-    sehir_id integer,
+    ulke_id bigint,
+    sehir_id bigint,
     ilce character varying(32),
     mahalle character varying(40),
     cadde character varying(40),
@@ -4729,7 +4662,7 @@ CREATE TABLE public.sys_uygulama_ayari (
     posta_kodu character varying(7),
     bina_adi character varying(40),
     kapi_no character varying(6),
-    donem integer DEFAULT 2018 NOT NULL,
+    donem smallint DEFAULT 2018 NOT NULL,
     uygulama_lisan character varying(16),
     form_rengi integer,
     mail_host_name character varying(32),
@@ -4828,8 +4761,8 @@ CREATE VIEW public.sys_view_columns AS
     (columns.data_type)::text AS data_type,
     (columns.character_maximum_length)::integer AS character_maximum_length,
     (columns.ordinal_position)::integer AS ordinal_position,
-    columns.table_name AS orj_table_name,
-    columns.column_name AS orj_column_name,
+    (columns.table_name)::text AS orj_table_name,
+    (columns.column_name)::text AS orj_column_name,
     vt.table_type,
     columns.numeric_precision,
     columns.numeric_scale
@@ -4845,7 +4778,7 @@ ALTER TABLE public.sys_view_columns OWNER TO ths_admin;
 --
 
 CREATE VIEW public.sys_view_databases AS
- SELECT pg_database.datname AS database_name,
+ SELECT (pg_database.datname)::text AS database_name,
     pg_shdescription.description AS aciklama
    FROM (pg_shdescription
      JOIN pg_database ON ((pg_shdescription.objoid = pg_database.oid)))
@@ -5135,6 +5068,14 @@ ALTER TABLE ONLY public.sat_teklif
 
 
 --
+-- Name: sat_teklif sat_teklif_teklif_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif
+    ADD CONSTRAINT sat_teklif_teklif_no_key UNIQUE (teklif_no);
+
+
+--
 -- Name: set_bbk_calisma_durumu set_bbk_calisma_durumu_calisma_durumu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5396,6 +5337,14 @@ ALTER TABLE ONLY public.set_einv_iletisim_kanali
 
 ALTER TABLE ONLY public.set_einv_iletisim_kanali
     ADD CONSTRAINT set_einv_iletisim_kanali_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: set_einv_istisna_kodu set_einv_istisna_kodu_istisna_kodu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_einv_istisna_kodu
+    ADD CONSTRAINT set_einv_istisna_kodu_istisna_kodu_key UNIQUE (istisna_kodu);
 
 
 --
@@ -5895,22 +5844,6 @@ ALTER TABLE ONLY public.set_sat_teklif_durum
 
 
 --
--- Name: set_stk_hareket_tipi set_stk_hareket_tipi_deger_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_stk_hareket_tipi
-    ADD CONSTRAINT set_stk_hareket_tipi_deger_key UNIQUE (deger);
-
-
---
--- Name: set_stk_hareket_tipi set_stk_hareket_tipi_is_input_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_stk_hareket_tipi
-    ADD CONSTRAINT set_stk_hareket_tipi_is_input_key UNIQUE (is_input);
-
-
---
 -- Name: set_stk_hareket_tipi set_stk_hareket_tipi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5948,22 +5881,6 @@ ALTER TABLE ONLY public.set_rct_iscilik_gider_tipi
 
 ALTER TABLE ONLY public.set_rct_iscilik_gider_tipi
     ADD CONSTRAINT set_urt_iscilik_gider_tipi_pkey PRIMARY KEY (id);
-
-
---
--- Name: stk_cins_ailesi stk_cins_ailesi_aile_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_cins_ailesi
-    ADD CONSTRAINT stk_cins_ailesi_aile_key UNIQUE (aile);
-
-
---
--- Name: stk_cins_ailesi stk_cins_ailesi_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_cins_ailesi
-    ADD CONSTRAINT stk_cins_ailesi_pkey PRIMARY KEY (id);
 
 
 --
@@ -6012,22 +5929,6 @@ ALTER TABLE ONLY public.stk_stok_grubu
 
 ALTER TABLE ONLY public.stk_stok_grubu
     ADD CONSTRAINT stk_stok_grubu_pkey PRIMARY KEY (id);
-
-
---
--- Name: stk_stok_grubu_turu stk_stok_grubu_turu_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_grubu_turu
-    ADD CONSTRAINT stk_stok_grubu_turu_pkey PRIMARY KEY (id);
-
-
---
--- Name: stk_stok_grubu_turu stk_stok_grubu_turu_stok_grubu_tur_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_grubu_turu
-    ADD CONSTRAINT stk_stok_grubu_turu_stok_grubu_tur_key UNIQUE (stok_grubu_tur);
 
 
 --
@@ -6607,6 +6508,48 @@ ALTER TABLE ONLY public.rct_recete_yan_urun
 
 
 --
+-- Name: idx_ch_hesap_karti_hesap_kodu; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX idx_ch_hesap_karti_hesap_kodu ON public.ch_hesap_karti USING btree (hesap_kodu);
+
+
+--
+-- Name: idx_rct_paket_hammadde_detay_header_id; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX idx_rct_paket_hammadde_detay_header_id ON public.rct_paket_hammadde_detay USING btree (header_id);
+
+
+--
+-- Name: idx_rct_paket_iscilik_detay_header_id; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX idx_rct_paket_iscilik_detay_header_id ON public.rct_paket_iscilik_detay USING btree (header_id);
+
+
+--
+-- Name: idx_sat_siparis_detay_header_id; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX idx_sat_siparis_detay_header_id ON public.sat_siparis_detay USING btree (header_id);
+
+
+--
+-- Name: idx_sat_siparis_musteri_kodu; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX idx_sat_siparis_musteri_kodu ON public.sat_siparis USING btree (musteri_kodu);
+
+
+--
+-- Name: idx_sat_teklif_detay_header_id; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX idx_sat_teklif_detay_header_id ON public.sat_teklif_detay USING btree (header_id);
+
+
+--
 -- Name: set_rct_iscilik_gider_tipi audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -6696,11 +6639,99 @@ ALTER TABLE ONLY public.alis_teklif_detay
 
 
 --
+-- Name: bbk_kayit bbk_kayit_bolge_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.bbk_kayit
+    ADD CONSTRAINT bbk_kayit_bolge_id_fkey FOREIGN KEY (bolge_id) REFERENCES public.sys_bolge(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: bbk_kayit bbk_kayit_calisma_durumu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.bbk_kayit
+    ADD CONSTRAINT bbk_kayit_calisma_durumu_id_fkey FOREIGN KEY (calisma_durumu_id) REFERENCES public.set_bbk_calisma_durumu(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: bbk_kayit bbk_kayit_finans_durumu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.bbk_kayit
+    ADD CONSTRAINT bbk_kayit_finans_durumu_id_fkey FOREIGN KEY (finans_durumu_id) REFERENCES public.set_bbk_finans_durumu(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: bbk_kayit bbk_kayit_firma_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.bbk_kayit
+    ADD CONSTRAINT bbk_kayit_firma_tipi_id_fkey FOREIGN KEY (firma_tipi_id) REFERENCES public.set_bbk_firma_tipi(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: bbk_kayit bbk_kayit_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.bbk_kayit
+    ADD CONSTRAINT bbk_kayit_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehir(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: bbk_kayit bbk_kayit_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.bbk_kayit
+    ADD CONSTRAINT bbk_kayit_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulke(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: ch_banka_subesi ch_banka_subesi_banka_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.ch_banka_subesi
-    ADD CONSTRAINT ch_banka_subesi_banka_id_fkey FOREIGN KEY (banka_id) REFERENCES public.ch_banka(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT ch_banka_subesi_banka_id_fkey FOREIGN KEY (banka_id) REFERENCES public.ch_banka(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: ch_banka_subesi ch_banka_subesi_sube_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.ch_banka_subesi
+    ADD CONSTRAINT ch_banka_subesi_sube_sehir_id_fkey FOREIGN KEY (sube_sehir_id) REFERENCES public.sys_sehir(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: ch_hesap_karti ch_hesap_karti_bolge_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.ch_hesap_karti
+    ADD CONSTRAINT ch_hesap_karti_bolge_id_fkey FOREIGN KEY (bolge_id) REFERENCES public.set_ch_hesap_plani(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: ch_hesap_karti ch_hesap_karti_hesap_grubu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.ch_hesap_karti
+    ADD CONSTRAINT ch_hesap_karti_hesap_grubu_id_fkey FOREIGN KEY (hesap_grubu_id) REFERENCES public.set_ch_grup(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: ch_hesap_karti ch_hesap_karti_hesap_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.ch_hesap_karti
+    ADD CONSTRAINT ch_hesap_karti_hesap_tipi_id_fkey FOREIGN KEY (hesap_tipi_id) REFERENCES public.set_ch_hesap_tipi(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: ch_hesap_karti ch_hesap_karti_mukellef_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.ch_hesap_karti
+    ADD CONSTRAINT ch_hesap_karti_mukellef_tipi_id_fkey FOREIGN KEY (mukellef_tipi_id) REFERENCES public.sys_mukellef_tipi(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6728,11 +6759,179 @@ ALTER TABLE ONLY public.mhs_doviz_kuru
 
 
 --
+-- Name: prs_ehliyet_bilgisi prs_ehliyet_bilgisi_ehliyet_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_ehliyet_bilgisi
+    ADD CONSTRAINT prs_ehliyet_bilgisi_ehliyet_id_fkey FOREIGN KEY (ehliyet_id) REFERENCES public.set_prs_ehliyet(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prs_ehliyet_bilgisi prs_ehliyet_bilgisi_personel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_ehliyet_bilgisi
+    ADD CONSTRAINT prs_ehliyet_bilgisi_personel_id_fkey FOREIGN KEY (personel_id) REFERENCES public.prs_personel(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prs_lisan_bilgisi prs_lisan_bilgisi_konusma_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_lisan_bilgisi
+    ADD CONSTRAINT prs_lisan_bilgisi_konusma_id_fkey FOREIGN KEY (konusma_id) REFERENCES public.set_prs_lisan_seviyesi(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prs_lisan_bilgisi prs_lisan_bilgisi_lisan_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_lisan_bilgisi
+    ADD CONSTRAINT prs_lisan_bilgisi_lisan_id_fkey FOREIGN KEY (lisan_id) REFERENCES public.set_prs_lisan(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prs_lisan_bilgisi prs_lisan_bilgisi_okuma_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_lisan_bilgisi
+    ADD CONSTRAINT prs_lisan_bilgisi_okuma_id_fkey FOREIGN KEY (okuma_id) REFERENCES public.set_prs_lisan_seviyesi(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prs_lisan_bilgisi prs_lisan_bilgisi_personel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_lisan_bilgisi
+    ADD CONSTRAINT prs_lisan_bilgisi_personel_id_fkey FOREIGN KEY (personel_id) REFERENCES public.prs_personel(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prs_lisan_bilgisi prs_lisan_bilgisi_yazma_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_lisan_bilgisi
+    ADD CONSTRAINT prs_lisan_bilgisi_yazma_id_fkey FOREIGN KEY (yazma_id) REFERENCES public.set_prs_lisan_seviyesi(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prs_personel prs_personel_askerlik_durumu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_askerlik_durumu_id_fkey FOREIGN KEY (askerlik_durumu_id) REFERENCES public.set_prs_askerlik_durumu(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel prs_personel_birim_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_birim_id_fkey FOREIGN KEY (birim_id) REFERENCES public.set_prs_birim(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel prs_personel_bolum_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_bolum_id_fkey FOREIGN KEY (bolum_id) REFERENCES public.set_prs_bolum(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel prs_personel_cinsiyet_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_cinsiyet_id_fkey FOREIGN KEY (cinsiyet_id) REFERENCES public.set_prs_cinsiyet(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel_gecmisi prs_personel_gecmisi_ayrilma_nedeni_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel_gecmisi
+    ADD CONSTRAINT prs_personel_gecmisi_ayrilma_nedeni_id_fkey FOREIGN KEY (ayrilma_nedeni_id) REFERENCES public.set_prs_ayrilma_nedeni(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel prs_personel_gorev_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_gorev_id_fkey FOREIGN KEY (gorev_id) REFERENCES public.set_prs_gorev(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel prs_personel_medeni_durumu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_medeni_durumu_id_fkey FOREIGN KEY (medeni_durumu_id) REFERENCES public.set_prs_medeni_durum(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel prs_personel_personel_gecmisi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_personel_gecmisi_id_fkey FOREIGN KEY (personel_gecmisi_id) REFERENCES public.prs_personel_gecmisi(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel prs_personel_personel_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_personel_tipi_id_fkey FOREIGN KEY (personel_tipi_id) REFERENCES public.set_prs_personel_tipi(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel prs_personel_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehir(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel prs_personel_tasima_servisi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_tasima_servisi_id_fkey FOREIGN KEY (tasima_servisi_id) REFERENCES public.set_prs_servis_araci(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_personel prs_personel_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personel
+    ADD CONSTRAINT prs_personel_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulke(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_src_bilgisi prs_src_bilgisi_personel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_src_bilgisi
+    ADD CONSTRAINT prs_src_bilgisi_personel_id_fkey FOREIGN KEY (personel_id) REFERENCES public.prs_personel(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prs_src_bilgisi prs_src_bilgisi_src_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_src_bilgisi
+    ADD CONSTRAINT prs_src_bilgisi_src_tipi_id_fkey FOREIGN KEY (src_tipi_id) REFERENCES public.set_prs_src_tipi(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: rct_paket_hammadde_detay rct_paket_hammadde_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.rct_paket_hammadde_detay
-    ADD CONSTRAINT rct_paket_hammadde_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.rct_paket_hammadde(id) ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT rct_paket_hammadde_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.rct_paket_hammadde(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -6740,7 +6939,71 @@ ALTER TABLE ONLY public.rct_paket_hammadde_detay
 --
 
 ALTER TABLE ONLY public.rct_paket_hammadde_detay
-    ADD CONSTRAINT rct_paket_hammadde_detay_recete_id_fkey FOREIGN KEY (recete_id) REFERENCES public.rct_recete(id) ON UPDATE RESTRICT ON DELETE CASCADE;
+    ADD CONSTRAINT rct_paket_hammadde_detay_recete_id_fkey FOREIGN KEY (recete_id) REFERENCES public.rct_recete(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: rct_paket_hammadde_detay rct_paket_hammadde_detay_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.rct_paket_hammadde_detay
+    ADD CONSTRAINT rct_paket_hammadde_detay_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_karti(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: rct_paket_iscilik_detay rct_paket_iscilik_detay_gider_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.rct_paket_iscilik_detay
+    ADD CONSTRAINT rct_paket_iscilik_detay_gider_kodu_fkey FOREIGN KEY (gider_kodu) REFERENCES public.rct_iscilik_gideri(gider_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: rct_paket_iscilik_detay rct_paket_iscilik_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.rct_paket_iscilik_detay
+    ADD CONSTRAINT rct_paket_iscilik_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.rct_paket_iscilik(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: rct_recete_hammadde rct_recete_hammadde_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.rct_recete_hammadde
+    ADD CONSTRAINT rct_recete_hammadde_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.rct_recete(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: rct_recete_hammadde rct_recete_hammadde_recete_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.rct_recete_hammadde
+    ADD CONSTRAINT rct_recete_hammadde_recete_id_fkey FOREIGN KEY (recete_id) REFERENCES public.rct_recete(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: rct_recete_hammadde rct_recete_hammadde_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.rct_recete_hammadde
+    ADD CONSTRAINT rct_recete_hammadde_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_karti(stok_kodu) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: rct_recete_iscilik rct_recete_iscilik_gider_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.rct_recete_iscilik
+    ADD CONSTRAINT rct_recete_iscilik_gider_kodu_fkey FOREIGN KEY (gider_kodu) REFERENCES public.rct_iscilik_gideri(gider_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: rct_recete_iscilik rct_recete_iscilik_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.rct_recete_iscilik
+    ADD CONSTRAINT rct_recete_iscilik_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.rct_recete(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -6757,6 +7020,22 @@ ALTER TABLE ONLY public.rct_recete_paket_hammadde
 
 ALTER TABLE ONLY public.rct_recete_paket_hammadde
     ADD CONSTRAINT rct_recete_paket_hammadde_paket_id_fkey FOREIGN KEY (paket_id) REFERENCES public.rct_paket_hammadde(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: rct_recete rct_recete_recete_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.rct_recete
+    ADD CONSTRAINT rct_recete_recete_kodu_fkey FOREIGN KEY (recete_kodu) REFERENCES public.stk_stok_karti(stok_kodu) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: rct_recete_yan_urun rct_recete_yan_urun_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.rct_recete_yan_urun
+    ADD CONSTRAINT rct_recete_yan_urun_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_karti(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6784,11 +7063,51 @@ ALTER TABLE ONLY public.sat_siparis_detay
 
 
 --
+-- Name: sat_siparis_detay sat_siparis_detay_olcu_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_siparis_detay
+    ADD CONSTRAINT sat_siparis_detay_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_olcu_birimi(olcu_birimi) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_siparis_detay sat_siparis_detay_referans_ana_urun_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_siparis_detay
+    ADD CONSTRAINT sat_siparis_detay_referans_ana_urun_id_fkey FOREIGN KEY (referans_ana_urun_id) REFERENCES public.sat_siparis_detay(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_siparis_detay sat_siparis_detay_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_siparis_detay
+    ADD CONSTRAINT sat_siparis_detay_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_karti(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sat_siparis sat_siparis_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sat_siparis
     ADD CONSTRAINT sat_siparis_islem_tipi_id_fkey FOREIGN KEY (islem_tipi_id) REFERENCES public.set_einv_fatura_tipi(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_siparis sat_siparis_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_siparis
+    ADD CONSTRAINT sat_siparis_musteri_kodu_fkey FOREIGN KEY (musteri_kodu) REFERENCES public.ch_hesap_karti(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_siparis sat_siparis_musteri_temsilcisi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_siparis
+    ADD CONSTRAINT sat_siparis_musteri_temsilcisi_id_fkey FOREIGN KEY (musteri_temsilcisi_id) REFERENCES public.prs_personel(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6816,6 +7135,22 @@ ALTER TABLE ONLY public.sat_siparis
 
 
 --
+-- Name: sat_siparis sat_siparis_para_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_siparis
+    ADD CONSTRAINT sat_siparis_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimi(para_birimi) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_siparis sat_siparis_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_siparis
+    ADD CONSTRAINT sat_siparis_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehir(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: sat_siparis sat_siparis_siparis_durum_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -6832,6 +7167,14 @@ ALTER TABLE ONLY public.sat_siparis
 
 
 --
+-- Name: sat_siparis sat_siparis_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_siparis
+    ADD CONSTRAINT sat_siparis_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulke(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: sat_teklif_detay sat_teklif_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -6840,11 +7183,51 @@ ALTER TABLE ONLY public.sat_teklif_detay
 
 
 --
+-- Name: sat_teklif_detay sat_teklif_detay_olcu_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif_detay
+    ADD CONSTRAINT sat_teklif_detay_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_olcu_birimi(olcu_birimi) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklif_detay sat_teklif_detay_referans_ana_urun_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif_detay
+    ADD CONSTRAINT sat_teklif_detay_referans_ana_urun_id_fkey FOREIGN KEY (referans_ana_urun_id) REFERENCES public.sat_teklif_detay(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklif_detay sat_teklif_detay_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif_detay
+    ADD CONSTRAINT sat_teklif_detay_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_karti(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sat_teklif sat_teklif_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sat_teklif
     ADD CONSTRAINT sat_teklif_islem_tipi_id_fkey FOREIGN KEY (islem_tipi_id) REFERENCES public.set_einv_fatura_tipi(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklif sat_teklif_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif
+    ADD CONSTRAINT sat_teklif_musteri_kodu_fkey FOREIGN KEY (musteri_kodu) REFERENCES public.ch_hesap_karti(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklif sat_teklif_musteri_temsilcisi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif
+    ADD CONSTRAINT sat_teklif_musteri_temsilcisi_id_fkey FOREIGN KEY (musteri_temsilcisi_id) REFERENCES public.prs_personel(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6872,11 +7255,35 @@ ALTER TABLE ONLY public.sat_teklif
 
 
 --
+-- Name: sat_teklif sat_teklif_para_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif
+    ADD CONSTRAINT sat_teklif_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimi(para_birimi) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklif sat_teklif_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif
+    ADD CONSTRAINT sat_teklif_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehir(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sat_teklif sat_teklif_teslim_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sat_teklif
     ADD CONSTRAINT sat_teklif_teslim_sekli_id_fkey FOREIGN KEY (teslim_sekli_id) REFERENCES public.set_einv_teslim_sekli(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklif sat_teklif_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif
+    ADD CONSTRAINT sat_teklif_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulke(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6952,11 +7359,67 @@ ALTER TABLE ONLY public.set_prs_birim
 
 
 --
+-- Name: stk_stok_grubu stk_stok_grubu_hammadde_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_stok_grubu
+    ADD CONSTRAINT stk_stok_grubu_hammadde_kodu_fkey FOREIGN KEY (hammadde_kodu) REFERENCES public.ch_hesap_karti(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_stok_grubu stk_stok_grubu_ihracat_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_stok_grubu
+    ADD CONSTRAINT stk_stok_grubu_ihracat_kodu_fkey FOREIGN KEY (ihracat_kodu) REFERENCES public.ch_hesap_karti(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_stok_grubu stk_stok_grubu_mamul_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_stok_grubu
+    ADD CONSTRAINT stk_stok_grubu_mamul_kodu_fkey FOREIGN KEY (mamul_kodu) REFERENCES public.ch_hesap_karti(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_stok_hareketi stk_stok_hareketi_ambar_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_stok_hareketi
+    ADD CONSTRAINT stk_stok_hareketi_ambar_id_fkey FOREIGN KEY (ambar_id) REFERENCES public.stk_stok_ambar(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_stok_hareketi stk_stok_hareketi_para_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_stok_hareketi
+    ADD CONSTRAINT stk_stok_hareketi_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimi(para_birimi) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_stok_hareketi stk_stok_hareketi_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_stok_hareketi
+    ADD CONSTRAINT stk_stok_hareketi_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_karti(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: stk_stok_karti stk_stok_karti_alis_para_birim_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_stok_karti
     ADD CONSTRAINT stk_stok_karti_alis_para_birim_fkey FOREIGN KEY (alis_para) REFERENCES public.sys_para_birimi(para_birimi) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_stok_karti stk_stok_karti_cins_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_stok_karti
+    ADD CONSTRAINT stk_stok_karti_cins_id_fkey FOREIGN KEY (cins_id) REFERENCES public.stk_cins_ozelligi(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -7128,6 +7591,30 @@ ALTER TABLE ONLY public.sys_semt
 
 
 --
+-- Name: sys_uygulama_ayari sys_uygulama_ayari_mukellef_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_uygulama_ayari
+    ADD CONSTRAINT sys_uygulama_ayari_mukellef_tipi_id_fkey FOREIGN KEY (mukellef_tipi_id) REFERENCES public.sys_mukellef_tipi(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: sys_uygulama_ayari sys_uygulama_ayari_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_uygulama_ayari
+    ADD CONSTRAINT sys_uygulama_ayari_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehir(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: sys_uygulama_ayari sys_uygulama_ayari_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_uygulama_ayari
+    ADD CONSTRAINT sys_uygulama_ayari_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulke(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: rct_iscilik_gideri urt_iscilik_gideri_gider_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -7149,54 +7636,6 @@ ALTER TABLE ONLY public.rct_iscilik_gideri
 
 ALTER TABLE ONLY public.rct_iscilik_gideri
     ADD CONSTRAINT urt_iscilik_gideri_olcu_birimi_id_fkey FOREIGN KEY (olcu_birimi_id) REFERENCES public.sys_olcu_birimi(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: rct_paket_iscilik_detay urt_paket_iscilik_detay_gider_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_paket_iscilik_detay
-    ADD CONSTRAINT urt_paket_iscilik_detay_gider_kodu_fkey FOREIGN KEY (gider_kodu) REFERENCES public.rct_iscilik_gideri(gider_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: rct_paket_iscilik_detay urt_paket_iscilik_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_paket_iscilik_detay
-    ADD CONSTRAINT urt_paket_iscilik_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.rct_paket_iscilik(id) ON UPDATE RESTRICT ON DELETE CASCADE;
-
-
---
--- Name: rct_recete_hammadde urt_recete_hammadde_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_recete_hammadde
-    ADD CONSTRAINT urt_recete_hammadde_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.rct_recete(id) ON UPDATE RESTRICT ON DELETE CASCADE;
-
-
---
--- Name: rct_recete_hammadde urt_recete_hammadde_recete_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_recete_hammadde
-    ADD CONSTRAINT urt_recete_hammadde_recete_id_fkey FOREIGN KEY (recete_id) REFERENCES public.rct_recete(id) ON UPDATE RESTRICT ON DELETE CASCADE;
-
-
---
--- Name: rct_recete_iscilik urt_recete_iscilik_gider_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_recete_iscilik
-    ADD CONSTRAINT urt_recete_iscilik_gider_kodu_fkey FOREIGN KEY (gider_kodu) REFERENCES public.rct_iscilik_gideri(gider_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: rct_recete_iscilik urt_recete_iscilik_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.rct_recete_iscilik
-    ADD CONSTRAINT urt_recete_iscilik_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.rct_recete(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --
@@ -7560,14 +7999,6 @@ GRANT ALL ON FUNCTION public.spget_crypted_data(pval text) TO ths_admin;
 
 
 --
--- Name: FUNCTION spget_emp_card_id_list(); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.spget_emp_card_id_list() FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spget_emp_card_id_list() TO ths_admin;
-
-
---
 -- Name: FUNCTION spget_hesap_kodu_ara_kodlar(pkok_kod text, para_kod text, pis_update boolean); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -7584,11 +8015,11 @@ GRANT ALL ON FUNCTION public.spget_hesap_kodu_son_kodlar(pfilter text) TO ths_ad
 
 
 --
--- Name: FUNCTION spget_lang_text(_default_value text, _table_name text, _column_name text, _row_id integer, _lang text); Type: ACL; Schema: public; Owner: postgres
+-- Name: FUNCTION spget_lang_text(pdefault_value text, ptable_name text, pcolumn_name text, prow_id bigint, plang text); Type: ACL; Schema: public; Owner: postgres
 --
 
-REVOKE ALL ON FUNCTION public.spget_lang_text(_default_value text, _table_name text, _column_name text, _row_id integer, _lang text) FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spget_lang_text(_default_value text, _table_name text, _column_name text, _row_id integer, _lang text) TO ths_admin;
+REVOKE ALL ON FUNCTION public.spget_lang_text(pdefault_value text, ptable_name text, pcolumn_name text, prow_id bigint, plang text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.spget_lang_text(pdefault_value text, ptable_name text, pcolumn_name text, prow_id bigint, plang text) TO ths_admin;
 
 
 --
@@ -7600,11 +8031,11 @@ GRANT ALL ON FUNCTION public.spget_lang_text(_default_value text, _table_name te
 
 
 --
--- Name: FUNCTION spget_quality_form_no(ptable_name text, pform_type_id integer); Type: ACL; Schema: public; Owner: postgres
+-- Name: FUNCTION spget_prs_personel_id_list(); Type: ACL; Schema: public; Owner: postgres
 --
 
-REVOKE ALL ON FUNCTION public.spget_quality_form_no(ptable_name text, pform_type_id integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spget_quality_form_no(ptable_name text, pform_type_id integer) TO ths_admin;
+REVOKE ALL ON FUNCTION public.spget_prs_personel_id_list() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.spget_prs_personel_id_list() TO ths_admin;
 
 
 --
@@ -7640,10 +8071,11 @@ GRANT ALL ON FUNCTION public.spget_rct_yan_urun_maliyet(prct_recete_id bigint) T
 
 
 --
--- Name: FUNCTION spget_set_ch_hesap_tipi_id(phesap_tipi integer); Type: ACL; Schema: public; Owner: postgres
+-- Name: FUNCTION spget_sys_kalite_form_no(ptablo_adi text, pform_tipi_id bigint); Type: ACL; Schema: public; Owner: postgres
 --
 
-GRANT ALL ON FUNCTION public.spget_set_ch_hesap_tipi_id(phesap_tipi integer) TO ths_admin;
+REVOKE ALL ON FUNCTION public.spget_sys_kalite_form_no(ptablo_adi text, pform_tipi_id bigint) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.spget_sys_kalite_form_no(ptablo_adi text, pform_tipi_id bigint) TO ths_admin;
 
 
 --

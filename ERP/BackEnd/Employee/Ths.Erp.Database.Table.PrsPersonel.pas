@@ -177,11 +177,11 @@ begin
   FSysSehir := TSysSehir.Create(Database);
 
   FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, 'Aktif?');
-  FAd := TFieldDB.Create('ad', ftString, '', Self, 'Ad');
-  FSoyad := TFieldDB.Create('soyad', ftString, '', Self, 'Soyad');
-  FAdSoyad := TFieldDB.Create('ad_soyad', ftString, '', Self, 'Ad Soyad');
-  FTel1 := TFieldDB.Create('tel1', ftString, '', Self, 'Telefon 1');
-  FTel2 := TFieldDB.Create('tel2', ftString, '', Self, 'Telefon 2');
+  FAd := TFieldDB.Create('ad', ftWideString, '', Self, 'Ad');
+  FSoyad := TFieldDB.Create('soyad', ftWideString, '', Self, 'Soyad');
+  FAdSoyad := TFieldDB.Create('ad_soyad', ftWideString, '', Self, 'Ad Soyad');
+  FTel1 := TFieldDB.Create('tel1', ftWideString, '', Self, 'Telefon 1');
+  FTel2 := TFieldDB.Create('tel2', ftWideString, '', Self, 'Telefon 2');
   FPersonelTipiID := TFieldDB.Create('personel_tipi_id', ftInteger, 0, Self, 'Personel Tipi ID');
   FPersonelTipi := TFieldDB.Create(FSetPersonelTipi.PersonelTipi.FieldName, FSetPersonelTipi.PersonelTipi.DataType, '', Self, 'Personel Tipi');
   FBolumID := TFieldDB.Create('bolum_id', ftInteger, 0, Self, 'Bölüm ID');
@@ -190,9 +190,9 @@ begin
   FBirim := TFieldDB.Create(FSetBirim.Birim.FieldName, FSetBirim.Birim.DataType, '', Self, 'Birim');
   FGorevID := TFieldDB.Create('gorev_id', ftInteger, 0, Self, 'Görev ID');
   FGorev := TFieldDB.Create(FSetGorev.Gorev.FieldName, FSetGorev.Gorev.DataType, 0, Self, 'Görev');
-  FEMail := TFieldDB.Create('email', ftString, '', Self, 'E-Posta');
+  FEMail := TFieldDB.Create('email', ftWideString, '', Self, 'E-Posta');
   FDogumTarihi := TFieldDB.Create('dogum_tarihi', ftDate, 0, Self, 'Doðum Tarihi');
-  FKanGrubu := TFieldDB.Create('kan_grubu', ftString, '', Self, 'Kan Grubu');
+  FKanGrubu := TFieldDB.Create('kan_grubu', ftWideString, '', Self, 'Kan Grubu');
   FCinsiyetID := TFieldDB.Create('cinsiyet_id', ftInteger, 0, Self, 'Cinsiyet ID');
   FCinsiyet := TFieldDB.Create(FSetCinsiyet.Cinsiyet.FieldName, FSetCinsiyet.Cinsiyet.DataType, 0, Self, 'Cinsiyet');
   FAskerlikDurumuID := TFieldDB.Create('askerlik_durumu_id', ftInteger, 0, Self, 'Askerlik Durumu ID');
@@ -200,31 +200,31 @@ begin
   FMedeniDurumuID := TFieldDB.Create('medeni_durumu_id', ftInteger, 0, Self, 'Medeni Durum ID');
   FMedeniDurumu := TFieldDB.Create(FSetMedeniDurum.MedeniDurum.FieldName, FSetMedeniDurum.MedeniDurum.DataType, '', Self, 'Medeni Durum');
   FCocukSayisi := TFieldDB.Create('cocuk_sayisi', ftInteger, 0, Self, 'Çocuk Sayýsý');
-  FYakinAdi := TFieldDB.Create('yakin_adi', ftString, '', Self, 'Yakýn Adý');
-  FYakinTelefon := TFieldDB.Create('yakin_telefon', ftString, '', Self, 'Yakýn Telefon');
+  FYakinAdi := TFieldDB.Create('yakin_adi', ftWideString, '', Self, 'Yakýn Adý');
+  FYakinTelefon := TFieldDB.Create('yakin_telefon', ftWideString, '', Self, 'Yakýn Telefon');
   FAyakkabiNo := TFieldDB.Create('ayakkabi_no', ftInteger, 0, Self, 'Ayakkabý No');
-  FElbiseBedeni := TFieldDB.Create('elbise_bedeni', ftString, '', Self, 'Elbise Bedeni');
-  FGenelNot := TFieldDB.Create('genel_not', ftString, '', Self, 'Genel Not');
+  FElbiseBedeni := TFieldDB.Create('elbise_bedeni', ftWideString, '', Self, 'Elbise Bedeni');
+  FGenelNot := TFieldDB.Create('genel_not', ftWideString, '', Self, 'Genel Not');
   FTasimaServisiID := TFieldDB.Create('tasima_servisi_id', ftInteger, 0, Self, 'Personel Servis ID');
   FTasimaServisi := TFieldDB.Create(FSetServis.AracAdi.FieldName, FSetServis.AracAdi.DataType, '', Self, 'Personel Servisi');
-  FOzelNot := TFieldDB.Create('ozel_not', ftString, '', Self, 'Özel Note');
+  FOzelNot := TFieldDB.Create('ozel_not', ftWideString, '', Self, 'Özel Note');
   FMaas := TFieldDB.Create('maas', ftFMTBcd, 0, Self, 'Maaþ');
   FIkramiyeSayisi := TFieldDB.Create('ikramiye_sayisi', ftInteger, 0, Self, 'Ýkramiye Sayýsý');
   FIkramiyeTutar := TFieldDB.Create('ikramiye_tutar', ftFMTBcd, 0, Self, 'Ýkramiye Tutar');
-  FKimlikNo := TFieldDB.Create('kimlik_no', ftString, '', Self, 'TC No');
+  FKimlikNo := TFieldDB.Create('kimlik_no', ftWideString, '', Self, 'TC No');
   FUlkeID := TFieldDB.Create('ulke_id', ftInteger, 0, Self, 'Ülke ID');
   FUlke := TFieldDB.Create(FSysUlke.UlkeAdi.FieldName, FSysUlke.UlkeAdi.DataType, '', Self, 'Ülke');
   FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Þehir ID');
   FSehir := TFieldDB.Create(FSysSehir.SehirAdi.FieldName, FSysSehir.SehirAdi.DataType, '', Self, 'Þehir');
-  FIlce := TFieldDB.Create('ilce', ftString, '', Self, 'Ýlçe');
-  FMahalle := TFieldDB.Create('mahalle', ftString, '', Self, 'Mahalle');
-  FCadde := TFieldDB.Create('cadde', ftString, '', Self, 'Cadde');
-  FSokak := TFieldDB.Create('sokak', ftString, '', Self, 'Sokak');
-  FBinaAdi := TFieldDB.Create('bina_adi', ftString, '', Self, 'Bina Adý');
-  FKapiNo := TFieldDB.Create('kapi_no', ftString, '', Self, 'Kapý No');
-  FPostaKutusu := TFieldDB.Create('posta_kutusu', ftString, '', Self, 'Posta Kutusu');
-  FPostaKodu := TFieldDB.Create('posta_kodu', ftString, '', Self, 'Posta Kodu');
-  FWebSite := TFieldDB.Create('web_site', ftString, '', Self, 'Web Sistesi');
+  FIlce := TFieldDB.Create('ilce', ftWideString, '', Self, 'Ýlçe');
+  FMahalle := TFieldDB.Create('mahalle', ftWideString, '', Self, 'Mahalle');
+  FCadde := TFieldDB.Create('cadde', ftWideString, '', Self, 'Cadde');
+  FSokak := TFieldDB.Create('sokak', ftWideString, '', Self, 'Sokak');
+  FBinaAdi := TFieldDB.Create('bina_adi', ftWideString, '', Self, 'Bina Adý');
+  FKapiNo := TFieldDB.Create('kapi_no', ftWideString, '', Self, 'Kapý No');
+  FPostaKutusu := TFieldDB.Create('posta_kutusu', ftWideString, '', Self, 'Posta Kutusu');
+  FPostaKodu := TFieldDB.Create('posta_kodu', ftWideString, '', Self, 'Posta Kodu');
+  FWebSite := TFieldDB.Create('web_site', ftWideString, '', Self, 'Web Sistesi');
 end;
 
 destructor TPrsPersonel.Destroy;
@@ -251,56 +251,56 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsAktif.FieldName,
-        TableName + '.' + FAd.FieldName,
-        TableName + '.' + FSoyad.FieldName,
-        TableName + '.' + FAdSoyad.FieldName,
-        TableName + '.' + FTel1.FieldName,
-        TableName + '.' + FTel2.FieldName,
-        TableName + '.' + FPersonelTipiID.FieldName,
+        Id.QryName,
+        FIsAktif.QryName,
+        FAd.QryName,
+        FSoyad.QryName,
+        FAdSoyad.QryName,
+        FTel1.QryName,
+        FTel2.QryName,
+        FPersonelTipiID.QryName,
         addField(FSetPersonelTipi.TableName, FSetPersonelTipi.PersonelTipi.FieldName, FPersonelTipi.FieldName),
-        TableName + '.' + FBolumID.FieldName,
+        FBolumID.QryName,
         addField(FSetBolum.TableName, FSetBolum.Bolum.FieldName, FBolum.FieldName),
-        TableName + '.' + FBirimID.FieldName,
+        FBirimID.QryName,
         addField(FSetBirim.TableName, FSetBirim.Birim.FieldName, FBirim.FieldName),
-        TableName + '.' + FGorevID.FieldName,
+        FGorevID.QryName,
         addField(FSetGorev.TableName, FSetGorev.Gorev.FieldName, FGorev.FieldName),
-        TableName + '.' + FEMail.FieldName,
-        TableName + '.' + FDogumTarihi.FieldName,
-        TableName + '.' + FKanGrubu.FieldName,
-        TableName + '.' + FCinsiyetID.FieldName,
+        FEMail.QryName,
+        FDogumTarihi.QryName,
+        FKanGrubu.QryName,
+        FCinsiyetID.QryName,
         addField(FSetCinsiyet.TableName, FSetCinsiyet.Cinsiyet.FieldName, FCinsiyet.FieldName),
-        TableName + '.' + FAskerlikDurumuID.FieldName,
+        FAskerlikDurumuID.QryName,
         addField(FSetAskerlik.TableName, FSetAskerlik.AskerlikDurumu.FieldName, FAskerlikDurumu.FieldName),
-        TableName + '.' + FMedeniDurumuID.FieldName,
+        FMedeniDurumuID.QryName,
         addField(FSetMedeniDurum.TableName, FSetMedeniDurum.MedeniDurum.FieldName, FMedeniDurumu.FieldName),
-        TableName + '.' + FCocukSayisi.FieldName,
-        TableName + '.' + FYakinAdi.FieldName,
-        TableName + '.' + FYakinTelefon.FieldName,
-        TableName + '.' + FAyakkabiNo.FieldName,
-        TableName + '.' + FElbiseBedeni.FieldName,
-        TableName + '.' + FGenelNot.FieldName,
-        TableName + '.' + FTasimaServisiID.FieldName,
+        FCocukSayisi.QryName,
+        FYakinAdi.QryName,
+        FYakinTelefon.QryName,
+        FAyakkabiNo.QryName,
+        FElbiseBedeni.QryName,
+        FGenelNot.QryName,
+        FTasimaServisiID.QryName,
         addField(FSetServis.TableName, FSetServis.AracAdi.FieldName, FTasimaServisi.FieldName),
-        TableName + '.' + FOzelNot.FieldName,
-        TableName + '.' + FMaas.FieldName,
-        TableName + '.' + FIkramiyeSayisi.FieldName,
-        TableName + '.' + FIkramiyeTutar.FieldName,
-        TableName + '.' + FKimlikNo.FieldName + '::varchar(32)',
-        TableName + '.' + FUlkeID.FieldName,
+        FOzelNot.QryName,
+        FMaas.QryName,
+        FIkramiyeSayisi.QryName,
+        FIkramiyeTutar.QryName,
+        FKimlikNo.QryName + '::varchar(32)',
+        FUlkeID.QryName,
         addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlke.FieldName),
-        TableName + '.' + FSehirID.FieldName,
+        FSehirID.QryName,
         addField(FSysSehir.TableName, FSysSehir.SehirAdi.FieldName, FSehir.FieldName),
-        TableName + '.' + FIlce.FieldName,
-        TableName + '.' + FMahalle.FieldName,
-        TableName + '.' + FCadde.FieldName,
-        TableName + '.' + FSokak.FieldName,
-        TableName + '.' + FBinaAdi.FieldName,
-        TableName + '.' + FKapiNo.FieldName,
-        TableName + '.' + FPostaKutusu.FieldName,
-        TableName + '.' + FPostaKodu.FieldName,
-        TableName + '.' + FWebSite.FieldName
+        FIlce.QryName,
+        FMahalle.QryName,
+        FCadde.QryName,
+        FSokak.QryName,
+        FBinaAdi.QryName,
+        FKapiNo.QryName,
+        FPostaKutusu.QryName,
+        FPostaKodu.QryName,
+        FWebSite.QryName
       ], [
         addJoin(jtLeft, FSetPersonelTipi.TableName, FSetPersonelTipi.Id.FieldName, TableName, FPersonelTipiID.FieldName),
         addJoin(jtLeft, FSetBolum.TableName, FSetBolum.Id.FieldName, TableName, FBolumID.FieldName),
@@ -315,7 +315,6 @@ begin
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -331,56 +330,56 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FIsAktif.FieldName,
-        TableName + '.' + FAd.FieldName,
-        TableName + '.' + FSoyad.FieldName,
-        TableName + '.' + FAdSoyad.FieldName,
-        TableName + '.' + FTel1.FieldName,
-        TableName + '.' + FTel2.FieldName,
-        TableName + '.' + FPersonelTipiID.FieldName,
+        Id.QryName,
+        FIsAktif.QryName,
+        FAd.QryName,
+        FSoyad.QryName,
+        FAdSoyad.QryName,
+        FTel1.QryName,
+        FTel2.QryName,
+        FPersonelTipiID.QryName,
         addField(FSetPersonelTipi.TableName, FSetPersonelTipi.PersonelTipi.FieldName, FPersonelTipi.FieldName),
-        TableName + '.' + FBolumID.FieldName,
+        FBolumID.QryName,
         addField(FSetBolum.TableName, FSetBolum.Bolum.FieldName, FBolum.FieldName),
-        TableName + '.' + FBirimID.FieldName,
+        FBirimID.QryName,
         addField(FSetBirim.TableName, FSetBirim.Birim.FieldName, FBirim.FieldName),
-        TableName + '.' + FGorevID.FieldName,
+        FGorevID.QryName,
         addField(FSetGorev.TableName, FSetGorev.Gorev.FieldName, FGorev.FieldName),
-        TableName + '.' + FEMail.FieldName,
-        TableName + '.' + FDogumTarihi.FieldName,
-        TableName + '.' + FKanGrubu.FieldName,
-        TableName + '.' + FCinsiyetID.FieldName,
+        FEMail.QryName,
+        FDogumTarihi.QryName,
+        FKanGrubu.QryName,
+        FCinsiyetID.QryName,
         addField(FSetCinsiyet.TableName, FSetCinsiyet.Cinsiyet.FieldName, FCinsiyet.FieldName),
-        TableName + '.' + FAskerlikDurumuID.FieldName,
+        FAskerlikDurumuID.QryName,
         addField(FSetAskerlik.TableName, FSetAskerlik.AskerlikDurumu.FieldName, FAskerlikDurumu.FieldName),
-        TableName + '.' + FMedeniDurumuID.FieldName,
+        FMedeniDurumuID.QryName,
         addField(FSetMedeniDurum.TableName, FSetMedeniDurum.MedeniDurum.FieldName, FMedeniDurumu.FieldName),
-        TableName + '.' + FCocukSayisi.FieldName,
-        TableName + '.' + FYakinAdi.FieldName,
-        TableName + '.' + FYakinTelefon.FieldName,
-        TableName + '.' + FAyakkabiNo.FieldName,
-        TableName + '.' + FElbiseBedeni.FieldName,
-        TableName + '.' + FGenelNot.FieldName,
-        TableName + '.' + FTasimaServisiID.FieldName,
+        FCocukSayisi.QryName,
+        FYakinAdi.QryName,
+        FYakinTelefon.QryName,
+        FAyakkabiNo.QryName,
+        FElbiseBedeni.QryName,
+        FGenelNot.QryName,
+        FTasimaServisiID.QryName,
         addField(FSetServis.TableName, FSetServis.AracAdi.FieldName, FTasimaServisi.FieldName),
-        TableName + '.' + FOzelNot.FieldName,
-        TableName + '.' + FMaas.FieldName,
-        TableName + '.' + FIkramiyeSayisi.FieldName,
-        TableName + '.' + FIkramiyeTutar.FieldName,
-        TableName + '.' + FKimlikNo.FieldName + '::varchar(32)',
-        TableName + '.' + FUlkeID.FieldName,
+        FOzelNot.QryName,
+        FMaas.QryName,
+        FIkramiyeSayisi.QryName,
+        FIkramiyeTutar.QryName,
+        FKimlikNo.QryName + '::varchar(32)',
+        FUlkeID.QryName,
         addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlke.FieldName),
-        TableName + '.' + FSehirID.FieldName,
+        FSehirID.QryName,
         addField(FSysSehir.TableName, FSysSehir.SehirAdi.FieldName, FSehir.FieldName),
-        TableName + '.' + FIlce.FieldName,
-        TableName + '.' + FMahalle.FieldName,
-        TableName + '.' + FCadde.FieldName,
-        TableName + '.' + FSokak.FieldName,
-        TableName + '.' + FBinaAdi.FieldName,
-        TableName + '.' + FKapiNo.FieldName,
-        TableName + '.' + FPostaKutusu.FieldName,
-        TableName + '.' + FPostaKodu.FieldName,
-        TableName + '.' + FWebSite.FieldName
+        FIlce.QryName,
+        FMahalle.QryName,
+        FCadde.QryName,
+        FSokak.QryName,
+        FBinaAdi.QryName,
+        FKapiNo.QryName,
+        FPostaKutusu.QryName,
+        FPostaKodu.QryName,
+        FWebSite.QryName
       ], [
         addJoin(jtLeft, FSetPersonelTipi.TableName, FSetPersonelTipi.Id.FieldName, TableName, FPersonelTipiID.FieldName),
         addJoin(jtLeft, FSetBolum.TableName, FSetBolum.Id.FieldName, TableName, FBolumID.FieldName),
@@ -402,7 +401,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -464,15 +463,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull) then
-        AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-      else
-        AID := 0;
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
+      else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -531,7 +529,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.Notify;
+    Notify;
   end;
 end;
 
@@ -544,7 +542,7 @@ begin
 //    if TPrsEhliyetBilgisi(FPrsEhliyet.List[n1]).Deleted then
 //      TPrsEhliyetBilgisi(FPrsEhliyet.List[n1]).Delete(False);
 //  end;
-  Self.Delete(APermissionControl);
+  Delete(APermissionControl);
 end;
 
 procedure TPrsPersonel.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
@@ -563,7 +561,7 @@ begin
 //      TPrsEhliyetBilgisi(FPrsEhliyet.List[n1]).Insert(nID, False);
 //  end;
 
-  Self.Insert(AID, APermissionControl);
+  Insert(AID, APermissionControl);
 {$ENDIF}
 end;
 
@@ -578,7 +576,7 @@ begin
 //    else
 //      TPrsEhliyetBilgisi(FPrsEhliyet.List[n1]).Update(False);
 //  end;
-  Self.Update(APermissionControl);
+  Update(APermissionControl);
 end;
 
 function TPrsPersonel.Clone():TTable;

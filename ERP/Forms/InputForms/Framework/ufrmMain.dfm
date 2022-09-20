@@ -14,13 +14,12 @@
   OnActivate = FormActivate
   ExplicitWidth = 783
   ExplicitHeight = 451
-  PixelsPerInch = 96
   TextHeight = 15
   object SV: TSplitView [0]
     Left = 0
     Top = 40
     Width = 250
-    Height = 322
+    Height = 264
     Color = clBlack
     DisplayMode = svmOverlay
     OpenedWidth = 250
@@ -30,7 +29,7 @@
       Left = 0
       Top = 0
       Width = 250
-      Height = 322
+      Height = 264
       Align = alClient
       BackgroundGradientColor = 16776176
       BorderStyle = bsNone
@@ -414,18 +413,30 @@
     TabOrder = 4
     ExplicitTop = 364
     ExplicitWidth = 763
+    inherited btnSpin: TSpinButton
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitHeight = 28
+    end
     inherited btnAccept: TButton
-      Left = 554
+      Left = 557
       TabOrder = 2
-      ExplicitLeft = 554
+      ExplicitLeft = 557
+      ExplicitTop = 0
+      ExplicitHeight = 28
     end
     inherited btnClose: TButton
-      Left = 658
+      Left = 661
       TabOrder = 3
-      ExplicitLeft = 658
+      ExplicitLeft = 661
+      ExplicitTop = 0
+      ExplicitHeight = 28
     end
     inherited btnDelete: TButton
       TabOrder = 1
+      ExplicitLeft = 17
+      ExplicitTop = 0
+      ExplicitHeight = 28
     end
   end
   inherited stbBase: TStatusBar [3]
@@ -435,18 +446,18 @@
     ExplicitWidth = 767
   end
   inherited pnlMain: TPanel [4]
-    Top = 42
-    Width = 763
-    Height = 320
-    BevelOuter = bvNone
+    Top = 40
+    Width = 767
+    Height = 322
     TabOrder = 2
-    ExplicitTop = 42
-    ExplicitWidth = 763
-    ExplicitHeight = 320
+    ExplicitLeft = 0
+    ExplicitTop = 40
+    ExplicitWidth = 767
+    ExplicitHeight = 322
     object pb1: TProgressBar
       Left = 0
-      Top = 294
-      Width = 763
+      Top = 296
+      Width = 767
       Height = 26
       Align = alBottom
       DoubleBuffered = True
@@ -457,8 +468,8 @@
     object PageControl1: TPageControl
       Left = 0
       Top = 0
-      Width = 763
-      Height = 294
+      Width = 767
+      Height = 296
       ActivePage = tsstok
       Align = alClient
       MultiLine = True
@@ -1411,6 +1422,26 @@
       Caption = 'E-Fatura '#304'stisna Kodu'
       ImageIndex = 34
       OnExecute = actset_efatura_istisna_koduExecute
+    end
+    object actset_einv_odeme_sekli: TAction
+      Caption = 'E-Fatura '#214'deme '#350'ekli'
+      ImageIndex = 68
+      OnExecute = actset_einv_odeme_sekliExecute
+    end
+    object actset_einv_tasima_ucreti: TAction
+      Caption = 'E-Fatura Ta'#351#305'ma '#220'creti'
+      ImageIndex = 4
+      OnExecute = actset_einv_tasima_ucretiExecute
+    end
+    object actset_einv_teslim_sekli: TAction
+      Caption = 'E-Fatura Teslim '#350'ekli'
+      ImageIndex = 4
+      OnExecute = actset_einv_teslim_sekliExecute
+    end
+    object actset_einv_paket_tipi: TAction
+      Caption = 'E-Fatura Paket Tipi'
+      ImageIndex = 4
+      OnExecute = actset_einv_paket_tipiExecute
     end
   end
   object pmAbout: TPopupMenu

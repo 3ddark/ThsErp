@@ -109,10 +109,10 @@ begin
 
           if LFrmIsc.DataAktar then
           begin
-            edtgider_kodu.Text := TRctIscilikGideri(LFrmIsc.Table).GiderKodu.Value;
-            lblgider_adi.Caption := TRctIscilikGideri(LFrmIsc.Table).GiderAdi.Value;
-            lblmiktar_birim.Caption := TRctIscilikGideri(LFrmIsc.Table).OlcuBirimi.Value;
-            edtfiyat.Text := TRctIscilikGideri(LFrmIsc.Table).Fiyat.Value;
+            edtgider_kodu.Text := TRctIscilikGideri(LFrmIsc.Table).GiderKodu.AsString;
+            lblgider_adi.Caption := TRctIscilikGideri(LFrmIsc.Table).GiderAdi.AsString;
+            lblmiktar_birim.Caption := TRctIscilikGideri(LFrmIsc.Table).OlcuBirimi.AsString;
+            edtfiyat.Text := TRctIscilikGideri(LFrmIsc.Table).Fiyat.AsString;
           end;
         finally
           LFrmIsc.Free;
@@ -124,11 +124,11 @@ end;
 
 procedure TfrmRctReceteIscilik.RefreshData();
 begin
-  edtgider_kodu.Text := FormatedVariantVal(TRctReceteIscilik(Table).GiderKodu);
-  lblgider_adi.Caption := FormatedVariantVal(TRctReceteIscilik(Table).GiderAdi);
-  edtmiktar.Text := FormatedVariantVal(TRctReceteIscilik(Table).Miktar);
-  lblmiktar_birim.Caption := FormatedVariantVal(TRctReceteIscilik(Table).Birim);
-  edtfiyat.Text := FormatedVariantVal(TRctReceteIscilik(Table).Fiyat);
+  edtgider_kodu.Text := TRctReceteIscilik(Table).GiderKodu.AsString;
+  lblgider_adi.Caption := TRctReceteIscilik(Table).GiderAdi.AsString;
+  edtmiktar.Text := TRctReceteIscilik(Table).Miktar.AsString;
+  lblmiktar_birim.Caption := TRctReceteIscilik(Table).Birim.AsString;
+  edtfiyat.Text := TRctReceteIscilik(Table).Fiyat.AsString;
 end;
 
 procedure TfrmRctReceteIscilik.btnAcceptClick(Sender: TObject);

@@ -70,8 +70,8 @@ begin
     LStr := VarToStr(FormatedVariantVal(HesapKodu));
     //Bu ara hesaptan oluşturulmuş son hesap varsa silmeyi engelle
     LHesap.SelectToList(
-      ' AND ' + LHesap.TableName + '.' + LHesap.AraHesapKodu.FieldName + '=' + QuotedStr(LStr) +
-      ' AND ' + LHesap.TableName + '.' + LHesap.HesapTipiID.FieldName + '=' + IntToStr(Ord(htSon))
+      ' AND ' + LHesap.AraHesapKodu.QryName + '=' + QuotedStr(LStr) +
+      ' AND ' + LHesap.HesapTipiID.QryName + '=' + IntToStr(Ord(htSon))
       , False, False);
     if LHesap.List.Count > 0 then
       CreateExceptionByLang('Bu hesaba bağlı Son Hesaplar oluşturulmuş! Önce bu hesaplar silinmeli.', '999999');
@@ -106,12 +106,12 @@ begin
   FSetChHesapTipi := TSetChHesapTipi.Create(Database);
   FSetChHesapPlani := TSetChHesapPlani.Create(Database);
 
-  FHesapKodu := TFieldDB.Create('hesap_kodu', ftString, '', Self, 'Hesap Kodu');
-  FHesapIsmi := TFieldDB.Create('hesap_ismi', ftString, '', Self, 'Hesap İsmi');
-  FMuhasebeKodu := TFieldDB.Create('muhasebe_kodu', ftString, '', Self, 'Muhasebe Kodu');
+  FHesapKodu := TFieldDB.Create('hesap_kodu', ftWideString, '', Self, 'Hesap Kodu');
+  FHesapIsmi := TFieldDB.Create('hesap_ismi', ftWideString, '', Self, 'Hesap İsmi');
+  FMuhasebeKodu := TFieldDB.Create('muhasebe_kodu', ftWideString, '', Self, 'Muhasebe Kodu');
   FHesapTipiID := TFieldDB.Create('hesap_tipi_id', ftInteger, 0, Self, 'Hesap Tipi ID');
   FHesapTipi := TFieldDB.Create(FSetChHesapTipi.HesapTipi.FieldName, FSetChHesapTipi.HesapTipi.DataType, '', Self, 'Hesap Tipi');
-  FKokHesapKodu := TFieldDB.Create('kok_hesap_kodu', ftString, '', Self, 'Kök Hesap Kodu');
+  FKokHesapKodu := TFieldDB.Create('kok_hesap_kodu', ftWideString, '', Self, 'Kök Hesap Kodu');
   FSeviyeSayisi := TFieldDB.Create(FSetChHesapPlani.SeviyeSayisi.FieldName, FSetChHesapPlani.SeviyeSayisi.DataType, 0, Self, 'Seviye Sayısı');
 end;
 
@@ -131,13 +131,13 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FHesapKodu.FieldName,
-        TableName + '.' + FHesapIsmi.FieldName,
-        TableName + '.' + FMuhasebeKodu.FieldName,
-        TableName + '.' + FHesapTipiID.FieldName,
+        Id.QryName,
+        FHesapKodu.QryName,
+        FHesapIsmi.QryName,
+        FMuhasebeKodu.QryName,
+        FHesapTipiID.QryName,
         addField(FSetChHesapTipi.TableName, FSetChHesapTipi.HesapTipi.FieldName, FHesapTipi.FieldName),
-        TableName + '.' + FKokHesapKodu.FieldName,
+        FKokHesapKodu.QryName,
         addField(FSetChHesapPlani.TableName, FSetChHesapPlani.SeviyeSayisi.FieldName, FSeviyeSayisi.FieldName)
       ], [
         addJoin(jtLeft, FSetChHesapTipi.TableName, FSetChHesapTipi.Id.FieldName, TableName, FHesapTipiID.FieldName),
@@ -161,13 +161,13 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FHesapKodu.FieldName,
-        TableName + '.' + FHesapIsmi.FieldName,
-        TableName + '.' + FMuhasebeKodu.FieldName,
-        TableName + '.' + FHesapTipiID.FieldName,
+        Id.QryName,
+        FHesapKodu.QryName,
+        FHesapIsmi.QryName,
+        FMuhasebeKodu.QryName,
+        FHesapTipiID.QryName,
         addField(FSetChHesapTipi.TableName, FSetChHesapTipi.HesapTipi.FieldName, FHesapTipi.FieldName),
-        TableName + '.' + FKokHesapKodu.FieldName,
+        FKokHesapKodu.QryName,
         addField(FSetChHesapPlani.TableName, FSetChHesapPlani.SeviyeSayisi.FieldName, FSeviyeSayisi.FieldName)
       ], [
         addJoin(jtLeft, FSetChHesapTipi.TableName, FSetChHesapTipi.Id.FieldName, TableName, FHesapTipiID.FieldName),
@@ -182,7 +182,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -210,14 +210,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -242,7 +242,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

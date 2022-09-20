@@ -5,7 +5,7 @@ interface
 {$I ThsERP.inc}
 
 uses
-  System.SysUtils,
+  SysUtils,
   Data.DB,
   Ths.Erp.Database,
   Ths.Erp.Database.Table,
@@ -25,7 +25,7 @@ type
     FAmbar: TFieldDB;
     FIsDonemBasi: TFieldDB;
   protected
-    FStkAmbar: TStkStokAmbar;
+    FStkStokAmbar: TStkStokAmbar;
   published
     constructor Create(ADatabase: TDatabase); override;
     destructor Destroy; override;
@@ -62,23 +62,23 @@ begin
   TableSourceCode := MODULE_STK_KAYIT;
   inherited Create(ADatabase);
 
-  FStkAmbar := TStkStokAmbar.Create(ADatabase);
+  FStkStokAmbar := TStkStokAmbar.Create(ADatabase);
 
-  FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self, 'Stok Kodu');
+  FStokKodu := TFieldDB.Create('stok_kodu', ftWideString, '', Self, 'Stok Kodu');
   FMiktar := TFieldDB.Create('miktar', ftBCD, 0, Self, 'Miktar');
   FTutar := TFieldDB.Create('tutar', ftBCD, 0, Self, 'Tutar');
   FTutarDoviz := TFieldDB.Create('tutar_doviz', ftBCD, 0, Self, 'Döviz Tutar');
-  FParaBirimi := TFieldDB.Create('para_birimi', ftString, '', Self, 'Para Birimi');
+  FParaBirimi := TFieldDB.Create('para_birimi', ftWideString, '', Self, 'Para Birimi');
   FIsGiris := TFieldDB.Create('is_giris', ftBoolean, True, Self, 'Giriþ?');
   FTarih := TFieldDB.Create('tarih', ftDate, 0, Self, 'Tarih');
   FAmbarID := TFieldDB.Create('ambar_id', ftInteger, 0, Self, 'Ambar ID');
-  FAmbar := TFieldDB.Create(FStkAmbar.AmbarAdi.FieldName, FStkAmbar.AmbarAdi.DataType, '', Self, 'Ambar');
+  FAmbar := TFieldDB.Create(FStkStokAmbar.AmbarAdi.FieldName, FStkStokAmbar.AmbarAdi.DataType, '', Self, 'Ambar');
   FIsDonemBasi := TFieldDB.Create('is_donem_basi', ftBoolean, False, Self, 'Dönem Baþý?');
 end;
 
 destructor TStkStokHareketi.Destroy;
 begin
-  FStkAmbar.Free;
+  FStkStokAmbar.Free;
   inherited;
 end;
 
@@ -90,23 +90,22 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FStokKodu.FieldName,
-        TableName + '.' + FMiktar.FieldName,
-        TableName + '.' + FTutar.FieldName,
-        TableName + '.' + FTutarDoviz.FieldName,
-        TableName + '.' + FParaBirimi.FieldName,
-        TableName + '.' + FIsGiris.FieldName,
-        TableName + '.' + FTarih.FieldName,
-        TableName + '.' + FAmbarID.FieldName,
-        addField(FStkAmbar.TableName, FStkAmbar.AmbarAdi.FieldName, FAmbarID.FieldName),
-        TableName + '.' + FIsDonemBasi.FieldName
+        Id.QryName,
+        FStokKodu.QryName,
+        FMiktar.QryName,
+        FTutar.QryName,
+        FTutarDoviz.QryName,
+        FParaBirimi.QryName,
+        FIsGiris.QryName,
+        FTarih.QryName,
+        FAmbarID.QryName,
+        addField(FStkStokAmbar.TableName, FStkStokAmbar.AmbarAdi.FieldName, FAmbarID.FieldName),
+        FIsDonemBasi.QryName
       ], [
-        addJoin(jtLeft, FStkAmbar.TableName, FStkAmbar.Id.FieldName, TableName, FAmbarID.FieldName),
+        addJoin(jtLeft, FStkStokAmbar.TableName, FStkStokAmbar.Id.FieldName, TableName, FAmbarID.FieldName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -122,19 +121,19 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FStokKodu.FieldName,
-        TableName + '.' + FMiktar.FieldName,
-        TableName + '.' + FTutar.FieldName,
-        TableName + '.' + FTutarDoviz.FieldName,
-        TableName + '.' + FParaBirimi.FieldName,
-        TableName + '.' + FIsGiris.FieldName,
-        TableName + '.' + FTarih.FieldName,
-        TableName + '.' + FAmbarID.FieldName,
-        addField(FStkAmbar.TableName, FStkAmbar.AmbarAdi.FieldName, FAmbarID.FieldName),
-        TableName + '.' + FIsDonemBasi.FieldName
+        Id.QryName,
+        FStokKodu.QryName,
+        FMiktar.QryName,
+        FTutar.QryName,
+        FTutarDoviz.QryName,
+        FParaBirimi.QryName,
+        FIsGiris.QryName,
+        FTarih.QryName,
+        FAmbarID.QryName,
+        addField(FStkStokAmbar.TableName, FStkStokAmbar.AmbarAdi.FieldName, FAmbarID.FieldName),
+        FIsDonemBasi.QryName
       ], [
-        addJoin(jtLeft, FStkAmbar.TableName, FStkAmbar.Id.FieldName, TableName, FAmbarID.FieldName),
+        addJoin(jtLeft, FStkStokAmbar.TableName, FStkStokAmbar.Id.FieldName, TableName, FAmbarID.FieldName),
         ' WHERE 1=1 ', AFilter
       ]);
       Open;
@@ -146,7 +145,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -179,14 +178,13 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
   end;
 end;
 
@@ -215,7 +213,6 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
   end;
 end;
 

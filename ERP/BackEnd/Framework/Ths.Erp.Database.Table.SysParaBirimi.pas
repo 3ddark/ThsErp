@@ -29,6 +29,8 @@ type
 
     function Clone: TTable; override;
 
+    function GetVarsayilanParaBirimi: string;
+
     property ParaBirimi: TFieldDB read FParaBirimi write FParaBirimi;
     property Sembol: TFieldDB read FSembol write FSembol;
     property Aciklama: TFieldDB read FAciklama write FAciklama;
@@ -52,6 +54,20 @@ begin
   FSembol := TFieldDB.Create('sembol', ftString, '', Self, 'Sembol');
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
   FIsVarsayilan := TFieldDB.Create('is_varsayilan', ftBoolean, False, Self, 'Varsayýlan');
+end;
+
+function TSysParaBirimi.GetVarsayilanParaBirimi: string;
+var
+  n1: Integer;
+begin
+  for n1 := 0 to List.Count-1 do
+  begin
+    if TSysParaBirimi(List[n1]).IsVarsayilan.AsBoolean then
+    begin
+      Result := TSysParaBirimi(List[n1]).ParaBirimi.AsString;
+      Break;
+    end;
+  end;
 end;
 
 procedure TSysParaBirimi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);

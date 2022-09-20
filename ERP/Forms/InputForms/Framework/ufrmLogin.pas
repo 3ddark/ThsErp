@@ -102,6 +102,7 @@ uses
   Ths.Erp.Database.Table.SysAy,
   Ths.Erp.Database.Table.SysParaBirimi,
   Ths.Erp.Database.Table.View.SysViewColumns,
+  Ths.Erp.Database.Table.SysGridKolon,
   ufrmMain;
 
 {$R *.dfm}
@@ -160,7 +161,7 @@ begin
     begin
       GDataBase.DateDB := GDataBase.GetToday;
 
-     if GSysKullanici = nil then
+      if GSysKullanici = nil then
         GSysKullanici := TSysKullanici.Create(GDataBase);
       if GSysOndalikHane = nil then
         GSysOndalikHane := TSysOndalikHane.Create(GDataBase);
@@ -178,6 +179,8 @@ begin
         GParaBirimi := TSysParaBirimi.Create(GDataBase);
       if GSysTableInfo = nil then
         GSysTableInfo := TSysViewColumns.Create(GDataBase);
+      if GGridColWidth = nil then
+        GGridColWidth := TSysGridKolon.Create(GDataBase);
 
       if GGuiIcerik = nil then
         GGuiIcerik := TDictionary<string, TGuiIcerik>.Create;
@@ -238,6 +241,7 @@ begin
       GSysAy.SelectToList(' ORDER BY 1 ', False, False);
       GSysTableInfo.SelectToList('', False, False);
       GSysOndalikHane.SelectToList('', False, False);
+      GGridColWidth.SelectToList('', False, False);
 
       ModalResult := mrYes;
 
@@ -370,7 +374,7 @@ var
   LVisible: Boolean;
 begin
   inherited;
-  if Self.Height = FormSmall then
+  if Self.Height = scaleBySystemDPI(FormSmall) then
     LVisible := False
   else
     LVisible := True;

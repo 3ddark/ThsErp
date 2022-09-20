@@ -41,14 +41,35 @@ uses
   Ths.Erp.Database.Table,
   Ths.Erp.Database.Table.RctRecete;
 
+const
+  RH_MAL_KODU = 1;
+  RH_MAL_ADI = 2;
+  RH_MIKTAR = 3;
+  RH_BIRIM = 4;
+  RH_FIYAT = 5;
+  RH_FIRE_ORANI = 6;
+
+  RI_GIDER_KODU = 1;
+  RI_GIDER_ADI = 2;
+  RI_MIKTAR = 3;
+  RI_BIRIM = 4;
+  RI_FIYAT = 5;
+
+  RY_MAL_KODU = 1;
+  RY_MAL_ADI = 2;
+  RY_MIKTAR = 3;
+  RY_BIRIM = 4;
+  RY_FIYAT = 5;
+  RY_FIRE_ORANI = 6;
+
 type
   TfrmRctReceteDetaylar = class(TfrmBaseDetaylar)
     lblurun_kodu: TLabel;
     lblurun_adi: TLabel;
     lblornek_uretm_miktari: TLabel;
     lblaciklama: TLabel;
-    edturun_kodu: TEdit;
-    edturun_adi: TEdit;
+    edtrecete_kodu: TEdit;
+    edtrecete_adi: TEdit;
     edtornek_uretm_miktari: TEdit;
     edtaciklama: TEdit;
     procedure btnAcceptClick(Sender: TObject);override;
@@ -59,9 +80,9 @@ type
     procedure FillLabels();
   public
     procedure RefreshData; override;
-    function CreateDetailInputForm1(pFormMode: TInputFormMode; AGrid: TStringGrid): TForm; override;
-    function CreateDetailInputForm2(pFormMode: TInputFormMode; AGrid: TStringGrid): TForm; override;
-    function CreateDetailInputForm3(pFormMode: TInputFormMode; AGrid: TStringGrid): TForm; override;
+    function CreateDetailInputForm1(AFormMode: TInputFormMode; AGrid: TStringGrid): TForm; override;
+    function CreateDetailInputForm2(AFormMode: TInputFormMode; AGrid: TStringGrid): TForm; override;
+    function CreateDetailInputForm3(AFormMode: TInputFormMode; AGrid: TStringGrid): TForm; override;
     procedure GridReset(); override;
     procedure GridFill(); override;
     procedure Repaint; override;
@@ -93,8 +114,8 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TRctRecete(Table).ReceteKodu.Value := edturun_kodu.Text;
-      TRctRecete(Table).ReceteAdi.Value := edturun_adi.Text;
+      TRctRecete(Table).ReceteKodu.Value := edtrecete_kodu.Text;
+      TRctRecete(Table).ReceteAdi.Value := edtrecete_adi.Text;
       TRctRecete(Table).OrnekUretimMiktari.Value := edtornek_uretm_miktari.Text;
       TRctRecete(Table).Aciklama.Value := edtaciklama.Text;
 
@@ -118,39 +139,39 @@ begin
   GridFill();
 end;
 
-function TfrmRctReceteDetaylar.CreateDetailInputForm1(pFormMode: TInputFormMode; AGrid: TStringGrid): TForm;
+function TfrmRctReceteDetaylar.CreateDetailInputForm1(AFormMode: TInputFormMode; AGrid: TStringGrid): TForm;
 begin
   Result := inherited;
-  if (pFormMode = ifmNewRecord) or (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmRctReceteHammadde.Create(Application, AGrid, Self, TRctReceteHammadde.Create(Table.Database), pFormMode)
-  else if (pFormMode = ifmRewiev) or (pFormMode = ifmUpdate) then
+  if (AFormMode = ifmNewRecord) or (AFormMode = ifmCopyNewRecord) then
+    Result := TfrmRctReceteHammadde.Create(Application, AGrid, Self, TRctReceteHammadde.Create(Table.Database), AFormMode)
+  else if (AFormMode = ifmRewiev) or (AFormMode = ifmUpdate) then
   begin
     if Assigned(AGrid.Objects[COLUMN_GRID_OBJECT, AGrid.Row]) then
-      Result := TfrmRctReceteHammadde.Create(Application, AGrid, Self, TRctReceteHammadde(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd1.Row]), pFormMode);
+      Result := TfrmRctReceteHammadde.Create(Application, AGrid, Self, TRctReceteHammadde(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd1.Row]), AFormMode);
   end;
 end;
 
-function TfrmRctReceteDetaylar.CreateDetailInputForm2(pFormMode: TInputFormMode; AGrid: TStringGrid): TForm;
+function TfrmRctReceteDetaylar.CreateDetailInputForm2(AFormMode: TInputFormMode; AGrid: TStringGrid): TForm;
 begin
   Result := inherited;
-  if (pFormMode = ifmNewRecord) or (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmRctReceteIscilik.Create(Application, AGrid, Self, TRctReceteIscilik.Create(Table.Database), pFormMode)
-  else if (pFormMode = ifmRewiev) or (pFormMode = ifmUpdate) then
+  if (AFormMode = ifmNewRecord) or (AFormMode = ifmCopyNewRecord) then
+    Result := TfrmRctReceteIscilik.Create(Application, AGrid, Self, TRctReceteIscilik.Create(Table.Database), AFormMode)
+  else if (AFormMode = ifmRewiev) or (AFormMode = ifmUpdate) then
   begin
     if Assigned(AGrid.Objects[COLUMN_GRID_OBJECT, AGrid.Row]) then
-      Result := TfrmRctReceteIscilik.Create(Application, AGrid, Self, TRctReceteIscilik(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd2.Row]), pFormMode);
+      Result := TfrmRctReceteIscilik.Create(Application, AGrid, Self, TRctReceteIscilik(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd2.Row]), AFormMode);
   end;
 end;
 
-function TfrmRctReceteDetaylar.CreateDetailInputForm3(pFormMode: TInputFormMode; AGrid: TStringGrid): TForm;
+function TfrmRctReceteDetaylar.CreateDetailInputForm3(AFormMode: TInputFormMode; AGrid: TStringGrid): TForm;
 begin
   Result := inherited;
-  if (pFormMode = ifmNewRecord) or (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmRctReceteYanUrun.Create(Application, AGrid, Self, TRctReceteYanUrun.Create(Table.Database), pFormMode)
-  else if (pFormMode = ifmRewiev) or (pFormMode = ifmUpdate) then
+  if (AFormMode = ifmNewRecord) or (AFormMode = ifmCopyNewRecord) then
+    Result := TfrmRctReceteYanUrun.Create(Application, AGrid, Self, TRctReceteYanUrun.Create(Table.Database), AFormMode)
+  else if (AFormMode = ifmRewiev) or (AFormMode = ifmUpdate) then
   begin
     if Assigned(AGrid.Objects[COLUMN_GRID_OBJECT, AGrid.Row]) then
-      Result := TfrmRctReceteYanUrun.Create(Application, AGrid, Self, TRctReceteYanUrun(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd2.Row]), pFormMode);
+      Result := TfrmRctReceteYanUrun.Create(Application, AGrid, Self, TRctReceteYanUrun(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd2.Row]), AFormMode);
   end;
 end;
 
@@ -279,7 +300,7 @@ begin
   ts2.Caption := 'İşçilik';
   ts3.Caption := 'Yan Ürün';
 
-  edturun_kodu.OnHelperProcess := HelperProcess;
+  edtrecete_kodu.OnHelperProcess := HelperProcess;
 end;
 
 procedure TfrmRctReceteDetaylar.FormDestroy(Sender: TObject);
@@ -386,8 +407,8 @@ end;
 
 procedure TfrmRctReceteDetaylar.RefreshData;
 begin
-  edturun_kodu.Text := TRctRecete(Table).ReceteKodu.Value;
-  edturun_adi.Text := TRctRecete(Table).ReceteAdi.Value;
+  edtrecete_kodu.Text := TRctRecete(Table).ReceteKodu.Value;
+  edtrecete_adi.Text := TRctRecete(Table).ReceteAdi.Value;
   edtornek_uretm_miktari.Text := TRctRecete(Table).OrnekUretimMiktari.Value;
   edtaciklama.Text := TRctRecete(Table).Aciklama.Value;
 
@@ -397,7 +418,7 @@ end;
 procedure TfrmRctReceteDetaylar.Repaint;
 begin
   inherited;
-  edturun_kodu.ReadOnly := True;
+  edtrecete_kodu.ReadOnly := True;
 end;
 
 procedure TfrmRctReceteDetaylar.HelperProcess(Sender: TObject);
@@ -409,7 +430,7 @@ begin
   begin
     if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
     begin
-      if TEdit(Sender).Name = edturun_kodu.Name then
+      if TEdit(Sender).Name = edtrecete_kodu.Name then
       begin
         LStokKarti := TStkStokKarti.Create(Table.Database);
         LFrmStokKarti := TfrmStkStokKartlari.Create(TEdit(Sender), Self, LStokKarti, fomNormal, True);
@@ -419,7 +440,7 @@ begin
           LFrmStokKarti.ShowModal;
 
           TEdit(Sender).Text := TStkStokKarti(LFrmStokKarti.Table).StokKodu.Value;
-          edturun_adi.Text := TStkStokKarti(LFrmStokKarti.Table).StokAdi.Value;
+          edtrecete_adi.Text := TStkStokKarti(LFrmStokKarti.Table).StokAdi.Value;
         finally
           LFrmStokKarti.Free;
         end;

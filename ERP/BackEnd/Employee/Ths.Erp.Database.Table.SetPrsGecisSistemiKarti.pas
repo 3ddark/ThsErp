@@ -37,8 +37,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSetPrsGecisSistemiKarti.Create(ADatabase: TDatabase);
 begin
@@ -46,7 +45,7 @@ begin
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
-  FKartID := TFieldDB.Create('kart_id', ftString, '', Self, 'Kart ID');
+  FKartID := TFieldDB.Create('kart_id', ftWideString, '', Self, 'Kart ID');
   FPersonelNo := TFieldDB.Create('personel_no', ftInteger, 0, Self, 'Personel No');
   FKartNo := TFieldDB.Create('kart_no', ftInteger, 0, Self, 'Kart No');
   FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, 'Aktif?');
@@ -60,16 +59,15 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FKartID.FieldName,
-        TableName + '.' + FPersonelNo.FieldName,
-        TableName + '.' + FKartNo.FieldName,
-        TableName + '.' + FIsAktif.FieldName
+        Id.QryName,
+        FKartID.QryName,
+        FPersonelNo.QryName,
+        FKartNo.QryName,
+        FIsAktif.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -85,11 +83,11 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FKartID.FieldName,
-        TableName + '.' + FPersonelNo.FieldName,
-        TableName + '.' + FKartNo.FieldName,
-        TableName + '.' + FIsAktif.FieldName
+        Id.QryName,
+        FKartID.QryName,
+        FPersonelNo.QryName,
+        FKartNo.QryName,
+        FIsAktif.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -101,7 +99,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -128,14 +126,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -159,7 +157,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

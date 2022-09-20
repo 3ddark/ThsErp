@@ -4,49 +4,48 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
   ClientWidth = 904
   ExplicitWidth = 920
   ExplicitHeight = 632
-  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 900
-    Height = 541
-    ExplicitWidth = 900
-    ExplicitHeight = 541
+    Width = 904
+    Height = 543
+    ExplicitWidth = 904
+    ExplicitHeight = 543
     inherited splLeft: TSplitter
-      Top = 332
-      Height = 208
+      Top = 331
+      Height = 212
       ExplicitTop = 381
       ExplicitHeight = 167
     end
     inherited splHeader: TSplitter
-      Top = 329
-      Width = 898
+      Top = 328
+      Width = 904
       ExplicitTop = 378
       ExplicitWidth = 898
     end
     inherited pgcMain: TPageControl
-      Top = 332
-      Width = 792
-      Height = 208
-      ExplicitTop = 332
-      ExplicitWidth = 792
-      ExplicitHeight = 208
+      Top = 331
+      Width = 798
+      Height = 212
+      ExplicitTop = 331
+      ExplicitWidth = 798
+      ExplicitHeight = 212
       inherited tsMain: TTabSheet
-        ExplicitWidth = 784
-        ExplicitHeight = 180
+        ExplicitWidth = 790
+        ExplicitHeight = 184
       end
     end
     inherited pnlHeader: TPanel
-      Width = 894
+      Width = 900
       Height = 325
-      ExplicitWidth = 894
+      ExplicitWidth = 900
       ExplicitHeight = 325
       inherited pgcHeader: TPageControl
-        Width = 892
+        Width = 898
         Height = 323
-        ExplicitWidth = 892
+        ExplicitWidth = 898
         ExplicitHeight = 323
         inherited tsHeader: TTabSheet
-          ExplicitWidth = 864
+          ExplicitWidth = 870
           ExplicitHeight = 315
           object lblteklif_no: TLabel
             Left = 632
@@ -146,13 +145,13 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Style = [fsBold]
             ParentFont = False
           end
-          object lbldoviz_kuru: TLabel
-            Left = 622
+          object lbldoviz_kuru_usd: TLabel
+            Left = 624
             Top = 116
-            Width = 63
+            Width = 61
             Height = 13
             Alignment = taRightJustify
-            Caption = 'D'#246'viz Kuru'
+            Caption = 'Dolar Kuru'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
@@ -460,6 +459,20 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Style = [fsBold]
             ParentFont = False
           end
+          object lbldoviz_kuru_eur: TLabel
+            Left = 628
+            Top = 137
+            Width = 57
+            Height = 13
+            Alignment = taRightJustify
+            Caption = 'Euro Kuru'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
           object edtmusteri_kodu: TEdit
             Left = 115
             Top = 2
@@ -572,12 +585,14 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Height = 21
             TabOrder = 6
           end
-          object edtdoviz_kuru: TEdit
+          object edtdoviz_kuru_usd: TEdit
             Left = 686
             Top = 112
             Width = 90
             Height = 21
             TabOrder = 14
+            OnEnter = edtdoviz_kuruEnter
+            OnExit = edtdoviz_kuruExit
           end
           object edtmusteri_temsilcisi_id: TEdit
             Left = 408
@@ -658,9 +673,18 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Height = 21
             TabOrder = 20
           end
+          object edtdoviz_kuru_eur: TEdit
+            Left = 686
+            Top = 133
+            Width = 90
+            Height = 21
+            TabOrder = 28
+            OnEnter = edtdoviz_kuruEnter
+            OnExit = edtdoviz_kuruExit
+          end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitWidth = 864
+          ExplicitWidth = 870
           ExplicitHeight = 315
           object lblProformaNo: TLabel
             Left = 71
@@ -943,48 +967,48 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
       end
     end
     inherited pnlContent: TPanel
-      Top = 332
-      Width = 792
-      Height = 208
-      ExplicitTop = 332
-      ExplicitWidth = 792
-      ExplicitHeight = 208
+      Top = 331
+      Width = 798
+      Height = 212
+      ExplicitTop = 331
+      ExplicitWidth = 798
+      ExplicitHeight = 212
       inherited pgcContent: TPageControl
-        Width = 790
-        Height = 204
-        ExplicitWidth = 790
-        ExplicitHeight = 204
+        Width = 796
+        Height = 208
+        ExplicitWidth = 796
+        ExplicitHeight = 208
         inherited ts1: TTabSheet
-          ExplicitWidth = 782
-          ExplicitHeight = 176
+          ExplicitWidth = 788
+          ExplicitHeight = 180
           inherited pnl1: TPanel
-            Top = 92
-            Width = 782
-            ExplicitTop = 92
-            ExplicitWidth = 782
+            Top = 96
+            Width = 788
+            ExplicitTop = 96
+            ExplicitWidth = 788
             inherited grpGenelToplamKalan: TGroupBox
-              Left = 312
-              ExplicitLeft = 312
+              Left = 318
+              ExplicitLeft = 318
             end
             inherited grpGenelToplam: TGroupBox
-              Left = 547
-              ExplicitLeft = 547
+              Left = 553
+              ExplicitLeft = 553
             end
             inherited flwpnl1: TFlowPanel
-              Width = 310
-              ExplicitWidth = 310
+              Width = 316
+              ExplicitWidth = 316
             end
           end
           inherited strngrd1: TStringGrid
-            Width = 782
-            Height = 92
-            ExplicitWidth = 782
-            ExplicitHeight = 92
+            Width = 788
+            Height = 96
+            ExplicitWidth = 788
+            ExplicitHeight = 96
           end
         end
         inherited ts2: TTabSheet
-          ExplicitWidth = 782
-          ExplicitHeight = 176
+          ExplicitWidth = 788
+          ExplicitHeight = 180
           inherited pnl2: TPanel
             Top = 42
             Width = 782
@@ -1003,8 +1027,8 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
           end
         end
         inherited ts3: TTabSheet
-          ExplicitWidth = 782
-          ExplicitHeight = 176
+          ExplicitWidth = 788
+          ExplicitHeight = 180
           inherited strngrd3: TStringGrid
             Width = 782
             Height = 42
@@ -1024,15 +1048,15 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
         end
       end
       inherited btnHeaderShowHide: TButton
-        Left = 701
-        ExplicitLeft = 701
+        Left = 757
+        ExplicitLeft = 757
       end
     end
     inherited pnlLeft: TPanel
-      Top = 333
-      Height = 205
-      ExplicitTop = 333
-      ExplicitHeight = 205
+      Top = 332
+      Height = 209
+      ExplicitTop = 332
+      ExplicitHeight = 209
     end
   end
   inherited pnlBottom: TPanel
@@ -1041,12 +1065,12 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
     ExplicitTop = 545
     ExplicitWidth = 900
     inherited btnAccept: TButton
-      Left = 691
-      ExplicitLeft = 691
+      Left = 694
+      ExplicitLeft = 694
     end
     inherited btnClose: TButton
-      Left = 795
-      ExplicitLeft = 795
+      Left = 798
+      ExplicitLeft = 798
     end
   end
   inherited stbBase: TStatusBar

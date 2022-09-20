@@ -66,6 +66,7 @@ type
     procedure SetValue(const Value: Variant);
   public
     destructor Destroy; override;
+
     property FieldName: string read FFieldName write FFieldName;
     property DataType: TFieldType read FDataType write FDataType;
     property Value: Variant read GetValue write SetValue;
@@ -682,7 +683,14 @@ end;
 
 function TFieldDB.AsString: string;
 begin
-  Result := VarToStr(FValue);
+  try
+    Result := VarToStr(FValue);
+  except
+    on e: exception do
+    begin
+      Result := '';
+    end;
+  end;
 end;
 
 function TFieldDB.AsTime: TTime;

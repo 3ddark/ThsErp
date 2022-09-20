@@ -35,8 +35,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSetPrsServisAraci.Create(ADatabase: TDatabase);
 begin
@@ -45,7 +44,7 @@ begin
   inherited Create(ADatabase);
 
   FAracNo := TFieldDB.Create('arac_no', ftInteger, 0, Self, 'Araç No');
-  FAracAdi := TFieldDB.Create('arac_adi', ftString, '', Self, 'Araç Adý');
+  FAracAdi := TFieldDB.Create('arac_adi', ftWideString, '', Self, 'Araç Adý');
 //  FRota := TFieldDB.Create('rota', ftString, '', Self, 'Rota');
 end;
 
@@ -57,15 +56,14 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FAracNo.FieldName,
-        TableName + '.' + FAracAdi.FieldName
-//        TableName + '.' + FRota.FieldName
+        Id.QryName,
+        FAracNo.QryName,
+        FAracAdi.QryName
+//        FRota.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -81,10 +79,10 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FAracNo.FieldName,
-        TableName + '.' + FAracAdi.FieldName
-//        TableName + '.' + FRota.FieldName
+        Id.QryName,
+        FAracNo.QryName,
+        FAracAdi.QryName
+//        FRota.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -96,7 +94,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -122,14 +120,14 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 
@@ -152,7 +150,7 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
+    Notify;
   end;
 end;
 

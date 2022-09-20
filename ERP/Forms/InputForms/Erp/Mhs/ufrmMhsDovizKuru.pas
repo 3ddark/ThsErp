@@ -100,7 +100,7 @@ begin
       begin
         LPara := TSysParaBirimi.Create(Table.Database);
         LFrm := TfrmSysParaBirimleri.Create(TEdit(Sender), Self, LPara, fomNormal, True);
-        LFrm.QryFiltreVarsayilan := ' AND ' + LPara.IsVarsayilan.FieldName + '=False';
+        //LFrm.QryFiltreVarsayilan := ' AND ' + LPara.IsVarsayilan.FieldName + '=False';
         try
           LFrm.ShowModal;
           if LFrm.DataAktar then

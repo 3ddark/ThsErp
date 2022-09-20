@@ -5,7 +5,7 @@ interface
 {$I ThsERP.inc}
 
 uses
-  System.SysUtils,
+  SysUtils,
   Data.DB,
   Ths.Erp.Database,
   Ths.Erp.Database.Table;
@@ -65,8 +65,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TStkCinsOzelligi.Create(ADatabase: TDatabase);
 begin
@@ -74,24 +73,24 @@ begin
   TableSourceCode := MODULE_STK_KAYIT;
   inherited Create(ADatabase);
 
-  FCins := TFieldDB.Create('cins', ftString, '', Self, 'Cins');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
-  FS1 := TFieldDB.Create('s1', ftString, '', Self, 'S1');
-  FS2 := TFieldDB.Create('s2', ftString, '', Self, 'S2');
-  FS3 := TFieldDB.Create('s3', ftString, '', Self, 'S3');
-  FS4 := TFieldDB.Create('s4', ftString, '', Self, 'S4');
-  FS5 := TFieldDB.Create('s5', ftString, '', Self, 'S5');
-  FS6 := TFieldDB.Create('s6', ftString, '', Self, 'S6');
-  FS7 := TFieldDB.Create('s7', ftString, '', Self, 'S7');
-  FS8 := TFieldDB.Create('s8', ftString, '', Self, 'S8');
-  FI1 := TFieldDB.Create('i1', ftString, '', Self, 'I1');
-  FI2 := TFieldDB.Create('i2', ftString, '', Self, 'I2');
-  FI3 := TFieldDB.Create('i3', ftString, '', Self, 'I3');
-  FI4 := TFieldDB.Create('i4', ftString, '', Self, 'I4');
-  FD1 := TFieldDB.Create('d1', ftString, '', Self, 'D1');
-  FD2 := TFieldDB.Create('d2', ftString, '', Self, 'D2');
-  FD3 := TFieldDB.Create('d3', ftString, '', Self, 'D3');
-  FD4 := TFieldDB.Create('d4', ftString, '', Self, 'D4');
+  FCins := TFieldDB.Create('cins', ftWideString, '', Self, 'Cins');
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açýklama');
+  FS1 := TFieldDB.Create('s1', ftWideString, '', Self, 'S1');
+  FS2 := TFieldDB.Create('s2', ftWideString, '', Self, 'S2');
+  FS3 := TFieldDB.Create('s3', ftWideString, '', Self, 'S3');
+  FS4 := TFieldDB.Create('s4', ftWideString, '', Self, 'S4');
+  FS5 := TFieldDB.Create('s5', ftWideString, '', Self, 'S5');
+  FS6 := TFieldDB.Create('s6', ftWideString, '', Self, 'S6');
+  FS7 := TFieldDB.Create('s7', ftWideString, '', Self, 'S7');
+  FS8 := TFieldDB.Create('s8', ftWideString, '', Self, 'S8');
+  FI1 := TFieldDB.Create('i1', ftWideString, '', Self, 'I1');
+  FI2 := TFieldDB.Create('i2', ftWideString, '', Self, 'I2');
+  FI3 := TFieldDB.Create('i3', ftWideString, '', Self, 'I3');
+  FI4 := TFieldDB.Create('i4', ftWideString, '', Self, 'I4');
+  FD1 := TFieldDB.Create('d1', ftWideString, '', Self, 'D1');
+  FD2 := TFieldDB.Create('d2', ftWideString, '', Self, 'D2');
+  FD3 := TFieldDB.Create('d3', ftWideString, '', Self, 'D3');
+  FD4 := TFieldDB.Create('d4', ftWideString, '', Self, 'D4');
 end;
 
 procedure TStkCinsOzelligi.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
@@ -102,30 +101,29 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        FCins.FieldName,
-        FAciklama.FieldName,
-        FS1.FieldName,
-        FS2.FieldName,
-        FS3.FieldName,
-        FS4.FieldName,
-        FS5.FieldName,
-        FS6.FieldName,
-        FS7.FieldName,
-        FS8.FieldName,
-        FI1.FieldName,
-        FI2.FieldName,
-        FI3.FieldName,
-        FI4.FieldName,
-        FD1.FieldName,
-        FD2.FieldName,
-        FD3.FieldName,
-        FD4.FieldName
+        Id.QryName,
+        FCins.QryName,
+        FAciklama.QryName,
+        FS1.QryName,
+        FS2.QryName,
+        FS3.QryName,
+        FS4.QryName,
+        FS5.QryName,
+        FS6.QryName,
+        FS7.QryName,
+        FS8.QryName,
+        FI1.QryName,
+        FI2.QryName,
+        FI3.QryName,
+        FI4.QryName,
+        FD1.QryName,
+        FD2.QryName,
+        FD3.QryName,
+        FD4.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -141,25 +139,25 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        FCins.FieldName,
-        FAciklama.FieldName,
-        FS1.FieldName,
-        FS2.FieldName,
-        FS3.FieldName,
-        FS4.FieldName,
-        FS5.FieldName,
-        FS6.FieldName,
-        FS7.FieldName,
-        FS8.FieldName,
-        FI1.FieldName,
-        FI2.FieldName,
-        FI3.FieldName,
-        FI4.FieldName,
-        FD1.FieldName,
-        FD2.FieldName,
-        FD3.FieldName,
-        FD4.FieldName
+        Id.QryName,
+        FCins.QryName,
+        FAciklama.QryName,
+        FS1.QryName,
+        FS2.QryName,
+        FS3.QryName,
+        FS4.QryName,
+        FS5.QryName,
+        FS6.QryName,
+        FS7.QryName,
+        FS8.QryName,
+        FI1.QryName,
+        FI2.QryName,
+        FI3.QryName,
+        FI4.QryName,
+        FD1.QryName,
+        FD2.QryName,
+        FD3.QryName,
+        FD4.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -171,7 +169,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -212,14 +210,13 @@ begin
       PrepareInsertQueryParams;
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+      if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+      then  AID := Fields.FieldByName(Id.FieldName).AsInteger
       else  AID := 0;
 
       EmptyDataSet;
       Close;
     end;
-    Self.notify;
   end;
 end;
 
@@ -257,7 +254,6 @@ begin
       ExecSQL;
       Close;
     end;
-    Self.notify;
   end;
 end;
 

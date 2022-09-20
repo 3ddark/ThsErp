@@ -76,8 +76,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSysGridKolon.Create(ADatabase: TDatabase);
 begin
@@ -85,11 +84,11 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FTabloAdi := TFieldDB.Create('tablo_adi', ftString, '', Self, 'Tablo Adý');
-  FKolonAdi := TFieldDB.Create('kolon_adi', ftString, '', Self, 'Kolon Adý');
+  FTabloAdi := TFieldDB.Create('tablo_adi', ftWideString, '', Self, 'Tablo Adý');
+  FKolonAdi := TFieldDB.Create('kolon_adi', ftWideString, '', Self, 'Kolon Adý');
   FSiraNo := TFieldDB.Create('sira_no', ftInteger, 0, Self, 'Sýra No');
   FGenislik := TFieldDB.Create('genislik', ftInteger, 0, Self, 'Geniþlik');
-  FDataFormat := TFieldDB.Create('data_format', ftString, '', Self, 'Data Format');
+  FDataFormat := TFieldDB.Create('data_format', ftWideString, '', Self, 'Data Format');
   FIsGorunsun := TFieldDB.Create('is_gorunsun', ftBoolean, False, Self, 'Görünsün?');
   FIsGorunsunHelperForm := TFieldDB.Create('is_gorunsun_helper_form', ftBoolean, False, Self, 'Görünsün Helper?');
   FMinDeger := TFieldDB.Create('min_deger', ftFloat, 0, Self, 'Min Deðer');
@@ -101,7 +100,7 @@ begin
   FRenkBarArka := TFieldDB.Create('renk_bar_arka', ftInteger, 0, Self, 'Renk Bar Arka');
   FRenkBarYazi := TFieldDB.Create('renk_bar_yazi', ftInteger, 0, Self, 'Renk Bar Yazý');
   FOzetTipi := TFieldDB.Create('ozet_tipi', ftInteger, 0, Self, 'Özet Tipi');
-  FOzetFormat := TFieldDB.Create('ozet_format', ftString, '', Self, 'Özet Format');
+  FOzetFormat := TFieldDB.Create('ozet_format', ftWideString, '', Self, 'Özet Format');
 
   FSiraDurum := ssNone;
   FEskiDeger := 0;
@@ -115,24 +114,24 @@ begin
 	  begin
 		  Close;
 		  Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FTabloAdi.FieldName,
-        TableName + '.' + FKolonAdi.FieldName,
-        TableName + '.' + FSiraNo.FieldName,
-        TableName + '.' + FGenislik.FieldName,
-        TableName + '.' + FDataFormat.FieldName,
-        TableName + '.' + FIsGorunsun.FieldName,
-        TableName + '.' + FIsGorunsunHelperForm.FieldName,
-        TableName + '.' + FMinDeger.FieldName,
-        TableName + '.' + FMinRenk.FieldName,
-        TableName + '.' + FMaksDeger.FieldName,
-        TableName + '.' + FMaksRenk.FieldName,
-        TableName + '.' + FMaksDegerYuzde.FieldName,
-        TableName + '.' + FRenkBar.FieldName,
-        TableName + '.' + FRenkBarArka.FieldName,
-        TableName + '.' + FRenkBarYazi.FieldName,
-        TableName + '.' + FOzetTipi.FieldName,
-        TableName + '.' + FOzetFormat.FieldName
+        Self.Id.QryName,
+        FTabloAdi.QryName,
+        FKolonAdi.QryName,
+        FSiraNo.QryName,
+        FGenislik.QryName,
+        FDataFormat.QryName,
+        FIsGorunsun.QryName,
+        FIsGorunsunHelperForm.QryName,
+        FMinDeger.QryName,
+        FMinRenk.QryName,
+        FMaksDeger.QryName,
+        FMaksRenk.QryName,
+        FMaksDegerYuzde.QryName,
+        FRenkBar.QryName,
+        FRenkBarArka.QryName,
+        FRenkBarYazi.QryName,
+        FOzetTipi.QryName,
+        FOzetFormat.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
@@ -152,24 +151,24 @@ begin
 	  begin
 		  Close;
 		  Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FTabloAdi.FieldName,
-        TableName + '.' + FKolonAdi.FieldName,
-        TableName + '.' + FSiraNo.FieldName,
-        TableName + '.' + FGenislik.FieldName,
-        TableName + '.' + FDataFormat.FieldName,
-        TableName + '.' + FIsGorunsun.FieldName,
-        TableName + '.' + FIsGorunsunHelperForm.FieldName,
-        TableName + '.' + FMinDeger.FieldName,
-        TableName + '.' + FMinRenk.FieldName,
-        TableName + '.' + FMaksDeger.FieldName,
-        TableName + '.' + FMaksRenk.FieldName,
-        TableName + '.' + FMaksDegerYuzde.FieldName,
-        TableName + '.' + FRenkBar.FieldName,
-        TableName + '.' + FRenkBarArka.FieldName,
-        TableName + '.' + FRenkBarYazi.FieldName,
-        TableName + '.' + FOzetTipi.FieldName,
-        TableName + '.' + FOzetFormat.FieldName
+        Self.Id.QryName,
+        FTabloAdi.QryName,
+        FKolonAdi.QryName,
+        FSiraNo.QryName,
+        FGenislik.QryName,
+        FDataFormat.QryName,
+        FIsGorunsun.QryName,
+        FIsGorunsunHelperForm.QryName,
+        FMinDeger.QryName,
+        FMinRenk.QryName,
+        FMaksDeger.QryName,
+        FMaksRenk.QryName,
+        FMaksDegerYuzde.QryName,
+        FRenkBar.QryName,
+        FRenkBarArka.QryName,
+        FRenkBarYazi.QryName,
+        FOzetTipi.QryName,
+        FOzetFormat.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);

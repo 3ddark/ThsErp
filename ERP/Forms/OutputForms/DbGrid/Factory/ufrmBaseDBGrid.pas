@@ -19,6 +19,7 @@ uses
   System.TimeSpan,
   System.TypInfo,
   System.Actions,
+  System.Generics.Collections,
   Vcl.ImgList,
   Vcl.Menus,
   Vcl.Graphics,
@@ -164,7 +165,7 @@ type
     actfilter_exclude: TAction;
     actfilter_remove: TAction;
     Timer1: TTimer;
-    ProgressBar1: TProgressBar;
+    pb1: TProgressBar;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
     procedure FormResize(Sender: TObject); override;
@@ -246,9 +247,6 @@ type
     FTableHelper: TTable;
     //for use HelperForm
 
-
-    //her form kendi görünecek kolonlarını bilecek. Bu şekilde form açılırken bu bilgilere göre şekillenecek.
-    FGridColWidth: TSysGridKolon;
 
     FColoredPercentColNames: TArray<TColPercent>;
     FPercentMaxValue: Integer;
@@ -727,12 +725,6 @@ begin
 
   btnAddNew.Visible := True;
 
-
-  FGridColWidth := TSysGridKolon.Create(GDataBase);
-  FGridColWidth.SelectToList(
-    ' AND ' + FGridColWidth.TableName + '.' + FGridColWidth.TabloAdi.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Table.TableName)) +
-    ' ORDER BY ' + FGridColWidth.TableName + '.' + FGridColWidth.SiraNo.FieldName + ' ASC ', False, False);
-
   PostMessage(self.Handle, WM_AFTER_CREATE, 0, 0);
 end;
 
@@ -747,8 +739,6 @@ begin
 //    Table.Database.EventAlerter.Active := False;
 //    Table.Database.EventAlerter.Names.Delete(Table.Database.EventAlerter.Names.IndexOf(Table.TableName));
 //  end;
-
-  FreeAndNil(FGridColWidth);
 
   if FIsHelper then
   begin
@@ -997,7 +987,7 @@ begin
   end
   else
   begin
-    if IsYuzdeCizimAlaniVar(Column.FieldName) and (1=2) then
+    if IsYuzdeCizimAlaniVar(Column.FieldName) then
     begin
       begin
         bEmptyDS := ((TDBGrid(Sender).DataSource.DataSet.EoF) and (TDBGrid(Sender).DataSource.DataSet.Bof));
@@ -1053,14 +1043,14 @@ begin
         TDBGrid(Sender).Canvas.Brush.Color := clActualBrushColor;
       end;
     end
-    else if IsRenkliRakamVar(Column.FieldName) and (1=2) then
+    else if IsRenkliRakamVar(Column.FieldName) then
     begin
-      clActualBrushColor := TDBGrid(Sender).Canvas.Brush.Color;
-
-      TDBGrid(Sender).Canvas.Brush.Color := GetLowHighEqual(Column.Field, TDBGrid(Sender).Canvas.Brush.Color);
-
-      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
-      TDBGrid(Sender).Canvas.Brush.Color := clActualBrushColor;
+//      clActualBrushColor := TDBGrid(Sender).Canvas.Brush.Color;
+//
+//      TDBGrid(Sender).Canvas.Brush.Color := GetLowHighEqual(Column.Field, TDBGrid(Sender).Canvas.Brush.Color);
+//
+//      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+//      TDBGrid(Sender).Canvas.Brush.Color := clActualBrushColor;
     end;
   end;
 
@@ -1854,8 +1844,8 @@ end;
 
 procedure TfrmBaseDBGrid.RefreshData;
 begin
-  if (ParentForm <> nil) then//and (ParentForm.Parent.Name = 'TfrmBaseDBGrid') then
-    Table.DataSource.DataSet.Refresh;
+//  if (ParentForm <> nil) then//and (ParentForm.Parent.Name = 'TfrmBaseDBGrid') then
+//    Table.DataSource.DataSet.Refresh;
 
   if (Table <> nil) and (Table.Id.Value > 0) then
     grd.DataSource.DataSet.Locate(Table.Id.FieldName, Table.Id.Value,[]);
@@ -1883,10 +1873,16 @@ var
   AField: TField;
   AFieldDB: TFieldDB;
   ACol: TColumn;
-  n1, n2, vHaneSayisi: Integer;
+  AGridCols: TObjectList<TSysGridKolon>;
+  n1, n2, n3, vHaneSayisi: Integer;
 
   LColPercent: TColPercent;
   LColColor: TColColor;
+
+  LTableName: string;
+  LColName: string;
+  LKolonVar: Boolean;
+  LNumberOfVisibleColumns: Integer;
 
   function ExistsGridColumn(AFieldName: string): Boolean;
   var
@@ -1964,6 +1960,7 @@ var
 
 begin
   Table.DataSource.DataSet.DisableControls;
+  AGridCols := TObjectList<TSysGridKolon>.Create(False);
   try
     Table.DataSource.OnDataChange := DataSourceDataChange;
     FQryFiltreVarsayilan := ' ' + Trim(FQryFiltreVarsayilan);
@@ -2014,37 +2011,48 @@ begin
       end;
     end;
 
-    if FGridColWidth.List.Count = 0 then
+
+    LTableName := ReplaceRealColOrTableNameTo(Table.TableName);
+    for n1 := 0 to GGridColWidth.List.Count-1 do
+      if TSysGridKolon(GGridColWidth.List[n1]).TabloAdi.AsString = LTableName then
+        AGridCols.Add(TSysGridKolon(GGridColWidth.List[n1]));
+
+    LNumberOfVisibleColumns := 0;
+
+    if AGridCols.Count = 0 then
     begin
       for n1 := 0 to grd.Columns.Count-1 do
         grd.Columns.Items[n1].Visible := True;
     end
     //burada görünmesi istenilen kolonları show yapıyoruz ve genişliğini ayarlıyoruz
-    else if FGridColWidth.List.Count > 0 then
+    else
     begin
-      for n1 := 0 to FGridColWidth.List.Count-1 do
+      for n1 := 0 to AGridCols.Count-1 do
       begin
         for n2 := 0 to grd.Columns.Count-1 do
         begin
           AField := grd.Columns.Items[n2].Field;
           ACol := grd.Columns.Items[n2];
 
-          if AField.FieldName = ReplaceToRealColOrTableName(VarToStr(FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).KolonAdi))) then
+          if  (TSysGridKolon(AGridCols[n1]).TabloAdi.AsString = LTableName)
+          and (AField.FieldName = ReplaceToRealColOrTableName(VarToStr(FormatedVariantVal(TSysGridKolon(AGridCols[n1]).KolonAdi))))
+          then
           begin
+            Inc(LNumberOfVisibleColumns);
             AFieldDB := nil;
             if Table <> nil then
               AFieldDB := Table.GetFieldByFieldName(AField.FieldName);
             //display formatlarını ayarla
             if AFieldDB <> nil then
-              SetDisplayFormat(AFieldDB, AField, TSysGridKolon(FGridColWidth.List[n1]));
+              SetDisplayFormat(AFieldDB, AField, TSysGridKolon(AGridCols[n1]));
 
             if Assigned(ACol) then
             begin
-              with TSysGridKolon(FGridColWidth.List[n1]) do
+              with TSysGridKolon(AGridCols[n1]) do
               try
-                ACol.Index := VarToInt(FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).SiraNo));
-                ACol.Width := VarToInt(FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).Genislik));
-                ACol.Visible := FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).IsGorunsun);
+                ACol.Index := VarToInt(FormatedVariantVal(TSysGridKolon(AGridCols[n1]).SiraNo));
+                ACol.Width := VarToInt(FormatedVariantVal(TSysGridKolon(AGridCols[n1]).Genislik));
+                ACol.Visible := FormatedVariantVal(TSysGridKolon(AGridCols[n1]).IsGorunsun);
               except
                 on E: Exception do
                 begin
@@ -2070,21 +2078,27 @@ begin
         FColoredPercentColNames[n1] := LColPercent;
       end;
 
-      for n1 := 0 to FGridColWidth.List.Count-1 do
-        for n2 := 0 to grd.Columns.Count-1 do
-          if ReplaceToRealColOrTableName(VarToStr(FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).KolonAdi))) = grd.Columns.Items[n2].FieldName then
+      for n3 := 0 to Length(FColoredPercentColNames)-1 do
+        for n1 := 0 to AGridCols.Count-1 do
+          for n2 := 0 to grd.Columns.Count-1 do
           begin
-            LColPercent.FieldName := ReplaceToRealColOrTableName(VarToStr(FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).KolonAdi)));
-            LColPercent.MaxValue := FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).MaksDegerYuzde);
-            LColPercent.ColorBar := FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).RenkBar);
-            LColPercent.ColorBarBack := FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).RenkBarArka);
-            LColPercent.ColorBarText := FormatedVariantVal(TSysGridKolon(FGridColWidth.List[n1]).RenkBarYazi);
-            FColoredPercentColNames[n1] := LColPercent;
+            LColName := TSysGridKolon(AGridCols[n1]).KolonAdi.AsString;
+            if  (TSysGridKolon(AGridCols[n1]).TabloAdi.AsString = LTableName)
+            and (ReplaceToRealColOrTableName(LColName) = grd.Columns.Items[n2].FieldName)
+            then
+            begin
+              LColPercent.FieldName := LColName;
+              LColPercent.MaxValue := TSysGridKolon(AGridCols[n1]).MaksDegerYuzde.AsFloat;
+              LColPercent.ColorBar := TSysGridKolon(AGridCols[n1]).RenkBar.AsInteger;
+              LColPercent.ColorBarBack := TSysGridKolon(AGridCols[n1]).RenkBarArka.AsInteger;
+              LColPercent.ColorBarText := TSysGridKolon(AGridCols[n1]).RenkBarYazi.AsInteger;
+              FColoredPercentColNames[n3] := LColPercent;
+            end;
           end;
 
 
       //todo sayısal renklendirme işlemini yap
-      SetLength(FColoredNumericColNames, FGridColWidth.List.Count);
+      SetLength(FColoredNumericColNames, LNumberOfVisibleColumns);
       for n1 := 0 to Length(FColoredNumericColNames)-1 do
       begin
         LColColor.FieldName := '';
@@ -2097,15 +2111,20 @@ begin
       end;
 
       //progress bar gibi renklendirme boyama işlemi yap
-      for n1 := 0 to FGridColWidth.List.Count-1 do
+      for n3 := 0 to Length(FColoredNumericColNames)-1 do
+      for n1 := 0 to AGridCols.Count-1 do
       begin
-        LColColor.FieldName := ReplaceToRealColOrTableName(TSysGridKolon(FGridColWidth.List[n1]).KolonAdi.Value);
-        LColColor.MinValue := TSysGridKolon(FGridColWidth.List[n1]).MinDeger.Value;
-        LColColor.MinColor := TSysGridKolon(FGridColWidth.List[n1]).MinRenk.Value;
-        LColColor.MaxValue := TSysGridKolon(FGridColWidth.List[n1]).MaksDeger.Value;
-        LColColor.MaxColor := TSysGridKolon(FGridColWidth.List[n1]).MaksRenk.Value;
-        LColColor.EqualColor := clOlive;
-        FColoredNumericColNames[n1] := LColColor;
+        if (TSysGridKolon(AGridCols[n1]).TabloAdi.AsString = LTableName) then
+        begin
+          LColName := TSysGridKolon(AGridCols[n1]).KolonAdi.AsString;
+          LColColor.FieldName := ReplaceToRealColOrTableName(LColName);
+          LColColor.MinValue := TSysGridKolon(AGridCols[n1]).MinDeger.AsInteger;
+          LColColor.MinColor := TSysGridKolon(AGridCols[n1]).MinRenk.AsInteger;
+          LColColor.MaxValue := TSysGridKolon(AGridCols[n1]).MaksDeger.AsInteger;
+          LColColor.MaxColor := TSysGridKolon(AGridCols[n1]).MaksRenk.AsInteger;
+          LColColor.EqualColor := clOlive;
+          FColoredNumericColNames[n3] := LColColor;
+        end;
       end;
     end;
 
@@ -2139,6 +2158,7 @@ begin
 
     RefreshGrid();
   finally
+    AGridCols.Free;
     Table.DataSource.DataSet.EnableControls;
   end;
 end;
@@ -2490,11 +2510,11 @@ begin
   Cursor := crHourGlass;
   try
     ExcelApplication := CreateOleObject('Excel.Application');
-    ExcelApplication.Visible := False;  //let's make visible
+    ExcelApplication.Visible := False;
   except
     Showmessage('Excel dosya oluşturulamadı,' + AddLBs(2) +
                 'Bilgisayarında Microsoft Excel kurulu olduğundan emin misin?');
-    Application.Terminate;
+    Exit;
   end;
   ADataSet := grd.DataSource.DataSet;
 
@@ -2542,9 +2562,9 @@ begin
           Sheet.Columns[LColCount].NumberFormat := '_-* #.##0,00 _₺_-;-* #.##0,00 _₺_-;_-* "-"?? _₺_-;_-@_-'
       end;
 
-    ProgressBar1.Max := ADataSet.RecordCount;
-    ProgressBar1.Position := 0;
-    ProgressBar1.Visible := True;
+    pb1.Max := ADataSet.RecordCount;
+    pb1.Position := 0;
+    pb1.Visible := True;
 
     //now copy from table to excel cells
     for LRow := 1 to ADataSet.RecordCount do
@@ -2583,7 +2603,7 @@ begin
           else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftCurrency) then
             Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsCurrency
         end;
-      ProgressBar1.Position := LRow;
+      pb1.Position := LRow;
       ADataSet.Next;
     end;
 
@@ -2595,8 +2615,8 @@ begin
     ExcelApplication := Unassigned;
     Sheet := Unassigned;
   finally
-    ProgressBar1.Visible := False;
-    ProgressBar1.Position := 0;
+    pb1.Visible := False;
+    pb1.Position := 0;
     Screen.Cursor := crDefault;
     ADataSet.RecNo := LRecPozisyon;
     ADataSet.EnableControls;

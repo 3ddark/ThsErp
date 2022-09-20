@@ -120,7 +120,7 @@ begin
         LStk := TStkStokKarti.Create(Table.Database);
         LFrm := TfrmStkStokKartlari.Create(edtstok_kodu, Self, LStk, fomNormal, True);
         try
-          LFrm.QryFiltreVarsayilanKullanici := ' AND ' + LStk.StokKodu.QryName + '!=' + QuotedStr(TfrmRctReceteDetaylar(ParentForm).edturun_kodu.Text);
+          LFrm.QryFiltreVarsayilanKullanici := ' AND ' + LStk.StokKodu.QryName + '!=' + QuotedStr(TfrmRctReceteDetaylar(ParentForm).edtrecete_kodu.Text);
           LFrm.ShowModal;
           if LFrm.DataAktar then
           begin
@@ -131,7 +131,7 @@ begin
 
             LRecete := TRctRecete.Create(GDataBase);
             try
-              LRecete.SelectToList(' AND ' + LRecete.ReceteKodu.FieldName + '=' + QuotedStr(edtstok_kodu.Text), False, False);
+              LRecete.SelectToList(' AND ' + LRecete.ReceteKodu.QryName + '=' + QuotedStr(edtstok_kodu.Text), False, False);
               if LRecete.List.Count > 0 then
               begin
                 cbbrecete.Clear;

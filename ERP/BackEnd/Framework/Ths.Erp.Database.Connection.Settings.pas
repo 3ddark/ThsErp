@@ -81,9 +81,8 @@ type
 implementation
 
 uses
-    Ths.Erp.Constants
-  , Ths.Erp.Globals
-  ;
+  Ths.Erp.Constants,
+  Ths.Erp.Globals;
 
 procedure TConnSettings.ReadFromFile();
 var

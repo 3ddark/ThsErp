@@ -16,7 +16,6 @@ type
     FFirmaTipi: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
-    destructor Destroy; override;
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
@@ -32,8 +31,7 @@ implementation
 
 uses
   Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Erp.Constants;
 
 constructor TSetBbkFirmaTipi.Create(ADatabase: TDatabase);
 begin
@@ -41,12 +39,7 @@ begin
   TableSourceCode := MODULE_BBK_AYAR;
   inherited Create(ADatabase);
 
-  FFirmaTipi := TFieldDB.Create('firma_tipi', ftString, '', Self, '');
-end;
-
-destructor TSetBbkFirmaTipi.Destroy;
-begin
-  inherited;
+  FFirmaTipi := TFieldDB.Create('firma_tipi', ftWideString, '', Self, 'Firma Tipi');
 end;
 
 procedure TSetBbkFirmaTipi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -57,13 +50,12 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfDS, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FFirmaTipi.FieldName
+        Id.QryName,
+        FFirmaTipi.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
       Open;
-      Active := True;
     end;
   end;
 end;
@@ -79,8 +71,8 @@ begin
     begin
       Close;
       Database.GetSQLSelectCmd(QueryOfList, TableName, [
-        TableName + '.' + Self.Id.FieldName,
-        TableName + '.' + FFirmaTipi.FieldName
+        Id.QryName,
+        FFirmaTipi.QryName
       ], [
         ' WHERE 1=1 ', AFilter
       ]);
@@ -92,7 +84,7 @@ begin
       begin
         PrepareTableClassFromQuery(QueryOfList);
 
-        List.Add(Self.Clone);
+        List.Add(Clone);
 
         Next;
       end;
@@ -108,7 +100,7 @@ begin
     {$IFDEF CRUD_MODE_SP}
       SpInsert.ExecProc;
       AID := SpInsert.ParamByName('result').AsInteger;
-      Self.Notify;
+      Notify;
     {$ELSE IFDEF CRUD_MODE_PURE_SQL}
       with QueryOfInsert do
       begin
@@ -122,14 +114,14 @@ begin
         PrepareInsertQueryParams;
 
         Open;
-        if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-        then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
+        if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+        then  AID := Fields.FieldByName(Id.FieldName).AsInteger
         else  AID := 0;
 
         EmptyDataSet;
         Close;
       end;
-      Self.Notify;
+      Notify;
     {$ENDIF}
   end;
 end;
@@ -140,7 +132,7 @@ begin
   begin
     {$IFDEF CRUD_MODE_SP}
       SpUpdate.ExecProc;
-      Self.Notify;
+      Notify;
     {$ELSE IFDEF CRUD_MODE_PURE_SQL}
       with QueryOfUpdate do
       begin
@@ -155,7 +147,7 @@ begin
         ExecSQL;
         Close;
       end;
-      Self.Notify;
+      Notify;
     {$ENDIF}
   end;
 end;

@@ -1,3 +1,5 @@
 *.dcu
 *.identcache
 *.local
+__history
+__recovery

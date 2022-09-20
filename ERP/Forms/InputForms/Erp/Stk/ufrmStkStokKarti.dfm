@@ -6,8 +6,8 @@ inherited frmStkStokKarti: TfrmStkStokKarti
   ClientHeight = 548
   ClientWidth = 649
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 665
-  ExplicitHeight = 587
+  ExplicitWidth = 667
+  ExplicitHeight = 595
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
@@ -1895,7 +1895,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 50
+            Width = 621
             Height = 13
             Align = alTop
             Alignment = taCenter
@@ -1906,6 +1906,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
+            ExplicitWidth = 50
           end
           object lblgrup_kdv_orani: TLabel
             Left = 122
@@ -2091,7 +2092,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 127
+            Width = 621
             Height = 13
             Hint = 'Hide'
             Align = alTop
@@ -2103,6 +2104,7 @@ inherited frmStkStokKarti: TfrmStkStokKarti
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
+            ExplicitWidth = 127
           end
           object strngrdAmbar: TStringGrid
             AlignWithMargins = True

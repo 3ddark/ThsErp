@@ -7,8 +7,8 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
-  ExplicitWidth = 350
-  ExplicitHeight = 517
+  ExplicitWidth = 360
+  ExplicitHeight = 527
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
@@ -17,17 +17,15 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
-    ExplicitHeight = 411
+    ExplicitHeight = 436
     inherited pgcMain: TPageControl
       Width = 338
       Height = 434
       ExplicitWidth = 338
-      ExplicitHeight = 409
+      ExplicitHeight = 434
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 330
-        ExplicitHeight = 381
+        ExplicitHeight = 406
         object lblcins: TLabel
           Left = 83
           Top = 5
@@ -448,27 +446,21 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
   inherited pnlBottom: TPanel
     Top = 440
     Width = 340
-    ExplicitTop = 415
+    ExplicitTop = 440
     ExplicitWidth = 340
     inherited btnAccept: TButton
       Left = 131
       ExplicitLeft = 131
-      ExplicitHeight = 22
-    end
-    inherited btnDelete: TButton
-      ExplicitLeft = 20
-      ExplicitHeight = 22
     end
     inherited btnClose: TButton
       Left = 235
       ExplicitLeft = 235
-      ExplicitHeight = 22
     end
   end
   inherited stbBase: TStatusBar
     Top = 470
     Width = 344
-    ExplicitTop = 445
+    ExplicitTop = 470
     ExplicitWidth = 344
   end
 end
