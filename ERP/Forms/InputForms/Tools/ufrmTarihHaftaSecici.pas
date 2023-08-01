@@ -20,10 +20,10 @@ uses
   Vcl.Menus,
   Vcl.Samples.Spin,
   Vcl.AppEvnts,
-  Ths.Erp.Helper.BaseTypes,
-  Ths.Erp.Helper.Edit,
-  Ths.Erp.Helper.Memo,
-  Ths.Erp.Helper.ComboBox,
+  Ths.Helper.BaseTypes,
+  Ths.Helper.Edit,
+  Ths.Helper.Memo,
+  Ths.Helper.ComboBox,
   ufrmBase,
   ufrmBaseInput;
 
@@ -60,9 +60,8 @@ type
 implementation
 
 uses
-  Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Globals,
+  Ths.Constants;
 
 {$R *.dfm}
 
@@ -199,13 +198,13 @@ begin
   inherited;
   stbBase.Visible := False;
   btnAccept.Visible := True;
-  btnAccept.Caption := TranslateText('TAMAM', FrameworkLang.ButtonOK, LngButton, LngSystem);
+  btnAccept.Caption := 'Tamam';
 
   edtYil.ReadOnly := False;
   edtHafta.ReadOnly := False;
   edtGun.ReadOnly := False;
   edtGun.thsInputDataType := itDate;
-  edtGun.thsActiveYear4Digit := GSysUygulamaAyari.Donem.Value;
+  edtGun.thsActiveYear4Digit := GSysApplicationSetting.Donem.Value;
 
   FYilHaftaIlkDeger := FYilHafta;
 

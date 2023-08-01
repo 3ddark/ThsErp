@@ -22,32 +22,16 @@ uses
   Vcl.Menus,
   Vcl.DBGrids,
   Vcl.ActnList,
-  Ths.Erp.Helper.BaseTypes,
-  Ths.Erp.Helper.Edit,
-  Ths.Erp.Helper.ComboBox,
-  Ths.Erp.Helper.Memo,
   Data.DB,
-  FireDAC.Stan.Intf,
-  FireDAC.Stan.Option,
-  FireDAC.Stan.Error,
-  FireDAC.UI.Intf,
-  FireDAC.Phys.Intf,
-  FireDAC.Stan.Def,
-  FireDAC.Stan.Pool,
-  FireDAC.Stan.Async,
-  FireDAC.Phys,
-  FireDAC.Phys.PG,
-  FireDAC.Phys.PGDef,
-  FireDAC.VCLUI.Wait,
-  FireDAC.Stan.Param,
-  FireDAC.DatS,
-  FireDAC.DApt.Intf,
-  FireDAC.DApt,
-  FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client;
+  ZAbstractRODataset,
+  ZAbstractDataset,
+  ZDataset,
+  ZAbstractConnection,
+  ZConnection,
+  Datasnap.DBClient;
 
 const
-  PROJECT_UNITNAME = 'Ths.Erp.Database.Table.';
+  PROJECT_UNITNAME = 'Ths.Database.Table.';
 
   COL_ROW_NO = 0;
   COL_PROPERTY_NAME = 1;
@@ -90,22 +74,11 @@ type
     mniSaveToFile: TMenuItem;
     mniLoadFromFile: TMenuItem;
     pnlLeft: TPanel;
-    con1: TFDConnection;
-    FDPhysPgDriverLink1: TFDPhysPgDriverLink;
     Splitter4: TSplitter;
     dsTables: TDataSource;
     ActionList1: TActionList;
     actConnect: TAction;
     grdColumns: TDBGrid;
-    tblColumns: TFDMemTable;
-    dsColumns: TDataSource;
-    tblColumnsfield_name: TStringField;
-    tblColumnsfield_type: TStringField;
-    tblColumnscolumn_caption: TStringField;
-    tblColumnsinput_caption: TStringField;
-    tblColumnsinput_type: TStringField;
-    tblColumnsis_gui: TBooleanField;
-    tblColumnsis_numeric: TBooleanField;
     lblhost_name: TLabel;
     lbldatabase_name: TLabel;
     lblport_name: TLabel;
@@ -136,6 +109,16 @@ type
     edtOutputFormName: TEdit;
     edtSourceCode: TEdit;
     cbbtable_name: TComboBox;
+    con1: TZConnection;
+    dsColumns: TDataSource;
+    cdsColumns: TClientDataSet;
+    cdsColumnsfield_name: TStringField;
+    cdsColumnsfield_type: TStringField;
+    cdsColumnscolumn_caption: TStringField;
+    cdsColumnsinput_caption: TStringField;
+    cdsColumnsis_gui: TBooleanField;
+    cdsColumnsinput_type: TStringField;
+    cdsColumnsis_numeric: TBooleanField;
     procedure FormCreate(Sender: TObject);
     procedure btnAddClassToMemoClick(Sender: TObject);
     procedure btnSaveToFilesClick(Sender: TObject);
@@ -149,8 +132,8 @@ type
     procedure GenerareOutput;
     procedure GenerateInput;
   private
-    FQryColProp: TFDQuery;
-    FQryTableCol: TFDQuery;
+    FQryColProp: TZQuery;
+    FQryTableCol: TZQuery;
     FClass: TStringList;
     FOutputDfm: TStringList;
     FOutputPas: TStringList;
@@ -451,19 +434,19 @@ procedure TfrmMainClassGenerator.actConnectExecute(Sender: TObject);
 begin
   if not con1.Connected then
   begin
-    con1.Params.Add('DriverID=PG');
-    con1.Params.Add('CharacterSet=UTF8');
-    con1.Params.Add('Database=' + edtdatabase_name.Text);
-    con1.Params.Add('User_Name=' + edtuser_name.Text);
-    con1.Params.Add('Password=' + edtpassword.Text);
-    con1.Params.Add('Server=' + edthost_name.Text);
-    con1.Params.Add('MetaDefSchema=' + edtschema_name.Text);
+    con1.Protocol := 'postgresql-9';
+    con1.ClientCodepage := 'UTF8';
+    con1.HostName := edthost_name.Text;
+    con1.Port := StrToIntDef(edtport_name.Text, 5432);
+    con1.Database := edtdatabase_name.Text;
+    con1.User := edtuser_name.Text;
+    con1.Password := edtpassword.Text;
     con1.LoginPrompt := False;
 
-    FDPhysPgDriverLink1.VendorHome := ExtractFilePath(Application.ExeName);
-    actConnect.Caption := 'DisConnect';
+    con1.LibraryLocation := ExtractFilePath(Application.ExeName) + PathDelim + 'lib' + PathDelim + 'libpq.dll';
     try
-      con1.Open();
+      con1.Connect;
+      actConnect.Caption := 'DisConnect';
       cbbtable_name.Enabled := True;
       FillTable;
     except
@@ -472,7 +455,7 @@ begin
   end
   else
   begin
-    con1.Close;
+    con1.Disconnect;
     actConnect.Caption := 'Connect';
     cbbtable_name.Enabled := False;
     cbbtable_name.Clear;
@@ -508,7 +491,7 @@ begin
     FOutputPas.Add('');
     FOutputPas.Add('interface');
     FOutputPas.Add('');
-    FOutputPas.Add('{$I ThsERP.inc}');
+    FOutputPas.Add('{$I Ths.inc}');
     FOutputPas.Add('');
     FOutputPas.Add('uses');
     FOutputPas.Add('  Winapi.Windows,');
@@ -541,31 +524,11 @@ begin
     FOutputPas.Add('  Vcl.Clipbrd,');
     FOutputPas.Add('  Vcl.ActnList,');
     FOutputPas.Add('  Data.DB,');
-    FOutputPas.Add('  FireDAC.DatS,');
-    FOutputPas.Add('  FireDAC.DApt.Intf,');
-    FOutputPas.Add('  FireDAC.DApt,');
-    FOutputPas.Add('  FireDAC.UI.Intf,');
-    FOutputPas.Add('  FireDAC.VCLUI.Wait,');
-    FOutputPas.Add('  FireDAC.Comp.DataSet,');
-    FOutputPas.Add('  FireDAC.Comp.Client,');
-    FOutputPas.Add('  FireDAC.Stan.Param,');
-    FOutputPas.Add('  FireDAC.Stan.Intf,');
-    FOutputPas.Add('  FireDAC.Stan.Option,');
-    FOutputPas.Add('  FireDAC.Stan.Error,');
-    FOutputPas.Add('  FireDAC.Stan.Async,');
-    FOutputPas.Add('  FireDAC.Stan.Def,');
-    FOutputPas.Add('  FireDAC.Stan.Pool,');
-    FOutputPas.Add('  FireDAC.Phys,');
-    FOutputPas.Add('  FireDAC.Phys.Intf,');
-    FOutputPas.Add('  FireDAC.Phys.PG,');
-    FOutputPas.Add('  FireDAC.Phys.PGDef,');
-    FOutputPas.Add('  frxClass,');
-    FOutputPas.Add('  frxUtils,');
-    FOutputPas.Add('  frxExportPDF,');
-    FOutputPas.Add('  frxExportXLS,');
-    FOutputPas.Add('  frxPreview,');
-    FOutputPas.Add('  frxExportBaseDialog,');
-    FOutputPas.Add('  frxDBSet,');
+    FOutputPas.Add('  ZAbstractRODataset,');
+    FOutputPas.Add('  ZAbstractDataset,');
+    FOutputPas.Add('  ZDataset,');
+    FOutputPas.Add('  ZAbstractConnection,');
+    FOutputPas.Add('  ZConnection,');
     FOutputPas.Add('  Ths.Erp.Helper.BaseTypes,');
     FOutputPas.Add('  Ths.Erp.Helper.Edit,');
     FOutputPas.Add('  Ths.Erp.Helper.Memo,');
@@ -583,8 +546,7 @@ begin
     FOutputPas.Add('implementation');
     FOutputPas.Add('');
     FOutputPas.Add('uses');
-    FOutputPas.Add('  Ths.Erp.Database.Singleton,');
-    FOutputPas.Add('  Ths.Erp.Constants,');
+    FOutputPas.Add('  Ths.Constants,');
     FOutputPas.Add('  ' + edtInputFormName.Text + ',');
     FOutputPas.Add('  ' + PROJECT_UNITNAME + edtClassType.Text + ';');
     FOutputPas.Add('');
@@ -622,30 +584,30 @@ begin
     FClass.Add('');
     FClass.Add('interface');
     FClass.Add('');
-    FClass.Add('{$I ThsERP.inc}');
+    FClass.Add('{$I Ths.inc}');
     FClass.Add('');
     FClass.Add('uses');
     FClass.Add('  System.SysUtils,');
     FClass.Add('  Data.DB,');
-    FClass.Add('  Ths.Erp.Database,');
-    FClass.Add('  Ths.Erp.Database.Table;');
+    FClass.Add('  Ths.Database,');
+    FClass.Add('  Ths.Database.Table;');
     FClass.Add('');
     FClass.Add('type');
     FClass.Add('  T' + edtClassType.Text + ' = class(TTable)');
     FClass.Add('  private');
 
-    tblColumns.First;
-    while not tblColumns.Eof do
+    grdColumns.DataSource.DataSet.First;
+    while not cdsColumns.Eof do
     begin
-      if tblColumns.FieldByName('field_name').AsString <> 'id' then
+      if cdsColumns.FieldByName('field_name').AsString <> 'id' then
       begin
-        if not tblColumns.Fields[0].IsNull then
+        if not cdsColumns.Fields[0].IsNull then
         begin
-          Ls := CapitalizeString(tblColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
+          Ls := CapitalizeString(cdsColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
           FClass.Add('    F' + Ls + ': TFieldDB;');
         end;
       end;
-      tblColumns.Next;
+      cdsColumns.Next;
     end;
 
     FClass.Add('  published');
@@ -653,24 +615,24 @@ begin
     FClass.Add('  public');
     FClass.Add('    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;');
     FClass.Add('    procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;');
-    FClass.Add('    procedure Insert(out AID: Integer; APermissionControl: Boolean=True); override;');
-    FClass.Add('    procedure Update(APermissionControl: Boolean=True); override;');
+    FClass.Add('    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;');
+    FClass.Add('    procedure DoUpdate(APermissionControl: Boolean=True); override;');
     FClass.Add('');
     FClass.Add('    function Clone: TTable; override;');
     FClass.Add('');
 
-    tblColumns.First;
-    while not tblColumns.Eof do
+    cdsColumns.First;
+    while not cdsColumns.Eof do
     begin
-      if tblColumns.FieldByName('field_name').AsString <> 'id' then
+      if cdsColumns.FieldByName('field_name').AsString <> 'id' then
       begin
-        if not tblColumns.Fields[0].IsNull then
+        if not cdsColumns.Fields[0].IsNull then
         begin
-          Ls := CapitalizeString(tblColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
+          Ls := CapitalizeString(cdsColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
           FClass.Add('    Property ' + Ls + ': TFieldDB read F' + Ls + ' write F' + Ls + ';');
         end;
       end;
-      tblColumns.Next;
+      cdsColumns.Next;
     end;
 
     FClass.Add('  end;');
@@ -678,9 +640,8 @@ begin
     FClass.Add('implementation');
     FClass.Add('');
     FClass.Add('uses');
-    FClass.Add('  Ths.Erp.Globals,');
-    FClass.Add('  Ths.Erp.Constants,');
-    FClass.Add('  Ths.Erp.Database.Singleton;');
+    FClass.Add('  Ths.Globals,');
+    FClass.Add('  Ths.Constants;');
     FClass.Add('');
     FClass.Add('constructor T' + edtClassType.Text + '.Create(ADatabase: TDatabase);');
     FClass.Add('begin');
@@ -688,115 +649,116 @@ begin
     FClass.Add('  TableSourceCode := ' + QuotedStr(edtSourceCode.Text) + ';');
     FClass.Add('  inherited Create(ADatabase);');
     FClass.Add('');
-    tblColumns.First;
-    while not tblColumns.Eof do
+    cdsColumns.First;
+    while not cdsColumns.Eof do
     begin
-      if tblColumns.FieldByName('field_name').AsString <> 'id' then
+      if cdsColumns.FieldByName('field_name').AsString <> 'id' then
       begin
-        if not tblColumns.Fields[0].IsNull then
+        if not cdsColumns.Fields[0].IsNull then
         begin
-          Ls := CapitalizeString(tblColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
-          LDataTypeVal := GetDataTypeFromQry(LNumeric, tblColumns.FieldByName('field_name').AsString);
+          Ls := CapitalizeString(cdsColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
+          LDataTypeVal := GetDataTypeFromQry(LNumeric, cdsColumns.FieldByName('field_name').AsString);
           FClass.Add('  F' + Ls + ' := TFieldDB.Create(' +
-              QuotedStr(tblColumns.FieldByName('field_name').AsString) + ', ' +
+              QuotedStr(cdsColumns.FieldByName('field_name').AsString) + ', ' +
               LDataTypeVal + ', ' +
               'Self, ' +
-              QuotedStr(tblColumns.FieldByName('column_caption').AsString) + ');');
+              QuotedStr(cdsColumns.FieldByName('column_caption').AsString) + ');');
         end;
       end;
-      tblColumns.Next;
+      cdsColumns.Next;
     end;
     FClass.Add('end;');
     FClass.Add('');
-    FClass.Add('procedure T' + edtClassType.Text + '.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);');
+    FClass.Add('procedure T' + edtClassType.Text + '.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);');
     FClass.Add('begin');
-    FClass.Add('  if IsAuthorized(ptRead, APermissionControl) then');
+    FClass.Add('  if not IsAuthorized(ptRead, APermissionControl) then');
+    FClass.Add('    Exit;');
+    FClass.Add('');
+    FClass.Add('  with QueryOfDS do');
     FClass.Add('  begin');
-    FClass.Add('    with QueryOfDS do');
-    FClass.Add('    begin');
-    FClass.Add('      Close;');
-    FClass.Add('      Database.GetSQLSelectCmd(QueryOfDS, TableName, [');
-    FClass.Add('        Self.Id.QryName,');
-    tblColumns.First;
-    while not tblColumns.Eof do
+    FClass.Add('    Close;');
+    FClass.Add('    Database.GetSQLSelectCmd(QueryOfDS, TableName, [');
+    FClass.Add('      Id.QryName,');
+    cdsColumns.First;
+    while not cdsColumns.Eof do
     begin
-      if tblColumns.FieldByName('field_name').AsString <> 'id' then
+      if cdsColumns.FieldByName('field_name').AsString <> 'id' then
       begin
-        if not tblColumns.Fields[0].IsNull then
+        if not cdsColumns.Fields[0].IsNull then
         begin
-          Ls := CapitalizeString(tblColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
-          FClass.Add('        F' + Ls + '.QryName,');
+          Ls := CapitalizeString(cdsColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
+          FClass.Add('      F' + Ls + '.QryName,');
         end;
       end;
-      tblColumns.Next;
+      cdsColumns.Next;
     end;
     FClass.Strings[FClass.Count-1] := LeftStr(FClass.Strings[FClass.Count-1], Length(FClass.Strings[FClass.Count-1])-1);
-    FClass.Add('      ], [');
-    FClass.Add('        '' WHERE 1=1 '' + AFilter');
-    FClass.Add('      ], AAllColumn, AHelper);');
-    FClass.Add('      Open;');
-    FClass.Add('      Active := True;');
-    FClass.Add('    end;');
+    FClass.Add('    ], [');
+    FClass.Add('      '' WHERE 1=1 '' + AFilter');
+    FClass.Add('    ], AAllColumn, AHelper);');
+    FClass.Add('    Open;');
     FClass.Add('  end;');
     FClass.Add('end;');
     FClass.Add('');
 
-    FClass.Add('procedure T' + edtClassType.Text + '.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);');
+    FClass.Add('procedure T' + edtClassType.Text + '.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);');
+    FClass.Add('var');
+    FClass.Add('  LQry: TZQuery;');
     FClass.Add('begin');
-    FClass.Add('  if IsAuthorized(ptRead, APermissionControl) then');
-    FClass.Add('  begin');
-    FClass.Add('    if (ALock) then');
-    FClass.Add('      AFilter := AFilter + '' FOR UPDATE OF '' + TableName + '' NOWAIT; '';');
+    FClass.Add('  if not IsAuthorized(ptRead, APermissionControl) then');
+    FClass.Add('    Exit;');
     FClass.Add('');
-    FClass.Add('    with QueryOfList do');
-    FClass.Add('    begin');
-    FClass.Add('      Close;');
-    FClass.Add('      Database.GetSQLSelectCmd(QueryOfList, TableName, [');
-    FClass.Add('        Self.Id.QryName,');
-    tblColumns.First;
-    while not tblColumns.Eof do
+    FClass.Add('  AFilter := GetLockSQL(AFilter, ALock);');
+    FClass.Add('');
+    FClass.Add('  LQry := Database.NewQuery();');
+    FClass.Add('  with LQry do');
+    FClass.Add('  try');
+    FClass.Add('    Database.GetSQLSelectCmd(QueryOfList, TableName, [');
+    FClass.Add('      Id.QryName,');
+    cdsColumns.First;
+    while not cdsColumns.Eof do
     begin
-      if not tblColumns.Fields[0].IsNull then
+      if not cdsColumns.Fields[0].IsNull then
       begin
-        if tblColumns.FieldByName('field_name').AsString <> 'id' then
+        if cdsColumns.FieldByName('field_name').AsString <> 'id' then
         begin
-          Ls := CapitalizeString(tblColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
-          FClass.Add('        F' + Ls + '.QryName,');
+          Ls := CapitalizeString(cdsColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
+          FClass.Add('      F' + Ls + '.QryName,');
         end;
       end;
-      tblColumns.Next;
+      cdsColumns.Next;
     end;
     FClass.Strings[FClass.Count-1] := LeftStr(FClass.Strings[FClass.Count-1], Length(FClass.Strings[FClass.Count-1])-1);
-    FClass.Add('      ], [');
-    FClass.Add('        '' WHERE 1=1 '', AFilter');
-    FClass.Add('      ]);');
-    FClass.Add('      Open;');
+    FClass.Add('    ], [');
+    FClass.Add('      '' WHERE 1=1 '', AFilter');
+    FClass.Add('    ]);');
+    FClass.Add('    Open;');
     FClass.Add('');
-    FClass.Add('      FreeListContent();');
-    FClass.Add('      List.Clear;');
-    FClass.Add('      while NOT EOF do');
+    FClass.Add('    FreeListContent();');
+    FClass.Add('    List.Clear;');
+    FClass.Add('    while NOT EOF do');
     FClass.Add('      begin');
     FClass.Add('        PrepareTableClassFromQuery(QueryOfList);');
     FClass.Add('');
-    FClass.Add('        List.Add(Self.Clone);');
+    FClass.Add('        List.Add(Clone);');
     FClass.Add('');
     FClass.Add('        Next;');
     FClass.Add('      end;');
-    FClass.Add('      Close;');
     FClass.Add('    end;');
+    FClass.Add('  finally');
+    FClass.Add('    Free;');
     FClass.Add('  end;');
     FClass.Add('end;');
     FClass.Add('');
 
-    FClass.Add('procedure T' + edtClassType.Text + '.Insert(out AID: Integer; APermissionControl: Boolean=True);');
+    FClass.Add('procedure T' + edtClassType.Text + '.DoInsert(out AID: Integer; APermissionControl: Boolean);');
+    FClass.Add('var');
+    FClass.Add('  LQry: TZQuery;');
     FClass.Add('begin');
-    FClass.Add('  if IsAuthorized(ptAddRecord, APermissionControl) then');
-    FClass.Add('  begin');
-    FClass.Add('    with QueryOfInsert do');
-    FClass.Add('    begin');
-    FClass.Add('      Close;');
-    FClass.Add('      SQL.Clear;');
-    FClass.Add('      SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [');
+    FClass.Add('  LQry := Database.NewQuery;');
+    FClass.Add('  with LQry do');
+    FClass.Add('  try');
+    FClass.Add('    SQL.Text := GetSQLInsertCmd(TableName, QRY_PAR_CH, [');
     FQryColProp.First;
     while not FQryColProp.Eof do
     begin
@@ -805,38 +767,34 @@ begin
         if FQryColProp.Fields[0].AsString <> 'id' then
         begin
           Ls := CapitalizeString(FQryColProp.Fields[0].AsString.Replace('_', ' ') ).Replace(' ', '');
-          FClass.Add('        F' + Ls + '.FieldName,');
+          FClass.Add('      F' + Ls + '.FieldName,');
         end;
       end;
       FQryColProp.Next;
     end;
     FClass.Strings[FClass.Count-1] := LeftStr(FClass.Strings[FClass.Count-1], Length(FClass.Strings[FClass.Count-1])-1);
-    FClass.Add('      ]);');
+    FClass.Add('    ]);');
     FClass.Add('');
-    FClass.Add('      PrepareInsertQueryParams;');
+    FClass.Add('    PrepareInsertQueryParams;');
     FClass.Add('');
-    FClass.Add('      Open;');
-    FClass.Add('      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)');
-    FClass.Add('      then AID := Fields.FieldByName(Self.Id.FieldName).AsInteger');
-    FClass.Add('      else AID := 0;');
-    FClass.Add('');
-    FClass.Add('      EmptyDataSet;');
-    FClass.Add('      Close;');
-    FClass.Add('    end;');
-    FClass.Add('    Self.notify;');
+    FClass.Add('    Open;');
+    FClass.Add('    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)');
+    FClass.Add('    then AID := Fields.FieldByName(Id.FieldName).AsInteger');
+    FClass.Add('    else AID := 0;');
+    FClass.Add('  finally');
+    FClass.Add('    Free;');
     FClass.Add('  end;');
     FClass.Add('end;');
     FClass.Add('');
 
-    FClass.Add('procedure T' + edtClassType.Text + '.Update(APermissionControl: Boolean=True);');
+    FClass.Add('procedure T' + edtClassType.Text + '.DoUpdate(APermissionControl: Boolean);');
+    FClass.Add('var');
+    FClass.Add('  LQry: TZQuery;');
     FClass.Add('begin');
-    FClass.Add('  if IsAuthorized(ptUpdate, APermissionControl) then');
-    FClass.Add('  begin');
-    FClass.Add('    with QueryOfUpdate do');
-    FClass.Add('    begin');
-    FClass.Add('      Close;');
-    FClass.Add('      SQL.Clear;');
-    FClass.Add('      SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [');
+    FClass.Add('  LQry := Database.NewQuery;');
+    FClass.Add('  with LQry do');
+    FClass.Add('  try');
+    FClass.Add('    SQL.Text := GetSQLUpdateCmd(TableName, QRY_PAR_CH, [');
     FQryColProp.First;
     while not FQryColProp.Eof do
     begin
@@ -845,20 +803,19 @@ begin
         if FQryColProp.Fields[0].AsString <> 'id' then
         begin
           Ls := CapitalizeString(FQryColProp.Fields[0].AsString.Replace('_', ' ') ).Replace(' ', '');
-          FClass.Add('        F' + Ls + '.FieldName,');
+          FClass.Add('      F' + Ls + '.FieldName,');
         end;
       end;
       FQryColProp.Next;
     end;
     FClass.Strings[FClass.Count-1] := LeftStr(FClass.Strings[FClass.Count-1], Length(FClass.Strings[FClass.Count-1])-1);
-    FClass.Add('      ]);');
+    FClass.Add('    ]);');
     FClass.Add('');
-    FClass.Add('      PrepareUpdateQueryParams;');
+    FClass.Add('    PrepareUpdateQueryParams;');
     FClass.Add('');
-    FClass.Add('      ExecSQL;');
-    FClass.Add('      Close;');
-    FClass.Add('    end;');
-    FClass.Add('    Self.notify;');
+    FClass.Add('    ExecSQL;');
+    FClass.Add('  finally');
+    FClass.Add('    Free;');
     FClass.Add('  end;');
     FClass.Add('end;');
     FClass.Add('');
@@ -888,26 +845,26 @@ begin
   LMaxCaptionLen := 0;
   LTipIn := 'T' + Copy(edtInputFormName.Text, 2, Length(edtInputFormName.Text)-1);
 
-  tblColumns.BeginBatch;
+  cdsColumns.DisableControls;
   try
-    tblColumns.First;
-    while not tblColumns.Eof do
+    cdsColumns.First;
+    while not cdsColumns.Eof do
     begin
-      if tblColumns.FieldByName('is_gui').AsBoolean then
+      if cdsColumns.FieldByName('is_gui').AsBoolean then
       begin
-        LMaxCaptionLen := Max(LMaxCaptionLen, Canvas.TextWidth(tblColumns.FieldByName('column_caption').AsString));
+        LMaxCaptionLen := Max(LMaxCaptionLen, Canvas.TextWidth(cdsColumns.FieldByName('column_caption').AsString));
         Inc(LGuiCount);
       end;
-      tblColumns.Next;
+      cdsColumns.Next;
     end;
   finally
-    tblColumns.EndBatch;
+    cdsColumns.EnableControls;
   end;
 
   mmoInputDFM.Lines.Clear;
   mmoInputDFM.Lines.BeginUpdate;
   FInputDfm.Clear;
-  tblColumns.BeginBatch;
+  cdsColumns.DisableControls;
   try
     FInputDfm.Add('inherited ' + MidStr(LTipIn, 2, Length(LTipIn)-1) + ': ' + LTipIn);
     FInputDfm.Add('  PixelsPerInch = 96');
@@ -922,50 +879,50 @@ begin
 
 
     LOrder := 0;
-    tblColumns.First;
-    while not tblColumns.Eof do
+    cdsColumns.First;
+    while not cdsColumns.Eof do
     begin
-      if tblColumns.FieldByName('is_gui').AsBoolean then
+      if cdsColumns.FieldByName('is_gui').AsBoolean then
       begin
-        FInputDfm.Add('        object lbl' + tblColumns.FieldByName('field_name').AsString + ': TLabel');
-        FInputDfm.Add('          Left = ' + IntToStr(32 + LMaxCaptionLen-Canvas.TextWidth(tblColumns.FieldByName('column_caption').AsString)) );
+        FInputDfm.Add('        object lbl' + cdsColumns.FieldByName('field_name').AsString + ': TLabel');
+        FInputDfm.Add('          Left = ' + IntToStr(32 + LMaxCaptionLen-Canvas.TextWidth(cdsColumns.FieldByName('column_caption').AsString)) );
         FInputDfm.Add('          Top = ' + (6+(LOrder*22)).ToString);
-        FInputDfm.Add('          Width = ' + IntToStr(Canvas.TextWidth(tblColumns.FieldByName('input_caption').AsString) + 16) );
+        FInputDfm.Add('          Width = ' + IntToStr(Canvas.TextWidth(cdsColumns.FieldByName('input_caption').AsString) + 16) );
         FInputDfm.Add('          Height = 13');
         FInputDfm.Add('          Alignment = taRightJustify');
-        FInputDfm.Add('          Caption = ' + QuotedStr(tblColumns.FieldByName('input_caption').AsString));
+        FInputDfm.Add('          Caption = ' + QuotedStr(cdsColumns.FieldByName('input_caption').AsString));
         FInputDfm.Add('          Font.Style = [fsBold]');
         FInputDfm.Add('        end');
 
         Inc(LOrder);
       end;
-      tblColumns.Next;
+      cdsColumns.Next;
     end;
 
     LOrder := 0;
-    tblColumns.First;
-    while not tblColumns.Eof do
+    cdsColumns.First;
+    while not cdsColumns.Eof do
     begin
-      if tblColumns.FieldByName('is_gui').AsBoolean then
+      if cdsColumns.FieldByName('is_gui').AsBoolean then
       begin
-        if (tblColumns.FieldByName('input_type').AsString = 'Edit') then
+        if (cdsColumns.FieldByName('input_type').AsString = 'Edit') then
         begin
-          FInputDfm.Add('        object edt' + tblColumns.FieldByName('field_name').AsString + ': TEdit');
+          FInputDfm.Add('        object edt' + cdsColumns.FieldByName('field_name').AsString + ': TEdit');
           FInputDfm.Add('          Height = 21');
         end
-        else if (tblColumns.FieldByName('input_type').AsString = 'Memo') then
+        else if (cdsColumns.FieldByName('input_type').AsString = 'Memo') then
         begin
-          FInputDfm.Add('        object mmo' + tblColumns.FieldByName('field_name').AsString + ': TMemo');
+          FInputDfm.Add('        object mmo' + cdsColumns.FieldByName('field_name').AsString + ': TMemo');
           FInputDfm.Add('          Height = 21');
         end
-        else if (tblColumns.FieldByName('input_type').AsString = 'ComboBox') then
+        else if (cdsColumns.FieldByName('input_type').AsString = 'ComboBox') then
         begin
-          FInputDfm.Add('        object cbb' + tblColumns.FieldByName('field_name').AsString + ': TComboBox');
+          FInputDfm.Add('        object cbb' + cdsColumns.FieldByName('field_name').AsString + ': TComboBox');
           FInputDfm.Add('          Height = 21');
         end
-        else if (tblColumns.FieldByName('input_type').AsString = 'CheckBox') then
+        else if (cdsColumns.FieldByName('input_type').AsString = 'CheckBox') then
         begin
-          FInputDfm.Add('        object chk' + tblColumns.FieldByName('field_name').AsString + ': TCheckBox');
+          FInputDfm.Add('        object chk' + cdsColumns.FieldByName('field_name').AsString + ': TCheckBox');
           FInputDfm.Add('          Height = 17');
         end;
 
@@ -973,7 +930,7 @@ begin
         FInputDfm.Add('          Width = 200');
         FInputDfm.Add('          TabOrder = ' + LOrder.ToString);
 
-        if (tblColumns.FieldByName('input_type').AsString = 'CheckBox') then
+        if (cdsColumns.FieldByName('input_type').AsString = 'CheckBox') then
           FInputDfm.Add('          Top = ' + (3+(LOrder*23)).ToString)
         else
           FInputDfm.Add('          Top = ' + (3+(LOrder*22)).ToString);
@@ -981,7 +938,7 @@ begin
 
         Inc(LOrder);
       end;
-      tblColumns.Next;
+      cdsColumns.Next;
     end;
     FInputDfm.Add('      end');
     FInputDfm.Add('    end');
@@ -990,7 +947,7 @@ begin
   finally
     mmoInputDFM.Lines.Text := FInputDfm.Text;
     mmoInputDFM.Lines.EndUpdate;
-    tblColumns.EndBatch;
+    cdsColumns.EnableControls;
   end;
 
 
@@ -1000,7 +957,7 @@ begin
   mmoInputPAS.Lines.Clear;
   mmoInputPAS.Lines.BeginUpdate;
   FInputPas.Clear;
-  tblColumns.BeginBatch;
+  cdsColumns.DisableControls;
   try
     FInputPas.Add('unit ' + edtInputFormName.Text + ';');
     FInputPas.Add('');
@@ -1034,22 +991,22 @@ begin
     FInputPas.Add('type');
     FInputPas.Add('  ' + LTipIn + ' = class(TfrmBaseInputDB)');
 
-    tblColumns.First;
-    while not tblColumns.Eof do
+    cdsColumns.First;
+    while not cdsColumns.Eof do
     begin
-      if tblColumns.FieldByName('is_gui').AsBoolean then
+      if cdsColumns.FieldByName('is_gui').AsBoolean then
       begin
-        FInputPas.Add('    lbl' + tblColumns.FieldByName('field_name').AsString + ': TLabel;');
-        if (tblColumns.FieldByName('input_type').AsString = 'Edit') then
-          FInputPas.Add('    edt' + tblColumns.FieldByName('field_name').AsString + ': TEdit;')
-        else if (tblColumns.FieldByName('input_type').AsString = 'Memo') then
-          FInputPas.Add('    mmo' + tblColumns.FieldByName('field_name').AsString + ': TMemo;')
-        else if (tblColumns.FieldByName('input_type').AsString = 'ComboBox') then
-          FInputPas.Add('    cbb' + tblColumns.FieldByName('field_name').AsString + ': TComboBox;')
-        else if (tblColumns.FieldByName('input_type').AsString = 'CheckBox') then
-          FInputPas.Add('    chk' + tblColumns.FieldByName('field_name').AsString + ': TCheckBox;');
+        FInputPas.Add('    lbl' + cdsColumns.FieldByName('field_name').AsString + ': TLabel;');
+        if (cdsColumns.FieldByName('input_type').AsString = 'Edit') then
+          FInputPas.Add('    edt' + cdsColumns.FieldByName('field_name').AsString + ': TEdit;')
+        else if (cdsColumns.FieldByName('input_type').AsString = 'Memo') then
+          FInputPas.Add('    mmo' + cdsColumns.FieldByName('field_name').AsString + ': TMemo;')
+        else if (cdsColumns.FieldByName('input_type').AsString = 'ComboBox') then
+          FInputPas.Add('    cbb' + cdsColumns.FieldByName('field_name').AsString + ': TComboBox;')
+        else if (cdsColumns.FieldByName('input_type').AsString = 'CheckBox') then
+          FInputPas.Add('    chk' + cdsColumns.FieldByName('field_name').AsString + ': TCheckBox;');
       end;
-      tblColumns.Next;
+      cdsColumns.Next;
     end;
 
     FInputPas.Add('  published');
@@ -1062,7 +1019,6 @@ begin
     FInputPas.Add('uses');
     FInputPas.Add('  Ths.Erp.Globals,');
     FInputPas.Add('  ' + edtOutputFormName.Text + ',');
-    FInputPas.Add('  Ths.Erp.Database.Singleton,');
     FInputPas.Add('  ' + PROJECT_UNITNAME + edtClassType.Text + ';');
     FInputPas.Add('');
     FInputPas.Add('{$R *.dfm}');
@@ -1070,23 +1026,23 @@ begin
     FInputPas.Add('procedure ' + LTipIn + '.RefreshData;');
     FInputPas.Add('begin');
 
-    tblColumns.First;
-    while not tblColumns.Eof do
+    cdsColumns.First;
+    while not cdsColumns.Eof do
     begin
-      if tblColumns.FieldByName('is_gui').AsBoolean then
+      if cdsColumns.FieldByName('is_gui').AsBoolean then
       begin
-        LStr := CapitalizeString(tblColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
-        LFld := tblColumns.FieldByName('field_name').AsString;
-        if (tblColumns.FieldByName('input_type').AsString = 'Edit') then
+        LStr := CapitalizeString(cdsColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
+        LFld := cdsColumns.FieldByName('field_name').AsString;
+        if (cdsColumns.FieldByName('input_type').AsString = 'Edit') then
           FInputPas.Add('  edt' + LFld + '.Text := VarToStr(FormatedVariantVal(T' + edtClassType.Text + '(Table).' + LStr + '));')
-        else if (tblColumns.FieldByName('input_type').AsString = 'Memo') then
+        else if (cdsColumns.FieldByName('input_type').AsString = 'Memo') then
           FInputPas.Add('  mmo' + LFld + 'Lines.Text := VarToStr(FormatedVariantVal(T' + edtClassType.Text + '(Table).' + LStr + '));')
-        else if (tblColumns.FieldByName('input_type').AsString = 'ComboBox') then
+        else if (cdsColumns.FieldByName('input_type').AsString = 'ComboBox') then
           FInputPas.Add('  cbb' + LFld + 'ItemIndex := cbb' + LFld + '.Items.IndexOf(VarToStr(FormatedVariantVal(T' + edtClassType.Text + '(Table).' + LStr + ')));')
-        else if (tblColumns.FieldByName('input_type').AsString = 'CheckBox') then
+        else if (cdsColumns.FieldByName('input_type').AsString = 'CheckBox') then
           FInputPas.Add('  chk' + LFld + '.Checked := FormatedVariantVal(T' + edtClassType.Text + '(Table).' + LStr + '));');
       end;
-      tblColumns.Next;
+      cdsColumns.Next;
     end;
 
     FInputPas.Add('end;');
@@ -1098,33 +1054,33 @@ begin
     FInputPas.Add('    if (ValidateInput) then');
     FInputPas.Add('    begin');
 
-    tblColumns.First;
-    while not tblColumns.Eof do
+    cdsColumns.First;
+    while not cdsColumns.Eof do
     begin
-      if tblColumns.FieldByName('is_gui').AsBoolean then
+      if cdsColumns.FieldByName('is_gui').AsBoolean then
       begin
-        LStr := CapitalizeString(tblColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
-        LFld := tblColumns.FieldByName('field_name').AsString;
-        if (tblColumns.FieldByName('input_type').AsString = 'Edit') then
+        LStr := CapitalizeString(cdsColumns.FieldByName('field_name').AsString.Replace('_', ' ') ).Replace(' ', '');
+        LFld := cdsColumns.FieldByName('field_name').AsString;
+        if (cdsColumns.FieldByName('input_type').AsString = 'Edit') then
         begin
-          if  (tblColumns.FieldByName('is_numeric').AsBoolean)
+          if  (cdsColumns.FieldByName('is_numeric').AsBoolean)
           then  FInputPas.Add('      T' + edtClassType.Text + '(Table).' + LStr + '.Value := StrToIntDef(edt' + LFld + '.Text, 0);')
           else  FInputPas.Add('      T' + edtClassType.Text + '(Table).' + LStr + '.Value := edt' + LFld + '.Text;');
         end
-        else if (tblColumns.FieldByName('input_type').AsString = 'Memo') then
+        else if (cdsColumns.FieldByName('input_type').AsString = 'Memo') then
         begin
           FInputPas.Add('      T' + edtClassType.Text + '(Table).' + LStr + '.Value := mmo' + LFld + '.Text;');
         end
-        else if (tblColumns.FieldByName('input_type').AsString = 'ComboBox') then
+        else if (cdsColumns.FieldByName('input_type').AsString = 'ComboBox') then
         begin
           FInputPas.Add('      T' + edtClassType.Text + '(Table).' + LStr + '.Value := cbb' + LFld + '.Text;');
         end
-        else if (tblColumns.FieldByName('input_type').AsString = 'CheckBox') then
+        else if (cdsColumns.FieldByName('input_type').AsString = 'CheckBox') then
         begin
           FInputPas.Add('      T' + edtClassType.Text + '(Table).' + LStr + '.Value := chk' + LFld + '.Checked;');
         end
       end;
-      tblColumns.Next
+      cdsColumns.Next
     end;
 
     FInputPas.Add('      inherited;');
@@ -1138,7 +1094,7 @@ begin
   finally
     mmoInputPAS.Lines.Text := FInputPas.Text;
     mmoInputPAS.Lines.EndUpdate;
-    tblColumns.EndBatch;
+    cdsColumns.EnableControls;
   end;
 end;
 
@@ -1210,7 +1166,11 @@ begin
   edtInputFormName.Text := 'ufrm' + edtClassType.Text;
   edtInputFormCaption.Text := edtClassType.Text;
 
-  tblColumns.EmptyDataSet;
+  if cdsColumns.Active then
+    cdsColumns.EmptyDataSet
+  else
+    cdsColumns.CreateDataSet;
+
 
   FQryColProp.SQL.Text := 'SELECT column_name, data_type FROM INFORMATION_SCHEMA.COLUMNS WHERE 1=1' +
   ' AND table_catalog=' + QuotedStr(edtdatabase_name.Text) +
@@ -1235,32 +1195,32 @@ begin
     FQryTableCol.Open;
   end;
 
-  tblColumns.BeginBatch;
+  cdsColumns.DisableControls;
   try
     FQryColProp.First;
-    tblColumns.Open;
+    cdsColumns.Open;
     while not FQryColProp.Eof do
     begin
       if not FQryColProp.Fields[0].IsNull then
       begin
-        tblColumns.Append;
-        tblColumns.FieldByName('field_name').AsString := FQryColProp.Fields[0].AsString;
-        tblColumns.FieldByName('field_type').AsString := GetDataTypeFromQry(LNumeric, FQryColProp.Fields[0].AsString, True);
-        tblColumns.FieldByName('column_caption').AsString := CapitalizeString(FQryColProp.Fields[0].AsString.Replace('_', ' ') ).Replace(' ', '');
-        tblColumns.FieldByName('input_caption').AsString := tblColumns.FieldByName('column_caption').AsString;
-        if tblColumns.FieldByName('field_name').AsString = 'id'
-        then  tblColumns.FieldByName('is_gui').AsBoolean := False
-        else  tblColumns.FieldByName('is_gui').AsBoolean := True;
-        if tblColumns.FieldByName('field_type').AsString = 'ftBoolean'
-        then  tblColumns.FieldByName('input_type').AsString := 'CheckBox'
-        else  tblColumns.FieldByName('input_type').AsString := 'Edit';
-        tblColumns.FieldByName('is_numeric').AsBoolean := LNumeric;
-        tblColumns.Post;
+        cdsColumns.Append;
+        cdsColumns.FieldByName('field_name').AsString := FQryColProp.Fields[0].AsString;
+        cdsColumns.FieldByName('field_type').AsString := GetDataTypeFromQry(LNumeric, FQryColProp.Fields[0].AsString, True);
+        cdsColumns.FieldByName('column_caption').AsString := CapitalizeString(FQryColProp.Fields[0].AsString.Replace('_', ' ') ).Replace(' ', '');
+        cdsColumns.FieldByName('input_caption').AsString := cdsColumns.FieldByName('column_caption').AsString;
+        if cdsColumns.FieldByName('field_name').AsString = 'id'
+        then  cdsColumns.FieldByName('is_gui').AsBoolean := False
+        else  cdsColumns.FieldByName('is_gui').AsBoolean := True;
+        if cdsColumns.FieldByName('field_type').AsString = 'ftBoolean'
+        then  cdsColumns.FieldByName('input_type').AsString := 'CheckBox'
+        else  cdsColumns.FieldByName('input_type').AsString := 'Edit';
+        cdsColumns.FieldByName('is_numeric').AsBoolean := LNumeric;
+        cdsColumns.Post;
       end;
       FQryColProp.Next;
     end;
   finally
-    tblColumns.EndBatch;
+    cdsColumns.EnableControls;
   end;
 
   GenerateClass;
@@ -1278,7 +1238,7 @@ begin
   try
     vOD.InitialDir := ExtractFilePath(Application.ExeName);
     vOD.Filter := 'Delphi Project File|*.dpr';
-    if vOD.Execute(Self.Handle) then
+    if vOD.Execute(Handle) then
     begin
       edtMainProjectDirectory.Text := vOD.FileName;
     end;
@@ -1289,10 +1249,10 @@ end;
 
 procedure TfrmMainClassGenerator.FillTable;
 var
-  LQry: TFDQuery;
+  LQry: TZQuery;
 begin
   cbbtable_name.Clear;
-  LQry := TFDQuery.Create(con1);
+  LQry := TZQuery.Create(con1);
   try
     LQry.Connection := con1;
     LQry.SQL.Text := 'SELECT table_name FROM information_schema.tables WHERE table_schema=' + QuotedStr(edtschema_name.Text) + ' ORDER BY table_name';
@@ -1327,10 +1287,10 @@ begin
   FInputDfm := TStringList.Create;
   FInputPas := TStringList.Create;
 
-  FQryColProp := TFDQuery.Create(con1);
+  FQryColProp := TZQuery.Create(con1);
   FQryColProp.Connection := con1;
 
-  FQryTableCol := TFDQuery.Create(con1);
+  FQryTableCol := TZQuery.Create(con1);
   FQryTableCol.Connection := con1;
 end;
 

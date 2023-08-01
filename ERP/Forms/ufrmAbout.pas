@@ -2,7 +2,7 @@ unit ufrmAbout;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   Winapi.Windows,
@@ -38,6 +38,7 @@ type
     lblRamInfo: TLabel;
     lblValRamInfo: TLabel;
     img1: TImage;
+    procedure FormClick(Sender: TObject);
   published
     procedure FormCreate(Sender: TObject); override;
   end;
@@ -45,6 +46,12 @@ type
 implementation
 
 {$R *.dfm}
+
+procedure TfrmAbout.FormClick(Sender: TObject);
+begin
+  inherited;
+  Close;
+end;
 
 procedure TfrmAbout.FormCreate(Sender: TObject);
 var

@@ -1,9 +1,9 @@
 inherited frmAbout: TfrmAbout
   BorderIcons = [biSystemMenu]
-  BorderStyle = bsSingle
+  BorderStyle = bsNone
   Caption = 'About'
-  ClientHeight = 302
-  ClientWidth = 552
+  ClientHeight = 341
+  ClientWidth = 568
   Icon.Data = {
     000001000200101000000100200068040000260000002020000001002000A810
     00008E0400002800000010000000200000000100200000000000300400000000
@@ -175,15 +175,15 @@ inherited frmAbout: TfrmAbout
     0001800000018000000180000001800000018000000180000001800000018000
     0001800000018000000180000001800000018000000180000001800000018000
     0001800000018000000180000001C0000003FFFFFFFF}
-  ExplicitWidth = 558
-  ExplicitHeight = 331
-  PixelsPerInch = 96
+  OnClick = FormClick
+  ExplicitWidth = 568
+  ExplicitHeight = 341
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 548
-    Height = 250
-    ExplicitWidth = 548
-    ExplicitHeight = 250
+    Width = 568
+    Height = 291
+    ExplicitWidth = 552
+    ExplicitHeight = 252
     object lblArchitecture: TLabel
       Left = 202
       Top = 85
@@ -52296,22 +52296,23 @@ inherited frmAbout: TfrmAbout
     end
   end
   inherited pnlBottom: TPanel
-    Top = 254
-    Width = 548
+    Top = 293
+    Width = 564
+    Visible = False
     ExplicitTop = 254
     ExplicitWidth = 548
     inherited btnAccept: TButton
-      Left = 339
-      ExplicitLeft = 339
+      Left = 358
+      ExplicitLeft = 342
     end
     inherited btnClose: TButton
-      Left = 443
-      ExplicitLeft = 443
+      Left = 462
+      ExplicitLeft = 446
     end
   end
   inherited stbBase: TStatusBar
-    Top = 284
-    Width = 552
+    Top = 323
+    Width = 568
     ExplicitTop = 284
     ExplicitWidth = 552
   end

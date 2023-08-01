@@ -2,7 +2,7 @@ unit ufrmConfirmation;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,

@@ -2,7 +2,7 @@
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   Winapi.Windows,
@@ -30,34 +30,19 @@ uses
   Vcl.ActnList,
   Data.DB,
   Data.FmtBcd,
-  FireDAC.Stan.Option,
-  FireDAC.Stan.Intf,
-  FireDAC.Comp.Client,
-  FireDAC.Stan.Error,
-  FireDAC.UI.Intf,
-  FireDAC.Stan.Def,
-  FireDAC.Stan.Pool,
-  FireDAC.Stan.Async,
-  FireDAC.Phys,
-  FireDAC.VCLUI.Wait,
-  frxClass,
-  frxExportBaseDialog,
-  frxExportPDF,
-  frxDBSet,
-  Ths.Erp.Helper.BaseTypes,
-  Ths.Erp.Helper.Edit,
-  Ths.Erp.Helper.Memo,
-  Ths.Erp.Helper.ComboBox,
-  Ths.Erp.Helper.StringGrid,
+  Ths.Helper.BaseTypes,
+  Ths.Helper.Edit,
+  Ths.Helper.Memo,
+  Ths.Helper.ComboBox,
+  Ths.Helper.StringGrid,
   udm,
   ufrmBase,
   ufrmBaseInputDB,
-  Ths.Erp.Constants,
-  Ths.Erp.Database,
-  Ths.Erp.Database.Singleton,
-  Ths.Erp.Database.Table,
-  Ths.Erp.Database.TableDetailed,
-  Ths.Erp.Database.Table.View.SysViewColumns;
+  Ths.Constants,
+  Ths.Database,
+  Ths.Database.Table,
+  Ths.Database.TableDetailed,
+  Ths.Database.Table.View.SysViewColumns;
 
 type
   TfrmBaseDetaylar = class(TfrmBaseInputDB)
@@ -113,9 +98,6 @@ type
     tsHeader: TTabSheet;
     tsHeaderDiger: TTabSheet;
     btnHeaderShowHide: TButton;
-    frxdbdtstBase: TfrxDBDataset;
-    frxpdfxprtBase: TfrxPDFExport;
-    frxrprtBase: TfrxReport;
     strngrd2: TStringGrid;
     actlstdetaylar_form: TActionList;
     actexport_excel1: TAction;
@@ -203,8 +185,7 @@ implementation
 
 uses
   ufrmBaseDBGrid,
-  Ths.Erp.Globals,
-  Ths.Erp.Database.Table.SysKaliteFormTipi;
+  Ths.Globals;
 
 {$R *.dfm}
 
@@ -249,11 +230,11 @@ begin
     begin
       TfrmBaseDBGrid(ParentForm).MoveUp;
 
-      Table.LogicalSelect(' and ' + Table.TableName + '.' + Table.Id.FieldName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), False, False, False);
+      Table.LogicalSelect(' and ' + Table.Id.QryName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), False, False, False);
       ATable := TTableDetailed(Table.List[0]).Clone;
       FreeAndNil(Table);
       Table := ATable;
-      DefaultSelectFilter := ' and ' + Table.TableName + '.' + Table.Id.FieldName + '=' + IntToStr(Table.Id.Value);
+      DefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value);
       RefreshData;
     end;
   end;
@@ -269,11 +250,11 @@ begin
     begin
       TfrmBaseDBGrid(ParentForm).MoveDown;
 
-      Table.LogicalSelect(' and ' + Table.TableName + '.' + Table.Id.FieldName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), False, False, False);
+      Table.LogicalSelect(' and ' + Table.Id.QryName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), False, False, False);
       ATable := TTableDetailed(Table.List[0]).Clone;
       FreeAndNil(Table);
       Table := ATable;
-      DefaultSelectFilter := ' and ' + Table.TableName + '.' + Table.Id.FieldName + '=' + IntToStr(Table.Id.Value);
+      DefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value);
       RefreshData;
     end;
   end;
@@ -484,16 +465,6 @@ begin
   stbBase.Panels.Add;
   for n1 := 0 to stbBase.Panels.Count - 1 do
     stbBase.Panels.Items[n1].Style := psOwnerDraw;
-
-  if Assigned(Table) then
-    if GDataBase.Connection.Connected then
-    begin
-      if GSysUygulamaAyari.IsKaliteFormNoKullan.Value then
-      begin
-        stbBase.Panels.Items[STATUS_SQL_SERVER].Text := GetKaliteFormNo(Table.TableName, QtyInput);
-        stbBase.Panels.Items[STATUS_SQL_SERVER].Width := stbBase.Width;
-      end;
-    end;
 
   //form ve page control page 0 caption bilgisini dil dosyasına göre doldur
   //page control page 0 için isternise miras alan formda değişiklik yapılabilir.
@@ -893,7 +864,7 @@ var
         TEdit(vControl).MaxLength := pColumns.CharacterMaximumLength.Value;
         TEdit(vControl).thsDBFieldName := pColumns.OrjColumnName.Value;
         TEdit(vControl).thsRequiredData := not pColumns.IsNullable.Value;
-        TEdit(vControl).thsActiveYear4Digit := GSysUygulamaAyari.Donem.Value;
+        TEdit(vControl).thsActiveYear4Digit := GSysApplicationSetting.Donem.Value;
         TEdit(vControl).OnCalculatorProcess := nil;
 
         if (pColumns.DataType.Value = 'text')

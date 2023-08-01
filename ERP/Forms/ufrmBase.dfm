@@ -2,8 +2,8 @@ object frmBase: TfrmBase
   Left = 0
   Top = 0
   Caption = 'Base Form'
-  ClientHeight = 402
-  ClientWidth = 606
+  ClientHeight = 398
+  ClientWidth = 604
   Color = clBtnFace
   Constraints.MinHeight = 128
   Constraints.MinWidth = 255
@@ -28,8 +28,8 @@ object frmBase: TfrmBase
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 606
-    Height = 352
+    Width = 604
+    Height = 348
     Margins.Left = 2
     Margins.Top = 2
     Margins.Right = 2
@@ -38,16 +38,14 @@ object frmBase: TfrmBase
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
-    ExplicitLeft = 2
-    ExplicitTop = 2
     ExplicitWidth = 602
-    ExplicitHeight = 350
+    ExplicitHeight = 344
   end
   object pnlBottom: TPanel
     AlignWithMargins = True
     Left = 2
-    Top = 354
-    Width = 602
+    Top = 350
+    Width = 600
     Height = 28
     Margins.Left = 2
     Margins.Top = 2
@@ -57,6 +55,8 @@ object frmBase: TfrmBase
     BevelOuter = bvNone
     Color = 14993769
     TabOrder = 1
+    ExplicitTop = 346
+    ExplicitWidth = 598
     object btnSpin: TSpinButton
       Left = 0
       Top = 0
@@ -91,13 +91,10 @@ object frmBase: TfrmBase
       Visible = False
       OnDownClick = btnSpinDownClick
       OnUpClick = btnSpinUpClick
-      ExplicitLeft = 2
-      ExplicitTop = 2
-      ExplicitHeight = 24
     end
     object btnAccept: TButton
       AlignWithMargins = True
-      Left = 396
+      Left = 394
       Top = 0
       Width = 100
       Height = 28
@@ -106,7 +103,7 @@ object frmBase: TfrmBase
       Margins.Right = 2
       Margins.Bottom = 0
       Align = alRight
-      Caption = 'TAMAM'
+      Caption = 'Tamam'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -118,15 +115,13 @@ object frmBase: TfrmBase
       ImageMargins.Right = 2
       Images = dm.il16
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 2
       OnClick = btnAcceptClick
-      ExplicitLeft = 394
-      ExplicitTop = 2
-      ExplicitHeight = 24
+      ExplicitLeft = 392
     end
     object btnClose: TButton
       AlignWithMargins = True
-      Left = 500
+      Left = 498
       Top = 0
       Width = 100
       Height = 28
@@ -135,7 +130,7 @@ object frmBase: TfrmBase
       Margins.Right = 2
       Margins.Bottom = 0
       Align = alRight
-      Caption = 'KAPAT'
+      Caption = 'Kapat'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -147,11 +142,9 @@ object frmBase: TfrmBase
       ImageMargins.Right = 2
       Images = dm.il16
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 3
       OnClick = btnCloseClick
-      ExplicitLeft = 498
-      ExplicitTop = 2
-      ExplicitHeight = 24
+      ExplicitLeft = 496
     end
     object btnDelete: TButton
       AlignWithMargins = True
@@ -164,7 +157,7 @@ object frmBase: TfrmBase
       Margins.Right = 2
       Margins.Bottom = 0
       Align = alLeft
-      Caption = 'S'#304'L'
+      Caption = 'Sil'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -176,21 +169,20 @@ object frmBase: TfrmBase
       ImageMargins.Right = 2
       Images = dm.il16
       ParentFont = False
-      TabOrder = 3
+      TabOrder = 1
       OnClick = btnDeleteClick
-      ExplicitLeft = 19
-      ExplicitTop = 2
-      ExplicitHeight = 24
     end
   end
   object stbBase: TStatusBar
     Left = 0
-    Top = 384
-    Width = 606
+    Top = 380
+    Width = 604
     Height = 18
     Color = clBlack
     Panels = <>
     OnDrawPanel = stbBaseDrawPanel
+    ExplicitTop = 376
+    ExplicitWidth = 602
   end
   object AppEvntsBase: TApplicationEvents
     Left = 24

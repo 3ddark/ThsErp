@@ -6,25 +6,24 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
   ClientHeight = 174
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 350
-  ExplicitHeight = 203
-  PixelsPerInch = 96
+  ExplicitWidth = 360
+  ExplicitHeight = 213
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 340
-    Height = 122
+    Width = 344
+    Height = 124
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
     ExplicitHeight = 122
     inherited pgcMain: TPageControl
-      Width = 338
-      Height = 120
+      Width = 344
+      Height = 124
       ExplicitWidth = 338
       ExplicitHeight = 120
       inherited tsMain: TTabSheet
-        ExplicitWidth = 330
-        ExplicitHeight = 92
+        ExplicitWidth = 336
+        ExplicitHeight = 96
         object lblaciklama: TLabel
           Left = 36
           Top = 28

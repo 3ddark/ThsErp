@@ -8,21 +8,20 @@ inherited frmBaseDetaylarDetay: TfrmBaseDetaylarDetay
   Constraints.MinWidth = 350
   ExplicitWidth = 690
   ExplicitHeight = 507
-  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 670
-    Height = 416
+    Width = 674
+    Height = 418
     ExplicitWidth = 670
     ExplicitHeight = 416
     inherited pgcMain: TPageControl
-      Width = 668
-      Height = 414
+      Width = 674
+      Height = 418
       ExplicitWidth = 668
       ExplicitHeight = 414
       inherited tsMain: TTabSheet
-        ExplicitWidth = 660
-        ExplicitHeight = 386
+        ExplicitWidth = 666
+        ExplicitHeight = 390
       end
     end
   end

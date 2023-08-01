@@ -4,13 +4,7 @@ program ErpDevWizard;
 
 uses
   Vcl.Forms,
-  frmMain in 'frmMain.pas' {frmMainClassGenerator},
-  Ths.Erp.Helper.BaseTypes in '..\ERP\BackEnd\Tools\Ths.Erp.Helper.BaseTypes.pas',
-  Ths.Erp.Helper.Button in '..\ERP\BackEnd\Tools\Ths.Erp.Helper.Button.pas',
-  Ths.Erp.Helper.ComboBox in '..\ERP\BackEnd\Tools\Ths.Erp.Helper.ComboBox.pas',
-  Ths.Erp.Helper.Edit in '..\ERP\BackEnd\Tools\Ths.Erp.Helper.Edit.pas',
-  Ths.Erp.Helper.Memo in '..\ERP\BackEnd\Tools\Ths.Erp.Helper.Memo.pas',
-  Ths.Erp.Constants in '..\ERP\BackEnd\Framework\Ths.Erp.Constants.pas';
+  frmMain in 'frmMain.pas' {frmMainClassGenerator};
 
 {$R *.res}
 

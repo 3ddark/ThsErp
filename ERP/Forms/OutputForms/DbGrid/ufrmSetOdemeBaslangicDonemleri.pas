@@ -2,7 +2,7 @@ unit ufrmSetOdemeBaslangicDonemleri;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   System.SysUtils,
@@ -21,18 +21,9 @@ uses
   Vcl.Grids,
   Vcl.Dialogs,
   Data.DB,
-  FireDAC.Phys.Intf,
-  FireDAC.Stan.Option,
-  FireDAC.Stan.Intf,
-  FireDAC.Comp.Client,
-  frxClass,
-  frxDBSet,
-  frxExportBaseDialog,
-  frxExportPDF,
   ufrmBase,
-  ufrmBaseDBGrid, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
-  System.Actions, Vcl.ActnList;
+  ufrmBaseDBGrid, System.Actions, Vcl.ActnList, ZAbstractRODataset,
+  ZAbstractDataset, ZDataset, ZPgEventAlerter;
 
 type
   TfrmSetOdemeBaslangicDonemleri = class(TfrmBaseDBGrid)
@@ -43,9 +34,8 @@ type
 implementation
 
 uses
-  Ths.Erp.Database.Singleton,
   ufrmSetOdemeBaslangicDonemi,
-  Ths.Erp.Database.Table.SetOdemeBaslangicDonemi;
+  Ths.Database.Table.SetOdemeBaslangicDonemi;
 
 {$R *.dfm}
 

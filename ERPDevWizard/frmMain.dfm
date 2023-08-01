@@ -3,23 +3,21 @@ object frmMainClassGenerator: TfrmMainClassGenerator
   Top = 0
   Caption = 'Class Generator'
   ClientHeight = 628
-  ClientWidth = 1068
+  ClientWidth = 1196
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poDesktopCenter
   WindowState = wsMaximized
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object Splitter4: TSplitter
     Left = 0
     Top = 305
-    Width = 1068
+    Width = 1196
     Height = 3
     Cursor = crVSplit
     Align = alTop
@@ -30,10 +28,11 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 1062
+    Width = 1190
     Height = 299
     Align = alTop
     TabOrder = 0
+    ExplicitWidth = 1186
     object Splitter3: TSplitter
       Left = 460
       Top = 1
@@ -273,7 +272,7 @@ object frmMainClassGenerator: TfrmMainClassGenerator
         Width = 112
         Height = 21
         TabOrder = 2
-        Text = 'ths_erp_per'
+        Text = 'ths_erp'
       end
       object edtport_name: TEdit
         Left = 124
@@ -400,7 +399,7 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     object grdColumns: TDBGrid
       Left = 463
       Top = 1
-      Width = 598
+      Width = 726
       Height = 297
       Align = alClient
       DataSource = dsColumns
@@ -520,39 +519,41 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     AlignWithMargins = True
     Left = 3
     Top = 311
-    Width = 1062
+    Width = 1190
     Height = 314
-    ActivePage = tsInput
+    ActivePage = tsClass
     Align = alClient
     TabOrder = 1
+    ExplicitWidth = 1186
+    ExplicitHeight = 313
     object tsClass: TTabSheet
       Caption = 'Class Section'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object mmoClass: TMemo
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 1048
+        Width = 1176
         Height = 234
         Align = alClient
         ScrollBars = ssBoth
         TabOrder = 0
         OnKeyDown = mmoKeyDown
+        ExplicitWidth = 1172
+        ExplicitHeight = 233
       end
       object pnlClass: TPanel
         AlignWithMargins = True
         Left = 3
         Top = 243
-        Width = 1048
+        Width = 1176
         Height = 40
         Align = alBottom
         TabOrder = 1
+        ExplicitTop = 242
+        ExplicitWidth = 1172
         object btnAddClassToMemo: TButton
           AlignWithMargins = True
-          Left = 969
+          Left = 1097
           Top = 4
           Width = 75
           Height = 32
@@ -560,16 +561,13 @@ object frmMainClassGenerator: TfrmMainClassGenerator
           Caption = 'Add Memo'
           TabOrder = 0
           OnClick = btnAddClassToMemoClick
+          ExplicitLeft = 1093
         end
       end
     end
     object tsOutput: TTabSheet
       Caption = 'Output Form Section'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Splitter1: TSplitter
         Left = 500
         Top = 0
@@ -611,7 +609,7 @@ object frmMainClassGenerator: TfrmMainClassGenerator
         AlignWithMargins = True
         Left = 506
         Top = 3
-        Width = 545
+        Width = 673
         Height = 280
         Align = alClient
         Caption = 'pnlOutputPAS'
@@ -620,7 +618,7 @@ object frmMainClassGenerator: TfrmMainClassGenerator
           AlignWithMargins = True
           Left = 4
           Top = 4
-          Width = 537
+          Width = 665
           Height = 226
           Align = alClient
           ScrollBars = ssBoth
@@ -631,13 +629,13 @@ object frmMainClassGenerator: TfrmMainClassGenerator
           AlignWithMargins = True
           Left = 4
           Top = 236
-          Width = 537
+          Width = 665
           Height = 40
           Align = alBottom
           TabOrder = 1
           object btnAddOutputPASToMemo: TButton
             AlignWithMargins = True
-            Left = 458
+            Left = 586
             Top = 4
             Width = 75
             Height = 32
@@ -693,7 +691,7 @@ object frmMainClassGenerator: TfrmMainClassGenerator
         AlignWithMargins = True
         Left = 426
         Top = 3
-        Width = 625
+        Width = 753
         Height = 280
         Align = alClient
         Caption = 'pnlOutputPAS'
@@ -702,7 +700,7 @@ object frmMainClassGenerator: TfrmMainClassGenerator
           AlignWithMargins = True
           Left = 4
           Top = 4
-          Width = 617
+          Width = 745
           Height = 226
           Align = alClient
           ScrollBars = ssBoth
@@ -713,13 +711,13 @@ object frmMainClassGenerator: TfrmMainClassGenerator
           AlignWithMargins = True
           Left = 4
           Top = 236
-          Width = 617
+          Width = 745
           Height = 40
           Align = alBottom
           TabOrder = 1
           object btnAddInputPASToMemo: TButton
             AlignWithMargins = True
-            Left = 538
+            Left = 666
             Top = 4
             Width = 75
             Height = 32
@@ -745,22 +743,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
       Caption = 'Load From File'
     end
   end
-  object con1: TFDConnection
-    Params.Strings = (
-      'Database=ths_erp_per'
-      'User_Name=ths_admin'
-      'Password=THS'
-      'CharacterSet=UTF8'
-      'Server=127.0.0.1'
-      'DriverID=PG')
-    LoginPrompt = False
-    Left = 592
-    Top = 104
-  end
-  object FDPhysPgDriverLink1: TFDPhysPgDriverLink
-    Left = 664
-    Top = 104
-  end
   object dsTables: TDataSource
     Left = 112
     Top = 512
@@ -773,84 +755,57 @@ object frmMainClassGenerator: TfrmMainClassGenerator
       OnExecute = actConnectExecute
     end
   end
-  object tblColumns: TFDMemTable
-    Active = True
-    FieldDefs = <
-      item
-        Name = 'field_name'
-        DataType = ftString
-        Size = 32
-      end
-      item
-        Name = 'field_type'
-        DataType = ftString
-        Size = 32
-      end
-      item
-        Name = 'column_caption'
-        DataType = ftString
-        Size = 32
-      end
-      item
-        Name = 'input_caption'
-        DataType = ftString
-        Size = 32
-      end
-      item
-        Name = 'is_gui'
-        DataType = ftBoolean
-      end
-      item
-        Name = 'input_type'
-        DataType = ftString
-        Size = 32
-      end
-      item
-        Name = 'is_numeric'
-        DataType = ftBoolean
-      end>
-    IndexDefs = <>
-    FetchOptions.AssignedValues = [evMode]
-    FetchOptions.Mode = fmAll
-    ResourceOptions.AssignedValues = [rvSilentMode]
-    ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
-    UpdateOptions.CheckRequired = False
-    UpdateOptions.AutoCommitUpdates = True
-    StoreDefs = True
-    Left = 512
-    Top = 48
-    object tblColumnsfield_name: TStringField
-      FieldName = 'field_name'
-      Size = 32
-    end
-    object tblColumnsfield_type: TStringField
-      FieldName = 'field_type'
-      Size = 32
-    end
-    object tblColumnscolumn_caption: TStringField
-      FieldName = 'column_caption'
-      Size = 32
-    end
-    object tblColumnsinput_caption: TStringField
-      FieldName = 'input_caption'
-      Size = 32
-    end
-    object tblColumnsis_gui: TBooleanField
-      FieldName = 'is_gui'
-    end
-    object tblColumnsinput_type: TStringField
-      DisplayWidth = 32
-      FieldName = 'input_type'
-      Size = 32
-    end
-    object tblColumnsis_numeric: TBooleanField
-      FieldName = 'is_numeric'
-    end
+  object con1: TZConnection
+    ControlsCodePage = cCP_UTF16
+    ClientCodepage = 'UTF8'
+    Catalog = ''
+    Properties.Strings = (
+      'codepage=UTF8'
+      'controls_cp=CP_UTF16')
+    HostName = 'localhost'
+    Port = 5432
+    Database = 'ths_erp'
+    User = ''
+    Password = 'THS'
+    Protocol = 'postgresql-9'
+    Left = 595
+    Top = 179
   end
   object dsColumns: TDataSource
-    DataSet = tblColumns
+    DataSet = cdsColumns
     Left = 568
     Top = 48
+  end
+  object cdsColumns: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 496
+    Top = 48
+    object cdsColumnsfield_name: TStringField
+      FieldName = 'field_name'
+      Size = 64
+    end
+    object cdsColumnsfield_type: TStringField
+      FieldName = 'field_type'
+      Size = 64
+    end
+    object cdsColumnscolumn_caption: TStringField
+      FieldName = 'column_caption'
+      Size = 64
+    end
+    object cdsColumnsinput_caption: TStringField
+      FieldName = 'input_caption'
+      Size = 64
+    end
+    object cdsColumnsis_gui: TBooleanField
+      FieldName = 'is_gui'
+    end
+    object cdsColumnsinput_type: TStringField
+      FieldName = 'input_type'
+      Size = 64
+    end
+    object cdsColumnsis_numeric: TBooleanField
+      FieldName = 'is_numeric'
+    end
   end
 end

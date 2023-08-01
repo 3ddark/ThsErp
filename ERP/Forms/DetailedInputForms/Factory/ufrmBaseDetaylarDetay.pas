@@ -2,7 +2,7 @@ unit ufrmBaseDetaylarDetay;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   Winapi.Windows,
@@ -10,21 +10,19 @@ uses
   System.Rtti, Vcl.Samples.Spin,
   Vcl.Controls, Vcl.Forms, Vcl.ComCtrls, Dialogs, Vcl.Menus,
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Graphics, Vcl.AppEvnts, Vcl.Grids,
-  Data.DB, FireDAC.Stan.Option, FireDAC.Stan.Intf,
-  FireDAC.Comp.Client, FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Stan.Def,
-  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait,
+  Data.DB,
 
-  Ths.Erp.Helper.Edit,
-  Ths.Erp.Helper.Memo,
-  Ths.Erp.Helper.ComboBox,
-  Ths.Erp.Helper.StringGrid,
+  Ths.Helper.Edit,
+  Ths.Helper.Memo,
+  Ths.Helper.ComboBox,
+  Ths.Helper.StringGrid,
 
   ufrmBase,
   ufrmBaseInput,
   ufrmBaseDetaylar,
 
-  Ths.Erp.Database.Table,
-  Ths.Erp.Database.TableDetailed;
+  Ths.Database.Table,
+  Ths.Database.TableDetailed;
 
 type
   TfrmBaseDetaylarDetay = class(TfrmBaseInput)
@@ -58,9 +56,8 @@ type
 implementation
 
 uses
-  Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton;
+  Ths.Globals,
+  Ths.Constants;
 
 {$R *.dfm}
 

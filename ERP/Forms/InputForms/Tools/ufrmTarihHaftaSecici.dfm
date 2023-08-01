@@ -1,26 +1,23 @@
 inherited frmTarihHaftaSecici: TfrmTarihHaftaSecici
   Caption = 'frmTarihHaftaSecici'
-  ClientHeight = 157
+  ClientHeight = 149
   ClientWidth = 239
   ExplicitWidth = 255
-  ExplicitHeight = 196
-  PixelsPerInch = 96
+  ExplicitHeight = 188
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 235
-    Height = 105
+    Width = 239
+    Height = 99
     ExplicitWidth = 246
     ExplicitHeight = 113
     inherited pgcMain: TPageControl
-      Width = 233
+      Width = 241
       Height = 103
       ExplicitWidth = 244
       ExplicitHeight = 111
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
-        ExplicitWidth = 236
-        ExplicitHeight = 83
+        ExplicitWidth = 233
+        ExplicitHeight = 75
         object lblyil: TLabel
           Left = 52
           Top = 6
@@ -118,7 +115,7 @@ inherited frmTarihHaftaSecici: TfrmTarihHaftaSecici
     end
   end
   inherited pnlBottom: TPanel
-    Top = 109
+    Top = 101
     Width = 235
     ExplicitTop = 117
     ExplicitWidth = 246
@@ -132,7 +129,7 @@ inherited frmTarihHaftaSecici: TfrmTarihHaftaSecici
     end
   end
   inherited stbBase: TStatusBar
-    Top = 139
+    Top = 131
     Width = 239
     ExplicitTop = 147
     ExplicitWidth = 250

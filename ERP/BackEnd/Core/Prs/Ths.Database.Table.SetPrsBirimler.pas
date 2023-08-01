@@ -1,0 +1,173 @@
+unit Ths.Database.Table.SetPrsBirimler;
+
+interface
+
+{$I Ths.inc}
+
+uses
+  System.SysUtils,
+  Data.DB,
+  ZDataset,
+  Ths.Database,
+  Ths.Database.Table,
+  Ths.Database.Table.SetPrsBolumler;
+
+type
+  TSetPrsBirim = class(TTable)
+  private
+    FBolumID: TFieldDB;
+    FBolum: TFieldDB;
+    FBirim: TFieldDB;
+
+    FSetPrsBolum: TSetPrsBolum;
+  published
+    destructor Destroy; override;
+    constructor Create(ADatabase: TDatabase); override;
+  public
+    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
+    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoUpdate(APermissionControl: Boolean=True); override;
+
+    function Clone: TTable; override;
+
+    Property BolumID: TFieldDB read FBolumID write FBolumID;
+    Property Bolum: TFieldDB read FBolum write FBolum;
+    Property Birim: TFieldDB read FBirim write FBirim;
+  end;
+
+implementation
+
+uses
+  Ths.Globals,
+  Ths.Constants;
+
+  constructor TSetPrsBirim.Create(ADatabase: TDatabase);
+begin
+  TableName := 'set_prs_birimler';
+  TableSourceCode := MODULE_PRS_AYAR;
+  inherited Create(ADatabase);
+
+  FSetPrsBolum := TSetPrsBolum.Create(Database);
+
+  FBolumID := TFieldDB.Create('bolum_id', ftInteger, 0, Self, 'Bölüm ID');
+  FBolum := TFieldDB.Create(FSetPrsBolum.Bolum.FieldName, FSetPrsBolum.Bolum.DataType, FSetPrsBolum.Bolum.Value, Self, FSetPrsBolum.Bolum.Title);
+  FBirim := TFieldDB.Create('birim', ftWideString, '', Self, 'Birim');
+end;
+
+destructor TSetPrsBirim.Destroy;
+begin
+  FreeAndNil(FSetPrsBolum);
+  inherited;
+end;
+
+procedure TSetPrsBirim.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+begin
+  if not IsAuthorized(ptRead, APermissionControl) then
+    Exit;
+
+  with QryOfDS do
+  begin
+    Close;
+    Database.GetSQLSelectCmd(QryOfDS, TableName, [
+      Id.QryName,
+      FBolumID.QryName,
+      addField(FSetPrsBolum.TableName, FSetPrsBolum.Bolum.FieldName, FBolum.FieldName),
+      FBirim.QryName
+    ], [
+      addJoin(jtLeft, FSetPrsBolum.TableName, FSetPrsBolum.Id.FieldName, TableName, FBolumID.FieldName),
+      ' WHERE 1=1 ', AFilter
+    ], AAllColumn, AHelper);
+    Open;
+  end;
+end;
+
+procedure TSetPrsBirim.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
+var
+  LQry: TZQuery;
+begin
+  if not IsAuthorized(ptRead, APermissionControl) then
+    Exit;
+
+  AFilter := GetLockSQL(AFilter, ALock);
+
+  LQry := Database.NewQuery();
+  with LQry do
+  try
+      Database.GetSQLSelectCmd(LQry, TableName, [
+        Id.QryName,
+        FBolumID.QryName,
+        addField(FSetPrsBolum.TableName, FSetPrsBolum.Bolum.FieldName, FBolum.FieldName),
+        FBirim.QryName
+      ], [
+        addJoin(jtLeft, FSetPrsBolum.TableName, FSetPrsBolum.Id.FieldName, TableName, FBolumID.FieldName),
+        ' WHERE 1=1 ', AFilter
+      ]);
+      Open;
+
+      FreeListContent();
+      List.Clear;
+      while NOT EOF do
+      begin
+        PrepareTableClassFromQuery(LQry);
+
+        List.Add(Clone);
+
+        Next;
+      end;
+  finally
+    Free;
+  end;
+end;
+
+procedure TSetPrsBirim.DoInsert(out AID: Integer; APermissionControl: Boolean);
+var
+  LQry: TZQuery;
+begin
+  LQry := Database.NewQuery();
+  with LQry do
+  try
+    SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
+      FBolumID.FieldName,
+      FBirim.FieldName
+    ]);
+
+    PrepareInsertQueryParams(LQry);
+
+    Open;
+    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
+    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
+    else  AID := 0;
+  finally
+    Free;
+  end;
+end;
+
+procedure TSetPrsBirim.DoUpdate(APermissionControl: Boolean);
+var
+  LQry: TZQuery;
+begin
+  LQry := Database.NewQuery();
+  with LQry do
+  try
+      SQL.Clear;
+      SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
+        FBolumID.FieldName,
+        FBirim.FieldName
+      ]);
+
+      PrepareUpdateQueryParams(LQry);
+
+      ExecSQL;
+  finally
+    Free;
+  end;
+end;
+
+function TSetPrsBirim.Clone: TTable;
+begin
+  Result := TSetPrsBirim.Create(Database);
+  CloneClassContent(Self, Result);
+end;
+
+end.

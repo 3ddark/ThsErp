@@ -3,29 +3,13 @@
         <ProjectGuid>{E92B52DD-667C-44A4-84E3-D079355AFE80}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="ERP\ThsERP.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="ERPDevWizard\ErpDevWizard.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="ERP\Ths.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
-    <ProjectExtensions>
-        <Borland.Personality>Default.Personality.12</Borland.Personality>
-        <Borland.ProjectType/>
-        <BorlandProject>
-            <Default.Personality/>
-        </BorlandProject>
-    </ProjectExtensions>
-    <Target Name="ThsERP">
-        <MSBuild Projects="ERP\ThsERP.dproj"/>
-    </Target>
-    <Target Name="ThsERP:Clean">
-        <MSBuild Projects="ERP\ThsERP.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="ThsERP:Make">
-        <MSBuild Projects="ERP\ThsERP.dproj" Targets="Make"/>
-    </Target>
     <Target Name="ErpDevWizard">
         <MSBuild Projects="ERPDevWizard\ErpDevWizard.dproj"/>
     </Target>
@@ -35,14 +19,23 @@
     <Target Name="ErpDevWizard:Make">
         <MSBuild Projects="ERPDevWizard\ErpDevWizard.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Ths">
+        <MSBuild Projects="ERP\Ths.dproj"/>
+    </Target>
+    <Target Name="Ths:Clean">
+        <MSBuild Projects="ERP\Ths.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Ths:Make">
+        <MSBuild Projects="ERP\Ths.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ThsERP;ErpDevWizard"/>
+        <CallTarget Targets="ErpDevWizard;Ths"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ThsERP:Clean;ErpDevWizard:Clean"/>
+        <CallTarget Targets="ErpDevWizard:Clean;Ths:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ThsERP:Make;ErpDevWizard:Make"/>
+        <CallTarget Targets="ErpDevWizard:Make;Ths:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -2,7 +2,7 @@ unit ufrmFilterDBGrid;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   Winapi.Windows,
@@ -22,7 +22,7 @@ uses
   Vcl.ExtCtrls,
   Vcl.Samples.Spin,
   ufrmBase,
-  Ths.Erp.Helper.Edit;
+  Ths.Helper.Edit;
 
 type
   TFieldName = class
@@ -59,9 +59,8 @@ implementation
 
 uses
   ufrmBaseDBGrid,
-  Ths.Erp.Database.Singleton,
-  Ths.Erp.Constants,
-  Ths.Erp.Globals;
+  Ths.Constants,
+  Ths.Globals;
 
 {$R *.dfm}
 
@@ -217,7 +216,7 @@ begin
   btnClose.Caption := TranslateText(btnClose.Caption, FrameworkLang.ButtonClose, LngButton, LngSystem);
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
   lblFilterKeyValue.Caption := TranslateText(lblFilterKeyValue.Caption, 'Key Value', LngFilter, LngSystem);
-  rgFilterCriter.Caption := TranslateText(rgFilterCriter.Caption, 'Filter Criteria Title', LngFilter, LngSystem);
+  rgFilterCriter.Caption := TranslateText(rgFilterCriter.Caption, 'Filter Criteria', LngFilter, LngSystem);
 
   btnAccept.ImageIndex := IMG_FILTER;
   btnAccept.HotImageIndex := IMG_FILTER;

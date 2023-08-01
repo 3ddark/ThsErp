@@ -2,20 +2,19 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   BorderStyle = bsSizeable
   Caption = 'frmBaseDetaylar'
-  ClientHeight = 615
-  ClientWidth = 1076
-  ExplicitWidth = 1092
-  ExplicitHeight = 654
-  PixelsPerInch = 96
+  ClientHeight = 607
+  ClientWidth = 1072
+  ExplicitWidth = 1088
+  ExplicitHeight = 646
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 1072
-    Height = 563
-    ExplicitWidth = 1072
-    ExplicitHeight = 563
+    Height = 557
+    ExplicitWidth = 1076
+    ExplicitHeight = 565
     object splLeft: TSplitter [0]
-      Left = 104
-      Top = 125
+      Left = 103
+      Top = 124
       Height = 437
       Beveled = True
       Color = clBtnFace
@@ -25,38 +24,39 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       ExplicitHeight = 213
     end
     object splHeader: TSplitter [1]
-      Left = 1
-      Top = 122
-      Width = 1070
+      Left = 0
+      Top = 121
+      Width = 1074
       Height = 3
       Cursor = crVSplit
       Align = alTop
       Beveled = True
       Color = clBtnFace
       ParentColor = False
+      ExplicitLeft = 1
       ExplicitTop = 34
       ExplicitWidth = 600
     end
     inherited pgcMain: TPageControl
-      Left = 107
-      Top = 125
-      Width = 964
+      Left = 106
+      Top = 124
+      Width = 968
       Height = 437
       TabOrder = 2
-      ExplicitLeft = 107
-      ExplicitTop = 125
-      ExplicitWidth = 964
-      ExplicitHeight = 437
+      ExplicitLeft = 106
+      ExplicitTop = 124
+      ExplicitWidth = 970
+      ExplicitHeight = 441
       inherited tsMain: TTabSheet
-        ExplicitWidth = 956
+        ExplicitWidth = 960
         ExplicitHeight = 409
       end
     end
     object pnlHeader: TPanel
       AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 1066
+      Left = 2
+      Top = 2
+      Width = 1070
       Height = 118
       Margins.Left = 2
       Margins.Top = 2
@@ -65,10 +65,11 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       Align = alTop
       Constraints.MinHeight = 30
       TabOrder = 0
+      ExplicitWidth = 1072
       object pgcHeader: TPageControl
         Left = 1
         Top = 1
-        Width = 1064
+        Width = 1068
         Height = 116
         ActivePage = tsHeader
         Align = alClient
@@ -76,6 +77,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         TabOrder = 0
         TabPosition = tpLeft
         TabStop = False
+        ExplicitWidth = 1070
         object tsHeader: TTabSheet
           Caption = 'Header'
         end
@@ -86,9 +88,9 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       end
     end
     object pnlContent: TPanel
-      Left = 107
-      Top = 125
-      Width = 964
+      Left = 106
+      Top = 124
+      Width = 968
       Height = 437
       Margins.Left = 1
       Margins.Top = 1
@@ -96,15 +98,17 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       Margins.Bottom = 2
       Align = alClient
       TabOrder = 1
+      ExplicitWidth = 970
+      ExplicitHeight = 441
       DesignSize = (
-        964
-        437)
+        966
+        433)
       object pgcContent: TPageControl
         AlignWithMargins = True
         Left = 1
         Top = 3
-        Width = 962
-        Height = 433
+        Width = 964
+        Height = 429
         Margins.Left = 0
         Margins.Top = 2
         Margins.Right = 0
@@ -112,13 +116,15 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         ActivePage = ts1
         Align = alClient
         TabOrder = 1
+        ExplicitWidth = 968
+        ExplicitHeight = 437
         object ts1: TTabSheet
           Caption = 'ts1'
           object pnl1: TPanel
             AlignWithMargins = True
             Left = 0
-            Top = 321
-            Width = 954
+            Top = 325
+            Width = 960
             Height = 84
             Margins.Left = 0
             Margins.Top = 0
@@ -130,7 +136,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
             TabOrder = 1
             object grpGenelToplamKalan: TGroupBox
               AlignWithMargins = True
-              Left = 484
+              Left = 490
               Top = 2
               Width = 233
               Height = 80
@@ -293,7 +299,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
             end
             object grpGenelToplam: TGroupBox
               AlignWithMargins = True
-              Left = 719
+              Left = 725
               Top = 2
               Width = 233
               Height = 80
@@ -457,7 +463,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
             object flwpnl1: TFlowPanel
               Left = 0
               Top = 0
-              Width = 482
+              Width = 488
               Height = 84
               Align = alClient
               BevelOuter = bvNone
@@ -467,8 +473,8 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
           object strngrd1: TStringGrid
             Left = 0
             Top = 0
-            Width = 954
-            Height = 321
+            Width = 960
+            Height = 325
             Align = alClient
             DefaultRowHeight = 20
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSizing, goColSizing, goRowMoving, goColMoving, goTabs, goFixedColClick, goFixedRowClick, goFixedHotTrack]
@@ -497,8 +503,8 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
           object pnl2: TPanel
             AlignWithMargins = True
             Left = 0
-            Top = 271
-            Width = 954
+            Top = 275
+            Width = 960
             Height = 134
             Margins.Left = 0
             Margins.Top = 0
@@ -511,7 +517,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 948
+              Width = 954
               Height = 128
               Align = alClient
               BevelOuter = bvNone
@@ -521,8 +527,8 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
           object strngrd2: TStringGrid
             Left = 0
             Top = 0
-            Width = 954
-            Height = 271
+            Width = 960
+            Height = 275
             Align = alClient
             DefaultRowHeight = 20
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSizing, goColSizing, goRowMoving, goColMoving, goTabs, goFixedColClick, goFixedRowClick, goFixedHotTrack]
@@ -545,8 +551,8 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
           object strngrd3: TStringGrid
             Left = 0
             Top = 0
-            Width = 954
-            Height = 271
+            Width = 960
+            Height = 275
             Align = alClient
             DefaultRowHeight = 20
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSizing, goColSizing, goRowMoving, goColMoving, goTabs, goFixedColClick, goFixedRowClick, goFixedHotTrack]
@@ -565,8 +571,8 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
           object pnl3: TPanel
             AlignWithMargins = True
             Left = 0
-            Top = 271
-            Width = 954
+            Top = 275
+            Width = 960
             Height = 134
             Margins.Left = 0
             Margins.Top = 0
@@ -579,7 +585,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
               AlignWithMargins = True
               Left = 3
               Top = 3
-              Width = 948
+              Width = 954
               Height = 128
               Align = alClient
               BevelOuter = bvNone
@@ -589,7 +595,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         end
       end
       object btnHeaderShowHide: TButton
-        Left = 929
+        Left = 925
         Top = 1
         Width = 30
         Height = 21
@@ -605,14 +611,15 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         ParentFont = False
         TabOrder = 0
         OnClick = btnHeaderShowHideClick
+        ExplicitLeft = 929
       end
     end
     object pnlLeft: TPanel
       AlignWithMargins = True
-      Left = 3
-      Top = 126
+      Left = 2
+      Top = 125
       Width = 100
-      Height = 434
+      Height = 430
       Margins.Left = 2
       Margins.Top = 1
       Margins.Right = 1
@@ -621,25 +628,27 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       Constraints.MinHeight = 100
       Constraints.MinWidth = 100
       TabOrder = 3
+      ExplicitHeight = 438
     end
   end
   inherited pnlBottom: TPanel
-    Top = 567
-    Width = 1072
+    Top = 559
+    Width = 1068
+    TabOrder = 2
     ExplicitTop = 567
     ExplicitWidth = 1072
     inherited btnAccept: TButton
-      Left = 863
-      ExplicitLeft = 863
+      Left = 866
+      ExplicitLeft = 866
     end
     inherited btnClose: TButton
-      Left = 967
-      ExplicitLeft = 967
+      Left = 970
+      ExplicitLeft = 970
     end
   end
   inherited stbBase: TStatusBar
-    Top = 597
-    Width = 1076
+    Top = 589
+    Width = 1072
     ExplicitTop = 597
     ExplicitWidth = 1076
   end
@@ -655,7 +664,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
     Style = pbstMarquee
     MarqueeInterval = 1
     Step = 1
-    TabOrder = 3
+    TabOrder = 1
     Visible = False
   end
   object pm1: TPopupMenu
@@ -705,57 +714,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
     object mniExportExcel3: TMenuItem
       Action = actexport_excel3
     end
-  end
-  object frxdbdtstBase: TfrxDBDataset
-    UserName = 'frxDBDataset1'
-    CloseDataSource = False
-    BCDToCurrency = False
-    Left = 400
-    Top = 256
-  end
-  object frxpdfxprtBase: TfrxPDFExport
-    UseFileCache = True
-    ShowProgress = True
-    OverwritePrompt = False
-    DataOnly = False
-    EmbedFontsIfProtected = False
-    InteractiveFormsFontSubset = 'A-Z,a-z,0-9,#43-#47 '
-    OpenAfterExport = False
-    PrintOptimized = False
-    Outline = False
-    Background = False
-    HTMLTags = True
-    Quality = 95
-    Transparency = False
-    Author = 'THS Erp'
-    Subject = 'THS Erp PDF Export'
-    ProtectionFlags = [ePrint, eModify, eCopy, eAnnot]
-    HideToolbar = False
-    HideMenubar = False
-    HideWindowUI = False
-    FitWindow = False
-    CenterWindow = False
-    PrintScaling = False
-    PdfA = False
-    PDFStandard = psNone
-    PDFVersion = pv17
-    Left = 312
-    Top = 256
-  end
-  object frxrprtBase: TfrxReport
-    Version = '6.9.14'
-    DotMatrixReport = False
-    IniFile = '\Software\Fast Reports'
-    PreviewOptions.Buttons = [pbPrint, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbNavigator]
-    PreviewOptions.Zoom = 1.000000000000000000
-    PrintOptions.Printer = 'Default'
-    PrintOptions.PrintOnSheet = 0
-    ReportOptions.CreateDate = 43704.572072824100000000
-    ReportOptions.LastChange = 43710.700858703710000000
-    ScriptLanguage = 'PascalScript'
-    StoreInDFM = False
-    Left = 232
-    Top = 256
   end
   object actlstdetaylar_form: TActionList
     Images = dm.il16

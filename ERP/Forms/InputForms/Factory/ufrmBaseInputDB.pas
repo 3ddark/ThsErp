@@ -2,59 +2,15 @@ unit ufrmBaseInputDB;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
-  Winapi.Windows,
-  System.SysUtils,
-  System.StrUtils,
-  System.Classes,
-  System.Variants,
-  System.Math,
-  System.Rtti,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.ComCtrls,
-  Vcl.Dialogs,
-  Vcl.Samples.Spin,
-  Vcl.StdCtrls,
-  Vcl.ExtCtrls,
-  Vcl.Graphics,
-  Vcl.AppEvnts,
-  Vcl.ImgList,
-  Vcl.Menus,
-  Data.DB,
-  Data.FmtBcd,
-  FireDAC.Stan.Option,
-  FireDAC.Stan.Intf,
-  FireDAC.Comp.Client,
-  FireDAC.Stan.Error,
-  FireDAC.UI.Intf,
-  FireDAC.Stan.Def,
-  FireDAC.Stan.Pool,
-  FireDAC.Stan.Async,
-  FireDAC.Phys,
-  FireDAC.Phys.Intf,
-  FireDAC.VCLUI.Wait,
-  Ths.Erp.Helper.BaseTypes,
-  Ths.Erp.Helper.Edit,
-  Ths.Erp.Helper.Memo,
-  Ths.Erp.Helper.ComboBox,
-  udm,
-  ufrmBase,
-  ufrmBaseInput,
-  Ths.Erp.Database,
-  Ths.Erp.Database.Table;
-
-type
-  ThreadRefresh = class(TThread)
-  private
-    FOwner: TForm;
-  protected
-    procedure Execute; override;
-  public
-    constructor Create(AOwner: TForm; ACreateSuspended: Boolean); overload;
-  end;
+  Winapi.Windows, System.SysUtils, System.StrUtils, System.Classes,
+  System.Variants, System.Math, System.Rtti, Vcl.Controls, Vcl.Forms,
+  Vcl.ComCtrls, Vcl.Dialogs, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Graphics, Vcl.AppEvnts, Vcl.ImgList, Vcl.Menus, Data.DB, Data.FmtBcd,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
+  udm, ufrmBase, ufrmBaseInput, Ths.Database, Ths.Database.Table;
 
 type
   TfrmBaseInputDB = class(TfrmBaseInput)
@@ -64,15 +20,13 @@ type
     procedure btnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);override;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction); override;
     procedure FormDestroy(Sender: TObject); override;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); override;
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); override;
     procedure FormKeyPress(Sender: TObject; var Key: Char); override;
     procedure FormResize(Sender: TObject); override;
     procedure FormPaint(Sender: TObject); override;
-//    procedure FDEventAlerter1Alert(ASender: TFDCustomEventAlerter; const AEventName: string; const AArgument: Variant);
-  private
   protected
     procedure ResetSession();virtual;
     function SetSession():Boolean;virtual;
@@ -101,14 +55,6 @@ type
 ///  </remarks>
     procedure RefreshDataAuto; virtual;
 
-/// <summary>
-///  Kontrollerde bulunan bilgileri Table sýnýfý içindeki database field value deðerlerine aktarýyor.
-/// </summary>
-///  <remarks>
-///  NOT: Bu kontroller direkt olarak pnlMain üzerinde veya pgcMain içindeki TabSheet ler içinde olmalý
-///  </remarks>
-    procedure btnAcceptAuto;
-
     procedure stbBaseDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect); override;
     procedure RefreshData; override;
   end;
@@ -118,11 +64,8 @@ implementation
 uses
   ufrmCalculator,
   ufrmBaseDBGrid,
-  Ths.Erp.Database.Singleton,
-  Ths.Erp.Constants,
-  Ths.Erp.Globals,
-  FireDAC.Phys.PGWrapper, //thread listen unlisten
-  Ths.Erp.Database.Table.View.SysViewColumns;
+  Ths.Constants,
+  Ths.Globals;
 
 {$R *.dfm}
 
@@ -160,17 +103,12 @@ procedure TfrmBaseInputDB.btnDeleteClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate)then
   begin
-    if CustomMsgDlg(
-      TranslateText('Are you sure you want to delete record?', FrameworkLang.MessageDeleteRecord, LngMsgData, LngSystem),
-      mtConfirmation, mbYesNo, [TranslateText('Yes', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                                TranslateText('No', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
-                                TranslateText('Confirmation', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes
-    then
+    if CustomMsgDlg('Kaydý silmek istediðinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý') = mrYes then
     begin
       if (Table.LogicalDelete(True, False)) then
       begin
-        if Assigned(ParentForm) then
-          TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.Refresh;
+//        if Assigned(ParentForm) then
+//          TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.Refresh;
 
         ModalResult := mrOK;
         Close;
@@ -181,131 +119,12 @@ begin
         FormMode := ifmRewiev;
         btnSpin.Visible := True;
         btnDelete.Visible := False;
-        btnAccept.Caption := TranslateText('UPDATE', FrameworkLang.ButtonUpdate, LngButton, LngSystem);
+        btnAccept.Caption := 'Güncelle';
         btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
         btnAccept.Width := Max(100, btnAccept.Width);
 
         Repaint;
       end;
-    end;
-  end;
-end;
-
-procedure TfrmBaseInputDB.btnAcceptAuto;
-var
-  vTable: TTable;
-  n1: Integer;
-
-  procedure SetSubTableValue(pParent: TControl; pField: TFieldDB);
-  var
-    vControl: TControl;
-  begin
-    vControl := TWinControl(pParent).FindChildControl(PRX_EDIT + pField.FieldName);
-    if Assigned(vControl) then
-    begin
-      if (pField.DataType = ftBCD)
-      or (pField.DataType = ftFMTBcd) then
-        pField.Value := StringReplace(TEdit(vControl).Text, '.', '', [rfReplaceAll])
-      else if pField.DataType = ftFloat then
-        pField.Value := StrToFloatDef(TEdit(vControl).Text, 0)
-      else if pField.DataType = ftInteger then
-        pField.Value := StrToIntDef(TEdit(vControl).Text, 0)
-      else if pField.DataType = ftLargeint then
-        pField.Value := StrToInt64Def(TEdit(vControl).Text, 0)
-      else if (pField.DataType = ftDate) then
-        pField.Value := StrToDateDef(TEdit(vControl).Text, 0)
-      else if (pField.DataType = ftDateTime) then
-        pField.Value := StrToDateTimeDef(TEdit(vControl).Text, 0)
-      else
-        pField.Value := TEdit(vControl).Text;
-
-      if Assigned(TEdit(vControl).OnHelperProcess) then
-        pField.Value := TEdit(vControl).HelperValue;
-    end;
-
-    vControl := TWinControl(pParent).FindChildControl(PRX_COMBOBOX + pField.FieldName);
-    if Assigned(vControl) then
-    begin
-      if TCombobox(vControl).ItemIndex > -1 then
-      begin
-        if Assigned(TCombobox(vControl).Items.Objects[TCombobox(vControl).ItemIndex]) then
-        begin
-          if (TCombobox(vControl).Items.Objects[TCombobox(vControl).ItemIndex].ClassType = TTable)
-          or (TCombobox(vControl).Items.Objects[TCombobox(vControl).ItemIndex].ClassParent = TTable)
-          then
-            pField.Value := TTable(TCombobox(vControl).Items.Objects[TCombobox(vControl).ItemIndex]).Id.Value;
-        end
-        else
-          pField.Value := TCombobox(vControl).Text;
-      end;
-    end;
-
-    vControl := TWinControl(pParent).FindChildControl(PRX_MEMO + pField.FieldName);
-    if Assigned(vControl) then
-      pField.Value := TMemo(vControl).Lines.Text;
-
-    vControl := TWinControl(pParent).FindChildControl(PRX_CHECKBOX + pField.FieldName);
-    if Assigned(vControl) then
-      pField.Value := TCheckBox(vControl).Checked;
-
-    vControl := TWinControl(pParent).FindChildControl(PRX_RADIOGROUP + pField.FieldName);
-    if Assigned(vControl) then
-      pField.Value := TRadioGroup(vControl).Items.Strings[TRadioGroup(vControl).ItemIndex];
-  end;
-
-  procedure SetSubTableValues(pTable: TTable);
-  var
-    ctx: TRttiContext;
-    typ: TRttiType;
-    fld: TRttiField;
-    AValue: TValue;
-    AObject: TObject;
-    vPageControl, vParent: TControl;
-    n1: Integer;
-  begin
-    typ := ctx.GetType(pTable.ClassType);
-    if Assigned(typ) then
-      for fld in typ.GetFields do
-        if Assigned(fld) then
-          if fld.FieldType is TRttiInstanceType then
-            if TRttiInstanceType(fld.FieldType).MetaclassType.InheritsFrom(TFieldDB) then
-            begin
-              AValue := fld.GetValue(pTable);
-              AObject := nil;
-              if not AValue.IsEmpty then
-                AObject := AValue.AsObject;
-
-              if Assigned(AObject) then
-                if AObject.InheritsFrom(TFieldDB) then
-                  if TFieldDB(AObject).FieldName <> pTable.Id.FieldName then
-                  begin
-                    vPageControl := pnlMain.FindChildControl(pgcMain.Name);
-                    if Assigned(vPageControl) then
-                    begin
-                      for n1 := 0 to TPageControl(vPageControl).PageCount-1 do
-                      begin
-                        vParent := TPageControl(vPageControl).Pages[n1];
-                        SetSubTableValue(vParent, TFieldDB(AObject));
-                      end;
-                    end
-                    else
-                    begin
-                      vParent := pnlMain;
-                      SetSubTableValue(vParent, TFieldDB(AObject));
-                    end;
-                  end;
-            end;
-  end;
-begin
-  SetSubTableValues(Table);
-
-  for n1 := 0 to Length(Table.Fields)-1 do
-  begin
-    if (Table <> Table.Fields[n1].OwnerTable) and (Table.Fields[n1].OwnerTable <> nil) then
-    begin
-      vTable := Table.Fields[n1].OwnerTable;
-      if Assigned(vTable) then
-        SetSubTableValues(vTable);
     end;
   end;
 end;
@@ -325,10 +144,10 @@ begin
         if (Table.LogicalInsert(id, True, WithCommitTransaction, False)) then
         begin
           if (Self.ParentForm <> nil) then//and (Self.ParentForm.Name = 'frmBaseDBGrid') then
-          begin
-            TfrmBaseDBGrid(Self.ParentForm).Table.Id.Value := id;
-            TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.Refresh;
-          end;
+//          begin
+//            TfrmBaseDBGrid(Self.ParentForm).Table.Id.Value := id;
+//            TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.Refresh;
+//          end;
           ModalResult := mrOK;
 
           Close;
@@ -339,7 +158,7 @@ begin
 
           //eðer begin transaction demiyosa insert pencere kapansýn çünkü rollback yapýld artýk insert etmemeli
           //önceki iþlemler geri alýndýðý için
-          if (GDatabase.Connection.InTransaction) then
+          if (Table.Database.Connection.InTransaction) then
             Close;
         end;
       end
@@ -354,13 +173,7 @@ begin
   else
   if (FormMode = ifmUpdate) then
   begin
-    mrBtnAccept :=
-      CustomMsgDlg(
-      TranslateText('Are you sure you want to update record?', FrameworkLang.MessageUpdateRecord, LngMsgData, LngSystem),
-      mtConfirmation, mbYesNo, [TranslateText('Yes', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                                TranslateText('No', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
-                                TranslateText('Confirmation', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem));
-    if mrBtnAccept = mrYes then
+    if CustomMsgDlg('Kaydý güncelleme istediðinden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý') = mrYes then
     begin
       //Burada yeni kayýt veya güncelleme modunda olduðu için bütün kontrolleri açmak gerekiyor.
       SetControlsDisabledOrEnabled(pnlMain, True);
@@ -368,18 +181,17 @@ begin
       begin
         if (Table.LogicalUpdate(WithCommitTransaction, True)) then
         begin
-          if Assigned(ParentForm) then
-            TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.Refresh;
+//          if Assigned(ParentForm) then
+//            TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.Refresh;
           ModalResult := mrOK;
           Close;
         end
         else
         begin
-
           ModalResult := mrNone;
           btnSpin.Visible := true;
           FormMode := ifmRewiev;
-          btnAccept.Caption := TranslateText(btnAccept.Caption, FrameworkLang.ButtonUpdate, LngButton, LngSystem);
+          btnAccept.Caption := 'Güncelle';
           btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
           btnAccept.Width := Max(100, btnAccept.Width);
           btnDelete.Visible := false;
@@ -394,19 +206,15 @@ begin
     //burada güncelleme modunda olduðu için bütün kontrolleri açmak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, False);
 
-    if (not GDatabase.Connection.InTransaction) then
+    if (not Table.Database.Connection.InTransaction) then
     begin
       //kayýt kilitle, eðer baþka kullanýcý tarfýndan bu esnada silinmemiþse
-      if (Table.LogicalSelect(DefaultSelectFilter, True, ( not GDatabase.Connection.InTransaction), True)) then
+      if (Table.LogicalSelect(DefaultSelectFilter, True, ( not Table.Database.Connection.InTransaction), True)) then
       begin
         //eðer aranan kayýt baþka bir kullanýcý tarafýndan silinmiþse count 0 kalýr
         if (Table.List.Count = 0) then
         begin
-          raise Exception.Create(
-            TranslateText('The record was deleted by another user while you were on the review screen.', FrameworkLang.ErrorRecordDeleted, LngMsgError, LngSystem) +
-            AddLBs(2) +
-            TranslateText('Check the current records again!', FrameworkLang.ErrorRecordDeletedMessage, LngMsgError, LngSystem)
-          );
+          raise Exception.Create('Siz inceleme ekranýndayken kayýt baþka kullanýcý tarafýndan silinmiþ.' + AddLBs(2) + 'Kaydý tekrar kontrol edin!');
         end
         else
         begin
@@ -417,7 +225,7 @@ begin
 
         btnSpin.Visible := false;
         FormMode := ifmUpdate;
-        btnAccept.Caption := TranslateText('CONFIRM', FrameworkLang.ButtonAccept, LngButton, LngSystem);
+        btnAccept.Caption := 'Onayla';
         btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
         btnAccept.Width := Max(100, btnAccept.Width);
         btnDelete.Visible := True;
@@ -449,8 +257,7 @@ begin
     end
     else
     begin
-      CustomMsgDlg(TranslateText('There is an active transaction. Complete it first!', FrameworkLang.WarningActiveTransaction, LngMsgWarning, LngSystem),
-        mtError, [mbOK], [TranslateText('Tamam', FrameworkLang.ButtonOK, LngButton, LngSystem)], mbOK, '');
+      CustomMsgDlg('Aktif bir kayýt güncellemeniz var. Önce açýk olan iþleminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
     end;
 
   end;
@@ -475,7 +282,7 @@ begin
   begin
     btnAccept.Visible := True;
     btnClose.Visible := True;
-    btnAccept.Caption := TranslateText('CONFIRM', FrameworkLang.ButtonAccept, LngButton, LngSystem);
+    btnAccept.Caption := 'Onayla';
     btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
     btnAccept.Width := Max(100, btnAccept.Width);
   end
@@ -485,10 +292,10 @@ begin
     btnAccept.Visible := True;
     btnClose.Visible := True;
 
-    btnAccept.Caption := TranslateText('UPDATE', FrameworkLang.ButtonUpdate, LngButton, LngSystem);
+    btnAccept.Caption := 'Güncelle';
     btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
     btnAccept.Width := Max(100, btnAccept.Width);
-    btnDelete.Caption := TranslateText('DELETE', FrameworkLang.ButtonDelete, LngButton, LngSystem);
+    btnDelete.Caption := 'Kayýt Sil';
     btnDelete.Width := Canvas.TextWidth(btnDelete.Caption) + 56;
     btnDelete.Width := Max(100, btnDelete.Width);
   end;
@@ -532,55 +339,19 @@ begin
   end;
 end;
 
-//procedure TfrmBaseInputDB.FDEventAlerter1Alert(ASender: TFDCustomEventAlerter;
-//  const AEventName: string; const AArgument: Variant);
-//var
-//  vMesaj,
-//  vID,
-//  vPID: string;
-//  n1: Integer;
-//begin
-//  Table.Database.EventAlerter.Unregister;
-//
-//  if VarIsArray( AArgument ) then
-//  begin
-//    for n1 := VarArrayLowBound(AArgument, 1) to VarArrayHighBound(AArgument, 1) do
-//    begin
-//      if n1 = 0 then
-//      begin
-//        vMesaj := vMesaj + 'Process ID (pID):' + VarToStr(AArgument[n1]) + ', ';
-//        vPID := VarToStr(AArgument[n1]);
-//      end
-//      else if n1 = 1 then
-//      begin
-//        vMesaj := vMesaj + 'Notify Value:' + VarToStr(AArgument[n1]) + ', ';
-//        vID := VarToStr(AArgument[n1]);
-//      end;
-//    end;
-//  end
-//  else if VarIsNull(AArgument) then
-//    vMesaj := '<NULL>'
-//  else if VarIsEmpty(AArgument) then
-//    vMesaj := '<UNASSIGNED>'
-//  else
-//    vMesaj := VarToStr(AArgument);
-//
-//  if (FormMode = ifmRewiev) and (VarToStr(Table.Id.Value).ToInteger = vID.ToInteger) then
-//    RefreshData;
-//end;
-
 procedure TfrmBaseInputDB.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   //ferhat burasý doðru çalýþmýyor parent kapatýldýðý halde burada parent varmýþ gibi iþlem yapýyor.
   //parentform bir þekilde kapatýltýðýnda buradan da nil yapýlmalý.
 //  ShowMessage(Self.ParentForm.Name + ' ' + Self.ParentForm.Parent.Name);
 
-  if  ((self.FormMode = ifmNewRecord) or (self.FormMode = ifmUpdate))
-  and (Self.ParentForm <> nil)
-  then
-    TfrmBaseDBGrid(Self.ParentForm).RefreshData;
+//  if  ((self.FormMode = ifmNewRecord) or (self.FormMode = ifmUpdate))
+//  and (Self.ParentForm <> nil)
+//  then
+//    TfrmBaseDBGrid(Self.ParentForm).RefreshData;
 
-  GDatabase.Connection.Rollback;
+  if Table.Database.Connection.InTransaction then
+    Table.Database.Connection.Rollback;
 
   if Assigned(ParentForm) and ParentForm.HandleAllocated then
   begin
@@ -597,7 +368,8 @@ begin
 //  if ParentForm = nil then
 //    Table.Unlisten;
 //  FRefresher.Terminate;
-  GDatabase.Connection.Rollback;
+  if Table.Database.Connection.InTransaction then
+    Table.Database.Connection.Rollback;
   inherited;
 end;
 
@@ -631,12 +403,7 @@ begin
     Key := #0;
     if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
     begin
-      if CustomMsgDlg(
-        TranslateText('Are you sure you want to exit?',FrameworkLang.MessageCloseWindow, LngMsgData, LngSystem),
-        mtConfirmation, mbYesNo, [TranslateText('Yes',FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                                  TranslateText('No',FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
-                                  TranslateText('Confirmation',FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes
-      then
+      if CustomMsgDlg('Çýkmak istediðinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý') = mrYes then
         Close;
     end
     else
@@ -778,14 +545,14 @@ begin
   if not SetSession() then
   begin
     Self.Close;
-    raise Exception.Create(TranslateText('Access right failure!', FrameworkLang.ErrorAccessRight, LngMsgError, LngSystem));
+    raise Exception.Create('Kullanýcý Eriþim Hakký hatasý!');
   end;
 end;
 
 procedure TfrmBaseInputDB.SetControlDBProperty(pIsOnlyRepaint: Boolean);
 var
   n1, n2, n3, nx: Integer;
-  vControl, vPageControl, vParent: TControl;
+  vPageControl, vParent: TControl;
   vTable: TTable;
 
   procedure SubSetControlProperty(AControl: TControl; pColumns: TFieldDB);
@@ -805,7 +572,7 @@ var
           MaxLength := pColumns.Size;
           thsDBFieldName := pColumns.FieldName;
           thsRequiredData := not pColumns.IsNullable;
-          thsActiveYear4Digit := GSysUygulamaAyari.Donem.Value;
+          thsActiveYear4Digit := GSysApplicationSetting.Donem.Value;
           OnCalculatorProcess := nil;
 
           if (pColumns.DataType = ftString) then
@@ -1005,7 +772,7 @@ begin
             if Table.Fields[n3].FieldName = RightStr(TTabSheet(vParent).Controls[n2].Name, Length(TTabSheet(vParent).Controls[n2].Name)- 3{prefix length edtstok_kodu > stok_kodu}) then
             begin
               SubSetControlProperty(TTabSheet(vParent).Controls[n2], Table.Fields[n3]);
-              Break;  //n3 dögüsünü kýr n2 den devam et
+              Break;
             end;
           end;
         end;
@@ -1036,7 +803,7 @@ begin
                   if vTable.Fields[n3].FieldName = RightStr(TTabSheet(vParent).Controls[n2].Name, Length(TTabSheet(vParent).Controls[n2].Name)- 3{prefix length edtstok_kodu > stok_kodu}) then
                   begin
                     SubSetControlProperty(TTabSheet(vParent).Controls[n2], vTable.Fields[n3]);
-                    Break;  //n3 dögüsünü kýr n2 den devam et
+                    Break;
                   end;
                 end;
               end;
@@ -1178,43 +945,4 @@ begin
   end;
 end;
 
-{ ThreadRefresh }
-
-constructor ThreadRefresh.Create(AOwner: TForm; ACreateSuspended: Boolean);
-begin
-  inherited Create(ACreateSuspended);
-  FreeOnTerminate := True;
-  FOwner := AOwner;
-end;
-
-procedure ThreadRefresh.Execute;
-var
-  oConn: TPgConnection;
-  sName, sParam: String;
-  iProcID: Integer;
-begin
-//  TfrmBaseInputDB(FOwner).Table.Listen;
-  while not Terminated do
-  try
-    Sleep(1000);
-    if GDataBase.FDPhyPG.DriverIntf.ConnectionCount > 0 then
-    begin
-      if GDataBase.FDPhyPG.DriverIntf.Connections[0].CliObj <> nil then
-      begin
-        oConn := GDataBase.FDPhyPG.DriverIntf.Connections[0].CliObj;
-        if oConn.CheckForInput() then
-          while oConn.ReadNotifies(sName, iProcID, sParam) do
-          begin
-            if TfrmBaseInputDB(FOwner).FormMode = ifmRewiev then
-              TfrmBaseInputDB(FOwner).RefreshData;
-          end;
-      end;
-    end;
-  except
-    Terminate;
-  end;
-end;
-
 end.
-
-

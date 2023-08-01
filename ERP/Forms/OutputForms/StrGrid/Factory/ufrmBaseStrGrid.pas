@@ -2,7 +2,7 @@ unit ufrmBaseStrGrid;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   System.Classes,

@@ -1,29 +1,26 @@
 inherited frmBaseDBGrid: TfrmBaseDBGrid
   Caption = 'frmBaseDBGrid'
-  ClientHeight = 577
-  ClientWidth = 821
+  ClientHeight = 529
+  ClientWidth = 797
   Constraints.MinHeight = 350
   Constraints.MinWidth = 450
-  ExplicitWidth = 837
-  ExplicitHeight = 616
+  ExplicitWidth = 811
+  ExplicitHeight = 564
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 821
-    Height = 527
-    ExplicitWidth = 821
-    ExplicitHeight = 527
+    Width = 797
+    Height = 479
+    ExplicitWidth = 795
+    ExplicitHeight = 475
     inherited splLeft: TSplitter
       Left = 100
-      Top = 36
-      Height = 399
+      Height = 351
       ExplicitLeft = 103
       ExplicitTop = 36
       ExplicitHeight = 280
     end
     inherited splHeader: TSplitter
-      Left = 0
-      Top = 33
-      Width = 821
+      Width = 797
       ExplicitLeft = 0
       ExplicitTop = 33
       ExplicitWidth = 568
@@ -32,32 +29,28 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
       AlignWithMargins = False
       Left = 0
       Top = 36
-      Height = 399
+      Height = 351
       BevelOuter = bvNone
       Caption = ''
       TabOrder = 1
       ExplicitLeft = 0
       ExplicitTop = 36
-      ExplicitHeight = 399
+      ExplicitHeight = 347
     end
     inherited pnlHeader: TPanel
-      Left = 2
-      Top = 2
-      Width = 817
+      Width = 793
       Caption = ''
       TabOrder = 0
-      ExplicitLeft = 2
-      ExplicitTop = 2
-      ExplicitWidth = 817
+      ExplicitWidth = 791
       object lblFilterHelper: TLabel
         AlignWithMargins = True
         Left = 4
         Top = 4
-        Width = 87
+        Width = 29
         Height = 22
         Align = alLeft
         Alignment = taRightJustify
-        Caption = 'Anahtar Kelime'
+        Caption = 'Filtre'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -69,9 +62,9 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
       end
       object edtFilterHelper: TEdit
         AlignWithMargins = True
-        Left = 97
+        Left = 39
         Top = 4
-        Width = 716
+        Width = 750
         Height = 22
         Align = alClient
         TabOrder = 0
@@ -79,6 +72,7 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         OnChange = edtFilterHelperChange
         OnKeyDown = edtFilterHelperKeyDown
         OnKeyUp = edtFilterHelperKeyUp
+        ExplicitWidth = 748
         ExplicitHeight = 21
       end
     end
@@ -86,18 +80,18 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
       AlignWithMargins = False
       Left = 103
       Top = 36
-      Width = 718
-      Height = 399
+      Width = 694
+      Height = 351
       BevelOuter = bvNone
       ExplicitLeft = 103
       ExplicitTop = 36
-      ExplicitWidth = 718
-      ExplicitHeight = 399
+      ExplicitWidth = 692
+      ExplicitHeight = 347
       object grd: TDBGrid
         Left = 0
         Top = 0
-        Width = 718
-        Height = 399
+        Width = 694
+        Height = 351
         Align = alClient
         BorderStyle = bsNone
         DataSource = dsbase
@@ -134,41 +128,45 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     end
     object pnlButtons: TPanel
       Left = 0
-      Top = 435
-      Width = 821
+      Top = 387
+      Width = 797
       Height = 92
       Align = alBottom
       BevelOuter = bvNone
       Constraints.MinHeight = 40
       TabOrder = 3
+      ExplicitTop = 383
+      ExplicitWidth = 795
       object pnlButtonRight: TPanel
-        Left = 636
+        Left = 612
         Top = 0
         Width = 185
         Height = 92
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 610
       end
       object pnlButtonLeft: TPanel
         Left = 0
         Top = 0
-        Width = 636
+        Width = 612
         Height = 92
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitWidth = 610
         object btnAddNew: TButton
           AlignWithMargins = True
           Left = 4
           Top = 4
-          Width = 90
-          Height = 22
+          Width = 100
+          Height = 28
           Margins.Left = 2
           Margins.Top = 2
           Margins.Right = 0
           Margins.Bottom = 0
-          Caption = 'Kay'#305't Ekle'
+          Caption = 'Ekle'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -185,29 +183,25 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     end
   end
   inherited pnlBottom: TPanel
-    Top = 529
-    Width = 817
-    ExplicitTop = 529
-    ExplicitWidth = 817
+    Top = 481
+    Width = 793
+    TabOrder = 2
+    ExplicitTop = 477
+    ExplicitWidth = 791
     inherited btnAccept: TButton
-      Left = 611
-      TabOrder = 2
-      ExplicitLeft = 611
+      Left = 587
+      ExplicitLeft = 585
     end
     inherited btnClose: TButton
-      Left = 715
-      TabOrder = 3
-      ExplicitLeft = 715
-    end
-    inherited btnDelete: TButton
-      TabOrder = 1
+      Left = 691
+      ExplicitLeft = 689
     end
   end
   inherited stbBase: TStatusBar
-    Top = 559
-    Width = 821
-    ExplicitTop = 559
-    ExplicitWidth = 821
+    Top = 511
+    Width = 797
+    ExplicitTop = 507
+    ExplicitWidth = 795
   end
   object pb1: TProgressBar [3]
     Left = 360
@@ -221,7 +215,7 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     Style = pbstMarquee
     MarqueeInterval = 1
     Step = 1
-    TabOrder = 3
+    TabOrder = 1
     Visible = False
   end
   inherited pmDB: TPopupMenu
@@ -317,58 +311,6 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
       Caption = '-'
     end
   end
-  object frxrprtBase: TfrxReport
-    Version = '6.9.14'
-    DotMatrixReport = False
-    IniFile = '\Software\Fast Reports'
-    PreviewOptions.Buttons = [pbPrint, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbNavigator]
-    PreviewOptions.Zoom = 1.000000000000000000
-    PrintOptions.Printer = 'Default'
-    PrintOptions.PrintOnSheet = 0
-    ReportOptions.CreateDate = 43704.572072824100000000
-    ReportOptions.LastChange = 43710.700858703700000000
-    ScriptLanguage = 'PascalScript'
-    StoreInDFM = False
-    OnPreview = frxrprtBasePreview
-    Left = 232
-    Top = 256
-  end
-  object frxpdfxprtBase: TfrxPDFExport
-    UseFileCache = True
-    ShowProgress = True
-    OverwritePrompt = False
-    DataOnly = False
-    EmbedFontsIfProtected = False
-    InteractiveFormsFontSubset = 'A-Z,a-z,0-9,#43-#47 '
-    OpenAfterExport = False
-    PrintOptimized = False
-    Outline = False
-    Background = False
-    HTMLTags = True
-    Quality = 95
-    Transparency = False
-    Author = 'THS Erp'
-    Subject = 'THS Erp PDF Export'
-    ProtectionFlags = [ePrint, eModify, eCopy, eAnnot]
-    HideToolbar = False
-    HideMenubar = False
-    HideWindowUI = False
-    FitWindow = False
-    CenterWindow = False
-    PrintScaling = False
-    PdfA = False
-    PDFStandard = psNone
-    PDFVersion = pv17
-    Left = 312
-    Top = 256
-  end
-  object frxdbdtstBase: TfrxDBDataset
-    UserName = 'frxDBDataset1'
-    CloseDataSource = False
-    BCDToCurrency = False
-    Left = 400
-    Top = 256
-  end
   object dlgSave: TSaveDialog
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Left = 600
@@ -377,10 +319,6 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
   object dsbase: TDataSource
     DataSet = qrybase
     Left = 326
-    Top = 80
-  end
-  object qrybase: TFDQuery
-    Left = 262
     Top = 80
   end
   object actlstgrd: TActionList
@@ -433,5 +371,16 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     OnTimer = Timer1Timer
     Left = 248
     Top = 368
+  end
+  object qrybase: TZQuery
+    Params = <>
+    Left = 264
+    Top = 80
+  end
+  object pgalertbase: TZPgEventAlerter
+    Active = False
+    OnNotify = pgalertbaseNotify
+    Left = 400
+    Top = 80
   end
 end

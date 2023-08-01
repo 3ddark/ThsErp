@@ -2,7 +2,7 @@ unit ufrmBaseOutput;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   System.Classes,
@@ -16,7 +16,7 @@ uses
   Vcl.ComCtrls,
   Vcl.Dialogs,
   ufrmBase,
-  Ths.Erp.Database.Table;
+  Ths.Database.Table;
 
 type
   TfrmBaseOutput = class(TfrmBase)

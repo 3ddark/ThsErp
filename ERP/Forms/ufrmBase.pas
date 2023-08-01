@@ -2,36 +2,15 @@ unit ufrmBase;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
-  Winapi.Windows,
-  Winapi.Messages,
-  System.SysUtils,
-  System.Classes,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Samples.Spin,
-  Vcl.StdCtrls,
-  Vcl.ExtCtrls,
-  Vcl.ComCtrls,
-  Vcl.AppEvnts,
-  Vcl.Dialogs,
-  Vcl.ImgList,
-  Vcl.Graphics,
-  Vcl.Menus,
-  Vcl.ActnList,
-  Data.DB,
-  System.Math,
-  System.Rtti,
-  System.TypInfo,
-  Ths.Erp.Helper.BaseTypes,
-  Ths.Erp.Helper.Edit,
-  Ths.Erp.Helper.Combobox,
-  Ths.Erp.Helper.Memo,
-  udm,
-  Ths.Erp.Database.Table,
-  Ths.Erp.Database.Table.SysGridKolon;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
+  Vcl.Controls, System.Math, System.Rtti, Vcl.Forms, Vcl.Samples.Spin,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Dialogs,
+  Vcl.ImgList, Vcl.Graphics, Vcl.Menus, Vcl.ActnList, Data.DB,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Combobox, Ths.Helper.Memo,
+  udm, Ths.Database.Table;
 
 const
   WM_AFTER_SHOW = WM_USER + 300; // custom message
@@ -68,12 +47,12 @@ type
     procedure FormDestroy(Sender: TObject);virtual;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);virtual;
     procedure FormKeyPress(Sender: TObject; var Key: Char);virtual;
-    procedure FormCreate(Sender: TObject);virtual;
-    procedure FormResize(Sender: TObject);virtual;
+    procedure FormCreate(Sender: TObject); virtual;
+    procedure FormResize(Sender: TObject); virtual;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);virtual;
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);virtual;
-    procedure FormShow(Sender: TObject);virtual;
-    procedure FormPaint(Sender: TObject);virtual;
+    procedure FormShow(Sender: TObject); virtual;
+    procedure FormPaint(Sender: TObject); virtual;
 
     procedure WmAfterShow(var Msg: TMessage); message WM_AFTER_SHOW;
     procedure WmAfterCreate(var Msg: TMessage); message WM_AFTER_CREATE;
@@ -144,12 +123,10 @@ type
 implementation
 
 uses
-  Ths.Erp.Constants,
-  Ths.Erp.Globals,
-  Ths.Erp.Database.Singleton,
+  Ths.Constants,
+  Ths.Globals,
   ufrmSysLisanGuiIcerik,
-  Ths.Erp.Database.Table.SysLisanGuiIcerik,
-  ufrmBaseInputDB;
+  Ths.Database.Table.SysLisanGuiIcerikler;
 
 {$R *.dfm}
 
@@ -177,17 +154,17 @@ end;
 
 procedure TfrmBase.CreateLangGuiContentFormforFormCaption;
 var
-  vSysLangGuiContent: TSysLisanGuiIcerik;
+  LLangGuiContent: TSysLisanGuiIcerik;
 begin
-  vSysLangGuiContent := TSysLisanGuiIcerik.Create(GDataBase);
+  LLangGuiContent := TSysLisanGuiIcerik.Create(GDataBase);
 
-  vSysLangGuiContent.Lisan.Value := GDataBase.ConnSetting.Language;
-  vSysLangGuiContent.Kod.Value := Self.Name;
-  vSysLangGuiContent.IcerikTipi.Value := LngFormCaption;
-  vSysLangGuiContent.TabloAdi.Value := '';
-  vSysLangGuiContent.Deger.Value := Self.Caption;
+  LLangGuiContent.Lisan.Value := AppLanguage;
+  LLangGuiContent.Kod.Value := Self.Name;
+  LLangGuiContent.IcerikTipi.Value := LngFormCaption;
+  LLangGuiContent.TabloAdi.Value := '';
+  LLangGuiContent.Deger.Value := Self.Caption;
 
-  TfrmSysLisanGuiIcerik.Create(Self, nil, vSysLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
+  TfrmSysLisanGuiIcerik.Create(Self, nil, LLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
 end;
 
@@ -424,18 +401,11 @@ begin
 end;
 
 procedure TfrmBase.FormCreate(Sender: TObject);
-//var
-//  n1: Integer;
 begin
   if Table <> nil then
   begin
     if Table.Id.AsInteger > 0 then
       FDefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + Table.Id.AsString;
-
-//    if (FormMode = ifmNewRecord)
-//    or (FormMode = ifmCopyNewRecord)
-//    then
-//      GDatabase.Connection.StartTransaction;
   end;
 
   frmConfirmation := TfrmConfirmation.Create;
@@ -730,17 +700,11 @@ begin
     end;
   end;
 
-  if (nProcessCount = 1) then begin
+  if (nProcessCount = 1) then
+  begin
     Repaint;
-    if (not Result) then begin
-      raise Exception.Create(
-          TranslateText('Can not be empty required input controls!', FrameworkLang.ErrorRequiredData, LngMsgError, LngSystem) +
-          AddLBs(2) +
-          TranslateText('Red colored controls are required', FrameworkLang.ErrorRedInputsRequired, LngMsgError, LngSystem) +
-          AddLBs(3) +
-          LControlName
-      );
-    end;
+    if (not Result) then
+      raise Exception.Create('Zorunlu alanlar boþ olamaz. Kýrmýzý renkli giriþler zorunludur.' + AddLBs(3) + LControlName);
   end;
 end;
 

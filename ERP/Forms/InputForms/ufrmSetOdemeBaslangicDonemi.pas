@@ -2,7 +2,7 @@ unit ufrmSetOdemeBaslangicDonemi;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   Winapi.Windows,
@@ -21,9 +21,9 @@ uses
   Vcl.Menus,
   Vcl.Samples.Spin,
   Vcl.AppEvnts,
-  Ths.Erp.Helper.Edit,
-  Ths.Erp.Helper.Memo,
-  Ths.Erp.Helper.ComboBox,
+  Ths.Helper.Edit,
+  Ths.Helper.Memo,
+  Ths.Helper.ComboBox,
   ufrmBase,
   ufrmBaseInputDB;
 
@@ -43,10 +43,9 @@ type
 implementation
 
 uses
-  Ths.Erp.Globals,
-  Ths.Erp.Constants,
-  Ths.Erp.Database.Singleton,
-  Ths.Erp.Database.Table.SetOdemeBaslangicDonemi;
+  Ths.Globals,
+  Ths.Constants,
+  Ths.Database.Table.SetOdemeBaslangicDonemi;
 
 {$R *.dfm}
 

@@ -2,51 +2,15 @@ unit ufrmBaseInput;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
-    Winapi.Windows
-  , Winapi.Messages
-  , System.SysUtils
-  , System.Classes
-  , System.Math
-  , Vcl.Controls
-  , Vcl.Forms
-  , Vcl.ComCtrls
-  , Dialogs
-  , System.Variants
-  , Vcl.Samples.Spin
-  , Vcl.StdCtrls
-  , Vcl.ExtCtrls
-  , Vcl.Graphics
-  , Vcl.AppEvnts
-  , Vcl.Menus
-  , System.StrUtils
-  , System.Rtti
-  , Data.DB
-
-  , FireDAC.Stan.Option
-  , FireDAC.Stan.Intf
-  , FireDAC.Comp.Client
-  , FireDAC.Stan.Error
-  , FireDAC.UI.Intf
-  , FireDAC.Stan.Def
-  , FireDAC.Stan.Pool
-  , FireDAC.Stan.Async
-  , FireDAC.Phys
-  , FireDAC.VCLUI.Wait
-
-  , Ths.Erp.Helper.BaseTypes
-  , Ths.Erp.Helper.Edit
-  , Ths.Erp.Helper.Memo
-  , Ths.Erp.Helper.ComboBox
-
-  , udm
-  , ufrmBase
-  , Ths.Erp.Database
-  , Ths.Erp.Database.Table
-  , Ths.Erp.Database.Table.View.SysViewColumns
-  ;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, System.Math,
+  System.StrUtils, System.Rtti, System.Variants, Vcl.Controls, Vcl.Forms,
+  Vcl.ComCtrls, Dialogs, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Graphics, Vcl.AppEvnts, Vcl.Menus, Data.DB, udm, ufrmBase,
+  Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox, Ths.Helper.BaseTypes,
+  Ths.Database, Ths.Database.Table, Ths.Database.Table.View.SysViewColumns;
 
 type
   TfrmBaseInput = class(TfrmBase)
@@ -87,14 +51,11 @@ type
 implementation
 
 uses
-    Ths.Erp.Globals
-  , Ths.Erp.Database.Singleton
-  , Ths.Erp.Constants
-  , Ths.Erp.Database.Table.SysLisanGuiIcerik
-  , Ths.Erp.Database.Table.SysKaliteFormTipi
-  , ufrmSysLisanGuiIcerik
-  , ufrmCalculator
-  ;
+  Ths.Globals,
+  Ths.Constants,
+  Ths.Database.Table.SysLisanGuiIcerikler,
+  ufrmSysLisanGuiIcerik,
+  ufrmCalculator;
 
 {$R *.dfm}
 
@@ -104,11 +65,11 @@ begin
     inherited
   else
   begin
-    if (CustomMsgDlg(
-      TranslateText('Are you sure you want to exit?   All changes will be canceled!!!', FrameworkLang.MessageCloseWindow, LngMsgData, LngSystem),
-      mtConfirmation, mbYesNo, [TranslateText('Yes', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                                TranslateText('No', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
-                                TranslateText('Confirmation', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes)
+    if CustomMsgDlg('Çýkmak istediðinden emin misin?' + AddLBs(2) +
+                    'Yapýlan tüm deðiþiklikler kaybolacaktýr',
+                    mtConfirmation,
+                    mbYesNo, ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý'
+    ) = mrYes
     then
       inherited;
   end;
@@ -153,19 +114,6 @@ begin
   for n1 := 0 to stbBase.Panels.Count - 1 do
     stbBase.Panels.Items[n1].Style := psOwnerDraw;
 
-  //Kalite standartlarýna göre uygulama pencerelerinde Form Numarasý
-  //olmasý isteniyorsa bu durumda
-  //
-  if Assigned(Table) then
-    if GDataBase.Connection.Connected then
-    begin
-      if GSysUygulamaAyari.IsKaliteFormNoKullan.Value then
-      begin
-        stbBase.Panels.Items[STATUS_SQL_SERVER].Text := GetKaliteFormNo(Table.TableName, QtyInput);
-        stbBase.Panels.Items[STATUS_SQL_SERVER].Width := stbBase.Width;
-      end;
-    end;
-
   //form ve page control page 0 caption bilgisini dil dosyasýna göre doldur
   //page control page 0 için isternise miras alan formda deðiþiklik yapýlabilir.
   if Assigned(Table) then
@@ -180,7 +128,7 @@ begin
   if Self.FormMode = ifmRewiev then
   begin
     //eðer baþka pencerede açýk transaction varsa güncelleme moduna hiç girilmemli
-    if (GDatabase.Connection.InTransaction) then
+    if (Table.Database.Connection.InTransaction) then
     begin
       btnAccept.Visible   := False;
       btnDelete.Visible     := False;
@@ -269,36 +217,35 @@ end;
 
 procedure TfrmBaseInput.mniAddLanguageContentClick(Sender: TObject);
 var
-  vSysLangGuiContent: TSysLisanGuiIcerik;
-  vCode, vValue, vContentType, vTableName: string;
+  LLangGuiContent: TSysLisanGuiIcerik;
+  LCode, LValue, LContentType, LTableName: string;
 begin
   if pmLabels.PopupComponent.ClassType = TLabel then
   begin
-    vCode := StringReplace(pmLabels.PopupComponent.Name, PRX_LABEL, '', [rfReplaceAll]);
-    vContentType := LngLabelCaption;
-    vTableName := ReplaceRealColOrTableNameTo(Table.TableName);
-    vValue := TLabel(pmLabels.PopupComponent).Caption;
+    LCode := StringReplace(pmLabels.PopupComponent.Name, PRX_LABEL, '', [rfReplaceAll]);
+    LContentType := LngLabelCaption;
+    LTableName := ReplaceRealColOrTableNameTo(Table.TableName);
+    LValue := TLabel(pmLabels.PopupComponent).Caption;
   end
-  else
-  if pmLabels.PopupComponent.ClassType = TTabSheet then
+  else if pmLabels.PopupComponent.ClassType = TTabSheet then
   begin
-    vCode := StringReplace(pmLabels.PopupComponent.Name, PRX_TABSHEET, '', [rfReplaceAll]);
-    vContentType := LngTab;
-    vTableName := ReplaceRealColOrTableNameTo(Table.TableName);
-    vTableName := Self.Name;
-    vValue := TTabSheet(pmLabels.PopupComponent).Caption;
+    LCode := StringReplace(pmLabels.PopupComponent.Name, PRX_TABSHEET, '', [rfReplaceAll]);
+    LContentType := LngTab;
+    LTableName := ReplaceRealColOrTableNameTo(Table.TableName);
+    LTableName := Self.Name;
+    LValue := TTabSheet(pmLabels.PopupComponent).Caption;
   end;
 
 
-  vSysLangGuiContent := TSysLisanGuiIcerik.Create(GDataBase);
+  LLangGuiContent := TSysLisanGuiIcerik.Create(GDataBase);
 
-  vSysLangGuiContent.Lisan.Value := GDataBase.ConnSetting.Language;
-  vSysLangGuiContent.Kod.Value := vCode;
-  vSysLangGuiContent.IcerikTipi.Value := vContentType;
-  vSysLangGuiContent.TabloAdi.Value := vTableName;
-  vSysLangGuiContent.Deger.Value := vValue;
+  LLangGuiContent.Lisan.Value := AppLanguage;
+  LLangGuiContent.Kod.Value := LCode;
+  LLangGuiContent.IcerikTipi.Value := LContentType;
+  LLangGuiContent.TabloAdi.Value := LTableName;
+  LLangGuiContent.Deger.Value := LValue;
 
-  TfrmSysLisanGuiIcerik.Create(Self, nil, vSysLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
+  TfrmSysLisanGuiIcerik.Create(Self, nil, LLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
 
   SetCaptionFromLangContent();
 end;
@@ -363,53 +310,53 @@ procedure TfrmBaseInput.SetCaptionFromLangContent;
 
   procedure SubSetLabelCaption();
   var
-    vCtx1: TRttiContext;
-    vRtf1: TRttiField;
-    vRtt1: TRttiType;
-    vLabel: TLabel;
+    LC: TRttiContext;
+    LF: TRttiField;
+    LT: TRttiType;
+    LLabel: TLabel;
     n1: Integer;
-    vLabelNames, vLabelName, vFilter: string;
-    vSysLangGuiContent: TSysLisanGuiIcerik;
+    LLabelNames, LLabelName, LFilter: string;
+    LLangGuiContent: TSysLisanGuiIcerik;
   begin
     //label component isimleri lbl + db_field_name olacak þekilde verileceði varsayýlarak bu kod yazildi. örnek: lblcountry_code
-    vLabelNames := '';
-    vCtx1 := TRttiContext.Create;
-    vRtt1 := vCtx1.GetType(Self.ClassType);
-    for vRtf1 in vRtt1.GetFields do
-      if vRtf1.FieldType.Name = TLabel.ClassName then
+    LLabelNames := '';
+    LC := TRttiContext.Create;
+    LT := LC.GetType(Self.ClassType);
+    for LF in LT.GetFields do
+      if LF.FieldType.Name = TLabel.ClassName then
       begin
-        vLabel := TLabel(FindComponent(vRtf1.Name));
-        if Assigned(vLabel) then
-          vLabelNames := vLabelNames + QuotedStr(StringReplace(TLabel(vLabel).Name, PRX_LABEL, '', [rfReplaceAll])) + ', ';
+        LLabel := TLabel(FindComponent(LF.Name));
+        if Assigned(LLabel) then
+          LLabelNames := LLabelNames + QuotedStr(StringReplace(TLabel(LLabel).Name, PRX_LABEL, '', [rfReplaceAll])) + ', ';
       end;
 
-    vLabelNames := Trim(vLabelNames);
-    if Length(vLabelNames) > 0 then
-      vLabelNames := LeftStr(vLabelNames, Length(vLabelNames)-1);
+    LLabelNames := Trim(LLabelNames);
+    if Length(LLabelNames) > 0 then
+      LLabelNames := LeftStr(LLabelNames, Length(LLabelNames)-1);
 
-    vSysLangGuiContent := TSysLisanGuiIcerik.Create(GDataBase);
+    LLangGuiContent := TSysLisanGuiIcerik.Create(GDataBase);
     try
       if Assigned(Table) then
-        vFilter :=  ' AND ' + vSysLangGuiContent.TableName + '.' + vSysLangGuiContent.TabloAdi.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Table.TableName))
+        LFilter :=  ' AND ' + LLangGuiContent.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Table.TableName))
       else
-        vFilter :=  ' AND ' + vSysLangGuiContent.TableName + '.' + vSysLangGuiContent.FormAdi.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Self.Name));
-      vSysLangGuiContent.SelectToList(
-          ' AND ' + vSysLangGuiContent.TableName + '.' + vSysLangGuiContent.Lisan.FieldName + '=' + QuotedStr(GDataBase.ConnSetting.Language) +
-          ' AND ' + vSysLangGuiContent.TableName + '.' + vSysLangGuiContent.Kod.FieldName + ' IN (' +  vLabelNames + ')' +
-          ' AND ' + vSysLangGuiContent.TableName + '.' + vSysLangGuiContent.IcerikTipi.FieldName + '=' + QuotedStr(LngLabelCaption) +
-          vFilter, False, False);
-      for n1 := 0 to vSysLangGuiContent.List.Count-1 do
+        LFilter :=  ' AND ' + LLangGuiContent.FormAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Self.Name));
+      LLangGuiContent.SelectToList(
+          ' AND ' + LLangGuiContent.Lisan.QryName + '=' + QuotedStr(AppLanguage) +
+          ' AND ' + LLangGuiContent.Kod.QryName + ' IN (' +  LLabelNames + ')' +
+          ' AND ' + LLangGuiContent.IcerikTipi.QryName + '=' + QuotedStr(LngLabelCaption) +
+          LFilter, False, False);
+      for n1 := 0 to LLangGuiContent.List.Count-1 do
       begin
-        if not VarIsNull(TSysLisanGuiIcerik(vSysLangGuiContent.List[n1]).Kod.Value) then
+        if not VarIsNull(TSysLisanGuiIcerik(LLangGuiContent.List[n1]).Kod.Value) then
         begin
-          vLabelName := VarToStr(TSysLisanGuiIcerik(vSysLangGuiContent.List[n1]).Kod.Value);
-          vLabel := TLabel(FindComponent(PRX_LABEL + vLabelName));
-          if not VarIsNull(TSysLisanGuiIcerik(vSysLangGuiContent.List[n1]).Deger.Value) then
-            TLabel(vLabel).Caption := VarToStr(TSysLisanGuiIcerik(vSysLangGuiContent.List[n1]).Deger.Value);
+          LLabelName := VarToStr(TSysLisanGuiIcerik(LLangGuiContent.List[n1]).Kod.Value);
+          LLabel := TLabel(FindComponent(PRX_LABEL + LLabelName));
+          if not VarIsNull(TSysLisanGuiIcerik(LLangGuiContent.List[n1]).Deger.Value) then
+            TLabel(LLabel).Caption := VarToStr(TSysLisanGuiIcerik(LLangGuiContent.List[n1]).Deger.Value);
         end;
       end;
     finally
-      vSysLangGuiContent.Free;
+      LLangGuiContent.Free;
     end;
   end;
 
@@ -480,7 +427,7 @@ var
         AEdit.MaxLength := pColumns.CharacterMaximumLength.Value;
         AEdit.thsDBFieldName := pColumns.OrjColumnName.Value;
         AEdit.thsRequiredData := not pColumns.IsNullable.Value;
-        AEdit.thsActiveYear4Digit := GSysUygulamaAyari.Donem.Value;
+        AEdit.thsActiveYear4Digit := GSysApplicationSetting.Donem.Value;
         AEdit.OnCalculatorProcess := nil;
 
         if (pColumns.DataType.Value = 'text')

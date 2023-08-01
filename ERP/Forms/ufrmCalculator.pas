@@ -2,12 +2,12 @@ unit ufrmCalculator;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, StrUtils,
-  Ths.Erp.Helper.Edit;
+  Ths.Helper.Edit;
 type
   TCalcOperation = (coAdd, coSub, coMultiple, coDivide, coSquare, coNon);
 
