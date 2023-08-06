@@ -196,7 +196,6 @@ implementation
 uses
   Ths.Globals,
   Ths.Database.Table.View.SysViewColumns,
-  Ths.Database.Table.SysLisanVeriIcerikler,
   Ths.Database.Table.SysErisimHaklari,
   Ths.Database.Table.SysKaynaklar;
 
@@ -262,31 +261,7 @@ function addLeftJoin(AFieldName, AIDFieldName, ATableName: string; IsPureData: B
 var
   LTableAlias: string;
   LRowFieldName: string;
-  LSysLangData: TSysLisanVeriIcerik;
 begin
-  if  (AppLanguage <> GSysApplicationSetting.Lisan.AsString)
-  and (GSysApplicationSetting.Lisan.AsString <> '')
-  then
-  begin
-    LTableAlias := 'data_' + AFieldName;
-    if IsPureData then
-      LRowFieldName := ATableName + '.id'
-    else
-      LRowFieldName := AIDFieldName;
-
-    LSysLangData := TSysLisanVeriIcerik.Create(GDataBase);
-    try
-      Result :=
-        'LEFT JOIN ' + LSysLangData.TableName + ' AS ' + LTableAlias + ' ON ' +
-          LTableAlias + '.' + LSysLangData.KolonAdi.FieldName + '=' + QuotedStr(AFieldName) + ' AND ' +
-          LTableAlias + '.' + LSysLangData.TabloAdi.FieldName + '=' + QuotedStr(ATableName) + ' AND ' +
-          LTableAlias + '.' + LSysLangData.SatirID.FieldName + '=' + LRowFieldName + ' AND ' +
-          LTableAlias + '.' + LSysLangData.Lisan.FieldName + '=' + QuotedStr(AppLanguage) + ' ';
-    finally
-      LSysLangData.Free;
-    end;
-  end
-  else
   begin
     if IsPureData then
     begin
@@ -335,23 +310,14 @@ end;
 
 function addLangField(AFieldName: string; ADataFieldNameDiff: string; IsPureData: Boolean): string;
 begin
-  if  (AppLanguage <> GSysApplicationSetting.Lisan.AsString)
-  and (GSysApplicationSetting.Lisan.AsString <> '')
-  then
-  begin
-    Result := 'data_' + AFieldName + '.value AS ' + AFieldName;
-  end
+  if IsPureData then
+    Result := 'data_' + AFieldName
   else
   begin
-    if IsPureData then
-      Result := 'data_' + AFieldName
+    if ADataFieldNameDiff <> '' then
+      Result := 'data_' + AFieldName + '.' + ADataFieldNameDiff + ' AS ' + AFieldName
     else
-    begin
-      if ADataFieldNameDiff <> '' then
-        Result := 'data_' + AFieldName + '.' + ADataFieldNameDiff + ' AS ' + AFieldName
-      else
-        Result := 'data_' + AFieldName + '.' + AFieldName + ' AS ' + AFieldName
-    end;
+      Result := 'data_' + AFieldName + '.' + AFieldName + ' AS ' + AFieldName
   end;
 end;
 

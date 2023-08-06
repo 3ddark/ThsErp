@@ -1,9 +1,10 @@
 inherited frmSysSehirler: TfrmSysSehirler
   Caption = 'Sehirler'
-  ExplicitWidth = 811
-  ExplicitHeight = 564
+  ClientWidth = 793
+  ExplicitWidth = 807
   TextHeight = 13
   inherited pnlMain: TPanel
+    Width = 793
     inherited splLeft: TSplitter
       Height = 351
       ExplicitHeight = 351
@@ -42,6 +43,7 @@ inherited frmSysSehirler: TfrmSysSehirler
     end
   end
   inherited pnlBottom: TPanel
+    Width = 789
     inherited btnAccept: TButton
       Left = 587
       ExplicitLeft = 587
@@ -50,5 +52,8 @@ inherited frmSysSehirler: TfrmSysSehirler
       Left = 691
       ExplicitLeft = 691
     end
+  end
+  inherited stbBase: TStatusBar
+    Width = 793
   end
 end

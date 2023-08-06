@@ -96,7 +96,9 @@ end;
 procedure TfrmSysSehir.RefreshData;
 begin
   inherited;
-  //
+  edtcountry_id.Text := TSysSehir(Table).Ulke.Value;
+  edtcity.Text := TSysSehir(Table).Sehir.Value;
+  edtcar_plate.Text := TSysSehir(Table).PlakaKodu.Value;
 end;
 
 end.

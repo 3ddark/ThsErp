@@ -80,9 +80,6 @@ uses
   Ths.Database.Table.SysLisanlar in 'BackEnd\Core\Ths.Database.Table.SysLisanlar.pas',
   ufrmSysLisanlar in 'Forms\OutputForms\DbGrid\Core\ufrmSysLisanlar.pas' {frmSysLisanlar},
   ufrmSysLisan in 'Forms\InputForms\Core\ufrmSysLisan.pas' {frmSysLang},
-  Ths.Database.Table.SysLisanVeriIcerikler in 'BackEnd\Core\Ths.Database.Table.SysLisanVeriIcerikler.pas',
-  ufrmSysLisanVeriIcerikler in 'Forms\OutputForms\DbGrid\Core\ufrmSysLisanVeriIcerikler.pas' {frmSysLangDataContents},
-  ufrmSysLisanVeriIcerik in 'Forms\InputForms\Core\ufrmSysLisanVeriIcerik.pas' {frmSysLangDataContent},
   Ths.Database.Table.SysLisanGuiIcerikler in 'BackEnd\Core\Ths.Database.Table.SysLisanGuiIcerikler.pas',
   ufrmSysLisanGuiIcerikler in 'Forms\OutputForms\DbGrid\Core\ufrmSysLisanGuiIcerikler.pas' {frmSysLangGuiContents},
   ufrmSysLisanGuiIcerik in 'Forms\InputForms\Core\ufrmSysLisanGuiIcerik.pas' {frmSysLangGuiContent},
@@ -273,7 +270,8 @@ uses
   ufrmSetBbkFirmaTipi in 'Forms\InputForms\Databank\ufrmSetBbkFirmaTipi.pas' {frmSetBbkFirmaTipi},
   Ths.Database.Table.BbkKayit in 'BackEnd\Databank\Ths.Database.Table.BbkKayit.pas',
   ufrmBbkKayitlar in 'Forms\OutputForms\DbGrid\Databank\ufrmBbkKayitlar.pas' {frmBbkKayitlar},
-  ufrmBbkKayit in 'Forms\InputForms\Databank\ufrmBbkKayit.pas' {frmBbkKayit};
+  ufrmBbkKayit in 'Forms\InputForms\Databank\ufrmBbkKayit.pas' {frmBbkKayit},
+  Vcl.recerror in 'c:\program files (x86)\embarcadero\studio\22.0\ObjRepos\EN\DelphiWin32\Vcl.recerror.pas' {ReconcileErrorForm};
 
 {$R *.res}
 

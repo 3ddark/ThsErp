@@ -71,8 +71,7 @@ begin
   btnAddNew.Visible := False;
   pnlButtons.Visible := False;
   mniPreview.Visible := False;
-  mniLangDataContent.Visible := False;
-
+  
   setDisplayFormatInteger(TSysDBStatus(Table).PID.FieldName, '0', grd.DataSource.DataSet);
 
   cbbrefresh_period.ItemIndex := 0;
@@ -90,7 +89,6 @@ end;
 procedure TfrmSysDatabaseMonitor.mnikill_process_by_idClick(Sender: TObject);
 var
   LQry: TZQuery;
-  LBtnResult: Integer;
   LPid: Integer;
   LField: TField;
 begin
@@ -101,13 +99,7 @@ begin
     begin
       LPid := LField.AsInteger;
 
-      LBtnResult :=
-        CustomMsgDlg(
-        TranslateText('Kullanýcýnýn baðlantýsýný sonlandýrmak istediðinden emin misin?', FrameworkLang.MessageUpdateRecord, LngMsgData, LngSystem),
-        mtConfirmation, mbYesNo, [TranslateText('Evet', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                                  TranslateText('Hayýr', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
-                                  TranslateText('Kullanýcý Onayý', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem));
-      if LBtnResult = mrYes then
+      if CustomMsgDlg('Kullanýcýnýn baðlantýsýný sonlandýrmak istediðinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý') = mrYes then
       begin
         LQry := GDataBase.NewQuery();
         try

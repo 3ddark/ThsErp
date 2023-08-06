@@ -1,34 +1,39 @@
-inherited frmSysDbStatus: TfrmSysDbStatus
+inherited frmSysDatabaseMonitor: TfrmSysDatabaseMonitor
   Caption = 'Database Monitor'
-  ExplicitWidth = 811
-  ExplicitHeight = 564
+  ExplicitWidth = 807
+  ExplicitHeight = 556
   TextHeight = 13
   inherited pnlMain: TPanel
+    ExplicitWidth = 791
+    ExplicitHeight = 467
     inherited splLeft: TSplitter
-      Height = 351
+      Height = 343
       ExplicitHeight = 288
     end
     inherited splHeader: TSplitter
-      Width = 797
+      Width = 793
+      ExplicitWidth = 797
     end
     inherited pnlLeft: TPanel
-      Height = 351
+      Height = 343
+      ExplicitHeight = 339
     end
     inherited pnlHeader: TPanel
-      Width = 793
+      Width = 789
+      ExplicitWidth = 787
       inherited lblFilterHelper: TLabel
         Height = 22
       end
       inherited edtFilterHelper: TEdit
-        Left = 210
-        Width = 579
+        Left = 190
+        Width = 595
         TabOrder = 1
-        ExplicitLeft = 210
-        ExplicitWidth = 577
+        ExplicitLeft = 190
+        ExplicitWidth = 593
       end
       object cbbrefresh_period: TComboBox
         AlignWithMargins = True
-        Left = 59
+        Left = 39
         Top = 4
         Width = 145
         Height = 21
@@ -44,35 +49,49 @@ inherited frmSysDbStatus: TfrmSysDbStatus
       end
     end
     inherited pnlContent: TPanel
-      Width = 694
-      Height = 351
+      Width = 690
+      Height = 343
+      ExplicitWidth = 688
+      ExplicitHeight = 339
       inherited grd: TDBGrid
-        Width = 694
-        Height = 351
+        Width = 690
+        Height = 343
       end
     end
     inherited pnlButtons: TPanel
-      Top = 387
-      Width = 797
+      Top = 379
+      Width = 793
+      ExplicitTop = 375
+      ExplicitWidth = 791
       inherited pnlButtonRight: TPanel
-        Left = 612
+        Left = 608
+        ExplicitLeft = 606
       end
       inherited pnlButtonLeft: TPanel
-        Width = 612
+        Width = 608
+        ExplicitWidth = 606
       end
     end
   end
   inherited pnlBottom: TPanel
+    ExplicitTop = 469
+    ExplicitWidth = 787
     inherited btnAccept: TButton
-      Left = 587
+      Left = 583
+      ExplicitLeft = 581
     end
     inherited btnClose: TButton
-      Left = 691
+      Left = 687
+      ExplicitLeft = 685
     end
+  end
+  inherited stbBase: TStatusBar
+    ExplicitTop = 499
+    ExplicitWidth = 791
   end
   inherited pmDB: TPopupMenu
     object mnikill_process_by_id: TMenuItem
-      Caption = 'Kill Process By ID'
+      Caption = 'Se'#231'ili '#304#351'lemi Sonland'#305'r'
       OnClick = mnikill_process_by_idClick
     end
   end

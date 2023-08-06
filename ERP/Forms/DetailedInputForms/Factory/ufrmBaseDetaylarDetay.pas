@@ -158,7 +158,7 @@ begin
   begin
     btnAccept.Visible := True;
     btnClose.Visible := True;
-    btnAccept.Caption := TranslateText('CONFIRM', FrameworkLang.ButtonAccept, LngButton, LngSystem);
+    btnAccept.Caption := 'Kaydet';
 
     //TRUE olarak gönder form ilk açýldýðýndan küçük-büyük harf ayarýný yap.
 //    SetInputControlProperty(True);
@@ -169,8 +169,8 @@ begin
     btnAccept.Visible := True;
     btnClose.Visible := True;
 
-    btnAccept.Caption := TranslateText('UPDATE', FrameworkLang.ButtonUpdate, LngButton, LngSystem);
-    btnDelete.Caption := TranslateText('DELETE', FrameworkLang.ButtonDelete, LngButton, LngSystem);
+    btnAccept.Caption := 'Güncelle';
+    btnDelete.Caption := 'Sil';
   end
   else
   if (FormMode = ifmUpdate) then
@@ -178,8 +178,8 @@ begin
     btnAccept.Visible := True;
     btnClose.Visible := True;
 
-    btnAccept.Caption := TranslateText('CONFIRM', FrameworkLang.ButtonAccept, LngButton, LngSystem);
-    btnDelete.Caption := TranslateText('DELETE', FrameworkLang.ButtonDelete, LngButton, LngSystem);
+    btnAccept.Caption := 'Onayla';
+    btnDelete.Caption := 'Sil';
   end;
 end;
 

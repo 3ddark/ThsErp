@@ -14,8 +14,8 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 656
-  ExplicitHeight = 474
+  ExplicitWidth = 654
+  ExplicitHeight = 470
   TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
@@ -27,12 +27,13 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 638
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
       Top = 2
       Width = 201
-      Height = 25
+      Height = 36
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -46,6 +47,7 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
@@ -54,22 +56,22 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 367
-    ExplicitWidth = 636
+    ExplicitTop = 363
+    ExplicitWidth = 634
     inherited btnAccept: TButton
-      Left = 432
-      ExplicitLeft = 430
+      Left = 430
+      ExplicitLeft = 428
     end
     inherited btnClose: TButton
-      Left = 536
-      ExplicitLeft = 534
+      Left = 534
+      ExplicitLeft = 532
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 397
     Width = 640
-    ExplicitTop = 397
-    ExplicitWidth = 640
+    ExplicitTop = 393
+    ExplicitWidth = 638
   end
   inherited pnlMain: TPanel [3]
     Top = 40
@@ -77,30 +79,32 @@ inherited frmDashboard: TfrmDashboard
     Height = 325
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 640
-    ExplicitHeight = 325
+    ExplicitWidth = 638
+    ExplicitHeight = 321
     object pb1: TProgressBar
       Left = 0
-      Top = 303
-      Width = 642
+      Top = 299
+      Width = 640
       Height = 26
       Align = alBottom
       DoubleBuffered = True
       ParentDoubleBuffered = False
       Smooth = True
       TabOrder = 1
-      ExplicitTop = 299
-      ExplicitWidth = 640
+      ExplicitTop = 295
+      ExplicitWidth = 638
     end
     object PageControl1: TPageControl
       Left = 0
       Top = 0
-      Width = 642
-      Height = 303
+      Width = 640
+      Height = 299
       ActivePage = tsstock
       Align = alClient
       MultiLine = True
       TabOrder = 0
+      ExplicitWidth = 638
+      ExplicitHeight = 295
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton
@@ -553,14 +557,6 @@ inherited frmDashboard: TfrmDashboard
     Left = 504
     Top = 240
   end
-  object pmButtons: TPopupMenu
-    Left = 520
-    Top = 336
-    object mniAddLanguageContent: TMenuItem
-      Caption = 'Add Language Data'
-      OnClick = mniAddLanguageContentClick
-    end
-  end
   object actlstMain: TActionList
     Images = dm.il16
     OnExecute = actlstMainExecute
@@ -631,12 +627,6 @@ inherited frmDashboard: TfrmDashboard
       Caption = 'Lisanlar'
       ImageIndex = 35
       OnExecute = actsys_languageExecute
-    end
-    object actsys_lang_data_content: TAction
-      Category = 'Sistem'
-      Caption = 'Lisan Data '#304#231'erikler'
-      ImageIndex = 35
-      OnExecute = actsys_lang_data_contentExecute
     end
     object actsys_lang_gui_content: TAction
       Category = 'Sistem'
@@ -770,7 +760,7 @@ inherited frmDashboard: TfrmDashboard
     Left = 168
     Top = 144
     object mnimenu_system: TMenuItem
-      Caption = 'System'
+      Caption = 'Sistem'
       object mnisys_user: TMenuItem
         Action = actsys_user
       end
@@ -794,9 +784,6 @@ inherited frmDashboard: TfrmDashboard
       end
       object mnisys_lang_gui_content: TMenuItem
         Action = actsys_lang_gui_content
-      end
-      object mnisys_lang_data_content: TMenuItem
-        Action = actsys_lang_data_content
       end
       object mniN10: TMenuItem
         Caption = '-'

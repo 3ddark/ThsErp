@@ -58,8 +58,6 @@ uses
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.TableDetailed,
-  Ths.Database.Table.SysLisanVeriIcerikler,
-  ufrmSysLisanVeriIcerik,
   Ths.Database.Table.SysLisanGuiIcerikler,
   ufrmSysLisanGuiIcerik;
 
@@ -104,7 +102,6 @@ type
     mnifilter_remove: TMenuItem;
     mniSeperator3: TMenuItem;
     mnicopy_record: TMenuItem;
-    mniLangDataContent: TMenuItem;
     mnifilter_exclude: TMenuItem;
     mniexport_excel_all: TMenuItem;
     mniColumnTitleByLang: TMenuItem;
@@ -185,7 +182,6 @@ type
     procedure mnisort_removeClick(Sender: TObject);
     procedure mnifilter_removeClick(Sender: TObject);
     procedure mnicopy_recordClick(Sender: TObject); virtual;
-    procedure mniLangDataContentClick(Sender: TObject);
     procedure mniexport_excel_allClick(Sender: TObject);
     procedure mniColumnTitleByLangClick(Sender: TObject);
     procedure mniUpdateColWidthClick(Sender: TObject);
@@ -729,14 +725,6 @@ begin
 
       end;
     end
-    else if (Key = Ord('F')) then //CTRL + F key combination show Filter form
-    begin
-      if Shift = [ssCtrl] then
-      begin
-        Key := 0;
-        grd.SetFocus;
-      end;
-    end
     else if Key = VK_F7 then  //F7 Key Show Inputform for New record(Add New Record)
     begin
       if (not FIsHelper) then
@@ -776,21 +764,15 @@ begin
     if Key = VK_F5 then
       Key := 0;
   end
-  else
+  else if (Shift=[ssCtrl]) and (Key = Ord('F')) then //CTRL + F key combination show Filter form
   begin
-    if (Key = Ord('F')) then //CTRL + F key combination show Filter form
-    begin
-      if Shift = [ssCtrl] then
-      begin
-        Key := 0;
-        TfrmFilterDBGrid.Create(Application, Self).ShowModal;
-        if FiltreGrid.Count > 0 then
-          RefreshData;
-      end;
-    end
-    else
-      inherited;
-  end;
+    Key := 0;
+    TfrmFilterDBGrid.Create(Application, Self).ShowModal;
+    if FiltreGrid.Count > 0 then
+      RefreshData;
+  end
+  else
+    inherited;
 end;
 
 procedure TfrmBaseDBGrid.FormPaint(Sender: TObject);
@@ -1261,7 +1243,6 @@ begin
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
 
   mniColumnTitleByLang.Caption := TranslateText(mniColumnTitleByLang.Caption, FrameworkLang.PopupAddLangGuiContent, LngPopup, LngSystem);
-  mniLangDataContent.Caption := TranslateText(mniLangDataContent.Caption, FrameworkLang.PopupAddLangDataContent, LngPopup, LngSystem);
   mnicopy_record.Caption := TranslateText(mnicopy_record.Caption, FrameworkLang.PopupCopyRecord, LngPopup, LngSystem);
   mnifilter_exclude.Caption := TranslateText(mnifilter_exclude.Caption, FrameworkLang.PopupFilterExclude, LngPopup, LngSystem);
   mniexport_excel.Caption := TranslateText(mniexport_excel.Caption, FrameworkLang.PopupExportExcel, LngPopup, LngSystem);
@@ -1294,7 +1275,6 @@ begin
   mniColumnTitleByLang.Visible := False;
   mniUpdateColWidth.Visible := False;
   mniColumnSummary.Visible := False;
-  mniLangDataContent.Visible := False;
   mniSeperator1.Visible := False;
   if GSysKullanici.IsYonetici.Value then
   begin
@@ -1303,7 +1283,6 @@ begin
     mniColumnTitleByLang.Visible := True;
     mniUpdateColWidth.Visible := True;
 //    mniColumnSummary.Visible := True;
-    mniLangDataContent.Visible := True;
   end;
 
   ResizeForm;
@@ -1559,32 +1538,6 @@ begin
 
     TfrmSysLisanGuiIcerik.Create(Self, nil, LSysLisanGuiIcerik, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
     SetTitleFromLangContent();
-  end;
-end;
-
-procedure TfrmBaseDBGrid.mniLangDataContentClick(Sender: TObject);
-var
-  vSysLangDataContent: TSysLisanVeriIcerik;
-  AField: Data.DB.TField;
-begin
-  grd.SetFocus;
-
-  AField := grd.SelectedField;
-
-  if Assigned(AField) then
-  begin
-    vSysLangDataContent := TSysLisanVeriIcerik.Create(GDataBase);
-
-    vSysLangDataContent.Lisan.Value := AppLanguage;
-    vSysLangDataContent.TabloAdi.Value := Table.TableName;
-    vSysLangDataContent.KolonAdi.Value := AField.FieldName;
-
-    vSysLangDataContent.SatirID.Value := FormatedVariantVal(
-        grd.DataSource.DataSet.FindField(Table.Id.FieldName).DataType,
-        grd.DataSource.DataSet.FindField(Table.Id.FieldName).Value);
-    vSysLangDataContent.Deger.Value := FormatedVariantVal(AField.DataType, AField.Value);
-
-    TfrmSysLisanVeriIcerik.Create(Application, Self, vSysLangDataContent, ifmCopyNewRecord, fomNormal, ivmSort).Show;
   end;
 end;
 

@@ -17,8 +17,6 @@ uses
 
 type
   TfrmDashboard = class(TfrmBase)
-    mniAddLanguageContent: TMenuItem;
-    pmButtons: TPopupMenu;
     pb1: TProgressBar;
     PageControl1: TPageControl;
     tsgeneral: TTabSheet;
@@ -46,7 +44,6 @@ type
     actsys_update_password: TAction;
     actsys_update: TAction;
     tmrcheck_is_update_required: TTimer;
-    actsys_lang_data_content: TAction;
     pnlToolbar: TPanel;
     lblTitle: TLabel;
     actsys_country: TAction;
@@ -115,7 +112,6 @@ type
     mniN8: TMenuItem;
     mniN9: TMenuItem;
     mniN10: TMenuItem;
-    mnisys_lang_data_content: TMenuItem;
     mnisys_currency: TMenuItem;
     mnimenu_satis: TMenuItem;
     mnimenu_alim: TMenuItem;
@@ -148,7 +144,6 @@ type
 /// </example>
     procedure SetSession;
     procedure ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);
-    procedure mniAddLanguageContentClick(Sender: TObject);
     procedure actsys_resource_groupExecute(Sender: TObject);
     procedure actsys_resourceExecute(Sender: TObject);
     procedure actsys_userExecute(Sender: TObject);
@@ -172,7 +167,6 @@ type
     procedure actsys_update_passwordExecute(Sender: TObject);
     procedure actsys_updateExecute(Sender: TObject);
     procedure tmrcheck_is_update_requiredTimer(Sender: TObject);
-    procedure actsys_lang_data_contentExecute(Sender: TObject);
     procedure actsys_countryExecute(Sender: TObject);
     procedure actsys_cityExecute(Sender: TObject);
     procedure actacc_exchange_rateExecute(Sender: TObject);
@@ -228,8 +222,6 @@ type
     procedure actstk_cins_ozellikleriExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
-    procedure SetTitleFromLangContent(Sender: TControl = nil);
-    procedure SetButtonPopup(Sender: TControl = nil);
   published
     procedure btnCloseClick(Sender: TObject); override;
     procedure FormClose(Sender: TObject; var Action: TCloseAction); override;
@@ -275,7 +267,6 @@ uses
   Ths.Database.Table.SysAylar, ufrmSysAylar,
   Ths.Database.Table.SysLisanGuiIcerikler, ufrmSysLisanGuiIcerikler,
   Ths.Database.Table.SysGridKolonlar, ufrmSysGridKolonlar,
-  Ths.Database.Table.SysLisanVeriIcerikler, ufrmSysLisanVeriIcerikler,
   Ths.Database.Table.SysGridFiltrelerSiralamalar, ufrmSysGridFiltrelerSiralamalar,
   Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
   Ths.Database.Table.SysOlcuBirimiTipleri, ufrmSysOlcuBirimiTipleri,
@@ -619,11 +610,6 @@ begin
   TfrmSysLisanlar.Create(Self, Self, TSysLisan.Create(GDataBase), fomNormal).Show;
 end;
 
-procedure TfrmDashboard.actsys_lang_data_contentExecute(Sender: TObject);
-begin
-  TfrmSysLisanVeriIcerikler.Create(Self, Self, TSysLisanVeriIcerik.Create(GDataBase), fomNormal).Show;
-end;
-
 procedure TfrmDashboard.actsys_lang_gui_contentExecute(Sender: TObject);
 begin
   TfrmSysLisanGuiIcerikler.Create(Self, Self, TSysLisanGuiIcerik.Create(GDataBase), fomNormal).Show;
@@ -733,58 +719,8 @@ end;
 
 procedure TfrmDashboard.btnCloseClick(Sender: TObject);
 begin
-  if CustomMsgDlg(
-    TranslateText('Uygulama kapatılacak. Kapatmak istediğine emin misin?', FrameworkLang.MessageApplicationTerminate, LngMsgData, LngSystem),
-    mtConfirmation, mbYesNo, [TranslateText('Evet', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                              TranslateText('Hayır', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
-                              TranslateText('Onay', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes
-  then
+  if CustomMsgDlg('Uygulama sonlandırılacak. Devam etmek istediğine emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayır'], mbNo, 'Onay') = mrYes then
     inherited;
-end;
-
-procedure TfrmDashboard.SetTitleFromLangContent(Sender: TControl);
-var
-  n1: Integer;
-  LText: string;
-begin
-  //Ana formdaki butonların isimleri şu formata uygun olacak. btn + herhangi bir isim btnCity veya btncity
-  //dil dosyasına bakarken de "ButonCaption.Main.city" şeklinde olacak
-  if Sender = nil then
-  begin
-    Sender := pnlMain;
-    SetTitleFromLangContent(Sender);
-  end;
-
-
-  for n1 := 0 to TWinControl(Sender).ControlCount-1 do
-  begin
-    if TWinControl(Sender).Controls[n1].ClassType = TPageControl then
-      SetTitleFromLangContent(TWinControl(Sender).Controls[n1])
-    else if TWinControl(Sender).Controls[n1].ClassType = TTabSheet then
-    begin
-      LText :=
-        TranslateText(
-          TTabSheet(TWinControl(Sender).Controls[n1]).Caption,
-          StringReplace(TTabSheet(TWinControl(Sender).Controls[n1]).Name, PRX_TABSHEET, '', [rfReplaceAll]),
-          LngTab, LngMainTable
-        );
-      if LText <> '' then
-        TTabSheet(TWinControl(Sender).Controls[n1]).Caption := LText;
-
-      SetTitleFromLangContent(TWinControl(Sender).Controls[n1])
-    end
-    else if TWinControl(Sender).Controls[n1].ClassType = TButton then
-    begin
-      LText :=
-          TranslateText(
-              TButton(TWinControl(Sender).Controls[n1]).Caption,
-              StringReplace(TButton(TWinControl(Sender).Controls[n1]).Name, PRX_BUTTON, '', [rfReplaceAll]),
-              LngButton, LngMainTable
-          );
-      if LText <> '' then
-        TButton(TWinControl(Sender).Controls[n1]).Caption := LText;
-    end;
-  end;
 end;
 
 procedure TfrmDashboard.tmrcheck_is_update_requiredTimer(Sender: TObject);
@@ -897,30 +833,6 @@ begin
 *)
 end;
 
-procedure TfrmDashboard.SetButtonPopup(Sender: TControl = nil);
-var
-  n1: Integer;
-begin
-  if Sender = nil then
-  begin
-    Sender := pnlMain;
-    SetButtonPopup(Sender);
-  end;
-
-
-  for n1 := 0 to TWinControl(Sender).ControlCount-1 do begin
-    if TWinControl(Sender).Controls[n1].ClassType = TPageControl then
-      SetButtonPopup(TWinControl(Sender).Controls[n1])
-    else if TWinControl(Sender).Controls[n1].ClassType = TTabSheet then begin
-      TTabSheet(TWinControl(Sender).Controls[n1]).PopupMenu := pmButtons;
-      SetButtonPopup(TWinControl(Sender).Controls[n1])
-    end else if TWinControl(Sender).Controls[n1].ClassType = TButton then begin
-      TButton(TWinControl(Sender).Controls[n1]).PopupMenu := pmButtons;
-    end;
-  end;
-
-end;
-
 destructor TfrmDashboard.Destroy;
 begin
   if stbBase.Panels.Count > 0 then
@@ -1022,8 +934,6 @@ begin
   stbBase.Visible := True;
   pnlBottom.Visible := True;
 
-  mniAddLanguageContent.ImageIndex := IMG_ADD_DATA;
-
 //  todo
 //  1 yapıldı permision code listesini duzenle butun erisim izinleri kodlar üzerinden yürüyecek şekilde değişklik yap
 //  2 standart erisim kodları için döküman ayarla sabit bilgi olarak girilsin
@@ -1098,12 +1008,8 @@ begin
   if stbBase.Panels.Count >= STATUS_KEY_F11+1 then
     stbBase.Panels.Items[STATUS_KEY_F11].Text := 'F11 ' + TranslateText('OPACITY', FrameworkLang.StatusOpacity, LngStatus, LngSystem);
 
-  SetTitleFromLangContent();
 
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
-
-  if GSysKullanici.IsSuperKullanici.Value then
-    SetButtonPopup();
 
   if GSysKullanici.IsYonetici.Value then
   begin
@@ -1122,48 +1028,11 @@ begin
 
   FocusedFirstControl(PageControl1.ActivePage);
 
-  mniAddLanguageContent.Caption := TranslateText(mniAddLanguageContent.Caption, FrameworkLang.PopupAddLangGuiContent, LngPopup, LngSystem);
-
   tmrcheck_is_update_required.Enabled := True;
 
   Caption := Caption + ' v' + APP_VERSION;
 
   SetSession();
-end;
-
-procedure TfrmDashboard.mniAddLanguageContentClick(Sender: TObject);
-var
-  vSysLangGuiContent: TSysLisanGuiIcerik;
-  vCode, vValue, vContentType, vTableName: string;
-begin
-  if pmButtons.PopupComponent.ClassType = TButton then
-  begin
-    vCode := StringReplace(pmButtons.PopupComponent.Name, PRX_BUTTON, '', [rfReplaceAll]);
-    vContentType := LngButton;
-    vTableName := LngMainTable;
-    vValue := TButton(pmButtons.PopupComponent).Caption;
-  end
-  else
-  if pmButtons.PopupComponent.ClassType = TTabSheet then
-  begin
-    vCode := StringReplace(pmButtons.PopupComponent.Name, PRX_TABSHEET, '', [rfReplaceAll]);
-    vContentType := LngTab;
-    vTableName := LngMainTable;
-    vValue := TTabSheet(pmButtons.PopupComponent).Caption;
-  end;
-
-
-  vSysLangGuiContent := TSysLisanGuiIcerik.Create(GDataBase);
-
-  vSysLangGuiContent.Lisan.Value := AppLanguage;
-  vSysLangGuiContent.Kod.Value := vCode;
-  vSysLangGuiContent.IcerikTipi.Value := vContentType;
-  vSysLangGuiContent.TabloAdi.Value := vTableName;
-  vSysLangGuiContent.Deger.Value := vValue;
-
-  TfrmSysLisanGuiIcerik.Create(Self, nil, vSysLangGuiContent, ifmCopyNewRecord).ShowModal;
-
-  SetTitleFromLangContent();
 end;
 
 procedure TfrmDashboard.mnich_bankalarClick(Sender: TObject);

@@ -176,14 +176,14 @@ inherited frmGiris: TfrmGiris
     80FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF80
     80FFFF8080FFFFFF80FFFFFFFEFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
-  ExplicitWidth = 486
-  ExplicitHeight = 402
+  ExplicitWidth = 484
+  ExplicitHeight = 398
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 470
     Height = 313
-    ExplicitWidth = 470
-    ExplicitHeight = 313
+    ExplicitWidth = 468
+    ExplicitHeight = 309
     object lblUserName: TLabel
       Left = 97
       Top = 29
@@ -370,6 +370,7 @@ inherited frmGiris: TfrmGiris
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
       ParentFont = False
+      Visible = False
     end
     object lblversion: TLabel
       Left = 112
@@ -424,6 +425,7 @@ inherited frmGiris: TfrmGiris
       Style = csDropDownList
       TabOrder = 0
       TabStop = False
+      Visible = False
       OnChange = cbbLanguageChange
     end
     object cbbtheme_name: TComboBox
@@ -507,25 +509,25 @@ inherited frmGiris: TfrmGiris
   inherited pnlBottom: TPanel
     Top = 315
     Width = 466
-    ExplicitTop = 315
-    ExplicitWidth = 466
+    ExplicitTop = 311
+    ExplicitWidth = 464
     inherited btnAccept: TButton
-      Left = 262
+      Left = 260
       Caption = 'Giri'#351
       HotImageIndex = 62
       ImageIndex = 62
-      ExplicitLeft = 260
+      ExplicitLeft = 258
     end
     inherited btnClose: TButton
-      Left = 366
-      ExplicitLeft = 364
+      Left = 364
+      ExplicitLeft = 362
     end
   end
   inherited stbBase: TStatusBar
     Top = 345
     Width = 470
-    ExplicitTop = 345
-    ExplicitWidth = 470
+    ExplicitTop = 341
+    ExplicitWidth = 468
   end
   object pb1: TProgressBar [3]
     Left = 136

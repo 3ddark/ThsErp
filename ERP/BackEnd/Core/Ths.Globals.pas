@@ -16,7 +16,6 @@ uses
   Ths.Database.Table.SysParaBirimleri,
   Ths.Database.Table.SysGridKolonlar,
   Ths.Database.Table.SysGridFiltrelerSiralamalar,
-  Ths.Database.Table.SysLisanVeriIcerikler,
   Ths.Database.Table.SysLisanGuiIcerikler,
   Ths.Database.Table.View.SysViewColumns,
 
@@ -2310,14 +2309,6 @@ end;
 
 function getRawDataByLang(pBaseTableName, pBaseColName: string): string;
 begin
-  if AppLanguage <> GSysApplicationSetting.Lisan.AsString then
-  begin
-    Result :=
-    'spget_lang_text(' + pBaseColName + ', ' + QuotedStr(pBaseTableName) + ', ' +
-      QuotedStr(pBaseColName) + ', id, ' +
-      QuotedStr(AppLanguage) + ')::varchar as ' + pBaseColName;
-  end
-  else
     Result := pBaseTableName + '.' + pBaseColName;
                                                                                                            {
     '(SELECT ' +

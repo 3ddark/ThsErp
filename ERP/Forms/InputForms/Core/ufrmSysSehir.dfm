@@ -1,30 +1,30 @@
-inherited frmSysCity: TfrmSysCity
+inherited frmSysSehir: TfrmSysSehir
   Left = 501
   Top = 443
   ActiveControl = btnClose
   Caption = 'System City'
-  ClientHeight = 154
-  ClientWidth = 370
+  ClientHeight = 150
+  ClientWidth = 368
   ParentFont = True
-  ExplicitWidth = 386
-  ExplicitHeight = 193
+  ExplicitWidth = 384
+  ExplicitHeight = 189
   TextHeight = 15
   inherited pnlMain: TPanel
-    Width = 370
-    Height = 104
+    Width = 368
+    Height = 100
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 374
-    ExplicitHeight = 112
+    ExplicitWidth = 368
+    ExplicitHeight = 100
     inherited pgcMain: TPageControl
-      Width = 372
-      Height = 108
-      ExplicitWidth = 372
-      ExplicitHeight = 108
+      Width = 368
+      Height = 100
+      ExplicitWidth = 368
+      ExplicitHeight = 100
       inherited tsMain: TTabSheet
         ExplicitTop = 26
-        ExplicitWidth = 364
-        ExplicitHeight = 78
+        ExplicitWidth = 360
+        ExplicitHeight = 70
         object lblcountry_id: TLabel
           Left = 63
           Top = 6
@@ -98,23 +98,23 @@ inherited frmSysCity: TfrmSysCity
     end
   end
   inherited pnlBottom: TPanel
-    Top = 106
-    Width = 366
-    ExplicitTop = 114
-    ExplicitWidth = 370
+    Top = 102
+    Width = 364
+    ExplicitTop = 102
+    ExplicitWidth = 364
     inherited btnAccept: TButton
-      Left = 164
-      ExplicitLeft = 164
+      Left = 158
+      ExplicitLeft = 158
     end
     inherited btnClose: TButton
-      Left = 268
-      ExplicitLeft = 268
+      Left = 262
+      ExplicitLeft = 262
     end
   end
   inherited stbBase: TStatusBar
-    Top = 136
-    Width = 370
-    ExplicitTop = 144
-    ExplicitWidth = 374
+    Top = 132
+    Width = 368
+    ExplicitTop = 132
+    ExplicitWidth = 368
   end
 end

@@ -2,16 +2,16 @@ inherited frmBaseDetaylarDetay: TfrmBaseDetaylarDetay
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'frmBaseDetaylarDetay'
-  ClientHeight = 468
-  ClientWidth = 674
+  ClientHeight = 464
+  ClientWidth = 672
   Constraints.MinHeight = 150
   Constraints.MinWidth = 350
-  ExplicitWidth = 690
-  ExplicitHeight = 507
+  ExplicitWidth = 688
+  ExplicitHeight = 503
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 674
-    Height = 418
+    Width = 672
+    Height = 414
     ExplicitWidth = 670
     ExplicitHeight = 416
     inherited pgcMain: TPageControl
@@ -26,8 +26,8 @@ inherited frmBaseDetaylarDetay: TfrmBaseDetaylarDetay
     end
   end
   inherited pnlBottom: TPanel
-    Top = 420
-    Width = 670
+    Top = 416
+    Width = 668
     ExplicitTop = 420
     ExplicitWidth = 670
     inherited btnAccept: TButton
@@ -40,8 +40,8 @@ inherited frmBaseDetaylarDetay: TfrmBaseDetaylarDetay
     end
   end
   inherited stbBase: TStatusBar
-    Top = 450
-    Width = 674
+    Top = 446
+    Width = 672
     ExplicitTop = 450
     ExplicitWidth = 674
   end
