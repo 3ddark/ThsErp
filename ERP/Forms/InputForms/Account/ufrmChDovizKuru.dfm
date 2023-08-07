@@ -7,19 +7,19 @@ inherited frmChDovizKuru: TfrmChDovizKuru
   ClientWidth = 344
   ParentFont = True
   Position = poDesktopCenter
-  ExplicitWidth = 360
-  ExplicitHeight = 210
+  ExplicitWidth = 358
+  ExplicitHeight = 206
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 344
     Height = 121
-    ExplicitWidth = 340
-    ExplicitHeight = 119
+    ExplicitWidth = 342
+    ExplicitHeight = 117
     inherited pgcMain: TPageControl
       Width = 344
       Height = 121
-      ExplicitWidth = 344
-      ExplicitHeight = 121
+      ExplicitWidth = 342
+      ExplicitHeight = 117
       inherited tsMain: TTabSheet
         ExplicitTop = 26
         ExplicitWidth = 336
@@ -76,21 +76,21 @@ inherited frmChDovizKuru: TfrmChDovizKuru
           Left = 117
           Top = 3
           Width = 120
-          Height = 28
+          Height = 23
           TabOrder = 0
         end
         object edtpara_birimi: TEdit
           Left = 117
           Top = 25
           Width = 120
-          Height = 28
+          Height = 23
           TabOrder = 1
         end
         object edtkur: TEdit
           Left = 117
           Top = 47
           Width = 120
-          Height = 28
+          Height = 23
           TabOrder = 2
         end
       end
@@ -99,21 +99,21 @@ inherited frmChDovizKuru: TfrmChDovizKuru
   inherited pnlBottom: TPanel
     Top = 123
     Width = 340
-    ExplicitTop = 123
-    ExplicitWidth = 340
+    ExplicitTop = 119
+    ExplicitWidth = 338
     inherited btnAccept: TButton
-      Left = 131
-      ExplicitLeft = 131
+      Left = 134
+      ExplicitLeft = 132
     end
     inherited btnClose: TButton
-      Left = 235
-      ExplicitLeft = 235
+      Left = 238
+      ExplicitLeft = 236
     end
   end
   inherited stbBase: TStatusBar
     Top = 153
     Width = 344
-    ExplicitTop = 153
-    ExplicitWidth = 344
+    ExplicitTop = 149
+    ExplicitWidth = 342
   end
 end

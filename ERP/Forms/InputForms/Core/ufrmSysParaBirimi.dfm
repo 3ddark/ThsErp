@@ -1,29 +1,29 @@
-inherited frmSysCurrency: TfrmSysCurrency
+inherited frmSysParaBirimi: TfrmSysParaBirimi
   Left = 501
   Top = 443
   Caption = 'System Currency'
   ClientHeight = 157
   ClientWidth = 355
   ParentFont = True
-  ExplicitWidth = 371
-  ExplicitHeight = 196
+  ExplicitWidth = 369
+  ExplicitHeight = 192
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 355
     Height = 107
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 359
-    ExplicitHeight = 115
+    ExplicitWidth = 353
+    ExplicitHeight = 103
     inherited pgcMain: TPageControl
-      Width = 357
-      Height = 111
-      ExplicitWidth = 357
-      ExplicitHeight = 111
+      Width = 355
+      Height = 107
+      ExplicitWidth = 353
+      ExplicitHeight = 103
       inherited tsMain: TTabSheet
         ExplicitTop = 26
-        ExplicitWidth = 349
-        ExplicitHeight = 81
+        ExplicitWidth = 347
+        ExplicitHeight = 77
         object lblcurrency: TLabel
           Left = 57
           Top = 8
@@ -99,21 +99,21 @@ inherited frmSysCurrency: TfrmSysCurrency
   inherited pnlBottom: TPanel
     Top = 109
     Width = 351
-    ExplicitTop = 117
-    ExplicitWidth = 355
+    ExplicitTop = 105
+    ExplicitWidth = 349
     inherited btnAccept: TButton
-      Left = 149
-      ExplicitLeft = 149
+      Left = 145
+      ExplicitLeft = 143
     end
     inherited btnClose: TButton
-      Left = 253
-      ExplicitLeft = 253
+      Left = 249
+      ExplicitLeft = 247
     end
   end
   inherited stbBase: TStatusBar
     Top = 139
     Width = 355
-    ExplicitTop = 147
-    ExplicitWidth = 359
+    ExplicitTop = 135
+    ExplicitWidth = 353
   end
 end

@@ -3,27 +3,27 @@ inherited frmChHesapPlani: TfrmChHesapPlani
   Top = 443
   ActiveControl = btnClose
   Caption = 'Hesap Plan'#305
-  ClientHeight = 212
+  ClientHeight = 147
   ClientWidth = 368
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 384
-  ExplicitHeight = 251
+  ExplicitWidth = 382
+  ExplicitHeight = 182
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 368
-    Height = 162
+    Height = 97
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 370
-    ExplicitHeight = 166
+    ExplicitWidth = 366
+    ExplicitHeight = 158
     inherited pgcMain: TPageControl
-      Width = 370
-      Height = 166
-      ExplicitWidth = 370
-      ExplicitHeight = 166
+      Width = 368
+      Height = 97
+      ExplicitWidth = 366
+      ExplicitHeight = 158
       inherited tsMain: TTabSheet
-        ExplicitWidth = 362
-        ExplicitHeight = 138
+        ExplicitWidth = 360
+        ExplicitHeight = 69
         object lbltek_duzen_kodu: TLabel
           Left = 50
           Top = 6
@@ -104,23 +104,23 @@ inherited frmChHesapPlani: TfrmChHesapPlani
     end
   end
   inherited pnlBottom: TPanel
-    Top = 164
+    Top = 99
     Width = 364
-    ExplicitTop = 168
-    ExplicitWidth = 366
+    ExplicitTop = 160
+    ExplicitWidth = 362
     inherited btnAccept: TButton
-      Left = 162
-      ExplicitLeft = 160
+      Left = 158
+      ExplicitLeft = 156
     end
     inherited btnClose: TButton
-      Left = 266
-      ExplicitLeft = 264
+      Left = 262
+      ExplicitLeft = 260
     end
   end
   inherited stbBase: TStatusBar
-    Top = 194
+    Top = 129
     Width = 368
-    ExplicitTop = 198
-    ExplicitWidth = 370
+    ExplicitTop = 190
+    ExplicitWidth = 366
   end
 end

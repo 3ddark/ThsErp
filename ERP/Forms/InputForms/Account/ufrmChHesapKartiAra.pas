@@ -5,36 +5,13 @@ interface
 {$I Ths.inc}
 
 uses
-  Winapi.Windows,
-  Winapi.Messages,
-  System.SysUtils,
-  System.Variants,
-  System.Classes,
-  System.StrUtils,
-  System.Types,
-  System.ImageList,
-  Vcl.Graphics,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Dialogs,
-  Vcl.StdCtrls,
-  Vcl.ExtCtrls,
-  Vcl.ComCtrls,
-  Vcl.Menus,
-  Vcl.AppEvnts,
-  Vcl.ImgList,
-  Vcl.Samples.Spin,
-  ZStoredProcedure,
-  Ths.Helper.BaseTypes,
-  Ths.Helper.Edit,
-  Ths.Helper.ComboBox,
-  Ths.Helper.Memo,
-  ufrmBase,
-  ufrmBaseInputDB,
-  Ths.Database.Table.SetChHesapTipi,
-  Ths.Database.Table.ChHesapPlanlari,
-  ufrmChHesapPlanlari,
-  ufrmChHesapKartlariAra,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, System.StrUtils, System.Types, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
+  Vcl.Menus, Vcl.AppEvnts, Vcl.Samples.Spin, ZStoredProcedure,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo,
+  ufrmBase, ufrmBaseInputDB,
+  Ths.Database.Table.ChHesapPlanlari, ufrmChHesapPlanlari,
   Ths.Constants;
 
 type
@@ -57,17 +34,15 @@ type
   protected
     procedure HelperProcess(Sender: TObject); override;
   published
-    procedure btnAcceptClick(Sender: TObject);override;
-    procedure FormShow(Sender: TObject);override;
-    procedure RefreshData();override;
+    procedure btnAcceptClick(Sender: TObject); override;
+    procedure FormShow(Sender: TObject); override;
+    procedure RefreshData(); override;
   end;
 
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Database.Table,
-  Ths.Database.Table.ChHesapKartiAra,
+  Ths.Globals, Ths.Database.Table, Ths.Database.Table.ChHesapKartiAra,
   Ths.Database.Table.ChHesapKarti;
 
 {$R *.dfm}
@@ -94,14 +69,14 @@ begin
   try
     cbbara_hesap_kodu.Items.BeginUpdate;
     for n1 := 1 to 100 do
-      cbbara_hesap_kodu.Items.Add(n1.ToString);// Format('%.*d',[3, n1]);
+      cbbara_hesap_kodu.Items.Add(Format('%.*d',[3, n1])); // n1.ToString;
 
     vSP.StoredProcName := 'spget_hesap_kodu_ara_kodlar';
     vSP.Prepare;
     vSP.ParamByName('pkok_kod').Text := edtkok_hesap_kodu.Text;
     vSP.ParamByName('para_kod').Text := '';
     vSP.ParamByName('pis_update').AsBoolean := False;
-    if (FormMode = ifmUpdate) OR (FormMode = ifmRewiev) OR (FormMode = ifmReadOnly) then
+    if (FormMode = ifmUpdate) or (FormMode = ifmRewiev) or (FormMode = ifmReadOnly) then
     begin
       vSP.ParamByName('para_kod').Text := TChHesapKartiAra(Table).KokKod.Value;
       vSP.ParamByName('pis_update').AsBoolean := True;
@@ -146,7 +121,7 @@ begin
       if TEdit(Sender).Name = edtkok_hesap_kodu.Name then
       begin
         LHesapPlani := TChHesapPlani.Create(Table.Database);
-        LfrmHesapPlani := TfrmChHesapPlanlari.Create(TEdit(Sender), Self, LHesapPlani, fomNormal, True);
+        LFrmHesapPlani := TfrmChHesapPlanlari.Create(TEdit(Sender), Self, LHesapPlani, fomNormal, True);
         try
           //Hesap Planýnda seviyesi 3 olanlarýn ara hesabý olabilir. Bu nedenle 3 seviyeliler acýlýr
           LFrmHesapPlani.QryFiltreVarsayilanKullanici := ' AND ' + LHesapPlani.Seviye.QryName + '=' + IntToStr(3);

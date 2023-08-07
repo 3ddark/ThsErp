@@ -5,40 +5,14 @@ interface
 {$I Ths.inc}
 
 uses
-  Winapi.Windows,
-  Winapi.Messages,
-  System.SysUtils,
-  System.Variants,
-  System.Classes,
-  System.StrUtils,
-  System.Math,
-  System.UITypes,
-  System.Types,
-  Vcl.Graphics,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Dialogs,
-  Vcl.StdCtrls,
-  Vcl.ExtCtrls,
-  Vcl.ComCtrls,
-  Vcl.AppEvnts,
-  Vcl.Menus,
-  Vcl.Samples.Spin,
-  Vcl.Mask,
-  Data.DB,
-  Vcl.Grids,
-  Vcl.DBGrids,
-  ZStoredProcedure,
-  Ths.Helper.BaseTypes,
-  Ths.Helper.Edit,
-  Ths.Helper.ComboBox,
-  Ths.Helper.Memo,
-  ufrmBase,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, System.StrUtils, System.Math, System.UITypes, System.Types,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus, Vcl.Samples.Spin, Data.DB,
+  ZStoredProcedure, Ths.Helper.BaseTypes,
+  Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo, ufrmBase,
   ufrmBaseInputDB,
-  Ths.Database.Table.SetChHesapTipi,
-  ufrmChHesapPlanlari,
-  Ths.Database.Table.ChHesapPlanlari,
-  Ths.Constants;
+  Ths.Database.Table.ChHesapPlanlari, Ths.Constants;
 
 type
   TfrmHesapKarti = class(TfrmBaseInputDB)
@@ -131,10 +105,10 @@ type
     edtmukellef_tipi_id: TEdit;
     edtulke_id: TEdit;
     edtsehir_id: TEdit;
-    procedure FormCreate(Sender: TObject);override;
-    procedure RefreshData();override;
-    procedure btnAcceptClick(Sender: TObject);override;
-    procedure FormShow(Sender: TObject);override;
+    procedure FormCreate(Sender: TObject); override;
+    procedure RefreshData(); override;
+    procedure btnAcceptClick(Sender: TObject); override;
+    procedure FormShow(Sender: TObject); override;
     procedure edtkok_hesap_koduExit(Sender: TObject);
     procedure cbbara_hesap_koduExit(Sender: TObject);
     procedure cbbson_hesap_koduExit(Sender: TObject);
@@ -159,17 +133,14 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Database.Table,
-  Ths.Database.Table.ChHesapKarti, ufrmChHesapKartlari,
-  Ths.Database.Table.ChHesapKartiAra, ufrmChHesapKartlariAra,
-  Ths.Database.Table.ChGruplar, ufrmChGruplar,
-  Ths.Database.Table.EmpEmployee, ufrmEmpEmployees,
+  Ths.Globals, Ths.Database.Table, Ths.Database.Table.ChHesapKarti,
+  Ths.Database.Table.ChHesapKartiAra,
+  ufrmChHesapKartlariAra, Ths.Database.Table.ChGruplar, ufrmChGruplar,
+  Ths.Database.Table.EmpEmployee,
   Ths.Database.Table.ChBolgeler, ufrmChBolgeler,
   Ths.Database.Table.SysVergiMukellefTipleri, ufrmSysVergiMukellefTipleri,
-  Ths.Database.Table.SysUlkeler, ufrmSysUlkeler,
-  Ths.Database.Table.SysSehirler, ufrmSysSehirler,
-  Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
+  Ths.Database.Table.SysUlkeler, ufrmSysUlkeler, Ths.Database.Table.SysSehirler,
+  ufrmSysSehirler, Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
   Ths.Database.Table.SysAdresler;
 
 {$R *.dfm}
@@ -195,35 +166,25 @@ end;
 procedure TfrmHesapKarti.fillAraHesapNumbers;
 var
   n1: Integer;
-  vSP: TZStoredProc;
+  LAraKodlar: TStringList;
 begin
   cbbara_hesap_kodu.Clear;
-  vSP := GDataBase.NewStoredProcedure();
   try
     cbbara_hesap_kodu.Items.BeginUpdate;
     for n1 := 1 to 100 do
       cbbara_hesap_kodu.Items.Add(n1.ToString);
 
-    vSP.StoredProcName := 'spget_hesap_kodu_ara_kodlar';
-    vSP.Prepare;
-    vSP.ParamByName('pkok_kod').Text := edtkok_hesap_kodu.Text;
-    vSP.ParamByName('para_kod').Text := '';
-    vSP.ParamByName('pis_update').AsBoolean := False;
-    if (FormMode = ifmUpdate) OR (FormMode = ifmRewiev) OR (FormMode = ifmReadOnly) then
-    begin
-      vSP.ParamByName('para_kod').Text := TChHesapKarti(Table).KokKod.Value;
-      vSP.ParamByName('pis_update').AsBoolean := True;
-    end;
-    vSP.Open();
-    vSP.First;
-    while not vSP.Eof do
+    if (FormMode = ifmUpdate) or (FormMode = ifmRewiev) or (FormMode = ifmReadOnly) then
+      LAraKodlar := TChHesapKarti(Table).GetAraHesapKodlari(edtkok_hesap_kodu.Text, TChHesapKarti(Table).KokKod.AsString, True)
+    else
+      LAraKodlar := TChHesapKarti(Table).GetAraHesapKodlari(edtkok_hesap_kodu.Text, '', False);
+
+    for n1 := 0 to LAraKodlar.Count-1 do
     begin
       if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
-        cbbara_hesap_kodu.Items.Delete(cbbara_hesap_kodu.Items.IndexOf(vSP.Fields.Fields[0].AsString));
-      vSP.Next;
+          cbbara_hesap_kodu.Items.Delete(cbbara_hesap_kodu.Items.IndexOf(LAraKodlar.Strings[0]));
     end;
   finally
-    vSP.Free;
     cbbara_hesap_kodu.Items.EndUpdate;
   end;
 end;
@@ -233,11 +194,11 @@ var
   LHesapKarti: TChHesapKarti;
   n1: Integer;
   LFilter, LNo: string;
-  LSP: TZStoredProc;
+  LSonHesapKodlari: TStringList;
 begin
   LNo := '';
   for n1 := 1 to 1500 do
-    LNo := LNo + n1.ToString + AddLBs;
+    LNo := LNo + Format('%.*d',[3, n1]) + AddLBs;
 
   cbbara_hesap_kodu.Clear;
   cbbara_hesap_kodu.Items.Add(pAraHesapKodu);
@@ -247,38 +208,22 @@ begin
   cbbson_hesap_kodu.Items.Text := LNo;
   cbbson_hesap_kodu.Items.EndUpdate;
 
-  LSP := GDataBase.NewStoredProcedure();
   LHesapKarti := TChHesapKarti.Create(Table.Database);
   try
-    if (FormMode = ifmNewRecord) OR (FormMode = ifmCopyNewRecord) then
-      LFilter :=
-        ' AND ' + LHesapKarti.KokKod.QryName + '=' + QuotedStr(pKokHesap) +
-        ' AND ' + LHesapKarti.AraKod.QryName + '=' + QuotedStr(pKokHesap + '-' + pAraHesapKodu) +
-        ' AND ' + LHesapKarti.HesapTipiID.QryName + '=' + IntToStr(Ord(htSon))
-    else if (FormMode = ifmUpdate) OR (FormMode = ifmRewiev) OR (FormMode = ifmReadOnly) then
-      LFilter :=
-        ' AND ' + LHesapKarti.KokKod.QryName + '=' + QuotedStr(pKokHesap) +
-        ' AND ' + LHesapKarti.AraKod.QryName + '=' + QuotedStr(pKokHesap + '-' + pAraHesapKodu) +
-        ' AND ' + LHesapKarti.HesapTipiID.QryName + '=' + IntToStr(Ord(htSon)) +
-        ' AND ' + LHesapKarti.HesapKodu.QryName + '<>' + QuotedStr(TChHesapKarti(Table).HesapKodu.Value);
+    if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
+      LFilter := ' AND ' + LHesapKarti.KokKod.QryName + '=' + QuotedStr(pKokHesap) + ' AND ' + LHesapKarti.AraKod.QryName + '=' + QuotedStr(pKokHesap + '-' + pAraHesapKodu) + ' AND ' + LHesapKarti.HesapTipiID.QryName + '=' + IntToStr(Ord(htSon))
+    else if (FormMode = ifmUpdate) or (FormMode = ifmRewiev) or (FormMode = ifmReadOnly) then
+      LFilter := ' AND ' + LHesapKarti.KokKod.QryName + '=' + QuotedStr(pKokHesap) + ' AND ' + LHesapKarti.AraKod.QryName + '=' + QuotedStr(pKokHesap + '-' + pAraHesapKodu) + ' AND ' + LHesapKarti.HesapTipiID.QryName + '=' + IntToStr(Ord(htSon)) + ' AND ' + LHesapKarti.HesapKodu.QryName + '<>' + QuotedStr(TChHesapKarti(Table).HesapKodu.Value);
 
-    LSP.StoredProcName := 'spget_hesap_kodu_son_kodlar';
-    LSP.Prepare;
-    LSP.ParamByName('pfilter').Text := LFilter;
-    LSP.Open();
-    LSP.First;
-    while not LSP.Eof do
-    begin
-      cbbson_hesap_kodu.Items.Delete(cbbson_hesap_kodu.Items.IndexOf(LSP.Fields.Fields[0].AsString));
-      LSP.Next;
-    end;
+    LSonHesapKodlari := LHesapKarti.GetSonHesapKodlari(LFilter);
+    for n1 := 0 to LSonHesapKodlari.Count-1 do
+      cbbson_hesap_kodu.Items.Delete(cbbson_hesap_kodu.Items.IndexOf(LSonHesapKodlari.Strings[n1]));
   finally
-    LSP.Free;
     LHesapKarti.Free;
     cbbson_hesap_kodu.Items.EndUpdate;
   end;
 
-  if (FormMode = ifmNewRecord) OR (FormMode = ifmCopyNewRecord) then
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
     cbbson_hesap_kodu.ItemIndex := 0;
 end;
 
@@ -343,7 +288,6 @@ var
   LFrmBolge: TfrmChBolgeler;
   LFrmMukellef: TfrmSysVergiMukellefTipleri;
   LFrmPara: TfrmSysParaBirimleri;
-
   LFrmCountry: TfrmSysUlkeler;
   LCountry: TSysUlke;
   LFrmSehir: TfrmSysSehirler;
@@ -467,10 +411,7 @@ begin
           LFrmMukellef.Free;
         end;
       end
-      else
-      if (TEdit(Sender).Name = edtpara_birimi.Name)
-      or (TEdit(Sender).Name = edtiban_para.Name)
-      then
+      else if (TEdit(Sender).Name = edtpara_birimi.Name) or (TEdit(Sender).Name = edtiban_para.Name) then
       begin
         LFrmPara := TfrmSysParaBirimleri.Create(TEdit(Sender), Self, TSysParaBirimi.Create(Table.Database), fomNormal, True);
         try
@@ -486,7 +427,8 @@ begin
         finally
           LFrmPara.Free;
         end;
-      end else if (TEdit(Sender).Name = edtsehir_id.Name) then
+      end
+      else if (TEdit(Sender).Name = edtsehir_id.Name) then
       begin
         LSehir := TSysSehir.Create(Table.Database);
         LFrmSehir := TfrmSysSehirler.Create(TEdit(Sender), Self, LSehir, fomNormal, True);
@@ -643,10 +585,7 @@ procedure TfrmHesapKarti.Repaint;
 begin
   inherited;
   edthesap_kodu.ReadOnly := True;
-  if (FormMode = ifmNewRecord)
-  or (FormMode = ifmCopyNewRecord)
-  or (FormMode = ifmUpdate)
-  then
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
     edthesap_iskonto.ReadOnly := False;
 
   edtilce.ReadOnly := True;
@@ -701,16 +640,15 @@ function TfrmHesapKarti.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinC
       raise Exception.Create('Listede olmayan bir Tablo Adı giremezsiniz!' + AddLBs + AComboBox.Text);
     end;
   end;
+
 begin
   Result := inherited ValidateInput(panel_groupbox_pagecontrol_tabsheet);
 
-  if (edtkok_hesap_kodu.Visible and (edtkok_hesap_kodu.Text = ''))
-  or (cbbara_hesap_kodu.Visible and (cbbara_hesap_kodu.Text = ''))
-  or (cbbson_hesap_kodu.Visible and (cbbson_hesap_kodu.Text = ''))
-  then
+  if (edtkok_hesap_kodu.Visible and (edtkok_hesap_kodu.Text = '')) or (cbbara_hesap_kodu.Visible and (cbbara_hesap_kodu.Text = '')) or (cbbson_hesap_kodu.Visible and (cbbson_hesap_kodu.Text = '')) then
     raise Exception.Create('Son Hesap Kodu seçilmeden devam edilemez!');
 
-  if cbbson_hesap_kodu.Visible then checkComboBoxItems(cbbson_hesap_kodu);
+  if cbbson_hesap_kodu.Visible then
+    checkComboBoxItems(cbbson_hesap_kodu);
 end;
 
 procedure TfrmHesapKarti.btnAcceptClick(Sender: TObject);
@@ -773,3 +711,4 @@ begin
 end;
 
 end.
+

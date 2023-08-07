@@ -389,49 +389,6 @@ $$;
 ALTER FUNCTION public.spget_crypted_data(pval text) OWNER TO postgres;
 
 --
--- Name: spget_hesap_kodu_ara_kodlar(text, text, boolean); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spget_hesap_kodu_ara_kodlar(pkok_kod text, para_kod text, pis_update boolean) RETURNS TABLE(ara_hesap_kodu integer)
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	vFiltre text;
-BEGIN
-	IF pis_update THEN
-		vFiltre := ' AND kok_kod=' || quote_literal(pkok_kod) || ' AND hesap_kodu !=' || quote_literal(para_kod);
-	ELSE
-		vFiltre := ' AND kok_kod=' || quote_literal(pkok_kod);
-	END IF;
-	--Ara Hesap Tipi Id bilgisi 2
-RETURN QUERY EXECUTE 
-	'SELECT cast(right(hesap_kodu, length(hesap_kodu)-4) as Integer) ara_kod FROM ch_hesaplar ' ||
-	' WHERE  ch_hesaplar.hesap_tipi_id=2' || vFiltre || 
-	' ORDER BY 1 ASC';
-
-END
-$$;
-
-
-ALTER FUNCTION public.spget_hesap_kodu_ara_kodlar(pkok_kod text, para_kod text, pis_update boolean) OWNER TO postgres;
-
---
--- Name: spget_hesap_kodu_son_kodlar(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spget_hesap_kodu_son_kodlar(pfilter text) RETURNS TABLE(son_hesap_kodu integer)
-    LANGUAGE plpgsql
-    AS $$
-begin
-RETURN QUERY EXECUTE 'SELECT split_part(hesap_kodu, ''-'', (CHAR_LENGTH(hesap_kodu) - CHAR_LENGTH(REPLACE(hesap_kodu, ''-'', ''''))) / CHAR_LENGTH(''-'') + 1)::integer as son_hesap_kodu FROM ch_hesaplar WHERE 1=1 ' || pfilter;
-
-END
-$$;
-
-
-ALTER FUNCTION public.spget_hesap_kodu_son_kodlar(pfilter text) OWNER TO postgres;
-
---
 -- Name: spget_lang_text(text, text, text, bigint, text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -5908,22 +5865,6 @@ GRANT ALL ON FUNCTION public.spexists_hesap_kodu(phesap_kodu text) TO ths_admin;
 --
 
 GRANT ALL ON FUNCTION public.spget_crypted_data(pval text) TO ths_admin;
-
-
---
--- Name: FUNCTION spget_hesap_kodu_ara_kodlar(pkok_kod text, para_kod text, pis_update boolean); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.spget_hesap_kodu_ara_kodlar(pkok_kod text, para_kod text, pis_update boolean) FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spget_hesap_kodu_ara_kodlar(pkok_kod text, para_kod text, pis_update boolean) TO ths_admin;
-
-
---
--- Name: FUNCTION spget_hesap_kodu_son_kodlar(pfilter text); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.spget_hesap_kodu_son_kodlar(pfilter text) FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spget_hesap_kodu_son_kodlar(pfilter text) TO ths_admin;
 
 
 --

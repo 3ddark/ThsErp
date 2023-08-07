@@ -21,7 +21,8 @@ type
     lblexplanation: TLabel;
     edtexplanation: TEdit;
   published
-    procedure btnAcceptClick(Sender: TObject);override;
+    procedure btnAcceptClick(Sender: TObject); override;
+    procedure RefreshData; override;
   end;
 
 implementation
@@ -43,6 +44,14 @@ begin
   end
   else
     inherited;
+end;
+
+procedure TfrmSysParaBirimi.RefreshData;
+begin
+  inherited;
+  edtcurrency.Text := TSysParaBirimi(Table).Para.Value;
+  edtsymbol.Text := TSysParaBirimi(Table).Sembol.Value;
+  edtexplanation.Text := TSysParaBirimi(Table).Aciklama.Value;
 end;
 
 end.

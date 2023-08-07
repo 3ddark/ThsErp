@@ -84,6 +84,9 @@ type
     procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
+    function GetAraHesapKodlari(AKokKod, AAraKod: string; AIsUpdate: Boolean): TStringList;
+    function GetSonHesapKodlari(AFilter: string): TStringList;
+
     function Clone: TTable; override;
 
     procedure Validate;
@@ -434,6 +437,57 @@ begin
     ExecSQL;
   finally
     Free;
+  end;
+end;
+
+function TChHesapKarti.GetAraHesapKodlari(AKokKod, AAraKod: string; AIsUpdate: Boolean): TStringList;
+var
+  LQry: TZQuery;
+  LSQL, LFilter: string;
+begin
+	if AIsUpdate then
+		LFilter := ' AND ' + Self.KokKod.FieldName + '=' + QuotedStr(AKokKod) + ' AND ' + Self.HesapKodu.FieldName + '!=' + QuotedStr(AAraKod)
+	else
+		LFilter := ' AND ' + Self.KokKod.FieldName + '=' + QuotedStr(AKokKod);
+
+//	--Ara Hesap Tipi Id bilgisi 2
+  Result := TStringList.Create;
+  LSQL := 'SELECT cast(right(' + Self.HesapKodu.QryName + ', length(' + Self.HesapKodu.QryName + ')-4) as Integer) FROM ' + Self.TableName +
+          ' WHERE ' + Self.HesapTipiID.QryName + '=2' + LFilter + ' ORDER BY 1 ASC';
+  LQry := Database.NewQuery();
+  try
+    LQry.SQL.Text := LSQL;
+    LQry.Open;
+    LQry.First;
+    while not LQry.Eof do
+    begin
+      Result.Add(LQry.Fields.Fields[0].AsString);
+      LQry.Next;
+    end;
+  finally
+    LQry.Free;
+  end;
+end;
+
+function TChHesapKarti.GetSonHesapKodlari(AFilter: string): TStringList;
+var
+  LQry: TZQuery;
+  LSQL: string;
+begin
+  Result := TStringList.Create;
+  LSQL := 'SELECT cast(split_part(hesap_kodu, ''-'', (CHAR_LENGTH(hesap_kodu) - CHAR_LENGTH(REPLACE(hesap_kodu, ''-'', ''''))) / CHAR_LENGTH(''-'') + 1) as integer) FROM ' + Self.TableName + ' WHERE 1=1 ' + AFilter;
+  LQry := Database.NewQuery();
+  try
+    LQry.SQL.Text := LSQL;
+    LQry.Open;
+    LQry.First;
+    while not LQry.Eof do
+    begin
+      Result.Add(LQry.Fields.Fields[0].AsString);
+      LQry.Next;
+    end;
+  finally
+    LQry.Free;
   end;
 end;
 
