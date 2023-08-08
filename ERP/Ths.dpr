@@ -270,8 +270,7 @@ uses
   ufrmSetBbkFirmaTipi in 'Forms\InputForms\Databank\ufrmSetBbkFirmaTipi.pas' {frmSetBbkFirmaTipi},
   Ths.Database.Table.BbkKayit in 'BackEnd\Databank\Ths.Database.Table.BbkKayit.pas',
   ufrmBbkKayitlar in 'Forms\OutputForms\DbGrid\Databank\ufrmBbkKayitlar.pas' {frmBbkKayitlar},
-  ufrmBbkKayit in 'Forms\InputForms\Databank\ufrmBbkKayit.pas' {frmBbkKayit},
-  Vcl.recerror in 'c:\program files (x86)\embarcadero\studio\22.0\ObjRepos\EN\DelphiWin32\Vcl.recerror.pas' {ReconcileErrorForm};
+  ufrmBbkKayit in 'Forms\InputForms\Databank\ufrmBbkKayit.pas' {frmBbkKayit};
 
 {$R *.res}
 

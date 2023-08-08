@@ -9,10 +9,8 @@ uses
   System.Classes, System.StrUtils, System.Math, System.UITypes, System.Types,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus, Vcl.Samples.Spin, Data.DB,
-  ZStoredProcedure, Ths.Helper.BaseTypes,
-  Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo, ufrmBase,
-  ufrmBaseInputDB,
-  Ths.Database.Table.ChHesapPlanlari, Ths.Constants;
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo,
+  ufrmBase, ufrmBaseInputDB, Ths.Database.Table.ChHesapPlanlari, Ths.Constants;
 
 type
   TfrmHesapKarti = class(TfrmBaseInputDB)
@@ -134,9 +132,8 @@ implementation
 
 uses
   Ths.Globals, Ths.Database.Table, Ths.Database.Table.ChHesapKarti,
-  Ths.Database.Table.ChHesapKartiAra,
-  ufrmChHesapKartlariAra, Ths.Database.Table.ChGruplar, ufrmChGruplar,
-  Ths.Database.Table.EmpEmployee,
+  Ths.Database.Table.ChHesapKartiAra, ufrmChHesapKartlariAra,
+  Ths.Database.Table.ChGruplar, ufrmChGruplar, Ths.Database.Table.EmpEmployee,
   Ths.Database.Table.ChBolgeler, ufrmChBolgeler,
   Ths.Database.Table.SysVergiMukellefTipleri, ufrmSysVergiMukellefTipleri,
   Ths.Database.Table.SysUlkeler, ufrmSysUlkeler, Ths.Database.Table.SysSehirler,
@@ -179,10 +176,10 @@ begin
     else
       LAraKodlar := TChHesapKarti(Table).GetAraHesapKodlari(edtkok_hesap_kodu.Text, '', False);
 
-    for n1 := 0 to LAraKodlar.Count-1 do
+    for n1 := 0 to LAraKodlar.Count - 1 do
     begin
       if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
-          cbbara_hesap_kodu.Items.Delete(cbbara_hesap_kodu.Items.IndexOf(LAraKodlar.Strings[0]));
+        cbbara_hesap_kodu.Items.Delete(cbbara_hesap_kodu.Items.IndexOf(LAraKodlar.Strings[0]));
     end;
   finally
     cbbara_hesap_kodu.Items.EndUpdate;
@@ -198,7 +195,7 @@ var
 begin
   LNo := '';
   for n1 := 1 to 1500 do
-    LNo := LNo + Format('%.*d',[3, n1]) + AddLBs;
+    LNo := LNo + Format('%.*d', [3, n1]) + AddLBs;
 
   cbbara_hesap_kodu.Clear;
   cbbara_hesap_kodu.Items.Add(pAraHesapKodu);
@@ -216,7 +213,7 @@ begin
       LFilter := ' AND ' + LHesapKarti.KokKod.QryName + '=' + QuotedStr(pKokHesap) + ' AND ' + LHesapKarti.AraKod.QryName + '=' + QuotedStr(pKokHesap + '-' + pAraHesapKodu) + ' AND ' + LHesapKarti.HesapTipiID.QryName + '=' + IntToStr(Ord(htSon)) + ' AND ' + LHesapKarti.HesapKodu.QryName + '<>' + QuotedStr(TChHesapKarti(Table).HesapKodu.Value);
 
     LSonHesapKodlari := LHesapKarti.GetSonHesapKodlari(LFilter);
-    for n1 := 0 to LSonHesapKodlari.Count-1 do
+    for n1 := 0 to LSonHesapKodlari.Count - 1 do
       cbbson_hesap_kodu.Items.Delete(cbbson_hesap_kodu.Items.IndexOf(LSonHesapKodlari.Strings[n1]));
   finally
     LHesapKarti.Free;

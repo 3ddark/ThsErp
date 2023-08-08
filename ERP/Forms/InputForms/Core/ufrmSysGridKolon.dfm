@@ -1,4 +1,4 @@
-inherited frmSysGridColumn: TfrmSysGridColumn
+inherited frmSysGridKolon: TfrmSysGridKolon
   Left = 501
   Top = 443
   Caption = 'System Grid Column'

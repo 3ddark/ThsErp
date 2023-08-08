@@ -736,10 +736,6 @@
         <DCCReference Include="Forms\InputForms\Databank\ufrmBbkKayit.pas">
             <Form>frmBbkKayit</Form>
         </DCCReference>
-        <DCCReference Include="c:\program files (x86)\embarcadero\studio\22.0\ObjRepos\EN\DelphiWin32\Vcl.recerror.pas">
-            <Form>ReconcileErrorForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

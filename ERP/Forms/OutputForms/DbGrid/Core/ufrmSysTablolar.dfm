@@ -1,4 +1,4 @@
-inherited frmSysTables: TfrmSysTables
+inherited frmSysTablolar: TfrmSysTablolar
   Caption = 'Tablolar'
   ExplicitWidth = 811
   ExplicitHeight = 564

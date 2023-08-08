@@ -1763,7 +1763,9 @@ CREATE TABLE public.stk_gruplar (
     alis_hesap_kodu character varying(16),
     alis_iade_hesap_kodu character varying(16),
     ihracat_hesap_kodu character varying(16),
-    ihracat_iade_hesap_kodu character varying(16)
+    ihracat_iade_hesap_kodu character varying(16),
+    hammadde_hesap_kodu character varying(16),
+    mamul_hesap_kodu character varying(16)
 );
 
 

@@ -1,4 +1,4 @@
-inherited frmSysLangGuiContent: TfrmSysLangGuiContent
+inherited frmSysLisanGuiIcerik: TfrmSysLisanGuiIcerik
   Left = 501
   Top = 443
   ActiveControl = btnClose

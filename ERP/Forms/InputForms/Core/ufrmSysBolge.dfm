@@ -1,4 +1,4 @@
-inherited frmSysRegion: TfrmSysRegion
+inherited frmSysBolge: TfrmSysBolge
   Caption = 'System Region'
   ClientHeight = 113
   ClientWidth = 340

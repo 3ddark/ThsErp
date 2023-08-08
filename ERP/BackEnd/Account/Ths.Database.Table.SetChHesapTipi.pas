@@ -60,7 +60,6 @@ begin
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
     Open;
-    Active := True;
 
     setFieldTitle(Self.Id, 'ID', QryOfDS);
     setFieldTitle(FHesapTipi, 'Hesap Tipi', QryOfDS);

@@ -1,4 +1,4 @@
-inherited frmSysDay: TfrmSysDay
+inherited frmSysGun: TfrmSysGun
   Left = 501
   Top = 443
   Caption = 'System Day'

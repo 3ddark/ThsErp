@@ -143,7 +143,6 @@ begin
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
     Open;
-    Active := True;
   end;
 end;
 

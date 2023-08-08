@@ -1,4 +1,4 @@
-inherited frmSysLang: TfrmSysLang
+inherited frmSysLisan: TfrmSysLisan
   Left = 501
   Top = 443
   Caption = 'System Language'

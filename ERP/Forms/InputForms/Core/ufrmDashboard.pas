@@ -131,6 +131,9 @@ type
     actstk_stok_karti_ozetleri: TAction;
     mnistk_ambarlar: TMenuItem;
     mnistk_gruplar: TMenuItem;
+    mnimuhasebe_ayarlar: TMenuItem;
+    actset_ch_vergi_orani: TAction;
+    mniset_ch_vergi_orani: TMenuItem;
 
 /// <summary>
 ///   Kullanıcının erişim yetkisine göre yapılacak işlemler burada olacak
@@ -196,7 +199,6 @@ type
     procedure actset_ch_grupExecute(Sender: TObject);
     procedure actset_ch_hesap_planiExecute(Sender: TObject);
     procedure actset_ch_hesap_tipiExecute(Sender: TObject);
-    procedure actset_ch_vergi_oraniExecute(Sender: TObject);
     procedure actstk_stok_hareketiExecute(Sender: TObject);
     procedure actprs_personelExecute(Sender: TObject);
     procedure actset_prs_servis_araciExecute(Sender: TObject);
@@ -220,6 +222,7 @@ type
     procedure actstk_stok_kartlariExecute(Sender: TObject);
     procedure actstk_stok_karti_ozetleriExecute(Sender: TObject);
     procedure actstk_cins_ozellikleriExecute(Sender: TObject);
+    procedure actset_ch_vergi_oraniExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
   published

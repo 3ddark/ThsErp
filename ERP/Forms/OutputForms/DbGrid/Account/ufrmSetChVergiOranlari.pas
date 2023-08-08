@@ -15,8 +15,8 @@ type
   TfrmSetChVergiOranlari = class(TfrmBaseDBGrid)
   protected
     function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm; override;
-  published
-    procedure FormCreate(Sender: TObject); override;
+   public
+       procedure FormShow(Sender: TObject); override;
   end;
 
 implementation
@@ -39,7 +39,7 @@ begin
     Result := TfrmSetChVergiOrani.Create(Application, Self, Table.Clone(), pFormMode);
 end;
 
-procedure TfrmSetChVergiOranlari.FormCreate(Sender: TObject);
+procedure TfrmSetChVergiOranlari.FormShow(Sender: TObject);
 begin
   inherited;
   if Table.DataSource.DataSet.RecordCount>0 then

@@ -1,4 +1,4 @@
-inherited frmSysResource: TfrmSysResource
+inherited frmSysKaynak: TfrmSysKaynak
   Left = 501
   Top = 443
   Caption = 'System Resource'

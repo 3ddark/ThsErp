@@ -3,27 +3,27 @@ inherited frmStkStokGrubu: TfrmStkStokGrubu
   Top = 443
   ActiveControl = btnClose
   Caption = 'Stok Grubu'
-  ClientHeight = 276
-  ClientWidth = 572
+  ClientHeight = 272
+  ClientWidth = 570
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 588
-  ExplicitHeight = 315
+  ExplicitWidth = 586
+  ExplicitHeight = 311
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 572
-    Height = 226
+    Width = 570
+    Height = 222
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 360
     ExplicitHeight = 242
     inherited pgcMain: TPageControl
-      Width = 574
-      Height = 230
+      Width = 572
+      Height = 226
       ExplicitWidth = 358
       ExplicitHeight = 240
       inherited tsMain: TTabSheet
-        ExplicitWidth = 566
-        ExplicitHeight = 202
+        ExplicitWidth = 564
+        ExplicitHeight = 198
         object lblstok_grubu: TLabel
           Left = 115
           Top = 5
@@ -340,8 +340,8 @@ inherited frmStkStokGrubu: TfrmStkStokGrubu
     end
   end
   inherited pnlBottom: TPanel
-    Top = 228
-    Width = 568
+    Top = 224
+    Width = 566
     ExplicitTop = 246
     ExplicitWidth = 360
     inherited btnAccept: TButton
@@ -354,8 +354,8 @@ inherited frmStkStokGrubu: TfrmStkStokGrubu
     end
   end
   inherited stbBase: TStatusBar
-    Top = 258
-    Width = 572
+    Top = 254
+    Width = 570
     ExplicitTop = 276
     ExplicitWidth = 364
   end

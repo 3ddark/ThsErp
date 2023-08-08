@@ -1,4 +1,4 @@
-inherited frmSysTaxpayerType: TfrmSysTaxpayerType
+inherited frmSysMukellefTipi: TfrmSysMukellefTipi
   Left = 501
   Top = 443
   ActiveControl = btnClose

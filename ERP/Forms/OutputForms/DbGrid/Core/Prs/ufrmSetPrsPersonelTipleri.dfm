@@ -1,4 +1,4 @@
-inherited frmSetEmpEmployeeTypes: TfrmSetEmpEmployeeTypes
+inherited frmSetPrsPersonelTipleri: TfrmSetPrsPersonelTipleri
   Caption = 'Employee Types'
   ClientWidth = 795
   ExplicitWidth = 811

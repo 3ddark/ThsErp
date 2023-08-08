@@ -1,4 +1,4 @@
-inherited frmSysResourceGroup: TfrmSysResourceGroup
+inherited frmSysKaynakGrubu: TfrmSysKaynakGrubu
   Left = 501
   Top = 443
   Caption = 'Resource Group'

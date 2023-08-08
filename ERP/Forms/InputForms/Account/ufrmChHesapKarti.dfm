@@ -3,15 +3,15 @@ inherited frmHesapKarti: TfrmHesapKarti
   Top = 443
   ActiveControl = btnClose
   Caption = 'Hesap Kart'#305
-  ClientHeight = 348
-  ClientWidth = 682
+  ClientHeight = 344
+  ClientWidth = 680
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 696
   ExplicitHeight = 383
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 682
-    Height = 298
+    Width = 680
+    Height = 294
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 680
@@ -1038,8 +1038,8 @@ inherited frmHesapKarti: TfrmHesapKarti
     end
   end
   inherited pnlBottom: TPanel
-    Top = 300
-    Width = 678
+    Top = 296
+    Width = 676
     ExplicitTop = 296
     ExplicitWidth = 676
     inherited btnAccept: TButton
@@ -1052,8 +1052,8 @@ inherited frmHesapKarti: TfrmHesapKarti
     end
   end
   inherited stbBase: TStatusBar
-    Top = 330
-    Width = 682
+    Top = 326
+    Width = 680
     ExplicitTop = 326
     ExplicitWidth = 680
   end

@@ -6,13 +6,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, System.StrUtils, System.Types, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
-  Vcl.Menus, Vcl.AppEvnts, Vcl.Samples.Spin, ZStoredProcedure,
-  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo,
-  ufrmBase, ufrmBaseInputDB,
-  Ths.Database.Table.ChHesapPlanlari, ufrmChHesapPlanlari,
-  Ths.Constants;
+  System.Classes, System.StrUtils, System.Types, Vcl.Graphics, Vcl.Controls,
+  Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Menus,
+  Vcl.AppEvnts, Vcl.Samples.Spin, Ths.Helper.BaseTypes, Ths.Helper.Edit,
+  Ths.Helper.ComboBox, Ths.Helper.Memo, ufrmBase, ufrmBaseInputDB,
+  Ths.Database.Table.ChHesapPlanlari, ufrmChHesapPlanlari, Ths.Constants;
 
 type
   TfrmHesapKartiAra = class(TfrmBaseInputDB)
@@ -62,35 +60,28 @@ end;
 procedure TfrmHesapKartiAra.fillAraHesapNumbers;
 var
   n1: Integer;
-  vSP: TZStoredProc;
+  LHesapKarti: TChHesapKarti;
+  LAraKodlar: TStringList;
 begin
   cbbara_hesap_kodu.Clear;
-  vSP := GDataBase.NewStoredProcedure();
+  LHesapKarti := TChHesapKarti.Create(Table.Database);
   try
     cbbara_hesap_kodu.Items.BeginUpdate;
     for n1 := 1 to 100 do
-      cbbara_hesap_kodu.Items.Add(Format('%.*d',[3, n1])); // n1.ToString;
+      cbbara_hesap_kodu.Items.Add(Format('%.*d', [3, n1])); // n1.ToString;
 
-    vSP.StoredProcName := 'spget_hesap_kodu_ara_kodlar';
-    vSP.Prepare;
-    vSP.ParamByName('pkok_kod').Text := edtkok_hesap_kodu.Text;
-    vSP.ParamByName('para_kod').Text := '';
-    vSP.ParamByName('pis_update').AsBoolean := False;
     if (FormMode = ifmUpdate) or (FormMode = ifmRewiev) or (FormMode = ifmReadOnly) then
-    begin
-      vSP.ParamByName('para_kod').Text := TChHesapKartiAra(Table).KokKod.Value;
-      vSP.ParamByName('pis_update').AsBoolean := True;
-    end;
-    vSP.Open();
-    vSP.First;
-    while not vSP.Eof do
+      LAraKodlar := LHesapKarti.GetAraHesapKodlari(edtkok_hesap_kodu.Text, TChHesapKartiAra(Table).KokKod.AsString, True)
+    else
+      LAraKodlar := LHesapKarti.GetAraHesapKodlari(edtkok_hesap_kodu.Text, '', False);
+
+    for n1 := 0 to LAraKodlar.Count - 1 do
     begin
       if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
-        cbbara_hesap_kodu.Items.Delete(cbbara_hesap_kodu.Items.IndexOf(vSP.Fields.Fields[0].AsString));
-      vSP.Next;
+        cbbara_hesap_kodu.Items.Delete(cbbara_hesap_kodu.Items.IndexOf(LAraKodlar.Strings[0]));
     end;
   finally
-    vSP.Free;
+    LHesapKarti.Free;
     cbbara_hesap_kodu.Items.EndUpdate;
   end;
 end;
@@ -192,3 +183,4 @@ begin
 end;
 
 end.
+

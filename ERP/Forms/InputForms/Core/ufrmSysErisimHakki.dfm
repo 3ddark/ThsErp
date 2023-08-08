@@ -1,4 +1,4 @@
-inherited frmSysUserAccessRight: TfrmSysUserAccessRight
+inherited frmSysErisimHakki: TfrmSysErisimHakki
   Left = 501
   Top = 443
   Caption = 'Accesss Right'

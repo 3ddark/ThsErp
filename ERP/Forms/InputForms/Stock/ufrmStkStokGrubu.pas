@@ -145,14 +145,14 @@ begin
             else
             begin
               TEdit(Sender).Text := VarToStr(FormatedVariantVal(LVergi.VergiOrani));
-              edtsatis_kodu.Text := VarToStr(FormatedVariantVal(LVergi.SatisKodu));
-              lblsatis_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.SatisAdi));
-              edtsatis_iade_kodu.Text := VarToStr(FormatedVariantVal(LVergi.SatisIadeKodu));
-              lblsatis_iade_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.SatisIadeAdi));
-              edtalis_kodu.Text := VarToStr(FormatedVariantVal(LVergi.AlisKodu));
-              lblalis_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.AlisAdi));
-              edtalis_iade_kodu.Text := VarToStr(FormatedVariantVal(LVergi.AlisIadeKodu));
-              lblalis_iade_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.AlisIadeAdi));
+              edtsatis_kodu.Text := VarToStr(FormatedVariantVal(LVergi.SatisHesapKodu));
+              lblsatis_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.SatisHesapAdi));
+              edtsatis_iade_kodu.Text := VarToStr(FormatedVariantVal(LVergi.SatisIadeHesapKodu));
+              lblsatis_iade_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.SatisIadeHesapAdi));
+              edtalis_kodu.Text := VarToStr(FormatedVariantVal(LVergi.AlisHesapKodu));
+              lblalis_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.AlisHesapAdi));
+              edtalis_iade_kodu.Text := VarToStr(FormatedVariantVal(LVergi.AlisIadeHesapKodu));
+              lblalis_iade_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.AlisIadeHesapAdi));
             end;
           end;
         finally

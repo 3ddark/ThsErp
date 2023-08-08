@@ -3,3 +3,4 @@
 *.local
 __history
 __recovery
+*.bak

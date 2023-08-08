@@ -18,23 +18,23 @@ type
   private
     FGrup: TFieldDB;
     FKDVOrani: TFieldDB;
-    FHammaddeKodu: TFieldDB;
-    FMamulKodu: TFieldDB;
     FSatisHesapKodu: TFieldDB;
     FSatisIadeHesapKodu: TFieldDB;
     FAlisHesapKodu: TFieldDB;
     FAlisIadeHesapKodu: TFieldDB;
     FIhracatHesapKodu: TFieldDB;
     FIhracatIadeHesapKodu: TFieldDB;
+    FHammaddeHesapKodu: TFieldDB;
+    FMamulHesapKodu: TFieldDB;
     //vergi oranlarý tablosundan geliyor
-    FHammaddeAdi: TFieldDB;
-    FMamulAdi: TFieldDB;
     FSatisHesapAdi: TFieldDB;
     FSatisIadeHesapAdi: TFieldDB;
     FAlisHesapAdi: TFieldDB;
     FAlisIadeHesapAdi: TFieldDB;
     FIhracatHesapAdi: TFieldDB;
     FIhracatIadeHesapAdi: TFieldDB;
+    FHammaddeHesapAdi: TFieldDB;
+    FMamulHesapAdi: TFieldDB;
   protected
     FChHesapKarti: TChHesapKarti;
     FSetChVergiOrani: TSetChVergiOrani;
@@ -51,8 +51,8 @@ type
 
     Property Grup: TFieldDB read FGrup write FGrup;
     Property KDVOrani: TFieldDB read FKDVOrani write FKDVOrani;
-    Property HammaddeKodu: TFieldDB read FHammaddeKodu write FHammaddeKodu;
-    Property MamulKodu: TFieldDB read FMamulKodu write FMamulKodu;
+    Property HammaddeKodu: TFieldDB read FHammaddeHesapKodu write FHammaddeHesapKodu;
+    Property MamulKodu: TFieldDB read FMamulHesapKodu write FMamulHesapKodu;
     Property SatisHesapKodu: TFieldDB read FSatisHesapKodu write FSatisHesapKodu;
     Property SatisIadeHesapKodu: TFieldDB read FSatisIadeHesapKodu write FSatisIadeHesapKodu;
     Property AlisHesapKodu: TFieldDB read FAlisHesapKodu write FAlisHesapKodu;
@@ -60,8 +60,8 @@ type
     Property IhracatHesapKodu: TFieldDB read FIhracatHesapKodu write FIhracatHesapKodu;
     Property IhracatIadeHesapKodu: TFieldDB read FIhracatIadeHesapKodu write FIhracatIadeHesapKodu;
     //vergi oranlarý tablosundan geliyor
-    Property HammaddeAdi: TFieldDB read FHammaddeAdi write FHammaddeAdi;
-    Property MamulAdi: TFieldDB read FMamulAdi write FMamulAdi;
+    Property HammaddeAdi: TFieldDB read FHammaddeHesapAdi write FHammaddeHesapAdi;
+    Property MamulAdi: TFieldDB read FMamulHesapAdi write FMamulHesapAdi;
     Property SatisHesapAdi: TFieldDB read FSatisHesapAdi write FSatisHesapAdi;
     Property SatisIadeHesapAdi: TFieldDB read FSatisIadeHesapAdi write FSatisIadeHesapAdi;
     Property AlisHesapAdi: TFieldDB read FAlisHesapAdi write FAlisHesapAdi;
@@ -87,21 +87,23 @@ begin
 
   FGrup := TFieldDB.Create('stok_grubu', ftWideString, '', Self, 'Stok Grubu');
   FKDVOrani := TFieldDB.Create('kdv_orani', ftFloat, 0, Self, 'Kdv Oraný');
-  FHammaddeKodu := TFieldDB.Create('hammadde_kodu', ftWideString, '', Self, 'Hammadde Kodu');
-  FMamulKodu := TFieldDB.Create('mamul_kodu', ftWideString, '', Self, 'Mamül Kodu');
-  FIhracatHesapKodu := TFieldDB.Create('ihracat_kodu', ftWideString, '', Self, 'Ýhracat Kodu');
-  FIhracatHesapAdi := TFieldDB.Create('ihracat_adi', FChHesapKarti.HesapIsmi.DataType, '', Self, 'Ýhracat Ýsim');
-  FHammaddeAdi := TFieldDB.Create('hammadde_adi', FChHesapKarti.HesapIsmi.DataType, '', Self, 'Hammadde Ýsim');
-  FMamulAdi := TFieldDB.Create('mamul_adi', FChHesapKarti.HesapIsmi.DataType, '', Self, 'Mamül Ýsim');
+  FHammaddeHesapKodu := TFieldDB.Create('hammadde_kodu', ftWideString, '', Self, 'Hammadde Kodu');
+  FHammaddeHesapAdi := TFieldDB.Create('hammadde_adi', FChHesapKarti.HesapIsmi.DataType, '', Self, 'Hammadde Ýsim');
+  FMamulHesapAdi := TFieldDB.Create('mamul_adi', FChHesapKarti.HesapIsmi.DataType, '', Self, 'Mamül Ýsim');
+  FMamulHesapKodu := TFieldDB.Create('mamul_kodu', ftWideString, '', Self, 'Mamül Kodu');
   //vergi oranlarý tablosundan geliyor
-  FSatisHesapKodu := TFieldDB.Create(FSetChVergiOrani.SatisKodu.FieldName, FSetChVergiOrani.SatisKodu.DataType, FSetChVergiOrani.SatisKodu.Value, Self, FSetChVergiOrani.SatisKodu.Title);
-  FSatisHesapAdi := TFieldDB.Create(FSetChVergiOrani.SatisAdi.FieldName, FSetChVergiOrani.SatisAdi.DataType, FSetChVergiOrani.SatisAdi.Value, Self, FSetChVergiOrani.SatisAdi.Title);
-  FSatisIadeHesapKodu := TFieldDB.Create(FSetChVergiOrani.SatisIadeKodu.FieldName, FSetChVergiOrani.SatisIadeKodu.DataType, FSetChVergiOrani.SatisIadeKodu.Value, Self, FSetChVergiOrani.SatisIadeKodu.Title);
-  FSatisIadeHesapAdi := TFieldDB.Create(FSetChVergiOrani.SatisIadeAdi.FieldName, FSetChVergiOrani.SatisIadeAdi.DataType, FSetChVergiOrani.SatisIadeAdi.Value, Self, FSetChVergiOrani.SatisIadeAdi.Title);
-  FAlisHesapKodu := TFieldDB.Create(FSetChVergiOrani.AlisKodu.FieldName, FSetChVergiOrani.AlisKodu.DataType, FSetChVergiOrani.AlisKodu.Value, Self, FSetChVergiOrani.AlisKodu.Title);
-  FAlisHesapAdi := TFieldDB.Create(FSetChVergiOrani.AlisAdi.FieldName, FSetChVergiOrani.AlisAdi.DataType, FSetChVergiOrani.AlisAdi.Value, Self, FSetChVergiOrani.AlisAdi.Title);
-  FAlisIadeHesapKodu := TFieldDB.Create(FSetChVergiOrani.AlisIadeKodu.FieldName, FSetChVergiOrani.AlisIadeKodu.DataType, FSetChVergiOrani.AlisIadeKodu.Value, Self, FSetChVergiOrani.AlisIadeKodu.Title);
-  FAlisIadeHesapAdi := TFieldDB.Create(FSetChVergiOrani.AlisIadeAdi.FieldName, FSetChVergiOrani.AlisIadeAdi.DataType, FSetChVergiOrani.AlisIadeAdi.Value, Self, FSetChVergiOrani.AlisIadeAdi.Title);
+  FSatisHesapKodu := TFieldDB.Create(FSetChVergiOrani.SatisHesapKodu.FieldName, FSetChVergiOrani.SatisHesapKodu.DataType, FSetChVergiOrani.SatisHesapKodu.Value, Self, FSetChVergiOrani.SatisHesapKodu.Title);
+  FSatisHesapAdi := TFieldDB.Create(FSetChVergiOrani.SatisHesapAdi.FieldName, FSetChVergiOrani.SatisHesapAdi.DataType, FSetChVergiOrani.SatisHesapAdi.Value, Self, FSetChVergiOrani.SatisHesapAdi.Title);
+  FSatisIadeHesapKodu := TFieldDB.Create(FSetChVergiOrani.SatisIadeHesapKodu.FieldName, FSetChVergiOrani.SatisIadeHesapKodu.DataType, FSetChVergiOrani.SatisIadeHesapKodu.Value, Self, FSetChVergiOrani.SatisIadeHesapKodu.Title);
+  FSatisIadeHesapAdi := TFieldDB.Create(FSetChVergiOrani.SatisIadeHesapAdi.FieldName, FSetChVergiOrani.SatisIadeHesapAdi.DataType, FSetChVergiOrani.SatisIadeHesapAdi.Value, Self, FSetChVergiOrani.SatisIadeHesapAdi.Title);
+  FAlisHesapKodu := TFieldDB.Create(FSetChVergiOrani.AlisHesapKodu.FieldName, FSetChVergiOrani.AlisHesapKodu.DataType, FSetChVergiOrani.AlisHesapKodu.Value, Self, FSetChVergiOrani.AlisHesapKodu.Title);
+  FAlisHesapAdi := TFieldDB.Create(FSetChVergiOrani.AlisHesapAdi.FieldName, FSetChVergiOrani.AlisHesapAdi.DataType, FSetChVergiOrani.AlisHesapAdi.Value, Self, FSetChVergiOrani.AlisHesapAdi.Title);
+  FAlisIadeHesapKodu := TFieldDB.Create(FSetChVergiOrani.AlisIadeHesapKodu.FieldName, FSetChVergiOrani.AlisIadeHesapKodu.DataType, FSetChVergiOrani.AlisIadeHesapKodu.Value, Self, FSetChVergiOrani.AlisIadeHesapKodu.Title);
+  FAlisIadeHesapAdi := TFieldDB.Create(FSetChVergiOrani.AlisIadeHesapAdi.FieldName, FSetChVergiOrani.AlisIadeHesapAdi.DataType, FSetChVergiOrani.AlisIadeHesapAdi.Value, Self, FSetChVergiOrani.AlisIadeHesapAdi.Title);
+  FAlisHesapKodu := TFieldDB.Create(FSetChVergiOrani.AlisHesapKodu.FieldName, FSetChVergiOrani.AlisHesapKodu.DataType, FSetChVergiOrani.AlisHesapKodu.Value, Self, FSetChVergiOrani.AlisHesapKodu.Title);
+  FAlisHesapAdi := TFieldDB.Create(FSetChVergiOrani.AlisHesapAdi.FieldName, FSetChVergiOrani.AlisHesapAdi.DataType, FSetChVergiOrani.AlisHesapAdi.Value, Self, FSetChVergiOrani.AlisHesapAdi.Title);
+  FAlisIadeHesapKodu := TFieldDB.Create(FSetChVergiOrani.AlisIadeHesapKodu.FieldName, FSetChVergiOrani.AlisIadeHesapKodu.DataType, FSetChVergiOrani.AlisIadeHesapKodu.Value, Self, FSetChVergiOrani.AlisIadeHesapKodu.Title);
+  FAlisIadeHesapAdi := TFieldDB.Create(FSetChVergiOrani.AlisIadeHesapAdi.FieldName, FSetChVergiOrani.AlisIadeHesapAdi.DataType, FSetChVergiOrani.AlisIadeHesapAdi.Value, Self, FSetChVergiOrani.AlisIadeHesapAdi.Title);
 end;
 
 destructor TStkStokGrubu.Destroy;
@@ -125,22 +127,22 @@ begin
       FKDVOrani.QryName,
       FIhracatHesapKodu.QryName,
       FChHesapKarti.HesapKodu.FieldName,
-      FMamulKodu.QryName,
-      addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FMamulAdi.FieldName, 'mm'),
-      FHammaddeKodu.QryName,
-      addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FHammaddeAdi.FieldName, 'hm'),
-      FSetChVergiOrani.SatisKodu.QryName,
+      FMamulHesapKodu.QryName,
+      addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FMamulHesapAdi.FieldName, 'mm'),
+      FHammaddeHesapKodu.QryName,
+      addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FHammaddeHesapAdi.FieldName, 'hm'),
+      FSetChVergiOrani.SatisHesapKodu.QryName,
       addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FSatisHesapAdi.FieldName, 'st'),
-      FSetChVergiOrani.SatisIadeKodu.QryName,
+      FSetChVergiOrani.SatisIadeHesapKodu.QryName,
       addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FSatisIadeHesapAdi.FieldName, 'si'),
-      FSetChVergiOrani.AlisKodu.QryName,
+      FSetChVergiOrani.AlisHesapKodu.QryName,
       addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FAlisHesapAdi.FieldName, 'al'),
-      FSetChVergiOrani.AlisIadeKodu.QryName,
+      FSetChVergiOrani.AlisIadeHesapKodu.QryName,
       addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FAlisIadeHesapAdi.FieldName, 'ai')
     ], [
       addLeftJoin(FChHesapKarti.HesapKodu.FieldName, FIhracatHesapKodu.FieldName, FChHesapKarti.TableName) +
-      addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, TableName, FMamulKodu.FieldName, 'mm') +
-      addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, TableName, FHammaddeKodu.FieldName, 'hm') +
+      addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, TableName, FMamulHesapKodu.FieldName, 'mm') +
+      addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, TableName, FHammaddeHesapKodu.FieldName, 'hm') +
       addJoin(jtLeft, FSetChVergiOrani.TableName, FSetChVergiOrani.VergiOrani.FieldName, TableName, FKDVOrani.FieldName) +
       addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, FSetChVergiOrani.TableName, FSatisHesapKodu.FieldName, 'st') +
       addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, FSetChVergiOrani.TableName, FSatisIadeHesapKodu.FieldName, 'si') +
@@ -170,22 +172,22 @@ begin
       FKDVOrani.QryName,
       FIhracatHesapKodu.QryName,
       addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FIhracatHesapAdi.FieldName, 'ih'),
-      FMamulKodu.QryName,
-      addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FMamulAdi.FieldName, 'mm'),
-      FHammaddeKodu.QryName,
-      addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FHammaddeAdi.FieldName, 'hm'),
-      FSetChVergiOrani.SatisKodu.QryName,
+      FMamulHesapKodu.QryName,
+      addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FMamulHesapAdi.FieldName, 'mm'),
+      FHammaddeHesapKodu.QryName,
+      addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FHammaddeHesapAdi.FieldName, 'hm'),
+      FSetChVergiOrani.SatisHesapKodu.QryName,
       addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FSatisHesapAdi.FieldName, 'st'),
-      FSetChVergiOrani.SatisIadeKodu.QryName,
+      FSetChVergiOrani.SatisIadeHesapKodu.QryName,
       addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FSatisIadeHesapAdi.FieldName, 'si'),
-      FSetChVergiOrani.AlisKodu.QryName,
+      FSetChVergiOrani.AlisHesapKodu.QryName,
       addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FAlisHesapAdi.FieldName, 'al'),
-      FSetChVergiOrani.AlisIadeKodu.QryName,
+      FSetChVergiOrani.AlisIadeHesapKodu.QryName,
       addfield(FChHesapKarti.TableName, FChHesapKarti.HesapIsmi.FieldName, FAlisIadeHesapAdi.FieldName, 'ai')
     ], [
       addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, TableName, FIhracatHesapKodu.FieldName, 'ih') +
-      addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, TableName, FMamulKodu.FieldName, 'mm') +
-      addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, TableName, FHammaddeKodu.FieldName, 'hm') +
+      addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, TableName, FMamulHesapKodu.FieldName, 'mm') +
+      addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, TableName, FHammaddeHesapKodu.FieldName, 'hm') +
       addJoin(jtLeft, FSetChVergiOrani.TableName, FSetChVergiOrani.VergiOrani.FieldName, TableName, FKDVOrani.FieldName) +
       addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, FSetChVergiOrani.TableName, FSatisHesapKodu.FieldName, 'st') +
       addJoin(jtLeft, FChHesapKarti.TableName, FChHesapKarti.HesapKodu.FieldName, FSetChVergiOrani.TableName, FSatisIadeHesapKodu.FieldName, 'si') +
@@ -221,8 +223,8 @@ begin
       FGrup.FieldName,
       FKDVOrani.FieldName,
       FIhracatHesapKodu.FieldName,
-      FHammaddeKodu.FieldName,
-      FMamulKodu.FieldName
+      FHammaddeHesapKodu.FieldName,
+      FMamulHesapKodu.FieldName
     ]);
 
     PrepareInsertQueryParams(LQry);
@@ -248,8 +250,8 @@ begin
       FGrup.FieldName,
       FKDVOrani.FieldName,
       FIhracatHesapKodu.FieldName,
-      FHammaddeKodu.FieldName,
-      FMamulKodu.FieldName
+      FHammaddeHesapKodu.FieldName,
+      FMamulHesapKodu.FieldName
     ]);
 
     PrepareUpdateQueryParams(LQry);

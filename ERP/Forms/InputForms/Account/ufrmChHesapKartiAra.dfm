@@ -3,27 +3,27 @@ inherited frmHesapKartiAra: TfrmHesapKartiAra
   Top = 443
   ActiveControl = btnClose
   Caption = 'Ara Hesap Kart'#305
-  ClientHeight = 148
-  ClientWidth = 692
+  ClientHeight = 144
+  ClientWidth = 690
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 706
   ExplicitHeight = 183
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 692
-    Height = 98
+    Width = 690
+    Height = 94
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 690
-    ExplicitHeight = 77
+    ExplicitHeight = 94
     inherited pgcMain: TPageControl
-      Width = 692
-      Height = 98
+      Width = 690
+      Height = 94
       ExplicitWidth = 690
-      ExplicitHeight = 77
+      ExplicitHeight = 94
       inherited tsMain: TTabSheet
-        ExplicitWidth = 684
-        ExplicitHeight = 70
+        ExplicitWidth = 682
+        ExplicitHeight = 66
         object lblhesap_kodu: TLabel
           Left = 76
           Top = 25
@@ -123,23 +123,23 @@ inherited frmHesapKartiAra: TfrmHesapKartiAra
     end
   end
   inherited pnlBottom: TPanel
-    Top = 100
-    Width = 688
-    ExplicitTop = 79
+    Top = 96
+    Width = 686
+    ExplicitTop = 96
     ExplicitWidth = 686
     inherited btnAccept: TButton
-      Left = 482
+      Left = 480
       ExplicitLeft = 480
     end
     inherited btnClose: TButton
-      Left = 586
+      Left = 584
       ExplicitLeft = 584
     end
   end
   inherited stbBase: TStatusBar
-    Top = 130
-    Width = 692
-    ExplicitTop = 109
+    Top = 126
+    Width = 690
+    ExplicitTop = 126
     ExplicitWidth = 690
   end
 end

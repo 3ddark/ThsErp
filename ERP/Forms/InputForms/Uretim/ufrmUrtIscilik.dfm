@@ -1,4 +1,4 @@
-inherited frmRctIscilikGideri: TfrmRctIscilikGideri
+inherited frmUrtIscilik: TfrmUrtIscilik
   Left = 501
   Top = 443
   ActiveControl = btnClose

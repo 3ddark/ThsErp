@@ -1,4 +1,4 @@
-inherited frmSysMonth: TfrmSysMonth
+inherited frmSysAy: TfrmSysAy
   Left = 501
   Top = 443
   Caption = 'System Month'

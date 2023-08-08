@@ -1,4 +1,4 @@
-inherited frmSetEmpEmployeeType: TfrmSetEmpEmployeeType
+inherited frmSetPrsPersonelTipi: TfrmSetPrsPersonelTipi
   ActiveControl = btnClose
   Caption = 'Employee Type'
   ClientHeight = 111

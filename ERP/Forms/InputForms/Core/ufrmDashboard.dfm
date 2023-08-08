@@ -416,7 +416,6 @@ inherited frmDashboard: TfrmDashboard
           ParentFont = False
           TabOrder = 7
           Visible = False
-          OnClick = actset_ch_vergi_oraniExecute
         end
         object btnch_bolge: TButton
           Left = 2
@@ -747,6 +746,12 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 59
       OnExecute = actstk_stok_karti_ozetleriExecute
     end
+    object actset_ch_vergi_orani: TAction
+      Category = 'CariHesap'
+      Caption = 'KDV Vergi Oranlar'#305
+      ImageIndex = 38
+      OnExecute = actset_ch_vergi_oraniExecute
+    end
   end
   object tmrcheck_is_update_required: TTimer
     Enabled = False
@@ -861,6 +866,12 @@ inherited frmDashboard: TfrmDashboard
       object mnich_banka_subeleri: TMenuItem
         Caption = 'Banka '#350'ubeleri'
         OnClick = mnich_banka_subeleriClick
+      end
+      object mnimuhasebe_ayarlar: TMenuItem
+        Caption = 'Ayarlar'
+        object mniset_ch_vergi_orani: TMenuItem
+          Action = actset_ch_vergi_orani
+        end
       end
     end
     object mnimenu_stok: TMenuItem

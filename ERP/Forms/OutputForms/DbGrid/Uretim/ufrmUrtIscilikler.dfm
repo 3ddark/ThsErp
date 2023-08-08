@@ -1,4 +1,4 @@
-inherited frmRctIscilikGiderleri: TfrmRctIscilikGiderleri
+inherited frmUrtIscilikler: TfrmUrtIscilikler
   Caption = 'I'#351#231'ilik Giderleri'
   ClientHeight = 569
   ExplicitWidth = 829
