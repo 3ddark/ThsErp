@@ -168,7 +168,7 @@ begin
   cbbara_hesap_kodu.Clear;
   try
     cbbara_hesap_kodu.Items.BeginUpdate;
-    for n1 := 1 to 100 do
+    for n1 := 1 to 150 do
       cbbara_hesap_kodu.Items.Add(n1.ToString);
 
     if (FormMode = ifmUpdate) or (FormMode = ifmRewiev) or (FormMode = ifmReadOnly) then
@@ -194,7 +194,7 @@ var
   LSonHesapKodlari: TStringList;
 begin
   LNo := '';
-  for n1 := 1 to 1500 do
+  for n1 := 1 to 2500 do
     LNo := LNo + Format('%.*d', [3, n1]) + AddLBs;
 
   cbbara_hesap_kodu.Clear;
@@ -213,8 +213,15 @@ begin
       LFilter := ' AND ' + LHesapKarti.KokKod.QryName + '=' + QuotedStr(pKokHesap) + ' AND ' + LHesapKarti.AraKod.QryName + '=' + QuotedStr(pKokHesap + '-' + pAraHesapKodu) + ' AND ' + LHesapKarti.HesapTipiID.QryName + '=' + IntToStr(Ord(htSon)) + ' AND ' + LHesapKarti.HesapKodu.QryName + '<>' + QuotedStr(TChHesapKarti(Table).HesapKodu.Value);
 
     LSonHesapKodlari := LHesapKarti.GetSonHesapKodlari(LFilter);
-    for n1 := 0 to LSonHesapKodlari.Count - 1 do
-      cbbson_hesap_kodu.Items.Delete(cbbson_hesap_kodu.Items.IndexOf(LSonHesapKodlari.Strings[n1]));
+    try
+      for n1 := 0 to LSonHesapKodlari.Count - 1 do
+      begin
+        LNo := Format('%.*d', [3, StrToIntDef(LSonHesapKodlari.Strings[n1], 0)]);
+        cbbson_hesap_kodu.Items.Delete(cbbson_hesap_kodu.Items.IndexOf(LNo));
+      end;
+    finally
+      LSonHesapKodlari.Free;
+    end;
   finally
     LHesapKarti.Free;
     cbbson_hesap_kodu.Items.EndUpdate;
@@ -708,4 +715,3 @@ begin
 end;
 
 end.
-

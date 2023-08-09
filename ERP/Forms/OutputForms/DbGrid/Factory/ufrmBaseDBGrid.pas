@@ -1577,8 +1577,7 @@ end;
 procedure TfrmBaseDBGrid.mniUpdateColWidthClick(Sender: TObject);
 begin
   if UpdateColWidth(Table.TableName, grd) then
-    CustomMsgDlg(TranslateText('Yeni Sütun genişlikleri kaydedildi.', FrameworkLang.MessageUpdateColumnWidth, LngMsgData, LngSystem),
-        mtInformation, [mbOK], [TranslateText('Tamam', FrameworkLang.ButtonOK, LngButton, LngSystem)], mbOK, '');
+    CustomMsgDlg('Yeni Sütun genişlikleri kaydedildi.', mtInformation, [mbOK], ['Tamam'], mbOK, '');
 end;
 
 procedure TfrmBaseDBGrid.mniprintClick(Sender: TObject);

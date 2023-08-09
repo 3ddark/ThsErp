@@ -48,6 +48,7 @@ type
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function GetDistinctColumnNames(ATableName: string): TStringList;
+    function HasAnyTableColumn(ATableName: string): Boolean;
 
     procedure Clear; override;
     function Clone: TTable; override;
@@ -432,6 +433,21 @@ begin
       Result := TSysGridKolon(LGridColumn.List[0]).FSiraNo.Value;
   finally
     LGridColumn.Free;
+  end;
+end;
+
+function TSysGridKolon.HasAnyTableColumn(ATableName: string): Boolean;
+var
+  n1: Integer;
+begin
+  Result := False;
+  for n1 := 0 to Self.List.Count-1 do
+  begin
+    if TSysGridKolon(Self.List[n1]).TabloAdi.AsString = ATableName then
+    begin
+      Result := True;
+      Break;
+    end;
   end;
 end;
 

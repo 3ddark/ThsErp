@@ -70,7 +70,6 @@ type
   protected
     FChGrup: TChGrup;
     FSetChHesapTipi: TSetChHesapTipi;
-    FEmpCard: TEmpEmployee;
     FChBolge: TChBolge;
     FChHesapPlani: TChHesapPlani;
     FSysVergiMukellefTipi: TSysVergiMukellefTipi;
@@ -146,7 +145,6 @@ begin
 
   FChGrup := TChGrup.Create(Database);
   FSetChHesapTipi := TSetChHesapTipi.Create(Database);
-  FEmpCard := TEmpEmployee.Create(Database);
   FChBolge := TChBolge.Create(Database);
   FChHesapPlani := TChHesapPlani.Create(Database);
   FSysVergiMukellefTipi := TSysVergiMukellefTipi.Create(Database);
@@ -196,12 +194,12 @@ destructor TChHesapKarti.Destroy;
 begin
   FChGrup.Free;
   FSetChHesapTipi.Free;
-  FEmpCard.Free;
   FChBolge.Free;
   FChHesapPlani.Free;
   FSysVergiMukellefTipi.Free;
   FSysParaBirimi.Free;
 
+  FAdres.Free;
   inherited;
 end;
 

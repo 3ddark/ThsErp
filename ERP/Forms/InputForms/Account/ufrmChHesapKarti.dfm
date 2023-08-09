@@ -3,28 +3,28 @@ inherited frmHesapKarti: TfrmHesapKarti
   Top = 443
   ActiveControl = btnClose
   Caption = 'Hesap Kart'#305
-  ClientHeight = 344
-  ClientWidth = 680
+  ClientHeight = 362
+  ClientWidth = 689
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 696
-  ExplicitHeight = 383
+  ExplicitWidth = 703
+  ExplicitHeight = 397
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 680
-    Height = 294
+    Width = 689
+    Height = 312
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 680
-    ExplicitHeight = 294
+    ExplicitWidth = 678
+    ExplicitHeight = 290
     inherited pgcMain: TPageControl
-      Width = 682
-      Height = 298
+      Width = 689
+      Height = 312
       OnChange = pgcMainChange
-      ExplicitWidth = 680
-      ExplicitHeight = 294
+      ExplicitWidth = 678
+      ExplicitHeight = 290
       inherited tsMain: TTabSheet
-        ExplicitWidth = 674
-        ExplicitHeight = 270
+        ExplicitWidth = 681
+        ExplicitHeight = 284
         object lblhesap_kodu: TLabel
           Left = 76
           Top = 25
@@ -365,7 +365,7 @@ inherited frmHesapKarti: TfrmHesapKarti
         object cbbson_hesap_kodu: TComboBox
           Left = 265
           Top = 0
-          Width = 50
+          Width = 65
           Height = 21
           Style = csDropDownList
           TabOrder = 2
@@ -1038,23 +1038,23 @@ inherited frmHesapKarti: TfrmHesapKarti
     end
   end
   inherited pnlBottom: TPanel
-    Top = 296
-    Width = 676
-    ExplicitTop = 296
-    ExplicitWidth = 676
+    Top = 314
+    Width = 685
+    ExplicitTop = 292
+    ExplicitWidth = 674
     inherited btnAccept: TButton
-      Left = 472
-      ExplicitLeft = 470
+      Left = 479
+      ExplicitLeft = 468
     end
     inherited btnClose: TButton
-      Left = 576
-      ExplicitLeft = 574
+      Left = 583
+      ExplicitLeft = 572
     end
   end
   inherited stbBase: TStatusBar
-    Top = 326
-    Width = 680
-    ExplicitTop = 326
-    ExplicitWidth = 680
+    Top = 344
+    Width = 689
+    ExplicitTop = 322
+    ExplicitWidth = 678
   end
 end

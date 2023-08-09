@@ -317,7 +317,12 @@ begin
         raise Exception.Create('Database fields are not defined!' + AddLBs + 'This process cannot be done');
 
         if ExistsGridColWidth(AHelper, LIndex) then
-          _AddAllColumnsHelper(Helper)
+        begin
+          if GGridColWidth.HasAnyTableColumn(ATableName) then
+            _AddAllColumnsHelper(Helper)
+          else
+            _AddAllColumns;
+        end
         else
           _AddAllColumns;  //tüm kolonlar istenmemiþ olsa bile grid kolon geniþliði tanýmlanmamýþsa select içinde tanýmlanan tüm kolonlarý ekle
     end
