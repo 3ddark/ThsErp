@@ -60,9 +60,9 @@ end;
 procedure TfrmHesapKartlariAra.FormShow(Sender: TObject);
 begin
   QryFiltreVarsayilanKullanici :=
-  ' AND (' + Table.TableName + '.' + TChHesapKartiAra(Table).HesapTipiID.FieldName + '=' + IntToStr(Ord(htAra)) +
+  ' AND (' + TChHesapKartiAra(Table).HesapTipiID.QryName + '=' + IntToStr(Ord(htAra)) +
    ' OR (' + TChHesapKartiAra(Table).Seviye.FieldName + '=' + IntToStr(2) + ' AND '
-           + Table.TableName + '.' + TChHesapKartiAra(Table).HesapTipiID.FieldName + '=' + IntToStr(Ord(htAna)) + '))';
+           + TChHesapKartiAra(Table).HesapTipiID.QryName + '=' + IntToStr(Ord(htAna)) + '))';
   inherited;
 end;
 

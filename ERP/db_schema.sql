@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.1
--- Dumped by pg_dump version 14.1
+-- Dumped from database version 13.4
+-- Dumped by pg_dump version 15.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,6 +15,15 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
@@ -5537,7 +5546,7 @@ ALTER TABLE ONLY public.urt_receteler
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 
 

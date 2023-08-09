@@ -232,7 +232,8 @@ begin
 
       Table.LogicalSelect(' and ' + Table.Id.QryName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), False, False, False);
       ATable := TTableDetailed(Table.List[0]).Clone;
-      FreeAndNil(Table);
+      Table.Free;
+      Table := nil;
       Table := ATable;
       DefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value);
       RefreshData;
@@ -252,7 +253,8 @@ begin
 
       Table.LogicalSelect(' and ' + Table.Id.QryName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), False, False, False);
       ATable := TTableDetailed(Table.List[0]).Clone;
-      FreeAndNil(Table);
+      Table.Free;
+      Table := nil;
       Table := ATable;
       DefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value);
       RefreshData;
@@ -316,7 +318,7 @@ begin
   end;
 
   LRowCount := AGrid.RowCount;
-  AGrid.BeginUpdate;
+//  AGrid.BeginUpdate;
   try
     ExcelApplication.WorkBooks.Add(-4167);   //Add excel workbook
     ExcelApplication.WorkBooks[1].WorkSheets[1].Name := 'Sayfa1';
@@ -378,7 +380,7 @@ begin
     pb1.Visible := False;
     pb1.Position := 0;
     Screen.Cursor := crDefault;
-    AGrid.EndUpdate;
+//    AGrid.EndUpdate;
   end;
 end;
 

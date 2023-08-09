@@ -5,9 +5,10 @@ inherited frmSysGridKolon: TfrmSysGridKolon
   ClientHeight = 361
   ClientWidth = 595
   ParentFont = True
-  ExplicitWidth = 611
-  ExplicitHeight = 400
-  TextHeight = 15
+  ExplicitWidth = 601
+  ExplicitHeight = 390
+  PixelsPerInch = 96
+  TextHeight = 13
   inherited pnlMain: TPanel
     Width = 595
     Height = 311
@@ -21,9 +22,9 @@ inherited frmSysGridKolon: TfrmSysGridKolon
       ExplicitWidth = 595
       ExplicitHeight = 311
       inherited tsMain: TTabSheet
-        ExplicitTop = 26
+        ExplicitTop = 24
         ExplicitWidth = 587
-        ExplicitHeight = 281
+        ExplicitHeight = 283
         object lbltable_name: TLabel
           Left = 90
           Top = 5
@@ -274,7 +275,7 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           Left = 162
           Top = 2
           Width = 239
-          Height = 23
+          Height = 21
           TabOrder = 0
           OnChange = cbbtable_nameChange
         end
@@ -282,28 +283,28 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           Left = 162
           Top = 24
           Width = 239
-          Height = 23
+          Height = 21
           TabOrder = 1
         end
         object edtseq_no: TEdit
           Left = 162
           Top = 46
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 2
         end
         object edtcol_width: TEdit
           Left = 162
           Top = 68
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 3
         end
         object edtdata_format: TEdit
           Left = 162
           Top = 90
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 4
         end
         object chkis_show: TCheckBox
@@ -324,14 +325,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           Left = 162
           Top = 172
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 7
         end
         object edtmin_color: TEdit
           Left = 162
           Top = 194
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 9
           OnDblClick = edtmin_colorDblClick
         end
@@ -339,14 +340,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           Left = 162
           Top = 216
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 11
         end
         object edtmax_color: TEdit
           Left = 162
           Top = 238
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 13
           OnDblClick = edtmax_colorDblClick
         end
@@ -354,14 +355,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           Left = 425
           Top = 172
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 8
         end
         object edtcolor_bar: TEdit
           Left = 425
           Top = 194
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 10
           OnDblClick = edtcolor_barDblClick
         end
@@ -369,7 +370,7 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           Left = 425
           Top = 216
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 12
           OnDblClick = edtcolor_bar_backDblClick
         end
@@ -377,7 +378,7 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           Left = 425
           Top = 238
           Width = 150
-          Height = 23
+          Height = 21
           TabOrder = 14
           OnDblClick = edtcolor_bar_textDblClick
         end
@@ -387,21 +388,21 @@ inherited frmSysGridKolon: TfrmSysGridKolon
   inherited pnlBottom: TPanel
     Top = 313
     Width = 591
-    ExplicitTop = 325
-    ExplicitWidth = 597
+    ExplicitTop = 313
+    ExplicitWidth = 591
     inherited btnAccept: TButton
-      Left = 391
-      ExplicitLeft = 391
+      Left = 385
+      ExplicitLeft = 385
     end
     inherited btnClose: TButton
-      Left = 495
-      ExplicitLeft = 495
+      Left = 489
+      ExplicitLeft = 489
     end
   end
   inherited stbBase: TStatusBar
     Top = 343
     Width = 595
-    ExplicitTop = 355
-    ExplicitWidth = 601
+    ExplicitTop = 343
+    ExplicitWidth = 595
   end
 end

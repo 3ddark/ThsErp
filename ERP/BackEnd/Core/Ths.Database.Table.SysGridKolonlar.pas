@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
+  System.SysUtils, System.Classes,
   Data.DB,
   ZDataset,
   Ths.Database,
@@ -47,6 +47,8 @@ type
     procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
+    function GetDistinctColumnNames(ATableName: string): TStringList;
+
     procedure Clear; override;
     function Clone: TTable; override;
 
@@ -71,7 +73,8 @@ implementation
 
 uses
   Ths.Globals,
-  Ths.Constants;
+  Ths.Constants,
+  Ths.Database.Table.View.SysViewColumns;
 
 constructor TSysGridKolon.Create(ADatabase: TDatabase);
 begin
@@ -381,6 +384,37 @@ begin
     Update(APermissionControl);
   finally
     LGridColumn.Free;
+  end;
+end;
+
+function TSysGridKolon.GetDistinctColumnNames(ATableName: string): TStringList;
+var
+  LQry: TZQuery;
+  LViewCol: TSysViewColumns;
+begin
+  Result := TStringList.Create;
+
+  LViewCol := TSysViewColumns.Create(Database);
+  LQry := GDataBase.NewQuery;
+  try
+    LQry.Close;
+    LQry.SQL.Text :=
+      'SELECT distinct ' + LViewCol.ColumnName.QryName + ',' + LViewCol.OrdinalPosition.QryName + ' FROM ' + LViewCol.TableName + ' ' +
+      ' LEFT JOIN ' + Self.TableName + ' ON ' + Self.TabloAdi.QryName + '=' + LViewCol.TabloAdi.QryName + ' and ' + Self.KolonAdi.QryName + '=' + LViewCol.ColumnName.QryName +
+      ' WHERE ' + LViewCol.TabloAdi.QryName + '=' + QuotedStr(ATableName) + ' and ' + Self.KolonAdi.QryName + ' is null ' +
+      ' GROUP BY ' + LViewCol.ColumnName.QryName + ',' + LViewCol.OrdinalPosition.QryName +
+      ' ORDER BY ' + LViewCol.OrdinalPosition.QryName + ' ASC ';
+    LQry.Open;
+    while NOT LQry.EOF do
+    begin
+      Result.Add(LQry.Fields.Fields[0].AsString);
+      LQry.Next;
+    end;
+    LQry.EmptyDataSet;
+    LQry.Close;
+  finally
+    LQry.Free;
+    LViewCol.Free;
   end;
 end;
 

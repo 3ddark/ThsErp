@@ -57,7 +57,7 @@ type
   private
     FSysViewTables: TSysViewTables;
 
-    procedure FillColNameForColWidth(pComboBox: TComboBox; pTableName: string);
+    procedure FillColNameForColWidth(AComboBox: TComboBox; ATableName: string);
     procedure SetColor(color: TColor; editColor: TEdit);
     procedure DrawBar;
   public
@@ -76,34 +76,15 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmSysGridKolon.FillColNameForColWidth(pComboBox: TComboBox; pTableName: string);
+procedure TfrmSysGridKolon.FillColNameForColWidth(AComboBox: TComboBox; ATableName: string);
 begin
-  pComboBox.Clear;
-
-  with GDataBase.NewQuery do
-  try
-    Close;
-    SQL.Text := 'SELECT distinct v.column_name, ordinal_position FROM sys_view_columns v ' +
-                'LEFT JOIN sys_grid_kolon a ON a.tablo_adi=v.table_name and a.kolon_adi = v.column_name ' +
-                'WHERE v.table_name=' + QuotedStr(pTableName) + ' and a.kolon_adi is null ' +
-                'GROUP BY v.column_name, ordinal_position ' +
-                'ORDER BY ordinal_position ASC ';
-    Open;
-    while NOT EOF do
-    begin
-      pComboBox.Items.Add( Fields.Fields[0].AsString );
-      Next;
-    end;
-    EmptyDataSet;
-    Close;
-  finally
-    Free;
-  end;
+  AComboBox.Clear;
+  AComboBox.Items.Text := TSysGridKolon(Table).GetDistinctColumnNames(ATableName).Text;
 end;
 
 procedure TfrmSysGridKolon.cbbtable_nameChange(Sender: TObject);
 begin
-  FillColNameForColWidth(TComboBox(cbbcolumn_name), ReplaceRealColOrTableNameTo(cbbcolumn_name.Text));
+  FillColNameForColWidth(TComboBox(cbbcolumn_name), ReplaceRealColOrTableNameTo(cbbtable_name.Text));
 end;
 
 destructor TfrmSysGridKolon.Destroy;

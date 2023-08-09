@@ -16,7 +16,7 @@ uses
 type
   TSysViewColumns = class(TView)
   private
-    FTableName: TFieldDB;
+    FTabloAdi: TFieldDB;
     FColumnName: TFieldDB;
     FIsNullable: TFieldDB;
     FDataType: TFieldDB;
@@ -35,7 +35,7 @@ type
     procedure Clear; override;
     function Clone: TTable; override;
 
-    Property TableName1: TFieldDB read FTableName write FTableName;
+    Property TabloAdi: TFieldDB read FTabloAdi write FTabloAdi;
     Property ColumnName: TFieldDB read FColumnName write FColumnName;
     property IsNullable: TFieldDB read FIsNullable write FIsNullable;
     property DataType: TFieldDB read FDataType write FDataType;
@@ -58,7 +58,7 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FTableName  := TFieldDB.Create('table_name', ftWideString, '', Self, 'Tablo Adý');
+  FTabloAdi  := TFieldDB.Create('table_name', ftWideString, '', Self, 'Tablo Adý');
   FColumnName := TFieldDB.Create('column_name', ftWideString, '', Self, 'Kolon Adý');
   FIsNullable := TFieldDB.Create('is_nullable', ftBoolean, False, Self, 'Null Olabilir');
   FDataType := TFieldDB.Create('data_type', ftWideString, '', Self, 'Veri Tipi');
@@ -81,7 +81,7 @@ begin
     SQL.Clear;
     Database.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.QryName,
-      FTableName.QryName,
+      FTabloAdi.QryName,
       FColumnName.QryName,
       FIsNullable.QryName,
       FDataType.QryName,
@@ -112,7 +112,7 @@ begin
   try
     Database.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      FTableName.QryName,
+      FTabloAdi.QryName,
       FColumnName.QryName,
       FIsNullable.QryName,
       FDataType.QryName,

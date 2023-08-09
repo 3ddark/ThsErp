@@ -2479,7 +2479,7 @@ begin
 
   LSysInputGui := TSysViewColumns.Create(GDataBase);
   try
-    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TableName1.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
+    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
                               ' AND ' + LSysInputGui.ColumnName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(AFieldName)), False, False);
     if LSysInputGui.List.Count=1 then
       Result := not TSysViewColumns(LSysInputGui.List[0]).IsNullable.Value;
@@ -2496,7 +2496,7 @@ begin
 
   LSysInputGui := TSysViewColumns.Create(GDataBase);
   try
-    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TableName1.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
+    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
                               ' AND ' + LSysInputGui.ColumnName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(AFieldName)), False, False);
     if LSysInputGui.List.Count=1 then
       Result := TSysViewColumns(LSysInputGui.List[0]).CharacterMaximumLength.Value;
@@ -2521,9 +2521,9 @@ begin
     LQry.Close;
     LQry.SQL.Text := 'SELECT DISTINCT ' + LCol.ColumnName.FieldName + ' FROM ' + LCol.TableName +
                 ' LEFT JOIN ' + LColWidth.TableName + ' ON '
-                              + LColWidth.TabloAdi.FieldName + '=' + LCol.TableName1.FieldName +
+                              + LColWidth.TabloAdi.FieldName + '=' + LCol.TabloAdi.FieldName +
                       ' AND ' + LColWidth.KolonAdi.FieldName + '=' + LCol.ColumnName.FieldName +
-                ' WHERE ' + LCol.TableName1.FieldName + '=' + QuotedStr(ATableName) +
+                ' WHERE ' + LCol.TabloAdi.FieldName + '=' + QuotedStr(ATableName) +
                   ' AND ' + LColWidth.KolonAdi.FieldName + ' IS NULL ';
     LQry.Open;
     while NOT LQry.Eof do
