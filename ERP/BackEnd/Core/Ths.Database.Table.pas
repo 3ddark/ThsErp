@@ -260,7 +260,6 @@ end;
 function addLeftJoin(AFieldName, AIDFieldName, ATableName: string; IsPureData: Boolean): string;
 var
   LTableAlias: string;
-  LRowFieldName: string;
 begin
   begin
     if IsPureData then

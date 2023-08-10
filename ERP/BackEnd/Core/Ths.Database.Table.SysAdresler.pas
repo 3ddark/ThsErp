@@ -16,7 +16,8 @@ uses
 type
   TSysAdres = class(TTable)
   private
-    FUlke: TFieldDB;
+    FUlkeKodu: TFieldDB;
+    FUlkeAdi: TFieldDB;
     FSehirId: TFieldDB;
     FSehir: TFieldDB;
     FMahalle: TFieldDB;
@@ -42,7 +43,8 @@ type
 
     function Clone: TTable; override;
 
-    Property Ulke: TFieldDB read FUlke write FUlke;
+    Property UlkeKodu: TFieldDB read FUlkeKodu write FUlkeKodu;
+    Property UlkeAdi: TFieldDB read FUlkeAdi write FUlkeAdi;
     Property SehirId: TFieldDB read FSehirId write FSehirId;
     Property Sehir: TFieldDB read FSehir write FSehir;
     Property Mahalle: TFieldDB read FMahalle write FMahalle;
@@ -71,7 +73,8 @@ begin
   FSysUlke := TSysUlke.Create(ADatabase);
   FSysSehir := TSysSehir.Create(ADatabase);
 
-  FUlke := TFieldDB.Create(FSysSehir.Ulke.FieldName, FSysSehir.Ulke.DataType, FSysSehir.Ulke.Value, Self, 'Ülke Kodu');
+  FUlkeKodu := TFieldDB.Create(FSysSehir.UlkeKodu.FieldName, FSysSehir.UlkeKodu.DataType, FSysSehir.UlkeKodu.Value, Self, 'Ülke Kodu');
+  FUlkeAdi := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, FSysSehir.UlkeAdi.Value, Self, 'Ülke Adý');
   FSehirId := TFieldDB.Create('sehir_id', ftLargeint, 0, Self, 'Þehir ID');
   FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, FSysSehir.Sehir.Value, Self, 'Þehir');
   FMahalle := TFieldDB.Create('mahalle', ftWideString, '', Self, 'Mahalle');
@@ -102,9 +105,10 @@ begin
     Close;
     Database.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.QryName,
-      addLangField(FUlke.FieldName),
+      addField(FSysUlke.TableName, FSysUlke.UlkeKodu.FieldName, FUlkeKodu.FieldName),
+      addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
       FSehirId.QryName,
-      addLangField(FSehir.FieldName),
+      addField(FSysSehir.TableName, FSysSehir.Sehir.FieldName, FSehir.FieldName),
       FMahalle.QryName,
       FCadde.QryName,
       FSokak.QryName,
@@ -116,8 +120,7 @@ begin
       FEmail.QryName
     ], [
       addJoin(jtLeft, FSysSehir.TableName, FSysSehir.Id.FieldName, TableName, FSehirId.FieldName),
-      addLeftJoin(FUlke.FieldName, FSysSehir.UlkeID.QryName, FSysUlke.TableName),
-      addLeftJoin(FSehir.FieldName, FSehirId.QryName, FSysSehir.TableName),
+      addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, FSysSehir.TableName, FSysSehir.UlkeID.FieldName),
       ' WHERE 1=1 ' + AFilter
     ], AAllColumn, AHelper);
     Open;
@@ -138,9 +141,10 @@ begin
   try
     Database.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      addLangField(FUlke.FieldName),
+      addField(FSysUlke.TableName, FSysUlke.UlkeKodu.FieldName, FUlkeKodu.FieldName),
+      addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
       FSehirId.QryName,
-      addLangField(FSehir.FieldName),
+      addField(FSysSehir.TableName, FSysSehir.Sehir.FieldName, FSehir.FieldName),
       FMahalle.QryName,
       FCadde.QryName,
       FSokak.QryName,
@@ -152,8 +156,7 @@ begin
       FEmail.QryName
     ], [
       addJoin(jtLeft, FSysSehir.TableName, FSysSehir.Id.FieldName, TableName, FSehirId.FieldName),
-      addLeftJoin(FUlke.FieldName, FSysSehir.UlkeID.QryName, FSysUlke.TableName),
-      addLeftJoin(FSehir.FieldName, FSehirId.QryName, FSysSehir.TableName),
+      addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, FSysSehir.TableName, FSysSehir.UlkeID.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);
     Open;

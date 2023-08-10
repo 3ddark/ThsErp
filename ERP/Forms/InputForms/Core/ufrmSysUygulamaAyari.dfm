@@ -7,9 +7,10 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
   ClientWidth = 676
   ParentFont = True
   Position = poDesktopCenter
-  ExplicitWidth = 690
-  ExplicitHeight = 358
-  TextHeight = 15
+  ExplicitWidth = 682
+  ExplicitHeight = 352
+  PixelsPerInch = 96
+  TextHeight = 13
   inherited pnlMain: TPanel
     Width = 676
     Height = 273
@@ -20,8 +21,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
     inherited pgcMain: TPageControl
       Width = 676
       Height = 273
-      ExplicitWidth = 674
-      ExplicitHeight = 269
+      ExplicitWidth = 676
+      ExplicitHeight = 273
       inherited tsMain: TTabSheet
         Caption = 'Main'
         ExplicitTop = 26
@@ -178,6 +179,10 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
       object tsaddress: TTabSheet
         Caption = 'Address'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lbltax_administration: TLabel
           Left = 25
           Top = 32
@@ -458,6 +463,10 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
       object tsother: TTabSheet
         Caption = 'Other'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblgrid_color_1: TLabel
           Left = 70
           Top = 7
@@ -815,6 +824,10 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
       object ts1: TTabSheet
         Caption = 'ts1'
         ImageIndex = 3
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblpath_stock_image: TLabel
           Left = 30
           Top = 5

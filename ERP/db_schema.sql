@@ -286,76 +286,6 @@ $$;
 ALTER FUNCTION public.personel_adsoyad() OWNER TO ths_admin;
 
 --
--- Name: sp_get_ch_hesap_karti(text, text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.sp_get_ch_hesap_karti(pfilter text, plang text) RETURNS TABLE(id bigint, hesap_kodu character varying, hesap_ismi character varying, muhasebe_kodu character varying, hesap_tipi_id bigint, hesap_tipi character varying, hesap_grubu_id bigint, grup character varying, bolge_id bigint, bolge character varying, mukellef_tipi_id bigint, mukellef_tipi character varying, mukellef_adi character varying, mukellef_ikinci_adi character varying, mukellef_soyadi character varying, vergi_dairesi character varying, vergi_no character varying, para_birimi character varying, iban character varying, iban_para character varying, nace_kodu character varying, yetkili1 character varying, yetkili1_tel character varying, yetkili2 character varying, yetkili2_tel character varying, yetkili3 character varying, yetkili3_tel character varying, faks character varying, muhasebe_telefon character varying, muhasebe_eposta character varying, muhasebe_yetkili character varying, ozel_bilgi character varying, kok_hesap_kodu character varying, ara_hesap_kodu character varying, hesap_iskonto numeric, is_efatura_hesabi boolean, efatura_pk_name character varying, ulke_id bigint, ulke_adi character varying, sehir_id bigint, sehir_adi character varying, ilce character varying, mahalle character varying, cadde character varying, sokak character varying, bina_adi character varying, kapi_no character varying, posta_kutusu character varying, posta_kodu character varying, web_site character varying, email character varying)
-    LANGUAGE plpgsql
-    AS $$
-
-begin
-RETURN QUERY EXECUTE 
-'SELECT 
-	ch_hesap_karti.id, 
-	ch_hesap_karti.hesap_kodu, 
-	ch_hesap_karti.hesap_ismi, 
-	ch_hesap_karti.muhasebe_kodu, 
-	ch_hesap_karti.hesap_tipi_id, 
-	spget_lang_text((SELECT rawset_ch_hesap_tipi.hesap_tipi FROM set_ch_hesap_tipi as rawset_ch_hesap_tipi WHERE rawset_ch_hesap_tipi.id=ch_hesap_karti.hesap_tipi_id),''set_ch_hesap_tipi'',''hesap_tipi'', hesap_tipi_id, ' || quote_nullable(plang) || ') as hesap_tipi, 
-	ch_hesap_karti.hesap_grubu_id, 
-	spget_lang_text((SELECT rawset_ch_grup.grup FROM set_ch_grup as rawset_ch_grup WHERE rawset_ch_grup.id=ch_hesap_karti.hesap_grubu_id),''set_ch_grup2'',''grup'', hesap_grubu_id, ' || quote_nullable(plang) || ') as grup, 
-	ch_hesap_karti.bolge_id, 
-	spget_lang_text((SELECT rawch_bolge.bolge FROM ch_bolge as rawch_bolge WHERE rawch_bolge.id=ch_hesap_karti.bolge_id),''ch_bolge'',''bolge'', bolge_id, ' || quote_nullable(plang) || ') as bolge, 
-	ch_hesap_karti.mukellef_tipi_id, 
-	spget_lang_text((SELECT rawsys_mukellef_tipi.mukellef_tipi FROM sys_mukellef_tipi as rawsys_mukellef_tipi WHERE rawsys_mukellef_tipi.id=ch_hesap_karti.mukellef_tipi_id),''sys_mukellef_tipi'',''mukellef_tipi'', mukellef_tipi_id, ' || quote_nullable(plang) || ') as mukellef_tipi, 
-	ch_hesap_karti.mukellef_adi, 
-	ch_hesap_karti.mukellef_ikinci_adi, 
-	ch_hesap_karti.mukellef_soyadi, 
-	ch_hesap_karti.vergi_dairesi, 
-	ch_hesap_karti.vergi_no, 
-	ch_hesap_karti.para_birimi, 
-	ch_hesap_karti.iban, 
-	ch_hesap_karti.iban_para, 
-	ch_hesap_karti.nace_kodu, 
-	ch_hesap_karti.yetkili1, 
-	ch_hesap_karti.yetkili1_tel, 
-	ch_hesap_karti.yetkili2, 
-	ch_hesap_karti.yetkili2_tel, 
-	ch_hesap_karti.yetkili3, 
-	ch_hesap_karti.yetkili3_tel, 
-	ch_hesap_karti.faks, 
-	ch_hesap_karti.muhasebe_telefon, 
-	ch_hesap_karti.muhasebe_eposta, 
-	ch_hesap_karti.muhasebe_yetkili, 
-	ch_hesap_karti.ozel_bilgi, 
-	ch_hesap_karti.kok_hesap_kodu, 
-	ch_hesap_karti.ara_hesap_kodu, 
-	ch_hesap_karti.hesap_iskonto, 
-	ch_hesap_karti.is_efatura_hesabi, 
-	ch_hesap_karti.efatura_pk_name, 
-	ch_hesap_karti.ulke_id, 
-	spget_lang_text((SELECT rawsys_ulke.ulke_adi FROM sys_ulke as rawsys_ulke WHERE rawsys_ulke.id=ch_hesap_karti.ulke_id),''sys_ulke'',''ulke_adi'', ulke_id, ' || quote_nullable(plang) || ') as ulke_adi, 
-	ch_hesap_karti.sehir_id, 
-	spget_lang_text((SELECT rawsys_sehir.sehir_adi FROM sys_sehir as rawsys_sehir WHERE rawsys_sehir.id=ch_hesap_karti.sehir_id),''sys_sehir'',''sehir_adi'', sehir_id, ' || quote_nullable(plang) || ') as sehir_adi, 
-	ch_hesap_karti.ilce, 
-	ch_hesap_karti.mahalle, 
-	ch_hesap_karti.cadde, 
-	ch_hesap_karti.sokak, 
-	ch_hesap_karti.bina_adi, 
-	ch_hesap_karti.kapi_no, 
-	ch_hesap_karti.posta_kutusu, 
-	ch_hesap_karti.posta_kodu, 
-	ch_hesap_karti.web_site, 
-	ch_hesap_karti.email 
-FROM ch_hesap_karti 
-WHERE 1=1 ' || pfilter;
-END
-$$;
-
-
-ALTER FUNCTION public.sp_get_ch_hesap_karti(pfilter text, plang text) OWNER TO postgres;
-
---
 -- Name: spexists_hesap_kodu(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -1041,7 +971,8 @@ CREATE TABLE public.ch_hesaplar (
     iskonto numeric(5,2) DEFAULT 0,
     efatura_kullaniyor boolean DEFAULT false NOT NULL,
     efatura_pb_name character varying(128),
-    adres_id bigint
+    adres_id bigint,
+    pasif boolean DEFAULT false NOT NULL
 );
 
 
@@ -5547,6 +5478,7 @@ ALTER TABLE ONLY public.urt_receteler
 --
 
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 
 
@@ -5853,14 +5785,6 @@ GRANT ALL ON FUNCTION public.postgres_fdw_handler() TO ths_admin;
 --
 
 GRANT ALL ON FUNCTION public.postgres_fdw_validator(text[], oid) TO ths_admin;
-
-
---
--- Name: FUNCTION sp_get_ch_hesap_karti(pfilter text, plang text); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.sp_get_ch_hesap_karti(pfilter text, plang text) FROM PUBLIC;
-GRANT ALL ON FUNCTION public.sp_get_ch_hesap_karti(pfilter text, plang text) TO ths_admin;
 
 
 --

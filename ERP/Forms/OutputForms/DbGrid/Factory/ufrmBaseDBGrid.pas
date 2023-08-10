@@ -243,8 +243,6 @@ type
 
 //    procedure EventAlerterAlert(ASender: TFDCustomEventAlerter; const AEventName: string; const AArgument: Variant);
   public
-    spDS: TZStoredProc;
-
     //for use HelperForm
     property IsHelper: Boolean read FIsHelper write FIsHelper default False;
     property DataAktar: Boolean read FDataAktar write FDataAktar;
@@ -701,8 +699,6 @@ begin
 
   FFiltreGrid.Free;
 
-  if Assigned(spDS) then
-    spDS.free;
   inherited;
 end;
 
@@ -1813,18 +1809,12 @@ begin
 
     if Table.TableName = '' then
     begin
-      spDS := GDataBase.NewStoredProcedure();
-      grd.DataSource.DataSet := spDS;
-      spDS.StoredProcName := 'sp_get_ch_hesap_karti';
-      spDS.Prepare;
-      spDS.ParamByName('pfilter').Text := FQryFiltreVarsayilan + FQryFiltreVarsayilanKullanici + FQrySiralamaVarsayilan;
-      spDS.ParamByName('plang').Text := AppLanguage;
-      spDS.Open;
+      raise Exception.Create('Tablo adı bilinmiyor!!!');
     end
     else
     begin
       //helper formu ise hak kontrolü yapma.
-      Table.SelectToDatasource(FQryFiltreVarsayilan + FQryFiltreVarsayilanKullanici + FQrySiralamaVarsayilan, False, False, FIsHelper);
+      Table.SelectToDatasource(FQryFiltreVarsayilan + FQryFiltreVarsayilanKullanici + FQrySiralamaVarsayilan, FIsHelper, False, FIsHelper);
     end;
 
 

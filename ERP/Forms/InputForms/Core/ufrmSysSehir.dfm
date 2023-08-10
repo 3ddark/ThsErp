@@ -6,9 +6,10 @@ inherited frmSysSehir: TfrmSysSehir
   ClientHeight = 150
   ClientWidth = 368
   ParentFont = True
-  ExplicitWidth = 384
-  ExplicitHeight = 189
-  TextHeight = 15
+  ExplicitWidth = 374
+  ExplicitHeight = 179
+  PixelsPerInch = 96
+  TextHeight = 13
   inherited pnlMain: TPanel
     Width = 368
     Height = 100

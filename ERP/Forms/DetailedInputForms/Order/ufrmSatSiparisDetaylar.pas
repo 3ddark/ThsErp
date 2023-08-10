@@ -603,7 +603,7 @@ begin
               edtmusteri_adi.Text := FormatedVariantVal(LCH.HesapIsmi);
               edtvergi_dairesi.Text := FormatedVariantVal(LCH.VergiDairesi);
               edtvergi_no.Text := FormatedVariantVal(LCH.VergiNo);
-              edtulke_id.Text := FormatedVariantVal(LCH.Adres.Ulke);
+              edtulke_id.Text := FormatedVariantVal(LCH.Adres.UlkeAdi);
               edtsehir_id.Text := FormatedVariantVal(LCH.Adres.Sehir);
               edtmahalle.Text := FormatedVariantVal(LCH.Adres.Mahalle);
               edtcadde.Text := FormatedVariantVal(LCH.Adres.Cadde);
@@ -758,7 +758,7 @@ begin
           TEdit(Sender).Text := TSysSehir(LFrmSehir.Table).Sehir.Value;
           TSatSiparis(Table).SehirID.Value := TSysSehir(LFrmSehir.Table).Id.AsInt64;
 
-          edtulke_id.Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).Ulke);
+          edtulke_id.Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeAdi);
           TSatSiparis(Table).UlkeID.Value := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeID);
         finally
           LFrmSehir.Free;

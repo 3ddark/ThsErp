@@ -14,9 +14,10 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 654
-  ExplicitHeight = 470
-  TextHeight = 15
+  ExplicitWidth = 646
+  ExplicitHeight = 464
+  PixelsPerInch = 96
+  TextHeight = 13
   object pnlToolbar: TPanel [0]
     Left = 0
     Top = 0
@@ -33,7 +34,7 @@ inherited frmDashboard: TfrmDashboard
       Left = 8
       Top = 2
       Width = 201
-      Height = 36
+      Height = 25
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -47,7 +48,6 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
-      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
@@ -103,10 +103,12 @@ inherited frmDashboard: TfrmDashboard
       Align = alClient
       MultiLine = True
       TabOrder = 0
-      ExplicitWidth = 638
-      ExplicitHeight = 295
       object tsgeneral: TTabSheet
         Caption = 'Genel'
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnbbk_kayit: TButton
           Left = 3
           Top = 229
@@ -135,6 +137,10 @@ inherited frmDashboard: TfrmDashboard
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -210,6 +216,10 @@ inherited frmDashboard: TfrmDashboard
       object tsstock: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -294,6 +304,10 @@ inherited frmDashboard: TfrmDashboard
       object tsaccount: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnch_hesap_karti: TButton
           Left = 2
           Top = 170
@@ -438,6 +452,10 @@ inherited frmDashboard: TfrmDashboard
       object tsemployee: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnprs_personel: TButton
           Left = 2
           Top = 2
@@ -460,6 +478,10 @@ inherited frmDashboard: TfrmDashboard
       object tsbom: TTabSheet
         Caption = 'Re'#231'eteler'
         ImageIndex = 5
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnrct_recete: TButton
           Left = 2
           Top = 2
@@ -519,6 +541,10 @@ inherited frmDashboard: TfrmDashboard
       object tsaccounting: TTabSheet
         Caption = 'Muhasebe'
         ImageIndex = 6
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object btnmhs_doviz_kuru: TButton
           Left = 314
           Top = 2

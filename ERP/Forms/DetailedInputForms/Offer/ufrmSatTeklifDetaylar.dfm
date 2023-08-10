@@ -4,6 +4,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
   ClientWidth = 878
   ExplicitWidth = 894
   ExplicitHeight = 580
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 878
@@ -12,20 +13,20 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
     ExplicitHeight = 543
     inherited splLeft: TSplitter
       Top = 331
-      Height = 164
+      Height = 160
       ExplicitTop = 381
       ExplicitHeight = 167
     end
     inherited splHeader: TSplitter
       Top = 328
-      Width = 880
+      Width = 878
       ExplicitTop = 378
       ExplicitWidth = 898
     end
     inherited pgcMain: TPageControl
       Top = 331
-      Width = 774
-      Height = 164
+      Width = 772
+      Height = 160
       ExplicitTop = 331
       ExplicitWidth = 798
       ExplicitHeight = 212
@@ -35,12 +36,12 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
       end
     end
     inherited pnlHeader: TPanel
-      Width = 876
+      Width = 874
       Height = 325
       ExplicitWidth = 900
       ExplicitHeight = 325
       inherited pgcHeader: TPageControl
-        Width = 874
+        Width = 872
         Height = 323
         ExplicitWidth = 898
         ExplicitHeight = 323
@@ -974,8 +975,8 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
       ExplicitWidth = 798
       ExplicitHeight = 212
       inherited pgcContent: TPageControl
-        Width = 772
-        Height = 160
+        Width = 770
+        Height = 156
         ExplicitWidth = 796
         ExplicitHeight = 208
         inherited ts1: TTabSheet

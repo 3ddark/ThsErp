@@ -767,7 +767,7 @@ const
   FLD_RESOURCE = 'Resource';
   FLD_LIB = 'Lib';
 var
-  Path, LOldName, LNewName: string;
+  Path: string;//LNewName, LOldName,
   LAppName, LAppNameBak: string;
 begin
   LAppName := ExtractFileName(Application.ExeName);

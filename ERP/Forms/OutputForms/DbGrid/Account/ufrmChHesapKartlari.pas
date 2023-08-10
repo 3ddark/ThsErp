@@ -42,8 +42,15 @@ begin
 end;
 
 procedure TfrmHesapKartlari.FormShow(Sender: TObject);
+var
+  LPasifFilter: string;
 begin
-  QryFiltreVarsayilanKullanici := QryFiltreVarsayilanKullanici + ' AND ' + Table.TableName + '.' + TChHesapKarti(Table).HesapTipiID.FieldName + '=' + Ord(htSon).ToString;
+  LPasifFilter := '';
+  if IsHelper then
+    LPasifFilter := ' AND ' + TChHesapKarti(Table).Pasif.QryName + '=False';
+
+  QryFiltreVarsayilanKullanici := QryFiltreVarsayilanKullanici + LPasifFilter + ' AND ' + TChHesapKarti(Table).HesapTipiID.QryName + '=' + Ord(htSon).ToString;
+
   inherited;
 end;
 

@@ -142,7 +142,7 @@ begin
   FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Þehir ID');
   FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, '', Self, 'Þehir');
   FUlkeID := TFieldDB.Create('ulke_id', FSysSehir.UlkeID.DataType, 0, Self, 'Ülke Adý ID');
-  FUlke := TFieldDB.Create(FSysSehir.Ulke.FieldName, FSysSehir.Ulke.DataType, '', Self, 'Ülke');
+  FUlke := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, '', Self, 'Ülke');
   FBolgeID := TFieldDB.Create('bolge_id', FSysSehir.BolgeID.DataType, 0, Self, 'Bölge Adý ID');
   FBolge := TFieldDB.Create(FSysSehir.Bolge.FieldName, FSysSehir.Bolge.DataType, '', Self, 'Bölge');
   FNot1 := TFieldDB.Create('not1', ftWideString, '', Self, 'Not 1');

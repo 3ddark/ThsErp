@@ -63,6 +63,7 @@ type
     FEFaturaKullaniyor: TFieldDB;
     FEFaturaPBName: TFieldDB;
     FAdresID: TFieldDB;
+    FPasif: TFieldDB;
     //db alaný deðil
     FSeviyeSayisi: TFieldDB;
 
@@ -125,6 +126,7 @@ type
     Property EFaturaKullaniyor: TFieldDB read FEFaturaKullaniyor write FEFaturaKullaniyor;
     Property EFaturaPBName: TFieldDB read FEFaturaPBName write FEFaturaPBName;
     Property AdresID: TFieldDB read FAdresID write FAdresID;
+    Property Pasif: TFieldDB read FPasif write FPasif;
     //db alaný deðil
     Property SeviyeSayisi: TFieldDB read FSeviyeSayisi write FSeviyeSayisi;
 
@@ -185,6 +187,7 @@ begin
   FEFaturaKullaniyor := TFieldDB.Create('efatura_kullaniyor', ftBoolean, False, Self, 'E-Fatura?');
   FEFaturaPBName := TFieldDB.Create('efatura_pb_name', ftString, '', Self, 'E-Fatura PK Adý');
   FAdresID := TFieldDB.Create('adres_id', ftInteger, 0, Self, 'Adres ID');
+  FPasif := TFieldDB.Create('pasif', ftBoolean, False, Self, 'Pasif?');
   FSeviyeSayisi := TFieldDB.Create(FChHesapPlani.Seviye.FieldName, FChHesapPlani.Seviye.DataType, FChHesapPlani.Seviye.Value, Self, FChHesapPlani.Seviye.Title);
 
   FAdres := TSysAdres.Create(Database);
@@ -212,42 +215,43 @@ begin
   begin
     Close;
     Database.GetSQLSelectCmd(QryOfDS, TableName, [
-      TableName + '.' + Self.Id.FieldName,
-      TableName + '.' + FHesapKodu.FieldName,
-      TableName + '.' + FHesapIsmi.FieldName,
-      TableName + '.' + FHesapTipiID.FieldName,
+      Self.Id.QryName,
+      FHesapKodu.QryName,
+      FHesapIsmi.QryName,
+      FHesapTipiID.QryName,
       addLangField(FHesapTipi.FieldName),
-      TableName + '.' + FGrupID.FieldName,
+      FGrupID.QryName,
       addLangField(FGrup.FieldName),
-      TableName + '.' + FBolgeID.FieldName,
+      FBolgeID.QryName,
       addLangField(FBolge.FieldName),
-      TableName + '.' + FMukellefTipiID.FieldName,
+      FMukellefTipiID.QryName,
       addLangField(FMukellefTipi.FieldName),
-      TableName + '.' + FMukellefAdi.FieldName,
-      TableName + '.' + FMukellefAdi2.FieldName,
-      TableName + '.' + FMukellefSoyadi.FieldName,
-      TableName + '.' + FVergiDairesi.FieldName,
-      TableName + '.' + FVergiNo.FieldName,
-      TableName + '.' + FIban.FieldName,
-      TableName + '.' + FIbanPara.FieldName,
-      TableName + '.' + FNace.FieldName,
-      TableName + '.' + FYetkili1.FieldName,
-      TableName + '.' + FYetkili1Tel.FieldName,
-      TableName + '.' + FYetkili2.FieldName,
-      TableName + '.' + FYetkili2Tel.FieldName,
-      TableName + '.' + FYetkili3.FieldName,
-      TableName + '.' + FYetkili3Tel.FieldName,
-      TableName + '.' + FFaks.FieldName,
-      TableName + '.' + FMuhasebeTelefon.FieldName,
-      TableName + '.' + FMuhasebeEmail.FieldName,
-      TableName + '.' + FMuhasebeYetkili.FieldName,
-      TableName + '.' + FOzelNot.FieldName,
-      TableName + '.' + FKokKod.FieldName,
-      TableName + '.' + FAraKod.FieldName,
-      TableName + '.' + FIskonto.FieldName,
-      TableName + '.' + FEFaturaKullaniyor.FieldName,
-      TableName + '.' + FEFaturaPBName.FieldName,
-      TableName + '.' + AdresID.FieldName,
+      FMukellefAdi.QryName,
+      FMukellefAdi2.QryName,
+      FMukellefSoyadi.QryName,
+      FVergiDairesi.QryName,
+      FVergiNo.QryName,
+      FIban.QryName,
+      FIbanPara.QryName,
+      FNace.QryName,
+      FYetkili1.QryName,
+      FYetkili1Tel.QryName,
+      FYetkili2.QryName,
+      FYetkili2Tel.QryName,
+      FYetkili3.QryName,
+      FYetkili3Tel.QryName,
+      FFaks.QryName,
+      FMuhasebeTelefon.QryName,
+      FMuhasebeEmail.QryName,
+      FMuhasebeYetkili.QryName,
+      FOzelNot.QryName,
+      FKokKod.QryName,
+      FAraKod.QryName,
+      FIskonto.QryName,
+      FEFaturaKullaniyor.QryName,
+      FEFaturaPBName.QryName,
+      FAdresID.QryName,
+      FPasif.QryName,
       FChHesapPlani.TableName + '.' + FSeviyeSayisi.FieldName
     ], [
       addLeftJoin(FHesapTipi.FieldName, FHesapTipiID.FieldName, FSetChHesapTipi.TableName),
@@ -274,42 +278,43 @@ begin
   with LQry do
   try
     Database.GetSQLSelectCmd(LQry, TableName, [
-      TableName + '.' + Self.Id.FieldName,
-      TableName + '.' + FHesapKodu.FieldName,
-      TableName + '.' + FHesapIsmi.FieldName,
-      TableName + '.' + FHesapTipiID.FieldName,
+      Self.Id.QryName,
+      FHesapKodu.QryName,
+      FHesapIsmi.QryName,
+      FHesapTipiID.QryName,
       addLangField(FHesapTipi.FieldName),
-      TableName + '.' + FGrupID.FieldName,
+      FGrupID.QryName,
       addLangField(FGrup.FieldName),
-      TableName + '.' + FBolgeID.FieldName,
+      FBolgeID.QryName,
       addLangField(FBolge.FieldName),
-      TableName + '.' + FMukellefTipiID.FieldName,
+      FMukellefTipiID.QryName,
       addLangField(FMukellefTipi.FieldName),
-      TableName + '.' + FMukellefAdi.FieldName,
-      TableName + '.' + FMukellefAdi2.FieldName,
-      TableName + '.' + FMukellefSoyadi.FieldName,
-      TableName + '.' + FVergiDairesi.FieldName,
-      TableName + '.' + FVergiNo.FieldName,
-      TableName + '.' + FIban.FieldName,
-      TableName + '.' + FIbanPara.FieldName,
-      TableName + '.' + FNace.FieldName,
-      TableName + '.' + FYetkili1.FieldName,
-      TableName + '.' + FYetkili1Tel.FieldName,
-      TableName + '.' + FYetkili2.FieldName,
-      TableName + '.' + FYetkili2Tel.FieldName,
-      TableName + '.' + FYetkili3.FieldName,
-      TableName + '.' + FYetkili3Tel.FieldName,
-      TableName + '.' + FFaks.FieldName,
-      TableName + '.' + FMuhasebeTelefon.FieldName,
-      TableName + '.' + FMuhasebeEmail.FieldName,
-      TableName + '.' + FMuhasebeYetkili.FieldName,
-      TableName + '.' + FOzelNot.FieldName,
-      TableName + '.' + FKokKod.FieldName,
-      TableName + '.' + FAraKod.FieldName,
-      TableName + '.' + FIskonto.FieldName,
-      TableName + '.' + FEFaturaKullaniyor.FieldName,
-      TableName + '.' + FEFaturaPBName.FieldName,
-      TableName + '.' + AdresID.FieldName,
+      FMukellefAdi.QryName,
+      FMukellefAdi2.QryName,
+      FMukellefSoyadi.QryName,
+      FVergiDairesi.QryName,
+      FVergiNo.QryName,
+      FIban.QryName,
+      FIbanPara.QryName,
+      FNace.QryName,
+      FYetkili1.QryName,
+      FYetkili1Tel.QryName,
+      FYetkili2.QryName,
+      FYetkili2Tel.QryName,
+      FYetkili3.QryName,
+      FYetkili3Tel.QryName,
+      FFaks.QryName,
+      FMuhasebeTelefon.QryName,
+      FMuhasebeEmail.QryName,
+      FMuhasebeYetkili.QryName,
+      FOzelNot.QryName,
+      FKokKod.QryName,
+      FAraKod.QryName,
+      FIskonto.QryName,
+      FEFaturaKullaniyor.QryName,
+      FEFaturaPBName.QryName,
+      FAdresID.QryName,
+      FPasif.QryName,
       FChHesapPlani.TableName + '.' + FSeviyeSayisi.FieldName
     ], [
       addLeftJoin(FHesapTipi.FieldName, FHesapTipiID.FieldName, FSetChHesapTipi.TableName),
@@ -374,7 +379,8 @@ begin
       FIskonto.FieldName,
       FEFaturaKullaniyor.FieldName,
       FEFaturaPBName.FieldName,
-      FAdresID.FieldName
+      FAdresID.FieldName,
+      FPasif.FieldName
     ]);
 
     PrepareInsertQueryParams(LQry);
@@ -426,7 +432,8 @@ begin
       FEFaturaKullaniyor.FieldName,
       FEFaturaPBName.FieldName,
       FIskonto.FieldName,
-      FAdresID.FieldName
+      FAdresID.FieldName,
+      FPasif.FieldName
     ]);
 
     PrepareUpdateQueryParams(LQry);
@@ -450,7 +457,7 @@ begin
 //	--Ara Hesap Tipi Id bilgisi 2
   Result := TStringList.Create;
   LSQL := 'SELECT cast(right(' + Self.HesapKodu.QryName + ', length(' + Self.HesapKodu.QryName + ')-4) as Integer) FROM ' + Self.TableName +
-          ' WHERE ' + Self.HesapTipiID.QryName + '=2' + LFilter + ' ORDER BY 1 ASC';
+          ' WHERE ' + Self.HesapTipiID.QryName + '=' + Ord(THesapTipi.htAra).ToString + LFilter + ' ORDER BY 1 ASC';
   LQry := Database.NewQuery();
   try
     LQry.SQL.Text := LSQL;
@@ -472,7 +479,10 @@ var
   LSQL: string;
 begin
   Result := TStringList.Create;
-  LSQL := 'SELECT cast(split_part(hesap_kodu, ''-'', (CHAR_LENGTH(hesap_kodu) - CHAR_LENGTH(REPLACE(hesap_kodu, ''-'', ''''))) / CHAR_LENGTH(''-'') + 1) as integer) FROM ' + Self.TableName + ' WHERE 1=1 ' + AFilter;
+  LSQL := 'SELECT cast(split_part(' + Self.FHesapKodu.FieldName + ',' +
+                                 QuotedStr('-') + ',' +
+                                 '(CHAR_LENGTH(' + Self.FHesapKodu.FieldName + ') - ' +
+                                 ' CHAR_LENGTH(REPLACE('+ Self.FHesapKodu.FieldName + ', '+ QuotedStr('-') + ',' + QuotedStr('') + '))) / CHAR_LENGTH(' + QuotedStr('-') + ') + 1) as integer) FROM ' + Self.TableName + ' WHERE 1=1 ' + AFilter;
   LQry := Database.NewQuery();
   try
     LQry.SQL.Text := LSQL;

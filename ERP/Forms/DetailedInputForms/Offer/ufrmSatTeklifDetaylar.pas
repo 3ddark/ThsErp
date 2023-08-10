@@ -632,7 +632,7 @@ begin
               edtmusteri_adi.Text := LCH.HesapIsmi.AsString;
               edtvergi_dairesi.Text := LCH.VergiDairesi.AsString;
               edtvergi_no.Text := LCH.VergiNo.AsString;
-              edtulke_id.Text := LCH.Adres.Ulke.AsString;
+              edtulke_id.Text := LCH.Adres.UlkeAdi.AsString;
               edtsehir_id.Text := LCH.Adres.Sehir.AsString;
               edtmahalle.Text := LCH.Adres.Mahalle.AsString;
               edtcadde.Text := LCH.Adres.Cadde.AsString;
@@ -793,7 +793,7 @@ begin
           TEdit(Sender).Text := TSysSehir(LFrmSehir.Table).Sehir.AsString;
           TSatTeklif(Table).SehirID.Value := TSysSehir(LFrmSehir.Table).Id.AsInteger;
 
-          edtulke_id.Text := TSysSehir(LFrmSehir.Table).Ulke.AsString;
+          edtulke_id.Text := TSysSehir(LFrmSehir.Table).UlkeAdi.AsString;
           TSatTeklif(Table).UlkeID.Value := TSysSehir(LFrmSehir.Table).UlkeID.AsInteger;
         finally
           LFrmSehir.Free;

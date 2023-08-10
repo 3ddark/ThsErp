@@ -19,7 +19,8 @@ type
     FSehir: TFieldDB;
     FPlakaKodu: TFieldDB;
     FUlkeID: TFieldDB;
-    FUlke: TFieldDB;
+    FUlkeKodu: TFieldDB;
+    FUlkeAdi: TFieldDB;
     FBolgeID: TFieldDB;
     FBolge: TFieldDB;
   published
@@ -35,7 +36,8 @@ type
     property Sehir: TFieldDB read FSehir write FSehir;
     property PlakaKodu: TFieldDB read FPlakaKodu write FPlakaKodu;
     property UlkeID: TFieldDB read FUlkeID write FUlkeID;
-    property Ulke: TFieldDB read FUlke write FUlke;
+    property UlkeKodu: TFieldDB read FUlkeKodu write FUlkeKodu;
+    property UlkeAdi: TFieldDB read FUlkeAdi write FUlkeAdi;
     property BolgeID: TFieldDB read FBolgeID write FBolgeID;
     property Bolge: TFieldDB read FBolge write FBolge;
   end;
@@ -60,7 +62,8 @@ begin
     FSehir := TFieldDB.Create('sehir', ftString, '', Self, 'Þehir');
     FPlakaKodu := TFieldDB.Create('plaka_kodu', ftInteger, 0, Self, 'Plaka Kodu');
     FUlkeID := TFieldDB.Create('ulke_id', ftLargeInt, 0, Self, 'Ülke ID');
-    FUlke := TFieldDB.Create(LSysUlke.UlkeKodu.FieldName, LSysUlke.UlkeKodu.DataType, LSysUlke.UlkeKodu.Value, Self, 'Ülke Kodu');
+    FUlkeKodu := TFieldDB.Create(LSysUlke.UlkeKodu.FieldName, LSysUlke.UlkeKodu.DataType, LSysUlke.UlkeKodu.Value, Self, 'Ülke Kodu');
+    FUlkeAdi := TFieldDB.Create(LSysUlke.UlkeAdi.FieldName, LSysUlke.UlkeAdi.DataType, LSysUlke.UlkeAdi.Value, Self, 'Ülke Adý');
     FBolgeID := TFieldDB.Create('bolge_id', ftLargeint, 0, Self, 'Bölge ID');
     FBolge := TFieldDB.Create(LSysBolge.Bolge.FieldName, LSysBolge.Bolge.DataType, LSysBolge.Bolge.Value, Self, 'Bölge');
   finally
@@ -88,7 +91,8 @@ begin
         FSehir.QryName,
         FPlakaKodu.QryName,
         FUlkeID.QryName,
-        addField(LSysUlke.TableName, LSysUlke.UlkeKodu.FieldName, FUlke.FieldName),
+        addField(LSysUlke.TableName, LSysUlke.UlkeKodu.FieldName, FUlkeKodu.FieldName),
+        addField(LSysUlke.TableName, LSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
         FBolgeID.QryName,
         addField(LSysBolge.TableName, LSysBolge.Bolge.FieldName, FBolge.FieldName)
       ], [
@@ -126,7 +130,8 @@ begin
         FSehir.QryName,
         FPlakaKodu.QryName,
         FUlkeID.QryName,
-        addField(LSysUlke.TableName, LSysUlke.UlkeKodu.FieldName, FUlke.FieldName),
+        addField(LSysUlke.TableName, LSysUlke.UlkeKodu.FieldName, FUlkeKodu.FieldName),
+        addField(LSysUlke.TableName, LSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
         FBolgeID.QryName,
         addField(LSysBolge.TableName, LSysBolge.Bolge.FieldName, FBolge.FieldName)
       ], [

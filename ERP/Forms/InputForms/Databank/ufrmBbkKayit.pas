@@ -208,7 +208,7 @@ begin
             else
             begin
               TEdit(Sender).Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).Sehir);
-              edtulke_adi_id.Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).Ulke);
+              edtulke_adi_id.Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeAdi);
               edtbolge_adi_id.Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).Bolge);
               TBbkKayit(Table).SehirID.Value := TSysSehir(LFrmSehir.Table).Id.Value;
               TBbkKayit(Table).UlkeID.Value := TSysSehir(LFrmSehir.Table).UlkeID.Value;

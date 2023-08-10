@@ -168,18 +168,21 @@ begin
   cbbara_hesap_kodu.Clear;
   try
     cbbara_hesap_kodu.Items.BeginUpdate;
-    for n1 := 1 to 150 do
-      cbbara_hesap_kodu.Items.Add(n1.ToString);
+    for n1 := 1 to 250 do
+      cbbara_hesap_kodu.Items.Add(Format('%.*d', [3, n1]));
 
     if (FormMode = ifmUpdate) or (FormMode = ifmRewiev) or (FormMode = ifmReadOnly) then
       LAraKodlar := TChHesapKarti(Table).GetAraHesapKodlari(edtkok_hesap_kodu.Text, TChHesapKarti(Table).KokKod.AsString, True)
     else
       LAraKodlar := TChHesapKarti(Table).GetAraHesapKodlari(edtkok_hesap_kodu.Text, '', False);
-
-    for n1 := 0 to LAraKodlar.Count - 1 do
-    begin
-      if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
-        cbbara_hesap_kodu.Items.Delete(cbbara_hesap_kodu.Items.IndexOf(LAraKodlar.Strings[0]));
+    try
+      for n1 := 0 to LAraKodlar.Count - 1 do
+      begin
+        if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
+          cbbara_hesap_kodu.Items.Delete(cbbara_hesap_kodu.Items.IndexOf(LAraKodlar.Strings[0]));
+      end;
+    finally
+      LAraKodlar.DisposeOf;
     end;
   finally
     cbbara_hesap_kodu.Items.EndUpdate;
@@ -259,11 +262,16 @@ begin
   edtmukellef_tipi_id.OnHelperProcess := HelperProcess;
   edtpara_birimi.OnHelperProcess := HelperProcess;
   edtiban_para.OnHelperProcess := HelperProcess;
-  edtulke_id.OnHelperProcess := HelperProcess;
+//  edtulke_id.OnHelperProcess := HelperProcess;
   edtsehir_id.OnHelperProcess := HelperProcess;
 
   inherited;
 
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
+  begin
+    lblis_pasif.Visible := False;
+    chkis_pasif.Visible := False;
+  end;
   edtkok_hesap_kodu.SetFocus;
 end;
 
@@ -292,8 +300,6 @@ var
   LFrmBolge: TfrmChBolgeler;
   LFrmMukellef: TfrmSysVergiMukellefTipleri;
   LFrmPara: TfrmSysParaBirimleri;
-  LFrmCountry: TfrmSysUlkeler;
-  LCountry: TSysUlke;
   LFrmSehir: TfrmSysSehirler;
   LSehir: TSysSehir;
 begin
@@ -442,6 +448,7 @@ begin
           begin
             if LFrmSehir.CleanAndClose then
             begin
+              edtulke_id.Clear;
               TEdit(Sender).Clear;
               edtilce.Clear;
               edtmahalle.Clear;
@@ -449,16 +456,16 @@ begin
             end
             else
             begin
-              if TEmpEmployee(Table).Adres.SehirId.AsInteger <> LFrmSehir.Table.Id.AsInteger then
+              if TChHesapKarti(Table).Adres.SehirId.AsInteger <> LFrmSehir.Table.Id.AsInteger then
               begin
                 edtilce.Clear;
                 edtmahalle.Clear;
                 edtposta_kodu.Clear;
               end;
+              edtulke_id.Text := LSehir.UlkeAdi.AsString;
+              TChHesapKarti(Table).Adres.SehirId.Value := LFrmSehir.Table.Id.AsInteger;
+              TEdit(Sender).Text := LSehir.Sehir.AsString;
             end;
-
-            TEmpEmployee(Table).Adres.SehirId.Value := LFrmSehir.Table.Id.AsInteger;
-            TEdit(Sender).Text := LSehir.Sehir.AsString;
           end;
         finally
           LFrmSehir.Free;
@@ -559,7 +566,7 @@ begin
   edtefatura_pk_name.Text := TChHesapKarti(Table).EFaturaPBName.AsString;
   chkis_efatura_hesabi.Checked := TChHesapKarti(Table).EFaturaKullaniyor.Value;
 
-  edtulke_id.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).Adres.Ulke));
+  edtulke_id.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).Adres.UlkeAdi));
   edtsehir_id.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).Adres.Sehir));
   edtmahalle.Text := TChHesapKarti(Table).Adres.Mahalle.Value;
   edtcadde.Text := TChHesapKarti(Table).Adres.Cadde.Value;
@@ -681,7 +688,7 @@ begin
       TChHesapKarti(Table).EFaturaKullaniyor.Value := chkis_efatura_hesabi.Checked;
       TChHesapKarti(Table).EFaturaPBName.Value := edtefatura_pk_name.Text;
 
-      TChHesapKarti(Table).Adres.Ulke.Value := edtulke_id.Text;
+      TChHesapKarti(Table).Adres.UlkeAdi.Value := edtulke_id.Text;
       TChHesapKarti(Table).Adres.Sehir.Value := edtsehir_id.Text;
       TChHesapKarti(Table).Adres.Mahalle.Value := edtmahalle.Text;
       TChHesapKarti(Table).Adres.Cadde.Value := edtcadde.Text;
@@ -706,6 +713,13 @@ begin
       TChHesapKarti(Table).OzelNot.Value := mmoozel_bilgi.Text;
 
       TChHesapKarti(Table).Iskonto.Value := StrToFloatDef(edthesap_iskonto.Text, 0);
+
+      if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
+      begin
+        TChHesapKarti(Table).Pasif.Value := False;
+      end
+      else
+        TChHesapKarti(Table).Pasif.Value := chkis_pasif.Checked;
 
       inherited;
     end;

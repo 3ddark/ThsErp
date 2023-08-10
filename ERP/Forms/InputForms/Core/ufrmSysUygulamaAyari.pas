@@ -268,7 +268,7 @@ begin
           TSysUygulamaAyari(Table).Adres.SehirID.Value := LFrmCity.Table.Id.Value;
           TEdit(Sender).Text := TSysSehir(LFrmCity.Table).Sehir.Value;
           TSysUygulamaAyari(Table).Adres.FSysSehir.UlkeID.Value := TSysSehir(LFrmCity.Table).UlkeID.Value;
-          edtcountry_id.Text := TSysSehir(LFrmCity.Table).Ulke.Value;
+          edtcountry_id.Text := TSysSehir(LFrmCity.Table).UlkeAdi.Value;
         finally
           LFrmCity.Free;
         end;
@@ -405,7 +405,7 @@ begin
   edttax_number.Text := TSysUygulamaAyari(Table).VergiNo.AsString;
   edtweb_site.Text := TSysUygulamaAyari(Table).Adres.Web.AsString;
   edtemail.Text := TSysUygulamaAyari(Table).Adres.EMail.AsString;
-  edtcountry_id.Text := TSysUygulamaAyari(Table).Adres.Ulke.AsString;
+  edtcountry_id.Text := TSysUygulamaAyari(Table).Adres.UlkeAdi.AsString;
   edtcity_id.Text := TSysUygulamaAyari(Table).Adres.Sehir.AsString;
   edtdistrict.Text := TSysUygulamaAyari(Table).Adres.Mahalle.AsString;
   edtneighborhood.Text := TSysUygulamaAyari(Table).Adres.Cadde.AsString;

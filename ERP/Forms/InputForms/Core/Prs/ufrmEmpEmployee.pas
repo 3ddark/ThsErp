@@ -305,14 +305,8 @@ end;
 
 procedure TfrmEmpEmployee.HelperProcess(Sender: TObject);
 var
-  LFrmBolum: TfrmSetEmpSections;
-  LBolum: TSetPrsBolum;
-  LFrmBirim: TfrmSetEmpUnits;
-  LBirim: TSetPrsBirim;
   LFrmGorev: TfrmSetEmpTasks;
   LGorev: TSetPrsGorev;
-  LFrmCountry: TfrmSysUlkeler;
-  LCountry: TSysUlke;
   LFrmCity: TfrmSysSehirler;
   LCity: TSysSehir;
 begin

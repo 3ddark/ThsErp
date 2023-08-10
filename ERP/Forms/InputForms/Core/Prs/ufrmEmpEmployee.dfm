@@ -6,8 +6,9 @@ inherited frmEmpEmployee: TfrmEmpEmployee
   ClientHeight = 403
   ClientWidth = 597
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 613
-  ExplicitHeight = 442
+  ExplicitWidth = 603
+  ExplicitHeight = 432
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 597
@@ -17,8 +18,8 @@ inherited frmEmpEmployee: TfrmEmpEmployee
     ExplicitWidth = 629
     ExplicitHeight = 417
     inherited pgcMain: TPageControl
-      Width = 599
-      Height = 357
+      Width = 597
+      Height = 353
       ActivePage = tsSpecial
       OnChange = pgcMainChange
       ExplicitWidth = 629
@@ -243,6 +244,10 @@ inherited frmEmpEmployee: TfrmEmpEmployee
       object tsDetail: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblbina_adi: TLabel
           Left = 78
           Top = 186
@@ -477,6 +482,10 @@ inherited frmEmpEmployee: TfrmEmpEmployee
       object tsSpecial: TTabSheet
         Caption = #214'zel Bilgiler'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblmaas: TLabel
           Left = 98
           Top = 224

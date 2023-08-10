@@ -4,8 +4,9 @@ inherited frmBbkKayit: TfrmBbkKayit
   Caption = 'Bilgi Bankas'#305' Kay'#305't Asans'#246'r'
   ClientHeight = 384
   ClientWidth = 830
-  ExplicitWidth = 846
-  ExplicitHeight = 423
+  ExplicitWidth = 836
+  ExplicitHeight = 413
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 830
@@ -13,8 +14,8 @@ inherited frmBbkKayit: TfrmBbkKayit
     ExplicitWidth = 872
     ExplicitHeight = 463
     inherited pgcMain: TPageControl
-      Width = 832
-      Height = 338
+      Width = 830
+      Height = 334
       ExplicitWidth = 870
       ExplicitHeight = 461
       inherited tsMain: TTabSheet

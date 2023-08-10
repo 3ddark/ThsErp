@@ -4,6 +4,7 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
   ClientWidth = 880
   ExplicitWidth = 896
   ExplicitHeight = 552
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 880
@@ -12,21 +13,21 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
     ExplicitHeight = 511
     inherited splLeft: TSplitter
       Top = 332
-      Height = 135
+      Height = 131
       ExplicitTop = 437
       ExplicitHeight = 502
     end
     inherited splHeader: TSplitter
       Top = 329
-      Width = 882
+      Width = 880
       ExplicitLeft = 0
       ExplicitTop = 74
       ExplicitWidth = 973
     end
     inherited pgcMain: TPageControl
       Top = 332
-      Width = 776
-      Height = 135
+      Width = 774
+      Height = 131
       ExplicitTop = 332
       ExplicitWidth = 798
       ExplicitHeight = 179
@@ -36,12 +37,12 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
       end
     end
     inherited pnlHeader: TPanel
-      Width = 878
+      Width = 876
       Height = 326
       ExplicitWidth = 900
       ExplicitHeight = 326
       inherited pgcHeader: TPageControl
-        Width = 876
+        Width = 874
         Height = 324
         ExplicitWidth = 898
         ExplicitHeight = 324
@@ -723,8 +724,8 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
       ExplicitWidth = 798
       ExplicitHeight = 179
       inherited pgcContent: TPageControl
-        Width = 774
-        Height = 131
+        Width = 772
+        Height = 127
         ExplicitWidth = 796
         ExplicitHeight = 175
         inherited ts1: TTabSheet

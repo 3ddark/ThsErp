@@ -6,22 +6,23 @@ inherited frmHesapKarti: TfrmHesapKarti
   ClientHeight = 362
   ClientWidth = 689
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 703
-  ExplicitHeight = 397
+  ExplicitWidth = 695
+  ExplicitHeight = 391
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 689
     Height = 312
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 678
-    ExplicitHeight = 290
+    ExplicitWidth = 689
+    ExplicitHeight = 312
     inherited pgcMain: TPageControl
       Width = 689
       Height = 312
       OnChange = pgcMainChange
-      ExplicitWidth = 678
-      ExplicitHeight = 290
+      ExplicitWidth = 689
+      ExplicitHeight = 312
       inherited tsMain: TTabSheet
         ExplicitWidth = 681
         ExplicitHeight = 284
@@ -501,6 +502,10 @@ inherited frmHesapKarti: TfrmHesapKarti
       object tsAdres: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblposta_kutusu: TLabel
           Left = 412
           Top = 201
@@ -735,6 +740,10 @@ inherited frmHesapKarti: TfrmHesapKarti
       object tsIletisim: TTabSheet
         Caption = #304'leti'#351'im'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblyetkili2: TLabel
           Left = 75
           Top = 91
@@ -1040,21 +1049,21 @@ inherited frmHesapKarti: TfrmHesapKarti
   inherited pnlBottom: TPanel
     Top = 314
     Width = 685
-    ExplicitTop = 292
-    ExplicitWidth = 674
+    ExplicitTop = 314
+    ExplicitWidth = 685
     inherited btnAccept: TButton
       Left = 479
-      ExplicitLeft = 468
+      ExplicitLeft = 479
     end
     inherited btnClose: TButton
       Left = 583
-      ExplicitLeft = 572
+      ExplicitLeft = 583
     end
   end
   inherited stbBase: TStatusBar
     Top = 344
     Width = 689
-    ExplicitTop = 322
-    ExplicitWidth = 678
+    ExplicitTop = 344
+    ExplicitWidth = 689
   end
 end
