@@ -3,15 +3,15 @@ inherited frmSetChFirmaTipi: TfrmSetChFirmaTipi
   Top = 443
   ActiveControl = btnClose
   Caption = 'Ayar Firma Tipi'
-  ClientHeight = 148
-  ClientWidth = 359
+  ClientHeight = 144
+  ClientWidth = 357
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 375
-  ExplicitHeight = 187
+  ExplicitWidth = 373
+  ExplicitHeight = 183
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 359
-    Height = 98
+    Width = 357
+    Height = 94
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 355
@@ -75,8 +75,8 @@ inherited frmSetChFirmaTipi: TfrmSetChFirmaTipi
     end
   end
   inherited pnlBottom: TPanel
-    Top = 100
-    Width = 355
+    Top = 96
+    Width = 353
     ExplicitTop = 106
     ExplicitWidth = 355
     inherited btnAccept: TButton
@@ -89,8 +89,8 @@ inherited frmSetChFirmaTipi: TfrmSetChFirmaTipi
     end
   end
   inherited stbBase: TStatusBar
-    Top = 130
-    Width = 359
+    Top = 126
+    Width = 357
     ExplicitTop = 150
     ExplicitWidth = 359
   end

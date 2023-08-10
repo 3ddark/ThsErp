@@ -47,7 +47,7 @@ end;
 
 procedure TfrmChBolge.RefreshData;
 begin
-  edtbolge.Text := FormatedVariantVal(TChBolge(Table).Bolge);
+  edtbolge.Text := TChBolge(Table).Bolge.AsString;
 end;
 
 end.

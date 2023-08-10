@@ -599,23 +599,23 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := FormatedVariantVal(LCH.HesapKodu);
-              edtmusteri_adi.Text := FormatedVariantVal(LCH.HesapIsmi);
-              edtvergi_dairesi.Text := FormatedVariantVal(LCH.VergiDairesi);
-              edtvergi_no.Text := FormatedVariantVal(LCH.VergiNo);
-              edtulke_id.Text := FormatedVariantVal(LCH.Adres.UlkeAdi);
-              edtsehir_id.Text := FormatedVariantVal(LCH.Adres.Sehir);
-              edtmahalle.Text := FormatedVariantVal(LCH.Adres.Mahalle);
-              edtcadde.Text := FormatedVariantVal(LCH.Adres.Cadde);
-              edtsokak.Text := FormatedVariantVal(LCH.Adres.Sokak);
-              edtbina_adi.Text := FormatedVariantVal(LCH.Adres.BinaAdi);
-              edtkapi_no.Text := FormatedVariantVal(LCH.Adres.KapiNo);
-              edtposta_kodu.Text := FormatedVariantVal(LCH.Adres.PostaKodu);
-              edtmuhattap_ad.Text := FormatedVariantVal(LCH.Yetkili1);
-              edtmuhattap_telefon.Text := FormatedVariantVal(LCH.Yetkili1Tel);
+              TEdit(Sender).Text := LCH.HesapKodu.AsString;
+              edtmusteri_adi.Text := LCH.HesapIsmi.AsString;
+              edtvergi_dairesi.Text := LCH.VergiDairesi.AsString;
+              edtvergi_no.Text := LCH.VergiNo.AsString;
+              edtulke_id.Text := LCH.Adres.UlkeAdi.AsString;
+              edtsehir_id.Text := LCH.Adres.Sehir.AsString;
+              edtmahalle.Text := LCH.Adres.Mahalle.AsString;
+              edtcadde.Text := LCH.Adres.Cadde.AsString;
+              edtsokak.Text := LCH.Adres.Sokak.AsString;
+              edtbina_adi.Text := LCH.Adres.BinaAdi.AsString;
+              edtkapi_no.Text := LCH.Adres.KapiNo.AsString;
+              edtposta_kodu.Text := LCH.Adres.PostaKodu.AsString;
+              edtmuhattap_ad.Text := LCH.Yetkili1.AsString;
+              edtmuhattap_telefon.Text := LCH.Yetkili1Tel.AsString;
 
-//              TSatSiparis(Table).UlkeID.Value := FormatedVariantVal(LCH.UlkeID);
-              TSatSiparis(Table).SehirID.Value := FormatedVariantVal(LCH.Adres.SehirID);
+//              TSatSiparis(Table).UlkeID.Value := LCH.UlkeID.AsInteger;
+              TSatSiparis(Table).SehirID.Value := LCH.Adres.SehirID.AsInteger;
             end;
           end;
         finally
@@ -633,7 +633,7 @@ begin
             if LFrmPara.CleanAndClose then
               TEdit(Sender).Clear
             else
-              TEdit(Sender).Text := FormatedVariantVal(TSysParaBirimi(LFrmPara.Table).Para);
+              TEdit(Sender).Text := TSysParaBirimi(LFrmPara.Table).Para.AsString;
 
             if LOldPara = TEdit(Sender).Text then
               Exit;
@@ -676,7 +676,7 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := FormatedVariantVal(TSetEinvPaketTipi(LFrmPaket.Table).PaketTipi);
+              TEdit(Sender).Text := TSetEinvPaketTipi(LFrmPaket.Table).PaketTipi.AsString;
               TSatSiparis(Table).PaketTipiID.Value := LFrmPaket.Table.Id.Value;
             end;
           end;
@@ -698,7 +698,7 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := FormatedVariantVal(TSetEinvTasimaUcreti(LFrmTasima.Table).TasimaUcreti);
+              TEdit(Sender).Text := TSetEinvTasimaUcreti(LFrmTasima.Table).TasimaUcreti.AsString;
               TSatSiparis(Table).NakliyeUcretiID.Value := LFrmTasima.Table.Id.Value;
             end;
           end;
@@ -720,7 +720,7 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := FormatedVariantVal(TSetEinvOdemeSekli(LFrmOdeme.Table).OdemeSekli);
+              TEdit(Sender).Text := TSetEinvOdemeSekli(LFrmOdeme.Table).OdemeSekli.AsString;
               TSatSiparis(Table).OdemeSekliID.Value := LFrmOdeme.Table.Id.Value;
             end;
           end;
@@ -742,7 +742,7 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := FormatedVariantVal(TSetEinvTeslimSekli(LFrmTeslim.Table).TeslimSekli);
+              TEdit(Sender).Text := TSetEinvTeslimSekli(LFrmTeslim.Table).TeslimSekli.AsString;
               TSatSiparis(Table).TeslimSekliID.Value := LFrmTeslim.Table.Id.Value;
             end;
           end;
@@ -758,8 +758,8 @@ begin
           TEdit(Sender).Text := TSysSehir(LFrmSehir.Table).Sehir.Value;
           TSatSiparis(Table).SehirID.Value := TSysSehir(LFrmSehir.Table).Id.AsInt64;
 
-          edtulke_id.Text := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeAdi);
-          TSatSiparis(Table).UlkeID.Value := FormatedVariantVal(TSysSehir(LFrmSehir.Table).UlkeID);
+          edtulke_id.Text := TSysSehir(LFrmSehir.Table).UlkeAdi.AsString;
+          TSatSiparis(Table).UlkeID.Value := TSysSehir(LFrmSehir.Table).UlkeID.AsInteger;
         finally
           LFrmSehir.Free;
         end;

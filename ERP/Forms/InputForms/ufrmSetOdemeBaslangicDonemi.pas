@@ -51,9 +51,9 @@ uses
 
 procedure TfrmSetOdemeBaslangicDonemi.RefreshData();
 begin
-  edtodeme_baslangic_donemi.Text := FormatedVariantVal(TSetOdemeBaslangicDonemi(Table).OdemeBaslangicDonemi);
-  edtaciklama.Text := FormatedVariantVal(TSetOdemeBaslangicDonemi(Table).Aciklama);
-  chkis_aktif.Checked := FormatedVariantVal(TSetOdemeBaslangicDonemi(Table).IsAktif);
+  edtodeme_baslangic_donemi.Text := TSetOdemeBaslangicDonemi(Table).OdemeBaslangicDonemi.AsString;
+  edtaciklama.Text := TSetOdemeBaslangicDonemi(Table).Aciklama.AsString;
+  chkis_aktif.Checked := TSetOdemeBaslangicDonemi(Table).IsAktif.AsBoolean;
 end;
 
 procedure TfrmSetOdemeBaslangicDonemi.btnAcceptClick(Sender: TObject);

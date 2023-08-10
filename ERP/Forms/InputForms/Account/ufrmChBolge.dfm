@@ -3,27 +3,27 @@ inherited frmChBolge: TfrmChBolge
   Top = 443
   ActiveControl = btnClose
   Caption = 'B'#246'lge'
-  ClientHeight = 117
-  ClientWidth = 342
+  ClientHeight = 113
+  ClientWidth = 340
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 358
-  ExplicitHeight = 156
+  ExplicitWidth = 356
+  ExplicitHeight = 152
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 342
-    Height = 67
+    Width = 340
+    Height = 63
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
     ExplicitHeight = 98
     inherited pgcMain: TPageControl
-      Width = 344
-      Height = 71
+      Width = 342
+      Height = 67
       ExplicitWidth = 338
       ExplicitHeight = 96
       inherited tsMain: TTabSheet
-        ExplicitWidth = 336
-        ExplicitHeight = 43
+        ExplicitWidth = 334
+        ExplicitHeight = 39
         object lblbolge: TLabel
           Left = 64
           Top = 5
@@ -51,8 +51,8 @@ inherited frmChBolge: TfrmChBolge
     end
   end
   inherited pnlBottom: TPanel
-    Top = 69
-    Width = 338
+    Top = 65
+    Width = 336
     ExplicitTop = 102
     ExplicitWidth = 340
     inherited btnAccept: TButton
@@ -71,8 +71,8 @@ inherited frmChBolge: TfrmChBolge
     end
   end
   inherited stbBase: TStatusBar
-    Top = 99
-    Width = 342
+    Top = 95
+    Width = 340
     ExplicitTop = 132
     ExplicitWidth = 344
   end

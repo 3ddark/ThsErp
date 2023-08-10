@@ -388,7 +388,7 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := VarToStr(FormatedVariantVal(TChBolge(LFrmBolge.Table).Bolge));
+              TEdit(Sender).Text := TChBolge(LFrmBolge.Table).Bolge.AsString;
               TChHesapKarti(Table).BolgeID.Value := LFrmBolge.Table.Id.Value;
             end;
           end;
@@ -548,26 +548,26 @@ begin
   edthesap_kodu.Text := TChHesapKarti(Table).HesapKodu.Value;
 
   edthesap_ismi.Text := TChHesapKarti(Table).HesapIsmi.Value;
-  edthesap_grubu_id.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).Grup));
-  edtbolge_id.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).Bolge));
-  edtmukellef_tipi_id.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).MukellefTipi));
-  edtvergi_dairesi.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).VergiDairesi));
-  edtvergi_no.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).VergiNo));
+  edthesap_grubu_id.Text := TChHesapKarti(Table).Grup.AsString;
+  edtbolge_id.Text := TChHesapKarti(Table).Bolge.AsString;
+  edtmukellef_tipi_id.Text := TChHesapKarti(Table).MukellefTipi.AsString;
+  edtvergi_dairesi.Text := TChHesapKarti(Table).VergiDairesi.AsString;
+  edtvergi_no.Text := TChHesapKarti(Table).VergiNo.AsString;
 
   ShowHideMukellefTipi;
 
-  edtmukellef_adi.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).MukellefAdi));
-  edtmukellef_ikinci_adi.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).MukellefAdi2));
-  edtmukellef_soyadi.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).MukellefSoyadi));
+  edtmukellef_adi.Text := TChHesapKarti(Table).MukellefAdi.AsString;
+  edtmukellef_ikinci_adi.Text := TChHesapKarti(Table).MukellefAdi2.AsString;
+  edtmukellef_soyadi.Text := TChHesapKarti(Table).MukellefSoyadi.AsString;
 
-  edtiban.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).Iban));
-  edtiban_para.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).IbanPara));
-  edtnace_kodu.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).Nace));
+  edtiban.Text := TChHesapKarti(Table).Iban.AsString;
+  edtiban_para.Text := TChHesapKarti(Table).IbanPara.AsString;
+  edtnace_kodu.Text := TChHesapKarti(Table).Nace.AsString;
   edtefatura_pk_name.Text := TChHesapKarti(Table).EFaturaPBName.AsString;
   chkis_efatura_hesabi.Checked := TChHesapKarti(Table).EFaturaKullaniyor.Value;
 
-  edtulke_id.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).Adres.UlkeAdi));
-  edtsehir_id.Text := VarToStr(FormatedVariantVal(TChHesapKarti(Table).Adres.Sehir));
+  edtulke_id.Text := TChHesapKarti(Table).Adres.UlkeAdi.AsString;
+  edtsehir_id.Text := TChHesapKarti(Table).Adres.Sehir.AsString;
   edtmahalle.Text := TChHesapKarti(Table).Adres.Mahalle.Value;
   edtcadde.Text := TChHesapKarti(Table).Adres.Cadde.Value;
   edtsokak.Text := TChHesapKarti(Table).Adres.Sokak.Value;

@@ -3,15 +3,15 @@ inherited frmSetSatTeklifDurum: TfrmSetSatTeklifDurum
   Top = 443
   ActiveControl = btnClose
   Caption = 'Teklif Durum'
-  ClientHeight = 166
-  ClientWidth = 360
+  ClientHeight = 162
+  ClientWidth = 358
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 376
-  ExplicitHeight = 205
+  ExplicitWidth = 374
+  ExplicitHeight = 201
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 360
-    Height = 116
+    Width = 358
+    Height = 112
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
@@ -97,8 +97,8 @@ inherited frmSetSatTeklifDurum: TfrmSetSatTeklifDurum
     end
   end
   inherited pnlBottom: TPanel
-    Top = 118
-    Width = 356
+    Top = 114
+    Width = 354
     ExplicitTop = 115
     ExplicitWidth = 340
     inherited btnAccept: TButton
@@ -111,8 +111,8 @@ inherited frmSetSatTeklifDurum: TfrmSetSatTeklifDurum
     end
   end
   inherited stbBase: TStatusBar
-    Top = 148
-    Width = 360
+    Top = 144
+    Width = 358
     ExplicitTop = 159
     ExplicitWidth = 344
   end

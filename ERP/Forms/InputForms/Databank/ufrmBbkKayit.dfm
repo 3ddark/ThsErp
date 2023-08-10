@@ -2,15 +2,14 @@ inherited frmBbkKayit: TfrmBbkKayit
   Left = 501
   Top = 443
   Caption = 'Bilgi Bankas'#305' Kay'#305't Asans'#246'r'
-  ClientHeight = 384
-  ClientWidth = 830
-  ExplicitWidth = 836
-  ExplicitHeight = 413
-  PixelsPerInch = 96
+  ClientHeight = 380
+  ClientWidth = 828
+  ExplicitWidth = 844
+  ExplicitHeight = 419
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 830
-    Height = 334
+    Width = 828
+    Height = 330
     ExplicitWidth = 872
     ExplicitHeight = 463
     inherited pgcMain: TPageControl
@@ -19,8 +18,8 @@ inherited frmBbkKayit: TfrmBbkKayit
       ExplicitWidth = 870
       ExplicitHeight = 461
       inherited tsMain: TTabSheet
-        ExplicitWidth = 824
-        ExplicitHeight = 310
+        ExplicitWidth = 822
+        ExplicitHeight = 306
         object lblfirma_adi: TLabel
           Left = 84
           Top = 5
@@ -594,8 +593,8 @@ inherited frmBbkKayit: TfrmBbkKayit
     end
   end
   inherited pnlBottom: TPanel
-    Top = 336
-    Width = 826
+    Top = 332
+    Width = 824
     ExplicitTop = 467
     ExplicitWidth = 872
     inherited btnAccept: TButton
@@ -608,8 +607,8 @@ inherited frmBbkKayit: TfrmBbkKayit
     end
   end
   inherited stbBase: TStatusBar
-    Top = 366
-    Width = 830
+    Top = 362
+    Width = 828
     ExplicitTop = 497
     ExplicitWidth = 876
   end

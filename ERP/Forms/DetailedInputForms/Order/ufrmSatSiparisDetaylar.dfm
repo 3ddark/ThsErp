@@ -1,14 +1,13 @@
 inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
   Caption = 'Sipari'#351' Detaylar'#305
-  ClientHeight = 513
-  ClientWidth = 880
-  ExplicitWidth = 896
-  ExplicitHeight = 552
-  PixelsPerInch = 96
+  ClientHeight = 509
+  ClientWidth = 878
+  ExplicitWidth = 894
+  ExplicitHeight = 548
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 880
-    Height = 463
+    Width = 878
+    Height = 459
     ExplicitWidth = 904
     ExplicitHeight = 511
     inherited splLeft: TSplitter
@@ -32,8 +31,8 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
       ExplicitWidth = 798
       ExplicitHeight = 179
       inherited tsMain: TTabSheet
-        ExplicitWidth = 768
-        ExplicitHeight = 107
+        ExplicitWidth = 766
+        ExplicitHeight = 103
       end
     end
     inherited pnlHeader: TPanel
@@ -48,7 +47,7 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
         ExplicitHeight = 324
         inherited tsHeader: TTabSheet
           Caption = 'Genel'
-          ExplicitWidth = 848
+          ExplicitWidth = 846
           ExplicitHeight = 316
           object lblsiparis_no: TLabel
             Left = 626
@@ -711,15 +710,15 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitWidth = 846
+          ExplicitWidth = 844
           ExplicitHeight = 316
         end
       end
     end
     inherited pnlContent: TPanel
       Top = 332
-      Width = 774
-      Height = 131
+      Width = 772
+      Height = 127
       ExplicitTop = 332
       ExplicitWidth = 798
       ExplicitHeight = 179
@@ -729,8 +728,8 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
         ExplicitWidth = 796
         ExplicitHeight = 175
         inherited ts1: TTabSheet
-          ExplicitWidth = 766
-          ExplicitHeight = 103
+          ExplicitWidth = 764
+          ExplicitHeight = 99
           inherited pnl1: TPanel
             Top = 63
             Width = 788
@@ -757,8 +756,8 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited ts2: TTabSheet
-          ExplicitWidth = 766
-          ExplicitHeight = 103
+          ExplicitWidth = 764
+          ExplicitHeight = 99
           inherited pnl2: TPanel
             Top = 9
             Width = 782
@@ -777,8 +776,8 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited ts3: TTabSheet
-          ExplicitWidth = 766
-          ExplicitHeight = 103
+          ExplicitWidth = 764
+          ExplicitHeight = 99
           inherited strngrd3: TStringGrid
             Width = 782
             Height = 9
@@ -798,20 +797,20 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
         end
       end
       inherited btnHeaderShowHide: TButton
-        Left = 737
+        Left = 735
         ExplicitLeft = 761
       end
     end
     inherited pnlLeft: TPanel
       Top = 333
-      Height = 128
+      Height = 124
       ExplicitTop = 333
       ExplicitHeight = 176
     end
   end
   inherited pnlBottom: TPanel
-    Top = 465
-    Width = 876
+    Top = 461
+    Width = 874
     ExplicitTop = 513
     ExplicitWidth = 900
     inherited btnAccept: TButton
@@ -824,8 +823,8 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
     end
   end
   inherited stbBase: TStatusBar
-    Top = 495
-    Width = 880
+    Top = 491
+    Width = 878
     ExplicitTop = 543
     ExplicitWidth = 904
   end

@@ -14,17 +14,15 @@ uses
 type
   TfrmSetChVergiOranlari = class(TfrmBaseDBGrid)
   protected
-    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm; override;
-   public
-       procedure FormShow(Sender: TObject); override;
+    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm; override;
+  public
+    procedure FormShow(Sender: TObject); override;
   end;
 
 implementation
 
 uses
-  Ths.Database.Table,
-  ufrmSetChVergiOrani,
-  Ths.Database.Table.SetChVergiOrani;
+  Ths.Database.Table, ufrmSetChVergiOrani, Ths.Database.Table.SetChVergiOrani;
 
 {$R *.dfm}
 
@@ -42,8 +40,9 @@ end;
 procedure TfrmSetChVergiOranlari.FormShow(Sender: TObject);
 begin
   inherited;
-  if Table.DataSource.DataSet.RecordCount>0 then
+  if Table.DataSource.DataSet.RecordCount > 0 then
     setDisplayFormatInteger(TSetChVergiOrani(Table).VergiOrani.FieldName, '0.00%', grd.DataSource.DataSet);
 end;
 
 end.
+

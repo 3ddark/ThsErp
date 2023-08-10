@@ -3,15 +3,15 @@ inherited frmSetBbkCalismaDurumu: TfrmSetBbkCalismaDurumu
   Top = 443
   ActiveControl = btnClose
   Caption = 'Bilgi Bankas'#305' '#199'al'#305#351'ma Durumu'
-  ClientHeight = 121
-  ClientWidth = 344
+  ClientHeight = 117
+  ClientWidth = 342
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 360
-  ExplicitHeight = 160
+  ExplicitWidth = 358
+  ExplicitHeight = 156
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 344
-    Height = 71
+    Width = 342
+    Height = 67
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
@@ -51,8 +51,8 @@ inherited frmSetBbkCalismaDurumu: TfrmSetBbkCalismaDurumu
     end
   end
   inherited pnlBottom: TPanel
-    Top = 73
-    Width = 340
+    Top = 69
+    Width = 338
     ExplicitTop = 70
     ExplicitWidth = 340
     inherited btnAccept: TButton
@@ -66,8 +66,8 @@ inherited frmSetBbkCalismaDurumu: TfrmSetBbkCalismaDurumu
     end
   end
   inherited stbBase: TStatusBar
-    Top = 103
-    Width = 344
+    Top = 99
+    Width = 342
     ExplicitTop = 114
     ExplicitWidth = 344
   end

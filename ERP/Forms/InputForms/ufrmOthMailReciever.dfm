@@ -3,16 +3,16 @@ inherited frmOthMailReciever: TfrmOthMailReciever
   Top = 443
   ActiveControl = btnClose
   Caption = 'Kalite Formlar'#305' Mail Al'#305'c'#305's'#305
-  ClientHeight = 127
-  ClientWidth = 344
+  ClientHeight = 123
+  ClientWidth = 342
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
-  ExplicitWidth = 360
-  ExplicitHeight = 166
+  ExplicitWidth = 358
+  ExplicitHeight = 162
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 344
-    Height = 77
+    Width = 342
+    Height = 73
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
@@ -54,8 +54,8 @@ inherited frmOthMailReciever: TfrmOthMailReciever
     end
   end
   inherited pnlBottom: TPanel
-    Top = 79
-    Width = 340
+    Top = 75
+    Width = 338
     ExplicitTop = 59
     ExplicitWidth = 340
     inherited btnAccept: TButton
@@ -68,8 +68,8 @@ inherited frmOthMailReciever: TfrmOthMailReciever
     end
   end
   inherited stbBase: TStatusBar
-    Top = 109
-    Width = 344
+    Top = 105
+    Width = 342
     ExplicitTop = 103
     ExplicitWidth = 344
   end

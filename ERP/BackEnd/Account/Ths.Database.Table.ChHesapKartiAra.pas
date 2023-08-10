@@ -66,7 +66,7 @@ var
 begin
   LHesap := TChHesapKarti.Create(Database);
   try
-    LStr := VarToStr(FormatedVariantVal(HesapKodu));
+    LStr := FHesapKodu.AsString;
     //Bu ara hesaptan oluşturulmuş son hesap varsa silmeyi engelle
     LHesap.SelectToList(
       ' AND ' + LHesap.AraKod.QryName + '=' + QuotedStr(LStr) +
@@ -242,9 +242,9 @@ begin
   if (KokKod.Value = '') then
     CreateExceptionByLang('Kök Hesap Kodu seçilmeden devam edilemez!', '999999');
 
-  LStr := ReverseString(VarToStr(FormatedVariantVal(HesapKodu)));
+  LStr := ReverseString(FHesapKodu.AsString);
   if (LStr[1] = '-') then
-    CreateExceptionByLang('Ara Hesap Kodu doğru girilmedi! Örnek Kod "120-1" gibi olmalı', '999999');
+    CreateExceptionByLang('Ara Hesap Kodu doğru girilmedi! Örnek Kod "120-001" gibi olmalı', '999999');
 end;
 
 function TChHesapKartiAra.Clone: TTable;

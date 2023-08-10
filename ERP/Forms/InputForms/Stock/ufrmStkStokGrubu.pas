@@ -85,7 +85,7 @@ begin
     begin
       TStkStokGrubu(Table).Grup.Value := edtstok_grubu.Text;
       TStkStokGrubu(Table).KDVOrani.Value := edtkdv_orani.Text;
-      TStkStokGrubu(Table).IhracatHesapKodu.Value := edtihracat_kodu.Text;
+      TStkStokGrubu(Table).IhracHesapKodu.Value := edtihracat_kodu.Text;
       TStkStokGrubu(Table).HammaddeKodu.Value := edthammadde_kodu.Text;
       TStkStokGrubu(Table).MamulKodu.Value := edtmamul_kodu.Text;
 
@@ -144,15 +144,15 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := VarToStr(FormatedVariantVal(LVergi.VergiOrani));
-              edtsatis_kodu.Text := VarToStr(FormatedVariantVal(LVergi.SatisHesapKodu));
-              lblsatis_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.SatisHesapAdi));
-              edtsatis_iade_kodu.Text := VarToStr(FormatedVariantVal(LVergi.SatisIadeHesapKodu));
-              lblsatis_iade_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.SatisIadeHesapAdi));
-              edtalis_kodu.Text := VarToStr(FormatedVariantVal(LVergi.AlisHesapKodu));
-              lblalis_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.AlisHesapAdi));
-              edtalis_iade_kodu.Text := VarToStr(FormatedVariantVal(LVergi.AlisIadeHesapKodu));
-              lblalis_iade_kodu_val.Caption := VarToStr(FormatedVariantVal(LVergi.AlisIadeHesapAdi));
+              TEdit(Sender).Text := LVergi.VergiOrani.AsString;
+              edtsatis_kodu.Text := LVergi.SatisHesapKodu.AsString;
+              lblsatis_kodu_val.Caption := LVergi.SatisHesapAdi.AsString;
+              edtsatis_iade_kodu.Text := LVergi.SatisIadeHesapKodu.AsString;
+              lblsatis_iade_kodu_val.Caption := LVergi.SatisIadeHesapAdi.AsString;
+              edtalis_kodu.Text := LVergi.AlisHesapKodu.AsString;
+              lblalis_kodu_val.Caption := LVergi.AlisHesapAdi.AsString;
+              edtalis_iade_kodu.Text := LVergi.AlisIadeHesapKodu.AsString;
+              lblalis_iade_kodu_val.Caption := LVergi.AlisIadeHesapAdi.AsString;;
             end;
           end;
         finally
@@ -174,8 +174,8 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := VarToStr(FormatedVariantVal(LCH.HesapKodu));
-              lblihracat_kodu_val.Caption := VarToStr(FormatedVariantVal(LCH.HesapIsmi));
+              TEdit(Sender).Text := LCH.HesapKodu.AsString;
+              lblihracat_kodu_val.Caption := LCH.HesapIsmi.AsString;
             end;
           end;
         finally
@@ -197,8 +197,8 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := VarToStr(FormatedVariantVal(LCH.HesapKodu));
-              lblhammadde_kodu_val.Caption := VarToStr(FormatedVariantVal(LCH.HesapIsmi));
+              TEdit(Sender).Text := LCH.HesapKodu.AsString;
+              lblhammadde_kodu_val.Caption := LCH.HesapIsmi.AsString;
             end;
           end;
         finally
@@ -220,8 +220,8 @@ begin
             end
             else
             begin
-              TEdit(Sender).Text := VarToStr(FormatedVariantVal(LCH.HesapKodu));
-              lblmamul_kodu_val.Caption := VarToStr(FormatedVariantVal(LCH.HesapIsmi));
+              TEdit(Sender).Text := LCH.HesapKodu.AsString;
+              lblmamul_kodu_val.Caption := LCH.HesapIsmi.AsString;
             end;
           end;
         finally
@@ -244,8 +244,8 @@ begin
   lblalis_kodu_val.Caption := TStkStokGrubu(Table).AlisHesapAdi.AsString;
   edtalis_iade_kodu.Text := TStkStokGrubu(Table).AlisIadeHesapKodu.AsString;
   lblalis_iade_kodu_val.Caption := TStkStokGrubu(Table).AlisIadeHesapAdi.AsString;
-  edtihracat_kodu.Text := TStkStokGrubu(Table).IhracatHesapKodu.AsString;
-  lblihracat_kodu_val.Caption := TStkStokGrubu(Table).IhracatHesapAdi.AsString;
+  edtihracat_kodu.Text := TStkStokGrubu(Table).IhracHesapKodu.AsString;
+  lblihracat_kodu_val.Caption := TStkStokGrubu(Table).IhracHesapAdi.AsString;
   edthammadde_kodu.Text := TStkStokGrubu(Table).HammaddeKodu.AsString;
   lblhammadde_kodu_val.Caption := TStkStokGrubu(Table).HammaddeAdi.AsString;
   edtmamul_kodu.Text := TStkStokGrubu(Table).MamulKodu.AsString;

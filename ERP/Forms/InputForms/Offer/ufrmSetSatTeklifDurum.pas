@@ -42,9 +42,9 @@ uses
 procedure TfrmSetSatTeklifDurum.RefreshData();
 begin
   //control içeriðini table class ile doldur
-  edtteklif_durum.Text := FormatedVariantVal(TSetSatTeklifDurum(Table).TeklifDurum);
-  edtaciklama.Text := FormatedVariantVal(TSetSatTeklifDurum(Table).Aciklama);
-  chkis_aktif.Checked := FormatedVariantVal(TSetSatTeklifDurum(Table).IsAktif);
+  edtteklif_durum.Text := TSetSatTeklifDurum(Table).TeklifDurum.AsString;
+  edtaciklama.Text := TSetSatTeklifDurum(Table).Aciklama.AsString;
+  chkis_aktif.Checked := TSetSatTeklifDurum(Table).IsAktif.AsBoolean;
 end;
 
 procedure TfrmSetSatTeklifDurum.btnAcceptClick(Sender: TObject);

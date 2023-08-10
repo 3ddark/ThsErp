@@ -52,7 +52,7 @@ end;
 
 procedure TfrmSetBbkFinansDurumu.RefreshData;
 begin
-  edtfinans_durumu.Text := FormatedVariantVal(TSetBbkFinansDurumu(Table).FinansDurumu);
+  edtfinans_durumu.Text := TSetBbkFinansDurumu(Table).FinansDurumu.AsString;
 end;
 
 end.

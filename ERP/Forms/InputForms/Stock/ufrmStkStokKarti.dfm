@@ -3,29 +3,29 @@ inherited frmStkStokKarti: TfrmStkStokKarti
   Top = 443
   ActiveControl = btnClose
   Caption = 'Stok Kart'#305
-  ClientHeight = 496
-  ClientWidth = 623
+  ClientHeight = 488
+  ClientWidth = 619
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 639
-  ExplicitHeight = 535
+  ExplicitWidth = 635
+  ExplicitHeight = 527
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 623
-    Height = 446
+    Width = 619
+    Height = 438
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 627
     ExplicitHeight = 454
     inherited pgcMain: TPageControl
-      Width = 625
-      Height = 450
+      Width = 621
+      Height = 442
       OnChange = pgcMainChange
       ExplicitWidth = 627
       ExplicitHeight = 454
       inherited tsMain: TTabSheet
         Caption = 'Genel'
-        ExplicitWidth = 617
-        ExplicitHeight = 422
+        ExplicitWidth = 613
+        ExplicitHeight = 414
         object lblortalama_maliyet_brm: TLabel
           Left = 302
           Top = 199
@@ -2143,8 +2143,8 @@ inherited frmStkStokKarti: TfrmStkStokKarti
     end
   end
   inherited pnlBottom: TPanel
-    Top = 448
-    Width = 619
+    Top = 440
+    Width = 615
     ExplicitTop = 456
     ExplicitWidth = 623
     inherited btnAccept: TButton
@@ -2157,8 +2157,8 @@ inherited frmStkStokKarti: TfrmStkStokKarti
     end
   end
   inherited stbBase: TStatusBar
-    Top = 478
-    Width = 623
+    Top = 470
+    Width = 619
     ExplicitTop = 486
     ExplicitWidth = 627
   end

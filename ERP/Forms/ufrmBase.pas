@@ -461,9 +461,9 @@ begin
       and (Sender.ClassType <> TMemo)
       and (Sender.ClassType <> TCombobox)
       then
-       if HiWord(GetKeyState(VK_SHIFT)) <> 0 then
+        if GetKeyState(VK_SHIFT) < 0 then
           PostMessage((Sender as TWinControl).Handle, WM_NEXTDLGCTL, 1, 0)
-       else
+        else
           PostMessage((Sender as TWinControl).Handle, WM_NEXTDLGCTL, 0, 0);
     end;
   end

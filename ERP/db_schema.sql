@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.4
--- Dumped by pg_dump version 15.2
+-- Dumped from database version 14.1
+-- Dumped by pg_dump version 14.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,15 +15,6 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
---
-
--- *not* creating schema, since initdb creates it
-
-
-ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
@@ -2052,8 +2043,10 @@ CREATE TABLE public.set_ch_vergi_oranlari (
     satis_iade_hesap_kodu character varying(16) NOT NULL,
     alis_hesap_kodu character varying(16) NOT NULL,
     alis_iade_hesap_kodu character varying(16) NOT NULL,
-    ihrac_hesap_kodu character varying(16),
-    ihrac_iade_hesap_kodu character varying(16)
+    ihracat_hesap_kodu character varying(16),
+    ihracat_iade_hesap_kodu character varying(16),
+    ithalat_hesap_kodu character varying(16),
+    ithalat_iade_hesap_kodu character varying(16)
 );
 
 
@@ -4541,6 +4534,13 @@ CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.ch_hesaplar
 
 
 --
+-- Name: set_ch_vergi_oranlari trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.set_ch_vergi_oranlari FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
 -- Name: urt_iscilikler trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -5042,19 +5042,35 @@ ALTER TABLE ONLY public.set_ch_vergi_oranlari
 
 
 --
--- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_ihrac_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_ihracat_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.set_ch_vergi_oranlari
-    ADD CONSTRAINT set_ch_vergi_oranlari_ihrac_hesap_kodu_fkey FOREIGN KEY (ihrac_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT set_ch_vergi_oranlari_ihracat_hesap_kodu_fkey FOREIGN KEY (ihracat_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_ihrac_iade_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_ihracat_iade_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.set_ch_vergi_oranlari
-    ADD CONSTRAINT set_ch_vergi_oranlari_ihrac_iade_hesap_kodu_fkey FOREIGN KEY (ihrac_iade_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT set_ch_vergi_oranlari_ihracat_iade_hesap_kodu_fkey FOREIGN KEY (ihracat_iade_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_ithalat_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_ch_vergi_oranlari
+    ADD CONSTRAINT set_ch_vergi_oranlari_ithalat_hesap_kodu_fkey FOREIGN KEY (ithalat_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_ithalat_iade_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_ch_vergi_oranlari
+    ADD CONSTRAINT set_ch_vergi_oranlari_ithalat_iade_hesap_kodu_fkey FOREIGN KEY (ithalat_iade_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5477,7 +5493,7 @@ ALTER TABLE ONLY public.urt_receteler
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 

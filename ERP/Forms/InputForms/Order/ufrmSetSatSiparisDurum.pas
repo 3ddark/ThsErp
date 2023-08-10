@@ -41,9 +41,9 @@ uses
 procedure TfrmSetSatSiparisDurum.RefreshData();
 begin
   //control içeriğini table class ile doldur
-  edtteklif_durum.Text := FormatedVariantVal(TSetSatSiparisDurum(Table).SiparisDurum.DataType, TSetSatSiparisDurum(Table).SiparisDurum.Value);
-  edtaciklama.Text := FormatedVariantVal(TSetSatSiparisDurum(Table).Aciklama.DataType, TSetSatSiparisDurum(Table).Aciklama.Value);
-  chkis_active.Checked := FormatedVariantVal(TSetSatSiparisDurum(Table).IsAktif.DataType, TSetSatSiparisDurum(Table).IsAktif.Value);
+  edtteklif_durum.Text := TSetSatSiparisDurum(Table).SiparisDurum.AsString;
+  edtaciklama.Text := TSetSatSiparisDurum(Table).Aciklama.AsString;
+  chkis_active.Checked := TSetSatSiparisDurum(Table).IsAktif.AsBoolean;
 end;
 
 procedure TfrmSetSatSiparisDurum.btnAcceptClick(Sender: TObject);

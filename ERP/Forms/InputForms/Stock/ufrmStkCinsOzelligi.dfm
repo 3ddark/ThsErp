@@ -3,28 +3,28 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
   Top = 443
   ActiveControl = btnClose
   Caption = 'Cins '#214'zelli'#287'i'
-  ClientHeight = 484
-  ClientWidth = 342
+  ClientHeight = 480
+  ClientWidth = 340
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
-  ExplicitWidth = 358
-  ExplicitHeight = 523
+  ExplicitWidth = 356
+  ExplicitHeight = 519
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 342
-    Height = 434
+    Width = 340
+    Height = 430
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
     ExplicitHeight = 436
     inherited pgcMain: TPageControl
-      Width = 344
-      Height = 438
+      Width = 342
+      Height = 434
       ExplicitWidth = 338
       ExplicitHeight = 434
       inherited tsMain: TTabSheet
-        ExplicitWidth = 336
-        ExplicitHeight = 410
+        ExplicitWidth = 334
+        ExplicitHeight = 406
         object lblcins: TLabel
           Left = 83
           Top = 5
@@ -443,8 +443,8 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
     end
   end
   inherited pnlBottom: TPanel
-    Top = 436
-    Width = 338
+    Top = 432
+    Width = 336
     ExplicitTop = 440
     ExplicitWidth = 340
     inherited btnAccept: TButton
@@ -457,8 +457,8 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
     end
   end
   inherited stbBase: TStatusBar
-    Top = 466
-    Width = 342
+    Top = 462
+    Width = 340
     ExplicitTop = 470
     ExplicitWidth = 344
   end

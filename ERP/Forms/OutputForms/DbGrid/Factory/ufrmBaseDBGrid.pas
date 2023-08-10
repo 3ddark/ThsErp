@@ -1821,9 +1821,9 @@ begin
     //sayısal bilgilerde otomatik formatlama ve kolonların çıkma sırasını ayarla işlemini yap
     vHaneSayisi := 2;
     if (FormOndalikMod = fomBuying) or (FormOndalikMod = fomSale) then
-      vHaneSayisi := FormatedVariantVal(GSysOndalikHane.Fiyat)
+      vHaneSayisi := GSysOndalikHane.Fiyat.AsInteger
     else if FormOndalikMod = fomStock then
-      vHaneSayisi := FormatedVariantVal(GSysOndalikHane.StokMiktar);
+      vHaneSayisi := GSysOndalikHane.StokMiktar.AsInteger;
 
 
     for n2 := 0 to Table.QryOfDS.FieldCount-1 do

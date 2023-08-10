@@ -3,27 +3,27 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
   Top = 443
   ActiveControl = btnClose
   Caption = 'Set '#214'deme Ba'#351'lang'#305#231' D'#246'nemi'
-  ClientHeight = 174
-  ClientWidth = 344
+  ClientHeight = 166
+  ClientWidth = 340
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 360
-  ExplicitHeight = 213
+  ExplicitWidth = 356
+  ExplicitHeight = 205
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 344
-    Height = 124
+    Width = 340
+    Height = 116
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
     ExplicitHeight = 122
     inherited pgcMain: TPageControl
-      Width = 344
-      Height = 124
+      Width = 342
+      Height = 120
       ExplicitWidth = 338
       ExplicitHeight = 120
       inherited tsMain: TTabSheet
-        ExplicitWidth = 336
-        ExplicitHeight = 96
+        ExplicitWidth = 334
+        ExplicitHeight = 92
         object lblaciklama: TLabel
           Left = 36
           Top = 28
@@ -97,8 +97,8 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
     end
   end
   inherited pnlBottom: TPanel
-    Top = 126
-    Width = 340
+    Top = 118
+    Width = 336
     ExplicitTop = 126
     ExplicitWidth = 340
     inherited btnAccept: TButton
@@ -111,8 +111,8 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
     end
   end
   inherited stbBase: TStatusBar
-    Top = 156
-    Width = 344
+    Top = 148
+    Width = 340
     ExplicitTop = 156
     ExplicitWidth = 344
   end

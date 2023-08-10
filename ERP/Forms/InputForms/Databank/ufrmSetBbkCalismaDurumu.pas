@@ -52,7 +52,7 @@ end;
 
 procedure TfrmSetBbkCalismaDurumu.RefreshData;
 begin
-  edtcalisma_durumu.Text := FormatedVariantVal(TSetBbkCalismaDurumu(Table).CalismaDurumu);
+  edtcalisma_durumu.Text := TSetBbkCalismaDurumu(Table).CalismaDurumu.AsString;
 end;
 
 end.

@@ -503,12 +503,12 @@ var
   LIsk: Double;
   LStr, LVergiNo: string;
 begin
-  LIsk := StrToFloatDef(VarToStr(FormatedVariantVal(FIskonto)), 0);
+  LIsk := FIskonto.AsFloat;
   if (LIsk > 100.00) or (LIsk < 0) then
     CreateExceptionByLang('"Ýskonto Oraný > 100" veya "Ýskonto Oraný < 0" olamaz!', '999999');
 
-  LStr := VarToStr(FormatedVariantVal(MukellefTipi));
-  LVergiNo := VarToStr(FormatedVariantVal(VergiNo));
+  LStr := FMukellefTipi.AsString;
+  LVergiNo := FVergiNo.AsString;
   if (LStr = 'TCKN') and (LVergiNo.Length <> 11) then
     CreateExceptionByLang('TCKN seçildiðinde Vergi Kimlik No 11 haneli olmak zorunda!', '999999');
 

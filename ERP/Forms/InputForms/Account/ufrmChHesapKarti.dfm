@@ -3,16 +3,15 @@ inherited frmHesapKarti: TfrmHesapKarti
   Top = 443
   ActiveControl = btnClose
   Caption = 'Hesap Kart'#305
-  ClientHeight = 362
-  ClientWidth = 689
+  ClientHeight = 358
+  ClientWidth = 687
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 695
-  ExplicitHeight = 391
-  PixelsPerInch = 96
+  ExplicitWidth = 703
+  ExplicitHeight = 397
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 689
-    Height = 312
+    Width = 687
+    Height = 308
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 689
@@ -502,10 +501,6 @@ inherited frmHesapKarti: TfrmHesapKarti
       object tsAdres: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblposta_kutusu: TLabel
           Left = 412
           Top = 201
@@ -740,10 +735,6 @@ inherited frmHesapKarti: TfrmHesapKarti
       object tsIletisim: TTabSheet
         Caption = #304'leti'#351'im'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblyetkili2: TLabel
           Left = 75
           Top = 91
@@ -1047,8 +1038,8 @@ inherited frmHesapKarti: TfrmHesapKarti
     end
   end
   inherited pnlBottom: TPanel
-    Top = 314
-    Width = 685
+    Top = 310
+    Width = 683
     ExplicitTop = 314
     ExplicitWidth = 685
     inherited btnAccept: TButton
@@ -1061,8 +1052,8 @@ inherited frmHesapKarti: TfrmHesapKarti
     end
   end
   inherited stbBase: TStatusBar
-    Top = 344
-    Width = 689
+    Top = 340
+    Width = 687
     ExplicitTop = 344
     ExplicitWidth = 689
   end

@@ -3,31 +3,31 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
   Top = 443
   ActiveControl = btnClose
   Caption = 'Ayar Cari Hesap Vergi Oran'#305
-  ClientHeight = 239
-  ClientWidth = 574
+  ClientHeight = 298
+  ClientWidth = 539
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
-  ExplicitWidth = 588
-  ExplicitHeight = 274
+  ExplicitWidth = 553
+  ExplicitHeight = 333
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 574
-    Height = 189
+    Width = 539
+    Height = 248
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 551
-    ExplicitHeight = 143
+    ExplicitWidth = 570
+    ExplicitHeight = 340
     inherited pgcMain: TPageControl
-      Width = 574
-      Height = 189
-      ExplicitWidth = 551
-      ExplicitHeight = 143
+      Width = 539
+      Height = 248
+      ExplicitWidth = 570
+      ExplicitHeight = 340
       inherited tsMain: TTabSheet
-        ExplicitWidth = 566
-        ExplicitHeight = 161
+        ExplicitWidth = 531
+        ExplicitHeight = 220
         object lblalis_iade_hesap_kodu: TLabel
           Left = 35
-          Top = 94
+          Top = 138
           Width = 150
           Height = 13
           Alignment = taRightJustify
@@ -43,7 +43,7 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
         end
         object lblalis_hesap_kodu: TLabel
           Left = 64
-          Top = 72
+          Top = 116
           Width = 121
           Height = 13
           Alignment = taRightJustify
@@ -106,8 +106,8 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
           ParentFont = False
         end
         object lblalis_hesap_adi: TLabel
-          Left = 259
-          Top = 72
+          Left = 277
+          Top = 116
           Width = 51
           Height = 13
           BiDiMode = bdLeftToRight
@@ -121,8 +121,8 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
           ParentFont = False
         end
         object lblalis_iade_hesap_adi: TLabel
-          Left = 259
-          Top = 94
+          Left = 277
+          Top = 138
           Width = 76
           Height = 13
           BiDiMode = bdLeftToRight
@@ -136,8 +136,8 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
           ParentFont = False
         end
         object lblsatis_hesap_adi: TLabel
-          Left = 259
-          Top = 29
+          Left = 277
+          Top = 28
           Width = 58
           Height = 13
           BiDiMode = bdLeftToRight
@@ -151,8 +151,8 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
           ParentFont = False
         end
         object lblsatis_iade_hesap_adi: TLabel
-          Left = 259
-          Top = 51
+          Left = 277
+          Top = 50
           Width = 83
           Height = 13
           BiDiMode = bdLeftToRight
@@ -167,7 +167,7 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
         end
         object lblihracat_iade_hesap_kodu: TLabel
           Left = 13
-          Top = 137
+          Top = 94
           Width = 172
           Height = 13
           Alignment = taRightJustify
@@ -183,7 +183,7 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
         end
         object lblihracat_hesap_kodu: TLabel
           Left = 42
-          Top = 115
+          Top = 72
           Width = 143
           Height = 13
           Alignment = taRightJustify
@@ -198,8 +198,8 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
           ParentFont = False
         end
         object lblihracat_hesap_adi: TLabel
-          Left = 259
-          Top = 115
+          Left = 277
+          Top = 72
           Width = 70
           Height = 13
           BiDiMode = bdLeftToRight
@@ -213,8 +213,8 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
           ParentFont = False
         end
         object lblihracat_iade_hesap_adi: TLabel
-          Left = 259
-          Top = 137
+          Left = 277
+          Top = 94
           Width = 95
           Height = 13
           BiDiMode = bdLeftToRight
@@ -227,76 +227,152 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
           ParentBiDiMode = False
           ParentFont = False
         end
+        object lblithalat_iade_hesap_adi: TLabel
+          Left = 277
+          Top = 182
+          Width = 92
+          Height = 13
+          BiDiMode = bdLeftToRight
+          Caption = #304'thalat '#304'ade Hesab'#305
+          Font.Charset = TURKISH_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblithalat_hesap_adi: TLabel
+          Left = 277
+          Top = 160
+          Width = 67
+          Height = 13
+          BiDiMode = bdLeftToRight
+          Caption = #304'thalat Hesab'#305
+          Font.Charset = TURKISH_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblithalat_hesap_kodu: TLabel
+          Left = 45
+          Top = 160
+          Width = 140
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = #304'thalat Vergi Hesap Kodu'
+          Font.Charset = TURKISH_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblithalat_iade_hesap_kodu: TLabel
+          Left = 16
+          Top = 182
+          Width = 169
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = #304'thalat '#304'ade Vergi Hesap Kodu'
+          Font.Charset = TURKISH_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
         object edtvergi_orani: TEdit
           Left = 186
           Top = 3
-          Width = 72
+          Width = 90
           Height = 21
           TabOrder = 0
         end
         object edtsatis_hesap_kodu: TEdit
           Left = 186
           Top = 25
-          Width = 72
+          Width = 90
           Height = 21
           TabOrder = 1
         end
         object edtsatis_iade_hesap_kodu: TEdit
           Left = 186
           Top = 47
-          Width = 72
+          Width = 90
           Height = 21
           TabOrder = 2
         end
         object edtalis_hesap_kodu: TEdit
           Left = 186
-          Top = 69
-          Width = 72
+          Top = 113
+          Width = 90
           Height = 21
           TabOrder = 3
         end
         object edtalis_iade_hesap_kodu: TEdit
           Left = 186
-          Top = 91
-          Width = 72
+          Top = 135
+          Width = 90
           Height = 21
           TabOrder = 4
         end
         object edtihracat_hesap_kodu: TEdit
           Left = 186
-          Top = 112
-          Width = 72
+          Top = 69
+          Width = 90
           Height = 21
           TabOrder = 5
         end
         object edtihracat_iade_hesap_kodu: TEdit
           Left = 186
-          Top = 134
-          Width = 72
+          Top = 91
+          Width = 90
           Height = 21
           TabOrder = 6
+        end
+        object edtithalat_hesap_kodu: TEdit
+          Left = 186
+          Top = 157
+          Width = 90
+          Height = 21
+          TabOrder = 7
+        end
+        object edtithalat_iade_hesap_kodu: TEdit
+          Left = 186
+          Top = 179
+          Width = 90
+          Height = 21
+          TabOrder = 8
         end
       end
     end
   end
   inherited pnlBottom: TPanel
-    Top = 191
-    Width = 570
-    ExplicitTop = 145
-    ExplicitWidth = 547
+    Top = 250
+    Width = 535
+    ExplicitTop = 342
+    ExplicitWidth = 566
     inherited btnAccept: TButton
-      Left = 364
-      ExplicitLeft = 341
+      Left = 329
+      ExplicitLeft = 360
     end
     inherited btnClose: TButton
-      Left = 468
-      ExplicitLeft = 445
+      Left = 433
+      ExplicitLeft = 464
     end
   end
   inherited stbBase: TStatusBar
-    Top = 221
-    Width = 574
-    ExplicitTop = 175
-    ExplicitWidth = 551
+    Top = 280
+    Width = 539
+    ExplicitTop = 372
+    ExplicitWidth = 570
   end
 end

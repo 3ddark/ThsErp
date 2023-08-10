@@ -3,15 +3,15 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
   Top = 443
   ActiveControl = btnClose
   Caption = 'Teklif Tipi'
-  ClientHeight = 166
-  ClientWidth = 359
+  ClientHeight = 162
+  ClientWidth = 357
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 375
-  ExplicitHeight = 205
+  ExplicitWidth = 373
+  ExplicitHeight = 201
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 359
-    Height = 116
+    Width = 357
+    Height = 112
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
@@ -97,8 +97,8 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
     end
   end
   inherited pnlBottom: TPanel
-    Top = 118
-    Width = 355
+    Top = 114
+    Width = 353
     ExplicitTop = 150
     ExplicitWidth = 340
     inherited btnAccept: TButton
@@ -111,8 +111,8 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
     end
   end
   inherited stbBase: TStatusBar
-    Top = 148
-    Width = 359
+    Top = 144
+    Width = 357
     ExplicitTop = 194
     ExplicitWidth = 344
   end

@@ -514,6 +514,8 @@ type
   /// </summary>
   function UpdateColWidth(ATableName: string; AGrid: TDBGrid): Boolean;
 
+  procedure RefreshGlobalGridColWidth;
+
   function GetGridDefaultOrderFilter(AKey: string; AIsOrder: Boolean): string;
   function GetIsRequired(ATableName, AFieldName: string): Boolean;
   function GetMaxLength(ATableName, AFieldName: string): Integer;
@@ -2444,6 +2446,14 @@ begin
       LColWidth.QryOfDS.Connection.Commit;
     LColWidth.Free;
   end;
+end;
+
+procedure RefreshGlobalGridColWidth;
+begin
+  if GGridColWidth <> nil then
+    GGridColWidth.Destroy;
+  GGridColWidth := TSysGridKolon.Create(GDataBase);
+  GGridColWidth.SelectToList('', False, False);
 end;
 
 function GetGridDefaultOrderFilter(AKey: string; AIsOrder: Boolean): string;

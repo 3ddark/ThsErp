@@ -302,7 +302,7 @@ begin
       if Key = Char(VK_RETURN) then
       begin
         Key := #0;
-        if HiWord(GetKeyState(VK_SHIFT)) <> 0 then
+        if GetKeyState(VK_SHIFT) < 0 then
           PostMessage((Owner as TWinControl).Handle, WM_NEXTDLGCTL, 1, 0)
         else
           PostMessage((Owner as TWinControl).Handle, WM_NEXTDLGCTL, 0, 0);

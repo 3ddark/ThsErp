@@ -100,24 +100,24 @@ end;
 
 procedure TfrmStkCinsOzelligi.RefreshData;
 begin
-  edtcins.Text := FormatedVariantVal(TStkCinsOzelligi(Table).Cins);
-  edtaciklama.Text := FormatedVariantVal(TStkCinsOzelligi(Table).Aciklama);
-  edts1.Text := FormatedVariantVal(TStkCinsOzelligi(Table).S1);
-  edts2.Text := FormatedVariantVal(TStkCinsOzelligi(Table).S2);
-  edts3.Text := FormatedVariantVal(TStkCinsOzelligi(Table).S3);
-  edts4.Text := FormatedVariantVal(TStkCinsOzelligi(Table).S4);
-  edts5.Text := FormatedVariantVal(TStkCinsOzelligi(Table).S5);
-  edts6.Text := FormatedVariantVal(TStkCinsOzelligi(Table).S6);
-  edts7.Text := FormatedVariantVal(TStkCinsOzelligi(Table).S7);
-  edts8.Text := FormatedVariantVal(TStkCinsOzelligi(Table).S8);
-  edti1.Text := FormatedVariantVal(TStkCinsOzelligi(Table).I1);
-  edti2.Text := FormatedVariantVal(TStkCinsOzelligi(Table).I2);
-  edti3.Text := FormatedVariantVal(TStkCinsOzelligi(Table).I3);
-  edti4.Text := FormatedVariantVal(TStkCinsOzelligi(Table).I4);
-  edtd1.Text := FormatedVariantVal(TStkCinsOzelligi(Table).D1);
-  edtd2.Text := FormatedVariantVal(TStkCinsOzelligi(Table).D2);
-  edtd3.Text := FormatedVariantVal(TStkCinsOzelligi(Table).D3);
-  edtd4.Text := FormatedVariantVal(TStkCinsOzelligi(Table).D4);
+  edtcins.Text := TStkCinsOzelligi(Table).Cins.AsString;
+  edtaciklama.Text := TStkCinsOzelligi(Table).Aciklama.AsString;
+  edts1.Text := TStkCinsOzelligi(Table).S1.AsString;
+  edts2.Text := TStkCinsOzelligi(Table).S2.AsString;
+  edts3.Text := TStkCinsOzelligi(Table).S3.AsString;
+  edts4.Text := TStkCinsOzelligi(Table).S4.AsString;
+  edts5.Text := TStkCinsOzelligi(Table).S5.AsString;
+  edts6.Text := TStkCinsOzelligi(Table).S6.AsString;
+  edts7.Text := TStkCinsOzelligi(Table).S7.AsString;
+  edts8.Text := TStkCinsOzelligi(Table).S8.AsString;
+  edti1.Text := TStkCinsOzelligi(Table).I1.AsString;
+  edti2.Text := TStkCinsOzelligi(Table).I2.AsString;
+  edti3.Text := TStkCinsOzelligi(Table).I3.AsString;
+  edti4.Text := TStkCinsOzelligi(Table).I4.AsString;
+  edtd1.Text := TStkCinsOzelligi(Table).D1.AsString;
+  edtd2.Text := TStkCinsOzelligi(Table).D2.AsString;
+  edtd3.Text := TStkCinsOzelligi(Table).D3.AsString;
+  edtd4.Text := TStkCinsOzelligi(Table).D4.AsString;
 end;
 
 end.

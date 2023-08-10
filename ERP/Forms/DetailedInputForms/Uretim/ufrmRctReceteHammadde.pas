@@ -151,11 +151,11 @@ end;
 
 procedure TfrmRctReceteHammadde.RefreshData();
 begin
-  edtstok_kodu.Text := FormatedVariantVal(TUrtReceteHammadde(Table).StokKodu);
-  lblstok_aciklama.Caption := FormatedVariantVal(TUrtReceteHammadde(Table).StokAdi);
-  edtmiktar.Text := FormatedVariantVal(TUrtReceteHammadde(Table).Miktar);
-  lblmiktar_birim.Caption := FormatedVariantVal(TUrtReceteHammadde(Table).OlcuBirimi);
-  edtfire_orani.Text := FormatedVariantVal(TUrtReceteHammadde(Table).FireOrani);
+  edtstok_kodu.Text := TUrtReceteHammadde(Table).StokKodu.AsString;
+  lblstok_aciklama.Caption := TUrtReceteHammadde(Table).StokAdi.AsString;
+  edtmiktar.Text := TUrtReceteHammadde(Table).Miktar.AsString;
+  lblmiktar_birim.Caption := TUrtReceteHammadde(Table).OlcuBirimi.AsString;
+  edtfire_orani.Text := TUrtReceteHammadde(Table).FireOrani.AsString;
   cbbreceteChange(cbbrecete);
 end;
 

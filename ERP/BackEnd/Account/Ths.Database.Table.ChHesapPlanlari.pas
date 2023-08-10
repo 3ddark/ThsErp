@@ -168,7 +168,7 @@ begin
       Close;
       SQL.Clear;
       SQL.Text := 'SELECT COUNT(*) FROM ' + LHesap.TableName + ' WHERE ' +
-        LHesap.HesapKodu.QryName + ' LIKE ' + QuotedStr(VarToStr(FormatedVariantVal(FPlanKodu)) + '%') + ' AND ' +
+        LHesap.HesapKodu.QryName + ' LIKE ' + QuotedStr(FPlanKodu.AsString + '%') + ' AND ' +
         LHesap.HesapTipiID.QryName + '<>' + IntToStr(Ord(THesapTipi.htAna));
       Open;
 
@@ -191,7 +191,7 @@ begin
   LHesap := TChHesapKarti.Create(Database);
   try
     LHesap.HesapKodu.Value := Self.FPlanKodu.Value;
-    LHesap.HesapIsmi.Value := UpperCaseTr(VarToStr(FormatedVariantVal(Self.FPlanAdi)));
+    LHesap.HesapIsmi.Value := UpperCaseTr(Self.FPlanAdi.AsString);
     LHesap.KokKod.Value := Self.FPlanKodu.Value;
 
     //120-1-2     3 seviye

@@ -63,7 +63,7 @@ end;
 
 procedure TfrmSetBbkFirmaTipi.RefreshData;
 begin
-  edtfirma_tipi.Text := FormatedVariantVal(TSetBbkFirmaTipi(Table).FirmaTipi);
+  edtfirma_tipi.Text := TSetBbkFirmaTipi(Table).FirmaTipi.AsString;
 end;
 
 end.

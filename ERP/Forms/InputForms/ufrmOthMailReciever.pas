@@ -47,7 +47,7 @@ end;
 procedure TfrmOthMailReciever.RefreshData();
 begin
   //control içeriðini table class ile doldur
-  edtmail_adresi.Text := FormatedVariantVal(TOthMailReciever(Table).MailAdresi.DataType, TOthMailReciever(Table).MailAdresi.Value);
+  edtmail_adresi.Text := TOthMailReciever(Table).MailAdresi.AsString;
 end;
 
 procedure TfrmOthMailReciever.btnAcceptClick(Sender: TObject);

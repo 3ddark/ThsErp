@@ -3,15 +3,15 @@ inherited frmSetSatSiparisDurum: TfrmSetSatSiparisDurum
   Top = 443
   ActiveControl = btnClose
   Caption = 'Sipari'#351' Durum'
-  ClientHeight = 177
-  ClientWidth = 344
+  ClientHeight = 173
+  ClientWidth = 342
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 360
-  ExplicitHeight = 216
+  ExplicitWidth = 358
+  ExplicitHeight = 212
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 344
-    Height = 127
+    Width = 342
+    Height = 123
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
@@ -97,8 +97,8 @@ inherited frmSetSatSiparisDurum: TfrmSetSatSiparisDurum
     end
   end
   inherited pnlBottom: TPanel
-    Top = 129
-    Width = 340
+    Top = 125
+    Width = 338
     ExplicitTop = 115
     ExplicitWidth = 340
     inherited btnAccept: TButton
@@ -111,8 +111,8 @@ inherited frmSetSatSiparisDurum: TfrmSetSatSiparisDurum
     end
   end
   inherited stbBase: TStatusBar
-    Top = 159
-    Width = 344
+    Top = 155
+    Width = 342
     ExplicitTop = 159
     ExplicitWidth = 344
   end

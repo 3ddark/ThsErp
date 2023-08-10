@@ -411,7 +411,7 @@ begin
   edtbrut_agirlik.Text := TSatSiparisDetay(Table).BrutAgirlik.AsString;
   edtkab.Text := TSatSiparisDetay(Table).Kab.AsString;
 
-  if Length(FormatedVariantVal(TSatSiparisDetay(Table).StokResim)) > 10 then
+  if Length(TSatSiparisDetay(Table).StokResim.AsString) > 10 then
     LoadImageFromDB(TSatSiparisDetay(Table).StokResim, imgstok_resim);
 end;
 

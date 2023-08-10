@@ -46,6 +46,7 @@ type
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
+    procedure Delete(APermissionControl: Boolean = True); override;
 
     function GetDistinctColumnNames(ATableName: string): TStringList;
     function HasAnyTableColumn(ATableName: string): Boolean;
@@ -215,6 +216,8 @@ begin
     if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
     then  AID := Fields.FieldByName(Id.FieldName).AsInteger
     else  AID := 0;
+
+    RefreshGlobalGridColWidth;
   finally
     Free;
   end;
@@ -248,9 +251,17 @@ begin
     PrepareUpdateQueryParams(LQry);
 
     ExecSQL;
+
+    RefreshGlobalGridColWidth;
   finally
     Free;
   end;
+end;
+
+procedure TSysGridKolon.Delete(APermissionControl: Boolean);
+begin
+  inherited;
+  RefreshGlobalGridColWidth;
 end;
 
 procedure TSysGridKolon.Clear;

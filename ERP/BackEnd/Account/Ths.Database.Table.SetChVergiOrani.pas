@@ -13,17 +13,22 @@ type
   private
     FVergiOrani: TFieldDB;
     FSatisHesapKodu: TFieldDB;
-    FSatisHesapAdi: TFieldDB;
     FSatisIadeHesapKodu: TFieldDB;
-    FSatisIadeHesapAdi: TFieldDB;
     FAlisHesapKodu: TFieldDB;
-    FAlisHesapAdi: TFieldDB;
     FAlisIadeHesapKodu: TFieldDB;
+    FIhracatHesapKodu: TFieldDB;
+    FIhracatIadeHesapKodu: TFieldDB;
+    FIthalatHesapKodu: TFieldDB;
+    FIthalatIadeHesapKodu: TFieldDB;
+    //db alaný deðil
+    FSatisHesapAdi: TFieldDB;
+    FSatisIadeHesapAdi: TFieldDB;
+    FAlisHesapAdi: TFieldDB;
     FAlisIadeHesapAdi: TFieldDB;
-    FIhracHesapKodu: TFieldDB;
-    FIhracHesapAdi: TFieldDB;
-    FIhracIadeHesapKodu: TFieldDB;
-    FIhracIadeHesapAdi: TFieldDB;
+    FIhracatHesapAdi: TFieldDB;
+    FIhracatIadeHesapAdi: TFieldDB;
+    FIthalatHesapAdi: TFieldDB;
+    FIthalatIadeHesapAdi: TFieldDB;
   protected
     CH: TChHesapKarti;
   published
@@ -40,17 +45,22 @@ type
 
     property VergiOrani: TFieldDB read FVergiOrani write FVergiOrani;
     property SatisHesapKodu: TFieldDB read FSatisHesapKodu write FSatisHesapKodu;
-    property SatisHesapAdi: TFieldDB read FSatisHesapAdi write FSatisHesapAdi;
     property SatisIadeHesapKodu: TFieldDB read FSatisIadeHesapKodu write FSatisIadeHesapKodu;
-    property SatisIadeHesapAdi: TFieldDB read FSatisIadeHesapAdi write FSatisIadeHesapAdi;
     property AlisHesapKodu: TFieldDB read FAlisHesapKodu write FAlisHesapKodu;
-    property AlisHesapAdi: TFieldDB read FAlisHesapAdi write FAlisHesapAdi;
     property AlisIadeHesapKodu: TFieldDB read FAlisIadeHesapKodu write FAlisIadeHesapKodu;
+    property IhracatHesapKodu: TFieldDB read FIhracatHesapKodu write FIhracatHesapKodu;
+    property IhracatIadeHesapKodu: TFieldDB read FIhracatIadeHesapKodu write FIhracatIadeHesapKodu;
+    property IthalatHesapKodu: TFieldDB read FIthalatHesapKodu write FIthalatHesapKodu;
+    property IthalatIadeHesapKodu: TFieldDB read FIthalatIadeHesapKodu write FIthalatIadeHesapKodu;
+    //db alaný deðil
+    property SatisHesapAdi: TFieldDB read FSatisHesapAdi write FSatisHesapAdi;
+    property SatisIadeHesapAdi: TFieldDB read FSatisIadeHesapAdi write FSatisIadeHesapAdi;
+    property AlisHesapAdi: TFieldDB read FAlisHesapAdi write FAlisHesapAdi;
     property AlisIadeHesapAdi: TFieldDB read FAlisIadeHesapAdi write FAlisIadeHesapAdi;
-    property IhracHesapKodu: TFieldDB read FIhracHesapKodu write FIhracHesapKodu;
-    property IhracHesapAdi: TFieldDB read FIhracHesapAdi write FIhracHesapAdi;
-    property IhracIadeHesapKodu: TFieldDB read FIhracIadeHesapKodu write FIhracIadeHesapKodu;
-    property IhracIadeHesapAdi: TFieldDB read FIhracIadeHesapAdi write FIhracIadeHesapAdi;
+    property IhracatHesapAdi: TFieldDB read FIhracatHesapAdi write FIhracatHesapAdi;
+    property IhracatIadeHesapAdi: TFieldDB read FIhracatIadeHesapAdi write FIhracatIadeHesapAdi;
+    property IthalatHesapAdi: TFieldDB read FIthalatHesapAdi write FIthalatHesapAdi;
+    property IthalatIadeHesapAdi: TFieldDB read FIthalatIadeHesapAdi write FIthalatIadeHesapAdi;
   end;
 
 implementation
@@ -68,17 +78,22 @@ begin
 
   FVergiOrani := TFieldDB.Create('vergi_orani', ftBCD, 0, Self, 'KDV', '', 2);
   FSatisHesapKodu := TFieldDB.Create('satis_hesap_kodu', ftString, '', Self, 'Satýþ');
-  FSatisHesapAdi := TFieldDB.Create('satis_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Satýþ Hesap');
   FSatisIadeHesapKodu := TFieldDB.Create('satis_iade_hesap_kodu', ftString, '', Self, 'Satýþ Ýade');
-  FSatisIadeHesapAdi := TFieldDB.Create('satis_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Satýþ Ýade Hesap');
+  FIhracatHesapKodu := TFieldDB.Create('ihracat_hesap_kodu', ftString, '', Self, 'Ýhracat');
+  FIhracatIadeHesapKodu := TFieldDB.Create('ihracat_iade_hesap_kodu', ftString, '', Self, 'Ýhracat Ýade');
   FAlisHesapKodu := TFieldDB.Create('alis_hesap_kodu', ftString, '', Self, 'Alýþ');
-  FAlisHesapAdi := TFieldDB.Create('alis_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Alýþ Hesap');
   FAlisIadeHesapKodu := TFieldDB.Create('alis_iade_hesap_kodu', ftString, '', Self, 'Alýþ Ýade');
+  FIthalatHesapKodu := TFieldDB.Create('ithalat_hesap_kodu', ftString, '', Self, 'Ýthalat');
+  FIthalatIadeHesapKodu := TFieldDB.Create('ithalat_iade_hesap_kodu', ftString, '', Self, 'Ýthalat');
+  //db alaný deðil
+  FSatisHesapAdi := TFieldDB.Create('satis_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Satýþ Hesap');
+  FSatisIadeHesapAdi := TFieldDB.Create('satis_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Satýþ Ýade Hesap');
+  FIhracatHesapAdi := TFieldDB.Create('ihracat_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Ýhracat Hesap');
+  FIhracatIadeHesapAdi := TFieldDB.Create('ihracat_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Ýhracat Ýade Hesap');
+  FAlisHesapAdi := TFieldDB.Create('alis_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Alýþ Hesap');
   FAlisIadeHesapAdi := TFieldDB.Create('alis_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Alýþ Ýade Hesap');
-  FIhracHesapKodu := TFieldDB.Create('ihrac_hesap_kodu', ftString, '', Self, 'Ýhracat');
-  FIhracHesapAdi := TFieldDB.Create('ihrac_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Ýhracat Hesap');
-  FIhracIadeHesapKodu := TFieldDB.Create('ihrac_iade_hesap_kodu', ftString, '', Self, 'Ýhracat Ýade');
-  FIhracIadeHesapAdi := TFieldDB.Create('ihrac_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Ýhracat Ýade Hesap');
+  FIthalatHesapAdi := TFieldDB.Create('ithalat_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Ýthalat Hesap');
+  FIthalatIadeHesapAdi := TFieldDB.Create('ithalat_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Ýthalat Ýade Hesap');
 end;
 
 destructor TSetChVergiOrani.Destroy;
@@ -102,21 +117,27 @@ begin
       addfield(CH.TableName, CH.HesapIsmi.FieldName, FSatisHesapAdi.FieldName, 'st'),
       FSatisIadeHesapKodu.QryName,
       addfield(CH.TableName, CH.HesapIsmi.FieldName, FSatisIadeHesapAdi.FieldName, 'si'),
+      FIhracatHesapKodu.QryName,
+      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIhracatHesapAdi.FieldName, 'ih'),
+      FIhracatIadeHesapKodu.QryName,
+      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIhracatIadeHesapAdi.FieldName, 'ii'),
       FAlisHesapKodu.QryName,
       addfield(CH.TableName, CH.HesapIsmi.FieldName, FAlisHesapAdi.FieldName, 'al'),
       FAlisIadeHesapKodu.QryName,
       addfield(CH.TableName, CH.HesapIsmi.FieldName, FAlisIadeHesapAdi.FieldName, 'ai'),
-      FIhracHesapKodu.QryName,
-      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIhracHesapAdi.FieldName, 'ih'),
-      FIhracIadeHesapKodu.QryName,
-      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIhracIadeHesapAdi.FieldName, 'ii')
+      FIthalatHesapKodu.QryName,
+      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIthalatHesapAdi.FieldName, 'it'),
+      FIthalatIadeHesapKodu.QryName,
+      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIthalatIadeHesapAdi.FieldName, 'ti')
     ], [
       addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FSatisHesapKodu.FieldName, 'st'),
       addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FSatisIadeHesapKodu.FieldName, 'si'),
+      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIhracatHesapKodu.FieldName, 'ih'),
+      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIhracatIadeHesapKodu.FieldName, 'ii'),
       addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FAlisHesapKodu.FieldName, 'al'),
       addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FAlisIadeHesapKodu.FieldName, 'ai'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIhracHesapKodu.FieldName, 'ih'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIhracIadeHesapKodu.FieldName, 'ii'),
+      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIthalatHesapKodu.FieldName, 'it'),
+      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIthalatIadeHesapKodu.FieldName, 'ti'),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
     Open;
@@ -142,21 +163,27 @@ begin
       addfield(CH.TableName, CH.HesapIsmi.FieldName, FSatisHesapAdi.FieldName, 'st'),
       FSatisIadeHesapKodu.QryName,
       addfield(CH.TableName, CH.HesapIsmi.FieldName, FSatisIadeHesapAdi.FieldName, 'si'),
+      FIhracatHesapKodu.QryName,
+      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIhracatHesapAdi.FieldName, 'ih'),
+      FIhracatIadeHesapKodu.QryName,
+      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIhracatIadeHesapAdi.FieldName, 'ii'),
       FAlisHesapKodu.QryName,
       addfield(CH.TableName, CH.HesapIsmi.FieldName, FAlisHesapAdi.FieldName, 'al'),
       FAlisIadeHesapKodu.QryName,
       addfield(CH.TableName, CH.HesapIsmi.FieldName, FAlisIadeHesapAdi.FieldName, 'ai'),
-      FIhracHesapKodu.QryName,
-      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIhracHesapAdi.FieldName, 'ih'),
-      FIhracIadeHesapKodu.QryName,
-      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIhracIadeHesapAdi.FieldName, 'ii')
+      FIthalatHesapKodu.QryName,
+      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIthalatHesapAdi.FieldName, 'it'),
+      FIthalatIadeHesapKodu.QryName,
+      addfield(CH.TableName, CH.HesapIsmi.FieldName, FIthalatIadeHesapAdi.FieldName, 'ti')
     ], [
       addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FSatisHesapKodu.FieldName, 'st'),
       addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FSatisIadeHesapKodu.FieldName, 'si'),
+      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIhracatHesapKodu.FieldName, 'ih'),
+      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIhracatIadeHesapKodu.FieldName, 'ii'),
       addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FAlisHesapKodu.FieldName, 'al'),
       addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FAlisIadeHesapKodu.FieldName, 'ai'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIhracHesapKodu.FieldName, 'ih'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIhracIadeHesapKodu.FieldName, 'ii'),
+      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIthalatHesapKodu.FieldName, 'it'),
+      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIthalatIadeHesapKodu.FieldName, 'ti'),
       ' WHERE 1=1 ', AFilter
     ]);
     Open;
@@ -187,10 +214,12 @@ begin
       FVergiOrani.FieldName,
       FSatisHesapKodu.FieldName,
       FSatisIadeHesapKodu.FieldName,
+      FIhracatHesapKodu.FieldName,
+      FIhracatIadeHesapKodu.FieldName,
       FAlisHesapKodu.FieldName,
       FAlisIadeHesapKodu.FieldName,
-      FIhracHesapKodu.FieldName,
-      FIhracIadeHesapKodu.FieldName
+      FIthalatHesapKodu.FieldName,
+      FIthalatIadeHesapKodu.FieldName
     ]);
 
     PrepareInsertQueryParams(LQry);
@@ -215,10 +244,12 @@ begin
       FVergiOrani.FieldName,
       FSatisHesapKodu.FieldName,
       FSatisIadeHesapKodu.FieldName,
+      FIhracatHesapKodu.FieldName,
+      FIhracatIadeHesapKodu.FieldName,
       FAlisHesapKodu.FieldName,
       FAlisIadeHesapKodu.FieldName,
-      FIhracHesapKodu.FieldName,
-      FIhracIadeHesapKodu.FieldName
+      FIthalatHesapKodu.FieldName,
+      FIthalatIadeHesapKodu.FieldName
     ]);
 
     PrepareUpdateQueryParams(LQry);

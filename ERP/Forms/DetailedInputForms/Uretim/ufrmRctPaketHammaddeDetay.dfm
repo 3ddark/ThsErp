@@ -1,23 +1,23 @@
 inherited frmRctPaketHammaddeDetay: TfrmRctPaketHammaddeDetay
   Caption = 'Re'#231'ete Hammadde'
-  ClientHeight = 247
-  ClientWidth = 346
-  ExplicitWidth = 362
-  ExplicitHeight = 286
+  ClientHeight = 243
+  ClientWidth = 344
+  ExplicitWidth = 360
+  ExplicitHeight = 282
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 346
-    Height = 197
+    Width = 344
+    Height = 193
     ExplicitWidth = 344
     ExplicitHeight = 185
     inherited pgcMain: TPageControl
-      Width = 348
-      Height = 201
+      Width = 346
+      Height = 197
       ExplicitWidth = 342
       ExplicitHeight = 183
       inherited tsMain: TTabSheet
-        ExplicitWidth = 340
-        ExplicitHeight = 173
+        ExplicitWidth = 338
+        ExplicitHeight = 169
         object lblfire_orani: TLabel
           Left = 69
           Top = 75
@@ -160,8 +160,8 @@ inherited frmRctPaketHammaddeDetay: TfrmRctPaketHammaddeDetay
     end
   end
   inherited pnlBottom: TPanel
-    Top = 199
-    Width = 342
+    Top = 195
+    Width = 340
     ExplicitTop = 189
     ExplicitWidth = 344
     inherited btnAccept: TButton
@@ -174,8 +174,8 @@ inherited frmRctPaketHammaddeDetay: TfrmRctPaketHammaddeDetay
     end
   end
   inherited stbBase: TStatusBar
-    Top = 229
-    Width = 346
+    Top = 225
+    Width = 344
     ExplicitTop = 233
     ExplicitWidth = 348
   end

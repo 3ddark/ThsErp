@@ -352,7 +352,7 @@ begin
 
   CalculateTotals;
 
-  if Length(FormatedVariantVal(TSatTeklifDetay(Table).StokResim)) > 10 then
+  if Length(TSatTeklifDetay(Table).StokResim.AsString) > 10 then
     LoadImageFromDB(TSatTeklifDetay(Table).StokResim, imgstok_resim);
 end;
 

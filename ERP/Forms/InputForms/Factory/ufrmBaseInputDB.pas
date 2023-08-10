@@ -456,7 +456,7 @@ var
       then
         TEdit(vControl).Text := ''
       else
-        TEdit(vControl).Text := FormatedVariantVal(pFieldDB.DataType, pFieldDB.Value);
+        TEdit(vControl).Text := pFieldDB.AsString;
       TEdit(vControl).thsDBFieldName := pFieldDB.FieldName;
       if pFieldDB.DataType = ftBCD then
         TEdit(vControl).Repaint;
@@ -464,7 +464,7 @@ var
     vControl := TWinControl(pParent).FindChildControl(PRX_MEMO + pFieldDB.FieldName);
     if Assigned(vControl) then
     begin
-      TMemo(vControl).Lines.Text := FormatedVariantVal(pFieldDB.DataType, pFieldDB.Value);
+      TMemo(vControl).Lines.Text := pFieldDB.AsString;
       TMemo(vControl).thsDBFieldName := pFieldDB.FieldName;
     end;
     vControl := TWinControl(pParent).FindChildControl(PRX_COMBOBOX + pFieldDB.OtherFieldName);
@@ -476,7 +476,7 @@ var
           or (TObject(TCombobox(vControl).Items.Objects[n1]).ClassParent = TTable)
           then
             if TryStrToInt(pFieldDB.Value, nVal) then
-              if TTable(TCombobox(vControl).Items.Objects[n1]).Id.Value = FormatedVariantVal(pFieldDB.DataType, pFieldDB.Value) then
+              if TTable(TCombobox(vControl).Items.Objects[n1]).Id.Value = pFieldDB.AsInt64 then
               begin
                 TCombobox(vControl).ItemIndex := n1;
                 TCombobox(vControl).thsDBFieldName := pFieldDB.FieldName;
@@ -485,19 +485,19 @@ var
 
       if TCombobox(vControl).ItemIndex = -1 then
       begin
-        TCombobox(vControl).ItemIndex := TCombobox(vControl).Items.IndexOf( FormatedVariantVal(pFieldDB.DataType, pFieldDB.Value) );
+        TCombobox(vControl).ItemIndex := TCombobox(vControl).Items.IndexOf(pFieldDB.AsString);
         TCombobox(vControl).thsDBFieldName := pFieldDB.FieldName;
       end;
     end;
     vControl := TWinControl(pParent).FindChildControl(PRX_CHECKBOX + pFieldDB.FieldName);
     if Assigned(vControl) then
     begin
-      TCheckBox(vControl).Checked := FormatedVariantVal(pFieldDB.DataType, pFieldDB.Value);
+      TCheckBox(vControl).Checked := pFieldDB.AsBoolean;
     end;
     vControl := TWinControl(pParent).FindChildControl(PRX_RADIOGROUP + pFieldDB.FieldName);
     if Assigned(vControl) then
     begin
-      TRadioGroup(vControl).ItemIndex := TRadioGroup(vControl).Items.IndexOf( FormatedVariantVal(pFieldDB.DataType, pFieldDB.Value) );
+      TRadioGroup(vControl).ItemIndex := TRadioGroup(vControl).Items.IndexOf(pFieldDB.AsString);
     end;
   end;
 

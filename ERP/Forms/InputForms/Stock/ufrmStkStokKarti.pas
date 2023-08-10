@@ -296,7 +296,7 @@ begin
   edtd3.Visible := False;
   edtd4.Visible := False;
 
-  if StrToIntDef(VarToStr(FormatedVariantVal(TStkStokKarti(Table).CinsID)), 0) > 0 then
+  if TStkStokKarti(Table).CinsID.AsInt64 > 0 then
   begin
     LCins := TStkCinsOzelligi.Create(Table.Database);
     try
@@ -504,17 +504,17 @@ begin
             begin
               TEdit(Sender).Clear;
             end else begin
-              TEdit(Sender).Text := FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).Grup);
+              TEdit(Sender).Text := TStkStokGrubu(LFrmGrup.Table).Grup.AsString;
               TStkStokKarti(Table).StokGrubuID.Value := LFrmGrup.Table.Id.Value;
 
-              lblgrup_satis_kodu_val.Caption := VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).SatisHesapKodu)) + ' ' + VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).SatisHesapAdi));
-              lblgrup_satis_iade_kodu_val.Caption := VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).SatisIadeHesapKodu)) + ' ' + VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).SatisIadeHesapAdi));
-              lblgrup_alis_kodu_val.Caption := VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).AlisHesapKodu)) + ' ' + VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).AlisHesapAdi));
-              lblgrup_alis_iade_kodu_val.Caption := VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).AlisIadeHesapKodu)) + ' ' + VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).AlisIadeHesapAdi));
-              lblgrup_ihracat_val.Caption := VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).IhracatHesapKodu)) + ' ' + VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).IhracatHesapAdi));
-              lblgrup_hammadde_val.Caption := VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).HammaddeKodu)) + ' ' + VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).HammaddeAdi));
-              lblgrup_mamul_val.Caption := VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).MamulKodu)) + ' ' + VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).MamulAdi));
-              lblgrup_kdv_orani_val.Caption := VarToStr(FormatedVariantVal(TStkStokGrubu(LFrmGrup.Table).KDVOrani));
+              lblgrup_satis_kodu_val.Caption := TStkStokGrubu(LFrmGrup.Table).SatisHesapKodu.AsString + ' ' + TStkStokGrubu(LFrmGrup.Table).SatisHesapAdi.AsString;
+              lblgrup_satis_iade_kodu_val.Caption := TStkStokGrubu(LFrmGrup.Table).SatisIadeHesapKodu.AsString + ' ' + TStkStokGrubu(LFrmGrup.Table).SatisIadeHesapAdi.AsString;
+              lblgrup_alis_kodu_val.Caption := TStkStokGrubu(LFrmGrup.Table).AlisHesapKodu.AsString + ' ' + TStkStokGrubu(LFrmGrup.Table).AlisHesapAdi.AsString;
+              lblgrup_alis_iade_kodu_val.Caption := TStkStokGrubu(LFrmGrup.Table).AlisIadeHesapKodu.AsString + ' ' + TStkStokGrubu(LFrmGrup.Table).AlisIadeHesapAdi.AsString;
+              lblgrup_ihracat_val.Caption := TStkStokGrubu(LFrmGrup.Table).IhracHesapKodu.AsString + ' ' + TStkStokGrubu(LFrmGrup.Table).IhracHesapAdi.AsString;
+              lblgrup_hammadde_val.Caption := TStkStokGrubu(LFrmGrup.Table).HammaddeKodu.AsString + ' ' + TStkStokGrubu(LFrmGrup.Table).HammaddeAdi.AsString;
+              lblgrup_mamul_val.Caption := TStkStokGrubu(LFrmGrup.Table).MamulKodu.AsString + ' ' + TStkStokGrubu(LFrmGrup.Table).MamulAdi.AsString;
+              lblgrup_kdv_orani_val.Caption := TStkStokGrubu(LFrmGrup.Table).KDVOrani.AsString;
             end;
           end;
         finally
@@ -532,7 +532,7 @@ begin
             begin
               TEdit(Sender).Clear;
             end else begin
-              TEdit(Sender).Text := FormatedVariantVal(TSysOlcuBirimi(LFrmOlcuBirimi.Table).Birim);
+              TEdit(Sender).Text := TSysOlcuBirimi(LFrmOlcuBirimi.Table).Birim.AsString;
               TStkStokKarti(Table).OlcuBirimiID.Value := LFrmOlcuBirimi.Table.Id.Value;
             end;
           end;
@@ -552,7 +552,7 @@ begin
               edtcins_id.Clear;
               TStkStokKarti(Table).CinsID.Value := 0;
             end else begin
-              edtcins_id.Text := FormatedVariantVal(TStkCinsOzelligi(LFrmKind.Table).Cins);
+              edtcins_id.Text := TStkCinsOzelligi(LFrmKind.Table).Cins.AsString;
               TStkStokKarti(Table).CinsID.Value := LFrmKind.Table.Id.Value;
             end;
             edtcins_idChange(edtcins_id);
@@ -656,14 +656,14 @@ begin
         LGrup.SelectToList(' AND ' + LGrup.Grup.QryName + '=' + QuotedStr(edtstok_grubu_id.Text), False, False);
         if LGrup.List.Count = 1 then
         begin
-          lblgrup_satis_kodu_val.Caption := VarToStr(FormatedVariantVal(LGrup.SatisHesapKodu)) + ' ' + VarToStr(FormatedVariantVal(LGrup.SatisHesapAdi));
-          lblgrup_satis_iade_kodu_val.Caption := VarToStr(FormatedVariantVal(LGrup.SatisIadeHesapKodu)) + ' ' + VarToStr(FormatedVariantVal(LGrup.SatisIadeHesapAdi));
-          lblgrup_alis_kodu_val.Caption := VarToStr(FormatedVariantVal(LGrup.AlisHesapKodu)) + ' ' + VarToStr(FormatedVariantVal(LGrup.AlisHesapAdi));
-          lblgrup_alis_iade_kodu_val.Caption := VarToStr(FormatedVariantVal(LGrup.AlisIadeHesapKodu)) + ' ' + VarToStr(FormatedVariantVal(LGrup.AlisIadeHesapAdi));
-          lblgrup_ihracat_val.Caption := VarToStr(FormatedVariantVal(LGrup.IhracatHesapKodu)) + ' ' + VarToStr(FormatedVariantVal(LGrup.IhracatHesapAdi));
-          lblgrup_hammadde_val.Caption := VarToStr(FormatedVariantVal(LGrup.HammaddeKodu)) + ' ' + VarToStr(FormatedVariantVal(LGrup.HammaddeAdi));
-          lblgrup_mamul_val.Caption := VarToStr(FormatedVariantVal(LGrup.MamulKodu)) + ' ' + VarToStr(FormatedVariantVal(LGrup.MamulAdi));
-          lblgrup_kdv_orani_val.Caption := VarToStr(FormatedVariantVal(LGrup.KDVOrani));
+          lblgrup_satis_kodu_val.Caption := LGrup.SatisHesapKodu.AsString + ' ' + LGrup.SatisHesapAdi.AsString;
+          lblgrup_satis_iade_kodu_val.Caption := LGrup.SatisIadeHesapKodu.AsString + ' ' + LGrup.SatisIadeHesapAdi.AsString;
+          lblgrup_alis_kodu_val.Caption := LGrup.AlisHesapKodu.AsString + ' ' + LGrup.AlisHesapAdi.AsString;
+          lblgrup_alis_iade_kodu_val.Caption := LGrup.AlisIadeHesapKodu.AsString + ' ' + LGrup.AlisIadeHesapAdi.AsString;
+          lblgrup_ihracat_val.Caption := LGrup.IhracHesapKodu.AsString + ' ' + LGrup.IhracHesapAdi.AsString;
+          lblgrup_hammadde_val.Caption := LGrup.HammaddeKodu.AsString + ' ' + LGrup.HammaddeAdi.AsString;
+          lblgrup_mamul_val.Caption := LGrup.MamulKodu.AsString + ' ' + LGrup.MamulAdi.AsString;
+          lblgrup_kdv_orani_val.Caption := LGrup.KDVOrani.AsString;
         end;
       finally
         LGrup.Free;
@@ -700,51 +700,51 @@ end;
 
 procedure TfrmStkStokKarti.RefreshData();
 begin
-  chkis_satilabilir.Checked := FormatedVariantVal(TStkStokKarti(Table).IsSatilabilir);
-  edtstok_kodu.Text := FormatedVariantVal(TStkStokKarti(Table).StokKodu);
-  edtstok_adi.Text := FormatedVariantVal(TStkStokKarti(Table).StokAdi);
-  edtstok_grubu_id.Text := VarToStr(FormatedVariantVal(TStkStokKarti(Table).StokGrubu));
-  edtolcu_birimi_id.Text := VarToStr(FormatedVariantVal(TStkStokKarti(Table).OlcuBirimi));
+  chkis_satilabilir.Checked := TStkStokKarti(Table).IsSatilabilir.AsBoolean;
+  edtstok_kodu.Text := TStkStokKarti(Table).StokKodu.AsString;
+  edtstok_adi.Text := TStkStokKarti(Table).StokAdi.AsString;
+  edtstok_grubu_id.Text := TStkStokKarti(Table).StokGrubu.AsString;
+  edtolcu_birimi_id.Text := TStkStokKarti(Table).OlcuBirimi.AsString;
   cbburun_tipi.ItemIndex := TStkStokKarti(Table).UrunTipi.AsInteger;
-  edtalis_iskonto.Text := FormatedVariantVal(TStkStokKarti(Table).AlisIskonto);
-  edtsatis_iskonto.Text := FormatedVariantVal(TStkStokKarti(Table).SatisIskonto);
-  edtalis_fiyat.Text := FormatedVariantVal(TStkStokKarti(Table).AlisFiyat);
-  edtalis_para.Text := FormatedVariantVal(TStkStokKarti(Table).AlisPara);
-  edtsatis_fiyat.Text := FormatedVariantVal(TStkStokKarti(Table).SatisFiyat);
-  edtsatis_para.Text := FormatedVariantVal(TStkStokKarti(Table).SatisPara);
-  edtihrac_fiyat.Text := FormatedVariantVal(TStkStokKarti(Table).IhracFiyat);
-  edtihrac_para.Text := FormatedVariantVal(TStkStokKarti(Table).IhracPara);
-  edtEn.Text := FormatedVariantVal(TStkStokKarti(Table).En);
-  edtBoy.Text := FormatedVariantVal(TStkStokKarti(Table).Boy);
-  edtYukseklik.Text := FormatedVariantVal(TStkStokKarti(Table).Yukseklik);
-  edtagirlik.Text := FormatedVariantVal(TStkStokKarti(Table).Agirlik);
-  edttemin_suresi.Text := FormatedVariantVal(TStkStokKarti(Table).TeminSuresi);
-  edtozel_kod.Text := FormatedVariantVal(TStkStokKarti(Table).OzelKod);
-  edtmarka.Text := FormatedVariantVal(TStkStokKarti(Table).Marka);
-  edtmensei_id.Text := FormatedVariantVal(TStkStokKarti(Table).Mensei);
-  edtgtip_no.Text := FormatedVariantVal(TStkStokKarti(Table).GtipNo);
-  edtdiib_urun_tanimi.Text := FormatedVariantVal(TStkStokKarti(Table).DiibUrunTanimi);
-  edten_az_stok_seviyesi.Text := FormatedVariantVal(TStkStokKarti(Table).EnAzStokSeviyesi);
-  mmotanim.Text := FormatedVariantVal(TStkStokKarti(Table).Tanim);
+  edtalis_iskonto.Text := TStkStokKarti(Table).AlisIskonto.AsString;
+  edtsatis_iskonto.Text := TStkStokKarti(Table).SatisIskonto.AsString;
+  edtalis_fiyat.Text := TStkStokKarti(Table).AlisFiyat.AsString;
+  edtalis_para.Text := TStkStokKarti(Table).AlisPara.AsString;
+  edtsatis_fiyat.Text := TStkStokKarti(Table).SatisFiyat.AsString;
+  edtsatis_para.Text := TStkStokKarti(Table).SatisPara.AsString;
+  edtihrac_fiyat.Text := TStkStokKarti(Table).IhracFiyat.AsString;
+  edtihrac_para.Text := TStkStokKarti(Table).IhracPara.AsString;
+  edtEn.Text := TStkStokKarti(Table).En.AsString;
+  edtBoy.Text := TStkStokKarti(Table).Boy.AsString;
+  edtYukseklik.Text := TStkStokKarti(Table).Yukseklik.AsString;
+  edtagirlik.Text := TStkStokKarti(Table).Agirlik.AsString;
+  edttemin_suresi.Text := TStkStokKarti(Table).TeminSuresi.AsString;
+  edtozel_kod.Text := TStkStokKarti(Table).OzelKod.AsString;
+  edtmarka.Text := TStkStokKarti(Table).Marka.AsString;
+  edtmensei_id.Text := TStkStokKarti(Table).Mensei.AsString;
+  edtgtip_no.Text := TStkStokKarti(Table).GtipNo.AsString;
+  edtdiib_urun_tanimi.Text := TStkStokKarti(Table).DiibUrunTanimi.AsString;
+  edten_az_stok_seviyesi.Text := TStkStokKarti(Table).EnAzStokSeviyesi.AsString;
+  mmotanim.Text := TStkStokKarti(Table).Tanim.AsString;
   LoadImageFromDB(TStkStokKarti(Table).StokResim, imgstok_resim);
-  edtcins_id.Text := FormatedVariantVal(TStkStokKarti(Table).Cins);
+  edtcins_id.Text := TStkStokKarti(Table).Cins.AsString;
   edtcins_idChange(edtcins_id);
-  edts1.Text := FormatedVariantVal(TStkStokKarti(Table).S1);
-  edts2.Text := FormatedVariantVal(TStkStokKarti(Table).S2);
-  edts3.Text := FormatedVariantVal(TStkStokKarti(Table).S3);
-  edts4.Text := FormatedVariantVal(TStkStokKarti(Table).S4);
-  edts5.Text := FormatedVariantVal(TStkStokKarti(Table).S5);
-  edts6.Text := FormatedVariantVal(TStkStokKarti(Table).S6);
-  edts7.Text := FormatedVariantVal(TStkStokKarti(Table).S7);
-  edts8.Text := FormatedVariantVal(TStkStokKarti(Table).S8);
-  edti1.Text := FormatedVariantVal(TStkStokKarti(Table).I1);
-  edti2.Text := FormatedVariantVal(TStkStokKarti(Table).I2);
-  edti3.Text := FormatedVariantVal(TStkStokKarti(Table).I3);
-  edti4.Text := FormatedVariantVal(TStkStokKarti(Table).I4);
-  edtd1.Text := FormatedVariantVal(TStkStokKarti(Table).D1);
-  edtd2.Text := FormatedVariantVal(TStkStokKarti(Table).D2);
-  edtd3.Text := FormatedVariantVal(TStkStokKarti(Table).D3);
-  edtd4.Text := FormatedVariantVal(TStkStokKarti(Table).D4);
+  edts1.Text := TStkStokKarti(Table).S1.AsString;
+  edts2.Text := TStkStokKarti(Table).S2.AsString;
+  edts3.Text := TStkStokKarti(Table).S3.AsString;
+  edts4.Text := TStkStokKarti(Table).S4.AsString;
+  edts5.Text := TStkStokKarti(Table).S5.AsString;
+  edts6.Text := TStkStokKarti(Table).S6.AsString;
+  edts7.Text := TStkStokKarti(Table).S7.AsString;
+  edts8.Text := TStkStokKarti(Table).S8.AsString;
+  edti1.Text := TStkStokKarti(Table).I1.AsString;
+  edti2.Text := TStkStokKarti(Table).I2.AsString;
+  edti3.Text := TStkStokKarti(Table).I3.AsString;
+  edti4.Text := TStkStokKarti(Table).I4.AsString;
+  edtd1.Text := TStkStokKarti(Table).D1.AsString;
+  edtd2.Text := TStkStokKarti(Table).D2.AsString;
+  edtd3.Text := TStkStokKarti(Table).D3.AsString;
+  edtd4.Text := TStkStokKarti(Table).D4.AsString;
 end;
 
 procedure TfrmStkStokKarti.Repaint;
