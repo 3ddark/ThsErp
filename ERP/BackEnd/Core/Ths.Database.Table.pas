@@ -80,6 +80,7 @@ type
     function AsDate: TDate;
     function AsDateTime: TDateTime;
     function AsTime: TTime;
+    function AsBytes: TBytes;
   end;
 
   TTable = class
@@ -103,7 +104,7 @@ type
     procedure FreeListContent; virtual;
 
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); virtual;
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); virtual;
+    procedure BusinessInsert(APermissionControl: Boolean); virtual;
     procedure BusinessUpdate(APermissionControl: Boolean); virtual;
     procedure BusinessDelete(APermissionControl: Boolean); virtual;
   published
@@ -136,8 +137,8 @@ type
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); virtual; abstract;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); virtual; abstract;
 
-    procedure Insert(out AID: Integer; APermissionControl: Boolean=True); virtual;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); virtual; abstract;
+    procedure Insert(APermissionControl: Boolean=True); virtual;
+    procedure DoInsert(APermissionControl: Boolean=True); virtual; abstract;
     procedure BeforeInsertDB;
     procedure AfterInsertDB;
 
@@ -148,8 +149,8 @@ type
 
     procedure Delete(APermissionControl: Boolean=True); virtual;
     procedure DoDelete(APermissionControl: Boolean=True); virtual;
-    procedure DoDeleteWith(AIDs: TArray<Integer>; APermissionControl: Boolean=True); virtual;
-    procedure DoDeleteWithCustom(AIDs: TArray<Integer>; ATableName: string; APermissionControl: Boolean=True); virtual;
+    procedure DoDeleteWith(AIDs: TArray<Int64>; APermissionControl: Boolean=True); virtual;
+    procedure DoDeleteWithCustom(AIDs: TArray<Int64>; ATableName: string; APermissionControl: Boolean=True); virtual;
     procedure BeforeDeleteDB;
     procedure AfterDeleteDB;
 
@@ -158,7 +159,7 @@ type
     procedure CloneClassContent(ASrc, ADes: TTable);
 
     function LogicalSelect(AFilter: string; ALock, AWithBegin, APermissionControl: Boolean):Boolean; virtual;
-    function LogicalInsert(out AID: Integer; AWithBegin, AWithCommit, APermissionControl: Boolean):Boolean; virtual;
+    function LogicalInsert(AWithBegin, AWithCommit, APermissionControl: Boolean):Boolean; virtual;
     function LogicalUpdate(AWithCommit, APermissionControl: Boolean):Boolean; virtual;
     function LogicalDelete(AWithCommit, APermissionControl: Boolean):Boolean; virtual;
 
@@ -500,6 +501,18 @@ begin
   Result := StrToBool(System.Variants.VarToStr(FValue))
 end;
 
+function TFieldDB.AsBytes: TBytes;
+begin
+  if Self.DataType <> ftBytes then
+  begin
+    SetLength(Result, 0);
+    Exit;
+  end;
+
+  SetLength(Result, Length(Self.Value));
+  Move(Self.Value, Result, Length(Self.Value));
+end;
+
 function TFieldDB.AsDate: TDate;
 begin
   Result := System.Variants.VarToDateTime(FValue)
@@ -555,9 +568,9 @@ begin
   SelectToList(AFilter, ALock, APermissionControl);
 end;
 
-procedure TTable.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
+procedure TTable.BusinessInsert(APermissionControl: Boolean);
 begin
-  Insert(AID, APermissionControl)
+  Insert(APermissionControl)
 end;
 
 procedure TTable.BusinessUpdate(APermissionControl: Boolean);
@@ -750,12 +763,12 @@ begin
 //
 end;
 
-procedure TTable.Insert(out AID: Integer; APermissionControl: Boolean);
+procedure TTable.Insert(APermissionControl: Boolean);
 begin
   if IsAuthorized(ptAddRecord, APermissionControl) then
   begin
     BeforeInsertDB;
-    DoInsert(AID, APermissionControl);
+    DoInsert(APermissionControl);
     AfterInsertDB;
   end;
 end;
@@ -795,7 +808,7 @@ begin
   end;
 end;
 
-procedure TTable.DoDeleteWith(AIDs: TArray<Integer>; APermissionControl: Boolean=True);
+procedure TTable.DoDeleteWith(AIDs: TArray<Int64>; APermissionControl: Boolean=True);
 var
   LSb: TStringBuilder;
   n1: Integer;
@@ -837,7 +850,7 @@ begin
   end;
 end;
 
-procedure TTable.DoDeleteWithCustom(AIDs: TArray<Integer>; ATableName: string; APermissionControl: Boolean=True);
+procedure TTable.DoDeleteWithCustom(AIDs: TArray<Int64>; ATableName: string; APermissionControl: Boolean=True);
 var
   LSb: TStringBuilder;
   n1: Integer;
@@ -940,14 +953,13 @@ begin
   end;
 end;
 
-function TTable.LogicalInsert(out AID: Integer; AWithBegin, AWithCommit, APermissionControl: Boolean): Boolean;
+function TTable.LogicalInsert(AWithBegin, AWithCommit, APermissionControl: Boolean): Boolean;
 begin
   Result := True;
   try
     if AWithBegin then
       GDatabase.Connection.StartTransaction;
-    BusinessInsert(AID, APermissionControl);
-    Id.Value := AID;
+    BusinessInsert(APermissionControl);
     if AWithCommit and GDatabase.Connection.InTransaction then
       GDatabase.Connection.Commit;
   except

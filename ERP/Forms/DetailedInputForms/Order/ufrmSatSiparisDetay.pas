@@ -131,7 +131,7 @@ uses
   Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
   Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
   Ths.Database.Table.SetChVergiOrani, ufrmSetChVergiOranlari,
-  Ths.Database.Table.StkStokKarti, ufrmStkStokKartlari;
+  Ths.Database.Table.StkKartlar, ufrmStkKartlar;
 
 {$R *.dfm}
 
@@ -298,8 +298,8 @@ end;
 
 procedure TfrmSatSiparisDetay.HelperProcess(Sender: TObject);
 var
-  LFrmStk: TfrmStkStokKartlari;
-  LStk: TStkStokKarti;
+  LFrmStk: TfrmStkKartlar;
+  LStk: TStkKart;
   LFrmVergi: TfrmSetChVergiOranlari;
   LKur: Double;
   n1: Integer;
@@ -310,8 +310,8 @@ begin
     begin
       if TEdit(Sender).Name = edtstok_kodu.Name then
       begin
-        LStk := TStkStokKarti.Create(GDataBase);
-        LFrmStk := TfrmStkStokKartlari.Create(edtstok_kodu, Self, LStk, fomNormal, True);
+        LStk := TStkKart.Create(GDataBase);
+        LFrmStk := TfrmStkKartlar.Create(edtstok_kodu, Self, LStk, fomNormal, True);
         try
           LFrmStk.QryFiltreVarsayilan := ' AND ' + LStk.IsSatilabilir.FieldName + '=True';
           LFrmStk.ShowModal;
@@ -330,8 +330,8 @@ begin
             end
             else
             begin
-              edtstok_kodu.Text := TStkStokKarti(LFrmStk.Table).StokKodu.AsString;
-              edtstok_aciklama.Text := TStkStokKarti(LFrmStk.Table).StokAdi.AsString;
+              edtstok_kodu.Text := TStkKart(LFrmStk.Table).StokKodu.AsString;
+              edtstok_aciklama.Text := TStkKart(LFrmStk.Table).StokAdi.AsString;
 
               for n1 := 0 to GParaBirimi.List.Count-1 do
                 if TfrmSatSiparisDetaylar(ParentForm).edtpara_birimi.Text = TSysParaBirimi(GParaBirimi.List[n1]).Para.AsString then
@@ -341,26 +341,26 @@ begin
                   else
                     LKur := TfrmSatSiparisDetaylar(ParentForm).edtdoviz_kuru_usd.moneyToDouble;
 
-                  edtfiyat.Text := FloatToStr(TStkStokKarti(LFrmStk.Table).GetSatisFiyatiByDoviz(
+                  edtfiyat.Text := FloatToStr(TStkKart(LFrmStk.Table).GetSatisFiyatiByDoviz(
                     TfrmSatSiparisDetaylar(ParentForm).edtpara_birimi.Text,
                     LKur,
                     StrToDateDef(TfrmSatSiparisDetaylar(ParentForm).edtsiparis_tarihi.Text, 0)
                   ));
                   Break;
                 end;
-              edtolcu_birimi.Text := TStkStokKarti(LFrmStk.Table).OlcuBirimi.AsString;
+              edtolcu_birimi.Text := TStkKart(LFrmStk.Table).OlcuBirimi.AsString;
 
               if (Trim(edtiskonto_orani.Text) = '') then  edtiskonto_orani.Text := '0';
 
-              TSatSiparisDetay(Table).StokResim.Value := TStkStokKarti(LFrmStk.Table).StokResim.Value;
-              LoadImageFromDB(TStkStokKarti(LFrmStk.Table).StokResim, imgstok_resim);
-              edtgtip_no.Text := TStkStokKarti(LFrmStk.Table).GtipNo.AsString;
+              TSatSiparisDetay(Table).StokResim.Value := TStkKart(LFrmStk.Table).Resim.Value;
+              LoadImageFromDB(TStkKart(LFrmStk.Table).Resim, imgstok_resim);
+              edtgtip_no.Text := TStkKart(LFrmStk.Table).GtipNo.AsString;
 
-              edten.Text := TStkStokKarti(LFrmStk.Table).En.AsString;
-              edtboy.Text := TStkStokKarti(LFrmStk.Table).Boy.AsString;
-              edtyukseklik.Text := TStkStokKarti(LFrmStk.Table).Yukseklik.AsString;
-              edtnet_agirlik.Text := TStkStokKarti(LFrmStk.Table).Agirlik.AsString;
-              edtbrut_agirlik.Text := TStkStokKarti(LFrmStk.Table).Agirlik.AsString;
+              edten.Text := TStkKart(LFrmStk.Table).En.AsString;
+              edtboy.Text := TStkKart(LFrmStk.Table).Boy.AsString;
+              edtyukseklik.Text := TStkKart(LFrmStk.Table).Yukseklik.AsString;
+              edtnet_agirlik.Text := TStkKart(LFrmStk.Table).Agirlik.AsString;
+              edtbrut_agirlik.Text := TStkKart(LFrmStk.Table).Agirlik.AsString;
             end;
           end;
         finally

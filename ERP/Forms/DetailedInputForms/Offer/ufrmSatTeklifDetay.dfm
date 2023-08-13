@@ -3,27 +3,27 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
   Top = 443
   ActiveControl = btnClose
   Caption = 'Sat'#305#351' Teklif Detay'
-  ClientHeight = 375
-  ClientWidth = 412
+  ClientHeight = 390
+  ClientWidth = 425
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 428
-  ExplicitHeight = 414
+  ExplicitWidth = 439
+  ExplicitHeight = 425
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 412
-    Height = 325
+    Width = 425
+    Height = 340
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 422
-    ExplicitHeight = 351
+    ExplicitWidth = 406
+    ExplicitHeight = 313
     inherited pgcMain: TPageControl
-      Width = 414
-      Height = 329
-      ExplicitWidth = 420
-      ExplicitHeight = 349
+      Width = 425
+      Height = 340
+      ExplicitWidth = 406
+      ExplicitHeight = 313
       inherited tsMain: TTabSheet
-        ExplicitWidth = 406
-        ExplicitHeight = 301
+        ExplicitWidth = 417
+        ExplicitHeight = 312
         object lblstok_kodu: TLabel
           Left = 35
           Top = 6
@@ -433,23 +433,23 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
     end
   end
   inherited pnlBottom: TPanel
-    Top = 327
-    Width = 408
-    ExplicitTop = 355
-    ExplicitWidth = 422
+    Top = 342
+    Width = 421
+    ExplicitTop = 315
+    ExplicitWidth = 402
     inherited btnAccept: TButton
-      Left = 213
-      ExplicitLeft = 213
+      Left = 215
+      ExplicitLeft = 196
     end
     inherited btnClose: TButton
-      Left = 317
-      ExplicitLeft = 317
+      Left = 319
+      ExplicitLeft = 300
     end
   end
   inherited stbBase: TStatusBar
-    Top = 357
-    Width = 412
-    ExplicitTop = 385
-    ExplicitWidth = 426
+    Top = 372
+    Width = 425
+    ExplicitTop = 345
+    ExplicitWidth = 406
   end
 end

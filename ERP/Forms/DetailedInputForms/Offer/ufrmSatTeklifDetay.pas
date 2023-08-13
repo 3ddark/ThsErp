@@ -105,7 +105,7 @@ uses
   Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
   Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
   Ths.Database.Table.SetChVergiOrani, ufrmSetChVergiOranlari,
-  Ths.Database.Table.StkStokKarti, ufrmStkStokKartlari;
+  Ths.Database.Table.StkKartlar, ufrmStkKartlar;
 
 {$R *.dfm}
 
@@ -239,8 +239,8 @@ end;
 
 procedure TfrmSatisTeklifDetay.HelperProcess(Sender: TObject);
 var
-  LFrmStk: TfrmStkStokKartlari;
-  LStk: TStkStokKarti;
+  LFrmStk: TfrmStkKartlar;
+  LStk: TStkKart;
   LFrmVergi: TfrmSetChVergiOranlari;
   LStokParaVarsayilan: Boolean;
   n1: Integer;
@@ -251,8 +251,8 @@ begin
     begin
       if TEdit(Sender).Name = edtstok_kodu.Name then
       begin
-        LStk := TStkStokKarti.Create(GDataBase);
-        LFrmStk := TfrmStkStokKartlari.Create(TEdit(Sender), Self, LStk, fomNormal, True);
+        LStk := TStkKart.Create(GDataBase);
+        LFrmStk := TfrmStkKartlar.Create(TEdit(Sender), Self, LStk, fomNormal, True);
         try
           LFrmStk.QryFiltreVarsayilan := ' AND ' + LStk.IsSatilabilir.FieldName + '=True';
           LFrmStk.ShowModal;
@@ -271,13 +271,13 @@ begin
             end
             else
             begin
-              edtstok_kodu.Text := TStkStokKarti(LFrmStk.Table).StokKodu.AsString;
-              edtstok_aciklama.Text := TStkStokKarti(LFrmStk.Table).StokAdi.AsString;
+              edtstok_kodu.Text := TStkKart(LFrmStk.Table).StokKodu.AsString;
+              edtstok_aciklama.Text := TStkKart(LFrmStk.Table).StokAdi.AsString;
 
               LStokParaVarsayilan := False;
 
               for n1 := 0 to GParaBirimi.List.Count-1 do
-                if  (TSysParaBirimi(GParaBirimi.List[n1]).Para.AsString = TStkStokKarti(LFrmStk.Table).SatisPara.AsString)
+                if  (TSysParaBirimi(GParaBirimi.List[n1]).Para.AsString = TStkKart(LFrmStk.Table).SatisPara.AsString)
                 and (TSysParaBirimi(GParaBirimi.List[n1]).Para.AsString = GSysApplicationSetting.Para.AsString)
                 then
                 begin
@@ -291,28 +291,28 @@ begin
                   if TSysParaBirimi(GParaBirimi.List[n1]).Para.AsString = GSysApplicationSetting.Para.AsString then
                   begin
                     if LStokParaVarsayilan then
-                      edtfiyat.Text := TStkStokKarti(LFrmStk.Table).SatisFiyat.AsString
+                      edtfiyat.Text := TStkKart(LFrmStk.Table).SatisFiyat.AsString
                     else
-                      edtfiyat.Text := FloatToStr(TStkStokKarti(LFrmStk.Table).SatisFiyat.AsFloat * TfrmSatTeklifDetaylar(ParentForm).edtdoviz_kuru_usd.moneyToDouble);
+                      edtfiyat.Text := FloatToStr(TStkKart(LFrmStk.Table).SatisFiyat.AsFloat * TfrmSatTeklifDetaylar(ParentForm).edtdoviz_kuru_usd.moneyToDouble);
                   end
                   else
                   begin
                     if LStokParaVarsayilan then
-                      edtfiyat.Text := FloatToStr(TStkStokKarti(LFrmStk.Table).SatisFiyat.AsFloat / TfrmSatTeklifDetaylar(ParentForm).edtdoviz_kuru_usd.moneyToDouble)
+                      edtfiyat.Text := FloatToStr(TStkKart(LFrmStk.Table).SatisFiyat.AsFloat / TfrmSatTeklifDetaylar(ParentForm).edtdoviz_kuru_usd.moneyToDouble)
                     else
-                      edtfiyat.Text := FloatToStr(TStkStokKarti(LFrmStk.Table).SatisFiyat.AsFloat * TfrmSatTeklifDetaylar(ParentForm).edtdoviz_kuru_usd.moneyToDouble);
+                      edtfiyat.Text := FloatToStr(TStkKart(LFrmStk.Table).SatisFiyat.AsFloat * TfrmSatTeklifDetaylar(ParentForm).edtdoviz_kuru_usd.moneyToDouble);
                   end;
 
                   break;
                 end;
 
-              edtolcu_birimi.Text := TStkStokKarti(LFrmStk.Table).OlcuBirimi.AsString;
+              edtolcu_birimi.Text := TStkKart(LFrmStk.Table).OlcuBirimi.AsString;
 
               if (Trim(edtiskonto_orani.Text) = '') then  edtiskonto_orani.Text := '0';
 
-              TSatTeklifDetay(Table).StokResim.Value := TStkStokKarti(LFrmStk.Table).StokResim.Value;
-              LoadImageFromDB(TStkStokKarti(LFrmStk.Table).StokResim, imgstok_resim);
-              edtgtip_no.Text := TStkStokKarti(LFrmStk.Table).GtipNo.AsString;
+              TSatTeklifDetay(Table).StokResim.Value := TStkKart(LFrmStk.Table).Resim.Value;
+              LoadImageFromDB(TStkKart(LFrmStk.Table).Resim, imgstok_resim);
+              edtgtip_no.Text := TStkKart(LFrmStk.Table).GtipNo.AsString;
             end;
           end;
         finally

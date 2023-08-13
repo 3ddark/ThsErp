@@ -1,23 +1,23 @@
 inherited frmRctReceteYanUrun: TfrmRctReceteYanUrun
   Caption = 'Re'#231'ete Yan '#220'r'#252'n'
-  ClientHeight = 169
-  ClientWidth = 346
-  ExplicitWidth = 362
-  ExplicitHeight = 208
+  ClientHeight = 165
+  ClientWidth = 344
+  ExplicitWidth = 360
+  ExplicitHeight = 204
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 346
-    Height = 119
+    Width = 344
+    Height = 115
     ExplicitWidth = 348
     ExplicitHeight = 123
     inherited pgcMain: TPageControl
-      Width = 348
-      Height = 123
+      Width = 346
+      Height = 119
       ExplicitWidth = 348
       ExplicitHeight = 123
       inherited tsMain: TTabSheet
-        ExplicitWidth = 340
-        ExplicitHeight = 95
+        ExplicitWidth = 338
+        ExplicitHeight = 91
         object lblmiktar: TLabel
           Left = 86
           Top = 53
@@ -98,8 +98,8 @@ inherited frmRctReceteYanUrun: TfrmRctReceteYanUrun
     end
   end
   inherited pnlBottom: TPanel
-    Top = 121
-    Width = 342
+    Top = 117
+    Width = 340
     ExplicitTop = 125
     ExplicitWidth = 344
     inherited btnAccept: TButton
@@ -112,8 +112,8 @@ inherited frmRctReceteYanUrun: TfrmRctReceteYanUrun
     end
   end
   inherited stbBase: TStatusBar
-    Top = 151
-    Width = 346
+    Top = 147
+    Width = 344
     ExplicitTop = 155
     ExplicitWidth = 348
   end

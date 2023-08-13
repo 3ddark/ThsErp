@@ -324,8 +324,8 @@ uses
   Ths.Database.Table.ChHesapKartiAra, ufrmChHesapKartlariAra,
 
   Ths.Database.Table.StkCinsOzellikleri, ufrmStkCinsOzellikleri,
-  Ths.Database.Table.StkGruplar, ufrmStkStokGruplari,
-  Ths.Database.Table.StkStokKarti, ufrmStkStokKartlari,
+  Ths.Database.Table.StkGruplar, ufrmStkGruplar,
+  Ths.Database.Table.StkKartlar, ufrmStkKartlar,
   Ths.Database.Table.StkStokHareketi, ufrmStkStokHareketleri,
   Ths.Database.Table.StkAmbarlar, ufrmStkStokAmbarlar,
 
@@ -545,7 +545,7 @@ end;
 
 procedure TfrmDashboard.actstk_gruplarExecute(Sender: TObject);
 begin
-  TfrmStkStokGruplari.Create(Self, Self, TStkStokGrubu.Create(GDataBase), fomNormal).Show;
+  TfrmStkGruplar.Create(Self, Self, TStkGruplar.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actstk_hareketlerExecute(Sender: TObject);
@@ -565,7 +565,7 @@ end;
 
 procedure TfrmDashboard.actstk_stok_kartlariExecute(Sender: TObject);
 begin
-  TfrmStkStokKartlari.Create(Self, Self, TStkStokKarti.Create(GDataBase), fomNormal).Show;
+  TfrmStkKartlar.Create(Self, Self, TStkKart.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actsys_cityExecute(Sender: TObject);
@@ -856,7 +856,6 @@ var
   LKurOK: Boolean;
   n1: Integer;
   n2: Integer;
-  LID: Integer;
 begin
   if not FIsFormShow then
   begin
@@ -885,7 +884,7 @@ begin
                   LDovizKuru.KurTarihi.Value := LKurList[n1].Tarih;
                   LDovizKuru.Para.Value := LKurList[n1].Kod;
                   LDovizKuru.Kur.Value := LKurList[n1].ForexSelling;
-                  LDovizKuru.Insert(LID, False);
+                  LDovizKuru.Insert(False);
 
                   LKurOK := True;
                   Break;
@@ -902,7 +901,7 @@ begin
             LDovizKuru.KurTarihi.Value := GDataBase.DateDB;
             LDovizKuru.Para.Value := GSysApplicationSetting.Para.AsString;
             LDovizKuru.Kur.Value := 1;
-            LDovizKuru.Insert(LID, False);
+            LDovizKuru.Insert(False);
           end;
         end;
       except

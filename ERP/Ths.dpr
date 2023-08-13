@@ -233,14 +233,14 @@ uses
   ufrmStkCinsOzellikleri in 'Forms\OutputForms\DbGrid\Stock\ufrmStkCinsOzellikleri.pas' {frmStkCinsOzellikleri},
   ufrmStkCinsOzelligi in 'Forms\InputForms\Stock\ufrmStkCinsOzelligi.pas' {frmStkCinsOzelligi},
   Ths.Database.Table.StkGruplar in 'BackEnd\Stock\Ths.Database.Table.StkGruplar.pas',
-  ufrmStkStokGruplari in 'Forms\OutputForms\DbGrid\Stock\ufrmStkStokGruplari.pas' {frmStkStokGruplari},
-  ufrmStkStokGrubu in 'Forms\InputForms\Stock\ufrmStkStokGrubu.pas' {frmStkStokGrubu},
+  ufrmStkGruplar in 'Forms\OutputForms\DbGrid\Stock\ufrmStkGruplar.pas' {frmStkGruplar},
+  ufrmStkGrup in 'Forms\InputForms\Stock\ufrmStkGrup.pas' {frmStkGrup},
   Ths.Database.Table.StkAmbarlar in 'BackEnd\Stock\Ths.Database.Table.StkAmbarlar.pas',
   ufrmStkStokAmbarlar in 'Forms\OutputForms\DbGrid\Stock\ufrmStkStokAmbarlar.pas' {frmStkStokAmbarlar},
   ufrmStkStokAmbar in 'Forms\InputForms\Stock\ufrmStkStokAmbar.pas' {frmStkStokAmbar},
-  Ths.Database.Table.StkStokKarti in 'BackEnd\Stock\Ths.Database.Table.StkStokKarti.pas',
-  ufrmStkStokKartlari in 'Forms\OutputForms\DbGrid\Stock\ufrmStkStokKartlari.pas' {frmStkStokKartlari},
-  ufrmStkStokKarti in 'Forms\InputForms\Stock\ufrmStkStokKarti.pas' {frmStkStokKarti},
+  Ths.Database.Table.StkKartlar in 'BackEnd\Stock\Ths.Database.Table.StkKartlar.pas',
+  ufrmStkKartlar in 'Forms\OutputForms\DbGrid\Stock\ufrmStkKartlar.pas' {frmStkKartlar},
+  ufrmStkKart in 'Forms\InputForms\Stock\ufrmStkKart.pas' {frmStkKart},
   Ths.Database.Table.StkStokHareketi in 'BackEnd\Stock\Ths.Database.Table.StkStokHareketi.pas',
   ufrmStkStokHareketleri in 'Forms\OutputForms\DbGrid\Stock\ufrmStkStokHareketleri.pas' {frmStkStokHareketleri},
   Ths.Database.Table.OthMailReciever in 'BackEnd\Ths.Database.Table.OthMailReciever.pas',
@@ -270,7 +270,8 @@ uses
   ufrmSetBbkFirmaTipi in 'Forms\InputForms\Databank\ufrmSetBbkFirmaTipi.pas' {frmSetBbkFirmaTipi},
   Ths.Database.Table.BbkKayit in 'BackEnd\Databank\Ths.Database.Table.BbkKayit.pas',
   ufrmBbkKayitlar in 'Forms\OutputForms\DbGrid\Databank\ufrmBbkKayitlar.pas' {frmBbkKayitlar},
-  ufrmBbkKayit in 'Forms\InputForms\Databank\ufrmBbkKayit.pas' {frmBbkKayit};
+  ufrmBbkKayit in 'Forms\InputForms\Databank\ufrmBbkKayit.pas' {frmBbkKayit},
+  Ths.Database.Table.StkResimler in 'BackEnd\Stock\Ths.Database.Table.StkResimler.pas';
 
 {$R *.res}
 

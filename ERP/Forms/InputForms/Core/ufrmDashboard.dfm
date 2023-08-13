@@ -3,8 +3,8 @@ inherited frmDashboard: TfrmDashboard
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Main'
-  ClientHeight = 415
-  ClientWidth = 640
+  ClientHeight = 407
+  ClientWidth = 636
   Constraints.MinHeight = 300
   Constraints.MinWidth = 400
   DefaultMonitor = dmDesktop
@@ -14,21 +14,19 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 646
-  ExplicitHeight = 464
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 652
+  ExplicitHeight = 466
+  TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
     Top = 0
-    Width = 640
+    Width = 636
     Height = 40
     Align = alTop
     BevelOuter = bvNone
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 638
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
@@ -51,64 +49,60 @@ inherited frmDashboard: TfrmDashboard
     end
   end
   inherited pnlBottom: TPanel [1]
-    Top = 367
-    Width = 636
+    Top = 359
+    Width = 632
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 363
-    ExplicitWidth = 634
+    ExplicitTop = 359
+    ExplicitWidth = 632
     inherited btnAccept: TButton
-      Left = 430
-      ExplicitLeft = 428
+      Left = 428
+      ExplicitLeft = 426
     end
     inherited btnClose: TButton
-      Left = 534
-      ExplicitLeft = 532
+      Left = 532
+      ExplicitLeft = 530
     end
   end
   inherited stbBase: TStatusBar [2]
-    Top = 397
-    Width = 640
-    ExplicitTop = 393
-    ExplicitWidth = 638
+    Top = 389
+    Width = 636
+    ExplicitTop = 389
+    ExplicitWidth = 636
   end
   inherited pnlMain: TPanel [3]
     Top = 40
-    Width = 640
-    Height = 325
+    Width = 636
+    Height = 317
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 638
-    ExplicitHeight = 321
+    ExplicitWidth = 636
+    ExplicitHeight = 317
     object pb1: TProgressBar
       Left = 0
-      Top = 299
-      Width = 640
+      Top = 295
+      Width = 638
       Height = 26
       Align = alBottom
       DoubleBuffered = True
       ParentDoubleBuffered = False
       Smooth = True
       TabOrder = 1
-      ExplicitTop = 295
-      ExplicitWidth = 638
+      ExplicitTop = 291
+      ExplicitWidth = 636
     end
     object PageControl1: TPageControl
       Left = 0
       Top = 0
-      Width = 640
-      Height = 299
+      Width = 638
+      Height = 295
       ActivePage = tsstock
       Align = alClient
       MultiLine = True
       TabOrder = 0
       object tsgeneral: TTabSheet
         Caption = 'Genel'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnbbk_kayit: TButton
           Left = 3
           Top = 229
@@ -137,10 +131,6 @@ inherited frmDashboard: TfrmDashboard
         Font.Style = []
         ImageIndex = 2
         ParentFont = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnsat_teklif: TButton
           Left = 2
           Top = 2
@@ -216,10 +206,6 @@ inherited frmDashboard: TfrmDashboard
       object tsstock: TTabSheet
         Caption = 'Stoklar'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnstk_stok_karti: TButton
           Left = 2
           Top = 2
@@ -304,10 +290,6 @@ inherited frmDashboard: TfrmDashboard
       object tsaccount: TTabSheet
         Caption = 'Hesaplar'
         ImageIndex = 4
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnch_hesap_karti: TButton
           Left = 2
           Top = 170
@@ -452,10 +434,6 @@ inherited frmDashboard: TfrmDashboard
       object tsemployee: TTabSheet
         Caption = 'Personel'
         ImageIndex = 7
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnprs_personel: TButton
           Left = 2
           Top = 2
@@ -478,10 +456,6 @@ inherited frmDashboard: TfrmDashboard
       object tsbom: TTabSheet
         Caption = 'Re'#231'eteler'
         ImageIndex = 5
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnrct_recete: TButton
           Left = 2
           Top = 2
@@ -541,10 +515,6 @@ inherited frmDashboard: TfrmDashboard
       object tsaccounting: TTabSheet
         Caption = 'Muhasebe'
         ImageIndex = 6
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object btnmhs_doviz_kuru: TButton
           Left = 314
           Top = 2

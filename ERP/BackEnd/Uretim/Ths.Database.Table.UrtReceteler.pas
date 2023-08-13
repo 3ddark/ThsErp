@@ -14,7 +14,7 @@ uses
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.TableDetailed,
-  Ths.Database.Table.StkStokKarti,
+  Ths.Database.Table.StkKartlar,
   Ths.Database.Table.SysOlcuBirimleri,
   Ths.Database.Table.UrtIscilikler;
 
@@ -43,7 +43,7 @@ type
     FOlcuBirimi: TFieldDB;
     FFiyat: TFieldDB;
   published
-    FStkStokKarti: TStkStokKarti;
+    FStkStokKarti: TStkKart;
     FSysOlcuBirimi: TSysOlcuBirimi;
     FUrtRecete: TUrtRecete;
 
@@ -54,7 +54,7 @@ type
 
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -91,7 +91,7 @@ type
 
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -116,7 +116,7 @@ type
     FOlcuBirimi: TFieldDB;
     FFiyat: TFieldDB;
   published
-    FStkStokKarti: TStkStokKarti;
+    FStkStokKarti: TStkKart;
     FSysOlcuBirimi: TSysOlcuBirimi;
 
     constructor Create(ADatabase: TDatabase; ARecete: TUrtRecete = nil); reintroduce; overload;
@@ -126,7 +126,7 @@ type
 
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -153,7 +153,7 @@ type
     FYanUrunMaliyet: TFieldDB;
   protected
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
     procedure BusinessUpdate(APermissionControl: Boolean); override;
     procedure BusinessDelete(APermissionControl: Boolean); override;
 
@@ -166,7 +166,7 @@ type
 
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -200,7 +200,7 @@ begin
   if ARecete <> nil then
     Recete := ARecete;
 
-  FStkStokKarti := TStkStokKarti.Create(ADatabase);
+  FStkStokKarti := TStkKart.Create(ADatabase);
   FSysOlcuBirimi := TSysOlcuBirimi.Create(ADatabase);
   FUrtRecete := TUrtRecete.Create(ADatabase);
 
@@ -292,7 +292,7 @@ begin
   end;
 end;
 
-procedure TUrtReceteHammadde.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TUrtReceteHammadde.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -312,9 +312,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -443,7 +441,7 @@ begin
   end;
 end;
 
-procedure TUrtReceteIscilik.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TUrtReceteIscilik.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -459,9 +457,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -503,7 +499,7 @@ begin
   if ARecete <> nil then
     Recete := ARecete;
 
-  FStkStokKarti := TStkStokKarti.Create(ADatabase);
+  FStkStokKarti := TStkKart.Create(ADatabase);
   FSysOlcuBirimi := TSysOlcuBirimi.Create(ADatabase);
 
   FHeaderID := TFieldDB.Create('header_id', ftInteger, 0, Self, '');
@@ -587,7 +583,7 @@ begin
   end;
 end;
 
-procedure TUrtReceteYanUrun.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TUrtReceteYanUrun.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -604,9 +600,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -728,7 +722,7 @@ begin
   end;
 end;
 
-procedure TUrtRecete.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TUrtRecete.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -745,9 +739,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -880,28 +872,27 @@ begin
   //
 end;
 
-procedure TUrtRecete.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
+procedure TUrtRecete.BusinessInsert(APermissionControl: Boolean);
 var
-  n1, vID: Integer;
+  n1: Integer;
 begin
-  Self.Insert(vID, APermissionControl);
-  Self.Id.Value := vID;
+  Self.Insert(APermissionControl);
   for n1 := 0 to ListDetay.Count - 1 do
   begin
     if TObject(ListDetay[n1]).ClassType = TUrtReceteHammadde then
     begin
       TUrtReceteHammadde(ListDetay[n1]).HeaderID.Value := Self.Id.AsInteger;
-      TUrtReceteHammadde(ListDetay[n1]).Insert(vID, True);
+      TUrtReceteHammadde(ListDetay[n1]).Insert(True);
     end
     else if TObject(ListDetay[n1]).ClassType = TUrtReceteIscilik then
     begin
       TUrtReceteIscilik(ListDetay[n1]).HeaderID.Value := Self.Id.AsInteger;
-      TUrtReceteIscilik(ListDetay[n1]).Insert(vID, True);
+      TUrtReceteIscilik(ListDetay[n1]).Insert(True);
     end
     else if TObject(ListDetay[n1]).ClassType = TUrtReceteYanUrun then
     begin
       TUrtReceteYanUrun(ListDetay[n1]).HeaderID.Value := Self.Id.AsInteger;
-      TUrtReceteYanUrun(ListDetay[n1]).Insert(vID, True);
+      TUrtReceteYanUrun(ListDetay[n1]).Insert(True);
     end;
   end;
 end;
@@ -949,7 +940,7 @@ end;
 
 procedure TUrtRecete.BusinessUpdate(APermissionControl: Boolean);
 var
-  n1, LID: Integer;
+  n1: Integer;
 begin
   Update(APermissionControl);
 
@@ -970,8 +961,7 @@ begin
       TTable(ListDetay[n1]).Update(False)
     else
     begin
-      TTable(ListDetay[n1]).Insert(LID, False);
-      TTable(ListDetay[n1]).Id.Value := LID;
+      TTable(ListDetay[n1]).Insert(False);
     end;
   end;
 end;

@@ -28,7 +28,7 @@ type
     FSetChHesapPlani: TChHesapPlani;
 
     procedure BusinessSelect(AFilter: string; ALock: Boolean; APermissionControl: Boolean); override;
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
     procedure BusinessUpdate(APermissionControl: Boolean); override;
     procedure BusinessDelete(APermissionControl: Boolean); override;
   published
@@ -37,7 +37,7 @@ type
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -81,9 +81,9 @@ begin
   end;
 end;
 
-procedure TChHesapKartiAra.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
+procedure TChHesapKartiAra.BusinessInsert(APermissionControl: Boolean);
 begin
-  Self.Insert(AID, APermissionControl);
+  Self.Insert(APermissionControl);
 end;
 
 procedure TChHesapKartiAra.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
@@ -188,7 +188,7 @@ begin
   end;
 end;
 
-procedure TChHesapKartiAra.DoInsert(out AID: Integer; APermissionControl: Boolean=True);
+procedure TChHesapKartiAra.DoInsert(APermissionControl: Boolean=True);
 var
   LQry: TZQuery;
 begin
@@ -205,9 +205,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;

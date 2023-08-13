@@ -34,13 +34,13 @@ type
     FPersonelID: TFieldDB;
     FAdSoyad: TFieldDB;
   protected
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -194,7 +194,7 @@ begin
   end;
 end;
 
-procedure TSysKullanici.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TSysKullanici.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -217,10 +217,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-
-    AID := 0;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull) then
-      AID := Fields.FieldByName(Id.FieldName).AsInteger;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -251,13 +248,13 @@ begin
   end;
 end;
 
-procedure TSysKullanici.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
+procedure TSysKullanici.BusinessInsert(APermissionControl: Boolean);
 var
   LAccessRight: TSysErisimHakki;
   LResource: TSysKaynak;
   LQry: TZQuery;
 begin
-  Insert(AID, APermissionControl);
+  Insert(APermissionControl);
   LAccessRight := TSysErisimHakki.Create(Database);
   LResource := TSysKaynak.Create(Database);
   LQry := DataBase.NewQuery();
@@ -271,7 +268,7 @@ begin
         LAccessRight.IsSilme.FieldName + ', ' +
         LAccessRight.IsOzel.FieldName + ', ' +
         LAccessRight.KullaniciID.FieldName + ') ' +
-      '(SELECT ' + LResource.TableName + '.' + LResource.Id.FieldName + ', false, false, false, false, false, ' + IntToStr(AID) + ' FROM ' + LResource.TableName + ')';
+      '(SELECT ' + LResource.Id.QryName + ', false, false, false, false, false, ' + IntToStr(Self.Id.Value) + ' FROM ' + LResource.TableName + ')';
     LQry.ExecSQL;
   finally
     LAccessRight.Free;

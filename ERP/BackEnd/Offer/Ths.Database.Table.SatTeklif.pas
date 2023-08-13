@@ -17,7 +17,7 @@ uses
   Ths.Database.TableDetailed,
   Ths.Database.Table.SysOndalikHaneler,
   Ths.Database.Table.EmpEmployee,
-  Ths.Database.Table.StkStokKarti,
+  Ths.Database.Table.StkKartlar,
   Ths.Database.Table.SysUlkeler,
   Ths.Database.Table.SysSehirler,
   Ths.Database.Table.SetEInvFaturaTipi,
@@ -59,7 +59,7 @@ type
   published
     FStokResim: TFieldDB;
 
-    FStkStokKarti: TStkStokKarti;
+    FStkStokKarti: TStkKart;
     constructor Create(ADatabase: TDatabase; ATeklif: TSatTeklif = nil); reintroduce; overload;
     destructor Destroy; override;
   public
@@ -67,7 +67,7 @@ type
 
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -159,7 +159,7 @@ type
     FTasimaUcreti: TFieldDB;
   protected
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
     procedure BusinessUpdate(APermissionControl: Boolean); override;
     procedure BusinessDelete(APermissionControl: Boolean); override;
 
@@ -180,7 +180,7 @@ type
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -267,7 +267,7 @@ begin
   TableSourceCode := MODULE_SAT_TEK_KAYIT;
   inherited Create(ADatabase);
 
-  FStkStokKarti := TStkStokKarti.Create(ADatabase);
+  FStkStokKarti := TStkKart.Create(ADatabase);
 
   if ATeklif <> nil then
     Teklif := ATeklif;
@@ -294,7 +294,7 @@ begin
   FIsAnaUrun := TFieldDB.Create('is_ana_urun', ftBoolean, 0, Self, '');
   FReferansAnaUrunID := TFieldDB.Create('referans_ana_urun_id', ftInteger, 0, Self, '');
   FGtipNo := TFieldDB.Create('gtip_no', ftWideString, '', Self, '');
-  FStokResim := TFieldDB.Create(FStkStokKarti.StokResim.FieldName, FStkStokKarti.StokResim.DataType, FStkStokKarti.StokResim.Value, Self, 'Stok Resim');
+  FStokResim := TFieldDB.Create(FStkStokKarti.Resim.FieldName, FStkStokKarti.Resim.DataType, FStkStokKarti.Resim.Value, Self, 'Resim');
 
   PrepareTableRequiredValues;
 end;
@@ -337,7 +337,7 @@ begin
       FIsAnaUrun.QryName,
       FReferansAnaUrunID.QryName,
       FGtipNo.QryName,
-      addField(FStkStokKarti.TableName, FStkStokKarti.StokResim.FieldName, FStokResim.FieldName)
+      addField(FStkStokKarti.TableName, FStkStokKarti.Resim.FieldName, FStokResim.FieldName)
     ], [
       addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
       ' WHERE 1=1 ', AFilter
@@ -382,7 +382,7 @@ begin
       FIsAnaUrun.QryName,
       FReferansAnaUrunID.QryName,
       FGtipNo.QryName,
-      addField(FStkStokKarti.TableName, FStkStokKarti.StokResim.FieldName, FStokResim.FieldName)
+      addField(FStkStokKarti.TableName, FStkStokKarti.Resim.FieldName, FStokResim.FieldName)
     ], [
       addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
       ' WHERE 1=1 ', AFilter
@@ -406,10 +406,10 @@ end;
 
 function TSatTeklifDetay.ToSiparisDetay: TSatSiparisDetay;
 var
-  LStok: TStkStokKarti;
+  LStok: TStkKart;
 begin
   Result := TSatSiparisDetay.Create(Database);
-  LStok := TStkStokKarti.Create(Database);
+  LStok := TStkKart.Create(Database);
   try
     LStok.SelectToList(' AND ' + LStok.StokKodu.QryName + '=' + QuotedStr(FStokKodu.Value), False, False);
 
@@ -451,7 +451,7 @@ begin
   end;
 end;
 
-procedure TSatTeklifDetay.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TSatTeklifDetay.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -486,9 +486,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -810,7 +808,7 @@ begin
   end;
 end;
 
-procedure TSatTeklif.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TSatTeklif.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -871,10 +869,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-
-    if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -1117,18 +1112,17 @@ begin
   //
 end;
 
-procedure TSatTeklif.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
+procedure TSatTeklif.BusinessInsert(APermissionControl: Boolean);
 var
-  n1, vID: Integer;
+  n1: Integer;
 begin
-  Self.Insert(vID, True);
-  Self.Id.Value := vID;
+  Self.Insert(True);
   for n1 := 0 to Self.ListDetay.Count-1 do
   begin
     TSatTeklifDetay(Self.ListDetay[n1]).HeaderID.Value := Self.Id.Value;
 
     TSatTeklifDetay(Self.ListDetay[n1]).HeaderID.Value := Self.Id.Value;
-    TSatTeklifDetay(Self.ListDetay[n1]).Insert(vID, True);
+    TSatTeklifDetay(Self.ListDetay[n1]).Insert(True);
   end;
 end;
 
@@ -1159,7 +1153,7 @@ end;
 
 procedure TSatTeklif.BusinessUpdate(APermissionControl: Boolean);
 var
-  n1, vID: Integer;
+  n1: Integer;
 begin
   Self.Update(APermissionControl);
 
@@ -1173,7 +1167,7 @@ begin
     end
     else
     begin
-      TSatTeklifDetay(Self.ListDetay[n1]).Insert(vID, False);
+      TSatTeklifDetay(Self.ListDetay[n1]).Insert(False);
     end;
   end;
 

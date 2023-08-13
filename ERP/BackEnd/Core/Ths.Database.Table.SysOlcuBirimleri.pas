@@ -26,7 +26,7 @@ type
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -147,7 +147,7 @@ begin
   end;
 end;
 
-procedure TSysOlcuBirimi.DoInsert(out AID: Integer; APermissionControl: Boolean=True);
+procedure TSysOlcuBirimi.DoInsert(APermissionControl: Boolean=True);
 var
   LQry: TZQuery;
   LUnitTypes: TSysOlcuBirimiTipi;
@@ -169,9 +169,7 @@ begin
       PrepareInsertQueryParams(LQry);
 
       Open;
-      if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-      then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-      else  AID := 0;
+      Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
     end;
   finally
     LQry.Free;

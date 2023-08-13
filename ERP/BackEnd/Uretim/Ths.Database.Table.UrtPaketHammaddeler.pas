@@ -14,7 +14,7 @@ uses
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.TableDetailed,
-  Ths.Database.Table.StkStokKarti,
+  Ths.Database.Table.StkKartlar,
   Ths.Database.Table.SysOlcuBirimleri,
   Ths.Database.Table.UrtReceteler;
 
@@ -34,7 +34,7 @@ type
     FOlcuBirimi: TFieldDB;
     FFiyat: TFieldDB;
   published
-    FStkStokKarti: TStkStokKarti;
+    FStkStokKarti: TStkKart;
     FSysOlcuBirimi: TSysOlcuBirimi;
     FRctRecete: TUrtRecete;
 
@@ -45,7 +45,7 @@ type
 
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -67,7 +67,7 @@ type
     FPaketAdi: TFieldDB;
   protected
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
     procedure BusinessUpdate(APermissionControl: Boolean); override;
     procedure BusinessDelete(APermissionControl: Boolean); override;
 
@@ -78,7 +78,7 @@ type
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -105,7 +105,7 @@ begin
   if APaket <> nil then
     PaketHammadde := APaket;
 
-  FStkStokKarti := TStkStokKarti.Create(ADatabase);
+  FStkStokKarti := TStkKart.Create(ADatabase);
   FSysOlcuBirimi := TSysOlcuBirimi.Create(ADatabase);
   FRctRecete := TUrtRecete.Create(ADatabase);
 
@@ -197,7 +197,7 @@ begin
   end;
 end;
 
-procedure TUrtPaketHammaddeDetay.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TUrtPaketHammaddeDetay.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -215,9 +215,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -316,7 +314,7 @@ begin
   end;
 end;
 
-procedure TUrtPaketHammadde.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TUrtPaketHammadde.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -330,9 +328,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -413,18 +409,17 @@ begin
   //
 end;
 
-procedure TUrtPaketHammadde.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
+procedure TUrtPaketHammadde.BusinessInsert(APermissionControl: Boolean);
 var
-  n1, LID: Integer;
+  n1: Integer;
 begin
-  Self.Insert(AID, APermissionControl);
-  Self.Id.Value := AID;
+  Self.Insert(APermissionControl);
   for n1 := 0 to Self.ListDetay.Count - 1 do
   begin
     if TObject(Self.ListDetay[n1]).ClassType = TUrtPaketHammaddeDetay then
     begin
       TUrtPaketHammaddeDetay(Self.ListDetay[n1]).HeaderID.Value := Self.Id.AsInteger;
-      TUrtPaketHammaddeDetay(Self.ListDetay[n1]).Insert(LID, APermissionControl);
+      TUrtPaketHammaddeDetay(Self.ListDetay[n1]).Insert(APermissionControl);
     end
   end;
 end;
@@ -450,7 +445,7 @@ end;
 
 procedure TUrtPaketHammadde.BusinessUpdate(APermissionControl: Boolean);
 var
-  n1, LID: Integer;
+  n1: Integer;
 begin
   Self.Update(APermissionControl);
 
@@ -462,7 +457,7 @@ begin
       if TUrtPaketHammaddeDetay(Self.ListDetay[n1]).Id.AsInteger > 0 then
         TUrtPaketHammaddeDetay(Self.ListDetay[n1]).Update(APermissionControl)
       else
-        TUrtPaketHammaddeDetay(Self.ListDetay[n1]).Insert(LID, APermissionControl)
+        TUrtPaketHammaddeDetay(Self.ListDetay[n1]).Insert(APermissionControl)
     end
   end;
 

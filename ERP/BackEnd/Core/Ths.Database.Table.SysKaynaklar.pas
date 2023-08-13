@@ -20,13 +20,13 @@ type
     FKaynakGrupID: TFieldDB;
     FKaynakGrubu: TFieldDB;
   protected
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -139,7 +139,7 @@ begin
   end;
 end;
 
-procedure TSysKaynak.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TSysKaynak.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -155,10 +155,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -185,12 +182,12 @@ begin
   end;
 end;
 
-procedure TSysKaynak.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
+procedure TSysKaynak.BusinessInsert(APermissionControl: Boolean);
 var
   LRights: TSysErisimHakki;
   LQry: TZQuery;
 begin
-  Insert(AID, APermissionControl);
+  Insert(APermissionControl);
   LRights := TSysErisimHakki.Create(Database);
   LQry := Ths.Globals.GDataBase.NewQuery();
   try
@@ -204,7 +201,7 @@ begin
         LRights.IsOzel.FieldName + ', ' +
         LRights.KullaniciID.FieldName + ') ' +
       '(SELECT ' +
-        IntToStr(AID) +
+        IntToStr(Self.Id.Value) +
         ', false, false, false, false, false, ' +
         GSysKullanici.Id.QryName +
       ' FROM ' + GSysKullanici.TableName + ')';

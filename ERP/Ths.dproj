@@ -625,11 +625,11 @@
             <Form>frmStkCinsOzelligi</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkGruplar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkStokGruplari.pas">
-            <Form>frmStkStokGruplari</Form>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkGruplar.pas">
+            <Form>frmStkGruplar</Form>
         </DCCReference>
-        <DCCReference Include="Forms\InputForms\Stock\ufrmStkStokGrubu.pas">
-            <Form>frmStkStokGrubu</Form>
+        <DCCReference Include="Forms\InputForms\Stock\ufrmStkGrup.pas">
+            <Form>frmStkGrup</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkAmbarlar.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkStokAmbarlar.pas">
@@ -638,12 +638,12 @@
         <DCCReference Include="Forms\InputForms\Stock\ufrmStkStokAmbar.pas">
             <Form>frmStkStokAmbar</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkStokKarti.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkStokKartlari.pas">
-            <Form>frmStkStokKartlari</Form>
+        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkKartlar.pas"/>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkKartlar.pas">
+            <Form>frmStkKartlar</Form>
         </DCCReference>
-        <DCCReference Include="Forms\InputForms\Stock\ufrmStkStokKarti.pas">
-            <Form>frmStkStokKarti</Form>
+        <DCCReference Include="Forms\InputForms\Stock\ufrmStkKart.pas">
+            <Form>frmStkKart</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkStokHareketi.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkStokHareketleri.pas">
@@ -715,6 +715,7 @@
         <DCCReference Include="Forms\InputForms\Databank\ufrmBbkKayit.pas">
             <Form>frmBbkKayit</Form>
         </DCCReference>
+        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkResimler.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -749,7 +750,12 @@
             </Platforms>
             <Deployment Version="4">
                 <DeployFile LocalName="Ths.exe" Configuration="Debug" Class="ProjectOutput"/>
-                <DeployFile LocalName="Ths.exe" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName="Ths.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Ths.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>

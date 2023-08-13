@@ -1,23 +1,23 @@
 inherited frmRctReceteHammadde: TfrmRctReceteHammadde
   Caption = 'Re'#231'ete Hammadde'
-  ClientHeight = 243
-  ClientWidth = 344
-  ExplicitWidth = 360
-  ExplicitHeight = 282
+  ClientHeight = 239
+  ClientWidth = 342
+  ExplicitWidth = 358
+  ExplicitHeight = 278
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 344
-    Height = 193
+    Width = 342
+    Height = 189
     ExplicitWidth = 344
     ExplicitHeight = 199
     inherited pgcMain: TPageControl
-      Width = 346
-      Height = 197
+      Width = 344
+      Height = 193
       ExplicitWidth = 342
       ExplicitHeight = 197
       inherited tsMain: TTabSheet
-        ExplicitWidth = 338
-        ExplicitHeight = 169
+        ExplicitWidth = 336
+        ExplicitHeight = 165
         object lblfire_orani: TLabel
           Left = 69
           Top = 75
@@ -160,8 +160,8 @@ inherited frmRctReceteHammadde: TfrmRctReceteHammadde
     end
   end
   inherited pnlBottom: TPanel
-    Top = 195
-    Width = 340
+    Top = 191
+    Width = 338
     ExplicitTop = 203
     ExplicitWidth = 344
     inherited btnAccept: TButton
@@ -174,8 +174,8 @@ inherited frmRctReceteHammadde: TfrmRctReceteHammadde
     end
   end
   inherited stbBase: TStatusBar
-    Top = 225
-    Width = 344
+    Top = 221
+    Width = 342
     ExplicitTop = 233
     ExplicitWidth = 348
   end

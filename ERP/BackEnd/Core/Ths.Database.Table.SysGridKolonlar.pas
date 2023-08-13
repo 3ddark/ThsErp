@@ -33,7 +33,7 @@ type
   protected
     procedure BusinessUpdate(APermissionControl: Boolean); override;
     procedure BusinessDelete(APermissionControl: Boolean); override;
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
   published
     constructor Create(ADatabase: TDatabase); override;
 
@@ -44,7 +44,7 @@ type
 
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
     procedure Delete(APermissionControl: Boolean = True); override;
 
@@ -185,7 +185,7 @@ begin
   end;
 end;
 
-procedure TSysGridKolon.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TSysGridKolon.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -213,9 +213,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
 
     RefreshGlobalGridColWidth;
   finally
@@ -300,7 +298,7 @@ begin
   end;
 end;
 
-procedure TSysGridKolon.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
+procedure TSysGridKolon.BusinessInsert(APermissionControl: Boolean);
 var
   LGridColumn: TSysGridKolon;
   n1: Integer;
@@ -318,7 +316,7 @@ begin
       TSysGridKolon(LGridColumn.List[n1]).Update(False);
     end;
 
-    Insert(AID, APermissionControl);
+    Insert(APermissionControl);
   finally
     FreeAndNil(LGridColumn);
   end;

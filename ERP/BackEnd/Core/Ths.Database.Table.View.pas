@@ -14,12 +14,12 @@ type
     procedure Unlisten(); override;
     procedure Notify(); override;
 
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean = True); override;
+    procedure DoInsert(APermissionControl: Boolean = True); override;
     procedure DoUpdate(APermissionControl: Boolean = True); override;
     procedure Delete(APermissionControl: Boolean = True); override;
 
     function LogicalSelect(AFilter: string; ALock, AWithBegin, APermissionControl: Boolean): Boolean; override;
-    function LogicalInsert(out AID: Integer; AWithBegin, AWithCommit, APermissionControl: Boolean): Boolean; override;
+    function LogicalInsert(AWithBegin, AWithCommit, APermissionControl: Boolean): Boolean; override;
     function LogicalUpdate(AWithCommit, APermissionControl: Boolean): Boolean; override;
     function LogicalDelete(AWithCommit, APermissionControl: Boolean): Boolean; override;
   end;
@@ -49,7 +49,7 @@ begin
   raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
 end;
 
-function TView.LogicalInsert(out AID: Integer; AWithBegin, AWithCommit, APermissionControl: Boolean): Boolean;
+function TView.LogicalInsert(AWithBegin, AWithCommit, APermissionControl: Boolean): Boolean;
 begin
   raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
 end;
@@ -64,7 +64,7 @@ begin
   raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
 end;
 
-procedure TView.DoInsert(out AID: Integer; APermissionControl: Boolean = True);
+procedure TView.DoInsert(APermissionControl: Boolean = True);
 begin
   raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
 end;

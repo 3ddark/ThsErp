@@ -37,7 +37,7 @@ type
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean = True; AAllColumn: Boolean = True; AHelper: Boolean = False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean = True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean = True); override;
+    procedure DoInsert(APermissionControl: Boolean = True); override;
     procedure DoUpdate(APermissionControl: Boolean = True); override;
 
     function Clone: TTable; override;
@@ -46,19 +46,19 @@ type
     property VergiOrani: TFieldDB read FVergiOrani write FVergiOrani;
     property SatisHesapKodu: TFieldDB read FSatisHesapKodu write FSatisHesapKodu;
     property SatisIadeHesapKodu: TFieldDB read FSatisIadeHesapKodu write FSatisIadeHesapKodu;
-    property AlisHesapKodu: TFieldDB read FAlisHesapKodu write FAlisHesapKodu;
-    property AlisIadeHesapKodu: TFieldDB read FAlisIadeHesapKodu write FAlisIadeHesapKodu;
     property IhracatHesapKodu: TFieldDB read FIhracatHesapKodu write FIhracatHesapKodu;
     property IhracatIadeHesapKodu: TFieldDB read FIhracatIadeHesapKodu write FIhracatIadeHesapKodu;
+    property AlisHesapKodu: TFieldDB read FAlisHesapKodu write FAlisHesapKodu;
+    property AlisIadeHesapKodu: TFieldDB read FAlisIadeHesapKodu write FAlisIadeHesapKodu;
     property IthalatHesapKodu: TFieldDB read FIthalatHesapKodu write FIthalatHesapKodu;
     property IthalatIadeHesapKodu: TFieldDB read FIthalatIadeHesapKodu write FIthalatIadeHesapKodu;
     //db alaný deðil
     property SatisHesapAdi: TFieldDB read FSatisHesapAdi write FSatisHesapAdi;
     property SatisIadeHesapAdi: TFieldDB read FSatisIadeHesapAdi write FSatisIadeHesapAdi;
-    property AlisHesapAdi: TFieldDB read FAlisHesapAdi write FAlisHesapAdi;
-    property AlisIadeHesapAdi: TFieldDB read FAlisIadeHesapAdi write FAlisIadeHesapAdi;
     property IhracatHesapAdi: TFieldDB read FIhracatHesapAdi write FIhracatHesapAdi;
     property IhracatIadeHesapAdi: TFieldDB read FIhracatIadeHesapAdi write FIhracatIadeHesapAdi;
+    property AlisHesapAdi: TFieldDB read FAlisHesapAdi write FAlisHesapAdi;
+    property AlisIadeHesapAdi: TFieldDB read FAlisIadeHesapAdi write FAlisIadeHesapAdi;
     property IthalatHesapAdi: TFieldDB read FIthalatHesapAdi write FIthalatHesapAdi;
     property IthalatIadeHesapAdi: TFieldDB read FIthalatIadeHesapAdi write FIthalatIadeHesapAdi;
   end;
@@ -130,14 +130,14 @@ begin
       FIthalatIadeHesapKodu.QryName,
       addfield(CH.TableName, CH.HesapIsmi.FieldName, FIthalatIadeHesapAdi.FieldName, 'ti')
     ], [
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FSatisHesapKodu.FieldName, 'st'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FSatisIadeHesapKodu.FieldName, 'si'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIhracatHesapKodu.FieldName, 'ih'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIhracatIadeHesapKodu.FieldName, 'ii'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FAlisHesapKodu.FieldName, 'al'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FAlisIadeHesapKodu.FieldName, 'ai'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIthalatHesapKodu.FieldName, 'it'),
-      addJoin(jtLeft, CH.TableName, ch.HesapKodu.FieldName, TableName, FIthalatIadeHesapKodu.FieldName, 'ti'),
+      addJoin(jtLeft, CH.TableName, CH.HesapKodu.FieldName, TableName, FSatisHesapKodu.FieldName, 'st'),
+      addJoin(jtLeft, CH.TableName, CH.HesapKodu.FieldName, TableName, FSatisIadeHesapKodu.FieldName, 'si'),
+      addJoin(jtLeft, CH.TableName, CH.HesapKodu.FieldName, TableName, FIhracatHesapKodu.FieldName, 'ih'),
+      addJoin(jtLeft, CH.TableName, CH.HesapKodu.FieldName, TableName, FIhracatIadeHesapKodu.FieldName, 'ii'),
+      addJoin(jtLeft, CH.TableName, CH.HesapKodu.FieldName, TableName, FAlisHesapKodu.FieldName, 'al'),
+      addJoin(jtLeft, CH.TableName, CH.HesapKodu.FieldName, TableName, FAlisIadeHesapKodu.FieldName, 'ai'),
+      addJoin(jtLeft, CH.TableName, CH.HesapKodu.FieldName, TableName, FIthalatHesapKodu.FieldName, 'it'),
+      addJoin(jtLeft, CH.TableName, CH.HesapKodu.FieldName, TableName, FIthalatIadeHesapKodu.FieldName, 'ti'),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
     Open;
@@ -203,7 +203,7 @@ begin
   end;
 end;
 
-procedure TSetChVergiOrani.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TSetChVergiOrani.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -225,9 +225,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;

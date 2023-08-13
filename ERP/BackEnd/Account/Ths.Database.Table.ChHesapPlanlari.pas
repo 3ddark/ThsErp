@@ -18,7 +18,7 @@ type
     FPlanAdi: TFieldDB;
     FSeviye: TFieldDB;
   protected
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
     procedure BusinessUpdate(APermissionControl: Boolean); override;
     procedure BusinessDelete(APermissionControl: Boolean); override;
   published
@@ -26,7 +26,7 @@ type
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -112,7 +112,7 @@ begin
   end;
 end;
 
-procedure TChHesapPlani.DoInsert(out AID: Integer; APermissionControl: Boolean);
+procedure TChHesapPlani.DoInsert(APermissionControl: Boolean);
 var
   LQry: TZQuery;
 begin
@@ -128,9 +128,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Self.Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Self.Id.FieldName).AsInteger
-    else  AID := 0;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -184,7 +182,7 @@ begin
   end;
 end;
 
-procedure TChHesapPlani.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
+procedure TChHesapPlani.BusinessInsert(APermissionControl: Boolean);
 var
   LHesap: TChHesapKarti;
 begin
@@ -204,10 +202,9 @@ begin
     then  LHesap.HesapTipiID.Value := THesapTipi.htAna
     else  LHesap.HesapTipiID.Value := THesapTipi.htSon;
 
-    LHesap.Insert(AID, False);
-    LHesap.Id.Value := AID;
+    LHesap.Insert(False);
 
-    Self.Insert(AID, APermissionControl);
+    Self.Insert(APermissionControl);
   finally
     LHesap.Free;
   end;

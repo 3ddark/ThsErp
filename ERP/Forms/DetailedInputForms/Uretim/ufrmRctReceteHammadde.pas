@@ -64,8 +64,8 @@ implementation
 uses
   Ths.Globals,
   Ths.Constants,
-  Ths.Database.Table.StkStokKarti,
-  ufrmStkStokKartlari,
+  Ths.Database.Table.StkKartlar,
+  ufrmStkKartlar,
   ufrmRctReceteDetaylar;
 
 {$R *.dfm}
@@ -103,8 +103,8 @@ end;
 
 procedure TfrmRctReceteHammadde.HelperProcess(Sender: TObject);
 var
-  LFrm: TfrmStkStokKartlari;
-  LStk: TStkStokKarti;
+  LFrm: TfrmStkKartlar;
+  LStk: TStkKart;
   LRecete: TUrtRecete;
   n1: Integer;
 begin
@@ -114,17 +114,17 @@ begin
     begin
       if TEdit(Sender).Name = edtstok_kodu.Name then
       begin
-        LStk := TStkStokKarti.Create(Table.Database);
-        LFrm := TfrmStkStokKartlari.Create(edtstok_kodu, Self, LStk, fomNormal, True);
+        LStk := TStkKart.Create(Table.Database);
+        LFrm := TfrmStkKartlar.Create(edtstok_kodu, Self, LStk, fomNormal, True);
         try
           LFrm.QryFiltreVarsayilanKullanici := ' AND ' + LStk.StokKodu.QryName + '<>' + QuotedStr(TfrmRctReceteDetaylar(ParentForm).edtrecete_kodu.Text);
           LFrm.ShowModal;
           if LFrm.DataAktar then
           begin
-            edtstok_kodu.Text := TStkStokKarti(LFrm.Table).StokKodu.Value;
-            lblstok_aciklama.Caption := TStkStokKarti(LFrm.Table).StokAdi.Value;
-            lblmiktar_birim.Caption := TStkStokKarti(LFrm.Table).OlcuBirimi.Value;
-            TUrtReceteHammadde(Table).Fiyat.Value := TStkStokKarti(LFrm.Table).AlisFiyat.Value;
+            edtstok_kodu.Text := TStkKart(LFrm.Table).StokKodu.Value;
+            lblstok_aciklama.Caption := TStkKart(LFrm.Table).StokAdi.Value;
+            lblmiktar_birim.Caption := TStkKart(LFrm.Table).OlcuBirimi.Value;
+            TUrtReceteHammadde(Table).Fiyat.Value := TStkKart(LFrm.Table).AlisFiyat.Value;
 
             LRecete := TUrtRecete.Create(GDataBase);
             try

@@ -1012,6 +1012,87 @@ ALTER TABLE public.ch_doviz_kurlari ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
+-- Name: mhs_fis_detaylari; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.mhs_fis_detaylari (
+    id bigint NOT NULL,
+    header_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.mhs_fis_detaylari OWNER TO ths_admin;
+
+--
+-- Name: mhs_fis_detaylari_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.mhs_fis_detaylari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.mhs_fis_detaylari_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: mhs_fisler; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.mhs_fisler (
+    id bigint NOT NULL,
+    yevmiye_no integer NOT NULL,
+    yevmiye_tarihi date
+);
+
+
+ALTER TABLE public.mhs_fisler OWNER TO ths_admin;
+
+--
+-- Name: mhs_fisler_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.mhs_fisler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.mhs_fisler_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: mhs_transfer_kodlari; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.mhs_transfer_kodlari (
+    id bigint NOT NULL,
+    transfer_kodu character varying(32) NOT NULL,
+    aciklama character varying(128) NOT NULL,
+    hesap_kodu character varying(16) NOT NULL
+);
+
+
+ALTER TABLE public.mhs_transfer_kodlari OWNER TO ths_admin;
+
+--
+-- Name: mhs_transfer_kodlari_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.mhs_transfer_kodlari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.mhs_transfer_kodlari_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: prs_lisan_bilgileri; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -1424,10 +1505,10 @@ ALTER TABLE public.urt_recete_paket_iscilikler ALTER COLUMN id ADD GENERATED ALW
 
 
 --
--- Name: sls_invoice_details; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sat_fatura_detaylari; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sls_invoice_details (
+CREATE TABLE public.sat_fatura_detaylari (
     id bigint NOT NULL,
     header_id bigint,
     teklif_detay_id bigint,
@@ -1436,13 +1517,13 @@ CREATE TABLE public.sls_invoice_details (
 );
 
 
-ALTER TABLE public.sls_invoice_details OWNER TO ths_admin;
+ALTER TABLE public.sat_fatura_detaylari OWNER TO ths_admin;
 
 --
 -- Name: sat_fatura_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sls_invoice_details ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sat_fatura_detaylari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sat_fatura_detay_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -1453,10 +1534,10 @@ ALTER TABLE public.sls_invoice_details ALTER COLUMN id ADD GENERATED ALWAYS AS I
 
 
 --
--- Name: sls_invoices; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sat_faturalar; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sls_invoices (
+CREATE TABLE public.sat_faturalar (
     id bigint NOT NULL,
     fatura_no character varying(16),
     fatura_tarihi timestamp without time zone,
@@ -1466,13 +1547,13 @@ CREATE TABLE public.sls_invoices (
 );
 
 
-ALTER TABLE public.sls_invoices OWNER TO ths_admin;
+ALTER TABLE public.sat_faturalar OWNER TO ths_admin;
 
 --
 -- Name: sat_fatura_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sls_invoices ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sat_faturalar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sat_fatura_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -1483,10 +1564,10 @@ ALTER TABLE public.sls_invoices ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
--- Name: sls_dispatch_note_details; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sat_irsaliye_detaylari; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sls_dispatch_note_details (
+CREATE TABLE public.sat_irsaliye_detaylari (
     id bigint NOT NULL,
     header_id bigint,
     teklif_detay_id bigint,
@@ -1495,13 +1576,13 @@ CREATE TABLE public.sls_dispatch_note_details (
 );
 
 
-ALTER TABLE public.sls_dispatch_note_details OWNER TO ths_admin;
+ALTER TABLE public.sat_irsaliye_detaylari OWNER TO ths_admin;
 
 --
 -- Name: sat_irsaliye_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sls_dispatch_note_details ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sat_irsaliye_detaylari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sat_irsaliye_detay_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -1512,10 +1593,10 @@ ALTER TABLE public.sls_dispatch_note_details ALTER COLUMN id ADD GENERATED ALWAY
 
 
 --
--- Name: sls_dispatch_notes; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sat_irsaliyeler; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sls_dispatch_notes (
+CREATE TABLE public.sat_irsaliyeler (
     id bigint NOT NULL,
     irsaliye_no character varying(16),
     irsaliye_tarihi timestamp without time zone,
@@ -1525,13 +1606,13 @@ CREATE TABLE public.sls_dispatch_notes (
 );
 
 
-ALTER TABLE public.sls_dispatch_notes OWNER TO ths_admin;
+ALTER TABLE public.sat_irsaliyeler OWNER TO ths_admin;
 
 --
 -- Name: sat_irsaliye_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sls_dispatch_notes ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sat_irsaliyeler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sat_irsaliye_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -1542,10 +1623,10 @@ ALTER TABLE public.sls_dispatch_notes ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 
 --
--- Name: sls_order_details; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sat_siparis_detaylari; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sls_order_details (
+CREATE TABLE public.sat_siparis_detaylari (
     id bigint NOT NULL,
     header_id bigint,
     teklif_detay_id bigint,
@@ -1580,13 +1661,13 @@ CREATE TABLE public.sls_order_details (
 );
 
 
-ALTER TABLE public.sls_order_details OWNER TO ths_admin;
+ALTER TABLE public.sat_siparis_detaylari OWNER TO ths_admin;
 
 --
 -- Name: sat_siparis_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sls_order_details ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sat_siparis_detaylari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sat_siparis_detay_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -1597,10 +1678,10 @@ ALTER TABLE public.sls_order_details ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 
 --
--- Name: sls_orders; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sls_orders (
+CREATE TABLE public.sat_siparisler (
     id bigint NOT NULL,
     teklif_id bigint,
     irsaliye_id bigint,
@@ -1652,13 +1733,13 @@ CREATE TABLE public.sls_orders (
 );
 
 
-ALTER TABLE public.sls_orders OWNER TO ths_admin;
+ALTER TABLE public.sat_siparisler OWNER TO ths_admin;
 
 --
 -- Name: sat_siparis_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sls_orders ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sat_siparisler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sat_siparis_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -1703,10 +1784,10 @@ CREATE TABLE public.stk_gruplar (
 ALTER TABLE public.stk_gruplar OWNER TO ths_admin;
 
 --
--- Name: stk_stok_kartlari; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: stk_kartlar; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.stk_stok_kartlari (
+CREATE TABLE public.stk_kartlar (
     id bigint NOT NULL,
     is_satilabilir boolean DEFAULT true,
     stok_kodu character varying(32) NOT NULL,
@@ -1735,7 +1816,6 @@ CREATE TABLE public.stk_stok_kartlari (
     diib_urun_tanimi character varying(64),
     en_az_stok_seviyesi double precision DEFAULT 0,
     tanim character varying(384),
-    stok_resim bytea,
     cins_id bigint,
     s1 character varying(32),
     s2 character varying(32),
@@ -1756,7 +1836,7 @@ CREATE TABLE public.stk_stok_kartlari (
 );
 
 
-ALTER TABLE public.stk_stok_kartlari OWNER TO ths_admin;
+ALTER TABLE public.stk_kartlar OWNER TO ths_admin;
 
 --
 -- Name: sys_sehirler; Type: TABLE; Schema: public; Owner: ths_admin
@@ -1794,11 +1874,11 @@ CREATE VIEW public.sat_siparis_rapor AS
     s.aciklama,
     s.referans,
     sd.referans AS referans_satir
-   FROM (((((public.sls_order_details sd
-     LEFT JOIN public.sls_orders s ON ((s.id = sd.header_id)))
+   FROM (((((public.sat_siparis_detaylari sd
+     LEFT JOIN public.sat_siparisler s ON ((s.id = sd.header_id)))
      LEFT JOIN public.sys_sehirler ct ON ((ct.id = s.sehir_id)))
      LEFT JOIN public.set_sls_order_status ss ON ((ss.id = s.siparis_durum_id)))
-     LEFT JOIN public.stk_stok_kartlari stk ON (((stk.stok_kodu)::text = (sd.stok_kodu)::text)))
+     LEFT JOIN public.stk_kartlar stk ON (((stk.stok_kodu)::text = (sd.stok_kodu)::text)))
      LEFT JOIN public.stk_gruplar sg ON ((sg.id = stk.stok_grubu_id)))
   WHERE (1 = 1);
 
@@ -1806,10 +1886,10 @@ CREATE VIEW public.sat_siparis_rapor AS
 ALTER TABLE public.sat_siparis_rapor OWNER TO ths_admin;
 
 --
--- Name: sls_offer_details; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sat_teklif_detaylari; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sls_offer_details (
+CREATE TABLE public.sat_teklif_detaylari (
     id bigint NOT NULL,
     header_id bigint,
     siparis_detay_id bigint,
@@ -1836,13 +1916,13 @@ CREATE TABLE public.sls_offer_details (
 );
 
 
-ALTER TABLE public.sls_offer_details OWNER TO ths_admin;
+ALTER TABLE public.sat_teklif_detaylari OWNER TO ths_admin;
 
 --
 -- Name: sat_teklif_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sls_offer_details ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sat_teklif_detaylari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sat_teklif_detay_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -1853,10 +1933,10 @@ ALTER TABLE public.sls_offer_details ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 
 --
--- Name: sls_offers; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sat_teklifler; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sls_offers (
+CREATE TABLE public.sat_teklifler (
     id bigint NOT NULL,
     siparis_id bigint,
     irsaliye_id bigint,
@@ -1909,13 +1989,13 @@ CREATE TABLE public.sls_offers (
 );
 
 
-ALTER TABLE public.sls_offers OWNER TO ths_admin;
+ALTER TABLE public.sat_teklifler OWNER TO ths_admin;
 
 --
 -- Name: sat_teklif_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sls_offers ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sat_teklifler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sat_teklif_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2559,6 +2639,88 @@ ALTER TABLE public.stk_hareketler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 
 --
+-- Name: stk_kart_ozetleri; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.stk_kart_ozetleri (
+    id bigint NOT NULL,
+    stk_kart_id bigint NOT NULL,
+    stok_miktar numeric(18,6) DEFAULT 0,
+    ortalama_maliyet numeric(18,6) DEFAULT 0,
+    donem_basi_fiyat numeric(18,6) DEFAULT 0,
+    donem_basi_miktar numeric(18,6) DEFAULT 0,
+    donem_basi_tutar numeric(18,6) DEFAULT 0,
+    giren_toplam numeric(18,6) DEFAULT 0,
+    giren_toplam_maliyet numeric(18,6) DEFAULT 0,
+    cikan_toplam numeric(18,6) DEFAULT 0,
+    cikan_toplam_maliyet numeric(18,6) DEFAULT 0,
+    son_alis_fiyat numeric(18,6),
+    son_alis_para character varying(3),
+    son_alis_tarih date,
+    son_alis_miktar numeric(18,6) DEFAULT 0,
+    son_alis_kur numeric(18,6) DEFAULT 0,
+    son_alis_kur_para character varying(3)
+);
+
+
+ALTER TABLE public.stk_kart_ozetleri OWNER TO ths_admin;
+
+--
+-- Name: stk_kart_ozetleri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.stk_kart_ozetleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_kart_ozetleri_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: stk_kartlar_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.stk_kartlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_kartlar_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: stk_resimler; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.stk_resimler (
+    id bigint NOT NULL,
+    stk_kart_id bigint NOT NULL,
+    resim bytea
+);
+
+
+ALTER TABLE public.stk_resimler OWNER TO ths_admin;
+
+--
+-- Name: stk_resimler_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.stk_resimler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_resimler_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: stk_stok_ambar_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
@@ -2578,58 +2740,6 @@ ALTER TABLE public.stk_ambarlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 ALTER TABLE public.stk_gruplar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.stk_stok_grubu_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: stk_stok_karti_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.stk_stok_kartlari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_stok_karti_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: stk_stok_karti_ozetleri; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.stk_stok_karti_ozetleri (
-    id bigint NOT NULL,
-    stok_karti_id bigint NOT NULL,
-    stok_miktar numeric(18,6) DEFAULT 0,
-    donem_basi_miktar numeric(18,6) DEFAULT 0,
-    donem_basi_tutar numeric(18,6) DEFAULT 0,
-    ortalama_maliyet numeric(18,6) DEFAULT 0,
-    giren_toplam numeric(18,6) DEFAULT 0,
-    giren_toplam_maliyet numeric(18,6) DEFAULT 0,
-    cikan_toplam numeric(18,6) DEFAULT 0,
-    cikan_toplam_maliyet numeric(18,6) DEFAULT 0,
-    son_alis_fiyat numeric(18,6),
-    son_alis_para character varying(3),
-    son_alis_tarih date,
-    son_alis_miktar numeric(18,6) DEFAULT 0
-);
-
-
-ALTER TABLE public.stk_stok_karti_ozetleri OWNER TO ths_admin;
-
---
--- Name: stk_stok_ozetleri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.stk_stok_karti_ozetleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_stok_ozetleri_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3455,6 +3565,46 @@ ALTER TABLE ONLY public.ch_hesaplar
 
 
 --
+-- Name: mhs_fis_detaylari mhs_fis_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.mhs_fis_detaylari
+    ADD CONSTRAINT mhs_fis_detaylari_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: mhs_fisler mhs_fisler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.mhs_fisler
+    ADD CONSTRAINT mhs_fisler_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: mhs_fisler mhs_fisler_yevmiye_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.mhs_fisler
+    ADD CONSTRAINT mhs_fisler_yevmiye_no_key UNIQUE (yevmiye_no);
+
+
+--
+-- Name: mhs_transfer_kodlari mhs_transfer_kodlari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.mhs_transfer_kodlari
+    ADD CONSTRAINT mhs_transfer_kodlari_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: mhs_transfer_kodlari mhs_transfer_kodlari_transfer_kodu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.mhs_transfer_kodlari
+    ADD CONSTRAINT mhs_transfer_kodlari_transfer_kodu_key UNIQUE (transfer_kodu);
+
+
+--
 -- Name: prs_lisan_bilgileri prs_lisan_bilgileri_lisan_id_personel_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -3495,75 +3645,75 @@ ALTER TABLE ONLY public.prs_personeller
 
 
 --
--- Name: sls_invoice_details sat_fatura_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_fatura_detaylari sat_fatura_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_invoice_details
-    ADD CONSTRAINT sat_fatura_detay_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_invoices sat_fatura_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_invoices
-    ADD CONSTRAINT sat_fatura_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sat_fatura_detaylari
+    ADD CONSTRAINT sat_fatura_detaylari_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sls_dispatch_note_details sat_irsaliye_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_faturalar sat_faturalar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_dispatch_note_details
-    ADD CONSTRAINT sat_irsaliye_detay_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_dispatch_notes sat_irsaliye_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_dispatch_notes
-    ADD CONSTRAINT sat_irsaliye_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sat_faturalar
+    ADD CONSTRAINT sat_faturalar_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sls_order_details sat_siparis_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_irsaliye_detaylari sat_irsaliye_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_order_details
-    ADD CONSTRAINT sat_siparis_detay_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_orders sat_siparis_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sat_irsaliye_detaylari
+    ADD CONSTRAINT sat_irsaliye_detaylari_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sls_offer_details sat_teklif_detay_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_irsaliyeler sat_irsaliyeler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offer_details
-    ADD CONSTRAINT sat_teklif_detay_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_offers sat_teklif_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sat_irsaliyeler
+    ADD CONSTRAINT sat_irsaliyeler_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sls_offers sat_teklif_teklif_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparis_detaylari sat_siparis_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offers
+ALTER TABLE ONLY public.sat_siparis_detaylari
+    ADD CONSTRAINT sat_siparis_detaylari_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sat_siparisler sat_siparisler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sat_teklif_detaylari sat_teklif_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif_detaylari
+    ADD CONSTRAINT sat_teklif_detaylari_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sat_teklifler sat_teklif_teklif_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
     ADD CONSTRAINT sat_teklif_teklif_no_key UNIQUE (teklif_no);
+
+
+--
+-- Name: sat_teklifler sat_teklifler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_pkey PRIMARY KEY (id);
 
 
 --
@@ -3927,35 +4077,51 @@ ALTER TABLE ONLY public.stk_hareketler
 
 
 --
--- Name: stk_stok_karti_ozetleri stk_stok_karti_ozetleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_kart_ozetleri stk_kart_ozetleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.stk_stok_karti_ozetleri
-    ADD CONSTRAINT stk_stok_karti_ozetleri_pkey PRIMARY KEY (id);
-
-
---
--- Name: stk_stok_kartlari stk_stok_kartlari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_kartlari
-    ADD CONSTRAINT stk_stok_kartlari_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.stk_kart_ozetleri
+    ADD CONSTRAINT stk_kart_ozetleri_pkey PRIMARY KEY (id);
 
 
 --
--- Name: stk_stok_kartlari stk_stok_kartlari_stok_kodu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_kart_ozetleri stk_kart_ozetleri_stk_kart_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.stk_stok_kartlari
-    ADD CONSTRAINT stk_stok_kartlari_stok_kodu_key UNIQUE (stok_kodu);
+ALTER TABLE ONLY public.stk_kart_ozetleri
+    ADD CONSTRAINT stk_kart_ozetleri_stk_kart_id_key UNIQUE (stk_kart_id);
 
 
 --
--- Name: stk_stok_karti_ozetleri stk_stok_ozetleri_stok_karti_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_kartlar stk_kartlar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.stk_stok_karti_ozetleri
-    ADD CONSTRAINT stk_stok_ozetleri_stok_karti_id_key UNIQUE (stok_karti_id);
+ALTER TABLE ONLY public.stk_kartlar
+    ADD CONSTRAINT stk_kartlar_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: stk_kartlar stk_kartlar_stok_kodu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kartlar
+    ADD CONSTRAINT stk_kartlar_stok_kodu_key UNIQUE (stok_kodu);
+
+
+--
+-- Name: stk_resimler stk_resimler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_resimler
+    ADD CONSTRAINT stk_resimler_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: stk_resimler stk_resimler_stk_kart_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_resimler
+    ADD CONSTRAINT stk_resimler_stk_kart_id_key UNIQUE (stk_kart_id);
 
 
 --
@@ -4439,24 +4605,24 @@ ALTER TABLE ONLY public.urt_receteler
 
 
 --
--- Name: idx_sat_siparis_detay_header_id; Type: INDEX; Schema: public; Owner: ths_admin
+-- Name: idx_sat_siparis_detaylari_header_id; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
-CREATE INDEX idx_sat_siparis_detay_header_id ON public.sls_order_details USING btree (header_id);
+CREATE INDEX idx_sat_siparis_detaylari_header_id ON public.sat_siparis_detaylari USING btree (header_id);
 
 
 --
 -- Name: idx_sat_siparis_musteri_kodu; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
-CREATE INDEX idx_sat_siparis_musteri_kodu ON public.sls_orders USING btree (musteri_kodu);
+CREATE INDEX idx_sat_siparis_musteri_kodu ON public.sat_siparisler USING btree (musteri_kodu);
 
 
 --
--- Name: idx_sat_teklif_detay_header_id; Type: INDEX; Schema: public; Owner: ths_admin
+-- Name: idx_sat_teklif_detaylari_header_id; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
-CREATE INDEX idx_sat_teklif_detay_header_id ON public.sls_offer_details USING btree (header_id);
+CREATE INDEX idx_sat_teklif_detaylari_header_id ON public.sat_teklif_detaylari USING btree (header_id);
 
 
 --
@@ -4480,6 +4646,41 @@ CREATE TRIGGER delete_table_lang_content AFTER DELETE ON public.set_prs_birimler
 --
 
 CREATE TRIGGER delete_table_lang_content AFTER DELETE ON public.set_prs_gorevler FOR EACH ROW EXECUTE FUNCTION public.delete_table_lang_content();
+
+
+--
+-- Name: stk_ambarlar notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_ambarlar FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: stk_cins_ozellikleri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_cins_ozellikleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: stk_gruplar notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_gruplar FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: stk_hareketler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_hareketler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: stk_kartlar notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_kartlar FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -4531,6 +4732,27 @@ CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.ch_doviz_ku
 --
 
 CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.ch_hesaplar FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: mhs_fis_detaylari trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.mhs_fis_detaylari FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: mhs_fisler trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.mhs_fisler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: mhs_transfer_kodlari trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.mhs_transfer_kodlari FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -4674,6 +4896,22 @@ ALTER TABLE ONLY public.ch_hesaplar
 
 
 --
+-- Name: mhs_fis_detaylari mhs_fis_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.mhs_fis_detaylari
+    ADD CONSTRAINT mhs_fis_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.mhs_fisler(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: mhs_transfer_kodlari mhs_transfer_kodlari_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.mhs_transfer_kodlari
+    ADD CONSTRAINT mhs_transfer_kodlari_hesap_kodu_fkey FOREIGN KEY (hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: prs_lisan_bilgileri prs_lisan_bilgileri_konusma_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -4770,251 +5008,251 @@ ALTER TABLE ONLY public.prs_personeller
 
 
 --
--- Name: sls_invoice_details sat_fatura_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_fatura_detaylari sat_fatura_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_invoice_details
-    ADD CONSTRAINT sat_fatura_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sls_invoices(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: sls_dispatch_note_details sat_irsaliye_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_dispatch_note_details
-    ADD CONSTRAINT sat_irsaliye_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sls_dispatch_notes(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.sat_fatura_detaylari
+    ADD CONSTRAINT sat_fatura_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sat_faturalar(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: sls_order_details sat_siparis_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_irsaliye_detaylari sat_irsaliye_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_order_details
-    ADD CONSTRAINT sat_siparis_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sls_orders(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: sls_order_details sat_siparis_detay_olcu_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_order_details
-    ADD CONSTRAINT sat_siparis_detay_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_olcu_birimleri(birim) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_irsaliye_detaylari
+    ADD CONSTRAINT sat_irsaliye_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sat_irsaliyeler(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: sls_order_details sat_siparis_detay_referans_ana_urun_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparis_detaylari sat_siparis_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_order_details
-    ADD CONSTRAINT sat_siparis_detay_referans_ana_urun_id_fkey FOREIGN KEY (referans_ana_urun_id) REFERENCES public.sls_order_details(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_order_details sat_siparis_detay_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_order_details
-    ADD CONSTRAINT sat_siparis_detay_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_kartlari(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparis_detaylari
+    ADD CONSTRAINT sat_siparis_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sat_siparisler(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: sls_orders sat_siparis_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparis_detaylari sat_siparis_detaylari_olcu_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_islem_tipi_id_fkey FOREIGN KEY (islem_tipi_id) REFERENCES public.set_einv_fatura_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_orders sat_siparis_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_musteri_kodu_fkey FOREIGN KEY (musteri_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparis_detaylari
+    ADD CONSTRAINT sat_siparis_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_olcu_birimleri(birim) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_orders sat_siparis_musteri_temsilcisi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparis_detaylari sat_siparis_detaylari_referans_ana_urun_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_musteri_temsilcisi_id_fkey FOREIGN KEY (musteri_temsilcisi_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_orders sat_siparis_nakliye_ucreti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_nakliye_ucreti_id_fkey FOREIGN KEY (tasima_ucreti_id) REFERENCES public.set_einv_tasima_ucretleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparis_detaylari
+    ADD CONSTRAINT sat_siparis_detaylari_referans_ana_urun_id_fkey FOREIGN KEY (referans_ana_urun_id) REFERENCES public.sat_siparis_detaylari(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_orders sat_siparis_odeme_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparis_detaylari sat_siparis_detaylari_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_odeme_sekli_id_fkey FOREIGN KEY (odeme_sekli_id) REFERENCES public.set_einv_odeme_sekilleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_orders sat_siparis_paket_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_paket_tipi_id_fkey FOREIGN KEY (paket_tipi_id) REFERENCES public.set_einv_paket_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparis_detaylari
+    ADD CONSTRAINT sat_siparis_detaylari_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_kartlar(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
 
 
 --
--- Name: sls_orders sat_siparis_para_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler sat_siparisler_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_orders sat_siparis_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehirler(id) ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_islem_tipi_id_fkey FOREIGN KEY (islem_tipi_id) REFERENCES public.set_einv_fatura_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_orders sat_siparis_siparis_durum_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler sat_siparisler_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_siparis_durum_id_fkey FOREIGN KEY (siparis_durum_id) REFERENCES public.set_sls_order_status(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_orders sat_siparis_teslim_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_teslim_sekli_id_fkey FOREIGN KEY (teslim_sekli_id) REFERENCES public.set_einv_teslim_sekilleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_musteri_kodu_fkey FOREIGN KEY (musteri_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_orders sat_siparis_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler sat_siparisler_musteri_temsilcisi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_orders
-    ADD CONSTRAINT sat_siparis_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: sls_offer_details sat_teklif_detay_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer_details
-    ADD CONSTRAINT sat_teklif_detay_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sls_offers(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_musteri_temsilcisi_id_fkey FOREIGN KEY (musteri_temsilcisi_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_offer_details sat_teklif_detay_olcu_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler sat_siparisler_nakliye_ucreti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offer_details
-    ADD CONSTRAINT sat_teklif_detay_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_olcu_birimleri(birim) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer_details sat_teklif_detay_referans_ana_urun_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer_details
-    ADD CONSTRAINT sat_teklif_detay_referans_ana_urun_id_fkey FOREIGN KEY (referans_ana_urun_id) REFERENCES public.sls_offer_details(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_nakliye_ucreti_id_fkey FOREIGN KEY (tasima_ucreti_id) REFERENCES public.set_einv_tasima_ucretleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_offer_details sat_teklif_detay_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler sat_siparisler_odeme_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offer_details
-    ADD CONSTRAINT sat_teklif_detay_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_kartlari(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offers sat_teklif_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_islem_tipi_id_fkey FOREIGN KEY (islem_tipi_id) REFERENCES public.set_einv_fatura_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_odeme_sekli_id_fkey FOREIGN KEY (odeme_sekli_id) REFERENCES public.set_einv_odeme_sekilleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_offers sat_teklif_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler sat_siparisler_paket_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_musteri_kodu_fkey FOREIGN KEY (musteri_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offers sat_teklif_musteri_temsilcisi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_musteri_temsilcisi_id_fkey FOREIGN KEY (musteri_temsilcisi_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_paket_tipi_id_fkey FOREIGN KEY (paket_tipi_id) REFERENCES public.set_einv_paket_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_offers sat_teklif_nakliye_ucreti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler sat_siparisler_para_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_nakliye_ucreti_id_fkey FOREIGN KEY (tasima_ucreti_id) REFERENCES public.set_einv_tasima_ucretleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offers sat_teklif_odeme_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_odeme_sekli_id_fkey FOREIGN KEY (odeme_sekli_id) REFERENCES public.set_einv_odeme_sekilleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_offers sat_teklif_paket_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler sat_siparisler_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_paket_tipi_id_fkey FOREIGN KEY (paket_tipi_id) REFERENCES public.set_einv_paket_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offers sat_teklif_para_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehirler(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
--- Name: sls_offers sat_teklif_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler sat_siparisler_siparis_durum_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehirler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offers sat_teklif_teslim_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_teslim_sekli_id_fkey FOREIGN KEY (teslim_sekli_id) REFERENCES public.set_einv_teslim_sekilleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_siparis_durum_id_fkey FOREIGN KEY (siparis_durum_id) REFERENCES public.set_sls_order_status(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_offers sat_teklif_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sat_siparisler sat_siparisler_teslim_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offers
-    ADD CONSTRAINT sat_teklif_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_teslim_sekli_id_fkey FOREIGN KEY (teslim_sekli_id) REFERENCES public.set_einv_teslim_sekilleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_siparisler sat_siparisler_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_siparisler
+    ADD CONSTRAINT sat_siparisler_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: sat_teklif_detaylari sat_teklif_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif_detaylari
+    ADD CONSTRAINT sat_teklif_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sat_teklifler(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sat_teklif_detaylari sat_teklif_detaylari_olcu_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif_detaylari
+    ADD CONSTRAINT sat_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_olcu_birimleri(birim) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklif_detaylari sat_teklif_detaylari_referans_ana_urun_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif_detaylari
+    ADD CONSTRAINT sat_teklif_detaylari_referans_ana_urun_id_fkey FOREIGN KEY (referans_ana_urun_id) REFERENCES public.sat_teklif_detaylari(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklif_detaylari sat_teklif_detaylari_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklif_detaylari
+    ADD CONSTRAINT sat_teklif_detaylari_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_kartlar(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
+
+
+--
+-- Name: sat_teklifler sat_teklifler_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_islem_tipi_id_fkey FOREIGN KEY (islem_tipi_id) REFERENCES public.set_einv_fatura_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklifler sat_teklifler_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_musteri_kodu_fkey FOREIGN KEY (musteri_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklifler sat_teklifler_musteri_temsilcisi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_musteri_temsilcisi_id_fkey FOREIGN KEY (musteri_temsilcisi_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklifler sat_teklifler_nakliye_ucreti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_nakliye_ucreti_id_fkey FOREIGN KEY (tasima_ucreti_id) REFERENCES public.set_einv_tasima_ucretleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklifler sat_teklifler_odeme_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_odeme_sekli_id_fkey FOREIGN KEY (odeme_sekli_id) REFERENCES public.set_einv_odeme_sekilleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklifler sat_teklifler_paket_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_paket_tipi_id_fkey FOREIGN KEY (paket_tipi_id) REFERENCES public.set_einv_paket_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklifler sat_teklifler_para_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklifler sat_teklifler_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehirler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklifler sat_teklifler_teslim_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_teslim_sekli_id_fkey FOREIGN KEY (teslim_sekli_id) REFERENCES public.set_einv_teslim_sekilleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sat_teklifler sat_teklifler_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sat_teklifler
+    ADD CONSTRAINT sat_teklifler_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5166,7 +5404,7 @@ ALTER TABLE ONLY public.stk_hareketler
 --
 
 ALTER TABLE ONLY public.stk_hareketler
-    ADD CONSTRAINT stk_hareketler_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_kartlari(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_hareketler_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_kartlar(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
 
 
 --
@@ -5178,67 +5416,75 @@ ALTER TABLE ONLY public.stk_hareketler
 
 
 --
--- Name: stk_stok_kartlari stk_stok_karlarti_mensei_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_kart_ozetleri stk_kart_ozetleri_stk_kart_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.stk_stok_kartlari
-    ADD CONSTRAINT stk_stok_karlarti_mensei_id_fkey FOREIGN KEY (mensei_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: stk_stok_karti_ozetleri stk_stok_karti_ozetleri_stok_karti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_karti_ozetleri
-    ADD CONSTRAINT stk_stok_karti_ozetleri_stok_karti_id_fkey FOREIGN KEY (stok_karti_id) REFERENCES public.stk_stok_kartlari(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.stk_kart_ozetleri
+    ADD CONSTRAINT stk_kart_ozetleri_stk_kart_id_fkey FOREIGN KEY (stk_kart_id) REFERENCES public.stk_kartlar(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: stk_stok_kartlari stk_stok_kartlari_alis_para_birim_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_kartlar stk_kartlar_alis_para_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.stk_stok_kartlari
-    ADD CONSTRAINT stk_stok_kartlari_alis_para_birim_fkey FOREIGN KEY (alis_para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: stk_stok_kartlari stk_stok_kartlari_cins_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_kartlari
-    ADD CONSTRAINT stk_stok_kartlari_cins_id_fkey FOREIGN KEY (cins_id) REFERENCES public.stk_cins_ozellikleri(id) ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY public.stk_kartlar
+    ADD CONSTRAINT stk_kartlar_alis_para_fkey FOREIGN KEY (alis_para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: stk_stok_kartlari stk_stok_kartlari_ihrac_para_birim_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_kartlar stk_kartlar_cins_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.stk_stok_kartlari
-    ADD CONSTRAINT stk_stok_kartlari_ihrac_para_birim_fkey FOREIGN KEY (ihrac_para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: stk_stok_kartlari stk_stok_kartlari_olcu_birimi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_stok_kartlari
-    ADD CONSTRAINT stk_stok_kartlari_olcu_birimi_id_fkey FOREIGN KEY (olcu_birimi_id) REFERENCES public.sys_olcu_birimleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.stk_kartlar
+    ADD CONSTRAINT stk_kartlar_cins_id_fkey FOREIGN KEY (cins_id) REFERENCES public.stk_cins_ozellikleri(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
--- Name: stk_stok_kartlari stk_stok_kartlari_satis_para_birim_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_kartlar stk_kartlar_ihrac_para_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.stk_stok_kartlari
-    ADD CONSTRAINT stk_stok_kartlari_satis_para_birim_fkey FOREIGN KEY (satis_para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.stk_kartlar
+    ADD CONSTRAINT stk_kartlar_ihrac_para_fkey FOREIGN KEY (ihrac_para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: stk_stok_kartlari stk_stok_kartlari_stok_grubu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_kartlar stk_kartlar_mensei_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.stk_stok_kartlari
-    ADD CONSTRAINT stk_stok_kartlari_stok_grubu_id_fkey FOREIGN KEY (stok_grubu_id) REFERENCES public.stk_gruplar(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.stk_kartlar
+    ADD CONSTRAINT stk_kartlar_mensei_id_fkey FOREIGN KEY (mensei_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_kartlar stk_kartlar_olcu_birimi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kartlar
+    ADD CONSTRAINT stk_kartlar_olcu_birimi_id_fkey FOREIGN KEY (olcu_birimi_id) REFERENCES public.sys_olcu_birimleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_kartlar stk_kartlar_satis_para_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kartlar
+    ADD CONSTRAINT stk_kartlar_satis_para_fkey FOREIGN KEY (satis_para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_kartlar stk_kartlar_stok_grubu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kartlar
+    ADD CONSTRAINT stk_kartlar_stok_grubu_id_fkey FOREIGN KEY (stok_grubu_id) REFERENCES public.stk_gruplar(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_resimler stk_resimler_stk_kart_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_resimler
+    ADD CONSTRAINT stk_resimler_stk_kart_id_fkey FOREIGN KEY (stk_kart_id) REFERENCES public.stk_kartlar(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5374,7 +5620,7 @@ ALTER TABLE ONLY public.urt_paket_hammadde_detaylari
 --
 
 ALTER TABLE ONLY public.urt_paket_hammadde_detaylari
-    ADD CONSTRAINT urt_paket_hammadde_detaylari_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_kartlari(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT urt_paket_hammadde_detaylari_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_kartlar(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5414,7 +5660,7 @@ ALTER TABLE ONLY public.urt_recete_hammaddeler
 --
 
 ALTER TABLE ONLY public.urt_recete_hammaddeler
-    ADD CONSTRAINT urt_recete_hammaddeler_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_stok_kartlari(stok_kodu) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT urt_recete_hammaddeler_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_kartlar(stok_kodu) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5478,7 +5724,7 @@ ALTER TABLE ONLY public.urt_recete_yan_urunler
 --
 
 ALTER TABLE ONLY public.urt_recete_yan_urunler
-    ADD CONSTRAINT urt_recete_yan_urunler_urun_kodu_fkey FOREIGN KEY (urun_kodu) REFERENCES public.stk_stok_kartlari(stok_kodu) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT urt_recete_yan_urunler_urun_kodu_fkey FOREIGN KEY (urun_kodu) REFERENCES public.stk_kartlar(stok_kodu) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5486,7 +5732,7 @@ ALTER TABLE ONLY public.urt_recete_yan_urunler
 --
 
 ALTER TABLE ONLY public.urt_receteler
-    ADD CONSTRAINT urt_receteler_urun_kodu_fkey FOREIGN KEY (urun_kodu) REFERENCES public.stk_stok_kartlari(stok_kodu) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT urt_receteler_urun_kodu_fkey FOREIGN KEY (urun_kodu) REFERENCES public.stk_kartlar(stok_kodu) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

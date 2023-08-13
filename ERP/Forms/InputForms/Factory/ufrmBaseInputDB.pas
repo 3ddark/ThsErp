@@ -131,17 +131,16 @@ end;
 
 procedure TfrmBaseInputDB.btnAcceptClick(Sender: TObject);
 var
-  id, nIndex : integer;
+  nIndex : integer;
   LTable: TTable;
 begin
-  id := 0;
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
 //    if (Table.Database.TranscationIsStarted) then
     begin
       if AcceptBtnDoAction then
       begin
-        if (Table.LogicalInsert(id, True, WithCommitTransaction, False)) then
+        if (Table.LogicalInsert(True, WithCommitTransaction, False)) then
         begin
           if (Self.ParentForm <> nil) then//and (Self.ParentForm.Name = 'frmBaseDBGrid') then
 //          begin

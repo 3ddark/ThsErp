@@ -96,8 +96,8 @@ uses
   ufrmRctReceteHammadde,
   ufrmRctReceteIscilik,
   ufrmRctReceteYanUrun,
-  ufrmStkStokKartlari,
-  Ths.Database.Table.StkStokKarti;
+  ufrmStkKartlar,
+  Ths.Database.Table.StkKartlar;
 
 {$R *.dfm}
 
@@ -416,8 +416,8 @@ end;
 
 procedure TfrmRctReceteDetaylar.HelperProcess(Sender: TObject);
 var
-  LFrmStokKarti: TfrmStkStokKartlari;
-  LStokKarti: TStkStokKarti;
+  LFrmStokKarti: TfrmStkKartlar;
+  LStokKarti: TStkKart;
 begin
   if Sender.ClassType = TEdit then
   begin
@@ -425,15 +425,15 @@ begin
     begin
       if TEdit(Sender).Name = edtrecete_kodu.Name then
       begin
-        LStokKarti := TStkStokKarti.Create(Table.Database);
-        LFrmStokKarti := TfrmStkStokKartlari.Create(TEdit(Sender), Self, LStokKarti, fomNormal, True);
+        LStokKarti := TStkKart.Create(Table.Database);
+        LFrmStokKarti := TfrmStkKartlar.Create(TEdit(Sender), Self, LStokKarti, fomNormal, True);
         LFrmStokKarti.QryFiltreVarsayilanKullanici := ' AND (' + LStokKarti.UrunTipi.FieldName + '=' + Ord(TStkUrunTipi.sutMamul).ToString + ' OR ' +
                                                                  LStokKarti.UrunTipi.FieldName + '=' + Ord(TStkUrunTipi.sutYariMamul).ToString + ')';
         try
           LFrmStokKarti.ShowModal;
 
-          TEdit(Sender).Text := TStkStokKarti(LFrmStokKarti.Table).StokKodu.Value;
-          edtrecete_adi.Text := TStkStokKarti(LFrmStokKarti.Table).StokAdi.Value;
+          TEdit(Sender).Text := TStkKart(LFrmStokKarti.Table).StokKodu.Value;
+          edtrecete_adi.Text := TStkKart(LFrmStokKarti.Table).StokAdi.Value;
         finally
           LFrmStokKarti.Free;
         end;

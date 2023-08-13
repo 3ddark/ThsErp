@@ -1645,7 +1645,7 @@ begin
     if AInitialDir = '' then
       LOpenDialog.InitialDir := '%USERPROFILE%\desktop';
     LOpenDialog.Filter := AFilter;
-    if not LOpenDialog.Execute(Application.Handle) then
+    if LOpenDialog.Execute(Application.Handle) then
     begin
       Result := True;
       AFileName := LOpenDialog.FileName;

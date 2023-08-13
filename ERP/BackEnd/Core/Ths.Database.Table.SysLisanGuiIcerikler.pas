@@ -35,13 +35,13 @@ type
     FTabloAdi: TFieldDB;
     FFormAdi: TFieldDB;
   protected
-    procedure BusinessInsert(out AID: Integer; var APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(out AID: Integer; APermissionControl: Boolean=True); override;
+    procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TSysLisanGuiIcerik.DoInsert(out AID: Integer; APermissionControl: Boolean=True);
+procedure TSysLisanGuiIcerik.DoInsert(APermissionControl: Boolean=True);
 var
   LQry: TZQuery;
 begin
@@ -162,12 +162,7 @@ begin
     PrepareInsertQueryParams(LQry);
 
     Open;
-    if (Fields.Count > 0) and (not Fields.FieldByName(Id.FieldName).IsNull)
-    then  AID := Fields.FieldByName(Id.FieldName).AsInteger
-    else  AID := 0;
-
-    EmptyDataSet;
-    Close;
+    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
     Free;
   end;
@@ -199,7 +194,7 @@ begin
   end;
 end;
 
-procedure TSysLisanGuiIcerik.BusinessInsert(out AID: Integer; var APermissionControl: Boolean);
+procedure TSysLisanGuiIcerik.BusinessInsert(APermissionControl: Boolean);
 var
   LSysGuiContent: TSysLisanGuiIcerik;
   LFilter: string;
@@ -219,7 +214,7 @@ begin
       Update(False)
     end
     else
-      Insert(AID, APermissionControl);
+      Insert(APermissionControl);
   finally
     LSysGuiContent.Free;
   end;

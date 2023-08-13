@@ -3,28 +3,28 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
   Top = 443
   ActiveControl = btnClose
   Caption = 'Ayar Cari Hesap Vergi Oran'#305
-  ClientHeight = 298
+  ClientHeight = 288
   ClientWidth = 539
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
   ExplicitWidth = 553
-  ExplicitHeight = 333
+  ExplicitHeight = 323
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 539
-    Height = 248
+    Height = 238
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 570
-    ExplicitHeight = 340
+    ExplicitWidth = 537
+    ExplicitHeight = 234
     inherited pgcMain: TPageControl
       Width = 539
-      Height = 248
-      ExplicitWidth = 570
-      ExplicitHeight = 340
+      Height = 238
+      ExplicitWidth = 537
+      ExplicitHeight = 234
       inherited tsMain: TTabSheet
         ExplicitWidth = 531
-        ExplicitHeight = 220
+        ExplicitHeight = 210
         object lblalis_iade_hesap_kodu: TLabel
           Left = 35
           Top = 138
@@ -315,28 +315,28 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
           Top = 113
           Width = 90
           Height = 21
-          TabOrder = 3
+          TabOrder = 5
         end
         object edtalis_iade_hesap_kodu: TEdit
           Left = 186
           Top = 135
           Width = 90
           Height = 21
-          TabOrder = 4
+          TabOrder = 6
         end
         object edtihracat_hesap_kodu: TEdit
           Left = 186
           Top = 69
           Width = 90
           Height = 21
-          TabOrder = 5
+          TabOrder = 3
         end
         object edtihracat_iade_hesap_kodu: TEdit
           Left = 186
           Top = 91
           Width = 90
           Height = 21
-          TabOrder = 6
+          TabOrder = 4
         end
         object edtithalat_hesap_kodu: TEdit
           Left = 186
@@ -356,23 +356,23 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
     end
   end
   inherited pnlBottom: TPanel
-    Top = 250
+    Top = 240
     Width = 535
-    ExplicitTop = 342
-    ExplicitWidth = 566
+    ExplicitTop = 236
+    ExplicitWidth = 533
     inherited btnAccept: TButton
       Left = 329
-      ExplicitLeft = 360
+      ExplicitLeft = 327
     end
     inherited btnClose: TButton
       Left = 433
-      ExplicitLeft = 464
+      ExplicitLeft = 431
     end
   end
   inherited stbBase: TStatusBar
-    Top = 280
+    Top = 270
     Width = 539
-    ExplicitTop = 372
-    ExplicitWidth = 570
+    ExplicitTop = 266
+    ExplicitWidth = 537
   end
 end
