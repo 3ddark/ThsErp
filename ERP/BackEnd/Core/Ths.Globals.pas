@@ -7,6 +7,7 @@ uses
   Ths.Constants,
   Ths.Utils.Logger,
   Ths.Helper.ThsList,
+  Ths.Orm.Manager,
   Ths.Database.Table,
   Ths.Database.Table.SysKullanicilar,
   Ths.Database.Table.SysLisanlar,
@@ -67,6 +68,7 @@ uses
   IdHash,
   //#######*****for Indy components*****#######
 
+  ZConnection,
   ZAbstractRODataset,
   ZAbstractDataset,
   ZDataset,
@@ -464,7 +466,7 @@ type
 
   procedure freeInGroupBox(pGroup: TGroupBox);
 
-  procedure CreateExceptionByLang(pMsg, pCode: string; AName: string = '');
+  procedure CreateExceptionByLang(AMsg: string; AName: string = '');
 
 
   /// <summary>
@@ -576,6 +578,7 @@ var
   ///  Database sýnýfýna ulaþýlýyor. Bazý fonksiyonlar burada GetToday GetNow veya runCustomSQL gibi
   /// </summary>
   GDataBase: TDatabase;
+  GEntityManagerMain: TEntityManager;
 
   /// <summary>
   ///  Giriþ yapan kullanýcý bilgilerine bu tablo bilgisinden ulaþalýyor.
@@ -1569,11 +1572,11 @@ end;
 function PermissionTypeAsString(APermissionType: TPermissionType): string;
 begin
   case APermissionType of
-    ptRead: Result := 'OKUMA';
-    ptAddRecord: Result := 'KAYIT EKLEME';
-    ptUpdate: Result := 'GÜNCELLEME';
-    ptDelete: Result := 'KAYIT SÝLME';
-    ptSpeacial: Result := 'ÖZEL HAK';
+    TPermissionType.ptRead: Result := 'OKUMA';
+    TPermissionType.ptAddRecord: Result := 'KAYIT EKLEME';
+    TPermissionType.ptUpdate: Result := 'GÜNCELLEME';
+    TPermissionType.ptDelete: Result := 'KAYIT SÝLME';
+    TPermissionType.ptSpecial: Result := 'ÖZEL HAK';
   end;
 end;
 
@@ -1758,9 +1761,9 @@ begin
   result := nFind;
 end;
 
-procedure CreateExceptionByLang(pMsg, pCode: string; AName: string = '');
+procedure CreateExceptionByLang(AMsg: string; AName: string = '');
 begin
-  raise Exception.Create(TranslateText(pMsg, pCode, LngMsgError, '') + ' ' + AName);
+  raise Exception.Create(System.SysUtils.Trim(AMsg + ' ' + AName));
 end;
 
 function GetSimdikiTarih(date_now: TDate): TStringList;
@@ -2850,6 +2853,7 @@ finalization
 begin
   SetLength(GDosyaUzantilari, 0);
   GDataBase.Free;
+  GEntityManagerMain.DisposeOf;
 
   GSysKullanici.Free;
   GSysOndalikHane.Free;

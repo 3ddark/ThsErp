@@ -17,7 +17,6 @@ uses
 
 type
   TfrmDashboard = class(TfrmBase)
-    pb1: TProgressBar;
     PageControl1: TPageControl;
     tsgeneral: TTabSheet;
     tssales: TTabSheet;
@@ -658,7 +657,7 @@ var
   LAppSetting: TSysUygulamaAyari;
 begin
   LAppSetting := TSysUygulamaAyari.Create(GDataBase);
-  LAppSetting.SelectToList('', False);
+  LAppSetting.LogicalSelect('', False, False, True);
   if LAppSetting.List.Count = 0 then
   begin
     LAppSetting.Clear;

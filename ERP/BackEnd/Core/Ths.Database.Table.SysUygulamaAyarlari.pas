@@ -9,6 +9,7 @@ uses
   System.Variants,
   Vcl.Graphics,
   Data.DB,
+  REST.Json,
   ZDataset,
   Ths.Database,
   Ths.Database.Table,
@@ -16,6 +17,15 @@ uses
   Ths.Database.Table.SysLisanlar;
 
 type
+  TSysUygulamaDigerAyarlar = class
+  private
+    FPathUpdate: string;
+    FPathStokKartiResim: string;
+  public
+    property PathStokKartiResim: string read FPathStokKartiResim write FPathStokKartiResim;
+    property PathUpdate: string read FPathUpdate write FPathUpdate;
+  end;
+
   TSysUygulamaAyari = class(TTable)
   private
     FLogo: TFieldDB;
@@ -42,11 +52,18 @@ type
     FPara: TFieldDB;
     FAdresID: TFieldDB;
     FDigerAyarlar: TFieldDB;
+  protected
+    procedure BusinessSelect(AFilter: string; ALock: Boolean; APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
+    procedure BusinessUpdate(APermissionControl: Boolean); override;
   published
     constructor Create(ADatabase: TDatabase); override;
     destructor Destroy; override;
+
+
   public
     Adres: TSysAdres;
+    DigerAyarlarJSon: TSysUygulamaDigerAyarlar;
 
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
@@ -122,6 +139,7 @@ begin
   FPara := TFieldDB.Create('para', ftString, '', Self, '');
   FAdresID := TFieldDB.Create('adres_id', ftLargeint, 0, Self, '');
   FDigerAyarlar := TFieldDB.Create('diger_ayarlar', ftMemo, '', Self, '');
+  DigerAyarlarJSon := TSysUygulamaDigerAyarlar.Create;
 end;
 
 procedure TSysUygulamaAyari.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -214,8 +232,6 @@ begin
     begin
       PrepareTableClassFromQuery(LQry);
 
-      Adres.SelectToList(' AND ' + Adres.Id.QryName + '=' + AdresID.AsString, False, False);
-
       List.Add(Clone);
 
       Next;
@@ -258,9 +274,6 @@ begin
       FAdresID.FieldName,
       FDigerAyarlar.FieldName
     ]);
-
-    Self.Adres.Insert(False);
-    Self.AdresID.Value := Self.Adres.Id.Value;
 
     PrepareInsertQueryParams(LQry);
 
@@ -323,6 +336,7 @@ end;
 destructor TSysUygulamaAyari.Destroy;
 begin
   Adres.Free;
+  DigerAyarlarJSon.Free;
   inherited;
 end;
 
@@ -330,22 +344,55 @@ function TSysUygulamaAyari.GetAddress: string;
 begin
   Result := '';
   if Adres.Mahalle.Value <> '' then
-    Result := Result + Adres.Mahalle.Value + ' NBH. ';
+    Result := Result + Adres.Mahalle.Value + ' MAH. ';
 
   if Adres.Cadde.Value <> '' then
-    Result := Result + Adres.Cadde.Value + ' RD. ';
+    Result := Result + Adres.Cadde.Value + ' CD. ';
 
   if Adres.Sokak.Value <> '' then
-    Result := Result + Adres.Sokak.Value + ' ST. ';
+    Result := Result + Adres.Sokak.Value + ' SK. ';
 
   if Adres.KapiNo.Value <> '' then
     Result := Result + ' NO: ' + Adres.KapiNo.Value;
+end;
+
+procedure TSysUygulamaAyari.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+begin
+  Self.SelectToList(AFilter, ALock, APermissionControl);
+  if Self.List.Count = 1 then
+  begin
+    if Self.AdresID.AsInt64 > 0 then
+      Self.Adres.SelectToList(' AND ' + Self.Adres.Id.QryName + '=' + Self.AdresID.AsString, ALock, False);
+
+    Self.DigerAyarlarJSon.DisposeOf;
+    Self.DigerAyarlarJSon := TJson.JsonToObject<TSysUygulamaDigerAyarlar>(Self.DigerAyarlar.AsString);
+  end;
+end;
+
+procedure TSysUygulamaAyari.BusinessInsert(APermissionControl: Boolean);
+begin
+  Self.Adres.Insert(False);
+  Self.AdresID.Value := Self.Adres.Id.Value;
+  Self.FDigerAyarlar.Value := TJson.ObjectToJsonString(Self.DigerAyarlarJSon);
+  Self.Insert(APermissionControl);
+end;
+
+procedure TSysUygulamaAyari.BusinessUpdate(APermissionControl: Boolean);
+begin
+  if Self.Adres.Id.AsInt64 > 0 then
+    Self.Adres.Update(False)
+  else
+    Self.Adres.Insert(False);
+  Self.AdresID.Value := Self.Adres.Id.AsInt64;
+  Self.FDigerAyarlar.Value := TJson.ObjectToJsonString(Self.DigerAyarlarJSon);
+  Self.Update(APermissionControl);
 end;
 
 function TSysUygulamaAyari.Clone: TTable;
 begin
   Result := TSysUygulamaAyari.Create(Database);
   CloneClassContent(Self, Result);
+  CloneClassContent(Self.Adres, TSysUygulamaAyari(Result).Adres);
 end;
 
 end.

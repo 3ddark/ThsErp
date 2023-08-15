@@ -2,6 +2,7 @@ inherited frmSatSiparisler: TfrmSatSiparisler
   Caption = 'Sat'#305#351' Siparisler'
   ClientWidth = 805
   ExplicitWidth = 821
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 805

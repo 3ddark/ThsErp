@@ -29,39 +29,39 @@ uses
 
 type
   TfrmGiris = class(TfrmBase)
-    lblUserName: TLabel;
-    lblPassword: TLabel;
-    lblServer: TLabel;
-    lblServerExample: TLabel;
-    lblDatabase: TLabel;
-    lblPortNo: TLabel;
-    lblSaveSettings: TLabel;
-    lblDBUserName: TLabel;
-    lblDBPassword: TLabel;
+    lblkullanici_adi: TLabel;
+    lblkullanici_sifresi: TLabel;
+    lbldb_host: TLabel;
+    lblsuncu_ornek: TLabel;
+    lbldb_adi: TLabel;
+    lbldb_port: TLabel;
+    lblayarlari_kaydet: TLabel;
+    lbldb_kullanici: TLabel;
+    lbldb_kullanici_sifre: TLabel;
     lblprocess_id: TLabel;
     lblprocess_id_val: TLabel;
     lblip_address: TLabel;
     lblip_address_val: TLabel;
-    lblLanguage: TLabel;
-    lblversion: TLabel;
-    lblversion_val: TLabel;
-    lbltheme_name: TLabel;
-    cbbLanguage: TComboBox;
-    cbbtheme_name: TComboBox;
-    edtUserName: TEdit;
-    edtPassword: TEdit;
-    edtDBUserName: TEdit;
-    edtDBPassword: TEdit;
-    edtServer: TEdit;
-    edtDatabase: TEdit;
-    edtPortNo: TEdit;
-    chkSaveSettings: TCheckBox;
+    lbllisan: TLabel;
+    lblversiyon: TLabel;
+    lblversiyon_val: TLabel;
+    lbltema: TLabel;
+    cbblisan: TComboBox;
+    cbbtema: TComboBox;
+    edtkullanici_adi: TEdit;
+    edtkullanici_sifresi: TEdit;
+    edtdb_kullanici: TEdit;
+    edtdb_kullanici_sifre: TEdit;
+    edtdb_host: TEdit;
+    edtdb_adi: TEdit;
+    edtdb_port: TEdit;
+    chkayarlari_kaydet: TCheckBox;
     imglogo: TImage;
     pb1: TProgressBar;
     procedure RefreshLangValue();
-    procedure cbbLanguageChange(Sender: TObject);
-    procedure cbbtheme_nameChange(Sender: TObject);
-    procedure edtUserNameDblClick(Sender: TObject);
+    procedure cbblisanChange(Sender: TObject);
+    procedure cbbtemaChange(Sender: TObject);
+    procedure edtkullanici_adiDblClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject); override;
   private
     ConnSetting: TConnSettings;
@@ -88,6 +88,10 @@ uses
   Ths.Globals,
   Ths.Constants,
 
+  Ths.Orm.Manager,
+  Ths.Orm.Table,
+  Ths.Orm.Table.SysOndalikHaneler,
+  Ths.Orm.Table.SysParaBirimleri,
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.Table.SysKullanicilar,
@@ -130,21 +134,21 @@ var
   end;
 
 begin
-  if (edtUserName.Text <> '') and (edtPassword.Text <> '') then
+  if (edtkullanici_adi.Text <> '') and (edtkullanici_sifresi.Text <> '') then
   begin
     try
       if GDataBase.Connection.Connected then
         GDataBase.Connection.Disconnect;
 
-      ConnSetting.Language := cbbLanguage.Text;
-      ConnSetting.Theme := cbbtheme_name.Text;
-      ConnSetting.SQLServer := edtServer.Text;
-      ConnSetting.DatabaseName := edtDatabase.Text;
-      ConnSetting.DBUserName := edtDBUserName.Text;
-      ConnSetting.DBUserPassword := edtDBPassword.Text;
-      ConnSetting.DBPortNo := StrToIntDef(edtPortNo.Text, 0);
-      ConnSetting.UserName := edtUserName.Text;
-      ConnSetting.UserPass := edtPassword.Text;
+      ConnSetting.Language := cbblisan.Text;
+      ConnSetting.Theme := cbbtema.Text;
+      ConnSetting.SQLServer := edtdb_host.Text;
+      ConnSetting.DatabaseName := edtdb_adi.Text;
+      ConnSetting.DBUserName := edtdb_kullanici.Text;
+      ConnSetting.DBUserPassword := edtdb_kullanici_sifre.Text;
+      ConnSetting.DBPortNo := StrToIntDef(edtdb_port.Text, 0);
+      ConnSetting.UserName := edtkullanici_adi.Text;
+      ConnSetting.UserPass := edtkullanici_sifresi.Text;
 
       AppLanguage := ConnSetting.Language;
 
@@ -154,6 +158,15 @@ begin
                                     ConnSetting.DBUserPassword,
                                     ConnSetting.DBPortNo);
       GDataBase.Connection.Connect;
+
+      GEntityManagerMain := TEntityManager.Create(
+        ConnSetting.SQLServer,
+        ConnSetting.DatabaseName,
+        ConnSetting.DBUserName,
+        ConnSetting.DBUserPassword,
+        GUygulamaAnaDizin + PathDelim + 'lib' + PathDelim + 'libpq.dll',
+        ConnSetting.DBPortNo
+      );
     except
       on E: Exception do
       begin
@@ -163,7 +176,7 @@ begin
       end;
     end;
 
-    if GDataBase.Connection.Connected then
+    if GEntityManagerMain.Connection.Connected then
     begin
       try
         pb1.Max := 11;
@@ -171,7 +184,7 @@ begin
         pb1.Position := 0;
         pb1.Visible := True;
 
-        GDataBase.DateDB := GDataBase.GetToday;
+        GDataBase.DateDB := GEntityManagerMain.GetToday;
         if GSysKullanici = nil then
           GSysKullanici := TSysKullanici.Create(GDataBase);
         if GSysOndalikHane = nil then
@@ -191,7 +204,7 @@ begin
 
         LGuiIcerik := TSysLisanGuiIcerik.Create(GDataBase);
         try
-          LGuiIcerik.SelectToList(' AND ' + LGuiIcerik.Lisan.QryName + '=' + QuotedStr(cbbLanguage.Text), False, False);
+          LGuiIcerik.SelectToList(' AND ' + LGuiIcerik.Lisan.QryName + '=' + QuotedStr(cbblisan.Text), False, False);
           for n1 := 0 to LGuiIcerik.List.Count-1 do
           begin
             LGuiContent.FLisan := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).Lisan.AsString;
@@ -214,13 +227,13 @@ begin
         GSysApplicationSetting.SelectToList('', False, False);
         IncProgress;
 
-        LUserID := Login(edtUserName.Text, edtPassword.Text);
+        LUserID := Login(edtkullanici_adi.Text, edtkullanici_sifresi.Text);
 
 
         if LUserID = -1 then
-          raise Exception.Create(edtUserName.Text + ': böyle bir kullanýcý yok')
+          raise Exception.Create(edtkullanici_adi.Text + ': böyle bir kullanýcý yok')
         else if LUserID = -2 then
-          raise Exception.Create(edtUserName.Text + ' kullanýcýsý aktif deðil!')
+          raise Exception.Create(edtkullanici_adi.Text + ' kullanýcýsý aktif deðil!')
   //        else if vUserID = -3 then
   //          raise Exception.Create(edtUserName.Text + ' kullanýcýsý bu bilgisayardan programý çalýþtýramaz!' + AddLBs(2) +
   //                                 'IP Adres Hatasý' + FERHAT_UYARI)
@@ -238,7 +251,7 @@ begin
 
         GSysKullanici.SelectToList(' AND ' + GSysKullanici.TableName + '.' + GSysKullanici.Id.FieldName + '=' + IntToStr(LUserID), False, False);
         IncProgress;
-        GSysLisan.SelectToList(' AND ' + GSysLisan.TableName + '.' + GSysLisan.Lisan.FieldName + '=' + QuotedStr(cbbLanguage.Text), False, False);
+        GSysLisan.SelectToList(' AND ' + GSysLisan.TableName + '.' + GSysLisan.Lisan.FieldName + '=' + QuotedStr(cbblisan.Text), False, False);
         IncProgress;
         if GSysKullanici.List.Count = 0 then
           raise Exception.Create('Kullanýcý Adý/Þifre tanýmlý deðil veya doðru deðil!');
@@ -253,7 +266,7 @@ begin
 
         ModalResult := mrYes;
 
-        if chkSaveSettings.Checked then
+        if chkayarlari_kaydet.Checked then
           ConnSetting.SaveToFile
         else
           ConnSetting.SaveToFile(True);
@@ -264,21 +277,21 @@ begin
   end;
 end;
 
-procedure TfrmGiris.cbbLanguageChange(Sender: TObject);
+procedure TfrmGiris.cbblisanChange(Sender: TObject);
 begin
   inherited;
-  ConnSetting.Language := cbbLanguage.Text;
+  ConnSetting.Language := cbblisan.Text;
   RefreshLangValue;
 
   Repaint;
 end;
 
-procedure TfrmGiris.cbbtheme_nameChange(Sender: TObject);
+procedure TfrmGiris.cbbtemaChange(Sender: TObject);
 begin
-  TStyleManager.TrySetStyle(cbbtheme_name.Text, False);
+  TStyleManager.TrySetStyle(cbbtema.Text, False);
 end;
 
-procedure TfrmGiris.edtUserNameDblClick(Sender: TObject);
+procedure TfrmGiris.edtkullanici_adiDblClick(Sender: TObject);
 var
   IsBuyuk: Boolean;
 begin
@@ -311,36 +324,36 @@ begin
 
   dm.illogo.GetIcon(0, imglogo.Picture.Icon);
 
-  cbbtheme_name.Clear;
+  cbbtema.Clear;
   for n1 := 0 to Length(TStyleManager.StyleNames)-1 do
-    cbbtheme_name.Items.Add(TStyleManager.StyleNames[n1]);
-  cbbtheme_name.ItemIndex := cbbtheme_name.Items.IndexOf(ConnSetting.Theme);
-  if (cbbtheme_name.Items.Count > 0) and (cbbtheme_name.Text = '') then
-    cbbtheme_name.ItemIndex := 0;
+    cbbtema.Items.Add(TStyleManager.StyleNames[n1]);
+  cbbtema.ItemIndex := cbbtema.Items.IndexOf(ConnSetting.Theme);
+  if (cbbtema.Items.Count > 0) and (cbbtema.Text = '') then
+    cbbtema.ItemIndex := 0;
 
-  if cbbtheme_name.Text <> '' then
-    TStyleManager.TrySetStyle(cbbtheme_name.Text);
+  if cbbtema.Text <> '' then
+    TStyleManager.TrySetStyle(cbbtema.Text);
 
-  edtUserName.CharCase := ecUpperCase;
+  edtkullanici_adi.CharCase := ecUpperCase;
 
   btnAccept.Visible := True;
   btnClose.Visible := True;
   btnDelete.Visible := False;
   btnSpin.Visible := False;
 
-  cbbLanguage.Clear;
-  cbbLanguage.Items.Add(ConnSetting.Language);
+  cbblisan.Clear;
+  cbblisan.Items.Add(ConnSetting.Language);
 
-  {$IFDEF DEBUG}edtUserName.Text := ConnSetting.UserName;{$ELSE}edtUserName.Clear;{$ENDIF}
-  {$IFDEF DEBUG}edtPassword.Text := ConnSetting.UserPass;{$ELSE}edtPassword.Clear;{$ENDIF}
-  edtDBUserName.Text := ConnSetting.DBUserName;
-  edtDBPassword.Text := ConnSetting.DBUserPassword;
-  edtServer.Text := ConnSetting.SQLServer;
-  edtDatabase.Text := ConnSetting.DatabaseName;
-  edtPortNo.Text := ConnSetting.DBPortNo.ToString;
+  {$IFDEF DEBUG}edtkullanici_adi.Text := ConnSetting.UserName;{$ELSE}edtkullanici_adi.Clear;{$ENDIF}
+  {$IFDEF DEBUG}edtkullanici_sifresi.Text := ConnSetting.UserPass;{$ELSE}edtkullanici_sifresi.Clear;{$ENDIF}
+  edtdb_kullanici.Text := ConnSetting.DBUserName;
+  edtdb_kullanici_sifre.Text := ConnSetting.DBUserPassword;
+  edtdb_host.Text := ConnSetting.SQLServer;
+  edtdb_adi.Text := ConnSetting.DatabaseName;
+  edtdb_port.Text := ConnSetting.DBPortNo.ToString;
 
-  cbbLanguage.ItemIndex := cbbLanguage.Items.IndexOf(ConnSetting.Language);
-  cbbLanguageChange(cbbLanguage);
+  cbblisan.ItemIndex := cbblisan.Items.IndexOf(ConnSetting.Language);
+  cbblisanChange(cbblisan);
 end;
 
 procedure TfrmGiris.FormDestroy(Sender: TObject);
@@ -360,15 +373,15 @@ var
 begin
   inherited;
 
-  cbbLanguage.Clear;
+  cbblisan.Clear;
   for n1 := 0 to Langs.LangList.Count-1 do
-    cbbLanguage.Items.Add( Langs.LangList.Strings[n1]);
-  cbbLanguage.ItemIndex := cbbLanguage.Items.IndexOf( ConnSetting.Language );
+    cbblisan.Items.Add( Langs.LangList.Strings[n1]);
+  cbblisan.ItemIndex := cbblisan.Items.IndexOf( ConnSetting.Language );
   RefreshLangValue;
 
 
   lblprocess_id_val.Caption := GetPIDByHWnd(Application.Handle).ToString;
-  lblversion_val.Caption := APP_VERSION;
+  lblversiyon_val.Caption := APP_VERSION;
 
   lblip_address_val.Caption := '';
   LList := GetMACAddress;
@@ -380,22 +393,20 @@ end;
 
 procedure TfrmGiris.RefreshLangValue;
 begin
-  Self.Caption := 'Giriþ';
-
   LoginText.ReadFromFile(ConnSetting.Language);
 
   Caption := LoginText.Title;
-  lblLanguage.Caption := LoginText.Lang;
-  lblUserName.Caption := LoginText.User;
-  lblPassword.Caption := LoginText.UserPass;
-  lblDBUserName.Caption := LoginText.DBUser;
-  lblDBPassword.Caption := LoginText.DBPass;
-  lblServer.Caption := LoginText.Server;
-  lblServerExample.Caption := LoginText.Example;
-  lblDatabase.Caption := LoginText.DBName;
-  lblPortNo.Caption := LoginText.DBPort;
-  lblSaveSettings.Caption := LoginText.SaveSettings;
-  lbltheme_name.Caption := LoginText.ThemeName;
+  lbllisan.Caption := LoginText.Lang;
+  lblkullanici_adi.Caption := LoginText.User;
+  lblkullanici_sifresi.Caption := LoginText.UserPass;
+  lbldb_kullanici.Caption := LoginText.DBUser;
+  lbldb_kullanici_sifre.Caption := LoginText.DBPass;
+  lbldb_host.Caption := LoginText.Server;
+  lblsuncu_ornek.Caption := LoginText.Example;
+  lbldb_adi.Caption := LoginText.DBName;
+  lbldb_port.Caption := LoginText.DBPort;
+  lblayarlari_kaydet.Caption := LoginText.SaveSettings;
+  lbltema.Caption := LoginText.ThemeName;
 end;
 
 procedure TfrmGiris.Repaint;
@@ -408,12 +419,12 @@ begin
   else
     LVisible := True;
 
-  edtDBUserName.Visible := LVisible;
-  edtDBPassword.Visible := LVisible;
-  edtServer.Visible := LVisible;
-  edtDatabase.Visible := LVisible;
-  edtPortNo.Visible := LVisible;
-  chkSaveSettings.Visible := LVisible;
+  edtdb_kullanici.Visible := LVisible;
+  edtdb_kullanici_sifre.Visible := LVisible;
+  edtdb_host.Visible := LVisible;
+  edtdb_adi.Visible := LVisible;
+  edtdb_port.Visible := LVisible;
+  chkayarlari_kaydet.Visible := LVisible;
 end;
 
 end.

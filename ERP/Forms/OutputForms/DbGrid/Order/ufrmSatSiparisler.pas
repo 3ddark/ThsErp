@@ -144,7 +144,7 @@ procedure TfrmSatSiparisler.mniSiparisDurumGuncelleClick(Sender: TObject);
 var
   LSip: TSatSiparis;
 begin
-  if Table.IsAuthorized(ptSpeacial, True, False) then
+  if Table.IsAuthorized(ptSpecial, True, False) then
   begin
     SetSelectedItem;
     LSip := TSatSiparis.Create(GDataBase);
@@ -226,7 +226,7 @@ begin
   end
   else
     CustomMsgDlg('Durum Güncelleme hakkýnýz olmadýðý için bu iþlemi yapamazsýnýz.' + AddLBs(3) +
-                 Table.TableSourceCode + ' ' + PermissionTypeAsString(ptSpeacial), mtInformation, [mbOK], ['Tamam'], mbOK, 'Ýþlem Hakký Bilgilendirme');
+                 Table.TableSourceCode + ' ' + PermissionTypeAsString(ptSpecial), mtInformation, [mbOK], ['Tamam'], mbOK, 'Ýþlem Hakký Bilgilendirme');
 end;
 
 end.

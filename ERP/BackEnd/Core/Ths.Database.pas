@@ -24,7 +24,7 @@ uses
 {$M+}
 
 type
-  TPermissionType = (ptRead, ptAddRecord, ptUpdate, ptDelete, ptSpeacial);
+  TPermissionType = (ptRead, ptAddRecord, ptUpdate, ptDelete, ptSpecial);
 
 type
   TDatabase = class

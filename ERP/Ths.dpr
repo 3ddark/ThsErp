@@ -271,7 +271,12 @@ uses
   Ths.Database.Table.BbkKayit in 'BackEnd\Databank\Ths.Database.Table.BbkKayit.pas',
   ufrmBbkKayitlar in 'Forms\OutputForms\DbGrid\Databank\ufrmBbkKayitlar.pas' {frmBbkKayitlar},
   ufrmBbkKayit in 'Forms\InputForms\Databank\ufrmBbkKayit.pas' {frmBbkKayit},
-  Ths.Database.Table.StkResimler in 'BackEnd\Stock\Ths.Database.Table.StkResimler.pas';
+  Ths.Database.Table.StkResimler in 'BackEnd\Stock\Ths.Database.Table.StkResimler.pas',
+  Ths.Orm.Manager in 'BackEnd\Core\Ths.Orm.Manager.pas',
+  Ths.Orm.Table in 'BackEnd\Core\Ths.Orm.Table.pas',
+  Logger in 'BackEnd\Core\Logger.pas',
+  Ths.Orm.Table.SysOndalikHaneler in 'BackEnd\Core\Ths.Orm.Table.SysOndalikHaneler.pas',
+  Ths.Orm.Table.SysParaBirimleri in 'BackEnd\Core\Ths.Orm.Table.SysParaBirimleri.pas';
 
 {$R *.res}
 
@@ -302,7 +307,7 @@ begin
 
   AddExitProc(MemLeakFix);
 
-  TStyleManager.TrySetStyle('Aqua Light Slate');
+  TStyleManager.TrySetStyle('Lavender Classico');
   Application.Title := 'THS ERP';
   Application.CreateForm(Tdm, dm);
   Application.CreateForm(TfrmDashboard, frmDashboard);

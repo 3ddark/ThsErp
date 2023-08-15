@@ -605,8 +605,6 @@ begin
       end
       else
       begin
-        SetLength(LResim.Resim.Value, Length(Self.Resim.Value));
-        Move(Self.Resim.Value[0], LResim.Resim.Value[0], Length(Self.Resim.Value));
 //        LResim.Resim.Value := Self.Resim.Value;
         LResim.Insert(False);
       end;

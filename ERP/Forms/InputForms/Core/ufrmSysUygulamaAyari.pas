@@ -10,95 +10,94 @@ uses
   Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts,
   Vcl.Menus, Vcl.Samples.Spin, Vcl.Imaging.pngimage, Ths.Helper.BaseTypes,
   Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox, ufrmBase,
-  ufrmBaseInputDB, Vcl.Imaging.jpeg;
+  ufrmBaseInputDB, Vcl.Imaging.jpeg, REST.Json;
 
 type
   TfrmSysUygulamaAyari = class(TfrmBaseInputDB)
-    lbltitle: TLabel;
-    lblphone1: TLabel;
-    lblphone2: TLabel;
-    lblphone3: TLabel;
-    lblfax1: TLabel;
-    lblfax2: TLabel;
+    lblunvan: TLabel;
+    lbltelefon: TLabel;
+    lblfaks: TLabel;
     imglogo: TImage;
-    edttitle: TEdit;
-    edtphone1: TEdit;
-    edtphone2: TEdit;
-    edtphone3: TEdit;
-    edtfax1: TEdit;
-    edtfax2: TEdit;
-    tsother: TTabSheet;
-    lblgrid_color_1: TLabel;
-    edtgrid_color_1: TEdit;
-    lblgrid_color_2: TLabel;
-    edtgrid_color_2: TEdit;
-    lblgrid_color_active: TLabel;
-    edtgrid_color_active: TEdit;
-    lblcrypt_key: TLabel;
-    lblperiod: TLabel;
-    edtperiod: TEdit;
-    lblapp_language: TLabel;
-    lblmail_host_name: TLabel;
-    edtmail_host_name: TEdit;
-    lblmail_host_user: TLabel;
-    edtmail_host_user: TEdit;
-    lblmail_host_pass: TLabel;
-    edtmail_host_pass: TEdit;
-    lblmail_host_smtp_port: TLabel;
-    edtmail_host_smtp_port: TEdit;
-    tsaddress: TTabSheet;
-    lbltax_administration: TLabel;
-    edttax_administration: TEdit;
-    lbltax_number: TLabel;
-    edttax_number: TEdit;
-    lblweb_site: TLabel;
-    edtweb_site: TEdit;
+    edtunvan: TEdit;
+    edttelefon: TEdit;
+    edtfaks: TEdit;
+    tsservis_ayarlari: TTabSheet;
+    lblmail_sunucu: TLabel;
+    edtmail_sunucu: TEdit;
+    lblmail_kullanici: TLabel;
+    edtmail_kullanici: TEdit;
+    lblmail_sifre: TLabel;
+    edtmail_sifre: TEdit;
+    lblmail_smtp_port: TLabel;
+    edtmail_smtp_port: TEdit;
+    tsadres: TTabSheet;
+    lblvergi_dairesi: TLabel;
+    edtvergi_dairesi: TEdit;
+    lblvergi_numarasi: TLabel;
+    edtvergi_numarasi: TEdit;
+    lblweb: TLabel;
+    edtweb: TEdit;
     lblemail: TLabel;
     edtemail: TEdit;
-    lblcountry_id: TLabel;
-    lblcity_id: TLabel;
-    edtcity_id: TEdit;
-    lbldistrict: TLabel;
-    edtdistrict: TEdit;
-    lblneighborhood: TLabel;
-    edtneighborhood: TEdit;
-    lblstreet: TLabel;
-    edtstreet: TEdit;
-    lblbuilding_name: TLabel;
-    edtbuilding_name: TEdit;
-    lbldoor_no: TLabel;
-    edtdoor_no: TEdit;
-    lblpost_code: TLabel;
-    edtpost_code: TEdit;
-    edtcountry_id: TEdit;
-    edtapp_language: TEdit;
-    lblsms_service_provider: TLabel;
-    lblsms_user: TLabel;
-    lblsms_password: TLabel;
-    lblsms_title: TLabel;
-    edtsms_service_provider: TEdit;
-    edtsms_user: TEdit;
-    edtsms_password: TEdit;
-    edtsms_title: TEdit;
-    lblapp_version: TLabel;
-    edtapp_version: TEdit;
+    lblulke_adi: TLabel;
+    lblsehir_id: TLabel;
+    edtsehir_id: TEdit;
+    lblilce: TLabel;
+    edtilce: TEdit;
+    lblmahalle: TLabel;
+    edtmahalle: TEdit;
+    lblsokak: TLabel;
+    edtsokak: TEdit;
+    lblbina_adi: TLabel;
+    edtbina_adi: TEdit;
+    lblkapi_no: TLabel;
+    edtkapi_no: TEdit;
+    lblposta_kodu: TLabel;
+    edtposta_kodu: TEdit;
+    edtulke_adi: TEdit;
+    lblsms_sunucu: TLabel;
+    lblsms_kullanici: TLabel;
+    lblsms_sifre: TLabel;
+    lblsms_baslik: TLabel;
+    edtsms_sunucu: TEdit;
+    edtsms_kullanici: TEdit;
+    edtsms_sifre: TEdit;
+    edtsms_baslik: TEdit;
+    tsdiger: TTabSheet;
+    lblpath_stok_karti_resim: TLabel;
+    lblpath_guncelleme: TLabel;
+    edtpath_stok_karti_resim: TEdit;
+    btnpath_stok_karti_resim: TButton;
+    edtpath_guncelleme: TEdit;
+    btnpath_guncelleme: TButton;
+    tsgorsel: TTabSheet;
+    edtlisan: TEdit;
     edtcrypt_key: TEdit;
-    ts1: TTabSheet;
-    lblpath_stock_image: TLabel;
-    lblpath_update: TLabel;
-    edtpath_stock_image: TEdit;
-    btnpath_stock_image: TButton;
-    edtpath_update: TEdit;
-    btnpath_update: TButton;
+    edtversiyon: TEdit;
+    edtdonem: TEdit;
+    edtgrid_renk_aktif: TEdit;
+    edtgrid_renk_2: TEdit;
+    edtgrid_renk_1: TEdit;
+    lblversiyon: TLabel;
+    lbllisan: TLabel;
+    lbldonem: TLabel;
+    lblcrypt_key: TLabel;
+    lblgrid_renk_aktif: TLabel;
+    lblgrid_renk_2: TLabel;
+    lblgrid_renk_1: TLabel;
+    lblsemt: TLabel;
+    edtsemt: TEdit;
+    lblcadde: TLabel;
+    edtcadde: TEdit;
     procedure imglogoDblClick(Sender: TObject);
-    procedure edtgrid_color_1DblClick(Sender: TObject);
-    procedure edtgrid_color_2DblClick(Sender: TObject);
-    procedure edtgrid_color_activeDblClick(Sender: TObject);
-    procedure edtgrid_color_1Exit(Sender: TObject);
-    procedure edtgrid_color_2Exit(Sender: TObject);
-    procedure edtgrid_color_activeExit(Sender: TObject);
-    procedure btnpath_stock_imageClick(Sender: TObject);
-    procedure btnpath_updateClick(Sender: TObject);
+    procedure edtgrid_renk_1DblClick(Sender: TObject);
+    procedure edtgrid_renk_2DblClick(Sender: TObject);
+    procedure edtgrid_renk_aktifDblClick(Sender: TObject);
+    procedure edtgrid_renk_1Exit(Sender: TObject);
+    procedure edtgrid_renk_2Exit(Sender: TObject);
+    procedure edtgrid_renk_aktifExit(Sender: TObject);
+    procedure btnpath_stok_karti_resimClick(Sender: TObject);
+    procedure btnpath_guncellemeClick(Sender: TObject);
   private
     procedure SetColor(color: TColor; editColor: TEdit);
     procedure DrawEmptyImage();
@@ -131,14 +130,14 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmSysUygulamaAyari.btnpath_stock_imageClick(Sender: TObject);
+procedure TfrmSysUygulamaAyari.btnpath_stok_karti_resimClick(Sender: TObject);
 begin
-  edtpath_stock_image.Text := GetDialogDirectory;
+  edtpath_stok_karti_resim.Text := GetDialogDirectory;
 end;
 
-procedure TfrmSysUygulamaAyari.btnpath_updateClick(Sender: TObject);
+procedure TfrmSysUygulamaAyari.btnpath_guncellemeClick(Sender: TObject);
 begin
-  edtpath_update.Text := GetDialogDirectory;
+  edtpath_guncelleme.Text := GetDialogDirectory;
 end;
 
 procedure TfrmSysUygulamaAyari.DrawEmptyImage;
@@ -162,92 +161,101 @@ begin
   end;
 end;
 
-procedure TfrmSysUygulamaAyari.edtgrid_color_1DblClick(Sender: TObject);
+procedure TfrmSysUygulamaAyari.edtgrid_renk_1DblClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
-    SetColor(GetDialogColor(StrToIntDef(edtgrid_color_1.Text, 0)), edtgrid_color_1);
+    SetColor(GetDialogColor(StrToIntDef(edtgrid_renk_1.Text, 0)), edtgrid_renk_1);
 end;
 
-procedure TfrmSysUygulamaAyari.edtgrid_color_1Exit(Sender: TObject);
+procedure TfrmSysUygulamaAyari.edtgrid_renk_1Exit(Sender: TObject);
 begin
   inherited;
-  SetColor(StrToIntDef(edtgrid_color_1.Text, 0), edtgrid_color_1);
-  edtgrid_color_1.Refresh;
+  SetColor(StrToIntDef(edtgrid_renk_1.Text, 0), edtgrid_renk_1);
+  edtgrid_renk_1.Refresh;
 end;
 
-procedure TfrmSysUygulamaAyari.edtgrid_color_2DblClick(Sender: TObject);
+procedure TfrmSysUygulamaAyari.edtgrid_renk_2DblClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
-    SetColor(GetDialogColor(StrToIntDef(edtgrid_color_2.Text, 0)), edtgrid_color_2);
+    SetColor(GetDialogColor(StrToIntDef(edtgrid_renk_2.Text, 0)), edtgrid_renk_2);
+
 end;
 
-procedure TfrmSysUygulamaAyari.edtgrid_color_2Exit(Sender: TObject);
+procedure TfrmSysUygulamaAyari.edtgrid_renk_2Exit(Sender: TObject);
 begin
   inherited;
-  SetColor(StrToIntDef(edtgrid_color_2.Text, 0), edtgrid_color_2);
-  edtgrid_color_2.Refresh;
+  SetColor(StrToIntDef(edtgrid_renk_2.Text, 0), edtgrid_renk_2);
+  edtgrid_renk_2.Refresh;
 end;
 
-procedure TfrmSysUygulamaAyari.edtgrid_color_activeDblClick(Sender: TObject);
+procedure TfrmSysUygulamaAyari.edtgrid_renk_aktifDblClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
-    SetColor(GetDialogColor(StrToIntDef(edtgrid_color_active.Text, 0)), edtgrid_color_active);
+    SetColor(GetDialogColor(StrToIntDef(edtgrid_renk_aktif.Text, 0)), edtgrid_renk_aktif);
 end;
 
-procedure TfrmSysUygulamaAyari.edtgrid_color_activeExit(Sender: TObject);
+procedure TfrmSysUygulamaAyari.edtgrid_renk_aktifExit(Sender: TObject);
 begin
   inherited;
-  SetColor(StrToIntDef(edtgrid_color_active.Text, 0), edtgrid_color_active);
-  edtgrid_color_active.Repaint;
+  SetColor(StrToIntDef(edtgrid_renk_aktif.Text, 0), edtgrid_renk_aktif);
+  edtgrid_renk_aktif.Repaint;
 end;
 
 procedure TfrmSysUygulamaAyari.FormCreate(Sender: TObject);
 begin
   inherited;
 
-  edttitle.CharCase := ecNormal;
-  edtweb_site.CharCase := ecNormal;
+  edtunvan.CharCase := ecNormal;
+  edtweb.CharCase := ecNormal;
   edtemail.CharCase := ecNormal;
-  edtmail_host_name.CharCase := ecNormal;
-  edtmail_host_user.CharCase := ecNormal;
-  edtmail_host_pass.CharCase := ecNormal;
-  edtapp_language.CharCase := ecNormal;
-  edtapp_version.CharCase := ecNormal;
+  edtmail_sunucu.CharCase := ecNormal;
+  edtmail_kullanici.CharCase := ecNormal;
+  edtmail_sifre.CharCase := ecNormal;
+  edtlisan.CharCase := ecNormal;
+  edtversiyon.CharCase := ecNormal;
 
-  edtsms_service_provider.CharCase := ecNormal;
-  edtsms_user.CharCase := ecNormal;
-  edtsms_password.CharCase := ecNormal;
-  edtsms_title.CharCase := ecNormal;
+  edtsms_sunucu.CharCase := ecNormal;
+  edtsms_kullanici.CharCase := ecNormal;
+  edtsms_sifre.CharCase := ecNormal;
+  edtsms_baslik.CharCase := ecNormal;
 
-  edtpath_stock_image.CharCase := ecNormal;
-  edtpath_update.CharCase := ecNormal;
+  edtpath_stok_karti_resim.CharCase := ecNormal;
+  edtpath_guncelleme.CharCase := ecNormal;
 end;
 
 procedure TfrmSysUygulamaAyari.FormPaint(Sender: TObject);
 begin
   inherited;
-  edtpath_stock_image.ReadOnly := True;
-  edtpath_update.ReadOnly := True;
+  edtpath_stok_karti_resim.ReadOnly := True;
+  edtpath_guncelleme.ReadOnly := True;
 
-  btnpath_stock_image.Enabled := False;
-  btnpath_update.Enabled := False;
+  btnpath_stok_karti_resim.Enabled := False;
+  btnpath_guncelleme.Enabled := False;
 
   if (FormMode = ifmNewRecord) or (FormMode = ifmUpdate) then
   begin
-    btnpath_stock_image.Enabled := True;
-    btnpath_update.Enabled := True;
+    btnpath_stok_karti_resim.Enabled := True;
+    btnpath_guncelleme.Enabled := True;
   end;
 
 end;
 
 procedure TfrmSysUygulamaAyari.FormShow(Sender: TObject);
 begin
-  edtapp_language.OnHelperProcess := HelperProcess;
-  edtcity_id.OnHelperProcess := HelperProcess;
+  edtlisan.OnHelperProcess := HelperProcess;
+  edtsehir_id.OnHelperProcess := HelperProcess;
 
   inherited;
 
-  edtcountry_id.ReadOnly := True;
+  edtulke_adi.ReadOnly := True;
+  edtilce.CharCase := ecUpperCase;
+  edtmahalle.CharCase := ecUpperCase;
+  edtsemt.CharCase := ecUpperCase;
+  edtcadde.CharCase := ecUpperCase;
+  edtsokak.CharCase := ecUpperCase;
+  edtbina_adi.CharCase := ecUpperCase;
+  edtkapi_no.CharCase := ecUpperCase;
+  edtposta_kodu.CharCase := ecUpperCase;
 end;
 
 procedure TfrmSysUygulamaAyari.HelperProcess(Sender: TObject);
@@ -259,7 +267,7 @@ begin
   begin
     if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
     begin
-      if TEdit(Sender).Name = edtcity_id.Name then
+      if TEdit(Sender).Name = edtsehir_id.Name then
       begin
         LFrmCity := TfrmSysSehirler.Create(TEdit(Sender), Self, TSysSehir.Create(Table.Database), fomNormal, True);
         try
@@ -268,12 +276,12 @@ begin
           TSysUygulamaAyari(Table).Adres.SehirID.Value := LFrmCity.Table.Id.Value;
           TEdit(Sender).Text := TSysSehir(LFrmCity.Table).Sehir.Value;
           TSysUygulamaAyari(Table).Adres.FSysSehir.UlkeID.Value := TSysSehir(LFrmCity.Table).UlkeID.Value;
-          edtcountry_id.Text := TSysSehir(LFrmCity.Table).UlkeAdi.Value;
+          edtulke_adi.Text := TSysSehir(LFrmCity.Table).UlkeAdi.Value;
         finally
           LFrmCity.Free;
         end;
       end
-      else if TEdit(Sender).Name = edtapp_language.Name then
+      else if TEdit(Sender).Name = edtlisan.Name then
       begin
         LFrmLang := TfrmSysLisanlar.Create(TEdit(Sender), Self, TSysLisan.Create(Table.Database), fomNormal, True);
         try
@@ -375,51 +383,62 @@ end;
 
 procedure TfrmSysUygulamaAyari.RefreshData;
 begin
-  edttitle.Text := TSysUygulamaAyari(Table).Unvan.AsString;
-  edtphone1.Text := TSysUygulamaAyari(Table).Telefon.AsString;
-  edtfax1.Text := TSysUygulamaAyari(Table).Faks.AsString;
+  edtunvan.Text := TSysUygulamaAyari(Table).Unvan.AsString;
+  edttelefon.Text := TSysUygulamaAyari(Table).Telefon.AsString;
+  edtfaks.Text := TSysUygulamaAyari(Table).Faks.AsString;
 
   LoadImageFromDB(TSysUygulamaAyari(Table).Logo, imglogo);
 
-  edtgrid_color_1.Text := TSysUygulamaAyari(Table).GridRenk1.AsString;
-  edtgrid_color_2.Text := TSysUygulamaAyari(Table).GridRenk2.AsString;
-  edtgrid_color_active.Text := TSysUygulamaAyari(Table).GridRenkAktif.AsString;
+  edtgrid_renk_1.Text := TSysUygulamaAyari(Table).GridRenk1.AsString;
+  edtgrid_renk_2.Text := TSysUygulamaAyari(Table).GridRenk2.AsString;
+  edtgrid_renk_aktif.Text := TSysUygulamaAyari(Table).GridRenkAktif.AsString;
   edtcrypt_key.Text := TSysUygulamaAyari(Table).CryptKey.AsString;
-  edtperiod.Text := TSysUygulamaAyari(Table).Donem.AsString;
-  edtapp_language.Text := TSysUygulamaAyari(Table).Lisan.AsString;
-  edtapp_version.Text := TSysUygulamaAyari(Table).Versiyon.AsString;
+  edtdonem.Text := TSysUygulamaAyari(Table).Donem.AsString;
+  edtlisan.Text := TSysUygulamaAyari(Table).Lisan.AsString;
+  edtversiyon.Text := TSysUygulamaAyari(Table).Versiyon.AsString;
 
-  edtmail_host_name.Text := TSysUygulamaAyari(Table).MailSunucu.AsString;
-  edtmail_host_user.Text := TSysUygulamaAyari(Table).MailKullanici.AsString;
-  edtmail_host_pass.Text := TSysUygulamaAyari(Table).MailSifre.AsString;
-  edtmail_host_smtp_port.Text := TSysUygulamaAyari(Table).MailSmtpPort.AsString;
-  edtsms_service_provider.Text := TSysUygulamaAyari(Table).SmsSunucu.AsString;
-  edtsms_user.Text := TSysUygulamaAyari(Table).SmsKullanici.AsString;
+  edtmail_sunucu.Text := TSysUygulamaAyari(Table).MailSunucu.AsString;
+  edtmail_kullanici.Text := TSysUygulamaAyari(Table).MailKullanici.AsString;
   if FormMode = ifmUpdate then
-    edtsms_password.Text := DecryptStr(TSysUygulamaAyari(Table).SmsSifre.Value, TSysUygulamaAyari(Table).CryptKey.Value)
+  begin
+    if TSysUygulamaAyari(Table).MailSifre.AsString <> '' then
+      edtmail_sifre.Text := DecryptStr(TSysUygulamaAyari(Table).MailSifre.AsString, TSysUygulamaAyari(Table).CryptKey.Value)
+  end
   else
-    edtsms_password.Text := TSysUygulamaAyari(Table).SmsSifre.AsString;
-  edtsms_title.Text := TSysUygulamaAyari(Table).SmsBaslik.AsString;
+    edtmail_sifre.Text := TSysUygulamaAyari(Table).MailSifre.AsString;
+  edtmail_smtp_port.Text := TSysUygulamaAyari(Table).MailSmtpPort.AsString;
+  edtsms_sunucu.Text := TSysUygulamaAyari(Table).SmsSunucu.AsString;
+  edtsms_kullanici.Text := TSysUygulamaAyari(Table).SmsKullanici.AsString;
+  if FormMode = ifmUpdate then
+  begin
+    if TSysUygulamaAyari(Table).SmsSifre.AsString <> '' then
+      edtsms_sifre.Text := DecryptStr(TSysUygulamaAyari(Table).SmsSifre.AsString, TSysUygulamaAyari(Table).CryptKey.Value)
+  end
+  else
+    edtsms_sifre.Text := TSysUygulamaAyari(Table).SmsSifre.AsString;
+  edtsms_baslik.Text := TSysUygulamaAyari(Table).SmsBaslik.AsString;
 
-  edttax_administration.Text := TSysUygulamaAyari(Table).VergiDairesi.AsString;
-  edttax_number.Text := TSysUygulamaAyari(Table).VergiNo.AsString;
-  edtweb_site.Text := TSysUygulamaAyari(Table).Adres.Web.AsString;
+  edtvergi_dairesi.Text := TSysUygulamaAyari(Table).VergiDairesi.AsString;
+  edtvergi_numarasi.Text := TSysUygulamaAyari(Table).VergiNo.AsString;
+  edtweb.Text := TSysUygulamaAyari(Table).Adres.Web.AsString;
   edtemail.Text := TSysUygulamaAyari(Table).Adres.EMail.AsString;
-  edtcountry_id.Text := TSysUygulamaAyari(Table).Adres.UlkeAdi.AsString;
-  edtcity_id.Text := TSysUygulamaAyari(Table).Adres.Sehir.AsString;
-  edtdistrict.Text := TSysUygulamaAyari(Table).Adres.Mahalle.AsString;
-  edtneighborhood.Text := TSysUygulamaAyari(Table).Adres.Cadde.AsString;
-  edtstreet.Text := TSysUygulamaAyari(Table).Adres.Sokak.AsString;
-  edtbuilding_name.Text := TSysUygulamaAyari(Table).Adres.BinaAdi.AsString;
-  edtdoor_no.Text := TSysUygulamaAyari(Table).Adres.KapiNo.AsString;
-  edtpost_code.Text := TSysUygulamaAyari(Table).Adres.PostaKodu.AsString;
+  edtulke_adi.Text := TSysUygulamaAyari(Table).Adres.UlkeAdi.AsString;
+  edtsehir_id.Text := TSysUygulamaAyari(Table).Adres.Sehir.AsString;
+  edtilce.Text := TSysUygulamaAyari(Table).Adres.Ilce.AsString;
+  edtmahalle.Text := TSysUygulamaAyari(Table).Adres.Mahalle.AsString;
+  edtsemt.Text := TSysUygulamaAyari(Table).Adres.Semt.AsString;
+  edtcadde.Text := TSysUygulamaAyari(Table).Adres.Cadde.AsString;
+  edtsokak.Text := TSysUygulamaAyari(Table).Adres.Sokak.AsString;
+  edtbina_adi.Text := TSysUygulamaAyari(Table).Adres.BinaAdi.AsString;
+  edtkapi_no.Text := TSysUygulamaAyari(Table).Adres.KapiNo.AsString;
+  edtposta_kodu.Text := TSysUygulamaAyari(Table).Adres.PostaKodu.AsString;
 
-  SetColor(StrToIntDef(edtgrid_color_1.Text, 0), edtgrid_color_1);
-  SetColor(StrToIntDef(edtgrid_color_2.Text, 0), edtgrid_color_2);
-  SetColor(StrToIntDef(edtgrid_color_active.Text, 0), edtgrid_color_active);
+  SetColor(StrToIntDef(edtgrid_renk_1.Text, 0), edtgrid_renk_1);
+  SetColor(StrToIntDef(edtgrid_renk_2.Text, 0), edtgrid_renk_2);
+  SetColor(StrToIntDef(edtgrid_renk_aktif.Text, 0), edtgrid_renk_aktif);
 
-//  edtpath_stock_image.Text := TSysUygulamaAyariDiger(Table).PathUpdate.AsString;
-//  edtpath_update.Text := TSysUygulamaAyariDiger(Table).PathStockImage.AsString;
+  edtpath_stok_karti_resim.Text := TSysUygulamaAyari(Table).DigerAyarlarJSon.PathStokKartiResim;
+  edtpath_guncelleme.Text := TSysUygulamaAyari(Table).DigerAyarlarJSon.PathUpdate;
 end;
 
 procedure TfrmSysUygulamaAyari.SetColor(color: TColor; editColor: TEdit);
@@ -428,7 +447,7 @@ begin
   editColor.Color := color;
   editColor.thsColorActive := color;
   editColor.thsColorRequiredInput := color;
-  editColor.Repaint;
+  editColor.Refresh;
 end;
 
 function TfrmSysUygulamaAyari.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
@@ -438,16 +457,18 @@ begin
 //  if TSysApplicationSettings(Table).CryptKey.Value <> secrypt_key.Value then
 //    Application.MessageBox()
 
-  if not DirectoryExists(edtpath_stock_image.Text) then
+  if not DirectoryExists(edtpath_stok_karti_resim.Text) then
   begin
-    edtpath_stock_image.SetFocus;
-    CreateExceptionByLang('Please select a valid directory!', '999999', '1');
+    pgcMain.ActivePage := tsdiger;
+    edtpath_stok_karti_resim.SetFocus;
+    CreateExceptionByLang('Lütfen geçerli bir dizin seçin!');
   end;
 
-  if not DirectoryExists(edtpath_update.Text) then
+  if not DirectoryExists(edtpath_guncelleme.Text) then
   begin
-    edtpath_update.SetFocus;
-    CreateExceptionByLang('Please select a valid directory!', '999999', '1');
+    pgcMain.ActivePage := tsdiger;
+    edtpath_guncelleme.SetFocus;
+    CreateExceptionByLang('Lütfen geçerli bir dizin seçin!');
   end;
 end;
 
@@ -457,39 +478,52 @@ begin
   begin
     if ValidateInput(pgcMain) then
     begin
-      TSysUygulamaAyari(Table).Unvan.Value := edttitle.Text;
-      TSysUygulamaAyari(Table).Telefon.Value := edtphone1.Text;
-      TSysUygulamaAyari(Table).Faks.Value := edtfax1.Text;
+      TSysUygulamaAyari(Table).Unvan.Value := edtunvan.Text;
+      TSysUygulamaAyari(Table).Telefon.Value := edttelefon.Text;
+      TSysUygulamaAyari(Table).Faks.Value := edtfaks.Text;
 
       setValueFromImage(TSysUygulamaAyari(Table).Logo, imglogo);
 
-      TSysUygulamaAyari(Table).GridRenk1.Value := edtgrid_color_1.Text;
-      TSysUygulamaAyari(Table).GridRenk2.Value := edtgrid_color_2.Text;
-      TSysUygulamaAyari(Table).GridRenkAktif.Value := edtgrid_color_active.Text;
+      TSysUygulamaAyari(Table).GridRenk1.Value := edtgrid_renk_1.Text;
+      TSysUygulamaAyari(Table).GridRenk2.Value := edtgrid_renk_2.Text;
+      TSysUygulamaAyari(Table).GridRenkAktif.Value := edtgrid_renk_aktif.Text;
       TSysUygulamaAyari(Table).CryptKey.Value := edtcrypt_key.Text;
-      TSysUygulamaAyari(Table).Donem.Value := edtperiod.Text;
-      TSysUygulamaAyari(Table).Lisan.Value := edtapp_language.Text;
-      TSysUygulamaAyari(Table).Versiyon.Value := edtapp_version.Text;
-      TSysUygulamaAyari(Table).MailSunucu.Value := edtmail_host_name.Text;
-      TSysUygulamaAyari(Table).MailKullanici.Value := edtmail_host_user.Text;
-      TSysUygulamaAyari(Table).MailSifre.Value := edtmail_host_pass.Text;
-      TSysUygulamaAyari(Table).MailSmtpPort.Value := edtmail_host_smtp_port.Text;
-      TSysUygulamaAyari(Table).SmsSunucu.Value := edtsms_service_provider.Text;
-      TSysUygulamaAyari(Table).SmsKullanici.Value := edtsms_user.Text;
-      TSysUygulamaAyari(Table).SmsBaslik.Value := edtsms_title.Text;
-      TSysUygulamaAyari(Table).SmsSifre.Value := EncryptStr(edtsms_password.Text, TSysUygulamaAyari(Table).CryptKey.Value);
+      TSysUygulamaAyari(Table).Donem.Value := edtdonem.Text;
+      TSysUygulamaAyari(Table).Lisan.Value := edtlisan.Text;
+      TSysUygulamaAyari(Table).Versiyon.Value := edtversiyon.Text;
 
-      TSysUygulamaAyari(Table).VergiDairesi.Value := edttax_administration.Text;
-      TSysUygulamaAyari(Table).VergiNo.Value := edttax_number.Text;
+      TSysUygulamaAyari(Table).MailSunucu.Value := edtmail_sunucu.Text;
+      TSysUygulamaAyari(Table).MailKullanici.Value := edtmail_kullanici.Text;
+      if edtmail_sifre.Text <> '' then
+        TSysUygulamaAyari(Table).MailSifre.Value := EncryptStr(edtmail_sifre.Text, TSysUygulamaAyari(Table).CryptKey.Value)
+      else
+        TSysUygulamaAyari(Table).MailSifre.Value := '';
+      TSysUygulamaAyari(Table).MailSmtpPort.Value := edtmail_smtp_port.Text;
 
-      TSysUygulamaAyari(Table).Adres.Web.Value := edtweb_site.Text;
+      TSysUygulamaAyari(Table).SmsSunucu.Value := edtsms_sunucu.Text;
+      TSysUygulamaAyari(Table).SmsKullanici.Value := edtsms_kullanici.Text;
+      TSysUygulamaAyari(Table).SmsBaslik.Value := edtsms_baslik.Text;
+      if edtsms_sifre.Text <> '' then
+        TSysUygulamaAyari(Table).SmsSifre.Value := EncryptStr(edtsms_sifre.Text, TSysUygulamaAyari(Table).CryptKey.Value)
+      else
+        TSysUygulamaAyari(Table).SmsSifre.Value := '';
+
+      TSysUygulamaAyari(Table).VergiDairesi.Value := edtvergi_dairesi.Text;
+      TSysUygulamaAyari(Table).VergiNo.Value := edtvergi_numarasi.Text;
+
+      TSysUygulamaAyari(Table).Adres.Web.Value := edtweb.Text;
       TSysUygulamaAyari(Table).Adres.EMail.Value := edtemail.Text;
-      TSysUygulamaAyari(Table).Adres.Mahalle.Value := edtdistrict.Text;
-      TSysUygulamaAyari(Table).Adres.Cadde.Value := edtneighborhood.Text;
-      TSysUygulamaAyari(Table).Adres.Sokak.Value := edtstreet.Text;
-      TSysUygulamaAyari(Table).Adres.BinaAdi.Value := edtbuilding_name.Text;
-      TSysUygulamaAyari(Table).Adres.KapiNo.Value := edtdoor_no.Text;
-      TSysUygulamaAyari(Table).Adres.PostaKodu.Value := edtpost_code.Text;
+      TSysUygulamaAyari(Table).Adres.Ilce.Value := edtilce.Text;
+      TSysUygulamaAyari(Table).Adres.Mahalle.Value := edtmahalle.Text;
+      TSysUygulamaAyari(Table).Adres.Semt.Value := edtsemt.Text;
+      TSysUygulamaAyari(Table).Adres.Cadde.Value := edtcadde.Text;
+      TSysUygulamaAyari(Table).Adres.Sokak.Value := edtsokak.Text;
+      TSysUygulamaAyari(Table).Adres.BinaAdi.Value := edtbina_adi.Text;
+      TSysUygulamaAyari(Table).Adres.KapiNo.Value := edtkapi_no.Text;
+      TSysUygulamaAyari(Table).Adres.PostaKodu.Value := edtposta_kodu.Text;
+
+      TSysUygulamaAyari(Table).DigerAyarlarJSon.PathStokKartiResim := edtpath_stok_karti_resim.Text;
+      TSysUygulamaAyari(Table).DigerAyarlarJSon.PathUpdate := edtpath_guncelleme.Text;
 
       inherited;
     end;

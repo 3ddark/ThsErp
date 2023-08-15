@@ -62,15 +62,6 @@ type
     lblozel_not: TLabel;
     lblikramiye_sayisi: TLabel;
     lblikramiye_tutar: TLabel;
-    lblbina_adi: TLabel;
-    lblsokak: TLabel;
-    lblcadde: TLabel;
-    lblmahalle: TLabel;
-    lblilce: TLabel;
-    lblsehir_id: TLabel;
-    lblulke_id: TLabel;
-    lblposta_kodu: TLabel;
-    lblkapi_no: TLabel;
     lbltel1: TLabel;
     lbltel2: TLabel;
     lblyakin_telefon: TLabel;
@@ -104,13 +95,6 @@ type
     edtikramiye_sayisi: TEdit;
     edtikramiye_tutar: TEdit;
     mmoozel_not: TMemo;
-    edtilce: TEdit;
-    edtmahalle: TEdit;
-    edtcadde: TEdit;
-    edtsokak: TEdit;
-    edtbina_adi: TEdit;
-    edtkapi_no: TEdit;
-    edtposta_kodu: TEdit;
     lblad: TLabel;
     edtad: TEdit;
     lblsoyad: TLabel;
@@ -128,10 +112,26 @@ type
     edtbolum_id: TEdit;
     edtbirim_id: TEdit;
     edtgorev_id: TEdit;
+    lblbina_adi: TLabel;
+    lblsokak: TLabel;
+    lblcadde: TLabel;
+    lblmahalle: TLabel;
+    lblilce: TLabel;
+    lblsehir_id: TLabel;
+    lblulke_id: TLabel;
+    lblkapi_no: TLabel;
+    edtilce: TEdit;
+    edtmahalle: TEdit;
+    edtcadde: TEdit;
+    edtsokak: TEdit;
+    edtbina_adi: TEdit;
+    edtkapi_no: TEdit;
     edtulke_id: TEdit;
     edtsehir_id: TEdit;
-    lblposta_kutusu: TLabel;
-    edtposta_kutusu: TEdit;
+    lblsemt: TLabel;
+    edtsemt: TEdit;
+    edtposta_kodu: TEdit;
+    lblposta_kodu: TLabel;
     procedure pgcMainChange(Sender: TObject);
     procedure cbbcinsiyet_idChange(Sender: TObject);
     procedure cbbmedeni_durumu_idChange(Sender: TObject);
@@ -410,14 +410,15 @@ begin
 
   edtsehir_id.Text := TEmpEmployee(Table).Adres.Sehir.Value;
 
-  edtmahalle.Text := TEmpEmployee(Table).Adres.Mahalle.Value;
-  edtcadde.Text := TEmpEmployee(Table).Adres.Cadde.Value;
-  edtsokak.Text := TEmpEmployee(Table).Adres.Sokak.Value;
-  edtbina_adi.Text := TEmpEmployee(Table).Adres.BinaAdi.Value;
-  edtkapi_no.Text := TEmpEmployee(Table).Adres.KapiNo.Value;
-  edtposta_kutusu.Text := TEmpEmployee(Table).Adres.PostaKutusu.Value;
-  edtposta_kodu.Text := TEmpEmployee(Table).Adres.PostaKodu.Value;
-  edtemail.Text := TEmpEmployee(Table).Adres.Email.Value;
+  edtilce.Text := TEmpEmployee(Table).Adres.Ilce.AsString;
+  edtmahalle.Text := TEmpEmployee(Table).Adres.Mahalle.AsString;
+  edtsemt.Text := TEmpEmployee(Table).Adres.Semt.AsString;
+  edtcadde.Text := TEmpEmployee(Table).Adres.Cadde.AsString;
+  edtsokak.Text := TEmpEmployee(Table).Adres.Sokak.AsString;
+  edtbina_adi.Text := TEmpEmployee(Table).Adres.BinaAdi.AsString;
+  edtkapi_no.Text := TEmpEmployee(Table).Adres.KapiNo.AsString;
+  edtposta_kodu.Text := TEmpEmployee(Table).Adres.PostaKodu.AsString;
+  edtemail.Text := TEmpEmployee(Table).Adres.Email.AsString;
 
   edttel1.Text := TEmpEmployee(Table).Tel1.Value;
   edttel2.Text := TEmpEmployee(Table).Tel2.Value;
@@ -486,12 +487,13 @@ begin
         TEmpEmployee(Table).TasimaServisID.Value := 0;
 
       //country and city data take from helper form
+      TEmpEmployee(Table).Adres.Ilce.Value := edtilce.Text;
       TEmpEmployee(Table).Adres.Mahalle.Value := edtmahalle.Text;
+      TEmpEmployee(Table).Adres.Semt.Value := edtsemt.Text;
       TEmpEmployee(Table).Adres.Cadde.Value := edtcadde.Text;
       TEmpEmployee(Table).Adres.Sokak.Value := edtsokak.Text;
       TEmpEmployee(Table).Adres.BinaAdi.Value := edtbina_adi.Text;
       TEmpEmployee(Table).Adres.KapiNo.Value := edtkapi_no.Text;
-      TEmpEmployee(Table).Adres.PostaKutusu.Value := edtposta_kutusu.Text;
       TEmpEmployee(Table).Adres.PostaKodu.Value := edtposta_kodu.Text;
       TEmpEmployee(Table).Adres.Email.Value := edtemail.Text;
 

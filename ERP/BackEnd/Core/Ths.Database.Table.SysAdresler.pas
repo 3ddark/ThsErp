@@ -20,12 +20,13 @@ type
     FUlkeAdi: TFieldDB;
     FSehirId: TFieldDB;
     FSehir: TFieldDB;
+    FIlce: TFieldDB;
     FMahalle: TFieldDB;
+    FSemt: TFieldDB;
     FCadde: TFieldDB;
     FSokak: TFieldDB;
     FBinaAdi: TFieldDB;
     FKapiNo: TFieldDB;
-    FPostaKutusu: TFieldDB;
     FPostaKodu: TFieldDB;
     FWeb: TFieldDB;
     FEmail: TFieldDB;
@@ -47,12 +48,13 @@ type
     Property UlkeAdi: TFieldDB read FUlkeAdi write FUlkeAdi;
     Property SehirId: TFieldDB read FSehirId write FSehirId;
     Property Sehir: TFieldDB read FSehir write FSehir;
+    Property Ilce: TFieldDB read FIlce write FIlce;
     Property Mahalle: TFieldDB read FMahalle write FMahalle;
+    Property Semt: TFieldDB read FSemt write FSemt;
     Property Cadde: TFieldDB read FCadde write FCadde;
     Property Sokak: TFieldDB read FSokak write FSokak;
     Property BinaAdi: TFieldDB read FBinaAdi write FBinaAdi;
     Property KapiNo: TFieldDB read FKapiNo write FKapiNo;
-    Property PostaKutusu: TFieldDB read FPostaKutusu write FPostaKutusu;
     Property PostaKodu: TFieldDB read FPostaKodu write FPostaKodu;
     Property Web: TFieldDB read FWeb write FWeb;
     Property Email: TFieldDB read FEmail write FEmail;
@@ -77,12 +79,13 @@ begin
   FUlkeAdi := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, FSysSehir.UlkeAdi.Value, Self, 'Ülke Adý');
   FSehirId := TFieldDB.Create('sehir_id', ftLargeint, 0, Self, 'Þehir ID');
   FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, FSysSehir.Sehir.Value, Self, 'Þehir');
+  FIlce := TFieldDB.Create('ilce', ftWideString, '', Self, 'Ýlçe');
   FMahalle := TFieldDB.Create('mahalle', ftWideString, '', Self, 'Mahalle');
+  FSemt := TFieldDB.Create('semt', ftWideString, '', Self, 'Semt');
   FCadde := TFieldDB.Create('cadde', ftWideString, '', Self, 'Cadde');
   FSokak := TFieldDB.Create('sokak', ftWideString, '', Self, 'Sokak');
   FBinaAdi := TFieldDB.Create('bina_adi', ftWideString, '', Self, 'Bina Adý');
   FKapiNo := TFieldDB.Create('kapi_no', ftWideString, '', Self, 'Kapý No');
-  FPostaKutusu := TFieldDB.Create('posta_kutusu', ftWideString, '', Self, 'Posta Kutusu');
   FPostaKodu := TFieldDB.Create('posta_kodu', ftWideString, '', Self, 'Posta Kodu');
   FWeb := TFieldDB.Create('web', ftWideString, '', Self, 'Web');
   FEmail := TFieldDB.Create('email', ftWideString, '', Self, 'Email');
@@ -109,12 +112,13 @@ begin
       addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
       FSehirId.QryName,
       addField(FSysSehir.TableName, FSysSehir.Sehir.FieldName, FSehir.FieldName),
+      FIlce.QryName,
       FMahalle.QryName,
+      FSemt.QryName,
       FCadde.QryName,
       FSokak.QryName,
       FBinaAdi.QryName,
       FKapiNo.QryName,
-      FPostaKutusu.QryName,
       FPostaKodu.QryName,
       FWeb.QryName,
       FEmail.QryName
@@ -145,12 +149,13 @@ begin
       addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
       FSehirId.QryName,
       addField(FSysSehir.TableName, FSysSehir.Sehir.FieldName, FSehir.FieldName),
+      FIlce.QryName,
       FMahalle.QryName,
+      FSemt.QryName,
       FCadde.QryName,
       FSokak.QryName,
       FBinaAdi.QryName,
       FKapiNo.QryName,
-      FPostaKutusu.QryName,
       FPostaKodu.QryName,
       FWeb.QryName,
       FEmail.QryName
@@ -185,12 +190,13 @@ begin
   try
     SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
       FSehirId.FieldName,
+      FIlce.FieldName,
       FMahalle.FieldName,
+      FSemt.FieldName,
       FCadde.FieldName,
       FSokak.FieldName,
       FBinaAdi.FieldName,
       FKapiNo.FieldName,
-      FPostaKutusu.FieldName,
       FPostaKodu.FieldName,
       FWeb.FieldName,
       FEmail.FieldName
@@ -214,12 +220,13 @@ begin
   try
     SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
       FSehirId.FieldName,
+      FIlce.FieldName,
       FMahalle.FieldName,
+      FSemt.FieldName,
       FCadde.FieldName,
       FSokak.FieldName,
       FBinaAdi.FieldName,
       FKapiNo.FieldName,
-      FPostaKutusu.FieldName,
       FPostaKodu.FieldName,
       FWeb.FieldName,
       FEmail.FieldName

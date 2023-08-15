@@ -6,9 +6,10 @@ inherited frmSysLisanGuiIcerik: TfrmSysLisanGuiIcerik
   ClientHeight = 247
   ClientWidth = 433
   ParentFont = True
-  ExplicitWidth = 449
-  ExplicitHeight = 286
-  TextHeight = 15
+  ExplicitWidth = 439
+  ExplicitHeight = 276
+  PixelsPerInch = 96
+  TextHeight = 13
   inherited pnlMain: TPanel
     Width = 433
     Height = 197
@@ -17,11 +18,12 @@ inherited frmSysLisanGuiIcerik: TfrmSysLisanGuiIcerik
     ExplicitWidth = 441
     ExplicitHeight = 213
     inherited pgcMain: TPageControl
-      Width = 435
-      Height = 201
-      ExplicitWidth = 435
-      ExplicitHeight = 201
+      Width = 433
+      Height = 197
+      ExplicitWidth = 433
+      ExplicitHeight = 197
       inherited tsMain: TTabSheet
+        ExplicitLeft = 0
         ExplicitTop = 26
         ExplicitWidth = 427
         ExplicitHeight = 171

@@ -3,28 +3,33 @@ inherited frmHesapKarti: TfrmHesapKarti
   Top = 443
   ActiveControl = btnClose
   Caption = 'Hesap Kart'#305
-  ClientHeight = 358
+  ClientHeight = 374
   ClientWidth = 687
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 703
-  ExplicitHeight = 397
+  ExplicitWidth = 693
+  ExplicitHeight = 403
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 687
-    Height = 308
+    Height = 324
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 689
-    ExplicitHeight = 312
+    ExplicitWidth = 687
+    ExplicitHeight = 308
     inherited pgcMain: TPageControl
-      Width = 689
-      Height = 312
+      Width = 687
+      Height = 324
+      ActivePage = tsAdres
       OnChange = pgcMainChange
-      ExplicitWidth = 689
-      ExplicitHeight = 312
+      ExplicitWidth = 687
+      ExplicitHeight = 308
       inherited tsMain: TTabSheet
-        ExplicitWidth = 681
-        ExplicitHeight = 284
+        Caption = 'Genel'
+        ExplicitLeft = 4
+        ExplicitTop = 24
+        ExplicitWidth = 679
+        ExplicitHeight = 280
         object lblhesap_kodu: TLabel
           Left = 76
           Top = 25
@@ -501,25 +506,10 @@ inherited frmHesapKarti: TfrmHesapKarti
       object tsAdres: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
-        object lblposta_kutusu: TLabel
-          Left = 412
-          Top = 201
-          Width = 76
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Posta Kutusu'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
+        ExplicitHeight = 280
         object lblbina_adi: TLabel
           Left = 120
-          Top = 201
+          Top = 230
           Width = 26
           Height = 13
           Alignment = taRightJustify
@@ -535,7 +525,7 @@ inherited frmHesapKarti: TfrmHesapKarti
         end
         object lblsokak: TLabel
           Left = 109
-          Top = 179
+          Top = 207
           Width = 37
           Height = 13
           Alignment = taRightJustify
@@ -551,7 +541,7 @@ inherited frmHesapKarti: TfrmHesapKarti
         end
         object lblcadde: TLabel
           Left = 109
-          Top = 157
+          Top = 184
           Width = 37
           Height = 13
           Alignment = taRightJustify
@@ -567,7 +557,7 @@ inherited frmHesapKarti: TfrmHesapKarti
         end
         object lblmahalle: TLabel
           Left = 101
-          Top = 135
+          Top = 138
           Width = 45
           Height = 13
           Alignment = taRightJustify
@@ -583,7 +573,7 @@ inherited frmHesapKarti: TfrmHesapKarti
         end
         object lblilce: TLabel
           Left = 124
-          Top = 113
+          Top = 115
           Width = 22
           Height = 13
           Alignment = taRightJustify
@@ -599,7 +589,7 @@ inherited frmHesapKarti: TfrmHesapKarti
         end
         object lblsehir_id: TLabel
           Left = 116
-          Top = 91
+          Top = 92
           Width = 30
           Height = 13
           Alignment = taRightJustify
@@ -631,7 +621,7 @@ inherited frmHesapKarti: TfrmHesapKarti
         end
         object lblposta_kodu: TLabel
           Left = 422
-          Top = 223
+          Top = 253
           Width = 66
           Height = 13
           Alignment = taRightJustify
@@ -647,7 +637,7 @@ inherited frmHesapKarti: TfrmHesapKarti
         end
         object lblkapi_no: TLabel
           Left = 100
-          Top = 223
+          Top = 253
           Width = 46
           Height = 13
           Alignment = taRightJustify
@@ -661,61 +651,102 @@ inherited frmHesapKarti: TfrmHesapKarti
           ParentBiDiMode = False
           ParentFont = False
         end
+        object lblsemt: TLabel
+          Left = 117
+          Top = 161
+          Width = 29
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Semt'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblweb_site: TLabel
+          Left = 426
+          Top = 69
+          Width = 62
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Web Sitesi'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblemail: TLabel
+          Left = 404
+          Top = 92
+          Width = 84
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'E-Posta Adresi'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
         object edtilce: TEdit
           Left = 150
-          Top = 110
-          Width = 180
-          Height = 21
-          TabOrder = 2
-        end
-        object edtmahalle: TEdit
-          Left = 150
-          Top = 132
-          Width = 180
-          Height = 21
-          TabOrder = 3
-        end
-        object edtcadde: TEdit
-          Left = 150
-          Top = 154
+          Top = 112
           Width = 180
           Height = 21
           TabOrder = 4
         end
-        object edtsokak: TEdit
+        object edtmahalle: TEdit
           Left = 150
-          Top = 176
+          Top = 135
           Width = 180
           Height = 21
           TabOrder = 5
         end
-        object edtbina_adi: TEdit
+        object edtcadde: TEdit
           Left = 150
-          Top = 198
-          Width = 180
-          Height = 21
-          TabOrder = 6
-        end
-        object edtkapi_no: TEdit
-          Left = 150
-          Top = 220
-          Width = 180
-          Height = 21
-          TabOrder = 8
-        end
-        object edtposta_kutusu: TEdit
-          Left = 492
-          Top = 198
+          Top = 181
           Width = 180
           Height = 21
           TabOrder = 7
         end
-        object edtposta_kodu: TEdit
-          Left = 492
-          Top = 220
+        object edtsokak: TEdit
+          Left = 150
+          Top = 204
+          Width = 180
+          Height = 21
+          TabOrder = 8
+        end
+        object edtbina_adi: TEdit
+          Left = 150
+          Top = 227
           Width = 180
           Height = 21
           TabOrder = 9
+        end
+        object edtkapi_no: TEdit
+          Left = 150
+          Top = 250
+          Width = 180
+          Height = 21
+          TabOrder = 10
+        end
+        object edtposta_kodu: TEdit
+          Left = 492
+          Top = 250
+          Width = 180
+          Height = 21
+          TabOrder = 11
         end
         object edtulke_id: TEdit
           Left = 150
@@ -726,15 +757,37 @@ inherited frmHesapKarti: TfrmHesapKarti
         end
         object edtsehir_id: TEdit
           Left = 150
-          Top = 88
+          Top = 89
+          Width = 180
+          Height = 21
+          TabOrder = 2
+        end
+        object edtsemt: TEdit
+          Left = 150
+          Top = 158
+          Width = 180
+          Height = 21
+          TabOrder = 6
+        end
+        object edtweb_site: TEdit
+          Left = 492
+          Top = 66
           Width = 180
           Height = 21
           TabOrder = 1
+        end
+        object edtemail: TEdit
+          Left = 492
+          Top = 89
+          Width = 180
+          Height = 21
+          TabOrder = 3
         end
       end
       object tsIletisim: TTabSheet
         Caption = #304'leti'#351'im'
         ImageIndex = 2
+        ExplicitHeight = 280
         object lblyetkili2: TLabel
           Left = 75
           Top = 91
@@ -775,38 +828,6 @@ inherited frmHesapKarti: TfrmHesapKarti
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Faks'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblweb_site: TLabel
-          Left = 84
-          Top = 179
-          Width = 62
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Web Sitesi'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblemail: TLabel
-          Left = 62
-          Top = 201
-          Width = 84
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'E-Posta Adresi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -992,13 +1013,6 @@ inherited frmHesapKarti: TfrmHesapKarti
           Height = 21
           TabOrder = 6
         end
-        object edtweb_site: TEdit
-          Left = 150
-          Top = 176
-          Width = 180
-          Height = 21
-          TabOrder = 8
-        end
         object edtmuhasebe_telefon: TEdit
           Left = 492
           Top = 154
@@ -1006,55 +1020,48 @@ inherited frmHesapKarti: TfrmHesapKarti
           Height = 21
           TabOrder = 7
         end
-        object edtemail: TEdit
-          Left = 150
-          Top = 198
-          Width = 180
-          Height = 21
-          TabOrder = 10
-        end
         object edtmuhasebe_eposta: TEdit
           Left = 492
           Top = 176
           Width = 180
           Height = 21
-          TabOrder = 9
+          TabOrder = 8
         end
         object edtmuhasebe_yetkili: TEdit
           Left = 492
           Top = 198
           Width = 180
           Height = 21
-          TabOrder = 11
+          TabOrder = 9
         end
         object mmoozel_bilgi: TMemo
           Left = 150
           Top = 242
           Width = 522
           Height = 21
-          TabOrder = 12
+          TabOrder = 10
         end
       end
     end
   end
   inherited pnlBottom: TPanel
-    Top = 310
+    Top = 326
     Width = 683
-    ExplicitTop = 314
-    ExplicitWidth = 685
+    ExplicitTop = 310
+    ExplicitWidth = 683
     inherited btnAccept: TButton
-      Left = 479
-      ExplicitLeft = 479
+      Left = 477
+      ExplicitLeft = 477
     end
     inherited btnClose: TButton
-      Left = 583
-      ExplicitLeft = 583
+      Left = 581
+      ExplicitLeft = 581
     end
   end
   inherited stbBase: TStatusBar
-    Top = 340
+    Top = 356
     Width = 687
-    ExplicitTop = 344
-    ExplicitWidth = 689
+    ExplicitTop = 340
+    ExplicitWidth = 687
   end
 end

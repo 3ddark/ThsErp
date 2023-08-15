@@ -900,7 +900,7 @@ begin
       vDelete := True;
     end;
 
-    if Table.IsAuthorized(ptSpeacial, True, False) then
+    if Table.IsAuthorized(ptSpecial, True, False) then
     begin
       //enable special property
       Result := True;

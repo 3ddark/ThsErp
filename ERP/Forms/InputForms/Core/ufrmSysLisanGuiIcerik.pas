@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  Ths.Database.Table.SysLisanGuiIcerikler;
+  Ths.Database.Table.SysLisanGuiIcerikler, Ths.Globals;
 
 {$R *.dfm}
 
@@ -77,8 +77,8 @@ begin
   cbbtable_name.CharCase := ecNormal;
   edtform_name.CharCase := ecNormal;
 
-  FSysLang := TSysLisan.Create(Table.Database);
-  FSysViewTables := TSysViewTables.Create(Table.Database);
+  FSysLang := TSysLisan.Create(GDatabase);
+  FSysViewTables := TSysViewTables.Create(GDatabase);
 
   fillComboBoxData(cbblang, FSysLang, [FSysLang.Lisan.FieldName], '');
   fillComboBoxData(cbbtable_name, FSysViewTables, [FSysViewTables.TableName1.FieldName], '');

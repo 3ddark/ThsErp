@@ -1,28 +1,28 @@
 inherited frmBaseInputDB: TfrmBaseInputDB
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  ClientHeight = 398
   Constraints.MinHeight = 150
   Constraints.MinWidth = 350
-  ExplicitHeight = 437
+  ExplicitWidth = 612
+  ExplicitHeight = 427
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
-    Height = 348
-    ExplicitHeight = 352
+    ExplicitHeight = 348
     inherited pgcMain: TPageControl
-      Height = 352
-      ExplicitHeight = 352
       inherited tsMain: TTabSheet
-        ExplicitHeight = 324
+        Caption = 'Genel'
+        ExplicitLeft = 4
+        ExplicitTop = 24
+        ExplicitWidth = 598
+        ExplicitHeight = 320
       end
     end
   end
   inherited pnlBottom: TPanel
-    Top = 350
-    ExplicitTop = 354
+    ExplicitTop = 350
   end
   inherited stbBase: TStatusBar
-    Top = 380
-    ExplicitTop = 384
+    ExplicitTop = 380
   end
 end

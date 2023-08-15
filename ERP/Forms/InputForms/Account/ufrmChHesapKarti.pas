@@ -31,7 +31,6 @@ type
     lblmuhasebe_kodu: TLabel;
     lblefatura_pk_name: TLabel;
     tsAdres: TTabSheet;
-    lblposta_kutusu: TLabel;
     lblbina_adi: TLabel;
     lblsokak: TLabel;
     lblcadde: TLabel;
@@ -45,8 +44,6 @@ type
     lblyetkili2: TLabel;
     lblyetkili1: TLabel;
     lblfaks: TLabel;
-    lblweb_site: TLabel;
-    lblemail: TLabel;
     lblmuhasebe_telefon: TLabel;
     lblmuhasebe_eposta: TLabel;
     lblyetkili2_tel: TLabel;
@@ -62,9 +59,7 @@ type
     edtyetkili3: TEdit;
     edtyetkili3_tel: TEdit;
     edtfaks: TEdit;
-    edtweb_site: TEdit;
     edtmuhasebe_telefon: TEdit;
-    edtemail: TEdit;
     edtmuhasebe_eposta: TEdit;
     edtmuhasebe_yetkili: TEdit;
     mmoozel_bilgi: TMemo;
@@ -90,7 +85,6 @@ type
     edtsokak: TEdit;
     edtbina_adi: TEdit;
     edtkapi_no: TEdit;
-    edtposta_kutusu: TEdit;
     edtposta_kodu: TEdit;
     lblis_pasif: TLabel;
     chkis_pasif: TCheckBox;
@@ -103,6 +97,12 @@ type
     edtmukellef_tipi_id: TEdit;
     edtulke_id: TEdit;
     edtsehir_id: TEdit;
+    lblsemt: TLabel;
+    edtsemt: TEdit;
+    lblweb_site: TLabel;
+    lblemail: TLabel;
+    edtweb_site: TEdit;
+    edtemail: TEdit;
     procedure FormCreate(Sender: TObject); override;
     procedure RefreshData(); override;
     procedure btnAcceptClick(Sender: TObject); override;
@@ -566,15 +566,18 @@ begin
   edtefatura_pk_name.Text := TChHesapKarti(Table).EFaturaPBName.AsString;
   chkis_efatura_hesabi.Checked := TChHesapKarti(Table).EFaturaKullaniyor.Value;
 
+  edtweb_site.Text := TChHesapKarti(Table).Adres.Web.Value;
+  edtemail.Text := TChHesapKarti(Table).Adres.EMail.Value;
   edtulke_id.Text := TChHesapKarti(Table).Adres.UlkeAdi.AsString;
   edtsehir_id.Text := TChHesapKarti(Table).Adres.Sehir.AsString;
-  edtmahalle.Text := TChHesapKarti(Table).Adres.Mahalle.Value;
-  edtcadde.Text := TChHesapKarti(Table).Adres.Cadde.Value;
-  edtsokak.Text := TChHesapKarti(Table).Adres.Sokak.Value;
-  edtbina_adi.Text := TChHesapKarti(Table).Adres.BinaAdi.Value;
-  edtkapi_no.Text := TChHesapKarti(Table).Adres.KapiNo.Value;
-  edtposta_kutusu.Text := TChHesapKarti(Table).Adres.PostaKutusu.Value;
-  edtposta_kodu.Text := TChHesapKarti(Table).Adres.PostaKodu.Value;
+  edtilce.Text := TChHesapKarti(Table).Adres.Ilce.AsString;
+  edtmahalle.Text := TChHesapKarti(Table).Adres.Mahalle.AsString;
+  edtsemt.Text := TChHesapKarti(Table).Adres.Semt.AsString;
+  edtcadde.Text := TChHesapKarti(Table).Adres.Cadde.AsString;
+  edtsokak.Text := TChHesapKarti(Table).Adres.Sokak.AsString;
+  edtbina_adi.Text := TChHesapKarti(Table).Adres.BinaAdi.AsString;
+  edtkapi_no.Text := TChHesapKarti(Table).Adres.KapiNo.AsString;
+  edtposta_kodu.Text := TChHesapKarti(Table).Adres.PostaKodu.AsString;
 
   edtyetkili1.Text := TChHesapKarti(Table).Yetkili1.Value;
   edtyetkili1_tel.Text := TChHesapKarti(Table).Yetkili1Tel.Value;
@@ -583,8 +586,6 @@ begin
   edtyetkili3.Text := TChHesapKarti(Table).Yetkili3.Value;
   edtyetkili3_tel.Text := TChHesapKarti(Table).Yetkili3Tel.Value;
   edtfaks.Text := TChHesapKarti(Table).Faks.Value;
-  edtweb_site.Text := TChHesapKarti(Table).Adres.Web.Value;
-  edtemail.Text := TChHesapKarti(Table).Adres.EMail.Value;
   edtmuhasebe_telefon.Text := TChHesapKarti(Table).MuhasebeTelefon.Value;
   edtmuhasebe_eposta.Text := TChHesapKarti(Table).MuhasebeEPosta.Value;
   edtmuhasebe_yetkili.Text := TChHesapKarti(Table).MuhasebeYetkili.Value;
@@ -688,14 +689,17 @@ begin
       TChHesapKarti(Table).EFaturaKullaniyor.Value := chkis_efatura_hesabi.Checked;
       TChHesapKarti(Table).EFaturaPBName.Value := edtefatura_pk_name.Text;
 
+      TChHesapKarti(Table).Adres.Web.Value := edtweb_site.Text;
+      TChHesapKarti(Table).Adres.EMail.Value := edtemail.Text;
       TChHesapKarti(Table).Adres.UlkeAdi.Value := edtulke_id.Text;
       TChHesapKarti(Table).Adres.Sehir.Value := edtsehir_id.Text;
+      TChHesapKarti(Table).Adres.Ilce.Value := edtilce.Text;
       TChHesapKarti(Table).Adres.Mahalle.Value := edtmahalle.Text;
+      TChHesapKarti(Table).Adres.Semt.Value := edtsemt.Text;
       TChHesapKarti(Table).Adres.Cadde.Value := edtcadde.Text;
       TChHesapKarti(Table).Adres.Sokak.Value := edtsokak.Text;
       TChHesapKarti(Table).Adres.BinaAdi.Value := edtbina_adi.Text;
       TChHesapKarti(Table).Adres.KapiNo.Value := edtkapi_no.Text;
-      TChHesapKarti(Table).Adres.PostaKutusu.Value := edtposta_kutusu.Text;
       TChHesapKarti(Table).Adres.PostaKodu.Value := edtposta_kodu.Text;
 
       TChHesapKarti(Table).Yetkili1.Value := edtyetkili1.Text;
@@ -705,8 +709,6 @@ begin
       TChHesapKarti(Table).Yetkili3.Value := edtyetkili3.Text;
       TChHesapKarti(Table).Yetkili3Tel.Value := edtyetkili3_tel.Text;
       TChHesapKarti(Table).Faks.Value := edtfaks.Text;
-      TChHesapKarti(Table).Adres.Web.Value := edtweb_site.Text;
-      TChHesapKarti(Table).Adres.EMail.Value := edtemail.Text;
       TChHesapKarti(Table).MuhasebeTelefon.Value := edtmuhasebe_telefon.Text;
       TChHesapKarti(Table).MuhasebeEPosta.Value := edtmuhasebe_eposta.Text;
       TChHesapKarti(Table).MuhasebeYetkili.Value := edtmuhasebe_yetkili.Text;

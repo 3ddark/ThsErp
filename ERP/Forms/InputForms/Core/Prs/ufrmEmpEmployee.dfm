@@ -2,32 +2,34 @@ inherited frmEmpEmployee: TfrmEmpEmployee
   Left = 501
   Top = 443
   ActiveControl = btnClose
-  Caption = 'Employee Card'
-  ClientHeight = 403
-  ClientWidth = 597
+  Caption = 'Person Bilgi Kart'#305
+  ClientHeight = 461
+  ClientWidth = 630
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 603
-  ExplicitHeight = 432
+  ExplicitWidth = 636
+  ExplicitHeight = 490
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 597
-    Height = 353
+    Width = 630
+    Height = 411
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 629
-    ExplicitHeight = 417
+    ExplicitWidth = 597
+    ExplicitHeight = 353
     inherited pgcMain: TPageControl
-      Width = 597
-      Height = 353
-      ActivePage = tsSpecial
+      Width = 630
+      Height = 411
+      ActivePage = tsDetail
       OnChange = pgcMainChange
-      ExplicitWidth = 629
-      ExplicitHeight = 417
+      ExplicitWidth = 597
+      ExplicitHeight = 353
       inherited tsMain: TTabSheet
         Caption = 'Genel'
-        ExplicitWidth = 591
-        ExplicitHeight = 329
+        ExplicitLeft = 4
+        ExplicitTop = 24
+        ExplicitWidth = 589
+        ExplicitHeight = 325
         object lblis_aktif: TLabel
           Left = 80
           Top = 10
@@ -244,18 +246,16 @@ inherited frmEmpEmployee: TfrmEmpEmployee
       object tsDetail: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 589
+        ExplicitHeight = 325
         object lblbina_adi: TLabel
-          Left = 78
-          Top = 186
-          Width = 48
+          Left = 100
+          Top = 215
+          Width = 26
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Bina Ad'#305
+          Caption = 'Bina'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -266,7 +266,7 @@ inherited frmEmpEmployee: TfrmEmpEmployee
         end
         object lblsokak: TLabel
           Left = 89
-          Top = 164
+          Top = 192
           Width = 37
           Height = 13
           Alignment = taRightJustify
@@ -282,7 +282,7 @@ inherited frmEmpEmployee: TfrmEmpEmployee
         end
         object lblcadde: TLabel
           Left = 89
-          Top = 142
+          Top = 169
           Width = 37
           Height = 13
           Alignment = taRightJustify
@@ -298,7 +298,7 @@ inherited frmEmpEmployee: TfrmEmpEmployee
         end
         object lblmahalle: TLabel
           Left = 81
-          Top = 120
+          Top = 123
           Width = 45
           Height = 13
           Alignment = taRightJustify
@@ -314,7 +314,7 @@ inherited frmEmpEmployee: TfrmEmpEmployee
         end
         object lblilce: TLabel
           Left = 104
-          Top = 98
+          Top = 100
           Width = 22
           Height = 13
           Alignment = taRightJustify
@@ -329,13 +329,13 @@ inherited frmEmpEmployee: TfrmEmpEmployee
           ParentFont = False
         end
         object lblsehir_id: TLabel
-          Left = 74
-          Top = 76
-          Width = 52
+          Left = 96
+          Top = 77
+          Width = 30
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = #350'ehir Ad'#305
+          Caption = #350'ehir'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -345,29 +345,13 @@ inherited frmEmpEmployee: TfrmEmpEmployee
           ParentFont = False
         end
         object lblulke_id: TLabel
-          Left = 77
+          Left = 99
           Top = 54
-          Width = 49
+          Width = 27
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = #220'lke Ad'#305
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblposta_kodu: TLabel
-          Left = 60
-          Top = 252
-          Width = 66
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Posta Kodu'
+          Caption = #220'lke'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -378,7 +362,7 @@ inherited frmEmpEmployee: TfrmEmpEmployee
         end
         object lblkapi_no: TLabel
           Left = 80
-          Top = 208
+          Top = 238
           Width = 46
           Height = 13
           Alignment = taRightJustify
@@ -392,14 +376,30 @@ inherited frmEmpEmployee: TfrmEmpEmployee
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblposta_kutusu: TLabel
-          Left = 50
-          Top = 230
-          Width = 76
+        object lblsemt: TLabel
+          Left = 97
+          Top = 146
+          Width = 29
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Posta Kutusu'
+          Caption = 'Semt'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblposta_kodu: TLabel
+          Left = 364
+          Top = 238
+          Width = 66
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Posta Kodu'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -410,52 +410,45 @@ inherited frmEmpEmployee: TfrmEmpEmployee
         end
         object edtilce: TEdit
           Left = 130
-          Top = 95
+          Top = 97
           Width = 180
           Height = 21
           TabOrder = 2
         end
         object edtmahalle: TEdit
           Left = 130
-          Top = 117
+          Top = 120
           Width = 180
           Height = 21
           TabOrder = 3
         end
         object edtcadde: TEdit
           Left = 130
-          Top = 139
-          Width = 180
-          Height = 21
-          TabOrder = 4
-        end
-        object edtsokak: TEdit
-          Left = 130
-          Top = 161
+          Top = 166
           Width = 180
           Height = 21
           TabOrder = 5
         end
-        object edtbina_adi: TEdit
+        object edtsokak: TEdit
           Left = 130
-          Top = 183
+          Top = 189
           Width = 180
           Height = 21
           TabOrder = 6
         end
-        object edtkapi_no: TEdit
+        object edtbina_adi: TEdit
           Left = 130
-          Top = 205
+          Top = 212
           Width = 180
           Height = 21
           TabOrder = 7
         end
-        object edtposta_kodu: TEdit
+        object edtkapi_no: TEdit
           Left = 130
-          Top = 249
+          Top = 235
           Width = 180
           Height = 21
-          TabOrder = 9
+          TabOrder = 8
         end
         object edtulke_id: TEdit
           Left = 130
@@ -466,26 +459,31 @@ inherited frmEmpEmployee: TfrmEmpEmployee
         end
         object edtsehir_id: TEdit
           Left = 130
-          Top = 73
+          Top = 74
           Width = 180
           Height = 21
           TabOrder = 1
         end
-        object edtposta_kutusu: TEdit
+        object edtsemt: TEdit
           Left = 130
-          Top = 227
+          Top = 143
           Width = 180
           Height = 21
-          TabOrder = 8
+          TabOrder = 4
+        end
+        object edtposta_kodu: TEdit
+          Left = 434
+          Top = 235
+          Width = 180
+          Height = 21
+          TabOrder = 9
         end
       end
       object tsSpecial: TTabSheet
         Caption = #214'zel Bilgiler'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 589
+        ExplicitHeight = 325
         object lblmaas: TLabel
           Left = 98
           Top = 224
@@ -900,24 +898,24 @@ inherited frmEmpEmployee: TfrmEmpEmployee
     end
   end
   inherited pnlBottom: TPanel
-    Top = 355
-    Width = 593
-    ExplicitTop = 419
-    ExplicitWidth = 625
+    Top = 413
+    Width = 626
+    ExplicitTop = 355
+    ExplicitWidth = 593
     inherited btnAccept: TButton
-      Left = 419
-      ExplicitLeft = 419
+      Left = 420
+      ExplicitLeft = 387
     end
     inherited btnClose: TButton
-      Left = 523
-      ExplicitLeft = 523
+      Left = 524
+      ExplicitLeft = 491
     end
   end
   inherited stbBase: TStatusBar
-    Top = 385
-    Width = 597
-    ExplicitTop = 449
-    ExplicitWidth = 629
+    Top = 443
+    Width = 630
+    ExplicitTop = 385
+    ExplicitWidth = 597
   end
   inherited pmLabels: TPopupMenu
     Left = 280

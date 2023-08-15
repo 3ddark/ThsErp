@@ -14,9 +14,10 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 652
-  ExplicitHeight = 466
-  TextHeight = 15
+  ExplicitWidth = 642
+  ExplicitHeight = 456
+  PixelsPerInch = 96
+  TextHeight = 13
   object pnlToolbar: TPanel [0]
     Left = 0
     Top = 0
@@ -32,7 +33,7 @@ inherited frmDashboard: TfrmDashboard
       Left = 8
       Top = 2
       Width = 201
-      Height = 25
+      Height = 36
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -46,6 +47,7 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
@@ -57,11 +59,11 @@ inherited frmDashboard: TfrmDashboard
     ExplicitTop = 359
     ExplicitWidth = 632
     inherited btnAccept: TButton
-      Left = 428
+      Left = 426
       ExplicitLeft = 426
     end
     inherited btnClose: TButton
-      Left = 532
+      Left = 530
       ExplicitLeft = 530
     end
   end
@@ -79,25 +81,12 @@ inherited frmDashboard: TfrmDashboard
     ExplicitTop = 40
     ExplicitWidth = 636
     ExplicitHeight = 317
-    object pb1: TProgressBar
-      Left = 0
-      Top = 295
-      Width = 638
-      Height = 26
-      Align = alBottom
-      DoubleBuffered = True
-      ParentDoubleBuffered = False
-      Smooth = True
-      TabOrder = 1
-      ExplicitTop = 291
-      ExplicitWidth = 636
-    end
     object PageControl1: TPageControl
       Left = 0
       Top = 0
-      Width = 638
-      Height = 295
-      ActivePage = tsstock
+      Width = 636
+      Height = 317
+      ActivePage = tsaccounting
       Align = alClient
       MultiLine = True
       TabOrder = 0

@@ -80,7 +80,6 @@ type
     function AsDate: TDate;
     function AsDateTime: TDateTime;
     function AsTime: TTime;
-    function AsBytes: TBytes;
   end;
 
   TTable = class
@@ -499,18 +498,6 @@ end;
 function TFieldDB.AsBoolean: Boolean;
 begin
   Result := StrToBool(System.Variants.VarToStr(FValue))
-end;
-
-function TFieldDB.AsBytes: TBytes;
-begin
-  if Self.DataType <> ftBytes then
-  begin
-    SetLength(Result, 0);
-    Exit;
-  end;
-
-  SetLength(Result, Length(Self.Value));
-  Move(Self.Value, Result, Length(Self.Value));
 end;
 
 function TFieldDB.AsDate: TDate;
@@ -1038,7 +1025,7 @@ begin
         vFilter := ' and ' + LErisimHakki.IsSilme.FieldName + '=true ';
         vMessage := 'DELETE';
       end
-      else if APermissionType = ptSpeacial then
+      else if APermissionType = ptSpecial then
       begin
         vField := LErisimHakki.IsOzel.FieldName;
         vFilter := ' and ' + LErisimHakki.IsOzel.FieldName + '=true ';

@@ -119,7 +119,7 @@ begin
   if Assigned(Table) then
   begin
     Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
-    pgcMain.Pages[0].Caption := Self.Caption;
+    //pgcMain.Pages[0].Caption := Self.Caption;
   end;
 
   //burasý yukarýdaki caption doldurma kodundan sonra gelmeli pagecontrol tablardaki baþlýklarý düzenliyor.
