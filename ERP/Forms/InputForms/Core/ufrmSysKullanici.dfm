@@ -3,28 +3,28 @@ inherited frmSysKullanici: TfrmSysKullanici
   Top = 443
   ActiveControl = btnClose
   Caption = 'System User'
-  ClientHeight = 264
-  ClientWidth = 368
+  ClientHeight = 261
+  ClientWidth = 366
   ParentFont = True
-  ExplicitWidth = 384
-  ExplicitHeight = 303
+  ExplicitWidth = 382
+  ExplicitHeight = 300
   TextHeight = 15
   inherited pnlMain: TPanel
-    Width = 368
-    Height = 214
+    Width = 366
+    Height = 211
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 376
     ExplicitHeight = 230
     inherited pgcMain: TPageControl
-      Width = 370
-      Height = 218
-      ExplicitWidth = 370
-      ExplicitHeight = 218
+      Width = 368
+      Height = 214
+      ExplicitWidth = 368
+      ExplicitHeight = 214
       inherited tsMain: TTabSheet
         ExplicitTop = 26
-        ExplicitWidth = 362
-        ExplicitHeight = 188
+        ExplicitWidth = 360
+        ExplicitHeight = 184
         object lbluser_name: TLabel
           Left = 47
           Top = 10
@@ -214,8 +214,8 @@ inherited frmSysKullanici: TfrmSysKullanici
     end
   end
   inherited pnlBottom: TPanel
-    Top = 216
-    Width = 364
+    Top = 213
+    Width = 362
     ExplicitTop = 232
     ExplicitWidth = 372
     inherited btnAccept: TButton
@@ -228,8 +228,8 @@ inherited frmSysKullanici: TfrmSysKullanici
     end
   end
   inherited stbBase: TStatusBar
-    Top = 246
-    Width = 368
+    Top = 243
+    Width = 366
     ExplicitTop = 262
     ExplicitWidth = 376
   end

@@ -62,8 +62,8 @@ type
 implementation
 
 uses
-  ufrmEmpEmployees,
-  Ths.Database.Table.EmpEmployee;
+  ufrmPrsPersoneller,
+  Ths.Database.Table.PrsPersoneller;
 
 {$R *.dfm}
 
@@ -109,8 +109,8 @@ end;
 
 procedure TfrmSysKullanici.HelperProcess(Sender: TObject);
 var
-  LFrmEmpCard: TfrmEmpEmployees;
-  LEmpCard: TEmpEmployee;
+  LFrmEmpCard: TfrmPrsPersoneller;
+  LEmpCard: TPrsPersonel;
 begin
   if Sender.ClassType = TEdit then
   begin
@@ -118,8 +118,8 @@ begin
     begin
       if TEdit(Sender).Name = edtperson_id.Name then
       begin
-        LEmpCard := TEmpEmployee.Create(Table.Database);
-        LFrmEmpCard := TfrmEmpEmployees.Create(TEdit(Sender), Self, LEmpCard, fomNormal, True);
+        LEmpCard := TPrsPersonel.Create(Table.Database);
+        LFrmEmpCard := TfrmPrsPersoneller.Create(TEdit(Sender), Self, LEmpCard, fomNormal, True);
         try
           LFrmEmpCard.ShowModal;
           if LFrmEmpCard.DataAktar then

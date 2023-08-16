@@ -279,11 +279,11 @@ uses
 
   Ths.Database.Table.ChDovizKurlari, ufrmChDovizKurlari,
 
-  Ths.Database.Table.EmpEmployee, ufrmEmpEmployees,
+  Ths.Database.Table.PrsPersoneller, ufrmPrsPersoneller,
   Ths.Database.Table.PrsLisanBilgileri, ufrmEmpLanguageAbilities,
-  Ths.Database.Table.PrsPersonelEhliyetleri, ufrmEmpDrivingLicences,
+  Ths.Database.Table.PrsPersonelEhliyetleri, ufrmPrsPersonelEhliyetleri,
   Ths.Database.Table.SetPrsBolumler, ufrmSetEmpSections,
-  Ths.Database.Table.SetPrsBirimler, ufrmSetEmpUnits,
+  Ths.Database.Table.SetPrsBirimler, ufrmSetPrsBirimler,
   Ths.Database.Table.SetPrsGorevler, ufrmSetEmpTasks,
   Ths.Database.Table.SetPrsPersonelTipleri, ufrmSetPrsPersonelTipleri,
   Ths.Database.Table.SetPrsLisanlar, ufrmSetEmpLanguages,
@@ -399,7 +399,7 @@ end;
 
 procedure TfrmDashboard.actprs_personelExecute(Sender: TObject);
 begin
-  TfrmEmpEmployees.Create(Self, Self, TEmpEmployee.Create(GDataBase), fomNormal).Show;
+  TfrmPrsPersoneller.Create(Self, Self, TPrsPersonel.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actsat_siparisExecute(Sender: TObject);
@@ -494,7 +494,7 @@ end;
 
 procedure TfrmDashboard.actset_prs_birimExecute(Sender: TObject);
 begin
-  TfrmSetEmpUnits.Create(Self, Self, TSetPrsBirim.Create(GDataBase), fomNormal).Show;
+  TfrmSetPrsBirimler.Create(Self, Self, TSetPrsBirim.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_bolumExecute(Sender: TObject);

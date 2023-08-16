@@ -12,42 +12,42 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
     ExplicitHeight = 511
     inherited splLeft: TSplitter
       Top = 332
-      Height = 131
+      Height = 127
       ExplicitTop = 437
       ExplicitHeight = 502
     end
     inherited splHeader: TSplitter
       Top = 329
-      Width = 880
+      Width = 878
       ExplicitLeft = 0
       ExplicitTop = 74
       ExplicitWidth = 973
     end
     inherited pgcMain: TPageControl
       Top = 332
-      Width = 774
-      Height = 131
+      Width = 772
+      Height = 127
       ExplicitTop = 332
       ExplicitWidth = 798
       ExplicitHeight = 179
       inherited tsMain: TTabSheet
-        ExplicitWidth = 766
-        ExplicitHeight = 103
+        ExplicitWidth = 764
+        ExplicitHeight = 99
       end
     end
     inherited pnlHeader: TPanel
-      Width = 876
+      Width = 874
       Height = 326
       ExplicitWidth = 900
       ExplicitHeight = 326
       inherited pgcHeader: TPageControl
-        Width = 874
+        Width = 872
         Height = 324
         ExplicitWidth = 898
         ExplicitHeight = 324
         inherited tsHeader: TTabSheet
           Caption = 'Genel'
-          ExplicitWidth = 846
+          ExplicitWidth = 844
           ExplicitHeight = 316
           object lblsiparis_no: TLabel
             Left = 626
@@ -723,13 +723,13 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
       ExplicitWidth = 798
       ExplicitHeight = 179
       inherited pgcContent: TPageControl
-        Width = 772
-        Height = 127
+        Width = 770
+        Height = 123
         ExplicitWidth = 796
         ExplicitHeight = 175
         inherited ts1: TTabSheet
-          ExplicitWidth = 764
-          ExplicitHeight = 99
+          ExplicitWidth = 762
+          ExplicitHeight = 95
           inherited pnl1: TPanel
             Top = 63
             Width = 788
@@ -756,8 +756,8 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited ts2: TTabSheet
-          ExplicitWidth = 764
-          ExplicitHeight = 99
+          ExplicitWidth = 762
+          ExplicitHeight = 95
           inherited pnl2: TPanel
             Top = 9
             Width = 782
@@ -776,8 +776,8 @@ inherited frmSatSiparisDetaylar: TfrmSatSiparisDetaylar
           end
         end
         inherited ts3: TTabSheet
-          ExplicitWidth = 764
-          ExplicitHeight = 99
+          ExplicitWidth = 762
+          ExplicitHeight = 95
           inherited strngrd3: TStringGrid
             Width = 782
             Height = 9

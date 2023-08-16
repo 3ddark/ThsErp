@@ -3,8 +3,8 @@ inherited frmDashboard: TfrmDashboard
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Main'
-  ClientHeight = 407
-  ClientWidth = 636
+  ClientHeight = 404
+  ClientWidth = 634
   Constraints.MinHeight = 300
   Constraints.MinWidth = 400
   DefaultMonitor = dmDesktop
@@ -14,14 +14,13 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 642
-  ExplicitHeight = 456
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 650
+  ExplicitHeight = 463
+  TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
     Top = 0
-    Width = 636
+    Width = 634
     Height = 40
     Align = alTop
     BevelOuter = bvNone
@@ -33,7 +32,7 @@ inherited frmDashboard: TfrmDashboard
       Left = 8
       Top = 2
       Width = 201
-      Height = 36
+      Height = 25
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -47,45 +46,44 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
-      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
-    Top = 359
-    Width = 632
+    Top = 356
+    Width = 630
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 359
-    ExplicitWidth = 632
+    ExplicitTop = 356
+    ExplicitWidth = 630
     inherited btnAccept: TButton
       Left = 426
-      ExplicitLeft = 426
+      ExplicitLeft = 424
     end
     inherited btnClose: TButton
       Left = 530
-      ExplicitLeft = 530
+      ExplicitLeft = 528
     end
   end
   inherited stbBase: TStatusBar [2]
-    Top = 389
-    Width = 636
-    ExplicitTop = 389
-    ExplicitWidth = 636
+    Top = 386
+    Width = 634
+    ExplicitTop = 386
+    ExplicitWidth = 634
   end
   inherited pnlMain: TPanel [3]
     Top = 40
-    Width = 636
-    Height = 317
+    Width = 634
+    Height = 314
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 636
-    ExplicitHeight = 317
+    ExplicitWidth = 634
+    ExplicitHeight = 314
     object PageControl1: TPageControl
       Left = 0
       Top = 0
-      Width = 636
-      Height = 317
+      Width = 634
+      Height = 314
       ActivePage = tsaccounting
       Align = alClient
       MultiLine = True

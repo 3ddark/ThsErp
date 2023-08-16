@@ -4,7 +4,6 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
   ClientWidth = 878
   ExplicitWidth = 894
   ExplicitHeight = 580
-  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 878
@@ -31,8 +30,8 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
       ExplicitWidth = 798
       ExplicitHeight = 212
       inherited tsMain: TTabSheet
-        ExplicitWidth = 766
-        ExplicitHeight = 136
+        ExplicitWidth = 764
+        ExplicitHeight = 132
       end
     end
     inherited pnlHeader: TPanel
@@ -46,7 +45,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
         ExplicitWidth = 898
         ExplicitHeight = 323
         inherited tsHeader: TTabSheet
-          ExplicitWidth = 846
+          ExplicitWidth = 844
           ExplicitHeight = 315
           object lblteklif_no: TLabel
             Left = 632
@@ -685,7 +684,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
           end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitWidth = 846
+          ExplicitWidth = 844
           ExplicitHeight = 315
           object lblProformaNo: TLabel
             Left = 71
@@ -980,8 +979,8 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
         ExplicitWidth = 796
         ExplicitHeight = 208
         inherited ts1: TTabSheet
-          ExplicitWidth = 764
-          ExplicitHeight = 132
+          ExplicitWidth = 762
+          ExplicitHeight = 128
           inherited pnl1: TPanel
             Top = 96
             Width = 788
@@ -1008,8 +1007,8 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
           end
         end
         inherited ts2: TTabSheet
-          ExplicitWidth = 764
-          ExplicitHeight = 132
+          ExplicitWidth = 762
+          ExplicitHeight = 128
           inherited pnl2: TPanel
             Top = 42
             Width = 782
@@ -1028,8 +1027,8 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
           end
         end
         inherited ts3: TTabSheet
-          ExplicitWidth = 764
-          ExplicitHeight = 132
+          ExplicitWidth = 762
+          ExplicitHeight = 128
           inherited strngrd3: TStringGrid
             Width = 782
             Height = 42

@@ -133,7 +133,7 @@ implementation
 uses
   Ths.Globals, Ths.Database.Table, Ths.Database.Table.ChHesapKarti,
   Ths.Database.Table.ChHesapKartiAra, ufrmChHesapKartlariAra,
-  Ths.Database.Table.ChGruplar, ufrmChGruplar, Ths.Database.Table.EmpEmployee,
+  Ths.Database.Table.ChGruplar, ufrmChGruplar, Ths.Database.Table.PrsPersoneller,
   Ths.Database.Table.ChBolgeler, ufrmChBolgeler,
   Ths.Database.Table.SysVergiMukellefTipleri, ufrmSysVergiMukellefTipleri,
   Ths.Database.Table.SysUlkeler, ufrmSysUlkeler, Ths.Database.Table.SysSehirler,

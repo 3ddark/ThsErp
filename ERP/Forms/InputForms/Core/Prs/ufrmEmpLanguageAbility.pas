@@ -11,7 +11,7 @@ uses
   ufrmBase, ufrmBaseInputDB,
   Ths.Database.Table.SetPrsLisanlar,
   Ths.Database.Table.SetPrsLisanSeviyeleri,
-  Ths.Database.Table.EmpEmployee;
+  Ths.Database.Table.PrsPersoneller;
 
 type
   TfrmEmpLanguageAbility = class(TfrmBaseInputDB)
@@ -28,7 +28,7 @@ type
   private
     FSetPrsLisan: TSetPrsLisan;
     FSetPrsLisanSeviyesi: TSetPrsLisanSeviyesi;
-    FEmpCard: TEmpEmployee;
+    FEmpCard: TPrsPersonel;
   public
   protected
   published
@@ -55,7 +55,7 @@ begin
       TPrsLisanBilgisi(Table).OkumaID.Value := TSetPrsLisanSeviyesi(cbbread_level_id.Items.Objects[cbbread_level_id.ItemIndex]).Id.Value;
       TPrsLisanBilgisi(Table).YazmaID.Value := TSetPrsLisanSeviyesi(cbbwrite_level_id.Items.Objects[cbbwrite_level_id.ItemIndex]).Id.Value;
       TPrsLisanBilgisi(Table).OkumaID.Value := TSetPrsLisanSeviyesi(cbbspeak_level_id.Items.Objects[cbbspeak_level_id.ItemIndex]).Id.Value;
-      TPrsLisanBilgisi(Table).PersonelID.Value := TEmpEmployee(cbbemp_card_id.Items.Objects[cbbemp_card_id.ItemIndex]).Id.Value;
+      TPrsLisanBilgisi(Table).PersonelID.Value := TPrsPersonel(cbbemp_card_id.Items.Objects[cbbemp_card_id.ItemIndex]).Id.Value;
 
       inherited;
     end;
@@ -71,7 +71,7 @@ begin
   inherited;
   FSetPrsLisan := TSetPrsLisan.Create(Table.Database);
   FSetPrsLisanSeviyesi := TSetPrsLisanSeviyesi.Create(Table.Database);
-  FEmpCard := TEmpEmployee.Create(Table.Database);
+  FEmpCard := TPrsPersonel.Create(Table.Database);
 
   cbbemp_lang_id.Clear;
   FSetPrsLisan.SelectToList('', False, False);
@@ -96,7 +96,7 @@ begin
   cbbemp_card_id.Clear;
   FEmpCard.SelectToList('', False, False);
   for n1 := 0 to FEmpCard.List.Count-1 do
-    cbbemp_card_id.Items.AddObject(TEmpEmployee(FEmpCard.List[n1]).AdSoyad.Value, TEmpEmployee(FEmpCard.List[n1]));
+    cbbemp_card_id.Items.AddObject(TPrsPersonel(FEmpCard.List[n1]).AdSoyad.Value, TPrsPersonel(FEmpCard.List[n1]));
   cbbemp_card_id.ItemIndex := -1;
 end;
 

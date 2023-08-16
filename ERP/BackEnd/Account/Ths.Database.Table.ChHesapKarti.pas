@@ -20,7 +20,7 @@ uses
   Ths.Database.Table.SysUlkeler,
   Ths.Database.Table.SysSehirler,
   Ths.Database.Table.SysAdresler,
-  Ths.Database.Table.EmpEmployee,
+  Ths.Database.Table.PrsPersoneller,
   Ths.Database.Table.SysParaBirimleri;
 
 type

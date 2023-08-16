@@ -42,12 +42,12 @@ implementation
 
 uses
   Ths.Constants,
-  Ths.Database.Table.EmpEmployee;
+  Ths.Database.Table.PrsPersoneller;
 
 
 constructor TPrsPersonelEhliyeti.Create(ADatabase: TDatabase);
 var
-  LEmp: TEmpEmployee;
+  LEmp: TPrsPersonel;
 begin
   TableName := 'prs_personel_ehliyetleri';
   TableSourceCode := MODULE_PRS_AYAR;
@@ -55,7 +55,7 @@ begin
 
   FSetPrsEhliyet := TSetPrsEhliyet.Create(Database);
 
-  LEmp := TEmpEmployee.Create(Database);
+  LEmp := TPrsPersonel.Create(Database);
   try
     FEhliyetID := TFieldDB.Create('ehliyet_id', ftInteger, 0, Self, 'Ehliyet ID');
     FEhliyet := TFieldDB.Create(FSetPrsEhliyet.Ehliyet.FieldName, FSetPrsEhliyet.Ehliyet.DataType, FSetPrsEhliyet.Ehliyet.Value, Self, FSetPrsEhliyet.Ehliyet.Title);
@@ -74,12 +74,12 @@ end;
 
 procedure TPrsPersonelEhliyeti.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
 var
-  LEmp: TEmpEmployee;
+  LEmp: TPrsPersonel;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  LEmp := TEmpEmployee.Create(Database);
+  LEmp := TPrsPersonel.Create(Database);
   try
     with QryOfDS do
     begin
@@ -105,7 +105,7 @@ end;
 
 procedure TPrsPersonelEhliyeti.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LPersEmp: TEmpEmployee;
+  LPersEmp: TPrsPersonel;
   LQry: TZQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
@@ -114,7 +114,7 @@ begin
   AFilter := GetLockSQL(AFilter, ALock);
 
   LQry := Database.NewQuery();
-  LPersEmp := TEmpEmployee.Create(Database);
+  LPersEmp := TPrsPersonel.Create(Database);
   with LQry do
   try
     Database.GetSQLSelectCmd(LQry, TableName, [

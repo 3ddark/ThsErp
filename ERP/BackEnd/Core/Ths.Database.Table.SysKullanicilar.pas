@@ -12,7 +12,7 @@ uses
   ZAbstractDataset,
   Ths.Database,
   Ths.Database.Table,
-  Ths.Database.Table.EmpEmployee;
+  Ths.Database.Table.PrsPersoneller;
 
 type
   TKullaniciStruct = record
@@ -70,13 +70,13 @@ uses
 
 constructor TSysKullanici.Create(ADatabase: TDatabase);
 var
-  LEmployee: TEmpEmployee;
+  LEmployee: TPrsPersonel;
 begin
   TableName := 'sys_kullanicilar';
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  LEmployee := TEmpEmployee.Create(Database);
+  LEmployee := TPrsPersonel.Create(Database);
   try
     FKullaniciAdi := TFieldDB.Create('kullanici_adi', ftString, '', Self, 'Kullanýcý Adý');
     FKullaniciSifre := TFieldDB.Create('kullanici_sifre', ftString, '', Self, 'Kullanýcý Þifre');
@@ -113,12 +113,12 @@ end;
 
 procedure TSysKullanici.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
 var
-  LEmployee: TEmpEmployee;
+  LEmployee: TPrsPersonel;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  LEmployee := TEmpEmployee.Create(Database);
+  LEmployee := TPrsPersonel.Create(Database);
   try
     with QryOfDS do
     begin
@@ -148,7 +148,7 @@ end;
 procedure TSysKullanici.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
   LQry: TZQuery;
-  LEmployee: TEmpEmployee;
+  LEmployee: TPrsPersonel;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -156,7 +156,7 @@ begin
   AFilter := GetLockSQL(AFilter, ALock);
 
   LQry := Database.NewQuery();
-  LEmployee := TEmpEmployee.Create(Database);
+  LEmployee := TPrsPersonel.Create(Database);
   try
     with LQry do
     begin

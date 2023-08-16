@@ -167,7 +167,7 @@ uses
   Ths.Database.Table.ChHesapKarti, ufrmChHesapKartlari,
   Ths.Database.Table.SysSehirler, ufrmSysSehirler,
   Ths.Database.Table.SetEInvFaturaTipi,
-  Ths.Database.Table.EmpEmployee, ufrmEmpEmployees,
+  Ths.Database.Table.PrsPersoneller, ufrmPrsPersoneller,
   Ths.Database.Table.SetSatTeklifDurum,
   Ths.Database.Table.SetOdemeBaslangicDonemi,
   Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,

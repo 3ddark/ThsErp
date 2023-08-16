@@ -12,7 +12,7 @@ uses
   Ths.Database.Table,
   Ths.Database.Table.SetPrsLisanlar,
   Ths.Database.Table.SetPrsLisanSeviyeleri,
-  Ths.Database.Table.EmpEmployee;
+  Ths.Database.Table.PrsPersoneller;
 
 type
   TPrsLisanBilgisi = class(TTable)
@@ -30,7 +30,7 @@ type
   published
     FSetPrsLisan: TSetPrsLisan;
     FSetPrsLisanSeviyesi: TSetPrsLisanSeviyesi;
-    FEmpEmployee: TEmpEmployee;
+    FEmpEmployee: TPrsPersonel;
 
     destructor Destroy; override;
     constructor Create(ADatabase: TDatabase); override;
@@ -68,7 +68,7 @@ begin
 
   FSetPrsLisan := TSetPrsLisan.Create(Database);
   FSetPrsLisanSeviyesi := TSetPrsLisanSeviyesi.Create(Database);
-  FEmpEmployee := TEmpEmployee.Create(Database);
+  FEmpEmployee := TPrsPersonel.Create(Database);
 
   FLisanID := TFieldDB.Create('lisan_id', ftInteger, 0, Self, 'Lisan ID');
   FLisan := TFieldDB.Create(FSetPrsLisan.Lisan.FieldName, FSetPrsLisan.Lisan.DataType, '', Self, 'Lisan');
