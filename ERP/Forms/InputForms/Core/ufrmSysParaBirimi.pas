@@ -14,12 +14,12 @@ uses
 
 type
   TfrmSysParaBirimi = class(TfrmBaseInputDB)
-    lblcurrency: TLabel;
-    edtcurrency: TEdit;
-    lblsymbol: TLabel;
-    edtsymbol: TEdit;
-    lblexplanation: TLabel;
-    edtexplanation: TEdit;
+    lblpara: TLabel;
+    edtpara: TEdit;
+    lblsembol: TLabel;
+    edtsembol: TEdit;
+    lblaciklama: TLabel;
+    edtaciklama: TEdit;
   published
     procedure btnAcceptClick(Sender: TObject); override;
     procedure RefreshData; override;
@@ -35,9 +35,9 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSysParaBirimi(Table).Para.Value := edtcurrency.Text;
-      TSysParaBirimi(Table).Sembol.Value := edtsymbol.Text;
-      TSysParaBirimi(Table).Aciklama.Value := edtexplanation.Text;
+      TSysParaBirimi(Table).Para.Value := edtpara.Text;
+      TSysParaBirimi(Table).Sembol.Value := edtsembol.Text;
+      TSysParaBirimi(Table).Aciklama.Value := edtaciklama.Text;
 
       inherited;
     end;
@@ -49,9 +49,9 @@ end;
 procedure TfrmSysParaBirimi.RefreshData;
 begin
   inherited;
-  edtcurrency.Text := TSysParaBirimi(Table).Para.Value;
-  edtsymbol.Text := TSysParaBirimi(Table).Sembol.Value;
-  edtexplanation.Text := TSysParaBirimi(Table).Aciklama.Value;
+  edtpara.Text := TSysParaBirimi(Table).Para.Value;
+  edtsembol.Text := TSysParaBirimi(Table).Sembol.Value;
+  edtaciklama.Text := TSysParaBirimi(Table).Aciklama.Value;
 end;
 
 end.

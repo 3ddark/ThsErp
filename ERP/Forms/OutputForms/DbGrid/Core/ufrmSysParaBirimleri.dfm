@@ -1,70 +1,55 @@
 inherited frmSysParaBirimleri: TfrmSysParaBirimleri
-  Caption = 'System Currencies'
-  ExplicitWidth = 811
-  ExplicitHeight = 564
+  Caption = 'Sistem Para Birimleri'
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
-    ExplicitWidth = 797
-    ExplicitHeight = 479
+    ExplicitWidth = 793
+    ExplicitHeight = 471
     inherited splLeft: TSplitter
-      Height = 351
       ExplicitHeight = 351
     end
     inherited splHeader: TSplitter
-      Width = 797
       ExplicitWidth = 797
     end
     inherited pnlLeft: TPanel
-      Height = 351
-      ExplicitHeight = 347
+      ExplicitHeight = 343
     end
     inherited pnlHeader: TPanel
-      Width = 793
-      ExplicitWidth = 791
+      ExplicitWidth = 789
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
       inherited edtFilterHelper: TEdit
-        Width = 730
-        ExplicitWidth = 728
+        ExplicitWidth = 746
       end
     end
     inherited pnlContent: TPanel
-      Width = 694
-      Height = 351
-      ExplicitWidth = 692
-      ExplicitHeight = 347
-      inherited grd: TDBGrid
-        Width = 694
-        Height = 351
-      end
+      ExplicitWidth = 690
+      ExplicitHeight = 343
     end
     inherited pnlButtons: TPanel
-      Top = 387
-      Width = 797
-      ExplicitTop = 383
-      ExplicitWidth = 795
+      ExplicitTop = 379
+      ExplicitWidth = 793
       inherited pnlButtonRight: TPanel
-        Left = 612
-        ExplicitLeft = 610
+        ExplicitLeft = 608
       end
       inherited pnlButtonLeft: TPanel
-        Width = 612
-        ExplicitWidth = 610
+        ExplicitWidth = 608
       end
     end
   end
   inherited pnlBottom: TPanel
-    ExplicitTop = 481
-    ExplicitWidth = 793
+    ExplicitTop = 473
+    ExplicitWidth = 789
     inherited btnAccept: TButton
-      Left = 587
-      ExplicitLeft = 585
+      ExplicitLeft = 583
     end
     inherited btnClose: TButton
-      Left = 691
-      ExplicitLeft = 689
+      ExplicitLeft = 687
     end
   end
   inherited stbBase: TStatusBar
-    ExplicitTop = 511
-    ExplicitWidth = 797
+    ExplicitTop = 503
+    ExplicitWidth = 793
   end
 end

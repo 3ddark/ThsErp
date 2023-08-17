@@ -1,4 +1,5 @@
 object dm: Tdm
+  OldCreateOrder = True
   Height = 461
   Width = 632
   object il32: TImageList

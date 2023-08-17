@@ -87,11 +87,6 @@ uses
   Vcl.Styles,
   Ths.Globals,
   Ths.Constants,
-
-  Ths.Orm.Manager,
-  Ths.Orm.Table,
-  Ths.Orm.Table.SysOndalikHaneler,
-  Ths.Orm.Table.SysParaBirimleri,
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.Table.SysKullanicilar,
@@ -158,15 +153,6 @@ begin
                                     ConnSetting.DBUserPassword,
                                     ConnSetting.DBPortNo);
       GDataBase.Connection.Connect;
-
-      GEntityManagerMain := TEntityManager.Create(
-        ConnSetting.SQLServer,
-        ConnSetting.DatabaseName,
-        ConnSetting.DBUserName,
-        ConnSetting.DBUserPassword,
-        GUygulamaAnaDizin + PathDelim + 'lib' + PathDelim + 'libpq.dll',
-        ConnSetting.DBPortNo
-      );
     except
       on E: Exception do
       begin
@@ -176,7 +162,7 @@ begin
       end;
     end;
 
-    if GEntityManagerMain.Connection.Connected then
+    if GDataBase.Connection.Connected then
     begin
       try
         pb1.Max := 11;
@@ -184,7 +170,7 @@ begin
         pb1.Position := 0;
         pb1.Visible := True;
 
-        GDataBase.DateDB := GEntityManagerMain.GetToday;
+        GDataBase.DateDB := GDataBase.GetToday;
         if GSysKullanici = nil then
           GSysKullanici := TSysKullanici.Create(GDataBase);
         if GSysOndalikHane = nil then

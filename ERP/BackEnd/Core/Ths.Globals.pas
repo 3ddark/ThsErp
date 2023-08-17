@@ -7,7 +7,6 @@ uses
   Ths.Constants,
   Ths.Utils.Logger,
   Ths.Helper.ThsList,
-  Ths.Orm.Manager,
   Ths.Database.Table,
   Ths.Database.Table.SysKullanicilar,
   Ths.Database.Table.SysLisanlar,
@@ -578,7 +577,6 @@ var
   ///  Database sýnýfýna ulaþýlýyor. Bazý fonksiyonlar burada GetToday GetNow veya runCustomSQL gibi
   /// </summary>
   GDataBase: TDatabase;
-  GEntityManagerMain: TEntityManager;
 
   /// <summary>
   ///  Giriþ yapan kullanýcý bilgilerine bu tablo bilgisinden ulaþalýyor.
@@ -2853,7 +2851,6 @@ finalization
 begin
   SetLength(GDosyaUzantilari, 0);
   GDataBase.Free;
-  GEntityManagerMain.DisposeOf;
 
   GSysKullanici.Free;
   GSysOndalikHane.Free;

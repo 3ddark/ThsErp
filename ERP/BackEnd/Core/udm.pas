@@ -8,10 +8,7 @@ uses
   System.ImageList,
   System.Generics.Collections,
   Vcl.ImgList,
-  Vcl.Controls,
-  Ths.Orm.Table,
-  Ths.Orm.Table.SysOndalikHaneler,
-  Ths.Orm.Table.SysParaBirimleri;
+  Vcl.Controls;
 
 type
   Tdm = class(TDataModule)
@@ -26,9 +23,6 @@ type
 
 var
   dm: Tdm;
-
-  GOndalikHane: TSysOndalikHane;
-  GParaBirimleri: TObjectList<TSysParaBirimi>;
 
 implementation
 
