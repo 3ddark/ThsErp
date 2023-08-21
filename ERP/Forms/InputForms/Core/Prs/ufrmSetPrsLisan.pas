@@ -1,4 +1,4 @@
-unit ufrmSetEmpLanguage;
+unit ufrmSetPrsLisan;
 
 interface
 
@@ -11,7 +11,7 @@ uses
   ufrmBase, ufrmBaseInputDB, Ths.Database.Table.SetPrsLisanlar;
 
 type
-  TfrmSetEmpLanguage = class(TfrmBaseInputDB)
+  TfrmSetPrsLisan = class(TfrmBaseInputDB)
     edtlisan: TEdit;
     lbllisan: TLabel;
   published
@@ -22,7 +22,7 @@ implementation
 
 {$R *.dfm}
 
-procedure TfrmSetEmpLanguage.btnAcceptClick(Sender: TObject);
+procedure TfrmSetPrsLisan.btnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin

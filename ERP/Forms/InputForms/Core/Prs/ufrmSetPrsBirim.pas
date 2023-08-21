@@ -10,7 +10,7 @@ uses
   Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts,
   Vcl.Menus, Vcl.Samples.Spin, Ths.Helper.BaseTypes, Ths.Helper.Edit,
   Ths.Helper.Memo, Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB,
-  ufrmSetEmpSections, Ths.Database.Table.SetPrsBolumler,
+  ufrmSetPrsBolumler, Ths.Database.Table.SetPrsBolumler,
   Ths.Database.Table.SetPrsBirimler;
 
 type
@@ -39,7 +39,8 @@ end;
 
 procedure TfrmSetPrsBirim.HelperProcess(Sender: TObject);
 var
-  LFrmSection: TfrmSetEmpSections;
+  LFrmSection: TfrmSetPrsBolumler;
+  LPrsBolum: TSetPrsBolum;
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
@@ -47,9 +48,23 @@ begin
     begin
       if TEdit(Sender).Name = edtbolum_id.Name then
       begin
-        LFrmSection := TfrmSetEmpSections.Create(TEdit(Sender), Self, TSetPrsBolum.Create(Table.Database), fomNormal, True);
+        LPrsBolum := TSetPrsBolum.Create(Table.Database);
+        LFrmSection := TfrmSetPrsBolumler.Create(TEdit(Sender), Self, LPrsBolum, fomNormal, True);
         try
           LFrmSection.ShowModal;
+          if LFrmSection.DataAktar then
+          begin
+            if LFrmSection.CleanAndClose then
+            begin
+              TEdit(Sender).Clear;
+              TSetPrsBirim(Table).BolumID.Value := 0;
+            end
+            else
+            begin
+              TEdit(Sender).Text := LPrsBolum.Bolum.AsString;
+              TSetPrsBirim(Table).BolumID.Value := LPrsBolum.Id.AsInt64;
+            end;
+          end;
         finally
           LFrmSection.Free;
         end;
@@ -61,7 +76,8 @@ end;
 procedure TfrmSetPrsBirim.RefreshData;
 begin
   inherited;
-  edtbolum_id.Text := TSetPrsBirim(Table).Bolum.Value;
+  edtbolum_id.Text := TSetPrsBirim(Table).Bolum.AsString;
+  edtbirim.Text := TSetPrsBirim(Table).Birim.AsString;
 end;
 
 procedure TfrmSetPrsBirim.btnAcceptClick(Sender: TObject);

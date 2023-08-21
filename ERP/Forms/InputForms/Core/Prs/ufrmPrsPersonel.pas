@@ -35,10 +35,10 @@ uses
   ufrmBaseInputDB,
 
   ufrmSetPrsPersonelTipleri,
-  ufrmSetEmpSections,
+  ufrmSetPrsBolumler,
   ufrmSetPrsBirimler,
-  ufrmSetEmpTasks,
-  ufrmSetEmpTransportServices,
+  ufrmSetPrsGorevler,
+  ufrmSetPrsTasimaServisleri,
   ufrmSysUlkeler,
   ufrmSysSehirler,
   Ths.Database.Table.SetPrsPersonelTipleri,
@@ -305,7 +305,7 @@ end;
 
 procedure TfrmPrsPersonel.HelperProcess(Sender: TObject);
 var
-  LFrmGorev: TfrmSetEmpTasks;
+  LFrmGorev: TfrmSetPrsGorevler;
   LGorev: TSetPrsGorev;
   LFrmCity: TfrmSysSehirler;
   LCity: TSysSehir;
@@ -317,7 +317,7 @@ begin
       if (TEdit(Sender).Name = edtgorev_id.Name) then
       begin
         LGorev := TSetPrsGorev.Create(Table.Database);
-        LFrmGorev := TfrmSetEmpTasks.Create(TEdit(Sender), Self, LGorev, fomNormal, True);
+        LFrmGorev := TfrmSetPrsGorevler.Create(TEdit(Sender), Self, LGorev, fomNormal, True);
         try
           LFrmGorev.ShowModal;
           if LFrmGorev.DataAktar then

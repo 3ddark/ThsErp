@@ -14,8 +14,8 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 650
-  ExplicitHeight = 463
+  ExplicitWidth = 648
+  ExplicitHeight = 460
   TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
@@ -27,12 +27,13 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 632
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
       Top = 2
       Width = 201
-      Height = 25
+      Height = 36
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -46,6 +47,7 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
@@ -54,22 +56,22 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 356
-    ExplicitWidth = 630
+    ExplicitTop = 353
+    ExplicitWidth = 628
     inherited btnAccept: TButton
-      Left = 426
-      ExplicitLeft = 424
+      Left = 424
+      ExplicitLeft = 422
     end
     inherited btnClose: TButton
-      Left = 530
-      ExplicitLeft = 528
+      Left = 528
+      ExplicitLeft = 526
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 386
     Width = 634
-    ExplicitTop = 386
-    ExplicitWidth = 634
+    ExplicitTop = 383
+    ExplicitWidth = 632
   end
   inherited pnlMain: TPanel [3]
     Top = 40
@@ -77,8 +79,8 @@ inherited frmDashboard: TfrmDashboard
     Height = 314
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 634
-    ExplicitHeight = 314
+    ExplicitWidth = 632
+    ExplicitHeight = 311
     object PageControl1: TPageControl
       Left = 0
       Top = 0
@@ -88,6 +90,8 @@ inherited frmDashboard: TfrmDashboard
       Align = alClient
       MultiLine = True
       TabOrder = 0
+      ExplicitWidth = 632
+      ExplicitHeight = 311
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton
@@ -544,6 +548,16 @@ inherited frmDashboard: TfrmDashboard
     OnExecute = actlstMainExecute
     Left = 344
     Top = 136
+    object actpersonel_birimler: TAction
+      Category = 'Personel'
+      Caption = 'Birimler'
+      OnExecute = actpersonel_birimlerExecute
+    end
+    object actpersonel_gorevler: TAction
+      Category = 'Personel'
+      Caption = 'G'#246'revler'
+      OnExecute = actpersonel_gorevlerExecute
+    end
     object actsys_month: TAction
       Category = 'Sistem'
       Caption = 'Aylar'
@@ -735,6 +749,11 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 38
       OnExecute = actset_ch_vergi_oraniExecute
     end
+    object actpersonel_bolumler: TAction
+      Category = 'Personel'
+      Caption = 'B'#246'l'#252'mler'
+      OnExecute = actpersonel_bolumlerExecute
+    end
   end
   object tmrcheck_is_update_required: TTimer
     Enabled = False
@@ -864,6 +883,21 @@ inherited frmDashboard: TfrmDashboard
       end
       object mnistk_gruplar: TMenuItem
         Action = actstk_gruplar
+      end
+    end
+    object mnimenu_personel: TMenuItem
+      Caption = 'Personel'
+      object mnipersonel_ayarlar: TMenuItem
+        Caption = 'Ayarlar'
+        object mnipersonel_bolumler: TMenuItem
+          Action = actpersonel_bolumler
+        end
+        object mnipersonel_birimller: TMenuItem
+          Action = actpersonel_birimler
+        end
+        object mnipersonel_gorevler: TMenuItem
+          Action = actpersonel_gorevler
+        end
       end
     end
     object mnimenu_hakkinda: TMenuItem

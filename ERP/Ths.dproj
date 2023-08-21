@@ -351,18 +351,6 @@
             <Form>frmSysChangePassword</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsEhliyetler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetEmpDrivingLicences.pas">
-            <Form>frmSetEmpDrivingLicences</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetEmpDrivingLicence.pas">
-            <Form>frmSetEmpDrivingLicence</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetEmpEducationLevels.pas">
-            <Form>frmSetEmpEducationLevels</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetEmpEducationLevel.pas">
-            <Form>frmSetEmpEducationLevel</Form>
-        </DCCReference>
         <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsPersonelTipleri.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsPersonelTipleri.pas">
             <Form>frmSetEmpEmployeeTypes</Form>
@@ -371,39 +359,39 @@
             <Form>frmSetEmpEmployeeType</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsLisanlar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetEmpLanguages.pas">
-            <Form>frmSetEmpLanguages</Form>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsLisanlar.pas">
+            <Form>frmSetPrsLisanlar</Form>
         </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetEmpLanguage.pas">
-            <Form>frmSetEmpLanguage</Form>
+        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsLisan.pas">
+            <Form>frmSetPrsLisan</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsLisanSeviyeleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetEmpLanguageLevels.pas">
-            <Form>frmSetEmpLanguageLevels</Form>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsLisanSeviyeleri.pas">
+            <Form>frmSetPrsLisanSeviyeleri</Form>
         </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetEmpLanguageLevel.pas">
-            <Form>frmSetEmpLanguageLevel</Form>
+        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsLisanSeviyesi.pas">
+            <Form>frmSetPrsLisanSeviyesi</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsBolumler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetEmpSections.pas">
-            <Form>frmSetEmpSections</Form>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsBolumler.pas">
+            <Form>frmSetPrsBolumler</Form>
         </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetEmpSection.pas">
-            <Form>frmSetEmpSections</Form>
+        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsBolum.pas">
+            <Form>frmSetPrsBolum</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsGorevler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetEmpTasks.pas">
-            <Form>frmSetEmpTasks</Form>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsGorevler.pas">
+            <Form>frmSetPrsGorevler</Form>
         </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetEmpTask.pas">
-            <Form>frmSetEmpTask</Form>
+        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsGorev.pas">
+            <Form>frmSetPrsGorev</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsTasimaServisleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetEmpTransportServices.pas">
-            <Form>frmSetEmpTransportServices</Form>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsTasimaServisleri.pas">
+            <Form>frmSetPrsTasimaServisleri</Form>
         </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetEmpTransportService.pas">
-            <Form>frmSetEmpTransportService</Form>
+        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsTasimaServisi.pas">
+            <Form>frmSetPrsTasimaServisi</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsBirimler.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsBirimler.pas">
@@ -420,11 +408,11 @@
             <Form>frmPrsPersonel</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.PrsLisanBilgileri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmEmpLanguageAbilities.pas">
-            <Form>frmEmpLanguageAbilities</Form>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsLisanBilgileri.pas">
+            <Form>frmSetPrsLisanBilgileri</Form>
         </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmEmpLanguageAbility.pas">
-            <Form>frmEmpLanguageAbility</Form>
+        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsLisanBilgisi.pas">
+            <Form>frmSetPrsLisanBilgisi</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.PrsPersonelEhliyetleri.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmPrsPersonelEhliyetleri.pas">

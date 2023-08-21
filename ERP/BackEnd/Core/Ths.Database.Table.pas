@@ -682,11 +682,11 @@ var
 begin
   for n1 := FList.Count-1 downto 0 do
   begin
-    ATable := List.Items[n1];
+    ATable := FList.Items[n1];
     FreeAndNil(ATable);
     FList.Delete(n1);
   end;
-  List.Clear;
+  FList.Clear;
 end;
 
 function TTable.GetFieldByFieldName(AFieldName: string): TFieldDB;

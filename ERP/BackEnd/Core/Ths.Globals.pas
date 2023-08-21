@@ -44,6 +44,7 @@ uses
   Winapi.TlHelp32,
   Winapi.PsAPI,
   Winapi.ShellAPI,
+  Winapi.WinInet,
 
   Vcl.Forms,
   Vcl.Controls,
@@ -65,6 +66,11 @@ uses
   IdFTPCommon,
   IdAntiFreeze,
   IdHash,
+  IdBaseComponent,
+  IdComponent,
+  IdTCPConnection,
+  IdTCPClient,
+  IdHTTP,
   //#######*****for Indy components*****#######
 
   ZConnection,
@@ -254,6 +260,8 @@ type
   function FormatedVariantVal(pField: TFieldDB): Variant; overload;
 
   function GetTempFolder(): string;
+
+  function CheckInternetConnection: Boolean;
 
   function TCMB_DovizKurlari: TTCMBDovizKuruList;
 
@@ -1097,6 +1105,30 @@ begin
   Result := TPath.GetTempPath;
 end;
 
+function CheckInternetConnection: Boolean;
+var
+  LClient: System.Net.HttpClientComponent.TNetHTTPClient;
+begin
+  Result := False;
+  LClient := TNetHTTPClient.Create(nil);
+  try
+    try
+      if LClient.Get( 'https://www.google.com' ).StatusCode = 200 then
+      begin
+        Result := True;
+        Exit;
+      end;
+    except
+      on E: Exception do begin
+        Result := False;
+        Exit;
+      end;
+    end;
+  finally
+    LClient.Free;
+  end;
+end;
+
 function TCMB_DovizKurlari: TTCMBDovizKuruList;
 var
   LClient: System.Net.HttpClientComponent.TNetHTTPClient;
@@ -1104,6 +1136,9 @@ var
   LXML: string;
   LNode: IXMLNode;
 begin
+  if not CheckInternetConnection then
+    Exit;
+
   SetLength(Result, 0);
   //XML downloader with SSL/"https" support...
   LClient := TNetHTTPClient.Create(nil);

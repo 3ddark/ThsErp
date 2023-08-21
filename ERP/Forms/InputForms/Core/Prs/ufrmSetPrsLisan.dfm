@@ -1,37 +1,37 @@
-inherited frmSetEmpLanguageLevel: TfrmSetEmpLanguageLevel
+inherited frmSetPrsLisan: TfrmSetPrsLisan
   Left = 501
   Top = 443
   ActiveControl = btnClose
-  Caption = 'Personel Lisan Seviyesi'
+  Caption = 'Personel Lisan'
   ClientHeight = 117
-  ClientWidth = 360
+  ClientWidth = 342
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 376
-  ExplicitHeight = 156
+  ExplicitWidth = 356
+  ExplicitHeight = 153
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 360
+    Width = 342
     Height = 67
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 358
-    ExplicitHeight = 55
+    ExplicitWidth = 340
+    ExplicitHeight = 64
     inherited pgcMain: TPageControl
-      Width = 362
-      Height = 71
-      ExplicitWidth = 356
-      ExplicitHeight = 53
+      Width = 342
+      Height = 67
+      ExplicitWidth = 340
+      ExplicitHeight = 64
       inherited tsMain: TTabSheet
-        ExplicitWidth = 354
-        ExplicitHeight = 43
-        object lbllisan_seviyesi: TLabel
-          Left = 61
+        ExplicitWidth = 334
+        ExplicitHeight = 39
+        object lbllisan: TLabel
+          Left = 77
           Top = 6
-          Width = 82
+          Width = 31
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Lisan Seviyesi'
+          Caption = 'Lisan'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -40,8 +40,8 @@ inherited frmSetEmpLanguageLevel: TfrmSetEmpLanguageLevel
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtlisan_seviyesi: TEdit
-          Left = 148
+        object edtlisan: TEdit
+          Left = 112
           Top = 3
           Width = 200
           Height = 21
@@ -52,22 +52,22 @@ inherited frmSetEmpLanguageLevel: TfrmSetEmpLanguageLevel
   end
   inherited pnlBottom: TPanel
     Top = 69
-    Width = 356
-    ExplicitTop = 59
-    ExplicitWidth = 358
+    Width = 338
+    ExplicitTop = 66
+    ExplicitWidth = 336
     inherited btnAccept: TButton
-      Left = 149
-      ExplicitLeft = 149
+      Left = 132
+      ExplicitLeft = 130
     end
     inherited btnClose: TButton
-      Left = 253
-      ExplicitLeft = 253
+      Left = 236
+      ExplicitLeft = 234
     end
   end
   inherited stbBase: TStatusBar
     Top = 99
-    Width = 360
-    ExplicitTop = 103
-    ExplicitWidth = 362
+    Width = 342
+    ExplicitTop = 96
+    ExplicitWidth = 340
   end
 end

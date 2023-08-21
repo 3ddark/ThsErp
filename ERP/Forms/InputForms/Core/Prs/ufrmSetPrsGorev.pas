@@ -1,4 +1,4 @@
-unit ufrmSetEmpTask;
+unit ufrmSetPrsGorev;
 
 interface
 
@@ -11,7 +11,7 @@ uses
   ufrmBase, ufrmBaseInputDB, Ths.Database.Table.SetPrsGorevler;
 
 type
-  TfrmSetEmpTask = class(TfrmBaseInputDB)
+  TfrmSetPrsGorev = class(TfrmBaseInputDB)
     edtgorev: TEdit;
     lblgorev: TLabel;
   published
@@ -22,7 +22,7 @@ implementation
 
 {$R *.dfm}
 
-procedure TfrmSetEmpTask.btnAcceptClick(Sender: TObject);
+procedure TfrmSetPrsGorev.btnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin

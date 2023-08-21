@@ -11,6 +11,7 @@ uses
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.Table.SetPrsPersonelTipleri,
+  Ths.Database.Table.SetPrsBolumler,
   Ths.Database.Table.SetPrsBirimler,
   Ths.Database.Table.SetPrsGorevler,
   Ths.Database.Table.SetPrsTasimaServisleri,
@@ -33,6 +34,7 @@ type
     FTel2: TFieldDB;
     FPersonelTipiID: TFieldDB;
     FPersonelTipi: TFieldDB;
+    FBolum: TFieldDB;
     FBirimID: TFieldDB;
     FBirim: TFieldDB;
     FGorevID: TFieldDB;
@@ -58,6 +60,7 @@ type
     FAdresID: TFieldDB;
 
     FSetPrsPersonelTipi: TSetPrsPersonelTipi;
+    FSetPrsBolum: TSetPrsBolum;
     FSetPrsBirim: TSetPrsBirim;
     FSetPrsGorev: TSetPrsGorev;
     FSetPrsServisAraci: TSetPrsTasimaServisi;
@@ -83,6 +86,7 @@ type
     Property Tel2: TFieldDB read FTel2 write FTel2;
     Property PersonelTipiID: TFieldDB read FPersonelTipiID write FPersonelTipiID;
     Property PersonelTipi: TFieldDB read FPersonelTipi write FPersonelTipi;
+    Property Bolum: TFieldDB read FBolum write FBolum;
     Property BirimID: TFieldDB read FBirimID write FBirimID;
     Property Birim: TFieldDB read FBirim write FBirim;
     Property GorevID: TFieldDB read FGorevID write FGorevID;
@@ -123,6 +127,7 @@ begin
   Adres := TSysAdres.Create(Database);
 
   FSetPrsPersonelTipi := TSetPrsPersonelTipi.Create(Database);
+  FSetPrsBolum := TSetPrsBolum.Create(Database);
   FSetPrsBirim := TSetPrsBirim.Create(Database);
   FSetPrsGorev := TSetPrsGorev.Create(Database);
   FSetPrsServisAraci := TSetPrsTasimaServisi.Create(Database);
@@ -136,6 +141,7 @@ begin
   FTel2 := TFieldDB.Create('tel2', ftWideString, '', Self, 'Telefon 2');
   FPersonelTipiID := TFieldDB.Create('personel_tipi_id', ftInteger, 0, Self, 'Personel Tipi ID');
   FPersonelTipi := TFieldDB.Create(FSetPrsPersonelTipi.PersonelTipi.FieldName, FSetPrsPersonelTipi.PersonelTipi.DataType, '', Self, 'Personel Tipi');
+  FBolum := TFieldDB.Create(FSetPrsBolum.Bolum.FieldName, FSetPrsBolum.Bolum.DataType, FSetPrsBolum.Bolum.Value, Self, FSetPrsBolum.Bolum.Title);
   FBirimID := TFieldDB.Create('birim_id', ftInteger, 0, Self, 'Birim ID');
   FBirim := TFieldDB.Create(FSetPrsBirim.Birim.FieldName, FSetPrsBirim.Birim.DataType, '', Self, 'Birim');
   FGorevID := TFieldDB.Create('gorev_id', ftInteger, 0, Self, 'Görev ID');
@@ -166,6 +172,7 @@ begin
   Adres.Free;
 
   FSetPrsPersonelTipi.Free;
+  FSetPrsBolum.Free;
   FSetPrsBirim.Free;
   FSetPrsGorev.Free;
   FSetPrsServisAraci.Free;
@@ -192,6 +199,7 @@ begin
       FTel2.QryName,
       FPersonelTipiID.QryName,
       addField(FSetPrsPersonelTipi.TableName, FSetPrsPersonelTipi.PersonelTipi.FieldName, FPersonelTipi.FieldName),
+      addField(FSetPrsBolum.TableName, FSetPrsBolum.Bolum.FieldName, FBolum.FieldName),
       FBirimID.QryName,
       addField(FSetPrsBirim.TableName, FSetPrsBirim.Birim.FieldName, FBirim.FieldName),
       FGorevID.QryName,
@@ -218,6 +226,7 @@ begin
     ], [
       addJoin(jtLeft, FSetPrsPersonelTipi.TableName, FSetPrsPersonelTipi.Id.FieldName, TableName, FPersonelTipiID.FieldName),
       addJoin(jtLeft, FSetPrsBirim.TableName, FSetPrsBirim.Id.FieldName, TableName, FBirimID.FieldName),
+      addJoin(jtLeft, FSetPrsBolum.TableName, FSetPrsBolum.Id.FieldName, FSetPrsBirim.TableName, FSetPrsBirim.BolumID.FieldName),
       addJoin(jtLeft, FSetPrsGorev.TableName, FSetPrsGorev.Id.FieldName, TableName, FGorevID.FieldName),
       addJoin(jtLeft, FSetPrsServisAraci.TableName, FSetPrsServisAraci.Id.FieldName, TableName, FTasimaServisID.FieldName),
       ' WHERE 1=1 ', AFilter
@@ -247,7 +256,7 @@ begin
       FTel2.QryName,
       FPersonelTipiID.QryName,
       addField(FSetPrsPersonelTipi.TableName, FSetPrsPersonelTipi.PersonelTipi.FieldName, FPersonelTipi.FieldName),
-      addField(FSetPrsBirim.TableName, FSetPrsBirim.Bolum.FieldName, FSetPrsBirim.Bolum.FieldName),
+      addField(FSetPrsBolum.TableName, FSetPrsBolum.Bolum.FieldName, FBolum.FieldName),
       FBirimID.QryName,
       addField(FSetPrsBirim.TableName, FSetPrsBirim.Birim.FieldName, FBirim.FieldName),
       FGorevID.QryName,
@@ -274,6 +283,7 @@ begin
     ], [
       addJoin(jtLeft, FSetPrsPersonelTipi.TableName, FSetPrsPersonelTipi.Id.FieldName, TableName, FPersonelTipiID.FieldName),
       addJoin(jtLeft, FSetPrsBirim.TableName, FSetPrsBirim.Id.FieldName, TableName, FBirimID.FieldName),
+      addJoin(jtLeft, FSetPrsBolum.TableName, FSetPrsBolum.Id.FieldName, FSetPrsBirim.TableName, FSetPrsBirim.BolumID.FieldName),
       addJoin(jtLeft, FSetPrsGorev.TableName, FSetPrsGorev.Id.FieldName, TableName, FGorevID.FieldName),
       addJoin(jtLeft, FSetPrsServisAraci.TableName, FSetPrsServisAraci.Id.FieldName, TableName, FTasimaServisID.FieldName),
       ' WHERE 1=1 ', AFilter

@@ -42,7 +42,7 @@ uses
   Ths.Globals,
   Ths.Constants;
 
-  constructor TSetPrsBirim.Create(ADatabase: TDatabase);
+constructor TSetPrsBirim.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_prs_birimler';
   TableSourceCode := MODULE_PRS_AYAR;
@@ -106,7 +106,6 @@ begin
       Open;
 
       FreeListContent();
-      List.Clear;
       while NOT EOF do
       begin
         PrepareTableClassFromQuery(LQry);

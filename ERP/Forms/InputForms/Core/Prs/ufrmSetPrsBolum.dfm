@@ -1,29 +1,29 @@
-inherited frmSetEmpSection: TfrmSetEmpSection
+inherited frmSetPrsBolum: TfrmSetPrsBolum
   Left = 501
   Top = 443
   ActiveControl = btnClose
   Caption = 'Personel B'#246'l'#252'm'
-  ClientHeight = 117
-  ClientWidth = 342
+  ClientHeight = 114
+  ClientWidth = 340
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 358
-  ExplicitHeight = 156
+  ExplicitWidth = 356
+  ExplicitHeight = 153
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 342
-    Height = 67
+    Width = 340
+    Height = 64
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 340
-    ExplicitHeight = 68
+    ExplicitHeight = 64
     inherited pgcMain: TPageControl
-      Width = 344
-      Height = 71
-      ExplicitWidth = 338
-      ExplicitHeight = 66
+      Width = 342
+      Height = 67
+      ExplicitWidth = 340
+      ExplicitHeight = 64
       inherited tsMain: TTabSheet
-        ExplicitWidth = 336
-        ExplicitHeight = 43
+        ExplicitWidth = 334
+        ExplicitHeight = 39
         object lblbolum: TLabel
           Left = 40
           Top = 6
@@ -51,23 +51,23 @@ inherited frmSetEmpSection: TfrmSetEmpSection
     end
   end
   inherited pnlBottom: TPanel
-    Top = 69
-    Width = 338
-    ExplicitTop = 72
-    ExplicitWidth = 340
+    Top = 66
+    Width = 336
+    ExplicitTop = 66
+    ExplicitWidth = 336
     inherited btnAccept: TButton
-      Left = 131
-      ExplicitLeft = 131
+      Left = 132
+      ExplicitLeft = 130
     end
     inherited btnClose: TButton
-      Left = 235
-      ExplicitLeft = 235
+      Left = 236
+      ExplicitLeft = 234
     end
   end
   inherited stbBase: TStatusBar
-    Top = 99
-    Width = 342
-    ExplicitTop = 116
-    ExplicitWidth = 344
+    Top = 96
+    Width = 340
+    ExplicitTop = 96
+    ExplicitWidth = 340
   end
 end

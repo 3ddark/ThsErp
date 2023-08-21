@@ -1,4 +1,4 @@
-unit ufrmSetEmpTransportService;
+unit ufrmSetPrsTasimaServisi;
 
 interface
 
@@ -6,18 +6,13 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils, Vcl.Menus,
-  Vcl.AppEvnts, System.ImageList, Vcl.ImgList, Vcl.Samples.Spin,
-
-  Ths.Helper.BaseTypes,
-  Ths.Helper.Edit,
-  Ths.Helper.ComboBox,
-  Ths.Helper.Memo,
-
-  ufrmBase, ufrmBaseInputDB;
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils, Vcl.Menus, Vcl.AppEvnts,
+  System.ImageList, Vcl.ImgList, Vcl.Samples.Spin, Ths.Helper.BaseTypes,
+  Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo, ufrmBase,
+  ufrmBaseInputDB;
 
 type
-  TfrmSetEmpTransportService = class(TfrmBaseInputDB)
+  TfrmSetPrsTasimaServisi = class(TfrmBaseInputDB)
     lblarac_no: TLabel;
     edtarac_no: TEdit;
     lblarac_adi: TLabel;
@@ -35,7 +30,7 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmSetEmpTransportService.btnAcceptClick(Sender: TObject);
+procedure TfrmSetPrsTasimaServisi.btnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
@@ -51,15 +46,16 @@ begin
     inherited;
 end;
 
-procedure TfrmSetEmpTransportService.FormCreate(Sender: TObject);
+procedure TfrmSetPrsTasimaServisi.FormCreate(Sender: TObject);
 begin
   inherited;
 end;
 
-procedure TfrmSetEmpTransportService.RefreshData;
+procedure TfrmSetPrsTasimaServisi.RefreshData;
 begin
   edtarac_no.Text := TSetPrsTasimaServisi(Table).AracNo.Value;
   edtarac_adi.Text := TSetPrsTasimaServisi(Table).AracAdi.Value;
 end;
 
 end.
+

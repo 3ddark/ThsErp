@@ -1,4 +1,4 @@
-unit ufrmEmpLanguageAbility;
+unit ufrmSetPrsLisanBilgisi;
 
 interface
 
@@ -14,7 +14,7 @@ uses
   Ths.Database.Table.PrsPersoneller;
 
 type
-  TfrmEmpLanguageAbility = class(TfrmBaseInputDB)
+  TfrmSetPrsLisanBilgisi = class(TfrmBaseInputDB)
     lblemp_lang_id: TLabel;
     lblread_level_id: TLabel;
     lblwrite_level_id: TLabel;
@@ -45,7 +45,7 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmEmpLanguageAbility.btnAcceptClick(Sender: TObject);
+procedure TfrmSetPrsLisanBilgisi.btnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
@@ -64,7 +64,7 @@ begin
     inherited;
 end;
 
-procedure TfrmEmpLanguageAbility.FormCreate(Sender: TObject);
+procedure TfrmSetPrsLisanBilgisi.FormCreate(Sender: TObject);
 var
   n1: Integer;
 begin
@@ -100,7 +100,7 @@ begin
   cbbemp_card_id.ItemIndex := -1;
 end;
 
-procedure TfrmEmpLanguageAbility.FormDestroy(Sender: TObject);
+procedure TfrmSetPrsLisanBilgisi.FormDestroy(Sender: TObject);
 begin
   if Assigned(FSetPrsLisan) then
     FSetPrsLisan.Free;
@@ -111,7 +111,7 @@ begin
   inherited;
 end;
 
-procedure TfrmEmpLanguageAbility.RefreshData;
+procedure TfrmSetPrsLisanBilgisi.RefreshData;
 begin
   cbbemp_lang_id.ItemIndex := cbbemp_lang_id.Items.IndexOf(TPrsLisanBilgisi(Table).Lisan.Value);
   cbbread_level_id.ItemIndex := cbbread_level_id.Items.IndexOf(TPrsLisanBilgisi(Table).Okuma.Value);

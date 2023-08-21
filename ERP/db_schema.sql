@@ -236,26 +236,6 @@ $$;
 ALTER FUNCTION public.audit_old() OWNER TO ths_admin;
 
 --
--- Name: delete_table_lang_content(); Type: FUNCTION; Schema: public; Owner: ths_admin
---
-
-CREATE FUNCTION public.delete_table_lang_content() RETURNS trigger
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$DECLARE
-    BEGIN
-    
-	IF (TG_OP = 'DELETE') THEN
-            DELETE FROM sys_lang_data_content WHERE table_name=initcap(replace(TG_TABLE_NAME, '_', ' ')) AND row_id=OLD.id;
-        END IF;
-
-        RETURN NULL;
-    END;
-$$;
-
-
-ALTER FUNCTION public.delete_table_lang_content() OWNER TO ths_admin;
-
---
 -- Name: personel_adsoyad(); Type: FUNCTION; Schema: public; Owner: ths_admin
 --
 
@@ -4635,17 +4615,59 @@ ALTER TABLE public.stk_cins_ozellikleri DISABLE TRIGGER audit;
 
 
 --
--- Name: set_prs_birimler delete_table_lang_content; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: set_prs_birimler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER delete_table_lang_content AFTER DELETE ON public.set_prs_birimler FOR EACH ROW EXECUTE FUNCTION public.delete_table_lang_content();
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_birimler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
--- Name: set_prs_gorevler delete_table_lang_content; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: set_prs_bolumler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER delete_table_lang_content AFTER DELETE ON public.set_prs_gorevler FOR EACH ROW EXECUTE FUNCTION public.delete_table_lang_content();
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_bolumler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_ehliyetler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_ehliyetler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_gorevler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_gorevler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_lisan_seviyeleri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_lisan_seviyeleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_lisanlar notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_lisanlar FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_personel_tipleri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_personel_tipleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_tasima_servisleri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_tasima_servisleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -5800,14 +5822,6 @@ GRANT ALL ON FUNCTION public.decrypt(bytea, bytea, text) TO ths_admin;
 --
 
 GRANT ALL ON FUNCTION public.decrypt_iv(bytea, bytea, bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION delete_table_lang_content(); Type: ACL; Schema: public; Owner: ths_admin
---
-
-REVOKE ALL ON FUNCTION public.delete_table_lang_content() FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.delete_table_lang_content() FROM ths_admin;
 
 
 --

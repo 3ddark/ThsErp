@@ -133,6 +133,14 @@ type
     mnimuhasebe_ayarlar: TMenuItem;
     actset_ch_vergi_orani: TAction;
     mniset_ch_vergi_orani: TMenuItem;
+    mnimenu_personel: TMenuItem;
+    mnipersonel_ayarlar: TMenuItem;
+    mnipersonel_bolumler: TMenuItem;
+    mnipersonel_birimller: TMenuItem;
+    mnipersonel_gorevler: TMenuItem;
+    actpersonel_bolumler: TAction;
+    actpersonel_birimler: TAction;
+    actpersonel_gorevler: TAction;
 
 /// <summary>
 ///   Kullanıcının erişim yetkisine göre yapılacak işlemler burada olacak
@@ -173,8 +181,6 @@ type
     procedure actsys_cityExecute(Sender: TObject);
     procedure actacc_exchange_rateExecute(Sender: TObject);
     procedure actset_prs_bolumExecute(Sender: TObject);
-    procedure actset_prs_ehliyetExecute(Sender: TObject);
-    procedure actset_prs_lisan_seviyesiExecute(Sender: TObject);
     procedure actset_prs_lisanExecute(Sender: TObject);
     procedure actset_prs_personel_tipiExecute(Sender: TObject);
     procedure actset_prs_gorevExecute(Sender: TObject);
@@ -222,6 +228,9 @@ type
     procedure actstk_stok_karti_ozetleriExecute(Sender: TObject);
     procedure actstk_cins_ozellikleriExecute(Sender: TObject);
     procedure actset_ch_vergi_oraniExecute(Sender: TObject);
+    procedure actpersonel_bolumlerExecute(Sender: TObject);
+    procedure actpersonel_birimlerExecute(Sender: TObject);
+    procedure actpersonel_gorevlerExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
   published
@@ -280,16 +289,15 @@ uses
   Ths.Database.Table.ChDovizKurlari, ufrmChDovizKurlari,
 
   Ths.Database.Table.PrsPersoneller, ufrmPrsPersoneller,
-  Ths.Database.Table.PrsLisanBilgileri, ufrmEmpLanguageAbilities,
+  Ths.Database.Table.PrsLisanBilgileri,
   Ths.Database.Table.PrsPersonelEhliyetleri, ufrmPrsPersonelEhliyetleri,
-  Ths.Database.Table.SetPrsBolumler, ufrmSetEmpSections,
+  Ths.Database.Table.SetPrsBolumler, ufrmSetPrsBolumler,
   Ths.Database.Table.SetPrsBirimler, ufrmSetPrsBirimler,
-  Ths.Database.Table.SetPrsGorevler, ufrmSetEmpTasks,
+  Ths.Database.Table.SetPrsGorevler, ufrmSetPrsGorevler,
   Ths.Database.Table.SetPrsPersonelTipleri, ufrmSetPrsPersonelTipleri,
-  Ths.Database.Table.SetPrsLisanlar, ufrmSetEmpLanguages,
-  Ths.Database.Table.SetPrsLisanSeviyeleri, ufrmSetEmpLanguageLevels,
-  Ths.Database.Table.SetPrsEhliyetler, ufrmSetEmpDrivingLicences,
-  Ths.Database.Table.SetPrsTasimaServisleri, ufrmSetEmpTransportServices,
+  Ths.Database.Table.SetPrsLisanlar, ufrmSetPrsLisanlar,
+  Ths.Database.Table.SetPrsLisanSeviyeleri, ufrmSetPrsLisanSeviyeleri,
+  Ths.Database.Table.SetPrsTasimaServisleri, ufrmSetPrsTasimaServisleri,
 
   Ths.Database.Table.SetEinvFaturaTipi, ufrmSetEinvFaturaTipleri,
   Ths.Database.Table.SetEinvIstisnaKodu, ufrmSetEinvIstisnaKodlari,
@@ -397,6 +405,21 @@ begin
   TfrmSetOdemeBaslangicDonemleri.Create(Self, Self, TSetOdemeBaslangicDonemi.Create(GDataBase), fomNormal).Show;
 end;
 
+procedure TfrmDashboard.actpersonel_birimlerExecute(Sender: TObject);
+begin
+  TfrmSetPrsBirimler.Create(Self, Self, TSetPrsBirim.Create(GDatabase), fomNormal).Show;
+end;
+
+procedure TfrmDashboard.actpersonel_bolumlerExecute(Sender: TObject);
+begin
+  TfrmSetPrsBolumler.Create(Self, Self, TSetPrsBolum.Create(GDatabase), fomNormal).Show;
+end;
+
+procedure TfrmDashboard.actpersonel_gorevlerExecute(Sender: TObject);
+begin
+  TfrmSetPrsGorevler.Create(Self, Self, TSetPrsGorev.Create(GDatabase), fomNormal).Show;
+end;
+
 procedure TfrmDashboard.actprs_personelExecute(Sender: TObject);
 begin
   TfrmPrsPersoneller.Create(Self, Self, TPrsPersonel.Create(GDataBase), fomNormal).Show;
@@ -499,27 +522,17 @@ end;
 
 procedure TfrmDashboard.actset_prs_bolumExecute(Sender: TObject);
 begin
-  TfrmSetempSections.Create(Self, Self, TSetPrsBolum.Create(GDataBase), fomNormal).Show;
-end;
-
-procedure TfrmDashboard.actset_prs_ehliyetExecute(Sender: TObject);
-begin
-  TfrmSetEmpDrivingLicences.Create(Self, Self, TSetPrsEhliyet.Create(GDataBase), fomNormal).Show;
+  TfrmSetPrsBolumler.Create(Self, Self, TSetPrsBolum.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_gorevExecute(Sender: TObject);
 begin
-  TfrmSetEmpTasks.Create(Self, Self, TSetPrsGorev.Create(GDataBase), fomNormal).Show;
+  TfrmSetPrsGorevler.Create(Self, Self, TSetPrsGorev.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_lisanExecute(Sender: TObject);
 begin
-  TfrmSetEmpLanguages.Create(Self, Self, TSetPrsLisan.Create(GDataBase), fomNormal).Show;
-end;
-
-procedure TfrmDashboard.actset_prs_lisan_seviyesiExecute(Sender: TObject);
-begin
-  TfrmSetEmpLanguageLevels.Create(Self, Self, TSetPrsLisanSeviyesi.Create(GDataBase), fomNormal).Show;
+  TfrmSetPrsLisanlar.Create(Self, Self, TSetPrsLisan.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_personel_tipiExecute(Sender: TObject);
@@ -529,7 +542,7 @@ end;
 
 procedure TfrmDashboard.actset_prs_servis_araciExecute(Sender: TObject);
 begin
-  TfrmSetPrsServisAraclari.Create(Self, Self, TSetPrsTasimaServisi.Create(GDataBase), fomNormal).Show;
+  TfrmSetPrsTasimaServisleri.Create(Self, Self, TSetPrsTasimaServisi.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actstk_ambarlarExecute(Sender: TObject);
@@ -549,7 +562,7 @@ end;
 
 procedure TfrmDashboard.actstk_hareketlerExecute(Sender: TObject);
 begin
-  //
+//
 end;
 
 procedure TfrmDashboard.actstk_stok_hareketiExecute(Sender: TObject);
@@ -559,7 +572,7 @@ end;
 
 procedure TfrmDashboard.actstk_stok_karti_ozetleriExecute(Sender: TObject);
 begin
-  //
+//
 end;
 
 procedure TfrmDashboard.actstk_stok_kartlariExecute(Sender: TObject);

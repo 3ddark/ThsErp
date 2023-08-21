@@ -1,8 +1,8 @@
-inherited frmEmpLanguageAbility: TfrmEmpLanguageAbility
+inherited frmSetPrsLisanBilgisi: TfrmSetPrsLisanBilgisi
   Left = 501
   Top = 443
   ActiveControl = btnClose
-  Caption = 'Employee Language Ability'
+  Caption = 'Personel Lisan Bilgisi'
   ClientHeight = 209
   ClientWidth = 421
   Font.Name = 'MS Sans Serif'
@@ -14,16 +14,16 @@ inherited frmEmpLanguageAbility: TfrmEmpLanguageAbility
     Height = 159
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 423
-    ExplicitHeight = 162
+    ExplicitWidth = 421
+    ExplicitHeight = 159
     inherited pgcMain: TPageControl
-      Width = 423
-      Height = 162
-      ExplicitWidth = 423
-      ExplicitHeight = 162
+      Width = 421
+      Height = 159
+      ExplicitWidth = 421
+      ExplicitHeight = 159
       inherited tsMain: TTabSheet
-        ExplicitWidth = 415
-        ExplicitHeight = 134
+        ExplicitWidth = 413
+        ExplicitHeight = 131
         object lblemp_lang_id: TLabel
           Left = 79
           Top = 6
@@ -150,21 +150,21 @@ inherited frmEmpLanguageAbility: TfrmEmpLanguageAbility
   inherited pnlBottom: TPanel
     Top = 161
     Width = 417
-    ExplicitTop = 177
-    ExplicitWidth = 433
+    ExplicitTop = 161
+    ExplicitWidth = 417
     inherited btnAccept: TButton
-      Left = 224
-      ExplicitLeft = 224
+      Left = 211
+      ExplicitLeft = 211
     end
     inherited btnClose: TButton
-      Left = 328
-      ExplicitLeft = 328
+      Left = 315
+      ExplicitLeft = 315
     end
   end
   inherited stbBase: TStatusBar
     Top = 191
     Width = 421
-    ExplicitTop = 221
-    ExplicitWidth = 437
+    ExplicitTop = 191
+    ExplicitWidth = 421
   end
 end
