@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.1
--- Dumped by pg_dump version 14.1
+-- Dumped from database version 13.4
+-- Dumped by pg_dump version 15.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,6 +15,15 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
@@ -1073,6 +1082,19 @@ ALTER TABLE public.mhs_transfer_kodlari ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 
 --
+-- Name: prs_ehliyetler; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.prs_ehliyetler (
+    id bigint NOT NULL,
+    ehliyet_id bigint,
+    personel_id bigint
+);
+
+
+ALTER TABLE public.prs_ehliyetler OWNER TO ths_admin;
+
+--
 -- Name: prs_lisan_bilgileri; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -1103,23 +1125,10 @@ ALTER TABLE public.prs_lisan_bilgileri ALTER COLUMN id ADD GENERATED ALWAYS AS I
 
 
 --
--- Name: prs_personel_ehliyetleri; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.prs_personel_ehliyetleri (
-    id bigint NOT NULL,
-    ehliyet_id bigint,
-    personel_id bigint
-);
-
-
-ALTER TABLE public.prs_personel_ehliyetleri OWNER TO ths_admin;
-
---
 -- Name: prs_personel_ehliyetleri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.prs_personel_ehliyetleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.prs_ehliyetler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.prs_personel_ehliyetleri_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -3585,6 +3594,22 @@ ALTER TABLE ONLY public.mhs_transfer_kodlari
 
 
 --
+-- Name: prs_ehliyetler prs_ehliyetler_ehliyet_id_personel_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_ehliyetler
+    ADD CONSTRAINT prs_ehliyetler_ehliyet_id_personel_id_key UNIQUE (ehliyet_id, personel_id);
+
+
+--
+-- Name: prs_ehliyetler prs_ehliyetler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_ehliyetler
+    ADD CONSTRAINT prs_ehliyetler_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: prs_lisan_bilgileri prs_lisan_bilgileri_lisan_id_personel_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -3598,22 +3623,6 @@ ALTER TABLE ONLY public.prs_lisan_bilgileri
 
 ALTER TABLE ONLY public.prs_lisan_bilgileri
     ADD CONSTRAINT prs_lisan_bilgileri_pkey PRIMARY KEY (id);
-
-
---
--- Name: prs_personel_ehliyetleri prs_personel_ehliyetleri_ehliyet_id_personel_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_personel_ehliyetleri
-    ADD CONSTRAINT prs_personel_ehliyetleri_ehliyet_id_personel_id_key UNIQUE (ehliyet_id, personel_id);
-
-
---
--- Name: prs_personel_ehliyetleri prs_personel_ehliyetleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_personel_ehliyetleri
-    ADD CONSTRAINT prs_personel_ehliyetleri_pkey PRIMARY KEY (id);
 
 
 --
@@ -4934,6 +4943,22 @@ ALTER TABLE ONLY public.mhs_transfer_kodlari
 
 
 --
+-- Name: prs_ehliyetler prs_ehliyetler_ehliyet_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_ehliyetler
+    ADD CONSTRAINT prs_ehliyetler_ehliyet_id_fkey FOREIGN KEY (ehliyet_id) REFERENCES public.set_prs_ehliyetler(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prs_ehliyetler prs_ehliyetler_personel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_ehliyetler
+    ADD CONSTRAINT prs_ehliyetler_personel_id_fkey FOREIGN KEY (personel_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: prs_lisan_bilgileri prs_lisan_bilgileri_konusma_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -4971,22 +4996,6 @@ ALTER TABLE ONLY public.prs_lisan_bilgileri
 
 ALTER TABLE ONLY public.prs_lisan_bilgileri
     ADD CONSTRAINT prs_lisan_bilgileri_yazma_id_fkey FOREIGN KEY (yazma_id) REFERENCES public.set_prs_lisan_seviyeleri(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: prs_personel_ehliyetleri prs_personel_ehliyetleri_ehliyet_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_personel_ehliyetleri
-    ADD CONSTRAINT prs_personel_ehliyetleri_ehliyet_id_fkey FOREIGN KEY (ehliyet_id) REFERENCES public.set_prs_ehliyetler(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: prs_personel_ehliyetleri prs_personel_ehliyetleri_personel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_personel_ehliyetleri
-    ADD CONSTRAINT prs_personel_ehliyetleri_personel_id_fkey FOREIGN KEY (personel_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5761,7 +5770,7 @@ ALTER TABLE ONLY public.urt_receteler
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 
