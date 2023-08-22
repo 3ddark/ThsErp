@@ -3,27 +3,28 @@ inherited frmSetPrsGorev: TfrmSetPrsGorev
   Top = 443
   ActiveControl = btnClose
   Caption = 'Personel G'#246'rev'
-  ClientHeight = 117
-  ClientWidth = 342
+  ClientHeight = 121
+  ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 356
-  ExplicitHeight = 153
+  ExplicitWidth = 350
+  ExplicitHeight = 150
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 342
-    Height = 67
+    Width = 344
+    Height = 71
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 340
-    ExplicitHeight = 64
+    ExplicitWidth = 344
+    ExplicitHeight = 71
     inherited pgcMain: TPageControl
-      Width = 342
-      Height = 67
-      ExplicitWidth = 340
-      ExplicitHeight = 64
+      Width = 344
+      Height = 71
+      ExplicitWidth = 344
+      ExplicitHeight = 71
       inherited tsMain: TTabSheet
-        ExplicitWidth = 334
-        ExplicitHeight = 39
+        ExplicitWidth = 336
+        ExplicitHeight = 43
         object lblgorev: TLabel
           Left = 41
           Top = 6
@@ -51,23 +52,23 @@ inherited frmSetPrsGorev: TfrmSetPrsGorev
     end
   end
   inherited pnlBottom: TPanel
-    Top = 69
-    Width = 338
-    ExplicitTop = 66
-    ExplicitWidth = 336
+    Top = 73
+    Width = 340
+    ExplicitTop = 73
+    ExplicitWidth = 340
     inherited btnAccept: TButton
-      Left = 132
-      ExplicitLeft = 130
+      Left = 134
+      ExplicitLeft = 134
     end
     inherited btnClose: TButton
-      Left = 236
-      ExplicitLeft = 234
+      Left = 238
+      ExplicitLeft = 238
     end
   end
   inherited stbBase: TStatusBar
-    Top = 99
-    Width = 342
-    ExplicitTop = 96
-    ExplicitWidth = 340
+    Top = 103
+    Width = 344
+    ExplicitTop = 103
+    ExplicitWidth = 344
   end
 end

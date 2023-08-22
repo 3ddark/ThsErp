@@ -18,7 +18,7 @@ uses
   Ths.Database.Table.SysAdresler,
   Ths.Database.Table.SysUlkeler,
   Ths.Database.Table.SysSehirler,
-  Ths.Database.Table.PrsPersonelEhliyetleri;
+  Ths.Database.Table.PrsEhliyetler;
 
 type
   TGender = (Erkek=0, Kadin=1);

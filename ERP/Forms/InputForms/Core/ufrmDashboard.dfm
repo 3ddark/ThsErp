@@ -14,9 +14,10 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 648
-  ExplicitHeight = 460
-  TextHeight = 15
+  ExplicitWidth = 640
+  ExplicitHeight = 453
+  PixelsPerInch = 96
+  TextHeight = 13
   object pnlToolbar: TPanel [0]
     Left = 0
     Top = 0
@@ -27,7 +28,6 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 632
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
@@ -56,22 +56,22 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 353
-    ExplicitWidth = 628
+    ExplicitTop = 356
+    ExplicitWidth = 630
     inherited btnAccept: TButton
       Left = 424
-      ExplicitLeft = 422
+      ExplicitLeft = 424
     end
     inherited btnClose: TButton
       Left = 528
-      ExplicitLeft = 526
+      ExplicitLeft = 528
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 386
     Width = 634
-    ExplicitTop = 383
-    ExplicitWidth = 632
+    ExplicitTop = 386
+    ExplicitWidth = 634
   end
   inherited pnlMain: TPanel [3]
     Top = 40
@@ -79,8 +79,8 @@ inherited frmDashboard: TfrmDashboard
     Height = 314
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 632
-    ExplicitHeight = 311
+    ExplicitWidth = 634
+    ExplicitHeight = 314
     object PageControl1: TPageControl
       Left = 0
       Top = 0
@@ -90,8 +90,6 @@ inherited frmDashboard: TfrmDashboard
       Align = alClient
       MultiLine = True
       TabOrder = 0
-      ExplicitWidth = 632
-      ExplicitHeight = 311
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton
@@ -548,21 +546,29 @@ inherited frmDashboard: TfrmDashboard
     OnExecute = actlstMainExecute
     Left = 344
     Top = 136
-    object actpersonel_birimler: TAction
+    object actset_prs_birimler: TAction
       Category = 'Personel'
       Caption = 'Birimler'
-      OnExecute = actpersonel_birimlerExecute
+      ImageIndex = 70
+      OnExecute = actset_prs_birimlerExecute
     end
-    object actpersonel_gorevler: TAction
+    object actset_prs_gorevler: TAction
       Category = 'Personel'
       Caption = 'G'#246'revler'
-      OnExecute = actpersonel_gorevlerExecute
+      ImageIndex = 74
+      OnExecute = actset_prs_gorevlerExecute
     end
     object actsys_month: TAction
       Category = 'Sistem'
       Caption = 'Aylar'
       ImageIndex = 8
       OnExecute = actsys_monthExecute
+    end
+    object actset_prs_lisanlar: TAction
+      Category = 'Personel'
+      Caption = 'Lisanlar'
+      ImageIndex = 35
+      OnExecute = actset_prs_lisanlarExecute
     end
     object actsys_region: TAction
       Category = 'Sistem'
@@ -749,10 +755,47 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 38
       OnExecute = actset_ch_vergi_oraniExecute
     end
-    object actpersonel_bolumler: TAction
+    object actset_prs_bolumler: TAction
       Category = 'Personel'
       Caption = 'B'#246'l'#252'mler'
-      OnExecute = actpersonel_bolumlerExecute
+      ImageIndex = 70
+      OnExecute = actset_prs_bolumlerExecute
+    end
+    object actset_prs_ehliyetler: TAction
+      Category = 'Personel'
+      Caption = 'Ehliyetler'
+      ImageIndex = 98
+      OnExecute = actset_prs_ehliyetlerExecute
+    end
+    object actset_prs_lisan_seviyeleri: TAction
+      Category = 'Personel'
+      Caption = 'Lisan Seviyeleri'
+      ImageIndex = 97
+      OnExecute = actset_prs_lisan_seviyeleriExecute
+    end
+    object actset_prs_personel_tipleri: TAction
+      Category = 'Personel'
+      Caption = 'Personel Tipleri'
+      ImageIndex = 64
+      OnExecute = actset_prs_personel_tipleriExecute
+    end
+    object actprs_ehliyetler: TAction
+      Category = 'Personel'
+      Caption = 'Personel Ehliyetleri'
+      ImageIndex = 98
+      OnExecute = actprs_ehliyetlerExecute
+    end
+    object actprs_lisan_bilgileri: TAction
+      Category = 'Personel'
+      Caption = 'Personel Lisan Bilgileri'
+      ImageIndex = 35
+      OnExecute = actprs_lisan_bilgileriExecute
+    end
+    object actprs_personeller: TAction
+      Category = 'Personel'
+      Caption = 'Personeller'
+      ImageIndex = 17
+      OnExecute = actprs_personellerExecute
     end
   end
   object tmrcheck_is_update_required: TTimer
@@ -887,16 +930,39 @@ inherited frmDashboard: TfrmDashboard
     end
     object mnimenu_personel: TMenuItem
       Caption = 'Personel'
+      ImageIndex = 14
+      object mniprs_personeller: TMenuItem
+        Action = actprs_personeller
+      end
+      object mniprs_ehliyetler: TMenuItem
+        Action = actprs_ehliyetler
+      end
+      object mniprs_lisan_bilgileri: TMenuItem
+        Action = actprs_lisan_bilgileri
+      end
       object mnipersonel_ayarlar: TMenuItem
         Caption = 'Ayarlar'
-        object mnipersonel_bolumler: TMenuItem
-          Action = actpersonel_bolumler
+        ImageIndex = 76
+        object mniset_prs_bolumler: TMenuItem
+          Action = actset_prs_bolumler
         end
-        object mnipersonel_birimller: TMenuItem
-          Action = actpersonel_birimler
+        object mniset_prs_birimller: TMenuItem
+          Action = actset_prs_birimler
         end
-        object mnipersonel_gorevler: TMenuItem
-          Action = actpersonel_gorevler
+        object mniset_prs_gorevler: TMenuItem
+          Action = actset_prs_gorevler
+        end
+        object mniset_prs_ehliyetler: TMenuItem
+          Action = actset_prs_ehliyetler
+        end
+        object mniset_prs_lisanlar: TMenuItem
+          Action = actset_prs_lisanlar
+        end
+        object mniset_prs_lisan_seviyeleri: TMenuItem
+          Action = actset_prs_lisan_seviyeleri
+        end
+        object mniset_prs_personel_tipleri: TMenuItem
+          Action = actset_prs_personel_tipleri
         end
       end
     end

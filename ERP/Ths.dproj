@@ -414,12 +414,12 @@
         <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsLisanBilgisi.pas">
             <Form>frmSetPrsLisanBilgisi</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.PrsPersonelEhliyetleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmPrsPersonelEhliyetleri.pas">
-            <Form>frmPrsPersonelEhliyetleri</Form>
+        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.PrsEhliyetler.pas"/>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmPrsEhliyetler.pas">
+            <Form>frmPrsEhliyetler</Form>
         </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmPrsPersonelEhliyet.pas">
-            <Form>frmPrsPersonelEhliyet</Form>
+        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmPrsEhliyet.pas">
+            <Form>frmPrsEhliyet</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Account\Ths.Database.Table.ChDovizKurlari.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmChDovizKurlari.pas">

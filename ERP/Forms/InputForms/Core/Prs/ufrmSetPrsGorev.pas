@@ -16,6 +16,7 @@ type
     lblgorev: TLabel;
   published
     procedure btnAcceptClick(Sender: TObject); override;
+    procedure RefreshData; override;
   end;
 
 implementation
@@ -35,6 +36,12 @@ begin
   end
   else
     inherited;
+end;
+
+procedure TfrmSetPrsGorev.RefreshData;
+begin
+  inherited;
+  edtgorev.Text := TSetPrsGorev(Table).Gorev.AsString;
 end;
 
 end.
