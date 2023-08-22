@@ -165,6 +165,8 @@ begin
     if GDataBase.Connection.Connected then
     begin
       try
+        GDataBase.Connection.ExecuteDirect('SET ths_erp.user_name = ' + QuotedStr(edtkullanici_adi.Text));
+
         pb1.Max := 11;
         pb1.Min := 0;
         pb1.Position := 0;

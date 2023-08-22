@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.4
--- Dumped by pg_dump version 15.2
+-- Dumped from database version 14.1
+-- Dumped by pg_dump version 14.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,15 +15,6 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
---
-
--- *not* creating schema, since initdb creates it
-
-
-ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
@@ -101,148 +92,60 @@ COMMENT ON EXTENSION postgres_fdw IS 'foreign-data wrapper for remote PostgreSQL
 
 CREATE FUNCTION public.audit() RETURNS trigger
     LANGUAGE plpgsql
-    AS $_$
-declare
-_username varchar;
-_ip varchar;
-_database varchar;
-_sql text;
-_old_val text[];
-_test text;
-_tarih timestamp without time zone;
-BEGIN
-
-	IF (TG_OP = 'INSERT') OR (TG_OP = 'DELETE') OR ((TG_OP = 'UPDATE') AND (ARRAY[OLD] <> ARRAY[NEW])) THEN
-
-		_username 	:= (upper(session_user)); 
-		_ip 		:= (inet_client_addr());
-		_database	:= (SELECT current_database());
-		_tarih		:= (SELECT NOW());
-
-		IF (TG_OP = 'INSERT') THEN
-			_old_val	:= (SELECT array[NEW]);
-		ELSE
-			_old_val	:= (SELECT array[OLD]);
-		END IF;
-
-		_test		:= (SELECT array_to_string(_old_val, ', '));
-
---		raise exception 'Mesaj =%', _test;
-
-		_test := replace(_test, ',,', ', null,');
-		_test := replace(_test, ',,', ', null,');
-		_test := replace(_test, ',,', ', null,');
-		_test := replace(_test, ',,', ', null,');
-		_test := replace(_test, ',,', ', null,');
-		_test := replace(_test, ',,', ', null,');
-		_test := replace(_test, ',,', ', null,');
-		_test := replace(_test, '"', '''');
-		_test := replace(_test, '(', '''');
-		_test := replace(_test, ')', '''');
-		_test := replace(_test, ',', ''', ''');
-		_test := replace(_test, '''''', '''');
-		_test := replace(_test, ''' null''', ' null');
-
-		--raise exception 'Mesaj =%', _test;
-
-		_sql		:= (SELECT format('INSERT INTO %I.%I VALUES (%L, %L, %L, %L, %s)', _database, TG_TABLE_NAME, _username, _ip, _tarih, TG_OP, _test));
-
-		--raise exception 'Mesaj =%', _sql;
-
-		PERFORM dblink(
-			'host=localhost user=ths_admin password=THSERP dbname=ths_erp_log port=5432', 
-			' ' || _sql || ';'
-		);
-
-	END IF;
-
-	RETURN NULL;
-/*
-	EXECUTE format('INSERT INTO %I.%I VALUES ($1.*)', (SELECT current_database()), TG_TABLE_NAME, _username, _ip)
-	USING OLD;
-	RETURN OLD;
-
-	RETURN null;
-	IF OLD IS NOT DISTINCT FROM NEW THEN
-*/
-
-END
-$_$;
-
-
-ALTER FUNCTION public.audit() OWNER TO ths_admin;
-
---
--- Name: audit_old(); Type: FUNCTION; Schema: public; Owner: ths_admin
---
-
-CREATE FUNCTION public.audit_old() RETURNS trigger
-    LANGUAGE plpgsql SECURITY DEFINER
     AS $$
-DECLARE
-	_username varchar;
-	_client_user varchar;
-	_ip varchar;
-	_table_name varchar;
-	_orj_table_name varchar;
-	_row_id integer;
-	_access_type varchar;
-	_time_of_change timestamp without time zone;
-	_db_name varchar;
-	_db_name_log varchar;
-	_old_data text;
-	_new_data text;
+declare
+_username text;
+_client_user text;
+_ip text;
+_database text;
+_log_database text;
+_sql text;
+_old_val text;
+_new_val text;
+_id text;
+_operatin text;
+_tarih timestamp without time zone;
 BEGIN
-	_username			:= upper(session_user);
-	_ip					:= inet_client_addr()::text;
-	_client_user		:= (SELECT coalesce(kullanici_adi, '') FROM sys_kullanici WHERE ip_adres=inet_client_addr()::text LIMIT 1);
-	_table_name 		:= TG_TABLE_NAME; 
-	_orj_table_name		:= TG_TABLE_NAME;
-	_time_of_change 	:= now();
-	_db_name			:= current_database();
-	_db_name_log		:= _db_name || '_log';
-	_old_data			:= '';
-	_new_data			:= '';
-	_access_type 	:= (TG_OP);
+	IF (TG_OP = 'INSERT') OR (TG_OP = 'DELETE') OR ((TG_OP = 'UPDATE') AND (ARRAY[OLD] <> ARRAY[NEW])) THEN
+		_username 	:= session_user; 
+		_ip 		:= (inet_client_addr());
+		_database	:= (SELECT current_database());
+		_tarih		:= (SELECT NOW());
 
-	IF (TG_OP = 'INSERT') THEN
-		_row_id			:= (NEW.id);
-		_new_data		:= row_to_json(NEW);
-	END IF;
-
-	IF (TG_OP = 'UPDATE') THEN
-		IF OLD.* = NEW.* THEN
-			RETURN NULL;
-		END IF;
+		_log_database := _database || '_log';
 		
-		_row_id 	:= (OLD.id);
-		_old_data	:= row_to_json(OLD);
-		_new_data		:= row_to_json(NEW);
+		IF (TG_OP = 'INSERT') THEN
+			_old_val	:= null;
+			_new_val	:= row_to_json(NEW);
+			_id := NEW.id;
+			_operatin := 'I';
+		ELSE
+			_old_val	:= row_to_json(OLD);
+			_new_val	:= row_to_json(NEW);
+			_id := OLD.id;
+			IF (TG_OP = 'UPDATE') THEN
+				_operatin := 'U';
+			ELSE
+				_operatin := 'D';
+			END IF;
+		END IF;
+
+		SELECT current_setting('ths_erp.user_name') INTO _client_user;
+
+		_sql := 
+		(SELECT format('INSERT INTO public.audits(
+			user_name, ip_address, table_name, access_type, time_of_change, row_id, client_username, old_val, new_val)
+		VALUES (%L, %L, %L, %L, %L, %L, %L, %L, %L);', 
+			_username, _ip, TG_TABLE_NAME, _operatin, _tarih, _id, _client_user, _old_val, _new_val));
+		
+		EXECUTE _sql;
 	END IF;
-
-	IF (TG_OP = 'DELETE') THEN
-		_row_id			:= (OLD.id);
-		_old_data		:= row_to_json(OLD);
-	END IF;
-
-	PERFORM dblink('host=127.0.0.1 port=5432 user=ths_admin password=THS ' || 'dbname=' || _db_name_log,
-		'INSERT INTO audit(uname, ip, table_name, access_type, time_of_change, row_id, old_val, new_val) ' ||
-		'VALUES(' ||
-			(quote_literal(_username)) || ',' ||
-			(quote_literal(_ip)) || ',' ||
-			(quote_literal(upper(_table_name))) || ',' ||
-			(quote_literal(_access_type)) || ',' ||
-			(quote_literal(_time_of_change)) || ',' ||
-			(quote_literal(_row_id)) || ',' ||
-			(quote_literal(_old_data)) || ',' ||
-			(quote_literal(_new_data)) || ');');
-
 	RETURN NULL;
-END;
+END
 $$;
 
 
-ALTER FUNCTION public.audit_old() OWNER TO ths_admin;
+ALTER FUNCTION public.audit() OWNER TO ths_admin;
 
 --
 -- Name: personel_adsoyad(); Type: FUNCTION; Schema: public; Owner: ths_admin
@@ -779,13 +682,13 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.audits (
     id bigint NOT NULL,
-    user_name character varying(16) NOT NULL,
+    user_name character varying NOT NULL,
     ip_address character varying(32) NOT NULL,
-    table_name character varying(36) NOT NULL,
+    table_name character varying NOT NULL,
     access_type character varying(1) NOT NULL,
     time_of_change timestamp without time zone NOT NULL,
     row_id bigint NOT NULL,
-    client_username character varying(16),
+    client_username character varying,
     old_val text,
     new_val text
 );
@@ -4615,12 +4518,31 @@ CREATE INDEX idx_sat_teklif_detaylari_header_id ON public.sat_teklif_detaylari U
 
 
 --
--- Name: stk_cins_ozellikleri audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: set_prs_bolumler audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.stk_cins_ozellikleri FOR EACH ROW EXECUTE FUNCTION public.audit_old();
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_bolumler FOR EACH ROW EXECUTE FUNCTION public.audit();
 
-ALTER TABLE public.stk_cins_ozellikleri DISABLE TRIGGER audit;
+
+--
+-- Name: prs_ehliyetler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prs_ehliyetler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prs_lisan_bilgileri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prs_lisan_bilgileri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prs_personeller notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prs_personeller FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -4628,13 +4550,6 @@ ALTER TABLE public.stk_cins_ozellikleri DISABLE TRIGGER audit;
 --
 
 CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_birimler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: set_prs_bolumler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_bolumler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -4687,13 +4602,6 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_ambarlar FO
 
 
 --
--- Name: stk_cins_ozellikleri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_cins_ozellikleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
 -- Name: stk_gruplar notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -4722,12 +4630,17 @@ CREATE TRIGGER sys_grid_col_width_table_notify AFTER INSERT OR DELETE OR UPDATE 
 
 
 --
+-- Name: set_prs_bolumler table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER table_notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_bolumler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
 -- Name: stk_cins_ozellikleri table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
 CREATE TRIGGER table_notify BEFORE INSERT OR DELETE OR UPDATE ON public.stk_cins_ozellikleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-ALTER TABLE public.stk_cins_ozellikleri DISABLE TRIGGER table_notify;
 
 
 --
@@ -5770,7 +5683,7 @@ ALTER TABLE ONLY public.urt_receteler
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 
@@ -5795,14 +5708,6 @@ GRANT ALL ON FUNCTION public.armor(bytea, text[], text[]) TO ths_admin;
 
 REVOKE ALL ON FUNCTION public.audit() FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.audit() FROM ths_admin;
-
-
---
--- Name: FUNCTION audit_old(); Type: ACL; Schema: public; Owner: ths_admin
---
-
-REVOKE ALL ON FUNCTION public.audit_old() FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.audit_old() FROM ths_admin;
 
 
 --

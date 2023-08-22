@@ -1,6 +1,6 @@
 inherited frmBaseInput: TfrmBaseInput
   ClientWidth = 606
-  ExplicitHeight = 433
+  ExplicitWidth = 620
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 606
@@ -26,11 +26,11 @@ inherited frmBaseInput: TfrmBaseInput
     ExplicitWidth = 602
     inherited btnAccept: TButton
       Left = 396
-      ExplicitLeft = 394
+      ExplicitLeft = 396
     end
     inherited btnClose: TButton
       Left = 500
-      ExplicitLeft = 498
+      ExplicitLeft = 500
     end
   end
   inherited stbBase: TStatusBar

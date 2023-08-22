@@ -34,11 +34,11 @@ function TfrmChDovizKurlari.CreateInputForm(Sender: TObject; pFormMode: TInputFo
 begin
   Result := nil;
   if (pFormMode = ifmRewiev) then
-    Result := TfrmChDovizKuru.Create(Application, Self, Table.Clone, pFormMode)
+    Result := TfrmChDovizKuru.Create(Self, Self, Table.Clone, pFormMode)
   else if (pFormMode = ifmNewRecord) then
-    Result := TfrmChDovizKuru.Create(Application, Self, TChDovizKuru.Create(Table.Database), pFormMode)
+    Result := TfrmChDovizKuru.Create(Self, Self, TChDovizKuru.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmChDovizKuru.Create(Application, Self, Table.Clone, pFormMode);
+    Result := TfrmChDovizKuru.Create(Self, Self, Table.Clone, pFormMode);
 end;
 
 procedure TfrmChDovizKurlari.FormShow(Sender: TObject);

@@ -196,7 +196,6 @@ type
     procedure actacc_exchange_rateExecute(Sender: TObject);
     procedure actset_prs_bolumExecute(Sender: TObject);
     procedure actset_prs_lisanExecute(Sender: TObject);
-    procedure actset_prs_personel_tipiExecute(Sender: TObject);
     procedure actset_prs_gorevExecute(Sender: TObject);
     procedure actset_prs_birimExecute(Sender: TObject);
     procedure actlstMainExecute(Action: TBasicAction; var Handled: Boolean);
@@ -219,7 +218,6 @@ type
     procedure actset_ch_hesap_planiExecute(Sender: TObject);
     procedure actset_ch_hesap_tipiExecute(Sender: TObject);
     procedure actstk_stok_hareketiExecute(Sender: TObject);
-    procedure actprs_personelExecute(Sender: TObject);
     procedure actset_prs_servis_araciExecute(Sender: TObject);
     procedure actsat_siparis_raporExecute(Sender: TObject);
     procedure actsat_siparisExecute(Sender: TObject);
@@ -310,11 +308,12 @@ uses
   Ths.Database.Table.ChDovizKurlari, ufrmChDovizKurlari,
 
   Ths.Database.Table.PrsPersoneller, ufrmPrsPersoneller,
-  Ths.Database.Table.PrsLisanBilgileri,
+  Ths.Database.Table.PrsLisanBilgileri, ufrmPrsLisanBilgileri,
   Ths.Database.Table.PrsEhliyetler, ufrmPrsEhliyetler,
   Ths.Database.Table.SetPrsBolumler, ufrmSetPrsBolumler,
   Ths.Database.Table.SetPrsBirimler, ufrmSetPrsBirimler,
   Ths.Database.Table.SetPrsGorevler, ufrmSetPrsGorevler,
+  Ths.Database.Table.SetPrsEhliyetler, ufrmSetPrsEhliyetler,
   Ths.Database.Table.SetPrsPersonelTipleri, ufrmSetPrsPersonelTipleri,
   Ths.Database.Table.SetPrsLisanlar, ufrmSetPrsLisanlar,
   Ths.Database.Table.SetPrsLisanSeviyeleri, ufrmSetPrsLisanSeviyeleri,
@@ -438,7 +437,7 @@ end;
 
 procedure TfrmDashboard.actset_prs_ehliyetlerExecute(Sender: TObject);
 begin
-//  TfrmSetPrsBolumler.Create(Self, Self, TSetPrsBolum.Create(GDatabase), fomNormal).Show;
+  TfrmSetPrsEhliyetler.Create(Self, Self, TSetPrsEhliyet.Create(GDatabase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_gorevlerExecute(Sender: TObject);
@@ -454,19 +453,12 @@ end;
 
 procedure TfrmDashboard.actprs_lisan_bilgileriExecute(Sender: TObject);
 begin
-  inherited;
-//
-end;
-
-procedure TfrmDashboard.actprs_personelExecute(Sender: TObject);
-begin
-  TfrmPrsPersoneller.Create(Self, Self, TPrsPersonel.Create(GDataBase), fomNormal).Show;
+  TfrmPrsLisanBilgileri.Create(Self, Self, TPrsLisanBilgisi.Create(GDatabase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actprs_personellerExecute(Sender: TObject);
 begin
-  inherited;
-//
+  TfrmPrsPersoneller.Create(Self, Self, TPrsPersonel.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actsat_siparisExecute(Sender: TObject);
@@ -581,25 +573,17 @@ end;
 
 procedure TfrmDashboard.actset_prs_lisanlarExecute(Sender: TObject);
 begin
-  inherited;
-//
+  TfrmSetPrsLisanlar.Create(Self, Self, TSetPrsLisan.Create(GDatabase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_lisan_seviyeleriExecute(Sender: TObject);
 begin
-  inherited;
-//
-end;
-
-procedure TfrmDashboard.actset_prs_personel_tipiExecute(Sender: TObject);
-begin
-  TfrmSetPrsPersonelTipleri.Create(Self, Self, TSetPrsPersonelTipi.Create(GDataBase), fomNormal).Show;
+  TfrmSetPrsLisanSeviyeleri.Create(Self, Self, TSetPrsLisanSeviyesi.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_personel_tipleriExecute(Sender: TObject);
 begin
-  inherited;
-//
+  TfrmSetPrsPersonelTipleri.Create(Self, Self, TSetPrsPersonelTipi.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_servis_araciExecute(Sender: TObject);

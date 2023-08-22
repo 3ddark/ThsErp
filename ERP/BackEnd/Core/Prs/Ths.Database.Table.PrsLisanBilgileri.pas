@@ -73,11 +73,11 @@ begin
   FLisanID := TFieldDB.Create('lisan_id', ftInteger, 0, Self, 'Lisan ID');
   FLisan := TFieldDB.Create(FSetPrsLisan.Lisan.FieldName, FSetPrsLisan.Lisan.DataType, '', Self, 'Lisan');
   FOkumaID := TFieldDB.Create('okuma_id', ftInteger, 0, Self, 'Okuma Seviyesi ID');
-  FOkuma := TFieldDB.Create(FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName, FSetPrsLisanSeviyesi.LisanSeviyesi.DataType, '', Self, 'Okuma Seviyesi', FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName + '_read', 0, True);
+  FOkuma := TFieldDB.Create('okuma', FSetPrsLisanSeviyesi.LisanSeviyesi.DataType, '', Self, 'Okuma Seviyesi', FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName + '_read', 0, True);
   FYazmaID := TFieldDB.Create('yazma_id', ftInteger, 0, Self, 'Yazma Seviyesi ID');
-  FYazma := TFieldDB.Create(FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName, FSetPrsLisanSeviyesi.LisanSeviyesi.DataType, '', Self, 'Yazma Seviyesi', FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName + '_write', 0, True);
+  FYazma := TFieldDB.Create('yazma', FSetPrsLisanSeviyesi.LisanSeviyesi.DataType, '', Self, 'Yazma Seviyesi', FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName + '_write', 0, True);
   FKonusmaID := TFieldDB.Create('konusma_id', ftInteger, 0, Self, 'Konuþma Seviyesi ID');
-  FKonusma := TFieldDB.Create(FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName, FSetPrsLisanSeviyesi.LisanSeviyesi.DataType, '', Self, 'Konuþma Seviyesi', FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName + '_speak', 0, True);
+  FKonusma := TFieldDB.Create('konusma', FSetPrsLisanSeviyesi.LisanSeviyesi.DataType, '', Self, 'Konuþma Seviyesi', FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName + '_speak', 0, True);
   FPersonelID := TFieldDB.Create('personel_id', ftInteger, 0, Self, 'Personel Kart ID');
   FPersonel := TFieldDB.Create(FEmpEmployee.AdSoyad.FieldName, FEmpEmployee.AdSoyad.DataType, FEmpEmployee.AdSoyad.Value, Self, FEmpEmployee.AdSoyad.Title);
 end;
@@ -107,11 +107,11 @@ begin
       FYazmaID.QryName,
       addField(FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName, FYazma.FieldName, 'ya'),
       FKonusmaID.QryName,
-      addField(FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName, FYazma.FieldName, 'ko'),
+      addField(FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName, FKonusma.FieldName, 'ko'),
       FPersonelID.QryName,
       addField(FEmpEmployee.TableName, FEmpEmployee.AdSoyad.FieldName, FPersonel.FieldName)
     ], [
-      addJoin(jtLeft, FLisan.FieldName, FLisanID.FieldName, FSetPrsLisan.TableName, FLisanID.FieldName),
+      addJoin(jtLeft, FSetPrsLisan.TableName, FSetPrsLisan.Id.FieldName, TableName, FLisanID.FieldName),
       addJoin(jtLeft, FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.Id.FieldName, TableName, FOkumaID.FieldName, 'ok'),
       addJoin(jtLeft, FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.Id.FieldName, TableName, FYazmaID.FieldName, 'ya'),
       addJoin(jtLeft, FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.Id.FieldName, TableName, FKonusmaID.FieldName, 'ko'),
@@ -143,11 +143,11 @@ begin
       FYazmaID.QryName,
       addField(FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName, FYazma.FieldName, 'ya'),
       FKonusmaID.QryName,
-      addField(FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName, FYazma.FieldName, 'ko'),
+      addField(FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName, FKonusma.FieldName, 'ko'),
       FPersonelID.QryName,
       addField(FEmpEmployee.TableName, FEmpEmployee.AdSoyad.FieldName, FPersonel.FieldName)
     ], [
-      addJoin(jtLeft, FLisan.FieldName, FLisanID.FieldName, FSetPrsLisan.TableName, FLisanID.FieldName),
+      addJoin(jtLeft, FSetPrsLisan.TableName, FSetPrsLisan.Id.FieldName, TableName, FLisanID.FieldName),
       addJoin(jtLeft, FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.Id.FieldName, TableName, FOkumaID.FieldName, 'ok'),
       addJoin(jtLeft, FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.Id.FieldName, TableName, FYazmaID.FieldName, 'ya'),
       addJoin(jtLeft, FSetPrsLisanSeviyesi.TableName, FSetPrsLisanSeviyesi.Id.FieldName, TableName, FKonusmaID.FieldName, 'ko'),

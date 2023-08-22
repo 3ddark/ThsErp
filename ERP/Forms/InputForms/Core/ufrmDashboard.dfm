@@ -14,10 +14,9 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 640
-  ExplicitHeight = 453
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 648
+  ExplicitHeight = 460
+  TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
     Top = 0
@@ -28,6 +27,7 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 632
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
@@ -56,22 +56,22 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 356
-    ExplicitWidth = 630
+    ExplicitTop = 353
+    ExplicitWidth = 628
     inherited btnAccept: TButton
       Left = 424
-      ExplicitLeft = 424
+      ExplicitLeft = 422
     end
     inherited btnClose: TButton
       Left = 528
-      ExplicitLeft = 528
+      ExplicitLeft = 526
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 386
     Width = 634
-    ExplicitTop = 386
-    ExplicitWidth = 634
+    ExplicitTop = 383
+    ExplicitWidth = 632
   end
   inherited pnlMain: TPanel [3]
     Top = 40
@@ -79,17 +79,19 @@ inherited frmDashboard: TfrmDashboard
     Height = 314
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 634
-    ExplicitHeight = 314
+    ExplicitWidth = 632
+    ExplicitHeight = 311
     object PageControl1: TPageControl
       Left = 0
       Top = 0
       Width = 634
       Height = 314
-      ActivePage = tsaccounting
+      ActivePage = tsemployee
       Align = alClient
       MultiLine = True
       TabOrder = 0
+      ExplicitWidth = 632
+      ExplicitHeight = 311
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton
@@ -428,18 +430,16 @@ inherited frmDashboard: TfrmDashboard
           Top = 2
           Width = 150
           Height = 36
-          Caption = 'Personel Bilgisi'
+          Action = actprs_personeller
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
-          ImageIndex = 64
           Images = dm.il32
           ParentFont = False
           TabOrder = 0
           WordWrap = True
-          OnClick = actprs_personelExecute
         end
       end
       object tsbom: TTabSheet
@@ -793,8 +793,8 @@ inherited frmDashboard: TfrmDashboard
     end
     object actprs_personeller: TAction
       Category = 'Personel'
-      Caption = 'Personeller'
-      ImageIndex = 17
+      Caption = 'Personel Bilgileri'
+      ImageIndex = 64
       OnExecute = actprs_personellerExecute
     end
   end

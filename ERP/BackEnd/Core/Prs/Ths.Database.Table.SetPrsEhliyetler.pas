@@ -37,7 +37,7 @@ uses
 constructor TSetPrsEhliyet.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_prs_ehliyetler';
-  TableSourceCode := '1000';
+  TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
   FEhliyet := TFieldDB.Create('ehliyet', ftWideString, '', Self, 'Ehliyet');

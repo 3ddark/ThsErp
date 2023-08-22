@@ -14,7 +14,6 @@ object frmBase: TfrmBase
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poOwnerFormCenter
   OnClose = FormClose
   OnCreate = FormCreate
@@ -25,7 +24,6 @@ object frmBase: TfrmBase
   OnPaint = FormPaint
   OnResize = FormResize
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0
@@ -40,6 +38,8 @@ object frmBase: TfrmBase
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
+    ExplicitWidth = 602
+    ExplicitHeight = 345
   end
   object pnlBottom: TPanel
     AlignWithMargins = True
@@ -55,6 +55,8 @@ object frmBase: TfrmBase
     BevelOuter = bvNone
     Color = 14993769
     TabOrder = 1
+    ExplicitTop = 347
+    ExplicitWidth = 598
     object btnSpin: TSpinButton
       Left = 0
       Top = 0
@@ -113,8 +115,9 @@ object frmBase: TfrmBase
       ImageMargins.Right = 2
       Images = dm.il16
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 2
       OnClick = btnAcceptClick
+      ExplicitLeft = 392
     end
     object btnClose: TButton
       AlignWithMargins = True
@@ -141,6 +144,7 @@ object frmBase: TfrmBase
       ParentFont = False
       TabOrder = 3
       OnClick = btnCloseClick
+      ExplicitLeft = 496
     end
     object btnDelete: TButton
       AlignWithMargins = True
@@ -165,7 +169,7 @@ object frmBase: TfrmBase
       ImageMargins.Right = 2
       Images = dm.il16
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 1
       OnClick = btnDeleteClick
     end
   end
@@ -177,6 +181,8 @@ object frmBase: TfrmBase
     Color = clBlack
     Panels = <>
     OnDrawPanel = stbBaseDrawPanel
+    ExplicitTop = 377
+    ExplicitWidth = 602
   end
   object AppEvntsBase: TApplicationEvents
     Left = 24

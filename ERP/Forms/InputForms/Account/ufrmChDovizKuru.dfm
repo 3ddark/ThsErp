@@ -6,20 +6,19 @@ inherited frmChDovizKuru: TfrmChDovizKuru
   ClientHeight = 171
   ClientWidth = 344
   ParentFont = True
-  Position = poDesktopCenter
   ExplicitWidth = 358
-  ExplicitHeight = 206
+  ExplicitHeight = 207
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 344
     Height = 121
     ExplicitWidth = 342
-    ExplicitHeight = 117
+    ExplicitHeight = 118
     inherited pgcMain: TPageControl
       Width = 344
       Height = 121
       ExplicitWidth = 342
-      ExplicitHeight = 117
+      ExplicitHeight = 118
       inherited tsMain: TTabSheet
         ExplicitTop = 26
         ExplicitWidth = 336
@@ -99,7 +98,7 @@ inherited frmChDovizKuru: TfrmChDovizKuru
   inherited pnlBottom: TPanel
     Top = 123
     Width = 340
-    ExplicitTop = 119
+    ExplicitTop = 120
     ExplicitWidth = 338
     inherited btnAccept: TButton
       Left = 134
@@ -113,7 +112,7 @@ inherited frmChDovizKuru: TfrmChDovizKuru
   inherited stbBase: TStatusBar
     Top = 153
     Width = 344
-    ExplicitTop = 149
+    ExplicitTop = 150
     ExplicitWidth = 342
   end
 end
