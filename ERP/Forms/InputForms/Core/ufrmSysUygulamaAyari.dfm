@@ -21,14 +21,14 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
     inherited pgcMain: TPageControl
       Width = 696
       Height = 337
-      ActivePage = tsadres
+      ActivePage = tsgorsel
       ExplicitWidth = 696
       ExplicitHeight = 337
       inherited tsMain: TTabSheet
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 668
-        ExplicitHeight = 245
+        ExplicitLeft = 4
+        ExplicitTop = 24
+        ExplicitWidth = 688
+        ExplicitHeight = 309
         object lblunvan: TLabel
           Left = 99
           Top = 6
@@ -608,10 +608,6 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
       object tsservis_ayarlari: TTabSheet
         Caption = 'Servis Ayarlar'#305
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 668
-        ExplicitHeight = 245
         object lblmail_sunucu: TLabel
           Left = 387
           Top = 7
@@ -802,10 +798,6 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
       object tsdiger: TTabSheet
         Caption = 'Di'#287'er Ayarlar'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 271
         object lblpath_stok_karti_resim: TLabel
           Left = 33
           Top = 5

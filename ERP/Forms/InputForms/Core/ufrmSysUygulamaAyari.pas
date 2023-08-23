@@ -221,6 +221,8 @@ begin
 
   edtpath_stok_karti_resim.CharCase := ecNormal;
   edtpath_guncelleme.CharCase := ecNormal;
+
+  edtcrypt_key.CharCase := ecNormal;
 end;
 
 procedure TfrmSysUygulamaAyari.FormPaint(Sender: TObject);
@@ -457,14 +459,14 @@ begin
 //  if TSysApplicationSettings(Table).CryptKey.Value <> secrypt_key.Value then
 //    Application.MessageBox()
 
-  if not DirectoryExists(edtpath_stok_karti_resim.Text) then
+  if (edtpath_stok_karti_resim.Text <> '') and not DirectoryExists(edtpath_stok_karti_resim.Text) then
   begin
     pgcMain.ActivePage := tsdiger;
     edtpath_stok_karti_resim.SetFocus;
     CreateExceptionByLang('Lütfen geçerli bir dizin seçin!');
   end;
 
-  if not DirectoryExists(edtpath_guncelleme.Text) then
+  if (edtpath_guncelleme.Text <> '') and not DirectoryExists(edtpath_guncelleme.Text) then
   begin
     pgcMain.ActivePage := tsdiger;
     edtpath_guncelleme.SetFocus;

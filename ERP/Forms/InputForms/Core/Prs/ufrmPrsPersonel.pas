@@ -139,8 +139,6 @@ type
   private
     FSetPrsPersonelTipi: TSetPrsPersonelTipi;
     FSetPrsTasimaServisi: TSetPrsTasimaServisi;
-
-    procedure resizeGrid(AGrid: TStringGrid; ACols: Array of Integer);
   public
     procedure Repaint; override;
   protected
@@ -209,26 +207,6 @@ begin
   end;
 end;
 
-procedure TfrmPrsPersonel.resizeGrid(AGrid: TStringGrid; ACols: Array of Integer);
-var
-  n1, vWidth: Integer;
-begin
-  AGrid.FixedCols := 1;
-  AGrid.FixedRows := 1;
-  AGrid.ColCount := Length(ACols);
-  AGrid.RowCount := 2;
-
-  AGrid.DefaultColWidth := 24;
-  AGrid.DefaultRowHeight := 18;
-  for n1 := 0 to Length(ACols)-1 do
-    AGrid.ColWidths[n1] := ACols[n1];
-
-  vWidth := 0;
-  for n1 := 0 to AGrid.ColCount-1 do
-    vWidth := vWidth + AGrid.ColWidths[n1] + AGrid.GridLineWidth;
-  AGrid.Width := vWidth + 28;
-end;
-
 procedure TfrmPrsPersonel.FormCreate(Sender: TObject);
 var
   n1: Integer;
@@ -294,7 +272,6 @@ end;
 
 procedure TfrmPrsPersonel.FormShow(Sender: TObject);
 begin
-  edtbolum_id.OnHelperProcess := HelperProcess;
   edtbirim_id.OnHelperProcess := HelperProcess;
   edtgorev_id.OnHelperProcess := HelperProcess;
   edtulke_id.OnHelperProcess := HelperProcess;
@@ -305,8 +282,12 @@ end;
 
 procedure TfrmPrsPersonel.HelperProcess(Sender: TObject);
 var
+  LFrmBirim: TfrmSetPrsBirimler;
+  LBirim: TSetPrsBirim;
   LFrmGorev: TfrmSetPrsGorevler;
   LGorev: TSetPrsGorev;
+  LUlke: TSysUlke;
+  LFrmUlke: TfrmSysUlkeler;
   LFrmCity: TfrmSysSehirler;
   LCity: TSysSehir;
 begin
@@ -314,7 +295,31 @@ begin
   begin
     if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
     begin
-      if (TEdit(Sender).Name = edtgorev_id.Name) then
+      if (TEdit(Sender).Name = edtbirim_id.Name) then
+      begin
+        LBirim := TSetPrsBirim.Create(Table.Database);
+        LFrmBirim := TfrmSetPrsBirimler.Create(TEdit(Sender), Self, LBirim, fomNormal, True);
+        try
+          LFrmBirim.ShowModal;
+          if LFrmBirim.DataAktar then
+          begin
+            if LFrmBirim.CleanAndClose then
+            begin
+              TPrsPersonel(Table).BirimID.Value := 0;
+              TEdit(Sender).Clear;
+              edtbolum_id.Clear;
+            end
+            else
+            begin
+              TPrsPersonel(Table).BirimID.Value := LFrmBirim.Table.Id.Value;
+              TEdit(Sender).Text := LBirim.Birim.AsString;
+              edtbolum_id.Text := LBirim.Bolum.AsString;
+            end;
+          end;
+        finally
+          LFrmBirim.Free;
+        end;
+      end else if (TEdit(Sender).Name = edtgorev_id.Name) then
       begin
         LGorev := TSetPrsGorev.Create(Table.Database);
         LFrmGorev := TfrmSetPrsGorevler.Create(TEdit(Sender), Self, LGorev, fomNormal, True);
@@ -322,16 +327,53 @@ begin
           LFrmGorev.ShowModal;
           if LFrmGorev.DataAktar then
           begin
-            TPrsPersonel(Table).GorevID.Value := LFrmGorev.Table.Id.Value;
-            TEdit(Sender).Text := LGorev.Gorev.Value;
+            if LFrmGorev.CleanAndClose then
+            begin
+              TPrsPersonel(Table).GorevID.Value := 0;
+              TEdit(Sender).Clear;
+            end
+            else
+            begin
+              TPrsPersonel(Table).GorevID.Value := LFrmGorev.Table.Id.Value;
+              TEdit(Sender).Text := LGorev.Gorev.Value;
+            end;
           end;
         finally
           LFrmGorev.Free;
         end;
-      end else if (TEdit(Sender).Name = edtsehir_id.Name) then
+      end else if (TEdit(Sender).Name = edtulke_id.Name) then
+      begin
+        LUlke := TSysUlke.Create(Table.Database);
+        LFrmUlke := TfrmSysUlkeler.Create(TEdit(Sender), Self, LUlke, fomNormal, True);
+        try
+          LFrmUlke.ShowModal;
+          if LFrmUlke.DataAktar then
+          begin
+            if LFrmUlke.CleanAndClose then
+            begin
+              TEdit(Sender).Clear;
+              edtsehir_id.Clear;
+            end
+            else
+            begin
+              if TPrsPersonel(Table).Adres.UlkeKodu.AsString <> LUlke.UlkeKodu.AsString then
+              begin
+                edtsehir_id.Clear;
+                TPrsPersonel(Table).Adres.SehirId.Value := 0;
+              end;
+
+              TEdit(Sender).Text := LUlke.UlkeAdi.AsString;
+              TPrsPersonel(Table).Adres.UlkeKodu.Value := LUlke.UlkeKodu.AsString;
+            end;
+          end;
+        finally
+          LFrmCity.Free;
+        end;
+      end else if (TEdit(Sender).Name = edtsehir_id.Name) and (edtulke_id.Text <> '') then
       begin
         LCity := TSysSehir.Create(Table.Database);
         LFrmCity := TfrmSysSehirler.Create(TEdit(Sender), Self, LCity, fomNormal, True);
+        LFrmCity.QryFiltreVarsayilan := ' AND ' + LCity.UlkeAdi.FieldName + '=' + QuotedStr(edtulke_id.Text);
         try
           LFrmCity.ShowModal;
           if LFrmCity.DataAktar then
@@ -398,17 +440,54 @@ end;
 
 procedure TfrmPrsPersonel.RefreshData;
 begin
-  edtad.Text := TPrsPersonel(Table).Ad.Value;
-  edtsoyad.Text := TPrsPersonel(Table).Soyad.Value;
+  edtbolum_id.ReadOnly := True;
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
+  begin
+    edtilce.ReadOnly := False;
+    edtilce.CharCase := ecUpperCase;
+    edtilce.thsInputDataType := itString;
+
+    edtmahalle.ReadOnly := False;
+    edtmahalle.CharCase := ecUpperCase;
+    edtmahalle.thsInputDataType := itString;
+
+    edtsemt.ReadOnly := False;
+    edtsemt.CharCase := ecUpperCase;
+    edtsemt.thsInputDataType := itString;
+
+    edtcadde.ReadOnly := False;
+    edtcadde.CharCase := ecUpperCase;
+    edtcadde.thsInputDataType := itString;
+
+    edtsokak.ReadOnly := False;
+    edtsokak.CharCase := ecUpperCase;
+    edtsokak.thsInputDataType := itString;
+
+    edtbina_adi.ReadOnly := False;
+    edtbina_adi.CharCase := ecUpperCase;
+    edtbina_adi.thsInputDataType := itString;
+
+    edtkapi_no.ReadOnly := False;
+    edtkapi_no.CharCase := ecUpperCase;
+    edtkapi_no.thsInputDataType := itString;
+
+    edtposta_kodu.ReadOnly := False;
+    edtposta_kodu.CharCase := ecUpperCase;
+    edtposta_kodu.thsInputDataType := itString;
+  end;
+
+  edtad.Text := TPrsPersonel(Table).Ad.AsString;
+  edtsoyad.Text := TPrsPersonel(Table).Soyad.AsString;
   cbbpersonel_tipi_id.ItemIndex := cbbpersonel_tipi_id.Items.IndexOf(TPrsPersonel(Table).PersonelTipi.Value);
 
-  edtbirim_id.Text := TPrsPersonel(Table).Birim.Value;
-  edtgorev_id.Text := TPrsPersonel(Table).Gorev.Value;
+  edtbolum_id.Text := TPrsPersonel(Table).Bolum.AsString;
+  edtbirim_id.Text := TPrsPersonel(Table).Birim.AsString;
+  edtgorev_id.Text := TPrsPersonel(Table).Gorev.AsString;
 
-  mmogenel_not.Text := TPrsPersonel(Table).GenelNot.Value;
+  mmogenel_not.Text := TPrsPersonel(Table).GenelNot.AsString;
   cbbtasima_servisi_id.ItemIndex := cbbtasima_servisi_id.Items.IndexOf(TPrsPersonel(Table).TasimaServis.Value);
 
-  edtsehir_id.Text := TPrsPersonel(Table).Adres.Sehir.Value;
+  edtsehir_id.Text := TPrsPersonel(Table).Adres.Sehir.AsString;
 
   edtilce.Text := TPrsPersonel(Table).Adres.Ilce.AsString;
   edtmahalle.Text := TPrsPersonel(Table).Adres.Mahalle.AsString;
@@ -456,8 +535,6 @@ begin
     chkis_aktif.Visible := True;
     lblis_aktif.Visible := True;
   end;
-
-  edtilce.ReadOnly := True;
   edtposta_kodu.ReadOnly := True;
 end;
 
@@ -516,22 +593,6 @@ begin
       TPrsPersonel(Table).IkramiyeSayisi.Value := edtikramiye_sayisi.Text;
       TPrsPersonel(Table).IkramiyeTutari.Value := edtikramiye_tutar.moneyToDouble;
       TPrsPersonel(Table).OzelNot.Value := mmoozel_not.Text;
-
-//      TEmpCard(Table).DriverLicenseAbility.List.Clear;
-//      for n1 := 1 to strngrdDriverLicenseAbility.RowCount-1 do
-//      begin
-//        if Assigned(strngrdDriverLicenseAbility.Objects[0, n1]) then
-//        begin
-//          if TEmpDriverLicenseAbility(strngrdDriverLicenseAbility.Objects[0, n1]).Id.Value < 0 then
-//            TEmpCard(Table).DriverLicenseAbility.List.Add( TEmpDriverLicenseAbility(strngrdDriverLicenseAbility.Objects[0, n1]).Clone )
-//          else
-//            TEmpCard(Table).DriverLicenseAbility.List.Add( TEmpDriverLicenseAbility(strngrdDriverLicenseAbility.Objects[0, n1]).Clone );
-//        end
-//        else
-//        begin
-//
-//        end;
-//      end;
 
       inherited;
     end;

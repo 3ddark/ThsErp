@@ -100,7 +100,7 @@ begin
     Self.DBPortNo        := iniFile.ReadInteger('ConnectionSettings', 'DBPortNo', 0);
     Self.FUserName       := iniFile.ReadString('ConnectionSettings', 'UserName', '');
     Self.FUserPass       := DecryptStr(iniFile.ReadString('ConnectionSettings', 'UserPass', ''), SECURE_KEY);
-    Self.FTheme      := iniFile.ReadString('ConnectionSettings', 'Theme', '');
+    Self.FTheme          := iniFile.ReadString('ConnectionSettings', 'Theme', '');
   finally
     iniFile.Free;
   end;

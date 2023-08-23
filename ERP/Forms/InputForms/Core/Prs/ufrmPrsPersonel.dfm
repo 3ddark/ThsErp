@@ -243,10 +243,6 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       object tsDetail: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblbina_adi: TLabel
           Left = 100
           Top = 215
@@ -481,10 +477,6 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       object tsSpecial: TTabSheet
         Caption = #214'zel Bilgiler'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblmaas: TLabel
           Left = 98
           Top = 224
@@ -904,11 +896,11 @@ inherited frmPrsPersonel: TfrmPrsPersonel
     ExplicitTop = 410
     ExplicitWidth = 624
     inherited btnAccept: TButton
-      Left = 420
+      Left = 418
       ExplicitLeft = 418
     end
     inherited btnClose: TButton
-      Left = 524
+      Left = 522
       ExplicitLeft = 522
     end
   end

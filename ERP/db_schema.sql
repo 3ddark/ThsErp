@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.1
--- Dumped by pg_dump version 14.1
+-- Dumped from database version 13.4
+-- Dumped by pg_dump version 15.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,6 +15,15 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
@@ -2647,12 +2656,13 @@ ALTER TABLE public.stk_gruplar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 CREATE TABLE public.sys_adresler (
     id bigint NOT NULL,
     sehir_id bigint,
+    ilce character varying(64),
     mahalle character varying(64),
+    semt character varying(64),
     cadde character varying(64),
     sokak character varying(64),
     bina_adi character varying(48),
     kapi_no character varying(16),
-    posta_kutusu character varying(16),
     posta_kodu character varying(16),
     web character varying(64),
     email character varying(128)
@@ -2662,11 +2672,11 @@ CREATE TABLE public.sys_adresler (
 ALTER TABLE public.sys_adresler OWNER TO ths_admin;
 
 --
--- Name: sys_adres_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: sys_adresler_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE public.sys_adresler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_adres_id_seq
+    SEQUENCE NAME public.sys_adresler_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -5683,7 +5693,7 @@ ALTER TABLE ONLY public.urt_receteler
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 

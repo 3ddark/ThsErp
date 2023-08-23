@@ -2100,21 +2100,15 @@ end;
 
 function EncryptStr(const S, ASecureKey: string): string;
 var
-  key: TSHA256Digest;
-  aes: TAESCFB;
   LData: RawByteString;
+  LPass: RawByteString;
+  LEncrptedData: RawByteString;
 begin
   try
-    SynCommons.HexToBin(Pointer(SHA256(StringToAnsi7(ASecureKey))), @key, 32);
-
-    aes := TAESCFB.Create(key, 256);
-    try
-      LData := StringToUTF8(S);
-      LData := BinToBase64(aes.EncryptPKCS7(LData, True));
-      Result := UTF8ToString(LData);
-    finally
-      aes.Free;
-    end;
+    LData := StringToUTF8(S);
+    LPass := StringToUTF8(ASecureKey);
+    LEncrptedData := BinToBase64(AESSHA256(LData, LPass, True));
+    Result := UTF8ToString(LEncrptedData);
   except
     Result := '';
   end;
@@ -2122,21 +2116,15 @@ end;
 
 function DecryptStr(const S, ASecureKey: string): string;
 var
-  key: TSHA256Digest;
-  aes: TAESCFB;
   LData: RawByteString;
+  LPass: RawByteString;
+  LEncrptedData: RawByteString;
 begin
   try
-    SynCommons.HexToBin(Pointer(SHA256(StringToAnsi7(ASecureKey))), @key, 32);
-
-     aes := TAESCFB.Create(key, 256);
-    try
-      LData := StringToUTF8(S);
-      LData := aes.DecryptPKCS7(Base64ToBin(LData), True);
-      Result := UTF8ToString(LData);
-    finally
-      aes.Free;
-    end;
+    LData := Base64ToBin(StringToUTF8(S));
+    LPass := StringToUTF8(ASecureKey);
+    LEncrptedData := AESSHA256(LData, LPass, False);
+    Result := UTF8ToString(LEncrptedData);
   except
     Result := '';
   end;
