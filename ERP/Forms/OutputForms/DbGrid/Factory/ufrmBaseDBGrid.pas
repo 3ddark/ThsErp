@@ -133,6 +133,7 @@ type
     pb1: TProgressBar;
     qrybase: TZQuery;
     pgalertbase: TZPgEventAlerter;
+    mniKolonGeniliklerineEkle1: TMenuItem;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
     procedure FormResize(Sender: TObject); override;
@@ -200,6 +201,7 @@ type
     procedure actfilter_excludeExecute(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure pgalertbaseNotify(Sender: TObject; Event: string; ProcessID: Integer; Payload: string);
+    procedure mniKolonGeniliklerineEkle1Click(Sender: TObject);
   private
     //for use HelperForm
     FIsHelper: Boolean;
@@ -1019,15 +1021,22 @@ end;
 
 procedure TfrmBaseDBGrid.grdKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
+  if FIsHelper then
+    Exit;
+
   //CTRL + DELETE konbinasyonu ile kayıtları silmeyi engellemek için yapıldı. Aksi halde kontrol kayıt silme işlemi yapılabilir.
-  if (Key = VK_DELETE) and (Shift = [ssCtrl]) then
-    Key := 0;
+  if (Shift = [ssCtrl]) then
+  begin
+    if (Key = VK_DELETE) then
+    begin
+      Key := 0;
+    end
+  end;
 end;
 
 procedure TfrmBaseDBGrid.grdKeyPress(Sender: TObject; var Key: Char);
 begin
-  inherited;
-  //
+//
 end;
 
 procedure TfrmBaseDBGrid.grdKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -1551,6 +1560,32 @@ end;
 procedure TfrmBaseDBGrid.mniFormTitleByLangClick(Sender: TObject);
 begin
   CreateLangGuiContentFormforFormCaption;
+end;
+
+procedure TfrmBaseDBGrid.mniKolonGeniliklerineEkle1Click(Sender: TObject);
+var
+  LKolon: TSysGridKolon;
+  LNextSiraNo: Integer;
+begin
+  LKolon := TSysGridKolon.Create(GDatabase);
+  try
+    LNextSiraNo := 1;
+    LKolon.SelectToList(
+        ' AND ' + LKolon.TabloAdi.QryName + '=' + QuotedStr(Table.TableName) +
+        ' ORDER BY ' + LKolon.SiraNo.QryName + ' DESC LIMIT 1', False, False);
+    if LKolon.List.Count=1 then
+      LNextSiraNo := LKolon.SiraNo.AsInteger + 1;
+    LKolon.Clear;
+    LKolon.TabloAdi.Value := ReplaceRealColOrTableNameTo(Table.TableName);
+    LKolon.KolonAdi.Value := ReplaceRealColOrTableNameTo(grd.SelectedField.FieldName);
+    LKolon.SiraNo.Value := LNextSiraNo;
+    LKolon.KolonGenislik.Value := 100;
+    LKolon.IsGorunur.Value := True;
+    LKolon.IsHelperGorunur.Value := True;
+    LKolon.LogicalInsert(True, True, False);
+  finally
+    LKolon.Free;
+  end;
 end;
 
 procedure TfrmBaseDBGrid.mnipreviewClick(Sender: TObject);

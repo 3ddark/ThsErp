@@ -247,8 +247,8 @@ begin
   cbbkan_grubu.Items.Add('0 RH-');
 
   cbbcinsiyet_id.Clear;
-  cbbcinsiyet_id.Items.Add(Ord(TGender.Erkek).ToString);
-  cbbcinsiyet_id.Items.Add(Ord(TGender.Kadin).ToString);
+  cbbcinsiyet_id.Items.Add(GenderStr[Ord(TGender.Erkek)]);
+  cbbcinsiyet_id.Items.Add(GenderStr[Ord(TGender.Kadin)]);
   cbbcinsiyet_id.ItemIndex := -1;
 
   cbbmedeni_durumu_id.Clear;
@@ -487,6 +487,7 @@ begin
   mmogenel_not.Text := TPrsPersonel(Table).GenelNot.AsString;
   cbbtasima_servisi_id.ItemIndex := cbbtasima_servisi_id.Items.IndexOf(TPrsPersonel(Table).TasimaServis.Value);
 
+  edtulke_id.Text := TPrsPersonel(Table).Adres.Sehir.AsString;
   edtsehir_id.Text := TPrsPersonel(Table).Adres.Sehir.AsString;
 
   edtilce.Text := TPrsPersonel(Table).Adres.Ilce.AsString;
@@ -535,7 +536,6 @@ begin
     chkis_aktif.Visible := True;
     lblis_aktif.Visible := True;
   end;
-  edtposta_kodu.ReadOnly := True;
 end;
 
 procedure TfrmPrsPersonel.btnAcceptClick(Sender: TObject);

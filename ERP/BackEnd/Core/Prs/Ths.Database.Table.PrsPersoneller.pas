@@ -20,8 +20,12 @@ uses
   Ths.Database.Table.SysSehirler,
   Ths.Database.Table.PrsEhliyetler;
 
+const
+  GenderStr : array [0..1] of string = ('ERKEK', 'KADIN');
+
 type
   TGender = (Erkek=0, Kadin=1);
+
   TMaritalStatus = (Bekar=0, Evli=1);
   TMilitaryState = (Yapti=0, Muaf=1);
 
@@ -66,6 +70,12 @@ type
     FSetPrsServisAraci: TSetPrsTasimaServisi;
     FSysUlke: TSysUlke;
     FSysSehir: TSysSehir;
+  protected
+    procedure BusinessSelect(AFilter: string; ALock: Boolean; APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
+    procedure BusinessUpdate(APermissionControl: Boolean); override;
+    procedure BusinessDelete(APermissionControl: Boolean); override;
+
   published
     destructor Destroy; override;
     constructor Create(ADatabase: TDatabase); override;
@@ -394,10 +404,44 @@ begin
   end;
 end;
 
+procedure TPrsPersonel.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+begin
+  Self.SelectToList(AFilter, ALock, APermissionControl);
+  if Self.List.Count = 1 then
+  begin
+    if Self.AdresID.AsInt64 > 0 then
+      Self.Adres.SelectToList(' AND ' + Self.Adres.Id.QryName + '=' + Self.AdresID.AsString, ALock, False);
+  end;
+end;
+
+procedure TPrsPersonel.BusinessInsert(APermissionControl: Boolean);
+begin
+  Self.Adres.Insert(False);
+  Self.AdresID.Value := Self.Adres.Id.Value;
+  Self.Insert(APermissionControl);
+end;
+
+procedure TPrsPersonel.BusinessUpdate(APermissionControl: Boolean);
+begin
+  if Self.Adres.Id.AsInt64 > 0 then
+    Self.Adres.Update(False)
+  else
+    Self.Adres.Insert(False);
+  Self.AdresID.Value := Self.Adres.Id.AsInt64;
+  Self.Update(APermissionControl);
+end;
+
+procedure TPrsPersonel.BusinessDelete(APermissionControl: Boolean);
+begin
+  inherited;
+//
+end;
+
 function TPrsPersonel.Clone():TTable;
 begin
   Result := TPrsPersonel.Create(Database);
   CloneClassContent(Self, Result);
+  CloneClassContent(Self.Adres, TPrsPersonel(Result).Adres);
 end;
 
 end.
