@@ -15,12 +15,12 @@ inherited frmPrsEhliyet: TfrmPrsEhliyet
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 348
-    ExplicitHeight = 100
+    ExplicitHeight = 80
     inherited pgcMain: TPageControl
       Width = 350
       Height = 83
       ExplicitWidth = 348
-      ExplicitHeight = 100
+      ExplicitHeight = 80
       inherited tsMain: TTabSheet
         ExplicitWidth = 342
         ExplicitHeight = 55
@@ -64,12 +64,11 @@ inherited frmPrsEhliyet: TfrmPrsEhliyet
           AutoCloseUp = True
           TabOrder = 0
         end
-        object cbbpersonel_id: TComboBox
+        object edtpersonel_id: TEdit
           Left = 108
           Top = 25
           Width = 200
           Height = 21
-          AutoCloseUp = True
           TabOrder = 1
         end
       end
@@ -78,7 +77,7 @@ inherited frmPrsEhliyet: TfrmPrsEhliyet
   inherited pnlBottom: TPanel
     Top = 85
     Width = 346
-    ExplicitTop = 102
+    ExplicitTop = 82
     ExplicitWidth = 344
     inherited btnAccept: TButton
       Left = 140
@@ -92,7 +91,7 @@ inherited frmPrsEhliyet: TfrmPrsEhliyet
   inherited stbBase: TStatusBar
     Top = 115
     Width = 350
-    ExplicitTop = 132
+    ExplicitTop = 112
     ExplicitWidth = 348
   end
 end

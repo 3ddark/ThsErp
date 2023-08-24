@@ -6,32 +6,32 @@ inherited frmSetPrsBolum: TfrmSetPrsBolum
   ClientHeight = 114
   ClientWidth = 340
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 356
-  ExplicitHeight = 153
+  ExplicitWidth = 354
+  ExplicitHeight = 150
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 340
     Height = 64
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 340
-    ExplicitHeight = 64
+    ExplicitWidth = 338
+    ExplicitHeight = 61
     inherited pgcMain: TPageControl
-      Width = 342
-      Height = 67
-      ExplicitWidth = 340
-      ExplicitHeight = 64
+      Width = 340
+      Height = 64
+      ExplicitWidth = 338
+      ExplicitHeight = 61
       inherited tsMain: TTabSheet
-        ExplicitWidth = 334
-        ExplicitHeight = 39
+        ExplicitWidth = 332
+        ExplicitHeight = 36
         object lblbolum: TLabel
-          Left = 40
+          Left = 49
           Top = 6
-          Width = 44
+          Width = 35
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Section'
+          Caption = 'B'#246'l'#252'm'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -53,21 +53,21 @@ inherited frmSetPrsBolum: TfrmSetPrsBolum
   inherited pnlBottom: TPanel
     Top = 66
     Width = 336
-    ExplicitTop = 66
-    ExplicitWidth = 336
+    ExplicitTop = 63
+    ExplicitWidth = 334
     inherited btnAccept: TButton
-      Left = 132
-      ExplicitLeft = 130
+      Left = 130
+      ExplicitLeft = 128
     end
     inherited btnClose: TButton
-      Left = 236
-      ExplicitLeft = 234
+      Left = 234
+      ExplicitLeft = 232
     end
   end
   inherited stbBase: TStatusBar
     Top = 96
     Width = 340
-    ExplicitTop = 96
-    ExplicitWidth = 340
+    ExplicitTop = 93
+    ExplicitWidth = 338
   end
 end

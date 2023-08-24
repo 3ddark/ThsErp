@@ -16,6 +16,7 @@ type
     lbllisan_seviyesi: TLabel;
   published
     procedure btnAcceptClick(Sender: TObject); override;
+    procedure RefreshData; override;
   end;
 
 implementation
@@ -35,6 +36,12 @@ begin
   end
   else
     inherited;
+end;
+
+procedure TfrmSetPrsLisanSeviyesi.RefreshData;
+begin
+  inherited;
+  edtlisan_seviyesi.Text := TSetPrsLisanSeviyesi(Table).LisanSeviyesi.AsString;
 end;
 
 end.

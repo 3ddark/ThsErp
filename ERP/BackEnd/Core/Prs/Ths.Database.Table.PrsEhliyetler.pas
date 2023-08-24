@@ -49,7 +49,7 @@ constructor TPrsEhliyet.Create(ADatabase: TDatabase);
 var
   LEmp: TPrsPersonel;
 begin
-  TableName := 'prs_personel_ehliyetleri';
+  TableName := 'prs_ehliyetler';
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
@@ -92,7 +92,7 @@ begin
         FPersonelID.QryName,
         addField(LEmp.TableName, LEmp.AdSoyad.FieldName, FPersonel.FieldName)
       ], [
-        addJoin(jtLeft, FSetPrsEhliyet.TableName, FSetPrsEhliyet.Id.FieldName, TableName, FEhliyet.FieldName),
+        addJoin(jtLeft, FSetPrsEhliyet.TableName, FSetPrsEhliyet.Id.FieldName, TableName, FEhliyetID.FieldName),
         addJoin(jtLeft, LEmp.TableName, LEmp.Id.FieldName, TableName, FPersonelID.FieldName),
         ' WHERE 1=1 ', AFilter
       ], AAllColumn, AHelper);
@@ -124,7 +124,7 @@ begin
       FPersonelID.QryName,
       addField(LPersEmp.TableName, LPersEmp.AdSoyad.FieldName, FPersonel.FieldName)
     ], [
-      addJoin(jtLeft, FSetPrsEhliyet.TableName, FSetPrsEhliyet.Id.FieldName, TableName, FEhliyet.FieldName),
+      addJoin(jtLeft, FSetPrsEhliyet.TableName, FSetPrsEhliyet.Id.FieldName, TableName, FEhliyetID.FieldName),
       addJoin(jtLeft, LPersEmp.TableName, LPersEmp.Id.FieldName, TableName, FPersonelID.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);

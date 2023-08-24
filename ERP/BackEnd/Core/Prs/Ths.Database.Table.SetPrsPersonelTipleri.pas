@@ -37,7 +37,7 @@ uses
 constructor TSetPrsPersonelTipi.Create(ADatabase: TDatabase);
 begin
   TableName := 'set_prs_personel_tipleri';
-  TableSourceCode := '1000';
+  TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
   FPersonelTipi := TFieldDB.Create('personel_tipi', ftWideString, '', Self, 'Personel Tipi');

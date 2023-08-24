@@ -67,6 +67,7 @@ type
     FIkramiyeTutari: TFieldDB;
     FIdentification: TFieldDB;
     FAdresID: TFieldDB;
+    FPasif: TFieldDB;
 
     FSetPrsPersonelTipi: TSetPrsPersonelTipi;
     FSetPrsBolum: TSetPrsBolum;
@@ -129,6 +130,7 @@ type
     property IkramiyeTutari: TFieldDB read FIkramiyeTutari write FIkramiyeTutari;
     property Identification: TFieldDB read FIdentification write FIdentification;
     Property AdresID: TFieldDB read FAdresID write FAdresID;
+    Property Pasif: TFieldDB read FPasif write FPasif;
   end;
 
 implementation
@@ -188,6 +190,7 @@ begin
   FIkramiyeTutari := TFieldDB.Create('ikramiye_tutar', ftFMTBcd, 0, Self, 'Ýkramiye Tutar');
   FIdentification := TFieldDB.Create('identification', ftWideString, '', Self, 'TC No');
   FAdresID := TFieldDB.Create('adres_id', ftLargeint, 0, Self, '');
+  FPasif := TFieldDB.Create('pasif', ftBoolean, False, Self, 'Pasif');
 end;
 
 destructor TPrsPersonel.Destroy;
@@ -252,7 +255,8 @@ begin
       FIkramiyeSayisi.QryName,
       FIkramiyeTutari.QryName,
       'CAST(' + FIdentification.QryName + ' as varchar(32))',
-      FAdresID.QryName
+      FAdresID.QryName,
+      FPasif.QryName
     ], [
       addJoin(jtLeft, FSetPrsPersonelTipi.TableName, FSetPrsPersonelTipi.Id.FieldName, TableName, FPersonelTipiID.FieldName),
       addJoin(jtLeft, FSetPrsBirim.TableName, FSetPrsBirim.Id.FieldName, TableName, FBirimID.FieldName),
@@ -309,7 +313,8 @@ begin
       FIkramiyeSayisi.QryName,
       FIkramiyeTutari.QryName,
       'cast(' + FIdentification.QryName + ' as varchar(32)) ' + FIdentification.FieldName,
-      FAdresID.QryName
+      FAdresID.QryName,
+      FPasif.QryName
     ], [
       addJoin(jtLeft, FSetPrsPersonelTipi.TableName, FSetPrsPersonelTipi.Id.FieldName, TableName, FPersonelTipiID.FieldName),
       addJoin(jtLeft, FSetPrsBirim.TableName, FSetPrsBirim.Id.FieldName, TableName, FBirimID.FieldName),
@@ -368,7 +373,8 @@ begin
       FIkramiyeSayisi.FieldName,
       FIkramiyeTutari.FieldName,
       FIdentification.FieldName,
-      FAdresID.FieldName
+      FAdresID.FieldName,
+      FPasif.FieldName
     ]);
 
     PrepareInsertQueryParams(LQry);
@@ -413,7 +419,8 @@ begin
       FIkramiyeSayisi.FieldName,
       FIkramiyeTutari.FieldName,
       FIdentification.FieldName,
-      FAdresID.FieldName
+      FAdresID.FieldName,
+      FPasif.FieldName
     ]);
 
     PrepareUpdateQueryParams(LQry);

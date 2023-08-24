@@ -24,7 +24,7 @@ type
   TfrmPrsPersonel = class(TfrmBaseInputDB)
     tsDetail: TTabSheet;
     tsSpecial: TTabSheet;
-    lblis_aktif: TLabel;
+    lblpasif: TLabel;
     lblmaas: TLabel;
     lblozel_not: TLabel;
     lblikramiye_sayisi: TLabel;
@@ -43,7 +43,7 @@ type
     lblmedeni_durumu_id: TLabel;
     lblaskerlik_durumu_id: TLabel;
     lblcocuk_sayisi: TLabel;
-    chkis_aktif: TCheckBox;
+    chkpasif: TCheckBox;
     edttel1: TEdit;
     edttel2: TEdit;
     edtemail: TEdit;
@@ -75,7 +75,6 @@ type
     cbbtasima_servisi_id: TComboBox;
     lblgenel_not: TLabel;
     mmogenel_not: TMemo;
-    imgpersonel_resim: TImage;
     edtbolum_id: TEdit;
     edtbirim_id: TEdit;
     edtgorev_id: TEdit;
@@ -99,13 +98,16 @@ type
     edtsemt: TEdit;
     edtposta_kodu: TEdit;
     lblposta_kodu: TLabel;
-    btnresim_ekle_guncelle: TButton;
-    btnresim_sil: TButton;
+    pnlimg: TPanel;
+    imgpersonel_resim: TImage;
+    pmimg: TPopupMenu;
+    mniResimEkle: TMenuItem;
+    mniResimSil: TMenuItem;
     procedure pgcMainChange(Sender: TObject);
     procedure cbbcinsiyet_idChange(Sender: TObject);
     procedure cbbmedeni_durumu_idChange(Sender: TObject);
-    procedure btnresim_ekle_guncelleClick(Sender: TObject);
-    procedure btnresim_silClick(Sender: TObject);
+    procedure mniResimEkleClick(Sender: TObject);
+    procedure mniResimSilClick(Sender: TObject);
   private
     FSetPrsPersonelTipi: TSetPrsPersonelTipi;
     FSetPrsTasimaServisi: TSetPrsTasimaServisi;
@@ -127,17 +129,6 @@ uses
   Ths.Globals, Ths.Constants, Ths.Database.Table.PrsPersoneller;
 
 {$R *.dfm}
-
-procedure TfrmPrsPersonel.btnresim_ekle_guncelleClick(Sender: TObject);
-begin
-  inherited;
-  //
-end;
-
-procedure TfrmPrsPersonel.btnresim_silClick(Sender: TObject);
-begin
-  imgpersonel_resim.Picture.Assign(nil);
-end;
 
 procedure TfrmPrsPersonel.cbbcinsiyet_idChange(Sender: TObject);
 begin
@@ -185,8 +176,8 @@ begin
   mmoozel_not.CharCase := ecNormal;
   edtemail.CharCase := ecNormal;
 
-  chkis_aktif.Visible := False;
-  lblis_aktif.Visible := False;
+  chkpasif.Visible := False;
+  lblpasif.Visible := False;
 
 
   FSetPrsPersonelTipi := TSetPrsPersonelTipi.Create(Table.Database);
@@ -248,6 +239,10 @@ begin
   edtsehir_id.OnHelperProcess := HelperProcess;
 
   inherited;
+
+  imgpersonel_resim.PopupMenu := nil;
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
+    imgpersonel_resim.PopupMenu := pmimg;
 end;
 
 procedure TfrmPrsPersonel.HelperProcess(Sender: TObject);
@@ -379,6 +374,23 @@ begin
   end;
 end;
 
+procedure TfrmPrsPersonel.mniResimEkleClick(Sender: TObject);
+var
+  LFileName: string;
+begin
+  if GetDialogOpen(FILE_FILTER_JPG, LFileName) then
+  begin
+    imgpersonel_resim.Picture.LoadFromFile(LFileName);
+    TPrsPersonel(Table).ResimSil := False;
+  end;
+end;
+
+procedure TfrmPrsPersonel.mniResimSilClick(Sender: TObject);
+begin
+  imgpersonel_resim.Picture.Assign(nil);
+  TPrsPersonel(Table).ResimSil := True;
+end;
+
 procedure TfrmPrsPersonel.pgcMainChange(Sender: TObject);
 begin
   inherited;
@@ -449,7 +461,12 @@ begin
     edtposta_kodu.ReadOnly := False;
     edtposta_kodu.CharCase := ecUpperCase;
     edtposta_kodu.thsInputDataType := itString;
+
+    if (FormMode = ifmUpdate) then
+      imgpersonel_resim.PopupMenu := pmimg;
   end;
+
+  chkpasif.Checked := TPrsPersonel(Table).Pasif.AsBoolean;
 
   edtad.Text := TPrsPersonel(Table).Ad.AsString;
   edtsoyad.Text := TPrsPersonel(Table).Soyad.AsString;
@@ -508,8 +525,8 @@ begin
   inherited;
   if (FormMode = ifmUpdate) then
   begin
-    chkis_aktif.Visible := True;
-    lblis_aktif.Visible := True;
+    chkpasif.Visible := True;
+    lblpasif.Visible := True;
   end;
 end;
 
@@ -521,6 +538,9 @@ begin
   begin
     if (ValidateInput) then
     begin
+      TPrsPersonel(Table).Pasif.Value := False;
+      if (FormMode = ifmUpdate) then
+        TPrsPersonel(Table).Pasif.Value := chkpasif.Checked;
       TPrsPersonel(Table).Ad.Value := edtad.Text;
       TPrsPersonel(Table).Soyad.Value := edtsoyad.Text;
       TPrsPersonel(Table).AdSoyad.Value := TPrsPersonel(Table).Ad.Value + ' ' + TPrsPersonel(Table).Soyad.Value;
@@ -568,7 +588,7 @@ begin
       TPrsPersonel(Table).IkramiyeTutari.Value := edtikramiye_tutar.moneyToDouble;
       TPrsPersonel(Table).OzelNot.Value := mmoozel_not.Text;
 
-      TPrsPersonel(Table).ResimSil := not Assigned(imgpersonel_resim.Picture);
+      TPrsPersonel(Table).ResimSil := not Assigned(imgpersonel_resim.Picture.Graphic);
       inherited;
 
       if Assigned(imgpersonel_resim.Picture) then

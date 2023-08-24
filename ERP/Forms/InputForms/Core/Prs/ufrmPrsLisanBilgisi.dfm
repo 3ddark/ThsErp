@@ -3,27 +3,27 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
   Top = 443
   ActiveControl = btnClose
   Caption = 'Personel Lisan Bilgisi'
-  ClientHeight = 209
-  ClientWidth = 421
+  ClientHeight = 200
+  ClientWidth = 378
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 435
-  ExplicitHeight = 245
+  ExplicitWidth = 392
+  ExplicitHeight = 236
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 421
-    Height = 159
+    Width = 378
+    Height = 150
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 419
     ExplicitHeight = 156
     inherited pgcMain: TPageControl
-      Width = 421
-      Height = 159
+      Width = 378
+      Height = 150
       ExplicitWidth = 419
       ExplicitHeight = 156
       inherited tsMain: TTabSheet
-        ExplicitWidth = 413
-        ExplicitHeight = 131
+        ExplicitWidth = 370
+        ExplicitHeight = 122
         object lbllisan_id: TLabel
           Left = 105
           Top = 6
@@ -148,22 +148,22 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
     end
   end
   inherited pnlBottom: TPanel
-    Top = 161
-    Width = 417
+    Top = 152
+    Width = 374
     ExplicitTop = 158
     ExplicitWidth = 415
     inherited btnAccept: TButton
-      Left = 211
+      Left = 168
       ExplicitLeft = 209
     end
     inherited btnClose: TButton
-      Left = 315
+      Left = 272
       ExplicitLeft = 313
     end
   end
   inherited stbBase: TStatusBar
-    Top = 191
-    Width = 421
+    Top = 182
+    Width = 378
     ExplicitTop = 188
     ExplicitWidth = 419
   end

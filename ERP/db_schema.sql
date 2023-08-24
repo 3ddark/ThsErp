@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.4
--- Dumped by pg_dump version 15.2
+-- Dumped from database version 14.1
+-- Dumped by pg_dump version 14.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,15 +15,6 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
---
-
--- *not* creating schema, since initdb creates it
-
-
-ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
@@ -1081,7 +1072,8 @@ CREATE TABLE public.prs_personeller (
     ikramiye_sayisi integer DEFAULT 0,
     ikramiye_tutar numeric(18,2) DEFAULT 0,
     identification text,
-    adres_id bigint
+    adres_id bigint,
+    pasif boolean DEFAULT false NOT NULL
 );
 
 
@@ -3539,6 +3531,14 @@ ALTER TABLE ONLY public.prs_lisan_bilgileri
 
 
 --
+-- Name: prs_personeller prs_personeller_ad_soyad_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_personeller
+    ADD CONSTRAINT prs_personeller_ad_soyad_key UNIQUE (ad, soyad);
+
+
+--
 -- Name: prs_personeller prs_personeller_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5693,7 +5693,7 @@ ALTER TABLE ONLY public.urt_receteler
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 

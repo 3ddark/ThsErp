@@ -1,35 +1,82 @@
 inherited frmSetPrsGorevler: TfrmSetPrsGorevler
-  Caption = 'Set Employee Tasks'
-  ClientHeight = 521
+  Caption = 'Personel G'#246'revler'
+  ClientHeight = 463
   ClientWidth = 793
+  ExplicitWidth = 807
+  ExplicitHeight = 499
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 793
-    Height = 471
-    ExplicitHeight = 468
+    Height = 413
+    ExplicitWidth = 791
+    ExplicitHeight = 410
+    inherited splLeft: TSplitter
+      Height = 337
+      ExplicitHeight = 337
+    end
+    inherited splHeader: TSplitter
+      Width = 793
+      ExplicitWidth = 793
+    end
     inherited pnlLeft: TPanel
-      ExplicitHeight = 340
+      Height = 337
+      ExplicitHeight = 334
     end
     inherited pnlHeader: TPanel
+      Width = 789
+      ExplicitWidth = 787
       inherited lblFilterHelper: TLabel
         Height = 22
       end
+      inherited edtFilterHelper: TEdit
+        Width = 746
+        ExplicitWidth = 744
+      end
     end
     inherited pnlContent: TPanel
-      ExplicitHeight = 340
+      Width = 690
+      Height = 337
+      ExplicitWidth = 688
+      ExplicitHeight = 334
+      inherited grd: TDBGrid
+        Width = 690
+        Height = 337
+      end
     end
     inherited pnlButtons: TPanel
-      ExplicitTop = 376
+      Top = 373
+      Width = 793
+      ExplicitTop = 370
+      inherited pnlButtonRight: TPanel
+        Left = 608
+        ExplicitLeft = 606
+        ExplicitHeight = 40
+      end
+      inherited pnlButtonLeft: TPanel
+        Width = 608
+        ExplicitWidth = 606
+        ExplicitHeight = 40
+      end
     end
   end
   inherited pnlBottom: TPanel
-    Top = 473
+    Top = 415
     Width = 789
-    ExplicitTop = 470
+    ExplicitTop = 412
+    ExplicitWidth = 787
+    inherited btnAccept: TButton
+      Left = 583
+      ExplicitLeft = 581
+    end
+    inherited btnClose: TButton
+      Left = 687
+      ExplicitLeft = 685
+    end
   end
   inherited stbBase: TStatusBar
-    Top = 503
+    Top = 445
     Width = 793
-    ExplicitTop = 500
+    ExplicitTop = 442
+    ExplicitWidth = 791
   end
 end

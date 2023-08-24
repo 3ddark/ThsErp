@@ -16,6 +16,7 @@ type
     lbllisan: TLabel;
   published
     procedure btnAcceptClick(Sender: TObject); override;
+    procedure RefreshData; override;
   end;
 
 implementation
@@ -35,6 +36,12 @@ begin
   end
   else
     inherited;
+end;
+
+procedure TfrmSetPrsLisan.RefreshData;
+begin
+  inherited;
+  edtlisan.Text := TSetPrsLisan(Table).Lisan.AsString;
 end;
 
 end.

@@ -1,14 +1,15 @@
 inherited frmSetPrsBirimler: TfrmSetPrsBirimler
-  Caption = 'Employee Units'
-  ClientWidth = 789
-  ExplicitWidth = 805
+  Caption = 'Personel Birimler'
+  ClientHeight = 456
+  ExplicitTop = -3
+  ExplicitWidth = 803
+  ExplicitHeight = 492
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 789
-    ExplicitWidth = 789
-    ExplicitHeight = 468
+    Height = 406
+    ExplicitWidth = 787
     inherited splLeft: TSplitter
-      Height = 340
+      Height = 330
       ExplicitHeight = 340
     end
     inherited splHeader: TSplitter
@@ -16,58 +17,61 @@ inherited frmSetPrsBirimler: TfrmSetPrsBirimler
       ExplicitWidth = 789
     end
     inherited pnlLeft: TPanel
-      Height = 340
-      ExplicitHeight = 340
+      Height = 330
+      ExplicitHeight = 389
     end
     inherited pnlHeader: TPanel
       Width = 785
-      ExplicitWidth = 785
+      ExplicitWidth = 783
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
       inherited edtFilterHelper: TEdit
         Width = 742
-        ExplicitWidth = 742
+        ExplicitWidth = 740
       end
     end
     inherited pnlContent: TPanel
       Width = 686
-      Height = 340
-      ExplicitWidth = 686
-      ExplicitHeight = 340
+      Height = 330
+      ExplicitWidth = 684
+      ExplicitHeight = 389
       inherited grd: TDBGrid
         Width = 686
-        Height = 340
+        Height = 330
       end
     end
     inherited pnlButtons: TPanel
-      Top = 376
+      Top = 366
       Width = 789
-      ExplicitTop = 376
-      ExplicitWidth = 789
+      ExplicitTop = 425
+      ExplicitWidth = 787
       inherited pnlButtonRight: TPanel
         Left = 604
-        ExplicitLeft = 604
+        ExplicitLeft = 602
+        ExplicitHeight = 40
       end
       inherited pnlButtonLeft: TPanel
         Width = 604
-        ExplicitWidth = 604
+        ExplicitWidth = 602
+        ExplicitHeight = 40
       end
     end
   end
   inherited pnlBottom: TPanel
-    Width = 785
-    ExplicitTop = 470
-    ExplicitWidth = 785
+    Top = 408
+    ExplicitWidth = 783
     inherited btnAccept: TButton
       Left = 579
-      ExplicitLeft = 579
+      ExplicitLeft = 577
     end
     inherited btnClose: TButton
       Left = 683
-      ExplicitLeft = 683
+      ExplicitLeft = 681
     end
   end
   inherited stbBase: TStatusBar
-    Width = 789
-    ExplicitTop = 500
-    ExplicitWidth = 789
+    Top = 438
+    ExplicitWidth = 787
   end
 end

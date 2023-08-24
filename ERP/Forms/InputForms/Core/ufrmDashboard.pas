@@ -447,8 +447,7 @@ end;
 
 procedure TfrmDashboard.actprs_ehliyetlerExecute(Sender: TObject);
 begin
-  inherited;
-//
+  TfrmPrsEhliyetler.Create(Self, Self, TPrsEhliyet.Create(GDatabase), fomNormal).Show
 end;
 
 procedure TfrmDashboard.actprs_lisan_bilgileriExecute(Sender: TObject);

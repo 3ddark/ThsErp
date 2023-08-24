@@ -6,36 +6,33 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   ClientHeight = 458
   ClientWidth = 628
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 634
-  ExplicitHeight = 487
-  PixelsPerInch = 96
+  ExplicitWidth = 642
+  ExplicitHeight = 494
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 628
     Height = 408
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 628
-    ExplicitHeight = 408
+    ExplicitWidth = 626
+    ExplicitHeight = 405
     inherited pgcMain: TPageControl
       Width = 628
       Height = 408
       OnChange = pgcMainChange
-      ExplicitWidth = 628
-      ExplicitHeight = 408
+      ExplicitWidth = 626
+      ExplicitHeight = 405
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 620
         ExplicitHeight = 380
-        object lblis_aktif: TLabel
-          Left = 80
+        object lblpasif: TLabel
+          Left = 88
           Top = 10
-          Width = 44
+          Width = 36
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Active?'
+          Caption = 'Pasif?'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -168,14 +165,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object imgpersonel_resim: TImage
-          Left = 433
-          Top = 73
-          Width = 180
-          Height = 180
-          Stretch = True
-        end
-        object chkis_aktif: TCheckBox
+        object chkpasif: TCheckBox
           Left = 130
           Top = 7
           Width = 184
@@ -190,9 +180,9 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           TabOrder = 1
         end
         object edtsoyad: TEdit
-          Left = 434
+          Left = 432
           Top = 29
-          Width = 180
+          Width = 182
           Height = 21
           TabOrder = 2
         end
@@ -204,9 +194,9 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           TabOrder = 3
         end
         object cbbtasima_servisi_id: TComboBox
-          Left = 433
+          Left = 432
           Top = 51
-          Width = 180
+          Width = 182
           Height = 21
           TabOrder = 4
         end
@@ -217,7 +207,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Height = 144
           MaxLength = 256
           ScrollBars = ssVertical
-          TabOrder = 8
+          TabOrder = 9
         end
         object edtbolum_id: TEdit
           Left = 130
@@ -231,48 +221,36 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Top = 95
           Width = 180
           Height = 21
-          TabOrder = 6
+          TabOrder = 7
         end
         object edtgorev_id: TEdit
           Left = 130
           Top = 117
           Width = 180
           Height = 21
-          TabOrder = 7
+          TabOrder = 8
         end
-        object btnresim_ekle_guncelle: TButton
-          Left = 434
-          Top = 259
-          Width = 179
-          Height = 25
-          Caption = 'Ekle/G'#252'ncelle'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ImageIndex = 33
-          Images = dm.il16
-          ParentFont = False
-          TabOrder = 9
-          OnClick = btnresim_ekle_guncelleClick
-        end
-        object btnresim_sil: TButton
-          Left = 434
-          Top = 285
-          Width = 179
-          Height = 25
-          Caption = 'Resim Sil'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ImageIndex = 51
-          Images = dm.il16
-          ParentFont = False
-          TabOrder = 10
-          OnClick = btnresim_silClick
+        object pnlimg: TPanel
+          Left = 433
+          Top = 73
+          Width = 181
+          Height = 180
+          BevelKind = bkFlat
+          BevelOuter = bvNone
+          TabOrder = 6
+          object imgpersonel_resim: TImage
+            Left = 0
+            Top = 0
+            Width = 177
+            Height = 176
+            Align = alClient
+            PopupMenu = pmimg
+            Stretch = True
+            ExplicitLeft = 1
+            ExplicitTop = -143
+            ExplicitWidth = 180
+            ExplicitHeight = 180
+          end
         end
       end
       object tsDetail: TTabSheet
@@ -932,25 +910,40 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   inherited pnlBottom: TPanel
     Top = 410
     Width = 624
-    ExplicitTop = 410
-    ExplicitWidth = 624
+    ExplicitTop = 407
+    ExplicitWidth = 622
     inherited btnAccept: TButton
       Left = 418
-      ExplicitLeft = 418
+      ExplicitLeft = 416
     end
     inherited btnClose: TButton
       Left = 522
-      ExplicitLeft = 522
+      ExplicitLeft = 520
     end
   end
   inherited stbBase: TStatusBar
     Top = 440
     Width = 628
-    ExplicitTop = 440
-    ExplicitWidth = 628
+    ExplicitTop = 437
+    ExplicitWidth = 626
   end
   inherited pmLabels: TPopupMenu
     Left = 280
     Top = 456
+  end
+  object pmimg: TPopupMenu
+    Images = dm.il16
+    Left = 224
+    Top = 328
+    object mniResimEkle: TMenuItem
+      Caption = 'Resim Ekle'
+      ImageIndex = 33
+      OnClick = mniResimEkleClick
+    end
+    object mniResimSil: TMenuItem
+      Caption = 'Resim Sil'
+      ImageIndex = 51
+      OnClick = mniResimSilClick
+    end
   end
 end

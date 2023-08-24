@@ -11,18 +11,18 @@ uses
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo,
   ufrmBase,
   ufrmBaseInputDB,
-  Ths.Database.Table.SetPrsEhliyetler,
-  Ths.Database.Table.PrsPersoneller;
+  Ths.Database.Table.SetPrsEhliyetler;
 
 type
   TfrmPrsEhliyet = class(TfrmBaseInputDB)
     lblehliyet_id: TLabel;
     cbbehliyet_id: TComboBox;
     lblpersonel_id: TLabel;
-    cbbpersonel_id: TComboBox;
+    edtpersonel_id: TEdit;
   private
     FSetEmpDriverLicense: TSetPrsEhliyet;
-    FEmpCard: TPrsPersonel;
+  protected
+    procedure HelperProcess(Sender: TObject); override;
   public
     procedure Repaint; override;
   published
@@ -32,11 +32,13 @@ type
     procedure RefreshData; override;
     procedure FormShow(Sender: TObject); override;
     procedure FormPaint(Sender: TObject); override;
+
   end;
 
 implementation
 
 uses
+  ufrmPrsPersoneller, Ths.Database.Table.PrsPersoneller,
   Ths.Database.Table.PrsEhliyetler;
 
 {$R *.dfm}
@@ -48,7 +50,6 @@ begin
     if (ValidateInput) then
     begin
       TPrsEhliyet(Table).EhliyetID.Value := TSetPrsEhliyet(cbbehliyet_id.Items.Objects[cbbehliyet_id.ItemIndex]).Id.Value;
-      TPrsEhliyet(Table).PersonelID.Value := TPrsPersonel(cbbpersonel_id.Items.Objects[cbbpersonel_id.ItemIndex]).Id.Value;
 
       inherited;
     end;
@@ -63,34 +64,24 @@ var
 begin
   inherited;
   FSetEmpDriverLicense := TSetPrsEhliyet.Create(Table.Database);
-  FEmpCard := TPrsPersonel.Create(Table.Database);
 
   cbbehliyet_id.Clear;
   FSetEmpDriverLicense.SelectToList('', False, False);
   for n1 := 0 to FSetEmpDriverLicense.List.Count-1 do
     cbbehliyet_id.Items.AddObject(TSetPrsEhliyet(FSetEmpDriverLicense.List[n1]).Ehliyet.Value, TSetPrsEhliyet(FSetEmpDriverLicense.List[n1]));
   cbbehliyet_id.ItemIndex := -1;
-
-  cbbpersonel_id.Clear;
-  FEmpCard.SelectToList('', False, False);
-  for n1 := 0 to FEmpCard.List.Count-1 do
-    cbbpersonel_id.Items.AddObject(TPrsPersonel(FEmpCard.List[n1]).AdSoyad.Value, TPrsPersonel(FEmpCard.List[n1]));
-  cbbpersonel_id.ItemIndex := -1;
 end;
 
 procedure TfrmPrsEhliyet.FormDestroy(Sender: TObject);
 begin
   if Assigned(FSetEmpDriverLicense) then
     FSetEmpDriverLicense.Free;
-  if Assigned(FEmpCard) then
-    FEmpCard.Free;
   inherited;
 end;
 
 procedure TfrmPrsEhliyet.FormPaint(Sender: TObject);
 begin
   inherited;
-  cbbpersonel_id.Enabled := False;
 end;
 
 procedure TfrmPrsEhliyet.FormShow(Sender: TObject);
@@ -98,30 +89,54 @@ begin
   inherited;
 //  if not AcceptBtnDoAction then
   RefreshData;
-  cbbpersonel_id.Enabled := False;
+  edtpersonel_id.OnHelperProcess := HelperProcess;
+end;
+
+procedure TfrmPrsEhliyet.HelperProcess(Sender: TObject);
+var
+  LPrs: TPrsPersonel;
+  LFrmPrs: TfrmPrsPersoneller;
+begin
+  if Sender.ClassType = TEdit then
+  begin
+    if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
+    begin
+      if (TEdit(Sender).Name = edtpersonel_id.Name) then
+      begin
+        LPrs := TPrsPersonel.Create(Table.Database);
+        LFrmPrs := TfrmPrsPersoneller.Create(TEdit(Sender), Self, LPrs, fomNormal, True);
+        try
+          LFrmPrs.ShowModal;
+          if LFrmPrs.DataAktar then
+          begin
+            if LFrmPrs.CleanAndClose then
+            begin
+              TPrsEhliyet(Table).PersonelID.Value := 0;
+              TEdit(Sender).Clear;
+            end
+            else
+            begin
+              TPrsEhliyet(Table).PersonelID.Value := LFrmPrs.Table.Id.Value;
+              TEdit(Sender).Text := LPrs.AdSoyad.AsString;
+            end;
+          end;
+        finally
+          LFrmPrs.Free;
+        end;
+      end
+    end;
+  end;
 end;
 
 procedure TfrmPrsEhliyet.RefreshData;
-var
-  n1: Integer;
 begin
-  for n1 := 0 to cbbpersonel_id.Items.Count-1 do
-  begin
-    if Assigned(cbbpersonel_id.Items.Objects[n1]) then
-      if TPrsPersonel(cbbpersonel_id.Items.Objects[n1]).Id.Value = TPrsEhliyet(Table).PersonelID.Value then
-      begin
-        cbbpersonel_id.ItemIndex := n1;
-        Break;
-      end;
-  end;
-
   cbbehliyet_id.ItemIndex := cbbehliyet_id.Items.IndexOf(TPrsEhliyet(Table).Ehliyet.Value);
+  edtpersonel_id.Text := TPrsEhliyet(Table).Personel.AsString;
 end;
 
 procedure TfrmPrsEhliyet.Repaint;
 begin
   inherited;
-  //cbbemp_card_id.Enabled := False;
 end;
 
 end.

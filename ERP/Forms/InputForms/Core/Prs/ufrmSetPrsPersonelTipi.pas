@@ -11,8 +11,8 @@ uses
 
 type
   TfrmSetPrsPersonelTipi = class(TfrmBaseInputDB)
-    lblemployee_type: TLabel;
-    edtemployee_type: TEdit;
+    lblpersonel_tipi: TLabel;
+    edtpersonel_tipi: TEdit;
   published
     procedure RefreshData; override;
     procedure btnAcceptClick(Sender: TObject); override;
@@ -29,7 +29,7 @@ uses
 
 procedure TfrmSetPrsPersonelTipi.RefreshData;
 begin
-  edtemployee_type.Text := TSetPrsPersonelTipi(Table).PersonelTipi.AsString;
+  edtpersonel_tipi.Text := TSetPrsPersonelTipi(Table).PersonelTipi.AsString;
 end;
 
 procedure TfrmSetPrsPersonelTipi.btnAcceptClick(Sender: TObject);
@@ -38,7 +38,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSetPrsPersonelTipi(Table).PersonelTipi.Value := edtemployee_type.Text;
+      TSetPrsPersonelTipi(Table).PersonelTipi.Value := edtpersonel_tipi.Text;
       inherited;
     end;
   end

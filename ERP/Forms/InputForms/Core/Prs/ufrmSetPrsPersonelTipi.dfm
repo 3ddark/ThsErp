@@ -1,31 +1,31 @@
 inherited frmSetPrsPersonelTipi: TfrmSetPrsPersonelTipi
   ActiveControl = btnClose
-  Caption = 'Employee Type'
-  ClientHeight = 111
+  Caption = 'Personel Tipi'
+  ClientHeight = 114
   ClientWidth = 337
-  ExplicitWidth = 353
+  ExplicitWidth = 351
   ExplicitHeight = 150
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 337
-    Height = 61
-    ExplicitWidth = 341
+    Height = 64
+    ExplicitWidth = 335
     ExplicitHeight = 61
     inherited pgcMain: TPageControl
-      Width = 339
-      Height = 65
-      ExplicitWidth = 341
+      Width = 337
+      Height = 64
+      ExplicitWidth = 335
       ExplicitHeight = 61
       inherited tsMain: TTabSheet
-        ExplicitWidth = 331
-        ExplicitHeight = 37
-        object lblemployee_type: TLabel
-          Left = 35
+        ExplicitWidth = 329
+        ExplicitHeight = 36
+        object lblpersonel_tipi: TLabel
+          Left = 49
           Top = 6
-          Width = 86
+          Width = 72
           Height = 13
           Alignment = taRightJustify
-          Caption = 'Employee Type'
+          Caption = 'Personel Tipi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -33,7 +33,7 @@ inherited frmSetPrsPersonelTipi: TfrmSetPrsPersonelTipi
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object edtemployee_type: TEdit
+        object edtpersonel_tipi: TEdit
           Left = 125
           Top = 3
           Width = 200
@@ -44,15 +44,23 @@ inherited frmSetPrsPersonelTipi: TfrmSetPrsPersonelTipi
     end
   end
   inherited pnlBottom: TPanel
-    Top = 63
+    Top = 66
     Width = 333
     ExplicitTop = 63
-    ExplicitWidth = 337
+    ExplicitWidth = 331
+    inherited btnAccept: TButton
+      Left = 127
+      ExplicitLeft = 125
+    end
+    inherited btnClose: TButton
+      Left = 231
+      ExplicitLeft = 229
+    end
   end
   inherited stbBase: TStatusBar
-    Top = 93
+    Top = 96
     Width = 337
     ExplicitTop = 93
-    ExplicitWidth = 341
+    ExplicitWidth = 335
   end
 end

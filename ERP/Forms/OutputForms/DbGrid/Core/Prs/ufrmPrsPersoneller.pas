@@ -5,29 +5,14 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.ImageList,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.DBGrids,
-  Vcl.Menus,
-  Vcl.AppEvnts,
-  Vcl.ComCtrls,
-  Vcl.ExtCtrls,
-  Vcl.ImgList,
-  Vcl.Samples.Spin,
-  Vcl.StdCtrls,
-  Vcl.Grids,
-  Vcl.Dialogs,
-  Data.DB,
-  ufrmBase,
+  System.SysUtils, System.Classes, System.ImageList, Vcl.Controls, Vcl.Forms,
+  Vcl.DBGrids, Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ImgList,
+  Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids, Vcl.Dialogs, Data.DB, ufrmBase,
   ufrmBaseDBGrid, System.Actions, Vcl.ActnList, ZAbstractRODataset,
   ZAbstractDataset, ZDataset, ZPgEventAlerter;
 
 type
   TfrmPrsPersoneller = class(TfrmBaseDBGrid)
-    procedure mniPrintClick(Sender: TObject);
     procedure FormShow(Sender: TObject); override;
   protected
     function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm; override;
@@ -57,12 +42,6 @@ procedure TfrmPrsPersoneller.FormShow(Sender: TObject);
 begin
   inherited;
   mniprint.Visible := True;
-end;
-
-procedure TfrmPrsPersoneller.mniPrintClick(Sender: TObject);
-begin
-  inherited;
-  //
 end;
 
 end.
