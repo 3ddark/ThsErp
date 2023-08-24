@@ -214,8 +214,6 @@ begin
 
     Open;
     Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
-
-    RefreshGlobalGridColWidth;
   finally
     Free;
   end;
@@ -249,8 +247,6 @@ begin
     PrepareUpdateQueryParams(LQry);
 
     ExecSQL;
-
-    RefreshGlobalGridColWidth;
   finally
     Free;
   end;
@@ -259,7 +255,6 @@ end;
 procedure TSysGridKolon.Delete(APermissionControl: Boolean);
 begin
   inherited;
-  RefreshGlobalGridColWidth;
 end;
 
 procedure TSysGridKolon.Clear;

@@ -172,7 +172,7 @@ begin
 
   if Assigned(cbbcinsiyet_id.Items.Objects[cbbcinsiyet_id.ItemIndex]) then
   begin
-    if cbbcinsiyet_id.ItemIndex = Ord(TGender.Erkek) then
+    if cbbcinsiyet_id.ItemIndex = Ord(TCinsiyet.Erkek) then
     begin
       lblaskerlik_durumu_id.Visible := True;
       cbbaskerlik_durumu_id.Visible := True;
@@ -193,7 +193,7 @@ begin
 
   if Assigned(cbbmedeni_durumu_id.Items.Objects[cbbmedeni_durumu_id.ItemIndex]) then
   begin
-    if cbbmedeni_durumu_id.ItemIndex = Ord(TMaritalStatus.Evli) then
+    if cbbmedeni_durumu_id.ItemIndex = Ord(TMedeniDurumu.Evli) then
     begin
       lblcocuk_sayisi.Visible := True;
       edtcocuk_sayisi.Visible := True;
@@ -247,17 +247,19 @@ begin
   cbbkan_grubu.Items.Add('0 RH-');
 
   cbbcinsiyet_id.Clear;
-  cbbcinsiyet_id.Items.Add(GenderStr[Ord(TGender.Erkek)]);
-  cbbcinsiyet_id.Items.Add(GenderStr[Ord(TGender.Kadin)]);
+  cbbcinsiyet_id.Items.Add(C_Cinsiyet[Ord(TCinsiyet.Erkek)]);
+  cbbcinsiyet_id.Items.Add(C_Cinsiyet[Ord(TCinsiyet.Kadin)]);
   cbbcinsiyet_id.ItemIndex := -1;
 
   cbbmedeni_durumu_id.Clear;
-  cbbmedeni_durumu_id.Items.Add(Ord(TMaritalStatus.Bekar).ToString);
-  cbbmedeni_durumu_id.Items.Add(Ord(TMaritalStatus.Evli).ToString);
+  cbbmedeni_durumu_id.Items.Add(C_MedeniDurumu[Ord(TMedeniDurumu.Bekar)]);
+  cbbmedeni_durumu_id.Items.Add(C_MedeniDurumu[Ord(TMedeniDurumu.Evli)]);
   cbbmedeni_durumu_id.ItemIndex := -1;
 
   cbbaskerlik_durumu_id.Clear;
-  cbbaskerlik_durumu_id.Items.Add(Ord(TMilitaryState.Yapti).ToString);
+  cbbaskerlik_durumu_id.Items.Add(C_AskerlikDurumu[Ord(TAskerlikDurumu.Yapti)]);
+  cbbaskerlik_durumu_id.Items.Add(C_AskerlikDurumu[Ord(TAskerlikDurumu.Muaf)]);
+  cbbaskerlik_durumu_id.Items.Add(C_AskerlikDurumu[Ord(TAskerlikDurumu.Yapmadi)]);
   cbbaskerlik_durumu_id.ItemIndex := -1;
 end;
 
@@ -319,7 +321,8 @@ begin
         finally
           LFrmBirim.Free;
         end;
-      end else if (TEdit(Sender).Name = edtgorev_id.Name) then
+      end
+      else if (TEdit(Sender).Name = edtgorev_id.Name) then
       begin
         LGorev := TSetPrsGorev.Create(Table.Database);
         LFrmGorev := TfrmSetPrsGorevler.Create(TEdit(Sender), Self, LGorev, fomNormal, True);
@@ -341,7 +344,8 @@ begin
         finally
           LFrmGorev.Free;
         end;
-      end else if (TEdit(Sender).Name = edtulke_id.Name) then
+      end
+      else if (TEdit(Sender).Name = edtulke_id.Name) then
       begin
         LUlke := TSysUlke.Create(Table.Database);
         LFrmUlke := TfrmSysUlkeler.Create(TEdit(Sender), Self, LUlke, fomNormal, True);
@@ -367,9 +371,10 @@ begin
             end;
           end;
         finally
-          LFrmCity.Free;
+          LFrmUlke.Free;
         end;
-      end else if (TEdit(Sender).Name = edtsehir_id.Name) and (edtulke_id.Text <> '') then
+      end
+      else if (TEdit(Sender).Name = edtsehir_id.Name) and (edtulke_id.Text <> '') then
       begin
         LCity := TSysSehir.Create(Table.Database);
         LFrmCity := TfrmSysSehirler.Create(TEdit(Sender), Self, LCity, fomNormal, True);
@@ -512,12 +517,12 @@ begin
     edtkimlik_no.Text := TPrsPersonel(Table).Identification.Value;
   edtdogum_tarihi.Text := TPrsPersonel(Table).DogumTarihi.Value;
   cbbkan_grubu.ItemIndex := cbbkan_grubu.Items.IndexOf(TPrsPersonel(Table).KanGrubu.Value);
-  cbbcinsiyet_id.ItemIndex := cbbcinsiyet_id.Items.IndexOf(TPrsPersonel(Table).Cinsiyet.Value);
+  cbbcinsiyet_id.ItemIndex := TPrsPersonel(Table).Cinsiyet.AsInteger;
   cbbcinsiyet_idChange(cbbcinsiyet_id);
-  cbbmedeni_durumu_id.ItemIndex := cbbmedeni_durumu_id.Items.IndexOf(TPrsPersonel(Table).MedeniDurum.Value);
+  cbbmedeni_durumu_id.ItemIndex := TPrsPersonel(Table).MedeniDurum.AsInteger;
   cbbmedeni_durumu_idChange(cbbmedeni_durumu_id);
   edtcocuk_sayisi.Text := TPrsPersonel(Table).CocukSayisi.Value;
-  cbbaskerlik_durumu_id.ItemIndex := cbbaskerlik_durumu_id.Items.IndexOf(TPrsPersonel(Table).AskerlikDurumu.Value);
+  cbbaskerlik_durumu_id.ItemIndex := TPrsPersonel(Table).AskerlikDurumu.AsInteger;
   edtmaas.Text := TPrsPersonel(Table).Maas.Value;
   edtikramiye_sayisi.Text := TPrsPersonel(Table).IkramiyeSayisi.Value;
   edtikramiye_tutar.Text := TPrsPersonel(Table).IkramiyeTutari.Value;

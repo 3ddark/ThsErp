@@ -21,13 +21,14 @@ uses
   Ths.Database.Table.PrsEhliyetler;
 
 const
-  GenderStr : array [0..1] of string = ('ERKEK', 'KADIN');
+  C_Cinsiyet: array [0..1] of string = ('ERKEK', 'KADIN');
+  C_MedeniDurumu: array [0..1] of string = ('BEKAR', 'EVLÝ');
+  C_AskerlikDurumu: array [0..2] of string = ('YAPTI', 'MUAF', 'YAPMADI');
 
 type
-  TGender = (Erkek=0, Kadin=1);
-
-  TMaritalStatus = (Bekar=0, Evli=1);
-  TMilitaryState = (Yapti=0, Muaf=1);
+  TCinsiyet = (Erkek=0, Kadin=1);
+  TMedeniDurumu = (Bekar=0, Evli=1);
+  TAskerlikDurumu = (Yapti=0, Muaf=1, Yapmadi=2);
 
   TPrsPersonel = class(TTable)
   private
@@ -46,8 +47,11 @@ type
     FDogumTarihi: TFieldDB;
     FKanGrubu: TFieldDB;
     FCinsiyet: TFieldDB;
+    FCinsiyetAs: TFieldDB;
     FAskerlikDurumu: TFieldDB;
+    FAskerlikDurumuAs: TFieldDB;
     FMedeniDurum: TFieldDB;
+    FMedeniDurumAs: TFieldDB;
     FCocukSayisi: TFieldDB;
     FYakinAdi: TFieldDB;
     FYakinTelefon: TFieldDB;
@@ -104,8 +108,11 @@ type
     Property DogumTarihi: TFieldDB read FDogumTarihi write FDogumTarihi;
     Property KanGrubu: TFieldDB read FKanGrubu write FKanGrubu;
     Property Cinsiyet: TFieldDB read FCinsiyet write FCinsiyet;
+    Property CinsiyetAs: TFieldDB read FCinsiyetAs write FCinsiyetAs;
     Property AskerlikDurumu: TFieldDB read FAskerlikDurumu write FAskerlikDurumu;
+    Property AskerlikDurumuAs: TFieldDB read FAskerlikDurumuAs write FAskerlikDurumuAs;
     Property MedeniDurum: TFieldDB read FMedeniDurum write FMedeniDurum;
+    Property MedeniDurumAs: TFieldDB read FMedeniDurumAs write FMedeniDurumAs;
     Property CocukSayisi: TFieldDB read FCocukSayisi write FCocukSayisi;
     Property YakinAdi: TFieldDB read FYakinAdi write FYakinAdi;
     Property YakinTelefon: TFieldDB read FYakinTelefon write FYakinTelefon;
@@ -159,8 +166,11 @@ begin
   FDogumTarihi := TFieldDB.Create('dogum_tarihi', ftDate, 0, Self, 'Doðum Tarihi');
   FKanGrubu := TFieldDB.Create('kan_grubu', ftWideString, '', Self, 'Kan Grubu');
   FCinsiyet := TFieldDB.Create('cinsiyet', ftSmallInt, 0, Self, 'Cinsiyet');
+  FCinsiyetAs := TFieldDB.Create('cinsiyet_as', ftString, '', Self, 'Cinsiyet');
   FAskerlikDurumu := TFieldDB.Create('askerlik_durumu', ftSmallInt, 0, Self, 'Askerlik Durumu');
+  FAskerlikDurumuAs := TFieldDB.Create('askerlik_durumu_as', ftString, '', Self, 'Askerlik Durumu');
   FMedeniDurum := TFieldDB.Create('medeni_durum', ftSmallInt, 0, Self, 'Medeni Durum');
+  FMedeniDurumAs := TFieldDB.Create('medeni_durum_as', ftString, '', Self, 'Medeni Durum');
   FCocukSayisi := TFieldDB.Create('cocuk_sayisi', ftInteger, 0, Self, 'Çocuk Sayýsý');
   FYakinAdi := TFieldDB.Create('yakin_adi', ftWideString, '', Self, 'Yakýn Adý');
   FYakinTelefon := TFieldDB.Create('yakin_telefon', ftWideString, '', Self, 'Yakýn Telefon');
@@ -217,8 +227,15 @@ begin
       FDogumTarihi.QryName,
       FKanGrubu.QryName,
       FCinsiyet.QryName,
+      'CAST(CASE WHEN ' + FCinsiyet.QryName + ' =1 THEN ' + QuotedStr(C_Cinsiyet[Ord(TCinsiyet.Erkek)]) +
+               ' WHEN ' + FCinsiyet.QryName + ' =2 THEN ' + QuotedStr(C_Cinsiyet[Ord(TCinsiyet.Kadin)]) + ' END AS varchar(16)) ' + FCinsiyetAs.FieldName,
       FAskerlikDurumu.QryName,
+      'CAST(CASE WHEN ' + FAskerlikDurumu.QryName + ' =1 THEN ' + QuotedStr(C_AskerlikDurumu[Ord(TAskerlikDurumu.Yapti)]) +
+               ' WHEN ' + FAskerlikDurumu.QryName + ' =2 THEN ' + QuotedStr(C_AskerlikDurumu[Ord(TAskerlikDurumu.Muaf)]) +
+               ' WHEN ' + FAskerlikDurumu.QryName + ' =3 THEN ' + QuotedStr(C_AskerlikDurumu[Ord(TAskerlikDurumu.Yapmadi)]) + ' END AS varchar(16)) ' + FAskerlikDurumuAs.FieldName,
       FMedeniDurum.QryName,
+      'CAST(CASE WHEN ' + FMedeniDurum.QryName + ' =1 THEN ' + QuotedStr(C_MedeniDurumu[Ord(TMedeniDurumu.Bekar)]) +
+               ' WHEN ' + FMedeniDurum.QryName + ' =2 THEN ' + QuotedStr(C_MedeniDurumu[Ord(TMedeniDurumu.Evli)]) + ' END AS varchar(16)) ' + FMedeniDurumAs.FieldName,
       FCocukSayisi.QryName,
       FYakinAdi.QryName,
       FYakinTelefon.QryName,
@@ -231,7 +248,7 @@ begin
       FMaas.QryName,
       FIkramiyeSayisi.QryName,
       FIkramiyeTutari.QryName,
-      FIdentification.QryName + '::::varchar(32)',
+      'CAST(' + FIdentification.QryName + ' as varchar(32))',
       FAdresID.QryName
     ], [
       addJoin(jtLeft, FSetPrsPersonelTipi.TableName, FSetPrsPersonelTipi.Id.FieldName, TableName, FPersonelTipiID.FieldName),

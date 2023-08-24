@@ -176,14 +176,15 @@ inherited frmGiris: TfrmGiris
     80FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF80
     80FFFF8080FFFFFF80FFFFFFFEFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
-  ExplicitWidth = 498
-  ExplicitHeight = 449
+  ExplicitWidth = 490
+  ExplicitHeight = 442
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 484
     Height = 363
-    ExplicitWidth = 482
-    ExplicitHeight = 360
+    ExplicitWidth = 484
+    ExplicitHeight = 363
     object lblkullanici_adi: TLabel
       Left = 91
       Top = 29
@@ -510,25 +511,25 @@ inherited frmGiris: TfrmGiris
     Top = 365
     Width = 480
     TabOrder = 2
-    ExplicitTop = 362
-    ExplicitWidth = 478
+    ExplicitTop = 365
+    ExplicitWidth = 480
     inherited btnAccept: TButton
       Left = 274
       Caption = 'Giri'#351
       HotImageIndex = 62
       ImageIndex = 62
-      ExplicitLeft = 272
+      ExplicitLeft = 274
     end
     inherited btnClose: TButton
       Left = 378
-      ExplicitLeft = 376
+      ExplicitLeft = 378
     end
   end
   inherited stbBase: TStatusBar
     Top = 395
     Width = 484
-    ExplicitTop = 392
-    ExplicitWidth = 482
+    ExplicitTop = 395
+    ExplicitWidth = 484
   end
   object pb1: TProgressBar [3]
     Left = 136

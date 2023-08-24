@@ -6,8 +6,9 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   ClientHeight = 458
   ClientWidth = 628
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 642
-  ExplicitHeight = 494
+  ExplicitWidth = 634
+  ExplicitHeight = 487
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 628
@@ -242,6 +243,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       object tsDetail: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblbina_adi: TLabel
           Left = 100
           Top = 215

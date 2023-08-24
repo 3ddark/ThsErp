@@ -239,6 +239,7 @@ end;
 procedure TDatabase.GetSQLSelectCmd(AQry: TZQuery; ATableName: string; AFieldNames: TArray<string>; AWhereJoin: TArray<string>; AAllColumn: Boolean=True; AHelper: Boolean=False);
 var
   nx, LIndex: Integer;
+  LGridCol: TSysGridKolon;
 
   procedure _AddAllColumns();
   var
@@ -255,12 +256,13 @@ var
     n1, n2, LPos: Integer;
     LFieldName: string;
   begin
-    for n2 := LIndex to GGridColWidth.List.Count-1 do
+
+    for n2 := LIndex to LGridCol.List.Count-1 do
     begin
       if (n2 = 0) then
-        AQry.SQL.Add(ATableName + '.' + GGridColWidth.Id.FieldName + ', ');
+        AQry.SQL.Add(ATableName + '.' + LGridCol.Id.FieldName + ', ');
 
-      if ((TSysGridKolon(GGridColWidth.List[n2]).IsHelperGorunur.Value) and (AColHelper = Helper))
+      if ((TSysGridKolon(LGridCol.List[n2]).IsHelperGorunur.Value) and (AColHelper = Helper))
       or (AColHelper = Defined)
       then
       begin
@@ -272,11 +274,12 @@ var
             LPos := Pos('.', AFieldNames[n1]);
           LFieldName := AFieldNames[n1].Substring(LPos);
           LFieldName := ReplaceRealColOrTableNameTo(LFieldName);
-          if (TSysGridKolon(GGridColWidth.List[n2]).KolonAdi.Value = LFieldName) then
+          if (TSysGridKolon(LGridCol.List[n2]).KolonAdi.Value = LFieldName) then
             AQry.SQL.Add(AFieldNames[n1] + ', ')
         end;
       end;
     end;
+
   end;
 
   function ExistsGridColWidth(AHelper: Boolean; out Index: Integer): Boolean;
@@ -285,10 +288,10 @@ var
   begin
     Result := False;
 
-    for n1 := 0 to GGridColWidth.List.Count-1 do
+    for n1 := 0 to LGridCol.List.Count-1 do
     begin
-      if  ((TSysGridKolon(GGridColWidth.List[n1]).TabloAdi.Value = ReplaceRealColOrTableNameTo(ATableName))
-       and (TSysGridKolon(GGridColWidth.List[n1]).IsHelperGorunur.AsBoolean = AHelper))
+      if  ((TSysGridKolon(LGridCol.List[n1]).TabloAdi.Value = ReplaceRealColOrTableNameTo(ATableName))
+       and (TSysGridKolon(LGridCol.List[n1]).IsHelperGorunur.AsBoolean = AHelper))
       or AHelper
       then
       begin
@@ -297,6 +300,7 @@ var
         Break;
       end;
     end;
+
   end;
 
 begin
@@ -305,46 +309,63 @@ begin
 
   if AQry <> nil then
   begin
-    AQry.SQL.Clear;
-    AQry.SQL.Add('SELECT ');
-    //helper tanýmlý ve helper için görünmesi gereken alan seçilmiþse helper gibi ekle aksi durumuda normal olarak tüm fieldlar gelsin
-    if AHelper then
-    begin
-      //helper için select yapýlacaksa sadece helperde görünmesini istediðimiz kolonlar getirildi.
-      //Bu þekilde gereksiz kolonlar gelmez ve hýz açýsýnda çok kayýt ve çok kolon olan sorgularda performans artmýþ olur.
-      //Gereksiz kolonlar db den getirilmez
-      if Length(AFieldNames) = 0 then
-        raise Exception.Create('Database fields are not defined!' + AddLBs + 'This process cannot be done');
 
-        if ExistsGridColWidth(AHelper, LIndex) then
-        begin
-          if GGridColWidth.HasAnyTableColumn(ATableName) then
-            _AddAllColumnsHelper(Helper)
+      AQry.SQL.Clear;
+      AQry.SQL.Add('SELECT ');
+      //helper tanýmlý ve helper için görünmesi gereken alan seçilmiþse helper gibi ekle aksi durumuda normal olarak tüm fieldlar gelsin
+      if AHelper then
+      begin
+        //helper için select yapýlacaksa sadece helperde görünmesini istediðimiz kolonlar getirildi.
+        //Bu þekilde gereksiz kolonlar gelmez ve hýz açýsýnda çok kayýt ve çok kolon olan sorgularda performans artmýþ olur.
+        //Gereksiz kolonlar db den getirilmez
+        if Length(AFieldNames) = 0 then
+          raise Exception.Create('Database fields are not defined!' + AddLBs + 'This process cannot be done');
+
+        LGridCol := TSysGridKolon.Create(GDatabase);
+        try
+          LGridCol.SelectToList(' AND ' + LGridCol.TabloAdi.QryName + '=' + ReplaceRealColOrTableNameTo(ATableName) , False, False);
+
+          if ExistsGridColWidth(AHelper, LIndex) then
+          begin
+            if LGridCol.HasAnyTableColumn(ATableName) then
+              _AddAllColumnsHelper(Helper)
+            else
+              _AddAllColumns;
+          end
           else
-            _AddAllColumns;
-        end
-        else
-          _AddAllColumns;  //tüm kolonlar istenmemiþ olsa bile grid kolon geniþliði tanýmlanmamýþsa select içinde tanýmlanan tüm kolonlarý ekle
-    end
-    else
-    begin
-      if AAllColumn then
-        _AddAllColumns //tüm kolonlar istenmiþse select içinde tanýmlanan tüm kolonlarý ekle
+            _AddAllColumns;  //tüm kolonlar istenmemiþ olsa bile grid kolon geniþliði tanýmlanmamýþsa select içinde tanýmlanan tüm kolonlarý ekle
+
+        finally
+          LGridCol.DisposeOf;
+        end;
+      end
       else
       begin
-        if ExistsGridColWidth(AHelper, LIndex) then
-          _AddAllColumnsHelper(Defined)  //tüm kolonlar istenmiyorsa sadece IsAlwaysShow tanýmlý kolonlar gelsin
+        if AAllColumn then
+          _AddAllColumns //tüm kolonlar istenmiþse select içinde tanýmlanan tüm kolonlarý ekle
         else
-          _AddAllColumns;  //tüm kolonlar istenmemiþ olsa bile grid kolon geniþliði tanýmlanmamýþsa select içinde tanýmlanan tüm kolonlarý ekle
+        begin
+          LGridCol := TSysGridKolon.Create(GDatabase);
+          try
+            LGridCol.SelectToList(' AND ' + LGridCol.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)), False, False);
+
+            if ExistsGridColWidth(AHelper, LIndex) then
+              _AddAllColumnsHelper(Defined)  //tüm kolonlar istenmiyorsa sadece IsAlwaysShow tanýmlý kolonlar gelsin
+            else
+              _AddAllColumns;  //tüm kolonlar istenmemiþ olsa bile grid kolon geniþliði tanýmlanmamýþsa select içinde tanýmlanan tüm kolonlarý ekle
+          finally
+            LGridCol.DisposeOf;
+          end;
+        end;
       end;
-    end;
 
-    if AQry.SQL.Count > 1 then
-      AQry.SQL.Strings[AQry.SQL.Count-1] := AQry.SQL.Strings[AQry.SQL.Count-1].Replace(', ', ' ');
+      if AQry.SQL.Count > 1 then
+        AQry.SQL.Strings[AQry.SQL.Count-1] := AQry.SQL.Strings[AQry.SQL.Count-1].Replace(', ', ' ');
 
-    AQry.SQL.Add('FROM ' + ATableName + ' ');
-    for nx := 0 to Length(AWhereJoin)-1 do
-      AQry.SQL.Add(AWhereJoin[nx]);
+      AQry.SQL.Add('FROM ' + ATableName + ' ');
+      for nx := 0 to Length(AWhereJoin)-1 do
+        AQry.SQL.Add(AWhereJoin[nx]);
+
   end;
 end;
 

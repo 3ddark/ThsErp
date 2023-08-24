@@ -523,8 +523,6 @@ type
   /// </summary>
   function UpdateColWidth(ATableName: string; AGrid: TDBGrid): Boolean;
 
-  procedure RefreshGlobalGridColWidth;
-
   function GetGridDefaultOrderFilter(AKey: string; AIsOrder: Boolean): string;
   function GetIsRequired(ATableName, AFieldName: string): Boolean;
   function GetMaxLength(ATableName, AFieldName: string): Integer;
@@ -630,11 +628,6 @@ var
   GSysTableInfo: TSysViewColumns;
 
   GGuiIcerik: TDictionary<string, TGuiIcerik>;
-
-  /// <summary>
-  ///
-  /// </summary>
-  GGridColWidth: TSysGridKolon;
 
 implementation
 
@@ -2472,14 +2465,6 @@ begin
   end;
 end;
 
-procedure RefreshGlobalGridColWidth;
-begin
-  if GGridColWidth <> nil then
-    GGridColWidth.Destroy;
-  GGridColWidth := TSysGridKolon.Create(GDataBase);
-  GGridColWidth.SelectToList('', False, False);
-end;
-
 function GetGridDefaultOrderFilter(AKey: string; AIsOrder: Boolean): string;
 var
   LSysOrderFilter: TSysGridFiltreSiralama;
@@ -2882,7 +2867,6 @@ begin
   GParaBirimi.Free;
   GSysTableInfo.Free;
   GGuiIcerik.Free;
-  GGridColWidth.Free;
   GLogger.Free;
 end;
 

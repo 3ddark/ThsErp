@@ -1571,7 +1571,7 @@ begin
   try
     LNextSiraNo := 1;
     LKolon.SelectToList(
-        ' AND ' + LKolon.TabloAdi.QryName + '=' + QuotedStr(Table.TableName) +
+        ' AND ' + LKolon.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Table.TableName)) +
         ' ORDER BY ' + LKolon.SiraNo.QryName + ' DESC LIMIT 1', False, False);
     if LKolon.List.Count=1 then
       LNextSiraNo := LKolon.SiraNo.AsInteger + 1;
@@ -1741,7 +1741,7 @@ var
   AField: TField;
   AFieldDB: TFieldDB;
   ACol: TColumn;
-  AGridCols: TObjectList<TSysGridKolon>;
+  LGridColWidth: TSysGridKolon;
   n1, n2, n3, vHaneSayisi: Integer;
 
   LColPercent: TColPercent;
@@ -1827,7 +1827,7 @@ var
 
 begin
   Table.DataSource.DataSet.DisableControls;
-  AGridCols := TObjectList<TSysGridKolon>.Create(False);
+  LGridColWidth := TSysGridKolon.Create(GDataBase);
   try
     Table.DataSource.OnDataChange := DataSourceDataChange;
     FQryFiltreVarsayilan := ' ' + Trim(FQryFiltreVarsayilan);
@@ -1852,6 +1852,8 @@ begin
       Table.SelectToDatasource(FQryFiltreVarsayilan + FQryFiltreVarsayilanKullanici + FQrySiralamaVarsayilan, FIsHelper, False, FIsHelper);
     end;
 
+    LTableName := ReplaceRealColOrTableNameTo(Table.TableName);
+    LGridColWidth.SelectToList(' AND ' + LGridColWidth.TabloAdi.QryName + '=' + QuotedStr(LTableName), False, False);
 
     //sayısal bilgilerde otomatik formatlama ve kolonların çıkma sırasını ayarla işlemini yap
     vHaneSayisi := 2;
@@ -1870,15 +1872,9 @@ begin
       end;
     end;
 
-
-    LTableName := ReplaceRealColOrTableNameTo(Table.TableName);
-    for n1 := 0 to GGridColWidth.List.Count-1 do
-      if TSysGridKolon(GGridColWidth.List[n1]).TabloAdi.AsString = LTableName then
-        AGridCols.Add(TSysGridKolon(GGridColWidth.List[n1]));
-
     LNumberOfVisibleColumns := 0;
 
-    if AGridCols.Count = 0 then
+    if LGridColWidth.List.Count = 0 then
     begin
       for n1 := 0 to grd.Columns.Count-1 do
         grd.Columns.Items[n1].Visible := True;
@@ -1886,15 +1882,15 @@ begin
     //burada görünmesi istenilen kolonları show yapıyoruz ve genişliğini ayarlıyoruz
     else
     begin
-      for n1 := 0 to AGridCols.Count-1 do
+      for n1 := 0 to LGridColWidth.List.Count-1 do
       begin
         for n2 := 0 to grd.Columns.Count-1 do
         begin
           AField := grd.Columns.Items[n2].Field;
           ACol := grd.Columns.Items[n2];
 
-          if  (TSysGridKolon(AGridCols[n1]).TabloAdi.AsString = LTableName)
-          and (AField.FieldName = ReplaceToRealColOrTableName(TSysGridKolon(AGridCols[n1]).KolonAdi.AsString))
+          if  (TSysGridKolon(LGridColWidth.List[n1]).TabloAdi.AsString = LTableName)
+          and (AField.FieldName = ReplaceToRealColOrTableName(TSysGridKolon(LGridColWidth.List[n1]).KolonAdi.AsString))
           then
           begin
             Inc(LNumberOfVisibleColumns);
@@ -1903,15 +1899,15 @@ begin
               AFieldDB := Table.GetFieldByFieldName(AField.FieldName);
             //display formatlarını ayarla
             if AFieldDB <> nil then
-              SetDisplayFormat(AFieldDB, AField, TSysGridKolon(AGridCols[n1]));
+              SetDisplayFormat(AFieldDB, AField, TSysGridKolon(LGridColWidth.List[n1]));
 
             if Assigned(ACol) then
             begin
-              with TSysGridKolon(AGridCols[n1]) do
+              with TSysGridKolon(LGridColWidth.List[n1]) do
               try
-                ACol.Index := TSysGridKolon(AGridCols[n1]).SiraNo.AsInteger;
-                ACol.Width := TSysGridKolon(AGridCols[n1]).KolonGenislik.AsInteger;
-                ACol.Visible := TSysGridKolon(AGridCols[n1]).IsGorunur.AsBoolean;
+                ACol.Index := TSysGridKolon(LGridColWidth.List[n1]).SiraNo.AsInteger;
+                ACol.Width := TSysGridKolon(LGridColWidth.List[n1]).KolonGenislik.AsInteger;
+                ACol.Visible := TSysGridKolon(LGridColWidth.List[n1]).IsGorunur.AsBoolean;
               except
                 on E: Exception do
                 begin
@@ -1938,19 +1934,19 @@ begin
       end;
 
       for n3 := 0 to Length(FColoredPercentColNames)-1 do
-        for n1 := 0 to AGridCols.Count-1 do
+        for n1 := 0 to LGridColWidth.List.Count-1 do
           for n2 := 0 to grd.Columns.Count-1 do
           begin
-            LColName := TSysGridKolon(AGridCols[n1]).KolonAdi.AsString;
-            if  (TSysGridKolon(AGridCols[n1]).TabloAdi.AsString = LTableName)
+            LColName := TSysGridKolon(LGridColWidth.List[n1]).KolonAdi.AsString;
+            if  (TSysGridKolon(LGridColWidth.List[n1]).TabloAdi.AsString = LTableName)
             and (ReplaceToRealColOrTableName(LColName) = grd.Columns.Items[n2].FieldName)
             then
             begin
               LColPercent.FieldName := LColName;
-              LColPercent.MaxValue := TSysGridKolon(AGridCols[n1]).MaxDegerYuzdesi.AsFloat;
-              LColPercent.ColorBar := TSysGridKolon(AGridCols[n1]).BarRengi.AsInteger;
-              LColPercent.ColorBarBack := TSysGridKolon(AGridCols[n1]).BarArkaRengi.AsInteger;
-              LColPercent.ColorBarText := TSysGridKolon(AGridCols[n1]).BarYaziRengi.AsInteger;
+              LColPercent.MaxValue := TSysGridKolon(LGridColWidth.List[n1]).MaxDegerYuzdesi.AsFloat;
+              LColPercent.ColorBar := TSysGridKolon(LGridColWidth.List[n1]).BarRengi.AsInteger;
+              LColPercent.ColorBarBack := TSysGridKolon(LGridColWidth.List[n1]).BarArkaRengi.AsInteger;
+              LColPercent.ColorBarText := TSysGridKolon(LGridColWidth.List[n1]).BarYaziRengi.AsInteger;
               FColoredPercentColNames[n3] := LColPercent;
             end;
           end;
@@ -1971,16 +1967,16 @@ begin
 
       //progress bar gibi renklendirme boyama işlemi yap
       for n3 := 0 to Length(FColoredNumericColNames)-1 do
-      for n1 := 0 to AGridCols.Count-1 do
+      for n1 := 0 to LGridColWidth.List.Count-1 do
       begin
-        if (TSysGridKolon(AGridCols[n1]).TabloAdi.AsString = LTableName) then
+        if (TSysGridKolon(LGridColWidth.List[n1]).TabloAdi.AsString = LTableName) then
         begin
-          LColName := TSysGridKolon(AGridCols[n1]).KolonAdi.AsString;
+          LColName := TSysGridKolon(LGridColWidth.List[n1]).KolonAdi.AsString;
           LColColor.FieldName := ReplaceToRealColOrTableName(LColName);
-          LColColor.MinValue := TSysGridKolon(AGridCols[n1]).MinDeger.AsInteger;
-          LColColor.MinColor := TSysGridKolon(AGridCols[n1]).MinRenk.AsInteger;
-          LColColor.MaxValue := TSysGridKolon(AGridCols[n1]).MaxDeger.AsInteger;
-          LColColor.MaxColor := TSysGridKolon(AGridCols[n1]).MaxRenk.AsInteger;
+          LColColor.MinValue := TSysGridKolon(LGridColWidth.List[n1]).MinDeger.AsInteger;
+          LColColor.MinColor := TSysGridKolon(LGridColWidth.List[n1]).MinRenk.AsInteger;
+          LColColor.MaxValue := TSysGridKolon(LGridColWidth.List[n1]).MaxDeger.AsInteger;
+          LColColor.MaxColor := TSysGridKolon(LGridColWidth.List[n1]).MaxRenk.AsInteger;
           LColColor.EqualColor := clOlive;
           FColoredNumericColNames[n3] := LColColor;
         end;
@@ -2017,7 +2013,8 @@ begin
 
     RefreshGrid();
   finally
-    AGridCols.Free;
+
+    LGridColWidth.DisposeOf;
     Table.DataSource.DataSet.EnableControls;
   end;
 end;

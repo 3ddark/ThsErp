@@ -185,8 +185,6 @@ begin
           GParaBirimi := TSysParaBirimi.Create(GDataBase);
         if GSysTableInfo = nil then
           GSysTableInfo := TSysViewColumns.Create(GDataBase);
-        if GGridColWidth = nil then
-          GGridColWidth := TSysGridKolon.Create(GDataBase);
         if GGuiIcerik = nil then
           GGuiIcerik := TDictionary<string, TGuiIcerik>.Create;
 
@@ -249,8 +247,6 @@ begin
         GSysTableInfo.SelectToList('', False, False);
         IncProgress;
         GSysOndalikHane.SelectToList('', False, False);
-        IncProgress;
-        GGridColWidth.SelectToList('', False, False);
 
         ModalResult := mrYes;
 
