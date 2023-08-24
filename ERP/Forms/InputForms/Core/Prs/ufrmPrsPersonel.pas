@@ -5,52 +5,19 @@ interface
 {$I Ths.inc}
 
 uses
-  Winapi.Windows,
-  Winapi.Messages,
-  System.SysUtils,
-  System.Variants,
-  System.Classes,
-  System.StrUtils,
-  System.Math,
-  System.UITypes,
-  Vcl.Graphics,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Dialogs,
-  Vcl.StdCtrls,
-  Vcl.ExtCtrls,
-  Vcl.ComCtrls,
-  Vcl.AppEvnts,
-  Vcl.Menus,
-  Vcl.Samples.Spin,
-  Vcl.Mask,
-  Data.DB,
-  Vcl.Grids,
-  Vcl.DBGrids,
-  Ths.Helper.BaseTypes,
-  Ths.Helper.Edit,
-  Ths.Helper.Memo,
-  Ths.Helper.ComboBox,
-  ufrmBase,
-  ufrmBaseInputDB,
-
-  ufrmSetPrsPersonelTipleri,
-  ufrmSetPrsBolumler,
-  ufrmSetPrsBirimler,
-  ufrmSetPrsGorevler,
-  ufrmSetPrsTasimaServisleri,
-  ufrmSysUlkeler,
-  ufrmSysSehirler,
-  Ths.Database.Table.SetPrsPersonelTipleri,
-  Ths.Database.Table.SetPrsBolumler,
-  Ths.Database.Table.SetPrsBirimler,
-  Ths.Database.Table.SetPrsGorevler,
-  Ths.Database.Table.SetPrsTasimaServisleri,
-  Ths.Database.Table.SysAdresler,
-  Ths.Database.Table.SysUlkeler,
-  Ths.Database.Table.SysSehirler,
-  Ths.Database.Table.PrsEhliyetler,
-  Ths.Database.Table.PrsLisanBilgileri,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, System.StrUtils, System.Math, System.UITypes, System.IOUtils,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus, Vcl.Samples.Spin, Vcl.Mask, Data.DB,
+  Vcl.Grids, Vcl.DBGrids, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
+  Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB, udm,
+  ufrmSetPrsPersonelTipleri, ufrmSetPrsBolumler, ufrmSetPrsBirimler,
+  ufrmSetPrsGorevler, ufrmSetPrsTasimaServisleri, ufrmSysUlkeler, ufrmSysSehirler,
+  Ths.Database.Table.SetPrsPersonelTipleri, Ths.Database.Table.SetPrsBolumler,
+  Ths.Database.Table.SetPrsBirimler, Ths.Database.Table.SetPrsGorevler,
+  Ths.Database.Table.SetPrsTasimaServisleri, Ths.Database.Table.SysAdresler,
+  Ths.Database.Table.SysUlkeler, Ths.Database.Table.SysSehirler,
+  Ths.Database.Table.PrsEhliyetler, Ths.Database.Table.PrsLisanBilgileri,
   Ths.Database.Table.SetPrsEhliyetler;
 
 type
@@ -132,10 +99,13 @@ type
     edtsemt: TEdit;
     edtposta_kodu: TEdit;
     lblposta_kodu: TLabel;
+    btnresim_ekle_guncelle: TButton;
+    btnresim_sil: TButton;
     procedure pgcMainChange(Sender: TObject);
     procedure cbbcinsiyet_idChange(Sender: TObject);
     procedure cbbmedeni_durumu_idChange(Sender: TObject);
-    procedure btnDriverLicenseAddClick(Sender: TObject);
+    procedure btnresim_ekle_guncelleClick(Sender: TObject);
+    procedure btnresim_silClick(Sender: TObject);
   private
     FSetPrsPersonelTipi: TSetPrsPersonelTipi;
     FSetPrsTasimaServisi: TSetPrsTasimaServisi;
@@ -154,15 +124,19 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Constants,
-  Ths.Database.Table.PrsPersoneller;
+  Ths.Globals, Ths.Constants, Ths.Database.Table.PrsPersoneller;
 
 {$R *.dfm}
 
-procedure TfrmPrsPersonel.btnDriverLicenseAddClick(Sender: TObject);
+procedure TfrmPrsPersonel.btnresim_ekle_guncelleClick(Sender: TObject);
 begin
-//
+  inherited;
+  //
+end;
+
+procedure TfrmPrsPersonel.btnresim_silClick(Sender: TObject);
+begin
+  imgpersonel_resim.Picture.Assign(nil);
 end;
 
 procedure TfrmPrsPersonel.cbbcinsiyet_idChange(Sender: TObject);
@@ -170,19 +144,16 @@ begin
   if cbbcinsiyet_id.ItemIndex < 0 then
     Exit;
 
-  if Assigned(cbbcinsiyet_id.Items.Objects[cbbcinsiyet_id.ItemIndex]) then
+  if cbbcinsiyet_id.ItemIndex = Ord(TCinsiyet.Erkek) then
   begin
-    if cbbcinsiyet_id.ItemIndex = Ord(TCinsiyet.Erkek) then
-    begin
-      lblaskerlik_durumu_id.Visible := True;
-      cbbaskerlik_durumu_id.Visible := True;
-    end
-    else
-    begin
-      lblaskerlik_durumu_id.Visible := False;
-      cbbaskerlik_durumu_id.Visible := False;
-      cbbaskerlik_durumu_id.ItemIndex := -1;
-    end;
+    lblaskerlik_durumu_id.Visible := True;
+    cbbaskerlik_durumu_id.Visible := True;
+  end
+  else
+  begin
+    lblaskerlik_durumu_id.Visible := False;
+    cbbaskerlik_durumu_id.Visible := False;
+    cbbaskerlik_durumu_id.ItemIndex := -1;
   end;
 end;
 
@@ -191,19 +162,16 @@ begin
   if cbbmedeni_durumu_id.ItemIndex < 0 then
     Exit;
 
-  if Assigned(cbbmedeni_durumu_id.Items.Objects[cbbmedeni_durumu_id.ItemIndex]) then
+  if cbbmedeni_durumu_id.ItemIndex = Ord(TMedeniDurumu.Evli) then
   begin
-    if cbbmedeni_durumu_id.ItemIndex = Ord(TMedeniDurumu.Evli) then
-    begin
-      lblcocuk_sayisi.Visible := True;
-      edtcocuk_sayisi.Visible := True;
-    end
-    else
-    begin
-      lblcocuk_sayisi.Visible := False;
-      edtcocuk_sayisi.Visible := False;
-      edtcocuk_sayisi.Clear;
-    end;
+    lblcocuk_sayisi.Visible := True;
+    edtcocuk_sayisi.Visible := True;
+  end
+  else
+  begin
+    lblcocuk_sayisi.Visible := False;
+    edtcocuk_sayisi.Visible := False;
+    edtcocuk_sayisi.Clear;
   end;
 end;
 
@@ -444,6 +412,8 @@ begin
 end;
 
 procedure TfrmPrsPersonel.RefreshData;
+var
+  LImgFileName: string;
 begin
   edtbolum_id.ReadOnly := True;
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
@@ -528,9 +498,9 @@ begin
   edtikramiye_tutar.Text := TPrsPersonel(Table).IkramiyeTutari.Value;
   mmoozel_not.Text := TPrsPersonel(Table).OzelNot.Value;
 
-//  cbbsection_id.Enabled := True;
-//  cbbcountry_id.Enabled := True;
-  //imgPersonelResim.Picture.LoadFromFile(FApplicationMainPath + 'PathForPersonel+PersonelID.jpg');
+  LImgFileName := TPath.Combine(GSysApplicationSetting.DigerAyarlarJSon.PathPersonelKartiResim, TPrsPersonel(Table).Id.AsString) + '.' + FILE_EXT_JPG;
+  if FileExists(LImgFileName) then
+    imgpersonel_resim.Picture.LoadFromFile(LImgFileName);
 end;
 
 procedure TfrmPrsPersonel.Repaint;
@@ -544,14 +514,13 @@ begin
 end;
 
 procedure TfrmPrsPersonel.btnAcceptClick(Sender: TObject);
-//var
-//  n1: Integer;
+var
+  LImgFileName: string;
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
     if (ValidateInput) then
     begin
-      //auto accept kodunu çaðýrmýyoruz helper kullanan bilgileri siliyor daha sonra autoaccept düzenlenecek
       TPrsPersonel(Table).Ad.Value := edtad.Text;
       TPrsPersonel(Table).Soyad.Value := edtsoyad.Text;
       TPrsPersonel(Table).AdSoyad.Value := TPrsPersonel(Table).Ad.Value + ' ' + TPrsPersonel(Table).Soyad.Value;
@@ -561,14 +530,14 @@ begin
       else
         TPrsPersonel(Table).PersonelTipiID.Value := 0;
 
-      //section, unit, task data take from helper form
+      //bölüm, birim ve görev helper form ile geliyor
       TPrsPersonel(Table).GenelNot.Value := mmogenel_not.Text;
       if (cbbtasima_servisi_id.ItemIndex > -1) and Assigned(cbbtasima_servisi_id.Items.Objects[cbbtasima_servisi_id.ItemIndex]) then
         TPrsPersonel(Table).TasimaServisID.Value := TSetPrsTasimaServisi(cbbtasima_servisi_id.Items.Objects[cbbtasima_servisi_id.ItemIndex]).Id.Value
       else
         TPrsPersonel(Table).TasimaServisID.Value := 0;
 
-      //country and city data take from helper form
+      //ulke ve þehir helper form ile geliyor
       TPrsPersonel(Table).Adres.Ilce.Value := edtilce.Text;
       TPrsPersonel(Table).Adres.Mahalle.Value := edtmahalle.Text;
       TPrsPersonel(Table).Adres.Semt.Value := edtsemt.Text;
@@ -599,7 +568,14 @@ begin
       TPrsPersonel(Table).IkramiyeTutari.Value := edtikramiye_tutar.moneyToDouble;
       TPrsPersonel(Table).OzelNot.Value := mmoozel_not.Text;
 
+      TPrsPersonel(Table).ResimSil := not Assigned(imgpersonel_resim.Picture);
       inherited;
+
+      if Assigned(imgpersonel_resim.Picture) then
+      begin
+        LImgFileName := TPath.Combine(GSysApplicationSetting.DigerAyarlarJSon.PathPersonelKartiResim, TPrsPersonel(Table).Id.AsString) + '.' + FILE_EXT_JPG;
+        imgpersonel_resim.Picture.SaveToFile(LImgFileName);
+      end;
     end;
   end
   else

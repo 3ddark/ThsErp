@@ -210,7 +210,7 @@ begin
         //if AppVersion is wrong then
         //call before the login for use UpdateApplicationExe in Main form
 
-        GSysApplicationSetting.SelectToList('', False, False);
+        GSysApplicationSetting.LogicalSelect('', False, False, False);
         IncProgress;
 
         LUserID := Login(edtkullanici_adi.Text, edtkullanici_sifresi.Text);

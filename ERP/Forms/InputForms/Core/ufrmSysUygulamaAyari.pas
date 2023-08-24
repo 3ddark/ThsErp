@@ -89,6 +89,9 @@ type
     edtsemt: TEdit;
     lblcadde: TLabel;
     edtcadde: TEdit;
+    lblpath_personel_karti_resim: TLabel;
+    edtpath_personel_karti_resim: TEdit;
+    btnpath_personel_karti_resim: TButton;
     procedure imglogoDblClick(Sender: TObject);
     procedure edtgrid_renk_1DblClick(Sender: TObject);
     procedure edtgrid_renk_2DblClick(Sender: TObject);
@@ -98,6 +101,7 @@ type
     procedure edtgrid_renk_aktifExit(Sender: TObject);
     procedure btnpath_stok_karti_resimClick(Sender: TObject);
     procedure btnpath_guncellemeClick(Sender: TObject);
+    procedure btnpath_personel_karti_resimClick(Sender: TObject);
   private
     procedure SetColor(color: TColor; editColor: TEdit);
     procedure DrawEmptyImage();
@@ -138,6 +142,11 @@ end;
 procedure TfrmSysUygulamaAyari.btnpath_guncellemeClick(Sender: TObject);
 begin
   edtpath_guncelleme.Text := GetDialogDirectory;
+end;
+
+procedure TfrmSysUygulamaAyari.btnpath_personel_karti_resimClick(Sender: TObject);
+begin
+  edtpath_personel_karti_resim.Text := GetDialogDirectory;
 end;
 
 procedure TfrmSysUygulamaAyari.DrawEmptyImage;
@@ -220,6 +229,7 @@ begin
   edtsms_baslik.CharCase := ecNormal;
 
   edtpath_stok_karti_resim.CharCase := ecNormal;
+  edtpath_personel_karti_resim.CharCase := ecNormal;
   edtpath_guncelleme.CharCase := ecNormal;
 
   edtcrypt_key.CharCase := ecNormal;
@@ -229,6 +239,7 @@ procedure TfrmSysUygulamaAyari.FormPaint(Sender: TObject);
 begin
   inherited;
   edtpath_stok_karti_resim.ReadOnly := True;
+  edtpath_personel_karti_resim.ReadOnly := True;
   edtpath_guncelleme.ReadOnly := True;
 
   btnpath_stok_karti_resim.Enabled := False;
@@ -440,6 +451,7 @@ begin
   SetColor(StrToIntDef(edtgrid_renk_aktif.Text, 0), edtgrid_renk_aktif);
 
   edtpath_stok_karti_resim.Text := TSysUygulamaAyari(Table).DigerAyarlarJSon.PathStokKartiResim;
+  edtpath_personel_karti_resim.Text := TSysUygulamaAyari(Table).DigerAyarlarJSon.PathPersonelKartiResim;
   edtpath_guncelleme.Text := TSysUygulamaAyari(Table).DigerAyarlarJSon.PathUpdate;
 end;
 
@@ -463,6 +475,13 @@ begin
   begin
     pgcMain.ActivePage := tsdiger;
     edtpath_stok_karti_resim.SetFocus;
+    CreateExceptionByLang('Lütfen geçerli bir dizin seçin!');
+  end;
+
+  if (edtpath_personel_karti_resim.Text <> '') and not DirectoryExists(edtpath_personel_karti_resim.Text) then
+  begin
+    pgcMain.ActivePage := tsdiger;
+    edtpath_personel_karti_resim.SetFocus;
     CreateExceptionByLang('Lütfen geçerli bir dizin seçin!');
   end;
 
@@ -525,6 +544,7 @@ begin
       TSysUygulamaAyari(Table).Adres.PostaKodu.Value := edtposta_kodu.Text;
 
       TSysUygulamaAyari(Table).DigerAyarlarJSon.PathStokKartiResim := edtpath_stok_karti_resim.Text;
+      TSysUygulamaAyari(Table).DigerAyarlarJSon.PathPersonelKartiResim := edtpath_personel_karti_resim.Text;
       TSysUygulamaAyari(Table).DigerAyarlarJSon.PathUpdate := edtpath_guncelleme.Text;
 
       inherited;

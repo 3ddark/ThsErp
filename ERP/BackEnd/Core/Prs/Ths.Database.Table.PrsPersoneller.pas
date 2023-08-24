@@ -6,6 +6,7 @@ interface
 
 uses
   System.SysUtils,
+  System.IOUtils,
   Data.DB,
   ZDataset,
   Ths.Database,
@@ -85,6 +86,7 @@ type
     constructor Create(ADatabase: TDatabase); override;
   public
     Adres: TSysAdres;
+    ResimSil: Boolean;
 
     procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
@@ -142,6 +144,7 @@ begin
   inherited Create(ADatabase);
 
   Adres := TSysAdres.Create(Database);
+  ResimSil := False;
 
   FSetPrsPersonelTipi := TSetPrsPersonelTipi.Create(Database);
   FSetPrsBolum := TSetPrsBolum.Create(Database);
@@ -439,12 +442,20 @@ begin
 end;
 
 procedure TPrsPersonel.BusinessUpdate(APermissionControl: Boolean);
+var
+  LImgFileName: string;
 begin
   if Self.Adres.Id.AsInt64 > 0 then
     Self.Adres.Update(False)
   else
     Self.Adres.Insert(False);
   Self.AdresID.Value := Self.Adres.Id.AsInt64;
+  if Self.ResimSil then
+  begin
+    LImgFileName := TPath.Combine(GSysApplicationSetting.DigerAyarlarJSon.PathPersonelKartiResim, Self.Id.AsString) + '.' + FILE_EXT_JPG;
+    if FileExists(LImgFileName) then
+      DeleteFile(LImgFileName);
+  end;
   Self.Update(APermissionControl);
 end;
 

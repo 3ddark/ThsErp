@@ -21,7 +21,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
     inherited pgcMain: TPageControl
       Width = 696
       Height = 337
-      ActivePage = tsgorsel
+      ActivePage = tsdiger
       ExplicitWidth = 696
       ExplicitHeight = 337
       inherited tsMain: TTabSheet
@@ -814,11 +814,25 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
         end
         object lblpath_guncelleme: TLabel
           Left = 23
-          Top = 29
+          Top = 53
           Width = 131
           Height = 13
           Alignment = taRightJustify
           Caption = 'G'#252'ncelleme Dosya Yolu'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object lblpath_personel_karti_resim: TLabel
+          Left = 10
+          Top = 29
+          Width = 144
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'Personel Kart'#305' Resim Yolu'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -844,19 +858,35 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
         end
         object edtpath_guncelleme: TEdit
           Left = 160
+          Top = 50
+          Width = 462
+          Height = 21
+          TabOrder = 4
+        end
+        object btnpath_guncelleme: TButton
+          Left = 624
+          Top = 50
+          Width = 21
+          Height = 21
+          Caption = '...'
+          TabOrder = 5
+          OnClick = btnpath_guncellemeClick
+        end
+        object edtpath_personel_karti_resim: TEdit
+          Left = 160
           Top = 26
           Width = 462
           Height = 21
           TabOrder = 2
         end
-        object btnpath_guncelleme: TButton
+        object btnpath_personel_karti_resim: TButton
           Left = 624
           Top = 26
           Width = 21
           Height = 21
           Caption = '...'
           TabOrder = 3
-          OnClick = btnpath_guncellemeClick
+          OnClick = btnpath_personel_karti_resimClick
         end
       end
     end

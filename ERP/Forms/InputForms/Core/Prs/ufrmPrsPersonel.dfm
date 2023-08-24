@@ -15,16 +15,17 @@ inherited frmPrsPersonel: TfrmPrsPersonel
     Height = 408
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 626
-    ExplicitHeight = 405
+    ExplicitWidth = 628
+    ExplicitHeight = 408
     inherited pgcMain: TPageControl
       Width = 628
       Height = 408
-      ActivePage = tsDetail
       OnChange = pgcMainChange
-      ExplicitWidth = 626
-      ExplicitHeight = 405
+      ExplicitWidth = 628
+      ExplicitHeight = 408
       inherited tsMain: TTabSheet
+        ExplicitLeft = 4
+        ExplicitTop = 24
         ExplicitWidth = 620
         ExplicitHeight = 380
         object lblis_aktif: TLabel
@@ -239,14 +240,44 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Height = 21
           TabOrder = 7
         end
+        object btnresim_ekle_guncelle: TButton
+          Left = 434
+          Top = 259
+          Width = 179
+          Height = 25
+          Caption = 'Ekle/G'#252'ncelle'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ImageIndex = 33
+          Images = dm.il16
+          ParentFont = False
+          TabOrder = 9
+          OnClick = btnresim_ekle_guncelleClick
+        end
+        object btnresim_sil: TButton
+          Left = 434
+          Top = 285
+          Width = 179
+          Height = 25
+          Caption = 'Resim Sil'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ImageIndex = 51
+          Images = dm.il16
+          ParentFont = False
+          TabOrder = 10
+          OnClick = btnresim_silClick
+        end
       end
       object tsDetail: TTabSheet
         Caption = 'Adres'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lblbina_adi: TLabel
           Left = 100
           Top = 215
@@ -826,6 +857,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Top = 95
           Width = 180
           Height = 21
+          Style = csDropDownList
           TabOrder = 5
         end
         object cbbcinsiyet_id: TComboBox
@@ -833,6 +865,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Top = 117
           Width = 180
           Height = 21
+          Style = csDropDownList
           TabOrder = 7
           OnChange = cbbcinsiyet_idChange
         end
@@ -841,6 +874,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Top = 139
           Width = 180
           Height = 21
+          Style = csDropDownList
           TabOrder = 9
           OnChange = cbbmedeni_durumu_idChange
         end
@@ -856,6 +890,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Top = 183
           Width = 180
           Height = 21
+          Style = csDropDownList
           TabOrder = 13
         end
         object edtmaas: TEdit
@@ -897,22 +932,22 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   inherited pnlBottom: TPanel
     Top = 410
     Width = 624
-    ExplicitTop = 407
-    ExplicitWidth = 622
+    ExplicitTop = 410
+    ExplicitWidth = 624
     inherited btnAccept: TButton
       Left = 418
-      ExplicitLeft = 416
+      ExplicitLeft = 418
     end
     inherited btnClose: TButton
       Left = 522
-      ExplicitLeft = 520
+      ExplicitLeft = 522
     end
   end
   inherited stbBase: TStatusBar
     Top = 440
     Width = 628
-    ExplicitTop = 437
-    ExplicitWidth = 626
+    ExplicitTop = 440
+    ExplicitWidth = 628
   end
   inherited pmLabels: TPopupMenu
     Left = 280

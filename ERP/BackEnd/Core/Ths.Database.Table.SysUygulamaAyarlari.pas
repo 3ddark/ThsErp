@@ -19,10 +19,12 @@ uses
 type
   TSysUygulamaDigerAyarlar = class
   private
-    FPathUpdate: string;
     FPathStokKartiResim: string;
+    FPathPersonelKartiResim: string;
+    FPathUpdate: string;
   public
     property PathStokKartiResim: string read FPathStokKartiResim write FPathStokKartiResim;
+    property PathPersonelKartiResim: string read FPathPersonelKartiResim write FPathPersonelKartiResim;
     property PathUpdate: string read FPathUpdate write FPathUpdate;
   end;
 
