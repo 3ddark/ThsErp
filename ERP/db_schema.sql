@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.1
--- Dumped by pg_dump version 14.1
+-- Dumped from database version 13.4
+-- Dumped by pg_dump version 15.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,6 +15,15 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
@@ -677,6 +686,129 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: als_teklif_detaylari; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.als_teklif_detaylari (
+    id bigint NOT NULL,
+    header_id bigint,
+    siparis_detay_id bigint,
+    irsaliye_detay_id bigint,
+    fatura_detay_id bigint,
+    stok_kodu character varying(32),
+    stok_aciklama character varying(128),
+    kullanici_aciklama character varying(128),
+    referans character varying(128),
+    miktar double precision DEFAULT 1 NOT NULL,
+    olcu_birimi character varying(8),
+    iskonto_orani numeric(6,3) DEFAULT 0,
+    kdv_orani integer DEFAULT 0,
+    fiyat numeric(18,6) DEFAULT 0,
+    net_fiyat numeric(18,6) DEFAULT 0 NOT NULL,
+    tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    iskonto_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    net_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    toplam_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    is_ana_urun boolean DEFAULT false NOT NULL,
+    referans_ana_urun_id bigint,
+    gtip_no character varying(16),
+    mensei_ulke_adi character varying(128)
+);
+
+
+ALTER TABLE public.als_teklif_detaylari OWNER TO ths_admin;
+
+--
+-- Name: als_teklif_detaylari_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.als_teklif_detaylari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.als_teklif_detaylari_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: als_teklifler; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.als_teklifler (
+    id bigint NOT NULL,
+    siparis_id bigint,
+    irsaliye_id bigint,
+    fatura_id bigint,
+    is_siparislesti boolean NOT NULL,
+    tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    iskonto_tutar numeric(18,6) DEFAULT 0 NOT NULL,
+    ara_toplam numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran1 integer DEFAULT 0 NOT NULL,
+    kdv_tutar1 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran2 integer DEFAULT 0 NOT NULL,
+    kdv_tutar2 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran3 integer DEFAULT 0 NOT NULL,
+    kdv_tutar3 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran4 integer DEFAULT 0 NOT NULL,
+    kdv_tutar4 numeric(18,6) DEFAULT 0 NOT NULL,
+    kdv_oran5 integer DEFAULT 0 NOT NULL,
+    kdv_tutar5 numeric(18,6) DEFAULT 0 NOT NULL,
+    genel_toplam numeric(18,6) DEFAULT 0 NOT NULL,
+    islem_tipi_id bigint,
+    teklif_no character varying(16) NOT NULL,
+    teklif_tarihi date NOT NULL,
+    gecerlilik_tarihi date NOT NULL,
+    musteri_kodu character varying(16),
+    musteri_adi character varying(128),
+    vergi_dairesi character varying(32) NOT NULL,
+    vergi_no character varying(32) NOT NULL,
+    ulke_id bigint,
+    sehir_id bigint,
+    ilce character varying(64),
+    mahalle character varying(64),
+    semt character varying(64),
+    cadde character varying(64),
+    sokak character varying(64),
+    bina_adi character varying(64),
+    kapi_no character varying(16),
+    posta_kodu character varying(16),
+    web character varying(64),
+    email character varying(128),
+    musteri_temsilcisi character varying(64),
+    muhattap_ad character varying(32),
+    muhattap_telefon character varying(24),
+    referans character varying(128),
+    para_birimi character varying(3) NOT NULL,
+    doviz_kuru_usd numeric(7,4) DEFAULT 1,
+    doviz_kuru_eur numeric(7,4) DEFAULT 1,
+    aciklama character varying(128),
+    tevkifat_kodu character varying(8),
+    tevkifat_aciklama character varying(128),
+    tevkifat_pay smallint,
+    tevkifat_payda smallint
+);
+
+
+ALTER TABLE public.als_teklifler OWNER TO ths_admin;
+
+--
+-- Name: als_teklifler_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.als_teklifler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.als_teklifler_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: audits; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -1047,9 +1179,9 @@ ALTER TABLE public.prs_ehliyetler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 CREATE TABLE public.prs_personeller (
     id bigint NOT NULL,
-    ad character varying(24) NOT NULL,
-    soyad character varying(24) NOT NULL,
-    ad_soyad character varying(48) NOT NULL,
+    ad character varying(32) NOT NULL,
+    soyad character varying(32) NOT NULL,
+    ad_soyad character varying(64) NOT NULL,
     tel1 character varying(24),
     tel2 character varying(24),
     personel_tipi_id bigint NOT NULL,
@@ -1072,8 +1204,7 @@ CREATE TABLE public.prs_personeller (
     ikramiye_sayisi integer DEFAULT 0,
     ikramiye_tutar numeric(18,2) DEFAULT 0,
     identification text,
-    adres_id bigint,
-    pasif boolean DEFAULT false NOT NULL
+    adres_id bigint
 );
 
 
@@ -3347,6 +3478,30 @@ ALTER TABLE public.urt_recete_yan_urunler ALTER COLUMN id ADD GENERATED ALWAYS A
 
 
 --
+-- Name: als_teklif_detaylari als_teklif_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklif_detaylari
+    ADD CONSTRAINT als_teklif_detaylari_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: als_teklifler als_teklifler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklifler
+    ADD CONSTRAINT als_teklifler_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: als_teklifler als_teklifler_teklif_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklifler
+    ADD CONSTRAINT als_teklifler_teklif_no_key UNIQUE (teklif_no);
+
+
+--
 -- Name: audits audit_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -3528,14 +3683,6 @@ ALTER TABLE ONLY public.prs_lisan_bilgileri
 
 ALTER TABLE ONLY public.prs_lisan_bilgileri
     ADD CONSTRAINT prs_lisan_bilgileri_pkey PRIMARY KEY (id);
-
-
---
--- Name: prs_personeller prs_personeller_ad_soyad_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_personeller
-    ADD CONSTRAINT prs_personeller_ad_soyad_key UNIQUE (ad, soyad);
 
 
 --
@@ -4507,6 +4654,13 @@ ALTER TABLE ONLY public.urt_receteler
 
 
 --
+-- Name: idx_als_teklif_detaylari_header_id; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX idx_als_teklif_detaylari_header_id ON public.als_teklif_detaylari USING btree (header_id);
+
+
+--
 -- Name: idx_sat_siparis_detaylari_header_id; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -4791,6 +4945,78 @@ CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.urt_recete_
 --
 
 CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.urt_receteler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: als_teklif_detaylari als_teklif_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklif_detaylari
+    ADD CONSTRAINT als_teklif_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.als_teklifler(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: als_teklif_detaylari als_teklif_detaylari_olcu_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklif_detaylari
+    ADD CONSTRAINT als_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_olcu_birimleri(birim) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: als_teklif_detaylari als_teklif_detaylari_referans_ana_urun_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklif_detaylari
+    ADD CONSTRAINT als_teklif_detaylari_referans_ana_urun_id_fkey FOREIGN KEY (referans_ana_urun_id) REFERENCES public.als_teklif_detaylari(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: als_teklif_detaylari als_teklif_detaylari_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklif_detaylari
+    ADD CONSTRAINT als_teklif_detaylari_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_kartlar(stok_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: als_teklifler als_teklifler_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklifler
+    ADD CONSTRAINT als_teklifler_islem_tipi_id_fkey FOREIGN KEY (islem_tipi_id) REFERENCES public.set_einv_fatura_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: als_teklifler als_teklifler_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklifler
+    ADD CONSTRAINT als_teklifler_musteri_kodu_fkey FOREIGN KEY (musteri_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: als_teklifler als_teklifler_para_birimi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklifler
+    ADD CONSTRAINT als_teklifler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: als_teklifler als_teklifler_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklifler
+    ADD CONSTRAINT als_teklifler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehirler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: als_teklifler als_teklifler_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklifler
+    ADD CONSTRAINT als_teklifler_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5693,7 +5919,7 @@ ALTER TABLE ONLY public.urt_receteler
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 

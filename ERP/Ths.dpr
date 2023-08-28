@@ -186,7 +186,7 @@ uses
   ufrmChHesapKartlariAra in 'Forms\OutputForms\DbGrid\Account\ufrmChHesapKartlariAra.pas' {frmHesapKartlariAra},
   ufrmChHesapKartiAra in 'Forms\InputForms\Account\ufrmChHesapKartiAra.pas' {frmHesapKartiAra},
   Ths.Database.Table.ChHesapHareketi in 'BackEnd\Account\Ths.Database.Table.ChHesapHareketi.pas',
-  Ths.Database.Table.SetEinvFaturaTipi in 'BackEnd\Invoice\Ths.Database.Table.SetEinvFaturaTipi.pas',
+  Ths.Database.Table.SetEinvFaturaTipleri in 'BackEnd\Invoice\Ths.Database.Table.SetEinvFaturaTipleri.pas',
   ufrmSetEinvFaturaTipleri in 'Forms\OutputForms\DbGrid\Invoice\ufrmSetEinvFaturaTipleri.pas' {frmSetEinvFaturaTipleri},
   ufrmSetEinvFaturaTipi in 'Forms\InputForms\Invoice\ufrmSetEinvFaturaTipi.pas' {frmSetEinvFaturaTipi},
   Ths.Database.Table.SetEinvIstisnaKodu in 'BackEnd\Invoice\Ths.Database.Table.SetEinvIstisnaKodu.pas',
@@ -270,7 +270,11 @@ uses
   ufrmBbkKayitlar in 'Forms\OutputForms\DbGrid\Databank\ufrmBbkKayitlar.pas' {frmBbkKayitlar},
   ufrmBbkKayit in 'Forms\InputForms\Databank\ufrmBbkKayit.pas' {frmBbkKayit},
   Ths.Database.Table.StkResimler in 'BackEnd\Stock\Ths.Database.Table.StkResimler.pas',
-  Logger in 'BackEnd\Core\Logger.pas';
+  Logger in 'BackEnd\Core\Logger.pas',
+  Ths.Database.Table.AlsTeklifler in 'BackEnd\Erp\Tek\Ths.Database.Table.AlsTeklifler.pas',
+  ufrmAlsTeklifler in 'Forms\OutputForms\DbGrid\Erp\Tek\ufrmAlsTeklifler.pas' {frmAlsTeklifler},
+  ufrmAlsTeklifDetaylar in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetaylar.pas' {frmAlsTeklifDetaylar},
+  ufrmAlsTeklifDetay in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetay.pas' {frmAlsTeklifDetay};
 
 {$R *.res}
 

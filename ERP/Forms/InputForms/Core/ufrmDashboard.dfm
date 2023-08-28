@@ -14,9 +14,10 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 648
-  ExplicitHeight = 460
-  TextHeight = 15
+  ExplicitWidth = 640
+  ExplicitHeight = 453
+  PixelsPerInch = 96
+  TextHeight = 13
   object pnlToolbar: TPanel [0]
     Left = 0
     Top = 0
@@ -27,7 +28,6 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 632
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
@@ -56,22 +56,22 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 353
-    ExplicitWidth = 628
+    ExplicitTop = 356
+    ExplicitWidth = 630
     inherited btnAccept: TButton
       Left = 424
-      ExplicitLeft = 422
+      ExplicitLeft = 424
     end
     inherited btnClose: TButton
       Left = 528
-      ExplicitLeft = 526
+      ExplicitLeft = 528
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 386
     Width = 634
-    ExplicitTop = 383
-    ExplicitWidth = 632
+    ExplicitTop = 386
+    ExplicitWidth = 634
   end
   inherited pnlMain: TPanel [3]
     Top = 40
@@ -79,8 +79,8 @@ inherited frmDashboard: TfrmDashboard
     Height = 314
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 632
-    ExplicitHeight = 311
+    ExplicitWidth = 634
+    ExplicitHeight = 314
     object PageControl1: TPageControl
       Left = 0
       Top = 0
@@ -90,8 +90,6 @@ inherited frmDashboard: TfrmDashboard
       Align = alClient
       MultiLine = True
       TabOrder = 0
-      ExplicitWidth = 632
-      ExplicitHeight = 311
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton
@@ -797,6 +795,12 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 64
       OnExecute = actprs_personellerExecute
     end
+    object actals_teklifler: TAction
+      Category = 'AlsTeklif'
+      Caption = 'Sat'#305'n Alma Teklifler'
+      ImageIndex = 93
+      OnExecute = actals_tekliflerExecute
+    end
   end
   object tmrcheck_is_update_required: TTimer
     Enabled = False
@@ -887,7 +891,7 @@ inherited frmDashboard: TfrmDashboard
     object mnimenu_alim: TMenuItem
       Caption = 'Al'#305'mlar'
       object mnialim_teklif: TMenuItem
-        Caption = 'Teklif'
+        Action = actals_teklifler
       end
       object mnialim_siparis: TMenuItem
         Caption = 'Sipari'#351

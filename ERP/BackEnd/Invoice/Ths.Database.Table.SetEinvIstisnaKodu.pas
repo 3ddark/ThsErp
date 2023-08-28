@@ -10,7 +10,7 @@ uses
   ZDataset,
   Ths.Database,
   Ths.Database.Table,
-  Ths.Database.Table.SetEInvFaturaTipi;
+  Ths.Database.Table.SetEInvFaturaTipleri;
 
 type
   TSetEinvIstisnaKodu = class(TTable)

@@ -145,7 +145,7 @@ uses
   ufrmSatSiparisDetay,
   Ths.Database.Table.ChHesapKarti, ufrmChHesapKartlari,
   Ths.Database.Table.SysSehirler, ufrmSysSehirler,
-  Ths.Database.Table.SetEInvFaturaTipi,
+  Ths.Database.Table.SetEInvFaturaTipleri,
   Ths.Database.Table.PrsPersoneller, ufrmPrsPersoneller,
   Ths.Database.Table.SetSatTeklifDurum,
   Ths.Database.Table.SetOdemeBaslangicDonemi,

@@ -6,8 +6,9 @@ inherited frmSetEinvFaturaTipi: TfrmSetEinvFaturaTipi
   ClientHeight = 121
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 360
-  ExplicitHeight = 160
+  ExplicitWidth = 350
+  ExplicitHeight = 150
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 344

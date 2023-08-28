@@ -323,7 +323,7 @@ begin
 
         LGridCol := TSysGridKolon.Create(GDatabase);
         try
-          LGridCol.SelectToList(' AND ' + LGridCol.TabloAdi.QryName + '=' + ReplaceRealColOrTableNameTo(ATableName) , False, False);
+          LGridCol.SelectToList(' AND ' + LGridCol.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)), False, False);
 
           if ExistsGridColWidth(AHelper, LIndex) then
           begin

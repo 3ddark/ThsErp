@@ -155,6 +155,7 @@ type
     mniprs_ehliyetler: TMenuItem;
     mniprs_lisan_bilgileri: TMenuItem;
     mniprs_personeller: TMenuItem;
+    actals_teklifler: TAction;
 
 /// <summary>
 ///   Kullanıcının erişim yetkisine göre yapılacak işlemler burada olacak
@@ -250,6 +251,7 @@ type
     procedure actset_prs_ehliyetlerExecute(Sender: TObject);
     procedure actset_prs_lisan_seviyeleriExecute(Sender: TObject);
     procedure actset_prs_personel_tipleriExecute(Sender: TObject);
+    procedure actals_tekliflerExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
   published
@@ -319,12 +321,14 @@ uses
   Ths.Database.Table.SetPrsLisanSeviyeleri, ufrmSetPrsLisanSeviyeleri,
   Ths.Database.Table.SetPrsTasimaServisleri, ufrmSetPrsTasimaServisleri,
 
-  Ths.Database.Table.SetEinvFaturaTipi, ufrmSetEinvFaturaTipleri,
+  Ths.Database.Table.SetEinvFaturaTipleri, ufrmSetEinvFaturaTipleri,
   Ths.Database.Table.SetEinvIstisnaKodu, ufrmSetEinvIstisnaKodlari,
   Ths.Database.Table.SetEinvTeslimSekli, ufrmSetEinvTeslimSekilleri,
   Ths.Database.Table.SetEinvPaketTipi, ufrmSetEinvPaketTipleri,
   Ths.Database.Table.SetEinvTasimaUcreti, ufrmSetEinvTasimaUcretleri,
   Ths.Database.Table.SetEinvOdemeSekli, ufrmSetEinvOdemeSekilleri,
+
+  Ths.Database.Table.AlsTeklifler, ufrmAlsTeklifler,
 
   Ths.Database.Table.SetTekTeklifTipi, ufrmSetTekTeklifTipleri,
   Ths.Database.Table.SetSatTeklifDurum, ufrmSetSatTeklifDurumlar,
@@ -374,6 +378,11 @@ begin
 
   if LTs.TabVisible then
     PageControl1.ActivePage := LTs;
+end;
+
+procedure TfrmDashboard.actals_tekliflerExecute(Sender: TObject);
+begin
+  TfrmAlsTeklifler.Create(Self, Self, TAlsTeklif.Create(GDatabase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actbbk_kayitExecute(Sender: TObject);

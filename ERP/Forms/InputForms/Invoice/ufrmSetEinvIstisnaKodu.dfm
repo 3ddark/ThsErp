@@ -6,8 +6,9 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
   ClientHeight = 196
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 360
-  ExplicitHeight = 235
+  ExplicitWidth = 350
+  ExplicitHeight = 225
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 344

@@ -39,7 +39,7 @@ uses
   Ths.Globals,
   Ths.Constants,
   Ths.Database.Table.SetEinvIstisnaKodu,
-  Ths.Database.Table.SetEInvFaturaTipi;
+  Ths.Database.Table.SetEInvFaturaTipleri;
 
 {$R *.dfm}
 

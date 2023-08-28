@@ -29,7 +29,7 @@ type
 implementation
 
 uses
-  Ths.Database.Table.SetEInvFaturaTipi;
+  Ths.Database.Table.SetEinvFaturaTipleri;
 
 {$R *.dfm}
 

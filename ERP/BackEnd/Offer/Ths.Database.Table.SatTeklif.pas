@@ -20,7 +20,7 @@ uses
   Ths.Database.Table.StkKartlar,
   Ths.Database.Table.SysUlkeler,
   Ths.Database.Table.SysSehirler,
-  Ths.Database.Table.SetEInvFaturaTipi,
+  Ths.Database.Table.SetEInvFaturaTipleri,
   Ths.Database.Table.SetEinvTeslimSekli,
   Ths.Database.Table.SetEinvOdemeSekli,
   Ths.Database.Table.SetEinvPaketTipi,

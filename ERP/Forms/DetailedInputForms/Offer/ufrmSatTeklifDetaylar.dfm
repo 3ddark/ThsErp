@@ -4,6 +4,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
   ClientWidth = 878
   ExplicitWidth = 894
   ExplicitHeight = 580
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 878
