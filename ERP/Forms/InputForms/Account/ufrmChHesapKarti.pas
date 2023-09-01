@@ -24,7 +24,6 @@ type
     lblvergi_dairesi: TLabel;
     lblvergi_no: TLabel;
     lblnace_kodu: TLabel;
-    lblpara_birimi: TLabel;
     lblbolge_id: TLabel;
     lbliban: TLabel;
     lblis_efatura_hesabi: TLabel;
@@ -92,7 +91,6 @@ type
     edthesap_iskonto: TEdit;
     edthesap_grubu_id: TEdit;
     edtbolge_id: TEdit;
-    edtpara_birimi: TEdit;
     edtiban_para: TEdit;
     edtmukellef_tipi_id: TEdit;
     edtulke_id: TEdit;
@@ -260,9 +258,7 @@ begin
   edthesap_grubu_id.OnHelperProcess := HelperProcess;
   edtbolge_id.OnHelperProcess := HelperProcess;
   edtmukellef_tipi_id.OnHelperProcess := HelperProcess;
-  edtpara_birimi.OnHelperProcess := HelperProcess;
   edtiban_para.OnHelperProcess := HelperProcess;
-//  edtulke_id.OnHelperProcess := HelperProcess;
   edtsehir_id.OnHelperProcess := HelperProcess;
 
   inherited;
@@ -273,6 +269,12 @@ begin
     chkis_pasif.Visible := False;
   end;
   edtkok_hesap_kodu.SetFocus;
+  edtkok_hesap_kodu.thsRequiredData := True;
+  edthesap_grubu_id.thsRequiredData := True;
+  edtmukellef_tipi_id.thsRequiredData := True;
+  edtbolge_id.thsRequiredData := True;
+  edtulke_id.thsRequiredData := True;
+  edtsehir_id.thsRequiredData := True;
 end;
 
 function TfrmHesapKarti.getHesapKodu: string;
@@ -421,7 +423,7 @@ begin
           LFrmMukellef.Free;
         end;
       end
-      else if (TEdit(Sender).Name = edtpara_birimi.Name) or (TEdit(Sender).Name = edtiban_para.Name) then
+      else if (TEdit(Sender).Name = edtiban_para.Name) then
       begin
         LFrmPara := TfrmSysParaBirimleri.Create(TEdit(Sender), Self, TSysParaBirimi.Create(Table.Database), fomNormal, True);
         try
@@ -511,6 +513,41 @@ procedure TfrmHesapKarti.RefreshData();
 var
   LSplit: TStringDynArray;
 begin
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
+  begin
+    edtilce.ReadOnly := False;
+    edtilce.CharCase := ecUpperCase;
+    edtilce.thsInputDataType := itString;
+
+    edtmahalle.ReadOnly := False;
+    edtmahalle.CharCase := ecUpperCase;
+    edtmahalle.thsInputDataType := itString;
+
+    edtsemt.ReadOnly := False;
+    edtsemt.CharCase := ecUpperCase;
+    edtsemt.thsInputDataType := itString;
+
+    edtcadde.ReadOnly := False;
+    edtcadde.CharCase := ecUpperCase;
+    edtcadde.thsInputDataType := itString;
+
+    edtsokak.ReadOnly := False;
+    edtsokak.CharCase := ecUpperCase;
+    edtsokak.thsInputDataType := itString;
+
+    edtbina_adi.ReadOnly := False;
+    edtbina_adi.CharCase := ecUpperCase;
+    edtbina_adi.thsInputDataType := itString;
+
+    edtkapi_no.ReadOnly := False;
+    edtkapi_no.CharCase := ecUpperCase;
+    edtkapi_no.thsInputDataType := itString;
+
+    edtposta_kodu.ReadOnly := False;
+    edtposta_kodu.CharCase := ecUpperCase;
+    edtposta_kodu.thsInputDataType := itString;
+  end;
+
   edtkok_hesap_kodu.Text := TChHesapKarti(Table).KokKod.Value;
 
   LSplit := SplitString(TChHesapKarti(Table).HesapKodu.Value, ACC_DELIM);
@@ -600,8 +637,7 @@ begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
     edthesap_iskonto.ReadOnly := False;
 
-  edtilce.ReadOnly := True;
-  edtposta_kodu.ReadOnly := True;
+  edtulke_id.ReadOnly := True;
 end;
 
 procedure TfrmHesapKarti.ShowHideMukellefTipi;
@@ -658,6 +694,12 @@ begin
 
   if (edtkok_hesap_kodu.Visible and (edtkok_hesap_kodu.Text = '')) or (cbbara_hesap_kodu.Visible and (cbbara_hesap_kodu.Text = '')) or (cbbson_hesap_kodu.Visible and (cbbson_hesap_kodu.Text = '')) then
     raise Exception.Create('Son Hesap Kodu seçilmeden devam edilemez!');
+
+  if (TChHesapKarti(Table).MukellefTipiID.AsInt64 = Ord(TVergiMukellefTipi.VKN)) and (Length(edtvergi_no.Text) <> 10) then
+    raise Exception.Create('Mükellef tipi VKN olan kayıtlar Vergi Kimlik numarası 10 haneli olmak zorunda!');
+
+  if (TChHesapKarti(Table).MukellefTipiID.AsInt64 = Ord(TVergiMukellefTipi.TCKN)) and (Length(edtvergi_no.Text) <> 10) then
+    raise Exception.Create('Mükellef tipi TCKN olan kayıtlar Vergi Kimlik(TC Kimlik) numarası 11 haneli olmak zorunda!');
 
   if cbbson_hesap_kodu.Visible then
     checkComboBoxItems(cbbson_hesap_kodu);

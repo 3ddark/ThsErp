@@ -23,15 +23,12 @@ type
     FSetEmpDriverLicense: TSetPrsEhliyet;
   protected
     procedure HelperProcess(Sender: TObject); override;
-  public
-    procedure Repaint; override;
   published
     procedure btnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormDestroy(Sender: TObject); override;
     procedure RefreshData; override;
     procedure FormShow(Sender: TObject); override;
-    procedure FormPaint(Sender: TObject); override;
 
   end;
 
@@ -69,27 +66,19 @@ begin
   FSetEmpDriverLicense.SelectToList('', False, False);
   for n1 := 0 to FSetEmpDriverLicense.List.Count-1 do
     cbbehliyet_id.Items.AddObject(TSetPrsEhliyet(FSetEmpDriverLicense.List[n1]).Ehliyet.Value, TSetPrsEhliyet(FSetEmpDriverLicense.List[n1]));
-  cbbehliyet_id.ItemIndex := -1;
+  cbbehliyet_id.ItemIndex := 0;
 end;
 
 procedure TfrmPrsEhliyet.FormDestroy(Sender: TObject);
 begin
-  if Assigned(FSetEmpDriverLicense) then
-    FSetEmpDriverLicense.Free;
-  inherited;
-end;
-
-procedure TfrmPrsEhliyet.FormPaint(Sender: TObject);
-begin
+  FSetEmpDriverLicense.DisposeOf;
   inherited;
 end;
 
 procedure TfrmPrsEhliyet.FormShow(Sender: TObject);
 begin
-  inherited;
-//  if not AcceptBtnDoAction then
-  RefreshData;
   edtpersonel_id.OnHelperProcess := HelperProcess;
+  inherited;
 end;
 
 procedure TfrmPrsEhliyet.HelperProcess(Sender: TObject);
@@ -130,13 +119,8 @@ end;
 
 procedure TfrmPrsEhliyet.RefreshData;
 begin
-  cbbehliyet_id.ItemIndex := cbbehliyet_id.Items.IndexOf(TPrsEhliyet(Table).Ehliyet.Value);
+  cbbehliyet_id.ItemIndex := cbbehliyet_id.Items.IndexOf(TPrsEhliyet(Table).Ehliyet.AsString);
   edtpersonel_id.Text := TPrsEhliyet(Table).Personel.AsString;
-end;
-
-procedure TfrmPrsEhliyet.Repaint;
-begin
-  inherited;
 end;
 
 end.

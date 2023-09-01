@@ -13,6 +13,7 @@ uses
   Ths.Database.Table;
 
 type
+  TVergiMukellefTipi = (VKN=1, TCKN=2);
   TSysVergiMukellefTipi = class(TTable)
   private
     FMukellefTipi: TFieldDB;
@@ -90,7 +91,6 @@ begin
     Open;
 
     FreeListContent();
-    List.Clear;
     while NOT EOF do
     begin
       PrepareTableClassFromQuery(LQry);

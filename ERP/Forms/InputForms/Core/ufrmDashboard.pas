@@ -156,6 +156,8 @@ type
     mniprs_lisan_bilgileri: TMenuItem;
     mniprs_personeller: TMenuItem;
     actals_teklifler: TAction;
+    actch_bankalar: TAction;
+    actch_banka_subeleri: TAction;
 
 /// <summary>
 ///   Kullanıcının erişim yetkisine göre yapılacak işlemler burada olacak
@@ -208,8 +210,6 @@ type
     procedure actbbk_kayitExecute(Sender: TObject);
     procedure actsat_teklifExecute(Sender: TObject);
     procedure actrct_receteExecute(Sender: TObject);
-    procedure actch_bankaExecute(Sender: TObject);
-    procedure actch_banka_subesiExecute(Sender: TObject);
     procedure actch_hesap_karti_araExecute(Sender: TObject);
     procedure actch_hesap_kartiExecute(Sender: TObject);
     procedure actch_bolgeExecute(Sender: TObject);
@@ -232,8 +232,6 @@ type
     procedure actset_einv_paket_tipiExecute(Sender: TObject);
     procedure actset_einv_tasima_ucretiExecute(Sender: TObject);
     procedure actset_einv_teslim_sekliExecute(Sender: TObject);
-    procedure mnich_bankalarClick(Sender: TObject);
-    procedure mnich_banka_subeleriClick(Sender: TObject);
     procedure actstk_ambarlarExecute(Sender: TObject);
     procedure actstk_gruplarExecute(Sender: TObject);
     procedure actstk_hareketlerExecute(Sender: TObject);
@@ -252,6 +250,8 @@ type
     procedure actset_prs_lisan_seviyeleriExecute(Sender: TObject);
     procedure actset_prs_personel_tipleriExecute(Sender: TObject);
     procedure actals_tekliflerExecute(Sender: TObject);
+    procedure actch_bankalarExecute(Sender: TObject);
+    procedure actch_banka_subeleriExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
   published
@@ -390,14 +390,14 @@ begin
   TfrmBbkKayitlar.Create(Self, Self, TBbkKayit.Create(GDataBase), fomNormal).Show;
 end;
 
-procedure TfrmDashboard.actch_bankaExecute(Sender: TObject);
+procedure TfrmDashboard.actch_bankalarExecute(Sender: TObject);
 begin
-  TfrmChBankalar.Create(Self, Self, TChBanka.Create(GDataBase)).Show;
+  TfrmChBankalar.Create(Self, Self, TChBanka.Create(GDataBase), fomNormal).Show;
 end;
 
-procedure TfrmDashboard.actch_banka_subesiExecute(Sender: TObject);
+procedure TfrmDashboard.actch_banka_subeleriExecute(Sender: TObject);
 begin
-  TfrmChBankaSubeleri.Create(Self, Self, TChBankaSubesi.Create(GDataBase)).Show;
+  TfrmChBankaSubeleri.Create(Self, Self, TChBankaSubesi.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actch_bolgeExecute(Sender: TObject);
@@ -1101,16 +1101,6 @@ begin
   Caption := Caption + ' v' + APP_VERSION;
 
   SetSession();
-end;
-
-procedure TfrmDashboard.mnich_bankalarClick(Sender: TObject);
-begin
-  TfrmChBankalar.Create(Self, Self, TChBanka.Create(GDataBase), fomNormal).Show;
-end;
-
-procedure TfrmDashboard.mnich_banka_subeleriClick(Sender: TObject);
-begin
-  TfrmChBankaSubeleri.Create(Self, Self, TChBankaSubesi.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);

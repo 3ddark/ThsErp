@@ -189,7 +189,6 @@ begin
     Open;
 
     FreeListContent();
-    List.Clear;
     while not EOF do
     begin
       PrepareTableClassFromQuery(LQry);

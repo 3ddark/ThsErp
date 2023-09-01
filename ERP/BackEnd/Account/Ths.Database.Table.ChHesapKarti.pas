@@ -75,6 +75,11 @@ type
     FChHesapPlani: TChHesapPlani;
     FSysVergiMukellefTipi: TSysVergiMukellefTipi;
     FSysParaBirimi: TSysParaBirimi;
+
+    procedure BusinessSelect(AFilter: string; ALock: Boolean; APermissionControl: Boolean); override;
+    procedure BusinessInsert(APermissionControl: Boolean); override;
+    procedure BusinessUpdate(APermissionControl: Boolean); override;
+    procedure BusinessDelete(APermissionControl: Boolean); override;
   published
     constructor Create(ADatabase: TDatabase); override;
     destructor Destroy; override;
@@ -327,7 +332,6 @@ begin
     Open;
 
     FreeListContent();
-    List.Clear;
     while NOT EOF do
     begin
       PrepareTableClassFromQuery(LQry);
@@ -526,6 +530,41 @@ begin
 //    then
 //      CreateExceptionByLang('Son Hesap Kodu seçilmeden devam edilemez!', '999999');
 //  end;
+end;
+
+procedure TChHesapKarti.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+begin
+  Self.SelectToList(AFilter, ALock, APermissionControl);
+  if Self.List.Count = 1 then
+  begin
+    if Self.AdresID.AsInt64 > 0 then
+      Self.Adres.SelectToList(' AND ' + Self.Adres.Id.QryName + '=' + Self.AdresID.AsString, ALock, False)
+    else
+      Self.Adres.Clear;
+  end;
+end;
+
+procedure TChHesapKarti.BusinessInsert(APermissionControl: Boolean);
+begin
+  Self.Adres.Insert(False);
+  Self.AdresID.Value := Self.Adres.Id.Value;
+  Self.Insert(APermissionControl);
+end;
+
+procedure TChHesapKarti.BusinessUpdate(APermissionControl: Boolean);
+begin
+  if Self.Adres.Id.AsInt64 > 0 then
+    Self.Adres.Update(False)
+  else
+    Self.Adres.Insert(False);
+  Self.AdresID.Value := Self.Adres.Id.AsInt64;
+  Self.Update(APermissionControl);
+end;
+
+procedure TChHesapKarti.BusinessDelete(APermissionControl: Boolean);
+begin
+  inherited;
+//
 end;
 
 function TChHesapKarti.Clone: TTable;

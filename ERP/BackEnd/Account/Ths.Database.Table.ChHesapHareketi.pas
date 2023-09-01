@@ -112,7 +112,6 @@ begin
     Open;
 
     FreeListContent();
-    List.Clear;
     LQry.DisableControls;
     while NOT EOF do
     begin

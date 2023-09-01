@@ -489,6 +489,7 @@ begin
         Shift := [];
         Clipboard.Clear;
         Clipboard.AsText := Self.Text;
+        Self.Clear;
       end
       else if (Key = Ord('a')) or (Key = Ord('A')) then
       begin

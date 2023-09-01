@@ -4,13 +4,16 @@ inherited frmBaseInputDB: TfrmBaseInputDB
   ClientHeight = 401
   Constraints.MinHeight = 150
   Constraints.MinWidth = 350
-  ExplicitHeight = 437
+  ExplicitWidth = 612
+  ExplicitHeight = 430
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Height = 351
     ExplicitHeight = 351
     inherited pgcMain: TPageControl
       Height = 351
+      ExplicitHeight = 351
       inherited tsMain: TTabSheet
         Caption = 'Genel'
         ExplicitHeight = 323

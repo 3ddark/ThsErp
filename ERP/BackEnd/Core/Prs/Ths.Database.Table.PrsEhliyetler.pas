@@ -94,7 +94,7 @@ begin
       ], [
         addJoin(jtLeft, FSetPrsEhliyet.TableName, FSetPrsEhliyet.Id.FieldName, TableName, FEhliyetID.FieldName),
         addJoin(jtLeft, LEmp.TableName, LEmp.Id.FieldName, TableName, FPersonelID.FieldName),
-        ' WHERE 1=1 ', AFilter
+        ' WHERE 1=1 ' + AFilter
       ], AAllColumn, AHelper);
       Open;
     end;
@@ -131,7 +131,6 @@ begin
     Open;
 
     FreeListContent();
-    List.Clear;
     while NOT EOF do
     begin
       PrepareTableClassFromQuery(LQry);
@@ -142,6 +141,7 @@ begin
     end;
   finally
     LPersEmp.Free;
+    LQry.Free;
   end;
 end;
 

@@ -82,7 +82,6 @@ begin
     Open;
 
     FreeListContent();
-    List.Clear;
     while NOT EOF do
     begin
       PrepareTableClassFromQuery(LQry);
@@ -92,7 +91,7 @@ begin
       Next;
     end;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -112,7 +111,7 @@ begin
     Open;
     Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 

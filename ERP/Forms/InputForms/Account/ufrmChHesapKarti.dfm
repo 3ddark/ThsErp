@@ -6,8 +6,9 @@ inherited frmHesapKarti: TfrmHesapKarti
   ClientHeight = 374
   ClientWidth = 687
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 703
-  ExplicitHeight = 413
+  ExplicitWidth = 693
+  ExplicitHeight = 403
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 687
@@ -15,15 +16,16 @@ inherited frmHesapKarti: TfrmHesapKarti
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 687
-    ExplicitHeight = 308
+    ExplicitHeight = 324
     inherited pgcMain: TPageControl
       Width = 687
       Height = 324
-      ActivePage = tsAdres
       OnChange = pgcMainChange
       ExplicitWidth = 687
-      ExplicitHeight = 308
+      ExplicitHeight = 324
       inherited tsMain: TTabSheet
+        ExplicitLeft = 4
+        ExplicitTop = 24
         ExplicitWidth = 679
         ExplicitHeight = 296
         object lblhesap_kodu: TLabel
@@ -178,22 +180,6 @@ inherited frmHesapKarti: TfrmHesapKarti
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Nace Kodu'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblpara_birimi: TLabel
-          Left = 85
-          Top = 187
-          Width = 61
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Para Birimi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -419,35 +405,35 @@ inherited frmHesapKarti: TfrmHesapKarti
           Top = 184
           Width = 180
           Height = 21
-          TabOrder = 14
+          TabOrder = 13
         end
         object edtiban: TEdit
           Left = 150
           Top = 206
           Width = 336
           Height = 21
-          TabOrder = 15
+          TabOrder = 14
         end
         object chkis_efatura_hesabi: TCheckBox
           Left = 150
           Top = 228
           Width = 180
           Height = 21
-          TabOrder = 17
+          TabOrder = 16
         end
         object edtnace_kodu: TEdit
           Left = 492
           Top = 228
           Width = 180
           Height = 21
-          TabOrder = 18
+          TabOrder = 17
         end
         object edtefatura_pk_name: TEdit
           Left = 492
           Top = 250
           Width = 180
           Height = 21
-          TabOrder = 20
+          TabOrder = 19
         end
         object chkis_pasif: TCheckBox
           Left = 492
@@ -461,7 +447,7 @@ inherited frmHesapKarti: TfrmHesapKarti
           Top = 250
           Width = 180
           Height = 21
-          TabOrder = 19
+          TabOrder = 18
         end
         object edthesap_grubu_id: TEdit
           Left = 150
@@ -477,19 +463,12 @@ inherited frmHesapKarti: TfrmHesapKarti
           Height = 21
           TabOrder = 7
         end
-        object edtpara_birimi: TEdit
-          Left = 150
-          Top = 184
-          Width = 180
-          Height = 21
-          TabOrder = 13
-        end
         object edtiban_para: TEdit
           Left = 492
           Top = 206
           Width = 180
           Height = 21
-          TabOrder = 16
+          TabOrder = 15
         end
         object edtmukellef_tipi_id: TEdit
           Left = 150
@@ -1041,7 +1020,7 @@ inherited frmHesapKarti: TfrmHesapKarti
   inherited pnlBottom: TPanel
     Top = 326
     Width = 683
-    ExplicitTop = 310
+    ExplicitTop = 326
     ExplicitWidth = 683
     inherited btnAccept: TButton
       Left = 477
@@ -1055,7 +1034,7 @@ inherited frmHesapKarti: TfrmHesapKarti
   inherited stbBase: TStatusBar
     Top = 356
     Width = 687
-    ExplicitTop = 340
+    ExplicitTop = 356
     ExplicitWidth = 687
   end
 end

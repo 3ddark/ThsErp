@@ -240,6 +240,15 @@ begin
 
   inherited;
 
+  edtilce.CharCase := ecUpperCase;
+  edtmahalle.CharCase := ecUpperCase;
+  edtsemt.CharCase := ecUpperCase;
+  edtcadde.CharCase := ecUpperCase;
+  edtsokak.CharCase := ecUpperCase;
+  edtbina_adi.CharCase := ecUpperCase;
+  edtkapi_no.CharCase := ecUpperCase;
+  edtposta_kodu.CharCase := ecUpperCase;
+
   imgpersonel_resim.PopupMenu := nil;
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
     imgpersonel_resim.PopupMenu := pmimg;
@@ -427,7 +436,6 @@ procedure TfrmPrsPersonel.RefreshData;
 var
   LImgFileName: string;
 begin
-  edtbolum_id.ReadOnly := True;
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
     edtilce.ReadOnly := False;
@@ -479,7 +487,7 @@ begin
   mmogenel_not.Text := TPrsPersonel(Table).GenelNot.AsString;
   cbbtasima_servisi_id.ItemIndex := cbbtasima_servisi_id.Items.IndexOf(TPrsPersonel(Table).TasimaServis.Value);
 
-  edtulke_id.Text := TPrsPersonel(Table).Adres.Sehir.AsString;
+  edtulke_id.Text := TPrsPersonel(Table).Adres.UlkeAdi.AsString;
   edtsehir_id.Text := TPrsPersonel(Table).Adres.Sehir.AsString;
 
   edtilce.Text := TPrsPersonel(Table).Adres.Ilce.AsString;
@@ -528,6 +536,7 @@ begin
     chkpasif.Visible := True;
     lblpasif.Visible := True;
   end;
+  edtbolum_id.ReadOnly := True;
 end;
 
 procedure TfrmPrsPersonel.btnAcceptClick(Sender: TObject);

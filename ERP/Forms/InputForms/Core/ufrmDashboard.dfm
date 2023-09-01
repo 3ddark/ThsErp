@@ -86,7 +86,7 @@ inherited frmDashboard: TfrmDashboard
       Top = 0
       Width = 634
       Height = 314
-      ActivePage = tsemployee
+      ActivePage = tsaccount
       Align = alClient
       MultiLine = True
       TabOrder = 0
@@ -330,7 +330,6 @@ inherited frmDashboard: TfrmDashboard
           ParentFont = False
           TabOrder = 1
           Visible = False
-          OnClick = actch_bankaExecute
         end
         object btnch_banka_subesi: TButton
           Left = 2
@@ -348,7 +347,6 @@ inherited frmDashboard: TfrmDashboard
           ParentFont = False
           TabOrder = 2
           Visible = False
-          OnClick = actch_banka_subesiExecute
         end
         object btnset_ch_grup: TButton
           Left = 160
@@ -801,6 +799,18 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 93
       OnExecute = actals_tekliflerExecute
     end
+    object actch_bankalar: TAction
+      Category = 'CariHesap'
+      Caption = 'Bankalar'
+      ImageIndex = 69
+      OnExecute = actch_bankalarExecute
+    end
+    object actch_banka_subeleri: TAction
+      Category = 'CariHesap'
+      Caption = 'Banka '#350'ubeleri'
+      ImageIndex = 69
+      OnExecute = actch_banka_subeleriExecute
+    end
   end
   object tmrcheck_is_update_required: TTimer
     Enabled = False
@@ -909,12 +919,10 @@ inherited frmDashboard: TfrmDashboard
     object mnimenu_muhasebe: TMenuItem
       Caption = 'Muhasebe'
       object mnich_bankalar: TMenuItem
-        Caption = 'Bankalar'
-        OnClick = mnich_bankalarClick
+        Action = actch_bankalar
       end
       object mnich_banka_subeleri: TMenuItem
-        Caption = 'Banka '#350'ubeleri'
-        OnClick = mnich_banka_subeleriClick
+        Action = actch_banka_subeleri
       end
       object mnimuhasebe_ayarlar: TMenuItem
         Caption = 'Ayarlar'

@@ -6,22 +6,24 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   ClientHeight = 458
   ClientWidth = 628
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 642
-  ExplicitHeight = 494
+  ExplicitWidth = 634
+  ExplicitHeight = 487
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 628
     Height = 408
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 626
-    ExplicitHeight = 405
+    ExplicitWidth = 628
+    ExplicitHeight = 408
     inherited pgcMain: TPageControl
       Width = 628
       Height = 408
+      ActivePage = tsDetail
       OnChange = pgcMainChange
-      ExplicitWidth = 626
-      ExplicitHeight = 405
+      ExplicitWidth = 628
+      ExplicitHeight = 408
       inherited tsMain: TTabSheet
         ExplicitWidth = 620
         ExplicitHeight = 380
@@ -490,6 +492,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       object tsSpecial: TTabSheet
         Caption = #214'zel Bilgiler'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lblmaas: TLabel
           Left = 98
           Top = 224
@@ -910,22 +916,22 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   inherited pnlBottom: TPanel
     Top = 410
     Width = 624
-    ExplicitTop = 407
-    ExplicitWidth = 622
+    ExplicitTop = 410
+    ExplicitWidth = 624
     inherited btnAccept: TButton
       Left = 418
-      ExplicitLeft = 416
+      ExplicitLeft = 418
     end
     inherited btnClose: TButton
       Left = 522
-      ExplicitLeft = 520
+      ExplicitLeft = 522
     end
   end
   inherited stbBase: TStatusBar
     Top = 440
     Width = 628
-    ExplicitTop = 437
-    ExplicitWidth = 626
+    ExplicitTop = 440
+    ExplicitWidth = 628
   end
   inherited pmLabels: TPopupMenu
     Left = 280

@@ -326,7 +326,6 @@ begin
     Open;
 
     FreeListContent();
-    List.Clear;
     while NOT EOF do
     begin
       PrepareTableClassFromQuery(LQry);
@@ -437,7 +436,9 @@ begin
   if Self.List.Count = 1 then
   begin
     if Self.AdresID.AsInt64 > 0 then
-      Self.Adres.SelectToList(' AND ' + Self.Adres.Id.QryName + '=' + Self.AdresID.AsString, ALock, False);
+      Self.Adres.SelectToList(' AND ' + Self.Adres.Id.QryName + '=' + Self.AdresID.AsString, ALock, False)
+    else
+      Self.Adres.Clear;
   end;
 end;
 

@@ -6,21 +6,22 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
   ClientHeight = 200
   ClientWidth = 378
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 392
-  ExplicitHeight = 236
+  ExplicitWidth = 384
+  ExplicitHeight = 229
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 378
     Height = 150
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 419
-    ExplicitHeight = 156
+    ExplicitWidth = 378
+    ExplicitHeight = 150
     inherited pgcMain: TPageControl
       Width = 378
       Height = 150
-      ExplicitWidth = 419
-      ExplicitHeight = 156
+      ExplicitWidth = 378
+      ExplicitHeight = 150
       inherited tsMain: TTabSheet
         ExplicitWidth = 370
         ExplicitHeight = 122
@@ -110,6 +111,7 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
           Width = 200
           Height = 21
           AutoCloseUp = True
+          Style = csDropDownList
           TabOrder = 0
         end
         object cbbokuma_seviyesi_id: TComboBox
@@ -118,6 +120,7 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
           Width = 200
           Height = 21
           AutoCloseUp = True
+          Style = csDropDownList
           TabOrder = 1
         end
         object cbbyazma_seviyesi_id: TComboBox
@@ -126,6 +129,7 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
           Width = 200
           Height = 21
           AutoCloseUp = True
+          Style = csDropDownList
           TabOrder = 2
         end
         object cbbkonusma_seviyesi_id: TComboBox
@@ -134,14 +138,14 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
           Width = 200
           Height = 21
           AutoCloseUp = True
+          Style = csDropDownList
           TabOrder = 3
         end
-        object cbbpersonel_id: TComboBox
+        object edtpersonel_id: TEdit
           Left = 140
           Top = 91
           Width = 200
           Height = 21
-          AutoCloseUp = True
           TabOrder = 4
         end
       end
@@ -150,21 +154,21 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
   inherited pnlBottom: TPanel
     Top = 152
     Width = 374
-    ExplicitTop = 158
-    ExplicitWidth = 415
+    ExplicitTop = 152
+    ExplicitWidth = 374
     inherited btnAccept: TButton
       Left = 168
-      ExplicitLeft = 209
+      ExplicitLeft = 168
     end
     inherited btnClose: TButton
       Left = 272
-      ExplicitLeft = 313
+      ExplicitLeft = 272
     end
   end
   inherited stbBase: TStatusBar
     Top = 182
     Width = 378
-    ExplicitTop = 188
-    ExplicitWidth = 419
+    ExplicitTop = 182
+    ExplicitWidth = 378
   end
 end

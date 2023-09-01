@@ -1204,7 +1204,8 @@ CREATE TABLE public.prs_personeller (
     ikramiye_sayisi integer DEFAULT 0,
     ikramiye_tutar numeric(18,2) DEFAULT 0,
     identification text,
-    adres_id bigint
+    adres_id bigint,
+    pasif boolean DEFAULT false NOT NULL
 );
 
 
@@ -1798,10 +1799,9 @@ CREATE TABLE public.stk_gruplar (
     satis_iade_hesap_kodu character varying(16),
     alis_hesap_kodu character varying(16),
     alis_iade_hesap_kodu character varying(16),
-    ihracat_hesap_kodu character varying(16),
-    ihracat_iade_hesap_kodu character varying(16),
-    hammadde_hesap_kodu character varying(16),
-    mamul_hesap_kodu character varying(16)
+    hammadde_stok_hesap_kodu character varying(16),
+    hammadde_kullanim_hesap_kodu character varying(16),
+    yari_mamul_hesap_kodu character varying(16)
 );
 
 
@@ -5532,19 +5532,19 @@ ALTER TABLE ONLY public.stk_gruplar
 
 
 --
--- Name: stk_gruplar stk_gruplar_ihracat_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_gruplar stk_gruplar_hammadde_kullanim_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_gruplar
-    ADD CONSTRAINT stk_gruplar_ihracat_hesap_kodu_fkey FOREIGN KEY (ihracat_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_gruplar_hammadde_kullanim_hesap_kodu_fkey FOREIGN KEY (hammadde_kullanim_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: stk_gruplar stk_gruplar_ihracat_iade_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_gruplar stk_gruplar_hammadde_stok_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_gruplar
-    ADD CONSTRAINT stk_gruplar_ihracat_iade_hesap_kodu_fkey FOREIGN KEY (ihracat_iade_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_gruplar_hammadde_stok_hesap_kodu_fkey FOREIGN KEY (hammadde_stok_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5561,6 +5561,14 @@ ALTER TABLE ONLY public.stk_gruplar
 
 ALTER TABLE ONLY public.stk_gruplar
     ADD CONSTRAINT stk_gruplar_satis_iade_hesap_kodu_fkey FOREIGN KEY (satis_iade_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_gruplar stk_gruplar_yari_mamul_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_gruplar
+    ADD CONSTRAINT stk_gruplar_yari_mamul_hesap_kodu_fkey FOREIGN KEY (yari_mamul_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
