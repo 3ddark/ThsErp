@@ -3,15 +3,15 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
   Top = 443
   ActiveControl = btnClose
   Caption = 'Sat'#305#351' Teklif Detay'
-  ClientHeight = 390
-  ClientWidth = 425
+  ClientHeight = 387
+  ClientWidth = 423
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 439
-  ExplicitHeight = 425
+  ExplicitHeight = 426
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 425
-    Height = 340
+    Width = 423
+    Height = 337
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 406
@@ -433,8 +433,8 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
     end
   end
   inherited pnlBottom: TPanel
-    Top = 342
-    Width = 421
+    Top = 339
+    Width = 419
     ExplicitTop = 315
     ExplicitWidth = 402
     inherited btnAccept: TButton
@@ -447,8 +447,8 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
     end
   end
   inherited stbBase: TStatusBar
-    Top = 372
-    Width = 425
+    Top = 369
+    Width = 423
     ExplicitTop = 345
     ExplicitWidth = 406
   end

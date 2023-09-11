@@ -158,6 +158,8 @@ type
     actals_teklifler: TAction;
     actch_bankalar: TAction;
     actch_banka_subeleri: TAction;
+    actset_prs_tasima_servisleri: TAction;
+    mniset_prs_tasima_servisleri: TMenuItem;
 
 /// <summary>
 ///   Kullanıcının erişim yetkisine göre yapılacak işlemler burada olacak
@@ -219,7 +221,6 @@ type
     procedure actset_ch_hesap_planiExecute(Sender: TObject);
     procedure actset_ch_hesap_tipiExecute(Sender: TObject);
     procedure actstk_stok_hareketiExecute(Sender: TObject);
-    procedure actset_prs_servis_araciExecute(Sender: TObject);
     procedure actsat_siparis_raporExecute(Sender: TObject);
     procedure actsat_siparisExecute(Sender: TObject);
     procedure actrct_iscilik_gideriExecute(Sender: TObject);
@@ -252,6 +253,7 @@ type
     procedure actals_tekliflerExecute(Sender: TObject);
     procedure actch_bankalarExecute(Sender: TObject);
     procedure actch_banka_subeleriExecute(Sender: TObject);
+    procedure actset_prs_tasima_servisleriExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
   published
@@ -347,7 +349,7 @@ uses
   Ths.Database.Table.ChGruplar, ufrmChGruplar,
   Ths.Database.Table.ChHesapPlanlari, ufrmChHesapPlanlari,
   Ths.Database.Table.SetChHesapTipi, ufrmSetChHesapTipleri,
-  Ths.Database.Table.SetChVergiOrani, ufrmSetChVergiOranlari,
+  Ths.Database.Table.SetChVergiOranlari, ufrmSetChVergiOranlari,
   Ths.Database.Table.ChBankalar, ufrmChBankalar,
   Ths.Database.Table.ChBankaSubeleri, ufrmChBankaSubeleri,
   Ths.Database.Table.ChBolgeler, ufrmChBolgeler,
@@ -594,7 +596,7 @@ begin
   TfrmSetPrsPersonelTipleri.Create(Self, Self, TSetPrsPersonelTipi.Create(GDataBase), fomNormal).Show;
 end;
 
-procedure TfrmDashboard.actset_prs_servis_araciExecute(Sender: TObject);
+procedure TfrmDashboard.actset_prs_tasima_servisleriExecute(Sender: TObject);
 begin
   TfrmSetPrsTasimaServisleri.Create(Self, Self, TSetPrsTasimaServisi.Create(GDataBase), fomNormal).Show;
 end;

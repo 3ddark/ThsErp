@@ -36,17 +36,11 @@ uses
 
 type
   TfrmStkKart = class(TfrmBaseInputDB)
-    lblortalama_maliyet_brm: TLabel;
     lblstok_kodu: TLabel;
     lblstok_adi: TLabel;
     lblstok_grubu_id: TLabel;
     lblolcu_birimi_id: TLabel;
     lblen_az_stok_seviyesi: TLabel;
-    lblalis_iskonto: TLabel;
-    lblsatis_iskonto: TLabel;
-    lblsatis_fiyat: TLabel;
-    lblihrac_fiyat: TLabel;
-    lblortalama_maliyet: TLabel;
     lblis_satilabilir: TLabel;
     lblozel_kod: TLabel;
     lbltanim: TLabel;
@@ -120,10 +114,10 @@ type
     tsGrupOzellikleri: TTabSheet;
     pnlGrupHeader: TPanel;
     pnlGrupOzellikleri: TPanel;
-    lblgrup_hammadde: TLabel;
-    lblgrup_mamul: TLabel;
-    lblgrup_hammadde_val: TLabel;
-    lblgrup_mamul_val: TLabel;
+    lblhammadde_stok_hesap_kodu: TLabel;
+    lblhammadde_kullanim_hesap_kodu: TLabel;
+    lblhammadde_stok_hesap_kodu_val: TLabel;
+    lblhammadde_kullanim_hesap_kodu_val: TLabel;
     lblgrup_adi_val: TLabel;
     lblgrup_kdv_orani: TLabel;
     lblgrup_kdv_orani_val: TLabel;
@@ -156,18 +150,11 @@ type
     lblmensei_id: TLabel;
     lblgtip_no: TLabel;
     lbltemin_suresi: TLabel;
-    lblalis_fiyat: TLabel;
     lblagirlik_birim: TLabel;
     edtstok_kodu: TEdit;
     edtstok_adi: TEdit;
     edtstok_grubu_id: TEdit;
     edtolcu_birimi_id: TEdit;
-    edtalis_iskonto: TEdit;
-    edtsatis_iskonto: TEdit;
-    edtalis_fiyat: TEdit;
-    edtsatis_fiyat: TEdit;
-    edtihrac_fiyat: TEdit;
-    edtortalama_maliyet: TEdit;
     edttemin_suresi: TEdit;
     edtozel_kod: TEdit;
     edtmarka: TEdit;
@@ -192,31 +179,40 @@ type
     edti4: TEdit;
     lbld4: TLabel;
     edtd4: TEdit;
-    lblgrup_alis_iade_kodu: TLabel;
-    lblgrup_alis_kodu: TLabel;
-    lblgrup_satis_iade_kodu: TLabel;
-    lblgrup_satis_kodu: TLabel;
-    lblgrup_alis_kodu_val: TLabel;
-    lblgrup_satis_iade_kodu_val: TLabel;
-    lblgrup_satis_kodu_val: TLabel;
-    lblgrup_alis_iade_kodu_val: TLabel;
+    lblalis_iade_hesap_kodu: TLabel;
+    lblalis_hesap_kodu: TLabel;
+    lblsatis_iade_hesap_kodu: TLabel;
+    lblsatis_hesap_kodu: TLabel;
+    lblalis_hesap_kodu_val: TLabel;
+    lblsatis_iade_hesap_kodu_val: TLabel;
+    lblsatis_hesap_kodu_val: TLabel;
+    lblalis_iade_hesap_kodu_val: TLabel;
     pnlCinsHeader: TPanel;
     lbltemin_suresi_brm: TLabel;
-    edtalis_para: TEdit;
-    edtsatis_para: TEdit;
-    edtihrac_para: TEdit;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     cbburun_tipi: TComboBox;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    Label7: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
-    Label10: TLabel;
-    Label11: TLabel;
+    lblyari_mamul_hesap_kodu: TLabel;
+    lblyari_mamul_hesap_kodu_val: TLabel;
+    tsParasal: TTabSheet;
+    lblortalama_maliyet_brm: TLabel;
+    lblsatis_fiyat: TLabel;
+    lblihrac_fiyat: TLabel;
+    lblortalama_maliyet: TLabel;
+    lblalis_fiyat: TLabel;
+    edtalis_fiyat: TEdit;
+    edtsatis_fiyat: TEdit;
+    edtihrac_fiyat: TEdit;
+    edtortalama_maliyet: TEdit;
+    edtalis_para: TEdit;
+    edtsatis_para: TEdit;
+    edtihrac_para: TEdit;
+    lblalis_iskonto: TLabel;
+    edtalis_iskonto: TEdit;
+    edtsatis_iskonto: TEdit;
+    lblsatis_iskonto: TLabel;
+    pnlParasalHeader: TPanel;
     procedure FormCreate(Sender: TObject);override;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject);override;
@@ -224,6 +220,8 @@ type
     procedure pgcMainChange(Sender: TObject);
     procedure btnstok_resimClick(Sender: TObject);
     procedure edtenChange(Sender: TObject);
+  private
+    FSpecialPermissionOK: Boolean;
   public
     procedure Repaint; override;
   published
@@ -237,6 +235,8 @@ implementation
 uses
   Ths.Globals,
   Ths.Constants,
+  Ths.Database,
+  Ths.Database.Table.SysErisimHaklari,
   Ths.Database.Table.StkKartlar, ufrmStkKartlar,
   Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
   Ths.Database.Table.StkGruplar, ufrmStkGruplar,
@@ -429,6 +429,8 @@ procedure TfrmStkKart.FormCreate(Sender: TObject);
 begin
   inherited;
 
+  FSpecialPermissionOK := Table.IsAuthorized(TPermissionType.ptSpecial, True, False);
+
   lblortalama_maliyet_brm.Caption := GSysApplicationSetting.Para.AsString;
 
   dm.il16.GetBitmap(IMG_IMAGE, btnstok_resim.Glyph);
@@ -476,13 +478,13 @@ begin
     if (FormMode = ifmCopyNewRecord) then
     begin
       lblgrup_kdv_orani_val.Caption := '';
-      lblgrup_hammadde_val.Caption := '';
-      lblgrup_mamul_val.Caption := '';
-      Label1.Caption := '';
-      lblgrup_alis_kodu_val.Caption := '';
-      lblgrup_satis_iade_kodu_val.Caption := '';
-      lblgrup_satis_kodu_val.Caption := '';
-      lblgrup_alis_iade_kodu_val.Caption := '';
+      lblhammadde_stok_hesap_kodu.Caption := '';
+      lblhammadde_kullanim_hesap_kodu.Caption := '';
+      lblyari_mamul_hesap_kodu.Caption := '';
+      lblsatis_hesap_kodu.Caption := '';
+      lblsatis_iade_hesap_kodu.Caption := '';
+      lblalis_hesap_kodu.Caption := '';
+      lblalis_iade_hesap_kodu.Caption := '';
     end;
   end;
 end;
@@ -513,13 +515,13 @@ begin
               TEdit(Sender).Text := TStkGruplar(LFrmGrup.Table).Grup.AsString;
               TStkKart(Table).StokGrubuID.Value := LFrmGrup.Table.Id.Value;
 
-              lblgrup_satis_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).SatisHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).SatisHesapAdi.AsString;
-              lblgrup_satis_iade_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).SatisIadeHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).SatisIadeHesapAdi.AsString;
-              lblgrup_alis_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).AlisHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).AlisHesapAdi.AsString;
-              lblgrup_alis_iade_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).AlisIadeHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).AlisIadeHesapAdi.AsString;
-              Label1.Caption := TStkGruplar(LFrmGrup.Table).IhracatHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).IhracatHesapAdi.AsString;
-              lblgrup_hammadde_val.Caption := TStkGruplar(LFrmGrup.Table).HammaddeHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).HammaddeHesapAdi.AsString;
-              lblgrup_mamul_val.Caption := TStkGruplar(LFrmGrup.Table).MamulHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).MamulHesapAdi.AsString;
+              lblsatis_hesap_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).SatisHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).SatisHesapAdi.AsString;
+              lblsatis_iade_hesap_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).SatisIadeHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).SatisIadeHesapAdi.AsString;
+              lblalis_hesap_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).AlisHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).AlisHesapAdi.AsString;
+              lblalis_iade_hesap_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).AlisIadeHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).AlisIadeHesapAdi.AsString;
+              lblhammadde_stok_hesap_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).HammaddeStokHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).HammaddeStokHesapAdi.AsString;
+              lblhammadde_kullanim_hesap_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).HammaddeKullanimHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).HammaddeKullanimHesapAdi.AsString;
+              lblyari_mamul_hesap_kodu_val.Caption := TStkGruplar(LFrmGrup.Table).YariMamulHesapKodu.AsString + ' ' + TStkGruplar(LFrmGrup.Table).YariMamulHesapAdi.AsString;
               lblgrup_kdv_orani_val.Caption := TStkGruplar(LFrmGrup.Table).KDVOrani.AsString;
             end;
           end;
@@ -613,6 +615,14 @@ procedure TfrmStkKart.pgcMainChange(Sender: TObject);
 var
   LGrup: TStkGruplar;
 begin
+  if pgcMain.ActivePage.Name = tsParasal.Name then
+  begin
+    lblstok_kodu.Parent := pnlParasalHeader;
+    edtstok_kodu.Parent := pnlParasalHeader;
+    lblstok_adi.Parent := pnlParasalHeader;
+    edtstok_adi.Parent := pnlParasalHeader;
+  end
+  else
   if pgcMain.ActivePage.Name = tsCinsOzelligi.Name then
   begin
     lblstok_kodu.Parent := pnlCinsHeader;
@@ -620,7 +630,38 @@ begin
     lblstok_adi.Parent := pnlCinsHeader;
     edtstok_adi.Parent := pnlCinsHeader;
   end
-  else if pgcMain.ActivePage.Name = tsOzetler.Name then
+  else
+  if pgcMain.ActivePage.Name = tsGrupOzellikleri.Name then
+  begin
+    lblstok_kodu.Parent := pnlGrupHeader;
+    edtstok_kodu.Parent := pnlGrupHeader;
+    lblstok_adi.Parent := pnlGrupHeader;
+    edtstok_adi.Parent := pnlGrupHeader;
+
+    lblgrup_adi_val.Caption := edtstok_grubu_id.Text;
+    if (FormMode <> ifmNewRecord) and (FormMode <> ifmCopyNewRecord) then
+    begin
+      LGrup := TStkGruplar.Create(Table.Database);
+      try
+        LGrup.SelectToList(' AND ' + LGrup.Grup.QryName + '=' + QuotedStr(edtstok_grubu_id.Text), False, False);
+        if LGrup.List.Count = 1 then
+        begin
+          lblsatis_hesap_kodu_val.Caption := LGrup.SatisHesapKodu.AsString + ' ' + LGrup.SatisHesapAdi.AsString;
+          lblsatis_iade_hesap_kodu_val.Caption := LGrup.SatisIadeHesapKodu.AsString + ' ' + LGrup.SatisIadeHesapAdi.AsString;
+          lblalis_hesap_kodu_val.Caption := LGrup.AlisHesapKodu.AsString + ' ' + LGrup.AlisHesapAdi.AsString;
+          lblalis_iade_hesap_kodu_val.Caption := LGrup.AlisIadeHesapKodu.AsString + ' ' + LGrup.AlisIadeHesapAdi.AsString;
+          lblhammadde_stok_hesap_kodu_val.Caption := LGrup.HammaddeStokHesapKodu.AsString + ' ' + LGrup.HammaddeStokHesapAdi.AsString;
+          lblhammadde_kullanim_hesap_kodu_val.Caption := LGrup.HammaddeKullanimHesapKodu.AsString + ' ' + LGrup.HammaddeKullanimHesapAdi.AsString;
+          lblyari_mamul_hesap_kodu_val.Caption := LGrup.YariMamulHesapKodu.AsString + ' ' + LGrup.YariMamulHesapAdi.AsString;
+          lblgrup_kdv_orani_val.Caption := LGrup.KDVOrani.AsString;
+        end;
+      finally
+        LGrup.Free;
+      end;
+    end;
+  end
+  else
+  if pgcMain.ActivePage.Name = tsOzetler.Name then
   begin
     lblstok_kodu.Parent := pnlOzetHeader;
     edtstok_kodu.Parent := pnlOzetHeader;
@@ -645,36 +686,6 @@ begin
     lblozet_alis_brm.Caption := edtalis_para.Text;
     lblozet_ortalama_maliyet_brm.Caption := lblortalama_maliyet_brm.Caption;
     lblozet_son_alis_brm.Caption := edtalis_para.Text;
-  end
-  else
-  if pgcMain.ActivePage.Name = tsGrupOzellikleri.Name then
-  begin
-    lblstok_kodu.Parent := pnlGrupHeader;
-    edtstok_kodu.Parent := pnlGrupHeader;
-    lblstok_adi.Parent := pnlGrupHeader;
-    edtstok_adi.Parent := pnlGrupHeader;
-
-    lblgrup_adi_val.Caption := edtstok_grubu_id.Text;
-    if (FormMode <> ifmNewRecord) and (FormMode <> ifmCopyNewRecord) then
-    begin
-      LGrup := TStkGruplar.Create(Table.Database);
-      try
-        LGrup.SelectToList(' AND ' + LGrup.Grup.QryName + '=' + QuotedStr(edtstok_grubu_id.Text), False, False);
-        if LGrup.List.Count = 1 then
-        begin
-          lblgrup_satis_kodu_val.Caption := LGrup.SatisHesapKodu.AsString + ' ' + LGrup.SatisHesapAdi.AsString;
-          lblgrup_satis_iade_kodu_val.Caption := LGrup.SatisIadeHesapKodu.AsString + ' ' + LGrup.SatisIadeHesapAdi.AsString;
-          lblgrup_alis_kodu_val.Caption := LGrup.AlisHesapKodu.AsString + ' ' + LGrup.AlisHesapAdi.AsString;
-          lblgrup_alis_iade_kodu_val.Caption := LGrup.AlisIadeHesapKodu.AsString + ' ' + LGrup.AlisIadeHesapAdi.AsString;
-          Label1.Caption := LGrup.IhracatHesapKodu.AsString + ' ' + LGrup.IhracatHesapAdi.AsString;
-          lblgrup_hammadde_val.Caption := LGrup.HammaddeHesapKodu.AsString + ' ' + LGrup.HammaddeHesapAdi.AsString;
-          lblgrup_mamul_val.Caption := LGrup.MamulHesapKodu.AsString + ' ' + LGrup.MamulHesapAdi.AsString;
-          lblgrup_kdv_orani_val.Caption := LGrup.KDVOrani.AsString;
-        end;
-      finally
-        LGrup.Free;
-      end;
-    end;
   end
   else
   begin
@@ -776,6 +787,8 @@ begin
   edtozet_alis.ReadOnly := True;
   edtozet_ortalama_maliyet.ReadOnly := True;
   edtozet_son_alis.ReadOnly := True;
+
+  tsParasal.TabVisible := FSpecialPermissionOK;
 end;
 
 procedure TfrmStkKart.btnAcceptClick(Sender: TObject);

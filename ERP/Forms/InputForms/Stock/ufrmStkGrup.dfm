@@ -3,29 +3,29 @@ inherited frmStkGrup: TfrmStkGrup
   Top = 443
   ActiveControl = btnClose
   Caption = 'Stok Grubu'
-  ClientHeight = 367
-  ClientWidth = 538
+  ClientHeight = 293
+  ClientWidth = 534
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 552
-  ExplicitHeight = 402
+  ExplicitWidth = 548
+  ExplicitHeight = 329
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 538
-    Height = 317
+    Width = 534
+    Height = 243
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 564
-    ExplicitHeight = 266
+    ExplicitWidth = 532
+    ExplicitHeight = 308
     inherited pgcMain: TPageControl
-      Width = 538
-      Height = 317
-      ExplicitWidth = 564
-      ExplicitHeight = 266
+      Width = 534
+      Height = 243
+      ExplicitWidth = 532
+      ExplicitHeight = 308
       inherited tsMain: TTabSheet
-        ExplicitWidth = 530
-        ExplicitHeight = 289
+        ExplicitWidth = 526
+        ExplicitHeight = 215
         object lblgrup: TLabel
-          Left = 155
+          Left = 171
           Top = 5
           Width = 27
           Height = 13
@@ -41,7 +41,7 @@ inherited frmStkGrup: TfrmStkGrup
           ParentFont = False
         end
         object lblkdv_orani: TLabel
-          Left = 111
+          Left = 127
           Top = 27
           Width = 71
           Height = 13
@@ -57,8 +57,8 @@ inherited frmStkGrup: TfrmStkGrup
           ParentFont = False
         end
         object lblalis_iade_hesap_kodu: TLabel
-          Left = 35
-          Top = 203
+          Left = 51
+          Top = 182
           Width = 150
           Height = 13
           Alignment = taRightJustify
@@ -73,8 +73,8 @@ inherited frmStkGrup: TfrmStkGrup
           ParentFont = False
         end
         object lblalis_hesap_kodu: TLabel
-          Left = 64
-          Top = 181
+          Left = 80
+          Top = 160
           Width = 121
           Height = 13
           Alignment = taRightJustify
@@ -89,8 +89,8 @@ inherited frmStkGrup: TfrmStkGrup
           ParentFont = False
         end
         object lblsatis_iade_hesap_kodu: TLabel
-          Left = 27
-          Top = 115
+          Left = 43
+          Top = 137
           Width = 158
           Height = 13
           Alignment = taRightJustify
@@ -105,8 +105,8 @@ inherited frmStkGrup: TfrmStkGrup
           ParentFont = False
         end
         object lblsatis_hesap_kodu: TLabel
-          Left = 56
-          Top = 93
+          Left = 72
+          Top = 115
           Width = 129
           Height = 13
           Alignment = taRightJustify
@@ -121,8 +121,8 @@ inherited frmStkGrup: TfrmStkGrup
           ParentFont = False
         end
         object lblalis_hesap_adi: TLabel
-          Left = 277
-          Top = 181
+          Left = 293
+          Top = 160
           Width = 51
           Height = 13
           BiDiMode = bdLeftToRight
@@ -136,8 +136,8 @@ inherited frmStkGrup: TfrmStkGrup
           ParentFont = False
         end
         object lblalis_iade_hesap_adi: TLabel
-          Left = 277
-          Top = 203
+          Left = 293
+          Top = 182
           Width = 76
           Height = 13
           BiDiMode = bdLeftToRight
@@ -151,8 +151,8 @@ inherited frmStkGrup: TfrmStkGrup
           ParentFont = False
         end
         object lblsatis_hesap_adi: TLabel
-          Left = 277
-          Top = 93
+          Left = 293
+          Top = 115
           Width = 58
           Height = 13
           BiDiMode = bdLeftToRight
@@ -166,8 +166,8 @@ inherited frmStkGrup: TfrmStkGrup
           ParentFont = False
         end
         object lblsatis_iade_hesap_adi: TLabel
-          Left = 277
-          Top = 115
+          Left = 293
+          Top = 137
           Width = 83
           Height = 13
           BiDiMode = bdLeftToRight
@@ -180,132 +180,8 @@ inherited frmStkGrup: TfrmStkGrup
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblihracat_iade_hesap_kodu: TLabel
-          Left = 13
-          Top = 159
-          Width = 172
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = #304'hracat '#304'ade Vergi Hesap Kodu'
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblihracat_hesap_kodu: TLabel
-          Left = 42
-          Top = 137
-          Width = 143
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = #304'hracat Vergi Hesap Kodu'
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblihracat_hesap_adi: TLabel
-          Left = 277
-          Top = 137
-          Width = 70
-          Height = 13
-          BiDiMode = bdLeftToRight
-          Caption = #304'hracat Hesab'#305
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblihracat_iade_hesap_adi: TLabel
-          Left = 277
-          Top = 159
-          Width = 95
-          Height = 13
-          BiDiMode = bdLeftToRight
-          Caption = #304'hracat '#304'ade Hesab'#305
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblithalat_iade_hesap_adi: TLabel
-          Left = 277
-          Top = 247
-          Width = 92
-          Height = 13
-          BiDiMode = bdLeftToRight
-          Caption = #304'thalat '#304'ade Hesab'#305
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblithalat_hesap_adi: TLabel
-          Left = 277
-          Top = 225
-          Width = 67
-          Height = 13
-          BiDiMode = bdLeftToRight
-          Caption = #304'thalat Hesab'#305
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblithalat_hesap_kodu: TLabel
-          Left = 45
-          Top = 225
-          Width = 140
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = #304'thalat Vergi Hesap Kodu'
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblithalat_iade_hesap_kodu: TLabel
-          Left = 16
-          Top = 247
-          Width = 169
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = #304'thalat '#304'ade Vergi Hesap Kodu'
-          Font.Charset = TURKISH_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblmamul_hesap_adi: TLabel
-          Left = 277
+        object lblhammadde_kullanim_hesap_adi: TLabel
+          Left = 293
           Top = 71
           Width = 65
           Height = 13
@@ -319,8 +195,8 @@ inherited frmStkGrup: TfrmStkGrup
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblhammadde_hesap_adi: TLabel
-          Left = 277
+        object lblhammadde_stok_hesap_adi: TLabel
+          Left = 293
           Top = 49
           Width = 88
           Height = 13
@@ -334,14 +210,14 @@ inherited frmStkGrup: TfrmStkGrup
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblhammadde_hesap_kodu: TLabel
-          Left = 51
+        object lblhammadde_stok_hesap_kodu: TLabel
+          Left = 38
           Top = 49
-          Width = 134
+          Width = 163
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Hammadde Hesap Kodu'
+          Caption = 'Hammadde Stok Hesap Kodu'
           Font.Charset = TURKISH_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -350,14 +226,45 @@ inherited frmStkGrup: TfrmStkGrup
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmamul_hesap_kodu: TLabel
-          Left = 78
+        object lblhammadde_kullanim_hesap_kodu: TLabel
+          Left = 16
           Top = 71
-          Width = 107
+          Width = 185
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Mam'#252'l Hesap Kodu'
+          Caption = 'Hammadde Kullan'#305'm Hesap Kodu'
+          Font.Charset = TURKISH_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblyari_mamul_hesap_adi: TLabel
+          Left = 293
+          Top = 93
+          Width = 86
+          Height = 13
+          BiDiMode = bdLeftToRight
+          Caption = 'Yar'#305' Mam'#252'l Hesab'#305
+          Font.Charset = TURKISH_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblyari_mamul_hesap_kodu: TLabel
+          Left = 69
+          Top = 93
+          Width = 132
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Yar'#305' Mam'#252'l Hesap Kodu'
           Font.Charset = TURKISH_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -367,110 +274,93 @@ inherited frmStkGrup: TfrmStkGrup
           ParentFont = False
         end
         object edtgrup: TEdit
-          Left = 186
+          Left = 202
           Top = 2
           Width = 311
           Height = 21
           TabOrder = 0
         end
         object edtkdv_orani: TEdit
-          Left = 186
+          Left = 202
           Top = 24
           Width = 90
           Height = 21
           TabOrder = 1
         end
         object edtsatis_hesap_kodu: TEdit
-          Left = 186
-          Top = 90
-          Width = 90
-          Height = 21
-          TabOrder = 4
-        end
-        object edtsatis_iade_hesap_kodu: TEdit
-          Left = 186
+          Left = 202
           Top = 112
           Width = 90
           Height = 21
           TabOrder = 5
         end
-        object edtalis_hesap_kodu: TEdit
-          Left = 186
-          Top = 178
-          Width = 90
-          Height = 21
-          TabOrder = 8
-        end
-        object edtalis_iade_hesap_kodu: TEdit
-          Left = 186
-          Top = 200
-          Width = 90
-          Height = 21
-          TabOrder = 9
-        end
-        object edtihracat_hesap_kodu: TEdit
-          Left = 186
+        object edtsatis_iade_hesap_kodu: TEdit
+          Left = 202
           Top = 134
           Width = 90
           Height = 21
           TabOrder = 6
         end
-        object edtihracat_iade_hesap_kodu: TEdit
-          Left = 186
-          Top = 156
+        object edtalis_hesap_kodu: TEdit
+          Left = 202
+          Top = 157
           Width = 90
           Height = 21
           TabOrder = 7
         end
-        object edtithalat_hesap_kodu: TEdit
-          Left = 186
-          Top = 222
+        object edtalis_iade_hesap_kodu: TEdit
+          Left = 202
+          Top = 179
           Width = 90
           Height = 21
-          TabOrder = 10
+          TabOrder = 8
         end
-        object edtithalat_iade_hesap_kodu: TEdit
-          Left = 186
-          Top = 244
-          Width = 90
-          Height = 21
-          TabOrder = 11
-        end
-        object edthammadde_hesap_kodu: TEdit
-          Left = 186
+        object edthammadde_stok_hesap_kodu: TEdit
+          Left = 202
           Top = 46
           Width = 90
           Height = 21
           TabOrder = 2
         end
-        object edtmamul_hesap_kodu: TEdit
-          Left = 186
+        object edthammadde_kullanim_hesap_kodu: TEdit
+          Left = 202
           Top = 68
           Width = 90
           Height = 21
           TabOrder = 3
         end
+        object edtyari_mamul_hesap_kodu: TEdit
+          Left = 202
+          Top = 90
+          Width = 90
+          Height = 21
+          TabOrder = 4
+        end
       end
     end
   end
   inherited pnlBottom: TPanel
-    Top = 319
-    Width = 534
-    ExplicitTop = 268
-    ExplicitWidth = 560
+    Top = 245
+    Width = 530
+    ExplicitTop = 310
+    ExplicitWidth = 528
     inherited btnAccept: TButton
-      Left = 328
-      ExplicitLeft = 354
+      Left = 324
+      TabOrder = 2
+      ExplicitLeft = 322
     end
     inherited btnClose: TButton
-      Left = 432
-      ExplicitLeft = 458
+      Left = 428
+      ExplicitLeft = 426
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar
-    Top = 349
-    Width = 538
-    ExplicitTop = 298
-    ExplicitWidth = 564
+    Top = 275
+    Width = 534
+    ExplicitTop = 340
+    ExplicitWidth = 532
   end
 end

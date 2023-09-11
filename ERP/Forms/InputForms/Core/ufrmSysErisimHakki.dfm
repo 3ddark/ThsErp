@@ -2,28 +2,28 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
   Left = 501
   Top = 443
   Caption = 'Accesss Right'
-  ClientHeight = 232
+  ClientHeight = 249
   ClientWidth = 359
   ParentFont = True
-  ExplicitWidth = 375
-  ExplicitHeight = 271
+  ExplicitWidth = 373
+  ExplicitHeight = 285
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 359
-    Height = 182
+    Height = 199
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 375
-    ExplicitHeight = 214
+    ExplicitWidth = 357
+    ExplicitHeight = 179
     inherited pgcMain: TPageControl
-      Width = 361
-      Height = 186
-      ExplicitWidth = 361
-      ExplicitHeight = 186
+      Width = 359
+      Height = 199
+      ExplicitWidth = 357
+      ExplicitHeight = 179
       inherited tsMain: TTabSheet
         ExplicitTop = 26
-        ExplicitWidth = 353
-        ExplicitHeight = 156
+        ExplicitWidth = 351
+        ExplicitHeight = 169
         object lbluser_id: TLabel
           Left = 55
           Top = 7
@@ -189,23 +189,27 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
     end
   end
   inherited pnlBottom: TPanel
-    Top = 184
+    Top = 201
     Width = 355
-    ExplicitTop = 216
-    ExplicitWidth = 371
+    ExplicitTop = 181
+    ExplicitWidth = 353
     inherited btnAccept: TButton
-      Left = 165
-      ExplicitLeft = 165
+      Left = 149
+      TabOrder = 2
+      ExplicitLeft = 147
     end
     inherited btnClose: TButton
-      Left = 269
-      ExplicitLeft = 269
+      Left = 253
+      ExplicitLeft = 251
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar
-    Top = 214
+    Top = 231
     Width = 359
-    ExplicitTop = 246
-    ExplicitWidth = 375
+    ExplicitTop = 211
+    ExplicitWidth = 357
   end
 end

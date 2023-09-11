@@ -22,7 +22,7 @@ type
 implementation
 
 uses
-  Ths.Database.Table, ufrmSetChVergiOrani, Ths.Database.Table.SetChVergiOrani;
+  Ths.Database.Table, ufrmSetChVergiOrani, Ths.Database.Table.SetChVergiOranlari;
 
 {$R *.dfm}
 

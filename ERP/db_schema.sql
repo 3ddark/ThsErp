@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.4
--- Dumped by pg_dump version 15.2
+-- Dumped from database version 14.1
+-- Dumped by pg_dump version 14.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,15 +15,6 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
---
-
--- *not* creating schema, since initdb creates it
-
-
-ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
@@ -1795,10 +1786,6 @@ CREATE TABLE public.stk_gruplar (
     id bigint NOT NULL,
     grup character varying(32) NOT NULL,
     kdv_orani double precision NOT NULL,
-    satis_hesap_kodu character varying(16),
-    satis_iade_hesap_kodu character varying(16),
-    alis_hesap_kodu character varying(16),
-    alis_iade_hesap_kodu character varying(16),
     hammadde_stok_hesap_kodu character varying(16),
     hammadde_kullanim_hesap_kodu character varying(16),
     yari_mamul_hesap_kodu character varying(16)
@@ -1839,24 +1826,7 @@ CREATE TABLE public.stk_kartlar (
     gtip_no character varying(16),
     diib_urun_tanimi character varying(64),
     en_az_stok_seviyesi double precision DEFAULT 0,
-    tanim character varying(384),
-    cins_id bigint,
-    s1 character varying(32),
-    s2 character varying(32),
-    s3 character varying(32),
-    s4 character varying(32),
-    s5 character varying(32),
-    s6 character varying(32),
-    s7 character varying(32),
-    s8 character varying(32),
-    i1 integer,
-    i2 integer,
-    i3 integer,
-    d1 double precision,
-    d2 double precision,
-    d3 double precision,
-    i4 integer,
-    d4 double precision
+    tanim character varying(384)
 );
 
 
@@ -2146,11 +2116,7 @@ CREATE TABLE public.set_ch_vergi_oranlari (
     satis_hesap_kodu character varying(16) NOT NULL,
     satis_iade_hesap_kodu character varying(16) NOT NULL,
     alis_hesap_kodu character varying(16) NOT NULL,
-    alis_iade_hesap_kodu character varying(16) NOT NULL,
-    ihracat_hesap_kodu character varying(16),
-    ihracat_iade_hesap_kodu character varying(16),
-    ithalat_hesap_kodu character varying(16),
-    ithalat_iade_hesap_kodu character varying(16)
+    alis_iade_hesap_kodu character varying(16) NOT NULL
 );
 
 
@@ -2654,6 +2620,53 @@ ALTER TABLE public.stk_hareketler OWNER TO ths_admin;
 
 ALTER TABLE public.stk_hareketler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.stk_hareketler_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: stk_kart_cins_bilgileri; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.stk_kart_cins_bilgileri (
+    id bigint NOT NULL,
+    stk_kart_id bigint,
+    cins_id bigint,
+    s1 character varying(64),
+    s2 character varying(64),
+    s3 character varying(64),
+    s4 character varying(64),
+    s5 character varying(64),
+    s6 character varying(64),
+    s7 character varying(64),
+    s8 character varying(64),
+    s9 character varying(64),
+    s10 character varying(64),
+    i1 integer,
+    i2 integer,
+    i3 integer,
+    i4 integer,
+    i5 integer,
+    d1 double precision,
+    d2 double precision,
+    d3 double precision,
+    d4 double precision,
+    d5 double precision
+);
+
+
+ALTER TABLE public.stk_kart_cins_bilgileri OWNER TO ths_admin;
+
+--
+-- Name: stk_kart_cins_bilgileri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.stk_kart_cins_bilgileri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_kart_cins_bilgileri_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -4126,6 +4139,14 @@ ALTER TABLE ONLY public.stk_hareketler
 
 
 --
+-- Name: stk_kart_cins_bilgileri stk_kart_cins_bilgileri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kart_cins_bilgileri
+    ADD CONSTRAINT stk_kart_cins_bilgileri_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: stk_kart_ozetleri stk_kart_ozetleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -4777,6 +4798,13 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_gruplar FOR
 --
 
 CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_hareketler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: stk_kart_cins_bilgileri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_kart_cins_bilgileri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -5460,38 +5488,6 @@ ALTER TABLE ONLY public.set_ch_vergi_oranlari
 
 
 --
--- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_ihracat_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_ch_vergi_oranlari
-    ADD CONSTRAINT set_ch_vergi_oranlari_ihracat_hesap_kodu_fkey FOREIGN KEY (ihracat_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_ihracat_iade_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_ch_vergi_oranlari
-    ADD CONSTRAINT set_ch_vergi_oranlari_ihracat_iade_hesap_kodu_fkey FOREIGN KEY (ihracat_iade_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_ithalat_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_ch_vergi_oranlari
-    ADD CONSTRAINT set_ch_vergi_oranlari_ithalat_hesap_kodu_fkey FOREIGN KEY (ithalat_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_ithalat_iade_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_ch_vergi_oranlari
-    ADD CONSTRAINT set_ch_vergi_oranlari_ithalat_iade_hesap_kodu_fkey FOREIGN KEY (ithalat_iade_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
 -- Name: set_ch_vergi_oranlari set_ch_vergi_oranlari_satis_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5516,22 +5512,6 @@ ALTER TABLE ONLY public.set_prs_birimler
 
 
 --
--- Name: stk_gruplar stk_gruplar_alis_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_gruplar
-    ADD CONSTRAINT stk_gruplar_alis_hesap_kodu_fkey FOREIGN KEY (alis_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: stk_gruplar stk_gruplar_alis_iade_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_gruplar
-    ADD CONSTRAINT stk_gruplar_alis_iade_hesap_kodu_fkey FOREIGN KEY (alis_iade_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
 -- Name: stk_gruplar stk_gruplar_hammadde_kullanim_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5545,22 +5525,6 @@ ALTER TABLE ONLY public.stk_gruplar
 
 ALTER TABLE ONLY public.stk_gruplar
     ADD CONSTRAINT stk_gruplar_hammadde_stok_hesap_kodu_fkey FOREIGN KEY (hammadde_stok_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: stk_gruplar stk_gruplar_satis_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_gruplar
-    ADD CONSTRAINT stk_gruplar_satis_hesap_kodu_fkey FOREIGN KEY (satis_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: stk_gruplar stk_gruplar_satis_iade_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_gruplar
-    ADD CONSTRAINT stk_gruplar_satis_iade_hesap_kodu_fkey FOREIGN KEY (satis_iade_hesap_kodu) REFERENCES public.ch_hesaplar(hesap_kodu) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5604,6 +5568,22 @@ ALTER TABLE ONLY public.stk_hareketler
 
 
 --
+-- Name: stk_kart_cins_bilgileri stk_kart_cins_bilgileri_cins_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kart_cins_bilgileri
+    ADD CONSTRAINT stk_kart_cins_bilgileri_cins_id_fkey FOREIGN KEY (cins_id) REFERENCES public.stk_cins_ozellikleri(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: stk_kart_cins_bilgileri stk_kart_cins_bilgileri_stk_kart_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kart_cins_bilgileri
+    ADD CONSTRAINT stk_kart_cins_bilgileri_stk_kart_id_fkey FOREIGN KEY (stk_kart_id) REFERENCES public.stk_kartlar(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: stk_kart_ozetleri stk_kart_ozetleri_stk_kart_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5617,14 +5597,6 @@ ALTER TABLE ONLY public.stk_kart_ozetleri
 
 ALTER TABLE ONLY public.stk_kartlar
     ADD CONSTRAINT stk_kartlar_alis_para_fkey FOREIGN KEY (alis_para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: stk_kartlar stk_kartlar_cins_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_kartlar
-    ADD CONSTRAINT stk_kartlar_cins_id_fkey FOREIGN KEY (cins_id) REFERENCES public.stk_cins_ozellikleri(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5927,7 +5899,7 @@ ALTER TABLE ONLY public.urt_receteler
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 

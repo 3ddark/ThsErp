@@ -114,8 +114,7 @@ begin
   try
     SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
       FAracNo.FieldName,
-      FAracAdi.FieldName,
-      FRota.FieldName
+      FAracAdi.FieldName
     ]);
 
     PrepareInsertQueryParams(LQry);
@@ -136,8 +135,7 @@ begin
   try
     SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
       FAracNo.FieldName,
-      FAracAdi.FieldName,
-      FRota.FieldName
+      FAracAdi.FieldName
     ]);
 
     PrepareUpdateQueryParams(LQry);

@@ -2,43 +2,46 @@ inherited frmBaseStrGrid: TfrmBaseStrGrid
   Caption = 'String Grid Base'
   ClientHeight = 478
   ClientWidth = 820
-  ExplicitWidth = 836
-  ExplicitHeight = 517
-  PixelsPerInch = 96
+  ExplicitWidth = 834
+  ExplicitHeight = 514
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 816
-    Height = 426
-    ExplicitWidth = 816
-    ExplicitHeight = 426
+    Width = 820
+    Height = 428
+    ExplicitWidth = 818
+    ExplicitHeight = 425
     inherited splLeft: TSplitter
-      Height = 388
+      Height = 392
       ExplicitHeight = 373
     end
     inherited splHeader: TSplitter
-      Width = 814
+      Width = 820
       ExplicitWidth = 814
     end
     inherited pnlLeft: TPanel
-      Height = 385
-      ExplicitHeight = 385
+      Height = 389
+      TabOrder = 1
+      ExplicitHeight = 386
     end
     inherited pnlHeader: TPanel
-      Width = 810
-      ExplicitWidth = 810
+      Width = 816
+      TabOrder = 0
+      ExplicitWidth = 814
     end
     inherited pnlContent: TPanel
-      Width = 705
-      Height = 385
-      ExplicitWidth = 705
-      ExplicitHeight = 385
+      Width = 711
+      Height = 389
+      ExplicitWidth = 709
+      ExplicitHeight = 386
       object strngrdBase: TStringGrid
         Left = 1
         Top = 1
-        Width = 703
-        Height = 383
+        Width = 709
+        Height = 387
         Align = alClient
         TabOrder = 0
+        ExplicitWidth = 707
+        ExplicitHeight = 384
         ColWidths = (
           64
           64
@@ -57,21 +60,21 @@ inherited frmBaseStrGrid: TfrmBaseStrGrid
   inherited pnlBottom: TPanel
     Top = 430
     Width = 816
-    ExplicitTop = 430
-    ExplicitWidth = 816
+    ExplicitTop = 427
+    ExplicitWidth = 814
     inherited btnAccept: TButton
-      Left = 607
-      ExplicitLeft = 607
+      Left = 610
+      ExplicitLeft = 608
     end
     inherited btnClose: TButton
-      Left = 711
-      ExplicitLeft = 711
+      Left = 714
+      ExplicitLeft = 712
     end
   end
   inherited stbBase: TStatusBar
     Top = 460
     Width = 820
-    ExplicitTop = 460
-    ExplicitWidth = 820
+    ExplicitTop = 457
+    ExplicitWidth = 818
   end
 end

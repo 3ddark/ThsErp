@@ -14,10 +14,9 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 640
-  ExplicitHeight = 453
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 648
+  ExplicitHeight = 460
+  TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
     Top = 0
@@ -28,6 +27,7 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 632
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
@@ -56,22 +56,26 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 356
-    ExplicitWidth = 630
+    ExplicitTop = 353
+    ExplicitWidth = 628
     inherited btnAccept: TButton
       Left = 424
-      ExplicitLeft = 424
+      TabOrder = 2
+      ExplicitLeft = 422
     end
     inherited btnClose: TButton
       Left = 528
-      ExplicitLeft = 528
+      ExplicitLeft = 526
+    end
+    inherited btnDelete: TButton
+      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 386
     Width = 634
-    ExplicitTop = 386
-    ExplicitWidth = 634
+    ExplicitTop = 383
+    ExplicitWidth = 632
   end
   inherited pnlMain: TPanel [3]
     Top = 40
@@ -79,17 +83,19 @@ inherited frmDashboard: TfrmDashboard
     Height = 314
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 634
-    ExplicitHeight = 314
+    ExplicitWidth = 632
+    ExplicitHeight = 311
     object PageControl1: TPageControl
       Left = 0
       Top = 0
       Width = 634
       Height = 314
-      ActivePage = tsaccount
+      ActivePage = tsstock
       Align = alClient
       MultiLine = True
       TabOrder = 0
+      ExplicitWidth = 632
+      ExplicitHeight = 311
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton
@@ -811,6 +817,12 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 69
       OnExecute = actch_banka_subeleriExecute
     end
+    object actset_prs_tasima_servisleri: TAction
+      Category = 'Personel'
+      Caption = 'Personel Ta'#351#305'ma Servisleri'
+      ImageIndex = 98
+      OnExecute = actset_prs_tasima_servisleriExecute
+    end
   end
   object tmrcheck_is_update_required: TTimer
     Enabled = False
@@ -975,6 +987,9 @@ inherited frmDashboard: TfrmDashboard
         end
         object mniset_prs_personel_tipleri: TMenuItem
           Action = actset_prs_personel_tipleri
+        end
+        object mniset_prs_tasima_servisleri: TMenuItem
+          Action = actset_prs_tasima_servisleri
         end
       end
     end

@@ -61,7 +61,7 @@ begin
     FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
     FIsOndalik := TFieldDB.Create('is_ondalik', ftBoolean, False, Self, 'Ondalýk?');
     FBirimiTipiID := TFieldDB.Create('birim_tipi_id', ftInteger, 0, Self, 'Ölçü Birimi Tipi ID');
-    FBirimTipi := TFieldDB.Create(LUnitTypes.OlcuBirimiTipi.FieldName, LUnitTypes.OlcuBirimiTipi.DataType, '', Self, '');
+    FBirimTipi := TFieldDB.Create(LUnitTypes.OlcuBirimiTipi.FieldName, LUnitTypes.OlcuBirimiTipi.DataType, LUnitTypes.OlcuBirimiTipi.Value, Self, LUnitTypes.OlcuBirimiTipi.Title);
     FCarpan := TFieldDB.Create('carpan', ftInteger, 0, Self, 'Çarpan');
   finally
     LUnitTypes.Free;
@@ -149,10 +149,8 @@ end;
 procedure TSysOlcuBirimi.DoInsert(APermissionControl: Boolean=True);
 var
   LQry: TZQuery;
-  LUnitTypes: TSysOlcuBirimiTipi;
 begin
   LQry := Database.NewQuery();
-  LUnitTypes := TSysOlcuBirimiTipi.Create(Database);
   try
     with LQry do
     begin
@@ -172,7 +170,6 @@ begin
     end;
   finally
     LQry.Free;
-    LUnitTypes.Free;
   end;
 end;
 

@@ -80,7 +80,7 @@ uses
   Ths.Database.Table.AlsTeklifler, ufrmAlsTeklifDetaylar,
   Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
   Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
-  Ths.Database.Table.SetChVergiOrani, ufrmSetChVergiOranlari,
+  Ths.Database.Table.SetChVergiOranlari, ufrmSetChVergiOranlari,
   Ths.Database.Table.StkKartlar, ufrmStkKartlar;
 
 {$R *.dfm}

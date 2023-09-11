@@ -167,7 +167,7 @@ uses
   Ths.Database.Table.SetChHesapTipi in 'BackEnd\Account\Ths.Database.Table.SetChHesapTipi.pas',
   ufrmSetChHesapTipleri in 'Forms\OutputForms\DbGrid\Account\ufrmSetChHesapTipleri.pas' {frmSetChHesapTipleri},
   ufrmSetChHesapTipi in 'Forms\InputForms\Account\ufrmSetChHesapTipi.pas' {frmSetChHesapTipi},
-  Ths.Database.Table.SetChVergiOrani in 'BackEnd\Account\Ths.Database.Table.SetChVergiOrani.pas',
+  Ths.Database.Table.SetChVergiOranlari in 'BackEnd\Account\Ths.Database.Table.SetChVergiOranlari.pas',
   ufrmSetChVergiOranlari in 'Forms\OutputForms\DbGrid\Account\ufrmSetChVergiOranlari.pas' {frmSetChVergiOranlari},
   ufrmSetChVergiOrani in 'Forms\InputForms\Account\ufrmSetChVergiOrani.pas' {frmSetChVergiOrani},
   Ths.Database.Table.ChBankalar in 'BackEnd\Account\Ths.Database.Table.ChBankalar.pas',
@@ -274,7 +274,8 @@ uses
   Ths.Database.Table.AlsTeklifler in 'BackEnd\Erp\Tek\Ths.Database.Table.AlsTeklifler.pas',
   ufrmAlsTeklifler in 'Forms\OutputForms\DbGrid\Erp\Tek\ufrmAlsTeklifler.pas' {frmAlsTeklifler},
   ufrmAlsTeklifDetaylar in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetaylar.pas' {frmAlsTeklifDetaylar},
-  ufrmAlsTeklifDetay in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetay.pas' {frmAlsTeklifDetay};
+  ufrmAlsTeklifDetay in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetay.pas' {frmAlsTeklifDetay},
+  Ths.Database.Table.StkKartCinsBilgileri in 'BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas';
 
 {$R *.res}
 

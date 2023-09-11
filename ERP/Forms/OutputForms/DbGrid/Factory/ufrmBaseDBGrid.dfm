@@ -1,15 +1,15 @@
 inherited frmBaseDBGrid: TfrmBaseDBGrid
   Caption = 'frmBaseDBGrid'
-  ClientHeight = 518
-  ClientWidth = 791
+  ClientHeight = 515
+  ClientWidth = 789
   Constraints.MinHeight = 350
   Constraints.MinWidth = 450
   ExplicitWidth = 805
   ExplicitHeight = 554
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 791
-    Height = 468
+    Width = 789
+    Height = 465
     ExplicitWidth = 789
     ExplicitHeight = 465
     inherited splLeft: TSplitter
@@ -47,7 +47,7 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         Left = 4
         Top = 4
         Width = 29
-        Height = 22
+        Height = 13
         Align = alLeft
         Alignment = taRightJustify
         Caption = 'Filtre'
@@ -58,7 +58,6 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
       object edtFilterHelper: TEdit
         AlignWithMargins = True
@@ -182,8 +181,8 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     end
   end
   inherited pnlBottom: TPanel
-    Top = 470
-    Width = 787
+    Top = 467
+    Width = 785
     TabOrder = 2
     ExplicitTop = 467
     ExplicitWidth = 785
@@ -197,8 +196,8 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     end
   end
   inherited stbBase: TStatusBar
-    Top = 500
-    Width = 791
+    Top = 497
+    Width = 789
     ExplicitTop = 497
     ExplicitWidth = 789
   end

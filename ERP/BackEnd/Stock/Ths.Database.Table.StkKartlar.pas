@@ -19,7 +19,8 @@ uses
   Ths.Database.Table.SysUlkeler,
   Ths.Database.Table.SysParaBirimleri,
   Ths.Database.Table.ChDovizKurlari,
-  Ths.Database.Table.StkResimler;
+  Ths.Database.Table.StkResimler,
+  Ths.Database.Table.StkKartCinsBilgileri;
 
 type
   TStkUrunTipi = (sutHammadde=1, sutYariMamul, sutMamul, sutHizmet);
@@ -56,6 +57,7 @@ type
     FDiibUrunTanimi: TFieldDB;
     FEnAzStokSeviyesi: TFieldDB;
     FTanim: TFieldDB;
+    //db alaný deðil
     FCinsID: TFieldDB;
     FCins: TFieldDB;
     FS1: TFieldDB;
@@ -66,15 +68,18 @@ type
     FS6: TFieldDB;
     FS7: TFieldDB;
     FS8: TFieldDB;
+    FS9: TFieldDB;
+    FS10: TFieldDB;
     FI1: TFieldDB;
     FI2: TFieldDB;
     FI3: TFieldDB;
     FI4: TFieldDB;
+    FI5: TFieldDB;
     FD1: TFieldDB;
     FD2: TFieldDB;
     FD3: TFieldDB;
     FD4: TFieldDB;
-    //db alaný deðil
+    FD5: TFieldDB;
     FResim: TFieldDB;
   protected
     FStkStokGrubu: TStkGruplar;
@@ -138,14 +143,18 @@ type
     Property S6: TFieldDB read FS6 write FS6;
     Property S7: TFieldDB read FS7 write FS7;
     Property S8: TFieldDB read FS8 write FS8;
+    Property S9: TFieldDB read FS9 write FS9;
+    Property S10: TFieldDB read FS10 write FS10;
     Property I1: TFieldDB read FI1 write FI1;
     Property I2: TFieldDB read FI2 write FI2;
     Property I3: TFieldDB read FI3 write FI3;
     Property I4: TFieldDB read FI4 write FI4;
+    Property I5: TFieldDB read FI5 write FI5;
     Property D1: TFieldDB read FD1 write FD1;
     Property D2: TFieldDB read FD2 write FD2;
     Property D3: TFieldDB read FD3 write FD3;
     Property D4: TFieldDB read FD4 write FD4;
+    Property D5: TFieldDB read FD5 write FD5;
     Property Resim: TFieldDB read FResim write FResim;
   end;
 
@@ -207,14 +216,18 @@ begin
   FS6 := TFieldDB.Create('s6', ftString, '', Self, 'S6');
   FS7 := TFieldDB.Create('s7', ftString, '', Self, 'S7');
   FS8 := TFieldDB.Create('s8', ftString, '', Self, 'S8');
+  FS9 := TFieldDB.Create('s9', ftString, '', Self, 'S9');
+  FS10 := TFieldDB.Create('s10', ftString, '', Self, 'S10');
   FI1 := TFieldDB.Create('i1', ftInteger, 0, Self, 'I1');
   FI2 := TFieldDB.Create('i2', ftInteger, 0, Self, 'I2');
   FI3 := TFieldDB.Create('i3', ftInteger, 0, Self, 'I3');
   FI4 := TFieldDB.Create('i4', ftInteger, 0, Self, 'I4');
+  FI5 := TFieldDB.Create('i5', ftInteger, 0, Self, 'I5');
   FD1 := TFieldDB.Create('d1', ftFloat, 0, Self, 'D1');
   FD2 := TFieldDB.Create('d2', ftFloat, 0, Self, 'D2');
   FD3 := TFieldDB.Create('d3', ftFloat, 0, Self, 'D3');
   FD4 := TFieldDB.Create('d4', ftFloat, 0, Self, 'D4');
+  FD5 := TFieldDB.Create('d5', ftFloat, 0, Self, 'D5');
   FResim := TFieldDB.Create(FStkResim.Resim.FieldName, FStkResim.Resim.DataType, FStkResim.Resim.Value, Self, FStkResim.Resim.Title);
 end;
 
@@ -318,14 +331,18 @@ begin
       FS6.QryName,
       FS7.QryName,
       FS8.QryName,
+      FS9.QryName,
+      FS10.QryName,
       FI1.QryName,
       FI2.QryName,
       FI3.QryName,
       FI4.QryName,
+      FI5.QryName,
       FD1.QryName,
       FD2.QryName,
       FD3.QryName,
       FD4.QryName,
+      FD5.QryName,
       FResim.FieldName
     ], [
       addJoin(jtLeft, FStkStokGrubu.TableName, FStkStokGrubu.Id.FieldName, TableName, FStokGrubuID.FieldName),
@@ -393,14 +410,18 @@ begin
       FS6.QryName,
       FS7.QryName,
       FS8.QryName,
+      FS9.QryName,
+      FS10.QryName,
       FI1.QryName,
       FI2.QryName,
       FI3.QryName,
       FI4.QryName,
+      FI5.QryName,
       FD1.QryName,
       FD2.QryName,
       FD3.QryName,
       FD4.QryName,
+      FD5.QryName,
       FResim.FieldName
     ], [
       addJoin(jtLeft, FStkStokGrubu.TableName, FStkStokGrubu.Id.FieldName, TableName, FStokGrubuID.FieldName),
@@ -460,24 +481,7 @@ begin
       FGtipNo.FieldName,
       FDiibUrunTanimi.FieldName,
       FEnAzStokSeviyesi.FieldName,
-      FTanim.FieldName,
-      FCinsID.FieldName,
-      FS1.FieldName,
-      FS2.FieldName,
-      FS3.FieldName,
-      FS4.FieldName,
-      FS5.FieldName,
-      FS6.FieldName,
-      FS7.FieldName,
-      FS8.FieldName,
-      FI1.FieldName,
-      FI2.FieldName,
-      FI3.FieldName,
-      FI4.FieldName,
-      FD1.FieldName,
-      FD2.FieldName,
-      FD3.FieldName,
-      FD4.FieldName
+      FTanim.FieldName
     ]);
 
     PrepareInsertQueryParams(LQry);
@@ -523,24 +527,7 @@ begin
       FGtipNo.FieldName,
       FDiibUrunTanimi.FieldName,
       FEnAzStokSeviyesi.FieldName,
-      FTanim.FieldName,
-      FCinsID.FieldName,
-      FS1.FieldName,
-      FS2.FieldName,
-      FS3.FieldName,
-      FS4.FieldName,
-      FS5.FieldName,
-      FS6.FieldName,
-      FS7.FieldName,
-      FS8.FieldName,
-      FI1.FieldName,
-      FI2.FieldName,
-      FI3.FieldName,
-      FI4.FieldName,
-      FD1.FieldName,
-      FD2.FieldName,
-      FD3.FieldName,
-      FD4.FieldName
+      FTanim.FieldName
     ]);
 
     PrepareUpdateQueryParams(LQry);

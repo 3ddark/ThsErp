@@ -7,7 +7,7 @@ inherited frmStkKart: TfrmStkKart
   ClientWidth = 644
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 658
-  ExplicitHeight = 570
+  ExplicitHeight = 571
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 644
@@ -15,30 +15,17 @@ inherited frmStkKart: TfrmStkKart
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 642
-    ExplicitHeight = 481
+    ExplicitHeight = 482
     inherited pgcMain: TPageControl
       Width = 644
       Height = 485
+      ActivePage = tsOzetler
       OnChange = pgcMainChange
-      ExplicitWidth = 642
-      ExplicitHeight = 481
+      ExplicitWidth = 644
+      ExplicitHeight = 485
       inherited tsMain: TTabSheet
-        Caption = 'Genel'
         ExplicitWidth = 636
         ExplicitHeight = 457
-        object lblortalama_maliyet_brm: TLabel
-          Left = 302
-          Top = 199
-          Width = 16
-          Height = 13
-          Caption = 'TL'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
         object lblstok_kodu: TLabel
           Left = 86
           Top = 7
@@ -119,86 +106,6 @@ inherited frmStkKart: TfrmStkKart
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblalis_iskonto: TLabel
-          Left = 352
-          Top = 59
-          Width = 67
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Al'#305#351' '#304'skonto'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblsatis_iskonto: TLabel
-          Left = 344
-          Top = 81
-          Width = 75
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Sat'#305#351' '#304'skonto'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblsatis_fiyat: TLabel
-          Left = 86
-          Top = 155
-          Width = 60
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Sat'#305#351' Fiyat'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblihrac_fiyat: TLabel
-          Left = 82
-          Top = 177
-          Width = 64
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = #304'hra'#231' Fiyat'#305
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblortalama_maliyet: TLabel
-          Left = 51
-          Top = 199
-          Width = 95
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Ortalama Maliyet'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
         object lblis_satilabilir: TLabel
           Left = 363
           Top = 7
@@ -217,7 +124,7 @@ inherited frmStkKart: TfrmStkKart
         end
         object lblozel_kod: TLabel
           Left = 94
-          Top = 251
+          Top = 147
           Width = 52
           Height = 13
           Alignment = taRightJustify
@@ -354,7 +261,7 @@ inherited frmStkKart: TfrmStkKart
         end
         object lblmarka: TLabel
           Left = 110
-          Top = 273
+          Top = 169
           Width = 36
           Height = 13
           Alignment = taRightJustify
@@ -434,28 +341,12 @@ inherited frmStkKart: TfrmStkKart
         end
         object lbltemin_suresi: TLabel
           Left = 72
-          Top = 229
+          Top = 125
           Width = 74
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Temin S'#252'resi'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblalis_fiyat: TLabel
-          Left = 94
-          Top = 134
-          Width = 52
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Al'#305#351' Fiyat'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -479,7 +370,7 @@ inherited frmStkKart: TfrmStkKart
         end
         object lbltemin_suresi_brm: TLabel
           Left = 217
-          Top = 229
+          Top = 125
           Width = 22
           Height = 13
           Caption = 'g'#252'n'
@@ -555,94 +446,49 @@ inherited frmStkKart: TfrmStkKart
           Top = 78
           Width = 150
           Height = 21
-          TabOrder = 6
-        end
-        object edtalis_iskonto: TEdit
-          Left = 423
-          Top = 56
-          Width = 48
-          Height = 21
-          TabOrder = 4
-        end
-        object edtsatis_iskonto: TEdit
-          Left = 423
-          Top = 78
-          Width = 48
-          Height = 21
-          TabOrder = 7
-        end
-        object edtalis_fiyat: TEdit
-          Left = 150
-          Top = 130
-          Width = 104
-          Height = 21
-          Alignment = taRightJustify
-          TabOrder = 9
-        end
-        object edtsatis_fiyat: TEdit
-          Left = 150
-          Top = 152
-          Width = 104
-          Height = 21
-          Alignment = taRightJustify
-          TabOrder = 11
-        end
-        object edtihrac_fiyat: TEdit
-          Left = 150
-          Top = 174
-          Width = 104
-          Height = 21
-          Alignment = taRightJustify
-          TabOrder = 13
-        end
-        object edtortalama_maliyet: TEdit
-          Left = 150
-          Top = 196
-          Width = 150
-          Height = 21
-          TabOrder = 15
+          TabOrder = 5
         end
         object edttemin_suresi: TEdit
           Left = 150
-          Top = 226
+          Top = 122
           Width = 62
           Height = 21
-          TabOrder = 17
+          TabOrder = 7
         end
         object edtozel_kod: TEdit
           Left = 150
-          Top = 248
+          Top = 144
           Width = 150
           Height = 21
-          TabOrder = 18
+          TabOrder = 8
         end
         object edtmarka: TEdit
           Left = 150
-          Top = 270
+          Top = 166
           Width = 150
           Height = 21
-          TabOrder = 20
+          TabOrder = 9
         end
         object edtmensei_id: TEdit
           Left = 150
           Top = 292
           Width = 150
           Height = 21
-          TabOrder = 22
+          TabOrder = 13
         end
         object edtgtip_no: TEdit
           Left = 150
           Top = 314
           Width = 150
           Height = 21
-          TabOrder = 24
+          TabOrder = 15
         end
         object edten: TEdit
           Left = 477
           Top = 248
           Width = 60
           Height = 21
-          TabOrder = 19
+          TabOrder = 11
           OnChange = edtenChange
         end
         object edtboy: TEdit
@@ -650,7 +496,7 @@ inherited frmStkKart: TfrmStkKart
           Top = 270
           Width = 60
           Height = 21
-          TabOrder = 21
+          TabOrder = 12
           OnChange = edtenChange
         end
         object edtyukseklik: TEdit
@@ -658,7 +504,7 @@ inherited frmStkKart: TfrmStkKart
           Top = 292
           Width = 60
           Height = 21
-          TabOrder = 23
+          TabOrder = 14
           OnChange = edtenChange
         end
         object edtagirlik: TEdit
@@ -666,28 +512,28 @@ inherited frmStkKart: TfrmStkKart
           Top = 336
           Width = 60
           Height = 21
-          TabOrder = 26
+          TabOrder = 17
         end
         object edten_az_stok_seviyesi: TEdit
           Left = 150
           Top = 336
           Width = 150
           Height = 21
-          TabOrder = 25
+          TabOrder = 16
         end
         object edtdiib_urun_tanimi: TEdit
           Left = 150
           Top = 358
           Width = 477
           Height = 21
-          TabOrder = 27
+          TabOrder = 18
         end
         object mmotanim: TMemo
           Left = 150
           Top = 380
           Width = 477
           Height = 68
-          TabOrder = 28
+          TabOrder = 19
         end
         object chkis_satilabilir: TCheckBox
           Left = 427
@@ -702,7 +548,7 @@ inherited frmStkKart: TfrmStkKart
           Top = 205
           Width = 150
           Height = 25
-          TabOrder = 16
+          TabOrder = 10
           TabStop = False
           OnClick = btnstok_resimClick
         end
@@ -712,7 +558,7 @@ inherited frmStkKart: TfrmStkKart
           Width = 150
           Height = 150
           BevelInner = bvLowered
-          TabOrder = 5
+          TabOrder = 4
           object imgstok_resim: TImage
             Left = 2
             Top = 2
@@ -726,27 +572,6 @@ inherited frmStkKart: TfrmStkKart
             ExplicitHeight = 150
           end
         end
-        object edtalis_para: TEdit
-          Left = 256
-          Top = 130
-          Width = 44
-          Height = 21
-          TabOrder = 10
-        end
-        object edtsatis_para: TEdit
-          Left = 256
-          Top = 152
-          Width = 44
-          Height = 21
-          TabOrder = 12
-        end
-        object edtihrac_para: TEdit
-          Left = 256
-          Top = 174
-          Width = 44
-          Height = 21
-          TabOrder = 14
-        end
         object cbburun_tipi: TComboBox
           Left = 150
           Top = 100
@@ -754,13 +579,206 @@ inherited frmStkKart: TfrmStkKart
           Height = 21
           Style = csDropDownList
           ItemIndex = 0
-          TabOrder = 8
+          TabOrder = 6
           Text = 'Hammadde'
           Items.Strings = (
             'Hammadde'
             'Yar'#305' Mam'#252'l'
             'Mam'#252'l'
             'Hizmet')
+        end
+      end
+      object tsParasal: TTabSheet
+        Caption = 'Parasal Bilgi'
+        ImageIndex = 4
+        object lblortalama_maliyet_brm: TLabel
+          Left = 302
+          Top = 199
+          Width = 16
+          Height = 13
+          Caption = 'TL'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object lblsatis_fiyat: TLabel
+          Left = 86
+          Top = 155
+          Width = 60
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Sat'#305#351' Fiyat'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblihrac_fiyat: TLabel
+          Left = 82
+          Top = 177
+          Width = 64
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = #304'hra'#231' Fiyat'#305
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblortalama_maliyet: TLabel
+          Left = 51
+          Top = 199
+          Width = 95
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Ortalama Maliyet'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblalis_fiyat: TLabel
+          Left = 94
+          Top = 134
+          Width = 52
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Al'#305#351' Fiyat'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblalis_iskonto: TLabel
+          Left = 352
+          Top = 59
+          Width = 67
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Al'#305#351' '#304'skonto'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblsatis_iskonto: TLabel
+          Left = 344
+          Top = 81
+          Width = 75
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Sat'#305#351' '#304'skonto'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object edtalis_fiyat: TEdit
+          Left = 150
+          Top = 130
+          Width = 104
+          Height = 21
+          Alignment = taRightJustify
+          TabOrder = 3
+        end
+        object edtsatis_fiyat: TEdit
+          Left = 150
+          Top = 152
+          Width = 104
+          Height = 21
+          Alignment = taRightJustify
+          TabOrder = 5
+        end
+        object edtihrac_fiyat: TEdit
+          Left = 150
+          Top = 174
+          Width = 104
+          Height = 21
+          Alignment = taRightJustify
+          TabOrder = 7
+        end
+        object edtortalama_maliyet: TEdit
+          Left = 150
+          Top = 196
+          Width = 150
+          Height = 21
+          TabOrder = 9
+        end
+        object edtalis_para: TEdit
+          Left = 256
+          Top = 130
+          Width = 44
+          Height = 21
+          TabOrder = 4
+        end
+        object edtsatis_para: TEdit
+          Left = 256
+          Top = 152
+          Width = 44
+          Height = 21
+          TabOrder = 6
+        end
+        object edtihrac_para: TEdit
+          Left = 256
+          Top = 174
+          Width = 44
+          Height = 21
+          TabOrder = 8
+        end
+        object edtalis_iskonto: TEdit
+          Left = 423
+          Top = 56
+          Width = 48
+          Height = 21
+          TabOrder = 1
+        end
+        object edtsatis_iskonto: TEdit
+          Left = 423
+          Top = 78
+          Width = 48
+          Height = 21
+          TabOrder = 2
+        end
+        object pnlParasalHeader: TPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 4
+          Width = 630
+          Height = 52
+          Margins.Top = 4
+          Margins.Bottom = 4
+          Align = alTop
+          Color = 14737632
+          ParentBackground = False
+          TabOrder = 0
+          ExplicitWidth = 628
         end
       end
       object tsCinsOzelligi: TTabSheet
@@ -1172,10 +1190,334 @@ inherited frmStkKart: TfrmStkKart
           TabOrder = 0
         end
       end
+      object tsGrupOzellikleri: TTabSheet
+        Caption = 'Grup '#214'zellikleri'
+        ImageIndex = 4
+        object pnlGrupHeader: TPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 4
+          Width = 630
+          Height = 52
+          Margins.Top = 4
+          Margins.Bottom = 4
+          Align = alTop
+          Color = 14737632
+          ParentBackground = False
+          TabOrder = 0
+        end
+        object pnlGrupOzellikleri: TPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 63
+          Width = 630
+          Height = 163
+          Align = alClient
+          Color = 15268861
+          ParentBackground = False
+          TabOrder = 1
+          object lblhammadde_stok_hesap_kodu: TLabel
+            Left = 50
+            Top = 36
+            Width = 135
+            Height = 13
+            Alignment = taRightJustify
+            Caption = 'Hammadde Stok Hesab'#305
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object lblhammadde_kullanim_hesap_kodu: TLabel
+            Left = 28
+            Top = 53
+            Width = 157
+            Height = 13
+            Alignment = taRightJustify
+            Caption = 'Hammadde Kullan'#305'm Hesab'#305
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object lblhammadde_stok_hesap_kodu_val: TLabel
+            Left = 188
+            Top = 36
+            Width = 172
+            Height = 13
+            Caption = 'lblhammadde_stok_hesap_kodu_val'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lblhammadde_kullanim_hesap_kodu_val: TLabel
+            Left = 188
+            Top = 53
+            Width = 189
+            Height = 13
+            Caption = 'lblhammadde_kullanim_hesap_kodu_val'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lblgrup_adi_val: TLabel
+            AlignWithMargins = True
+            Left = 4
+            Top = 4
+            Width = 622
+            Height = 13
+            Align = alTop
+            Alignment = taCenter
+            Caption = 'Grup Ad'#305
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            ParentFont = False
+            ExplicitWidth = 50
+          end
+          object lblgrup_kdv_orani: TLabel
+            Left = 130
+            Top = 19
+            Width = 55
+            Height = 13
+            Alignment = taRightJustify
+            Caption = 'KDV Oran'#305
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object lblgrup_kdv_orani_val: TLabel
+            Left = 188
+            Top = 19
+            Width = 105
+            Height = 13
+            Caption = 'lblgrup_kdv_orani_val'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lblalis_iade_hesap_kodu: TLabel
+            Left = 35
+            Top = 138
+            Width = 150
+            Height = 13
+            Alignment = taRightJustify
+            BiDiMode = bdLeftToRight
+            Caption = 'Al'#305#351' '#304'ade Vergi Hesap Kodu'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentBiDiMode = False
+            ParentFont = False
+          end
+          object lblalis_hesap_kodu: TLabel
+            Left = 64
+            Top = 121
+            Width = 121
+            Height = 13
+            Alignment = taRightJustify
+            BiDiMode = bdLeftToRight
+            Caption = 'Al'#305#351' Vergi Hesap Kodu'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentBiDiMode = False
+            ParentFont = False
+          end
+          object lblsatis_iade_hesap_kodu: TLabel
+            Left = 27
+            Top = 104
+            Width = 158
+            Height = 13
+            Alignment = taRightJustify
+            BiDiMode = bdLeftToRight
+            Caption = 'Sat'#305#351' '#304'ade Vergi Hesap Kodu'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentBiDiMode = False
+            ParentFont = False
+          end
+          object lblsatis_hesap_kodu: TLabel
+            Left = 56
+            Top = 87
+            Width = 129
+            Height = 13
+            Alignment = taRightJustify
+            BiDiMode = bdLeftToRight
+            Caption = 'Sat'#305#351' Vergi Hesap Kodu'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentBiDiMode = False
+            ParentFont = False
+          end
+          object lblalis_hesap_kodu_val: TLabel
+            Left = 188
+            Top = 121
+            Width = 109
+            Height = 13
+            Caption = 'lblalis_hesap_kodu_val'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lblsatis_iade_hesap_kodu_val: TLabel
+            Left = 188
+            Top = 104
+            Width = 142
+            Height = 13
+            Caption = 'lblsatis_iade_hesap_kodu_val'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lblsatis_hesap_kodu_val: TLabel
+            Left = 188
+            Top = 87
+            Width = 116
+            Height = 13
+            Caption = 'lblsatis_hesap_kodu_val'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lblalis_iade_hesap_kodu_val: TLabel
+            Left = 188
+            Top = 138
+            Width = 135
+            Height = 13
+            Caption = 'lblalis_iade_hesap_kodu_val'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+          object lblyari_mamul_hesap_kodu: TLabel
+            Left = 81
+            Top = 70
+            Width = 104
+            Height = 13
+            Alignment = taRightJustify
+            Caption = 'Yar'#305' Mam'#252'l Hesab'#305
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object lblyari_mamul_hesap_kodu_val: TLabel
+            Left = 188
+            Top = 70
+            Width = 148
+            Height = 13
+            Caption = 'lblyari_mamul_hesap_kodu_val'
+            Font.Charset = TURKISH_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
+          end
+        end
+        object pnlAmbar: TPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 232
+          Width = 630
+          Height = 222
+          Align = alBottom
+          TabOrder = 2
+          Visible = False
+          object lblAmbarlar: TLabel
+            AlignWithMargins = True
+            Left = 4
+            Top = 4
+            Width = 622
+            Height = 13
+            Hint = 'Hide'
+            Align = alTop
+            Alignment = taCenter
+            Caption = 'Ambar Stok Durumlar'#305' '
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            Font.Style = [fsBold]
+            ParentFont = False
+            ExplicitWidth = 127
+          end
+          object strngrdAmbar: TStringGrid
+            AlignWithMargins = True
+            Left = 4
+            Top = 23
+            Width = 622
+            Height = 195
+            Align = alClient
+            ColCount = 7
+            DefaultRowHeight = 20
+            FixedColor = 8421440
+            FixedCols = 0
+            Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
+            TabOrder = 0
+            ColWidths = (
+              126
+              71
+              73
+              71
+              71
+              75
+              90)
+            RowHeights = (
+              20
+              20
+              20
+              20
+              20)
+          end
+        end
+      end
       object tsOzetler: TTabSheet
         Caption = #214'zetler'
         ImageIndex = 3
-        TabVisible = False
         object pnlOzetHeader: TPanel
           AlignWithMargins = True
           Left = 3
@@ -1817,446 +2159,30 @@ inherited frmStkKart: TfrmStkKart
           end
         end
       end
-      object tsGrupOzellikleri: TTabSheet
-        Caption = 'Grup '#214'zellikleri'
-        ImageIndex = 4
-        object pnlGrupHeader: TPanel
-          AlignWithMargins = True
-          Left = 3
-          Top = 4
-          Width = 630
-          Height = 52
-          Margins.Top = 4
-          Margins.Bottom = 4
-          Align = alTop
-          Color = 14737632
-          ParentBackground = False
-          TabOrder = 0
-          ExplicitWidth = 628
-        end
-        object pnlGrupOzellikleri: TPanel
-          AlignWithMargins = True
-          Left = 3
-          Top = 63
-          Width = 630
-          Height = 199
-          Align = alClient
-          Color = 15268861
-          ParentBackground = False
-          TabOrder = 1
-          ExplicitWidth = 628
-          ExplicitHeight = 195
-          object lblgrup_hammadde: TLabel
-            Left = 79
-            Top = 35
-            Width = 106
-            Height = 13
-            Alignment = taRightJustify
-            Caption = 'Hammadde Hesab'#305
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentFont = False
-          end
-          object lblgrup_mamul: TLabel
-            Left = 106
-            Top = 51
-            Width = 79
-            Height = 13
-            Alignment = taRightJustify
-            Caption = 'Mam'#252'l Hesab'#305
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentFont = False
-          end
-          object lblgrup_hammadde_val: TLabel
-            Left = 188
-            Top = 35
-            Width = 110
-            Height = 13
-            Caption = 'lblgrup_hammadde_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-          object lblgrup_mamul_val: TLabel
-            Left = 188
-            Top = 51
-            Width = 88
-            Height = 13
-            Caption = 'lblgrup_mamul_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-          object lblgrup_adi_val: TLabel
-            AlignWithMargins = True
-            Left = 4
-            Top = 4
-            Width = 622
-            Height = 13
-            Align = alTop
-            Alignment = taCenter
-            Caption = 'Grup Ad'#305
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-            ExplicitWidth = 50
-          end
-          object lblgrup_kdv_orani: TLabel
-            Left = 130
-            Top = 19
-            Width = 55
-            Height = 13
-            Alignment = taRightJustify
-            Caption = 'KDV Oran'#305
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentFont = False
-          end
-          object lblgrup_kdv_orani_val: TLabel
-            Left = 188
-            Top = 19
-            Width = 105
-            Height = 13
-            Caption = 'lblgrup_kdv_orani_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-          object lblgrup_alis_iade_kodu: TLabel
-            Left = 35
-            Top = 147
-            Width = 150
-            Height = 13
-            Alignment = taRightJustify
-            BiDiMode = bdLeftToRight
-            Caption = 'Al'#305#351' '#304'ade Vergi Hesap Kodu'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentBiDiMode = False
-            ParentFont = False
-          end
-          object lblgrup_alis_kodu: TLabel
-            Left = 64
-            Top = 131
-            Width = 121
-            Height = 13
-            Alignment = taRightJustify
-            BiDiMode = bdLeftToRight
-            Caption = 'Al'#305#351' Vergi Hesap Kodu'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentBiDiMode = False
-            ParentFont = False
-          end
-          object lblgrup_satis_iade_kodu: TLabel
-            Left = 27
-            Top = 83
-            Width = 158
-            Height = 13
-            Alignment = taRightJustify
-            BiDiMode = bdLeftToRight
-            Caption = 'Sat'#305#351' '#304'ade Vergi Hesap Kodu'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentBiDiMode = False
-            ParentFont = False
-          end
-          object lblgrup_satis_kodu: TLabel
-            Left = 56
-            Top = 67
-            Width = 129
-            Height = 13
-            Alignment = taRightJustify
-            BiDiMode = bdLeftToRight
-            Caption = 'Sat'#305#351' Vergi Hesap Kodu'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentBiDiMode = False
-            ParentFont = False
-          end
-          object lblgrup_alis_kodu_val: TLabel
-            Left = 188
-            Top = 131
-            Width = 110
-            Height = 13
-            Caption = 'lblgrup_hammadde_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-          object lblgrup_satis_iade_kodu_val: TLabel
-            Left = 188
-            Top = 83
-            Width = 88
-            Height = 13
-            Caption = 'lblgrup_mamul_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-          object lblgrup_satis_kodu_val: TLabel
-            Left = 188
-            Top = 67
-            Width = 110
-            Height = 13
-            Caption = 'lblgrup_hammadde_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-          object lblgrup_alis_iade_kodu_val: TLabel
-            Left = 188
-            Top = 147
-            Width = 110
-            Height = 13
-            Caption = 'lblgrup_hammadde_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-          object Label4: TLabel
-            Left = 35
-            Top = 115
-            Width = 150
-            Height = 13
-            Alignment = taRightJustify
-            BiDiMode = bdLeftToRight
-            Caption = 'Al'#305#351' '#304'ade Vergi Hesap Kodu'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentBiDiMode = False
-            ParentFont = False
-          end
-          object Label5: TLabel
-            Left = 64
-            Top = 99
-            Width = 121
-            Height = 13
-            Alignment = taRightJustify
-            BiDiMode = bdLeftToRight
-            Caption = 'Al'#305#351' Vergi Hesap Kodu'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentBiDiMode = False
-            ParentFont = False
-          end
-          object Label6: TLabel
-            Left = 188
-            Top = 99
-            Width = 110
-            Height = 13
-            Caption = 'lblgrup_hammadde_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-          object Label7: TLabel
-            Left = 188
-            Top = 115
-            Width = 110
-            Height = 13
-            Caption = 'lblgrup_hammadde_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-          object Label8: TLabel
-            Left = 35
-            Top = 179
-            Width = 150
-            Height = 13
-            Alignment = taRightJustify
-            BiDiMode = bdLeftToRight
-            Caption = 'Al'#305#351' '#304'ade Vergi Hesap Kodu'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentBiDiMode = False
-            ParentFont = False
-          end
-          object Label9: TLabel
-            Left = 64
-            Top = 163
-            Width = 121
-            Height = 13
-            Alignment = taRightJustify
-            BiDiMode = bdLeftToRight
-            Caption = 'Al'#305#351' Vergi Hesap Kodu'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentBiDiMode = False
-            ParentFont = False
-          end
-          object Label10: TLabel
-            Left = 188
-            Top = 163
-            Width = 110
-            Height = 13
-            Caption = 'lblgrup_hammadde_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-          object Label11: TLabel
-            Left = 188
-            Top = 179
-            Width = 110
-            Height = 13
-            Caption = 'lblgrup_hammadde_val'
-            Font.Charset = TURKISH_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
-          end
-        end
-        object pnlAmbar: TPanel
-          AlignWithMargins = True
-          Left = 3
-          Top = 268
-          Width = 630
-          Height = 186
-          Align = alBottom
-          TabOrder = 2
-          Visible = False
-          ExplicitTop = 264
-          ExplicitWidth = 628
-          object lblAmbarlar: TLabel
-            AlignWithMargins = True
-            Left = 4
-            Top = 4
-            Width = 622
-            Height = 13
-            Hint = 'Hide'
-            Align = alTop
-            Alignment = taCenter
-            Caption = 'Ambar Stok Durumlar'#305' '
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'MS Sans Serif'
-            Font.Style = [fsBold]
-            ParentFont = False
-            ExplicitWidth = 127
-          end
-          object strngrdAmbar: TStringGrid
-            AlignWithMargins = True
-            Left = 4
-            Top = 23
-            Width = 622
-            Height = 159
-            Align = alClient
-            ColCount = 7
-            DefaultRowHeight = 20
-            FixedColor = 8421440
-            FixedCols = 0
-            Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
-            TabOrder = 0
-            ExplicitWidth = 620
-            ColWidths = (
-              126
-              71
-              73
-              71
-              71
-              75
-              90)
-            RowHeights = (
-              20
-              20
-              20
-              20
-              20)
-          end
-        end
-      end
     end
   end
   inherited pnlBottom: TPanel
     Top = 487
     Width = 640
-    ExplicitTop = 483
+    ExplicitTop = 484
     ExplicitWidth = 638
     inherited btnAccept: TButton
       Left = 434
+      TabOrder = 2
       ExplicitLeft = 432
     end
     inherited btnClose: TButton
       Left = 538
       ExplicitLeft = 536
     end
+    inherited btnDelete: TButton
+      TabOrder = 1
+    end
   end
   inherited stbBase: TStatusBar
     Top = 517
     Width = 644
-    ExplicitTop = 513
+    ExplicitTop = 514
     ExplicitWidth = 642
   end
 end
