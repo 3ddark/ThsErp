@@ -3,15 +3,15 @@ inherited frmStkKart: TfrmStkKart
   Top = 443
   ActiveControl = btnClose
   Caption = 'Stok Kart'#305
-  ClientHeight = 535
-  ClientWidth = 644
+  ClientHeight = 532
+  ClientWidth = 642
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 658
   ExplicitHeight = 571
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 644
-    Height = 485
+    Width = 642
+    Height = 482
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 642
@@ -19,10 +19,10 @@ inherited frmStkKart: TfrmStkKart
     inherited pgcMain: TPageControl
       Width = 644
       Height = 485
-      ActivePage = tsOzetler
+      ActivePage = tsCinsOzelligi
       OnChange = pgcMainChange
-      ExplicitWidth = 644
-      ExplicitHeight = 485
+      ExplicitWidth = 642
+      ExplicitHeight = 482
       inherited tsMain: TTabSheet
         ExplicitWidth = 636
         ExplicitHeight = 457
@@ -778,15 +778,14 @@ inherited frmStkKart: TfrmStkKart
           Color = 14737632
           ParentBackground = False
           TabOrder = 0
-          ExplicitWidth = 628
         end
       end
       object tsCinsOzelligi: TTabSheet
         Caption = 'Cins '#214'zelli'#287'i'
         ImageIndex = 1
         object lbld3: TLabel
-          Left = 132
-          Top = 389
+          Left = 435
+          Top = 235
           Width = 17
           Height = 13
           Alignment = taRightJustify
@@ -801,8 +800,8 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbld2: TLabel
-          Left = 132
-          Top = 367
+          Left = 435
+          Top = 213
           Width = 17
           Height = 13
           Alignment = taRightJustify
@@ -817,8 +816,8 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbld1: TLabel
-          Left = 132
-          Top = 345
+          Left = 435
+          Top = 191
           Width = 17
           Height = 13
           Alignment = taRightJustify
@@ -833,8 +832,8 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbli3: TLabel
-          Left = 137
-          Top = 301
+          Left = 440
+          Top = 125
           Width = 12
           Height = 13
           Alignment = taRightJustify
@@ -849,8 +848,8 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbli2: TLabel
-          Left = 137
-          Top = 279
+          Left = 440
+          Top = 103
           Width = 12
           Height = 13
           Alignment = taRightJustify
@@ -865,8 +864,8 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbli1: TLabel
-          Left = 137
-          Top = 257
+          Left = 440
+          Top = 81
           Width = 12
           Height = 13
           Alignment = taRightJustify
@@ -881,7 +880,7 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbls6: TLabel
-          Left = 133
+          Left = 125
           Top = 191
           Width = 16
           Height = 13
@@ -897,7 +896,7 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbls5: TLabel
-          Left = 133
+          Left = 125
           Top = 169
           Width = 16
           Height = 13
@@ -913,7 +912,7 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbls4: TLabel
-          Left = 133
+          Left = 125
           Top = 147
           Width = 16
           Height = 13
@@ -929,7 +928,7 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbls3: TLabel
-          Left = 133
+          Left = 125
           Top = 125
           Width = 16
           Height = 13
@@ -945,7 +944,7 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbls2: TLabel
-          Left = 133
+          Left = 125
           Top = 103
           Width = 16
           Height = 13
@@ -961,7 +960,7 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbls1: TLabel
-          Left = 133
+          Left = 125
           Top = 81
           Width = 16
           Height = 13
@@ -977,7 +976,7 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lblcins_id: TLabel
-          Left = 124
+          Left = 116
           Top = 59
           Width = 25
           Height = 13
@@ -993,7 +992,7 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbls8: TLabel
-          Left = 133
+          Left = 125
           Top = 235
           Width = 16
           Height = 13
@@ -1009,7 +1008,7 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbls7: TLabel
-          Left = 133
+          Left = 125
           Top = 213
           Width = 16
           Height = 13
@@ -1025,8 +1024,8 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbli4: TLabel
-          Left = 137
-          Top = 323
+          Left = 440
+          Top = 147
           Width = 12
           Height = 13
           Alignment = taRightJustify
@@ -1041,8 +1040,8 @@ inherited frmStkKart: TfrmStkKart
           ParentFont = False
         end
         object lbld4: TLabel
-          Left = 132
-          Top = 411
+          Left = 435
+          Top = 257
           Width = 17
           Height = 13
           Alignment = taRightJustify
@@ -1056,8 +1055,72 @@ inherited frmStkKart: TfrmStkKart
           ParentBiDiMode = False
           ParentFont = False
         end
+        object lbls9: TLabel
+          Left = 125
+          Top = 257
+          Width = 16
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'S9'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lbls10: TLabel
+          Left = 118
+          Top = 279
+          Width = 23
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'S10'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lbli5: TLabel
+          Left = 440
+          Top = 169
+          Width = 12
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'I5'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lbld5: TLabel
+          Left = 435
+          Top = 279
+          Width = 17
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'D5'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
         object edtcins_id: TEdit
-          Left = 153
+          Left = 145
           Top = 56
           Width = 160
           Height = 21
@@ -1065,116 +1128,116 @@ inherited frmStkKart: TfrmStkKart
           OnChange = edtcins_idChange
         end
         object edts1: TEdit
-          Left = 153
+          Left = 145
           Top = 78
           Width = 160
           Height = 21
           TabOrder = 2
         end
         object edts2: TEdit
-          Left = 153
+          Left = 145
           Top = 100
-          Width = 160
-          Height = 21
-          TabOrder = 3
-        end
-        object edts3: TEdit
-          Left = 153
-          Top = 122
           Width = 160
           Height = 21
           TabOrder = 4
         end
-        object edts4: TEdit
-          Left = 153
-          Top = 144
-          Width = 160
-          Height = 21
-          TabOrder = 5
-        end
-        object edts5: TEdit
-          Left = 153
-          Top = 166
+        object edts3: TEdit
+          Left = 145
+          Top = 122
           Width = 160
           Height = 21
           TabOrder = 6
         end
-        object edts6: TEdit
-          Left = 153
-          Top = 188
+        object edts4: TEdit
+          Left = 145
+          Top = 144
           Width = 160
           Height = 21
-          TabOrder = 7
+          TabOrder = 8
         end
-        object edti1: TEdit
-          Left = 153
-          Top = 254
+        object edts5: TEdit
+          Left = 145
+          Top = 166
           Width = 160
           Height = 21
           TabOrder = 10
         end
-        object edti2: TEdit
-          Left = 153
-          Top = 276
-          Width = 160
-          Height = 21
-          TabOrder = 11
-        end
-        object edti3: TEdit
-          Left = 153
-          Top = 298
+        object edts6: TEdit
+          Left = 145
+          Top = 188
           Width = 160
           Height = 21
           TabOrder = 12
         end
-        object edtd1: TEdit
-          Left = 153
-          Top = 342
+        object edti1: TEdit
+          Left = 456
+          Top = 78
           Width = 160
           Height = 21
-          TabOrder = 14
+          TabOrder = 3
+        end
+        object edti2: TEdit
+          Left = 456
+          Top = 100
+          Width = 160
+          Height = 21
+          TabOrder = 5
+        end
+        object edti3: TEdit
+          Left = 456
+          Top = 122
+          Width = 160
+          Height = 21
+          TabOrder = 7
+        end
+        object edtd1: TEdit
+          Left = 456
+          Top = 188
+          Width = 160
+          Height = 21
+          TabOrder = 13
         end
         object edtd2: TEdit
-          Left = 153
-          Top = 364
+          Left = 456
+          Top = 210
           Width = 160
           Height = 21
           TabOrder = 15
         end
         object edtd3: TEdit
-          Left = 153
-          Top = 386
+          Left = 456
+          Top = 232
+          Width = 160
+          Height = 21
+          TabOrder = 17
+        end
+        object edts7: TEdit
+          Left = 145
+          Top = 210
+          Width = 160
+          Height = 21
+          TabOrder = 14
+        end
+        object edts8: TEdit
+          Left = 145
+          Top = 232
           Width = 160
           Height = 21
           TabOrder = 16
         end
-        object edts7: TEdit
-          Left = 153
-          Top = 210
-          Width = 160
-          Height = 21
-          TabOrder = 8
-        end
-        object edts8: TEdit
-          Left = 153
-          Top = 232
+        object edti4: TEdit
+          Left = 456
+          Top = 144
           Width = 160
           Height = 21
           TabOrder = 9
         end
-        object edti4: TEdit
-          Left = 153
-          Top = 320
-          Width = 160
-          Height = 21
-          TabOrder = 13
-        end
         object edtd4: TEdit
-          Left = 153
-          Top = 408
+          Left = 456
+          Top = 254
           Width = 160
           Height = 21
-          TabOrder = 17
+          TabOrder = 19
         end
         object pnlCinsHeader: TPanel
           AlignWithMargins = True
@@ -1188,6 +1251,34 @@ inherited frmStkKart: TfrmStkKart
           Color = 14737632
           ParentBackground = False
           TabOrder = 0
+        end
+        object edts9: TEdit
+          Left = 145
+          Top = 254
+          Width = 160
+          Height = 21
+          TabOrder = 18
+        end
+        object edts10: TEdit
+          Left = 145
+          Top = 276
+          Width = 160
+          Height = 21
+          TabOrder = 20
+        end
+        object edti5: TEdit
+          Left = 456
+          Top = 166
+          Width = 160
+          Height = 21
+          TabOrder = 11
+        end
+        object edtd5: TEdit
+          Left = 456
+          Top = 276
+          Width = 160
+          Height = 21
+          TabOrder = 21
         end
       end
       object tsGrupOzellikleri: TTabSheet
@@ -1274,7 +1365,7 @@ inherited frmStkKart: TfrmStkKart
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 622
+            Width = 50
             Height = 13
             Align = alTop
             Alignment = taCenter
@@ -1285,7 +1376,6 @@ inherited frmStkKart: TfrmStkKart
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
-            ExplicitWidth = 50
           end
           object lblgrup_kdv_orani: TLabel
             Left = 130
@@ -1471,7 +1561,7 @@ inherited frmStkKart: TfrmStkKart
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 622
+            Width = 127
             Height = 13
             Hint = 'Hide'
             Align = alTop
@@ -1483,7 +1573,6 @@ inherited frmStkKart: TfrmStkKart
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
-            ExplicitWidth = 127
           end
           object strngrdAmbar: TStringGrid
             AlignWithMargins = True
@@ -1530,6 +1619,7 @@ inherited frmStkKart: TfrmStkKart
           Color = 14737632
           ParentBackground = False
           TabOrder = 0
+          ExplicitWidth = 628
         end
         object pnlOzetTop: TPanel
           AlignWithMargins = True
@@ -1543,6 +1633,7 @@ inherited frmStkKart: TfrmStkKart
           Color = 14085611
           ParentBackground = False
           TabOrder = 1
+          ExplicitWidth = 628
           object lblserbest_stok_toplam_brm: TLabel
             Left = 257
             Top = 116
@@ -1778,6 +1869,8 @@ inherited frmStkKart: TfrmStkKart
           Color = 15527135
           ParentBackground = False
           TabOrder = 2
+          ExplicitWidth = 628
+          ExplicitHeight = 139
           object lblstok_degeri_ort_brm: TLabel
             Left = 257
             Top = 50
@@ -2013,6 +2106,8 @@ inherited frmStkKart: TfrmStkKart
           Color = 14146536
           ParentBackground = False
           TabOrder = 3
+          ExplicitTop = 356
+          ExplicitWidth = 628
           object lblozet_son_alis_brm: TLabel
             Left = 256
             Top = 73
@@ -2162,8 +2257,8 @@ inherited frmStkKart: TfrmStkKart
     end
   end
   inherited pnlBottom: TPanel
-    Top = 487
-    Width = 640
+    Top = 484
+    Width = 638
     ExplicitTop = 484
     ExplicitWidth = 638
     inherited btnAccept: TButton
@@ -2180,8 +2275,8 @@ inherited frmStkKart: TfrmStkKart
     end
   end
   inherited stbBase: TStatusBar
-    Top = 517
-    Width = 644
+    Top = 514
+    Width = 642
     ExplicitTop = 514
     ExplicitWidth = 642
   end

@@ -110,10 +110,12 @@ begin
   FI2 := TFieldDB.Create('i2', ftInteger, 0, Self, 'I2');
   FI3 := TFieldDB.Create('i3', ftInteger, 0, Self, 'I3');
   FI4 := TFieldDB.Create('i4', ftInteger, 0, Self, 'I4');
+  FI5 := TFieldDB.Create('i5', ftInteger, 0, Self, 'I5');
   FD1 := TFieldDB.Create('d1', ftFloat, 0, Self, 'D1');
   FD2 := TFieldDB.Create('d2', ftFloat, 0, Self, 'D2');
   FD3 := TFieldDB.Create('d3', ftFloat, 0, Self, 'D3');
   FD4 := TFieldDB.Create('d4', ftFloat, 0, Self, 'D4');
+  FD5 := TFieldDB.Create('d5', ftFloat, 0, Self, 'D5');
 end;
 
 destructor TStkKartCinsBilgisi.Destroy;

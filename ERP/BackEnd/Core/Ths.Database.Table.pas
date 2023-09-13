@@ -787,7 +787,7 @@ begin
     Close;
     SQL.Clear;
     SQL.Text := 'DELETE FROM ' + TableName + ' WHERE id=:id;';
-    ParamByName(Id.FieldName).Value := Id.AsInteger;
+    ParamByName(Id.FieldName).Value := Id.AsInt64;
     ExecSQL;
     Close;
   finally

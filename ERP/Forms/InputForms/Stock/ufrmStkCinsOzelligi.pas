@@ -37,14 +37,20 @@ type
     edts7: TEdit;
     lbls8: TLabel;
     edts8: TEdit;
+    lbls9: TLabel;
+    lbls10: TLabel;
+    edts9: TEdit;
+    edts10: TEdit;
     lbli1: TLabel;
-    edti1: TEdit;
     lbli2: TLabel;
-    edti2: TEdit;
     lbli3: TLabel;
-    edti3: TEdit;
     lbli4: TLabel;
+    edti1: TEdit;
+    edti2: TEdit;
+    edti3: TEdit;
     edti4: TEdit;
+    lbli5: TLabel;
+    edti5: TEdit;
     lbld1: TLabel;
     lbld2: TLabel;
     lbld3: TLabel;
@@ -53,6 +59,8 @@ type
     edtd2: TEdit;
     edtd3: TEdit;
     edtd4: TEdit;
+    lbld5: TLabel;
+    edtd5: TEdit;
   published
     procedure btnAcceptClick(Sender: TObject); override;
     procedure RefreshData; override;
@@ -82,14 +90,18 @@ begin
       TStkCinsOzelligi(Table).S6.Value := edts6.Text;
       TStkCinsOzelligi(Table).S7.Value := edts7.Text;
       TStkCinsOzelligi(Table).S8.Value := edts8.Text;
+      TStkCinsOzelligi(Table).S9.Value := edts9.Text;
+      TStkCinsOzelligi(Table).S10.Value := edts10.Text;
       TStkCinsOzelligi(Table).I1.Value := edti1.Text;
       TStkCinsOzelligi(Table).I2.Value := edti2.Text;
       TStkCinsOzelligi(Table).I3.Value := edti3.Text;
       TStkCinsOzelligi(Table).I4.Value := edti4.Text;
+      TStkCinsOzelligi(Table).I5.Value := edti5.Text;
       TStkCinsOzelligi(Table).D1.Value := edtd1.Text;
       TStkCinsOzelligi(Table).D2.Value := edtd2.Text;
       TStkCinsOzelligi(Table).D3.Value := edtd3.Text;
       TStkCinsOzelligi(Table).D4.Value := edtd4.Text;
+      TStkCinsOzelligi(Table).D5.Value := edtd5.Text;
 
       inherited;
     end;
@@ -110,14 +122,18 @@ begin
   edts6.Text := TStkCinsOzelligi(Table).S6.AsString;
   edts7.Text := TStkCinsOzelligi(Table).S7.AsString;
   edts8.Text := TStkCinsOzelligi(Table).S8.AsString;
+  edts9.Text := TStkCinsOzelligi(Table).S9.AsString;
+  edts10.Text := TStkCinsOzelligi(Table).S10.AsString;
   edti1.Text := TStkCinsOzelligi(Table).I1.AsString;
   edti2.Text := TStkCinsOzelligi(Table).I2.AsString;
   edti3.Text := TStkCinsOzelligi(Table).I3.AsString;
   edti4.Text := TStkCinsOzelligi(Table).I4.AsString;
+  edti5.Text := TStkCinsOzelligi(Table).I5.AsString;
   edtd1.Text := TStkCinsOzelligi(Table).D1.AsString;
   edtd2.Text := TStkCinsOzelligi(Table).D2.AsString;
   edtd3.Text := TStkCinsOzelligi(Table).D3.AsString;
   edtd4.Text := TStkCinsOzelligi(Table).D4.AsString;
+  edtd5.Text := TStkCinsOzelligi(Table).D5.AsString;
 end;
 
 end.

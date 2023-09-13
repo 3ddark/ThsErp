@@ -24,14 +24,18 @@ type
     FS6: TFieldDB;
     FS7: TFieldDB;
     FS8: TFieldDB;
+    FS9: TFieldDB;
+    FS10: TFieldDB;
     FI1: TFieldDB;
     FI2: TFieldDB;
     FI3: TFieldDB;
     FI4: TFieldDB;
+    FI5: TFieldDB;
     FD1: TFieldDB;
     FD2: TFieldDB;
     FD3: TFieldDB;
     FD4: TFieldDB;
+    FD5: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -52,14 +56,18 @@ type
     Property S6: TFieldDB read FS6 write FS6;
     Property S7: TFieldDB read FS7 write FS7;
     Property S8: TFieldDB read FS8 write FS8;
+    Property S9: TFieldDB read FS9 write FS9;
+    Property S10: TFieldDB read FS10 write FS10;
     Property I1: TFieldDB read FI1 write FI1;
     Property I2: TFieldDB read FI2 write FI2;
     Property I3: TFieldDB read FI3 write FI3;
     Property I4: TFieldDB read FI4 write FI4;
+    Property I5: TFieldDB read FI5 write FI5;
     Property D1: TFieldDB read FD1 write FD1;
     Property D2: TFieldDB read FD2 write FD2;
     Property D3: TFieldDB read FD3 write FD3;
     Property D4: TFieldDB read FD4 write FD4;
+    Property D5: TFieldDB read FD5 write FD5;
   end;
 
 implementation
@@ -84,14 +92,18 @@ begin
   FS6 := TFieldDB.Create('s6', ftWideString, '', Self, 'S6');
   FS7 := TFieldDB.Create('s7', ftWideString, '', Self, 'S7');
   FS8 := TFieldDB.Create('s8', ftWideString, '', Self, 'S8');
+  FS9 := TFieldDB.Create('s9', ftWideString, '', Self, 'S9');
+  FS10 := TFieldDB.Create('s10', ftWideString, '', Self, 'S10');
   FI1 := TFieldDB.Create('i1', ftWideString, '', Self, 'I1');
   FI2 := TFieldDB.Create('i2', ftWideString, '', Self, 'I2');
   FI3 := TFieldDB.Create('i3', ftWideString, '', Self, 'I3');
   FI4 := TFieldDB.Create('i4', ftWideString, '', Self, 'I4');
+  FI5 := TFieldDB.Create('i5', ftWideString, '', Self, 'I5');
   FD1 := TFieldDB.Create('d1', ftWideString, '', Self, 'D1');
   FD2 := TFieldDB.Create('d2', ftWideString, '', Self, 'D2');
   FD3 := TFieldDB.Create('d3', ftWideString, '', Self, 'D3');
   FD4 := TFieldDB.Create('d4', ftWideString, '', Self, 'D4');
+  FD5 := TFieldDB.Create('d5', ftWideString, '', Self, 'D5');
 end;
 
 procedure TStkCinsOzelligi.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
@@ -114,14 +126,18 @@ begin
       FS6.QryName,
       FS7.QryName,
       FS8.QryName,
+      FS9.QryName,
+      FS10.QryName,
       FI1.QryName,
       FI2.QryName,
       FI3.QryName,
       FI4.QryName,
+      FI5.QryName,
       FD1.QryName,
       FD2.QryName,
       FD3.QryName,
-      FD4.QryName
+      FD4.QryName,
+      FD5.QryName
     ], [
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
@@ -153,14 +169,18 @@ begin
       FS6.QryName,
       FS7.QryName,
       FS8.QryName,
+      FS9.QryName,
+      FS10.QryName,
       FI1.QryName,
       FI2.QryName,
       FI3.QryName,
       FI4.QryName,
+      FI5.QryName,
       FD1.QryName,
       FD2.QryName,
       FD3.QryName,
-      FD4.QryName
+      FD4.QryName,
+      FD5.QryName
     ], [
       ' WHERE 1=1 ', AFilter
     ]);
@@ -198,14 +218,18 @@ begin
       FS6.FieldName,
       FS7.FieldName,
       FS8.FieldName,
+      FS9.FieldName,
+      FS10.FieldName,
       FI1.FieldName,
       FI2.FieldName,
       FI3.FieldName,
       FI4.FieldName,
+      FI5.FieldName,
       FD1.FieldName,
       FD2.FieldName,
       FD3.FieldName,
-      FD4.FieldName
+      FD4.FieldName,
+      FD5.FieldName
     ]);
 
     PrepareInsertQueryParams(LQry);
@@ -235,14 +259,18 @@ begin
       FS6.FieldName,
       FS7.FieldName,
       FS8.FieldName,
+      FS9.FieldName,
+      FS10.FieldName,
       FI1.FieldName,
       FI2.FieldName,
       FI3.FieldName,
       FI4.FieldName,
+      FI5.FieldName,
       FD1.FieldName,
       FD2.FieldName,
       FD3.FieldName,
-      FD4.FieldName
+      FD4.FieldName,
+      FD5.FieldName
     ]);
 
     PrepareUpdateQueryParams(LQry);

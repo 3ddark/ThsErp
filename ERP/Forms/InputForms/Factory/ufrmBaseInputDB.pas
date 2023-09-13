@@ -136,7 +136,7 @@ var
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
-//    if (Table.Database.TranscationIsStarted) then
+//    if (Table.Database.Connection.InTransaction) then
     begin
       if AcceptBtnDoAction then
       begin

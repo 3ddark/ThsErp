@@ -2555,33 +2555,37 @@ CREATE TABLE public.stk_cins_ozellikleri (
     id bigint NOT NULL,
     cins character varying(32) NOT NULL,
     aciklama character varying(128),
-    s1 character varying(24),
-    s2 character varying(24),
-    s3 character varying(24),
-    s4 character varying(24),
-    s5 character varying(24),
-    s6 character varying(24),
-    s7 character varying(24),
-    s8 character varying(24),
-    i1 character varying(24),
-    i2 character varying(24),
-    i3 character varying(24),
-    i4 character varying(24),
-    d1 character varying(24),
-    d2 character varying(24),
-    d3 character varying(24),
-    d4 character varying(24)
+    s1 character varying(32),
+    s2 character varying(32),
+    s3 character varying(32),
+    s4 character varying(32),
+    s5 character varying(32),
+    s6 character varying(32),
+    s7 character varying(32),
+    s8 character varying(32),
+    s9 character varying(32),
+    s10 character varying(32),
+    i1 character varying(32),
+    i2 character varying(32),
+    i3 character varying(32),
+    i4 character varying(32),
+    i5 character varying(32),
+    d1 character varying(32),
+    d2 character varying(32),
+    d3 character varying(32),
+    d4 character varying(32),
+    d5 character varying(32)
 );
 
 
 ALTER TABLE public.stk_cins_ozellikleri OWNER TO ths_admin;
 
 --
--- Name: stk_cins_ozelligi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: stk_cins_ozellikleri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE public.stk_cins_ozellikleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_cins_ozelligi_id_seq
+    SEQUENCE NAME public.stk_cins_ozellikleri_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE

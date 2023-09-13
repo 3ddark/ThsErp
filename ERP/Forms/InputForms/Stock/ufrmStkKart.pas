@@ -213,6 +213,14 @@ type
     edtsatis_iskonto: TEdit;
     lblsatis_iskonto: TLabel;
     pnlParasalHeader: TPanel;
+    lbls9: TLabel;
+    edts9: TEdit;
+    lbls10: TLabel;
+    edts10: TEdit;
+    lbli5: TLabel;
+    edti5: TEdit;
+    lbld5: TLabel;
+    edtd5: TEdit;
     procedure FormCreate(Sender: TObject);override;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject);override;
@@ -276,14 +284,18 @@ begin
   lbls6.Visible := False;
   lbls7.Visible := False;
   lbls8.Visible := False;
+  lbls9.Visible := False;
+  lbls10.Visible := False;
   lbli1.Visible := False;
   lbli2.Visible := False;
   lbli3.Visible := False;
   lbli4.Visible := False;
+  lbli5.Visible := False;
   lbld1.Visible := False;
   lbld2.Visible := False;
   lbld3.Visible := False;
   lbld4.Visible := False;
+  lbld5.Visible := False;
 
   edts1.Visible := False;
   edts2.Visible := False;
@@ -293,20 +305,24 @@ begin
   edts6.Visible := False;
   edts7.Visible := False;
   edts8.Visible := False;
+  edts9.Visible := False;
+  edts10.Visible := False;
   edti1.Visible := False;
   edti2.Visible := False;
   edti3.Visible := False;
   edti4.Visible := False;
+  edti5.Visible := False;
   edtd1.Visible := False;
   edtd2.Visible := False;
   edtd3.Visible := False;
   edtd4.Visible := False;
+  edtd5.Visible := False;
 
-  if TStkKart(Table).CinsID.AsInt64 > 0 then
+  if TStkKart(Table).CinsBilgisi.CinsID.AsInt64 > 0 then
   begin
     LCins := TStkCinsOzelligi.Create(Table.Database);
     try
-      LCins.SelectToList(' AND ' + LCins.TableName + '.' + LCins.Id.FieldName + '=' + IntToStr(TStkKart(Table).CinsID.Value), False, False);
+      LCins.SelectToList(' AND ' + LCins.TableName + '.' + LCins.Id.FieldName + '=' + IntToStr(TStkKart(Table).CinsBilgisi.CinsID.Value), False, False);
       if LCins.List.Count = 1 then
       begin
         if LCins.S1.Value <> '' then
@@ -349,6 +365,16 @@ begin
           lbls8.Visible := True;
           edts8.Visible := True;
         end;
+        if LCins.S9.Value <> '' then
+        begin
+          lbls9.Visible := True;
+          edts9.Visible := True;
+        end;
+        if LCins.S10.Value <> '' then
+        begin
+          lbls10.Visible := True;
+          edts10.Visible := True;
+        end;
 
         if LCins.I1.AsString <> '' then
         begin
@@ -369,6 +395,11 @@ begin
         begin
           lbli4.Visible := True;
           edti4.Visible := True;
+        end;
+        if LCins.I5.AsString <> '' then
+        begin
+          lbli5.Visible := True;
+          edti5.Visible := True;
         end;
 
         if LCins.D1.AsString <> '' then
@@ -391,6 +422,11 @@ begin
           lbld4.Visible := True;
           edtd4.Visible := True;
         end;
+        if LCins.D5.AsString <> '' then
+        begin
+          lbld5.Visible := True;
+          edtd5.Visible := True;
+        end;
 
         lbls1.Caption := LCins.S1.AsString;
         lbls2.Caption := LCins.S2.AsString;
@@ -400,14 +436,18 @@ begin
         lbls6.Caption := LCins.S6.AsString;
         lbls7.Caption := LCins.S7.AsString;
         lbls8.Caption := LCins.S8.AsString;
+        lbls9.Caption := LCins.S9.AsString;
+        lbls10.Caption := LCins.S10.AsString;
         lbli1.Caption := LCins.I1.AsString;
         lbli2.Caption := LCins.I2.AsString;
         lbli3.Caption := LCins.I3.AsString;
         lbli4.Caption := LCins.I4.AsString;
+        lbli5.Caption := LCins.I5.AsString;
         lbld1.Caption := LCins.D1.AsString;
         lbld2.Caption := LCins.D2.AsString;
         lbld3.Caption := LCins.D3.AsString;
         lbld4.Caption := LCins.D4.AsString;
+        lbld5.Caption := LCins.D5.AsString;
       end;
     finally
       LCins.Free;
@@ -558,10 +598,10 @@ begin
             if LFrmKind.CleanAndClose then
             begin
               edtcins_id.Clear;
-              TStkKart(Table).CinsID.Value := 0;
+              TStkKart(Table).CinsBilgisi.CinsID.Value := 0;
             end else begin
               edtcins_id.Text := TStkCinsOzelligi(LFrmKind.Table).Cins.AsString;
-              TStkKart(Table).CinsID.Value := LFrmKind.Table.Id.Value;
+              TStkKart(Table).CinsBilgisi.CinsID.Value := LFrmKind.Table.Id.Value;
             end;
             edtcins_idChange(edtcins_id);
           end;
@@ -746,22 +786,26 @@ begin
   LoadImageFromDB(TStkKart(Table).Resim, imgstok_resim);
   edtcins_id.Text := TStkKart(Table).Cins.AsString;
   edtcins_idChange(edtcins_id);
-  edts1.Text := TStkKart(Table).S1.AsString;
-  edts2.Text := TStkKart(Table).S2.AsString;
-  edts3.Text := TStkKart(Table).S3.AsString;
-  edts4.Text := TStkKart(Table).S4.AsString;
-  edts5.Text := TStkKart(Table).S5.AsString;
-  edts6.Text := TStkKart(Table).S6.AsString;
-  edts7.Text := TStkKart(Table).S7.AsString;
-  edts8.Text := TStkKart(Table).S8.AsString;
-  edti1.Text := TStkKart(Table).I1.AsString;
-  edti2.Text := TStkKart(Table).I2.AsString;
-  edti3.Text := TStkKart(Table).I3.AsString;
-  edti4.Text := TStkKart(Table).I4.AsString;
-  edtd1.Text := TStkKart(Table).D1.AsString;
-  edtd2.Text := TStkKart(Table).D2.AsString;
-  edtd3.Text := TStkKart(Table).D3.AsString;
-  edtd4.Text := TStkKart(Table).D4.AsString;
+  edts1.Text := TStkKart(Table).CinsBilgisi.S1.AsString;
+  edts2.Text := TStkKart(Table).CinsBilgisi.S2.AsString;
+  edts3.Text := TStkKart(Table).CinsBilgisi.S3.AsString;
+  edts4.Text := TStkKart(Table).CinsBilgisi.S4.AsString;
+  edts5.Text := TStkKart(Table).CinsBilgisi.S5.AsString;
+  edts6.Text := TStkKart(Table).CinsBilgisi.S6.AsString;
+  edts7.Text := TStkKart(Table).CinsBilgisi.S7.AsString;
+  edts8.Text := TStkKart(Table).CinsBilgisi.S8.AsString;
+  edts9.Text := TStkKart(Table).CinsBilgisi.S9.AsString;
+  edts10.Text := TStkKart(Table).CinsBilgisi.S10.AsString;
+  edti1.Text := TStkKart(Table).CinsBilgisi.I1.AsString;
+  edti2.Text := TStkKart(Table).CinsBilgisi.I2.AsString;
+  edti3.Text := TStkKart(Table).CinsBilgisi.I3.AsString;
+  edti4.Text := TStkKart(Table).CinsBilgisi.I4.AsString;
+  edti5.Text := TStkKart(Table).CinsBilgisi.I5.AsString;
+  edtd1.Text := TStkKart(Table).CinsBilgisi.D1.AsString;
+  edtd2.Text := TStkKart(Table).CinsBilgisi.D2.AsString;
+  edtd3.Text := TStkKart(Table).CinsBilgisi.D3.AsString;
+  edtd4.Text := TStkKart(Table).CinsBilgisi.D4.AsString;
+  edtd5.Text := TStkKart(Table).CinsBilgisi.D5.AsString;
 
   pgcMainChange(pgcMain);
 end;
@@ -824,23 +868,27 @@ begin
       TStkKart(Table).EnAzStokSeviyesi.Value := StrToFloatDef(edten_az_stok_seviyesi.Text, 0);
       TStkKart(Table).Tanim.Value := mmotanim.Text;
       setValueFromImage(TStkKart(Table).Resim, imgstok_resim);
-      TStkKart(Table).Cins.Value := edtcins_id.Text;
-      TStkKart(Table).S1.Value := edts1.Text;
-      TStkKart(Table).S2.Value := edts2.Text;
-      TStkKart(Table).S3.Value := edts3.Text;
-      TStkKart(Table).S4.Value := edts4.Text;
-      TStkKart(Table).S5.Value := edts5.Text;
-      TStkKart(Table).S6.Value := edts6.Text;
-      TStkKart(Table).S7.Value := edts7.Text;
-      TStkKart(Table).S8.Value := edts8.Text;
-      TStkKart(Table).I1.Value := StrToIntDef(edti1.Text, 0);
-      TStkKart(Table).I2.Value := StrToIntDef(edti2.Text, 0);
-      TStkKart(Table).I3.Value := StrToIntDef(edti3.Text, 0);
-      TStkKart(Table).I4.Value := StrToIntDef(edti4.Text, 0);
-      TStkKart(Table).D1.Value := StrToFloatDef(edtd1.Text, 0);
-      TStkKart(Table).D2.Value := StrToFloatDef(edtd2.Text, 0);
-      TStkKart(Table).D3.Value := StrToFloatDef(edtd3.Text, 0);
-      TStkKart(Table).D4.Value := StrToFloatDef(edtd4.Text, 0);
+      TStkKart(Table).CinsBilgisi.Cins.Value := edtcins_id.Text;
+      TStkKart(Table).CinsBilgisi.S1.Value := edts1.Text;
+      TStkKart(Table).CinsBilgisi.S2.Value := edts2.Text;
+      TStkKart(Table).CinsBilgisi.S3.Value := edts3.Text;
+      TStkKart(Table).CinsBilgisi.S4.Value := edts4.Text;
+      TStkKart(Table).CinsBilgisi.S5.Value := edts5.Text;
+      TStkKart(Table).CinsBilgisi.S6.Value := edts6.Text;
+      TStkKart(Table).CinsBilgisi.S7.Value := edts7.Text;
+      TStkKart(Table).CinsBilgisi.S8.Value := edts8.Text;
+      TStkKart(Table).CinsBilgisi.S9.Value := edts9.Text;
+      TStkKart(Table).CinsBilgisi.S10.Value := edts10.Text;
+      TStkKart(Table).CinsBilgisi.I1.Value := StrToIntDef(edti1.Text, 0);
+      TStkKart(Table).CinsBilgisi.I2.Value := StrToIntDef(edti2.Text, 0);
+      TStkKart(Table).CinsBilgisi.I3.Value := StrToIntDef(edti3.Text, 0);
+      TStkKart(Table).CinsBilgisi.I4.Value := StrToIntDef(edti4.Text, 0);
+      TStkKart(Table).CinsBilgisi.I5.Value := StrToIntDef(edti5.Text, 0);
+      TStkKart(Table).CinsBilgisi.D1.Value := StrToFloatDef(edtd1.Text, 0);
+      TStkKart(Table).CinsBilgisi.D2.Value := StrToFloatDef(edtd2.Text, 0);
+      TStkKart(Table).CinsBilgisi.D3.Value := StrToFloatDef(edtd3.Text, 0);
+      TStkKart(Table).CinsBilgisi.D4.Value := StrToFloatDef(edtd4.Text, 0);
+      TStkKart(Table).CinsBilgisi.D5.Value := StrToFloatDef(edtd5.Text, 0);
 
       inherited;
     end;

@@ -1,4 +1,4 @@
-unit Ths.Database.Table.StkKartlar;
+ï»¿unit Ths.Database.Table.StkKartlar;
 
 interface
 
@@ -57,30 +57,10 @@ type
     FDiibUrunTanimi: TFieldDB;
     FEnAzStokSeviyesi: TFieldDB;
     FTanim: TFieldDB;
-    //db alanı değil
-    FCinsID: TFieldDB;
+    //db alanÄ± deÄŸil
     FCins: TFieldDB;
-    FS1: TFieldDB;
-    FS2: TFieldDB;
-    FS3: TFieldDB;
-    FS4: TFieldDB;
-    FS5: TFieldDB;
-    FS6: TFieldDB;
-    FS7: TFieldDB;
-    FS8: TFieldDB;
-    FS9: TFieldDB;
-    FS10: TFieldDB;
-    FI1: TFieldDB;
-    FI2: TFieldDB;
-    FI3: TFieldDB;
-    FI4: TFieldDB;
-    FI5: TFieldDB;
-    FD1: TFieldDB;
-    FD2: TFieldDB;
-    FD3: TFieldDB;
-    FD4: TFieldDB;
-    FD5: TFieldDB;
     FResim: TFieldDB;
+    FCinsBilgisi: TStkKartCinsBilgisi;
   protected
     FStkStokGrubu: TStkGruplar;
     FSysOlcuBirimi: TSysOlcuBirimi;
@@ -88,6 +68,7 @@ type
     FSysUlke: TSysUlke;
     FStkResim: TStkResim;
 
+    procedure BusinessSelect(AFilter: string; ALock: Boolean; APermissionControl: Boolean); override;
     procedure BusinessInsert(APermissionControl: Boolean); override;
     procedure BusinessUpdate(APermissionControl: Boolean); override;
   public
@@ -133,29 +114,9 @@ type
     Property DiibUrunTanimi: TFieldDB read FDiibUrunTanimi write FDiibUrunTanimi;
     Property EnAzStokSeviyesi: TFieldDB read FEnAzStokSeviyesi write FEnAzStokSeviyesi;
     Property Tanim: TFieldDB read FTanim write FTanim;
-    Property CinsID: TFieldDB read FCinsID write FCinsID;
     Property Cins: TFieldDB read FCins write FCins;
-    Property S1: TFieldDB read FS1 write FS1;
-    Property S2: TFieldDB read FS2 write FS2;
-    Property S3: TFieldDB read FS3 write FS3;
-    Property S4: TFieldDB read FS4 write FS4;
-    Property S5: TFieldDB read FS5 write FS5;
-    Property S6: TFieldDB read FS6 write FS6;
-    Property S7: TFieldDB read FS7 write FS7;
-    Property S8: TFieldDB read FS8 write FS8;
-    Property S9: TFieldDB read FS9 write FS9;
-    Property S10: TFieldDB read FS10 write FS10;
-    Property I1: TFieldDB read FI1 write FI1;
-    Property I2: TFieldDB read FI2 write FI2;
-    Property I3: TFieldDB read FI3 write FI3;
-    Property I4: TFieldDB read FI4 write FI4;
-    Property I5: TFieldDB read FI5 write FI5;
-    Property D1: TFieldDB read FD1 write FD1;
-    Property D2: TFieldDB read FD2 write FD2;
-    Property D3: TFieldDB read FD3 write FD3;
-    Property D4: TFieldDB read FD4 write FD4;
-    Property D5: TFieldDB read FD5 write FD5;
     Property Resim: TFieldDB read FResim write FResim;
+    Property CinsBilgisi: TStkKartCinsBilgisi read FCinsBilgisi write FCinsBilgisi;
   end;
 
 implementation
@@ -176,59 +137,40 @@ begin
   FSysUlke := TSysUlke.Create(Database);
   FStkResim := TStkResim.Create(Database);
 
-  FIsSatilabilir := TFieldDB.Create('is_satilabilir', ftBoolean, False, Self, 'Satılabilir?');
+  FIsSatilabilir := TFieldDB.Create('is_satilabilir', ftBoolean, False, Self, 'SatÄ±labilir?');
   FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self, 'Stok Kodu');
-  FStokAdi := TFieldDB.Create('stok_adi', ftString, '', Self, 'Stok Adı');
+  FStokAdi := TFieldDB.Create('stok_adi', ftString, '', Self, 'Stok AdÄ±');
   FStokGrubuID := TFieldDB.Create('stok_grubu_id', ftInteger, 0, Self, 'Stok Grubu ID');
   FStokGrubu := TFieldDB.Create(FStkStokGrubu.Grup.FieldName, FStkStokGrubu.Grup.DataType, '', Self, 'Stok Grubu');
-  FOlcuBirimiID := TFieldDB.Create('olcu_birimi_id', ftInteger, 0, Self, 'Ölçü Birimi ID');
-  FOlcuBirimi := TFieldDB.Create(FSysOlcuBirimi.Birim.FieldName, FSysOlcuBirimi.Birim.DataType, '', Self, 'Ölçü Birimi');
-  FUrunTipi := TFieldDB.Create('urun_tipi', ftSmallInt, 0, Self, 'Ürün Tipi');
-  FAlisIskonto := TFieldDB.Create('alis_iskonto', ftFloat, 0, Self, 'Alış İskonto');
-  FSatisIskonto := TFieldDB.Create('satis_iskonto', ftFloat, 0, Self, 'Satış İskonto');
-  FAlisFiyat := TFieldDB.Create('alis_fiyat', ftFloat, 0, Self, 'Alış Fiyat');
-  FAlisPara := TFieldDB.Create('alis_para', ftString, '', Self, 'Alış Para');
-  FSatisFiyat := TFieldDB.Create('satis_fiyat', ftFloat, 0, Self, 'Satış Fiyat');
-  FSatisPara := TFieldDB.Create('satis_para', ftString, '', Self, 'Satış Para');
-  FIhracFiyat := TFieldDB.Create('ihrac_fiyat', ftFloat, 0, Self, 'İhraç Fiyatı');
-  FIhracPara := TFieldDB.Create('ihrac_para', ftString, '', Self, 'İhraç Para');
+  FOlcuBirimiID := TFieldDB.Create('olcu_birimi_id', ftInteger, 0, Self, 'Ã–lÃ§Ã¼ Birimi ID');
+  FOlcuBirimi := TFieldDB.Create(FSysOlcuBirimi.Birim.FieldName, FSysOlcuBirimi.Birim.DataType, '', Self, 'Ã–lÃ§Ã¼ Birimi');
+  FUrunTipi := TFieldDB.Create('urun_tipi', ftSmallInt, 0, Self, 'ÃœrÃ¼n Tipi');
+  FAlisIskonto := TFieldDB.Create('alis_iskonto', ftFloat, 0, Self, 'AlÄ±ÅŸ Ä°skonto');
+  FSatisIskonto := TFieldDB.Create('satis_iskonto', ftFloat, 0, Self, 'SatÄ±ÅŸ Ä°skonto');
+  FAlisFiyat := TFieldDB.Create('alis_fiyat', ftFloat, 0, Self, 'AlÄ±ÅŸ Fiyat');
+  FAlisPara := TFieldDB.Create('alis_para', ftString, '', Self, 'AlÄ±ÅŸ Para');
+  FSatisFiyat := TFieldDB.Create('satis_fiyat', ftFloat, 0, Self, 'SatÄ±ÅŸ Fiyat');
+  FSatisPara := TFieldDB.Create('satis_para', ftString, '', Self, 'SatÄ±ÅŸ Para');
+  FIhracFiyat := TFieldDB.Create('ihrac_fiyat', ftFloat, 0, Self, 'Ä°hraÃ§ FiyatÄ±');
+  FIhracPara := TFieldDB.Create('ihrac_para', ftString, '', Self, 'Ä°hraÃ§ Para');
   FOrtalamaMaliyet := TFieldDB.Create('ortalama_maliyet', ftFloat, 0, Self, 'Ortalama Maliyet');
   FEn := TFieldDB.Create('en', ftFloat, 0, Self, 'En');
   FBoy := TFieldDB.Create('boy', ftFloat, 0, Self, 'Boy');
-  FYukseklik := TFieldDB.Create('yukseklik', ftFloat, 0, Self, 'Yükseklik');
-  FAgirlik := TFieldDB.Create('agirlik', ftFloat, 0, Self, 'Ağırlık');
-  FTeminSuresi := TFieldDB.Create('temin_suresi', ftInteger, 0, Self, 'Temin Süresi');
-  FOzelKod := TFieldDB.Create('ozel_kod', ftString, '', Self, 'Özel Kod');
+  FYukseklik := TFieldDB.Create('yukseklik', ftFloat, 0, Self, 'YÃ¼kseklik');
+  FAgirlik := TFieldDB.Create('agirlik', ftFloat, 0, Self, 'AÄŸÄ±rlÄ±k');
+  FTeminSuresi := TFieldDB.Create('temin_suresi', ftInteger, 0, Self, 'Temin SÃ¼resi');
+  FOzelKod := TFieldDB.Create('ozel_kod', ftString, '', Self, 'Ã–zel Kod');
   FMarka := TFieldDB.Create('marka', ftString, '', Self, 'Marka');
-  FMenseiID := TFieldDB.Create('mensei_id', ftInteger, 0, Self, 'Menşei ID');
-  FMensei := TFieldDB.Create(FSysUlke.UlkeAdi.FieldName, FSysUlke.UlkeAdi.DataType, '', Self, 'Menşei');
+  FMenseiID := TFieldDB.Create('mensei_id', ftInteger, 0, Self, 'MenÅŸei ID');
+  FMensei := TFieldDB.Create(FSysUlke.UlkeAdi.FieldName, FSysUlke.UlkeAdi.DataType, '', Self, 'MenÅŸei');
   FGtipNo := TFieldDB.Create('gtip_no', ftString, '', Self, 'GTIP No');
-  FDiibUrunTanimi := TFieldDB.Create('diib_urun_tanimi', ftString, '', Self, 'DİİB Ürün Tanımı');
+  FDiibUrunTanimi := TFieldDB.Create('diib_urun_tanimi', ftString, '', Self, 'DÄ°Ä°B ÃœrÃ¼n TanÄ±mÄ±');
   FEnAzStokSeviyesi := TFieldDB.Create('en_az_stok_seviyesi', ftFloat, 0, Self, 'En Az Stok Seviyesi');
-  FTanim := TFieldDB.Create('tanim', ftString, '', Self, 'Tanım');
-  FCinsID := TFieldDB.Create('cins_id', ftInteger, 0, Self, 'Cins ID');
+  FTanim := TFieldDB.Create('tanim', ftString, '', Self, 'TanÄ±m');
   FCins := TFieldDB.Create(FStkCinsOzelligi.Cins.FieldName, FStkCinsOzelligi.Cins.DataType, '', Self, 'Cins');
-  FS1 := TFieldDB.Create('s1', ftString, '', Self, 'S1');
-  FS2 := TFieldDB.Create('s2', ftString, '', Self, 'S2');
-  FS3 := TFieldDB.Create('s3', ftString, '', Self, 'S3');
-  FS4 := TFieldDB.Create('s4', ftString, '', Self, 'S4');
-  FS5 := TFieldDB.Create('s5', ftString, '', Self, 'S5');
-  FS6 := TFieldDB.Create('s6', ftString, '', Self, 'S6');
-  FS7 := TFieldDB.Create('s7', ftString, '', Self, 'S7');
-  FS8 := TFieldDB.Create('s8', ftString, '', Self, 'S8');
-  FS9 := TFieldDB.Create('s9', ftString, '', Self, 'S9');
-  FS10 := TFieldDB.Create('s10', ftString, '', Self, 'S10');
-  FI1 := TFieldDB.Create('i1', ftInteger, 0, Self, 'I1');
-  FI2 := TFieldDB.Create('i2', ftInteger, 0, Self, 'I2');
-  FI3 := TFieldDB.Create('i3', ftInteger, 0, Self, 'I3');
-  FI4 := TFieldDB.Create('i4', ftInteger, 0, Self, 'I4');
-  FI5 := TFieldDB.Create('i5', ftInteger, 0, Self, 'I5');
-  FD1 := TFieldDB.Create('d1', ftFloat, 0, Self, 'D1');
-  FD2 := TFieldDB.Create('d2', ftFloat, 0, Self, 'D2');
-  FD3 := TFieldDB.Create('d3', ftFloat, 0, Self, 'D3');
-  FD4 := TFieldDB.Create('d4', ftFloat, 0, Self, 'D4');
-  FD5 := TFieldDB.Create('d5', ftFloat, 0, Self, 'D5');
   FResim := TFieldDB.Create(FStkResim.Resim.FieldName, FStkResim.Resim.DataType, FStkResim.Resim.Value, Self, FStkResim.Resim.Title);
+
+  FCinsBilgisi := TStkKartCinsBilgisi.Create(GDatabase);
 end;
 
 destructor TStkKart.Destroy;
@@ -238,6 +180,8 @@ begin
   FStkCinsOzelligi.Free;
   FSysUlke.Free;
   FStkResim.Free;
+
+  FCinsBilgisi.Free;
   inherited;
 end;
 
@@ -247,7 +191,7 @@ var
   LDovizKuru: TChDovizKuru;
 begin
   if AKurTarihi=0 then
-    CreateExceptionByLang('Verilen Kur tarihi "Sıfır" olamaz!!', '888888');
+    CreateExceptionByLang('Verilen Kur tarihi "SÄ±fÄ±r" olamaz!!', '888888');
 
   Result := 0;
   if SatisPara.AsString = AParaBirimi then
@@ -321,35 +265,15 @@ begin
       FDiibUrunTanimi.QryName,
       FEnAzStokSeviyesi.QryName,
       FTanim.QryName,
-      FCinsID.QryName,
       addField(FStkCinsOzelligi.TableName, FStkCinsOzelligi.Cins.FieldName, FCins.FieldName),
-      FS1.QryName,
-      FS2.QryName,
-      FS3.QryName,
-      FS4.QryName,
-      FS5.QryName,
-      FS6.QryName,
-      FS7.QryName,
-      FS8.QryName,
-      FS9.QryName,
-      FS10.QryName,
-      FI1.QryName,
-      FI2.QryName,
-      FI3.QryName,
-      FI4.QryName,
-      FI5.QryName,
-      FD1.QryName,
-      FD2.QryName,
-      FD3.QryName,
-      FD4.QryName,
-      FD5.QryName,
       FResim.FieldName
     ], [
       addJoin(jtLeft, FStkStokGrubu.TableName, FStkStokGrubu.Id.FieldName, TableName, FStokGrubuID.FieldName),
       addJoin(jtLeft, FSysOlcuBirimi.TableName, FSysOlcuBirimi.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
       addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FMenseiID.FieldName),
-      addJoin(jtLeft, FStkCinsOzelligi.TableName, FStkCinsOzelligi.Id.FieldName, TableName, FCinsID.FieldName),
       addJoin(jtLeft, FStkResim.TableName, FStkResim.StkKartId.FieldName, TableName, Id.FieldName),
+      addJoin(jtLeft, FCinsBilgisi.TableName, FCinsBilgisi.StkKartId.FieldName, TableName, Id.FieldName),
+      addJoin(jtLeft, FStkCinsOzelligi.TableName, FStkCinsOzelligi.Id.FieldName, FCinsBilgisi.TableName, FCinsBilgisi.CinsID.FieldName),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
     Open;
@@ -400,34 +324,14 @@ begin
       FDiibUrunTanimi.QryName,
       FEnAzStokSeviyesi.QryName,
       FTanim.QryName,
-      FCinsID.QryName,
       addField(FStkCinsOzelligi.TableName, FStkCinsOzelligi.Cins.FieldName, FCins.FieldName),
-      FS1.QryName,
-      FS2.QryName,
-      FS3.QryName,
-      FS4.QryName,
-      FS5.QryName,
-      FS6.QryName,
-      FS7.QryName,
-      FS8.QryName,
-      FS9.QryName,
-      FS10.QryName,
-      FI1.QryName,
-      FI2.QryName,
-      FI3.QryName,
-      FI4.QryName,
-      FI5.QryName,
-      FD1.QryName,
-      FD2.QryName,
-      FD3.QryName,
-      FD4.QryName,
-      FD5.QryName,
       FResim.FieldName
     ], [
       addJoin(jtLeft, FStkStokGrubu.TableName, FStkStokGrubu.Id.FieldName, TableName, FStokGrubuID.FieldName),
       addJoin(jtLeft, FSysOlcuBirimi.TableName, FSysOlcuBirimi.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
       addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FMenseiID.FieldName),
-      addJoin(jtLeft, FStkCinsOzelligi.TableName, FStkCinsOzelligi.Id.FieldName, TableName, FCinsID.FieldName),
+      addJoin(jtLeft, FCinsBilgisi.TableName, FCinsBilgisi.StkKartID.FieldName, TableName, Id.FieldName),
+      addJoin(jtLeft, FStkCinsOzelligi.TableName, FStkCinsOzelligi.Id.FieldName, FCinsBilgisi.TableName, FCinsBilgisi.CinsID.FieldName),
       addJoin(jtLeft, FStkResim.TableName, FStkResim.StkKartId.FieldName, TableName, Id.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);
@@ -538,11 +442,22 @@ begin
   end;
 end;
 
+procedure TStkKart.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+begin
+  Self.SelectToList(AFilter, ALock, APermissionControl);
+  if Self.List.Count = 1 then
+  begin
+    Self.FCinsBilgisi.SelectToList(' AND ' + Self.CinsBilgisi.StkKartID.QryName + '=' + Self.Id.AsString, ALock, False);
+  end;
+end;
+
 procedure TStkKart.BusinessInsert(APermissionControl: Boolean);
 var
   LResim: TStkResim;
 begin
   Self.Insert(APermissionControl);
+  Self.FCinsBilgisi.StkKartID.Value := Self.Id.AsInt64;
+  Self.FCinsBilgisi.Insert(False);
 
   if Length(Self.Resim.Value) > 0 then
   begin
@@ -567,6 +482,15 @@ var
   LSize: Int64;
 begin
   Self.Update(APermissionControl);
+  if Self.FCinsBilgisi.Id.AsInt64 > 0 then
+  begin
+    Self.FCinsBilgisi.Update(False);
+  end
+  else
+  begin
+    Self.FCinsBilgisi.StkKartID.Value := Self.Id.AsInt64;
+    Self.FCinsBilgisi.Insert(False);
+  end;
 
   if Length(Self.Resim.Value) > 0 then
   begin
