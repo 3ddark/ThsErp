@@ -5,31 +5,30 @@ inherited frmStkKart: TfrmStkKart
   Caption = 'Stok Kart'#305
   ClientHeight = 532
   ClientWidth = 642
-  Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 658
-  ExplicitHeight = 571
+  Font.Charset = TURKISH_CHARSET
+  ExplicitWidth = 656
+  ExplicitHeight = 568
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 642
     Height = 482
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 642
-    ExplicitHeight = 482
+    ExplicitWidth = 640
+    ExplicitHeight = 479
     inherited pgcMain: TPageControl
-      Width = 644
-      Height = 485
-      ActivePage = tsCinsOzelligi
+      Width = 642
+      Height = 482
       OnChange = pgcMainChange
-      ExplicitWidth = 642
-      ExplicitHeight = 482
+      ExplicitWidth = 640
+      ExplicitHeight = 479
       inherited tsMain: TTabSheet
-        ExplicitWidth = 636
-        ExplicitHeight = 457
+        ExplicitWidth = 634
+        ExplicitHeight = 454
         object lblstok_kodu: TLabel
-          Left = 86
+          Left = 89
           Top = 7
-          Width = 60
+          Width = 57
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -37,15 +36,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblstok_adi: TLabel
-          Left = 97
+          Left = 99
           Top = 29
-          Width = 49
+          Width = 47
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -53,15 +52,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblstok_grubu_id: TLabel
-          Left = 81
+          Left = 83
           Top = 59
-          Width = 65
+          Width = 63
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -69,15 +68,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblolcu_birimi_id: TLabel
-          Left = 85
+          Left = 87
           Top = 81
-          Width = 61
+          Width = 59
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -85,15 +84,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblen_az_stok_seviyesi: TLabel
-          Left = 31
+          Left = 37
           Top = 339
-          Width = 115
+          Width = 109
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -101,15 +100,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblis_satilabilir: TLabel
-          Left = 363
+          Left = 364
           Top = 7
-          Width = 60
+          Width = 59
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -117,15 +116,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblozel_kod: TLabel
-          Left = 94
+          Left = 98
           Top = 147
-          Width = 52
+          Width = 48
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -133,7 +132,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -149,15 +148,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblurun_tipi: TLabel
-          Left = 93
+          Left = 96
           Top = 103
-          Width = 53
+          Width = 50
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -165,15 +164,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblen: TLabel
-          Left = 457
+          Left = 460
           Top = 251
-          Width = 16
+          Width = 13
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -181,15 +180,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblboy: TLabel
-          Left = 451
+          Left = 452
           Top = 273
-          Width = 22
+          Width = 21
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -197,15 +196,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblyukseklik: TLabel
-          Left = 417
+          Left = 419
           Top = 295
-          Width = 56
+          Width = 54
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -213,36 +212,36 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblhacim: TLabel
-          Left = 437
+          Left = 438
           Top = 316
-          Width = 36
+          Width = 35
           Height = 13
           Alignment = taRightJustify
           Caption = 'Hacim'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
         object lblvalue_hacim: TLabel
-          Left = 511
+          Left = 513
           Top = 316
-          Width = 26
+          Width = 24
           Height = 13
           Alignment = taRightJustify
           Caption = '0,00'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -255,7 +254,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -270,7 +269,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -286,15 +285,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbldiib_urun_tanimi: TLabel
-          Left = 47
+          Left = 49
           Top = 361
-          Width = 98
+          Width = 96
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -302,15 +301,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblmensei_id: TLabel
-          Left = 104
+          Left = 105
           Top = 298
-          Width = 41
+          Width = 40
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -318,15 +317,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblgtip_no: TLabel
-          Left = 95
+          Left = 101
           Top = 317
-          Width = 50
+          Width = 44
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -334,15 +333,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbltemin_suresi: TLabel
-          Left = 72
+          Left = 73
           Top = 125
-          Width = 74
+          Width = 73
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -350,7 +349,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -364,20 +363,20 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
         object lbltemin_suresi_brm: TLabel
           Left = 217
           Top = 125
-          Width = 22
+          Width = 21
           Height = 13
           Caption = 'g'#252'n'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -390,7 +389,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -403,20 +402,20 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
         object Label3: TLabel
           Left = 541
           Top = 316
-          Width = 17
+          Width = 18
           Height = 13
           Caption = 'm3'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -594,20 +593,20 @@ inherited frmStkKart: TfrmStkKart
         object lblortalama_maliyet_brm: TLabel
           Left = 302
           Top = 199
-          Width = 16
+          Width = 13
           Height = 13
           Caption = 'TL'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
         object lblsatis_fiyat: TLabel
-          Left = 86
+          Left = 87
           Top = 155
-          Width = 60
+          Width = 59
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -615,7 +614,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -631,15 +630,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblortalama_maliyet: TLabel
-          Left = 51
+          Left = 48
           Top = 199
-          Width = 95
+          Width = 98
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -647,15 +646,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblalis_fiyat: TLabel
-          Left = 94
+          Left = 95
           Top = 134
-          Width = 52
+          Width = 51
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -663,7 +662,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -679,7 +678,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -695,7 +694,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -770,7 +769,7 @@ inherited frmStkKart: TfrmStkKart
           AlignWithMargins = True
           Left = 3
           Top = 4
-          Width = 630
+          Width = 628
           Height = 52
           Margins.Top = 4
           Margins.Bottom = 4
@@ -784,9 +783,9 @@ inherited frmStkKart: TfrmStkKart
         Caption = 'Cins '#214'zelli'#287'i'
         ImageIndex = 1
         object lbld3: TLabel
-          Left = 435
+          Left = 437
           Top = 235
-          Width = 17
+          Width = 15
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -794,15 +793,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbld2: TLabel
-          Left = 435
+          Left = 437
           Top = 213
-          Width = 17
+          Width = 15
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -810,15 +809,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbld1: TLabel
-          Left = 435
+          Left = 437
           Top = 191
-          Width = 17
+          Width = 15
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -826,7 +825,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -842,7 +841,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -858,7 +857,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -874,15 +873,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbls6: TLabel
-          Left = 125
+          Left = 127
           Top = 191
-          Width = 16
+          Width = 14
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -890,15 +889,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbls5: TLabel
-          Left = 125
+          Left = 127
           Top = 169
-          Width = 16
+          Width = 14
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -906,15 +905,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbls4: TLabel
-          Left = 125
+          Left = 127
           Top = 147
-          Width = 16
+          Width = 14
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -922,15 +921,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbls3: TLabel
-          Left = 125
+          Left = 127
           Top = 125
-          Width = 16
+          Width = 14
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -938,15 +937,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbls2: TLabel
-          Left = 125
+          Left = 127
           Top = 103
-          Width = 16
+          Width = 14
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -954,15 +953,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbls1: TLabel
-          Left = 125
+          Left = 127
           Top = 81
-          Width = 16
+          Width = 14
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -970,15 +969,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lblcins_id: TLabel
-          Left = 116
+          Left = 118
           Top = 59
-          Width = 25
+          Width = 23
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -986,15 +985,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbls8: TLabel
-          Left = 125
+          Left = 127
           Top = 235
-          Width = 16
+          Width = 14
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -1002,15 +1001,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbls7: TLabel
-          Left = 125
+          Left = 127
           Top = 213
-          Width = 16
+          Width = 14
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -1018,7 +1017,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -1034,15 +1033,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbld4: TLabel
-          Left = 435
+          Left = 437
           Top = 257
-          Width = 17
+          Width = 15
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -1050,15 +1049,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbls9: TLabel
-          Left = 125
+          Left = 127
           Top = 257
-          Width = 16
+          Width = 14
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -1066,15 +1065,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbls10: TLabel
-          Left = 118
+          Left = 120
           Top = 279
-          Width = 23
+          Width = 21
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -1082,7 +1081,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -1098,15 +1097,15 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
         end
         object lbld5: TLabel
-          Left = 435
+          Left = 437
           Top = 279
-          Width = 17
+          Width = 15
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -1114,7 +1113,7 @@ inherited frmStkKart: TfrmStkKart
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -1243,7 +1242,7 @@ inherited frmStkKart: TfrmStkKart
           AlignWithMargins = True
           Left = 3
           Top = 4
-          Width = 630
+          Width = 628
           Height = 52
           Margins.Top = 4
           Margins.Bottom = 4
@@ -1251,6 +1250,7 @@ inherited frmStkKart: TfrmStkKart
           Color = 14737632
           ParentBackground = False
           TabOrder = 0
+          ExplicitWidth = 626
         end
         object edts9: TEdit
           Left = 145
@@ -1288,7 +1288,7 @@ inherited frmStkKart: TfrmStkKart
           AlignWithMargins = True
           Left = 3
           Top = 4
-          Width = 630
+          Width = 628
           Height = 52
           Margins.Top = 4
           Margins.Bottom = 4
@@ -1301,8 +1301,8 @@ inherited frmStkKart: TfrmStkKart
           AlignWithMargins = True
           Left = 3
           Top = 63
-          Width = 630
-          Height = 163
+          Width = 628
+          Height = 160
           Align = alClient
           Color = 15268861
           ParentBackground = False
@@ -1365,7 +1365,7 @@ inherited frmStkKart: TfrmStkKart
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 50
+            Width = 620
             Height = 13
             Align = alTop
             Alignment = taCenter
@@ -1376,6 +1376,7 @@ inherited frmStkKart: TfrmStkKart
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
+            ExplicitWidth = 50
           end
           object lblgrup_kdv_orani: TLabel
             Left = 130
@@ -1551,8 +1552,8 @@ inherited frmStkKart: TfrmStkKart
         object pnlAmbar: TPanel
           AlignWithMargins = True
           Left = 3
-          Top = 232
-          Width = 630
+          Top = 229
+          Width = 628
           Height = 222
           Align = alBottom
           TabOrder = 2
@@ -1561,7 +1562,7 @@ inherited frmStkKart: TfrmStkKart
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 127
+            Width = 620
             Height = 13
             Hint = 'Hide'
             Align = alTop
@@ -1570,15 +1571,16 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
+            ExplicitWidth = 129
           end
           object strngrdAmbar: TStringGrid
             AlignWithMargins = True
             Left = 4
             Top = 23
-            Width = 622
+            Width = 620
             Height = 195
             Align = alClient
             ColCount = 7
@@ -1611,7 +1613,7 @@ inherited frmStkKart: TfrmStkKart
           AlignWithMargins = True
           Left = 3
           Top = 4
-          Width = 630
+          Width = 628
           Height = 52
           Margins.Top = 4
           Margins.Bottom = 4
@@ -1619,13 +1621,12 @@ inherited frmStkKart: TfrmStkKart
           Color = 14737632
           ParentBackground = False
           TabOrder = 0
-          ExplicitWidth = 628
         end
         object pnlOzetTop: TPanel
           AlignWithMargins = True
           Left = 3
           Top = 64
-          Width = 630
+          Width = 628
           Height = 137
           Margins.Top = 4
           Margins.Bottom = 4
@@ -1633,25 +1634,24 @@ inherited frmStkKart: TfrmStkKart
           Color = 14085611
           ParentBackground = False
           TabOrder = 1
-          ExplicitWidth = 628
           object lblserbest_stok_toplam_brm: TLabel
             Left = 257
             Top = 116
-            Width = 28
+            Width = 29
             Height = 13
             Hint = 'Hide'
             Caption = 'Birim'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblserbest_stok_toplam: TLabel
-            Left = 25
+            Left = 26
             Top = 116
-            Width = 119
+            Width = 118
             Height = 13
             Hint = 'Hide'
             Alignment = taRightJustify
@@ -1659,28 +1659,28 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblblokaj_toplam_brm: TLabel
             Left = 257
             Top = 94
-            Width = 28
+            Width = 29
             Height = 13
             Hint = 'Hide'
             Caption = 'Birim'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblblokaj_toplam: TLabel
-            Left = 63
+            Left = 64
             Top = 94
-            Width = 81
+            Width = 80
             Height = 13
             Hint = 'Hide'
             Alignment = taRightJustify
@@ -1688,63 +1688,63 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lbldonem_basi_miktar_brm: TLabel
             Left = 257
             Top = 6
-            Width = 28
+            Width = 29
             Height = 13
             Hint = 'Hide'
             Caption = 'Birim'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblgiren_toplam_brm: TLabel
             Left = 257
             Top = 28
-            Width = 28
+            Width = 29
             Height = 13
             Hint = 'Hide'
             Caption = 'Birim'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblcikan_toplam_brm: TLabel
             Left = 257
             Top = 50
-            Width = 28
+            Width = 29
             Height = 13
             Hint = 'Hide'
             Caption = 'Birim'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblstok_miktari_brm: TLabel
             Left = 257
             Top = 72
-            Width = 28
+            Width = 29
             Height = 13
             Hint = 'Hide'
             Caption = 'Birim'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -1759,14 +1759,14 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblcikan_toplam: TLabel
-            Left = 70
+            Left = 71
             Top = 50
-            Width = 74
+            Width = 73
             Height = 13
             Hint = 'Hide'
             Alignment = taRightJustify
@@ -1774,14 +1774,14 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblgiren_toplam: TLabel
-            Left = 68
+            Left = 69
             Top = 28
-            Width = 76
+            Width = 75
             Height = 13
             Hint = 'Hide'
             Alignment = taRightJustify
@@ -1789,14 +1789,14 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lbldonem_basi_miktar: TLabel
-            Left = 37
+            Left = 38
             Top = 6
-            Width = 107
+            Width = 106
             Height = 13
             Hint = 'Hide'
             Alignment = taRightJustify
@@ -1804,7 +1804,7 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -1861,62 +1861,60 @@ inherited frmStkKart: TfrmStkKart
           AlignWithMargins = True
           Left = 3
           Top = 209
-          Width = 630
-          Height = 142
+          Width = 628
+          Height = 139
           Margins.Top = 4
           Margins.Bottom = 4
           Align = alClient
           Color = 15527135
           ParentBackground = False
           TabOrder = 2
-          ExplicitWidth = 628
-          ExplicitHeight = 139
           object lblstok_degeri_ort_brm: TLabel
             Left = 257
             Top = 50
-            Width = 57
+            Width = 58
             Height = 13
             Hint = 'Hide'
             Caption = 'ParaBirimi'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblstok_degeri_son_brm: TLabel
             Left = 257
             Top = 72
-            Width = 57
+            Width = 58
             Height = 13
             Hint = 'Hide'
             Caption = 'ParaBirimi'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lbldonem_basi_deger_brm: TLabel
             Left = 257
             Top = 28
-            Width = 57
+            Width = 58
             Height = 13
             Hint = 'Hide'
             Caption = 'ParaBirimi'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblstok_degeri_son: TLabel
-            Left = 15
+            Left = 16
             Top = 72
-            Width = 129
+            Width = 128
             Height = 13
             Hint = 'Hide'
             Alignment = taRightJustify
@@ -1924,7 +1922,7 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -1939,14 +1937,14 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lbldonem_basi_deger: TLabel
-            Left = 38
+            Left = 41
             Top = 28
-            Width = 106
+            Width = 103
             Height = 13
             Hint = 'Hide'
             Alignment = taRightJustify
@@ -1954,56 +1952,56 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lbldonem_basi_fiyat_brm: TLabel
             Left = 257
             Top = 6
-            Width = 57
+            Width = 58
             Height = 13
             Hint = 'Hide'
             Caption = 'ParaBirimi'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lbltoplam_alis_brm: TLabel
             Left = 257
             Top = 94
-            Width = 57
+            Width = 58
             Height = 13
             Hint = 'Hide'
             Caption = 'ParaBirimi'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lbltoplam_satis_brm: TLabel
             Left = 257
             Top = 116
-            Width = 57
+            Width = 58
             Height = 13
             Hint = 'Hide'
             Caption = 'ParaBirimi'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lbltoplam_satis: TLabel
-            Left = 70
+            Left = 71
             Top = 116
-            Width = 74
+            Width = 73
             Height = 13
             Hint = 'Hide'
             Alignment = taRightJustify
@@ -2011,14 +2009,14 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lbltoplam_alis: TLabel
-            Left = 78
+            Left = 79
             Top = 94
-            Width = 66
+            Width = 65
             Height = 13
             Hint = 'Hide'
             Alignment = taRightJustify
@@ -2026,14 +2024,14 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lbldonem_basi_fiyat: TLabel
-            Left = 45
+            Left = 47
             Top = 6
-            Width = 99
+            Width = 97
             Height = 13
             Hint = 'Hide'
             Alignment = taRightJustify
@@ -2041,7 +2039,7 @@ inherited frmStkKart: TfrmStkKart
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -2097,8 +2095,8 @@ inherited frmStkKart: TfrmStkKart
         object pnlOzetBottom: TPanel
           AlignWithMargins = True
           Left = 3
-          Top = 359
-          Width = 630
+          Top = 356
+          Width = 628
           Height = 94
           Margins.Top = 4
           Margins.Bottom = 4
@@ -2106,117 +2104,115 @@ inherited frmStkKart: TfrmStkKart
           Color = 14146536
           ParentBackground = False
           TabOrder = 3
-          ExplicitTop = 356
-          ExplicitWidth = 628
           object lblozet_son_alis_brm: TLabel
             Left = 256
             Top = 73
-            Width = 57
+            Width = 58
             Height = 13
             Hint = 'Hide'
             Caption = 'ParaBirimi'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblozet_alis_brm: TLabel
             Left = 256
             Top = 29
-            Width = 57
+            Width = 58
             Height = 13
             Hint = 'Hide'
             Caption = 'ParaBirimi'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblozet_ortalama_maliyet_brm: TLabel
             Left = 256
             Top = 51
-            Width = 57
+            Width = 58
             Height = 13
             Hint = 'Hide'
             Caption = 'ParaBirimi'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblozet_satis_brm: TLabel
             Left = 256
             Top = 7
-            Width = 57
+            Width = 58
             Height = 13
             Hint = 'Hide'
             Caption = 'ParaBirimi'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblozet_son_alis: TLabel
-            Left = 63
+            Left = 66
             Top = 73
-            Width = 81
+            Width = 78
             Height = 13
             Alignment = taRightJustify
             Caption = 'Son Al'#305#351' Fiyat'#305
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblozet_ortalama_maliyet: TLabel
-            Left = 49
+            Left = 46
             Top = 51
-            Width = 95
+            Width = 98
             Height = 13
             Alignment = taRightJustify
             Caption = 'Ortalama Maliyet'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblozet_alis: TLabel
-            Left = 123
+            Left = 124
             Top = 29
-            Width = 21
+            Width = 20
             Height = 13
             Alignment = taRightJustify
             Caption = 'Al'#305#351
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
           object lblozet_satis: TLabel
-            Left = 115
+            Left = 116
             Top = 7
-            Width = 29
+            Width = 28
             Height = 13
             Alignment = taRightJustify
             Caption = 'Sat'#305#351
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -2259,16 +2255,16 @@ inherited frmStkKart: TfrmStkKart
   inherited pnlBottom: TPanel
     Top = 484
     Width = 638
-    ExplicitTop = 484
-    ExplicitWidth = 638
+    ExplicitTop = 481
+    ExplicitWidth = 636
     inherited btnAccept: TButton
-      Left = 434
+      Left = 432
       TabOrder = 2
-      ExplicitLeft = 432
+      ExplicitLeft = 430
     end
     inherited btnClose: TButton
-      Left = 538
-      ExplicitLeft = 536
+      Left = 536
+      ExplicitLeft = 534
     end
     inherited btnDelete: TButton
       TabOrder = 1
@@ -2277,7 +2273,7 @@ inherited frmStkKart: TfrmStkKart
   inherited stbBase: TStatusBar
     Top = 514
     Width = 642
-    ExplicitTop = 514
-    ExplicitWidth = 642
+    ExplicitTop = 511
+    ExplicitWidth = 640
   end
 end

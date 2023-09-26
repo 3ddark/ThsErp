@@ -163,7 +163,7 @@ begin
       Database.GetSQLSelectCmd(LQry, TableName, [
         Id.QryName,
         FKullaniciAdi.QryName,
-        'cast(' + FKullaniciSifre.QryName + ' as varchar(256)) ' + FKullaniciSifre.AsString,
+        'cast(' + FKullaniciSifre.QryName + ' as varchar(256)) ' + FKullaniciSifre.FieldName,
         FIsAktif.QryName,
         FIsYonetici.QryName,
         FIsSuperKullanici.QryName,
