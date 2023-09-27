@@ -44,7 +44,7 @@ begin
   inherited Create(ADatabase);
 
   FStkKartID := TFieldDB.Create('stk_kart_id', ftInteger, 0, Self, 'Stok Kartý ID');
-  FResim := TFieldDB.Create('resim', ftBytes, 0, Self, 'Resim');
+  FResim := TFieldDB.Create('resim', ftString, '', Self, 'Resim');//store as Base64
 end;
 
 destructor TStkResim.Destroy;

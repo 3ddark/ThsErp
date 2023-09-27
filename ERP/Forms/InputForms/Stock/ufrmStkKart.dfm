@@ -3,28 +3,28 @@ inherited frmStkKart: TfrmStkKart
   Top = 443
   ActiveControl = btnClose
   Caption = 'Stok Kart'#305
-  ClientHeight = 532
-  ClientWidth = 642
+  ClientHeight = 529
+  ClientWidth = 640
   Font.Charset = TURKISH_CHARSET
-  ExplicitWidth = 656
-  ExplicitHeight = 568
+  ExplicitWidth = 654
+  ExplicitHeight = 565
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 642
-    Height = 482
+    Width = 640
+    Height = 479
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 640
-    ExplicitHeight = 479
+    ExplicitWidth = 638
+    ExplicitHeight = 476
     inherited pgcMain: TPageControl
-      Width = 642
-      Height = 482
+      Width = 640
+      Height = 479
       OnChange = pgcMainChange
-      ExplicitWidth = 640
-      ExplicitHeight = 479
+      ExplicitWidth = 638
+      ExplicitHeight = 476
       inherited tsMain: TTabSheet
-        ExplicitWidth = 634
-        ExplicitHeight = 454
+        ExplicitWidth = 632
+        ExplicitHeight = 451
         object lblstok_kodu: TLabel
           Left = 89
           Top = 7
@@ -1365,7 +1365,7 @@ inherited frmStkKart: TfrmStkKart
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 620
+            Width = 50
             Height = 13
             Align = alTop
             Alignment = taCenter
@@ -1376,7 +1376,6 @@ inherited frmStkKart: TfrmStkKart
             Font.Name = 'MS Sans Serif'
             Font.Style = [fsBold]
             ParentFont = False
-            ExplicitWidth = 50
           end
           object lblgrup_kdv_orani: TLabel
             Left = 130
@@ -1562,7 +1561,7 @@ inherited frmStkKart: TfrmStkKart
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 620
+            Width = 129
             Height = 13
             Hint = 'Hide'
             Align = alTop
@@ -1574,7 +1573,6 @@ inherited frmStkKart: TfrmStkKart
             Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
-            ExplicitWidth = 129
           end
           object strngrdAmbar: TStringGrid
             AlignWithMargins = True
@@ -2253,27 +2251,27 @@ inherited frmStkKart: TfrmStkKart
     end
   end
   inherited pnlBottom: TPanel
-    Top = 484
-    Width = 638
-    ExplicitTop = 481
-    ExplicitWidth = 636
+    Top = 481
+    Width = 636
+    ExplicitTop = 478
+    ExplicitWidth = 634
     inherited btnAccept: TButton
-      Left = 432
+      Left = 430
       TabOrder = 2
-      ExplicitLeft = 430
+      ExplicitLeft = 428
     end
     inherited btnClose: TButton
-      Left = 536
-      ExplicitLeft = 534
+      Left = 534
+      ExplicitLeft = 532
     end
     inherited btnDelete: TButton
       TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar
-    Top = 514
-    Width = 642
-    ExplicitTop = 511
-    ExplicitWidth = 640
+    Top = 511
+    Width = 640
+    ExplicitTop = 508
+    ExplicitWidth = 638
   end
 end

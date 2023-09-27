@@ -448,6 +448,7 @@ begin
   if Self.List.Count = 1 then
   begin
     Self.FCinsBilgisi.SelectToList(' AND ' + Self.CinsBilgisi.StkKartID.QryName + '=' + Self.Id.AsString, ALock, False);
+    Self.FStkResim.SelectToList(' AND ' + Self.FStkResim.StkKartID.QryName + '=' + Self.Id.AsString, ALock, False);
   end;
 end;
 
@@ -463,10 +464,10 @@ begin
   begin
     LResim := TStkResim.Create(Database);
     try
-      LResim.SelectToList(' AND ' + LResim.StkKartID.QryName + '=' + IntToStr(Self.Id.AsInt64), False, False);
+      LResim.SelectToList(' AND ' + LResim.StkKartID.QryName + '=' + Self.Id.AsString, False, False);
       if LResim.List.Count=1 then
       begin
-        LResim.Resim.Value := Self.Resim.Value;
+        LResim.Resim.Value := Self.Resim.AsString;
         LResim.Update(False);
       end
     finally
@@ -492,35 +493,30 @@ begin
     Self.FCinsBilgisi.Insert(False);
   end;
 
-  if Length(Self.Resim.Value) > 0 then
-  begin
-    LResim := TStkResim.Create(Database);
-    try
-      LResim.SelectToList(' AND ' + LResim.StkKartID.QryName + '=' + IntToStr(Self.Id.AsInt64), False, False);
+  LResim := TStkResim.Create(Database);
+  try
+    if Self.Resim.AsString = '' then
+    begin
+      LResim.SelectToList(' AND ' + LResim.StkKartID.QryName + '=' + Self.Id.AsString, False, False);
+      LResim.Delete(False);
+    end
+    else
+    begin
+      LResim.SelectToList(' AND ' + LResim.StkKartID.QryName + '=' + Self.Id.AsString, False, False);
       if LResim.List.Count=1 then
       begin
-        ms := TMemoryStream.Create;
-        try
-          LSize := GetVarArrayByteSize(Self.Resim);
-          if LSize = 0 then
-            Exit;
-
-          ms.Write(LResim.Resim.Value, 0, LSize);
-          ms.Position := 0;
-        finally
-          ms.Free;
-        end;
-//        LResim.Resim.Value := Self.Resim.Value;
+        LResim.Resim.Value := Self.Resim.AsString;
         LResim.Update(False);
       end
       else
       begin
-//        LResim.Resim.Value := Self.Resim.Value;
+        LResim.StkKartID.Value := Self.Id.AsInt64;
+        LResim.Resim.Value := Self.Resim.AsString;
         LResim.Insert(False);
       end;
-    finally
-      LResim.Free;
     end;
+  finally
+    LResim.Free;
   end;
 end;
 

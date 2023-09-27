@@ -5,34 +5,11 @@ interface
 {$I Ths.inc}
 
 uses
-  Windows,
-  Messages,
-  SysUtils,
-  Variants,
-  Classes,
-  Graphics,
-  Controls,
-  Forms,
-  Dialogs,
-  StdCtrls,
-  ExtCtrls,
-  ComCtrls,
-  StrUtils,
-  Vcl.Grids,
-  Vcl.Imaging.jpeg,
-  Vcl.Imaging.pngimage,
-  Vcl.Samples.Spin,
-  Vcl.Menus,
-  Vcl.AppEvnts,
-  Vcl.Buttons,
-  Ths.Helper.BaseTypes,
-  Ths.Helper.Edit,
-  Ths.Helper.ComboBox,
-  Ths.Helper.Memo,
-  ufrmBase,
-  ufrmBaseInputDB,
-  udm,
-  Ths.Database.Table;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils, Vcl.Grids, Vcl.Imaging.jpeg,
+  Vcl.Imaging.pngimage, Vcl.Samples.Spin, Vcl.Menus, Vcl.AppEvnts, Vcl.Buttons,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo,
+  ufrmBase, ufrmBaseInputDB, udm, Ths.Database.Table, System.NetEncoding;
 
 type
   TfrmStkKart = class(TfrmBaseInputDB)
@@ -221,9 +198,9 @@ type
     edti5: TEdit;
     lbld5: TLabel;
     edtd5: TEdit;
-    procedure FormCreate(Sender: TObject);override;
-    procedure RefreshData();override;
-    procedure btnAcceptClick(Sender: TObject);override;
+    procedure FormCreate(Sender: TObject); override;
+    procedure RefreshData(); override;
+    procedure btnAcceptClick(Sender: TObject); override;
     procedure edtcins_idChange(Sender: TObject);
     procedure pgcMainChange(Sender: TObject);
     procedure btnstok_resimClick(Sender: TObject);
@@ -241,10 +218,7 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Constants,
-  Ths.Database,
-  Ths.Database.Table.SysErisimHaklari,
+  Ths.Globals, Ths.Constants, Ths.Database, Ths.Database.Table.SysErisimHaklari,
   Ths.Database.Table.StkKartlar, ufrmStkKartlar,
   Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
   Ths.Database.Table.StkGruplar, ufrmStkGruplar,
@@ -260,8 +234,7 @@ var
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
-    LFilter := 'Image File *.(' + FILE_EXT_PNG + ',' + FILE_EXT_JPG + ',' + FILE_EXT_BMP + ')|' +
-                           '*.' + FILE_EXT_PNG+';*.' + FILE_EXT_JPG+';*.' + FILE_EXT_BMP;
+    LFilter := 'Image File *.(' + FILE_EXT_PNG + ',' + FILE_EXT_JPG + ',' + FILE_EXT_BMP + ')|' + '*.' + FILE_EXT_PNG + ';*.' + FILE_EXT_JPG + ';*.' + FILE_EXT_BMP;
     GetDialogOpen(LFilter, LFileName);
     if (LFileName <> '') and FileExists(LFileName) then
     begin
@@ -457,12 +430,7 @@ end;
 
 procedure TfrmStkKart.edtenChange(Sender: TObject);
 begin
-  lblvalue_hacim.Caption :=
-    FormatFloat('0.0000',
-      (StrToFloatDef(edten.Text, 0) *
-       StrToFloatDef(edtboy.Text, 0) *
-       StrToFloatDef(edtyukseklik.Text, 0)) / 1000000
-    );
+  lblvalue_hacim.Caption := FormatFloat('0.0000', (StrToFloatDef(edten.Text, 0) * StrToFloatDef(edtboy.Text, 0) * StrToFloatDef(edtyukseklik.Text, 0)) / 1000000);
 end;
 
 procedure TfrmStkKart.FormCreate(Sender: TObject);
@@ -551,7 +519,9 @@ begin
             if LFrmGrup.CleanAndClose then
             begin
               TEdit(Sender).Clear;
-            end else begin
+            end
+            else
+            begin
               TEdit(Sender).Text := TStkGruplar(LFrmGrup.Table).Grup.AsString;
               TStkKart(Table).StokGrubuID.Value := LFrmGrup.Table.Id.Value;
 
@@ -579,7 +549,9 @@ begin
             if LFrmOlcuBirimi.CleanAndClose then
             begin
               TEdit(Sender).Clear;
-            end else begin
+            end
+            else
+            begin
               TEdit(Sender).Text := TSysOlcuBirimi(LFrmOlcuBirimi.Table).Birim.AsString;
               TStkKart(Table).OlcuBirimiID.Value := LFrmOlcuBirimi.Table.Id.Value;
             end;
@@ -599,7 +571,9 @@ begin
             begin
               edtcins_id.Clear;
               TStkKart(Table).CinsBilgisi.CinsID.Value := 0;
-            end else begin
+            end
+            else
+            begin
               edtcins_id.Text := TStkCinsOzelligi(LFrmKind.Table).Cins.AsString;
               TStkKart(Table).CinsBilgisi.CinsID.Value := LFrmKind.Table.Id.Value;
             end;
@@ -619,7 +593,9 @@ begin
             if LFrmCountry.CleanAndClose then
             begin
               edtmensei_id.Clear;
-            end else begin
+            end
+            else
+            begin
               edtmensei_id.Text := TSysUlke(LFrmCountry.Table).UlkeAdi.AsString;
               TStkKart(Table).MenseiID.Value := LFrmCountry.Table.Id.AsInt64;
             end;
@@ -628,20 +604,17 @@ begin
           LFrmCountry.Free;
         end;
       end
-      else
-      if (TEdit(Sender).Name = edtalis_para.Name)
-      or (TEdit(Sender).Name = edtsatis_para.Name)
-      or (TEdit(Sender).Name = edtihrac_para.Name)
-      then
+      else if (TEdit(Sender).Name = edtalis_para.Name) or (TEdit(Sender).Name = edtsatis_para.Name) or (TEdit(Sender).Name = edtihrac_para.Name) then
       begin
         LFrmMoney := TfrmSysParaBirimleri.Create(TEdit(Sender), Self, TSysParaBirimi.Create(GDataBase), fomNormal, True);
         try
           LFrmMoney.ShowModal;
           if LFrmMoney.DataAktar then
           begin
-            if LFrmMoney.CleanAndClose
-            then  TEdit(Sender).Clear
-            else  TEdit(Sender).Text := TSysParaBirimi(LFrmMoney.Table).Para.AsString;
+            if LFrmMoney.CleanAndClose then
+              TEdit(Sender).Clear
+            else
+              TEdit(Sender).Text := TSysParaBirimi(LFrmMoney.Table).Para.AsString;
           end;
         finally
           LFrmMoney.Free;
@@ -662,16 +635,14 @@ begin
     lblstok_adi.Parent := pnlParasalHeader;
     edtstok_adi.Parent := pnlParasalHeader;
   end
-  else
-  if pgcMain.ActivePage.Name = tsCinsOzelligi.Name then
+  else if pgcMain.ActivePage.Name = tsCinsOzelligi.Name then
   begin
     lblstok_kodu.Parent := pnlCinsHeader;
     edtstok_kodu.Parent := pnlCinsHeader;
     lblstok_adi.Parent := pnlCinsHeader;
     edtstok_adi.Parent := pnlCinsHeader;
   end
-  else
-  if pgcMain.ActivePage.Name = tsGrupOzellikleri.Name then
+  else if pgcMain.ActivePage.Name = tsGrupOzellikleri.Name then
   begin
     lblstok_kodu.Parent := pnlGrupHeader;
     edtstok_kodu.Parent := pnlGrupHeader;
@@ -700,8 +671,7 @@ begin
       end;
     end;
   end
-  else
-  if pgcMain.ActivePage.Name = tsOzetler.Name then
+  else if pgcMain.ActivePage.Name = tsOzetler.Name then
   begin
     lblstok_kodu.Parent := pnlOzetHeader;
     edtstok_kodu.Parent := pnlOzetHeader;
@@ -756,6 +726,9 @@ begin
 end;
 
 procedure TfrmStkKart.RefreshData();
+var
+  LStream: TMemoryStream;
+  LBytes: TBytes;
 begin
   chkis_satilabilir.Checked := TStkKart(Table).IsSatilabilir.AsBoolean;
   edtstok_kodu.Text := TStkKart(Table).StokKodu.AsString;
@@ -783,7 +756,20 @@ begin
   edtdiib_urun_tanimi.Text := TStkKart(Table).DiibUrunTanimi.AsString;
   edten_az_stok_seviyesi.Text := TStkKart(Table).EnAzStokSeviyesi.AsString;
   mmotanim.Text := TStkKart(Table).Tanim.AsString;
-  LoadImageFromDB(TStkKart(Table).Resim, imgstok_resim);
+
+  if TStkKart(Table).Resim.AsString <> '' then
+  begin
+    LStream := TMemoryStream.Create;
+    try
+      LBytes := TNetEncoding.Base64.DecodeStringToBytes(TStkKart(Table).Resim.AsString);
+      LStream.Write(LBytes, Length(LBytes));
+      LStream.Position := 0;
+      imgstok_resim.Picture.LoadFromStream(LStream);
+    finally
+      LStream.Free;
+    end;
+  end;
+
   edtcins_id.Text := TStkKart(Table).Cins.AsString;
   edtcins_idChange(edtcins_id);
   edts1.Text := TStkKart(Table).CinsBilgisi.S1.AsString;
@@ -836,6 +822,9 @@ begin
 end;
 
 procedure TfrmStkKart.btnAcceptClick(Sender: TObject);
+var
+  LInput: TMemoryStream;
+  LOutput: TStringStream;
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
@@ -867,7 +856,24 @@ begin
       TStkKart(Table).DiibUrunTanimi.Value := edtdiib_urun_tanimi.Text;
       TStkKart(Table).EnAzStokSeviyesi.Value := StrToFloatDef(edten_az_stok_seviyesi.Text, 0);
       TStkKart(Table).Tanim.Value := mmotanim.Text;
-      setValueFromImage(TStkKart(Table).Resim, imgstok_resim);
+
+      LInput := TMemoryStream.Create;
+      LOutput := TStringStream.Create;
+      try
+        imgstok_resim.Picture.Graphic.SaveToStream(LInput);
+        LInput.Position := 0;
+        if LInput.Size > 0 then
+        begin
+          TNetEncoding.Base64.Encode(LInput, LOutput);
+          TStkKart(Table).Resim.Value := LOutput.DataString;
+        end
+        else
+          TStkKart(Table).Resim.Value := '';
+      finally
+        LInput.Free;
+        LOutput.Free;
+      end;
+
       TStkKart(Table).CinsBilgisi.Cins.Value := edtcins_id.Text;
       TStkKart(Table).CinsBilgisi.S1.Value := edts1.Text;
       TStkKart(Table).CinsBilgisi.S2.Value := edts2.Text;
@@ -898,3 +904,4 @@ begin
 end;
 
 end.
+

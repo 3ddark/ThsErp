@@ -2741,7 +2741,7 @@ ALTER TABLE public.stk_kartlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 CREATE TABLE public.stk_resimler (
     id bigint NOT NULL,
     stk_kart_id bigint NOT NULL,
-    resim bytea
+    resim text
 );
 
 

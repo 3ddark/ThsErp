@@ -338,6 +338,7 @@ var
   ms: TMemoryStream;
   LLen: Int64;
   LByt: TBytes;
+  LEmpty: array of variant;
 begin
   ms := TMemoryStream.Create;
   try
@@ -351,7 +352,7 @@ begin
       AField.Value := LByt;
     end
     else
-      AField.Value := 0;
+      AField.Value := LEmpty;
   finally
     ms.Free;
   end;
