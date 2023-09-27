@@ -18,10 +18,8 @@ inherited frmBaseInput: TfrmBaseInput
       Align = alClient
       TabOrder = 0
       TabStop = False
-      ExplicitWidth = 604
-      ExplicitHeight = 342
       object tsMain: TTabSheet
-        Caption = 'tsMain'
+        Caption = 'Genel'
       end
     end
   end

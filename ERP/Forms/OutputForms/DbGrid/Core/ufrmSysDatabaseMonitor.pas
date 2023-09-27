@@ -5,25 +5,11 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.ImageList,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.DBGrids,
-  Vcl.Menus,
-  Vcl.AppEvnts,
-  Vcl.ComCtrls,
-  Vcl.ExtCtrls,
-  Vcl.ImgList,
-  Vcl.Samples.Spin,
-  Vcl.StdCtrls,
-  Vcl.Grids,
-  Vcl.Dialogs,
-  Data.DB,
-  ufrmBase,
-  ufrmBaseDBGrid, System.Actions, Vcl.ActnList, ZAbstractRODataset, ZAbstractDataset, ZDataset,
-  ZPgEventAlerter;
+  System.SysUtils, System.Classes, System.ImageList, Vcl.Controls, Vcl.Forms,
+  Vcl.DBGrids, Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ImgList,
+  Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids, Vcl.Dialogs, Data.DB, ufrmBase,
+  ufrmBaseDBGrid, System.Actions, Vcl.ActnList, ZAbstractRODataset,
+  ZAbstractDataset, ZDataset, ZPgEventAlerter;
 
 type
   TfrmSysDatabaseMonitor = class(TfrmBaseDBGrid)
@@ -34,7 +20,7 @@ type
     procedure cbbrefresh_periodChange(Sender: TObject);
     procedure tmrrefreshTimer(Sender: TObject);
   protected
-    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm; override;
+    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm; override;
   published
     procedure mnicopy_recordClick(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -43,9 +29,7 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Constants,
-  Ths.Database.Table,
+  Ths.Globals, Ths.Constants, Ths.Database.Table,
   Ths.Database.Table.View.SysDbStatus;
 
 {$R *.dfm}
@@ -71,7 +55,7 @@ begin
   btnAddNew.Visible := False;
   pnlButtons.Visible := False;
   mniPreview.Visible := False;
-  
+
   setDisplayFormatInteger(TSysDBStatus(Table).PID.FieldName, '0', grd.DataSource.DataSet);
 
   cbbrefresh_period.ItemIndex := 0;
@@ -122,3 +106,4 @@ begin
 end;
 
 end.
+

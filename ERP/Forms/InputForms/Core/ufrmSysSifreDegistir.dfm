@@ -2,20 +2,20 @@ inherited frmSysChangePassword: TfrmSysChangePassword
   Left = 501
   Top = 443
   ActiveControl = btnClose
-  Caption = 'Update User Password'
+  Caption = #350'ifreyi G'#252'ncelle'
   ClientHeight = 158
   ClientWidth = 401
   ParentFont = True
-  ExplicitWidth = 417
-  ExplicitHeight = 197
+  ExplicitWidth = 415
+  ExplicitHeight = 194
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 401
     Height = 108
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 401
-    ExplicitHeight = 108
+    ExplicitWidth = 399
+    ExplicitHeight = 105
     inherited pgcMain: TPageControl
       Width = 401
       Height = 108
@@ -25,14 +25,14 @@ inherited frmSysChangePassword: TfrmSysChangePassword
         ExplicitTop = 26
         ExplicitWidth = 393
         ExplicitHeight = 78
-        object lblold_password: TLabel
-          Left = 86
-          Top = 10
-          Width = 54
+        object lblmevcut_sifre: TLabel
+          Left = 53
+          Top = 11
+          Width = 87
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Password'
+          Caption = 'Mevcut '#350'ifreniz'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -41,14 +41,14 @@ inherited frmSysChangePassword: TfrmSysChangePassword
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblnew_password: TLabel
-          Left = 60
+        object lblyeni_sifre: TLabel
+          Left = 87
           Top = 32
-          Width = 80
+          Width = 53
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'New Password'
+          Caption = 'Yeni '#350'ifre'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -57,14 +57,14 @@ inherited frmSysChangePassword: TfrmSysChangePassword
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblnew_password2: TLabel
-          Left = 25
+        object lblyeni_sifre2: TLabel
+          Left = 46
           Top = 54
-          Width = 115
+          Width = 94
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'New Password Again'
+          Caption = 'Yeni '#350'ifre Tekrar'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -73,7 +73,7 @@ inherited frmSysChangePassword: TfrmSysChangePassword
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtold_password: TEdit
+        object edtmevcut_sifre: TEdit
           Left = 146
           Top = 7
           Width = 239
@@ -81,7 +81,7 @@ inherited frmSysChangePassword: TfrmSysChangePassword
           PasswordChar = '*'
           TabOrder = 0
         end
-        object edtnew_password: TEdit
+        object edtyeni_sifre: TEdit
           Left = 146
           Top = 29
           Width = 239
@@ -89,7 +89,7 @@ inherited frmSysChangePassword: TfrmSysChangePassword
           MaxLength = 32
           TabOrder = 1
         end
-        object edtnew_password2: TEdit
+        object edtyeni_sifre2: TEdit
           Left = 146
           Top = 51
           Width = 239
@@ -103,21 +103,21 @@ inherited frmSysChangePassword: TfrmSysChangePassword
   inherited pnlBottom: TPanel
     Top = 110
     Width = 397
-    ExplicitTop = 110
-    ExplicitWidth = 397
+    ExplicitTop = 107
+    ExplicitWidth = 395
     inherited btnAccept: TButton
       Left = 191
-      ExplicitLeft = 191
+      ExplicitLeft = 189
     end
     inherited btnClose: TButton
       Left = 295
-      ExplicitLeft = 295
+      ExplicitLeft = 293
     end
   end
   inherited stbBase: TStatusBar
     Top = 140
     Width = 401
-    ExplicitTop = 140
-    ExplicitWidth = 401
+    ExplicitTop = 137
+    ExplicitWidth = 399
   end
 end

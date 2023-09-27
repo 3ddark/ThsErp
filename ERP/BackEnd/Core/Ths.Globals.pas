@@ -239,7 +239,7 @@ type
     WarningChagenEncryptCode: string;
   end;
 
-  function setUserPassword(pOldPass, pNewPass: string; pUserID: Integer): Boolean;
+  function setUserPassword(AOldPass, ANewPass: string; AUserID: Integer): Boolean;
   function getEmployeeIDList: TEmployeeIDList;
   function getSysUserIDList: TSysUserIDList;
 
@@ -689,7 +689,7 @@ begin
   end;
 end;
 
-function setUserPassword(pOldPass, pNewPass: string; pUserID: Integer): Boolean;
+function setUserPassword(AOldPass, ANewPass: string; AUserID: Integer): Boolean;
 var
   LSP: TZStoredProc;
 begin
@@ -698,9 +698,9 @@ begin
   try
     LSP.StoredProcName := 'spset_user_password';
     LSP.Prepare;
-    LSP.ParamByName('oldpass').Text := pOldPass;
-    LSP.ParamByName('newpass').Text := pNewPass;
-    LSP.ParamByName('userid').AsInteger := pUserID;
+    LSP.ParamByName('oldpass').Text := AOldPass;
+    LSP.ParamByName('newpass').Text := ANewPass;
+    LSP.ParamByName('userid').AsInteger := AUserID;
     LSP.ExecProc;
     if not LSP.ParamByName('result').IsNull then
       Result := LSP.ParamByName('result').AsBoolean;

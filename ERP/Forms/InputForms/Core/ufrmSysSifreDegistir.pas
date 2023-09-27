@@ -14,12 +14,12 @@ uses
 
 type
   TfrmSysChangePassword = class(TfrmBaseInput)
-    lblold_password: TLabel;
-    edtold_password: TEdit;
-    lblnew_password: TLabel;
-    edtnew_password: TEdit;
-    lblnew_password2: TLabel;
-    edtnew_password2: TEdit;
+    lblmevcut_sifre: TLabel;
+    edtmevcut_sifre: TEdit;
+    lblyeni_sifre: TLabel;
+    edtyeni_sifre: TEdit;
+    lblyeni_sifre2: TLabel;
+    edtyeni_sifre2: TEdit;
   protected
     function ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl = nil): Boolean; override;
   published
@@ -41,9 +41,9 @@ begin
   begin
     if (ValidateInput) then
     begin
-      if setUserPassword(edtold_password.Text, edtnew_password.Text, GSysKullanici.Id.Value) then
+      if setUserPassword(edtmevcut_sifre.Text, edtyeni_sifre.Text, GSysKullanici.Id.Value) then
       begin
-        GSysKullanici.SelectToList(' AND ' + GSysKullanici.TableName + '.' + GSysKullanici.Id.FieldName + '=' + VarToStr(Table.Id.Value), False, False);
+        GSysKullanici.SelectToList(' AND ' + GSysKullanici.Id.QryName + '=' + Table.Id.AsString, False, False);
 
         CustomMsgDlg('Þifreniz baþarýlý bir þekilde güncellendi!', mtInformation, [mbOK], ['Tamam'], mbOK, 'Þifre Güncelleme');
       end;
@@ -71,15 +71,15 @@ end;
 procedure TfrmSysChangePassword.RefreshData;
 begin
   inherited;
-  edtold_password.Clear;
-  edtnew_password.Clear;
-  edtnew_password2.Clear;
+  edtmevcut_sifre.Clear;
+  edtyeni_sifre.Clear;
+  edtyeni_sifre2.Clear;
 end;
 
 function TfrmSysChangePassword.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
 begin
   Result := True;
-  if (Trim(edtnew_password.Text) = '') or (Trim(edtnew_password.Text).Length < 1) or (Trim(edtnew_password.Text) <> Trim(edtnew_password2.Text)) then
+  if (Trim(edtyeni_sifre.Text) = '') or (Trim(edtyeni_sifre.Text).Length < 1) or (Trim(edtyeni_sifre.Text) <> Trim(edtyeni_sifre2.Text)) then
     Result := False;
 end;
 

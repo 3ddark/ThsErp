@@ -906,14 +906,6 @@ end;
 
 destructor TfrmDashboard.Destroy;
 begin
-  if stbBase.Panels.Count > 0 then
-  begin
-    repeat
-      stbBase.Panels.Items[stbBase.Panels.Count-1].Free;
-    until (stbBase.Panels.Count = 0);
-  end;
-  stbBase.Free;
-
   inherited;
 end;
 
