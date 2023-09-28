@@ -249,182 +249,214 @@ procedure TfrmStkKart.edtcins_idChange(Sender: TObject);
 var
   LCins: TStkCinsOzelligi;
 begin
-  lbls1.Visible := False;
-  lbls2.Visible := False;
-  lbls3.Visible := False;
-  lbls4.Visible := False;
-  lbls5.Visible := False;
-  lbls6.Visible := False;
-  lbls7.Visible := False;
-  lbls8.Visible := False;
-  lbls9.Visible := False;
-  lbls10.Visible := False;
-  lbli1.Visible := False;
-  lbli2.Visible := False;
-  lbli3.Visible := False;
-  lbli4.Visible := False;
-  lbli5.Visible := False;
-  lbld1.Visible := False;
-  lbld2.Visible := False;
-  lbld3.Visible := False;
-  lbld4.Visible := False;
-  lbld5.Visible := False;
+  LCins := TStkCinsOzelligi.Create(Table.Database);
+  try
+    LCins.SelectToList(' AND ' + LCins.Id.QryName + '=' + TStkKart(Table).CinsBilgisi.CinsID.AsString, False, False);
 
-  edts1.Visible := False;
-  edts2.Visible := False;
-  edts3.Visible := False;
-  edts4.Visible := False;
-  edts5.Visible := False;
-  edts6.Visible := False;
-  edts7.Visible := False;
-  edts8.Visible := False;
-  edts9.Visible := False;
-  edts10.Visible := False;
-  edti1.Visible := False;
-  edti2.Visible := False;
-  edti3.Visible := False;
-  edti4.Visible := False;
-  edti5.Visible := False;
-  edtd1.Visible := False;
-  edtd2.Visible := False;
-  edtd3.Visible := False;
-  edtd4.Visible := False;
-  edtd5.Visible := False;
-
-  if TStkKart(Table).CinsBilgisi.CinsID.AsInt64 > 0 then
-  begin
-    LCins := TStkCinsOzelligi.Create(Table.Database);
-    try
-      LCins.SelectToList(' AND ' + LCins.TableName + '.' + LCins.Id.FieldName + '=' + IntToStr(TStkKart(Table).CinsBilgisi.CinsID.Value), False, False);
-      if LCins.List.Count = 1 then
-      begin
-        if LCins.S1.Value <> '' then
-        begin
-          lbls1.Visible := True;
-          edts1.Visible := True;
-        end;
-        if LCins.S2.Value <> '' then
-        begin
-          lbls2.Visible := True;
-          edts2.Visible := True;
-        end;
-        if LCins.S3.Value <> '' then
-        begin
-          lbls3.Visible := True;
-          edts3.Visible := True;
-        end;
-        if LCins.S4.Value <> '' then
-        begin
-          lbls4.Visible := True;
-          edts4.Visible := True;
-        end;
-        if LCins.S5.Value <> '' then
-        begin
-          lbls5.Visible := True;
-          edts5.Visible := True;
-        end;
-        if LCins.S6.Value <> '' then
-        begin
-          lbls6.Visible := True;
-          edts6.Visible := True;
-        end;
-        if LCins.S7.Value <> '' then
-        begin
-          lbls7.Visible := True;
-          edts7.Visible := True;
-        end;
-        if LCins.S8.Value <> '' then
-        begin
-          lbls8.Visible := True;
-          edts8.Visible := True;
-        end;
-        if LCins.S9.Value <> '' then
-        begin
-          lbls9.Visible := True;
-          edts9.Visible := True;
-        end;
-        if LCins.S10.Value <> '' then
-        begin
-          lbls10.Visible := True;
-          edts10.Visible := True;
-        end;
-
-        if LCins.I1.AsString <> '' then
-        begin
-          lbli1.Visible := True;
-          edti1.Visible := True;
-        end;
-        if LCins.I2.AsString <> '' then
-        begin
-          lbli2.Visible := True;
-          edti2.Visible := True;
-        end;
-        if LCins.I3.AsString <> '' then
-        begin
-          lbli3.Visible := True;
-          edti3.Visible := True;
-        end;
-        if LCins.I4.AsString <> '' then
-        begin
-          lbli4.Visible := True;
-          edti4.Visible := True;
-        end;
-        if LCins.I5.AsString <> '' then
-        begin
-          lbli5.Visible := True;
-          edti5.Visible := True;
-        end;
-
-        if LCins.D1.AsString <> '' then
-        begin
-          lbld1.Visible := True;
-          edtd1.Visible := True;
-        end;
-        if LCins.D2.AsString <> '' then
-        begin
-          lbld2.Visible := True;
-          edtd2.Visible := True;
-        end;
-        if LCins.D3.AsString <> '' then
-        begin
-          lbld3.Visible := True;
-          edtd3.Visible := True;
-        end;
-        if LCins.D4.AsString <> '' then
-        begin
-          lbld4.Visible := True;
-          edtd4.Visible := True;
-        end;
-        if LCins.D5.AsString <> '' then
-        begin
-          lbld5.Visible := True;
-          edtd5.Visible := True;
-        end;
-
-        lbls1.Caption := LCins.S1.AsString;
-        lbls2.Caption := LCins.S2.AsString;
-        lbls3.Caption := LCins.S3.AsString;
-        lbls4.Caption := LCins.S4.AsString;
-        lbls5.Caption := LCins.S5.AsString;
-        lbls6.Caption := LCins.S6.AsString;
-        lbls7.Caption := LCins.S7.AsString;
-        lbls8.Caption := LCins.S8.AsString;
-        lbls9.Caption := LCins.S9.AsString;
-        lbls10.Caption := LCins.S10.AsString;
-        lbli1.Caption := LCins.I1.AsString;
-        lbli2.Caption := LCins.I2.AsString;
-        lbli3.Caption := LCins.I3.AsString;
-        lbli4.Caption := LCins.I4.AsString;
-        lbli5.Caption := LCins.I5.AsString;
-        lbld1.Caption := LCins.D1.AsString;
-        lbld2.Caption := LCins.D2.AsString;
-        lbld3.Caption := LCins.D3.AsString;
-        lbld4.Caption := LCins.D4.AsString;
-        lbld5.Caption := LCins.D5.AsString;
-      end;
-    finally
-      LCins.Free;
+    if LCins.S1.Value <> '' then
+    begin
+      lbls1.Visible := True;
+      edts1.Visible := True;
+      lbls1.Caption := LCins.S1.AsString;
+    end else begin
+      lbls1.Visible := False;
+      edts1.Visible := False;
+      lbls1.Caption := '';
     end;
+    if LCins.S2.Value <> '' then
+    begin
+      lbls2.Visible := True;
+      edts2.Visible := True;
+      lbls2.Caption := LCins.S2.AsString;
+    end else begin
+      lbls2.Visible := False;
+      edts2.Visible := False;
+      lbls2.Caption := '';
+    end;
+    if LCins.S3.Value <> '' then
+    begin
+      lbls3.Visible := True;
+      edts3.Visible := True;
+      lbls3.Caption := LCins.S3.AsString;
+    end else begin
+      lbls3.Visible := False;
+      edts3.Visible := False;
+      lbls3.Caption := '';
+    end;
+    if LCins.S4.Value <> '' then
+    begin
+      lbls4.Visible := True;
+      edts4.Visible := True;
+      lbls4.Caption := LCins.S4.AsString;
+    end else begin
+      lbls4.Visible := False;
+      edts4.Visible := False;
+      lbls4.Caption := '';
+    end;
+    if LCins.S5.Value <> '' then
+    begin
+      lbls5.Visible := True;
+      edts5.Visible := True;
+      lbls5.Caption := LCins.S5.AsString;
+    end else begin
+      lbls5.Visible := False;
+      edts5.Visible := False;
+      lbls5.Caption := '';
+    end;
+    if LCins.S6.Value <> '' then
+    begin
+      lbls6.Visible := True;
+      edts6.Visible := True;
+      lbls6.Caption := LCins.S6.AsString;
+    end else begin
+      lbls6.Visible := False;
+      edts6.Visible := False;
+      lbls6.Caption := '';
+    end;
+    if LCins.S7.Value <> '' then
+    begin
+      lbls7.Visible := True;
+      edts7.Visible := True;
+      lbls7.Caption := LCins.S7.AsString;
+    end else begin
+      lbls7.Visible := False;
+      edts7.Visible := False;
+      lbls7.Caption := '';
+    end;
+    if LCins.S8.Value <> '' then
+    begin
+      lbls8.Visible := True;
+      edts8.Visible := True;
+      lbls8.Caption := LCins.S8.AsString;
+    end else begin
+      lbls8.Visible := False;
+      edts8.Visible := False;
+      lbls8.Caption := '';
+    end;
+    if LCins.S9.Value <> '' then
+    begin
+      lbls9.Visible := True;
+      edts9.Visible := True;
+      lbls9.Caption := LCins.S9.AsString;
+    end else begin
+      lbls9.Visible := False;
+      edts9.Visible := False;
+      lbls9.Caption := '';
+    end;
+    if LCins.S10.Value <> '' then
+    begin
+      lbls10.Visible := True;
+      edts10.Visible := True;
+      lbls10.Caption := LCins.S10.AsString;
+    end else begin
+      lbls10.Visible := False;
+      edts10.Visible := False;
+      lbls10.Caption := '';
+    end;
+
+    if LCins.I1.AsString <> '' then
+    begin
+      lbli1.Visible := True;
+      edti1.Visible := True;
+      lbli1.Caption := LCins.I1.AsString;
+    end else begin
+      lbli1.Visible := False;
+      edti1.Visible := False;
+      lbli1.Caption := '';
+    end;
+    if LCins.I2.AsString <> '' then
+    begin
+      lbli2.Visible := True;
+      edti2.Visible := True;
+      lbli2.Caption := LCins.I2.AsString;
+    end else begin
+      lbli2.Visible := False;
+      edti2.Visible := False;
+      lbli2.Caption := '';
+    end;
+    if LCins.I3.AsString <> '' then
+    begin
+      lbli3.Visible := True;
+      edti3.Visible := True;
+      lbli3.Caption := LCins.I3.AsString;
+    end else begin
+      lbli3.Visible := False;
+      edti3.Visible := False;
+      lbli3.Caption := '';
+    end;
+    if LCins.I4.AsString <> '' then
+    begin
+      lbli4.Visible := True;
+      edti4.Visible := True;
+      lbli4.Caption := LCins.I4.AsString;
+    end else begin
+      lbli4.Visible := False;
+      edti4.Visible := False;
+      lbli4.Caption := '';
+    end;
+    if LCins.I5.AsString <> '' then
+    begin
+      lbli5.Visible := True;
+      edti5.Visible := True;
+      lbli5.Caption := LCins.I5.AsString;
+    end else begin
+      lbli5.Visible := False;
+      edti5.Visible := False;
+      lbli5.Caption := '';
+    end;
+
+    if LCins.D1.AsString <> '' then
+    begin
+      lbld1.Visible := True;
+      edtd1.Visible := True;
+      lbld1.Caption := LCins.D1.AsString;
+    end else begin
+      lbld1.Visible := False;
+      edtd1.Visible := False;
+      lbld1.Caption := '';
+    end;
+    if LCins.D2.AsString <> '' then
+    begin
+      lbld2.Visible := True;
+      edtd2.Visible := True;
+      lbld2.Caption := LCins.D2.AsString;
+    end else begin
+      lbld2.Visible := False;
+      edtd2.Visible := False;
+      lbld2.Caption := '';
+    end;
+    if LCins.D3.AsString <> '' then
+    begin
+      lbld3.Visible := True;
+      edtd3.Visible := True;
+      lbld3.Caption := LCins.D3.AsString;
+    end else begin
+      lbld3.Visible := False;
+      edtd3.Visible := False;
+      lbld3.Caption := '';
+    end;
+    if LCins.D4.AsString <> '' then
+    begin
+      lbld4.Visible := True;
+      edtd4.Visible := True;
+      lbld4.Caption := LCins.D4.AsString;
+    end else begin
+      lbld4.Visible := False;
+      edtd4.Visible := False;
+      lbld4.Caption := '';
+    end;
+    if LCins.D5.AsString <> '' then
+    begin
+      lbld5.Visible := True;
+      edtd5.Visible := True;
+      lbld5.Caption := LCins.D5.AsString;
+    end else begin
+      lbld5.Visible := False;
+      edtd5.Visible := False;
+      lbld5.Caption := '';
+    end;
+  finally
+    LCins.Free;
   end;
 end;
 
@@ -771,7 +803,6 @@ begin
   end;
 
   edtcins_id.Text := TStkKart(Table).Cins.AsString;
-  edtcins_idChange(edtcins_id);
   edts1.Text := TStkKart(Table).CinsBilgisi.S1.AsString;
   edts2.Text := TStkKart(Table).CinsBilgisi.S2.AsString;
   edts3.Text := TStkKart(Table).CinsBilgisi.S3.AsString;
@@ -860,15 +891,18 @@ begin
       LInput := TMemoryStream.Create;
       LOutput := TStringStream.Create;
       try
-        imgstok_resim.Picture.Graphic.SaveToStream(LInput);
+        TStkKart(Table).Resim.Value := '';
+        if Assigned(imgstok_resim.Picture.Graphic) then
+          imgstok_resim.Picture.Graphic.SaveToStream(LInput)
+        else if Assigned(imgstok_resim.Picture.Bitmap) then
+          imgstok_resim.Picture.Bitmap.SaveToStream(LInput);
+
         LInput.Position := 0;
         if LInput.Size > 0 then
         begin
           TNetEncoding.Base64.Encode(LInput, LOutput);
           TStkKart(Table).Resim.Value := LOutput.DataString;
-        end
-        else
-          TStkKart(Table).Resim.Value := '';
+        end;
       finally
         LInput.Free;
         LOutput.Free;

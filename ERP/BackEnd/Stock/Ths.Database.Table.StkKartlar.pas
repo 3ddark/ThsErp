@@ -447,7 +447,9 @@ begin
   Self.SelectToList(AFilter, ALock, APermissionControl);
   if Self.List.Count = 1 then
   begin
+    Self.FCinsBilgisi.Clear;
     Self.FCinsBilgisi.SelectToList(' AND ' + Self.CinsBilgisi.StkKartID.QryName + '=' + Self.Id.AsString, ALock, False);
+    Self.FStkResim.Clear;
     Self.FStkResim.SelectToList(' AND ' + Self.FStkResim.StkKartID.QryName + '=' + Self.Id.AsString, ALock, False);
   end;
 end;

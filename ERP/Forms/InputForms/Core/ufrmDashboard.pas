@@ -988,7 +988,6 @@ begin
   inherited;
   GLogger := TLogger.Create;
 
-  FIsFormShow := False;
   GUygulamaAnaDizin := ExtractFilePath(Application.ExeName);
 
   btnClose.Visible := True;
@@ -1095,6 +1094,7 @@ begin
   Caption := Caption + ' v' + APP_VERSION;
 
   SetSession();
+  FIsFormShow := False;
 end;
 
 procedure TfrmDashboard.ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);

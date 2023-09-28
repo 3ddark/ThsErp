@@ -19,6 +19,7 @@ inherited frmStkKart: TfrmStkKart
     inherited pgcMain: TPageControl
       Width = 640
       Height = 479
+      ActivePage = tsCinsOzelligi
       OnChange = pgcMainChange
       ExplicitWidth = 638
       ExplicitHeight = 476
@@ -1242,7 +1243,7 @@ inherited frmStkKart: TfrmStkKart
           AlignWithMargins = True
           Left = 3
           Top = 4
-          Width = 628
+          Width = 626
           Height = 52
           Margins.Top = 4
           Margins.Bottom = 4
@@ -1250,7 +1251,6 @@ inherited frmStkKart: TfrmStkKart
           Color = 14737632
           ParentBackground = False
           TabOrder = 0
-          ExplicitWidth = 626
         end
         object edts9: TEdit
           Left = 145
