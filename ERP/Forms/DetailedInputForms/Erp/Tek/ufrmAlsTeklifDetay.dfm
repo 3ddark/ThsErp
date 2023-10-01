@@ -3,27 +3,27 @@ inherited frmAlsTeklifDetay: TfrmAlsTeklifDetay
   Top = 443
   ActiveControl = btnClose
   Caption = 'Sat'#305#351' Teklif Detay'
-  ClientHeight = 387
-  ClientWidth = 423
+  ClientHeight = 384
+  ClientWidth = 421
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 439
-  ExplicitHeight = 426
+  ExplicitWidth = 437
+  ExplicitHeight = 423
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 423
-    Height = 337
+    Width = 421
+    Height = 334
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 425
     ExplicitHeight = 340
     inherited pgcMain: TPageControl
-      Width = 425
-      Height = 340
+      Width = 423
+      Height = 337
       ExplicitWidth = 425
       ExplicitHeight = 340
       inherited tsMain: TTabSheet
-        ExplicitWidth = 417
-        ExplicitHeight = 312
+        ExplicitWidth = 415
+        ExplicitHeight = 309
         object lblstok_kodu: TLabel
           Left = 35
           Top = 6
@@ -433,8 +433,8 @@ inherited frmAlsTeklifDetay: TfrmAlsTeklifDetay
     end
   end
   inherited pnlBottom: TPanel
-    Top = 339
-    Width = 419
+    Top = 336
+    Width = 417
     ExplicitTop = 342
     ExplicitWidth = 421
     inherited btnAccept: TButton
@@ -447,8 +447,8 @@ inherited frmAlsTeklifDetay: TfrmAlsTeklifDetay
     end
   end
   inherited stbBase: TStatusBar
-    Top = 369
-    Width = 423
+    Top = 366
+    Width = 421
     ExplicitTop = 372
     ExplicitWidth = 425
   end

@@ -425,19 +425,21 @@ end;
 procedure TUrtPaketHammadde.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
 var
   LDty: TUrtPaketHammaddeDetay;
-  n1: Integer;
+  n1, n2: Integer;
 begin
   FreeDetayListContent;
 
   Self.SelectToList(AFilter, ALock, APermissionControl);
-
-  LDty := TUrtPaketHammaddeDetay.Create(Database);
-  try
-    LDty.SelectToList(' AND ' + LDty.HeaderID.QryName + '=' + Self.Id.AsString, ALock, APermissionControl);
-    for n1 := 0 to LDty.List.Count - 1 do
-      TUrtPaketHammadde(Self).AddDetay(TUrtPaketHammaddeDetay(TUrtPaketHammaddeDetay(LDty.List[n1]).Clone));
-  finally
-    FreeAndNil(LDty);
+  for n1 := 0 to List.Count-1 do
+  begin
+    LDty := TUrtPaketHammaddeDetay.Create(Database);
+    try
+      LDty.SelectToList(' AND ' + LDty.HeaderID.QryName + '=' + TUrtPaketHammadde(Self.List[n1]).Id.AsString, ALock, APermissionControl);
+      for n2 := 0 to LDty.List.Count - 1 do
+        TUrtPaketHammadde(Self.List[n1]).AddDetay(TUrtPaketHammaddeDetay(TUrtPaketHammaddeDetay(LDty.List[n2]).Clone));
+    finally
+      FreeAndNil(LDty);
+    end;
   end;
 end;
 

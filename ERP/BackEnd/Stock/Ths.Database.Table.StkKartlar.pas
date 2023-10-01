@@ -443,14 +443,16 @@ begin
 end;
 
 procedure TStkKart.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+var
+  n1: Integer;
 begin
   Self.SelectToList(AFilter, ALock, APermissionControl);
-  if Self.List.Count = 1 then
+  for n1 := 0 to List.Count-1 do
   begin
-    Self.FCinsBilgisi.Clear;
-    Self.FCinsBilgisi.SelectToList(' AND ' + Self.CinsBilgisi.StkKartID.QryName + '=' + Self.Id.AsString, ALock, False);
-    Self.FStkResim.Clear;
-    Self.FStkResim.SelectToList(' AND ' + Self.FStkResim.StkKartID.QryName + '=' + Self.Id.AsString, ALock, False);
+    TStkKart(Self.List[n1]).FCinsBilgisi.Clear;
+    TStkKart(Self.List[n1]).FCinsBilgisi.SelectToList(' AND ' + TStkKart(Self.List[n1]).CinsBilgisi.StkKartID.QryName + '=' + TStkKart(Self.List[n1]).Id.AsString, ALock, False);
+    TStkKart(Self.List[n1]).FStkResim.Clear;
+    TStkKart(Self.List[n1]).FStkResim.SelectToList(' AND ' + TStkKart(Self.List[n1]).FStkResim.StkKartID.QryName + '=' + TStkKart(Self.List[n1]).Id.AsString, ALock, False);
   end;
 end;
 
@@ -481,8 +483,6 @@ end;
 procedure TStkKart.BusinessUpdate(APermissionControl: Boolean);
 var
   LResim: TStkResim;
-  ms: TMemoryStream;
-  LSize: Int64;
 begin
   Self.Update(APermissionControl);
   if Self.FCinsBilgisi.Id.AsInt64 > 0 then
@@ -526,6 +526,8 @@ function TStkKart.Clone: TTable;
 begin
   Result := TStkKart.Create(Database);
   CloneClassContent(Self, Result);
+  CloneClassContent(Self.FCinsBilgisi, TStkKart(Result).FCinsBilgisi);
+  CloneClassContent(Self.FStkResim, TStkKart(Result).FStkResim);
 end;
 
 end.

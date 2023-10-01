@@ -431,14 +431,18 @@ begin
 end;
 
 procedure TPrsPersonel.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+var
+  APrsPersonel: TPrsPersonel;
+  n1: Integer;
 begin
   Self.SelectToList(AFilter, ALock, APermissionControl);
-  if Self.List.Count = 1 then
+  for n1 := 0 to List.Count-1 do
   begin
-    if Self.AdresID.AsInt64 > 0 then
-      Self.Adres.SelectToList(' AND ' + Self.Adres.Id.QryName + '=' + Self.AdresID.AsString, ALock, False)
+    APrsPersonel := TPrsPersonel(Self.List[n1]);
+    if APrsPersonel.AdresID.AsInt64 > 0 then
+      APrsPersonel.Adres.SelectToList(' AND ' + APrsPersonel.Adres.Id.QryName + '=' + APrsPersonel.AdresID.AsString, ALock, False)
     else
-      Self.Adres.Clear;
+      APrsPersonel.Adres.Clear;
   end;
 end;
 

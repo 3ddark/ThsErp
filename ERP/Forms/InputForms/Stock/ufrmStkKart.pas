@@ -9,16 +9,13 @@ uses
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils, Vcl.Grids, Vcl.Imaging.jpeg,
   Vcl.Imaging.pngimage, Vcl.Samples.Spin, Vcl.Menus, Vcl.AppEvnts, Vcl.Buttons,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo,
-  ufrmBase, ufrmBaseInputDB, udm, Ths.Database.Table, System.NetEncoding;
+  ufrmBase, ufrmBaseInputDB, udm, Ths.Database.Table, Vcl.Mask;
 
 type
   TfrmStkKart = class(TfrmBaseInputDB)
-    lblstok_kodu: TLabel;
-    lblstok_adi: TLabel;
     lblstok_grubu_id: TLabel;
     lblolcu_birimi_id: TLabel;
     lblen_az_stok_seviyesi: TLabel;
-    lblis_satilabilir: TLabel;
     lblozel_kod: TLabel;
     lbltanim: TLabel;
     tsCinsOzelligi: TTabSheet;
@@ -116,11 +113,8 @@ type
     edtd3: TEdit;
     lblurun_tipi: TLabel;
     lblen: TLabel;
-    lblboy: TLabel;
-    lblyukseklik: TLabel;
     lblhacim: TLabel;
     lblvalue_hacim: TLabel;
-    lblen_boy_yuseklik_brm: TLabel;
     lblmarka: TLabel;
     lblagirlik: TLabel;
     lbldiib_urun_tanimi: TLabel;
@@ -128,15 +122,12 @@ type
     lblgtip_no: TLabel;
     lbltemin_suresi: TLabel;
     lblagirlik_birim: TLabel;
-    edtstok_kodu: TEdit;
-    edtstok_adi: TEdit;
     edtstok_grubu_id: TEdit;
     edtolcu_birimi_id: TEdit;
     edttemin_suresi: TEdit;
     edtozel_kod: TEdit;
     edtmarka: TEdit;
     edtmensei_id: TEdit;
-    edtgtip_no: TEdit;
     edten: TEdit;
     edtboy: TEdit;
     edtyukseklik: TEdit;
@@ -144,7 +135,6 @@ type
     edten_az_stok_seviyesi: TEdit;
     edtdiib_urun_tanimi: TEdit;
     mmotanim: TMemo;
-    chkis_satilabilir: TCheckBox;
     btnstok_resim: TBitBtn;
     pnlstok_resim: TPanel;
     imgstok_resim: TImage;
@@ -166,7 +156,6 @@ type
     lblalis_iade_hesap_kodu_val: TLabel;
     pnlCinsHeader: TPanel;
     lbltemin_suresi_brm: TLabel;
-    Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     cbburun_tipi: TComboBox;
@@ -198,6 +187,14 @@ type
     edti5: TEdit;
     lbld5: TLabel;
     edtd5: TEdit;
+    edtgtip_no: TMaskEdit;
+    pnlGenelHeader: TPanel;
+    lblstok_kodu: TLabel;
+    lblstok_adi: TLabel;
+    lblis_satilabilir: TLabel;
+    edtstok_kodu: TEdit;
+    edtstok_adi: TEdit;
+    chkis_satilabilir: TCheckBox;
     procedure FormCreate(Sender: TObject); override;
     procedure RefreshData(); override;
     procedure btnAcceptClick(Sender: TObject); override;
@@ -218,7 +215,8 @@ type
 implementation
 
 uses
-  Ths.Globals, Ths.Constants, Ths.Database, Ths.Database.Table.SysErisimHaklari,
+  Ths.Globals, Ths.Constants, Ths.Utils.Images,
+  Ths.Database, Ths.Database.Table.SysErisimHaklari,
   Ths.Database.Table.StkKartlar, ufrmStkKartlar,
   Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
   Ths.Database.Table.StkGruplar, ufrmStkGruplar,
@@ -251,8 +249,7 @@ var
 begin
   LCins := TStkCinsOzelligi.Create(Table.Database);
   try
-    LCins.SelectToList(' AND ' + LCins.Id.QryName + '=' + TStkKart(Table).CinsBilgisi.CinsID.AsString, False, False);
-
+    LCins.SelectToList(' AND ' + LCins.Cins.QryName + '=' + QuotedStr(TStkKart(Table).Cins.AsString), False, False);
     if LCins.S1.Value <> '' then
     begin
       lbls1.Visible := True;
@@ -660,21 +657,51 @@ procedure TfrmStkKart.pgcMainChange(Sender: TObject);
 var
   LGrup: TStkGruplar;
 begin
-  if pgcMain.ActivePage.Name = tsParasal.Name then
+  lblgrup_adi_val.Caption := '';
+  lblsatis_hesap_kodu_val.Caption := '';
+  lblsatis_iade_hesap_kodu_val.Caption := '';
+  lblalis_hesap_kodu_val.Caption := '';
+  lblalis_iade_hesap_kodu_val.Caption := '';
+  lblhammadde_stok_hesap_kodu_val.Caption := '';
+  lblhammadde_kullanim_hesap_kodu_val.Caption := '';
+  lblyari_mamul_hesap_kodu_val.Caption := '';
+  lblgrup_kdv_orani_val.Caption := '';
+
+  lbldonem_basi_miktar_brm.Caption := '';
+  lblgiren_toplam_brm.Caption := '';
+  lblcikan_toplam_brm.Caption := '';
+  lblstok_miktari_brm.Caption := '';
+  lblblokaj_toplam_brm.Caption := '';
+  lblserbest_stok_toplam_brm.Caption := '';
+
+  lbldonem_basi_fiyat_brm.Caption := '';
+  lbldonem_basi_deger_brm.Caption := '';
+  lblstok_degeri_ort_brm.Caption := '';
+  lblstok_degeri_son_brm.Caption := '';
+  lbltoplam_alis_brm.Caption := '';
+  lbltoplam_satis_brm.Caption := '';
+
+  lblozet_satis_brm.Caption := '';
+  lblozet_alis_brm.Caption := '';
+  lblozet_ortalama_maliyet_brm.Caption := '';
+  lblozet_son_alis_brm.Caption := '';
+
+  if pgcMain.ActivePage = tsParasal then
   begin
     lblstok_kodu.Parent := pnlParasalHeader;
     edtstok_kodu.Parent := pnlParasalHeader;
     lblstok_adi.Parent := pnlParasalHeader;
     edtstok_adi.Parent := pnlParasalHeader;
   end
-  else if pgcMain.ActivePage.Name = tsCinsOzelligi.Name then
+  else if pgcMain.ActivePage = tsCinsOzelligi then
   begin
     lblstok_kodu.Parent := pnlCinsHeader;
     edtstok_kodu.Parent := pnlCinsHeader;
     lblstok_adi.Parent := pnlCinsHeader;
     edtstok_adi.Parent := pnlCinsHeader;
+    edtcins_idChange(edtcins_id);
   end
-  else if pgcMain.ActivePage.Name = tsGrupOzellikleri.Name then
+  else if pgcMain.ActivePage = tsGrupOzellikleri then
   begin
     lblstok_kodu.Parent := pnlGrupHeader;
     edtstok_kodu.Parent := pnlGrupHeader;
@@ -703,7 +730,7 @@ begin
       end;
     end;
   end
-  else if pgcMain.ActivePage.Name = tsOzetler.Name then
+  else if pgcMain.ActivePage = tsOzetler then
   begin
     lblstok_kodu.Parent := pnlOzetHeader;
     edtstok_kodu.Parent := pnlOzetHeader;
@@ -737,7 +764,7 @@ begin
     edtstok_adi.Parent := pgcMain.ActivePage;
   end;
 
-  if pgcMain.ActivePage.Name = tsMain.Name then
+  if pgcMain.ActivePage = tsMain then
   begin
     edtstok_kodu.ReadOnly := False;
     edtstok_kodu.TabStop := True;
@@ -758,9 +785,6 @@ begin
 end;
 
 procedure TfrmStkKart.RefreshData();
-var
-  LStream: TMemoryStream;
-  LBytes: TBytes;
 begin
   chkis_satilabilir.Checked := TStkKart(Table).IsSatilabilir.AsBoolean;
   edtstok_kodu.Text := TStkKart(Table).StokKodu.AsString;
@@ -789,18 +813,7 @@ begin
   edten_az_stok_seviyesi.Text := TStkKart(Table).EnAzStokSeviyesi.AsString;
   mmotanim.Text := TStkKart(Table).Tanim.AsString;
 
-  if TStkKart(Table).Resim.AsString <> '' then
-  begin
-    LStream := TMemoryStream.Create;
-    try
-      LBytes := TNetEncoding.Base64.DecodeStringToBytes(TStkKart(Table).Resim.AsString);
-      LStream.Write(LBytes, Length(LBytes));
-      LStream.Position := 0;
-      imgstok_resim.Picture.LoadFromStream(LStream);
-    finally
-      LStream.Free;
-    end;
-  end;
+  TImageProcess.LoadImageFromDB(TStkKart(Table).Resim, imgstok_resim);
 
   edtcins_id.Text := TStkKart(Table).Cins.AsString;
   edts1.Text := TStkKart(Table).CinsBilgisi.S1.AsString;
@@ -824,7 +837,7 @@ begin
   edtd4.Text := TStkKart(Table).CinsBilgisi.D4.AsString;
   edtd5.Text := TStkKart(Table).CinsBilgisi.D5.AsString;
 
-  pgcMainChange(pgcMain);
+  pgcMainChange(pgcMain.ActivePage);
 end;
 
 procedure TfrmStkKart.Repaint;
@@ -853,9 +866,6 @@ begin
 end;
 
 procedure TfrmStkKart.btnAcceptClick(Sender: TObject);
-var
-  LInput: TMemoryStream;
-  LOutput: TStringStream;
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
@@ -888,25 +898,7 @@ begin
       TStkKart(Table).EnAzStokSeviyesi.Value := StrToFloatDef(edten_az_stok_seviyesi.Text, 0);
       TStkKart(Table).Tanim.Value := mmotanim.Text;
 
-      LInput := TMemoryStream.Create;
-      LOutput := TStringStream.Create;
-      try
-        TStkKart(Table).Resim.Value := '';
-        if Assigned(imgstok_resim.Picture.Graphic) then
-          imgstok_resim.Picture.Graphic.SaveToStream(LInput)
-        else if Assigned(imgstok_resim.Picture.Bitmap) then
-          imgstok_resim.Picture.Bitmap.SaveToStream(LInput);
-
-        LInput.Position := 0;
-        if LInput.Size > 0 then
-        begin
-          TNetEncoding.Base64.Encode(LInput, LOutput);
-          TStkKart(Table).Resim.Value := LOutput.DataString;
-        end;
-      finally
-        LInput.Free;
-        LOutput.Free;
-      end;
+      TImageProcess.setValueFromImage(TStkKart(Table).Resim, imgstok_resim);
 
       TStkKart(Table).CinsBilgisi.Cins.Value := edtcins_id.Text;
       TStkKart(Table).CinsBilgisi.S1.Value := edts1.Text;

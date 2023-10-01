@@ -3,27 +3,27 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
   Top = 443
   ActiveControl = btnClose
   Caption = 'Sat'#305#351' Siparis Detay'
-  ClientHeight = 365
-  ClientWidth = 587
+  ClientHeight = 362
+  ClientWidth = 585
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 603
-  ExplicitHeight = 404
+  ExplicitWidth = 601
+  ExplicitHeight = 401
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 587
-    Height = 315
+    Width = 585
+    Height = 312
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 603
     ExplicitHeight = 352
     inherited pgcMain: TPageControl
-      Width = 589
-      Height = 318
+      Width = 587
+      Height = 315
       ExplicitWidth = 601
       ExplicitHeight = 350
       inherited tsMain: TTabSheet
-        ExplicitWidth = 581
-        ExplicitHeight = 290
+        ExplicitWidth = 579
+        ExplicitHeight = 287
         object lblstok_kodu: TLabel
           Left = 35
           Top = 6
@@ -771,8 +771,8 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
     end
   end
   inherited pnlBottom: TPanel
-    Top = 317
-    Width = 583
+    Top = 314
+    Width = 581
     ExplicitTop = 356
     ExplicitWidth = 603
     inherited btnAccept: TButton
@@ -785,8 +785,8 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
     end
   end
   inherited stbBase: TStatusBar
-    Top = 347
-    Width = 587
+    Top = 344
+    Width = 585
     ExplicitTop = 386
     ExplicitWidth = 607
   end

@@ -531,7 +531,6 @@ type
   procedure FillColNameForColSummary(AComboBox: TComboBox; ATableName: string);
   function GetDistinctColumnName(ATableName: string): TStringList;
 
-  procedure getStokResim(AID: Integer; ATableName, AImageFieldName: string; AImage: Timage);
   function ExistForm(AFormClassType: TClass): Boolean;
 
   function FormatMoney(AValue: Double): string;
@@ -2607,26 +2606,6 @@ begin
     Close;
   finally
     Free;
-  end;
-end;
-
-procedure getStokResim(AID: Integer; ATableName, AImageFieldName: string; AImage: Timage);
-var
-  LQry: TZQuery;
-begin
-  AImage.Picture.Bitmap.Assign(nil);
-
-  LQry := GDatabase.NewQuery();
-  try
-    LQry.SQL.Text := 'SELECT ' + AImageFieldName + ' FROM ' + ATableName + ' WHERE id=' + AID.ToString;
-    LQry.Open;
-    if LQry.Fields.Fields[0].IsBlob then
-    begin
-      if not LQry.Fields.Fields[0].IsNull then
-        AImage.Picture.Bitmap.Assign( TBlobField(LQry.Fields.Fields[0]) );
-    end;
-  finally
-    LQry.Free;
   end;
 end;
 

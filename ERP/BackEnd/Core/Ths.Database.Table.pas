@@ -187,9 +187,6 @@ type
   function addJoin(AJoin: TJoinType; ARefTable, ARefField, ATableName, AFieldName: string; ARefTableAlias: string = ''; ACustSQL: string = ''): string;
   function addField(ARefTable, ARefField, AFieldName: string; ARefTableAlias: string = ''): string;
   function addLangField(AFieldName: string; ADataFieldNameDiff: string = ''; IsPureData: Boolean = False): string;
-  function GetVarArrayByteSize(AField: TFieldDB): Int64;
-  procedure setValueFromImage(AField: TFieldDB; AImage: TImage);
-  procedure LoadImageFromDB(AField: TFieldDB; AImage: TImage);
 
 implementation
 
@@ -317,74 +314,6 @@ begin
       Result := 'data_' + AFieldName + '.' + ADataFieldNameDiff + ' AS ' + AFieldName
     else
       Result := 'data_' + AFieldName + '.' + AFieldName + ' AS ' + AFieldName
-  end;
-end;
-
-function GetVarArrayByteSize(AField: TFieldDB): Int64;
-begin
-  Result := 0;
-  if AField.DataType = ftBytes then
-  begin
-    if Length(AField.Value) = 0 then
-      Exit;
-    Result := ( VarArrayHighBound(AField.Value, 1) -
-                VarArrayLowBound(AField.Value, 1) + 1
-              ) * TVarData(AField.Value).VArray^.ElementSize;
-  end;
-end;
-
-procedure setValueFromImage(AField: TFieldDB; AImage: TImage);
-var
-  ms: TMemoryStream;
-  LLen: Int64;
-  LByt: TBytes;
-  LEmpty: array of variant;
-begin
-  ms := TMemoryStream.Create;
-  try
-    if AImage.Picture.Graphic <> nil then
-    begin
-      AImage.Picture.Graphic.SaveToStream(ms);
-      ms.Position := 0;
-      LLen := ms.Size;
-      SetLength(LByt, LLen);
-      ms.Read(Pointer(LByt)^, LLen);
-      AField.Value := LByt;
-    end
-    else
-      AField.Value := LEmpty;
-  finally
-    ms.Free;
-  end;
-end;
-
-procedure LoadImageFromDB(AField: TFieldDB; AImage: TImage);
-var
-  ms: TMemoryStream;
-  LPic: TPicture;
-  LSize: Int64;
-begin
-  AImage.Picture.Assign(nil);
-  if AField.DataType <> ftBytes then
-    Exit;
-
-  if not VarIsNull(AField.Value) then
-  begin
-    LPic := TPicture.Create;
-    ms := TMemoryStream.Create;
-    try
-      LSize := GetVarArrayByteSize(AField);
-      if LSize = 0 then
-        Exit;
-
-      ms.Write(AField.Value, 0, LSize);
-      ms.Position := 0;
-      LPic.LoadFromStream(ms);
-      AImage.Picture.Assign(LPic);
-    finally
-      LPic.Free;
-      ms.Free;
-    end;
   end;
 end;
 

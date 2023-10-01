@@ -27,9 +27,6 @@ type
     FSetChHesapTipi: TSetChHesapTipi;
     FSetChHesapPlani: TChHesapPlani;
 
-    procedure BusinessSelect(AFilter: string; ALock: Boolean; APermissionControl: Boolean); override;
-    procedure BusinessInsert(APermissionControl: Boolean); override;
-    procedure BusinessUpdate(APermissionControl: Boolean); override;
     procedure BusinessDelete(APermissionControl: Boolean); override;
   published
     constructor Create(ADatabase: TDatabase); override;
@@ -79,21 +76,6 @@ begin
   finally
     LHesap.Free;
   end;
-end;
-
-procedure TChHesapKartiAra.BusinessInsert(APermissionControl: Boolean);
-begin
-  Self.Insert(APermissionControl);
-end;
-
-procedure TChHesapKartiAra.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
-begin
-  inherited;
-end;
-
-procedure TChHesapKartiAra.BusinessUpdate(APermissionControl: Boolean);
-begin
-  Self.Update(APermissionControl);
 end;
 
 constructor TChHesapKartiAra.Create(ADatabase: TDatabase);

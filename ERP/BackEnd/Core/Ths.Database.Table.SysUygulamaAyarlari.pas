@@ -117,7 +117,7 @@ begin
 
   Adres := TSysAdres.Create(Database);
 
-  FLogo := TFieldDB.Create('logo', ftBytes, 0, Self, '');
+  FLogo := TFieldDB.Create('logo', ftString, '', Self, '');
   FUnvan := TFieldDB.Create('unvan', ftString, '', Self, '');
   FTelefon := TFieldDB.Create('telefon', ftString, '', Self, '');
   FFaks := TFieldDB.Create('faks', ftString, '', Self, '');
@@ -358,15 +358,19 @@ begin
 end;
 
 procedure TSysUygulamaAyari.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+var
+  ASysUygulamaAyari: TSysUygulamaAyari;
+  n1: Integer;
 begin
   Self.SelectToList(AFilter, ALock, APermissionControl);
-  if Self.List.Count = 1 then
+  for n1 := 0 to List.Count-1 do
   begin
-    if Self.AdresID.AsInt64 > 0 then
-      Self.Adres.SelectToList(' AND ' + Self.Adres.Id.QryName + '=' + Self.AdresID.AsString, ALock, False);
+    ASysUygulamaAyari := TSysUygulamaAyari(List[n1]);
+    if ASysUygulamaAyari.AdresID.AsInt64 > 0 then
+      ASysUygulamaAyari.Adres.SelectToList(' AND ' + ASysUygulamaAyari.Adres.Id.QryName + '=' + ASysUygulamaAyari.AdresID.AsString, ALock, False);
 
-    Self.DigerAyarlarJSon.DisposeOf;
-    Self.DigerAyarlarJSon := TJson.JsonToObject<TSysUygulamaDigerAyarlar>(Self.DigerAyarlar.AsString);
+    ASysUygulamaAyari.DigerAyarlarJSon.DisposeOf;
+    ASysUygulamaAyari.DigerAyarlarJSon := TJson.JsonToObject<TSysUygulamaDigerAyarlar>(ASysUygulamaAyari.DigerAyarlar.AsString);
   end;
 end;
 

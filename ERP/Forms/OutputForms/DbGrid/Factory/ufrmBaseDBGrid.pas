@@ -2240,7 +2240,7 @@ begin
   then
   begin
     if (pFormType = ifmRewiev) or (pFormType = ifmCopyNewRecord) then
-      Table.LogicalSelect(' AND ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value), False, False, False);
+      Table.LogicalSelect(' AND ' + Table.Id.QryName + '=' + Table.Id.AsString, False, False, False);
 
     LForm := CreateInputForm(Sender, pFormType);
     if Table is TTableDetailed then

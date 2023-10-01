@@ -3,32 +3,29 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
   Top = 443
   ActiveControl = btnClose
   Caption = 'Sistem Uygulama Ayarlar'#305
-  ClientHeight = 387
-  ClientWidth = 696
+  ClientHeight = 384
+  ClientWidth = 694
   ParentFont = True
   Position = poDesktopCenter
-  ExplicitWidth = 702
-  ExplicitHeight = 416
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 708
+  ExplicitHeight = 420
+  TextHeight = 15
   inherited pnlMain: TPanel
-    Width = 696
-    Height = 337
+    Width = 694
+    Height = 334
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 696
-    ExplicitHeight = 337
+    ExplicitWidth = 692
+    ExplicitHeight = 331
     inherited pgcMain: TPageControl
-      Width = 696
-      Height = 337
-      ActivePage = tsdiger
-      ExplicitWidth = 696
-      ExplicitHeight = 337
+      Width = 694
+      Height = 334
+      ExplicitWidth = 692
+      ExplicitHeight = 331
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
-        ExplicitWidth = 688
-        ExplicitHeight = 309
+        ExplicitTop = 26
+        ExplicitWidth = 686
+        ExplicitHeight = 304
         object lblunvan: TLabel
           Left = 99
           Top = 6
@@ -77,35 +74,46 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentBiDiMode = False
           ParentFont = False
         end
-        object imglogo: TImage
-          Left = 376
-          Top = 25
-          Width = 320
-          Height = 240
-          Anchors = [akTop, akRight]
-          OnDblClick = imglogoDblClick
-          ExplicitLeft = 360
-        end
         object edtunvan: TEdit
           Left = 137
           Top = 2
           Width = 543
-          Height = 21
+          Height = 23
           TabOrder = 0
         end
         object edttelefon: TEdit
           Left = 137
           Top = 25
           Width = 136
-          Height = 21
+          Height = 23
           TabOrder = 1
         end
         object edtfaks: TEdit
           Left = 137
           Top = 48
           Width = 136
-          Height = 21
+          Height = 23
+          TabOrder = 3
+        end
+        object pnllogo: TPanel
+          Left = 360
+          Top = 25
+          Width = 320
+          Height = 240
+          Caption = 'Logo 320x240'
           TabOrder = 2
+          object imglogo: TImage
+            Left = 1
+            Top = 1
+            Width = 318
+            Height = 238
+            Align = alClient
+            OnDblClick = imglogoDblClick
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 320
+            ExplicitHeight = 240
+          end
         end
       end
       object tsadres: TTabSheet
@@ -339,98 +347,98 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 137
           Top = 25
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 0
         end
         object edtvergi_numarasi: TEdit
           Left = 137
           Top = 48
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 1
         end
         object edtweb: TEdit
           Left = 137
           Top = 87
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 2
         end
         object edtemail: TEdit
           Left = 477
           Top = 87
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 3
         end
         object edtsehir_id: TEdit
           Left = 477
           Top = 125
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 5
         end
         object edtilce: TEdit
           Left = 137
           Top = 148
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 6
         end
         object edtmahalle: TEdit
           Left = 477
           Top = 148
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 7
         end
         object edtsokak: TEdit
           Left = 477
           Top = 194
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 10
         end
         object edtbina_adi: TEdit
           Left = 137
           Top = 217
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 11
         end
         object edtkapi_no: TEdit
           Left = 477
           Top = 217
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 12
         end
         object edtposta_kodu: TEdit
           Left = 477
           Top = 240
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 13
         end
         object edtulke_adi: TEdit
           Left = 137
           Top = 125
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 4
         end
         object edtsemt: TEdit
           Left = 137
           Top = 171
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 8
         end
         object edtcadde: TEdit
           Left = 137
           Top = 194
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 9
         end
       end
@@ -553,35 +561,35 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 137
           Top = 141
           Width = 160
-          Height = 21
+          Height = 23
           TabOrder = 5
         end
         object edtcrypt_key: TEdit
           Left = 137
           Top = 94
           Width = 160
-          Height = 21
+          Height = 23
           TabOrder = 3
         end
         object edtversiyon: TEdit
           Left = 137
           Top = 164
           Width = 160
-          Height = 21
+          Height = 23
           TabOrder = 6
         end
         object edtdonem: TEdit
           Left = 137
           Top = 118
           Width = 160
-          Height = 21
+          Height = 23
           TabOrder = 4
         end
         object edtgrid_renk_aktif: TEdit
           Left = 137
           Top = 71
           Width = 160
-          Height = 21
+          Height = 23
           TabOrder = 2
           OnDblClick = edtgrid_renk_aktifDblClick
           OnExit = edtgrid_renk_aktifExit
@@ -590,7 +598,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 137
           Top = 48
           Width = 160
-          Height = 21
+          Height = 23
           TabOrder = 1
           OnDblClick = edtgrid_renk_2DblClick
           OnExit = edtgrid_renk_2Exit
@@ -599,7 +607,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 137
           Top = 25
           Width = 160
-          Height = 21
+          Height = 23
           TabOrder = 0
           OnDblClick = edtgrid_renk_1DblClick
           OnExit = edtgrid_renk_1Exit
@@ -740,21 +748,21 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 477
           Top = 3
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 0
         end
         object edtmail_kullanici: TEdit
           Left = 477
           Top = 26
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 1
         end
         object edtmail_sifre: TEdit
           Left = 477
           Top = 49
           Width = 200
-          Height = 21
+          Height = 23
           PasswordChar = '#'
           TabOrder = 2
         end
@@ -762,28 +770,28 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 477
           Top = 72
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 3
         end
         object edtsms_sunucu: TEdit
           Left = 477
           Top = 158
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 4
         end
         object edtsms_kullanici: TEdit
           Left = 477
           Top = 181
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 5
         end
         object edtsms_sifre: TEdit
           Left = 477
           Top = 204
           Width = 200
-          Height = 21
+          Height = 23
           PasswordChar = '#'
           TabOrder = 6
         end
@@ -791,7 +799,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 477
           Top = 227
           Width = 200
-          Height = 21
+          Height = 23
           TabOrder = 7
         end
       end
@@ -844,7 +852,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 160
           Top = 2
           Width = 462
-          Height = 21
+          Height = 23
           TabOrder = 0
         end
         object btnpath_stok_karti_resim: TButton
@@ -860,7 +868,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 160
           Top = 50
           Width = 462
-          Height = 21
+          Height = 23
           TabOrder = 4
         end
         object btnpath_guncelleme: TButton
@@ -876,7 +884,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 160
           Top = 26
           Width = 462
-          Height = 21
+          Height = 23
           TabOrder = 2
         end
         object btnpath_personel_karti_resim: TButton
@@ -892,24 +900,24 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
     end
   end
   inherited pnlBottom: TPanel
-    Top = 339
-    Width = 692
-    ExplicitTop = 339
-    ExplicitWidth = 692
+    Top = 336
+    Width = 690
+    ExplicitTop = 333
+    ExplicitWidth = 688
     inherited btnAccept: TButton
-      Left = 486
-      ExplicitLeft = 486
+      Left = 484
+      ExplicitLeft = 482
     end
     inherited btnClose: TButton
-      Left = 590
-      ExplicitLeft = 590
+      Left = 588
+      ExplicitLeft = 586
     end
   end
   inherited stbBase: TStatusBar
-    Top = 369
-    Width = 696
-    ExplicitTop = 369
-    ExplicitWidth = 696
+    Top = 366
+    Width = 694
+    ExplicitTop = 363
+    ExplicitWidth = 692
   end
   inherited AppEvntsBase: TApplicationEvents
     Left = 280

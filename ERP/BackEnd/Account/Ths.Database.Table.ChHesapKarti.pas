@@ -533,14 +533,16 @@ begin
 end;
 
 procedure TChHesapKarti.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+var
+  n1: Integer;
 begin
   Self.SelectToList(AFilter, ALock, APermissionControl);
-  if Self.List.Count = 1 then
+  for n1 := 0 to List.Count-1 do
   begin
-    if Self.AdresID.AsInt64 > 0 then
-      Self.Adres.SelectToList(' AND ' + Self.Adres.Id.QryName + '=' + Self.AdresID.AsString, ALock, False)
+    if TChHesapKarti(Self.List[n1]).AdresID.AsInt64 > 0 then
+      TChHesapKarti(Self.List[n1]).Adres.SelectToList(' AND ' + TChHesapKarti(Self.List[n1]).Adres.Id.QryName + '=' + TChHesapKarti(Self.List[n1]).AdresID.AsString, ALock, False)
     else
-      Self.Adres.Clear;
+      TChHesapKarti(Self.List[n1]).Adres.Clear;
   end;
 end;
 
@@ -571,6 +573,7 @@ function TChHesapKarti.Clone: TTable;
 begin
   Result := TChHesapKarti.Create(Database);
   CloneClassContent(Self, Result);
+  CloneClassContent(Self.Adres, TChHesapKarti(Result).Adres);
 end;
 
 end.

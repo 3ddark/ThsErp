@@ -275,7 +275,8 @@ uses
   ufrmAlsTeklifler in 'Forms\OutputForms\DbGrid\Erp\Tek\ufrmAlsTeklifler.pas' {frmAlsTeklifler},
   ufrmAlsTeklifDetaylar in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetaylar.pas' {frmAlsTeklifDetaylar},
   ufrmAlsTeklifDetay in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetay.pas' {frmAlsTeklifDetay},
-  Ths.Database.Table.StkKartCinsBilgileri in 'BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas';
+  Ths.Database.Table.StkKartCinsBilgileri in 'BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas',
+  Ths.Utils.Images in 'BackEnd\Tools\Ths.Utils.Images.pas';
 
 {$R *.res}
 

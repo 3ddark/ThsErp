@@ -750,6 +750,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas"/>
+        <DCCReference Include="BackEnd\Tools\Ths.Utils.Images.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

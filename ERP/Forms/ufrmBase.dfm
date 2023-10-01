@@ -115,7 +115,7 @@ object frmBase: TfrmBase
       ImageMargins.Right = 2
       Images = dm.il16
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 2
       OnClick = btnAcceptClick
       ExplicitLeft = 392
     end
@@ -169,7 +169,7 @@ object frmBase: TfrmBase
       ImageMargins.Right = 2
       Images = dm.il16
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 1
       OnClick = btnDeleteClick
     end
   end

@@ -17,7 +17,6 @@ type
     lblunvan: TLabel;
     lbltelefon: TLabel;
     lblfaks: TLabel;
-    imglogo: TImage;
     edtunvan: TEdit;
     edttelefon: TEdit;
     edtfaks: TEdit;
@@ -92,6 +91,8 @@ type
     lblpath_personel_karti_resim: TLabel;
     edtpath_personel_karti_resim: TEdit;
     btnpath_personel_karti_resim: TButton;
+    pnllogo: TPanel;
+    imglogo: TImage;
     procedure imglogoDblClick(Sender: TObject);
     procedure edtgrid_renk_1DblClick(Sender: TObject);
     procedure edtgrid_renk_2DblClick(Sender: TObject);
@@ -120,8 +121,7 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Constants,
+  Ths.Globals, Ths.Constants, Ths.Utils.Images,
   Ths.Database.Table,
   Ths.Database.Table.SysLisanlar,
   Ths.Database.Table.SysUygulamaAyarlari,
@@ -314,12 +314,12 @@ begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
   begin
     if CustomMsgDlg(
-        'Do you want to save the current picture?',
+        'Mevcut logoyu kayýt etmek istiyor musun?',
         mtConfirmation,
         mbYesNo,
-        ['Yes Save', 'No Upload new'],
+        ['Evet Kaydet', 'Hayýr Yenisini Yükle'],
         mbNo,
-        'Confirmation') = mrYes
+        'Kullanýcý Onayý') = mrYes
     then
     begin
       imglogo.Picture.SaveToFile(GetDialogSave('', FILE_FILTER_IMAGE, ''));
@@ -355,7 +355,7 @@ begin
         LStream.LoadFromFile(pFileName);
         LStream.Position := 0;
         LImgJ.LoadFromStream(LStream);
-        imglogo.Picture.Graphic.Assign(LImgJ);
+        imglogo.Picture.Bitmap.Assign(LImgJ);
       finally
         LImgJ.Free;
       end;
@@ -367,7 +367,7 @@ begin
         LStream.LoadFromFile(pFileName);
         LStream.Position := 0;
         LImgP.LoadFromStream(LStream);
-        imglogo.Picture.Graphic.Assign(LImgP);
+        imglogo.Picture.Bitmap.Assign(LImgP);
       finally
         LImgP.Free;
       end;
@@ -380,13 +380,13 @@ begin
   begin
     imgLogo.Picture.Assign(nil);
     DrawEmptyImage;
-    raise Exception.Create('Logo width can be up to 640px');
+    raise Exception.Create('Logo geniþliði en fazla 640px olabilir.');
   end;
   if imgLogo.Picture.Bitmap.Height > 480 then
   begin
     imgLogo.Picture.Assign(nil);
     DrawEmptyImage;
-    raise Exception.Create('Logo height can be up to 480px');
+    raise Exception.Create('Logo yüksekliði en fazla 480px olabilir.');
   end;
 
   imgLogo.Width := imgLogo.Picture.Bitmap.Width;
@@ -400,7 +400,7 @@ begin
   edttelefon.Text := TSysUygulamaAyari(Table).Telefon.AsString;
   edtfaks.Text := TSysUygulamaAyari(Table).Faks.AsString;
 
-  LoadImageFromDB(TSysUygulamaAyari(Table).Logo, imglogo);
+  TImageProcess.LoadImageFromDB(TSysUygulamaAyari(Table).Logo, imglogo);
 
   edtgrid_renk_1.Text := TSysUygulamaAyari(Table).GridRenk1.AsString;
   edtgrid_renk_2.Text := TSysUygulamaAyari(Table).GridRenk2.AsString;
@@ -503,7 +503,7 @@ begin
       TSysUygulamaAyari(Table).Telefon.Value := edttelefon.Text;
       TSysUygulamaAyari(Table).Faks.Value := edtfaks.Text;
 
-      setValueFromImage(TSysUygulamaAyari(Table).Logo, imglogo);
+      TImageProcess.setValueFromImage(TSysUygulamaAyari(Table).Logo, imglogo);
 
       TSysUygulamaAyari(Table).GridRenk1.Value := edtgrid_renk_1.Text;
       TSysUygulamaAyari(Table).GridRenk2.Value := edtgrid_renk_2.Text;

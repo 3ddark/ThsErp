@@ -76,7 +76,7 @@ type
 implementation
 
 uses
-  Ths.Constants,
+  Ths.Constants, Ths.Utils.Images,
   Ths.Database.Table.AlsTeklifler, ufrmAlsTeklifDetaylar,
   Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
   Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
@@ -287,7 +287,7 @@ begin
               if (Trim(edtiskonto_orani.Text) = '') then  edtiskonto_orani.Text := '0';
 
               TAlsTeklifDetay(Table).StokResim.Value := TStkKart(LFrmStk.Table).Resim.Value;
-              LoadImageFromDB(TStkKart(LFrmStk.Table).Resim, imgstok_resim);
+              TImageProcess.LoadImageFromDB(TStkKart(LFrmStk.Table).Resim, imgstok_resim);
               edtgtip_no.Text := TStkKart(LFrmStk.Table).GtipNo.AsString;
             end;
           end;
@@ -329,7 +329,7 @@ begin
   CalculateTotals;
 
   if Length(TAlsTeklifDetay(Table).StokResim.AsString) > 10 then
-    LoadImageFromDB(TAlsTeklifDetay(Table).StokResim, imgstok_resim);
+    TImageProcess.LoadImageFromDB(TAlsTeklifDetay(Table).StokResim, imgstok_resim);
 end;
 
 function TfrmAlsTeklifDetay.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
