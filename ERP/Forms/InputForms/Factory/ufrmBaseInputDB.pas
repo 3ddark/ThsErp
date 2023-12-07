@@ -27,6 +27,9 @@ type
     procedure FormKeyPress(Sender: TObject; var Key: Char); override;
     procedure FormResize(Sender: TObject); override;
     procedure FormPaint(Sender: TObject); override;
+  private
+    procedure RefreshParentGrid(AFocusSelectedItem: Boolean);
+    procedure FocusFirstControl;
   protected
     procedure ResetSession();virtual;
     function SetSession():Boolean;virtual;
@@ -62,40 +65,37 @@ type
 implementation
 
 uses
-  ufrmCalculator,
-  ufrmBaseDBGrid,
-  Ths.Constants,
-  Ths.Globals;
+  ufrmCalculator, ufrmBaseDBGrid, Ths.Constants, Ths.Globals;
 
 {$R *.dfm}
 
 procedure TfrmBaseInputDB.btnSpinDownClick(Sender: TObject);
 begin
-  if (Self.ParentForm <> nil) then//and (Self.ParentForm.Name = 'frmBaseDBGrid') then
-  begin
-    if TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.RecNo < TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.RecordCount then
-    begin
-      TfrmBaseDBGrid(ParentForm).MoveUp;
+  if (Self.ParentForm = nil) then
+    Exit;
 
-      Table.LogicalSelect(' and ' + Table.Id.QryName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), False, False, False);
-      DefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value);
-      RefreshData;
-    end;
+  if TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.RecNo < TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.RecordCount then
+  begin
+    TfrmBaseDBGrid(ParentForm).MoveUp;
+
+    Table.LogicalSelect(' and ' + Table.Id.QryName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), False, False, False);
+    DefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value);
+    RefreshData;
   end;
 end;
 
 procedure TfrmBaseInputDB.btnSpinUpClick(Sender: TObject);
 begin
-  if (Self.ParentForm <> nil) then//and (Self.ParentForm.Name = 'frmBaseDBGrid') then
-  begin
-    if TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.RecNo > 1 then
-    begin
-      TfrmBaseDBGrid(ParentForm).MoveDown;
+  if (Self.ParentForm = nil) then
+    Exit;
 
-      Table.LogicalSelect(' and ' + Table.Id.QryName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), false, false, False);
-      DefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value);
-      RefreshData;
-    end;
+  if TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.RecNo > 1 then
+  begin
+    TfrmBaseDBGrid(ParentForm).MoveDown;
+
+    Table.LogicalSelect(' and ' + Table.Id.QryName + '=' + IntToStr(TfrmBaseDBGrid(ParentForm).Table.Id.Value), false, false, False);
+    DefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + IntToStr(Table.Id.Value);
+    RefreshData;
   end;
 end;
 
@@ -107,9 +107,7 @@ begin
     begin
       if (Table.LogicalDelete(True, False)) then
       begin
-//        if Assigned(ParentForm) then
-//          TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.Refresh;
-
+        RefreshParentGrid(False);
         ModalResult := mrOK;
         Close;
       end
@@ -131,7 +129,6 @@ end;
 
 procedure TfrmBaseInputDB.btnAcceptClick(Sender: TObject);
 var
-  nIndex : integer;
   LTable: TTable;
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
@@ -142,13 +139,8 @@ begin
       begin
         if (Table.LogicalInsert(True, WithCommitTransaction, False)) then
         begin
-          if (Self.ParentForm <> nil) then//and (Self.ParentForm.Name = 'frmBaseDBGrid') then
-//          begin
-//            TfrmBaseDBGrid(Self.ParentForm).Table.Id.Value := id;
-//            TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.Refresh;
-//          end;
+          RefreshParentGrid(True);
           ModalResult := mrOK;
-
           Close;
         end
         else
@@ -169,8 +161,7 @@ begin
 //        raise Exception.Create(GetTextFromLang('There is an active transaction. Complete it first!', FrameworkLang.WarningActiveTransaction, LngWarning, LngSystem));
 //      end;
   end
-  else
-  if (FormMode = ifmUpdate) then
+  else if (FormMode = ifmUpdate) then
   begin
     if CustomMsgDlg('Kaydý güncelleme istediðinden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý') = mrYes then
     begin
@@ -180,8 +171,7 @@ begin
       begin
         if (Table.LogicalUpdate(WithCommitTransaction, True)) then
         begin
-//          if Assigned(ParentForm) then
-//            TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.Refresh;
+          RefreshParentGrid(True);
           ModalResult := mrOK;
           Close;
         end
@@ -238,27 +228,13 @@ begin
 
         Repaint;
 
-        //burada varsa ilk komponent setfocus yapýlmalý
-        for nIndex := 0 to pnlMain.ControlCount-1 do
-        begin
-          if TControl(pnlMain.Controls[nIndex]) is TWinControl then
-          begin
-            if TWinControl(pnlMain.Controls[nIndex]).Visible and TWinControl(pnlMain.Controls[nIndex]).Enabled then
-            begin
-              TWinControl(pnlMain.Controls[nIndex]).SetFocus;
-              break;
-            end;
-          end;
-        end;
+        FocusFirstControl;
 
         btnDelete.Left := btnAccept.Left-btnDelete.Width;
       end;
     end
     else
-    begin
       CustomMsgDlg('Aktif bir kayýt güncellemeniz var. Önce açýk olan iþleminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
-    end;
-
   end;
 end;
 
@@ -285,8 +261,7 @@ begin
     btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
     btnAccept.Width := Max(100, btnAccept.Width);
   end
-  else
-  if FormMode = ifmRewiev then
+  else if FormMode = ifmRewiev then
   begin
     btnAccept.Visible := True;
     btnClose.Visible := True;
@@ -434,6 +409,39 @@ end;
 procedure TfrmBaseInputDB.RefreshData;
 begin
   RefreshDataAuto;
+end;
+
+procedure TfrmBaseInputDB.FocusFirstControl;
+var
+  n1: Integer;
+begin
+  for n1 := 0 to pgcMain.ActivePage.ControlCount - 1 do
+  begin
+    if TControl(pgcMain.ActivePage.Controls[n1]) is TWinControl then
+    begin
+      if TWinControl(pgcMain.ActivePage.Controls[n1]).Visible and TWinControl(pgcMain.ActivePage.Controls[n1]).Enabled and ((TWinControl(pgcMain.ActivePage.Controls[n1]).ClassType = TEdit) or (TWinControl(pgcMain.ActivePage.Controls[n1]).ClassType = TCombobox) or (TWinControl(pgcMain.ActivePage.Controls[n1]).ClassType = TCheckBox)) then
+      begin
+        TWinControl(pgcMain.ActivePage.Controls[n1]).SetFocus;
+        break;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmBaseInputDB.RefreshParentGrid(AFocusSelectedItem: Boolean);
+begin
+  if ParentForm <> nil then
+  begin
+    if ParentForm is TfrmBaseDBGrid then
+    begin
+      (ParentForm as TfrmBaseDBGrid).grd.DataSource.DataSet.Refresh;
+      if AFocusSelectedItem then
+      begin
+        TfrmBaseDBGrid(ParentForm).Table.Id.Value := Table.Id.Value;
+        TfrmBaseDBGrid(ParentForm).grd.DataSource.DataSet.Locate(Table.Id.FieldName, Table.Id.AsInteger, [loCaseInsensitive]);
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmBaseInputDB.RefreshDataAuto;

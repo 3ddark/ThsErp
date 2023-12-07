@@ -7,7 +7,8 @@ interface
 uses
   System.SysUtils,
   Data.DB,
-  ZDataset,
+  FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client,
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.Table.View;
@@ -65,7 +66,7 @@ end;
 
 procedure TSysViewTables.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;

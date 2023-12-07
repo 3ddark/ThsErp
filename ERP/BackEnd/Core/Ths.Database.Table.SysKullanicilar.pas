@@ -5,14 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  Data.DB,
-  ZDataset,
-  ZAbstractRODataset,
-  ZAbstractDataset,
-  Ths.Database,
-  Ths.Database.Table,
-  Ths.Database.Table.PrsPersoneller;
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  Ths.Database, Ths.Database.Table, Ths.Database.Table.PrsPersoneller;
 
 type
   TKullaniciStruct = record
@@ -63,9 +57,7 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Constants,
-  Ths.Database.Table.SysErisimHaklari,
+  Ths.Globals, Ths.Constants, Ths.Database.Table.SysErisimHaklari,
   Ths.Database.Table.SysKaynaklar;
 
 constructor TSysKullanici.Create(ADatabase: TDatabase);
@@ -147,7 +139,7 @@ end;
 
 procedure TSysKullanici.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
   LEmployee: TPrsPersonel;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
@@ -195,7 +187,7 @@ end;
 
 procedure TSysKullanici.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -224,7 +216,7 @@ end;
 
 procedure TSysKullanici.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -251,7 +243,7 @@ procedure TSysKullanici.BusinessInsert(APermissionControl: Boolean);
 var
   LAccessRight: TSysErisimHakki;
   LResource: TSysKaynak;
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   Insert(APermissionControl);
   LAccessRight := TSysErisimHakki.Create(Database);
@@ -286,7 +278,7 @@ procedure TSysKullanici.CopyUserRightFromUser(AFromUserID: Integer);
 var
   LAccessRight: TSysErisimHakki;
   LResource: TSysKaynak;
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LAccessRight := TSysErisimHakki.Create(Database);
   LResource := TSysKaynak.Create(Database);
@@ -332,7 +324,7 @@ end;
 
 procedure TSysKullanici.CopyFromRights(FromUserID, ToUserID: Integer);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
   LAccessRight: TSysErisimHakki;
 begin
   LQry := GDataBase.NewQuery();

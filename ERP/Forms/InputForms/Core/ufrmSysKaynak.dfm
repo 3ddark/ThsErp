@@ -1,7 +1,7 @@
 inherited frmSysKaynak: TfrmSysKaynak
   Left = 501
   Top = 443
-  Caption = 'System Resource'
+  Caption = 'Sistem Kaynak'
   ClientHeight = 147
   ClientWidth = 349
   ParentFont = True
@@ -13,25 +13,25 @@ inherited frmSysKaynak: TfrmSysKaynak
     Height = 97
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 359
-    ExplicitHeight = 117
+    ExplicitWidth = 349
+    ExplicitHeight = 97
     inherited pgcMain: TPageControl
-      Width = 351
-      Height = 101
-      ExplicitWidth = 351
-      ExplicitHeight = 101
+      Width = 349
+      Height = 97
+      ExplicitWidth = 349
+      ExplicitHeight = 97
       inherited tsMain: TTabSheet
         ExplicitTop = 26
-        ExplicitWidth = 343
-        ExplicitHeight = 71
-        object lblresource_group_id: TLabel
-          Left = 18
+        ExplicitWidth = 341
+        ExplicitHeight = 67
+        object lblkaynak_grup_id: TLabel
+          Left = 29
           Top = 5
-          Width = 90
+          Width = 79
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Resource Group'
+          Caption = 'Kaynak Grubu'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -40,14 +40,14 @@ inherited frmSysKaynak: TfrmSysKaynak
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblresource_code: TLabel
-          Left = 24
+        object lblkaynak_kodu: TLabel
+          Left = 35
           Top = 27
-          Width = 84
+          Width = 73
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Resource Code'
+          Caption = 'Kaynak Kodu'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -56,14 +56,14 @@ inherited frmSysKaynak: TfrmSysKaynak
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblresource_name: TLabel
-          Left = 20
+        object lblkaynak_adi: TLabel
+          Left = 45
           Top = 49
-          Width = 88
+          Width = 63
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Resource Name'
+          Caption = 'Kaynak Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -72,21 +72,21 @@ inherited frmSysKaynak: TfrmSysKaynak
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtresource_group_id: TEdit
+        object edtkaynak_grup_id: TEdit
           Left = 114
           Top = 2
           Width = 223
           Height = 23
           TabOrder = 0
         end
-        object edtresource_code: TEdit
+        object edtkaynak_kodu: TEdit
           Left = 114
           Top = 24
           Width = 223
           Height = 23
           TabOrder = 1
         end
-        object edtresource_name: TEdit
+        object edtkaynak_adi: TEdit
           Left = 114
           Top = 46
           Width = 223
@@ -99,21 +99,21 @@ inherited frmSysKaynak: TfrmSysKaynak
   inherited pnlBottom: TPanel
     Top = 99
     Width = 345
-    ExplicitTop = 119
-    ExplicitWidth = 355
+    ExplicitTop = 99
+    ExplicitWidth = 345
     inherited btnAccept: TButton
-      Left = 149
-      ExplicitLeft = 149
+      Left = 139
+      ExplicitLeft = 139
     end
     inherited btnClose: TButton
-      Left = 253
-      ExplicitLeft = 253
+      Left = 243
+      ExplicitLeft = 243
     end
   end
   inherited stbBase: TStatusBar
     Top = 129
     Width = 349
-    ExplicitTop = 149
-    ExplicitWidth = 359
+    ExplicitTop = 129
+    ExplicitWidth = 349
   end
 end

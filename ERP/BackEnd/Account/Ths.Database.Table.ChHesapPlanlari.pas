@@ -7,7 +7,8 @@ interface
 uses
   System.SysUtils,
   Data.DB,
-  ZDataset,
+  FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet,
   Ths.Database,
   Ths.Database.Table;
 
@@ -77,7 +78,7 @@ end;
 
 procedure TChHesapPlani.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -113,7 +114,7 @@ end;
 
 procedure TChHesapPlani.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -135,7 +136,7 @@ end;
 
 procedure TChHesapPlani.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -170,8 +171,8 @@ begin
       Open;
 
       if (not Fields.Fields[0].IsNull) and (Fields.Fields[0].AsInteger > 0) then
-        CreateExceptionByLang('Hesap Planýna baðlý Cari Hesap olan kayýtlar silinemez!' + AddLBs(2) +
-                              'Önce Cari Hesap Kartýný silin!', '999999');
+        raise Exception.Create(Trim('Hesap Planýna baðlý Cari Hesap olan kayýtlar silinemez!' + AddLBs(2) +
+                              'Önce Cari Hesap Kartýný silin! + 999999'));
     finally
       Free;
     end;

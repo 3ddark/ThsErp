@@ -1,38 +1,37 @@
 inherited frmSysGridKolon: TfrmSysGridKolon
   Left = 501
   Top = 443
-  Caption = 'System Grid Column'
-  ClientHeight = 361
+  Caption = 'Sistem Grid Kolon'
+  ClientHeight = 374
   ClientWidth = 595
   ParentFont = True
-  ExplicitWidth = 601
-  ExplicitHeight = 390
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 611
+  ExplicitHeight = 413
+  TextHeight = 15
   inherited pnlMain: TPanel
     Width = 595
-    Height = 311
+    Height = 324
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 595
     ExplicitHeight = 311
     inherited pgcMain: TPageControl
       Width = 595
-      Height = 311
+      Height = 324
       ExplicitWidth = 595
-      ExplicitHeight = 311
+      ExplicitHeight = 324
       inherited tsMain: TTabSheet
-        ExplicitTop = 24
+        ExplicitTop = 26
         ExplicitWidth = 587
-        ExplicitHeight = 283
-        object lbltable_name: TLabel
-          Left = 90
+        ExplicitHeight = 294
+        object lbltablo_adi: TLabel
+          Left = 104
           Top = 5
-          Width = 66
+          Width = 52
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Table Name'
+          Caption = 'Tablo Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -41,14 +40,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcolumn_name: TLabel
-          Left = 79
+        object lblkolon_adi: TLabel
+          Left = 104
           Top = 27
-          Width = 77
+          Width = 52
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Column Name'
+          Caption = 'Kolon Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -57,14 +56,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcol_width: TLabel
-          Left = 123
+        object lblkolon_genislik: TLabel
+          Left = 112
           Top = 71
-          Width = 33
+          Width = 44
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Width'
+          Caption = 'Geni'#351'lik'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -73,14 +72,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblseq_no: TLabel
-          Left = 84
+        object lblsira_no: TLabel
+          Left = 117
           Top = 49
-          Width = 72
+          Width = 39
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Sequence No'
+          Caption = 'S'#305'ra No'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -89,14 +88,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_show: TLabel
-          Left = 120
+        object lblis_gorunur: TLabel
+          Left = 110
           Top = 115
-          Width = 36
+          Width = 46
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Show?'
+          Caption = 'G'#246'r'#252'n'#252'r'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -105,14 +104,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_show_helper: TLabel
-          Left = 80
+        object lblis_helper_gorunur: TLabel
+          Left = 58
           Top = 137
-          Width = 76
+          Width = 98
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Show Helper?'
+          Caption = 'Yard'#305'mc'#305' G'#246'r'#252'n'#252'r'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -121,14 +120,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmax_color: TLabel
-          Left = 68
+        object lblmax_renk: TLabel
+          Left = 62
           Top = 241
-          Width = 88
+          Width = 94
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Maximum Color'
+          Caption = 'Maksimum Renk'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -137,14 +136,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmax_value: TLabel
-          Left = 66
+        object lblmax_deger: TLabel
+          Left = 57
           Top = 219
-          Width = 90
+          Width = 99
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Maximum Value'
+          Caption = 'Maksimum De'#287'er'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -153,14 +152,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmin_color: TLabel
+        object lblmin_renk: TLabel
           Left = 72
           Top = 197
           Width = 84
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Minimum Color'
+          Caption = 'Minimum Renk'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -169,14 +168,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmin_value: TLabel
-          Left = 70
+        object lblmin_deger: TLabel
+          Left = 67
           Top = 175
-          Width = 86
+          Width = 89
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Minimum Value'
+          Caption = 'Minimum De'#287'er'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -186,19 +185,19 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentFont = False
         end
         object imgexample_bar: TImage
-          Left = 425
+          Left = 329
           Top = 261
-          Width = 150
+          Width = 246
           Height = 25
         end
-        object lblcolor_bar: TLabel
-          Left = 368
+        object lblbar_rengi: TLabel
+          Left = 365
           Top = 197
-          Width = 51
+          Width = 54
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Color Bar'
+          Caption = 'Bar Rengi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -207,14 +206,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcolor_bar_back: TLabel
-          Left = 338
+        object lblbar_arka_rengi: TLabel
+          Left = 335
           Top = 219
-          Width = 81
+          Width = 84
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Color Bar Back'
+          Caption = 'Bar Arka Rengi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -223,14 +222,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcolor_bar_text: TLabel
+        object lblbar_yazi_rengi: TLabel
           Left = 339
           Top = 241
           Width = 80
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Color Bar Text'
+          Caption = 'Bar Yaz'#305' Rengi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -239,14 +238,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmax_value_percent: TLabel
-          Left = 329
+        object lblmaks_deger_yuzdesi: TLabel
+          Left = 270
           Top = 175
-          Width = 90
+          Width = 149
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Maximum Value'
+          Caption = 'Maksimum Y'#252'zdelik De'#287'er'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -255,14 +254,14 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lbldata_format: TLabel
-          Left = 85
+        object lblveri_formati: TLabel
+          Left = 87
           Top = 93
-          Width = 71
+          Width = 69
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Data Format'
+          Caption = 'Veri Format'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -271,122 +270,122 @@ inherited frmSysGridKolon: TfrmSysGridKolon
           ParentBiDiMode = False
           ParentFont = False
         end
-        object cbbtable_name: TComboBox
+        object cbbtablo_adi: TComboBox
           Left = 162
           Top = 2
           Width = 239
-          Height = 21
+          Height = 23
           TabOrder = 0
-          OnChange = cbbtable_nameChange
+          OnChange = cbbtablo_adiChange
         end
-        object cbbcolumn_name: TComboBox
+        object cbbkolon_adi: TComboBox
           Left = 162
           Top = 24
           Width = 239
-          Height = 21
+          Height = 23
           TabOrder = 1
         end
-        object edtseq_no: TEdit
+        object edtsira_no: TEdit
           Left = 162
           Top = 46
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 2
         end
-        object edtcol_width: TEdit
+        object edtkolon_genislik: TEdit
           Left = 162
           Top = 68
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 3
         end
-        object edtdata_format: TEdit
+        object edtveri_formati: TEdit
           Left = 162
           Top = 90
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 4
         end
-        object chkis_show: TCheckBox
+        object chkis_gorunur: TCheckBox
           Left = 162
           Top = 112
           Width = 150
           Height = 21
           TabOrder = 5
         end
-        object chkis_show_helper: TCheckBox
+        object chkis_helper_gorunur: TCheckBox
           Left = 162
           Top = 134
           Width = 150
           Height = 21
           TabOrder = 6
         end
-        object edtmin_value: TEdit
+        object edtmin_deger: TEdit
           Left = 162
           Top = 172
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 7
         end
-        object edtmin_color: TEdit
+        object edtmin_renk: TEdit
           Left = 162
           Top = 194
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 9
-          OnDblClick = edtmin_colorDblClick
+          OnDblClick = edtmin_renkDblClick
         end
-        object edtmax_value: TEdit
+        object edtmax_deger: TEdit
           Left = 162
           Top = 216
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 11
         end
-        object edtmax_color: TEdit
+        object edtmax_renk: TEdit
           Left = 162
           Top = 238
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 13
-          OnDblClick = edtmax_colorDblClick
+          OnDblClick = edtmax_renkDblClick
         end
-        object edtmax_value_percent: TEdit
+        object edtmaks_deger_yuzdesi: TEdit
           Left = 425
           Top = 172
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 8
         end
-        object edtcolor_bar: TEdit
+        object edtbar_rengi: TEdit
           Left = 425
           Top = 194
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 10
-          OnDblClick = edtcolor_barDblClick
+          OnDblClick = edtbar_rengiDblClick
         end
-        object edtcolor_bar_back: TEdit
+        object edtbar_arka_rengi: TEdit
           Left = 425
           Top = 216
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 12
-          OnDblClick = edtcolor_bar_backDblClick
+          OnDblClick = edtbar_arka_rengiDblClick
         end
-        object edtcolor_bar_text: TEdit
+        object edtbar_yazi_rengi: TEdit
           Left = 425
           Top = 238
           Width = 150
-          Height = 21
+          Height = 23
           TabOrder = 14
-          OnDblClick = edtcolor_bar_textDblClick
+          OnDblClick = edtbar_yazi_rengiDblClick
         end
       end
     end
   end
   inherited pnlBottom: TPanel
-    Top = 313
+    Top = 326
     Width = 591
     ExplicitTop = 313
     ExplicitWidth = 591
@@ -400,7 +399,7 @@ inherited frmSysGridKolon: TfrmSysGridKolon
     end
   end
   inherited stbBase: TStatusBar
-    Top = 343
+    Top = 356
     Width = 595
     ExplicitTop = 343
     ExplicitWidth = 595

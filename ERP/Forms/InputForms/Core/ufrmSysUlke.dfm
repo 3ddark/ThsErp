@@ -11,13 +11,13 @@ inherited frmSysUlke: TfrmSysUlke
     ExplicitWidth = 392
     ExplicitHeight = 161
     inherited pgcMain: TPageControl
-      Width = 390
-      Height = 157
+      Width = 388
+      Height = 153
       ExplicitWidth = 392
       ExplicitHeight = 161
       inherited tsMain: TTabSheet
-        ExplicitWidth = 382
-        ExplicitHeight = 129
+        ExplicitWidth = 380
+        ExplicitHeight = 125
         object lblcode: TLabel
           Left = 100
           Top = 7

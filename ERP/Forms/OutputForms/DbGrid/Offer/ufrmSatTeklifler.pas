@@ -5,35 +5,15 @@ interface
 {$I Ths.inc}
 
 uses
-  Winapi.Windows,
-  Winapi.Messages,
-  System.SysUtils,
-  System.Variants,
-  System.StrUtils,
-  System.Types,
-  System.Classes,
-  System.Math,
-  System.UITypes,
-  System.Rtti,
-  System.Actions,
-  Vcl.Menus,
-  Vcl.Graphics,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Dialogs,
-  Vcl.ExtCtrls,
-  Vcl.ComCtrls,
-  Vcl.AppEvnts,
-  Vcl.StdCtrls,
-  Vcl.Samples.Spin,
-  Vcl.ActnList,
-  Vcl.Grids,
-  Vcl.DBGrids,
-  Data.DB,
-  ZAbstractRODataset, ZAbstractDataset, ZDataset,
-  ufrmBase,
-  ufrmBaseDBGrid,
-  udm, ZPgEventAlerter;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.StrUtils, System.Types, System.Classes, System.Math, System.UITypes,
+  System.Rtti, System.Actions, Vcl.Menus, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
+  Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.StdCtrls,
+  Vcl.Samples.Spin, Vcl.ActnList, Vcl.Grids, Vcl.DBGrids, Data.DB, ufrmBase,
+  ufrmBaseDBGrid, udm, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client;
 
 type
   TfrmSatTeklifler = class(TfrmBaseDBGrid)
@@ -47,7 +27,7 @@ type
   private
     FHizliFilterActive: Boolean;
   protected
-    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm; override;
+    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm; override;
   end;
 
 const

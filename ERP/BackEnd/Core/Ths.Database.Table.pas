@@ -5,27 +5,14 @@ interface
 {$I Ths.inc}
 
 uses
-  Forms,
-  SysUtils,
-  Windows,
-  Classes,
-  Dialogs,
-  Messages,
-  System.Variants,
-  Graphics,
-  Controls,
-  ExtCtrls,
-  ComCtrls,
-  System.UITypes,
-  System.Rtti,
-  Data.DB,
-  ZAbstractRODataset,
-  ZAbstractDataset,
-  ZDataset,
-  Ths.Helper.BaseTypes,
-  Ths.Helper.Edit,
-  Ths.Helper.Combobox,
-  Ths.Helper.Memo,
+  Forms, SysUtils, Windows, Classes, Dialogs, Messages, System.Variants,
+  Graphics, Controls, ExtCtrls, ComCtrls, System.UITypes, System.Rtti, Data.DB,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
+  FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
+  FireDAC.Phys, FireDAC.VCLUI.Wait, FireDAC.Stan.Param, FireDAC.DatS,
+  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Phys.PGDef, FireDAC.Comp.Client,
+  FireDAC.Phys.PG, FireDAC.Comp.DataSet,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Combobox, Ths.Helper.Memo,
   Ths.Database;
 
 {$M+}
@@ -98,7 +85,7 @@ type
     FList: TList;
     FDataSource: TDataSource;
 
-    FQryOfDS: TZQuery;
+    FQryOfDS: TFDQuery;
 
     procedure FreeListContent; virtual;
 
@@ -127,7 +114,7 @@ type
 
     property Fields: TArray<TFieldDB> read FFields write FFields;
 
-    property QryOfDS: TZQuery read FQryOfDS write FQryOfDS;
+    property QryOfDS: TFDQuery read FQryOfDS write FQryOfDS;
 
     procedure Listen; virtual;
     procedure Unlisten; virtual;
@@ -162,9 +149,9 @@ type
     function LogicalUpdate(AWithCommit, APermissionControl: Boolean):Boolean; virtual;
     function LogicalDelete(AWithCommit, APermissionControl: Boolean):Boolean; virtual;
 
-    procedure PrepareTableClassFromQuery(AQuery: TZQuery);
-    procedure PrepareInsertQueryParams(AQuery: TZQuery);
-    procedure PrepareUpdateQueryParams(AQuery: TZQuery);
+    procedure PrepareTableClassFromQuery(AQuery: TFDQuery);
+    procedure PrepareInsertQueryParams(AQuery: TFDQuery);
+    procedure PrepareUpdateQueryParams(AQuery: TFDQuery);
 
     function GetLockSQL(AFilter: string; ALock: Boolean): string;
 
@@ -714,8 +701,6 @@ procedure TTable.DoDelete(APermissionControl: Boolean);
 begin
   with Database.NewQuery() do
   try
-    Close;
-    SQL.Clear;
     SQL.Text := 'DELETE FROM ' + TableName + ' WHERE id=:id;';
     ParamByName(Id.FieldName).Value := Id.AsInt64;
     ExecSQL;
@@ -1061,7 +1046,7 @@ begin
   end;
 end;
 
-procedure TTable.PrepareTableClassFromQuery(AQuery: TZQuery);
+procedure TTable.PrepareTableClassFromQuery(AQuery: TFDQuery);
 var
   n1: Integer;
 begin
@@ -1086,7 +1071,7 @@ begin
   end;
 end;
 
-procedure TTable.PrepareInsertQueryParams(AQuery: TZQuery);
+procedure TTable.PrepareInsertQueryParams(AQuery: TFDQuery);
 var
   n1: Integer;
 begin
@@ -1096,7 +1081,7 @@ begin
         NewParamForQuery(AQuery, Fields[n1]);
 end;
 
-procedure TTable.PrepareUpdateQueryParams(AQuery: TZQuery);
+procedure TTable.PrepareUpdateQueryParams(AQuery: TFDQuery);
 var
   n1: Integer;
 begin

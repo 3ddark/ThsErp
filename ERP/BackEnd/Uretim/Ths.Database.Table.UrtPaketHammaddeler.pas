@@ -9,7 +9,8 @@ uses
   System.Classes,
   System.SysUtils,
   Data.DB,
-  ZDataset,
+  FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet,
   System.Generics.Collections,
   Ths.Database,
   Ths.Database.Table,
@@ -152,7 +153,7 @@ end;
 
 procedure TUrtPaketHammaddeDetay.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -198,7 +199,7 @@ end;
 
 procedure TUrtPaketHammaddeDetay.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -222,7 +223,7 @@ end;
 
 procedure TUrtPaketHammaddeDetay.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -280,7 +281,7 @@ end;
 
 procedure TUrtPaketHammadde.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -314,7 +315,7 @@ end;
 
 procedure TUrtPaketHammadde.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -334,7 +335,7 @@ end;
 
 procedure TUrtPaketHammadde.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

@@ -6,21 +6,21 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
   ClientHeight = 353
   ClientWidth = 683
   Position = poDesktopCenter
-  ExplicitWidth = 697
-  ExplicitHeight = 389
+  ExplicitWidth = 699
+  ExplicitHeight = 392
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 683
     Height = 303
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 338
-    ExplicitHeight = 427
+    ExplicitWidth = 683
+    ExplicitHeight = 303
     inherited pgcMain: TPageControl
       Width = 683
       Height = 303
-      ExplicitWidth = 338
-      ExplicitHeight = 427
+      ExplicitWidth = 683
+      ExplicitHeight = 303
       inherited tsMain: TTabSheet
         ExplicitWidth = 675
         ExplicitHeight = 275
@@ -35,6 +35,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -50,6 +51,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -65,6 +67,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -80,6 +83,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -95,6 +99,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -110,6 +115,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -125,6 +131,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -140,6 +147,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -155,6 +163,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -170,6 +179,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -185,6 +195,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -200,6 +211,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -215,6 +227,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -230,6 +243,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -245,6 +259,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -260,6 +275,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -275,6 +291,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -290,6 +307,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -305,6 +323,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -320,6 +339,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -335,6 +355,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -350,6 +371,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -362,6 +384,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
@@ -374,6 +397,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
@@ -386,6 +410,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
           TabOrder = 2
@@ -398,9 +423,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 3
+          TabOrder = 4
         end
         object edts3: TEdit
           Left = 128
@@ -410,9 +436,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 4
+          TabOrder = 6
         end
         object edts4: TEdit
           Left = 128
@@ -422,9 +449,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 8
         end
         object edts5: TEdit
           Left = 128
@@ -434,9 +462,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 10
         end
         object edts6: TEdit
           Left = 128
@@ -446,9 +475,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 12
         end
         object edts7: TEdit
           Left = 128
@@ -458,9 +488,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 14
         end
         object edts8: TEdit
           Left = 128
@@ -470,9 +501,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 9
+          TabOrder = 16
         end
         object edts9: TEdit
           Left = 128
@@ -482,9 +514,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 10
+          TabOrder = 18
         end
         object edts10: TEdit
           Left = 128
@@ -494,9 +527,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 11
+          TabOrder = 20
         end
         object edti1: TEdit
           Left = 482
@@ -506,9 +540,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 12
+          TabOrder = 3
         end
         object edti2: TEdit
           Left = 482
@@ -518,9 +553,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 13
+          TabOrder = 5
         end
         object edti3: TEdit
           Left = 482
@@ -530,9 +566,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 14
+          TabOrder = 7
         end
         object edti4: TEdit
           Left = 482
@@ -542,9 +579,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 15
+          TabOrder = 9
         end
         object edti5: TEdit
           Left = 482
@@ -554,9 +592,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 16
+          TabOrder = 11
         end
         object edtd1: TEdit
           Left = 482
@@ -566,9 +605,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 17
+          TabOrder = 13
         end
         object edtd2: TEdit
           Left = 482
@@ -578,9 +618,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 18
+          TabOrder = 15
         end
         object edtd3: TEdit
           Left = 482
@@ -590,9 +631,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 19
+          TabOrder = 17
         end
         object edtd4: TEdit
           Left = 482
@@ -602,9 +644,10 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 20
+          TabOrder = 19
         end
         object edtd5: TEdit
           Left = 482
@@ -614,6 +657,7 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
+          Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
           TabOrder = 21
@@ -624,25 +668,21 @@ inherited frmStkCinsOzelligi: TfrmStkCinsOzelligi
   inherited pnlBottom: TPanel
     Top = 305
     Width = 679
-    ExplicitTop = 429
-    ExplicitWidth = 334
+    ExplicitTop = 305
+    ExplicitWidth = 679
     inherited btnAccept: TButton
       Left = 473
-      TabOrder = 2
-      ExplicitLeft = 128
+      ExplicitLeft = 473
     end
     inherited btnClose: TButton
       Left = 577
-      ExplicitLeft = 232
-    end
-    inherited btnDelete: TButton
-      TabOrder = 1
+      ExplicitLeft = 577
     end
   end
   inherited stbBase: TStatusBar
     Top = 335
     Width = 683
-    ExplicitTop = 459
-    ExplicitWidth = 338
+    ExplicitTop = 335
+    ExplicitWidth = 683
   end
 end

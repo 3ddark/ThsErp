@@ -6,9 +6,8 @@ inherited frmPrsEhliyet: TfrmPrsEhliyet
   ClientHeight = 133
   ClientWidth = 350
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 356
-  ExplicitHeight = 162
-  PixelsPerInch = 96
+  ExplicitWidth = 366
+  ExplicitHeight = 172
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 350
@@ -23,8 +22,6 @@ inherited frmPrsEhliyet: TfrmPrsEhliyet
       ExplicitWidth = 350
       ExplicitHeight = 83
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 342
         ExplicitHeight = 55
         object lblehliyet_id: TLabel

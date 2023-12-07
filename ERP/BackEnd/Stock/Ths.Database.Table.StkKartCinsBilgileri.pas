@@ -10,7 +10,8 @@ uses
   System.Classes,
   System.Math,
   Data.DB,
-  ZDataset,
+  FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet,
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.Table.StkCinsOzellikleri;
@@ -167,7 +168,7 @@ end;
 
 procedure TStkKartCinsBilgisi.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -224,7 +225,7 @@ end;
 
 procedure TStkKartCinsBilgisi.DoInsert(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -265,7 +266,7 @@ end;
 
 procedure TStkKartCinsBilgisi.DoUpdate(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

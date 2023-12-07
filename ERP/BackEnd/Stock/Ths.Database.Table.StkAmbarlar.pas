@@ -5,10 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  SysUtils,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
+  SysUtils, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet, Ths.Database,
   Ths.Database.Table;
 
 type
@@ -18,6 +15,9 @@ type
     FIsVarsayilanHammadde: TFieldDB;
     FIsVarsayilanUretim: TFieldDB;
     FIsVarsayilanSatis: TFieldDB;
+  protected
+    procedure BusinessInsert(APermissionControl: Boolean); override;
+    procedure BusinessUpdate(APermissionControl: Boolean); override;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -75,7 +75,7 @@ end;
 
 procedure TStkAmbar.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -112,7 +112,7 @@ end;
 
 procedure TStkAmbar.DoInsert(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -135,7 +135,7 @@ end;
 
 procedure TStkAmbar.DoUpdate(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -153,6 +153,18 @@ begin
   finally
     Free;
   end;
+end;
+
+procedure TStkAmbar.BusinessInsert(APermissionControl: Boolean);
+begin
+  inherited;
+//
+end;
+
+procedure TStkAmbar.BusinessUpdate(APermissionControl: Boolean);
+begin
+  inherited;
+//
 end;
 
 function TStkAmbar.Clone: TTable;

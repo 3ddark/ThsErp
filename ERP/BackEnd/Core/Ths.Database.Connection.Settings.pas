@@ -8,52 +8,8 @@ uses
   Vcl.Forms, System.Types, System.SysUtils, System.IniFiles, System.Classes, System.StrUtils;
 
 type
-  TLangs = class
-  private
-    FLang: string;
-    FLangList: TStringList;
-  public
-    destructor Destroy; override;
-    property Lang: UnicodeString read FLang write FLang;
-    property LangList: TStringList read FLangList write FLangList;
-    constructor Create;
-    procedure ReadFromFile();
-  end;
-
-  TLoginText = class
-  private
-    FTitle: string;
-    FLang: string;
-    FUser: string;
-    FUserPass: string;
-    FDBUser: string;
-    FDBPass: string;
-    FServer: string;
-    FExample: string;
-    FDBName: string;
-    FDBPort: string;
-    FSaveSettings: string;
-    FThemeName: string;
-  public
-    property Title: UnicodeString read FTitle write FTitle;
-    property Lang: UnicodeString read FLang write FLang;
-    property User: UnicodeString read FUser write FUser;
-    property UserPass: UnicodeString read FUserPass write FUserPass;
-    property DBUser: UnicodeString read FDBUser write FDBUser;
-    property DBPass: UnicodeString read FDBPass write FDBPass;
-    property Server: UnicodeString read FServer write FServer;
-    property Example: UnicodeString read FExample write FExample;
-    property DBName: UnicodeString read FDBName write FDBName;
-    property DBPort: UnicodeString read FDBPort write FDBPort;
-    property SaveSettings: UnicodeString read FSaveSettings write FSaveSettings;
-    property ThemeName: UnicodeString read FThemeName write FThemeName;
-
-    procedure ReadFromFile(pLang: string);
-  end;
-
   TConnSettings = class
   private
-    FLanguage: string;
     FDBUserPassword: UnicodeString;
     FDBPortNo: Integer;
     FDBUserName: UnicodeString;
@@ -63,9 +19,7 @@ type
     FUserName: UnicodeString;
     FUserPass: UnicodeString;
     FTheme: UnicodeString;
-  protected
   public
-    property Language: UnicodeString read FLanguage write FLanguage;
     property SQLServer: UnicodeString read FSQLServer write FSQLServer;
     property DatabaseName: UnicodeString read FDatabaseName write FDatabaseName;
     property DBUserName: UnicodeString read FDBUserName write FDBUserName;
@@ -83,8 +37,7 @@ type
 implementation
 
 uses
-  Ths.Constants,
-  Ths.Globals;
+  Ths.Constants, Ths.Globals;
 
 procedure TConnSettings.ReadFromFile();
 var
@@ -92,7 +45,6 @@ var
 begin
   iniFile := TIniFile.Create(GUygulamaAnaDizin + PATH_SETTINGS + '\' + 'GlobalSettings.ini');
   try
-    Self.FLanguage       := iniFile.ReadString('ConnectionSettings', 'Language', '');
     Self.FSQLServer      := iniFile.ReadString('ConnectionSettings', 'SQLServer', '');
     Self.FDatabaseName   := iniFile.ReadString('ConnectionSettings', 'DatabaseName', '');
     Self.FDBUserName     := iniFile.ReadString('ConnectionSettings', 'DBUserName', '');
@@ -117,7 +69,6 @@ begin
       iniFile.WriteString('ConnectionSettings', 'Theme', Self.FTheme);
       Exit;
     end;
-    iniFile.WriteString('ConnectionSettings', 'Language', Self.FLanguage);
     iniFile.WriteString('ConnectionSettings', 'SQLServer', Self.FSQLServer);
     iniFile.WriteString('ConnectionSettings', 'DatabaseName', Self.FDatabaseName);
     iniFile.WriteString('ConnectionSettings', 'DBUserName', Self.FDBUserName);
@@ -126,63 +77,6 @@ begin
     iniFile.WriteString('ConnectionSettings', 'UserName', Self.FUserName);
     iniFile.WriteString('ConnectionSettings', 'UserPass', EncryptStr(FUserPass, SECURE_KEY));
     iniFile.WriteString('ConnectionSettings', 'Theme', Self.FTheme);
-  finally
-    iniFile.Free;
-  end;
-end;
-
-constructor TLangs.Create();
-begin
-  LangList := TStringList.Create;
-end;
-
-destructor TLangs.Destroy;
-begin
-  FLangList.Free;
-
-  inherited;
-end;
-
-procedure TLangs.ReadFromFile;
-var
-  iniFile: TIniFile;
-  vList: TStringDynArray;
-  n1: Integer;
-begin
-  iniFile := TIniFile.Create(GUygulamaAnaDizin + PATH_SETTINGS + '\' + 'GlobalSettings.ini');
-  try
-    Self.FLang := iniFile.ReadString('Langs', 'Lang', '');
-    vList := SplitString(FLang, ',');
-    for n1 := 0 to Length(vList)-1 do
-      LangList.Add(vList[n1]);
-  finally
-    iniFile.Free;
-  end;
-end;
-
-procedure TLoginText.ReadFromFile(pLang: string);
-var
-  iniFile: TIniFile;
-  vLangVal: string;
-begin
-  iniFile := TIniFile.Create(GUygulamaAnaDizin + PATH_SETTINGS + '\' + 'GlobalSettings.ini');
-  try
-    if pLang = '' then
-      vLangVal := 'Türkçe TR'
-    else
-      vLangVal := pLang;
-    Self.FTitle        := iniFile.ReadString(vLangVal, 'Title', '');
-    Self.FLang         := iniFile.ReadString(vLangVal, 'Lang', '');
-    Self.FUser         := iniFile.ReadString(vLangVal, 'User', '');
-    Self.FUserPass     := iniFile.ReadString(vLangVal, 'UserPass', '');
-    Self.FDBUser       := iniFile.ReadString(vLangVal, 'DBUser', '');
-    Self.FDBPass       := iniFile.ReadString(vLangVal, 'DBPass', '');
-    Self.FServer       := iniFile.ReadString(vLangVal, 'Server', '');
-    Self.FExample      := iniFile.ReadString(vLangVal, 'Example', '');
-    Self.FDBName       := iniFile.ReadString(vLangVal, 'DBName', '');
-    Self.FDBPort       := iniFile.ReadString(vLangVal, 'DBPort', '');
-    Self.FSaveSettings := iniFile.ReadString(vLangVal, 'SaveSettings', '');
-    Self.FThemeName    := iniFile.ReadString(vLangVal, 'ThemeName', '');
   finally
     iniFile.Free;
   end;

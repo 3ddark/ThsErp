@@ -6,9 +6,8 @@ inherited frmHesapKarti: TfrmHesapKarti
   ClientHeight = 374
   ClientWidth = 687
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 693
-  ExplicitHeight = 403
-  PixelsPerInch = 96
+  ExplicitWidth = 703
+  ExplicitHeight = 413
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 687
@@ -24,8 +23,6 @@ inherited frmHesapKarti: TfrmHesapKarti
       ExplicitWidth = 687
       ExplicitHeight = 324
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 679
         ExplicitHeight = 296
         object lblhesap_kodu: TLabel
@@ -76,7 +73,7 @@ inherited frmHesapKarti: TfrmHesapKarti
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmukellef_tipi_id: TLabel
+        object lblmukellef_tipi: TLabel
           Left = 72
           Top = 121
           Width = 74
@@ -470,12 +467,14 @@ inherited frmHesapKarti: TfrmHesapKarti
           Height = 21
           TabOrder = 15
         end
-        object edtmukellef_tipi_id: TEdit
+        object cbbmukellef_tipi: TComboBox
           Left = 150
           Top = 118
           Width = 180
           Height = 21
+          Style = csDropDownList
           TabOrder = 8
+          OnExit = cbbson_hesap_koduExit
         end
       end
       object tsAdres: TTabSheet

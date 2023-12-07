@@ -2,14 +2,14 @@ inherited frmBaseStrGrid: TfrmBaseStrGrid
   Caption = 'String Grid Base'
   ClientHeight = 478
   ClientWidth = 820
-  ExplicitWidth = 834
-  ExplicitHeight = 514
+  ExplicitWidth = 836
+  ExplicitHeight = 517
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 820
     Height = 428
-    ExplicitWidth = 818
-    ExplicitHeight = 425
+    ExplicitWidth = 820
+    ExplicitHeight = 428
     inherited splLeft: TSplitter
       Height = 392
       ExplicitHeight = 373
@@ -21,18 +21,18 @@ inherited frmBaseStrGrid: TfrmBaseStrGrid
     inherited pnlLeft: TPanel
       Height = 389
       TabOrder = 1
-      ExplicitHeight = 386
+      ExplicitHeight = 389
     end
     inherited pnlHeader: TPanel
       Width = 816
       TabOrder = 0
-      ExplicitWidth = 814
+      ExplicitWidth = 816
     end
     inherited pnlContent: TPanel
       Width = 711
       Height = 389
-      ExplicitWidth = 709
-      ExplicitHeight = 386
+      ExplicitWidth = 711
+      ExplicitHeight = 389
       object strngrdBase: TStringGrid
         Left = 1
         Top = 1
@@ -40,8 +40,6 @@ inherited frmBaseStrGrid: TfrmBaseStrGrid
         Height = 387
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 707
-        ExplicitHeight = 384
         ColWidths = (
           64
           64
@@ -60,21 +58,21 @@ inherited frmBaseStrGrid: TfrmBaseStrGrid
   inherited pnlBottom: TPanel
     Top = 430
     Width = 816
-    ExplicitTop = 427
-    ExplicitWidth = 814
+    ExplicitTop = 430
+    ExplicitWidth = 816
     inherited btnAccept: TButton
       Left = 610
-      ExplicitLeft = 608
+      ExplicitLeft = 610
     end
     inherited btnClose: TButton
       Left = 714
-      ExplicitLeft = 712
+      ExplicitLeft = 714
     end
   end
   inherited stbBase: TStatusBar
     Top = 460
     Width = 820
-    ExplicitTop = 457
-    ExplicitWidth = 818
+    ExplicitTop = 460
+    ExplicitWidth = 820
   end
 end

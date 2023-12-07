@@ -14,46 +14,46 @@ uses
 
 type
   TfrmSysGridKolon = class(TfrmBaseInputDB)
-    lbltable_name: TLabel;
-    lblcolumn_name: TLabel;
-    lblcol_width: TLabel;
-    lblseq_no: TLabel;
-    lblis_show: TLabel;
-    lblis_show_helper: TLabel;
-    lblmax_color: TLabel;
-    lblmax_value: TLabel;
-    lblmin_color: TLabel;
-    lblmin_value: TLabel;
+    lbltablo_adi: TLabel;
+    lblkolon_adi: TLabel;
+    lblkolon_genislik: TLabel;
+    lblsira_no: TLabel;
+    lblis_gorunur: TLabel;
+    lblis_helper_gorunur: TLabel;
+    lblmax_renk: TLabel;
+    lblmax_deger: TLabel;
+    lblmin_renk: TLabel;
+    lblmin_deger: TLabel;
     imgexample_bar: TImage;
-    lblcolor_bar: TLabel;
-    lblcolor_bar_back: TLabel;
-    lblcolor_bar_text: TLabel;
-    lblmax_value_percent: TLabel;
-    lbldata_format: TLabel;
-    cbbtable_name: TComboBox;
-    cbbcolumn_name: TComboBox;
-    edtseq_no: TEdit;
-    edtcol_width: TEdit;
-    edtdata_format: TEdit;
-    chkis_show: TCheckBox;
-    chkis_show_helper: TCheckBox;
-    edtmin_value: TEdit;
-    edtmin_color: TEdit;
-    edtmax_value: TEdit;
-    edtmax_color: TEdit;
-    edtmax_value_percent: TEdit;
-    edtcolor_bar: TEdit;
-    edtcolor_bar_back: TEdit;
-    edtcolor_bar_text: TEdit;
-    procedure FormCreate(Sender: TObject);override;
-    procedure RefreshData();override;
-    procedure btnAcceptClick(Sender: TObject);override;
-    procedure cbbtable_nameChange(Sender: TObject);
-    procedure edtmax_colorDblClick(Sender: TObject);
-    procedure edtcolor_barDblClick(Sender: TObject);
-    procedure edtcolor_bar_backDblClick(Sender: TObject);
-    procedure edtcolor_bar_textDblClick(Sender: TObject);
-    procedure edtmin_colorDblClick(Sender: TObject);
+    lblbar_rengi: TLabel;
+    lblbar_arka_rengi: TLabel;
+    lblbar_yazi_rengi: TLabel;
+    lblmaks_deger_yuzdesi: TLabel;
+    lblveri_formati: TLabel;
+    cbbtablo_adi: TComboBox;
+    cbbkolon_adi: TComboBox;
+    edtsira_no: TEdit;
+    edtkolon_genislik: TEdit;
+    edtveri_formati: TEdit;
+    chkis_gorunur: TCheckBox;
+    chkis_helper_gorunur: TCheckBox;
+    edtmin_deger: TEdit;
+    edtmin_renk: TEdit;
+    edtmax_deger: TEdit;
+    edtmax_renk: TEdit;
+    edtmaks_deger_yuzdesi: TEdit;
+    edtbar_rengi: TEdit;
+    edtbar_arka_rengi: TEdit;
+    edtbar_yazi_rengi: TEdit;
+    procedure FormCreate(Sender: TObject); override;
+    procedure RefreshData(); override;
+    procedure btnAcceptClick(Sender: TObject); override;
+    procedure cbbtablo_adiChange(Sender: TObject);
+    procedure edtmax_renkDblClick(Sender: TObject);
+    procedure edtbar_rengiDblClick(Sender: TObject);
+    procedure edtbar_arka_rengiDblClick(Sender: TObject);
+    procedure edtbar_yazi_rengiDblClick(Sender: TObject);
+    procedure edtmin_renkDblClick(Sender: TObject);
   private
     FSysViewTables: TSysViewTables;
 
@@ -71,8 +71,7 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Constants;
+  Ths.Globals, Ths.Constants;
 
 {$R *.dfm}
 
@@ -82,9 +81,9 @@ begin
   AComboBox.Items.Text := TSysGridKolon(Table).GetDistinctColumnNames(ATableName).Text;
 end;
 
-procedure TfrmSysGridKolon.cbbtable_nameChange(Sender: TObject);
+procedure TfrmSysGridKolon.cbbtablo_adiChange(Sender: TObject);
 begin
-  FillColNameForColWidth(TComboBox(cbbcolumn_name), ReplaceRealColOrTableNameTo(cbbtable_name.Text));
+  FillColNameForColWidth(TComboBox(cbbkolon_adi), ReplaceRealColOrTableNameTo(cbbtablo_adi.Text));
 end;
 
 destructor TfrmSysGridKolon.Destroy;
@@ -101,29 +100,33 @@ var
   vTemp: string;
 begin
   vTemp := 'Example %40';
-  if  (TryStrToInt(edtcolor_bar.Text, vVal))
-  and (TryStrToInt(edtcolor_bar_back.Text, vVal))
-  and (TryStrToInt(edtcolor_bar_text.Text, vVal))
+  if (TryStrToInt(edtbar_rengi.Text, vVal)) and (TryStrToInt(edtbar_arka_rengi.Text, vVal)) and (TryStrToInt(edtbar_yazi_rengi.Text, vVal))
   //and (TryStrToInt(edtrecolor_bar_text_active.Text, vVal))
-  then
+    then
   begin
     with imgexample_bar do
     begin
       Canvas.Pen.Style := psSolid;
       Canvas.Pen.Width := 1;
 
-      Canvas.Pen.Color := StringToColor(edtcolor_bar_back.Text);
-      Canvas.Brush.Color := StringToColor(edtcolor_bar_back.Text);
-      x1 := 0;  x2 := Width;  y1 := 0;  y2 := Height;
-      Canvas.Rectangle( x1, y1, x2, y2 );
+      Canvas.Pen.Color := StringToColor(edtbar_arka_rengi.Text);
+      Canvas.Brush.Color := StringToColor(edtbar_arka_rengi.Text);
+      x1 := 0;
+      x2 := Width;
+      y1 := 0;
+      y2 := Height;
+      Canvas.Rectangle(x1, y1, x2, y2);
 
-      Canvas.Pen.Color := StringToColor(edtcolor_bar.Text);
-      Canvas.Brush.Color := StringToColor(edtcolor_bar.Text);
-      x1 := 1;  x2 := trunc(Width*0.40);  y1 := 1;  y2 := Height;
-      Canvas.Rectangle( x1, y1, x2, y2 );
+      Canvas.Pen.Color := StringToColor(edtbar_rengi.Text);
+      Canvas.Brush.Color := StringToColor(edtbar_rengi.Text);
+      x1 := 1;
+      x2 := trunc(Width * 0.40);
+      y1 := 1;
+      y2 := Height;
+      Canvas.Rectangle(x1, y1, x2, y2);
 
       Canvas.Brush.Style := bsClear;
-      Canvas.Font.Color := StringToColor( edtcolor_bar_text.Text );
+      Canvas.Font.Color := StringToColor(edtbar_yazi_rengi.Text);
       rect.Left := (imgexample_bar.Width - Canvas.TextWidth(vTemp)) div 2;
       rect.Right := rect.Left + Canvas.TextWidth(vTemp);
       rect.Top := (imgexample_bar.Height - Canvas.TextHeight(vTemp)) div 2;
@@ -135,81 +138,79 @@ begin
   end;
 end;
 
-procedure TfrmSysGridKolon.edtcolor_barDblClick(Sender: TObject);
+procedure TfrmSysGridKolon.edtbar_rengiDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtcolor_bar.Text, 0)), edtcolor_bar);
+  SetColor(GetDialogColor(StrToIntDef(edtbar_rengi.Text, 0)), edtbar_rengi);
 end;
 
-procedure TfrmSysGridKolon.edtcolor_bar_backDblClick(Sender: TObject);
+procedure TfrmSysGridKolon.edtbar_arka_rengiDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtcolor_bar_back.Text, 0)), edtcolor_bar_back);
+  SetColor(GetDialogColor(StrToIntDef(edtbar_arka_rengi.Text, 0)), edtbar_arka_rengi);
 end;
 
-procedure TfrmSysGridKolon.edtcolor_bar_textDblClick(Sender: TObject);
+procedure TfrmSysGridKolon.edtbar_yazi_rengiDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtcolor_bar_text.Text, 0)), edtcolor_bar_text);
+  SetColor(GetDialogColor(StrToIntDef(edtbar_yazi_rengi.Text, 0)), edtbar_yazi_rengi);
 end;
 
-procedure TfrmSysGridKolon.edtmax_colorDblClick(Sender: TObject);
+procedure TfrmSysGridKolon.edtmax_renkDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtmax_color.Text, 0)), edtmax_color);
+  SetColor(GetDialogColor(StrToIntDef(edtmax_renk.Text, 0)), edtmax_renk);
 end;
 
-procedure TfrmSysGridKolon.edtmin_colorDblClick(Sender: TObject);
+procedure TfrmSysGridKolon.edtmin_renkDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtmin_color.Text, 0)), edtmin_color);
+  SetColor(GetDialogColor(StrToIntDef(edtmin_renk.Text, 0)), edtmin_renk);
 end;
 
 procedure TfrmSysGridKolon.FormCreate(Sender: TObject);
 begin
   inherited;
 
-  cbbtable_name.CharCase := ecNormal;
-  cbbcolumn_name.CharCase := ecNormal;
+  cbbtablo_adi.CharCase := ecNormal;
+  cbbkolon_adi.CharCase := ecNormal;
 
   FSysViewTables := TSysViewTables.Create(Table.Database);
 
-  fillComboBoxData(cbbtable_name, FSysViewTables, [FSysViewTables.TableName1.FieldName], '');
-  cbbtable_nameChange(cbbtable_name);
+  fillComboBoxData(cbbtablo_adi, FSysViewTables, [FSysViewTables.TableName1.FieldName], '');
+  cbbtablo_adiChange(cbbtablo_adi);
 end;
 
 procedure TfrmSysGridKolon.RefreshData();
 begin
   //control içeriðini table class ile doldur
-  cbbtable_name.ItemIndex := cbbtable_name.Items.IndexOf(TSysGridKolon(Table).TabloAdi.AsString);
-  cbbtable_nameChange(cbbtable_name);
-  if cbbcolumn_name.Items.IndexOf(TSysGridKolon(Table).KolonAdi.AsString) = -1 then
-    cbbcolumn_name.Items.Add(TSysGridKolon(Table).KolonAdi.AsString);
-  cbbcolumn_name.ItemIndex := cbbcolumn_name.Items.IndexOf(TSysGridKolon(Table).KolonAdi.AsString);
-  edtseq_no.Text := TSysGridKolon(Table).SiraNo.AsString;
-  edtcol_width.Text := TSysGridKolon(Table).KolonGenislik.AsString;
-  edtdata_format.Text := TSysGridKolon(Table).VeriFormati.AsString;
-  chkis_show.Checked := TSysGridKolon(Table).IsGorunur.AsBoolean;
-  chkis_show_helper.Checked := TSysGridKolon(Table).IsHelperGorunur.AsBoolean;
+  cbbtablo_adi.ItemIndex := cbbtablo_adi.Items.IndexOf(TSysGridKolon(Table).TabloAdi.AsString);
+  cbbtablo_adiChange(cbbtablo_adi);
+  if cbbkolon_adi.Items.IndexOf(TSysGridKolon(Table).KolonAdi.AsString) = -1 then
+    cbbkolon_adi.Items.Add(TSysGridKolon(Table).KolonAdi.AsString);
+  cbbkolon_adi.ItemIndex := cbbkolon_adi.Items.IndexOf(TSysGridKolon(Table).KolonAdi.AsString);
+  edtsira_no.Text := TSysGridKolon(Table).SiraNo.AsString;
+  edtkolon_genislik.Text := TSysGridKolon(Table).KolonGenislik.AsString;
+  edtveri_formati.Text := TSysGridKolon(Table).VeriFormati.AsString;
+  chkis_gorunur.Checked := TSysGridKolon(Table).IsGorunur.AsBoolean;
+  chkis_helper_gorunur.Checked := TSysGridKolon(Table).IsHelperGorunur.AsBoolean;
 
-  edtmin_value.Text := TSysGridKolon(Table).MinDeger.AsString;
-  SetColor(StrToIntDef(edtmin_color.Text, 0), edtmin_color);
-  edtmax_value.Text := TSysGridKolon(Table).MaxDeger.AsString;
-  SetColor(StrToIntDef(edtmax_color.Text, 0), edtmax_color);
-  edtmax_value_percent.Text := TSysGridKolon(Table).MaxDegerYuzdesi.AsString;
+  edtmin_deger.Text := TSysGridKolon(Table).MinDeger.AsString;
+  SetColor(StrToIntDef(edtmin_renk.Text, 0), edtmin_renk);
+  edtmax_deger.Text := TSysGridKolon(Table).MaxDeger.AsString;
+  SetColor(StrToIntDef(edtmax_renk.Text, 0), edtmax_renk);
+  edtmaks_deger_yuzdesi.Text := TSysGridKolon(Table).MaxDegerYuzdesi.AsString;
 
-
-
-  SetColor(StrToIntDef(edtcolor_bar.Text, 0), edtcolor_bar);
-  SetColor(StrToIntDef(edtcolor_bar_back.Text, 0), edtcolor_bar_back);
-  SetColor(StrToIntDef(edtcolor_bar_text.Text, 0), edtcolor_bar_text);
+  SetColor(StrToIntDef(edtbar_rengi.Text, 0), edtbar_rengi);
+  SetColor(StrToIntDef(edtbar_arka_rengi.Text, 0), edtbar_arka_rengi);
+  SetColor(StrToIntDef(edtbar_yazi_rengi.Text, 0), edtbar_yazi_rengi);
   DrawBar;
 end;
 
 procedure TfrmSysGridKolon.Repaint;
 begin
   inherited;
-  edtmin_color.ReadOnly := True;
-  edtmax_color.ReadOnly := True;
+  edtmin_renk.ReadOnly := True;
+  edtmax_renk.ReadOnly := True;
 
-  edtcolor_bar.ReadOnly := True;
-  edtcolor_bar_back.ReadOnly := True;
-  edtcolor_bar_text.ReadOnly := True;
+  edtbar_rengi.ReadOnly := True;
+  edtbar_arka_rengi.ReadOnly := True;
+  edtbar_yazi_rengi.ReadOnly := True;
   //edtcolor_bar_text_active.ReadOnly := True;
 end;
 
@@ -224,24 +225,21 @@ begin
   DrawBar;
 end;
 
-function TfrmSysGridKolon.ValidateInput(
-  panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
+function TfrmSysGridKolon.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
 begin
   Result := inherited ValidateInput();
 
   //arada rakam atlyacak þekilde giriþ yapýlmýþsa rakamý otomatik olarak düzelt.
   //maks sequence no dan sonraki rakam gelmek zorunda.
-  if (FormMode = ifmNewRecord)
-  or (FormMode = ifmCopyNewRecord)
-  then
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
-    if StrToInt(edtseq_no.Text) > TSysGridKolon(Table).GetMaxSequenceNo(cbbtable_name.Text)+1 then
-      edtseq_no.Text := IntToStr(TSysGridKolon(Table).GetMaxSequenceNo(cbbtable_name.Text) + 1)
+    if StrToInt(edtsira_no.Text) > TSysGridKolon(Table).GetMaxSequenceNo(cbbtablo_adi.Text) + 1 then
+      edtsira_no.Text := IntToStr(TSysGridKolon(Table).GetMaxSequenceNo(cbbtablo_adi.Text) + 1)
   end
   else if (FormMode = ifmUpdate) then
   begin
-    if StrToInt(edtseq_no.Text) > TSysGridKolon(Table).GetMaxSequenceNo(TSysGridKolon(Table).TabloAdi.Value) then
-      edtseq_no.Text := IntToStr(TSysGridKolon(Table).GetMaxSequenceNo(TSysGridKolon(Table).TabloAdi.Value));
+    if StrToInt(edtsira_no.Text) > TSysGridKolon(Table).GetMaxSequenceNo(TSysGridKolon(Table).TabloAdi.Value) then
+      edtsira_no.Text := IntToStr(TSysGridKolon(Table).GetMaxSequenceNo(TSysGridKolon(Table).TabloAdi.Value));
   end;
 end;
 
@@ -251,37 +249,37 @@ begin
   begin
     if (ValidateInput) then
     begin
-      if cbbtable_name.Items.IndexOf(cbbtable_name.Text) = -1 then
-        raise Exception.Create('Listede olmayan bir Tablo Adý giremezsiniz!' + AddLBs() + cbbtable_name.Text);
+      if cbbtablo_adi.Items.IndexOf(cbbtablo_adi.Text) = -1 then
+        raise Exception.Create('Listede olmayan bir Tablo Adý giremezsiniz!' + AddLBs() + cbbtablo_adi.Text);
 
       if (FormMode = ifmUpdate) then
       begin
-        if TSysGridKolon(Table).SiraNo.Value = StrToInt(edtseq_no.Text) then
+        if TSysGridKolon(Table).SiraNo.Value = StrToInt(edtsira_no.Text) then
           TSysGridKolon(Table).FSeqStatus := ssNone
-        else if TSysGridKolon(Table).SiraNo.Value > StrToInt(edtseq_no.Text) then
+        else if TSysGridKolon(Table).SiraNo.Value > StrToInt(edtsira_no.Text) then
           TSysGridKolon(Table).FSeqStatus := ssAzalma
-        else if TSysGridKolon(Table).SiraNo.Value < StrToInt(edtseq_no.Text) then
+        else if TSysGridKolon(Table).SiraNo.Value < StrToInt(edtsira_no.Text) then
           TSysGridKolon(Table).FSeqStatus := ssArtis;
 
         TSysGridKolon(Table).FOldValue := TSysGridKolon(Table).SiraNo.Value;
       end;
 
-      TSysGridKolon(Table).TabloAdi.Value := cbbtable_name.Text;
-      TSysGridKolon(Table).KolonAdi.Value := cbbcolumn_name.Text;
-      TSysGridKolon(Table).SiraNo.Value := edtseq_no.Text;
-      TSysGridKolon(Table).KolonGenislik.Value := edtcol_width.Text;
-      TSysGridKolon(Table).VeriFormati.Value := edtdata_format.Text;
-      TSysGridKolon(Table).IsGorunur.Value := chkis_show.Checked;
-      TSysGridKolon(Table).IsHelperGorunur.Value := chkis_show_helper.Checked;
+      TSysGridKolon(Table).TabloAdi.Value := cbbtablo_adi.Text;
+      TSysGridKolon(Table).KolonAdi.Value := cbbkolon_adi.Text;
+      TSysGridKolon(Table).SiraNo.Value := edtsira_no.Text;
+      TSysGridKolon(Table).KolonGenislik.Value := edtkolon_genislik.Text;
+      TSysGridKolon(Table).VeriFormati.Value := edtveri_formati.Text;
+      TSysGridKolon(Table).IsGorunur.Value := chkis_gorunur.Checked;
+      TSysGridKolon(Table).IsHelperGorunur.Value := chkis_helper_gorunur.Checked;
 
-      TSysGridKolon(Table).MinDeger.Value := StrToFloatDef(edtmin_value.Text, 0);
-      TSysGridKolon(Table).MinRenk.Value := StrToIntDef(edtmin_color.Text, 0);
-      TSysGridKolon(Table).MaxDeger.Value := StrToFloatDef(edtmax_value.Text, 0);
-      TSysGridKolon(Table).MaxRenk.Value := StrToIntDef(edtmax_color.Text, 0);
-      TSysGridKolon(Table).MaxDegerYuzdesi.Value := StrToFloatDef(edtmax_value_percent.Text, 0);
-      TSysGridKolon(Table).BarRengi.Value := StrToIntDef(edtcolor_bar.Text, 0);
-      TSysGridKolon(Table).BarArkaRengi.Value := StrToIntDef(edtcolor_bar_back.Text, 0);
-      TSysGridKolon(Table).BarYaziRengi.Value := StrToIntDef(edtcolor_bar_text.Text, 0);
+      TSysGridKolon(Table).MinDeger.Value := StrToFloatDef(edtmin_deger.Text, 0);
+      TSysGridKolon(Table).MinRenk.Value := StrToIntDef(edtmin_renk.Text, 0);
+      TSysGridKolon(Table).MaxDeger.Value := StrToFloatDef(edtmax_deger.Text, 0);
+      TSysGridKolon(Table).MaxRenk.Value := StrToIntDef(edtmax_renk.Text, 0);
+      TSysGridKolon(Table).MaxDegerYuzdesi.Value := StrToFloatDef(edtmaks_deger_yuzdesi.Text, 0);
+      TSysGridKolon(Table).BarRengi.Value := StrToIntDef(edtbar_rengi.Text, 0);
+      TSysGridKolon(Table).BarArkaRengi.Value := StrToIntDef(edtbar_arka_rengi.Text, 0);
+      TSysGridKolon(Table).BarYaziRengi.Value := StrToIntDef(edtbar_yazi_rengi.Text, 0);
 
       inherited;
     end;
@@ -291,3 +289,4 @@ begin
 end;
 
 end.
+

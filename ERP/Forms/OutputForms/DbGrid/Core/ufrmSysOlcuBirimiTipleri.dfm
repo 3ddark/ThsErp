@@ -1,5 +1,5 @@
 inherited frmSysOlcuBirimiTipleri: TfrmSysOlcuBirimiTipleri
-  Caption = 'Sys '#214'l'#231#252' Birimi Tipleri'
+  Caption = 'Sistem '#214'l'#231#252' Birimi Tipleri'
   ClientHeight = 557
   ClientWidth = 795
   ExplicitWidth = 811
@@ -11,46 +11,49 @@ inherited frmSysOlcuBirimiTipleri: TfrmSysOlcuBirimiTipleri
     ExplicitWidth = 795
     ExplicitHeight = 507
     inherited splLeft: TSplitter
-      Height = 383
+      Height = 431
       ExplicitHeight = 383
     end
     inherited splHeader: TSplitter
-      Width = 797
+      Width = 795
       ExplicitWidth = 797
     end
     inherited pnlLeft: TPanel
-      Height = 383
-      ExplicitHeight = 379
+      Height = 431
+      ExplicitHeight = 431
     end
     inherited pnlHeader: TPanel
-      Width = 793
+      Width = 791
       ExplicitWidth = 791
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
       inherited edtFilterHelper: TEdit
-        Width = 730
-        ExplicitWidth = 728
+        Width = 748
+        ExplicitWidth = 748
       end
     end
     inherited pnlContent: TPanel
-      Width = 694
-      Height = 383
+      Width = 692
+      Height = 431
       ExplicitWidth = 692
-      ExplicitHeight = 379
+      ExplicitHeight = 431
       inherited grd: TDBGrid
-        Width = 694
-        Height = 383
+        Width = 692
+        Height = 431
       end
     end
     inherited pnlButtons: TPanel
-      Top = 419
-      Width = 797
-      ExplicitTop = 415
+      Top = 467
+      Width = 795
+      ExplicitTop = 467
       ExplicitWidth = 795
       inherited pnlButtonRight: TPanel
-        Left = 612
+        Left = 610
         ExplicitLeft = 610
       end
       inherited pnlButtonLeft: TPanel
-        Width = 612
+        Width = 610
         ExplicitWidth = 610
       end
     end
@@ -61,11 +64,11 @@ inherited frmSysOlcuBirimiTipleri: TfrmSysOlcuBirimiTipleri
     ExplicitTop = 509
     ExplicitWidth = 791
     inherited btnAccept: TButton
-      Left = 587
+      Left = 585
       ExplicitLeft = 585
     end
     inherited btnClose: TButton
-      Left = 691
+      Left = 689
       ExplicitLeft = 689
     end
   end

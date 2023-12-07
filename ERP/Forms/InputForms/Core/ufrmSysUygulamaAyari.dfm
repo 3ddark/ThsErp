@@ -7,21 +7,22 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
   ClientWidth = 694
   ParentFont = True
   Position = poDesktopCenter
-  ExplicitWidth = 708
-  ExplicitHeight = 420
+  ExplicitWidth = 710
+  ExplicitHeight = 423
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 694
     Height = 334
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 692
-    ExplicitHeight = 331
+    ExplicitWidth = 694
+    ExplicitHeight = 334
     inherited pgcMain: TPageControl
       Width = 694
       Height = 334
-      ExplicitWidth = 692
-      ExplicitHeight = 331
+      ActivePage = tsadres
+      ExplicitWidth = 694
+      ExplicitHeight = 334
       inherited tsMain: TTabSheet
         ExplicitTop = 26
         ExplicitWidth = 686
@@ -461,22 +462,6 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lbllisan: TLabel
-          Left = 43
-          Top = 145
-          Width = 92
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Uygulama Lisan'#305
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
         object lbldonem: TLabel
           Left = 95
           Top = 122
@@ -557,13 +542,6 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtlisan: TEdit
-          Left = 137
-          Top = 141
-          Width = 160
-          Height = 23
-          TabOrder = 5
-        end
         object edtcrypt_key: TEdit
           Left = 137
           Top = 94
@@ -576,7 +554,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Top = 164
           Width = 160
           Height = 23
-          TabOrder = 6
+          TabOrder = 5
         end
         object edtdonem: TEdit
           Left = 137
@@ -902,22 +880,22 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
   inherited pnlBottom: TPanel
     Top = 336
     Width = 690
-    ExplicitTop = 333
-    ExplicitWidth = 688
+    ExplicitTop = 336
+    ExplicitWidth = 690
     inherited btnAccept: TButton
       Left = 484
-      ExplicitLeft = 482
+      ExplicitLeft = 484
     end
     inherited btnClose: TButton
       Left = 588
-      ExplicitLeft = 586
+      ExplicitLeft = 588
     end
   end
   inherited stbBase: TStatusBar
     Top = 366
     Width = 694
-    ExplicitTop = 363
-    ExplicitWidth = 692
+    ExplicitTop = 366
+    ExplicitWidth = 694
   end
   inherited AppEvntsBase: TApplicationEvents
     Left = 280

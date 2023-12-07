@@ -1,15 +1,17 @@
 inherited frmSysGridFiltrelerSiralamalar: TfrmSysGridFiltrelerSiralamalar
-  Caption = 'Grid Varsay'#305'lan Filtre ve S'#305'ralama'
+  Caption = 'Sistem Grid Varsay'#305'lan Filtre ve S'#305'ralama'
   ClientHeight = 533
   ClientWidth = 799
+  ExplicitWidth = 815
+  ExplicitHeight = 572
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 799
     Height = 483
-    ExplicitWidth = 797
-    ExplicitHeight = 479
+    ExplicitWidth = 799
+    ExplicitHeight = 483
     inherited splLeft: TSplitter
-      Height = 355
+      Height = 407
       ExplicitHeight = 355
     end
     inherited splHeader: TSplitter
@@ -17,63 +19,63 @@ inherited frmSysGridFiltrelerSiralamalar: TfrmSysGridFiltrelerSiralamalar
       ExplicitWidth = 799
     end
     inherited pnlLeft: TPanel
-      Height = 355
-      ExplicitHeight = 351
+      Height = 407
+      ExplicitHeight = 407
     end
     inherited pnlHeader: TPanel
       Width = 795
-      ExplicitWidth = 793
+      ExplicitWidth = 795
       inherited lblFilterHelper: TLabel
         Height = 22
       end
       inherited edtFilterHelper: TEdit
-        Width = 732
-        ExplicitWidth = 730
+        Width = 752
+        ExplicitWidth = 752
       end
     end
     inherited pnlContent: TPanel
       Width = 696
-      Height = 355
-      ExplicitWidth = 694
-      ExplicitHeight = 351
+      Height = 407
+      ExplicitWidth = 696
+      ExplicitHeight = 407
       inherited grd: TDBGrid
         Width = 696
-        Height = 355
+        Height = 407
       end
     end
     inherited pnlButtons: TPanel
-      Top = 391
+      Top = 443
       Width = 799
-      ExplicitTop = 387
-      ExplicitWidth = 797
+      ExplicitTop = 443
+      ExplicitWidth = 799
       inherited pnlButtonRight: TPanel
         Left = 614
-        ExplicitLeft = 612
+        ExplicitLeft = 614
       end
       inherited pnlButtonLeft: TPanel
         Width = 614
-        ExplicitWidth = 612
+        ExplicitWidth = 614
       end
     end
   end
   inherited pnlBottom: TPanel
     Top = 485
     Width = 795
-    ExplicitTop = 481
-    ExplicitWidth = 793
+    ExplicitTop = 485
+    ExplicitWidth = 795
     inherited btnAccept: TButton
       Left = 589
-      ExplicitLeft = 587
+      ExplicitLeft = 589
     end
     inherited btnClose: TButton
       Left = 693
-      ExplicitLeft = 691
+      ExplicitLeft = 693
     end
   end
   inherited stbBase: TStatusBar
     Top = 515
     Width = 799
-    ExplicitTop = 511
-    ExplicitWidth = 797
+    ExplicitTop = 515
+    ExplicitWidth = 799
   end
 end

@@ -17,14 +17,14 @@ inherited frmSysMukellefTipi: TfrmSysMukellefTipi
     ExplicitWidth = 368
     ExplicitHeight = 92
     inherited pgcMain: TPageControl
-      Width = 366
-      Height = 88
-      ExplicitWidth = 366
-      ExplicitHeight = 88
+      Width = 364
+      Height = 84
+      ExplicitWidth = 364
+      ExplicitHeight = 84
       inherited tsMain: TTabSheet
         ExplicitTop = 26
-        ExplicitWidth = 358
-        ExplicitHeight = 58
+        ExplicitWidth = 356
+        ExplicitHeight = 54
         object lbltaxpayer_type: TLabel
           Left = -23
           Top = 5

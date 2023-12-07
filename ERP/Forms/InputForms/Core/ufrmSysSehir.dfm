@@ -2,14 +2,13 @@ inherited frmSysSehir: TfrmSysSehir
   Left = 501
   Top = 443
   ActiveControl = btnClose
-  Caption = 'System City'
+  Caption = 'Sistem '#350'ehir'
   ClientHeight = 150
   ClientWidth = 368
   ParentFont = True
-  ExplicitWidth = 374
-  ExplicitHeight = 179
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 384
+  ExplicitHeight = 189
+  TextHeight = 15
   inherited pnlMain: TPanel
     Width = 368
     Height = 100
@@ -26,14 +25,14 @@ inherited frmSysSehir: TfrmSysSehir
         ExplicitTop = 26
         ExplicitWidth = 360
         ExplicitHeight = 70
-        object lblcountry_id: TLabel
-          Left = 63
+        object lblulke_id: TLabel
+          Left = 83
           Top = 6
-          Width = 45
+          Width = 25
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Country'
+          Caption = #220'lke'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -42,14 +41,14 @@ inherited frmSysSehir: TfrmSysSehir
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcity: TLabel
-          Left = 86
+        object lblsehir: TLabel
+          Left = 79
           Top = 30
-          Width = 22
+          Width = 29
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'City'
+          Caption = #350'ehir'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -58,14 +57,14 @@ inherited frmSysSehir: TfrmSysSehir
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcar_plate: TLabel
-          Left = 26
+        object lblplaka_kodu: TLabel
+          Left = 46
           Top = 54
-          Width = 82
+          Width = 62
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Car Plate Code'
+          Caption = 'Plaka Kodu'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -74,21 +73,21 @@ inherited frmSysSehir: TfrmSysSehir
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtcity: TEdit
+        object edtsehir: TEdit
           Left = 114
           Top = 26
           Width = 239
           Height = 23
           TabOrder = 1
         end
-        object edtcar_plate: TEdit
+        object edtplaka_kodu: TEdit
           Left = 114
           Top = 50
           Width = 239
           Height = 23
           TabOrder = 2
         end
-        object edtcountry_id: TEdit
+        object edtulke_id: TEdit
           Left = 114
           Top = 2
           Width = 239

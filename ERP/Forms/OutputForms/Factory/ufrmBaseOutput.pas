@@ -5,17 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.Classes,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.ExtCtrls,
-  Vcl.Samples.Spin,
-  Vcl.Menus,
-  Vcl.AppEvnts,
-  Vcl.StdCtrls,
-  Vcl.ComCtrls,
-  Vcl.Dialogs,
-  ufrmBase,
+  System.Classes, Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls, Vcl.Samples.Spin,
+  Vcl.Menus, Vcl.AppEvnts, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.Dialogs, ufrmBase,
   Ths.Database.Table;
 
 type

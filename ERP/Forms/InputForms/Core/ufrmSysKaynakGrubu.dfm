@@ -1,37 +1,37 @@
 inherited frmSysKaynakGrubu: TfrmSysKaynakGrubu
   Left = 501
   Top = 443
-  Caption = 'Resource Group'
-  ClientHeight = 124
+  Caption = 'Sistem Kaynak Grubu'
+  ClientHeight = 111
   ClientWidth = 348
   ParentFont = True
   ExplicitWidth = 364
-  ExplicitHeight = 163
+  ExplicitHeight = 150
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 348
-    Height = 74
+    Height = 61
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 352
-    ExplicitHeight = 82
+    ExplicitWidth = 348
+    ExplicitHeight = 74
     inherited pgcMain: TPageControl
-      Width = 350
-      Height = 78
-      ExplicitWidth = 350
-      ExplicitHeight = 78
+      Width = 348
+      Height = 61
+      ExplicitWidth = 348
+      ExplicitHeight = 74
       inherited tsMain: TTabSheet
         ExplicitTop = 26
-        ExplicitWidth = 342
-        ExplicitHeight = 48
-        object lblgroup: TLabel
-          Left = 74
+        ExplicitWidth = 340
+        ExplicitHeight = 31
+        object lblgrup: TLabel
+          Left = 81
           Top = 7
-          Width = 34
+          Width = 27
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Group'
+          Caption = 'Grup'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -40,7 +40,7 @@ inherited frmSysKaynakGrubu: TfrmSysKaynakGrubu
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtgroup: TEdit
+        object edtgrup: TEdit
           Left = 114
           Top = 4
           Width = 223
@@ -51,23 +51,23 @@ inherited frmSysKaynakGrubu: TfrmSysKaynakGrubu
     end
   end
   inherited pnlBottom: TPanel
-    Top = 76
+    Top = 63
     Width = 344
-    ExplicitTop = 84
-    ExplicitWidth = 348
+    ExplicitTop = 76
+    ExplicitWidth = 344
     inherited btnAccept: TButton
-      Left = 142
-      ExplicitLeft = 142
+      Left = 138
+      ExplicitLeft = 138
     end
     inherited btnClose: TButton
-      Left = 246
-      ExplicitLeft = 246
+      Left = 242
+      ExplicitLeft = 242
     end
   end
   inherited stbBase: TStatusBar
-    Top = 106
+    Top = 93
     Width = 348
-    ExplicitTop = 114
-    ExplicitWidth = 352
+    ExplicitTop = 106
+    ExplicitWidth = 348
   end
 end

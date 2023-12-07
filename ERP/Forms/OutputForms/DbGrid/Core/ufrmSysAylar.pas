@@ -5,12 +5,13 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Classes, System.ImageList, Vcl.Controls, Vcl.Forms,
-  Vcl.DBGrids, Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.ImgList,
-  Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids, Vcl.Dialogs, Data.DB,
-  System.Actions, Vcl.ActnList,
-  ZAbstractRODataset, ZAbstractDataset, ZDataset, ZPgEventAlerter,
-  ufrmBase, ufrmBaseDBGrid;
+  System.SysUtils, System.Classes, Vcl.Controls, Vcl.Forms, Vcl.DBGrids,
+  Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Samples.Spin,
+  Vcl.StdCtrls, Vcl.Grids, Vcl.Dialogs, Data.DB, System.Actions, Vcl.ActnList,
+  ufrmBase, ufrmBaseDBGrid, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Stan.Async,
+  FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf;
 
 type
   TfrmSysAylar = class(TfrmBaseDBGrid)
@@ -21,9 +22,7 @@ type
 implementation
 
 uses
-  Ths.Constants,
-  ufrmSysLisan,
-  Ths.Database.Table.SysAylar;
+  ufrmSysAy, Ths.Database.Table.SysAylar;
 
 {$R *.dfm}
 
@@ -31,11 +30,12 @@ function TfrmSysAylar.CreateInputForm(Sender: TObject; pFormMode: TInputFormMode
 begin
   Result := nil;
   if (pFormMode = ifmRewiev) then
-    Result := TfrmSysLisan.Create(Self, Self, Table.Clone(), pFormMode)
+    Result := TfrmSysAy.Create(Self, Self, Table.Clone(), pFormMode)
   else if (pFormMode = ifmNewRecord) then
-    Result := TfrmSysLisan.Create(Self, Self, TSysAy.Create(Table.Database), pFormMode)
+    Result := TfrmSysAy.Create(Self, Self, TSysAy.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysLisan.Create(Self, Self, Table.Clone(), pFormMode);
+    Result := TfrmSysAy.Create(Self, Self, Table.Clone(), pFormMode);
 end;
 
 end.
+

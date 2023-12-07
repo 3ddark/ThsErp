@@ -11,9 +11,11 @@ uses
   System.Actions, Vcl.ImgList, Vcl.Menus, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
   Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.AppEvnts,
   Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.Clipbrd, Vcl.ActnList, Data.DB,
-  ZAbstractRODataset, ZAbstractDataset, ZDataset, ZAbstractConnection,
-  ZConnection, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  Ths.Helper.ComboBox, udm, ufrmBase, ufrmBaseDBGrid, ZPgEventAlerter;
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
+  Ths.Helper.ComboBox, udm, ufrmBase, ufrmBaseDBGrid, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client;
 
 type
   TfrmSetPrsPersonelTipleri = class(TfrmBaseDBGrid)

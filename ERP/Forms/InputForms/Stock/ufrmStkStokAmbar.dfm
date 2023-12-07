@@ -17,13 +17,13 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
     ExplicitWidth = 408
     ExplicitHeight = 139
     inherited pgcMain: TPageControl
-      Width = 412
-      Height = 141
+      Width = 410
+      Height = 137
       ExplicitWidth = 406
       ExplicitHeight = 137
       inherited tsMain: TTabSheet
-        ExplicitWidth = 404
-        ExplicitHeight = 113
+        ExplicitWidth = 402
+        ExplicitHeight = 109
         object lblambar_adi: TLabel
           Left = 134
           Top = 6

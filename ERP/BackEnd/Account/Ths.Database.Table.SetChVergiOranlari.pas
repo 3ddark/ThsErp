@@ -5,8 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Data.DB, ZDataset, Ths.Database, Ths.Database.Table,
-  Ths.Database.Table.ChHesapKarti;
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  Ths.Database, Ths.Database.Table, Ths.Database.Table.ChHesapKarti;
 
 type
   TSetChVergiOrani = class(TTable)
@@ -110,7 +110,7 @@ end;
 
 procedure TSetChVergiOrani.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -156,7 +156,7 @@ end;
 
 procedure TSetChVergiOrani.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -180,7 +180,7 @@ end;
 
 procedure TSetChVergiOrani.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -212,7 +212,7 @@ begin
   Result := True;
 
   if (Self.FVergiOrani.Value < 0) or (Self.FVergiOrani.Value > 100) then
-    CreateExceptionByLang('Vergi oraný hatalý girildi!' + AddLBs(2) + 'Lütfen veri oranýný kontrol edin. Vergi Oraný 0.00 - 100.00 arasýnda bir deðer olmalýdýr.', '999999');
+    raise Exception.Create(Trim('Vergi oraný hatalý girildi!' + AddLBs(2) + 'Lütfen veri oranýný kontrol edin. Vergi Oraný 0.00 - 100.00 arasýnda bir deðer olmalýdýr. + 999999'));
 end;
 
 end.

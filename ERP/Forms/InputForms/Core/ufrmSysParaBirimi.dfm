@@ -5,10 +5,9 @@ inherited frmSysParaBirimi: TfrmSysParaBirimi
   ClientHeight = 157
   ClientWidth = 355
   ParentFont = True
-  ExplicitWidth = 361
-  ExplicitHeight = 186
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 371
+  ExplicitHeight = 196
+  TextHeight = 15
   inherited pnlMain: TPanel
     Width = 355
     Height = 107
@@ -22,8 +21,9 @@ inherited frmSysParaBirimi: TfrmSysParaBirimi
       ExplicitWidth = 355
       ExplicitHeight = 107
       inherited tsMain: TTabSheet
+        ExplicitTop = 26
         ExplicitWidth = 347
-        ExplicitHeight = 79
+        ExplicitHeight = 77
         object lblpara: TLabel
           Left = 82
           Top = 8

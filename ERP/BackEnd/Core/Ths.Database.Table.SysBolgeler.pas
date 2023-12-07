@@ -5,11 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
-  Ths.Database.Table;
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  Ths.Database, Ths.Database.Table;
 
 type
   TSysBolge = class(TTable)
@@ -30,9 +27,7 @@ type
 
 implementation
 
-uses
-  Ths.Globals,
-  Ths.Constants;
+uses Ths.Globals, Ths.Constants;
 
 constructor TSysBolge.Create(ADatabase: TDatabase);
 begin
@@ -63,7 +58,7 @@ end;
 
 procedure TSysBolge.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -97,7 +92,7 @@ end;
 
 procedure TSysBolge.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -117,7 +112,7 @@ end;
 
 procedure TSysBolge.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

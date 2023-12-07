@@ -2,8 +2,8 @@ inherited frmSetPrsGorevler: TfrmSetPrsGorevler
   Caption = 'Personel G'#246'revler'
   ClientHeight = 463
   ClientWidth = 793
-  ExplicitWidth = 807
-  ExplicitHeight = 499
+  ExplicitWidth = 809
+  ExplicitHeight = 502
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 793
@@ -25,9 +25,6 @@ inherited frmSetPrsGorevler: TfrmSetPrsGorevler
     inherited pnlHeader: TPanel
       Width = 789
       ExplicitWidth = 787
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
       inherited edtFilterHelper: TEdit
         Width = 746
         ExplicitWidth = 744
@@ -47,15 +44,14 @@ inherited frmSetPrsGorevler: TfrmSetPrsGorevler
       Top = 373
       Width = 793
       ExplicitTop = 370
+      ExplicitWidth = 793
       inherited pnlButtonRight: TPanel
         Left = 608
         ExplicitLeft = 606
-        ExplicitHeight = 40
       end
       inherited pnlButtonLeft: TPanel
         Width = 608
         ExplicitWidth = 606
-        ExplicitHeight = 40
       end
     end
   end

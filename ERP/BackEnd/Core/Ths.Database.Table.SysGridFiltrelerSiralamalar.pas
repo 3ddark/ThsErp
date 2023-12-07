@@ -5,10 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, Ths.Database,
   Ths.Database.Table;
 
 type
@@ -34,9 +31,7 @@ type
 
 implementation
 
-uses
-  Ths.Globals,
-  Ths.Constants;
+uses Ths.Globals, Ths.Constants;
 
 constructor TSysGridFiltreSiralama.Create(ADatabase: TDatabase);
 begin
@@ -71,7 +66,7 @@ end;
 
 procedure TSysGridFiltreSiralama.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -108,7 +103,7 @@ end;
 
 procedure TSysGridFiltreSiralama.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -130,7 +125,7 @@ end;
 
 procedure TSysGridFiltreSiralama.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

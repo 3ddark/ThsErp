@@ -4,7 +4,6 @@ inherited frmAlsTeklifler: TfrmAlsTeklifler
   ClientWidth = 807
   ExplicitWidth = 823
   ExplicitHeight = 600
-  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 807
@@ -21,7 +20,7 @@ inherited frmAlsTeklifler: TfrmAlsTeklifler
     end
     inherited pnlLeft: TPanel
       Height = 404
-      ExplicitHeight = 435
+      ExplicitHeight = 404
     end
     inherited pnlHeader: TPanel
       Width = 803
@@ -35,7 +34,7 @@ inherited frmAlsTeklifler: TfrmAlsTeklifler
       Width = 704
       Height = 404
       ExplicitWidth = 704
-      ExplicitHeight = 435
+      ExplicitHeight = 404
       inherited grd: TDBGrid
         Width = 704
         Height = 404
@@ -68,15 +67,12 @@ inherited frmAlsTeklifler: TfrmAlsTeklifler
             'T'#252'm'#252)
           TabOrder = 0
           OnClick = HizliFiltre
-          ExplicitWidth = 185
-          ExplicitHeight = 40
         end
       end
       inherited pnlButtonLeft: TPanel
         Width = 672
         Height = 71
-        ExplicitWidth = 622
-        ExplicitHeight = 40
+        ExplicitWidth = 672
       end
     end
   end

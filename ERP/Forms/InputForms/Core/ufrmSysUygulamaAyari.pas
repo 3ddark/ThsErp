@@ -70,7 +70,6 @@ type
     edtpath_guncelleme: TEdit;
     btnpath_guncelleme: TButton;
     tsgorsel: TTabSheet;
-    edtlisan: TEdit;
     edtcrypt_key: TEdit;
     edtversiyon: TEdit;
     edtdonem: TEdit;
@@ -78,7 +77,6 @@ type
     edtgrid_renk_2: TEdit;
     edtgrid_renk_1: TEdit;
     lblversiyon: TLabel;
-    lbllisan: TLabel;
     lbldonem: TLabel;
     lblcrypt_key: TLabel;
     lblgrid_renk_aktif: TLabel;
@@ -111,26 +109,19 @@ type
     procedure HelperProcess(Sender: TObject); override;
     function ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl = nil): Boolean; override;
   published
-    procedure btnAcceptClick(Sender: TObject);override;
+    procedure btnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormPaint(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
-    procedure RefreshData();override;
+    procedure RefreshData(); override;
   end;
 
 implementation
 
 uses
-  Ths.Globals, Ths.Constants, Ths.Utils.Images,
-  Ths.Database.Table,
-  Ths.Database.Table.SysLisanlar,
-  Ths.Database.Table.SysUygulamaAyarlari,
-  Ths.Database.Table.SysUlkeler,
-  Ths.Database.Table.SysSehirler,
-  Ths.Database.Table.SysVergiMukellefTipleri,
-  ufrmSysVergiMukellefTipleri,
-  ufrmSysSehirler,
-  ufrmSysLisanlar;
+  Ths.Globals, Ths.Constants, Ths.Utils.Images, Ths.Database.Table,
+  Ths.Database.Table.SysUygulamaAyarlari, Ths.Database.Table.SysUlkeler,
+  Ths.Database.Table.SysSehirler, ufrmSysSehirler;
 
 {$R *.dfm}
 
@@ -158,14 +149,17 @@ begin
     vRightOrigin := Left + Width;
     Width := 320;
     Height := 240;
-    Left := vRightOrigin-Width;
+    Left := vRightOrigin - Width;
 
     Canvas.Pen.Style := psSolid;
     Canvas.Pen.Width := 1;
 
     Canvas.Pen.Color := clOlive;
     Canvas.Brush.Color := clOlive;
-    x1 := 0;  x2 := Width;  y1 := 0;  y2 := Height;
+    x1 := 0;
+    x2 := Width;
+    y1 := 0;
+    y2 := Height;
     Canvas.Rectangle(x1, y1, x2, y2);
   end;
 end;
@@ -220,7 +214,6 @@ begin
   edtmail_sunucu.CharCase := ecNormal;
   edtmail_kullanici.CharCase := ecNormal;
   edtmail_sifre.CharCase := ecNormal;
-  edtlisan.CharCase := ecNormal;
   edtversiyon.CharCase := ecNormal;
 
   edtsms_sunucu.CharCase := ecNormal;
@@ -255,7 +248,6 @@ end;
 
 procedure TfrmSysUygulamaAyari.FormShow(Sender: TObject);
 begin
-  edtlisan.OnHelperProcess := HelperProcess;
   edtsehir_id.OnHelperProcess := HelperProcess;
 
   inherited;
@@ -274,7 +266,6 @@ end;
 procedure TfrmSysUygulamaAyari.HelperProcess(Sender: TObject);
 var
   LFrmCity: TfrmSysSehirler;
-  LFrmLang: TfrmSysLisanlar;
 begin
   if Sender.ClassType = TEdit then
   begin
@@ -294,15 +285,6 @@ begin
           LFrmCity.Free;
         end;
       end
-      else if TEdit(Sender).Name = edtlisan.Name then
-      begin
-        LFrmLang := TfrmSysLisanlar.Create(TEdit(Sender), Self, TSysLisan.Create(Table.Database), fomNormal, True);
-        try
-          LFrmLang.ShowModal;
-        finally
-          LFrmLang.Free;
-        end;
-      end
     end;
   end;
 end;
@@ -313,14 +295,7 @@ var
 begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
   begin
-    if CustomMsgDlg(
-        'Mevcut logoyu kayýt etmek istiyor musun?',
-        mtConfirmation,
-        mbYesNo,
-        ['Evet Kaydet', 'Hayýr Yenisini Yükle'],
-        mbNo,
-        'Kullanýcý Onayý') = mrYes
-    then
+    if CustomMsgDlg('Mevcut logoyu kayýt etmek istiyor musun?', mtConfirmation, mbYesNo, ['Evet Kaydet', 'Hayýr Yenisini Yükle'], mbNo, 'Kullanýcý Onayý') = mrYes then
     begin
       imglogo.Picture.SaveToFile(GetDialogSave('', FILE_FILTER_IMAGE, ''));
     end
@@ -391,7 +366,7 @@ begin
 
   imgLogo.Width := imgLogo.Picture.Bitmap.Width;
   imgLogo.Height := imgLogo.Picture.Bitmap.Height;
-  imgLogo.Left := LRightOrigin-imgLogo.Width;
+  imgLogo.Left := LRightOrigin - imgLogo.Width;
 end;
 
 procedure TfrmSysUygulamaAyari.RefreshData;
@@ -407,7 +382,6 @@ begin
   edtgrid_renk_aktif.Text := TSysUygulamaAyari(Table).GridRenkAktif.AsString;
   edtcrypt_key.Text := TSysUygulamaAyari(Table).CryptKey.AsString;
   edtdonem.Text := TSysUygulamaAyari(Table).Donem.AsString;
-  edtlisan.Text := TSysUygulamaAyari(Table).Lisan.AsString;
   edtversiyon.Text := TSysUygulamaAyari(Table).Versiyon.AsString;
 
   edtmail_sunucu.Text := TSysUygulamaAyari(Table).MailSunucu.AsString;
@@ -475,21 +449,21 @@ begin
   begin
     pgcMain.ActivePage := tsdiger;
     edtpath_stok_karti_resim.SetFocus;
-    CreateExceptionByLang('Lütfen geçerli bir dizin seçin!');
+    raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
   end;
 
   if (edtpath_personel_karti_resim.Text <> '') and not DirectoryExists(edtpath_personel_karti_resim.Text) then
   begin
     pgcMain.ActivePage := tsdiger;
     edtpath_personel_karti_resim.SetFocus;
-    CreateExceptionByLang('Lütfen geçerli bir dizin seçin!');
+    raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
   end;
 
   if (edtpath_guncelleme.Text <> '') and not DirectoryExists(edtpath_guncelleme.Text) then
   begin
     pgcMain.ActivePage := tsdiger;
     edtpath_guncelleme.SetFocus;
-    CreateExceptionByLang('Lütfen geçerli bir dizin seçin!');
+    raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
   end;
 end;
 
@@ -510,7 +484,6 @@ begin
       TSysUygulamaAyari(Table).GridRenkAktif.Value := edtgrid_renk_aktif.Text;
       TSysUygulamaAyari(Table).CryptKey.Value := edtcrypt_key.Text;
       TSysUygulamaAyari(Table).Donem.Value := edtdonem.Text;
-      TSysUygulamaAyari(Table).Lisan.Value := edtlisan.Text;
       TSysUygulamaAyari(Table).Versiyon.Value := edtversiyon.Text;
 
       TSysUygulamaAyari(Table).MailSunucu.Value := edtmail_sunucu.Text;
@@ -558,3 +531,4 @@ begin
 end;
 
 end.
+

@@ -2,37 +2,37 @@ inherited frmSysKullanici: TfrmSysKullanici
   Left = 501
   Top = 443
   ActiveControl = btnClose
-  Caption = 'System User'
-  ClientHeight = 261
+  Caption = 'Sistem Kullan'#305'c'#305
+  ClientHeight = 273
   ClientWidth = 366
   ParentFont = True
   ExplicitWidth = 382
-  ExplicitHeight = 300
+  ExplicitHeight = 312
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 366
-    Height = 211
+    Height = 223
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 376
-    ExplicitHeight = 230
+    ExplicitWidth = 366
+    ExplicitHeight = 211
     inherited pgcMain: TPageControl
-      Width = 368
-      Height = 214
-      ExplicitWidth = 368
-      ExplicitHeight = 214
+      Width = 366
+      Height = 223
+      ExplicitWidth = 366
+      ExplicitHeight = 211
       inherited tsMain: TTabSheet
         ExplicitTop = 26
-        ExplicitWidth = 360
-        ExplicitHeight = 184
-        object lbluser_name: TLabel
-          Left = 47
+        ExplicitWidth = 358
+        ExplicitHeight = 193
+        object lblkullanici_adi: TLabel
+          Left = 41
           Top = 10
-          Width = 61
+          Width = 67
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'User Name'
+          Caption = 'Kullan'#305'c'#305' Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -41,14 +41,14 @@ inherited frmSysKullanici: TfrmSysKullanici
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lbluser_pass: TLabel
-          Left = 25
+        object lblkullanici_sifre: TLabel
+          Left = 24
           Top = 32
-          Width = 83
+          Width = 84
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'User Password'
+          Caption = 'Kullan'#305'c'#305' '#350'ifresi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -57,14 +57,14 @@ inherited frmSysKullanici: TfrmSysKullanici
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_active: TLabel
-          Left = 66
+        object lblis_aktif: TLabel
+          Left = 75
           Top = 57
-          Width = 42
+          Width = 33
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Active?'
+          Caption = 'Aktif?'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -73,14 +73,14 @@ inherited frmSysKullanici: TfrmSysKullanici
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_manager: TLabel
-          Left = 52
+        object lblis_yonetici: TLabel
+          Left = 57
           Top = 77
-          Width = 56
+          Width = 51
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Manager?'
+          Caption = 'Y'#246'netici?'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -89,14 +89,14 @@ inherited frmSysKullanici: TfrmSysKullanici
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_super_user: TLabel
-          Left = 40
+        object lblis_super_kullanici: TLabel
+          Left = 20
           Top = 97
-          Width = 68
+          Width = 88
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Super User?'
+          Caption = 'S'#252'per Kullan'#305'c'#305'?'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -105,14 +105,14 @@ inherited frmSysKullanici: TfrmSysKullanici
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblip_address: TLabel
-          Left = 47
+        object lblip_adres: TLabel
+          Left = 57
           Top = 122
-          Width = 61
+          Width = 51
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'IP Address'
+          Caption = 'IP Adresi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -121,14 +121,14 @@ inherited frmSysKullanici: TfrmSysKullanici
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmac_address: TLabel
-          Left = 36
+        object lblmac_adres: TLabel
+          Left = 44
           Top = 144
-          Width = 72
+          Width = 64
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Mac Address'
+          Caption = 'MAC Adresi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -137,14 +137,14 @@ inherited frmSysKullanici: TfrmSysKullanici
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblperson_id: TLabel
-          Left = 54
+        object lblpersonel_id: TLabel
+          Left = 38
           Top = 166
-          Width = 54
+          Width = 70
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Full Name'
+          Caption = 'Personel Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -153,14 +153,14 @@ inherited frmSysKullanici: TfrmSysKullanici
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtuser_name: TEdit
+        object edtkullanici_adi: TEdit
           Left = 114
           Top = 7
           Width = 239
           Height = 23
           TabOrder = 0
         end
-        object edtuser_pass: TEdit
+        object edtkullanici_sifre: TEdit
           Left = 114
           Top = 29
           Width = 239
@@ -168,42 +168,42 @@ inherited frmSysKullanici: TfrmSysKullanici
           PasswordChar = '*'
           TabOrder = 1
         end
-        object chkis_active: TCheckBox
+        object chkis_aktif: TCheckBox
           Left = 114
           Top = 56
           Width = 239
           Height = 17
           TabOrder = 2
         end
-        object chkis_manager: TCheckBox
+        object chkis_yonetici: TCheckBox
           Left = 114
           Top = 76
           Width = 239
           Height = 17
           TabOrder = 3
         end
-        object chkis_super_user: TCheckBox
+        object chkis_super_kullanici: TCheckBox
           Left = 114
           Top = 96
           Width = 239
           Height = 17
           TabOrder = 4
         end
-        object edtip_address: TEdit
+        object edtip_adres: TEdit
           Left = 114
           Top = 119
           Width = 239
           Height = 23
           TabOrder = 5
         end
-        object edtmac_address: TEdit
+        object edtmac_adres: TEdit
           Left = 114
           Top = 141
           Width = 239
           Height = 23
           TabOrder = 6
         end
-        object edtperson_id: TEdit
+        object edtpersonel_id: TEdit
           Left = 114
           Top = 163
           Width = 239
@@ -214,23 +214,23 @@ inherited frmSysKullanici: TfrmSysKullanici
     end
   end
   inherited pnlBottom: TPanel
-    Top = 213
+    Top = 225
     Width = 362
-    ExplicitTop = 232
-    ExplicitWidth = 372
+    ExplicitTop = 213
+    ExplicitWidth = 362
     inherited btnAccept: TButton
-      Left = 166
-      ExplicitLeft = 166
+      Left = 156
+      ExplicitLeft = 156
     end
     inherited btnClose: TButton
-      Left = 270
-      ExplicitLeft = 270
+      Left = 260
+      ExplicitLeft = 260
     end
   end
   inherited stbBase: TStatusBar
-    Top = 243
+    Top = 255
     Width = 366
-    ExplicitTop = 262
-    ExplicitWidth = 376
+    ExplicitTop = 243
+    ExplicitWidth = 366
   end
 end

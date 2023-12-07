@@ -24,8 +24,6 @@ type
 
 implementation
 
-uses Ths.Database.Table.SysVergiMukellefTipleri;
-
 {$R *.dfm}
 
 procedure TfrmSysMukellefTipi.btnAcceptClick(Sender: TObject);

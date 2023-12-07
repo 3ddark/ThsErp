@@ -1,6 +1,11 @@
 inherited frmSetChHesapTipleri: TfrmSetChHesapTipleri
   Caption = 'Hesap Tipleri'
-  ExplicitWidth = 809
-  ExplicitHeight = 560
   TextHeight = 13
+  inherited pnlMain: TPanel
+    inherited pnlHeader: TPanel
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
+    end
+  end
 end

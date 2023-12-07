@@ -6,11 +6,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, System.StrUtils, System.Math, Vcl.Graphics, Vcl.Controls,
-  Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts,
-  Vcl.Menus, Vcl.Samples.Spin, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  Ths.Helper.Memo, Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB,
-  Ths.Database.Table.SysUlkeler, Ths.Globals;
+  System.Classes, System.Math, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
+  Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus,
+  Vcl.Samples.Spin, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
+  Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB, Ths.Database.Table.SysUlkeler,
+  Ths.Globals;
 
 type
   TfrmSysUlke = class(TfrmBaseInputDB)
@@ -25,7 +25,7 @@ type
     edtiso_cctld: TEdit;
     chkis_eu_member: TCheckBox;
   published
-    procedure btnAcceptClick(Sender: TObject);override;
+    procedure btnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure RefreshData; override;
   end;

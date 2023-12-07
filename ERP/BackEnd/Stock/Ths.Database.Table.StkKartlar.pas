@@ -10,7 +10,8 @@ uses
   System.Classes,
   System.Math,
   Data.DB,
-  ZDataset,
+  FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet,
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.Table.StkGruplar,
@@ -191,7 +192,7 @@ var
   LDovizKuru: TChDovizKuru;
 begin
   if AKurTarihi=0 then
-    CreateExceptionByLang('Verilen Kur tarihi "Sıfır" olamaz!!', '888888');
+    raise Exception.Create(Trim('Verilen Kur tarihi "Sıfır" olamaz!! + 888888'));
 
   Result := 0;
   if SatisPara.AsString = AParaBirimi then
@@ -282,7 +283,7 @@ end;
 
 procedure TStkKart.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -353,7 +354,7 @@ end;
 
 procedure TStkKart.DoInsert(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -399,7 +400,7 @@ end;
 
 procedure TStkKart.DoUpdate(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

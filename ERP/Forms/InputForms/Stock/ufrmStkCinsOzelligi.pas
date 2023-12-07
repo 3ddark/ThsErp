@@ -6,14 +6,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils, Vcl.Menus, Vcl.Samples.Spin,
-  Vcl.AppEvnts,
-
-  Ths.Helper.Edit,
-  Ths.Helper.ComboBox,
-  Ths.Helper.Memo,
-
-  ufrmBase, ufrmBaseInputDB;
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, Vcl.Menus, Vcl.Samples.Spin,
+  Vcl.AppEvnts, Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo, ufrmBase,
+  ufrmBaseInputDB;
 
 type
   TfrmStkCinsOzelligi = class(TfrmBaseInputDB)
@@ -69,8 +64,7 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Database.Table.StkCinsOzellikleri;
+  Ths.Globals, Ths.Database.Table.StkCinsOzellikleri;
 
 {$R *.dfm}
 
@@ -137,3 +131,4 @@ begin
 end;
 
 end.
+

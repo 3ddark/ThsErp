@@ -6,21 +6,21 @@ inherited frmStkGrup: TfrmStkGrup
   ClientHeight = 293
   ClientWidth = 534
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 548
-  ExplicitHeight = 329
+  ExplicitWidth = 550
+  ExplicitHeight = 332
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 534
     Height = 243
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 532
-    ExplicitHeight = 308
+    ExplicitWidth = 534
+    ExplicitHeight = 243
     inherited pgcMain: TPageControl
       Width = 534
       Height = 243
-      ExplicitWidth = 532
-      ExplicitHeight = 308
+      ExplicitWidth = 534
+      ExplicitHeight = 243
       inherited tsMain: TTabSheet
         ExplicitWidth = 526
         ExplicitHeight = 215
@@ -342,25 +342,21 @@ inherited frmStkGrup: TfrmStkGrup
   inherited pnlBottom: TPanel
     Top = 245
     Width = 530
-    ExplicitTop = 310
-    ExplicitWidth = 528
+    ExplicitTop = 245
+    ExplicitWidth = 530
     inherited btnAccept: TButton
       Left = 324
-      TabOrder = 2
-      ExplicitLeft = 322
+      ExplicitLeft = 324
     end
     inherited btnClose: TButton
       Left = 428
-      ExplicitLeft = 426
-    end
-    inherited btnDelete: TButton
-      TabOrder = 1
+      ExplicitLeft = 428
     end
   end
   inherited stbBase: TStatusBar
     Top = 275
     Width = 534
-    ExplicitTop = 340
-    ExplicitWidth = 532
+    ExplicitTop = 275
+    ExplicitWidth = 534
   end
 end

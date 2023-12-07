@@ -1,32 +1,32 @@
 inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
   Left = 501
   Top = 443
-  ActiveControl = btnClose
+  ActiveControl = edtbirim
   Caption = 'Sistem '#214'l'#231#252' Birimi'
-  ClientHeight = 218
+  ClientHeight = 221
   ClientWidth = 340
   ParentFont = True
   Position = poDesktopCenter
-  ExplicitWidth = 354
-  ExplicitHeight = 253
+  ExplicitWidth = 356
+  ExplicitHeight = 260
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 340
-    Height = 168
+    Height = 171
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 338
-    ExplicitHeight = 164
+    ExplicitWidth = 340
+    ExplicitHeight = 171
     inherited pgcMain: TPageControl
       Width = 340
-      Height = 168
-      ExplicitWidth = 338
-      ExplicitHeight = 164
+      Height = 171
+      ExplicitWidth = 340
+      ExplicitHeight = 171
       inherited tsMain: TTabSheet
         ExplicitTop = 26
         ExplicitWidth = 332
-        ExplicitHeight = 138
-        object lblunit: TLabel
+        ExplicitHeight = 141
+        object lblbirim: TLabel
           Left = 54
           Top = 6
           Width = 59
@@ -42,7 +42,7 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblunit_einv: TLabel
+        object lblbirim_einv: TLabel
           Left = 22
           Top = 28
           Width = 91
@@ -58,7 +58,7 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblexplanation: TLabel
+        object lblaciklama: TLabel
           Left = 61
           Top = 50
           Width = 52
@@ -74,7 +74,7 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_decimal: TLabel
+        object lblis_ondalik: TLabel
           Left = 44
           Top = 72
           Width = 69
@@ -90,7 +90,7 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblunit_type_id: TLabel
+        object lblbirim_tipi_id: TLabel
           Left = 31
           Top = 98
           Width = 82
@@ -106,7 +106,7 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmultiply: TLabel
+        object lblcarpan: TLabel
           Left = 73
           Top = 120
           Width = 40
@@ -122,42 +122,42 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtunit: TEdit
+        object edtbirim: TEdit
           Left = 117
           Top = 3
           Width = 200
           Height = 23
           TabOrder = 0
         end
-        object edtunit_einv: TEdit
+        object edtbirim_einv: TEdit
           Left = 117
           Top = 25
           Width = 200
           Height = 23
           TabOrder = 1
         end
-        object edtexplanation: TEdit
+        object edtaciklama: TEdit
           Left = 117
           Top = 47
           Width = 200
           Height = 23
           TabOrder = 2
         end
-        object chkis_decimal: TCheckBox
+        object chkis_ondalik: TCheckBox
           Left = 117
           Top = 72
           Width = 200
           Height = 17
           TabOrder = 3
         end
-        object edtunit_type_id: TEdit
+        object edtbirim_tipi_id: TEdit
           Left = 117
           Top = 95
           Width = 200
           Height = 23
           TabOrder = 4
         end
-        object edtmultiply: TEdit
+        object edtcarpan: TEdit
           Left = 117
           Top = 117
           Width = 200
@@ -168,23 +168,23 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
     end
   end
   inherited pnlBottom: TPanel
-    Top = 170
+    Top = 173
     Width = 336
-    ExplicitTop = 166
-    ExplicitWidth = 334
+    ExplicitTop = 173
+    ExplicitWidth = 336
     inherited btnAccept: TButton
       Left = 130
-      ExplicitLeft = 128
+      ExplicitLeft = 130
     end
     inherited btnClose: TButton
       Left = 234
-      ExplicitLeft = 232
+      ExplicitLeft = 234
     end
   end
   inherited stbBase: TStatusBar
-    Top = 200
+    Top = 203
     Width = 340
-    ExplicitTop = 196
-    ExplicitWidth = 338
+    ExplicitTop = 203
+    ExplicitWidth = 340
   end
 end

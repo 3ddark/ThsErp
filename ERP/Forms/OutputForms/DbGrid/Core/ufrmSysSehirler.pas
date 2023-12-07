@@ -9,7 +9,10 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.DBGrids, Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls,
   Vcl.ExtCtrls, Vcl.ImgList, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids,
   Vcl.Dialogs, Vcl.ActnList, Data.DB, ufrmBase, ufrmBaseDBGrid,
-  ZAbstractRODataset, ZAbstractDataset, ZDataset, ZPgEventAlerter;
+  FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt;
 
 type
   TfrmSysSehirler = class(TfrmBaseDBGrid)

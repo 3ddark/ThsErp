@@ -5,12 +5,13 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Classes, System.ImageList, System.Actions,
-  Vcl.Controls, Vcl.Forms, Vcl.DBGrids, Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls,
-  Vcl.ExtCtrls, Vcl.ImgList, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids,
-  Vcl.Dialogs, Vcl.ActnList, Data.DB,
-  ZAbstractRODataset, ZAbstractDataset, ZDataset, ZPgEventAlerter,
-  ufrmBase, ufrmBaseDBGrid;
+  System.SysUtils, System.Classes, System.Actions, Vcl.Controls, Vcl.Forms,
+  Vcl.DBGrids, Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls, Vcl.ExtCtrls,
+  Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids, Vcl.Dialogs, Vcl.ActnList, Data.DB,
+  ufrmBase, ufrmBaseDBGrid, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Stan.Async,
+  FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf;
 
 type
   TfrmSysErisimHaklari = class(TfrmBaseDBGrid)
@@ -24,12 +25,7 @@ type
 implementation
 
 uses
-  Ths.Database.Table,
-  Ths.Constants,
-  ufrmSysErisimHakki,
-  Ths.Database.Table.SysErisimHaklari,
-  ufrmSysKullanicilar,
-  Ths.Database.Table.SysKullanicilar;
+  Ths.Database.Table, ufrmSysErisimHakki, Ths.Database.Table.SysErisimHaklari;
 
 {$R *.dfm}
 
@@ -59,3 +55,4 @@ begin
 end;
 
 end.
+

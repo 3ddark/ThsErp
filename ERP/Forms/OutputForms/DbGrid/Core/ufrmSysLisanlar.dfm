@@ -11,46 +11,49 @@ inherited frmSysLisanlar: TfrmSysLisanlar
     ExplicitWidth = 553
     ExplicitHeight = 284
     inherited splLeft: TSplitter
-      Height = 160
+      Height = 208
       ExplicitHeight = 164
     end
     inherited splHeader: TSplitter
-      Width = 555
+      Width = 553
       ExplicitWidth = 557
     end
     inherited pnlLeft: TPanel
-      Height = 160
-      ExplicitHeight = 156
+      Height = 208
+      ExplicitHeight = 208
     end
     inherited pnlHeader: TPanel
-      Width = 551
+      Width = 549
       ExplicitWidth = 549
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
       inherited edtFilterHelper: TEdit
-        Width = 488
-        ExplicitWidth = 486
+        Width = 506
+        ExplicitWidth = 506
       end
     end
     inherited pnlContent: TPanel
-      Width = 452
-      Height = 160
+      Width = 450
+      Height = 208
       ExplicitWidth = 450
-      ExplicitHeight = 156
+      ExplicitHeight = 208
       inherited grd: TDBGrid
-        Width = 452
-        Height = 160
+        Width = 450
+        Height = 208
       end
     end
     inherited pnlButtons: TPanel
-      Top = 196
-      Width = 555
-      ExplicitTop = 192
+      Top = 244
+      Width = 553
+      ExplicitTop = 244
       ExplicitWidth = 553
       inherited pnlButtonRight: TPanel
-        Left = 370
+        Left = 368
         ExplicitLeft = 368
       end
       inherited pnlButtonLeft: TPanel
-        Width = 370
+        Width = 368
         ExplicitWidth = 368
       end
     end
@@ -61,11 +64,11 @@ inherited frmSysLisanlar: TfrmSysLisanlar
     ExplicitTop = 286
     ExplicitWidth = 549
     inherited btnAccept: TButton
-      Left = 345
+      Left = 343
       ExplicitLeft = 343
     end
     inherited btnClose: TButton
-      Left = 449
+      Left = 447
       ExplicitLeft = 447
     end
   end

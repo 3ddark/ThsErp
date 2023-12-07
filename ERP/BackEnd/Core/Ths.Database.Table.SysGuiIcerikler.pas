@@ -1,21 +1,15 @@
-unit Ths.Database.Table.SysLisanGuiIcerikler;
+unit Ths.Database.Table.SysGuiIcerikler;
 
 interface
 
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  Data.DB,
-  ZDataset,
-  System.Generics.Collections,
-  Ths.Database,
-  Ths.Database.Table,
-  Ths.Database.Table.SysLisanlar;
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  System.Generics.Collections, Ths.Database, Ths.Database.Table;
 
 type
   TGuiIcerik = record
-    FLisan: string;
     FKod: string;
     FIcerikTipi: string;
     FTabloAdi: string;
@@ -25,9 +19,8 @@ type
   end;
 
 type
-  TSysLisanGuiIcerik = class(TTable)
+  TSysGuiIcerik = class(TTable)
   private
-    FLisan: TFieldDB;
     FKod: TFieldDB;
     FDeger: TFieldDB;
     FIsFabrika: TFieldDB;
@@ -46,7 +39,6 @@ type
 
     function Clone: TTable; override;
 
-    property Lisan: TFieldDB read FLisan write FLisan;
     property Kod: TFieldDB read FKod write FKod;
     property Deger: TFieldDB read FDeger write FDeger;
     property IsFabrika: TFieldDB read FIsFabrika write FIsFabrika;
@@ -57,17 +49,14 @@ type
 
 implementation
 
-uses
-  Ths.Globals,
-  Ths.Constants;
+uses Ths.Globals, Ths.Constants;
 
-constructor TSysLisanGuiIcerik.Create(ADatabase: TDatabase);
+constructor TSysGuiIcerik.Create(ADatabase: TDatabase);
 begin
-  TableName := 'sys_lisan_gui_icerikler';
+  TableName := 'sys_gui_icerikler';
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FLisan := TFieldDB.Create('lisan', ftString, '', Self, 'Lisan');
   FKod := TFieldDB.Create('kod', ftString, '', Self, 'Kod');
   FDeger := TFieldDB.Create('deger', ftString, '', Self, 'Deðer');
   FIsFabrika := TFieldDB.Create('is_fabrika', ftBoolean, False, Self, 'Fabrika?');
@@ -76,7 +65,7 @@ begin
   FFormAdi := TFieldDB.Create('form_adi', ftString, '', Self, 'Form Adý');
 end;
 
-procedure TSysLisanGuiIcerik.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+procedure TSysGuiIcerik.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -86,9 +75,8 @@ begin
     Close;
     Database.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.FieldName,
-      FLisan.FieldName,
       FKod.FieldName,
-      FDeger.FieldName + '::::varchar ',
+      'cast(' + FDeger.FieldName + ' as varchar) ' + FDeger.FieldName,
       FIsFabrika.FieldName,
       FIcerikTipi.FieldName,
       FTabloAdi.FieldName,
@@ -100,9 +88,9 @@ begin
   end;
 end;
 
-procedure TSysLisanGuiIcerik.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
+procedure TSysGuiIcerik.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -114,7 +102,6 @@ begin
   try
     Database.GetSQLSelectCmd(LQry, TableName, [
       Id.FieldName,
-      FLisan.FieldName,
       FKod.FieldName,
       'cast(' + FDeger.FieldName + ' as varchar) ' + FDeger.FieldName,
       FIsFabrika.FieldName,
@@ -139,9 +126,9 @@ begin
   end;
 end;
 
-procedure TSysLisanGuiIcerik.DoInsert(APermissionControl: Boolean=True);
+procedure TSysGuiIcerik.DoInsert(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -149,7 +136,6 @@ begin
     Close;
     SQL.Clear;
     SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-      FLisan.FieldName,
       FKod.FieldName,
       FDeger.FieldName,
       FIsFabrika.FieldName,
@@ -167,16 +153,15 @@ begin
   end;
 end;
 
-procedure TSysLisanGuiIcerik.DoUpdate(APermissionControl: Boolean=True);
+procedure TSysGuiIcerik.DoUpdate(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
   try
     SQL.Clear;
     SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-      FLisan.FieldName,
       FKod.FieldName,
       FDeger.FieldName,
       FIsFabrika.FieldName,
@@ -193,18 +178,17 @@ begin
   end;
 end;
 
-procedure TSysLisanGuiIcerik.BusinessInsert(APermissionControl: Boolean);
+procedure TSysGuiIcerik.BusinessInsert(APermissionControl: Boolean);
 var
-  LSysGuiContent: TSysLisanGuiIcerik;
+  LSysGuiContent: TSysGuiIcerik;
   LFilter: string;
 begin
-  LSysGuiContent := TSysLisanGuiIcerik.Create(Database);
+  LSysGuiContent := TSysGuiIcerik.Create(Database);
   try
     if FTabloAdi.AsString <> '' then
       LFilter := ' AND ' + LSysGuiContent.FTabloAdi.QryName + '=' + QuotedStr(FTabloAdi.AsString);
 
-    LSysGuiContent.SelectToList(' AND ' + FLisan.QryName + '=' + QuotedStr(FLisan.AsString) +
-                                ' AND ' + FKod.QryName + '=' + QuotedStr(FKod.AsString) +
+    LSysGuiContent.SelectToList(' AND ' + FKod.QryName + '=' + QuotedStr(FKod.AsString) +
                                 ' AND ' + FIcerikTipi.QryName + '=' + QuotedStr(FIcerikTipi.AsString) +
                                  LFilter, False, False);
     if LSysGuiContent.List.Count = 1 then
@@ -219,9 +203,9 @@ begin
   end;
 end;
 
-function TSysLisanGuiIcerik.Clone: TTable;
+function TSysGuiIcerik.Clone: TTable;
 begin
-  Result := TSysLisanGuiIcerik.Create(Database);
+  Result := TSysGuiIcerik.Create(Database);
   CloneClassContent(Self, Result);
 end;
 

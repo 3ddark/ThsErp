@@ -1,11 +1,7 @@
 inherited frmSysDatabaseMonitor: TfrmSysDatabaseMonitor
   Caption = 'Database Monitor'
-  ClientHeight = 515
-  ClientWidth = 789
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 789
-    Height = 465
     inherited splLeft: TSplitter
       ExplicitHeight = 288
     end
@@ -18,6 +14,8 @@ inherited frmSysDatabaseMonitor: TfrmSysDatabaseMonitor
         Left = 3
         Top = 3
         Height = 24
+        ExplicitLeft = 3
+        ExplicitTop = 3
       end
       inherited edtFilterHelper: TEdit
         Left = 189
@@ -25,15 +23,17 @@ inherited frmSysDatabaseMonitor: TfrmSysDatabaseMonitor
         Width = 593
         Height = 24
         TabOrder = 1
-        ExplicitLeft = 190
-        ExplicitWidth = 589
+        ExplicitLeft = 189
+        ExplicitTop = 3
+        ExplicitWidth = 593
+        ExplicitHeight = 24
       end
       object cbbrefresh_period: TComboBox
         AlignWithMargins = True
         Left = 38
         Top = 3
         Width = 145
-        Height = 21
+        Height = 24
         Align = alLeft
         Style = csDropDownList
         TabOrder = 0
@@ -43,18 +43,8 @@ inherited frmSysDatabaseMonitor: TfrmSysDatabaseMonitor
           '1 saniye'
           '5 saniye'
           '10 saniye')
-        ExplicitLeft = 39
-        ExplicitTop = 4
       end
     end
-  end
-  inherited pnlBottom: TPanel
-    Top = 467
-    Width = 785
-  end
-  inherited stbBase: TStatusBar
-    Top = 497
-    Width = 789
   end
   inherited pmDB: TPopupMenu
     object mnikill_process_by_id: TMenuItem

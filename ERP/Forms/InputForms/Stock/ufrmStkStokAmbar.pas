@@ -7,11 +7,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils, Vcl.Menus, Vcl.Samples.Spin,
-  Vcl.AppEvnts,
-  Ths.Helper.Edit,
-  Ths.Helper.Memo,
-  Ths.Helper.ComboBox,
-  ufrmBase, ufrmBaseInputDB;
+  Vcl.AppEvnts, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox, ufrmBase,
+  ufrmBaseInputDB;
 
 type
   TfrmStkStokAmbar = class(TfrmBaseInputDB)
@@ -31,9 +28,7 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Constants,
-  Ths.Database.Table.StkAmbarlar;
+  Ths.Globals, Ths.Constants, Ths.Database.Table.StkAmbarlar;
 
 {$R *.dfm}
 

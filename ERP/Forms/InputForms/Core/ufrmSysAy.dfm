@@ -1,7 +1,7 @@
 inherited frmSysAy: TfrmSysAy
   Left = 501
   Top = 443
-  Caption = 'System Month'
+  Caption = 'Sistem Ay'
   ClientHeight = 111
   ClientWidth = 340
   Font.Charset = TURKISH_CHARSET
@@ -13,24 +13,24 @@ inherited frmSysAy: TfrmSysAy
     Height = 61
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 344
+    ExplicitWidth = 340
     ExplicitHeight = 61
     inherited pgcMain: TPageControl
-      Width = 342
-      Height = 65
-      ExplicitWidth = 344
+      Width = 340
+      Height = 61
+      ExplicitWidth = 340
       ExplicitHeight = 61
       inherited tsMain: TTabSheet
-        ExplicitWidth = 334
-        ExplicitHeight = 37
-        object lblmonth: TLabel
+        ExplicitWidth = 332
+        ExplicitHeight = 33
+        object lblay_adi: TLabel
           Left = 76
           Top = 5
           Width = 36
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Month'
+          Caption = 'Ay Ad'#305
           Font.Charset = TURKISH_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -39,7 +39,7 @@ inherited frmSysAy: TfrmSysAy
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtmonth: TEdit
+        object edtay_adi: TEdit
           Left = 114
           Top = 2
           Width = 200
@@ -53,20 +53,20 @@ inherited frmSysAy: TfrmSysAy
     Top = 63
     Width = 336
     ExplicitTop = 63
-    ExplicitWidth = 340
+    ExplicitWidth = 336
     inherited btnAccept: TButton
-      Left = 134
-      ExplicitLeft = 134
+      Left = 130
+      ExplicitLeft = 130
     end
     inherited btnClose: TButton
-      Left = 238
-      ExplicitLeft = 238
+      Left = 234
+      ExplicitLeft = 234
     end
   end
   inherited stbBase: TStatusBar
     Top = 93
     Width = 340
     ExplicitTop = 93
-    ExplicitWidth = 344
+    ExplicitWidth = 340
   end
 end

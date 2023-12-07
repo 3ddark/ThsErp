@@ -5,61 +5,22 @@ interface
 {$I Ths.inc}
 
 uses
-  Winapi.Windows,
-  Winapi.Messages,
-  System.SysUtils,
-  System.Variants,
-  System.Types,
-  System.Classes,
-  System.Math,
-  System.StrUtils,
-  System.UITypes,
-  System.Rtti,
-  System.Diagnostics,
-  System.TimeSpan,
-  System.TypInfo,
-  System.Actions,
-  System.Generics.Collections,
-  Vcl.ImgList,
-  Vcl.Menus,
-  Vcl.Graphics,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Dialogs,
-  Vcl.ExtCtrls,
-  Vcl.ComCtrls,
-  Vcl.Grids,
-  Vcl.DBGrids,
-  Vcl.AppEvnts,
-  Vcl.StdCtrls,
-  Vcl.Samples.Spin,
-  Vcl.Clipbrd,
-  Vcl.ActnList,
-  System.Win.ComObj,
-  Data.DB,
-  ZAbstractRODataset,
-  ZAbstractDataset,
-  ZDataset,
-  ZStoredProcedure,
-  ZPgEventAlerter,
-  ZAbstractConnection,
-  ZConnection,
-  mORMotReport,
-  Ths.Helper.BaseTypes,
-  Ths.Helper.Edit,
-  Ths.Helper.Memo,
-  Ths.Helper.ComboBox,
-  udm,
-  ufrmBase,
-  ufrmBaseOutput,
-  Ths.Database.Table.SysGridKolonlar,
-  ufrmSysGridKolon,
-  Ths.Constants,
-  Ths.Database,
-  Ths.Database.Table,
-  Ths.Database.TableDetailed,
-  Ths.Database.Table.SysLisanGuiIcerikler,
-  ufrmSysLisanGuiIcerik;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Types, System.Classes, System.Math, System.StrUtils, System.UITypes,
+  System.Rtti, System.Diagnostics, System.TimeSpan, System.TypInfo,
+  System.Actions, System.Generics.Collections, Vcl.ImgList, Vcl.Menus,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
+  Vcl.Grids, Vcl.DBGrids, Vcl.AppEvnts, Vcl.StdCtrls, Vcl.Samples.Spin,
+  Vcl.Clipbrd, Vcl.ActnList, System.Win.ComObj, Data.DB, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf,
+  FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys,
+  FireDAC.VCLUI.Wait, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf,
+  FireDAC.DApt, FireDAC.Phys.PGDef, FireDAC.Comp.Client, FireDAC.Phys.PG,
+  FireDAC.Comp.DataSet, mORMotReport, Ths.Helper.BaseTypes, Ths.Helper.Edit,
+  Ths.Helper.Memo, Ths.Helper.ComboBox, udm, ufrmBase, ufrmBaseOutput,
+  Ths.Database.Table.SysGridKolonlar, ufrmSysGridKolon, Ths.Constants,
+  Ths.Database, Ths.Database.Table, Ths.Database.TableDetailed,
+  Ths.Database.Table.SysGuiIcerikler, ufrmSysGuiIcerik;
 
 type
   TSortType = (stNone, stAsc, stDesc);
@@ -131,9 +92,8 @@ type
     actfilter_remove: TAction;
     Timer1: TTimer;
     pb1: TProgressBar;
-    qrybase: TZQuery;
-    pgalertbase: TZPgEventAlerter;
     mniKolonGeniliklerineEkle1: TMenuItem;
+    qryBase: TFDQuery;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
     procedure FormResize(Sender: TObject); override;
@@ -491,7 +451,7 @@ var
   LOrderedColumn, LIsCTRLKeyPress: Boolean;
   nIndex: Integer;
   LColumn: TColumn;
-  AQuery: TZQuery;
+  AQuery: TFDQuery;
 begin
   if Sender is TColumn then
     LColumn := Sender as TColumn
@@ -502,7 +462,7 @@ begin
   LIsCTRLKeyPress := False;
   sl := TStringList.Create;
   try
-    AQuery := TZQuery(grd.DataSource.DataSet);
+    AQuery := TFDQuery(grd.DataSource.DataSet);
     begin
       if isCtrlDown then
         LIsCTRLKeyPress := True;
@@ -590,7 +550,7 @@ end;
 
 procedure TfrmBaseDBGrid.actsort_removeExecute(Sender: TObject);
 begin
-  TZQuery(grd.DataSource.DataSet).IndexFieldNames := '';
+  TFDQuery(grd.DataSource.DataSet).IndexFieldNames := '';
   mnisort_remove.Visible := False;
 end;
 
@@ -980,18 +940,18 @@ begin
   end;
 
 
-  if  (Column.Visible) and (Pos(Column.FieldName, TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0) then
+  if  (Column.Visible) and (Pos(Column.FieldName, TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0) then
   begin
     sValue := '';
-    if Pos(Column.FieldName + ':A', TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0 then
+    if Pos(Column.FieldName + ':A', TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0 then
       sValue := MidStr(
-        TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames,
-        Pos(Column.FieldName + ':A', TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames),
+        TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames,
+        Pos(Column.FieldName + ':A', TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames),
         Length(Column.FieldName + ':A'))
-    else if Pos(Column.FieldName + ':D', TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0 then
+    else if Pos(Column.FieldName + ':D', TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0 then
       sValue := MidStr(
-        TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames,
-        Pos(Column.FieldName + ':D', TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames),
+        TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames,
+        Pos(Column.FieldName + ':D', TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames),
         Length(Column.FieldName + ':D'));
 
     if Pos(':A', sValue) > 0 then //yukarý yöndeki ok ASC
@@ -1355,9 +1315,9 @@ begin
 //    Table.Database.EventAlerter.OnAlert := dm.EventAlerterAlert;
 //    Table.Database.EventAlerter.Names.AddObject(Table.TableName, Table.QryOfDS);
 //    Table.Database.EventAlerter.Active := True;
-    pgalertbase.Connection := TZConnection(Table.QryOfDS.Connection);
-    pgalertbase.Events.Add(Table.TableName);
-    pgalertbase.Active := True;
+//    pgalertbase.Connection := TZConnection(Table.QryOfDS.Connection);
+//    pgalertbase.Events.Add(Table.TableName);
+//    pgalertbase.Active := True;
   end;
 
   PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
@@ -1527,21 +1487,20 @@ end;
 
 procedure TfrmBaseDBGrid.mniColumnTitleByLangClick(Sender: TObject);
 var
-  LSysLisanGuiIcerik: TSysLisanGuiIcerik;
+  LSysLisanGuiIcerik: TSysGuiIcerik;
   AColumn: TColumn;
 begin
   AColumn := grd.Columns[grd.SelectedField.Index];
   if Assigned(AColumn) then
   begin
-    LSysLisanGuiIcerik := TSysLisanGuiIcerik.Create(GDataBase);
+    LSysLisanGuiIcerik := TSysGuiIcerik.Create(GDataBase);
 
-    LSysLisanGuiIcerik.Lisan.Value := AppLanguage;
     LSysLisanGuiIcerik.Kod.Value := AColumn.FieldName;
     LSysLisanGuiIcerik.IcerikTipi.Value := LngDGridFieldCaption;
     LSysLisanGuiIcerik.TabloAdi.Value := Table.TableName;
     LSysLisanGuiIcerik.Deger.Value := AColumn.Title.Caption;
 
-    TfrmSysLisanGuiIcerik.Create(Self, nil, LSysLisanGuiIcerik, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
+    TfrmSysGuiIcerik.Create(Self, nil, LSysLisanGuiIcerik, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
     SetTitleFromLangContent();
   end;
 end;
@@ -2014,7 +1973,7 @@ begin
     RefreshGrid();
   finally
 
-    LGridColWidth.DisposeOf;
+    LGridColWidth.Free;
     Table.DataSource.DataSet.EnableControls;
   end;
 end;
@@ -2210,20 +2169,19 @@ end;
 procedure TfrmBaseDBGrid.SetTitleFromLangContent;
 var
   n1, n2: Integer;
-  LLangVal: TSysLisanGuiIcerik;
+  LLangVal: TSysGuiIcerik;
 begin
   if Assigned(Table) then
   begin
-    LLangVal := TSysLisanGuiIcerik.Create(Table.Database);
+    LLangVal := TSysGuiIcerik.Create(Table.Database);
     try
       LLangVal.SelectToList(
           ' AND ' + LLangVal.TabloAdi.QryName + '=' + QuotedStr(Table.TableName) +
-          ' AND ' + LLangVal.Lisan.QryName + '=' + QuotedStr(AppLanguage) +
           ' AND ' + LLangVal.IcerikTipi.QryName + '=' + QuotedStr(LngDGridFieldCaption), False, False);
       for n1 := 0 to LLangVal.List.Count-1 do
         for n2 := 0 to grd.Columns.Count - 1 do
-          if grd.Columns.Items[n2].FieldName = TSysLisanGuiIcerik(LLangVal.List[n1]).Kod.Value then
-            grd.Columns.Items[n2].Title.Caption := TSysLisanGuiIcerik(LLangVal.List[n1]).Deger.Value;
+          if grd.Columns.Items[n2].FieldName = TSysGuiIcerik(LLangVal.List[n1]).Kod.Value then
+            grd.Columns.Items[n2].Title.Caption := TSysGuiIcerik(LLangVal.List[n1]).Deger.Value;
 
     finally
       LLangVal.Free;
@@ -2278,7 +2236,7 @@ begin
     WriteRecordCount(grd.DataSource.DataSet.RecordCount);
 
   if GDataBase.Connection.Connected then
-    stbBase.Panels.Items[STATUS_DATE].Text := GDataBase.Connection.HostName;
+    stbBase.Panels.Items[STATUS_DATE].Text := GDataBase.Connection.Params.Values['Server'];
 
   stbBase.Panels.Items[STATUS_USERNAME].Text := TranslateText('Dönem', FrameworkLang.GeneralPeriod, LngGeneral, LngSystem) + ' ' + GSysApplicationSetting.Donem.AsString;
 

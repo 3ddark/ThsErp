@@ -6,8 +6,8 @@ inherited frmStkKart: TfrmStkKart
   ClientHeight = 529
   ClientWidth = 640
   Font.Charset = TURKISH_CHARSET
-  ExplicitWidth = 654
-  ExplicitHeight = 565
+  ExplicitWidth = 656
+  ExplicitHeight = 568
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 640
@@ -2217,15 +2217,11 @@ inherited frmStkKart: TfrmStkKart
     ExplicitWidth = 634
     inherited btnAccept: TButton
       Left = 430
-      TabOrder = 2
       ExplicitLeft = 428
     end
     inherited btnClose: TButton
       Left = 534
       ExplicitLeft = 532
-    end
-    inherited btnDelete: TButton
-      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

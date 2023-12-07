@@ -5,16 +5,9 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  System.Variants,
-  Vcl.Graphics,
-  Data.DB,
-  REST.Json,
-  ZDataset,
-  Ths.Database,
-  Ths.Database.Table,
-  Ths.Database.Table.SysAdresler,
-  Ths.Database.Table.SysLisanlar;
+  System.SysUtils, System.Variants, Vcl.Graphics, Data.DB, REST.Json,
+  FireDAC.Comp.Client, FireDAC.Comp.DataSet, Ths.Database, Ths.Database.Table,
+  Ths.Database.Table.SysAdresler;
 
 type
   TSysUygulamaDigerAyarlar = class
@@ -37,7 +30,6 @@ type
     FVergiDairesi: TFieldDB;
     FVergiNo: TFieldDB;
     FDonem: TFieldDB;
-    FLisan: TFieldDB;
     FMailSunucu: TFieldDB;
     FMailKullanici: TFieldDB;
     FMailSifre: TFieldDB;
@@ -61,8 +53,6 @@ type
   published
     constructor Create(ADatabase: TDatabase); override;
     destructor Destroy; override;
-
-
   public
     Adres: TSysAdres;
     DigerAyarlarJSon: TSysUygulamaDigerAyarlar;
@@ -84,7 +74,6 @@ type
     Property VergiDairesi: TFieldDB read FVergiDairesi write FVergiDairesi;
     Property VergiNo: TFieldDB read FVergiNo write FVergiNo;
     Property Donem: TFieldDB read FDonem write FDonem;
-    Property Lisan: TFieldDB read FLisan write FLisan;
     Property MailSunucu: TFieldDB read FMailSunucu write FMailSunucu;
     Property MailKullanici: TFieldDB read FMailKullanici write FMailKullanici;
     Property MailSifre: TFieldDB read FMailSifre write FMailSifre;
@@ -105,9 +94,7 @@ type
 
 implementation
 
-uses
-  Ths.Constants,
-  Ths.Globals;
+uses Ths.Constants, Ths.Globals;
 
 constructor TSysUygulamaAyari.Create(ADatabase: TDatabase);
 begin
@@ -124,7 +111,6 @@ begin
   FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftString, '', Self, '');
   FVergiNo := TFieldDB.Create('vergi_no', ftString, '', Self, '');
   FDonem := TFieldDB.Create('donem', ftInteger, 0, Self, '');
-  FLisan := TFieldDB.Create('lisan', ftString, '', Self, '');
   FMailSunucu := TFieldDB.Create('mail_sunucu', ftString, '', Self, '');
   FMailKullanici := TFieldDB.Create('mail_kullanici', ftString, '', Self, '');
   FMailSifre := TFieldDB.Create('mail_sifre', ftString, '', Self, '');
@@ -161,7 +147,6 @@ begin
       FVergiDairesi.QryName,
       FVergiNo.QryName,
       FDonem.QryName,
-      FLisan.QryName,
       FMailSunucu.QryName,
       FMailKullanici.QryName,
       FMailSifre.QryName,
@@ -187,7 +172,7 @@ end;
 
 procedure TSysUygulamaAyari.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -206,7 +191,6 @@ begin
       FVergiDairesi.QryName,
       FVergiNo.QryName,
       FDonem.QryName,
-      FLisan.QryName,
       FMailSunucu.QryName,
       FMailKullanici.QryName,
       FMailSifre.QryName,
@@ -244,7 +228,7 @@ end;
 
 procedure TSysUygulamaAyari.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -257,7 +241,6 @@ begin
       FVergiDairesi.FieldName,
       FVergiNo.FieldName,
       FDonem.FieldName,
-      FLisan.FieldName,
       FMailSunucu.FieldName,
       FMailKullanici.FieldName,
       FMailSifre.FieldName,
@@ -287,7 +270,7 @@ end;
 
 procedure TSysUygulamaAyari.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -300,7 +283,6 @@ begin
       FVergiDairesi.FieldName,
       FVergiNo.FieldName,
       FDonem.FieldName,
-      FLisan.FieldName,
       FMailSunucu.FieldName,
       FMailKullanici.FieldName,
       FMailSifre.FieldName,
@@ -369,7 +351,7 @@ begin
     if ASysUygulamaAyari.AdresID.AsInt64 > 0 then
       ASysUygulamaAyari.Adres.SelectToList(' AND ' + ASysUygulamaAyari.Adres.Id.QryName + '=' + ASysUygulamaAyari.AdresID.AsString, ALock, False);
 
-    ASysUygulamaAyari.DigerAyarlarJSon.DisposeOf;
+    ASysUygulamaAyari.DigerAyarlarJSon.Free;
     ASysUygulamaAyari.DigerAyarlarJSon := TJson.JsonToObject<TSysUygulamaDigerAyarlar>(ASysUygulamaAyari.DigerAyarlar.AsString);
   end;
 end;

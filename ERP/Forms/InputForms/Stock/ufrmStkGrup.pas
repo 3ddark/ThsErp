@@ -44,7 +44,6 @@ type
   published
     procedure btnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
-    procedure FormDestroy(Sender: TObject); override;
     procedure RefreshData; override;
   end;
 
@@ -97,11 +96,6 @@ begin
   lblsatis_iade_hesap_adi.Caption := '';
   lblalis_hesap_adi.Caption := '';
   lblalis_iade_hesap_adi.Caption := '';
-end;
-
-procedure TfrmStkGrup.FormDestroy(Sender: TObject);
-begin
-  inherited;
 end;
 
 procedure TfrmStkGrup.HelperProcess(Sender: TObject);

@@ -77,12 +77,9 @@ uses
   Ths.Database.Table.SysGridFiltrelerSiralamalar in 'BackEnd\Core\Ths.Database.Table.SysGridFiltrelerSiralamalar.pas',
   ufrmSysGridFiltrelerSiralamalar in 'Forms\OutputForms\DbGrid\Core\ufrmSysGridFiltrelerSiralamalar.pas' {frmSysGridFiltrelerSiralamalar},
   ufrmSysGridFiltrelerSiralama in 'Forms\InputForms\Core\ufrmSysGridFiltrelerSiralama.pas' {frmSysGridFilterSort},
-  Ths.Database.Table.SysLisanlar in 'BackEnd\Core\Ths.Database.Table.SysLisanlar.pas',
-  ufrmSysLisanlar in 'Forms\OutputForms\DbGrid\Core\ufrmSysLisanlar.pas' {frmSysLisanlar},
-  ufrmSysLisan in 'Forms\InputForms\Core\ufrmSysLisan.pas' {frmSysLang},
-  Ths.Database.Table.SysLisanGuiIcerikler in 'BackEnd\Core\Ths.Database.Table.SysLisanGuiIcerikler.pas',
-  ufrmSysLisanGuiIcerikler in 'Forms\OutputForms\DbGrid\Core\ufrmSysLisanGuiIcerikler.pas' {frmSysLangGuiContents},
-  ufrmSysLisanGuiIcerik in 'Forms\InputForms\Core\ufrmSysLisanGuiIcerik.pas' {frmSysLangGuiContent},
+  Ths.Database.Table.SysGuiIcerikler in 'BackEnd\Core\Ths.Database.Table.SysGuiIcerikler.pas',
+  ufrmSysGuiIcerikler in 'Forms\OutputForms\DbGrid\Core\ufrmSysGuiIcerikler.pas' {frmSysGuiIcerikler},
+  ufrmSysGuiIcerik in 'Forms\InputForms\Core\ufrmSysGuiIcerik.pas' {frmSysGuiIcerik},
   Ths.Database.Table.SysAylar in 'BackEnd\Core\Ths.Database.Table.SysAylar.pas',
   ufrmSysAylar in 'Forms\OutputForms\DbGrid\Core\ufrmSysAylar.pas' {frmSysAylar},
   ufrmSysAy in 'Forms\InputForms\Core\ufrmSysAy.pas' {frmSysMonth},
@@ -92,9 +89,6 @@ uses
   Ths.Database.Table.SysKaynakGruplari in 'BackEnd\Core\Ths.Database.Table.SysKaynakGruplari.pas',
   ufrmSysKaynakGruplari in 'Forms\OutputForms\DbGrid\Core\ufrmSysKaynakGruplari.pas' {frmSysKaynakGruplari},
   ufrmSysKaynakGrubu in 'Forms\InputForms\Core\ufrmSysKaynakGrubu.pas' {frmSysResourceGroup},
-  Ths.Database.Table.SysVergiMukellefTipleri in 'BackEnd\Core\Ths.Database.Table.SysVergiMukellefTipleri.pas',
-  ufrmSysVergiMukellefTipleri in 'Forms\OutputForms\DbGrid\Core\ufrmSysVergiMukellefTipleri.pas' {frmSysVergiMukellefTipleri},
-  ufrmSysMukellefTipi in 'Forms\InputForms\Core\ufrmSysMukellefTipi.pas' {frmSysTaxpayerType},
   Ths.Database.Table.SysParaBirimleri in 'BackEnd\Core\Ths.Database.Table.SysParaBirimleri.pas',
   ufrmSysParaBirimleri in 'Forms\OutputForms\DbGrid\Core\ufrmSysParaBirimleri.pas' {frmSysParaBirimleri},
   ufrmSysParaBirimi in 'Forms\InputForms\Core\ufrmSysParaBirimi.pas' {frmSysCurrency},
@@ -276,7 +270,11 @@ uses
   ufrmAlsTeklifDetaylar in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetaylar.pas' {frmAlsTeklifDetaylar},
   ufrmAlsTeklifDetay in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetay.pas' {frmAlsTeklifDetay},
   Ths.Database.Table.StkKartCinsBilgileri in 'BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas',
-  Ths.Utils.Images in 'BackEnd\Tools\Ths.Utils.Images.pas';
+  Ths.Utils.Images in 'BackEnd\Tools\Ths.Utils.Images.pas',
+  Ths.Orm.Table in 'BackEnd\Tools\Orm\Ths.Orm.Table.pas',
+  Ths.Orm.Manager in 'BackEnd\Tools\Orm\Ths.Orm.Manager.pas',
+  Ths.Orm.ManagerStack in 'BackEnd\Tools\Orm\Ths.Orm.ManagerStack.pas',
+  Ths.Orm.Table.StkAmbarlar in 'Ths.Orm.Table.StkAmbarlar.pas';
 
 {$R *.res}
 

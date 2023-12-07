@@ -1,48 +1,39 @@
 inherited frmSysErisimHaklari: TfrmSysErisimHaklari
-  Caption = 'Access Rights'
+  Caption = 'Eri'#351'im Haklar'#305
   ClientWidth = 813
-  ExplicitWidth = 827
-  ExplicitHeight = 564
+  ExplicitWidth = 829
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 813
     ExplicitWidth = 813
-    ExplicitHeight = 479
     inherited splLeft: TSplitter
-      Height = 351
       ExplicitHeight = 355
     end
     inherited splHeader: TSplitter
       Width = 813
       ExplicitWidth = 813
     end
-    inherited pnlLeft: TPanel
-      Height = 351
-      ExplicitHeight = 347
-    end
     inherited pnlHeader: TPanel
       Width = 809
-      ExplicitWidth = 807
+      ExplicitWidth = 809
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
       inherited edtFilterHelper: TEdit
-        Width = 746
-        ExplicitWidth = 744
+        Width = 766
+        ExplicitWidth = 766
       end
     end
     inherited pnlContent: TPanel
       Width = 710
-      Height = 351
-      ExplicitWidth = 708
-      ExplicitHeight = 347
+      ExplicitWidth = 710
       inherited grd: TDBGrid
         Width = 710
-        Height = 351
       end
     end
     inherited pnlButtons: TPanel
-      Top = 387
       Width = 813
-      ExplicitTop = 383
-      ExplicitWidth = 811
+      ExplicitWidth = 813
       inherited pnlButtonRight: TPanel
         Left = 628
         ExplicitLeft = 628
@@ -55,20 +46,18 @@ inherited frmSysErisimHaklari: TfrmSysErisimHaklari
   end
   inherited pnlBottom: TPanel
     Width = 809
-    ExplicitTop = 481
     ExplicitWidth = 809
     inherited btnAccept: TButton
       Left = 603
-      ExplicitLeft = 601
+      ExplicitLeft = 603
     end
     inherited btnClose: TButton
       Left = 707
-      ExplicitLeft = 705
+      ExplicitLeft = 707
     end
   end
   inherited stbBase: TStatusBar
     Width = 813
-    ExplicitTop = 511
     ExplicitWidth = 813
   end
 end

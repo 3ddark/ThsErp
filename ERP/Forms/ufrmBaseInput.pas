@@ -53,8 +53,8 @@ implementation
 uses
   Ths.Globals,
   Ths.Constants,
-  Ths.Database.Table.SysLisanGuiIcerikler,
-  ufrmSysLisanGuiIcerik,
+  Ths.Database.Table.SysGuiIcerikler,
+  ufrmSysGuiIcerik,
   ufrmCalculator;
 
 {$R *.dfm}
@@ -217,7 +217,7 @@ end;
 
 procedure TfrmBaseInput.mniAddLanguageContentClick(Sender: TObject);
 var
-  LLangGuiContent: TSysLisanGuiIcerik;
+  LLangGuiContent: TSysGuiIcerik;
   LCode, LValue, LContentType, LTableName: string;
 begin
   if pmLabels.PopupComponent.ClassType = TLabel then
@@ -237,15 +237,14 @@ begin
   end;
 
 
-  LLangGuiContent := TSysLisanGuiIcerik.Create(GDataBase);
+  LLangGuiContent := TSysGuiIcerik.Create(GDataBase);
 
-  LLangGuiContent.Lisan.Value := AppLanguage;
   LLangGuiContent.Kod.Value := LCode;
   LLangGuiContent.IcerikTipi.Value := LContentType;
   LLangGuiContent.TabloAdi.Value := LTableName;
   LLangGuiContent.Deger.Value := LValue;
 
-  TfrmSysLisanGuiIcerik.Create(Self, nil, LLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
+  TfrmSysGuiIcerik.Create(Self, nil, LLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
 
   SetCaptionFromLangContent();
 end;
@@ -316,7 +315,7 @@ procedure TfrmBaseInput.SetCaptionFromLangContent;
     LLabel: TLabel;
     n1: Integer;
     LLabelNames, LLabelName, LFilter: string;
-    LLangGuiContent: TSysLisanGuiIcerik;
+    LLangGuiContent: TSysGuiIcerik;
   begin
     //label component isimleri lbl + db_field_name olacak þekilde verileceði varsayýlarak bu kod yazildi. örnek: lblcountry_code
     LLabelNames := '';
@@ -334,25 +333,24 @@ procedure TfrmBaseInput.SetCaptionFromLangContent;
     if Length(LLabelNames) > 0 then
       LLabelNames := LeftStr(LLabelNames, Length(LLabelNames)-1);
 
-    LLangGuiContent := TSysLisanGuiIcerik.Create(GDataBase);
+    LLangGuiContent := TSysGuiIcerik.Create(GDataBase);
     try
       if Assigned(Table) then
         LFilter :=  ' AND ' + LLangGuiContent.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Table.TableName))
       else
         LFilter :=  ' AND ' + LLangGuiContent.FormAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Self.Name));
       LLangGuiContent.SelectToList(
-          ' AND ' + LLangGuiContent.Lisan.QryName + '=' + QuotedStr(AppLanguage) +
           ' AND ' + LLangGuiContent.Kod.QryName + ' IN (' +  LLabelNames + ')' +
           ' AND ' + LLangGuiContent.IcerikTipi.QryName + '=' + QuotedStr(LngLabelCaption) +
           LFilter, False, False);
       for n1 := 0 to LLangGuiContent.List.Count-1 do
       begin
-        if not VarIsNull(TSysLisanGuiIcerik(LLangGuiContent.List[n1]).Kod.Value) then
+        if not VarIsNull(TSysGuiIcerik(LLangGuiContent.List[n1]).Kod.Value) then
         begin
-          LLabelName := VarToStr(TSysLisanGuiIcerik(LLangGuiContent.List[n1]).Kod.Value);
+          LLabelName := VarToStr(TSysGuiIcerik(LLangGuiContent.List[n1]).Kod.Value);
           LLabel := TLabel(FindComponent(PRX_LABEL + LLabelName));
-          if not VarIsNull(TSysLisanGuiIcerik(LLangGuiContent.List[n1]).Deger.Value) then
-            TLabel(LLabel).Caption := VarToStr(TSysLisanGuiIcerik(LLangGuiContent.List[n1]).Deger.Value);
+          if not VarIsNull(TSysGuiIcerik(LLangGuiContent.List[n1]).Deger.Value) then
+            TLabel(LLabel).Caption := VarToStr(TSysGuiIcerik(LLangGuiContent.List[n1]).Deger.Value);
         end;
       end;
     finally

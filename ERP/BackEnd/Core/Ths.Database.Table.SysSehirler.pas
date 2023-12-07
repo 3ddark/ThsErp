@@ -5,12 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
-  Ths.Database.Table,
-  Ths.Database.Table.SysUlkeler,
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, Ths.Database,
+  Ths.Database.Table, Ths.Database.Table.SysUlkeler,
   Ths.Database.Table.SysBolgeler;
 
 type
@@ -44,8 +40,7 @@ type
 
 implementation
 
-uses
-  Ths.Constants;
+uses Ths.Constants;
 
 constructor TSysSehir.Create(ADatabase: TDatabase);
 var
@@ -110,7 +105,7 @@ end;
 
 procedure TSysSehir.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
   LSysUlke: TSysUlke;
   LSysBolge: TSysBolge;
 begin
@@ -160,7 +155,7 @@ end;
 
 procedure TSysSehir.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -183,7 +178,7 @@ end;
 
 procedure TSysSehir.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

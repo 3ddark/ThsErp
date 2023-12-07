@@ -5,10 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, Ths.Database,
   Ths.Database.Table;
 
 type
@@ -42,9 +39,7 @@ type
 
 implementation
 
-uses
-  Ths.Database.Table.SysOlcuBirimiTipleri,
-  Ths.Constants;
+uses Ths.Database.Table.SysOlcuBirimiTipleri, Ths.Constants;
 
 constructor TSysOlcuBirimi.Create(ADatabase: TDatabase);
 var
@@ -102,7 +97,7 @@ end;
 
 procedure TSysOlcuBirimi.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
   LUnitTypes: TSysOlcuBirimiTipi;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
@@ -148,7 +143,7 @@ end;
 
 procedure TSysOlcuBirimi.DoInsert(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   try
@@ -175,7 +170,7 @@ end;
 
 procedure TSysOlcuBirimi.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

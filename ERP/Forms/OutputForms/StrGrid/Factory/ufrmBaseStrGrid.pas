@@ -5,19 +5,9 @@ interface
 {$I Ths.inc}
 
 uses
-  System.Classes,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.ExtCtrls,
-  Vcl.Grids,
-  Vcl.Menus,
-  Vcl.AppEvnts,
-  Vcl.StdCtrls,
-  Vcl.ComCtrls,
-  Vcl.Dialogs,
-  Vcl.Samples.Spin,
-  ufrmBase,
-  ufrmBaseOutput;
+  System.Classes, Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls, Vcl.Grids, Vcl.Menus,
+  Vcl.AppEvnts, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.Dialogs, Vcl.Samples.Spin,
+  ufrmBase, ufrmBaseOutput;
 
 type
   TfrmBaseStrGrid = class(TfrmBaseOutput)

@@ -5,12 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
-  Ths.Database.Table,
-  Ths.Database.Table.SysKaynakGruplari;
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  Ths.Database, Ths.Database.Table, Ths.Database.Table.SysKaynakGruplari;
 
 type
   TSysKaynak = class(TTable)
@@ -40,9 +36,7 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Constants,
-  Ths.Database.Table.SysErisimHaklari,
+  Ths.Globals, Ths.Constants, Ths.Database.Table.SysErisimHaklari,
   Ths.Database.Table.SysKullanicilar;
 
 constructor TSysKaynak.Create(ADatabase: TDatabase);
@@ -96,7 +90,7 @@ end;
 
 procedure TSysKaynak.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
   LSysGroup: TSysKaynakGrubu;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
@@ -140,7 +134,7 @@ end;
 
 procedure TSysKaynak.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -162,7 +156,7 @@ end;
 
 procedure TSysKaynak.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -184,7 +178,7 @@ end;
 procedure TSysKaynak.BusinessInsert(APermissionControl: Boolean);
 var
   LRights: TSysErisimHakki;
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   Insert(APermissionControl);
   LRights := TSysErisimHakki.Create(Database);

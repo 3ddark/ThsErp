@@ -5,11 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Classes,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
-  Ths.Database.Table;
+  System.SysUtils, System.Classes, Data.DB, FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet, Ths.Database, Ths.Database.Table;
 
 type
   TSequenceStatus = (ssArtis, ssAzalma, ssNone);
@@ -73,10 +70,7 @@ type
 
 implementation
 
-uses
-  Ths.Globals,
-  Ths.Constants,
-  Ths.Database.Table.View.SysViewColumns;
+uses Ths.Globals, Ths.Constants, Ths.Database.Table.View.SysViewColumns;
 
 constructor TSysGridKolon.Create(ADatabase: TDatabase);
 begin
@@ -138,7 +132,7 @@ end;
 
 procedure TSysGridKolon.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -186,7 +180,7 @@ end;
 
 procedure TSysGridKolon.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -220,7 +214,7 @@ end;
 
 procedure TSysGridKolon.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -393,7 +387,7 @@ end;
 
 function TSysGridKolon.GetDistinctColumnNames(ATableName: string): TStringList;
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
   LViewCol: TSysViewColumns;
 begin
   Result := TStringList.Create;

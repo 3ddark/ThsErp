@@ -38,8 +38,6 @@ object frmBase: TfrmBase
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
-    ExplicitWidth = 602
-    ExplicitHeight = 345
   end
   object pnlBottom: TPanel
     AlignWithMargins = True
@@ -55,8 +53,6 @@ object frmBase: TfrmBase
     BevelOuter = bvNone
     Color = 14993769
     TabOrder = 1
-    ExplicitTop = 347
-    ExplicitWidth = 598
     object btnSpin: TSpinButton
       Left = 0
       Top = 0
@@ -117,7 +113,6 @@ object frmBase: TfrmBase
       ParentFont = False
       TabOrder = 2
       OnClick = btnAcceptClick
-      ExplicitLeft = 392
     end
     object btnClose: TButton
       AlignWithMargins = True
@@ -144,7 +139,6 @@ object frmBase: TfrmBase
       ParentFont = False
       TabOrder = 3
       OnClick = btnCloseClick
-      ExplicitLeft = 496
     end
     object btnDelete: TButton
       AlignWithMargins = True
@@ -181,8 +175,6 @@ object frmBase: TfrmBase
     Color = clBlack
     Panels = <>
     OnDrawPanel = stbBaseDrawPanel
-    ExplicitTop = 377
-    ExplicitWidth = 602
   end
   object AppEvntsBase: TApplicationEvents
     Left = 24

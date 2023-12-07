@@ -13,14 +13,6 @@ inherited frmPrsPersoneller: TfrmPrsPersoneller
     inherited pnlContent: TPanel
       ExplicitHeight = 392
     end
-    inherited pnlButtons: TPanel
-      inherited pnlButtonRight: TPanel
-        ExplicitHeight = 40
-      end
-      inherited pnlButtonLeft: TPanel
-        ExplicitHeight = 40
-      end
-    end
   end
   inherited pnlBottom: TPanel
     ExplicitTop = 470

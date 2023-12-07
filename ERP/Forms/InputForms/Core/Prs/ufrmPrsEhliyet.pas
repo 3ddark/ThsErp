@@ -71,7 +71,7 @@ end;
 
 procedure TfrmPrsEhliyet.FormDestroy(Sender: TObject);
 begin
-  FSetEmpDriverLicense.DisposeOf;
+  FSetEmpDriverLicense.Free;
   inherited;
 end;
 

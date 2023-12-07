@@ -14,11 +14,11 @@ uses
 
 type
   TfrmSysKaynakGrubu = class(TfrmBaseInputDB)
-    edtgroup: TEdit;
-    lblgroup: TLabel;
+    edtgrup: TEdit;
+    lblgrup: TLabel;
   published
-    procedure btnAcceptClick(Sender: TObject);override;
-    procedure RefreshData();override;
+    procedure btnAcceptClick(Sender: TObject); override;
+    procedure RefreshData(); override;
   end;
 
 implementation
@@ -27,7 +27,7 @@ implementation
 
 procedure TfrmSysKaynakGrubu.RefreshData();
 begin
-  edtgroup.Text := TSysKaynakGrubu(Table).Grup.Value;
+  edtgrup.Text := TSysKaynakGrubu(Table).Grup.Value;
 end;
 
 procedure TfrmSysKaynakGrubu.btnAcceptClick(Sender: TObject);
@@ -36,7 +36,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSysKaynakGrubu(Table).Grup.Value := edtgroup.Text;
+      TSysKaynakGrubu(Table).Grup.Value := edtgrup.Text;
       inherited;
     end;
   end
@@ -45,3 +45,4 @@ begin
 end;
 
 end.
+

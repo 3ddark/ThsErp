@@ -2,8 +2,8 @@ inherited frmBaseOutput: TfrmBaseOutput
   Caption = 'Output Base Form'
   ClientHeight = 407
   ClientWidth = 663
-  ExplicitWidth = 677
-  ExplicitHeight = 442
+  ExplicitWidth = 679
+  ExplicitHeight = 446
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 663

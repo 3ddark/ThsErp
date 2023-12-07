@@ -7,7 +7,8 @@ interface
 uses
   SysUtils,
   Data.DB,
-  ZDataset,
+  FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet,
   Ths.Database,
   Ths.Database.Table;
 
@@ -147,7 +148,7 @@ end;
 
 procedure TStkCinsOzelligi.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -202,7 +203,7 @@ end;
 
 procedure TStkCinsOzelligi.DoInsert(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -243,7 +244,7 @@ end;
 
 procedure TStkCinsOzelligi.DoUpdate(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

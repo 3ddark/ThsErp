@@ -5,27 +5,11 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Generics.Collections,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Samples.Spin,
-  Vcl.StdCtrls,
-  Vcl.Dialogs,
-  Vcl.Graphics,
-  Vcl.AppEvnts,
-  Vcl.ExtCtrls,
-  Vcl.ComCtrls,
-  Vcl.Menus,
-  Vcl.Imaging.pngimage,
-  Winapi.Windows,
-  ZAbstractConnection,
-  Ths.Helper.Edit,
-  Ths.Helper.ComboBox,
-  udm,
-  ufrmBase,
-  Ths.Database.Connection.Settings;
+  System.SysUtils, System.Classes, System.Generics.Collections, Vcl.Controls,
+  Vcl.Forms, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Dialogs, Vcl.Graphics,
+  Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Menus, Vcl.Imaging.pngimage,
+  Winapi.Windows, FireDAC.Comp.Client, Ths.Helper.Edit, Ths.Helper.ComboBox, udm,
+  ufrmBase, Ths.Database.Connection.Settings;
 
 type
   TfrmGiris = class(TfrmBase)
@@ -42,11 +26,9 @@ type
     lblprocess_id_val: TLabel;
     lblip_address: TLabel;
     lblip_address_val: TLabel;
-    lbllisan: TLabel;
     lblversiyon: TLabel;
     lblversiyon_val: TLabel;
     lbltema: TLabel;
-    cbblisan: TComboBox;
     cbbtema: TComboBox;
     edtkullanici_adi: TEdit;
     edtkullanici_sifresi: TEdit;
@@ -58,15 +40,11 @@ type
     chkayarlari_kaydet: TCheckBox;
     imglogo: TImage;
     pb1: TProgressBar;
-    procedure RefreshLangValue();
-    procedure cbblisanChange(Sender: TObject);
     procedure cbbtemaChange(Sender: TObject);
     procedure edtkullanici_adiDblClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject); override;
   private
     ConnSetting: TConnSettings;
-    Langs: TLangs;
-    LoginText: TLoginText;
   public
     class function Execute(): Boolean;
   published
@@ -77,29 +55,17 @@ type
   end;
 
 const
-  FormSmall = 265;
+  FormSmall = 250;
   FormBig = 430;
 
 implementation
 
 uses
-  Vcl.Themes,
-  Vcl.Styles,
-  Ths.Globals,
-  Ths.Constants,
-  Ths.Database,
-  Ths.Database.Table,
-  Ths.Database.Table.SysKullanicilar,
-  Ths.Database.Table.SysLisanlar,
-  Ths.Database.Table.SysLisanGuiIcerikler,
-  Ths.Database.Table.SysOndalikHaneler,
-  Ths.Database.Table.SysUygulamaAyarlari,
-  Ths.Database.Table.SysGunler,
-  Ths.Database.Table.SysAylar,
-  Ths.Database.Table.SysParaBirimleri,
-  Ths.Database.Table.View.SysViewColumns,
-  Ths.Database.Table.SysGridKolonlar,
-  ufrmDashboard;
+  Vcl.Themes, Vcl.Styles, Ths.Globals, Ths.Constants, Ths.Database,
+  Ths.Database.Table, Ths.Database.Table.SysKullanicilar,
+  Ths.Database.Table.SysGuiIcerikler, Ths.Database.Table.SysOndalikHaneler,
+  Ths.Database.Table.SysUygulamaAyarlari, Ths.Database.Table.SysParaBirimleri,
+  Ths.Database.Table.View.SysViewColumns, ufrmDashboard;
 
 {$R *.dfm}
 
@@ -119,7 +85,7 @@ end;
 procedure TfrmGiris.btnAcceptClick(Sender: TObject);
 var
   LUserID: Integer;
-  LGuiIcerik: TSysLisanGuiIcerik;
+  LGuiIcerik: TSysGuiIcerik;
   LGuiContent: TGuiIcerik;
   n1: Integer;
 
@@ -133,9 +99,8 @@ begin
   begin
     try
       if GDataBase.Connection.Connected then
-        GDataBase.Connection.Disconnect;
+        GDataBase.Connection.Close;
 
-      ConnSetting.Language := cbblisan.Text;
       ConnSetting.Theme := cbbtema.Text;
       ConnSetting.SQLServer := edtdb_host.Text;
       ConnSetting.DatabaseName := edtdb_adi.Text;
@@ -145,14 +110,8 @@ begin
       ConnSetting.UserName := edtkullanici_adi.Text;
       ConnSetting.UserPass := edtkullanici_sifresi.Text;
 
-      AppLanguage := ConnSetting.Language;
-
-      GDataBase.ConfigureConnection(ConnSetting.SQLServer,
-                                    ConnSetting.DatabaseName,
-                                    ConnSetting.DBUserName,
-                                    ConnSetting.DBUserPassword,
-                                    ConnSetting.DBPortNo);
-      GDataBase.Connection.Connect;
+      GDataBase.ConfigureConnection(ConnSetting.SQLServer, ConnSetting.DatabaseName, ConnSetting.DBUserName, ConnSetting.DBUserPassword, ConnSetting.DBPortNo);
+      GDataBase.Connection.Open;
     except
       on E: Exception do
       begin
@@ -165,7 +124,7 @@ begin
     if GDataBase.Connection.Connected then
     begin
       try
-        GDataBase.Connection.ExecuteDirect('SET ths_erp.user_name = ' + QuotedStr(edtkullanici_adi.Text));
+        GDataBase.Connection.ExecSQL('SET ths_erp.user_name = ' + QuotedStr(edtkullanici_adi.Text));
 
         pb1.Max := 11;
         pb1.Min := 0;
@@ -179,8 +138,6 @@ begin
           GSysOndalikHane := TSysOndalikHane.Create(GDataBase);
         if GSysApplicationSetting = nil then
           GSysApplicationSetting := TSysUygulamaAyari.Create(GDataBase);
-        if GSysLisan = nil then
-          GSysLisan := TSysLisan.Create(GDataBase);
         if GParaBirimi = nil then
           GParaBirimi := TSysParaBirimi.Create(GDataBase);
         if GSysTableInfo = nil then
@@ -188,20 +145,19 @@ begin
         if GGuiIcerik = nil then
           GGuiIcerik := TDictionary<string, TGuiIcerik>.Create;
 
-        LGuiIcerik := TSysLisanGuiIcerik.Create(GDataBase);
+        LGuiIcerik := TSysGuiIcerik.Create(GDataBase);
         try
-          LGuiIcerik.SelectToList(' AND ' + LGuiIcerik.Lisan.QryName + '=' + QuotedStr(cbblisan.Text), False, False);
-          for n1 := 0 to LGuiIcerik.List.Count-1 do
+          LGuiIcerik.SelectToList('', False, False);
+          for n1 := 0 to LGuiIcerik.List.Count - 1 do
           begin
-            LGuiContent.FLisan := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).Lisan.AsString;
-            LGuiContent.FKod := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).Kod.AsString;
-            LGuiContent.FIcerikTipi := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).IcerikTipi.AsString;
-            LGuiContent.FTabloAdi := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).TabloAdi.AsString;
-            LGuiContent.FDeger := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).Deger.AsString;
-            LGuiContent.FIsFabrika := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).IsFabrika.AsBoolean;
-            LGuiContent.FFormAdi := TSysLisanGuiIcerik(LGuiIcerik.List[n1]).FormAdi.AsString;
+            LGuiContent.FKod := TSysGuiIcerik(LGuiIcerik.List[n1]).Kod.AsString;
+            LGuiContent.FIcerikTipi := TSysGuiIcerik(LGuiIcerik.List[n1]).IcerikTipi.AsString;
+            LGuiContent.FTabloAdi := TSysGuiIcerik(LGuiIcerik.List[n1]).TabloAdi.AsString;
+            LGuiContent.FDeger := TSysGuiIcerik(LGuiIcerik.List[n1]).Deger.AsString;
+            LGuiContent.FIsFabrika := TSysGuiIcerik(LGuiIcerik.List[n1]).IsFabrika.AsBoolean;
+            LGuiContent.FFormAdi := TSysGuiIcerik(LGuiIcerik.List[n1]).FormAdi.AsString;
 
-            GGuiIcerik.AddOrSetValue(TSysLisanGuiIcerik(LGuiIcerik.List[n1]).Kod.AsString, LGuiContent);
+            GGuiIcerik.AddOrSetValue(TSysGuiIcerik(LGuiIcerik.List[n1]).Kod.AsString, LGuiContent);
           end;
           IncProgress;
         finally
@@ -215,7 +171,6 @@ begin
 
         LUserID := Login(edtkullanici_adi.Text, edtkullanici_sifresi.Text);
 
-
         if LUserID = -1 then
           raise Exception.Create(edtkullanici_adi.Text + ': böyle bir kullanýcý yok')
         else if LUserID = -2 then
@@ -225,7 +180,8 @@ begin
   //                                 'IP Adres Hatasý' + FERHAT_UYARI)
         else if LUserID = -4 then
           raise Exception.Create('Geçersiz Kullanýcý Þifresi!')
-        else if LUserID = -6 then begin
+        else if LUserID = -6 then
+        begin
           Application.MessageBox('Yeni bir güncellemeniz var.', 'Güncelleme', MB_ICONINFORMATION);
           TfrmDashboard(Application.MainForm).UpdateApplicationExe();
           Exit;
@@ -236,8 +192,6 @@ begin
 
 
         GSysKullanici.SelectToList(' AND ' + GSysKullanici.TableName + '.' + GSysKullanici.Id.FieldName + '=' + IntToStr(LUserID), False, False);
-        IncProgress;
-        GSysLisan.SelectToList(' AND ' + GSysLisan.TableName + '.' + GSysLisan.Lisan.FieldName + '=' + QuotedStr(cbblisan.Text), False, False);
         IncProgress;
         if GSysKullanici.List.Count = 0 then
           raise Exception.Create('Kullanýcý Adý/Þifre tanýmlý deðil veya doðru deðil!');
@@ -259,15 +213,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TfrmGiris.cbblisanChange(Sender: TObject);
-begin
-  inherited;
-  ConnSetting.Language := cbblisan.Text;
-  RefreshLangValue;
-
-  Repaint;
 end;
 
 procedure TfrmGiris.cbbtemaChange(Sender: TObject);
@@ -297,19 +242,14 @@ begin
   ConnSetting := TConnSettings.Create;
   ConnSetting.ReadFromFile;
 
-  Langs := TLangs.Create;
-  Langs.ReadFromFile;
-
-  LoginText := TLoginText.Create;
-  LoginText.ReadFromFile(ConnSetting.Language);
-
-  Self.Height := scaleBySystemDPI(FormSmall);;
+  Self.Height := scaleBySystemDPI(FormSmall);
+  ;
   Repaint;
 
   dm.illogo.GetIcon(0, imglogo.Picture.Icon);
 
   cbbtema.Clear;
-  for n1 := 0 to Length(TStyleManager.StyleNames)-1 do
+  for n1 := 0 to Length(TStyleManager.StyleNames) - 1 do
     cbbtema.Items.Add(TStyleManager.StyleNames[n1]);
   cbbtema.ItemIndex := cbbtema.Items.IndexOf(ConnSetting.Theme);
   if (cbbtema.Items.Count > 0) and (cbbtema.Text = '') then
@@ -325,25 +265,20 @@ begin
   btnDelete.Visible := False;
   btnSpin.Visible := False;
 
-  cbblisan.Clear;
-  cbblisan.Items.Add(ConnSetting.Language);
-
-  {$IFDEF DEBUG}edtkullanici_adi.Text := ConnSetting.UserName;{$ELSE}edtkullanici_adi.Clear;{$ENDIF}
-  {$IFDEF DEBUG}edtkullanici_sifresi.Text := ConnSetting.UserPass;{$ELSE}edtkullanici_sifresi.Clear;{$ENDIF}
+  {$IFDEF DEBUG}    edtkullanici_adi.Text := ConnSetting.UserName; {$ELSE}
+  edtkullanici_adi.Clear; {$ENDIF}
+  {$IFDEF DEBUG}
+  edtkullanici_sifresi.Text := ConnSetting.UserPass; {$ELSE}
+  edtkullanici_sifresi.Clear; {$ENDIF}
   edtdb_kullanici.Text := ConnSetting.DBUserName;
   edtdb_kullanici_sifre.Text := ConnSetting.DBUserPassword;
   edtdb_host.Text := ConnSetting.SQLServer;
   edtdb_adi.Text := ConnSetting.DatabaseName;
   edtdb_port.Text := ConnSetting.DBPortNo.ToString;
-
-  cbblisan.ItemIndex := cbblisan.Items.IndexOf(ConnSetting.Language);
-  cbblisanChange(cbblisan);
 end;
 
 procedure TfrmGiris.FormDestroy(Sender: TObject);
 begin
-  LoginText.Free;
-  Langs.Free;
   ConnSetting.Free;
   inherited;
 end;
@@ -351,18 +286,10 @@ end;
 procedure TfrmGiris.FormShow(Sender: TObject);
 var
   n1: Integer;
-
   LList: TNetworkCardInfoList;
   LLen: Integer;
 begin
   inherited;
-
-  cbblisan.Clear;
-  for n1 := 0 to Langs.LangList.Count-1 do
-    cbblisan.Items.Add( Langs.LangList.Strings[n1]);
-  cbblisan.ItemIndex := cbblisan.Items.IndexOf( ConnSetting.Language );
-  RefreshLangValue;
-
 
   lblprocess_id_val.Caption := GetPIDByHWnd(Application.Handle).ToString;
   lblversiyon_val.Caption := APP_VERSION;
@@ -370,27 +297,8 @@ begin
   lblip_address_val.Caption := '';
   LList := GetMACAddress;
   LLen := Length(LList);
-  for n1 := 0 to LLen-1 do
-    lblip_address_val.Caption := lblip_address_val.Caption + LList[n1].IPAddress + AddLBs +
-                                                             LList[n1].MacAddress + AddLBs(2);
-end;
-
-procedure TfrmGiris.RefreshLangValue;
-begin
-  LoginText.ReadFromFile(ConnSetting.Language);
-
-  Caption := LoginText.Title;
-  lbllisan.Caption := LoginText.Lang;
-  lblkullanici_adi.Caption := LoginText.User;
-  lblkullanici_sifresi.Caption := LoginText.UserPass;
-  lbldb_kullanici.Caption := LoginText.DBUser;
-  lbldb_kullanici_sifre.Caption := LoginText.DBPass;
-  lbldb_host.Caption := LoginText.Server;
-  lblsuncu_ornek.Caption := LoginText.Example;
-  lbldb_adi.Caption := LoginText.DBName;
-  lbldb_port.Caption := LoginText.DBPort;
-  lblayarlari_kaydet.Caption := LoginText.SaveSettings;
-  lbltema.Caption := LoginText.ThemeName;
+  for n1 := 0 to LLen - 1 do
+    lblip_address_val.Caption := lblip_address_val.Caption + LList[n1].IPAddress + AddLBs + LList[n1].MacAddress + AddLBs(2);
 end;
 
 procedure TfrmGiris.Repaint;
@@ -412,3 +320,4 @@ begin
 end;
 
 end.
+

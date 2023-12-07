@@ -12,9 +12,9 @@ uses
   Ths.Helper.Memo, Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB;
 
 type
-  TfrmSysLisan = class(TfrmBaseInputDB)
-    lblmonth: TLabel;
-    edtmonth: TEdit;
+  TfrmSysAy = class(TfrmBaseInputDB)
+    lblay_adi: TLabel;
+    edtay_adi: TEdit;
   published
     procedure btnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
@@ -30,13 +30,13 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmSysLisan.btnAcceptClick(Sender: TObject);
+procedure TfrmSysAy.btnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
     if (ValidateInput) then
     begin
-      TSysAy(Table).AyAdi.Value := edtmonth.Text;
+      TSysAy(Table).AyAdi.Value := edtay_adi.Text;
       inherited;
     end;
   end
@@ -44,15 +44,15 @@ begin
     inherited;
 end;
 
-procedure TfrmSysLisan.FormCreate(Sender: TObject);
+procedure TfrmSysAy.FormCreate(Sender: TObject);
 begin
   inherited;
-  edtmonth.CharCase := ecNormal;
+  edtay_adi.CharCase := ecNormal;
 end;
 
-procedure TfrmSysLisan.RefreshData;
+procedure TfrmSysAy.RefreshData;
 begin
-  edtmonth.Text := TSysAy(Table).AyAdi.AsString;
+  edtay_adi.Text := TSysAy(Table).AyAdi.AsString;
 end;
 
 end.

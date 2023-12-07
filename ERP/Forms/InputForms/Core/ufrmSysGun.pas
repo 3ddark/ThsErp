@@ -5,36 +5,19 @@ interface
 {$I Ths.inc}
 
 uses
-  Winapi.Windows,
-  Winapi.Messages,
-  System.SysUtils,
-  System.Variants,
-  System.Classes,
-  System.StrUtils,
-  Vcl.Graphics,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Dialogs,
-  Vcl.StdCtrls,
-  Vcl.ExtCtrls,
-  Vcl.ComCtrls,
-  Vcl.AppEvnts,
-  Vcl.Menus,
-  Vcl.Samples.Spin,
-  Ths.Helper.BaseTypes,
-  Ths.Helper.Edit,
-  Ths.Helper.Memo,
-  Ths.Helper.ComboBox,
-  ufrmBase,
-  ufrmBaseInputDB;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, System.StrUtils, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
+  Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus,
+  Vcl.Samples.Spin, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
+  Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB;
 
 type
   TfrmSysGun = class(TfrmBaseInputDB)
-    lblday: TLabel;
-    edtday: TEdit;
+    lblgun_adi: TLabel;
+    edtgun_adi: TEdit;
   published
     procedure btnAcceptClick(Sender: TObject); override;
-    procedure FormCreate(Sender: TObject);override;
+    procedure FormCreate(Sender: TObject); override;
     procedure RefreshData; override;
   end;
 
@@ -51,7 +34,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSysGun(Table).GunAdi.Value := edtday.Text;
+      TSysGun(Table).GunAdi.Value := edtgun_adi.Text;
       inherited;
     end;
   end
@@ -62,12 +45,13 @@ end;
 procedure TfrmSysGun.FormCreate(Sender: TObject);
 begin
   inherited;
-  edtday.CharCase := ecNormal;
+  edtgun_adi.CharCase := ecNormal;
 end;
 
 procedure TfrmSysGun.RefreshData;
 begin
-  edtday.Text := TSysGun(Table).GunAdi.AsString;
+  edtgun_adi.Text := TSysGun(Table).GunAdi.AsString;
 end;
 
 end.
+

@@ -11,8 +11,8 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.ComCtrls, Vcl.Menus, Vcl.ActnList, Vcl.AppEvnts,
   Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.Dialogs,
   Vcl.ToolWin, Vcl.ImgList, Vcl.StdActns, Vcl.CategoryButtons, Vcl.WinXCtrls,
-  Vcl.Imaging.pngimage, Data.DB, ZAbstractRODataset, ZAbstractDataset, ZDataset,
-  ZStoredProcedure, Ths.Utils.InfoWindow, udm, ufrmBase, ufrmBaseDBGrid,
+  Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  Ths.Utils.InfoWindow, udm, ufrmBase, ufrmBaseDBGrid,
   Ths.Database.TableDetailed, Ths.Database.Table;
 
 type
@@ -31,9 +31,7 @@ type
     actsys_access_right: TAction;
     actsys_grid_column: TAction;
     actsys_grid_filter_sort: TAction;
-    actsys_language: TAction;
     actsys_lang_gui_content: TAction;
-    actsys_taxpayer_type: TAction;
     actsys_application_setting: TAction;
     actsys_application_setting_other: TAction;
     actsys_day: TAction;
@@ -94,12 +92,10 @@ type
     mnisys_grid_column: TMenuItem;
     mnisys_grid_filter_sort: TMenuItem;
     mnisys_lang_gui_content: TMenuItem;
-    mnisys_language: TMenuItem;
     mnisys_region: TMenuItem;
     mnisys_month: TMenuItem;
     mnisys_resource: TMenuItem;
     mnisys_resource_group: TMenuItem;
-    mnisys_taxpayer_type: TMenuItem;
     mnisys_unit: TMenuItem;
     mnisys_unit_type: TMenuItem;
     mnisys_user: TMenuItem;
@@ -179,9 +175,7 @@ type
     procedure actsys_access_rightExecute(Sender: TObject);
     procedure actsys_grid_columnExecute(Sender: TObject);
     procedure actsys_grid_filter_sortExecute(Sender: TObject);
-    procedure actsys_languageExecute(Sender: TObject);
     procedure actsys_lang_gui_contentExecute(Sender: TObject);
-    procedure actsys_taxpayer_typeExecute(Sender: TObject);
     procedure actsys_application_settingExecute(Sender: TObject);
     procedure actsys_monthExecute(Sender: TObject);
     procedure actsys_dayExecute(Sender: TObject);
@@ -286,7 +280,7 @@ uses
   Ths.Helper.Edit,
   Ths.Constants,
   Ths.Globals,
-  ufrmSysLisanGuiIcerik,
+  ufrmSysGuiIcerik,
   ufrmSysSifreDegistir,
 
   Ths.Database.Table.SysUlkeler, ufrmSysUlkeler,
@@ -296,16 +290,14 @@ uses
   Ths.Database.Table.SysErisimHaklari, ufrmSysErisimHaklari,
   Ths.Database.Table.SysKaynakGruplari, ufrmSysKaynakGruplari,
   Ths.Database.Table.SysKaynaklar, ufrmSysKaynaklar,
-  Ths.Database.Table.SysLisanlar, ufrmSysLisanlar,
   Ths.Database.Table.SysGunler, ufrmSysGunler,
   Ths.Database.Table.SysAylar, ufrmSysAylar,
-  Ths.Database.Table.SysLisanGuiIcerikler, ufrmSysLisanGuiIcerikler,
+  Ths.Database.Table.SysGuiIcerikler, ufrmSysGuiIcerikler,
   Ths.Database.Table.SysGridKolonlar, ufrmSysGridKolonlar,
   Ths.Database.Table.SysGridFiltrelerSiralamalar, ufrmSysGridFiltrelerSiralamalar,
   Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
   Ths.Database.Table.SysOlcuBirimiTipleri, ufrmSysOlcuBirimiTipleri,
   Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
-  Ths.Database.Table.SysVergiMukellefTipleri, ufrmSysVergiMukellefTipleri,
   Ths.Database.Table.SysUygulamaAyarlari, ufrmSysUygulamaAyari,
   Ths.Database.Table.View.SysDbStatus, ufrmSysDatabaseMonitor,
 
@@ -676,14 +668,9 @@ begin
   TfrmChDovizKurlari.Create(Self, Self, TChDovizKuru.Create(GDataBase), fomNormal).Show;
 end;
 
-procedure TfrmDashboard.actsys_languageExecute(Sender: TObject);
-begin
-  TfrmSysLisanlar.Create(Self, Self, TSysLisan.Create(GDataBase), fomNormal).Show;
-end;
-
 procedure TfrmDashboard.actsys_lang_gui_contentExecute(Sender: TObject);
 begin
-  TfrmSysLisanGuiIcerikler.Create(Self, Self, TSysLisanGuiIcerik.Create(GDataBase), fomNormal).Show;
+  TfrmSysGuiIcerikler.Create(Self, Self, TSysGuiIcerik.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actsys_monthExecute(Sender: TObject);
@@ -733,11 +720,6 @@ begin
     TfrmSysUygulamaAyari.Create(Self, nil, LAppSetting, ifmNewRecord).ShowModal
   end else if LAppSetting.List.Count = 1 then
     TfrmSysUygulamaAyari.Create(Self, nil, LAppSetting, ifmRewiev).ShowModal;
-end;
-
-procedure TfrmDashboard.actsys_taxpayer_typeExecute(Sender: TObject);
-begin
-  TfrmSysVergiMukellefTipleri.Create(Self, Self, TSysVergiMukellefTipi.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actsys_userExecute(Sender: TObject);
@@ -798,7 +780,7 @@ procedure TfrmDashboard.tmrcheck_is_update_requiredTimer(Sender: TObject);
 var
   LSurum: string;
   LMr: Integer;
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   //interval değeri kadar süre sonrasında kullanıcı sürüm kotrolü yapıyor
   //süre 60000 olarak 1 dakika olacak şekilde ayarlandı
@@ -1048,7 +1030,7 @@ begin
 
   if stbBase.Panels.Count >= STATUS_SQL_SERVER+1 then
     if GDataBase.Connection.Connected then
-      stbBase.Panels.Items[STATUS_SQL_SERVER].Text := GDataBase.Connection.HostName;
+      stbBase.Panels.Items[STATUS_SQL_SERVER].Text := GDataBase.Connection.Params.Values['Server'];
 
   if stbBase.Panels.Count >= STATUS_DATE+1 then
     if GDataBase.Connection.Connected then

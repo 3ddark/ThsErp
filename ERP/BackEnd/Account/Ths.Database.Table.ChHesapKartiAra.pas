@@ -8,7 +8,8 @@ uses
   SysUtils,
   StrUtils,
   Data.DB,
-  ZDataset,
+  FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet,
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.Table.SetChHesapTipi,
@@ -70,7 +71,7 @@ begin
       ' AND ' + LHesap.HesapTipiID.QryName + '=' + IntToStr(Ord(htSon))
       , False, False);
     if LHesap.List.Count > 0 then
-      CreateExceptionByLang('Bu hesaba bağlı Son Hesaplar oluşturulmuş! Önce bu hesaplar silinmeli.', '999999');
+      raise Exception.Create(Trim('Bu hesaba bağlı Son Hesaplar oluşturulmuş! Önce bu hesaplar silinmeli. + 999999'));
 
     Delete(APermissionControl);
   finally
@@ -130,7 +131,7 @@ end;
 
 procedure TChHesapKartiAra.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -171,7 +172,7 @@ end;
 
 procedure TChHesapKartiAra.DoInsert(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -194,7 +195,7 @@ end;
 
 procedure TChHesapKartiAra.DoUpdate(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -219,11 +220,11 @@ var
   LStr: string;
 begin
   if (KokKod.Value = '') then
-    CreateExceptionByLang('Kök Hesap Kodu seçilmeden devam edilemez!', '999999');
+    raise Exception.Create(Trim('Kök Hesap Kodu seçilmeden devam edilemez! + 999999'));
 
   LStr := ReverseString(FHesapKodu.AsString);
   if (LStr[1] = '-') then
-    CreateExceptionByLang('Ara Hesap Kodu doğru girilmedi! Örnek Kod "120-001" gibi olmalı', '999999');
+    raise Exception.Create(Trim('Ara Hesap Kodu doğru girilmedi! Örnek Kod "120-001" gibi olmalı + 999999'));
 end;
 
 function TChHesapKartiAra.Clone: TTable;

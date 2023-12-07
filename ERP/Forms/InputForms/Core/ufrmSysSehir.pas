@@ -14,12 +14,12 @@ uses
 
 type
   TfrmSysSehir = class(TfrmBaseInputDB)
-    lblcountry_id: TLabel;
-    lblcity: TLabel;
-    lblcar_plate: TLabel;
-    edtcity: TEdit;
-    edtcar_plate: TEdit;
-    edtcountry_id: TEdit;
+    lblulke_id: TLabel;
+    lblsehir: TLabel;
+    lblplaka_kodu: TLabel;
+    edtsehir: TEdit;
+    edtplaka_kodu: TEdit;
+    edtulke_id: TEdit;
   protected
     procedure HelperProcess(Sender: TObject); override;
   published
@@ -43,8 +43,8 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSysSehir(Table).Sehir.Value := edtcity.Text;
-      TSysSehir(Table).PlakaKodu.Value := edtcar_plate.Text;
+      TSysSehir(Table).Sehir.Value := edtsehir.Text;
+      TSysSehir(Table).PlakaKodu.Value := edtplaka_kodu.Text;
 
       inherited;
     end;
@@ -55,7 +55,7 @@ end;
 
 procedure TfrmSysSehir.FormShow(Sender: TObject);
 begin
-  edtcountry_id.OnHelperProcess := HelperProcess;
+  edtulke_id.OnHelperProcess := HelperProcess;
   inherited;
 end;
 
@@ -67,7 +67,7 @@ begin
   begin
     if Sender.ClassType = TEdit then
     begin
-      if TEdit(Sender).Name = edtcountry_id.Name then
+      if TEdit(Sender).Name = edtulke_id.Name then
       begin
         LFrm := TfrmSysUlkeler.Create(TEdit(Sender), Self, TSysUlke.Create(Table.Database), fomNormal, True);
         try
@@ -96,9 +96,9 @@ end;
 procedure TfrmSysSehir.RefreshData;
 begin
   inherited;
-  edtcountry_id.Text := TSysSehir(Table).UlkeAdi.Value;
-  edtcity.Text := TSysSehir(Table).Sehir.Value;
-  edtcar_plate.Text := TSysSehir(Table).PlakaKodu.Value;
+  edtulke_id.Text := TSysSehir(Table).UlkeAdi.Value;
+  edtsehir.Text := TSysSehir(Table).Sehir.Value;
+  edtplaka_kodu.Text := TSysSehir(Table).PlakaKodu.Value;
 end;
 
 end.

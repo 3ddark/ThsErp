@@ -1611,7 +1611,7 @@ begin
 end;
 
 procedure SetCurrentPrinterAsDefault;
-var Device, Driver, Port: array[byte] of char;
+var Device, Driver, Port: string;
     DefaultPrinter: string;
     hDeviceMode: THandle;
 begin
@@ -1619,8 +1619,8 @@ begin
   Printer.GetPrinter(Device, Driver, Port, hDeviceMode);
   if DefaultPrinter = Device then
     exit;
-  if Driver[0] = #0 then
-    if not GetDriverForPrinter(Device, Driver) then
+  if Driver = '' then
+    if not GetDriverForPrinter(PChar(Device), PChar(Driver)) then
       exit;  // oops !
   DefaultPrinter := FormatString('%,%,%',[Device, Driver, Port]);
   WriteProfileString( 'windows', 'device', pointer(DefaultPrinter) );
@@ -1629,7 +1629,7 @@ begin
 end;
 
 function CurrentPrinterName: string;
-var Device, Driver, Port: array[byte] of char;
+var Device, Driver, Port: string;
     hDeviceMode: THandle;
 begin
   Printer.GetPrinter(Device, Driver, Port, hDeviceMode);

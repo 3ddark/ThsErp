@@ -3,81 +3,27 @@ unit Ths.Globals;
 interface
 
 uses
-  Ths.Database,
-  Ths.Constants,
-  Ths.Utils.Logger,
-  Ths.Helper.ThsList,
-  Ths.Database.Table,
-  Ths.Database.Table.SysKullanicilar,
-  Ths.Database.Table.SysLisanlar,
-  Ths.Database.Table.SysOndalikHaneler,
-  Ths.Database.Table.SysUygulamaAyarlari,
-  Ths.Database.Table.SysAylar,
-  Ths.Database.Table.SysParaBirimleri,
+  System.Classes, System.Types, System.Variants, System.SysUtils,
+  System.StrUtils, System.DateUtils, System.Math, System.UITypes, System.IOUtils,
+  System.Generics.Collections, System.RTTI, System.TypInfo, System.Hash,
+  System.AnsiStrings, System.Net.HttpClientComponent, Xml.XMLIntf, Xml.XMLDoc,
+  Winapi.Windows, Winapi.Messages, Winapi.IpTypes, Winapi.IpHlpApi,
+  Winapi.TlHelp32, Winapi.PsAPI, Winapi.ShellAPI, Winapi.WinInet, Vcl.Forms,
+  Vcl.Controls, Vcl.StdCtrls, Vcl.Dialogs, Vcl.Grids, Vcl.Graphics, Vcl.ExtCtrls,
+  Vcl.Imaging.jpeg, Vcl.Imaging.pngimage, Data.DB, Vcl.DBGrids, Data.FmtBcd,
+  IdGlobal, IdFTP, IdFTPCommon, IdAntiFreeze, IdHash, IdBaseComponent,
+  IdComponent, IdTCPConnection, IdTCPClient, IdHTTP, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf,
+  FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys,
+  FireDAC.VCLUI.Wait, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf,
+  FireDAC.DApt, FireDAC.Phys.PGDef, FireDAC.Comp.Client, FireDAC.Phys.PG,
+  FireDAC.Comp.DataSet, Ths.Database, Ths.Constants, Ths.Utils.Logger,
+  Ths.Helper.ThsList, Ths.Database.Table, Ths.Database.Table.SysKullanicilar,
+  Ths.Database.Table.SysOndalikHaneler, Ths.Database.Table.SysUygulamaAyarlari,
+  Ths.Database.Table.SysAylar, Ths.Database.Table.SysParaBirimleri,
   Ths.Database.Table.SysGridKolonlar,
   Ths.Database.Table.SysGridFiltrelerSiralamalar,
-  Ths.Database.Table.SysLisanGuiIcerikler,
-  Ths.Database.Table.View.SysViewColumns,
-
-  System.Classes,
-  System.Types,
-  System.Variants,
-  System.SysUtils,
-  System.StrUtils,
-  System.DateUtils,
-  System.Math,
-  System.UITypes,
-  System.IOUtils,
-  System.Generics.Collections,
-  System.RTTI,
-  System.TypInfo,
-  System.Hash,
-  System.AnsiStrings,
-  System.Net.HttpClientComponent,
-  Xml.XMLIntf,
-  Xml.XMLDoc,
-
-  Winapi.Windows,
-  Winapi.Messages,
-  Winapi.IpTypes,
-  Winapi.IpHlpApi,
-  Winapi.TlHelp32,
-  Winapi.PsAPI,
-  Winapi.ShellAPI,
-  Winapi.WinInet,
-
-  Vcl.Forms,
-  Vcl.Controls,
-  Vcl.StdCtrls,
-  Vcl.Dialogs,
-  Vcl.Grids,
-  Vcl.Graphics,
-  Vcl.ExtCtrls,
-  Vcl.Imaging.jpeg,
-  Vcl.Imaging.pngimage,
-
-  Data.DB,
-  Vcl.DBGrids,
-  Data.FmtBcd,
-
-  //#######*****for Indy components*****#######
-  IdGlobal,
-  IdFTP,
-  IdFTPCommon,
-  IdAntiFreeze,
-  IdHash,
-  IdBaseComponent,
-  IdComponent,
-  IdTCPConnection,
-  IdTCPClient,
-  IdHTTP,
-  //#######*****for Indy components*****#######
-
-  ZConnection,
-  ZAbstractRODataset,
-  ZAbstractDataset,
-  ZDataset,
-  ZStoredProcedure;
+  Ths.Database.Table.SysGuiIcerikler, Ths.Database.Table.View.SysViewColumns;
 
 type
   TEmployeeID = class
@@ -473,9 +419,6 @@ type
 
   procedure freeInGroupBox(pGroup: TGroupBox);
 
-  procedure CreateExceptionByLang(AMsg: string; AName: string = '');
-
-
   /// <summary>
   ///   Copy files with sub folder to dest folder
   /// </summary>
@@ -507,7 +450,7 @@ type
   ///   <code lang="Delphi">NewParamForQuery(QryOfInsert, FBirim)</code>
   ///  </example>
   /// </summary>
-  procedure NewParamForQuery(AQuery: TZQuery; AField: TFieldDB);
+  procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);
 
   /// <summary>
   ///  Bu fonksiyon DBGrid üzerinde gösterilen sütunlarýn geniþlik deðerini deðiþtirmek için kullanýlýr.
@@ -563,11 +506,6 @@ var
   /// </summary>
   GLogger: TLogger;
 
-  /// <summary>
-  ///  Application opened language
-  /// </summary>
-  AppLanguage: string;
-
 
   GDosyaUzantilari: TArray<string>;
 
@@ -607,14 +545,6 @@ var
   /// </summary>
   GSysApplicationSetting: TSysUygulamaAyari;
 
-  /// <summary>
-  ///  Uygulama açýlýrken hangi dil ile açýþmýþsa o dilin bilgileri alýnýyor.
-  ///  <example>
-  ///   <code lang="Delphi">GSysLisan.Langeuage</code>
-  ///  </example>
-  /// </summary>
-  GSysLisan: TSysLisan;
-
 
   /// <summary>
   ///  Sistemde tanýmlý olan para birimleri burada tutuluyor
@@ -644,25 +574,28 @@ var
   Prop: TRttiProperty;
   SourceAsPointer, ResultAsPointer: Pointer;
 begin
+  Result := nil;
   RttiType := Context.GetType(Source.ClassType);
 
   //find a suitable constructor, though treat components specially
   IsComponent := (Source is TComponent);
   for Method in RttiType.GetMethods do
+  begin
     if Method.IsConstructor then
     begin
       Params := Method.GetParameters;
       if Params = nil then
+      begin
+        Result := (Method.Invoke(Source.ClassType, []).AsType < T > );
         Break;
+      end;
       if (Length(Params) = 1) and IsComponent and (Params[0].ParamType is TRttiInstanceType) and SameText(Method.Name, 'Create') then
+      begin
+        Result := (Method.Invoke(Source.ClassType, [TComponent(Source).Owner]).AsType < T > );
         Break;
+      end;
     end;
-
-  Result := nil;
-  if Params = nil then
-    Result := (Method.Invoke(Source.ClassType, []).AsType < T > )
-  else
-    Result := (Method.Invoke(Source.ClassType, [TComponent(Source).Owner]).AsType < T > );
+  end;
 
   try
     //many VCL control properties require the Parent property to be set first
@@ -690,7 +623,7 @@ end;
 
 function setUserPassword(AOldPass, ANewPass: string; AUserID: Integer): Boolean;
 var
-  LSP: TZStoredProc;
+  LSP: TFDStoredProc;
 begin
   Result := False;
   LSP := GDataBase.NewStoredProcedure;
@@ -710,7 +643,7 @@ end;
 
 function getEmployeeIDList: TEmployeeIdList;
 var
-  LSP: TZStoredProc;
+  LSP: TFDStoredProc;
 begin
   LSP := GDataBase.NewStoredProcedure;
   try
@@ -741,7 +674,7 @@ end;
 
 function getSysUserIDList: TSysUserIDList;
 var
-  LSP: TZStoredProc;
+  LSP: TFDStoredProc;
 begin
   LSP := GDataBase.NewStoredProcedure;
   try
@@ -828,7 +761,7 @@ end;
 
 function getCryptedData(pVal: string): string;
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := GDataBase.NewQuery();
   try
@@ -992,7 +925,7 @@ function ColumnFromIDCol(pRawTableColName, pRawTableName, pDataColName,
     pVirtualColName, pDataTableName: string; pIsIDReference: Boolean = True;
     pIsNumericVal: Boolean = False): string;
 var
-  vSP: TZStoredProc;
+  vSP: TFDStoredProc;
   vRefColName: string;
 begin
   if pIsIDReference then
@@ -1013,7 +946,6 @@ begin
       vSP.ParamByName('_table_name').Value := QuotedStr(pRawTableName);
       vSP.ParamByName('_column_name').Value := QuotedStr(pRawTableColName);
       vSP.ParamByName('_row_id').Value := IntToStr(0);
-      vSP.ParamByName('_lang').Value := QuotedStr(AppLanguage);
       vSP.ExecProc;
       Result := vSP.ParamByName('result').AsString;
 
@@ -1024,8 +956,7 @@ begin
             ' WHERE raw' + pRawTableName + '.' + vRefColName + '=' + pDataTableName + '.' + pDataColName + ')' + ',' +
             QuotedStr(pRawTableName) + ',' +
             QuotedStr(pRawTableColName) + ', ' +
-            pDataColName + ', ' +
-            QuotedStr(AppLanguage) + ') as ' + pVirtualColName;
+            pDataColName;
     finally
       vSP.Free;
     end;
@@ -1786,11 +1717,6 @@ begin
   result := nFind;
 end;
 
-procedure CreateExceptionByLang(AMsg: string; AName: string = '');
-begin
-  raise Exception.Create(System.SysUtils.Trim(AMsg + ' ' + AName));
-end;
-
 function GetSimdikiTarih(date_now: TDate): TStringList;
 var
   wGun, wAy, wYil: word;
@@ -2346,7 +2272,7 @@ begin
 	  ')::varchar as ' + pBaseColName                                                                         }
 end;
 
-procedure NewParamForQuery(AQuery: TZQuery; AField: TFieldDB);
+procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);
 begin
   AQuery.Params.ParamByName(AField.FieldName).DataType := AField.DataType;
   AQuery.Params.ParamByName(AField.FieldName).Value := FormatedVariantVal(AField);
@@ -2527,7 +2453,7 @@ function GetDistinctColumnName(ATableName: string): TStringList;
 var
   LCol: TSysViewColumns;
   LColWidth: TSysGridKolon;
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   Result := TStringList.Create;
 
@@ -2658,12 +2584,11 @@ begin
     raise Exception.Create('Yedekleme programý bulunamadý. Lütfen Tools dizini altýndaki yedekleme uygulamasýný kontrol edin.');
 
 
-  LParams :=
-    '/c ' + LBackupTool +
-    ' -Fc postgresql://' +
-    GDataBase.Connection.User + ':' + GDataBase.Connection.Password + '@' +
-    GDataBase.Connection.HostName + ':' + GDataBase.Connection.Port.ToString + '/' +
-    GDataBase.Connection.Database + ' > ' + LFileName + '&&exit';
+  with GDataBase.Connection.Params as TFDPhysPGConnectionDefParams do
+    LParams := '/c ' +
+                LBackupTool +
+                ' -Fc postgresql://' + UserName + ':' + Password + '@' +
+                Server + ':' + Port.ToString + '/' + Database + ' > ' + LFileName + '&&exit';
 
   ShellExecute(0, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
   CustomMsgDlg(
@@ -2684,12 +2609,11 @@ begin
   if not FileExists(TPath.Combine(LToolsDirectory, LAppName)) then
     raise Exception.Create('Yedek Geri Yükleme programý bulunamadý. Lütfen Tools dizini altýndaki yedek geri yükleme uygulamasýný kontrol edin.');
 
-  LParams :=
-    '/c Tools\' + LAppName +
-    ' -d postgresql://' +
-    GDataBase.Connection.User + ':' + GDataBase.Connection.Password + '@' +
-    GDataBase.Connection.HostName + ':' + GDataBase.Connection.Port.ToString + '/' +
-    ADatabaseName + ' ' + ABackupFilePath + '&&exit';
+  with GDataBase.Connection.Params as TFDPhysPGConnectionDefParams do
+    LParams := '/c Tools\' +
+               LAppName +
+               ' -d postgresql://' + UserName + ':' + Password + '@' +
+               Server + ':' + Port.ToString + '/' + ADatabaseName + ' ' + ABackupFilePath + '&&exit';
 
   ShellExecute(0, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
 end;
@@ -2705,12 +2629,13 @@ begin
   if not FileExists(TPath.Combine(LToolsDirectory, LAppName)) then
     raise Exception.Create('Veritabaný oluþturma programý bulunamadý. Lütfen Tools dizini altýndaki veritabaný oluþturma uygulamasýný kontrol edin.');
 
-  LParams :=
-    '/c Tools\' + LAppName +
-    ' -U ' + GDataBase.Connection.User +
-    ' -h ' + GDataBase.Connection.HostName +
-    ' -P ' + GDataBase.Connection.Port.ToString +
-    ' -w ' + ADatabaseName + '&&exit';
+  with GDataBase.Connection.Params as TFDPhysPGConnectionDefParams do
+    LParams :=
+      '/c Tools\' + LAppName +
+      ' -U ' + UserName +
+      ' -h ' + Server +
+      ' -P ' + Port.ToString +
+      ' -w ' + ADatabaseName + '&&exit';
 
   //ShellExecute(LHWND, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
 end;
@@ -2842,7 +2767,6 @@ begin
   GSysKullanici.Free;
   GSysOndalikHane.Free;
   GSysApplicationSetting.Free;
-  GSysLisan.Free;
   GParaBirimi.Free;
   GSysTableInfo.Free;
   GGuiIcerik.Free;

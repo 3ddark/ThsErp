@@ -4,15 +4,15 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, System.StrUtils, System.Math, Vcl.Graphics, Vcl.Controls,
-  Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts,
-  Vcl.Menus, Vcl.Samples.Spin, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  Ths.Helper.Memo, Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB;
+  System.Classes, System.Math, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
+  Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus,
+  Vcl.Samples.Spin, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
+  Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB;
 
 type
   TfrmSysOlcuBirimiTipi = class(TfrmBaseInputDB)
-    lblunit_type: TLabel;
-    edtunit_type: TEdit;
+    lblolcu_birimi_tipi: TLabel;
+    edtolcu_birimi_tipi: TEdit;
   published
     procedure RefreshData; override;
     procedure btnAcceptClick(Sender: TObject); override;
@@ -21,15 +21,13 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  ufrmSysOlcuBirimiTipleri,
-  Ths.Database.Table.SysOlcuBirimiTipleri;
+  Ths.Globals, Ths.Database.Table.SysOlcuBirimiTipleri;
 
 {$R *.dfm}
 
 procedure TfrmSysOlcuBirimiTipi.RefreshData;
 begin
-  edtunit_type.Text := TSysOlcuBirimiTipi(Table).OlcuBirimiTipi.AsString;
+  edtolcu_birimi_tipi.Text := TSysOlcuBirimiTipi(Table).OlcuBirimiTipi.AsString;
 end;
 
 procedure TfrmSysOlcuBirimiTipi.btnAcceptClick(Sender: TObject);
@@ -38,7 +36,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSysOlcuBirimiTipi(Table).OlcuBirimiTipi.Value := edtunit_type.Text;
+      TSysOlcuBirimiTipi(Table).OlcuBirimiTipi.Value := edtolcu_birimi_tipi.Text;
       inherited;
     end;
   end
@@ -47,3 +45,4 @@ begin
 end;
 
 end.
+

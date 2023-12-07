@@ -125,8 +125,8 @@ implementation
 uses
   Ths.Constants,
   Ths.Globals,
-  ufrmSysLisanGuiIcerik,
-  Ths.Database.Table.SysLisanGuiIcerikler;
+  ufrmSysGuiIcerik,
+  Ths.Database.Table.SysGuiIcerikler;
 
 {$R *.dfm}
 
@@ -154,17 +154,16 @@ end;
 
 procedure TfrmBase.CreateLangGuiContentFormforFormCaption;
 var
-  LLangGuiContent: TSysLisanGuiIcerik;
+  LLangGuiContent: TSysGuiIcerik;
 begin
-  LLangGuiContent := TSysLisanGuiIcerik.Create(GDataBase);
+  LLangGuiContent := TSysGuiIcerik.Create(GDataBase);
 
-  LLangGuiContent.Lisan.Value := AppLanguage;
   LLangGuiContent.Kod.Value := Self.Name;
   LLangGuiContent.IcerikTipi.Value := LngFormCaption;
   LLangGuiContent.TabloAdi.Value := '';
   LLangGuiContent.Deger.Value := Self.Caption;
 
-  TfrmSysLisanGuiIcerik.Create(Self, nil, LLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
+  TfrmSysGuiIcerik.Create(Self, nil, LLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
 end;
 

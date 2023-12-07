@@ -8,7 +8,8 @@ uses
   SysUtils,
   System.Variants,
   Data.DB,
-  ZDataset,
+  FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet,
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.Table.ChBankalar,
@@ -102,7 +103,7 @@ end;
 
 procedure TChBankaSubesi.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -143,7 +144,7 @@ end;
 
 procedure TChBankaSubesi.DoInsert(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -166,7 +167,7 @@ end;
 
 procedure TChBankaSubesi.DoUpdate(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

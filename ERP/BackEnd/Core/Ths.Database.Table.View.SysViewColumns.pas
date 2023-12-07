@@ -8,7 +8,8 @@ uses
   Classes,
   System.Variants,
   Data.DB,
-  ZDataset,
+  FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet,
   Ths.Database,
   Ths.Database.Table,
   Ths.Database.Table.View;
@@ -100,7 +101,7 @@ end;
 
 procedure TSysViewColumns.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;

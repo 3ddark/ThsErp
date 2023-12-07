@@ -8,8 +8,10 @@ uses
   System.SysUtils, System.Classes, System.ImageList, System.Actions,
   Vcl.Controls, Vcl.Forms, Vcl.DBGrids, Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls,
   Vcl.ExtCtrls, Vcl.ImgList, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids,
-  Vcl.Dialogs, Vcl.ActnList, Data.DB, ZAbstractRODataset, ZAbstractDataset,
-  ZDataset, ZPgEventAlerter, ufrmBase, ufrmBaseDBGrid;
+  Vcl.Dialogs, Vcl.ActnList, Data.DB, ufrmBase, ufrmBaseDBGrid, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client;
 
 type
   TfrmSysLisanlar = class(TfrmBaseDBGrid)

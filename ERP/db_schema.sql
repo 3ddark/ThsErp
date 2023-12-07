@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.1
--- Dumped by pg_dump version 14.1
+-- Dumped from database version 16.1
+-- Dumped by pg_dump version 16.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,6 +15,15 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
@@ -670,7 +679,7 @@ CREATE SEQUENCE public.a_invoices_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.a_invoices_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.a_invoices_id_seq OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -952,7 +961,7 @@ CREATE TABLE public.ch_hesaplar (
     hesap_tipi_id bigint NOT NULL,
     grup_id bigint,
     bolge_id bigint,
-    mukellef_tipi_id bigint,
+    mukellef_tipi smallint,
     mukellef_adi character varying(32),
     mukellef_adi2 character varying(32),
     mukellef_soyadi character varying(32),
@@ -1877,7 +1886,7 @@ CREATE VIEW public.sat_siparis_rapor AS
   WHERE (1 = 1);
 
 
-ALTER TABLE public.sat_siparis_rapor OWNER TO ths_admin;
+ALTER VIEW public.sat_siparis_rapor OWNER TO ths_admin;
 
 --
 -- Name: sat_teklif_detaylari; Type: TABLE; Schema: public; Owner: ths_admin
@@ -2882,14 +2891,14 @@ ALTER TABLE public.sys_bolgeler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 --
 
 CREATE VIEW public.sys_db_status AS
- SELECT (row_number() OVER (ORDER BY pa.client_addr, pa.usename))::integer AS id,
-    pa.pid,
-    (pa.datname)::character varying(128) AS db_name,
-    (pa.application_name)::character varying(128) AS app_name,
-    (pa.usename)::character varying(64) AS user_name,
-    (pa.client_addr)::character varying(32) AS client_address,
-    (pa.state)::character varying(64) AS state,
-    (pa.query)::character varying(1024) AS query,
+ SELECT (row_number() OVER (ORDER BY client_addr, usename))::integer AS id,
+    pid,
+    (datname)::character varying(128) AS db_name,
+    (application_name)::character varying(128) AS app_name,
+    (usename)::character varying(64) AS user_name,
+    (client_addr)::character varying(32) AS client_address,
+    (state)::character varying(64) AS state,
+    (query)::character varying(1024) AS query,
     (( SELECT string_agg((( SELECT pg_statio_user_tables.relname
                    FROM pg_statio_user_tables
                   WHERE ((pg_statio_user_tables.relid = lck.relation) AND (pg_statio_user_tables.relname IS NOT NULL))))::text, ', '::text) AS string_agg
@@ -2899,10 +2908,10 @@ CREATE VIEW public.sys_db_status AS
                    FROM pg_statio_user_tables
                   WHERE ((pg_statio_user_tables.relid = lck.relation) AND (pg_statio_user_tables.relname IS NOT NULL))))::text, ', '::text))))::character varying(1024) AS locked_tables
    FROM pg_stat_activity pa
-  WHERE (pa.datname = current_database());
+  WHERE (datname = current_database());
 
 
-ALTER TABLE public.sys_db_status OWNER TO ths_admin;
+ALTER VIEW public.sys_db_status OWNER TO ths_admin;
 
 --
 -- Name: sys_ersim_haklari; Type: TABLE; Schema: public; Owner: ths_admin
@@ -3003,6 +3012,23 @@ ALTER TABLE public.sys_grid_kolonlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
     CACHE 1
 );
 
+
+--
+-- Name: sys_gui_icerikler; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_gui_icerikler (
+    id bigint NOT NULL,
+    kod character varying(64) NOT NULL,
+    deger text,
+    is_fabrika boolean DEFAULT false NOT NULL,
+    icerik_tipi character varying(32) NOT NULL,
+    tablo_adi character varying(64),
+    form_adi character varying(64)
+);
+
+
+ALTER TABLE public.sys_gui_icerikler OWNER TO ths_admin;
 
 --
 -- Name: sys_gunler; Type: TABLE; Schema: public; Owner: ths_admin
@@ -3118,82 +3144,11 @@ ALTER TABLE public.sys_kullanicilar ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
--- Name: sys_lisan_gui_icerikler; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_lisan_gui_icerikler (
-    id bigint NOT NULL,
-    lisan character varying(16) NOT NULL,
-    kod character varying(64) NOT NULL,
-    deger text,
-    is_fabrika boolean DEFAULT false NOT NULL,
-    icerik_tipi character varying(32) NOT NULL,
-    tablo_adi character varying(64),
-    form_adi character varying(64)
-);
-
-
-ALTER TABLE public.sys_lisan_gui_icerikler OWNER TO ths_admin;
-
---
 -- Name: sys_lisan_gui_icerik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_lisan_gui_icerikler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_gui_icerikler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_lisan_gui_icerik_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: sys_lisanlar; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_lisanlar (
-    id bigint NOT NULL,
-    lisan character varying(16) NOT NULL
-);
-
-
-ALTER TABLE public.sys_lisanlar OWNER TO ths_admin;
-
---
--- Name: sys_lisan_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.sys_lisanlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_lisan_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: sys_vergi_mukellef_tipleri; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_vergi_mukellef_tipleri (
-    id bigint NOT NULL,
-    mukellef_tipi character varying(32) NOT NULL,
-    is_varsayilan boolean DEFAULT false NOT NULL
-);
-
-
-ALTER TABLE public.sys_vergi_mukellef_tipleri OWNER TO ths_admin;
-
---
--- Name: sys_mukellef_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.sys_vergi_mukellef_tipleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_mukellef_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3367,14 +3322,12 @@ ALTER TABLE public.sys_ulkeler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 CREATE TABLE public.sys_uygulama_ayarlari (
     id bigint NOT NULL,
-    logo bytea,
     unvan character varying(128) DEFAULT 'THUNDERSOFT A.Ş.'::character varying NOT NULL,
     telefon character varying(24) DEFAULT '0123 456 78 90'::character varying NOT NULL,
     faks character varying(24),
     vergi_dairesi character varying(32),
     vergi_no character varying(16),
     donem smallint DEFAULT 2018 NOT NULL,
-    lisan character varying(16),
     mail_sunucu character varying(255),
     mail_kullanici character varying(255),
     mail_sifre character varying(255),
@@ -3390,7 +3343,8 @@ CREATE TABLE public.sys_uygulama_ayarlari (
     versiyon character varying(128),
     para character varying(3),
     adres_id bigint,
-    diger_ayarlar json
+    diger_ayarlar json,
+    logo text
 );
 
 
@@ -3415,15 +3369,15 @@ ALTER TABLE public.sys_uygulama_ayarlari ALTER COLUMN id ADD GENERATED ALWAYS AS
 --
 
 CREATE VIEW public.sys_view_tables AS
- SELECT (row_number() OVER (ORDER BY tables.table_type, tables.table_name))::integer AS id,
-    initcap(replace((tables.table_name)::text, '_'::text, ' '::text)) AS table_name,
-    (tables.table_type)::text AS table_type
+ SELECT (row_number() OVER (ORDER BY table_type, table_name))::integer AS id,
+    initcap(replace((table_name)::text, '_'::text, ' '::text)) AS table_name,
+    (table_type)::text AS table_type
    FROM information_schema.tables
-  WHERE ((tables.table_schema)::text = 'public'::text)
-  ORDER BY tables.table_type, tables.table_name;
+  WHERE ((table_schema)::text = 'public'::text)
+  ORDER BY table_type, table_name;
 
 
-ALTER TABLE public.sys_view_tables OWNER TO ths_admin;
+ALTER VIEW public.sys_view_tables OWNER TO ths_admin;
 
 --
 -- Name: sys_view_columns; Type: VIEW; Schema: public; Owner: ths_admin
@@ -3450,7 +3404,7 @@ CREATE VIEW public.sys_view_columns AS
   ORDER BY vt.table_type, columns.table_name, columns.ordinal_position;
 
 
-ALTER TABLE public.sys_view_columns OWNER TO ths_admin;
+ALTER VIEW public.sys_view_columns OWNER TO ths_admin;
 
 --
 -- Name: sys_view_databases; Type: VIEW; Schema: public; Owner: ths_admin
@@ -3464,7 +3418,7 @@ CREATE VIEW public.sys_view_databases AS
   WHERE ((1 = 1) AND (pg_shdescription.description = 'THS ERP Systems'::text));
 
 
-ALTER TABLE public.sys_view_databases OWNER TO ths_admin;
+ALTER VIEW public.sys_view_databases OWNER TO ths_admin;
 
 --
 -- Name: urt_recete_yan_urunler; Type: TABLE; Schema: public; Owner: ths_admin
@@ -4295,6 +4249,22 @@ ALTER TABLE ONLY public.sys_grid_kolonlar
 
 
 --
+-- Name: sys_gui_icerikler sys_gui_icerikler_kod_icerik_tipi_tablo_adi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_gui_icerikler
+    ADD CONSTRAINT sys_gui_icerikler_kod_icerik_tipi_tablo_adi_key UNIQUE (kod, icerik_tipi, tablo_adi);
+
+
+--
+-- Name: sys_gui_icerikler sys_gui_icerikler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_gui_icerikler
+    ADD CONSTRAINT sys_gui_icerikler_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sys_gunler sys_gunler_gun_adi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -4340,38 +4310,6 @@ ALTER TABLE ONLY public.sys_kaynaklar
 
 ALTER TABLE ONLY public.sys_kaynaklar
     ADD CONSTRAINT sys_kaynaklar_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_lisan_gui_icerikler sys_lisan_gui_icerikler_lisan_kod_icerik_tipi_tablo_adi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_lisan_gui_icerikler
-    ADD CONSTRAINT sys_lisan_gui_icerikler_lisan_kod_icerik_tipi_tablo_adi_key UNIQUE (lisan, kod, icerik_tipi, tablo_adi);
-
-
---
--- Name: sys_lisan_gui_icerikler sys_lisan_gui_icerikler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_lisan_gui_icerikler
-    ADD CONSTRAINT sys_lisan_gui_icerikler_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_lisanlar sys_lisanlar_lisan_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_lisanlar
-    ADD CONSTRAINT sys_lisanlar_lisan_key UNIQUE (lisan);
-
-
---
--- Name: sys_lisanlar sys_lisanlar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_lisanlar
-    ADD CONSTRAINT sys_lisanlar_pkey PRIMARY KEY (id);
 
 
 --
@@ -4484,22 +4422,6 @@ ALTER TABLE ONLY public.sys_kullanicilar
 
 ALTER TABLE ONLY public.sys_uygulama_ayarlari
     ADD CONSTRAINT sys_uygulama_ayarlari_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_vergi_mukellef_tipleri sys_vergi_mukellef_tipleri_mukellef_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_vergi_mukellef_tipleri
-    ADD CONSTRAINT sys_vergi_mukellef_tipleri_mukellef_tipi_key UNIQUE (mukellef_tipi);
-
-
---
--- Name: sys_vergi_mukellef_tipleri sys_vergi_mukellef_tipleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_vergi_mukellef_tipleri
-    ADD CONSTRAINT sys_vergi_mukellef_tipleri_pkey PRIMARY KEY (id);
 
 
 --
@@ -5100,14 +5022,6 @@ ALTER TABLE ONLY public.ch_hesaplar
 
 
 --
--- Name: ch_hesaplar ch_hesaplar_mukellef_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.ch_hesaplar
-    ADD CONSTRAINT ch_hesaplar_mukellef_tipi_id_fkey FOREIGN KEY (mukellef_tipi_id) REFERENCES public.sys_vergi_mukellef_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
 -- Name: mhs_fis_detaylari mhs_fis_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5684,14 +5598,6 @@ ALTER TABLE ONLY public.sys_kaynaklar
 
 
 --
--- Name: sys_lisan_gui_icerikler sys_lisan_gui_icerikler_lisan_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_lisan_gui_icerikler
-    ADD CONSTRAINT sys_lisan_gui_icerikler_lisan_fkey FOREIGN KEY (lisan) REFERENCES public.sys_lisanlar(lisan) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
 -- Name: sys_olcu_birimleri sys_olcu_birimleri_birim_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5729,14 +5635,6 @@ ALTER TABLE ONLY public.sys_kullanicilar
 
 ALTER TABLE ONLY public.sys_uygulama_ayarlari
     ADD CONSTRAINT sys_uygulama_ayarlari_adres_id_fkey FOREIGN KEY (adres_id) REFERENCES public.sys_adresler(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: sys_uygulama_ayarlari sys_uygulama_ayarlari_lisan_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_uygulama_ayarlari
-    ADD CONSTRAINT sys_uygulama_ayarlari_lisan_fkey FOREIGN KEY (lisan) REFERENCES public.sys_lisanlar(lisan) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5903,7 +5801,7 @@ ALTER TABLE ONLY public.urt_receteler
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 

@@ -5,12 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
-  Ths.Database.Table,
-  Ths.Database.Table.SysKaynaklar,
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, Ths.Database,
+  Ths.Database.Table, Ths.Database.Table.SysKaynaklar,
   Ths.Database.Table.SysKullanicilar;
 
 type
@@ -56,9 +52,7 @@ type
 
 implementation
 
-uses
-  Ths.Globals,
-  Ths.Constants;
+uses Ths.Globals, Ths.Constants;
 
 constructor TSysErisimHakki.Create(ADatabase: TDatabase);
 begin
@@ -90,29 +84,14 @@ end;
 
 procedure TSysErisimHakki.GetAccessRightBySourceCode(ASourceCode: string);
 begin
-  Self.SelectToList(
-    ' AND ' + FKaynakKodu.QryName + '=' + QuotedStr(ASourceCode) +
-    ' AND ' + FKullaniciID.QryName + '=' + IntToStr(GSysKullanici.Id.Value) , False, False
-  );
+  Self.SelectToList(' AND ' + FKaynakKodu.QryName + '=' + QuotedStr(ASourceCode) +
+                    ' AND ' + FKullaniciID.QryName + '=' + IntToStr(GSysKullanici.Id.Value) , False, False);
 end;
 
 procedure TSysErisimHakki.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
-var
-  LDump: string;
-  LJoinTableName: string;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
-
-  LDump := '';
-  LJoinTableName := 'data_' + FKaynakAdi.FieldName;
-  if  (AppLanguage <> GSysApplicationSetting.Lisan.AsString)
-  and (GSysApplicationSetting.Lisan.AsString <> '')
-  then
-  begin
-    LDump := 'LEFT JOIN ' + FSysKaynak.TableName + ' ON ' + FSysKaynak.TableName + '.id=' + FKaynakID.QryName;
-    LJoinTableName := FSysKaynak.TableName;
-  end;
 
   with QryOfDS do
   begin
@@ -140,24 +119,15 @@ end;
 
 procedure TSysErisimHakki.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LDump: string;
   LJoinTableName: string;
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
   AFilter := GetLockSQL(AFilter, ALock);
 
-  LDump := '';
   LJoinTableName := 'data_' + FKaynakAdi.FieldName;
-  if  (AppLanguage <> GSysApplicationSetting.Lisan.AsString)
-  and (GSysApplicationSetting.Lisan.AsString <> '')
-  then
-  begin
-    LDump := 'LEFT JOIN ' + FSysKaynak.TableName + ' ON ' + FSysKaynak.TableName + '.id=' + FKaynakID.QryName;
-    LJoinTableName := FSysKaynak.TableName;
-  end;
 
   LQry := Database.NewQuery();
   with LQry do
@@ -175,7 +145,6 @@ begin
       FKullaniciID.QryName,
       addLangField(FKullanici.FieldName)
     ], [
-      LDump,
       addLeftJoin(FKaynakAdi.FieldName, TableName + '.' + FKaynakID.FieldName, FSysKaynak.TableName),
       addLeftJoin(FKullanici.FieldName, TableName + '.' + FKullaniciID.FieldName, FSysKullanici.TableName),
       ' WHERE 1=1 ', AFilter
@@ -198,7 +167,7 @@ end;
 
 procedure TSysErisimHakki.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -224,7 +193,7 @@ end;
 
 procedure TSysErisimHakki.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

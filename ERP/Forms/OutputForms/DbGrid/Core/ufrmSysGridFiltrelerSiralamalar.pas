@@ -5,17 +5,18 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Classes, System.ImageList, System.Actions,
-  Vcl.Controls, Vcl.Forms, Vcl.DBGrids, Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls,
-  Vcl.ExtCtrls, Vcl.ImgList, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids,
-  Vcl.Dialogs, Vcl.ActnList, Data.DB,
-  ZAbstractRODataset, ZAbstractDataset, ZDataset, ZPgEventAlerter,
-  ufrmBase, ufrmBaseDBGrid;
+  System.SysUtils, System.Classes, System.Actions, Vcl.Controls, Vcl.Forms,
+  Vcl.DBGrids, Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls, Vcl.ExtCtrls,
+  Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids, Vcl.Dialogs, Vcl.ActnList, Data.DB,
+  ufrmBase, ufrmBaseDBGrid, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Stan.Async,
+  FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf;
 
 type
   TfrmSysGridFiltrelerSiralamalar = class(TfrmBaseDBGrid)
   protected
-    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm; override;
+    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm; override;
   published
     procedure FormShow(Sender: TObject); override;
   end;
@@ -23,9 +24,7 @@ type
 implementation
 
 uses
-  Ths.Constants,
-  ufrmSysGridFiltrelerSiralama,
-  Ths.Database.Table.SysGridFiltrelerSiralamalar;
+  ufrmSysGridFiltrelerSiralama, Ths.Database.Table.SysGridFiltrelerSiralamalar;
 
 {$R *.dfm}
 
@@ -47,3 +46,4 @@ begin
 end;
 
 end.
+

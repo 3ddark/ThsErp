@@ -6,20 +6,20 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, System.StrUtils, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
-  Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus,
   Vcl.Samples.Spin, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
   Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB,
   Ths.Database.Table.SysKaynaklar;
 
 type
   TfrmSysKaynak = class(TfrmBaseInputDB)
-    lblresource_group_id: TLabel;
-    lblresource_code: TLabel;
-    lblresource_name: TLabel;
-    edtresource_group_id: TEdit;
-    edtresource_code: TEdit;
-    edtresource_name: TEdit;
+    lblkaynak_grup_id: TLabel;
+    lblkaynak_kodu: TLabel;
+    lblkaynak_adi: TLabel;
+    edtkaynak_grup_id: TEdit;
+    edtkaynak_kodu: TEdit;
+    edtkaynak_adi: TEdit;
   protected
     procedure HelperProcess(Sender: TObject); override;
   published
@@ -33,9 +33,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Ths.Globals,
-  ufrmSysKaynakGruplari,
-  Ths.Database.Table.SysKaynakGruplari;
+  Ths.Globals, ufrmSysKaynakGruplari, Ths.Database.Table.SysKaynakGruplari;
 
 procedure TfrmSysKaynak.btnAcceptClick(Sender: TObject);
 begin
@@ -44,9 +42,9 @@ begin
     if (ValidateInput) then
     begin
       //source_group_id data take from helper form
-      TSysKaynak(Table).KaynakKodu.Value := StrToInt(edtresource_code.Text);
-      TSysKaynak(Table).KaynakAdi.Value := edtresource_name.Text;
-      TSysKaynak(Table).KaynakGrubu.Value := edtresource_group_id.Text;
+      TSysKaynak(Table).KaynakKodu.Value := StrToInt(edtkaynak_kodu.Text);
+      TSysKaynak(Table).KaynakAdi.Value := edtkaynak_adi.Text;
+      TSysKaynak(Table).KaynakGrubu.Value := edtkaynak_grup_id.Text;
 
       inherited;
     end;
@@ -57,7 +55,7 @@ end;
 
 procedure TfrmSysKaynak.FormShow(Sender: TObject);
 begin
-  edtresource_group_id.OnHelperProcess := HelperProcess;
+  edtkaynak_grup_id.OnHelperProcess := HelperProcess;
   inherited;
 end;
 
@@ -69,7 +67,7 @@ begin
   begin
     if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
     begin
-      if TEdit(Sender).Name = edtresource_group_id.Name then
+      if TEdit(Sender).Name = edtkaynak_grup_id.Name then
       begin
         LFrm := TfrmSysKaynakGruplari.Create(TEdit(Sender), Self, TSysKaynakGrubu.Create(Table.Database), fomNormal, True);
         try
@@ -89,9 +87,10 @@ end;
 
 procedure TfrmSysKaynak.RefreshData;
 begin
-  edtresource_group_id.Text := TSysKaynak(Table).KaynakGrubu.AsString;
-  edtresource_code.Text := TSysKaynak(Table).KaynakKodu.AsString;
-  edtresource_name.Text := TSysKaynak(Table).KaynakAdi.AsString;
+  edtkaynak_grup_id.Text := TSysKaynak(Table).KaynakGrubu.AsString;
+  edtkaynak_kodu.Text := TSysKaynak(Table).KaynakKodu.AsString;
+  edtkaynak_adi.Text := TSysKaynak(Table).KaynakAdi.AsString;
 end;
 
 end.
+

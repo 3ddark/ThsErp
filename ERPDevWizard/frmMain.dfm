@@ -32,7 +32,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     Height = 299
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 1186
     object Splitter3: TSplitter
       Left = 460
       Top = 1
@@ -524,8 +523,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     ActivePage = tsClass
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 1186
-    ExplicitHeight = 313
     object tsClass: TTabSheet
       Caption = 'Class Section'
       object mmoClass: TMemo
@@ -538,8 +535,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
         ScrollBars = ssBoth
         TabOrder = 0
         OnKeyDown = mmoKeyDown
-        ExplicitWidth = 1172
-        ExplicitHeight = 233
       end
       object pnlClass: TPanel
         AlignWithMargins = True
@@ -549,8 +544,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
         Height = 40
         Align = alBottom
         TabOrder = 1
-        ExplicitTop = 242
-        ExplicitWidth = 1172
         object btnAddClassToMemo: TButton
           AlignWithMargins = True
           Left = 1097
@@ -561,7 +554,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
           Caption = 'Add Memo'
           TabOrder = 0
           OnClick = btnAddClassToMemoClick
-          ExplicitLeft = 1093
         end
       end
     end
@@ -755,22 +747,6 @@ object frmMainClassGenerator: TfrmMainClassGenerator
       OnExecute = actConnectExecute
     end
   end
-  object con1: TZConnection
-    ControlsCodePage = cCP_UTF16
-    ClientCodepage = 'UTF8'
-    Catalog = ''
-    Properties.Strings = (
-      'codepage=UTF8'
-      'controls_cp=CP_UTF16')
-    HostName = 'localhost'
-    Port = 5432
-    Database = 'ths_erp'
-    User = ''
-    Password = 'THS'
-    Protocol = 'postgresql-9'
-    Left = 595
-    Top = 179
-  end
   object dsColumns: TDataSource
     DataSet = cdsColumns
     Left = 568
@@ -807,5 +783,14 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     object cdsColumnsis_numeric: TBooleanField
       FieldName = 'is_numeric'
     end
+  end
+  object con1: TFDConnection
+    Left = 592
+    Top = 320
+  end
+  object qry1: TFDQuery
+    Connection = con1
+    Left = 600
+    Top = 328
   end
 end

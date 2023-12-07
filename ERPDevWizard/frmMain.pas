@@ -23,12 +23,12 @@ uses
   Vcl.DBGrids,
   Vcl.ActnList,
   Data.DB,
-  ZAbstractRODataset,
-  ZAbstractDataset,
-  ZDataset,
-  ZAbstractConnection,
-  ZConnection,
-  Datasnap.DBClient;
+  FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet,
+  Datasnap.DBClient, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error,
+  FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool,
+  FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait, FireDAC.Stan.Param,
+  FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt;
 
 const
   PROJECT_UNITNAME = 'Ths.Database.Table.';
@@ -109,7 +109,6 @@ type
     edtOutputFormName: TEdit;
     edtSourceCode: TEdit;
     cbbtable_name: TComboBox;
-    con1: TZConnection;
     dsColumns: TDataSource;
     cdsColumns: TClientDataSet;
     cdsColumnsfield_name: TStringField;
@@ -119,6 +118,8 @@ type
     cdsColumnsis_gui: TBooleanField;
     cdsColumnsinput_type: TStringField;
     cdsColumnsis_numeric: TBooleanField;
+    con1: TFDConnection;
+    qry1: TFDQuery;
     procedure FormCreate(Sender: TObject);
     procedure btnAddClassToMemoClick(Sender: TObject);
     procedure btnSaveToFilesClick(Sender: TObject);
@@ -132,8 +133,8 @@ type
     procedure GenerareOutput;
     procedure GenerateInput;
   private
-    FQryColProp: TZQuery;
-    FQryTableCol: TZQuery;
+    FQryColProp: TFDQuery;
+    FQryTableCol: TFDQuery;
     FClass: TStringList;
     FOutputDfm: TStringList;
     FOutputPas: TStringList;
@@ -434,18 +435,18 @@ procedure TfrmMainClassGenerator.actConnectExecute(Sender: TObject);
 begin
   if not con1.Connected then
   begin
-    con1.Protocol := 'postgresql-9';
-    con1.ClientCodepage := 'UTF8';
-    con1.HostName := edthost_name.Text;
-    con1.Port := StrToIntDef(edtport_name.Text, 5432);
-    con1.Database := edtdatabase_name.Text;
-    con1.User := edtuser_name.Text;
-    con1.Password := edtpassword.Text;
+//    con1.Protocol := 'postgresql-9';
+//    con1.ClientCodepage := 'UTF8';
+//    con1.HostName := edthost_name.Text;
+//    con1.Port := StrToIntDef(edtport_name.Text, 5432);
+//    con1.Database := edtdatabase_name.Text;
+//    con1.User := edtuser_name.Text;
+//    con1.Password := edtpassword.Text;
     con1.LoginPrompt := False;
 
-    con1.LibraryLocation := ExtractFilePath(Application.ExeName) + PathDelim + 'lib' + PathDelim + 'libpq.dll';
+//    con1.LibraryLocation := ExtractFilePath(Application.ExeName) + PathDelim + 'lib' + PathDelim + 'libpq.dll';
     try
-      con1.Connect;
+      con1.Open;
       actConnect.Caption := 'DisConnect';
       cbbtable_name.Enabled := True;
       FillTable;
@@ -455,7 +456,7 @@ begin
   end
   else
   begin
-    con1.Disconnect;
+    con1.Close;
     actConnect.Caption := 'Connect';
     cbbtable_name.Enabled := False;
     cbbtable_name.Clear;
@@ -1249,10 +1250,10 @@ end;
 
 procedure TfrmMainClassGenerator.FillTable;
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   cbbtable_name.Clear;
-  LQry := TZQuery.Create(con1);
+  LQry := TFDQuery.Create(con1);
   try
     LQry.Connection := con1;
     LQry.SQL.Text := 'SELECT table_name FROM information_schema.tables WHERE table_schema=' + QuotedStr(edtschema_name.Text) + ' ORDER BY table_name';
@@ -1287,10 +1288,10 @@ begin
   FInputDfm := TStringList.Create;
   FInputPas := TStringList.Create;
 
-  FQryColProp := TZQuery.Create(con1);
+  FQryColProp := TFDQuery.Create(con1);
   FQryColProp.Connection := con1;
 
-  FQryTableCol := TZQuery.Create(con1);
+  FQryTableCol := TFDQuery.Create(con1);
   FQryTableCol.Connection := con1;
 end;
 

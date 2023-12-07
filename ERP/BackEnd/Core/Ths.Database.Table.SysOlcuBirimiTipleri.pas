@@ -5,12 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
-  Ths.Database.Table,
-  Ths.Constants;
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, Ths.Database,
+  Ths.Database.Table, Ths.Constants;
 
 type
   TOlcuBirimiTipi = (Zaman=1, Agirlik, Uzunluk, Miktar);
@@ -62,7 +58,7 @@ end;
 
 procedure TSysOlcuBirimiTipi.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -96,7 +92,7 @@ end;
 
 procedure TSysOlcuBirimiTipi.DoInsert(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -116,7 +112,7 @@ end;
 
 procedure TSysOlcuBirimiTipi.DoUpdate(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do

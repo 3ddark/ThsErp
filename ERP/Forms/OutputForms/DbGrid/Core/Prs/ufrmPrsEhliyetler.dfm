@@ -2,7 +2,6 @@ inherited frmPrsEhliyetler: TfrmPrsEhliyetler
   Caption = 'Personel Ehliyetleri'
   ClientWidth = 793
   ExplicitWidth = 809
-  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 793
@@ -12,6 +11,7 @@ inherited frmPrsEhliyetler: TfrmPrsEhliyetler
     end
     inherited splHeader: TSplitter
       Width = 793
+      ExplicitWidth = 793
     end
     inherited pnlHeader: TPanel
       Width = 789

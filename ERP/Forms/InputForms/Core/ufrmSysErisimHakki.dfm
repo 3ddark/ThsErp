@@ -1,37 +1,37 @@
 inherited frmSysErisimHakki: TfrmSysErisimHakki
   Left = 501
   Top = 443
-  Caption = 'Accesss Right'
+  Caption = 'Eri'#351'im Hakk'#305
   ClientHeight = 249
   ClientWidth = 359
   ParentFont = True
-  ExplicitWidth = 373
-  ExplicitHeight = 285
+  ExplicitWidth = 375
+  ExplicitHeight = 288
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 359
     Height = 199
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 357
-    ExplicitHeight = 179
+    ExplicitWidth = 359
+    ExplicitHeight = 199
     inherited pgcMain: TPageControl
       Width = 359
       Height = 199
-      ExplicitWidth = 357
-      ExplicitHeight = 179
+      ExplicitWidth = 359
+      ExplicitHeight = 199
       inherited tsMain: TTabSheet
         ExplicitTop = 26
         ExplicitWidth = 351
         ExplicitHeight = 169
-        object lbluser_id: TLabel
-          Left = 55
+        object lblkullanici_id: TLabel
+          Left = 49
           Top = 7
-          Width = 61
+          Width = 67
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'User Name'
+          Caption = 'Kullan'#305'c'#305' Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -40,14 +40,14 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblresource_id: TLabel
-          Left = 28
+        object lblkaynak_id: TLabel
+          Left = 53
           Top = 29
-          Width = 88
+          Width = 63
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Resource Name'
+          Caption = 'Kaynak Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -56,14 +56,14 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_read: TLabel
-          Left = 81
+        object lblis_okuma: TLabel
+          Left = 76
           Top = 53
-          Width = 35
+          Width = 40
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Read?'
+          Caption = 'Okuma'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -72,14 +72,14 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_add: TLabel
-          Left = 88
+        object lblis_ekleme: TLabel
+          Left = 60
           Top = 76
-          Width = 28
+          Width = 56
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Add?'
+          Caption = 'Yeni Kay'#305't'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -88,14 +88,14 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_update: TLabel
-          Left = 69
+        object lblis_guncelleme: TLabel
+          Left = 50
           Top = 99
-          Width = 47
+          Width = 66
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Update?'
+          Caption = 'G'#252'ncelleme'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -104,14 +104,14 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_delete: TLabel
-          Left = 73
+        object lblis_silme: TLabel
+          Left = 85
           Top = 122
-          Width = 43
+          Width = 31
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Delete?'
+          Caption = 'Silme'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -120,14 +120,14 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_special: TLabel
-          Left = 70
+        object lblis_ozel: TLabel
+          Left = 92
           Top = 145
-          Width = 46
+          Width = 24
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Special?'
+          Caption = #214'zel'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -136,49 +136,49 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtuser_id: TEdit
+        object edtkullanici_id: TEdit
           Left = 122
           Top = 3
           Width = 224
           Height = 23
           TabOrder = 0
         end
-        object edtresource_id: TEdit
+        object edtkaynak_id: TEdit
           Left = 122
           Top = 25
           Width = 224
           Height = 23
           TabOrder = 1
         end
-        object chkis_read: TCheckBox
+        object chkis_okuma: TCheckBox
           Left = 122
           Top = 52
           Width = 223
           Height = 17
           TabOrder = 2
         end
-        object chkis_add: TCheckBox
+        object chkis_ekleme: TCheckBox
           Left = 122
           Top = 75
           Width = 223
           Height = 17
           TabOrder = 3
         end
-        object chkis_update: TCheckBox
+        object chkis_guncelleme: TCheckBox
           Left = 122
           Top = 98
           Width = 223
           Height = 17
           TabOrder = 4
         end
-        object chkis_delete: TCheckBox
+        object chkis_silme: TCheckBox
           Left = 122
           Top = 121
           Width = 223
           Height = 17
           TabOrder = 5
         end
-        object chkis_special: TCheckBox
+        object chkis_ozel: TCheckBox
           Left = 122
           Top = 144
           Width = 223
@@ -191,25 +191,21 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
   inherited pnlBottom: TPanel
     Top = 201
     Width = 355
-    ExplicitTop = 181
-    ExplicitWidth = 353
+    ExplicitTop = 201
+    ExplicitWidth = 355
     inherited btnAccept: TButton
       Left = 149
-      TabOrder = 2
-      ExplicitLeft = 147
+      ExplicitLeft = 149
     end
     inherited btnClose: TButton
       Left = 253
-      ExplicitLeft = 251
-    end
-    inherited btnDelete: TButton
-      TabOrder = 1
+      ExplicitLeft = 253
     end
   end
   inherited stbBase: TStatusBar
     Top = 231
     Width = 359
-    ExplicitTop = 211
-    ExplicitWidth = 357
+    ExplicitTop = 231
+    ExplicitWidth = 359
   end
 end

@@ -1,59 +1,63 @@
 inherited frmSysSehirler: TfrmSysSehirler
-  Caption = 'Sehirler'
+  Caption = 'Sistem '#350'ehirler'
   ClientWidth = 793
-  ExplicitWidth = 807
+  ExplicitWidth = 809
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 793
+    ExplicitWidth = 793
     inherited splLeft: TSplitter
-      Height = 351
       ExplicitHeight = 351
     end
     inherited splHeader: TSplitter
-      Width = 797
+      Width = 793
       ExplicitWidth = 797
     end
-    inherited pnlLeft: TPanel
-      Height = 351
-      ExplicitHeight = 351
-    end
     inherited pnlHeader: TPanel
-      Width = 793
-      ExplicitWidth = 793
+      Width = 789
+      ExplicitWidth = 789
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
       inherited edtFilterHelper: TEdit
-        Width = 730
-        ExplicitWidth = 728
+        Width = 746
+        ExplicitWidth = 746
       end
     end
     inherited pnlContent: TPanel
-      Width = 694
-      Height = 351
-      ExplicitWidth = 694
-      ExplicitHeight = 351
+      Width = 690
+      ExplicitWidth = 690
       inherited grd: TDBGrid
-        Width = 694
-        Height = 351
+        Width = 690
       end
     end
     inherited pnlButtons: TPanel
-      Top = 387
-      Width = 797
-      ExplicitTop = 387
-      ExplicitWidth = 797
+      Width = 793
+      ExplicitWidth = 793
+      inherited pnlButtonRight: TPanel
+        Left = 608
+        ExplicitLeft = 608
+      end
+      inherited pnlButtonLeft: TPanel
+        Width = 608
+        ExplicitWidth = 608
+      end
     end
   end
   inherited pnlBottom: TPanel
     Width = 789
+    ExplicitWidth = 789
     inherited btnAccept: TButton
-      Left = 587
-      ExplicitLeft = 587
+      Left = 583
+      ExplicitLeft = 583
     end
     inherited btnClose: TButton
-      Left = 691
-      ExplicitLeft = 691
+      Left = 687
+      ExplicitLeft = 687
     end
   end
   inherited stbBase: TStatusBar
     Width = 793
+    ExplicitWidth = 793
   end
 end

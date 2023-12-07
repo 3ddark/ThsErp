@@ -1,7 +1,5 @@
 inherited frmSysUlkeler: TfrmSysUlkeler
   Caption = #220'lkeler'
-  ExplicitWidth = 811
-  ExplicitHeight = 564
   TextHeight = 13
   inherited pnlMain: TPanel
     inherited splLeft: TSplitter

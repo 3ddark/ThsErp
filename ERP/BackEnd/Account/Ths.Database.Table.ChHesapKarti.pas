@@ -5,22 +5,12 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Variants,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
-  Ths.Database.Table,
-  Ths.Database.Table.ChGruplar,
-  Ths.Database.Table.SetChHesapTipi,
-  Ths.Database.Table.ChHesapPlanlari,
-  Ths.Database.Table.ChBolgeler,
-  Ths.Database.Table.SysVergiMukellefTipleri,
-  Ths.Database.Table.SysUlkeler,
-  Ths.Database.Table.SysSehirler,
-  Ths.Database.Table.SysAdresler,
-  Ths.Database.Table.PrsPersoneller,
+  System.SysUtils, System.Classes, System.Variants, Data.DB, FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet, Ths.Database, Ths.Database.Table,
+  Ths.Database.Table.ChGruplar, Ths.Database.Table.SetChHesapTipi,
+  Ths.Database.Table.ChHesapPlanlari, Ths.Database.Table.ChBolgeler,
+  Ths.Database.Table.SysUlkeler, Ths.Database.Table.SysSehirler,
+  Ths.Database.Table.SysAdresler, Ths.Database.Table.PrsPersoneller,
   Ths.Database.Table.SysParaBirimleri;
 
 type
@@ -36,7 +26,6 @@ type
     FGrup: TFieldDB;
     FBolgeID: TFieldDB;
     FBolge: TFieldDB;
-    FMukellefTipiID: TFieldDB;
     FMukellefTipi: TFieldDB;
     FMukellefAdi: TFieldDB;
     FMukellefAdi2: TFieldDB;
@@ -73,7 +62,6 @@ type
     FSetChHesapTipi: TSetChHesapTipi;
     FChBolge: TChBolge;
     FChHesapPlani: TChHesapPlani;
-    FSysVergiMukellefTipi: TSysVergiMukellefTipi;
     FSysParaBirimi: TSysParaBirimi;
 
     procedure BusinessSelect(AFilter: string; ALock: Boolean; APermissionControl: Boolean); override;
@@ -104,7 +92,6 @@ type
     Property Grup: TFieldDB read FGrup write FGrup;
     Property BolgeID: TFieldDB read FBolgeID write FBolgeID;
     Property Bolge: TFieldDB read FBolge write FBolge;
-    Property MukellefTipiID: TFieldDB read FMukellefTipiID write FMukellefTipiID;
     Property MukellefTipi: TFieldDB read FMukellefTipi write FMukellefTipi;
     Property MukellefAdi: TFieldDB read FMukellefAdi write FMukellefAdi;
     Property MukellefAdi2: TFieldDB read FMukellefAdi2 write FMukellefAdi2;
@@ -140,9 +127,7 @@ type
 
 implementation
 
-uses
-  Ths.Globals,
-  Ths.Constants;
+uses Ths.Globals, Ths.Constants;
 
 constructor TChHesapKarti.Create(ADatabase: TDatabase);
 begin
@@ -154,7 +139,6 @@ begin
   FSetChHesapTipi := TSetChHesapTipi.Create(Database);
   FChBolge := TChBolge.Create(Database);
   FChHesapPlani := TChHesapPlani.Create(Database);
-  FSysVergiMukellefTipi := TSysVergiMukellefTipi.Create(Database);
   FSysParaBirimi := TSysParaBirimi.Create(Database);
 
   FHesapKodu := TFieldDB.Create('hesap_kodu', ftString, '', Self, 'Hesap Kodu');
@@ -165,8 +149,7 @@ begin
   FGrup := TFieldDB.Create(FChGrup.Grup.FieldName, FChGrup.Grup.DataType, FChGrup.Grup.Value, Self, FChGrup.Grup.Title);
   FBolgeID := TFieldDB.Create('bolge_id', ftInteger, 0, Self, 'Bölge ID');
   FBolge := TFieldDB.Create(FChBolge.Bolge.FieldName, FChBolge.Bolge.DataType, FChBolge.Bolge.Value, Self, FChBolge.Bolge.Title);
-  FMukellefTipiID := TFieldDB.Create('mukellef_tipi_id', ftInteger, 0, Self, 'Mükellef Tipi ID');
-  FMukellefTipi := TFieldDB.Create(FSysVergiMukellefTipi.MukellefTipi.FieldName, FSysVergiMukellefTipi.MukellefTipi.DataType, '', Self, FSysVergiMukellefTipi.MukellefTipi.Title);
+  FMukellefTipi := TFieldDB.Create('mukellef_tipi', ftSmallint, 0, Self, 'Mükellef Tipi');
   FMukellefAdi := TFieldDB.Create('mukellef_adi', ftString, '', Self, 'Mükellef Adý');
   FMukellefAdi2 := TFieldDB.Create('mukellef_adi2', ftString, '', Self, 'Mükellef Adý 2');
   FMukellefSoyadi := TFieldDB.Create('mukellef_soyadi', ftString, '', Self, 'Mükellef Soyadý');
@@ -204,7 +187,6 @@ begin
   FSetChHesapTipi.Free;
   FChBolge.Free;
   FChHesapPlani.Free;
-  FSysVergiMukellefTipi.Free;
   FSysParaBirimi.Free;
 
   FAdres.Free;
@@ -229,8 +211,7 @@ begin
       addLangField(FGrup.FieldName),
       FBolgeID.QryName,
       addLangField(FBolge.FieldName),
-      FMukellefTipiID.QryName,
-      addLangField(FMukellefTipi.FieldName),
+      FMukellefTipi.QryName,
       FMukellefAdi.QryName,
       FMukellefAdi2.QryName,
       FMukellefSoyadi.QryName,
@@ -262,7 +243,6 @@ begin
       addLeftJoin(FHesapTipi.FieldName, FHesapTipiID.FieldName, FSetChHesapTipi.TableName),
       addLeftJoin(FGrup.FieldName, FGrupID.FieldName, FChGrup.TableName),
       addLeftJoin(FBolge.FieldName, FBolgeID.FieldName, FChBolge.TableName),
-      addLeftJoin(FMukellefTipi.FieldName, FMukellefTipiID.FieldName, FSysVergiMukellefTipi.TableName),
       addJoin(jtLeft, FChHesapPlani.TableName, FChHesapPlani.PlanKodu.FieldName, TableName, FKokKod.FieldName),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
@@ -272,7 +252,7 @@ end;
 
 procedure TChHesapKarti.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -292,8 +272,7 @@ begin
       addLangField(FGrup.FieldName),
       FBolgeID.QryName,
       addLangField(FBolge.FieldName),
-      FMukellefTipiID.QryName,
-      addLangField(FMukellefTipi.FieldName),
+      FMukellefTipi.QryName,
       FMukellefAdi.QryName,
       FMukellefAdi2.QryName,
       FMukellefSoyadi.QryName,
@@ -325,7 +304,6 @@ begin
       addLeftJoin(FHesapTipi.FieldName, FHesapTipiID.FieldName, FSetChHesapTipi.TableName),
       addLeftJoin(FGrup.FieldName, FGrupID.FieldName, FChGrup.TableName),
       addLeftJoin(FBolge.FieldName, FBolgeID.FieldName, FChBolge.TableName),
-      addLeftJoin(FMukellefTipi.FieldName, FMukellefTipiID.FieldName, FSysVergiMukellefTipi.TableName),
       addJoin(jtLeft, FChHesapPlani.TableName, FChHesapPlani.PlanKodu.FieldName, TableName, FKokKod.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);
@@ -347,7 +325,7 @@ end;
 
 procedure TChHesapKarti.DoInsert(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -358,7 +336,7 @@ begin
       FHesapTipiID.FieldName,
       FGrupID.FieldName,
       FBolgeID.FieldName,
-      FMukellefTipiID.FieldName,
+      FMukellefTipi.FieldName,
       FMukellefAdi.FieldName,
       FMukellefAdi2.FieldName,
       FMukellefSoyadi.FieldName,
@@ -398,7 +376,7 @@ end;
 
 procedure TChHesapKarti.DoUpdate(APermissionControl: Boolean=True);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -409,7 +387,7 @@ begin
       FHesapTipiID.FieldName,
       FGrupID.FieldName,
       FBolgeID.FieldName,
-      FMukellefTipiID.FieldName,
+      FMukellefTipi.FieldName,
       FMukellefAdi.FieldName,
       FMukellefAdi2.FieldName,
       FMukellefSoyadi.FieldName,
@@ -448,7 +426,7 @@ end;
 
 function TChHesapKarti.GetAraHesapKodlari(AKokKod, AAraKod: string; AIsUpdate: Boolean): TStringList;
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
   LSQL, LFilter: string;
 begin
 	if AIsUpdate then
@@ -477,7 +455,7 @@ end;
 
 function TChHesapKarti.GetSonHesapKodlari(AFilter: string): TStringList;
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
   LSQL: string;
 begin
   Result := TStringList.Create;
@@ -507,29 +485,15 @@ var
 begin
   LIsk := FIskonto.AsFloat;
   if (LIsk > 100.00) or (LIsk < 0) then
-    CreateExceptionByLang('"Ýskonto Oraný > 100" veya "Ýskonto Oraný < 0" olamaz!', '999999');
+    raise Exception.Create(Trim('"Ýskonto Oraný > 100" veya "Ýskonto Oraný < 0" olamaz! + 999999'));
 
   LStr := FMukellefTipi.AsString;
   LVergiNo := FVergiNo.AsString;
   if (LStr = 'TCKN') and (LVergiNo.Length <> 11) then
-    CreateExceptionByLang('TCKN seçildiðinde Vergi Kimlik No 11 haneli olmak zorunda!', '999999');
+    raise Exception.Create(Trim('TCKN seçildiðinde Vergi Kimlik No 11 haneli olmak zorunda! + 999999'));
 
   if (LStr = 'VKN') and (LVergiNo.Length <> 10) then
-    CreateExceptionByLang('VKN seçildiðinde Vergi Kimlik No 10 haneli olmak zorunda!', '999999');
-
-//  if Self.SeviyeSayisi.Value = 3 then
-//  begin
-//    if (KokHesapKodu.Value = '') or (AraHesapKodu.Value = '') then
-//      CreateExceptionByLang('Son Hesap Kodu seçilmeden devam edilemez!', '999999');
-//  end
-//  else
-//  begin
-//    LStr :=
-//    if (KokHesapKodu.Value = '')
-//    or (AraHesapKodu.Value = '').
-//    then
-//      CreateExceptionByLang('Son Hesap Kodu seçilmeden devam edilemez!', '999999');
-//  end;
+    raise Exception.Create(Trim('VKN seçildiðinde Vergi Kimlik No 10 haneli olmak zorunda! + 999999'));
 end;
 
 procedure TChHesapKarti.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
@@ -577,6 +541,3 @@ begin
 end;
 
 end.
-
-
-

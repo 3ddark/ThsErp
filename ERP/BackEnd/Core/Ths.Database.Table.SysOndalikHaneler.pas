@@ -5,11 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils,
-  Data.DB,
-  ZDataset,
-  Ths.Database,
-  Ths.Database.Table;
+  System.SysUtils, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  Ths.Database, Ths.Database.Table;
 
 type
   TSysOndalikHane = class(TTable)
@@ -19,6 +16,9 @@ type
     FTutar: TFieldDB;
     FStokMiktar: TFieldDB;
     FDovizKuru: TFieldDB;
+  protected
+    procedure BusinessInsert(APermissionControl: Boolean); override;
+    procedure BusinessDelete(APermissionControl: Boolean); override;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -79,7 +79,7 @@ end;
 
 procedure TSysOndalikHane.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -117,7 +117,7 @@ end;
 
 procedure TSysOndalikHane.DoInsert(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -141,7 +141,7 @@ end;
 
 procedure TSysOndalikHane.DoUpdate(APermissionControl: Boolean);
 var
-  LQry: TZQuery;
+  LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
   with LQry do
@@ -159,6 +159,38 @@ begin
     ExecSQL;
   finally
     Free;
+  end;
+end;
+
+procedure TSysOndalikHane.BusinessDelete(APermissionControl: Boolean);
+var
+  LOndalik: TSysOndalikHane;
+begin
+  LOndalik := TSysOndalikHane.Create(Database);
+  try
+    LOndalik.SelectToList('', False, False);
+    if LOndalik.List.Count > 1 then
+      inherited
+    else
+      raise Exception.Create('Ondalýklý Haneler tablosunda sadece bir kayýt olabilir!!!');
+  finally
+    LOndalik.Free;
+  end;
+end;
+
+procedure TSysOndalikHane.BusinessInsert(APermissionControl: Boolean);
+var
+  LOndalik: TSysOndalikHane;
+begin
+  LOndalik := TSysOndalikHane.Create(Database);
+  try
+    LOndalik.SelectToList('', False, False);
+    if LOndalik.List.Count = 0 then
+      inherited
+    else
+      raise Exception.Create('Ondalýklý Haneler tablosunda sadece bir kayýt olabilir!!!');
+  finally
+    LOndalik.Free;
   end;
 end;
 

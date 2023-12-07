@@ -4,14 +4,14 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
   ClientHeight = 357
   ClientWidth = 570
   Constraints.MinHeight = 350
-  ExplicitWidth = 584
-  ExplicitHeight = 392
+  ExplicitWidth = 586
+  ExplicitHeight = 396
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 570
     Height = 307
-    ExplicitWidth = 868
-    ExplicitHeight = 303
+    ExplicitWidth = 570
+    ExplicitHeight = 307
     object lblFields: TLabel
       AlignWithMargins = True
       Left = 3
@@ -43,9 +43,6 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
       BorderStyle = bsNone
       Columns = 2
       TabOrder = 1
-      ExplicitTop = 73
-      ExplicitWidth = 868
-      ExplicitHeight = 209
     end
     object rgFilterCriter: TRadioGroup
       Left = 0
@@ -74,7 +71,6 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
         'B'#252'y'#252'k E'#351'it olanlar'
         'K'#252#231#252'k E'#351'it olanlar')
       TabOrder = 0
-      ExplicitWidth = 671
     end
     object Panel1: TPanel
       Left = 0
@@ -84,8 +80,6 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitTop = 282
-      ExplicitWidth = 868
       object lblFilterKeyValue: TLabel
         Left = 0
         Top = 0
@@ -111,16 +105,14 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
         Align = alClient
         CharCase = ecUpperCase
         TabOrder = 0
-        ExplicitLeft = 55
-        ExplicitWidth = 813
       end
     end
   end
   inherited pnlBottom: TPanel
     Top = 309
     Width = 566
-    ExplicitTop = 305
-    ExplicitWidth = 864
+    ExplicitTop = 309
+    ExplicitWidth = 566
     inherited btnAccept: TButton
       Left = 344
       Width = 116
@@ -131,13 +123,13 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
     end
     inherited btnClose: TButton
       Left = 464
-      ExplicitLeft = 762
+      ExplicitLeft = 464
     end
   end
   inherited stbBase: TStatusBar
     Top = 339
     Width = 570
-    ExplicitTop = 335
-    ExplicitWidth = 868
+    ExplicitTop = 339
+    ExplicitWidth = 570
   end
 end

@@ -2,7 +2,7 @@ inherited frmGiris: TfrmGiris
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Sistem Giri'#351
-  ClientHeight = 413
+  ClientHeight = 216
   ClientWidth = 484
   Icon.Data = {
     000001000200101000000100200068040000260000002020000001002000A810
@@ -176,18 +176,17 @@ inherited frmGiris: TfrmGiris
     80FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF80
     80FFFF8080FFFFFF80FFFFFFFEFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
-  ExplicitWidth = 490
-  ExplicitHeight = 442
-  PixelsPerInch = 96
+  ExplicitWidth = 500
+  ExplicitHeight = 255
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 484
-    Height = 363
+    Height = 166
     ExplicitWidth = 484
-    ExplicitHeight = 363
+    ExplicitHeight = 337
     object lblkullanici_adi: TLabel
       Left = 91
-      Top = 29
+      Top = 5
       Width = 67
       Height = 13
       Alignment = taRightJustify
@@ -201,7 +200,7 @@ inherited frmGiris: TfrmGiris
     end
     object lblkullanici_sifresi: TLabel
       Left = 74
-      Top = 51
+      Top = 27
       Width = 84
       Height = 13
       Alignment = taRightJustify
@@ -215,7 +214,7 @@ inherited frmGiris: TfrmGiris
     end
     object lbldb_host: TLabel
       Left = 36
-      Top = 248
+      Top = 224
       Width = 122
       Height = 13
       Alignment = taRightJustify
@@ -229,12 +228,12 @@ inherited frmGiris: TfrmGiris
     end
     object lblsuncu_ornek: TLabel
       Left = 47
-      Top = 269
+      Top = 245
       Width = 334
       Height = 13
       Alignment = taCenter
       AutoSize = False
-      Caption = 'ValSunucuOrnek'
+      Caption = 'Sunucu '#214'rnek: 192.168.1.100 / localhost / 127.0.0.1'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -244,7 +243,7 @@ inherited frmGiris: TfrmGiris
     end
     object lbldb_adi: TLabel
       Left = 74
-      Top = 288
+      Top = 264
       Width = 84
       Height = 13
       Alignment = taRightJustify
@@ -258,7 +257,7 @@ inherited frmGiris: TfrmGiris
     end
     object lbldb_port: TLabel
       Left = 51
-      Top = 310
+      Top = 286
       Width = 107
       Height = 13
       Alignment = taRightJustify
@@ -272,7 +271,7 @@ inherited frmGiris: TfrmGiris
     end
     object lblayarlari_kaydet: TLabel
       Left = 70
-      Top = 333
+      Top = 309
       Width = 88
       Height = 13
       Alignment = taRightJustify
@@ -286,7 +285,7 @@ inherited frmGiris: TfrmGiris
     end
     object lbldb_kullanici: TLabel
       Left = 25
-      Top = 204
+      Top = 180
       Width = 133
       Height = 13
       Alignment = taRightJustify
@@ -300,7 +299,7 @@ inherited frmGiris: TfrmGiris
     end
     object lbldb_kullanici_sifre: TLabel
       Left = 8
-      Top = 226
+      Top = 202
       Width = 150
       Height = 13
       Alignment = taRightJustify
@@ -314,7 +313,7 @@ inherited frmGiris: TfrmGiris
     end
     object lblprocess_id: TLabel
       Left = 41
-      Top = 106
+      Top = 82
       Width = 113
       Height = 13
       Alignment = taRightJustify
@@ -330,14 +329,14 @@ inherited frmGiris: TfrmGiris
     end
     object lblprocess_id_val: TLabel
       Left = 160
-      Top = 106
+      Top = 82
       Width = 81
       Height = 13
       Caption = 'lblprocess_id_val'
     end
     object lblip_address: TLabel
       Left = 103
-      Top = 120
+      Top = 96
       Width = 51
       Height = 13
       Alignment = taRightJustify
@@ -353,29 +352,14 @@ inherited frmGiris: TfrmGiris
     end
     object lblip_address_val: TLabel
       Left = 160
-      Top = 120
+      Top = 96
       Width = 82
       Height = 13
       Caption = 'lblip_address_val'
     end
-    object lbllisan: TLabel
-      Left = 129
-      Top = 7
-      Width = 29
-      Height = 13
-      Alignment = taRightJustify
-      Caption = 'Lisan'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-      Visible = False
-    end
     object lblversiyon: TLabel
       Left = 105
-      Top = 92
+      Top = 68
       Width = 49
       Height = 13
       Alignment = taRightJustify
@@ -391,14 +375,14 @@ inherited frmGiris: TfrmGiris
     end
     object lblversiyon_val: TLabel
       Left = 160
-      Top = 92
+      Top = 68
       Width = 71
       Height = 13
       Caption = 'lblversiyon_val'
     end
     object lbltema: TLabel
       Left = 38
-      Top = 73
+      Top = 49
       Width = 120
       Height = 13
       Alignment = taRightJustify
@@ -415,103 +399,92 @@ inherited frmGiris: TfrmGiris
       Left = 312
       Top = 1
       Width = 170
-      Height = 357
+      Height = 324
       Proportional = True
-    end
-    object cbblisan: TComboBox
-      Left = 160
-      Top = 4
-      Width = 145
-      Height = 21
-      Style = csDropDownList
-      TabOrder = 0
-      TabStop = False
-      Visible = False
-      OnChange = cbblisanChange
     end
     object cbbtema: TComboBox
       Left = 160
-      Top = 70
+      Top = 46
       Width = 145
       Height = 21
       Style = csDropDownList
       Sorted = True
-      TabOrder = 3
+      TabOrder = 2
       TabStop = False
       OnChange = cbbtemaChange
     end
     object edtkullanici_adi: TEdit
       Left = 160
-      Top = 26
+      Top = 2
       Width = 145
       Height = 21
-      TabOrder = 1
+      TabOrder = 0
       Text = 'edtkullanici_adi'
       OnDblClick = edtkullanici_adiDblClick
     end
     object edtkullanici_sifresi: TEdit
       Left = 160
-      Top = 48
+      Top = 24
       Width = 145
       Height = 21
       PasswordChar = '#'
-      TabOrder = 2
+      TabOrder = 1
       Text = 'thsEdit1'
     end
     object edtdb_kullanici: TEdit
       Left = 160
-      Top = 201
+      Top = 177
       Width = 145
       Height = 21
-      TabOrder = 4
+      TabOrder = 3
       Text = 'edtUserName'
     end
     object edtdb_kullanici_sifre: TEdit
       Left = 160
-      Top = 223
+      Top = 199
       Width = 145
       Height = 21
       PasswordChar = '#'
-      TabOrder = 5
+      TabOrder = 4
       Text = 'thsEdit1'
     end
     object edtdb_host: TEdit
       Left = 160
-      Top = 245
+      Top = 221
       Width = 145
       Height = 21
-      TabOrder = 6
+      TabOrder = 5
       Text = 'edtdb_host'
     end
     object edtdb_adi: TEdit
       Left = 160
-      Top = 285
+      Top = 261
+      Width = 145
+      Height = 21
+      TabOrder = 6
+      Text = 'edtServer'
+    end
+    object edtdb_port: TEdit
+      Left = 160
+      Top = 283
       Width = 145
       Height = 21
       TabOrder = 7
       Text = 'edtServer'
     end
-    object edtdb_port: TEdit
-      Left = 160
-      Top = 307
-      Width = 145
-      Height = 21
-      TabOrder = 8
-      Text = 'edtServer'
-    end
     object chkayarlari_kaydet: TCheckBox
       Left = 160
-      Top = 332
+      Top = 308
       Width = 145
       Height = 17
-      TabOrder = 9
+      TabOrder = 8
     end
   end
   inherited pnlBottom: TPanel
-    Top = 365
+    Top = 168
     Width = 480
     TabOrder = 2
-    ExplicitTop = 365
+    ExplicitTop = 339
     ExplicitWidth = 480
     inherited btnAccept: TButton
       Left = 274
@@ -526,9 +499,9 @@ inherited frmGiris: TfrmGiris
     end
   end
   inherited stbBase: TStatusBar
-    Top = 395
+    Top = 198
     Width = 484
-    ExplicitTop = 395
+    ExplicitTop = 369
     ExplicitWidth = 484
   end
   object pb1: TProgressBar [3]

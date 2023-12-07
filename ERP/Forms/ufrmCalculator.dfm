@@ -14,11 +14,9 @@ object frmCalculator: TfrmCalculator
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  PixelsPerInch = 96
   TextHeight = 13
   object edtLCD: TEdit
     AlignWithMargins = True
@@ -60,7 +58,7 @@ object frmCalculator: TfrmCalculator
         Value = 25.000000000000020000
       end
       item
-        Value = 25.000000000000010000
+        Value = 25.000000000000000000
       end>
     ControlCollection = <
       item
@@ -186,9 +184,9 @@ object frmCalculator: TfrmCalculator
     object btn0: TButton
       AlignWithMargins = True
       Left = 70
-      Top = 205
-      Width = 67
-      Height = 49
+      Top = 208
+      Width = 68
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -207,9 +205,9 @@ object frmCalculator: TfrmCalculator
     object btn1: TButton
       AlignWithMargins = True
       Left = 1
-      Top = 154
+      Top = 156
       Width = 67
-      Height = 49
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -228,9 +226,9 @@ object frmCalculator: TfrmCalculator
     object btn2: TButton
       AlignWithMargins = True
       Left = 70
-      Top = 154
-      Width = 67
-      Height = 49
+      Top = 156
+      Width = 68
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -248,10 +246,10 @@ object frmCalculator: TfrmCalculator
     end
     object btn3: TButton
       AlignWithMargins = True
-      Left = 139
-      Top = 154
-      Width = 67
-      Height = 49
+      Left = 140
+      Top = 156
+      Width = 68
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -270,7 +268,7 @@ object frmCalculator: TfrmCalculator
     object btn4: TButton
       AlignWithMargins = True
       Left = 1
-      Top = 103
+      Top = 105
       Width = 67
       Height = 49
       Margins.Left = 1
@@ -291,8 +289,8 @@ object frmCalculator: TfrmCalculator
     object btn5: TButton
       AlignWithMargins = True
       Left = 70
-      Top = 103
-      Width = 67
+      Top = 105
+      Width = 68
       Height = 49
       Margins.Left = 1
       Margins.Top = 1
@@ -311,9 +309,9 @@ object frmCalculator: TfrmCalculator
     end
     object btn6: TButton
       AlignWithMargins = True
-      Left = 139
-      Top = 103
-      Width = 67
+      Left = 140
+      Top = 105
+      Width = 68
       Height = 49
       Margins.Left = 1
       Margins.Top = 1
@@ -333,9 +331,9 @@ object frmCalculator: TfrmCalculator
     object btn7: TButton
       AlignWithMargins = True
       Left = 1
-      Top = 52
+      Top = 53
       Width = 67
-      Height = 49
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -354,9 +352,9 @@ object frmCalculator: TfrmCalculator
     object btn8: TButton
       AlignWithMargins = True
       Left = 70
-      Top = 52
-      Width = 67
-      Height = 49
+      Top = 53
+      Width = 68
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -374,10 +372,10 @@ object frmCalculator: TfrmCalculator
     end
     object btn9: TButton
       AlignWithMargins = True
-      Left = 139
-      Top = 52
-      Width = 67
-      Height = 49
+      Left = 140
+      Top = 53
+      Width = 68
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -395,10 +393,10 @@ object frmCalculator: TfrmCalculator
     end
     object btnAddition: TButton
       AlignWithMargins = True
-      Left = 208
-      Top = 154
-      Width = 69
-      Height = 49
+      Left = 210
+      Top = 156
+      Width = 67
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -416,9 +414,9 @@ object frmCalculator: TfrmCalculator
     end
     object btnSubtract: TButton
       AlignWithMargins = True
-      Left = 208
-      Top = 103
-      Width = 69
+      Left = 210
+      Top = 105
+      Width = 67
       Height = 49
       Margins.Left = 1
       Margins.Top = 1
@@ -437,10 +435,10 @@ object frmCalculator: TfrmCalculator
     end
     object btnMultiply: TButton
       AlignWithMargins = True
-      Left = 208
+      Left = 210
       Top = 1
-      Width = 69
-      Height = 49
+      Width = 67
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -458,10 +456,10 @@ object frmCalculator: TfrmCalculator
     end
     object btnDivide: TButton
       AlignWithMargins = True
-      Left = 208
-      Top = 52
-      Width = 69
-      Height = 49
+      Left = 210
+      Top = 53
+      Width = 67
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -479,10 +477,10 @@ object frmCalculator: TfrmCalculator
     end
     object btnErase: TButton
       AlignWithMargins = True
-      Left = 139
+      Left = 140
       Top = 1
-      Width = 67
-      Height = 49
+      Width = 68
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -503,8 +501,8 @@ object frmCalculator: TfrmCalculator
       AlignWithMargins = True
       Left = 70
       Top = 1
-      Width = 67
-      Height = 49
+      Width = 68
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -525,7 +523,7 @@ object frmCalculator: TfrmCalculator
       Left = 1
       Top = 1
       Width = 67
-      Height = 49
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -544,10 +542,10 @@ object frmCalculator: TfrmCalculator
     end
     object btnCalculate: TButton
       AlignWithMargins = True
-      Left = 208
-      Top = 205
-      Width = 69
-      Height = 49
+      Left = 210
+      Top = 208
+      Width = 67
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -566,10 +564,10 @@ object frmCalculator: TfrmCalculator
     end
     object btnSeperate: TButton
       AlignWithMargins = True
-      Left = 139
-      Top = 205
-      Width = 67
-      Height = 49
+      Left = 140
+      Top = 208
+      Width = 68
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1
@@ -588,9 +586,9 @@ object frmCalculator: TfrmCalculator
     object btnArtiEksi: TButton
       AlignWithMargins = True
       Left = 1
-      Top = 205
+      Top = 208
       Width = 67
-      Height = 49
+      Height = 50
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1

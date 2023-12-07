@@ -8,15 +8,43 @@ inherited frmSatTeklifler: TfrmSatTeklifler
   inherited pnlMain: TPanel
     Width = 807
     Height = 511
-    ExplicitWidth = 809
-    ExplicitHeight = 519
+    ExplicitWidth = 807
+    ExplicitHeight = 511
+    inherited splLeft: TSplitter
+      Height = 435
+    end
+    inherited splHeader: TSplitter
+      Width = 807
+    end
+    inherited pnlLeft: TPanel
+      Height = 435
+    end
+    inherited pnlHeader: TPanel
+      Width = 803
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
+      inherited edtFilterHelper: TEdit
+        Width = 760
+      end
+    end
+    inherited pnlContent: TPanel
+      Width = 704
+      Height = 435
+      inherited grd: TDBGrid
+        Width = 704
+        Height = 435
+      end
+    end
     inherited pnlButtons: TPanel
+      Top = 471
+      Width = 807
       inherited pnlButtonRight: TPanel
         object rgFiltre: TRadioGroup
           Left = 0
           Top = 0
           Width = 185
-          Height = 92
+          Height = 40
           Align = alClient
           Caption = 'H'#305'zl'#305' Filtre'
           Items.Strings = (
@@ -32,14 +60,20 @@ inherited frmSatTeklifler: TfrmSatTeklifler
   inherited pnlBottom: TPanel
     Top = 513
     Width = 803
-    ExplicitTop = 521
-    ExplicitWidth = 805
+    ExplicitTop = 513
+    ExplicitWidth = 803
+    inherited btnAccept: TButton
+      Left = 597
+    end
+    inherited btnClose: TButton
+      Left = 701
+    end
   end
   inherited stbBase: TStatusBar
     Top = 543
     Width = 807
-    ExplicitTop = 551
-    ExplicitWidth = 809
+    ExplicitTop = 543
+    ExplicitWidth = 807
   end
   inherited pmDB: TPopupMenu
     object mniSipariseAktar: TMenuItem [2]

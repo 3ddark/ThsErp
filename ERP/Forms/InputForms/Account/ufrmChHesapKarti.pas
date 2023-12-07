@@ -17,7 +17,7 @@ type
     lblhesap_kodu: TLabel;
     lblhesap_ismi: TLabel;
     lblhesap_grubu_id: TLabel;
-    lblmukellef_tipi_id: TLabel;
+    lblmukellef_tipi: TLabel;
     lblmukellef_adi: TLabel;
     lblmukellef_ikinci_adi: TLabel;
     lblmukellef_soyadi: TLabel;
@@ -92,7 +92,6 @@ type
     edthesap_grubu_id: TEdit;
     edtbolge_id: TEdit;
     edtiban_para: TEdit;
-    edtmukellef_tipi_id: TEdit;
     edtulke_id: TEdit;
     edtsehir_id: TEdit;
     lblsemt: TLabel;
@@ -101,6 +100,7 @@ type
     lblemail: TLabel;
     edtweb_site: TEdit;
     edtemail: TEdit;
+    cbbmukellef_tipi: TComboBox;
     procedure FormCreate(Sender: TObject); override;
     procedure RefreshData(); override;
     procedure btnAcceptClick(Sender: TObject); override;
@@ -133,7 +133,6 @@ uses
   Ths.Database.Table.ChHesapKartiAra, ufrmChHesapKartlariAra,
   Ths.Database.Table.ChGruplar, ufrmChGruplar, Ths.Database.Table.PrsPersoneller,
   Ths.Database.Table.ChBolgeler, ufrmChBolgeler,
-  Ths.Database.Table.SysVergiMukellefTipleri, ufrmSysVergiMukellefTipleri,
   Ths.Database.Table.SysUlkeler, ufrmSysUlkeler, Ths.Database.Table.SysSehirler,
   ufrmSysSehirler, Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
   Ths.Database.Table.SysAdresler;
@@ -180,7 +179,7 @@ begin
           cbbara_hesap_kodu.Items.Delete(cbbara_hesap_kodu.Items.IndexOf(LAraKodlar.Strings[0]));
       end;
     finally
-      LAraKodlar.DisposeOf;
+      LAraKodlar.Free;
     end;
   finally
     cbbara_hesap_kodu.Items.EndUpdate;
@@ -241,6 +240,10 @@ begin
   edtemail.CharCase := ecLowerCase;
   edtmuhasebe_eposta.CharCase := ecLowerCase;
 
+  cbbmukellef_tipi.Clear;
+  cbbmukellef_tipi.Items.Add('TC Kimlik No');
+  cbbmukellef_tipi.Items.Add('Vergi Kimlik No');
+
   FSetChHesapPlani := TChHesapPlani.Create(Table.Database);
 
   edthesap_iskonto.MaxLength := 6;
@@ -257,7 +260,6 @@ begin
   edtkok_hesap_kodu.OnHelperProcess := HelperProcess;
   edthesap_grubu_id.OnHelperProcess := HelperProcess;
   edtbolge_id.OnHelperProcess := HelperProcess;
-  edtmukellef_tipi_id.OnHelperProcess := HelperProcess;
   edtiban_para.OnHelperProcess := HelperProcess;
   edtsehir_id.OnHelperProcess := HelperProcess;
 
@@ -271,7 +273,6 @@ begin
   edtkok_hesap_kodu.SetFocus;
   edtkok_hesap_kodu.thsRequiredData := True;
   edthesap_grubu_id.thsRequiredData := True;
-  edtmukellef_tipi_id.thsRequiredData := True;
   edtbolge_id.thsRequiredData := True;
   edtulke_id.thsRequiredData := True;
   edtsehir_id.thsRequiredData := True;
@@ -300,7 +301,6 @@ var
   vKod: TStringDynArray;
   LFrmGrup: TfrmChGruplar;
   LFrmBolge: TfrmChBolgeler;
-  LFrmMukellef: TfrmSysVergiMukellefTipleri;
   LFrmPara: TfrmSysParaBirimleri;
   LFrmSehir: TfrmSysSehirler;
   LSehir: TSysSehir;
@@ -396,31 +396,6 @@ begin
           end;
         finally
           LFrmBolge.Free;
-        end;
-      end
-      else if TEdit(Sender).Name = edtmukellef_tipi_id.Name then
-      begin
-        LFrmMukellef := TfrmSysVergiMukellefTipleri.Create(TEdit(Sender), Self, TSysVergiMukellefTipi.Create(Table.Database), fomNormal, True);
-        try
-          LFrmMukellef.ShowModal;
-
-          if LFrmMukellef.DataAktar then
-          begin
-            if LFrmMukellef.CleanAndClose then
-            begin
-              TEdit(Sender).Clear;
-              TChHesapKarti(Table).MukellefTipiID.Value := 0;
-            end
-            else
-            begin
-              TEdit(Sender).Text := TSysVergiMukellefTipi(LFrmMukellef.Table).MukellefTipi.AsString;
-              TChHesapKarti(Table).MukellefTipiID.Value := LFrmMukellef.Table.Id.Value;
-
-              ShowHideMukellefTipi;
-            end
-          end;
-        finally
-          LFrmMukellef.Free;
         end;
       end
       else if (TEdit(Sender).Name = edtiban_para.Name) then
@@ -587,7 +562,7 @@ begin
   edthesap_ismi.Text := TChHesapKarti(Table).HesapIsmi.Value;
   edthesap_grubu_id.Text := TChHesapKarti(Table).Grup.AsString;
   edtbolge_id.Text := TChHesapKarti(Table).Bolge.AsString;
-  edtmukellef_tipi_id.Text := TChHesapKarti(Table).MukellefTipi.AsString;
+  cbbmukellef_tipi.ItemIndex := cbbmukellef_tipi.Items.IndexOf(TChHesapKarti(Table).MukellefTipi.AsString);
   edtvergi_dairesi.Text := TChHesapKarti(Table).VergiDairesi.AsString;
   edtvergi_no.Text := TChHesapKarti(Table).VergiNo.AsString;
 
@@ -642,12 +617,8 @@ end;
 
 procedure TfrmHesapKarti.ShowHideMukellefTipi;
 begin
-  if edtmukellef_tipi_id.Text = 'TCKN' then
+  if cbbmukellef_tipi.ItemIndex = 0 then
   begin
-//    lblvergi_dairesi.Visible := False;
-//    edtvergi_dairesi.Visible := False;
-//    lblvergi_no.Visible := False;
-//    edtvergi_no.Visible := False;
     edtvergi_no.MaxLength := 11;
 
     lblmukellef_adi.Visible := True;
@@ -659,10 +630,6 @@ begin
   end
   else
   begin
-//    lblvergi_dairesi.Visible := True;
-//    edtvergi_dairesi.Visible := True;
-//    lblvergi_no.Visible := True;
-//    edtvergi_no.Visible := True;
     edtvergi_no.MaxLength := 10;
 
     lblmukellef_adi.Visible := False;
@@ -695,10 +662,10 @@ begin
   if (edtkok_hesap_kodu.Visible and (edtkok_hesap_kodu.Text = '')) or (cbbara_hesap_kodu.Visible and (cbbara_hesap_kodu.Text = '')) or (cbbson_hesap_kodu.Visible and (cbbson_hesap_kodu.Text = '')) then
     raise Exception.Create('Son Hesap Kodu seçilmeden devam edilemez!');
 
-  if (TChHesapKarti(Table).MukellefTipiID.AsInt64 = Ord(TVergiMukellefTipi.VKN)) and (Length(edtvergi_no.Text) <> 10) then
+  if (TChHesapKarti(Table).MukellefTipi.AsInteger = 1) and (Length(edtvergi_no.Text) <> 10) then
     raise Exception.Create('Mükellef tipi VKN olan kayıtlar Vergi Kimlik numarası 10 haneli olmak zorunda!');
 
-  if (TChHesapKarti(Table).MukellefTipiID.AsInt64 = Ord(TVergiMukellefTipi.TCKN)) and (Length(edtvergi_no.Text) <> 10) then
+  if (TChHesapKarti(Table).MukellefTipi.AsInteger = 0) and (Length(edtvergi_no.Text) <> 10) then
     raise Exception.Create('Mükellef tipi TCKN olan kayıtlar Vergi Kimlik(TC Kimlik) numarası 11 haneli olmak zorunda!');
 
   if cbbson_hesap_kodu.Visible then
@@ -719,7 +686,7 @@ begin
       TChHesapKarti(Table).AraKod.Value := getAraHesapKodu;
       TChHesapKarti(Table).Grup.Value := edthesap_grubu_id.Text;
       TChHesapKarti(Table).Bolge.Value := edtbolge_id.Text;
-      TChHesapKarti(Table).MukellefTipi.Value := edtmukellef_tipi_id.Text;
+      TChHesapKarti(Table).MukellefTipi.Value := cbbmukellef_tipi.ItemIndex;
       TChHesapKarti(Table).VergiDairesi.Value := edtvergi_dairesi.Text;
       TChHesapKarti(Table).VergiNo.Value := edtvergi_no.Text;
       TChHesapKarti(Table).MukellefAdi.Value := edtmukellef_adi.Text;
