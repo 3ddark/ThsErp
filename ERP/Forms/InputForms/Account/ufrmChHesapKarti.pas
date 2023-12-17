@@ -241,8 +241,8 @@ begin
   edtmuhasebe_eposta.CharCase := ecLowerCase;
 
   cbbmukellef_tipi.Clear;
-  cbbmukellef_tipi.Items.Add('TC Kimlik No');
-  cbbmukellef_tipi.Items.Add('Vergi Kimlik No');
+  cbbmukellef_tipi.Items.Add('TC Kimlik No(TCKN)');
+  cbbmukellef_tipi.Items.Add('Vergi Kimlik No(VKN)');
 
   FSetChHesapPlani := TChHesapPlani.Create(Table.Database);
 

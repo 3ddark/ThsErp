@@ -91,6 +91,12 @@ type
     btnpath_personel_karti_resim: TButton;
     pnllogo: TPanel;
     imglogo: TImage;
+    lblmukellef_tipi: TLabel;
+    cbbmukellef_tipi: TComboBox;
+    lblmukellef_adi: TLabel;
+    lblmukellef_soyadi: TLabel;
+    edtmukellef_adi: TEdit;
+    edtmukellef_soyadi: TEdit;
     procedure imglogoDblClick(Sender: TObject);
     procedure edtgrid_renk_1DblClick(Sender: TObject);
     procedure edtgrid_renk_2DblClick(Sender: TObject);
@@ -101,6 +107,7 @@ type
     procedure btnpath_stok_karti_resimClick(Sender: TObject);
     procedure btnpath_guncellemeClick(Sender: TObject);
     procedure btnpath_personel_karti_resimClick(Sender: TObject);
+    procedure cbbmukellef_tipiChange(Sender: TObject);
   private
     procedure SetColor(color: TColor; editColor: TEdit);
     procedure DrawEmptyImage();
@@ -128,6 +135,36 @@ uses
 procedure TfrmSysUygulamaAyari.btnpath_stok_karti_resimClick(Sender: TObject);
 begin
   edtpath_stok_karti_resim.Text := GetDialogDirectory;
+end;
+
+procedure TfrmSysUygulamaAyari.cbbmukellef_tipiChange(Sender: TObject);
+begin
+  inherited;
+  if cbbmukellef_tipi.ItemIndex = Ord(TMukellefTipi.TCKN) then
+  begin
+    edtvergi_numarasi.MaxLength := 11;
+    edtvergi_dairesi.Clear;
+    lblvergi_dairesi.Visible := False;
+    edtvergi_dairesi.Visible := False;
+
+    lblmukellef_adi.Visible := True;
+    edtmukellef_adi.Visible := True;
+    lblmukellef_soyadi.Visible := True;
+    edtmukellef_soyadi.Visible := True;
+  end
+  else if cbbmukellef_tipi.ItemIndex = Ord(TMukellefTipi.VKN) then
+  begin
+    edtvergi_numarasi.MaxLength := 10;
+    lblvergi_dairesi.Visible := True;
+    edtvergi_dairesi.Visible := True;
+
+    edtmukellef_adi.Clear;
+    lblmukellef_adi.Visible := False;
+    edtmukellef_adi.Visible := False;
+    edtmukellef_soyadi.Clear;
+    lblmukellef_soyadi.Visible := False;
+    edtmukellef_soyadi.Visible := False;
+  end;
 end;
 
 procedure TfrmSysUygulamaAyari.btnpath_guncellemeClick(Sender: TObject);
@@ -208,24 +245,31 @@ procedure TfrmSysUygulamaAyari.FormCreate(Sender: TObject);
 begin
   inherited;
 
-  edtunvan.CharCase := ecNormal;
-  edtweb.CharCase := ecNormal;
-  edtemail.CharCase := ecNormal;
-  edtmail_sunucu.CharCase := ecNormal;
-  edtmail_kullanici.CharCase := ecNormal;
-  edtmail_sifre.CharCase := ecNormal;
-  edtversiyon.CharCase := ecNormal;
+  edtunvan.CharCase := TEditCharCase.ecNormal;
+  edtweb.CharCase := TEditCharCase.ecNormal;
+  edtemail.CharCase := TEditCharCase.ecNormal;
+  edtmail_sunucu.CharCase := TEditCharCase.ecNormal;
+  edtmail_kullanici.CharCase := TEditCharCase.ecNormal;
+  edtmail_sifre.CharCase := TEditCharCase.ecNormal;
+  edtversiyon.CharCase := TEditCharCase.ecNormal;
 
-  edtsms_sunucu.CharCase := ecNormal;
-  edtsms_kullanici.CharCase := ecNormal;
-  edtsms_sifre.CharCase := ecNormal;
-  edtsms_baslik.CharCase := ecNormal;
+  edtsms_sunucu.CharCase := TEditCharCase.ecNormal;
+  edtsms_kullanici.CharCase := TEditCharCase.ecNormal;
+  edtsms_sifre.CharCase := TEditCharCase.ecNormal;
+  edtsms_baslik.CharCase := TEditCharCase.ecNormal;
 
-  edtpath_stok_karti_resim.CharCase := ecNormal;
-  edtpath_personel_karti_resim.CharCase := ecNormal;
-  edtpath_guncelleme.CharCase := ecNormal;
+  edtpath_stok_karti_resim.CharCase := TEditCharCase.ecNormal;
+  edtpath_personel_karti_resim.CharCase := TEditCharCase.ecNormal;
+  edtpath_guncelleme.CharCase := TEditCharCase.ecNormal;
 
-  edtcrypt_key.CharCase := ecNormal;
+  edtcrypt_key.CharCase := TEditCharCase.ecNormal;
+
+  cbbmukellef_tipi.CharCase := TEditCharCase.ecNormal;
+  cbbmukellef_tipi.Clear;
+  cbbmukellef_tipi.Items.Add('TC Kimlik No(TCKN)');
+  cbbmukellef_tipi.Items.Add('Vergi Kimlik No(VKN)');
+  cbbmukellef_tipi.ItemIndex := 0;
+  cbbmukellef_tipiChange(cbbmukellef_tipi)
 end;
 
 procedure TfrmSysUygulamaAyari.FormPaint(Sender: TObject);
@@ -405,8 +449,17 @@ begin
     edtsms_sifre.Text := TSysUygulamaAyari(Table).SmsSifre.AsString;
   edtsms_baslik.Text := TSysUygulamaAyari(Table).SmsBaslik.AsString;
 
+  if TSysUygulamaAyari(Table).MukellefTipi.AsString = 'TCKN' then
+    cbbmukellef_tipi.ItemIndex := 0
+  else if TSysUygulamaAyari(Table).MukellefTipi.AsString = 'VKN' then
+    cbbmukellef_tipi.ItemIndex := 1;
+  cbbmukellef_tipiChange(cbbmukellef_tipi);
+
   edtvergi_dairesi.Text := TSysUygulamaAyari(Table).VergiDairesi.AsString;
   edtvergi_numarasi.Text := TSysUygulamaAyari(Table).VergiNo.AsString;
+  edtmukellef_adi.Text := TSysUygulamaAyari(Table).MukellefAdi.AsString;
+  edtmukellef_soyadi.Text := TSysUygulamaAyari(Table).MukellefSoyadi.AsString;
+
   edtweb.Text := TSysUygulamaAyari(Table).Adres.Web.AsString;
   edtemail.Text := TSysUygulamaAyari(Table).Adres.EMail.AsString;
   edtulke_adi.Text := TSysUygulamaAyari(Table).Adres.UlkeAdi.AsString;
@@ -502,8 +555,14 @@ begin
       else
         TSysUygulamaAyari(Table).SmsSifre.Value := '';
 
+      if cbbmukellef_tipi.ItemIndex = Ord(TMukellefTipi.TCKN) then
+        TSysUygulamaAyari(Table).MukellefTipi.Value := 'TCKN'
+      else if cbbmukellef_tipi.ItemIndex = Ord(TMukellefTipi.VKN) then
+        TSysUygulamaAyari(Table).MukellefTipi.Value := 'VKN';
       TSysUygulamaAyari(Table).VergiDairesi.Value := edtvergi_dairesi.Text;
       TSysUygulamaAyari(Table).VergiNo.Value := edtvergi_numarasi.Text;
+      TSysUygulamaAyari(Table).MukellefAdi.Value := edtmukellef_adi.Text;
+      TSysUygulamaAyari(Table).MukellefSoyadi.Value := edtmukellef_soyadi.Text;
 
       TSysUygulamaAyari(Table).Adres.Web.Value := edtweb.Text;
       TSysUygulamaAyari(Table).Adres.EMail.Value := edtemail.Text;

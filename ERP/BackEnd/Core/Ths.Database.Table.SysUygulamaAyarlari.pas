@@ -23,7 +23,6 @@ type
 
   TSysUygulamaAyari = class(TTable)
   private
-    FLogo: TFieldDB;
     FUnvan: TFieldDB;
     FTelefon: TFieldDB;
     FFaks: TFieldDB;
@@ -46,6 +45,10 @@ type
     FPara: TFieldDB;
     FAdresID: TFieldDB;
     FDigerAyarlar: TFieldDB;
+    FMukellefAdi: TFieldDB;
+    FMukellefSoyadi: TFieldDB;
+    FMukellefTipi: TFieldDB;
+    FLogo: TFieldDB;
   protected
     procedure BusinessSelect(AFilter: string; ALock: Boolean; APermissionControl: Boolean); override;
     procedure BusinessInsert(APermissionControl: Boolean); override;
@@ -67,7 +70,6 @@ type
 
     function GetAddress: string;
 
-    Property Logo: TFieldDB read FLogo write FLogo;
     Property Unvan: TFieldDB read FUnvan write FUnvan;
     Property Telefon: TFieldDB read FTelefon write FTelefon;
     Property Faks: TFieldDB read FFaks write FFaks;
@@ -90,6 +92,10 @@ type
     Property Para: TFieldDB read FPara write FPara;
     Property AdresID: TFieldDB read FAdresID write FAdresID;
     Property DigerAyarlar: TFieldDB read FDigerAyarlar write FDigerAyarlar;
+    Property MukellefAdi: TFieldDB read FMukellefAdi write FMukellefAdi;
+    Property MukellefSoyadi: TFieldDB read FMukellefSoyadi write FMukellefSoyadi;
+    Property MukellefTipi: TFieldDB read FMukellefTipi write FMukellefTipi;
+    Property Logo: TFieldDB read FLogo write FLogo;
   end;
 
 implementation
@@ -104,7 +110,6 @@ begin
 
   Adres := TSysAdres.Create(Database);
 
-  FLogo := TFieldDB.Create('logo', ftString, '', Self, '');
   FUnvan := TFieldDB.Create('unvan', ftString, '', Self, '');
   FTelefon := TFieldDB.Create('telefon', ftString, '', Self, '');
   FFaks := TFieldDB.Create('faks', ftString, '', Self, '');
@@ -126,8 +131,12 @@ begin
   FVersiyon := TFieldDB.Create('versiyon', ftString, '', Self, '');
   FPara := TFieldDB.Create('para', ftString, '', Self, '');
   FAdresID := TFieldDB.Create('adres_id', ftLargeint, 0, Self, '');
-  FDigerAyarlar := TFieldDB.Create('diger_ayarlar', ftMemo, '', Self, '');
+  FDigerAyarlar := TFieldDB.Create('diger_ayarlar', ftWideMemo, '', Self, '');
   DigerAyarlarJSon := TSysUygulamaDigerAyarlar.Create;
+  FMukellefAdi := TFieldDB.Create('mukellef_adi', ftString, '', Self, '');
+  FMukellefSoyadi := TFieldDB.Create('mukellef_soyadi', ftString, '', Self, '');
+  FMukellefTipi := TFieldDB.Create('mukellef_tipi', ftString, '', Self, '');
+  FLogo := TFieldDB.Create('logo', ftBytes, '', Self, '');
 end;
 
 procedure TSysUygulamaAyari.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -135,39 +144,39 @@ begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  with QryOfDS do
-  begin
-    Close;
-    Database.GetSQLSelectCmd(QryOfDS, TableName, [
-      Id.QryName,
-      FLogo.QryName,
-      FUnvan.QryName,
-      FTelefon.QryName,
-      FFaks.QryName,
-      FVergiDairesi.QryName,
-      FVergiNo.QryName,
-      FDonem.QryName,
-      FMailSunucu.QryName,
-      FMailKullanici.QryName,
-      FMailSifre.QryName,
-      FMailSmtpPort.QryName,
-      FGridRenk1.QryName,
-      FGridRenk2.QryName,
-      FGridRenkAktif.QryName,
-      FCryptKey.QryName,
-      FSmsSunucu.QryName,
-      FSmsKullanici.QryName,
-      FSmsSifre.QryName,
-      FSmsBaslik.QryName,
-      FVersiyon.QryName,
-      FPara.QryName,
-      FAdresID.QryName,
-      FDigerAyarlar.QryName
-    ], [
-      ' WHERE 1=1 ', AFilter
-    ], AAllColumn, AHelper);
-    Open;
-  end;
+  Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+    Id.QryName,
+    FUnvan.QryName,
+    FTelefon.QryName,
+    FFaks.QryName,
+    FVergiDairesi.QryName,
+    FVergiNo.QryName,
+    FDonem.QryName,
+    FMailSunucu.QryName,
+    FMailKullanici.QryName,
+    FMailSifre.QryName,
+    FMailSmtpPort.QryName,
+    FGridRenk1.QryName,
+    FGridRenk2.QryName,
+    FGridRenkAktif.QryName,
+    FCryptKey.QryName,
+    FSmsSunucu.QryName,
+    FSmsKullanici.QryName,
+    FSmsSifre.QryName,
+    FSmsBaslik.QryName,
+    FVersiyon.QryName,
+    FPara.QryName,
+    FAdresID.QryName,
+    FDigerAyarlar.QryName,
+    FMukellefTipi.QryName,
+    FMukellefAdi.QryName,
+    FMukellefSoyadi.QryName,
+    FLogo.QryName
+  ], [
+    ' WHERE 1=1 ', AFilter
+  ], AAllColumn, AHelper);
+
+  QryOfDS.Open;
 end;
 
 procedure TSysUygulamaAyari.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
@@ -180,11 +189,9 @@ begin
   AFilter := GetLockSQL(AFilter, ALock);
 
   LQry := Database.NewQuery();
-  with LQry do
   try
-    Database.GetSQLSelectCmd(LQry, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      FLogo.QryName,
       FUnvan.QryName,
       FTelefon.QryName,
       FFaks.QryName,
@@ -206,11 +213,15 @@ begin
       FVersiyon.QryName,
       FPara.QryName,
       FAdresID.QryName,
-      FDigerAyarlar.QryName
+      FDigerAyarlar.QryName,
+      FMukellefTipi.QryName,
+      FMukellefAdi.QryName,
+      FMukellefSoyadi.QryName,
+      FLogo.QryName
     ], [
       ' WHERE 1=1 ', AFilter
     ]);
-    Open;
+    LQry.Open;
 
     FreeListContent();
     while NOT EOF do
@@ -219,10 +230,10 @@ begin
 
       List.Add(Clone);
 
-      Next;
+      LQry.Next;
     end;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -231,10 +242,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
-      FLogo.FieldName,
+    Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FUnvan.FieldName,
       FTelefon.FieldName,
       FFaks.FieldName,
@@ -256,15 +265,19 @@ begin
       FVersiyon.FieldName,
       FPara.FieldName,
       FAdresID.FieldName,
-      FDigerAyarlar.FieldName
+      FDigerAyarlar.FieldName,
+      FMukellefTipi.FieldName,
+      FMukellefAdi.FieldName,
+      FMukellefSoyadi.FieldName,
+      FLogo.FieldName
     ]);
 
     PrepareInsertQueryParams(LQry);
 
-    Open;
-    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
+    LQry.Open;
+    Self.Id.Value := LQry.Fields.FieldByName(Id.FieldName).AsInteger;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -273,10 +286,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
-      FLogo.FieldName,
+    Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FUnvan.FieldName,
       FTelefon.FieldName,
       FFaks.FieldName,
@@ -298,16 +309,21 @@ begin
       FVersiyon.FieldName,
       FPara.FieldName,
       FAdresID.FieldName,
-      FDigerAyarlar.FieldName
+      FDigerAyarlar.FieldName,
+      FMukellefTipi.FieldName,
+      FMukellefAdi.FieldName,
+      FMukellefSoyadi.FieldName,
+      FLogo.FieldName
     ]);
 
     PrepareUpdateQueryParams(LQry);
+    ParameterCasting(LQry, QRY_PAR_CH, FDigerAyarlar.FieldName, 'jsonb');
 
-    ExecSQL;
+    LQry.ExecSQL;
 
     Self.Adres.Update(False);
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 

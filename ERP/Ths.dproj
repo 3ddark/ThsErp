@@ -741,6 +741,7 @@
         <DCCReference Include="BackEnd\Tools\Orm\Ths.Orm.Manager.pas"/>
         <DCCReference Include="BackEnd\Tools\Orm\Ths.Orm.ManagerStack.pas"/>
         <DCCReference Include="Ths.Orm.Table.StkAmbarlar.pas"/>
+        <DCCReference Include="BackEnd\Core\Ths.Database.Sql.Builder.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

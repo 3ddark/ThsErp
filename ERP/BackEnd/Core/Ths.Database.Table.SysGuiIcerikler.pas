@@ -73,7 +73,7 @@ begin
   with QryOfDS do
   begin
     Close;
-    Database.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.FieldName,
       FKod.FieldName,
       'cast(' + FDeger.FieldName + ' as varchar) ' + FDeger.FieldName,
@@ -100,7 +100,7 @@ begin
   LQry := Database.NewQuery();
   with LQry do
   try
-    Database.GetSQLSelectCmd(LQry, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.FieldName,
       FKod.FieldName,
       'cast(' + FDeger.FieldName + ' as varchar) ' + FDeger.FieldName,
@@ -131,11 +131,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    Close;
-    SQL.Clear;
-    SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FKod.FieldName,
       FDeger.FieldName,
       FIsFabrika.FieldName,
@@ -146,10 +143,10 @@ begin
 
     PrepareInsertQueryParams(LQry);
 
-    Open;
-    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
+    LQry.Open;
+    Self.Id.Value := LQry.Fields.FieldByName(Id.FieldName).AsInteger;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -158,10 +155,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Clear;
-    SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FKod.FieldName,
       FDeger.FieldName,
       FIsFabrika.FieldName,
@@ -172,9 +167,9 @@ begin
 
     PrepareUpdateQueryParams(LQry);
 
-    ExecSQL;
+    LQry.ExecSQL;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 

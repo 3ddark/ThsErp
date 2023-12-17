@@ -274,7 +274,8 @@ uses
   Ths.Orm.Table in 'BackEnd\Tools\Orm\Ths.Orm.Table.pas',
   Ths.Orm.Manager in 'BackEnd\Tools\Orm\Ths.Orm.Manager.pas',
   Ths.Orm.ManagerStack in 'BackEnd\Tools\Orm\Ths.Orm.ManagerStack.pas',
-  Ths.Orm.Table.StkAmbarlar in 'Ths.Orm.Table.StkAmbarlar.pas';
+  Ths.Orm.Table.StkAmbarlar in 'Ths.Orm.Table.StkAmbarlar.pas',
+  Ths.Database.Sql.Builder in 'BackEnd\Core\Ths.Database.Sql.Builder.pas';
 
 {$R *.res}
 

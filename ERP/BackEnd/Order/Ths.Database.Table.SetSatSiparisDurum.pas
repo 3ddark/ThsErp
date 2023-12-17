@@ -59,7 +59,7 @@ begin
   with QryOfDS do
   begin
     Close;
-    Database.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.QryName,
       FSiparisDurum.QryName,
       FAciklama.QryName,
@@ -83,7 +83,7 @@ begin
   LQry := Database.NewQuery();
   with LQry do
   try
-    Database.GetSQLSelectCmd(LQry, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FSiparisDurum.QryName,
       FAciklama.QryName,
@@ -112,9 +112,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FSiparisDurum.FieldName,
       FAciklama.FieldName,
       FIsAktif.FieldName
@@ -122,10 +121,10 @@ begin
 
     PrepareInsertQueryParams(LQry);
 
-    Open;
-    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
+    LQry.Open;
+    Self.Id.Value := LQry.Fields.FieldByName(Id.FieldName).AsInteger;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -134,9 +133,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FSiparisDurum.FieldName,
       FAciklama.FieldName,
       FIsAktif.FieldName
@@ -144,9 +142,9 @@ begin
 
     PrepareUpdateQueryParams(LQry);
 
-    ExecSQL;
+    LQry.ExecSQL;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 

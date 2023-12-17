@@ -121,8 +121,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
         Caption = 'Adres'
         ImageIndex = 2
         object lblvergi_dairesi: TLabel
-          Left = 64
-          Top = 28
+          Left = 400
+          Top = 36
           Width = 71
           Height = 13
           Alignment = taRightJustify
@@ -137,8 +137,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblvergi_numarasi: TLabel
-          Left = 50
-          Top = 51
+          Left = 386
+          Top = 13
           Width = 85
           Height = 13
           Alignment = taRightJustify
@@ -153,8 +153,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblweb: TLabel
-          Left = 76
-          Top = 90
+          Left = 412
+          Top = 255
           Width = 59
           Height = 13
           Alignment = taRightJustify
@@ -169,8 +169,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblemail: TLabel
-          Left = 431
-          Top = 90
+          Left = 89
+          Top = 255
           Width = 44
           Height = 13
           Alignment = taRightJustify
@@ -185,8 +185,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblulke_adi: TLabel
-          Left = 110
-          Top = 128
+          Left = 108
+          Top = 145
           Width = 25
           Height = 13
           Alignment = taRightJustify
@@ -201,8 +201,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblsehir_id: TLabel
-          Left = 446
-          Top = 128
+          Left = 442
+          Top = 145
           Width = 29
           Height = 13
           Alignment = taRightJustify
@@ -217,8 +217,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblilce: TLabel
-          Left = 114
-          Top = 151
+          Left = 112
+          Top = 167
           Width = 21
           Height = 13
           Alignment = taRightJustify
@@ -233,8 +233,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblmahalle: TLabel
-          Left = 431
-          Top = 151
+          Left = 89
+          Top = 189
           Width = 44
           Height = 13
           Alignment = taRightJustify
@@ -249,8 +249,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblsokak: TLabel
-          Left = 440
-          Top = 197
+          Left = 98
+          Top = 211
           Width = 35
           Height = 13
           Alignment = taRightJustify
@@ -265,8 +265,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblbina_adi: TLabel
-          Left = 90
-          Top = 220
+          Left = 426
+          Top = 211
           Width = 45
           Height = 13
           Alignment = taRightJustify
@@ -281,8 +281,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblkapi_no: TLabel
-          Left = 434
-          Top = 220
+          Left = 92
+          Top = 233
           Width = 41
           Height = 13
           Alignment = taRightJustify
@@ -297,8 +297,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblposta_kodu: TLabel
-          Left = 412
-          Top = 243
+          Left = 408
+          Top = 233
           Width = 63
           Height = 13
           Alignment = taRightJustify
@@ -313,8 +313,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblsemt: TLabel
-          Left = 105
-          Top = 174
+          Left = 441
+          Top = 167
           Width = 30
           Height = 13
           Alignment = taRightJustify
@@ -329,8 +329,8 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentFont = False
         end
         object lblcadde: TLabel
-          Left = 100
-          Top = 197
+          Left = 436
+          Top = 189
           Width = 35
           Height = 13
           Alignment = taRightJustify
@@ -344,103 +344,174 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           ParentBiDiMode = False
           ParentFont = False
         end
+        object lblmukellef_tipi: TLabel
+          Left = 62
+          Top = 13
+          Width = 71
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'M'#252'kellef Tipi'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblmukellef_adi: TLabel
+          Left = 64
+          Top = 36
+          Width = 69
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'M'#252'kellef Ad'#305
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblmukellef_soyadi: TLabel
+          Left = 44
+          Top = 57
+          Width = 89
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'M'#252'kellef Soyad'#305
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
         object edtvergi_dairesi: TEdit
-          Left = 137
-          Top = 25
-          Width = 200
-          Height = 23
-          TabOrder = 0
-        end
-        object edtvergi_numarasi: TEdit
-          Left = 137
-          Top = 48
-          Width = 200
-          Height = 23
-          TabOrder = 1
-        end
-        object edtweb: TEdit
-          Left = 137
-          Top = 87
-          Width = 200
-          Height = 23
-          TabOrder = 2
-        end
-        object edtemail: TEdit
-          Left = 477
-          Top = 87
+          Left = 473
+          Top = 32
           Width = 200
           Height = 23
           TabOrder = 3
         end
-        object edtsehir_id: TEdit
-          Left = 477
-          Top = 125
+        object edtvergi_numarasi: TEdit
+          Left = 473
+          Top = 9
+          Width = 120
+          Height = 23
+          TabOrder = 1
+        end
+        object edtweb: TEdit
+          Left = 473
+          Top = 251
           Width = 200
           Height = 23
-          TabOrder = 5
+          TabOrder = 16
         end
-        object edtilce: TEdit
-          Left = 137
-          Top = 148
+        object edtemail: TEdit
+          Left = 135
+          Top = 251
+          Width = 200
+          Height = 23
+          TabOrder = 15
+        end
+        object edtsehir_id: TEdit
+          Left = 473
+          Top = 141
           Width = 200
           Height = 23
           TabOrder = 6
         end
-        object edtmahalle: TEdit
-          Left = 477
-          Top = 148
+        object edtilce: TEdit
+          Left = 135
+          Top = 163
           Width = 200
           Height = 23
           TabOrder = 7
         end
-        object edtsokak: TEdit
-          Left = 477
-          Top = 194
+        object edtmahalle: TEdit
+          Left = 135
+          Top = 185
           Width = 200
           Height = 23
-          TabOrder = 10
+          TabOrder = 9
         end
-        object edtbina_adi: TEdit
-          Left = 137
-          Top = 217
+        object edtsokak: TEdit
+          Left = 135
+          Top = 207
           Width = 200
           Height = 23
           TabOrder = 11
         end
-        object edtkapi_no: TEdit
-          Left = 477
-          Top = 217
+        object edtbina_adi: TEdit
+          Left = 473
+          Top = 207
           Width = 200
           Height = 23
           TabOrder = 12
         end
-        object edtposta_kodu: TEdit
-          Left = 477
-          Top = 240
+        object edtkapi_no: TEdit
+          Left = 135
+          Top = 229
           Width = 200
           Height = 23
           TabOrder = 13
         end
-        object edtulke_adi: TEdit
-          Left = 137
-          Top = 125
+        object edtposta_kodu: TEdit
+          Left = 473
+          Top = 229
           Width = 200
           Height = 23
-          TabOrder = 4
+          TabOrder = 14
+        end
+        object edtulke_adi: TEdit
+          Left = 135
+          Top = 141
+          Width = 200
+          Height = 23
+          TabOrder = 5
         end
         object edtsemt: TEdit
-          Left = 137
-          Top = 171
+          Left = 473
+          Top = 163
           Width = 200
           Height = 23
           TabOrder = 8
         end
         object edtcadde: TEdit
-          Left = 137
-          Top = 194
+          Left = 473
+          Top = 185
           Width = 200
           Height = 23
-          TabOrder = 9
+          TabOrder = 10
+        end
+        object cbbmukellef_tipi: TComboBox
+          Left = 137
+          Top = 9
+          Width = 178
+          Height = 23
+          Style = csDropDownList
+          TabOrder = 0
+          OnChange = cbbmukellef_tipiChange
+        end
+        object edtmukellef_adi: TEdit
+          Left = 135
+          Top = 32
+          Width = 180
+          Height = 21
+          TabOrder = 2
+        end
+        object edtmukellef_soyadi: TEdit
+          Left = 135
+          Top = 53
+          Width = 180
+          Height = 21
+          TabOrder = 4
         end
       end
       object tsgorsel: TTabSheet

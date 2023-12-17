@@ -71,7 +71,7 @@ begin
   with QryOfDS do
   begin
     Close;
-    Database.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.QryName,
       FPID.QryName,
       FDBName.QryName,
@@ -98,7 +98,7 @@ begin
   LQry := Database.NewQuery;
   with LQry do
   try
-    Database.GetSQLSelectCmd(LQry, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FPID.QryName,
       FDBName.QryName,

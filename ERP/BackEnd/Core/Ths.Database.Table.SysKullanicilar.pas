@@ -115,7 +115,7 @@ begin
     with QryOfDS do
     begin
       Close;
-      Database.GetSQLSelectCmd(QryOfDS, TableName, [
+      Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
         Id.QryName,
         FKullaniciAdi.QryName,
         'cast(' + FKullaniciSifre.QryName + ' as varchar(256)) ' + FKullaniciSifre.AsString,
@@ -152,7 +152,7 @@ begin
   try
     with LQry do
     begin
-      Database.GetSQLSelectCmd(LQry, TableName, [
+      Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
         Id.QryName,
         FKullaniciAdi.QryName,
         'cast(' + FKullaniciSifre.QryName + ' as varchar(256)) ' + FKullaniciSifre.FieldName,
@@ -190,9 +190,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FKullaniciAdi.FieldName,
       FKullaniciSifre.FieldName,
       FIsAktif.FieldName,
@@ -207,10 +206,10 @@ begin
 
     PrepareInsertQueryParams(LQry);
 
-    Open;
-    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
+    LQry.Open;
+    Self.Id.Value := LQry.Fields.FieldByName(Id.FieldName).AsInteger;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -219,9 +218,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FKullaniciAdi.FieldName,
       FIsAktif.FieldName,
       FIsYonetici.FieldName,
@@ -233,9 +231,9 @@ begin
 
     PrepareUpdateQueryParams(LQry);
 
-    ExecSQL;
+    LQry.ExecSQL;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 

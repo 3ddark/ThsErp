@@ -152,6 +152,7 @@ type
     procedure PrepareTableClassFromQuery(AQuery: TFDQuery);
     procedure PrepareInsertQueryParams(AQuery: TFDQuery);
     procedure PrepareUpdateQueryParams(AQuery: TFDQuery);
+    procedure ParameterCasting(AQuery: TFDQuery; AParamDelimiter: Char; AFieldName, ACast: string);
 
     function GetLockSQL(AFilter: string; ALock: Boolean): string;
 
@@ -1088,6 +1089,14 @@ begin
   for n1 := 0 to Length(Fields)-1 do
     if AQuery.Params.FindParam(Fields[n1].FieldName) <> nil then
       NewParamForQuery(AQuery, Fields[n1]);
+end;
+
+procedure TTable.ParameterCasting(AQuery: TFDQuery; AParamDelimiter: Char; AFieldName, ACast: string);
+begin
+  if ACast.IsEmpty then
+    raise Exception.Create('Casting tipi boş olamaz');
+
+  AQuery.SQL.Text := StringReplace(AQuery.SQL.Text, AParamDelimiter + AFieldName, 'cast(' + AParamDelimiter + AFieldName + ' as ' +  ACast + ')', [rfReplaceAll]);
 end;
 
 procedure TTable.CloneClassContent(ASrc, ADes: TTable);

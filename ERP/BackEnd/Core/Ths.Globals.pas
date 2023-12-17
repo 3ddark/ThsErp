@@ -42,6 +42,8 @@ type
   end;
   TSysUserIDList = TArray<TSysUserID>;
 
+  TMukellefTipi = (TCKN, VKN);
+
 //#######*****Use SMS Service Result*****#######
 type
   TSmsServiceResult = record

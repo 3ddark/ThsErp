@@ -96,7 +96,7 @@ begin
   with QryOfDS do
   begin
     Close;
-    Database.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
       Self.Id.QryName,
       FKaynakID.QryName,
       addLangField(FKaynakAdi.FieldName),
@@ -132,7 +132,7 @@ begin
   LQry := Database.NewQuery();
   with LQry do
   try
-    Database.GetSQLSelectCmd(LQry, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Self.Id.QryName,
       FKaynakID.QryName,
       addLangField(FKaynakAdi.FieldName),
@@ -170,9 +170,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FKaynakID.FieldName,            
       FIsOkuma.FieldName,
       FIsEkleme.FieldName,
@@ -184,10 +183,10 @@ begin
 
     PrepareInsertQueryParams(LQry);
 
-    Open;
-    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
+    LQry.Open;
+    Self.Id.Value := LQry.Fields.FieldByName(Id.FieldName).AsInteger;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -196,9 +195,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FKaynakID.FieldName,
       FIsOkuma.FieldName,
       FIsEkleme.FieldName,
@@ -210,9 +208,9 @@ begin
 
     PrepareUpdateQueryParams(LQry);
 
-    ExecSQL;
+    LQry.ExecSQL;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 

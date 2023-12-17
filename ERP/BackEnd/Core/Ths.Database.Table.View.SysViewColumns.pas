@@ -80,7 +80,7 @@ begin
   begin
     Close;
     SQL.Clear;
-    Database.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.QryName,
       FTabloAdi.QryName,
       FColumnName.QryName,
@@ -111,7 +111,7 @@ begin
   LQry := Database.NewQuery();
   with LQry do
   try
-    Database.GetSQLSelectCmd(LQry, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FTabloAdi.QryName,
       FColumnName.QryName,

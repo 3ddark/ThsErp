@@ -232,7 +232,7 @@ begin
   with QryOfDS do
   begin
     Close;
-    Database.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.QryName,
       FHeaderID.QryName,
       FReceteID.QryName,
@@ -258,7 +258,7 @@ begin
   LQry := Database.NewQuery();
   with LQry do
   try
-    Database.GetSQLSelectCmd(LQry, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FHeaderID.QryName,
       FReceteID.QryName,
@@ -297,11 +297,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    Close;
-    SQL.Clear;
-    SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FHeaderID.FieldName,
       FReceteID.FieldName,
       FStokKodu.FieldName,
@@ -311,10 +308,10 @@ begin
 
     PrepareInsertQueryParams(LQry);
 
-    Open;
-    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
+    LQry.Open;
+    Self.Id.Value := LQry.Fields.FieldByName(Id.FieldName).AsInteger;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -323,9 +320,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FHeaderID.FieldName,
       FReceteID.FieldName,
       FStokKodu.FieldName,
@@ -335,9 +331,9 @@ begin
 
     PrepareUpdateQueryParams(LQry);
 
-    ExecSQL;
+    LQry.ExecSQL;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -382,7 +378,7 @@ begin
   with QryOfDS do
   begin
     Close;
-    Database.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.QryName,
       FHeaderID.QryName,
       FGiderKodu.QryName,
@@ -411,7 +407,7 @@ begin
   LQry := Database.NewQuery();
   with LQry do
   try
-    Database.GetSQLSelectCmd(LQry, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FHeaderID.QryName,
       FGiderKodu.QryName,
@@ -445,9 +441,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FHeaderID.FieldName,
       FGiderKodu.FieldName,
       FMiktar.FieldName
@@ -455,10 +450,10 @@ begin
 
     PrepareInsertQueryParams(LQry);
 
-    Open;
-    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
+    LQry.Open;
+    Self.Id.Value := LQry.Fields.FieldByName(Id.FieldName).AsInteger;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -467,9 +462,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FHeaderID.FieldName,
       FGiderKodu.FieldName,
       FMiktar.FieldName
@@ -477,9 +471,9 @@ begin
 
     PrepareUpdateQueryParams(LQry);
 
-    ExecSQL;
+    LQry.ExecSQL;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -525,7 +519,7 @@ begin
   with QryOfDS do
   begin
     Close;
-    Database.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.QryName,
       FHeaderID.QryName,
       FStokKodu.QryName,
@@ -550,7 +544,7 @@ begin
   LQry := Database.NewQuery();
   with LQry do
   try
-    Database.GetSQLSelectCmd(LQry, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FHeaderID.QryName,
       FStokKodu.QryName,
@@ -586,9 +580,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FHeaderID.FieldName,
       FStokKodu.FieldName,
       FMiktar.FieldName,
@@ -597,10 +590,10 @@ begin
 
     PrepareInsertQueryParams(LQry);
 
-    Open;
-    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
+    LQry.Open;
+    Self.Id.Value := LQry.Fields.FieldByName(Id.FieldName).AsInteger;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -609,9 +602,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FHeaderID.FieldName,
       FStokKodu.FieldName,
       FMiktar.FieldName,
@@ -620,9 +612,9 @@ begin
 
     PrepareUpdateQueryParams(LQry);
 
-    ExecSQL;
+    LQry.ExecSQL;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -661,7 +653,7 @@ begin
   begin
     Close;
     SQL.Clear;
-    Database.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
       Id.QryName,
       FReceteKodu.QryName,
       FReceteAdi.QryName,
@@ -690,7 +682,7 @@ begin
   LQry := Database.NewQuery();
   with LQry do
   try
-    Database.GetSQLSelectCmd(LQry, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Self.Id.QryName,
       FReceteKodu.QryName,
       FReceteAdi.QryName,
@@ -724,9 +716,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLInsertCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FReceteKodu.FieldName,
       FReceteAdi.FieldName,
       FOrnekUretimMiktari.FieldName,
@@ -735,10 +726,10 @@ begin
 
     PrepareInsertQueryParams(LQry);
 
-    Open;
-    Self.Id.Value := Fields.FieldByName(Id.FieldName).AsInteger;
+    LQry.Open;
+    Self.Id.Value := LQry.Fields.FieldByName(Id.FieldName).AsInteger;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 
@@ -747,9 +738,8 @@ var
   LQry: TFDQuery;
 begin
   LQry := Database.NewQuery();
-  with LQry do
   try
-    SQL.Text := Database.GetSQLUpdateCmd(TableName, QRY_PAR_CH, [
+    Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FReceteKodu.FieldName,
       FReceteAdi.FieldName,
       FOrnekUretimMiktari.FieldName,
@@ -758,9 +748,9 @@ begin
 
     PrepareUpdateQueryParams(LQry);
 
-    ExecSQL;
+    LQry.ExecSQL;
   finally
-    Free;
+    LQry.Free;
   end;
 end;
 

@@ -26,7 +26,7 @@ begin
 
   LStream := TMemoryStream.Create;
   try
-    LBytes := TNetEncoding.Base64.DecodeStringToBytes(AField.AsString);
+    LBytes := AField.Value;
     LStream.Write(LBytes, Length(LBytes));
     LStream.Position := 0;
     AImage.Picture.LoadFromStream(LStream);
@@ -53,7 +53,7 @@ begin
     if LInput.Size > 0 then
     begin
       TNetEncoding.Base64.Encode(LInput, LOutput);
-      AField.Value := LOutput.DataString;
+      AField.Value := LOutput.Bytes;
     end;
   finally
     LInput.Free;
