@@ -395,17 +395,17 @@ begin
     LStream.Free;
   end;
 
-  if imgLogo.Picture.Bitmap.Width > 640 then
+  if imgLogo.Picture.Bitmap.Width > 320 then
   begin
     imgLogo.Picture.Assign(nil);
     DrawEmptyImage;
-    raise Exception.Create('Logo geniþliði en fazla 640px olabilir.');
+    raise Exception.Create('Logo geniþliði en fazla 320px olabilir.');
   end;
-  if imgLogo.Picture.Bitmap.Height > 480 then
+  if imgLogo.Picture.Bitmap.Height > 240 then
   begin
     imgLogo.Picture.Assign(nil);
     DrawEmptyImage;
-    raise Exception.Create('Logo yüksekliði en fazla 480px olabilir.');
+    raise Exception.Create('Logo yüksekliði en fazla 240px olabilir.');
   end;
 
   imgLogo.Width := imgLogo.Picture.Bitmap.Width;

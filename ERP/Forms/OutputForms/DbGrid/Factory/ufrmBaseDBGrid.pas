@@ -467,7 +467,7 @@ begin
       if isCtrlDown then
         LIsCTRLKeyPress := True;
       //sort düzenle
-      sl.Delimiter := ',';
+      sl.Delimiter := ';';
       if AQuery.IndexFieldNames <> '' then
         sl.DelimitedText := AQuery.IndexFieldNames;
 
@@ -475,7 +475,7 @@ begin
       begin
         //CTRL tuşuna basılmışsa
         for nIndex := 0 to sl.Count-1 do
-          if (LColumn.FieldName + ' Asc' = sl.Strings[nIndex]) or (LColumn.FieldName + ' Desc' = sl.Strings[nIndex]) then
+          if (LColumn.FieldName + ':A' = sl.Strings[nIndex]) or (LColumn.FieldName + ':D' = sl.Strings[nIndex]) then
             LOrderedColumn := True;
 
         if LOrderedColumn then
@@ -483,40 +483,40 @@ begin
           //listede zaten varsa ASC DESC değişimi yap
           for nIndex := 0 to sl.Count-1 do
           begin
-            if (LColumn.FieldName + ' Asc' = sl.Strings[nIndex]) then
-              sl.Strings[nIndex] := LColumn.FieldName + ' Desc'
-            else if (LColumn.FieldName + ' Desc' = sl.Strings[nIndex]) then
-              sl.Strings[nIndex] := LColumn.FieldName + ' Asc';
+            if (LColumn.FieldName + ':A' = sl.Strings[nIndex]) then
+              sl.Strings[nIndex] := LColumn.FieldName + ':D'
+            else if (LColumn.FieldName + ':D' = sl.Strings[nIndex]) then
+              sl.Strings[nIndex] := LColumn.FieldName + ':A';
           end;
         end
         else
         begin
           //listede yoksa direkt ASC olarak ekle
           if sl.Count > 0 then
-            sl.Add(LColumn.FieldName + ' Asc');
+            sl.Add(LColumn.FieldName + ':A');
         end;
       end
       else
       begin
         //CTRL tuşuna basılmamışsa hepsini sil ve direkt olarak ekle
         if sl.Count = 0 then
-          LOrderList := LColumn.FieldName + ' Asc'
+          LOrderList := LColumn.FieldName + ':A'
         else
         begin
           for nIndex := 0 to sl.Count-1 do
-            if (LColumn.FieldName + ' Asc' = sl.Strings[nIndex]) or (LColumn.FieldName + ' Desc' = sl.Strings[nIndex]) then
+            if (LColumn.FieldName + ':A' = sl.Strings[nIndex]) or (LColumn.FieldName + ':D' = sl.Strings[nIndex]) then
               LOrderedColumn := True;
 
           if LOrderedColumn then
           begin
             for nIndex := 0 to sl.Count-1 do
-              if (LColumn.FieldName + ' Asc' = sl.Strings[nIndex]) then
-                LOrderList := LColumn.FieldName + ' Desc'
-              else if (LColumn.FieldName + ' Desc' = sl.Strings[nIndex]) then
-                LOrderList := LColumn.FieldName + ' Asc';
+              if (LColumn.FieldName + ':A' = sl.Strings[nIndex]) then
+                LOrderList := LColumn.FieldName + ':D'
+              else if (LColumn.FieldName + ':D' = sl.Strings[nIndex]) then
+                LOrderList := LColumn.FieldName + ':A';
           end
           else
-            LOrderList := LColumn.FieldName + ' Asc';
+            LOrderList := LColumn.FieldName + ':A';
         end;
         sl.Clear;
         sl.Add(LOrderList);
@@ -526,7 +526,7 @@ begin
 
       for nIndex := 0 to sl.Count-1 do
       begin
-        LOrderList := LOrderList + sl.Strings[nIndex] + ',';
+        LOrderList := LOrderList + sl.Strings[nIndex] + ';';
         if nIndex = sl.Count-1 then
           LOrderList := LeftStr(LOrderList, Length(LOrderList)-1);
       end;
@@ -1095,7 +1095,7 @@ begin
       begin
         if LFilter <> '' then
           LFilter := LFilter + ' OR ';
-        LFilter := LFilter + FFilterNumericFields.Strings[n1] + ' LIKE ' + QuotedStr('*' + edtFilterHelper.Text + '*');
+        LFilter := LFilter + FFilterNumericFields.Strings[n1] + ' LIKE ' + QuotedStr('%' + edtFilterHelper.Text + '%');
       end;
     end;
 
@@ -1132,8 +1132,8 @@ begin
       begin
         if LFilter <> '' then
           LFilter := LFilter + ' OR ';
-        LFilter := LFilter + FFilterStringFields.Strings[n1] + ' LIKE ' + QuotedStr('*' + UpperCaseTr(edtFilterHelper.Text) + '*');
-        LFilter := LFilter + ' OR ' + FFilterStringFields.Strings[n1] + ' LIKE ' + QuotedStr('*' + LowerCaseTr(edtFilterHelper.Text) + '*');
+        LFilter := LFilter + FFilterStringFields.Strings[n1] + ' LIKE ' + QuotedStr('%' + UpperCaseTr(edtFilterHelper.Text) + '%');
+        LFilter := LFilter + ' OR ' + FFilterStringFields.Strings[n1] + ' LIKE ' + QuotedStr('%' + LowerCaseTr(edtFilterHelper.Text) + '%');
       end;
     end;
 

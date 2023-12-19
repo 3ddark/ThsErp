@@ -20,7 +20,6 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
     inherited pgcMain: TPageControl
       Width = 694
       Height = 334
-      ActivePage = tsadres
       ExplicitWidth = 694
       ExplicitHeight = 334
       inherited tsMain: TTabSheet
@@ -99,21 +98,19 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
         object pnllogo: TPanel
           Left = 360
           Top = 25
-          Width = 320
-          Height = 240
+          Width = 322
+          Height = 242
           Caption = 'Logo 320x240'
           TabOrder = 2
           object imglogo: TImage
             Left = 1
             Top = 1
-            Width = 318
-            Height = 238
+            Width = 320
+            Height = 240
             Align = alClient
             OnDblClick = imglogoDblClick
             ExplicitLeft = 0
             ExplicitTop = 0
-            ExplicitWidth = 320
-            ExplicitHeight = 240
           end
         end
       end
@@ -503,14 +500,14 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
           Left = 135
           Top = 32
           Width = 180
-          Height = 21
+          Height = 23
           TabOrder = 2
         end
         object edtmukellef_soyadi: TEdit
           Left = 135
           Top = 53
           Width = 180
-          Height = 21
+          Height = 23
           TabOrder = 4
         end
       end

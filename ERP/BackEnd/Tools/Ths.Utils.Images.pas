@@ -20,16 +20,19 @@ var
   LStream: TMemoryStream;
   LBytes: TBytes;
 begin
-  AImage.Picture.Assign(nil);
   if AField.AsString = '' then
     Exit;
 
   LStream := TMemoryStream.Create;
   try
     LBytes := AField.Value;
+    LStream.Position := 0;
     LStream.Write(LBytes, Length(LBytes));
     LStream.Position := 0;
-    AImage.Picture.LoadFromStream(LStream);
+    if LStream.Size > 0 then
+    begin
+      AImage.Picture.LoadFromStream(LStream);
+    end;
   finally
     LStream.Free;
   end;
@@ -37,27 +40,17 @@ end;
 
 class procedure TImageProcess.setValueFromImage(AField: TFieldDB; AImage: TImage);
 var
-  LInput: TMemoryStream;
-  LOutput: TStringStream;
+  LStream: TStringStream;
 begin
-  LInput := TMemoryStream.Create;
-  LOutput := TStringStream.Create;
+  LStream := TStringStream.Create;
   try
     AField.Value := '';
-    if Assigned(AImage.Picture.Graphic) then
-      AImage.Picture.Graphic.SaveToStream(LInput)
-    else if Assigned(AImage.Picture.Bitmap) then
-      AImage.Picture.Bitmap.SaveToStream(LInput);
+    AImage.Picture.SaveToStream(LStream);
 
-    LInput.Position := 0;
-    if LInput.Size > 0 then
-    begin
-      TNetEncoding.Base64.Encode(LInput, LOutput);
-      AField.Value := LOutput.Bytes;
-    end;
+    if LStream.Size > 0 then
+      AField.Value := LStream.Bytes;
   finally
-    LInput.Free;
-    LOutput.Free;
+    LStream.Free;
   end;
 end;
 

@@ -168,7 +168,9 @@ type
 ///   Yeni Kayıt Ekle Buton başlığı için ButtonAdd
 /// </example>
     procedure SetSession;
+    procedure FormActivate(Sender: TObject);
     procedure ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);
+    procedure tmrcheck_is_update_requiredTimer(Sender: TObject);
     procedure actsys_resource_groupExecute(Sender: TObject);
     procedure actsys_resourceExecute(Sender: TObject);
     procedure actsys_userExecute(Sender: TObject);
@@ -189,7 +191,6 @@ type
     procedure actsys_aboutExecute(Sender: TObject);
     procedure actsys_update_passwordExecute(Sender: TObject);
     procedure actsys_updateExecute(Sender: TObject);
-    procedure tmrcheck_is_update_requiredTimer(Sender: TObject);
     procedure actsys_countryExecute(Sender: TObject);
     procedure actsys_cityExecute(Sender: TObject);
     procedure actacc_exchange_rateExecute(Sender: TObject);
@@ -219,7 +220,6 @@ type
     procedure actsat_siparisExecute(Sender: TObject);
     procedure actrct_iscilik_gideriExecute(Sender: TObject);
     procedure actrct_paket_hammaddeExecute(Sender: TObject);
-    procedure FormActivate(Sender: TObject);
     procedure actsys_unit_typeExecute(Sender: TObject);
     procedure actsys_regionExecute(Sender: TObject);
     procedure actsys_do_database_backupExecute(Sender: TObject);
@@ -719,7 +719,7 @@ begin
     LAppSetting.Clear;
     TfrmSysUygulamaAyari.Create(Self, nil, LAppSetting, ifmNewRecord).ShowModal
   end else if LAppSetting.List.Count = 1 then
-    TfrmSysUygulamaAyari.Create(Self, nil, LAppSetting, ifmRewiev).ShowModal;
+    TfrmSysUygulamaAyari.Create(Self, nil, LAppSetting.List[0], ifmRewiev).ShowModal;
 end;
 
 procedure TfrmDashboard.actsys_userExecute(Sender: TObject);

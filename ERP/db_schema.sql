@@ -3343,12 +3343,37 @@ CREATE TABLE public.sys_uygulama_ayarlari (
     versiyon character varying(128),
     para character varying(3),
     adres_id bigint,
-    diger_ayarlar json,
-    logo text
+    diger_ayarlar jsonb,
+    mukellef_adi character varying(64),
+    mukellef_soyadi character varying,
+    mukellef_tipi character varying(8),
+    logo bytea
 );
 
 
 ALTER TABLE public.sys_uygulama_ayarlari OWNER TO ths_admin;
+
+--
+-- Name: COLUMN sys_uygulama_ayarlari.mukellef_adi; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sys_uygulama_ayarlari.mukellef_adi IS 'Şahış şirket için kullanılır';
+
+
+--
+-- Name: COLUMN sys_uygulama_ayarlari.mukellef_soyadi; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sys_uygulama_ayarlari.mukellef_soyadi IS 'Şahıs şirketi için kullanılır';
+
+
+--
+-- Name: COLUMN sys_uygulama_ayarlari.mukellef_tipi; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sys_uygulama_ayarlari.mukellef_tipi IS 'TCKN
+VKN';
+
 
 --
 -- Name: sys_uygulama_ayari_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin

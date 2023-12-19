@@ -32,7 +32,7 @@ inherited frmDashboard: TfrmDashboard
       Left = 8
       Top = 2
       Width = 201
-      Height = 36
+      Height = 25
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -46,7 +46,6 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
-      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]

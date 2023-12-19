@@ -224,7 +224,7 @@ begin
     LQry.Open;
 
     FreeListContent();
-    while NOT EOF do
+    while NOT LQry.Eof do
     begin
       PrepareTableClassFromQuery(LQry);
 
