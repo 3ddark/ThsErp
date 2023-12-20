@@ -169,7 +169,6 @@
         <DCCReference Include="BackEnd\Tools\SynPDF\SynPdf.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\SynGdiPlus.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\SynZip.pas"/>
-        <DCCReference Include="BackEnd\Tools\SynPDF\SynCrypto.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\SynTable.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\mORMotReport.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.BaseTypes.pas"/>
@@ -742,6 +741,7 @@
         <DCCReference Include="BackEnd\Tools\Orm\Ths.Orm.ManagerStack.pas"/>
         <DCCReference Include="Ths.Orm.Table.StkAmbarlar.pas"/>
         <DCCReference Include="BackEnd\Core\Ths.Database.Sql.Builder.pas"/>
+        <DCCReference Include="BackEnd\Tools\SynPDF\SynCrypto.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -17,7 +17,6 @@ uses
   SynPdf in 'BackEnd\Tools\SynPDF\SynPdf.pas',
   SynGdiPlus in 'BackEnd\Tools\SynPDF\SynGdiPlus.pas',
   SynZip in 'BackEnd\Tools\SynPDF\SynZip.pas',
-  SynCrypto in 'BackEnd\Tools\SynPDF\SynCrypto.pas',
   SynTable in 'BackEnd\Tools\SynPDF\SynTable.pas',
   mORMotReport in 'BackEnd\Tools\SynPDF\mORMotReport.pas',
   Ths.Helper.BaseTypes in 'BackEnd\Tools\Ths.Helper.BaseTypes.pas',
@@ -275,7 +274,8 @@ uses
   Ths.Orm.Manager in 'BackEnd\Tools\Orm\Ths.Orm.Manager.pas',
   Ths.Orm.ManagerStack in 'BackEnd\Tools\Orm\Ths.Orm.ManagerStack.pas',
   Ths.Orm.Table.StkAmbarlar in 'Ths.Orm.Table.StkAmbarlar.pas',
-  Ths.Database.Sql.Builder in 'BackEnd\Core\Ths.Database.Sql.Builder.pas';
+  Ths.Database.Sql.Builder in 'BackEnd\Core\Ths.Database.Sql.Builder.pas',
+  SynCrypto in 'BackEnd\Tools\SynPDF\SynCrypto.pas';
 
 {$R *.res}
 

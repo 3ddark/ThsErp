@@ -20,6 +20,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
     inherited pgcMain: TPageControl
       Width = 694
       Height = 334
+      ActivePage = tsdiger
       ExplicitWidth = 694
       ExplicitHeight = 334
       inherited tsMain: TTabSheet

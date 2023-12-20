@@ -110,8 +110,6 @@ type
     procedure cbbmukellef_tipiChange(Sender: TObject);
   private
     procedure SetColor(color: TColor; editColor: TEdit);
-    procedure DrawEmptyImage();
-    procedure LoadImage(pFileName: string);
   protected
     procedure HelperProcess(Sender: TObject); override;
     function ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl = nil): Boolean; override;
@@ -175,30 +173,6 @@ end;
 procedure TfrmSysUygulamaAyari.btnpath_personel_karti_resimClick(Sender: TObject);
 begin
   edtpath_personel_karti_resim.Text := GetDialogDirectory;
-end;
-
-procedure TfrmSysUygulamaAyari.DrawEmptyImage;
-var
-  vRightOrigin, x1, x2, y1, y2: Integer;
-begin
-  with imgLogo do
-  begin
-    vRightOrigin := Left + Width;
-    Width := 320;
-    Height := 240;
-    Left := vRightOrigin - Width;
-
-    Canvas.Pen.Style := psSolid;
-    Canvas.Pen.Width := 1;
-
-    Canvas.Pen.Color := clOlive;
-    Canvas.Brush.Color := clOlive;
-    x1 := 0;
-    x2 := Width;
-    y1 := 0;
-    y2 := Height;
-    Canvas.Rectangle(x1, y1, x2, y2);
-  end;
 end;
 
 procedure TfrmSysUygulamaAyari.edtgrid_renk_1DblClick(Sender: TObject);
@@ -280,14 +254,15 @@ begin
   edtpath_guncelleme.ReadOnly := True;
 
   btnpath_stok_karti_resim.Enabled := False;
+  btnpath_personel_karti_resim.Enabled := False;
   btnpath_guncelleme.Enabled := False;
 
   if (FormMode = ifmNewRecord) or (FormMode = ifmUpdate) then
   begin
     btnpath_stok_karti_resim.Enabled := True;
+    btnpath_personel_karti_resim.Enabled := True;
     btnpath_guncelleme.Enabled := True;
   end;
-
 end;
 
 procedure TfrmSysUygulamaAyari.FormShow(Sender: TObject);
@@ -311,26 +286,38 @@ procedure TfrmSysUygulamaAyari.HelperProcess(Sender: TObject);
 var
   LFrmCity: TfrmSysSehirler;
 begin
-  if Sender.ClassType = TEdit then
-  begin
-    if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
-    begin
-      if TEdit(Sender).Name = edtsehir_id.Name then
-      begin
-        LFrmCity := TfrmSysSehirler.Create(TEdit(Sender), Self, TSysSehir.Create(Table.Database), fomNormal, True);
-        try
-          LFrmCity.ShowModal;
+  if (Sender.ClassType <> TEdit) then
+    Exit;
 
-          TSysUygulamaAyari(Table).Adres.SehirID.Value := LFrmCity.Table.Id.Value;
-          TEdit(Sender).Text := TSysSehir(LFrmCity.Table).Sehir.Value;
-          TSysUygulamaAyari(Table).Adres.FSysSehir.UlkeID.Value := TSysSehir(LFrmCity.Table).UlkeID.Value;
-          edtulke_adi.Text := TSysSehir(LFrmCity.Table).UlkeAdi.Value;
-        finally
-          LFrmCity.Free;
-        end;
+  if (FormMode <> ifmNewRecord) and (FormMode <> ifmCopyNewRecord) and (FormMode <> ifmUpdate) then
+    Exit;
+
+  if TEdit(Sender).Name = edtsehir_id.Name then
+  begin
+    LFrmCity := TfrmSysSehirler.Create(TEdit(Sender), Self, TSysSehir.Create(Table.Database), fomNormal, True);
+    try
+      LFrmCity.ShowModal;
+      if not LFrmCity.DataAktar then
+        Exit;
+
+      if LFrmCity.CleanAndClose then
+      begin
+        TEdit(Sender).Clear;
+        TSysUygulamaAyari(Table).Adres.SehirID.Value := 0;
+        edtulke_adi.Clear;
+        TSysUygulamaAyari(Table).Adres.FSysSehir.UlkeID.Value := 0;
       end
+      else
+      begin
+        TEdit(Sender).Text := TSysSehir(LFrmCity.Table).Sehir.Value;
+        TSysUygulamaAyari(Table).Adres.SehirID.Value := LFrmCity.Table.Id.Value;
+        edtulke_adi.Text := TSysSehir(LFrmCity.Table).UlkeAdi.Value;
+        TSysUygulamaAyari(Table).Adres.FSysSehir.UlkeID.Value := TSysSehir(LFrmCity.Table).UlkeID.Value;
+      end;
+    finally
+      LFrmCity.Free;
     end;
-  end;
+  end
 end;
 
 procedure TfrmSysUygulamaAyari.imglogoDblClick(Sender: TObject);
@@ -347,70 +334,9 @@ begin
     begin
       GetDialogOpen(FILE_FILTER_IMAGE, LFileName);
       if (LFileName <> '') and FileExists(LFileName) then
-        LoadImage(LFileName);
+        TImageProcess.LoadImageFromFile(LFileName, imglogo, 320, 240);
     end;
   end;
-end;
-
-procedure TfrmSysUygulamaAyari.LoadImage(pFileName: string);
-var
-  LRightOrigin: Integer;
-  LImgJ: TJPEGImage;
-  LImgP: TPngImage;
-  LStream: TMemoryStream;
-begin
-  LRightOrigin := imgLogo.Left + imgLogo.Width;
-
-  LStream := TMemoryStream.Create;
-  try
-    if ExtractFileExt(pFileName).Replace('.', '') = FILE_EXT_BMP then
-    begin
-      imglogo.Picture.Bitmap.LoadFromFile(pFileName);
-    end
-    else if ExtractFileExt(pFileName).Replace('.', '') = FILE_EXT_JPG then
-    begin
-      LImgJ := TJPEGImage.Create;
-      try
-        LStream.LoadFromFile(pFileName);
-        LStream.Position := 0;
-        LImgJ.LoadFromStream(LStream);
-        imglogo.Picture.Bitmap.Assign(LImgJ);
-      finally
-        LImgJ.Free;
-      end;
-    end
-    else if ExtractFileExt(pFileName).Replace('.', '') = FILE_EXT_PNG then
-    begin
-      LImgP := TPngImage.Create;
-      try
-        LStream.LoadFromFile(pFileName);
-        LStream.Position := 0;
-        LImgP.LoadFromStream(LStream);
-        imglogo.Picture.Bitmap.Assign(LImgP);
-      finally
-        LImgP.Free;
-      end;
-    end;
-  finally
-    LStream.Free;
-  end;
-
-  if imgLogo.Picture.Bitmap.Width > 320 then
-  begin
-    imgLogo.Picture.Assign(nil);
-    DrawEmptyImage;
-    raise Exception.Create('Logo geniþliði en fazla 320px olabilir.');
-  end;
-  if imgLogo.Picture.Bitmap.Height > 240 then
-  begin
-    imgLogo.Picture.Assign(nil);
-    DrawEmptyImage;
-    raise Exception.Create('Logo yüksekliði en fazla 240px olabilir.');
-  end;
-
-  imgLogo.Width := imgLogo.Picture.Bitmap.Width;
-  imgLogo.Height := imgLogo.Picture.Bitmap.Height;
-  imgLogo.Left := LRightOrigin - imgLogo.Width;
 end;
 
 procedure TfrmSysUygulamaAyari.RefreshData;
@@ -494,9 +420,6 @@ end;
 function TfrmSysUygulamaAyari.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
 begin
   Result := inherited ValidateInput(panel_groupbox_pagecontrol_tabsheet);
-
-//  if TSysApplicationSettings(Table).CryptKey.Value <> secrypt_key.Value then
-//    Application.MessageBox()
 
   if (edtpath_stok_karti_resim.Text <> '') and not DirectoryExists(edtpath_stok_karti_resim.Text) then
   begin
@@ -590,4 +513,3 @@ begin
 end;
 
 end.
-
