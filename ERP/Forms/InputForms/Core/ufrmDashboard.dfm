@@ -3,8 +3,8 @@ inherited frmDashboard: TfrmDashboard
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Main'
-  ClientHeight = 404
-  ClientWidth = 634
+  ClientHeight = 450
+  ClientWidth = 915
   Constraints.MinHeight = 300
   Constraints.MinWidth = 400
   DefaultMonitor = dmDesktop
@@ -14,25 +14,26 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 650
-  ExplicitHeight = 463
+  ExplicitWidth = 931
+  ExplicitHeight = 509
   TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
     Top = 0
-    Width = 634
+    Width = 915
     Height = 40
     Align = alTop
     BevelOuter = bvNone
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 634
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
       Top = 2
       Width = 201
-      Height = 36
+      Height = 25
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -46,36 +47,35 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
-      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
-    Top = 356
-    Width = 630
+    Top = 402
+    Width = 911
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
     ExplicitTop = 356
     ExplicitWidth = 630
     inherited btnAccept: TButton
-      Left = 424
+      Left = 705
       ExplicitLeft = 424
     end
     inherited btnClose: TButton
-      Left = 528
+      Left = 809
       ExplicitLeft = 528
     end
   end
   inherited stbBase: TStatusBar [2]
-    Top = 386
-    Width = 634
+    Top = 432
+    Width = 915
     ExplicitTop = 386
     ExplicitWidth = 634
   end
   inherited pnlMain: TPanel [3]
     Top = 40
-    Width = 634
-    Height = 314
+    Width = 915
+    Height = 360
     TabOrder = 1
     ExplicitTop = 40
     ExplicitWidth = 634
@@ -83,8 +83,8 @@ inherited frmDashboard: TfrmDashboard
     object PageControl1: TPageControl
       Left = 0
       Top = 0
-      Width = 634
-      Height = 314
+      Width = 915
+      Height = 360
       ActivePage = tsstock
       Align = alClient
       MultiLine = True

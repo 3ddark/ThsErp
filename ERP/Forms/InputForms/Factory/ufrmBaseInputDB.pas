@@ -155,11 +155,7 @@ begin
       end
       else
         ModalResult := mrOK;
-    end
-//      else
-//      begin
-//        raise Exception.Create(GetTextFromLang('There is an active transaction. Complete it first!', FrameworkLang.WarningActiveTransaction, LngWarning, LngSystem));
-//      end;
+    end;
   end
   else if (FormMode = ifmUpdate) then
   begin

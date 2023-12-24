@@ -72,17 +72,6 @@ type
   end;
 
 type
-  TTCMBDovizKuru = record
-    Tarih: TDate;
-    Kod: string;
-    Aciklama: string;
-    ForexBuying: Double;
-    ForexSelling: Double;
-    BanknoteBuying: Double;
-    BanknoteSelling: Double;
-  end;
-
-type
   TTotal = record
     Fiyat: Double;
     Miktar: Double;
@@ -93,9 +82,6 @@ type
     KDVTutar: Double;
     ToplamTutar: Double;
   end;
-
-type
-  TTCMBDovizKuruList = TArray<TTCMBDovizKuru>;
 
 type
   TLang = record
@@ -208,10 +194,6 @@ type
   function FormatedVariantVal(pField: TFieldDB): Variant; overload;
 
   function GetTempFolder(): string;
-
-  function CheckInternetConnection: Boolean;
-
-  function TCMB_DovizKurlari: TTCMBDovizKuruList;
 
 
   /// <summary>
@@ -479,18 +461,6 @@ type
   function ExistForm(AFormClassType: TClass): Boolean;
 
   function FormatMoney(AValue: Double): string;
-
-  /// <summary>
-  ///  Mevcut sistemin PostgreSQL üzeründen veritabaný yedeðini alýr
-  /// </summary>
-  procedure DoDatabaseBackup;
-
-  /// <summary>
-  ///  PostgreSQL veritabaný yedeðini geri yükler
-  /// </summary>
-  procedure DoDatabaseRestore(ABackupFilePath, ADatabaseName: string);
-
-  procedure DoDatabaseCreate(ADatabaseName: string);
 
   procedure SendMailWithMailClient(
      AMailClientAppPath: string;
@@ -1028,71 +998,6 @@ end;
 function GetTempFolder: string;
 begin
   Result := TPath.GetTempPath;
-end;
-
-function CheckInternetConnection: Boolean;
-var
-  LClient: System.Net.HttpClientComponent.TNetHTTPClient;
-begin
-  Result := False;
-  LClient := TNetHTTPClient.Create(nil);
-  try
-    try
-      if LClient.Get( 'https://www.google.com' ).StatusCode = 200 then
-      begin
-        Result := True;
-        Exit;
-      end;
-    except
-      on E: Exception do begin
-        Result := False;
-        Exit;
-      end;
-    end;
-  finally
-    LClient.Free;
-  end;
-end;
-
-function TCMB_DovizKurlari: TTCMBDovizKuruList;
-var
-  LClient: System.Net.HttpClientComponent.TNetHTTPClient;
-  LXMLDocument: IXMLDocument;
-  LXML: string;
-  LNode: IXMLNode;
-begin
-  if not CheckInternetConnection then
-    Exit;
-
-  SetLength(Result, 0);
-  //XML downloader with SSL/"https" support...
-  LClient := TNetHTTPClient.Create(nil);
-  try
-    LXML := LClient.Get( 'https://www.tcmb.gov.tr/kurlar/today.xml' ).ContentAsString;
-
-    LXMLDocument := TXMLDocument.Create(nil);
-    LXMLDocument.ParseOptions := LXMLDocument.ParseOptions + [poPreserveWhiteSpace];
-    LXMLDocument.LoadFromXML(LXML);
-
-    LNode :=  LXMLDocument.DocumentElement.ChildNodes.FindNode('Currency');
-    while LNode <> nil do
-    begin
-      SetLength(Result, Length(Result)+1);
-
-      Result[Length(Result)-1].Tarih := GDataBase.DateDB;
-      Result[Length(Result)-1].Kod := LNode.Attributes['Kod'];
-      Result[Length(Result)-1].Aciklama := LNode.ChildNodes.Nodes['Isim'].Text;
-      Result[Length(Result)-1].ForexBuying := StrToFloatDef(LNode.ChildNodes.Nodes['ForexBuying'].Text.Replace('.', ','), 0);
-      Result[Length(Result)-1].ForexSelling := StrToFloatDef(LNode.ChildNodes.Nodes['ForexSelling'].Text.Replace('.', ','), 0);
-      Result[Length(Result)-1].BanknoteBuying := StrToFloatDef(LNode.ChildNodes.Nodes['BanknoteBuying'].Text.Replace('.', ','), 0);
-      Result[Length(Result)-1].BanknoteSelling := StrToFloatDef(LNode.ChildNodes.Nodes['BanknoteSelling'].Text.Replace('.', ','), 0);
-
-      LNode := LNode.NextSibling; // ntTEXT
-      LNode := LNode.NextSibling; // Currency
-    end;
-  finally
-    LClient.Free;
-  end;
 end;
 
 function FrameworkLang: TLang;
@@ -2565,81 +2470,6 @@ begin
                         FormatSettings.ThousandSeparator +
                         FormatSettings.DecimalSeparator +
                         StringOfChar('0', VarToInt(GSysOndalikHane.Fiyat.Value)), AValue);
-end;
-
-procedure DoDatabaseBackup;
-var
-  LParams, LFileName, LBackupDirectory, LToolsDirectory, LBackupTool: string;
-begin
-  if CustomMsgDlg('Veritabaný yedeðini almak istediðinden emin misin?', TMsgDlgType.mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], TMsgDlgBtn.mbNo, 'Yedek Alma Onayý') <> mrYes then
-    Exit;
-
-  LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools');
-  LBackupTool := TPath.Combine(LToolsDirectory, 'backup.exe');
-  LBackupDirectory := TPath.Combine(GUygulamaAnaDizin, 'Backups');
-  LFileName := TPath.Combine(LBackupDirectory, FormatDateTime('YYYYMMDD_HHMMSS', Now));
-
-  ForceDirectories(LToolsDirectory);
-  ForceDirectories(LBackupDirectory);
-
-  if not FileExists(LBackupTool) then
-    raise Exception.Create('Yedekleme programý bulunamadý. Lütfen Tools dizini altýndaki yedekleme uygulamasýný kontrol edin.');
-
-
-  with GDataBase.Connection.Params as TFDPhysPGConnectionDefParams do
-    LParams := '/c ' +
-                LBackupTool +
-                ' -Fc postgresql://' + UserName + ':' + Password + '@' +
-                Server + ':' + Port.ToString + '/' + Database + ' > ' + LFileName + '&&exit';
-
-  ShellExecute(0, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
-  CustomMsgDlg(
-    'Yedekleme iþlemi tamamlandý.' + AddLBs(2) + 'Alýnan yedek dosyasý ' + LFileName,
-    TMsgDlgType.mtInformation, [TMsgDlgBtn.mbOK], ['Tamam'], TMsgDlgBtn.mbOK, 'Bilgilendirme');
-end;
-
-procedure DoDatabaseRestore(ABackupFilePath, ADatabaseName: string);
-var
-  LParams, LToolsDirectory, LAppName: string;
-begin
-  if CustomMsgDlg('Veritabaný yedeðini geri yüklemek istediðinden emin misin?', TMsgDlgType.mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], TMsgDlgBtn.mbNo, 'Yedek Geri Yükleme Onayý') <> mrYes then
-    Exit;
-
-  LAppName := 'restore.exe';
-  LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools');
-
-  if not FileExists(TPath.Combine(LToolsDirectory, LAppName)) then
-    raise Exception.Create('Yedek Geri Yükleme programý bulunamadý. Lütfen Tools dizini altýndaki yedek geri yükleme uygulamasýný kontrol edin.');
-
-  with GDataBase.Connection.Params as TFDPhysPGConnectionDefParams do
-    LParams := '/c Tools\' +
-               LAppName +
-               ' -d postgresql://' + UserName + ':' + Password + '@' +
-               Server + ':' + Port.ToString + '/' + ADatabaseName + ' ' + ABackupFilePath + '&&exit';
-
-  ShellExecute(0, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
-end;
-
-procedure DoDatabaseCreate(ADatabaseName: string);
-var
-  LParams, LToolsDirectory, LAppName: string;
-//  LHWND: HWND;
-begin
-  LAppName := 'createdb.exe';
-  LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools');
-
-  if not FileExists(TPath.Combine(LToolsDirectory, LAppName)) then
-    raise Exception.Create('Veritabaný oluþturma programý bulunamadý. Lütfen Tools dizini altýndaki veritabaný oluþturma uygulamasýný kontrol edin.');
-
-  with GDataBase.Connection.Params as TFDPhysPGConnectionDefParams do
-    LParams :=
-      '/c Tools\' + LAppName +
-      ' -U ' + UserName +
-      ' -h ' + Server +
-      ' -P ' + Port.ToString +
-      ' -w ' + ADatabaseName + '&&exit';
-
-  //ShellExecute(LHWND, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
 end;
 
 procedure SendMailWithMailClient(

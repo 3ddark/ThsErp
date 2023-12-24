@@ -282,6 +282,8 @@ uses
   Ths.Globals,
   ufrmSysGuiIcerik,
   ufrmSysSifreDegistir,
+  Ths.Utils.TCMBDovizKuru,
+  Ths.Utils.DatabaseTools,
 
   Ths.Database.Table.SysUlkeler, ufrmSysUlkeler,
   Ths.Database.Table.SysSehirler, ufrmSysSehirler,
@@ -655,7 +657,7 @@ end;
 
 procedure TfrmDashboard.actsys_do_database_backupExecute(Sender: TObject);
 begin
-  DoDatabaseBackup;
+  Ths.Utils.DatabaseTools.TDatabaseTools.DoDatabaseBackup;
 end;
 
 procedure TfrmDashboard.actsys_grid_filter_sortExecute(Sender: TObject);
@@ -719,7 +721,7 @@ begin
     LAppSetting.Clear;
     TfrmSysUygulamaAyari.Create(Self, nil, LAppSetting, ifmNewRecord).ShowModal
   end else if LAppSetting.List.Count = 1 then
-    TfrmSysUygulamaAyari.Create(Self, nil, LAppSetting.List[0], ifmRewiev).ShowModal;
+    TfrmSysUygulamaAyari.Create(Self, nil, LAppSetting, ifmRewiev).ShowModal;
 end;
 
 procedure TfrmDashboard.actsys_userExecute(Sender: TObject);
@@ -917,7 +919,7 @@ begin
                                       TranslateText('Onay', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes
           then
           begin
-            LKurList := TCMB_DovizKurlari;
+            LKurList := TMerkezBankDovizKurlari.TCMB_DovizKurlari(GDataBase.DateDB);
             for n1 := 0 to Length(LKurList)-1 do
               for n2 := 0 to GParaBirimi.List.Count-1 do
                 if LKurList[n1].Kod = TSysParaBirimi(GParaBirimi.List[n2]).Para.Value then

@@ -1731,7 +1731,6 @@ var
     begin
       FieldName := AFieldName;
       Title.Caption := ATitle;
-      //Title.Caption := GetTextFromLang(Title.Caption, ReplaceRealColOrTableNameTo(FieldName), LngGridFieldCaption, ReplaceRealColOrTableNameTo(Table.TableName));
       Title.Color := clBlack;
       Title.Font.Color := clBlack;
       Title.Font.Style := [fsBold];

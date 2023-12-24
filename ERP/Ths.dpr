@@ -275,7 +275,10 @@ uses
   Ths.Orm.ManagerStack in 'BackEnd\Tools\Orm\Ths.Orm.ManagerStack.pas',
   Ths.Orm.Table.StkAmbarlar in 'Ths.Orm.Table.StkAmbarlar.pas',
   Ths.Database.Sql.Builder in 'BackEnd\Core\Ths.Database.Sql.Builder.pas',
-  SynCrypto in 'BackEnd\Tools\SynPDF\SynCrypto.pas';
+  SynCrypto in 'BackEnd\Tools\SynPDF\SynCrypto.pas',
+  Ths.Utils.TCMBDovizKuru in 'BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas',
+  Ths.Utils.InternetConnection in 'BackEnd\Tools\Ths.Utils.InternetConnection.pas',
+  Ths.Utils.DatabaseTools in 'BackEnd\Tools\Ths.Utils.DatabaseTools.pas';
 
 {$R *.res}
 
