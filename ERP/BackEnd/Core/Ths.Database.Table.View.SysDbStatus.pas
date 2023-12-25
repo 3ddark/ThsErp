@@ -75,7 +75,7 @@ begin
       Id.QryName,
       FPID.QryName,
       FDBName.QryName,
-      'cast(' + FAppName.QryName + ' as varchar(128) ' + FAppName.QryName,
+      'cast(' + FAppName.QryName + ' as varchar(128)) ' + FAppName.FieldName,
       FUserName.QryName,
       FClientAddress.QryName,
       FState.QryName,

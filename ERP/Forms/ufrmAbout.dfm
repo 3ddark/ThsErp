@@ -182,6 +182,7 @@ inherited frmAbout: TfrmAbout
   inherited pnlMain: TPanel
     Width = 568
     Height = 291
+    OnClick = FormClick
     ExplicitWidth = 568
     ExplicitHeight = 291
     object lblArchitecture: TLabel

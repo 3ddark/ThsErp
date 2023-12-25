@@ -372,16 +372,6 @@ type
   /// <summary>
   ///   Get ProcessID By ProgramName (Include Path or Not Include)
   /// </summary>
-  /// <remarks>
-  ///   Burada framework içinde kullanýlan ve tekrar eden dil database tablosundan
-  ///   çekilecek olan datalar için sabit bilgiler yazýldý.
-  /// </remarks>
-  /// <example>
-  ///   Yeni Kayýt Ekle Buton baþlýðý için ButtonAdd
-  /// </example>
-  /// <seealso href="http://www.aaa.xxx/test">
-  ///   Link verilmedi. Buradan Uður Parlayan hocama selamlar
-  /// </seealso>
   function GetPIDByProgramName(const APName: string): THandle;
 
   // Get Window Handle By ProgramName (Include Path or Not Include)
