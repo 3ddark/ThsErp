@@ -7,7 +7,7 @@ uses SysUtils, Classes, StdCtrls, ExtCtrls, Graphics, System.NetEncoding, Vcl.Im
 
 type
   TImageProcess = class
-    class procedure LoadImageFromFile(AFileName: string; AImage: TImage; AMaxWidth, AMaxHeight: Integer);
+    class procedure LoadImageFromFile(AFileName: string; AImage: TImage; AMaxWidth: Integer = 0; AMaxHeight: Integer = 0);
     class procedure LoadImageFromDB(AField: TFieldDB; AImage: TImage);
     class procedure setValueFromImage(AField: TFieldDB; AImage: TImage);
     class procedure DrawEmptyImage(AImage: TImage; AMaxWidth, AMaxHeight: Integer);
@@ -60,13 +60,13 @@ begin
     LStream.Free;
   end;
 
-  if AImage.Picture.Bitmap.Width > AMaxWidth then
+  if (AMaxWidth > 0) and (AImage.Picture.Bitmap.Width > AMaxWidth) then
   begin
     AImage.Picture.Assign(nil);
     DrawEmptyImage(AImage, AMaxWidth, AMaxHeight);
     raise Exception.Create('Logo geniþliði en fazla ' + AMaxWidth.ToString + 'px olabilir.');
   end
-  else if AImage.Picture.Bitmap.Height > AMaxHeight then
+  else if (AMaxHeight > 0) and (AImage.Picture.Bitmap.Height > AMaxHeight) then
   begin
     AImage.Picture.Assign(nil);
     DrawEmptyImage(AImage, AMaxWidth, AMaxHeight);

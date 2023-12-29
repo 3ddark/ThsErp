@@ -238,7 +238,8 @@ begin
     begin
       if GetFileSize(LFileName) > 500000 then
         raise Exception.Create(Trim('Dosya botutu 500 KB üzerinde olamaz + 999999'));
-      imgstok_resim.Picture.LoadFromFile(LFileName);
+      TImageProcess.LoadImageFromFile(LFileName, imgstok_resim);
+//      imgstok_resim.Picture.LoadFromFile(LFileName);
     end;
   end;
 end;

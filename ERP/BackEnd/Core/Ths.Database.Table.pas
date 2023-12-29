@@ -897,9 +897,19 @@ end;
 function TTable.LogicalDelete(AWithCommit, APermissionControl: Boolean): Boolean;
 begin
   Result := True;
-  BusinessDelete(APermissionControl);
-  if AWithCommit then
-    Database.Connection.Commit;
+  try
+    BusinessDelete(APermissionControl);
+    if AWithCommit then
+      Database.Connection.Commit;
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      Result := False;
+      if Database.Connection.InTransaction then
+        Database.Connection.Rollback;
+    end;
+  end;
 end;
 
 function TTable.IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean; AShowException: Boolean=True): Boolean;
