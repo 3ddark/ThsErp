@@ -262,7 +262,6 @@ uses
   Ths.Database.Table.BbkKayit in 'BackEnd\Databank\Ths.Database.Table.BbkKayit.pas',
   ufrmBbkKayitlar in 'Forms\OutputForms\DbGrid\Databank\ufrmBbkKayitlar.pas' {frmBbkKayitlar},
   ufrmBbkKayit in 'Forms\InputForms\Databank\ufrmBbkKayit.pas' {frmBbkKayit},
-  Ths.Database.Table.StkResimler in 'BackEnd\Stock\Ths.Database.Table.StkResimler.pas',
   Logger in 'BackEnd\Core\Logger.pas',
   Ths.Database.Table.AlsTeklifler in 'BackEnd\Erp\Tek\Ths.Database.Table.AlsTeklifler.pas',
   ufrmAlsTeklifler in 'Forms\OutputForms\DbGrid\Erp\Tek\ufrmAlsTeklifler.pas' {frmAlsTeklifler},

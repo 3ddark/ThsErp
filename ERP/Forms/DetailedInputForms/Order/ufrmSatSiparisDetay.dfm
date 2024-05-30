@@ -14,16 +14,16 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
     Height = 312
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 603
-    ExplicitHeight = 352
+    ExplicitWidth = 585
+    ExplicitHeight = 312
     inherited pgcMain: TPageControl
-      Width = 587
-      Height = 315
-      ExplicitWidth = 601
-      ExplicitHeight = 350
+      Width = 585
+      Height = 312
+      ExplicitWidth = 585
+      ExplicitHeight = 312
       inherited tsMain: TTabSheet
-        ExplicitWidth = 579
-        ExplicitHeight = 287
+        ExplicitWidth = 577
+        ExplicitHeight = 284
         object lblstok_kodu: TLabel
           Left = 35
           Top = 6
@@ -409,7 +409,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 47
           Width = 110
           Height = 21
-          TabOrder = 2
+          TabOrder = 3
           OnChange = edtfiyatChange
           OnExit = edtfiyatExit
         end
@@ -418,7 +418,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 69
           Width = 110
           Height = 21
-          TabOrder = 3
+          TabOrder = 5
           OnChange = edtmiktarChange
           OnExit = edtmiktarExit
         end
@@ -427,7 +427,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 113
           Width = 110
           Height = 21
-          TabOrder = 5
+          TabOrder = 8
           OnChange = edtiskonto_oraniChange
           OnExit = edtiskonto_oraniExit
         end
@@ -436,14 +436,14 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 157
           Width = 150
           Height = 21
-          TabOrder = 7
+          TabOrder = 12
         end
         object edtkullanici_aciklama: TEdit
           Left = 97
           Top = 179
           Width = 312
           Height = 21
-          TabOrder = 8
+          TabOrder = 14
         end
         object PanelBilgilendirme: TPanel
           Left = 97
@@ -452,7 +452,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Height = 106
           BevelInner = bvLowered
           ParentColor = True
-          TabOrder = 9
+          TabOrder = 15
           object lbltutar: TLabel
             Left = 96
             Top = 21
@@ -711,14 +711,14 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 91
           Width = 110
           Height = 21
-          TabOrder = 4
+          TabOrder = 7
         end
         object edtkdv_orani: TEdit
           Left = 97
           Top = 135
           Width = 110
           Height = 21
-          TabOrder = 6
+          TabOrder = 10
           OnChange = edtkdv_oraniChange
           OnExit = edtkdv_oraniExit
         end
@@ -727,7 +727,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 25
           Width = 60
           Height = 21
-          TabOrder = 10
+          TabOrder = 2
           OnChange = edtenChange
         end
         object edtboy: TEdit
@@ -735,7 +735,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 47
           Width = 60
           Height = 21
-          TabOrder = 11
+          TabOrder = 4
           OnChange = edtboyChange
         end
         object edtyukseklik: TEdit
@@ -743,7 +743,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 69
           Width = 60
           Height = 21
-          TabOrder = 12
+          TabOrder = 6
           OnChange = edtyukseklikChange
         end
         object edtnet_agirlik: TEdit
@@ -751,21 +751,21 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Top = 121
           Width = 60
           Height = 21
-          TabOrder = 13
+          TabOrder = 9
         end
         object edtbrut_agirlik: TEdit
           Left = 486
           Top = 143
           Width = 60
           Height = 21
-          TabOrder = 14
+          TabOrder = 11
         end
         object edtkab: TEdit
           Left = 486
           Top = 175
           Width = 60
           Height = 21
-          TabOrder = 15
+          TabOrder = 13
         end
       end
     end
@@ -773,21 +773,21 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
   inherited pnlBottom: TPanel
     Top = 314
     Width = 581
-    ExplicitTop = 356
-    ExplicitWidth = 603
+    ExplicitTop = 314
+    ExplicitWidth = 581
     inherited btnAccept: TButton
-      Left = 394
-      ExplicitLeft = 394
+      Left = 375
+      ExplicitLeft = 375
     end
     inherited btnClose: TButton
-      Left = 498
-      ExplicitLeft = 498
+      Left = 479
+      ExplicitLeft = 479
     end
   end
   inherited stbBase: TStatusBar
     Top = 344
     Width = 585
-    ExplicitTop = 386
-    ExplicitWidth = 607
+    ExplicitTop = 344
+    ExplicitWidth = 585
   end
 end

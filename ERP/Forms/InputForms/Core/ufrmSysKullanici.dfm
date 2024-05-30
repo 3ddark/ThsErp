@@ -15,12 +15,12 @@ inherited frmSysKullanici: TfrmSysKullanici
     Color = clWindow
     ParentColor = False
     ExplicitWidth = 366
-    ExplicitHeight = 211
+    ExplicitHeight = 223
     inherited pgcMain: TPageControl
       Width = 366
       Height = 223
       ExplicitWidth = 366
-      ExplicitHeight = 211
+      ExplicitHeight = 223
       inherited tsMain: TTabSheet
         ExplicitTop = 26
         ExplicitWidth = 358
@@ -216,7 +216,7 @@ inherited frmSysKullanici: TfrmSysKullanici
   inherited pnlBottom: TPanel
     Top = 225
     Width = 362
-    ExplicitTop = 213
+    ExplicitTop = 225
     ExplicitWidth = 362
     inherited btnAccept: TButton
       Left = 156
@@ -230,7 +230,7 @@ inherited frmSysKullanici: TfrmSysKullanici
   inherited stbBase: TStatusBar
     Top = 255
     Width = 366
-    ExplicitTop = 243
+    ExplicitTop = 255
     ExplicitWidth = 366
   end
 end

@@ -5,15 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.Variants,
-  System.SysUtils,
-  System.Classes,
-  System.Math,
-  Data.DB,
-  FireDAC.Comp.Client,
-  FireDAC.Comp.DataSet,
-  Ths.Database,
-  Ths.Database.Table,
+  System.Variants, System.SysUtils, System.Classes, System.Math, Data.DB,
+  FireDAC.Comp.Client, FireDAC.Comp.DataSet, Ths.Database, Ths.Database.Table,
   Ths.Database.Table.StkCinsOzellikleri;
 
 type
@@ -43,7 +36,7 @@ type
     FD4: TFieldDB;
     FD5: TFieldDB;
   protected
-    FStkCinsOzelligi: TStkCinsOzelligi;
+    FStkCinsOzellik: TStkCinsOzellik;
   published
     constructor Create(ADatabase: TDatabase); override;
 
@@ -83,8 +76,7 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Constants;
+  Ths.Globals, Ths.Constants;
 
 constructor TStkKartCinsBilgisi.Create(ADatabase: TDatabase);
 begin
@@ -92,11 +84,11 @@ begin
   TableSourceCode := MODULE_STK_KAYIT;
   inherited Create(ADatabase);
 
-  FStkCinsOzelligi := TStkCinsOzelligi.Create(Database);
+  FStkCinsOzellik := TStkCinsOzellik.Create(Database);
 
   FStkKartID := TFieldDB.Create('stk_kart_id', ftInteger, 0, Self, 'Stok Kart ID');
   FCinsID := TFieldDB.Create('cins_id', ftInteger, 0, Self, 'Cins ID');
-  FCins := TFieldDB.Create(FStkCinsOzelligi.Cins.FieldName, FStkCinsOzelligi.Cins.DataType, '', Self, 'Cins');
+  FCins := TFieldDB.Create(FStkCinsOzellik.Cins.FieldName, FStkCinsOzellik.Cins.DataType, '', Self, 'Cins');
   FS1 := TFieldDB.Create('s1', ftString, '', Self, 'S1');
   FS2 := TFieldDB.Create('s2', ftString, '', Self, 'S2');
   FS3 := TFieldDB.Create('s3', ftString, '', Self, 'S3');
@@ -121,7 +113,7 @@ end;
 
 destructor TStkKartCinsBilgisi.Destroy;
 begin
-  FStkCinsOzelligi.Free;
+  FStkCinsOzellik.Free;
   inherited;
 end;
 
@@ -137,7 +129,7 @@ begin
       Id.QryName,
       FStkKartID.QryName,
       FCinsID.QryName,
-      addField(FStkCinsOzelligi.TableName, FStkCinsOzelligi.Cins.FieldName, FCins.FieldName),
+      addField(FStkCinsOzellik.TableName, FStkCinsOzellik.Cins.FieldName, FCins.FieldName),
       FS1.QryName,
       FS2.QryName,
       FS3.QryName,
@@ -159,7 +151,7 @@ begin
       FD4.QryName,
       FD5.QryName
     ], [
-      addJoin(jtLeft, FStkCinsOzelligi.TableName, FStkCinsOzelligi.Id.FieldName, TableName, FCinsID.FieldName),
+      addJoin(jtLeft, FStkCinsOzellik.TableName, FStkCinsOzellik.Id.FieldName, TableName, FCinsID.FieldName),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
     Open;
@@ -182,7 +174,7 @@ begin
       Id.QryName,
       FStkKartID.QryName,
       FCinsID.QryName,
-      addField(FStkCinsOzelligi.TableName, FStkCinsOzelligi.Cins.FieldName, FCins.FieldName),
+      addField(FStkCinsOzellik.TableName, FStkCinsOzellik.Cins.FieldName, FCins.FieldName),
       FS1.QryName,
       FS2.QryName,
       FS3.QryName,
@@ -204,7 +196,7 @@ begin
       FD4.QryName,
       FD5.QryName
     ], [
-      addJoin(jtLeft, FStkCinsOzelligi.TableName, FStkCinsOzelligi.Id.FieldName, TableName, FCinsID.FieldName),
+      addJoin(jtLeft, FStkCinsOzellik.TableName, FStkCinsOzellik.Id.FieldName, TableName, FCinsID.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);
     Open;

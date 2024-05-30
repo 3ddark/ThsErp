@@ -286,8 +286,7 @@ begin
 
               if (Trim(edtiskonto_orani.Text) = '') then  edtiskonto_orani.Text := '0';
 
-              TAlsTeklifDetay(Table).StokResim.Value := TStkKart(LFrmStk.Table).Resim.Value;
-              TImageProcess.LoadImageFromDB(TStkKart(LFrmStk.Table).Resim, imgstok_resim);
+//              TImageProcess.LoadImageFromDB(TStkKart(LFrmStk.Table).Resim, imgstok_resim);
               edtgtip_no.Text := TStkKart(LFrmStk.Table).GtipNo.AsString;
             end;
           end;
@@ -328,8 +327,7 @@ begin
 
   CalculateTotals;
 
-  if Length(TAlsTeklifDetay(Table).StokResim.AsString) > 10 then
-    TImageProcess.LoadImageFromDB(TAlsTeklifDetay(Table).StokResim, imgstok_resim);
+//  TImageProcess.LoadImageFromDB(TAlsTeklifDetay(Table).StokResim, imgstok_resim);
 end;
 
 function TfrmAlsTeklifDetay.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;

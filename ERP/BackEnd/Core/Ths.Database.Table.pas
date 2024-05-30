@@ -896,7 +896,7 @@ end;
 
 function TTable.LogicalDelete(AWithCommit, APermissionControl: Boolean): Boolean;
 begin
-  Result := True;
+    Result := True;
   try
     BusinessDelete(APermissionControl);
     if AWithCommit then

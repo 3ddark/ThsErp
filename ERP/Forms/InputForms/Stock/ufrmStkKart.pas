@@ -6,7 +6,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils, Vcl.Grids, Vcl.Imaging.jpeg,
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils, IOUtils, Vcl.Grids, Vcl.Imaging.jpeg,
   Vcl.Imaging.pngimage, Vcl.Samples.Spin, Vcl.Menus, Vcl.AppEvnts, Vcl.Buttons,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo,
   ufrmBase, ufrmBaseInputDB, udm, Ths.Database.Table, Vcl.Mask;
@@ -202,9 +202,13 @@ type
     procedure pgcMainChange(Sender: TObject);
     procedure btnstok_resimClick(Sender: TObject);
     procedure edtenChange(Sender: TObject);
+    procedure AfterDelete(Sender: TObject);
+
   private
     FSpecialPermissionOK: Boolean;
-  public
+   protected
+    procedure btnDeleteClick(Sender: TObject); override;
+   public
     procedure Repaint; override;
   published
     procedure FormDestroy(Sender: TObject); override;
@@ -232,23 +236,22 @@ var
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
-    LFilter := 'Image File *.(' + FILE_EXT_PNG + ',' + FILE_EXT_JPG + ',' + FILE_EXT_BMP + ')|' + '*.' + FILE_EXT_PNG + ';*.' + FILE_EXT_JPG + ';*.' + FILE_EXT_BMP;
+    LFilter := 'Image File *.(' + FILE_EXT_JPG + ')|' + '*.' + FILE_EXT_JPG + ';';
     GetDialogOpen(LFilter, LFileName);
     if (LFileName <> '') and FileExists(LFileName) then
     begin
       if GetFileSize(LFileName) > 500000 then
         raise Exception.Create(Trim('Dosya botutu 500 KB üzerinde olamaz + 999999'));
-      TImageProcess.LoadImageFromFile(LFileName, imgstok_resim);
-//      imgstok_resim.Picture.LoadFromFile(LFileName);
+      imgstok_resim.Picture.LoadFromFile(LFileName);
     end;
   end;
 end;
 
 procedure TfrmStkKart.edtcins_idChange(Sender: TObject);
 var
-  LCins: TStkCinsOzelligi;
+  LCins: TStkCinsOzellik;
 begin
-  LCins := TStkCinsOzelligi.Create(Table.Database);
+  LCins := TStkCinsOzellik.Create(Table.Database);
   try
     LCins.SelectToList(' AND ' + LCins.Cins.QryName + '=' + QuotedStr(TStkKart(Table).Cins.AsString), False, False);
     if LCins.S1.Value <> '' then
@@ -592,7 +595,7 @@ begin
       end
       else if TEdit(Sender).Name = edtcins_id.Name then
       begin
-        LFrmKind := TfrmStkCinsOzellikleri.Create(TEdit(Sender), Self, TStkCinsOzelligi.Create(Table.Database), fomNormal, True);
+        LFrmKind := TfrmStkCinsOzellikleri.Create(TEdit(Sender), Self, TStkCinsOzellik.Create(Table.Database), fomNormal, True);
         try
           LFrmKind.ShowModal;
           if LFrmKind.DataAktar then
@@ -604,7 +607,7 @@ begin
             end
             else
             begin
-              edtcins_id.Text := TStkCinsOzelligi(LFrmKind.Table).Cins.AsString;
+              edtcins_id.Text := TStkCinsOzellik(LFrmKind.Table).Cins.AsString;
               TStkKart(Table).CinsBilgisi.CinsID.Value := LFrmKind.Table.Id.Value;
             end;
             edtcins_idChange(edtcins_id);
@@ -786,6 +789,8 @@ begin
 end;
 
 procedure TfrmStkKart.RefreshData();
+var
+  LFileName: string;
 begin
   chkis_satilabilir.Checked := TStkKart(Table).IsSatilabilir.AsBoolean;
   edtstok_kodu.Text := TStkKart(Table).StokKodu.AsString;
@@ -814,7 +819,9 @@ begin
   edten_az_stok_seviyesi.Text := TStkKart(Table).EnAzStokSeviyesi.AsString;
   mmotanim.Text := TStkKart(Table).Tanim.AsString;
 
-  TImageProcess.LoadImageFromDB(TStkKart(Table).Resim, imgstok_resim);
+  LFileName := TPath.Combine(GSysApplicationSetting.DigerAyarlarJSon.PathStokKartiResim, TStkKart(Table).StokKodu.AsString);
+  if FileExists(LFileName) then
+    imgstok_resim.Picture.LoadFromFile(LFileName);
 
   edtcins_id.Text := TStkKart(Table).Cins.AsString;
   edts1.Text := TStkKart(Table).CinsBilgisi.S1.AsString;
@@ -866,6 +873,15 @@ begin
   tsParasal.TabVisible := FSpecialPermissionOK;
 end;
 
+procedure TfrmStkKart.AfterDelete(Sender: TObject);
+var
+  LFileName: string;
+begin
+  LFileName := TPath.Combine(GSysApplicationSetting.DigerAyarlarJSon.PathStokKartiResim, TStkKart(Table).StokKodu.AsString);
+  if FileExists(LFileName) then
+    imgstok_resim.Picture.SaveToFile(LFileName);
+end;
+
 procedure TfrmStkKart.btnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
@@ -899,8 +915,6 @@ begin
       TStkKart(Table).EnAzStokSeviyesi.Value := StrToFloatDef(edten_az_stok_seviyesi.Text, 0);
       TStkKart(Table).Tanim.Value := mmotanim.Text;
 
-      TImageProcess.setValueFromImage(TStkKart(Table).Resim, imgstok_resim);
-
       TStkKart(Table).CinsBilgisi.Cins.Value := edtcins_id.Text;
       TStkKart(Table).CinsBilgisi.S1.Value := edts1.Text;
       TStkKart(Table).CinsBilgisi.S2.Value := edts2.Text;
@@ -923,11 +937,19 @@ begin
       TStkKart(Table).CinsBilgisi.D4.Value := StrToFloatDef(edtd4.Text, 0);
       TStkKart(Table).CinsBilgisi.D5.Value := StrToFloatDef(edtd5.Text, 0);
 
+      imgstok_resim.Picture.SaveToFile(TPath.Combine(GSysApplicationSetting.DigerAyarlarJSon.PathStokKartiResim, TStkKart(Table).StokKodu.AsString));
+
       inherited;
     end;
   end
   else
     inherited;
+end;
+
+procedure TfrmStkKart.btnDeleteClick(Sender: TObject);
+begin
+  AfterDeleteEvent := AfterDelete;
+  inherited;
 end;
 
 end.

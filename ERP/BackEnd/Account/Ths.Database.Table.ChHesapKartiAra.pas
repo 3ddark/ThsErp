@@ -113,7 +113,7 @@ begin
   begin
     Close;
     Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
-      Id.QryName,
+      Self.Id.QryName,
       FHesapKodu.QryName,
       FHesapIsmi.QryName,
       FHesapTipiID.QryName,

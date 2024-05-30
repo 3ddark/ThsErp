@@ -1,4 +1,4 @@
-unit ufrmChDovizKurlari;
+﻿unit ufrmChDovizKurlari;
 
 interface
 

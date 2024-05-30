@@ -120,20 +120,20 @@ begin
   edtip_adres.Text := TSysKullanici(Table).IpAdres.Value;
   edtmac_adres.Text := TSysKullanici(Table).MacAdres.Value;
   edtpersonel_id.Text := TSysKullanici(Table).AdSoyad.Value;
-
-  edtkullanici_sifre.Clear;
-  edtkullanici_sifre.MaxLength := 16;
 end;
 
 procedure TfrmSysKullanici.Repaint;
 begin
   inherited;
-  if (FormMode = ifmUpdate) then
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
-    edtkullanici_sifre.thsRequiredData := False;
+    edtkullanici_sifre.thsRequiredData := True;
+    edtkullanici_sifre.CharCase := ecNormal;
+  end
+  else
+  begin
+    edtkullanici_sifre.Visible := False;
   end;
-
-  edtkullanici_sifre.CharCase := ecNormal;
 end;
 
 end.

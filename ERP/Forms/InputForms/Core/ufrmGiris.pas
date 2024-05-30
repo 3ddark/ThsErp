@@ -163,35 +163,27 @@ begin
         finally
           LGuiIcerik.Free;
         end;
-        //if AppVersion is wrong then
-        //call before the login for use UpdateApplicationExe in Main form
 
         GSysApplicationSetting.LogicalSelect('', False, False, False);
         IncProgress;
 
-        LUserID := Login(edtkullanici_adi.Text, edtkullanici_sifresi.Text);
+        LUserID := TSysKullanici.Login(edtkullanici_adi.Text, edtkullanici_sifresi.Text);
 
-        if LUserID = -1 then
+        if LUserID = Ord(TLoginStatus.UserNotFound) then
           raise Exception.Create(edtkullanici_adi.Text + ': böyle bir kullanýcý yok')
-        else if LUserID = -2 then
+        else if LUserID = Ord(TLoginStatus.InactiveUser) then
           raise Exception.Create(edtkullanici_adi.Text + ' kullanýcýsý aktif deðil!')
-  //        else if vUserID = -3 then
-  //          raise Exception.Create(edtUserName.Text + ' kullanýcýsý bu bilgisayardan programý çalýþtýramaz!' + AddLBs(2) +
-  //                                 'IP Adres Hatasý' + FERHAT_UYARI)
-        else if LUserID = -4 then
+        else if LUserID = Ord(TLoginStatus.InvalidPassword) then
           raise Exception.Create('Geçersiz Kullanýcý Þifresi!')
-        else if LUserID = -6 then
+        else if LUserID = Ord(TLoginStatus.InvalidAppVersion) then
         begin
           Application.MessageBox('Yeni bir güncellemeniz var.', 'Güncelleme', MB_ICONINFORMATION);
           TfrmDashboard(Application.MainForm).UpdateApplicationExe();
           Exit;
         end;
-  //        else if vUserID = -7 then
-  //          raise Exception.Create(edtUserName.Text + ' kullanýcýsý bu bilgisayardan programý çalýþtýramaz!' + AddLBs(2) +
-  //                                 'MAC Adres Hatasý' + FERHAT_UYARI);
 
 
-        GSysKullanici.SelectToList(' AND ' + GSysKullanici.TableName + '.' + GSysKullanici.Id.FieldName + '=' + IntToStr(LUserID), False, False);
+        GSysKullanici.SelectToList(' AND ' + GSysKullanici.Id.QryName + '=' + IntToStr(LUserID), False, False);
         IncProgress;
         if GSysKullanici.List.Count = 0 then
           raise Exception.Create('Kullanýcý Adý/Þifre tanýmlý deðil veya doðru deðil!');

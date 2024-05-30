@@ -173,18 +173,11 @@ type
     WarningChagenEncryptCode: string;
   end;
 
-  function setUserPassword(AOldPass, ANewPass: string; AUserID: Integer): Boolean;
-  function getEmployeeIDList: TEmployeeIDList;
-  function getSysUserIDList: TSysUserIDList;
-
-  function Login(pUserName,pPassword: string): Integer;
   function ReplaceToRealColOrTableName(const ATableName: string): string;
   function ReplaceRealColOrTableNameTo(const ATableName: string): string;
   function getFormCaptionByLang(pFormName, pDefaultVal: string): string;
 
   function CalculateTotalValues(AFiyat, AMiktar, AIskontoOrani, AKDVOrani: Double): TTotal;
-
-  function getCryptedData(pVal: string): string;
 
   function ColumnFromIDCol(pRawTableColName, pRawTableName, pDataColName,
       pVirtualColName, pDataTableName: string; pIsIDReference: Boolean = True; pIsNumericVal: Boolean = False): string;
@@ -583,99 +576,6 @@ begin
   end;
 end;
 
-function setUserPassword(AOldPass, ANewPass: string; AUserID: Integer): Boolean;
-var
-  LSP: TFDStoredProc;
-begin
-  Result := False;
-  LSP := GDataBase.NewStoredProcedure;
-  try
-    LSP.StoredProcName := 'spset_user_password';
-    LSP.Prepare;
-    LSP.ParamByName('oldpass').Text := AOldPass;
-    LSP.ParamByName('newpass').Text := ANewPass;
-    LSP.ParamByName('userid').AsInteger := AUserID;
-    LSP.ExecProc;
-    if not LSP.ParamByName('result').IsNull then
-      Result := LSP.ParamByName('result').AsBoolean;
-  finally
-    LSP.Free;
-  end;
-end;
-
-function getEmployeeIDList: TEmployeeIdList;
-var
-  LSP: TFDStoredProc;
-begin
-  LSP := GDataBase.NewStoredProcedure;
-  try
-    LSP.StoredProcName := 'spget_emp_card_id_list';
-    LSP.Prepare;
-    LSP.Open;
-    LSP.First;
-
-    SetLength(Result, LSP.RecordCount);
-    while not LSP.Eof do
-    begin
-      Result[LSP.RecNo-1] := TEmployeeID.Create;
-      if not LSP.FieldByName('id').IsNull then
-        Result[LSP.RecNo-1].ID := LSP.FieldByName('id').AsInteger;
-      if not LSP.FieldByName('emp_name').IsNull then
-        Result[LSP.RecNo-1].Name := LSP.FieldByName('emp_name').AsString;
-      if not LSP.FieldByName('emp_surname').IsNull then
-        Result[LSP.RecNo-1].SurName := LSP.FieldByName('emp_surname').AsString;
-      if not LSP.FieldByName('emp_full_name').IsNull then
-        Result[LSP.RecNo-1].FullName := LSP.FieldByName('emp_full_name').AsString;
-
-      LSP.Next;
-    end;
-  finally
-    LSP.Free;
-  end;
-end;
-
-function getSysUserIDList: TSysUserIDList;
-var
-  LSP: TFDStoredProc;
-begin
-  LSP := GDataBase.NewStoredProcedure;
-  try
-    LSP.StoredProcName := 'spget_sys_user_id_list';
-    LSP.Prepare;
-    LSP.Open;
-    LSP.First;
-
-    SetLength(Result, LSP.RecordCount);
-    while not LSP.Eof do
-    begin
-      Result[LSP.RecNo-1] := TSysUserID.Create;
-      if not LSP.FieldByName('id').IsNull then
-        Result[LSP.RecNo-1].ID := LSP.FieldByName('id').AsInteger;
-      if not LSP.FieldByName('user_name').IsNull then
-        Result[LSP.RecNo-1].UserName := LSP.FieldByName('user_name').AsString;
-
-      LSP.Next;
-    end;
-  finally
-    LSP.Free;
-  end;
-end;
-
-function Login(pUserName, pPassword: string): Integer;
-begin
-  with GDataBase.NewQuery do
-  try
-    Close;
-    SQL.Text := 'SELECT splogin(' + QuotedStr(pUserName) + ',' + QuotedStr(pPassword) + ',' + QuotedStr(APP_VERSION) + ',' + QuotedStr('') + ');';
-    Open;
-    Result := Fields.Fields[0].AsInteger;
-    EmptyDataSet;
-    Close;
-  finally
-    Free;
-  end;
-end;
-
 function ReplaceToRealColOrTableName(const ATableName: string): string;
 begin
   Result := StringReplace(ATableName, ' ', '_', [rfReplaceAll]);
@@ -719,23 +619,6 @@ begin
   Result.IskontoTutar := Result.Tutar - Result.NetTutar;
   Result.KDVTutar := Result.NetTutar * (AKDVOrani)/100;
   Result.ToplamTutar := Result.NetTutar + Result.KDVTutar;
-end;
-
-function getCryptedData(pVal: string): string;
-var
-  LQry: TFDQuery;
-begin
-  LQry := GDataBase.NewQuery();
-  try
-    LQry.Close;
-    LQry.SQL.Clear;
-    LQry.SQL.Text := 'SELECT spget_crypted_data(' + QuotedStr(pVal) + ')';
-    LQry.Open();
-    Result := LQry.FieldByName('spget_crypted_data').AsString;
-    LQry.Close;
-  finally
-    LQry.Free;
-  end;
 end;
 
 function FormatedVariantVal(pType: TFieldType; pVal: Variant): Variant;

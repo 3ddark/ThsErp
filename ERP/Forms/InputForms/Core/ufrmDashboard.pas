@@ -413,10 +413,10 @@ end;
 
 procedure TfrmDashboard.actsys_update_passwordExecute(Sender: TObject);
 var
-  vUser: TSysKullanici;
+  LUser: TSysKullanici;
 begin
-  vUser := TSysKullanici(GSysKullanici.Clone);
-  TfrmSysChangePassword.Create(Self, nil, vUser, ifmUpdate).ShowModal;
+  LUser := TSysKullanici(GSysKullanici.Clone);
+  TfrmSysSifreDegistir.Create(Self, nil, LUser, ifmUpdate).ShowModal;
 end;
 
 procedure TfrmDashboard.actlstMainExecute(Action: TBasicAction; var Handled: Boolean);
@@ -602,7 +602,7 @@ end;
 
 procedure TfrmDashboard.actstk_cins_ozellikleriExecute(Sender: TObject);
 begin
-  TfrmStkCinsOzellikleri.Create(Self, Self, TStkCinsOzelligi.Create(GDataBase), fomNormal).Show;
+  TfrmStkCinsOzellikleri.Create(Self, Self, TStkCinsOzellik.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actstk_gruplarExecute(Sender: TObject);

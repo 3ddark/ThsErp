@@ -7,8 +7,7 @@ inherited frmBaseInput: TfrmBaseInput
   inherited pnlMain: TPanel
     Width = 606
     Height = 345
-    ExplicitWidth = 604
-    ExplicitHeight = 342
+    ExplicitHeight = 345
     object pgcMain: TPageControl
       Left = 0
       Top = 0
@@ -26,22 +25,18 @@ inherited frmBaseInput: TfrmBaseInput
   inherited pnlBottom: TPanel
     Top = 347
     Width = 602
-    ExplicitTop = 344
-    ExplicitWidth = 600
+    ExplicitTop = 347
     inherited btnAccept: TButton
       Left = 396
-      ExplicitLeft = 394
     end
     inherited btnClose: TButton
       Left = 500
-      ExplicitLeft = 498
     end
   end
   inherited stbBase: TStatusBar
     Top = 377
     Width = 606
-    ExplicitTop = 374
-    ExplicitWidth = 604
+    ExplicitTop = 377
   end
   object pmLabels: TPopupMenu
     Left = 168

@@ -1,4 +1,4 @@
-unit ufrmStkCinsOzelligi;
+﻿unit ufrmStkCinsOzelligi;
 
 interface
 
@@ -74,28 +74,28 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TStkCinsOzelligi(Table).Cins.Value := edtcins.Text;
-      TStkCinsOzelligi(Table).Aciklama.Value := edtaciklama.Text;
-      TStkCinsOzelligi(Table).S1.Value := edts1.Text;
-      TStkCinsOzelligi(Table).S2.Value := edts2.Text;
-      TStkCinsOzelligi(Table).S3.Value := edts3.Text;
-      TStkCinsOzelligi(Table).S4.Value := edts4.Text;
-      TStkCinsOzelligi(Table).S5.Value := edts5.Text;
-      TStkCinsOzelligi(Table).S6.Value := edts6.Text;
-      TStkCinsOzelligi(Table).S7.Value := edts7.Text;
-      TStkCinsOzelligi(Table).S8.Value := edts8.Text;
-      TStkCinsOzelligi(Table).S9.Value := edts9.Text;
-      TStkCinsOzelligi(Table).S10.Value := edts10.Text;
-      TStkCinsOzelligi(Table).I1.Value := edti1.Text;
-      TStkCinsOzelligi(Table).I2.Value := edti2.Text;
-      TStkCinsOzelligi(Table).I3.Value := edti3.Text;
-      TStkCinsOzelligi(Table).I4.Value := edti4.Text;
-      TStkCinsOzelligi(Table).I5.Value := edti5.Text;
-      TStkCinsOzelligi(Table).D1.Value := edtd1.Text;
-      TStkCinsOzelligi(Table).D2.Value := edtd2.Text;
-      TStkCinsOzelligi(Table).D3.Value := edtd3.Text;
-      TStkCinsOzelligi(Table).D4.Value := edtd4.Text;
-      TStkCinsOzelligi(Table).D5.Value := edtd5.Text;
+      TStkCinsOzellik(Table).Cins.Value := edtcins.Text;
+      TStkCinsOzellik(Table).Aciklama.Value := edtaciklama.Text;
+      TStkCinsOzellik(Table).S1.Value := edts1.Text;
+      TStkCinsOzellik(Table).S2.Value := edts2.Text;
+      TStkCinsOzellik(Table).S3.Value := edts3.Text;
+      TStkCinsOzellik(Table).S4.Value := edts4.Text;
+      TStkCinsOzellik(Table).S5.Value := edts5.Text;
+      TStkCinsOzellik(Table).S6.Value := edts6.Text;
+      TStkCinsOzellik(Table).S7.Value := edts7.Text;
+      TStkCinsOzellik(Table).S8.Value := edts8.Text;
+      TStkCinsOzellik(Table).S9.Value := edts9.Text;
+      TStkCinsOzellik(Table).S10.Value := edts10.Text;
+      TStkCinsOzellik(Table).I1.Value := edti1.Text;
+      TStkCinsOzellik(Table).I2.Value := edti2.Text;
+      TStkCinsOzellik(Table).I3.Value := edti3.Text;
+      TStkCinsOzellik(Table).I4.Value := edti4.Text;
+      TStkCinsOzellik(Table).I5.Value := edti5.Text;
+      TStkCinsOzellik(Table).D1.Value := edtd1.Text;
+      TStkCinsOzellik(Table).D2.Value := edtd2.Text;
+      TStkCinsOzellik(Table).D3.Value := edtd3.Text;
+      TStkCinsOzellik(Table).D4.Value := edtd4.Text;
+      TStkCinsOzellik(Table).D5.Value := edtd5.Text;
 
       inherited;
     end;
@@ -106,28 +106,28 @@ end;
 
 procedure TfrmStkCinsOzelligi.RefreshData;
 begin
-  edtcins.Text := TStkCinsOzelligi(Table).Cins.AsString;
-  edtaciklama.Text := TStkCinsOzelligi(Table).Aciklama.AsString;
-  edts1.Text := TStkCinsOzelligi(Table).S1.AsString;
-  edts2.Text := TStkCinsOzelligi(Table).S2.AsString;
-  edts3.Text := TStkCinsOzelligi(Table).S3.AsString;
-  edts4.Text := TStkCinsOzelligi(Table).S4.AsString;
-  edts5.Text := TStkCinsOzelligi(Table).S5.AsString;
-  edts6.Text := TStkCinsOzelligi(Table).S6.AsString;
-  edts7.Text := TStkCinsOzelligi(Table).S7.AsString;
-  edts8.Text := TStkCinsOzelligi(Table).S8.AsString;
-  edts9.Text := TStkCinsOzelligi(Table).S9.AsString;
-  edts10.Text := TStkCinsOzelligi(Table).S10.AsString;
-  edti1.Text := TStkCinsOzelligi(Table).I1.AsString;
-  edti2.Text := TStkCinsOzelligi(Table).I2.AsString;
-  edti3.Text := TStkCinsOzelligi(Table).I3.AsString;
-  edti4.Text := TStkCinsOzelligi(Table).I4.AsString;
-  edti5.Text := TStkCinsOzelligi(Table).I5.AsString;
-  edtd1.Text := TStkCinsOzelligi(Table).D1.AsString;
-  edtd2.Text := TStkCinsOzelligi(Table).D2.AsString;
-  edtd3.Text := TStkCinsOzelligi(Table).D3.AsString;
-  edtd4.Text := TStkCinsOzelligi(Table).D4.AsString;
-  edtd5.Text := TStkCinsOzelligi(Table).D5.AsString;
+  edtcins.Text := TStkCinsOzellik(Table).Cins.AsString;
+  edtaciklama.Text := TStkCinsOzellik(Table).Aciklama.AsString;
+  edts1.Text := TStkCinsOzellik(Table).S1.AsString;
+  edts2.Text := TStkCinsOzellik(Table).S2.AsString;
+  edts3.Text := TStkCinsOzellik(Table).S3.AsString;
+  edts4.Text := TStkCinsOzellik(Table).S4.AsString;
+  edts5.Text := TStkCinsOzellik(Table).S5.AsString;
+  edts6.Text := TStkCinsOzellik(Table).S6.AsString;
+  edts7.Text := TStkCinsOzellik(Table).S7.AsString;
+  edts8.Text := TStkCinsOzellik(Table).S8.AsString;
+  edts9.Text := TStkCinsOzellik(Table).S9.AsString;
+  edts10.Text := TStkCinsOzellik(Table).S10.AsString;
+  edti1.Text := TStkCinsOzellik(Table).I1.AsString;
+  edti2.Text := TStkCinsOzellik(Table).I2.AsString;
+  edti3.Text := TStkCinsOzellik(Table).I3.AsString;
+  edti4.Text := TStkCinsOzellik(Table).I4.AsString;
+  edti5.Text := TStkCinsOzellik(Table).I5.AsString;
+  edtd1.Text := TStkCinsOzellik(Table).D1.AsString;
+  edtd2.Text := TStkCinsOzellik(Table).D2.AsString;
+  edtd3.Text := TStkCinsOzellik(Table).D3.AsString;
+  edtd4.Text := TStkCinsOzellik(Table).D4.AsString;
+  edtd5.Text := TStkCinsOzellik(Table).D5.AsString;
 end;
 
 end.

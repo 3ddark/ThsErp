@@ -11,6 +11,8 @@ const
   CKEY1 = 53761475;
   CKEY2 = 32618110;
 
+  APP_KEY = 'c62dcbce023206b66fa2f9dfb1d315a590857cd0';
+
   SECURE_KEY = 'F0CEh10j6l9Nnjon';
 
   //Fast Report mm and cm define
