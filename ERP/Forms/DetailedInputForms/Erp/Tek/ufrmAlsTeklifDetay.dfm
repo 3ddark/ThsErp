@@ -17,13 +17,13 @@ inherited frmAlsTeklifDetay: TfrmAlsTeklifDetay
     ExplicitWidth = 425
     ExplicitHeight = 340
     inherited pgcMain: TPageControl
-      Width = 423
-      Height = 337
+      Width = 421
+      Height = 334
       ExplicitWidth = 425
       ExplicitHeight = 340
       inherited tsMain: TTabSheet
-        ExplicitWidth = 415
-        ExplicitHeight = 309
+        ExplicitWidth = 413
+        ExplicitHeight = 306
         object lblstok_kodu: TLabel
           Left = 35
           Top = 6

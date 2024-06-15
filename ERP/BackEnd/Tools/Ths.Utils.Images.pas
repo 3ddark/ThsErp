@@ -106,11 +106,13 @@ class procedure TImageProcess.LoadImageFromDB(AField: TFieldDB; AImage: TImage);
 var
   LStream: TMemoryStream;
   LBytes: TBytes;
+  jpgLogo: TJpegImage;
 begin
   if AField.AsString = '' then
     Exit;
 
   LStream := TMemoryStream.Create;
+  jpgLogo := TJpegImage.Create;
   try
     LBytes := AField.Value;
     LStream.Position := 0;
@@ -118,10 +120,12 @@ begin
     LStream.Position := 0;
     if LStream.Size > 0 then
     begin
-      AImage.Picture.LoadFromStream(LStream);
+      jpgLogo.LoadFromStream(LStream);
+      AImage.Picture.Graphic := jpgLogo;
     end;
   finally
     LStream.Free;
+    jpgLogo.Free;
   end;
 end;
 
@@ -132,7 +136,7 @@ begin
   LStream := TStringStream.Create;
   try
     AField.Value := '';
-    AImage.Picture.SaveToStream(LStream);
+    AImage.Picture.Bitmap.SaveToStream(LStream);
 
     if LStream.Size > 0 then
       AField.Value := LStream.Bytes;

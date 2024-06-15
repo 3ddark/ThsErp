@@ -1,4 +1,4 @@
-unit Ths.Database.Table.StkCinsOzellikleri;
+ï»¿unit Ths.Database.Table.StkCinsOzellikleri;
 
 interface
 
@@ -13,7 +13,7 @@ uses
   Ths.Database.Table;
 
 type
-  TStkCinsOzelligi = class(TTable)
+  TStkCinsOzellik = class(TTable)
   private
     FCins: TFieldDB;
     FAciklama: TFieldDB;
@@ -77,14 +77,14 @@ uses
   Ths.Globals,
   Ths.Constants;
 
-constructor TStkCinsOzelligi.Create(ADatabase: TDatabase);
+constructor TStkCinsOzellik.Create(ADatabase: TDatabase);
 begin
-  TableName := 'stk_cins_ozellikleri';
+  TableName := 'stk_cins_ozellikler';
   TableSourceCode := MODULE_STK_KAYIT;
   inherited Create(ADatabase);
 
   FCins := TFieldDB.Create('cins', ftWideString, '', Self, 'Cins');
-  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açýklama');
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'AÃ§Ä±klama');
   FS1 := TFieldDB.Create('s1', ftWideString, '', Self, 'S1');
   FS2 := TFieldDB.Create('s2', ftWideString, '', Self, 'S2');
   FS3 := TFieldDB.Create('s3', ftWideString, '', Self, 'S3');
@@ -107,7 +107,7 @@ begin
   FD5 := TFieldDB.Create('d5', ftWideString, '', Self, 'D5');
 end;
 
-procedure TStkCinsOzelligi.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
+procedure TStkCinsOzellik.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -146,7 +146,7 @@ begin
   end;
 end;
 
-procedure TStkCinsOzelligi.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
+procedure TStkCinsOzellik.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True);
 var
   LQry: TFDQuery;
 begin
@@ -201,7 +201,7 @@ begin
   end;
 end;
 
-procedure TStkCinsOzelligi.DoInsert(APermissionControl: Boolean=True);
+procedure TStkCinsOzellik.DoInsert(APermissionControl: Boolean=True);
 var
   LQry: TFDQuery;
 begin
@@ -241,7 +241,7 @@ begin
   end;
 end;
 
-procedure TStkCinsOzelligi.DoUpdate(APermissionControl: Boolean=True);
+procedure TStkCinsOzellik.DoUpdate(APermissionControl: Boolean=True);
 var
   LQry: TFDQuery;
 begin
@@ -280,9 +280,9 @@ begin
   end;
 end;
 
-function TStkCinsOzelligi.Clone: TTable;
+function TStkCinsOzellik.Clone: TTable;
 begin
-  Result := TStkCinsOzelligi.Create(Database);
+  Result := TStkCinsOzellik.Create(Database);
   CloneClassContent(Self, Result);
 end;
 

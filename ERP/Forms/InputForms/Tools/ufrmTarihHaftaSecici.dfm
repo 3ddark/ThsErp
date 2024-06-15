@@ -11,13 +11,13 @@ inherited frmTarihHaftaSecici: TfrmTarihHaftaSecici
     ExplicitWidth = 246
     ExplicitHeight = 113
     inherited pgcMain: TPageControl
-      Width = 241
-      Height = 103
+      Width = 239
+      Height = 99
       ExplicitWidth = 244
       ExplicitHeight = 111
       inherited tsMain: TTabSheet
-        ExplicitWidth = 233
-        ExplicitHeight = 75
+        ExplicitWidth = 231
+        ExplicitHeight = 71
         object lblyil: TLabel
           Left = 52
           Top = 6

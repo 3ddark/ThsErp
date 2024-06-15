@@ -20,7 +20,6 @@ uses
   Ths.Database.Table.SysUlkeler,
   Ths.Database.Table.SysParaBirimleri,
   Ths.Database.Table.ChDovizKurlari,
-  Ths.Database.Table.StkResimler,
   Ths.Database.Table.StkKartCinsBilgileri;
 
 type
@@ -60,14 +59,12 @@ type
     FTanim: TFieldDB;
     //db alanı değil
     FCins: TFieldDB;
-    FResim: TFieldDB;
     FCinsBilgisi: TStkKartCinsBilgisi;
   protected
     FStkStokGrubu: TStkGruplar;
     FSysOlcuBirimi: TSysOlcuBirimi;
-    FStkCinsOzelligi: TStkCinsOzelligi;
+    FStkCinsOzellik: TStkCinsOzellik;
     FSysUlke: TSysUlke;
-    FStkResim: TStkResim;
 
     procedure BusinessSelect(AFilter: string; ALock: Boolean; APermissionControl: Boolean); override;
     procedure BusinessInsert(APermissionControl: Boolean); override;
@@ -116,7 +113,6 @@ type
     Property EnAzStokSeviyesi: TFieldDB read FEnAzStokSeviyesi write FEnAzStokSeviyesi;
     Property Tanim: TFieldDB read FTanim write FTanim;
     Property Cins: TFieldDB read FCins write FCins;
-    Property Resim: TFieldDB read FResim write FResim;
     Property CinsBilgisi: TStkKartCinsBilgisi read FCinsBilgisi write FCinsBilgisi;
   end;
 
@@ -134,9 +130,8 @@ begin
 
   FStkStokGrubu := TStkGruplar.Create(Database);
   FSysOlcuBirimi := TSysOlcuBirimi.Create(Database);
-  FStkCinsOzelligi := TStkCinsOzelligi.Create(Database);
+  FStkCinsOzellik := TStkCinsOzellik.Create(Database);
   FSysUlke := TSysUlke.Create(Database);
-  FStkResim := TStkResim.Create(Database);
 
   FIsSatilabilir := TFieldDB.Create('is_satilabilir', ftBoolean, False, Self, 'Satılabilir?');
   FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self, 'Stok Kodu');
@@ -168,8 +163,7 @@ begin
   FDiibUrunTanimi := TFieldDB.Create('diib_urun_tanimi', ftString, '', Self, 'DİİB Ürün Tanımı');
   FEnAzStokSeviyesi := TFieldDB.Create('en_az_stok_seviyesi', ftFloat, 0, Self, 'En Az Stok Seviyesi');
   FTanim := TFieldDB.Create('tanim', ftString, '', Self, 'Tanım');
-  FCins := TFieldDB.Create(FStkCinsOzelligi.Cins.FieldName, FStkCinsOzelligi.Cins.DataType, '', Self, 'Cins');
-  FResim := TFieldDB.Create(FStkResim.Resim.FieldName, FStkResim.Resim.DataType, FStkResim.Resim.Value, Self, FStkResim.Resim.Title);
+  FCins := TFieldDB.Create(FStkCinsOzellik.Cins.FieldName, FStkCinsOzellik.Cins.DataType, '', Self, 'Cins');
 
   FCinsBilgisi := TStkKartCinsBilgisi.Create(GDatabase);
 end;
@@ -178,9 +172,8 @@ destructor TStkKart.Destroy;
 begin
   FStkStokGrubu.Free;
   FSysOlcuBirimi.Free;
-  FStkCinsOzelligi.Free;
+  FStkCinsOzellik.Free;
   FSysUlke.Free;
-  FStkResim.Free;
 
   FCinsBilgisi.Free;
   inherited;
@@ -266,15 +259,13 @@ begin
       FDiibUrunTanimi.QryName,
       FEnAzStokSeviyesi.QryName,
       FTanim.QryName,
-      addField(FStkCinsOzelligi.TableName, FStkCinsOzelligi.Cins.FieldName, FCins.FieldName),
-      FResim.FieldName
+      addField(FStkCinsOzellik.TableName, FStkCinsOzellik.Cins.FieldName, FCins.FieldName)
     ], [
       addJoin(jtLeft, FStkStokGrubu.TableName, FStkStokGrubu.Id.FieldName, TableName, FStokGrubuID.FieldName),
       addJoin(jtLeft, FSysOlcuBirimi.TableName, FSysOlcuBirimi.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
       addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FMenseiID.FieldName),
-      addJoin(jtLeft, FStkResim.TableName, FStkResim.StkKartId.FieldName, TableName, Id.FieldName),
       addJoin(jtLeft, FCinsBilgisi.TableName, FCinsBilgisi.StkKartId.FieldName, TableName, Id.FieldName),
-      addJoin(jtLeft, FStkCinsOzelligi.TableName, FStkCinsOzelligi.Id.FieldName, FCinsBilgisi.TableName, FCinsBilgisi.CinsID.FieldName),
+      addJoin(jtLeft, FStkCinsOzellik.TableName, FStkCinsOzellik.Id.FieldName, FCinsBilgisi.TableName, FCinsBilgisi.CinsID.FieldName),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
     Open;
@@ -325,15 +316,13 @@ begin
       FDiibUrunTanimi.QryName,
       FEnAzStokSeviyesi.QryName,
       FTanim.QryName,
-      addField(FStkCinsOzelligi.TableName, FStkCinsOzelligi.Cins.FieldName, FCins.FieldName),
-      FResim.FieldName
+      addField(FStkCinsOzellik.TableName, FStkCinsOzellik.Cins.FieldName, FCins.FieldName)
     ], [
       addJoin(jtLeft, FStkStokGrubu.TableName, FStkStokGrubu.Id.FieldName, TableName, FStokGrubuID.FieldName),
       addJoin(jtLeft, FSysOlcuBirimi.TableName, FSysOlcuBirimi.Id.FieldName, TableName, FOlcuBirimiID.FieldName),
       addJoin(jtLeft, FSysUlke.TableName, FSysUlke.Id.FieldName, TableName, FMenseiID.FieldName),
       addJoin(jtLeft, FCinsBilgisi.TableName, FCinsBilgisi.StkKartID.FieldName, TableName, Id.FieldName),
-      addJoin(jtLeft, FStkCinsOzelligi.TableName, FStkCinsOzelligi.Id.FieldName, FCinsBilgisi.TableName, FCinsBilgisi.CinsID.FieldName),
-      addJoin(jtLeft, FStkResim.TableName, FStkResim.StkKartId.FieldName, TableName, Id.FieldName),
+      addJoin(jtLeft, FStkCinsOzellik.TableName, FStkCinsOzellik.Id.FieldName, FCinsBilgisi.TableName, FCinsBilgisi.CinsID.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);
     Open;
@@ -450,38 +439,17 @@ begin
   begin
     TStkKart(Self.List[n1]).FCinsBilgisi.Clear;
     TStkKart(Self.List[n1]).FCinsBilgisi.SelectToList(' AND ' + TStkKart(Self.List[n1]).CinsBilgisi.StkKartID.QryName + '=' + TStkKart(Self.List[n1]).Id.AsString, ALock, False);
-    TStkKart(Self.List[n1]).FStkResim.Clear;
-    TStkKart(Self.List[n1]).FStkResim.SelectToList(' AND ' + TStkKart(Self.List[n1]).FStkResim.StkKartID.QryName + '=' + TStkKart(Self.List[n1]).Id.AsString, ALock, False);
   end;
 end;
 
 procedure TStkKart.BusinessInsert(APermissionControl: Boolean);
-var
-  LResim: TStkResim;
 begin
   Self.Insert(APermissionControl);
   Self.FCinsBilgisi.StkKartID.Value := Self.Id.AsInt64;
   Self.FCinsBilgisi.Insert(False);
-
-  if Length(Self.Resim.Value) > 0 then
-  begin
-    LResim := TStkResim.Create(Database);
-    try
-      LResim.SelectToList(' AND ' + LResim.StkKartID.QryName + '=' + Self.Id.AsString, False, False);
-      if LResim.List.Count=1 then
-      begin
-        LResim.Resim.Value := Self.Resim.AsString;
-        LResim.Update(False);
-      end
-    finally
-      LResim.Free;
-    end;
-  end;
 end;
 
 procedure TStkKart.BusinessUpdate(APermissionControl: Boolean);
-var
-  LResim: TStkResim;
 begin
   Self.Update(APermissionControl);
   if Self.FCinsBilgisi.Id.AsInt64 > 0 then
@@ -493,32 +461,6 @@ begin
     Self.FCinsBilgisi.StkKartID.Value := Self.Id.AsInt64;
     Self.FCinsBilgisi.Insert(False);
   end;
-
-  LResim := TStkResim.Create(Database);
-  try
-    if Self.Resim.AsString = '' then
-    begin
-      LResim.SelectToList(' AND ' + LResim.StkKartID.QryName + '=' + Self.Id.AsString, False, False);
-      LResim.Delete(False);
-    end
-    else
-    begin
-      LResim.SelectToList(' AND ' + LResim.StkKartID.QryName + '=' + Self.Id.AsString, False, False);
-      if LResim.List.Count=1 then
-      begin
-        LResim.Resim.Value := Self.Resim.AsString;
-        LResim.Update(False);
-      end
-      else
-      begin
-        LResim.StkKartID.Value := Self.Id.AsInt64;
-        LResim.Resim.Value := Self.Resim.AsString;
-        LResim.Insert(False);
-      end;
-    end;
-  finally
-    LResim.Free;
-  end;
 end;
 
 function TStkKart.Clone: TTable;
@@ -526,7 +468,6 @@ begin
   Result := TStkKart.Create(Database);
   CloneClassContent(Self, Result);
   CloneClassContent(Self.FCinsBilgisi, TStkKart(Result).FCinsBilgisi);
-  CloneClassContent(Self.FStkResim, TStkKart(Result).FStkResim);
 end;
 
 end.

@@ -13,7 +13,7 @@ type
   end;
 
 var
-  AppContext: TEntityManager;
+  ManagerApp: TEntityManager;
 
 implementation
 
@@ -21,18 +21,18 @@ implementation
 
 destructor TManagerStack.Destroy;
 begin
-  AppContext.Free;
+  ManagerApp.Free;
   inherited;
 end;
 
 class procedure TManagerStack.prepareManager(AHostName, ADatabase, AUserName, AUserPass, ALibraryPath: string; APort: Integer);
 begin
-  AppContext := TEntityManager.Create(AHostName, ADatabase, AUserName, AUserPass, ALibraryPath, APort);
+  ManagerApp := TEntityManager.Create(AHostName, ADatabase, AUserName, AUserPass, ALibraryPath, APort);
 end;
 
 initialization
 
 finalization
-  AppContext.Free;
+  ManagerApp.Free;
 
 end.

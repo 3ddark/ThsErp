@@ -28,13 +28,12 @@ end;
 function LowCaseTr(pKey: Char): Char;
 begin
   case pKey of
-    'I': pKey := 'ý';
-    'Ý': pKey := 'i';
-    'Ð': pKey := 'ð';
-    'Ü': pKey := 'ü';
-    'Þ': pKey := 'þ';
-    'Ö': pKey := 'ö';
-    'Ç': pKey := 'ç';
+    'I': pKey := 'Ä±';
+    'Ä°': pKey := 'i';
+    'Äž': pKey := 'ÄŸ';
+    'Ãœ': pKey := 'Ã¼';
+    'Åž': pKey := 'ÅŸ';
+    'Ã‡': pKey := 'Ã§';
   else
     pKey := LowCase(pKey);
   end;
@@ -44,13 +43,12 @@ end;
 function UpCaseTr(pKey: Char): Char;
 begin
   case pKey of
-    'ý': pKey := 'I';
-    'i': pKey := 'Ý';
-    'ð': pKey := 'Ð';
-    'ü': pKey := 'Ü';
-    'þ': pKey := 'Þ';
-    'ö': pKey := 'Ö';
-    'ç': pKey := 'Ç';
+    'Ä±': pKey := 'I';
+    'i': pKey := 'Ä°';
+    'ÄŸ': pKey := 'Äž';
+    'Ã¼': pKey := 'Ãœ';
+    'ÅŸ': pKey := 'Åž';
+    'Ã§': pKey := 'Ã‡';
   else
     pKey := UpCase(pKey);
   end;

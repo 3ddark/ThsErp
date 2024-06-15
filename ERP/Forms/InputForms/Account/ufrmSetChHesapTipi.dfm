@@ -17,13 +17,13 @@ inherited frmSetChHesapTipi: TfrmSetChHesapTipi
     ExplicitWidth = 340
     ExplicitHeight = 138
     inherited pgcMain: TPageControl
-      Width = 344
-      Height = 65
+      Width = 342
+      Height = 61
       ExplicitWidth = 338
       ExplicitHeight = 136
       inherited tsMain: TTabSheet
-        ExplicitWidth = 336
-        ExplicitHeight = 37
+        ExplicitWidth = 334
+        ExplicitHeight = 33
         object lblhesap_tipi: TLabel
           Left = 56
           Top = 6

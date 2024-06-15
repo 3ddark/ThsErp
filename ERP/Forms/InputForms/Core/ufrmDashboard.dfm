@@ -85,7 +85,7 @@ inherited frmDashboard: TfrmDashboard
       Top = 0
       Width = 915
       Height = 360
-      ActivePage = tssales
+      ActivePage = tsaccounting
       Align = alClient
       MultiLine = True
       TabOrder = 0
@@ -675,6 +675,7 @@ inherited frmDashboard: TfrmDashboard
     object actsys_update: TAction
       Category = 'Sistem'
       Caption = 'Update'
+      Enabled = False
       ImageIndex = 3
       OnExecute = actsys_updateExecute
     end

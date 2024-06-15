@@ -14,8 +14,8 @@ inherited frmStkKart: TfrmStkKart
     Height = 479
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 638
-    ExplicitHeight = 476
+    ExplicitWidth = 640
+    ExplicitHeight = 479
     inherited pgcMain: TPageControl
       Width = 640
       Height = 479
@@ -1325,8 +1325,8 @@ inherited frmStkKart: TfrmStkKart
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 50
-            Height = 13
+            Width = 48
+            Height = 14
             Align = alTop
             Alignment = taCenter
             Caption = 'Grup Ad'#305
@@ -2213,21 +2213,21 @@ inherited frmStkKart: TfrmStkKart
   inherited pnlBottom: TPanel
     Top = 481
     Width = 636
-    ExplicitTop = 478
-    ExplicitWidth = 634
+    ExplicitTop = 481
+    ExplicitWidth = 636
     inherited btnAccept: TButton
       Left = 430
-      ExplicitLeft = 428
+      ExplicitLeft = 430
     end
     inherited btnClose: TButton
       Left = 534
-      ExplicitLeft = 532
+      ExplicitLeft = 534
     end
   end
   inherited stbBase: TStatusBar
     Top = 511
     Width = 640
-    ExplicitTop = 508
-    ExplicitWidth = 638
+    ExplicitTop = 511
+    ExplicitWidth = 640
   end
 end

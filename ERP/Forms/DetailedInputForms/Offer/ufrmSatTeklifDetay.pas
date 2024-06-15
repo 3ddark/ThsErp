@@ -14,6 +14,7 @@ uses
   System.DateUtils,
   System.NetEncoding,
   System.Math,
+  System.IOUtils,
   System.Types,
   Vcl.Graphics,
   Vcl.Controls,
@@ -310,8 +311,7 @@ begin
 
               if (Trim(edtiskonto_orani.Text) = '') then  edtiskonto_orani.Text := '0';
 
-              TSatTeklifDetay(Table).StokResim.Value := TStkKart(LFrmStk.Table).Resim.Value;
-              TImageProcess.LoadImageFromDB(TStkKart(LFrmStk.Table).Resim, imgstok_resim);
+              imgstok_resim.Picture.LoadFromFile(TPath.Combine(GSysApplicationSetting.DigerAyarlarJSon.PathStokKartiResim, TStkKart(LFrmStk.Table).StokKodu.AsString));
               edtgtip_no.Text := TStkKart(LFrmStk.Table).GtipNo.AsString;
             end;
           end;

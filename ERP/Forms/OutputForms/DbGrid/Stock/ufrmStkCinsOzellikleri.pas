@@ -1,4 +1,4 @@
-unit ufrmStkCinsOzellikleri;
+﻿unit ufrmStkCinsOzellikleri;
 
 interface
 
@@ -32,7 +32,7 @@ begin
   if (pFormMode = ifmRewiev) then
     Result := TfrmStkCinsOzelligi.Create(Application, Self, Table.Clone(), pFormMode)
   else if (pFormMode = ifmNewRecord) then
-    Result := TfrmStkCinsOzelligi.Create(Application, Self, TStkCinsOzelligi.Create(Table.Database), pFormMode)
+    Result := TfrmStkCinsOzelligi.Create(Application, Self, TStkCinsOzellik.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
     Result := TfrmStkCinsOzelligi.Create(Application, Self, Table.Clone(), pFormMode);
 end;

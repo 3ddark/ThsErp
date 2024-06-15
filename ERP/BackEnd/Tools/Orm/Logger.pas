@@ -2,7 +2,7 @@
 
 interface
 
-uses SysUtils, Forms, Winapi.Windows;
+uses SysUtils, Fmx.Forms, Winapi.Windows;
 
 type
   TLogger = class
@@ -34,15 +34,15 @@ var
   PID: DWORD;
 begin
   if AFileName = '' then
-    FLogFileName := ChangeFileExt(ExtractFileName(Application.ExeName), '.log')
+    FLogFileName := ChangeFileExt(ExtractFileName(ParamStr(0)), '.log')
   else
-    FLogFileName := ExtractFilePath(Application.ExeName) + AFileName + '.log';
+    FLogFileName := ExtractFilePath(ParamStr(0)) + AFileName + '.log';
 
   FProcessID := '';
   FDBConnectionPID := '';
 
-  if Application.Handle <> 0 then
-    GetWindowThreadProcessID(Application.Handle, @PID);
+//  if Application.Handle <> 0 then
+//    GetWindowThreadProcessID(Application.Handle, @PID);
   FProcessID := PID.ToString;
 end;
 

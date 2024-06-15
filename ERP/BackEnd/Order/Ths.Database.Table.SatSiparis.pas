@@ -310,7 +310,6 @@ begin
   FNetAgirlik := TFieldDB.Create('net_agirlik', ftBCD, 0, Self, '');
   FBrutAgirlik := TFieldDB.Create('brut_agirlik', ftBCD, 0, Self, '');
   FKab := TFieldDB.Create('kab', ftInteger, 0, Self, '');
-  FStokResim := TFieldDB.Create(FStkStokKarti.Resim.FieldName, FStkStokKarti.Resim.DataType, FStkStokKarti.Resim.Value, Self, 'Resim');
 
   PrepareTableRequiredValues;
 end;
@@ -359,8 +358,7 @@ begin
       FHacim.QryName,
       FNetAgirlik.QryName,
       FBrutAgirlik.QryName,
-      FKab.QryName,
-      addField(FStkStokKarti.TableName, FStkStokKarti.Resim.FieldName, FStokResim.FieldName)
+      FKab.QryName
     ], [
       addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
       ' WHERE 1=1 ', AFilter
@@ -411,8 +409,7 @@ begin
       FHacim.QryName,
       FNetAgirlik.QryName,
       FBrutAgirlik.QryName,
-      FKab.QryName,
-      addField(FStkStokKarti.TableName, FStkStokKarti.Resim.FieldName, FStokResim.FieldName)
+      FKab.QryName
     ], [
       addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
       ' WHERE 1=1 ', AFilter

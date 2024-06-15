@@ -6,8 +6,8 @@ inherited frmSysChangePassword: TfrmSysChangePassword
   ClientHeight = 158
   ClientWidth = 401
   ParentFont = True
-  ExplicitWidth = 415
-  ExplicitHeight = 194
+  ExplicitWidth = 417
+  ExplicitHeight = 197
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 401

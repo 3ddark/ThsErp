@@ -14,16 +14,16 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
     Height = 334
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 406
-    ExplicitHeight = 313
+    ExplicitWidth = 421
+    ExplicitHeight = 334
     inherited pgcMain: TPageControl
-      Width = 423
-      Height = 337
-      ExplicitWidth = 406
-      ExplicitHeight = 313
+      Width = 421
+      Height = 334
+      ExplicitWidth = 421
+      ExplicitHeight = 334
       inherited tsMain: TTabSheet
-        ExplicitWidth = 415
-        ExplicitHeight = 309
+        ExplicitWidth = 413
+        ExplicitHeight = 306
         object lblstok_kodu: TLabel
           Left = 35
           Top = 6
@@ -435,21 +435,21 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
   inherited pnlBottom: TPanel
     Top = 336
     Width = 417
-    ExplicitTop = 315
-    ExplicitWidth = 402
+    ExplicitTop = 336
+    ExplicitWidth = 417
     inherited btnAccept: TButton
-      Left = 215
-      ExplicitLeft = 196
+      Left = 211
+      ExplicitLeft = 211
     end
     inherited btnClose: TButton
-      Left = 319
-      ExplicitLeft = 300
+      Left = 315
+      ExplicitLeft = 315
     end
   end
   inherited stbBase: TStatusBar
     Top = 366
     Width = 421
-    ExplicitTop = 345
-    ExplicitWidth = 406
+    ExplicitTop = 366
+    ExplicitWidth = 421
   end
 end

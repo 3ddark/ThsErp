@@ -28,6 +28,8 @@ type
     procedure FormResize(Sender: TObject); override;
     procedure FormPaint(Sender: TObject); override;
   private
+    FAfterDeleteEvent: TNotifyEvent;
+    procedure DoAfterDeleteEvent(Sender: TObject);
     procedure RefreshParentGrid(AFocusSelectedItem: Boolean);
     procedure FocusFirstControl;
   protected
@@ -36,6 +38,7 @@ type
     procedure HelperProcess(Sender: TObject);virtual;
     procedure OnCalculate(Sender: TObject);
   published
+    property AfterDeleteEvent: TNotifyEvent read FAfterDeleteEvent write FAfterDeleteEvent;
 //    FRefresher: ThreadRefresh;
 
 /// <summary>
@@ -99,6 +102,12 @@ begin
   end;
 end;
 
+procedure TfrmBaseInputDB.DoAfterDeleteEvent(Sender: TObject);
+begin
+  if Assigned(FAfterDeleteEvent) then
+    FAfterDeleteEvent(Sender);
+end;
+
 procedure TfrmBaseInputDB.btnDeleteClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate)then
@@ -107,6 +116,8 @@ begin
     begin
       if (Table.LogicalDelete(True, False)) then
       begin
+        DoAfterDeleteEvent(Sender);
+
         RefreshParentGrid(False);
         ModalResult := mrOK;
         Close;

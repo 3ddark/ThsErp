@@ -1,4 +1,4 @@
-unit ufrmTarihHaftaSecici;
+ï»¿unit ufrmTarihHaftaSecici;
 
 interface
 
@@ -67,7 +67,7 @@ uses
 
 procedure TfrmTarihHaftaSecici.btnAcceptClick(Sender: TObject);
 begin
-  //sonuc bu deðiþkenden dönecek çaðýrýlan yerden bu deðiþkene ulaþarak yeni yýl/hafta bilgisi elde edinilmiþ olacak
+  //sonuc bu deï¿½iï¿½kenden dï¿½necek ï¿½aï¿½ï¿½rï¿½lan yerden bu deï¿½iï¿½kene ulaï¿½arak yeni yï¿½l/hafta bilgisi elde edinilmiï¿½ olacak
   FYilHafta := edtYil.Text + '/' + edtHafta.Text;
   FTarih := edtGun.Text;
   Close;
@@ -100,7 +100,7 @@ end;
 procedure TfrmTarihHaftaSecici.edtgunKeyPress(Sender: TObject; var Key: Char);
 begin
   inherited;
-  //0..9 arasý ve BackSpace haricindekileri algýlama
+  //0..9 arasï¿½ ve BackSpace haricindekileri algï¿½lama
   if (Key <> #8) and ((Key < '0') or (Key > '9')) then
     Key := #0;
   if Key = #13 then
@@ -124,7 +124,7 @@ begin
 
   if (edtHafta.Text <> '0') and (edtHafta.Text <> '') and (StrToInt(edtHafta.Text) > 53) then
   begin
-    ShowMessage('Yazýlan Hafta Sayýsý Maximum 52 Olabilir');
+    ShowMessage('YazÄ±lan Hafta SayÄ±sÄ± Maximum 52 Olabilir');
     secilentarih := edtHafta.Text;
     edtHafta.Text := '53';
     edtHafta.SetFocus;
@@ -148,7 +148,7 @@ begin
     except
       on E: Exception do
       begin
-        E.Create(IntToStr(y) + ' yýlýnda ' + IntToStr(h) + ' hafta yoktur!');
+        E.Create(IntToStr(y) + ' yï¿½lï¿½nda ' + IntToStr(h) + ' hafta yoktur!');
         edtGun.Clear;
         t := '';
       end;
@@ -158,7 +158,7 @@ end;
 
 procedure TfrmTarihHaftaSecici.edthaftaKeyPress(Sender: TObject; var Key: Char);
 begin
-  //0..9 arasý ve BackSpace haricindekileri algýlama
+  //0..9 arasï¿½ ve BackSpace haricindekileri algï¿½lama
   if (Key <> #8) and ((Key < '0') or (Key > '9')) then
     Key := #0;
   if Key = #13 then
@@ -175,7 +175,7 @@ end;
 
 procedure TfrmTarihHaftaSecici.edtyilKeyPress(Sender: TObject; var Key: Char);
 begin
-  //0..9 arasý ve BackSpace haricindekileri algýlama
+  //0..9 arasï¿½ ve BackSpace haricindekileri algï¿½lama
   if (Key <> #8) and ((Key < '0') or (Key > '9')) then
     Key := #0;
   if Key = char(vk_return) then

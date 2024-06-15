@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.1
+-- Dumped from database version 15.5
 -- Dumped by pg_dump version 16.1
 
 SET statement_timeout = 0;
@@ -24,76 +24,6 @@ SET row_security = off;
 
 
 ALTER SCHEMA public OWNER TO postgres;
-
---
--- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS dblink WITH SCHEMA public;
-
-
---
--- Name: EXTENSION dblink; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION dblink IS 'connect to other PostgreSQL databases from within a database';
-
-
---
--- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
-
-
---
--- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
-
-
---
--- Name: pgrowlocks; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS pgrowlocks WITH SCHEMA public;
-
-
---
--- Name: EXTENSION pgrowlocks; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION pgrowlocks IS 'show row-level locking information';
-
-
---
--- Name: pldbgapi; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS pldbgapi WITH SCHEMA public;
-
-
---
--- Name: EXTENSION pldbgapi; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION pldbgapi IS 'server-side support for debugging PL/pgSQL functions';
-
-
---
--- Name: postgres_fdw; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS postgres_fdw WITH SCHEMA public;
-
-
---
--- Name: EXTENSION postgres_fdw; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION postgres_fdw IS 'foreign-data wrapper for remote PostgreSQL servers';
-
 
 --
 -- Name: audit(); Type: FUNCTION; Schema: public; Owner: ths_admin
@@ -178,48 +108,6 @@ $$;
 ALTER FUNCTION public.personel_adsoyad() OWNER TO ths_admin;
 
 --
--- Name: spexists_hesap_kodu(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spexists_hesap_kodu(phesap_kodu text) RETURNS boolean
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-
-DECLARE
-	vCnt integer;
-BEGIN
-	SELECT INTO vCnt count(*) FROM ch_hesaplar WHERE hesap_kodu=phesap_kodu;
-	
-	IF cVnt > 0 THEN
-		RETURN True;
-	ELSE
-		RETURN False;
-	END IF;
-END;
-$$;
-
-
-ALTER FUNCTION public.spexists_hesap_kodu(phesap_kodu text) OWNER TO postgres;
-
---
--- Name: spget_crypted_data(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spget_crypted_data(pval text) RETURNS text
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-declare
-	vval text;
-begin
-	SELECT crypt(pval, gen_salt('md5')) INTO vval;
-	Return vval;
-end
-$$;
-
-
-ALTER FUNCTION public.spget_crypted_data(pval text) OWNER TO postgres;
-
---
 -- Name: spget_lang_text(text, text, text, bigint, text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -279,23 +167,6 @@ $$;
 
 
 ALTER FUNCTION public.spget_lang_text(_default_value text, _table_name text, _column_name text, _data_col text, _lang text) OWNER TO postgres;
-
---
--- Name: spget_prs_personel_id_list(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spget_prs_personel_id_list() RETURNS TABLE(id integer, emp_name character varying, emp_surname character varying, emp_full_name character varying)
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-	RETURN QUERY
-		SELECT  prs_personel.id, prs_personel.ad, prs_personel.soyad, prs_personel.ad_soyad FROM prs_personel
-		WHERE is_aktif ORDER BY 4;
-END
-$$;
-
-
-ALTER FUNCTION public.spget_prs_personel_id_list() OWNER TO postgres;
 
 --
 -- Name: spget_rct_hammadde_maliyet(bigint); Type: FUNCTION; Schema: public; Owner: postgres
@@ -465,113 +336,6 @@ $$;
 ALTER FUNCTION public.spget_sys_quality_form_type_id(ptype integer) OWNER TO postgres;
 
 --
--- Name: spget_sys_user_id_list(); Type: FUNCTION; Schema: public; Owner: ths_admin
---
-
-CREATE FUNCTION public.spget_sys_user_id_list() RETURNS TABLE(id bigint, user_name character varying)
-    LANGUAGE plpgsql
-    AS $$
-
-BEGIN
-	RETURN QUERY EXECUTE 
-	'SELECT 
-		sys_user.id, sys_user.user_name
-	FROM sys_user
-	WHERE is_active ORDER BY 1';
-
-END
-$$;
-
-
-ALTER FUNCTION public.spget_sys_user_id_list() OWNER TO ths_admin;
-
---
--- Name: spget_year_week(date, character varying, boolean); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spget_year_week(pdate date, pseparate character varying, pis_year_first boolean DEFAULT true) RETURNS character varying
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-begin
-	--Yıl ve hafta bilgisini getiriyor.
-	--Girdiler
-	--Tarih, Ayraç, Yıl Önce Gelsin		get_year_week('03.01.2019', '/', True)
-	--Çıktılar
-	--2019/13
-	IF pis_year_first THEN
-		RETURN date_part('year', pdate::timestamp without time zone)::text || pseparate || date_part('week', pdate::timestamp without time zone)::text;
-	ELSE
-		RETURN date_part('week', pdate::timestamp without time zone)::text || pseparate || date_part('year', pdate::timestamp without time zone)::text;
-	END IF;		
-end
-$$;
-
-
-ALTER FUNCTION public.spget_year_week(pdate date, pseparate character varying, pis_year_first boolean) OWNER TO postgres;
-
---
--- Name: splogin(text, text, text, text); Type: FUNCTION; Schema: public; Owner: ths_admin
---
-
-CREATE FUNCTION public.splogin(puser_name text, puser_pass text, papp_version text, pmac_address text) RETURNS integer
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-declare 
-	id integer;
-	usr record;
-begin
-	SELECT INTO usr * FROM sys_kullanicilar WHERE kullanici_adi = puser_name;
-	IF NOT FOUND THEN
-		return -1;	--user not found
-	ELSE
-		IF usr.is_aktif = false THEN
-			return -2;	--user inactive
-		ELSE
-			SELECT INTO usr * FROM sys_uygulama_ayarlari WHERE versiyon = papp_version;
-			IF NOT FOUND THEN
-				return -6;	--invalid app version
-			ELSE
-				SELECT INTO usr * FROM sys_kullanicilar WHERE kullanici_adi = puser_name AND kullanici_sifre = crypt(puser_pass, kullanici_sifre);
-				IF NOT FOUND THEN
-					RETURN -4;	--invalid password
-				ELSE
-					UPDATE sys_kullanicilar SET is_aktif=true WHERE sys_kullanicilar.id = usr.id;	
-					RETURN usr.id;
-				END IF;
-			END IF;
-		END IF;
-	END IF;
-end
-$$;
-
-
-ALTER FUNCTION public.splogin(puser_name text, puser_pass text, papp_version text, pmac_address text) OWNER TO ths_admin;
-
---
--- Name: spset_user_password(text, text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.spset_user_password(oldpass text, newpass text, userid integer) RETURNS boolean
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-	sysUser record;
-BEGIN
-	SELECT INTO sysUser * FROM sys_kullanicilar WHERE sys_kullanicilar.id = userID AND sys_kullanicilar.kullanici_sifre = crypt(oldPass, sys_kullanicilar.kullanici_sifre);
-	IF NOT FOUND THEN
-		RETURN False;
-	ELSE
-		UPDATE sys_kullanicilar SET kullanici_sifre=crypt(newPass, gen_salt('md5')) WHERE sys_kullanicilar.id = userID;	
-		RETURN True;
-	END IF;
-	
-END;
-$$;
-
-
-ALTER FUNCTION public.spset_user_password(oldpass text, newpass text, userid integer) OWNER TO postgres;
-
---
 -- Name: spvarsayilan_para_birimi(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -667,20 +431,6 @@ $$;
 
 ALTER FUNCTION public.table_unlisten(table_name text) OWNER TO postgres;
 
---
--- Name: a_invoices_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.a_invoices_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.a_invoices_id_seq OWNER TO postgres;
-
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -720,17 +470,24 @@ CREATE TABLE public.als_teklif_detaylari (
 ALTER TABLE public.als_teklif_detaylari OWNER TO ths_admin;
 
 --
--- Name: als_teklif_detaylari_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: alis_teklif_detaylari_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.als_teklif_detaylari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.als_teklif_detaylari_id_seq
+CREATE SEQUENCE public.alis_teklif_detaylari_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1
-);
+    CACHE 1;
+
+
+ALTER SEQUENCE public.alis_teklif_detaylari_id_seq OWNER TO ths_admin;
+
+--
+-- Name: alis_teklif_detaylari_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
+--
+
+ALTER SEQUENCE public.alis_teklif_detaylari_id_seq OWNED BY public.als_teklif_detaylari.id;
 
 
 --
@@ -2557,11 +2314,25 @@ COMMENT ON TABLE public.stk_ambarlar IS 'Stok hareketlerinin tutulduğu ambar bi
 
 
 --
+-- Name: stk_cins_ozellikleri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+CREATE SEQUENCE public.stk_cins_ozellikleri_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.stk_cins_ozellikleri_id_seq OWNER TO ths_admin;
+
+--
 -- Name: stk_cins_ozellikleri; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.stk_cins_ozellikleri (
-    id bigint NOT NULL,
+    id bigint DEFAULT nextval('public.stk_cins_ozellikleri_id_seq'::regclass) NOT NULL,
     cins character varying(32) NOT NULL,
     aciklama character varying(128),
     s1 character varying(32),
@@ -2588,20 +2359,6 @@ CREATE TABLE public.stk_cins_ozellikleri (
 
 
 ALTER TABLE public.stk_cins_ozellikleri OWNER TO ths_admin;
-
---
--- Name: stk_cins_ozellikleri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.stk_cins_ozellikleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_cins_ozellikleri_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
 
 --
 -- Name: stk_hareketler; Type: TABLE; Schema: public; Owner: ths_admin
@@ -2642,11 +2399,25 @@ ALTER TABLE public.stk_hareketler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 
 --
+-- Name: stk_kart_cins_bilgileri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+CREATE SEQUENCE public.stk_kart_cins_bilgileri_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.stk_kart_cins_bilgileri_id_seq OWNER TO ths_admin;
+
+--
 -- Name: stk_kart_cins_bilgileri; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.stk_kart_cins_bilgileri (
-    id bigint NOT NULL,
+    id bigint DEFAULT nextval('public.stk_kart_cins_bilgileri_id_seq'::regclass) NOT NULL,
     stk_kart_id bigint,
     cins_id bigint,
     s1 character varying(64),
@@ -2673,20 +2444,6 @@ CREATE TABLE public.stk_kart_cins_bilgileri (
 
 
 ALTER TABLE public.stk_kart_cins_bilgileri OWNER TO ths_admin;
-
---
--- Name: stk_kart_cins_bilgileri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.stk_kart_cins_bilgileri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_kart_cins_bilgileri_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
 
 --
 -- Name: stk_kart_ozetleri; Type: TABLE; Schema: public; Owner: ths_admin
@@ -2750,7 +2507,8 @@ ALTER TABLE public.stk_kartlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 CREATE TABLE public.stk_resimler (
     id bigint NOT NULL,
     stk_kart_id bigint NOT NULL,
-    resim text
+    resim bytea,
+    dosya_adi character varying
 );
 
 
@@ -2891,14 +2649,14 @@ ALTER TABLE public.sys_bolgeler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 --
 
 CREATE VIEW public.sys_db_status AS
- SELECT (row_number() OVER (ORDER BY client_addr, usename))::integer AS id,
-    pid,
-    (datname)::character varying(128) AS db_name,
-    (application_name)::character varying(128) AS app_name,
-    (usename)::character varying(64) AS user_name,
-    (client_addr)::character varying(32) AS client_address,
-    (state)::character varying(64) AS state,
-    (query)::character varying(1024) AS query,
+ SELECT (row_number() OVER (ORDER BY pa.client_addr, pa.usename))::integer AS id,
+    pa.pid,
+    (pa.datname)::character varying(128) AS db_name,
+    (pa.application_name)::character varying(128) AS app_name,
+    (pa.usename)::character varying(64) AS user_name,
+    (pa.client_addr)::character varying(32) AS client_address,
+    (pa.state)::character varying(64) AS state,
+    (pa.query)::character varying(1024) AS query,
     (( SELECT string_agg((( SELECT pg_statio_user_tables.relname
                    FROM pg_statio_user_tables
                   WHERE ((pg_statio_user_tables.relid = lck.relation) AND (pg_statio_user_tables.relname IS NOT NULL))))::text, ', '::text) AS string_agg
@@ -2908,7 +2666,7 @@ CREATE VIEW public.sys_db_status AS
                    FROM pg_statio_user_tables
                   WHERE ((pg_statio_user_tables.relid = lck.relation) AND (pg_statio_user_tables.relname IS NOT NULL))))::text, ', '::text))))::character varying(1024) AS locked_tables
    FROM pg_stat_activity pa
-  WHERE (datname = current_database());
+  WHERE (pa.datname = current_database());
 
 
 ALTER VIEW public.sys_db_status OWNER TO ths_admin;
@@ -3394,12 +3152,12 @@ ALTER TABLE public.sys_uygulama_ayarlari ALTER COLUMN id ADD GENERATED ALWAYS AS
 --
 
 CREATE VIEW public.sys_view_tables AS
- SELECT (row_number() OVER (ORDER BY table_type, table_name))::integer AS id,
-    initcap(replace((table_name)::text, '_'::text, ' '::text)) AS table_name,
-    (table_type)::text AS table_type
+ SELECT (row_number() OVER (ORDER BY tables.table_type, tables.table_name))::integer AS id,
+    initcap(replace((tables.table_name)::text, '_'::text, ' '::text)) AS table_name,
+    (tables.table_type)::text AS table_type
    FROM information_schema.tables
-  WHERE ((table_schema)::text = 'public'::text)
-  ORDER BY table_type, table_name;
+  WHERE ((tables.table_schema)::text = 'public'::text)
+  ORDER BY (tables.table_type)::text, (initcap(replace((tables.table_name)::text, '_'::text, ' '::text)));
 
 
 ALTER VIEW public.sys_view_tables OWNER TO ths_admin;
@@ -3471,6 +3229,13 @@ ALTER TABLE public.urt_recete_yan_urunler ALTER COLUMN id ADD GENERATED ALWAYS A
     NO MAXVALUE
     CACHE 1
 );
+
+
+--
+-- Name: als_teklif_detaylari id; Type: DEFAULT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.als_teklif_detaylari ALTER COLUMN id SET DEFAULT nextval('public.alis_teklif_detaylari_id_seq'::regclass);
 
 
 --
@@ -5511,22 +5276,6 @@ ALTER TABLE ONLY public.stk_hareketler
 
 
 --
--- Name: stk_kart_cins_bilgileri stk_kart_cins_bilgileri_cins_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_kart_cins_bilgileri
-    ADD CONSTRAINT stk_kart_cins_bilgileri_cins_id_fkey FOREIGN KEY (cins_id) REFERENCES public.stk_cins_ozellikleri(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: stk_kart_cins_bilgileri stk_kart_cins_bilgileri_stk_kart_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_kart_cins_bilgileri
-    ADD CONSTRAINT stk_kart_cins_bilgileri_stk_kart_id_fkey FOREIGN KEY (stk_kart_id) REFERENCES public.stk_kartlar(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: stk_kart_ozetleri stk_kart_ozetleri_stk_kart_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5832,20 +5581,6 @@ GRANT ALL ON SCHEMA public TO ths_admin;
 
 
 --
--- Name: FUNCTION armor(bytea); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.armor(bytea) TO ths_admin;
-
-
---
--- Name: FUNCTION armor(bytea, text[], text[]); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.armor(bytea, text[], text[]) TO ths_admin;
-
-
---
 -- Name: FUNCTION audit(); Type: ACL; Schema: public; Owner: ths_admin
 --
 
@@ -5854,285 +5589,11 @@ REVOKE ALL ON FUNCTION public.audit() FROM ths_admin;
 
 
 --
--- Name: FUNCTION crypt(text, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.crypt(text, text) TO ths_admin;
-
-
---
--- Name: FUNCTION dearmor(text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.dearmor(text) TO ths_admin;
-
-
---
--- Name: FUNCTION decrypt(bytea, bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.decrypt(bytea, bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION decrypt_iv(bytea, bytea, bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.decrypt_iv(bytea, bytea, bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION digest(bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.digest(bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION digest(text, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.digest(text, text) TO ths_admin;
-
-
---
--- Name: FUNCTION encrypt(bytea, bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.encrypt(bytea, bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION encrypt_iv(bytea, bytea, bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.encrypt_iv(bytea, bytea, bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION gen_random_bytes(integer); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.gen_random_bytes(integer) TO ths_admin;
-
-
---
--- Name: FUNCTION gen_random_uuid(); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.gen_random_uuid() TO ths_admin;
-
-
---
--- Name: FUNCTION gen_salt(text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.gen_salt(text) TO ths_admin;
-
-
---
--- Name: FUNCTION gen_salt(text, integer); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.gen_salt(text, integer) TO ths_admin;
-
-
---
--- Name: FUNCTION hmac(bytea, bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.hmac(bytea, bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION hmac(text, text, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.hmac(text, text, text) TO ths_admin;
-
-
---
 -- Name: FUNCTION personel_adsoyad(); Type: ACL; Schema: public; Owner: ths_admin
 --
 
 REVOKE ALL ON FUNCTION public.personel_adsoyad() FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.personel_adsoyad() FROM ths_admin;
-
-
---
--- Name: FUNCTION pgp_armor_headers(text, OUT key text, OUT value text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_armor_headers(text, OUT key text, OUT value text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_key_id(bytea); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_key_id(bytea) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_pub_decrypt(bytea, bytea); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_pub_decrypt(bytea, bytea) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_pub_decrypt(bytea, bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_pub_decrypt(bytea, bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_pub_decrypt(bytea, bytea, text, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_pub_decrypt(bytea, bytea, text, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_pub_decrypt_bytea(bytea, bytea); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_pub_decrypt_bytea(bytea, bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_pub_decrypt_bytea(bytea, bytea, text, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_pub_decrypt_bytea(bytea, bytea, text, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_pub_encrypt(text, bytea); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_pub_encrypt(text, bytea) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_pub_encrypt(text, bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_pub_encrypt(text, bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_pub_encrypt_bytea(bytea, bytea); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_pub_encrypt_bytea(bytea, bytea) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_pub_encrypt_bytea(bytea, bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_pub_encrypt_bytea(bytea, bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_sym_decrypt(bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_sym_decrypt(bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_sym_decrypt(bytea, text, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_sym_decrypt(bytea, text, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_sym_decrypt_bytea(bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_sym_decrypt_bytea(bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_sym_decrypt_bytea(bytea, text, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_sym_decrypt_bytea(bytea, text, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_sym_encrypt(text, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_sym_encrypt(text, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_sym_encrypt(text, text, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_sym_encrypt(text, text, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_sym_encrypt_bytea(bytea, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_sym_encrypt_bytea(bytea, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgp_sym_encrypt_bytea(bytea, text, text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgp_sym_encrypt_bytea(bytea, text, text) TO ths_admin;
-
-
---
--- Name: FUNCTION pgrowlocks(relname text, OUT locked_row tid, OUT locker xid, OUT multi boolean, OUT xids xid[], OUT modes text[], OUT pids integer[]); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.pgrowlocks(relname text, OUT locked_row tid, OUT locker xid, OUT multi boolean, OUT xids xid[], OUT modes text[], OUT pids integer[]) TO ths_admin;
-
-
---
--- Name: FUNCTION postgres_fdw_handler(); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.postgres_fdw_handler() TO ths_admin;
-
-
---
--- Name: FUNCTION postgres_fdw_validator(text[], oid); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.postgres_fdw_validator(text[], oid) TO ths_admin;
-
-
---
--- Name: FUNCTION spexists_hesap_kodu(phesap_kodu text); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.spexists_hesap_kodu(phesap_kodu text) FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spexists_hesap_kodu(phesap_kodu text) TO ths_admin;
-
-
---
--- Name: FUNCTION spget_crypted_data(pval text); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.spget_crypted_data(pval text) TO ths_admin;
 
 
 --
@@ -6149,14 +5610,6 @@ GRANT ALL ON FUNCTION public.spget_lang_text(pdefault_value text, ptable_name te
 
 REVOKE ALL ON FUNCTION public.spget_lang_text(_default_value text, _table_name text, _column_name text, _data_col text, _lang text) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.spget_lang_text(_default_value text, _table_name text, _column_name text, _data_col text, _lang text) TO ths_admin;
-
-
---
--- Name: FUNCTION spget_prs_personel_id_list(); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.spget_prs_personel_id_list() FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spget_prs_personel_id_list() TO ths_admin;
 
 
 --
@@ -6212,29 +5665,6 @@ GRANT ALL ON FUNCTION public.spget_sys_lang_id(planguage text) TO ths_admin;
 --
 
 GRANT ALL ON FUNCTION public.spget_sys_quality_form_type_id(ptype integer) TO ths_admin;
-
-
---
--- Name: FUNCTION spget_sys_user_id_list(); Type: ACL; Schema: public; Owner: ths_admin
---
-
-REVOKE ALL ON FUNCTION public.spget_sys_user_id_list() FROM PUBLIC;
-
-
---
--- Name: FUNCTION spget_year_week(pdate date, pseparate character varying, pis_year_first boolean); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.spget_year_week(pdate date, pseparate character varying, pis_year_first boolean) FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spget_year_week(pdate date, pseparate character varying, pis_year_first boolean) TO ths_admin;
-
-
---
--- Name: FUNCTION spset_user_password(oldpass text, newpass text, userid integer); Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON FUNCTION public.spset_user_password(oldpass text, newpass text, userid integer) FROM PUBLIC;
-GRANT ALL ON FUNCTION public.spset_user_password(oldpass text, newpass text, userid integer) TO ths_admin;
 
 
 --

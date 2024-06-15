@@ -183,7 +183,7 @@ inherited frmGiris: TfrmGiris
     Width = 484
     Height = 166
     ExplicitWidth = 484
-    ExplicitHeight = 337
+    ExplicitHeight = 166
     object lblkullanici_adi: TLabel
       Left = 91
       Top = 5
@@ -484,7 +484,7 @@ inherited frmGiris: TfrmGiris
     Top = 168
     Width = 480
     TabOrder = 2
-    ExplicitTop = 339
+    ExplicitTop = 168
     ExplicitWidth = 480
     inherited btnAccept: TButton
       Left = 274
@@ -501,7 +501,7 @@ inherited frmGiris: TfrmGiris
   inherited stbBase: TStatusBar
     Top = 198
     Width = 484
-    ExplicitTop = 369
+    ExplicitTop = 198
     ExplicitWidth = 484
   end
   object pb1: TProgressBar [3]

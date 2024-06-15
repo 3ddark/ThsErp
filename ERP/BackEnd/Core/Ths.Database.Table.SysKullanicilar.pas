@@ -5,16 +5,11 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
-  Ths.Database, Ths.Database.Table, Ths.Database.Table.PrsPersoneller;
+  System.SysUtils, System.Hash, Data.DB, FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet, Ths.Database, Ths.Database.Table;
 
 type
-  TKullaniciStruct = record
-    KullaniciAdi: string;
-    UserID: Integer;
-  end;
-
-  TUserList = TArray<TKullaniciStruct>;
+  TLoginStatus = (UserNotFound=-1, InactiveUser=-2, InvalidAppVersion=-3, InvalidPassword=-4);
 
   TSysKullanici = class(TTable)
   private
@@ -39,9 +34,10 @@ type
 
     function Clone: TTable; override;
 
-    procedure CopyUserRightFromUser(AFromUserID: Integer);
     procedure CopyFromRights(FromUserID, ToUserID: Integer);
-    function getActiveUsers(): TUserList;
+
+    class function Login(AUserName, APassword: string): Int64;
+    function ChangePassword(ANewPassword: string): Boolean;
 
     property KullaniciAdi: TFieldDB read FKullaniciAdi write FKullaniciAdi;
     property KullaniciSifre: TFieldDB read FKullaniciSifre write FKullaniciSifre;
@@ -58,7 +54,8 @@ implementation
 
 uses
   Ths.Globals, Ths.Constants, Ths.Database.Table.SysErisimHaklari,
-  Ths.Database.Table.SysKaynaklar;
+  Ths.Database.Table.SysKaynaklar, Ths.Database.Table.PrsPersoneller,
+  Ths.Database.Table.SysUygulamaAyarlari;
 
 constructor TSysKullanici.Create(ADatabase: TDatabase);
 var
@@ -84,25 +81,6 @@ begin
   end;
 end;
 
-function TSysKullanici.getActiveUsers: TUserList;
-var
-  LKullanici: TSysKullanici;
-  n1: Integer;
-begin
-  LKullanici := TSysKullanici.Create(Database);
-  try
-    LKullanici.SelectToList(' AND ' + LKullanici.FIsAktif.QryName + '=True', False, False);
-    SetLength(Result, LKullanici.List.Count);
-    for n1 := 0 to LKullanici.List.Count-1 do
-    begin
-      Result[n1].KullaniciAdi := TSysKullanici(LKullanici.List[n1]).FKullaniciAdi.Value;
-      Result[n1].UserID := TSysKullanici(LKullanici.List[n1]).Id.Value;
-    end;
-  finally
-    LKullanici.Free;
-  end;
-end;
-
 procedure TSysKullanici.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
 var
   LEmployee: TPrsPersonel;
@@ -118,7 +96,7 @@ begin
       Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
         Id.QryName,
         FKullaniciAdi.QryName,
-        'cast(' + FKullaniciSifre.QryName + ' as varchar(256)) ' + FKullaniciSifre.AsString,
+        FKullaniciSifre.QryName,
         FIsAktif.QryName,
         FIsYonetici.QryName,
         FIsSuperKullanici.QryName,
@@ -155,7 +133,7 @@ begin
       Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
         Id.QryName,
         FKullaniciAdi.QryName,
-        'cast(' + FKullaniciSifre.QryName + ' as varchar(256)) ' + FKullaniciSifre.FieldName,
+        FKullaniciSifre.QryName,
         FIsAktif.QryName,
         FIsYonetici.QryName,
         FIsSuperKullanici.QryName,
@@ -201,8 +179,6 @@ begin
       FMacAdres.FieldName,
       FPersonelID.FieldName
     ]);
-
-    FKullaniciSifre.Value := getCryptedData(FKullaniciSifre.Value);
 
     PrepareInsertQueryParams(LQry);
 
@@ -272,54 +248,6 @@ begin
   CloneClassContent(Self, Result);
 end;
 
-procedure TSysKullanici.CopyUserRightFromUser(AFromUserID: Integer);
-var
-  LAccessRight: TSysErisimHakki;
-  LResource: TSysKaynak;
-  LQry: TFDQuery;
-begin
-  LAccessRight := TSysErisimHakki.Create(Database);
-  LResource := TSysKaynak.Create(Database);
-  LQry := DataBase.NewQuery();
-  Database.Connection.StartTransaction;
-  try
-    try
-      //geçerli kullanýcýya ait tüm eriþim haklarý siliniyor
-      LQry.SQL.Text := 'DELETE FROM ' + LAccessRight.TableName + ' WHERE ' + LAccessRight.KullaniciID.QryName + '=' + Id.AsString;
-      LQry.ExecSQL;
-
-      //hakalarýn kopyalanacaðý kullanýcýdan tüm haklar mevcut kullanýcý için insert ediliyor.
-      LQry.SQL.Text :=
-        'INSERT INTO ' + LAccessRight.TableName + ' (' +
-          LAccessRight.KaynakID.FieldName + ', ' +
-          LAccessRight.IsOkuma.FieldName + ', ' +
-          LAccessRight.IsEkleme.FieldName + ', ' +
-          LAccessRight.IsGuncelleme.FieldName + ', ' +
-          LAccessRight.IsSilme.FieldName + ', ' +
-          LAccessRight.IsOzel.FieldName + ', ' +
-          LAccessRight.KullaniciID.FieldName + ') ' +
-        '(SELECT ' +
-            't2.' + LAccessRight.KaynakID.FieldName + ', ' +
-            't2.' + LAccessRight.IsOkuma.FieldName + ', ' +
-            't2.' + LAccessRight.IsEkleme.FieldName + ', ' +
-            't2.' + LAccessRight.IsGuncelleme.FieldName + ', ' +
-            't2.' + LAccessRight.IsSilme.FieldName + ', ' +
-            't2.' + LAccessRight.IsOzel.FieldName + ', ' +
-            IntToStr(Self.Id.Value) + ' FROM ' + LAccessRight.TableName + ' as t2 )';
-      LQry.ExecSQL;
-      if Database.Connection.InTransaction then
-        Database.Connection.Commit;
-    finally
-      LAccessRight.Free;
-      LResource.Free;
-      LQry.Free;
-    end;
-  except
-    if Database.Connection.InTransaction then
-      Database.Connection.Rollback;
-  end;
-end;
-
 procedure TSysKullanici.CopyFromRights(FromUserID, ToUserID: Integer);
 var
   LQry: TFDQuery;
@@ -342,6 +270,77 @@ begin
   finally
     LQry.Free;
     LAccessRight.Free;
+  end;
+end;
+
+class function TSysKullanici.Login(AUserName, APassword: string): Int64;
+var
+  LUygulamaAyari: TSysUygulamaAyari;
+  LUser: TSysKullanici;
+  LHashPassword: string;
+begin
+  LUygulamaAyari := TSysUygulamaAyari.Create(GDataBase);
+  LUser := TSysKullanici.Create(GDataBase);
+  try
+    LUygulamaAyari.SelectToList('', False, False);
+    LUser.SelectToList(' AND ' + LUser.KullaniciAdi.QryName + '=' + QuotedStr(AUserName), False, False);
+
+    Result := Ord(TLoginStatus.UserNotFound);
+    if LUser.List.Count = 1 then
+    begin
+      if TSysKullanici(LUser.List[0]).IsAktif.AsBoolean then
+      begin
+        if LUygulamaAyari.Versiyon.AsString <> APP_VERSION then
+        begin
+          Result := Ord(TLoginStatus.InvalidAppVersion);
+          Exit;
+        end;
+
+        LHashPassword := THashSHA2.GetHMAC(APassword, APP_KEY);
+        if TSysKullanici(LUser.List[0]).KullaniciSifre.AsString <> LHashPassword then
+        begin
+          Result := Ord(TLoginStatus.InvalidPassword);
+          Exit;
+        end;
+
+        Result := LUser.Id.AsInt64;
+      end
+      else
+      begin
+        Result := Ord(TLoginStatus.InactiveUser);
+        Exit;
+      end;
+    end;
+  finally
+    LUygulamaAyari.Free;
+    LUser.Free;
+  end;
+end;
+
+function TSysKullanici.ChangePassword(ANewPassword: string): Boolean;
+var
+  LQry: TFDQuery;
+  LHashPassword: string;
+begin
+  Result := True;
+  try
+    LHashPassword := THashSHA2.GetHMAC(ANewPassword, APP_KEY);
+
+    LQry := DataBase.NewQuery();
+    try
+      LQry.SQL.Clear;
+      LQry.SQL.Text :=
+        'UPDATE ' + Self.TableName + ' SET ' + Self.FKullaniciSifre.FieldName + '=' + QuotedStr(LHashPassword) +
+        ' WHERE ' + Self.Id.FieldName + '=' + IntToStr(Self.Id.AsInt64);
+      LQry.ExecSQL;
+    finally
+      LQry.Free;
+    end;
+
+    if Self.Id.AsInt64 = GSysKullanici.Id.AsInt64 then
+      GSysKullanici.SelectToList(' AND ' + GSysKullanici.Id.QryName + '=' + Self.Id.AsString, False, False);
+  except
+    Result := False;
   end;
 end;
 

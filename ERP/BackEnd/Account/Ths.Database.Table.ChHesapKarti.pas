@@ -238,7 +238,7 @@ begin
       FEFaturaPBName.QryName,
       FAdresID.QryName,
       FPasif.QryName,
-      FChHesapPlani.TableName + '.' + FSeviyeSayisi.FieldName
+      FChHesapPlani.Seviye.QryName
     ], [
       addLeftJoin(FHesapTipi.FieldName, FHesapTipiID.FieldName, FSetChHesapTipi.TableName),
       addLeftJoin(FGrup.FieldName, FGrupID.FieldName, FChGrup.TableName),
@@ -299,7 +299,7 @@ begin
       FEFaturaPBName.QryName,
       FAdresID.QryName,
       FPasif.QryName,
-      FChHesapPlani.TableName + '.' + FSeviyeSayisi.FieldName
+      FChHesapPlani.Seviye.QryName
     ], [
       addLeftJoin(FHesapTipi.FieldName, FHesapTipiID.FieldName, FSetChHesapTipi.TableName),
       addLeftJoin(FGrup.FieldName, FGrupID.FieldName, FChGrup.TableName),

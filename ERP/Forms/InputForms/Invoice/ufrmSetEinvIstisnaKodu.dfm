@@ -6,10 +6,9 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
   ClientHeight = 196
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 350
-  ExplicitHeight = 225
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 360
+  ExplicitHeight = 235
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 344
     Height = 146
@@ -23,13 +22,14 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
       ExplicitWidth = 338
       ExplicitHeight = 143
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 336
-        ExplicitHeight = 118
+        ExplicitHeight = 117
         object lblkod: TLabel
-          Left = 83
+          Left = 85
           Top = 6
-          Width = 23
-          Height = 13
+          Width = 21
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Kod'
@@ -42,10 +42,10 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
           ParentFont = False
         end
         object lblaciklama: TLabel
-          Left = 54
+          Left = 56
           Top = 28
-          Width = 52
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'A'#231#305'klama'
@@ -58,10 +58,10 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
           ParentFont = False
         end
         object lblfatura_tipi_id: TLabel
-          Left = 44
+          Left = 49
           Top = 50
-          Width = 62
-          Height = 13
+          Width = 57
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Fatura Tipi'
@@ -74,10 +74,10 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
           ParentFont = False
         end
         object lblis_tam_istisna: TLabel
-          Left = 33
+          Left = 36
           Top = 72
-          Width = 73
-          Height = 13
+          Width = 70
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Tam '#304'stisna?'

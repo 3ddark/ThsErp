@@ -1,4 +1,4 @@
-unit Logger;
+ï»¿unit Logger;
 
 interface
 
@@ -34,7 +34,7 @@ var
   PID: DWORD;
 begin
   if AFileName = '' then
-    raise Exception.Create('Log dosyasý adý zorunludur!!!');
+    raise Exception.Create('Log dosyasÄ± adÄ± zorunludur!!!');
   FLogFileName := ExtractFilePath(Application.ExeName) + PathDelim + AFileName + '.log';
 
   FProcessID := '';

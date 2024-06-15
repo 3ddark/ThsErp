@@ -8,10 +8,5 @@ inherited frmStkKartlar: TfrmStkKartlar
     inherited splHeader: TSplitter
       ExplicitWidth = 791
     end
-    inherited pnlHeader: TPanel
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
-    end
   end
 end

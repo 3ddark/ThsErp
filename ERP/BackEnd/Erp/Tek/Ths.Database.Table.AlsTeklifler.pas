@@ -50,8 +50,6 @@ type
     FReferansAnaUrunID: TFieldDB;
     FGtipNo: TFieldDB;
   published
-    FStokResim: TFieldDB;
-
     FStkStokKarti: TStkKart;
     constructor Create(ADatabase: TDatabase; ATeklif: TAlsTeklif = nil); reintroduce; overload;
     destructor Destroy; override;
@@ -89,7 +87,6 @@ type
     Property IsAnaUrun: TFieldDB read FIsAnaUrun write FIsAnaUrun;
     Property ReferansAnaUrunID: TFieldDB read FReferansAnaUrunID write FReferansAnaUrunID;
     Property GtipNo: TFieldDB read FGtipNo write FGtipNo;
-    Property StokResim: TFieldDB read FStokResim write FStokResim;
   end;
 
   TAlsTeklif = class(TTableDetailed)
@@ -270,7 +267,6 @@ begin
   FIsAnaUrun := TFieldDB.Create('is_ana_urun', ftBoolean, 0, Self, '');
   FReferansAnaUrunID := TFieldDB.Create('referans_ana_urun_id', ftInteger, 0, Self, '');
   FGtipNo := TFieldDB.Create('gtip_no', ftWideString, '', Self, '');
-  FStokResim := TFieldDB.Create(FStkStokKarti.Resim.FieldName, FStkStokKarti.Resim.DataType, FStkStokKarti.Resim.Value, Self, 'Resim');
 
   PrepareTableRequiredValues;
 end;
@@ -312,8 +308,7 @@ begin
       FToplamTutar.QryName,
       FIsAnaUrun.QryName,
       FReferansAnaUrunID.QryName,
-      FGtipNo.QryName,
-      addField(FStkStokKarti.TableName, FStkStokKarti.Resim.FieldName, FStokResim.FieldName)
+      FGtipNo.QryName
     ], [
       addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
       ' WHERE 1=1 ', AFilter
@@ -357,8 +352,7 @@ begin
       FToplamTutar.QryName,
       FIsAnaUrun.QryName,
       FReferansAnaUrunID.QryName,
-      FGtipNo.QryName,
-      addField(FStkStokKarti.TableName, FStkStokKarti.Resim.FieldName, FStokResim.FieldName)
+      FGtipNo.QryName
     ], [
       addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
       ' WHERE 1=1 ', AFilter

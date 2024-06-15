@@ -286,13 +286,12 @@ end;
 function TMemo.UpCaseTr(pKey: Char): Char;
 begin
   case pKey of
-    'ý': pKey := 'I';
-    'i': pKey := 'Ý';
-    'ð': pKey := 'Ð';
-    'ü': pKey := 'Ü';
-    'þ': pKey := 'Þ';
-    'ö': pKey := 'Ö';
-    'ç': pKey := 'Ç';
+    'Ä±': pKey := 'I';
+    'i': pKey := 'Ä°';
+    'ÄŸ': pKey := 'Äž';
+    'Ã¼': pKey := 'Ãœ';
+    'ÅŸ': pKey := 'Åž';
+    'Ã§': pKey := 'Ã‡';
   else
     pKey := UpCase(pKey);
   end;
@@ -307,13 +306,12 @@ end;
 function TMemo.LowCaseTr(pKey: Char): Char;
 begin
   case pKey of
-    'I': pKey := 'ý';
-    'Ý': pKey := 'i';
-    'Ð': pKey := 'ð';
-    'Ü': pKey := 'ü';
-    'Þ': pKey := 'þ';
-    'Ö': pKey := 'ö';
-    'Ç': pKey := 'ç';
+    'I': pKey := 'Ä±';
+    'Ä°': pKey := 'i';
+    'Äž': pKey := 'ÄŸ';
+    'Ãœ': pKey := 'Ã¼';
+    'Åž': pKey := 'ÅŸ';
+    'Ã‡': pKey := 'Ã§';
   else
     pKey := LowCase(pKey);
   end;
@@ -393,7 +391,7 @@ begin
     Self.Modified := true;
   end;
 
-  //Tümünü seçip yazarsa eski bilgiyi temizle
+  //Tï¿½mï¿½nï¿½ seï¿½ip yazarsa eski bilgiyi temizle
   if (Length(Self.Text) = Self.SelLength) and (CharInSet(pKey, [#8, '0'..'9', FormatSettings.DecimalSeparator])) then
     Self.Clear;
 
@@ -401,7 +399,7 @@ begin
   if (Length(Self.Text) > Self.SelStart) and (pKey <> #13) then
     pKey := #0;
 
-  //tanýmlý tuþlar harici tuþlar girilmez veya seperator sadece bir kere girilebilir
+  //tanï¿½mlï¿½ tuï¿½lar harici tuï¿½lar girilmez veya seperator sadece bir kere girilebilir
   if not CharInSet(pKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then
   begin
     pKey := #0;
@@ -590,7 +588,7 @@ begin
     Self.SetFocus;
 
     if FMesaj = '' then
-      FMesaj := 'Hatalý tarih giriþi';
+      FMesaj := 'Hatalï¿½ tarih giriï¿½i';
     Raise Exception.Create(FMesaj);
   end;
 end;
@@ -613,7 +611,7 @@ begin
   if (Length(Self.Text) = Self.SelLength) and (pKey <> #13) then
     Self.Clear;
 
-  //tanýmlý tuþlar harici tuþlar girilmez veya seperator sadece bir kere girilebilir
+  //tanï¿½mlï¿½ tuï¿½lar harici tuï¿½lar girilmez veya seperator sadece bir kere girilebilir
   if (pKey = FormatSettings.DecimalSeparator) and (Pos(pKey, Self.Text) > 0) then
     pKey := #0
   else if not CharInSet(pKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then
