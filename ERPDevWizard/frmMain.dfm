@@ -32,6 +32,7 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     Height = 299
     Align = alTop
     TabOrder = 0
+    ExplicitWidth = 1188
     object Splitter3: TSplitter
       Left = 460
       Top = 1
@@ -523,6 +524,8 @@ object frmMainClassGenerator: TfrmMainClassGenerator
     ActivePage = tsClass
     Align = alClient
     TabOrder = 1
+    ExplicitWidth = 1188
+    ExplicitHeight = 306
     object tsClass: TTabSheet
       Caption = 'Class Section'
       object mmoClass: TMemo
@@ -535,6 +538,8 @@ object frmMainClassGenerator: TfrmMainClassGenerator
         ScrollBars = ssBoth
         TabOrder = 0
         OnKeyDown = mmoKeyDown
+        ExplicitWidth = 1174
+        ExplicitHeight = 226
       end
       object pnlClass: TPanel
         AlignWithMargins = True
@@ -544,6 +549,8 @@ object frmMainClassGenerator: TfrmMainClassGenerator
         Height = 40
         Align = alBottom
         TabOrder = 1
+        ExplicitTop = 235
+        ExplicitWidth = 1174
         object btnAddClassToMemo: TButton
           AlignWithMargins = True
           Left = 1097
@@ -554,6 +561,7 @@ object frmMainClassGenerator: TfrmMainClassGenerator
           Caption = 'Add Memo'
           TabOrder = 0
           OnClick = btnAddClassToMemoClick
+          ExplicitLeft = 1095
         end
       end
     end

@@ -1,9 +1,9 @@
-unit Ths.Orm.ManagerStack;
+﻿unit Ths.Orm.ManagerStack;
 
 interface
 
 uses
-  Ths.Orm.Manager;
+  Ths.Orm.Manager, System.Generics.Collections;
 
 type
   TManagerStack = class
@@ -13,7 +13,8 @@ type
   end;
 
 var
-  ManagerApp: TEntityManager;
+  DbContext: TObjectList<TEntityManager>;
+  AppDbContext: TEntityManager;
 
 implementation
 
@@ -21,18 +22,22 @@ implementation
 
 destructor TManagerStack.Destroy;
 begin
-  ManagerApp.Free;
+  AppDbContext.Free;
   inherited;
 end;
 
 class procedure TManagerStack.prepareManager(AHostName, ADatabase, AUserName, AUserPass, ALibraryPath: string; APort: Integer);
 begin
-  ManagerApp := TEntityManager.Create(AHostName, ADatabase, AUserName, AUserPass, ALibraryPath, APort);
+  if DbContext = nil then
+    DbContext := TObjectList<TEntityManager>.Create;
+
+  DbContext.Add(TEntityManager.Create(AHostName, ADatabase, AUserName, AUserPass, ALibraryPath, APort));
+  AppDbContext := DbContext.Items[0];
 end;
 
 initialization
 
 finalization
-  ManagerApp.Free;
+  DbContext.Free;
 
 end.

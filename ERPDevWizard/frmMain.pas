@@ -451,7 +451,7 @@ begin
       cbbtable_name.Enabled := True;
       FillTable;
     except
-      ShowMessage('Veri tabaný ile baðlantý kurulmadý! Lütfen ayarlarýnýzý kontrol edin.');
+      ShowMessage('Veri tabanï¿½ ile baï¿½lantï¿½ kurulmadï¿½! Lï¿½tfen ayarlarï¿½nï¿½zï¿½ kontrol edin.');
     end;
   end
   else
@@ -1133,13 +1133,13 @@ begin
     vFileDPR := TStringList.Create;
     try
       vFileDPR.LoadFromFile(edtMainProjectDirectory.Text);
-      //projede kullanýlan dosyalardan sonraki son satýr numarasýný bul
+      //projede kullanï¿½lan dosyalardan sonraki son satï¿½r numarasï¿½nï¿½ bul
       n1 := vFileDPR.IndexOf('{$R *.res}');
 
-      //son elemanýn noktalý virgül bilgisini virgüle çevir.
+      //son elemanï¿½n noktalï¿½ virgï¿½l bilgisini virgï¿½le ï¿½evir.
       vFileDPR.Strings[n1-2] := LeftStr(vFileDPR.Strings[n1-2], Length(vFileDPR.Strings[n1-2])-1) + ',';
 
-      //eklenen sýnýf, output ve input formlarýný projeye dahil et
+      //eklenen sï¿½nï¿½f, output ve input formlarï¿½nï¿½ projeye dahil et
       vFileDPR.Insert(n1-1, '  ' + edtInputFormName.Text + ' in ''Forms\InputForms\' + edtInputFormName.Text + '.pas'' {' + MidStr(edtInputFormName.Text, 2, Length(edtInputFormName.Text)) + '};');
       vFileDPR.Insert(n1-1, '  ' + edtOutputFormName.Text + ' in ''Forms\OutputForms\DbGrid\' + edtOutputFormName.Text + '.pas'' {' + MidStr(edtOutputFormName.Text, 2, Length(edtOutputFormName.Text)) + '},');
       vFileDPR.Insert(n1-1, '  ' + PROJECT_UNITNAME + edtClassType.Text + ' in ''BackEnd\' + PROJECT_UNITNAME + edtClassType.Text + '.pas'',');

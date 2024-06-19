@@ -1,4 +1,4 @@
-unit Ths.Database.Table.BbkKayit;
+ï»¿unit Ths.Database.Table.BbkKayit;
 
 interface
 
@@ -126,7 +126,7 @@ begin
   FSysUlke := TSysUlke.Create(Database);
   FSysBolge := TSysBolge.Create(Database);
 
-  FFirmaAdi := TFieldDB.Create('firma_adi', ftWideString, '', Self, 'Firma Adý');
+  FFirmaAdi := TFieldDB.Create('firma_adi', ftWideString, '', Self, 'Firma Adï¿½');
   FTel1 := TFieldDB.Create('tel1', ftWideString, '', Self, 'Tel1');
   FTel2 := TFieldDB.Create('tel2', ftWideString, '', Self, 'Tel2');
   FTel3 := TFieldDB.Create('tel3', ftWideString, '', Self, 'Tel3');
@@ -140,21 +140,21 @@ begin
   FYetkili2Tel := TFieldDB.Create('yetkili2_tel', ftWideString, '', Self, 'Yetkili 2 Tel');
   FYetkili2Email := TFieldDB.Create('yetkili2_email', ftWideString, '', Self, 'Yetkili 2 Mail');
   FAdres := TFieldDB.Create('adres', ftWideString, '', Self, 'Adres');
-  FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Þehir ID');
-  FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, '', Self, 'Þehir');
-  FUlkeID := TFieldDB.Create('ulke_id', FSysSehir.UlkeID.DataType, 0, Self, 'Ülke Adý ID');
-  FUlke := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, '', Self, 'Ülke');
-  FBolgeID := TFieldDB.Create('bolge_id', FSysSehir.BolgeID.DataType, 0, Self, 'Bölge Adý ID');
-  FBolge := TFieldDB.Create(FSysSehir.Bolge.FieldName, FSysSehir.Bolge.DataType, '', Self, 'Bölge');
+  FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Åžehir ID');
+  FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, '', Self, 'Åžehir');
+  FUlkeID := TFieldDB.Create('ulke_id', FSysSehir.UlkeID.DataType, 0, Self, 'Ãœlke AdÄ± ID');
+  FUlke := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, '', Self, 'Ãœlke');
+  FBolgeID := TFieldDB.Create('bolge_id', FSysSehir.BolgeID.DataType, 0, Self, 'BÃ¶lge AdÄ± ID');
+  FBolge := TFieldDB.Create(FSysSehir.Bolge.FieldName, FSysSehir.Bolge.DataType, '', Self, 'BÃ¶lge');
   FNot1 := TFieldDB.Create('not1', ftWideString, '', Self, 'Not 1');
   FNot2 := TFieldDB.Create('not2', ftWideString, '', Self, 'Not 2');
   FFirmaTipiID := TFieldDB.Create('firma_tipi_id', ftInteger, 0, Self, 'Firma Tipi ID');
   FFirmaTipi := TFieldDB.Create(FBbkFirmaTipi.FirmaTipi.FieldName, FBbkFirmaTipi.FirmaTipi.DataType, '', Self, 'Firma Tipi');
   FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftWideString, '', Self, 'Vergi D.');
   FVergiNumarasi := TFieldDB.Create('vergi_numarasi', ftWideString, '', Self, 'Vergi No');
-  FKacYillikFirma := TFieldDB.Create('kac_yillik_firma', ftInteger, 0, Self, 'Kaç Yýllýk Firma');
-  FCalismaDurumuId := TFieldDB.Create('calisma_durumu_id', ftInteger, 0, Self, 'Çalýþma Durumu ID');
-  FCalismaDurumu := TFieldDB.Create(FBbkCalismaDurumu.CalismaDurumu.FieldName, FBbkCalismaDurumu.CalismaDurumu.DataType, '', Self, 'Çalýþma Durumu');
+  FKacYillikFirma := TFieldDB.Create('kac_yillik_firma', ftInteger, 0, Self, 'KaÃ§ YÄ±llÄ±k Firma');
+  FCalismaDurumuId := TFieldDB.Create('calisma_durumu_id', ftInteger, 0, Self, 'Ã‡alÄ±ÅŸma Durumu ID');
+  FCalismaDurumu := TFieldDB.Create(FBbkCalismaDurumu.CalismaDurumu.FieldName, FBbkCalismaDurumu.CalismaDurumu.DataType, '', Self, 'Ã‡alÄ±ÅŸma Durumu');
   FFinansDurumuID := TFieldDB.Create('finans_durumu_id', ftInteger, 0, Self, 'Finans Durumu ID');
   FFinansDurumu := TFieldDB.Create(FBbkFinansDurumu.FinansDurumu.FieldName, FBbkFinansDurumu.FinansDurumu.DataType, '', Self, 'Finans Durumu');
   FSevkiyatYetkilisi := TFieldDB.Create('sevkiyat_yetkilisi', ftWideString, '', Self, 'Sevkiyat Yetkilisi');

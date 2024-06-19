@@ -12,7 +12,7 @@ uses
   Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.Dialogs,
   Vcl.ToolWin, Vcl.ImgList, Vcl.StdActns, Vcl.CategoryButtons, Vcl.WinXCtrls,
   Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
-  Ths.Utils.InfoWindow, udm, ufrmBase, ufrmBaseDBGrid,
+  Ths.Utils.InfoWindow, udm, ufrmBase, ufrmBaseDBGrid, ufrmGrid,
   Ths.Database.TableDetailed, Ths.Database.Table;
 
 type
@@ -156,6 +156,7 @@ type
     actch_banka_subeleri: TAction;
     actset_prs_tasima_servisleri: TAction;
     mniset_prs_tasima_servisleri: TMenuItem;
+    Button1: TButton;
 
 /// <summary>
 ///   Kullanıcının erişim yetkisine göre yapılacak işlemler burada olacak
@@ -248,6 +249,7 @@ type
     procedure actch_bankalarExecute(Sender: TObject);
     procedure actch_banka_subeleriExecute(Sender: TObject);
     procedure actset_prs_tasima_servisleriExecute(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     FIsFormShow: Boolean;
   published
@@ -355,6 +357,7 @@ uses
   Ths.Database.Table.StkKartlar, ufrmStkKartlar,
   Ths.Database.Table.StkStokHareketi, ufrmStkStokHareketleri,
   Ths.Database.Table.StkAmbarlar, ufrmStkStokAmbarlar,
+  Ths.Orm.Table.StkAmbarlar,
 
   Ths.Database.Table.OthMailReciever, ufrmOthMailRecievers,
   Ths.Database.Table.SetOdemeBaslangicDonemi, ufrmSetOdemeBaslangicDonemleri,
@@ -677,7 +680,7 @@ end;
 
 procedure TfrmDashboard.actsys_monthExecute(Sender: TObject);
 begin
-  TfrmSysAylar.Create(Self, Self, TSysAy.Create(GDataBase), fomNormal).Show;
+//  TfrmSysAylar.Create(Self, Self, TSysAy.Create(), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actsys_regionExecute(Sender: TObject);
@@ -776,6 +779,11 @@ procedure TfrmDashboard.btnCloseClick(Sender: TObject);
 begin
   if CustomMsgDlg('Uygulama sonlandırılacak. Devam etmek istediğine emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayır'], mbNo, 'Onay') = mrYes then
     inherited;
+end;
+
+procedure TfrmDashboard.Button1Click(Sender: TObject);
+begin
+  TfrmGrid<TStkAmbar1>.Create(Self, TStkAmbar1.Create, TStkAmbar1.GetSelectSQL).ShowModal;
 end;
 
 procedure TfrmDashboard.tmrcheck_is_update_requiredTimer(Sender: TObject);
@@ -1243,6 +1251,7 @@ begin
             btnstk_cins_ozelligi.Enabled := True;
             btnstk_stok_ambar.Enabled := True;
             btnstk_stok_grubu.Enabled := True;
+            Button1.Enabled := True;
           end;
         end
         //Reçete

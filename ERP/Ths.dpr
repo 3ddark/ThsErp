@@ -277,7 +277,8 @@ uses
   SynCrypto in 'BackEnd\Tools\SynPDF\SynCrypto.pas',
   Ths.Utils.TCMBDovizKuru in 'BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas',
   Ths.Utils.InternetConnection in 'BackEnd\Tools\Ths.Utils.InternetConnection.pas',
-  Ths.Utils.DatabaseTools in 'BackEnd\Tools\Ths.Utils.DatabaseTools.pas';
+  Ths.Utils.DatabaseTools in 'BackEnd\Tools\Ths.Utils.DatabaseTools.pas',
+  ufrmGrid in 'Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas';
 
 {$R *.res}
 

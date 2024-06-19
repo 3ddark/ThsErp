@@ -15,7 +15,7 @@ inherited frmDashboard: TfrmDashboard
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
   ExplicitWidth = 931
-  ExplicitHeight = 509
+  ExplicitHeight = 514
   TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
@@ -27,6 +27,7 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 913
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
@@ -55,22 +56,22 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 402
-    ExplicitWidth = 911
+    ExplicitTop = 394
+    ExplicitWidth = 909
     inherited btnAccept: TButton
       Left = 705
-      ExplicitLeft = 705
+      ExplicitLeft = 703
     end
     inherited btnClose: TButton
       Left = 809
-      ExplicitLeft = 809
+      ExplicitLeft = 807
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 432
     Width = 915
-    ExplicitTop = 432
-    ExplicitWidth = 915
+    ExplicitTop = 424
+    ExplicitWidth = 913
   end
   inherited pnlMain: TPanel [3]
     Top = 40
@@ -78,17 +79,19 @@ inherited frmDashboard: TfrmDashboard
     Height = 360
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 915
-    ExplicitHeight = 360
+    ExplicitWidth = 913
+    ExplicitHeight = 352
     object PageControl1: TPageControl
       Left = 0
       Top = 0
       Width = 915
       Height = 360
-      ActivePage = tsaccounting
+      ActivePage = tsstock
       Align = alClient
       MultiLine = True
       TabOrder = 0
+      ExplicitWidth = 913
+      ExplicitHeight = 352
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton
@@ -273,6 +276,24 @@ inherited frmDashboard: TfrmDashboard
           ParentFont = False
           TabOrder = 2
           WordWrap = True
+        end
+        object Button1: TButton
+          Left = 638
+          Top = 2
+          Width = 150
+          Height = 36
+          Caption = 'Ambarlar'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ImageIndex = 73
+          Images = dm.il32
+          ParentFont = False
+          TabOrder = 5
+          WordWrap = True
+          OnClick = Button1Click
         end
       end
       object tsaccount: TTabSheet
@@ -531,10 +552,6 @@ inherited frmDashboard: TfrmDashboard
         end
       end
     end
-  end
-  inherited AppEvntsBase: TApplicationEvents
-    Left = 504
-    Top = 240
   end
   object actlstMain: TActionList
     Images = dm.il16

@@ -7,9 +7,9 @@ interface
 uses
   System.SysUtils, System.Classes, System.Generics.Collections, Vcl.Controls,
   Vcl.Forms, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Dialogs, Vcl.Graphics,
-  Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Menus, Vcl.Imaging.pngimage,
-  Winapi.Windows, FireDAC.Comp.Client, Ths.Helper.Edit, Ths.Helper.ComboBox, udm,
-  ufrmBase, Ths.Database.Connection.Settings;
+  Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Menus, Vcl.Themes, Vcl.Styles,
+  Vcl.Imaging.pngimage, Winapi.Windows, FireDAC.Comp.Client,
+  Ths.Helper.Edit, Ths.Helper.ComboBox, udm, ufrmBase, Ths.Database.Connection.Settings;
 
 type
   TfrmGiris = class(TfrmBase)
@@ -61,7 +61,7 @@ const
 implementation
 
 uses
-  Vcl.Themes, Vcl.Styles, Ths.Globals, Ths.Constants, Ths.Database,
+  Ths.Orm.ManagerStack, Ths.Globals, Ths.Constants, Ths.Database,
   Ths.Database.Table, Ths.Database.Table.SysKullanicilar,
   Ths.Database.Table.SysGuiIcerikler, Ths.Database.Table.SysOndalikHaneler,
   Ths.Database.Table.SysUygulamaAyarlari, Ths.Database.Table.SysParaBirimleri,
@@ -112,11 +112,14 @@ begin
 
       GDataBase.ConfigureConnection(ConnSetting.SQLServer, ConnSetting.DatabaseName, ConnSetting.DBUserName, ConnSetting.DBUserPassword, ConnSetting.DBPortNo);
       GDataBase.Connection.Open;
+
+      TManagerStack.prepareManager(ConnSetting.SQLServer, ConnSetting.DatabaseName, ConnSetting.DBUserName, ConnSetting.DBUserPassword, '', ConnSetting.DBPortNo);
+      AppDbContext.SetPostgresServerVariable('ths.user_name', edtkullanici_adi.Text);
     except
       on E: Exception do
       begin
         ModalResult := mrNone;
-        raise Exception.Create('Veri taban� ba�lant� hatas�!' + AddLBs(2) + E.Message);
+        raise Exception.Create('Veri tabanı bağlantı hatası!' + AddLBs(2) + E.Message);
         Exit;
       end;
     end;
@@ -235,7 +238,6 @@ begin
   ConnSetting.ReadFromFile;
 
   Self.Height := scaleBySystemDPI(FormSmall);
-  ;
   Repaint;
 
   dm.illogo.GetIcon(0, imglogo.Picture.Icon);
@@ -257,11 +259,13 @@ begin
   btnDelete.Visible := False;
   btnSpin.Visible := False;
 
-  {$IFDEF DEBUG}    edtkullanici_adi.Text := ConnSetting.UserName; {$ELSE}
-  edtkullanici_adi.Clear; {$ENDIF}
   {$IFDEF DEBUG}
-  edtkullanici_sifresi.Text := ConnSetting.UserPass; {$ELSE}
-  edtkullanici_sifresi.Clear; {$ENDIF}
+  edtkullanici_adi.Text := ConnSetting.UserName;
+  edtkullanici_sifresi.Text := ConnSetting.UserPass;
+  {$ELSE}
+  edtkullanici_adi.Clear;
+  edtkullanici_sifresi.Clear;
+  {$ENDIF}
   edtdb_kullanici.Text := ConnSetting.DBUserName;
   edtdb_kullanici_sifre.Text := ConnSetting.DBUserPassword;
   edtdb_host.Text := ConnSetting.SQLServer;

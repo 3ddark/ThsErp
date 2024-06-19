@@ -1,4 +1,4 @@
-unit ufrmBaseInput;
+ï»¿unit ufrmBaseInput;
 
 interface
 
@@ -27,10 +27,10 @@ type
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); override;
 
     /// <summary>
-    ///  InputDB formlarýndaki Edit Memo ComboBox gibi kontrollerin zorunlu alan, maks leng, charcase gibi özelliklerini form ilk açýlýþta ayarlýyor.
+    ///  InputDB formlarÄ±ndaki Edit Memo ComboBox gibi kontrollerin zorunlu alan, maks leng, charcase gibi ï¿½zelliklerini form ilk aï¿½ï¿½lï¿½ï¿½ta ayarlï¿½yor.
     /// </summary>
     ///  <remarks>
-    ///  NOT: Bu kontroller direkt olarak pnlMain üzerinde veya pgcMain içindeki TabSheet ler içinde olmalý
+    ///  NOT: Bu kontroller direkt olarak pnlMain ï¿½zerinde veya pgcMain iï¿½indeki TabSheet ler iï¿½inde olmalï¿½
     ///  </remarks>
     procedure SetControlDBProperty(pIsOnlyRepaint: Boolean = False; AParent: TControl = nil);
 
@@ -65,10 +65,10 @@ begin
     inherited
   else
   begin
-    if CustomMsgDlg('Çýkmak istediðinden emin misin?' + AddLBs(2) +
-                    'Yapýlan tüm deðiþiklikler kaybolacaktýr',
+    if CustomMsgDlg('ï¿½ï¿½kmak istediï¿½inden emin misin?' + AddLBs(2) +
+                    'Yapï¿½lan tï¿½m deï¿½iï¿½iklikler kaybolacaktï¿½r',
                     mtConfirmation,
-                    mbYesNo, ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý'
+                    mbYesNo, ['Evet', 'Hayï¿½r'], mbNo, 'Kullanï¿½cï¿½ Onayï¿½'
     ) = mrYes
     then
       inherited;
@@ -114,20 +114,20 @@ begin
   for n1 := 0 to stbBase.Panels.Count - 1 do
     stbBase.Panels.Items[n1].Style := psOwnerDraw;
 
-  //form ve page control page 0 caption bilgisini dil dosyasýna göre doldur
-  //page control page 0 için isternise miras alan formda deðiþiklik yapýlabilir.
+  //form ve page control page 0 caption bilgisini dil dosyasï¿½na gï¿½re doldur
+  //page control page 0 iï¿½in isternise miras alan formda deï¿½iï¿½iklik yapï¿½labilir.
   if Assigned(Table) then
   begin
     Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
     //pgcMain.Pages[0].Caption := Self.Caption;
   end;
 
-  //burasý yukarýdaki caption doldurma kodundan sonra gelmeli pagecontrol tablardaki baþlýklarý düzenliyor.
+  //burasï¿½ yukarï¿½daki caption doldurma kodundan sonra gelmeli pagecontrol tablardaki baï¿½lï¿½klarï¿½ dï¿½zenliyor.
   SetCaptionFromLangContent();
 
   if Self.FormMode = ifmRewiev then
   begin
-    //eðer baþka pencerede açýk transaction varsa güncelleme moduna hiç girilmemli
+    //eï¿½er baï¿½ka pencerede aï¿½ï¿½k transaction varsa gï¿½ncelleme moduna hiï¿½ girilmemli
     if (Table.Database.Connection.InTransaction) then
     begin
       btnAccept.Visible   := False;
@@ -141,28 +141,28 @@ begin
       btnSpin.Visible := True;
     end;
 
-    //Burada inceleme modunda olduðu için bütün kontrolleri kapatmak gerekiyor.
+    //Burada inceleme modunda olduï¿½u iï¿½in bï¿½tï¿½n kontrolleri kapatmak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, True);
   end
   else
   begin
-    //Burada yeni kayýt, kopya yeni kayýt veya güncelleme modunda olduðu için bütün kontrolleri açmak gerekiyor.
+    //Burada yeni kayï¿½t, kopya yeni kayï¿½t veya gï¿½ncelleme modunda olduï¿½u iï¿½in bï¿½tï¿½n kontrolleri aï¿½mak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, False);
   end;
 
   mniAddLanguageContent.Visible := False;
   if (GSysKullanici.IsSuperKullanici.Value) and (FormMode = ifmRewiev) then
   begin
-    //yeni kayýtta transactionlardan dolayý sorun oluyor. Düzeltmek için uðralýlmadý
+    //yeni kayï¿½tta transactionlardan dolayï¿½ sorun oluyor. Dï¿½zeltmek iï¿½in uï¿½ralï¿½lmadï¿½
     SetLabelPopup();
     mniAddLanguageContent.Visible := True;
   end;
 
 //  if (FormMode <> ifmNewRecord ) then
 //    RefreshData;
-//ferhat buraya bak normal input db formlarda iki kere refreshdata yapýyor. Bunu engelle
-//detaylý formlarda da refresh yapmalý fakat input db formlarýndan gelmediði için burada yapýldý.
-//yapýyý gözden geçir
+//ferhat buraya bak normal input db formlarda iki kere refreshdata yapï¿½yor. Bunu engelle
+//detaylï¿½ formlarda da refresh yapmalï¿½ fakat input db formlarï¿½ndan gelmediï¿½i iï¿½in burada yapï¿½ldï¿½.
+//yapï¿½yï¿½ gï¿½zden geï¿½ir
 
   Application.ProcessMessages;
 
@@ -317,7 +317,7 @@ procedure TfrmBaseInput.SetCaptionFromLangContent;
     LLabelNames, LLabelName, LFilter: string;
     LLangGuiContent: TSysGuiIcerik;
   begin
-    //label component isimleri lbl + db_field_name olacak þekilde verileceði varsayýlarak bu kod yazildi. örnek: lblcountry_code
+    //label component isimleri lbl + db_field_name olacak ï¿½ekilde verileceï¿½i varsayï¿½larak bu kod yazildi. ï¿½rnek: lblcountry_code
     LLabelNames := '';
     LC := TRttiContext.Create;
     LT := LC.GetType(Self.ClassType);
@@ -367,7 +367,7 @@ procedure TfrmBaseInput.SetCaptionFromLangContent;
   begin
     if Assigned(Table) then
     begin
-      //TAB SHEET Captionlarý düzenle
+      //TAB SHEET Captionlarï¿½ dï¿½zenle
       vCtx1 := TRttiContext.Create;
       vRtt1 := vCtx1.GetType(Self.ClassType);
       for vRtf1 in vRtt1.GetFields do
@@ -579,10 +579,10 @@ begin
     end;
 
 
-    //is_contain_table(Table) evet ise control set yap hayýr ise çýk
-    //burasý tablo içinde alt tablo varsa bunu buluyor ve kontrol düzenlemesi yapýyor.
-    //þu anda bir tane alt tablo bulacak þekilde çalýþýyor. Burasý düzenlenecek.
-    //Örn. Hesap Kartý içinde Adres tablosunu buluyor
+    //is_contain_table(Table) evet ise control set yap hayï¿½r ise ï¿½ï¿½k
+    //burasï¿½ tablo iï¿½inde alt tablo varsa bunu buluyor ve kontrol dï¿½zenlemesi yapï¿½yor.
+    //ï¿½u anda bir tane alt tablo bulacak ï¿½ekilde ï¿½alï¿½ï¿½ï¿½yor. Burasï¿½ dï¿½zenlenecek.
+    //ï¿½rn. Hesap Kartï¿½ iï¿½inde Adres tablosunu buluyor
     vTable := getContainTable(Table);
     if Assigned(vTable) then
     begin
@@ -634,7 +634,7 @@ begin
         SubSetControlProperty(vParent, TSysViewColumns(SysTableInfo.List[n2]));
     end;
 
-    //is_contain_table(Table) evet ise control set yap hayýr ise çýk
+    //is_contain_table(Table) evet ise control set yap hayï¿½r ise ï¿½ï¿½k
     vTable := getContainTable(Table);
     if Assigned(vTable) then
     begin
@@ -672,11 +672,11 @@ begin
     vParent := pnlMain;
     for n1 := 0 to SysTableInfo.List.Count-1 do
       SubSetControlProperty(vParent, TSysViewColumns(SysTableInfo.List[n1]));
-    //ilk önce sýnýfa ait tüm kontrolleri düzenle
-    //daha sonra rtti ile table sýnýfý taranacak ve içinde ttable tipinden bir field varsa
-    //table sýnýfý bulunup buradan sysviewcolums bilgileri çekilecek.
-    //Bu çekilen column bilgilerine uyan kontrol varmý diye tüm hepsi taranacak ve bulunanlar için bilgiler set edilecek
-    //is_contain_table(Table) evet ise control set yap hayýr ise çýk
+    //ilk ï¿½nce sï¿½nï¿½fa ait tï¿½m kontrolleri dï¿½zenle
+    //daha sonra rtti ile table sï¿½nï¿½fï¿½ taranacak ve iï¿½inde ttable tipinden bir field varsa
+    //table sï¿½nï¿½fï¿½ bulunup buradan sysviewcolums bilgileri ï¿½ekilecek.
+    //Bu ï¿½ekilen column bilgilerine uyan kontrol varmï¿½ diye tï¿½m hepsi taranacak ve bulunanlar iï¿½in bilgiler set edilecek
+    //is_contain_table(Table) evet ise control set yap hayï¿½r ise ï¿½ï¿½k
     vTable := getContainTable(Table);
     if Assigned(vTable) then
     begin

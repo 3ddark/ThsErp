@@ -64,16 +64,6 @@ type
     function QryName: string;
   end;
 
-  TGridColumn = record
-    Title: string;
-    Field: TThsField;
-  end;
-
-  TGridColumnHelper = record helper for TGridColumn
-  public
-    class function NewItem(ATitle: string; AFieldDB: TThsField): TGridColumn; static;
-  end;
-
   IThsTable = interface
   end;
 
@@ -99,6 +89,11 @@ type
 
     procedure Clear; virtual;
     function Validate: Boolean; virtual;
+
+    function SelectOne(AFilter: string; ALock, APermissionCheck: Boolean): Boolean; virtual;
+    function Insert(APermissionCheck: Boolean): Boolean; virtual;
+    function Update(APermissionCheck: Boolean): Boolean; virtual;
+    function Delete(APermissionCheck: Boolean): Boolean; virtual;
 
     function BusinessSelect(AFilter: string; ALock, APermissionCheck: Boolean): Boolean; virtual;
     function BusinessInsert(APermissionCheck: Boolean): Boolean; virtual;
@@ -284,7 +279,7 @@ begin
   SetLength(FFields, 0);
 
   Id := TThsField.Create('id', ftInteger, 0, Self, [fpSelect, fpUpdate]);
-  Id.Value := ManagerApp.GetNewRecordId
+  Id.Value := AppDbContext.GetNewRecordId
 end;
 
 class function TThsTable.GetSelectSQL: string;
@@ -302,6 +297,26 @@ begin
   FTableName := ATableName;
 end;
 
+function TThsTable.Insert(APermissionCheck: Boolean): Boolean;
+begin
+  Result := AppDbContext.Insert(Self, APermissionCheck);
+end;
+
+function TThsTable.SelectOne(AFilter: string; ALock, APermissionCheck: Boolean): Boolean;
+begin
+  Result := AppDbContext.GetOne(Self, AFilter, ALock, APermissionCheck);
+end;
+
+function TThsTable.Delete(APermissionCheck: Boolean): Boolean;
+begin
+  Result := AppDbContext.Delete(Self, APermissionCheck);
+end;
+
+function TThsTable.Update(APermissionCheck: Boolean): Boolean;
+begin
+  Result := AppDbContext.Update(Self, APermissionCheck);
+end;
+
 destructor TThsTable.Destroy;
 var
   AField: TThsField;
@@ -314,22 +329,22 @@ end;
 
 function TThsTable.BusinessSelect(AFilter: string; ALock, APermissionCheck: Boolean): Boolean;
 begin
-  Result := ManagerApp.GetOne(Self, AFilter, ALock, APermissionCheck);
+  Result := Self.SelectOne(AFilter, ALock, APermissionCheck);
 end;
 
 function TThsTable.BusinessInsert(APermissionCheck: Boolean): Boolean;
 begin
-  Result := ManagerApp.Insert(Self, APermissionCheck);
+  Result := Self.Insert(APermissionCheck);
 end;
 
 function TThsTable.BusinessUpdate(APermissionCheck: Boolean): Boolean;
 begin
-  Result := ManagerApp.Update(Self, APermissionCheck);
+  Result := Self.Update(APermissionCheck);
 end;
 
 function TThsTable.BusinessDelete(APermissionCheck: Boolean): Boolean;
 begin
-  Result := ManagerApp.Delete(Self, APermissionCheck);
+  Result := Self.Delete(APermissionCheck);
 end;
 
 procedure TThsTable.Clear;
@@ -380,12 +395,6 @@ end;
 function TThsTable.Validate: Boolean;
 begin
   Result := True;
-end;
-
-class function TGridColumnHelper.NewItem(ATitle: string; AFieldDB: TThsField): TGridColumn;
-begin
-  Result.Title := ATitle;
-  Result.Field := AFieldDB;
 end;
 
 end.

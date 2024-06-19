@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, Classes, StrUtils, System.Variants, Data.DB,
-  System.Rtti, System.TypInfo, System.Generics.Collections,
+  System.Rtti, System.TypInfo, System.Generics.Collections, System.IOUtils,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
   FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
   FireDAC.Phys, FireDAC.VCLUI.Wait, FireDAC.Stan.Param, FireDAC.DatS,
@@ -106,7 +106,7 @@ type
 
     function GetToday(): TDateTime;
     function NewQuery: TFDQuery;
-    function PrepareSelectGridQuery(ATable: TThsTable; AFieldDBs: TArray<TGridColumn>): string;
+    function PrepareSelectGridQuery(ATable: TThsTable; AFieldDBs: TArray<TThsField>): string;
   end;
 
 implementation
@@ -173,10 +173,14 @@ begin
       Password := AUserPass;
       Port := APort;
       CharacterSet := TFDPGCharacterSet.csUTF8;
+      ApplicationName := 'Ths Erp Orm ' + AUserName;
     end;
 
     FPhys := TFDPhysPgDriverLink.Create(nil);
-    FPhys.VendorLib := ALibraryPath;
+    if ALibraryPath = '' then
+      FPhys.VendorLib := TPath.Combine(ExtractFilePath(ParamStr(0)), 'lib') + PathDelim + 'libpq.dll'
+    else
+      FPhys.VendorLib := ALibraryPath;
 
     with Self.NewQuery do
     try
@@ -1178,15 +1182,15 @@ begin
   Result := 'SELECT ' + LeftStr(Trim(LFields), Length(LFields)-1) + ' FROM ' + IfThen(LTable.SchemaName = '', '', LTable.SchemaName + '.') + LTable.TableName;
 end;
 
-function TEntityManager.PrepareSelectGridQuery(ATable: TThsTable; AFieldDBs: TArray<TGridColumn>): string;
+function TEntityManager.PrepareSelectGridQuery(ATable: TThsTable; AFieldDBs: TArray<TThsField>): string;
 var
-  AFieldDB: TGridColumn;
+  AFieldDB: TThsField;
   LFields: string;
 begin
   LFields := '';
   for AFieldDB in AFieldDBs do
-    if fpSelect in AFieldDB.Field.FieldIslemTipleri then
-      LFields := LFields + AFieldDB.Field.FieldName + {' "' + AFieldDB.Title + '",'} ',';
+    if fpSelect in AFieldDB.FieldIslemTipleri then
+      LFields := LFields + AFieldDB.FieldName + ',';
   Result := 'SELECT ' + LeftStr(Trim(LFields), Length(LFields)-1) + ' FROM ' + IfThen(ATable.SchemaName = '', '', ATable.SchemaName + '.') + ATable.TableName;
 end;
 

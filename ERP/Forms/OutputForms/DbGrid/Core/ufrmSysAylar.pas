@@ -32,7 +32,7 @@ begin
   if (pFormMode = ifmRewiev) then
     Result := TfrmSysAy.Create(Self, Self, Table.Clone(), pFormMode)
   else if (pFormMode = ifmNewRecord) then
-    Result := TfrmSysAy.Create(Self, Self, TSysAy.Create(Table.Database), pFormMode)
+//    Result := TfrmSysAy.Create(Self, Self, TSysAy.Create(), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
     Result := TfrmSysAy.Create(Self, Self, Table.Clone(), pFormMode);
 end;

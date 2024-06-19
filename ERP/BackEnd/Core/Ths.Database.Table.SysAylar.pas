@@ -7,136 +7,33 @@ interface
 uses
   System.SysUtils,
   Data.DB,
-  FireDAC.Comp.Client,
-  FireDAC.Comp.DataSet,
-  Ths.Database,
-  Ths.Database.Table;
+  Generics.Collections,
+  Ths.Orm.Manager,
+  Ths.Orm.ManagerStack,
+  Ths.Orm.Table;
 
 type
-  TSysAy = class(TTable)
+  TSysAy = class(TThsTable)
   private
-    FAyAdi: TFieldDB;
+    FAyAdi: TThsField;
   published
-    constructor Create(ADatabase: TDatabase); override;
+    constructor Create(); override;
   public
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
-    procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
-    procedure DoInsert(APermissionControl: Boolean=True); override;
-    procedure DoUpdate(APermissionControl: Boolean=True); override;
-
-    function Clone: TTable; override;
-
-    property AyAdi: TFieldDB read FAyAdi write FAyAdi;
+    property AyAdi: TThsField read FAyAdi write FAyAdi;
   end;
 
 implementation
 
-uses
-  Ths.Globals,
-  Ths.Constants;
+uses Ths.Constants;
 
-constructor TSysAy.Create(ADatabase: TDatabase);
+constructor TSysAy.Create();
 begin
-  TableName := 'sys_aylar';
-  TableSourceCode := MODULE_SISTEM_AYAR;
-  inherited Create(ADatabase);
+  Self.SchemaName := 'public';
+  Self.TableName := 'sys_aylar';
+  Self.TableSourceCode := MODULE_SISTEM_AYAR;
+  inherited;
 
-  FAyAdi := TFieldDB.Create('ay_adi', ftWideString, '', Self, 'Ay Adý');
-end;
-
-procedure TSysAy.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
-begin
-  if not IsAuthorized(ptRead, APermissionControl) then
-    Exit;
-
-  with QryOfDS do
-  begin
-    Close;
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
-      Id.QryName,
-      FAyAdi.QryName
-    ], [
-      ' WHERE 1=1 ', AFilter
-    ], AAllColumn, AHelper);
-    Open;
-  end;
-end;
-
-procedure TSysAy.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
-var
-  LQry: TFDQuery;
-begin
-  if not IsAuthorized(ptRead, APermissionControl) then
-    Exit;
-
-  AFilter := GetLockSQL(AFilter, ALock);
-
-  LQry := Database.NewQuery();
-  with LQry do
-  try
-    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
-      Id.QryName,
-      FAyAdi.QryName
-    ], [
-      ' WHERE 1=1 ', AFilter
-    ]);
-    Open;
-
-    FreeListContent();
-    while NOT EOF do
-    begin
-      PrepareTableClassFromQuery(LQry);
-
-      List.Add(Clone);
-
-      Next;
-    end;
-  finally
-    Free;
-  end;
-end;
-
-procedure TSysAy.DoInsert(APermissionControl: Boolean);
-var
-  LQry: TFDQuery;
-begin
-  LQry := Database.NewQuery();
-  try
-    Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
-      FAyAdi.FieldName
-    ]);
-
-    PrepareInsertQueryParams(LQry);
-
-    LQry.Open;
-    Self.Id.Value := LQry.Fields.FieldByName(Id.FieldName).AsInteger;
-  finally
-    LQry.Free;
-  end;
-end;
-
-procedure TSysAy.DoUpdate(APermissionControl: Boolean);
-var
-  LQry: TFDQuery;
-begin
-  LQry := Database.NewQuery();
-  try
-    Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
-      FAyAdi.FieldName
-    ]);
-
-    PrepareUpdateQueryParams(LQry);
-
-    LQry.ExecSQL;
-  finally
-    LQry.Free;
-  end;
-end;
-
-function TSysAy.Clone: TTable;
-begin
-  Result := TSysAy.Create(Database);
-  CloneClassContent(Self, Result);
+  FAyAdi := TThsField.Create('ay_adi', ftWideString, '', Self, [fpSelect, fpInsert, fpUpdate]);
 end;
 
 end.

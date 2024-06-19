@@ -1,4 +1,4 @@
-unit ufrmBase;
+ï»¿unit ufrmBase;
 
 interface
 
@@ -30,8 +30,6 @@ type
 
 type
   TfrmBase = class(TForm)
-    AppEvntsBase: TApplicationEvents;
-    dlgPntBase: TPrintDialog;
     pnlBottom: TPanel;
     pnlMain: TPanel;
     btnSpin: TSpinButton;
@@ -703,7 +701,7 @@ begin
   begin
     Repaint;
     if (not Result) then
-      raise Exception.Create('Zorunlu alanlar boþ olamaz. Kýrmýzý renkli giriþler zorunludur.' + AddLBs(3) + LControlName);
+      raise Exception.Create('Zorunlu alanlar boï¿½ olamaz. Kï¿½rmï¿½zï¿½ renkli giriï¿½ler zorunludur.' + AddLBs(3) + LControlName);
   end;
 end;
 

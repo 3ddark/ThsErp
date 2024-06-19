@@ -78,7 +78,6 @@ type
     lblFilterHelper: TLabel;
     mniSeperator5: TMenuItem;
     mnicopy_to_clipboard: TMenuItem;
-    dlgSave: TSaveDialog;
     grd: TDBGrid;
     dsbase: TDataSource;
     actlstgrd: TActionList;
@@ -175,6 +174,7 @@ type
     FTableHelper: TTable;
     //for use HelperForm
 
+    dlgSave: TSaveDialog;
 
     FColoredPercentColNames: TArray<TColPercent>;
     FPercentMaxValue: Integer;
@@ -1109,7 +1109,7 @@ begin
       begin
         if LFilter <> '' then
           LFilter := LFilter + ' OR ';
-        LFilter := LFilter + FFilterNumericFields.Strings[n1] + '=' + UpperCaseTr(edtFilterHelper.Text);
+        LFilter := LFilter + FFilterBoolFields.Strings[n1] + '=' + UpperCaseTr(edtFilterHelper.Text);
       end;
     end;
 
@@ -1200,6 +1200,7 @@ begin
         edtFilterHelper.Text := TEdit(Owner).Text;
   end;
 
+  dlgSave := TSaveDialog.Create(Self);
 
   inherited;
 

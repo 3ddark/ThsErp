@@ -747,6 +747,7 @@
         <DCCReference Include="BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.InternetConnection.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.DatabaseTools.pas"/>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
