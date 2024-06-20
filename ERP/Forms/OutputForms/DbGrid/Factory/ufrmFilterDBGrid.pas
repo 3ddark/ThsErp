@@ -115,18 +115,30 @@ begin
             if LFilter <> '' then
               LFilter := LFilter + ' OR ';
 
-            if (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftString) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftMemo) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftFmtMemo) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftFixedChar) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftWideString) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftWideMemo) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftMemo) then
+            if (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftString)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftMemo)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftFmtMemo)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftFixedChar)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftWideString)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftWideMemo)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftMemo)
+            then
+              LFilter := LFilter + TFieldName(chklstFields.Items.Objects[n1]).FieldName + LFilterCriter + QuotedStr(LStartLike + edtFilter.Text + LEndLike)
+            else
+            if (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftSmallint)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftInteger)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftShortint)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftWord)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftFloat)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftCurrency)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftLargeint)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftLongWord)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftTime)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftTimeStamp)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftDate)
+            or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftDateTime)
+            then
             begin
-              LFilter := LFilter + TFieldName(chklstFields.Items.Objects[n1]).FieldName + LFilterCriter + QuotedStr(LStartLike + edtFilter.Text + LEndLike);
-            end
-            else if (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftSmallint) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftInteger) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftShortint) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftWord) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftFloat) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftCurrency) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftLargeint) or (TFieldName
-              (chklstFields.Items.Objects[n1]).DataType = ftLongWord) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftTime) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftTimeStamp) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftDate) or (TFieldName(chklstFields.Items.Objects[n1]).DataType = ftDateTime) then
-            begin
-//              if  (rgFilterCriter.ItemIndex <> 1)
-//              and (rgFilterCriter.ItemIndex <> 2)
-//              and (rgFilterCriter.ItemIndex <> 3)
-//              and (rgFilterCriter.ItemIndex <> 4)
-//              then
               LFilter := LFilter + TFieldName(chklstFields.Items.Objects[n1]).FieldName + LFilterCriter + QuotedStr(LStartLike + edtFilter.Text + LEndLike);
             end;
           end;

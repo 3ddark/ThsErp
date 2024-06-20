@@ -10,8 +10,8 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
   inherited pnlMain: TPanel
     Width = 570
     Height = 307
-    ExplicitWidth = 570
-    ExplicitHeight = 307
+    ExplicitWidth = 568
+    ExplicitHeight = 299
     object lblFields: TLabel
       AlignWithMargins = True
       Left = 3
@@ -43,6 +43,8 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
       BorderStyle = bsNone
       Columns = 2
       TabOrder = 1
+      ExplicitWidth = 568
+      ExplicitHeight = 178
     end
     object rgFilterCriter: TRadioGroup
       Left = 0
@@ -71,6 +73,7 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
         'B'#252'y'#252'k E'#351'it olanlar'
         'K'#252#231#252'k E'#351'it olanlar')
       TabOrder = 0
+      ExplicitWidth = 568
     end
     object Panel1: TPanel
       Left = 0
@@ -80,6 +83,8 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 2
+      ExplicitTop = 278
+      ExplicitWidth = 568
       object lblFilterKeyValue: TLabel
         Left = 0
         Top = 0
@@ -105,31 +110,32 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
         Align = alClient
         CharCase = ecUpperCase
         TabOrder = 0
+        ExplicitWidth = 485
       end
     end
   end
   inherited pnlBottom: TPanel
     Top = 309
     Width = 566
-    ExplicitTop = 309
-    ExplicitWidth = 566
+    ExplicitTop = 301
+    ExplicitWidth = 564
     inherited btnAccept: TButton
       Left = 344
       Width = 116
       Caption = 'Filtreyi Uygula'
       ImageIndex = 26
-      ExplicitLeft = 344
+      ExplicitLeft = 342
       ExplicitWidth = 116
     end
     inherited btnClose: TButton
       Left = 464
-      ExplicitLeft = 464
+      ExplicitLeft = 462
     end
   end
   inherited stbBase: TStatusBar
     Top = 339
     Width = 570
-    ExplicitTop = 339
-    ExplicitWidth = 570
+    ExplicitTop = 331
+    ExplicitWidth = 568
   end
 end
