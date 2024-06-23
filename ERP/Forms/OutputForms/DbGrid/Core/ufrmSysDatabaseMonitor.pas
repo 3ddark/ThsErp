@@ -85,13 +85,13 @@ begin
     begin
       LPid := LField.AsInteger;
 
-      if CustomMsgDlg('Kullanıcının bağlantısını sonlandırmak istediğinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
+      if CustomMsgDlg('KullanÄ±cÄ±nÄ±n baÄŸlantÄ±sÄ±nÄ± sonlandÄ±rmak istediÄŸinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayï¿½r'], mbNo, 'Kullanï¿½cï¿½ Onayï¿½') = mrYes then
       begin
         LQry := GDataBase.NewQuery();
         try
           LQry.SQL.Text := 'SELECT pg_terminate_backend(' + LPid.ToString + ') FROM pg_stat_activity WHERE datname = current_database();';
           LQry.Open;
-          ShowMessage('Kullanıcı sonlandırma işlemi başarılı bir şekilde yapıldı.');
+          ShowMessage('KullanÄ±cÄ± sonlandÄ±rma iÅŸlemi baÅŸarÄ±lÄ± bir ÅŸekilde yapÄ±ldÄ±.');
           grd.DataSource.DataSet.Refresh;
         finally
           LQry.Free;

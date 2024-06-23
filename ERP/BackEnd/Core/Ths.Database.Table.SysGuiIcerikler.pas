@@ -58,11 +58,11 @@ begin
   inherited Create(ADatabase);
 
   FKod := TFieldDB.Create('kod', ftString, '', Self, 'Kod');
-  FDeger := TFieldDB.Create('deger', ftString, '', Self, 'Deðer');
+  FDeger := TFieldDB.Create('deger', ftString, '', Self, 'DeÄŸer');
   FIsFabrika := TFieldDB.Create('is_fabrika', ftBoolean, False, Self, 'Fabrika?');
-  FIcerikTipi := TFieldDB.Create('icerik_tipi', ftString, '', Self, 'Ýçerik Tipi');
-  FTabloAdi := TFieldDB.Create('tablo_adi', ftString, '', Self, 'Tablo Adý');
-  FFormAdi := TFieldDB.Create('form_adi', ftString, '', Self, 'Form Adý');
+  FIcerikTipi := TFieldDB.Create('icerik_tipi', ftString, '', Self, 'Ä°Ã§erik Tipi');
+  FTabloAdi := TFieldDB.Create('tablo_adi', ftString, '', Self, 'Tablo AdÄ±');
+  FFormAdi := TFieldDB.Create('form_adi', ftString, '', Self, 'Form AdÄ±');
 end;
 
 procedure TSysGuiIcerik.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);

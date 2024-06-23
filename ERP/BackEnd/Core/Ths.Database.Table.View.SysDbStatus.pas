@@ -1,4 +1,4 @@
-unit Ths.Database.Table.View.SysDbStatus;
+﻿unit Ths.Database.Table.View.SysDbStatus;
 
 interface
 

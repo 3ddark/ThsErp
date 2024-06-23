@@ -7,9 +7,9 @@ inherited frmChGrup: TfrmChGrup
   ClientWidth = 342
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
-  ExplicitWidth = 356
-  ExplicitHeight = 159
-  TextHeight = 13
+  ExplicitWidth = 358
+  ExplicitHeight = 163
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 342
     Height = 74
@@ -23,13 +23,14 @@ inherited frmChGrup: TfrmChGrup
       ExplicitWidth = 340
       ExplicitHeight = 70
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 334
-        ExplicitHeight = 46
+        ExplicitHeight = 45
         object lblgrup: TLabel
-          Left = 42
+          Left = 43
           Top = 6
-          Width = 28
-          Height = 13
+          Width = 27
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Grup'

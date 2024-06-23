@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetOdemeBaslangicDonemi;
+﻿unit Ths.Database.Table.SetOdemeBaslangicDonemi;
 
 interface
 

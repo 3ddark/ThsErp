@@ -44,7 +44,7 @@ begin
     begin
       if TSysKullanici(Table).ChangePassword(edtmevcut_sifre.Text) then
       begin
-        CustomMsgDlg('Þifreniz baþarýlý bir þekilde güncellendi!', mtInformation, [mbOK], ['Tamam'], mbOK, 'Þifre Güncelleme');
+        CustomMsgDlg('Åžifreniz baÅŸarÄ±lÄ± bir ÅŸekilde gÃ¼ncellendi!', mtInformation, [mbOK], ['Tamam'], mbOK, 'Åžifre GÃ¼ncelleme');
       end;
     end;
   end;

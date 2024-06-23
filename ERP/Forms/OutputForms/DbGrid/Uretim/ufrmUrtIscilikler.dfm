@@ -8,20 +8,19 @@ inherited frmUrtIscilikler: TfrmUrtIscilikler
     ExplicitHeight = 519
     inherited splLeft: TSplitter
       Height = 443
+      ExplicitHeight = 443
     end
     inherited pnlLeft: TPanel
       Height = 443
-    end
-    inherited pnlHeader: TPanel
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
+      ExplicitHeight = 443
     end
     inherited pnlContent: TPanel
       Height = 443
+      ExplicitHeight = 443
     end
     inherited pnlButtons: TPanel
       Top = 479
+      ExplicitTop = 479
     end
   end
   inherited pnlBottom: TPanel

@@ -78,21 +78,21 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FTabloAdi := TFieldDB.Create('tablo_adi', ftWideString, '', Self, 'Tablo Adý');
-  FKolonAdi := TFieldDB.Create('kolon_adi', ftWideString, '', Self, 'Kolon Adý');
-  FSiraNo := TFieldDB.Create('sira_no', ftInteger, 0, Self, 'Sýra No');
-  FKolonGenislik := TFieldDB.Create('kolon_genislik', ftInteger, 0, Self, 'Kolon Geniþlik');
-  FVeriFormati := TFieldDB.Create('veri_formati', ftWideString, '', Self, 'Veri Formatý');
-  FIsGorunur := TFieldDB.Create('is_gorunur', ftBoolean, False, Self, 'Görünür?');
-  FIsHelperGorunur := TFieldDB.Create('is_helper_gorunur', ftBoolean, False, Self, 'Helper Görünür?');
-  FMinDeger := TFieldDB.Create('min_deger', ftFloat, 0, Self, 'Min Deðer');
+  FTabloAdi := TFieldDB.Create('tablo_adi', ftWideString, '', Self, 'Tablo AdÄ±');
+  FKolonAdi := TFieldDB.Create('kolon_adi', ftWideString, '', Self, 'Kolon AdÄ±');
+  FSiraNo := TFieldDB.Create('sira_no', ftInteger, 0, Self, 'SÄ±ra No');
+  FKolonGenislik := TFieldDB.Create('kolon_genislik', ftInteger, 0, Self, 'Kolon GeniÅŸlik');
+  FVeriFormati := TFieldDB.Create('veri_formati', ftWideString, '', Self, 'Veri FormatÄ±');
+  FIsGorunur := TFieldDB.Create('is_gorunur', ftBoolean, False, Self, 'GÃ¶rÃ¼nÃ¼r?');
+  FIsHelperGorunur := TFieldDB.Create('is_helper_gorunur', ftBoolean, False, Self, 'Helper GÃ¶rÃ¼nÃ¼r?');
+  FMinDeger := TFieldDB.Create('min_deger', ftFloat, 0, Self, 'Min DeÄŸer');
   FMinRenk := TFieldDB.Create('min_renk', ftInteger, 0, Self, 'Min Renk');
-  FMaxDeger := TFieldDB.Create('maks_deger', ftFloat, 0, Self, 'Maks Deðer');
+  FMaxDeger := TFieldDB.Create('maks_deger', ftFloat, 0, Self, 'Maks DeÄŸer');
   FMaxRenk := TFieldDB.Create('maks_renk', ftInteger, 0, Self, 'Maks Renk');
-  FMaxDegerYuzdesi := TFieldDB.Create('maks_deger_yuzdesi', ftFloat, 0, Self, 'Maks Deðer Yüzdesi');
+  FMaxDegerYuzdesi := TFieldDB.Create('maks_deger_yuzdesi', ftFloat, 0, Self, 'Maks DeÄŸer YÃ¼zdesi');
   FBarRengi := TFieldDB.Create('bar_rengi', ftInteger, 0, Self, 'Bar Rengi');
   FBarArkaRengi := TFieldDB.Create('bar_arka_rengi', ftInteger, 0, Self, 'Bar Arka Rengi');
-  FBarYaziRengi := TFieldDB.Create('bar_yazi_rengi', ftInteger, 0, Self, 'Bar Yazý Rengi');
+  FBarYaziRengi := TFieldDB.Create('bar_yazi_rengi', ftInteger, 0, Self, 'Bar YazÄ± Rengi');
 
   FSeqStatus := ssNone;
   FOldValue := 0;

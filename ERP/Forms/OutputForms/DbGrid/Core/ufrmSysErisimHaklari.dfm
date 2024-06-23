@@ -16,9 +16,6 @@ inherited frmSysErisimHaklari: TfrmSysErisimHaklari
     inherited pnlHeader: TPanel
       Width = 809
       ExplicitWidth = 809
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
       inherited edtFilterHelper: TEdit
         Width = 766
         ExplicitWidth = 766

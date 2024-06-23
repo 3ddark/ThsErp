@@ -1,4 +1,4 @@
-unit Ths.Database.Table.StkStokHareketi;
+ï»¿unit Ths.Database.Table.StkStokHareketi;
 
 interface
 
@@ -68,13 +68,13 @@ begin
   FStokKodu := TFieldDB.Create('stok_kodu', ftWideString, '', Self, 'Stok Kodu');
   FMiktar := TFieldDB.Create('miktar', ftBCD, 0, Self, 'Miktar');
   FTutar := TFieldDB.Create('tutar', ftBCD, 0, Self, 'Tutar');
-  FTutarDoviz := TFieldDB.Create('tutar_doviz', ftBCD, 0, Self, 'Döviz Tutar');
+  FTutarDoviz := TFieldDB.Create('tutar_doviz', ftBCD, 0, Self, 'DÃ¶viz Tutar');
   FParaBirimi := TFieldDB.Create('para_birimi', ftWideString, '', Self, 'Para Birimi');
-  FIsGiris := TFieldDB.Create('is_giris', ftBoolean, True, Self, 'Giriþ?');
+  FIsGiris := TFieldDB.Create('is_giris', ftBoolean, True, Self, 'GiriÅŸ');
   FTarih := TFieldDB.Create('tarih', ftDate, 0, Self, 'Tarih');
   FAmbarID := TFieldDB.Create('ambar_id', ftInteger, 0, Self, 'Ambar ID');
   FAmbar := TFieldDB.Create(FStkStokAmbar.AmbarAdi.FieldName, FStkStokAmbar.AmbarAdi.DataType, '', Self, 'Ambar');
-  FIsDonemBasi := TFieldDB.Create('is_donem_basi', ftBoolean, False, Self, 'Dönem Baþý?');
+  FIsDonemBasi := TFieldDB.Create('is_donem_basi', ftBoolean, False, Self, 'DÃ¶nem BaÅŸÄ±');
 end;
 
 destructor TStkStokHareketi.Destroy;

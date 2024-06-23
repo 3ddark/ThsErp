@@ -55,11 +55,11 @@ begin
 
   FHesapKodu := TFieldDB.Create('hesap_kodu', ftWideString, '', Self, 'Hesap Kodu');
   FTutar := TFieldDB.Create('tutar', ftBCD, 0, Self, 'Tutar');
-  FTutarDoviz := TFieldDB.Create('tutar_doviz', ftBCD, 0, Self, 'Döviz Tutar');
+  FTutarDoviz := TFieldDB.Create('tutar_doviz', ftBCD, 0, Self, 'DÃ¶viz Tutar');
   FParaBirimi := TFieldDB.Create('para_birimi', ftWideString, '', Self, 'Para Birimi');
-  FIsBorc := TFieldDB.Create('is_giris', ftBoolean, True, Self, 'Borç?');
+  FIsBorc := TFieldDB.Create('is_giris', ftBoolean, True, Self, 'BorÃ§?');
   FTarih := TFieldDB.Create('tarih', ftDate, 0, Self, 'Tarih');
-  FIsDonemBasi := TFieldDB.Create('is_donem_basi', ftBoolean, False, Self, 'Dönem Baþý?');
+  FIsDonemBasi := TFieldDB.Create('is_donem_basi', ftBoolean, False, Self, 'DÃ¶nem BaÅŸÄ±?');
 end;
 
 procedure TChHesapHareketi.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);

@@ -3,8 +3,8 @@ inherited frmSetPrsEhliyet: TfrmSetPrsEhliyet
   Caption = 'Personel Ehliyet Tipi'
   ClientHeight = 114
   ClientWidth = 337
-  ExplicitWidth = 351
-  ExplicitHeight = 150
+  ExplicitWidth = 353
+  ExplicitHeight = 153
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 337
@@ -50,15 +50,11 @@ inherited frmSetPrsEhliyet: TfrmSetPrsEhliyet
     ExplicitWidth = 331
     inherited btnAccept: TButton
       Left = 127
-      TabOrder = 2
       ExplicitLeft = 125
     end
     inherited btnClose: TButton
       Left = 231
       ExplicitLeft = 229
-    end
-    inherited btnDelete: TButton
-      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

@@ -1187,7 +1187,7 @@ var
   AFieldDB: TThsField;
   LFields: string;
 begin
-  LFields := '';
+  LFields := 'id,';
   for AFieldDB in AFieldDBs do
     if fpSelect in AFieldDB.FieldIslemTipleri then
       LFields := LFields + AFieldDB.FieldName + ',';

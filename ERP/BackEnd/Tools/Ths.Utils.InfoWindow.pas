@@ -29,7 +29,7 @@ begin
 end;
 
 function BilgiVer(const AMesaj: string; AAutoClose: Boolean = True; AEkranSuresi : Integer = 1000): HWND;
-// Verilen Mesaj Süresi kadar Bilgi Penceresini Ekranda Tutar.
+// Verilen Mesaj Sï¿½resi kadar Bilgi Penceresini Ekranda Tutar.
 var
   FormWidth, FormHeight: Integer;
 begin
@@ -69,7 +69,7 @@ procedure PencereHazirla(AProc: TProc);
 var
   hnwd: HWND;
 begin
-  hnwd := BilgiVer('Lütfen bekleyin... - Please wait...', False);
+  hnwd := BilgiVer('LÃ¼tfen bekleyin... - Please wait...', False);
   try
     AProc;
   finally

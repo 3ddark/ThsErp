@@ -39,9 +39,9 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FTabloAdi := TFieldDB.Create('tablo_adi', ftString, '', Self, 'Tablo Adý');
-  FIcerik := TFieldDB.Create('icerik', ftString, '', Self, 'Ýçerik');
-  FIsSiralama := TFieldDB.Create('is_siralama', ftBoolean, False, Self, 'Sýralama?');
+  FTabloAdi := TFieldDB.Create('tablo_adi', ftString, '', Self, 'Tablo AdÄ±');
+  FIcerik := TFieldDB.Create('icerik', ftString, '', Self, 'Ä°Ã§erik');
+  FIsSiralama := TFieldDB.Create('is_siralama', ftBoolean, False, Self, 'SÄ±ralama?');
 end;
 
 procedure TSysGridFiltreSiralama.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);

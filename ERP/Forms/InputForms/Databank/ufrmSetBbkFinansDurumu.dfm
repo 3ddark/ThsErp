@@ -8,7 +8,7 @@ inherited frmSetBbkFinansDurumu: TfrmSetBbkFinansDurumu
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 358
   ExplicitHeight = 156
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 342
     Height = 67
@@ -17,20 +17,21 @@ inherited frmSetBbkFinansDurumu: TfrmSetBbkFinansDurumu
     ExplicitWidth = 340
     ExplicitHeight = 66
     inherited pgcMain: TPageControl
-      Width = 344
-      Height = 71
+      Width = 342
+      Height = 67
       ExplicitLeft = 1
       ExplicitTop = 1
       ExplicitWidth = 338
       ExplicitHeight = 64
       inherited tsMain: TTabSheet
-        ExplicitWidth = 336
-        ExplicitHeight = 43
+        ExplicitTop = 25
+        ExplicitWidth = 334
+        ExplicitHeight = 38
         object lblfinans_durumu: TLabel
-          Left = 62
+          Left = 64
           Top = 5
-          Width = 85
-          Height = 13
+          Width = 83
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Finans Durumu'
           Font.Charset = DEFAULT_CHARSET
@@ -70,14 +71,6 @@ inherited frmSetBbkFinansDurumu: TfrmSetBbkFinansDurumu
     Width = 342
     ExplicitTop = 114
     ExplicitWidth = 344
-  end
-  inherited AppEvntsBase: TApplicationEvents
-    Left = 376
-    Top = 40
-  end
-  inherited dlgPntBase: TPrintDialog
-    Left = 464
-    Top = 40
   end
   inherited pmLabels: TPopupMenu
     Left = 400

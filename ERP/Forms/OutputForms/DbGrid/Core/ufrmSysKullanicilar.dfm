@@ -25,9 +25,6 @@ inherited frmSysKullanicilar: TfrmSysKullanicilar
     inherited pnlHeader: TPanel
       Width = 813
       ExplicitWidth = 813
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
       inherited edtFilterHelper: TEdit
         Width = 770
         ExplicitWidth = 770

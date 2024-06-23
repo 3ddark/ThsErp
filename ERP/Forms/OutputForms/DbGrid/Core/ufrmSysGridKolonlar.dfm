@@ -17,11 +17,6 @@ inherited frmSysGridKolonlar: TfrmSysGridKolonlar
       Height = 423
       ExplicitHeight = 423
     end
-    inherited pnlHeader: TPanel
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
-    end
     inherited pnlContent: TPanel
       Height = 423
       ExplicitHeight = 423

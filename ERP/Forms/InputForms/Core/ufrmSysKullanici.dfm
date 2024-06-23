@@ -19,7 +19,7 @@ inherited frmSysKullanici: TfrmSysKullanici
     inherited pgcMain: TPageControl
       Width = 366
       Height = 223
-      ExplicitWidth = 366
+      ExplicitWidth = 368
       ExplicitHeight = 223
       inherited tsMain: TTabSheet
         ExplicitTop = 26

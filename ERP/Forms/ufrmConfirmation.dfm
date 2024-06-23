@@ -3,13 +3,12 @@ inherited frmConfirmation: TfrmConfirmation
   Caption = 'Confirmation'
   ClientHeight = 208
   ClientWidth = 553
-  ExplicitWidth = 559
-  ExplicitHeight = 237
-  PixelsPerInch = 96
+  ExplicitWidth = 569
+  ExplicitHeight = 247
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 549
-    Height = 142
+    Width = 553
+    Height = 158
     ExplicitWidth = 612
     ExplicitHeight = 346
     object lblMessage: TLabel
@@ -48,7 +47,7 @@ inherited frmConfirmation: TfrmConfirmation
     end
   end
   inherited pnlBottom: TPanel
-    Top = 146
+    Top = 160
     Width = 549
     ExplicitTop = 350
     ExplicitWidth = 612
@@ -71,13 +70,13 @@ inherited frmConfirmation: TfrmConfirmation
       Left = 340
       ExplicitLeft = 403
     end
-    inherited btnDelete: TButton
-      Left = 236
-      ExplicitLeft = 299
-    end
     inherited btnClose: TButton
       Left = 444
       ExplicitLeft = 507
+    end
+    inherited btnDelete: TButton
+      Left = 236
+      ExplicitLeft = 299
     end
   end
   inherited stbBase: TStatusBar

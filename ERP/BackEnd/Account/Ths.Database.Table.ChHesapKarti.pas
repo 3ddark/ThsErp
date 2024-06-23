@@ -53,7 +53,7 @@ type
     FEFaturaPBName: TFieldDB;
     FAdresID: TFieldDB;
     FPasif: TFieldDB;
-    //db alanı değil
+    //db alanï¿½ deï¿½il
     FSeviyeSayisi: TFieldDB;
 
     FAdres: TSysAdres;
@@ -119,7 +119,7 @@ type
     Property EFaturaPBName: TFieldDB read FEFaturaPBName write FEFaturaPBName;
     Property AdresID: TFieldDB read FAdresID write FAdresID;
     Property Pasif: TFieldDB read FPasif write FPasif;
-    //db alanı değil
+    //db alanï¿½ deï¿½il
     Property SeviyeSayisi: TFieldDB read FSeviyeSayisi write FSeviyeSayisi;
 
     Property Adres: TSysAdres read FAdres write FAdres;
@@ -142,17 +142,17 @@ begin
   FSysParaBirimi := TSysParaBirimi.Create(Database);
 
   FHesapKodu := TFieldDB.Create('hesap_kodu', ftString, '', Self, 'Hesap Kodu');
-  FHesapIsmi := TFieldDB.Create('hesap_ismi', ftString, '', Self, 'Hesap İsmi');
+  FHesapIsmi := TFieldDB.Create('hesap_ismi', ftString, '', Self, 'Hesap ï¿½smi');
   FHesapTipiID := TFieldDB.Create('hesap_tipi_id', ftInteger, 0, Self, 'Hesap Tipi ID');
   FHesapTipi := TFieldDB.Create(FSetChHesapTipi.HesapTipi.FieldName, FSetChHesapTipi.HesapTipi.DataType, FSetChHesapTipi.HesapTipi.Value, Self, FSetChHesapTipi.HesapTipi.Title);
   FGrupID := TFieldDB.Create('grup_id', ftInteger, 0, Self, 'Grup ID');
   FGrup := TFieldDB.Create(FChGrup.Grup.FieldName, FChGrup.Grup.DataType, FChGrup.Grup.Value, Self, FChGrup.Grup.Title);
-  FBolgeID := TFieldDB.Create('bolge_id', ftInteger, 0, Self, 'Bölge ID');
+  FBolgeID := TFieldDB.Create('bolge_id', ftInteger, 0, Self, 'Bï¿½lge ID');
   FBolge := TFieldDB.Create(FChBolge.Bolge.FieldName, FChBolge.Bolge.DataType, FChBolge.Bolge.Value, Self, FChBolge.Bolge.Title);
-  FMukellefTipi := TFieldDB.Create('mukellef_tipi', ftSmallint, 0, Self, 'Mükellef Tipi');
-  FMukellefAdi := TFieldDB.Create('mukellef_adi', ftString, '', Self, 'Mükellef Adı');
-  FMukellefAdi2 := TFieldDB.Create('mukellef_adi2', ftString, '', Self, 'Mükellef Adı 2');
-  FMukellefSoyadi := TFieldDB.Create('mukellef_soyadi', ftString, '', Self, 'Mükellef Soyadı');
+  FMukellefTipi := TFieldDB.Create('mukellef_tipi', ftSmallint, 0, Self, 'Mï¿½kellef Tipi');
+  FMukellefAdi := TFieldDB.Create('mukellef_adi', ftString, '', Self, 'Mï¿½kellef Adï¿½');
+  FMukellefAdi2 := TFieldDB.Create('mukellef_adi2', ftString, '', Self, 'Mï¿½kellef Adï¿½ 2');
+  FMukellefSoyadi := TFieldDB.Create('mukellef_soyadi', ftString, '', Self, 'Mï¿½kellef Soyadï¿½');
   FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftString, '', Self, 'Vergi Dairesi');
   FVergiNo := TFieldDB.Create('vergi_no', ftString, '', Self, 'Vergi No');
   FIban := TFieldDB.Create('iban', ftString, '', Self, 'IBAN');
@@ -168,12 +168,12 @@ begin
   FMuhasebeTelefon := TFieldDB.Create('muhasebe_telefon', ftString, '', Self, 'Muhasebe Telefon');
   FMuhasebeEmail := TFieldDB.Create('muhasebe_email', ftString, '', Self, 'Muhasebe Email');
   FMuhasebeYetkili := TFieldDB.Create('muhasebe_yetkili', ftString, '', Self, 'Muhasebe Yetkili');
-  FOzelNot := TFieldDB.Create('ozel_not', ftString, '', Self, 'Özel Bilgi');
-  FKokKod := TFieldDB.Create('kok_kod', ftString, '', Self, 'Kök Kodu');
+  FOzelNot := TFieldDB.Create('ozel_not', ftString, '', Self, 'ï¿½zel Bilgi');
+  FKokKod := TFieldDB.Create('kok_kod', ftString, '', Self, 'Kï¿½k Kodu');
   FAraKod := TFieldDB.Create('ara_kod', ftString, '', Self, 'Ara Kodu');
-  FIskonto := TFieldDB.Create('iskonto', ftFloat, 0, Self, 'İskonto');
+  FIskonto := TFieldDB.Create('iskonto', ftFloat, 0, Self, 'ï¿½skonto');
   FEFaturaKullaniyor := TFieldDB.Create('efatura_kullaniyor', ftBoolean, False, Self, 'E-Fatura?');
-  FEFaturaPBName := TFieldDB.Create('efatura_pb_name', ftString, '', Self, 'E-Fatura PK Adı');
+  FEFaturaPBName := TFieldDB.Create('efatura_pb_name', ftString, '', Self, 'E-Fatura PK Adï¿½');
   FAdresID := TFieldDB.Create('adres_id', ftInteger, 0, Self, 'Adres ID');
   FPasif := TFieldDB.Create('pasif', ftBoolean, False, Self, 'Pasif?');
   FSeviyeSayisi := TFieldDB.Create(FChHesapPlani.Seviye.FieldName, FChHesapPlani.Seviye.DataType, FChHesapPlani.Seviye.Value, Self, FChHesapPlani.Seviye.Title);
@@ -483,15 +483,15 @@ var
 begin
   LIsk := FIskonto.AsFloat;
   if (LIsk > 100.00) or (LIsk < 0) then
-    raise Exception.Create(Trim('"İskonto Oranı > 100" veya "İskonto Oranı < 0" olamaz! + 999999'));
+    raise Exception.Create(Trim('"Ä°skonto OranÄ± > 100" veya "Ä°skonto OranÄ± < 0" olamaz! + 999999'));
 
   LStr := FMukellefTipi.AsString;
   LVergiNo := FVergiNo.AsString;
   if (LStr = 'TCKN') and (LVergiNo.Length <> 11) then
-    raise Exception.Create(Trim('TCKN seçildiğinde Vergi Kimlik No 11 haneli olmak zorunda! + 999999'));
+    raise Exception.Create(Trim('TCKN seÃ§ildiÄŸinde Kimlik No 11 haneli olmak zorunda! + 999999'));
 
   if (LStr = 'VKN') and (LVergiNo.Length <> 10) then
-    raise Exception.Create(Trim('VKN seçildiğinde Vergi Kimlik No 10 haneli olmak zorunda! + 999999'));
+    raise Exception.Create(Trim('VKN seÃ§ildiÄŸinde Vergi Kimlik No 10 haneli olmak zorunda! + 999999'));
 end;
 
 procedure TChHesapKarti.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);

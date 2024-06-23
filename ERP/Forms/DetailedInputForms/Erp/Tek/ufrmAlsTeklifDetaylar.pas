@@ -389,7 +389,7 @@ begin
     end;
   end;
 
-  ts1.Caption := 'Teklif Detaylarý';
+  ts1.Caption := 'Teklif Detaylarï¿½';
 end;
 
 procedure TfrmAlsTeklifDetaylar.FormDestroy(Sender: TObject);
@@ -469,13 +469,13 @@ begin
   GridColWidth(strngrd1, 80, ST_NET_TUTAR);
 
   strngrd1.Cells[ST_MAL_KODU, 0] := 'STOK KODU';
-  strngrd1.Cells[ST_MAL_ADI, 0] := 'AÇIKLAMA';
-  strngrd1.Cells[ST_MIKTAR, 0] := 'MÝKTAR';
-  strngrd1.Cells[ST_BIRIM, 0] := 'BÝRÝM';
+  strngrd1.Cells[ST_MAL_ADI, 0] := 'AÃ‡IKLAMA';
+  strngrd1.Cells[ST_MIKTAR, 0] := 'MÄ°KTAR';
+  strngrd1.Cells[ST_BIRIM, 0] := 'BÄ°RÄ°M';
   strngrd1.Cells[ST_KDV_ORANI, 0] := 'KDV%';
-  strngrd1.Cells[ST_FIYAT, 0] := 'FÝYAT';
-  strngrd1.Cells[ST_ISKONTO_ORANI, 0] := 'ÝSK%';
-  strngrd1.Cells[ST_NET_FIYAT, 0] := 'NET FÝYAT';
+  strngrd1.Cells[ST_FIYAT, 0] := 'FÄ°YAT';
+  strngrd1.Cells[ST_ISKONTO_ORANI, 0] := 'Ä°SK%';
+  strngrd1.Cells[ST_NET_FIYAT, 0] := 'NET FÄ°YAT';
   strngrd1.Cells[ST_TUTAR, 0] := 'TUTAR';
   strngrd1.Cells[ST_NET_TUTAR, 0] := 'NET TUTAR';
 end;

@@ -8,7 +8,7 @@ inherited frmChBolge: TfrmChBolge
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 356
   ExplicitHeight = 152
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 340
     Height = 63
@@ -17,18 +17,19 @@ inherited frmChBolge: TfrmChBolge
     ExplicitWidth = 340
     ExplicitHeight = 98
     inherited pgcMain: TPageControl
-      Width = 342
-      Height = 67
+      Width = 340
+      Height = 63
       ExplicitWidth = 338
       ExplicitHeight = 96
       inherited tsMain: TTabSheet
-        ExplicitWidth = 334
-        ExplicitHeight = 39
+        ExplicitTop = 25
+        ExplicitWidth = 332
+        ExplicitHeight = 34
         object lblbolge: TLabel
-          Left = 64
+          Left = 66
           Top = 5
-          Width = 33
-          Height = 13
+          Width = 31
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'B'#246'lge'

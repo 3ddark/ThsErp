@@ -1,4 +1,4 @@
-unit Ths.Utils.TCMBDovizKuru;
+﻿unit Ths.Utils.TCMBDovizKuru;
 
 interface
 

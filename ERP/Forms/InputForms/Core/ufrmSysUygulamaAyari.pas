@@ -326,7 +326,7 @@ var
 begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
   begin
-    if CustomMsgDlg('Mevcut logoyu kayýt etmek istiyor musun?', mtConfirmation, mbYesNo, ['Evet Kaydet', 'Hayýr Yenisini Yükle'], mbNo, 'Kullanýcý Onayý') = mrYes then
+    if CustomMsgDlg('Mevcut logoyu kayï¿½t etmek istiyor musun?', mtConfirmation, mbYesNo, ['Evet Kaydet', 'Hayï¿½r Yenisini Yï¿½kle'], mbNo, 'Kullanï¿½cï¿½ Onayï¿½') = mrYes then
     begin
       imglogo.Picture.SaveToFile(GetDialogSave('', FILE_FILTER_IMAGE, ''));
     end
@@ -425,21 +425,21 @@ begin
   begin
     pgcMain.ActivePage := tsdiger;
     edtpath_stok_karti_resim.SetFocus;
-    raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
+    raise Exception.Create(Trim('Lï¿½tfen geï¿½erli bir dizin seï¿½in!'));
   end;
 
   if (edtpath_personel_karti_resim.Text <> '') and not DirectoryExists(edtpath_personel_karti_resim.Text) then
   begin
     pgcMain.ActivePage := tsdiger;
     edtpath_personel_karti_resim.SetFocus;
-    raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
+    raise Exception.Create(Trim('LÃ¼tfen geÃ§erli bir dizin seÃ§in!'));
   end;
 
   if (edtpath_guncelleme.Text <> '') and not DirectoryExists(edtpath_guncelleme.Text) then
   begin
     pgcMain.ActivePage := tsdiger;
     edtpath_guncelleme.SetFocus;
-    raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
+    raise Exception.Create(Trim('LÃ¼tfen geÃ§erli bir dizin seÃ§in!'));
   end;
 end;
 

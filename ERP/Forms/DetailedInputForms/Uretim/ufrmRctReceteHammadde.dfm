@@ -11,13 +11,13 @@ inherited frmRctReceteHammadde: TfrmRctReceteHammadde
     ExplicitWidth = 344
     ExplicitHeight = 199
     inherited pgcMain: TPageControl
-      Width = 344
-      Height = 193
+      Width = 342
+      Height = 189
       ExplicitWidth = 342
       ExplicitHeight = 197
       inherited tsMain: TTabSheet
-        ExplicitWidth = 336
-        ExplicitHeight = 165
+        ExplicitWidth = 334
+        ExplicitHeight = 161
         object lblfire_orani: TLabel
           Left = 69
           Top = 75

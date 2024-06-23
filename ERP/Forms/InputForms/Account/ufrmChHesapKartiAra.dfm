@@ -8,7 +8,7 @@ inherited frmHesapKartiAra: TfrmHesapKartiAra
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 706
   ExplicitHeight = 183
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 690
     Height = 94
@@ -22,13 +22,14 @@ inherited frmHesapKartiAra: TfrmHesapKartiAra
       ExplicitWidth = 690
       ExplicitHeight = 94
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 682
-        ExplicitHeight = 66
+        ExplicitHeight = 65
         object lblhesap_kodu: TLabel
-          Left = 76
+          Left = 81
           Top = 25
-          Width = 70
-          Height = 13
+          Width = 65
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Hesap Kodu'
@@ -41,10 +42,10 @@ inherited frmHesapKartiAra: TfrmHesapKartiAra
           ParentFont = False
         end
         object lblhesap_ismi: TLabel
-          Left = 83
+          Left = 85
           Top = 47
-          Width = 63
-          Height = 13
+          Width = 61
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Hesap '#304'smi'
@@ -57,10 +58,10 @@ inherited frmHesapKartiAra: TfrmHesapKartiAra
           ParentFont = False
         end
         object lblmuhasebe_kodu: TLabel
-          Left = 54
+          Left = 57
           Top = 3
-          Width = 92
-          Height = 13
+          Width = 89
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Muhasebe Kodu'
@@ -73,10 +74,10 @@ inherited frmHesapKartiAra: TfrmHesapKartiAra
           ParentFont = False
         end
         object lblspl1: TLabel
-          Left = 194
+          Left = 196
           Top = -3
-          Width = 8
-          Height = 24
+          Width = 6
+          Height = 22
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = '-'

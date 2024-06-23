@@ -1,4 +1,4 @@
-unit Ths.Database.Table.ChDovizKurlari;
+﻿unit Ths.Database.Table.ChDovizKurlari;
 
 interface
 

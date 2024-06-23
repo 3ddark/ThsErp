@@ -6,8 +6,8 @@ inherited frmChDovizKuru: TfrmChDovizKuru
   ClientHeight = 171
   ClientWidth = 344
   ParentFont = True
-  ExplicitWidth = 358
-  ExplicitHeight = 207
+  ExplicitWidth = 360
+  ExplicitHeight = 210
   TextHeight = 15
   inherited pnlMain: TPanel
     Width = 344
@@ -17,8 +17,8 @@ inherited frmChDovizKuru: TfrmChDovizKuru
     inherited pgcMain: TPageControl
       Width = 344
       Height = 121
-      ExplicitWidth = 342
-      ExplicitHeight = 118
+      ExplicitWidth = 346
+      ExplicitHeight = 121
       inherited tsMain: TTabSheet
         ExplicitTop = 26
         ExplicitWidth = 336

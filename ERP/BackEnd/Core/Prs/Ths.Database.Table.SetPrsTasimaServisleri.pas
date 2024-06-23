@@ -45,8 +45,8 @@ begin
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
-  FAracNo := TFieldDB.Create('arac_no', ftInteger, 0, Self, 'Araç No');
-  FAracAdi := TFieldDB.Create('arac_adi', ftWideString, '', Self, 'Araç Adý');
+  FAracNo := TFieldDB.Create('arac_no', ftInteger, 0, Self, 'AraÃ§ No');
+  FAracAdi := TFieldDB.Create('arac_adi', ftWideString, '', Self, 'AraÃ§ AdÄ±');
   FRota := TFieldDB.Create('rota', ftArray, '', Self, 'Rota');
 end;
 

@@ -77,8 +77,8 @@ begin
   FOkuma := TFieldDB.Create('okuma', FSetPrsLisanSeviyesi.LisanSeviyesi.DataType, '', Self, 'Okuma Seviyesi', FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName + '_read', 0, True);
   FYazmaID := TFieldDB.Create('yazma_id', ftInteger, 0, Self, 'Yazma Seviyesi ID');
   FYazma := TFieldDB.Create('yazma', FSetPrsLisanSeviyesi.LisanSeviyesi.DataType, '', Self, 'Yazma Seviyesi', FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName + '_write', 0, True);
-  FKonusmaID := TFieldDB.Create('konusma_id', ftInteger, 0, Self, 'Konuþma Seviyesi ID');
-  FKonusma := TFieldDB.Create('konusma', FSetPrsLisanSeviyesi.LisanSeviyesi.DataType, '', Self, 'Konuþma Seviyesi', FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName + '_speak', 0, True);
+  FKonusmaID := TFieldDB.Create('konusma_id', ftInteger, 0, Self, 'Konuï¿½ma Seviyesi ID');
+  FKonusma := TFieldDB.Create('konusma', FSetPrsLisanSeviyesi.LisanSeviyesi.DataType, '', Self, 'KonuÅŸma Seviyesi', FSetPrsLisanSeviyesi.LisanSeviyesi.FieldName + '_speak', 0, True);
   FPersonelID := TFieldDB.Create('personel_id', ftInteger, 0, Self, 'Personel Kart ID');
   FPersonel := TFieldDB.Create(FEmpEmployee.AdSoyad.FieldName, FEmpEmployee.AdSoyad.DataType, FEmpEmployee.AdSoyad.Value, Self, FEmpEmployee.AdSoyad.Title);
 end;

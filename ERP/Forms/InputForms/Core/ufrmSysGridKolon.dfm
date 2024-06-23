@@ -18,7 +18,7 @@ inherited frmSysGridKolon: TfrmSysGridKolon
     inherited pgcMain: TPageControl
       Width = 595
       Height = 324
-      ExplicitWidth = 595
+      ExplicitWidth = 597
       ExplicitHeight = 324
       inherited tsMain: TTabSheet
         ExplicitTop = 26

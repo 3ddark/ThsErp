@@ -1,4 +1,4 @@
-unit Ths.Globals;
+ï»¿unit Ths.Globals;
 
 interface
 
@@ -190,25 +190,25 @@ type
 
 
   /// <summary>
-  ///   Framework içinde kullanýlan sabit dil içeriklieri için bilgilerin olduðu record.
+  ///   Framework iï¿½inde kullanï¿½lan sabit dil iï¿½eriklieri iï¿½in bilgilerin olduï¿½u record.
   /// </summary>
   /// <remarks>
-  ///   Burada framework içinde kullanýlan ve tekrar eden dil database tablosundan
-  ///   çekilecek olan datalar için sabit bilgiler yazýldý.
+  ///   Burada framework iï¿½inde kullanï¿½lan ve tekrar eden dil database tablosundan
+  ///   ï¿½ekilecek olan datalar iï¿½in sabit bilgiler yazï¿½ldï¿½.
   /// </remarks>
   /// <example>
-  ///   Yeni Kayýt Ekle Buton baþlýðý için ButtonAdd
+  ///   Yeni Kayï¿½t Ekle Buton baï¿½lï¿½ï¿½ï¿½ iï¿½in ButtonAdd
   /// </example>
   /// <seealso href="http://www.aaa.xxx/test">
-  ///   Link verilmedi. Buradan Uður Parlayan hocama selamlar
+  ///   Link verilmedi. Buradan Uï¿½ur Parlayan hocama selamlar
   /// </seealso>
   function FrameworkLang: TLang;
 
   /// <summary>
-  ///   Birden fazla sLineBreak eklemek için kullanýlýr.
+  ///   Birden fazla sLineBreak eklemek iï¿½in kullanï¿½lï¿½r.
   /// </summary>
   /// <remarks>
-  ///   Birden fazla sLineBreak kullanýlmak istenildiðinde bu fonksiyon yardýmcý oluyor.
+  ///   Birden fazla sLineBreak kullanï¿½lmak istenildiï¿½inde bu fonksiyon yardï¿½mcï¿½ oluyor.
   ///  3 tane slinebreak yazmak yerine bu fonksiyonu kullanabilirsin.
   ///  slinebreak + slinebreak + slinebreak
   /// </remarks>
@@ -218,12 +218,12 @@ type
   function AddLBs(pCount: Integer = 1): string;
 
   /// <summary>
-  ///   Butonlarýn baþlýklarýný özelleþtirebildiðimiz Mesaj ekraný
+  ///   Butonlarï¿½n baï¿½lï¿½klarï¿½nï¿½ ï¿½zelleï¿½tirebildiï¿½imiz Mesaj ekranï¿½
   /// </summary>
   /// <remarks>
-  ///   Buton baþlýklarýný özelleþtirilebildiðimiz özel MesajDiaglog formu.
-  ///  Mesaj, Baþlýk, Buton Yazýlarý gibi herþeyi istediðimiz þekilde yazabildiðimiz
-  ///  özel Mesaj formu
+  ///   Buton baï¿½lï¿½klarï¿½nï¿½ ï¿½zelleï¿½tirilebildiï¿½imiz ï¿½zel MesajDiaglog formu.
+  ///  Mesaj, Baï¿½lï¿½k, Buton Yazï¿½larï¿½ gibi herï¿½eyi istediï¿½imiz ï¿½ekilde yazabildiï¿½imiz
+  ///  ï¿½zel Mesaj formu
   /// </remarks>
   /// <example>
   ///   CustomMsgDlg('Are you sure you want to update record?', mtConfirmation, mbYesNo, ['Yes', 'No'], mbNo, 'Confirmation') = mrYes
@@ -237,8 +237,6 @@ type
 
   function EnDeCrypt(const Value: string): string;
 
-  function CheckString(const pStr: string): Boolean;
-
   function TrimCustom(const S: string; const AChar: Char): string;
   function TrimLeftCustom(const S: string; const AChar: Char): string;
   function TrimRightCustom(const S: string; const AChar: Char): string;
@@ -246,7 +244,7 @@ type
   function IsNumeric(const S: string): Boolean;
   procedure TutarHesapla(const fiyat: double; const miktar: double; const iskontoOrani: double; const kdvOrani: double; out tutar: double; out netFiyat: double; out iskontoTutar: double; out kdvTutar: double; out toplamTutar: double; ondalikli_hane: integer);
   function SayiyiYaziyaCevir(Num: Double): string;
-  function SayiyiYaziyaCevir2(tutar: double; tur: integer; tam_birim: string = 'TL'; ondalikli_birim: string = 'KRÞ'): string;
+  function SayiyiYaziyaCevir2(tutar: double; tur: integer; tam_birim: string = 'TL'; ondalikli_birim: string = 'KRï¿½'): string;
   function VirguldenSonraHaneSayisi(deger: double; hanesayisi: integer): string;
   function GetMACAddress: TNetworkCardInfoList;
   function CountNumOfCharacter(s: string; delimeter: string): integer;
@@ -262,44 +260,44 @@ type
   function LSet(ST: string): string;
 
   /// <summary>
-  ///  Belirtilen dosyayý ByteArray bilgi olarak geri dönderir
-  ///  Dosya adý "C:\Test\asd.xml" gibi
+  ///  Belirtilen dosyayï¿½ ByteArray bilgi olarak geri dï¿½nderir
+  ///  Dosya adï¿½ "C:\Test\asd.xml" gibi
   /// </summary>
   function FileToByteArray(const FileName: WideString): TArray<Byte>;
 
   /// <summary>
-  ///  ByteArray bilgiyi verilen dosya adýnda kayýt eder.
-  ///  Dosya adý "C:\Test\asd.xml" gibi
+  ///  ByteArray bilgiyi verilen dosya adï¿½nda kayï¿½t eder.
+  ///  Dosya adï¿½ "C:\Test\asd.xml" gibi
   /// </summary>
   procedure ByteArrayToFile(const ByteArray: TBytes; const FileName: string);
 
   /// <summary>
-  ///   Dosya yolu ile birlikte verilen dosya adýnýn disk boyutunu getirir. Bilgi Byte cinsinden gelir.
-  ///   1MB için dönen deðer 1000000 olarak gelir. 15KB için 15000 gibi
+  ///   Dosya yolu ile birlikte verilen dosya adï¿½nï¿½n disk boyutunu getirir. Bilgi Byte cinsinden gelir.
+  ///   1MB iï¿½in dï¿½nen deï¿½er 1000000 olarak gelir. 15KB iï¿½in 15000 gibi
   /// </summary>
   {$IFDEF MSWINDOWS}
   function GetFileSize(pFileName: string): Int64;
   {$ENDIF MSWINDOWS}
 
   /// <summary>
-  ///   Türkçe karakterlerde dahil olmak üzere verilen string bilgiyi büyük harfe çevirir. ý>I i>Ý olur
+  ///   Tï¿½rkï¿½e karakterlerde dahil olmak ï¿½zere verilen string bilgiyi bï¿½yï¿½k harfe ï¿½evirir. ï¿½>I i>ï¿½ olur
   /// </summary>
   function UpperCaseTr(S: string): string;
 
   /// <summary>
-  ///   Türkçe karakterlerde dahil olmak üzere verilen string bilgiyi küçük harfe çevirir. I>ý Ý>i olur
+  ///   Tï¿½rkï¿½e karakterlerde dahil olmak ï¿½zere verilen string bilgiyi kï¿½ï¿½ï¿½k harfe ï¿½evirir. I>ï¿½ ï¿½>i olur
   /// </summary>
   function LowerCaseTr(S: string): string;
 
   /// <summary>
-  ///   Boolean bilgiyi string olarak döndürür. Boolean tip deðeri True ise "TRUE" string döner False ise "FALSE" string döner
+  ///   Boolean bilgiyi string olarak dï¿½ndï¿½rï¿½r. Boolean tip deï¿½eri True ise "TRUE" string dï¿½ner False ise "FALSE" string dï¿½ner
   /// </summary>
   function BoolToStr(ABool: Boolean; ABuyuk: Boolean = True): string;
 
   /// <summary>
-  ///  iþletim sistemi dpi bilgilerine göre girilen int degerin dpi ayarýna göre hesaplanarak sonucunu getiriyor
-  ///  Örn. Button.Widht := 100 ise ve iþletim sistemi %150 kullanýlýyorsa. Bu deðerin 150 olmasý gerekiyor.
-  ///  Normalde 96ppi ile proje geliþtiriliyor. Fakat sistem %150 yapýlýnca 144ppi oluyor 144/96 = 1,5 oluyor.
+  ///  iï¿½letim sistemi dpi bilgilerine gï¿½re girilen int degerin dpi ayarï¿½na gï¿½re hesaplanarak sonucunu getiriyor
+  ///  ï¿½rn. Button.Widht := 100 ise ve iï¿½letim sistemi %150 kullanï¿½lï¿½yorsa. Bu deï¿½erin 150 olmasï¿½ gerekiyor.
+  ///  Normalde 96ppi ile proje geliï¿½tiriliyor. Fakat sistem %150 yapï¿½lï¿½nca 144ppi oluyor 144/96 = 1,5 oluyor.
   ///  Bu durumda 100 * 1,5 = 150 oluyor
   /// </summary>
   function scaleBySystemDPI(AVal: Integer): Integer;
@@ -311,25 +309,25 @@ type
   function GetStrFromHashSHA512(pString: WideString): string;
 
   /// <summary>
-  ///   Verilen string bilgiyi girilen key ile þifreler
+  ///   Verilen string bilgiyi girilen key ile ï¿½ifreler
   /// </summary>
   /// <remarks>
-  ///  <para>Kendi Anahtar deðerimiz (0-65535 aralýðýndaki) ile bilgiyi þifrelemek için kullanýlýr.</para>
-  ///  <para>Mesela kiþisel verileri koruma kanunu gereði TC Kimlik No bilgisini þifreler.</para>
-  ///  <para>Aþaðýdaki örnek kod örnek olarak attýðým TC Kimlik bilgisini þifreler</para>
-  ///  <code lang="Delphi">EncryptStr('30850331144', 14257); //Sonuç: 040EF0D744DA01BA36DAE5</code>
+  ///  <para>Kendi Anahtar deï¿½erimiz (0-65535 aralï¿½ï¿½ï¿½ndaki) ile bilgiyi ï¿½ifrelemek iï¿½in kullanï¿½lï¿½r.</para>
+  ///  <para>Mesela kiï¿½isel verileri koruma kanunu gereï¿½i TC Kimlik No bilgisini ï¿½ifreler.</para>
+  ///  <para>Aï¿½aï¿½ï¿½daki ï¿½rnek kod ï¿½rnek olarak attï¿½ï¿½ï¿½m TC Kimlik bilgisini ï¿½ifreler</para>
+  ///  <code lang="Delphi">EncryptStr('30850331144', 14257); //Sonuï¿½: 040EF0D744DA01BA36DAE5</code>
   /// </remarks>
   function EncryptStr(const S, ASecureKey: string): string;
 
   /// <summary>
-  ///   EncryptStr ile þifrelenen bilginin þifresini çözmek için Key ile birlikte þifreli bilgi girilir.
-  ///   Gerçek bilgi geri döner
+  ///   EncryptStr ile ï¿½ifrelenen bilginin ï¿½ifresini ï¿½ï¿½zmek iï¿½in Key ile birlikte ï¿½ifreli bilgi girilir.
+  ///   Gerï¿½ek bilgi geri dï¿½ner
   /// </summary>
   /// <remarks>
-  ///   <para>Kendi Anahtar deðerimiz (0-65535 aralýðýndaki) ile bilgiyi þifrelemek için kullanýlýr.</para>
-  ///   <para>Mesela kiþisel verileri koruma kanunu gereði þifrelenen TC Kimlik No bilgisini gerçek bilgiye çevirir.</para>
-  ///   <para>Aþaðýdaki örnek kod örnek olarak attýðým þifrelenmiþ TC Kimlik bilgisini gerçek bilgiye çevirir</para>
-  ///   <code lang="Delphi">EncryptStr('040EF0D744DA01BA36DAE5', 14257); //Sonuç: 30850331144</code>
+  ///   <para>Kendi Anahtar deï¿½erimiz (0-65535 aralï¿½ï¿½ï¿½ndaki) ile bilgiyi ï¿½ifrelemek iï¿½in kullanï¿½lï¿½r.</para>
+  ///   <para>Mesela kiï¿½isel verileri koruma kanunu gereï¿½i ï¿½ifrelenen TC Kimlik No bilgisini gerï¿½ek bilgiye ï¿½evirir.</para>
+  ///   <para>Aï¿½aï¿½ï¿½daki ï¿½rnek kod ï¿½rnek olarak attï¿½ï¿½ï¿½m ï¿½ifrelenmiï¿½ TC Kimlik bilgisini gerï¿½ek bilgiye ï¿½evirir</para>
+  ///   <code lang="Delphi">EncryptStr('040EF0D744DA01BA36DAE5', 14257); //Sonuï¿½: 30850331144</code>
   /// </remarks>
   function DecryptStr(const S, ASecureKey: string): string;
 
@@ -396,10 +394,10 @@ type
 
 
   /// <summary>
-  ///   Parametre girilen Tablo adý ve Tablodaki Column Name bilgisine göre
-  ///  sys_lang_data tablosundan programýn açýlan dil ayarýna göre column
-  ///  bilgsini döndürüyor. Bu fonksiyon tek baþýna kullanýlamaz.
-  ///  Bu fonksiyon SQL SELECT kodlarý içinde kullanýlýr.
+  ///   Parametre girilen Tablo adï¿½ ve Tablodaki Column Name bilgisine gï¿½re
+  ///  sys_lang_data tablosundan programï¿½n aï¿½ï¿½lan dil ayarï¿½na gï¿½re column
+  ///  bilgsini dï¿½ndï¿½rï¿½yor. Bu fonksiyon tek baï¿½ï¿½na kullanï¿½lamaz.
+  ///  Bu fonksiyon SQL SELECT kodlarï¿½ iï¿½inde kullanï¿½lï¿½r.
   ///  <param name="pBaseTableName">Database Table Name</param>
   ///  <param name="pBaseColName">Database Table Column Name</param>
   ///  <example>
@@ -410,7 +408,7 @@ type
   function getRawDataByLang(pBaseTableName, pBaseColName: string): string;
 
   /// <summary>
-  ///  Ýstenilen Query ye Parametre eklemek için kullanýlýyor. Insert ve Update kodlarý içinde kullanýlýyor.
+  ///  ï¿½stenilen Query ye Parametre eklemek iï¿½in kullanï¿½lï¿½yor. Insert ve Update kodlarï¿½ iï¿½inde kullanï¿½lï¿½yor.
   ///  <param name="AQuery">Zeos Query</param>
   ///  <param name="AField">FieldDB tipindeki Field</param>
   ///  <example>
@@ -420,10 +418,10 @@ type
   procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);
 
   /// <summary>
-  ///  Bu fonksiyon DBGrid üzerinde gösterilen sütunlarýn geniþlik deðerini deðiþtirmek için kullanýlýr.
-  ///  Yaptýðý iþ hýzlýca <b>sys_grid_col_width</b> tablosundaki <b>column_width</b>
-  ///  deðerini hýzlýca güncellemek için kullanýlýr. Açýk DBGrid(output form)
-  ///  ekranýndaki sütun geniþliðinin hýzlýca görselden ayarlamak için bu fonksiyon yazildi.
+  ///  Bu fonksiyon DBGrid ï¿½zerinde gï¿½sterilen sï¿½tunlarï¿½n geniï¿½lik deï¿½erini deï¿½iï¿½tirmek iï¿½in kullanï¿½lï¿½r.
+  ///  Yaptï¿½ï¿½ï¿½ iï¿½ hï¿½zlï¿½ca <b>sys_grid_col_width</b> tablosundaki <b>column_width</b>
+  ///  deï¿½erini hï¿½zlï¿½ca gï¿½ncellemek iï¿½in kullanï¿½lï¿½r. Aï¿½ï¿½k DBGrid(output form)
+  ///  ekranï¿½ndaki sï¿½tun geniï¿½liï¿½inin hï¿½zlï¿½ca gï¿½rselden ayarlamak iï¿½in bu fonksiyon yazildi.
   ///  <param name="pTableName">Database Table Name</param>
   ///  <param name="pColName">Database Table Column Name</param>
   ///  <param name="pColWidth">DBGrid Column Width</param>
@@ -465,19 +463,19 @@ var
   GDosyaUzantilari: TArray<string>;
 
   /// <summary>
-  ///  Dialog pencereleri açýldýðý zaman bazen ExtractFilePath(Application.ExeName) ile elde edilen Uygulama Path eriþilemiyor.
-  ///  Bir nedenle ExtractFilePath(Application.ExeName) path deðiþiyor. Nedeni birden fazla uygulama kopyasý açýlabiliyor.
-  ///  Bu nedenle uygulama ilk açýlýþta Path bu deðiþkende tutluyor. Buradan kullanýlacak.
+  ///  Dialog pencereleri aï¿½ï¿½ldï¿½ï¿½ï¿½ zaman bazen ExtractFilePath(Application.ExeName) ile elde edilen Uygulama Path eriï¿½ilemiyor.
+  ///  Bir nedenle ExtractFilePath(Application.ExeName) path deï¿½iï¿½iyor. Nedeni birden fazla uygulama kopyasï¿½ aï¿½ï¿½labiliyor.
+  ///  Bu nedenle uygulama ilk aï¿½ï¿½lï¿½ï¿½ta Path bu deï¿½iï¿½kende tutluyor. Buradan kullanï¿½lacak.
   /// </summary>
   GUygulamaAnaDizin: string;
 
   /// <summary>
-  ///  Database sýnýfýna ulaþýlýyor. Bazý fonksiyonlar burada GetToday GetNow veya runCustomSQL gibi
+  ///  Database sï¿½nï¿½fï¿½na ulaï¿½ï¿½lï¿½yor. Bazï¿½ fonksiyonlar burada GetToday GetNow veya runCustomSQL gibi
   /// </summary>
   GDataBase: TDatabase;
 
   /// <summary>
-  ///  Giriþ yapan kullanýcý bilgilerine bu tablo bilgisinden ulaþalýyor.
+  ///  Giriï¿½ yapan kullanï¿½cï¿½ bilgilerine bu tablo bilgisinden ulaï¿½alï¿½yor.
   ///  <example>
   ///   <code lang="Delphi">GSysKullanici.KullaniciAdi</code>
   ///  </example>
@@ -485,7 +483,7 @@ var
   GSysKullanici: TSysKullanici;
 
   /// <summary>
-  ///  Virgüllü sayýlarda hane sayýsý deðerlerine buradan ulaþýlýyor. Bu ayara göre iþlemler yapýlacak.
+  ///  Virgï¿½llï¿½ sayï¿½larda hane sayï¿½sï¿½ deï¿½erlerine buradan ulaï¿½ï¿½lï¿½yor. Bu ayara gï¿½re iï¿½lemler yapï¿½lacak.
   ///  <example>
   ///   <code lang="Delphi">GSysOndalikHane.SatisMiktar</code>
   ///  </example>
@@ -493,7 +491,7 @@ var
   GSysOndalikHane: TSysOndalikHane;
 
   /// <summary>
-  ///  Uygulama ayarlarýna bu tablo bilgisinden ulaþýlýyor.
+  ///  Uygulama ayarlarï¿½na bu tablo bilgisinden ulaï¿½ï¿½lï¿½yor.
   ///  <example>
   ///   <code lang="Delphi">GSysUygulamaAyari.Unvan</code>
   ///  </example>
@@ -502,12 +500,12 @@ var
 
 
   /// <summary>
-  ///  Sistemde tanýmlý olan para birimleri burada tutuluyor
+  ///  Sistemde tanï¿½mlï¿½ olan para birimleri burada tutuluyor
   /// </summary>
   GParaBirimi: TSysParaBirimi;
 
   /// <summary>
-  ///  Table sýnýfýndaki field özelliklerini almak için kullanýlýyor.
+  ///  Table sï¿½nï¿½fï¿½ndaki field ï¿½zelliklerini almak iï¿½in kullanï¿½lï¿½yor.
   /// </summary>
   GSysTableInfo: TSysViewColumns;
 
@@ -658,7 +656,7 @@ begin
       else
         Result := pVal;
 
-//      //variant data uzunluðu > 10 olduðunda Datetime tipi olarak kabul et
+//      //variant data uzunluï¿½u > 10 olduï¿½unda Datetime tipi olarak kabul et
 //      if VarToStr(pVal).Length > 10 then
 //      begin
 //        TryStrToDate(VarToStr(pVal), vValueDateTime);
@@ -1012,23 +1010,23 @@ begin
       if nCaption > High(pCaptions) then
         Break;
 
-      //font deðiþtir
+      //font deï¿½iï¿½tir
       vDlgButton.Font.Name := fontName;
       //custom caption ata
       vDlgButton.Caption := pCaptions[nCaption];
-      //yazýya göre buton geniþliðini ayarla
+      //yazï¿½ya gï¿½re buton geniï¿½liï¿½ini ayarla
       vDlgButton.Width := Max(vMsgDlg.Canvas.TextWidth(vDlgButton.Caption) + (8 * 2), 75);
 
       LTotalBtnWidth :=  LTotalBtnWidth + vDlgButton.Width;
 
-      //butonlarýn arasýnda 8 boþluk býrak
-      //soldan da 8 boþluk için +8 yapýyoruz
+      //butonlarï¿½n arasï¿½nda 8 boï¿½luk bï¿½rak
+      //soldan da 8 boï¿½luk iï¿½in +8 yapï¿½yoruz
       if nCaption = 0 then
         widthTotal := 8;
       widthTotal := widthTotal + vDlgButton.Width + 12;
       Inc(nCaption);
 
-      //butonlarýn left pozisyonlarýný ayarlamak için array içinde tutuyoruz
+      //butonlarï¿½n left pozisyonlarï¿½nï¿½ ayarlamak iï¿½in array iï¿½inde tutuyoruz
       SetLength(buttonNames, nCaption);
       buttonNames[nCaption-1] := vDlgButton;
     end;
@@ -1077,16 +1075,6 @@ begin
   Result := Value;
   for CharIndex := 1 to Length(Value) do
     Result[CharIndex] := chr(not (ord(Value[CharIndex])));
-end;
-
-function CheckString(const pStr: string): Boolean;
-var
-  n1: Integer;
-begin
-  Result := False;
-  for n1 := 1 to Length(pStr) do
-    if CharInSet(pStr[n1], ['0'..'9', 'a'..'z', 'A'..'Z', '_', '/', 'ö', 'Ö', 'ç', 'Ç', 'þ', 'Þ', 'ý', 'Ý', 'ð', 'Ð', 'ü', 'Ü']) then
-      Exit(True);
 end;
 
 function TrimCustom(const S: string; const AChar: Char): string;
@@ -1148,9 +1136,9 @@ end;
 
 function SayiyiYaziyaCevir(Num: Double): string;
 const
-  BIRLER: array[0..9] of string = ('', 'BÝR ', 'ÝKÝ ', 'ÜÇ ', 'DÖRT ', 'BEÞ ', 'ALTI ', 'YEDÝ ', 'SEKÝZ ', 'DOKUZ ');
-  ONLAR: array[0..9] of string = ('', 'ON ', 'YÝRMÝ ', 'OTUZ ', 'KIRK ', 'ELLÝ ', 'ALTMIÞ ', 'YETMÝÞ ', 'SEKSEN ', 'DOKSAN ');
-  DIGER: array[0..5] of string = ('', 'BÝN ', 'MÝLYON ', 'MÝLYAR ', 'TRÝLYON ', 'KATRÝLYON ');
+  BIRLER: array[0..9] of string = ('', 'Bï¿½R ', 'ï¿½Kï¿½ ', 'ï¿½ï¿½ ', 'Dï¿½RT ', 'BEï¿½ ', 'ALTI ', 'YEDï¿½ ', 'SEKï¿½Z ', 'DOKUZ ');
+  ONLAR: array[0..9] of string = ('', 'ON ', 'Yï¿½RMï¿½ ', 'OTUZ ', 'KIRK ', 'ELLï¿½ ', 'ALTMIï¿½ ', 'YETMï¿½ï¿½ ', 'SEKSEN ', 'DOKSAN ');
+  DIGER: array[0..5] of string = ('', 'Bï¿½N ', 'Mï¿½LYON ', 'Mï¿½LYAR ', 'TRï¿½LYON ', 'KATRï¿½LYON ');
 
   function SmallNum(Num: Int64): string;
   var
@@ -1168,9 +1156,9 @@ const
     if S[1] <> '0' then
     begin
       if S[1] <> '1' then
-        Result := BIRLER[StrToInt(string(S[1]))] + 'YÜZ '
+        Result := BIRLER[StrToInt(string(S[1]))] + 'Yï¿½Z '
       else
-        Result := 'YÜZ ';
+        Result := 'Yï¿½Z ';
     end;
     Result := Result + ONLAR[StrToInt(string(S[2]))];
     Result := Result + BIRLER[StrToInt(string(S[3]))];
@@ -1219,11 +1207,11 @@ begin
   Result := Sn;
 end;
 
-function SayiyiYaziyaCevir2(tutar: double; tur: integer; tam_birim: string = 'TL'; ondalikli_birim: string = 'KRÞ'): string;
+function SayiyiYaziyaCevir2(tutar: double; tur: integer; tam_birim: string = 'TL'; ondalikli_birim: string = 'KRï¿½'): string;
 const
-  b1: array[1..9] of string = ('BÝR', 'ÝKÝ', 'ÜÇ', 'DÖRT', 'BEÞ', 'ALTI', 'YEDÝ', 'SEKÝZ', 'DOKUZ');
-  b2: array[1..9] of string = ('ON', 'YÝRMÝ', 'OTUZ', 'KIRK', 'ELLÝ', 'ALTMIÞ', 'YETMÝÞ', 'SEKSEN', 'DOKSAN');
-  b3: array[1..6] of string = ('KATRÝLYON', 'TRÝLYON', 'MÝLYAR', 'MÝLYON', 'BÝN', '');
+  b1: array[1..9] of string = ('Bï¿½R', 'ï¿½Kï¿½', 'ï¿½ï¿½', 'Dï¿½RT', 'BEï¿½', 'ALTI', 'YEDï¿½', 'SEKï¿½Z', 'DOKUZ');
+  b2: array[1..9] of string = ('ON', 'Yï¿½RMï¿½', 'OTUZ', 'KIRK', 'ELLï¿½', 'ALTMIï¿½', 'YETMï¿½ï¿½', 'SEKSEN', 'DOKSAN');
+  b3: array[1..6] of string = ('KATRï¿½LYON', 'TRï¿½LYON', 'Mï¿½LYAR', 'Mï¿½LYON', 'Bï¿½N', '');
 var
   gr: array[1..6] of string;
   sn: array[1..6] of string;
@@ -1249,9 +1237,9 @@ begin
     if bs[1] <> 0 then
     begin
       if bs[1] <> 1 then
-        sn[l] := sn[l] + b1[bs[1]] + 'YÜZ'
+        sn[l] := sn[l] + b1[bs[1]] + 'Yï¿½Z'
       else
-        sn[l] := sn[l] + 'YÜZ';
+        sn[l] := sn[l] + 'Yï¿½Z';
     end;
 
     bs[2] := strtoint(copy(gr[l], 2, 1));
@@ -1268,8 +1256,8 @@ begin
       sn[l] := sn[l] + b3[l];
   end;
 
-  if sn[5] = 'BÝRBÝN' then
-    sn[5] := 'BÝN';
+  if sn[5] = 'Bï¿½RBï¿½N' then
+    sn[5] := 'Bï¿½N';
 
   for i := 1 to 6 do
     sonuct := sonuct + sn[i];
@@ -1310,9 +1298,9 @@ begin
   case APermissionType of
     TPermissionType.ptRead: Result := 'OKUMA';
     TPermissionType.ptAddRecord: Result := 'KAYIT EKLEME';
-    TPermissionType.ptUpdate: Result := 'GÜNCELLEME';
-    TPermissionType.ptDelete: Result := 'KAYIT SÝLME';
-    TPermissionType.ptSpecial: Result := 'ÖZEL HAK';
+    TPermissionType.ptUpdate: Result := 'Gï¿½NCELLEME';
+    TPermissionType.ptDelete: Result := 'KAYIT Sï¿½LME';
+    TPermissionType.ptSpecial: Result := 'ï¿½ZEL HAK';
   end;
 end;
 
@@ -1616,15 +1604,15 @@ function FloatKeyControl2(Sender: TObject; Key: Char): Char;
 begin
   if not CharInSet(Key, [#8, '0'..'9', FormatSettings.DecimalSeparator]) then
   begin
-    Key := #0; //sadece sayý ve virgülle backspace kabul et
+    Key := #0; //sadece sayï¿½ ve virgï¿½lle backspace kabul et
   end
   else if (Key = FormatSettings.DecimalSeparator) and (Pos(Key, TStringGrid(Sender).Cells[TStringGrid(Sender).Col, TStringGrid(Sender).Row]) > 0) then
   begin
-    Key := #0; //ikinci virgülü alma
+    Key := #0; //ikinci virgï¿½lï¿½ alma
   end
   else if (Key = FormatSettings.DecimalSeparator) and (Length(TStringGrid(Sender).Cells[TStringGrid(Sender).Col, TStringGrid(Sender).Row]) = 0) then
   begin
-    Key := #0; //, ile baþlatma
+    Key := #0; //, ile baï¿½latma
   end;
   Result := Key;
 end;
@@ -1731,12 +1719,12 @@ end;
 
 function UpperCaseTr(S: string): string;
 begin
-  Result := AnsiUpperCase(StringReplace(StringReplace(S, 'ý', 'I', [rfReplaceAll]), 'i', 'Ý', [rfReplaceAll]));
+  Result := AnsiUpperCase(StringReplace(StringReplace(S, 'Ä±', 'I', [rfReplaceAll]), 'i', 'Ä°', [rfReplaceAll]));
 end;
 
 function LowerCaseTr(S: string): string;
 begin
-  Result := AnsiLowerCase(StringReplace(StringReplace(S, 'I', 'ý', [rfReplaceAll]), 'Ý', 'i', [rfReplaceAll]));
+  Result := AnsiLowerCase(StringReplace(StringReplace(S, 'I', 'Ä±', [rfReplaceAll]), 'Ä°', 'i', [rfReplaceAll]));
 end;
 
 function BoolToStr(ABool: Boolean; ABuyuk: Boolean): string;
@@ -1836,7 +1824,7 @@ begin
   //uses IdFTP, IdFTPCommon, IdAntiFreeze
 
   vFtp := TIdFTP.Create(nil);
-  vIDAntiFreeze := TIDAntiFreeze.Create(nil); // büyük dosyalar inerken donma olmasýn
+  vIDAntiFreeze := TIDAntiFreeze.Create(nil); // bï¿½yï¿½k dosyalar inerken donma olmasï¿½n
   try
     Result := False;
     vFtp.Host := pFtp;
@@ -1857,17 +1845,17 @@ begin
       vFtp.Disconnect;
     end;
   finally
-    //free edilme olayý test edilmedi
+    //free edilme olayï¿½ test edilmedi
     vFtp.Free;
     vIDAntiFreeze.Free;
   end;
 
-//kullaným örnek
+//kullanï¿½m ï¿½rnek
 {
-  //baþarý ile ftp alýrsa
+  //baï¿½arï¿½ ile ftp alï¿½rsa
   if TSpecialFunctions.FTPDosyaAl('vsd.jpg', 'c:\vsd.jpg', 'ftp.aybey.com', 'public_html/uploads/', 'u8264876@aybey.com', 'BmAe1993_') then
   begin
-    //dosya baþaralý bir þekilde indikten sonra yapýlacak olan iþlemler
+    //dosya baï¿½aralï¿½ bir ï¿½ekilde indikten sonra yapï¿½lacak olan iï¿½lemler
   end;
 }
 end;
@@ -2366,11 +2354,11 @@ var
   LMailApp: TMailApp;
 begin
   if not FileExists(AMailClientAppPath) then
-    raise Exception.Create('Uygulama dosya yolu hatalý.' + sLineBreak + AMailClientAppPath);
+    raise Exception.Create('Uygulama dosya yolu hatalï¿½.' + sLineBreak + AMailClientAppPath);
 
   for n1 := 0 to Length(AAttachedFiles)-1 do
     if not FileExists(AAttachedFiles[n1]) then
-      raise Exception.Create('Dosya eki verilen "' + AAttachedFiles[n1] + '" konumda bulunamadý!');
+      raise Exception.Create('Dosya eki verilen "' + AAttachedFiles[n1] + '" konumda bulunamadï¿½!');
 
   LDelimeter := '';
   LMailApp := TMailApp.Outlook;

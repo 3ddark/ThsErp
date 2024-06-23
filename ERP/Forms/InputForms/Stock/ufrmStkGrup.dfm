@@ -8,7 +8,7 @@ inherited frmStkGrup: TfrmStkGrup
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 550
   ExplicitHeight = 332
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 534
     Height = 243
@@ -22,8 +22,9 @@ inherited frmStkGrup: TfrmStkGrup
       ExplicitWidth = 534
       ExplicitHeight = 243
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 526
-        ExplicitHeight = 215
+        ExplicitHeight = 214
         object lblgrup: TLabel
           Left = 171
           Top = 5

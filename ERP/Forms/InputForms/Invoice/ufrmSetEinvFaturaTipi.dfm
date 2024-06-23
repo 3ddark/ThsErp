@@ -6,10 +6,9 @@ inherited frmSetEinvFaturaTipi: TfrmSetEinvFaturaTipi
   ClientHeight = 121
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 350
-  ExplicitHeight = 150
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 360
+  ExplicitHeight = 160
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 344
     Height = 71
@@ -23,13 +22,14 @@ inherited frmSetEinvFaturaTipi: TfrmSetEinvFaturaTipi
       ExplicitWidth = 344
       ExplicitHeight = 71
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 336
-        ExplicitHeight = 43
+        ExplicitHeight = 42
         object lblTip: TLabel
-          Left = 41
+          Left = 43
           Top = 6
-          Width = 19
-          Height = 13
+          Width = 17
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Tip'

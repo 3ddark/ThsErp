@@ -1,4 +1,4 @@
-unit ufrmChHesapKartiAra;
+ï»¿unit ufrmChHesapKartiAra;
 
 interface
 
@@ -114,7 +114,7 @@ begin
         LHesapPlani := TChHesapPlani.Create(Table.Database);
         LFrmHesapPlani := TfrmChHesapPlanlari.Create(TEdit(Sender), Self, LHesapPlani, fomNormal, True);
         try
-          //Hesap Planýnda seviyesi 3 olanlarýn ara hesabý olabilir. Bu nedenle 3 seviyeliler acýlýr
+          //Hesap Planï¿½nda seviyesi 3 olanlarï¿½n ara hesabï¿½ olabilir. Bu nedenle 3 seviyeliler acï¿½lï¿½r
           LFrmHesapPlani.QryFiltreVarsayilanKullanici := ' AND ' + LHesapPlani.Seviye.QryName + '=' + IntToStr(3);
           LFrmHesapPlani.ShowModal;
 

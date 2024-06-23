@@ -19,7 +19,7 @@ inherited frmSysGuiIcerik: TfrmSysGuiIcerik
     inherited pgcMain: TPageControl
       Width = 433
       Height = 171
-      ExplicitWidth = 433
+      ExplicitWidth = 435
       ExplicitHeight = 171
       inherited tsMain: TTabSheet
         ExplicitTop = 26

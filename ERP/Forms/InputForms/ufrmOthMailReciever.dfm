@@ -9,7 +9,7 @@ inherited frmOthMailReciever: TfrmOthMailReciever
   Position = poDesktopCenter
   ExplicitWidth = 358
   ExplicitHeight = 162
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 342
     Height = 73
@@ -18,20 +18,21 @@ inherited frmOthMailReciever: TfrmOthMailReciever
     ExplicitWidth = 340
     ExplicitHeight = 55
     inherited pgcMain: TPageControl
-      Width = 344
-      Height = 77
+      Width = 342
+      Height = 73
       ExplicitLeft = 1
       ExplicitTop = 1
       ExplicitWidth = 338
       ExplicitHeight = 53
       inherited tsMain: TTabSheet
-        ExplicitWidth = 336
-        ExplicitHeight = 49
+        ExplicitTop = 25
+        ExplicitWidth = 334
+        ExplicitHeight = 44
         object lblMailAdresi: TLabel
-          Left = 35
+          Left = 36
           Top = 6
-          Width = 63
-          Height = 13
+          Width = 62
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Mail Adresi'

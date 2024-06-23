@@ -9,7 +9,7 @@ inherited frmUrtIscilik: TfrmUrtIscilik
   Position = poDesktopCenter
   ExplicitWidth = 356
   ExplicitHeight = 243
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 340
     Height = 154
@@ -23,13 +23,14 @@ inherited frmUrtIscilik: TfrmUrtIscilik
       ExplicitWidth = 340
       ExplicitHeight = 154
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 332
-        ExplicitHeight = 126
+        ExplicitHeight = 125
         object lblgider_kodu: TLabel
-          Left = 38
+          Left = 41
           Top = 5
-          Width = 64
-          Height = 13
+          Width = 61
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Gider Kodu'
@@ -42,10 +43,10 @@ inherited frmUrtIscilik: TfrmUrtIscilik
           ParentFont = False
         end
         object lblgider_adi: TLabel
-          Left = 49
+          Left = 51
           Top = 27
-          Width = 53
-          Height = 13
+          Width = 51
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Gider Ad'#305
@@ -58,10 +59,10 @@ inherited frmUrtIscilik: TfrmUrtIscilik
           ParentFont = False
         end
         object lblfiyat: TLabel
-          Left = 74
+          Left = 77
           Top = 49
-          Width = 28
-          Height = 13
+          Width = 25
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Fiyat'
@@ -74,10 +75,10 @@ inherited frmUrtIscilik: TfrmUrtIscilik
           ParentFont = False
         end
         object lblolcu_birimi_id: TLabel
-          Left = 41
+          Left = 43
           Top = 71
-          Width = 61
-          Height = 13
+          Width = 59
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #214'l'#231#252' Birimi'
@@ -90,10 +91,10 @@ inherited frmUrtIscilik: TfrmUrtIscilik
           ParentFont = False
         end
         object lblgider_tipi_id: TLabel
-          Left = 46
+          Left = 49
           Top = 93
-          Width = 56
-          Height = 13
+          Width = 53
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Gider Tipi'

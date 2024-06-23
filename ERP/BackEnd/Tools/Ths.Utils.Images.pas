@@ -1,4 +1,4 @@
-unit Ths.Utils.Images;
+ï»¿unit Ths.Utils.Images;
 
 interface
 
@@ -64,13 +64,13 @@ begin
   begin
     AImage.Picture.Assign(nil);
     DrawEmptyImage(AImage, AMaxWidth, AMaxHeight);
-    raise Exception.Create('Logo geniþliði en fazla ' + AMaxWidth.ToString + 'px olabilir.');
+    raise Exception.Create('Logo geniï¿½liï¿½i en fazla ' + AMaxWidth.ToString + 'px olabilir.');
   end
   else if (AMaxHeight > 0) and (AImage.Picture.Bitmap.Height > AMaxHeight) then
   begin
     AImage.Picture.Assign(nil);
     DrawEmptyImage(AImage, AMaxWidth, AMaxHeight);
-    raise Exception.Create('Logo yüksekliði en fazla ' + AMaxHeight.ToString + 'px olabilir.');
+    raise Exception.Create('Logo yï¿½ksekliï¿½i en fazla ' + AMaxHeight.ToString + 'px olabilir.');
   end;
 
   AImage.Width := AImage.Picture.Bitmap.Width;

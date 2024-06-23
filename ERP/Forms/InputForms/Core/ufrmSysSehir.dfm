@@ -19,7 +19,7 @@ inherited frmSysSehir: TfrmSysSehir
     inherited pgcMain: TPageControl
       Width = 368
       Height = 100
-      ExplicitWidth = 368
+      ExplicitWidth = 370
       ExplicitHeight = 100
       inherited tsMain: TTabSheet
         ExplicitTop = 26

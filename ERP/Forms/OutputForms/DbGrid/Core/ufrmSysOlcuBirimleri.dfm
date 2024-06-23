@@ -8,10 +8,5 @@ inherited frmSysOlcuBirimleri: TfrmSysOlcuBirimleri
     inherited splHeader: TSplitter
       ExplicitWidth = 797
     end
-    inherited pnlHeader: TPanel
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
-    end
   end
 end

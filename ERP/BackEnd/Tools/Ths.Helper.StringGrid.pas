@@ -1,4 +1,4 @@
-unit Ths.Helper.StringGrid;
+ï»¿unit Ths.Helper.StringGrid;
 
 interface
 
@@ -94,49 +94,49 @@ type
 
   TStringGrid = class(Vcl.Grids.TStringGrid)
   private
-    FSortCol: SmallInt; //sýralama yapýlan column no
-    FSortType: TSortMode; //yapýlan sýralama bilgisi
+    FSortCol: SmallInt; //sï¿½ralama yapï¿½lan column no
+    FSortType: TSortMode; //yapï¿½lan sï¿½ralama bilgisi
 
-    FColResized: Boolean; //Sort iþlemi için kullanýlýyor.
+    FColResized: Boolean; //Sort iï¿½lemi iï¿½in kullanï¿½lï¿½yor.
 
-    //Sort arrow için kullanýlan renk
+    //Sort arrow iï¿½in kullanï¿½lan renk
     FSortArrowBorderColor: TColor;
     FSortArrowBackColor: TColor;
 
-    //checkbox için daha sonra kullanýlacak
+    //checkbox iï¿½in daha sonra kullanï¿½lacak
     FCheck: TBitmap;
     FNoCheck: TBitmap;
 
-    //koþullu renklendirme için kullanýlan event
+    //koï¿½ullu renklendirme iï¿½in kullanï¿½lan event
     FOnConditionDrawCell: TOnConditionDrawCell;
 
     FCellStyles: array of TCellLine; //array of array of TThsStyle
-    FDefaultFixedCellStyle: TThsStyle;  //fix hücreler için özel stil tanýmlanmamýþsa kullanýlacak olan stil
+    FDefaultFixedCellStyle: TThsStyle;  //fix hï¿½creler iï¿½in ï¿½zel stil tanï¿½mlanmamï¿½ï¿½sa kullanï¿½lacak olan stil
     FDefaultCellStyle: TThsStyle;
-    FAutoColSize: Boolean; //normal hücreler için özel stil tanýmlanmamýþsa kullanýlacak olan stil
+    FAutoColSize: Boolean; //normal hï¿½creler iï¿½in ï¿½zel stil tanï¿½mlanmamï¿½ï¿½sa kullanï¿½lacak olan stil
 
-    //varsayýlan hücre stilleri için kullan
+    //varsayï¿½lan hï¿½cre stilleri iï¿½in kullan
     procedure SetDefaultCellStyle(const Value: TThsStyle);
     function  GetDefaultCellStyle: TThsStyle;
     procedure SetDefaultFixedCellStyle(const Value: TThsStyle);
     function  GetDefaultFixedCellStyle: TThsStyle;
 
-    //özel boyama yapýlan hücreler için kullan
+    //ï¿½zel boyama yapï¿½lan hï¿½creler iï¿½in kullan
     function GetCellStyles(ACol, ARow: Integer): TThsStyle;
     procedure SetCellStyles(ACol, ARow: Integer; const Value: TThsStyle);
     procedure SetCellStyleCol(ACol: Integer; FixRow: Boolean; const Value: TThsStyle);
     procedure SetCellStyleRow(ARow: Integer; FixCol: Boolean; const Value: TThsStyle);
-    //ilk tanýmlamalar create anýnda kullan
+    //ilk tanï¿½mlamalar create anï¿½nda kullan
     procedure Initialize;
 
     procedure SetColCount(Value: Longint);
     procedure SetRowCount(Value: Longint);
     procedure SetCellCount(OldColCount, NewColCount, OldRowCount, NewRowCount: Integer);
 
-    procedure DrawFixedRowNumber; //fixed row no yazdýrma
+    procedure DrawFixedRowNumber; //fixed row no yazdï¿½rma
     procedure DrawSortArrow(ARect: TRect; ASort: TSortMode; AAlign: TAlignment);
     function GetColCount: integer;
-    function GetRowCount: integer;  //sort yön oku çiz
+    function GetRowCount: integer;  //sort yï¿½n oku ï¿½iz
   protected
     procedure DrawCell(ACol: Integer; ARow: Integer; ARect: TRect; AState: TGridDrawState); override;
     procedure ColumnMoved(FromIndex: Integer; ToIndex: Integer); override;
@@ -175,7 +175,7 @@ type
     property SortCol: SmallInt read FSortCol write FSortCol;
     property SortType: TSortMode read FSortType write FSortType;
 
-    procedure DrawFixedRowNumbers; //fixed row no yazdýrma
+    procedure DrawFixedRowNumbers; //fixed row no yazdï¿½rma
 
     function SelectCell(ACol, ARow: Longint): Boolean; override;
 
@@ -629,7 +629,7 @@ begin
   end;
 
   // Draw Checkbox
-  // Daha sonra aktif edilecek þu anda veri tipi boolean ise ve hücre bilgisi true='TRUE' false='FALSE' bilgisi tanýmlý deðil
+  // Daha sonra aktif edilecek ï¿½u anda veri tipi boolean ise ve hï¿½cre bilgisi true='TRUE' false='FALSE' bilgisi tanï¿½mlï¿½ deï¿½il
 //  if FColDataTypes[ACol] = ctBoolean then
 //  begin
 //    if (ARow + 1 > FixedRows) and ((Cells[ACol, ARow] = 'TRUE') or (Cells[ACol, ARow] = 'FALSE')) then
@@ -938,7 +938,7 @@ begin
   begin
     MouseToCell(X, Y, ACol, ARow);
     if FixedCols - 1 < ACol then
-      if ARow > -1 then // sýnýr dýþýnda týklama olursa
+      if ARow > -1 then // sï¿½nï¿½r dï¿½ï¿½ï¿½nda tï¿½klama olursa
         if ARow <= FixedRows - 1 then
           SortStringGrid(ACol);
   end;

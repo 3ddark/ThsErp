@@ -1,4 +1,4 @@
-unit Ths.Utils.Logger;
+﻿unit Ths.Utils.Logger;
 
 interface
 

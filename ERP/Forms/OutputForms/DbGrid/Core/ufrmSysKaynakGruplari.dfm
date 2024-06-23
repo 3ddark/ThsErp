@@ -17,11 +17,6 @@ inherited frmSysKaynakGruplari: TfrmSysKaynakGruplari
       Height = 407
       ExplicitHeight = 407
     end
-    inherited pnlHeader: TPanel
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
-    end
     inherited pnlContent: TPanel
       Height = 407
       ExplicitHeight = 407

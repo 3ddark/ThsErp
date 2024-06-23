@@ -13,6 +13,8 @@ uses
 {$M+}
 
 type
+  TInputFormMode = (ifmNone, ifmNewRecord, ifmRewiev, ifmUpdate, ifmReadOnly, ifmCopyNewRecord);
+
   TFieldIslemTipi = (fpSelect, fpInsert, fpUpdate);
   TFieldIslemTipleri = set of TFieldIslemTipi;
 
@@ -64,7 +66,11 @@ type
     function QryName: string;
   end;
 
+  PThsTable = ^TThsTable;
+
   IThsTable = interface
+    function GetId: TThsField;
+    function GetFields: TArray<TThsField>;
   end;
 
   TThsTable = class(TInterfacedObject, IThsTable)
@@ -86,6 +92,9 @@ type
     property TableName: string read GetTableName write SetTableName;
     property TableSourceCode: string read FTableSourceCode write FTableSourceCode;
     property Fields: TArray<TThsField> read FFields write FFields;
+
+    function GetId: TThsField;
+    function GetFields: TArray<TThsField>;
 
     procedure Clear; virtual;
     function Validate: Boolean; virtual;
@@ -280,6 +289,16 @@ begin
 
   Id := TThsField.Create('id', ftInteger, 0, Self, [fpSelect, fpUpdate]);
   Id.Value := AppDbContext.GetNewRecordId
+end;
+
+function TThsTable.GetFields: TArray<TThsField>;
+begin
+  Result := Fields;
+end;
+
+function TThsTable.GetId: TThsField;
+begin
+  Result := Id;
 end;
 
 class function TThsTable.GetSelectSQL: string;

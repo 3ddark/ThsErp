@@ -8,7 +8,7 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 426
   ExplicitHeight = 226
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 410
     Height = 137
@@ -22,13 +22,14 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
       ExplicitWidth = 406
       ExplicitHeight = 137
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 402
-        ExplicitHeight = 109
+        ExplicitHeight = 108
         object lblambar_adi: TLabel
           Left = 134
           Top = 6
           Width = 58
-          Height = 13
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Ambar Ad'#305
@@ -41,10 +42,10 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
           ParentFont = False
         end
         object lblis_hammadde_ambari: TLabel
-          Left = 18
+          Left = 21
           Top = 28
-          Width = 174
-          Height = 13
+          Width = 171
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Varsay'#305'lan Hammadde Ambar'#305'?'
@@ -57,10 +58,10 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
           ParentFont = False
         end
         object lblis_uretim_ambari: TLabel
-          Left = 44
+          Left = 46
           Top = 50
-          Width = 148
-          Height = 13
+          Width = 146
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Varsay'#305'lan '#220'retim Ambar'#305'?'
@@ -73,10 +74,10 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
           ParentFont = False
         end
         object lblis_satis_ambari: TLabel
-          Left = 52
+          Left = 56
           Top = 72
-          Width = 140
-          Height = 13
+          Width = 136
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Varsay'#305'lan Sat'#305#351' Ambar'#305'?'

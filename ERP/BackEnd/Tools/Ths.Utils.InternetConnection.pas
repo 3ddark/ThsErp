@@ -1,4 +1,4 @@
-unit Ths.Utils.InternetConnection;
+﻿unit Ths.Utils.InternetConnection;
 
 interface
 

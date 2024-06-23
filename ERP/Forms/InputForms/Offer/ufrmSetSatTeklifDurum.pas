@@ -1,4 +1,4 @@
-unit ufrmSetSatTeklifDurum;
+ï»¿unit ufrmSetSatTeklifDurum;
 
 interface
 
@@ -41,7 +41,7 @@ uses
 
 procedure TfrmSetSatTeklifDurum.RefreshData();
 begin
-  //control içeriðini table class ile doldur
+  //control iï¿½eriï¿½ini table class ile doldur
   edtteklif_durum.Text := TSetSatTeklifDurum(Table).TeklifDurum.AsString;
   edtaciklama.Text := TSetSatTeklifDurum(Table).Aciklama.AsString;
   chkis_aktif.Checked := TSetSatTeklifDurum(Table).IsAktif.AsBoolean;

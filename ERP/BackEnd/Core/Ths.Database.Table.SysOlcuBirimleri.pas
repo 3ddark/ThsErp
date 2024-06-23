@@ -53,11 +53,11 @@ begin
   try
     FBirim := TFieldDB.Create('birim', ftString, '', Self, 'Birim');
     FBirimEInv := TFieldDB.Create('birim_einv', ftString, '', Self, 'E-Fature Birim');
-    FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
-    FIsOndalik := TFieldDB.Create('is_ondalik', ftBoolean, False, Self, 'Ondalýk?');
-    FBirimiTipiID := TFieldDB.Create('birim_tipi_id', ftInteger, 0, Self, 'Ölçü Birimi Tipi ID');
+    FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'AÃ§Ä±klama');
+    FIsOndalik := TFieldDB.Create('is_ondalik', ftBoolean, False, Self, 'OndalÄ±k?');
+    FBirimiTipiID := TFieldDB.Create('birim_tipi_id', ftInteger, 0, Self, 'Ã–lÃ§Ã¼ Birimi Tipi ID');
     FBirimTipi := TFieldDB.Create(LUnitTypes.OlcuBirimiTipi.FieldName, LUnitTypes.OlcuBirimiTipi.DataType, LUnitTypes.OlcuBirimiTipi.Value, Self, LUnitTypes.OlcuBirimiTipi.Title);
-    FCarpan := TFieldDB.Create('carpan', ftInteger, 0, Self, 'Çarpan');
+    FCarpan := TFieldDB.Create('carpan', ftInteger, 0, Self, 'Ã‡arpan');
   finally
     LUnitTypes.Free;
   end;

@@ -1,4 +1,4 @@
-unit Ths.Database.Connection.Settings;
+﻿unit Ths.Database.Connection.Settings;
 
 interface
 

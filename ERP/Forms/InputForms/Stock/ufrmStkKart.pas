@@ -240,7 +240,7 @@ begin
     if (LFileName <> '') and FileExists(LFileName) then
     begin
       if GetFileSize(LFileName) > 500000 then
-        raise Exception.Create(Trim('Dosya botutu 500 KB üzerinde olamaz + 999999'));
+        raise Exception.Create(Trim('Dosya botutu 500 KB Ã¼zerinde olamaz + 999999'));
       imgstok_resim.Picture.LoadFromFile(LFileName);
     end;
   end;

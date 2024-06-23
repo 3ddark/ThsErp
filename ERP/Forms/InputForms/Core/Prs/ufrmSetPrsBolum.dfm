@@ -6,9 +6,9 @@ inherited frmSetPrsBolum: TfrmSetPrsBolum
   ClientHeight = 114
   ClientWidth = 340
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 354
-  ExplicitHeight = 150
-  TextHeight = 13
+  ExplicitWidth = 356
+  ExplicitHeight = 153
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 340
     Height = 64
@@ -22,13 +22,14 @@ inherited frmSetPrsBolum: TfrmSetPrsBolum
       ExplicitWidth = 338
       ExplicitHeight = 61
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 332
-        ExplicitHeight = 36
+        ExplicitHeight = 35
         object lblbolum: TLabel
           Left = 49
           Top = 6
           Width = 35
-          Height = 13
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'B'#246'l'#252'm'

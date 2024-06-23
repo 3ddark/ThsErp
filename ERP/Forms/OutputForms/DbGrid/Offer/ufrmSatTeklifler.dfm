@@ -12,25 +12,29 @@ inherited frmSatTeklifler: TfrmSatTeklifler
     ExplicitHeight = 511
     inherited splLeft: TSplitter
       Height = 435
+      ExplicitHeight = 435
     end
     inherited splHeader: TSplitter
       Width = 807
+      ExplicitWidth = 807
     end
     inherited pnlLeft: TPanel
       Height = 435
+      ExplicitHeight = 435
     end
     inherited pnlHeader: TPanel
       Width = 803
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
+      ExplicitWidth = 803
       inherited edtFilterHelper: TEdit
         Width = 760
+        ExplicitWidth = 760
       end
     end
     inherited pnlContent: TPanel
       Width = 704
       Height = 435
+      ExplicitWidth = 704
+      ExplicitHeight = 435
       inherited grd: TDBGrid
         Width = 704
         Height = 435
@@ -39,6 +43,8 @@ inherited frmSatTeklifler: TfrmSatTeklifler
     inherited pnlButtons: TPanel
       Top = 471
       Width = 807
+      ExplicitTop = 471
+      ExplicitWidth = 807
       inherited pnlButtonRight: TPanel
         object rgFiltre: TRadioGroup
           Left = 0
@@ -64,9 +70,11 @@ inherited frmSatTeklifler: TfrmSatTeklifler
     ExplicitWidth = 803
     inherited btnAccept: TButton
       Left = 597
+      ExplicitLeft = 597
     end
     inherited btnClose: TButton
       Left = 701
+      ExplicitLeft = 701
     end
   end
   inherited stbBase: TStatusBar

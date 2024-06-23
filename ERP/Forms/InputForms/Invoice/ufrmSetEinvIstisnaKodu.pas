@@ -1,4 +1,4 @@
-unit ufrmSetEinvIstisnaKodu;
+ï»¿unit ufrmSetEinvIstisnaKodu;
 
 interface
 
@@ -65,7 +65,7 @@ end;
 
 procedure TfrmSetEinvIstisnaKodu.RefreshData();
 begin
-  //control içeriðini table class ile doldur
+  //control iï¿½eriï¿½ini table class ile doldur
   edtKod.Text := TSetEinvIstisnaKodu(Table).IstisnaKodu.Value;
   edtAciklama.Text := TSetEinvIstisnaKodu(Table).Aciklama.Value;
   cbbfatura_tipi_id.Text := TSetEinvIstisnaKodu(Table).FaturaTipi.Value;

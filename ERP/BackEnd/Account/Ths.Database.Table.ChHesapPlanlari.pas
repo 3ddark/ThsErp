@@ -52,8 +52,8 @@ begin
   inherited Create(ADatabase);
 
   FPlanKodu := TFieldDB.Create('plan_kodu', ftString, '', Self, 'Plan Kodu');
-  FPlanAdi := TFieldDB.Create('plan_adi', ftString, '', Self, 'Plan Adý');
-  FSeviye := TFieldDB.Create('seviye', ftInteger, 0, Self, 'Seviye Sayýsý');
+  FPlanAdi := TFieldDB.Create('plan_adi', ftString, '', Self, 'Plan AdÄ±');
+  FSeviye := TFieldDB.Create('seviye', ftInteger, 0, Self, 'Seviye SayÄ±sÄ±');
 end;
 
 procedure TChHesapPlani.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -169,8 +169,8 @@ begin
       Open;
 
       if (not Fields.Fields[0].IsNull) and (Fields.Fields[0].AsInteger > 0) then
-        raise Exception.Create(Trim('Hesap Planýna baðlý Cari Hesap olan kayýtlar silinemez!' + AddLBs(2) +
-                              'Önce Cari Hesap Kartýný silin! + 999999'));
+        raise Exception.Create(Trim('Hesap Planï¿½na baï¿½lï¿½ Cari Hesap olan kayï¿½tlar silinemez!' + AddLBs(2) +
+                              'ï¿½nce Cari Hesap Kartï¿½nï¿½ silin! + 999999'));
     finally
       Free;
     end;
@@ -193,9 +193,9 @@ begin
     //120-1-2     3 seviye
     //600-1       2 seviye
     //760         1 seviye
-    //Seviye 1 ise oluþan Hesap Son Hesap olur
-    //Seviye 2 ise oluþan Hesap Ana Hesap olur
-    //Seviye 3 ise oluþan Hesap Ana Hesap olur
+    //Seviye 1 ise oluï¿½an Hesap Son Hesap olur
+    //Seviye 2 ise oluï¿½an Hesap Ana Hesap olur
+    //Seviye 3 ise oluï¿½an Hesap Ana Hesap olur
     if Self.Seviye.Value > 1
     then  LHesap.HesapTipiID.Value := THesapTipi.htAna
     else  LHesap.HesapTipiID.Value := THesapTipi.htSon;

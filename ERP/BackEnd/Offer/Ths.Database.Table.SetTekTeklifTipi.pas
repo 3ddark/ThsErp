@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetTekTeklifTipi;
+﻿unit Ths.Database.Table.SetTekTeklifTipi;
 
 interface
 

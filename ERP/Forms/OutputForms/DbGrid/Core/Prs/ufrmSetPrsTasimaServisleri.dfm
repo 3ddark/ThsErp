@@ -16,13 +16,16 @@ inherited frmSetPrsTasimaServisleri: TfrmSetPrsTasimaServisleri
     end
     inherited pnlHeader: TPanel
       Width = 787
+      ExplicitWidth = 787
       inherited edtFilterHelper: TEdit
         Width = 744
+        ExplicitWidth = 744
       end
     end
     inherited pnlContent: TPanel
       Width = 688
       Height = 340
+      ExplicitWidth = 688
       ExplicitHeight = 337
       inherited grd: TDBGrid
         Width = 688
@@ -33,20 +36,25 @@ inherited frmSetPrsTasimaServisleri: TfrmSetPrsTasimaServisleri
       Top = 376
       Width = 791
       ExplicitTop = 373
+      ExplicitWidth = 791
       inherited pnlButtonRight: TPanel
         Left = 606
+        ExplicitLeft = 606
       end
       inherited pnlButtonLeft: TPanel
         Width = 606
+        ExplicitWidth = 606
       end
     end
   end
   inherited pnlBottom: TPanel
     inherited btnAccept: TButton
       Left = 581
+      ExplicitLeft = 581
     end
     inherited btnClose: TButton
       Left = 685
+      ExplicitLeft = 685
     end
   end
 end

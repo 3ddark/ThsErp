@@ -8,7 +8,7 @@ inherited frmSetChFirmaTipi: TfrmSetChFirmaTipi
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 373
   ExplicitHeight = 183
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 357
     Height = 94
@@ -17,18 +17,19 @@ inherited frmSetChFirmaTipi: TfrmSetChFirmaTipi
     ExplicitWidth = 355
     ExplicitHeight = 102
     inherited pgcMain: TPageControl
-      Width = 359
-      Height = 98
+      Width = 357
+      Height = 94
       ExplicitWidth = 353
       ExplicitHeight = 100
       inherited tsMain: TTabSheet
-        ExplicitWidth = 351
-        ExplicitHeight = 70
+        ExplicitTop = 25
+        ExplicitWidth = 349
+        ExplicitHeight = 65
         object lblfirma_tipi: TLabel
-          Left = 77
+          Left = 79
           Top = 29
-          Width = 56
-          Height = 13
+          Width = 54
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Firma Tipi'
@@ -41,10 +42,10 @@ inherited frmSetChFirmaTipi: TfrmSetChFirmaTipi
           ParentFont = False
         end
         object lblfirma_turu_id: TLabel
-          Left = 69
+          Left = 70
           Top = 7
-          Width = 61
-          Height = 13
+          Width = 60
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Firma T'#252'r'#252

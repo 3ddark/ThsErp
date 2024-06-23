@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetChFirmaTuru;
+ï»¿unit Ths.Database.Table.SetChFirmaTuru;
 
 interface
 
@@ -41,7 +41,7 @@ begin
   TableSourceCode := MODULE_CH_AYAR;
   inherited Create(ADatabase);
 
-  FFirmaTuru := TFieldDB.Create('firma_turu', ftWideString, '', Self, 'Firma Türü');
+  FFirmaTuru := TFieldDB.Create('firma_turu', ftWideString, '', Self, 'Firma TÃ¼rÃ¼');
 end;
 
 procedure TSetChFirmaTuru.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);

@@ -7,9 +7,9 @@ inherited frmChBankaSubesi: TfrmChBankaSubesi
   ClientWidth = 336
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
-  ExplicitWidth = 350
-  ExplicitHeight = 211
-  TextHeight = 13
+  ExplicitWidth = 352
+  ExplicitHeight = 215
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 336
     Height = 126
@@ -23,13 +23,14 @@ inherited frmChBankaSubesi: TfrmChBankaSubesi
       ExplicitWidth = 334
       ExplicitHeight = 107
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 328
-        ExplicitHeight = 98
+        ExplicitHeight = 97
         object lblbanka_id: TLabel
-          Left = 61
+          Left = 65
           Top = 6
-          Width = 37
-          Height = 13
+          Width = 33
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Banka'
@@ -42,10 +43,10 @@ inherited frmChBankaSubesi: TfrmChBankaSubesi
           ParentFont = False
         end
         object lblsube_kodu: TLabel
-          Left = 35
+          Left = 39
           Top = 28
-          Width = 63
-          Height = 13
+          Width = 59
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #350'ube Kodu'
@@ -58,10 +59,10 @@ inherited frmChBankaSubesi: TfrmChBankaSubesi
           ParentFont = False
         end
         object lblsube_adi: TLabel
-          Left = 46
+          Left = 49
           Top = 50
-          Width = 52
-          Height = 13
+          Width = 49
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #350'ube Ad'#305
@@ -74,10 +75,10 @@ inherited frmChBankaSubesi: TfrmChBankaSubesi
           ParentFont = False
         end
         object lblsehir_id: TLabel
-          Left = 68
+          Left = 69
           Top = 72
-          Width = 30
-          Height = 13
+          Width = 29
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #350'ehir'

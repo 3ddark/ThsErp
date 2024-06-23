@@ -8,21 +8,23 @@ inherited frmSatSiparisler: TfrmSatSiparisler
     ExplicitWidth = 805
     inherited splHeader: TSplitter
       Width = 805
+      ExplicitWidth = 805
     end
     inherited pnlHeader: TPanel
       Width = 801
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
+      ExplicitWidth = 801
       inherited edtFilterHelper: TEdit
         Width = 758
+        ExplicitWidth = 758
       end
     end
     inherited pnlContent: TPanel
       Width = 702
+      ExplicitWidth = 702
     end
     inherited pnlButtons: TPanel
       Width = 805
+      ExplicitWidth = 805
       inherited pnlButtonRight: TPanel
         object rgFiltre: TRadioGroup
           Left = 0
@@ -47,9 +49,11 @@ inherited frmSatSiparisler: TfrmSatSiparisler
     ExplicitWidth = 801
     inherited btnAccept: TButton
       Left = 595
+      ExplicitLeft = 595
     end
     inherited btnClose: TButton
       Left = 699
+      ExplicitLeft = 699
     end
   end
   inherited stbBase: TStatusBar

@@ -67,11 +67,11 @@ begin
 
   LEmployee := TPrsPersonel.Create(Database);
   try
-    FKullaniciAdi := TFieldDB.Create('kullanici_adi', ftString, '', Self, 'Kullanýcý Adý');
-    FKullaniciSifre := TFieldDB.Create('kullanici_sifre', ftString, '', Self, 'Kullanýcý Þifre');
+    FKullaniciAdi := TFieldDB.Create('kullanici_adi', ftString, '', Self, 'KullanÄ±cÄ± AdÄ±');
+    FKullaniciSifre := TFieldDB.Create('kullanici_sifre', ftString, '', Self, 'KullanÄ±cÄ± Åžifre');
     FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, False, Self, 'Aktif?');
-    FIsYonetici := TFieldDB.Create('is_yonetici', ftBoolean, False, Self, 'Yönetici?');
-    FIsSuperKullanici := TFieldDB.Create('is_super_kullanici', ftBoolean, False, Self, 'Süper Kullanýcý?');
+    FIsYonetici := TFieldDB.Create('is_yonetici', ftBoolean, False, Self, 'YÃ¶netici?');
+    FIsSuperKullanici := TFieldDB.Create('is_super_kullanici', ftBoolean, False, Self, 'SÃ¼per KullanÄ±cÄ±?');
     FIpAdres := TFieldDB.Create('ip_adres', ftString, '', Self, 'Ip Adres');
     FMacAdres := TFieldDB.Create('mac_adres', ftString, '', Self, 'Mac Adres');
     FPersonelID := TFieldDB.Create('personel_id', ftInteger, 0, Self, 'Personel ID');

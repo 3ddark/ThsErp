@@ -8,21 +8,23 @@ inherited frmRctPaketHammaddeler: TfrmRctPaketHammaddeler
     ExplicitWidth = 813
     inherited splHeader: TSplitter
       Width = 813
+      ExplicitWidth = 813
     end
     inherited pnlHeader: TPanel
       Width = 809
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
+      ExplicitWidth = 809
       inherited edtFilterHelper: TEdit
         Width = 766
+        ExplicitWidth = 766
       end
     end
     inherited pnlContent: TPanel
       Width = 710
+      ExplicitWidth = 710
     end
     inherited pnlButtons: TPanel
       Width = 813
+      ExplicitWidth = 813
     end
   end
   inherited pnlBottom: TPanel
@@ -30,9 +32,11 @@ inherited frmRctPaketHammaddeler: TfrmRctPaketHammaddeler
     ExplicitWidth = 809
     inherited btnAccept: TButton
       Left = 603
+      ExplicitLeft = 603
     end
     inherited btnClose: TButton
       Left = 707
+      ExplicitLeft = 707
     end
   end
   inherited stbBase: TStatusBar

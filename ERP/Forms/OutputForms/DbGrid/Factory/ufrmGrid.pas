@@ -8,7 +8,8 @@ uses
   Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.DBGrids, Data.DB,
   Vcl.Clipbrd, FireDAC.Comp.Client,
-  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Orm.Manager;
+  Ths.Helper.BaseTypes, Ths.Helper.Edit,
+  Ths.Orm.Table, Ths.Orm.Manager, Ths.Orm.ManagerStack;
 
 type
   TFormInfo = record
@@ -20,8 +21,10 @@ type
     status: TStatusBar;
   private
     FTable: T;
+    FPTable: PThsTable;
     FQry: TFDQuery;
     FGrd: TDBGrid;
+    FConnection: TFDCustomConnection;
 
     FFilterStringFields: TStringList;
     FFilterNumericFields: TStringList;
@@ -49,7 +52,9 @@ type
     procedure PreparePopupMenu();
     procedure SetQry(const Value: TFDQuery);
     procedure SetTable(const Value: T);
+    procedure SetPTable(const Value: PThsTable);
     procedure SetGrd(const Value: TDBGrid);
+    procedure SetConnection(const Value: TFDCustomConnection);
 
     procedure SetPopupMenu(const Value: TPopupMenu);
     procedure SetmniPreview(const Value: TMenuItem);
@@ -71,10 +76,14 @@ type
     procedure FilterApply;
     procedure PrepareFilteredColumns;
     procedure EdtFilterChange(Sender: TObject);
+
+    procedure SetSelectedItem;
   public
     property Qry: TFDQuery read FQry write SetQry;
     property Table: T read FTable write SetTable;
+    property PTable: PThsTable read FPTable write SetPTable;
     property Grd: TDBGrid read FGrd write SetGrd;
+    property Connection: TFDCustomConnection read FConnection write SetConnection;
     property Container: TPanel read FContainer write SetContainer;
     property GrdContainer: TPanel read FGrdContainer write SetGrdContainer;
     property EdtFilter: TEdit read FEdtFilter write SetEdtFilter;
@@ -94,6 +103,9 @@ type
 
     constructor Create(AOwner: TComponent; ATable: T; ASQL: string; ACreateNewBase: Boolean = True); reintroduce; overload;
     destructor Destroy; override;
+
+    procedure ShowInputForm(Sender: TObject; AFormType: TInputFormMode); virtual;
+    procedure AddNewClick(Sender: TObject);
   published
     //***form***
     procedure FormCreate(Sender: TObject); virtual;
@@ -140,8 +152,6 @@ type
 
 implementation
 
-uses Ths.Orm.ManagerStack;
-
 function UpperCaseTr(S: string): string;
 begin
   Result := AnsiUpperCase(StringReplace(StringReplace(S, 'ı', 'I', [rfReplaceAll]), 'i', 'İ', [rfReplaceAll]));
@@ -177,6 +187,11 @@ begin
   end;
 end;
 
+procedure TfrmGrid<T>.AddNewClick(Sender: TObject);
+begin
+  ShowInputForm(Sender, ifmNewRecord);
+end;
+
 procedure TfrmGrid<T>.AddPopupMenuSpliter(AParentMenu: TMenuItem);
 var
   LMenu: TMenuItem;
@@ -208,10 +223,14 @@ begin
   Self.Caption := 'Base Title';
 
   FTable := ATable;
+  PTable := @Table;
+
   FQry := AppDbContext.NewQuery;
   FQry.AfterOpen := AfterDatasetOpen;
   FQry.OnFilterRecord := OnFilterDataset;
   FQry.SQL.Text := ASQL;
+
+  FConnection := FQry.Connection;
 
   FDataSource := TDataSource.Create(Self);
   FDataSource.DataSet := FQry;
@@ -245,7 +264,7 @@ begin
   FQry.Free;
   FDataSource.Free;
 
-  PObject(@FTable).Free;
+  PTable.Free;
 
   inherited;
 end;
@@ -453,9 +472,64 @@ begin
   FQry := Value;
 end;
 
+procedure TfrmGrid<T>.SetSelectedItem;
+var
+  AField: TField;
+  n1, n2: Integer;
+  ATable: TThsTable;
+begin
+  if Grd.DataSource.DataSet.RecordCount > 0 then
+  begin
+    AField := grd.DataSource.DataSet.FindField(PTable.Id.FieldName);
+    if not Assigned(AField) or (AField = nil) or AField.IsNull then
+      Exit;
+
+    PTable.Id.Value := VarToStr(AField.Value).ToInteger;
+
+
+    for n1 := 0 to Length(PTable.Fields)-1 do
+    begin
+      for n2 := 0 to grd.Columns.Count-1 do
+      begin
+        if PTable.Fields[n1].FieldName = grd.Columns.Items[n2].Field.FieldName then
+        begin
+          PTable.Fields[n1].Value := grd.Columns.Items[n2].Field.Value;
+          PTable.Fields[n1].IsNullable := not grd.Columns.Items[n2].Field.Required;
+          Break;
+        end;
+      end;
+    end;
+  end;
+end;
+
 procedure TfrmGrid<T>.SetTable(const Value: T);
 begin
   FTable := Value;
+end;
+
+procedure TfrmGrid<T>.ShowInputForm(Sender: TObject; AFormType: TInputFormMode);
+var
+  LForm: TForm;
+begin
+  if (AFormType = ifmRewiev)
+  or ((not FConnection.InTransaction) and ((AFormType = ifmNewRecord) or (AFormType = ifmCopyNewRecord)))
+  then
+  begin
+    if (AFormType = ifmRewiev) or (AFormType = ifmCopyNewRecord) then
+      PTable.BusinessSelect(' AND ' + PTable.Id.QryName + '=' + PTable.Id.AsString, False, False);
+
+//    LForm := CreateInputForm(Sender, AFormType);
+//    if Table is TTableDetailed then
+//      PTable.FreeDetayListContent;
+//    LForm.Show;
+  end
+  else
+    raise Exception.Create('Başka bir pencere giriş veya güncelleme için açılmış, önce bu işlemi tamamlayın.');
+end;
+
+procedure TfrmGrid<T>.SetConnection(const Value: TFDCustomConnection);
+begin
+  FConnection := Value;
 end;
 
 procedure TfrmGrid<T>.SetContainer(const Value: TPanel);
@@ -491,6 +565,11 @@ end;
 procedure TfrmGrid<T>.SetPopupMenu(const Value: TPopupMenu);
 begin
   FGridPopMenu := Value;
+end;
+
+procedure TfrmGrid<T>.SetPTable(const Value: PThsTable);
+begin
+  FPTable := Value;
 end;
 
 procedure TfrmGrid<T>.SetmniExportCsv(const Value: TMenuItem);
@@ -706,7 +785,14 @@ end;
 
 procedure TfrmGrid<T>.mniPreviewClick(Sender: TObject);
 begin
-  ShowMessage('not implemented yet!' + sLineBreak + 'Preview');
+  if mniPreview.Visible then
+  begin
+    if (Grd.DataSource.DataSet.RecordCount <> 0) and (Grd.DataSource.DataSet.RecordCount > 0) then
+    begin
+      SetSelectedItem();
+      ShowInputForm(mniPreview, ifmRewiev);
+    end;
+  end;
 end;
 
 procedure TfrmGrid<T>.mniPrintClick(Sender: TObject);

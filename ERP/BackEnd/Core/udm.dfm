@@ -1,12 +1,12 @@
 object dm: Tdm
-  OldCreateOrder = True
-  Height = 461
-  Width = 632
+  Height = 576
+  Width = 790
+  PixelsPerInch = 120
   object il32: TImageList
     Height = 32
     Width = 32
-    Left = 304
-    Top = 216
+    Left = 380
+    Top = 270
     Bitmap = {
       494C010167007800040020002000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000800000004003000001002000000000000080
@@ -13744,8 +13744,8 @@ object dm: Tdm
       000000000000}
   end
   object il16: TImageList
-    Left = 368
-    Top = 216
+    Left = 460
+    Top = 270
     Bitmap = {
       494C010167006C00040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000A0010000010020000000000000A0
@@ -17189,8 +17189,8 @@ object dm: Tdm
   object illogo: TImageList
     Height = 170
     Width = 170
-    Left = 56
-    Top = 128
+    Left = 70
+    Top = 160
     Bitmap = {
       494C0101010008000400AA00AA00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000A8020000AA0000000100200000000000400E

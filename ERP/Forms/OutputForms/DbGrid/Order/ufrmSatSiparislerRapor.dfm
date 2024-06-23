@@ -2,11 +2,6 @@ inherited frmSatSiparislerRapor: TfrmSatSiparislerRapor
   Caption = 'Sat'#305#351' Siparisler Rapor'
   TextHeight = 13
   inherited pnlMain: TPanel
-    inherited pnlHeader: TPanel
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
-    end
     inherited pnlButtons: TPanel
       inherited pnlButtonRight: TPanel
         Left = 566

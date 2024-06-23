@@ -1,4 +1,4 @@
-unit ufrmSetChFirmaTipi;
+ï»¿unit ufrmSetChFirmaTipi;
 
 interface
 
@@ -73,7 +73,7 @@ end;
 
 procedure TfrmSetChFirmaTipi.RefreshData();
 begin
-  //control içeriðini table class ile doldur
+  //control iï¿½eriï¿½ini table class ile doldur
   edtfirma_tipi.Text := TSetChFirmaTipi(Table).FirmaTipi.Value;
   cbbfirma_turu_id.ItemIndex := cbbfirma_turu_id.Items.IndexOf(TSetChFirmaTipi(Table).FirmaTuru.AsString);
 end;

@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SysKaynakGruplari;
+﻿unit Ths.Database.Table.SysKaynakGruplari;
 
 interface
 

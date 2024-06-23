@@ -1,4 +1,4 @@
-unit Ths.Database.Table.ChBankalar;
+﻿unit Ths.Database.Table.ChBankalar;
 
 interface
 
@@ -43,7 +43,7 @@ begin
   TableSourceCode := MODULE_CH_KAYIT;
   inherited Create(ADatabase);
 
-  FBankaAdi := TFieldDB.Create('banka_adi', ftWideString, '', Self, 'Banka Ad�');
+  FBankaAdi := TFieldDB.Create('banka_adi', ftWideString, '', Self, 'Banka Adı');
   FSwiftKodu := TFieldDB.Create('swift_kodu', ftWideString, '', Self, 'Swift Kodu');
 end;
 

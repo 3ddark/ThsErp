@@ -52,7 +52,7 @@ begin
   FFiyat := TFieldDB.Create('fiyat', ftInteger, 2, Self, 'Fiyat');
   FTutar := TFieldDB.Create('tutar', ftInteger, 2, Self, 'Tutar');
   FStokMiktar := TFieldDB.Create('stok_miktar', ftInteger, 2, Self, 'Stok Miktar');
-  FDovizKuru := TFieldDB.Create('doviz_kuru', ftInteger, 4, Self, 'Döviz Kuru');
+  FDovizKuru := TFieldDB.Create('doviz_kuru', ftInteger, 4, Self, 'Dï¿½viz Kuru');
 end;
 
 procedure TSysOndalikHane.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
@@ -170,7 +170,7 @@ begin
     if LOndalik.List.Count > 1 then
       inherited
     else
-      raise Exception.Create('Ondalıklı Haneler tablosunda sadece bir kayıt olabilir!!!');
+      raise Exception.Create('Ondalï¿½klï¿½ Haneler tablosunda sadece bir kayï¿½t olabilir!!!');
   finally
     LOndalik.Free;
   end;
@@ -186,7 +186,7 @@ begin
     if LOndalik.List.Count = 0 then
       inherited
     else
-      raise Exception.Create('Ondalıklı Haneler tablosunda sadece bir kayıt olabilir!!!');
+      raise Exception.Create('OndalÄ±klÄ± Haneler tablosunda sadece bir kayÄ±t olabilir!!!');
   finally
     LOndalik.Free;
   end;

@@ -1,4 +1,4 @@
-unit ufrmStkStokHareketleri;
+﻿unit ufrmStkStokHareketleri;
 
 interface
 

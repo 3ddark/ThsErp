@@ -104,7 +104,7 @@ inherited frmBaseOutput: TfrmBaseOutput
     ExplicitTop = 385
     ExplicitWidth = 661
   end
-  object pmDB: TPopupMenu [4]
+  object pmDB: TPopupMenu
     Left = 208
     Top = 128
   end

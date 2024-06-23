@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetBbkFinansDurumu;
+﻿unit Ths.Database.Table.SetBbkFinansDurumu;
 
 interface
 

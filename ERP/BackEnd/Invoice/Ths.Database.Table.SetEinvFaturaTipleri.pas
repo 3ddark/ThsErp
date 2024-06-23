@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetEinvFaturaTipleri;
+﻿unit Ths.Database.Table.SetEinvFaturaTipleri;
 
 interface
 

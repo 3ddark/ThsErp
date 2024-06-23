@@ -7,9 +7,9 @@ inherited frmChBanka: TfrmChBanka
   ClientWidth = 342
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
-  ExplicitWidth = 356
-  ExplicitHeight = 161
-  TextHeight = 13
+  ExplicitWidth = 358
+  ExplicitHeight = 165
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 342
     Height = 76
@@ -23,13 +23,14 @@ inherited frmChBanka: TfrmChBanka
       ExplicitWidth = 340
       ExplicitHeight = 72
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 334
-        ExplicitHeight = 48
+        ExplicitHeight = 47
         object lblbanka_adi: TLabel
-          Left = 78
+          Left = 79
           Top = 6
-          Width = 19
-          Height = 13
+          Width = 18
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Ad'#305
@@ -42,10 +43,10 @@ inherited frmChBanka: TfrmChBanka
           ParentFont = False
         end
         object lblswift_kodu: TLabel
-          Left = 35
+          Left = 38
           Top = 28
-          Width = 62
-          Height = 13
+          Width = 59
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Swift Kodu'

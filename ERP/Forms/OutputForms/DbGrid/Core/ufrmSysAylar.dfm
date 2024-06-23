@@ -25,9 +25,6 @@ inherited frmSysAylar: TfrmSysAylar
     inherited pnlHeader: TPanel
       Width = 795
       ExplicitWidth = 795
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
       inherited edtFilterHelper: TEdit
         Width = 752
         ExplicitWidth = 752

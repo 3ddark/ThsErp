@@ -8,7 +8,7 @@ inherited frmSetSatTeklifDurum: TfrmSetSatTeklifDurum
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 374
   ExplicitHeight = 201
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 358
     Height = 112
@@ -17,18 +17,19 @@ inherited frmSetSatTeklifDurum: TfrmSetSatTeklifDurum
     ExplicitWidth = 340
     ExplicitHeight = 111
     inherited pgcMain: TPageControl
-      Width = 360
-      Height = 116
+      Width = 358
+      Height = 112
       ExplicitWidth = 338
       ExplicitHeight = 109
       inherited tsMain: TTabSheet
-        ExplicitWidth = 352
-        ExplicitHeight = 88
+        ExplicitTop = 25
+        ExplicitWidth = 350
+        ExplicitHeight = 83
         object lblteklif_durum: TLabel
-          Left = 63
+          Left = 66
           Top = 5
-          Width = 73
-          Height = 13
+          Width = 70
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Teklif Durum'
@@ -41,10 +42,10 @@ inherited frmSetSatTeklifDurum: TfrmSetSatTeklifDurum
           ParentFont = False
         end
         object lblaciklama: TLabel
-          Left = 84
+          Left = 86
           Top = 27
-          Width = 52
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'A'#231#305'klama'
@@ -57,10 +58,10 @@ inherited frmSetSatTeklifDurum: TfrmSetSatTeklifDurum
           ParentFont = False
         end
         object lblis_aktif: TLabel
-          Left = 102
+          Left = 103
           Top = 49
-          Width = 34
-          Height = 13
+          Width = 33
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Aktif?'

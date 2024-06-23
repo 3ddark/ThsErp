@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SysAylar;
+﻿unit Ths.Database.Table.SysAylar;
 
 interface
 

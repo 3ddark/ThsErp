@@ -11,21 +11,23 @@ inherited frmSetChVergiOranlari: TfrmSetChVergiOranlari
     end
     inherited splHeader: TSplitter
       Width = 791
+      ExplicitWidth = 791
     end
     inherited pnlHeader: TPanel
       Width = 787
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
+      ExplicitWidth = 787
       inherited edtFilterHelper: TEdit
         Width = 744
+        ExplicitWidth = 744
       end
     end
     inherited pnlContent: TPanel
       Width = 688
+      ExplicitWidth = 688
     end
     inherited pnlButtons: TPanel
       Width = 791
+      ExplicitWidth = 791
     end
   end
   inherited pnlBottom: TPanel
@@ -33,9 +35,11 @@ inherited frmSetChVergiOranlari: TfrmSetChVergiOranlari
     ExplicitWidth = 787
     inherited btnAccept: TButton
       Left = 581
+      ExplicitLeft = 581
     end
     inherited btnClose: TButton
       Left = 685
+      ExplicitLeft = 685
     end
   end
   inherited stbBase: TStatusBar

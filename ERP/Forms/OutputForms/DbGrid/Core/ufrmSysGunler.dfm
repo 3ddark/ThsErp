@@ -17,11 +17,6 @@ inherited frmSysGunler: TfrmSysGunler
       Height = 439
       ExplicitHeight = 439
     end
-    inherited pnlHeader: TPanel
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
-    end
     inherited pnlContent: TPanel
       Height = 439
       ExplicitHeight = 439

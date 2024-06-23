@@ -1,4 +1,4 @@
-unit ufrmUrtIscilik;
+ï»¿unit ufrmUrtIscilik;
 
 interface
 
@@ -98,7 +98,7 @@ begin
   FSysUnit := TSysOlcuBirimi.Create(Table.Database);
 
   fillComboBoxData(cbbolcu_birimi_id, FSysUnit, [FSysUnit.Birim.FieldName], ' AND ' + FSysUnit.BirimiTipiID.QryName + '=' + IntToStr(Ord(TOlcuBirimiTipi.Zaman)) , True);
-  cbbgider_tipi_id.Items.Add('Deðiþken 1');
+  cbbgider_tipi_id.Items.Add('DeÄŸiÅŸken 1');
   cbbgider_tipi_id.Items.Add('Sabit 2');
 end;
 
@@ -113,7 +113,7 @@ begin
     begin
       if TEdit(Sender).Name = edtgider_kodu.Name then
       begin
-        //Son hesap hane sayýsý > 2 olanlarla iþlem yap.
+        //Son hesap hane sayï¿½sï¿½ > 2 olanlarla iï¿½lem yap.
         LHesapKarti := TChHesapKarti.Create(Table.Database);
         LFrmHesapKarti := TfrmHesapKartlari.Create(TEdit(Sender), Self, LHesapKarti, fomNormal, True);
         try

@@ -6,9 +6,9 @@ inherited frmChHesapPlani: TfrmChHesapPlani
   ClientHeight = 147
   ClientWidth = 368
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 382
-  ExplicitHeight = 182
-  TextHeight = 13
+  ExplicitWidth = 384
+  ExplicitHeight = 186
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 368
     Height = 97
@@ -22,13 +22,14 @@ inherited frmChHesapPlani: TfrmChHesapPlani
       ExplicitWidth = 366
       ExplicitHeight = 158
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 360
-        ExplicitHeight = 69
+        ExplicitHeight = 68
         object lbltek_duzen_kodu: TLabel
-          Left = 50
+          Left = 58
           Top = 6
-          Width = 96
-          Height = 13
+          Width = 88
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Tek D'#252'zen Kodu'
@@ -41,10 +42,10 @@ inherited frmChHesapPlani: TfrmChHesapPlani
           ParentFont = False
         end
         object lblaciklama: TLabel
-          Left = 94
+          Left = 96
           Top = 28
-          Width = 52
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'A'#231#305'klama'
@@ -57,10 +58,10 @@ inherited frmChHesapPlani: TfrmChHesapPlani
           ParentFont = False
         end
         object lblseviye_sayisi: TLabel
-          Left = 70
+          Left = 75
           Top = 50
-          Width = 76
-          Height = 13
+          Width = 71
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Seviye Say'#305's'#305
@@ -90,7 +91,7 @@ inherited frmChHesapPlani: TfrmChHesapPlani
           Left = 150
           Top = 47
           Width = 200
-          Height = 21
+          Height = 22
           Style = csDropDownList
           ItemIndex = 0
           TabOrder = 2

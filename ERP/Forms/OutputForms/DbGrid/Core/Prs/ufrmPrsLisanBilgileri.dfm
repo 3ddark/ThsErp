@@ -25,9 +25,6 @@ inherited frmPrsLisanBilgileri: TfrmPrsLisanBilgileri
     inherited pnlHeader: TPanel
       Width = 741
       ExplicitWidth = 741
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
       inherited edtFilterHelper: TEdit
         Width = 698
         ExplicitWidth = 698

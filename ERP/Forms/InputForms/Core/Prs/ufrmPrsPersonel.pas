@@ -1,4 +1,4 @@
-unit ufrmPrsPersonel;
+ï»¿unit ufrmPrsPersonel;
 
 interface
 
@@ -559,14 +559,14 @@ begin
       else
         TPrsPersonel(Table).PersonelTipiID.Value := 0;
 
-      //bölüm, birim ve görev helper form ile geliyor
+      //bï¿½lï¿½m, birim ve gï¿½rev helper form ile geliyor
       TPrsPersonel(Table).GenelNot.Value := mmogenel_not.Text;
       if (cbbtasima_servisi_id.ItemIndex > -1) and Assigned(cbbtasima_servisi_id.Items.Objects[cbbtasima_servisi_id.ItemIndex]) then
         TPrsPersonel(Table).TasimaServisID.Value := TSetPrsTasimaServisi(cbbtasima_servisi_id.Items.Objects[cbbtasima_servisi_id.ItemIndex]).Id.Value
       else
         TPrsPersonel(Table).TasimaServisID.Value := 0;
 
-      //ulke ve þehir helper form ile geliyor
+      //ulke ve ï¿½ehir helper form ile geliyor
       TPrsPersonel(Table).Adres.Ilce.Value := edtilce.Text;
       TPrsPersonel(Table).Adres.Mahalle.Value := edtmahalle.Text;
       TPrsPersonel(Table).Adres.Semt.Value := edtsemt.Text;

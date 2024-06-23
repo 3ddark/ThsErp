@@ -24,7 +24,7 @@ uses
 
 const
   C_Cinsiyet: array [0..1] of string = ('ERKEK', 'KADIN');
-  C_MedeniDurumu: array [0..1] of string = ('BEKAR', 'EVLÝ');
+  C_MedeniDurumu: array [0..1] of string = ('BEKAR', 'EVLï¿½');
   C_AskerlikDurumu: array [0..2] of string = ('YAPTI', 'MUAF', 'YAPMADI');
 
 type
@@ -167,9 +167,9 @@ begin
   FBolum := TFieldDB.Create(FSetPrsBolum.Bolum.FieldName, FSetPrsBolum.Bolum.DataType, FSetPrsBolum.Bolum.Value, Self, FSetPrsBolum.Bolum.Title);
   FBirimID := TFieldDB.Create('birim_id', ftInteger, 0, Self, 'Birim ID');
   FBirim := TFieldDB.Create(FSetPrsBirim.Birim.FieldName, FSetPrsBirim.Birim.DataType, '', Self, 'Birim');
-  FGorevID := TFieldDB.Create('gorev_id', ftInteger, 0, Self, 'Görev ID');
-  FGorev := TFieldDB.Create(FSetPrsGorev.Gorev.FieldName, FSetPrsGorev.Gorev.DataType, 0, Self, 'Görev');
-  FDogumTarihi := TFieldDB.Create('dogum_tarihi', ftDate, 0, Self, 'Doðum Tarihi');
+  FGorevID := TFieldDB.Create('gorev_id', ftInteger, 0, Self, 'GÃ¶rev ID');
+  FGorev := TFieldDB.Create(FSetPrsGorev.Gorev.FieldName, FSetPrsGorev.Gorev.DataType, 0, Self, 'GÃ¶rev');
+  FDogumTarihi := TFieldDB.Create('dogum_tarihi', ftDate, 0, Self, 'DoÄŸum Tarihi');
   FKanGrubu := TFieldDB.Create('kan_grubu', ftWideString, '', Self, 'Kan Grubu');
   FCinsiyet := TFieldDB.Create('cinsiyet', ftSmallInt, 0, Self, 'Cinsiyet');
   FCinsiyetAs := TFieldDB.Create('cinsiyet_as', ftString, '', Self, 'Cinsiyet');
@@ -177,18 +177,18 @@ begin
   FAskerlikDurumuAs := TFieldDB.Create('askerlik_durumu_as', ftString, '', Self, 'Askerlik Durumu');
   FMedeniDurum := TFieldDB.Create('medeni_durum', ftSmallInt, 0, Self, 'Medeni Durum');
   FMedeniDurumAs := TFieldDB.Create('medeni_durum_as', ftString, '', Self, 'Medeni Durum');
-  FCocukSayisi := TFieldDB.Create('cocuk_sayisi', ftInteger, 0, Self, 'Çocuk Sayýsý');
-  FYakinAdi := TFieldDB.Create('yakin_adi', ftWideString, '', Self, 'Yakýn Adý');
-  FYakinTelefon := TFieldDB.Create('yakin_telefon', ftWideString, '', Self, 'Yakýn Telefon');
-  FAyakkabiNo := TFieldDB.Create('ayakkabi_no', ftInteger, 0, Self, 'Ayakkabý No');
+  FCocukSayisi := TFieldDB.Create('cocuk_sayisi', ftInteger, 0, Self, 'Ã‡ocuk SayÄ±sÄ±');
+  FYakinAdi := TFieldDB.Create('yakin_adi', ftWideString, '', Self, 'YakÄ±n AdÄ±');
+  FYakinTelefon := TFieldDB.Create('yakin_telefon', ftWideString, '', Self, 'YakÄ±n Telefon');
+  FAyakkabiNo := TFieldDB.Create('ayakkabi_no', ftInteger, 0, Self, 'AyakkabÄ± No');
   FElbiseBedeni := TFieldDB.Create('elbise_bedeni', ftWideString, '', Self, 'Elbise Bedeni');
   FGenelNot := TFieldDB.Create('genel_not', ftWideString, '', Self, 'Genel Not');
   FTasimaServisID := TFieldDB.Create('tasima_servis_id', ftInteger, 0, Self, 'Personel Servis ID');
   FTasimaServis := TFieldDB.Create(FSetPrsServisAraci.AracAdi.FieldName, FSetPrsServisAraci.AracAdi.DataType, '', Self, 'Personel Servisi');
-  FOzelNot := TFieldDB.Create('ozel_not', ftWideString, '', Self, 'Özel Note');
-  FMaas := TFieldDB.Create('maas', ftFMTBcd, 0, Self, 'Maaþ');
-  FIkramiyeSayisi := TFieldDB.Create('ikramiye_sayisi', ftInteger, 0, Self, 'Ýkramiye Sayýsý');
-  FIkramiyeTutari := TFieldDB.Create('ikramiye_tutar', ftFMTBcd, 0, Self, 'Ýkramiye Tutar');
+  FOzelNot := TFieldDB.Create('ozel_not', ftWideString, '', Self, 'Ã–zel Note');
+  FMaas := TFieldDB.Create('maas', ftFMTBcd, 0, Self, 'MaaÅŸ');
+  FIkramiyeSayisi := TFieldDB.Create('ikramiye_sayisi', ftInteger, 0, Self, 'Ä°kramiye SayÄ±sÄ±');
+  FIkramiyeTutari := TFieldDB.Create('ikramiye_tutar', ftFMTBcd, 0, Self, 'Ä°kramiye Tutar');
   FIdentification := TFieldDB.Create('identification', ftWideString, '', Self, 'TC No');
   FAdresID := TFieldDB.Create('adres_id', ftLargeint, 0, Self, '');
   FPasif := TFieldDB.Create('pasif', ftBoolean, False, Self, 'Pasif');

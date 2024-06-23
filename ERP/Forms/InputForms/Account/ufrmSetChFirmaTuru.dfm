@@ -8,7 +8,7 @@ inherited frmSetChFirmaTuru: TfrmSetChFirmaTuru
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 375
   ExplicitHeight = 160
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 359
     Height = 71
@@ -22,13 +22,14 @@ inherited frmSetChFirmaTuru: TfrmSetChFirmaTuru
       ExplicitWidth = 353
       ExplicitHeight = 53
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 351
-        ExplicitHeight = 43
+        ExplicitHeight = 42
         object lblfirma_turu: TLabel
-          Left = 69
+          Left = 70
           Top = 7
-          Width = 61
-          Height = 13
+          Width = 60
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Firma T'#252'r'#252

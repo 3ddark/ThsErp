@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SysUygulamaAyarlari;
+ï»¿unit Ths.Database.Table.SysUygulamaAyarlari;
 
 interface
 
@@ -329,7 +329,7 @@ end;
 
 procedure TSysUygulamaAyari.Delete(APermissionControl: Boolean);
 begin
-  raise Exception.Create('Bu kayýt silinemez!' + AddLBs + self.ClassName);
+  raise Exception.Create('Bu kayï¿½t silinemez!' + AddLBs + self.ClassName);
 end;
 
 destructor TSysUygulamaAyari.Destroy;

@@ -1,4 +1,4 @@
-unit Ths.Helper.SpinEdit;
+﻿unit Ths.Helper.SpinEdit;
 
 interface
 

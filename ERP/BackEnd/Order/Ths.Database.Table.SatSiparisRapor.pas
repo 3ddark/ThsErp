@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SatSiparisRapor;
+ï»¿unit Ths.Database.Table.SatSiparisRapor;
 
 interface
 
@@ -71,21 +71,21 @@ begin
   TableSourceCode := MODULE_SAT_SIP_RAPOR;
   inherited Create(ADatabase);
 
-  FMusteriKodu := TFieldDB.Create('musteri_kodu', ftString, '', Self, 'Müþteri Kodu');
-  FMusteriAdi := TFieldDB.Create('musteri_adi', ftString, '', Self, 'Müþteri Adý');
-  FSehirAdi := TFieldDB.Create('sehir_adi', ftString, '', Self, 'Þehir');
+  FMusteriKodu := TFieldDB.Create('musteri_kodu', ftString, '', Self, 'MÃ¼ÅŸteri Kodu');
+  FMusteriAdi := TFieldDB.Create('musteri_adi', ftString, '', Self, 'MÃ¼ÅŸteri AdÄ±');
+  FSehirAdi := TFieldDB.Create('sehir_adi', ftString, '', Self, 'Åžehir');
   FStokGrubu := TFieldDB.Create('stok_grubu', ftString, '', Self, 'Stok Grubu');
   FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self, 'Stok Kodu');
-  FStokAciklama := TFieldDB.Create('stok_aciklama', ftString, '', Self, 'Stok Açýklama');
+  FStokAciklama := TFieldDB.Create('stok_aciklama', ftString, '', Self, 'Stok AÃ§Ä±klama');
   FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self, 'Miktar');
-  FOlcuBirimi := TFieldDB.Create('olcu_birimi', ftString, '', Self, 'Ölçü Birimi');
-  FSiparisNo := TFieldDB.Create('siparis_no', ftString, '', Self, 'Sipariþ No');
-  FSiparisTarihi := TFieldDB.Create('siparis_tarihi', ftDate, 0, Self, 'Sipariþ Tarihi');
+  FOlcuBirimi := TFieldDB.Create('olcu_birimi', ftString, '', Self, 'Ã–lÃ§Ã¼ Birimi');
+  FSiparisNo := TFieldDB.Create('siparis_no', ftString, '', Self, 'SipariÅŸ No');
+  FSiparisTarihi := TFieldDB.Create('siparis_tarihi', ftDate, 0, Self, 'SipariÅŸ Tarihi');
   FTeslimTarihi := TFieldDB.Create('teslim_tarihi', ftDate, 0, Self, 'Teslim Tarihi');
-  FSiparisDurum := TFieldDB.Create('siparis_durum', ftString, '', Self, 'Sipariþ Durum');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
+  FSiparisDurum := TFieldDB.Create('siparis_durum', ftString, '', Self, 'SipariÅŸ Durum');
+  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'AÃ§Ä±klama');
   FReferans := TFieldDB.Create('referans', ftString, '', Self, 'Referans');
-  FReferansSatir := TFieldDB.Create('referans_satir', ftString, '', Self, 'Satýr Referans');
+  FReferansSatir := TFieldDB.Create('referans_satir', ftString, '', Self, 'SatÄ±r Referans');
 end;
 
 procedure TSatSiparisRapor.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);

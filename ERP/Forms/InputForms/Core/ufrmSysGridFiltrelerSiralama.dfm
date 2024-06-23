@@ -19,7 +19,7 @@ inherited frmSysGridFilterSort: TfrmSysGridFilterSort
     inherited pgcMain: TPageControl
       Width = 380
       Height = 89
-      ExplicitWidth = 380
+      ExplicitWidth = 382
       ExplicitHeight = 89
       inherited tsMain: TTabSheet
         ExplicitTop = 26

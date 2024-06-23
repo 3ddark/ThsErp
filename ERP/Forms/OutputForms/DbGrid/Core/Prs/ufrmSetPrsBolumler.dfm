@@ -25,9 +25,6 @@ inherited frmSetPrsBolumler: TfrmSetPrsBolumler
     inherited pnlHeader: TPanel
       Width = 789
       ExplicitWidth = 789
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
       inherited edtFilterHelper: TEdit
         Width = 746
         ExplicitWidth = 746

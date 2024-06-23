@@ -41,7 +41,7 @@ begin
 
   FPara := TFieldDB.Create('para', ftString, '', Self, 'Para');
   FSembol := TFieldDB.Create('sembol', ftString, '', Self, 'Sembol');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açýklama');
+  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'AÃ§Ä±klama');
 end;
 
 procedure TSysParaBirimi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);

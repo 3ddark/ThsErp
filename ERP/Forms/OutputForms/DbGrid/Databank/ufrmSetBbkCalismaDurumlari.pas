@@ -1,4 +1,4 @@
-unit ufrmSetBbkCalismaDurumlari;
+﻿unit ufrmSetBbkCalismaDurumlari;
 
 interface
 

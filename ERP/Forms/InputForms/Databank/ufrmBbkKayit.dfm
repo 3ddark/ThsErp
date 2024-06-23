@@ -13,18 +13,18 @@ inherited frmBbkKayit: TfrmBbkKayit
     ExplicitWidth = 872
     ExplicitHeight = 463
     inherited pgcMain: TPageControl
-      Width = 830
-      Height = 334
+      Width = 828
+      Height = 330
       ExplicitWidth = 870
       ExplicitHeight = 461
       inherited tsMain: TTabSheet
-        ExplicitWidth = 822
-        ExplicitHeight = 306
+        ExplicitWidth = 820
+        ExplicitHeight = 302
         object lblfirma_adi: TLabel
-          Left = 84
+          Left = 85
           Top = 5
-          Width = 53
-          Height = 13
+          Width = 52
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Firma Ad'#305
           Font.Charset = DEFAULT_CHARSET
@@ -35,10 +35,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lbltel1: TLabel
-          Left = 82
+          Left = 87
           Top = 27
-          Width = 55
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Telefon 1'
           Font.Charset = DEFAULT_CHARSET
@@ -49,10 +49,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lbltel2: TLabel
-          Left = 82
+          Left = 87
           Top = 49
-          Width = 55
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Telefon 2'
           Font.Charset = DEFAULT_CHARSET
@@ -63,10 +63,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lbltel3: TLabel
-          Left = 82
+          Left = 87
           Top = 71
-          Width = 55
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Telefon 3'
           Font.Charset = DEFAULT_CHARSET
@@ -77,10 +77,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblfax: TLabel
-          Left = 116
+          Left = 119
           Top = 93
-          Width = 21
-          Height = 13
+          Width = 18
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Fax'
           Font.Charset = DEFAULT_CHARSET
@@ -91,10 +91,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblemail: TLabel
-          Left = 101
+          Left = 105
           Top = 115
-          Width = 36
-          Height = 13
+          Width = 32
+          Height = 14
           Alignment = taRightJustify
           Caption = 'E-Mail'
           Font.Charset = DEFAULT_CHARSET
@@ -105,10 +105,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblweb: TLabel
-          Left = 74
+          Left = 76
           Top = 137
-          Width = 63
-          Height = 13
+          Width = 61
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Web Adres'
           Font.Charset = DEFAULT_CHARSET
@@ -119,10 +119,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblyetkili1: TLabel
-          Left = 90
+          Left = 95
           Top = 167
-          Width = 47
-          Height = 13
+          Width = 42
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Yetkili 1'
           Font.Charset = DEFAULT_CHARSET
@@ -133,10 +133,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblyetkili1_tel: TLabel
-          Left = 43
+          Left = 51
           Top = 189
-          Width = 94
-          Height = 13
+          Width = 86
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Yetkili 1 Telefon'
           Font.Charset = DEFAULT_CHARSET
@@ -147,10 +147,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblyetkili1_email: TLabel
-          Left = 51
+          Left = 60
           Top = 211
-          Width = 86
-          Height = 13
+          Width = 77
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Yetkili 1 E-Mail'
           Font.Charset = DEFAULT_CHARSET
@@ -161,10 +161,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblyetkili2: TLabel
-          Left = 90
+          Left = 95
           Top = 241
-          Width = 47
-          Height = 13
+          Width = 42
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Yetkili 2'
           Font.Charset = DEFAULT_CHARSET
@@ -175,10 +175,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblyetkili2_tel: TLabel
-          Left = 43
+          Left = 51
           Top = 263
-          Width = 94
-          Height = 13
+          Width = 86
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Yetkili 2 Telefon'
           Font.Charset = DEFAULT_CHARSET
@@ -189,10 +189,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblyetkili2_email: TLabel
-          Left = 51
+          Left = 60
           Top = 285
-          Width = 86
-          Height = 13
+          Width = 77
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Yetkili 2 E-Mail'
           Font.Charset = DEFAULT_CHARSET
@@ -203,10 +203,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblfirma_tipi_id: TLabel
-          Left = 321
+          Left = 323
           Top = 28
-          Width = 56
-          Height = 13
+          Width = 54
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Firma Tipi'
           Font.Charset = DEFAULT_CHARSET
@@ -217,10 +217,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblvergi_dairesi: TLabel
-          Left = 304
+          Left = 307
           Top = 50
-          Width = 73
-          Height = 13
+          Width = 70
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Vergi Dairesi'
           Font.Charset = DEFAULT_CHARSET
@@ -231,10 +231,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblvergi_numarasi: TLabel
-          Left = 619
+          Left = 623
           Top = 50
-          Width = 50
-          Height = 13
+          Width = 46
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Vergi No'
           Font.Charset = DEFAULT_CHARSET
@@ -245,10 +245,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lbladres: TLabel
-          Left = 344
+          Left = 343
           Top = 72
-          Width = 33
-          Height = 13
+          Width = 34
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Adres'
           Font.Charset = DEFAULT_CHARSET
@@ -259,10 +259,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblsehir_adi_id: TLabel
-          Left = 347
+          Left = 348
           Top = 94
-          Width = 30
-          Height = 13
+          Width = 29
+          Height = 14
           Alignment = taRightJustify
           Caption = #350'ehir'
           Font.Charset = DEFAULT_CHARSET
@@ -273,10 +273,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblulke_adi_id: TLabel
-          Left = 350
+          Left = 353
           Top = 116
-          Width = 27
-          Height = 13
+          Width = 24
+          Height = 14
           Alignment = taRightJustify
           Caption = #220'lke'
           Font.Charset = DEFAULT_CHARSET
@@ -287,10 +287,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblsevkiyat_yetkilisi: TLabel
-          Left = 571
+          Left = 577
           Top = 93
-          Width = 98
-          Height = 13
+          Width = 92
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Sevkiyat Yetkilisi'
           Font.Charset = DEFAULT_CHARSET
@@ -301,10 +301,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblsevkiyat_yetkilisi_tel: TLabel
-          Left = 549
+          Left = 558
           Top = 115
-          Width = 120
-          Height = 13
+          Width = 111
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Sevkiyat Yetkilisi Tel'
           Font.Charset = DEFAULT_CHARSET
@@ -318,7 +318,7 @@ inherited frmBbkKayit: TfrmBbkKayit
           Left = 286
           Top = 167
           Width = 91
-          Height = 13
+          Height = 14
           Alignment = taRightJustify
           Caption = #199'al'#305#351'ma Durumu'
           Font.Charset = DEFAULT_CHARSET
@@ -329,10 +329,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblfinans_durumu_id: TLabel
-          Left = 584
+          Left = 586
           Top = 137
-          Width = 85
-          Height = 13
+          Width = 83
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Finans Durumu'
           Font.Charset = DEFAULT_CHARSET
@@ -343,10 +343,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblkac_yillik_firma: TLabel
-          Left = 566
+          Left = 572
           Top = 167
-          Width = 103
-          Height = 13
+          Width = 97
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Firma Ka'#231' Senelik'
           Font.Charset = DEFAULT_CHARSET
@@ -387,10 +387,10 @@ inherited frmBbkKayit: TfrmBbkKayit
           ParentFont = False
         end
         object lblbolge_adi_id: TLabel
-          Left = 344
+          Left = 346
           Top = 138
-          Width = 33
-          Height = 13
+          Width = 31
+          Height = 14
           Alignment = taRightJustify
           Caption = 'B'#246'lge'
           Font.Charset = DEFAULT_CHARSET

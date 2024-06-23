@@ -6,9 +6,9 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   ClientHeight = 458
   ClientWidth = 628
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 642
-  ExplicitHeight = 494
-  TextHeight = 13
+  ExplicitWidth = 644
+  ExplicitHeight = 497
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 628
     Height = 408
@@ -23,13 +23,14 @@ inherited frmPrsPersonel: TfrmPrsPersonel
       ExplicitWidth = 626
       ExplicitHeight = 405
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 620
-        ExplicitHeight = 380
+        ExplicitHeight = 379
         object lblpasif: TLabel
-          Left = 88
+          Left = 90
           Top = 10
-          Width = 36
-          Height = 13
+          Width = 34
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Pasif?'
@@ -42,10 +43,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblad: TLabel
-          Left = 108
+          Left = 109
           Top = 32
-          Width = 16
-          Height = 13
+          Width = 15
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Ad'
@@ -58,10 +59,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblsoyad: TLabel
-          Left = 392
+          Left = 395
           Top = 32
-          Width = 36
-          Height = 13
+          Width = 33
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Soyad'
@@ -74,10 +75,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblpersonel_tipi_id: TLabel
-          Left = 49
+          Left = 51
           Top = 54
-          Width = 75
-          Height = 13
+          Width = 73
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Personel Tipi'
@@ -93,7 +94,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Left = 89
           Top = 76
           Width = 35
-          Height = 13
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'B'#246'l'#252'm'
@@ -106,10 +107,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblbirim_id: TLabel
-          Left = 96
+          Left = 95
           Top = 98
-          Width = 28
-          Height = 13
+          Width = 29
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Birim'
@@ -122,10 +123,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblgorev_id: TLabel
-          Left = 89
+          Left = 91
           Top = 120
-          Width = 35
-          Height = 13
+          Width = 33
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'G'#246'rev'
@@ -138,10 +139,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lbltasima_servisi_id: TLabel
-          Left = 376
+          Left = 380
           Top = 54
-          Width = 56
-          Height = 13
+          Width = 52
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Servis No'
           Font.Charset = DEFAULT_CHARSET
@@ -152,10 +153,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblgenel_not: TLabel
-          Left = 66
+          Left = 71
           Top = 142
-          Width = 58
-          Height = 13
+          Width = 53
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Genel Not'
           Font.Charset = DEFAULT_CHARSET
@@ -258,10 +259,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
         Caption = 'Adres'
         ImageIndex = 1
         object lblbina_adi: TLabel
-          Left = 100
+          Left = 103
           Top = 215
-          Width = 26
-          Height = 13
+          Width = 23
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Bina'
@@ -274,10 +275,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblsokak: TLabel
-          Left = 89
+          Left = 92
           Top = 192
-          Width = 37
-          Height = 13
+          Width = 34
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Sokak'
@@ -290,10 +291,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblcadde: TLabel
-          Left = 89
+          Left = 91
           Top = 169
-          Width = 37
-          Height = 13
+          Width = 35
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Cadde'
@@ -306,10 +307,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblmahalle: TLabel
-          Left = 81
+          Left = 84
           Top = 123
-          Width = 45
-          Height = 13
+          Width = 42
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Mahalle'
@@ -322,10 +323,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblilce: TLabel
-          Left = 104
+          Left = 107
           Top = 100
-          Width = 22
-          Height = 13
+          Width = 19
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #304'l'#231'e'
@@ -338,10 +339,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblsehir_id: TLabel
-          Left = 96
+          Left = 97
           Top = 77
-          Width = 30
-          Height = 13
+          Width = 29
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #350'ehir'
@@ -354,10 +355,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblulke_id: TLabel
-          Left = 99
+          Left = 102
           Top = 54
-          Width = 27
-          Height = 13
+          Width = 24
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #220'lke'
@@ -370,10 +371,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblkapi_no: TLabel
-          Left = 80
+          Left = 86
           Top = 238
-          Width = 46
-          Height = 13
+          Width = 40
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Kap'#305' No'
@@ -389,7 +390,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Left = 97
           Top = 146
           Width = 29
-          Height = 13
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Semt'
@@ -402,10 +403,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblposta_kodu: TLabel
-          Left = 364
+          Left = 368
           Top = 238
-          Width = 66
-          Height = 13
+          Width = 62
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Posta Kodu'
@@ -492,10 +493,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
         Caption = #214'zel Bilgiler'
         ImageIndex = 2
         object lblmaas: TLabel
-          Left = 98
+          Left = 100
           Top = 224
-          Width = 31
-          Height = 13
+          Width = 29
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Maa'#351
           Font.Charset = DEFAULT_CHARSET
@@ -506,10 +507,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblozel_not: TLabel
-          Left = 79
+          Left = 84
           Top = 268
-          Width = 50
-          Height = 13
+          Width = 45
+          Height = 14
           Alignment = taRightJustify
           Caption = #214'zel Not'
           Font.Charset = DEFAULT_CHARSET
@@ -520,10 +521,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblikramiye_sayisi: TLabel
-          Left = 44
+          Left = 46
           Top = 246
-          Width = 85
-          Height = 13
+          Width = 83
+          Height = 14
           Alignment = taRightJustify
           Caption = #304'kramiye Say'#305's'#305
           Font.Charset = DEFAULT_CHARSET
@@ -534,10 +535,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblikramiye_tutar: TLabel
-          Left = 351
+          Left = 354
           Top = 246
-          Width = 82
-          Height = 13
+          Width = 79
+          Height = 14
           Alignment = taRightJustify
           Caption = #304'kramiye Tutar'
           Font.Charset = DEFAULT_CHARSET
@@ -548,10 +549,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lbltel1: TLabel
-          Left = 74
+          Left = 79
           Top = 54
-          Width = 55
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Telefon 1'
@@ -564,10 +565,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lbltel2: TLabel
-          Left = 74
+          Left = 79
           Top = 76
-          Width = 55
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Telefon 2'
@@ -580,10 +581,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblyakin_telefon: TLabel
-          Left = 42
+          Left = 49
           Top = 142
-          Width = 87
-          Height = 13
+          Width = 80
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Yak'#305'n Telefonu'
@@ -596,10 +597,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblyakin_adi: TLabel
-          Left = 74
+          Left = 79
           Top = 120
-          Width = 55
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Yak'#305'n Ad'#305
@@ -612,10 +613,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblemail: TLabel
-          Left = 93
+          Left = 97
           Top = 98
-          Width = 36
-          Height = 13
+          Width = 32
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'E-Mail'
@@ -628,10 +629,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblayakkabi_no: TLabel
-          Left = 55
+          Left = 61
           Top = 164
-          Width = 73
-          Height = 13
+          Width = 67
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Ayakkab'#305' No'
           Font.Charset = DEFAULT_CHARSET
@@ -642,10 +643,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblelbise_bedeni: TLabel
-          Left = 50
+          Left = 54
           Top = 186
-          Width = 78
-          Height = 13
+          Width = 74
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Elbise Bedeni'
           Font.Charset = DEFAULT_CHARSET
@@ -656,10 +657,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblkimlik_no: TLabel
-          Left = 378
+          Left = 381
           Top = 54
-          Width = 54
-          Height = 13
+          Width = 51
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Kimlik No'
           Font.Charset = DEFAULT_CHARSET
@@ -670,10 +671,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lbldogum_tarihi: TLabel
-          Left = 356
+          Left = 360
           Top = 76
-          Width = 76
-          Height = 13
+          Width = 72
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Do'#287'um Tarihi'
@@ -686,10 +687,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblkan_grubu: TLabel
-          Left = 371
+          Left = 375
           Top = 98
-          Width = 61
-          Height = 13
+          Width = 57
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Kan Grubu'
@@ -705,7 +706,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           Left = 387
           Top = 120
           Width = 45
-          Height = 13
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Cinsiyet'
@@ -718,10 +719,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblmedeni_durumu_id: TLabel
-          Left = 350
+          Left = 351
           Top = 142
-          Width = 82
-          Height = 13
+          Width = 81
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Medeni Durum'
@@ -734,10 +735,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblaskerlik_durumu_id: TLabel
-          Left = 339
+          Left = 338
           Top = 186
-          Width = 93
-          Height = 13
+          Width = 94
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Askerlik Durumu'
@@ -750,10 +751,10 @@ inherited frmPrsPersonel: TfrmPrsPersonel
           ParentFont = False
         end
         object lblcocuk_sayisi: TLabel
-          Left = 358
+          Left = 362
           Top = 164
-          Width = 74
-          Height = 13
+          Width = 70
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #199'ocuk Say'#305's'#305
@@ -915,15 +916,11 @@ inherited frmPrsPersonel: TfrmPrsPersonel
     ExplicitWidth = 622
     inherited btnAccept: TButton
       Left = 418
-      TabOrder = 2
       ExplicitLeft = 416
     end
     inherited btnClose: TButton
       Left = 522
       ExplicitLeft = 520
-    end
-    inherited btnDelete: TButton
-      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

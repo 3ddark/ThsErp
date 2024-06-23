@@ -16,7 +16,7 @@ type
     FSatisIadeHesapKodu: TFieldDB;
     FAlisHesapKodu: TFieldDB;
     FAlisIadeHesapKodu: TFieldDB;
-    //db alaný deðil
+    //db alanï¿½ deï¿½il
     FSatisHesapAdi: TFieldDB;
     FSatisIadeHesapAdi: TFieldDB;
     FAlisHesapAdi: TFieldDB;
@@ -40,7 +40,7 @@ type
     property SatisIadeHesapKodu: TFieldDB read FSatisIadeHesapKodu write FSatisIadeHesapKodu;
     property AlisHesapKodu: TFieldDB read FAlisHesapKodu write FAlisHesapKodu;
     property AlisIadeHesapKodu: TFieldDB read FAlisIadeHesapKodu write FAlisIadeHesapKodu;
-    //db alaný deðil
+    //db alanï¿½ deï¿½il
     property SatisHesapAdi: TFieldDB read FSatisHesapAdi write FSatisHesapAdi;
     property SatisIadeHesapAdi: TFieldDB read FSatisIadeHesapAdi write FSatisIadeHesapAdi;
     property AlisHesapAdi: TFieldDB read FAlisHesapAdi write FAlisHesapAdi;
@@ -61,15 +61,15 @@ begin
   CH := TChHesapKarti.Create(ADatabase);
 
   FVergiOrani := TFieldDB.Create('vergi_orani', ftBCD, 0, Self, 'KDV', '', 2);
-  FSatisHesapKodu := TFieldDB.Create('satis_hesap_kodu', ftString, '', Self, 'Satýþ');
-  FSatisIadeHesapKodu := TFieldDB.Create('satis_iade_hesap_kodu', ftString, '', Self, 'Satýþ Ýade');
-  FAlisHesapKodu := TFieldDB.Create('alis_hesap_kodu', ftString, '', Self, 'Alýþ');
-  FAlisIadeHesapKodu := TFieldDB.Create('alis_iade_hesap_kodu', ftString, '', Self, 'Alýþ Ýade');
-  //db alaný deðil
-  FSatisHesapAdi := TFieldDB.Create('satis_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Satýþ Hesap');
-  FSatisIadeHesapAdi := TFieldDB.Create('satis_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Satýþ Ýade Hesap');
-  FAlisHesapAdi := TFieldDB.Create('alis_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Alýþ Hesap');
-  FAlisIadeHesapAdi := TFieldDB.Create('alis_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Alýþ Ýade Hesap');
+  FSatisHesapKodu := TFieldDB.Create('satis_hesap_kodu', ftString, '', Self, 'SatÄ±ÅŸ');
+  FSatisIadeHesapKodu := TFieldDB.Create('satis_iade_hesap_kodu', ftString, '', Self, 'SatÄ±ÅŸ Ä°ade');
+  FAlisHesapKodu := TFieldDB.Create('alis_hesap_kodu', ftString, '', Self, 'AlÄ±ÅŸ');
+  FAlisIadeHesapKodu := TFieldDB.Create('alis_iade_hesap_kodu', ftString, '', Self, 'AlÄ±ÅŸ Ä°ade');
+  //db alanï¿½ deï¿½il
+  FSatisHesapAdi := TFieldDB.Create('satis_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'SatÄ±ÅŸ Hesap');
+  FSatisIadeHesapAdi := TFieldDB.Create('satis_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'SatÄ±ÅŸ Ä°ade Hesap');
+  FAlisHesapAdi := TFieldDB.Create('alis_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'AlÄ±ÅŸ Hesap');
+  FAlisIadeHesapAdi := TFieldDB.Create('alis_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'AlÄ±ÅŸ Ä°ade Hesap');
 end;
 
 destructor TSetChVergiOrani.Destroy;
@@ -210,7 +210,7 @@ begin
   Result := True;
 
   if (Self.FVergiOrani.Value < 0) or (Self.FVergiOrani.Value > 100) then
-    raise Exception.Create(Trim('Vergi oraný hatalý girildi!' + AddLBs(2) + 'Lütfen veri oranýný kontrol edin. Vergi Oraný 0.00 - 100.00 arasýnda bir deðer olmalýdýr. + 999999'));
+    raise Exception.Create(Trim('Vergi oranï¿½ hatalï¿½ girildi!' + AddLBs(2) + 'Lï¿½tfen veri oranï¿½nï¿½ kontrol edin. Vergi Oranï¿½ 0.00 - 100.00 arasï¿½nda bir deï¿½er olmalï¿½dï¿½r. + 999999'));
 end;
 
 end.

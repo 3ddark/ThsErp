@@ -16,12 +16,12 @@ uses
 type
   TDatabaseTools = class
     /// <summary>
-    ///  Mevcut sistemin PostgreSQL üzeründen veritabaný yedeðini alýr
+    ///  Mevcut sistemin PostgreSQL ï¿½zerï¿½nden veritabanï¿½ yedeï¿½ini alï¿½r
     /// </summary>
     class procedure DoDatabaseBackup;
 
     /// <summary>
-    ///  PostgreSQL veritabaný yedeðini geri yükler
+    ///  PostgreSQL veritabanï¿½ yedeï¿½ini geri yï¿½kler
     /// </summary>
     class procedure DoDatabaseRestore(ABackupFilePath, ADatabaseName: string);
 
@@ -34,7 +34,7 @@ class procedure TDatabaseTools.DoDatabaseBackup;
 var
   LParams, LFileName, LBackupDirectory, LToolsDirectory, LBackupTool: string;
 begin
-  if CustomMsgDlg('Veritabaný yedeðini almak istediðinden emin misin?', TMsgDlgType.mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], TMsgDlgBtn.mbNo, 'Yedek Alma Onayý') <> mrYes then
+  if CustomMsgDlg('Veritabanï¿½ yedeï¿½ini almak istediï¿½inden emin misin?', TMsgDlgType.mtConfirmation, mbYesNo, ['Evet', 'Hayï¿½r'], TMsgDlgBtn.mbNo, 'Yedek Alma Onayï¿½') <> mrYes then
     Exit;
 
   LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools');
@@ -46,7 +46,7 @@ begin
   ForceDirectories(LBackupDirectory);
 
   if not FileExists(LBackupTool) then
-    raise Exception.Create('Yedekleme programý bulunamadý. Lütfen Tools dizini altýndaki yedekleme uygulamasýný kontrol edin.');
+    raise Exception.Create('Yedekleme programï¿½ bulunamadï¿½. Lï¿½tfen Tools dizini altï¿½ndaki yedekleme uygulamasï¿½nï¿½ kontrol edin.');
 
 
   with GDataBase.Connection.Params as TFDPhysPGConnectionDefParams do
@@ -57,7 +57,7 @@ begin
 
   ShellExecute(0, 'open', 'cmd', PWideChar(LParams), nil, SW_HIDE);
   CustomMsgDlg(
-    'Yedekleme iþlemi tamamlandý.' + AddLBs(2) + 'Alýnan yedek dosyasý ' + LFileName,
+    'Yedekleme iï¿½lemi tamamlandï¿½.' + AddLBs(2) + 'Alï¿½nan yedek dosyasï¿½ ' + LFileName,
     TMsgDlgType.mtInformation, [TMsgDlgBtn.mbOK], ['Tamam'], TMsgDlgBtn.mbOK, 'Bilgilendirme');
 end;
 
@@ -65,14 +65,14 @@ class procedure TDatabaseTools.DoDatabaseRestore(ABackupFilePath, ADatabaseName:
 var
   LParams, LToolsDirectory, LAppName: string;
 begin
-  if CustomMsgDlg('Veritabaný yedeðini geri yüklemek istediðinden emin misin?', TMsgDlgType.mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], TMsgDlgBtn.mbNo, 'Yedek Geri Yükleme Onayý') <> mrYes then
+  if CustomMsgDlg('Veritabanï¿½ yedeï¿½ini geri yï¿½klemek istediï¿½inden emin misin?', TMsgDlgType.mtConfirmation, mbYesNo, ['Evet', 'Hayï¿½r'], TMsgDlgBtn.mbNo, 'Yedek Geri Yï¿½kleme Onayï¿½') <> mrYes then
     Exit;
 
   LAppName := 'restore.exe';
   LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools');
 
   if not FileExists(TPath.Combine(LToolsDirectory, LAppName)) then
-    raise Exception.Create('Yedek Geri Yükleme programý bulunamadý. Lütfen Tools dizini altýndaki yedek geri yükleme uygulamasýný kontrol edin.');
+    raise Exception.Create('Yedek Geri Yï¿½kleme programï¿½ bulunamadï¿½. Lï¿½tfen Tools dizini altï¿½ndaki yedek geri yï¿½kleme uygulamasï¿½nï¿½ kontrol edin.');
 
   with GDataBase.Connection.Params as TFDPhysPGConnectionDefParams do
     LParams := '/c Tools\' +
@@ -92,7 +92,7 @@ begin
   LToolsDirectory := TPath.Combine(GUygulamaAnaDizin, 'Tools');
 
   if not FileExists(TPath.Combine(LToolsDirectory, LAppName)) then
-    raise Exception.Create('Veritabaný oluþturma programý bulunamadý. Lütfen Tools dizini altýndaki veritabaný oluþturma uygulamasýný("createdb.exe") kontrol edin.');
+    raise Exception.Create('VeritabanÄ± oluÅŸturma programÄ± bulunamadÄ±. LÃ¼tfen Tools dizini altÄ±ndaki veritabanÄ± oluÅŸturma uygulamasÄ±nÄ±("createdb.exe") kontrol edin.');
 
   with GDataBase.Connection.Params as TFDPhysPGConnectionDefParams do
     LParams :=

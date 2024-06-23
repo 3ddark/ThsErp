@@ -42,7 +42,7 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FGunAdi := TFieldDB.Create('gun_adi', ftWideString, '', Self, 'Gün Adý');
+  FGunAdi := TFieldDB.Create('gun_adi', ftWideString, '', Self, 'GÃ¼n AdÄ±');
 end;
 
 destructor TSysGun.Destroy;

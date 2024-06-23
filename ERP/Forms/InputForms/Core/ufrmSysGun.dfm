@@ -18,7 +18,7 @@ inherited frmSysGun: TfrmSysGun
     inherited pgcMain: TPageControl
       Width = 352
       Height = 65
-      ExplicitWidth = 352
+      ExplicitWidth = 354
       ExplicitHeight = 65
       inherited tsMain: TTabSheet
         ExplicitTop = 26

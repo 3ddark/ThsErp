@@ -1,4 +1,4 @@
-unit ufrmStkKartlar;
+﻿unit ufrmStkKartlar;
 
 interface
 

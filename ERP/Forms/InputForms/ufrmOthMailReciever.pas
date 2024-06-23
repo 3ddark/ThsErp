@@ -1,4 +1,4 @@
-unit ufrmOthMailReciever;
+ï»¿unit ufrmOthMailReciever;
 
 interface
 
@@ -46,7 +46,7 @@ end;
 
 procedure TfrmOthMailReciever.RefreshData();
 begin
-  //control içeriðini table class ile doldur
+  //control iï¿½eriï¿½ini table class ile doldur
   edtmail_adresi.Text := TOthMailReciever(Table).MailAdresi.AsString;
 end;
 

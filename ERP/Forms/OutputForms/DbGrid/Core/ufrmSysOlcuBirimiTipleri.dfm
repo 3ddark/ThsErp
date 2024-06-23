@@ -25,9 +25,6 @@ inherited frmSysOlcuBirimiTipleri: TfrmSysOlcuBirimiTipleri
     inherited pnlHeader: TPanel
       Width = 791
       ExplicitWidth = 791
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
       inherited edtFilterHelper: TEdit
         Width = 748
         ExplicitWidth = 748

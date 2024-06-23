@@ -1,4 +1,4 @@
-unit ufrmSetSatTeklifDurumlar;
+﻿unit ufrmSetSatTeklifDurumlar;
 
 interface
 

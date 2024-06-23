@@ -6,9 +6,9 @@ inherited frmSetPrsLisanSeviyesi: TfrmSetPrsLisanSeviyesi
   ClientHeight = 117
   ClientWidth = 360
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 374
-  ExplicitHeight = 153
-  TextHeight = 13
+  ExplicitWidth = 376
+  ExplicitHeight = 156
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 360
     Height = 67
@@ -22,13 +22,14 @@ inherited frmSetPrsLisanSeviyesi: TfrmSetPrsLisanSeviyesi
       ExplicitWidth = 358
       ExplicitHeight = 64
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 352
-        ExplicitHeight = 39
+        ExplicitHeight = 38
         object lbllisan_seviyesi: TLabel
-          Left = 61
+          Left = 64
           Top = 6
-          Width = 82
-          Height = 13
+          Width = 79
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Lisan Seviyesi'

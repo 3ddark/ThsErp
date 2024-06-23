@@ -1,4 +1,4 @@
-unit ufrmSatSiparisler;
+ï»¿unit ufrmSatSiparisler;
 
 interface
 
@@ -141,12 +141,12 @@ begin
         if LSip.SiparisDurumID.Value = Ord(TSatSiparisDurum.Hazir) then
         begin
           if CustomMsgDlg(
-            'Sipariş Durum "Hazır" dan "Bekleme" ye geri alınsın mı?',
+            'SipariÅŸ Durum "HazÄ±r" dan "Bekleme" ye geri alÄ±nsÄ±n mÄ±?',
             mtConfirmation,
             mbYesNo,
-            ['Evet', 'Hayır'],
+            ['Evet', 'HayÄ±r'],
             mbNo,
-            'Sipariş Durum Geri Alma Onayı') = mrYes
+            'SipariÅŸ Durum Geri Alma OnayÄ±') = mrYes
           then
           begin
             LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Beklemede);
@@ -157,12 +157,12 @@ begin
         else if LSip.SiparisDurumID.Value = Ord(TSatSiparisDurum.Gitti) then
         begin
           if CustomMsgDlg(
-            'Sipariş Durum "Gitti" den "Hazır" a geri alınsın mı?',
+            'SipariÅŸ Durum "Gitti" den "HazÄ±r" a geri alÄ±nsÄ±n mÄ±?',
             mtConfirmation,
             mbYesNo,
-            ['Evet', 'Hayır'],
+            ['Evet', 'HayÄ±r'],
             mbNo,
-            'Sipariş Durum Geri Alma Onayı') = mrYes
+            'SipariÅŸ Durum Geri Alma OnayÄ±') = mrYes
           then
           begin
             LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Hazir);
@@ -176,12 +176,12 @@ begin
         if LSip.SiparisDurumID.Value = Ord(TSatSiparisDurum.Beklemede) then
         begin
           if CustomMsgDlg(
-            'Sipariş Durum "Bekleme" den "Hazır" a getirilsin mi?',
+            'SipariÅŸ Durum "Bekleme" den "HazÄ±r" a getirilsin mi?',
             mtConfirmation,
             mbYesNo,
-            ['Evet', 'Hayır'],
+            ['Evet', 'HayÄ±r'],
             mbNo,
-            'Sipariş Durum Değişiklik Onayı') = mrYes
+            'SipariÅŸ Durum DeÄŸiÅŸiklik OnayÄ±') = mrYes
           then
           begin
             LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Hazir);
@@ -192,12 +192,12 @@ begin
         else if TSatSiparis(Table).SiparisDurumID.Value = Ord(TSatSiparisDurum.Hazir) then
         begin
           if CustomMsgDlg(
-            'Sipariş Durum "Hazır" dan "Gitti" ye getirilsin mi?',
+            'SipariÅŸ Durum "HazÄ±r" dan "Gitti" ye getirilsin mi?',
             mtConfirmation,
             mbYesNo,
-            ['Evet', 'Hayır'],
+            ['Evet', 'HayÄ±r'],
             mbNo,
-            'Sipariş Durum Değişiklik Onayı') = mrYes
+            'SipariÅŸ Durum DeÄŸiÅŸiklik OnayÄ±') = mrYes
           then
           begin
             LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Gitti);
@@ -211,8 +211,8 @@ begin
     end;
   end
   else
-    CustomMsgDlg('Durum Güncelleme hakkınız olmadığı için bu işlemi yapamazsınız.' + AddLBs(3) +
-                 Table.TableSourceCode + ' ' + PermissionTypeAsString(ptSpecial), mtInformation, [mbOK], ['Tamam'], mbOK, 'İşlem Hakkı Bilgilendirme');
+    CustomMsgDlg('Durum GÃ¼ncelleme hakkÄ±nÄ±z olmadÄ±ÄŸÄ± iÃ§in bu iÅŸlemi yapamazsÄ±nÄ±z.' + AddLBs(3) +
+                 Table.TableSourceCode + ' ' + PermissionTypeAsString(ptSpecial), mtInformation, [mbOK], ['Tamam'], mbOK, 'Ä°ÅŸlem HakkÄ± Bilgilendirme');
 end;
 
 end.

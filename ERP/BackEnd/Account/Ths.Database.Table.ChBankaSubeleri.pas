@@ -1,4 +1,4 @@
-unit Ths.Database.Table.ChBankaSubeleri;
+ï»¿unit Ths.Database.Table.ChBankaSubeleri;
 
 interface
 
@@ -63,9 +63,9 @@ begin
 
   FBankaID := TFieldDB.Create('banka_id', ftInteger, 0, Self, 'Banka ID');
   FBanka := TFieldDB.Create(FChBanka.BankaAdi.FieldName, FChBanka.BankaAdi.DataType, '', Self, 'Banka');
-  FSubeKodu := TFieldDB.Create('sube_kodu', ftInteger, 0, Self, 'Þube Kodu');
-  FSubeAdi := TFieldDB.Create('sube_adi', ftString, '', Self, 'Þube Adý');
-  FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Þehir ID');
+  FSubeKodu := TFieldDB.Create('sube_kodu', ftInteger, 0, Self, 'Åžube Kodu');
+  FSubeAdi := TFieldDB.Create('sube_adi', ftString, '', Self, 'Åžube AdÄ±');
+  FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Åžehir ID');
   FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, FSysSehir.Sehir.Value, Self, FSysSehir.Sehir.Title);
 end;
 

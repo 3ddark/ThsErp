@@ -7,9 +7,9 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
   ClientWidth = 539
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
-  ExplicitWidth = 553
-  ExplicitHeight = 243
-  TextHeight = 13
+  ExplicitWidth = 555
+  ExplicitHeight = 246
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 539
     Height = 157
@@ -23,8 +23,9 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
       ExplicitWidth = 537
       ExplicitHeight = 235
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 531
-        ExplicitHeight = 129
+        ExplicitHeight = 128
         object lblalis_iade_hesap_kodu: TLabel
           Left = 35
           Top = 94
@@ -210,15 +211,11 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
     ExplicitWidth = 533
     inherited btnAccept: TButton
       Left = 329
-      TabOrder = 2
       ExplicitLeft = 327
     end
     inherited btnClose: TButton
       Left = 433
       ExplicitLeft = 431
-    end
-    inherited btnDelete: TButton
-      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

@@ -1,4 +1,4 @@
-unit ufrmStkStokAmbar;
+﻿unit ufrmStkStokAmbar;
 
 interface
 

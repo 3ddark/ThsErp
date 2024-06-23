@@ -1,4 +1,4 @@
-unit ufrmSetEinvIstisnaKodlari;
+﻿unit ufrmSetEinvIstisnaKodlari;
 
 interface
 

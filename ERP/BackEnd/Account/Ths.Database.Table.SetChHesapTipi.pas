@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetChHesapTipi;
+﻿unit Ths.Database.Table.SetChHesapTipi;
 
 interface
 

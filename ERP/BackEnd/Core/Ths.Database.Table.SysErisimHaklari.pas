@@ -68,10 +68,10 @@ begin
   FKaynakKodu := TFieldDB.Create(FSysKaynak.KaynakKodu.FieldName, FSysKaynak.KaynakKodu.DataType, '', Self, FSysKaynak.KaynakKodu.Title);
   FIsOkuma := TFieldDB.Create('is_okuma', ftBoolean, False, Self, 'Okuma?');
   FIsEkleme := TFieldDB.Create('is_ekleme', ftBoolean, False, Self, 'Ekleme?');
-  FIsGuncelleme := TFieldDB.Create('is_guncelleme', ftBoolean, False, Self, 'Güncelleme?');
+  FIsGuncelleme := TFieldDB.Create('is_guncelleme', ftBoolean, False, Self, 'GÃ¼ncelleme?');
   FIsSilme := TFieldDB.Create('is_silme', ftBoolean, False, Self, 'Silme?');
-  FIsOzel := TFieldDB.Create('is_ozel', ftBoolean, False, Self, 'Özel?');
-  FKullaniciID := TFieldDB.Create('kullanici_id', ftInteger, 0, Self, 'Kullanýcý ID');
+  FIsOzel := TFieldDB.Create('is_ozel', ftBoolean, False, Self, 'Ã–zel?');
+  FKullaniciID := TFieldDB.Create('kullanici_id', ftInteger, 0, Self, 'KullanÄ±cÄ± ID');
   FKullanici := TFieldDB.Create(FSysKullanici.KullaniciAdi.FieldName, FSysKullanici.KullaniciAdi.DataType, FSysKullanici.KullaniciAdi.Value, Self, FSysKullanici.KullaniciAdi.Title);
 end;
 

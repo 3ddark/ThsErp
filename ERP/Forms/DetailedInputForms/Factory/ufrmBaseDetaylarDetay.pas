@@ -160,7 +160,7 @@ begin
     btnClose.Visible := True;
     btnAccept.Caption := 'Kaydet';
 
-    //TRUE olarak gönder form ilk açýldýðýndan küçük-büyük harf ayarýný yap.
+    //TRUE olarak gï¿½nder form ilk aï¿½ï¿½ldï¿½ï¿½ï¿½ndan kï¿½ï¿½ï¿½k-bï¿½yï¿½k harf ayarï¿½nï¿½ yap.
 //    SetInputControlProperty(True);
   end
   else
@@ -169,7 +169,7 @@ begin
     btnAccept.Visible := True;
     btnClose.Visible := True;
 
-    btnAccept.Caption := 'Güncelle';
+    btnAccept.Caption := 'GÃ¼ncelle';
     btnDelete.Caption := 'Sil';
   end
   else

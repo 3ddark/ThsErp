@@ -25,9 +25,6 @@ inherited frmChHesapPlanlari: TfrmChHesapPlanlari
     inherited pnlHeader: TPanel
       Width = 787
       ExplicitWidth = 787
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
       inherited edtFilterHelper: TEdit
         Width = 744
         ExplicitWidth = 744

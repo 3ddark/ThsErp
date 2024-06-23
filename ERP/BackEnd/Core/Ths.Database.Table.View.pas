@@ -1,4 +1,4 @@
-unit Ths.Database.Table.View;
+ï»¿unit Ths.Database.Table.View;
 
 interface
 
@@ -31,52 +31,52 @@ uses
 
 procedure TView.Listen;
 begin
-  raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
+  raise Exception.Create('Desteklenmeyen iï¿½lem' + AddLBs + self.ClassName);
 end;
 
 procedure TView.Notify;
 begin
-  raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
+  raise Exception.Create('Desteklenmeyen iï¿½lem' + AddLBs + self.ClassName);
 end;
 
 procedure TView.Unlisten;
 begin
-  raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
+  raise Exception.Create('Desteklenmeyen iï¿½lem' + AddLBs + self.ClassName);
 end;
 
 function TView.LogicalSelect(AFilter: string; ALock, AWithBegin, APermissionControl: Boolean): Boolean;
 begin
-  raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
+  raise Exception.Create('Desteklenmeyen iï¿½lem' + AddLBs + self.ClassName);
 end;
 
 function TView.LogicalInsert(AWithBegin, AWithCommit, APermissionControl: Boolean): Boolean;
 begin
-  raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
+  raise Exception.Create('Desteklenmeyen iï¿½lem' + AddLBs + self.ClassName);
 end;
 
 function TView.LogicalUpdate(AWithCommit, APermissionControl: Boolean): Boolean;
 begin
-  raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
+  raise Exception.Create('Desteklenmeyen iï¿½lem' + AddLBs + self.ClassName);
 end;
 
 function TView.LogicalDelete(AWithCommit, APermissionControl: Boolean): Boolean;
 begin
-  raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
+  raise Exception.Create('Desteklenmeyen iï¿½lem' + AddLBs + self.ClassName);
 end;
 
 procedure TView.DoInsert(APermissionControl: Boolean = True);
 begin
-  raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
+  raise Exception.Create('Desteklenmeyen iï¿½lem' + AddLBs + self.ClassName);
 end;
 
 procedure TView.DoUpdate(APermissionControl: Boolean = True);
 begin
-  raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
+  raise Exception.Create('Desteklenmeyen iï¿½lem' + AddLBs + self.ClassName);
 end;
 
 procedure TView.Delete(APermissionControl: Boolean);
 begin
-  raise Exception.Create('Desteklenmeyen iþlem' + AddLBs + self.ClassName);
+  raise Exception.Create('Desteklenmeyen iï¿½lem' + AddLBs + self.ClassName);
 end;
 
 end.

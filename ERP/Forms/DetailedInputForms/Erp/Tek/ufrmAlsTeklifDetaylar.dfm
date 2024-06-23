@@ -4,7 +4,6 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
   ClientWidth = 878
   ExplicitWidth = 894
   ExplicitHeight = 580
-  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 878
@@ -31,8 +30,6 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
       ExplicitWidth = 772
       ExplicitHeight = 160
       inherited tsMain: TTabSheet
-        ExplicitLeft = 4
-        ExplicitTop = 24
         ExplicitWidth = 764
         ExplicitHeight = 132
       end
@@ -48,15 +45,13 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
         ExplicitWidth = 872
         ExplicitHeight = 323
         inherited tsHeader: TTabSheet
-          ExplicitLeft = 24
-          ExplicitTop = 4
           ExplicitWidth = 844
           ExplicitHeight = 315
           object lblteklif_no: TLabel
-            Left = 632
+            Left = 638
             Top = 6
-            Width = 53
-            Height = 13
+            Width = 47
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Teklif No'
             Font.Charset = DEFAULT_CHARSET
@@ -67,10 +62,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblteklif_tarihi: TLabel
-            Left = 620
+            Left = 625
             Top = 28
-            Width = 65
-            Height = 13
+            Width = 60
+            Height = 14
             Alignment = taRightJustify
             Caption = 'TeklifTarihi'
             Font.Charset = DEFAULT_CHARSET
@@ -81,10 +76,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblmusteri_kodu: TLabel
-            Left = 39
+            Left = 40
             Top = 5
-            Width = 75
-            Height = 13
+            Width = 74
+            Height = 14
             Alignment = taRightJustify
             Caption = 'M'#252#351'teri Kodu'
             Font.Charset = DEFAULT_CHARSET
@@ -98,7 +93,7 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             Left = 50
             Top = 27
             Width = 64
-            Height = 13
+            Height = 14
             Alignment = taRightJustify
             Caption = 'M'#252#351'teri Ad'#305
             Font.Charset = DEFAULT_CHARSET
@@ -109,10 +104,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblvergi_dairesi: TLabel
-            Left = 41
+            Left = 44
             Top = 49
-            Width = 73
-            Height = 13
+            Width = 70
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Vergi Dairesi'
             Font.Charset = DEFAULT_CHARSET
@@ -123,10 +118,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblvergi_no: TLabel
-            Left = 64
+            Left = 68
             Top = 71
-            Width = 50
-            Height = 13
+            Width = 46
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Vergi No'
             Font.Charset = DEFAULT_CHARSET
@@ -137,10 +132,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblpara_birimi: TLabel
-            Left = 624
+            Left = 626
             Top = 94
-            Width = 61
-            Height = 13
+            Width = 59
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Para Birimi'
             Font.Charset = DEFAULT_CHARSET
@@ -151,10 +146,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lbldoviz_kuru_usd: TLabel
-            Left = 624
+            Left = 628
             Top = 116
-            Width = 61
-            Height = 13
+            Width = 57
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Dolar Kuru'
             Font.Charset = DEFAULT_CHARSET
@@ -165,10 +160,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblmusteri_temsilcisi_id: TLabel
-            Left = 306
+            Left = 305
             Top = 49
-            Width = 101
-            Height = 13
+            Width = 102
+            Height = 14
             Alignment = taRightJustify
             Caption = 'M'#252#351'teri Temsilcisi'
             Font.Charset = DEFAULT_CHARSET
@@ -179,10 +174,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblreferans: TLabel
-            Left = 355
+            Left = 357
             Top = 204
-            Width = 52
-            Height = 13
+            Width = 50
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Referans'
             Font.Charset = DEFAULT_CHARSET
@@ -194,10 +189,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             WordWrap = True
           end
           object lblmuhattap_ad: TLabel
-            Left = 334
+            Left = 338
             Top = 71
-            Width = 73
-            Height = 13
+            Width = 69
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Muhattap Ad'
             Font.Charset = DEFAULT_CHARSET
@@ -208,10 +203,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblgecerlilik_tarihi: TLabel
-            Left = 595
+            Left = 600
             Top = 50
-            Width = 90
-            Height = 13
+            Width = 85
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Ge'#231'erlilik Tarihi'
             Font.Charset = DEFAULT_CHARSET
@@ -222,10 +217,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblkapi_no: TLabel
-            Left = 68
+            Left = 74
             Top = 247
-            Width = 46
-            Height = 13
+            Width = 40
+            Height = 14
             Alignment = taRightJustify
             BiDiMode = bdLeftToRight
             Caption = 'Kap'#305' No'
@@ -238,10 +233,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblposta_kodu: TLabel
-            Left = 48
+            Left = 52
             Top = 269
-            Width = 66
-            Height = 13
+            Width = 62
+            Height = 14
             Alignment = taRightJustify
             BiDiMode = bdLeftToRight
             Caption = 'Posta Kodu'
@@ -254,10 +249,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblulke_id: TLabel
-            Left = 87
+            Left = 90
             Top = 93
-            Width = 27
-            Height = 13
+            Width = 24
+            Height = 14
             Alignment = taRightJustify
             BiDiMode = bdLeftToRight
             Caption = #220'lke'
@@ -270,10 +265,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblsehir_id: TLabel
-            Left = 84
+            Left = 85
             Top = 115
-            Width = 30
-            Height = 13
+            Width = 29
+            Height = 14
             Alignment = taRightJustify
             BiDiMode = bdLeftToRight
             Caption = #350'ehir'
@@ -286,10 +281,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblilce: TLabel
-            Left = 92
+            Left = 95
             Top = 137
-            Width = 22
-            Height = 13
+            Width = 19
+            Height = 14
             Alignment = taRightJustify
             BiDiMode = bdLeftToRight
             Caption = #304'l'#231'e'
@@ -302,10 +297,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblmahalle: TLabel
-            Left = 69
+            Left = 72
             Top = 159
-            Width = 45
-            Height = 13
+            Width = 42
+            Height = 14
             Alignment = taRightJustify
             BiDiMode = bdLeftToRight
             Caption = 'Mahalle'
@@ -318,10 +313,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblcadde: TLabel
-            Left = 77
+            Left = 79
             Top = 181
-            Width = 37
-            Height = 13
+            Width = 35
+            Height = 14
             Alignment = taRightJustify
             BiDiMode = bdLeftToRight
             Caption = 'Cadde'
@@ -334,10 +329,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblsokak: TLabel
-            Left = 77
+            Left = 80
             Top = 203
-            Width = 37
-            Height = 13
+            Width = 34
+            Height = 14
             Alignment = taRightJustify
             BiDiMode = bdLeftToRight
             Caption = 'Sokak'
@@ -350,10 +345,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblbina_adi: TLabel
-            Left = 88
+            Left = 91
             Top = 225
-            Width = 26
-            Height = 13
+            Width = 23
+            Height = 14
             Alignment = taRightJustify
             BiDiMode = bdLeftToRight
             Caption = 'Bina'
@@ -366,10 +361,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblaciklama: TLabel
-            Left = 355
+            Left = 357
             Top = 225
-            Width = 52
-            Height = 13
+            Width = 50
+            Height = 14
             Alignment = taRightJustify
             Caption = 'A'#231#305'klama'
             Font.Charset = DEFAULT_CHARSET
@@ -380,10 +375,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblproforma_no: TLabel
-            Left = 336
+            Left = 338
             Top = 291
-            Width = 71
-            Height = 13
+            Width = 69
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Proforma No'
             Font.Charset = DEFAULT_CHARSET
@@ -395,10 +390,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             WordWrap = True
           end
           object lblmuhattap_telefon: TLabel
-            Left = 306
+            Left = 312
             Top = 93
-            Width = 101
-            Height = 13
+            Width = 95
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Muhattap Telefon'
             Font.Charset = DEFAULT_CHARSET
@@ -409,10 +404,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lbldoviz_kuru_eur: TLabel
-            Left = 628
+            Left = 631
             Top = 137
-            Width = 57
-            Height = 13
+            Width = 54
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Euro Kuru'
             Font.Charset = DEFAULT_CHARSET
@@ -605,15 +600,13 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
           end
         end
         inherited tsHeaderDiger: TTabSheet
-          ExplicitLeft = 24
-          ExplicitTop = 4
           ExplicitWidth = 844
           ExplicitHeight = 315
           object lblProformaNo: TLabel
-            Left = 71
+            Left = 74
             Top = 6
-            Width = 75
-            Height = 13
+            Width = 72
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Proforma No:'
             Font.Charset = DEFAULT_CHARSET
@@ -625,10 +618,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             WordWrap = True
           end
           object lblSonrakiAksiyonTarihi: TLabel
-            Left = 37
+            Left = 42
             Top = 27
-            Width = 109
-            Height = 13
+            Width = 104
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Sonraki Aksyn.Trh:'
             Font.Charset = DEFAULT_CHARSET
@@ -640,10 +633,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             WordWrap = True
           end
           object lblSonrakiAksiyon: TLabel
-            Left = 66
+            Left = 70
             Top = 48
-            Width = 80
-            Height = 13
+            Width = 76
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Aksiyon Notu:'
             Font.Charset = DEFAULT_CHARSET
@@ -655,10 +648,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             WordWrap = True
           end
           object lblArayanKisi: TLabel
-            Left = 447
+            Left = 451
             Top = 28
-            Width = 68
-            Height = 13
+            Width = 64
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Arayan Ki'#351'i:'
             Font.Charset = DEFAULT_CHARSET
@@ -670,10 +663,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             WordWrap = True
           end
           object lblAramaTarihi: TLabel
-            Left = 439
+            Left = 443
             Top = 50
-            Width = 76
-            Height = 13
+            Width = 72
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Arama Tarihi:'
             Font.Charset = DEFAULT_CHARSET
@@ -685,10 +678,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             WordWrap = True
           end
           object lblSonGecerlilikTarihi: TLabel
-            Left = 421
+            Left = 428
             Top = 72
-            Width = 94
-            Height = 13
+            Width = 87
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Son Ge'#231'rlik Trh:'
             Font.Charset = DEFAULT_CHARSET
@@ -700,10 +693,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             WordWrap = True
           end
           object lblGenelIskontoYuzdesiTutari: TLabel
-            Left = 427
+            Left = 434
             Top = 5
-            Width = 88
-            Height = 13
+            Width = 81
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Fatura Alt'#305' '#304'sk.:'
             Font.Charset = DEFAULT_CHARSET
@@ -717,8 +710,8 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
           object lblGenelIskontoAyrac: TLabel
             Left = 568
             Top = 3
-            Width = 6
-            Height = 20
+            Width = 4
+            Height = 19
             Caption = '/'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
@@ -728,10 +721,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblIhracKayitKodu: TLabel
-            Left = 60
+            Left = 67
             Top = 118
-            Width = 85
-            Height = 13
+            Width = 78
+            Height = 14
             Alignment = taRightJustify
             Caption = #304'hra'#231' Kyt.Kodu'
             Font.Charset = DEFAULT_CHARSET
@@ -742,10 +735,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblTevkifatKodu: TLabel
-            Left = 64
+            Left = 71
             Top = 138
-            Width = 81
-            Height = 13
+            Width = 74
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Tevkifat Kodu'
             Font.Charset = DEFAULT_CHARSET
@@ -756,10 +749,10 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
             ParentFont = False
           end
           object lblTevkifatOrani: TLabel
-            Left = 60
+            Left = 67
             Top = 160
-            Width = 82
-            Height = 13
+            Width = 75
+            Height = 14
             Alignment = taRightJustify
             Caption = 'Tevkifat Oran'#305
             Font.Charset = DEFAULT_CHARSET
@@ -772,8 +765,8 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
           object lblTevkifatBolme: TLabel
             Left = 199
             Top = 159
-            Width = 6
-            Height = 20
+            Width = 4
+            Height = 19
             Caption = '/'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
@@ -902,8 +895,6 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
         ExplicitWidth = 770
         ExplicitHeight = 156
         inherited ts1: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 762
           ExplicitHeight = 128
           inherited pnl1: TPanel
@@ -932,8 +923,6 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
           end
         end
         inherited ts2: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 762
           ExplicitHeight = 128
           inherited pnl2: TPanel
@@ -956,8 +945,6 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
           end
         end
         inherited ts3: TTabSheet
-          ExplicitLeft = 4
-          ExplicitTop = 24
           ExplicitWidth = 762
           ExplicitHeight = 128
           inherited strngrd3: TStringGrid
@@ -981,7 +968,7 @@ inherited frmAlsTeklifDetaylar: TfrmAlsTeklifDetaylar
         end
       end
       inherited btnHeaderShowHide: TButton
-        Left = 731
+        Left = 729
         ExplicitLeft = 731
       end
     end

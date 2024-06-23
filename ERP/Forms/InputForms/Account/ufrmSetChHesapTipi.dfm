@@ -8,7 +8,7 @@ inherited frmSetChHesapTipi: TfrmSetChHesapTipi
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 358
   ExplicitHeight = 150
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 342
     Height = 61
@@ -22,8 +22,9 @@ inherited frmSetChHesapTipi: TfrmSetChHesapTipi
       ExplicitWidth = 338
       ExplicitHeight = 136
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 334
-        ExplicitHeight = 33
+        ExplicitHeight = 32
         object lblhesap_tipi: TLabel
           Left = 56
           Top = 6

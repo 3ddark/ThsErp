@@ -41,7 +41,7 @@ begin
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
-  FGorev := TFieldDB.Create('gorev', ftWideString, '', Self, 'Görev');
+  FGorev := TFieldDB.Create('gorev', ftWideString, '', Self, 'GÃ¶rev');
 end;
 
 procedure TSetPrsGorev.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);

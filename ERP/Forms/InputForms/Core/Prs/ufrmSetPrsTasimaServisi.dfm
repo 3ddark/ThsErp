@@ -8,7 +8,7 @@ inherited frmSetPrsTasimaServisi: TfrmSetPrsTasimaServisi
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 358
   ExplicitHeight = 187
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 342
     Height = 98
@@ -22,13 +22,14 @@ inherited frmSetPrsTasimaServisi: TfrmSetPrsTasimaServisi
       ExplicitWidth = 342
       ExplicitHeight = 98
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 334
-        ExplicitHeight = 70
+        ExplicitHeight = 69
         object lblarac_no: TLabel
-          Left = 37
+          Left = 41
           Top = 6
-          Width = 56
-          Height = 13
+          Width = 52
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Servis No'
@@ -41,10 +42,10 @@ inherited frmSetPrsTasimaServisi: TfrmSetPrsTasimaServisi
           ParentFont = False
         end
         object lblarac_adi: TLabel
-          Left = 35
+          Left = 37
           Top = 28
-          Width = 58
-          Height = 13
+          Width = 56
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Servis Ad'#305

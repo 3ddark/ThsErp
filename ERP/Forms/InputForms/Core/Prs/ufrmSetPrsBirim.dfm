@@ -6,9 +6,9 @@ inherited frmSetPrsBirim: TfrmSetPrsBirim
   ClientHeight = 132
   ClientWidth = 347
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 361
-  ExplicitHeight = 168
-  TextHeight = 13
+  ExplicitWidth = 363
+  ExplicitHeight = 171
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 347
     Height = 82
@@ -22,13 +22,14 @@ inherited frmSetPrsBirim: TfrmSetPrsBirim
       ExplicitWidth = 345
       ExplicitHeight = 79
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 339
-        ExplicitHeight = 54
+        ExplicitHeight = 53
         object lblbolum_id: TLabel
           Left = 57
           Top = 5
           Width = 35
-          Height = 13
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'B'#246'l'#252'm'
@@ -41,10 +42,10 @@ inherited frmSetPrsBirim: TfrmSetPrsBirim
           ParentFont = False
         end
         object lblbirim: TLabel
-          Left = 64
+          Left = 63
           Top = 27
-          Width = 28
-          Height = 13
+          Width = 29
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Birim'

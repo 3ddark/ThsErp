@@ -1,4 +1,4 @@
-unit Ths.Database.TableDetailed;
+﻿unit Ths.Database.TableDetailed;
 
 interface
 

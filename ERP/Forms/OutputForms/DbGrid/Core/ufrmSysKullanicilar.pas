@@ -1,4 +1,4 @@
-unit ufrmSysKullanicilar;
+ï»¿unit ufrmSysKullanicilar;
 
 interface
 
@@ -66,7 +66,7 @@ begin
   begin
     LFromUserID := LUsr.Id.Value;
     LFromUser := LUsr.KullaniciAdi.Value;
-    if CustomMsgDlg('Seçilen ' + LFromUser + ' kullanýcýsýnýn haklarý ' + TSysKullanici(Table).KullaniciAdi.Value + ' kullanýcýsýna kopyalanacak.' + AddLBs(2) + 'Ýþleme devam etmek istiyor musun?', mtConfirmation, mbYesNo, [TranslateText('Yes', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem), TranslateText('No', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo, TranslateText('Confirmation', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes then
+    if CustomMsgDlg('Seï¿½ilen ' + LFromUser + ' kullanï¿½cï¿½sï¿½nï¿½n haklarï¿½ ' + TSysKullanici(Table).KullaniciAdi.Value + ' kullanï¿½cï¿½sï¿½na kopyalanacak.' + AddLBs(2) + 'ï¿½ï¿½leme devam etmek istiyor musun?', mtConfirmation, mbYesNo, [TranslateText('Yes', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem), TranslateText('No', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo, TranslateText('Confirmation', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes then
       TSysKullanici(Table).CopyFromRights(LFromUserID, TSysKullanici(Table).Id.Value);
   end;
 end;

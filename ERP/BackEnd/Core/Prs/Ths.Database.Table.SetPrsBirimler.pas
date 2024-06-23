@@ -51,7 +51,7 @@ begin
 
   FSetPrsBolum := TSetPrsBolum.Create(Database);
 
-  FBolumID := TFieldDB.Create('bolum_id', ftInteger, 0, Self, 'Bölüm ID');
+  FBolumID := TFieldDB.Create('bolum_id', ftInteger, 0, Self, 'BÃ¶lÃ¼m ID');
   FBolum := TFieldDB.Create(FSetPrsBolum.Bolum.FieldName, FSetPrsBolum.Bolum.DataType, FSetPrsBolum.Bolum.Value, Self, FSetPrsBolum.Bolum.Title);
   FBirim := TFieldDB.Create('birim', ftWideString, '', Self, 'Birim');
 end;

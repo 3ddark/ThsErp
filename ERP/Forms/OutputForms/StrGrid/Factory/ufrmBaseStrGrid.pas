@@ -1,4 +1,4 @@
-unit ufrmBaseStrGrid;
+﻿unit ufrmBaseStrGrid;
 
 interface
 

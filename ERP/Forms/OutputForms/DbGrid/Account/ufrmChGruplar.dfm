@@ -8,10 +8,5 @@ inherited frmChGruplar: TfrmChGruplar
     inherited splHeader: TSplitter
       ExplicitWidth = 795
     end
-    inherited pnlHeader: TPanel
-      inherited lblFilterHelper: TLabel
-        Height = 22
-      end
-    end
   end
 end

@@ -8,7 +8,7 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 356
   ExplicitHeight = 205
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 340
     Height = 116
@@ -17,18 +17,19 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
     ExplicitWidth = 340
     ExplicitHeight = 122
     inherited pgcMain: TPageControl
-      Width = 342
-      Height = 120
+      Width = 340
+      Height = 116
       ExplicitWidth = 338
       ExplicitHeight = 120
       inherited tsMain: TTabSheet
-        ExplicitWidth = 334
-        ExplicitHeight = 92
+        ExplicitTop = 25
+        ExplicitWidth = 332
+        ExplicitHeight = 87
         object lblaciklama: TLabel
-          Left = 36
+          Left = 38
           Top = 28
-          Width = 52
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'A'#231#305'klama'
@@ -41,10 +42,10 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
           ParentFont = False
         end
         object lblodeme_baslangic_donemi: TLabel
-          Left = 53
+          Left = 55
           Top = 6
-          Width = 35
-          Height = 13
+          Width = 33
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'De'#287'er'
@@ -57,10 +58,10 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
           ParentFont = False
         end
         object lblis_aktif: TLabel
-          Left = 54
+          Left = 55
           Top = 50
-          Width = 34
-          Height = 13
+          Width = 33
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Aktif?'

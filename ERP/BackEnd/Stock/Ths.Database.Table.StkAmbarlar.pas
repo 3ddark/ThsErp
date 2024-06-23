@@ -1,4 +1,4 @@
-unit Ths.Database.Table.StkAmbarlar;
+ï»¿unit Ths.Database.Table.StkAmbarlar;
 
 interface
 
@@ -46,10 +46,10 @@ begin
   TableSourceCode := MODULE_STK_KAYIT;
   inherited Create(ADatabase);
 
-  FAmbarAdi := TFieldDB.Create('ambar_adi', ftWideString, '', Self, 'Ambar Adý');
-  FIsVarsayilanHammadde := TFieldDB.Create('is_varsayilan_hammadde', ftBoolean, False, Self, 'Varsayýlan Hammadde');
-  FIsVarsayilanUretim := TFieldDB.Create('is_varsayilan_uretim', ftBoolean, False, Self, 'Varsayýlan Üretim');
-  FIsVarsayilanSatis := TFieldDB.Create('is_varsayilan_satis', ftBoolean, False, Self, 'Varsayýlan Satýþ');
+  FAmbarAdi := TFieldDB.Create('ambar_adi', ftWideString, '', Self, 'Ambar AdÄ±');
+  FIsVarsayilanHammadde := TFieldDB.Create('is_varsayilan_hammadde', ftBoolean, False, Self, 'VarsayÄ±lan Hammadde');
+  FIsVarsayilanUretim := TFieldDB.Create('is_varsayilan_uretim', ftBoolean, False, Self, 'VarsayÄ±lan Ãœretim');
+  FIsVarsayilanSatis := TFieldDB.Create('is_varsayilan_satis', ftBoolean, False, Self, 'VarsayÄ±lan SatÄ±ÅŸ');
 end;
 
 procedure TStkAmbar.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);

@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetSatTeklifDurum;
+﻿unit Ths.Database.Table.SetSatTeklifDurum;
 
 interface
 

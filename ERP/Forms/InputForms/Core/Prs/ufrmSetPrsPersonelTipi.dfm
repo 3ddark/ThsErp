@@ -3,8 +3,8 @@ inherited frmSetPrsPersonelTipi: TfrmSetPrsPersonelTipi
   Caption = 'Personel Tipi'
   ClientHeight = 114
   ClientWidth = 337
-  ExplicitWidth = 351
-  ExplicitHeight = 150
+  ExplicitWidth = 353
+  ExplicitHeight = 153
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 337

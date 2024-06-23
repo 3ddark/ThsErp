@@ -76,17 +76,17 @@ begin
   FSysUlke := TSysUlke.Create(ADatabase);
   FSysSehir := TSysSehir.Create(ADatabase);
 
-  FUlkeKodu := TFieldDB.Create(FSysSehir.UlkeKodu.FieldName, FSysSehir.UlkeKodu.DataType, FSysSehir.UlkeKodu.Value, Self, 'Ülke Kodu');
-  FUlkeAdi := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, FSysSehir.UlkeAdi.Value, Self, 'Ülke Adý');
-  FSehirId := TFieldDB.Create('sehir_id', ftLargeint, 0, Self, 'Þehir ID');
-  FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, FSysSehir.Sehir.Value, Self, 'Þehir');
-  FIlce := TFieldDB.Create('ilce', ftWideString, '', Self, 'Ýlçe');
+  FUlkeKodu := TFieldDB.Create(FSysSehir.UlkeKodu.FieldName, FSysSehir.UlkeKodu.DataType, FSysSehir.UlkeKodu.Value, Self, 'Ãœlke Kodu');
+  FUlkeAdi := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, FSysSehir.UlkeAdi.Value, Self, 'Ãœlke AdÄ±');
+  FSehirId := TFieldDB.Create('sehir_id', ftLargeint, 0, Self, 'Åžehir ID');
+  FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, FSysSehir.Sehir.Value, Self, 'Åžehir');
+  FIlce := TFieldDB.Create('ilce', ftWideString, '', Self, 'Ä°lÃ§e');
   FMahalle := TFieldDB.Create('mahalle', ftWideString, '', Self, 'Mahalle');
   FSemt := TFieldDB.Create('semt', ftWideString, '', Self, 'Semt');
   FCadde := TFieldDB.Create('cadde', ftWideString, '', Self, 'Cadde');
   FSokak := TFieldDB.Create('sokak', ftWideString, '', Self, 'Sokak');
-  FBinaAdi := TFieldDB.Create('bina_adi', ftWideString, '', Self, 'Bina Adý');
-  FKapiNo := TFieldDB.Create('kapi_no', ftWideString, '', Self, 'Kapý No');
+  FBinaAdi := TFieldDB.Create('bina_adi', ftWideString, '', Self, 'Bina AdÄ±');
+  FKapiNo := TFieldDB.Create('kapi_no', ftWideString, '', Self, 'KapÄ± No');
   FPostaKodu := TFieldDB.Create('posta_kodu', ftWideString, '', Self, 'Posta Kodu');
   FWeb := TFieldDB.Create('web', ftWideString, '', Self, 'Web');
   FEmail := TFieldDB.Create('email', ftWideString, '', Self, 'Email');

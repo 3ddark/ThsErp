@@ -1,4 +1,4 @@
-unit ufrmSetTekTeklifTipi;
+ï»¿unit ufrmSetTekTeklifTipi;
 
 interface
 
@@ -41,7 +41,7 @@ uses
 
 procedure TfrmSetTekTeklifTipi.RefreshData();
 begin
-  //control içeriðini table class ile doldur
+  //control iï¿½eriï¿½ini table class ile doldur
   edtteklif_tipi.Text := TSetTekTeklifTipi(Table).TeklifTipi.AsString;
   edtaciklama.Text := TSetTekTeklifTipi(Table).Aciklama.AsString;
   chkis_aktif.Checked := TSetTekTeklifTipi(Table).IsAktif.AsBoolean;

@@ -11,13 +11,13 @@ inherited frmRctReceteYanUrun: TfrmRctReceteYanUrun
     ExplicitWidth = 348
     ExplicitHeight = 123
     inherited pgcMain: TPageControl
-      Width = 346
-      Height = 119
+      Width = 344
+      Height = 115
       ExplicitWidth = 348
       ExplicitHeight = 123
       inherited tsMain: TTabSheet
-        ExplicitWidth = 338
-        ExplicitHeight = 91
+        ExplicitWidth = 336
+        ExplicitHeight = 87
         object lblmiktar: TLabel
           Left = 86
           Top = 53

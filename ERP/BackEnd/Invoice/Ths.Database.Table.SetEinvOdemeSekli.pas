@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetEinvOdemeSekli;
+﻿unit Ths.Database.Table.SetEinvOdemeSekli;
 
 interface
 

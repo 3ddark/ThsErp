@@ -18,7 +18,7 @@ inherited frmSysKaynak: TfrmSysKaynak
     inherited pgcMain: TPageControl
       Width = 349
       Height = 97
-      ExplicitWidth = 349
+      ExplicitWidth = 351
       ExplicitHeight = 97
       inherited tsMain: TTabSheet
         ExplicitTop = 26

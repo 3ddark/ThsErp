@@ -1,4 +1,4 @@
-unit Ths.Database.Table.UrtReceteler;
+ï»¿unit Ths.Database.Table.UrtReceteler;
 
 interface
 
@@ -38,7 +38,7 @@ type
     FStokKodu: TFieldDB;
     FMiktar: TFieldDB;
     FFireOrani: TFieldDB;
-    //veri tabaný alaný deðil join
+    //veri tabanï¿½ alanï¿½ deï¿½il join
     FReceteKodu: TFieldDB;
     FStokAdi: TFieldDB;
     FOlcuBirimi: TFieldDB;
@@ -65,7 +65,7 @@ type
     Property StokKodu: TFieldDB read FStokKodu write FStokKodu;
     Property Miktar: TFieldDB read FMiktar write FMiktar;
     Property FireOrani: TFieldDB read FFireOrani write FFireOrani;
-    //veri tabaný alaný deðil join
+    //veri tabanï¿½ alanï¿½ deï¿½il join
     Property ReceteKodu: TFieldDB read FReceteKodu write FReceteKodu;
     Property StokAdi: TFieldDB read FStokAdi write FStokAdi;
     Property OlcuBirimi: TFieldDB read FOlcuBirimi write FOlcuBirimi;
@@ -77,7 +77,7 @@ type
     FHeaderID: TFieldDB;
     FGiderKodu: TFieldDB;
     FMiktar: TFieldDB;
-    //veri tabaný alaný deðil join
+    //veri tabanï¿½ alanï¿½ deï¿½il join
     FGiderAdi: TFieldDB;
     FOlcuBirimi: TFieldDB;
     FFiyat: TFieldDB;
@@ -100,7 +100,7 @@ type
     Property HeaderID: TFieldDB read FHeaderID write FHeaderID;
     Property GiderKodu: TFieldDB read FGiderKodu write FGiderKodu;
     Property Miktar: TFieldDB read FMiktar write FMiktar;
-    //veri tabaný alaný deðil join
+    //veri tabanï¿½ alanï¿½ deï¿½il join
     Property GiderAdi: TFieldDB read FGiderAdi write FGiderAdi;
     Property Birim: TFieldDB read FOlcuBirimi write FOlcuBirimi;
     Property Fiyat: TFieldDB read FFiyat write FFiyat;
@@ -112,7 +112,7 @@ type
     FStokKodu: TFieldDB;
     FMiktar: TFieldDB;
     FFireOrani: TFieldDB;
-    //veri tabaný alaný deðil join
+    //veri tabanï¿½ alanï¿½ deï¿½il join
     FStokAdi: TFieldDB;
     FOlcuBirimi: TFieldDB;
     FFiyat: TFieldDB;
@@ -136,7 +136,7 @@ type
     Property StokKodu: TFieldDB read FStokKodu write FStokKodu;
     Property Miktar: TFieldDB read FMiktar write FMiktar;
     Property FireOrani: TFieldDB read FFireOrani write FFireOrani;
-    //veri tabaný alaný deðil join
+    //veri tabanï¿½ alanï¿½ deï¿½il join
     Property StokAdi: TFieldDB read FStokAdi write FStokAdi;
     Property OlcuBirimi: TFieldDB read FOlcuBirimi write FOlcuBirimi;
     Property Fiyat: TFieldDB read FFiyat write FFiyat;
@@ -634,14 +634,14 @@ begin
   ReceteMaliyet.IscilikCount := 0;
   ReceteMaliyet.YanUrunCount := 0;
 
-  FReceteKodu := TFieldDB.Create('recete_kodu', ftWideString, '', Self, 'Reçete Kodu');
-  FReceteAdi := TFieldDB.Create('recete_adi', ftWideString, '', Self, 'Reçete Adý');
-  FOrnekUretimMiktari := TFieldDB.Create('ornek_uretim_miktari', ftFloat, 0, Self, 'Örnek Üretim Miktarý');
-  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açýklama');
+  FReceteKodu := TFieldDB.Create('recete_kodu', ftWideString, '', Self, 'ReÃ§ete Kodu');
+  FReceteAdi := TFieldDB.Create('recete_adi', ftWideString, '', Self, 'ReÃ§ete AdÄ±');
+  FOrnekUretimMiktari := TFieldDB.Create('ornek_uretim_miktari', ftFloat, 0, Self, 'Ã–rnek Ãœretim MiktarÄ±');
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'AÃ§Ä±klama');
   FMaliyet := TFieldDB.Create('maliyet', ftBCD, 0, Self, 'Maliyet');
   FHammaddeMaliyet := TFieldDB.Create('hammadde_maliyet', ftBCD, 0, Self, 'Hammadde Maliyet');
-  FIscilikMaliyet := TFieldDB.Create('iscilik_maliyet', ftBCD, 0, Self, 'Ýþçilik Maliyet');
-  FYanUrunMaliyet := TFieldDB.Create('yan_urun_maliyet', ftBCD, 0, Self, 'Yan Ürün Maliyet');
+  FIscilikMaliyet := TFieldDB.Create('iscilik_maliyet', ftBCD, 0, Self, 'Ä°ÅŸÃ§ilik Maliyet');
+  FYanUrunMaliyet := TFieldDB.Create('yan_urun_maliyet', ftBCD, 0, Self, 'Yan ÃœrÃ¼n Maliyet');
 end;
 
 procedure TUrtRecete.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);

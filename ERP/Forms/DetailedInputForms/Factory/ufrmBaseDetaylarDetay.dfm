@@ -6,8 +6,8 @@ inherited frmBaseDetaylarDetay: TfrmBaseDetaylarDetay
   ClientWidth = 676
   Constraints.MinHeight = 150
   Constraints.MinWidth = 350
-  ExplicitWidth = 690
-  ExplicitHeight = 509
+  ExplicitWidth = 692
+  ExplicitHeight = 512
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 676
@@ -32,15 +32,11 @@ inherited frmBaseDetaylarDetay: TfrmBaseDetaylarDetay
     ExplicitWidth = 666
     inherited btnAccept: TButton
       Left = 466
-      TabOrder = 2
       ExplicitLeft = 460
     end
     inherited btnClose: TButton
       Left = 570
       ExplicitLeft = 564
-    end
-    inherited btnDelete: TButton
-      TabOrder = 1
     end
   end
   inherited stbBase: TStatusBar

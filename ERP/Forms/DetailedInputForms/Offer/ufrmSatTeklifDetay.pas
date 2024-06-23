@@ -1,4 +1,4 @@
-unit ufrmSatTeklifDetay;
+﻿unit ufrmSatTeklifDetay;
 
 interface
 

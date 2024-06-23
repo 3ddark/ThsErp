@@ -18,7 +18,7 @@ inherited frmSysParaBirimi: TfrmSysParaBirimi
     inherited pgcMain: TPageControl
       Width = 355
       Height = 107
-      ExplicitWidth = 355
+      ExplicitWidth = 357
       ExplicitHeight = 107
       inherited tsMain: TTabSheet
         ExplicitTop = 26

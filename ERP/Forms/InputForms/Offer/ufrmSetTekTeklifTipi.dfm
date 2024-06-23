@@ -8,7 +8,7 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 373
   ExplicitHeight = 201
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 357
     Height = 112
@@ -17,18 +17,19 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
     ExplicitWidth = 340
     ExplicitHeight = 146
     inherited pgcMain: TPageControl
-      Width = 359
-      Height = 116
+      Width = 357
+      Height = 112
       ExplicitWidth = 338
       ExplicitHeight = 144
       inherited tsMain: TTabSheet
-        ExplicitWidth = 351
-        ExplicitHeight = 88
+        ExplicitTop = 25
+        ExplicitWidth = 349
+        ExplicitHeight = 83
         object lblteklif_tipi: TLabel
-          Left = 78
+          Left = 83
           Top = 5
-          Width = 58
-          Height = 13
+          Width = 53
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Teklif Tipi'
@@ -41,10 +42,10 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
           ParentFont = False
         end
         object lblaciklama: TLabel
-          Left = 84
+          Left = 86
           Top = 27
-          Width = 52
-          Height = 13
+          Width = 50
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'A'#231#305'klama'
@@ -57,10 +58,10 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
           ParentFont = False
         end
         object lblis_aktif: TLabel
-          Left = 102
+          Left = 103
           Top = 49
-          Width = 34
-          Height = 13
+          Width = 33
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Aktif?'

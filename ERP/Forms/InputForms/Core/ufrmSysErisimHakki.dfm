@@ -18,7 +18,7 @@ inherited frmSysErisimHakki: TfrmSysErisimHakki
     inherited pgcMain: TPageControl
       Width = 359
       Height = 199
-      ExplicitWidth = 359
+      ExplicitWidth = 361
       ExplicitHeight = 199
       inherited tsMain: TTabSheet
         ExplicitTop = 26

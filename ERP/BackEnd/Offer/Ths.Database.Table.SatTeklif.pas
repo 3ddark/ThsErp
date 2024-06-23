@@ -435,11 +435,11 @@ begin
 
     if LStok.List.Count = 1 then
     begin
-      //stok kartý ve sipariþ detay mm
+      //stok kartï¿½ ve sipariï¿½ detay mm
       Result.En.Value := LStok.En.Value;
       Result.Boy.Value := LStok.Boy.Value;
       Result.Yukseklik.Value := LStok.Yukseklik.Value;
-      //stok kartý ve sipariþ detay kg birimi
+      //stok kartï¿½ ve sipariï¿½ detay kg birimi
       Result.NetAgirlik.Value := LStok.Agirlik.Value;
       Result.BrutAgirlik.Value := Result.NetAgirlik.Value;
     end;
@@ -549,12 +549,12 @@ begin
   FSetPaketTipi := TSetEinvPaketTipi.Create(Database);
   FSetNakliyeUcreti := TSetEinvTasimaUcreti.Create(Database);
 
-  FSiparisID := TFieldDB.Create('siparis_id', ftInteger, 0, Self, 'Sipariþ ID');
-  FIrsaliyeID := TFieldDB.Create('irsaliye_id', ftInteger, 0, Self, 'Ýrsaliye ID');
+  FSiparisID := TFieldDB.Create('siparis_id', ftInteger, 0, Self, 'Sipariï¿½ ID');
+  FIrsaliyeID := TFieldDB.Create('irsaliye_id', ftInteger, 0, Self, 'ï¿½rsaliye ID');
   FFaturaID := TFieldDB.Create('fatura_id', ftInteger, 0, Self, 'Fatura ID');
-  FIsSiparislesti := TFieldDB.Create('is_siparislesti', ftBoolean, False, Self, 'Sipariþleþti');
+  FIsSiparislesti := TFieldDB.Create('is_siparislesti', ftBoolean, False, Self, 'Sipariï¿½leï¿½ti');
   FTutar := TFieldDB.Create('tutar', ftBCD, 0, Self, 'Tutar');
-  FIskontoTutar := TFieldDB.Create('iskonto_tutar', ftBCD, 0, Self, 'Ýsk.Tutar');
+  FIskontoTutar := TFieldDB.Create('iskonto_tutar', ftBCD, 0, Self, 'ï¿½sk.Tutar');
   FAraToplam := TFieldDB.Create('ara_toplam', ftBCD, 0, Self, 'Ara Toplam');
   FKDVOran1 := TFieldDB.Create('kdv_oran1', ftInteger, 0, Self, 'KDV Oran1');
   FKDVTutar1 := TFieldDB.Create('kdv_tutar1', ftBCD, 0, Self, 'KDV Tutar1');
@@ -567,44 +567,44 @@ begin
   FKDVOran5 := TFieldDB.Create('kdv_oran5', ftInteger, 0, Self, 'KDV Oran5');
   FKDVTutar5 := TFieldDB.Create('kdv_tutar5', ftBCD, 0, Self, 'KDV Tutar5');
   FGenelToplam := TFieldDB.Create('genel_toplam', ftBCD, 0, Self, 'Genel Toplam');
-  FIslemTipiID := TFieldDB.Create('islem_tipi_id', ftInteger, 0, Self, 'Ýþlem Tipi ID');
-  FIslemTipi := TFieldDB.Create(FFaturaTipi.FaturaTipi.FieldName, FFaturaTipi.FaturaTipi.DataType, '', Self, 'Ýþlem Tipi');
+  FIslemTipiID := TFieldDB.Create('islem_tipi_id', ftInteger, 0, Self, 'ï¿½ï¿½lem Tipi ID');
+  FIslemTipi := TFieldDB.Create(FFaturaTipi.FaturaTipi.FieldName, FFaturaTipi.FaturaTipi.DataType, '', Self, 'ï¿½ï¿½lem Tipi');
   FTeklifNo := TFieldDB.Create('teklif_no', ftWideString, '', Self, 'Teklif No');
   FTeklifTarihi := TFieldDB.Create('teklif_tarihi', ftDateTime, 0, Self, 'Teklif Tarihi');
-  FGecerlilikTarihi := TFieldDB.Create('gecerlilik_tarihi', ftDateTime, 0, Self, 'Geçerlilik Tarihi');
-  FMusteriKodu := TFieldDB.Create('musteri_kodu', ftWideString, '', Self, 'Müþteri Kodu');
-  FMusteriAdi := TFieldDB.Create('musteri_adi', ftWideString, '', Self, 'Müþteri Adý');
+  FGecerlilikTarihi := TFieldDB.Create('gecerlilik_tarihi', ftDateTime, 0, Self, 'Geï¿½erlilik Tarihi');
+  FMusteriKodu := TFieldDB.Create('musteri_kodu', ftWideString, '', Self, 'Mï¿½ï¿½teri Kodu');
+  FMusteriAdi := TFieldDB.Create('musteri_adi', ftWideString, '', Self, 'Mï¿½ï¿½teri Adï¿½');
   FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftWideString, '', Self, 'Vergi Dairesi');
   FVergiNo := TFieldDB.Create('vergi_no', ftWideString, '', Self, 'Vergi No');
-  FUlkeID := TFieldDB.Create('ulke_id', ftInteger, 0, Self, 'Ülke ID');
-  FUlke := TFieldDB.Create(FSysUlke.UlkeAdi.FieldName, FSysUlke.UlkeAdi.DataType, '', Self, 'Ülke Adý');
-  FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Þehir ID');
-  FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, '', Self, 'Þehir');
-  FIlce := TFieldDB.Create('ilce', ftWideString, '', Self, 'Ýlçe');
+  FUlkeID := TFieldDB.Create('ulke_id', ftInteger, 0, Self, 'ï¿½lke ID');
+  FUlke := TFieldDB.Create(FSysUlke.UlkeAdi.FieldName, FSysUlke.UlkeAdi.DataType, '', Self, 'ï¿½lke Adï¿½');
+  FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'ï¿½ehir ID');
+  FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, '', Self, 'ï¿½ehir');
+  FIlce := TFieldDB.Create('ilce', ftWideString, '', Self, 'ï¿½lï¿½e');
   FMahalle := TFieldDB.Create('mahalle', ftWideString, '', Self, 'Mahalle');
   FCadde := TFieldDB.Create('cadde', ftWideString, '', Self, 'Cadde');
   FSokak := TFieldDB.Create('sokak', ftWideString, '', Self, 'Sokak');
   FPostaKodu := TFieldDB.Create('posta_kodu', ftWideString, '', Self, 'Posta Kodu');
-  FBinaAdi := TFieldDB.Create('bina_adi', ftWideString, '', Self, 'Bina Adý');
-  FKapiNo := TFieldDB.Create('kapi_no', ftWideString, '', Self, 'Kapý No');
-  FMusteriTemsilcisiID := TFieldDB.Create('musteri_temsilcisi_id', ftInteger, 0, Self, 'Müþteri Temsilcisi ID');
+  FBinaAdi := TFieldDB.Create('bina_adi', ftWideString, '', Self, 'Bina Adï¿½');
+  FKapiNo := TFieldDB.Create('kapi_no', ftWideString, '', Self, 'Kapï¿½ No');
+  FMusteriTemsilcisiID := TFieldDB.Create('musteri_temsilcisi_id', ftInteger, 0, Self, 'Mï¿½ï¿½teri Temsilcisi ID');
   FMusteriTemsilcisi := TFieldDB.Create(FTemsilci.AdSoyad.FieldName, FTemsilci.AdSoyad.DataType, FTemsilci.AdSoyad.Value, Self, FTemsilci.AdSoyad.Title);
   FMuhattapAd := TFieldDB.Create('muhattap_ad', ftWideString, '', Self, 'Muhattap Ad');
   FMuhattapTelefon := TFieldDB.Create('muhattap_telefon', ftWideString, '', Self, 'Muhattap Telefon');
   FReferans := TFieldDB.Create('referans', ftWideString, '', Self, 'Referans');
   FParaBirimi := TFieldDB.Create('para_birimi', ftWideString, '', Self, 'Para');
-  FDovizKuruUsd := TFieldDB.Create('doviz_kuru_usd', ftBCD, 0, Self, 'Döviz Kuru Usd');
-  FDovizKuruEur := TFieldDB.Create('doviz_kuru_eur', ftBCD, 0, Self, 'Döviz Kuru Eur');
-  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açýklama');
+  FDovizKuruUsd := TFieldDB.Create('doviz_kuru_usd', ftBCD, 0, Self, 'Dï¿½viz Kuru Usd');
+  FDovizKuruEur := TFieldDB.Create('doviz_kuru_eur', ftBCD, 0, Self, 'Dï¿½viz Kuru Eur');
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Aï¿½ï¿½klama');
   FProformaNo := TFieldDB.Create('proforma_no', ftInteger, 0, Self, 'Proforma No');
-  FTeslimSekliID := TFieldDB.Create('teslim_sekli_id', ftInteger, 0, Self, 'Teslim Þekli ID');
-  FTeslimSekli := TFieldDB.Create(FSetTeslimSekli.TeslimSekli.FieldName, FSetTeslimSekli.TeslimSekli.DataType, '', Self, 'Teslim Þekli');
-  FOdemeSekliID := TFieldDB.Create('odeme_sekli_id', ftInteger, 0, Self, 'Ödeme Þekli ID');
-  FOdemeSekli := TFieldDB.Create(FSetOdemeSekli.OdemeSekli.FieldName, FSetOdemeSekli.OdemeSekli.DataType, '', Self, 'Ödeme Þekli');
+  FTeslimSekliID := TFieldDB.Create('teslim_sekli_id', ftInteger, 0, Self, 'Teslim ï¿½ekli ID');
+  FTeslimSekli := TFieldDB.Create(FSetTeslimSekli.TeslimSekli.FieldName, FSetTeslimSekli.TeslimSekli.DataType, '', Self, 'Teslim ï¿½ekli');
+  FOdemeSekliID := TFieldDB.Create('odeme_sekli_id', ftInteger, 0, Self, 'ï¿½deme ï¿½ekli ID');
+  FOdemeSekli := TFieldDB.Create(FSetOdemeSekli.OdemeSekli.FieldName, FSetOdemeSekli.OdemeSekli.DataType, '', Self, 'ï¿½deme ï¿½ekli');
   FPaketTipiID := TFieldDB.Create('paket_tipi_id', ftInteger, 0, Self, 'Paket Tipi ID');
   FPaketTipi := TFieldDB.Create(FSetPaketTipi.PaketTipi.FieldName, FSetPaketTipi.PaketTipi.DataType, '', Self, 'Paket Tipi');
-  FTasimaUcretiID := TFieldDB.Create('tasima_ucreti_id', ftInteger, 0, Self, 'Taþýma Ücreti ID');
-  FTasimaUcreti := TFieldDB.Create(FSetNakliyeUcreti.TasimaUcreti.FieldName, FSetNakliyeUcreti.TasimaUcreti.DataType, '', Self, 'Taþýma Ücreti');
+  FTasimaUcretiID := TFieldDB.Create('tasima_ucreti_id', ftInteger, 0, Self, 'Taï¿½ï¿½ma ï¿½creti ID');
+  FTasimaUcreti := TFieldDB.Create(FSetNakliyeUcreti.TasimaUcreti.FieldName, FSetNakliyeUcreti.TasimaUcreti.DataType, '', Self, 'Taï¿½ï¿½ma ï¿½creti');
 
   PrepareTableRequiredValues;
 end;
@@ -1185,7 +1185,7 @@ function TSatTeklif.ValidateDetay(ATable: TTable): Boolean;
 begin
   Result := True;
   if CompareValue(TSatTeklifDetay(ATable).Miktar.Value, 0, EPSILON) = EqualsValue then
-    raise Exception.Create('Sýfýr miktar ile kayýt yapýlamaz!');
+    raise Exception.Create('SÄ±fÄ±r miktar ile kayÄ±t yapÄ±lamaz!');
 end;
 
 procedure TSatTeklif.RemoveDetay(ATable: TTable);

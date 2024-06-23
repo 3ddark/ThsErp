@@ -1,4 +1,4 @@
-unit ufrmBaseInputDB;
+ï»¿unit ufrmBaseInputDB;
 
 interface
 
@@ -42,22 +42,22 @@ type
 //    FRefresher: ThreadRefresh;
 
 /// <summary>
-///  InputDB formlarýndaki Edit Memo ComboBox gibi kontrollerin zorunlu alan, maks leng, charcase gibi özelliklerini form ilk açýlýþta ayarlýyor.
+///  InputDB formlarï¿½ndaki Edit Memo ComboBox gibi kontrollerin zorunlu alan, maks leng, charcase gibi ï¿½zelliklerini form ilk aï¿½ï¿½lï¿½ï¿½ta ayarlï¿½yor.
 /// </summary>
 ///  <remarks>
-///  NOT: Bu kontroller direkt olarak pnlMain üzerinde veya pgcMain içindeki TabSheet ler içinde olmalý
+///  NOT: Bu kontroller direkt olarak pnlMain ï¿½zerinde veya pgcMain iï¿½indeki TabSheet ler iï¿½inde olmalï¿½
 ///  </remarks>
     procedure SetControlDBProperty(pIsOnlyRepaint: Boolean = False);
 
 /// <summary>
-///  Table sýnýfý içindeki deðerleri açýlan formda bulunan kontrollere otomatik olarak yüklüyor.
-///  Yapýlan iþlemin gösterimsel örneði aþaðýdadýr.
+///  Table sï¿½nï¿½fï¿½ iï¿½indeki deï¿½erleri aï¿½ï¿½lan formda bulunan kontrollere otomatik olarak yï¿½klï¿½yor.
+///  Yapï¿½lan iï¿½lemin gï¿½sterimsel ï¿½rneï¿½i aï¿½aï¿½ï¿½dadï¿½r.
 ///  <example>
 ///   <code lang="Delphi">edtcontrol_name_like_db_field_name.Text := Table.PersonelAd.Value</code>
 ///  </example>
 /// </summary>
 ///  <remarks>
-///  NOT: Bu kontroller direkt olarak pnlMain üzerinde veya pgcMain içindeki TabSheet ler içinde olmalý
+///  NOT: Bu kontroller direkt olarak pnlMain ï¿½zerinde veya pgcMain iï¿½indeki TabSheet ler iï¿½inde olmalï¿½
 ///  </remarks>
     procedure RefreshDataAuto; virtual;
 
@@ -112,7 +112,7 @@ procedure TfrmBaseInputDB.btnDeleteClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate)then
   begin
-    if CustomMsgDlg('Kaydý silmek istediðinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý') = mrYes then
+    if CustomMsgDlg('Kaydï¿½ silmek istediï¿½inden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayï¿½r'], mbNo, 'Kullanï¿½cï¿½ Onayï¿½') = mrYes then
     begin
       if (Table.LogicalDelete(True, False)) then
       begin
@@ -128,7 +128,7 @@ begin
         FormMode := ifmRewiev;
         btnSpin.Visible := True;
         btnDelete.Visible := False;
-        btnAccept.Caption := 'Güncelle';
+        btnAccept.Caption := 'Gï¿½ncelle';
         btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
         btnAccept.Width := Max(100, btnAccept.Width);
 
@@ -156,10 +156,10 @@ begin
         end
         else
         begin
-          ModalResult := mrNone;//hata durumunda pencere kapanmasýn
+          ModalResult := mrNone;//hata durumunda pencere kapanmasï¿½n
 
-          //eðer begin transaction demiyosa insert pencere kapansýn çünkü rollback yapýld artýk insert etmemeli
-          //önceki iþlemler geri alýndýðý için
+          //eï¿½er begin transaction demiyosa insert pencere kapansï¿½n ï¿½ï¿½nkï¿½ rollback yapï¿½ld artï¿½k insert etmemeli
+          //ï¿½nceki iï¿½lemler geri alï¿½ndï¿½ï¿½ï¿½ iï¿½in
           if (Table.Database.Connection.InTransaction) then
             Close;
         end;
@@ -170,9 +170,9 @@ begin
   end
   else if (FormMode = ifmUpdate) then
   begin
-    if CustomMsgDlg('Kaydý güncelleme istediðinden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý') = mrYes then
+    if CustomMsgDlg('Kaydï¿½ gï¿½ncelleme istediï¿½inden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayï¿½r'], mbNo, 'Kullanï¿½cï¿½ Onayï¿½') = mrYes then
     begin
-      //Burada yeni kayýt veya güncelleme modunda olduðu için bütün kontrolleri açmak gerekiyor.
+      //Burada yeni kayï¿½t veya gï¿½ncelleme modunda olduï¿½u iï¿½in bï¿½tï¿½n kontrolleri aï¿½mak gerekiyor.
       SetControlsDisabledOrEnabled(pnlMain, True);
       if AcceptBtnDoAction then
       begin
@@ -187,7 +187,7 @@ begin
           ModalResult := mrNone;
           btnSpin.Visible := true;
           FormMode := ifmRewiev;
-          btnAccept.Caption := 'Güncelle';
+          btnAccept.Caption := 'Gï¿½ncelle';
           btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
           btnAccept.Width := Max(100, btnAccept.Width);
           btnDelete.Visible := false;
@@ -199,18 +199,18 @@ begin
   end
   else if (FormMode = ifmRewiev) then
   begin
-    //burada güncelleme modunda olduðu için bütün kontrolleri açmak gerekiyor.
+    //burada gï¿½ncelleme modunda olduï¿½u iï¿½in bï¿½tï¿½n kontrolleri aï¿½mak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, False);
 
     if (not Table.Database.Connection.InTransaction) then
     begin
-      //kayýt kilitle, eðer baþka kullanýcý tarfýndan bu esnada silinmemiþse
+      //kayï¿½t kilitle, eï¿½er baï¿½ka kullanï¿½cï¿½ tarfï¿½ndan bu esnada silinmemiï¿½se
       if (Table.LogicalSelect(DefaultSelectFilter, True, ( not Table.Database.Connection.InTransaction), True)) then
       begin
-        //eðer aranan kayýt baþka bir kullanýcý tarafýndan silinmiþse count 0 kalýr
+        //eï¿½er aranan kayï¿½t baï¿½ka bir kullanï¿½cï¿½ tarafï¿½ndan silinmiï¿½se count 0 kalï¿½r
         if (Table.List.Count = 0) then
         begin
-          raise Exception.Create('Siz inceleme ekranýndayken kayýt baþka kullanýcý tarafýndan silinmiþ.' + AddLBs(2) + 'Kaydý tekrar kontrol edin!');
+          raise Exception.Create('Siz inceleme ekranï¿½ndayken kayï¿½t baï¿½ka kullanï¿½cï¿½ tarafï¿½ndan silinmiï¿½.' + AddLBs(2) + 'Kaydï¿½ tekrar kontrol edin!');
         end
         else
         begin
@@ -241,7 +241,7 @@ begin
       end;
     end
     else
-      CustomMsgDlg('Aktif bir kayýt güncellemeniz var. Önce açýk olan iþleminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
+      CustomMsgDlg('Aktif bir kayï¿½t gï¿½ncellemeniz var. ï¿½nce aï¿½ï¿½k olan iï¿½leminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
   end;
 end;
 
@@ -273,10 +273,10 @@ begin
     btnAccept.Visible := True;
     btnClose.Visible := True;
 
-    btnAccept.Caption := 'Güncelle';
+    btnAccept.Caption := 'Gï¿½ncelle';
     btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
     btnAccept.Width := Max(100, btnAccept.Width);
-    btnDelete.Caption := 'Kayýt Sil';
+    btnDelete.Caption := 'Kayï¿½t Sil';
     btnDelete.Width := Canvas.TextWidth(btnDelete.Caption) + 56;
     btnDelete.Width := Max(100, btnDelete.Width);
   end;
@@ -292,7 +292,7 @@ begin
   if (FormMode <> ifmNewRecord ) then
     RefreshData;
 
-  //sadece sayýsal alanlarýn gösterim þeklini (basamaklý ve ondalýklý) düzeltmek için yazýldý
+  //sadece sayï¿½sal alanlarï¿½n gï¿½sterim ï¿½eklini (basamaklï¿½ ve ondalï¿½klï¿½) dï¿½zeltmek iï¿½in yazï¿½ldï¿½
   if Assigned(Table) then
   begin
 //    FRefresher.Start;
@@ -322,8 +322,8 @@ end;
 
 procedure TfrmBaseInputDB.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  //ferhat burasý doðru çalýþmýyor parent kapatýldýðý halde burada parent varmýþ gibi iþlem yapýyor.
-  //parentform bir þekilde kapatýltýðýnda buradan da nil yapýlmalý.
+  //ferhat burasï¿½ doï¿½ru ï¿½alï¿½ï¿½mï¿½yor parent kapatï¿½ldï¿½ï¿½ï¿½ halde burada parent varmï¿½ï¿½ gibi iï¿½lem yapï¿½yor.
+  //parentform bir ï¿½ekilde kapatï¿½ltï¿½ï¿½ï¿½nda buradan da nil yapï¿½lmalï¿½.
 //  ShowMessage(Self.ParentForm.Name + ' ' + Self.ParentForm.Parent.Name);
 
 //  if  ((self.FormMode = ifmNewRecord) or (self.FormMode = ifmUpdate))
@@ -384,7 +384,7 @@ begin
     Key := #0;
     if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
     begin
-      if CustomMsgDlg('Çýkmak istediðinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý') = mrYes then
+      if CustomMsgDlg('ï¿½ï¿½kmak istediï¿½inden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayï¿½r'], mbNo, 'Kullanï¿½cï¿½ Onayï¿½') = mrYes then
         Close;
     end
     else
@@ -559,7 +559,7 @@ begin
   if not SetSession() then
   begin
     Self.Close;
-    raise Exception.Create('Kullanýcý Eriþim Hakký hatasý!');
+    raise Exception.Create('Kullanï¿½cï¿½ Eriï¿½im Hakkï¿½ hatasï¿½!');
   end;
 end;
 
@@ -766,7 +766,7 @@ var
 
 begin
   vPageControl := pnlMain.FindChildControl(pgcMain.Name);
-  //Main panel içindeki pagecontrol içinde sekme olarak kullanýlan kontroller
+  //Main panel iï¿½indeki pagecontrol iï¿½inde sekme olarak kullanï¿½lan kontroller
   if Assigned(vPageControl) then
   begin
     for n1 := 0 to TPageControl(vPageControl).PageCount-1 do
@@ -829,12 +829,12 @@ begin
     end;
 
   end
-  else  //Main panel içinde kullanýlan kontroller
+  else  //Main panel iï¿½inde kullanï¿½lan kontroller
   begin
-    //ilk önce sýnýfa ait tüm kontrolleri düzenle
-    //daha sonra table sýnýfý taranacak ve içinde ttable tipinden bir field varsa
-    //table sýnýfý bulunup buradan bilgileri çekilecek.
-    //Bu çekilen column bilgilerine uyan kontrol varmý diye tüm hepsi taranacak ve bulunanlar için bilgiler set edilecek
+    //ilk ï¿½nce sï¿½nï¿½fa ait tï¿½m kontrolleri dï¿½zenle
+    //daha sonra table sï¿½nï¿½fï¿½ taranacak ve iï¿½inde ttable tipinden bir field varsa
+    //table sï¿½nï¿½fï¿½ bulunup buradan bilgileri ï¿½ekilecek.
+    //Bu ï¿½ekilen column bilgilerine uyan kontrol varmï¿½ diye tï¿½m hepsi taranacak ve bulunanlar iï¿½in bilgiler set edilecek
     vParent := pnlMain;
     for n2 := 0 to TPanel(vParent).ControlCount-1 do
     begin
@@ -850,7 +850,7 @@ begin
           if Table.Fields[n3].FieldName = RightStr(TPanel(vParent).Controls[n2].Name, Length(TPanel(vParent).Controls[n2].Name)- 3{prefix length edtstok_kodu > stok_kodu}) then
           begin
             SubSetControlProperty(TPanel(vParent).Controls[n2], Table.Fields[n3]);
-            Break;  //n3 dögüsünü kýr n2 den devam et
+            Break;  //n3 dï¿½gï¿½sï¿½nï¿½ kï¿½r n2 den devam et
           end;
         end;
       end;
@@ -877,7 +877,7 @@ begin
                 if vTable.Fields[n3].FieldName = RightStr(TPanel(vParent).Controls[n2].Name, Length(TPanel(vParent).Controls[n2].Name)- 3{prefix length edtstok_kodu > stok_kodu}) then
                 begin
                   SubSetControlProperty(TPanel(vParent).Controls[n2], vTable.Fields[n3]);
-                  Break;  //n3 dögüsünü kýr n2 den devam et
+                  Break;  //n3 dï¿½gï¿½sï¿½nï¿½ kï¿½r n2 den devam et
                 end;
               end;
             end;

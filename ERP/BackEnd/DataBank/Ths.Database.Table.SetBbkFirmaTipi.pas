@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetBbkFirmaTipi;
+﻿unit Ths.Database.Table.SetBbkFirmaTipi;
 
 interface
 

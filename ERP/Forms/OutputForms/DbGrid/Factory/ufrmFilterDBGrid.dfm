@@ -43,8 +43,6 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
       BorderStyle = bsNone
       Columns = 2
       TabOrder = 1
-      ExplicitWidth = 568
-      ExplicitHeight = 178
     end
     object rgFilterCriter: TRadioGroup
       Left = 0
@@ -89,7 +87,7 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
         Left = 0
         Top = 0
         Width = 83
-        Height = 21
+        Height = 13
         Align = alLeft
         Alignment = taCenter
         Caption = 'Anahtar De'#287'er'
@@ -100,7 +98,6 @@ inherited frmFilterDBGrid: TfrmFilterDBGrid
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlCenter
-        ExplicitHeight = 13
       end
       object edtFilter: TEdit
         Left = 83

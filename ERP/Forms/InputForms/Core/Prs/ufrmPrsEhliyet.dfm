@@ -8,7 +8,7 @@ inherited frmPrsEhliyet: TfrmPrsEhliyet
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 366
   ExplicitHeight = 172
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 350
     Height = 83
@@ -22,13 +22,14 @@ inherited frmPrsEhliyet: TfrmPrsEhliyet
       ExplicitWidth = 350
       ExplicitHeight = 83
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 342
-        ExplicitHeight = 55
+        ExplicitHeight = 54
         object lblehliyet_id: TLabel
-          Left = 65
+          Left = 68
           Top = 6
-          Width = 39
-          Height = 13
+          Width = 36
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Ehliyet'
@@ -44,7 +45,7 @@ inherited frmPrsEhliyet: TfrmPrsEhliyet
           Left = 54
           Top = 28
           Width = 50
-          Height = 13
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Personel'

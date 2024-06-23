@@ -55,9 +55,9 @@ begin
 
   FSetEInvFaturaTipi := TSetEinvFaturaTipi.Create(Database);
 
-  FIstisnaKodu := TFieldDB.Create('istisna_kodu', ftWideString, '', Self, 'Ýstisna Kodu');
-  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açýklama');
-  FIsTamIstisna := TFieldDB.Create('is_tam_istisna', ftBoolean, False, Self, 'Tam Ýstisna');
+  FIstisnaKodu := TFieldDB.Create('istisna_kodu', ftWideString, '', Self, 'Ä°stisna Kodu');
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'AÃ§Ä±klama');
+  FIsTamIstisna := TFieldDB.Create('is_tam_istisna', ftBoolean, False, Self, 'Tam Ä°stisna');
   FFaturaTipiID := TFieldDB.Create('fatura_tipi_id', ftInteger, 0, Self, 'Fatura Tipi ID');
   FFaturaTipi := TFieldDB.Create(FSetEInvFaturaTipi.FaturaTipi.FieldName, FSetEInvFaturaTipi.FaturaTipi.DataType, '', Self, 'Fatura Tipi');
 end;

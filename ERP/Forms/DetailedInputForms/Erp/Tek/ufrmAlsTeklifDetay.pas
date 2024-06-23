@@ -1,4 +1,4 @@
-unit ufrmAlsTeklifDetay;
+﻿unit ufrmAlsTeklifDetay;
 
 interface
 

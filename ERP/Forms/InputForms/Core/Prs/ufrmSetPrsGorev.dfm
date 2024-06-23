@@ -6,10 +6,9 @@ inherited frmSetPrsGorev: TfrmSetPrsGorev
   ClientHeight = 121
   ClientWidth = 344
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 350
-  ExplicitHeight = 150
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 360
+  ExplicitHeight = 160
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 344
     Height = 71
@@ -23,13 +22,14 @@ inherited frmSetPrsGorev: TfrmSetPrsGorev
       ExplicitWidth = 344
       ExplicitHeight = 71
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 336
-        ExplicitHeight = 43
+        ExplicitHeight = 42
         object lblgorev: TLabel
-          Left = 41
+          Left = 43
           Top = 6
-          Width = 35
-          Height = 13
+          Width = 33
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'G'#246'rev'

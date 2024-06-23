@@ -1,4 +1,4 @@
-unit ufrmBaseOutput;
+﻿unit ufrmBaseOutput;
 
 interface
 

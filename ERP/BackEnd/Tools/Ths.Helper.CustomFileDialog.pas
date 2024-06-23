@@ -1,4 +1,4 @@
-unit Ths.Helper.CustomFileDialog;
+﻿unit Ths.Helper.CustomFileDialog;
 
 interface
 

@@ -1,4 +1,4 @@
-unit Ths.Orm.Table.StkAmbarlar;
+﻿unit Ths.Orm.Table.StkAmbarlar;
 
 interface
 

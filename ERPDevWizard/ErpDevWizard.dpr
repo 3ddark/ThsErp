@@ -1,4 +1,4 @@
-program ErpDevWizard;
+﻿program ErpDevWizard;
 
 {$I ThsERP.inc}
 

@@ -1,4 +1,4 @@
-unit Ths.Database.Table.StkKartCinsBilgileri;
+﻿unit Ths.Database.Table.StkKartCinsBilgileri;
 
 interface
 

@@ -20,7 +20,7 @@ inherited frmSysOlcuBirimi: TfrmSysOlcuBirimi
     inherited pgcMain: TPageControl
       Width = 340
       Height = 171
-      ExplicitWidth = 340
+      ExplicitWidth = 342
       ExplicitHeight = 171
       inherited tsMain: TTabSheet
         ExplicitTop = 26

@@ -21,7 +21,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
       Width = 694
       Height = 334
       ActivePage = tsdiger
-      ExplicitWidth = 694
+      ExplicitWidth = 696
       ExplicitHeight = 334
       inherited tsMain: TTabSheet
         ExplicitTop = 26
@@ -965,10 +965,6 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
     Width = 694
     ExplicitTop = 366
     ExplicitWidth = 694
-  end
-  inherited AppEvntsBase: TApplicationEvents
-    Left = 280
-    Top = 24
   end
   inherited pmLabels: TPopupMenu
     Left = 352

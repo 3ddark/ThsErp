@@ -6,10 +6,9 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
   ClientHeight = 200
   ClientWidth = 378
   Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 384
-  ExplicitHeight = 229
-  PixelsPerInch = 96
-  TextHeight = 13
+  ExplicitWidth = 394
+  ExplicitHeight = 239
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 378
     Height = 150
@@ -23,13 +22,14 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
       ExplicitWidth = 378
       ExplicitHeight = 150
       inherited tsMain: TTabSheet
+        ExplicitTop = 25
         ExplicitWidth = 370
-        ExplicitHeight = 122
+        ExplicitHeight = 121
         object lbllisan_id: TLabel
-          Left = 105
+          Left = 106
           Top = 6
-          Width = 31
-          Height = 13
+          Width = 30
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Lisan'
@@ -42,10 +42,10 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
           ParentFont = False
         end
         object lblokuma_seviyesi_id: TLabel
-          Left = 45
+          Left = 48
           Top = 28
-          Width = 91
-          Height = 13
+          Width = 88
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Okuma Seviyesi'
@@ -58,10 +58,10 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
           ParentFont = False
         end
         object lblyazma_seviyesi_id: TLabel
-          Left = 47
+          Left = 52
           Top = 50
-          Width = 89
-          Height = 13
+          Width = 84
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Yazma Seviyesi'
@@ -74,10 +74,10 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
           ParentFont = False
         end
         object lblkonusma_seviyesi_id: TLabel
-          Left = 33
+          Left = 35
           Top = 72
-          Width = 103
-          Height = 13
+          Width = 101
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Konu'#351'ma Seviyesi'
@@ -93,7 +93,7 @@ inherited frmPrsLisanBilgisi: TfrmPrsLisanBilgisi
           Left = 86
           Top = 94
           Width = 50
-          Height = 13
+          Height = 14
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Personel'

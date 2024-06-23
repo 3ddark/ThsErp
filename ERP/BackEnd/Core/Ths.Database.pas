@@ -1,4 +1,4 @@
-unit Ths.Database;
+﻿unit Ths.Database;
 
 interface
 

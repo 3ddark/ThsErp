@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetBbkCalismaDurumu;
+ï»¿unit Ths.Database.Table.SetBbkCalismaDurumu;
 
 interface
 
@@ -40,7 +40,7 @@ begin
   TableSourceCode := MODULE_BBK_AYAR;
   inherited Create(ADatabase);
 
-  FCalismaDurumu := TFieldDB.Create('calisma_durumu', ftWideString, '', Self, 'Çalýþma Durumu');
+  FCalismaDurumu := TFieldDB.Create('calisma_durumu', ftWideString, '', Self, 'Ã‡alÄ±ÅŸma Durumu');
 end;
 
 procedure TSetBbkCalismaDurumu.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);

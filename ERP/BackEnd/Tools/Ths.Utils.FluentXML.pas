@@ -1,5 +1,5 @@
-{-------------------------------------------------------------------------------
--  Author      : Uður PARLAYAN                                                 -
+ï»¿{-------------------------------------------------------------------------------
+-  Author      : Uï¿½ur PARLAYAN                                                 -
 -  Email       : ugurparlayan@gmail.com                                        -
 -  Class Name  : TFluentXML Generator.                                         -
 -  Description : This unit demonstrates how we can produce an XML document     -
@@ -8,7 +8,7 @@
 -                community service for this purpose.                           -
 -  Create Date : 2017-09-12                                                    -
 -  License     : GPL-3.0                                                       -
--  Copyright (C) 2017 Uður PARLAYAN                                            -
+-  Copyright (C) 2017 Uï¿½ur PARLAYAN                                            -
 -------------------------------------------------------------------------------}
 unit Ths.Utils.FluentXML;
 
@@ -37,7 +37,7 @@ type
       function _f(const aFormat: string; const Args: array of const): string;
       function _NS: String;
     public
-      function AsString: String; // Bu noktada zincir kýrýlýr...
+      function AsString: String; // Bu noktada zincir kï¿½rï¿½lï¿½r...
       function Version(Value: Double): TFluentXML;
       function Encoding(Value: TEncoding): TFluentXML;
       function NameSpace(Value: String): TFluentXML;
@@ -88,7 +88,7 @@ begin
                ;
   end;
   FormatSettings := FS;
-  //Result := StringReplace(_Source, '><', '>'#13#10'<', [rfReplaceAll, rfIgnoreCase]); // CDATA içinde geçerse sýkýntý olabilir...
+  //Result := StringReplace(_Source, '><', '>'#13#10'<', [rfReplaceAll, rfIgnoreCase]); // CDATA iï¿½inde geï¿½erse sï¿½kï¿½ntï¿½ olabilir...
   Result := _Source.Trim;
 end;
 
@@ -116,8 +116,8 @@ var
   I: Integer;
   B: Integer;
   T: string;
-  O: Char;  //  önceki
-  X: Char;  //  þimdiki
+  O: Char;  //  ï¿½nceki
+  X: Char;  //  ï¿½imdiki
   N: Char;  //  sonraki
   Ek: string;
   TabCount  : Integer;

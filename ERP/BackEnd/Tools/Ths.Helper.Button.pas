@@ -1,4 +1,4 @@
-unit Ths.Helper.Button;
+ï»¿unit Ths.Helper.Button;
 
 interface
 
@@ -222,7 +222,7 @@ begin
   begin
     InflateRect(Rect, -4, -4);
 
-    //ferhat yazýyý dikey olarak ortalamasý için bu satýr eklendi.
+    //ferhat yazï¿½yï¿½ dikey olarak ortalamasï¿½ iï¿½in bu satï¿½r eklendi.
     if (Rect.Bottom - Rect.Top) > FCanvas.TextHeight(NewCaption) then
       InflateRect(Rect, 0, ( -1* (Rect.Top+((((Rect.Bottom - Rect.Top) div 2) - FCanvas.TextHeight(NewCaption)) div 2)) ));
 

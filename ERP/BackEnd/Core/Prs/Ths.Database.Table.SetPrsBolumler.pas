@@ -41,7 +41,7 @@ begin
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
-  FBolum := TFieldDB.Create('bolum', ftWideString, '', Self, 'Bölüm');
+  FBolum := TFieldDB.Create('bolum', ftWideString, '', Self, 'BÃ¶lÃ¼m');
 end;
 
 procedure TSetPrsBolum.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);

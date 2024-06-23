@@ -8,7 +8,7 @@ inherited frmSetBbkFirmaTipi: TfrmSetBbkFirmaTipi
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 358
   ExplicitHeight = 156
-  TextHeight = 13
+  TextHeight = 14
   inherited pnlMain: TPanel
     Width = 342
     Height = 67
@@ -17,18 +17,19 @@ inherited frmSetBbkFirmaTipi: TfrmSetBbkFirmaTipi
     ExplicitWidth = 340
     ExplicitHeight = 92
     inherited pgcMain: TPageControl
-      Width = 344
-      Height = 71
+      Width = 342
+      Height = 67
       ExplicitWidth = 338
       ExplicitHeight = 90
       inherited tsMain: TTabSheet
-        ExplicitWidth = 336
-        ExplicitHeight = 43
+        ExplicitTop = 25
+        ExplicitWidth = 334
+        ExplicitHeight = 38
         object lblfirma_tipi: TLabel
-          Left = 81
+          Left = 83
           Top = 5
-          Width = 56
-          Height = 13
+          Width = 54
+          Height = 14
           Alignment = taRightJustify
           Caption = 'Firma Tipi'
           Font.Charset = DEFAULT_CHARSET
@@ -68,14 +69,6 @@ inherited frmSetBbkFirmaTipi: TfrmSetBbkFirmaTipi
     Width = 342
     ExplicitTop = 126
     ExplicitWidth = 344
-  end
-  inherited AppEvntsBase: TApplicationEvents
-    Left = 376
-    Top = 40
-  end
-  inherited dlgPntBase: TPrintDialog
-    Left = 464
-    Top = 40
   end
   inherited pmLabels: TPopupMenu
     Left = 400

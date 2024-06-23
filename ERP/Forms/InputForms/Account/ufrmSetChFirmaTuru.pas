@@ -1,4 +1,4 @@
-unit ufrmSetChFirmaTuru;
+ï»¿unit ufrmSetChFirmaTuru;
 
 interface
 
@@ -48,7 +48,7 @@ uses
 
 procedure TfrmSetChFirmaTuru.RefreshData();
 begin
-  //control içeriðini table class ile doldur
+  //control iï¿½eriï¿½ini table class ile doldur
   edtfirma_turu.Text := TSetChFirmaTuru(Table).FirmaTuru.Value;
 end;
 
