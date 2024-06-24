@@ -638,7 +638,9 @@
         <DCCReference Include="Forms\InputForms\Stock\ufrmStkGrup.pas">
             <Form>frmStkGrup</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkAmbarlar.pas"/>
+        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkAmbarlar.pas">
+            <Form>frmStkStokAmbarlar</Form>
+        </DCCReference>
         <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkStokAmbarlar.pas">
             <Form>frmStkStokAmbarlar</Form>
         </DCCReference>
@@ -748,6 +750,15 @@
         <DCCReference Include="BackEnd\Tools\Ths.Utils.InternetConnection.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.DatabaseTools.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas"/>
+        <DCCReference Include="Forms\InputForms\Factory\ufrmInput.pas"/>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkStokAmbarlar1.pas">
+            <Form>frmStkStokAmbarlar1</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\InputForms\Stock\ufrmStkStokAmbar1.pas">
+            <Form>frmStkStokAmbar1</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

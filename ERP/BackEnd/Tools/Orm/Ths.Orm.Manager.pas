@@ -51,6 +51,8 @@ type
     constructor Create(AHostName, ADatabase, AUserName, AUserPass, ALibraryPath: string; APort: Integer; ADatabaseType: TDatabaseType = TDatabaseType.Postgres); virtual;
     destructor Destroy; override;
 
+    function Clone<T: Class>(ASrc: T): T;
+
     function GetList<T: Class>(var AList: TObjectList<T>; AFilter: string; ALock: Boolean; APermissionCheck: Boolean=True): Boolean;
     function GetListCustom<T: Class>(var AList: TObjectList<T>; AFields: TArray<TThsField>; AFilter: string; ALock: Boolean; APermissionCheck: Boolean=True): Boolean;
 
@@ -89,8 +91,6 @@ type
     function LogicalUpdateList<T: Class>(ATables: TObjectList<T>; AWithBegin, AWithCommit, APermissionCheck: Boolean): Boolean;
     function LogicalDeleteOne<T: Class>(ATable: T; AWithBegin, AWithCommit, APermissionCheck: Boolean): Boolean;
     function LogicalDeleteList<T: Class>(ATables: TObjectList<T>; AWithBegin, AWithCommit, APermissionCheck: Boolean): Boolean;
-
-    function Clone<T: Class>(ASrc: T): T;
 
     procedure SetPostgresServerVariable(AVarName, AValue: string);
 
@@ -359,13 +359,21 @@ function TEntityManager.GetOne<T>(var ATable: T; AFilter: string; ALock, APermis
 begin
   try
     Result := False;
-    try
-      ATable := CallCreateMethod<T>;
+    if Assigned(ATable) then
+    begin
       if not Self.IsAuthorized((ATable as TThsTable).TableSourceCode, TPermissionTypes.prtRead, APermissionCheck) then
         Exit;
-    finally
-      TThsTable(ATable).Free;
-      TThsTable(ATable) := nil;
+    end
+    else
+    begin
+      try
+        ATable := CallCreateMethod<T>;
+        if not Self.IsAuthorized((ATable as TThsTable).TableSourceCode, TPermissionTypes.prtRead, APermissionCheck) then
+          Exit;
+      finally
+        TThsTable(ATable).Free;
+        TThsTable(ATable) := nil;
+      end;
     end;
 
     Result := GetOneBase(ATable, AFilter, ALock);
@@ -460,7 +468,8 @@ var
 begin
   Result := False;
   LQry := Self.NewQuery;
-  ATable := CallCreateMethod<T>;
+  if not Assigned(ATable) then
+    ATable := CallCreateMethod<T>;
   try
     try
       if ((ATable as TThsTable).TableName = '') then
@@ -1245,7 +1254,7 @@ begin
     end;
 
   Result := 'INSERT INTO ' + LTable.TableName + '(' + LeftStr(Trim(LFields), Length(LFields)-1) + ')' +
-              'VALUES (' + LeftStr(Trim(LValues), Length(LValues)-1) + ') RETURNING id;';
+            'VALUES (' + LeftStr(Trim(LValues), Length(LValues)-1) + ') RETURNING id;';
 end;
 
 function TEntityManager.PrepareUpdateQuery<T>(ATable: T): string;
@@ -1416,6 +1425,20 @@ begin
   end;
 end;
 
+procedure TEntityManager.RollbackTrans(AConnection: TFDConnection);
+var
+  LConnection: TFDConnection;
+begin
+  LConnection := Connection;
+  if Assigned(AConnection) then
+    LConnection := AConnection;
+  if LConnection.InTransaction then
+  begin
+    LConnection.Rollback;
+    GLogger.RunLog('ROLLBACK TRANSACTION');
+  end;
+end;
+
 procedure TEntityManager.ConnAfterConnect(Sender: TObject);
 begin
 //
@@ -1451,20 +1474,6 @@ begin
 //
 end;
 
-procedure TEntityManager.RollbackTrans(AConnection: TFDConnection);
-var
-  LConnection: TFDConnection;
-begin
-  LConnection := Connection;
-  if Assigned(AConnection) then
-    LConnection := AConnection;
-  if LConnection.InTransaction then
-  begin
-    LConnection.Rollback;
-    GLogger.RunLog('ROLLBACK TRANSACTION');
-  end;
-end;
-
 function TEntityManager.GetToday: TDateTime;
 var
   LQry: TFDQuery;
@@ -1473,7 +1482,7 @@ begin
   LQry := Self.NewQuery;
   try
     LQry.Close;
-    
+
     LQry.SQL.Text := 'SELECT CURRENT_DATE;';
     LQry.Open;
     while NOT LQry.EOF do

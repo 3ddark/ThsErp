@@ -273,10 +273,10 @@ begin
     btnAccept.Visible := True;
     btnClose.Visible := True;
 
-    btnAccept.Caption := 'G�ncelle';
+    btnAccept.Caption := 'Güncelle';
     btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
     btnAccept.Width := Max(100, btnAccept.Width);
-    btnDelete.Caption := 'Kay�t Sil';
+    btnDelete.Caption := 'Kayıt Sil';
     btnDelete.Width := Canvas.TextWidth(btnDelete.Caption) + 56;
     btnDelete.Width := Max(100, btnDelete.Width);
   end;

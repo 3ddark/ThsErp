@@ -3,19 +3,16 @@
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, System.Generics.Collections, System.StrUtils,
+  Winapi.Windows, Winapi.Messages, FireDAC.Comp.Client,
+  System.SysUtils, System.Variants, System.Classes, System.StrUtils,
+  System.Rtti, System.TypInfo, System.Generics.Collections,
   Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.DBGrids, Data.DB,
-  Vcl.Clipbrd, FireDAC.Comp.Client,
+  Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd,
+  Vcl.DBGrids, Data.DB,
   Ths.Helper.BaseTypes, Ths.Helper.Edit,
   Ths.Orm.Table, Ths.Orm.Manager, Ths.Orm.ManagerStack;
 
 type
-  TFormInfo = record
-    FormTitle: string;
-  end;
-
   TfrmGrid<T> = class(TForm)
     FDataSource: TDataSource;
     status: TStatusBar;
@@ -24,7 +21,6 @@ type
     FPTable: PThsTable;
     FQry: TFDQuery;
     FGrd: TDBGrid;
-    FConnection: TFDCustomConnection;
 
     FFilterStringFields: TStringList;
     FFilterNumericFields: TStringList;
@@ -35,18 +31,19 @@ type
     FGridPopMenu: TPopupMenu;
     FmniPreview: TMenuItem;
     FmniFilter: TMenuItem;
+    FmniFilterExclude: TMenuItem;
+    FmniFilterBack: TMenuItem;
     FmniFilterRemove: TMenuItem;
     FmniExportExcel: TMenuItem;
     FmniExportCsv: TMenuItem;
     FmniPrint: TMenuItem;
     FmniRemoveGridSort: TMenuItem;
+
+    FContainer: TPanel;
+    FGrdContainer: TPanel;
     FHeader: TPanel;
     FFooter: TPanel;
-    FContainer: TPanel;
     FEdtFilter: TEdit;
-    FGrdContainer: TPanel;
-    FmniFilterExclude: TMenuItem;
-    FmniFilterBack: TMenuItem;
     procedure PrepareForm();
     procedure PrepareGrid();
     procedure PreparePopupMenu();
@@ -54,7 +51,6 @@ type
     procedure SetTable(const Value: T);
     procedure SetPTable(const Value: PThsTable);
     procedure SetGrd(const Value: TDBGrid);
-    procedure SetConnection(const Value: TFDCustomConnection);
 
     procedure SetPopupMenu(const Value: TPopupMenu);
     procedure SetmniPreview(const Value: TMenuItem);
@@ -83,7 +79,6 @@ type
     property Table: T read FTable write SetTable;
     property PTable: PThsTable read FPTable write SetPTable;
     property Grd: TDBGrid read FGrd write SetGrd;
-    property Connection: TFDCustomConnection read FConnection write SetConnection;
     property Container: TPanel read FContainer write SetContainer;
     property GrdContainer: TPanel read FGrdContainer write SetGrdContainer;
     property EdtFilter: TEdit read FEdtFilter write SetEdtFilter;
@@ -145,12 +140,16 @@ type
     procedure mniExportCsvClick(Sender: TObject); virtual;
     procedure mniPrintClick(Sender: TObject); virtual;
     procedure mniRemoveSortClick(Sender: TObject); virtual;
+
+    function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; virtual;
   end;
 
   function UpperCaseTr(S: string): string;
   function LowerCaseTr(S: string): string;
 
 implementation
+
+uses ufrmInput;
 
 function UpperCaseTr(S: string): string;
 begin
@@ -230,8 +229,6 @@ begin
   FQry.OnFilterRecord := OnFilterDataset;
   FQry.SQL.Text := ASQL;
 
-  FConnection := FQry.Connection;
-
   FDataSource := TDataSource.Create(Self);
   FDataSource.DataSet := FQry;
   FDataSource.OnDataChange := DataSourceDataChange;
@@ -245,6 +242,11 @@ begin
   PrepareForm();
 
   Self.ActiveControl := Grd;
+end;
+
+function TfrmGrid<T>.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
+begin
+  Result := nil;
 end;
 
 procedure TfrmGrid<T>.DataSourceDataChange(Sender: TObject; Field: TField);
@@ -476,7 +478,6 @@ procedure TfrmGrid<T>.SetSelectedItem;
 var
   AField: TField;
   n1, n2: Integer;
-  ATable: TThsTable;
 begin
   if Grd.DataSource.DataSet.RecordCount > 0 then
   begin
@@ -485,7 +486,6 @@ begin
       Exit;
 
     PTable.Id.Value := VarToStr(AField.Value).ToInteger;
-
 
     for n1 := 0 to Length(PTable.Fields)-1 do
     begin
@@ -512,24 +512,18 @@ var
   LForm: TForm;
 begin
   if (AFormType = ifmRewiev)
-  or ((not FConnection.InTransaction) and ((AFormType = ifmNewRecord) or (AFormType = ifmCopyNewRecord)))
+  or ((not FQry.Connection.InTransaction) and ((AFormType = ifmNewRecord) or (AFormType = ifmCopyNewRecord)))
   then
   begin
     if (AFormType = ifmRewiev) or (AFormType = ifmCopyNewRecord) then
-      PTable.BusinessSelect(' AND ' + PTable.Id.QryName + '=' + PTable.Id.AsString, False, False);
-
-//    LForm := CreateInputForm(Sender, AFormType);
+      PTable.BusinessSelect(PTable.Id.QryName + '=' + PTable.Id.AsString, False, False);
+    LForm := CreateInputForm(Sender, AFormType);
 //    if Table is TTableDetailed then
 //      PTable.FreeDetayListContent;
-//    LForm.Show;
+    LForm.Show;
   end
   else
     raise Exception.Create('Başka bir pencere giriş veya güncelleme için açılmış, önce bu işlemi tamamlayın.');
-end;
-
-procedure TfrmGrid<T>.SetConnection(const Value: TFDCustomConnection);
-begin
-  FConnection := Value;
 end;
 
 procedure TfrmGrid<T>.SetContainer(const Value: TPanel);

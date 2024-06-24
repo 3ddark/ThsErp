@@ -3,12 +3,8 @@
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.StrUtils,
-  System.DateUtils,
-  System.Variants,
-  Data.DB;
+  System.SysUtils, System.Classes, System.StrUtils, System.DateUtils,
+  System.Variants, Data.DB;
 
 {$M+}
 
@@ -68,12 +64,7 @@ type
 
   PThsTable = ^TThsTable;
 
-  IThsTable = interface
-    function GetId: TThsField;
-    function GetFields: TArray<TThsField>;
-  end;
-
-  TThsTable = class(TInterfacedObject, IThsTable)
+  TThsTable = class
   private
     FSchemaName: string;
     FTableName: string;
@@ -83,7 +74,7 @@ type
     function GetTableName: string;
     procedure SetTableName(ATableName: string);
   published
-    constructor Create(); virtual;
+    constructor Create; virtual;
     destructor Destroy; override;
   public
     Id: TThsField;

@@ -357,7 +357,7 @@ uses
   Ths.Database.Table.StkKartlar, ufrmStkKartlar,
   Ths.Database.Table.StkStokHareketi, ufrmStkStokHareketleri,
   Ths.Database.Table.StkAmbarlar, ufrmStkStokAmbarlar,
-  Ths.Orm.Table.StkAmbarlar,
+  Ths.Orm.Table.StkAmbarlar, ufrmStkStokAmbarlar1,
 
   Ths.Database.Table.OthMailReciever, ufrmOthMailRecievers,
   Ths.Database.Table.SetOdemeBaslangicDonemi, ufrmSetOdemeBaslangicDonemleri,
@@ -783,7 +783,7 @@ end;
 
 procedure TfrmDashboard.Button1Click(Sender: TObject);
 begin
-  TfrmGrid<TStkAmbar1>.Create(Self, TStkAmbar1.Create, TStkAmbar1.GetSelectSQL).ShowModal;
+  TfrmStkStokAmbarlar1.Create(Self, TStkAmbar1.Create, TStkAmbar1.GetSelectSQL).ShowModal;
 end;
 
 procedure TfrmDashboard.tmrcheck_is_update_requiredTimer(Sender: TObject);

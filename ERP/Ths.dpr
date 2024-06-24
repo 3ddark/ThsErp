@@ -226,7 +226,7 @@ uses
   Ths.Database.Table.StkGruplar in 'BackEnd\Stock\Ths.Database.Table.StkGruplar.pas',
   ufrmStkGruplar in 'Forms\OutputForms\DbGrid\Stock\ufrmStkGruplar.pas' {frmStkGruplar},
   ufrmStkGrup in 'Forms\InputForms\Stock\ufrmStkGrup.pas' {frmStkGrup},
-  Ths.Database.Table.StkAmbarlar in 'BackEnd\Stock\Ths.Database.Table.StkAmbarlar.pas',
+  Ths.Database.Table.StkAmbarlar in 'BackEnd\Stock\Ths.Database.Table.StkAmbarlar.pas' {frmStkStokAmbarlar},
   ufrmStkStokAmbarlar in 'Forms\OutputForms\DbGrid\Stock\ufrmStkStokAmbarlar.pas' {frmStkStokAmbarlar},
   ufrmStkStokAmbar in 'Forms\InputForms\Stock\ufrmStkStokAmbar.pas' {frmStkStokAmbar},
   Ths.Database.Table.StkKartlar in 'BackEnd\Stock\Ths.Database.Table.StkKartlar.pas',
@@ -278,7 +278,10 @@ uses
   Ths.Utils.TCMBDovizKuru in 'BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas',
   Ths.Utils.InternetConnection in 'BackEnd\Tools\Ths.Utils.InternetConnection.pas',
   Ths.Utils.DatabaseTools in 'BackEnd\Tools\Ths.Utils.DatabaseTools.pas',
-  ufrmGrid in 'Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas';
+  ufrmGrid in 'Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas',
+  ufrmInput in 'Forms\InputForms\Factory\ufrmInput.pas',
+  ufrmStkStokAmbarlar1 in 'Forms\OutputForms\DbGrid\Stock\ufrmStkStokAmbarlar1.pas' {frmStkStokAmbarlar1},
+  ufrmStkStokAmbar1 in 'Forms\InputForms\Stock\ufrmStkStokAmbar1.pas' {frmStkStokAmbar1};
 
 {$R *.res}
 

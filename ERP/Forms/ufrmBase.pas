@@ -37,18 +37,18 @@ type
     btnClose: TButton;
     btnDelete: TButton;
     stbBase: TStatusBar;
-    procedure btnAcceptClick(Sender: TObject);virtual;
-    procedure btnDeleteClick(Sender: TObject);virtual;
-    procedure btnCloseClick(Sender: TObject);virtual;
-    procedure btnSpinUpClick(Sender: TObject);virtual;
-    procedure btnSpinDownClick(Sender: TObject);virtual;
-    procedure FormDestroy(Sender: TObject);virtual;
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);virtual;
-    procedure FormKeyPress(Sender: TObject; var Key: Char);virtual;
+    procedure btnAcceptClick(Sender: TObject); virtual;
+    procedure btnDeleteClick(Sender: TObject); virtual;
+    procedure btnCloseClick(Sender: TObject); virtual;
+    procedure btnSpinUpClick(Sender: TObject); virtual;
+    procedure btnSpinDownClick(Sender: TObject); virtual;
+    procedure FormDestroy(Sender: TObject); virtual;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction); virtual;
+    procedure FormKeyPress(Sender: TObject; var Key: Char); virtual;
     procedure FormCreate(Sender: TObject); virtual;
     procedure FormResize(Sender: TObject); virtual;
-    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);virtual;
-    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);virtual;
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
     procedure FormShow(Sender: TObject); virtual;
     procedure FormPaint(Sender: TObject); virtual;
 
@@ -701,7 +701,7 @@ begin
   begin
     Repaint;
     if (not Result) then
-      raise Exception.Create('Zorunlu alanlar bo� olamaz. K�rm�z� renkli giri�ler zorunludur.' + AddLBs(3) + LControlName);
+      raise Exception.Create('Zorunlu alanlar boş olamaz. Kırmızı renkli girişler zorunludur.' + AddLBs(3) + LControlName);
   end;
 end;
 
