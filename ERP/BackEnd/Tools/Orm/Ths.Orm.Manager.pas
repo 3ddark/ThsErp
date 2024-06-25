@@ -14,9 +14,9 @@ uses
 
 type
   TDatabaseType = (Postgres, MsSQL, MySQL, Firebird, SQLite);
-
-  TEntityManager = class;
   TPermissionTypes = (prtRead, prtAdd, prtUpdate, prtDelete, prtSpecial);
+
+  PTEntityManager = ^TEntityManager;
 
   TEntityManager = class
   private

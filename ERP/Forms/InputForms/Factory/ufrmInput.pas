@@ -83,7 +83,95 @@ uses Ths.Constants;
 
 procedure TfrmInput<T>.btnAcceptClick(Sender: TObject);
 begin
-//
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
+  begin
+{    if AppDbContext.LogicalInsertOne(Table, True, WithCommitTransaction, False) then
+    begin
+      //RefreshParentGrid(True);
+      ModalResult := mrOK;
+      Close;
+    end
+    else
+    begin
+      ModalResult := mrNone;
+      if (Table.Database.Connection.InTransaction) then
+        Close;
+    end;}
+  end
+  else if (FormMode = ifmUpdate) then
+  begin
+{    if CustomMsgDlg('Kaydı güncelleme istediğinden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
+    begin
+      //Burada yeni kayıt veya güncelleme modunda olduğu için bütün kontrolleri açmak gerekiyor.
+      SetControlsDisabledOrEnabled(pnlMain, True);
+
+      if AppDbContext.LogicalUpdateOne(Table, False, WithCommitTransaction, True) then
+      begin
+        //RefreshParentGrid(True);
+        ModalResult := mrOK;
+        Close;
+      end
+      else
+      begin
+        ModalResult := mrNone;
+        BtnSpin.Visible := true;
+        FormMode := ifmRewiev;
+        BtnAccept.Caption := 'Güncelle';
+        BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
+        BtnAccept.Width := Max(100, BtnAccept.Width);
+        btnDelete.Visible := false;
+        Repaint;
+      end;
+    end;
+}
+  end
+  else if (FormMode = ifmRewiev) then
+  begin
+{
+    //burada güncelleme modunda olduğu için bütün kontrolleri açmak gerekiyor.
+    SetControlsDisabledOrEnabled(pnlMain, False);
+    if (not Table.Database.Connection.InTransaction) then
+    begin
+      //kayıt kilitle, eğer başka kullanıcı tarfından bu esnada silinmemişse
+      if (Table.LogicalSelect(DefaultSelectFilter, True, ( not Table.Database.Connection.InTransaction), True)) then
+      begin
+        //eğer aranan kayıt başka bir kullanıcı tarafından silinmişse count 0 kalır
+        if (Table.List.Count = 0) then
+        begin
+          raise Exception.Create('Siz inceleme ekran�ndayken kay�t ba�ka kullan�c� taraf�ndan silinmi�.' + AddLBs(2) + 'Kayd� tekrar kontrol edin!');
+        end
+        else
+        begin
+          LTable := TTable(Table.List[0]).Clone;
+          Table.Destroy;
+          Table := LTable;
+        end;
+
+        btnSpin.Visible := false;
+        FormMode := ifmUpdate;
+        btnAccept.Caption := 'Onayla';
+        btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
+        btnAccept.Width := Max(100, btnAccept.Width);
+        btnDelete.Visible := True;
+
+        if Table.IsAuthorized(ptUpdate, True, False) then
+          btnAccept.Enabled := True
+        else
+          btnAccept.Enabled := False;
+
+        RefreshData;
+
+        Repaint;
+
+        FocusFirstControl;
+
+        btnDelete.Left := btnAccept.Left-btnDelete.Width;
+      end;
+    end
+    else
+      CustomMsgDlg('Aktif bir kay�t g�ncellemeniz var. �nce a��k olan i�leminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
+}
+  end;
 end;
 
 procedure TfrmInput<T>.btnCloseClick(Sender: TObject);

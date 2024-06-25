@@ -21,12 +21,21 @@ type
   private
     { Private declarations }
   public
+    procedure btnAcceptClick(Sender: TObject); override;
     constructor Create(AOwner: TComponent; ATable: TStkAmbar1; AFormMode: TInputFormMode; ACreateNewBase: Boolean = True); reintroduce; overload;
   end;
 
 implementation
 
 {$R *.dfm}
+
+procedure TfrmStkStokAmbar1.btnAcceptClick(Sender: TObject);
+begin
+  if ValidateInput() then
+  begin
+
+  end;
+end;
 
 constructor TfrmStkStokAmbar1.Create(AOwner: TComponent; ATable: TStkAmbar1; AFormMode: TInputFormMode; ACreateNewBase: Boolean);
 begin
