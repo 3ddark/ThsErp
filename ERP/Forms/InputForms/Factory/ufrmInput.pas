@@ -15,6 +15,7 @@ uses
 type
   TfrmInput<T> = class(TForm)
   private
+    FContext: PTEntityManager;
     FTable: T;
     FPTable: PThsTable;
 
@@ -28,6 +29,8 @@ type
     FBtnSpin: TSpinButton;
     FBtnClose: TButton;
     FFormMode: TInputFormMode;
+    FDefaultSelectFilter: string;
+    procedure SetContext(const Value: PTEntityManager);
     procedure SetTable(const Value: T);
     procedure SetPTable(const Value: PThsTable);
     procedure SetBtnAccept(const Value: TButton);
@@ -43,6 +46,7 @@ type
 
     function ValidateSubControls(Sender: TWinControl; out AControlName: string): Boolean;
   public
+    property Context: PTEntityManager read FContext write SetContext;
     property Table: T read FTable write SetTable;
     property PTable: PThsTable read FPTable write SetPTable;
     property FormMode: TInputFormMode read FFormMode write SetFormMode;
@@ -72,20 +76,20 @@ type
     procedure SpinUpClick(Sender: TObject); virtual;
     procedure SpinDownClick(Sender: TObject); virtual;
 
-    constructor Create(AOwner: TComponent; ATable: T; AFormMode: TInputFormMode; ACreateNewBase: Boolean = True); reintroduce; overload;
+    constructor Create(AOwner: TComponent; AContext: PTEntityManager; ATable: T; AFormMode: TInputFormMode; ACreateNewBase: Boolean = True); reintroduce; overload;
     procedure RefreshData(); virtual;
     function ValidateInput(AParentControl: TWinControl = nil): Boolean;
   end;
 
 implementation
 
-uses Ths.Constants;
+uses Ths.Constants, Ths.Globals;
 
 procedure TfrmInput<T>.btnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
-{    if AppDbContext.LogicalInsertOne(Table, True, WithCommitTransaction, False) then
+{    if Context.LogicalInsertOne(Table, True, WithCommitTransaction, False) then
     begin
       //RefreshParentGrid(True);
       ModalResult := mrOK;
@@ -100,12 +104,11 @@ begin
   end
   else if (FormMode = ifmUpdate) then
   begin
-{    if CustomMsgDlg('Kaydı güncelleme istediğinden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
+    if CustomMsgDlg('Kaydı güncelleme istediğinden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
     begin
       //Burada yeni kayıt veya güncelleme modunda olduğu için bütün kontrolleri açmak gerekiyor.
-      SetControlsDisabledOrEnabled(pnlMain, True);
-
-      if AppDbContext.LogicalUpdateOne(Table, False, WithCommitTransaction, True) then
+      //SetControlsDisabledOrEnabled(pnlMain, True);
+      if PTable.LogicalUpdateOne(False, True, True) then
       begin
         //RefreshParentGrid(True);
         ModalResult := mrOK;
@@ -123,28 +126,21 @@ begin
         Repaint;
       end;
     end;
-}
+
   end
   else if (FormMode = ifmRewiev) then
   begin
-{
     //burada güncelleme modunda olduğu için bütün kontrolleri açmak gerekiyor.
-    SetControlsDisabledOrEnabled(pnlMain, False);
-    if (not Table.Database.Connection.InTransaction) then
+    //SetControlsDisabledOrEnabled(pnlMain, False);
+    if (not Context.Connection.InTransaction) then
     begin
       //kayıt kilitle, eğer başka kullanıcı tarfından bu esnada silinmemişse
-      if (Table.LogicalSelect(DefaultSelectFilter, True, ( not Table.Database.Connection.InTransaction), True)) then
+      if PTable.LogicalSelectOne(FDefaultSelectFilter, True, ( not Context.Connection.InTransaction), True) then
       begin
         //eğer aranan kayıt başka bir kullanıcı tarafından silinmişse count 0 kalır
-        if (Table.List.Count = 0) then
+        if not Assigned(PTable) then
         begin
-          raise Exception.Create('Siz inceleme ekran�ndayken kay�t ba�ka kullan�c� taraf�ndan silinmi�.' + AddLBs(2) + 'Kayd� tekrar kontrol edin!');
-        end
-        else
-        begin
-          LTable := TTable(Table.List[0]).Clone;
-          Table.Destroy;
-          Table := LTable;
+          raise Exception.Create('Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş.' + sLineBreak + sLineBreak + 'Kaydı tekrar kontrol edin!');
         end;
 
         btnSpin.Visible := false;
@@ -154,7 +150,7 @@ begin
         btnAccept.Width := Max(100, btnAccept.Width);
         btnDelete.Visible := True;
 
-        if Table.IsAuthorized(ptUpdate, True, False) then
+        if Context.IsAuthorized(PTable.TableSourceCode, prtUpdate, True, False) then
           btnAccept.Enabled := True
         else
           btnAccept.Enabled := False;
@@ -163,14 +159,13 @@ begin
 
         Repaint;
 
-        FocusFirstControl;
+        //FocusFirstControl;
 
         btnDelete.Left := btnAccept.Left-btnDelete.Width;
       end;
     end
     else
-      CustomMsgDlg('Aktif bir kay�t g�ncellemeniz var. �nce a��k olan i�leminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
-}
+      CustomMsgDlg('Aktif bir kayıt güncellemeniz var. Önce açık olan işleminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
   end;
 end;
 
@@ -207,7 +202,7 @@ begin
 
   if AParentControl = nil then
   begin
-    PanelContainer := PageControl;
+    PanelContainer := Container;
   end
   else
   begin
@@ -353,13 +348,14 @@ begin
   end;
 end;
 
-constructor TfrmInput<T>.Create(AOwner: TComponent; ATable: T; AFormMode: TInputFormMode; ACreateNewBase: Boolean);
+constructor TfrmInput<T>.Create(AOwner: TComponent; AContext: PTEntityManager; ATable: T; AFormMode: TInputFormMode; ACreateNewBase: Boolean);
 begin
   if ACreateNewBase then
     CreateNew(Owner);
 
   Self.Caption := 'Base Title';
 
+  Context := AContext;
   FTable := ATable;
   PTable := @Table;
   FFormMode := AFormMode;
@@ -419,6 +415,18 @@ begin
   BtnSpin.OnUpClick := SpinUpClick;
   BtnSpin.Visible := True;
 
+  BtnClose := TButton.Create(Footer);
+  BtnClose.Parent := Footer;
+  BtnClose.Align := alRight;
+  BtnClose.Caption := 'Close';
+  BtnClose.Images := dm.il16;
+  BtnClose.ImageIndex := IMG_CLOSE;
+  BtnClose.AlignWithMargins := True;
+  BtnClose.Margins.Left := 2;
+  BtnClose.Margins.Right := 2;
+  BtnClose.OnClick := btnCloseClick;
+  BtnClose.Visible := False;
+
   BtnDelete := TButton.Create(Footer);
   BtnDelete.Parent := Footer;
   BtnDelete.Align := alLeft;
@@ -429,7 +437,7 @@ begin
   BtnDelete.Margins.Left := 2;
   BtnDelete.Margins.Right := 2;
   BtnDelete.OnClick := btnDeleteClick;
-  BtnDelete.Visible := True;
+  BtnDelete.Visible := False;
 
   BtnAccept := TButton.Create(Footer);
   BtnAccept.Parent := Footer;
@@ -441,19 +449,7 @@ begin
   BtnAccept.Margins.Left := 2;
   BtnAccept.Margins.Right := 2;
   BtnAccept.OnClick := btnAcceptClick;
-  BtnAccept.Visible := True;
-
-  BtnClose := TButton.Create(Footer);
-  BtnClose.Parent := Footer;
-  BtnClose.Align := alRight;
-  BtnClose.Caption := 'Close';
-  BtnClose.Images := dm.il16;
-  BtnClose.ImageIndex := IMG_CLOSE;
-  BtnClose.AlignWithMargins := True;
-  BtnClose.Margins.Left := 2;
-  BtnClose.Margins.Right := 2;
-  BtnClose.OnClick := btnCloseClick;
-  BtnClose.Visible := True;
+  BtnAccept.Visible := False;
 
   Status := TStatusBar.Create(Self);
   Status.Align := alBottom;
@@ -472,7 +468,33 @@ end;
 
 procedure TfrmInput<T>.FormCreate(Sender: TObject);
 begin
-//
+  if Assigned(PTable) then
+  begin
+    if PTable.Id.AsInteger > 0 then
+      FDefaultSelectFilter := PTable.Id.QryName + '=' + PTable.Id.AsString;
+  end;
+
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
+  begin
+    btnClose.Visible := True;
+    btnAccept.Visible := True;
+    btnAccept.Caption := 'Onayla';
+    btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
+    btnAccept.Width := Max(100, btnAccept.Width);
+  end
+  else if FormMode = ifmRewiev then
+  begin
+    btnClose.Visible := True;
+    btnAccept.Visible := True;
+    btnAccept.Left := btnAccept.Left-100;//alRight positon bug fixed most right close button
+
+    btnAccept.Caption := 'Güncelle';
+    btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
+    btnAccept.Width := Max(100, btnAccept.Width);
+    btnDelete.Caption := 'Kayıt Sil';
+    btnDelete.Width := Canvas.TextWidth(btnDelete.Caption) + 56;
+    btnDelete.Width := Max(100, btnDelete.Width);
+  end;
 end;
 
 procedure TfrmInput<T>.FormDestroy(Sender: TObject);
@@ -525,7 +547,11 @@ end;
 
 procedure TfrmInput<T>.FormShow(Sender: TObject);
 begin
-//
+  if PageControl.Visible and PageControl.Enabled and TabSheetGeneral.TabVisible and TabSheetGeneral.Enabled then
+    PageControl.ActivePageIndex := TabSheetGeneral.TabIndex;
+
+  if (FormMode <> ifmNewRecord) then
+    RefreshData;
 end;
 
 procedure TfrmInput<T>.RefreshData;
@@ -556,6 +582,11 @@ end;
 procedure TfrmInput<T>.SetContainer(const Value: TPanel);
 begin
   FContainer := Value;
+end;
+
+procedure TfrmInput<T>.SetContext(const Value: PTEntityManager);
+begin
+  FContext := Value;
 end;
 
 procedure TfrmInput<T>.SetFooter(const Value: TPanel);

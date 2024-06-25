@@ -1267,7 +1267,7 @@ begin
   LQryText := 'INSERT INTO ' + LTable.TableName;
   LFields := '';
   for AFieldDB in LTable.Fields do
-    if fpUpdate in AFieldDB.FieldIslemTipleri then
+    if (AFieldDB.FieldName <> 'id') and (fpUpdate in AFieldDB.FieldIslemTipleri) then
     begin
       if (AFieldDB.DataType = ftString)
       or (AFieldDB.DataType = ftWideString)
@@ -1281,7 +1281,7 @@ begin
         LFields := LFields + AFieldDB.FieldName + '=' + QuotedStr(AFieldDB.AsString) + ','
       else
       if (AFieldDB.DataType = ftSmallint)
-      or (AFieldDB.DataType = ftSmallint)
+      or (AFieldDB.DataType = ftInteger)
       or (AFieldDB.DataType = ftLargeint)
       or (AFieldDB.DataType = ftWord)
       or (AFieldDB.DataType = ftLongWord)
@@ -1293,6 +1293,9 @@ begin
         LFields := LFields + AFieldDB.FieldName + '=' + QuotedStr(DateToStr(AFieldDB.AsDate)) + ','
       else if (AFieldDB.DataType = ftTime) then
         LFields := LFields + AFieldDB.FieldName + '=' + QuotedStr(TimeToStr(AFieldDB.AsTime)) + ','
+      else
+      if (AFieldDB.DataType = ftBoolean) then
+        LFields := LFields + AFieldDB.FieldName + '=' + AFieldDB.AsBoolean.ToString() + ','
       else
       if (AFieldDB.DataType = ftDateTime)
       or (AFieldDB.DataType = ftTimeStamp)

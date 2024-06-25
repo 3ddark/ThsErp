@@ -292,7 +292,7 @@ begin
   if (FormMode <> ifmNewRecord ) then
     RefreshData;
 
-  //sadece say�sal alanlar�n g�sterim �eklini (basamakl� ve ondal�kl�) d�zeltmek i�in yaz�ld�
+  //sadece sayısal alanların gösterim şeklini (basamaklı ve ondalıklı) düzeltmek için yazıldı
   if Assigned(Table) then
   begin
 //    FRefresher.Start;

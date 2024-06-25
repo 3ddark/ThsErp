@@ -16,6 +16,8 @@ type
 
   TThsTable = class;
 
+  TTableClass = class of TThsTable;
+
   TThsField = class
   private
     FFieldName: string;
@@ -99,6 +101,9 @@ type
     function BusinessInsert(APermissionCheck: Boolean): Boolean; virtual;
     function BusinessUpdate(APermissionCheck: Boolean): Boolean; virtual;
     function BusinessDelete(APermissionCheck: Boolean): Boolean; virtual;
+
+    function LogicalSelectOne(AFilter: string; ALock, AWithBegin, APermissionCheck: Boolean): Boolean;
+    function LogicalUpdateOne(AWithBegin, AWithCommit, APermissionCheck: Boolean): Boolean;
 
     class function GetSelectSQL: string; virtual;
   end;
@@ -310,6 +315,45 @@ end;
 function TThsTable.Insert(APermissionCheck: Boolean): Boolean;
 begin
   Result := AppDbContext.Insert(Self, APermissionCheck);
+end;
+
+function TThsTable.LogicalSelectOne(AFilter: string; ALock, AWithBegin, APermissionCheck: Boolean): Boolean;
+begin
+  try
+    if not ALock then
+      AWithBegin := False;
+
+    if AWithBegin then
+      AppDbContext.StartTrans;
+
+    Result := Self.BusinessSelect(AFilter, ALock, APermissionCheck);
+  except
+    on E: Exception do
+    begin
+      Result := False;
+    end;
+  end;
+end;
+
+function TThsTable.LogicalUpdateOne(AWithBegin, AWithCommit, APermissionCheck: Boolean): Boolean;
+begin
+  try
+    if AWithBegin then
+      AppDbContext.StartTrans;
+
+    Self.BusinessUpdate(APermissionCheck);
+
+    if AWithCommit then
+      AppDbContext.CommitTrans;
+
+    Result := True;
+  except
+    on E: Exception do
+    begin
+      Result := False;
+      AppDbContext.RollbackTrans;
+    end;
+  end;
 end;
 
 function TThsTable.SelectOne(AFilter: string; ALock, APermissionCheck: Boolean): Boolean;

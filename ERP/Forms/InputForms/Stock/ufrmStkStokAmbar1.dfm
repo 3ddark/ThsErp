@@ -20,8 +20,8 @@ object frmStkStokAmbar1: TfrmStkStokAmbar1
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
-    ExplicitWidth = 624
-    ExplicitHeight = 441
+    ExplicitWidth = 414
+    ExplicitHeight = 201
     object lblambar_adi: TLabel
       Left = 134
       Top = 6
@@ -90,7 +90,7 @@ object frmStkStokAmbar1: TfrmStkStokAmbar1
       Left = 196
       Top = 3
       Width = 200
-      Height = 22
+      Height = 23
       TabOrder = 0
     end
     object chkis_hammadde_ambari: TCheckBox

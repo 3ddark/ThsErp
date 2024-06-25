@@ -25,11 +25,11 @@ function TfrmStkStokAmbarlar1.CreateInputForm(Sender: TObject; AFormMode: TInput
 begin
   Result := inherited;
   if AFormMode = ifmRewiev then
-    Result := TfrmStkStokAmbar1.Create(Self, AppDbContext.Clone<TStkAmbar1>(Table), AFormMode)
+    Result := TfrmStkStokAmbar1.Create(Self, @AppDbContext, AppDbContext.Clone<TStkAmbar1>(Table), AFormMode)
   else if AFormMode = ifmNewRecord then
-    Result := TfrmStkStokAmbar1.Create(Self, TStkAmbar1.Create, AFormMode)
+    Result := TfrmStkStokAmbar1.Create(Self, @AppDbContext, TStkAmbar1.Create, AFormMode)
   else if AFormMode = ifmCopyNewRecord then
-    Result := TfrmStkStokAmbar1.Create(Self, AppDbContext.Clone<TStkAmbar1>(Table), AFormMode);
+    Result := TfrmStkStokAmbar1.Create(Self, @AppDbContext, AppDbContext.Clone<TStkAmbar1>(Table), AFormMode);
 end;
 
 end.

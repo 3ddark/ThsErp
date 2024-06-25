@@ -17,7 +17,7 @@ type
     FDataSource: TDataSource;
     status: TStatusBar;
   private
-    FGrdContext: PTEntityManager;
+    FContext: PTEntityManager;
     FTable: T;
     FPTable: PThsTable;
     FQry: TFDQuery;
@@ -75,9 +75,9 @@ type
     procedure EdtFilterChange(Sender: TObject);
 
     procedure SetSelectedItem;
-    procedure SetGrdContext(const Value: PTEntityManager);
+    procedure SetContext(const Value: PTEntityManager);
   public
-    property GrdContext: PTEntityManager read FGrdContext write SetGrdContext;
+    property Context: PTEntityManager read FContext write SetContext;
     property Qry: TFDQuery read FQry write SetQry;
     property Table: T read FTable write SetTable;
     property PTable: PThsTable read FPTable write SetPTable;
@@ -99,7 +99,7 @@ type
     property mniPrint: TMenuItem read FmniPrint write SetmniPrint;
     property mniRemoveGridSort: TMenuItem read FmniRemoveGridSort write SetmniRemoveGridSort;
 
-    constructor Create(AOwner: TComponent; ADbContext: PTEntityManager; ATable: T; ASQL: string; ACreateNewBase: Boolean = True); reintroduce; overload;
+    constructor Create(AOwner: TComponent; AContext: PTEntityManager; ATable: T; ASQL: string; ACreateNewBase: Boolean = True); reintroduce; overload;
     destructor Destroy; override;
 
     procedure ShowInputForm(Sender: TObject; AFormType: TInputFormMode); virtual;
@@ -217,14 +217,14 @@ begin
   RefreshStatucRecorCount();
 end;
 
-constructor TfrmGrid<T>.Create(AOwner: TComponent; ADbContext: PTEntityManager; ATable: T; ASQL: string; ACreateNewBase: Boolean);
+constructor TfrmGrid<T>.Create(AOwner: TComponent; AContext: PTEntityManager; ATable: T; ASQL: string; ACreateNewBase: Boolean);
 begin
   if ACreateNewBase then
     CreateNew(Owner);
 
   Self.Caption := 'Base Title';
 
-  GrdContext := ADbContext;
+  Context := AContext;
   FTable := ATable;
   PTable := @Table;
 
@@ -535,9 +535,9 @@ begin
   FContainer := Value;
 end;
 
-procedure TfrmGrid<T>.SetGrdContext(const Value: PTEntityManager);
+procedure TfrmGrid<T>.SetContext(const Value: PTEntityManager);
 begin
-  FGrdContext := Value;
+  FContext := Value;
 end;
 
 procedure TfrmGrid<T>.SetEdtFilter(const Value: TEdit);
@@ -947,7 +947,7 @@ end;
 procedure TfrmGrid<T>.PreparePopupMenu;
 begin
   GridPopMenu := TPopupMenu.Create(Self);
-  mniPreview := AddMenu('Preview', 'mniPreview', mniPreviewClick);
+  mniPreview := AddMenu('Preview', 'mniPreview', mniPreviewClick, True, TextToShortCut('Ctrl+Enter'));
   AddPopupMenuSpliter();
   mniFilter := AddMenu('Filter', 'mniFilter', mniFilterClick, True, TextToShortCut('F3'));
   mniFilterExclude := AddMenu('Exclude Filter', 'mniFilterExclude', mniFilterExcludeClick, True, TextToShortCut('Ctrl+F3'));
