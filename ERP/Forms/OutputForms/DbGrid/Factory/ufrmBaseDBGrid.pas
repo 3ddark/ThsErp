@@ -93,6 +93,7 @@ type
     pb1: TProgressBar;
     mniKolonGeniliklerineEkle1: TMenuItem;
     qryBase: TFDQuery;
+    ds1: TDataSource;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
     procedure FormResize(Sender: TObject); override;
@@ -632,7 +633,9 @@ begin
 
 
   //grid varsayılan font ve datasource tanımla
-  grd.DataSource := Table.DataSource;
+  qryBase.Connection := Table.Database.Connection;
+  ds1.DataSet := qryBase;
+  grd.DataSource := ds1;
 
 
   FQryFiltreVarsayilan := GetGridDefaultOrderFilter( ReplaceRealColOrTableNameTo(Table.TableName), False);
@@ -1822,12 +1825,12 @@ begin
       vHaneSayisi := GSysOndalikHane.StokMiktar.AsInteger;
 
 
-    for n2 := 0 to Table.QryOfDS.FieldCount-1 do
+    for n2 := 0 to grd.DataSource.DataSet.FieldCount-1 do
     begin
-      if not ExistsGridColumn(Table.QryOfDS.Fields.Fields[n2].FieldName) then
-      begin  AFieldDB := Table.GetFieldByFieldName(Table.QryOfDS.Fields.Fields[n2].FieldName);
+      if not ExistsGridColumn(grd.DataSource.DataSet.Fields.Fields[n2].FieldName) then
+      begin  AFieldDB := Table.GetFieldByFieldName(grd.DataSource.DataSet.Fields.Fields[n2].FieldName);
         if AFieldDB <> nil then
-          AddColumn(Table.QryOfDS.Fields.Fields[n2].FieldName, AFieldDB.Title);
+          AddColumn(grd.DataSource.DataSet.Fields.Fields[n2].FieldName, AFieldDB.Title);
       end;
     end;
 
@@ -2429,6 +2432,7 @@ var
   AGridFilter: string;
 //  OpenWithControl: Boolean;
   //dxSpreadSheet1: TdxSpreadSheet;
+  LQry: TFDQuery;
 begin
 //  OpenWithControl := isCtrlDown;
 
@@ -2439,16 +2443,17 @@ begin
   if not dlgSave.Execute then
     Exit;
 
-
+{
   AGridFilter := '';
   if grd.DataSource.DataSet.Filter <> '' then
     AGridFilter := ' AND ' + grd.DataSource.DataSet.Filter;
-  if (Table.QryOfDS.Filter <> '') then
-    if (UpperCase(Trim(LeftStr(Table.QryOfDS.Filter, 5))) = 'AND') then
-      AGridFilter := Table.QryOfDS.Filter + AGridFilter
+  if (grd.DataSource.DataSet.Filter <> '') then
+    if (UpperCase(Trim(LeftStr(grd.DataSource.DataSet.Filter, 5))) = 'AND') then
+      AGridFilter := grd.DataSource.DataSet.Filter + AGridFilter
     else
-      AGridFilter := ' AND ' + Table.QryOfDS.Filter + AGridFilter;
+      AGridFilter := ' AND ' + grd.DataSource.DataSet.Filter + AGridFilter;
 
+  LQry := Table.Database.NewQuery();
   ATable := Table.Clone;
   ATable.SelectToDatasource(AGridFilter, False, True, False);
   ATable.QryOfDS.DisableControls;
@@ -2526,6 +2531,7 @@ begin
   finally
     FreeAndNil(ATable);
   end;
+}
 end;
 
 procedure TfrmBaseDBGrid.WmAfterShow(var Msg: TMessage);

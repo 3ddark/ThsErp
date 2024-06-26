@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SysAdresler;
+﻿unit Ths.Database.Table.SysAdresler;
 
 interface
 
@@ -100,14 +100,17 @@ begin
 end;
 
 procedure TSysAdres.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+var
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  with QryOfDS do
-  begin
+  LQry := Database.NewQuery();
+  with LQry do
+  try
     Close;
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       addField(FSysUlke.TableName, FSysUlke.UlkeKodu.FieldName, FUlkeKodu.FieldName),
       addField(FSysUlke.TableName, FSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
@@ -129,6 +132,8 @@ begin
       ' WHERE 1=1 ' + AFilter
     ], AAllColumn, AHelper);
     Open;
+  finally
+    Free;
   end;
 end;
 

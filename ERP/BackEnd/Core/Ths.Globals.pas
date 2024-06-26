@@ -2121,7 +2121,7 @@ var
 begin
   Result := True;
   LColWidth := TSysGridKolon.Create(GDataBase);
-  LColWidth.QryOfDS.Connection.StartTransaction;
+  LColWidth.Database.Connection.StartTransaction;
   try
     try
       LColWidth.Clear;
@@ -2148,12 +2148,12 @@ begin
           end;
     except
       Result := False;
-      if LColWidth.QryOfDS.Connection.InTransaction then
-        LColWidth.QryOfDS.Connection.Rollback;
+      if LColWidth.Database.Connection.InTransaction then
+        LColWidth.Database.Connection.Rollback;
     end;
   finally
-    if LColWidth.QryOfDS.Connection.InTransaction then
-      LColWidth.QryOfDS.Connection.Commit;
+    if LColWidth.Database.Connection.InTransaction then
+      LColWidth.Database.Connection.Commit;
     LColWidth.Free;
   end;
 end;

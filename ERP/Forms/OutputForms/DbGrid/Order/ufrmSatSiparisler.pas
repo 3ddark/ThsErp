@@ -151,7 +151,7 @@ begin
           begin
             LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Beklemede);
             LSip.Update();
-            TSatSiparis(Table).QryOfDS.Refresh;
+            grd.DataSource.DataSet.Refresh;
           end;
         end
         else if LSip.SiparisDurumID.Value = Ord(TSatSiparisDurum.Gitti) then
@@ -167,7 +167,7 @@ begin
           begin
             LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Hazir);
             LSip.Update();
-            TSatSiparis(Table).QryOfDS.Refresh;
+            grd.DataSource.DataSet.Refresh;
           end;
         end;
       end
@@ -186,7 +186,7 @@ begin
           begin
             LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Hazir);
             LSip.Update();
-            TSatSiparis(Table).QryOfDS.Refresh;
+            grd.DataSource.DataSet.Refresh;
           end;
         end
         else if TSatSiparis(Table).SiparisDurumID.Value = Ord(TSatSiparisDurum.Hazir) then
@@ -202,7 +202,7 @@ begin
           begin
             LSip.SiparisDurumID.Value := Ord(TSatSiparisDurum.Gitti);
             LSip.Update();
-            TSatSiparis(Table).QryOfDS.Refresh;
+            grd.DataSource.DataSet.Refresh;
           end;
         end;
       end;
