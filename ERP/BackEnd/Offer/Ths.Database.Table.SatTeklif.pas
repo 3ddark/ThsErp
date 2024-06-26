@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SatTeklif;
+﻿unit Ths.Database.Table.SatTeklif;
 
 interface
 
@@ -66,7 +66,7 @@ type
   public
     Teklif: TSatTeklif;
 
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -179,7 +179,7 @@ type
     constructor Create(ADatabase: TDatabase); override;
     destructor Destroy; override;
   public
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -305,15 +305,16 @@ begin
   inherited;
 end;
 
-procedure TSatTeklifDetay.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TSatTeklifDetay.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
+var
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  with QryOfDS do
-  begin
-    Close;
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+  LQry := Database.NewQuery;
+  try
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Self.Id.QryName,
       FHeaderID.QryName,
       FTeklifDetayID.QryName,
@@ -341,7 +342,9 @@ begin
       addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);
-    Open;
+    Result := LQry.SQL.Text;
+  finally
+    LQry.Free;
   end;
 end;
 
@@ -624,15 +627,16 @@ begin
   inherited;
 end;
 
-procedure TSatTeklif.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TSatTeklif.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
+var
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  with QryOfDS do
-  begin
-    Close;
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+  LQry := Database.NewQuery;
+  try
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Self.Id.QryName,
       FSiparisID.QryName,
       FIrsaliyeID.QryName,
@@ -701,7 +705,9 @@ begin
       addJoin(jtLeft, FSetNakliyeUcreti.TableName, FSetNakliyeUcreti.Id.FieldName, TableName, FTasimaUcretiID.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);
-    Open;
+    Result := LQry.SQL.Text;
+  finally
+    LQry.Free;
   end;
 end;
 

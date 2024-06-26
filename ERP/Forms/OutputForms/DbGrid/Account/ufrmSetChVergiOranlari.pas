@@ -42,7 +42,7 @@ end;
 procedure TfrmSetChVergiOranlari.FormShow(Sender: TObject);
 begin
   inherited;
-  if Table.DataSource.DataSet.RecordCount > 0 then
+  if grd.DataSource.DataSet.RecordCount > 0 then
     setDisplayFormatInteger(TSetChVergiOrani(Table).VergiOrani.FieldName, '0.00%', grd.DataSource.DataSet);
 end;
 

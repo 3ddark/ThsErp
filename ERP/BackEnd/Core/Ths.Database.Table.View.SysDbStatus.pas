@@ -27,7 +27,7 @@ type
   published
     constructor Create(ADatabase: TDatabase); override;
   public
-    procedure SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(pFilter: string; pLock: Boolean; pPermissionControl: Boolean=True); override;
 
     function Clone: TTable; override;
@@ -63,15 +63,16 @@ begin
   FLockedTables := TFieldDB.Create('locked_tables', ftWideString, '', Self, 'Locked Tables');
 end;
 
-procedure TSysDBStatus.SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
+function TSysDBStatus.SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string;
+var
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, pPermissionControl) then
     Exit;
 
-  with QryOfDS do
-  begin
-    Close;
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+  LQry := Database.NewQuery;
+  try
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FPID.QryName,
       FDBName.QryName,
@@ -84,7 +85,9 @@ begin
     ], [
       'WHERE ' + FPID.FieldName + '<> pg_backend_pid() ', pFilter
     ], AAllColumn, AHelper);
-    Open;
+    Result := LQry.SQL.Text;
+  finally
+    LQry.Free;
   end;
 end;
 

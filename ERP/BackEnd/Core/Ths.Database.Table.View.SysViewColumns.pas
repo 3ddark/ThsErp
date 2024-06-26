@@ -1,4 +1,4 @@
-unit Ths.Database.Table.View.SysViewColumns;
+﻿unit Ths.Database.Table.View.SysViewColumns;
 
 interface
 
@@ -30,7 +30,7 @@ type
   published
     constructor Create(ADatabase: TDatabase); override;
   public
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
 
     procedure Clear; override;
@@ -71,16 +71,16 @@ begin
   FOrjColumnName := TFieldDB.Create('orj_column_name', ftWideString, '', Self, 'Orj Kolon Adı');
 end;
 
-procedure TSysViewColumns.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False);
+function TSysViewColumns.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string;
+var
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  with QryOfDS do
-  begin
-    Close;
-    SQL.Clear;
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+  LQry := Database.NewQuery;
+  try
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FTabloAdi.QryName,
       FColumnName.QryName,
@@ -95,7 +95,9 @@ begin
     ],[
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
-    Open;
+    Result := LQry.SQL.Text;
+  finally
+    LQry.Free;
   end;
 end;
 

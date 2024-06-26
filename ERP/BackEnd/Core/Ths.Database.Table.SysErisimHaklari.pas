@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SysErisimHaklari;
+﻿unit Ths.Database.Table.SysErisimHaklari;
 
 interface
 
@@ -28,7 +28,7 @@ type
 
     constructor Create(ADatabase: TDatabase); override;
   public
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -88,15 +88,16 @@ begin
                     ' AND ' + FKullaniciID.QryName + '=' + IntToStr(GSysKullanici.Id.Value) , False, False);
 end;
 
-procedure TSysErisimHakki.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TSysErisimHakki.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
+var
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  with QryOfDS do
-  begin
-    Close;
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+  LQry := Database.NewQuery;
+  try
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Self.Id.QryName,
       FKaynakID.QryName,
       addLangField(FKaynakAdi.FieldName),
@@ -113,7 +114,9 @@ begin
       addLeftJoin(FKullanici.FieldName, FKullaniciID.QryName, FSysKullanici.TableName),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
-    Open;
+    Result := LQry.SQL.Text;
+  finally
+    LQry.Free;
   end;
 end;
 

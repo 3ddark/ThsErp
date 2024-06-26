@@ -1,4 +1,4 @@
-unit Ths.Database.Table.StkGruplar;
+﻿unit Ths.Database.Table.StkGruplar;
 
 interface
 
@@ -42,7 +42,7 @@ type
     constructor Create(ADatabase: TDatabase); override;
     destructor Destroy; override;
   public
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -110,15 +110,16 @@ begin
   inherited;
 end;
 
-procedure TStkGruplar.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TStkGruplar.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
+var
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  with QryOfDS do
-  begin
-    Close;
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+  LQry := Database.NewQuery;
+  try
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FGrup.QryName,
       FKDVOrani.QryName,
@@ -147,7 +148,9 @@ begin
       addJoin(jtLeft, FCH.TableName, FCH.HesapKodu.FieldName, FSetChVergiOrani.TableName, FAlisIadeHesapKodu.FieldName, 'ai'),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
-    Open;
+    Result := LQry.SQL.Text;
+  finally
+    LQry.Free;
   end;
 end;
 

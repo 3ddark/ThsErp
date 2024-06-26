@@ -60,7 +60,7 @@ type
     Adres: TSysAdres;
     DigerAyarlarJSon: TSysUygulamaDigerAyarlar;
 
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -139,44 +139,51 @@ begin
   FLogo := TFieldDB.Create('logo', ftBytes, '', Self, '');
 end;
 
-procedure TSysUygulamaAyari.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TSysUygulamaAyari.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
+var
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
-    Id.QryName,
-    FUnvan.QryName,
-    FTelefon.QryName,
-    FFaks.QryName,
-    FVergiDairesi.QryName,
-    FVergiNo.QryName,
-    FDonem.QryName,
-    FMailSunucu.QryName,
-    FMailKullanici.QryName,
-    FMailSifre.QryName,
-    FMailSmtpPort.QryName,
-    FGridRenk1.QryName,
-    FGridRenk2.QryName,
-    FGridRenkAktif.QryName,
-    FCryptKey.QryName,
-    FSmsSunucu.QryName,
-    FSmsKullanici.QryName,
-    FSmsSifre.QryName,
-    FSmsBaslik.QryName,
-    FVersiyon.QryName,
-    FPara.QryName,
-    FAdresID.QryName,
-    FDigerAyarlar.QryName,
-    FMukellefTipi.QryName,
-    FMukellefAdi.QryName,
-    FMukellefSoyadi.QryName,
-    FLogo.QryName
-  ], [
-    ' WHERE 1=1 ', AFilter
-  ], AAllColumn, AHelper);
+  LQry := Database.NewQuery;
+  try
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
+      Id.QryName,
+      FUnvan.QryName,
+      FTelefon.QryName,
+      FFaks.QryName,
+      FVergiDairesi.QryName,
+      FVergiNo.QryName,
+      FDonem.QryName,
+      FMailSunucu.QryName,
+      FMailKullanici.QryName,
+      FMailSifre.QryName,
+      FMailSmtpPort.QryName,
+      FGridRenk1.QryName,
+      FGridRenk2.QryName,
+      FGridRenkAktif.QryName,
+      FCryptKey.QryName,
+      FSmsSunucu.QryName,
+      FSmsKullanici.QryName,
+      FSmsSifre.QryName,
+      FSmsBaslik.QryName,
+      FVersiyon.QryName,
+      FPara.QryName,
+      FAdresID.QryName,
+      FDigerAyarlar.QryName,
+      FMukellefTipi.QryName,
+      FMukellefAdi.QryName,
+      FMukellefSoyadi.QryName,
+      FLogo.QryName
+    ], [
+      ' WHERE 1=1 ', AFilter
+    ], AAllColumn, AHelper);
 
-  QryOfDS.Open;
+    Result := LQry.SQL.Text;
+  finally
+    LQry.Free;
+  end;
 end;
 
 procedure TSysUygulamaAyari.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);

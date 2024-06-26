@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SetEinvIstisnaKodu;
+﻿unit Ths.Database.Table.SetEinvIstisnaKodu;
 
 interface
 
@@ -27,7 +27,7 @@ type
     destructor Destroy; override;
     constructor Create(ADatabase: TDatabase); override;
   public
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -68,15 +68,16 @@ begin
   inherited;
 end;
 
-procedure TSetEinvIstisnaKodu.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TSetEinvIstisnaKodu.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
+var
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  with QryOfDS do
-  begin
-    Close;
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+  LQry := Database.NewQuery;
+  try
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FIstisnaKodu.QryName,
       FAciklama.QryName,
@@ -87,7 +88,9 @@ begin
       addJoin(jtLeft, FSetEInvFaturaTipi.TableName, FSetEInvFaturaTipi.Id.FieldName, TableName, FFaturaTipiID.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);
-    Open;
+    Result := LQry.SQL.Text;
+  finally
+    LQry.Free;
   end;
 end;
 
@@ -103,7 +106,7 @@ begin
   LQry := Database.NewQuery();
   with LQry do
   try
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FIstisnaKodu.QryName,
       FAciklama.QryName,

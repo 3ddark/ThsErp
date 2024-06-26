@@ -26,7 +26,7 @@ type
     destructor Destroy; override;
     constructor Create(ADatabase: TDatabase); override;
   public
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -73,34 +73,32 @@ begin
   inherited;
 end;
 
-procedure TPrsEhliyet.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TPrsEhliyet.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
 var
+  LQry: TFDQuery;
   LEmp: TPrsPersonel;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
   LEmp := TPrsPersonel.Create(Database);
+  LQry := Database.NewQuery;
   try
-    with QryOfDS do
-    begin
-      Close;
-      SQL.Clear;
-      Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
-        Id.QryName,
-        FEhliyetID.QryName,
-        addField(FSetPrsEhliyet.TableName, FSetPrsEhliyet.Ehliyet.FieldName, FEhliyet.FieldName),
-        FPersonelID.QryName,
-        addField(LEmp.TableName, LEmp.AdSoyad.FieldName, FPersonel.FieldName)
-      ], [
-        addJoin(jtLeft, FSetPrsEhliyet.TableName, FSetPrsEhliyet.Id.FieldName, TableName, FEhliyetID.FieldName),
-        addJoin(jtLeft, LEmp.TableName, LEmp.Id.FieldName, TableName, FPersonelID.FieldName),
-        ' WHERE 1=1 ' + AFilter
-      ], AAllColumn, AHelper);
-      Open;
-    end;
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
+      Id.QryName,
+      FEhliyetID.QryName,
+      addField(FSetPrsEhliyet.TableName, FSetPrsEhliyet.Ehliyet.FieldName, FEhliyet.FieldName),
+      FPersonelID.QryName,
+      addField(LEmp.TableName, LEmp.AdSoyad.FieldName, FPersonel.FieldName)
+    ], [
+      addJoin(jtLeft, FSetPrsEhliyet.TableName, FSetPrsEhliyet.Id.FieldName, TableName, FEhliyetID.FieldName),
+      addJoin(jtLeft, LEmp.TableName, LEmp.Id.FieldName, TableName, FPersonelID.FieldName),
+      ' WHERE 1=1 ' + AFilter
+    ], AAllColumn, AHelper);
+    Result := LQry.SQL.Text;
   finally
     LEmp.Free;
+    LQry.Free;
   end;
 end;
 

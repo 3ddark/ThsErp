@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SysOlcuBirimleri;
+﻿unit Ths.Database.Table.SysOlcuBirimleri;
 
 interface
 
@@ -21,7 +21,7 @@ type
   published
     constructor Create(ADatabase: TDatabase); override;
   public
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -63,35 +63,34 @@ begin
   end;
 end;
 
-procedure TSysOlcuBirimi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TSysOlcuBirimi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
 var
+  LQry: TFDQuery;
   LUnitTypes: TSysOlcuBirimiTipi;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
   LUnitTypes := TSysOlcuBirimiTipi.Create(Database);
+  LQry := Database.NewQuery;
   try
-    with QryOfDS do
-    begin
-      Close;
-      Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
-        Self.Id.QryName,
-        FBirim.QryName,
-        FBirimEInv.QryName,
-        FAciklama.QryName,
-        FIsOndalik.QryName,
-        FBirimiTipiID.QryName,
-        addField(LUnitTypes.TableName, LUnitTypes.OlcuBirimiTipi.FieldName, FBirimTipi.FieldName),
-        FCarpan.QryName
-      ], [
-        addJoin(jtLeft, LUnitTypes.TableName, LUnitTypes.Id.FieldName, TableName, FBirimiTipiID.FieldName),
-        ' WHERE 1=1 ', AFilter
-      ], AAllColumn, AHelper);
-      Open;
-    end;
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
+      Self.Id.QryName,
+      FBirim.QryName,
+      FBirimEInv.QryName,
+      FAciklama.QryName,
+      FIsOndalik.QryName,
+      FBirimiTipiID.QryName,
+      addField(LUnitTypes.TableName, LUnitTypes.OlcuBirimiTipi.FieldName, FBirimTipi.FieldName),
+      FCarpan.QryName
+    ], [
+      addJoin(jtLeft, LUnitTypes.TableName, LUnitTypes.Id.FieldName, TableName, FBirimiTipiID.FieldName),
+      ' WHERE 1=1 ', AFilter
+    ], AAllColumn, AHelper);
+    Result := LQry.SQL.Text;
   finally
-    LUnitTypes.Free
+    LUnitTypes.Free;
+    LQry.Free;
   end;
 end;
 

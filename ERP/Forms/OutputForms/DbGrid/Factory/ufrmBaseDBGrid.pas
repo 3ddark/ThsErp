@@ -770,7 +770,7 @@ end;
 
 procedure TfrmBaseDBGrid.DataSourceDataChange(Sender: TObject; Field: TField);
 begin
-  WriteRecordCount(Table.DataSource.DataSet.RecordCount);
+  WriteRecordCount(grd.DataSource.DataSet.RecordCount);
 end;
 
 procedure TfrmBaseDBGrid.grdCellClick(Column: TColumn);
@@ -1143,7 +1143,7 @@ begin
     grd.DataSource.DataSet.Filter := LFilter;
     grd.DataSource.DataSet.Filtered := True;
   end;
-  WriteRecordCount(Table.DataSource.DataSet.RecordCount);
+  WriteRecordCount(grd.DataSource.DataSet.RecordCount);
 end;
 
 procedure TfrmBaseDBGrid.edtFilterHelperKeyDown(Sender: TObject; var Key: Word;
@@ -1424,7 +1424,7 @@ end;
 
 procedure TfrmBaseDBGrid.mnicopy_recordClick(Sender: TObject);
 begin
-  if Table.DataSource.DataSet.RecordCount > 0 then
+  if grd.DataSource.DataSet.RecordCount > 0 then
   begin
     SetSelectedItem;
     ShowInputForm(mnicopy_record, ifmCopyNewRecord);
@@ -1555,7 +1555,7 @@ procedure TfrmBaseDBGrid.mnipreviewClick(Sender: TObject);
 begin
   if mniPreview.Visible then
   begin
-    if (Table.DataSource.DataSet.RecordCount <> 0) and (grd.DataSource.DataSet.RecordCount > 0) then
+    if (grd.DataSource.DataSet.RecordCount > 0) then
     begin
       SetSelectedItem();
       ShowInputForm(mniPreview, ifmRewiev);
@@ -1635,13 +1635,13 @@ end;
 
 procedure TfrmBaseDBGrid.MoveDown;
 begin
-  Table.DataSource.DataSet.Prior;
+  grd.DataSource.DataSet.Prior;
   SetSelectedItem();
 end;
 
 procedure TfrmBaseDBGrid.MoveUp;
 begin
-  Table.DataSource.DataSet.Next;
+  grd.DataSource.DataSet.Next;
   SetSelectedItem();
 end;
 
@@ -1788,10 +1788,10 @@ var
   end;
 
 begin
-  Table.DataSource.DataSet.DisableControls;
+  grd.DataSource.DataSet.DisableControls;
   LGridColWidth := TSysGridKolon.Create(GDataBase);
   try
-    Table.DataSource.OnDataChange := DataSourceDataChange;
+    grd.DataSource.OnDataChange := DataSourceDataChange;
     FQryFiltreVarsayilan := ' ' + Trim(FQryFiltreVarsayilan);
 
     if Pos(' ORDER BY ', FQrySiralamaVarsayilan) = 0 then
@@ -1811,7 +1811,8 @@ begin
     else
     begin
       //helper formu ise hak kontrolü yapma.
-      Table.SelectToDatasource(FQryFiltreVarsayilan + FQryFiltreVarsayilanKullanici + FQrySiralamaVarsayilan, FIsHelper, False, FIsHelper);
+      qryBase.SQL.Text := Table.SelectToDatasource(FQryFiltreVarsayilan + FQryFiltreVarsayilanKullanici + FQrySiralamaVarsayilan, FIsHelper, False, FIsHelper);
+      qryBase.Open;
     end;
 
     LTableName := ReplaceRealColOrTableNameTo(Table.TableName);
@@ -1884,7 +1885,7 @@ begin
 
 
       //todo yüzdeli olarak renklendirme işlemini yap
-      SetLength(FColoredPercentColNames, Table.DataSource.DataSet.FieldCount);
+      SetLength(FColoredPercentColNames, grd.DataSource.DataSet.FieldCount);
       for n1 := 0 to Length(FColoredPercentColNames)-1 do
       begin
         LColPercent.FieldName := '';
@@ -1977,7 +1978,7 @@ begin
   finally
 
     LGridColWidth.Free;
-    Table.DataSource.DataSet.EnableControls;
+    grd.DataSource.DataSet.EnableControls;
   end;
 end;
 

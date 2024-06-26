@@ -52,10 +52,10 @@ begin
   mnicopy_record.Visible := True;
 
   LHane := GSysOndalikHane.DovizKuru.Value;
-  if Table.DataSource.DataSet.RecordCount > 0 then
+  if grd.DataSource.DataSet.RecordCount > 0 then
   begin
     Lfs := FormatSettings;
-    setDisplayFormatFloat(TChDovizKuru(Table).Kur.FieldName, '#' + Lfs.DecimalSeparator + StringOfChar('#', LHane) + '0' + Lfs.ThousandSeparator + StringOfChar('0', LHane), Table.DataSource.DataSet);
+    setDisplayFormatFloat(TChDovizKuru(Table).Kur.FieldName, '#' + Lfs.DecimalSeparator + StringOfChar('#', LHane) + '0' + Lfs.ThousandSeparator + StringOfChar('0', LHane), grd.DataSource.DataSet);
   end;
 end;
 

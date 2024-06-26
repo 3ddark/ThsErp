@@ -22,7 +22,7 @@ type
   published
     constructor Create(ADatabase: TDatabase); override;
   public
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -67,8 +67,9 @@ begin
   end;
 end;
 
-procedure TSysSehir.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TSysSehir.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
 var
+  LQry: TFDQuery;
   LSysUlke: TSysUlke;
   LSysBolge: TSysBolge;
 begin
@@ -77,29 +78,28 @@ begin
 
   LSysUlke := TSysUlke.Create(Database);
   LSysBolge := TSysBolge.Create(Database);
+  LQry := Database.NewQuery;
   try
-    with QryOfDS do
-    begin
-      Close;
-      Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
-        Id.QryName,
-        FSehir.QryName,
-        FPlakaKodu.QryName,
-        FUlkeID.QryName,
-        addField(LSysUlke.TableName, LSysUlke.UlkeKodu.FieldName, FUlkeKodu.FieldName),
-        addField(LSysUlke.TableName, LSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
-        FBolgeID.QryName,
-        addField(LSysBolge.TableName, LSysBolge.Bolge.FieldName, FBolge.FieldName)
-      ], [
-        addJoin(jtLeft, LSysUlke.TableName, LSysUlke.Id.FieldName, TableName, FUlkeID.FieldName),
-        addJoin(jtLeft, LSysBolge.TableName, LSysBolge.Id.FieldName, TableName, FBolgeID.FieldName),
-        ' WHERE 1=1 ', AFilter
-      ], AAllColumn, AHelper);
-      Open;
-    end;
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
+      Id.QryName,
+      FSehir.QryName,
+      FPlakaKodu.QryName,
+      FUlkeID.QryName,
+      addField(LSysUlke.TableName, LSysUlke.UlkeKodu.FieldName, FUlkeKodu.FieldName),
+      addField(LSysUlke.TableName, LSysUlke.UlkeAdi.FieldName, FUlkeAdi.FieldName),
+      FBolgeID.QryName,
+      addField(LSysBolge.TableName, LSysBolge.Bolge.FieldName, FBolge.FieldName)
+    ], [
+      addJoin(jtLeft, LSysUlke.TableName, LSysUlke.Id.FieldName, TableName, FUlkeID.FieldName),
+      addJoin(jtLeft, LSysBolge.TableName, LSysBolge.Id.FieldName, TableName, FBolgeID.FieldName),
+      ' WHERE 1=1 ', AFilter
+    ], AAllColumn, AHelper);
+
+    LQry.SQL.Text;
   finally
     LSysUlke.Free;
     LSysBolge.Free;
+    LQry.Free;
   end;
 end;
 

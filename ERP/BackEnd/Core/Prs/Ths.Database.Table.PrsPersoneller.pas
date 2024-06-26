@@ -1,4 +1,4 @@
-unit Ths.Database.Table.PrsPersoneller;
+﻿unit Ths.Database.Table.PrsPersoneller;
 
 interface
 
@@ -90,7 +90,7 @@ type
     Adres: TSysAdres;
     ResimSil: Boolean;
 
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -209,15 +209,16 @@ begin
   inherited;
 end;
 
-procedure TPrsPersonel.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TPrsPersonel.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
+var
+  LQry: TFDQuery;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  with QryOfDS do
-  begin
-    Close;
-    Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
+  LQry := Database.NewQuery;
+  try
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FAd.QryName,
       FSoyad.QryName,
@@ -266,7 +267,9 @@ begin
       addJoin(jtLeft, FSetPrsServisAraci.TableName, FSetPrsServisAraci.Id.FieldName, TableName, FTasimaServisID.FieldName),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
-    Open;
+    Result := LQry.SQL.Text;
+  finally
+    LQry.Free;
   end;
 end;
 

@@ -83,9 +83,6 @@ type
     procedure SetTableName(ATableName: string);
   protected
     FList: TList;
-    FDataSource: TDataSource;
-
-    FQryOfDS: TFDQuery;
 
     procedure FreeListContent; virtual;
 
@@ -110,17 +107,13 @@ type
 
     property List: TList read FList;
 
-    property DataSource: TDataSource read FDataSource;
-
     property Fields: TArray<TFieldDB> read FFields write FFields;
-
-    property QryOfDS: TFDQuery read FQryOfDS write FQryOfDS;
 
     procedure Listen; virtual;
     procedure Unlisten; virtual;
     procedure Notify; virtual;
 
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); virtual; abstract;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; virtual; abstract;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); virtual; abstract;
 
     procedure Insert(APermissionControl: Boolean=True); virtual;
@@ -551,13 +544,6 @@ begin
 
   SetLength(FFields, 0);
 
-  FQryOfDS := FDatabase.NewQuery;
-  FQryOfDS.Name := 'QryOfDS';
-
-
-  FDataSource := TDataSource.Create(nil);
-  FDataSource.DataSet := FQryOfDS;
-
   Id := TFieldDB.Create('id', ftLargeint, 0, Self, 'ID');
   Id.Value := FDatabase.GetNewRecordId();
 
@@ -575,8 +561,6 @@ begin
   FreeListContent;
 
   if Assigned(FList) then FList.Free;
-  if Assigned(FDataSource) then   FDataSource.Free;
-  if Assigned(FQryOfDS) then      FQryOfDS.Free;
 
   FDatabase := nil;
 

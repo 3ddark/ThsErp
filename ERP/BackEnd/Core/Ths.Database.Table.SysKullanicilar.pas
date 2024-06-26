@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SysKullanicilar;
+﻿unit Ths.Database.Table.SysKullanicilar;
 
 interface
 
@@ -27,7 +27,7 @@ type
   published
     constructor Create(ADatabase: TDatabase); override;
   public
-    procedure SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False); override;
+    function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
     procedure DoInsert(APermissionControl: Boolean=True); override;
     procedure DoUpdate(APermissionControl: Boolean=True); override;
@@ -81,37 +81,36 @@ begin
   end;
 end;
 
-procedure TSysKullanici.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean);
+function TSysKullanici.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
 var
+  LQry: TFDQuery;
   LEmployee: TPrsPersonel;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
   LEmployee := TPrsPersonel.Create(Database);
+  LQry := Database.NewQuery;
   try
-    with QryOfDS do
-    begin
-      Close;
-      Database.SQLBuilder.GetSQLSelectCmd(QryOfDS, TableName, [
-        Id.QryName,
-        FKullaniciAdi.QryName,
-        FKullaniciSifre.QryName,
-        FIsAktif.QryName,
-        FIsYonetici.QryName,
-        FIsSuperKullanici.QryName,
-        FIpAdres.QryName,
-        FMacAdres.QryName,
-        FPersonelID.QryName,
-        addField(LEmployee.TableName, LEmployee.AdSoyad.FieldName, FAdSoyad.FieldName)
-      ], [
-        addJoin(jtLeft, LEmployee.TableName, LEmployee.Id.FieldName, TableName, FPersonelID.FieldName),
-        ' WHERE 1=1 ', AFilter
-      ], AAllColumn, AHelper);
-      Open;
-    end;
+    Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
+      Id.QryName,
+      FKullaniciAdi.QryName,
+      FKullaniciSifre.QryName,
+      FIsAktif.QryName,
+      FIsYonetici.QryName,
+      FIsSuperKullanici.QryName,
+      FIpAdres.QryName,
+      FMacAdres.QryName,
+      FPersonelID.QryName,
+      addField(LEmployee.TableName, LEmployee.AdSoyad.FieldName, FAdSoyad.FieldName)
+    ], [
+      addJoin(jtLeft, LEmployee.TableName, LEmployee.Id.FieldName, TableName, FPersonelID.FieldName),
+      ' WHERE 1=1 ', AFilter
+    ], AAllColumn, AHelper);
+    Result := LQry.SQL.Text;
   finally
     LEmployee.Free;
+    LQry.Free;
   end;
 end;
 
