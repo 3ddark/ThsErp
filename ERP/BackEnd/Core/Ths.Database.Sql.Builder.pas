@@ -93,7 +93,7 @@ var
     n1: Integer;
   begin
     for n1 := 0 to Length(AFieldNames)-1 do
-      AQry.SQL.Add(AFieldNames[n1] + ', '); //Select i�in FieldName ekleniyor
+      AQry.SQL.Add(AFieldNames[n1] + ', '); //Select için FieldName ekleniyor
   end;
 
   type TColHelper = (Helper, Defined);
@@ -156,11 +156,11 @@ begin
   AQry.Close;
   AQry.SQL.Clear;
   AQry.SQL.Add('SELECT ');
-  //helper tan�ml� ve helper i�in g�r�nmesi gereken alan se�ilmi�se helper gibi ekle aksi durumuda normal olarak t�m fieldlar gelsin
+  //helper tanımlı ve helper için görünmesi gereken alan seçilmişse helper gibi ekle aksi durumuda normal olarak tüm fieldlar gelsin
   if AHelper then
   begin
-    //helper i�in select yap�lacaksa sadece helperde g�r�nmesini istedi�imiz kolonlar getirildi.
-    //Bu �ekilde gereksiz kolonlar gelmez ve h�z a��s�nda �ok kay�t ve �ok kolon olan sorgularda performans artm�� olur.
+    //helper için select yapılacaksa sadece helperde görünmesini istediğimiz kolonlar getirildi.
+    //Bu şekilde gereksiz kolonlar gelmez ve hız açısında çok kayıt ve çok kolon olan sorgularda performans artmış olur.
     //Gereksiz kolonlar db den getirilmez
     if Length(AFieldNames) = 0 then
       raise Exception.Create('Database fields are not defined!' + AddLBs + 'This process cannot be done');
@@ -177,7 +177,7 @@ begin
           _AddAllColumns;
       end
       else
-        _AddAllColumns;  //t�m kolonlar istenmemi� olsa bile grid kolon geni�li�i tan�mlanmam��sa select i�inde tan�mlanan t�m kolonlar� ekle
+        _AddAllColumns;  //tüm kolonlar istenmemiş olsa bile grid kolon genişliği tanımlanmamışsa select içinde tanımlanan tüm kolonları ekle
 
     finally
       LGridCol.Free;
@@ -186,7 +186,7 @@ begin
   else
   begin
     if AAllColumn then
-      _AddAllColumns //t�m kolonlar istenmi�se select i�inde tan�mlanan t�m kolonlar� ekle
+      _AddAllColumns //tüm kolonlar istenmişse select içinde tanımlanan tüm kolonları ekle
     else
     begin
       LGridCol := TSysGridKolon.Create(GDatabase);
@@ -194,9 +194,9 @@ begin
         LGridCol.SelectToList(' AND ' + LGridCol.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)), False, False);
 
         if ExistsGridColWidth(AHelper, LIndex) then
-          _AddAllColumnsHelper(Defined)  //t�m kolonlar istenmiyorsa sadece IsAlwaysShow tan�ml� kolonlar gelsin
+          _AddAllColumnsHelper(Defined)  //tüm kolonlar istenmiyorsa sadece IsAlwaysShow tanımlı kolonlar gelsin
         else
-          _AddAllColumns;  //t�m kolonlar istenmemi� olsa bile grid kolon geni�li�i tan�mlanmam��sa select i�inde tan�mlanan t�m kolonlar� ekle
+          _AddAllColumns;  //tüm kolonlar istenmemiş olsa bile grid kolon genişliği tanımlanmamışsa select içinde tanımlanan tüm kolonları ekle
       finally
         LGridCol.Free;
       end;

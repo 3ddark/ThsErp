@@ -1,4 +1,4 @@
-unit Ths.Helper.BaseTypes;
+﻿unit Ths.Helper.BaseTypes;
 
 interface
 
@@ -28,7 +28,7 @@ end;
 function LowCaseTr(pKey: Char): Char;
 begin
   case pKey of
-    'I': pKey := 'ı';
+    'I': pKey := Char('ı');
     'İ': pKey := 'i';
     'Ğ': pKey := 'ğ';
     'Ü': pKey := 'ü';

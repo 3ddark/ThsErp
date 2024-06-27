@@ -41,7 +41,6 @@ uses
 
 procedure TfrmSetTekTeklifTipi.RefreshData();
 begin
-  //control i�eri�ini table class ile doldur
   edtteklif_tipi.Text := TSetTekTeklifTipi(Table).TeklifTipi.AsString;
   edtaciklama.Text := TSetTekTeklifTipi(Table).Aciklama.AsString;
   chkis_aktif.Checked := TSetTekTeklifTipi(Table).IsAktif.AsBoolean;

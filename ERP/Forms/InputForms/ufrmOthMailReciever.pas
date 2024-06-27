@@ -46,7 +46,6 @@ end;
 
 procedure TfrmOthMailReciever.RefreshData();
 begin
-  //control i�eri�ini table class ile doldur
   edtmail_adresi.Text := TOthMailReciever(Table).MailAdresi.AsString;
 end;
 

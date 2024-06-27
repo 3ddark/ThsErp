@@ -67,7 +67,6 @@ uses
 
 procedure TfrmTarihHaftaSecici.btnAcceptClick(Sender: TObject);
 begin
-  //sonuc bu de�i�kenden d�necek �a��r�lan yerden bu de�i�kene ula�arak yeni y�l/hafta bilgisi elde edinilmi� olacak
   FYilHafta := edtYil.Text + '/' + edtHafta.Text;
   FTarih := edtGun.Text;
   Close;
@@ -100,7 +99,7 @@ end;
 procedure TfrmTarihHaftaSecici.edtgunKeyPress(Sender: TObject; var Key: Char);
 begin
   inherited;
-  //0..9 aras� ve BackSpace haricindekileri alg�lama
+  //0..9 arası ve BackSpace haricindekileri algılama
   if (Key <> #8) and ((Key < '0') or (Key > '9')) then
     Key := #0;
   if Key = #13 then
@@ -148,7 +147,7 @@ begin
     except
       on E: Exception do
       begin
-        E.Create(IntToStr(y) + ' y�l�nda ' + IntToStr(h) + ' hafta yoktur!');
+        E.Create(IntToStr(y) + ' yılında ' + IntToStr(h) + ' hafta yoktur!');
         edtGun.Clear;
         t := '';
       end;
@@ -158,7 +157,7 @@ end;
 
 procedure TfrmTarihHaftaSecici.edthaftaKeyPress(Sender: TObject; var Key: Char);
 begin
-  //0..9 aras� ve BackSpace haricindekileri alg�lama
+  //0..9 arası ve BackSpace haricindekileri algılama
   if (Key <> #8) and ((Key < '0') or (Key > '9')) then
     Key := #0;
   if Key = #13 then
@@ -175,7 +174,7 @@ end;
 
 procedure TfrmTarihHaftaSecici.edtyilKeyPress(Sender: TObject; var Key: Char);
 begin
-  //0..9 aras� ve BackSpace haricindekileri alg�lama
+  //0..9 arası ve BackSpace haricindekileri algılama
   if (Key <> #8) and ((Key < '0') or (Key > '9')) then
     Key := #0;
   if Key = char(vk_return) then

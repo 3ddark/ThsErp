@@ -1,4 +1,4 @@
-unit Ths.Helper.ComboBox;
+﻿unit Ths.Helper.ComboBox;
 
 interface
 
@@ -316,7 +316,7 @@ end;
 function TCombobox.UpCaseTr(pKey: Char): Char;
 begin
   case pKey of
-    'ı': pKey := 'I';
+    Char('ı'): pKey := 'I';
     'i': pKey := 'İ';
     'ğ': pKey := 'Ğ';
     'ü': pKey := 'Ü';
@@ -421,7 +421,7 @@ begin
     //Self.Modified := true;
   end;
 
-  //T�m�n� se�ip yazarsa eski bilgiyi temizle
+  //Tümünü seçip yazarsa eski bilgiyi temizle
   if (Length(Self.Text) = Self.SelLength) and (CharInSet(pKey, [#8, '0'..'9', FormatSettings.DecimalSeparator])) then
     Self.Clear;
 
@@ -429,7 +429,7 @@ begin
   if (Length(Self.Text) > Self.SelStart) and (pKey <> #13) then
     pKey := #0;
 
-  //tan�ml� tu�lar harici tu�lar girilmez veya seperator sadece bir kere girilebilir
+  //tanımlı tuşlar harici tuşlar girilmez veya seperator sadece bir kere girilebilir
   if not CharInSet(pKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then
   begin
     pKey := #0;
@@ -617,7 +617,7 @@ begin
     Self.SelStart := Length(Self.Text);
     Self.SetFocus;
     if FMesaj = '' then
-      FMesaj := 'Hatal� tarih giri�i!';
+      FMesaj := 'Hatalı tarih girişi!';
     Raise Exception.Create(FMesaj);
   end;
 end;
@@ -640,7 +640,7 @@ begin
   if (Length(Self.Text) = Self.SelLength) and (pKey <> #13) then
     Self.Clear;
 
-  //tan�ml� tu�lar harici tu�lar girilmez veya seperator sadece bir kere girilebilir
+  //tanımlı tuşlar harici tuşlar girilmez veya seperator sadece bir kere girilebilir
   if (pKey = FormatSettings.DecimalSeparator) and (Pos(pKey, Self.Text) > 0) then
     pKey := #0
   else if not CharInSet(pKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then

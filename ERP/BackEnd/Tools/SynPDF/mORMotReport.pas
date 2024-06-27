@@ -1611,7 +1611,7 @@ begin
 end;
 
 procedure SetCurrentPrinterAsDefault;
-var Device, Driver, Port: string;
+var Device, Driver, Port: PWideChar;
     DefaultPrinter: string;
     hDeviceMode: THandle;
 begin
@@ -1629,7 +1629,7 @@ begin
 end;
 
 function CurrentPrinterName: string;
-var Device, Driver, Port: string;
+var Device, Driver, Port: PWideChar;
     hDeviceMode: THandle;
 begin
   Printer.GetPrinter(Device, Driver, Port, hDeviceMode);

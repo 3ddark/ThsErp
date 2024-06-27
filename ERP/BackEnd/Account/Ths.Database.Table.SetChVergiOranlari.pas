@@ -16,7 +16,7 @@ type
     FSatisIadeHesapKodu: TFieldDB;
     FAlisHesapKodu: TFieldDB;
     FAlisIadeHesapKodu: TFieldDB;
-    //db alan� de�il
+    //not a database field
     FSatisHesapAdi: TFieldDB;
     FSatisIadeHesapAdi: TFieldDB;
     FAlisHesapAdi: TFieldDB;
@@ -40,7 +40,7 @@ type
     property SatisIadeHesapKodu: TFieldDB read FSatisIadeHesapKodu write FSatisIadeHesapKodu;
     property AlisHesapKodu: TFieldDB read FAlisHesapKodu write FAlisHesapKodu;
     property AlisIadeHesapKodu: TFieldDB read FAlisIadeHesapKodu write FAlisIadeHesapKodu;
-    //db alan� de�il
+    //not a database field
     property SatisHesapAdi: TFieldDB read FSatisHesapAdi write FSatisHesapAdi;
     property SatisIadeHesapAdi: TFieldDB read FSatisIadeHesapAdi write FSatisIadeHesapAdi;
     property AlisHesapAdi: TFieldDB read FAlisHesapAdi write FAlisHesapAdi;
@@ -65,7 +65,7 @@ begin
   FSatisIadeHesapKodu := TFieldDB.Create('satis_iade_hesap_kodu', ftString, '', Self, 'Satış İade');
   FAlisHesapKodu := TFieldDB.Create('alis_hesap_kodu', ftString, '', Self, 'Alış');
   FAlisIadeHesapKodu := TFieldDB.Create('alis_iade_hesap_kodu', ftString, '', Self, 'Alış İade');
-  //db alan� de�il
+  //not a database field
   FSatisHesapAdi := TFieldDB.Create('satis_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Satış Hesap');
   FSatisIadeHesapAdi := TFieldDB.Create('satis_iade_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Satış İade Hesap');
   FAlisHesapAdi := TFieldDB.Create('alis_hesap_adi', CH.HesapIsmi.DataType, '', Self, 'Alış Hesap');
@@ -213,7 +213,7 @@ begin
   Result := True;
 
   if (Self.FVergiOrani.Value < 0) or (Self.FVergiOrani.Value > 100) then
-    raise Exception.Create(Trim('Vergi oran� hatal� girildi!' + AddLBs(2) + 'L�tfen veri oran�n� kontrol edin. Vergi Oran� 0.00 - 100.00 aras�nda bir de�er olmal�d�r. + 999999'));
+    raise Exception.Create(Trim('Vergi oranı hatalı girildi!' + AddLBs(2) + 'Lütfen veri oranını kontrol edin. Vergi Oranı 0.00 - 100.00 arasında bir değer olmalıdır. + 999999'));
 end;
 
 end.

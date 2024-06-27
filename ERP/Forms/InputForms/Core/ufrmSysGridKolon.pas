@@ -178,7 +178,6 @@ end;
 
 procedure TfrmSysGridKolon.RefreshData();
 begin
-  //control i�eri�ini table class ile doldur
   cbbtablo_adi.ItemIndex := cbbtablo_adi.Items.IndexOf(TSysGridKolon(Table).TabloAdi.AsString);
   cbbtablo_adiChange(cbbtablo_adi);
   if cbbkolon_adi.Items.IndexOf(TSysGridKolon(Table).KolonAdi.AsString) = -1 then
@@ -229,7 +228,7 @@ function TfrmSysGridKolon.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWi
 begin
   Result := inherited ValidateInput();
 
-  //arada rakam atlyacak �ekilde giri� yap�lm��sa rakam� otomatik olarak d�zelt.
+  //arada rakam atlyacak şekilde giriş yapılmışsa rakamı otomatik olarak düzelt.
   //maks sequence no dan sonraki rakam gelmek zorunda.
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
@@ -250,7 +249,7 @@ begin
     if (ValidateInput) then
     begin
       if cbbtablo_adi.Items.IndexOf(cbbtablo_adi.Text) = -1 then
-        raise Exception.Create('Listede olmayan bir Tablo Ad� giremezsiniz!' + AddLBs() + cbbtablo_adi.Text);
+        raise Exception.Create('Listede olmayan bir Tablo Adı giremezsiniz!' + AddLBs() + cbbtablo_adi.Text);
 
       if (FormMode = ifmUpdate) then
       begin

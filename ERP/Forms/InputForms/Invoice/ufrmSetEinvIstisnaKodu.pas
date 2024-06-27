@@ -65,7 +65,6 @@ end;
 
 procedure TfrmSetEinvIstisnaKodu.RefreshData();
 begin
-  //control i�eri�ini table class ile doldur
   edtKod.Text := TSetEinvIstisnaKodu(Table).IstisnaKodu.Value;
   edtAciklama.Text := TSetEinvIstisnaKodu(Table).Aciklama.Value;
   cbbfatura_tipi_id.Text := TSetEinvIstisnaKodu(Table).FaturaTipi.Value;

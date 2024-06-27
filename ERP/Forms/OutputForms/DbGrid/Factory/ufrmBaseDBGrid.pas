@@ -160,7 +160,6 @@ type
     procedure actfilter_removeExecute(Sender: TObject);
     procedure actfilter_excludeExecute(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-    procedure pgalertbaseNotify(Sender: TObject; Event: string; ProcessID: Integer; Payload: string);
     procedure mniKolonGeniliklerineEkle1Click(Sender: TObject);
   private
     //for use HelperForm
@@ -649,6 +648,8 @@ end;
 
 procedure TfrmBaseDBGrid.FormDestroy(Sender: TObject);
 begin
+  Table.Database.RemoveListenEventName(Table.TableName, Self);
+
   if FIsHelper then
   begin
     if Assigned(TableHelper) then
@@ -761,6 +762,8 @@ constructor TfrmBaseDBGrid.Create(
 begin
   inherited Create(AOwner, AParentForm, ATable, ifmNone, AFormDecimalMode);
   FIsHelper := AHelperForm;
+
+  Table.Database.AddListenEventName(Table.TableName);
 end;
 
 function TfrmBaseDBGrid.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
@@ -1643,25 +1646,6 @@ procedure TfrmBaseDBGrid.MoveUp;
 begin
   grd.DataSource.DataSet.Next;
   SetSelectedItem();
-end;
-
-procedure TfrmBaseDBGrid.pgalertbaseNotify(Sender: TObject; Event: string; ProcessID: Integer; Payload: string);
-begin
-  inherited;
-  if Event = Table.TableName then
-  begin
-    TThread.Queue(
-      nil,
-      procedure
-      var
-        n1: Integer;
-      begin
-        for n1 := 0 to Screen.FormCount-1 do
-          if Screen.Forms[n1].ClassType = ClassType then
-            TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource.DataSet.Refresh;
-      end
-    );
-  end;
 end;
 
 procedure TfrmBaseDBGrid.pmDBChange(Sender: TObject; Source: TMenuItem; Rebuild: Boolean);

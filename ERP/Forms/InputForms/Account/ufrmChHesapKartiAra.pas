@@ -114,7 +114,7 @@ begin
         LHesapPlani := TChHesapPlani.Create(Table.Database);
         LFrmHesapPlani := TfrmChHesapPlanlari.Create(TEdit(Sender), Self, LHesapPlani, fomNormal, True);
         try
-          //Hesap Plan�nda seviyesi 3 olanlar�n ara hesab� olabilir. Bu nedenle 3 seviyeliler ac�l�r
+          //Hesap Planında seviyesi 3 olanların ara hesabı olabilir. Bu nedenle 3 seviyeliler açılır
           LFrmHesapPlani.QryFiltreVarsayilanKullanici := ' AND ' + LHesapPlani.Seviye.QryName + '=' + IntToStr(3);
           LFrmHesapPlani.ShowModal;
 

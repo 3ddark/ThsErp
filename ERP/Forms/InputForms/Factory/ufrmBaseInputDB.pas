@@ -42,22 +42,22 @@ type
 //    FRefresher: ThreadRefresh;
 
 /// <summary>
-///  InputDB formlar�ndaki Edit Memo ComboBox gibi kontrollerin zorunlu alan, maks leng, charcase gibi �zelliklerini form ilk a��l��ta ayarl�yor.
+///  InputDB formlarındaki Edit Memo ComboBox gibi kontrollerin zorunlu alan, maks leng, charcase gibi özelliklerini form ilk açılışta ayarlıyor.
 /// </summary>
 ///  <remarks>
-///  NOT: Bu kontroller direkt olarak pnlMain �zerinde veya pgcMain i�indeki TabSheet ler i�inde olmal�
+///  NOT: Bu kontroller direkt olarak pnlMain üzerinde veya pgcMain içindeki TabSheet ler içinde olmalı
 ///  </remarks>
     procedure SetControlDBProperty(pIsOnlyRepaint: Boolean = False);
 
 /// <summary>
-///  Table s�n�f� i�indeki de�erleri a��lan formda bulunan kontrollere otomatik olarak y�kl�yor.
-///  Yap�lan i�lemin g�sterimsel �rne�i a�a��dad�r.
+///  Table sınıfı içindeki değerleri açılan formda bulunan kontrollere otomatik olarak yüklüyor.
+///  Yapılan işlemin gösterimsel örneği aşağıdadır.
 ///  <example>
 ///   <code lang="Delphi">edtcontrol_name_like_db_field_name.Text := Table.PersonelAd.Value</code>
 ///  </example>
 /// </summary>
 ///  <remarks>
-///  NOT: Bu kontroller direkt olarak pnlMain �zerinde veya pgcMain i�indeki TabSheet ler i�inde olmal�
+///  NOT: Bu kontroller direkt olarak pnlMain üzerinde veya pgcMain içindeki TabSheet ler içinde olmalı
 ///  </remarks>
     procedure RefreshDataAuto; virtual;
 
@@ -112,7 +112,7 @@ procedure TfrmBaseInputDB.btnDeleteClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate)then
   begin
-    if CustomMsgDlg('Kayd� silmek istedi�inden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hay�r'], mbNo, 'Kullan�c� Onay�') = mrYes then
+    if CustomMsgDlg('Kaydı silmek istediğinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
     begin
       if (Table.LogicalDelete(True, False)) then
       begin
@@ -128,7 +128,7 @@ begin
         FormMode := ifmRewiev;
         btnSpin.Visible := True;
         btnDelete.Visible := False;
-        btnAccept.Caption := 'G�ncelle';
+        btnAccept.Caption := 'Güncelle';
         btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
         btnAccept.Width := Max(100, btnAccept.Width);
 
@@ -156,10 +156,10 @@ begin
         end
         else
         begin
-          ModalResult := mrNone;//hata durumunda pencere kapanmas�n
+          ModalResult := mrNone;//hata durumunda pencere kapanmasın
 
-          //e�er begin transaction demiyosa insert pencere kapans�n ��nk� rollback yap�ld art�k insert etmemeli
-          //�nceki i�lemler geri al�nd��� i�in
+          //eüer begin transaction demiyosa insert pencere kapansın çünkü rollback yapıld artık insert etmemeli
+          //Önceki işlemler geri alındığı için
           if (Table.Database.Connection.InTransaction) then
             Close;
         end;
@@ -170,9 +170,9 @@ begin
   end
   else if (FormMode = ifmUpdate) then
   begin
-    if CustomMsgDlg('Kayd� g�ncelleme istedi�inden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hay�r'], mbNo, 'Kullan�c� Onay�') = mrYes then
+    if CustomMsgDlg('Kaydı güncelleme istediğinden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
     begin
-      //Burada yeni kay�t veya g�ncelleme modunda oldu�u i�in b�t�n kontrolleri a�mak gerekiyor.
+      //Burada yeni kayıt veya güncelleme modunda olduüu için bütün kontrolleri açmak gerekiyor.
       SetControlsDisabledOrEnabled(pnlMain, True);
       if AcceptBtnDoAction then
       begin
@@ -187,7 +187,7 @@ begin
           ModalResult := mrNone;
           btnSpin.Visible := true;
           FormMode := ifmRewiev;
-          btnAccept.Caption := 'G�ncelle';
+          btnAccept.Caption := 'Güncelle';
           btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
           btnAccept.Width := Max(100, btnAccept.Width);
           btnDelete.Visible := false;
@@ -199,18 +199,18 @@ begin
   end
   else if (FormMode = ifmRewiev) then
   begin
-    //burada g�ncelleme modunda oldu�u i�in b�t�n kontrolleri a�mak gerekiyor.
+    //burada güncelleme modunda olduğu için bütün kontrolleri açmak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, False);
 
     if (not Table.Database.Connection.InTransaction) then
     begin
-      //kay�t kilitle, e�er ba�ka kullan�c� tarf�ndan bu esnada silinmemi�se
+      //varsa kaydı kilitle
       if (Table.LogicalSelect(DefaultSelectFilter, True, ( not Table.Database.Connection.InTransaction), True)) then
       begin
-        //e�er aranan kay�t ba�ka bir kullan�c� taraf�ndan silinmi�se count 0 kal�r
+        //eğer aranan kayıt başka bir kullanıcı tarafından silinmişse count 0 kalır
         if (Table.List.Count = 0) then
         begin
-          raise Exception.Create('Siz inceleme ekran�ndayken kay�t ba�ka kullan�c� taraf�ndan silinmi�.' + AddLBs(2) + 'Kayd� tekrar kontrol edin!');
+          raise Exception.Create('Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş.' + AddLBs(2) + 'Kaydı tekrar kontrol edin!');
         end
         else
         begin
@@ -241,7 +241,7 @@ begin
       end;
     end
     else
-      CustomMsgDlg('Aktif bir kay�t g�ncellemeniz var. �nce a��k olan i�leminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
+      CustomMsgDlg('Aktif bir kayıt güncellemeniz var. Önce açık olan işleminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
   end;
 end;
 
@@ -322,8 +322,8 @@ end;
 
 procedure TfrmBaseInputDB.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  //ferhat buras� do�ru �al��m�yor parent kapat�ld��� halde burada parent varm�� gibi i�lem yap�yor.
-  //parentform bir �ekilde kapat�lt���nda buradan da nil yap�lmal�.
+  //ferhat burası doğru çalışmıyor parent kapatıldığı halde burada parent varmış gibi işlem yapıyor.
+  //parentform bir şekilde kapatıltığında buradan da nil yapılmalı.
 //  ShowMessage(Self.ParentForm.Name + ' ' + Self.ParentForm.Parent.Name);
 
 //  if  ((self.FormMode = ifmNewRecord) or (self.FormMode = ifmUpdate))
@@ -384,7 +384,7 @@ begin
     Key := #0;
     if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
     begin
-      if CustomMsgDlg('��kmak istedi�inden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hay�r'], mbNo, 'Kullan�c� Onay�') = mrYes then
+      if CustomMsgDlg('Çıkmak istediğinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
         Close;
     end
     else
@@ -559,7 +559,7 @@ begin
   if not SetSession() then
   begin
     Self.Close;
-    raise Exception.Create('Kullan�c� Eri�im Hakk� hatas�!');
+    raise Exception.Create('Kullanıcı Erişim Hakkı hatası!');
   end;
 end;
 
@@ -766,7 +766,7 @@ var
 
 begin
   vPageControl := pnlMain.FindChildControl(pgcMain.Name);
-  //Main panel i�indeki pagecontrol i�inde sekme olarak kullan�lan kontroller
+  //Main panel içindeki pagecontrol içinde sekme olarak kullanılan kontroller
   if Assigned(vPageControl) then
   begin
     for n1 := 0 to TPageControl(vPageControl).PageCount-1 do
@@ -829,12 +829,12 @@ begin
     end;
 
   end
-  else  //Main panel i�inde kullan�lan kontroller
+  else  //Main panel içinde kullanılan kontroller
   begin
-    //ilk �nce s�n�fa ait t�m kontrolleri d�zenle
-    //daha sonra table s�n�f� taranacak ve i�inde ttable tipinden bir field varsa
-    //table s�n�f� bulunup buradan bilgileri �ekilecek.
-    //Bu �ekilen column bilgilerine uyan kontrol varm� diye t�m hepsi taranacak ve bulunanlar i�in bilgiler set edilecek
+    //ilk önce sınıfa ait tüm kontrolleri düzenle
+    //daha sonra table sınıfı taranacak ve içinde ttable tipinden bir field varsa
+    //table sınıfı bulunup buradan bilgileri çekilecek.
+    //Bu çekilen column bilgilerine uyan kontrol varmı diye tüm hepsi taranacak ve bulunanlar için bilgiler set edilecek
     vParent := pnlMain;
     for n2 := 0 to TPanel(vParent).ControlCount-1 do
     begin
@@ -850,7 +850,7 @@ begin
           if Table.Fields[n3].FieldName = RightStr(TPanel(vParent).Controls[n2].Name, Length(TPanel(vParent).Controls[n2].Name)- 3{prefix length edtstok_kodu > stok_kodu}) then
           begin
             SubSetControlProperty(TPanel(vParent).Controls[n2], Table.Fields[n3]);
-            Break;  //n3 d�g�s�n� k�r n2 den devam et
+            Break;  //n3 dögüsünü kır n2 den devam et
           end;
         end;
       end;
@@ -877,7 +877,7 @@ begin
                 if vTable.Fields[n3].FieldName = RightStr(TPanel(vParent).Controls[n2].Name, Length(TPanel(vParent).Controls[n2].Name)- 3{prefix length edtstok_kodu > stok_kodu}) then
                 begin
                   SubSetControlProperty(TPanel(vParent).Controls[n2], vTable.Fields[n3]);
-                  Break;  //n3 d�g�s�n� k�r n2 den devam et
+                  Break;  //n3 dögüsünü kır n2 den devam et
                 end;
               end;
             end;

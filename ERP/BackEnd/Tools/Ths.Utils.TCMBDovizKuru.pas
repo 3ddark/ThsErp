@@ -43,7 +43,7 @@ begin
   SetLength(Result, 0);
   LClient := TNetHTTPClient.Create(nil);
   try
-    if CompareDateTime(ATarih, Now().GetDate) = EqualsValue then
+    if CompareDateTime(ATarih, DateOf(Now)) = EqualsValue then
     begin
       LURL := 'https://www.tcmb.gov.tr/kurlar/today.xml';
     end

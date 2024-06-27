@@ -126,7 +126,7 @@ begin
   FSysUlke := TSysUlke.Create(Database);
   FSysBolge := TSysBolge.Create(Database);
 
-  FFirmaAdi := TFieldDB.Create('firma_adi', ftWideString, '', Self, 'Firma Ad�');
+  FFirmaAdi := TFieldDB.Create('firma_adi', ftWideString, '', Self, 'Firma Adı');
   FTel1 := TFieldDB.Create('tel1', ftWideString, '', Self, 'Tel1');
   FTel2 := TFieldDB.Create('tel2', ftWideString, '', Self, 'Tel2');
   FTel3 := TFieldDB.Create('tel3', ftWideString, '', Self, 'Tel3');

@@ -24,7 +24,7 @@ uses
 
 const
   C_Cinsiyet: array [0..1] of string = ('ERKEK', 'KADIN');
-  C_MedeniDurumu: array [0..1] of string = ('BEKAR', 'EVL�');
+  C_MedeniDurumu: array [0..1] of string = ('BEKAR', 'EVLİ');
   C_AskerlikDurumu: array [0..2] of string = ('YAPTI', 'MUAF', 'YAPMADI');
 
 type

@@ -82,7 +82,7 @@ begin
     if (ValidateInput) then
     begin
       if cbbtablo_adi.Items.IndexOf(cbbtablo_adi.Text) = -1 then
-        raise Exception.Create('Listede olmayan bir Tablo Ad� giremezsiniz!' + AddLBs + cbbtablo_adi.Text);
+        raise Exception.Create('Listede olmayan bir Tablo Adı giremezsiniz!' + AddLBs + cbbtablo_adi.Text);
 
       TSysGridFiltreSiralama(Table).TabloAdi.Value := cbbtablo_adi.Text;
       TSysGridFiltreSiralama(Table).Icerik.Value := edticerik.Text;

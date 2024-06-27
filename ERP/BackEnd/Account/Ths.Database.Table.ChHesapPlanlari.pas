@@ -172,8 +172,8 @@ begin
       Open;
 
       if (not Fields.Fields[0].IsNull) and (Fields.Fields[0].AsInteger > 0) then
-        raise Exception.Create(Trim('Hesap Plan�na ba�l� Cari Hesap olan kay�tlar silinemez!' + AddLBs(2) +
-                              '�nce Cari Hesap Kart�n� silin! + 999999'));
+        raise Exception.Create(Trim('Hesap Planına bağlı Cari Hesap olan kayıtlar silinemez!' + AddLBs(2) +
+                              'Önce Cari Hesap Kartını silin! + 999999'));
     finally
       Free;
     end;
@@ -196,9 +196,9 @@ begin
     //120-1-2     3 seviye
     //600-1       2 seviye
     //760         1 seviye
-    //Seviye 1 ise olu�an Hesap Son Hesap olur
-    //Seviye 2 ise olu�an Hesap Ana Hesap olur
-    //Seviye 3 ise olu�an Hesap Ana Hesap olur
+    //Seviye 1 ise oluşan Hesap Son Hesap olur
+    //Seviye 2 ise oluşan Hesap Ana Hesap olur
+    //Seviye 3 ise oluşan Hesap Ana Hesap olur
     if Self.Seviye.Value > 1
     then  LHesap.HesapTipiID.Value := THesapTipi.htAna
     else  LHesap.HesapTipiID.Value := THesapTipi.htSon;

@@ -64,13 +64,13 @@ begin
   begin
     AImage.Picture.Assign(nil);
     DrawEmptyImage(AImage, AMaxWidth, AMaxHeight);
-    raise Exception.Create('Logo geni�li�i en fazla ' + AMaxWidth.ToString + 'px olabilir.');
+    raise Exception.Create('Logo genişliği en fazla ' + AMaxWidth.ToString + 'px olabilir.');
   end
   else if (AMaxHeight > 0) and (AImage.Picture.Bitmap.Height > AMaxHeight) then
   begin
     AImage.Picture.Assign(nil);
     DrawEmptyImage(AImage, AMaxWidth, AMaxHeight);
-    raise Exception.Create('Logo y�ksekli�i en fazla ' + AMaxHeight.ToString + 'px olabilir.');
+    raise Exception.Create('Logo yüksekliği en fazla ' + AMaxHeight.ToString + 'px olabilir.');
   end;
 
   AImage.Width := AImage.Picture.Bitmap.Width;

@@ -41,7 +41,6 @@ uses
 
 procedure TfrmSetSatTeklifDurum.RefreshData();
 begin
-  //control i�eri�ini table class ile doldur
   edtteklif_durum.Text := TSetSatTeklifDurum(Table).TeklifDurum.AsString;
   edtaciklama.Text := TSetSatTeklifDurum(Table).Aciklama.AsString;
   chkis_aktif.Checked := TSetSatTeklifDurum(Table).IsAktif.AsBoolean;

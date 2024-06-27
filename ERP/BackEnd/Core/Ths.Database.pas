@@ -7,10 +7,11 @@ interface
 uses
   System.DateUtils, System.StrUtils, System.Classes, System.SysUtils,
   System.Variants, System.Rtti, Vcl.Forms, Vcl.Dialogs, Data.DB,
-  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
-  FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys,
-  FireDAC.VCLUI.Wait, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt,
-  FireDAC.Phys.PGDef, FireDAC.Comp.Client, FireDAC.Phys.PG, FireDAC.Comp.DataSet,
+  FireDAC.Phys, FireDAC.Phys.Intf, FireDAC.Phys.PGDef, FireDAC.Phys.PG,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Stan.Param, FireDAC.UI.Intf,
+  FireDAC.VCLUI.Wait, FireDAC.DatS, FireDAC.DApt, FireDAC.Comp.Client,
+  FireDAC.Comp.DataSet,
   Ths.Database.Sql.Builder;
 
 {$M+}
@@ -22,13 +23,14 @@ type
   TDatabase = class
   private
     FConnection: TFDConnection;
+    FEventAlerter: TFDEventAlerter;
     FPhysPG: TFDPhysPgDriverLink;
     FQueryOfDatabase: TFDQuery;
     FSQLBuilder: TThsSqlBuilder;
 
     FNewRecordId: Integer;
 
-    FDateDB: TDate; //Used for today date controls. Data came from the SQL server during the login process
+    FDateDB: TDate;//Used for today date controls. Data came from the SQL server during the login process
   protected
     property QueryOfDataBase: TFDQuery read FQueryOfDatabase;
 
@@ -39,8 +41,11 @@ type
     procedure ConnOnStartTransaction(Sender: TObject);
     procedure ConnOnCommit(Sender: TObject);
     procedure ConnOnRollback(Sender: TObject);
+
+    procedure DoAlert(ASender: TFDCustomEventAlerter; const AEventName: string; const AArgument: Variant);
   public
     property Connection: TFDConnection read FConnection write FConnection;
+    property EventAlerter: TFDEventAlerter read FEventAlerter write FEventAlerter;
     property NewRecordId: Integer read FNewRecordId write FNewRecordId;
     property DateDB: TDate read FDateDB write FDateDB;
 
@@ -53,6 +58,9 @@ type
     function NewStoredProcedure(AConnection: TFDConnection = nil): TFDStoredProc;
     function NewDataSource(ADataset: TDataSet): TDataSource;
     function NewConnection: TFDConnection;
+
+    procedure AddListenEventName(AEventName: string);
+    procedure RemoveListenEventName(AEventName: string; AForm: TForm);
   published
     destructor Destroy; override;
     function GetToday: TDateTime;
@@ -63,8 +71,19 @@ type
 implementation
 
 uses
-  Ths.Globals,
-  Ths.Database.Table;
+  Ths.Globals, Ths.Database.Table, ufrmBaseDBGrid;
+
+procedure TDatabase.AddListenEventName(AEventName: string);
+begin
+  //Aktif ise önce Pasif yapıp Names kısmını dolduruyoruz.
+  //Active işleminde Names içindeki bilgileri dinliyor. Sonradan ekleme ile çalışmıyor
+//  if Self.EventAlerter.Active then
+    Self.EventAlerter.Active := False;
+//  if Self.EventAlerter.Names.IndexOf(AEventName) = -1 then
+//    Self.EventAlerter.Names.Add(AEventName);
+//  if not Self.EventAlerter.Active then
+//    Self.EventAlerter.Active := True;
+end;
 
 procedure TDatabase.ConfigureConnection(AHostName, ADatabase, AUser, APassword: string; APort: Integer);
 begin
@@ -131,8 +150,6 @@ begin
   begin
     inherited;
 
-    GUygulamaAnaDizin := ExtractFilePath(Application.ExeName);
-
     FConnection := TFDConnection.Create(nil);
     FConnection.BeforeConnect       := ConnBeforeConnect;
     FConnection.BeforeDisconnect    := ConnBeforeDisconnect;
@@ -141,6 +158,14 @@ begin
     FConnection.BeforeStartTransaction := ConnOnStartTransaction;
     FConnection.AfterCommit         := ConnOnCommit;
     FConnection.AfterRollback       := ConnOnRollback;
+
+    EventAlerter := TFDEventAlerter.Create(nil);
+    EventAlerter.Connection := FConnection;
+    EventAlerter.OnAlert := DoAlert;
+    EventAlerter.Options.Kind := 'Notifies';
+    EventAlerter.Options.Synchronize := True;
+    EventAlerter.Options.Timeout := 10000;
+
 
     FQueryOfDatabase := NewQuery;
 
@@ -154,7 +179,44 @@ begin
   FQueryOfDatabase.Free;
   FConnection.Free;
   FPhysPG.Free;
+  FEventAlerter.Free;
   inherited;
+end;
+
+procedure TDatabase.DoAlert(ASender: TFDCustomEventAlerter; const AEventName: string; const AArgument: Variant);
+var
+  n1: Integer;
+  x: TObject;
+begin
+  if AEventName <> '' then
+  begin
+    x := TObject.Create;
+    try
+      System.TMonitor.Enter(x);
+      ShowMessage('Event ' + AEventName);
+
+      for n1 := 0 to Screen.FormCount-1 do
+      begin
+        if Screen.Forms[n1].ClassType = TfrmBaseDBGrid then
+        begin
+          if TfrmBaseDBGrid(Screen.Forms[n1]).Table.TableName = AEventName then
+          begin
+            ShowMessage('Event ' + AEventName+  AddLBs(2) + System.Variants.VarToStr(AArgument[0]) );
+            if  Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd)
+            and Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource)
+            and Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource.DataSet)
+            then
+              TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource.DataSet.Refresh;
+          end;
+        end;
+      end;
+    finally
+      System.TMonitor.Exit(x);
+      x.Free;
+    end;
+  end
+  else
+    ShowMessage('Else Event');
 end;
 
 function TDatabase.GetNewRecordId: Integer;
@@ -225,6 +287,26 @@ begin
     Result.Connection := Self.FConnection
   else
     Result.Connection := AConnection;
+end;
+
+procedure TDatabase.RemoveListenEventName(AEventName: string; AForm: TForm);
+//var
+//  n1: Integer;
+begin
+  Self.EventAlerter.Active := False;
+  Self.EventAlerter.Names.Delete(Self.EventAlerter.Names.IndexOf(AEventName));
+//  for n1 := 0 to Screen.FormCount-1 do
+//  begin
+//    if Screen.Forms[n1].ClassType = Self.ClassType then
+//    begin
+//      if Screen.Forms[n1] <> AForm then
+//      begin
+//        Self.EventAlerter.Names.Add(AEventName);
+//        Break;
+//      end;
+//    end;
+//  end;
+//  Self.EventAlerter.Active := (Self.EventAlerter.Names.Count > 0);
 end;
 
 function TDatabase.NewDataSource(ADataset: TDataSet): TDataSource;

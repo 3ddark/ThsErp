@@ -38,7 +38,7 @@ type
     FStokKodu: TFieldDB;
     FMiktar: TFieldDB;
     FFireOrani: TFieldDB;
-    //veri taban� alan� de�il join
+    //not a database field
     FReceteKodu: TFieldDB;
     FStokAdi: TFieldDB;
     FOlcuBirimi: TFieldDB;
@@ -65,7 +65,7 @@ type
     Property StokKodu: TFieldDB read FStokKodu write FStokKodu;
     Property Miktar: TFieldDB read FMiktar write FMiktar;
     Property FireOrani: TFieldDB read FFireOrani write FFireOrani;
-    //veri taban� alan� de�il join
+    //not a database field
     Property ReceteKodu: TFieldDB read FReceteKodu write FReceteKodu;
     Property StokAdi: TFieldDB read FStokAdi write FStokAdi;
     Property OlcuBirimi: TFieldDB read FOlcuBirimi write FOlcuBirimi;
@@ -77,7 +77,7 @@ type
     FHeaderID: TFieldDB;
     FGiderKodu: TFieldDB;
     FMiktar: TFieldDB;
-    //veri taban� alan� de�il join
+    //not a database field
     FGiderAdi: TFieldDB;
     FOlcuBirimi: TFieldDB;
     FFiyat: TFieldDB;
@@ -100,7 +100,7 @@ type
     Property HeaderID: TFieldDB read FHeaderID write FHeaderID;
     Property GiderKodu: TFieldDB read FGiderKodu write FGiderKodu;
     Property Miktar: TFieldDB read FMiktar write FMiktar;
-    //veri taban� alan� de�il join
+    //not a database field
     Property GiderAdi: TFieldDB read FGiderAdi write FGiderAdi;
     Property Birim: TFieldDB read FOlcuBirimi write FOlcuBirimi;
     Property Fiyat: TFieldDB read FFiyat write FFiyat;
@@ -112,7 +112,7 @@ type
     FStokKodu: TFieldDB;
     FMiktar: TFieldDB;
     FFireOrani: TFieldDB;
-    //veri taban� alan� de�il join
+    //not a database field
     FStokAdi: TFieldDB;
     FOlcuBirimi: TFieldDB;
     FFiyat: TFieldDB;
@@ -136,7 +136,7 @@ type
     Property StokKodu: TFieldDB read FStokKodu write FStokKodu;
     Property Miktar: TFieldDB read FMiktar write FMiktar;
     Property FireOrani: TFieldDB read FFireOrani write FFireOrani;
-    //veri taban� alan� de�il join
+    //not a database field
     Property StokAdi: TFieldDB read FStokAdi write FStokAdi;
     Property OlcuBirimi: TFieldDB read FOlcuBirimi write FOlcuBirimi;
     Property Fiyat: TFieldDB read FFiyat write FFiyat;

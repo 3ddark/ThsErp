@@ -24,7 +24,7 @@ type
     FBirimID: TFieldDB;
     FBirim: TFieldDB;
     FGiderTipi: TFieldDB;
-    //veri taban� alan� de�il
+    //not a database field
     FGiderTipiAdi: TFieldDB;
   published
     FSysUnit: TSysOlcuBirimi;

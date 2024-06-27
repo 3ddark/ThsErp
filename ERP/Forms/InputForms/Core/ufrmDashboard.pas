@@ -941,6 +941,7 @@ begin
                   LKurOK := True;
                   Break;
                 end;
+            Self.Show;
           end;
         end;
 
@@ -966,7 +967,8 @@ begin
       LDovizKuru.Free;
     end;
   end;
-  BringWindowToTop(Self.Handle)
+//  BringWindowToTop(Self.Handle);
+  SetFocusedControl(Self);
 end;
 
 procedure TfrmDashboard.FormClose(Sender: TObject; var Action: TCloseAction);

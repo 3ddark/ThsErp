@@ -113,7 +113,7 @@ begin
     begin
       if TEdit(Sender).Name = edtgider_kodu.Name then
       begin
-        //Son hesap hane say�s� > 2 olanlarla i�lem yap.
+        //Son hesap hane saysı > 2 olanlarla işlem yap.
         LHesapKarti := TChHesapKarti.Create(Table.Database);
         LFrmHesapKarti := TfrmHesapKartlari.Create(TEdit(Sender), Self, LHesapKarti, fomNormal, True);
         try

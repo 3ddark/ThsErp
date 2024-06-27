@@ -29,7 +29,7 @@ type
     FStokKodu: TFieldDB;
     FMiktar: TFieldDB;
     FFireOrani: TFieldDB;
-    //veri taban� alan� de�il join
+    //not a database field
     FReceteKodu: TFieldDB;
     FStokAdi: TFieldDB;
     FOlcuBirimi: TFieldDB;
@@ -56,7 +56,7 @@ type
     Property StokKodu: TFieldDB read FStokKodu write FStokKodu;
     Property Miktar: TFieldDB read FMiktar write FMiktar;
     Property FireOrani: TFieldDB read FFireOrani write FFireOrani;
-    //veri taban� alan� de�il join
+    //not a database field
     Property ReceteKodu: TFieldDB read FReceteKodu write FReceteKodu;
     Property StokAdi: TFieldDB read FStokAdi write FStokAdi;
     Property OlcuBirimi: TFieldDB read FOlcuBirimi write FOlcuBirimi;

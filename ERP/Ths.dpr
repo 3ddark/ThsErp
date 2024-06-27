@@ -294,6 +294,8 @@ begin
   Application.Initialize;
   Application.DefaultFont.Name := 'Tahoma';
 
+  GUygulamaAnaDizin := ExtractFilePath(Application.ExeName);
+
   Application.UpdateFormatSettings := False;
   Formatsettings.ThousandSeparator := '.';
   Formatsettings.DecimalSeparator := ',';

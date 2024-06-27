@@ -94,49 +94,49 @@ type
 
   TStringGrid = class(Vcl.Grids.TStringGrid)
   private
-    FSortCol: SmallInt; //s�ralama yap�lan column no
-    FSortType: TSortMode; //yap�lan s�ralama bilgisi
+    FSortCol: SmallInt; //sıralama yapılan column no
+    FSortType: TSortMode; //yapılan sıralama bilgisi
 
-    FColResized: Boolean; //Sort i�lemi i�in kullan�l�yor.
+    FColResized: Boolean; //Sort işlemi için kullanılıyor.
 
-    //Sort arrow i�in kullan�lan renk
+    //Sort arrow için kullanılan renk
     FSortArrowBorderColor: TColor;
     FSortArrowBackColor: TColor;
 
-    //checkbox i�in daha sonra kullan�lacak
+    //checkbox için daha sonra kullanılacak
     FCheck: TBitmap;
     FNoCheck: TBitmap;
 
-    //ko�ullu renklendirme i�in kullan�lan event
+    //koşullu renklendirme için kullanılan event
     FOnConditionDrawCell: TOnConditionDrawCell;
 
     FCellStyles: array of TCellLine; //array of array of TThsStyle
-    FDefaultFixedCellStyle: TThsStyle;  //fix h�creler i�in �zel stil tan�mlanmam��sa kullan�lacak olan stil
+    FDefaultFixedCellStyle: TThsStyle;  //fix hücreler için özel stil tanımlanmamışsa kullanılacak olan stil
     FDefaultCellStyle: TThsStyle;
-    FAutoColSize: Boolean; //normal h�creler i�in �zel stil tan�mlanmam��sa kullan�lacak olan stil
+    FAutoColSize: Boolean; //normal hücreler için özel stil tanımlanmamışsa kullanılacak olan stil
 
-    //varsay�lan h�cre stilleri i�in kullan
+    //varsayılan hücre stilleri için kullan
     procedure SetDefaultCellStyle(const Value: TThsStyle);
     function  GetDefaultCellStyle: TThsStyle;
     procedure SetDefaultFixedCellStyle(const Value: TThsStyle);
     function  GetDefaultFixedCellStyle: TThsStyle;
 
-    //�zel boyama yap�lan h�creler i�in kullan
+    //özel boyama yapılan hücreler için kullan
     function GetCellStyles(ACol, ARow: Integer): TThsStyle;
     procedure SetCellStyles(ACol, ARow: Integer; const Value: TThsStyle);
     procedure SetCellStyleCol(ACol: Integer; FixRow: Boolean; const Value: TThsStyle);
     procedure SetCellStyleRow(ARow: Integer; FixCol: Boolean; const Value: TThsStyle);
-    //ilk tan�mlamalar create an�nda kullan
+    //ilk tanımlamalar create anında kullan
     procedure Initialize;
 
     procedure SetColCount(Value: Longint);
     procedure SetRowCount(Value: Longint);
     procedure SetCellCount(OldColCount, NewColCount, OldRowCount, NewRowCount: Integer);
 
-    procedure DrawFixedRowNumber; //fixed row no yazd�rma
+    procedure DrawFixedRowNumber;
     procedure DrawSortArrow(ARect: TRect; ASort: TSortMode; AAlign: TAlignment);
     function GetColCount: integer;
-    function GetRowCount: integer;  //sort y�n oku �iz
+    function GetRowCount: integer;
   protected
     procedure DrawCell(ACol: Integer; ARow: Integer; ARect: TRect; AState: TGridDrawState); override;
     procedure ColumnMoved(FromIndex: Integer; ToIndex: Integer); override;
@@ -175,7 +175,7 @@ type
     property SortCol: SmallInt read FSortCol write FSortCol;
     property SortType: TSortMode read FSortType write FSortType;
 
-    procedure DrawFixedRowNumbers; //fixed row no yazd�rma
+    procedure DrawFixedRowNumbers;
 
     function SelectCell(ACol, ARow: Longint): Boolean; override;
 
@@ -629,7 +629,7 @@ begin
   end;
 
   // Draw Checkbox
-  // Daha sonra aktif edilecek �u anda veri tipi boolean ise ve h�cre bilgisi true='TRUE' false='FALSE' bilgisi tan�ml� de�il
+  // Daha sonra aktif edilecek şu anda veri tipi boolean ise ve hücre bilgisi true='TRUE' false='FALSE' bilgisi tanımlı değil
 //  if FColDataTypes[ACol] = ctBoolean then
 //  begin
 //    if (ARow + 1 > FixedRows) and ((Cells[ACol, ARow] = 'TRUE') or (Cells[ACol, ARow] = 'FALSE')) then
@@ -938,7 +938,7 @@ begin
   begin
     MouseToCell(X, Y, ACol, ARow);
     if FixedCols - 1 < ACol then
-      if ARow > -1 then // s�n�r d���nda t�klama olursa
+      if ARow > -1 then // sınır dışında tıklama olursa
         if ARow <= FixedRows - 1 then
           SortStringGrid(ACol);
   end;

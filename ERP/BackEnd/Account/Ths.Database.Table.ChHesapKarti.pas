@@ -53,7 +53,7 @@ type
     FEFaturaPBName: TFieldDB;
     FAdresID: TFieldDB;
     FPasif: TFieldDB;
-    //db alan� de�il
+    //not a database field
     FSeviyeSayisi: TFieldDB;
 
     FAdres: TSysAdres;
@@ -119,7 +119,7 @@ type
     Property EFaturaPBName: TFieldDB read FEFaturaPBName write FEFaturaPBName;
     Property AdresID: TFieldDB read FAdresID write FAdresID;
     Property Pasif: TFieldDB read FPasif write FPasif;
-    //db alan� de�il
+    //not a database field
     Property SeviyeSayisi: TFieldDB read FSeviyeSayisi write FSeviyeSayisi;
 
     Property Adres: TSysAdres read FAdres write FAdres;
@@ -142,17 +142,17 @@ begin
   FSysParaBirimi := TSysParaBirimi.Create(Database);
 
   FHesapKodu := TFieldDB.Create('hesap_kodu', ftString, '', Self, 'Hesap Kodu');
-  FHesapIsmi := TFieldDB.Create('hesap_ismi', ftString, '', Self, 'Hesap �smi');
+  FHesapIsmi := TFieldDB.Create('hesap_ismi', ftString, '', Self, 'Hesap İsmi');
   FHesapTipiID := TFieldDB.Create('hesap_tipi_id', ftInteger, 0, Self, 'Hesap Tipi ID');
   FHesapTipi := TFieldDB.Create(FSetChHesapTipi.HesapTipi.FieldName, FSetChHesapTipi.HesapTipi.DataType, FSetChHesapTipi.HesapTipi.Value, Self, FSetChHesapTipi.HesapTipi.Title);
   FGrupID := TFieldDB.Create('grup_id', ftInteger, 0, Self, 'Grup ID');
   FGrup := TFieldDB.Create(FChGrup.Grup.FieldName, FChGrup.Grup.DataType, FChGrup.Grup.Value, Self, FChGrup.Grup.Title);
-  FBolgeID := TFieldDB.Create('bolge_id', ftInteger, 0, Self, 'B�lge ID');
+  FBolgeID := TFieldDB.Create('bolge_id', ftInteger, 0, Self, 'Bölge ID');
   FBolge := TFieldDB.Create(FChBolge.Bolge.FieldName, FChBolge.Bolge.DataType, FChBolge.Bolge.Value, Self, FChBolge.Bolge.Title);
-  FMukellefTipi := TFieldDB.Create('mukellef_tipi', ftSmallint, 0, Self, 'M�kellef Tipi');
-  FMukellefAdi := TFieldDB.Create('mukellef_adi', ftString, '', Self, 'M�kellef Ad�');
-  FMukellefAdi2 := TFieldDB.Create('mukellef_adi2', ftString, '', Self, 'M�kellef Ad� 2');
-  FMukellefSoyadi := TFieldDB.Create('mukellef_soyadi', ftString, '', Self, 'M�kellef Soyad�');
+  FMukellefTipi := TFieldDB.Create('mukellef_tipi', ftSmallint, 0, Self, 'Mükellef Tipi');
+  FMukellefAdi := TFieldDB.Create('mukellef_adi', ftString, '', Self, 'Mükellef Adı');
+  FMukellefAdi2 := TFieldDB.Create('mukellef_adi2', ftString, '', Self, 'Mükellef Adı 2');
+  FMukellefSoyadi := TFieldDB.Create('mukellef_soyadi', ftString, '', Self, 'Mükellef Soyadı');
   FVergiDairesi := TFieldDB.Create('vergi_dairesi', ftString, '', Self, 'Vergi Dairesi');
   FVergiNo := TFieldDB.Create('vergi_no', ftString, '', Self, 'Vergi No');
   FIban := TFieldDB.Create('iban', ftString, '', Self, 'IBAN');
@@ -168,12 +168,12 @@ begin
   FMuhasebeTelefon := TFieldDB.Create('muhasebe_telefon', ftString, '', Self, 'Muhasebe Telefon');
   FMuhasebeEmail := TFieldDB.Create('muhasebe_email', ftString, '', Self, 'Muhasebe Email');
   FMuhasebeYetkili := TFieldDB.Create('muhasebe_yetkili', ftString, '', Self, 'Muhasebe Yetkili');
-  FOzelNot := TFieldDB.Create('ozel_not', ftString, '', Self, '�zel Bilgi');
-  FKokKod := TFieldDB.Create('kok_kod', ftString, '', Self, 'K�k Kodu');
+  FOzelNot := TFieldDB.Create('ozel_not', ftString, '', Self, 'Özel Bilgi');
+  FKokKod := TFieldDB.Create('kok_kod', ftString, '', Self, 'Kök Kodu');
   FAraKod := TFieldDB.Create('ara_kod', ftString, '', Self, 'Ara Kodu');
-  FIskonto := TFieldDB.Create('iskonto', ftFloat, 0, Self, '�skonto');
+  FIskonto := TFieldDB.Create('iskonto', ftFloat, 0, Self, 'İskonto');
   FEFaturaKullaniyor := TFieldDB.Create('efatura_kullaniyor', ftBoolean, False, Self, 'E-Fatura?');
-  FEFaturaPBName := TFieldDB.Create('efatura_pb_name', ftString, '', Self, 'E-Fatura PK Ad�');
+  FEFaturaPBName := TFieldDB.Create('efatura_pb_name', ftString, '', Self, 'E-Fatura PK Adı');
   FAdresID := TFieldDB.Create('adres_id', ftInteger, 0, Self, 'Adres ID');
   FPasif := TFieldDB.Create('pasif', ftBoolean, False, Self, 'Pasif?');
   FSeviyeSayisi := TFieldDB.Create(FChHesapPlani.Seviye.FieldName, FChHesapPlani.Seviye.DataType, FChHesapPlani.Seviye.Value, Self, FChHesapPlani.Seviye.Title);

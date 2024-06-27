@@ -129,7 +129,7 @@ type
     FKDVTutar5: TFieldDB;
     FGenelToplam: TFieldDB;
     FIslemTipiID: TFieldDB;
-    FIslemTipi: TFieldDB; //veri taban� alan� de�il not a database field
+    FIslemTipi: TFieldDB; //not a database field
     FSiparisNo: TFieldDB;
     FSiparisTarihi: TFieldDB;
     FTeslimTarihi: TFieldDB;
@@ -138,9 +138,9 @@ type
     FVergiDairesi: TFieldDB;
     FVergiNo: TFieldDB;
     FUlkeID: TFieldDB;
-    FUlke: TFieldDB; //veri taban� alan� de�il not a database field
+    FUlke: TFieldDB; //not a database field
     FSehirID: TFieldDB;
-    FSehir: TFieldDB; //veri taban� alan� de�il not a database field
+    FSehir: TFieldDB; //not a database field
     FIlce: TFieldDB;
     FMahalle: TFieldDB;
     FCadde: TFieldDB;
@@ -149,7 +149,7 @@ type
     FBinaAdi: TFieldDB;
     FKapiNo: TFieldDB;
     FMusteriTemsilcisiID: TFieldDB;
-    FMusteriTemsilcisi: TFieldDB; //veri taban� alan� de�il not a database field
+    FMusteriTemsilcisi: TFieldDB; //not a database field
     FMuhattapAd: TFieldDB;
     FReferans: TFieldDB;
     FParaBirimi: TFieldDB;
@@ -158,15 +158,15 @@ type
     FAciklama: TFieldDB;
     FProformaNo: TFieldDB;
     FSiparisDurumID: TFieldDB;
-    FSiparisDurum: TFieldDB; //veri taban� alan� de�il not a database field
+    FSiparisDurum: TFieldDB; //not a database field
     FTeslimSekliID: TFieldDB;
-    FTeslimSekli: TFieldDB; //veri taban� alan� de�il not a database field
+    FTeslimSekli: TFieldDB; //not a database field
     FOdemeSekliID: TFieldDB;
-    FOdemeSekli: TFieldDB;  //veri taban� alan� de�il not a database field
+    FOdemeSekli: TFieldDB;  //not a database field
     FPaketTipiID: TFieldDB;
-    FPaketTipi: TFieldDB;  //veri taban� alan� de�il not a database field
+    FPaketTipi: TFieldDB;  //not a database field
     FTasimaUcretiID: TFieldDB;
-    FTasimaUcreti: TFieldDB;  //veri taban� alan� de�il not a database field
+    FTasimaUcreti: TFieldDB;  //not a database field
   protected
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
     procedure BusinessInsert(APermissionControl: Boolean); override;
@@ -223,7 +223,7 @@ type
     Property KDVTutar5: TFieldDB read FKDVTutar5 write FKDVTutar5;
     Property GenelToplam: TFieldDB read FGenelToplam write FGenelToplam;
     Property IslemTipiID: TFieldDB read FIslemTipiID write FIslemTipiID;
-    Property IslemTipi: TFieldDB read FIslemTipi write FIslemTipi;  //veri taban� alan� de�il not a database field
+    Property IslemTipi: TFieldDB read FIslemTipi write FIslemTipi;  //not a database field
     Property SiparisNo: TFieldDB read FSiparisNo write FSiparisNo;
     Property SiparisTarihi: TFieldDB read FSiparisTarihi write FSiparisTarihi;
     Property TeslimTarihi: TFieldDB read FTeslimTarihi write FTeslimTarihi;
@@ -232,9 +232,9 @@ type
     Property VergiDairesi: TFieldDB read FVergiDairesi write FVergiDairesi;
     Property VergiNo: TFieldDB read FVergiNo write FVergiNo;
     Property UlkeID: TFieldDB read FUlkeID write FUlkeID;
-    Property Ulke: TFieldDB read FUlke write FUlke;  //veri taban� alan� de�il not a database field
+    Property Ulke: TFieldDB read FUlke write FUlke;  //not a database field
     Property SehirID: TFieldDB read FSehirID write FSehirID;
-    Property Sehir: TFieldDB read FSehir write FSehir;  //veri taban� alan� de�il not a database field
+    Property Sehir: TFieldDB read FSehir write FSehir;  //not a database field
     Property Ilce: TFieldDB read FIlce write FIlce;
     Property Mahalle: TFieldDB read FMahalle write FMahalle;
     Property Cadde: TFieldDB read FCadde write FCadde;
@@ -243,7 +243,7 @@ type
     Property BinaAdi: TFieldDB read FBinaAdi write FBinaAdi;
     Property KapiNo: TFieldDB read FKapiNo write FKapiNo;
     Property MusteriTemsilcisiID: TFieldDB read FMusteriTemsilcisiID write FMusteriTemsilcisiID;
-    Property MusteriTemsilcisi: TFieldDB read FMusteriTemsilcisi write FMusteriTemsilcisi;  //veri taban� alan� de�il not a database field
+    Property MusteriTemsilcisi: TFieldDB read FMusteriTemsilcisi write FMusteriTemsilcisi;  //not a database field
     Property MuhattapAd: TFieldDB read FMuhattapAd write FMuhattapAd;
     Property Referans: TFieldDB read FReferans write FReferans;
     Property ParaBirimi: TFieldDB read FParaBirimi write FParaBirimi;
@@ -252,15 +252,15 @@ type
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
     Property ProformaNo: TFieldDB read FProformaNo write FProformaNo;
     Property SiparisDurumID: TFieldDB read FSiparisDurumID write FSiparisDurumID;
-    Property SiparisDurum: TFieldDB read FSiparisDurum write FSiparisDurum;  //veri taban� alan� de�il not a database field
+    Property SiparisDurum: TFieldDB read FSiparisDurum write FSiparisDurum;  //not a database field
     Property TeslimSekliID: TFieldDB read FTeslimSekliID write FTeslimSekliID;
-    Property TeslimSekli: TFieldDB read FTeslimSekli write FTeslimSekli;  //veri taban� alan� de�il not a database field
+    Property TeslimSekli: TFieldDB read FTeslimSekli write FTeslimSekli;  //not a database field
     Property OdemeSekliID: TFieldDB read FOdemeSekliID write FOdemeSekliID;
-    Property OdemeSekli: TFieldDB read FOdemeSekli write FOdemeSekli; //veri taban� alan� de�il not a database field
+    Property OdemeSekli: TFieldDB read FOdemeSekli write FOdemeSekli; //not a database field
     Property PaketTipiID: TFieldDB read FPaketTipiID write FPaketTipiID;
-    Property PaketTipi: TFieldDB read FPaketTipi write FPaketTipi;  //veri taban� alan� de�il not a database field
+    Property PaketTipi: TFieldDB read FPaketTipi write FPaketTipi;  //not a database field
     Property NakliyeUcretiID: TFieldDB read FTasimaUcretiID write FTasimaUcretiID;
-    Property NakliyeUcreti: TFieldDB read FTasimaUcreti write FTasimaUcreti;  //veri taban� alan� de�il not a database field
+    Property NakliyeUcreti: TFieldDB read FTasimaUcreti write FTasimaUcreti;  //not a database field
   end;
 
 implementation
@@ -566,7 +566,7 @@ begin
   FKDVTutar5 := TFieldDB.Create('kdv_tutar5', ftBCD, 0, Self, 'KDV Tutar 5');
   FGenelToplam := TFieldDB.Create('genel_toplam', ftBCD, 0, Self, 'Genel Toplam');
   FIslemTipiID := TFieldDB.Create('islem_tipi_id', ftInteger, 0, Self, 'İşlem Tipi ID');
-  FIslemTipi := TFieldDB.Create(FFaturaTipi.FaturaTipi.FieldName, FFaturaTipi.FaturaTipi.DataType, '', Self, '��lem Tipi');
+  FIslemTipi := TFieldDB.Create(FFaturaTipi.FaturaTipi.FieldName, FFaturaTipi.FaturaTipi.DataType, '', Self, 'İşlem Tipi');
   FSiparisNo := TFieldDB.Create('siparis_no', ftString, '', Self, 'Sipariş No');
   FSiparisTarihi := TFieldDB.Create('siparis_tarihi', ftDateTime, 0, Self, 'Sipariş Tarihi');
   FTeslimTarihi := TFieldDB.Create('teslim_tarihi', ftDateTime, 0, Self, 'Teslim Tarihi');

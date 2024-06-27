@@ -222,7 +222,7 @@ begin
   begin
     InflateRect(Rect, -4, -4);
 
-    //ferhat yaz�y� dikey olarak ortalamas� i�in bu sat�r eklendi.
+    //ferhat yazıyı dikey olarak ortalaması için bu satır eklendi.
     if (Rect.Bottom - Rect.Top) > FCanvas.TextHeight(NewCaption) then
       InflateRect(Rect, 0, ( -1* (Rect.Top+((((Rect.Bottom - Rect.Top) div 2) - FCanvas.TextHeight(NewCaption)) div 2)) ));
 

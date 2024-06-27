@@ -336,7 +336,7 @@ end;
 
 procedure TSysUygulamaAyari.Delete(APermissionControl: Boolean);
 begin
-  raise Exception.Create('Bu kay�t silinemez!' + AddLBs + self.ClassName);
+  raise Exception.Create('Bu kayıt silinemez!' + AddLBs + self.ClassName);
 end;
 
 destructor TSysUygulamaAyari.Destroy;

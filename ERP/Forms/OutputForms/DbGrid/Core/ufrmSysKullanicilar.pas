@@ -66,7 +66,7 @@ begin
   begin
     LFromUserID := LUsr.Id.Value;
     LFromUser := LUsr.KullaniciAdi.Value;
-    if CustomMsgDlg('Se�ilen ' + LFromUser + ' kullan�c�s�n�n haklar� ' + TSysKullanici(Table).KullaniciAdi.Value + ' kullan�c�s�na kopyalanacak.' + AddLBs(2) + '��leme devam etmek istiyor musun?', mtConfirmation, mbYesNo, [TranslateText('Yes', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem), TranslateText('No', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo, TranslateText('Confirmation', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes then
+    if CustomMsgDlg('Seçilen ' + LFromUser + ' kullanıcısının hakları ' + TSysKullanici(Table).KullaniciAdi.Value + ' kullanıcısına kopyalanacak.' + AddLBs(2) + 'İşleme devam etmek istiyor musun?', mtConfirmation, mbYesNo, [TranslateText('Yes', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem), TranslateText('No', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo, TranslateText('Confirmation', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes then
       TSysKullanici(Table).CopyFromRights(LFromUserID, TSysKullanici(Table).Id.Value);
   end;
 end;

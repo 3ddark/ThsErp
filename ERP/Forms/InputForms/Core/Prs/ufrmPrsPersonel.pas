@@ -559,14 +559,14 @@ begin
       else
         TPrsPersonel(Table).PersonelTipiID.Value := 0;
 
-      //b�l�m, birim ve g�rev helper form ile geliyor
+      //bölüm, birim ve görev helper form ile geliyor
       TPrsPersonel(Table).GenelNot.Value := mmogenel_not.Text;
       if (cbbtasima_servisi_id.ItemIndex > -1) and Assigned(cbbtasima_servisi_id.Items.Objects[cbbtasima_servisi_id.ItemIndex]) then
         TPrsPersonel(Table).TasimaServisID.Value := TSetPrsTasimaServisi(cbbtasima_servisi_id.Items.Objects[cbbtasima_servisi_id.ItemIndex]).Id.Value
       else
         TPrsPersonel(Table).TasimaServisID.Value := 0;
 
-      //ulke ve �ehir helper form ile geliyor
+      //ulke ve şehir helper form ile geliyor
       TPrsPersonel(Table).Adres.Ilce.Value := edtilce.Text;
       TPrsPersonel(Table).Adres.Mahalle.Value := edtmahalle.Text;
       TPrsPersonel(Table).Adres.Semt.Value := edtsemt.Text;

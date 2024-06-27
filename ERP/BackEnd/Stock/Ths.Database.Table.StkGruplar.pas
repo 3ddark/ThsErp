@@ -22,11 +22,11 @@ type
     FHammaddeStokHesapKodu: TFieldDB;
     FHammaddeKullanimHesapKodu: TFieldDB;
     FYariMamulHesapKodu: TFieldDB;
-    //veri taban� de�il
+    //veri tabanı değil
     FHammaddeStokHesapAdi: TFieldDB;
     FHammaddeKullanimHesapAdi: TFieldDB;
     FYariMamulHesapAdi: TFieldDB;
-    //vergi oranlar� tablosundan geliyor
+    //vergi oranları tablosundan geliyor
     FSatisHesapKodu: TFieldDB;
     FSatisHesapAdi: TFieldDB;
     FSatisIadeHesapKodu: TFieldDB;
@@ -54,11 +54,11 @@ type
     Property HammaddeStokHesapKodu: TFieldDB read FHammaddeStokHesapKodu write FHammaddeStokHesapKodu;
     Property HammaddeKullanimHesapKodu: TFieldDB read FHammaddeKullanimHesapKodu write FHammaddeKullanimHesapKodu;
     Property YariMamulHesapKodu: TFieldDB read FYariMamulHesapKodu write FYariMamulHesapKodu;
-    //veri taban� de�il
+    //veri tabanı değil
     Property HammaddeStokHesapAdi: TFieldDB read FHammaddeStokHesapAdi write FHammaddeStokHesapAdi;
     Property HammaddeKullanimHesapAdi: TFieldDB read FHammaddeKullanimHesapAdi write FHammaddeKullanimHesapAdi;
     Property YariMamulHesapAdi: TFieldDB read FYariMamulHesapAdi write FYariMamulHesapAdi;
-    //vergi oranlar� tablosundan geliyor
+    //vergi oranları tablosundan geliyor
     Property SatisHesapKodu: TFieldDB read FSatisHesapKodu write FSatisHesapKodu;
     Property SatisHesapAdi: TFieldDB read FSatisHesapAdi write FSatisHesapAdi;
     Property SatisIadeHesapKodu: TFieldDB read FSatisIadeHesapKodu write FSatisIadeHesapKodu;
@@ -92,7 +92,7 @@ begin
   FHammaddeKullanimHesapAdi := TFieldDB.Create('hammadde_kullanim_hesap_adi', FCH.HesapIsmi.DataType, '', Self, 'Hammadde Kullanım Hesabı');
   FYariMamulHesapKodu := TFieldDB.Create('yari_mamul_hesap_kodu', ftWideString, '', Self, 'Yarı Mamül');
   FYariMamulHesapAdi := TFieldDB.Create('yari_mamul_hesap_adi', FCH.HesapIsmi.DataType, '', Self, 'Yarı Mamül Hesabı');
-  //vergi oranlar� tablosundan geliyor
+  //vergi oranları tablosundan geliyor
   FSatisHesapKodu := TFieldDB.Create(FSetChVergiOrani.SatisHesapKodu.FieldName, FSetChVergiOrani.SatisHesapKodu.DataType, FSetChVergiOrani.SatisHesapKodu.Value, Self, FSetChVergiOrani.SatisHesapKodu.Title);
   FSatisHesapAdi := TFieldDB.Create(FSetChVergiOrani.SatisHesapAdi.FieldName, FSetChVergiOrani.SatisHesapAdi.DataType, FSetChVergiOrani.SatisHesapAdi.Value, Self, FSetChVergiOrani.SatisHesapAdi.Title);
   FSatisIadeHesapKodu := TFieldDB.Create(FSetChVergiOrani.SatisIadeHesapKodu.FieldName, FSetChVergiOrani.SatisIadeHesapKodu.DataType, FSetChVergiOrani.SatisIadeHesapKodu.Value, Self, FSetChVergiOrani.SatisIadeHesapKodu.Title);

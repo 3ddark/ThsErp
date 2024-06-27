@@ -48,7 +48,6 @@ uses
 
 procedure TfrmSetChFirmaTuru.RefreshData();
 begin
-  //control i�eri�ini table class ile doldur
   edtfirma_turu.Text := TSetChFirmaTuru(Table).FirmaTuru.Value;
 end;
 
