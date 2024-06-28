@@ -6,12 +6,13 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
   Constraints.MinWidth = 450
   ExplicitWidth = 805
   ExplicitHeight = 554
+  PixelsPerInch = 96
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 789
     Height = 465
-    ExplicitWidth = 787
-    ExplicitHeight = 457
+    ExplicitWidth = 789
+    ExplicitHeight = 465
     inherited splLeft: TSplitter
       Left = 100
       Height = 389
@@ -35,19 +36,19 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
       TabOrder = 1
       ExplicitLeft = 0
       ExplicitTop = 36
-      ExplicitHeight = 381
+      ExplicitHeight = 389
     end
     inherited pnlHeader: TPanel
       Width = 785
       Caption = ''
       TabOrder = 0
-      ExplicitWidth = 783
+      ExplicitWidth = 785
       object lblFilterHelper: TLabel
         AlignWithMargins = True
         Left = 4
         Top = 4
         Width = 29
-        Height = 13
+        Height = 22
         Align = alLeft
         Alignment = taRightJustify
         Caption = 'Filtre'
@@ -58,6 +59,7 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         Font.Style = [fsBold]
         ParentFont = False
         Layout = tlCenter
+        ExplicitHeight = 13
       end
       object edtFilterHelper: TEdit
         AlignWithMargins = True
@@ -70,7 +72,6 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         OnChange = edtFilterHelperChange
         OnKeyDown = edtFilterHelperKeyDown
         OnKeyUp = edtFilterHelperKeyUp
-        ExplicitWidth = 740
         ExplicitHeight = 21
       end
     end
@@ -83,8 +84,8 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
       BevelOuter = bvNone
       ExplicitLeft = 103
       ExplicitTop = 36
-      ExplicitWidth = 684
-      ExplicitHeight = 381
+      ExplicitWidth = 686
+      ExplicitHeight = 389
       object grd: TDBGrid
         Left = 0
         Top = 0
@@ -132,8 +133,6 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 3
-      ExplicitTop = 417
-      ExplicitWidth = 787
       object pnlButtonRight: TPanel
         Left = 604
         Top = 0
@@ -142,7 +141,6 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 602
       end
       object pnlButtonLeft: TPanel
         Left = 0
@@ -152,7 +150,6 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 602
         object btnAddNew: TButton
           AlignWithMargins = True
           Left = 4
@@ -183,22 +180,22 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     Top = 467
     Width = 785
     TabOrder = 2
-    ExplicitTop = 459
-    ExplicitWidth = 783
+    ExplicitTop = 467
+    ExplicitWidth = 785
     inherited btnAccept: TButton
       Left = 579
-      ExplicitLeft = 577
+      ExplicitLeft = 579
     end
     inherited btnClose: TButton
       Left = 683
-      ExplicitLeft = 681
+      ExplicitLeft = 683
     end
   end
   inherited stbBase: TStatusBar
     Top = 497
     Width = 789
-    ExplicitTop = 489
-    ExplicitWidth = 787
+    ExplicitTop = 497
+    ExplicitWidth = 789
   end
   object pb1: TProgressBar [3]
     Left = 360
@@ -363,14 +360,5 @@ inherited frmBaseDBGrid: TfrmBaseDBGrid
     OnTimer = Timer1Timer
     Left = 248
     Top = 368
-  end
-  object qryBase: TFDQuery
-    Left = 392
-    Top = 264
-  end
-  object ds1: TDataSource
-    DataSet = qryBase
-    Left = 456
-    Top = 264
   end
 end

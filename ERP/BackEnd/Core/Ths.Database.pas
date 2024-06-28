@@ -294,7 +294,8 @@ procedure TDatabase.RemoveListenEventName(AEventName: string; AForm: TForm);
 //  n1: Integer;
 begin
   Self.EventAlerter.Active := False;
-  Self.EventAlerter.Names.Delete(Self.EventAlerter.Names.IndexOf(AEventName));
+  if Self.EventAlerter.Names.Count > 0 then
+    Self.EventAlerter.Names.Delete(Self.EventAlerter.Names.IndexOf(AEventName));
 //  for n1 := 0 to Screen.FormCount-1 do
 //  begin
 //    if Screen.Forms[n1].ClassType = Self.ClassType then

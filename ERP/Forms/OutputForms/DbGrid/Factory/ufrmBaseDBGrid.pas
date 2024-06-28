@@ -92,8 +92,6 @@ type
     Timer1: TTimer;
     pb1: TProgressBar;
     mniKolonGeniliklerineEkle1: TMenuItem;
-    qryBase: TFDQuery;
-    ds1: TDataSource;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
     procedure FormResize(Sender: TObject); override;
@@ -162,6 +160,9 @@ type
     procedure Timer1Timer(Sender: TObject);
     procedure mniKolonGeniliklerineEkle1Click(Sender: TObject);
   private
+    FQryGrd: TFDQuery;
+    FDsGrd: TDataSource;
+
     //for use HelperForm
     FIsHelper: Boolean;
     FDataAktar: Boolean;
@@ -632,9 +633,10 @@ begin
 
 
   //grid varsayılan font ve datasource tanımla
-  qryBase.Connection := Table.Database.Connection;
-  ds1.DataSet := qryBase;
-  grd.DataSource := ds1;
+  FQryGrd := Table.Database.NewQuery();
+  FDsGrd := TDataSource.Create(nil);
+  FDsGrd.DataSet := FQryGrd;
+  grd.DataSource := FDsGrd;
 
 
   FQryFiltreVarsayilan := GetGridDefaultOrderFilter( ReplaceRealColOrTableNameTo(Table.TableName), False);
@@ -648,6 +650,9 @@ end;
 
 procedure TfrmBaseDBGrid.FormDestroy(Sender: TObject);
 begin
+  FQryGrd.Free;
+  FDsGrd.Free;
+
   Table.Database.RemoveListenEventName(Table.TableName, Self);
 
   if FIsHelper then
@@ -1795,8 +1800,8 @@ begin
     else
     begin
       //helper formu ise hak kontrolü yapma.
-      qryBase.SQL.Text := Table.SelectToDatasource(FQryFiltreVarsayilan + FQryFiltreVarsayilanKullanici + FQrySiralamaVarsayilan, FIsHelper, False, FIsHelper);
-      qryBase.Open;
+      FQryGrd.SQL.Text := Table.SelectToDatasource(FQryFiltreVarsayilan + FQryFiltreVarsayilanKullanici + FQrySiralamaVarsayilan, FIsHelper, False, FIsHelper);
+      FQryGrd.Open;
     end;
 
     LTableName := ReplaceRealColOrTableNameTo(Table.TableName);
