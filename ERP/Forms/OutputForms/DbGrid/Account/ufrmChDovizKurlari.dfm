@@ -8,5 +8,10 @@ inherited frmChDovizKurlari: TfrmChDovizKurlari
     inherited splHeader: TSplitter
       ExplicitWidth = 789
     end
+    inherited pnlHeader: TPanel
+      inherited lblFilterHelper: TLabel
+        Height = 22
+      end
+    end
   end
 end

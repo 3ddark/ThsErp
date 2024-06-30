@@ -75,7 +75,7 @@ type
   TUrtReceteIscilik = class(TTable)
   private
     FHeaderID: TFieldDB;
-    FGiderKodu: TFieldDB;
+    FIscilikKodu: TFieldDB;
     FMiktar: TFieldDB;
     //not a database field
     FGiderAdi: TFieldDB;
@@ -98,7 +98,7 @@ type
     function Clone: TTable; override;
 
     Property HeaderID: TFieldDB read FHeaderID write FHeaderID;
-    Property GiderKodu: TFieldDB read FGiderKodu write FGiderKodu;
+    Property IscilikKodu: TFieldDB read FIscilikKodu write FIscilikKodu;
     Property Miktar: TFieldDB read FMiktar write FMiktar;
     //not a database field
     Property GiderAdi: TFieldDB read FGiderAdi write FGiderAdi;
@@ -109,9 +109,8 @@ type
   TUrtReceteYanUrun = class(TTable)
   private
     FHeaderID: TFieldDB;
-    FStokKodu: TFieldDB;
+    FUrunKodu: TFieldDB;
     FMiktar: TFieldDB;
-    FFireOrani: TFieldDB;
     //not a database field
     FStokAdi: TFieldDB;
     FOlcuBirimi: TFieldDB;
@@ -133,9 +132,8 @@ type
     function Clone: TTable; override;
 
     Property HeaderID: TFieldDB read FHeaderID write FHeaderID;
-    Property StokKodu: TFieldDB read FStokKodu write FStokKodu;
+    Property UrunKodu: TFieldDB read FUrunKodu write FUrunKodu;
     Property Miktar: TFieldDB read FMiktar write FMiktar;
-    Property FireOrani: TFieldDB read FFireOrani write FFireOrani;
     //not a database field
     Property StokAdi: TFieldDB read FStokAdi write FStokAdi;
     Property OlcuBirimi: TFieldDB read FOlcuBirimi write FOlcuBirimi;
@@ -144,9 +142,9 @@ type
 
   TUrtRecete = class(TTableDetailed)
   private
-    FReceteKodu: TFieldDB;
-    FReceteAdi: TFieldDB;
-    FOrnekUretimMiktari: TFieldDB;
+    FUrunKodu: TFieldDB;
+    FUrunAdi: TFieldDB;
+    FOrnekMiktari: TFieldDB;
     FAciklama: TFieldDB;
     FMaliyet: TFieldDB;
     FHammaddeMaliyet: TFieldDB;
@@ -176,9 +174,9 @@ type
     procedure UpdateDetay(ATable: TTable); override;
     procedure RemoveDetay(ATable: TTable); override;
 
-    Property ReceteKodu: TFieldDB read FReceteKodu write FReceteKodu;
-    Property ReceteAdi: TFieldDB read FReceteAdi write FReceteAdi;
-    Property OrnekUretimMiktari: TFieldDB read FOrnekUretimMiktari write FOrnekUretimMiktari;
+    Property UrunKodu: TFieldDB read FUrunKodu write FUrunKodu;
+    Property UrunAdi: TFieldDB read FUrunAdi write FUrunAdi;
+    Property OrnekMiktari: TFieldDB read FOrnekMiktari write FOrnekMiktari;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
     property Maliyet: TFieldDB read FMaliyet write FMaliyet;
     property HammaddeMaliyet: TFieldDB read FHammaddeMaliyet write FHammaddeMaliyet;
@@ -210,7 +208,7 @@ begin
   FStokKodu := TFieldDB.Create('stok_kodu', ftWideString, '', Self, '');
   FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self, '');
   FFireOrani := TFieldDB.Create('fire_orani', ftFloat, 0, Self, '');
-  FReceteKodu := TFieldDB.Create(FUrtRecete.FReceteKodu.FieldName, FUrtRecete.ReceteKodu.DataType, '', Self, '');
+  FReceteKodu := TFieldDB.Create(FUrtRecete.FUrunKodu.FieldName, FUrtRecete.UrunKodu.DataType, '', Self, '');
   FStokAdi := TFieldDB.Create(FStkStokKarti.StokAdi.FieldName, FStkStokKarti.StokAdi.DataType, '', Self, '');
   FOlcuBirimi := TFieldDB.Create(FSysOlcuBirimi.Birim.FieldName, FSysOlcuBirimi.Birim.DataType, '', Self, '');
   FFiyat := TFieldDB.Create('fiyat', ftBCD, 0, Self, '');
@@ -268,7 +266,7 @@ begin
       FStokKodu.QryName,
       FMiktar.QryName,
       FFireOrani.QryName,
-      addField(FUrtRecete.TableName, FUrtRecete.FReceteKodu.FieldName, FReceteKodu.FieldName),
+      addField(FUrtRecete.TableName, FUrtRecete.FUrunKodu.FieldName, FReceteKodu.FieldName),
       addField(FStkStokKarti.TableName, FStkStokKarti.StokAdi.FieldName, FStokAdi.FieldName),
       addField(FSysOlcuBirimi.TableName, FSysOlcuBirimi.Birim.FieldName, FOlcuBirimi.FieldName),
       addField(FStkStokKarti.TableName, FStkStokKarti.AlisFiyat.FieldName, FFiyat.FieldName)
@@ -348,7 +346,7 @@ end;
 
 constructor TUrtReceteIscilik.Create(ADatabase: TDatabase; ARecete: TUrtRecete);
 begin
-  TableName := 'rct_recete_iscilik';
+  TableName := 'urt_recete_iscilikler';
   TableSourceCode := MODULE_RCT_RECETE_KAYIT;
   inherited Create(ADatabase);
 
@@ -359,7 +357,7 @@ begin
   FSysOlcuBirimi := TSysOlcuBirimi.Create(ADatabase);
 
   FHeaderID := TFieldDB.Create('header_id', ftInteger, 0, Self, '');
-  FGiderKodu := TFieldDB.Create('gider_kodu', ftWideString, '', Self, '');
+  FIscilikKodu := TFieldDB.Create('iscilik_kodu', ftWideString, '', Self, '');
   FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self, '');
   FGiderAdi := TFieldDB.Create(FUrtIscilik.GiderKodu.FieldName, FUrtIscilik.GiderKodu.DataType, '', Self, 'Gider Kodu');
   FOlcuBirimi := TFieldDB.Create(FSysOlcuBirimi.Birim.FieldName, FSysOlcuBirimi.Birim.DataType, '', Self, 'Birim');
@@ -385,13 +383,13 @@ begin
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FHeaderID.QryName,
-      FGiderKodu.QryName,
+      FIscilikKodu.QryName,
       addField(FUrtIscilik.TableName, FUrtIscilik.GiderKodu.FieldName, FGiderAdi.FieldName),
       FMiktar.QryName,
       addField(FSysOlcuBirimi.TableName, FSysOlcuBirimi.Birim.FieldName, FOlcuBirimi.FieldName),
       addField(FUrtIscilik.TableName, FUrtIscilik.Fiyat.FieldName, FFiyat.FieldName)
     ], [
-      addJoin(jtLeft, FUrtIscilik.TableName, FUrtIscilik.GiderKodu.FieldName, TableName, FGiderKodu.FieldName),
+      addJoin(jtLeft, FUrtIscilik.TableName, FUrtIscilik.GiderKodu.FieldName, TableName, FIscilikKodu.FieldName),
       addJoin(jtLeft, FSysOlcuBirimi.TableName, FSysOlcuBirimi.Id.FieldName, FUrtIscilik.TableName, FUrtIscilik.BirimID.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);
@@ -416,13 +414,13 @@ begin
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FHeaderID.QryName,
-      FGiderKodu.QryName,
+      FIscilikKodu.QryName,
       addField(FUrtIscilik.TableName, FUrtIscilik.GiderKodu.FieldName, FGiderAdi.FieldName),
       FMiktar.QryName,
       addField(FSysOlcuBirimi.TableName, FSysOlcuBirimi.Birim.FieldName, FOlcuBirimi.FieldName),
       addField(FUrtIscilik.TableName, FUrtIscilik.Fiyat.FieldName, FFiyat.FieldName)
     ], [
-      addJoin(jtLeft, FUrtIscilik.TableName, FUrtIscilik.GiderKodu.FieldName, TableName, FGiderKodu.FieldName),
+      addJoin(jtLeft, FUrtIscilik.TableName, FUrtIscilik.GiderKodu.FieldName, TableName, FIscilikKodu.FieldName),
       addJoin(jtLeft, FSysOlcuBirimi.TableName, FSysOlcuBirimi.Id.FieldName, FUrtIscilik.TableName, FUrtIscilik.BirimID.FieldName),
       ' WHERE 1=1 ', AFilter
     ]);
@@ -450,7 +448,7 @@ begin
   try
     Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FHeaderID.FieldName,
-      FGiderKodu.FieldName,
+      FIscilikKodu.FieldName,
       FMiktar.FieldName
     ]);
 
@@ -471,7 +469,7 @@ begin
   try
     Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FHeaderID.FieldName,
-      FGiderKodu.FieldName,
+      FIscilikKodu.FieldName,
       FMiktar.FieldName
     ]);
 
@@ -491,7 +489,7 @@ end;
 
 constructor TUrtReceteYanUrun.Create(ADatabase: TDatabase; ARecete: TUrtRecete);
 begin
-  TableName := 'rct_recete_yan_urun';
+  TableName := 'urt_recete_yan_urunler';
   TableSourceCode := MODULE_RCT_RECETE_KAYIT;
   inherited Create(ADatabase);
 
@@ -502,9 +500,8 @@ begin
   FSysOlcuBirimi := TSysOlcuBirimi.Create(ADatabase);
 
   FHeaderID := TFieldDB.Create('header_id', ftInteger, 0, Self, '');
-  FStokKodu := TFieldDB.Create('stok_kodu', ftWideString, '', Self, '');
+  FUrunKodu := TFieldDB.Create('urun_kodu', ftWideString, '', Self, '');
   FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self, '');
-  FFireOrani := TFieldDB.Create('fire_orani', ftFloat, 0, Self, '');
   FStokAdi := TFieldDB.Create(FStkStokKarti.StokAdi.FieldName, FStkStokKarti.StokAdi.DataType, '', Self, '');
   FOlcuBirimi := TFieldDB.Create(FSysOlcuBirimi.Birim.FieldName, FSysOlcuBirimi.Birim.DataType, '', Self, '');
   FFiyat := TFieldDB.Create('fiyat', ftBCD, 0, Self, '');
@@ -529,9 +526,8 @@ begin
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FHeaderID.QryName,
-      FStokKodu.QryName,
-      FMiktar.QryName,
-      FFireOrani.QryName
+      FUrunKodu.QryName,
+      FMiktar.QryName
     ], [
       ' WHERE 1=1 ' + AFilter
     ]);
@@ -556,14 +552,13 @@ begin
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FHeaderID.QryName,
-      FStokKodu.QryName,
+      FUrunKodu.QryName,
       FMiktar.QryName,
-      FFireOrani.QryName,
       addField(FStkStokKarti.TableName, FStkStokKarti.StokAdi.FieldName, FStokAdi.FieldName),
       addField(FSysOlcuBirimi.TableName, FSysOlcuBirimi.Birim.FieldName, FOlcuBirimi.FieldName),
       addField(FStkStokKarti.TableName, FStkStokKarti.AlisFiyat.FieldName, FFiyat.FieldName)
     ], [
-      addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FStokKodu.FieldName),
+      addJoin(jtLeft, FStkStokKarti.TableName, FStkStokKarti.StokKodu.FieldName, TableName, FUrunKodu.FieldName),
       addJoin(jtLeft, FSysOlcuBirimi.TableName, FSysOlcuBirimi.Id.FieldName, FStkStokKarti.TableName, FStkStokKarti.OlcuBirimiID.FieldName),
       ' WHERE 1=1 ' + AFilter
     ]);
@@ -592,9 +587,8 @@ begin
   try
     Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FHeaderID.FieldName,
-      FStokKodu.FieldName,
-      FMiktar.FieldName,
-      FFireOrani.FieldName
+      FUrunKodu.FieldName,
+      FMiktar.FieldName
     ]);
 
     PrepareInsertQueryParams(LQry);
@@ -614,9 +608,8 @@ begin
   try
     Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FHeaderID.FieldName,
-      FStokKodu.FieldName,
-      FMiktar.FieldName,
-      FFireOrani.FieldName
+      FUrunKodu.FieldName,
+      FMiktar.FieldName
     ]);
 
     PrepareUpdateQueryParams(LQry);
@@ -635,7 +628,7 @@ end;
 
 constructor TUrtRecete.Create(ADatabase: TDatabase);
 begin
-  TableName := 'rct_recete';
+  TableName := 'urt_receteler';
   TableSourceCode := MODULE_RCT_RECETE_KAYIT;
   inherited Create(ADatabase);
 
@@ -643,9 +636,9 @@ begin
   ReceteMaliyet.IscilikCount := 0;
   ReceteMaliyet.YanUrunCount := 0;
 
-  FReceteKodu := TFieldDB.Create('recete_kodu', ftWideString, '', Self, 'Reçete Kodu');
-  FReceteAdi := TFieldDB.Create('recete_adi', ftWideString, '', Self, 'Reçete Adı');
-  FOrnekUretimMiktari := TFieldDB.Create('ornek_uretim_miktari', ftFloat, 0, Self, 'Örnek Üretim Miktarı');
+  FUrunKodu := TFieldDB.Create('urun_kodu', ftWideString, '', Self, 'Ürün Kodu');
+  FUrunAdi := TFieldDB.Create('urun_adi', ftWideString, '', Self, 'Ürün Adı');
+  FOrnekMiktari := TFieldDB.Create('ornek_miktari', ftFloat, 0, Self, 'Örnek Miktarı');
   FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açıklama');
   FMaliyet := TFieldDB.Create('maliyet', ftBCD, 0, Self, 'Maliyet');
   FHammaddeMaliyet := TFieldDB.Create('hammadde_maliyet', ftBCD, 0, Self, 'Hammadde Maliyet');
@@ -664,14 +657,14 @@ begin
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      FReceteKodu.QryName,
-      FReceteAdi.QryName,
-      FOrnekUretimMiktari.QryName,
+      FUrunKodu.QryName,
+      FUrunAdi.QryName,
+      FOrnekMiktari.QryName,
       FAciklama.QryName,
-      'spget_rct_toplam('           + Id.QryName + '::::bigint) ' + FMaliyet.FieldName,
-      'spget_rct_hammadde_maliyet(' + Id.QryName + '::::bigint) ' + FHammaddeMaliyet.FieldName,
-      'spget_rct_iscilik_maliyet('  + Id.QryName + '::::bigint) ' + FIscilikMaliyet.FieldName,
-      'spget_rct_yan_urun_maliyet(' + Id.QryName + '::::bigint) ' + FYanUrunMaliyet.FieldName
+      'spget_rct_toplam(cast('           + Id.QryName + ' as bigint)) ' + FMaliyet.FieldName,
+      'spget_rct_hammadde_maliyet(cast(' + Id.QryName + ' as bigint)) ' + FHammaddeMaliyet.FieldName,
+      'spget_rct_iscilik_maliyet(cast('  + Id.QryName + ' as bigint)) ' + FIscilikMaliyet.FieldName,
+      'spget_rct_yan_urun_maliyet(cast(' + Id.QryName + ' as bigint)) ' + FYanUrunMaliyet.FieldName
     ], [
       ' WHERE 1=1 ', AFilter
     ]);
@@ -695,14 +688,14 @@ begin
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Self.Id.QryName,
-      FReceteKodu.QryName,
-      FReceteAdi.QryName,
-      FOrnekUretimMiktari.QryName,
+      FUrunKodu.QryName,
+      FUrunAdi.QryName,
+      FOrnekMiktari.QryName,
       FAciklama.QryName,
-      'spget_rct_toplam('           + Self.Id.QryName + '::::bigint) ' + FMaliyet.FieldName,
-      'spget_rct_hammadde_maliyet(' + Self.Id.QryName + '::::bigint) ' + FHammaddeMaliyet.FieldName,
-      'spget_rct_iscilik_maliyet('  + Self.Id.QryName + '::::bigint) ' + FIscilikMaliyet.FieldName,
-      'spget_rct_yan_urun_maliyet(' + Self.Id.QryName + '::::bigint) ' + FYanUrunMaliyet.FieldName
+      'spget_rct_toplam(cast('           + Id.QryName + ' as bigint)) ' + FMaliyet.FieldName,
+      'spget_rct_hammadde_maliyet(cast(' + Id.QryName + ' as bigint)) ' + FHammaddeMaliyet.FieldName,
+      'spget_rct_iscilik_maliyet(cast('  + Id.QryName + ' as bigint)) ' + FIscilikMaliyet.FieldName,
+      'spget_rct_yan_urun_maliyet(cast(' + Id.QryName + ' as bigint)) ' + FYanUrunMaliyet.FieldName
     ], [
       ' WHERE 1=1 ', AFilter
     ]);
@@ -729,9 +722,9 @@ begin
   LQry := Database.NewQuery();
   try
     Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
-      FReceteKodu.FieldName,
-      FReceteAdi.FieldName,
-      FOrnekUretimMiktari.FieldName,
+      FUrunKodu.FieldName,
+      FUrunAdi.FieldName,
+      FOrnekMiktari.FieldName,
       FAciklama.FieldName
     ]);
 
@@ -751,9 +744,9 @@ begin
   LQry := Database.NewQuery();
   try
     Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
-      FReceteKodu.FieldName,
-      FReceteAdi.FieldName,
-      FOrnekUretimMiktari.FieldName,
+      FUrunKodu.FieldName,
+      FUrunAdi.FieldName,
+      FOrnekMiktari.FieldName,
       FAciklama.FieldName
     ]);
 
@@ -787,7 +780,7 @@ begin
     else if (TObject(ListDetay[n1]).ClassType = TUrtReceteIscilik) and (ATable.ClassType = TUrtReceteIscilik) then
     begin
       TUrtReceteIscilik(ATable).Recete := Self;
-      if TUrtReceteIscilik(ListDetay[n1]).FGiderKodu.AsString = TUrtReceteIscilik(ATable).FGiderKodu.AsString then
+      if TUrtReceteIscilik(ListDetay[n1]).FIscilikKodu.AsString = TUrtReceteIscilik(ATable).FIscilikKodu.AsString then
       begin
         TUrtReceteIscilik(ListDetay[n1]).FMiktar.Value := TUrtReceteIscilik(ListDetay[n1]).FMiktar.AsFloat + TUrtReceteIscilik(ATable).FMiktar.AsFloat;
         LExistsSameCode := True;
@@ -798,7 +791,7 @@ begin
     else if (TObject(ListDetay[n1]).ClassType = TUrtReceteYanUrun) and (ATable.ClassType = TUrtReceteYanUrun) then
     begin
       TUrtReceteYanUrun(ATable).Recete := Self;
-      if TUrtReceteYanUrun(ListDetay[n1]).FStokKodu.AsString = TUrtReceteYanUrun(ATable).FStokKodu.AsString then
+      if TUrtReceteYanUrun(ListDetay[n1]).FUrunKodu.AsString = TUrtReceteYanUrun(ATable).FUrunKodu.AsString then
       begin
         TUrtReceteYanUrun(ListDetay[n1]).FMiktar.Value := TUrtReceteYanUrun(ListDetay[n1]).FMiktar.AsFloat + TUrtReceteYanUrun(ATable).FMiktar.AsFloat;
         LExistsSameCode := True;

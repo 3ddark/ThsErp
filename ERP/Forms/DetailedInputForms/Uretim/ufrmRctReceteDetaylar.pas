@@ -107,9 +107,9 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TUrtRecete(Table).ReceteKodu.Value := edtrecete_kodu.Text;
-      TUrtRecete(Table).ReceteAdi.Value := edtrecete_adi.Text;
-      TUrtRecete(Table).OrnekUretimMiktari.Value := edtornek_uretm_miktari.Text;
+      TUrtRecete(Table).UrunKodu.Value := edtrecete_kodu.Text;
+      TUrtRecete(Table).UrunAdi.Value := edtrecete_adi.Text;
+      TUrtRecete(Table).OrnekMiktari.Value := edtornek_uretm_miktari.Text;
       TUrtRecete(Table).Aciklama.Value := edtaciklama.Text;
 
       inherited;
@@ -231,7 +231,7 @@ begin
 
         strngrd2.Objects[COLUMN_GRID_OBJECT, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]);
 
-        strngrd2.Cells[RI_GIDER_KODU, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]).GiderKodu.AsString;
+        strngrd2.Cells[RI_GIDER_KODU, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]).IscilikKodu.AsString;
         //strngrd2.Cells[RI_GIDER_ADI, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]).GiderAdi.AsString;
         strngrd2.Cells[RI_MIKTAR, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]).Miktar.AsString;
         strngrd2.Cells[RI_BIRIM, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]).Birim.AsString;
@@ -245,12 +245,12 @@ begin
 
         strngrd3.Objects[COLUMN_GRID_OBJECT, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]);
 
-        strngrd3.Cells[RY_MAL_KODU, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).StokKodu.AsString;
+        strngrd3.Cells[RY_MAL_KODU, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).UrunKodu.AsString;
         strngrd3.Cells[RY_MAL_ADI, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).StokAdi.AsString;
         strngrd3.Cells[RY_MIKTAR, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).Miktar.AsString;
         strngrd3.Cells[RY_BIRIM, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).OlcuBirimi.AsString;
         strngrd3.Cells[RY_FIYAT, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).Fiyat.AsString;
-        strngrd3.Cells[RY_FIRE_ORANI, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).FireOrani.AsString;
+        strngrd3.Cells[RY_FIRE_ORANI, strngrd3.Row] := '';
       end
     end;
 
@@ -400,9 +400,9 @@ end;
 
 procedure TfrmRctReceteDetaylar.RefreshData;
 begin
-  edtrecete_kodu.Text := TUrtRecete(Table).ReceteKodu.Value;
-  edtrecete_adi.Text := TUrtRecete(Table).ReceteAdi.Value;
-  edtornek_uretm_miktari.Text := TUrtRecete(Table).OrnekUretimMiktari.Value;
+  edtrecete_kodu.Text := TUrtRecete(Table).UrunKodu.Value;
+  edtrecete_adi.Text := TUrtRecete(Table).UrunAdi.Value;
+  edtornek_uretm_miktari.Text := TUrtRecete(Table).OrnekMiktari.Value;
   edtaciklama.Text := TUrtRecete(Table).Aciklama.Value;
 
   GridFill();

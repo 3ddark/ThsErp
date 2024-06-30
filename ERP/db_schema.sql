@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.5
--- Dumped by pg_dump version 16.1
+-- Dumped from database version 14.12
+-- Dumped by pg_dump version 14.12
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,15 +15,6 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
---
-
--- *not* creating schema, since initdb creates it
-
-
-ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- Name: audit(); Type: FUNCTION; Schema: public; Owner: ths_admin
@@ -181,8 +172,8 @@ DECLARE
 BEGIN
 	_toplam := 0;
 	FOR _row IN
-		SELECT h.miktar * s.alis_fiyat tutar FROM rct_recete_hammadde h
-		LEFT JOIN stk_stok_karti s ON s.stok_kodu = h.stok_kodu
+		SELECT h.miktar * s.alis_fiyat tutar FROM urt_recete_hammaddeler h
+		LEFT JOIN stk_kartlar s ON s.stok_kodu = h.stok_kodu
 		WHERE h.header_id = prct_recete_id
 	LOOP
 		_toplam := _toplam + coalesce(_row.tutar, 0);
@@ -208,8 +199,8 @@ DECLARE
 BEGIN
 	_toplam := 0;
 	FOR _row IN
-		SELECT (i.miktar * ig.fiyat) tutar FROM rct_recete_iscilik i
-		LEFT JOIN rct_iscilik_gideri ig ON i.gider_kodu = ig.gider_kodu
+		SELECT (i.miktar * ig.fiyat) tutar FROM urt_recete_iscilikler i
+		LEFT JOIN urt_iscilikler ig ON i.iscilik_kodu = ig.gider_kodu
 		WHERE i.header_id = prct_recete_id
 	LOOP
 		_toplam := _toplam + coalesce(_row.tutar, 0);
@@ -260,8 +251,8 @@ DECLARE
 BEGIN
 	_toplam := 0;
 	FOR _row IN
-		SELECT (yu.miktar * s.alis_fiyat) tutar FROM rct_recete_yan_urun yu
-		LEFT JOIN stk_stok_karti s ON s.stok_kodu = yu.stok_kodu
+		SELECT (yu.miktar * s.alis_fiyat) tutar FROM urt_recete_yan_urunler yu
+		LEFT JOIN stk_kartlar s ON s.stok_kodu = yu.urun_kodu
 		WHERE yu.header_id = prct_recete_id
 	LOOP
 		_toplam := _toplam - coalesce(_row.tutar, 0);
@@ -481,7 +472,7 @@ CREATE SEQUENCE public.alis_teklif_detaylari_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.alis_teklif_detaylari_id_seq OWNER TO ths_admin;
+ALTER TABLE public.alis_teklif_detaylari_id_seq OWNER TO ths_admin;
 
 --
 -- Name: alis_teklif_detaylari_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
@@ -1643,7 +1634,7 @@ CREATE VIEW public.sat_siparis_rapor AS
   WHERE (1 = 1);
 
 
-ALTER VIEW public.sat_siparis_rapor OWNER TO ths_admin;
+ALTER TABLE public.sat_siparis_rapor OWNER TO ths_admin;
 
 --
 -- Name: sat_teklif_detaylari; Type: TABLE; Schema: public; Owner: ths_admin
@@ -2325,7 +2316,7 @@ CREATE SEQUENCE public.stk_cins_ozellikleri_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.stk_cins_ozellikleri_id_seq OWNER TO ths_admin;
+ALTER TABLE public.stk_cins_ozellikleri_id_seq OWNER TO ths_admin;
 
 --
 -- Name: stk_cins_ozellikleri; Type: TABLE; Schema: public; Owner: ths_admin
@@ -2410,7 +2401,7 @@ CREATE SEQUENCE public.stk_kart_cins_bilgileri_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.stk_kart_cins_bilgileri_id_seq OWNER TO ths_admin;
+ALTER TABLE public.stk_kart_cins_bilgileri_id_seq OWNER TO ths_admin;
 
 --
 -- Name: stk_kart_cins_bilgileri; Type: TABLE; Schema: public; Owner: ths_admin
@@ -2669,7 +2660,7 @@ CREATE VIEW public.sys_db_status AS
   WHERE (pa.datname = current_database());
 
 
-ALTER VIEW public.sys_db_status OWNER TO ths_admin;
+ALTER TABLE public.sys_db_status OWNER TO ths_admin;
 
 --
 -- Name: sys_ersim_haklari; Type: TABLE; Schema: public; Owner: ths_admin
@@ -3160,7 +3151,7 @@ CREATE VIEW public.sys_view_tables AS
   ORDER BY (tables.table_type)::text, (initcap(replace((tables.table_name)::text, '_'::text, ' '::text)));
 
 
-ALTER VIEW public.sys_view_tables OWNER TO ths_admin;
+ALTER TABLE public.sys_view_tables OWNER TO ths_admin;
 
 --
 -- Name: sys_view_columns; Type: VIEW; Schema: public; Owner: ths_admin
@@ -3187,7 +3178,7 @@ CREATE VIEW public.sys_view_columns AS
   ORDER BY vt.table_type, columns.table_name, columns.ordinal_position;
 
 
-ALTER VIEW public.sys_view_columns OWNER TO ths_admin;
+ALTER TABLE public.sys_view_columns OWNER TO ths_admin;
 
 --
 -- Name: sys_view_databases; Type: VIEW; Schema: public; Owner: ths_admin
@@ -3201,7 +3192,7 @@ CREATE VIEW public.sys_view_databases AS
   WHERE ((1 = 1) AND (pg_shdescription.description = 'THS ERP Systems'::text));
 
 
-ALTER VIEW public.sys_view_databases OWNER TO ths_admin;
+ALTER TABLE public.sys_view_databases OWNER TO ths_admin;
 
 --
 -- Name: urt_recete_yan_urunler; Type: TABLE; Schema: public; Owner: ths_admin
@@ -5575,7 +5566,7 @@ ALTER TABLE ONLY public.urt_receteler
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
-REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 

@@ -94,7 +94,11 @@ begin
       FBirimID.QryName,
       addField(FSysUnit.TableName, FSysUnit.Birim.FieldName, FBirim.FieldName),
       FGiderTipi.QryName,
-      FGiderTipiAdi.QryName
+      'CASE ' +
+        'WHEN ' + FGiderTipi.QryName + '=' + Ord(TUrtIscilikTipi.Degisken).ToString + ' THEN ' + QuotedStr('DEĞİŞKEN') +
+        'WHEN ' + FGiderTipi.QryName + '=' + Ord(TUrtIscilikTipi.Sabit).ToString    + ' THEN ' + QuotedStr('SABİT') +
+        'ELSE null ' +
+      'END AS ' + FGiderTipiAdi.FieldName
     ], [
       addJoin(jtLeft, FSysUnit.TableName, FSysUnit.Id.FieldName, TableName, FBirimID.FieldName),
       ' WHERE 1=1 ', AFilter
@@ -125,7 +129,12 @@ begin
       FBirimID.QryName,
       addField(FSysUnit.TableName, FSysUnit.Birim.FieldName, FBirim.FieldName),
       FGiderTipi.QryName,
-      FGiderTipiAdi.QryName
+      FGiderTipi.QryName,
+      'CASE ' +
+        'WHEN ' + FGiderTipi.QryName + '=' + Ord(TUrtIscilikTipi.Degisken).ToString + ' THEN ' + QuotedStr('DEĞİŞKEN') +
+        'WHEN ' + FGiderTipi.QryName + '=' + Ord(TUrtIscilikTipi.Sabit).ToString    + ' THEN ' + QuotedStr('SABİT') +
+        'ELSE null ' +
+      'END AS ' + FGiderTipiAdi.FieldName
     ], [
       addJoin(jtLeft, FSysUnit.TableName, FSysUnit.Id.FieldName, TableName, FBirimID.FieldName),
       ' WHERE 1=1 ', AFilter

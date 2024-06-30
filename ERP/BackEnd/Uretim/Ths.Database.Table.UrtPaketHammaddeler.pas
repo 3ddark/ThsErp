@@ -115,7 +115,7 @@ begin
   FStokKodu := TFieldDB.Create('stok_kodu', ftWideString, '', Self, '');
   FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self, '');
   FFireOrani := TFieldDB.Create('fire_orani', ftFloat, 0, Self, '');
-  FReceteKodu := TFieldDB.Create(FRctRecete.ReceteKodu.FieldName, FRctRecete.ReceteKodu.DataType, '', Self, '');
+  FReceteKodu := TFieldDB.Create(FRctRecete.UrunKodu.FieldName, FRctRecete.UrunKodu.DataType, '', Self, '');
   FStokAdi := TFieldDB.Create(FStkStokKarti.StokAdi.FieldName, FStkStokKarti.StokAdi.DataType, '', Self, '');
   FOlcuBirimi := TFieldDB.Create(FSysOlcuBirimi.Birim.FieldName, FSysOlcuBirimi.Birim.DataType, '', Self, '');
   FFiyat := TFieldDB.Create('fiyat', ftBCD, 0, Self, '');
@@ -173,7 +173,7 @@ begin
       FStokKodu.QryName,
       FMiktar.QryName,
       FFireOrani.QryName,
-      addField(FRctRecete.TableName, FRctRecete.ReceteKodu.FieldName, FReceteKodu.FieldName),
+      addField(FRctRecete.TableName, FRctRecete.UrunKodu.FieldName, FReceteKodu.FieldName),
       addField(FStkStokKarti.TableName, FStkStokKarti.StokAdi.FieldName, FStokAdi.FieldName),
       addField(FSysOlcuBirimi.TableName, FSysOlcuBirimi.Birim.FieldName, FOlcuBirimi.FieldName),
       addField(FStkStokKarti.TableName, FStkStokKarti.AlisFiyat.FieldName, FFiyat.FieldName)

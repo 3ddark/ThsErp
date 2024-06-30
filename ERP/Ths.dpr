@@ -108,7 +108,7 @@ uses
   ufrmSysTablolar in 'Forms\OutputForms\DbGrid\Core\ufrmSysTablolar.pas' {frmSysTables},
   Ths.Database.Table.View.SysDbStatus in 'BackEnd\Core\Ths.Database.Table.View.SysDbStatus.pas',
   ufrmSysDatabaseMonitor in 'Forms\OutputForms\DbGrid\Core\ufrmSysDatabaseMonitor.pas' {frmSysDbStatus},
-  ufrmSysSifreDegistir in 'Forms\InputForms\Core\ufrmSysSifreDegistir.pas' {frmSysChangePassword},
+  ufrmSysSifreDegistir in 'Forms\InputForms\Core\ufrmSysSifreDegistir.pas' {frmSysSifreDegistir},
   ufrmSetPrsEhliyetler in 'Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsEhliyetler.pas' {frmSetPrsEhliyetler},
   ufrmSetPrsEhliyet in 'Forms\InputForms\Core\Prs\ufrmSetPrsEhliyet.pas' {frmSetPrsEhliyet},
   Ths.Database.Table.SetPrsEhliyetler in 'BackEnd\Core\Prs\Ths.Database.Table.SetPrsEhliyetler.pas',

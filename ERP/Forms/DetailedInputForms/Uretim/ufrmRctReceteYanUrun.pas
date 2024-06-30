@@ -107,7 +107,7 @@ end;
 
 procedure TfrmRctReceteYanUrun.RefreshData();
 begin
-  edtstok_kodu.Text := TUrtReceteYanUrun(Table).StokKodu.AsString;
+  edtstok_kodu.Text := TUrtReceteYanUrun(Table).UrunKodu.AsString;
   lblstok_aciklama.Caption := TUrtReceteYanUrun(Table).StokAdi.AsString;
   edtmiktar.Text := TUrtReceteYanUrun(Table).Miktar.AsString;
   lblmiktar_birim.Caption := TUrtReceteYanUrun(Table).OlcuBirimi.AsString;
@@ -119,7 +119,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TUrtReceteYanUrun(Table).StokKodu.Value := edtstok_kodu.Text;
+      TUrtReceteYanUrun(Table).UrunKodu.Value := edtstok_kodu.Text;
       TUrtReceteYanUrun(Table).StokAdi.Value := lblstok_aciklama.Caption;
       TUrtReceteYanUrun(Table).Miktar.Value := StrToFloatDef(edtMiktar.Text, 0);
       TUrtReceteYanUrun(Table).OlcuBirimi.Value := lblmiktar_birim.Caption;

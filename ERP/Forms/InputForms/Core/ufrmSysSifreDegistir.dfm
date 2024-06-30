@@ -1,4 +1,4 @@
-inherited frmSysChangePassword: TfrmSysChangePassword
+inherited frmSysSifreDegistir: TfrmSysSifreDegistir
   Left = 501
   Top = 443
   ActiveControl = btnClose

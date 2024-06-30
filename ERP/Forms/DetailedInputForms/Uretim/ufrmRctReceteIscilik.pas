@@ -121,7 +121,7 @@ end;
 
 procedure TfrmRctReceteIscilik.RefreshData();
 begin
-  edtgider_kodu.Text := TUrtReceteIscilik(Table).GiderKodu.AsString;
+  edtgider_kodu.Text := TUrtReceteIscilik(Table).IscilikKodu.AsString;
   lblgider_adi.Caption := TUrtReceteIscilik(Table).GiderAdi.AsString;
   edtmiktar.Text := TUrtReceteIscilik(Table).Miktar.AsString;
   lblmiktar_birim.Caption := TUrtReceteIscilik(Table).Birim.AsString;
@@ -134,7 +134,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TUrtReceteIscilik(Table).GiderKodu.Value := edtgider_kodu.Text;
+      TUrtReceteIscilik(Table).IscilikKodu.Value := edtgider_kodu.Text;
       TUrtReceteIscilik(Table).GiderAdi.Value := lblgider_adi.Caption;
       TUrtReceteIscilik(Table).Miktar.Value := StrToFloatDef(edtMiktar.Text, 0);
       TUrtReceteIscilik(Table).Birim.Value := lblmiktar_birim.Caption;

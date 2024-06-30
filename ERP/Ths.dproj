@@ -361,7 +361,7 @@
             <Form>frmSysDbStatus</Form>
         </DCCReference>
         <DCCReference Include="Forms\InputForms\Core\ufrmSysSifreDegistir.pas">
-            <Form>frmSysChangePassword</Form>
+            <Form>frmSysSifreDegistir</Form>
         </DCCReference>
         <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsEhliyetler.pas">
             <Form>frmSetPrsEhliyetler</Form>

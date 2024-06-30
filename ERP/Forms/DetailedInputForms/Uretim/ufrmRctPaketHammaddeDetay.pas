@@ -73,7 +73,7 @@ uses
 procedure TfrmRctPaketHammaddeDetay.cbbreceteChange(Sender: TObject);
 begin
   if (cbbrecete.ItemIndex > -1) and Assigned(cbbrecete.Items.Objects[cbbrecete.ItemIndex]) then
-    lblrecete.Caption := TUrtRecete(cbbrecete.Items.Objects[cbbrecete.ItemIndex]).ReceteAdi.Value;
+    lblrecete.Caption := TUrtRecete(cbbrecete.Items.Objects[cbbrecete.ItemIndex]).UrunAdi.Value;
 end;
 
 procedure TfrmRctPaketHammaddeDetay.FormCreate(Sender: TObject);
@@ -125,12 +125,12 @@ begin
             lblmiktar_birim.Caption := TStkKart(LFrmStokKarti.Table).OlcuBirimi.Value;
             TUrtReceteHammadde(Table).Fiyat.Value := TStkKart(LFrmStokKarti.Table).AlisFiyat.Value;
 
-            LRecete.SelectToList(' AND ' + LRecete.ReceteKodu.FieldName + '=' + QuotedStr(edtstok_kodu.Text), False, False);
+            LRecete.SelectToList(' AND ' + LRecete.UrunKodu.FieldName + '=' + QuotedStr(edtstok_kodu.Text), False, False);
             if LRecete.List.Count > 0 then
             begin
               cbbrecete.Clear;
               for n1 := 0 to LRecete.List.Count-1 do
-                cbbrecete.Items.AddObject(TUrtRecete(LRecete.List[n1]).ReceteKodu.Value, TUrtRecete(TUrtRecete(LRecete.List[n1]).Clone));
+                cbbrecete.Items.AddObject(TUrtRecete(LRecete.List[n1]).UrunKodu.Value, TUrtRecete(TUrtRecete(LRecete.List[n1]).Clone));
 
               cbbrecete.ItemIndex := 0;
             end;
