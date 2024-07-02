@@ -79,7 +79,7 @@ uses
 
 constructor TStkCinsOzellik.Create(ADatabase: TDatabase);
 begin
-  TableName := 'stk_cins_ozellikler';
+  TableName := 'stk_cins_ozellikleri';
   TableSourceCode := MODULE_STK_KAYIT;
   inherited Create(ADatabase);
 

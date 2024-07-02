@@ -61,7 +61,7 @@ const
 implementation
 
 uses
-  Ths.Orm.ManagerStack, Ths.Globals, Ths.Constants, Ths.Database,
+  Ths.Globals, Ths.Constants, Ths.Database,
   Ths.Database.Table, Ths.Database.Table.SysKullanicilar,
   Ths.Database.Table.SysGuiIcerikler, Ths.Database.Table.SysOndalikHaneler,
   Ths.Database.Table.SysUygulamaAyarlari, Ths.Database.Table.SysParaBirimleri,
@@ -112,9 +112,6 @@ begin
 
       GDataBase.ConfigureConnection(ConnSetting.SQLServer, ConnSetting.DatabaseName, ConnSetting.DBUserName, ConnSetting.DBUserPassword, ConnSetting.DBPortNo);
       GDataBase.Connection.Open;
-
-      TManagerStack.prepareManager(ConnSetting.SQLServer, ConnSetting.DatabaseName, ConnSetting.DBUserName, ConnSetting.DBUserPassword, '', ConnSetting.DBPortNo);
-      AppDbContext.SetPostgresServerVariable('ths.user_name', edtkullanici_adi.Text);
     except
       on E: Exception do
       begin

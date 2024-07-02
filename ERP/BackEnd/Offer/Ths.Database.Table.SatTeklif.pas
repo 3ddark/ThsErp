@@ -264,7 +264,7 @@ uses
 
 constructor TSatTeklifDetay.Create(ADatabase: TDatabase; ATeklif: TSatTeklif);
 begin
-  TableName := 'sat_teklif_detay';
+  TableName := 'sat_teklif_detaylari';
   TableSourceCode := MODULE_SAT_TEK_KAYIT;
   inherited Create(ADatabase);
 
@@ -538,7 +538,7 @@ end;
 
 constructor TSatTeklif.Create(ADatabase: TDatabase);
 begin
-  TableName := 'sat_teklif';
+  TableName := 'sat_teklifler';
   TableSourceCode := MODULE_SAT_TEK_KAYIT;
   inherited Create(ADatabase);
 

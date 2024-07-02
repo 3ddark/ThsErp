@@ -269,19 +269,11 @@ uses
   ufrmAlsTeklifDetay in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetay.pas' {frmAlsTeklifDetay},
   Ths.Database.Table.StkKartCinsBilgileri in 'BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas',
   Ths.Utils.Images in 'BackEnd\Tools\Ths.Utils.Images.pas',
-  Ths.Orm.Table in 'BackEnd\Tools\Orm\Ths.Orm.Table.pas',
-  Ths.Orm.Manager in 'BackEnd\Tools\Orm\Ths.Orm.Manager.pas',
-  Ths.Orm.ManagerStack in 'BackEnd\Tools\Orm\Ths.Orm.ManagerStack.pas',
-  Ths.Orm.Table.StkAmbarlar in 'Ths.Orm.Table.StkAmbarlar.pas',
   Ths.Database.Sql.Builder in 'BackEnd\Core\Ths.Database.Sql.Builder.pas',
   SynCrypto in 'BackEnd\Tools\SynPDF\SynCrypto.pas',
   Ths.Utils.TCMBDovizKuru in 'BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas',
   Ths.Utils.InternetConnection in 'BackEnd\Tools\Ths.Utils.InternetConnection.pas',
-  Ths.Utils.DatabaseTools in 'BackEnd\Tools\Ths.Utils.DatabaseTools.pas',
-  ufrmGrid in 'Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas',
-  ufrmInput in 'Forms\InputForms\Factory\ufrmInput.pas',
-  ufrmStkStokAmbarlar1 in 'Forms\OutputForms\DbGrid\Stock\ufrmStkStokAmbarlar1.pas' {frmStkStokAmbarlar1},
-  ufrmStkStokAmbar1 in 'Forms\InputForms\Stock\ufrmStkStokAmbar1.pas' {frmStkStokAmbar1};
+  Ths.Utils.DatabaseTools in 'BackEnd\Tools\Ths.Utils.DatabaseTools.pas';
 
 {$R *.res}
 

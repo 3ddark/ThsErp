@@ -740,25 +740,11 @@
         </DCCReference>
         <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.Images.pas"/>
-        <DCCReference Include="BackEnd\Tools\Orm\Ths.Orm.Table.pas"/>
-        <DCCReference Include="BackEnd\Tools\Orm\Ths.Orm.Manager.pas"/>
-        <DCCReference Include="BackEnd\Tools\Orm\Ths.Orm.ManagerStack.pas"/>
-        <DCCReference Include="Ths.Orm.Table.StkAmbarlar.pas"/>
         <DCCReference Include="BackEnd\Core\Ths.Database.Sql.Builder.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\SynCrypto.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.InternetConnection.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.DatabaseTools.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas"/>
-        <DCCReference Include="Forms\InputForms\Factory\ufrmInput.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkStokAmbarlar1.pas">
-            <Form>frmStkStokAmbarlar1</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Stock\ufrmStkStokAmbar1.pas">
-            <Form>frmStkStokAmbar1</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

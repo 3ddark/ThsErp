@@ -18,7 +18,6 @@ type
     FGunAdi: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
-    destructor Destroy; override;
   public
     function SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string; override;
     procedure SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean=True); override;
@@ -43,11 +42,6 @@ begin
   inherited Create(ADatabase);
 
   FGunAdi := TFieldDB.Create('gun_adi', ftWideString, '', Self, 'Gün Adı');
-end;
-
-destructor TSysGun.Destroy;
-begin
-  inherited;
 end;
 
 function TSysGun.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

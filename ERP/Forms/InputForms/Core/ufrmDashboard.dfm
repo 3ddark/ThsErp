@@ -27,7 +27,6 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 913
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
@@ -56,22 +55,22 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 394
-    ExplicitWidth = 909
+    ExplicitTop = 402
+    ExplicitWidth = 911
     inherited btnAccept: TButton
       Left = 705
-      ExplicitLeft = 703
+      ExplicitLeft = 705
     end
     inherited btnClose: TButton
       Left = 809
-      ExplicitLeft = 807
+      ExplicitLeft = 809
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 432
     Width = 915
-    ExplicitTop = 424
-    ExplicitWidth = 913
+    ExplicitTop = 432
+    ExplicitWidth = 915
   end
   inherited pnlMain: TPanel [3]
     Top = 40
@@ -79,8 +78,8 @@ inherited frmDashboard: TfrmDashboard
     Height = 360
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 913
-    ExplicitHeight = 352
+    ExplicitWidth = 915
+    ExplicitHeight = 360
     object PageControl1: TPageControl
       Left = 0
       Top = 0
@@ -90,8 +89,6 @@ inherited frmDashboard: TfrmDashboard
       Align = alClient
       MultiLine = True
       TabOrder = 0
-      ExplicitWidth = 913
-      ExplicitHeight = 352
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton
@@ -293,7 +290,6 @@ inherited frmDashboard: TfrmDashboard
           ParentFont = False
           TabOrder = 5
           WordWrap = True
-          OnClick = Button1Click
         end
       end
       object tsaccount: TTabSheet

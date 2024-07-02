@@ -6,7 +6,8 @@ interface
 
 uses
   Forms, SysUtils, Windows, Classes, Dialogs, Messages, System.Variants,
-  Graphics, Controls, ExtCtrls, ComCtrls, System.UITypes, System.Rtti, Data.DB,
+  Graphics, Controls, ExtCtrls, ComCtrls, System.UITypes, System.Rtti,
+  System.Generics.Collections, Data.DB,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
   FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
   FireDAC.Phys, FireDAC.VCLUI.Wait, FireDAC.Stan.Param, FireDAC.DatS,
@@ -32,6 +33,7 @@ type
     FOtherFieldName: string;
     FOwnerTable: TTable;
     FTitle: string;
+    FValueChanged: Boolean;
     function GetValue: Variant;
     procedure SetValue(const Value: Variant);
   public
@@ -45,6 +47,7 @@ type
     property OtherFieldName: string read FOtherFieldName write FOtherFieldName;
     property OwnerTable: TTable read FOwnerTable write FOwnerTable;
     property Title: string read FTitle write FTitle;
+    property ValueChanged: Boolean  read FValueChanged write FValueChanged;
 
     constructor Create(const AFieldName: string;
                        const AFieldType: TFieldType;
@@ -82,7 +85,7 @@ type
     function GetTableName: string;
     procedure SetTableName(ATableName: string);
   protected
-    FList: TList;
+    FList: TObjectList<TTable>;
 
     procedure FreeListContent; virtual;
 
@@ -105,7 +108,7 @@ type
 
     property Database: TDatabase read FDatabase;
 
-    property List: TList read FList;
+    property List: TObjectList<TTable> read FList;
 
     property Fields: TArray<TFieldDB> read FFields write FFields;
 
@@ -196,6 +199,7 @@ begin
     AField.Value := FormatedVariantVal(AFld.DataType, AFld.Value);
     if (AField.DataType = ftBytes) and AFld.IsBlob then
       AField.Value := TBlobField(AFld).Value;
+    AField.ValueChanged := False;
   end;
 end;
 
@@ -313,6 +317,7 @@ begin
   FValue := AValue;
   FSize := AMaxLength;
   FIsNullable := AIsNullable;
+  FValueChanged := False;
   if AOtherFieldName = ''
   then  FOtherFieldName := FFieldName
   else  FOtherFieldName := AOtherFieldName;
@@ -348,7 +353,7 @@ end;
 procedure TFieldDB.SetValue(const Value: Variant);
 begin
   FValue := Value;
-
+  ValueChanged := True;
   if VarIsStr(FValue) and (FValue = '') then
     case FDataType of
       ftUnknown: ;
@@ -539,7 +544,7 @@ begin
   FDatabase := ADatabase;
   FSchemaName := 'public';
 
-  FList := TList.Create;
+  FList := TObjectList<TTable>.Create;
   FList.Clear;
 
   SetLength(FFields, 0);
@@ -558,7 +563,7 @@ begin
     FreeAndNil(Fields[n1]);
   SetLength(FFields, 0);
 
-  FreeListContent;
+//  FreeListContent;
 
   if Assigned(FList) then FList.Free;
 
