@@ -71,21 +71,21 @@ begin
   TableSourceCode := MODULE_SAT_SIP_RAPOR;
   inherited Create(ADatabase);
 
-  FMusteriKodu := TFieldDB.Create('musteri_kodu', ftString, '', Self, 'Müşteri Kodu');
-  FMusteriAdi := TFieldDB.Create('musteri_adi', ftString, '', Self, 'Müşteri Adı');
-  FSehirAdi := TFieldDB.Create('sehir_adi', ftString, '', Self, 'Şehir');
-  FStokGrubu := TFieldDB.Create('stok_grubu', ftString, '', Self, 'Stok Grubu');
-  FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self, 'Stok Kodu');
-  FStokAciklama := TFieldDB.Create('stok_aciklama', ftString, '', Self, 'Stok Açıklama');
-  FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self, 'Miktar');
-  FOlcuBirimi := TFieldDB.Create('olcu_birimi', ftString, '', Self, 'Ölçü Birimi');
-  FSiparisNo := TFieldDB.Create('siparis_no', ftString, '', Self, 'Sipariş No');
-  FSiparisTarihi := TFieldDB.Create('siparis_tarihi', ftDate, 0, Self, 'Sipariş Tarihi');
-  FTeslimTarihi := TFieldDB.Create('teslim_tarihi', ftDate, 0, Self, 'Teslim Tarihi');
-  FSiparisDurum := TFieldDB.Create('siparis_durum', ftString, '', Self, 'Sipariş Durum');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açıklama');
-  FReferans := TFieldDB.Create('referans', ftString, '', Self, 'Referans');
-  FReferansSatir := TFieldDB.Create('referans_satir', ftString, '', Self, 'Satır Referans');
+  FMusteriKodu := TFieldDB.Create('musteri_kodu', ftString, '', Self);
+  FMusteriAdi := TFieldDB.Create('musteri_adi', ftString, '', Self);
+  FSehirAdi := TFieldDB.Create('sehir_adi', ftString, '', Self);
+  FStokGrubu := TFieldDB.Create('stok_grubu', ftString, '', Self);
+  FStokKodu := TFieldDB.Create('stok_kodu', ftString, '', Self);
+  FStokAciklama := TFieldDB.Create('stok_aciklama', ftString, '', Self);
+  FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self);
+  FOlcuBirimi := TFieldDB.Create('olcu_birimi', ftString, '', Self);
+  FSiparisNo := TFieldDB.Create('siparis_no', ftString, '', Self);
+  FSiparisTarihi := TFieldDB.Create('siparis_tarihi', ftDate, 0, Self);
+  FTeslimTarihi := TFieldDB.Create('teslim_tarihi', ftDate, 0, Self);
+  FSiparisDurum := TFieldDB.Create('siparis_durum', ftString, '', Self);
+  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
+  FReferans := TFieldDB.Create('referans', ftString, '', Self);
+  FReferansSatir := TFieldDB.Create('referans_satir', ftString, '', Self);
 end;
 
 function TSatSiparisRapor.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

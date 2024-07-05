@@ -76,20 +76,20 @@ begin
   FSysUlke := TSysUlke.Create(ADatabase);
   FSysSehir := TSysSehir.Create(ADatabase);
 
-  FUlkeKodu := TFieldDB.Create(FSysSehir.UlkeKodu.FieldName, FSysSehir.UlkeKodu.DataType, FSysSehir.UlkeKodu.Value, Self, 'Ülke Kodu');
-  FUlkeAdi := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, FSysSehir.UlkeAdi.Value, Self, 'Ülke Adı');
-  FSehirId := TFieldDB.Create('sehir_id', ftLargeint, 0, Self, 'Şehir ID');
-  FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, FSysSehir.Sehir.Value, Self, 'Şehir');
-  FIlce := TFieldDB.Create('ilce', ftWideString, '', Self, 'İlçe');
-  FMahalle := TFieldDB.Create('mahalle', ftWideString, '', Self, 'Mahalle');
-  FSemt := TFieldDB.Create('semt', ftWideString, '', Self, 'Semt');
-  FCadde := TFieldDB.Create('cadde', ftWideString, '', Self, 'Cadde');
-  FSokak := TFieldDB.Create('sokak', ftWideString, '', Self, 'Sokak');
-  FBinaAdi := TFieldDB.Create('bina_adi', ftWideString, '', Self, 'Bina Adı');
-  FKapiNo := TFieldDB.Create('kapi_no', ftWideString, '', Self, 'Kapı No');
-  FPostaKodu := TFieldDB.Create('posta_kodu', ftWideString, '', Self, 'Posta Kodu');
-  FWeb := TFieldDB.Create('web', ftWideString, '', Self, 'Web');
-  FEmail := TFieldDB.Create('email', ftWideString, '', Self, 'Email');
+  FUlkeKodu := TFieldDB.Create(FSysSehir.UlkeKodu.FieldName, FSysSehir.UlkeKodu.DataType, FSysSehir.UlkeKodu.Value, Self);
+  FUlkeAdi := TFieldDB.Create(FSysSehir.UlkeAdi.FieldName, FSysSehir.UlkeAdi.DataType, FSysSehir.UlkeAdi.Value, Self);
+  FSehirId := TFieldDB.Create('sehir_id', ftLargeint, 0, Self);
+  FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, FSysSehir.Sehir.Value, Self);
+  FIlce := TFieldDB.Create('ilce', ftWideString, '', Self);
+  FMahalle := TFieldDB.Create('mahalle', ftWideString, '', Self);
+  FSemt := TFieldDB.Create('semt', ftWideString, '', Self);
+  FCadde := TFieldDB.Create('cadde', ftWideString, '', Self);
+  FSokak := TFieldDB.Create('sokak', ftWideString, '', Self);
+  FBinaAdi := TFieldDB.Create('bina_adi', ftWideString, '', Self);
+  FKapiNo := TFieldDB.Create('kapi_no', ftWideString, '', Self);
+  FPostaKodu := TFieldDB.Create('posta_kodu', ftWideString, '', Self);
+  FWeb := TFieldDB.Create('web', ftWideString, '', Self);
+  FEmail := TFieldDB.Create('email', ftWideString, '', Self);
 end;
 
 destructor TSysAdres.Destroy;

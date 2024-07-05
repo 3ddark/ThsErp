@@ -41,7 +41,7 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FGunAdi := TFieldDB.Create('gun_adi', ftWideString, '', Self, 'Gün Adı');
+  FGunAdi := TFieldDB.Create('gun_adi', ftWideString, '', Self);
 end;
 
 function TSysGun.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

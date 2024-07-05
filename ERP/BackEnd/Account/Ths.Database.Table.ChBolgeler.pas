@@ -41,7 +41,7 @@ begin
   TableSourceCode := MODULE_CH_KAYIT;
   inherited Create(ADatabase);
 
-  FBolge := TFieldDB.Create('bolge', ftWideString, '', Self, 'Bölge');
+  FBolge := TFieldDB.Create('bolge', ftWideString, '', Self);
 end;
 
 function TChBolge.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string;

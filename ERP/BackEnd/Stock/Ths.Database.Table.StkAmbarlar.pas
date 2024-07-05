@@ -46,10 +46,10 @@ begin
   TableSourceCode := MODULE_STK_KAYIT;
   inherited Create(ADatabase);
 
-  FAmbarAdi := TFieldDB.Create('ambar_adi', ftWideString, '', Self, 'Ambar Adı');
-  FIsVarsayilanHammadde := TFieldDB.Create('is_varsayilan_hammadde', ftBoolean, False, Self, 'Varsayılan Hammadde');
-  FIsVarsayilanUretim := TFieldDB.Create('is_varsayilan_uretim', ftBoolean, False, Self, 'Varsayılan Üretim');
-  FIsVarsayilanSatis := TFieldDB.Create('is_varsayilan_satis', ftBoolean, False, Self, 'Varsayılan Satış');
+  FAmbarAdi := TFieldDB.Create('ambar_adi', ftWideString, '', Self);
+  FIsVarsayilanHammadde := TFieldDB.Create('is_varsayilan_hammadde', ftBoolean, False, Self);
+  FIsVarsayilanUretim := TFieldDB.Create('is_varsayilan_uretim', ftBoolean, False, Self);
+  FIsVarsayilanSatis := TFieldDB.Create('is_varsayilan_satis', ftBoolean, False, Self);
 end;
 
 function TStkAmbar.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string;

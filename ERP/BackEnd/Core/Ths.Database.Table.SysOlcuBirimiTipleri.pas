@@ -35,7 +35,7 @@ begin
   TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
-  FOlcuBirimiTipi := TFieldDB.Create('olcu_birimi_tipi', ftWideString, '', Self, 'Ölçü Birimi Tipi');
+  FOlcuBirimiTipi := TFieldDB.Create('olcu_birimi_tipi', ftWideString, '', Self);
 end;
 
 function TSysOlcuBirimiTipi.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string;

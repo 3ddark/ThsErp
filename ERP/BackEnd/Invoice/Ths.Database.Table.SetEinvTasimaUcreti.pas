@@ -43,8 +43,8 @@ begin
   TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
-  FTasimaUcreti := TFieldDB.Create('tasima_ucreti', ftString, '', Self, '');
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
+  FTasimaUcreti := TFieldDB.Create('tasima_ucreti', ftString, '', Self);
 end;
 
 function TSetEinvTasimaUcreti.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

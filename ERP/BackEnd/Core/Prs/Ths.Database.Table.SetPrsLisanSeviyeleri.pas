@@ -40,7 +40,7 @@ begin
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
-  FLisanSeviyesi := TFieldDB.Create('lisan_seviyesi', ftWideString, '', Self, 'Lisan Seviyesi');
+  FLisanSeviyesi := TFieldDB.Create('lisan_seviyesi', ftWideString, '', Self);
 end;
 
 function TSetPrsLisanSeviyesi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

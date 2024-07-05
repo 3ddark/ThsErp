@@ -35,7 +35,7 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FGrup := TFieldDB.Create('grup', ftString, '', Self, 'Grup');
+  FGrup := TFieldDB.Create('grup', ftString, '', Self);
 end;
 
 function TSysKaynakGrubu.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

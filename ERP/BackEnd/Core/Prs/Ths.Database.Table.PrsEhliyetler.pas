@@ -58,10 +58,10 @@ begin
 
   LEmp := TPrsPersonel.Create(Database);
   try
-    FEhliyetID := TFieldDB.Create('ehliyet_id', ftInteger, 0, Self, 'Ehliyet ID');
-    FEhliyet := TFieldDB.Create(FSetPrsEhliyet.Ehliyet.FieldName, FSetPrsEhliyet.Ehliyet.DataType, FSetPrsEhliyet.Ehliyet.Value, Self, FSetPrsEhliyet.Ehliyet.Title);
-    FPersonelID := TFieldDB.Create('personel_id', ftInteger, 0, Self, 'Personel ID');
-    FPersonel := TFieldDB.Create(LEmp.AdSoyad.FieldName, LEmp.AdSoyad.DataType, LEmp.AdSoyad.Value, Self, LEmp.AdSoyad.Title);
+    FEhliyetID := TFieldDB.Create('ehliyet_id', ftInteger, 0, Self);
+    FEhliyet := TFieldDB.Create(FSetPrsEhliyet.Ehliyet.FieldName, FSetPrsEhliyet.Ehliyet.DataType, FSetPrsEhliyet.Ehliyet.Value, Self);
+    FPersonelID := TFieldDB.Create('personel_id', ftInteger, 0, Self);
+    FPersonel := TFieldDB.Create(LEmp.AdSoyad.FieldName, LEmp.AdSoyad.DataType, LEmp.AdSoyad.Value, Self);
   finally
     LEmp.Free;
   end;

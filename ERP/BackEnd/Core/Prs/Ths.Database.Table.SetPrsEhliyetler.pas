@@ -41,7 +41,7 @@ begin
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
-  FEhliyet := TFieldDB.Create('ehliyet', ftWideString, '', Self, 'Ehliyet');
+  FEhliyet := TFieldDB.Create('ehliyet', ftWideString, '', Self);
 end;
 
 function TSetPrsEhliyet.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

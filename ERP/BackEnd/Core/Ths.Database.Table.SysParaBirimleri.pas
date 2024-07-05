@@ -39,9 +39,9 @@ begin
   TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
-  FPara := TFieldDB.Create('para', ftString, '', Self, 'Para');
-  FSembol := TFieldDB.Create('sembol', ftString, '', Self, 'Sembol');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açıklama');
+  FPara := TFieldDB.Create('para', ftString, '', Self);
+  FSembol := TFieldDB.Create('sembol', ftString, '', Self);
+  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
 end;
 
 function TSysParaBirimi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

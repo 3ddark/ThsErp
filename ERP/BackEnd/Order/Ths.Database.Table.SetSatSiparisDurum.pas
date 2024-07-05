@@ -46,9 +46,9 @@ begin
   TableSourceCode := MODULE_TSIF_AYAR;
   inherited Create(ADatabase);
 
-  FSiparisDurum := TFieldDB.Create('siparis_durum', ftString, '', Self, '');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, '');
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
+  FSiparisDurum := TFieldDB.Create('siparis_durum', ftString, '', Self);
+  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
 end;
 
 function TSetSatSiparisDurum.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

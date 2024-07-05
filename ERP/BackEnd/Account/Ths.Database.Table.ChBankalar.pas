@@ -43,8 +43,8 @@ begin
   TableSourceCode := MODULE_CH_KAYIT;
   inherited Create(ADatabase);
 
-  FBankaAdi := TFieldDB.Create('banka_adi', ftWideString, '', Self, 'Banka Adı');
-  FSwiftKodu := TFieldDB.Create('swift_kodu', ftWideString, '', Self, 'Swift Kodu');
+  FBankaAdi := TFieldDB.Create('banka_adi', ftWideString, '', Self);
+  FSwiftKodu := TFieldDB.Create('swift_kodu', ftWideString, '', Self);
 end;
 
 function TChBanka.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string;

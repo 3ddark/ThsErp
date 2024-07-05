@@ -62,13 +62,13 @@ begin
 
   FSysUnit := TSysOlcuBirimi.Create(ADatabase);
 
-  FGiderKodu := TFieldDB.Create('gider_kodu', ftWideString, '', Self, 'Gider Kodu');
-  FGiderAdi := TFieldDB.Create('gider_adi', ftWideString, '', Self, 'Gider Adı');
-  FFiyat := TFieldDB.Create('fiyat', ftBCD, 0, Self, 'Fiyat');
-  FBirimID := TFieldDB.Create('birim_id', ftInteger, 0, Self, 'Birim ID');
-  FBirim := TFieldDB.Create(FSysUnit.Birim.FieldName, FSysUnit.Birim.DataType, FSysUnit.Birim.Value, Self, 'Birim');
-  FGiderTipi := TFieldDB.Create('gider_tipi', ftSmallInt, 0, Self, 'Gider Tipi');
-  FGiderTipiAdi := TFieldDB.Create('gider_tipi_adi', ftWideString, '', Self, 'Gider Tipi Adı');
+  FGiderKodu := TFieldDB.Create('gider_kodu', ftWideString, '', Self);
+  FGiderAdi := TFieldDB.Create('gider_adi', ftWideString, '', Self);
+  FFiyat := TFieldDB.Create('fiyat', ftBCD, 0, Self);
+  FBirimID := TFieldDB.Create('birim_id', ftInteger, 0, Self);
+  FBirim := TFieldDB.Create(FSysUnit.Birim.FieldName, FSysUnit.Birim.DataType, FSysUnit.Birim.Value, Self);
+  FGiderTipi := TFieldDB.Create('gider_tipi', ftSmallInt, 0, Self);
+  FGiderTipiAdi := TFieldDB.Create('gider_tipi_adi', ftWideString, '', Self);
 end;
 
 destructor TUrtIscilik.Destroy;

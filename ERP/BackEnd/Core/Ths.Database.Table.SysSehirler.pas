@@ -54,13 +54,13 @@ begin
   LSysUlke := TSysUlke.Create(Database);
   LSysBolge := TSysBolge.Create(Database);
   try
-    FSehir := TFieldDB.Create('sehir', ftString, '', Self, 'Şehir');
-    FPlakaKodu := TFieldDB.Create('plaka_kodu', ftInteger, 0, Self, 'Plaka Kodu');
-    FUlkeID := TFieldDB.Create('ulke_id', ftLargeInt, 0, Self, 'Ülke ID');
-    FUlkeKodu := TFieldDB.Create(LSysUlke.UlkeKodu.FieldName, LSysUlke.UlkeKodu.DataType, LSysUlke.UlkeKodu.Value, Self, 'Ülke Kodu');
-    FUlkeAdi := TFieldDB.Create(LSysUlke.UlkeAdi.FieldName, LSysUlke.UlkeAdi.DataType, LSysUlke.UlkeAdi.Value, Self, 'Ülke Adı');
-    FBolgeID := TFieldDB.Create('bolge_id', ftLargeint, 0, Self, 'Bölge ID');
-    FBolge := TFieldDB.Create(LSysBolge.Bolge.FieldName, LSysBolge.Bolge.DataType, LSysBolge.Bolge.Value, Self, 'Bölge');
+    FSehir := TFieldDB.Create('sehir', ftString, '', Self);
+    FPlakaKodu := TFieldDB.Create('plaka_kodu', ftInteger, 0, Self);
+    FUlkeID := TFieldDB.Create('ulke_id', ftLargeInt, 0, Self);
+    FUlkeKodu := TFieldDB.Create(LSysUlke.UlkeKodu.FieldName, LSysUlke.UlkeKodu.DataType, LSysUlke.UlkeKodu.Value, Self);
+    FUlkeAdi := TFieldDB.Create(LSysUlke.UlkeAdi.FieldName, LSysUlke.UlkeAdi.DataType, LSysUlke.UlkeAdi.Value, Self);
+    FBolgeID := TFieldDB.Create('bolge_id', ftLargeint, 0, Self);
+    FBolge := TFieldDB.Create(LSysBolge.Bolge.FieldName, LSysBolge.Bolge.DataType, LSysBolge.Bolge.Value, Self);
   finally
     LSysUlke.Free;
     LSysBolge.Free;

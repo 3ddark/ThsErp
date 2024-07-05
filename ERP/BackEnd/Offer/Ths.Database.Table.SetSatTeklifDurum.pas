@@ -45,9 +45,9 @@ begin
   TableSourceCode := MODULE_TSIF_AYAR;
   inherited Create(ADatabase);
 
-  FTeklifDurum := TFieldDB.Create('teklif_durum', ftString, '', Self, '');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, '');
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, False, Self, '');
+  FTeklifDurum := TFieldDB.Create('teklif_durum', ftString, '', Self);
+  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, False, Self);
 end;
 
 function TSetSatTeklifDurum.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

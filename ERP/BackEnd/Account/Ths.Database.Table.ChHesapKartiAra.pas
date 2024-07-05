@@ -88,12 +88,12 @@ begin
   FSetChHesapTipi := TSetChHesapTipi.Create(Database);
   FSetChHesapPlani := TChHesapPlani.Create(Database);
 
-  FHesapKodu := TFieldDB.Create('hesap_kodu', ftWideString, '', Self, 'Hesap Kodu');
-  FHesapIsmi := TFieldDB.Create('hesap_ismi', ftWideString, '', Self, 'Hesap İsmi');
-  FHesapTipiID := TFieldDB.Create('hesap_tipi_id', ftInteger, 0, Self, 'Hesap Tipi ID');
-  FHesapTipi := TFieldDB.Create(FSetChHesapTipi.HesapTipi.FieldName, FSetChHesapTipi.HesapTipi.DataType, '', Self, 'Hesap Tipi');
-  FKokKod := TFieldDB.Create('kok_kod', ftWideString, '', Self, 'Kök Kodu');
-  FSeviye := TFieldDB.Create(FSetChHesapPlani.Seviye.FieldName, FSetChHesapPlani.Seviye.DataType, FSetChHesapPlani.Seviye.Value, Self, FSetChHesapPlani.Seviye.Title);
+  FHesapKodu := TFieldDB.Create('hesap_kodu', ftWideString, '', Self);
+  FHesapIsmi := TFieldDB.Create('hesap_ismi', ftWideString, '', Self);
+  FHesapTipiID := TFieldDB.Create('hesap_tipi_id', ftInteger, 0, Self);
+  FHesapTipi := TFieldDB.Create(FSetChHesapTipi.HesapTipi.FieldName, FSetChHesapTipi.HesapTipi.DataType, '', Self);
+  FKokKod := TFieldDB.Create('kok_kod', ftWideString, '', Self);
+  FSeviye := TFieldDB.Create(FSetChHesapPlani.Seviye.FieldName, FSetChHesapPlani.Seviye.DataType, FSetChHesapPlani.Seviye.Value, Self);
 end;
 
 destructor TChHesapKartiAra.Destroy;

@@ -61,12 +61,12 @@ begin
   FChBanka := TChBanka.Create(ADatabase);
   FSysSehir := TSysSehir.Create(ADatabase);
 
-  FBankaID := TFieldDB.Create('banka_id', ftInteger, 0, Self, 'Banka ID');
-  FBanka := TFieldDB.Create(FChBanka.BankaAdi.FieldName, FChBanka.BankaAdi.DataType, '', Self, 'Banka');
-  FSubeKodu := TFieldDB.Create('sube_kodu', ftInteger, 0, Self, 'Şube Kodu');
-  FSubeAdi := TFieldDB.Create('sube_adi', ftString, '', Self, 'Şube Adı');
-  FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self, 'Şehir ID');
-  FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, FSysSehir.Sehir.Value, Self, FSysSehir.Sehir.Title);
+  FBankaID := TFieldDB.Create('banka_id', ftInteger, 0, Self);
+  FBanka := TFieldDB.Create(FChBanka.BankaAdi.FieldName, FChBanka.BankaAdi.DataType, '', Self);
+  FSubeKodu := TFieldDB.Create('sube_kodu', ftInteger, 0, Self);
+  FSubeAdi := TFieldDB.Create('sube_adi', ftString, '', Self);
+  FSehirID := TFieldDB.Create('sehir_id', ftInteger, 0, Self);
+  FSehir := TFieldDB.Create(FSysSehir.Sehir.FieldName, FSysSehir.Sehir.DataType, FSysSehir.Sehir.Value, Self);
 end;
 
 destructor TChBankaSubesi.Destroy;

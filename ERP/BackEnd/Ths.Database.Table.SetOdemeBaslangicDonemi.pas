@@ -45,9 +45,9 @@ begin
   TableSourceCode := '1000';
   inherited Create(ADatabase);
 
-  FOdemeBaslangicDonemi := TFieldDB.Create('odeme_baslangic_donemi', ftWideString, '', Self, '');
-  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, '');
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
+  FOdemeBaslangicDonemi := TFieldDB.Create('odeme_baslangic_donemi', ftWideString, '', Self);
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self);
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
 end;
 
 function TSetOdemeBaslangicDonemi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

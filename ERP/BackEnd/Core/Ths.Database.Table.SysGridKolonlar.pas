@@ -78,21 +78,21 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FTabloAdi := TFieldDB.Create('tablo_adi', ftWideString, '', Self, 'Tablo Adı');
-  FKolonAdi := TFieldDB.Create('kolon_adi', ftWideString, '', Self, 'Kolon Adı');
-  FSiraNo := TFieldDB.Create('sira_no', ftInteger, 0, Self, 'Sıra No');
-  FKolonGenislik := TFieldDB.Create('kolon_genislik', ftInteger, 0, Self, 'Kolon Genişlik');
-  FVeriFormati := TFieldDB.Create('veri_formati', ftWideString, '', Self, 'Veri Formatı');
-  FIsGorunur := TFieldDB.Create('is_gorunur', ftBoolean, False, Self, 'Görünür?');
-  FIsHelperGorunur := TFieldDB.Create('is_helper_gorunur', ftBoolean, False, Self, 'Helper Görünür?');
-  FMinDeger := TFieldDB.Create('min_deger', ftFloat, 0, Self, 'Min Değer');
-  FMinRenk := TFieldDB.Create('min_renk', ftInteger, 0, Self, 'Min Renk');
-  FMaxDeger := TFieldDB.Create('maks_deger', ftFloat, 0, Self, 'Maks Değer');
-  FMaxRenk := TFieldDB.Create('maks_renk', ftInteger, 0, Self, 'Maks Renk');
-  FMaxDegerYuzdesi := TFieldDB.Create('maks_deger_yuzdesi', ftFloat, 0, Self, 'Maks Değer Yüzdesi');
-  FBarRengi := TFieldDB.Create('bar_rengi', ftInteger, 0, Self, 'Bar Rengi');
-  FBarArkaRengi := TFieldDB.Create('bar_arka_rengi', ftInteger, 0, Self, 'Bar Arka Rengi');
-  FBarYaziRengi := TFieldDB.Create('bar_yazi_rengi', ftInteger, 0, Self, 'Bar Yazı Rengi');
+  FTabloAdi := TFieldDB.Create('tablo_adi', ftWideString, '', Self);
+  FKolonAdi := TFieldDB.Create('kolon_adi', ftWideString, '', Self);
+  FSiraNo := TFieldDB.Create('sira_no', ftInteger, 0, Self);
+  FKolonGenislik := TFieldDB.Create('kolon_genislik', ftInteger, 0, Self);
+  FVeriFormati := TFieldDB.Create('veri_formati', ftWideString, '', Self);
+  FIsGorunur := TFieldDB.Create('is_gorunur', ftBoolean, False, Self);
+  FIsHelperGorunur := TFieldDB.Create('is_helper_gorunur', ftBoolean, False, Self);
+  FMinDeger := TFieldDB.Create('min_deger', ftFloat, 0, Self);
+  FMinRenk := TFieldDB.Create('min_renk', ftInteger, 0, Self);
+  FMaxDeger := TFieldDB.Create('maks_deger', ftFloat, 0, Self);
+  FMaxRenk := TFieldDB.Create('maks_renk', ftInteger, 0, Self);
+  FMaxDegerYuzdesi := TFieldDB.Create('maks_deger_yuzdesi', ftFloat, 0, Self);
+  FBarRengi := TFieldDB.Create('bar_rengi', ftInteger, 0, Self);
+  FBarArkaRengi := TFieldDB.Create('bar_arka_rengi', ftInteger, 0, Self);
+  FBarYaziRengi := TFieldDB.Create('bar_yazi_rengi', ftInteger, 0, Self);
 
   FSeqStatus := ssNone;
   FOldValue := 0;

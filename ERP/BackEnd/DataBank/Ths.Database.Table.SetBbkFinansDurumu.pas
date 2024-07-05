@@ -43,7 +43,7 @@ begin
   TableSourceCode := MODULE_BBK_AYAR;
   inherited Create(ADatabase);
 
-  FFinansDurumu := TFieldDB.Create('finans_durumu', ftWideString, '', Self, '');
+  FFinansDurumu := TFieldDB.Create('finans_durumu', ftWideString, '', Self);
 end;
 
 function TSetBbkFinansDurumu.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

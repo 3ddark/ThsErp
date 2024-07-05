@@ -40,7 +40,7 @@ begin
   TableSourceCode := MODULE_BBK_AYAR;
   inherited Create(ADatabase);
 
-  FCalismaDurumu := TFieldDB.Create('calisma_durumu', ftWideString, '', Self, 'Çalışma Durumu');
+  FCalismaDurumu := TFieldDB.Create('calisma_durumu', ftWideString, '', Self);
 end;
 
 function TSetBbkCalismaDurumu.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

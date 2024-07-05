@@ -63,16 +63,16 @@ begin
   FSysKaynak := TSysKaynak.Create(Database);
   FSysKullanici := TSysKullanici.Create(Database);
 
-  FKaynakID := TFieldDB.Create('kaynak_id', ftInteger, 0, Self, 'Kaynak ID');
-  FKaynakAdi := TFieldDB.Create(FSysKaynak.KaynakAdi.FieldName, FSysKaynak.KaynakAdi.DataType, '', Self, FSysKaynak.KaynakAdi.Title);
-  FKaynakKodu := TFieldDB.Create(FSysKaynak.KaynakKodu.FieldName, FSysKaynak.KaynakKodu.DataType, '', Self, FSysKaynak.KaynakKodu.Title);
-  FIsOkuma := TFieldDB.Create('is_okuma', ftBoolean, False, Self, 'Okuma?');
-  FIsEkleme := TFieldDB.Create('is_ekleme', ftBoolean, False, Self, 'Ekleme?');
-  FIsGuncelleme := TFieldDB.Create('is_guncelleme', ftBoolean, False, Self, 'Güncelleme?');
-  FIsSilme := TFieldDB.Create('is_silme', ftBoolean, False, Self, 'Silme?');
-  FIsOzel := TFieldDB.Create('is_ozel', ftBoolean, False, Self, 'Özel?');
-  FKullaniciID := TFieldDB.Create('kullanici_id', ftInteger, 0, Self, 'Kullanıcı ID');
-  FKullanici := TFieldDB.Create(FSysKullanici.KullaniciAdi.FieldName, FSysKullanici.KullaniciAdi.DataType, FSysKullanici.KullaniciAdi.Value, Self, FSysKullanici.KullaniciAdi.Title);
+  FKaynakID := TFieldDB.Create('kaynak_id', ftInteger, 0, Self);
+  FKaynakAdi := TFieldDB.Create(FSysKaynak.KaynakAdi.FieldName, FSysKaynak.KaynakAdi.DataType, FSysKaynak.KaynakAdi.Value, Self);
+  FKaynakKodu := TFieldDB.Create(FSysKaynak.KaynakKodu.FieldName, FSysKaynak.KaynakKodu.DataType, FSysKaynak.KaynakKodu.Value, Self);
+  FIsOkuma := TFieldDB.Create('is_okuma', ftBoolean, False, Self);
+  FIsEkleme := TFieldDB.Create('is_ekleme', ftBoolean, False, Self);
+  FIsGuncelleme := TFieldDB.Create('is_guncelleme', ftBoolean, False, Self);
+  FIsSilme := TFieldDB.Create('is_silme', ftBoolean, False, Self);
+  FIsOzel := TFieldDB.Create('is_ozel', ftBoolean, False, Self);
+  FKullaniciID := TFieldDB.Create('kullanici_id', ftInteger, 0, Self);
+  FKullanici := TFieldDB.Create(FSysKullanici.KullaniciAdi.FieldName, FSysKullanici.KullaniciAdi.DataType, FSysKullanici.KullaniciAdi.Value, Self);
 end;
 
 destructor TSysErisimHakki.Destroy;

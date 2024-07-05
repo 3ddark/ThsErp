@@ -51,9 +51,9 @@ begin
 
   FSetChFirmaTuru := TSetChFirmaTuru.Create(Database);
 
-  FFirmaTipi := TFieldDB.Create('firma_tipi', ftWideString, '', Self, 'Firma Tipi');
-  FFirmaTuruID := TFieldDB.Create('firma_turu_id', ftInteger, 0, Self, 'Firma Türü ID');
-  FFirmaTuru := TFieldDB.Create(FSetChFirmaTuru.FirmaTuru.FieldName, FSetChFirmaTuru.FirmaTuru.DataType, '', Self, 'Firma Türü');
+  FFirmaTipi := TFieldDB.Create('firma_tipi', ftWideString, '', Self);
+  FFirmaTuruID := TFieldDB.Create('firma_turu_id', ftInteger, 0, Self);
+  FFirmaTuru := TFieldDB.Create(FSetChFirmaTuru.FirmaTuru.FieldName, FSetChFirmaTuru.FirmaTuru.DataType, '', Self);
 end;
 
 destructor TSetChFirmaTipi.Destroy;

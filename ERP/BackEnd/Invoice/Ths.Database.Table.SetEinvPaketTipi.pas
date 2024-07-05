@@ -47,10 +47,10 @@ begin
   TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
-  FKod := TFieldDB.Create('kod', ftString, '', Self, '');
-  FPaketTipi := TFieldDB.Create('paket_tipi', ftString, '', Self, '');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, '');
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
+  FKod := TFieldDB.Create('kod', ftString, '', Self);
+  FPaketTipi := TFieldDB.Create('paket_tipi', ftString, '', Self);
+  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
 end;
 
 function TSetEinvPaketTipi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

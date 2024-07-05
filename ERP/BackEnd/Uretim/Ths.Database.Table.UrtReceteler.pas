@@ -636,14 +636,14 @@ begin
   ReceteMaliyet.IscilikCount := 0;
   ReceteMaliyet.YanUrunCount := 0;
 
-  FUrunKodu := TFieldDB.Create('urun_kodu', ftWideString, '', Self, 'Ürün Kodu');
-  FUrunAdi := TFieldDB.Create('urun_adi', ftWideString, '', Self, 'Ürün Adı');
-  FOrnekMiktari := TFieldDB.Create('ornek_miktari', ftFloat, 0, Self, 'Örnek Miktarı');
-  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açıklama');
-  FMaliyet := TFieldDB.Create('maliyet', ftBCD, 0, Self, 'Maliyet');
-  FHammaddeMaliyet := TFieldDB.Create('hammadde_maliyet', ftBCD, 0, Self, 'Hammadde Maliyet');
-  FIscilikMaliyet := TFieldDB.Create('iscilik_maliyet', ftBCD, 0, Self, 'İşçilik Maliyet');
-  FYanUrunMaliyet := TFieldDB.Create('yan_urun_maliyet', ftBCD, 0, Self, 'Yan Ürün Maliyet');
+  FUrunKodu := TFieldDB.Create('urun_kodu', ftWideString, '', Self);
+  FUrunAdi := TFieldDB.Create('urun_adi', ftWideString, '', Self);
+  FOrnekMiktari := TFieldDB.Create('ornek_miktari', ftFloat, 0, Self);
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self);
+  FMaliyet := TFieldDB.Create('maliyet', ftBCD, 0, Self);
+  FHammaddeMaliyet := TFieldDB.Create('hammadde_maliyet', ftBCD, 0, Self);
+  FIscilikMaliyet := TFieldDB.Create('iscilik_maliyet', ftBCD, 0, Self);
+  FYanUrunMaliyet := TFieldDB.Create('yan_urun_maliyet', ftBCD, 0, Self);
 end;
 
 function TUrtRecete.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

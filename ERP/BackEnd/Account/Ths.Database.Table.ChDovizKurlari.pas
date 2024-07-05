@@ -45,9 +45,9 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FKurTarihi := TFieldDB.Create('kur_tarihi', ftDate, 0, Self, 'Kur Tarihi');
-  FPara := TFieldDB.Create('para', ftWideString, '', Self, 'Para');
-  FKur := TFieldDB.Create('kur', ftBCD, 0, Self, 'Kur');
+  FKurTarihi := TFieldDB.Create('kur_tarihi', ftDate, 0, Self);
+  FPara := TFieldDB.Create('para', ftWideString, '', Self);
+  FKur := TFieldDB.Create('kur', ftBCD, 0, Self);
 end;
 
 function TChDovizKuru.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

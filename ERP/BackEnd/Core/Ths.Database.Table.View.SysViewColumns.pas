@@ -59,16 +59,16 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FTabloAdi  := TFieldDB.Create('table_name', ftWideString, '', Self, 'Tablo Adı');
-  FColumnName := TFieldDB.Create('column_name', ftWideString, '', Self, 'Kolon Adı');
-  FIsNullable := TFieldDB.Create('is_nullable', ftBoolean, False, Self, 'Null Olabilir');
-  FDataType := TFieldDB.Create('data_type', ftWideString, '', Self, 'Veri Tipi');
-  FCharacterMaximumLength := TFieldDB.Create('character_maximum_length', ftInteger, 0, Self, 'Maks Uzunluk');
-  FOrdinalPosition := TFieldDB.Create('ordinal_position', ftInteger, 0, Self, 'Kolon Sırası');
-  FNumericPrecision := TFieldDB.Create('numeric_precision', ftInteger, 0, Self, 'Numeric Hassaslık');
-  FNumericScale := TFieldDB.Create('numeric_scale', ftInteger, 0, Self, 'Numeric Ölçek');
-  FOrjTableName  := TFieldDB.Create('orj_table_name', ftWideString, '', Self, 'Orj Tablo Adı');
-  FOrjColumnName := TFieldDB.Create('orj_column_name', ftWideString, '', Self, 'Orj Kolon Adı');
+  FTabloAdi  := TFieldDB.Create('table_name', ftWideString, '', Self);
+  FColumnName := TFieldDB.Create('column_name', ftWideString, '', Self);
+  FIsNullable := TFieldDB.Create('is_nullable', ftBoolean, False, Self);
+  FDataType := TFieldDB.Create('data_type', ftWideString, '', Self);
+  FCharacterMaximumLength := TFieldDB.Create('character_maximum_length', ftInteger, 0, Self);
+  FOrdinalPosition := TFieldDB.Create('ordinal_position', ftInteger, 0, Self);
+  FNumericPrecision := TFieldDB.Create('numeric_precision', ftInteger, 0, Self);
+  FNumericScale := TFieldDB.Create('numeric_scale', ftInteger, 0, Self);
+  FOrjTableName  := TFieldDB.Create('orj_table_name', ftWideString, '', Self);
+  FOrjColumnName := TFieldDB.Create('orj_column_name', ftWideString, '', Self);
 end;
 
 function TSysViewColumns.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string;

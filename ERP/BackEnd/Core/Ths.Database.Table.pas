@@ -32,7 +32,6 @@ type
     FIsNullable: Boolean;
     FOtherFieldName: string;
     FOwnerTable: TTable;
-    FTitle: string;
     FValueChanged: Boolean;
     function GetValue: Variant;
     procedure SetValue(const Value: Variant);
@@ -46,14 +45,12 @@ type
     property IsNullable: Boolean read FIsNullable write FIsNullable default True;
     property OtherFieldName: string read FOtherFieldName write FOtherFieldName;
     property OwnerTable: TTable read FOwnerTable write FOwnerTable;
-    property Title: string read FTitle write FTitle;
-    property ValueChanged: Boolean  read FValueChanged write FValueChanged;
+    property ValueChanged: Boolean  read FValueChanged write FValueChanged default False;
 
     constructor Create(const AFieldName: string;
                        const AFieldType: TFieldType;
                        const AValue: Variant;
                        AOwnerTable: TTable;
-                       const ATitle: string;
                        const AOtherFieldName: string = '';
                        const AMaxLength: Integer=0;
                        const AIsNullable: Boolean=True);
@@ -196,9 +193,13 @@ begin
   AFld := ADataSet.FindField(AField.FieldName);
   if AFld <> nil then
   begin
-    AField.Value := FormatedVariantVal(AFld.DataType, AFld.Value);
     if (AField.DataType = ftBytes) and AFld.IsBlob then
-      AField.Value := TBlobField(AFld).Value;
+    begin
+      AField.Value := null;
+      AField.Value := TBlobField(AFld).Value
+    end
+    else
+      AField.Value := FormatedVariantVal(AFld.DataType, AFld.Value);
     AField.ValueChanged := False;
   end;
 end;
@@ -307,7 +308,6 @@ constructor TFieldDB.Create(
   const AFieldType: TFieldType;
   const AValue: Variant;
   AOwnerTable: TTable;
-  const ATitle: string;
   const AOtherFieldName: string = '';
   const AMaxLength: Integer=0;
   const AIsNullable: Boolean=True);
@@ -323,10 +323,6 @@ begin
   else  FOtherFieldName := AOtherFieldName;
 
   FOwnerTable := AOwnerTable;
-
-  if ATitle = ''
-  then  FTitle := AFieldName
-  else  FTitle := ATitle;
 
   if FOwnerTable <> nil then
   begin
@@ -352,8 +348,8 @@ end;
 
 procedure TFieldDB.SetValue(const Value: Variant);
 begin
+  ValueChanged := (FValue <> Value);
   FValue := Value;
-  ValueChanged := True;
   if VarIsStr(FValue) and (FValue = '') then
     case FDataType of
       ftUnknown: ;
@@ -549,7 +545,7 @@ begin
 
   SetLength(FFields, 0);
 
-  Id := TFieldDB.Create('id', ftLargeint, 0, Self, 'ID');
+  Id := TFieldDB.Create('id', ftLargeint, 0, Self);
   Id.Value := FDatabase.GetNewRecordId();
 
   Deleted := False;

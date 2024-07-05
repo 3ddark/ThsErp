@@ -55,11 +55,11 @@ begin
 
   FSetEInvFaturaTipi := TSetEinvFaturaTipi.Create(Database);
 
-  FIstisnaKodu := TFieldDB.Create('istisna_kodu', ftWideString, '', Self, 'İstisna Kodu');
-  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, 'Açıklama');
-  FIsTamIstisna := TFieldDB.Create('is_tam_istisna', ftBoolean, False, Self, 'Tam İstisna');
-  FFaturaTipiID := TFieldDB.Create('fatura_tipi_id', ftInteger, 0, Self, 'Fatura Tipi ID');
-  FFaturaTipi := TFieldDB.Create(FSetEInvFaturaTipi.FaturaTipi.FieldName, FSetEInvFaturaTipi.FaturaTipi.DataType, '', Self, 'Fatura Tipi');
+  FIstisnaKodu := TFieldDB.Create('istisna_kodu', ftWideString, '', Self);
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self);
+  FIsTamIstisna := TFieldDB.Create('is_tam_istisna', ftBoolean, False, Self);
+  FFaturaTipiID := TFieldDB.Create('fatura_tipi_id', ftInteger, 0, Self);
+  FFaturaTipi := TFieldDB.Create(FSetEInvFaturaTipi.FaturaTipi.FieldName, FSetEInvFaturaTipi.FaturaTipi.DataType, '', Self);
 end;
 
 destructor TSetEinvIstisnaKodu.Destroy;

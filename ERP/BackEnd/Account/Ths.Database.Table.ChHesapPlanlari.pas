@@ -51,9 +51,9 @@ begin
   TableSourceCode := MODULE_CH_AYAR;
   inherited Create(ADatabase);
 
-  FPlanKodu := TFieldDB.Create('plan_kodu', ftString, '', Self, 'Plan Kodu');
-  FPlanAdi := TFieldDB.Create('plan_adi', ftString, '', Self, 'Plan Adı');
-  FSeviye := TFieldDB.Create('seviye', ftInteger, 0, Self, 'Seviye Sayısı');
+  FPlanKodu := TFieldDB.Create('plan_kodu', ftString, '', Self);
+  FPlanAdi := TFieldDB.Create('plan_adi', ftString, '', Self);
+  FSeviye := TFieldDB.Create('seviye', ftInteger, 0, Self);
 end;
 
 function TChHesapPlani.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

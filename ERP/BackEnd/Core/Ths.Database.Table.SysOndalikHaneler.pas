@@ -48,11 +48,11 @@ begin
   TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
-  FMiktar := TFieldDB.Create('miktar', ftInteger, 2, Self, 'Miktar');
-  FFiyat := TFieldDB.Create('fiyat', ftInteger, 2, Self, 'Fiyat');
-  FTutar := TFieldDB.Create('tutar', ftInteger, 2, Self, 'Tutar');
-  FStokMiktar := TFieldDB.Create('stok_miktar', ftInteger, 2, Self, 'Stok Miktar');
-  FDovizKuru := TFieldDB.Create('doviz_kuru', ftInteger, 4, Self, 'Döviz Kuru');
+  FMiktar := TFieldDB.Create('miktar', ftInteger, 2, Self);
+  FFiyat := TFieldDB.Create('fiyat', ftInteger, 2, Self);
+  FTutar := TFieldDB.Create('tutar', ftInteger, 2, Self);
+  FStokMiktar := TFieldDB.Create('stok_miktar', ftInteger, 2, Self);
+  FDovizKuru := TFieldDB.Create('doviz_kuru', ftInteger, 4, Self);
 end;
 
 function TSysOndalikHane.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

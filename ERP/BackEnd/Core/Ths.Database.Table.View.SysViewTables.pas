@@ -41,8 +41,8 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FTableName  := TFieldDB.Create('table_name', ftString, '', Self, 'Table Name');
-  FTableType := TFieldDB.Create('table_type', ftString, '', Self, 'Table Type');
+  FTableName  := TFieldDB.Create('table_name', ftString, '', Self);
+  FTableType := TFieldDB.Create('table_type', ftString, '', Self);
 end;
 
 function TSysViewTables.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string;

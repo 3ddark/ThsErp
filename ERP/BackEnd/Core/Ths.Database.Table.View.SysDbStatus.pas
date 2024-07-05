@@ -53,14 +53,14 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FPID := TFieldDB.Create('pid', ftInteger, 0, Self, 'PID');
-  FDBName := TFieldDB.Create('db_name', ftWideString, '', Self, 'DB Name');
-  FAppName := TFieldDB.Create('app_name', ftWideString, '', Self, 'App Name');
-  FUserName := TFieldDB.Create('user_name', ftWideString, '', Self, 'User Name');
-  FClientAddress := TFieldDB.Create('client_address', ftWideString, '', Self, 'Client IP Adres');
-  FState := TFieldDB.Create('state', ftWideString, '', Self, 'State');
-  FQuery := TFieldDB.Create('query', ftWideString, '', Self, 'Query');
-  FLockedTables := TFieldDB.Create('locked_tables', ftWideString, '', Self, 'Locked Tables');
+  FPID := TFieldDB.Create('pid', ftInteger, 0, Self);
+  FDBName := TFieldDB.Create('db_name', ftWideString, '', Self);
+  FAppName := TFieldDB.Create('app_name', ftWideString, '', Self);
+  FUserName := TFieldDB.Create('user_name', ftWideString, '', Self);
+  FClientAddress := TFieldDB.Create('client_address', ftWideString, '', Self);
+  FState := TFieldDB.Create('state', ftWideString, '', Self);
+  FQuery := TFieldDB.Create('query', ftWideString, '', Self);
+  FLockedTables := TFieldDB.Create('locked_tables', ftWideString, '', Self);
 end;
 
 function TSysDBStatus.SelectToDatasource(pFilter: string; pPermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string;

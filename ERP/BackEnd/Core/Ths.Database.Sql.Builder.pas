@@ -222,6 +222,15 @@ begin
   try
     LFields.Delimiter := ',';
 
+{
+    //Buraya fieldname yerine fielddb tipleri gönderilecek.
+    //ValueChanged true olan kayıtlar update sql komutunda otomatik oluşturulacak.
+    //hiç değişen yoksa SQL.Text := '' olarak dönecek.
+    if not AField.ValueChanged then
+    begin
+      Exit;
+    end;
+}
     LSQL.Add('UPDATE ' + ATableName + ' SET ');
     Len := Length(AFieldNames);
     for n1 := 0 to Len-1 do

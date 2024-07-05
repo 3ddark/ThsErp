@@ -43,7 +43,7 @@ begin
   TableSourceCode := MODULE_CH_AYAR;
   inherited Create(ADatabase);
 
-  FHesapTipi := TFieldDB.Create('hesap_tipi', ftString, '', Self, 'Hesap Tipi');
+  FHesapTipi := TFieldDB.Create('hesap_tipi', ftString, '', Self);
 end;
 
 function TSetChHesapTipi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

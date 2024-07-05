@@ -41,7 +41,7 @@ begin
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
-  FPersonelTipi := TFieldDB.Create('personel_tipi', ftWideString, '', Self, 'Personel Tipi');
+  FPersonelTipi := TFieldDB.Create('personel_tipi', ftWideString, '', Self);
 end;
 
 function TSetPrsPersonelTipi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

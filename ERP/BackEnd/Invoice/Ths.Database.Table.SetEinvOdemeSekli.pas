@@ -49,11 +49,11 @@ begin
   TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
-  FOdemeSekli := TFieldDB.Create('odeme_sekli', ftWideString, '', Self, '');
-  FKod := TFieldDB.Create('kod', ftWideString, '', Self, '');
-  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self, '');
-  FIsEFatura := TFieldDB.Create('is_efatura', ftBoolean, False, Self, '');
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
+  FOdemeSekli := TFieldDB.Create('odeme_sekli', ftWideString, '', Self);
+  FKod := TFieldDB.Create('kod', ftWideString, '', Self);
+  FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self);
+  FIsEFatura := TFieldDB.Create('is_efatura', ftBoolean, False, Self);
 end;
 
 function TSetEinvOdemeSekli.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

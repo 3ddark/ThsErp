@@ -35,7 +35,7 @@ begin
   TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
-  FBolge := TFieldDB.Create('bolge', ftString, '', Self, 'Bölge');
+  FBolge := TFieldDB.Create('bolge', ftString, '', Self);
 end;
 
 function TSysBolge.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

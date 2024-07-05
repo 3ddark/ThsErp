@@ -51,13 +51,13 @@ begin
 
   LUnitTypes := TSysOlcuBirimiTipi.Create(ADatabase);
   try
-    FBirim := TFieldDB.Create('birim', ftString, '', Self, 'Birim');
-    FBirimEInv := TFieldDB.Create('birim_einv', ftString, '', Self, 'E-Fature Birim');
-    FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, 'Açıklama');
-    FIsOndalik := TFieldDB.Create('is_ondalik', ftBoolean, False, Self, 'Ondalık?');
-    FBirimiTipiID := TFieldDB.Create('birim_tipi_id', ftInteger, 0, Self, 'Ölçü Birimi Tipi ID');
-    FBirimTipi := TFieldDB.Create(LUnitTypes.OlcuBirimiTipi.FieldName, LUnitTypes.OlcuBirimiTipi.DataType, LUnitTypes.OlcuBirimiTipi.Value, Self, LUnitTypes.OlcuBirimiTipi.Title);
-    FCarpan := TFieldDB.Create('carpan', ftInteger, 0, Self, 'Çarpan');
+    FBirim := TFieldDB.Create('birim', ftString, '', Self);
+    FBirimEInv := TFieldDB.Create('birim_einv', ftString, '', Self);
+    FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
+    FIsOndalik := TFieldDB.Create('is_ondalik', ftBoolean, False, Self);
+    FBirimiTipiID := TFieldDB.Create('birim_tipi_id', ftInteger, 0, Self);
+    FBirimTipi := TFieldDB.Create(LUnitTypes.OlcuBirimiTipi.FieldName, LUnitTypes.OlcuBirimiTipi.DataType, LUnitTypes.OlcuBirimiTipi.Value, Self);
+    FCarpan := TFieldDB.Create('carpan', ftInteger, 0, Self);
   finally
     LUnitTypes.Free;
   end;

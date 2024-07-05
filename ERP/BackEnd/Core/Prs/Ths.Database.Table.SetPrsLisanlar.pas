@@ -41,7 +41,7 @@ begin
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
-  FLisan := TFieldDB.Create('lisan', ftWideString, '', Self, 'Lisan');
+  FLisan := TFieldDB.Create('lisan', ftWideString, '', Self);
 end;
 
 function TSetPrsLisan.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

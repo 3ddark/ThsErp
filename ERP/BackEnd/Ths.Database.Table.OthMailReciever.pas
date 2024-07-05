@@ -41,7 +41,7 @@ begin
   TableSourceCode := '1000';
   inherited Create(ADatabase);
 
-  FMailAdresi := TFieldDB.Create('mail_adresi', ftWideString, '', Self, '');
+  FMailAdresi := TFieldDB.Create('mail_adresi', ftWideString, '', Self);
 end;
 
 function TOthMailReciever.SelectToDatasource(AFilter: string; APermissionControl: Boolean=True; AAllColumn: Boolean=True; AHelper: Boolean=False): string;

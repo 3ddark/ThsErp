@@ -67,15 +67,15 @@ begin
 
   LEmployee := TPrsPersonel.Create(Database);
   try
-    FKullaniciAdi := TFieldDB.Create('kullanici_adi', ftString, '', Self, 'Kullanıcı Adı');
-    FKullaniciSifre := TFieldDB.Create('kullanici_sifre', ftString, '', Self, 'Kullanıcı Şifre');
-    FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, False, Self, 'Aktif?');
-    FIsYonetici := TFieldDB.Create('is_yonetici', ftBoolean, False, Self, 'Yönetici?');
-    FIsSuperKullanici := TFieldDB.Create('is_super_kullanici', ftBoolean, False, Self, 'Süper Kullanıcı?');
-    FIpAdres := TFieldDB.Create('ip_adres', ftString, '', Self, 'Ip Adres');
-    FMacAdres := TFieldDB.Create('mac_adres', ftString, '', Self, 'Mac Adres');
-    FPersonelID := TFieldDB.Create('personel_id', ftInteger, 0, Self, 'Personel ID');
-    FAdSoyad := TFieldDB.Create(LEmployee.AdSoyad.FieldName, LEmployee.AdSoyad.DataType, LEmployee.AdSoyad.Value, Self, LEmployee.AdSoyad.Title);
+    FKullaniciAdi := TFieldDB.Create('kullanici_adi', ftString, '', Self);
+    FKullaniciSifre := TFieldDB.Create('kullanici_sifre', ftString, '', Self);
+    FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, False, Self);
+    FIsYonetici := TFieldDB.Create('is_yonetici', ftBoolean, False, Self);
+    FIsSuperKullanici := TFieldDB.Create('is_super_kullanici', ftBoolean, False, Self);
+    FIpAdres := TFieldDB.Create('ip_adres', ftString, '', Self);
+    FMacAdres := TFieldDB.Create('mac_adres', ftString, '', Self);
+    FPersonelID := TFieldDB.Create('personel_id', ftInteger, 0, Self);
+    FAdSoyad := TFieldDB.Create(LEmployee.AdSoyad.FieldName, LEmployee.AdSoyad.DataType, LEmployee.AdSoyad.Value, Self);
   finally
     FreeAndNil(LEmployee);
   end;

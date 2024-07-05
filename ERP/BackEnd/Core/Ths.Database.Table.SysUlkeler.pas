@@ -43,11 +43,11 @@ begin
   TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
-  FUlkeKodu := TFieldDB.Create('ulke_kodu', ftString, '', Self, 'Ülke Kodu');
-  FUlkeAdi := TFieldDB.Create('ulke_adi', ftString, '', Self, 'Ülke Adi');
-  FISOYear := TFieldDB.Create('iso_year', ftInteger, 0, Self, 'ISO Year');
-  FISOCCTLD := TFieldDB.Create('iso_cctld', ftString, '', Self, 'ISO CCTLD');
-  FIsEuMember := TFieldDB.Create('is_eu_member', ftBoolean, False, Self, 'EU Member?');
+  FUlkeKodu := TFieldDB.Create('ulke_kodu', ftString, '', Self);
+  FUlkeAdi := TFieldDB.Create('ulke_adi', ftString, '', Self);
+  FISOYear := TFieldDB.Create('iso_year', ftInteger, 0, Self);
+  FISOCCTLD := TFieldDB.Create('iso_cctld', ftString, '', Self);
+  FIsEuMember := TFieldDB.Create('is_eu_member', ftBoolean, False, Self);
 end;
 
 function TSysUlke.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

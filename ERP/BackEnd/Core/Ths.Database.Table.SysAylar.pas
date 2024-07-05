@@ -40,7 +40,7 @@ begin
   Self.TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FAyAdi := TFieldDB.Create('ay_adi', ftWideString, '', Self, 'Ay Adı');
+  FAyAdi := TFieldDB.Create('ay_adi', ftWideString, '', Self);
 end;
 
 function TSysAy.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

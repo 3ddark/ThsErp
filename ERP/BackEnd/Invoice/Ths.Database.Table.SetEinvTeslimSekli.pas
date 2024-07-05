@@ -47,10 +47,10 @@ begin
   TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self, '');
-  FTeslimSekli := TFieldDB.Create('teslim_sekli', ftString, '', Self, '');
-  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self, '');
-  FIsEFatura := TFieldDB.Create('is_efatura', ftBoolean, False, Self, '');
+  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
+  FTeslimSekli := TFieldDB.Create('teslim_sekli', ftString, '', Self);
+  FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
+  FIsEFatura := TFieldDB.Create('is_efatura', ftBoolean, False, Self);
 end;
 
 function TSetEinvTeslimSekli.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

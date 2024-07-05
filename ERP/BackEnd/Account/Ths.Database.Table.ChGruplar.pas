@@ -41,7 +41,7 @@ begin
   TableSourceCode := MODULE_CH_AYAR;
   inherited Create(ADatabase);
 
-  FGrup := TFieldDB.Create('grup', ftString, '', Self, 'Grup');
+  FGrup := TFieldDB.Create('grup', ftString, '', Self);
 end;
 
 function TChGrup.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

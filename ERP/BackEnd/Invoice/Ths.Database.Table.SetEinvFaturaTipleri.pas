@@ -42,7 +42,7 @@ begin
   TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
-  FFaturaTipi := TFieldDB.Create('fatura_tipi', ftWideString, '', Self, 'Fatura Tipi');
+  FFaturaTipi := TFieldDB.Create('fatura_tipi', ftWideString, '', Self);
 end;
 
 function TSetEinvFaturaTipi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

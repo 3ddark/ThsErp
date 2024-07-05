@@ -45,9 +45,9 @@ begin
   TableSourceCode := MODULE_PRS_AYAR;
   inherited Create(ADatabase);
 
-  FAracNo := TFieldDB.Create('arac_no', ftInteger, 0, Self, 'Araç No');
-  FAracAdi := TFieldDB.Create('arac_adi', ftWideString, '', Self, 'Araç Adı');
-  FRota := TFieldDB.Create('rota', ftArray, '', Self, 'Rota');
+  FAracNo := TFieldDB.Create('arac_no', ftInteger, 0, Self);
+  FAracAdi := TFieldDB.Create('arac_adi', ftWideString, '', Self);
+  FRota := TFieldDB.Create('rota', ftArray, '', Self);
 end;
 
 function TSetPrsTasimaServisi.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

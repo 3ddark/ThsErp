@@ -257,7 +257,7 @@ begin
   TableSourceCode := MODULE_RCT_RECETE_AYAR;
   inherited Create(ADatabase);
 
-  FPaketAdi := TFieldDB.Create('paket_adi', ftWideString, '', Self, '');
+  FPaketAdi := TFieldDB.Create('paket_adi', ftWideString, '', Self);
 end;
 
 function TUrtPaketHammadde.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

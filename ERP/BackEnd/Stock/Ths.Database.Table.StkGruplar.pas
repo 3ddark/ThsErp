@@ -84,23 +84,23 @@ begin
   FCH := TChHesapKarti.Create(ADatabase);
   FSetChVergiOrani := TSetChVergiOrani.Create(ADatabase);
 
-  FGrup := TFieldDB.Create('grup', ftWideString, '', Self, 'Grup');
-  FKDVOrani := TFieldDB.Create('kdv_orani', ftFloat, 0, Self, 'Kdv Oranı');
-  FHammaddeStokHesapKodu := TFieldDB.Create('hammadde_stok_hesap_kodu', ftWideString, '', Self, 'Hammadde Stok');
-  FHammaddeStokHesapAdi := TFieldDB.Create('hammadde_stok_hesap_adi', FCH.HesapIsmi.DataType, '', Self, 'Hammadde Stok Hesabı');
-  FHammaddeKullanimHesapKodu := TFieldDB.Create('hammadde_kullanim_hesap_kodu', ftWideString, '', Self, 'Hammadde Kullanım');
-  FHammaddeKullanimHesapAdi := TFieldDB.Create('hammadde_kullanim_hesap_adi', FCH.HesapIsmi.DataType, '', Self, 'Hammadde Kullanım Hesabı');
-  FYariMamulHesapKodu := TFieldDB.Create('yari_mamul_hesap_kodu', ftWideString, '', Self, 'Yarı Mamül');
-  FYariMamulHesapAdi := TFieldDB.Create('yari_mamul_hesap_adi', FCH.HesapIsmi.DataType, '', Self, 'Yarı Mamül Hesabı');
+  FGrup := TFieldDB.Create('grup', ftWideString, '', Self);
+  FKDVOrani := TFieldDB.Create('kdv_orani', ftFloat, 0, Self);
+  FHammaddeStokHesapKodu := TFieldDB.Create('hammadde_stok_hesap_kodu', ftWideString, '', Self);
+  FHammaddeStokHesapAdi := TFieldDB.Create('hammadde_stok_hesap_adi', FCH.HesapIsmi.DataType, '', Self);
+  FHammaddeKullanimHesapKodu := TFieldDB.Create('hammadde_kullanim_hesap_kodu', ftWideString, '', Self);
+  FHammaddeKullanimHesapAdi := TFieldDB.Create('hammadde_kullanim_hesap_adi', FCH.HesapIsmi.DataType, '', Self);
+  FYariMamulHesapKodu := TFieldDB.Create('yari_mamul_hesap_kodu', ftWideString, '', Self);
+  FYariMamulHesapAdi := TFieldDB.Create('yari_mamul_hesap_adi', FCH.HesapIsmi.DataType, '', Self);
   //vergi oranları tablosundan geliyor
-  FSatisHesapKodu := TFieldDB.Create(FSetChVergiOrani.SatisHesapKodu.FieldName, FSetChVergiOrani.SatisHesapKodu.DataType, FSetChVergiOrani.SatisHesapKodu.Value, Self, FSetChVergiOrani.SatisHesapKodu.Title);
-  FSatisHesapAdi := TFieldDB.Create(FSetChVergiOrani.SatisHesapAdi.FieldName, FSetChVergiOrani.SatisHesapAdi.DataType, FSetChVergiOrani.SatisHesapAdi.Value, Self, FSetChVergiOrani.SatisHesapAdi.Title);
-  FSatisIadeHesapKodu := TFieldDB.Create(FSetChVergiOrani.SatisIadeHesapKodu.FieldName, FSetChVergiOrani.SatisIadeHesapKodu.DataType, FSetChVergiOrani.SatisIadeHesapKodu.Value, Self, FSetChVergiOrani.SatisIadeHesapKodu.Title);
-  FSatisIadeHesapAdi := TFieldDB.Create(FSetChVergiOrani.SatisIadeHesapAdi.FieldName, FSetChVergiOrani.SatisIadeHesapAdi.DataType, FSetChVergiOrani.SatisIadeHesapAdi.Value, Self, FSetChVergiOrani.SatisIadeHesapAdi.Title);
-  FAlisHesapKodu := TFieldDB.Create(FSetChVergiOrani.AlisHesapKodu.FieldName, FSetChVergiOrani.AlisHesapKodu.DataType, FSetChVergiOrani.AlisHesapKodu.Value, Self, FSetChVergiOrani.AlisHesapKodu.Title);
-  FAlisHesapAdi := TFieldDB.Create(FSetChVergiOrani.AlisHesapAdi.FieldName, FSetChVergiOrani.AlisHesapAdi.DataType, FSetChVergiOrani.AlisHesapAdi.Value, Self, FSetChVergiOrani.AlisHesapAdi.Title);
-  FAlisIadeHesapKodu := TFieldDB.Create(FSetChVergiOrani.AlisIadeHesapKodu.FieldName, FSetChVergiOrani.AlisIadeHesapKodu.DataType, FSetChVergiOrani.AlisIadeHesapKodu.Value, Self, FSetChVergiOrani.AlisIadeHesapKodu.Title);
-  FAlisIadeHesapAdi := TFieldDB.Create(FSetChVergiOrani.AlisIadeHesapAdi.FieldName, FSetChVergiOrani.AlisIadeHesapAdi.DataType, FSetChVergiOrani.AlisIadeHesapAdi.Value, Self, FSetChVergiOrani.AlisIadeHesapAdi.Title);
+  FSatisHesapKodu := TFieldDB.Create(FSetChVergiOrani.SatisHesapKodu.FieldName, FSetChVergiOrani.SatisHesapKodu.DataType, FSetChVergiOrani.SatisHesapKodu.Value, Self);
+  FSatisHesapAdi := TFieldDB.Create(FSetChVergiOrani.SatisHesapAdi.FieldName, FSetChVergiOrani.SatisHesapAdi.DataType, FSetChVergiOrani.SatisHesapAdi.Value, Self);
+  FSatisIadeHesapKodu := TFieldDB.Create(FSetChVergiOrani.SatisIadeHesapKodu.FieldName, FSetChVergiOrani.SatisIadeHesapKodu.DataType, FSetChVergiOrani.SatisIadeHesapKodu.Value, Self);
+  FSatisIadeHesapAdi := TFieldDB.Create(FSetChVergiOrani.SatisIadeHesapAdi.FieldName, FSetChVergiOrani.SatisIadeHesapAdi.DataType, FSetChVergiOrani.SatisIadeHesapAdi.Value, Self);
+  FAlisHesapKodu := TFieldDB.Create(FSetChVergiOrani.AlisHesapKodu.FieldName, FSetChVergiOrani.AlisHesapKodu.DataType, FSetChVergiOrani.AlisHesapKodu.Value, Self);
+  FAlisHesapAdi := TFieldDB.Create(FSetChVergiOrani.AlisHesapAdi.FieldName, FSetChVergiOrani.AlisHesapAdi.DataType, FSetChVergiOrani.AlisHesapAdi.Value, Self);
+  FAlisIadeHesapKodu := TFieldDB.Create(FSetChVergiOrani.AlisIadeHesapKodu.FieldName, FSetChVergiOrani.AlisIadeHesapKodu.DataType, FSetChVergiOrani.AlisIadeHesapKodu.Value, Self);
+  FAlisIadeHesapAdi := TFieldDB.Create(FSetChVergiOrani.AlisIadeHesapAdi.FieldName, FSetChVergiOrani.AlisIadeHesapAdi.DataType, FSetChVergiOrani.AlisIadeHesapAdi.Value, Self);
 end;
 
 destructor TStkGruplar.Destroy;

@@ -57,12 +57,12 @@ begin
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  FKod := TFieldDB.Create('kod', ftString, '', Self, 'Kod');
-  FDeger := TFieldDB.Create('deger', ftString, '', Self, 'Değer');
-  FIsFabrika := TFieldDB.Create('is_fabrika', ftBoolean, False, Self, 'Fabrika?');
-  FIcerikTipi := TFieldDB.Create('icerik_tipi', ftString, '', Self, 'İçerik Tipi');
-  FTabloAdi := TFieldDB.Create('tablo_adi', ftString, '', Self, 'Tablo Adı');
-  FFormAdi := TFieldDB.Create('form_adi', ftString, '', Self, 'Form Adı');
+  FKod := TFieldDB.Create('kod', ftString, '', Self);
+  FDeger := TFieldDB.Create('deger', ftString, '', Self);
+  FIsFabrika := TFieldDB.Create('is_fabrika', ftBoolean, False, Self);
+  FIcerikTipi := TFieldDB.Create('icerik_tipi', ftString, '', Self);
+  FTabloAdi := TFieldDB.Create('tablo_adi', ftString, '', Self);
+  FFormAdi := TFieldDB.Create('form_adi', ftString, '', Self);
 end;
 
 function TSysGuiIcerik.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

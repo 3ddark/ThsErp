@@ -49,10 +49,10 @@ begin
 
   LSysGroup := TSysKaynakGrubu.Create(ADatabase);
   try
-    FKaynakKodu := TFieldDB.Create('kaynak_kodu', ftInteger, 0, Self, 'Kaynak Kodu');
-    FKaynakAdi := TFieldDB.Create('kaynak_adi', ftString, '', Self, 'Kaynak Adı');
-    FKaynakGrupID := TFieldDB.Create('kaynak_grup_id', ftInteger, 0, Self, 'Kaynak Grup ID');
-    FKaynakGrubu := TFieldDB.Create(LSysGroup.Grup.FieldName, LSysGroup.Grup.DataType, '', Self, LSysGroup.Grup.Title);
+    FKaynakKodu := TFieldDB.Create('kaynak_kodu', ftInteger, 0, Self);
+    FKaynakAdi := TFieldDB.Create('kaynak_adi', ftString, '', Self);
+    FKaynakGrupID := TFieldDB.Create('kaynak_grup_id', ftInteger, 0, Self);
+    FKaynakGrubu := TFieldDB.Create(LSysGroup.Grup.FieldName, LSysGroup.Grup.DataType, '', Self);
   finally
     LSysGroup.Free;
   end;

@@ -1820,7 +1820,7 @@ begin
       if not ExistsGridColumn(grd.DataSource.DataSet.Fields.Fields[n2].FieldName) then
       begin  AFieldDB := Table.GetFieldByFieldName(grd.DataSource.DataSet.Fields.Fields[n2].FieldName);
         if AFieldDB <> nil then
-          AddColumn(grd.DataSource.DataSet.Fields.Fields[n2].FieldName, AFieldDB.Title);
+          AddColumn(grd.DataSource.DataSet.Fields.Fields[n2].FieldName, AFieldDB.FieldName);
       end;
     end;
 
