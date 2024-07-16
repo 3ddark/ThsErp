@@ -14,7 +14,7 @@ uses
   FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Phys.PGDef, FireDAC.Comp.Client,
   FireDAC.Phys.PG, FireDAC.Comp.DataSet,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Combobox, Ths.Helper.Memo,
-  Ths.Database;
+  Ths.Database, Logger;
 
 {$M+}
 
@@ -625,32 +625,32 @@ end;
 
 procedure TTable.AfterDeleteDB;
 begin
-//
+  GLogger.RunLog('AfterDelete # ' + TableName + ' # id = ' + Self.Id.AsString);
 end;
 
 procedure TTable.AfterInsertDB;
 begin
-//
+  GLogger.RunLog('AfterInsert # ' + TableName + ' # id = ' + Self.Id.AsString);
 end;
 
 procedure TTable.AfterUpdateDB;
 begin
-//
+  GLogger.RunLog('AfterUpdate # ' + TableName + ' # id = ' + Self.Id.AsString);
 end;
 
 procedure TTable.BeforeDeleteDB;
 begin
-//
+  GLogger.RunLog('BeforeDelete # ' + TableName + ' # id = ' + Self.Id.AsString);
 end;
 
 procedure TTable.BeforeInsertDB;
 begin
-//
+  GLogger.RunLog('BeforeInsert # ' + TableName);
 end;
 
 procedure TTable.BeforeUpdateDB;
 begin
-//
+  GLogger.RunLog('BeforeUpdate # ' + TableName + ' # id = ' + Self.Id.AsString);
 end;
 
 procedure TTable.Insert(APermissionControl: Boolean);
@@ -691,6 +691,7 @@ begin
     ParamByName(Id.FieldName).Value := Id.AsInt64;
     ExecSQL;
     Close;
+    GLogger.RunLog('DoDelete # ' + TableName + ' # id = ' + Self.Id.AsString);
   finally
     Free;
   end;
@@ -730,6 +731,7 @@ begin
           ParamByName(Id.FieldName).Value := LIDs;
           ExecSQL;
           Close;
+          GLogger.RunLog('DoDeleteWith # ' + TableName + ' # id = ' + LIDs);
         finally
           Free;
         end;
@@ -772,6 +774,7 @@ begin
           ParamByName(Id.FieldName).Value := LIDs;
           ExecSQL;
           Close;
+          GLogger.RunLog('DoDeleteWithCustom # ' + ATableName + ' # id = ' + LIDs);
         finally
           Free;
         end;
@@ -788,6 +791,7 @@ begin
     SQL.Clear;
     SQL.Text := 'listen ' + TableName + ';';
     ExecSQL;
+    GLogger.RunLog('listen # ' + TableName);
   finally
     Free;
   end;
@@ -801,6 +805,7 @@ begin
     SQL.Clear;
     SQL.Text := 'unlisten ' + TableName + ';';
     ExecSQL;
+    GLogger.RunLog('unlisten # ' + TableName);
   finally
     Free;
   end;
@@ -815,6 +820,7 @@ begin
     SQL.Text := 'notify ' + TableName + ';';
     ExecSQL;
     Close;
+    GLogger.RunLog('notify # ' + TableName);
   finally
     Free;
   end;

@@ -76,7 +76,7 @@ type
 
     FmrBtnAccept: Integer;
   protected
-    function ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl = nil):boolean;virtual;
+    function ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl = nil):boolean; virtual;
     procedure fillComboBoxData(var pControl: TCombobox;
         pTable: TTable; const pFieldName: TArray<string>; pFilter: string;
         pWithObject: Boolean = False; pAddEmptyOne: Boolean = False;
@@ -105,7 +105,7 @@ type
       AFormMode: TInputFormMode = ifmNone;
       AFormDecimalMode: TFormDecimalMode = fomNormal;
       AFormViewMode: TInputFormViewMode = ivmNormal;
-      AAcceptBtnDoAction: Boolean = True);reintroduce;overload;
+      AAcceptBtnDoAction: Boolean = True); reintroduce; overload;
 
     function FocusedFirstControl(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean; virtual;
     procedure RepaintThsEditComboForHelperProcessSing(vPanelGroupboxPagecontrolTabsheet: TWinControl);

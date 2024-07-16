@@ -17,7 +17,7 @@ uses
   FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys,
   FireDAC.VCLUI.Wait, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf,
   FireDAC.DApt, FireDAC.Phys.PGDef, FireDAC.Comp.Client, FireDAC.Phys.PG,
-  FireDAC.Comp.DataSet, Ths.Database, Ths.Constants, Ths.Utils.Logger,
+  FireDAC.Comp.DataSet, Ths.Database, Ths.Constants, Logger,
   Ths.Helper.ThsList, Ths.Database.Table, Ths.Database.Table.SysKullanicilar,
   Ths.Database.Table.SysOndalikHaneler, Ths.Database.Table.SysUygulamaAyarlari,
   Ths.Database.Table.SysAylar, Ths.Database.Table.SysParaBirimleri,
@@ -448,12 +448,6 @@ type
   );
 
 var
-  /// <summary>
-  ///  Application event log
-  /// </summary>
-  GLogger: TLogger;
-
-
   GDosyaUzantilari: TArray<string>;
 
   /// <summary>
@@ -2457,7 +2451,6 @@ begin
   GParaBirimi.Free;
   GSysTableInfo.Free;
   GGuiIcerik.Free;
-  GLogger.Free;
 end;
 
 end.

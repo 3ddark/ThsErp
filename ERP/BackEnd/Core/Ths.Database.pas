@@ -66,6 +66,7 @@ type
     function GetToday: TDateTime;
     function GetNow(AOnlyTime: Boolean = True): TDateTime;
     procedure ConfigureConnection(AHostName, ADatabase, AUser, APassword: string; APort: Integer);
+    function GetConnectionPID: Integer;
   end;
 
 implementation
@@ -217,6 +218,27 @@ begin
   end
   else
     ShowMessage('Else Event');
+end;
+
+function TDatabase.GetConnectionPID: Integer;
+begin
+  Result := 0;
+
+  with NewQuery() do
+  try
+    Close;
+    SQL.Text := 'SELECT pg_backend_pid()';
+    Open;
+    while not EOF do
+    begin
+      Result := Fields.Fields[0].AsInteger;
+      Next;
+    end;
+    EmptyDataSet;
+    Close;
+  finally
+    Free;
+  end;
 end;
 
 function TDatabase.GetNewRecordId: Integer;

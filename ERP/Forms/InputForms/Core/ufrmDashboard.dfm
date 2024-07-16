@@ -14,9 +14,10 @@ inherited frmDashboard: TfrmDashboard
   Scaled = False
   WindowMenu = VeritabanYedekAl1
   OnActivate = FormActivate
-  ExplicitWidth = 931
-  ExplicitHeight = 514
-  TextHeight = 15
+  ExplicitWidth = 921
+  ExplicitHeight = 499
+  PixelsPerInch = 96
+  TextHeight = 13
   object pnlToolbar: TPanel [0]
     Left = 0
     Top = 0
@@ -272,23 +273,6 @@ inherited frmDashboard: TfrmDashboard
           Images = dm.il32
           ParentFont = False
           TabOrder = 2
-          WordWrap = True
-        end
-        object Button1: TButton
-          Left = 638
-          Top = 2
-          Width = 150
-          Height = 36
-          Caption = 'Ambarlar'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ImageIndex = 73
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 5
           WordWrap = True
         end
       end

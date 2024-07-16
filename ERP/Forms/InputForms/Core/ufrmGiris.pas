@@ -8,7 +8,7 @@ uses
   System.SysUtils, System.Classes, System.Generics.Collections, Vcl.Controls,
   Vcl.Forms, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Dialogs, Vcl.Graphics,
   Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Menus, Vcl.Themes, Vcl.Styles,
-  Vcl.Imaging.pngimage, Winapi.Windows, FireDAC.Comp.Client,
+  Vcl.Imaging.pngimage, Winapi.Windows, FireDAC.Comp.Client, Logger,
   Ths.Helper.Edit, Ths.Helper.ComboBox, udm, ufrmBase, Ths.Database.Connection.Settings;
 
 type
@@ -84,6 +84,7 @@ end;
 
 procedure TfrmGiris.btnAcceptClick(Sender: TObject);
 var
+  LDBPid: string;
   LUserID: Integer;
   LGuiIcerik: TSysGuiIcerik;
   LGuiContent: TGuiIcerik;
@@ -124,6 +125,9 @@ begin
     if GDataBase.Connection.Connected then
     begin
       try
+        LDBPid := GDataBase.GetConnectionPID.ToString;
+        GLogger.DBConnectionPID := LDBPid;
+
         GDataBase.Connection.ExecSQL('SET ths_erp.user_name = ' + QuotedStr(edtkullanici_adi.Text));
 
         pb1.Max := 11;

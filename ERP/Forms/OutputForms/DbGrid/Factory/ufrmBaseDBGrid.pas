@@ -237,23 +237,23 @@ type
       AParentForm: TForm = nil;
       ATable: TTable = nil;
       AFormDecimalMode: TFormDecimalMode = fomNormal;
-      AHelperForm: Boolean = False);reintroduce;overload;
+      AHelperForm: Boolean = False); reintroduce; overload;
 
     procedure RefreshDataFirst();
     procedure RefreshData();
-    procedure RefreshGrid();virtual;
+    procedure RefreshGrid(); virtual;
 
     procedure ShowInputForm(Sender: TObject; pFormType: TInputFormMode); virtual;
     procedure SetSelectedItem; virtual;
-    procedure MoveUp();virtual;
-    procedure MoveDown();virtual;
+    procedure MoveUp(); virtual;
+    procedure MoveDown(); virtual;
 
     function GetFieldByFieldName(pFieldName: string; pGridColumns: TDBGridColumns): TField;
     procedure SetColVisible(pFieldName: string; pVisible: Boolean);
 
     procedure StatusBarDuzenle();
   published
-    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);override;
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); override;
     procedure stbBaseDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect); override;
     procedure WmAfterShow(var Msg: TMessage); message WM_AFTER_SHOW;
     procedure btnAcceptClick(Sender: TObject); override;

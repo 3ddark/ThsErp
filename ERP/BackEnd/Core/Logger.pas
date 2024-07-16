@@ -2,7 +2,7 @@
 
 interface
 
-uses SysUtils, Forms, Winapi.Windows;
+uses SysUtils, Winapi.Windows, Vcl.Forms;
 
 type
   TLogger = class
@@ -34,8 +34,7 @@ var
   PID: DWORD;
 begin
   if AFileName = '' then
-    raise Exception.Create('Log dosyası adı zorunludur!!!');
-  FLogFileName := ExtractFilePath(Application.ExeName) + PathDelim + AFileName + '.log';
+    AFileName := ChangeFileExt(ExtractFileName(Application.ExeName), '');
 
   FProcessID := '';
   FDBConnectionPID := '';
@@ -43,6 +42,8 @@ begin
   if Application.Handle <> 0 then
     GetWindowThreadProcessID(Application.Handle, @PID);
   FProcessID := PID.ToString;
+
+  FLogFileName := ExtractFilePath(Application.ExeName) + AFileName + '-' + FormatDateTime('YYYYMMDD', Now) + '-' + FProcessID + '.log';
 end;
 
 procedure TLogger.ErrorLog(E: Exception);
@@ -100,7 +101,7 @@ begin
 end;
 
 initialization
-  GLogger := TLogger.Create('TestLog');
+  GLogger := TLogger.Create('');
 finalization
   FreeAndNil(GLogger);
 

@@ -156,7 +156,6 @@ type
     actch_banka_subeleri: TAction;
     actset_prs_tasima_servisleri: TAction;
     mniset_prs_tasima_servisleri: TMenuItem;
-    Button1: TButton;
 
 /// <summary>
 ///   Kullanıcının erişim yetkisine göre yapılacak işlemler burada olacak
@@ -276,7 +275,7 @@ uses
   Vcl.Themes,
   ufrmAbout,
   Ths.Utils.FluentXML,
-  Ths.Utils.Logger,
+  Logger,
   Ths.Helper.BaseTypes,
   Ths.Helper.Edit,
   Ths.Constants,
@@ -973,7 +972,6 @@ end;
 procedure TfrmDashboard.FormCreate(Sender: TObject);
 begin
   inherited;
-  GLogger := TLogger.Create;
 
   GUygulamaAnaDizin := ExtractFilePath(Application.ExeName);
 
@@ -1246,7 +1244,6 @@ begin
             btnstk_cins_ozelligi.Enabled := True;
             btnstk_stok_ambar.Enabled := True;
             btnstk_stok_grubu.Enabled := True;
-            Button1.Enabled := True;
           end;
         end
         //Reçete
