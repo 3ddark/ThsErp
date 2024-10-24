@@ -163,12 +163,12 @@ begin
   FTel1 := TFieldDB.Create('tel1', ftWideString, '', Self);
   FTel2 := TFieldDB.Create('tel2', ftWideString, '', Self);
   FPersonelTipiID := TFieldDB.Create('personel_tipi_id', ftInteger, 0, Self);
-  FPersonelTipi := TFieldDB.Create(FSetPrsPersonelTipi.PersonelTipi.FieldName, FSetPrsPersonelTipi.PersonelTipi.DataType, '', Self);
+  FPersonelTipi := TFieldDB.Create(FSetPrsPersonelTipi.PersonelTipi.FieldName, FSetPrsPersonelTipi.PersonelTipi.DataType, FSetPrsPersonelTipi.PersonelTipi.Value, Self);
   FBolum := TFieldDB.Create(FSetPrsBolum.Bolum.FieldName, FSetPrsBolum.Bolum.DataType, FSetPrsBolum.Bolum.Value, Self);
   FBirimID := TFieldDB.Create('birim_id', ftInteger, 0, Self);
   FBirim := TFieldDB.Create(FSetPrsBirim.Birim.FieldName, FSetPrsBirim.Birim.DataType, '', Self);
   FGorevID := TFieldDB.Create('gorev_id', ftInteger, 0, Self);
-  FGorev := TFieldDB.Create(FSetPrsGorev.Gorev.FieldName, FSetPrsGorev.Gorev.DataType, 0, Self);
+  FGorev := TFieldDB.Create(FSetPrsGorev.Gorev.FieldName, FSetPrsGorev.Gorev.DataType, '', Self);
   FDogumTarihi := TFieldDB.Create('dogum_tarihi', ftDate, 0, Self);
   FKanGrubu := TFieldDB.Create('kan_grubu', ftWideString, '', Self);
   FCinsiyet := TFieldDB.Create('cinsiyet', ftSmallInt, 0, Self);
