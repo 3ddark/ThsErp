@@ -798,13 +798,13 @@ begin
 
   if APP_VERSION <> LSurum then
   begin
-    LMr := CustomMsgDlg(('Programda yeni bir güncellemeniz var. Şimdi güncellemek ister misin?' + AddLBs(2) +
-                         'Sistemsel hatalar veya kritik güncellemeler yapıldığı için güncellemeyi bir an önce yapmanız önerilir.'),
-                        mtConfirmation,
-                        mbYesNo,
-                        ['Evet Güncelle', 'Hayır Sonra Güncelle'],
-                        mbNo,
-                        'Kullanıcı Güncelleme Onayı');
+    LMr := CustomMsgDlg(( 'Programda yeni bir güncellemeniz var. Şimdi güncellemek ister misin?' + AddLBs(2) +
+                          'Sistemsel hatalar veya kritik güncellemeler yapıldığı için güncellemeyi bir an önce yapmanız önerilir.'),
+                          mtConfirmation,
+                          mbYesNo,
+                          ['Evet Güncelle', 'Hayır Sonra Güncelle'],
+                          mbNo,
+                          'Kullanıcı Güncelleme Onayı');
     if LMr = mrYes then
       UpdateApplicationExe;
   end;

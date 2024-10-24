@@ -8,8 +8,8 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
   inherited pnlMain: TPanel
     Width = 773
     Height = 491
-    ExplicitWidth = 783
-    ExplicitHeight = 511
+    ExplicitWidth = 773
+    ExplicitHeight = 491
     inherited splLeft: TSplitter
       Top = 108
       Height = 383
@@ -28,8 +28,8 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
       Width = 667
       Height = 383
       ExplicitTop = 108
-      ExplicitWidth = 677
-      ExplicitHeight = 403
+      ExplicitWidth = 667
+      ExplicitHeight = 383
       inherited tsMain: TTabSheet
         ExplicitWidth = 659
         ExplicitHeight = 355
@@ -38,22 +38,22 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
     inherited pnlHeader: TPanel
       Width = 769
       Height = 102
-      ExplicitWidth = 779
+      ExplicitWidth = 769
       ExplicitHeight = 102
       inherited pgcHeader: TPageControl
         Width = 767
         Height = 100
-        ExplicitWidth = 777
+        ExplicitWidth = 767
         ExplicitHeight = 100
         inherited tsHeader: TTabSheet
           Caption = 'Genel'
           ExplicitWidth = 739
           ExplicitHeight = 92
           object lblurun_kodu: TLabel
-            Left = 73
+            Left = 69
             Top = 5
-            Width = 57
-            Height = 14
+            Width = 61
+            Height = 13
             Alignment = taRightJustify
             Caption = #220'r'#252'n Kodu'
             Font.Charset = DEFAULT_CHARSET
@@ -64,10 +64,10 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
             ParentFont = False
           end
           object lblurun_adi: TLabel
-            Left = 83
+            Left = 80
             Top = 27
-            Width = 47
-            Height = 14
+            Width = 50
+            Height = 13
             Alignment = taRightJustify
             Caption = #220'r'#252'n Ad'#305
             Font.Charset = DEFAULT_CHARSET
@@ -78,10 +78,10 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
             ParentFont = False
           end
           object lblornek_uretm_miktari: TLabel
-            Left = 15
+            Left = 13
             Top = 49
-            Width = 115
-            Height = 14
+            Width = 117
+            Height = 13
             Alignment = taRightJustify
             Caption = #214'rnek '#220'retim Miktar'#305
             Font.Charset = DEFAULT_CHARSET
@@ -92,10 +92,10 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
             ParentFont = False
           end
           object lblaciklama: TLabel
-            Left = 80
+            Left = 78
             Top = 71
-            Width = 50
-            Height = 14
+            Width = 52
+            Height = 13
             Alignment = taRightJustify
             BiDiMode = bdLeftToRight
             Caption = 'A'#231#305'klama'
@@ -147,35 +147,35 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
       Width = 667
       Height = 383
       ExplicitTop = 108
-      ExplicitWidth = 677
-      ExplicitHeight = 403
+      ExplicitWidth = 667
+      ExplicitHeight = 383
       inherited pgcContent: TPageControl
         Width = 665
         Height = 379
         OnChange = pgcContentChange
-        ExplicitWidth = 675
-        ExplicitHeight = 399
+        ExplicitWidth = 665
+        ExplicitHeight = 379
         inherited ts1: TTabSheet
           ExplicitWidth = 657
           ExplicitHeight = 351
           inherited pnl1: TPanel
-            Top = 305
-            Width = 667
+            Top = 285
+            Width = 657
             Height = 66
-            ExplicitTop = 305
-            ExplicitWidth = 667
+            ExplicitTop = 285
+            ExplicitWidth = 657
             ExplicitHeight = 66
             inherited grpGenelToplamKalan: TGroupBox
-              Left = 197
+              Left = 187
               Height = 62
               Visible = False
-              ExplicitLeft = 197
+              ExplicitLeft = 187
               ExplicitHeight = 62
             end
             inherited grpGenelToplam: TGroupBox
-              Left = 432
+              Left = 422
               Height = 62
-              ExplicitLeft = 432
+              ExplicitLeft = 422
               ExplicitHeight = 62
               inherited lblToplamTutar: TLabel
                 Caption = 'Toplam Maliyet'
@@ -206,17 +206,17 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
               end
             end
             inherited flwpnl1: TFlowPanel
-              Width = 195
+              Width = 185
               Height = 66
-              ExplicitWidth = 195
+              ExplicitWidth = 185
               ExplicitHeight = 66
             end
           end
           inherited strngrd1: TStringGrid
-            Width = 667
-            Height = 305
-            ExplicitWidth = 667
-            ExplicitHeight = 305
+            Width = 657
+            Height = 285
+            ExplicitWidth = 657
+            ExplicitHeight = 285
           end
         end
         inherited ts2: TTabSheet
@@ -269,9 +269,9 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
         end
       end
       inherited btnHeaderShowHide: TButton
-        Left = 544
+        Left = 542
         Width = 100
-        ExplicitLeft = 566
+        ExplicitLeft = 542
         ExplicitWidth = 100
       end
     end
@@ -279,27 +279,27 @@ inherited frmRctReceteDetaylar: TfrmRctReceteDetaylar
       Top = 109
       Height = 380
       ExplicitTop = 109
-      ExplicitHeight = 400
+      ExplicitHeight = 380
     end
   end
   inherited pnlBottom: TPanel
     Top = 493
     Width = 769
-    ExplicitTop = 513
-    ExplicitWidth = 779
+    ExplicitTop = 493
+    ExplicitWidth = 769
     inherited btnAccept: TButton
-      Left = 573
-      ExplicitLeft = 573
+      Left = 563
+      ExplicitLeft = 563
     end
     inherited btnClose: TButton
-      Left = 677
-      ExplicitLeft = 677
+      Left = 667
+      ExplicitLeft = 667
     end
   end
   inherited stbBase: TStatusBar
     Top = 523
     Width = 773
-    ExplicitTop = 543
-    ExplicitWidth = 783
+    ExplicitTop = 523
+    ExplicitWidth = 773
   end
 end

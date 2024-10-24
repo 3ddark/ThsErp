@@ -4,15 +4,14 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
   Caption = 'frmBaseDetaylar'
   ClientHeight = 608
   ClientWidth = 895
-  ExplicitTop = -22
-  ExplicitWidth = 909
-  ExplicitHeight = 644
+  ExplicitWidth = 911
+  ExplicitHeight = 647
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 895
     Height = 558
-    ExplicitWidth = 1070
-    ExplicitHeight = 554
+    ExplicitWidth = 895
+    ExplicitHeight = 558
     object splLeft: TSplitter [0]
       Left = 103
       Top = 124
@@ -46,8 +45,8 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       TabOrder = 2
       ExplicitLeft = 106
       ExplicitTop = 124
-      ExplicitWidth = 964
-      ExplicitHeight = 430
+      ExplicitWidth = 789
+      ExplicitHeight = 434
       inherited tsMain: TTabSheet
         ExplicitWidth = 781
         ExplicitHeight = 406
@@ -66,7 +65,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       Align = alTop
       Constraints.MinHeight = 30
       TabOrder = 0
-      ExplicitWidth = 1066
       object pgcHeader: TPageControl
         Left = 1
         Top = 1
@@ -78,7 +76,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         TabOrder = 0
         TabPosition = tpLeft
         TabStop = False
-        ExplicitWidth = 1064
         object tsHeader: TTabSheet
           Caption = 'Header'
         end
@@ -99,8 +96,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       Margins.Bottom = 2
       Align = alClient
       TabOrder = 1
-      ExplicitWidth = 964
-      ExplicitHeight = 430
       DesignSize = (
         789
         434)
@@ -117,8 +112,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         ActivePage = ts1
         Align = alClient
         TabOrder = 1
-        ExplicitWidth = 962
-        ExplicitHeight = 426
         object ts1: TTabSheet
           Caption = 'ts1'
           object pnl1: TPanel
@@ -135,8 +128,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
             BevelOuter = bvNone
             Color = 14993769
             TabOrder = 1
-            ExplicitTop = 314
-            ExplicitWidth = 954
             object grpGenelToplamKalan: TGroupBox
               AlignWithMargins = True
               Left = 309
@@ -149,7 +140,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
               Margins.Bottom = 2
               Align = alRight
               TabOrder = 1
-              ExplicitLeft = 484
               object lblToplamTutarKalan: TLabel
                 Left = 4
                 Top = 4
@@ -313,7 +303,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
               Margins.Bottom = 2
               Align = alRight
               TabOrder = 2
-              ExplicitLeft = 719
               object lblToplamTutar: TLabel
                 Left = 4
                 Top = 4
@@ -473,7 +462,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 0
-              ExplicitWidth = 482
             end
           end
           object strngrd1: TStringGrid
@@ -489,8 +477,7 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
             StyleElements = []
             OnDblClick = GridDblClick
             OnDrawCell = GridDrawCell
-            ExplicitWidth = 954
-            ExplicitHeight = 314
+            ExplicitHeight = 166
             ColWidths = (
               64
               64
@@ -619,7 +606,6 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
         ParentFont = False
         TabOrder = 0
         OnClick = btnHeaderShowHideClick
-        ExplicitLeft = 923
       end
     end
     object pnlLeft: TPanel
@@ -636,29 +622,28 @@ inherited frmBaseDetaylar: TfrmBaseDetaylar
       Constraints.MinHeight = 100
       Constraints.MinWidth = 100
       TabOrder = 3
-      ExplicitHeight = 427
     end
   end
   inherited pnlBottom: TPanel
     Top = 560
     Width = 891
     TabOrder = 2
-    ExplicitTop = 556
-    ExplicitWidth = 1066
+    ExplicitTop = 560
+    ExplicitWidth = 891
     inherited btnAccept: TButton
       Left = 685
-      ExplicitLeft = 860
+      ExplicitLeft = 685
     end
     inherited btnClose: TButton
       Left = 789
-      ExplicitLeft = 964
+      ExplicitLeft = 789
     end
   end
   inherited stbBase: TStatusBar
     Top = 590
     Width = 895
-    ExplicitTop = 586
-    ExplicitWidth = 1070
+    ExplicitTop = 590
+    ExplicitWidth = 895
   end
   object pb1: TProgressBar [3]
     Left = 360
