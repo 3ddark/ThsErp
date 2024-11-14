@@ -78,12 +78,12 @@ procedure TDatabase.AddListenEventName(AEventName: string);
 begin
   //Aktif ise önce Pasif yapıp Names kısmını dolduruyoruz.
   //Active işleminde Names içindeki bilgileri dinliyor. Sonradan ekleme ile çalışmıyor
-//  if Self.EventAlerter.Active then
+  if Self.EventAlerter.Active then
     Self.EventAlerter.Active := False;
-//  if Self.EventAlerter.Names.IndexOf(AEventName) = -1 then
-//    Self.EventAlerter.Names.Add(AEventName);
-//  if not Self.EventAlerter.Active then
-//    Self.EventAlerter.Active := True;
+  if Self.EventAlerter.Names.IndexOf(AEventName) = -1 then
+    Self.EventAlerter.Names.Add(AEventName);
+  if not Self.EventAlerter.Active then
+    Self.EventAlerter.Active := True;
 end;
 
 procedure TDatabase.ConfigureConnection(AHostName, ADatabase, AUser, APassword: string; APort: Integer);
@@ -194,15 +194,13 @@ begin
     x := TObject.Create;
     try
       System.TMonitor.Enter(x);
-      ShowMessage('Event ' + AEventName);
 
       for n1 := 0 to Screen.FormCount-1 do
       begin
-        if Screen.Forms[n1].ClassType = TfrmBaseDBGrid then
+        if Screen.Forms[n1].ClassParent = TfrmBaseDBGrid then
         begin
           if TfrmBaseDBGrid(Screen.Forms[n1]).Table.TableName = AEventName then
           begin
-            ShowMessage('Event ' + AEventName+  AddLBs(2) + System.Variants.VarToStr(AArgument[0]) );
             if  Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd)
             and Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource)
             and Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource.DataSet)
@@ -312,24 +310,32 @@ begin
 end;
 
 procedure TDatabase.RemoveListenEventName(AEventName: string; AForm: TForm);
-//var
-//  n1: Integer;
+var
+  n1, LCount: Integer;
 begin
   Self.EventAlerter.Active := False;
-  if Self.EventAlerter.Names.Count > 0 then
-    Self.EventAlerter.Names.Delete(Self.EventAlerter.Names.IndexOf(AEventName));
-//  for n1 := 0 to Screen.FormCount-1 do
-//  begin
-//    if Screen.Forms[n1].ClassType = Self.ClassType then
-//    begin
-//      if Screen.Forms[n1] <> AForm then
-//      begin
-//        Self.EventAlerter.Names.Add(AEventName);
-//        Break;
-//      end;
-//    end;
-//  end;
-//  Self.EventAlerter.Active := (Self.EventAlerter.Names.Count > 0);
+  try
+    if Self.EventAlerter.Names.Count > 0 then
+    begin
+      LCount := 0;
+      for n1 := 0 to Screen.FormCount-1 do
+      begin
+        if Screen.Forms[n1].ClassParent = TfrmBaseDBGrid then
+        begin
+          if Screen.Forms[n1] <> AForm then
+          begin
+            if TfrmBaseDBGrid(Screen.Forms[n1]).Table.TableName = AEventName then
+              Inc(LCount);
+            Break;
+          end;
+        end;
+      end;
+      if (LCount = 0) and (Self.EventAlerter.Names.IndexOf(AEventName) > -1) then
+        Self.EventAlerter.Names.Delete(Self.EventAlerter.Names.IndexOf(AEventName));
+    end;
+  finally
+    Self.EventAlerter.Active := (Self.EventAlerter.Names.Count > 0);
+  end;
 end;
 
 function TDatabase.NewDataSource(ADataset: TDataSet): TDataSource;

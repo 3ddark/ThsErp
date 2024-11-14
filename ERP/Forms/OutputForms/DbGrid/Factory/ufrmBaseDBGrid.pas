@@ -767,8 +767,6 @@ constructor TfrmBaseDBGrid.Create(
 begin
   inherited Create(AOwner, AParentForm, ATable, ifmNone, AFormDecimalMode);
   FIsHelper := AHelperForm;
-
-  Table.Database.AddListenEventName(Table.TableName);
 end;
 
 function TfrmBaseDBGrid.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
@@ -1332,6 +1330,8 @@ begin
 //    pgalertbase.Active := True;
   end;
 
+  Table.Database.AddListenEventName(Table.TableName);
+
   PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
 end;
 
@@ -1665,8 +1665,6 @@ end;
 
 procedure TfrmBaseDBGrid.RefreshData;
 begin
-//  Table.DataSource.DataSet.Refresh;
-
   if (Table <> nil) and (Table.Id.Value > 0) then
     grd.DataSource.DataSet.Locate(Table.Id.FieldName, Table.Id.Value,[]);
 
