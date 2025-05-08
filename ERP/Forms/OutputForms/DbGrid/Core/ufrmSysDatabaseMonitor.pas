@@ -1,4 +1,4 @@
-unit ufrmSysDatabaseMonitor;
+﻿unit ufrmSysDatabaseMonitor;
 
 interface
 
@@ -85,7 +85,7 @@ begin
     begin
       LPid := LField.AsInteger;
 
-      if CustomMsgDlg('Kullanıcının bağlantısını sonlandırmak istediğinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hay�r'], mbNo, 'Kullan�c� Onay�') = mrYes then
+      if CustomMsgDlg('Kullanıcının bağlantısını sonlandırmak istediğinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
       begin
         LQry := GDataBase.NewQuery();
         try

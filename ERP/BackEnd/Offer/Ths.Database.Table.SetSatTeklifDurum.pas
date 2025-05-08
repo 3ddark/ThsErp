@@ -17,7 +17,6 @@ type
   private
     FTeklifDurum: TFieldDB;
     FAciklama: TFieldDB;
-    FIsAktif: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
   public
@@ -30,7 +29,6 @@ type
 
     Property TeklifDurum: TFieldDB read FTeklifDurum write FTeklifDurum;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
-    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
   end;
 
 implementation
@@ -41,13 +39,12 @@ uses
 
 constructor TSetSatTeklifDurum.Create(ADatabase: TDatabase);
 begin
-  TableName := 'set_sat_teklif_durum';
+  TableName := 'set_sls_order_status';
   TableSourceCode := MODULE_TSIF_AYAR;
   inherited Create(ADatabase);
 
   FTeklifDurum := TFieldDB.Create('teklif_durum', ftString, '', Self);
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, False, Self);
 end;
 
 function TSetSatTeklifDurum.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
@@ -62,8 +59,7 @@ begin
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FTeklifDurum.QryName,
-      FAciklama.QryName,
-      FIsAktif.QryName
+      FAciklama.QryName
     ], [
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
@@ -88,8 +84,7 @@ begin
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FTeklifDurum.QryName,
-      FAciklama.QryName,
-      FIsAktif.QryName
+      FAciklama.QryName
     ], [
       ' WHERE 1=1 ', AFilter
     ]);
@@ -117,8 +112,7 @@ begin
   try
     Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
       FTeklifDurum.FieldName,
-      FAciklama.FieldName,
-      FIsAktif.FieldName
+      FAciklama.FieldName
     ]);
 
     PrepareInsertQueryParams(LQry);
@@ -138,8 +132,7 @@ begin
   try
     Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
       FTeklifDurum.FieldName,
-      FAciklama.FieldName,
-      FIsAktif.FieldName
+      FAciklama.FieldName
     ]);
 
     PrepareUpdateQueryParams(LQry);
@@ -157,6 +150,3 @@ begin
 end;
 
 end.
-
-
-

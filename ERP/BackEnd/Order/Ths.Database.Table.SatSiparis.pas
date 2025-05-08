@@ -272,7 +272,7 @@ uses
 
 constructor TSatSiparisDetay.Create(ADatabase: TDatabase; ASiparis: TSatSiparis);
 begin
-  TableName := 'sat_siparis_detay';
+  TableName := 'sat_siparis_detaylari';
   TableSourceCode := MODULE_SAT_SIP_KAYIT;
   inherited Create(ADatabase);
 
@@ -289,10 +289,10 @@ begin
   FStokAciklama := TFieldDB.Create('stok_aciklama', ftString, '', Self, '');
   FKullaniciAciklama := TFieldDB.Create('kullanici_aciklama', ftString, '', Self, '');
   FReferans := TFieldDB.Create('referans', ftString, '', Self, '');
-  FMiktar := TFieldDB.Create('miktar', ftFloat, 0, Self, '');
+  FMiktar := TFieldDB.Create('miktar', ftBCD, 0, Self, '');
   FOlcuBirimi := TFieldDB.Create('olcu_birimi', ftString, '', Self, '');
   FIskontoOrani := TFieldDB.Create('iskonto_orani', ftBCD, 0, Self, '');
-  FKdvOrani := TFieldDB.Create('kdv_orani', ftInteger, 0, Self, '');
+  FKdvOrani := TFieldDB.Create('kdv_orani', ftBCD, 0, Self, '');
   FFiyat := TFieldDB.Create('fiyat', ftBCD, 0, Self, '');
   FNetFiyat := TFieldDB.Create('net_fiyat', ftBCD, 0, Self, '');
   FTutar := TFieldDB.Create('tutar', ftBCD, 0, Self, '');
@@ -534,7 +534,7 @@ end;
 
 constructor TSatSiparis.Create(ADatabase: TDatabase);
 begin
-  TableName := 'sat_siparis';
+  TableName := 'sat_siparisler';
   TableSourceCode := MODULE_SAT_SIP_KAYIT;
   inherited Create(ADatabase);
 
@@ -554,15 +554,15 @@ begin
   FTutar := TFieldDB.Create('tutar', ftBCD, 0, Self);
   FIskontoTutar := TFieldDB.Create('iskonto_tutar', ftBCD, 0, Self);
   FAraToplam := TFieldDB.Create('ara_toplam', ftBCD, 0, Self);
-  FKDVOran1 := TFieldDB.Create('kdv_oran1', ftInteger, 0, Self);
+  FKDVOran1 := TFieldDB.Create('kdv_oran1', ftBCD, 0, Self);
   FKDVTutar1 := TFieldDB.Create('kdv_tutar1', ftBCD, 0, Self);
-  FKDVOran2 := TFieldDB.Create('kdv_oran2', ftInteger, 0, Self);
+  FKDVOran2 := TFieldDB.Create('kdv_oran2', ftBCD, 0, Self);
   FKDVTutar2 := TFieldDB.Create('kdv_tutar2', ftBCD, 0, Self);
-  FKDVOran3 := TFieldDB.Create('kdv_oran3', ftInteger, 0, Self);
+  FKDVOran3 := TFieldDB.Create('kdv_oran3', ftBCD, 0, Self);
   FKDVTutar3 := TFieldDB.Create('kdv_tutar3', ftBCD, 0, Self);
-  FKDVOran4 := TFieldDB.Create('kdv_oran4', ftInteger, 0, Self);
+  FKDVOran4 := TFieldDB.Create('kdv_oran4', ftBCD, 0, Self);
   FKDVTutar4 := TFieldDB.Create('kdv_tutar4', ftBCD, 0, Self);
-  FKDVOran5 := TFieldDB.Create('kdv_oran5', ftInteger, 0, Self);
+  FKDVOran5 := TFieldDB.Create('kdv_oran5', ftBCD, 0, Self);
   FKDVTutar5 := TFieldDB.Create('kdv_tutar5', ftBCD, 0, Self);
   FGenelToplam := TFieldDB.Create('genel_toplam', ftBCD, 0, Self);
   FIslemTipiID := TFieldDB.Create('islem_tipi_id', ftInteger, 0, Self);
@@ -968,7 +968,7 @@ begin
   with GDataBase.NewQuery() do
   try
     SQL.Clear;
-    SQL.Text := 'SELECT max(' + FSiparisNo.FieldName + '::::integer) as ' + FSiparisNo.FieldName + ' FROM ' + Self.TableName;
+    SQL.Text := 'SELECT max(cast(' + FSiparisNo.FieldName + ' as integer)) as ' + FSiparisNo.FieldName + ' FROM ' + Self.TableName;
     Open;
 
     if (FieldByName(FSiparisNo.FieldName).IsNull) or (FieldByName(FSiparisNo.FieldName).AsString = '') then

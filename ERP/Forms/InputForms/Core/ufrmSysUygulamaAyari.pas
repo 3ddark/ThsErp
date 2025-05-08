@@ -1,4 +1,4 @@
-unit ufrmSysUygulamaAyari;
+﻿unit ufrmSysUygulamaAyari;
 
 interface
 
@@ -326,7 +326,7 @@ var
 begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
   begin
-    if CustomMsgDlg('Mevcut logoyu kay�t etmek istiyor musun?', mtConfirmation, mbYesNo, ['Evet Kaydet', 'Hay�r Yenisini Y�kle'], mbNo, 'Kullan�c� Onay�') = mrYes then
+    if CustomMsgDlg('Mevcut logoyu kayıt etmek istiyor musun?', mtConfirmation, mbYesNo, ['Evet Kaydet', 'Hayır Yenisini Yükle'], mbNo, 'Kullanıcı Onayı') = mrYes then
     begin
       imglogo.Picture.SaveToFile(GetDialogSave('', FILE_FILTER_IMAGE, ''));
     end
@@ -425,7 +425,7 @@ begin
   begin
     pgcMain.ActivePage := tsdiger;
     edtpath_stok_karti_resim.SetFocus;
-    raise Exception.Create(Trim('L�tfen ge�erli bir dizin se�in!'));
+    raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
   end;
 
   if (edtpath_personel_karti_resim.Text <> '') and not DirectoryExists(edtpath_personel_karti_resim.Text) then

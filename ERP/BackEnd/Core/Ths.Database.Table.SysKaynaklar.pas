@@ -72,11 +72,11 @@ begin
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
       FKaynakGrupID.QryName,
-      addLangField(FKaynakGrubu.FieldName),
+      addField(LSysGroup.TableName, LSysGroup.Grup.FieldName, KaynakGrubu.FieldName),
       FKaynakKodu.QryName,
-      addLangField(FKaynakAdi.FieldName, '', True)
+      FKaynakAdi.QryName
     ], [
-      addLeftJoin(FKaynakGrubu.FieldName, FKaynakGrupID.FieldName, LSysGroup.TableName),
+      addJoin(jtLeft, LSysGroup.TableName, LSysGroup.Id.FieldName, TableName, FKaynakGrupID.FieldName),
       addLeftJoin(FKaynakAdi.FieldName, FKaynakAdi.FieldName, TableName, True),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);

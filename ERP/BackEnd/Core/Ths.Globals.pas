@@ -2011,7 +2011,7 @@ function getRawDataByLang(pBaseTableName, pBaseColName: string): string;
 begin
     Result := pBaseTableName + '.' + pBaseColName;
                                                                                                            {
-    '(SELECT ' +
+    'cast((SELECT ' +
     '  CASE WHEN ' +
 		'    (SELECT b.val FROM sys_lang_data_content b ' +
         ' WHERE b.table_name=' + QuotedStr(pBaseTableName) +
@@ -2025,7 +2025,7 @@ begin
           ' AND b.lang=' + QuotedStr(TSingletonDB.GetInstance.DataBase.ConnSetting.Language) +
           ' AND b.row_id = ' + pBaseTableName + '.id)' +
 		'  END ' +
-	  ')::varchar as ' + pBaseColName                                                                         }
+	  ') as varchar) as ' + pBaseColName                                                                         }
 end;
 
 procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);

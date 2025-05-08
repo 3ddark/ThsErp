@@ -24,8 +24,6 @@ type
     edtteklif_durum: TEdit;
     lblaciklama: TLabel;
     edtaciklama: TEdit;
-    lblis_aktif: TLabel;
-    chkis_aktif: TCheckBox;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject);override;
   end;
@@ -43,7 +41,6 @@ procedure TfrmSetSatTeklifDurum.RefreshData();
 begin
   edtteklif_durum.Text := TSetSatTeklifDurum(Table).TeklifDurum.AsString;
   edtaciklama.Text := TSetSatTeklifDurum(Table).Aciklama.AsString;
-  chkis_aktif.Checked := TSetSatTeklifDurum(Table).IsAktif.AsBoolean;
 end;
 
 procedure TfrmSetSatTeklifDurum.btnAcceptClick(Sender: TObject);
@@ -54,7 +51,6 @@ begin
     begin
       TSetSatTeklifDurum(Table).TeklifDurum.Value := edtteklif_durum.Text;
       TSetSatTeklifDurum(Table).Aciklama.Value := edtaciklama.Text;
-      TSetSatTeklifDurum(Table).IsAktif.Value := chkis_aktif.Checked;
       inherited;
     end;
   end

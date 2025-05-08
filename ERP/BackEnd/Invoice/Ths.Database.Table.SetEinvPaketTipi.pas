@@ -15,7 +15,6 @@ uses
 type
   TSetEinvPaketTipi = class(TTable)
   private
-    FIsAktif: TFieldDB;
     FKod: TFieldDB;
     FPaketTipi: TFieldDB;
     FAciklama: TFieldDB;
@@ -29,7 +28,6 @@ type
 
     function Clone: TTable; override;
 
-    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
     Property Kod: TFieldDB read FKod write FKod;
     Property PaketTipi: TFieldDB read FPaketTipi write FPaketTipi;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
@@ -43,11 +41,10 @@ uses
 
 constructor TSetEinvPaketTipi.Create(ADatabase: TDatabase);
 begin
-  TableName := 'set_einv_paket_tipi';
+  TableName := 'set_einv_paket_tipleri';
   TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
   FKod := TFieldDB.Create('kod', ftString, '', Self);
   FPaketTipi := TFieldDB.Create('paket_tipi', ftString, '', Self);
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
@@ -64,7 +61,6 @@ begin
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      FIsAktif.QryName,
       FKod.QryName,
       FPaketTipi.QryName,
       FAciklama.QryName
@@ -91,7 +87,6 @@ begin
   try
       Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
         Id.QryName,
-        FIsAktif.QryName,
         FKod.QryName,
         FPaketTipi.QryName,
         FAciklama.QryName
@@ -121,7 +116,6 @@ begin
   LQry := Database.NewQuery();
   try
     Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
-      FIsAktif.FieldName,
       FKod.FieldName,
       FPaketTipi.FieldName,
       FAciklama.FieldName
@@ -143,7 +137,6 @@ begin
   LQry := Database.NewQuery();
   try
     Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
-      FIsAktif.FieldName,
       FKod.FieldName,
       FPaketTipi.FieldName,
       FAciklama.FieldName
@@ -164,6 +157,4 @@ begin
 end;
 
 end.
-
-
 

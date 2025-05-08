@@ -15,7 +15,6 @@ uses
 type
   TSetEinvTasimaUcreti = class(TTable)
   private
-    FIsAktif: TFieldDB;
     FTasimaUcreti: TFieldDB;
   published
     constructor Create(ADatabase: TDatabase); override;
@@ -27,7 +26,6 @@ type
 
     function Clone: TTable; override;
 
-    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
     Property TasimaUcreti: TFieldDB read FTasimaUcreti write FTasimaUcreti;
   end;
 
@@ -39,11 +37,10 @@ uses
 
 constructor TSetEinvTasimaUcreti.Create(ADatabase: TDatabase);
 begin
-  TableName := 'set_einv_tasima_ucreti';
+  TableName := 'set_einv_tasima_ucretleri';
   TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
   FTasimaUcreti := TFieldDB.Create('tasima_ucreti', ftString, '', Self);
 end;
 
@@ -58,7 +55,6 @@ begin
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      FIsAktif.QryName,
       FTasimaUcreti.QryName
     ], [
       ' WHERE 1=1 ', AFilter
@@ -83,7 +79,6 @@ begin
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      FIsAktif.QryName,
       FTasimaUcreti.QryName
     ], [
       ' WHERE 1=1 ', AFilter
@@ -111,7 +106,6 @@ begin
   LQry := Database.NewQuery();
   try
     Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
-      FIsAktif.FieldName,
       FTasimaUcreti.FieldName
     ]);
 
@@ -131,7 +125,6 @@ begin
   LQry := Database.NewQuery();
   try
     Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
-      FIsAktif.FieldName,
       FTasimaUcreti.FieldName
     ]);
 
@@ -150,6 +143,3 @@ begin
 end;
 
 end.
-
-
-

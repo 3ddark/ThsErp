@@ -15,7 +15,6 @@ uses
 type
   TSetEinvOdemeSekli = class(TTable)
   private
-    FIsAktif: TFieldDB;
     FOdemeSekli: TFieldDB;
     FKod: TFieldDB;
     FAciklama: TFieldDB;
@@ -30,7 +29,6 @@ type
 
     function Clone: TTable; override;
 
-    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
     Property OdemeSekli: TFieldDB read FOdemeSekli write FOdemeSekli;
     Property Kod: TFieldDB read FKod write FKod;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
@@ -45,11 +43,10 @@ uses
 
 constructor TSetEinvOdemeSekli.Create(ADatabase: TDatabase);
 begin
-  TableName := 'set_einv_odeme_sekli';
+  TableName := 'set_einv_odeme_sekilleri';
   TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
   FOdemeSekli := TFieldDB.Create('odeme_sekli', ftWideString, '', Self);
   FKod := TFieldDB.Create('kod', ftWideString, '', Self);
   FAciklama := TFieldDB.Create('aciklama', ftWideString, '', Self);
@@ -67,7 +64,6 @@ begin
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      FIsAktif.QryName,
       FOdemeSekli.QryName,
       FKod.QryName,
       FAciklama.QryName,
@@ -95,7 +91,6 @@ begin
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      FIsAktif.QryName,
       FOdemeSekli.QryName,
       FKod.QryName,
       FAciklama.QryName,
@@ -126,7 +121,6 @@ begin
   LQry := Database.NewQuery();
   try
     Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
-      FIsAktif.FieldName,
       FOdemeSekli.FieldName,
       FKod.FieldName,
       FAciklama.FieldName,
@@ -149,7 +143,6 @@ begin
   LQry := Database.NewQuery();
   try
     Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
-      FIsAktif.FieldName,
       FOdemeSekli.FieldName,
       FKod.FieldName,
       FAciklama.FieldName,
@@ -171,6 +164,4 @@ begin
 end;
 
 end.
-
-
 

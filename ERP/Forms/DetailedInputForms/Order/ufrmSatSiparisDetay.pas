@@ -429,11 +429,11 @@ begin
       TSatSiparisDetay(Table).StokAciklama.Value := edtstok_aciklama.Text;
       TSatSiparisDetay(Table).KullaniciAciklama.Value := edtkullanici_aciklama.Text;
       TSatSiparisDetay(Table).Referans.Value := '';
-      TSatSiparisDetay(Table).Miktar.Value := edtMiktar.Text;
+      TSatSiparisDetay(Table).Miktar.Value := StrToFloatDef(edtMiktar.Text, 0);
       TSatSiparisDetay(Table).OlcuBirimi.Value := edtolcu_birimi.Text;
 
-      TSatSiparisDetay(Table).IskontoOrani.Value := edtiskonto_orani.Text;
-      TSatSiparisDetay(Table).KdvOrani.Value := edtkdv_orani.Text;
+      TSatSiparisDetay(Table).IskontoOrani.Value := StrToFloatDef(edtiskonto_orani.Text, 0);
+      TSatSiparisDetay(Table).KdvOrani.Value := StrToFloatDef(edtkdv_orani.Text, 0);
       TSatSiparisDetay(Table).Fiyat.Value := edtFiyat.moneyToDouble;
       TSatSiparisDetay(Table).NetFiyat.Value := FTotal.NetFiyat;
       TSatSiparisDetay(Table).Tutar.Value := FTotal.Tutar;

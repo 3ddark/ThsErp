@@ -49,9 +49,8 @@ begin
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      addLangField(FGrup.FieldName, '', True)
+      FGrup.QryName
     ], [
-      addLeftJoin(FGrup.FieldName, FGrup.FieldName, TableName, True),
       ' WHERE 1=1 ', AFilter
     ], AAllColumn, AHelper);
     Result := LQry.SQL.Text;
@@ -73,10 +72,9 @@ begin
   with LQry do
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
-      Id.FieldName,
-      addLangField(FGrup.FieldName, '', True)
+      Id.QryName,
+      FGrup.QryName
     ], [
-      addLeftJoin(FGrup.FieldName, FGrup.FieldName, TableName, True),
       ' WHERE 1=1 ', AFilter
     ]);
     Open;

@@ -25,7 +25,7 @@ type
 implementation
 
 uses
-  Ths.Database.Table, ufrmSysKaynakGrubu, Ths.Database.Table.SysKaynaklar;
+  Ths.Database.Table, ufrmSysKaynak, Ths.Database.Table.SysKaynaklar;
 
 {$R *.dfm}
 
@@ -33,11 +33,11 @@ function TfrmSysKaynaklar.CreateInputForm(Sender: TObject; pFormMode: TInputForm
 begin
   Result := nil;
   if (pFormMode = ifmRewiev) then
-    Result := TfrmSysKaynakGrubu.Create(Self, Self, Table.Clone(), pFormMode)
+    Result := TfrmSysKaynak.Create(Self, Self, Table.Clone(), pFormMode)
   else if (pFormMode = ifmNewRecord) then
-    Result := TfrmSysKaynakGrubu.Create(Self, Self, TSysKaynak.Create(Table.Database), pFormMode)
+    Result := TfrmSysKaynak.Create(Self, Self, TSysKaynak.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysKaynakGrubu.Create(Self, Self, Table.Clone(), pFormMode);
+    Result := TfrmSysKaynak.Create(Self, Self, Table.Clone(), pFormMode);
 end;
 
 procedure TfrmSysKaynaklar.FormCreate(Sender: TObject);

@@ -31,7 +31,6 @@ type
 
     Property SiparisDurum: TFieldDB read FSiparisDurum write FSiparisDurum;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
-    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
   end;
 
 implementation
@@ -42,13 +41,12 @@ uses
 
 constructor TSetSatSiparisDurum.Create(ADatabase: TDatabase);
 begin
-  TableName := 'set_sat_siparis_durum';
+  TableName := 'set_sls_order_status';
   TableSourceCode := MODULE_TSIF_AYAR;
   inherited Create(ADatabase);
 
   FSiparisDurum := TFieldDB.Create('siparis_durum', ftString, '', Self);
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
 end;
 
 function TSetSatSiparisDurum.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;

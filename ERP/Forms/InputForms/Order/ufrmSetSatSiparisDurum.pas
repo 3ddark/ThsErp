@@ -20,12 +20,10 @@ uses
 
 type
   TfrmSetSatSiparisDurum = class(TfrmBaseInputDB)
-    chkis_active: TCheckBox;
     edtaciklama: TEdit;
     edtteklif_durum: TEdit;
     lblaciklama: TLabel;
     lblteklif_durum: TLabel;
-    lblis_active: TLabel;
     procedure RefreshData; override;
     procedure btnAcceptClick(Sender: TObject); override;
   end;
@@ -43,7 +41,6 @@ begin
   //control içeriğini table class ile doldur
   edtteklif_durum.Text := TSetSatSiparisDurum(Table).SiparisDurum.AsString;
   edtaciklama.Text := TSetSatSiparisDurum(Table).Aciklama.AsString;
-  chkis_active.Checked := TSetSatSiparisDurum(Table).IsAktif.AsBoolean;
 end;
 
 procedure TfrmSetSatSiparisDurum.btnAcceptClick(Sender: TObject);
@@ -54,7 +51,6 @@ begin
     begin
       TSetSatSiparisDurum(Table).SiparisDurum.Value := edtteklif_durum.Text;
       TSetSatSiparisDurum(Table).Aciklama.Value := edtaciklama.Text;
-      TSetSatSiparisDurum(Table).IsAktif.Value := chkis_active.Checked;
       inherited;
     end;
   end

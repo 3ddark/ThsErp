@@ -374,11 +374,11 @@ begin
       TSatTeklifDetay(Table).StokKodu.Value := edtstok_kodu.Text;
       TSatTeklifDetay(Table).StokAciklama.Value := edtstok_aciklama.Text;
       TSatTeklifDetay(Table).Referans.Value := '';
-      TSatTeklifDetay(Table).Miktar.Value := edtMiktar.Text;
+      TSatTeklifDetay(Table).Miktar.Value := StrToFloatDef(edtMiktar.Text, 0);
       TSatTeklifDetay(Table).OlcuBirimi.Value := edtolcu_birimi.Text;
 
-      TSatTeklifDetay(Table).IskontoOrani.Value := edtiskonto_orani.Text;
-      TSatTeklifDetay(Table).KdvOrani.Value := edtkdv_orani.Text;
+      TSatTeklifDetay(Table).IskontoOrani.Value := StrToFloatDef(edtiskonto_orani.Text, 0);
+      TSatTeklifDetay(Table).KdvOrani.Value := StrToFloatDef(edtkdv_orani.Text, 0);
       TSatTeklifDetay(Table).Fiyat.Value := edtFiyat.moneyToDouble;
       TSatTeklifDetay(Table).NetFiyat.Value := FTotal.NetFiyat;
       TSatTeklifDetay(Table).Tutar.Value := FTotal.Tutar;

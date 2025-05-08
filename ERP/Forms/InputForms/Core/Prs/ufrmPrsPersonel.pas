@@ -584,7 +584,7 @@ begin
       TPrsPersonel(Table).AyakkabiNo.Value := edtayakkabi_no.Text;
       TPrsPersonel(Table).ElbiseBedeni.Value := edtelbise_bedeni.Text;
       TPrsPersonel(Table).Identification.Value := EncryptStr(edtkimlik_no.Text, GSysApplicationSetting.CryptKey.Value);
-      TPrsPersonel(Table).DogumTarihi.Value := edtdogum_tarihi.Text;
+      TPrsPersonel(Table).DogumTarihi.Value := StrToDateDef(edtdogum_tarihi.Text, 0);
       TPrsPersonel(Table).KanGrubu.Value := cbbkan_grubu.Text;
 
       TPrsPersonel(Table).Cinsiyet.Value := cbbcinsiyet_id.ItemIndex;

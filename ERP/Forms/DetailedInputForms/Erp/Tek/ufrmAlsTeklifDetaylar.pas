@@ -1,4 +1,4 @@
-unit ufrmAlsTeklifDetaylar;
+﻿unit ufrmAlsTeklifDetaylar;
 
 interface
 
@@ -154,7 +154,7 @@ begin
   with GDataBase.NewQuery do
   try
     SQL.Clear;
-    SQL.Text := 'SELECT max(teklif_no::::integer) as numara FROM ' + Self.Table.TableName;
+    SQL.Text := 'SELECT max(cast(teklif_no as integer)) as numara FROM ' + Self.Table.TableName;
     Open;
 
     if (FieldByName('numara').Value = Null) or (FieldByName('numara').AsString = '')
@@ -389,7 +389,7 @@ begin
     end;
   end;
 
-  ts1.Caption := 'Teklif Detaylar�';
+  ts1.Caption := 'Teklif Detayları';
 end;
 
 procedure TfrmAlsTeklifDetaylar.FormDestroy(Sender: TObject);

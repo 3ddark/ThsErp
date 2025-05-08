@@ -14,32 +14,16 @@ inherited frmSetEinvOdemeSekli: TfrmSetEinvOdemeSekli
     Height = 159
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 340
-    ExplicitHeight = 143
+    ExplicitWidth = 342
+    ExplicitHeight = 151
     inherited pgcMain: TPageControl
       Width = 344
       Height = 159
-      ExplicitWidth = 338
-      ExplicitHeight = 141
+      ExplicitWidth = 342
+      ExplicitHeight = 151
       inherited tsMain: TTabSheet
         ExplicitWidth = 336
         ExplicitHeight = 131
-        object lblis_active: TLabel
-          Left = 91
-          Top = 3
-          Width = 27
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Aktif'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
         object lblodeme_sekli: TLabel
           Left = 46
           Top = 23
@@ -104,40 +88,33 @@ inherited frmSetEinvOdemeSekli: TfrmSetEinvOdemeSekli
           ParentBiDiMode = False
           ParentFont = False
         end
-        object chkis_active: TCheckBox
-          Left = 119
-          Top = 2
-          Width = 198
-          Height = 17
-          TabOrder = 0
-        end
         object edtodeme_sekli: TEdit
           Left = 119
           Top = 20
           Width = 200
           Height = 21
-          TabOrder = 1
+          TabOrder = 0
         end
         object edtkod: TEdit
           Left = 119
           Top = 42
           Width = 200
           Height = 21
-          TabOrder = 2
+          TabOrder = 1
         end
         object edtaciklama: TEdit
           Left = 119
           Top = 64
           Width = 200
           Height = 21
-          TabOrder = 3
+          TabOrder = 2
         end
         object chkis_efatura: TCheckBox
           Left = 119
           Top = 86
           Width = 198
           Height = 17
-          TabOrder = 4
+          TabOrder = 3
         end
       end
     end
@@ -145,21 +122,21 @@ inherited frmSetEinvOdemeSekli: TfrmSetEinvOdemeSekli
   inherited pnlBottom: TPanel
     Top = 161
     Width = 340
-    ExplicitTop = 147
-    ExplicitWidth = 340
+    ExplicitTop = 153
+    ExplicitWidth = 338
     inherited btnAccept: TButton
-      Left = 131
-      ExplicitLeft = 131
+      Left = 134
+      ExplicitLeft = 132
     end
     inherited btnClose: TButton
-      Left = 235
-      ExplicitLeft = 235
+      Left = 238
+      ExplicitLeft = 236
     end
   end
   inherited stbBase: TStatusBar
     Top = 191
     Width = 344
-    ExplicitTop = 191
-    ExplicitWidth = 344
+    ExplicitTop = 183
+    ExplicitWidth = 342
   end
 end

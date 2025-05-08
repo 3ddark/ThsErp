@@ -57,7 +57,7 @@ type
     function NewQuery(AConnection: TFDConnection = nil): TFDQuery;
     function NewStoredProcedure(AConnection: TFDConnection = nil): TFDStoredProc;
     function NewDataSource(ADataset: TDataSet): TDataSource;
-    function NewConnection: TFDConnection;
+    class function NewConnection: TFDConnection;
 
     procedure AddListenEventName(AEventName: string);
     procedure RemoveListenEventName(AEventName: string; AForm: TForm);
@@ -151,7 +151,7 @@ begin
   begin
     inherited;
 
-    FConnection := TFDConnection.Create(nil);
+    FConnection := TDatabase.NewConnection;
     FConnection.BeforeConnect       := ConnBeforeConnect;
     FConnection.BeforeDisconnect    := ConnBeforeDisconnect;
     FConnection.AfterConnect        := ConnAfterConnect;
@@ -284,7 +284,7 @@ begin
   end;
 end;
 
-function TDatabase.NewConnection: TFDConnection;
+class function TDatabase.NewConnection: TFDConnection;
 begin
   Result := TFDConnection.Create(nil);
 end;

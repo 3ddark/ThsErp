@@ -414,7 +414,7 @@ begin
 
   FSiparisDurum := TSetSatSiparisDurum.Create(Table.Database);
 
-  fillComboBoxData(cbbsiparis_durum_id, FSiparisDurum, [FSiparisDurum.SiparisDurum.FieldName], ' AND ' + FSiparisDurum.IsAktif.FieldName + '=True', True);
+  fillComboBoxData(cbbsiparis_durum_id, FSiparisDurum, [FSiparisDurum.SiparisDurum.FieldName], '', True);
   cbbsiparis_durum_id.ItemIndex := 1;
 
   ts1.Caption := 'Sipariş Detayları';

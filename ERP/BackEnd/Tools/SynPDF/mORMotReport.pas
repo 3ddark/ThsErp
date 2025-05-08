@@ -61,7 +61,7 @@ unit mORMotReport;
  Date:            25-MAY-2004 (initial version)
  Target:          Win32, Delphi 3 - Delphi 7
  Author:          Angus Johnson, http://www.angusj.com
- Copyright        © 2003 Angus Johnson
+ Copyright        ï¿½ 2003 Angus Johnson
 
  Notes:
    * TGDIPages is designed as a simple lightweight report writer. Reports are
@@ -111,7 +111,7 @@ unit mORMotReport;
   - full Unicode text process (even before Delphi 2009)
   - speed up and various bug fixes to work with Delphi 5 up to XE3
 
-  Modifications © 2009-2021 Arnaud Bouchez
+  Modifications ï¿½ 2009-2021 Arnaud Bouchez
 
   Version 1.4 - February 8, 2010
   - whole Synopse SQLite3 database framework released under the GNU Lesser

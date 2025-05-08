@@ -49,7 +49,7 @@ uses
 
 constructor TSetEinvIstisnaKodu.Create(ADatabase: TDatabase);
 begin
-  TableName := 'set_einv_istisna_kodu';
+  TableName := 'set_einv_istisna_kodlari';
   TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 

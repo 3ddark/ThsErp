@@ -1,4 +1,4 @@
-unit Ths.Helper.Edit;
+﻿unit Ths.Helper.Edit;
 
 interface
 
@@ -274,7 +274,7 @@ begin
   FActiveYear4Digit     := vYear;
   FDBFieldName          := '';
   FInfo                 := 'Thundersoft Edit Component(3ddark) v0.2';
-  FWrongDateMessage     := 'Hatal� tarih giri�i!';
+  FWrongDateMessage     := 'Hatalı tarih girişi!';
   OnKeyDown             := MyOnKeyDown;
   FHelperValue          := vaNull;
 
@@ -656,7 +656,7 @@ begin
   if CharInSet(AKey, [#8, '0'..'9', FormatSettings.DecimalSeparator]) then
     Self.Modified := True;
 
-  //T�m�n� se�ip yazarsa eski bilgiyi temizle
+  //Tümünü seçip yazarsa eski bilgiyi temizle
   if (Length(Self.Text) = Self.SelLength) and (CharInSet(AKey, [#8, '0'..'9', FormatSettings.DecimalSeparator])) then
     Self.Clear;
 
@@ -667,7 +667,7 @@ begin
 //      AKey := #0;
 //  end;
 
-  //tan�ml� tu�lar harici tu�lar girilmez veya seperator sadece bir kere girilebilir
+  //tanımlı tuşlar harici tuşlar girilmez veya seperator sadece bir kere girilebilir
   if not CharInSet(AKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then
     AKey := #0;
   if (AKey = FormatSettings.DecimalSeparator) and (Pos(AKey, Self.Text) > 0) then
@@ -875,7 +875,7 @@ begin
   if FAllSelected and (AKey <> #13) then
     Self.Clear;
 
-  //tan�ml� tu�lar harici tu�lar girilmez veya seperator sadece bir kere girilebilir
+  //tanımlı tuşlar harici tuşlar girilmez veya seperator sadece bir kere girilebilir
   if (AKey = FormatSettings.DecimalSeparator) and (Pos(AKey, Self.Text) > 0) then
     AKey := #0
   else if not CharInSet(AKey, [#13, #8, '0'..'9', FormatSettings.DecimalSeparator]) then

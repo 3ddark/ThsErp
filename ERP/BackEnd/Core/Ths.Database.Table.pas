@@ -579,16 +579,7 @@ begin
 end;
 
 procedure TTable.FreeListContent;
-var
-  n1: Integer;
-  ATable: TTable;
 begin
-  for n1 := FList.Count-1 downto 0 do
-  begin
-    ATable := FList.Items[n1];
-    FreeAndNil(ATable);
-    FList.Delete(n1);
-  end;
   FList.Clear;
 end;
 

@@ -14,13 +14,13 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
     Height = 312
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 585
-    ExplicitHeight = 312
+    ExplicitWidth = 583
+    ExplicitHeight = 304
     inherited pgcMain: TPageControl
       Width = 585
       Height = 312
-      ExplicitWidth = 585
-      ExplicitHeight = 312
+      ExplicitWidth = 583
+      ExplicitHeight = 304
       inherited tsMain: TTabSheet
         ExplicitWidth = 577
         ExplicitHeight = 284
@@ -773,21 +773,21 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
   inherited pnlBottom: TPanel
     Top = 314
     Width = 581
-    ExplicitTop = 314
-    ExplicitWidth = 581
+    ExplicitTop = 306
+    ExplicitWidth = 579
     inherited btnAccept: TButton
       Left = 375
-      ExplicitLeft = 375
+      ExplicitLeft = 373
     end
     inherited btnClose: TButton
       Left = 479
-      ExplicitLeft = 479
+      ExplicitLeft = 477
     end
   end
   inherited stbBase: TStatusBar
     Top = 344
     Width = 585
-    ExplicitTop = 344
-    ExplicitWidth = 585
+    ExplicitTop = 336
+    ExplicitWidth = 583
   end
 end

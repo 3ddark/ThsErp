@@ -14,13 +14,13 @@ inherited frmSetEinvTasimaUcreti: TfrmSetEinvTasimaUcreti
     Height = 94
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 340
-    ExplicitHeight = 78
+    ExplicitWidth = 344
+    ExplicitHeight = 94
     inherited pgcMain: TPageControl
       Width = 344
       Height = 94
-      ExplicitWidth = 338
-      ExplicitHeight = 76
+      ExplicitWidth = 344
+      ExplicitHeight = 94
       inherited tsMain: TTabSheet
         ExplicitWidth = 336
         ExplicitHeight = 66
@@ -40,22 +40,6 @@ inherited frmSetEinvTasimaUcreti: TfrmSetEinvTasimaUcreti
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_active: TLabel
-          Left = 87
-          Top = 26
-          Width = 27
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Aktif'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
         object edttasima_ucreti: TEdit
           Left = 120
           Top = 2
@@ -63,28 +47,21 @@ inherited frmSetEinvTasimaUcreti: TfrmSetEinvTasimaUcreti
           Height = 21
           TabOrder = 0
         end
-        object chkis_active: TCheckBox
-          Left = 120
-          Top = 25
-          Width = 198
-          Height = 17
-          TabOrder = 1
-        end
       end
     end
   end
   inherited pnlBottom: TPanel
     Top = 96
     Width = 340
-    ExplicitTop = 82
+    ExplicitTop = 96
     ExplicitWidth = 340
     inherited btnAccept: TButton
-      Left = 131
-      ExplicitLeft = 131
+      Left = 134
+      ExplicitLeft = 134
     end
     inherited btnClose: TButton
-      Left = 235
-      ExplicitLeft = 235
+      Left = 238
+      ExplicitLeft = 238
     end
   end
   inherited stbBase: TStatusBar

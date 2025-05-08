@@ -8,28 +8,27 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
   Font.Name = 'MS Sans Serif'
   ExplicitWidth = 437
   ExplicitHeight = 423
-  TextHeight = 14
+  TextHeight = 13
   inherited pnlMain: TPanel
     Width = 421
     Height = 334
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 421
-    ExplicitHeight = 334
+    ExplicitWidth = 419
+    ExplicitHeight = 326
     inherited pgcMain: TPageControl
       Width = 421
       Height = 334
-      ExplicitWidth = 421
-      ExplicitHeight = 334
+      ExplicitWidth = 419
+      ExplicitHeight = 326
       inherited tsMain: TTabSheet
-        ExplicitTop = 25
         ExplicitWidth = 413
-        ExplicitHeight = 305
+        ExplicitHeight = 306
         object lblstok_kodu: TLabel
-          Left = 39
+          Left = 35
           Top = 6
-          Width = 56
-          Height = 14
+          Width = 60
+          Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Stok Kodu'
@@ -42,10 +41,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           ParentFont = False
         end
         object lblstok_aciklama: TLabel
-          Left = 17
+          Left = 13
           Top = 28
-          Width = 78
-          Height = 14
+          Width = 82
+          Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Stok A'#231#305'klama'
@@ -58,10 +57,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           ParentFont = False
         end
         object lblfiyat: TLabel
-          Left = 70
+          Left = 67
           Top = 50
-          Width = 25
-          Height = 14
+          Width = 28
+          Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Fiyat'
@@ -74,10 +73,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           ParentFont = False
         end
         object lbliskonto_orani: TLabel
-          Left = 53
+          Left = 52
           Top = 116
-          Width = 42
-          Height = 14
+          Width = 43
+          Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #304'skonto'
@@ -90,10 +89,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           ParentFont = False
         end
         object lblkdv_orani: TLabel
-          Left = 75
+          Left = 72
           Top = 138
-          Width = 20
-          Height = 14
+          Width = 23
+          Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Kdv'
@@ -106,10 +105,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           ParentFont = False
         end
         object lblmiktar: TLabel
-          Left = 60
+          Left = 59
           Top = 72
-          Width = 35
-          Height = 14
+          Width = 36
+          Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Miktar'
@@ -122,10 +121,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           ParentFont = False
         end
         object lblolcu_birimi: TLabel
-          Left = 36
+          Left = 34
           Top = 94
-          Width = 59
-          Height = 14
+          Width = 61
+          Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #214'l'#231#252' Birimi'
@@ -138,10 +137,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           ParentFont = False
         end
         object lblgtip_no: TLabel
-          Left = 56
+          Left = 51
           Top = 160
-          Width = 39
-          Height = 14
+          Width = 44
+          Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'Gtip No'
@@ -161,10 +160,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           Stretch = True
         end
         object lblkullanici_aciklama: TLabel
-          Left = 45
+          Left = 43
           Top = 182
-          Width = 50
-          Height = 14
+          Width = 52
+          Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'A'#231#305'klama'
@@ -233,10 +232,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
           ParentColor = True
           TabOrder = 9
           object lbltutar: TLabel
-            Left = 96
+            Left = 93
             Top = 21
-            Width = 28
-            Height = 14
+            Width = 31
+            Height = 13
             Alignment = taRightJustify
             Caption = 'Tutar'
             Font.Charset = DEFAULT_CHARSET
@@ -262,10 +261,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             ParentFont = False
           end
           object lbliskonto_tutar: TLabel
-            Left = 48
+            Left = 44
             Top = 38
-            Width = 76
-            Height = 14
+            Width = 80
+            Height = 13
             Alignment = taRightJustify
             Caption = #304'skonto Tutar'#305
             Font.Charset = DEFAULT_CHARSET
@@ -291,10 +290,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             ParentFont = False
           end
           object lblkdv_tutar: TLabel
-            Left = 68
+            Left = 61
             Top = 72
-            Width = 56
-            Height = 14
+            Width = 63
+            Height = 13
             Alignment = taRightJustify
             Caption = 'KDV Tutar'#305
             Font.Charset = DEFAULT_CHARSET
@@ -320,10 +319,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             ParentFont = False
           end
           object lbltoplam_tutar: TLabel
-            Left = 53
+            Left = 48
             Top = 89
-            Width = 71
-            Height = 14
+            Width = 76
+            Height = 13
             Alignment = taRightJustify
             Caption = 'Toplam Tutar'
             Font.Charset = DEFAULT_CHARSET
@@ -349,10 +348,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             ParentFont = False
           end
           object lblnet_fiyat: TLabel
-            Left = 78
+            Left = 72
             Top = 4
-            Width = 46
-            Height = 14
+            Width = 52
+            Height = 13
             Alignment = taRightJustify
             Caption = 'Net Fiyat'
             Font.Charset = DEFAULT_CHARSET
@@ -378,10 +377,10 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
             ParentFont = False
           end
           object lblnet_tutar: TLabel
-            Left = 75
+            Left = 69
             Top = 55
-            Width = 49
-            Height = 14
+            Width = 55
+            Height = 13
             Alignment = taRightJustify
             Caption = 'Net Tutar'
             Font.Charset = DEFAULT_CHARSET
@@ -436,21 +435,21 @@ inherited frmSatisTeklifDetay: TfrmSatisTeklifDetay
   inherited pnlBottom: TPanel
     Top = 336
     Width = 417
-    ExplicitTop = 336
-    ExplicitWidth = 417
+    ExplicitTop = 328
+    ExplicitWidth = 415
     inherited btnAccept: TButton
       Left = 211
-      ExplicitLeft = 211
+      ExplicitLeft = 209
     end
     inherited btnClose: TButton
       Left = 315
-      ExplicitLeft = 315
+      ExplicitLeft = 313
     end
   end
   inherited stbBase: TStatusBar
     Top = 366
     Width = 421
-    ExplicitTop = 366
-    ExplicitWidth = 421
+    ExplicitTop = 358
+    ExplicitWidth = 419
   end
 end

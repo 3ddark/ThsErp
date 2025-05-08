@@ -1,4 +1,4 @@
-unit ufrmSatTeklifDetaylar;
+﻿unit ufrmSatTeklifDetaylar;
 
 interface
 
@@ -185,7 +185,7 @@ begin
   with GDataBase.NewQuery do
   try
     SQL.Clear;
-    SQL.Text := 'SELECT max(teklif_no::::integer) as numara FROM ' + Self.Table.TableName;
+    SQL.Text := 'SELECT max(cast(teklif_no as integer)) as numara FROM ' + Self.Table.TableName;
     Open;
 
     if (FieldByName('numara').Value = Null) or (FieldByName('numara').AsString = '')
@@ -431,7 +431,7 @@ begin
     end;
   end;
 
-  ts1.Caption := 'Teklif Detaylar�';
+  ts1.Caption := 'Teklif Detayları';
 end;
 
 procedure TfrmSatTeklifDetaylar.FormDestroy(Sender: TObject);
@@ -765,7 +765,6 @@ begin
       begin
         LTeslim := TSetEinvTeslimSekli.Create(GDataBase);
         LFrmTeslim := TfrmSetEinvTeslimSekilleri.Create(TEdit(Sender), Self, LTeslim, fomNormal, True);
-        LFrmTeslim.QryFiltreVarsayilanKullanici := ' AND ' + LTeslim.IsAktif.QryName + '=True';
         try
           LFrmTeslim.ShowModal;
           if LFrmTeslim.DataAktar then

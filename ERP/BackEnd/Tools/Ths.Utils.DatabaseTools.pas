@@ -16,7 +16,7 @@ uses
 type
   TDatabaseTools = class
     /// <summary>
-    ///  Mevcut sistemin PostgreSQL üzerinden veritaban� yedeğini alır
+    ///  Mevcut sistemin PostgreSQL üzerinden veritabanı yedeğini alır
     /// </summary>
     class procedure DoDatabaseBackup;
 

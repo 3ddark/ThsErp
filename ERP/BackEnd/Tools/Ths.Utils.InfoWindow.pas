@@ -1,4 +1,4 @@
-unit Ths.Utils.InfoWindow;
+﻿unit Ths.Utils.InfoWindow;
 
 interface
 
@@ -29,7 +29,7 @@ begin
 end;
 
 function BilgiVer(const AMesaj: string; AAutoClose: Boolean = True; AEkranSuresi : Integer = 1000): HWND;
-// Verilen Mesaj S�resi kadar Bilgi Penceresini Ekranda Tutar.
+// Verilen Mesaj Süresi kadar Bilgi Penceresini Ekranda Tutar.
 var
   FormWidth, FormHeight: Integer;
 begin

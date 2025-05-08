@@ -14,32 +14,16 @@ inherited frmSetEinvTeslimSekli: TfrmSetEinvTeslimSekli
     Height = 145
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 340
-    ExplicitHeight = 129
+    ExplicitWidth = 344
+    ExplicitHeight = 145
     inherited pgcMain: TPageControl
       Width = 344
       Height = 145
-      ExplicitWidth = 338
-      ExplicitHeight = 127
+      ExplicitWidth = 344
+      ExplicitHeight = 145
       inherited tsMain: TTabSheet
         ExplicitWidth = 336
         ExplicitHeight = 117
-        object lblis_active: TLabel
-          Left = 92
-          Top = 3
-          Width = 27
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Aktif'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
         object lblkod: TLabel
           Left = 96
           Top = 27
@@ -88,33 +72,26 @@ inherited frmSetEinvTeslimSekli: TfrmSetEinvTeslimSekli
           ParentBiDiMode = False
           ParentFont = False
         end
-        object chkis_active: TCheckBox
-          Left = 120
-          Top = 2
-          Width = 200
-          Height = 17
-          TabOrder = 0
-        end
         object edtkod: TEdit
           Left = 120
           Top = 24
           Width = 200
           Height = 21
-          TabOrder = 1
+          TabOrder = 0
         end
         object edtaciklama: TEdit
           Left = 120
           Top = 46
           Width = 200
           Height = 21
-          TabOrder = 2
+          TabOrder = 1
         end
         object chkis_efatura: TCheckBox
           Left = 120
           Top = 71
           Width = 200
           Height = 17
-          TabOrder = 3
+          TabOrder = 2
         end
       end
     end
@@ -122,15 +99,15 @@ inherited frmSetEinvTeslimSekli: TfrmSetEinvTeslimSekli
   inherited pnlBottom: TPanel
     Top = 147
     Width = 340
-    ExplicitTop = 133
+    ExplicitTop = 147
     ExplicitWidth = 340
     inherited btnAccept: TButton
-      Left = 131
-      ExplicitLeft = 131
+      Left = 134
+      ExplicitLeft = 134
     end
     inherited btnClose: TButton
-      Left = 235
-      ExplicitLeft = 235
+      Left = 238
+      ExplicitLeft = 238
     end
   end
   inherited stbBase: TStatusBar

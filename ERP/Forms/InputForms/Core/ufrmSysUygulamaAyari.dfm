@@ -21,7 +21,7 @@ inherited frmSysUygulamaAyari: TfrmSysUygulamaAyari
       Width = 694
       Height = 334
       ActivePage = tsdiger
-      ExplicitWidth = 696
+      ExplicitWidth = 694
       ExplicitHeight = 334
       inherited tsMain: TTabSheet
         ExplicitTop = 26

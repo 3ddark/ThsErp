@@ -36,12 +36,8 @@ type
   TfrmSetEinvTasimaUcreti = class(TfrmBaseInputDB)
     edttasima_ucreti: TEdit;
     lbltasima_ucreti: TLabel;
-    chkis_active: TCheckBox;
-    lblis_active: TLabel;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject);override;
-  private
-  public
   end;
 
 implementation
@@ -54,7 +50,6 @@ uses
 procedure TfrmSetEinvTasimaUcreti.RefreshData();
 begin
   edttasima_ucreti.Text := TSetEinvTasimaUcreti(Table).TasimaUcreti.Value;
-  chkis_active.Checked := TSetEinvTasimaUcreti(Table).IsAktif.Value;
 end;
 
 procedure TfrmSetEinvTasimaUcreti.btnAcceptClick(Sender: TObject);
@@ -63,7 +58,6 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSetEinvTasimaUcreti(Table).IsAktif.Value := chkis_active.Checked;
       TSetEinvTasimaUcreti(Table).TasimaUcreti.Value := edttasima_ucreti.Text;
       inherited;
     end;

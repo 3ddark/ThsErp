@@ -15,7 +15,6 @@ uses
 type
   TSetEinvTeslimSekli = class(TTable)
   private
-    FIsAktif: TFieldDB;
     FTeslimSekli: TFieldDB;
     FAciklama: TFieldDB;
     FIsEFatura: TFieldDB;
@@ -29,7 +28,6 @@ type
 
     function Clone: TTable; override;
 
-    Property IsAktif: TFieldDB read FIsAktif write FIsAktif;
     Property TeslimSekli: TFieldDB read FTeslimSekli write FTeslimSekli;
     Property Aciklama: TFieldDB read FAciklama write FAciklama;
     Property IsEFatura: TFieldDB read FIsEFatura write FIsEFatura;
@@ -43,11 +41,10 @@ uses
 
 constructor TSetEinvTeslimSekli.Create(ADatabase: TDatabase);
 begin
-  TableName := 'set_einv_teslim_sekli';
+  TableName := 'set_einv_teslim_sekilleri';
   TableSourceCode := MODULE_MHS_AYAR;
   inherited Create(ADatabase);
 
-  FIsAktif := TFieldDB.Create('is_aktif', ftBoolean, True, Self);
   FTeslimSekli := TFieldDB.Create('teslim_sekli', ftString, '', Self);
   FAciklama := TFieldDB.Create('aciklama', ftString, '', Self);
   FIsEFatura := TFieldDB.Create('is_efatura', ftBoolean, False, Self);
@@ -64,7 +61,6 @@ begin
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      FIsAktif.QryName,
       FTeslimSekli.QryName,
       FAciklama.QryName,
       FIsEfatura.QryName
@@ -91,7 +87,6 @@ begin
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
       Id.QryName,
-      FIsAktif.QryName,
       FTeslimSekli.QryName,
       FAciklama.QryName,
       FIsEfatura.QryName
@@ -121,7 +116,6 @@ begin
   LQry := Database.NewQuery();
   try
     Database.SQLBuilder.GetSQLInsertCmd(TableName, LQry, [
-      FIsAktif.FieldName,
       FTeslimSekli.FieldName,
       FAciklama.FieldName,
       FIsEFatura.FieldName
@@ -143,7 +137,6 @@ begin
   LQry := Database.NewQuery();
   try
     Database.SQLBuilder.GetSQLUpdateCmd(TableName, LQry, [
-      FIsAktif.FieldName,
       FTeslimSekli.FieldName,
       FAciklama.FieldName,
       FIsEFatura.FieldName
@@ -164,6 +157,4 @@ begin
 end;
 
 end.
-
-
 

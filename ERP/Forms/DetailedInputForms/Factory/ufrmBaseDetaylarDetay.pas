@@ -1,4 +1,4 @@
-unit ufrmBaseDetaylarDetay;
+﻿unit ufrmBaseDetaylarDetay;
 
 interface
 
@@ -160,7 +160,7 @@ begin
     btnClose.Visible := True;
     btnAccept.Caption := 'Kaydet';
 
-    //TRUE olarak g�nder form ilk a��ld���ndan k���k-b�y�k harf ayar�n� yap.
+    //TRUE olarak gönder form ilk açıldığından küçük-büyük harf ayarını yap.
 //    SetInputControlProperty(True);
   end
   else
