@@ -1,26 +1,27 @@
-unit BaseRepository;
+ï»¿unit BaseRepository;
 
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, System.Rtti, DB, ZConnection, ZDataset;
+  SysUtils, Classes, Contnrs, Types, System.Rtti, DB,
+  FireDAC.Comp.Client, FireDAC.Stan.Param;
 
 type
   TBaseRepository = class(TObject)
   private
     FTableName: string;
   protected
-    FConnection: TZConnection;
-    function NewQuery(AOwner: TComponent): TZQuery;
+    FConnection: TFDConnection;
+    function NewQuery(AOwner: TComponent): TFDQuery;
   public
-    constructor Create(AConnection: TZConnection);
+    constructor Create(AConnection: TFDConnection);
 
     procedure BeginTransaction;
     procedure CommitTransaction;
     procedure RollbackTransaction;
 
     property TableName: string read FTableName write FTableName;
-    property Connection: TZConnection read FConnection;
+    property Connection: TFDConnection read FConnection;
 
     function ExistsByField<T>(const AFieldName: string; const AValue: T): Boolean;
 
@@ -29,17 +30,17 @@ type
 
 implementation
 
-constructor TBaseRepository.Create(AConnection: TZConnection);
+constructor TBaseRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create;
   if not Assigned(AConnection) then
-    raise Exception.Create('Repository için geçerli bir baðlantý nesnesi saðlanmadý.');
+    raise Exception.Create('Repository iÃ§in geÃ§erli bir baÄŸlantÄ± nesnesi saÄŸlanmadÄ±.');
   FConnection := AConnection;
 end;
 
 procedure TBaseRepository.DeleteById(AId: Integer);
 var
-  Q: TZQuery;
+  Q: TFDQuery;
 begin
   Q := NewQuery(nil);
   try
@@ -51,9 +52,9 @@ begin
   end;
 end;
 
-function TBaseRepository.NewQuery(AOwner: TComponent): TZQuery;
+function TBaseRepository.NewQuery(AOwner: TComponent): TFDQuery;
 begin
-  Result := TZQuery.Create(AOwner);
+  Result := TFDQuery.Create(AOwner);
   Result.Connection := FConnection;
 end;
 
@@ -74,7 +75,7 @@ end;
 
 function TBaseRepository.ExistsByField<T>(const AFieldName: string; const AValue: T): Boolean;
 var
-  Q: TZQuery;
+  Q: TFDQuery;
   V: TValue;
 begin
   Q := NewQuery(nil);

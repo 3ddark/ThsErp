@@ -172,8 +172,13 @@
         <DCCReference Include="BackEnd\Tools\SynPDF\SynGdiPlus.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\SynZip.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\SynTable.pas"/>
+        <DCCReference Include="BackEnd\Tools\SynPDF\SynCrypto.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\mORMotReport.pas"/>
         <DCCReference Include="BackEnd\Core\Logger.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\BaseEntity.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\BaseRepository.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\BaseService.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\EntityMetaProvider.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.BaseTypes.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.Button.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.ComboBox.pas"/>
@@ -186,6 +191,11 @@
         <DCCReference Include="BackEnd\Tools\Ths.Utils.SevenZip.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.FluentXML.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.InfoWindow.pas"/>
+        <DCCReference Include="BackEnd\Tools\Ths.Utils.Images.pas"/>
+        <DCCReference Include="BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas"/>
+        <DCCReference Include="BackEnd\Tools\Ths.Utils.InternetConnection.pas"/>
+        <DCCReference Include="BackEnd\Tools\Ths.Utils.DatabaseTools.pas"/>
+        <DCCReference Include="BackEnd\Core\Ths.Database.Sql.Builder.pas"/>
         <DCCReference Include="BackEnd\Core\udm.pas">
             <Form>dm</Form>
             <DesignClass>TDataModule</DesignClass>
@@ -737,12 +747,9 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.Utils.Images.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Sql.Builder.pas"/>
-        <DCCReference Include="BackEnd\Tools\SynPDF\SynCrypto.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.Utils.InternetConnection.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.Utils.DatabaseTools.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\StkCinsAile.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\StkCinsAileRepository.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\StkCinsAileService.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -777,6 +784,12 @@
             </Platforms>
             <Deployment Version="5">
                 <DeployFile LocalName="Ths.exe" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName="Ths.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Ths.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>

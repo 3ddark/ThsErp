@@ -1,7 +1,6 @@
 inherited frmBaseInput: TfrmBaseInput
   ClientHeight = 395
   ClientWidth = 606
-  ExplicitWidth = 622
   ExplicitHeight = 434
   TextHeight = 13
   inherited pnlMain: TPanel

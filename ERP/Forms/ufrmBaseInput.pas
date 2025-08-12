@@ -45,7 +45,6 @@ type
   published
     procedure FormShow(Sender: TObject); override;
     procedure FormDestroy(Sender: TObject); override;
-    procedure WmAfterShow(var Msg: TMessage); message WM_AFTER_SHOW;
   end;
 
 implementation
@@ -163,10 +162,6 @@ begin
 //ferhat buraya bak normal input db formlarda iki kere refreshdata yapıyor. Bunu engelle
 //detaylı formlarda da refresh yapmalı fakat input db formlarından gelmediği için burada yapıldı.
 //yapıyı gözden geçir
-
-  Application.ProcessMessages;
-
-  PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
 end;
 
 function TfrmBaseInput.getContainTable(pTable: TTable): TTable;
@@ -297,12 +292,6 @@ begin
     end;
   end;
 
-end;
-
-procedure TfrmBaseInput.WmAfterShow(var Msg: TMessage);
-begin
-  inherited;
-  //
 end;
 
 procedure TfrmBaseInput.SetCaptionFromLangContent;

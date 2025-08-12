@@ -1,11 +1,14 @@
-unit EntityMetaProvider;
+ï»¿unit EntityMetaProvider;
 
 interface
 
 uses
   System.SysUtils, System.Classes, System.Generics.Collections, Data.DB,
   System.Rtti, System.Variants, System.StrUtils,
-  ZConnection, ZDbcIntfs, ZDbcMetadata, ZDbcResultSet;
+  FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client;
 
 type
   TFieldMeta = record
@@ -13,17 +16,17 @@ type
     Required: Boolean;
     MaxLength: Integer;
     DataTypeInt: Integer; // SQL tipi kodu
-    DataTypeName: string; // Tip adý string olarak
+    DataTypeName: string; // Tip adÄ± string olarak
   end;
 
   TEntityMetaProvider = class
   private
     class var FFieldMetaCache: TDictionary<string, TArray<TFieldMeta>>;
-    class var Conn: TZConnection;
+    class var Conn: TFDConnection;
     class constructor Create;
     class destructor Destroy;
   public
-    class procedure SetConnection(AConnection: TZConnection);
+    class procedure SetConnection(AConnection: TFDConnection);
     class function GetFieldMeta(const TableName: string): TArray<TFieldMeta>;
     class procedure ValidateEntity(AEntity: TObject; const MetaArray: TArray<TFieldMeta>);
   end;
@@ -42,41 +45,40 @@ end;
 
 class function TEntityMetaProvider.GetFieldMeta(const TableName: string): TArray<TFieldMeta>;
 var
-  Metadata: IZDatabaseMetadata;
-  ResultSet: IZResultSet;
+  MIQuery: TFDMetaInfoQuery;
   FieldMetaList: TList<TFieldMeta>;
   FM: TFieldMeta;
-  NullableInt: Integer;
 begin
-  if FFieldMetaCache.ContainsKey(TableName) then
-    Exit(FFieldMetaCache[TableName]);
-
-  if not Assigned(Conn) then
-    raise Exception.Create('Veri tabaný baðlantýsý atanmadý! Önce SetConnection çaðrýlmalýdýr.');
-
   FieldMetaList := TList<TFieldMeta>.Create;
   try
-    Metadata := Conn.DbcConnection.GetMetadata;
-    ResultSet := Metadata.GetColumns('', '', UpperCase(TableName), '');
-    while ResultSet.Next do
-    begin
-      FM.FieldName := ResultSet.GetStringByName('COLUMN_NAME');
-      NullableInt := ResultSet.GetIntByName('NULLABLE'); // 0 = NOT NULL, 1 = NULL olabilir
-      FM.Required := (NullableInt = 0);
-      FM.MaxLength := ResultSet.GetIntByName('COLUMN_SIZE');
-      FM.DataTypeInt := ResultSet.GetIntByName('DATA_TYPE');
-      FM.DataTypeName := ResultSet.GetStringByName('DATA_TYPE');
-      FieldMetaList.Add(FM);
+    MIQuery := TFDMetaInfoQuery.Create(nil);
+    try
+      MIQuery.Connection := Conn;
+      MIQuery.MetaInfoKind := mkTableFields;
+      MIQuery.ObjectName := TableName;
+      MIQuery.Open;
+      while not MIQuery.Eof do
+      begin
+        FM.FieldName   := MIQuery.FieldByName('COLUMN_NAME').AsString;
+        FM.Required    := MIQuery.FieldByName('NULLABLE').AsInteger = 0;
+        FM.MaxLength   := MIQuery.FieldByName('COLUMN_SIZE').AsInteger;
+        FM.DataTypeName := MIQuery.FieldByName('COLUMN_TYPENAME').AsString;
+        FM.DataTypeInt := MIQuery.FieldByName('COLUMN_DATATYPE').AsInteger;
+
+        FieldMetaList.Add(FM);
+        MIQuery.Next;
+      end;
+    finally
+      MIQuery.Free;
     end;
 
     Result := FieldMetaList.ToArray;
-    FFieldMetaCache.Add(TableName, Result);
   finally
     FieldMetaList.Free;
   end;
 end;
 
-class procedure TEntityMetaProvider.SetConnection(AConnection: TZConnection);
+class procedure TEntityMetaProvider.SetConnection(AConnection: TFDConnection);
 begin
   Conn := AConnection;
 end;
@@ -133,14 +135,14 @@ begin
       val := prop.GetValue(AEntity);
 
       if FM.Required and IsEmptyValue(val) then
-        RaiseError(Format('"%s" alaný zorunludur.', [FM.FieldName]));
+        RaiseError(Format('"%s" alanÄ± zorunludur.', [FM.FieldName]));
 
       if  (FM.MaxLength > 0)
       and (val.Kind in [tkString, tkLString, tkWString, tkUString])
       and (Length(val.AsString) > FM.MaxLength)
       then
-        RaiseError(Format('"%s" alaný en fazla %d karakter olabilir. ' + sLineBreak +
-                          'Girilen deðer:' + sLineBreak + '%s', [FM.FieldName, FM.MaxLength, val.AsString]));
+        RaiseError(Format('"%s" alanÄ± en fazla %d karakter olabilir. ' + sLineBreak +
+                          'Girilen deÄŸer:' + sLineBreak + '%s', [FM.FieldName, FM.MaxLength, val.AsString]));
 
       if FM.DataTypeName <> '' then
       begin
@@ -151,7 +153,7 @@ begin
         then
         begin
           if not (val.Kind in [tkInteger, tkInt64]) then
-            RaiseError(Format('"%s" alaný tamsayý olmalýdýr.', [FM.FieldName]));
+            RaiseError(Format('"%s" alanÄ± tamsayÄ± olmalÄ±dÄ±r.', [FM.FieldName]));
         end
         else
         if (LowerCase(FM.DataTypeName) = 'varchar')
@@ -161,7 +163,7 @@ begin
         then
         begin
           if not (val.Kind in [tkString, tkLString, tkWString, tkUString]) then
-            RaiseError(Format('"%s" alaný metin (string) olmalýdýr.', [FM.FieldName]));
+            RaiseError(Format('"%s" alanÄ± metin (string) olmalÄ±dÄ±r.', [FM.FieldName]));
         end
         else
         if (LowerCase(FM.DataTypeName) = 'date')
@@ -170,7 +172,7 @@ begin
         then
         begin
           if not (val.Kind = tkFloat) then
-            RaiseError(Format('"%s" alaný tarih/saat olmalýdýr.', [FM.FieldName]));
+            RaiseError(Format('"%s" alanÄ± tarih/saat olmalÄ±dÄ±r.', [FM.FieldName]));
         end;
       end;
     end;

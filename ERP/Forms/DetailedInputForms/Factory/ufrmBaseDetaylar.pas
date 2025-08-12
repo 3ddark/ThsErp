@@ -458,6 +458,8 @@ procedure TfrmBaseDetaylar.FormShow(Sender: TObject);
 var
   n1: Integer;
 begin
+  inherited;
+
   //ufrmBase kodu
   FocusedFirstControl(pnlMain);
 
@@ -517,10 +519,6 @@ begin
 //ferhat buraya bak normal input db formlarda iki kere refreshdata yapıyor. Bunu engelle
 //detaylı formlarda da refresh yapmalı fakat input db formlarından gelmediği için burada yapıldı.
 //yapıyı gözden geçir
-
-  Application.ProcessMessages;
-
-  PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
 
 
 

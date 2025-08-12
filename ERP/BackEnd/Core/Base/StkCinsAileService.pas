@@ -3,7 +3,8 @@ unit StkCinsAileService;
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, ZConnection, ZDataset, BaseService,
+  SysUtils, Classes, Contnrs, Types, BaseService,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client,
   StkCinsAileRepository, StkCinsAile, EntityMetaProvider;
 
 type
@@ -13,23 +14,23 @@ type
   protected
     FRepository: TStkCinsAileRepository;
   public
-    constructor Create(AConnection: TZConnection);
+    constructor Create(AConnection: TFDConnection);
     destructor destroy; override;
     function TableName: string;
 
-    function CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): TZQuery;
+    function CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): TFDQuery;
     procedure BusinessAdd(AEntity: TStkCinsAile);
   end;
 
 implementation
 
-constructor TStkCinsAileService.Create(AConnection: TZConnection);
+constructor TStkCinsAileService.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
   FRepository := TStkCinsAileRepository.Create(AConnection);
 end;
 
-function TStkCinsAileService.CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): TZQuery;
+function TStkCinsAileService.CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): TFDQuery;
 begin
   Result := FRepository.CreateQueryForUI('', AOwner);
 end;
@@ -49,7 +50,7 @@ procedure TStkCinsAileService.BusinessAdd(AEntity: TStkCinsAile);
 begin
   FMetas := TEntityMetaProvider.GetFieldMeta(FRepository.TableName);
 
-  if FRepository.ExistsByField<string>('aile', AEntity.Aile) then
+  if FRepository.ExistsByField<string>('aile', AEntity.Aile.Value) then
     Exit;
   try
     FRepository.BeginTransaction;

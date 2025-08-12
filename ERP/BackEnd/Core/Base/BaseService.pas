@@ -1,27 +1,27 @@
-unit BaseService;
+ï»¿unit BaseService;
 
 interface
 
 uses
-  SysUtils, Classes, Types, ZConnection;
+  SysUtils, Classes, Types, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
 
 type
   TBaseService = class
   protected
-    constructor Create(AConnection: TZConnection);
+    constructor Create(AConnection: TFDConnection);
   protected
     function IsAuthorized(): Boolean;
   public
-    destructor destroy; override;
+    destructor destroy; virtual;
   end;
 
 implementation
 
-constructor TBaseService.Create(AConnection: TZConnection);
+constructor TBaseService.Create(AConnection: TFDConnection);
 begin
   inherited Create;
   if not Assigned(AConnection) then
-    raise Exception.Create('Service için geçerli bir baðlantý nesnesi saðlanmadý.');
+    raise Exception.Create('Service iÃ§in geÃ§erli bir baÄŸlantÄ± nesnesi saÄŸlanmadÄ±.');
 end;
 
 destructor TBaseService.destroy;

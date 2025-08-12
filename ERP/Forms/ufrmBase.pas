@@ -52,8 +52,6 @@ type
     procedure FormShow(Sender: TObject); virtual;
     procedure FormPaint(Sender: TObject); virtual;
 
-    procedure WmAfterShow(var Msg: TMessage); message WM_AFTER_SHOW;
-    procedure WmAfterCreate(var Msg: TMessage); message WM_AFTER_CREATE;
     procedure stbBaseDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect); virtual;
 
     procedure scaleByDPI(AParent: TWinControl);
@@ -75,6 +73,8 @@ type
     FfrmConfirmation: TfrmConfirmation;
 
     FmrBtnAccept: Integer;
+    procedure WmAfterShow(var Msg: TMessage); message WM_AFTER_SHOW;
+    procedure WmAfterCreate(var Msg: TMessage); message WM_AFTER_CREATE;
   protected
     function ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl = nil):boolean; virtual;
     procedure fillComboBoxData(var pControl: TCombobox;
@@ -116,6 +116,8 @@ type
     procedure SetMNIImages(pMni: TMenuItem; pImageNo: Integer);
 
     procedure CreateLangGuiContentFormforFormCaption();
+    procedure DoAfterCreateLogic; virtual;
+    procedure DoAfterShowLogic; virtual;
   end;
 
 implementation
@@ -163,6 +165,16 @@ begin
 
   TfrmSysGuiIcerik.Create(Self, nil, LLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
+end;
+
+procedure TfrmBase.DoAfterCreateLogic;
+begin
+//
+end;
+
+procedure TfrmBase.DoAfterShowLogic;
+begin
+//
 end;
 
 procedure TfrmBase.btnAcceptClick(Sender: TObject);
@@ -394,7 +406,7 @@ end;
 procedure TfrmBase.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action := caFree;
-  Self.Release;
+//  Self.Release;
 end;
 
 procedure TfrmBase.FormCreate(Sender: TObject);
@@ -428,9 +440,10 @@ end;
 procedure TfrmBase.FormDestroy(Sender: TObject);
 begin
   if AcceptBtnDoAction AND Assigned(Table) and (Table <> nil) {and not (Self.ClassParent = TfrmBaseInputDB)} then
-    Table.Destroy;
+    FreeAndNil(Table);
+//    Table.Destroy;
 
-  frmConfirmation.Free;
+  FreeAndNil(frmConfirmation);
 
   inherited;
 end;
@@ -512,7 +525,7 @@ begin
   inherited;
   FocusedFirstControl(pnlMain);
 
-//  PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
+  PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
 end;
 
 procedure TfrmBase.SetActionImages(pAct: TAction; pImageNo: Integer);
@@ -708,11 +721,12 @@ end;
 procedure TfrmBase.WmAfterShow(var Msg: TMessage);
 begin
   scaleByDPI(pnlMain);
+  DoAfterShowLogic;
 end;
 
 procedure TfrmBase.WmAfterCreate(var Msg: TMessage);
 begin
-//
+  DoAfterCreateLogic;
 end;
 
 end.

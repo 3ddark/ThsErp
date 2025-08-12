@@ -14,7 +14,6 @@ object frmBase: TfrmBase
   Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poOwnerFormCenter
   OnClose = FormClose
   OnCreate = FormCreate
@@ -25,7 +24,6 @@ object frmBase: TfrmBase
   OnPaint = FormPaint
   OnResize = FormResize
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0

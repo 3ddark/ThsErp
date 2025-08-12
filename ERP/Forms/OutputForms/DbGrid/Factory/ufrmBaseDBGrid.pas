@@ -252,10 +252,10 @@ type
     procedure SetColVisible(pFieldName: string; pVisible: Boolean);
 
     procedure StatusBarDuzenle();
+    procedure DoAfterShowLogic; override;
   published
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); override;
     procedure stbBaseDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect); override;
-    procedure WmAfterShow(var Msg: TMessage); message WM_AFTER_SHOW;
     procedure btnAcceptClick(Sender: TObject); override;
 
     procedure WriteRecordCount(pCount: Integer);
@@ -1331,8 +1331,6 @@ begin
   end;
 
   Table.Database.AddListenEventName(Table.TableName);
-
-  PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);
 end;
 
 function TfrmBaseDBGrid.GetFieldByFieldName(pFieldName: string; pGridColumns: TDBGridColumns): TField;
@@ -2522,7 +2520,7 @@ begin
 }
 end;
 
-procedure TfrmBaseDBGrid.WmAfterShow(var Msg: TMessage);
+procedure TfrmBaseDBGrid.DoAfterShowLogic;
 //var
 //  n1: Integer;
 begin

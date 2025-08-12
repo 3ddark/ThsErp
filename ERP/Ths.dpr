@@ -18,8 +18,13 @@ uses
   SynGdiPlus in 'BackEnd\Tools\SynPDF\SynGdiPlus.pas',
   SynZip in 'BackEnd\Tools\SynPDF\SynZip.pas',
   SynTable in 'BackEnd\Tools\SynPDF\SynTable.pas',
+  SynCrypto in 'BackEnd\Tools\SynPDF\SynCrypto.pas',
   mORMotReport in 'BackEnd\Tools\SynPDF\mORMotReport.pas',
   Logger in 'BackEnd\Core\Logger.pas',
+  BaseEntity in 'BackEnd\Core\Base\BaseEntity.pas',
+  BaseRepository in 'BackEnd\Core\Base\BaseRepository.pas',
+  BaseService in 'BackEnd\Core\Base\BaseService.pas',
+  EntityMetaProvider in 'BackEnd\Core\Base\EntityMetaProvider.pas',
   Ths.Helper.BaseTypes in 'BackEnd\Tools\Ths.Helper.BaseTypes.pas',
   Ths.Helper.Button in 'BackEnd\Tools\Ths.Helper.Button.pas',
   Ths.Helper.ComboBox in 'BackEnd\Tools\Ths.Helper.ComboBox.pas',
@@ -32,6 +37,11 @@ uses
   Ths.Utils.SevenZip in 'BackEnd\Tools\Ths.Utils.SevenZip.pas',
   Ths.Utils.FluentXML in 'BackEnd\Tools\Ths.Utils.FluentXML.pas',
   Ths.Utils.InfoWindow in 'BackEnd\Tools\Ths.Utils.InfoWindow.pas',
+  Ths.Utils.Images in 'BackEnd\Tools\Ths.Utils.Images.pas',
+  Ths.Utils.TCMBDovizKuru in 'BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas',
+  Ths.Utils.InternetConnection in 'BackEnd\Tools\Ths.Utils.InternetConnection.pas',
+  Ths.Utils.DatabaseTools in 'BackEnd\Tools\Ths.Utils.DatabaseTools.pas',
+  Ths.Database.Sql.Builder in 'BackEnd\Core\Ths.Database.Sql.Builder.pas',
   udm in 'BackEnd\Core\udm.pas' {dm: TDataModule},
   Ths.Constants in 'BackEnd\Core\Ths.Constants.pas',
   Ths.Database.Connection.Settings in 'BackEnd\Core\Ths.Database.Connection.Settings.pas',
@@ -267,12 +277,9 @@ uses
   ufrmAlsTeklifDetaylar in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetaylar.pas' {frmAlsTeklifDetaylar},
   ufrmAlsTeklifDetay in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetay.pas' {frmAlsTeklifDetay},
   Ths.Database.Table.StkKartCinsBilgileri in 'BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas',
-  Ths.Utils.Images in 'BackEnd\Tools\Ths.Utils.Images.pas',
-  Ths.Database.Sql.Builder in 'BackEnd\Core\Ths.Database.Sql.Builder.pas',
-  SynCrypto in 'BackEnd\Tools\SynPDF\SynCrypto.pas',
-  Ths.Utils.TCMBDovizKuru in 'BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas',
-  Ths.Utils.InternetConnection in 'BackEnd\Tools\Ths.Utils.InternetConnection.pas',
-  Ths.Utils.DatabaseTools in 'BackEnd\Tools\Ths.Utils.DatabaseTools.pas';
+  StkCinsAile in 'BackEnd\Core\Base\StkCinsAile.pas',
+  StkCinsAileRepository in 'BackEnd\Core\Base\StkCinsAileRepository.pas',
+  StkCinsAileService in 'BackEnd\Core\Base\StkCinsAileService.pas';
 
 {$R *.res}
 

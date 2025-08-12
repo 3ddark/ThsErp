@@ -8,11 +8,26 @@ uses
 type
   TStkCinsAile = class(TEntity)
   private
-    FAile: string;
+    FAile: TField<string>;
   public
-    property Aile: string read FAile write FAile;
+    property Aile: TField<string> read FAile write FAile;
+
+    constructor Create(); override;
+    destructor destroy; override;
   end;
 
 implementation
+
+constructor TStkCinsAile.Create();
+begin
+  inherited;
+  FAile := TField<string>.Create;
+end;
+
+destructor TStkCinsAile.destroy;
+begin
+  FAile.Free;
+  inherited;
+end;
 
 end.
