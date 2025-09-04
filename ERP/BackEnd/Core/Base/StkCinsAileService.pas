@@ -9,13 +9,12 @@ uses
 
 type
   TStkCinsAileService = class(TBaseService)
-  private
-    FMetas: TArray<TFieldMeta>;
   protected
     FRepository: TStkCinsAileRepository;
   public
     constructor Create(AConnection: TFDConnection);
-    destructor destroy; override;
+    destructor Destroy; override;
+    function GetConnection: TFDConnection; override;
     function TableName: string;
 
     function CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): TFDQuery;
@@ -35,10 +34,15 @@ begin
   Result := FRepository.CreateQueryForUI('', AOwner);
 end;
 
-destructor TStkCinsAileService.destroy;
+destructor TStkCinsAileService.Destroy;
 begin
   FRepository.Free;
   inherited;
+end;
+
+function TStkCinsAileService.GetConnection: TFDConnection;
+begin
+  Result := FRepository.Connection;
 end;
 
 function TStkCinsAileService.TableName: string;

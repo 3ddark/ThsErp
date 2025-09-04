@@ -750,6 +750,15 @@
         <DCCReference Include="BackEnd\Core\Base\StkCinsAile.pas"/>
         <DCCReference Include="BackEnd\Core\Base\StkCinsAileRepository.pas"/>
         <DCCReference Include="BackEnd\Core\Base\StkCinsAileService.pas"/>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkCinsAileleri.pas">
+            <Form>frmStkCinsAileleri</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\InputForms\Stock\ufrmStkCinsAilesi.pas">
+            <Form>frmStkCinsAilesi</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

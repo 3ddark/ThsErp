@@ -13,7 +13,7 @@ type
     property Aile: TField<string> read FAile write FAile;
 
     constructor Create(); override;
-    destructor destroy; override;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -24,7 +24,7 @@ begin
   FAile := TField<string>.Create;
 end;
 
-destructor TStkCinsAile.destroy;
+destructor TStkCinsAile.Destroy;
 begin
   FAile.Free;
   inherited;

@@ -425,7 +425,6 @@ object frmBaseDBGrid2: TfrmBaseDBGrid2
     Top = 56
   end
   object dsbase: TDataSource
-    DataSet = qrybase
     Left = 326
     Top = 80
   end
@@ -475,15 +474,5 @@ object frmBaseDBGrid2: TfrmBaseDBGrid2
   object Timer1: TTimer
     Left = 248
     Top = 368
-  end
-  object qrybase: TZQuery
-    Params = <>
-    Left = 264
-    Top = 80
-  end
-  object pgalertbase: TZPgEventAlerter
-    Active = False
-    Left = 400
-    Top = 80
   end
 end

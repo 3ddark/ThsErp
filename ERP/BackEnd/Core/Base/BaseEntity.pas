@@ -25,7 +25,6 @@ type
     function ValueIsChanged: Boolean;
   end;
 
-
   IEntity = interface
     ['{E7D242C9-BD12-48FB-8D12-883B52EA0347}']
   end;
@@ -36,19 +35,20 @@ type
   public
     property Id: TField<Integer> read FId write FId;
     constructor Create; virtual;
-    destructor destroy; virtual;
+    destructor Destroy; override;
   end;
 
 implementation
 
 constructor TEntity.Create;
 begin
-  fid := TField<Integer>.Create;
+  FId := TField<Integer>.Create;
 end;
 
-destructor TEntity.destroy;
+destructor TEntity.Destroy;
 begin
   FId.Free;
+  inherited;
 end;
 
 procedure TField<T>.SetOldValue(const AValue: T);
@@ -58,7 +58,7 @@ end;
 
 procedure TField<T>.SetValue(const AValue: T);
 begin
-  Value := AValue;
+  FValue := AValue;
 end;
 
 procedure TField<T>.ValueFirstSet(const AValue: T);

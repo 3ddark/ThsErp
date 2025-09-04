@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, System.Rtti, DB,
+  SysUtils, Classes, Contnrs, Types, System.Rtti, System.TypInfo, DB,
   FireDAC.Comp.Client, FireDAC.Stan.Param;
 
 type

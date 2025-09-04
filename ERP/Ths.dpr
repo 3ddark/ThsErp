@@ -279,7 +279,10 @@ uses
   Ths.Database.Table.StkKartCinsBilgileri in 'BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas',
   StkCinsAile in 'BackEnd\Core\Base\StkCinsAile.pas',
   StkCinsAileRepository in 'BackEnd\Core\Base\StkCinsAileRepository.pas',
-  StkCinsAileService in 'BackEnd\Core\Base\StkCinsAileService.pas';
+  StkCinsAileService in 'BackEnd\Core\Base\StkCinsAileService.pas',
+  ufrmStkCinsAileleri in 'Forms\OutputForms\DbGrid\Stock\ufrmStkCinsAileleri.pas' {frmStkCinsAileleri},
+  ufrmStkCinsAilesi in 'Forms\InputForms\Stock\ufrmStkCinsAilesi.pas' {frmStkCinsAilesi},
+  ufrmGrid in 'Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas';
 
 {$R *.res}
 

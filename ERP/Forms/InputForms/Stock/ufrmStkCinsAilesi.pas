@@ -2,15 +2,13 @@ unit ufrmStkCinsAilesi;
 
 interface
 
-{$I ThsERP.inc}
+{$I Ths.inc}
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils,
-  Vcl.AppEvnts,
-  Ths.Erp.Helper.Edit, Ths.Erp.Helper.ComboBox, Ths.Erp.Helper.Memo,
-
-  ufrmBase, ufrmBaseInputDB, Vcl.Menus, Vcl.Samples.Spin;
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils, Vcl.AppEvnts, Vcl.Samples.Spin,
+  Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo,
+  ufrmBase, ufrmBaseInputDB, Vcl.Menus;
 
 type
   TfrmStkCinsAilesi = class(TfrmBaseInputDB)
@@ -24,9 +22,7 @@ type
 implementation
 
 uses
-  Ths.Erp.Database.Singleton,
-  Ths.Erp.Database.Table.StkCinsAilesi,
-  Ths.Erp.Globals;
+  StkCinsAile;
 
 {$R *.dfm}
 
@@ -36,7 +32,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TStkCinsAilesi(Table).Aile.Value := edtAile.Text;
+      TStkCinsAile(Table).Aile.Value := edtAile.Text;
       inherited;
     end;
   end
@@ -46,7 +42,8 @@ end;
 
 procedure TfrmStkCinsAilesi.RefreshData;
 begin
-  edtAile.Text := VarToStr(FormatedVariantVal(TStkCinsAilesi(Table).Aile));
+  edtAile.Text := TStkCinsAile(Table).Aile.Value;
 end;
 
 end.
+

@@ -8,18 +8,17 @@ uses
   System.Rtti, System.TypInfo, System.Generics.Collections,
   Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd,
-  Vcl.DBGrids, Data.DB,
+  Vcl.DBGrids, Data.DB, ufrmBase,
   Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  Ths.Orm.Table, Ths.Orm.Manager, Ths.Orm.ManagerStack;
+  BaseEntity, BaseService;
 
 type
-  TfrmGrid<T> = class(TForm)
+  TfrmGrid<TS: TBaseService; TE: TEntity> = class(TForm)
     FDataSource: TDataSource;
     status: TStatusBar;
   private
-    FContext: PTEntityManager;
-    FTable: T;
-    FPTable: PThsTable;
+    FService: TS;
+    FTable: TE;
     FQry: TFDQuery;
     FGrd: TDBGrid;
 
@@ -49,8 +48,7 @@ type
     procedure PrepareGrid();
     procedure PreparePopupMenu();
     procedure SetQry(const Value: TFDQuery);
-    procedure SetTable(const Value: T);
-    procedure SetPTable(const Value: PThsTable);
+    procedure SetTable(const Value: TE);
     procedure SetGrd(const Value: TDBGrid);
 
     procedure SetPopupMenu(const Value: TPopupMenu);
@@ -75,13 +73,12 @@ type
     procedure EdtFilterChange(Sender: TObject);
 
     procedure SetSelectedItem;
-    procedure SetContext(const Value: PTEntityManager);
+    procedure SetService(const Value: TS);
   public
-    property Context: PTEntityManager read FContext write SetContext;
-    property Qry: TFDQuery read FQry write SetQry;
-    property Table: T read FTable write SetTable;
-    property PTable: PThsTable read FPTable write SetPTable;
+    property Service: TS read FService write SetService;
+    property Table: TE read FTable write SetTable;
     property Grd: TDBGrid read FGrd write SetGrd;
+    property Qry: TFDQuery read FQry write SetQry;
     property Container: TPanel read FContainer write SetContainer;
     property GrdContainer: TPanel read FGrdContainer write SetGrdContainer;
     property EdtFilter: TEdit read FEdtFilter write SetEdtFilter;
@@ -99,7 +96,7 @@ type
     property mniPrint: TMenuItem read FmniPrint write SetmniPrint;
     property mniRemoveGridSort: TMenuItem read FmniRemoveGridSort write SetmniRemoveGridSort;
 
-    constructor Create(AOwner: TComponent; AContext: PTEntityManager; ATable: T; ASQL: string; ACreateNewBase: Boolean = True); reintroduce; overload;
+    constructor Create(AOwner: TComponent; AService: TS; ATable: TE; ACreateNewBase: Boolean = True); reintroduce; overload;
     destructor Destroy; override;
 
     procedure ShowInputForm(Sender: TObject; AFormType: TInputFormMode); virtual;
@@ -152,7 +149,7 @@ type
 
 implementation
 
-uses ufrmInput;
+uses ufrmBaseInput;
 
 function UpperCaseTr(S: string): string;
 begin
@@ -164,7 +161,7 @@ begin
   Result := AnsiLowerCase(StringReplace(StringReplace(S, 'I', 'ı', [rfReplaceAll]), 'İ', 'i', [rfReplaceAll]));
 end;
 
-function TfrmGrid<T>.AddMenu(ATitle, AMenuName: string; AClickEvent: TNotifyEvent;
+function TfrmGrid<TS, TE>.AddMenu(ATitle, AMenuName: string; AClickEvent: TNotifyEvent;
   AVibisle: Boolean; AShortCut: TShortCut; AParentMenu: TMenuItem): TMenuItem;
 begin
   if AParentMenu <> nil then
@@ -189,12 +186,12 @@ begin
   end;
 end;
 
-procedure TfrmGrid<T>.AddNewClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.AddNewClick(Sender: TObject);
 begin
   ShowInputForm(Sender, ifmNewRecord);
 end;
 
-procedure TfrmGrid<T>.AddPopupMenuSpliter(AParentMenu: TMenuItem);
+procedure TfrmGrid<TS, TE>.AddPopupMenuSpliter(AParentMenu: TMenuItem);
 var
   LMenu: TMenuItem;
 begin
@@ -212,26 +209,26 @@ begin
   end;
 end;
 
-procedure TfrmGrid<T>.AfterDatasetOpen(Dataset: TDataset);
+procedure TfrmGrid<TS, TE>.AfterDatasetOpen(Dataset: TDataset);
 begin
   RefreshStatucRecorCount();
 end;
 
-constructor TfrmGrid<T>.Create(AOwner: TComponent; AContext: PTEntityManager; ATable: T; ASQL: string; ACreateNewBase: Boolean);
+constructor TfrmGrid<TS, TE>.Create(AOwner: TComponent; AService: TS; ATable: TE; ACreateNewBase: Boolean);
 begin
   if ACreateNewBase then
     CreateNew(Owner);
 
   Self.Caption := 'Base Title';
 
-  Context := AContext;
-  FTable := ATable;
-  PTable := @Table;
+  Service := AService;
+  SetTable(ATable);
 
-  FQry := AppDbContext.NewQuery;
+  FQry := TFDQuery.Create(nil);
+  FQry.Connection := AService.GetConnection;
   FQry.AfterOpen := AfterDatasetOpen;
   FQry.OnFilterRecord := OnFilterDataset;
-  FQry.SQL.Text := ASQL;
+  FQry.SQL.Text := 'SELECT * FROM stk_cins_aileleri ';
 
   FDataSource := TDataSource.Create(Self);
   FDataSource.DataSet := FQry;
@@ -248,17 +245,17 @@ begin
   Self.ActiveControl := Grd;
 end;
 
-function TfrmGrid<T>.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
+function TfrmGrid<TS, TE>.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
 begin
   Result := nil;
 end;
 
-procedure TfrmGrid<T>.DataSourceDataChange(Sender: TObject; Field: TField);
+procedure TfrmGrid<TS, TE>.DataSourceDataChange(Sender: TObject; Field: TField);
 begin
 //
 end;
 
-destructor TfrmGrid<T>.Destroy;
+destructor TfrmGrid<TS, TE>.Destroy;
 begin
   FFilterStringFields.Free;
   FFilterNumericFields.Free;
@@ -269,13 +266,12 @@ begin
   FQry.Close;
   FQry.Free;
   FDataSource.Free;
-
-  PTable.Free;
+  FreeAndNil(FTable);
 
   inherited;
 end;
 
-procedure TfrmGrid<T>.FilterApply;
+procedure TfrmGrid<TS, TE>.FilterApply;
 begin
   if FFilterGrid.Count > 0 then
   begin
@@ -293,7 +289,7 @@ begin
   RefreshStatucRecorCount();
 end;
 
-procedure TfrmGrid<T>.EdtFilterChange(Sender: TObject);
+procedure TfrmGrid<TS, TE>.EdtFilterChange(Sender: TObject);
 var
   n1: Integer;
   LIntValue: Integer;
@@ -363,17 +359,17 @@ begin
   Self.RefreshStatucRecorCount;
 end;
 
-procedure TfrmGrid<T>.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmGrid<TS, TE>.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action := caFree;
 end;
 
-procedure TfrmGrid<T>.FormCreate(Sender: TObject);
+procedure TfrmGrid<TS, TE>.FormCreate(Sender: TObject);
 begin
 //
 end;
 
-procedure TfrmGrid<T>.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TfrmGrid<TS, TE>.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = VK_F6 then
   begin
@@ -390,7 +386,7 @@ begin
   end
 end;
 
-procedure TfrmGrid<T>.FormKeyPress(Sender: TObject; var Key: Char);
+procedure TfrmGrid<TS, TE>.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = Chr(VK_ESCAPE) then
   begin
@@ -398,34 +394,34 @@ begin
   end;
 end;
 
-procedure TfrmGrid<T>.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TfrmGrid<TS, TE>.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
 //
 end;
 
-procedure TfrmGrid<T>.FormShow(Sender: TObject);
+procedure TfrmGrid<TS, TE>.FormShow(Sender: TObject);
 begin
   FQry.Open;
 
   PrepareFilteredColumns;
 end;
 
-procedure TfrmGrid<T>.grdCellClick(Column: TColumn);
+procedure TfrmGrid<TS, TE>.grdCellClick(Column: TColumn);
 begin
 //
 end;
 
-procedure TfrmGrid<T>.grdDblClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.grdDblClick(Sender: TObject);
 begin
 //
 end;
 
-procedure TfrmGrid<T>.grdDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+procedure TfrmGrid<TS, TE>.grdDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
 begin
 //
 end;
 
-procedure TfrmGrid<T>.grdKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TfrmGrid<TS, TE>.grdKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   AGrid: TDBGrid;
 begin
@@ -458,174 +454,169 @@ begin
   end;
 end;
 
-procedure TfrmGrid<T>.grdKeyPress(Sender: TObject; var Key: Char);
+procedure TfrmGrid<TS, TE>.grdKeyPress(Sender: TObject; var Key: Char);
 begin
 //
 end;
 
-procedure TfrmGrid<T>.grdKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TfrmGrid<TS, TE>.grdKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
 //
 end;
 
-procedure TfrmGrid<T>.grdTitleClick(Column: TColumn);
+procedure TfrmGrid<TS, TE>.grdTitleClick(Column: TColumn);
 begin
   SortGridTitle(Column);
 end;
 
-procedure TfrmGrid<T>.SetQry(const Value: TFDQuery);
+procedure TfrmGrid<TS, TE>.SetQry(const Value: TFDQuery);
 begin
   FQry := Value;
 end;
 
-procedure TfrmGrid<T>.SetSelectedItem;
-var
-  AField: TField;
-  n1, n2: Integer;
+procedure TfrmGrid<TS, TE>.SetSelectedItem;
+//var
+//  AField: TField;
+//  n1, n2: Integer;
 begin
-  if Grd.DataSource.DataSet.RecordCount > 0 then
-  begin
-    AField := grd.DataSource.DataSet.FindField(PTable.Id.FieldName);
-    if not Assigned(AField) or (AField = nil) or AField.IsNull then
-      Exit;
-
-    PTable.Id.Value := VarToStr(AField.Value).ToInteger;
-
-    for n1 := 0 to Length(PTable.Fields)-1 do
-    begin
-      for n2 := 0 to grd.Columns.Count-1 do
-      begin
-        if PTable.Fields[n1].FieldName = grd.Columns.Items[n2].Field.FieldName then
-        begin
-          PTable.Fields[n1].Value := grd.Columns.Items[n2].Field.Value;
-          PTable.Fields[n1].IsNullable := not grd.Columns.Items[n2].Field.Required;
-          Break;
-        end;
-      end;
-    end;
-  end;
+//  if Grd.DataSource.DataSet.RecordCount > 0 then
+//  begin
+//    AField := grd.DataSource.DataSet.FindField(PTable.Id.FieldName);
+//    if not Assigned(AField) or (AField = nil) or AField.IsNull then
+//      Exit;
+//
+//    PTable.Id.Value := VarToStr(AField.Value).ToInteger;
+//
+//    for n1 := 0 to Length(PTable.Fields)-1 do
+//    begin
+//      for n2 := 0 to grd.Columns.Count-1 do
+//      begin
+//        if PTable.Fields[n1].FieldName = grd.Columns.Items[n2].Field.FieldName then
+//        begin
+//          PTable.Fields[n1].Value := grd.Columns.Items[n2].Field.Value;
+//          PTable.Fields[n1].IsNullable := not grd.Columns.Items[n2].Field.Required;
+//          Break;
+//        end;
+//      end;
+//    end;
+//  end;
 end;
 
-procedure TfrmGrid<T>.SetTable(const Value: T);
+procedure TfrmGrid<TS, TE>.SetTable(const Value: TE);
 begin
   FTable := Value;
 end;
 
-procedure TfrmGrid<T>.ShowInputForm(Sender: TObject; AFormType: TInputFormMode);
-var
-  LForm: TForm;
+procedure TfrmGrid<TS, TE>.ShowInputForm(Sender: TObject; AFormType: TInputFormMode);
+//var
+//  LForm: TForm;
 begin
-  if (AFormType = ifmRewiev)
-  or ((not FQry.Connection.InTransaction) and ((AFormType = ifmNewRecord) or (AFormType = ifmCopyNewRecord)))
-  then
-  begin
-    if (AFormType = ifmRewiev) or (AFormType = ifmCopyNewRecord) then
-      PTable.BusinessSelect(PTable.Id.QryName + '=' + PTable.Id.AsString, False, False);
-    LForm := CreateInputForm(Sender, AFormType);
-//    if Table is TTableDetailed then
-//      PTable.FreeDetayListContent;
-    LForm.Show;
-  end
-  else
-    raise Exception.Create('Başka bir pencere giriş veya güncelleme için açılmış, önce bu işlemi tamamlayın.');
+//  if (AFormType = ifmRewiev)
+//  or ((not FQry.Connection.InTransaction) and ((AFormType = ifmNewRecord) or (AFormType = ifmCopyNewRecord)))
+//  then
+//  begin
+//    if (AFormType = ifmRewiev) or (AFormType = ifmCopyNewRecord) then
+//      PTable.BusinessSelect(PTable.Id.QryName + '=' + PTable.Id.AsString, False, False);
+//    LForm := CreateInputForm(Sender, AFormType);
+////    if Table is TTableDetailed then
+////      PTable.FreeDetayListContent;
+//    LForm.Show;
+//  end
+//  else
+//    raise Exception.Create('Başka bir pencere giriş veya güncelleme için açılmış, önce bu işlemi tamamlayın.');
 end;
 
-procedure TfrmGrid<T>.SetContainer(const Value: TPanel);
+procedure TfrmGrid<TS, TE>.SetContainer(const Value: TPanel);
 begin
   FContainer := Value;
 end;
 
-procedure TfrmGrid<T>.SetContext(const Value: PTEntityManager);
+procedure TfrmGrid<TS, TE>.SetService(const Value: TS);
 begin
-  FContext := Value;
+  FService := Value;
 end;
 
-procedure TfrmGrid<T>.SetEdtFilter(const Value: TEdit);
+procedure TfrmGrid<TS, TE>.SetEdtFilter(const Value: TEdit);
 begin
   FEdtFilter := Value;
 end;
 
-procedure TfrmGrid<T>.SetFooter(const Value: TPanel);
+procedure TfrmGrid<TS, TE>.SetFooter(const Value: TPanel);
 begin
   FFooter := Value;
 end;
 
-procedure TfrmGrid<T>.SetGrd(const Value: TDBGrid);
+procedure TfrmGrid<TS, TE>.SetGrd(const Value: TDBGrid);
 begin
   FGrd := Value;
 end;
 
-procedure TfrmGrid<T>.SetGrdContainer(const Value: TPanel);
+procedure TfrmGrid<TS, TE>.SetGrdContainer(const Value: TPanel);
 begin
   FGrdContainer := Value;
 end;
 
-procedure TfrmGrid<T>.SetHeader(const Value: TPanel);
+procedure TfrmGrid<TS, TE>.SetHeader(const Value: TPanel);
 begin
   FHeader := Value;
 end;
 
-procedure TfrmGrid<T>.SetPopupMenu(const Value: TPopupMenu);
+procedure TfrmGrid<TS, TE>.SetPopupMenu(const Value: TPopupMenu);
 begin
   FGridPopMenu := Value;
 end;
 
-procedure TfrmGrid<T>.SetPTable(const Value: PThsTable);
-begin
-  FPTable := Value;
-end;
-
-procedure TfrmGrid<T>.SetmniExportCsv(const Value: TMenuItem);
+procedure TfrmGrid<TS, TE>.SetmniExportCsv(const Value: TMenuItem);
 begin
   FmniExportCsv := Value;
 end;
 
-procedure TfrmGrid<T>.SetmniExportExcel(const Value: TMenuItem);
+procedure TfrmGrid<TS, TE>.SetmniExportExcel(const Value: TMenuItem);
 begin
   FmniExportExcel := Value;
 end;
 
-procedure TfrmGrid<T>.SetmniFilter(const Value: TMenuItem);
+procedure TfrmGrid<TS, TE>.SetmniFilter(const Value: TMenuItem);
 begin
   FmniFilter := Value;
 end;
 
-procedure TfrmGrid<T>.SetmniFilterBack(const Value: TMenuItem);
+procedure TfrmGrid<TS, TE>.SetmniFilterBack(const Value: TMenuItem);
 begin
   FmniFilterBack := Value;
 end;
 
-procedure TfrmGrid<T>.SetmniFilterExclude(const Value: TMenuItem);
+procedure TfrmGrid<TS, TE>.SetmniFilterExclude(const Value: TMenuItem);
 begin
   FmniFilterExclude := Value;
 end;
 
-procedure TfrmGrid<T>.SetmniFilterRemove(const Value: TMenuItem);
+procedure TfrmGrid<TS, TE>.SetmniFilterRemove(const Value: TMenuItem);
 begin
   FmniFilterRemove := Value;
 end;
 
-procedure TfrmGrid<T>.SetmniPreview(const Value: TMenuItem);
+procedure TfrmGrid<TS, TE>.SetmniPreview(const Value: TMenuItem);
 begin
   FmniPreview := Value;
 end;
 
-procedure TfrmGrid<T>.SetmniPrint(const Value: TMenuItem);
+procedure TfrmGrid<TS, TE>.SetmniPrint(const Value: TMenuItem);
 begin
   FmniPrint := Value;
 end;
 
-procedure TfrmGrid<T>.SetmniRemoveGridSort(const Value: TMenuItem);
+procedure TfrmGrid<TS, TE>.SetmniRemoveGridSort(const Value: TMenuItem);
 begin
   FmniRemoveGridSort := Value;
 end;
 
-procedure TfrmGrid<T>.mniExportExcelClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.mniExportExcelClick(Sender: TObject);
 begin
   ShowMessage('not implemented yet!' + sLineBreak + 'Export Excel');
 end;
 
-procedure TfrmGrid<T>.mniFilterBackClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.mniFilterBackClick(Sender: TObject);
 begin
   if FFilterGrid.Count > 0 then
   begin
@@ -634,7 +625,7 @@ begin
   end;
 end;
 
-procedure TfrmGrid<T>.mniFilterClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.mniFilterClick(Sender: TObject);
 var
   LFilterBefore, LFilterVal: string;
 begin
@@ -703,7 +694,7 @@ begin
   FilterApply;
 end;
 
-procedure TfrmGrid<T>.mniFilterExcludeClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.mniFilterExcludeClick(Sender: TObject);
 var
   LFilterBefore, LFilterVal: string;
 begin
@@ -772,7 +763,7 @@ begin
   FilterApply;
 end;
 
-procedure TfrmGrid<T>.mniFilterRemoveClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.mniFilterRemoveClick(Sender: TObject);
 begin
   if FFilterGrid.Count > 0 then
   begin
@@ -781,12 +772,12 @@ begin
   end;
 end;
 
-procedure TfrmGrid<T>.mniExportCsvClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.mniExportCsvClick(Sender: TObject);
 begin
   ShowMessage('not implemented yet!' + sLineBreak + 'Export Csv');
 end;
 
-procedure TfrmGrid<T>.mniPreviewClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.mniPreviewClick(Sender: TObject);
 begin
   if mniPreview.Visible then
   begin
@@ -798,23 +789,23 @@ begin
   end;
 end;
 
-procedure TfrmGrid<T>.mniPrintClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.mniPrintClick(Sender: TObject);
 begin
   ShowMessage('not implemented yet!' + sLineBreak + 'Print');
 end;
 
-procedure TfrmGrid<T>.mniRemoveSortClick(Sender: TObject);
+procedure TfrmGrid<TS, TE>.mniRemoveSortClick(Sender: TObject);
 begin
   if Qry.IndexFieldNames <> '' then
     Qry.IndexFieldNames := '';
 end;
 
-procedure TfrmGrid<T>.OnFilterDataset(Dataset: TDataset; var Accept: Boolean);
+procedure TfrmGrid<TS, TE>.OnFilterDataset(Dataset: TDataset; var Accept: Boolean);
 begin
   //
 end;
 
-procedure TfrmGrid<T>.PrepareFilteredColumns;
+procedure TfrmGrid<TS, TE>.PrepareFilteredColumns;
 var
   n1: Integer;
 begin
@@ -854,7 +845,7 @@ begin
   end;
 end;
 
-procedure TfrmGrid<T>.PrepareForm;
+procedure TfrmGrid<TS, TE>.PrepareForm;
 begin
   Self.Position := poOwnerFormCenter;
   Self.KeyPreview := True;
@@ -878,6 +869,7 @@ begin
   Container.ParentColor := True;
   Container.Visible := True;
 
+  PreparePopupMenu();
   PrepareGrid;
 
   Header := TPanel.Create(Container);
@@ -905,12 +897,10 @@ begin
   end;
 end;
 
-procedure TfrmGrid<T>.PrepareGrid;
+procedure TfrmGrid<TS, TE>.PrepareGrid;
 begin
-  PreparePopupMenu();
-
-  GrdContainer := TPanel.Create(Self);
-  GrdContainer.Parent := Self;
+  GrdContainer := TPanel.Create(Container);
+  GrdContainer.Parent := Container;
   GrdContainer.Align := alClient;
   GrdContainer.BevelOuter := bvNone;
   GrdContainer.ParentColor := True;
@@ -944,7 +934,7 @@ begin
   Grd.PopupMenu := Self.GridPopMenu;
 end;
 
-procedure TfrmGrid<T>.PreparePopupMenu;
+procedure TfrmGrid<TS, TE>.PreparePopupMenu;
 begin
   GridPopMenu := TPopupMenu.Create(Self);
   mniPreview := AddMenu('Preview', 'mniPreview', mniPreviewClick, True, TextToShortCut('Ctrl+Enter'));
@@ -963,13 +953,13 @@ begin
   mniRemoveGridSort.Enabled := False;
 end;
 
-procedure TfrmGrid<T>.RefreshStatucRecorCount();
+procedure TfrmGrid<TS, TE>.RefreshStatucRecorCount();
 begin
   if status.Panels.Count > 0 then
     status.Panels.Items[0].Text := Format('Records: %d', [Grd.DataSource.DataSet.RecordCount]);
 end;
 
-procedure TfrmGrid<T>.SortGridTitle(Sender: TObject);
+procedure TfrmGrid<TS, TE>.SortGridTitle(Sender: TObject);
 var
   sl: TStringList;
   LOrderList: string;

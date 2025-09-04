@@ -86,7 +86,7 @@ inherited frmDashboard: TfrmDashboard
       Top = 0
       Width = 915
       Height = 360
-      ActivePage = tsemployee
+      ActivePage = tsstock
       Align = alClient
       MultiLine = True
       TabOrder = 0
@@ -276,6 +276,19 @@ inherited frmDashboard: TfrmDashboard
           ParentFont = False
           TabOrder = 2
           WordWrap = True
+        end
+        object btn1: TButton
+          Left = 348
+          Top = 164
+          Width = 94
+          Height = 31
+          Margins.Left = 4
+          Margins.Top = 4
+          Margins.Right = 4
+          Margins.Bottom = 4
+          Caption = 'Test Grid'
+          TabOrder = 5
+          OnClick = btn1Click
         end
       end
       object tsaccount: TTabSheet

@@ -6,14 +6,15 @@ interface
 
 uses
   Winapi.Windows, System.Variants, System.Math, System.StrUtils, System.Actions,
-  System.Classes, System.SysUtils, System.DateUtils, System.Rtti,
+  System.Classes, System.SysUtils, System.DateUtils, System.Rtti, System.Generics.Collections,
   System.ImageList, System.Threading, Winapi.ShellAPI, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.ComCtrls, Vcl.Menus, Vcl.ActnList, Vcl.AppEvnts,
   Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.Dialogs,
   Vcl.ToolWin, Vcl.ImgList, Vcl.StdActns, Vcl.CategoryButtons, Vcl.WinXCtrls,
   Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
   Ths.Utils.InfoWindow, udm, ufrmBase, ufrmBaseDBGrid,
-  Ths.Database.TableDetailed, Ths.Database.Table;
+  Ths.Database.TableDetailed, Ths.Database.Table,
+  ufrmGrid, BaseService, BaseRepository, BaseEntity, StkCinsAileService, StkCinsAile;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -156,6 +157,7 @@ type
     actch_banka_subeleri: TAction;
     actset_prs_tasima_servisleri: TAction;
     mniset_prs_tasima_servisleri: TMenuItem;
+    btn1: TButton;
 
 /// <summary>
 ///   Kullanıcının erişim yetkisine göre yapılacak işlemler burada olacak
@@ -248,6 +250,7 @@ type
     procedure actch_bankalarExecute(Sender: TObject);
     procedure actch_banka_subeleriExecute(Sender: TObject);
     procedure actset_prs_tasima_servisleriExecute(Sender: TObject);
+    procedure btn1Click(Sender: TObject);
   private
     FIsFormShow: Boolean;
   published
@@ -266,6 +269,8 @@ type
 
 var
   frmDashboard: TfrmDashboard;
+
+  FServiceManager: TObjectDictionary<string, TBaseService>;
 
 implementation
 
@@ -772,6 +777,11 @@ begin
   TfrmRctReceteler.Create(Self, Self, TUrtRecete.Create(GDataBase), fomNormal).Show;
 end;
 
+procedure TfrmDashboard.btn1Click(Sender: TObject);
+begin
+  TfrmGrid<TStkCinsAileService, TStkCinsAile>.Create(Self, FServiceManager.Items[KeyStkCinsAile] as TStkCinsAileService, TStkCinsAile.Create).Show;
+end;
+
 procedure TfrmDashboard.btnCloseClick(Sender: TObject);
 begin
   if CustomMsgDlg('Uygulama sonlandırılacak. Devam etmek istediğine emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayır'], mbNo, 'Onay') = mrYes then
@@ -890,6 +900,7 @@ end;
 
 destructor TfrmDashboard.Destroy;
 begin
+  FServiceManager.Free;
   inherited;
 end;
 
@@ -1080,6 +1091,10 @@ begin
 
   SetSession();
   FIsFormShow := False;
+  btn1.Enabled := True;
+
+  FServiceManager := TObjectDictionary<string, TBaseService>.Create([doOwnsValues]);
+  FServiceManager.TryAdd(KeyStkCinsAile, TStkCinsAileService.Create(GDataBase.Connection));
 end;
 
 procedure TfrmDashboard.ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);

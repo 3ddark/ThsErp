@@ -7,24 +7,24 @@ inherited frmStkCinsAilesi: TfrmStkCinsAilesi
   ClientWidth = 348
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
-  ExplicitWidth = 354
-  ExplicitHeight = 159
-  PixelsPerInch = 96
+  ExplicitWidth = 364
+  ExplicitHeight = 169
   TextHeight = 13
   inherited pnlMain: TPanel
-    Width = 344
-    Height = 64
+    Width = 348
+    Height = 80
     Color = clWindow
+    ParentColor = False
     ExplicitWidth = 340
     ExplicitHeight = 55
     inherited pgcMain: TPageControl
-      Width = 342
-      Height = 62
+      Width = 348
+      Height = 80
       ExplicitWidth = 338
       ExplicitHeight = 53
       inherited tsMain: TTabSheet
-        ExplicitWidth = 330
-        ExplicitHeight = 25
+        ExplicitWidth = 340
+        ExplicitHeight = 52
         object lblaile: TLabel
           Left = 66
           Top = 6
@@ -52,7 +52,7 @@ inherited frmStkCinsAilesi: TfrmStkCinsAilesi
     end
   end
   inherited pnlBottom: TPanel
-    Top = 68
+    Top = 82
     Width = 344
     ExplicitTop = 59
     ExplicitWidth = 340

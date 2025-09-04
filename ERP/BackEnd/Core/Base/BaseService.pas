@@ -3,16 +3,24 @@
 interface
 
 uses
-  SysUtils, Classes, Types, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
+  SysUtils, Classes, Types, FireDAC.Comp.Client,
+  EntityMetaProvider, BaseRepository;
+
+const
+  KeyStkCinsAile = 'StkCinsAile';
 
 type
   TBaseService = class
   protected
+    FMetas: TArray<TFieldMeta>;
+    FRepository: TBaseRepository;
+
     constructor Create(AConnection: TFDConnection);
+  private
   protected
     function IsAuthorized(): Boolean;
   public
-    destructor destroy; virtual;
+    function GetConnection: TFDConnection; virtual; abstract;
   end;
 
 implementation
@@ -22,11 +30,6 @@ begin
   inherited Create;
   if not Assigned(AConnection) then
     raise Exception.Create('Service için geçerli bir bağlantı nesnesi sağlanmadı.');
-end;
-
-destructor TBaseService.destroy;
-begin
-  inherited;
 end;
 
 function TBaseService.IsAuthorized: Boolean;

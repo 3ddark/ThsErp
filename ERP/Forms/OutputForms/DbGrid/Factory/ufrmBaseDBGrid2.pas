@@ -3,31 +3,12 @@
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes, System.StrUtils,
-  System.Math, System.Actions, System.Win.ComObj, System.Diagnostics,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.ExtCtrls,
-  Vcl.ActnList, Vcl.ComCtrls, Vcl.Menus, Vcl.AppEvnts, Vcl.Samples.Spin,
-  Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.Clipbrd,
-  ZPgEventAlerter, ZAbstractRODataset, ZAbstractDataset, ZDataset,
-  Ths.Erp.Helper.BaseTypes,
-  Ths.Erp.Helper.Edit,
-  Ths.Erp.Helper.Memo,
-  Ths.Erp.Helper.ComboBox,
-  Ths.Erp.Database.TableManager,
-  Ths.Erp.Database.TableBase,
-  ufrmBase,
-  udm,
-  Ths.Erp.Database.Table.SysGridColumn,
-  ufrmSysGridKolon,
-  Ths.Erp.Constants,
-  Ths.Erp.Database,
-  Ths.Erp.Database.Table,
-  Ths.Erp.Database.TableDetailed,
-  Ths.Erp.Database.Table.SysLangDataContent,
-  ufrmSysLisanDataIcerik,
-  Ths.Erp.Database.Table.SysLangGuiContent,
-  ufrmSysLisanGuiIcerik, ZAbstractConnection, ZConnection;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, System.StrUtils, System.Math, System.Actions,
+  System.Win.ComObj, System.Diagnostics, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
+  Vcl.Dialogs, Data.DB, Vcl.ExtCtrls, Vcl.ActnList, Vcl.ComCtrls, Vcl.Menus,
+  Vcl.AppEvnts, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids,
+  Vcl.Clipbrd, ufrmBase, udm, ufrmSysGridKolon;
 
 type
   TSortType = (stNone, stAsc, stDesc);
@@ -111,8 +92,6 @@ type
     actsort: TAction;
     actsort_remove: TAction;
     Timer1: TTimer;
-    qrybase: TZQuery;
-    pgalertbase: TZPgEventAlerter;
     stbBase: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject); virtual;
@@ -124,7 +103,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
 
     procedure ResizeForm(); virtual;
-    function ResizeDBGrid(Sender: TObject):Integer; virtual;
+    function ResizeDBGrid(Sender: TObject): Integer; virtual;
 
     procedure btnAddNewClick(Sender: TObject);
     procedure btnSpinUpClick(Sender: TObject);
@@ -156,7 +135,7 @@ type
     procedure edtFilterHelperChange(Sender: TObject);
     procedure edtFilterHelperKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure edtFilterHelperKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    
+
     procedure mnipreviewClick(Sender: TObject);
     procedure mniexport_excelClick(Sender: TObject);
     procedure mniprintClick(Sender: TObject);
@@ -181,8 +160,7 @@ type
     procedure actfilter_removeExecute(Sender: TObject);
     procedure actfilter_excludeExecute(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-    procedure pgalertbaseNotify(Sender: TObject; Event: string;
-      ProcessID: Integer; Payload: string);
+    procedure pgalertbaseNotify(Sender: TObject; Event: string; ProcessID: Integer; Payload: string);
     procedure btnCloseClick(Sender: TObject);
   private
     //for use HelperForm
@@ -216,15 +194,13 @@ type
     procedure SetTable(const Value: TTableBase);
     procedure SetParentForm(const Value: TForm);
   protected
-    FQryFiltreVarsayilan,
-    FQryFiltreVarsayilanKullanici,
-    FQrySiralamaVarsayilan: string;
+    FQryFiltreVarsayilan, FQryFiltreVarsayilanKullanici, FQrySiralamaVarsayilan: string;
     FFiltreGrid: TStringList;
 
     procedure TransferToExcel(AAllColumn: Boolean = False);
     procedure TransferToExcelAll();
 
-    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode):TForm;virtual;
+    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm; virtual;
     procedure DrawTriangleInRect(ARect: TRect; ASort: TSortType; AAlignment: TAlignment); virtual;
     function IsYuzdeCizimAlaniVar(pFieldName: string): Boolean; virtual;
     function IsRenkliRakamVar(pFieldName: string): Boolean; virtual;
@@ -252,29 +228,24 @@ type
     property ColorHigh: TColor read FColorHigh write FColorHigh;
     property ColorLow: TColor read FColorLow write FColorLow;
     property ColorEqual: TColor read FColorEqual write FColorEqual;
-    function GetLowHighEqual(pField: TField; pDefaultColor: TColor): Integer;virtual;
-    function GetPercentMaxVal(pField: TField): Double;virtual;
+    function GetLowHighEqual(pField: TField; pDefaultColor: TColor): Integer; virtual;
+    function GetPercentMaxVal(pField: TField): Double; virtual;
 
     property QryFiltreVarsayilan: string read FQryFiltreVarsayilan write FQryFiltreVarsayilan;
     property QryFiltreVarsayilanKullanici: string read FQryFiltreVarsayilanKullanici write FQryFiltreVarsayilanKullanici;
     property QueryDefaultOrder: string read FQrySiralamaVarsayilan write FQrySiralamaVarsayilan;
     property FiltreGrid: TStringList read FFiltreGrid write FFiltreGrid;
 
-    constructor Create(
-      AOwner: TComponent;
-      AParentForm: TForm = nil;
-      ATable: TTableBase = nil;
-      AFormDecimalMode: TFormDecimalMode = fomNormal;
-      AHelperForm: Boolean = False);
+    constructor Create(AOwner: TComponent; AParentForm: TForm = nil; ATable: TTableBase = nil; AFormDecimalMode: TFormDecimalMode = fomNormal; AHelperForm: Boolean = False);
 
     procedure RefreshDataFirst();
     procedure RefreshData();
-    procedure RefreshGrid();virtual;
+    procedure RefreshGrid(); virtual;
 
     procedure ShowInputForm(Sender: TObject; pFormType: TInputFormMode); virtual;
     procedure SetSelectedItem; virtual;
-    procedure MoveUp();virtual;
-    procedure MoveDown();virtual;
+    procedure MoveUp(); virtual;
+    procedure MoveDown(); virtual;
 
     function GetFieldByFieldName(pFieldName: string; pGridColumns: TDBGridColumns): TField;
     procedure SetColVisible(pFieldName: string; pVisible: Boolean);
@@ -301,9 +272,7 @@ var
 implementation
 
 uses
-  Ths.Erp.Globals,
-  ufrmBaseInputDB,
-  ufrmFilterDBGrid;
+  Ths.Erp.Globals, ufrmBaseInputDB, ufrmFilterDBGrid;
 
 {$R *.dfm}
 
@@ -317,58 +286,110 @@ begin
   if (grd.SelectedField <> nil) and (not grd.SelectedField.IsNull) then
   begin
     case grd.SelectedField.DataType of
-      ftUnknown: ;
-      ftString:       LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
-      ftSmallint:     LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftInteger:      LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftWord:         LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftBoolean:      LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftFloat:        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftCurrency:     LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftBCD:          LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftDate:         LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
-      ftTime:         LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
-      ftDateTime:     LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
-      ftBytes:        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftVarBytes:     LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftAutoInc:      LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftBlob:         LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftMemo:         LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
-      ftGraphic:      LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftFmtMemo:      LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
-      ftParadoxOle: ;
-      ftDBaseOle: ;
-      ftTypedBinary: ;
-      ftCursor: ;
-      ftFixedChar:    LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftWideString:   LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
-      ftLargeint:     LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftADT: ;
-      ftArray:        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftReference: ;
-      ftDataSet: ;
-      ftOraBlob: ;
-      ftOraClob: ;
-      ftVariant: ;
-      ftInterface: ;
-      ftIDispatch: ;
-      ftGuid: ;
-      ftTimeStamp:    LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftFMTBcd:       LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftFixedWideChar:LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftWideMemo:     LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
-      ftOraTimeStamp: LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
-      ftOraInterval: ;
-      ftLongWord:     LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftShortint:     LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftByte:         LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftExtended:     LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
-      ftConnection: ;
-      ftParams: ;
-      ftStream: ;
-      ftTimeStampOffset: ;
-      ftObject: ;
-      ftSingle:       LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftUnknown:
+        ;
+      ftString:
+        LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftSmallint:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftInteger:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftWord:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftBoolean:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftFloat:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftCurrency:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftBCD:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftDate:
+        LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftTime:
+        LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftDateTime:
+        LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftBytes:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftVarBytes:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftAutoInc:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftBlob:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftMemo:
+        LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftGraphic:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftFmtMemo:
+        LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftParadoxOle:
+        ;
+      ftDBaseOle:
+        ;
+      ftTypedBinary:
+        ;
+      ftCursor:
+        ;
+      ftFixedChar:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftWideString:
+        LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftLargeint:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftADT:
+        ;
+      ftArray:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftReference:
+        ;
+      ftDataSet:
+        ;
+      ftOraBlob:
+        ;
+      ftOraClob:
+        ;
+      ftVariant:
+        ;
+      ftInterface:
+        ;
+      ftIDispatch:
+        ;
+      ftGuid:
+        ;
+      ftTimeStamp:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftFMTBcd:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftFixedWideChar:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftWideMemo:
+        LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftOraTimeStamp:
+        LFilterVal := grd.SelectedField.FieldName + '=' + QuotedStr(grd.SelectedField.AsString);
+      ftOraInterval:
+        ;
+      ftLongWord:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftShortint:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftByte:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftExtended:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
+      ftConnection:
+        ;
+      ftParams:
+        ;
+      ftStream:
+        ;
+      ftTimeStampOffset:
+        ;
+      ftObject:
+        ;
+      ftSingle:
+        LFilterVal := grd.SelectedField.FieldName + '=' + grd.SelectedField.AsString;
     end;
 
     FiltreGrid.Add(LFilterBefore + LFilterVal);
@@ -380,7 +401,7 @@ procedure TfrmBaseDBGrid2.actfilter_backExecute(Sender: TObject);
 begin
   if FiltreGrid.Count > 0 then
   begin
-    FiltreGrid.Delete(FiltreGrid.Count-1);
+    FiltreGrid.Delete(FiltreGrid.Count - 1);
     RefreshData;
   end;
 end;
@@ -395,58 +416,110 @@ begin
   if (grd.SelectedField <> nil) and (not grd.SelectedField.IsNull) then
   begin
     case grd.SelectedField.DataType of
-      ftUnknown: ;
-      ftString:       LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
-      ftSmallint:     LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftInteger:      LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftWord:         LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftBoolean:      LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftFloat:        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftCurrency:     LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftBCD:          LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftDate:         LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftTime:         LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftDateTime:     LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftBytes:        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftVarBytes:     LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftAutoInc:      LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftBlob:         LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftMemo:         LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
-      ftGraphic:      LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftFmtMemo:      LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
-      ftParadoxOle: ;
-      ftDBaseOle: ;
-      ftTypedBinary: ;
-      ftCursor: ;
-      ftFixedChar:    LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftWideString:   LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
-      ftLargeint:     LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftADT: ;
-      ftArray:        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftReference: ;
-      ftDataSet: ;
-      ftOraBlob: ;
-      ftOraClob: ;
-      ftVariant: ;
-      ftInterface: ;
-      ftIDispatch: ;
-      ftGuid: ;
-      ftTimeStamp:    LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftFMTBcd:       LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftFixedWideChar:LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftWideMemo:     LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
-      ftOraTimeStamp: LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
-      ftOraInterval: ;
-      ftLongWord:     LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftShortint:     LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftByte:         LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftExtended:     LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
-      ftConnection: ;
-      ftParams: ;
-      ftStream: ;
-      ftTimeStampOffset: ;
-      ftObject: ;
-      ftSingle:       LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftUnknown:
+        ;
+      ftString:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
+      ftSmallint:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftInteger:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftWord:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftBoolean:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftFloat:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftCurrency:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftBCD:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftDate:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftTime:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftDateTime:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftBytes:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftVarBytes:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftAutoInc:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftBlob:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftMemo:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
+      ftGraphic:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftFmtMemo:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
+      ftParadoxOle:
+        ;
+      ftDBaseOle:
+        ;
+      ftTypedBinary:
+        ;
+      ftCursor:
+        ;
+      ftFixedChar:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftWideString:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
+      ftLargeint:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftADT:
+        ;
+      ftArray:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftReference:
+        ;
+      ftDataSet:
+        ;
+      ftOraBlob:
+        ;
+      ftOraClob:
+        ;
+      ftVariant:
+        ;
+      ftInterface:
+        ;
+      ftIDispatch:
+        ;
+      ftGuid:
+        ;
+      ftTimeStamp:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftFMTBcd:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftFixedWideChar:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftWideMemo:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
+      ftOraTimeStamp:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + QuotedStr(grd.SelectedField.AsString);
+      ftOraInterval:
+        ;
+      ftLongWord:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftShortint:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftByte:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftExtended:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
+      ftConnection:
+        ;
+      ftParams:
+        ;
+      ftStream:
+        ;
+      ftTimeStampOffset:
+        ;
+      ftObject:
+        ;
+      ftSingle:
+        LFilterVal := grd.SelectedField.FieldName + '<>' + grd.SelectedField.AsString;
     end;
 
     FiltreGrid.Add(LFilterBefore + LFilterVal);
@@ -506,14 +579,14 @@ begin
       if LIsCTRLKeyPress then
       begin
         //CTRL tuşuna basılmışsa
-        for nIndex := 0 to sl.Count-1 do
+        for nIndex := 0 to sl.Count - 1 do
           if (LColumn.FieldName + ' Asc' = sl.Strings[nIndex]) or (LColumn.FieldName + ' Desc' = sl.Strings[nIndex]) then
             LOrderedColumn := True;
 
         if LOrderedColumn then
         begin
           //listede zaten varsa ASC DESC değişimi yap
-          for nIndex := 0 to sl.Count-1 do
+          for nIndex := 0 to sl.Count - 1 do
           begin
             if (LColumn.FieldName + ' Asc' = sl.Strings[nIndex]) then
               sl.Strings[nIndex] := LColumn.FieldName + ' Desc'
@@ -535,13 +608,13 @@ begin
           LOrderList := LColumn.FieldName + ' Asc'
         else
         begin
-          for nIndex := 0 to sl.Count-1 do
+          for nIndex := 0 to sl.Count - 1 do
             if (LColumn.FieldName + ' Asc' = sl.Strings[nIndex]) or (LColumn.FieldName + ' Desc' = sl.Strings[nIndex]) then
               LOrderedColumn := True;
 
           if LOrderedColumn then
           begin
-            for nIndex := 0 to sl.Count-1 do
+            for nIndex := 0 to sl.Count - 1 do
               if (LColumn.FieldName + ' Asc' = sl.Strings[nIndex]) then
                 LOrderList := LColumn.FieldName + ' Desc'
               else if (LColumn.FieldName + ' Desc' = sl.Strings[nIndex]) then
@@ -556,11 +629,11 @@ begin
 
       LOrderList := '';
 
-      for nIndex := 0 to sl.Count-1 do
+      for nIndex := 0 to sl.Count - 1 do
       begin
         LOrderList := LOrderList + sl.Strings[nIndex] + ',';
-        if nIndex = sl.Count-1 then
-          LOrderList := LeftStr(LOrderList, Length(LOrderList)-1);
+        if nIndex = sl.Count - 1 then
+          LOrderList := LeftStr(LOrderList, Length(LOrderList) - 1);
       end;
 
       if LOrderList <> '' then
@@ -623,10 +696,7 @@ begin
         if (Owner.ClassType = TEdit) then
           if ParentForm.ClassParent = TfrmBaseInputDB then
           begin
-            if ((ParentForm as TfrmBaseInputDB).FormMode = ifmNewRecord)
-            or ((ParentForm as TfrmBaseInputDB).FormMode = ifmCopyNewRecord)
-            or ((ParentForm as TfrmBaseInputDB).FormMode = ifmUpdate)
-            then
+            if ((ParentForm as TfrmBaseInputDB).FormMode = ifmNewRecord) or ((ParentForm as TfrmBaseInputDB).FormMode = ifmCopyNewRecord) or ((ParentForm as TfrmBaseInputDB).FormMode = ifmUpdate) then
             begin
               TEdit(Owner).Text := getFilterEditData;
               TEdit(Owner).SelStart := Length(TEdit(Owner).Text);
@@ -670,7 +740,6 @@ begin
     lblFilterHelper.Caption := 'Filter';
   end;
 
-
   actfilter_initExecute(actfilter_init);
   actsort_initExecute(actsort_init);
 
@@ -680,13 +749,11 @@ begin
   pnlBottom.Visible := True;
   //----------
 
-
   //ondalık haneleri getir
   GSysOndalikHane.SelectToList('', False, False);
 
-
-  FQryFiltreVarsayilan := GetGridDefaultOrderFilter( ReplaceRealColOrTableNameTo( TTableManager<TObject>(Table.Manager).TableName), False);
-  FQrySiralamaVarsayilan := GetGridDefaultOrderFilter( ReplaceRealColOrTableNameTo( TTableManager<TObject>(Table.Manager).TableName), True);
+  FQryFiltreVarsayilan := GetGridDefaultOrderFilter(ReplaceRealColOrTableNameTo(TTableManager<TObject>(Table.Manager).TableName), False);
+  FQrySiralamaVarsayilan := GetGridDefaultOrderFilter(ReplaceRealColOrTableNameTo(TTableManager<TObject>(Table.Manager).TableName), True);
   FFiltreGrid := TStringList.Create;
 
   btnAddNew.Visible := True;
@@ -727,7 +794,7 @@ begin
           mniPreview.Click;
       end;
     end
-    else if  (Key = Ord('T')) then  //CTRL + SHIFT + ALT + T show all columns(show hide columns)
+    else if (Key = Ord('T')) then  //CTRL + SHIFT + ALT + T show all columns(show hide columns)
     begin
       if Shift = [ssCtrl, ssShift, ssAlt] then
       begin
@@ -815,12 +882,7 @@ begin
   MoveUp();
 end;
 
-constructor TfrmBaseDBGrid2.Create(
-  AOwner: TComponent;
-  AParentForm: TForm;
-  ATable: TTableBase;
-  AFormDecimalMode: TFormDecimalMode;
-  AHelperForm: Boolean);
+constructor TfrmBaseDBGrid2.Create(AOwner: TComponent; AParentForm: TForm; ATable: TTableBase; AFormDecimalMode: TFormDecimalMode; AHelperForm: Boolean);
 begin
   inherited Create(AOwner);
   FParentForm := AParentForm;
@@ -884,18 +946,15 @@ end;
 
 procedure TfrmBaseDBGrid2.grdDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
 const
-  CtrlState: array[Boolean] of integer = (DFCS_BUTTONCHECK, DFCS_BUTTONCHECK or DFCS_CHECKED) ;
+  CtrlState: array[Boolean] of integer = (DFCS_BUTTONCHECK, DFCS_BUTTONCHECK or DFCS_CHECKED);
   sEMPTY = '';
-
 var
   nValue, nWidth1, nLeft2: Integer;
   clActualPenColor, clActualBrushColor: TColor;
   bEmptyDS: Boolean;
   DrawRect: TRect;
   sValue: string;
-
   Bmp: TBitmap;
-
   LColorActive: TColor;
   LColor1: TColor;
   LColor2: TColor;
@@ -907,15 +966,18 @@ begin
 
   if THackDBGrid(Sender).DataLink.ActiveRecord = THackDBGrid(Sender).Row - 1 then
   begin
-    if LColorActive > 0 then  THackDBGrid(Sender).Canvas.Brush.Color := LColorActive
+    if LColorActive > 0 then
+      THackDBGrid(Sender).Canvas.Brush.Color := LColorActive
   end
   else if (THackDBGrid(Sender).DataSource.DataSet.RecNo mod 2 = 0) then
   begin
-    if LColor1 > 0 then THackDBGrid(Sender).Canvas.Brush.Color := LColor1
+    if LColor1 > 0 then
+      THackDBGrid(Sender).Canvas.Brush.Color := LColor1
   end
   else if THackDBGrid(Sender).DataSource.DataSet.RecNo mod 2 = 1 then
   begin
-    if LColor2 > 0 then THackDBGrid(Sender).Canvas.Brush.Color := LColor2;
+    if LColor2 > 0 then
+      THackDBGrid(Sender).Canvas.Brush.Color := LColor2;
   end;
 
   THackDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
@@ -960,7 +1022,7 @@ begin
         DrawRect := Rect;
         InflateRect(DrawRect, -1, -1);
 
-        nWidth1 := (((DrawRect.Right - DrawRect.Left) * nValue) DIV Trunc(GetPercentMaxVal(Column.Field)) );
+        nWidth1 := (((DrawRect.Right - DrawRect.Left) * nValue) div Trunc(GetPercentMaxVal(Column.Field)));
 
         clActualPenColor := TDBGrid(Sender).Canvas.Pen.Color;
         clActualBrushColor := TDBGrid(Sender).Canvas.Brush.Color;
@@ -988,8 +1050,7 @@ begin
           DrawRect := Rect;
           InflateRect(DrawRect, -2, -2);
           TDBGrid(Sender).Canvas.Brush.Style := bsClear;
-          nLeft2 := DrawRect.Left + (DrawRect.Right - DrawRect.Left) shr 1 -
-                    (TDBGrid(Sender).Canvas.TextWidth(sValue) shr 1);
+          nLeft2 := DrawRect.Left + (DrawRect.Right - DrawRect.Left) shr 1 - (TDBGrid(Sender).Canvas.TextWidth(sValue) shr 1);
           TDBGrid(Sender).Canvas.TextRect(DrawRect, nLeft2, DrawRect.Top, sValue);
         end;
 
@@ -1008,25 +1069,18 @@ begin
     end;
   end;
 
-
-  if  (Column.Visible) and (Pos(Column.FieldName, TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0) then
+  if (Column.Visible) and (Pos(Column.FieldName, TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0) then
   begin
     sValue := '';
     if Pos(Column.FieldName + ':A', TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0 then
-      sValue := MidStr(
-        TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames,
-        Pos(Column.FieldName + ':A', TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames),
-        Length(Column.FieldName + ':A'))
+      sValue := MidStr(TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames, Pos(Column.FieldName + ':A', TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames), Length(Column.FieldName + ':A'))
     else if Pos(Column.FieldName + ':D', TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0 then
-      sValue := MidStr(
-        TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames,
-        Pos(Column.FieldName + ':D', TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames),
-        Length(Column.FieldName + ':D'));
+      sValue := MidStr(TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames, Pos(Column.FieldName + ':D', TZQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames), Length(Column.FieldName + ':D'));
 
     if Pos(':A', sValue) > 0 then //yukarý yöndeki ok ASC
-      drawTriangleInRect(THackDBGrid(Sender).CellRect(DataCol+1, 0), stAsc, taLeftJustify)
+      drawTriangleInRect(THackDBGrid(Sender).CellRect(DataCol + 1, 0), stAsc, taLeftJustify)
     else if Pos(':D', sValue) > 0 then  //aþaðý yöndeki ok DESC
-      drawTriangleInRect(THackDBGrid(Sender).CellRect(DataCol+1, 0), stDesc, taLeftJustify);
+      drawTriangleInRect(THackDBGrid(Sender).CellRect(DataCol + 1, 0), stDesc, taLeftJustify);
   end;
 end;
 
@@ -1127,12 +1181,9 @@ begin
   grd.Canvas.Brush.Color := clRed;
   grd.Canvas.Pen.Color := clRed;
   if ASort = stAsc then
-    grd.Canvas.Polygon([point(ARect.Right - 2 - goLeft, ARect.top + 10),
-      point(ARect.Right - 7 - goLeft, ARect.top + 5), point(ARect.Right - 12 - goLeft, ARect.top + 10)])
-
+    grd.Canvas.Polygon([point(ARect.Right - 2 - goLeft, ARect.top + 10), point(ARect.Right - 7 - goLeft, ARect.top + 5), point(ARect.Right - 12 - goLeft, ARect.top + 10)])
   else if ASort = stDesc then
-    grd.Canvas.Polygon([point(ARect.Right - 2 - goLeft, ARect.top + 5),
-      Point(ARect.Right - 7 - goLeft, ARect.top + 10), point(ARect.Right - 12 - goLeft, ARect.top + 5)]);
+    grd.Canvas.Polygon([point(ARect.Right - 2 - goLeft, ARect.top + 5), Point(ARect.Right - 7 - goLeft, ARect.top + 10), point(ARect.Right - 12 - goLeft, ARect.top + 5)]);
 end;
 
 procedure TfrmBaseDBGrid2.edtFilterHelperChange(Sender: TObject);
@@ -1149,11 +1200,9 @@ begin
 
   if edtFilterHelper.Text <> '' then
   begin
-    if TryStrToInt(edtFilterHelper.Text, LIntValue)
-    or TryStrToFloat(edtFilterHelper.Text, LDoubleValue)
-    then
+    if TryStrToInt(edtFilterHelper.Text, LIntValue) or TryStrToFloat(edtFilterHelper.Text, LDoubleValue) then
     begin
-      for n1 := 0 to FFilterNumericFields.Count-1 do
+      for n1 := 0 to FFilterNumericFields.Count - 1 do
       begin
         if LFilter <> '' then
           LFilter := LFilter + ' OR ';
@@ -1161,13 +1210,9 @@ begin
       end;
     end;
 
-    if (UpperCaseTr(edtFilterHelper.Text) = 'TRUE')
-    or (LowerCaseTr(edtFilterHelper.Text) = 'true')
-    or (UpperCaseTr(edtFilterHelper.Text) = 'FALSE')
-    or (LowerCaseTr(edtFilterHelper.Text) = 'false')
-    then
+    if (UpperCaseTr(edtFilterHelper.Text) = 'TRUE') or (LowerCaseTr(edtFilterHelper.Text) = 'true') or (UpperCaseTr(edtFilterHelper.Text) = 'FALSE') or (LowerCaseTr(edtFilterHelper.Text) = 'false') then
     begin
-      for n1 := 0 to FFilterBoolFields.Count-1 do
+      for n1 := 0 to FFilterBoolFields.Count - 1 do
       begin
         if LFilter <> '' then
           LFilter := LFilter + ' OR ';
@@ -1175,12 +1220,9 @@ begin
       end;
     end;
 
-    if TryStrToDate(edtFilterHelper.Text, LDateTimeValue)
-    or TryStrToTime(edtFilterHelper.Text, LDateTimeValue)
-    or TryStrToDateTime(edtFilterHelper.Text, LDateTimeValue)
-    then
+    if TryStrToDate(edtFilterHelper.Text, LDateTimeValue) or TryStrToTime(edtFilterHelper.Text, LDateTimeValue) or TryStrToDateTime(edtFilterHelper.Text, LDateTimeValue) then
     begin
-      for n1 := 0 to FFilterNumericFields.Count-1 do
+      for n1 := 0 to FFilterNumericFields.Count - 1 do
       begin
         if LFilter <> '' then
           LFilter := LFilter + ' OR ';
@@ -1190,7 +1232,7 @@ begin
 
     if edtFilterHelper.Text <> '' then
     begin
-      for n1 := 0 to FFilterStringFields.Count-1 do
+      for n1 := 0 to FFilterStringFields.Count - 1 do
       begin
         if LFilter <> '' then
           LFilter := LFilter + ' OR ';
@@ -1205,8 +1247,7 @@ begin
   WriteRecordCount(grd.DataSource.DataSet.RecordCount);
 end;
 
-procedure TfrmBaseDBGrid2.edtFilterHelperKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfrmBaseDBGrid2.edtFilterHelperKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if (Key = VK_DOWN) then
     grd.DataSource.DataSet.Next
@@ -1262,7 +1303,6 @@ begin
         edtFilterHelper.Text := TEdit(Owner).Text;
   end;
 
-
   inherited;
 
   StatusBarDuzenle;
@@ -1297,7 +1337,6 @@ begin
   //her zaman kapalı olsun istenilen formlarda açılır.
   mnicopy_record.Visible := False;
 
-
   mniPrint.Visible := False;
   mniFormTitleByLang.Visible := False;
   mniColumnTitleByLang.Visible := False;
@@ -1328,35 +1367,21 @@ begin
 
     for n1 := 0 to grd.Columns.Count - 1 do
     begin
-      if (grd.Columns[n1].Field.DataType = Data.DB.ftString)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftWideString)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftMemo)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftWideMemo)
-      then begin
+      if (grd.Columns[n1].Field.DataType = Data.DB.ftString) or (grd.Columns[n1].Field.DataType = Data.DB.ftWideString) or (grd.Columns[n1].Field.DataType = Data.DB.ftMemo) or (grd.Columns[n1].Field.DataType = Data.DB.ftWideMemo) then
+      begin
         FFilterStringFields.Add(grd.Columns[n1].FieldName);
-      end else
-      if (grd.Columns[n1].Field.DataType = Data.DB.ftWord)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftLongWord)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftByte)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftShortint)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftSmallint)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftInteger)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftLargeint)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftFloat)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftCurrency)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftBCD)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftSingle)
-      then begin
+      end
+      else if (grd.Columns[n1].Field.DataType = Data.DB.ftWord) or (grd.Columns[n1].Field.DataType = Data.DB.ftLongWord) or (grd.Columns[n1].Field.DataType = Data.DB.ftByte) or (grd.Columns[n1].Field.DataType = Data.DB.ftShortint) or (grd.Columns[n1].Field.DataType = Data.DB.ftSmallint) or (grd.Columns[n1].Field.DataType = Data.DB.ftInteger) or (grd.Columns[n1].Field.DataType = Data.DB.ftLargeint) or (grd.Columns[n1].Field.DataType = Data.DB.ftFloat) or (grd.Columns[n1].Field.DataType = Data.DB.ftCurrency) or (grd.Columns[n1].Field.DataType = Data.DB.ftBCD) or (grd.Columns[n1].Field.DataType = Data.DB.ftSingle) then
+      begin
         if grd.Columns[n1].FieldName <> 'id' then
           FFilterNumericFields.Add(grd.Columns[n1].FieldName);
       end
-      else if (grd.Columns[n1].Field.DataType = Data.DB.ftBoolean) then begin
+      else if (grd.Columns[n1].Field.DataType = Data.DB.ftBoolean) then
+      begin
         FFilterBoolFields.Add(grd.Columns[n1].FieldName);
-      end else
-      if (grd.Columns[n1].Field.DataType = Data.DB.ftDate)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftTime)
-      or (grd.Columns[n1].Field.DataType = Data.DB.ftDateTime)
-      then begin
+      end
+      else if (grd.Columns[n1].Field.DataType = Data.DB.ftDate) or (grd.Columns[n1].Field.DataType = Data.DB.ftTime) or (grd.Columns[n1].Field.DataType = Data.DB.ftDateTime) then
+      begin
         FFilterDateFields.Add(grd.Columns[n1].FieldName);
       end;
     end;
@@ -1392,7 +1417,7 @@ begin
   Result := nil;
   if pFieldName <> '' then
   begin
-    for nIndex := 0 to pGridColumns.Count-1 do
+    for nIndex := 0 to pGridColumns.Count - 1 do
       if pGridColumns[nIndex].FieldName = pFieldName then
         Result := pGridColumns[nIndex].Field;
   end;
@@ -1455,7 +1480,7 @@ var
   n1: Integer;
 begin
   Result := False;
-  for n1 := 0 to Length(FColoredNumericColNames)-1 do
+  for n1 := 0 to Length(FColoredNumericColNames) - 1 do
   begin
     if pFieldName = TColColor(FColoredNumericColNames[n1]).FieldName then
     begin
@@ -1470,7 +1495,7 @@ var
   n1: Integer;
 begin
   Result := False;
-  for n1 := 0 to Length(FColoredPercentColNames)-1 do
+  for n1 := 0 to Length(FColoredPercentColNames) - 1 do
   begin
     if pFieldName = TColPercent(FColoredPercentColNames[n1]).FieldName then
     begin
@@ -1509,13 +1534,7 @@ begin
   LColumn := grd.Columns[grd.SelectedField.Index];
   if Assigned(LColumn) then
   begin
-    if (LColumn.Field.DataType = ftString)
-    or (LColumn.Field.DataType = ftWideString)
-    or (LColumn.Field.DataType = ftMemo)
-    or (LColumn.Field.DataType = ftWideMemo)
-    or (LColumn.Field.DataType = ftFixedChar)
-    or (LColumn.Field.DataType = ftFixedWideChar)
-    then
+    if (LColumn.Field.DataType = ftString) or (LColumn.Field.DataType = ftWideString) or (LColumn.Field.DataType = ftMemo) or (LColumn.Field.DataType = ftWideMemo) or (LColumn.Field.DataType = ftFixedChar) or (LColumn.Field.DataType = ftFixedWideChar) then
     begin
       {TODO -oFerhat -cGeneral : Dile göre düzenleme yap}
       ShowMessage('Bu işlemi sadece sayısal bilgi içeren sütunlarda yapabilirsiniz!!! ');
@@ -1523,8 +1542,7 @@ begin
     end;
 
     LSummary := TSysGridColumn.Create(GDataBase);
-    LSummary.SelectToList(' AND ' + LSummary.TableNameFld.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(TTableManager<TObject>(Table.Manager).TableName)) +
-                          ' AND ' + LSummary.ColumnName.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(LColumn.FieldName)), False, False);
+    LSummary.SelectToList(' AND ' + LSummary.TableNameFld.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(TTableManager<TObject>(Table.Manager).TableName)) + ' AND ' + LSummary.ColumnName.FieldName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(LColumn.FieldName)), False, False);
     if LSummary.List.Count = 0 then
     begin
       LSummary.TableNameFld.Value := ReplaceRealColOrTableNameTo(TTableManager<TObject>(Table.Manager).TableName);
@@ -1585,9 +1603,7 @@ begin
     vSysLangDataContent.TableNameFld.Value := TTableManager<TObject>(Table.Manager).TableName;
     vSysLangDataContent.ColumnName.Value := AField.FieldName;
 
-    vSysLangDataContent.RowID.Value := FormatedVariantVal(
-        grd.DataSource.DataSet.FindField(Table.Id.FieldName).DataType,
-        grd.DataSource.DataSet.FindField(Table.Id.FieldName).Value);
+    vSysLangDataContent.RowID.Value := FormatedVariantVal(grd.DataSource.DataSet.FindField(Table.Id.FieldName).DataType, grd.DataSource.DataSet.FindField(Table.Id.FieldName).Value);
     vSysLangDataContent.Value.Value := FormatedVariantVal(AField.DataType, AField.Value);
 
     TfrmSysLangDataContent.Create(Application, Self, vSysLangDataContent, ifmCopyNewRecord, fomNormal, ivmSort).Show;
@@ -1630,8 +1646,7 @@ end;
 procedure TfrmBaseDBGrid2.mniUpdateColWidthClick(Sender: TObject);
 begin
   if UpdateColWidth(TTableManager<TObject>(Table.Manager).TableName, grd) then
-    CustomMsgDlg(TranslateText('Yeni Sütun genişlikleri kaydedildi.', FrameworkLang.MessageUpdateColumnWidth, LngMsgData, LngSystem),
-        mtInformation, [mbOK], [TranslateText('Tamam', FrameworkLang.ButtonOK, LngButton, LngSystem)], mbOK, '');
+    CustomMsgDlg(TranslateText('Yeni Sütun genişlikleri kaydedildi.', FrameworkLang.MessageUpdateColumnWidth, LngMsgData, LngSystem), mtInformation, [mbOK], [TranslateText('Tamam', FrameworkLang.ButtonOK, LngButton, LngSystem)], mbOK, '');
 end;
 
 procedure TfrmBaseDBGrid2.mniprintClick(Sender: TObject);
@@ -1656,17 +1671,15 @@ begin
   inherited;
   if Event = TTableManager<TObject>(Table.Manager).TableName then
   begin
-    TThread.Queue(
-      nil,
+    TThread.Queue(nil,
       procedure
       var
         n1: Integer;
       begin
-        for n1 := 0 to Screen.FormCount-1 do
+        for n1 := 0 to Screen.FormCount - 1 do
           if Screen.Forms[n1].ClassType = ClassType then
             TfrmBaseDBGrid2(Screen.Forms[n1]).grd.DataSource.DataSet.Refresh;
-      end
-    );
+      end);
   end;
 end;
 
@@ -1685,7 +1698,7 @@ begin
 //  Table.DataSource.DataSet.Refresh;
 
   if (Table <> nil) and (Table.Id.Value > 0) then
-    grd.DataSource.DataSet.Locate(Table.Id.FieldName, Table.Id.Value,[]);
+    grd.DataSource.DataSet.Locate(Table.Id.FieldName, Table.Id.Value, []);
 
   if FFiltreGrid.Text <> '' then
   begin
@@ -1712,10 +1725,8 @@ var
   ACol: TColumn;
 //  AGridCols: TObjectList<TSysGridColumn>;
   n1, n2, n3, vHaneSayisi: Integer;
-
   LColPercent: TColPercent;
   LColColor: TColColor;
-
   LTableName: string;
   LColName: string;
   LKolonVar: Boolean;
@@ -1726,7 +1737,7 @@ var
     nx: Integer;
   begin
     Result := False;
-    for nx := 0 to grd.Columns.Count-1 do
+    for nx := 0 to grd.Columns.Count - 1 do
     begin
       if AFieldName = grd.Columns.Items[nx].FieldName then
       begin
@@ -1736,7 +1747,7 @@ var
     end;
   end;
 
-  procedure AddColumn(AFieldName, ATitle: string; AVisible: Boolean=False);
+  procedure AddColumn(AFieldName, ATitle: string; AVisible: Boolean = False);
   begin
     with grd.Columns.Add do
     begin
@@ -1753,22 +1764,13 @@ var
 
   procedure SetDisplayFormat(AFieldDB: TFieldDB; AGridField: TField; AGridKolonProp: TSysGridColumn);
   begin
-    if((AFieldDB.DataType = Data.DB.ftSmallint)
-    or (AFieldDB.DataType = Data.DB.ftInteger)
-    or (AFieldDB.DataType = Data.DB.ftLargeint)
-    or (AFieldDB.DataType = Data.DB.ftWord)
-    or (AFieldDB.DataType = Data.DB.ftLongWord))
-    and (AFieldDB.FieldName <> 'id')
-    then
+    if ((AFieldDB.DataType = Data.DB.ftSmallint) or (AFieldDB.DataType = Data.DB.ftInteger) or (AFieldDB.DataType = Data.DB.ftLargeint) or (AFieldDB.DataType = Data.DB.ftWord) or (AFieldDB.DataType = Data.DB.ftLongWord)) and (AFieldDB.FieldName <> 'id') then
     begin
       TIntegerField(AGridField).DisplayFormat := '0';
       if AGridKolonProp.DataFormat.Value <> '' then
         TIntegerField(AGridField).DisplayFormat := AGridKolonProp.DataFormat.Value;
     end
-    else
-    if (AFieldDB.DataType = Data.DB.ftFloat)
-    or (AFieldDB.DataType = Data.DB.ftBCD)
-    then
+    else if (AFieldDB.DataType = Data.DB.ftFloat) or (AFieldDB.DataType = Data.DB.ftBCD) then
     begin
       TFloatField(AGridField).DisplayFormat := '#' + FormatSettings.DecimalSeparator + StringOfChar('#', vHaneSayisi) + '0' + FormatSettings.ThousandSeparator + StringOfChar('0', vHaneSayisi);
       if AGridKolonProp.DataFormat.Value <> '' then
@@ -1788,8 +1790,7 @@ var
     end
     else if (AFieldDB.DataType = Data.DB.ftDateTime) then
     begin
-      TDateField(AGridField).DisplayFormat := 'dd' + FormatSettings.DateSeparator + 'mm' + FormatSettings.DateSeparator + 'yyyy' + ' ' +
-                                              'hh' + FormatSettings.TimeSeparator + 'nn' + FormatSettings.DateSeparator + 'ss';
+      TDateField(AGridField).DisplayFormat := 'dd' + FormatSettings.DateSeparator + 'mm' + FormatSettings.DateSeparator + 'yyyy' + ' ' + 'hh' + FormatSettings.TimeSeparator + 'nn' + FormatSettings.DateSeparator + 'ss';
       if AGridKolonProp.DataFormat.Value <> '' then
         TDateField(AGridField).DisplayFormat := AGridKolonProp.DataFormat.Value;
     end;
@@ -1977,7 +1978,7 @@ begin
 
 
     if Table.Id.Value > 0 then
-      grd.DataSource.DataSet.Locate(Table.Id.FieldName, Table.Id.Value,[]);
+      grd.DataSource.DataSet.Locate(Table.Id.FieldName, Table.Id.Value, []);
 
     SetTitleFromLangContent();
 
@@ -1998,7 +1999,7 @@ begin
   actfilter_removeExecute(Sender);
 end;
 
-function TfrmBaseDBGrid2.ResizeDBGrid(Sender: TObject):Integer;
+function TfrmBaseDBGrid2.ResizeDBGrid(Sender: TObject): Integer;
 var
   nIndex, dGridWidth: Integer;
 begin
@@ -2006,10 +2007,10 @@ begin
 
   if Sender is TDBGrid then
   begin
-    with TDBGrid(Sender)  do
+    with TDBGrid(Sender) do
     begin
       dGridWidth := 0;
-      for nIndex := 0 to Columns.Count-1 do
+      for nIndex := 0 to Columns.Count - 1 do
         if Columns[nIndex].Visible then
           dGridWidth := dGridWidth + Columns[nIndex].Width + 1;
 
@@ -2032,7 +2033,7 @@ end;
 
 procedure TfrmBaseDBGrid2.ResizeForm;
 var
-  nDBGridHeight, nClientWidth : Integer;
+  nDBGridHeight, nClientWidth: Integer;
 begin
   Self.Enabled := False;
   grd.Enabled := False;
@@ -2047,9 +2048,8 @@ begin
     //form kenarlıkları için windows temadan gelen
     nClientWidth := nClientWidth + 4;
 
-    ClientWidth := System.Math.Min(nClientWidth, Screen.Width-100);
-    Self.Left := (Screen.Width-ClientWidth) div 2;
-
+    ClientWidth := System.Math.Min(nClientWidth, Screen.Width - 100);
+    Self.Left := (Screen.Width - ClientWidth) div 2;
 
     nDBGridHeight := 0;
     if pnlHeader.Visible then
@@ -2093,9 +2093,9 @@ begin
 //    ClientHeight := nDBGridHeight + 4;
 
     //Toplam 20 adet kayıt görünmesi için 20+1 * 20 satır yüksekliği yapıyoruz (+1 başlık için)
-    nDBGridHeight := nDBGridHeight + (21*20);
+    nDBGridHeight := nDBGridHeight + (21 * 20);
 
-    ClientHeight := System.Math.Min(nDBGridHeight, Screen.Height-100);
+    ClientHeight := System.Math.Min(nDBGridHeight, Screen.Height - 100);
   finally
     grd.Invalidate;
     grd.Enabled := True;
@@ -2120,7 +2120,7 @@ procedure TfrmBaseDBGrid2.SetColVisible(pFieldName: string; pVisible: Boolean);
 var
   n1: Integer;
 begin
-  for n1 := 0 to grd.Columns.Count-1 do
+  for n1 := 0 to grd.Columns.Count - 1 do
   begin
     if grd.Columns.Items[n1].FieldName = pFieldName then
     begin
@@ -2151,10 +2151,9 @@ begin
       Table.Id.Value := VarToStr(AField.Value).ToInteger;
     end;
 
-
-    for n1 := 0 to Table.Fields.Count-1 do
+    for n1 := 0 to Table.Fields.Count - 1 do
     begin
-      for n2 := 0 to grd.Columns.Count-1 do
+      for n2 := 0 to grd.Columns.Count - 1 do
       begin
         if Table.Fields[n1].FieldName = grd.Columns.Items[n2].Field.FieldName then
         begin
@@ -2181,11 +2180,8 @@ begin
   begin
     vLangVal := TSysLangGuiContent.Create(GDatabase);
     try
-      vLangVal.SelectToList(
-          ' AND ' + vLangVal.TableName + '.' + vLangVal.TablaNameFld.FieldName + '=' + QuotedStr(TTableManager<TObject>(Table.Manager).TableName) +
-          ' AND ' + vLangVal.TableName + '.' + vLangVal.Lang.FieldName + '=' + QuotedStr(GDataBase.ConnSetting.Language) +
-          ' AND ' + vLangVal.TableName + '.' + vLangVal.ContentType.FieldName + '=' + QuotedStr(LngDGridFieldCaption), False, False);
-      for n1 := 0 to vLangVal.List.Count-1 do
+      vLangVal.SelectToList(' AND ' + vLangVal.TableName + '.' + vLangVal.TablaNameFld.FieldName + '=' + QuotedStr(TTableManager<TObject>(Table.Manager).TableName) + ' AND ' + vLangVal.TableName + '.' + vLangVal.Lang.FieldName + '=' + QuotedStr(GDataBase.ConnSetting.Language) + ' AND ' + vLangVal.TableName + '.' + vLangVal.ContentType.FieldName + '=' + QuotedStr(LngDGridFieldCaption), False, False);
+      for n1 := 0 to vLangVal.List.Count - 1 do
         for n2 := 0 to grd.Columns.Count - 1 do
           if grd.Columns.Items[n2].FieldName = TSysLangGuiContent(vLangVal.List[n1]).Code.Value then
             grd.Columns.Items[n2].Title.Caption := TSysLangGuiContent(vLangVal.List[n1]).Value.Value;
@@ -2220,6 +2216,7 @@ FERHAT
 end;
 
 procedure TfrmBaseDBGrid2.StatusBarDuzenle;
+
   procedure addPanel(AWidth: Integer; AStyle: TStatusPanelStyle);
   begin
     with stbBase.Panels.Add do
@@ -2259,24 +2256,26 @@ begin
   stbBase.Canvas.Font.Name := DefaultFontName;
   stbBase.Canvas.Font.Style := [fsBold];
 
-  stbBase.Canvas.TextRect(Rect,
-    Rect.Left + dm.il16.Width + 4,
-    Rect.Top + (stbBase.Height-Canvas.TextHeight(Panel.Text)) div 2 - 2,
-    Panel.Text);
+  stbBase.Canvas.TextRect(Rect, Rect.Left + dm.il16.Width + 4, Rect.Top + (stbBase.Height - Canvas.TextHeight(Panel.Text)) div 2 - 2, Panel.Text);
 
   vIco := -1;
   case Panel.Index of
-    STATUS_SQL_SERVER: vIco := IMG_SUM;
-    STATUS_DATE: vIco := IMG_SERVER;
-    STATUS_USERNAME: vIco := IMG_CALENDAR;
-    STATUS_KEY_F4: vIco := IMG_CUSTOMER;
-    STATUS_KEY_F5: ;
+    STATUS_SQL_SERVER:
+      vIco := IMG_SUM;
+    STATUS_DATE:
+      vIco := IMG_SERVER;
+    STATUS_USERNAME:
+      vIco := IMG_CALENDAR;
+    STATUS_KEY_F4:
+      vIco := IMG_CUSTOMER;
+    STATUS_KEY_F5:
+      ;
   end;
 
   if vIco > -1 then
   begin
     dm.il16.Draw(StatusBar.Canvas, Rect.Left, Rect.Top, vIco);
-    Panel.Width := stbBase.Canvas.TextWidth(Panel.Text)+ dm.il16.Width + 8;
+    Panel.Width := stbBase.Canvas.TextWidth(Panel.Text) + dm.il16.Width + 8;
   end;
 end;
 
@@ -2324,21 +2323,21 @@ begin
     Sheet := ExcelApplication.WorkBooks[1].WorkSheets['Page1'];
 
     LColCount := 0;
-    for n1 := 0 to grd.Columns.Count-1 do
+    for n1 := 0 to grd.Columns.Count - 1 do
       if grd.Columns.Items[n1].Visible or AAllColumn then
         Inc(LColCount);
 
-    LRange := 'A1:' + Chr(64 + LColCount) + IntToStr(LRowCount+1);
+    LRange := 'A1:' + Chr(64 + LColCount) + IntToStr(LRowCount + 1);
     //Col names A..Z total 26 cols After 27 col start again AA, AB ..
     if LColCount > 26 then
-      LRange := 'A1:' + Chr(64 + LColCount div 26) + Chr(64 + LColCount mod 26) + IntToStr(LRowCount+1);
+      LRange := 'A1:' + Chr(64 + LColCount div 26) + Chr(64 + LColCount mod 26) + IntToStr(LRowCount + 1);
 
     //Format cells in excel sheet
     Sheet.Range[LRange].Borders.LineStyle := 7; //line style
     Sheet.Range[LRange].Borders.color := clGray;
 
     LColCount := 0;
-    for n1 := 0 to grd.Columns.Count-1 do
+    for n1 := 0 to grd.Columns.Count - 1 do
       if grd.Columns.Items[n1].Visible or AAllColumn then
       begin
         Inc(LColCount);
@@ -2351,9 +2350,7 @@ begin
           LWidth := 60;
         Sheet.Columns[LColCount].ColumnWidth := (((LWidth / 28) * 5.1425) - 0.71);
 
-        if (grd.Columns.Items[n1].Field.DataType = ftBcd)
-        or (grd.Columns.Items[n1].Field.DataType = ftFMTBcd)
-        then
+        if (grd.Columns.Items[n1].Field.DataType = ftBcd) or (grd.Columns.Items[n1].Field.DataType = ftFMTBcd) then
           Sheet.Columns[LColCount].NumberFormat := '_-* #.##0,00 _₺_-;-* #.##0,00 _₺_-;_-* "-"?? _₺_-;_-@_-'
       end;
 
@@ -2365,38 +2362,24 @@ begin
     for LRow := 1 to ADataSet.RecordCount do
     begin
       LColCount := 0;
-      for n1 := 0 to grd.Columns.Count-1 do
+      for n1 := 0 to grd.Columns.Count - 1 do
         if grd.Columns[n1].Visible or AAllColumn then
         begin
           Inc(LColCount);
-          if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftString)
-          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftWideString)
-          then
-            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsString
-          else
-          if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftLargeint)
-          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftInteger)
-          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftSmallint)
-          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftShortint)
-          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftWord)
-          then
-            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsInteger
-          else
-          if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftDate)
-          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftDateTime)
-          then
-            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsDateTime
+          if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftString) or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftWideString) then
+            Sheet.Cells[LRow + 1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsString
+          else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftLargeint) or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftInteger) or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftSmallint) or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftShortint) or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftWord) then
+            Sheet.Cells[LRow + 1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsInteger
+          else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftDate) or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftDateTime) then
+            Sheet.Cells[LRow + 1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsDateTime
           else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftBoolean) then
-            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsBoolean
-          else
-          if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftBCD)
-          or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftFMTBcd)
-          then
-            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsFloat
+            Sheet.Cells[LRow + 1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsBoolean
+          else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftBCD) or (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftFMTBcd) then
+            Sheet.Cells[LRow + 1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsFloat
           else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftFloat) then
-            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsFloat
+            Sheet.Cells[LRow + 1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsFloat
           else if (ADataSet.FieldByName(grd.Columns[n1].FieldName).DataType = ftCurrency) then
-            Sheet.Cells[LRow+1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsCurrency
+            Sheet.Cells[LRow + 1, LColCount] := ADataSet.FieldByName(grd.Columns[n1].FieldName).AsCurrency
         end;
       pb1.Position := LRow;
       ADataSet.Next;
@@ -2425,7 +2408,7 @@ var
 //  nR: Integer;
   nC: Integer;
 //  SaveDialogExcelFile:TSaveDialog;
-  strTemp:string;
+  strTemp: string;
 //  dTemp:double;
 
 //  strFileName:string;
@@ -2446,7 +2429,6 @@ begin
   dlgSave.InitialDir := '%USERPROFILE%\desktop';
   if not dlgSave.Execute then
     Exit;
-
 
   AGridFilter := '';
   if grd.DataSource.DataSet.Filter <> '' then
@@ -2567,3 +2549,4 @@ begin
 end;
 
 end.
+
