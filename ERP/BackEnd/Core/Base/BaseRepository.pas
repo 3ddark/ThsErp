@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, System.Rtti, System.TypInfo, DB,
+  SysUtils, Classes, Types, System.Rtti, System.TypInfo, DB,
   FireDAC.Comp.Client, FireDAC.Stan.Param;
 
 type
@@ -15,10 +15,6 @@ type
     function NewQuery(AOwner: TComponent): TFDQuery;
   public
     constructor Create(AConnection: TFDConnection);
-
-    procedure BeginTransaction;
-    procedure CommitTransaction;
-    procedure RollbackTransaction;
 
     property TableName: string read FTableName write FTableName;
     property Connection: TFDConnection read FConnection;
@@ -56,21 +52,6 @@ function TBaseRepository.NewQuery(AOwner: TComponent): TFDQuery;
 begin
   Result := TFDQuery.Create(AOwner);
   Result.Connection := FConnection;
-end;
-
-procedure TBaseRepository.BeginTransaction;
-begin
-  Self.Connection.StartTransaction;
-end;
-
-procedure TBaseRepository.CommitTransaction;
-begin
-  Self.Connection.Commit;
-end;
-
-procedure TBaseRepository.RollbackTransaction;
-begin
-  Self.Connection.Rollback;
 end;
 
 function TBaseRepository.ExistsByField<T>(const AFieldName: string; const AValue: T): Boolean;

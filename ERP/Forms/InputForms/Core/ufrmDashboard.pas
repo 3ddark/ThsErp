@@ -12,9 +12,11 @@ uses
   Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.Dialogs,
   Vcl.ToolWin, Vcl.ImgList, Vcl.StdActns, Vcl.CategoryButtons, Vcl.WinXCtrls,
   Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
-  Ths.Utils.InfoWindow, udm, ufrmBase, ufrmBaseDBGrid,
+  FireDAC.Stan.Intf, Ths.Utils.InfoWindow, udm, ufrmBase, ufrmBaseDBGrid,
   Ths.Database.TableDetailed, Ths.Database.Table,
-  ufrmGrid, BaseService, BaseRepository, BaseEntity, StkCinsAileService, StkCinsAile;
+
+  ufrmGrid, BaseService, BaseRepository, BaseEntity, ServiceContainer, UnitOfWork,
+  StkCinsAileService, StkCinsAile, ufrmStkCinsAilelerX;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -157,7 +159,7 @@ type
     actch_banka_subeleri: TAction;
     actset_prs_tasima_servisleri: TAction;
     mniset_prs_tasima_servisleri: TMenuItem;
-    btn1: TButton;
+    btnTest: TButton;
 
 /// <summary>
 ///   Kullanıcının erişim yetkisine göre yapılacak işlemler burada olacak
@@ -250,7 +252,7 @@ type
     procedure actch_bankalarExecute(Sender: TObject);
     procedure actch_banka_subeleriExecute(Sender: TObject);
     procedure actset_prs_tasima_servisleriExecute(Sender: TObject);
-    procedure btn1Click(Sender: TObject);
+    procedure btnTestClick(Sender: TObject);
   private
     FIsFormShow: Boolean;
   published
@@ -269,8 +271,6 @@ type
 
 var
   frmDashboard: TfrmDashboard;
-
-  FServiceManager: TObjectDictionary<string, TBaseService>;
 
 implementation
 
@@ -777,15 +777,15 @@ begin
   TfrmRctReceteler.Create(Self, Self, TUrtRecete.Create(GDataBase), fomNormal).Show;
 end;
 
-procedure TfrmDashboard.btn1Click(Sender: TObject);
-begin
-  TfrmGrid<TStkCinsAileService, TStkCinsAile>.Create(Self, FServiceManager.Items[KeyStkCinsAile] as TStkCinsAileService, TStkCinsAile.Create).Show;
-end;
-
 procedure TfrmDashboard.btnCloseClick(Sender: TObject);
 begin
   if CustomMsgDlg('Uygulama sonlandırılacak. Devam etmek istediğine emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayır'], mbNo, 'Onay') = mrYes then
     inherited;
+end;
+
+procedure TfrmDashboard.btnTestClick(Sender: TObject);
+begin
+  TfrmStkCinsAilelerX.Create(Self, TServiceContainer.Instance.StkCinsAileService as TStkCinsAileService, TStkCinsAile.Create).Show;
 end;
 
 procedure TfrmDashboard.tmrcheck_is_update_requiredTimer(Sender: TObject);
@@ -900,7 +900,6 @@ end;
 
 destructor TfrmDashboard.Destroy;
 begin
-  FServiceManager.Free;
   inherited;
 end;
 
@@ -1091,10 +1090,8 @@ begin
 
   SetSession();
   FIsFormShow := False;
-  btn1.Enabled := True;
 
-  FServiceManager := TObjectDictionary<string, TBaseService>.Create([doOwnsValues]);
-  FServiceManager.TryAdd(KeyStkCinsAile, TStkCinsAileService.Create(GDataBase.Connection));
+  TUnitOfWork.Initialize(GDataBase.Connection);
 end;
 
 procedure TfrmDashboard.ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);
@@ -1168,7 +1165,7 @@ var
   n1: Integer;
 begin
   ResetSession(pnlMain);
-
+  btnTest.Enabled := True;
   LRights := TSysErisimHakki.Create(GDataBase);
   try
     LRights.SelectToList(' AND ' + LRights.TableName + '.' + LRights.KullaniciID.FieldName + '=' + VarToStr(GSysKullanici.Id.Value), False, False);
@@ -1323,7 +1320,6 @@ begin
         end
       end;
     end;
-
   finally
     FreeAndNil(LRights);
   end;

@@ -3,7 +3,7 @@ unit StkCinsAileRepository;
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB,
+  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, FireDAC.Stan.Param,
   BaseRepository, StkCinsAile;
 
@@ -13,7 +13,7 @@ type
     constructor Create(AConnection: TFDConnection);
 
     function CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): TFDQuery;
-    function Find(AFilter: string; ALock: Boolean): TObjectList;
+    function Find(AFilter: string; ALock: Boolean): TObjectList<TStkCinsAile>;
     function FindById(AId: Integer; ALock: Boolean): TStkCinsAile;
     procedure Save(AEntity: TStkCinsAile);
     procedure Delete(AId: Integer);
@@ -63,20 +63,29 @@ begin
   end;
 end;
 
-function TStkCinsAileRepository.Find(AFilter: string; ALock: Boolean): TObjectList;
+function TStkCinsAileRepository.Find(AFilter: string; ALock: Boolean): TObjectList<TStkCinsAile>;
 var
   Q: TFDQuery;
   Entity: TStkCinsAile;
   SQL: string;
 begin
-  Result := TObjectList.Create(True);
+  Result := TObjectList<TStkCinsAile>.Create(True);
   Q := NewQuery(nil);
   try
-    SQL :=
-      'SELECT ' +
-        TableName + '.id, ' +
-        TableName + '.aile ' +
-      'FROM ' + TableName + ' WHERE 1=1 ' + AFilter;
+    Entity := TStkCinsAile.Create;
+    Entity.Id.Value := 1;
+    try
+      SQL := Format('SELECT %, %, %, % FROM % WHERE 1=1 %', [
+        Entity.Id.QryName,
+        Entity.Family.QryName,
+        Entity.Description.QryName,
+        Entity.Active.QryName,
+        Entity.TableName,
+        AFilter
+        ]);
+    finally
+      Entity := nil;
+    end;
 
     if ALock then
       SQL := SQL + ' FOR UPDATE OF ' + TableName + ' NOWAIT';
@@ -87,8 +96,10 @@ begin
     while not Q.Eof do
     begin
       Entity := TStkCinsAile.Create;
-      Entity.Id.ValueFirstSet(Q.FieldByName('id').AsInteger);
-      Entity.Aile.ValueFirstSet(Q.FieldByName('aile').AsString);
+      Entity.Id.ValueFirstSet(Q.FieldByName(Entity.Family.FieldName).AsInteger);
+      Entity.Family.ValueFirstSet(Q.FieldByName(Entity.Family.FieldName).AsString);
+      Entity.Family.ValueFirstSet(Q.FieldByName(Entity.Family.FieldName).AsString);
+      Entity.Family.ValueFirstSet(Q.FieldByName(Entity.Family.FieldName).AsString);
       Result.Add(Entity);
       Q.Next;
     end;
@@ -121,7 +132,7 @@ begin
     if not Q.Eof then
     begin
       Result.Id.ValueFirstSet(Q.FieldByName('id').AsInteger);
-      Result.Aile.ValueFirstSet(Q.FieldByName('aile').AsString);
+      Result.Family.ValueFirstSet(Q.FieldByName('aile').AsString);
       Q.Next;
     end;
   finally
@@ -138,14 +149,14 @@ begin
     if AEntity.Id.Value <= 0 then
     begin
       Q.SQL.Text := 'INSERT INTO ' + TableName + ' (aile) VALUES (:p_aile) RETURNING id';
-      Q.ParamByName('p_aile').AsString := AEntity.Aile.Value;
+      Q.ParamByName('p_aile').AsString := AEntity.Family.Value;
       Q.Open;
       AEntity.Id.ValueFirstSet(Q.FieldByName('id').AsInteger);
     end
     else
     begin
       Q.SQL.Text := 'UPDATE ' + TableName + ' SET aile=:p_aile WHERE id=:p_id';
-      Q.ParamByName('p_aile').AsString := AEntity.Aile.Value;
+      Q.ParamByName('p_aile').AsString := AEntity.Family.Value;
       Q.ParamByName('p_id').AsInteger := AEntity.Id.Value;
       Q.ExecSQL;
     end;

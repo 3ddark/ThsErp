@@ -7,6 +7,7 @@ inherited frmStkCinsAilesi: TfrmStkCinsAilesi
   ClientWidth = 348
   Font.Name = 'MS Sans Serif'
   Position = poDesktopCenter
+  StyleElements = [seFont, seClient, seBorder]
   ExplicitWidth = 364
   ExplicitHeight = 169
   TextHeight = 13
@@ -15,17 +16,18 @@ inherited frmStkCinsAilesi: TfrmStkCinsAilesi
     Height = 80
     Color = clWindow
     ParentColor = False
-    ExplicitWidth = 340
-    ExplicitHeight = 55
+    StyleElements = [seFont, seClient, seBorder]
+    ExplicitWidth = 348
+    ExplicitHeight = 80
     inherited pgcMain: TPageControl
       Width = 348
       Height = 80
-      ExplicitWidth = 338
-      ExplicitHeight = 53
+      ExplicitWidth = 348
+      ExplicitHeight = 80
       inherited tsMain: TTabSheet
         ExplicitWidth = 340
         ExplicitHeight = 52
-        object lblaile: TLabel
+        object lblfamily: TLabel
           Left = 66
           Top = 6
           Width = 22
@@ -41,7 +43,7 @@ inherited frmStkCinsAilesi: TfrmStkCinsAilesi
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtaile: TEdit
+        object edtfamily: TEdit
           Left = 92
           Top = 3
           Width = 200
@@ -54,21 +56,22 @@ inherited frmStkCinsAilesi: TfrmStkCinsAilesi
   inherited pnlBottom: TPanel
     Top = 82
     Width = 344
-    ExplicitTop = 59
-    ExplicitWidth = 340
+    StyleElements = [seFont, seClient, seBorder]
+    ExplicitTop = 82
+    ExplicitWidth = 344
     inherited btnAccept: TButton
-      Left = 135
-      ExplicitLeft = 131
+      Left = 138
+      ExplicitLeft = 138
     end
     inherited btnClose: TButton
-      Left = 239
-      ExplicitLeft = 235
+      Left = 242
+      ExplicitLeft = 242
     end
   end
   inherited stbBase: TStatusBar
     Top = 112
     Width = 348
-    ExplicitTop = 103
-    ExplicitWidth = 344
+    ExplicitTop = 112
+    ExplicitWidth = 348
   end
 end

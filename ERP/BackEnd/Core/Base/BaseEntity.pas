@@ -3,73 +3,299 @@ unit BaseEntity;
 interface
 
 uses
-  SysUtils, Classes, Types;
+  SysUtils, Classes, Types, System.StrUtils, System.DateUtils,
+  System.Generics.Collections, System.Rtti, System.TypInfo;
 
 type
-  IField = interface
-    ['{E7D242C9-BD12-48FB-8D12-883B52EA0347}']
-  end;
+  IEntity = interface;
 
-  TField<T> = class(TInterfacedObject, IField)
-  private
-    FValue: T;
-    FOldValue: T;
-    procedure SetOldValue(const AValue: T);
-    procedure SetValue(const AValue: T);
-  public
-    property Value: T read FValue write SetValue;
-    property OldValue: T read FOldValue write SetOldValue;
+  IEntityField = interface
+    ['{2AD4AD6F-BCEA-4B74-BF33-02F894B63A6B}']
+    function GetFieldName: string;
+    procedure SetFieldName(const Value: string);
+    procedure SetOwnerEntity(const Value: IEntity);
+    function GetOwnerEntity: IEntity;
 
-    procedure ValueFirstSet(const AValue: T);
-
-    function ValueIsChanged: Boolean;
+    property FieldName: string read GetFieldName write SetFieldName;
+    property OwnerEntity: IEntity read GetOwnerEntity write SetOwnerEntity;
   end;
 
   IEntity = interface
     ['{E7D242C9-BD12-48FB-8D12-883B52EA0347}']
+    procedure SetField(Index: Integer; const Value: IEntityField);
+    function GetField(Index: Integer): IEntityField;
+    function GetFields: TList<IEntityField>;
+    procedure SetFields(const Value: TList<IEntityField>);
+    function GetFieldByName(AFieldName: string): IEntityField;
+    function GetTableName: string;
+    procedure SetTableName(const Value: string);
+
+    property TableName: string read GetTableName write SetTableName;
+    property Field[Index: Integer]: IEntityField read GetField write SetField; default;
+    property Fields: TList<IEntityField> read GetFields write SetFields;
+  end;
+
+  TEntityField<T> = class(TInterfacedObject, IEntityField)
+  private
+    FValue: T;
+    FOldValue: T;
+    FFieldName: string;
+    FOwnerEntity: IEntity;
+    procedure SetOldValue(const AValue: T);
+    procedure SetValue(const AValue: T);
+    procedure SetFieldName(const Value: string);
+    procedure SetOwnerEntity(const Value: IEntity);
+    function GetFieldName: string;
+    function GetOldValue: T;
+    function GetOwnerEntity: IEntity;
+    function GetValue: T;
+  public
+    property Value: T read GetValue write SetValue;
+    property OldValue: T read GetOldValue write SetOldValue;
+    property FieldName: string read GetFieldName write SetFieldName;
+    property OwnerEntity: IEntity read GetOwnerEntity write SetOwnerEntity;
+
+    constructor Create(AOwnerEntity: IEntity; AFieldName: string);
+
+    procedure ValueFirstSet(const AValue: T);
+    function ValueIsChanged: Boolean;
+
+    function AsParamName: string;
+    function AsQuotedStr: string;
+    function QryName: string;
   end;
 
   TEntity = class(TInterfacedObject, IEntity)
   private
-    FId: TField<Integer>;
+    FTableName: string;
+    FId: TEntityField<Integer>;
+    FFields: TList<IEntityField>;
+    procedure SetField(Index: Integer; const Value: IEntityField);
+    function GetField(Index: Integer): IEntityField;
+    function GetFields: TList<IEntityField>;
+    procedure SetFields(const Value: TList<IEntityField>);
+    function GetTableName: string;
+    procedure SetTableName(const Value: string);
   public
-    property Id: TField<Integer> read FId write FId;
+    property TableName: string read GetTableName write SetTableName;
+    property Id: TEntityField<Integer> read FId write FId;
+    property Field[Index: Integer]: IEntityField read GetField write SetField; default;
+    property Fields: TList<IEntityField> read GetFields write SetFields;
+
     constructor Create; virtual;
     destructor Destroy; override;
+
+    function GetFieldByName(AFieldName: string): IEntityField;
+
+    procedure ClearEntity<T: class>(ASrc: T);
+    function CloneEntity<T: class>(ASrc: T): T;
   end;
 
 implementation
 
-constructor TEntity.Create;
+constructor TEntityField<T>.Create(AOwnerEntity: IEntity; AFieldName: string);
 begin
-  FId := TField<Integer>.Create;
+  OwnerEntity := AOwnerEntity;
+  FFieldName := AFieldName;
+
+  OwnerEntity.Fields.Add(Self);
 end;
 
-destructor TEntity.Destroy;
+function TEntityField<T>.GetFieldName: string;
 begin
-  FId.Free;
-  inherited;
+  Result := FFieldName;
 end;
 
-procedure TField<T>.SetOldValue(const AValue: T);
+function TEntityField<T>.GetOldValue: T;
+begin
+  Result := FOldValue;
+end;
+
+function TEntityField<T>.GetOwnerEntity: IEntity;
+begin
+  Result := FOwnerEntity;
+end;
+
+function TEntityField<T>.GetValue: T;
+begin
+  Result := FValue;
+end;
+
+function TEntityField<T>.QryName: string;
+begin
+  Result := Self.OwnerEntity.TableName + '.' + Self.FFieldName;
+end;
+
+function TEntityField<T>.AsParamName: string;
+begin
+  Result := 'p_' + Self.FieldName;
+end;
+
+function TEntityField<T>.AsQuotedStr: string;
+begin
+  if TypeInfo(T) = TypeInfo(string) then
+    Result := QuotedStr(TValue.From<T>(Value).ToString)
+  else
+    Result := TValue.From<T>(FValue).ToString;
+end;
+
+procedure TEntityField<T>.SetFieldName(const Value: string);
+begin
+  FFieldName := Value;
+end;
+
+procedure TEntityField<T>.SetOldValue(const AValue: T);
 begin
   FOldValue := AValue;
 end;
 
-procedure TField<T>.SetValue(const AValue: T);
+procedure TEntityField<T>.SetOwnerEntity(const Value: IEntity);
+begin
+  FOwnerEntity := Value;
+end;
+
+procedure TEntityField<T>.SetValue(const AValue: T);
 begin
   FValue := AValue;
 end;
 
-procedure TField<T>.ValueFirstSet(const AValue: T);
+procedure TEntityField<T>.ValueFirstSet(const AValue: T);
 begin
   Self.FValue := AValue;
   Self.FOldValue := AValue;
 end;
 
-function TField<T>.ValueIsChanged: Boolean;
+function TEntityField<T>.ValueIsChanged: Boolean;
 begin
   Result := OldValue <> Value;
+end;
+
+constructor TEntity.Create;
+begin
+  FFields := TList<IEntityField>.Create;
+
+  FId := TEntityField<Integer>.Create(Self, 'id');
+end;
+
+destructor TEntity.Destroy;
+begin
+  FreeAndNil(FFields);
+//  FId := nil;
+  inherited;
+end;
+
+function TEntity.GetFields: TList<IEntityField>;
+begin
+  Result := FFields;
+end;
+
+function TEntity.GetTableName: string;
+begin
+  Result := FTableName;
+end;
+
+function TEntity.GetField(Index: Integer): IEntityField;
+begin
+  Result := FFields[Index];
+end;
+
+function TEntity.GetFieldByName(AFieldName: string): IEntityField;
+var
+  n1: Integer;
+begin
+  Result := nil;
+  for n1 := 0 to FFields.Count-1 do
+  begin
+    if FFields.Items[n1].FieldName = AFieldName then
+    begin
+      Result := FFields.Items[n1];
+      Break;
+    end;
+  end;
+end;
+
+procedure TEntity.SetField(Index: Integer; const Value: IEntityField);
+begin
+  FFields[Index] := Value;
+end;
+
+procedure TEntity.SetFields(const Value: TList<IEntityField>);
+begin
+  FFields := Value;
+end;
+
+procedure TEntity.SetTableName(const Value: string);
+begin
+  FTableName := Value;
+end;
+
+procedure TEntity.ClearEntity<T>(ASrc: T);
+var
+  ctx: TRttiContext;
+  rtti: TRttiType;
+  prop: TRttiProperty;
+  val: TValue;
+  fld: TObject;
+  fieldProp: TRttiProperty;
+begin
+  ctx := TRttiContext.Create;
+  try
+    rtti := ctx.GetType(ASrc.ClassType);
+    for prop in rtti.GetProperties do
+    begin
+      if prop.PropertyType.TypeKind = tkClass then
+      begin
+        val := prop.GetValue(@ASrc);
+        fld := val.AsObject;
+
+        if (fld <> nil) and (fld.ClassName.StartsWith('TEntityField<')) then
+        begin
+          fieldProp := ctx.GetType(fld.ClassType).GetProperty('Value');
+          if Assigned(fieldProp) then
+            fieldProp.SetValue(fld, TValue.From<T>(Default(T)));////TValue.Empty); // Default(T)
+        end;
+      end;
+    end;
+  finally
+    ctx.Free;
+  end;
+
+end;
+
+function TEntity.CloneEntity<T>(ASrc: T): T;
+var
+  ctx: TRttiContext;
+  rtti: TRttiType;
+  prop: TRttiProperty;
+  val, destVal: TValue;
+  fldSrc, fldDst: TObject;
+  fieldProp: TRttiProperty;
+begin
+  Result := ASrc.ClassType.Create as T;
+  ctx := TRttiContext.Create;
+  try
+    rtti := ctx.GetType(ASrc.ClassType);
+    for prop in rtti.GetProperties do
+    begin
+      if prop.PropertyType.TypeKind = tkClass then
+      begin
+        val := prop.GetValue(@ASrc);
+        fldSrc := val.AsObject;
+        fldDst := prop.GetValue(@Result).AsObject;
+        if (fldSrc <> nil) and fldSrc.ClassName.StartsWith('TEntityField<') then
+        begin
+          fieldProp := ctx.GetType(fldSrc.ClassType).GetProperty('Value');
+          if Assigned(fieldProp) then
+          begin
+            destVal := fieldProp.GetValue(fldSrc);
+            fieldProp.SetValue(fldDst, destVal);
+          end;
+        end;
+      end;
+    end;
+  finally
+    ctx.Free;
+  end;
 end;
 
 end.

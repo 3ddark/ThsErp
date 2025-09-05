@@ -10,12 +10,13 @@ inherited frmDashboard: TfrmDashboard
   DefaultMonitor = dmDesktop
   ParentFont = True
   Menu = mm1
-  Position = poDesktopCenter
+  Position = poScreenCenter
   Scaled = False
   WindowMenu = VeritabanYedekAl1
+  StyleElements = [seFont, seClient, seBorder]
   OnActivate = FormActivate
   ExplicitWidth = 931
-  ExplicitHeight = 514
+  ExplicitHeight = 509
   TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
@@ -27,7 +28,6 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 913
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
@@ -56,42 +56,42 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 394
-    ExplicitWidth = 909
+    StyleElements = [seFont, seClient, seBorder]
+    ExplicitTop = 402
+    ExplicitWidth = 911
     inherited btnAccept: TButton
       Left = 705
-      ExplicitLeft = 703
+      ExplicitLeft = 705
     end
     inherited btnClose: TButton
       Left = 809
-      ExplicitLeft = 807
+      ExplicitLeft = 809
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 432
     Width = 915
-    ExplicitTop = 424
-    ExplicitWidth = 913
+    ExplicitTop = 432
+    ExplicitWidth = 915
   end
   inherited pnlMain: TPanel [3]
     Top = 40
     Width = 915
     Height = 360
     TabOrder = 1
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitTop = 40
-    ExplicitWidth = 913
-    ExplicitHeight = 352
+    ExplicitWidth = 915
+    ExplicitHeight = 360
     object PageControl1: TPageControl
       Left = 0
       Top = 0
       Width = 915
       Height = 360
-      ActivePage = tsstock
+      ActivePage = tsemployee
       Align = alClient
       MultiLine = True
       TabOrder = 0
-      ExplicitWidth = 913
-      ExplicitHeight = 352
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton
@@ -278,7 +278,7 @@ inherited frmDashboard: TfrmDashboard
           WordWrap = True
         end
         object btn1: TButton
-          Left = 348
+          Left = 340
           Top = 164
           Width = 94
           Height = 31
@@ -288,7 +288,6 @@ inherited frmDashboard: TfrmDashboard
           Margins.Bottom = 4
           Caption = 'Test Grid'
           TabOrder = 5
-          OnClick = btn1Click
         end
       end
       object tsaccount: TTabSheet
@@ -451,6 +450,15 @@ inherited frmDashboard: TfrmDashboard
           ParentFont = False
           TabOrder = 0
           WordWrap = True
+        end
+        object btnTest: TButton
+          Left = 320
+          Top = 160
+          Width = 75
+          Height = 25
+          Caption = 'btnTest'
+          TabOrder = 1
+          OnClick = btnTestClick
         end
       end
       object tsbom: TTabSheet

@@ -12,8 +12,8 @@ uses
 
 type
   TfrmStkCinsAilesi = class(TfrmBaseInputDB)
-    edtaile: TEdit;
-    lblaile: TLabel;
+    edtfamily: TEdit;
+    lblfamily: TLabel;
   published
     procedure btnAcceptClick(Sender: TObject); override;
     procedure RefreshData; override;
@@ -32,7 +32,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TStkCinsAile(Table).Aile.Value := edtAile.Text;
+      TStkCinsAile(Table).Family.Value := edtfamily.Text;
       inherited;
     end;
   end
@@ -42,7 +42,7 @@ end;
 
 procedure TfrmStkCinsAilesi.RefreshData;
 begin
-  edtAile.Text := TStkCinsAile(Table).Aile.Value;
+  edtfamily.Text := TStkCinsAile(Table).Family.Value;
 end;
 
 end.

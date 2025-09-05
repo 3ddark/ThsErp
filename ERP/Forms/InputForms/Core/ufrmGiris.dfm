@@ -2,7 +2,7 @@ inherited frmGiris: TfrmGiris
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Sistem Giri'#351
-  ClientHeight = 216
+  ClientHeight = 212
   ClientWidth = 484
   Icon.Data = {
     000001000200101000000100200068040000260000002020000001002000A810
@@ -176,16 +176,14 @@ inherited frmGiris: TfrmGiris
     80FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF80
     80FFFF8080FFFFFF80FFFFFFFEFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
-  ExplicitLeft = 2
-  ExplicitTop = 2
   ExplicitWidth = 500
-  ExplicitHeight = 255
+  ExplicitHeight = 251
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 484
-    Height = 166
-    ExplicitWidth = 482
-    ExplicitHeight = 158
+    Height = 162
+    ExplicitWidth = 484
+    ExplicitHeight = 166
     object lblkullanici_adi: TLabel
       Left = 91
       Top = 5
@@ -483,28 +481,28 @@ inherited frmGiris: TfrmGiris
     end
   end
   inherited pnlBottom: TPanel
-    Top = 168
+    Top = 164
     Width = 480
     TabOrder = 2
-    ExplicitTop = 160
-    ExplicitWidth = 478
+    ExplicitTop = 168
+    ExplicitWidth = 480
     inherited btnAccept: TButton
       Left = 274
       Caption = 'Giri'#351
       HotImageIndex = 62
       ImageIndex = 62
-      ExplicitLeft = 272
+      ExplicitLeft = 274
     end
     inherited btnClose: TButton
       Left = 378
-      ExplicitLeft = 376
+      ExplicitLeft = 378
     end
   end
   inherited stbBase: TStatusBar
-    Top = 198
+    Top = 194
     Width = 484
-    ExplicitTop = 190
-    ExplicitWidth = 482
+    ExplicitTop = 198
+    ExplicitWidth = 484
   end
   object pb1: TProgressBar
     Left = 136

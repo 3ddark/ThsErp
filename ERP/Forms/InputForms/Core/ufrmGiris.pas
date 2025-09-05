@@ -55,7 +55,7 @@ type
   end;
 
 const
-  FormSmall = 250;
+  FormSmall = 246;
   FormBig = 430;
 
 implementation

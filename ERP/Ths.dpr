@@ -277,12 +277,20 @@ uses
   ufrmAlsTeklifDetaylar in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetaylar.pas' {frmAlsTeklifDetaylar},
   ufrmAlsTeklifDetay in 'Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetay.pas' {frmAlsTeklifDetay},
   Ths.Database.Table.StkKartCinsBilgileri in 'BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas',
+  SharedFormTypes in 'Forms\SharedFormTypes.pas',
+  ufrmGrid in 'Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas',
+  ufrmInputSimpleDbX in 'Forms\ufrmInputSimpleDbX.pas',
+  UnitOfWork in 'BackEnd\Core\Base\UnitOfWork.pas',
+  QueryBuilder in 'BackEnd\Core\Base\QueryBuilder.pas',
   StkCinsAile in 'BackEnd\Core\Base\StkCinsAile.pas',
   StkCinsAileRepository in 'BackEnd\Core\Base\StkCinsAileRepository.pas',
   StkCinsAileService in 'BackEnd\Core\Base\StkCinsAileService.pas',
   ufrmStkCinsAileleri in 'Forms\OutputForms\DbGrid\Stock\ufrmStkCinsAileleri.pas' {frmStkCinsAileleri},
   ufrmStkCinsAilesi in 'Forms\InputForms\Stock\ufrmStkCinsAilesi.pas' {frmStkCinsAilesi},
-  ufrmGrid in 'Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas';
+  ufrmStkCinsAilelerX in 'Forms\ufrmStkCinsAilelerX.pas' {frmStkCinsAilelerX},
+  ufrmStkCinsAileX in 'Forms\ufrmStkCinsAileX.pas' {frmStkCinsAileX},
+  ServiceContainer in 'BackEnd\Core\Base\ServiceContainer.pas',
+  Ths.DialogHelper in 'BackEnd\Tools\Ths.DialogHelper.pas';
 
 {$R *.res}
 
@@ -315,7 +323,6 @@ begin
 
   AddExitProc(MemLeakFix);
 
-  TStyleManager.TrySetStyle('Lavender Classico');
   Application.Title := 'THS ERP';
   Application.CreateForm(Tdm, dm);
   Application.CreateForm(TfrmDashboard, frmDashboard);
