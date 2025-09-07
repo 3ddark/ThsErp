@@ -290,7 +290,8 @@ uses
   ufrmStkCinsAilelerX in 'Forms\ufrmStkCinsAilelerX.pas' {frmStkCinsAilelerX},
   ufrmStkCinsAileX in 'Forms\ufrmStkCinsAileX.pas' {frmStkCinsAileX},
   ServiceContainer in 'BackEnd\Core\Base\ServiceContainer.pas',
-  Ths.DialogHelper in 'BackEnd\Tools\Ths.DialogHelper.pas';
+  Ths.DialogHelper in 'BackEnd\Tools\Ths.DialogHelper.pas',
+  TableNameService in 'BackEnd\Core\Base\TableNameService.pas';
 
 {$R *.res}
 

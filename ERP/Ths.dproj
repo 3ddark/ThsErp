@@ -754,6 +754,7 @@
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Base\ServiceContainer.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.DialogHelper.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\TableNameService.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

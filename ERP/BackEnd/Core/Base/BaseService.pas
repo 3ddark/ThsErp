@@ -13,6 +13,8 @@ const
 type
   IBaseService = interface
     ['{61C41E30-4D6E-4474-9529-6BE1133F16B2}']
+    function GetUnitOfWork: TUnitOfWork;
+    property UoW: TUnitOfWork read GetUnitOfWork;
   end;
 
   TBaseService<T> = class(TInterfacedObject, IBaseService)

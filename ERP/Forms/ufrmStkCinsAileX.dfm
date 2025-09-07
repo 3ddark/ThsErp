@@ -2,8 +2,8 @@ object frmStkCinsAileX: TfrmStkCinsAileX
   Left = 0
   Top = 0
   Caption = 'frmStkCinsAileX'
-  ClientHeight = 66
-  ClientWidth = 315
+  ClientHeight = 189
+  ClientWidth = 463
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,22 +16,24 @@ object frmStkCinsAileX: TfrmStkCinsAileX
   object pgcMain: TPageControl
     Left = 0
     Top = 0
-    Width = 315
-    Height = 66
+    Width = 463
+    Height = 189
     ActivePage = tsMain
     Align = alClient
     TabOrder = 0
     TabStop = False
+    ExplicitWidth = 315
+    ExplicitHeight = 66
     object tsMain: TTabSheet
       Caption = 'Genel'
       object lblaile: TLabel
-        Left = 66
-        Top = 6
-        Width = 22
+        Left = 52
+        Top = 7
+        Width = 36
         Height = 13
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
-        Caption = 'Aile'
+        Caption = 'Family'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -40,13 +42,62 @@ object frmStkCinsAileX: TfrmStkCinsAileX
         ParentBiDiMode = False
         ParentFont = False
       end
-      object edtaile: TEdit
+      object lbldescription: TLabel
+        Left = 21
+        Top = 36
+        Width = 65
+        Height = 13
+        Alignment = taRightJustify
+        BiDiMode = bdLeftToRight
+        Caption = 'Description'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentBiDiMode = False
+        ParentFont = False
+      end
+      object lblactive: TLabel
+        Left = 51
+        Top = 128
+        Width = 37
+        Height = 13
+        Alignment = taRightJustify
+        BiDiMode = bdLeftToRight
+        Caption = 'Active'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentBiDiMode = False
+        ParentFont = False
+      end
+      object edtfamily: TEdit
         Left = 92
         Top = 3
-        Width = 200
+        Width = 333
         Height = 23
         TabOrder = 0
       end
     end
+  end
+  object mmodescription: TMemo
+    Left = 96
+    Top = 58
+    Width = 333
+    Height = 89
+    Lines.Strings = (
+      'mmodescription')
+    TabOrder = 1
+  end
+  object chkactive: TCheckBox
+    Left = 96
+    Top = 153
+    Width = 97
+    Height = 17
+    Caption = 'chkactive'
+    TabOrder = 2
   end
 end

@@ -3,18 +3,22 @@ unit ufrmStkCinsAileX;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  ufrmInputSimpleDbX, SharedFormTypes, StkCinsAileService, StkCinsAile,
-  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
-  Vcl.StdCtrls, Vcl.ComCtrls;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.StdCtrls, Vcl.ComCtrls, ufrmInputSimpleDbX, SharedFormTypes,
+  StkCinsAileService, StkCinsAile, Ths.Helper.BaseTypes, Ths.Helper.Edit,
+  Ths.Helper.ComboBox;
 
 type
   TfrmStkCinsAileX = class(TfrmInputSimpleDbX<TStkCinsAile, TStkCinsAileService>)
     pgcMain: TPageControl;
     tsMain: TTabSheet;
     lblaile: TLabel;
-    edtaile: TEdit;
+    edtfamily: TEdit;
+    mmodescription: TMemo;
+    chkactive: TCheckBox;
+    lbldescription: TLabel;
+    lblactive: TLabel;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   private
@@ -29,14 +33,16 @@ implementation
 
 procedure TfrmStkCinsAileX.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Family.Value := edtaile.Text;
+  Table.Family.Value := edtfamily.Text;
+  Table.Description.Value := mmodescription.Lines.Text;
+  Table.Active.Value := chkactive.Checked;
   inherited;
 end;
 
 procedure TfrmStkCinsAileX.FormCreate(Sender: TObject);
 begin
   inherited;
-  edtaile.CharCase := TEditCharCase.ecUpperCase;
+  edtfamily.CharCase := TEditCharCase.ecUpperCase;
 end;
 
 procedure TfrmStkCinsAileX.FormShow(Sender: TObject);
@@ -45,8 +51,9 @@ begin
   pgcMain.Parent := PanelMain;
 
   Self.Caption := 'Stk Cins Aile Input';
-  ActiveControl := edtaile;
-  edtaile.SetFocus;
+
+  edtfamily.SetFocus;
 end;
 
 end.
+

@@ -27,12 +27,18 @@ type
     function GetFields: TList<IEntityField>;
     procedure SetFields(const Value: TList<IEntityField>);
     function GetFieldByName(AFieldName: string): IEntityField;
-    function GetTableName: string;
-    procedure SetTableName(const Value: string);
+    function TableName: string;
 
-    property TableName: string read GetTableName write SetTableName;
     property Field[Index: Integer]: IEntityField read GetField write SetField; default;
     property Fields: TList<IEntityField> read GetFields write SetFields;
+  end;
+
+  TableNameAttribute = class(TCustomAttribute)
+  private
+    FName: string;
+  public
+    constructor Create(const AName: string);
+    property Name: string read FName;
   end;
 
   TEntityField<T> = class(TInterfacedObject, IEntityField)
@@ -74,16 +80,15 @@ type
     function GetField(Index: Integer): IEntityField;
     function GetFields: TList<IEntityField>;
     procedure SetFields(const Value: TList<IEntityField>);
-    function GetTableName: string;
-    procedure SetTableName(const Value: string);
   public
-    property TableName: string read GetTableName write SetTableName;
     property Id: TEntityField<Integer> read FId write FId;
     property Field[Index: Integer]: IEntityField read GetField write SetField; default;
     property Fields: TList<IEntityField> read GetFields write SetFields;
 
     constructor Create; virtual;
     destructor Destroy; override;
+
+    function TableName: string;
 
     function GetFieldByName(AFieldName: string): IEntityField;
 
@@ -92,6 +97,8 @@ type
   end;
 
 implementation
+
+uses SharedFormTypes;
 
 constructor TEntityField<T>.Create(AOwnerEntity: IEntity; AFieldName: string);
 begin
@@ -189,9 +196,17 @@ begin
   Result := FFields;
 end;
 
-function TEntity.GetTableName: string;
+function TEntity.TableName: string;
+var
+  ctx: TRttiContext;
+  rType: TRttiType;
+  attr: TCustomAttribute;
 begin
-  Result := FTableName;
+  Result := '';
+  rType := ctx.GetType(Self.ClassType);
+  for attr in rType.GetAttributes do
+    if attr is TableNameAttribute then
+      Exit(TableNameAttribute(attr).Name);
 end;
 
 function TEntity.GetField(Index: Integer): IEntityField;
@@ -222,11 +237,6 @@ end;
 procedure TEntity.SetFields(const Value: TList<IEntityField>);
 begin
   FFields := Value;
-end;
-
-procedure TEntity.SetTableName(const Value: string);
-begin
-  FTableName := Value;
 end;
 
 procedure TEntity.ClearEntity<T>(ASrc: T);
@@ -296,6 +306,13 @@ begin
   finally
     ctx.Free;
   end;
+end;
+
+{ TableNameAttribute }
+
+constructor TableNameAttribute.Create(const AName: string);
+begin
+  FName := AName;
 end;
 
 end.

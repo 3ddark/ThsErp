@@ -1,4 +1,4 @@
-unit ufrmInputSimpleDbX;
+ï»¿unit ufrmInputSimpleDbX;
 
 interface
 
@@ -98,10 +98,10 @@ begin
       ModalResult := mrOK;
       Close;
     except
-      ModalResult := mrNone;//hata durumunda pencere kapanmasýn
+      ModalResult := mrNone;//hata durumunda pencere kapanmasï¿½n
 
-      //eger begin transaction demiyorsa insert pencere kapansýn çünkü rollback yapýld artýk insert etmemeli
-      //Önceki iþlemler geri alýndýðý için
+      //eger begin transaction demiyorsa insert pencere kapansï¿½n ï¿½ï¿½nkï¿½ rollback yapï¿½ld artï¿½k insert etmemeli
+      //ï¿½nceki iï¿½lemler geri alï¿½ndï¿½ï¿½ï¿½ iï¿½in
       if (Service.UoW.Connection.InTransaction) then
         Close;
       raise;
@@ -109,9 +109,9 @@ begin
   end
   else if (FormMode = ifmUpdate) then
   begin
-    if TThsDialogHelper.CustomMsgDlg('Kaydý güncelleme istediðinden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayýr'], mbNo, 'Kullanýcý Onayý') = mrYes then
+    if TThsDialogHelper.CustomMsgDlg('Kaydï¿½ gï¿½ncelleme istediï¿½inden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayï¿½r'], mbNo, 'Kullanï¿½cï¿½ Onayï¿½') = mrYes then
     begin
-      //Burada yeni kayýt veya güncelleme modunda olduüu için bütün kontrolleri açmak gerekiyor.
+      //Burada yeni kayï¿½t veya gï¿½ncelleme modunda olduï¿½u iï¿½in bï¿½tï¿½n kontrolleri aï¿½mak gerekiyor.
 {      SetControlsDisabledOrEnabled(PanelMain, True);
       if (Table.LogicalUpdate(WithCommitTransaction, True)) then
       begin
@@ -124,7 +124,7 @@ begin
         ModalResult := mrNone;
         btnSpin.Visible := true;
         FormMode := ifmRewiev;
-        btnAccept.Caption := 'Güncelle';
+        btnAccept.Caption := 'Gï¿½ncelle';
         btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
         btnAccept.Width := Max(100, btnAccept.Width);
         btnDelete.Visible := false;
@@ -135,17 +135,17 @@ begin
   end
   else if (FormMode = ifmRewiev) then
   begin
-{    //burada güncelleme modunda olduðu için bütün kontrolleri açmak gerekiyor.
+{    //burada gï¿½ncelleme modunda olduï¿½u iï¿½in bï¿½tï¿½n kontrolleri aï¿½mak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, False);
 
     if (not Service.UoW.Connection.InTransaction) then
     begin
-      //varsa kaydý kilitle
+      //varsa kaydï¿½ kilitle
       if (Table.LogicalSelect(DefaultSelectFilter, True, ( not Service.UoW.InTransaction), True)) then
       begin
-        //eðer aranan kayýt baþka bir kullanýcý tarafýndan silinmiþse count 0 kalýr
+        //eï¿½er aranan kayï¿½t baï¿½ka bir kullanï¿½cï¿½ tarafï¿½ndan silinmiï¿½se count 0 kalï¿½r
         if (Table.List.Count = 0) then
-          raise Exception.Create('Siz inceleme ekranýndayken kayýt baþka kullanýcý tarafýndan silinmiþ.' + AddLBs(2) + 'Kaydý tekrar kontrol edin!');
+          raise Exception.Create('Siz inceleme ekranï¿½ndayken kayï¿½t baï¿½ka kullanï¿½cï¿½ tarafï¿½ndan silinmiï¿½.' + AddLBs(2) + 'Kaydï¿½ tekrar kontrol edin!');
 
         LTable := TTable(Table.List[0]).Clone;
         Table.Destroy;
@@ -173,7 +173,7 @@ begin
       end;
     end
     else
-      CustomMsgDlg('Aktif bir kayýt güncellemeniz var. Önce açýk olan iþleminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
+      CustomMsgDlg('Aktif bir kayï¿½t gï¿½ncellemeniz var. ï¿½nce aï¿½ï¿½k olan iï¿½leminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
 }
   end;
 end;
@@ -226,10 +226,10 @@ begin
     BtnAccept.Visible := True;
     BtnClose.Visible := True;
 
-    BtnAccept.Caption := 'Güncelle';
+    BtnAccept.Caption := 'GÃ¼ncelle';
     BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
     BtnAccept.Width := Max(100, BtnAccept.Width);
-    BtnDelete.Caption := 'Kayýt Sil';
+    BtnDelete.Caption := 'KayÄ±t Sil';
     BtnDelete.Width := Canvas.TextWidth(BtnDelete.Caption) + 56;
     BtnDelete.Width := Max(100, BtnDelete.Width);
   end;

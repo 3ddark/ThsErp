@@ -14,7 +14,7 @@ type
     destructor Destroy; override;
     function TableName: string;
 
-    function CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): TFDQuery;
+    function CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): string;
 
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
     procedure BusinessInsert(AEntity: TStkCinsAile; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
@@ -89,9 +89,9 @@ begin
   inherited;
 end;
 
-function TStkCinsAileService.CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): TFDQuery;
+function TStkCinsAileService.CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): string;
 begin
-  Result := Self.UoW.StkCinsAileRepository.CreateQueryForUI(AFilterKey, AOwner);
+  Result := Self.UoW.StkCinsAileRepository.CreateQueryForUI(AFilterKey);
 end;
 
 destructor TStkCinsAileService.Destroy;

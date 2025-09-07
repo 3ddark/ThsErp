@@ -7,26 +7,23 @@ uses
   FireDAC.Comp.Client, FireDAC.Stan.Param;
 
 type
-  TBaseRepository = class(TObject)
-  private
-    FTableName: string;
+  TBaseRepository<T> = class(TObject)
   protected
     FConnection: TFDConnection;
     function NewQuery(AOwner: TComponent): TFDQuery;
   public
     constructor Create(AConnection: TFDConnection);
 
-    property TableName: string read FTableName write FTableName;
     property Connection: TFDConnection read FConnection;
 
-    function ExistsByField<T>(const AFieldName: string; const AValue: T): Boolean;
+    function ExistsByField(const AFieldName: string; const AValue: T): Boolean;
 
     procedure DeleteById(AId: Integer);
   end;
 
 implementation
 
-constructor TBaseRepository.Create(AConnection: TFDConnection);
+constructor TBaseRepository<T>.Create(AConnection: TFDConnection);
 begin
   inherited Create;
   if not Assigned(AConnection) then
@@ -34,13 +31,13 @@ begin
   FConnection := AConnection;
 end;
 
-procedure TBaseRepository.DeleteById(AId: Integer);
+procedure TBaseRepository<T>.DeleteById(AId: Integer);
 var
   Q: TFDQuery;
 begin
   Q := NewQuery(nil);
   try
-    Q.SQL.Text := Format('DELETE FROM %s WHERE id = :p_id', [TableName]);
+    Q.SQL.Text := Format('DELETE FROM %s WHERE id = :p_id', ['']);
     Q.ParamByName('p_id').AsInteger := AId;
     Q.ExecSQL;
   finally
@@ -48,20 +45,20 @@ begin
   end;
 end;
 
-function TBaseRepository.NewQuery(AOwner: TComponent): TFDQuery;
+function TBaseRepository<T>.NewQuery(AOwner: TComponent): TFDQuery;
 begin
   Result := TFDQuery.Create(AOwner);
   Result.Connection := FConnection;
 end;
 
-function TBaseRepository.ExistsByField<T>(const AFieldName: string; const AValue: T): Boolean;
+function TBaseRepository<T>.ExistsByField(const AFieldName: string; const AValue: T): Boolean;
 var
   Q: TFDQuery;
   V: TValue;
 begin
   Q := NewQuery(nil);
   try
-    Q.SQL.Text := Format('SELECT EXISTS(SELECT id FROM %s WHERE %s = :p_value);', [TableName, AFieldName]);
+    Q.SQL.Text := Format('SELECT EXISTS(SELECT id FROM %s WHERE %s = :p_value);', ['', AFieldName]);
 
     V := TValue.From<T>(AValue);
 

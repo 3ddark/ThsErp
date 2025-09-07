@@ -1,4 +1,4 @@
-unit QueryBuilder;
+ï»¿unit QueryBuilder;
 
 interface
 
@@ -65,7 +65,7 @@ begin
     opIn:
       Result := 'IN';
   else
-    raise Exception.Create('Geçersiz SQL operatörü');
+    raise Exception.Create('Geï¿½ersiz SQL operatÃ¶rÃ¼');
   end;
 end;
 
@@ -148,7 +148,7 @@ begin
             SQLText.Append(')');
           end
           else
-            raise Exception.Create('opIn için değer bir array olmalı.');
+            raise Exception.Create('opIn iÃ§in deÄŸer bir array olmalÄ±.');
         end
         else
         begin

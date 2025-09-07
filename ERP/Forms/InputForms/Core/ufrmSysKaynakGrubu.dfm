@@ -5,6 +5,7 @@ inherited frmSysKaynakGrubu: TfrmSysKaynakGrubu
   ClientHeight = 111
   ClientWidth = 348
   ParentFont = True
+  StyleElements = [seFont, seClient, seBorder]
   ExplicitWidth = 364
   ExplicitHeight = 150
   TextHeight = 15
@@ -13,12 +14,13 @@ inherited frmSysKaynakGrubu: TfrmSysKaynakGrubu
     Height = 61
     Color = clWindow
     ParentColor = False
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitWidth = 348
     ExplicitHeight = 74
     inherited pgcMain: TPageControl
       Width = 348
       Height = 61
-      ExplicitWidth = 350
+      ExplicitWidth = 348
       ExplicitHeight = 61
       inherited tsMain: TTabSheet
         ExplicitTop = 26
@@ -53,6 +55,7 @@ inherited frmSysKaynakGrubu: TfrmSysKaynakGrubu
   inherited pnlBottom: TPanel
     Top = 63
     Width = 344
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitTop = 76
     ExplicitWidth = 344
     inherited btnAccept: TButton

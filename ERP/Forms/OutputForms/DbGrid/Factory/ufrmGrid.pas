@@ -172,6 +172,9 @@ type
     procedure grdTitleClick(Column: TColumn); virtual;
     procedure grdDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState); virtual;
     procedure SortGridTitle(Sender: TObject);
+
+    procedure RefreshDataFirst();
+    procedure RefreshData();
     //***query***
     procedure AfterDatasetOpen(Dataset: TDataset); virtual;
     procedure OnFilterDataset(Dataset: TDataset; var Accept: Boolean); virtual;
@@ -1194,6 +1197,34 @@ begin
   FStatusBase.Panels.Items[DB_STATUS_KEY_F6].Text := 'F6 İPTAL/KAPAT';
   FStatusBase.Panels.Items[DB_STATUS_KEY_F7].Text := 'F7 KAYIT EKLE';
   FStatusBase.Panels.Items[DB_STATUS_KEY_F11].Text := 'F11 ŞEFFAFLIK';
+end;
+
+procedure TfrmGrid<TE, TS>.RefreshData;
+begin
+  if (Table <> nil) and (Table.Id.Value > 0) then
+    grd.DataSource.DataSet.Locate(Table.Id.FieldName, Table.Id.Value,[]);
+
+  if FFilterGrid.Text <> '' then
+  begin
+    grd.DataSource.DataSet.Filter := FFilterGrid.Text;
+    grd.DataSource.DataSet.Filtered := True;
+    mniFilterRemove.Visible := True;
+    mniFilterBack.Visible := True;
+  end
+  else
+  begin
+    grd.DataSource.DataSet.Filtered := False;
+    grd.DataSource.DataSet.Filter := '';
+    mniFilterRemove.Visible := False;
+    mniFilterBack.Visible := False;
+  end;
+
+  RefreshStatusRecorCount;
+end;
+
+procedure TfrmGrid<TE, TS>.RefreshDataFirst;
+begin
+
 end;
 
 procedure TfrmGrid<TE, TS>.RefreshParentGrid(AFocusSelectedItem: Boolean);

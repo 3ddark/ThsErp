@@ -1,18 +1,18 @@
-unit StkCinsAileRepository;
+﻿unit StkCinsAileRepository;
 
 interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, FireDAC.Stan.Param,
-  BaseRepository, StkCinsAile;
+  BaseEntity, BaseRepository, StkCinsAile, TableNameService;
 
 type
-  TStkCinsAileRepository = class(TBaseRepository)
+  TStkCinsAileRepository = class(TBaseRepository<TStkCinsAile>)
   public
     constructor Create(AConnection: TFDConnection);
 
-    function CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): TFDQuery;
+    function CreateQueryForUI(const AFilterKey: string): string;
     function Find(AFilter: string; ALock: Boolean): TObjectList<TStkCinsAile>;
     function FindById(AId: Integer; ALock: Boolean): TStkCinsAile;
     procedure Save(AEntity: TStkCinsAile);
@@ -24,41 +24,30 @@ implementation
 constructor TStkCinsAileRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
-  TableName := 'stk_cins_aileleri';
 end;
 
-function TStkCinsAileRepository.CreateQueryForUI(const AFilterKey: string; AOwner: TComponent): TFDQuery;
+function TStkCinsAileRepository.CreateQueryForUI(const AFilterKey: string): string;
 var
   SQL: string;
+  Entity: TStkCinsAile;
 begin
-  Result := NewQuery(AOwner);
+  Result := '';
   try
-    SQL := 'SELECT id, aile FROM ' + TableName;
-
-    if AFilterKey = 'AKTIF_KULLANICILAR' then
-    begin
-      SQL := SQL + ' WHERE is_active = :p_is_active';
-      Result.SQL.Text := SQL;
-      Result.ParamByName('p_is_active').AsBoolean := True;
-    end
-    else if AFilterKey = 'PASIF_KULLANICILAR' then
-    begin
-      SQL := SQL + ' WHERE is_active = :p_is_active';
-      Result.SQL.Text := SQL;
-      Result.ParamByName('p_is_active').AsBoolean := False;
-    end
-    else if AFilterKey = 'TUM_KULLANICILAR' then
-    begin
-      Result.SQL.Text := SQL;
-    end
-    else
-    begin
-      Result.SQL.Text := SQL;
+    Entity := TStkCinsAile.Create;
+    try
+      SQL := Format('SELECT %, %, %, % FROM % WHERE 1=1 ', [
+        Entity.Id.QryName,
+        Entity.Family.QryName,
+        Entity.Description.QryName,
+        Entity.Active.QryName,
+        TTableNameService.TableName(TStkCinsAile)
+        ]);
+    finally
+      Entity := nil;
     end;
 
-    Result.Open;
+    Result := SQL;
   except
-    FreeAndNil(Result);
     raise;
   end;
 end;
@@ -73,14 +62,13 @@ begin
   Q := NewQuery(nil);
   try
     Entity := TStkCinsAile.Create;
-    Entity.Id.Value := 1;
     try
       SQL := Format('SELECT %, %, %, % FROM % WHERE 1=1 %', [
         Entity.Id.QryName,
         Entity.Family.QryName,
         Entity.Description.QryName,
         Entity.Active.QryName,
-        Entity.TableName,
+        TTableNameService.TableName(TStkCinsAile),
         AFilter
         ]);
     finally
@@ -88,7 +76,7 @@ begin
     end;
 
     if ALock then
-      SQL := SQL + ' FOR UPDATE OF ' + TableName + ' NOWAIT';
+      SQL := SQL + ' FOR UPDATE OF ' + '' + ' NOWAIT';
 
     Q.SQL.Text := SQL;
     Q.Open;
@@ -116,23 +104,28 @@ begin
   Result := TStkCinsAile.Create;
   Q := NewQuery(nil);
   try
-    SQL :=
-      'SELECT ' +
-        TableName + '.id, ' +
-        TableName + '.aile ' +
-      'FROM ' + TableName + ' WHERE id=:p_id ';
+    SQL := Format('SELECT %, %, %, % FROM % WHERE %', [
+      Result.Id.QryName,
+      Result.Family.QryName,
+      Result.Description.QryName,
+      Result.Active.QryName,
+      TTableNameService.TableName(TStkCinsAile),
+      Result.Id.QryName + '=:' + Result.Id.AsParamName
+    ]);
 
     if ALock then
-      SQL := SQL + ' FOR UPDATE OF ' + TableName + ' NOWAIT';
+      SQL := SQL + ' FOR UPDATE OF ' + TTableNameService.TableName(TStkCinsAile) + ' NOWAIT';
 
     Q.SQL.Text := SQL;
-    Q.ParamByName('p_id').AsInteger := AId;
+    Q.ParamByName(Result.Id.AsParamName).AsInteger := AId;
     Q.Open;
 
     if not Q.Eof then
     begin
-      Result.Id.ValueFirstSet(Q.FieldByName('id').AsInteger);
-      Result.Family.ValueFirstSet(Q.FieldByName('aile').AsString);
+      Result.Id.ValueFirstSet(Q.FieldByName(Result.Id.FieldName).AsInteger);
+      Result.Family.ValueFirstSet(Q.FieldByName(Result.Family.FieldName).AsString);
+      Result.Description.ValueFirstSet(Q.FieldByName(Result.Description.FieldName).AsString);
+      Result.Active.ValueFirstSet(Q.FieldByName(Result.Active.FieldName).AsBoolean);
       Q.Next;
     end;
   finally
@@ -148,16 +141,35 @@ begin
   try
     if AEntity.Id.Value <= 0 then
     begin
-      Q.SQL.Text := 'INSERT INTO ' + TableName + ' (aile) VALUES (:p_aile) RETURNING id';
-      Q.ParamByName('p_aile').AsString := AEntity.Family.Value;
+      Q.SQL.Text := Format('INSERT INTO % (%, %, %) VALUES (:%, :%, :%) RETURNING %',[
+        TTableNameService.TableName(TStkCinsAile),
+        AEntity.Family.FieldName,
+        AEntity.Description.FieldName,
+        AEntity.Active.FieldName,
+        AEntity.Family.AsParamName,
+        AEntity.Description.AsParamName,
+        AEntity.Active.AsParamName,
+        AEntity.Id.FieldName
+      ]);
+      Q.ParamByName(AEntity.Family.AsParamName).AsString := AEntity.Family.Value;
+      Q.ParamByName(AEntity.Description.AsParamName).AsString := AEntity.Description.Value;
+      Q.ParamByName(AEntity.Active.AsParamName).AsBoolean := AEntity.Active.Value;
       Q.Open;
       AEntity.Id.ValueFirstSet(Q.FieldByName('id').AsInteger);
     end
     else
     begin
-      Q.SQL.Text := 'UPDATE ' + TableName + ' SET aile=:p_aile WHERE id=:p_id';
-      Q.ParamByName('p_aile').AsString := AEntity.Family.Value;
-      Q.ParamByName('p_id').AsInteger := AEntity.Id.Value;
+      Q.SQL.Text := Format('UPDATE % SET %, %, % WHERE %', [
+        TTableNameService.TableName(TStkCinsAile),
+        AEntity.Family.FieldName + ':' + AEntity.Family.AsParamName,
+        AEntity.Description.FieldName + ':' + AEntity.Description.AsParamName,
+        AEntity.Active.FieldName + ':' + AEntity.Active.AsParamName,
+        AEntity.Id.FieldName + ':' + AEntity.Id.AsParamName
+      ]);
+      Q.ParamByName(AEntity.Family.AsParamName).AsString := AEntity.Family.Value;
+      Q.ParamByName(AEntity.Description.AsParamName).AsString := AEntity.Description.Value;
+      Q.ParamByName(AEntity.Active.AsParamName).AsBoolean := AEntity.Active.Value;
+      Q.ParamByName(AEntity.Id.AsParamName).AsInteger := AEntity.Id.Value;
       Q.ExecSQL;
     end;
   finally

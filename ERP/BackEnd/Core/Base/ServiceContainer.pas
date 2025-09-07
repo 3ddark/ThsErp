@@ -1,4 +1,4 @@
-unit ServiceContainer;
+ï»¿unit ServiceContainer;
 
 interface
 
@@ -15,7 +15,7 @@ type
 
     function GetStkCinsAileService: IBaseService;
   protected
-    constructor Create; // dýþarýdan çaðrýlamasýn
+    constructor Create;
   public
     destructor Destroy; override;
 
@@ -33,7 +33,7 @@ end;
 
 destructor TServiceContainer.Destroy;
 begin
-  // interface’ler referans sayýmý ile otomatik temizlenecek
+  // interface ler referans sayimi ile otomatik temizlenecek
   inherited;
 end;
 

@@ -6,6 +6,7 @@ uses
   SysUtils, Classes, Types, BaseEntity;
 
 type
+  [TableName('stk_kind_families')]
   TStkCinsAile = class(TEntity)
   private
     FFamily: TEntityField<string>;
@@ -25,7 +26,6 @@ implementation
 constructor TStkCinsAile.Create();
 begin
   inherited;
-  TableName := 'stk_cins_aileleri';
   FFamily := TEntityField<string>.Create(Self, 'family');
   FDescription := TEntityField<string>.Create(Self, 'description');
   FActive := TEntityField<Boolean>.Create(Self, 'active');
