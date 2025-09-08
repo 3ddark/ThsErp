@@ -3,7 +3,7 @@
 interface
 
 uses
-  BaseService, StkCinsAileService;
+  BaseService, StkKindFamilyService, StkKindFamily;
 
 type
   TServiceContainer = class
@@ -11,9 +11,9 @@ type
     class var FInstance: TServiceContainer;
     class var FLock: TObject;
   private
-    FStkCinsAileService: IBaseService;
+    FStkCinsAileService: IBaseService<TStkKindFamily>;
 
-    function GetStkCinsAileService: IBaseService;
+    function GetStkCinsAileService: IBaseService<TStkKindFamily>;
   protected
     constructor Create;
   public
@@ -21,7 +21,7 @@ type
 
     class function Instance: TServiceContainer;
 
-    property StkCinsAileService: IBaseService read GetStkCinsAileService;
+    property StkCinsAileService: IBaseService<TStkKindFamily> read GetStkCinsAileService;
   end;
 
 implementation
@@ -52,10 +52,10 @@ begin
   Result := FInstance;
 end;
 
-function TServiceContainer.GetStkCinsAileService: IBaseService;
+function TServiceContainer.GetStkCinsAileService: IBaseService<TStkKindFamily>;
 begin
   if FStkCinsAileService = nil then
-    FStkCinsAileService := TStkCinsAileService.Create();
+    FStkCinsAileService := TStkKindFamilyService.Create();
   Result := FStkCinsAileService;
 end;
 

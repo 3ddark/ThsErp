@@ -22,7 +22,7 @@ type
 implementation
 
 uses
-  StkCinsAile;
+  StkKindFamily;
 
 {$R *.dfm}
 

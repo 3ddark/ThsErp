@@ -22,7 +22,7 @@ type
 implementation
 
 uses
-  ufrmStkCinsAilesi, StkCinsAileService, StkCinsAile;
+  ufrmStkCinsAilesi, StkKindFamilyService, StkKindFamily;
 
 {$R *.dfm}
 

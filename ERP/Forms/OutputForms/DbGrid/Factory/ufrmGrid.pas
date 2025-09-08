@@ -307,7 +307,7 @@ begin
   FQry.Connection := Service.Uow.Connection;
   FQry.AfterOpen := AfterDatasetOpen;
   FQry.OnFilterRecord := OnFilterDataset;
-  FQry.SQL.Text := 'SELECT * FROM stk_cins_aileleri ';
+  FQry.SQL.Text := AService.CreateQueryForUI('');
 
   FDataSource := TDataSource.Create(Self);
   FDataSource.DataSet := FQry;
@@ -757,7 +757,7 @@ begin
   then
   begin
     if (AFormType = ifmRewiev) or (AFormType = ifmCopyNewRecord) then
-      Service.BusinessSelect('', False, False);
+      Service.BusinessSelect(' AND ' + Table.Id.QryName + '=' + Table.Id.Value.ToString, False, False);
 //      Table.BusinessSelect(Table.Id.FieldName + '=' + Table.Id.Value.ToString, False, False);
     LForm := CreateInputForm(Sender, AFormType);
 //    if Table is TTableDetailed then

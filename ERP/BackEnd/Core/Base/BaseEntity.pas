@@ -73,7 +73,6 @@ type
 
   TEntity = class(TInterfacedObject, IEntity)
   private
-    FTableName: string;
     FId: TEntityField<Integer>;
     FFields: TList<IEntityField>;
     procedure SetField(Index: Integer; const Value: IEntityField);
@@ -98,7 +97,7 @@ type
 
 implementation
 
-uses SharedFormTypes;
+uses SharedFormTypes, TableNameService;
 
 constructor TEntityField<T>.Create(AOwnerEntity: IEntity; AFieldName: string);
 begin
@@ -185,7 +184,15 @@ begin
 end;
 
 destructor TEntity.Destroy;
+var
+  n1: Integer;
 begin
+  for n1 := 0 to Self.Fields.Count-1 do
+  begin
+    if Self.Fields[n1].OwnerEntity <> nil then
+      Self.Fields[n1].OwnerEntity := nil;
+  end;
+
   FreeAndNil(FFields);
 //  FId := nil;
   inherited;
@@ -197,16 +204,17 @@ begin
 end;
 
 function TEntity.TableName: string;
-var
-  ctx: TRttiContext;
-  rType: TRttiType;
-  attr: TCustomAttribute;
+//var
+//  ctx: TRttiContext;
+//  rType: TRttiType;
+//  attr: TCustomAttribute;
 begin
-  Result := '';
-  rType := ctx.GetType(Self.ClassType);
-  for attr in rType.GetAttributes do
-    if attr is TableNameAttribute then
-      Exit(TableNameAttribute(attr).Name);
+  Result := TTableNameService.TableName(Self.ClassType);
+//  Result := '';
+//  rType := ctx.GetType(Self.ClassType);
+//  for attr in rType.GetAttributes do
+//    if attr is TableNameAttribute then
+//      Exit(TableNameAttribute(attr).Name);
 end;
 
 function TEntity.GetField(Index: Integer): IEntityField;

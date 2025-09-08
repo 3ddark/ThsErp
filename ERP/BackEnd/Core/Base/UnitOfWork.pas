@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, FireDAC.Comp.Client, FireDAC.Phys,FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Error,
-  StkCinsAileRepository;
+  StkKindFamilyRepository;
 
 type
   TUnitOfWork = class
@@ -15,9 +15,9 @@ type
   private
     FConnection: TFDConnection;
 
-    FStkCinsAileRepository: TStkCinsAileRepository;
+    FStkCinsAileRepository: TStkKindFamilyRepository;
 
-    function GetStkCinsAileRepository: TStkCinsAileRepository;
+    function GetStkCinsAileRepository: TStkKindFamilyRepository;
     function GetConnection: TFDConnection;
   protected
     constructor Create(AConnection: TFDConnection);
@@ -33,7 +33,7 @@ type
 
     property Connection: TFDConnection read GetConnection;
 
-    property StkCinsAileRepository: TStkCinsAileRepository read GetStkCinsAileRepository;
+    property StkCinsAileRepository: TStkKindFamilyRepository read GetStkCinsAileRepository;
   end;
 
 implementation
@@ -70,11 +70,11 @@ begin
   FInstance.FConnection.Rollback;
 end;
 
-function TUnitOfWork.GetStkCinsAileRepository: TStkCinsAileRepository;
+function TUnitOfWork.GetStkCinsAileRepository: TStkKindFamilyRepository;
 begin
-  if FStkCinsAileRepository = nil then
-    FStkCinsAileRepository := TStkCinsAileRepository.Create(FInstance.FConnection);
-  Result := FStkCinsAileRepository;
+  if Self.FInstance.FStkCinsAileRepository = nil then
+    Self.FInstance.FStkCinsAileRepository := TStkKindFamilyRepository.Create(FInstance.FConnection);
+  Result := Self.FInstance.FStkCinsAileRepository;
 end;
 
 class procedure TUnitOfWork.Initialize(AConnection: TFDConnection);

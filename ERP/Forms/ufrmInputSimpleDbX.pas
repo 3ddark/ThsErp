@@ -87,8 +87,8 @@ uses
   ufrmGrid;
 
 procedure TfrmInputSimpleDbX<TE, TS>.BtnAcceptClick(Sender: TObject);
-var
-  LTable: TEntity;
+//var
+//  LTable: TEntity;
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
@@ -409,8 +409,8 @@ begin
 end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.StatusBarDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect);
-var
-  vIco: Integer;
+//var
+//  vIco: Integer;
 begin
 //  FStatusBase.Canvas.Font.Name := DefaultFontName;
 //  FStatusBase.Canvas.Font.Style := [fsBold];

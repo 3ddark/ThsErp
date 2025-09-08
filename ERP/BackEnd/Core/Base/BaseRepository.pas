@@ -3,11 +3,21 @@
 interface
 
 uses
-  SysUtils, Classes, Types, System.Rtti, System.TypInfo, DB,
-  FireDAC.Comp.Client, FireDAC.Stan.Param;
+  SysUtils, Classes, Types, System.Rtti, System.TypInfo, System.Generics.Collections,
+  DB, FireDAC.Comp.Client, FireDAC.Stan.Param, BaseEntity, TableNameService;
 
 type
-  TBaseRepository<T> = class(TObject)
+  IBaseRepository<T> = interface
+    ['{41099611-B2E2-4851-865D-F5417081E31F}']
+
+    function CreateQueryForUI(const AFilterKey: string): string;
+    function Find(AFilter: string; ALock: Boolean): TList<T>;
+    function FindById(AId: Integer; ALock: Boolean): T;
+    procedure Save(AEntity: T);
+    procedure Delete(AId: Integer);
+  end;
+
+  TBaseRepository<T> = class(TInterfacedObject, IBaseRepository<T>)
   protected
     FConnection: TFDConnection;
     function NewQuery(AOwner: TComponent): TFDQuery;
@@ -16,9 +26,14 @@ type
 
     property Connection: TFDConnection read FConnection;
 
-    function ExistsByField(const AFieldName: string; const AValue: T): Boolean;
+    function CreateQueryForUI(const AFilterKey: string): string; virtual; abstract;
+    function Find(AFilter: string; ALock: Boolean): TList<T>; virtual; abstract;
+    function FindById(AId: Integer; ALock: Boolean): T; virtual; abstract;
+    procedure Save(AEntity: T); virtual; abstract;
+    procedure Delete(AId: Integer); virtual; abstract;
 
-    procedure DeleteById(AId: Integer);
+    function ExistsByField(const AFieldName: string; const AValue: T): Boolean;
+    procedure DeleteById(AId: Integer; ATableName: string);
   end;
 
 implementation
@@ -31,13 +46,13 @@ begin
   FConnection := AConnection;
 end;
 
-procedure TBaseRepository<T>.DeleteById(AId: Integer);
+procedure TBaseRepository<T>.DeleteById(AId: Integer; ATableName: string);
 var
   Q: TFDQuery;
 begin
   Q := NewQuery(nil);
   try
-    Q.SQL.Text := Format('DELETE FROM %s WHERE id = :p_id', ['']);
+    Q.SQL.Text := Format('DELETE FROM %s WHERE id = :%s', [ATableName, 'p_id']);
     Q.ParamByName('p_id').AsInteger := AId;
     Q.ExecSQL;
   finally

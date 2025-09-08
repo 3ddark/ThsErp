@@ -737,20 +737,14 @@
         <DCCReference Include="Forms\ufrmInputSimpleDbX.pas"/>
         <DCCReference Include="BackEnd\Core\Base\UnitOfWork.pas"/>
         <DCCReference Include="BackEnd\Core\Base\QueryBuilder.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\StkCinsAile.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\StkCinsAileRepository.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\StkCinsAileService.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkCinsAileleri.pas">
-            <Form>frmStkCinsAileleri</Form>
+        <DCCReference Include="BackEnd\Core\Base\StkKindFamily.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\StkKindFamilyRepository.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\StkKindFamilyService.pas"/>
+        <DCCReference Include="Forms\ufrmStkKindFamilies.pas">
+            <Form>frmStkKindFamilies</Form>
         </DCCReference>
-        <DCCReference Include="Forms\InputForms\Stock\ufrmStkCinsAilesi.pas">
-            <Form>frmStkCinsAilesi</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\ufrmStkCinsAilelerX.pas">
-            <Form>frmStkCinsAilelerX</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\ufrmStkCinsAileX.pas">
-            <Form>frmStkCinsAileX</Form>
+        <DCCReference Include="Forms\ufrmStkKindFamily.pas">
+            <Form>frmStkKindFamily</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Base\ServiceContainer.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.DialogHelper.pas"/>

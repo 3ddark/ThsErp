@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils, Classes, Types, FireDAC.Comp.Client,
+  SysUtils, Classes, Types, FireDAC.Comp.Client, System.Generics.Collections,
   EntityMetaProvider, UnitOfWork, BaseRepository, BaseEntity;
 
 const
@@ -11,13 +11,19 @@ const
   KeySysParaBirimi = 'SysParaBirimi';
 
 type
-  IBaseService = interface
+  IBaseService<T> = interface
     ['{61C41E30-4D6E-4474-9529-6BE1133F16B2}']
     function GetUnitOfWork: TUnitOfWork;
     property UoW: TUnitOfWork read GetUnitOfWork;
+
+    function CreateQueryForUI(const AFilterKey: string): string;
+    function Find(AFilter: string; ALock: Boolean): TList<T>;
+    function FindById(AId: Integer; ALock: Boolean): T;
+    procedure Save(AEntity: T);
+    procedure Delete(AId: Integer);
   end;
 
-  TBaseService<T> = class(TInterfacedObject, IBaseService)
+  TBaseService<T> = class(TInterfacedObject, IBaseService<T>)
   private
     FUoW: TUnitOfWork;
     function GetUnitOfWork: TUnitOfWork;
@@ -29,6 +35,12 @@ type
     destructor Destroy; override;
 
     property UoW: TUnitOfWork read GetUnitOfWork;
+
+    function CreateQueryForUI(const AFilterKey: string): string; virtual; abstract;
+    function Find(AFilter: string; ALock: Boolean): TList<T>; virtual; abstract;
+    function FindById(AId: Integer; ALock: Boolean): T; virtual; abstract;
+    procedure Save(AEntity: T); virtual; abstract;
+    procedure Delete(AId: Integer); virtual; abstract;
 
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); virtual;
     procedure BusinessInsert(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual;

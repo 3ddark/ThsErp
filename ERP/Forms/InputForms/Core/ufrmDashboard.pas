@@ -16,7 +16,7 @@ uses
   Ths.Database.TableDetailed, Ths.Database.Table,
 
   ufrmGrid, BaseService, BaseRepository, BaseEntity, ServiceContainer, UnitOfWork,
-  StkCinsAileService, StkCinsAile, ufrmStkCinsAilelerX;
+  StkKindFamilyService, StkKindFamily, ufrmStkKindFamilies;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -785,7 +785,7 @@ end;
 
 procedure TfrmDashboard.btnTestClick(Sender: TObject);
 begin
-  TfrmStkCinsAilelerX.Create(Self, TServiceContainer.Instance.StkCinsAileService as TStkCinsAileService, TStkCinsAile.Create).Show;
+  TfrmStkKindFamilies.Create(Self, TServiceContainer.Instance.StkCinsAileService as TStkKindFamilyService, TStkKindFamily.Create).Show;
 end;
 
 procedure TfrmDashboard.tmrcheck_is_update_requiredTimer(Sender: TObject);
