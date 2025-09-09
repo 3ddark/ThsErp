@@ -15,10 +15,10 @@ type
     tsMain: TTabSheet;
     lblaile: TLabel;
     edtfamily: TEdit;
-    mmodescription: TMemo;
-    chkactive: TCheckBox;
     lbldescription: TLabel;
     lblactive: TLabel;
+    mmodescription: TMemo;
+    chkactive: TCheckBox;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   private

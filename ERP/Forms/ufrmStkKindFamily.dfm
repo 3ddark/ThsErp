@@ -2,7 +2,7 @@ object frmStkKindFamily: TfrmStkKindFamily
   Left = 0
   Top = 0
   Caption = 'frmStkKindFamily'
-  ClientHeight = 189
+  ClientHeight = 232
   ClientWidth = 463
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,13 +17,13 @@ object frmStkKindFamily: TfrmStkKindFamily
     Left = 0
     Top = 0
     Width = 463
-    Height = 189
+    Height = 232
     ActivePage = tsMain
     Align = alClient
     TabOrder = 0
     TabStop = False
-    ExplicitWidth = 315
-    ExplicitHeight = 66
+    ExplicitWidth = 461
+    ExplicitHeight = 181
     object tsMain: TTabSheet
       Caption = 'Genel'
       object lblaile: TLabel
@@ -81,23 +81,20 @@ object frmStkKindFamily: TfrmStkKindFamily
         Height = 23
         TabOrder = 0
       end
+      object mmodescription: TMemo
+        Left = 92
+        Top = 27
+        Width = 333
+        Height = 89
+        TabOrder = 1
+      end
+      object chkactive: TCheckBox
+        Left = 92
+        Top = 124
+        Width = 97
+        Height = 17
+        TabOrder = 2
+      end
     end
-  end
-  object mmodescription: TMemo
-    Left = 96
-    Top = 58
-    Width = 333
-    Height = 89
-    Lines.Strings = (
-      'mmodescription')
-    TabOrder = 1
-  end
-  object chkactive: TCheckBox
-    Left = 96
-    Top = 153
-    Width = 97
-    Height = 17
-    Caption = 'chkactive'
-    TabOrder = 2
   end
 end
