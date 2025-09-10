@@ -49,6 +49,12 @@ var
   FieldMetaList: TList<TFieldMeta>;
   FM: TFieldMeta;
 begin
+  if FFieldMetaCache.ContainsKey(TableName) then
+  begin
+    FFieldMetaCache.TryGetValue(TableName, Result);
+    Exit;
+  end;
+
   FieldMetaList := TList<TFieldMeta>.Create;
   try
     MIQuery := TFDMetaInfoQuery.Create(nil);
@@ -59,9 +65,10 @@ begin
       MIQuery.Open;
       while not MIQuery.Eof do
       begin
+        MIQuery.Fields.fFields[0].Required
         FM.FieldName   := MIQuery.FieldByName('COLUMN_NAME').AsString;
         FM.Required    := MIQuery.FieldByName('NULLABLE').AsInteger = 0;
-        FM.MaxLength   := MIQuery.FieldByName('COLUMN_SIZE').AsInteger;
+        FM.MaxLength   := MIQuery.FieldByName('COLUMN_LENGTH').AsInteger;
         FM.DataTypeName := MIQuery.FieldByName('COLUMN_TYPENAME').AsString;
         FM.DataTypeInt := MIQuery.FieldByName('COLUMN_DATATYPE').AsInteger;
 
@@ -73,6 +80,7 @@ begin
     end;
 
     Result := FieldMetaList.ToArray;
+    FFieldMetaCache.Add(TableName, Result);
   finally
     FieldMetaList.Free;
   end;

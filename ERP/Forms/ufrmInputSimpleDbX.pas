@@ -3,13 +3,13 @@
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.Classes, System.Math,
+  Winapi.Windows, Winapi.Messages, System.Classes, System.Math, System.SysUtils,
   Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd,
   Vcl.DBGrids, Vcl.Samples.Spin,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  Ths.DialogHelper,
-  BaseEntity, BaseService, SharedFormTypes;
+  Ths.DialogHelper, Ths.Globals,
+  BaseEntity, BaseService, EntityMetaProvider, SharedFormTypes;
 
 type
   TfrmInputSimpleDbX<TE: TEntity; TS: TBaseService<TE>> = class(TForm)
@@ -31,6 +31,9 @@ type
     FBtnDelete: TButton;
     procedure SetService(const Value: TS);
     procedure SetTable(const Value: TE);
+    function ValidateSubControls(Sender: TWinControl; out AControlName: string): Boolean;
+  protected
+    procedure SetControlsDisabledOrEnabled(AContainerControl: TWinControl = nil; ADisable: Boolean = True);
   public
     property Service: TS read FService write SetService;
     property Table: TE read FTable write SetTable;
@@ -71,6 +74,7 @@ type
     procedure RefreshDataAuto; virtual;
     procedure RefreshData; virtual;
     procedure StatusBarAddPanel(AWidth: Integer; AStyle: TStatusPanelStyle);
+    function ValidateInput(AContainerControl: TWinControl = nil): Boolean; virtual;
 
     procedure PrepareForm;
     procedure CreatePanelMain;
@@ -91,6 +95,9 @@ procedure TfrmInputSimpleDbX<TE, TS>.BtnAcceptClick(Sender: TObject);
 //var
 //  LTable: TEntity;
 begin
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
+    ValidateInput(PanelMain);
+
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
     try
@@ -186,17 +193,17 @@ end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.BtnDeleteClick(Sender: TObject);
 begin
-//
+  ShowMessage('not implemented yet');
 end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.BtnSpinDownClick(Sender: TObject);
 begin
-
+  ShowMessage('not implemented yet');
 end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.BtnSpinUpClick(Sender: TObject);
 begin
-
+  ShowMessage('not implemented yet');
 end;
 
 constructor TfrmInputSimpleDbX<TE, TS>.Create(AOwner: TComponent; AService: TS; ATable: TE; AFormMode: TInputFormMode; ARefreshGridEvent: TAfterCrudRefreshGrid);
@@ -262,7 +269,7 @@ begin
   BtnDelete.Parent := PanelFooter;
   BtnDelete.TabOrder := 1;
   BtnDelete.Caption := 'Sil';
-  BtnDelete.OnClick := BtnAcceptClick;
+  BtnDelete.OnClick := BtnDeleteClick;
   BtnDelete.Align := alLeft;
 end;
 
@@ -338,10 +345,28 @@ begin
 end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.FormKeyPress(Sender: TObject; var Key: Char);
+var
+  LPrevKey: SmallInt;
 begin
-  if Key = Chr(VK_ESCAPE) then
-  begin
-    Self.Close;
+  case Key of
+    Char(VK_ESCAPE): Self.Close;
+    Char(VK_RETURN):
+      begin
+        Key := #0;
+        if (Sender is TWinControl) then
+        begin
+          if  (Sender.ClassType <> TEdit)
+          and (Sender.ClassType <> TMemo)
+          and (Sender.ClassType <> TCombobox)
+          then
+          begin
+            if GetKeyState(VK_SHIFT) < 0 then LPrevKey := 1 else LPrevKey := 0;
+            PostMessage((Sender as TWinControl).Handle, WM_NEXTDLGCTL, LPrevKey, 0);
+          end;
+        end;
+      end;
+  else
+    inherited;
   end;
 end;
 
@@ -355,8 +380,17 @@ begin
   BtnAccept.Visible := False;
   BtnAccept.Visible := True;
 
+  TEntityMetaProvider.GetFieldMeta(Table.TableName);
+
   if (FormMode <> ifmNewRecord ) then
+  begin
     RefreshData;
+  end;
+
+  if (Self.FormMode = ifmRewiev)
+  or (Self.FormMode = ifmReadOnly)
+  then
+    SetControlsDisabledOrEnabled(PgcBase, True);
 
   Repaint;
 end;
@@ -409,6 +443,52 @@ begin
     FRefreshGridEvent(AFocusSelectedItem);
 end;
 
+procedure TfrmInputSimpleDbX<TE, TS>.SetControlsDisabledOrEnabled(AContainerControl: TWinControl; ADisable: Boolean);
+var
+  n1: Integer;
+  LPanelContainer: TWinControl;
+begin
+  LPanelContainer := nil;
+
+  if AContainerControl = nil then
+    LPanelContainer := PanelMain
+  else
+  begin
+    if AContainerControl.ClassType = TPanel then
+      LPanelContainer := AContainerControl as TPanel
+    else if AContainerControl.ClassType = TGroupBox then
+      LPanelContainer := AContainerControl as TGroupBox
+    else if AContainerControl.ClassType = TPageControl then
+      LPanelContainer := AContainerControl as TPageControl
+    else if AContainerControl.ClassType = TTabSheet then
+      LPanelContainer := AContainerControl as TTabSheet;
+  end;
+
+  for n1 := 0 to LPanelContainer.ControlCount-1 do
+  begin
+    if LPanelContainer.Controls[n1].ClassType = TPanel then
+      SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TPanel, ADisable)
+    else if LPanelContainer.Controls[n1].ClassType = TGroupBox then
+      SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TGroupBox, ADisable)
+    else if LPanelContainer.Controls[n1].ClassType = TPageControl then
+      SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TPageControl, ADisable)
+    else if LPanelContainer.Controls[n1].ClassType = TTabSheet then
+      SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TTabSheet, ADisable)
+    else if LPanelContainer.Controls[n1].ClassType = TEdit then
+      TEdit(LPanelContainer.Controls[n1]).ReadOnly := ADisable
+    else if LPanelContainer.Controls[n1].ClassType = TComboBox then
+      TComboBox(LPanelContainer.Controls[n1]).Enabled := (ADisable = False)
+    else if LPanelContainer.Controls[n1].ClassType = TMemo then
+      TMemo(LPanelContainer.Controls[n1]).ReadOnly := ADisable
+    else if LPanelContainer.Controls[n1].ClassType = TCheckBox then
+      TCheckBox(LPanelContainer.Controls[n1]).Enabled := (ADisable = False)
+    else if LPanelContainer.Controls[n1].ClassType = TRadioGroup then
+      TRadioGroup(LPanelContainer.Controls[n1]).Enabled := (ADisable = False)
+    else if LPanelContainer.Controls[n1].ClassType = TRadioButton then
+      TRadioButton(LPanelContainer.Controls[n1]).Enabled := (ADisable = False);
+  end;
+end;
+
 procedure TfrmInputSimpleDbX<TE, TS>.SetService(const Value: TS);
 begin
   FService := Value;
@@ -452,6 +532,127 @@ begin
 //    dm.il16.Draw(StatusBar.Canvas, Rect.Left, Rect.Top, vIco);
 //    Panel.Width := FStatusBase.Canvas.TextWidth(Panel.Text)+ dm.il16.Width + 16;
 //  end;
+end;
+
+function TfrmInputSimpleDbX<TE, TS>.ValidateInput(AContainerControl: TWinControl): Boolean;
+var
+  nIndex, nIndex2, nProcessCount: Integer;
+  LPanelContainer: TWinControl;
+  LControlName: string;
+begin
+  nProcessCount := 0;
+  nProcessCount := nProcessCount + 1;
+  Result := true;
+  LPanelContainer := nil;
+
+  if AContainerControl = nil then
+    LPanelContainer := PanelMain
+  else begin
+    if AContainerControl.ClassType = TPanel then
+      LPanelContainer := AContainerControl as TPanel
+    else if AContainerControl.ClassType = TGroupBox then
+      LPanelContainer := AContainerControl as TGroupBox
+    else if AContainerControl.ClassType = TPageControl then
+      LPanelContainer := AContainerControl as TPageControl
+    else if AContainerControl.ClassType = TTabSheet then
+      LPanelContainer := AContainerControl as TTabSheet;
+  end;
+
+  if (FormMode=ifmUpdate) or (FormMode=ifmNewRecord) or (FormMode=ifmCopyNewRecord) then begin
+    for nIndex := 0 to LPanelContainer.ControlCount -1 do begin
+      if LPanelContainer.Controls[nIndex].ClassType = TPanel then
+        Result := ValidateSubControls(LPanelContainer.Controls[nIndex] as TPanel, LControlName)
+      else if LPanelContainer.Controls[nIndex].ClassType = TGroupBox then
+        Result := ValidateSubControls(LPanelContainer.Controls[nIndex] as TGroupBox, LControlName)
+      else if LPanelContainer.Controls[nIndex].ClassType = TPageControl then
+      begin
+        for nIndex2 := 0 to (LPanelContainer.Controls[nIndex] as TPageControl).PageCount-1 do
+        begin
+          Result := ValidateSubControls((LPanelContainer.Controls[nIndex] as TPageControl).Pages[nIndex2], LControlName);
+          if not Result then
+            Break;
+        end;
+      end
+      else if LPanelContainer.Controls[nIndex].ClassType = TTabSheet then
+        Result := ValidateSubControls(LPanelContainer.Controls[nIndex] as TTabSheet, LControlName)
+      else if LPanelContainer.Controls[nIndex].ClassType = TEdit then
+        Result := ValidateSubControls(TEdit(LPanelContainer.Controls[nIndex]), LControlName)
+      else if LPanelContainer.Controls[nIndex].ClassType = TMemo then
+        Result := ValidateSubControls(TMemo(LPanelContainer.Controls[nIndex]), LControlName)
+      else if LPanelContainer.Controls[nIndex].ClassType = TCombobox then
+        Result := ValidateSubControls(TCombobox(LPanelContainer.Controls[nIndex]), LControlName);
+
+      if not Result then
+        Break;
+    end;
+  end;
+
+  if (nProcessCount = 1) then
+  begin
+    Repaint;
+    if (not Result) then
+      raise Exception.Create('Zorunlu alanlar boş olamaz. Kırmızı renkli girişler zorunludur.' + AddLBs(3) + LControlName);
+  end;
+end;
+
+function TfrmInputSimpleDbX<TE, TS>.ValidateSubControls(Sender: TWinControl; out AControlName: string): Boolean;
+var
+  n1: Integer;
+begin
+    Result := True;
+    if Sender.Visible then
+    begin
+      AControlName := Sender.Name;
+      if (Sender.ClassType = TEdit)
+      or (Sender.ClassType = TMemo)
+      or (Sender.ClassType = TCombobox) then begin
+        if Sender.ClassType = TEdit then begin
+          if (TEdit(Sender).thsRequiredData) then
+            if (TEdit(Sender).Text = '') then begin
+              Result := False;
+              TEdit(Sender).Repaint;
+            end;
+        end else if Sender.ClassType = TMemo then begin
+          if (TMemo(Sender).thsRequiredData) then
+            if (TMemo(Sender).Text = '') then begin
+              Result := False;
+              TMemo(Sender).Repaint;
+            end;
+        end else if Sender.ClassType = TCombobox then begin
+          if (TCombobox(Sender).thsRequiredData) then
+            if (TCombobox(Sender).Text  = '') then begin
+              Result := False;
+              TCombobox(Sender).Repaint;
+            end;
+        end;
+      end else begin
+        for n1 := 0 to Sender.ControlCount -1 do begin
+          AControlName := Sender.Controls[n1].Name;
+          if Sender.Controls[n1].ClassType = TEdit then begin
+            if (TEdit(Sender.Controls[n1]).thsRequiredData) then
+              if (TEdit(Sender.Controls[n1]).Text = '') then begin
+                Result := False;
+                TEdit(Sender.Controls[n1]).Repaint;
+                Break;
+              end;
+          end else if Sender.Controls[n1].ClassType = TMemo then begin
+            if (TMemo(Sender.Controls[n1]).thsRequiredData) then
+              if (TMemo(Sender.Controls[n1]).Text = '') then begin
+                Result := False;
+                TMemo(Sender.Controls[n1]).Repaint;
+                Break;
+              end;
+          end else if Sender.Controls[n1].ClassType = TCombobox then begin
+            if (TCombobox(Sender.Controls[n1]).thsRequiredData) then
+              if (TCombobox(Sender.Controls[n1]).Text  = '') then begin
+                Result := False;
+                TCombobox(Sender.Controls[n1]).Repaint;
+                Break;
+              end;
+          end;
+        end;
+      end;
+    end;
 end;
 
 end.

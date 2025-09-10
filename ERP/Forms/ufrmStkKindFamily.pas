@@ -6,8 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.StdCtrls, Vcl.ComCtrls, ufrmInputSimpleDbX, SharedFormTypes,
-  StkKindFamilyService, StkKindFamily, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  Ths.Helper.ComboBox;
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
+  StkKindFamilyService, StkKindFamily;
 
 type
   TfrmStkKindFamily = class(TfrmInputSimpleDbX<TStkKindFamily, TStkKindFamilyService>)
@@ -42,13 +42,16 @@ end;
 procedure TfrmStkKindFamily.FormCreate(Sender: TObject);
 begin
   inherited;
+
+  pgcMain.Parent := PanelMain;
+  PgcBase := pgcMain;
+
   edtfamily.CharCase := TEditCharCase.ecUpperCase;
 end;
 
 procedure TfrmStkKindFamily.FormShow(Sender: TObject);
 begin
   inherited;
-  pgcMain.Parent := PanelMain;
 
   Self.Caption := 'Stk Cins Aile Input';
 

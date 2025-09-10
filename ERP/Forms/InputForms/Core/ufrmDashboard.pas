@@ -16,7 +16,7 @@ uses
   Ths.Database.TableDetailed, Ths.Database.Table,
 
   ufrmGrid, BaseService, BaseRepository, BaseEntity, ServiceContainer, UnitOfWork,
-  StkKindFamilyService, StkKindFamily, ufrmStkKindFamilies;
+  StkKindFamilyService, StkKindFamily, EntityMetaProvider, ufrmStkKindFamilies;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -1091,6 +1091,7 @@ begin
   SetSession();
   FIsFormShow := False;
 
+  TEntityMetaProvider.SetConnection(GDataBase.Connection);
   TUnitOfWork.Initialize(GDataBase.Connection);
 end;
 

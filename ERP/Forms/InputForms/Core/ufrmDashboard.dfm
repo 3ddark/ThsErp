@@ -16,7 +16,7 @@ inherited frmDashboard: TfrmDashboard
   StyleElements = [seFont, seClient, seBorder]
   OnActivate = FormActivate
   ExplicitWidth = 931
-  ExplicitHeight = 509
+  ExplicitHeight = 514
   TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
@@ -28,6 +28,7 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
+    ExplicitWidth = 913
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
@@ -57,22 +58,22 @@ inherited frmDashboard: TfrmDashboard
     ParentBackground = False
     TabOrder = 2
     StyleElements = [seFont, seClient, seBorder]
-    ExplicitTop = 402
-    ExplicitWidth = 911
+    ExplicitTop = 394
+    ExplicitWidth = 909
     inherited btnAccept: TButton
       Left = 705
-      ExplicitLeft = 705
+      ExplicitLeft = 703
     end
     inherited btnClose: TButton
       Left = 809
-      ExplicitLeft = 809
+      ExplicitLeft = 807
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 432
     Width = 915
-    ExplicitTop = 432
-    ExplicitWidth = 915
+    ExplicitTop = 424
+    ExplicitWidth = 913
   end
   inherited pnlMain: TPanel [3]
     Top = 40
@@ -81,8 +82,8 @@ inherited frmDashboard: TfrmDashboard
     TabOrder = 1
     StyleElements = [seFont, seClient, seBorder]
     ExplicitTop = 40
-    ExplicitWidth = 915
-    ExplicitHeight = 360
+    ExplicitWidth = 913
+    ExplicitHeight = 352
     object PageControl1: TPageControl
       Left = 0
       Top = 0
@@ -92,6 +93,8 @@ inherited frmDashboard: TfrmDashboard
       Align = alClient
       MultiLine = True
       TabOrder = 0
+      ExplicitWidth = 913
+      ExplicitHeight = 352
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton
