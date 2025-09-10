@@ -22,8 +22,6 @@ object frmStkKindFamily: TfrmStkKindFamily
     Align = alClient
     TabOrder = 0
     TabStop = False
-    ExplicitWidth = 461
-    ExplicitHeight = 181
     object tsMain: TTabSheet
       Caption = 'Genel'
       object lblaile: TLabel

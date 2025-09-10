@@ -60,8 +60,6 @@ type
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
     //***status bar***
     procedure StatusBarDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect);
-    procedure StatusBarAddPanel(AWidth: Integer; AStyle: TStatusPanelStyle);
-
     //***footer button events***
     procedure BtnSpinDownClick(Sender: TObject); virtual;
     procedure BtnSpinUpClick(Sender: TObject); virtual;
@@ -70,6 +68,9 @@ type
     procedure BtnDeleteClick(Sender: TObject); virtual;
 
     procedure RefreshParentGrid(AFocusSelectedItem: Boolean);
+    procedure RefreshDataAuto; virtual;
+    procedure RefreshData; virtual;
+    procedure StatusBarAddPanel(AWidth: Integer; AStyle: TStatusPanelStyle);
 
     procedure PrepareForm;
     procedure CreatePanelMain;
@@ -353,6 +354,11 @@ procedure TfrmInputSimpleDbX<TE, TS>.FormShow(Sender: TObject);
 begin
   BtnAccept.Visible := False;
   BtnAccept.Visible := True;
+
+  if (FormMode <> ifmNewRecord ) then
+    RefreshData;
+
+  Repaint;
 end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.PrepareForm;
@@ -385,6 +391,16 @@ begin
   FStatusBase.Parent := Self;
   FStatusBase.OnDrawPanel := StatusBarDrawPanel;
   FStatusBase.Font.Size := 8;
+end;
+
+procedure TfrmInputSimpleDbX<TE, TS>.RefreshData;
+begin
+  RefreshDataAuto;
+end;
+
+procedure TfrmInputSimpleDbX<TE, TS>.RefreshDataAuto;
+begin
+//
 end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.RefreshParentGrid(AFocusSelectedItem: Boolean);

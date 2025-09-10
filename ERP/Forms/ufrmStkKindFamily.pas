@@ -21,10 +21,10 @@ type
     chkactive: TCheckBox;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
-  private
   published
     procedure BtnAcceptClick(Sender: TObject); override;
   public
+    procedure RefreshData; override;
   end;
 
 implementation
@@ -53,6 +53,14 @@ begin
   Self.Caption := 'Stk Cins Aile Input';
 
   edtfamily.SetFocus;
+end;
+
+procedure TfrmStkKindFamily.RefreshData;
+begin
+  inherited;
+  edtfamily.Text := Table.Family.Value;
+  mmodescription.Lines.Text := Table.Description.Value;
+  chkactive.Checked := Table.Active.Value;
 end;
 
 end.

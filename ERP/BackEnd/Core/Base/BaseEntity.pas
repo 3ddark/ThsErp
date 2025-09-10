@@ -79,6 +79,7 @@ type
     function GetField(Index: Integer): IEntityField;
     function GetFields: TList<IEntityField>;
     procedure SetFields(const Value: TList<IEntityField>);
+    function CallCreateMethod<T>: T;
   public
     property Id: TEntityField<Integer> read FId write FId;
     property Field[Index: Integer]: IEntityField read GetField write SetField; default;
@@ -92,7 +93,7 @@ type
     function GetFieldByName(AFieldName: string): IEntityField;
 
     procedure ClearEntity<T: class>(ASrc: T);
-    function CloneEntity<T: class>(ASrc: T): T;
+    function CloneEntity<T: TEntity, constructor>(ASrc: T): T;
   end;
 
 implementation
@@ -282,41 +283,82 @@ end;
 
 function TEntity.CloneEntity<T>(ASrc: T): T;
 var
-  ctx: TRttiContext;
-  rtti: TRttiType;
-  prop: TRttiProperty;
-  val, destVal: TValue;
-  fldSrc, fldDst: TObject;
-  fieldProp: TRttiProperty;
+  SrcField: IEntityField;
+  DestField: IEntityField;
+  RttiContext: TRttiContext;
+  RttiTypeSrcField: TRttiType;
+  RttiPropValue: TRttiProperty;
+  RttiPropOldValue: TRttiProperty;
+  ValueTValue: TValue;
+  OldValueTValue: TValue;
 begin
-  Result := ASrc.ClassType.Create as T;
-  ctx := TRttiContext.Create;
-  try
-    rtti := ctx.GetType(ASrc.ClassType);
-    for prop in rtti.GetProperties do
+  Result := CallCreateMethod<T>;
+
+  for SrcField in ASrc.Fields do
+  begin
+    // 3. Hedef varlýkta (Result) eþleþen alaný, alan adýna göre bul.
+    DestField := Result.GetFieldByName(SrcField.FieldName);
+
+    if Assigned(DestField) then
     begin
-      if prop.PropertyType.TypeKind = tkClass then
+      // 4. Kaynak alanýn (SrcField) somut tipini RTTI ile al.
+      // SrcField bir IEntityField arayüzü olduðu için, AsObject ile TObject olarak eriþilir.
+      RttiTypeSrcField := RttiContext.GetType((SrcField as tobject).ClassType);
+
+      // 5. 'Value' ve 'OldValue' özelliklerinin RTTI tanýmlarýný al.
+      // Bu özellikler TEntityField<T> sýnýfýnda tanýmlýdýr.
+      RttiPropValue := RttiTypeSrcField.GetProperty('Value');
+      RttiPropOldValue := RttiTypeSrcField.GetProperty('OldValue');
+
+      if Assigned(RttiPropValue) and Assigned(RttiPropOldValue) then
       begin
-        val := prop.GetValue(@ASrc);
-        fldSrc := val.AsObject;
-        fldDst := prop.GetValue(@Result).AsObject;
-        if (fldSrc <> nil) and fldSrc.ClassName.StartsWith('TEntityField<') then
-        begin
-          fieldProp := ctx.GetType(fldSrc.ClassType).GetProperty('Value');
-          if Assigned(fieldProp) then
-          begin
-            destVal := fieldProp.GetValue(fldSrc);
-            fieldProp.SetValue(fldDst, destVal);
-          end;
-        end;
+        // 6. Kaynak alandan (SrcField) 'Value' ve 'OldValue' deðerlerini oku.
+        ValueTValue := RttiPropValue.GetValue(SrcField As tObject);
+        OldValueTValue := RttiPropOldValue.GetValue(SrcField as tObject);
+
+        // 7. Hedef alana (DestField) 'Value' ve 'OldValue' deðerlerini yaz.
+        // SetValue metodlarý da bir TObject örneði bekler.
+        RttiPropValue.SetValue(DestField As tObject, ValueTValue);
+        RttiPropOldValue.SetValue(DestField as tObject, OldValueTValue);
       end;
     end;
-  finally
-    ctx.Free;
   end;
 end;
 
-{ TableNameAttribute }
+function TEntity.CallCreateMethod<T>: T;
+var
+  rC: TRttiContext;
+  rT: TRttiType;
+  rM: TRttiMethod;
+  n1: Integer;
+  rPrms: TArray<TRttiParameter>;
+  rParams: TArray<TValue>;
+begin
+  rT := rC.GetType(TypeInfo(T));
+  rM := rT.GetMethod('Create');
+  rPrms := rM.GetParameters;
+  SetLength(rParams, Length(rPrms));
+  for n1 := 0 to Length(rPrms) - 1 do
+  begin
+    case rPrms[n1].ParamType.TypeKind of
+      tkClass:
+        rParams[n1] := TValue.From<TObject>(nil);
+      tkString, tkLString:
+        rParams[n1] := TValue.From<string>('');
+      tkUString:
+        rParams[n1] := TValue.From<UnicodeString>('');
+      tkWideString:
+        rParams[n1] := TValue.From<UnicodeString>('');
+      tkInteger, tkInt64:
+        rParams[n1] := TValue.From<Integer>(0);
+      tkFloat:
+        rParams[n1] := TValue.From<Double>(0);
+    end;
+  end;
+
+//  if rM.IsConstructor then
+    Result := rM.Invoke(rT.AsInstance.MetaclassType, rParams).AsType<T>;
+end;
 
 constructor TableNameAttribute.Create(const AName: string);
 begin

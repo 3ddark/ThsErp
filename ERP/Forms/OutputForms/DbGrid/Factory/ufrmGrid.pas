@@ -751,14 +751,21 @@ end;
 procedure TfrmGrid<TE, TS>.ShowInputForm(Sender: TObject; AFormType: TInputFormMode);
 var
   LForm: TForm;
+  LOldTable: TE;
+  n1: Integer;
 begin
   if (AFormType = ifmRewiev)
   or ((not FQry.Connection.InTransaction) and ((AFormType = ifmNewRecord) or (AFormType = ifmCopyNewRecord)))
   then
   begin
     if (AFormType = ifmRewiev) or (AFormType = ifmCopyNewRecord) then
-      Service.BusinessSelect(' AND ' + Table.Id.QryName + '=' + Table.Id.Value.ToString, False, False);
-//      Table.BusinessSelect(Table.Id.FieldName + '=' + Table.Id.Value.ToString, False, False);
+    begin
+      LOldTable := Table;
+      Table := Service.FindById(Table.Id.Value, False);
+      for n1 := 0 to LOldTable.fields.Count-1 do
+        LOldTable.fields[n1].OwnerEntity := nil;
+    end;
+
     LForm := CreateInputForm(Sender, AFormType);
 //    if Table is TTableDetailed then
 //      PTable.FreeDetayListContent;

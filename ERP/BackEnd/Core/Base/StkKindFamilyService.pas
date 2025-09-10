@@ -30,7 +30,12 @@ implementation
 
 procedure TStkKindFamilyService.BusinessDelete(AEntity: TStkKindFamily; APermissionControl: Boolean);
 begin
-//
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
+
+  Self.UoW.StkCinsAileRepository.Delete(AEntity.Id.Value);
 end;
 
 procedure TStkKindFamilyService.BusinessInsert(AEntity: TStkKindFamily; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -80,12 +85,22 @@ end;
 
 procedure TStkKindFamilyService.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
 begin
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
+
   Self.UoW.StkCinsAileRepository.Find(AFilter, ALock);
 end;
 
 procedure TStkKindFamilyService.BusinessUpdate(AEntity: TStkKindFamily; APermissionControl: Boolean);
 begin
-//
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
+
+  Self.UoW.StkCinsAileRepository.Save(AEntity)
 end;
 
 constructor TStkKindFamilyService.Create;
@@ -111,17 +126,17 @@ end;
 
 function TStkKindFamilyService.Find(AFilter: string; ALock: Boolean): TList<TStkKindFamily>;
 begin
-  Result := Self.Find(AFilter, ALock);
+  Result := Self.Uow.StkCinsAileRepository.Find(AFilter, ALock);
 end;
 
 function TStkKindFamilyService.FindById(AId: Integer; ALock: Boolean): TStkKindFamily;
 begin
-  Result := Self.FindById(AId, ALock);
+  Result := Self.Uow.StkCinsAileRepository.FindById(AId, ALock);
 end;
 
 procedure TStkKindFamilyService.Save(AEntity: TStkKindFamily);
 begin
-  Self.Save(AEntity);
+  Self.Uow.StkCinsAileRepository.Save(AEntity);
 end;
 
 end.
