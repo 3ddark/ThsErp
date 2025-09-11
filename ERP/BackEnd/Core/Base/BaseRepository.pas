@@ -25,7 +25,6 @@ type
     function CreateQueryForUI(const AFilterKey: string): string; virtual; abstract;
     function Find(AFilter: string; ALock: Boolean): TList<T>; virtual; abstract;
     function FindById(AId: Integer; ALock: Boolean): T; virtual; abstract;
-    procedure Save(AEntity: T); virtual; abstract;
 
     function ExistsByField(const AFieldName: string; const AValue: T): Boolean;
     procedure DeleteById(AId: Integer; ATableName: string);
@@ -51,7 +50,7 @@ var
   LTableName, LFieldNames, LParams: string;
   n1: Integer;
 begin
-  if AModel.Fields.Count = 0 then
+  if AModel.Fields.Count < 2 then
     Exit;
 
   if AModel.Id.Value > 0 then
@@ -65,25 +64,37 @@ begin
     LParams := '';
     for n1 := 0 to AModel.Fields.Count-1 do
     begin
-      LFieldNames := LFieldNames + AModel.Fields[n1].FieldName + ',';
-      LParams := LParams + ':' + AModel.Fields[n1].AsString + ',';
+      if AModel.Fields[n1].FieldName <> 'id' then
+      begin
+        LFieldNames := LFieldNames + AModel.Fields[n1].FieldName + ',';
+        LParams := LParams + ':' + AModel.Fields[n1].FieldName + ',';
+      end;
     end;
-
     LFieldNames := Trim(LFieldNames);
     LFieldNames := LeftStr(LFieldNames, Length(LFieldNames)-1);
 
     LParams := Trim(LParams);
     LParams := LeftStr(LParams, Length(LParams)-1);
 
-    Q.SQL.Text := Format('INSERT INTO %s (' + LFieldNames + ') VALUES (' + LParams + ') RETURNING %s',[
-      LTableName,
-      AModel.Id.FieldName
-    ]);
-    Q.ParamByName(AEntity.Family.AsParamName).AsString := AEntity.Family.Value;
-    Q.ParamByName(AEntity.Description.AsParamName).AsString := AEntity.Description.Value;
-    Q.ParamByName(AEntity.Active.AsParamName).AsBoolean := AEntity.Active.Value;
+    Q.SQL.Text := Format('INSERT INTO %s (' + LFieldNames + ') VALUES (' + LParams + ') RETURNING %s', [LTableName, AModel.Id.FieldName]);
+
+    for n1 := 0 to AModel.Fields.Count-1 do
+    begin
+      if AModel.Fields.Items[n1].FieldName = 'id' then
+        Continue;
+
+      case AModel.Fields.Items[n1].FieldType of
+        ftString: Q.ParamByName(AModel.Fields.Items[n1].FieldName).AsString := AModel.Fields.Items[n1].AsString;
+        ftInteger: Q.ParamByName(AModel.Fields.Items[n1].FieldName).AsInteger := AModel.Fields.Items[n1].AsInteger;
+        ftLargeint: Q.ParamByName(AModel.Fields.Items[n1].FieldName).AsLargeInt := AModel.Fields.Items[n1].AsInt64;
+        ftFloat: Q.ParamByName(AModel.Fields.Items[n1].FieldName).AsFloat := AModel.Fields.Items[n1].AsFloat;
+        ftBoolean: Q.ParamByName(AModel.Fields.Items[n1].FieldName).AsBoolean := AModel.Fields.Items[n1].AsBoolean;
+      else
+      end;
+    end;
+
     Q.Open;
-    AEntity.Id.ValueFirstSet(Q.FieldByName('id').AsInteger);
+    AModel.Id.ValueFirstSet(Q.FieldByName('id').AsInteger);
   finally
     Q.Free;
   end;
@@ -94,7 +105,7 @@ var
   AModel: T;
 begin
   for AModel in AModels do
-    Self.Save(AModel);
+    Self.Add(AModel);
 end;
 
 constructor TBaseRepository<T>.Create(AConnection: TFDConnection);

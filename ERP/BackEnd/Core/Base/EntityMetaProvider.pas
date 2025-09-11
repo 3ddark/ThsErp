@@ -42,11 +42,11 @@ begin
     Exit;
   end;
 
-  FieldMetaList := TList<TSysViewColumn>.Create;
-  try
-    LSysViewColumn := TSysViewColumn.Create;
-    try
-//      TServiceContainer.Instance.
+//  FieldMetaList := TList<TSysViewColumn>.Create;
+//  try
+//    LSysViewColumn := TSysViewColumn.Create;
+//    try
+//      TServiceContainer.Instance.StkCinsAileService
 //
 //      while not LSysViewColumn.Eof do
 //      begin
@@ -59,15 +59,15 @@ begin
 //        FieldMetaList.Add(FM);
 //        LSysViewColumn.Next;
 //      end;
-    finally
-      LSysViewColumn.Free;
-    end;
-
-    Result := FieldMetaList.ToArray;
-    FFieldMetaCache.Add(TableName, Result);
-  finally
-    FieldMetaList.Free;
-  end;
+//    finally
+//      LSysViewColumn.Free;
+//    end;
+//
+//    Result := FieldMetaList.ToArray;
+//    FFieldMetaCache.Add(TableName, Result);
+//  finally
+//    FieldMetaList.Free;
+//  end;
 end;
 
 end.

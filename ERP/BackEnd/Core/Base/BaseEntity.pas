@@ -3,7 +3,8 @@ unit BaseEntity;
 interface
 
 uses
-  SysUtils, Classes, Types, System.StrUtils, System.DateUtils,
+  System.SysUtils, System.Classes, System.Types, System.Variants,
+  System.StrUtils, System.DateUtils, Data.DB,
   System.Generics.Collections, System.Rtti, System.TypInfo;
 
 type
@@ -15,7 +16,14 @@ type
     procedure SetFieldName(const Value: string);
     procedure SetOwnerEntity(const Value: IEntity);
     function GetOwnerEntity: IEntity;
+
+    function FieldType: TFieldType;
     function AsString: string;
+    function AsInteger: Integer;
+    function AsInt64: Int64;
+    function AsFloat: Double;
+    function AsBoolean: Boolean;
+    function AsDateTime: TDateTime;
 
     property FieldName: string read GetFieldName write SetFieldName;
     property OwnerEntity: IEntity read GetOwnerEntity write SetOwnerEntity;
@@ -71,7 +79,13 @@ type
     function AsQuotedStr: string;
     function QryName: string;
 
+    function FieldType: TFieldType;
     function AsString: string;
+    function AsInteger: Integer;
+    function AsInt64: Int64;
+    function AsFloat: Double;
+    function AsBoolean: Boolean;
+    function AsDateTime: TDateTime;
   end;
 
   TEntity = class(TInterfacedObject, IEntity)
@@ -111,6 +125,87 @@ begin
   OwnerEntity.Fields.Add(Self);
 end;
 
+function TEntityField<T>.FieldType: TFieldType;
+var
+  TypeInfo: PTypeInfo;
+begin
+  TypeInfo := System.TypeInfo(T);
+  case TypeInfo.Kind of
+    tkString, tkLString, tkWString, tkUString:
+      Exit(ftString);
+    tkChar, tkWChar:
+      Exit(ftFixedChar);
+    tkInteger:
+      begin
+        // Integer boyutlarÄ±na gÃ¶re daha detaylÄ± kontrol
+        case SizeOf(T) of
+          1: Exit(ftByte);      // Byte, ShortInt
+          2: Exit(ftSmallInt);  // Word, SmallInt
+          4: Exit(ftInteger);   // Integer, Cardinal
+        else
+          Exit(ftInteger);
+        end;
+      end;
+    tkInt64:
+      Exit(ftLargeInt);
+    tkFloat:
+      begin
+        // Ã–nce Ã¶zel tarih tiplerini kontrol et
+        if SameText(string(TypeInfo.Name), 'TDateTime') then
+          Exit(ftDateTime);
+        if SameText(string(TypeInfo.Name), 'TDate') then
+          Exit(ftDate);
+        if SameText(string(TypeInfo.Name), 'TTime') then
+          Exit(ftTime);
+
+        // Float alt tiplerini kontrol et
+        case GetTypeData(TypeInfo)^.FloatType of
+          System.TypInfo.ftSingle: Exit(ftFloat);
+          System.TypInfo.ftDouble: Exit(ftFloat);
+          System.TypInfo.ftExtended: Exit(ftFloat);
+          System.TypInfo.ftCurr: Exit(ftCurrency);
+          System.TypInfo.ftComp: Exit(ftFloat);
+        else
+          Exit(ftFloat);
+        end;
+      end;
+    tkEnumeration:
+      begin
+        // Boolean Ã¶zel kontrolÃ¼
+        if SameText(string(TypeInfo.Name), 'Boolean') then
+          Exit(ftBoolean);
+        // DiÄŸer enum'larÄ± string olarak sakla
+        Exit(ftString);
+      end;
+    tkVariant:
+      Exit(ftVariant);
+    tkArray:
+      Exit(ftArray);
+    tkDynArray:
+      Exit(ftArray);
+    tkRecord:
+      begin
+        // Record tiplerini kontrol et (GUID, TTimeStamp gibi)
+        if SameText(string(TypeInfo.Name), 'TGUID') then
+          Exit(ftGuid);
+        if SameText(string(TypeInfo.Name), 'TTimeStamp') then
+          Exit(ftTimeStamp);
+        // DiÄŸer record'larÄ± blob olarak sakla
+        Exit(ftBlob);
+      end;
+    tkClass:
+      Exit(ftBlob);
+    tkInterface:
+      Exit(ftInterface);
+    tkPointer:
+      Exit(ftBlob);
+    tkSet:
+      Exit(ftString); // Set'leri string olarak sakla
+  else
+    Exit(ftUnknown);
+  end;
+end;
+
 function TEntityField<T>.GetFieldName: string;
 begin
   Result := FFieldName;
@@ -147,6 +242,189 @@ begin
     Result := QuotedStr(TValue.From<T>(Value).ToString)
   else
     Result := TValue.From<T>(FValue).ToString;
+end;
+
+function TEntityField<T>.AsString: string;
+var
+  ValueVariant: Variant;
+  TypeInfo: PTypeInfo;
+begin
+  TypeInfo := System.TypeInfo(T);
+
+  case TypeInfo.Kind of
+    tkInteger, tkInt64:
+      Result := IntToStr(PInteger(@FValue)^);
+    tkFloat:
+      Result := FloatToStr(PDouble(@FValue)^);
+    tkString, tkLString, tkWString, tkUString:
+      Result := PString(@FValue)^;
+    tkEnumeration:
+      if TypeInfo = System.TypeInfo(Boolean) then
+        Result := BoolToStr(PBoolean(@FValue)^, True)
+      else
+        Result := GetEnumName(TypeInfo, PInteger(@FValue)^);
+    tkVariant:
+      begin
+        ValueVariant := PVariant(@FValue)^;
+        Result := VarToStr(ValueVariant);
+      end;
+  else
+    // Genel durumda TValue kullan
+    Result := TValue.From<T>(FValue).ToString;
+  end;
+end;
+
+function TEntityField<T>.AsInteger: Integer;
+var
+  TypeInfo: PTypeInfo;
+  StrValue: string;
+begin
+  TypeInfo := System.TypeInfo(T);
+
+  case TypeInfo.Kind of
+    tkInteger:
+      Result := PInteger(@FValue)^;
+    tkInt64:
+      Result := PInt64(@FValue)^;
+    tkFloat:
+      Result := Trunc(PDouble(@FValue)^);
+    tkString, tkLString, tkWString, tkUString:
+      begin
+        StrValue := PString(@FValue)^;
+        Result := StrToIntDef(StrValue, 0);
+      end;
+    tkEnumeration:
+      if TypeInfo = System.TypeInfo(Boolean) then
+        Result := Ord(PBoolean(@FValue)^)
+      else
+        Result := PInteger(@FValue)^;
+    tkVariant:
+      Result := VarAsType(PVariant(@FValue)^, varInteger);
+  else
+    Result := 0;
+  end;
+end;
+
+function TEntityField<T>.AsInt64: Int64;
+var
+  TypeInfo: PTypeInfo;
+  StrValue: string;
+begin
+  TypeInfo := System.TypeInfo(T);
+
+  case TypeInfo.Kind of
+    tkInteger:
+      Result := PInteger(@FValue)^;
+    tkInt64:
+      Result := PInt64(@FValue)^;
+    tkFloat:
+      Result := Trunc(PDouble(@FValue)^);
+    tkString, tkLString, tkWString, tkUString:
+      begin
+        StrValue := PString(@FValue)^;
+        Result := StrToInt64Def(StrValue, 0);
+      end;
+    tkEnumeration:
+      if TypeInfo = System.TypeInfo(Boolean) then
+        Result := Ord(PBoolean(@FValue)^)
+      else
+        Result := PInteger(@FValue)^;
+    tkVariant:
+      Result := VarAsType(PVariant(@FValue)^, varInt64);
+  else
+    Result := 0;
+  end;
+end;
+
+function TEntityField<T>.AsFloat: Double;
+var
+  TypeInfo: PTypeInfo;
+  StrValue: string;
+begin
+  TypeInfo := System.TypeInfo(T);
+
+  case TypeInfo.Kind of
+    tkInteger:
+      Result := PInteger(@FValue)^;
+    tkInt64:
+      Result := PInt64(@FValue)^;
+    tkFloat:
+      Result := PDouble(@FValue)^;
+    tkString, tkLString, tkWString, tkUString:
+      begin
+        StrValue := PString(@FValue)^;
+        Result := StrToFloatDef(StrValue, 0);
+      end;
+    tkEnumeration:
+      if TypeInfo = System.TypeInfo(Boolean) then
+        Result := Ord(PBoolean(@FValue)^)
+      else
+        Result := PInteger(@FValue)^;
+    tkVariant:
+      Result := VarAsType(PVariant(@FValue)^, varDouble);
+  else
+    Result := 0;
+  end;
+end;
+
+function TEntityField<T>.AsBoolean: Boolean;
+var
+  TypeInfo: PTypeInfo;
+  StrValue: string;
+  IntValue: Integer;
+begin
+  TypeInfo := System.TypeInfo(T);
+
+  case TypeInfo.Kind of
+    tkInteger:
+      Result := PInteger(@FValue)^ <> 0;
+    tkInt64:
+      Result := PInt64(@FValue)^ <> 0;
+    tkFloat:
+      Result := PDouble(@FValue)^ <> 0;
+    tkString, tkLString, tkWString, tkUString:
+      begin
+        StrValue := PString(@FValue)^;
+        Result := StrToBoolDef(StrValue, False);
+      end;
+    tkEnumeration:
+      if TypeInfo = System.TypeInfo(Boolean) then
+        Result := PBoolean(@FValue)^
+      else
+      begin
+        IntValue := PInteger(@FValue)^;
+        Result := IntValue <> 0;
+      end;
+    tkVariant:
+      Result := VarAsType(PVariant(@FValue)^, varBoolean);
+  else
+    Result := False;
+  end;
+end;
+
+function TEntityField<T>.AsDateTime: TDateTime;
+var
+  TypeInfo: PTypeInfo;
+  StrValue: string;
+begin
+  TypeInfo := System.TypeInfo(T);
+
+  case TypeInfo.Kind of
+    tkFloat:
+      if TypeInfo = System.TypeInfo(TDateTime) then
+        Result := PDateTime(@FValue)^
+      else
+        Result := PDouble(@FValue)^;
+    tkString, tkLString, tkWString, tkUString:
+      begin
+        StrValue := PString(@FValue)^;
+        Result := StrToDateTimeDef(StrValue, 0);
+      end;
+    tkVariant:
+      Result := VarAsType(PVariant(@FValue)^, varDate);
+  else
+    Result := 0;
+  end;
 end;
 
 procedure TEntityField<T>.SetFieldName(const Value: string);
@@ -299,28 +577,28 @@ begin
 
   for SrcField in ASrc.Fields do
   begin
-    // 3. Hedef varlýkta (Result) eþleþen alaný, alan adýna göre bul.
+    // 3. Hedef varlï¿½kta (Result) eï¿½leï¿½en alanï¿½, alan adï¿½na gï¿½re bul.
     DestField := Result.GetFieldByName(SrcField.FieldName);
 
     if Assigned(DestField) then
     begin
-      // 4. Kaynak alanýn (SrcField) somut tipini RTTI ile al.
-      // SrcField bir IEntityField arayüzü olduðu için, AsObject ile TObject olarak eriþilir.
+      // 4. Kaynak alanï¿½n (SrcField) somut tipini RTTI ile al.
+      // SrcField bir IEntityField arayï¿½zï¿½ olduï¿½u iï¿½in, AsObject ile TObject olarak eriï¿½ilir.
       RttiTypeSrcField := RttiContext.GetType((SrcField as tobject).ClassType);
 
-      // 5. 'Value' ve 'OldValue' özelliklerinin RTTI tanýmlarýný al.
-      // Bu özellikler TEntityField<T> sýnýfýnda tanýmlýdýr.
+      // 5. 'Value' ve 'OldValue' ï¿½zelliklerinin RTTI tanï¿½mlarï¿½nï¿½ al.
+      // Bu ï¿½zellikler TEntityField<T> sï¿½nï¿½fï¿½nda tanï¿½mlï¿½dï¿½r.
       RttiPropValue := RttiTypeSrcField.GetProperty('Value');
       RttiPropOldValue := RttiTypeSrcField.GetProperty('OldValue');
 
       if Assigned(RttiPropValue) and Assigned(RttiPropOldValue) then
       begin
-        // 6. Kaynak alandan (SrcField) 'Value' ve 'OldValue' deðerlerini oku.
+        // 6. Kaynak alandan (SrcField) 'Value' ve 'OldValue' deï¿½erlerini oku.
         ValueTValue := RttiPropValue.GetValue(SrcField As tObject);
         OldValueTValue := RttiPropOldValue.GetValue(SrcField as tObject);
 
-        // 7. Hedef alana (DestField) 'Value' ve 'OldValue' deðerlerini yaz.
-        // SetValue metodlarý da bir TObject örneði bekler.
+        // 7. Hedef alana (DestField) 'Value' ve 'OldValue' deï¿½erlerini yaz.
+        // SetValue metodlarï¿½ da bir TObject ï¿½rneï¿½i bekler.
         RttiPropValue.SetValue(DestField As tObject, ValueTValue);
         RttiPropOldValue.SetValue(DestField as tObject, OldValueTValue);
       end;

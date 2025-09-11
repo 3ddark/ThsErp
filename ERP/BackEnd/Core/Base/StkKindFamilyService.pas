@@ -17,7 +17,8 @@ type
     function CreateQueryForUI(const AFilterKey: string): string; override;
     function Find(AFilter: string; ALock: Boolean): TList<TStkKindFamily>; override;
     function FindById(AId: Integer; ALock: Boolean): TStkKindFamily; override;
-    procedure Save(AEntity: TStkKindFamily); override;
+    procedure Add(AEntity: TStkKindFamily);
+    procedure Update(AEntity: TStkKindFamily);
     procedure Delete(AId: Integer); override;
 
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
@@ -27,6 +28,11 @@ type
   end;
 
 implementation
+
+procedure TStkKindFamilyService.Add(AEntity: TStkKindFamily);
+begin
+//
+end;
 
 procedure TStkKindFamilyService.BusinessDelete(AEntity: TStkKindFamily; APermissionControl: Boolean);
 begin
@@ -49,7 +55,7 @@ begin
     if AWithBegin then
       Self.UoW.BeginTransaction;
 
-    Self.UoW.StkCinsAileRepository.Save(AEntity);
+    Self.UoW.StkCinsAileRepository.Add(AEntity);
 
     if AWithCommit and Uow.Connection.InTransaction then
       Self.UoW.Commit;
@@ -100,7 +106,7 @@ begin
     //CheckPermission if not throw exception
   end;
 
-  Self.UoW.StkCinsAileRepository.Save(AEntity)
+  Self.UoW.StkCinsAileRepository.Update(AEntity)
 end;
 
 constructor TStkKindFamilyService.Create;
@@ -134,9 +140,9 @@ begin
   Result := Self.Uow.StkCinsAileRepository.FindById(AId, ALock);
 end;
 
-procedure TStkKindFamilyService.Save(AEntity: TStkKindFamily);
+procedure TStkKindFamilyService.Update(AEntity: TStkKindFamily);
 begin
-  Self.Uow.StkCinsAileRepository.Save(AEntity);
+
 end;
 
 end.

@@ -9,17 +9,25 @@ uses
 
 type
   TSysViewColumnRepository = class(TBaseRepository<TSysViewColumn>)
+//  private
+//    procedure Save(AEntity: TSysViewColumn);
   public
     constructor Create(AConnection: TFDConnection);
 
     function CreateQueryForUI(const AFilterKey: string): string; override;
     function Find(AFilter: string; ALock: Boolean): TList<TSysViewColumn>; override;
     function FindById(AId: Integer; ALock: Boolean): TSysViewColumn; override;
-    procedure Save(AEntity: TSysViewColumn); override;
+    procedure Add(AEntity: TSysViewColumn);
+    procedure Update(AEntity: TSysViewColumn);
     procedure Delete(AId: Int64); override;
   end;
 
 implementation
+
+procedure TSysViewColumnRepository.Add(AEntity: TSysViewColumn);
+begin
+//
+end;
 
 constructor TSysViewColumnRepository.Create(AConnection: TFDConnection);
 begin
@@ -135,39 +143,44 @@ begin
   end;
 end;
 
-procedure TSysViewColumnRepository.Save(AEntity: TSysViewColumn);
-var
-  Q: TFDQuery;
-  LTableName: string;
+//procedure TSysViewColumnRepository.Save(AEntity: TSysViewColumn);
+//var
+//  Q: TFDQuery;
+//  LTableName: string;
+//begin
+//  Q := NewQuery(nil);
+//  try
+//    LTableName := TTableNameService.TableName(TSysViewColumn);
+//    if AEntity.Id.Value <= 0 then
+//    begin
+//      Q.SQL.Text := Format('INSERT INTO %s (%s, %s, %s) VALUES (:%s, :%s, :%s) RETURNING %s',[
+//        LTableName,
+//        AEntity.TabloAdi.FieldName,
+//        AEntity.Id.FieldName
+//      ]);
+//      Q.ParamByName(AEntity.TabloAdi.AsParamName).AsString := AEntity.TabloAdi.Value;
+//      Q.Open;
+//      AEntity.Id.ValueFirstSet(Q.FieldByName('id').AsInteger);
+//    end
+//    else
+//    begin
+//      Q.SQL.Text := Format('UPDATE %s SET %s, %s, %s WHERE %s', [
+//        LTableName,
+//        AEntity.TabloAdi.FieldName + ':' + AEntity.TabloAdi.AsParamName,
+//        AEntity.Id.FieldName + ':' + AEntity.Id.AsParamName
+//      ]);
+//      Q.ParamByName(AEntity.TabloAdi.AsParamName).AsString := AEntity.TabloAdi.Value;
+//      Q.ParamByName(AEntity.Id.AsParamName).AsInteger := AEntity.Id.Value;
+//      Q.ExecSQL;
+//    end;
+//  finally
+//    Q.Free;
+//  end;
+//end;
+
+procedure TSysViewColumnRepository.Update(AEntity: TSysViewColumn);
 begin
-  Q := NewQuery(nil);
-  try
-    LTableName := TTableNameService.TableName(TSysViewColumn);
-    if AEntity.Id.Value <= 0 then
-    begin
-      Q.SQL.Text := Format('INSERT INTO %s (%s, %s, %s) VALUES (:%s, :%s, :%s) RETURNING %s',[
-        LTableName,
-        AEntity.TabloAdi.FieldName,
-        AEntity.Id.FieldName
-      ]);
-      Q.ParamByName(AEntity.TabloAdi.AsParamName).AsString := AEntity.TabloAdi.Value;
-      Q.Open;
-      AEntity.Id.ValueFirstSet(Q.FieldByName('id').AsInteger);
-    end
-    else
-    begin
-      Q.SQL.Text := Format('UPDATE %s SET %s, %s, %s WHERE %s', [
-        LTableName,
-        AEntity.TabloAdi.FieldName + ':' + AEntity.TabloAdi.AsParamName,
-        AEntity.Id.FieldName + ':' + AEntity.Id.AsParamName
-      ]);
-      Q.ParamByName(AEntity.TabloAdi.AsParamName).AsString := AEntity.TabloAdi.Value;
-      Q.ParamByName(AEntity.Id.AsParamName).AsInteger := AEntity.Id.Value;
-      Q.ExecSQL;
-    end;
-  finally
-    Q.Free;
-  end;
+
 end;
 
 procedure TSysViewColumnRepository.Delete(AId: Int64);
