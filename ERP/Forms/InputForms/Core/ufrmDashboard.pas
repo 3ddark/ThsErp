@@ -1091,7 +1091,6 @@ begin
   SetSession();
   FIsFormShow := False;
 
-  TEntityMetaProvider.SetConnection(GDataBase.Connection);
   TUnitOfWork.Initialize(GDataBase.Connection);
 end;
 

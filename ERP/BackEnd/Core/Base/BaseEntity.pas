@@ -15,6 +15,7 @@ type
     procedure SetFieldName(const Value: string);
     procedure SetOwnerEntity(const Value: IEntity);
     function GetOwnerEntity: IEntity;
+    function AsString: string;
 
     property FieldName: string read GetFieldName write SetFieldName;
     property OwnerEntity: IEntity read GetOwnerEntity write SetOwnerEntity;
@@ -69,6 +70,8 @@ type
     function AsParamName: string;
     function AsQuotedStr: string;
     function QryName: string;
+
+    function AsString: string;
   end;
 
   TEntity = class(TInterfacedObject, IEntity)

@@ -289,7 +289,9 @@ uses
   ufrmStkKindFamily in 'Forms\ufrmStkKindFamily.pas' {frmStkKindFamily},
   ServiceContainer in 'BackEnd\Core\Base\ServiceContainer.pas',
   Ths.DialogHelper in 'BackEnd\Tools\Ths.DialogHelper.pas',
-  TableNameService in 'BackEnd\Core\Base\TableNameService.pas';
+  TableNameService in 'BackEnd\Core\Base\TableNameService.pas',
+  SysViewColumn in 'BackEnd\Core\Base\SysViewColumn.pas',
+  SysViewColumnRepository in 'BackEnd\Core\Base\SysViewColumnRepository.pas';
 
 {$R *.res}
 

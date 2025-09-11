@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Types, FireDAC.Comp.Client, System.Generics.Collections,
-  EntityMetaProvider, UnitOfWork, BaseRepository, BaseEntity;
+  UnitOfWork, BaseRepository, BaseEntity;
 
 const
   KeyStkCinsAile = 'StkCinsAile';
@@ -21,6 +21,11 @@ type
     function FindById(AId: Integer; ALock: Boolean): T;
     procedure Save(AEntity: T);
     procedure Delete(AId: Integer);
+
+    procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+    procedure BusinessInsert(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean);
+    procedure BusinessUpdate(AEntity: T; APermissionControl: Boolean);
+    procedure BusinessDelete(AEntity: T; APermissionControl: Boolean);
   end;
 
   TBaseService<T> = class(TInterfacedObject, IBaseService<T>)
@@ -28,7 +33,6 @@ type
     FUoW: TUnitOfWork;
     function GetUnitOfWork: TUnitOfWork;
   protected
-    FMetas: TArray<TFieldMeta>;
     function IsAuthorized(): Boolean;
   public
     constructor Create();
@@ -42,33 +46,13 @@ type
     procedure Save(AEntity: T); virtual; abstract;
     procedure Delete(AId: Integer); virtual; abstract;
 
-    procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); virtual;
-    procedure BusinessInsert(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual;
-    procedure BusinessUpdate(AEntity: T; APermissionControl: Boolean); virtual;
-    procedure BusinessDelete(AEntity: T; APermissionControl: Boolean); virtual;
+    procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); virtual; abstract;
+    procedure BusinessInsert(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;
+    procedure BusinessUpdate(AEntity: T; APermissionControl: Boolean); virtual; abstract;
+    procedure BusinessDelete(AEntity: T; APermissionControl: Boolean); virtual; abstract;
   end;
 
 implementation
-
-procedure TBaseService<T>.BusinessDelete(AEntity: T; APermissionControl: Boolean);
-begin
-  //
-end;
-
-procedure TBaseService<T>.BusinessInsert(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean);
-begin
-  //
-end;
-
-procedure TBaseService<T>.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
-begin
-  //
-end;
-
-procedure TBaseService<T>.BusinessUpdate(AEntity: T; APermissionControl: Boolean);
-begin
-  //
-end;
 
 constructor TBaseService<T>.Create();
 begin

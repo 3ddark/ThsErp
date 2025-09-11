@@ -4,11 +4,12 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.Classes, System.Math, System.SysUtils,
+  System.StrUtils,
   Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd,
-  Vcl.DBGrids, Vcl.Samples.Spin,
+  Vcl.DBGrids, Vcl.Samples.Spin, Data.DB,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  Ths.DialogHelper, Ths.Globals,
+  Ths.DialogHelper, Ths.Globals, SysViewColumn,
   BaseEntity, BaseService, EntityMetaProvider, SharedFormTypes;
 
 type
@@ -34,6 +35,8 @@ type
     function ValidateSubControls(Sender: TWinControl; out AControlName: string): Boolean;
   protected
     procedure SetControlsDisabledOrEnabled(AContainerControl: TWinControl = nil; ADisable: Boolean = True);
+    procedure SubSetControlProperty(AControl: TControl; AColumn: TSysViewColumn; AIsOnlyRepaint: Boolean);
+    procedure SetControlDBProperty(AIsOnlyRepaint: Boolean = False);
   public
     property Service: TS read FService write SetService;
     property Table: TE read FTable write SetTable;
@@ -443,6 +446,78 @@ begin
     FRefreshGridEvent(AFocusSelectedItem);
 end;
 
+procedure TfrmInputSimpleDbX<TE, TS>.SetControlDBProperty(AIsOnlyRepaint: Boolean);
+var
+  n1, n2, n3, nx: Integer;
+  LContainerCtrl, LParentCtrl: TControl;
+  LSubTable: IEntity;
+begin
+  LContainerCtrl := PanelMain.FindChildControl(PgcBase.Name);
+  //Main panel içindeki pagecontrol içinde sekme olarak kullanılan kontroller
+  if Assigned(LContainerCtrl) then
+  begin
+    for n1 := 0 to TPageControl(LContainerCtrl).PageCount-1 do
+    begin
+      LParentCtrl := TPageControl(LContainerCtrl).Pages[n1];
+      for n2 := 0 to TTabSheet(LParentCtrl).ControlCount-1 do
+      begin
+        if (TTabSheet(LParentCtrl).Controls[n2].ClassType = TEdit)
+        or (TTabSheet(LParentCtrl).Controls[n2].ClassType = TMemo)
+        or (TTabSheet(LParentCtrl).Controls[n2].ClassType = TCombobox)
+        or (TTabSheet(LParentCtrl).Controls[n2].ClassType = TCheckBox)
+        or (TTabSheet(LParentCtrl).Controls[n2].ClassType = TRadioGroup)
+        then
+        begin
+          for n3 := 0 to Table.Fields.Count-1 do
+          begin
+            if Table.Fields[n3].FieldName = RightStr(TTabSheet(LParentCtrl).Controls[n2].Name, Length(TTabSheet(LParentCtrl).Controls[n2].Name)- 3) then
+            begin
+//              SubSetControlProperty(TTabSheet(LParentCtrl).Controls[n2], Table.Fields[n3]);
+              Break;
+            end;
+          end;
+        end;
+      end;
+    end;
+{
+    for nx := 0 to Length(Table.Fields)-1 do
+    begin
+      if (Table <> Table.Fields[nx].OwnerEntity) and (Table.Fields[nx].OwnerEntity <> nil) then
+      begin
+        LSubTable := Table.Fields[nx].OwnerEntity;
+        if Assigned(LSubTable) and (LSubTable <> nil) then
+        begin
+          for n1 := 0 to TPageControl(LContainerCtrl).PageCount-1 do
+          begin
+            LParentCtrl := TPageControl(LContainerCtrl).Pages[n1];
+            for n2 := 0 to TTabSheet(LParentCtrl).ControlCount-1 do
+            begin
+              if (TTabSheet(LParentCtrl).Controls[n2].ClassType = TEdit)
+              or (TTabSheet(LParentCtrl).Controls[n2].ClassType = TMemo)
+              or (TTabSheet(LParentCtrl).Controls[n2].ClassType = TCombobox)
+              or (TTabSheet(LParentCtrl).Controls[n2].ClassType = TCheckBox)
+              or (TTabSheet(LParentCtrl).Controls[n2].ClassType = TRadioGroup)
+              then
+              begin
+                for n3 := 0 to Length(LSubTable.Fields)-1 do
+                begin
+                  if LSubTable.Fields[n3].FieldName = RightStr(TTabSheet(LParentCtrl).Controls[n2].Name, Length(TTabSheet(LParentCtrl).Controls[n2].Name)- 3) then
+                  begin
+                    SubSetControlProperty(TTabSheet(LParentCtrl).Controls[n2], LSubTable.Fields[n3]);
+                    Break;
+                  end;
+                end;
+              end;
+            end;
+          end;
+
+        end;
+      end;
+    end;
+}
+  end;
+end;
+
 procedure TfrmInputSimpleDbX<TE, TS>.SetControlsDisabledOrEnabled(AContainerControl: TWinControl; ADisable: Boolean);
 var
   n1: Integer;
@@ -532,6 +607,202 @@ begin
 //    dm.il16.Draw(StatusBar.Canvas, Rect.Left, Rect.Top, vIco);
 //    Panel.Width := FStatusBase.Canvas.TextWidth(Panel.Text)+ dm.il16.Width + 16;
 //  end;
+end;
+
+procedure TfrmInputSimpleDbX<TE, TS>.SubSetControlProperty(AControl: TControl; AColumn: TSysViewColumn; AIsOnlyRepaint: Boolean);
+begin
+  if (AColumn = nil) or not Assigned(AControl) then
+    Exit;
+
+  if (AControl is TEdit) then
+  begin
+    with TEdit(AControl) do
+    begin
+      if AIsOnlyRepaint then
+        Repaint
+      else
+      begin
+        CharCase := VCL.StdCtrls.ecUpperCase;
+        MaxLength := AColumn.CharacterMaximumLength.Value;
+        thsDBFieldName := AColumn.OrjColumnName.Value;
+        thsRequiredData := not AColumn.IsNullable.Value;
+        thsActiveYear4Digit := GSysApplicationSetting.Donem.Value;
+        OnCalculatorProcess := nil;
+
+
+        if (AColumn.GetFieldType = ftString) then
+          thsInputDataType := itString
+        else if (AColumn.GetFieldType = ftByte) then
+        begin
+          thsInputDataType := itInteger;
+          MaxLength := 3;
+        end
+        else if (AColumn.GetFieldType = ftSmallint) then
+        begin
+          thsInputDataType := itInteger;
+          MaxLength := 5;
+        end
+        else if (AColumn.GetFieldType = ftInteger) then
+        begin
+          thsInputDataType := itInteger;
+          MaxLength := 10;
+        end
+        else if (AColumn.GetFieldType = ftLargeint) then
+        begin
+          thsInputDataType := itInteger;
+          MaxLength := 19;
+        end
+        else if (AColumn.GetFieldType = ftDate) then
+        begin
+          thsInputDataType := itDate;
+          MaxLength := 10
+        end
+        else if (AColumn.GetFieldType = ftTime) then
+        begin
+          thsInputDataType := itTime;
+          MaxLength := 5
+        end
+        else if (AColumn.GetFieldType = ftDateTime) then
+        begin
+          thsInputDataType := itDate;
+          MaxLength := 19;
+        end
+        else if (AColumn.GetFieldType = ftFloat) then
+        begin
+          thsInputDataType := itFloat;
+        end
+        else if (AColumn.GetFieldType = ftBCD) then
+        begin
+          thsInputDataType := itMoney;
+          Alignment := taRightJustify;
+        end;
+      end;
+    end;
+  end
+  else if (AControl is TMemo) then
+  begin
+    with TMemo(AControl) do
+    begin
+      if AIsOnlyRepaint then
+        Repaint
+      else
+      begin
+        CharCase := VCL.StdCtrls.ecUpperCase;
+        MaxLength := AColumn.CharacterMaximumLength.Value;
+        thsDBFieldName := AColumn.OrjColumnName.Value;
+        thsRequiredData := not AColumn.IsNullable.Value;
+
+        if (AColumn.GetFieldType = ftString) then
+          thsInputDataType := itString
+        else if (AColumn.GetFieldType = ftByte) then
+        begin
+          thsInputDataType := itInteger;
+          MaxLength := 3;
+        end
+        else if (AColumn.GetFieldType = ftSmallint) then
+        begin
+          thsInputDataType := itInteger;
+          MaxLength := 5;
+        end
+        else if (AColumn.GetFieldType = ftInteger) then
+        begin
+          thsInputDataType := itInteger;
+          MaxLength := 10;
+        end
+        else if (AColumn.GetFieldType = ftLargeint) then
+        begin
+          thsInputDataType := itInteger;
+          MaxLength := 19;
+        end
+        else if (AColumn.GetFieldType = ftDate) then
+        begin
+          thsInputDataType := itDate;
+          MaxLength := 10
+        end
+        else if (AColumn.GetFieldType = ftTime) then
+        begin
+          thsInputDataType := itTime;
+          MaxLength := 5
+        end
+        else if (AColumn.GetFieldType = ftDateTime) then
+        begin
+          thsInputDataType := itDate;
+          MaxLength := 19;
+        end
+        else if (AColumn.GetFieldType = ftFloat) then
+        begin
+          thsInputDataType := itFloat;
+        end
+        else if (AColumn.GetFieldType = ftBCD) then
+        begin
+          thsInputDataType := itMoney;
+          Alignment := taRightJustify;
+        end;
+      end;
+    end;
+  end
+  else if (AControl is TCombobox) then
+  begin
+    with TCombobox(AControl) do
+    begin
+      if AIsOnlyRepaint then
+        Repaint
+      else
+      begin
+        CharCase := VCL.StdCtrls.ecUpperCase;
+        MaxLength := AColumn.CharacterMaximumLength.Value;
+        thsDBFieldName := AColumn.OrjColumnName.Value;
+        thsRequiredData := not AColumn.IsNullable.Value;
+
+        thsInputDataType := itString;
+        if (AColumn.GetFieldType = ftString) then
+          thsInputDataType := itString
+        else if (AColumn.GetFieldType = ftByte) then
+        begin
+          thsInputDataType := itInteger;
+        end
+        else if (AColumn.GetFieldType = ftSmallint) then
+        begin
+          thsInputDataType := itInteger;
+        end
+        else if (AColumn.GetFieldType = ftInteger) then
+        begin
+          thsInputDataType := itInteger;
+        end
+        else if (AColumn.GetFieldType = ftLargeint) then
+        begin
+          thsInputDataType := itInteger;
+        end
+
+        else if (AColumn.GetFieldType = ftDate) then
+        begin
+          thsInputDataType := itDate;
+        end
+        else if (AColumn.GetFieldType = ftTime) then
+        begin
+          thsInputDataType := itTime;
+        end
+        else if (AColumn.GetFieldType = ftDateTime) then
+        begin
+          thsInputDataType := itDate;
+        end
+        else if (AColumn.GetFieldType = ftFloat) then
+        begin
+          thsInputDataType := itFloat;
+        end
+        else if (AColumn.GetFieldType = ftBCD) then
+        begin
+          thsInputDataType := itMoney;
+        end;
+      end;
+    end;
+  end
+  else if (AControl is TCheckBox) then
+  begin
+  end
+  else if (AControl is TRadioGroup) then
+  begin
+  end;
 end;
 
 function TfrmInputSimpleDbX<TE, TS>.ValidateInput(AContainerControl: TWinControl): Boolean;
