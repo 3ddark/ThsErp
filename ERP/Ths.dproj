@@ -751,6 +751,7 @@
         <DCCReference Include="BackEnd\Core\Base\TableNameService.pas"/>
         <DCCReference Include="BackEnd\Core\Base\SysViewColumn.pas"/>
         <DCCReference Include="BackEnd\Core\Base\SysViewColumnRepository.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\SysViewColumnService.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

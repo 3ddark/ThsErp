@@ -3,7 +3,8 @@
 interface
 
 uses
-  BaseService, StkKindFamilyService, StkKindFamily;
+  BaseService,
+  StkKindFamilyService, StkKindFamily, SysViewColumnService, SysViewColumn;
 
 type
   TServiceContainer = class
@@ -12,8 +13,10 @@ type
     class var FLock: TObject;
   private
     FStkCinsAileService: IBaseService<TStkKindFamily>;
+    FSysViewColumnService: IBaseService<TSysViewColumn>;
 
     function GetStkCinsAileService: IBaseService<TStkKindFamily>;
+    function GetSysViewColumnService: IBaseService<TSysViewColumn>;
   protected
     constructor Create;
   public
@@ -22,6 +25,7 @@ type
     class function Instance: TServiceContainer;
 
     property StkCinsAileService: IBaseService<TStkKindFamily> read GetStkCinsAileService;
+    property SysViewColumnService: IBaseService<TSysViewColumn> read GetSysViewColumnService;
   end;
 
 implementation
@@ -57,6 +61,13 @@ begin
   if FStkCinsAileService = nil then
     FStkCinsAileService := TStkKindFamilyService.Create();
   Result := FStkCinsAileService;
+end;
+
+function TServiceContainer.GetSysViewColumnService: IBaseService<TSysViewColumn>;
+begin
+  if FSysViewColumnService = nil then
+    FSysViewColumnService := TSysViewColumnService.Create();
+  Result := FSysViewColumnService;
 end;
 
 initialization

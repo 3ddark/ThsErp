@@ -448,9 +448,10 @@ end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.SetControlDBProperty(AIsOnlyRepaint: Boolean);
 var
-  n1, n2, n3, nx: Integer;
+  n1, n2, n3: Integer;
   LContainerCtrl, LParentCtrl: TControl;
-  LSubTable: IEntity;
+//  nx: Integer;
+//  LSubTable: IEntity;
 begin
   LContainerCtrl := PanelMain.FindChildControl(PgcBase.Name);
   //Main panel içindeki pagecontrol içinde sekme olarak kullanılan kontroller

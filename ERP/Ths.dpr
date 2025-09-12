@@ -291,7 +291,8 @@ uses
   Ths.DialogHelper in 'BackEnd\Tools\Ths.DialogHelper.pas',
   TableNameService in 'BackEnd\Core\Base\TableNameService.pas',
   SysViewColumn in 'BackEnd\Core\Base\SysViewColumn.pas',
-  SysViewColumnRepository in 'BackEnd\Core\Base\SysViewColumnRepository.pas';
+  SysViewColumnRepository in 'BackEnd\Core\Base\SysViewColumnRepository.pas',
+  SysViewColumnService in 'BackEnd\Core\Base\SysViewColumnService.pas';
 
 {$R *.res}
 

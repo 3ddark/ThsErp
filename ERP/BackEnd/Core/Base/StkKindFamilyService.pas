@@ -16,10 +16,10 @@ type
 
     function CreateQueryForUI(const AFilterKey: string): string; override;
     function Find(AFilter: string; ALock: Boolean): TList<TStkKindFamily>; override;
-    function FindById(AId: Integer; ALock: Boolean): TStkKindFamily; override;
+    function FindById(AId: Int64; ALock: Boolean): TStkKindFamily; override;
     procedure Add(AEntity: TStkKindFamily);
     procedure Update(AEntity: TStkKindFamily);
-    procedure Delete(AId: Integer); override;
+    procedure Delete(AId: Int64); override;
 
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
     procedure BusinessInsert(AEntity: TStkKindFamily; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
@@ -119,7 +119,7 @@ begin
   Result := Self.UoW.StkCinsAileRepository.CreateQueryForUI(AFilterKey);
 end;
 
-procedure TStkKindFamilyService.Delete(AId: Integer);
+procedure TStkKindFamilyService.Delete(AId: Int64);
 begin
   inherited;
 //
@@ -135,7 +135,7 @@ begin
   Result := Self.Uow.StkCinsAileRepository.Find(AFilter, ALock);
 end;
 
-function TStkKindFamilyService.FindById(AId: Integer; ALock: Boolean): TStkKindFamily;
+function TStkKindFamilyService.FindById(AId: Int64; ALock: Boolean): TStkKindFamily;
 begin
   Result := Self.Uow.StkCinsAileRepository.FindById(AId, ALock);
 end;

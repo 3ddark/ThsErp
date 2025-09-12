@@ -1,4 +1,4 @@
-unit BaseEntity;
+﻿unit BaseEntity;
 
 interface
 
@@ -16,6 +16,7 @@ type
     procedure SetFieldName(const Value: string);
     procedure SetOwnerEntity(const Value: IEntity);
     function GetOwnerEntity: IEntity;
+    procedure ValueFirstSet(const AValue: TValue);
 
     function FieldType: TFieldType;
     function AsString: string;
@@ -72,7 +73,7 @@ type
 
     constructor Create(AOwnerEntity: IEntity; AFieldName: string);
 
-    procedure ValueFirstSet(const AValue: T);
+    procedure ValueFirstSet(const AValue: TValue);
     function ValueIsChanged: Boolean;
 
     function AsParamName: string;
@@ -96,7 +97,6 @@ type
     function GetField(Index: Integer): IEntityField;
     function GetFields: TList<IEntityField>;
     procedure SetFields(const Value: TList<IEntityField>);
-    function CallCreateMethod<T>: T;
   public
     property Id: TEntityField<Integer> read FId write FId;
     property Field[Index: Integer]: IEntityField read GetField write SetField; default;
@@ -104,6 +104,8 @@ type
 
     constructor Create; virtual;
     destructor Destroy; override;
+
+    function CallCreateMethod<T>: T;
 
     function TableName: string;
 
@@ -128,8 +130,37 @@ end;
 function TEntityField<T>.FieldType: TFieldType;
 var
   TypeInfo: PTypeInfo;
+  LTypeName: string;
 begin
   TypeInfo := System.TypeInfo(T);
+  LTypeName := string(TypeInfo.Name);
+
+  if SameText(LTypeName, 'string')
+  or SameText(LTypeName, 'AnsiString')
+  then  Exit(ftString);
+  if SameText(LTypeName, 'WideString') then Exit(ftWideString);
+  if SameText(LTypeName, 'Byte') then Exit(ftByte);
+  if SameText(LTypeName, 'UInt8') then Exit(ftByte);
+  if SameText(LTypeName, 'ShortInt') then Exit(ftShortint);
+  if SameText(LTypeName, 'Word') then Exit(ftWord);
+  if SameText(LTypeName, 'UInt16') then Exit(ftWord);
+  if SameText(LTypeName, 'SmallInt') then Exit(ftSmallint);
+  if SameText(LTypeName, 'Integer') then Exit(ftInteger);
+  if SameText(LTypeName, 'Cardinal') then Exit(ftInteger);
+  if SameText(LTypeName, 'UInt32') then Exit(ftInteger);
+  if SameText(LTypeName, 'LongInt') then Exit(ftInteger);
+  if SameText(LTypeName, 'LongWord') then Exit(ftLongWord);
+  if SameText(LTypeName, 'Int64') then Exit(ftLargeint);
+  if SameText(LTypeName, 'UInt64') then Exit(ftLargeint);
+  if SameText(LTypeName, 'Boolean') then Exit(ftBoolean);
+  if SameText(LTypeName, 'LongBool') then Exit(ftBoolean);
+  if SameText(LTypeName, 'Double') then Exit(ftFloat);
+  if SameText(LTypeName, 'Extended') then Exit(ftFloat);
+  if SameText(LTypeName, 'Double') then Exit(ftFloat);
+  if SameText(LTypeName, 'Single') then Exit(ftFloat);
+  if SameText(LTypeName, 'Currency') then Exit(ftCurrency);
+  Exit(ftUnknown);
+{
   case TypeInfo.Kind of
     tkString, tkLString, tkWString, tkUString:
       Exit(ftString);
@@ -204,6 +235,7 @@ begin
   else
     Exit(ftUnknown);
   end;
+}
 end;
 
 function TEntityField<T>.GetFieldName: string;
@@ -447,10 +479,10 @@ begin
   FValue := AValue;
 end;
 
-procedure TEntityField<T>.ValueFirstSet(const AValue: T);
+procedure TEntityField<T>.ValueFirstSet(const AValue: TValue);
 begin
-  Self.FValue := AValue;
-  Self.FOldValue := AValue;
+  Self.FValue := AValue.AsType<T>;
+  Self.FOldValue := AValue.AsType<T>;
 end;
 
 function TEntityField<T>.ValueIsChanged: Boolean;
@@ -606,6 +638,11 @@ begin
   end;
 end;
 
+constructor TableNameAttribute.Create(const AName: string);
+begin
+  FName := AName;
+end;
+
 function TEntity.CallCreateMethod<T>: T;
 var
   rC: TRttiContext;
@@ -639,11 +676,6 @@ begin
 
 //  if rM.IsConstructor then
     Result := rM.Invoke(rT.AsInstance.MetaclassType, rParams).AsType<T>;
-end;
-
-constructor TableNameAttribute.Create(const AName: string);
-begin
-  FName := AName;
 end;
 
 end.

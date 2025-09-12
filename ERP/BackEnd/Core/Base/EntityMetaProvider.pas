@@ -42,12 +42,12 @@ begin
     Exit;
   end;
 
-//  FieldMetaList := TList<TSysViewColumn>.Create;
-//  try
-//    LSysViewColumn := TSysViewColumn.Create;
-//    try
-//      TServiceContainer.Instance.StkCinsAileService
-//
+  FieldMetaList := TList<TSysViewColumn>.Create;
+  try
+    LSysViewColumn := TSysViewColumn.Create;
+    try
+      TServiceContainer.Instance.SysViewColumnService.Find(' AND ' + LSysViewColumn.TabloAdi.QryName + '=' + QuotedStr(TableName), False);
+
 //      while not LSysViewColumn.Eof do
 //      begin
 //        FM.FieldName   := LSysViewColumn.FieldByName('COLUMN_NAME').AsString;
@@ -59,15 +59,15 @@ begin
 //        FieldMetaList.Add(FM);
 //        LSysViewColumn.Next;
 //      end;
-//    finally
-//      LSysViewColumn.Free;
-//    end;
-//
-//    Result := FieldMetaList.ToArray;
-//    FFieldMetaCache.Add(TableName, Result);
-//  finally
-//    FieldMetaList.Free;
-//  end;
+    finally
+      LSysViewColumn.Free;
+    end;
+
+    Result := FieldMetaList.ToArray;
+    FFieldMetaCache.Add(TableName, Result);
+  finally
+    FieldMetaList.Free;
+  end;
 end;
 
 end.

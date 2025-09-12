@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, FireDAC.Comp.Client, FireDAC.Phys,FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Error,
-  StkKindFamilyRepository;
+  StkKindFamilyRepository, SysViewColumnRepository;
 
 type
   TUnitOfWork = class
@@ -15,9 +15,12 @@ type
   private
     FConnection: TFDConnection;
 
+    FSysViewColumnRepository: TSysViewColumnRepository;
     FStkCinsAileRepository: TStkKindFamilyRepository;
 
+    function GetSysViewColumnRepository: TSysViewColumnRepository;
     function GetStkCinsAileRepository: TStkKindFamilyRepository;
+
     function GetConnection: TFDConnection;
   protected
     constructor Create(AConnection: TFDConnection);
@@ -33,6 +36,7 @@ type
 
     property Connection: TFDConnection read GetConnection;
 
+    property SysViewColumnRepository: TSysViewColumnRepository read GetSysViewColumnRepository;
     property StkCinsAileRepository: TStkKindFamilyRepository read GetStkCinsAileRepository;
   end;
 
@@ -45,6 +49,7 @@ end;
 
 destructor TUnitOfWork.Destroy;
 begin
+  FreeAndNil(FSysViewColumnRepository);
   FreeAndNil(FStkCinsAileRepository);
 
   inherited;
@@ -75,6 +80,13 @@ begin
   if Self.FInstance.FStkCinsAileRepository = nil then
     Self.FInstance.FStkCinsAileRepository := TStkKindFamilyRepository.Create(FInstance.FConnection);
   Result := Self.FInstance.FStkCinsAileRepository;
+end;
+
+function TUnitOfWork.GetSysViewColumnRepository: TSysViewColumnRepository;
+begin
+  if Self.FInstance.FSysViewColumnRepository = nil then
+    Self.FInstance.FSysViewColumnRepository := TSysViewColumnRepository.Create(FInstance.FConnection);
+  Result := Self.FInstance.FSysViewColumnRepository;
 end;
 
 class procedure TUnitOfWork.Initialize(AConnection: TFDConnection);

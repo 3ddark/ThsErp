@@ -14,9 +14,6 @@ type
 
     function CreateQueryForUI(const AFilterKey: string): string; override;
     function Find(AFilter: string; ALock: Boolean): TList<TStkKindFamily>; override;
-    function FindById(AId: Integer; ALock: Boolean): TStkKindFamily; override;
-    procedure Update(AEntity: TStkKindFamily); override;
-    procedure Delete(AId: Int64); override;
   end;
 
 implementation
@@ -100,77 +97,6 @@ begin
   finally
     Q.Free;
   end;
-end;
-
-function TStkKindFamilyRepository.FindById(AId: Integer; ALock: Boolean): TStkKindFamily;
-var
-  Q: TFDQuery;
-  SQL, LTableName: string;
-begin
-  Result := TStkKindFamily.Create;
-  Q := NewQuery(nil);
-  try
-    LTableName := TTableNameService.TableName(TStkKindFamily);
-    SQL := Format('SELECT %s, %s, %s, %s FROM %s WHERE %s', [
-      Result.Id.QryName,
-      Result.Family.QryName,
-      Result.Description.QryName,
-      Result.Active.QryName,
-      LTableName,
-      Result.Id.QryName + '=:' + Result.Id.AsParamName
-    ]);
-
-    if ALock then
-      SQL := SQL + ' FOR UPDATE OF ' + LTableName + ' NOWAIT';
-
-    Q.SQL.Text := SQL;
-    Q.ParamByName(Result.Id.AsParamName).AsInteger := AId;
-    Q.Open;
-
-    if not Q.Eof then
-    begin
-      Result.Id.ValueFirstSet(Q.FieldByName(Result.Id.FieldName).AsInteger);
-      Result.Family.ValueFirstSet(Q.FieldByName(Result.Family.FieldName).AsString);
-      Result.Description.ValueFirstSet(Q.FieldByName(Result.Description.FieldName).AsString);
-      Result.Active.ValueFirstSet(Q.FieldByName(Result.Active.FieldName).AsBoolean);
-      Q.Next;
-    end;
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TStkKindFamilyRepository.Update(AEntity: TStkKindFamily);
-var
-  Q: TFDQuery;
-  LTableName: string;
-begin
-  if AEntity.Id.Value <= 0 then
-    Exit;
-
-  Q := NewQuery(nil);
-  try
-    LTableName := TTableNameService.TableName(TStkKindFamily);
-    Q.SQL.Text := Format('UPDATE %s SET %s, %s, %s WHERE %s', [
-      LTableName,
-      AEntity.Family.FieldName + ':' + AEntity.Family.AsParamName,
-      AEntity.Description.FieldName + ':' + AEntity.Description.AsParamName,
-      AEntity.Active.FieldName + ':' + AEntity.Active.AsParamName,
-      AEntity.Id.FieldName + ':' + AEntity.Id.AsParamName
-    ]);
-    Q.ParamByName(AEntity.Family.AsParamName).AsString := AEntity.Family.Value;
-    Q.ParamByName(AEntity.Description.AsParamName).AsString := AEntity.Description.Value;
-    Q.ParamByName(AEntity.Active.AsParamName).AsBoolean := AEntity.Active.Value;
-    Q.ParamByName(AEntity.Id.AsParamName).AsInteger := AEntity.Id.Value;
-    Q.ExecSQL;
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TStkKindFamilyRepository.Delete(AId: Int64);
-begin
-  DeleteById(AId, TTableNameService.TableName(TStkKindFamily));
 end;
 
 end.

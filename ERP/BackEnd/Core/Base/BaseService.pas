@@ -18,9 +18,9 @@ type
 
     function CreateQueryForUI(const AFilterKey: string): string;
     function Find(AFilter: string; ALock: Boolean): TList<T>;
-    function FindById(AId: Integer; ALock: Boolean): T;
+    function FindById(AId: Int64; ALock: Boolean): T;
     procedure Save(AEntity: T);
-    procedure Delete(AId: Integer);
+    procedure Delete(AId: Int64);
 
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
     procedure BusinessInsert(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -30,7 +30,6 @@ type
 
   TBaseService<T> = class(TInterfacedObject, IBaseService<T>)
   private
-    FUoW: TUnitOfWork;
     function GetUnitOfWork: TUnitOfWork;
   protected
     function IsAuthorized(): Boolean;
@@ -42,9 +41,9 @@ type
 
     function CreateQueryForUI(const AFilterKey: string): string; virtual; abstract;
     function Find(AFilter: string; ALock: Boolean): TList<T>; virtual; abstract;
-    function FindById(AId: Integer; ALock: Boolean): T; virtual; abstract;
+    function FindById(AId: Int64; ALock: Boolean): T; virtual; abstract;
     procedure Save(AEntity: T); virtual; abstract;
-    procedure Delete(AId: Integer); virtual; abstract;
+    procedure Delete(AId: Int64); virtual; abstract;
 
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); virtual; abstract;
     procedure BusinessInsert(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;
@@ -62,13 +61,12 @@ end;
 
 destructor TBaseService<T>.Destroy;
 begin
-  FUoW.Free;
   inherited;
 end;
 
 function TBaseService<T>.GetUnitOfWork: TUnitOfWork;
 begin
-  Result := FUoW;
+  Result := TUnitOfWork.Instance;
 end;
 
 function TBaseService<T>.IsAuthorized: Boolean;
