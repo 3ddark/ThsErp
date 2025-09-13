@@ -383,7 +383,7 @@ begin
   BtnAccept.Visible := False;
   BtnAccept.Visible := True;
 
-  TEntityMetaProvider.GetFieldMeta(Table.TableName);
+  SetControlDBProperty();
 
   if (FormMode <> ifmNewRecord ) then
   begin
@@ -448,11 +448,14 @@ end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.SetControlDBProperty(AIsOnlyRepaint: Boolean);
 var
+  MetaProvider: TArray<TSysViewColumn>;
   n1, n2, n3: Integer;
   LContainerCtrl, LParentCtrl: TControl;
 //  nx: Integer;
 //  LSubTable: IEntity;
 begin
+  MetaProvider := TEntityMetaProvider.GetFieldMeta(Table.TableName);
+
   LContainerCtrl := PanelMain.FindChildControl(PgcBase.Name);
   //Main panel içindeki pagecontrol içinde sekme olarak kullanılan kontroller
   if Assigned(LContainerCtrl) then
@@ -469,11 +472,11 @@ begin
         or (TTabSheet(LParentCtrl).Controls[n2].ClassType = TRadioGroup)
         then
         begin
-          for n3 := 0 to Table.Fields.Count-1 do
+          for n3 := 0 to Length(MetaProvider)-1 do
           begin
-            if Table.Fields[n3].FieldName = RightStr(TTabSheet(LParentCtrl).Controls[n2].Name, Length(TTabSheet(LParentCtrl).Controls[n2].Name)- 3) then
+            if MetaProvider[n3].OrjColumnName.Value = RightStr(TTabSheet(LParentCtrl).Controls[n2].Name, Length(TTabSheet(LParentCtrl).Controls[n2].Name)- 3) then
             begin
-//              SubSetControlProperty(TTabSheet(LParentCtrl).Controls[n2], Table.Fields[n3]);
+              SubSetControlProperty(TTabSheet(LParentCtrl).Controls[n2], MetaProvider[n3], AIsOnlyRepaint);
               Break;
             end;
           end;

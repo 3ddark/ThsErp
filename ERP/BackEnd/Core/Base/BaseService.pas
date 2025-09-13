@@ -6,10 +6,6 @@ uses
   SysUtils, Classes, Types, FireDAC.Comp.Client, System.Generics.Collections,
   UnitOfWork, BaseRepository, BaseEntity;
 
-const
-  KeyStkCinsAile = 'StkCinsAile';
-  KeySysParaBirimi = 'SysParaBirimi';
-
 type
   IBaseService<T> = interface
     ['{61C41E30-4D6E-4474-9529-6BE1133F16B2}']
@@ -19,7 +15,8 @@ type
     function CreateQueryForUI(const AFilterKey: string): string;
     function Find(AFilter: string; ALock: Boolean): TList<T>;
     function FindById(AId: Int64; ALock: Boolean): T;
-    procedure Save(AEntity: T);
+    procedure Add(AEntity: T);
+    procedure Update(AEntity: T);
     procedure Delete(AId: Int64);
 
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
@@ -42,7 +39,8 @@ type
     function CreateQueryForUI(const AFilterKey: string): string; virtual; abstract;
     function Find(AFilter: string; ALock: Boolean): TList<T>; virtual; abstract;
     function FindById(AId: Int64; ALock: Boolean): T; virtual; abstract;
-    procedure Save(AEntity: T); virtual; abstract;
+    procedure Add(AEntity: T); virtual; abstract;
+    procedure Update(AEntity: T); virtual; abstract;
     procedure Delete(AId: Int64); virtual; abstract;
 
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); virtual; abstract;
@@ -56,7 +54,6 @@ implementation
 constructor TBaseService<T>.Create();
 begin
   inherited Create;
-  //
 end;
 
 destructor TBaseService<T>.Destroy;

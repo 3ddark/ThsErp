@@ -9,7 +9,7 @@ type
   [TableName('sys_view_columns')]
   TSysViewColumn = class(TEntity)
   private
-    FTabloAdi: TEntityField<string>;
+    FTableName: TEntityField<string>;
     FColumnName: TEntityField<string>;
     FIsNullable: TEntityField<Boolean>;
     FDataType: TEntityField<string>;
@@ -20,7 +20,7 @@ type
     FOrjTableName: TEntityField<string>;
     FOrjColumnName: TEntityField<string>;
   public
-    property TabloAdi: TEntityField<string> read FTabloAdi write FTabloAdi;
+    property TableName_: TEntityField<string> read FTableName write FTableName;
     property ColumnName: TEntityField<string> read FColumnName write FColumnName;
     property IsNullable: TEntityField<Boolean> read FIsNullable write FIsNullable;
     property DataType: TEntityField<string> read FDataType write FDataType;
@@ -42,7 +42,7 @@ implementation
 constructor TSysViewColumn.Create;
 begin
   inherited;
-  FTabloAdi := TEntityField<string>.Create(Self, 'tablo_adi');
+  FTableName := TEntityField<string>.Create(Self, 'table_name');
   FColumnName := TEntityField<string>.Create(Self, 'column_name');
   FIsNullable := TEntityField<Boolean>.Create(Self, 'is_nullable');
   FDataType := TEntityField<string>.Create(Self, 'data_type');

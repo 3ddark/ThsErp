@@ -16,7 +16,7 @@ inherited frmDashboard: TfrmDashboard
   StyleElements = [seFont, seClient, seBorder]
   OnActivate = FormActivate
   ExplicitWidth = 931
-  ExplicitHeight = 509
+  ExplicitHeight = 514
   TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
@@ -34,7 +34,7 @@ inherited frmDashboard: TfrmDashboard
       Left = 8
       Top = 2
       Width = 201
-      Height = 25
+      Height = 36
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -48,6 +48,7 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
@@ -92,6 +93,8 @@ inherited frmDashboard: TfrmDashboard
       Align = alClient
       MultiLine = True
       TabOrder = 0
+      ExplicitWidth = 913
+      ExplicitHeight = 352
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton

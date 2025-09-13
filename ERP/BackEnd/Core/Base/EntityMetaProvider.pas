@@ -27,7 +27,24 @@ begin
 end;
 
 class destructor TEntityMetaProvider.Destroy;
+var
+  nArr, n1: Integer;
+  AArrModel: TArray<TSysViewColumn>;
+  AKey: string;
 begin
+  for AKey in FFieldMetaCache.Keys do
+  begin
+    FFieldMetaCache.TryGetValue(AKey, AArrModel);
+    if AArrModel <> nil then
+    begin
+      for nArr := 0 to Length(AArrModel)-1 do
+      begin
+        for n1 := 0 to AArrModel[nArr].Fields.Count-1 do
+          AArrModel[nArr].Fields.Items[n1].OwnerEntity := nil;
+        AArrModel[nArr] := nil;
+      end;
+    end;
+  end;
   FFieldMetaCache.Free;
 end;
 
@@ -35,6 +52,7 @@ class function TEntityMetaProvider.GetFieldMeta(const TableName: string): TArray
 var
   FieldMetaList: TList<TSysViewColumn>;
   LSysViewColumn: TSysViewColumn;
+  n1: Integer;
 begin
   if FFieldMetaCache.ContainsKey(TableName) then
   begin
@@ -42,31 +60,22 @@ begin
     Exit;
   end;
 
-  FieldMetaList := TList<TSysViewColumn>.Create;
+  FieldMetaList := nil;
   try
     LSysViewColumn := TSysViewColumn.Create;
     try
-      TServiceContainer.Instance.SysViewColumnService.Find(' AND ' + LSysViewColumn.TabloAdi.QryName + '=' + QuotedStr(TableName), False);
-
-//      while not LSysViewColumn.Eof do
-//      begin
-//        FM.FieldName   := LSysViewColumn.FieldByName('COLUMN_NAME').AsString;
-//        FM.Required    := LSysViewColumn.FieldByName('NULLABLE').AsInteger = 0;
-//        FM.MaxLength   := LSysViewColumn.FieldByName('COLUMN_LENGTH').AsInteger;
-//        FM.DataTypeName := LSysViewColumn.FieldByName('COLUMN_TYPENAME').AsString;
-//        FM.DataTypeInt := LSysViewColumn.FieldByName('COLUMN_DATATYPE').AsInteger;
-//
-//        FieldMetaList.Add(FM);
-//        LSysViewColumn.Next;
-//      end;
+      FieldMetaList := TServiceContainer.Instance.SysViewColumnService.Find(' AND ' + LSysViewColumn.OrjTableName.QryName + '=' + QuotedStr(TableName), False);
     finally
-      LSysViewColumn.Free;
+      for n1 := 0 to LSysViewColumn.Fields.Count-1 do
+        LSysViewColumn.Fields.Items[n1].OwnerEntity := nil;
+      LSysViewColumn := nil;
     end;
 
     Result := FieldMetaList.ToArray;
     FFieldMetaCache.Add(TableName, Result);
   finally
-    FieldMetaList.Free;
+    if FieldMetaList <> nil then
+      FieldMetaList.Free;
   end;
 end;
 

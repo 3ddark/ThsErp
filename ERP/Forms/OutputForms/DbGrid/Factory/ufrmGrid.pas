@@ -761,7 +761,7 @@ begin
     if (AFormType = ifmRewiev) or (AFormType = ifmCopyNewRecord) then
     begin
       LOldTable := Table;
-          Table := Service.FindById(Table.Id.Value, False);
+      Table := Service.FindById(Table.Id.Value, False);
       for n1 := 0 to LOldTable.fields.Count-1 do
         LOldTable.fields[n1].OwnerEntity := nil;
     end;

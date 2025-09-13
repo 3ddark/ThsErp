@@ -17,8 +17,8 @@ type
     function CreateQueryForUI(const AFilterKey: string): string; override;
     function Find(AFilter: string; ALock: Boolean): TList<TSysViewColumn>; override;
     function FindById(AId: Int64; ALock: Boolean): TSysViewColumn; override;
-    procedure Add(AEntity: TSysViewColumn);
-    procedure Update(AEntity: TSysViewColumn);
+    procedure Add(AEntity: TSysViewColumn);  override;
+    procedure Update(AEntity: TSysViewColumn); override;
     procedure Delete(AId: Int64); override;
 
     procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;

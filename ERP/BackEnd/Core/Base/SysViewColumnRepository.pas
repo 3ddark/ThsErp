@@ -35,7 +35,7 @@ begin
 
       SQL := Format('SELECT %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s FROM %s WHERE 1=1 ', [
         Entity.Id.QryName,
-        Entity.TabloAdi.QryName,
+        Entity.TableName_.QryName,
         Entity.ColumnName.QryName,
         Entity.IsNullable.QryName,
         LTableName
