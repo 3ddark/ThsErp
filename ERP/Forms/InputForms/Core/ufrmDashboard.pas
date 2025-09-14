@@ -15,8 +15,11 @@ uses
   FireDAC.Stan.Intf, Ths.Utils.InfoWindow, udm, ufrmBase, ufrmBaseDBGrid,
   Ths.Database.TableDetailed, Ths.Database.Table,
 
-  ufrmGrid, BaseService, BaseRepository, BaseEntity, ServiceContainer, UnitOfWork,
-  StkKindFamilyService, StkKindFamily, EntityMetaProvider, ufrmStkKindFamilies;
+  BaseService, BaseRepository, BaseEntity, EntityMetaProvider,
+  ServiceContainer, UnitOfWork, ufrmGrid,
+  StkKindFamilyService, StkKindFamily, ufrmStkKindFamilies,
+  SysCity.Service, SysCity, ufrmSysCities,
+  SysRegion.Service, SysRegion, ufrmSysRegions;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -637,7 +640,8 @@ end;
 
 procedure TfrmDashboard.actsys_cityExecute(Sender: TObject);
 begin
-  TfrmSysSehirler.Create(Self, Self, TSysSehir.Create(GDataBase), fomNormal).Show;
+  TfrmSysCities.Create(Self, TServiceContainer.Instance.SysCityService as TSysCityService, TSysCity.Create).Show;
+//  TfrmSysSehirler.Create(Self, Self, TSysSehir.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actsys_grid_columnExecute(Sender: TObject);
@@ -687,7 +691,8 @@ end;
 
 procedure TfrmDashboard.actsys_regionExecute(Sender: TObject);
 begin
-  TfrmSysBolgeler.Create(Self, Self, TSysBolge.Create(GDataBase), fomNormal).Show;
+  TfrmSysRegions.Create(Self, TServiceContainer.Instance.SysRegionService as TSysRegionService, TSysRegion.Create).Show;
+//  TfrmSysBolgeler.Create(Self, Self, TSysBolge.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actsys_unit_typeExecute(Sender: TObject);

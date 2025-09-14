@@ -47,19 +47,19 @@ var
   LSysUlke: TSysUlke;
   LSysBolge: TSysBolge;
 begin
-  TableName := 'sys_sehirler';
+  TableName := 'sys_cities';
   TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
   LSysUlke := TSysUlke.Create(Database);
   LSysBolge := TSysBolge.Create(Database);
   try
-    FSehir := TFieldDB.Create('sehir', ftString, '', Self);
-    FPlakaKodu := TFieldDB.Create('plaka_kodu', ftInteger, 0, Self);
-    FUlkeID := TFieldDB.Create('ulke_id', ftLargeInt, 0, Self);
+    FSehir := TFieldDB.Create('city_name', ftString, '', Self);
+    FPlakaKodu := TFieldDB.Create('car_plate_code', ftInteger, 0, Self);
+    FUlkeID := TFieldDB.Create('country_id', ftLargeInt, 0, Self);
     FUlkeKodu := TFieldDB.Create(LSysUlke.UlkeKodu.FieldName, LSysUlke.UlkeKodu.DataType, LSysUlke.UlkeKodu.Value, Self);
     FUlkeAdi := TFieldDB.Create(LSysUlke.UlkeAdi.FieldName, LSysUlke.UlkeAdi.DataType, LSysUlke.UlkeAdi.Value, Self);
-    FBolgeID := TFieldDB.Create('bolge_id', ftLargeint, 0, Self);
+    FBolgeID := TFieldDB.Create('region_id', ftLargeint, 0, Self);
     FBolge := TFieldDB.Create(LSysBolge.Bolge.FieldName, LSysBolge.Bolge.DataType, LSysBolge.Bolge.Value, Self);
   finally
     LSysUlke.Free;

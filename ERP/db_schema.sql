@@ -2,12 +2,13 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.13
--- Dumped by pg_dump version 14.13
+-- Dumped from database version 17.5
+-- Dumped by pg_dump version 17.5
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -472,7 +473,7 @@ CREATE SEQUENCE public.alis_teklif_detaylari_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.alis_teklif_detaylari_id_seq OWNER TO ths_admin;
+ALTER SEQUENCE public.alis_teklif_detaylari_id_seq OWNER TO ths_admin;
 
 --
 -- Name: alis_teklif_detaylari_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
@@ -1590,19 +1591,19 @@ CREATE TABLE public.stk_kartlar (
 ALTER TABLE public.stk_kartlar OWNER TO ths_admin;
 
 --
--- Name: sys_sehirler; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_cities; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_sehirler (
+CREATE TABLE public.sys_cities (
     id bigint NOT NULL,
-    sehir character varying(32) NOT NULL,
-    plaka_kodu integer,
-    ulke_id bigint,
-    bolge_id bigint
+    city_name character varying(32) NOT NULL,
+    car_plate_code integer,
+    country_id bigint,
+    region_id bigint
 );
 
 
-ALTER TABLE public.sys_sehirler OWNER TO ths_admin;
+ALTER TABLE public.sys_cities OWNER TO ths_admin;
 
 --
 -- Name: sat_siparis_rapor; Type: VIEW; Schema: public; Owner: ths_admin
@@ -1612,7 +1613,7 @@ CREATE VIEW public.sat_siparis_rapor AS
  SELECT sd.id,
     s.musteri_kodu,
     s.musteri_adi,
-    ct.sehir AS sehir_adi,
+    ct.city_name AS sehir_adi,
     sg.grup AS stok_grubu,
     sd.stok_kodu,
     sd.stok_aciklama,
@@ -1627,14 +1628,14 @@ CREATE VIEW public.sat_siparis_rapor AS
     sd.referans AS referans_satir
    FROM (((((public.sat_siparis_detaylari sd
      LEFT JOIN public.sat_siparisler s ON ((s.id = sd.header_id)))
-     LEFT JOIN public.sys_sehirler ct ON ((ct.id = s.sehir_id)))
+     LEFT JOIN public.sys_cities ct ON ((ct.id = s.sehir_id)))
      LEFT JOIN public.set_sls_order_status ss ON ((ss.id = s.siparis_durum_id)))
      LEFT JOIN public.stk_kartlar stk ON (((stk.stok_kodu)::text = (sd.stok_kodu)::text)))
      LEFT JOIN public.stk_gruplar sg ON ((sg.id = stk.stok_grubu_id)))
   WHERE (1 = 1);
 
 
-ALTER TABLE public.sat_siparis_rapor OWNER TO ths_admin;
+ALTER VIEW public.sat_siparis_rapor OWNER TO ths_admin;
 
 --
 -- Name: sat_teklif_detaylari; Type: TABLE; Schema: public; Owner: ths_admin
@@ -2305,6 +2306,40 @@ COMMENT ON TABLE public.stk_ambarlar IS 'Stok hareketlerinin tutulduğu ambar bi
 
 
 --
+-- Name: stk_cins_aileleri; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.stk_cins_aileleri (
+    id integer NOT NULL,
+    aile character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.stk_cins_aileleri OWNER TO ths_admin;
+
+--
+-- Name: stk_cins_aileleri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+CREATE SEQUENCE public.stk_cins_aileleri_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.stk_cins_aileleri_id_seq OWNER TO ths_admin;
+
+--
+-- Name: stk_cins_aileleri_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
+--
+
+ALTER SEQUENCE public.stk_cins_aileleri_id_seq OWNED BY public.stk_cins_aileleri.id;
+
+
+--
 -- Name: stk_cins_ozellikleri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
@@ -2316,7 +2351,7 @@ CREATE SEQUENCE public.stk_cins_ozellikleri_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.stk_cins_ozellikleri_id_seq OWNER TO ths_admin;
+ALTER SEQUENCE public.stk_cins_ozellikleri_id_seq OWNER TO ths_admin;
 
 --
 -- Name: stk_cins_ozellikleri; Type: TABLE; Schema: public; Owner: ths_admin
@@ -2401,7 +2436,7 @@ CREATE SEQUENCE public.stk_kart_cins_bilgileri_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.stk_kart_cins_bilgileri_id_seq OWNER TO ths_admin;
+ALTER SEQUENCE public.stk_kart_cins_bilgileri_id_seq OWNER TO ths_admin;
 
 --
 -- Name: stk_kart_cins_bilgileri; Type: TABLE; Schema: public; Owner: ths_admin
@@ -2489,6 +2524,41 @@ ALTER TABLE public.stk_kartlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
     NO MAXVALUE
     CACHE 1
 );
+
+
+--
+-- Name: stk_kind_families; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.stk_kind_families (
+    id bigint NOT NULL,
+    family character varying(32) NOT NULL,
+    description character varying(250),
+    active boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE public.stk_kind_families OWNER TO ths_admin;
+
+--
+-- Name: stk_kind_families_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+CREATE SEQUENCE public.stk_kind_families_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.stk_kind_families_id_seq OWNER TO ths_admin;
+
+--
+-- Name: stk_kind_families_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
+--
+
+ALTER SEQUENCE public.stk_kind_families_id_seq OWNED BY public.stk_kind_families.id;
 
 
 --
@@ -2610,23 +2680,41 @@ ALTER TABLE public.sys_aylar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- Name: sys_bolgeler; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_city_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_bolgeler (
-    id bigint NOT NULL,
-    bolge character varying(64) NOT NULL
+ALTER TABLE public.sys_cities ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_city_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
 
 
-ALTER TABLE public.sys_bolgeler OWNER TO ths_admin;
-
 --
--- Name: sys_bolge_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: sys_countries; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_bolgeler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_bolge_id_seq
+CREATE TABLE public.sys_countries (
+    id bigint NOT NULL,
+    country_code character varying(2) NOT NULL,
+    country_name character varying(128) NOT NULL,
+    iso_year integer,
+    iso_cctld character varying(3),
+    is_eu_member boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public.sys_countries OWNER TO ths_admin;
+
+--
+-- Name: sys_country_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_countries ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_country_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2640,14 +2728,14 @@ ALTER TABLE public.sys_bolgeler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 --
 
 CREATE VIEW public.sys_db_status AS
- SELECT (row_number() OVER (ORDER BY pa.client_addr, pa.usename))::integer AS id,
-    pa.pid,
-    (pa.datname)::character varying(128) AS db_name,
-    (pa.application_name)::character varying(128) AS app_name,
-    (pa.usename)::character varying(64) AS user_name,
-    (pa.client_addr)::character varying(32) AS client_address,
-    (pa.state)::character varying(64) AS state,
-    (pa.query)::character varying(1024) AS query,
+ SELECT (row_number() OVER (ORDER BY client_addr, usename))::integer AS id,
+    pid,
+    (datname)::character varying(128) AS db_name,
+    (application_name)::character varying(128) AS app_name,
+    (usename)::character varying(64) AS user_name,
+    (client_addr)::character varying(32) AS client_address,
+    (state)::character varying(64) AS state,
+    (query)::character varying(1024) AS query,
     (( SELECT string_agg((( SELECT pg_statio_user_tables.relname
                    FROM pg_statio_user_tables
                   WHERE ((pg_statio_user_tables.relid = lck.relation) AND (pg_statio_user_tables.relname IS NOT NULL))))::text, ', '::text) AS string_agg
@@ -2657,10 +2745,10 @@ CREATE VIEW public.sys_db_status AS
                    FROM pg_statio_user_tables
                   WHERE ((pg_statio_user_tables.relid = lck.relation) AND (pg_statio_user_tables.relname IS NOT NULL))))::text, ', '::text))))::character varying(1024) AS locked_tables
    FROM pg_stat_activity pa
-  WHERE (pa.datname = current_database());
+  WHERE (datname = current_database());
 
 
-ALTER TABLE public.sys_db_status OWNER TO ths_admin;
+ALTER VIEW public.sys_db_status OWNER TO ths_admin;
 
 --
 -- Name: sys_ersim_haklari; Type: TABLE; Schema: public; Owner: ths_admin
@@ -3022,41 +3110,23 @@ ALTER TABLE public.sys_para_birimleri ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 
 --
--- Name: sys_sehir_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: sys_regions; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_sehirler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_sehir_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: sys_ulkeler; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_ulkeler (
+CREATE TABLE public.sys_regions (
     id bigint NOT NULL,
-    ulke_kodu character varying(2) NOT NULL,
-    ulke_adi character varying(128) NOT NULL,
-    iso_year integer,
-    iso_cctld character varying(3),
-    is_eu_member boolean DEFAULT false NOT NULL
+    region_name character varying(64) NOT NULL
 );
 
 
-ALTER TABLE public.sys_ulkeler OWNER TO ths_admin;
+ALTER TABLE public.sys_regions OWNER TO ths_admin;
 
 --
--- Name: sys_ulke_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: sys_region_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_ulkeler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_ulke_id_seq
+ALTER TABLE public.sys_regions ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_region_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3144,14 +3214,14 @@ ALTER TABLE public.sys_uygulama_ayarlari ALTER COLUMN id ADD GENERATED ALWAYS AS
 
 CREATE VIEW public.sys_view_tables AS
  SELECT (row_number() OVER (ORDER BY tables.table_type, tables.table_name))::integer AS id,
-    initcap(replace((tables.table_name)::text, '_'::text, ' '::text)) AS table_name,
-    (tables.table_type)::text AS table_type
+    initcap(replace((table_name)::text, '_'::text, ' '::text)) AS table_name,
+    (table_type)::text AS table_type
    FROM information_schema.tables
-  WHERE ((tables.table_schema)::text = 'public'::text)
-  ORDER BY (tables.table_type)::text, (initcap(replace((tables.table_name)::text, '_'::text, ' '::text)));
+  WHERE ((table_schema)::text = 'public'::text)
+  ORDER BY (table_type)::text, (initcap(replace((table_name)::text, '_'::text, ' '::text)));
 
 
-ALTER TABLE public.sys_view_tables OWNER TO ths_admin;
+ALTER VIEW public.sys_view_tables OWNER TO ths_admin;
 
 --
 -- Name: sys_view_columns; Type: VIEW; Schema: public; Owner: ths_admin
@@ -3178,7 +3248,7 @@ CREATE VIEW public.sys_view_columns AS
   ORDER BY vt.table_type, columns.table_name, columns.ordinal_position;
 
 
-ALTER TABLE public.sys_view_columns OWNER TO ths_admin;
+ALTER VIEW public.sys_view_columns OWNER TO ths_admin;
 
 --
 -- Name: sys_view_databases; Type: VIEW; Schema: public; Owner: ths_admin
@@ -3192,7 +3262,7 @@ CREATE VIEW public.sys_view_databases AS
   WHERE ((1 = 1) AND (pg_shdescription.description = 'THS ERP Systems'::text));
 
 
-ALTER TABLE public.sys_view_databases OWNER TO ths_admin;
+ALTER VIEW public.sys_view_databases OWNER TO ths_admin;
 
 --
 -- Name: urt_recete_yan_urunler; Type: TABLE; Schema: public; Owner: ths_admin
@@ -3227,6 +3297,20 @@ ALTER TABLE public.urt_recete_yan_urunler ALTER COLUMN id ADD GENERATED ALWAYS A
 --
 
 ALTER TABLE ONLY public.als_teklif_detaylari ALTER COLUMN id SET DEFAULT nextval('public.alis_teklif_detaylari_id_seq'::regclass);
+
+
+--
+-- Name: stk_cins_aileleri id; Type: DEFAULT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_cins_aileleri ALTER COLUMN id SET DEFAULT nextval('public.stk_cins_aileleri_id_seq'::regclass);
+
+
+--
+-- Name: stk_kind_families id; Type: DEFAULT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kind_families ALTER COLUMN id SET DEFAULT nextval('public.stk_kind_families_id_seq'::regclass);
 
 
 --
@@ -3838,6 +3922,22 @@ ALTER TABLE ONLY public.stk_ambarlar
 
 
 --
+-- Name: stk_cins_aileleri stk_cins_aileleri_aile_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_cins_aileleri
+    ADD CONSTRAINT stk_cins_aileleri_aile_key UNIQUE (aile);
+
+
+--
+-- Name: stk_cins_aileleri stk_cins_aileleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_cins_aileleri
+    ADD CONSTRAINT stk_cins_aileleri_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: stk_cins_ozellikleri stk_cins_ozellikleri_cins_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -3918,6 +4018,22 @@ ALTER TABLE ONLY public.stk_kartlar
 
 
 --
+-- Name: stk_kind_families stk_kind_families_family_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kind_families
+    ADD CONSTRAINT stk_kind_families_family_key UNIQUE (family);
+
+
+--
+-- Name: stk_kind_families stk_kind_families_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kind_families
+    ADD CONSTRAINT stk_kind_families_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: stk_resimler stk_resimler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -3958,19 +4074,35 @@ ALTER TABLE ONLY public.sys_aylar
 
 
 --
--- Name: sys_bolgeler sys_bolgeler_bolge_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_cities sys_cities_country_id_city_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_bolgeler
-    ADD CONSTRAINT sys_bolgeler_bolge_key UNIQUE (bolge);
+ALTER TABLE ONLY public.sys_cities
+    ADD CONSTRAINT sys_cities_country_id_city_name_key UNIQUE (country_id, city_name);
 
 
 --
--- Name: sys_bolgeler sys_bolgeler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_cities sys_cities_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_bolgeler
-    ADD CONSTRAINT sys_bolgeler_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sys_cities
+    ADD CONSTRAINT sys_cities_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_countries sys_countries_country_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_countries
+    ADD CONSTRAINT sys_countries_country_code_key UNIQUE (country_code);
+
+
+--
+-- Name: sys_countries sys_countries_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_countries
+    ADD CONSTRAINT sys_countries_pkey PRIMARY KEY (id);
 
 
 --
@@ -4150,35 +4282,19 @@ ALTER TABLE ONLY public.sys_para_birimleri
 
 
 --
--- Name: sys_sehirler sys_sehirler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_regions sys_regions_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_sehirler
-    ADD CONSTRAINT sys_sehirler_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_sehirler sys_sehirler_ulke_id_sehir_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_sehirler
-    ADD CONSTRAINT sys_sehirler_ulke_id_sehir_key UNIQUE (ulke_id, sehir);
+ALTER TABLE ONLY public.sys_regions
+    ADD CONSTRAINT sys_regions_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sys_ulkeler sys_ulkeler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_regions sys_regions_region_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_ulkeler
-    ADD CONSTRAINT sys_ulkeler_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_ulkeler sys_ulkeler_ulke_kodu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_ulkeler
-    ADD CONSTRAINT sys_ulkeler_ulke_kodu_key UNIQUE (ulke_kodu);
+ALTER TABLE ONLY public.sys_regions
+    ADD CONSTRAINT sys_regions_region_name_key UNIQUE (region_name);
 
 
 --
@@ -4536,10 +4652,24 @@ CREATE TRIGGER table_notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_b
 
 
 --
+-- Name: stk_cins_aileleri table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER table_notify BEFORE INSERT OR DELETE OR UPDATE ON public.stk_cins_aileleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
 -- Name: stk_cins_ozellikleri table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
 CREATE TRIGGER table_notify BEFORE INSERT OR DELETE OR UPDATE ON public.stk_cins_ozellikleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: stk_kind_families table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER table_notify BEFORE INSERT OR DELETE OR UPDATE ON public.stk_kind_families FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -4743,7 +4873,7 @@ ALTER TABLE ONLY public.als_teklifler
 --
 
 ALTER TABLE ONLY public.als_teklifler
-    ADD CONSTRAINT als_teklifler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehirler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT als_teklifler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_cities(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -4751,7 +4881,7 @@ ALTER TABLE ONLY public.als_teklifler
 --
 
 ALTER TABLE ONLY public.als_teklifler
-    ADD CONSTRAINT als_teklifler_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT als_teklifler_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_countries(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -4767,7 +4897,7 @@ ALTER TABLE ONLY public.ch_banka_subeleri
 --
 
 ALTER TABLE ONLY public.ch_banka_subeleri
-    ADD CONSTRAINT ch_banka_subeleri_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehirler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT ch_banka_subeleri_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_cities(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5023,7 +5153,7 @@ ALTER TABLE ONLY public.sat_siparisler
 --
 
 ALTER TABLE ONLY public.sat_siparisler
-    ADD CONSTRAINT sat_siparisler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehirler(id) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT sat_siparisler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_cities(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5047,7 +5177,7 @@ ALTER TABLE ONLY public.sat_siparisler
 --
 
 ALTER TABLE ONLY public.sat_siparisler
-    ADD CONSTRAINT sat_siparisler_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT sat_siparisler_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_countries(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5143,7 +5273,7 @@ ALTER TABLE ONLY public.sat_teklifler
 --
 
 ALTER TABLE ONLY public.sat_teklifler
-    ADD CONSTRAINT sat_teklifler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehirler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_teklifler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_cities(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5159,7 +5289,7 @@ ALTER TABLE ONLY public.sat_teklifler
 --
 
 ALTER TABLE ONLY public.sat_teklifler
-    ADD CONSTRAINT sat_teklifler_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_teklifler_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_countries(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5295,7 +5425,7 @@ ALTER TABLE ONLY public.stk_kartlar
 --
 
 ALTER TABLE ONLY public.stk_kartlar
-    ADD CONSTRAINT stk_kartlar_mensei_id_fkey FOREIGN KEY (mensei_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_kartlar_mensei_id_fkey FOREIGN KEY (mensei_id) REFERENCES public.sys_countries(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5335,7 +5465,23 @@ ALTER TABLE ONLY public.stk_resimler
 --
 
 ALTER TABLE ONLY public.sys_adresler
-    ADD CONSTRAINT sys_adresler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_sehirler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sys_adresler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_cities(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sys_cities sys_cities_country_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_cities
+    ADD CONSTRAINT sys_cities_country_id_fkey FOREIGN KEY (country_id) REFERENCES public.sys_countries(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sys_cities sys_cities_region_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_cities
+    ADD CONSTRAINT sys_cities_region_id_fkey FOREIGN KEY (region_id) REFERENCES public.sys_regions(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5368,22 +5514,6 @@ ALTER TABLE ONLY public.sys_kaynaklar
 
 ALTER TABLE ONLY public.sys_olcu_birimleri
     ADD CONSTRAINT sys_olcu_birimleri_birim_tipi_id_fkey FOREIGN KEY (birim_tipi_id) REFERENCES public.sys_olcu_birimi_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
-
-
---
--- Name: sys_sehirler sys_sehirler_bolge_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_sehirler
-    ADD CONSTRAINT sys_sehirler_bolge_id_fkey FOREIGN KEY (bolge_id) REFERENCES public.sys_bolgeler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sys_sehirler sys_sehirler_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_sehirler
-    ADD CONSTRAINT sys_sehirler_ulke_id_fkey FOREIGN KEY (ulke_id) REFERENCES public.sys_ulkeler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5563,10 +5693,10 @@ ALTER TABLE ONLY public.urt_receteler
 
 
 --
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pg_database_owner
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT CREATE ON SCHEMA public TO PUBLIC;
 GRANT ALL ON SCHEMA public TO ths_admin;
 

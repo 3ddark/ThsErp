@@ -6,7 +6,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.ImageList,
-  System.Generics.Collections,
+
   Vcl.ImgList,
   Vcl.Controls;
 

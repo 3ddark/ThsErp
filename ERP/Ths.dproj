@@ -163,10 +163,6 @@
         <DCCReference Include="BackEnd\Tools\SynPDF\SynCrypto.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\mORMotReport.pas"/>
         <DCCReference Include="BackEnd\Core\Logger.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\BaseEntity.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\BaseRepository.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\BaseService.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\EntityMetaProvider.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.BaseTypes.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.Button.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.ComboBox.pas"/>
@@ -733,25 +729,51 @@
         </DCCReference>
         <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas"/>
         <DCCReference Include="Forms\SharedFormTypes.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Factory\ufrmGrid.pas"/>
-        <DCCReference Include="Forms\ufrmInputSimpleDbX.pas"/>
+        <DCCReference Include="BackEnd\Tools\Ths.DialogHelper.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\BaseEntity.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\BaseRepository.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\BaseService.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\EntityMetaProvider.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\ServiceContainer.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\TableNameService.pas"/>
         <DCCReference Include="BackEnd\Core\Base\UnitOfWork.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\QueryBuilder.pas"/>
         <DCCReference Include="BackEnd\Core\Base\StkKindFamily.pas"/>
         <DCCReference Include="BackEnd\Core\Base\StkKindFamilyRepository.pas"/>
         <DCCReference Include="BackEnd\Core\Base\StkKindFamilyService.pas"/>
-        <DCCReference Include="Forms\ufrmStkKindFamilies.pas">
+        <DCCReference Include="BackEnd\System\SysCountry.pas"/>
+        <DCCReference Include="BackEnd\System\SysCountry.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\SysCountry.Service.pas"/>
+        <DCCReference Include="BackEnd\System\SysRegion.pas"/>
+        <DCCReference Include="BackEnd\System\SysRegion.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\SysRegion.Service.pas"/>
+        <DCCReference Include="BackEnd\System\SysViewColumn.pas"/>
+        <DCCReference Include="BackEnd\System\SysViewColumn.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\SysViewColumn.Service.pas"/>
+        <DCCReference Include="BackEnd\System\SysCity.pas"/>
+        <DCCReference Include="BackEnd\System\SysCity.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\SysCity.Service.pas"/>
+        <DCCReference Include="Forms\Core\ufrmGrid.pas"/>
+        <DCCReference Include="Forms\Core\ufrmInputSimpleDbX.pas"/>
+        <DCCReference Include="Forms\Stock\ufrmStkKindFamilies.pas">
             <Form>frmStkKindFamilies</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Forms\ufrmStkKindFamily.pas">
+        <DCCReference Include="Forms\Stock\ufrmStkKindFamily.pas">
             <Form>frmStkKindFamily</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="BackEnd\Core\Base\ServiceContainer.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.DialogHelper.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\TableNameService.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\SysViewColumn.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\SysViewColumnRepository.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\SysViewColumnService.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysRegion.pas">
+            <Form>frmSysRegion</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysRegions.pas">
+            <Form>frmSysRegions</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysCity.pas">
+            <Form>frmSysCity</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysCities.pas">
+            <Form>frmSysCities</Form>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -1735,6 +1757,7 @@
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64x" Name="$(PROJECTNAME)"/>
             </Deployment>
+            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>

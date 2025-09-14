@@ -48,9 +48,9 @@ type
     procedure Delete(AModel: T); overload; virtual;
     procedure Delete(AFilter: TValue); overload; virtual;
 
-    procedure DeleteBatch(AModels: TArray<T>); overload;
-    procedure DeleteBatch(AIDs: TArray<Int64>); overload;
-    procedure DeleteBatch(AFilter: string = ''); overload;
+    procedure DeleteBatch(AModels: TArray<T>); overload; virtual;
+    procedure DeleteBatch(AIDs: TArray<Int64>); overload; virtual;
+    procedure DeleteBatch(AFilter: string = ''); overload; virtual;
 
     procedure DeleteById(AId: Integer; ATableName: string);
   end;

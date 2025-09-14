@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.Generics.Collections, Data.DB,
-  System.Rtti, System.Variants, System.StrUtils,
+  System.Rtti, System.Variants,
   SysViewColumn;
 
 type
@@ -68,7 +68,6 @@ begin
     finally
       for n1 := 0 to LSysViewColumn.Fields.Count-1 do
         LSysViewColumn.Fields.Items[n1].OwnerEntity := nil;
-      LSysViewColumn := nil;
     end;
 
     Result := FieldMetaList.ToArray;

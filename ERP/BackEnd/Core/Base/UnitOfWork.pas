@@ -5,7 +5,9 @@ interface
 uses
   SysUtils, Classes, FireDAC.Comp.Client, FireDAC.Phys,FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Error,
-  StkKindFamilyRepository, SysViewColumnRepository;
+  StkKindFamilyRepository,
+  SysViewColumn.Repository, SysCountry.Repository, SysRegion.Repository,
+  SysCity.Repository;
 
 type
   TUnitOfWork = class
@@ -16,9 +18,17 @@ type
     FConnection: TFDConnection;
 
     FSysViewColumnRepository: TSysViewColumnRepository;
+    FSysCityRepository: TSysCityRepository;
+    FSysCountryRepository: TSysCountryRepository;
+    FSysRegionRepository: TSysRegionRepository;
+
     FStkCinsAileRepository: TStkKindFamilyRepository;
 
     function GetSysViewColumnRepository: TSysViewColumnRepository;
+    function GetSysCityRepository: TSysCityRepository;
+    function GetSysCountryRepository: TSysCountryRepository;
+    function GetSysRegionRepository: TSysRegionRepository;
+
     function GetStkCinsAileRepository: TStkKindFamilyRepository;
 
     function GetConnection: TFDConnection;
@@ -37,6 +47,9 @@ type
     property Connection: TFDConnection read GetConnection;
 
     property SysViewColumnRepository: TSysViewColumnRepository read GetSysViewColumnRepository;
+    property SysCityRepository: TSysCityRepository read GetSysCityRepository;
+    property SysCountryRepository: TSysCountryRepository read GetSysCountryRepository;
+    property SysRegionRepository: TSysRegionRepository read GetSysRegionRepository;
     property StkCinsAileRepository: TStkKindFamilyRepository read GetStkCinsAileRepository;
   end;
 
@@ -50,6 +63,8 @@ end;
 destructor TUnitOfWork.Destroy;
 begin
   FreeAndNil(FSysViewColumnRepository);
+  FreeAndNil(FSysCountryRepository);
+  FreeAndNil(FSysRegionRepository);
   FreeAndNil(FStkCinsAileRepository);
 
   inherited;
@@ -75,18 +90,39 @@ begin
   FInstance.FConnection.Rollback;
 end;
 
-function TUnitOfWork.GetStkCinsAileRepository: TStkKindFamilyRepository;
-begin
-  if Self.FInstance.FStkCinsAileRepository = nil then
-    Self.FInstance.FStkCinsAileRepository := TStkKindFamilyRepository.Create(FInstance.FConnection);
-  Result := Self.FInstance.FStkCinsAileRepository;
-end;
-
 function TUnitOfWork.GetSysViewColumnRepository: TSysViewColumnRepository;
 begin
   if Self.FInstance.FSysViewColumnRepository = nil then
     Self.FInstance.FSysViewColumnRepository := TSysViewColumnRepository.Create(FInstance.FConnection);
   Result := Self.FInstance.FSysViewColumnRepository;
+end;
+
+function TUnitOfWork.GetSysCountryRepository: TSysCountryRepository;
+begin
+  if Self.FInstance.FSysCountryRepository = nil then
+    Self.FInstance.FSysCountryRepository := TSysCountryRepository.Create(FInstance.FConnection);
+  Result := Self.FInstance.FSysCountryRepository;
+end;
+
+function TUnitOfWork.GetSysCityRepository: TSysCityRepository;
+begin
+  if Self.FInstance.FSysCityRepository = nil then
+    Self.FInstance.FSysCityRepository := TSysCityRepository.Create(FInstance.FConnection);
+  Result := Self.FInstance.FSysCityRepository;
+end;
+
+function TUnitOfWork.GetSysRegionRepository: TSysRegionRepository;
+begin
+  if Self.FInstance.FSysRegionRepository = nil then
+    Self.FInstance.FSysRegionRepository := TSysRegionRepository.Create(FInstance.FConnection);
+  Result := Self.FInstance.FSysRegionRepository;
+end;
+
+function TUnitOfWork.GetStkCinsAileRepository: TStkKindFamilyRepository;
+begin
+  if Self.FInstance.FStkCinsAileRepository = nil then
+    Self.FInstance.FStkCinsAileRepository := TStkKindFamilyRepository.Create(FInstance.FConnection);
+  Result := Self.FInstance.FStkCinsAileRepository;
 end;
 
 class procedure TUnitOfWork.Initialize(AConnection: TFDConnection);

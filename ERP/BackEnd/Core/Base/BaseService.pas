@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Types, FireDAC.Comp.Client, System.Generics.Collections,
-  UnitOfWork, BaseRepository, BaseEntity;
+  UnitOfWork;
 
 type
   IBaseService<T> = interface

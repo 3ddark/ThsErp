@@ -577,7 +577,7 @@ inherited frmDashboard: TfrmDashboard
       OnExecute = actset_prs_gorevlerExecute
     end
     object actsys_month: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Aylar'
       ImageIndex = 8
       OnExecute = actsys_monthExecute
@@ -589,133 +589,133 @@ inherited frmDashboard: TfrmDashboard
       OnExecute = actset_prs_lisanlarExecute
     end
     object actsys_region: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'B'#246'lgeler'
       ImageIndex = 68
       OnExecute = actsys_regionExecute
     end
     object actacc_exchange_rate: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'D'#246'viz Kurlar'#305
       ImageIndex = 68
       OnExecute = actacc_exchange_rateExecute
     end
     object actsys_access_right: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Kullan'#305'c'#305' Eri'#351'im Haklar'#305
       ImageIndex = 62
       OnExecute = actsys_access_rightExecute
     end
     object actsys_grid_filter_sort: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Grid Filtre ve S'#305'ralamalar'
       ImageIndex = 26
       OnExecute = actsys_grid_filter_sortExecute
     end
     object actsys_grid_column: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Grid Kolon Geni'#351'likleri && G'#246'r'#252'n'#252'rl'#252'kler'
       ImageIndex = 12
       OnExecute = actsys_grid_columnExecute
     end
     object actsys_day: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'G'#252'nler'
       ImageIndex = 85
       OnExecute = actsys_dayExecute
     end
     object actsys_resource: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Kaynaklar'
       ImageIndex = 81
       OnExecute = actsys_resourceExecute
     end
     object actsys_resource_group: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Kaynak Gruplar'#305
       ImageIndex = 81
       OnExecute = actsys_resource_groupExecute
     end
     object actsys_user: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Kullan'#305'c'#305'lar'
       ImageIndex = 64
       OnExecute = actsys_userExecute
     end
     object actsys_lang_gui_content: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'GUI '#304#231'erikleri'
       ImageIndex = 35
       OnExecute = actsys_lang_gui_contentExecute
     end
     object actsys_unit: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = #214'l'#231#252' Birimleri'
       ImageIndex = 74
       OnExecute = actsys_unitExecute
     end
     object actsys_unit_type: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = #214'l'#231#252' Birimi Tipleri'
       ImageIndex = 74
       OnExecute = actsys_unit_typeExecute
     end
     object actsys_currency: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Para Birimleri'
       ImageIndex = 68
       OnExecute = actsys_currencyExecute
     end
     object actsys_city: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = #350'ehirler'
       ImageIndex = 71
       OnExecute = actsys_cityExecute
     end
     object actsys_update_password: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Update Password'
       ImageIndex = 62
       OnExecute = actsys_update_passwordExecute
     end
     object actsys_country: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = #220'lkeler'
       ImageIndex = 72
       OnExecute = actsys_countryExecute
     end
     object actsys_application_setting: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Uygulama Ayarlar'#305
       ImageIndex = 76
       OnExecute = actsys_application_settingExecute
     end
     object actsys_application_setting_other: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Application Settings Other'
       ImageIndex = 76
     end
     object actsys_update: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Update'
       Enabled = False
       ImageIndex = 3
       OnExecute = actsys_updateExecute
     end
     object actsys_about: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'About'
       ImageIndex = 34
       OnExecute = actsys_aboutExecute
     end
     object actsys_database_status: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Database Monitor'
       ImageIndex = 55
       OnExecute = actsys_database_statusExecute
     end
     object actsys_do_database_backup: TAction
-      Category = 'Sistem'
+      Category = 'System'
       Caption = 'Database Backup'
       ImageIndex = 18
       OnExecute = actsys_do_database_backupExecute

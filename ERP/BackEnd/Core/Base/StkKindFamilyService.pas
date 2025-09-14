@@ -3,9 +3,9 @@ unit StkKindFamilyService;
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, System.Generics.Collections,
-  FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  BaseEntity, BaseService, EntityMetaProvider, UnitOfWork,
+  SysUtils, Classes, Types, System.Generics.Collections,
+  FireDAC.Comp.Client,
+  BaseEntity, BaseService, UnitOfWork,
   StkKindFamilyRepository, StkKindFamily;
 
 type

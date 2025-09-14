@@ -4,7 +4,10 @@ interface
 
 uses
   BaseService,
-  StkKindFamilyService, StkKindFamily, SysViewColumnService, SysViewColumn;
+  SysViewColumn.Service, SysViewColumn,
+  SysCity.Service, SysCity,
+  SysRegion.Service, SysRegion,
+  StkKindFamilyService, StkKindFamily;
 
 type
   TServiceContainer = class
@@ -12,11 +15,16 @@ type
     class var FInstance: TServiceContainer;
     class var FLock: TObject;
   private
-    FStkCinsAileService: IBaseService<TStkKindFamily>;
     FSysViewColumnService: IBaseService<TSysViewColumn>;
+    FSysCityService: IBaseService<TSysCity>;
+    FSysRegionService: IBaseService<TSysRegion>;
 
-    function GetStkCinsAileService: IBaseService<TStkKindFamily>;
+    FStkCinsAileService: IBaseService<TStkKindFamily>;
+
     function GetSysViewColumnService: IBaseService<TSysViewColumn>;
+    function GetSysCityService: IBaseService<TSysCity>;
+    function GetSysRegionService: IBaseService<TSysRegion>;
+    function GetStkCinsAileService: IBaseService<TStkKindFamily>;
   protected
     constructor Create;
   public
@@ -24,8 +32,10 @@ type
 
     class function Instance: TServiceContainer;
 
-    property StkCinsAileService: IBaseService<TStkKindFamily> read GetStkCinsAileService;
     property SysViewColumnService: IBaseService<TSysViewColumn> read GetSysViewColumnService;
+    property SysCityService: IBaseService<TSysCity> read GetSysCityService;
+    property SysRegionService: IBaseService<TSysRegion> read GetSysRegionService;
+    property StkCinsAileService: IBaseService<TStkKindFamily> read GetStkCinsAileService;
   end;
 
 implementation
@@ -61,6 +71,20 @@ begin
   if FStkCinsAileService = nil then
     FStkCinsAileService := TStkKindFamilyService.Create();
   Result := FStkCinsAileService;
+end;
+
+function TServiceContainer.GetSysCityService: IBaseService<TSysCity>;
+begin
+  if FSysCityService = nil then
+    FSysCityService := TSysCityService.Create();
+  Result := FSysCityService;
+end;
+
+function TServiceContainer.GetSysRegionService: IBaseService<TSysRegion>;
+begin
+  if FSysRegionService = nil then
+    FSysRegionService := TSysRegionService.Create();
+  Result := FSysRegionService;
 end;
 
 function TServiceContainer.GetSysViewColumnService: IBaseService<TSysViewColumn>;

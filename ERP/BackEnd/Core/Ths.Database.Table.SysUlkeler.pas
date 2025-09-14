@@ -39,12 +39,12 @@ uses Ths.Globals;
 
 constructor TSysUlke.Create(ADatabase: TDatabase);
 begin
-  TableName := 'sys_ulkeler';
+  TableName := 'sys_countries';
   TableSourceCode := MODULE_SISTEM_DIGER;
   inherited Create(ADatabase);
 
-  FUlkeKodu := TFieldDB.Create('ulke_kodu', ftString, '', Self);
-  FUlkeAdi := TFieldDB.Create('ulke_adi', ftString, '', Self);
+  FUlkeKodu := TFieldDB.Create('country_code', ftString, '', Self);
+  FUlkeAdi := TFieldDB.Create('country_name', ftString, '', Self);
   FISOYear := TFieldDB.Create('iso_year', ftInteger, 0, Self);
   FISOCCTLD := TFieldDB.Create('iso_cctld', ftString, '', Self);
   FIsEuMember := TFieldDB.Create('is_eu_member', ftBoolean, False, Self);
