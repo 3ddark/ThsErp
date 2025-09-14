@@ -9,6 +9,11 @@ uses
   BaseEntity, TableNameService;
 
 type
+  TRttiHelper = class
+  public
+    class function IsValueTypeEntity(AFieldObj: TObject; out AEntityRtti: TRttiInstanceType): Boolean;
+  end;
+
   IBaseRepository<T> = interface
     ['{41099611-B2E2-4851-865D-F5417081E31F}']
   end;
@@ -98,34 +103,88 @@ end;
 procedure TBaseRepository<T>.QueryToEntityValue(AQuery: TFDQuery; AEntity: T);
 var
   n1: Integer;
+  AField: IEntityField;
+  nestedRtti: TRttiInstanceType;
+  NestedEntity: TEntity;
+  subFld: IEntityField;
+  pref: string;
 begin
   for n1 := 0 to AEntity.Fields.Count-1 do
   begin
-    case AEntity.Fields.Items[n1].FieldType of
-      ftString: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsString);
-      ftWideString: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsWideString);
-      ftMemo: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsString);
-      ftFmtMemo: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsString);
+    AField := AEntity.Fields.Items[n1];
 
-      ftShortint: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsInteger);
-      ftWord: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsInteger);
-      ftSmallint: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsInteger);
-      ftInteger: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsInteger);
-      ftLongWord: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsInteger);
-      ftLargeint: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsLargeInt);
-      ftBCD: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsInteger);
-      ftFMTBcd: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsFloat);
+    // primitive types handled as before
+    case AField.FieldType of
+      ftString: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsString);
+      ftWideString: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsWideString);
+      ftMemo: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsString);
+      ftFmtMemo: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsString);
 
-      ftFloat: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsFloat);
-      ftCurrency: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsFloat);
+      ftShortint, ftWord, ftSmallint, ftInteger, ftLongWord:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsInteger);
+      ftLargeint: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsLargeInt);
+      ftBCD, ftFMTBcd: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsFloat);
 
-      ftBoolean: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsBoolean);
+      ftFloat: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsFloat);
+      ftCurrency: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsFloat);
 
-      ftDate: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsDateTime);
-      ftTime: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsDateTime);
-      ftDateTime: AEntity.Fields.Items[n1].ValueFirstSet(AQuery.FieldByName(AEntity.Fields.Items[n1].FieldName).AsDateTime);
+      ftBoolean: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsBoolean);
+
+      ftDate, ftTime, ftDateTime: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsDateTime)
     else
-      raise Exception.Create('Unknow FieldType! Process: FindById, Event: Set Query Parameter value. FieldName: ' + (AEntity.Fields.Items[n1].FieldName));
+      // Eğer buraya geliyorsa ftUnknown ya da özel tip — nested olabilir
+      if TRttiHelper.IsValueTypeEntity((AField as TObject), nestedRtti) then
+      begin
+        // prefix: parentField_subFieldName  (örnek: address_street)
+        pref := AField.FieldName + '_';
+
+        // create nested entity instance
+        NestedEntity := TRttiInstanceType(nestedRtti).MetaclassType.Create as TEntity;
+        try
+          // for each subfield of nested entity try to read query field by prefix
+          for subFld in NestedEntity.Fields do
+          begin
+            if AQuery.FindField(pref + subFld.FieldName) <> nil then
+            begin
+              // delegating primitive mapping using existing field type
+              case subFld.FieldType of
+                ftString, ftMemo, ftFmtMemo: subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsString);
+                ftWideString: subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsWideString);
+                ftShortint, ftWord, ftSmallint, ftInteger, ftLongWord:
+                  subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsInteger);
+                ftLargeint: subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsLargeInt);
+                ftFloat, ftCurrency, ftFMTBcd, ftBCD:
+                  subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsFloat);
+                ftBoolean:
+                  subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsBoolean);
+                ftDate, ftTime, ftDateTime:
+                  subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsDateTime);
+              else
+                // nested içinde daha derin nested varsa bu örnekte işlenmedi (isteğe bağlı)
+                ;
+              end;
+            end;
+          end;
+
+          // set nested value into AField.Value
+          // set via RTTI: find 'Value' property
+          var ctx := TRttiContext.Create;
+          try
+            var fR := ctx.GetType((AField as TObject).ClassType);
+            var p := fR.GetProperty('Value');
+            if Assigned(p) then
+              p.SetValue(AField as TObject, TValue.From<TObject>(NestedEntity)); // NestedEntity ref assigned
+          finally
+            ctx.Free;
+          end;
+
+        except
+          NestedEntity.Free;
+          raise;
+        end;
+      end
+      else
+        raise Exception.Create('Unknow FieldType! Process: FindById, Event: Set Query Parameter value. FieldName: ' + (AEntity.Fields.Items[n1].FieldName));
     end;
   end;
 end;
@@ -133,37 +192,97 @@ end;
 procedure TBaseRepository<T>.EntityToQueryParam(AQuery: TFDQuery; AEntity: T; AForAdd: Boolean);
 var
   n1: Integer;
+  AField: IEntityField;
+  nestedRtti: TRttiInstanceType;
+  NestedEntity: TEntity;
+  subFld: IEntityField;
+  pref: string;
+  ctx: TRttiContext;
+  fR: TRttiType;
+  p: TRttiProperty;
 begin
   for n1 := 0 to AEntity.Fields.Count-1 do
   begin
-    if AForAdd and (AEntity.Fields.Items[n1].FieldName = 'id') then
+    AField := AEntity.Fields.Items[n1];
+
+    if AForAdd and (AField.FieldName = 'id') then
       Continue;
 
-    case AEntity.Fields.Items[n1].FieldType of
-      ftString: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsString := AEntity.Fields.Items[n1].AsString;
-      ftWideString: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsWideString := AEntity.Fields.Items[n1].AsString;
-      ftMemo: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsString := AEntity.Fields.Items[n1].AsString;
-      ftFmtMemo: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsString := AEntity.Fields.Items[n1].AsString;
+    if TRttiHelper.IsValueTypeEntity(AField as TObject, nestedRtti) then
+    begin
+      // nested: set parameters using prefix parent_subfield
+      pref := AField.FieldName + '_';
+      ctx := TRttiContext.Create;
+      try
+        fR := ctx.GetType((AField as TObject).ClassType);
+        p := fR.GetProperty('Value');
+        if Assigned(p) then
+        begin
+          if not p.GetValue(AField as TObject).IsEmpty then
+          begin
+            NestedEntity := TEntity(p.GetValue(AField as TObject).AsObject);
+            if Assigned(NestedEntity) then
+            begin
+              for subFld in NestedEntity.Fields do
+              begin
+                if AQuery.ParamByName(pref + subFld.FieldName) = nil then
+                  Continue; // param yoksa atla
 
-      ftShortint: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsShortInt := AEntity.Fields.Items[n1].AsInteger;
-      ftWord: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsWord := AEntity.Fields.Items[n1].AsInteger;
-      ftSmallint: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsSmallInt := AEntity.Fields.Items[n1].AsInteger;
-      ftInteger: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsInteger := AEntity.Fields.Items[n1].AsInteger;
-      ftLongWord: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsLongword := AEntity.Fields.Items[n1].AsInteger;
-      ftLargeint: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsLargeInt := AEntity.Fields.Items[n1].AsInt64;
-      ftBCD: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsBCD := AEntity.Fields.Items[n1].AsInteger;
-      ftFMTBcd: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsFMTBCD := AEntity.Fields.Items[n1].AsInteger;
-
-      ftFloat: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsFloat := AEntity.Fields.Items[n1].AsFloat;
-      ftCurrency: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsCurrency := AEntity.Fields.Items[n1].AsFloat;
-
-      ftBoolean: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsBoolean := AEntity.Fields.Items[n1].AsBoolean;
-
-      ftDate: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsDate := AEntity.Fields.Items[n1].AsDateTime;
-      ftTime: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsTime := AEntity.Fields.Items[n1].AsDateTime;
-      ftDateTime: AQuery.ParamByName(AEntity.Fields.Items[n1].FieldName).AsDateTime := AEntity.Fields.Items[n1].AsDateTime;
+                case subFld.FieldType of
+                  ftString, ftMemo, ftFmtMemo:
+                    AQuery.ParamByName(pref + subFld.FieldName).AsString := subFld.AsString;
+                  ftWideString:
+                    AQuery.ParamByName(pref + subFld.FieldName).AsWideString := subFld.AsString;
+                  ftShortint, ftWord, ftSmallint, ftInteger, ftLongWord:
+                    AQuery.ParamByName(pref + subFld.FieldName).AsInteger := subFld.AsInteger;
+                  ftLargeint:
+                    AQuery.ParamByName(pref + subFld.FieldName).AsLargeInt := subFld.AsInt64;
+                  ftFloat, ftCurrency, ftFMTBcd, ftBCD:
+                    AQuery.ParamByName(pref + subFld.FieldName).AsFloat := subFld.AsFloat;
+                  ftBoolean:
+                    AQuery.ParamByName(pref + subFld.FieldName).AsBoolean := subFld.AsBoolean;
+                  ftDate, ftTime, ftDateTime:
+                    AQuery.ParamByName(pref + subFld.FieldName).AsDateTime := subFld.AsDateTime;
+                else
+                  ;
+                end;
+              end;
+            end;
+          end;
+        end;
+      finally
+        ctx.Free;
+      end;
+    end
     else
-      raise Exception.Create('Unknow FieldType! Event: Set Query Parameter value. FieldName: ' + (AEntity.Fields.Items[n1].FieldName));
+    begin
+      // mevcut kodunuzu koruyun (primitive mapping)
+      case AField.FieldType of
+        ftString: AQuery.ParamByName(AField.FieldName).AsString := AField.AsString;
+        ftWideString: AQuery.ParamByName(AField.FieldName).AsWideString := AField.AsString;
+        ftMemo: AQuery.ParamByName(AField.FieldName).AsString := AField.AsString;
+        ftFmtMemo: AQuery.ParamByName(AField.FieldName).AsString := AField.AsString;
+
+        ftShortint: AQuery.ParamByName(AField.FieldName).AsShortInt := AField.AsInteger;
+        ftWord: AQuery.ParamByName(AField.FieldName).AsWord := AField.AsInteger;
+        ftSmallint: AQuery.ParamByName(AField.FieldName).AsSmallInt := AField.AsInteger;
+        ftInteger: AQuery.ParamByName(AField.FieldName).AsInteger := AField.AsInteger;
+        ftLongWord: AQuery.ParamByName(AField.FieldName).AsLongword := AField.AsInteger;
+        ftLargeint: AQuery.ParamByName(AField.FieldName).AsLargeInt := AField.AsInt64;
+        ftBCD: AQuery.ParamByName(AField.FieldName).AsBCD := AField.AsInteger;
+        ftFMTBcd: AQuery.ParamByName(AField.FieldName).AsFMTBCD := AField.AsInteger;
+
+        ftFloat: AQuery.ParamByName(AField.FieldName).AsFloat := AField.AsFloat;
+        ftCurrency: AQuery.ParamByName(AField.FieldName).AsCurrency := AField.AsFloat;
+
+        ftBoolean: AQuery.ParamByName(AField.FieldName).AsBoolean := AField.AsBoolean;
+
+        ftDate: AQuery.ParamByName(AField.FieldName).AsDate := AField.AsDateTime;
+        ftTime: AQuery.ParamByName(AField.FieldName).AsTime := AField.AsDateTime;
+        ftDateTime: AQuery.ParamByName(AField.FieldName).AsDateTime := AField.AsDateTime;
+      else
+        raise Exception.Create('Unknow FieldType! Event: Set Query Parameter value. FieldName: ' + (AField.FieldName));
+      end;
     end;
   end;
 end;
@@ -210,18 +329,15 @@ begin
     Exit(nil);
 
   Result := CallCreateMethod;
+
+  Q := NewQuery(nil);
   try
-    Q := NewQuery(nil);
-    try
-      LTableName := TTableNameService.TableName(Result.ClassType);
-      Q.SQL.Text := Format('SELECT * FROM %s WHERE %s', [LTableName, Result.Id.QryName + '=' + AId.ToString]);
-      Q.Open;
-      QueryToEntityValue(Q, Result);
-    finally
-      Q.Free;
-    end;
-  except
-    raise;
+    LTableName := TTableNameService.TableName(Result.ClassType);
+    Q.SQL.Text := Format('SELECT * FROM %s WHERE %s', [LTableName, Result.Id.QryName + '=' + AId.ToString]);
+    Q.Open;
+    QueryToEntityValue(Q, Result);
+  finally
+    Q.Free;
   end;
 end;
 
@@ -420,6 +536,37 @@ begin
     Result := Q.Fields[0].AsBoolean;
   finally
     Q.Free;
+  end;
+end;
+
+{ TRttiHelper }
+
+class function TRttiHelper.IsValueTypeEntity(AFieldObj: TObject; out AEntityRtti: TRttiInstanceType): Boolean;
+var
+  ctx: TRttiContext;
+  fldType: TRttiType;
+  valProp: TRttiProperty;
+  valType: TRttiType;
+begin
+  Result := False;
+  AEntityRtti := nil;
+  ctx := TRttiContext.Create;
+  try
+    fldType := ctx.GetType(AFieldObj.ClassType);
+    valProp := fldType.GetProperty('Value');
+    if not Assigned(valProp) then Exit;
+
+    valType := valProp.PropertyType;
+    if (valType is TRttiInstanceType) then
+    begin
+      if TRttiInstanceType(valType).MetaclassType.InheritsFrom(TEntity) then
+      begin
+        AEntityRtti := TRttiInstanceType(valType);
+        Result := True;
+      end;
+    end;
+  finally
+    ctx.Free;
   end;
 end;
 

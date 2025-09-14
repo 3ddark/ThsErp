@@ -91,14 +91,14 @@ type
 
   TEntity = class(TInterfacedObject, IEntity)
   private
-    FId: TEntityField<Integer>;
+    FId: TEntityField<Int64>;
     FFields: TList<IEntityField>;
     procedure SetField(Index: Integer; const Value: IEntityField);
     function GetField(Index: Integer): IEntityField;
     function GetFields: TList<IEntityField>;
     procedure SetFields(const Value: TList<IEntityField>);
   public
-    property Id: TEntityField<Integer> read FId write FId;
+    property Id: TEntityField<Int64> read FId write FId;
     property Field[Index: Integer]: IEntityField read GetField write SetField; default;
     property Fields: TList<IEntityField> read GetFields write SetFields;
 
@@ -160,82 +160,6 @@ begin
   if SameText(LTypeName, 'Single') then Exit(ftFloat);
   if SameText(LTypeName, 'Currency') then Exit(ftCurrency);
   Exit(ftUnknown);
-{
-  case TypeInfo.Kind of
-    tkString, tkLString, tkWString, tkUString:
-      Exit(ftString);
-    tkChar, tkWChar:
-      Exit(ftFixedChar);
-    tkInteger:
-      begin
-        // Integer boyutlarına göre daha detaylı kontrol
-        case SizeOf(T) of
-          1: Exit(ftByte);      // Byte, ShortInt
-          2: Exit(ftSmallInt);  // Word, SmallInt
-          4: Exit(ftInteger);   // Integer, Cardinal
-        else
-          Exit(ftInteger);
-        end;
-      end;
-    tkInt64:
-      Exit(ftLargeInt);
-    tkFloat:
-      begin
-        // Önce özel tarih tiplerini kontrol et
-        if SameText(string(TypeInfo.Name), 'TDateTime') then
-          Exit(ftDateTime);
-        if SameText(string(TypeInfo.Name), 'TDate') then
-          Exit(ftDate);
-        if SameText(string(TypeInfo.Name), 'TTime') then
-          Exit(ftTime);
-
-        // Float alt tiplerini kontrol et
-        case GetTypeData(TypeInfo)^.FloatType of
-          System.TypInfo.ftSingle: Exit(ftFloat);
-          System.TypInfo.ftDouble: Exit(ftFloat);
-          System.TypInfo.ftExtended: Exit(ftFloat);
-          System.TypInfo.ftCurr: Exit(ftCurrency);
-          System.TypInfo.ftComp: Exit(ftFloat);
-        else
-          Exit(ftFloat);
-        end;
-      end;
-    tkEnumeration:
-      begin
-        // Boolean özel kontrolü
-        if SameText(string(TypeInfo.Name), 'Boolean') then
-          Exit(ftBoolean);
-        // Diğer enum'ları string olarak sakla
-        Exit(ftString);
-      end;
-    tkVariant:
-      Exit(ftVariant);
-    tkArray:
-      Exit(ftArray);
-    tkDynArray:
-      Exit(ftArray);
-    tkRecord:
-      begin
-        // Record tiplerini kontrol et (GUID, TTimeStamp gibi)
-        if SameText(string(TypeInfo.Name), 'TGUID') then
-          Exit(ftGuid);
-        if SameText(string(TypeInfo.Name), 'TTimeStamp') then
-          Exit(ftTimeStamp);
-        // Diğer record'ları blob olarak sakla
-        Exit(ftBlob);
-      end;
-    tkClass:
-      Exit(ftBlob);
-    tkInterface:
-      Exit(ftInterface);
-    tkPointer:
-      Exit(ftBlob);
-    tkSet:
-      Exit(ftString); // Set'leri string olarak sakla
-  else
-    Exit(ftUnknown);
-  end;
-}
 end;
 
 function TEntityField<T>.GetFieldName: string;
@@ -301,7 +225,6 @@ begin
         Result := VarToStr(ValueVariant);
       end;
   else
-    // Genel durumda TValue kullan
     Result := TValue.From<T>(FValue).ToString;
   end;
 end;
@@ -487,14 +410,14 @@ end;
 
 function TEntityField<T>.ValueIsChanged: Boolean;
 begin
-  Result := OldValue <> Value;
+  Result := not CompareMem(@FOldValue, @FValue, SizeOf(T));
 end;
 
 constructor TEntity.Create;
 begin
   FFields := TList<IEntityField>.Create;
 
-  FId := TEntityField<Integer>.Create(Self, 'id');
+  FId := TEntityField<Int64>.Create(Self, 'id');
 end;
 
 destructor TEntity.Destroy;
@@ -508,7 +431,6 @@ begin
   end;
 
   FreeAndNil(FFields);
-//  FId := nil;
   inherited;
 end;
 
@@ -518,17 +440,8 @@ begin
 end;
 
 function TEntity.TableName: string;
-//var
-//  ctx: TRttiContext;
-//  rType: TRttiType;
-//  attr: TCustomAttribute;
 begin
   Result := TTableNameService.TableName(Self.ClassType);
-//  Result := '';
-//  rType := ctx.GetType(Self.ClassType);
-//  for attr in rType.GetAttributes do
-//    if attr is TableNameAttribute then
-//      Exit(TableNameAttribute(attr).Name);
 end;
 
 function TEntity.GetField(Index: Integer): IEntityField;
@@ -591,7 +504,6 @@ begin
   finally
     ctx.Free;
   end;
-
 end;
 
 function TEntity.CloneEntity<T>(ASrc: T): T;
@@ -609,28 +521,20 @@ begin
 
   for SrcField in ASrc.Fields do
   begin
-    // 3. Hedef varl�kta (Result) e�le�en alan�, alan ad�na g�re bul.
     DestField := Result.GetFieldByName(SrcField.FieldName);
 
     if Assigned(DestField) then
     begin
-      // 4. Kaynak alan�n (SrcField) somut tipini RTTI ile al.
-      // SrcField bir IEntityField aray�z� oldu�u i�in, AsObject ile TObject olarak eri�ilir.
       RttiTypeSrcField := RttiContext.GetType((SrcField as tobject).ClassType);
 
-      // 5. 'Value' ve 'OldValue' �zelliklerinin RTTI tan�mlar�n� al.
-      // Bu �zellikler TEntityField<T> s�n�f�nda tan�ml�d�r.
       RttiPropValue := RttiTypeSrcField.GetProperty('Value');
       RttiPropOldValue := RttiTypeSrcField.GetProperty('OldValue');
 
       if Assigned(RttiPropValue) and Assigned(RttiPropOldValue) then
       begin
-        // 6. Kaynak alandan (SrcField) 'Value' ve 'OldValue' de�erlerini oku.
         ValueTValue := RttiPropValue.GetValue(SrcField As tObject);
         OldValueTValue := RttiPropOldValue.GetValue(SrcField as tObject);
 
-        // 7. Hedef alana (DestField) 'Value' ve 'OldValue' de�erlerini yaz.
-        // SetValue metodlar� da bir TObject �rne�i bekler.
         RttiPropValue.SetValue(DestField As tObject, ValueTValue);
         RttiPropOldValue.SetValue(DestField as tObject, OldValueTValue);
       end;
@@ -674,8 +578,7 @@ begin
     end;
   end;
 
-//  if rM.IsConstructor then
-    Result := rM.Invoke(rT.AsInstance.MetaclassType, rParams).AsType<T>;
+  Result := rM.Invoke(rT.AsInstance.MetaclassType, rParams).AsType<T>;
 end;
 
 end.
