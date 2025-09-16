@@ -253,12 +253,6 @@
             <Form>frmSysRegion</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysUlkeler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysUlkeler.pas">
-            <Form>frmSysCountries</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysUlke.pas">
-            <Form>frmSysUlke</Form>
-        </DCCReference>
         <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysGunler.pas"/>
         <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysGunler.pas">
             <Form>frmSysDays</Form>
@@ -774,6 +768,21 @@
         <DCCReference Include="Forms\System\ufrmSysCities.pas">
             <Form>frmSysCities</Form>
         </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysCountry.pas">
+            <Form>frmSysCountry</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysCountries.pas">
+            <Form>frmSysCountries</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\SysPermissionGroup.pas"/>
+        <DCCReference Include="BackEnd\System\SysPermission.pas"/>
+        <DCCReference Include="BackEnd\System\SysAccessRight.pas"/>
+        <DCCReference Include="BackEnd\System\SysPermissionGroup.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\SysPermission.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\SysAccessRight.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\SysPermissionGroup.Service.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

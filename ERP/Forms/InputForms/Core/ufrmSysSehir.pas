@@ -32,8 +32,8 @@ implementation
 
 uses
   Ths.Database.Table.SysSehirler,
-  Ths.Database.Table.SysUlkeler,
-  ufrmSysUlkeler;
+  Ths.Database.Table.SysUlkeler{,
+  ufrmSysUlkeler};
 
 {$R *.dfm}
 
@@ -60,10 +60,10 @@ begin
 end;
 
 procedure TfrmSysSehir.HelperProcess(Sender: TObject);
-var
-  LFrm: TfrmSysUlkeler;
+//var
+//  LFrm: TfrmSysUlkeler;
 begin
-  if (FormMode = ifmNewRecord) or (FormMode = ifmUpdate) then
+{  if (FormMode = ifmNewRecord) or (FormMode = ifmUpdate) then
   begin
     if Sender.ClassType = TEdit then
     begin
@@ -90,7 +90,7 @@ begin
         end;
       end
     end;
-  end;
+  end;}
 end;
 
 procedure TfrmSysSehir.RefreshData;

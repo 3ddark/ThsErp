@@ -21,10 +21,11 @@ type
     procedure Update(AEntity: TSysViewColumn); override;
     procedure Delete(AId: Int64); override;
 
-    procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
+    function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysViewColumn; override;
+    function BusinessFind(AFilter: string; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysViewColumn>; override;
     procedure BusinessInsert(AEntity: TSysViewColumn; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
-    procedure BusinessUpdate(AEntity: TSysViewColumn; APermissionControl: Boolean); override;
-    procedure BusinessDelete(AEntity: TSysViewColumn; APermissionControl: Boolean); override;
+    procedure BusinessUpdate(AEntity: TSysViewColumn; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
+    procedure BusinessDelete(AEntity: TSysViewColumn; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
   end;
 
 implementation
@@ -39,14 +40,26 @@ begin
   inherited;
 end;
 
-procedure TSysViewColumnService.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+function TSysViewColumnService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysViewColumn;
 begin
   if APermissionControl then
   begin
     //CheckPermission if not throw exception
   end;
+  if AWithBegin then
+    Self.UoW.BeginTransaction;
+  Result := Self.UoW.SysViewColumnRepository.FindById(AId, ALock);
+end;
 
-  Self.UoW.SysViewColumnRepository.Find(AFilter, ALock);
+function TSysViewColumnService.BusinessFind(AFilter: string; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysViewColumn>;
+begin
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
+  if AWithBegin then
+    Self.UoW.BeginTransaction;
+  Result := Self.UoW.SysViewColumnRepository.Find(AFilter, ALock);
 end;
 
 procedure TSysViewColumnService.BusinessInsert(AEntity: TSysViewColumn; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -62,56 +75,60 @@ begin
 
     Self.UoW.SysViewColumnRepository.Add(AEntity);
 
-    if AWithCommit and Uow.Connection.InTransaction then
+    if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
   except
     on E: Exception do
     begin
-      if Uow.Connection.InTransaction then
+      if Uow.InTransaction then
         Self.UoW.Rollback;
       raise
     end;
   end;
+end;
 
-{
-  FMetas := TEntityMetaProvider.GetFieldMeta(FRepository.TableName);
+procedure TSysViewColumnService.BusinessUpdate(AEntity: TSysViewColumn; AWithBegin, AWithCommit, APermissionControl: Boolean);
+begin
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
 
-  if FRepository.ExistsByField<string>(AEntity.Aile.FieldName, AEntity.Aile.Value) then
-    Exit;
   try
-    Self.UoW.BeginTransaction;
+    if AWithBegin then
+      Self.UoW.BeginTransaction;
 
-    FRepository.Save(AEntity);
+    Self.UoW.SysViewColumnRepository.Update(AEntity);
 
-    Self.UoW.Commit;
+    if AWithCommit then
+      Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
-      raise;
-    end;
+    raise;
   end;
-}
 end;
 
-procedure TSysViewColumnService.BusinessUpdate(AEntity: TSysViewColumn; APermissionControl: Boolean);
+procedure TSysViewColumnService.BusinessDelete(AEntity: TSysViewColumn; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   if APermissionControl then
   begin
     //CheckPermission if not throw exception
   end;
 
-  Self.UoW.SysViewColumnRepository.Update(AEntity)
-end;
+  try
+    if AWithBegin then
+      Self.UoW.BeginTransaction;
 
-procedure TSysViewColumnService.BusinessDelete(AEntity: TSysViewColumn; APermissionControl: Boolean);
-begin
-  if APermissionControl then
-  begin
-    //CheckPermission if not throw exception
+    Self.UoW.SysViewColumnRepository.Delete(AEntity);
+
+    if AWithCommit then
+      Self.UoW.Commit;
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
-
-  Self.UoW.SysViewColumnRepository.Delete(AEntity.Id.Value);
 end;
 
 function TSysViewColumnService.CreateQueryForUI(const AFilterKey: string): string;

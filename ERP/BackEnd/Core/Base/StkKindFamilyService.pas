@@ -21,10 +21,11 @@ type
     procedure Update(AEntity: TStkKindFamily); override;
     procedure Delete(AId: Int64); override;
 
-    procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
+    function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TStkKindFamily; override;
+    function BusinessFind(AFilter: string; AWithBegin, ALock, APermissionControl: Boolean): TList<TStkKindFamily>; override;
     procedure BusinessInsert(AEntity: TStkKindFamily; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
-    procedure BusinessUpdate(AEntity: TStkKindFamily; APermissionControl: Boolean); override;
-    procedure BusinessDelete(AEntity: TStkKindFamily; APermissionControl: Boolean); override;
+    procedure BusinessUpdate(AEntity: TStkKindFamily; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
+    procedure BusinessDelete(AEntity: TStkKindFamily; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
   end;
 
 implementation
@@ -39,18 +40,26 @@ begin
   inherited;
 end;
 
-procedure TStkKindFamilyService.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+function TStkKindFamilyService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TStkKindFamily;
 begin
-  try
-    if APermissionControl then
-    begin
-      //CheckPermission if not throw exception
-    end;
-
-    Self.UoW.StkCinsAileRepository.Find(AFilter, ALock);
-  except
-    raise;
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
   end;
+  if AWithBegin then
+    Self.UoW.BeginTransaction;
+  Result := Self.UoW.StkCinsAileRepository.FindById(AId, ALock);
+end;
+
+function TStkKindFamilyService.BusinessFind(AFilter: string; AWithBegin, ALock, APermissionControl: Boolean): TList<TStkKindFamily>;
+begin
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
+  if AWithBegin then
+    Self.UoW.BeginTransaction;
+  Result := Self.UoW.StkCinsAileRepository.Find(AFilter, ALock);
 end;
 
 procedure TStkKindFamilyService.BusinessInsert(AEntity: TStkKindFamily; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -61,64 +70,64 @@ begin
       //CheckPermission if not throw exception
     end;
 
-    if Self.UoW.StkCinsAileRepository.ExistsByField(AEntity.Family.FieldName, AEntity.Family.Value) then
-      Exit;
-
     if AWithBegin then
       Self.UoW.BeginTransaction;
 
     Self.UoW.StkCinsAileRepository.Add(AEntity);
 
-    if AWithCommit and Uow.Connection.InTransaction then
+    if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
   except
     on E: Exception do
     begin
-      if Uow.Connection.InTransaction then
+      if Uow.InTransaction then
         Self.UoW.Rollback;
       raise
     end;
   end;
 end;
 
-procedure TStkKindFamilyService.BusinessUpdate(AEntity: TStkKindFamily; APermissionControl: Boolean);
+procedure TStkKindFamilyService.BusinessUpdate(AEntity: TStkKindFamily; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
-  try
-    if APermissionControl then
-    begin
-      //CheckPermission if not throw exception
-    end;
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
 
-    Self.UoW.BeginTransaction;
+  try
+    if AWithBegin then
+      Self.UoW.BeginTransaction;
+
     Self.UoW.StkCinsAileRepository.Update(AEntity);
-    Self.UoW.Commit;
+
+    if AWithCommit then
+      Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
-      raise;
-    end;
+    raise;
   end;
 end;
 
-procedure TStkKindFamilyService.BusinessDelete(AEntity: TStkKindFamily; APermissionControl: Boolean);
+procedure TStkKindFamilyService.BusinessDelete(AEntity: TStkKindFamily; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
-  try
-    if APermissionControl then
-    begin
-      //CheckPermission if not throw exception
-    end;
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
 
-    Self.UoW.BeginTransaction;
-    Self.UoW.StkCinsAileRepository.Delete(AEntity.Id.Value);
-    Self.UoW.Commit;
+  try
+    if AWithBegin then
+      Self.UoW.BeginTransaction;
+
+    Self.UoW.StkCinsAileRepository.Delete(AEntity);
+
+    if AWithCommit then
+      Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Uow.Connection.InTransaction then
-        Self.UoW.Rollback;
-      raise
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 

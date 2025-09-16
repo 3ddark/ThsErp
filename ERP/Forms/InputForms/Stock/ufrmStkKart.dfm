@@ -6,6 +6,7 @@ inherited frmStkKart: TfrmStkKart
   ClientHeight = 529
   ClientWidth = 640
   Font.Charset = TURKISH_CHARSET
+  StyleElements = [seFont, seClient, seBorder]
   ExplicitWidth = 656
   ExplicitHeight = 568
   TextHeight = 13
@@ -14,6 +15,7 @@ inherited frmStkKart: TfrmStkKart
     Height = 479
     Color = clWindow
     ParentColor = False
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitWidth = 640
     ExplicitHeight = 479
     inherited pgcMain: TPageControl
@@ -1325,8 +1327,8 @@ inherited frmStkKart: TfrmStkKart
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 48
-            Height = 14
+            Width = 50
+            Height = 13
             Align = alTop
             Alignment = taCenter
             Caption = 'Grup Ad'#305
@@ -2213,6 +2215,7 @@ inherited frmStkKart: TfrmStkKart
   inherited pnlBottom: TPanel
     Top = 481
     Width = 636
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitTop = 481
     ExplicitWidth = 636
     inherited btnAccept: TButton

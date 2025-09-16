@@ -1,4 +1,4 @@
-unit ufrmStkKart;
+﻿unit ufrmStkKart;
 
 interface
 
@@ -225,7 +225,7 @@ uses
   Ths.Database.Table.StkGruplar, ufrmStkGruplar,
   Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
   Ths.Database.Table.StkCinsOzellikleri, ufrmStkCinsOzellikleri,
-  Ths.Database.Table.SysUlkeler, ufrmSysUlkeler;
+  Ths.Database.Table.SysUlkeler{, ufrmSysUlkeler};
 
 {$R *.dfm}
 
@@ -534,7 +534,7 @@ var
   LFrmGrup: TfrmStkGruplar;
   LFrmOlcuBirimi: TfrmSysOlcuBirimleri;
   LFrmKind: TfrmStkCinsOzellikleri;
-  LFrmCountry: TfrmSysUlkeler;
+//  LFrmCountry: TfrmSysUlkeler;
   LFrmMoney: TfrmSysParaBirimleri;
 begin
   if Sender.ClassType = TEdit then
@@ -615,7 +615,7 @@ begin
           LFrmKind.Free;
         end;
       end
-      else if TEdit(Sender).Name = edtmensei_id.Name then
+{      else if TEdit(Sender).Name = edtmensei_id.Name then
       begin
         LFrmCountry := TfrmSysUlkeler.Create(TEdit(Sender), Self, TSysUlke.Create(Table.Database), fomNormal, True);
         try
@@ -635,7 +635,7 @@ begin
         finally
           LFrmCountry.Free;
         end;
-      end
+      end}
       else if (TEdit(Sender).Name = edtalis_para.Name) or (TEdit(Sender).Name = edtsatis_para.Name) or (TEdit(Sender).Name = edtihrac_para.Name) then
       begin
         LFrmMoney := TfrmSysParaBirimleri.Create(TEdit(Sender), Self, TSysParaBirimi.Create(GDataBase), fomNormal, True);

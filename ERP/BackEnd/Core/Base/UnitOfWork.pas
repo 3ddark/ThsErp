@@ -5,9 +5,17 @@ interface
 uses
   SysUtils, Classes, FireDAC.Comp.Client, FireDAC.Phys,FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Error,
-  StkKindFamilyRepository,
-  SysViewColumn.Repository, SysCountry.Repository, SysRegion.Repository,
-  SysCity.Repository;
+  SharedFormTypes,
+
+  SysViewColumn.Repository,
+  SysCountry.Repository,
+  SysRegion.Repository,
+  SysCity.Repository,
+  SysPermissionGroup.Repository,
+  SysPermission.Repository,
+  SysAccessRight.Repository,
+
+  StkKindFamilyRepository;
 
 type
   TUnitOfWork = class
@@ -21,6 +29,9 @@ type
     FSysCityRepository: TSysCityRepository;
     FSysCountryRepository: TSysCountryRepository;
     FSysRegionRepository: TSysRegionRepository;
+    FSysAccessRightRepository: TSysAccessRightRepository;
+    FSysPermissionRepository: TSysPermissionRepository;
+    FSysPermissionGroupRepository: TSysPermissionGroupRepository;
 
     FStkCinsAileRepository: TStkKindFamilyRepository;
 
@@ -28,6 +39,9 @@ type
     function GetSysCityRepository: TSysCityRepository;
     function GetSysCountryRepository: TSysCountryRepository;
     function GetSysRegionRepository: TSysRegionRepository;
+    function GetSysAccessRightRepository: TSysAccessRightRepository;
+    function GetSysPermissionRepository: TSysPermissionRepository;
+    function GetSysPermissionGroupRepository: TSysPermissionGroupRepository;
 
     function GetStkCinsAileRepository: TStkKindFamilyRepository;
 
@@ -43,6 +57,9 @@ type
     procedure BeginTransaction;
     procedure Commit;
     procedure Rollback;
+    function InTransaction: Boolean;
+
+    function IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean; AShowException: Boolean=True): Boolean;
 
     property Connection: TFDConnection read GetConnection;
 
@@ -50,6 +67,10 @@ type
     property SysCityRepository: TSysCityRepository read GetSysCityRepository;
     property SysCountryRepository: TSysCountryRepository read GetSysCountryRepository;
     property SysRegionRepository: TSysRegionRepository read GetSysRegionRepository;
+    property SysAccessRightepository: TSysAccessRightRepository read GetSysAccessRightRepository;
+    property SysPermissionRepository: TSysPermissionRepository read GetSysPermissionRepository;
+    property SysPermissionGroupRepository: TSysPermissionGroupRepository read GetSysPermissionGroupRepository;
+
     property StkCinsAileRepository: TStkKindFamilyRepository read GetStkCinsAileRepository;
   end;
 
@@ -63,8 +84,13 @@ end;
 destructor TUnitOfWork.Destroy;
 begin
   FreeAndNil(FSysViewColumnRepository);
+  FreeAndNil(FSysCityRepository);
   FreeAndNil(FSysCountryRepository);
   FreeAndNil(FSysRegionRepository);
+  FreeAndNil(FSysAccessRightRepository);
+  FreeAndNil(FSysPermissionRepository);
+  FreeAndNil(FSysPermissionGroupRepository);
+
   FreeAndNil(FStkCinsAileRepository);
 
   inherited;
@@ -90,6 +116,16 @@ begin
   FInstance.FConnection.Rollback;
 end;
 
+function TUnitOfWork.InTransaction: Boolean;
+begin
+  Result := FInstance.Connection.InTransaction;
+end;
+
+function TUnitOfWork.IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean; AShowException: Boolean=True): Boolean;
+begin
+  Result := FInstance.SysAccessRightepository.IsAuthorized(APermissionType, APermissionControl, AShowException);
+end;
+
 function TUnitOfWork.GetSysViewColumnRepository: TSysViewColumnRepository;
 begin
   if Self.FInstance.FSysViewColumnRepository = nil then
@@ -102,6 +138,13 @@ begin
   if Self.FInstance.FSysCountryRepository = nil then
     Self.FInstance.FSysCountryRepository := TSysCountryRepository.Create(FInstance.FConnection);
   Result := Self.FInstance.FSysCountryRepository;
+end;
+
+function TUnitOfWork.GetSysPermissionGroupRepository: TSysPermissionGroupRepository;
+begin
+  if Self.FInstance.FSysPermissionGroupRepository = nil then
+    Self.FInstance.FSysPermissionGroupRepository := TSysPermissionGroupRepository.Create(FInstance.FConnection);
+  Result := Self.FInstance.FSysPermissionGroupRepository;
 end;
 
 function TUnitOfWork.GetSysCityRepository: TSysCityRepository;

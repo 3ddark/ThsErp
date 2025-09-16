@@ -6,6 +6,7 @@ inherited frmHesapKarti: TfrmHesapKarti
   ClientHeight = 374
   ClientWidth = 687
   Font.Name = 'MS Sans Serif'
+  StyleElements = [seFont, seClient, seBorder]
   ExplicitWidth = 703
   ExplicitHeight = 413
   TextHeight = 13
@@ -14,6 +15,7 @@ inherited frmHesapKarti: TfrmHesapKarti
     Height = 324
     Color = clWindow
     ParentColor = False
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitWidth = 687
     ExplicitHeight = 324
     inherited pgcMain: TPageControl
@@ -1019,6 +1021,7 @@ inherited frmHesapKarti: TfrmHesapKarti
   inherited pnlBottom: TPanel
     Top = 326
     Width = 683
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitTop = 326
     ExplicitWidth = 683
     inherited btnAccept: TButton

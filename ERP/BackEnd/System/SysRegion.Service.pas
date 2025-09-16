@@ -19,10 +19,11 @@ type
     procedure Update(AEntity: TSysRegion); override;
     procedure Delete(AId: Int64); override;
 
-    procedure BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean); override;
+    function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysRegion; override;
+    function BusinessFind(AFilter: string; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysRegion>; override;
     procedure BusinessInsert(AEntity: TSysRegion; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
-    procedure BusinessUpdate(AEntity: TSysRegion; APermissionControl: Boolean); override;
-    procedure BusinessDelete(AEntity: TSysRegion; APermissionControl: Boolean); override;
+    procedure BusinessUpdate(AEntity: TSysRegion; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
+    procedure BusinessDelete(AEntity: TSysRegion; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
   end;
 
 implementation
@@ -37,18 +38,26 @@ begin
   inherited;
 end;
 
-procedure TSysRegionService.BusinessSelect(AFilter: string; ALock, APermissionControl: Boolean);
+function TSysRegionService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysRegion;
 begin
-  try
-    if APermissionControl then
-    begin
-      //CheckPermission if not throw exception
-    end;
-
-    Self.UoW.SysRegionRepository.Find(AFilter, ALock);
-  except
-    raise;
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
   end;
+  if AWithBegin then
+    Self.UoW.BeginTransaction;
+  Result := Self.UoW.SysRegionRepository.FindById(AId, ALock);
+end;
+
+function TSysRegionService.BusinessFind(AFilter: string; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysRegion>;
+begin
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
+  if AWithBegin then
+    Self.UoW.BeginTransaction;
+  Result := Self.UoW.SysRegionRepository.Find(AFilter, ALock);
 end;
 
 procedure TSysRegionService.BusinessInsert(AEntity: TSysRegion; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -59,64 +68,64 @@ begin
       //CheckPermission if not throw exception
     end;
 
-    if Self.UoW.SysRegionRepository.ExistsByField(AEntity.RegionName.FieldName, AEntity.RegionName.Value) then
-      Exit;
-
     if AWithBegin then
       Self.UoW.BeginTransaction;
 
     Self.UoW.SysRegionRepository.Add(AEntity);
 
-    if AWithCommit and Uow.Connection.InTransaction then
+    if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
   except
     on E: Exception do
     begin
-      if Uow.Connection.InTransaction then
+      if Uow.InTransaction then
         Self.UoW.Rollback;
       raise
     end;
   end;
 end;
 
-procedure TSysRegionService.BusinessUpdate(AEntity: TSysRegion; APermissionControl: Boolean);
+procedure TSysRegionService.BusinessUpdate(AEntity: TSysRegion; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
-  try
-    if APermissionControl then
-    begin
-      //CheckPermission if not throw exception
-    end;
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
 
-    Self.UoW.BeginTransaction;
+  try
+    if AWithBegin then
+      Self.UoW.BeginTransaction;
+
     Self.UoW.SysRegionRepository.Update(AEntity);
-    Self.UoW.Commit;
+
+    if AWithCommit then
+      Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
-      raise;
-    end;
+    raise;
   end;
 end;
 
-procedure TSysRegionService.BusinessDelete(AEntity: TSysRegion; APermissionControl: Boolean);
+procedure TSysRegionService.BusinessDelete(AEntity: TSysRegion; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
-  try
-    if APermissionControl then
-    begin
-      //CheckPermission if not throw exception
-    end;
+  if APermissionControl then
+  begin
+    //CheckPermission if not throw exception
+  end;
 
-    Self.UoW.BeginTransaction;
-    Self.UoW.SysRegionRepository.Delete(AEntity.Id.Value);
-    Self.UoW.Commit;
+  try
+    if AWithBegin then
+      Self.UoW.BeginTransaction;
+
+    Self.UoW.SysRegionRepository.Delete(AEntity);
+
+    if AWithCommit then
+      Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Uow.Connection.InTransaction then
-        Self.UoW.Rollback;
-      raise
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 

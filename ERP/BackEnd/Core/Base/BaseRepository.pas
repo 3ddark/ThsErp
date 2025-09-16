@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Classes, System.Types, System.StrUtils,
   System.Rtti, System.TypInfo, System.Generics.Collections, Data.DB, Data.FMTBcd,
   FireDAC.Comp.Client, FireDAC.Stan.Param,
-  BaseEntity, TableNameService;
+  SharedFormTypes, BaseEntity, TableNameService;
 
 type
   TRttiHelper = class
@@ -33,7 +33,7 @@ type
 
     function ExistsByField(const AFieldName: string; const AValue: TValue): Boolean;
 
-    function CreateQueryForUI(const AFilterKey: string): string; virtual; abstract;
+    function CreateQueryForUI(const AFilterKey: string): string; virtual;
 
     function Find(AFilter: string; ALock: Boolean): TList<T>; virtual;
     function FindById(AId: Integer; ALock: Boolean): T; virtual;
@@ -291,6 +291,33 @@ function TBaseRepository<T>.NewQuery(AOwner: TComponent): TFDQuery;
 begin
   Result := TFDQuery.Create(AOwner);
   Result.Connection := FConnection;
+end;
+
+function TBaseRepository<T>.CreateQueryForUI(const AFilterKey: string): string;
+var
+  SQL, LTableName: string;
+  Entity: T;
+  n1: Integer;
+begin
+  Result := '';
+  try
+    Entity := CallCreateMethod;
+    try
+      LTableName := TTableNameService.TableName(T);
+      LTableName := TTableNameService.TableName(Entity.ClassType);
+      SQL := Format('SELECT * FROM %s WHERE 1=1 ', [LTableName]);
+    finally
+      for n1 := 0 to Entity.Fields.Count-1 do
+      begin
+        if Entity.Fields[n1].OwnerEntity <> nil then
+          Entity.Fields[n1].OwnerEntity := nil;
+      end;
+    end;
+
+    Result := SQL;
+  except
+    raise;
+  end;
 end;
 
 function TBaseRepository<T>.Find(AFilter: string; ALock: Boolean): TList<T>;

@@ -6,6 +6,7 @@ uses
   BaseService,
   SysViewColumn.Service, SysViewColumn,
   SysCity.Service, SysCity,
+  SysCountry.Service, SysCountry,
   SysRegion.Service, SysRegion,
   StkKindFamilyService, StkKindFamily;
 
@@ -17,12 +18,14 @@ type
   private
     FSysViewColumnService: IBaseService<TSysViewColumn>;
     FSysCityService: IBaseService<TSysCity>;
+    FSysCountryService: IBaseService<TSysCountry>;
     FSysRegionService: IBaseService<TSysRegion>;
 
     FStkCinsAileService: IBaseService<TStkKindFamily>;
 
     function GetSysViewColumnService: IBaseService<TSysViewColumn>;
     function GetSysCityService: IBaseService<TSysCity>;
+    function GetSysCountryService: IBaseService<TSysCountry>;
     function GetSysRegionService: IBaseService<TSysRegion>;
     function GetStkCinsAileService: IBaseService<TStkKindFamily>;
   protected
@@ -34,6 +37,7 @@ type
 
     property SysViewColumnService: IBaseService<TSysViewColumn> read GetSysViewColumnService;
     property SysCityService: IBaseService<TSysCity> read GetSysCityService;
+    property SysCountryService: IBaseService<TSysCountry> read GetSysCountryService;
     property SysRegionService: IBaseService<TSysRegion> read GetSysRegionService;
     property StkCinsAileService: IBaseService<TStkKindFamily> read GetStkCinsAileService;
   end;
@@ -78,6 +82,13 @@ begin
   if FSysCityService = nil then
     FSysCityService := TSysCityService.Create();
   Result := FSysCityService;
+end;
+
+function TServiceContainer.GetSysCountryService: IBaseService<TSysCountry>;
+begin
+  if FSysCountryService = nil then
+    FSysCountryService := TSysCountryService.Create();
+  Result := FSysCountryService;
 end;
 
 function TServiceContainer.GetSysRegionService: IBaseService<TSysRegion>;

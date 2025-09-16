@@ -6,6 +6,7 @@ inherited frmSysSehir: TfrmSysSehir
   ClientHeight = 150
   ClientWidth = 368
   ParentFont = True
+  StyleElements = [seFont, seClient, seBorder]
   ExplicitWidth = 384
   ExplicitHeight = 189
   TextHeight = 15
@@ -14,12 +15,13 @@ inherited frmSysSehir: TfrmSysSehir
     Height = 100
     Color = clWindow
     ParentColor = False
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitWidth = 368
     ExplicitHeight = 100
     inherited pgcMain: TPageControl
       Width = 368
       Height = 100
-      ExplicitWidth = 370
+      ExplicitWidth = 368
       ExplicitHeight = 100
       inherited tsMain: TTabSheet
         ExplicitTop = 26
@@ -100,6 +102,7 @@ inherited frmSysSehir: TfrmSysSehir
   inherited pnlBottom: TPanel
     Top = 102
     Width = 364
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitTop = 102
     ExplicitWidth = 364
     inherited btnAccept: TButton

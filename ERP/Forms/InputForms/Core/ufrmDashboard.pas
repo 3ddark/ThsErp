@@ -19,7 +19,8 @@ uses
   ServiceContainer, UnitOfWork, ufrmGrid,
   StkKindFamilyService, StkKindFamily, ufrmStkKindFamilies,
   SysCity.Service, SysCity, ufrmSysCities,
-  SysRegion.Service, SysRegion, ufrmSysRegions;
+  SysRegion.Service, SysRegion, ufrmSysRegions,
+  SysCountry.Service, SysCountry, ufrmSysCountries;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -293,7 +294,7 @@ uses
   Ths.Utils.TCMBDovizKuru,
   Ths.Utils.DatabaseTools,
 
-  Ths.Database.Table.SysUlkeler, ufrmSysUlkeler,
+//  Ths.Database.Table.SysUlkeler, ufrmSysUlkeler,
   Ths.Database.Table.SysSehirler, ufrmSysSehirler,
   Ths.Database.Table.SysBolgeler, ufrmSysBolgeler,
   Ths.Database.Table.SysKullanicilar, ufrmSysKullanicilar,
@@ -651,7 +652,8 @@ end;
 
 procedure TfrmDashboard.actsys_countryExecute(Sender: TObject);
 begin
-  TfrmSysUlkeler.Create(Self, Self, TSysUlke.Create(GDataBase), fomNormal).Show;
+  TfrmSysCountries.Create(Self, TServiceContainer.Instance.SysCountryService as TSysCountryService, TSysCountry.Create).Show;
+//  TfrmSysUlkeler.Create(Self, Self, TSysUlke.Create(GDataBase), fomNormal).Show;
 end;
 
 procedure TfrmDashboard.actsys_dayExecute(Sender: TObject);

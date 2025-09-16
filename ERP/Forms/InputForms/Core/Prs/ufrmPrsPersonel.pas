@@ -12,7 +12,7 @@ uses
   Vcl.Grids, Vcl.DBGrids, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
   Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB, udm,
   ufrmSetPrsPersonelTipleri, ufrmSetPrsBolumler, ufrmSetPrsBirimler,
-  ufrmSetPrsGorevler, ufrmSetPrsTasimaServisleri, ufrmSysUlkeler, ufrmSysSehirler,
+  ufrmSetPrsGorevler, ufrmSetPrsTasimaServisleri, {ufrmSysUlkeler, }ufrmSysSehirler,
   Ths.Database.Table.SetPrsPersonelTipleri, Ths.Database.Table.SetPrsBolumler,
   Ths.Database.Table.SetPrsBirimler, Ths.Database.Table.SetPrsGorevler,
   Ths.Database.Table.SetPrsTasimaServisleri, Ths.Database.Table.SysAdresler,
@@ -261,7 +261,7 @@ var
   LFrmGorev: TfrmSetPrsGorevler;
   LGorev: TSetPrsGorev;
   LUlke: TSysUlke;
-  LFrmUlke: TfrmSysUlkeler;
+//  LFrmUlke: TfrmSysUlkeler;
   LFrmCity: TfrmSysSehirler;
   LCity: TSysSehir;
 begin
@@ -317,7 +317,7 @@ begin
           LFrmGorev.Free;
         end;
       end
-      else if (TEdit(Sender).Name = edtulke_id.Name) then
+{      else if (TEdit(Sender).Name = edtulke_id.Name) then
       begin
         LUlke := TSysUlke.Create(Table.Database);
         LFrmUlke := TfrmSysUlkeler.Create(TEdit(Sender), Self, LUlke, fomNormal, True);
@@ -345,7 +345,7 @@ begin
         finally
           LFrmUlke.Free;
         end;
-      end
+      end  }
       else if (TEdit(Sender).Name = edtsehir_id.Name) and (edtulke_id.Text <> '') then
       begin
         LCity := TSysSehir.Create(Table.Database);

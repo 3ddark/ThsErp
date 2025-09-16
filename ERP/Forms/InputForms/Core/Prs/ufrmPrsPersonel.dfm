@@ -6,6 +6,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   ClientHeight = 458
   ClientWidth = 628
   Font.Name = 'MS Sans Serif'
+  StyleElements = [seFont, seClient, seBorder]
   ExplicitWidth = 644
   ExplicitHeight = 497
   TextHeight = 13
@@ -14,6 +15,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
     Height = 408
     Color = clWindow
     ParentColor = False
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitWidth = 626
     ExplicitHeight = 400
     inherited pgcMain: TPageControl
@@ -911,6 +913,7 @@ inherited frmPrsPersonel: TfrmPrsPersonel
   inherited pnlBottom: TPanel
     Top = 410
     Width = 624
+    StyleElements = [seFont, seClient, seBorder]
     ExplicitTop = 402
     ExplicitWidth = 622
     inherited btnAccept: TButton

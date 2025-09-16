@@ -133,7 +133,7 @@ uses
   Ths.Database.Table.ChHesapKartiAra, ufrmChHesapKartlariAra,
   Ths.Database.Table.ChGruplar, ufrmChGruplar, Ths.Database.Table.PrsPersoneller,
   Ths.Database.Table.ChBolgeler, ufrmChBolgeler,
-  Ths.Database.Table.SysUlkeler, ufrmSysUlkeler, Ths.Database.Table.SysSehirler,
+  Ths.Database.Table.SysUlkeler, {ufrmSysUlkeler, }Ths.Database.Table.SysSehirler,
   ufrmSysSehirler, Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
   Ths.Database.Table.SysAdresler;
 

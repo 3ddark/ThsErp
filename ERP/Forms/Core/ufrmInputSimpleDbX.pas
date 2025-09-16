@@ -19,6 +19,8 @@ type
     FTable: TE;
 
     FFormMode: TInputFormMode;
+    FDefaultSelectFilter: string;
+
     FRefreshGridEvent: TAfterCrudRefreshGrid;
 
     FPanelMain: TPanel;
@@ -30,6 +32,7 @@ type
     FBtnAccept: TButton;
     FBtnClose: TButton;
     FBtnDelete: TButton;
+
     procedure SetService(const Value: TS);
     procedure SetTable(const Value: TE);
     function ValidateSubControls(Sender: TWinControl; out AControlName: string): Boolean;
@@ -42,6 +45,7 @@ type
     property Table: TE read FTable write SetTable;
 
     property FormMode: TInputFormMode read FFormMode write FFormMode;
+    property DefaultSelectFilter: string read FDefaultSelectFilter write FDefaultSelectFilter;
 
     property PanelMain: TPanel read FPanelMain write FPanelMain;
     property PanelFooter: TPanel read FPanelFooter write FPanelFooter;
@@ -95,6 +99,9 @@ uses
   ufrmGrid;
 
 procedure TfrmInputSimpleDbX<TE, TS>.BtnAcceptClick(Sender: TObject);
+var
+  n1: Integer;
+  LId: Int64;
 //var
 //  LTable: TEntity;
 begin
@@ -113,7 +120,7 @@ begin
 
       //eger begin transaction demiyorsa insert pencere kapans�n ��nk� rollback yap�ld art�k insert etmemeli
       //�nceki i�lemler geri al�nd��� i�in
-      if (Service.UoW.Connection.InTransaction) then
+      if (Service.UoW.InTransaction) then
         Close;
       raise;
     end;
@@ -146,21 +153,23 @@ begin
   end
   else if (FormMode = ifmRewiev) then
   begin
-{    //burada g�ncelleme modunda oldu�u i�in b�t�n kontrolleri a�mak gerekiyor.
-    SetControlsDisabledOrEnabled(pnlMain, False);
+    //burada guncelleme modunda oldu�u icin butun kontrolleri a�mak gerekiyor.
+    SetControlsDisabledOrEnabled(PanelMain, False);
 
-    if (not Service.UoW.Connection.InTransaction) then
+    if (not Service.UoW.InTransaction) then
     begin
-      //varsa kayd� kilitle
-      if (Table.LogicalSelect(DefaultSelectFilter, True, ( not Service.UoW.InTransaction), True)) then
-      begin
-        //e�er aranan kay�t ba�ka bir kullan�c� taraf�ndan silinmi�se count 0 kal�r
-        if (Table.List.Count = 0) then
-          raise Exception.Create('Siz inceleme ekran�ndayken kay�t ba�ka kullan�c� taraf�ndan silinmi�.' + AddLBs(2) + 'Kayd� tekrar kontrol edin!');
+      //varsa kaydi kilitle
+      LId := Table.Id.Value;
+      for n1 := 0 to Table.Fields.Count-1 do
+        Table.Fields.Items[n1].OwnerEntity := nil;
+      FreeAndNil(Table);
 
-        LTable := TTable(Table.List[0]).Clone;
-        Table.Destroy;
-        Table := LTable;
+      Table := Service.BusinessFindById(LId, (not Service.UoW.InTransaction), True, True);
+
+        //eger aranan kayit baska bir kullanici tarafindan silinmisse count 0 kalir
+        if (Table = nil) then
+          raise Exception.Create('Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş.' + AddLBs(2) + 'Kaydı tekrar kontrol edin!');
+
 
         btnSpin.Visible := false;
         FormMode := ifmUpdate;
@@ -169,6 +178,7 @@ begin
         btnAccept.Width := Max(100, btnAccept.Width);
         btnDelete.Visible := True;
 
+        Service.Is
         if Table.IsAuthorized(ptUpdate, True, False) then
           btnAccept.Enabled := True
         else
@@ -181,11 +191,11 @@ begin
         FocusFirstControl;
 
         btnDelete.Left := btnAccept.Left-btnDelete.Width;
-      end;
+
     end
     else
       CustomMsgDlg('Aktif bir kay�t g�ncellemeniz var. �nce a��k olan i�leminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
-}
+
   end;
 end;
 
@@ -393,7 +403,11 @@ begin
   if (Self.FormMode = ifmRewiev)
   or (Self.FormMode = ifmReadOnly)
   then
+  begin
+    BtnDelete.Visible := False;
+    BtnDelete.OnClick := nil;
     SetControlsDisabledOrEnabled(PgcBase, True);
+  end;
 
   Repaint;
 end;

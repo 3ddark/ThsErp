@@ -70,8 +70,6 @@ uses
   ufrmSysBolgeler in 'Forms\OutputForms\DbGrid\Core\ufrmSysBolgeler.pas' {frmSysBolgeler},
   ufrmSysBolge in 'Forms\InputForms\Core\ufrmSysBolge.pas' {frmSysRegion},
   Ths.Database.Table.SysUlkeler in 'BackEnd\Core\Ths.Database.Table.SysUlkeler.pas',
-  ufrmSysUlkeler in 'Forms\OutputForms\DbGrid\Core\ufrmSysUlkeler.pas' {frmSysCountries},
-  ufrmSysUlke in 'Forms\InputForms\Core\ufrmSysUlke.pas' {frmSysUlke},
   Ths.Database.Table.SysGunler in 'BackEnd\Core\Ths.Database.Table.SysGunler.pas',
   ufrmSysGunler in 'Forms\OutputForms\DbGrid\Core\ufrmSysGunler.pas' {frmSysDays},
   ufrmSysGun in 'Forms\InputForms\Core\ufrmSysGun.pas' {frmSysDay},
@@ -304,7 +302,16 @@ uses
   ufrmSysRegion in 'Forms\System\ufrmSysRegion.pas' {frmSysRegion},
   ufrmSysRegions in 'Forms\System\ufrmSysRegions.pas' {frmSysRegions},
   ufrmSysCity in 'Forms\System\ufrmSysCity.pas' {frmSysCity},
-  ufrmSysCities in 'Forms\System\ufrmSysCities.pas' {frmSysCities};
+  ufrmSysCities in 'Forms\System\ufrmSysCities.pas' {frmSysCities},
+  ufrmSysCountry in 'Forms\System\ufrmSysCountry.pas' {frmSysCountry},
+  ufrmSysCountries in 'Forms\System\ufrmSysCountries.pas' {frmSysCountries},
+  SysPermissionGroup in 'BackEnd\System\SysPermissionGroup.pas',
+  SysPermission in 'BackEnd\System\SysPermission.pas',
+  SysAccessRight in 'BackEnd\System\SysAccessRight.pas',
+  SysPermissionGroup.Repository in 'BackEnd\System\SysPermissionGroup.Repository.pas',
+  SysPermission.Repository in 'BackEnd\System\SysPermission.Repository.pas',
+  SysAccessRight.Repository in 'BackEnd\System\SysAccessRight.Repository.pas',
+  SysPermissionGroup.Service in 'BackEnd\System\SysPermissionGroup.Service.pas';
 
 {$R *.res}
 

@@ -30,8 +30,8 @@ implementation
 constructor TSysCountry.Create();
 begin
   inherited;
-  FCountryCode := TEntityField<string>.Create(Self, 'ulke_kodu');
-  FCountryName := TEntityField<string>.Create(Self, 'ulke_adi');
+  FCountryCode := TEntityField<string>.Create(Self, 'country_code');
+  FCountryName := TEntityField<string>.Create(Self, 'country_name');
   FISOYear := TEntityField<Integer>.Create(Self, 'iso_year');
   FISOCCTLD := TEntityField<string>.Create(Self, 'iso_cctld');
   FIsEuMember := TEntityField<Boolean>.Create(Self, 'is_eu_member');
