@@ -147,6 +147,20 @@ begin
   Result := Self.FInstance.FSysPermissionGroupRepository;
 end;
 
+function TUnitOfWork.GetSysAccessRightRepository: TSysAccessRightRepository;
+begin
+  if Self.FInstance.FSysAccessRightRepository = nil then
+    Self.FInstance.FSysAccessRightRepository := TSysAccessRightRepository.Create(FInstance.FConnection);
+  Result := Self.FInstance.FSysAccessRightRepository;
+end;
+
+function TUnitOfWork.GetSysPermissionRepository: TSysPermissionRepository;
+begin
+  if Self.FInstance.FSysPermissionRepository = nil then
+    Self.FInstance.FSysPermissionRepository := TSysPermissionRepository.Create(FInstance.FConnection);
+  Result := Self.FInstance.FSysPermissionRepository;
+end;
+
 function TUnitOfWork.GetSysCityRepository: TSysCityRepository;
 begin
   if Self.FInstance.FSysCityRepository = nil then

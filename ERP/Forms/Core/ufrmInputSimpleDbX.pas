@@ -127,7 +127,7 @@ begin
   end
   else if (FormMode = ifmUpdate) then
   begin
-    if TThsDialogHelper.CustomMsgDlg('Kayd� g�ncelleme istedi�inden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hay�r'], mbNo, 'Kullan�c� Onay�') = mrYes then
+    if TThsDialogHelper.CustomMsgDlg('Kaydı güncellemek istediğinden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hay�r'], mbNo, 'Kullan�c� Onay�') = mrYes then
     begin
       //Burada yeni kay�t veya g�ncelleme modunda oldu�u i�in b�t�n kontrolleri a�mak gerekiyor.
 {      SetControlsDisabledOrEnabled(PanelMain, True);
@@ -153,7 +153,7 @@ begin
   end
   else if (FormMode = ifmRewiev) then
   begin
-    //burada guncelleme modunda oldu�u icin butun kontrolleri a�mak gerekiyor.
+    //burada guncelleme modunda oldugu icin butun kontrolleri acmak gerekiyor.
     SetControlsDisabledOrEnabled(PanelMain, False);
 
     if (not Service.UoW.InTransaction) then
@@ -162,36 +162,33 @@ begin
       LId := Table.Id.Value;
       for n1 := 0 to Table.Fields.Count-1 do
         Table.Fields.Items[n1].OwnerEntity := nil;
-      FreeAndNil(Table);
 
       Table := Service.BusinessFindById(LId, (not Service.UoW.InTransaction), True, True);
 
-        //eger aranan kayit baska bir kullanici tarafindan silinmisse count 0 kalir
-        if (Table = nil) then
-          raise Exception.Create('Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş.' + AddLBs(2) + 'Kaydı tekrar kontrol edin!');
+      //eger aranan kayit baska bir kullanici tarafindan silinmisse count 0 kalir
+      if (Table = nil) then
+        raise Exception.Create('Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş.' + AddLBs(2) + 'Kaydı tekrar kontrol edin!');
 
+      FormMode := ifmUpdate;
 
-        btnSpin.Visible := false;
-        FormMode := ifmUpdate;
-        btnAccept.Caption := 'Onayla';
-        btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
-        btnAccept.Width := Max(100, btnAccept.Width);
-        btnDelete.Visible := True;
+      btnSpin.Visible := false;
 
-        Service.Is
-        if Table.IsAuthorized(ptUpdate, True, False) then
-          btnAccept.Enabled := True
-        else
-          btnAccept.Enabled := False;
+      btnAccept.Caption := 'Onayla';
+      btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
+      btnAccept.Width := Max(100, btnAccept.Width);
+      if Service.Uow.IsAuthorized(ptUpdate, True, False)
+      then  btnAccept.Enabled := True
+      else  btnAccept.Enabled := False;
 
-        RefreshData;
+      btnDelete.Visible := True;
 
-        Repaint;
+      RefreshData;
 
-        FocusFirstControl;
+      Repaint;
 
-        btnDelete.Left := btnAccept.Left-btnDelete.Width;
+//      FocusFirstControl;
 
+      btnDelete.Left := btnAccept.Left-btnDelete.Width;
     end
     else
       CustomMsgDlg('Aktif bir kay�t g�ncellemeniz var. �nce a��k olan i�leminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
@@ -377,6 +374,26 @@ begin
             PostMessage((Sender as TWinControl).Handle, WM_NEXTDLGCTL, LPrevKey, 0);
           end;
         end;
+      end;
+    Char(VK_F4):
+      begin
+        if btnDelete.Visible and btnDelete.Enabled and Self.Visible then
+          btnDelete.Click;
+      end;
+    Char(VK_F5):
+      begin
+        if btnAccept.Visible and btnAccept.Enabled and Self.Visible then
+          btnAccept.Click
+      end;
+    Char(VK_F6):
+      begin
+        if btnClose.Visible and btnClose.Enabled and Self.Visible then
+          btnClose.Click;
+      end;
+    Char(VK_F11):
+      begin
+        Self.AlphaBlend := not Self.AlphaBlend;
+        Self.AlphaBlendValue := 50;
       end;
   else
     inherited;
