@@ -23,8 +23,10 @@ type
     procedure FormShow(Sender: TObject); override;
   published
     procedure BtnAcceptClick(Sender: TObject); override;
+
   public
     procedure RefreshData; override;
+    procedure InitializeInputCase; override;
   end;
 
 implementation
@@ -45,17 +47,21 @@ begin
 
   pgcMain.Parent := PanelMain;
   PgcBase := pgcMain;
-
-  edtfamily.CharCase := TEditCharCase.ecUpperCase;
 end;
 
 procedure TfrmStkKindFamily.FormShow(Sender: TObject);
 begin
   inherited;
 
-  Self.Caption := 'Stk Cins Aile Input';
+  Self.Caption := 'Input Stk Kind Family';
 
   edtfamily.SetFocus;
+end;
+
+procedure TfrmStkKindFamily.InitializeInputCase;
+begin
+  inherited;
+  mmodescription.CharCase := TEditCharCase.ecNormal;
 end;
 
 procedure TfrmStkKindFamily.RefreshData;

@@ -3,10 +3,10 @@
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Types, System.StrUtils,
-  System.Rtti, System.TypInfo, System.Generics.Collections, Data.DB, Data.FMTBcd,
-  FireDAC.Comp.Client, FireDAC.Stan.Param,
-  SharedFormTypes, BaseEntity, TableNameService;
+  System.SysUtils, System.Classes, System.Types, System.StrUtils, System.Rtti,
+  System.TypInfo, System.Generics.Collections, Data.DB, Data.FMTBcd,
+  FireDAC.Comp.Client, FireDAC.Stan.Param, Logger, SharedFormTypes, BaseEntity,
+  TableNameService;
 
 type
   TRttiHelper = class
@@ -20,6 +20,7 @@ type
 
   TBaseRepository<T: TEntity> = class(TInterfacedObject, IBaseRepository<T>)
   private
+    function ExpandSQLWithParams(Q: TFDQuery): string;
     function CallCreateMethod: T;
     procedure QueryToEntityValue(AQuery: TFDQuery; AEntity: T);
     procedure EntityToQueryParam(AQuery: TFDQuery; AEntity: T; AForAdd: Boolean);
@@ -97,7 +98,7 @@ begin
   end;
 
 //  if rM.IsConstructor then
-    Result := rM.Invoke(rT.AsInstance.MetaclassType, rParams).AsType<T>;
+  Result := rM.Invoke(rT.AsInstance.MetaclassType, rParams).AsType<T>;
 end;
 
 procedure TBaseRepository<T>.QueryToEntityValue(AQuery: TFDQuery; AEntity: T);
@@ -109,29 +110,38 @@ var
   subFld: IEntityField;
   pref: string;
 begin
-  for n1 := 0 to AEntity.Fields.Count-1 do
+  for n1 := 0 to AEntity.Fields.Count - 1 do
   begin
     AField := AEntity.Fields.Items[n1];
 
     // primitive types handled as before
     case AField.FieldType of
-      ftString: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsString);
-      ftWideString: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsWideString);
-      ftMemo: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsString);
-      ftFmtMemo: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsString);
+      ftString:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsString);
+      ftWideString:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsWideString);
+      ftMemo:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsString);
+      ftFmtMemo:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsString);
 
       ftShortint, ftWord, ftSmallint, ftInteger, ftLongWord:
         AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsInteger);
-      ftLargeint: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsLargeInt);
-      ftBCD, ftFMTBcd: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsFloat);
+      ftLargeint:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsLargeInt);
+      ftBCD, ftFMTBcd:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsFloat);
 
-      ftFloat: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsFloat);
-      ftCurrency: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsFloat);
+      ftFloat:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsFloat);
+      ftCurrency:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsFloat);
 
-      ftBoolean: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsBoolean);
+      ftBoolean:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsBoolean);
 
-      ftDate, ftTime, ftDateTime: AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsDateTime)
-    else
+      ftDate, ftTime, ftDateTime:
+        AField.ValueFirstSet(AQuery.FieldByName(AField.FieldName).AsDateTime)    else
       // Eğer buraya geliyorsa ftUnknown ya da özel tip — nested olabilir
       if TRttiHelper.IsValueTypeEntity((AField as TObject), nestedRtti) then
       begin
@@ -148,11 +158,14 @@ begin
             begin
               // delegating primitive mapping using existing field type
               case subFld.FieldType of
-                ftString, ftMemo, ftFmtMemo: subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsString);
-                ftWideString: subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsWideString);
+                ftString, ftMemo, ftFmtMemo:
+                  subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsString);
+                ftWideString:
+                  subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsWideString);
                 ftShortint, ftWord, ftSmallint, ftInteger, ftLongWord:
                   subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsInteger);
-                ftLargeint: subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsLargeInt);
+                ftLargeint:
+                  subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsLargeInt);
                 ftFloat, ftCurrency, ftFMTBcd, ftBCD:
                   subFld.ValueFirstSet(AQuery.FieldByName(pref + subFld.FieldName).AsFloat);
                 ftBoolean:
@@ -201,7 +214,7 @@ var
   fR: TRttiType;
   p: TRttiProperty;
 begin
-  for n1 := 0 to AEntity.Fields.Count-1 do
+  for n1 := 0 to AEntity.Fields.Count - 1 do
   begin
     AField := AEntity.Fields.Items[n1];
 
@@ -258,28 +271,46 @@ begin
     begin
       // mevcut kodunuzu koruyun (primitive mapping)
       case AField.FieldType of
-        ftString: AQuery.ParamByName(AField.FieldName).AsString := AField.AsString;
-        ftWideString: AQuery.ParamByName(AField.FieldName).AsWideString := AField.AsString;
-        ftMemo: AQuery.ParamByName(AField.FieldName).AsString := AField.AsString;
-        ftFmtMemo: AQuery.ParamByName(AField.FieldName).AsString := AField.AsString;
+        ftString:
+          AQuery.ParamByName(AField.FieldName).AsString := AField.AsString;
+        ftWideString:
+          AQuery.ParamByName(AField.FieldName).AsWideString := AField.AsString;
+        ftMemo:
+          AQuery.ParamByName(AField.FieldName).AsString := AField.AsString;
+        ftFmtMemo:
+          AQuery.ParamByName(AField.FieldName).AsString := AField.AsString;
 
-        ftShortint: AQuery.ParamByName(AField.FieldName).AsShortInt := AField.AsInteger;
-        ftWord: AQuery.ParamByName(AField.FieldName).AsWord := AField.AsInteger;
-        ftSmallint: AQuery.ParamByName(AField.FieldName).AsSmallInt := AField.AsInteger;
-        ftInteger: AQuery.ParamByName(AField.FieldName).AsInteger := AField.AsInteger;
-        ftLongWord: AQuery.ParamByName(AField.FieldName).AsLongword := AField.AsInteger;
-        ftLargeint: AQuery.ParamByName(AField.FieldName).AsLargeInt := AField.AsInt64;
-        ftBCD: AQuery.ParamByName(AField.FieldName).AsBCD := AField.AsInteger;
-        ftFMTBcd: AQuery.ParamByName(AField.FieldName).AsFMTBCD := AField.AsInteger;
+        ftShortint:
+          AQuery.ParamByName(AField.FieldName).AsShortInt := AField.AsInteger;
+        ftWord:
+          AQuery.ParamByName(AField.FieldName).AsWord := AField.AsInteger;
+        ftSmallint:
+          AQuery.ParamByName(AField.FieldName).AsSmallInt := AField.AsInteger;
+        ftInteger:
+          AQuery.ParamByName(AField.FieldName).AsInteger := AField.AsInteger;
+        ftLongWord:
+          AQuery.ParamByName(AField.FieldName).AsLongword := AField.AsInteger;
+        ftLargeint:
+          AQuery.ParamByName(AField.FieldName).AsLargeInt := AField.AsInt64;
+        ftBCD:
+          AQuery.ParamByName(AField.FieldName).AsBCD := AField.AsInteger;
+        ftFMTBcd:
+          AQuery.ParamByName(AField.FieldName).AsFMTBCD := AField.AsInteger;
 
-        ftFloat: AQuery.ParamByName(AField.FieldName).AsFloat := AField.AsFloat;
-        ftCurrency: AQuery.ParamByName(AField.FieldName).AsCurrency := AField.AsFloat;
+        ftFloat:
+          AQuery.ParamByName(AField.FieldName).AsFloat := AField.AsFloat;
+        ftCurrency:
+          AQuery.ParamByName(AField.FieldName).AsCurrency := AField.AsFloat;
 
-        ftBoolean: AQuery.ParamByName(AField.FieldName).AsBoolean := AField.AsBoolean;
+        ftBoolean:
+          AQuery.ParamByName(AField.FieldName).AsBoolean := AField.AsBoolean;
 
-        ftDate: AQuery.ParamByName(AField.FieldName).AsDate := AField.AsDateTime;
-        ftTime: AQuery.ParamByName(AField.FieldName).AsTime := AField.AsDateTime;
-        ftDateTime: AQuery.ParamByName(AField.FieldName).AsDateTime := AField.AsDateTime;
+        ftDate:
+          AQuery.ParamByName(AField.FieldName).AsDate := AField.AsDateTime;
+        ftTime:
+          AQuery.ParamByName(AField.FieldName).AsTime := AField.AsDateTime;
+        ftDateTime:
+          AQuery.ParamByName(AField.FieldName).AsDateTime := AField.AsDateTime;
       else
         raise Exception.Create('Unknow FieldType! Event: Set Query Parameter value. FieldName: ' + (AField.FieldName));
       end;
@@ -303,11 +334,10 @@ begin
   try
     Entity := CallCreateMethod;
     try
-      LTableName := TTableNameService.TableName(T);
-      LTableName := TTableNameService.TableName(Entity.ClassType);
-      SQL := Format('SELECT * FROM %s WHERE 1=1 ', [LTableName]);
+      LTableName := TTableNameService.TableName(Entity);
+      SQL := Format('SELECT * FROM %s WHERE 1=1 ;', [LTableName]);
     finally
-      for n1 := 0 to Entity.Fields.Count-1 do
+      for n1 := 0 to Entity.Fields.Count - 1 do
       begin
         if Entity.Fields[n1].OwnerEntity <> nil then
           Entity.Fields[n1].OwnerEntity := nil;
@@ -332,8 +362,9 @@ begin
   try
     LTableName := TTableNameService.TableName(T);
 
-    Q.SQL.Text := Format('SELECT * FROM %s WHERE 1=1 %s', [LTableName, AFilter]);
+    Q.SQL.Text := Format('SELECT * FROM %s WHERE 1=1 %s;', [LTableName, AFilter]);
     Q.Open;
+    GLogger.RunLog(ExpandSQLWithParams(Q));
 
     while not Q.Eof do
     begin
@@ -350,7 +381,7 @@ end;
 function TBaseRepository<T>.FindById(AId: Integer; ALock: Boolean): T;
 var
   Q: TFDQuery;
-  LTableName: string;
+  LTableName, LockQuery: string;
 begin
   if AId <= 0 then
     Exit(nil);
@@ -360,8 +391,14 @@ begin
   Q := NewQuery(nil);
   try
     LTableName := TTableNameService.TableName(Result.ClassType);
-    Q.SQL.Text := Format('SELECT * FROM %s WHERE %s', [LTableName, Result.Id.QryName + '=' + AId.ToString]);
+
+    LockQuery := ';';
+    if ALock then
+      LockQuery := ' FOR UPDATE OF ' + LTableName + ' NOWAIT; ';
+
+    Q.SQL.Text := Format('SELECT * FROM %s WHERE %s %s', [LTableName, Result.Id.QryName + '=' + AId.ToString, LockQuery]);
     Q.Open;
+    GLogger.RunLog(ExpandSQLWithParams(Q));
     QueryToEntityValue(Q, Result);
   finally
     Q.Free;
@@ -386,7 +423,7 @@ begin
 
     LFieldNames := '';
     LParams := '';
-    for n1 := 0 to AModel.Fields.Count-1 do
+    for n1 := 0 to AModel.Fields.Count - 1 do
     begin
       if AModel.Fields[n1].FieldName <> 'id' then
       begin
@@ -395,16 +432,17 @@ begin
       end;
     end;
     LFieldNames := Trim(LFieldNames);
-    LFieldNames := LeftStr(LFieldNames, Length(LFieldNames)-1);
+    LFieldNames := LeftStr(LFieldNames, Length(LFieldNames) - 1);
 
     LParams := Trim(LParams);
-    LParams := LeftStr(LParams, Length(LParams)-1);
+    LParams := LeftStr(LParams, Length(LParams) - 1);
 
-    Q.SQL.Text := Format('INSERT INTO %s (' + LFieldNames + ') VALUES (' + LParams + ') RETURNING %s', [LTableName, AModel.Id.FieldName]);
+    Q.SQL.Text := Format('INSERT INTO %s (' + LFieldNames + ') VALUES (' + LParams + ') RETURNING %s;', [LTableName, AModel.Id.FieldName]);
 
     EntityToQueryParam(Q, AModel, True);
 
     Q.Open;
+    GLogger.RunLog(ExpandSQLWithParams(Q));
     AModel.Id.ValueFirstSet(Q.FieldByName('id').AsInteger);
   finally
     Q.Free;
@@ -421,7 +459,7 @@ end;
 
 procedure TBaseRepository<T>.Delete(AModel: T);
 begin
-  Self.DeleteById(AModel.Id.Value, TTableNameService.TableName(AModel));
+  Self.DeleteById(AModel.Id.Value, TTableNameService.TableName(AModel.ClassType));
 end;
 
 procedure TBaseRepository<T>.Delete(AId: Int64);
@@ -437,9 +475,10 @@ begin
   Q := NewQuery(nil);
   try
     LTableName := TTableNameService.TableName(T);
-    Q.SQL.Text := Format('DELETE FROM %s WHERE 1=1 ', [LTableName, 'p_filter']);
+    Q.SQL.Text := Format('DELETE FROM %s WHERE 1=1 %s;', [LTableName, 'p_filter']);
     Q.ParamByName('p_filter').AsString := AFilter.AsString;
     Q.ExecSQL;
+    GLogger.RunLog(ExpandSQLWithParams(Q));
   finally
     Q.Free;
   end;
@@ -472,9 +511,10 @@ var
 begin
   Q := NewQuery(nil);
   try
-    Q.SQL.Text := Format('DELETE FROM %s WHERE id = :%s', [ATableName, 'p_id']);
+    Q.SQL.Text := Format('DELETE FROM %s WHERE id=:%s;', [ATableName, 'p_id']);
     Q.ParamByName('p_id').AsInteger := AId;
     Q.ExecSQL;
+    GLogger.RunLog(ExpandSQLWithParams(Q));
   finally
     Q.Free;
   end;
@@ -498,22 +538,23 @@ begin
 
     LFieldNames := '';
     LParams := '';
-    for n1 := 0 to AModel.Fields.Count-1 do
+    for n1 := 0 to AModel.Fields.Count - 1 do
     begin
       if AModel.Fields[n1].FieldName <> 'id' then
         LFieldNames := LFieldNames + AModel.Fields[n1].FieldName + ':' + AModel.Fields[n1].FieldName + ',';
     end;
     LFieldNames := Trim(LFieldNames);
-    LFieldNames := LeftStr(LFieldNames, Length(LFieldNames)-1);
+    LFieldNames := LeftStr(LFieldNames, Length(LFieldNames) - 1);
 
     LParams := Trim(LParams);
-    LParams := LeftStr(LParams, Length(LParams)-1);
+    LParams := LeftStr(LParams, Length(LParams) - 1);
 
     Q.SQL.Text := Format('UPDATE %s SET ' + LFieldNames + ' WHERE %s', [LTableName, LFieldNames, AModel.Id.FieldName + ':' + AModel.Id.FieldName]);
 
     EntityToQueryParam(Q, AModel, False);
 
     Q.ExecSQL;
+    GLogger.RunLog(ExpandSQLWithParams(Q));
   finally
     Q.Free;
   end;
@@ -556,14 +597,60 @@ begin
             Q.ParamByName('p_value').AsFloat := V.AsExtended;
         end;
     else
-        raise Exception.Create('Unsupported field type in ExistsByField');
+      raise Exception.Create('Unsupported field type in ExistsByField');
     end;
 
     Q.Open;
+    GLogger.RunLog(ExpandSQLWithParams(Q));
     Result := Q.Fields[0].AsBoolean;
   finally
     Q.Free;
   end;
+end;
+
+function TBaseRepository<T>.ExpandSQLWithParams(Q: TFDQuery): string;
+var
+  SQLText: string;
+  Param: TFDParam;
+  ParamValue: string;
+  i: Integer;
+begin
+  SQLText := Q.SQL.Text;
+
+  for i := 0 to Q.Params.Count - 1 do
+  begin
+    Param := Q.Params[i];
+
+    // NULL değer kontrolü
+    if Param.IsNull then
+      ParamValue := 'NULL'
+
+    // Sayısal değerler doğrudan yazılır
+    else if Param.DataType in [ftSmallint, ftInteger, ftWord, ftFloat, ftCurrency, ftBCD, ftFMTBcd, ftLargeInt, ftShortint, ftByte, ftLongWord, ftExtended] then
+      ParamValue := Param.AsString
+
+    // Boolean değerler için true/false yazılır
+    else if Param.DataType = ftBoolean then
+    begin
+      if Param.AsBoolean then
+        ParamValue := 'TRUE'
+      else
+        ParamValue := 'FALSE';
+    end
+
+    // Tarih / saat değerleri için uygun format ve tek tırnak
+    else if Param.DataType in [ftDate, ftTime, ftDateTime, ftTimeStamp] then
+      ParamValue := QuotedStr(FormatDateTime('yyyy-mm-dd hh:nn:ss', Param.AsDateTime))
+
+    // Diğerleri (metin vs.) tek tırnak içinde yazılır
+    else
+      ParamValue := QuotedStr(Param.AsString);
+
+    // Parametre adlarını tüm geçtiği yerlerde değiştir
+    SQLText := StringReplace(SQLText, ':' + Param.Name, ParamValue, [rfReplaceAll, rfIgnoreCase]);
+  end;
+
+  Result := SQLText;
 end;
 
 { TRttiHelper }
@@ -581,7 +668,8 @@ begin
   try
     fldType := ctx.GetType(AFieldObj.ClassType);
     valProp := fldType.GetProperty('Value');
-    if not Assigned(valProp) then Exit;
+    if not Assigned(valProp) then
+      Exit;
 
     valType := valProp.PropertyType;
     if (valType is TRttiInstanceType) then

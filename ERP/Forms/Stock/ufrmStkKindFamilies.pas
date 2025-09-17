@@ -34,7 +34,7 @@ end;
 procedure TfrmStkKindFamilies.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Be yeni özel caption override;';
+  Self.Caption := 'List Stk Kind Families';
 end;
 
 procedure TfrmStkKindFamilies.SetSelectedItem;

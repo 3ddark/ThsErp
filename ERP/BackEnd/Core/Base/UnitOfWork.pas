@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, FireDAC.Comp.Client, FireDAC.Phys,FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Error,
+  FireDAC.Stan.Option, FireDAC.Stan.Error, Logger,
   SharedFormTypes,
 
   SysViewColumn.Repository,
@@ -104,16 +104,19 @@ end;
 procedure TUnitOfWork.BeginTransaction;
 begin
   FInstance.FConnection.StartTransaction;
+  GLogger.RunLog('TRANSACTION BEGIN');
 end;
 
 procedure TUnitOfWork.Commit;
 begin
   FInstance.FConnection.Commit;
+  GLogger.RunLog('TRANSACTION COMMIT');
 end;
 
 procedure TUnitOfWork.Rollback;
 begin
   FInstance.FConnection.Rollback;
+  GLogger.RunLog('TRANSACTION ROLLBACK');
 end;
 
 function TUnitOfWork.InTransaction: Boolean;

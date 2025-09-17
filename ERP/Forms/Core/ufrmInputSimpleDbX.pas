@@ -32,6 +32,9 @@ type
     FBtnAccept: TButton;
     FBtnClose: TButton;
     FBtnDelete: TButton;
+    FAfterDeleteEvent: TNotifyEvent;
+
+    procedure DoAfterDeleteEvent(Sender: TObject);
 
     procedure SetService(const Value: TS);
     procedure SetTable(const Value: TE);
@@ -82,6 +85,7 @@ type
     procedure RefreshData; virtual;
     procedure StatusBarAddPanel(AWidth: Integer; AStyle: TStatusPanelStyle);
     function ValidateInput(AContainerControl: TWinControl = nil): Boolean; virtual;
+    procedure InitializeInputCase; virtual;
 
     procedure PrepareForm;
     procedure CreatePanelMain;
@@ -91,6 +95,8 @@ type
     procedure CreateBtnAccept;
     procedure CreateBtnClose;
     procedure CreateBtnDelete;
+  published
+    property AfterDeleteEvent: TNotifyEvent read FAfterDeleteEvent write FAfterDeleteEvent;
   end;
 
 implementation
@@ -118,8 +124,8 @@ begin
     except
       ModalResult := mrNone;//hata durumunda pencere kapanmas�n
 
-      //eger begin transaction demiyorsa insert pencere kapans�n ��nk� rollback yap�ld art�k insert etmemeli
-      //�nceki i�lemler geri al�nd��� i�in
+      //eger begin transaction demiyorsa insert pencere kapansin cunku rollback yapildi artik insert etmemeli
+      //Onceki islemler geri alindigi icin
       if (Service.UoW.InTransaction) then
         Close;
       raise;
@@ -181,6 +187,7 @@ begin
       else  btnAccept.Enabled := False;
 
       btnDelete.Visible := True;
+      btnDelete.OnClick := btnDeleteClick;
 
       RefreshData;
 
@@ -203,7 +210,30 @@ end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.BtnDeleteClick(Sender: TObject);
 begin
-  ShowMessage('not implemented yet');
+  if (FormMode = ifmUpdate)then
+  begin
+    if CustomMsgDlg('Kaydı silmek istediğinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
+    begin
+      try
+        Service.BusinessDelete(Table, not Service.Uow.InTransaction, True, False);
+        DoAfterDeleteEvent(Sender);
+
+        RefreshParentGrid(False);
+        ModalResult := mrOK;
+        Close;
+      except
+        ModalResult := mrNone;
+        FormMode := ifmRewiev;
+        btnSpin.Visible := True;
+        btnDelete.Visible := False;
+        btnAccept.Caption := 'Güncelle';
+        btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
+        btnAccept.Width := Max(100, btnAccept.Width);
+
+        Repaint;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.BtnSpinDownClick(Sender: TObject);
@@ -257,6 +287,9 @@ procedure TfrmInputSimpleDbX<TE, TS>.CreateBtnAccept;
 begin
   BtnAccept := TButton.Create(PanelFooter);
   BtnAccept.Parent := PanelFooter;
+  BtnAccept.AlignWithMargins := True;
+  BtnAccept.Padding.Left := 4;
+  BtnAccept.Padding.Right := 4;
   BtnAccept.TabOrder := 2;
   BtnAccept.Caption := 'Kaydet';
   BtnAccept.OnClick := BtnAcceptClick;
@@ -267,6 +300,9 @@ procedure TfrmInputSimpleDbX<TE, TS>.CreateBtnClose;
 begin
   BtnClose := TButton.Create(PanelFooter);
   BtnClose.Parent := PanelFooter;
+  BtnClose.AlignWithMargins := True;
+  BtnClose.Padding.Left := 4;
+  BtnClose.Padding.Right := 4;
   BtnClose.TabOrder := 3;
   BtnClose.Caption := 'Kapat';
   BtnClose.OnClick := BtnCloseClick;
@@ -277,6 +313,9 @@ procedure TfrmInputSimpleDbX<TE, TS>.CreateBtnDelete;
 begin
   BtnDelete := TButton.Create(PanelFooter);
   BtnDelete.Parent := PanelFooter;
+  BtnDelete.AlignWithMargins := True;
+  BtnDelete.Padding.Left := 4;
+  BtnDelete.Padding.Right := 4;
   BtnDelete.TabOrder := 1;
   BtnDelete.Caption := 'Sil';
   BtnDelete.OnClick := BtnDeleteClick;
@@ -287,6 +326,9 @@ procedure TfrmInputSimpleDbX<TE, TS>.CreateBtnSpin;
 begin
   BtnSpin := TSpinButton.Create(PanelFooter);
   BtnSpin.Parent := PanelFooter;
+  BtnSpin.AlignWithMargins := True;
+  BtnSpin.Padding.Left := 4;
+  BtnSpin.Padding.Right := 4;
   BtnSpin.TabOrder := 0;
   BtnSpin.OnUpClick := BtnSpinUpClick;
   BtnSpin.OnDownClick := BtnSpinDownClick;
@@ -334,8 +376,22 @@ begin
   inherited;
 end;
 
+procedure TfrmInputSimpleDbX<TE, TS>.DoAfterDeleteEvent(Sender: TObject);
+begin
+  if Assigned(FAfterDeleteEvent) then
+    FAfterDeleteEvent(Sender);
+end;
+
 procedure TfrmInputSimpleDbX<TE, TS>.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  if FormMode = ifmUpdate then
+  begin
+    if Service.Uow.InTransaction then
+    begin
+      Service.Uow.Rollback;
+    end;
+  end;
+
   Action := caFree;
 end;
 
@@ -359,7 +415,11 @@ var
   LPrevKey: SmallInt;
 begin
   case Key of
-    Char(VK_ESCAPE): Self.Close;
+    Char(VK_ESCAPE):
+      begin
+        Key := #0;
+        Self.Close;
+      end;
     Char(VK_RETURN):
       begin
         Key := #0;
@@ -375,23 +435,35 @@ begin
           end;
         end;
       end;
-    Char(VK_F4):
+  else
+    inherited;
+  end;
+end;
+
+procedure TfrmInputSimpleDbX<TE, TS>.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_F4:
       begin
+        Key := 0;
         if btnDelete.Visible and btnDelete.Enabled and Self.Visible then
           btnDelete.Click;
       end;
-    Char(VK_F5):
+    VK_F5:
       begin
+        Key := 0;
         if btnAccept.Visible and btnAccept.Enabled and Self.Visible then
           btnAccept.Click
       end;
-    Char(VK_F6):
+    VK_F6:
       begin
+        Key := 0;
         if btnClose.Visible and btnClose.Enabled and Self.Visible then
           btnClose.Click;
       end;
-    Char(VK_F11):
+    VK_F11:
       begin
+        Key := 0;
         Self.AlphaBlend := not Self.AlphaBlend;
         Self.AlphaBlendValue := 50;
       end;
@@ -400,33 +472,63 @@ begin
   end;
 end;
 
-procedure TfrmInputSimpleDbX<TE, TS>.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-//
-end;
-
 procedure TfrmInputSimpleDbX<TE, TS>.FormShow(Sender: TObject);
 begin
   BtnAccept.Visible := False;
   BtnAccept.Visible := True;
 
   SetControlDBProperty();
+  InitializeInputCase;
 
-  if (FormMode <> ifmNewRecord ) then
-  begin
-    RefreshData;
+  case FormMode of
+    ifmNone:
+      begin
+      end;
+    ifmNewRecord:
+      begin
+        BtnSpin.Visible := False;
+        BtnDelete.Visible := False;
+        BtnDelete.OnClick := nil;
+      end;
+    ifmRewiev:
+      begin
+        RefreshData;
+        BtnDelete.Visible := False;
+        BtnDelete.OnClick := nil;
+      end;
+    ifmUpdate:
+      begin
+        RefreshData;
+        BtnDelete.Visible := True;
+        BtnDelete.OnClick := BtnDeleteClick;
+      end;
+    ifmReadOnly:
+      begin
+        RefreshData;
+        BtnDelete.Visible := False;
+        BtnDelete.OnClick := nil;
+      end;
+    ifmCopyNewRecord:
+      begin
+        BtnSpin.Visible := False;
+        BtnDelete.Visible := False;
+        BtnDelete.OnClick := nil;
+      end;
   end;
 
   if (Self.FormMode = ifmRewiev)
   or (Self.FormMode = ifmReadOnly)
   then
   begin
-    BtnDelete.Visible := False;
-    BtnDelete.OnClick := nil;
     SetControlsDisabledOrEnabled(PgcBase, True);
   end;
 
   Repaint;
+end;
+
+procedure TfrmInputSimpleDbX<TE, TS>.InitializeInputCase;
+begin
+//
 end;
 
 procedure TfrmInputSimpleDbX<TE, TS>.PrepareForm;

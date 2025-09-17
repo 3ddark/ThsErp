@@ -379,12 +379,14 @@ CREATE FUNCTION public.table_notify() RETURNS trigger
 BEGIN
 	IF (TG_OP = 'INSERT') THEN
 		PERFORM pg_notify(TG_TABLE_NAME, NEW.id::varchar);
+		RETURN NEW;
 	ELSIF (TG_OP = 'UPDATE') THEN
 		PERFORM pg_notify(TG_TABLE_NAME, NEW.id::varchar);
+		RETURN NEW;
 	ELSIF (TG_OP = 'DELETE') THEN
 		PERFORM pg_notify(TG_TABLE_NAME, OLD.id::varchar);
+		RETURN OLD;
 	END IF;
-	RETURN NEW;
 END;
 $$;
 

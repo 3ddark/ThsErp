@@ -344,6 +344,7 @@ begin
 
   AddExitProc(MemLeakFix);
 
+  TStyleManager.TrySetStyle('Iceberg Classico');
   Application.Title := 'THS ERP';
   Application.CreateForm(Tdm, dm);
   Application.CreateForm(TfrmDashboard, frmDashboard);
