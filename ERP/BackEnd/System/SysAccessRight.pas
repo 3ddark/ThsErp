@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, BaseEntity;
 
 type
-  [TableName('sys_regions')]
+  [TableName('sys_access_rights')]
   TSysAccessRight = class(TEntity)
   private
     FPermissionId: TEntityField<Int64>;

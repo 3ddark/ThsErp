@@ -784,6 +784,12 @@
         <DCCReference Include="BackEnd\System\SysPermission.Repository.pas"/>
         <DCCReference Include="BackEnd\System\SysAccessRight.Repository.pas"/>
         <DCCReference Include="BackEnd\System\SysPermissionGroup.Service.pas"/>
+        <DCCReference Include="BackEnd\System\SysDay.pas"/>
+        <DCCReference Include="BackEnd\System\SysMonth.pas"/>
+        <DCCReference Include="BackEnd\System\SysAddress.pas"/>
+        <DCCReference Include="BackEnd\System\SysApplicationSetting.pas"/>
+        <DCCReference Include="BackEnd\System\SysCurrency.pas"/>
+        <DCCReference Include="BackEnd\System\SysDecimalPlace.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

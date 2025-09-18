@@ -311,7 +311,13 @@ uses
   SysPermissionGroup.Repository in 'BackEnd\System\SysPermissionGroup.Repository.pas',
   SysPermission.Repository in 'BackEnd\System\SysPermission.Repository.pas',
   SysAccessRight.Repository in 'BackEnd\System\SysAccessRight.Repository.pas',
-  SysPermissionGroup.Service in 'BackEnd\System\SysPermissionGroup.Service.pas';
+  SysPermissionGroup.Service in 'BackEnd\System\SysPermissionGroup.Service.pas',
+  SysDay in 'BackEnd\System\SysDay.pas',
+  SysMonth in 'BackEnd\System\SysMonth.pas',
+  SysAddress in 'BackEnd\System\SysAddress.pas',
+  SysApplicationSetting in 'BackEnd\System\SysApplicationSetting.pas',
+  SysCurrency in 'BackEnd\System\SysCurrency.pas',
+  SysDecimalPlace in 'BackEnd\System\SysDecimalPlace.pas';
 
 {$R *.res}
 

@@ -2620,32 +2620,50 @@ ALTER TABLE public.stk_gruplar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
--- Name: sys_adresler; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_access_rights; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_adresler (
+CREATE TABLE public.sys_access_rights (
     id bigint NOT NULL,
-    sehir_id bigint,
-    ilce character varying(64),
-    mahalle character varying(64),
-    semt character varying(64),
-    cadde character varying(64),
-    sokak character varying(64),
-    bina_adi character varying(48),
-    kapi_no character varying(16),
-    posta_kodu character varying(16),
+    permission_id bigint NOT NULL,
+    is_read boolean DEFAULT false NOT NULL,
+    is_add boolean DEFAULT false NOT NULL,
+    is_update boolean DEFAULT false NOT NULL,
+    is_delete boolean DEFAULT false NOT NULL,
+    is_special boolean DEFAULT false NOT NULL,
+    user_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.sys_access_rights OWNER TO ths_admin;
+
+--
+-- Name: sys_addresses; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_addresses (
+    id bigint NOT NULL,
+    city_id bigint,
+    district character varying(64),
+    neighborhood character varying(64),
+    quarter character varying(64),
+    road character varying(64),
+    street character varying(64),
+    building_name character varying(48),
+    door_number character varying(16),
+    zip_code character varying(16),
     web character varying(64),
     email character varying(128)
 );
 
 
-ALTER TABLE public.sys_adresler OWNER TO ths_admin;
+ALTER TABLE public.sys_addresses OWNER TO ths_admin;
 
 --
 -- Name: sys_adresler_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_adresler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_addresses ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_adresler_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2656,29 +2674,62 @@ ALTER TABLE public.sys_adresler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
--- Name: sys_aylar; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_application_settings; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_aylar (
+CREATE TABLE public.sys_application_settings (
     id bigint NOT NULL,
-    ay_adi character varying(16) NOT NULL
+    company_title character varying(128) DEFAULT 'THUNDERSOFT A.Ş.'::character varying NOT NULL,
+    phone character varying(24) DEFAULT '0123 456 78 90'::character varying NOT NULL,
+    fax character varying(24),
+    tax_authority character varying(32),
+    tax_no character varying(16),
+    active_period smallint DEFAULT 2018 NOT NULL,
+    mail_host character varying(255),
+    mail_user character varying(255),
+    mail_password character varying(255),
+    mail_smtp_port integer,
+    grid_color_1 integer DEFAULT 13171168 NOT NULL,
+    grid_color_2 integer DEFAULT 7467153 NOT NULL,
+    grid_color_active integer DEFAULT 14605509 NOT NULL,
+    crypt_key character varying(255) DEFAULT 12345 NOT NULL,
+    sms_host character varying(255),
+    sms_user character varying(255),
+    sms_password character varying(255),
+    sms_title character varying(255),
+    app_version character varying(128),
+    base_currency character varying(3),
+    address_id bigint,
+    other_settings jsonb,
+    taxpayer_name character varying(64),
+    taxpayer_surname character varying,
+    taxpayer_type character varying(8),
+    logo bytea
 );
 
 
-ALTER TABLE public.sys_aylar OWNER TO ths_admin;
+ALTER TABLE public.sys_application_settings OWNER TO ths_admin;
 
 --
--- Name: sys_ay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: COLUMN sys_application_settings.taxpayer_name; Type: COMMENT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_aylar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_ay_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
+COMMENT ON COLUMN public.sys_application_settings.taxpayer_name IS 'for Sole Proprietorship';
+
+
+--
+-- Name: COLUMN sys_application_settings.taxpayer_surname; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sys_application_settings.taxpayer_surname IS 'for Sole Proprietorship';
+
+
+--
+-- Name: COLUMN sys_application_settings.taxpayer_type; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sys_application_settings.taxpayer_type IS 'for Sole Proprietorship Goverment ID
+for Company Vat No';
 
 
 --
@@ -2726,6 +2777,46 @@ ALTER TABLE public.sys_countries ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
 
 
 --
+-- Name: sys_currencies; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_currencies (
+    id bigint NOT NULL,
+    currnecy character varying(3) NOT NULL,
+    symbol character varying(3) NOT NULL,
+    description character varying(128)
+);
+
+
+ALTER TABLE public.sys_currencies OWNER TO ths_admin;
+
+--
+-- Name: sys_days; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_days (
+    id bigint NOT NULL,
+    day_name character varying(16) NOT NULL
+);
+
+
+ALTER TABLE public.sys_days OWNER TO ths_admin;
+
+--
+-- Name: sys_day_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_days ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_day_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sys_db_status; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -2753,28 +2844,26 @@ CREATE VIEW public.sys_db_status AS
 ALTER VIEW public.sys_db_status OWNER TO ths_admin;
 
 --
--- Name: sys_ersim_haklari; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_decimal_places; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_ersim_haklari (
+CREATE TABLE public.sys_decimal_places (
     id bigint NOT NULL,
-    kaynak_id bigint NOT NULL,
-    is_okuma boolean DEFAULT false NOT NULL,
-    is_ekleme boolean DEFAULT false NOT NULL,
-    is_guncelleme boolean DEFAULT false NOT NULL,
-    is_silme boolean DEFAULT false NOT NULL,
-    is_ozel boolean DEFAULT false NOT NULL,
-    kullanici_id bigint NOT NULL
+    quantity smallint DEFAULT 2,
+    price smallint DEFAULT 2,
+    total smallint DEFAULT 2,
+    stock_quantity smallint DEFAULT 4,
+    exchange_rate smallint DEFAULT 4
 );
 
 
-ALTER TABLE public.sys_ersim_haklari OWNER TO ths_admin;
+ALTER TABLE public.sys_decimal_places OWNER TO ths_admin;
 
 --
 -- Name: sys_erisim_hakki_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_ersim_haklari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_access_rights ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_erisim_hakki_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2785,24 +2874,49 @@ ALTER TABLE public.sys_ersim_haklari ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 
 --
--- Name: sys_grid_filtreler_siralamalar; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_grid_columns; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_grid_filtreler_siralamalar (
+CREATE TABLE public.sys_grid_columns (
     id bigint NOT NULL,
-    tablo_adi character varying(32),
-    icerik character varying,
-    is_siralama boolean DEFAULT false
+    table_name character varying(128) NOT NULL,
+    column_name character varying(128) NOT NULL,
+    column_order integer DEFAULT 1 NOT NULL,
+    column_width integer DEFAULT 0 NOT NULL,
+    data_format character varying(16),
+    is_show boolean DEFAULT true,
+    is_show_helper boolean DEFAULT false,
+    min_value double precision DEFAULT 0,
+    min_value_color integer DEFAULT 0,
+    max_value double precision DEFAULT 0,
+    max_value_color integer DEFAULT 0,
+    max_value_percent double precision DEFAULT 0,
+    bar_color integer DEFAULT 0,
+    bar_bg_color integer DEFAULT 0,
+    bar_text_coolor integer DEFAULT 0
 );
 
 
-ALTER TABLE public.sys_grid_filtreler_siralamalar OWNER TO ths_admin;
+ALTER TABLE public.sys_grid_columns OWNER TO ths_admin;
+
+--
+-- Name: sys_grid_filters; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_grid_filters (
+    id bigint NOT NULL,
+    table_name character varying(32),
+    filter_content character varying
+);
+
+
+ALTER TABLE public.sys_grid_filters OWNER TO ths_admin;
 
 --
 -- Name: sys_grid_filtre_siralama_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_grid_filtreler_siralamalar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_grid_filters ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_grid_filtre_siralama_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2813,36 +2927,10 @@ ALTER TABLE public.sys_grid_filtreler_siralamalar ALTER COLUMN id ADD GENERATED 
 
 
 --
--- Name: sys_grid_kolonlar; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_grid_kolonlar (
-    id bigint NOT NULL,
-    tablo_adi character varying(128) NOT NULL,
-    kolon_adi character varying(128) NOT NULL,
-    sira_no integer DEFAULT 1 NOT NULL,
-    kolon_genislik integer DEFAULT 0 NOT NULL,
-    veri_formati character varying(16),
-    is_gorunur boolean DEFAULT true,
-    is_helper_gorunur boolean DEFAULT false,
-    min_deger double precision DEFAULT 0,
-    min_renk integer DEFAULT 0,
-    maks_deger double precision DEFAULT 0,
-    maks_renk integer DEFAULT 0,
-    maks_deger_yuzdesi double precision DEFAULT 0,
-    bar_rengi integer DEFAULT 0,
-    bar_arka_rengi integer DEFAULT 0,
-    bar_yazi_rengi integer DEFAULT 0
-);
-
-
-ALTER TABLE public.sys_grid_kolonlar OWNER TO ths_admin;
-
---
 -- Name: sys_grid_kolon_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_grid_kolonlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_grid_columns ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_grid_kolon_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2853,40 +2941,24 @@ ALTER TABLE public.sys_grid_kolonlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 
 --
--- Name: sys_gui_icerikler; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_grid_sorts; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_gui_icerikler (
+CREATE TABLE public.sys_grid_sorts (
     id bigint NOT NULL,
-    kod character varying(64) NOT NULL,
-    deger text,
-    is_fabrika boolean DEFAULT false NOT NULL,
-    icerik_tipi character varying(32) NOT NULL,
-    tablo_adi character varying(64),
-    form_adi character varying(64)
+    table_name character varying(32),
+    sort_content character varying
 );
 
 
-ALTER TABLE public.sys_gui_icerikler OWNER TO ths_admin;
+ALTER TABLE public.sys_grid_sorts OWNER TO ths_admin;
 
 --
--- Name: sys_gunler; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_grid_sorts_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_gunler (
-    id bigint NOT NULL,
-    gun_adi character varying(16) NOT NULL
-);
-
-
-ALTER TABLE public.sys_gunler OWNER TO ths_admin;
-
---
--- Name: sys_gun_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.sys_gunler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_gun_id_seq
+ALTER TABLE public.sys_grid_sorts ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_grid_sorts_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2896,22 +2968,39 @@ ALTER TABLE public.sys_gunler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- Name: sys_kaynak_gruplari; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_gui_contents; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_kaynak_gruplari (
+CREATE TABLE public.sys_gui_contents (
     id bigint NOT NULL,
-    grup character varying(64) NOT NULL
+    code character varying(64) NOT NULL,
+    content text,
+    is_factory boolean DEFAULT false NOT NULL,
+    content_type character varying(32) NOT NULL,
+    table_name character varying(64),
+    form_name character varying(64)
 );
 
 
-ALTER TABLE public.sys_kaynak_gruplari OWNER TO ths_admin;
+ALTER TABLE public.sys_gui_contents OWNER TO ths_admin;
+
+--
+-- Name: sys_permission_groups; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_permission_groups (
+    id bigint NOT NULL,
+    group_name character varying(64) NOT NULL
+);
+
+
+ALTER TABLE public.sys_permission_groups OWNER TO ths_admin;
 
 --
 -- Name: sys_kaynak_grup_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_kaynak_gruplari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_permission_groups ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_kaynak_grup_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2922,24 +3011,24 @@ ALTER TABLE public.sys_kaynak_gruplari ALTER COLUMN id ADD GENERATED ALWAYS AS I
 
 
 --
--- Name: sys_kaynaklar; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_permissions; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_kaynaklar (
+CREATE TABLE public.sys_permissions (
     id bigint NOT NULL,
-    kaynak_kodu integer NOT NULL,
-    kaynak_adi character varying(64) NOT NULL,
-    kaynak_grup_id bigint NOT NULL
+    permission_code integer NOT NULL,
+    permission_name character varying(64) NOT NULL,
+    permission_group_id bigint NOT NULL
 );
 
 
-ALTER TABLE public.sys_kaynaklar OWNER TO ths_admin;
+ALTER TABLE public.sys_permissions OWNER TO ths_admin;
 
 --
 -- Name: sys_kaynak_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_kaynaklar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_permissions ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_kaynak_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2950,29 +3039,29 @@ ALTER TABLE public.sys_kaynaklar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
 
 
 --
--- Name: sys_kullanicilar; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_users; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_kullanicilar (
+CREATE TABLE public.sys_users (
     id bigint NOT NULL,
-    kullanici_adi character varying(64) NOT NULL,
-    kullanici_sifre text NOT NULL,
-    is_aktif boolean DEFAULT true NOT NULL,
-    is_yonetici boolean DEFAULT false NOT NULL,
-    is_super_kullanici boolean DEFAULT false NOT NULL,
-    ip_adres character varying(32) DEFAULT '127.0.0.1'::character varying NOT NULL,
-    mac_adres character varying(32),
-    personel_id bigint NOT NULL
+    username character varying(64) NOT NULL,
+    user_password text NOT NULL,
+    active boolean DEFAULT true NOT NULL,
+    manager boolean DEFAULT false NOT NULL,
+    super_user boolean DEFAULT false NOT NULL,
+    ip_address character varying(32) DEFAULT '127.0.0.1'::character varying NOT NULL,
+    mac_address character varying(32),
+    person_id bigint NOT NULL
 );
 
 
-ALTER TABLE public.sys_kullanicilar OWNER TO ths_admin;
+ALTER TABLE public.sys_users OWNER TO ths_admin;
 
 --
 -- Name: sys_kullanici_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_kullanicilar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_users ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_kullanici_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2986,7 +3075,7 @@ ALTER TABLE public.sys_kullanicilar ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 -- Name: sys_lisan_gui_icerik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_gui_icerikler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_gui_contents ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_lisan_gui_icerik_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2997,27 +3086,53 @@ ALTER TABLE public.sys_gui_icerikler ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 
 --
--- Name: sys_olcu_birimleri; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_months; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_olcu_birimleri (
+CREATE TABLE public.sys_months (
     id bigint NOT NULL,
-    birim character varying(16) NOT NULL,
-    birim_einv character varying(3),
-    aciklama character varying(64),
-    is_ondalik boolean DEFAULT false NOT NULL,
-    birim_tipi_id bigint,
-    carpan integer
+    month_name character varying(16) NOT NULL
 );
 
 
-ALTER TABLE public.sys_olcu_birimleri OWNER TO ths_admin;
+ALTER TABLE public.sys_months OWNER TO ths_admin;
+
+--
+-- Name: sys_month_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_months ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_month_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sys_unit_of_measures; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_unit_of_measures (
+    id bigint NOT NULL,
+    unit character varying(16) NOT NULL,
+    unit_einv character varying(3),
+    description character varying(64),
+    is_decimal boolean DEFAULT false NOT NULL,
+    unit_type_id bigint,
+    multiplier integer
+);
+
+
+ALTER TABLE public.sys_unit_of_measures OWNER TO ths_admin;
 
 --
 -- Name: sys_olcu_birimi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_olcu_birimleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_unit_of_measures ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_olcu_birimi_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -3028,22 +3143,22 @@ ALTER TABLE public.sys_olcu_birimleri ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 
 --
--- Name: sys_olcu_birimi_tipleri; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: sys_unit_of_measure_types; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.sys_olcu_birimi_tipleri (
+CREATE TABLE public.sys_unit_of_measure_types (
     id bigint NOT NULL,
-    olcu_birimi_tipi character varying(16) NOT NULL
+    unit_of_measure_type character varying(16) NOT NULL
 );
 
 
-ALTER TABLE public.sys_olcu_birimi_tipleri OWNER TO ths_admin;
+ALTER TABLE public.sys_unit_of_measure_types OWNER TO ths_admin;
 
 --
 -- Name: sys_olcu_birimi_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_olcu_birimi_tipleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_unit_of_measure_types ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_olcu_birimi_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -3054,26 +3169,10 @@ ALTER TABLE public.sys_olcu_birimi_tipleri ALTER COLUMN id ADD GENERATED ALWAYS 
 
 
 --
--- Name: sys_ondalik_haneler; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_ondalik_haneler (
-    id bigint NOT NULL,
-    miktar smallint DEFAULT 2,
-    fiyat smallint DEFAULT 2,
-    tutar smallint DEFAULT 2,
-    stok_miktar smallint DEFAULT 4,
-    doviz_kuru smallint DEFAULT 4
-);
-
-
-ALTER TABLE public.sys_ondalik_haneler OWNER TO ths_admin;
-
---
 -- Name: sys_ondalik_hane_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_ondalik_haneler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_decimal_places ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_ondalik_hane_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -3084,24 +3183,10 @@ ALTER TABLE public.sys_ondalik_haneler ALTER COLUMN id ADD GENERATED ALWAYS AS I
 
 
 --
--- Name: sys_para_birimleri; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_para_birimleri (
-    id bigint NOT NULL,
-    para character varying(3) NOT NULL,
-    sembol character varying(3) NOT NULL,
-    aciklama character varying(128)
-);
-
-
-ALTER TABLE public.sys_para_birimleri OWNER TO ths_admin;
-
---
 -- Name: sys_para_birimi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_para_birimleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_currencies ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_para_birimi_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -3138,69 +3223,10 @@ ALTER TABLE public.sys_regions ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
--- Name: sys_uygulama_ayarlari; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_uygulama_ayarlari (
-    id bigint NOT NULL,
-    unvan character varying(128) DEFAULT 'THUNDERSOFT A.Ş.'::character varying NOT NULL,
-    telefon character varying(24) DEFAULT '0123 456 78 90'::character varying NOT NULL,
-    faks character varying(24),
-    vergi_dairesi character varying(32),
-    vergi_no character varying(16),
-    donem smallint DEFAULT 2018 NOT NULL,
-    mail_sunucu character varying(255),
-    mail_kullanici character varying(255),
-    mail_sifre character varying(255),
-    mail_smtp_port integer,
-    grid_renk_1 integer DEFAULT 13171168 NOT NULL,
-    grid_renk_2 integer DEFAULT 7467153 NOT NULL,
-    grid_renk_aktif integer DEFAULT 14605509 NOT NULL,
-    crypt_key character varying(255) DEFAULT 12345 NOT NULL,
-    sms_sunucu character varying(255),
-    sms_kullanici character varying(255),
-    sms_sifre character varying(255),
-    sms_baslik character varying(255),
-    versiyon character varying(128),
-    para character varying(3),
-    adres_id bigint,
-    diger_ayarlar jsonb,
-    mukellef_adi character varying(64),
-    mukellef_soyadi character varying,
-    mukellef_tipi character varying(8),
-    logo bytea
-);
-
-
-ALTER TABLE public.sys_uygulama_ayarlari OWNER TO ths_admin;
-
---
--- Name: COLUMN sys_uygulama_ayarlari.mukellef_adi; Type: COMMENT; Schema: public; Owner: ths_admin
---
-
-COMMENT ON COLUMN public.sys_uygulama_ayarlari.mukellef_adi IS 'Şahış şirket için kullanılır';
-
-
---
--- Name: COLUMN sys_uygulama_ayarlari.mukellef_soyadi; Type: COMMENT; Schema: public; Owner: ths_admin
---
-
-COMMENT ON COLUMN public.sys_uygulama_ayarlari.mukellef_soyadi IS 'Şahıs şirketi için kullanılır';
-
-
---
--- Name: COLUMN sys_uygulama_ayarlari.mukellef_tipi; Type: COMMENT; Schema: public; Owner: ths_admin
---
-
-COMMENT ON COLUMN public.sys_uygulama_ayarlari.mukellef_tipi IS 'TCKN
-VKN';
-
-
---
 -- Name: sys_uygulama_ayari_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_uygulama_ayarlari ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_application_settings ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_uygulama_ayari_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -4052,27 +4078,35 @@ ALTER TABLE ONLY public.stk_resimler
 
 
 --
--- Name: sys_adresler sys_adresler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_access_rights sys_access_rights_permission_id_user_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_adresler
-    ADD CONSTRAINT sys_adresler_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_aylar sys_aylar_ay_adi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_aylar
-    ADD CONSTRAINT sys_aylar_ay_adi_key UNIQUE (ay_adi);
+ALTER TABLE ONLY public.sys_access_rights
+    ADD CONSTRAINT sys_access_rights_permission_id_user_id_key UNIQUE (permission_id, user_id);
 
 
 --
--- Name: sys_aylar sys_aylar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_access_rights sys_access_rights_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_aylar
-    ADD CONSTRAINT sys_aylar_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sys_access_rights
+    ADD CONSTRAINT sys_access_rights_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_addresses sys_addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_addresses
+    ADD CONSTRAINT sys_addresses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_application_settings sys_application_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_application_settings
+    ADD CONSTRAINT sys_application_settings_pkey PRIMARY KEY (id);
 
 
 --
@@ -4108,179 +4142,163 @@ ALTER TABLE ONLY public.sys_countries
 
 
 --
--- Name: sys_ersim_haklari sys_ersim_haklari_kaynak_id_kullanici_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_currencies sys_currencies_currnecy_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_ersim_haklari
-    ADD CONSTRAINT sys_ersim_haklari_kaynak_id_kullanici_id_key UNIQUE (kaynak_id, kullanici_id);
-
-
---
--- Name: sys_ersim_haklari sys_ersim_haklari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_ersim_haklari
-    ADD CONSTRAINT sys_ersim_haklari_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sys_currencies
+    ADD CONSTRAINT sys_currencies_currnecy_key UNIQUE (currnecy);
 
 
 --
--- Name: sys_grid_filtreler_siralamalar sys_grid_filtreler_siralamalar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_currencies sys_currencies_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_grid_filtreler_siralamalar
-    ADD CONSTRAINT sys_grid_filtreler_siralamalar_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_grid_filtreler_siralamalar sys_grid_filtreler_siralamalar_tablo_adi_is_siralama_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_grid_filtreler_siralamalar
-    ADD CONSTRAINT sys_grid_filtreler_siralamalar_tablo_adi_is_siralama_key UNIQUE (tablo_adi, is_siralama);
+ALTER TABLE ONLY public.sys_currencies
+    ADD CONSTRAINT sys_currencies_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sys_grid_kolonlar sys_grid_kolonlar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_days sys_days_day_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_grid_kolonlar
-    ADD CONSTRAINT sys_grid_kolonlar_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_grid_kolonlar sys_grid_kolonlar_tablo_adi_kolon_adi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_grid_kolonlar
-    ADD CONSTRAINT sys_grid_kolonlar_tablo_adi_kolon_adi_key UNIQUE (tablo_adi, kolon_adi);
+ALTER TABLE ONLY public.sys_days
+    ADD CONSTRAINT sys_days_day_name_key UNIQUE (day_name);
 
 
 --
--- Name: sys_grid_kolonlar sys_grid_kolonlar_tablo_adi_sira_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_days sys_days_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_grid_kolonlar
-    ADD CONSTRAINT sys_grid_kolonlar_tablo_adi_sira_no_key UNIQUE (tablo_adi, sira_no);
-
-
---
--- Name: sys_gui_icerikler sys_gui_icerikler_kod_icerik_tipi_tablo_adi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_gui_icerikler
-    ADD CONSTRAINT sys_gui_icerikler_kod_icerik_tipi_tablo_adi_key UNIQUE (kod, icerik_tipi, tablo_adi);
+ALTER TABLE ONLY public.sys_days
+    ADD CONSTRAINT sys_days_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sys_gui_icerikler sys_gui_icerikler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_decimal_places sys_decimal_places_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_gui_icerikler
-    ADD CONSTRAINT sys_gui_icerikler_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_gunler sys_gunler_gun_adi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_gunler
-    ADD CONSTRAINT sys_gunler_gun_adi_key UNIQUE (gun_adi);
+ALTER TABLE ONLY public.sys_decimal_places
+    ADD CONSTRAINT sys_decimal_places_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sys_gunler sys_gunler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_grid_columns sys_grid_columns_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_gunler
-    ADD CONSTRAINT sys_gunler_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_kaynak_gruplari sys_kaynak_gruplari_grup_ukey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_kaynak_gruplari
-    ADD CONSTRAINT sys_kaynak_gruplari_grup_ukey UNIQUE (grup);
+ALTER TABLE ONLY public.sys_grid_columns
+    ADD CONSTRAINT sys_grid_columns_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sys_kaynak_gruplari sys_kaynak_gruplari_id_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_grid_columns sys_grid_columns_table_name_column_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_kaynak_gruplari
-    ADD CONSTRAINT sys_kaynak_gruplari_id_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_kaynaklar sys_kaynaklar_kaynak_kodu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_kaynaklar
-    ADD CONSTRAINT sys_kaynaklar_kaynak_kodu_key UNIQUE (kaynak_kodu);
+ALTER TABLE ONLY public.sys_grid_columns
+    ADD CONSTRAINT sys_grid_columns_table_name_column_name_key UNIQUE (table_name, column_name);
 
 
 --
--- Name: sys_kaynaklar sys_kaynaklar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_grid_columns sys_grid_columns_table_name_column_order_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_kaynaklar
-    ADD CONSTRAINT sys_kaynaklar_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_olcu_birimi_tipleri sys_olcu_birimi_tipleri_olcu_birimi_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_olcu_birimi_tipleri
-    ADD CONSTRAINT sys_olcu_birimi_tipleri_olcu_birimi_tipi_key UNIQUE (olcu_birimi_tipi);
+ALTER TABLE ONLY public.sys_grid_columns
+    ADD CONSTRAINT sys_grid_columns_table_name_column_order_key UNIQUE (table_name, column_order);
 
 
 --
--- Name: sys_olcu_birimi_tipleri sys_olcu_birimi_tipleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_grid_filters sys_grid_filters_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_olcu_birimi_tipleri
-    ADD CONSTRAINT sys_olcu_birimi_tipleri_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_olcu_birimleri sys_olcu_birimleri_birim_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_olcu_birimleri
-    ADD CONSTRAINT sys_olcu_birimleri_birim_key UNIQUE (birim);
+ALTER TABLE ONLY public.sys_grid_filters
+    ADD CONSTRAINT sys_grid_filters_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sys_olcu_birimleri sys_olcu_birimleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_grid_filters sys_grid_filters_table_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_olcu_birimleri
-    ADD CONSTRAINT sys_olcu_birimleri_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_ondalik_haneler sys_ondalik_haneler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_ondalik_haneler
-    ADD CONSTRAINT sys_ondalik_haneler_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sys_grid_filters
+    ADD CONSTRAINT sys_grid_filters_table_name_key UNIQUE (table_name);
 
 
 --
--- Name: sys_para_birimleri sys_para_birimleri_para_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_grid_sorts sys_grid_sorts_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_para_birimleri
-    ADD CONSTRAINT sys_para_birimleri_para_key UNIQUE (para);
+ALTER TABLE ONLY public.sys_grid_sorts
+    ADD CONSTRAINT sys_grid_sorts_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sys_para_birimleri sys_para_birimleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_grid_sorts sys_grid_sorts_table_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_para_birimleri
-    ADD CONSTRAINT sys_para_birimleri_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sys_grid_sorts
+    ADD CONSTRAINT sys_grid_sorts_table_name_key UNIQUE (table_name);
+
+
+--
+-- Name: sys_gui_contents sys_gui_contents_code_content_type_table_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_gui_contents
+    ADD CONSTRAINT sys_gui_contents_code_content_type_table_name_key UNIQUE (code, content_type, table_name);
+
+
+--
+-- Name: sys_gui_contents sys_gui_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_gui_contents
+    ADD CONSTRAINT sys_gui_contents_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_months sys_months_month_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_months
+    ADD CONSTRAINT sys_months_month_name_key UNIQUE (month_name);
+
+
+--
+-- Name: sys_months sys_months_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_months
+    ADD CONSTRAINT sys_months_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_permission_groups sys_permission_groups_group_name_ukey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission_groups
+    ADD CONSTRAINT sys_permission_groups_group_name_ukey UNIQUE (group_name);
+
+
+--
+-- Name: sys_permission_groups sys_permission_groups_id_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission_groups
+    ADD CONSTRAINT sys_permission_groups_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_permissions sys_permissions_permission_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permissions
+    ADD CONSTRAINT sys_permissions_permission_code_key UNIQUE (permission_code);
+
+
+--
+-- Name: sys_permissions sys_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permissions
+    ADD CONSTRAINT sys_permissions_pkey PRIMARY KEY (id);
 
 
 --
@@ -4300,27 +4318,51 @@ ALTER TABLE ONLY public.sys_regions
 
 
 --
--- Name: sys_kullanicilar sys_users_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_unit_of_measure_types sys_unit_of_measure_types_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_kullanicilar
+ALTER TABLE ONLY public.sys_unit_of_measure_types
+    ADD CONSTRAINT sys_unit_of_measure_types_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_unit_of_measure_types sys_unit_of_measure_types_unit_of_measure_type_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_unit_of_measure_types
+    ADD CONSTRAINT sys_unit_of_measure_types_unit_of_measure_type_key UNIQUE (unit_of_measure_type);
+
+
+--
+-- Name: sys_unit_of_measures sys_unit_of_measures_birim_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_unit_of_measures
+    ADD CONSTRAINT sys_unit_of_measures_birim_key UNIQUE (unit);
+
+
+--
+-- Name: sys_unit_of_measures sys_unit_of_measures_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_unit_of_measures
+    ADD CONSTRAINT sys_unit_of_measures_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_users sys_users_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_users
     ADD CONSTRAINT sys_users_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sys_kullanicilar sys_users_username_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_users sys_users_username_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_kullanicilar
-    ADD CONSTRAINT sys_users_username_key UNIQUE (kullanici_adi);
-
-
---
--- Name: sys_uygulama_ayarlari sys_uygulama_ayarlari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_uygulama_ayarlari
-    ADD CONSTRAINT sys_uygulama_ayarlari_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sys_users
+    ADD CONSTRAINT sys_users_username_key UNIQUE (username);
 
 
 --
@@ -4640,10 +4682,10 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_kartlar FOR
 
 
 --
--- Name: sys_grid_kolonlar sys_grid_col_width_table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: sys_grid_columns sys_grid_col_width_table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER sys_grid_col_width_table_notify AFTER INSERT OR DELETE OR UPDATE ON public.sys_grid_kolonlar FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+CREATE TRIGGER sys_grid_col_width_table_notify AFTER INSERT OR DELETE OR UPDATE ON public.sys_grid_columns FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -4827,7 +4869,7 @@ ALTER TABLE ONLY public.als_teklif_detaylari
 --
 
 ALTER TABLE ONLY public.als_teklif_detaylari
-    ADD CONSTRAINT als_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_olcu_birimleri(birim) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT als_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_unit_of_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -4867,7 +4909,7 @@ ALTER TABLE ONLY public.als_teklifler
 --
 
 ALTER TABLE ONLY public.als_teklifler
-    ADD CONSTRAINT als_teklifler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT als_teklifler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -4907,7 +4949,7 @@ ALTER TABLE ONLY public.ch_banka_subeleri
 --
 
 ALTER TABLE ONLY public.ch_doviz_kurlari
-    ADD CONSTRAINT ch_doviz_kurlari_para_fkey FOREIGN KEY (para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT ch_doviz_kurlari_para_fkey FOREIGN KEY (para) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5011,7 +5053,7 @@ ALTER TABLE ONLY public.prs_lisan_bilgileri
 --
 
 ALTER TABLE ONLY public.prs_personeller
-    ADD CONSTRAINT prs_personeller_adres_id_fkey FOREIGN KEY (adres_id) REFERENCES public.sys_adresler(id) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT prs_personeller_adres_id_fkey FOREIGN KEY (adres_id) REFERENCES public.sys_addresses(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5075,7 +5117,7 @@ ALTER TABLE ONLY public.sat_siparis_detaylari
 --
 
 ALTER TABLE ONLY public.sat_siparis_detaylari
-    ADD CONSTRAINT sat_siparis_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_olcu_birimleri(birim) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_siparis_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_unit_of_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5147,7 +5189,7 @@ ALTER TABLE ONLY public.sat_siparisler
 --
 
 ALTER TABLE ONLY public.sat_siparisler
-    ADD CONSTRAINT sat_siparisler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_siparisler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5195,7 +5237,7 @@ ALTER TABLE ONLY public.sat_teklif_detaylari
 --
 
 ALTER TABLE ONLY public.sat_teklif_detaylari
-    ADD CONSTRAINT sat_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_olcu_birimleri(birim) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_unit_of_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5267,7 +5309,7 @@ ALTER TABLE ONLY public.sat_teklifler
 --
 
 ALTER TABLE ONLY public.sat_teklifler
-    ADD CONSTRAINT sat_teklifler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_teklifler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5379,7 +5421,7 @@ ALTER TABLE ONLY public.stk_hareketler
 --
 
 ALTER TABLE ONLY public.stk_hareketler
-    ADD CONSTRAINT stk_hareketler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_hareketler_para_birimi_fkey FOREIGN KEY (para_birimi) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5411,7 +5453,7 @@ ALTER TABLE ONLY public.stk_kart_ozetleri
 --
 
 ALTER TABLE ONLY public.stk_kartlar
-    ADD CONSTRAINT stk_kartlar_alis_para_fkey FOREIGN KEY (alis_para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_kartlar_alis_para_fkey FOREIGN KEY (alis_para) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5419,7 +5461,7 @@ ALTER TABLE ONLY public.stk_kartlar
 --
 
 ALTER TABLE ONLY public.stk_kartlar
-    ADD CONSTRAINT stk_kartlar_ihrac_para_fkey FOREIGN KEY (ihrac_para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_kartlar_ihrac_para_fkey FOREIGN KEY (ihrac_para) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5435,7 +5477,7 @@ ALTER TABLE ONLY public.stk_kartlar
 --
 
 ALTER TABLE ONLY public.stk_kartlar
-    ADD CONSTRAINT stk_kartlar_olcu_birimi_id_fkey FOREIGN KEY (olcu_birimi_id) REFERENCES public.sys_olcu_birimleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_kartlar_olcu_birimi_id_fkey FOREIGN KEY (olcu_birimi_id) REFERENCES public.sys_unit_of_measures(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5443,7 +5485,7 @@ ALTER TABLE ONLY public.stk_kartlar
 --
 
 ALTER TABLE ONLY public.stk_kartlar
-    ADD CONSTRAINT stk_kartlar_satis_para_fkey FOREIGN KEY (satis_para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_kartlar_satis_para_fkey FOREIGN KEY (satis_para) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5463,11 +5505,43 @@ ALTER TABLE ONLY public.stk_resimler
 
 
 --
--- Name: sys_adresler sys_adresler_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_access_rights sys_access_rights_permission_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_adresler
-    ADD CONSTRAINT sys_adresler_sehir_id_fkey FOREIGN KEY (sehir_id) REFERENCES public.sys_cities(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sys_access_rights
+    ADD CONSTRAINT sys_access_rights_permission_id_fkey FOREIGN KEY (permission_id) REFERENCES public.sys_permissions(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sys_access_rights sys_access_rights_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_access_rights
+    ADD CONSTRAINT sys_access_rights_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.sys_users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sys_addresses sys_addresses_city_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_addresses
+    ADD CONSTRAINT sys_addresses_city_id_fkey FOREIGN KEY (city_id) REFERENCES public.sys_cities(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sys_application_settings sys_application_settings_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_application_settings
+    ADD CONSTRAINT sys_application_settings_address_id_fkey FOREIGN KEY (address_id) REFERENCES public.sys_addresses(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: sys_application_settings sys_application_settings_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_application_settings
+    ADD CONSTRAINT sys_application_settings_currency_fkey FOREIGN KEY (base_currency) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5487,59 +5561,27 @@ ALTER TABLE ONLY public.sys_cities
 
 
 --
--- Name: sys_ersim_haklari sys_ersim_haklari_kaynak_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_permissions sys_permissions_permission_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_ersim_haklari
-    ADD CONSTRAINT sys_ersim_haklari_kaynak_id_fkey FOREIGN KEY (kaynak_id) REFERENCES public.sys_kaynaklar(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: sys_ersim_haklari sys_ersim_haklari_kullanici_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_ersim_haklari
-    ADD CONSTRAINT sys_ersim_haklari_kullanici_id_fkey FOREIGN KEY (kullanici_id) REFERENCES public.sys_kullanicilar(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.sys_permissions
+    ADD CONSTRAINT sys_permissions_permission_group_id_fkey FOREIGN KEY (permission_group_id) REFERENCES public.sys_permission_groups(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sys_kaynaklar sys_kaynaklar_kaynak_grup_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_unit_of_measures sys_unit_of_measures_birim_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_kaynaklar
-    ADD CONSTRAINT sys_kaynaklar_kaynak_grup_id_fkey FOREIGN KEY (kaynak_grup_id) REFERENCES public.sys_kaynak_gruplari(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sys_olcu_birimleri sys_olcu_birimleri_birim_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_olcu_birimleri
-    ADD CONSTRAINT sys_olcu_birimleri_birim_tipi_id_fkey FOREIGN KEY (birim_tipi_id) REFERENCES public.sys_olcu_birimi_tipleri(id) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
+ALTER TABLE ONLY public.sys_unit_of_measures
+    ADD CONSTRAINT sys_unit_of_measures_birim_tipi_id_fkey FOREIGN KEY (unit_type_id) REFERENCES public.sys_unit_of_measure_types(id) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
 
 
 --
--- Name: sys_kullanicilar sys_users_person_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_users sys_users_person_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sys_kullanicilar
-    ADD CONSTRAINT sys_users_person_id_fkey FOREIGN KEY (personel_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sys_uygulama_ayarlari sys_uygulama_ayarlari_adres_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_uygulama_ayarlari
-    ADD CONSTRAINT sys_uygulama_ayarlari_adres_id_fkey FOREIGN KEY (adres_id) REFERENCES public.sys_adresler(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: sys_uygulama_ayarlari sys_uygulama_ayarlari_para_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_uygulama_ayarlari
-    ADD CONSTRAINT sys_uygulama_ayarlari_para_fkey FOREIGN KEY (para) REFERENCES public.sys_para_birimleri(para) ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY public.sys_users
+    ADD CONSTRAINT sys_users_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5547,7 +5589,7 @@ ALTER TABLE ONLY public.sys_uygulama_ayarlari
 --
 
 ALTER TABLE ONLY public.urt_iscilikler
-    ADD CONSTRAINT urt_iscilikler_birim_id_fkey FOREIGN KEY (birim_id) REFERENCES public.sys_olcu_birimleri(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT urt_iscilikler_birim_id_fkey FOREIGN KEY (birim_id) REFERENCES public.sys_unit_of_measures(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
