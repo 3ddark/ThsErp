@@ -9,7 +9,8 @@ uses
   Vcl.Forms, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Dialogs, Vcl.Graphics,
   Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Menus, Vcl.Themes, Vcl.Styles,
   Vcl.Imaging.pngimage, Winapi.Windows, FireDAC.Comp.Client, Logger,
-  Ths.Helper.Edit, Ths.Helper.ComboBox, udm, ufrmBase, Ths.Database.Connection.Settings;
+  Ths.Helper.Edit, Ths.Helper.ComboBox, udm, ufrmBase, Ths.Database.Connection.Settings,
+  SysPermission.Repository, SysPermission;
 
 type
   TfrmGiris = class(TfrmBase)
@@ -124,6 +125,18 @@ begin
 
     if GDataBase.Connection.Connected then
     begin
+
+      var ps := TSysPermissionRepository.Create(GDataBase.Connection);
+      var p: TSysPermission;
+      p := ps.FindById(5, True);
+      p.PermissionName.Value := '';
+
+
+
+
+
+
+
       try
         LDBPid := GDataBase.GetConnectionPID.ToString;
         GLogger.DBConnectionPID := LDBPid;

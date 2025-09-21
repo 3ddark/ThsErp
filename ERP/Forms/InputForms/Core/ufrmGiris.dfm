@@ -176,14 +176,12 @@ inherited frmGiris: TfrmGiris
     80FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF8080FFFF80
     80FFFF8080FFFFFF80FFFFFFFEFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
-  StyleElements = [seFont, seClient, seBorder]
   ExplicitWidth = 500
   ExplicitHeight = 251
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 484
     Height = 162
-    StyleElements = [seFont, seClient, seBorder]
     ExplicitWidth = 482
     ExplicitHeight = 154
     object lblkullanici_adi: TLabel
@@ -486,7 +484,6 @@ inherited frmGiris: TfrmGiris
     Top = 164
     Width = 480
     TabOrder = 2
-    StyleElements = [seFont, seClient, seBorder]
     ExplicitTop = 156
     ExplicitWidth = 478
     inherited btnAccept: TButton

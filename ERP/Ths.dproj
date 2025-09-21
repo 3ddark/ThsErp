@@ -790,6 +790,13 @@
         <DCCReference Include="BackEnd\System\SysApplicationSetting.pas"/>
         <DCCReference Include="BackEnd\System\SysCurrency.pas"/>
         <DCCReference Include="BackEnd\System\SysDecimalPlace.pas"/>
+        <DCCReference Include="BackEnd\System\SysGridColumn.pas"/>
+        <DCCReference Include="BackEnd\System\SysGridFilter.pas"/>
+        <DCCReference Include="BackEnd\System\SysGridSort.pas"/>
+        <DCCReference Include="BackEnd\System\SysGridContent.pas"/>
+        <DCCReference Include="BackEnd\System\SysMeasureType.pas"/>
+        <DCCReference Include="BackEnd\System\SysMeasure.pas"/>
+        <DCCReference Include="BackEnd\System\SysUser.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

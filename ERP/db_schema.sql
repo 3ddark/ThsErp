@@ -3086,6 +3086,35 @@ ALTER TABLE public.sys_gui_contents ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
+-- Name: sys_measure_types; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_measure_types (
+    id bigint NOT NULL,
+    measure_type character varying(16) NOT NULL
+);
+
+
+ALTER TABLE public.sys_measure_types OWNER TO ths_admin;
+
+--
+-- Name: sys_measures; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_measures (
+    id bigint NOT NULL,
+    unit character varying(16) NOT NULL,
+    unit_einv character varying(3),
+    description character varying(64),
+    is_decimal boolean DEFAULT false NOT NULL,
+    unit_type_id bigint,
+    multiplier integer
+);
+
+
+ALTER TABLE public.sys_measures OWNER TO ths_admin;
+
+--
 -- Name: sys_months; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -3112,27 +3141,10 @@ ALTER TABLE public.sys_months ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- Name: sys_unit_of_measures; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_unit_of_measures (
-    id bigint NOT NULL,
-    unit character varying(16) NOT NULL,
-    unit_einv character varying(3),
-    description character varying(64),
-    is_decimal boolean DEFAULT false NOT NULL,
-    unit_type_id bigint,
-    multiplier integer
-);
-
-
-ALTER TABLE public.sys_unit_of_measures OWNER TO ths_admin;
-
---
 -- Name: sys_olcu_birimi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_unit_of_measures ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_measures ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_olcu_birimi_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -3143,22 +3155,10 @@ ALTER TABLE public.sys_unit_of_measures ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 
 --
--- Name: sys_unit_of_measure_types; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sys_unit_of_measure_types (
-    id bigint NOT NULL,
-    unit_of_measure_type character varying(16) NOT NULL
-);
-
-
-ALTER TABLE public.sys_unit_of_measure_types OWNER TO ths_admin;
-
---
 -- Name: sys_olcu_birimi_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.sys_unit_of_measure_types ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.sys_measure_types ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_olcu_birimi_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -4254,6 +4254,38 @@ ALTER TABLE ONLY public.sys_gui_contents
 
 
 --
+-- Name: sys_measure_types sys_measure_types_measure_type_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_measure_types
+    ADD CONSTRAINT sys_measure_types_measure_type_key UNIQUE (measure_type);
+
+
+--
+-- Name: sys_measure_types sys_measure_types_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_measure_types
+    ADD CONSTRAINT sys_measure_types_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_measures sys_measures_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_measures
+    ADD CONSTRAINT sys_measures_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_measures sys_measures_unit_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_measures
+    ADD CONSTRAINT sys_measures_unit_key UNIQUE (unit);
+
+
+--
 -- Name: sys_months sys_months_month_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -4315,38 +4347,6 @@ ALTER TABLE ONLY public.sys_regions
 
 ALTER TABLE ONLY public.sys_regions
     ADD CONSTRAINT sys_regions_region_name_key UNIQUE (region_name);
-
-
---
--- Name: sys_unit_of_measure_types sys_unit_of_measure_types_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_unit_of_measure_types
-    ADD CONSTRAINT sys_unit_of_measure_types_pkey PRIMARY KEY (id);
-
-
---
--- Name: sys_unit_of_measure_types sys_unit_of_measure_types_unit_of_measure_type_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_unit_of_measure_types
-    ADD CONSTRAINT sys_unit_of_measure_types_unit_of_measure_type_key UNIQUE (unit_of_measure_type);
-
-
---
--- Name: sys_unit_of_measures sys_unit_of_measures_birim_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_unit_of_measures
-    ADD CONSTRAINT sys_unit_of_measures_birim_key UNIQUE (unit);
-
-
---
--- Name: sys_unit_of_measures sys_unit_of_measures_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_unit_of_measures
-    ADD CONSTRAINT sys_unit_of_measures_pkey PRIMARY KEY (id);
 
 
 --
@@ -4869,7 +4869,7 @@ ALTER TABLE ONLY public.als_teklif_detaylari
 --
 
 ALTER TABLE ONLY public.als_teklif_detaylari
-    ADD CONSTRAINT als_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_unit_of_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT als_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5117,7 +5117,7 @@ ALTER TABLE ONLY public.sat_siparis_detaylari
 --
 
 ALTER TABLE ONLY public.sat_siparis_detaylari
-    ADD CONSTRAINT sat_siparis_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_unit_of_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_siparis_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5237,7 +5237,7 @@ ALTER TABLE ONLY public.sat_teklif_detaylari
 --
 
 ALTER TABLE ONLY public.sat_teklif_detaylari
-    ADD CONSTRAINT sat_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_unit_of_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5477,7 +5477,7 @@ ALTER TABLE ONLY public.stk_kartlar
 --
 
 ALTER TABLE ONLY public.stk_kartlar
-    ADD CONSTRAINT stk_kartlar_olcu_birimi_id_fkey FOREIGN KEY (olcu_birimi_id) REFERENCES public.sys_unit_of_measures(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_kartlar_olcu_birimi_id_fkey FOREIGN KEY (olcu_birimi_id) REFERENCES public.sys_measures(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5561,19 +5561,19 @@ ALTER TABLE ONLY public.sys_cities
 
 
 --
+-- Name: sys_measures sys_measures_unit_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_measures
+    ADD CONSTRAINT sys_measures_unit_type_id_fkey FOREIGN KEY (unit_type_id) REFERENCES public.sys_measure_types(id) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
+
+
+--
 -- Name: sys_permissions sys_permissions_permission_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_permissions
     ADD CONSTRAINT sys_permissions_permission_group_id_fkey FOREIGN KEY (permission_group_id) REFERENCES public.sys_permission_groups(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sys_unit_of_measures sys_unit_of_measures_birim_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_unit_of_measures
-    ADD CONSTRAINT sys_unit_of_measures_birim_tipi_id_fkey FOREIGN KEY (unit_type_id) REFERENCES public.sys_unit_of_measure_types(id) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
 
 
 --
@@ -5589,7 +5589,7 @@ ALTER TABLE ONLY public.sys_users
 --
 
 ALTER TABLE ONLY public.urt_iscilikler
-    ADD CONSTRAINT urt_iscilikler_birim_id_fkey FOREIGN KEY (birim_id) REFERENCES public.sys_unit_of_measures(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT urt_iscilikler_birim_id_fkey FOREIGN KEY (birim_id) REFERENCES public.sys_measures(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

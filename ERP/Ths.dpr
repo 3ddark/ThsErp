@@ -317,7 +317,14 @@ uses
   SysAddress in 'BackEnd\System\SysAddress.pas',
   SysApplicationSetting in 'BackEnd\System\SysApplicationSetting.pas',
   SysCurrency in 'BackEnd\System\SysCurrency.pas',
-  SysDecimalPlace in 'BackEnd\System\SysDecimalPlace.pas';
+  SysDecimalPlace in 'BackEnd\System\SysDecimalPlace.pas',
+  SysGridColumn in 'BackEnd\System\SysGridColumn.pas',
+  SysGridFilter in 'BackEnd\System\SysGridFilter.pas',
+  SysGridSort in 'BackEnd\System\SysGridSort.pas',
+  SysGridContent in 'BackEnd\System\SysGridContent.pas',
+  SysMeasureType in 'BackEnd\System\SysMeasureType.pas',
+  SysMeasure in 'BackEnd\System\SysMeasure.pas',
+  SysUser in 'BackEnd\System\SysUser.pas';
 
 {$R *.res}
 
