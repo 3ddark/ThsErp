@@ -2805,9 +2805,9 @@ begin
       if not prop.IsReadable or not prop.IsWritable then
         Continue;
 
-      colAttr := nil;
-      hasOneAttr := nil;
-      hasManyAttr := nil;
+      colAttr       := nil;
+      hasOneAttr    := nil;
+      hasManyAttr   := nil;
       belongsToAttr := nil;
 
       for attr in prop.GetAttributes do
@@ -2817,35 +2817,32 @@ begin
           Break;
         end
         else if attr is Column then
-        begin
-          colAttr := attr as Column;
-        end
+          colAttr := attr as Column
         else if attr is HasOneAttribute then
-        begin
-          hasOneAttr := attr as HasOneAttribute;
-        end
+          hasOneAttr := attr as HasOneAttribute
         else if attr is HasManyAttribute then
-        begin
-          hasManyAttr := attr as HasManyAttribute;
-        end
+          hasManyAttr := attr as HasManyAttribute
         else if attr is BelongsToAttribute then
-        begin
           belongsToAttr := attr as BelongsToAttribute;
-        end;
       end;
 
-      if (colAttr = nil) and (hasOneAttr = nil) and (hasManyAttr = nil) and (belongsToAttr = nil) then
+      if (colAttr = nil) and (hasOneAttr = nil) and
+         (hasManyAttr = nil) and (belongsToAttr = nil) then
         Continue;
 
       propValue := prop.GetValue(TObject(ASource));
 
+      // -------------------------------------------------------
+      // Column
+      // -------------------------------------------------------
       if Assigned(colAttr) then
       begin
-        if colAttr.IsPrimaryKey and colAttr.IsAutoIncrement and not propValue.IsEmpty then
+        if colAttr.IsPrimaryKey and colAttr.IsAutoIncrement
+           and not propValue.IsEmpty then
         begin
           case prop.PropertyType.TypeKind of
             tkInteger: prop.SetValue(TObject(Result), propValue);
-            tkInt64: prop.SetValue(TObject(Result), propValue);
+            tkInt64:   prop.SetValue(TObject(Result), propValue);
           end;
         end
         else
@@ -2854,30 +2851,58 @@ begin
             prop.SetValue(TObject(Result), propValue);
         end;
       end
+
+      // -------------------------------------------------------
+      // BelongsTo  — constructor zaten instance oluşturmuş olabilir
+      // -------------------------------------------------------
       else if Assigned(belongsToAttr) then
       begin
         sourceNestedEntity := propValue.AsObject;
         if Assigned(sourceNestedEntity) then
         begin
           nestedEntityClass := prop.PropertyType.AsInstance.MetaclassType;
-          clonedNestedEntity := CreateEntityInstanceByClass(nestedEntityClass);
 
-          CloneEntityProperties(sourceNestedEntity, clonedNestedEntity, nestedEntityClass, False);
-          prop.SetValue(TObject(Result), clonedNestedEntity);
+          // *** DÜZELTME: Result'taki mevcut instance'ı al ***
+          clonedNestedEntity := prop.GetValue(TObject(Result)).AsObject;
+
+          if not Assigned(clonedNestedEntity) then
+          begin
+            // Constructor oluşturmamışsa yeni oluştur ve ata
+            clonedNestedEntity := CreateEntityInstanceByClass(nestedEntityClass);
+            prop.SetValue(TObject(Result), clonedNestedEntity);
+          end;
+          // Artık sadece değerleri kopyala, yeni instance yok
+          CloneEntityProperties(sourceNestedEntity, clonedNestedEntity,
+                                nestedEntityClass, False);
         end;
       end
+
+      // -------------------------------------------------------
+      // HasOne  — aynı yaklaşım
+      // -------------------------------------------------------
       else if Assigned(hasOneAttr) then
       begin
         sourceNestedEntity := propValue.AsObject;
         if Assigned(sourceNestedEntity) then
         begin
           nestedEntityClass := prop.PropertyType.AsInstance.MetaclassType;
-          clonedNestedEntity := CreateEntityInstanceByClass(nestedEntityClass);
 
-          CloneEntityProperties(sourceNestedEntity, clonedNestedEntity, nestedEntityClass, False);
-          prop.SetValue(TObject(Result), clonedNestedEntity);
+          // *** DÜZELTME: Result'taki mevcut instance'ı al ***
+          clonedNestedEntity := prop.GetValue(TObject(Result)).AsObject;
+
+          if not Assigned(clonedNestedEntity) then
+          begin
+            clonedNestedEntity := CreateEntityInstanceByClass(nestedEntityClass);
+            prop.SetValue(TObject(Result), clonedNestedEntity);
+          end;
+          CloneEntityProperties(sourceNestedEntity, clonedNestedEntity,
+                                nestedEntityClass, False);
         end;
       end
+
+      // -------------------------------------------------------
+      // HasMany  — liste elemanları hâlâ yeni clone, değişmez
+      // -------------------------------------------------------
       else if Assigned(hasManyAttr) then
       begin
         sourceList := propValue.AsObject;
@@ -2900,8 +2925,8 @@ begin
             Continue;
 
           getItemMethod := nil;
-          addMethod := nil;
-          clearMethod := nil;
+          addMethod     := nil;
+          clearMethod   := nil;
 
           for method in listType.GetMethods do
           begin
@@ -2925,15 +2950,15 @@ begin
             if Assigned(sourceItem) then
             begin
               clonedItem := CreateEntityInstanceByClass(nestedEntityClass);
-
-              CloneEntityProperties(sourceItem, clonedItem, nestedEntityClass, False);
-
+              CloneEntityProperties(sourceItem, clonedItem,
+                                    nestedEntityClass, False);
               addMethod.Invoke(targetList, [clonedItem]);
             end;
           end;
         end;
       end;
-    end;
+
+    end; // for prop
 
   finally
     ctx.Free;

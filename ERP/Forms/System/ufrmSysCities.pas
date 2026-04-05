@@ -16,6 +16,7 @@ type
   public
     procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
+    procedure SetSelectedItem; override;
   end;
 
 implementation
@@ -49,6 +50,12 @@ procedure TfrmSysCities.FormShow(Sender: TObject);
 begin
   inherited;
   Self.Caption := 'Sistem Şehirler';
+end;
+
+procedure TfrmSysCities.SetSelectedItem;
+begin
+  inherited;
+
 end;
 
 end.

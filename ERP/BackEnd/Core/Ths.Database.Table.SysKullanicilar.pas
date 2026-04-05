@@ -1,4 +1,4 @@
-﻿unit Ths.Database.Table.SysKullanicilar;
+unit Ths.Database.Table.SysKullanicilar;
 
 interface
 

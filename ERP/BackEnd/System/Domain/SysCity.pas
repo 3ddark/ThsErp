@@ -43,9 +43,8 @@ implementation
 constructor TSysCity.Create();
 begin
   inherited;
-  //dont create manualy. create automaticly in repository unit
-//  FCountry := TSysCountry.Create;
-//  FRegion := TSysRegion.Create;
+  FCountry := TSysCountry.Create;
+  FRegion := TSysRegion.Create;
 end;
 
 destructor TSysCity.Destroy;

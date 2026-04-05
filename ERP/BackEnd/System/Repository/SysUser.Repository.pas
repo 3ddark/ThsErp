@@ -1,4 +1,4 @@
-﻿unit SysUser.Repository;
+unit SysUser.Repository;
 
 interface
 

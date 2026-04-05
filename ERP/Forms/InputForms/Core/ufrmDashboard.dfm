@@ -89,7 +89,6 @@ inherited frmDashboard: TfrmDashboard
       Align = alClient
       MultiLine = True
       TabOrder = 0
-      ExplicitTop = -1
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton

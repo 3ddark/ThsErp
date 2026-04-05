@@ -43,6 +43,11 @@ type
   TService<T: TEntity, constructor> = class(TInterfacedObject, IService<T>)
   private
     function GetUnitOfWork: TUnitOfWork;
+    procedure FillNestedEntityFromDataSet(ADataSet: TFDDataSet; AEntity: TObject; AClass: TClass);
+    function HasAttribute(AProp: TRttiProperty; AAttrClass: TClass): Boolean;
+    function GetColumnAttribute(AProp: TRttiProperty): Column;
+    function GetBelongsToAttribute(AProp: TRttiProperty): BelongsToAttribute;
+    function GetHasOneAttribute(AProp: TRttiProperty): HasOneAttribute;
   public
     Filter: TFilterCriteria;
     property UoW: TUnitOfWork read GetUnitOfWork;
@@ -70,6 +75,8 @@ type
 
     function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): T; virtual; abstract;
     function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<T>; virtual; abstract;
+
+    function Clone(ASource: T): T;
   end;
 
   TCrudService<T: TEntity, constructor> = class(TViewService<T>)
@@ -95,13 +102,11 @@ type
     procedure BusinessInsert(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;
     procedure BusinessUpdate(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;
     procedure BusinessDelete(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;
-
-    function Clone(ASource: T): T;
   end;
 
 implementation
 
-function TCrudService<T>.Clone(ASource: T): T;
+function TViewService<T>.Clone(ASource: T): T;
 var
   repo: IRepository<T>;
 begin
@@ -142,6 +147,47 @@ begin
   inherited;
 end;
 
+// Unit'in private/protected bölümüne ekle
+function TService<T>.HasAttribute(AProp: TRttiProperty; AAttrClass: TClass): Boolean;
+var
+  attr: TCustomAttribute;
+begin
+  Result := False;
+  for attr in AProp.GetAttributes do
+    if attr.ClassType = AAttrClass then
+      Exit(True);
+end;
+
+function TService<T>.GetColumnAttribute(AProp: TRttiProperty): Column;
+var
+  attr: TCustomAttribute;
+begin
+  Result := nil;
+  for attr in AProp.GetAttributes do
+    if attr is Column then
+      Exit(attr as Column);
+end;
+
+function TService<T>.GetBelongsToAttribute(AProp: TRttiProperty): BelongsToAttribute;
+var
+  attr: TCustomAttribute;
+begin
+  Result := nil;
+  for attr in AProp.GetAttributes do
+    if attr is BelongsToAttribute then
+      Exit(attr as BelongsToAttribute);
+end;
+
+function TService<T>.GetHasOneAttribute(AProp: TRttiProperty): HasOneAttribute;
+var
+  attr: TCustomAttribute;
+begin
+  Result := nil;
+  for attr in AProp.GetAttributes do
+    if attr is HasOneAttribute then
+      Exit(attr as HasOneAttribute);
+end;
+
 procedure TService<T>.FillEntityFromDataSet(ADataSet: TFDDataSet; AEntity: T);
 var
   ctx: TRttiContext;
@@ -151,98 +197,221 @@ var
   field: TField;
   val: TValue;
   ordValue: Integer;
-  //enumType: PTypeInfo;
+  nestedEntity: TObject;  // inline var yerine burada tanımla
 begin
   if not Assigned(AEntity) or not Assigned(ADataSet) then
     Exit;
 
-  rType := ctx.GetType(AEntity.ClassType);
+  ctx := TRttiContext.Create;
+  try
+    rType := ctx.GetType(AEntity.ClassType);
+    for prop in rType.GetProperties do
+    begin
+      if not prop.IsWritable then
+        Continue;
 
-  for prop in rType.GetProperties do
-  begin
-    if not prop.IsWritable then
-      Continue;
+      if HasAttribute(prop, NotMapped) then
+        Continue;
 
-    colAttr := prop.GetAttribute<Column>;
-    if Assigned(colAttr) then
-      field := ADataSet.FindField(colAttr.Name)
-    else
-      field := ADataSet.FindField(prop.Name);
+      // ✅ Generic GetAttribute<> yerine yardımcı fonksiyon
+      colAttr := GetColumnAttribute(prop);
 
-     if not Assigned(field) then
-      Continue;
-
-    if field.IsNull then
-      prop.SetValue(TObject(AEntity), TValue.Empty);
-
-    case prop.PropertyType.TypeKind of
-      tkUString, tkString, tkLString, tkWString:
-        val := field.AsString;
-
-      tkInteger:
-        begin
-          // integer, enums (enumlar ordinar olarak tkInteger gelir) vs.
-          //enumType := prop.PropertyType.Handle;
-          if (prop.PropertyType.IsOrdinal) and (prop.PropertyType.TypeKind = tkInteger) and (prop.PropertyType.Name = '') then
-            ; // fallback (rare)
-
-          if  prop.PropertyType.IsOrdinal
-          and (prop.PropertyType.TypeKind = tkInteger)
-          and (prop.PropertyType.Handle <> nil)
-          and (GetTypeData(prop.PropertyType.Handle)^.OrdType <> otSByte)
-          then
-          begin
-            if prop.PropertyType.IsInstance then
-              ordValue := field.AsInteger
-            else
-              ordValue := field.AsInteger;
-
-            val := TValue.FromOrdinal(prop.PropertyType.Handle, ordValue);
-          end
-          else
-            val := field.AsInteger;
-        end;
-
-      tkInt64:
-        val := TValue.From<Int64>(field.AsLargeInt);
-
-      tkFloat:
-        begin
-          case field.DataType of
-            ftDate, ftTime, ftDateTime, ftTimeStamp:
-              val := TValue.From<TDateTime>(field.AsDateTime);
-          else
-              val := TValue.From<Double>(field.AsFloat);
-          end;
-        end;
-
-      tkEnumeration:
-        begin
-          if SameText(prop.PropertyType.Name, 'Boolean') then
-            val := TValue.From<Boolean>(field.AsBoolean)
-          else
-          begin
-            if field.DataType in [ftInteger, ftSmallint, ftWord, ftAutoInc] then
-              ordValue := field.AsInteger
-            else
-              ordValue := GetEnumValue(prop.PropertyType.Handle, field.AsString);
-
-            val := TValue.FromOrdinal(prop.PropertyType.Handle, ordValue);
-          end;
-        end;
-
-      tkClass:
-        begin
-          // Eğer property bir entity referansı ise (ör. BelongsTo) -> atamak için özel mantık gerekebilir
-          // Şimdilik atlama:
+      // -------------------------------------------------------
+      // tkClass — BelongsTo / HasOne nested entity doldurma
+      // -------------------------------------------------------
+      if prop.PropertyType.TypeKind = tkClass then
+      begin
+        if not HasAttribute(prop, BelongsToAttribute) and
+           not HasAttribute(prop, HasOneAttribute) then
           Continue;
-        end;
-    else
-      // bilinmeyen tipleri atla
-      Continue;
-    end;
 
-    prop.SetValue(TObject(AEntity), val);
+        nestedEntity := prop.GetValue(TObject(AEntity)).AsObject;
+        if not Assigned(nestedEntity) then
+          Continue;
+
+        FillNestedEntityFromDataSet(ADataSet, nestedEntity,
+                                    prop.PropertyType.AsInstance.MetaclassType);
+        Continue;
+      end;
+
+      // -------------------------------------------------------
+      // Normal Column mapping
+      // -------------------------------------------------------
+      if Assigned(colAttr) then
+        field := ADataSet.FindField(colAttr.Name)
+      else
+        field := ADataSet.FindField(prop.Name);
+
+      if not Assigned(field) then
+        Continue;
+
+      if field.IsNull then
+      begin
+        prop.SetValue(TObject(AEntity), TValue.Empty);
+        Continue;
+      end;
+
+      case prop.PropertyType.TypeKind of
+        tkUString, tkString, tkLString, tkWString:
+          val := field.AsString;
+
+        tkInteger:
+          begin
+            if prop.PropertyType.IsOrdinal
+               and (prop.PropertyType.Handle <> nil)
+               and (GetTypeData(prop.PropertyType.Handle)^.OrdType <> otSByte)
+            then
+              val := TValue.FromOrdinal(prop.PropertyType.Handle, field.AsInteger)
+            else
+              val := field.AsInteger;
+          end;
+
+        tkInt64:
+          val := TValue.From<Int64>(field.AsLargeInt);
+
+        tkFloat:
+          begin
+            case field.DataType of
+              ftDate, ftTime, ftDateTime, ftTimeStamp:
+                val := TValue.From<TDateTime>(field.AsDateTime);
+            else
+              val := TValue.From<Double>(field.AsFloat);
+            end;
+          end;
+
+        tkEnumeration:
+          begin
+            if SameText(prop.PropertyType.Name, 'Boolean') then
+              val := TValue.From<Boolean>(field.AsBoolean)
+            else
+            begin
+              if field.DataType in [ftInteger, ftSmallint, ftWord, ftAutoInc] then
+                ordValue := field.AsInteger
+              else
+                ordValue := GetEnumValue(prop.PropertyType.Handle, field.AsString);
+              val := TValue.FromOrdinal(prop.PropertyType.Handle, ordValue);
+            end;
+          end;
+      else
+        Continue;
+      end;
+
+      prop.SetValue(TObject(AEntity), val);
+    end;
+  finally
+    ctx.Free;
+  end;
+end;
+
+procedure TService<T>.FillNestedEntityFromDataSet(
+  ADataSet: TFDDataSet;
+  AEntity: TObject;
+  AClass: TClass);
+var
+  ctx: TRttiContext;
+  rType: TRttiType;
+  prop: TRttiProperty;
+  colAttr: Column;
+  field: TField;
+  val: TValue;
+  ordValue: Integer;
+  fieldName: string;
+  deepNested: TObject;  // ✅ inline var yerine burada
+begin
+  if not Assigned(AEntity) or not Assigned(ADataSet) then
+    Exit;
+
+  ctx := TRttiContext.Create;
+  try
+    rType := ctx.GetType(AClass);
+    for prop in rType.GetProperties do
+    begin
+      if not prop.IsWritable then
+        Continue;
+
+      if HasAttribute(prop, NotMapped) then
+        Continue;
+
+      // Nested içindeki nested entity'leri recursive doldur
+      if prop.PropertyType.TypeKind = tkClass then
+      begin
+        if not HasAttribute(prop, BelongsToAttribute) and
+           not HasAttribute(prop, HasOneAttribute) then
+          Continue;
+
+        deepNested := prop.GetValue(AEntity).AsObject;
+        if Assigned(deepNested) then
+          FillNestedEntityFromDataSet(ADataSet, deepNested,
+                                      prop.PropertyType.AsInstance.MetaclassType);
+        Continue;
+      end;
+
+      // ✅ Generic GetAttribute<> yerine yardımcı fonksiyon
+      colAttr := GetColumnAttribute(prop);
+      if not Assigned(colAttr) then
+        Continue;
+
+      fieldName := colAttr.Name;
+      field := ADataSet.FindField(fieldName);
+
+      if not Assigned(field) then
+        Continue;
+
+      if field.IsNull then
+      begin
+        prop.SetValue(AEntity, TValue.Empty);
+        Continue;
+      end;
+
+      case prop.PropertyType.TypeKind of
+        tkUString, tkString, tkLString, tkWString:
+          val := field.AsString;
+
+        tkInteger:
+          begin
+            if prop.PropertyType.IsOrdinal
+               and (prop.PropertyType.Handle <> nil)
+               and (GetTypeData(prop.PropertyType.Handle)^.OrdType <> otSByte)
+            then
+              val := TValue.FromOrdinal(prop.PropertyType.Handle, field.AsInteger)
+            else
+              val := field.AsInteger;
+          end;
+
+        tkInt64:
+          val := TValue.From<Int64>(field.AsLargeInt);
+
+        tkFloat:
+          begin
+            case field.DataType of
+              ftDate, ftTime, ftDateTime, ftTimeStamp:
+                val := TValue.From<TDateTime>(field.AsDateTime);
+            else
+              val := TValue.From<Double>(field.AsFloat);
+            end;
+          end;
+
+        tkEnumeration:
+          begin
+            if SameText(prop.PropertyType.Name, 'Boolean') then
+              val := TValue.From<Boolean>(field.AsBoolean)
+            else
+            begin
+              if field.DataType in [ftInteger, ftSmallint, ftWord, ftAutoInc] then
+                ordValue := field.AsInteger
+              else
+                ordValue := GetEnumValue(prop.PropertyType.Handle, field.AsString);
+              val := TValue.FromOrdinal(prop.PropertyType.Handle, ordValue);
+            end;
+          end;
+      else
+        Continue;
+      end;
+
+      prop.SetValue(AEntity, val);
+    end;
+  finally
+    ctx.Free;
   end;
 end;
 

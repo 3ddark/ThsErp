@@ -10,7 +10,7 @@ type
   private
     FMeasureType: string;
   public
-    [Column('measure_type')]
+    [Column('measure_type'), MaxLength(16), Required()]
     property MeasureType: string read FMeasureType write FMeasureType;
 
     constructor Create(); override;

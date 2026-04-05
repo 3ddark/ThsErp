@@ -7,3 +7,6 @@ __recovery
 *.log
 *.exe
 *.rsm
+.aider*
+*.tvsconfig
+*.otares

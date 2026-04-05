@@ -1,4 +1,4 @@
-﻿unit SysUser;
+unit SysUser;
 
 interface
 

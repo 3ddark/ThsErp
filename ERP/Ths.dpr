@@ -73,7 +73,6 @@ uses
   SysGuiContent in 'BackEnd\System\Domain\SysGuiContent.pas',
   SysGridFilter in 'BackEnd\System\Domain\SysGridFilter.pas',
   SysMeasure in 'BackEnd\System\Domain\SysMeasure.pas',
-  SysMeasureType in 'BackEnd\System\Domain\SysMeasureType.pas',
   SysMonth in 'BackEnd\System\Domain\SysMonth.pas',
   SysPermission in 'BackEnd\System\Domain\SysPermission.pas',
   SysPermissionGroup in 'BackEnd\System\Domain\SysPermissionGroup.pas',
@@ -111,7 +110,8 @@ uses
   ufrmSysCity in 'Forms\System\ufrmSysCity.pas' {frmSysCity},
   ufrmSysCities in 'Forms\System\ufrmSysCities.pas' {frmSysCities},
   ufrmSysRegion in 'Forms\System\ufrmSysRegion.pas' {frmSysRegion},
-  ufrmSysRegions in 'Forms\System\ufrmSysRegions.pas' {frmSysRegions};
+  ufrmSysRegions in 'Forms\System\ufrmSysRegions.pas' {frmSysRegions},
+  SysMeasureType in 'BackEnd\System\Domain\SysMeasureType.pas';
 
 {$R *.res}
 
