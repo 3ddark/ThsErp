@@ -13,17 +13,13 @@ object frmSysRegion: TfrmSysRegion
   OnCreate = FormCreate
   OnShow = FormShow
   TextHeight = 15
-  object pnlMain: TPanel
+  object pnlContent: TPanel
     Left = 0
     Top = 0
     Width = 463
     Height = 104
     Align = alClient
     TabOrder = 0
-    ExplicitLeft = 144
-    ExplicitTop = 112
-    ExplicitWidth = 185
-    ExplicitHeight = 41
     object lblregion_name: TLabel
       Left = 11
       Top = 7

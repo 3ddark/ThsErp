@@ -10,7 +10,7 @@ uses
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Dialogs,
   Vcl.ImgList, Vcl.Graphics, Vcl.Menus, Vcl.ActnList, Data.DB,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Combobox, Ths.Helper.Memo,
-  udm, Ths.Database.Table;
+  udm;
 
 const
   WM_AFTER_SHOW = WM_USER + 300; // custom message
@@ -56,7 +56,6 @@ type
 
     procedure scaleByDPI(AParent: TWinControl);
   private
-    FTable: TTable;
     FFormMode: TInputFormMode;
     FFormViewMode: TInputFormViewMode;
     FFormDecimalMode: TFormDecimalMode;
@@ -77,13 +76,8 @@ type
     procedure WmAfterCreate(var Msg: TMessage); message WM_AFTER_CREATE;
   protected
     function ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl = nil):boolean; virtual;
-    procedure fillComboBoxData(var pControl: TCombobox;
-        pTable: TTable; const pFieldName: TArray<string>; pFilter: string;
-        pWithObject: Boolean = False; pAddEmptyOne: Boolean = False;
-        pFieldSeperate: string = ' ');
   public
     TempMsg: string;
-    property Table: TTable read FTable write FTable;
     property FormMode: TInputFormMode read FFormMode write FFormMode;
     property FormViewMode: TInputFormViewMode read FFormViewMode write FFormViewMode;
     property FormOndalikMod: TFormDecimalMode read FFormDecimalMode write FFormDecimalMode;
@@ -101,7 +95,6 @@ type
     constructor Create(
       AOwner: TComponent;
       AParentForm: TForm = nil;
-      ATable: TTable = nil;
       AFormMode: TInputFormMode = ifmNone;
       AFormDecimalMode: TFormDecimalMode = fomNormal;
       AFormViewMode: TInputFormViewMode = ivmNormal;
@@ -124,16 +117,13 @@ implementation
 
 uses
   Ths.Constants,
-  Ths.Globals,
-  ufrmSysGuiIcerik,
-  Ths.Database.Table.SysGuiIcerikler;
+  Ths.Globals;
 
 {$R *.dfm}
 
 constructor TfrmBase.Create(
   AOwner: TComponent;
   AParentForm: TForm;
-  ATable: TTable;
   AFormMode: TInputFormMode;
   AFormDecimalMode: TFormDecimalMode;
   AFormViewMode: TInputFormViewMode;
@@ -146,25 +136,24 @@ begin
   FFormMode := AFormMode;
   FFormViewMode := AFormViewMode;
   FFormDecimalMode := AFormDecimalMode;
-  FTable := ATable;
   FAcceptBtnDoAction := AAcceptBtnDoAction;
 
   inherited Create(AOwner);
 end;
 
 procedure TfrmBase.CreateLangGuiContentFormforFormCaption;
-var
-  LLangGuiContent: TSysGuiIcerik;
+//var
+//  LLangGuiContent: TSysGuiIcerik;
 begin
-  LLangGuiContent := TSysGuiIcerik.Create(GDataBase);
-
-  LLangGuiContent.Kod.Value := Self.Name;
-  LLangGuiContent.IcerikTipi.Value := LngFormCaption;
-  LLangGuiContent.TabloAdi.Value := '';
-  LLangGuiContent.Deger.Value := Self.Caption;
-
-  TfrmSysGuiIcerik.Create(Self, nil, LLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
-  Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
+//  LLangGuiContent := TSysGuiIcerik.Create(GDataBase);
+//
+//  LLangGuiContent.Kod.Value := Self.Name;
+//  LLangGuiContent.IcerikTipi.Value := LngFormCaption;
+//  LLangGuiContent.TabloAdi.Value := '';
+//  LLangGuiContent.Deger.Value := Self.Caption;
+//
+//  TfrmSysGuiIcerik.Create(Self, nil, LLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
+//  Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
 end;
 
 procedure TfrmBase.DoAfterCreateLogic;
@@ -190,73 +179,6 @@ end;
 procedure TfrmBase.btnDeleteClick(Sender: TObject);
 begin
 //
-end;
-
-procedure TfrmBase.fillComboBoxData(var pControl: TCombobox;
-  pTable: TTable; const pFieldName: TArray<string>; pFilter: string;
-  pWithObject: Boolean; pAddEmptyOne: Boolean;
-  pFieldSeperate: string);
-var
-  n1, n2, n3: Integer;
-  LValue: Variant;
-begin
-  pTable.SelectToList(pFilter, False, False);
-  pControl.Clear;
-  pControl.Items.BeginUpdate;
-  pControl.thsHasContainCustomVal := not pWithObject;
-  try
-    if pAddEmptyOne then
-      pControl.Items.Add('');
-
-
-    for n1 := 0 to pTable.List.Count-1 do
-    begin
-      for n2 := 0 to Length(pFieldName)-1 do
-      begin
-        LValue := '';
-
-        for n3 := 0 to Length(TTable(pTable.List[n1]).Fields)-1 do
-          if TTable(pTable.List[n1]).Fields[n3].FieldName = pFieldName[n2] then
-          begin
-            if (TTable(pTable.List[n1]).Fields[n3].DataType = ftString)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftWideString)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftMemo)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftWideMemo)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftFixedChar)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftFixedWideChar)
-            then
-              LValue := LValue + ' ' + TTable(pTable.List[n1]).Fields[n3].Value
-            else
-            if (TTable(pTable.List[n1]).Fields[n3].DataType = ftFloat)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftBCD)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftFMTBcd)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftWord)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftSmallint)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftInteger)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftLargeint)
-            then
-              LValue := LValue + ' ' + VarToStr(TTable(pTable.List[n1]).Fields[n3].Value)
-            else
-            if (TTable(pTable.List[n1]).Fields[n3].DataType = ftDate)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftDateTime)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftTime)
-            or (TTable(pTable.List[n1]).Fields[n3].DataType = ftTimeStamp)
-            then
-              LValue := LValue + ' ' + VarToStr(TTable(pTable.List[n1]).Fields[n3].Value)
-          end;
-      end;
-
-      if pWithObject then
-        pControl.AddItem(Trim(LValue), TTable(pTable.List[n1]))
-      else
-        pControl.Items.Add(Trim(LValue));
-    end;
-  finally
-    if pControl.Items.Count > 0 then
-      pControl.ItemIndex := 0;
-
-    pControl.Items.EndUpdate;
-  end;
 end;
 
 function TfrmBase.FocusedFirstControl(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
@@ -411,11 +333,11 @@ end;
 
 procedure TfrmBase.FormCreate(Sender: TObject);
 begin
-  if Table <> nil then
-  begin
-    if Table.Id.AsInteger > 0 then
-      FDefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + Table.Id.AsString;
-  end;
+//  if Table <> nil then
+//  begin
+//    if Table.Id.AsInteger > 0 then
+//      FDefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + Table.Id.AsString;
+//  end;
 
   frmConfirmation := TfrmConfirmation.Create;
 
@@ -439,9 +361,8 @@ end;
 
 procedure TfrmBase.FormDestroy(Sender: TObject);
 begin
-  if AcceptBtnDoAction AND Assigned(Table) and (Table <> nil) {and not (Self.ClassParent = TfrmBaseInputDB)} then
-    FreeAndNil(Table);
-//    Table.Destroy;
+//  if AcceptBtnDoAction AND Assigned(Table) and (Table <> nil) {and not (Self.ClassParent = TfrmBaseInputDB)} then
+//    FreeAndNil(Table);
 
   FreeAndNil(frmConfirmation);
 

@@ -8,12 +8,12 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.Math, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
   Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus,
-  Vcl.Samples.Spin, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB, Ths.Database.Table.SysUlkeler,
-  Ths.Globals;
+  Vcl.Samples.Spin,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
+  ufrmBase, ufrmInputSimpleDbX, SharedFormTypes, SysCountry, SysCountry.Service;
 
 type
-  TfrmSysUlke = class(TfrmBaseInputDB)
+  TfrmSysUlke = class(TfrmInputSimpleDbX<TSysCountry, TSysCountryService>)
     lblcode: TLabel;
     lblcountry: TLabel;
     lbliso_year: TLabel;
@@ -40,11 +40,11 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSysUlke(Table).UlkeKodu.Value := edtcode.Text;
-      TSysUlke(Table).UlkeAdi.Value := edtcountry.Text;
-      TSysUlke(Table).ISOYear.Value := StrToIntDef(edtiso_year.Text, 0);
-      TSysUlke(Table).ISOCCTLD.Value := edtiso_cctld.Text;
-      TSysUlke(Table).IsEUMember.Value := chkis_eu_member.Checked;
+      Table.CountryCode := edtcode.Text;
+      Table.CountryName := edtcountry.Text;
+      Table.ISOYear := StrToIntDef(edtiso_year.Text, 0);
+      Table.ISOCCTLD := edtiso_cctld.Text;
+      Table.IsEUMember := chkis_eu_member.Checked;
 
       inherited;
     end;
@@ -61,11 +61,11 @@ end;
 
 procedure TfrmSysUlke.RefreshData;
 begin
-  edtcode.Text := TSysUlke(Table).UlkeKodu.AsString;
-  edtcountry.Text := TSysUlke(Table).UlkeAdi.AsString;
-  edtiso_year.Text := TSysUlke(Table).ISOYear.AsString;
-  edtiso_cctld.Text := TSysUlke(Table).ISOCCTLD.AsString;
-  chkis_eu_member.Checked := TSysUlke(Table).IsEUMember.AsBoolean;
+  edtcode.Text := Table.CountryCode;
+  edtcountry.Text := Table.CountryName;
+  edtiso_year.Text := Table.ISOYear.ToString;
+  edtiso_cctld.Text := Table.ISOCCTLD;
+  chkis_eu_member.Checked := Table.IsEUMember;
 end;
 
 end.

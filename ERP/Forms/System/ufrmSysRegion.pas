@@ -5,13 +5,14 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.ComCtrls, ufrmInputSimpleDbX, SharedFormTypes,
+  Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.ComCtrls,
+  ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysRegion.Service, SysRegion, Vcl.ExtCtrls;
+  SysRegion.Service, SysRegion;
 
 type
-  TfrmSysRegion = class(TfrmInputSimpleDbX<TSysRegion, TSysRegionService>)
-    pnlMain: TPanel;
+  TfrmSysRegion = class(TfrmInputSimpleDB<TSysRegion, TSysRegionService>)
+    pnlContent: TPanel;
     lblregion_name: TLabel;
     edtregion_name: TEdit;
     procedure FormCreate(Sender: TObject); override;
@@ -28,25 +29,21 @@ implementation
 
 procedure TfrmSysRegion.BtnAcceptClick(Sender: TObject);
 begin
-  Table.RegionName.Value := edtregion_name.Text;
+  Table.RegionName := edtregion_name.Text;
   inherited;
 end;
 
 procedure TfrmSysRegion.FormCreate(Sender: TObject);
 begin
   inherited;
-
-  pnlMain.Parent := PanelMain;
-  PanelMain := pnlMain;
-
-  edtregion_name.CharCase := TEditCharCase.ecUpperCase;
+  pnlContent.Parent := PanelMain;
 end;
 
 procedure TfrmSysRegion.FormShow(Sender: TObject);
 begin
   inherited;
 
-  Self.Caption := 'Stk Cins Aile Input';
+  Self.Caption := 'System Region';
 
   edtregion_name.SetFocus;
 end;
@@ -54,7 +51,7 @@ end;
 procedure TfrmSysRegion.RefreshData;
 begin
   inherited;
-  edtregion_name.Text := Table.RegionName.Value;
+  edtregion_name.Text := Table.RegionName;
 end;
 
 end.

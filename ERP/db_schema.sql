@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.5
--- Dumped by pg_dump version 17.5
+\restrict 0SvkwqgqNO3eJxRwmb3LNxIjBwaKoojV5BowrhMIEuh9CGQB0mUfGdHghBfKyjS
+
+-- Dumped from database version 18.3
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -77,6 +79,49 @@ $$;
 
 
 ALTER FUNCTION public.audit() OWNER TO ths_admin;
+
+--
+-- Name: fn_get_table_data_dynamic(character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.fn_get_table_data_dynamic(p_table_name character varying) RETURNS SETOF record
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    v_columns text;
+    v_query text;
+    v_has_custom_columns boolean;
+BEGIN
+    -- sys_grid_columns'da bu tablo için kayıt var mı kontrol et
+    SELECT EXISTS(
+        SELECT 1 
+        FROM sys_grid_columns 
+        WHERE table_name = p_table_name
+    ) INTO v_has_custom_columns;
+    
+    IF v_has_custom_columns THEN
+        -- Özelleştirilmiş kolonlar varsa, sadece is_show=true olanları sıralı getir
+        SELECT string_agg(quote_ident(column_name), ', ' ORDER BY column_order)
+        INTO v_columns
+        FROM sys_grid_columns
+        WHERE table_name = p_table_name
+          AND is_show = true;
+    
+		IF v_columns IS NULL THEN
+        	RAISE EXCEPTION 'Table % not found or has no columns', p_table_name;
+    	END IF;
+    	-- Dinamik sorgu oluştur ve çalıştır
+    	v_query := format('SELECT %s FROM %I', v_columns, p_table_name);
+    ELSE
+        v_query := format('SELECT * FROM %I', p_table_name);
+    END IF;
+
+    RETURN QUERY EXECUTE v_query;
+END;
+$$;
+
+
+ALTER FUNCTION public.fn_get_table_data_dynamic(p_table_name character varying) OWNER TO postgres;
 
 --
 -- Name: personel_adsoyad(); Type: FUNCTION; Schema: public; Owner: ths_admin
@@ -868,39 +913,39 @@ ALTER TABLE public.mhs_transfer_kodlari ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 
 --
--- Name: prs_ehliyetler; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: prs_driver_abilities; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.prs_ehliyetler (
+CREATE TABLE public.prs_driver_abilities (
     id bigint NOT NULL,
-    ehliyet_id bigint,
-    personel_id bigint
+    driver_license_id bigint,
+    person_id bigint
 );
 
 
-ALTER TABLE public.prs_ehliyetler OWNER TO ths_admin;
+ALTER TABLE public.prs_driver_abilities OWNER TO ths_admin;
 
 --
--- Name: prs_lisan_bilgileri; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: prs_language_abilities; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.prs_lisan_bilgileri (
+CREATE TABLE public.prs_language_abilities (
     id bigint NOT NULL,
-    lisan_id bigint,
-    okuma_id bigint,
-    yazma_id bigint,
-    konusma_id bigint,
-    personel_id bigint
+    language_id bigint,
+    read_id bigint,
+    write_id bigint,
+    speak_id bigint,
+    person_id bigint
 );
 
 
-ALTER TABLE public.prs_lisan_bilgileri OWNER TO ths_admin;
+ALTER TABLE public.prs_language_abilities OWNER TO ths_admin;
 
 --
 -- Name: prs_lisan_bilgisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.prs_lisan_bilgileri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.prs_language_abilities ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.prs_lisan_bilgisi_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -914,7 +959,7 @@ ALTER TABLE public.prs_lisan_bilgileri ALTER COLUMN id ADD GENERATED ALWAYS AS I
 -- Name: prs_personel_ehliyetleri_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.prs_ehliyetler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.prs_driver_abilities ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.prs_personel_ehliyetleri_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -925,70 +970,69 @@ ALTER TABLE public.prs_ehliyetler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 
 --
--- Name: prs_personeller; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: prs_persons; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.prs_personeller (
+CREATE TABLE public.prs_persons (
     id bigint NOT NULL,
-    ad character varying(32) NOT NULL,
-    soyad character varying(32) NOT NULL,
-    ad_soyad character varying(64) NOT NULL,
-    tel1 character varying(24),
-    tel2 character varying(24),
-    personel_tipi_id bigint NOT NULL,
-    birim_id bigint NOT NULL,
-    gorev_id bigint NOT NULL,
-    dogum_tarihi date,
-    kan_grubu character varying(8),
-    cinsiyet smallint NOT NULL,
-    askerlik_durumu smallint,
-    medeni_durum smallint NOT NULL,
-    cocuk_sayisi smallint DEFAULT 0,
-    yakin_adi character varying(48),
-    yakin_telefon character varying(24),
-    ayakkabi_no smallint,
-    elbise_bedeni character varying(8),
-    genel_not character varying(256),
-    tasima_servis_id bigint,
-    ozel_not character varying(256),
-    maas numeric(18,2) DEFAULT 0,
-    ikramiye_sayisi integer DEFAULT 0,
-    ikramiye_tutar numeric(18,2) DEFAULT 0,
+    name character varying(32) NOT NULL,
+    surname character varying(32) NOT NULL,
+    full_name character varying(64) NOT NULL,
+    phone1 character varying(24),
+    phone2 character varying(24),
+    person_type_id bigint NOT NULL,
+    unit_id bigint NOT NULL,
+    task_id bigint NOT NULL,
+    birth date,
+    blood character varying(8),
+    gender smallint NOT NULL,
+    military_status smallint,
+    marital_status smallint NOT NULL,
+    child smallint DEFAULT 0,
+    related_name character varying(48),
+    related_phone character varying(24),
+    shoe smallint,
+    dress character varying(8),
+    notes character varying(256),
+    transportation_id bigint,
+    special_notes character varying(256),
+    salary numeric(18,2) DEFAULT 0,
+    number_of_bonus integer DEFAULT 0,
+    bonus numeric(18,2) DEFAULT 0,
     identification text,
-    adres_id bigint,
-    pasif boolean DEFAULT false NOT NULL
+    address_id bigint,
+    active boolean DEFAULT false NOT NULL
 );
 
 
-ALTER TABLE public.prs_personeller OWNER TO ths_admin;
+ALTER TABLE public.prs_persons OWNER TO ths_admin;
 
 --
--- Name: COLUMN prs_personeller.cinsiyet; Type: COMMENT; Schema: public; Owner: ths_admin
+-- Name: COLUMN prs_persons.gender; Type: COMMENT; Schema: public; Owner: ths_admin
 --
 
-COMMENT ON COLUMN public.prs_personeller.cinsiyet IS '1 Man
-2 Woman';
-
-
---
--- Name: COLUMN prs_personeller.askerlik_durumu; Type: COMMENT; Schema: public; Owner: ths_admin
---
-
-COMMENT ON COLUMN public.prs_personeller.askerlik_durumu IS '1 Yapti, 2 Yapmadi, 3 Tecilli, 4 Muaf';
+COMMENT ON COLUMN public.prs_persons.gender IS '1 Man, 2 Woman';
 
 
 --
--- Name: COLUMN prs_personeller.medeni_durum; Type: COMMENT; Schema: public; Owner: ths_admin
+-- Name: COLUMN prs_persons.military_status; Type: COMMENT; Schema: public; Owner: ths_admin
 --
 
-COMMENT ON COLUMN public.prs_personeller.medeni_durum IS '1 Evli, 2 Bekar';
+COMMENT ON COLUMN public.prs_persons.military_status IS '1 Did, 2 Exempt, 3 Did Not';
+
+
+--
+-- Name: COLUMN prs_persons.marital_status; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.prs_persons.marital_status IS '1 Married, 2 Single';
 
 
 --
 -- Name: prs_personel_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.prs_personeller ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.prs_persons ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.prs_personel_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2034,23 +2078,23 @@ ALTER TABLE public.set_einv_teslim_sekilleri ALTER COLUMN id ADD GENERATED ALWAY
 
 
 --
--- Name: set_prs_birimler; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: set_prs_units; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.set_prs_birimler (
+CREATE TABLE public.set_prs_units (
     id bigint NOT NULL,
-    birim character varying(32) NOT NULL,
-    bolum_id bigint
+    unit_name character varying(32) NOT NULL,
+    section_id bigint
 );
 
 
-ALTER TABLE public.set_prs_birimler OWNER TO ths_admin;
+ALTER TABLE public.set_prs_units OWNER TO ths_admin;
 
 --
 -- Name: set_prs_birim_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_prs_birimler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_prs_units ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_prs_birim_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2061,22 +2105,22 @@ ALTER TABLE public.set_prs_birimler ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
--- Name: set_prs_bolumler; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: set_prs_sections; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.set_prs_bolumler (
+CREATE TABLE public.set_prs_sections (
     id bigint NOT NULL,
-    bolum character varying(32) NOT NULL
+    section_name character varying(32) NOT NULL
 );
 
 
-ALTER TABLE public.set_prs_bolumler OWNER TO ths_admin;
+ALTER TABLE public.set_prs_sections OWNER TO ths_admin;
 
 --
 -- Name: set_prs_bolum_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_prs_bolumler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_prs_sections ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_prs_bolum_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2087,22 +2131,22 @@ ALTER TABLE public.set_prs_bolumler ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
--- Name: set_prs_ehliyetler; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: set_prs_driver_licence_types; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.set_prs_ehliyetler (
+CREATE TABLE public.set_prs_driver_licence_types (
     id bigint NOT NULL,
-    ehliyet character varying(32) NOT NULL
+    license_name character varying(32) NOT NULL
 );
 
 
-ALTER TABLE public.set_prs_ehliyetler OWNER TO ths_admin;
+ALTER TABLE public.set_prs_driver_licence_types OWNER TO ths_admin;
 
 --
 -- Name: set_prs_ehliyet_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_prs_ehliyetler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_prs_driver_licence_types ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_prs_ehliyet_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2113,22 +2157,22 @@ ALTER TABLE public.set_prs_ehliyetler ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 
 --
--- Name: set_prs_gorevler; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: set_prs_tasks; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.set_prs_gorevler (
+CREATE TABLE public.set_prs_tasks (
     id bigint NOT NULL,
-    gorev character varying(32) NOT NULL
+    task_name character varying(32) NOT NULL
 );
 
 
-ALTER TABLE public.set_prs_gorevler OWNER TO ths_admin;
+ALTER TABLE public.set_prs_tasks OWNER TO ths_admin;
 
 --
 -- Name: set_prs_gorev_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_prs_gorevler ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_prs_tasks ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_prs_gorev_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2139,22 +2183,34 @@ ALTER TABLE public.set_prs_gorevler ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
--- Name: set_prs_lisanlar; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: set_prs_language_levels; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.set_prs_lisanlar (
+CREATE TABLE public.set_prs_language_levels (
     id bigint NOT NULL,
-    lisan character varying(16) NOT NULL
+    language_level character varying(16) NOT NULL
 );
 
 
-ALTER TABLE public.set_prs_lisanlar OWNER TO ths_admin;
+ALTER TABLE public.set_prs_language_levels OWNER TO ths_admin;
+
+--
+-- Name: set_prs_languages; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.set_prs_languages (
+    id bigint NOT NULL,
+    language_name character varying(16) NOT NULL
+);
+
+
+ALTER TABLE public.set_prs_languages OWNER TO ths_admin;
 
 --
 -- Name: set_prs_lisan_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_prs_lisanlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_prs_languages ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_prs_lisan_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2165,22 +2221,10 @@ ALTER TABLE public.set_prs_lisanlar ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
--- Name: set_prs_lisan_seviyeleri; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.set_prs_lisan_seviyeleri (
-    id bigint NOT NULL,
-    lisan_seviyesi character varying(16) NOT NULL
-);
-
-
-ALTER TABLE public.set_prs_lisan_seviyeleri OWNER TO ths_admin;
-
---
 -- Name: set_prs_lisan_seviyesi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_prs_lisan_seviyeleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_prs_language_levels ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_prs_lisan_seviyesi_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2191,22 +2235,22 @@ ALTER TABLE public.set_prs_lisan_seviyeleri ALTER COLUMN id ADD GENERATED ALWAYS
 
 
 --
--- Name: set_prs_personel_tipleri; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: set_prs_person_types; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.set_prs_personel_tipleri (
+CREATE TABLE public.set_prs_person_types (
     id bigint NOT NULL,
-    personel_tipi character varying(32) NOT NULL
+    person_type character varying(32) NOT NULL
 );
 
 
-ALTER TABLE public.set_prs_personel_tipleri OWNER TO ths_admin;
+ALTER TABLE public.set_prs_person_types OWNER TO ths_admin;
 
 --
 -- Name: set_prs_personel_tipi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_prs_personel_tipleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_prs_person_types ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_prs_personel_tipi_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2217,24 +2261,24 @@ ALTER TABLE public.set_prs_personel_tipleri ALTER COLUMN id ADD GENERATED ALWAYS
 
 
 --
--- Name: set_prs_tasima_servisleri; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: set_prs_transportation; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.set_prs_tasima_servisleri (
+CREATE TABLE public.set_prs_transportation (
     id bigint NOT NULL,
-    arac_no smallint NOT NULL,
-    arac_adi character varying(32) NOT NULL,
-    rota double precision[]
+    car_no smallint NOT NULL,
+    car_name character varying(32) NOT NULL,
+    route double precision[]
 );
 
 
-ALTER TABLE public.set_prs_tasima_servisleri OWNER TO ths_admin;
+ALTER TABLE public.set_prs_transportation OWNER TO ths_admin;
 
 --
 -- Name: set_prs_servis_araci_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.set_prs_tasima_servisleri ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.set_prs_transportation ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.set_prs_servis_araci_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -2643,7 +2687,7 @@ ALTER TABLE public.sys_access_rights OWNER TO ths_admin;
 
 CREATE TABLE public.sys_addresses (
     id bigint NOT NULL,
-    city_id bigint,
+    city_id bigint NOT NULL,
     district character varying(64),
     neighborhood character varying(64),
     quarter character varying(64),
@@ -2698,7 +2742,7 @@ CREATE TABLE public.sys_application_settings (
     sms_password character varying(255),
     sms_title character varying(255),
     app_version character varying(128),
-    base_currency character varying(3),
+    app_currency character varying(3),
     address_id bigint,
     other_settings jsonb,
     taxpayer_name character varying(64),
@@ -2709,28 +2753,6 @@ CREATE TABLE public.sys_application_settings (
 
 
 ALTER TABLE public.sys_application_settings OWNER TO ths_admin;
-
---
--- Name: COLUMN sys_application_settings.taxpayer_name; Type: COMMENT; Schema: public; Owner: ths_admin
---
-
-COMMENT ON COLUMN public.sys_application_settings.taxpayer_name IS 'for Sole Proprietorship';
-
-
---
--- Name: COLUMN sys_application_settings.taxpayer_surname; Type: COMMENT; Schema: public; Owner: ths_admin
---
-
-COMMENT ON COLUMN public.sys_application_settings.taxpayer_surname IS 'for Sole Proprietorship';
-
-
---
--- Name: COLUMN sys_application_settings.taxpayer_type; Type: COMMENT; Schema: public; Owner: ths_admin
---
-
-COMMENT ON COLUMN public.sys_application_settings.taxpayer_type IS 'for Sole Proprietorship Goverment ID
-for Company Vat No';
-
 
 --
 -- Name: sys_city_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
@@ -2865,6 +2887,35 @@ ALTER TABLE public.sys_decimal_places OWNER TO ths_admin;
 
 ALTER TABLE public.sys_access_rights ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_erisim_hakki_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sys_grid_column_titles; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_grid_column_titles (
+    id bigint NOT NULL,
+    table_name character varying(64) NOT NULL,
+    column_name character varying(64) NOT NULL,
+    lng_code character varying(2) NOT NULL,
+    column_label character varying(64)
+);
+
+
+ALTER TABLE public.sys_grid_column_titles OWNER TO ths_admin;
+
+--
+-- Name: sys_grid_column_titles_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_grid_column_titles ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_grid_column_titles_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3072,6 +3123,33 @@ ALTER TABLE public.sys_users ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: sys_languages; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_languages (
+    id bigint NOT NULL,
+    lng_code character varying(2) NOT NULL,
+    description character varying(128)
+);
+
+
+ALTER TABLE public.sys_languages OWNER TO ths_admin;
+
+--
+-- Name: sys_languages_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_languages ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_languages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sys_lisan_gui_icerik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
@@ -3103,11 +3181,11 @@ ALTER TABLE public.sys_measure_types OWNER TO ths_admin;
 
 CREATE TABLE public.sys_measures (
     id bigint NOT NULL,
-    unit character varying(16) NOT NULL,
-    unit_einv character varying(3),
+    measure_unit character varying(16) NOT NULL,
+    measure_unit_einv character varying(3),
     description character varying(64),
     is_decimal boolean DEFAULT false NOT NULL,
-    unit_type_id bigint,
+    measure_unit_type_id bigint,
     multiplier integer
 );
 
@@ -3321,6 +3399,27 @@ ALTER TABLE public.urt_recete_yan_urunler ALTER COLUMN id ADD GENERATED ALWAYS A
 
 
 --
+-- Name: vw_sys_cities; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_cities AS
+ SELECT ct.id,
+    ct.city_name,
+    ct.car_plate_code,
+    ct.country_id,
+    ct.region_id,
+    cn.country_code,
+    cn.country_name,
+    r.region_name
+   FROM ((public.sys_cities ct
+     LEFT JOIN public.sys_countries cn ON ((cn.id = ct.country_id)))
+     LEFT JOIN public.sys_regions r ON ((r.id = ct.region_id)))
+  WHERE (1 = 1);
+
+
+ALTER VIEW public.vw_sys_cities OWNER TO ths_admin;
+
+--
 -- Name: als_teklif_detaylari id; Type: DEFAULT; Schema: public; Owner: ths_admin
 --
 
@@ -3518,43 +3617,43 @@ ALTER TABLE ONLY public.mhs_transfer_kodlari
 
 
 --
--- Name: prs_ehliyetler prs_ehliyetler_ehliyet_id_personel_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prs_driver_abilities prs_driver_abilities_driver_license_id_person_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prs_ehliyetler
-    ADD CONSTRAINT prs_ehliyetler_ehliyet_id_personel_id_key UNIQUE (ehliyet_id, personel_id);
-
-
---
--- Name: prs_ehliyetler prs_ehliyetler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_ehliyetler
-    ADD CONSTRAINT prs_ehliyetler_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.prs_driver_abilities
+    ADD CONSTRAINT prs_driver_abilities_driver_license_id_person_id_key UNIQUE (driver_license_id, person_id);
 
 
 --
--- Name: prs_lisan_bilgileri prs_lisan_bilgileri_lisan_id_personel_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prs_driver_abilities prs_driver_abilities_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prs_lisan_bilgileri
-    ADD CONSTRAINT prs_lisan_bilgileri_lisan_id_personel_id_key UNIQUE (lisan_id, personel_id);
-
-
---
--- Name: prs_lisan_bilgileri prs_lisan_bilgileri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_lisan_bilgileri
-    ADD CONSTRAINT prs_lisan_bilgileri_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.prs_driver_abilities
+    ADD CONSTRAINT prs_driver_abilities_pkey PRIMARY KEY (id);
 
 
 --
--- Name: prs_personeller prs_personeller_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prs_language_abilities prs_language_abilities_language_id_person_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prs_personeller
-    ADD CONSTRAINT prs_personeller_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.prs_language_abilities
+    ADD CONSTRAINT prs_language_abilities_language_id_person_id_key UNIQUE (language_id, person_id);
+
+
+--
+-- Name: prs_language_abilities prs_language_abilities_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_language_abilities
+    ADD CONSTRAINT prs_language_abilities_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: prs_persons prs_persons_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_persons
+    ADD CONSTRAINT prs_persons_pkey PRIMARY KEY (id);
 
 
 --
@@ -3774,131 +3873,131 @@ ALTER TABLE ONLY public.set_einv_teslim_sekilleri
 
 
 --
--- Name: set_prs_birimler set_prs_birimler_birim_bolum_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_prs_driver_licence_types set_prs_driver_licence_types_license_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_prs_birimler
-    ADD CONSTRAINT set_prs_birimler_birim_bolum_id_key UNIQUE (birim, bolum_id);
-
-
---
--- Name: set_prs_birimler set_prs_birimler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_birimler
-    ADD CONSTRAINT set_prs_birimler_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.set_prs_driver_licence_types
+    ADD CONSTRAINT set_prs_driver_licence_types_license_name_key UNIQUE (license_name);
 
 
 --
--- Name: set_prs_bolumler set_prs_bolumler_bolum_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_prs_driver_licence_types set_prs_driver_licence_types_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_prs_bolumler
-    ADD CONSTRAINT set_prs_bolumler_bolum_key UNIQUE (bolum);
-
-
---
--- Name: set_prs_bolumler set_prs_bolumler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_bolumler
-    ADD CONSTRAINT set_prs_bolumler_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.set_prs_driver_licence_types
+    ADD CONSTRAINT set_prs_driver_licence_types_pkey PRIMARY KEY (id);
 
 
 --
--- Name: set_prs_ehliyetler set_prs_ehliyetler_ehliyet_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_prs_language_levels set_prs_language_levels_language_level_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_prs_ehliyetler
-    ADD CONSTRAINT set_prs_ehliyetler_ehliyet_key UNIQUE (ehliyet);
-
-
---
--- Name: set_prs_ehliyetler set_prs_ehliyetler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_ehliyetler
-    ADD CONSTRAINT set_prs_ehliyetler_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.set_prs_language_levels
+    ADD CONSTRAINT set_prs_language_levels_language_level_key UNIQUE (language_level);
 
 
 --
--- Name: set_prs_gorevler set_prs_gorevler_gorev_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_prs_language_levels set_prs_language_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_prs_gorevler
-    ADD CONSTRAINT set_prs_gorevler_gorev_key UNIQUE (gorev);
-
-
---
--- Name: set_prs_gorevler set_prs_gorevler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_gorevler
-    ADD CONSTRAINT set_prs_gorevler_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.set_prs_language_levels
+    ADD CONSTRAINT set_prs_language_levels_pkey PRIMARY KEY (id);
 
 
 --
--- Name: set_prs_lisan_seviyeleri set_prs_lisan_seviyeleri_lisan_seviyesi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_prs_languages set_prs_languages_language_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_prs_lisan_seviyeleri
-    ADD CONSTRAINT set_prs_lisan_seviyeleri_lisan_seviyesi_key UNIQUE (lisan_seviyesi);
-
-
---
--- Name: set_prs_lisan_seviyeleri set_prs_lisan_seviyeleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_lisan_seviyeleri
-    ADD CONSTRAINT set_prs_lisan_seviyeleri_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.set_prs_languages
+    ADD CONSTRAINT set_prs_languages_language_name_key UNIQUE (language_name);
 
 
 --
--- Name: set_prs_lisanlar set_prs_lisanlar_lisan_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_prs_languages set_prs_languages_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_prs_lisanlar
-    ADD CONSTRAINT set_prs_lisanlar_lisan_key UNIQUE (lisan);
-
-
---
--- Name: set_prs_lisanlar set_prs_lisanlar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_lisanlar
-    ADD CONSTRAINT set_prs_lisanlar_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.set_prs_languages
+    ADD CONSTRAINT set_prs_languages_pkey PRIMARY KEY (id);
 
 
 --
--- Name: set_prs_personel_tipleri set_prs_personel_tipleri_personel_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_prs_person_types set_prs_person_types_person_type_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_prs_personel_tipleri
-    ADD CONSTRAINT set_prs_personel_tipleri_personel_tipi_key UNIQUE (personel_tipi);
-
-
---
--- Name: set_prs_personel_tipleri set_prs_personel_tipleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.set_prs_personel_tipleri
-    ADD CONSTRAINT set_prs_personel_tipleri_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.set_prs_person_types
+    ADD CONSTRAINT set_prs_person_types_person_type_key UNIQUE (person_type);
 
 
 --
--- Name: set_prs_tasima_servisleri set_prs_tasima_servisleri_arac_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_prs_person_types set_prs_person_types_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_prs_tasima_servisleri
-    ADD CONSTRAINT set_prs_tasima_servisleri_arac_no_key UNIQUE (arac_no);
+ALTER TABLE ONLY public.set_prs_person_types
+    ADD CONSTRAINT set_prs_person_types_pkey PRIMARY KEY (id);
 
 
 --
--- Name: set_prs_tasima_servisleri set_prs_tasima_servisleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_prs_sections set_prs_sections_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_prs_tasima_servisleri
+ALTER TABLE ONLY public.set_prs_sections
+    ADD CONSTRAINT set_prs_sections_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: set_prs_sections set_prs_sections_section_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_prs_sections
+    ADD CONSTRAINT set_prs_sections_section_name_key UNIQUE (section_name);
+
+
+--
+-- Name: set_prs_units set_prs_sections_unit_name_section_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_prs_units
+    ADD CONSTRAINT set_prs_sections_unit_name_section_id_key UNIQUE (unit_name, section_id);
+
+
+--
+-- Name: set_prs_transportation set_prs_tasima_servisleri_arac_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_prs_transportation
+    ADD CONSTRAINT set_prs_tasima_servisleri_arac_no_key UNIQUE (car_no);
+
+
+--
+-- Name: set_prs_transportation set_prs_tasima_servisleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_prs_transportation
     ADD CONSTRAINT set_prs_tasima_servisleri_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: set_prs_tasks set_prs_tasks_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_prs_tasks
+    ADD CONSTRAINT set_prs_tasks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: set_prs_tasks set_prs_tasks_task_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_prs_tasks
+    ADD CONSTRAINT set_prs_tasks_task_name_key UNIQUE (task_name);
+
+
+--
+-- Name: set_prs_units set_prs_units_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.set_prs_units
+    ADD CONSTRAINT set_prs_units_pkey PRIMARY KEY (id);
 
 
 --
@@ -4182,6 +4281,22 @@ ALTER TABLE ONLY public.sys_decimal_places
 
 
 --
+-- Name: sys_grid_column_titles sys_grid_column_titles_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_grid_column_titles
+    ADD CONSTRAINT sys_grid_column_titles_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_grid_column_titles sys_grid_column_titles_table_name_column_name_lng_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_grid_column_titles
+    ADD CONSTRAINT sys_grid_column_titles_table_name_column_name_lng_code_key UNIQUE (table_name, column_name, lng_code);
+
+
+--
 -- Name: sys_grid_columns sys_grid_columns_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -4254,6 +4369,22 @@ ALTER TABLE ONLY public.sys_gui_contents
 
 
 --
+-- Name: sys_languages sys_languages_lng_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_languages
+    ADD CONSTRAINT sys_languages_lng_code_key UNIQUE (lng_code);
+
+
+--
+-- Name: sys_languages sys_languages_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_languages
+    ADD CONSTRAINT sys_languages_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sys_measure_types sys_measure_types_measure_type_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -4282,7 +4413,7 @@ ALTER TABLE ONLY public.sys_measures
 --
 
 ALTER TABLE ONLY public.sys_measures
-    ADD CONSTRAINT sys_measures_unit_key UNIQUE (unit);
+    ADD CONSTRAINT sys_measures_unit_key UNIQUE (measure_unit);
 
 
 --
@@ -4570,80 +4701,80 @@ CREATE INDEX idx_sat_teklif_detaylari_header_id ON public.sat_teklif_detaylari U
 
 
 --
--- Name: set_prs_bolumler audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: set_prs_sections audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_bolumler FOR EACH ROW EXECUTE FUNCTION public.audit();
-
-
---
--- Name: prs_ehliyetler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prs_ehliyetler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_sections FOR EACH ROW EXECUTE FUNCTION public.audit();
 
 
 --
--- Name: prs_lisan_bilgileri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: prs_driver_abilities notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prs_lisan_bilgileri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prs_personeller notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prs_personeller FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prs_driver_abilities FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
--- Name: set_prs_birimler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: prs_language_abilities notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_birimler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: set_prs_ehliyetler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_ehliyetler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prs_language_abilities FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
--- Name: set_prs_gorevler notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: prs_persons notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_gorevler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: set_prs_lisan_seviyeleri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_lisan_seviyeleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prs_persons FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
--- Name: set_prs_lisanlar notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: set_prs_driver_licence_types notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_lisanlar FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: set_prs_personel_tipleri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_personel_tipleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_driver_licence_types FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
--- Name: set_prs_tasima_servisleri notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: set_prs_language_levels notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_tasima_servisleri FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_language_levels FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_languages notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_languages FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_person_types notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_person_types FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_tasks notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_tasks FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_transportation notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_transportation FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: set_prs_units notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_units FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -4689,10 +4820,10 @@ CREATE TRIGGER sys_grid_col_width_table_notify AFTER INSERT OR DELETE OR UPDATE 
 
 
 --
--- Name: set_prs_bolumler table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+-- Name: set_prs_sections table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
-CREATE TRIGGER table_notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_bolumler FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+CREATE TRIGGER table_notify AFTER INSERT OR DELETE OR UPDATE ON public.set_prs_sections FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -4869,7 +5000,7 @@ ALTER TABLE ONLY public.als_teklif_detaylari
 --
 
 ALTER TABLE ONLY public.als_teklif_detaylari
-    ADD CONSTRAINT als_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT als_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_measures(measure_unit) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -4993,99 +5124,99 @@ ALTER TABLE ONLY public.mhs_transfer_kodlari
 
 
 --
--- Name: prs_ehliyetler prs_ehliyetler_ehliyet_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prs_driver_abilities prs_driver_abilities_driver_license_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prs_ehliyetler
-    ADD CONSTRAINT prs_ehliyetler_ehliyet_id_fkey FOREIGN KEY (ehliyet_id) REFERENCES public.set_prs_ehliyetler(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: prs_ehliyetler prs_ehliyetler_personel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_ehliyetler
-    ADD CONSTRAINT prs_ehliyetler_personel_id_fkey FOREIGN KEY (personel_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.prs_driver_abilities
+    ADD CONSTRAINT prs_driver_abilities_driver_license_id_fkey FOREIGN KEY (driver_license_id) REFERENCES public.set_prs_driver_licence_types(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prs_lisan_bilgileri prs_lisan_bilgileri_konusma_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prs_driver_abilities prs_driver_abilities_person_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prs_lisan_bilgileri
-    ADD CONSTRAINT prs_lisan_bilgileri_konusma_id_fkey FOREIGN KEY (konusma_id) REFERENCES public.set_prs_lisan_seviyeleri(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: prs_lisan_bilgileri prs_lisan_bilgileri_lisan_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_lisan_bilgileri
-    ADD CONSTRAINT prs_lisan_bilgileri_lisan_id_fkey FOREIGN KEY (lisan_id) REFERENCES public.set_prs_lisanlar(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.prs_driver_abilities
+    ADD CONSTRAINT prs_driver_abilities_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.prs_persons(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prs_lisan_bilgileri prs_lisan_bilgileri_okuma_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prs_language_abilities prs_language_abilities_language_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prs_lisan_bilgileri
-    ADD CONSTRAINT prs_lisan_bilgileri_okuma_id_fkey FOREIGN KEY (okuma_id) REFERENCES public.set_prs_lisan_seviyeleri(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: prs_lisan_bilgileri prs_lisan_bilgileri_personel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_lisan_bilgileri
-    ADD CONSTRAINT prs_lisan_bilgileri_personel_id_fkey FOREIGN KEY (personel_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.prs_language_abilities
+    ADD CONSTRAINT prs_language_abilities_language_id_fkey FOREIGN KEY (language_id) REFERENCES public.set_prs_languages(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prs_lisan_bilgileri prs_lisan_bilgileri_yazma_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prs_language_abilities prs_language_abilities_person_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prs_lisan_bilgileri
-    ADD CONSTRAINT prs_lisan_bilgileri_yazma_id_fkey FOREIGN KEY (yazma_id) REFERENCES public.set_prs_lisan_seviyeleri(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: prs_personeller prs_personeller_adres_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_personeller
-    ADD CONSTRAINT prs_personeller_adres_id_fkey FOREIGN KEY (adres_id) REFERENCES public.sys_addresses(id) ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY public.prs_language_abilities
+    ADD CONSTRAINT prs_language_abilities_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.prs_persons(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prs_personeller prs_personeller_birim_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prs_language_abilities prs_language_abilities_read_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prs_personeller
-    ADD CONSTRAINT prs_personeller_birim_id_fkey FOREIGN KEY (birim_id) REFERENCES public.set_prs_birimler(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: prs_personeller prs_personeller_gorev_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prs_personeller
-    ADD CONSTRAINT prs_personeller_gorev_id_fkey FOREIGN KEY (gorev_id) REFERENCES public.set_prs_gorevler(id) ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY public.prs_language_abilities
+    ADD CONSTRAINT prs_language_abilities_read_id_fkey FOREIGN KEY (read_id) REFERENCES public.set_prs_language_levels(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prs_personeller prs_personeller_personel_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prs_language_abilities prs_language_abilities_speak_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prs_personeller
-    ADD CONSTRAINT prs_personeller_personel_tipi_id_fkey FOREIGN KEY (personel_tipi_id) REFERENCES public.set_prs_personel_tipleri(id) ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY public.prs_language_abilities
+    ADD CONSTRAINT prs_language_abilities_speak_id_fkey FOREIGN KEY (speak_id) REFERENCES public.set_prs_language_levels(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prs_personeller prs_personeller_tasima_servis_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prs_language_abilities prs_language_abilities_write_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prs_personeller
-    ADD CONSTRAINT prs_personeller_tasima_servis_id_fkey FOREIGN KEY (tasima_servis_id) REFERENCES public.set_prs_tasima_servisleri(id) ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY public.prs_language_abilities
+    ADD CONSTRAINT prs_language_abilities_write_id_fkey FOREIGN KEY (write_id) REFERENCES public.set_prs_language_levels(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prs_persons prs_persons_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_persons
+    ADD CONSTRAINT prs_persons_address_id_fkey FOREIGN KEY (address_id) REFERENCES public.sys_addresses(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_persons prs_persons_person_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_persons
+    ADD CONSTRAINT prs_persons_person_type_id_fkey FOREIGN KEY (person_type_id) REFERENCES public.set_prs_person_types(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_persons prs_persons_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_persons
+    ADD CONSTRAINT prs_persons_task_id_fkey FOREIGN KEY (task_id) REFERENCES public.set_prs_tasks(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_persons prs_persons_transportation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_persons
+    ADD CONSTRAINT prs_persons_transportation_id_fkey FOREIGN KEY (transportation_id) REFERENCES public.set_prs_transportation(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prs_persons prs_persons_unit_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prs_persons
+    ADD CONSTRAINT prs_persons_unit_id_fkey FOREIGN KEY (unit_id) REFERENCES public.set_prs_units(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5117,7 +5248,7 @@ ALTER TABLE ONLY public.sat_siparis_detaylari
 --
 
 ALTER TABLE ONLY public.sat_siparis_detaylari
-    ADD CONSTRAINT sat_siparis_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_siparis_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_measures(measure_unit) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5157,7 +5288,7 @@ ALTER TABLE ONLY public.sat_siparisler
 --
 
 ALTER TABLE ONLY public.sat_siparisler
-    ADD CONSTRAINT sat_siparisler_musteri_temsilcisi_id_fkey FOREIGN KEY (musteri_temsilcisi_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_siparisler_musteri_temsilcisi_id_fkey FOREIGN KEY (musteri_temsilcisi_id) REFERENCES public.prs_persons(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5237,7 +5368,7 @@ ALTER TABLE ONLY public.sat_teklif_detaylari
 --
 
 ALTER TABLE ONLY public.sat_teklif_detaylari
-    ADD CONSTRAINT sat_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_measures(unit) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_teklif_detaylari_olcu_birimi_fkey FOREIGN KEY (olcu_birimi) REFERENCES public.sys_measures(measure_unit) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5277,7 +5408,7 @@ ALTER TABLE ONLY public.sat_teklifler
 --
 
 ALTER TABLE ONLY public.sat_teklifler
-    ADD CONSTRAINT sat_teklifler_musteri_temsilcisi_id_fkey FOREIGN KEY (musteri_temsilcisi_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sat_teklifler_musteri_temsilcisi_id_fkey FOREIGN KEY (musteri_temsilcisi_id) REFERENCES public.prs_persons(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5377,11 +5508,11 @@ ALTER TABLE ONLY public.set_ch_vergi_oranlari
 
 
 --
--- Name: set_prs_birimler set_prs_birimler_bolum_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: set_prs_units set_prs_units_section_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.set_prs_birimler
-    ADD CONSTRAINT set_prs_birimler_bolum_id_fkey FOREIGN KEY (bolum_id) REFERENCES public.set_prs_bolumler(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.set_prs_units
+    ADD CONSTRAINT set_prs_units_section_id_fkey FOREIGN KEY (section_id) REFERENCES public.set_prs_sections(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5541,7 +5672,7 @@ ALTER TABLE ONLY public.sys_application_settings
 --
 
 ALTER TABLE ONLY public.sys_application_settings
-    ADD CONSTRAINT sys_application_settings_currency_fkey FOREIGN KEY (base_currency) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT sys_application_settings_currency_fkey FOREIGN KEY (app_currency) REFERENCES public.sys_currencies(currnecy) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5565,7 +5696,7 @@ ALTER TABLE ONLY public.sys_cities
 --
 
 ALTER TABLE ONLY public.sys_measures
-    ADD CONSTRAINT sys_measures_unit_type_id_fkey FOREIGN KEY (unit_type_id) REFERENCES public.sys_measure_types(id) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
+    ADD CONSTRAINT sys_measures_unit_type_id_fkey FOREIGN KEY (measure_unit_type_id) REFERENCES public.sys_measure_types(id) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
 
 
 --
@@ -5581,7 +5712,7 @@ ALTER TABLE ONLY public.sys_permissions
 --
 
 ALTER TABLE ONLY public.sys_users
-    ADD CONSTRAINT sys_users_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.prs_personeller(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sys_users_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.prs_persons(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5883,4 +6014,6 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict 0SvkwqgqNO3eJxRwmb3LNxIjBwaKoojV5BowrhMIEuh9CGQB0mUfGdHghBfKyjS
 

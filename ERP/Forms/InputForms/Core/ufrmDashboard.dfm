@@ -13,7 +13,6 @@ inherited frmDashboard: TfrmDashboard
   Position = poScreenCenter
   Scaled = False
   WindowMenu = VeritabanYedekAl1
-  StyleElements = [seFont, seClient, seBorder]
   OnActivate = FormActivate
   ExplicitWidth = 931
   ExplicitHeight = 509
@@ -56,7 +55,6 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    StyleElements = [seFont, seClient, seBorder]
     ExplicitTop = 402
     ExplicitWidth = 911
     inherited btnAccept: TButton
@@ -79,7 +77,6 @@ inherited frmDashboard: TfrmDashboard
     Width = 915
     Height = 360
     TabOrder = 1
-    StyleElements = [seFont, seClient, seBorder]
     ExplicitTop = 40
     ExplicitWidth = 915
     ExplicitHeight = 360
@@ -92,6 +89,7 @@ inherited frmDashboard: TfrmDashboard
       Align = alClient
       MultiLine = True
       TabOrder = 0
+      ExplicitTop = -1
       object tsgeneral: TTabSheet
         Caption = 'Genel'
         object btnbbk_kayit: TButton

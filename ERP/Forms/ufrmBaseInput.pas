@@ -10,7 +10,7 @@ uses
   Vcl.ComCtrls, Dialogs, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Graphics, Vcl.AppEvnts, Vcl.Menus, Data.DB, udm, ufrmBase,
   Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox, Ths.Helper.BaseTypes,
-  Ths.Database, Ths.Database.Table, Ths.Database.Table.View.SysViewColumns;
+  Ths.Database;
 
 type
   TfrmBaseInput = class(TfrmBase)
@@ -35,9 +35,6 @@ type
     procedure SetControlDBProperty(pIsOnlyRepaint: Boolean = False; AParent: TControl = nil);
 
     procedure OnCalculate(Sender: TObject);
-  published
-    function getContainTable(pTable: TTable): TTable;
-  protected
   public
     procedure SetControlsDisabledOrEnabled(pPanelGroupboxPagecontrolTabsheet: TWinControl = nil; pIsDisable: Boolean = True);
     procedure SetCaptionFromLangContent();
@@ -52,8 +49,6 @@ implementation
 uses
   Ths.Globals,
   Ths.Constants,
-  Ths.Database.Table.SysGuiIcerikler,
-  ufrmSysGuiIcerik,
   ufrmCalculator;
 
 {$R *.dfm}
@@ -113,21 +108,13 @@ begin
   for n1 := 0 to stbBase.Panels.Count - 1 do
     stbBase.Panels.Items[n1].Style := psOwnerDraw;
 
-  //form ve page control page 0 caption bilgisini dil dosyasına göre doldur
-  //page control page 0 için isternise miras alan formda değişiklik yapılabilir.
-  if Assigned(Table) then
-  begin
-    Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
-    //pgcMain.Pages[0].Caption := Self.Caption;
-  end;
-
-  //burası yukarıdaki caption doldurma kodundan sonra gelmeli pagecontrol tablardaki başlıkları düzenliyor.
+  Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
   SetCaptionFromLangContent();
 
   if Self.FormMode = ifmRewiev then
   begin
     //eğer başka pencerede açık transaction varsa güncelleme moduna hiç girilmemli
-    if (Table.Database.Connection.InTransaction) then
+(*    if (Table.Database.Connection.InTransaction) then
     begin
       btnAccept.Visible   := False;
       btnDelete.Visible     := False;
@@ -139,7 +126,7 @@ begin
     begin
       btnSpin.Visible := True;
     end;
-
+*)
     //Burada inceleme modunda olduğu için bütün kontrolleri kapatmak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, True);
   end
@@ -148,7 +135,7 @@ begin
     //Burada yeni kayıt, kopya yeni kayıt veya güncelleme modunda olduğu için bütün kontrolleri açmak gerekiyor.
     SetControlsDisabledOrEnabled(pnlMain, False);
   end;
-
+(*
   mniAddLanguageContent.Visible := False;
   if (GSysKullanici.IsSuperKullanici.Value) and (FormMode = ifmRewiev) then
   begin
@@ -156,7 +143,7 @@ begin
     SetLabelPopup();
     mniAddLanguageContent.Visible := True;
   end;
-
+*)
 //  if (FormMode <> ifmNewRecord ) then
 //    RefreshData;
 //ferhat buraya bak normal input db formlarda iki kere refreshdata yapıyor. Bunu engelle
@@ -164,58 +151,12 @@ begin
 //yapıyı gözden geçir
 end;
 
-function TfrmBaseInput.getContainTable(pTable: TTable): TTable;
-var
-  ctx: TRttiContext;
-  typ: TRttiType;
-//  fld: TRttiField;
-  prp: TRttiProperty;
-  AValue: TValue;
-  AObject: TObject;
-begin
-  Result := nil;
-  typ := ctx.GetType(pTable.ClassType);
-  if Assigned(typ) then
-    for prp in typ.GetProperties do
-      if Assigned(prp) then
-        if prp.PropertyType is TRttiInstanceType then
-          if TRttiInstanceType(prp.PropertyType).MetaclassType.InheritsFrom(TTable) then
-          begin
-            AValue := prp.GetValue(pTable);
-            AObject := nil;
-            if not AValue.IsEmpty then
-              AObject := AValue.AsObject;
-
-            if Assigned(AObject) then
-              if AObject.InheritsFrom(TTable) then
-                if Assigned(TTable(TFieldDB(AObject))) then
-                  Result := TTable(TFieldDB(AObject));
-          end;
-
-              {
-    for fld in typ.GetFields do
-      if Assigned(fld) then
-        if fld.FieldType is TRttiInstanceType then
-          if TRttiInstanceType(fld.FieldType).MetaclassType.InheritsFrom(TTable) then
-          begin
-            AValue := fld.GetValue(pTable);
-            AObject := nil;
-            if not AValue.IsEmpty then
-              AObject := AValue.AsObject;
-
-            if Assigned(AObject) then
-              if AObject.InheritsFrom(TTable) then
-                if Assigned(TTable(TFieldDB(AObject))) then
-                  Result := TTable(TFieldDB(AObject));
-          end;    }
-end;
-
 procedure TfrmBaseInput.mniAddLanguageContentClick(Sender: TObject);
-var
-  LLangGuiContent: TSysGuiIcerik;
-  LCode, LValue, LContentType, LTableName: string;
+//var
+//  LLangGuiContent: TSysGuiIcerik;
+//  LCode, LValue, LContentType, LTableName: string;
 begin
-  if pmLabels.PopupComponent.ClassType = TLabel then
+(*  if pmLabels.PopupComponent.ClassType = TLabel then
   begin
     LCode := StringReplace(pmLabels.PopupComponent.Name, PRX_LABEL, '', [rfReplaceAll]);
     LContentType := LngLabelCaption;
@@ -240,7 +181,7 @@ begin
   LLangGuiContent.Deger.Value := LValue;
 
   TfrmSysGuiIcerik.Create(Self, nil, LLangGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
-
+*)
   SetCaptionFromLangContent();
 end;
 

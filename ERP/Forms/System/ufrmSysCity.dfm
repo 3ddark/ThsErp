@@ -1,6 +1,7 @@
 object frmSysCity: TfrmSysCity
   Left = 0
   Top = 0
+  ActiveControl = edtcity_name
   Caption = 'frmSysCity'
   ClientHeight = 166
   ClientWidth = 463
@@ -13,14 +14,15 @@ object frmSysCity: TfrmSysCity
   OnCreate = FormCreate
   OnShow = FormShow
   TextHeight = 15
-  object pnlMain: TPanel
+  object pnlContent: TPanel
     Left = 0
     Top = 0
     Width = 463
     Height = 166
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 232
+    ExplicitWidth = 461
+    ExplicitHeight = 158
     object lblcity_name: TLabel
       Left = 38
       Top = 7

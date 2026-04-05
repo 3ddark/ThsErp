@@ -3,7 +3,7 @@ object frmSysCountries: TfrmSysCountries
   Top = 0
   Caption = 'frmSysCountries'
   ClientHeight = 441
-  ClientWidth = 624
+  ClientWidth = 946
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

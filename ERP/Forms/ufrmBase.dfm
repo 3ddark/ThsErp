@@ -103,7 +103,7 @@ object frmBase: TfrmBase
       Margins.Right = 2
       Margins.Bottom = 0
       Align = alRight
-      Caption = 'Tamam'
+      Caption = 'Accept'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -130,7 +130,7 @@ object frmBase: TfrmBase
       Margins.Right = 2
       Margins.Bottom = 0
       Align = alRight
-      Caption = 'Kapat'
+      Caption = 'Close'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -157,7 +157,7 @@ object frmBase: TfrmBase
       Margins.Right = 2
       Margins.Bottom = 0
       Align = alLeft
-      Caption = 'Sil'
+      Caption = 'Delete'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13

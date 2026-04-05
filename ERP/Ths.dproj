@@ -5,7 +5,7 @@
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <ProjectName Condition="'$(ProjectName)'==''">Ths</ProjectName>
-        <TargetedPlatforms>693377</TargetedPlatforms>
+        <TargetedPlatforms>693379</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
         <ProjectVersion>20.2</ProjectVersion>
@@ -45,6 +45,12 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+        <Cfg_1_Win64>true</Cfg_1_Win64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
@@ -76,6 +82,12 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
         <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
         <CfgParent>Cfg_2</CfgParent>
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
@@ -116,6 +128,11 @@
         <Icon_MainIcon>Ths_Icon1.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
+        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
@@ -124,6 +141,9 @@
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -151,10 +171,17 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+    </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="BackEnd\Core\udm.pas">
+            <Form>dm</Form>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
         <DCCReference Include="BackEnd\Tools\SynPDF\SynCommons.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\SynLZ.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\SynPdf.pas"/>
@@ -163,7 +190,7 @@
         <DCCReference Include="BackEnd\Tools\SynPDF\SynTable.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\SynCrypto.pas"/>
         <DCCReference Include="BackEnd\Tools\SynPDF\mORMotReport.pas"/>
-        <DCCReference Include="BackEnd\Core\Logger.pas"/>
+        <DCCReference Include="Utils\Bcrypt.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.BaseTypes.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.Button.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.ComboBox.pas"/>
@@ -173,59 +200,21 @@
         <DCCReference Include="BackEnd\Tools\Ths.Helper.SpinEdit.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.StringGrid.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Helper.ThsList.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.Utils.SevenZip.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.Utils.FluentXML.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.Utils.InfoWindow.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.Images.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.Utils.TCMBDovizKuru.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.Utils.InternetConnection.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.Utils.DatabaseTools.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Sql.Builder.pas"/>
-        <DCCReference Include="BackEnd\Core\udm.pas">
-            <Form>dm</Form>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Constants.pas"/>
+        <DCCReference Include="BackEnd\Tools\Ths.DialogHelper.pas"/>
         <DCCReference Include="BackEnd\Core\Ths.Database.Connection.Settings.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Database.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.View.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Database.TableDetailed.pas"/>
         <DCCReference Include="BackEnd\Core\Ths.Globals.pas"/>
+        <DCCReference Include="BackEnd\Core\Ths.Constants.pas"/>
         <DCCReference Include="Forms\ufrmAbout.pas">
             <Form>frmAbout</Form>
         </DCCReference>
         <DCCReference Include="Forms\ufrmBase.pas">
             <Form>frmBase</Form>
         </DCCReference>
-        <DCCReference Include="Forms\ufrmBaseInput.pas">
-            <Form>frmBaseInput</Form>
-        </DCCReference>
         <DCCReference Include="Forms\ufrmConfirmation.pas">
             <Form>frmConfirmation</Form>
         </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Factory\ufrmBaseDetaylar.pas">
-            <Form>frmBaseDetaylar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Factory\ufrmBaseDetaylarDetay.pas">
-            <Form>frmBaseDetaylarDetay</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Factory\ufrmBaseInputDB.pas">
-            <Form>frmBaseInputDB</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\OutputForms\Factory\ufrmBaseOutput.pas">
-            <Form>frmBaseOutput</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Factory\ufrmBaseDBGrid.pas">
-            <Form>frmBaseDBGrid</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Factory\ufrmFilterDBGrid.pas">
-            <Form>frmFilterDBGrid</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\OutputForms\StrGrid\Factory\ufrmBaseStrGrid.pas">
-            <Form>frmBaseStrGrid</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmGiris.pas">
+        <DCCReference Include="Forms\InputForms\Core\ufrmLogin.pas">
             <Form>frmLogin</Form>
         </DCCReference>
         <DCCReference Include="Forms\InputForms\Core\ufrmDashboard.pas">
@@ -234,569 +223,92 @@
         <DCCReference Include="Forms\ufrmCalculator.pas">
             <Form>frmCalculator</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysAdresler.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysUygulamaAyarlari.pas"/>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysUygulamaAyari.pas">
-            <Form>frmSysApplicationSetting</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysSehirler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysSehirler.pas">
-            <Form>frmSysSehirler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysSehir.pas">
-            <Form>frmSysCity</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysBolgeler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysBolgeler.pas">
-            <Form>frmSysBolgeler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysBolge.pas">
-            <Form>frmSysRegion</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysUlkeler.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysGunler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysGunler.pas">
-            <Form>frmSysDays</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysGun.pas">
-            <Form>frmSysDay</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysOndalikHaneler.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysGridKolonlar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysGridKolonlar.pas">
-            <Form>frmSysGridKolonlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysGridKolon.pas">
-            <Form>frmSysGridColumn</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysGridFiltrelerSiralamalar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysGridFiltrelerSiralamalar.pas">
-            <Form>frmSysGridFiltrelerSiralamalar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysGridFiltrelerSiralama.pas">
-            <Form>frmSysGridFilterSort</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysGuiIcerikler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysGuiIcerikler.pas">
-            <Form>frmSysGuiIcerikler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysGuiIcerik.pas">
-            <Form>frmSysGuiIcerik</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysAylar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysAylar.pas">
-            <Form>frmSysAylar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysAy.pas">
-            <Form>frmSysMonth</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysKaynaklar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysKaynaklar.pas">
-            <Form>frmSysKaynaklar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysKaynak.pas">
-            <Form>frmSysResource</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysKaynakGruplari.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysKaynakGruplari.pas">
-            <Form>frmSysKaynakGruplari</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysKaynakGrubu.pas">
-            <Form>frmSysResourceGroup</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysParaBirimleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysParaBirimleri.pas">
-            <Form>frmSysParaBirimleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysParaBirimi.pas">
-            <Form>frmSysCurrency</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysOlcuBirimiTipleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysOlcuBirimiTipleri.pas">
-            <Form>frmSysOlcuBirimiTipleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysOlcuBirimiTipi.pas">
-            <Form>ufrmSysOlcuBirimiTipi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysOlcuBirimleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysOlcuBirimleri.pas">
-            <Form>ufrmSysOlcuBirimleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysOlcuBirimi.pas">
-            <Form>frmSysOlcuBirimi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysKullanicilar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysKullanicilar.pas">
-            <Form>frmSysUsers</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysKullanici.pas">
-            <Form>frmSysUser</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.SysErisimHaklari.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysErisimHaklari.pas">
-            <Form>frmSysUserAccessRights</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysErisimHakki.pas">
-            <Form>frmSysUserAccessRight</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.View.SysViewColumns.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.View.SysViewTables.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysTablolar.pas">
-            <Form>frmSysTables</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Ths.Database.Table.View.SysDbStatus.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\ufrmSysDatabaseMonitor.pas">
-            <Form>frmSysDbStatus</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\ufrmSysSifreDegistir.pas">
-            <Form>frmSysSifreDegistir</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsEhliyetler.pas">
-            <Form>frmSetPrsEhliyetler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsEhliyet.pas">
-            <Form>frmSetPrsEhliyet</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsEhliyetler.pas"/>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsPersonelTipleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsPersonelTipleri.pas">
-            <Form>frmSetEmpEmployeeTypes</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsPersonelTipi.pas">
-            <Form>frmSetEmpEmployeeType</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsLisanlar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsLisanlar.pas">
-            <Form>frmSetPrsLisanlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsLisan.pas">
-            <Form>frmSetPrsLisan</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsLisanSeviyeleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsLisanSeviyeleri.pas">
-            <Form>frmSetPrsLisanSeviyeleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsLisanSeviyesi.pas">
-            <Form>frmSetPrsLisanSeviyesi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsBolumler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsBolumler.pas">
-            <Form>frmSetPrsBolumler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsBolum.pas">
-            <Form>frmSetPrsBolum</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsGorevler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsGorevler.pas">
-            <Form>frmSetPrsGorevler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsGorev.pas">
-            <Form>frmSetPrsGorev</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsTasimaServisleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsTasimaServisleri.pas">
-            <Form>frmSetPrsTasimaServisleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsTasimaServisi.pas">
-            <Form>frmSetPrsTasimaServisi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.SetPrsBirimler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmSetPrsBirimler.pas">
-            <Form>frmSetPrsBirimler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmSetPrsBirim.pas">
-            <Form>frmSetPrsBirim</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.PrsPersoneller.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmPrsPersoneller.pas">
-            <Form>frmPrsPersoneller</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmPrsPersonel.pas">
-            <Form>frmPrsPersonel</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.PrsLisanBilgileri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmPrsLisanBilgileri.pas">
-            <Form>frmPrsLisanBilgileri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmPrsLisanBilgisi.pas">
-            <Form>frmPrsLisanBilgisi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Core\Prs\Ths.Database.Table.PrsEhliyetler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Core\Prs\ufrmPrsEhliyetler.pas">
-            <Form>frmPrsEhliyetler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Core\Prs\ufrmPrsEhliyet.pas">
-            <Form>frmPrsEhliyet</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.ChDovizKurlari.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmChDovizKurlari.pas">
-            <Form>frmChDovizKurlari</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmChDovizKuru.pas">
-            <Form>frmChDovizKuru</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.SetChFirmaTipi.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmSetChFirmaTipleri.pas">
-            <Form>frmSetChFirmaTipleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmSetChFirmaTipi.pas">
-            <Form>frmSetChFirmaTipi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.SetChFirmaTuru.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmSetChFirmaTurleri.pas">
-            <Form>frmSetChFirmaTurleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmSetChFirmaTuru.pas">
-            <Form>frmSetChFirmaTuru</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.ChGruplar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmChGruplar.pas">
-            <Form>frmChGruplar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmChGrup.pas">
-            <Form>frmChGrup</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.ChHesapPlanlari.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmChHesapPlanlari.pas">
-            <Form>frmChHesapPlanlari</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmChHesapPlani.pas">
-            <Form>frmChHesapPlani</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.SetChHesapTipi.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmSetChHesapTipleri.pas">
-            <Form>frmSetChHesapTipleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmSetChHesapTipi.pas">
-            <Form>frmSetChHesapTipi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.SetChVergiOranlari.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmSetChVergiOranlari.pas">
-            <Form>frmSetChVergiOranlari</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmSetChVergiOrani.pas">
-            <Form>frmSetChVergiOrani</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.ChBankalar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmChBankalar.pas">
-            <Form>frmChBankalar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmChBanka.pas">
-            <Form>frmChBanka</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.ChBankaSubeleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmChBankaSubeleri.pas">
-            <Form>frmChBankaSubeleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmChBankaSubesi.pas">
-            <Form>frmChBankaSubesi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.ChBolgeler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmChBolgeler.pas">
-            <Form>frmChBolgeler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmChBolge.pas">
-            <Form>frmChBolge</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.ChHesapKarti.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmChHesapKartlari.pas">
-            <Form>frmHesapKartlari</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmChHesapKarti.pas">
-            <Form>frmHesapKarti</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.ChHesapKartiAra.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Account\ufrmChHesapKartlariAra.pas">
-            <Form>frmHesapKartlariAra</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Account\ufrmChHesapKartiAra.pas">
-            <Form>frmHesapKartiAra</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Account\Ths.Database.Table.ChHesapHareketi.pas"/>
-        <DCCReference Include="BackEnd\Invoice\Ths.Database.Table.SetEinvFaturaTipleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Invoice\ufrmSetEinvFaturaTipleri.pas">
-            <Form>frmSetEinvFaturaTipleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Invoice\ufrmSetEinvFaturaTipi.pas">
-            <Form>frmSetEinvFaturaTipi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Invoice\Ths.Database.Table.SetEinvIstisnaKodu.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Invoice\ufrmSetEinvIstisnaKodlari.pas">
-            <Form>frmSetEinvIstisnaKodlari</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Invoice\ufrmSetEinvIstisnaKodu.pas">
-            <Form>frmSetEinvIstisnaKodu</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Invoice\Ths.Database.Table.SetEinvOdemeSekli.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Invoice\ufrmSetEinvOdemeSekilleri.pas">
-            <Form>frmSetEinvOdemeSekilleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Invoice\ufrmSetEinvOdemeSekli.pas">
-            <Form>frmSetEinvOdemeSekli</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Invoice\Ths.Database.Table.SetEinvPaketTipi.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Invoice\ufrmSetEinvPaketTipleri.pas">
-            <Form>frmSetEinvPaketTipleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Invoice\ufrmSetEinvPaketTipi.pas">
-            <Form>frmSetEinvPaketTipi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Invoice\Ths.Database.Table.SetEinvTasimaUcreti.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Invoice\ufrmSetEinvTasimaUcretleri.pas">
-            <Form>frmSetEinvNakliyeUcretleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Invoice\ufrmSetEinvTasimaUcreti.pas">
-            <Form>frmSetEinvTasimaUcreti</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Invoice\Ths.Database.Table.SetEinvTeslimSekli.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Invoice\ufrmSetEinvTeslimSekilleri.pas">
-            <Form>frmSetEinvTeslimSekilleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Invoice\ufrmSetEinvTeslimSekli.pas">
-            <Form>frmSetEinvTeslimSekli</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Offer\Ths.Database.Table.SetSatTeklifDurum.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Offer\ufrmSetSatTeklifDurumlar.pas">
-            <Form>frmSetSatTeklifDurumlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Offer\ufrmSetSatTeklifDurum.pas">
-            <Form>frmSetSatTeklifDurum</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Offer\Ths.Database.Table.SetTekTeklifTipi.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Offer\ufrmSetTekTeklifTipleri.pas">
-            <Form>frmSetTekTeklifTipleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Offer\ufrmSetTekTeklifTipi.pas">
-            <Form>frmSetTekTeklifTipi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Offer\Ths.Database.Table.SatTeklif.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Offer\ufrmSatTeklifler.pas">
-            <Form>frmSatTeklifler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Offer\ufrmSatTeklifDetay.pas">
-            <Form>frmSatTeklifDetay</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Offer\ufrmSatTeklifDetaylar.pas">
-            <Form>frmSatTeklifDetaylar</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Uretim\Ths.Database.Table.UrtIscilikler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Uretim\ufrmUrtIscilikler.pas">
-            <Form>frmRctIscilikGiderleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Uretim\ufrmUrtIscilik.pas">
-            <Form>frmRctIscilikGideri</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Uretim\Ths.Database.Table.UrtReceteler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Uretim\ufrmUrtReceteler.pas">
-            <Form>frmRctReceteler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Uretim\ufrmRctReceteDetaylar.pas">
-            <Form>frmRctReceteDetaylar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Uretim\ufrmRctReceteHammadde.pas">
-            <Form>frmRctReceteHammadde</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Uretim\ufrmRctReceteIscilik.pas">
-            <Form>frmRctReceteIscilik</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Uretim\ufrmRctReceteYanUrun.pas">
-            <Form>frmRctReceteYanUrun</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Uretim\Ths.Database.Table.UrtPaketHammaddeler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Uretim\ufrmUrtPaketHammaddeler.pas">
-            <Form>frmRctPaketHammaddeler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Uretim\ufrmRctPaketHammaddeDetaylar.pas">
-            <Form>frmRctPaketHammaddeDetaylar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Uretim\ufrmRctPaketHammaddeDetay.pas">
-            <Form>frmRctPaketHammaddeDetay</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkCinsOzellikleri.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkCinsOzellikleri.pas">
-            <Form>frmStkCinsOzellikleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Stock\ufrmStkCinsOzelligi.pas">
-            <Form>frmStkCinsOzelligi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkGruplar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkGruplar.pas">
-            <Form>frmStkGruplar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Stock\ufrmStkGrup.pas">
-            <Form>frmStkGrup</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkAmbarlar.pas">
-            <Form>frmStkStokAmbarlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkStokAmbarlar.pas">
-            <Form>frmStkStokAmbarlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Stock\ufrmStkStokAmbar.pas">
-            <Form>frmStkStokAmbar</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkKartlar.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkKartlar.pas">
-            <Form>frmStkKartlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Stock\ufrmStkKart.pas">
-            <Form>frmStkKart</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkStokHareketi.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Stock\ufrmStkStokHareketleri.pas">
-            <Form>frmStkStokHareketleri</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Ths.Database.Table.OthMailReciever.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\ufrmOthMailRecievers.pas">
-            <Form>frmOthMailRecievers</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\ufrmOthMailReciever.pas">
-            <Form>frmOthMailReciever</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Order\Ths.Database.Table.SetSatSiparisDurum.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Order\ufrmSetSatSiparisDurumlar.pas">
-            <Form>frmSetSatSiparisDurumlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Order\ufrmSetSatSiparisDurum.pas">
-            <Form>frmSetSatSiparisDurum</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Order\Ths.Database.Table.SatSiparis.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Order\ufrmSatSiparisler.pas">
-            <Form>frmSatSiparisler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Order\ufrmSatSiparisDetaylar.pas">
-            <Form>frmSatSiparisDetaylar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Order\ufrmSatSiparisDetay.pas">
-            <Form>frmSatSiparisDetay</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Order\Ths.Database.Table.SatSiparisRapor.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Order\ufrmSatSiparislerRapor.pas">
-            <Form>frmSatSiparislerRapor</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Ths.Database.Table.SetOdemeBaslangicDonemi.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\ufrmSetOdemeBaslangicDonemleri.pas">
-            <Form>frmSetOdemeBaslangicDonemleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\ufrmSetOdemeBaslangicDonemi.pas">
-            <Form>frmSetOdemeBaslangicDonemi</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Tools\ufrmTarihHaftaSecici.pas">
-            <Form>frmTarihHaftaSecici</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Databank\Ths.Database.Table.SetBbkCalismaDurumu.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Databank\ufrmSetBbkCalismaDurumlari.pas">
-            <Form>frmSetBbkCalismaDurumlari</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Databank\ufrmSetBbkCalismaDurumu.pas">
-            <Form>frmSetBbkCalismaDurumu</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Databank\Ths.Database.Table.SetBbkFinansDurumu.pas"/>
-        <DCCReference Include="Forms\InputForms\Databank\ufrmSetBbkFinansDurumu.pas">
-            <Form>frmSetBbkFinansDurumu</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Databank\ufrmSetBbkFinansDurumlari.pas">
-            <Form>frmSetBbkFinansDurumlari</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Databank\Ths.Database.Table.SetBbkFirmaTipi.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Databank\ufrmSetBbkFirmaTipleri.pas">
-            <Form>frmSetBbkFirmaTipleri</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Databank\ufrmSetBbkFirmaTipi.pas">
-            <Form>frmSetBbkFirmaTipi</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Databank\Ths.Database.Table.BbkKayit.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Databank\ufrmBbkKayitlar.pas">
-            <Form>frmBbkKayitlar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\InputForms\Databank\ufrmBbkKayit.pas">
-            <Form>frmBbkKayit</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Erp\Tek\Ths.Database.Table.AlsTeklifler.pas"/>
-        <DCCReference Include="Forms\OutputForms\DbGrid\Erp\Tek\ufrmAlsTeklifler.pas">
-            <Form>frmAlsTeklifler</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetaylar.pas">
-            <Form>frmAlsTeklifDetaylar</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\DetailedInputForms\Erp\Tek\ufrmAlsTeklifDetay.pas">
-            <Form>frmAlsTeklifDetay</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\Stock\Ths.Database.Table.StkKartCinsBilgileri.pas"/>
-        <DCCReference Include="Forms\SharedFormTypes.pas"/>
-        <DCCReference Include="BackEnd\Tools\Ths.DialogHelper.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\BaseEntity.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\BaseRepository.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\BaseService.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\EntityMetaProvider.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\ServiceContainer.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\TableNameService.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\UnitOfWork.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\StkKindFamily.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\StkKindFamilyRepository.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\StkKindFamilyService.pas"/>
-        <DCCReference Include="BackEnd\System\SysCountry.pas"/>
-        <DCCReference Include="BackEnd\System\SysCountry.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\SysCountry.Service.pas"/>
-        <DCCReference Include="BackEnd\System\SysRegion.pas"/>
-        <DCCReference Include="BackEnd\System\SysRegion.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\SysRegion.Service.pas"/>
-        <DCCReference Include="BackEnd\System\SysViewColumn.pas"/>
-        <DCCReference Include="BackEnd\System\SysViewColumn.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\SysViewColumn.Service.pas"/>
-        <DCCReference Include="BackEnd\System\SysCity.pas"/>
-        <DCCReference Include="BackEnd\System\SysCity.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\SysCity.Service.pas"/>
+        <DCCReference Include="BackEnd\Core\Logger.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\New\SharedFormTypes.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\New\EntityAttributes.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\New\Entity.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\New\FilterCriterion.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\New\LocalizationManager.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\New\ConnectionManager.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\New\Repository.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\New\Service.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\New\UnitOfWork.pas"/>
+        <DCCReference Include="BackEnd\Core\MetaProvider.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\New\Password.Helper.pas"/>
+        <DCCReference Include="BackEnd\Core\AppContext.pas"/>
+        <DCCReference Include="BackEnd\Core\UserContext.pas"/>
         <DCCReference Include="Forms\Core\ufrmGrid.pas"/>
-        <DCCReference Include="Forms\Core\ufrmInputSimpleDbX.pas"/>
-        <DCCReference Include="Forms\Stock\ufrmStkKindFamilies.pas">
-            <Form>frmStkKindFamilies</Form>
+        <DCCReference Include="Forms\Core\ufrmInputSimpleDB.pas"/>
+        <DCCReference Include="BackEnd\System\Service\Auth.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysUser.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysUser.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysAccessRight.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysAddress.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysApplicationSetting.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysCity.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysCountry.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysCurrency.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysDay.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysDecimalPlace.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysGridColumn.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysGuiContent.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysGridFilter.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysMeasure.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysMeasureType.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysMonth.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysPermission.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysPermissionGroup.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysRegion.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysUser.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysViewColumn.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysAccessRight.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysCity.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysCountry.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysParaBirimiRepository.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysPermission.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysPermissionGroup.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysRegion.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysViewColumn.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysCity.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysCountry.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysParaBirimiService.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysPermissionGroup.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysRegion.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysViewColumn.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysLanguage.pas"/>
+        <DCCReference Include="BackEnd\Person\PrsDriverLicence.pas"/>
+        <DCCReference Include="BackEnd\Person\PrsLanguageAbility.pas"/>
+        <DCCReference Include="BackEnd\Person\PrsPerson.pas"/>
+        <DCCReference Include="BackEnd\Person\SetPrsUnit.pas"/>
+        <DCCReference Include="BackEnd\Person\SetPrsSection.pas"/>
+        <DCCReference Include="BackEnd\Person\SetPrsDriverLicenceType.pas"/>
+        <DCCReference Include="BackEnd\Person\SetPrsTask.pas"/>
+        <DCCReference Include="BackEnd\Person\SetPrsLanguage.pas"/>
+        <DCCReference Include="BackEnd\Person\SetPrsLanguageLevel.pas"/>
+        <DCCReference Include="BackEnd\Person\SetPrsPersonType.pas"/>
+        <DCCReference Include="BackEnd\Person\SetPrsTransportation.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysCountry.pas">
+            <Form>frmSysCountry</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysCountries.pas">
+            <Form>frmSysCountries</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysCity.pas">
+            <Form>frmSysCity</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Forms\Stock\ufrmStkKindFamily.pas">
-            <Form>frmStkKindFamily</Form>
+        <DCCReference Include="Forms\System\ufrmSysCities.pas">
+            <Form>frmSysCities</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\System\ufrmSysRegion.pas">
             <Form>frmSysRegion</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\System\ufrmSysRegions.pas">
             <Form>frmSysRegions</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\System\ufrmSysCity.pas">
-            <Form>frmSysCity</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\System\ufrmSysCities.pas">
-            <Form>frmSysCities</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\System\ufrmSysCountry.pas">
-            <Form>frmSysCountry</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Forms\System\ufrmSysCountries.pas">
-            <Form>frmSysCountries</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="BackEnd\System\SysPermissionGroup.pas"/>
-        <DCCReference Include="BackEnd\System\SysPermission.pas"/>
-        <DCCReference Include="BackEnd\System\SysAccessRight.pas"/>
-        <DCCReference Include="BackEnd\System\SysPermissionGroup.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\SysPermission.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\SysAccessRight.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\SysPermissionGroup.Service.pas"/>
-        <DCCReference Include="BackEnd\System\SysDay.pas"/>
-        <DCCReference Include="BackEnd\System\SysMonth.pas"/>
-        <DCCReference Include="BackEnd\System\SysAddress.pas"/>
-        <DCCReference Include="BackEnd\System\SysApplicationSetting.pas"/>
-        <DCCReference Include="BackEnd\System\SysCurrency.pas"/>
-        <DCCReference Include="BackEnd\System\SysDecimalPlace.pas"/>
-        <DCCReference Include="BackEnd\System\SysGridColumn.pas"/>
-        <DCCReference Include="BackEnd\System\SysGridFilter.pas"/>
-        <DCCReference Include="BackEnd\System\SysGridSort.pas"/>
-        <DCCReference Include="BackEnd\System\SysGridContent.pas"/>
-        <DCCReference Include="BackEnd\System\SysMeasureType.pas"/>
-        <DCCReference Include="BackEnd\System\SysMeasure.pas"/>
-        <DCCReference Include="BackEnd\System\SysUser.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -830,7 +342,7 @@
                 <Platform value="OSX64">True</Platform>
                 <Platform value="OSXARM64">True</Platform>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">False</Platform>
+                <Platform value="Win64">True</Platform>
             </Platforms>
             <Deployment Version="5">
                 <DeployFile LocalName="Ths.exe" Configuration="Debug" Class="ProjectOutput">

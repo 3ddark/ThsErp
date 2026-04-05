@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, BaseEntity, SysRegion.Service, SysRegion, ufrmSysRegion;
+  SharedFormTypes, SysRegion.Service, SysRegion, ufrmSysRegion;
 
 type
   TfrmSysRegions = class(TfrmGrid<TSysRegion, TSysRegionService>)
@@ -13,7 +13,8 @@ type
   published
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
   public
-    procedure SetSelectedItem; override;
+    procedure DefineFooterColumns; override;
+    procedure DefineColumnWidths; override;
   end;
 
 implementation
@@ -24,23 +25,29 @@ function TfrmSysRegions.CreateInputForm(Sender: TObject; AFormMode: TInputFormMo
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysRegion.Create(Application, Service, Table.CloneEntity<TSysRegion>(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysRegion.Create(Application, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysRegion.Create(Application, Service, TSysRegion.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysRegion.Create(Application, Service, Table.CloneEntity<TSysRegion>(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysRegion.Create(Application, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+end;
+
+procedure TfrmSysRegions.DefineColumnWidths;
+begin
+  SetColumnWidth('id',            0);
+  SetColumnWidth('region_name',  80);
+end;
+
+procedure TfrmSysRegions.DefineFooterColumns;
+begin
+  inherited;
+  AddFooterColumn('region_name', atCount, '#,##0 " Bölge"');
 end;
 
 procedure TfrmSysRegions.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'System Regions';
-end;
-
-procedure TfrmSysRegions.SetSelectedItem;
-begin
-  Table.Id.ValueFirstSet(grd.DataSource.DataSet.FieldByName(Table.Id.FieldName).AsInteger);
-  Table.RegionName.ValueFirstSet(grd.DataSource.DataSet.FieldByName(Table.RegionName.FieldName).AsString);
+  Self.Caption := 'Sistem Bölgeler';
 end;
 
 end.

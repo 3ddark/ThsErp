@@ -17,13 +17,8 @@ uses
   FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys,
   FireDAC.VCLUI.Wait, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf,
   FireDAC.DApt, FireDAC.Phys.PGDef, FireDAC.Comp.Client, FireDAC.Phys.PG,
-  FireDAC.Comp.DataSet, Ths.Database, Ths.Constants, Logger,
-  Ths.Helper.ThsList, Ths.Database.Table, Ths.Database.Table.SysKullanicilar,
-  Ths.Database.Table.SysOndalikHaneler, Ths.Database.Table.SysUygulamaAyarlari,
-  Ths.Database.Table.SysAylar, Ths.Database.Table.SysParaBirimleri,
-  Ths.Database.Table.SysGridKolonlar,
-  Ths.Database.Table.SysGridFiltrelerSiralamalar,
-  Ths.Database.Table.SysGuiIcerikler, Ths.Database.Table.View.SysViewColumns;
+  FireDAC.Comp.DataSet, Ths.Constants, Logger,
+  Ths.Helper.ThsList;
 
 type
   TEmployeeID = class
@@ -34,13 +29,6 @@ type
     FullName: string;
   end;
   TEmployeeIDList = TArray<TEmployeeID>;
-
-  TSysUserID = class
-  public
-    ID: Integer;
-    UserName: string;
-  end;
-  TSysUserIDList = TArray<TSysUserID>;
 
   TMukellefTipi = (TCKN, VKN);
 
@@ -179,13 +167,7 @@ type
 
   function CalculateTotalValues(AFiyat, AMiktar, AIskontoOrani, AKDVOrani: Double): TTotal;
 
-  function ColumnFromIDCol(pRawTableColName, pRawTableName, pDataColName,
-      pVirtualColName, pDataTableName: string; pIsIDReference: Boolean = True; pIsNumericVal: Boolean = False): string;
   function TranslateText(ADefault, ACode, ATip: string; ATable: string=''; ALang: string=''): string;
-
-  function FormatedVariantVal(pType: TFieldType; pVal: Variant): Variant; overload;
-  function FormatedVariantVal(pField: TFieldDB): Variant; overload;
-
   function GetTempFolder(): string;
 
 
@@ -345,9 +327,6 @@ type
   /// </summary>
   function VarToStr(const pVal: Variant): string;
 
-  function PermissionTypeAsString(APermissionType: TPermissionType): string;
-
-
   function GetDialogColor(pColor: TColor): TColor;
   function GetDialogOpen(AFilter: string; Out AFileName: string; AInitialDir: string = ''): Boolean;
   function GetDialogDirectory(pInitialDir: string = ''): string;
@@ -409,7 +388,7 @@ type
   ///   <code lang="Delphi">NewParamForQuery(QryOfInsert, FBirim)</code>
   ///  </example>
   /// </summary>
-  procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);
+//  procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);
 
   /// <summary>
   ///  Bu fonksiyon DBGrid üzerinde gösterilen sütunların genişlik değerini değiştirmek için kullanılır.
@@ -429,8 +408,6 @@ type
   function GetIsRequired(ATableName, AFieldName: string): Boolean;
   function GetMaxLength(ATableName, AFieldName: string): Integer;
 
-  procedure FillColNameForColWidth(AComboBox: TComboBox; ATableName: string);
-  procedure FillColNameForColSummary(AComboBox: TComboBox; ATableName: string);
   function GetDistinctColumnName(ATableName: string): TStringList;
 
   function ExistForm(AFormClassType: TClass): Boolean;
@@ -458,17 +435,12 @@ var
   GUygulamaAnaDizin: string;
 
   /// <summary>
-  ///  Database sınıfına ulaşılıyor. Bazı fonksiyonlar burada GetToday GetNow veya runCustomSQL gibi
-  /// </summary>
-  GDataBase: TDatabase;
-
-  /// <summary>
   ///  Giriş yapan kullanıcı bilgilerine bu tablo bilgisinden ulaşıyor.
   ///  <example>
   ///   <code lang="Delphi">GSysKullanici.KullaniciAdi</code>
   ///  </example>
   /// </summary>
-  GSysKullanici: TSysKullanici;
+//  GSysKullanici: TSysKullanici;
 
   /// <summary>
   ///  Virgüllü sayılarda hane sayısı değerlerine buradan ulaşılıyor. Bu ayara göre işlemler yapılacak.
@@ -476,7 +448,7 @@ var
   ///   <code lang="Delphi">GSysOndalikHane.SatisMiktar</code>
   ///  </example>
   /// </summary>
-  GSysOndalikHane: TSysOndalikHane;
+//  GSysOndalikHane: TSysOndalikHane;
 
   /// <summary>
   ///  Uygulama ayarlarına bu tablo bilgisinden ulaşılıyor.
@@ -484,20 +456,20 @@ var
   ///   <code lang="Delphi">GSysUygulamaAyari.Unvan</code>
   ///  </example>
   /// </summary>
-  GSysApplicationSetting: TSysUygulamaAyari;
+//  GSysApplicationSetting: TSysUygulamaAyari;
 
 
   /// <summary>
   ///  Sistemde tanımlı olan para birimleri burada tutuluyor
   /// </summary>
-  GParaBirimi: TSysParaBirimi;
+//  GParaBirimi: TSysParaBirimi;
 
   /// <summary>
   ///  Table sınıfındaki field özelliklerini almak için kullanılıyor.
   /// </summary>
-  GSysTableInfo: TSysViewColumns;
+//  GSysTableInfo: TSysViewColumns;
 
-  GGuiIcerik: TDictionary<string, TGuiIcerik>;
+//  GGuiIcerik: TDictionary<string, TGuiIcerik>;
 
 implementation
 
@@ -747,111 +719,21 @@ begin
     Result := pVal;
 end;
 
-function FormatedVariantVal(pField: TFieldDB): Variant;
-begin
-  Result := FormatedVariantVal(pField.DataType, pField.Value);
-end;
-
-function ColumnFromIDCol(pRawTableColName, pRawTableName, pDataColName,
-    pVirtualColName, pDataTableName: string; pIsIDReference: Boolean = True;
-    pIsNumericVal: Boolean = False): string;
-var
-  vSP: TFDStoredProc;
-  vRefColName: string;
-begin
-  if pIsIDReference then
-    vRefColName := 'id'
-  else
-    vRefColName := pRawTableColName;
-
-  if pIsNumericVal then
-    Result := '(SELECT raw' + pRawTableName + '.' + pRawTableColName + ' FROM ' + pRawTableName + ' as raw' + pRawTableName +
-              ' WHERE raw' + pRawTableName + '.' + vRefColName + '=' + pDataTableName + '.' + pDataColName + ') as ' + pVirtualColName
-  else
-  begin
-    vSP := GDataBase.NewStoredProcedure;
-    try
-      vSP.StoredProcName := 'spget_lang_text';
-      vSP.Prepare;
-      vSP.ParamByName('_default_value').Value := '';
-      vSP.ParamByName('_table_name').Value := QuotedStr(pRawTableName);
-      vSP.ParamByName('_column_name').Value := QuotedStr(pRawTableColName);
-      vSP.ParamByName('_row_id').Value := IntToStr(0);
-      vSP.ExecProc;
-      Result := vSP.ParamByName('result').AsString;
-
-      Result :=
-          'spget_lang_text' +
-          '(' +
-            '(SELECT raw' + pRawTableName + '.' + pRawTableColName + ' FROM ' + pRawTableName + ' as raw' + pRawTableName +
-            ' WHERE raw' + pRawTableName + '.' + vRefColName + '=' + pDataTableName + '.' + pDataColName + ')' + ',' +
-            QuotedStr(pRawTableName) + ',' +
-            QuotedStr(pRawTableColName) + ', ' +
-            pDataColName;
-    finally
-      vSP.Free;
-    end;
-  end;
-end;
+//function FormatedVariantVal(pField: TFieldDB): Variant;
+//begin
+//  Result := FormatedVariantVal(pField.DataType, pField.Value);
+//end;
 
 function TranslateText(ADefault, ACode, ATip: string; ATable: string; ALang: string): string;
-var
-  LItem: TGuiIcerik;
-//  Query: TZQuery;
-//  LFilter: string;
-//  LGui: TSysLisanGuiIcerik;
+//var
+//  LItem: TGuiIcerik;
 begin
   Result := ADefault;
-{
-  LGui := TSysLisanGuiIcerik.Create(GDataBase);
-  try
-    LFilter := LGui.Lisan.FieldName      + '=' + QRY_PAR_CH + LGui.Lisan.FieldName + ' AND ' +
-               LGui.Kod.FieldName        + '=' + QRY_PAR_CH + LGui.Kod.FieldName   + ' AND ' +
-               LGui.IcerikTipi.FieldName + '=' + QRY_PAR_CH + LGui.IcerikTipi.FieldName;
-
-    if ATable <> '' then
-      LFilter := LFilter + ' AND ' + LGui.TabloAdi.FieldName + '=' + QRY_PAR_CH + LGui.TabloAdi.FieldName;
-
-    if GDataBase.Connection.Connected then
-    begin
-      Query := GDataBase.NewQuery;
-      try
-        with Query do
-        begin
-          Close;
-          SQL.Text := 'SELECT ' + LGui.Deger.FieldName + ' FROM ' + LGui.TableName + ' WHERE 1=1 AND ' + LFilter;
-          if ALang = '' then
-            ParamByName(LGui.Lisan.FieldName).Value := GDataBase.ConnSetting.Language
-          else
-            ParamByName(LGui.Lisan.FieldName).Value := ALang;
-          ParamByName(LGui.Kod.FieldName).Value := ACode;
-          ParamByName(LGui.IcerikTipi.FieldName).Value := ATip;
-          if ATable <> '' then
-            ParamByName(LGui.TabloAdi.FieldName).Value := ATable;
-          Open;
-
-          if (Fields.Fields[0].IsNull) then
-            Result := ADefault
-          else
-            Result := Fields.Fields[0].AsString;
-
-          EmptyDataSet;
-          Close;
-        end;
-      finally
-        Query.Free;
-      end;
-    end;
-}
-//  LItem :=
-  if GGuiIcerik.TryGetValue(ACode, LItem) then
-    Result := LItem.FDeger;
+//  if GGuiIcerik.TryGetValue(ACode, LItem) then
+//    Result := LItem.FDeger;
 
   if (ATip = LngMsgError) then
     Result := 'Hata Kodu = ' + ACode + AddLBs(2) + Result;
-//  finally
-//    LGui.Free;
-//  end;
 end;
 
 function GetTempFolder: string;
@@ -1279,17 +1161,6 @@ end;
 function VarToStr(const pVal: Variant): string;
 begin
   Result := System.Variants.VarToStr(pVal);
-end;
-
-function PermissionTypeAsString(APermissionType: TPermissionType): string;
-begin
-  case APermissionType of
-    TPermissionType.ptRead: Result := 'OKUMA';
-    TPermissionType.ptAddRecord: Result := 'KAYIT EKLEME';
-    TPermissionType.ptUpdate: Result := 'GÜNCELLEME';
-    TPermissionType.ptDelete: Result := 'KAYIT SİLME';
-    TPermissionType.ptSpecial: Result := 'ÖZEL HAK';
-  end;
 end;
 
 function VirguldenSonraHaneSayisi(deger: double; hanesayisi: integer): string;
@@ -2028,267 +1899,217 @@ begin
 	  ') as varchar) as ' + pBaseColName                                                                         }
 end;
 
-procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);
-begin
-  AQuery.Params.ParamByName(AField.FieldName).DataType := AField.DataType;
-  AQuery.Params.ParamByName(AField.FieldName).Value := FormatedVariantVal(AField);
-
-  if AField.DataType = ftBytes then
-  begin
-
-  end;
-
-  if AField.IsNullable then
-  begin
-    if (AField.DataType = ftString)
-    or (AField.DataType = ftMemo)
-    or (AField.DataType = ftWideString)
-    or (AField.DataType = ftWideMemo)
-    or (AField.DataType = ftWord)
-    then
-    begin
-      if AQuery.Params.ParamByName(AField.FieldName).Value = '' then
-        AQuery.Params.ParamByName(AField.FieldName).Value := Null
-    end
-    else
-    if (AField.DataType = ftSmallint)
-    or (AField.DataType = ftShortint)
-    or (AField.DataType = ftInteger)
-    or (AField.DataType = ftLargeint)
-    or (AField.DataType = ftByte)
-    then
-    begin
-      if AQuery.Params.ParamByName(AField.FieldName).AsInteger = 0 then
-        AQuery.Params.ParamByName(AField.FieldName).Value := Null
-    end
-    else if (AField.DataType = ftDate) then
-    begin
-      if AQuery.Params.ParamByName(AField.FieldName).AsDate = 0 then
-        AQuery.Params.ParamByName(AField.FieldName).Value := Null
-    end
-    else if (AField.DataType = ftDateTime) then
-    begin
-      if AQuery.Params.ParamByName(AField.FieldName).AsDateTime = 0 then
-        AQuery.Params.ParamByName(AField.FieldName).Value := Null
-    end
-    else
-    if (AField.DataType = ftTime)
-    or (AField.DataType = ftTimeStamp)
-    then
-    begin
-      if AQuery.Params.ParamByName(AField.FieldName).AsTime = 0 then
-        AQuery.Params.ParamByName(AField.FieldName).Value := Null;
-    end
-    else
-    if (AField.DataType = Data.DB.ftFloat)
-    or (AField.DataType = Data.DB.ftCurrency)
-    or (AField.DataType = Data.DB.ftSingle)
-    or (AField.DataType = Data.DB.ftBCD)
-    or (AField.DataType = Data.DB.ftFMTBcd)
-    then
-    begin
-      if AQuery.Params.ParamByName(AField.FieldName).Value = 0 then
-        AQuery.Params.ParamByName(AField.FieldName).Value := Null;
-    end
-    else if (AField.DataType = ftBlob) then
-    begin
-      if AQuery.Params.ParamByName(AField.FieldName).Value = 0 then
-        AQuery.Params.ParamByName(AField.FieldName).Value := Null;
-    end;
-
-
-    if AQuery.Params.ParamByName(AField.FieldName).Value = Null then
-      AQuery.Params.ParamByName(AField.FieldName).DataType := AField.DataType;
-  end;
-end;
+//procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);
+//begin
+//  AQuery.Params.ParamByName(AField.FieldName).DataType := AField.DataType;
+//  AQuery.Params.ParamByName(AField.FieldName).Value := FormatedVariantVal(AField);
+//
+//  if AField.DataType = ftBytes then
+//  begin
+//
+//  end;
+//
+//  if AField.IsNullable then
+//  begin
+//    if (AField.DataType = ftString)
+//    or (AField.DataType = ftMemo)
+//    or (AField.DataType = ftWideString)
+//    or (AField.DataType = ftWideMemo)
+//    or (AField.DataType = ftWord)
+//    then
+//    begin
+//      if AQuery.Params.ParamByName(AField.FieldName).Value = '' then
+//        AQuery.Params.ParamByName(AField.FieldName).Value := Null
+//    end
+//    else
+//    if (AField.DataType = ftSmallint)
+//    or (AField.DataType = ftShortint)
+//    or (AField.DataType = ftInteger)
+//    or (AField.DataType = ftLargeint)
+//    or (AField.DataType = ftByte)
+//    then
+//    begin
+//      if AQuery.Params.ParamByName(AField.FieldName).AsInteger = 0 then
+//        AQuery.Params.ParamByName(AField.FieldName).Value := Null
+//    end
+//    else if (AField.DataType = ftDate) then
+//    begin
+//      if AQuery.Params.ParamByName(AField.FieldName).AsDate = 0 then
+//        AQuery.Params.ParamByName(AField.FieldName).Value := Null
+//    end
+//    else if (AField.DataType = ftDateTime) then
+//    begin
+//      if AQuery.Params.ParamByName(AField.FieldName).AsDateTime = 0 then
+//        AQuery.Params.ParamByName(AField.FieldName).Value := Null
+//    end
+//    else
+//    if (AField.DataType = ftTime)
+//    or (AField.DataType = ftTimeStamp)
+//    then
+//    begin
+//      if AQuery.Params.ParamByName(AField.FieldName).AsTime = 0 then
+//        AQuery.Params.ParamByName(AField.FieldName).Value := Null;
+//    end
+//    else
+//    if (AField.DataType = Data.DB.ftFloat)
+//    or (AField.DataType = Data.DB.ftCurrency)
+//    or (AField.DataType = Data.DB.ftSingle)
+//    or (AField.DataType = Data.DB.ftBCD)
+//    or (AField.DataType = Data.DB.ftFMTBcd)
+//    then
+//    begin
+//      if AQuery.Params.ParamByName(AField.FieldName).Value = 0 then
+//        AQuery.Params.ParamByName(AField.FieldName).Value := Null;
+//    end
+//    else if (AField.DataType = ftBlob) then
+//    begin
+//      if AQuery.Params.ParamByName(AField.FieldName).Value = 0 then
+//        AQuery.Params.ParamByName(AField.FieldName).Value := Null;
+//    end;
+//
+//
+//    if AQuery.Params.ParamByName(AField.FieldName).Value = Null then
+//      AQuery.Params.ParamByName(AField.FieldName).DataType := AField.DataType;
+//  end;
+//end;
 
 function UpdateColWidth(ATableName: string; AGrid: TDBGrid): Boolean;
-var
-  LColWidth: TSysGridKolon;
-  n1, n2, nNo: Integer;
+//var
+//  LColWidth: TSysGridKolon;
+//  n1, n2, nNo: Integer;
 begin
-  Result := True;
-  LColWidth := TSysGridKolon.Create(GDataBase);
-  LColWidth.Database.Connection.StartTransaction;
-  try
-    try
-      LColWidth.Clear;
-      LColWidth.SelectToList(' AND ' + LColWidth.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)), False, False);
-
-      for n1 := 0 to AGrid.Columns.Count - 1 do
-        for n2 := 0 to LColWidth.List.Count-1 do
-          if ReplaceRealColOrTableNameTo(AGrid.Columns[n1].FieldName) = TSysGridKolon(LColWidth.List[n2]).KolonAdi.Value then
-          begin
-            TSysGridKolon(LColWidth.List[n2]).SiraNo.Value := 99 + n1;
-            TSysGridKolon(LColWidth.List[n2]).Update(False);
-          end;
-
-      nNo := 0;
-      for n1 := 0 to AGrid.Columns.Count-1 do
-        for n2 := 0 to LColWidth.List.Count-1 do
-          if ReplaceRealColOrTableNameTo(AGrid.Columns[n1].FieldName) = TSysGridKolon(LColWidth.List[n2]).KolonAdi.Value then
-          begin
-            TSysGridKolon(LColWidth.List[n2]).KolonGenislik.Value := AGrid.Columns[n1].Width;
-            TSysGridKolon(LColWidth.List[n2]).SiraNo.Value := nNo+1;
-            TSysGridKolon(LColWidth.List[n2]).Update(False);
-            Inc(nNo);
-            Break;
-          end;
-    except
-      Result := False;
-      if LColWidth.Database.Connection.InTransaction then
-        LColWidth.Database.Connection.Rollback;
-    end;
-  finally
-    if LColWidth.Database.Connection.InTransaction then
-      LColWidth.Database.Connection.Commit;
-    LColWidth.Free;
-  end;
+//  Result := True;
+//  LColWidth := TSysGridKolon.Create(GDataBase);
+//  LColWidth.Database.Connection.StartTransaction;
+//  try
+//    try
+//      LColWidth.Clear;
+//      LColWidth.SelectToList(' AND ' + LColWidth.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)), False, False);
+//
+//      for n1 := 0 to AGrid.Columns.Count - 1 do
+//        for n2 := 0 to LColWidth.List.Count-1 do
+//          if ReplaceRealColOrTableNameTo(AGrid.Columns[n1].FieldName) = TSysGridKolon(LColWidth.List[n2]).KolonAdi.Value then
+//          begin
+//            TSysGridKolon(LColWidth.List[n2]).SiraNo.Value := 99 + n1;
+//            TSysGridKolon(LColWidth.List[n2]).Update(False);
+//          end;
+//
+//      nNo := 0;
+//      for n1 := 0 to AGrid.Columns.Count-1 do
+//        for n2 := 0 to LColWidth.List.Count-1 do
+//          if ReplaceRealColOrTableNameTo(AGrid.Columns[n1].FieldName) = TSysGridKolon(LColWidth.List[n2]).KolonAdi.Value then
+//          begin
+//            TSysGridKolon(LColWidth.List[n2]).KolonGenislik.Value := AGrid.Columns[n1].Width;
+//            TSysGridKolon(LColWidth.List[n2]).SiraNo.Value := nNo+1;
+//            TSysGridKolon(LColWidth.List[n2]).Update(False);
+//            Inc(nNo);
+//            Break;
+//          end;
+//    except
+//      Result := False;
+//      if LColWidth.Database.Connection.InTransaction then
+//        LColWidth.Database.Connection.Rollback;
+//    end;
+//  finally
+//    if LColWidth.Database.Connection.InTransaction then
+//      LColWidth.Database.Connection.Commit;
+//    LColWidth.Free;
+//  end;
 end;
 
 function GetGridDefaultOrderFilter(AKey: string; AIsOrder: Boolean): string;
-var
-  LSysOrderFilter: TSysGridFiltreSiralama;
-  vOrderFilter: string;
+//var
+//  LSysOrderFilter: TSysGridFiltreSiralama;
+//  vOrderFilter: string;
 begin
   Result := '';
-  LSysOrderFilter := TSysGridFiltreSiralama.Create(GDataBase);
-  try
-    if AIsOrder then
-      vOrderFilter := ' AND ' + LSysOrderFilter.IsSiralama.QryName + '=True'
-    else
-      vOrderFilter := ' AND ' + LSysOrderFilter.IsSiralama.QryName + '=False';
-
-    LSysOrderFilter.SelectToList(vOrderFilter + ' AND ' + LSysOrderFilter.TabloAdi.QryName + '=' + QuotedStr(AKey), False, False);
-    if LSysOrderFilter.List.Count=1 then
-      Result := TSysGridFiltreSiralama(LSysOrderFilter.List[0]).Icerik.Value;
-  finally
-    LSysOrderFilter.Free;
-  end;
-
-  if System.SysUtils.Trim(Result) <> '' then
-    if not AIsOrder then
-      Result := ' AND ' + Result;
+//  LSysOrderFilter := TSysGridFiltreSiralama.Create(GDataBase);
+//  try
+//    if AIsOrder then
+//      vOrderFilter := ' AND ' + LSysOrderFilter.IsSiralama.QryName + '=True'
+//    else
+//      vOrderFilter := ' AND ' + LSysOrderFilter.IsSiralama.QryName + '=False';
+//
+//    LSysOrderFilter.SelectToList(vOrderFilter + ' AND ' + LSysOrderFilter.TabloAdi.QryName + '=' + QuotedStr(AKey), False, False);
+//    if LSysOrderFilter.List.Count=1 then
+//      Result := TSysGridFiltreSiralama(LSysOrderFilter.List[0]).Icerik.Value;
+//  finally
+//    LSysOrderFilter.Free;
+//  end;
+//
+//  if System.SysUtils.Trim(Result) <> '' then
+//    if not AIsOrder then
+//      Result := ' AND ' + Result;
 end;
 
 function GetIsRequired(ATableName, AFieldName: string): Boolean;
-var
-  LSysInputGui: TSysViewColumns;
+//var
+//  LSysInputGui: TSysViewColumns;
 begin
-  Result := False;
-
-  LSysInputGui := TSysViewColumns.Create(GDataBase);
-  try
-    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
-                              ' AND ' + LSysInputGui.ColumnName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(AFieldName)), False, False);
-    if LSysInputGui.List.Count=1 then
-      Result := not TSysViewColumns(LSysInputGui.List[0]).IsNullable.Value;
-  finally
-    LSysInputGui.Free;
-  end;
+//  Result := False;
+//
+//  LSysInputGui := TSysViewColumns.Create(GDataBase);
+//  try
+//    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
+//                              ' AND ' + LSysInputGui.ColumnName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(AFieldName)), False, False);
+//    if LSysInputGui.List.Count=1 then
+//      Result := not TSysViewColumns(LSysInputGui.List[0]).IsNullable.Value;
+//  finally
+//    LSysInputGui.Free;
+//  end;
 end;
 
 function GetMaxLength(ATableName, AFieldName: string): Integer;
-var
-  LSysInputGui: TSysViewColumns;
+//var
+//  LSysInputGui: TSysViewColumns;
 begin
-  Result := 0;
-
-  LSysInputGui := TSysViewColumns.Create(GDataBase);
-  try
-    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
-                              ' AND ' + LSysInputGui.ColumnName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(AFieldName)), False, False);
-    if LSysInputGui.List.Count=1 then
-      Result := TSysViewColumns(LSysInputGui.List[0]).CharacterMaximumLength.Value;
-  finally
-    LSysInputGui.Free;
-  end;
+//  Result := 0;
+//
+//  LSysInputGui := TSysViewColumns.Create(GDataBase);
+//  try
+//    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
+//                              ' AND ' + LSysInputGui.ColumnName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(AFieldName)), False, False);
+//    if LSysInputGui.List.Count=1 then
+//      Result := TSysViewColumns(LSysInputGui.List[0]).CharacterMaximumLength.Value;
+//  finally
+//    LSysInputGui.Free;
+//  end;
 end;
 
 function GetDistinctColumnName(ATableName: string): TStringList;
-var
-  LCol: TSysViewColumns;
-  LColWidth: TSysGridKolon;
-  LQry: TFDQuery;
+//var
+//  LCol: TSysViewColumns;
+//  LColWidth: TSysGridKolon;
+//  LQry: TFDQuery;
 begin
-  Result := TStringList.Create;
-
-  LCol := TSysViewColumns.Create(GDataBase);
-  LColWidth := TSysGridKolon.Create(GDataBase);
-  LQry := GDataBase.NewQuery;
-  try
-    Result.BeginUpdate;
-    LQry.Close;
-    LQry.SQL.Text := 'SELECT DISTINCT ' + LCol.ColumnName.FieldName + ' FROM ' + LCol.TableName +
-                ' LEFT JOIN ' + LColWidth.TableName + ' ON '
-                              + LColWidth.TabloAdi.FieldName + '=' + LCol.TabloAdi.FieldName +
-                      ' AND ' + LColWidth.KolonAdi.FieldName + '=' + LCol.ColumnName.FieldName +
-                ' WHERE ' + LCol.TabloAdi.FieldName + '=' + QuotedStr(ATableName) +
-                  ' AND ' + LColWidth.KolonAdi.FieldName + ' IS NULL ';
-    LQry.Open;
-    while NOT LQry.Eof do
-    begin
-      Result.Add( LQry.Fields.Fields[0].AsString );
-      LQry.Next;
-    end;
-    LQry.EmptyDataSet;
-    LQry.Close;
-  finally
-    LQry.Free;
-    LCol.Free;
-    LColWidth.Free;
-    Result.EndUpdate;
-  end;
-end;
-
-procedure FillColNameForColWidth(AComboBox: TComboBox; ATableName: string);
-begin
-  AComboBox.Clear;
-
-  with GDataBase.NewQuery do
-  try
-    Close;
-    SQL.Text := 'SELECT distinct v.column_name, ordinal_position FROM sys_view_columns v ' +
-                'LEFT JOIN sys_grid_kolon a ON a.table_name=v.table_name and a.column_name = v.column_name ' +
-                'WHERE v.table_name=' + QuotedStr(ATableName) + ' and a.column_name is null ' +
-                'GROUP BY v.column_name, ordinal_position ' +
-                'ORDER BY ordinal_position ASC ';
-    Open;
-    while NOT EOF do
-    begin
-      AComboBox.Items.Add( Fields.Fields[0].AsString );
-      Next;
-    end;
-    EmptyDataSet;
-    Close;
-  finally
-    Free;
-  end;
-end;
-
-procedure FillColNameForColSummary(AComboBox: TComboBox; ATableName: string);
-begin
-  AComboBox.Clear;
-
-  with GDataBase.NewQuery do
-  try
-    Close;
-    SQL.Text := 'SELECT distinct v.column_name, ordinal_position FROM sys_view_columns v ' +
-                'LEFT JOIN sys_grid_kolon a ON a.tablo_adi=v.table_name and a.kolon_adi = v.column_name ' +
-                'WHERE v.table_name=' + QuotedStr(ATableName) + ' and a.kolon_adi is null ' +
-                'GROUP BY v.column_name, ordinal_position ' +
-                'ORDER BY ordinal_position ASC ';
-    Open;
-    while NOT EOF do
-    begin
-      AComboBox.Items.Add( Fields.Fields[0].AsString );
-      Next;
-    end;
-    EmptyDataSet;
-    Close;
-  finally
-    Free;
-  end;
+//  Result := TStringList.Create;
+//
+//  LCol := TSysViewColumns.Create(GDataBase);
+//  LColWidth := TSysGridKolon.Create(GDataBase);
+//  LQry := GDataBase.NewQuery;
+//  try
+//    Result.BeginUpdate;
+//    LQry.Close;
+//    LQry.SQL.Text := 'SELECT DISTINCT ' + LCol.ColumnName.FieldName + ' FROM ' + LCol.TableName +
+//                ' LEFT JOIN ' + LColWidth.TableName + ' ON '
+//                              + LColWidth.TabloAdi.FieldName + '=' + LCol.TabloAdi.FieldName +
+//                      ' AND ' + LColWidth.KolonAdi.FieldName + '=' + LCol.ColumnName.FieldName +
+//                ' WHERE ' + LCol.TabloAdi.FieldName + '=' + QuotedStr(ATableName) +
+//                  ' AND ' + LColWidth.KolonAdi.FieldName + ' IS NULL ';
+//    LQry.Open;
+//    while NOT LQry.Eof do
+//    begin
+//      Result.Add( LQry.Fields.Fields[0].AsString );
+//      LQry.Next;
+//    end;
+//    LQry.EmptyDataSet;
+//    LQry.Close;
+//  finally
+//    LQry.Free;
+//    LCol.Free;
+//    LColWidth.Free;
+//    Result.EndUpdate;
+//  end;
 end;
 
 function ExistForm(AFormClassType: TClass): Boolean;
@@ -2315,10 +2136,10 @@ end;
 
 function FormatMoney(AValue: Double): string;
 begin
-  Result := FormatFloat('0' +
-                        FormatSettings.ThousandSeparator +
-                        FormatSettings.DecimalSeparator +
-                        StringOfChar('0', VarToInt(GSysOndalikHane.Fiyat.Value)), AValue);
+//  Result := FormatFloat('0' +
+//                        FormatSettings.ThousandSeparator +
+//                        FormatSettings.DecimalSeparator +
+//                        StringOfChar('0', VarToInt(GSysOndalikHane.Fiyat.Value)), AValue);
 end;
 
 procedure SendMailWithMailClient(
@@ -2435,22 +2256,11 @@ begin
   GDosyaUzantilari[14] := FILE_FILTER_TXT;
   GDosyaUzantilari[15] := FILE_FILTER_DXF;
   GDosyaUzantilari[16] := FILE_FILTER_DWG;
-
-
-  GDataBase := TDatabase.Create;
 end;
 
 finalization
 begin
   SetLength(GDosyaUzantilari, 0);
-  GDataBase.Free;
-
-  GSysKullanici.Free;
-  GSysOndalikHane.Free;
-  GSysApplicationSetting.Free;
-  GParaBirimi.Free;
-  GSysTableInfo.Free;
-  GGuiIcerik.Free;
 end;
 
 end.

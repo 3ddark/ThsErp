@@ -2,7 +2,7 @@ object frmSysCountry: TfrmSysCountry
   Left = 0
   Top = 0
   Caption = 'frmSysCountry'
-  ClientHeight = 168
+  ClientHeight = 182
   ClientWidth = 467
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -11,17 +11,15 @@ object frmSysCountry: TfrmSysCountry
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnCreate = FormCreate
-  OnShow = FormShow
   TextHeight = 15
-  object pnlMain: TPanel
+  object pnlContent: TPanel
     Left = 0
     Top = 0
     Width = 467
-    Height = 168
+    Height = 182
     Align = alClient
+    Caption = 'pnlContent'
     TabOrder = 0
-    ExplicitWidth = 463
-    ExplicitHeight = 104
     object lblcountry_code: TLabel
       Left = 27
       Top = 6

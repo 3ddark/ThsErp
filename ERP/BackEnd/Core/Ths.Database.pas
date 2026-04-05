@@ -11,8 +11,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Stan.Param, FireDAC.UI.Intf,
   FireDAC.VCLUI.Wait, FireDAC.DatS, FireDAC.DApt, FireDAC.Comp.Client,
-  FireDAC.Comp.DataSet,
-  Ths.Database.Sql.Builder;
+  FireDAC.Comp.DataSet;
 
 {$M+}
 
@@ -26,7 +25,6 @@ type
     FEventAlerter: TFDEventAlerter;
     FPhysPG: TFDPhysPgDriverLink;
     FQueryOfDatabase: TFDQuery;
-    FSQLBuilder: TThsSqlBuilder;
 
     FNewRecordId: Integer;
 
@@ -49,8 +47,6 @@ type
     property NewRecordId: Integer read FNewRecordId write FNewRecordId;
     property DateDB: TDate read FDateDB write FDateDB;
 
-    property SQLBuilder: TThsSqlBuilder read FSQLBuilder write FSQLBuilder;
-
     constructor Create;
     function GetNewRecordId: Integer;
 
@@ -71,8 +67,7 @@ type
 
 implementation
 
-uses
-  Ths.Globals, Ths.Database.Table, ufrmBaseDBGrid;
+uses Ths.Globals;
 
 procedure TDatabase.AddListenEventName(AEventName: string);
 begin
@@ -105,7 +100,7 @@ begin
   FConnection.LoginPrompt := False;
 
   FPhysPG := TFDPhysPgDriverLink.Create(nil);
-  FPhysPG.VendorLib := GUygulamaAnaDizin + PathDelim + 'lib' + PathDelim + 'libpq.dll';
+  FPhysPG.VendorLib := ExtractFilePath(ParamStr(0)) + PathDelim + 'lib' + PathDelim + 'libpq.dll';
 end;
 
 procedure TDatabase.ConnBeforeConnect(Sender: TObject);
@@ -169,14 +164,11 @@ begin
 
 
     FQueryOfDatabase := NewQuery;
-
-    FSQLBuilder := TThsSqlBuilder.Create;
   end;
 end;
 
 destructor TDatabase.Destroy;
 begin
-  FSQLBuilder.Free;
   FQueryOfDatabase.Free;
   FConnection.Free;
   FPhysPG.Free;
@@ -197,17 +189,17 @@ begin
 
       for n1 := 0 to Screen.FormCount-1 do
       begin
-        if Screen.Forms[n1].ClassParent = TfrmBaseDBGrid then
-        begin
-          if TfrmBaseDBGrid(Screen.Forms[n1]).Table.TableName = AEventName then
-          begin
-            if  Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd)
-            and Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource)
-            and Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource.DataSet)
-            then
-              TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource.DataSet.Refresh;
-          end;
-        end;
+//        if Screen.Forms[n1].ClassParent = TfrmBaseDBGrid then
+//        begin
+//          if TfrmBaseDBGrid(Screen.Forms[n1]).Table.TableName = AEventName then
+//          begin
+//            if  Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd)
+//            and Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource)
+//            and Assigned(TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource.DataSet)
+//            then
+//              TfrmBaseDBGrid(Screen.Forms[n1]).grd.DataSource.DataSet.Refresh;
+//          end;
+//        end;
       end;
     finally
       System.TMonitor.Exit(x);
@@ -320,15 +312,15 @@ begin
       LCount := 0;
       for n1 := 0 to Screen.FormCount-1 do
       begin
-        if Screen.Forms[n1].ClassParent = TfrmBaseDBGrid then
-        begin
-          if Screen.Forms[n1] <> AForm then
-          begin
-            if TfrmBaseDBGrid(Screen.Forms[n1]).Table.TableName = AEventName then
-              Inc(LCount);
-            Break;
-          end;
-        end;
+//        if Screen.Forms[n1].ClassParent = TfrmBaseDBGrid then
+//        begin
+//          if Screen.Forms[n1] <> AForm then
+//          begin
+//            if TfrmBaseDBGrid(Screen.Forms[n1]).Table.TableName = AEventName then
+//              Inc(LCount);
+//            Break;
+//          end;
+//        end;
       end;
       if (LCount = 0) and (Self.EventAlerter.Names.IndexOf(AEventName) > -1) then
         Self.EventAlerter.Names.Delete(Self.EventAlerter.Names.IndexOf(AEventName));

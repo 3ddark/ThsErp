@@ -11,16 +11,13 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.ComCtrls, Vcl.Menus, Vcl.ActnList, Vcl.AppEvnts,
   Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.Dialogs,
   Vcl.ToolWin, Vcl.ImgList, Vcl.StdActns, Vcl.CategoryButtons, Vcl.WinXCtrls,
-  Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
-  FireDAC.Stan.Intf, Ths.Utils.InfoWindow, udm, ufrmBase, ufrmBaseDBGrid,
-  Ths.Database.TableDetailed, Ths.Database.Table,
+  Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client, udm, ufrmBase, ufrmGrid,
 
-  BaseService, BaseRepository, BaseEntity, EntityMetaProvider,
-  ServiceContainer, UnitOfWork, ufrmGrid,
-  StkKindFamilyService, StkKindFamily, ufrmStkKindFamilies,
-  SysCity.Service, SysCity, ufrmSysCities,
-  SysRegion.Service, SysRegion, ufrmSysRegions,
-  SysCountry.Service, SysCountry, ufrmSysCountries;
+  ConnectionManager, Logger, MetaProvider,
+  AppContext, UserContext, UnitOfWork,
+  ufrmSysRegions, SysRegion.Service, SysRegion,
+  ufrmSysCities, SysCity.Service, SysCity,
+  ufrmSysCountries, SysCountry.Service, SysCountry;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -283,95 +280,10 @@ implementation
 uses
   Vcl.Themes,
   ufrmAbout,
-  Ths.Utils.FluentXML,
-  Logger,
   Ths.Helper.BaseTypes,
   Ths.Helper.Edit,
   Ths.Constants,
-  Ths.Globals,
-  ufrmSysGuiIcerik,
-  ufrmSysSifreDegistir,
-  Ths.Utils.TCMBDovizKuru,
-  Ths.Utils.DatabaseTools,
-
-//  Ths.Database.Table.SysUlkeler, ufrmSysUlkeler,
-  Ths.Database.Table.SysSehirler, ufrmSysSehirler,
-  Ths.Database.Table.SysBolgeler, ufrmSysBolgeler,
-  Ths.Database.Table.SysKullanicilar, ufrmSysKullanicilar,
-  Ths.Database.Table.SysErisimHaklari, ufrmSysErisimHaklari,
-  Ths.Database.Table.SysKaynakGruplari, ufrmSysKaynakGruplari,
-  Ths.Database.Table.SysKaynaklar, ufrmSysKaynaklar,
-  Ths.Database.Table.SysGunler, ufrmSysGunler,
-  Ths.Database.Table.SysAylar, ufrmSysAylar,
-  Ths.Database.Table.SysGuiIcerikler, ufrmSysGuiIcerikler,
-  Ths.Database.Table.SysGridKolonlar, ufrmSysGridKolonlar,
-  Ths.Database.Table.SysGridFiltrelerSiralamalar, ufrmSysGridFiltrelerSiralamalar,
-  Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
-  Ths.Database.Table.SysOlcuBirimiTipleri, ufrmSysOlcuBirimiTipleri,
-  Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
-  Ths.Database.Table.SysUygulamaAyarlari, ufrmSysUygulamaAyari,
-  Ths.Database.Table.View.SysDbStatus, ufrmSysDatabaseMonitor,
-
-  Ths.Database.Table.ChDovizKurlari, ufrmChDovizKurlari,
-
-  Ths.Database.Table.PrsPersoneller, ufrmPrsPersoneller,
-  Ths.Database.Table.PrsLisanBilgileri, ufrmPrsLisanBilgileri,
-  Ths.Database.Table.PrsEhliyetler, ufrmPrsEhliyetler,
-  Ths.Database.Table.SetPrsBolumler, ufrmSetPrsBolumler,
-  Ths.Database.Table.SetPrsBirimler, ufrmSetPrsBirimler,
-  Ths.Database.Table.SetPrsGorevler, ufrmSetPrsGorevler,
-  Ths.Database.Table.SetPrsEhliyetler, ufrmSetPrsEhliyetler,
-  Ths.Database.Table.SetPrsPersonelTipleri, ufrmSetPrsPersonelTipleri,
-  Ths.Database.Table.SetPrsLisanlar, ufrmSetPrsLisanlar,
-  Ths.Database.Table.SetPrsLisanSeviyeleri, ufrmSetPrsLisanSeviyeleri,
-  Ths.Database.Table.SetPrsTasimaServisleri, ufrmSetPrsTasimaServisleri,
-
-  Ths.Database.Table.SetEinvFaturaTipleri, ufrmSetEinvFaturaTipleri,
-  Ths.Database.Table.SetEinvIstisnaKodu, ufrmSetEinvIstisnaKodlari,
-  Ths.Database.Table.SetEinvTeslimSekli, ufrmSetEinvTeslimSekilleri,
-  Ths.Database.Table.SetEinvPaketTipi, ufrmSetEinvPaketTipleri,
-  Ths.Database.Table.SetEinvTasimaUcreti, ufrmSetEinvTasimaUcretleri,
-  Ths.Database.Table.SetEinvOdemeSekli, ufrmSetEinvOdemeSekilleri,
-
-  Ths.Database.Table.AlsTeklifler, ufrmAlsTeklifler,
-
-  Ths.Database.Table.SetTekTeklifTipi, ufrmSetTekTeklifTipleri,
-  Ths.Database.Table.SetSatTeklifDurum, ufrmSetSatTeklifDurumlar,
-  Ths.Database.Table.SatTeklif, ufrmSatTeklifler,
-
-  Ths.Database.Table.SetSatSiparisDurum, ufrmSetSatSiparisDurumlar,
-  Ths.Database.Table.SatSiparis, ufrmSatSiparisler,
-  Ths.Database.Table.SatSiparisRapor, ufrmSatSiparislerRapor,
-
-  Ths.Database.Table.UrtReceteler, ufrmUrtReceteler,
-  Ths.Database.Table.UrtIscilikler, ufrmUrtIscilikler,
-  Ths.Database.Table.UrtPaketHammaddeler, ufrmUrtPaketHammaddeler,
-
-  Ths.Database.Table.SetChFirmaTipi, ufrmSetChFirmaTipleri,
-  Ths.Database.Table.SetChFirmaTuru, ufrmSetChFirmaTurleri,
-  Ths.Database.Table.ChGruplar, ufrmChGruplar,
-  Ths.Database.Table.ChHesapPlanlari, ufrmChHesapPlanlari,
-  Ths.Database.Table.SetChHesapTipi, ufrmSetChHesapTipleri,
-  Ths.Database.Table.SetChVergiOranlari, ufrmSetChVergiOranlari,
-  Ths.Database.Table.ChBankalar, ufrmChBankalar,
-  Ths.Database.Table.ChBankaSubeleri, ufrmChBankaSubeleri,
-  Ths.Database.Table.ChBolgeler, ufrmChBolgeler,
-  Ths.Database.Table.ChHesapKarti, ufrmChHesapKartlari,
-  Ths.Database.Table.ChHesapKartiAra, ufrmChHesapKartlariAra,
-
-  Ths.Database.Table.StkCinsOzellikleri, ufrmStkCinsOzellikleri,
-  Ths.Database.Table.StkGruplar, ufrmStkGruplar,
-  Ths.Database.Table.StkKartlar, ufrmStkKartlar,
-  Ths.Database.Table.StkStokHareketi, ufrmStkStokHareketleri,
-  Ths.Database.Table.StkAmbarlar, ufrmStkStokAmbarlar,
-  
-  Ths.Database.Table.OthMailReciever, ufrmOthMailRecievers,
-  Ths.Database.Table.SetOdemeBaslangicDonemi, ufrmSetOdemeBaslangicDonemleri,
-
-  Ths.Database.Table.SetBbkCalismaDurumu, ufrmSetBbkCalismaDurumlari,
-  Ths.Database.Table.SetBbkFinansDurumu, ufrmSetBbkFinansDurumlari,
-  Ths.Database.Table.SetBbkFirmatipi, ufrmSetBbkFirmaTipleri,
-  Ths.Database.Table.BbkKayit, ufrmBbkKayitlar;
+  Ths.Globals;
 
 procedure TfrmDashboard.actsys_aboutExecute(Sender: TObject);
 var
@@ -387,45 +299,42 @@ end;
 
 procedure TfrmDashboard.actals_tekliflerExecute(Sender: TObject);
 begin
-  TfrmAlsTeklifler.Create(Self, Self, TAlsTeklif.Create(GDatabase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actbbk_kayitExecute(Sender: TObject);
 begin
-  TfrmBbkKayitlar.Create(Self, Self, TBbkKayit.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actch_bankalarExecute(Sender: TObject);
 begin
-  TfrmChBankalar.Create(Self, Self, TChBanka.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actch_banka_subeleriExecute(Sender: TObject);
 begin
-  TfrmChBankaSubeleri.Create(Self, Self, TChBankaSubesi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actch_bolgeExecute(Sender: TObject);
 begin
-  TfrmChBolgeler.Create(Self, Self, TChBolge.Create(GDataBase)).Show;
+//
 end;
 
 procedure TfrmDashboard.actch_hesap_kartiExecute(Sender: TObject);
 begin
-  TfrmHesapKartlari.Create(Self, Self, TChHesapKarti.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actch_hesap_karti_araExecute(Sender: TObject);
 begin
-  TfrmHesapKartlariAra.Create(Self, Self, TChHesapKartiAra.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_update_passwordExecute(Sender: TObject);
-var
-  LUser: TSysKullanici;
 begin
-  LUser := TSysKullanici(GSysKullanici.Clone);
-  TfrmSysSifreDegistir.Create(Self, nil, LUser, ifmUpdate).ShowModal;
+//
 end;
 
 procedure TfrmDashboard.actlstMainExecute(Action: TBasicAction; var Handled: Boolean);
@@ -436,187 +345,187 @@ end;
 
 procedure TfrmDashboard.actodeme_baslangic_donemleriExecute(Sender: TObject);
 begin
-  TfrmSetOdemeBaslangicDonemleri.Create(Self, Self, TSetOdemeBaslangicDonemi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_birimlerExecute(Sender: TObject);
 begin
-  TfrmSetPrsBirimler.Create(Self, Self, TSetPrsBirim.Create(GDatabase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_bolumlerExecute(Sender: TObject);
 begin
-  TfrmSetPrsBolumler.Create(Self, Self, TSetPrsBolum.Create(GDatabase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_ehliyetlerExecute(Sender: TObject);
 begin
-  TfrmSetPrsEhliyetler.Create(Self, Self, TSetPrsEhliyet.Create(GDatabase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_gorevlerExecute(Sender: TObject);
 begin
-  TfrmSetPrsGorevler.Create(Self, Self, TSetPrsGorev.Create(GDatabase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actprs_ehliyetlerExecute(Sender: TObject);
 begin
-  TfrmPrsEhliyetler.Create(Self, Self, TPrsEhliyet.Create(GDatabase), fomNormal).Show
+//
 end;
 
 procedure TfrmDashboard.actprs_lisan_bilgileriExecute(Sender: TObject);
 begin
-  TfrmPrsLisanBilgileri.Create(Self, Self, TPrsLisanBilgisi.Create(GDatabase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actprs_personellerExecute(Sender: TObject);
 begin
-  TfrmPrsPersoneller.Create(Self, Self, TPrsPersonel.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsat_siparisExecute(Sender: TObject);
 begin
-  TfrmSatSiparisler.Create(Self, Self, TSatSiparis.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsat_siparis_raporExecute(Sender: TObject);
 begin
-  TfrmSatSiparislerRapor.Create(Self, Self, TSatSiparisRapor.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsat_teklifExecute(Sender: TObject);
 begin
-  TfrmSatTeklifler.Create(Self, Self, TSatTeklif.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_bbk_calisma_durumuExecute(Sender: TObject);
 begin
-  TfrmSetBbkCalismaDurumlari.Create(Self, Self, TSetBbkCalismaDurumu.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_bbk_finans_durumuExecute(Sender: TObject);
 begin
-  TfrmSetBbkFinansDurumlari.Create(Self, Self, TSetBbkFinansDurumu.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_bbk_firma_tipiExecute(Sender: TObject);
 begin
-  TfrmSetBbkFirmaTipleri.Create(Self, Self, TSetBbkFirmaTipi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_ch_firma_tipiExecute(Sender: TObject);
 begin
-  TfrmSetChFirmaTipleri.Create(Self, Self, TSetChFirmaTipi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_ch_firma_turuExecute(Sender: TObject);
 begin
-  TfrmSetChFirmaTurleri.Create(Self, Self, TSetChFirmaTuru.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_ch_grupExecute(Sender: TObject);
 begin
-  TfrmChGruplar.Create(Self, Self, TChGrup.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_ch_hesap_planiExecute(Sender: TObject);
 begin
-  TfrmChHesapPlanlari.Create(Self, Self, TChHesapPlani.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_ch_hesap_tipiExecute(Sender: TObject);
 begin
-  TfrmSetChHesapTipleri.Create(Self, Self, TSetChHesapTipi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_ch_vergi_oraniExecute(Sender: TObject);
 begin
-  TfrmSetChVergiOranlari.Create(Self, Self, TSetChVergiOrani.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_efatura_fatura_tipiExecute(Sender: TObject);
 begin
-  TfrmSetEinvFaturaTipleri.Create(Self, Self, TSetEinvFaturaTipi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_efatura_istisna_koduExecute(Sender: TObject);
 begin
-  TfrmSetEinvIstisnaKodlari.Create(Self, Self, TSetEinvIstisnaKodu.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_einv_odeme_sekliExecute(Sender: TObject);
 begin
-  TfrmSetEinvOdemeSekilleri.Create(Self, Self, TSetEinvOdemeSekli.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_einv_paket_tipiExecute(Sender: TObject);
 begin
-  TfrmSetEinvPaketTipleri.Create(Self, Self, TSetEinvPaketTipi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_einv_tasima_ucretiExecute(Sender: TObject);
 begin
-  TfrmSetEinvTasimaUcretleri.Create(Self, Self, TSetEinvTasimaUcreti.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_einv_teslim_sekliExecute(Sender: TObject);
 begin
-  TfrmSetEinvTeslimSekilleri.Create(Self, Self, TSetEinvTeslimSekli.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_birimExecute(Sender: TObject);
 begin
-  TfrmSetPrsBirimler.Create(Self, Self, TSetPrsBirim.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_bolumExecute(Sender: TObject);
 begin
-  TfrmSetPrsBolumler.Create(Self, Self, TSetPrsBolum.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_gorevExecute(Sender: TObject);
 begin
-  TfrmSetPrsGorevler.Create(Self, Self, TSetPrsGorev.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_lisanExecute(Sender: TObject);
 begin
-  TfrmSetPrsLisanlar.Create(Self, Self, TSetPrsLisan.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_lisanlarExecute(Sender: TObject);
 begin
-  TfrmSetPrsLisanlar.Create(Self, Self, TSetPrsLisan.Create(GDatabase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_lisan_seviyeleriExecute(Sender: TObject);
 begin
-  TfrmSetPrsLisanSeviyeleri.Create(Self, Self, TSetPrsLisanSeviyesi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_personel_tipleriExecute(Sender: TObject);
 begin
-  TfrmSetPrsPersonelTipleri.Create(Self, Self, TSetPrsPersonelTipi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_prs_tasima_servisleriExecute(Sender: TObject);
 begin
-  TfrmSetPrsTasimaServisleri.Create(Self, Self, TSetPrsTasimaServisi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actstk_ambarlarExecute(Sender: TObject);
 begin
-  TfrmStkStokAmbarlar.Create(Self, Self, TStkAmbar.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actstk_cins_ozellikleriExecute(Sender: TObject);
 begin
-  TfrmStkCinsOzellikleri.Create(Self, Self, TStkCinsOzellik.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actstk_gruplarExecute(Sender: TObject);
 begin
-  TfrmStkGruplar.Create(Self, Self, TStkGruplar.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actstk_hareketlerExecute(Sender: TObject);
@@ -626,7 +535,7 @@ end;
 
 procedure TfrmDashboard.actstk_stok_hareketiExecute(Sender: TObject);
 begin
-//  TfrmStkStokHareketleri.Create(Self, Self, TStkStokHareketi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actstk_stok_karti_ozetleriExecute(Sender: TObject);
@@ -636,129 +545,117 @@ end;
 
 procedure TfrmDashboard.actstk_stok_kartlariExecute(Sender: TObject);
 begin
-  TfrmStkKartlar.Create(Self, Self, TStkKart.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_cityExecute(Sender: TObject);
 begin
-  TfrmSysCities.Create(Self, TServiceContainer.Instance.SysCityService as TSysCityService, TSysCity.Create).Show;
-//  TfrmSysSehirler.Create(Self, Self, TSysSehir.Create(GDataBase), fomNormal).Show;
+  TfrmSysCities.Create(Self, TSysCityService.Create, TSysCity.Create).ShowModal;
 end;
 
 procedure TfrmDashboard.actsys_grid_columnExecute(Sender: TObject);
 begin
-  TfrmSysGridKolonlar.Create(Self, Self, TSysGridKolon.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_countryExecute(Sender: TObject);
 begin
-  TfrmSysCountries.Create(Self, TServiceContainer.Instance.SysCountryService as TSysCountryService, TSysCountry.Create).Show;
-//  TfrmSysUlkeler.Create(Self, Self, TSysUlke.Create(GDataBase), fomNormal).Show;
+  TfrmSysCountries.Create(Self, TSysCountryService.Create, TSysCountry.Create).ShowModal;
 end;
 
 procedure TfrmDashboard.actsys_dayExecute(Sender: TObject);
 begin
-  TfrmSysGunler.Create(Self, Self, TSysGun.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_database_statusExecute(Sender: TObject);
 begin
-  TfrmSysDatabaseMonitor.Create(Self, Self, TSysDBStatus.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_do_database_backupExecute(Sender: TObject);
 begin
-  Ths.Utils.DatabaseTools.TDatabaseTools.DoDatabaseBackup;
+//
 end;
 
 procedure TfrmDashboard.actsys_grid_filter_sortExecute(Sender: TObject);
 begin
-  TfrmSysGridFiltrelerSiralamalar.Create(Self, Self, TSysGridFiltreSiralama.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actacc_exchange_rateExecute(Sender: TObject);
 begin
-  TfrmChDovizKurlari.Create(Self, Self, TChDovizKuru.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_lang_gui_contentExecute(Sender: TObject);
 begin
-  TfrmSysGuiIcerikler.Create(Self, Self, TSysGuiIcerik.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_monthExecute(Sender: TObject);
 begin
-  TfrmSysAylar.Create(Self, Self, TSysAy.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_regionExecute(Sender: TObject);
 begin
-  TfrmSysRegions.Create(Self, TServiceContainer.Instance.SysRegionService as TSysRegionService, TSysRegion.Create).Show;
-//  TfrmSysBolgeler.Create(Self, Self, TSysBolge.Create(GDataBase), fomNormal).Show;
+  TfrmSysRegions.Create(Self, TSysRegionService.Create, TSysRegion.Create).ShowModal;
 end;
 
 procedure TfrmDashboard.actsys_unit_typeExecute(Sender: TObject);
 begin
-  TfrmSysOlcuBirimiTipleri.Create(Self, Self, TSysOlcuBirimiTipi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_unitExecute(Sender: TObject);
 begin
-  TfrmSysOlcuBirimleri.Create(Self, Self, TSysOlcuBirimi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_currencyExecute(Sender: TObject);
 begin
-  TfrmSysParaBirimleri.Create(Self, Self, TSysParaBirimi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_resourceExecute(Sender: TObject);
 begin
-  TfrmSysKaynaklar.Create(Self, Self, TSysKaynak.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_resource_groupExecute(Sender: TObject);
 begin
-  TfrmSysKaynakGruplari.Create(Self, Self, TSysKaynakGrubu.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_application_settingExecute(Sender: TObject);
-var
-  LAppSetting: TSysUygulamaAyari;
 begin
-  LAppSetting := TSysUygulamaAyari.Create(GDataBase);
-  LAppSetting.LogicalSelect('', False, False, True);
-  if LAppSetting.List.Count = 0 then
-  begin
-    LAppSetting.Clear;
-    TfrmSysUygulamaAyari.Create(Self, nil, LAppSetting, ifmNewRecord).ShowModal
-  end else if LAppSetting.List.Count = 1 then
-    TfrmSysUygulamaAyari.Create(Self, nil, LAppSetting, ifmRewiev).ShowModal;
+//
 end;
 
 procedure TfrmDashboard.actsys_userExecute(Sender: TObject);
 begin
-  TfrmSysKullanicilar.Create(Self, Self, TSysKullanici.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_access_rightExecute(Sender: TObject);
 begin
-  TfrmSysErisimHaklari.Create(Self, Self, TSysErisimHakki.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actteklif_durumlariExecute(Sender: TObject);
 begin
-  TfrmSetSatTeklifDurumlar.Create(Self, Self, TSetSatTeklifDurum.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actset_teklif_tipleriExecute(Sender: TObject);
 begin
-  TfrmSetTekTeklifTipleri.Create(Self, Self, TSetTekTeklifTipi.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actquality_form_mail_recieversExecute(Sender: TObject);
 begin
-  TfrmOthMailRecievers.Create(Self, Self, TOthMailReciever.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actsys_updateExecute(Sender: TObject);
@@ -771,17 +668,17 @@ end;
 
 procedure TfrmDashboard.actrct_iscilik_gideriExecute(Sender: TObject);
 begin
-  TfrmUrtIscilikler.Create(Self, Self, TUrtIscilik.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actrct_paket_hammaddeExecute(Sender: TObject);
 begin
-  TfrmRctPaketHammaddeler.Create(Self, Self, TUrtPaketHammadde.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.actrct_receteExecute(Sender: TObject);
 begin
-  TfrmRctReceteler.Create(Self, Self, TUrtRecete.Create(GDataBase), fomNormal).Show;
+//
 end;
 
 procedure TfrmDashboard.btnCloseClick(Sender: TObject);
@@ -792,27 +689,16 @@ end;
 
 procedure TfrmDashboard.btnTestClick(Sender: TObject);
 begin
-  TfrmStkKindFamilies.Create(Self, TServiceContainer.Instance.StkCinsAileService as TStkKindFamilyService, TStkKindFamily.Create).Show;
+//
 end;
 
 procedure TfrmDashboard.tmrcheck_is_update_requiredTimer(Sender: TObject);
 var
   LSurum: string;
   LMr: Integer;
-  LQry: TFDQuery;
 begin
-  //interval değeri kadar süre sonrasında kullanıcı sürüm kotrolü yapıyor
-  //süre 60000 olarak 1 dakika olacak şekilde ayarlandı
-  LQry := GDataBase.NewQuery();
-  try
-    LQry.SQL.Text := 'SELECT ' + GSysApplicationSetting.Versiyon.FieldName + ' FROM ' + GSysApplicationSetting.TableName;
-    LQry.Open;
-    LQry.First;
-    LSurum := LQry.Fields.Fields[0].AsString;
-  finally
-    LQry.Free;
-  end;
-
+  Exit;
+  //interval 1 minute
   if APP_VERSION <> LSurum then
   begin
     LMr := CustomMsgDlg(( 'Programda yeni bir güncellemeniz var. Şimdi güncellemek ister misin?' + AddLBs(2) +
@@ -823,7 +709,9 @@ begin
                           mbNo,
                           'Kullanıcı Güncelleme Onayı');
     if LMr = mrYes then
-      UpdateApplicationExe;
+      UpdateApplicationExe
+    else
+      tmrcheck_is_update_required.Enabled := False;
   end;
 end;
 
@@ -836,7 +724,7 @@ const
   FLD_RESOURCE = 'Resource';
   FLD_LIB = 'Lib';
 var
-  Path: string;//LNewName, LOldName,
+  Path: string;
   LAppName, LAppNameBak: string;
 begin
   LAppName := ExtractFileName(Application.ExeName);
@@ -907,77 +795,13 @@ end;
 
 destructor TfrmDashboard.Destroy;
 begin
+  //
   inherited;
 end;
 
 procedure TfrmDashboard.FormActivate(Sender: TObject);
-var
-  LKurList: TTCMBDovizKuruList;
-  LDovizKuru: TChDovizKuru;
-  LKurOK: Boolean;
-  n1: Integer;
-  n2: Integer;
 begin
-  if not FIsFormShow then
-  begin
-    FIsFormShow := True;
-    LKurOK := False;
-    LDovizKuru := TChDovizKuru.Create(GDataBase);
-    try
-      try
-        GDataBase.Connection.StartTransaction;
-        LDovizKuru.SelectToList(' AND ' + LDovizKuru.KurTarihi.QryName + '=' + QuotedStr(DateToStr(GDataBase.DateDB)), False, False);
-        if LDovizKuru.List.Count = 0 then
-        begin
-          if CustomMsgDlg(
-            TranslateText('Döviz kuru girilmemiş otomatik olarak TCMB Döviz kurlarından girilmesini ister misin?', FrameworkLang.MessageOtomatikDovizKuru, LngMsgData, LngSystem),
-            mtConfirmation, mbYesNo, [TranslateText('Evet', FrameworkLang.GeneralYesLower, LngGeneral, LngSystem),
-                                      TranslateText('Hayır', FrameworkLang.GeneralNoLower, LngGeneral, LngSystem)], mbNo,
-                                      TranslateText('Onay', FrameworkLang.GeneralConfirmationLower, LngGeneral, LngSystem)) = mrYes
-          then
-          begin
-            LKurList := TMerkezBankDovizKurlari.TCMB_DovizKurlari(GDataBase.DateDB);
-            for n1 := 0 to Length(LKurList)-1 do
-              for n2 := 0 to GParaBirimi.List.Count-1 do
-                if LKurList[n1].Kod = TSysParaBirimi(GParaBirimi.List[n2]).Para.Value then
-                begin
-                  LDovizKuru.Clear;
-                  LDovizKuru.KurTarihi.Value := LKurList[n1].Tarih;
-                  LDovizKuru.Para.Value := LKurList[n1].Kod;
-                  LDovizKuru.Kur.Value := LKurList[n1].ForexSelling;
-                  LDovizKuru.Insert(False);
-
-                  LKurOK := True;
-                  Break;
-                end;
-            Self.Show;
-          end;
-        end;
-
-        if LKurOK then
-        begin
-          LDovizKuru.Clear;
-          LDovizKuru.SelectToList(' AND ' + LDovizKuru.Para.QryName + '=' + QuotedStr(GSysApplicationSetting.Para.AsString), False, False);
-          if LDovizKuru.List.Count = 0 then
-          begin
-            LDovizKuru.KurTarihi.Value := GDataBase.DateDB;
-            LDovizKuru.Para.Value := GSysApplicationSetting.Para.AsString;
-            LDovizKuru.Kur.Value := 1;
-            LDovizKuru.Insert(False);
-          end;
-        end;
-      except
-        if GDatabase.Connection.InTransaction then
-          GDataBase.Connection.Rollback;
-      end;
-    finally
-      if GDatabase.Connection.InTransaction then
-        GDataBase.Connection.Commit;
-      LDovizKuru.Free;
-    end;
-  end;
-//  BringWindowToTop(Self.Handle);
-  SetFocusedControl(Self);
+//
 end;
 
 procedure TfrmDashboard.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -989,8 +813,6 @@ end;
 procedure TfrmDashboard.FormCreate(Sender: TObject);
 begin
   inherited;
-
-  GUygulamaAnaDizin := ExtractFilePath(Application.ExeName);
 
   btnClose.Visible := True;
   pnlBottom.Visible := False;
@@ -1049,16 +871,18 @@ begin
   addPanel(80, psOwnerDraw);
 
   if stbBase.Panels.Count >= STATUS_SQL_SERVER+1 then
-    if GDataBase.Connection.Connected then
-      stbBase.Panels.Items[STATUS_SQL_SERVER].Text := GDataBase.Connection.Params.Values['Server'];
+
+    if TConnectionManager.Instance.GetConnection(ContextMain).Connected then
+      stbBase.Panels.Items[STATUS_SQL_SERVER].Text := TConnectionManager.Instance.GetConnection(ContextMain).Params.Values['Server'];
 
   if stbBase.Panels.Count >= STATUS_DATE+1 then
-    if GDataBase.Connection.Connected then
-      stbBase.Panels.Items[STATUS_DATE].Text := DateToStr(GDataBase.GetToday);
+    if TConnectionManager.Instance.GetConnection(ContextMain).Connected then
+      stbBase.Panels.Items[STATUS_DATE].Text := DateToStr(Now);
 
   if stbBase.Panels.Count >= STATUS_USERNAME+1 then
-    if GDataBase.Connection.Connected then
-      stbBase.Panels.Items[STATUS_USERNAME].Text := GSysKullanici.KullaniciAdi.Value;
+
+    if TConnectionManager.Instance.GetConnection(ContextMain).Connected then
+      stbBase.Panels.Items[STATUS_USERNAME].Text := TAppContext.Instance.CurrentUser.GetUsername;
 
   if stbBase.Panels.Count >= STATUS_KEY_F4+1 then
     stbBase.Panels.Items[STATUS_KEY_F4].Text := 'F4 ' + TranslateText('DELETE', FrameworkLang.StatusDelete, LngStatus, LngSystem);
@@ -1074,13 +898,13 @@ begin
 
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
 
-  if GSysKullanici.IsYonetici.Value then
-  begin
+//  if GSysKullanici.IsYonetici.Value then
+//  begin
     mnimenu_system.Visible := True;
-  end
-  else
+//  end
+//  else
   begin
-    mnimenu_system.Visible := False;
+//    mnimenu_system.Visible := False;
 
     tsemployee.TabVisible := False;
     tsaccount.TabVisible := False;
@@ -1098,7 +922,7 @@ begin
   SetSession();
   FIsFormShow := False;
 
-  TUnitOfWork.Initialize(GDataBase.Connection);
+  TUnitOfWork.Initialize(TConnectionManager.Instance.GetConnection(ContextMain));
 end;
 
 procedure TfrmDashboard.ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);
@@ -1167,13 +991,13 @@ begin
 end;
 
 procedure TfrmDashboard.SetSession;
-var
-  LRights: TSysErisimHakki;
-  n1: Integer;
+//var
+//  LRights: TSysErisimHakki;
+//  n1: Integer;
 begin
   ResetSession(pnlMain);
   btnTest.Enabled := True;
-  LRights := TSysErisimHakki.Create(GDataBase);
+(*  LRights := TSysErisimHakki.Create(GDataBase);
   try
     LRights.SelectToList(' AND ' + LRights.TableName + '.' + LRights.KullaniciID.FieldName + '=' + VarToStr(GSysKullanici.Id.Value), False, False);
     for n1 := 0 to LRights.List.Count-1 do
@@ -1330,8 +1154,14 @@ begin
   finally
     FreeAndNil(LRights);
   end;
+*)
 end;
 
 Initialization
+
+finalization
+  if TConnectionManager.Instance <> nil then
+    FreeAndNil(TConnectionManager.Instance);
+  TAppContext.Finalize;
 
 end.

@@ -128,9 +128,7 @@ type
 implementation
 
 uses
-  Vcl.Styles
-  {$IFDEF THSERP}, ufrmBaseInputDB{$ENDIF}
-  ;
+  Vcl.Styles;
 
 var
   FPickerReturn : Boolean = false;

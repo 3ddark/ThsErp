@@ -3,14 +3,15 @@
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, FireDAC.Comp.Client,
+  Winapi.Windows, Winapi.Messages,
+  FireDAC.Comp.Client, FireDAC.Comp.DataSet, FireDAC.Stan.Option,
   System.SysUtils, System.Variants, System.Classes, System.StrUtils,
   System.Rtti, System.TypInfo, System.Generics.Collections,
   Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd,
-  Vcl.DBGrids, Vcl.Samples.Spin, Data.DB,
+  Vcl.DBGrids, Vcl.Samples.Spin, Data.DB, Vcl.DBCtrls,
   udm, Ths.Constants, Ths.Globals, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  SharedFormTypes, BaseEntity, BaseService;
+  SharedFormTypes, Entity, Service, AppContext, UserContext, FilterCriterion;
 
 const
   DB_STATUS_RECORD_COUNT = 0;
@@ -22,13 +23,36 @@ const
   DB_STATUS_KEY_F11      = 6;
 
 type
-  TfrmGrid<TE: TEntity; TS: TBaseService<TE>> = class(TForm)
+  TAggregateType = (atSum, atCount, atAverage, atMin, atMax);
+
+  TFooterColumn = class
+  public
+    ColumnFieldName: string;
+    AggregateType: TAggregateType;
+    DisplayFormat: string;
+    AggregateField: TFDAggregate;
+    DisplayControl: TLabel;
+    constructor Create(const AColumnFieldName: string; AAggregateType: TAggregateType; const ADisplayFormat: string = '');
+  end;
+
+  THackDBGrid = class(TDBGrid)
   private
+    FOnColWidthsChanged: TNotifyEvent;
+  protected
+    procedure ColWidthsChanged; override;
+  public
+    property OnColWidthsChanged: TNotifyEvent read FOnColWidthsChanged write FOnColWidthsChanged;
+  end;
+
+  TfrmGrid<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TForm)
+  private
+    FFooterPanel: TPanel;
+    FFooterColumns: TObjectList<TFooterColumn>;
     FService: TS;
     FTable: TE;
     FQry: TFDQuery;
     FDataSource: TDataSource;
-    FGrd: TDBGrid;
+    FGrd: THackDBGrid;
 
     //for use HelperForm
     FIsHelper: Boolean;
@@ -79,40 +103,16 @@ type
     procedure CreateButtonAdd;
     procedure PreparePopupMenu();
 
-    procedure SetQry(const Value: TFDQuery);
-    procedure SetGrd(const Value: TDBGrid);
-    procedure SetTable(Value: TE);
-    procedure SetService(const Value: TS);
-
-    procedure SetPopupMenu(const Value: TPopupMenu);
-    procedure SetmniPreview(const Value: TMenuItem);
-    procedure SetmniFilter(const Value: TMenuItem);
-    procedure SetmniFilterBack(const Value: TMenuItem);
-    procedure SetmniFilterExclude(const Value: TMenuItem);
-    procedure SetmniFilterRemove(const Value: TMenuItem);
-    procedure SetmniExportExcel(const Value: TMenuItem);
-    procedure SetmniExportCsv(const Value: TMenuItem);
-    procedure SetmniPrint(const Value: TMenuItem);
-    procedure SetmniRemoveGridSort(const Value: TMenuItem);
-
-    procedure SetPanelMain(const Value: TPanel);
-    procedure SetPanelContent(const Value: TPanel);
-    procedure SetPanelHeader(const Value: TPanel);
-    procedure SetPanelSidebar(const Value: TPanel);
-    procedure SetPanelButtons(const Value: TPanel);
-    procedure SetPanelFooter(const Value: TPanel);
-
-    procedure SetEdtFilter(const Value: TEdit);
-
     procedure FilterApply;
     procedure PrepareFilteredColumns;
     procedure EdtFilterChange(Sender: TObject);
     procedure PrepareStatusBar;
+    procedure BuildFilterExpression(AOperator: string);
   public
-    property Service: TS read FService write SetService;
-    property Table: TE read FTable write SetTable;
-    property Grd: TDBGrid read FGrd write SetGrd;
-    property Qry: TFDQuery read FQry write SetQry;
+    property Service: TS read FService write FService;
+    property Table: TE read FTable write FTable;
+    property Grd: THackDBGrid read FGrd write FGrd;
+    property Qry: TFDQuery read FQry write FQry;
 
     //for use HelperForm
     property IsHelper: Boolean read FIsHelper write FIsHelper default False;
@@ -120,30 +120,30 @@ type
     property CleanAndClose: Boolean read FCleanAndClose write FCleanAndClose default False;
     //for use HelperForm
 
-    property PanelMain: TPanel read FPanelMain write SetPanelMain;
-    property PanelContent: TPanel read FPanelContent write SetPanelContent;
-    property PanelHeader: TPanel read FPanelHeader write SetPanelHeader;
-    property PanelSidebar: TPanel read FPanelSidebar write SetPanelSidebar;
-    property PanelButtons: TPanel read FPanelButtons write SetPanelButtons;
-    property PanelFooter: TPanel read FPanelFooter write SetPanelFooter;
+    property PanelMain: TPanel read FPanelMain write FPanelMain;
+    property PanelContent: TPanel read FPanelContent write FPanelContent;
+    property PanelHeader: TPanel read FPanelHeader write FPanelHeader;
+    property PanelSidebar: TPanel read FPanelSidebar write FPanelSidebar;
+    property PanelButtons: TPanel read FPanelButtons write FPanelButtons;
+    property PanelFooter: TPanel read FPanelFooter write FPanelFooter;
     property StatusBase: TStatusBar read FStatusBase write FStatusBase;
-    property EdtFilter: TEdit read FEdtFilter write SetEdtFilter;
+    property EdtFilter: TEdit read FEdtFilter write FEdtFilter;
     property BtnSpin: TSpinButton read FBtnSpin write FBtnSpin;
     property BtnClose: TButton read FBtnClose write FBtnClose;
     property BtnAdd: TButton read FBtnAdd write FBtnAdd;
 
-    property GridPopMenu: TPopupMenu read FGridPopMenu write SetPopupMenu;
-    property mniPreview: TMenuItem read FmniPreview write SetmniPreview;
-    property mniFilter: TMenuItem read FmniFilter write SetmniFilter;
-    property mniFilterExclude: TMenuItem read FmniFilterExclude write SetmniFilterExclude;
-    property mniFilterBack: TMenuItem read FmniFilterBack write SetmniFilterBack;
-    property mniFilterRemove: TMenuItem read FmniFilterRemove write SetmniFilterRemove;
-    property mniExportExcel: TMenuItem read FmniExportExcel write SetmniExportExcel;
-    property mniExportCsv: TMenuItem read FmniExportCsv write SetmniExportCsv;
-    property mniPrint: TMenuItem read FmniPrint write SetmniPrint;
-    property mniRemoveGridSort: TMenuItem read FmniRemoveGridSort write SetmniRemoveGridSort;
+    property GridPopMenu: TPopupMenu read FGridPopMenu write FGridPopMenu;
+    property mniPreview: TMenuItem read FmniPreview write FmniPreview;
+    property mniFilter: TMenuItem read FmniFilter write FmniFilter;
+    property mniFilterExclude: TMenuItem read FmniFilterExclude write FmniFilterExclude;
+    property mniFilterBack: TMenuItem read FmniFilterBack write FmniFilterBack;
+    property mniFilterRemove: TMenuItem read FmniFilterRemove write FmniFilterRemove;
+    property mniExportExcel: TMenuItem read FmniExportExcel write FmniExportExcel;
+    property mniExportCsv: TMenuItem read FmniExportCsv write FmniExportCsv;
+    property mniPrint: TMenuItem read FmniPrint write FmniPrint;
+    property mniRemoveGridSort: TMenuItem read FmniRemoveGridSort write FmniRemoveGridSort;
 
-    constructor Create(AOwner: TComponent; AService: TS; ATable: TE; ACreateNewBase: Boolean = True); reintroduce; overload;
+    constructor Create(AOwner: TComponent; AService: TS; ATable: TE; ACreateNewBase: Boolean = True; AUseHelper: Boolean = False); reintroduce; overload;
     destructor Destroy; override;
 
     procedure SetSelectedItem; virtual;
@@ -154,7 +154,14 @@ type
 
     procedure MoveUp(); virtual;
     procedure MoveDown(); virtual;
-  published
+    procedure AddFooterColumn(const AColumnFieldName: string; AAggregateType: TAggregateType; const ADisplayFormat: string = '');
+    procedure DefineFooterColumns; virtual;
+    procedure DefineColumnWidths; virtual;
+    procedure SetColumnWidth(const AFieldName: string; AWidth: Integer);
+    procedure BuildFooter;
+    procedure CreateFooterPanel;
+    procedure UpdateFooterLayout;
+
     //***form***
     procedure FormCreate(Sender: TObject); virtual;
     procedure FormDestroy(Sender: TObject); virtual;
@@ -171,6 +178,9 @@ type
     procedure grdKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
     procedure grdTitleClick(Column: TColumn); virtual;
     procedure grdDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState); virtual;
+    procedure grdColumnMoved(Sender: TObject; FromIndex, ToIndex: Integer); virtual;
+    procedure grdMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer); virtual;
+    procedure GridColWidthsChanged(Sender: TObject);
     procedure SortGridTitle(Sender: TObject);
 
     procedure RefreshDataFirst();
@@ -181,7 +191,7 @@ type
     //***datasource***
     procedure DataSourceDataChange(Sender: TObject; Field: TField);
     //***status bar***
-    procedure RefreshStatusRecorCount();
+    procedure RefreshStatusRecordCount();
     procedure StatusBarDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect);
     procedure StatusBarAddPanel(AWidth: Integer; AStyle: TStatusPanelStyle);
     //***menu***
@@ -210,10 +220,40 @@ type
 
   function UpperCaseTr(S: string): string;
   function LowerCaseTr(S: string): string;
+  function CsvSafe(const S: string): string;
 
 implementation
 
-uses ufrmBaseInput;
+uses ufrmInputSimpleDB, Logger;
+
+{ TFooterColumn }
+
+constructor TFooterColumn.Create(const AColumnFieldName: string;
+  AAggregateType: TAggregateType; const ADisplayFormat: string);
+begin
+  inherited Create;
+  ColumnFieldName := AColumnFieldName;
+  AggregateType := AAggregateType;
+  DisplayFormat := ADisplayFormat;
+end;
+
+{ THackDBGrid }
+
+procedure THackDBGrid.ColWidthsChanged;
+begin
+  inherited;
+  if Assigned(FOnColWidthsChanged) then
+    FOnColWidthsChanged(Self);
+end;
+
+{ TfrmGrid }
+
+procedure TfrmGrid<TE, TS>.AddFooterColumn(const AColumnFieldName: string; AAggregateType: TAggregateType; const ADisplayFormat: string);
+begin
+  if FFooterColumns = nil then
+    FFooterColumns := TObjectList<TFooterColumn>.Create(True);
+  FFooterColumns.Add(TFooterColumn.Create(AColumnFieldName, AAggregateType, ADisplayFormat));
+end;
 
 function UpperCaseTr(S: string): string;
 begin
@@ -223,6 +263,13 @@ end;
 function LowerCaseTr(S: string): string;
 begin
   Result := AnsiLowerCase(StringReplace(StringReplace(S, 'I', 'ı', [rfReplaceAll]), 'İ', 'i', [rfReplaceAll]));
+end;
+
+function CsvSafe(const S: string): string;
+begin
+  Result := StringReplace(S, '"', '""', [rfReplaceAll]);
+  if (Pos(',', Result) > 0) or (Pos('"', Result) > 0) or (Pos(#13, Result) > 0) or (Pos(#10, Result) > 0) then
+    Result := '"' + Result + '"';
 end;
 
 function TfrmGrid<TE, TS>.AddMenu(ATitle, AMenuName: string; AClickEvent: TNotifyEvent;
@@ -270,49 +317,173 @@ end;
 
 procedure TfrmGrid<TE, TS>.AfterDatasetOpen(Dataset: TDataset);
 begin
-  RefreshStatusRecorCount();
+  DefineColumnWidths;
+  RefreshStatusRecordCount();
 end;
 
 procedure TfrmGrid<TE, TS>.BtnCloseClick(Sender: TObject);
 begin
+  if FIsHelper then
+  begin
+    FDataAktar := True;
+    FCleanAndClose := True;
+    if Owner is TEdit then
+      TEdit(Owner).Clear;
+    btnCloseClick(btnClose);
+  end;
   Self.Close;
 end;
 
 procedure TfrmGrid<TE, TS>.BtnAddClick(Sender: TObject);
 begin
   ShowInputForm(Sender, ifmNewRecord);
-end;
+end;                                  
 
 procedure TfrmGrid<TE, TS>.BtnSpinDownClick(Sender: TObject);
-begin
-  MoveUp;
-end;
-
-procedure TfrmGrid<TE, TS>.BtnSpinUpClick(Sender: TObject);
 begin
   MoveDown;
 end;
 
-constructor TfrmGrid<TE, TS>.Create(AOwner: TComponent; AService: TS; ATable: TE; ACreateNewBase: Boolean);
+procedure TfrmGrid<TE, TS>.BtnSpinUpClick(Sender: TObject);
+begin
+  MoveUp;
+end;
+
+procedure TfrmGrid<TE, TS>.BuildFilterExpression(AOperator: string);
+var
+  LFilterBefore, LFilterVal: string;
+begin
+  LFilterBefore := '';
+  if FFilterGrid.Count > 0 then
+    LFilterBefore := ' AND ';
+  if (Grd.SelectedField <> nil) and (not Grd.SelectedField.IsNull) then
+  begin
+    case Grd.SelectedField.DataType of
+      ftUnknown: ;
+      ftString:       LFilterVal := Grd.SelectedField.FieldName + AOperator + QuotedStr(Grd.SelectedField.AsString);
+      ftSmallint:     LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftInteger:      LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftWord:         LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftBoolean:      LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftFloat:        LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftCurrency:     LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftBCD:          LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftDate:         LFilterVal := Grd.SelectedField.FieldName + AOperator + QuotedStr(Grd.SelectedField.AsString);
+      ftTime:         LFilterVal := Grd.SelectedField.FieldName + AOperator + QuotedStr(Grd.SelectedField.AsString);
+      ftDateTime:     LFilterVal := Grd.SelectedField.FieldName + AOperator + QuotedStr(Grd.SelectedField.AsString);
+      ftBytes:        LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftVarBytes:     LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftAutoInc:      LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftBlob:         LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftMemo:         LFilterVal := Grd.SelectedField.FieldName + AOperator + QuotedStr(Grd.SelectedField.AsString);
+      ftGraphic:      LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftFmtMemo:      LFilterVal := Grd.SelectedField.FieldName + AOperator + QuotedStr(Grd.SelectedField.AsString);
+      ftParadoxOle: ;
+      ftDBaseOle: ;
+      ftTypedBinary: ;
+      ftCursor: ;
+      ftFixedChar:    LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftWideString:   LFilterVal := Grd.SelectedField.FieldName + AOperator + QuotedStr(Grd.SelectedField.AsString);
+      ftLargeint:     LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftADT: ;
+      ftArray:        LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftReference: ;
+      ftDataSet: ;
+      ftOraBlob: ;
+      ftOraClob: ;
+      ftVariant: ;
+      ftInterface: ;
+      ftIDispatch: ;
+      ftGuid: ;
+      ftTimeStamp:    LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftFMTBcd:       LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftFixedWideChar:LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftWideMemo:     LFilterVal := Grd.SelectedField.FieldName + AOperator + QuotedStr(Grd.SelectedField.AsString);
+      ftOraTimeStamp: LFilterVal := Grd.SelectedField.FieldName + AOperator + QuotedStr(Grd.SelectedField.AsString);
+      ftOraInterval: ;
+      ftLongWord:     LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftShortint:     LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftByte:         LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftExtended:     LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+      ftConnection: ;
+      ftParams: ;
+      ftStream: ;
+      ftTimeStampOffset: ;
+      ftObject: ;
+      ftSingle:       LFilterVal := Grd.SelectedField.FieldName + AOperator + Grd.SelectedField.AsString;
+    end;
+
+    FFilterGrid.Add(LFilterBefore + LFilterVal);
+  end;
+
+end;
+
+procedure TfrmGrid<TE, TS>.BuildFooter;
+var
+  FooterCol: TFooterColumn;
+  AggregateFuncName: string;
+begin
+  if (FFooterColumns = nil) or (FFooterColumns.Count = 0) then
+    Exit;
+
+  if FQry.Active then
+    raise Exception.Create('BuildFooter: Query must be closed before creating aggregate fields');
+
+  for FooterCol in FFooterColumns do
+  begin
+    case FooterCol.AggregateType of
+      atSum: AggregateFuncName := 'SUM';
+      atCount: AggregateFuncName := 'COUNT';
+      atAverage: AggregateFuncName := 'AVG';
+      atMin: AggregateFuncName := 'MIN';
+      atMax: AggregateFuncName := 'MAX';
+    else
+      AggregateFuncName := 'SUM';
+    end;
+
+
+    FooterCol.AggregateField := FQry.Aggregates.Add;
+    FooterCol.AggregateField.Name := Format('AGG_%s_%s', [AggregateFuncName, FooterCol.ColumnFieldName]);
+    FooterCol.AggregateField.Expression := Format('%s(%s)', [AggregateFuncName, FooterCol.ColumnFieldName]);
+    FooterCol.AggregateField.Active := True;
+
+    FooterCol.DisplayControl := TLabel.Create(FFooterPanel);
+    FooterCol.DisplayControl.Parent := FFooterPanel;
+    FooterCol.DisplayControl.Font.Style := [fsBold];
+    FooterCol.DisplayControl.Font.Size := 8;
+    FooterCol.DisplayControl.Font.Color := clBlack;
+    FooterCol.DisplayControl.AutoSize := True;
+    FooterCol.DisplayControl.Caption := FooterCol.AggregateField.Name;
+  end;
+
+  FFooterPanel.Visible := True;
+  FQry.AggregatesActive := True;
+end;
+
+constructor TfrmGrid<TE, TS>.Create(AOwner: TComponent; AService: TS; ATable: TE; ACreateNewBase, AUseHelper: Boolean);
 begin
   if ACreateNewBase then
-    CreateNew(Owner);
+    CreateNew(AOwner);
 
-  SetService(AService);
-  SetTable(ATable);
+  GLogger.InfoFmt('Created Grid Form %s: %s %s', [IfThen(AUseHelper, 'with Helper Mode', ''), Self.ClassName, ATable.ClassName]);
+
+  FService := AService;
+  FTable := ATable;
+
+  FIsHelper := AUseHelper;
 
   Self.Caption := 'Base Title';
 
-  FQry := TFDQuery.Create(nil);
-  FQry.Connection := Service.Uow.Connection;
+  FQry := FService.CreateQueryForUI(nil);
+  FQry.FetchOptions.Mode := fmAll;
   FQry.AfterOpen := AfterDatasetOpen;
   FQry.OnFilterRecord := OnFilterDataset;
-  FQry.SQL.Text := AService.CreateQueryForUI('');
 
   FDataSource := TDataSource.Create(Self);
   FDataSource.DataSet := FQry;
   FDataSource.OnDataChange := DataSourceDataChange;
 
+  FFooterColumns := TObjectList<TFooterColumn>.Create(True);
   FFilterStringFields := TStringList.Create;
   FFilterNumericFields := TStringList.Create;
   FFilterDateFields := TStringList.Create;
@@ -321,12 +492,27 @@ begin
 
   PrepareForm();
 
+  DefineFooterColumns;
+
   Self.ActiveControl := Grd;
 end;
 
 function TfrmGrid<TE, TS>.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
 begin
   Result := nil;
+end;
+
+procedure TfrmGrid<TE, TS>.CreateFooterPanel;
+begin
+  FFooterPanel := TPanel.Create(PanelContent);
+  FFooterPanel.Parent := Self.PanelContent; // PanelMain yerine PanelContent
+  FFooterPanel.Align := alTop;
+  FFooterPanel.Height := 30; // 125 çok fazla, 30 yeterli
+  FFooterPanel.BevelOuter := bvNone;
+  FFooterPanel.Color := $00F0F0F0; // Açık gri
+  FFooterPanel.Font.Color := clBlack;
+  FFooterPanel.Font.Style := [fsBold];
+  FFooterPanel.Visible := False;
 end;
 
 procedure TfrmGrid<TE, TS>.CreatePanelMain;
@@ -395,12 +581,13 @@ end;
 
 procedure TfrmGrid<TE, TS>.CreateGrid();
 begin
-  Grd := TDBGrid.Create(PanelContent);
+  Grd := THackDBGrid.Create(PanelContent);
   Grd.Parent := PanelContent;
   Grd.Align := alClient;
   Grd.DataSource := FDataSource;
   Grd.Options := Grd.Options - [dgEditing, dgConfirmDelete];
-  //grd events
+
+  // Events
   Grd.OnDblClick := grdDblClick;
   Grd.OnCellClick := grdCellClick;
   Grd.OnKeyPress := grdKeyPress;
@@ -408,6 +595,9 @@ begin
   Grd.OnKeyUp := grdKeyUp;
   Grd.OnTitleClick := grdTitleClick;
   Grd.OnDrawColumnCell := grdDrawColumnCell;
+  Grd.OnColumnMoved := grdColumnMoved;
+  Grd.OnMouseUp := grdMouseUp;
+  Grd.OnColWidthsChanged := GridColWidthsChanged;
   Grd.PopupMenu := Self.GridPopMenu;
 end;
 
@@ -433,6 +623,8 @@ begin
   BtnSpin.OnUpClick := BtnSpinUpClick;
   BtnSpin.OnDownClick := BtnSpinDownClick;
   BtnSpin.Align := alLeft;
+  BtnSpin.Margins.Left := 8;
+  BtnSpin.AlignWithMargins := True;
 end;
 
 procedure TfrmGrid<TE, TS>.CreateBtnClose;
@@ -442,6 +634,8 @@ begin
   BtnClose.Caption := 'Kapat';
   BtnClose.OnClick := BtnCloseClick;
   BtnClose.Align := alRight;
+  BtnClose.Margins.Right := 8;
+  BtnClose.AlignWithMargins := True;
 end;
 
 procedure TfrmGrid<TE, TS>.CreateButtonAdd;
@@ -461,26 +655,31 @@ begin
 //
 end;
 
-destructor TfrmGrid<TE, TS>.Destroy;
-var
-  n1: Integer;
+procedure TfrmGrid<TE, TS>.DefineColumnWidths;
 begin
-  FFilterStringFields.Free;
-  FFilterNumericFields.Free;
-  FFilterDateFields.Free;
-  FFilterBoolFields.Free;
-  FFilterGrid.Free;
+//
+end;
+
+procedure TfrmGrid<TE, TS>.DefineFooterColumns;
+begin
+//
+end;
+
+destructor TfrmGrid<TE, TS>.Destroy;
+begin
+  FreeAndNil(FFooterColumns);
+  FreeAndNil(FFilterStringFields);
+  FreeAndNil(FFilterNumericFields);
+  FreeAndNil(FFilterDateFields);
+  FreeAndNil(FFilterBoolFields);
+  FreeAndNil(FFilterGrid);
 
   FQry.Close;
   FQry.Free;
   FreeAndNil(FDataSource);
 
-  for n1 := 0 to Table.Fields.Count-1 do
-  begin
-    if Table.Fields[n1].OwnerEntity <> nil then
-      Table.Fields[n1].OwnerEntity := nil;
-  end;
-  FTable := nil;
+  FService.Free;
+  FreeAndNil(FTable);
   inherited;
 end;
 
@@ -499,7 +698,7 @@ begin
   end;
   mniFilterRemove.Enabled := (Grd.DataSource.DataSet.Filter <> '');
   mniFilterBack.Enabled := mniFilterRemove.Enabled;
-  RefreshStatusRecorCount();
+  RefreshStatusRecordCount();
 end;
 
 procedure TfrmGrid<TE, TS>.EdtFilterChange(Sender: TObject);
@@ -547,11 +746,11 @@ begin
     or TryStrToDateTime(EdtFilter.Text, LDateTimeValue)
     then
     begin
-      for n1 := 0 to FFilterNumericFields.Count-1 do
+      for n1 := 0 to FFilterDateFields.Count-1 do
       begin
         if LFilter <> '' then
           LFilter := LFilter + ' OR ';
-        LFilter := LFilter + FFilterNumericFields.Strings[n1] + '=' + EdtFilter.Text;
+        LFilter := LFilter + FFilterDateFields.Strings[n1] + '=' + EdtFilter.Text;
       end;
     end;
 
@@ -569,7 +768,7 @@ begin
     grd.DataSource.DataSet.Filter := LFilter;
     grd.DataSource.DataSet.Filtered := True;
   end;
-  Self.RefreshStatusRecorCount;
+  Self.RefreshStatusRecordCount;
 end;
 
 procedure TfrmGrid<TE, TS>.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -631,11 +830,12 @@ end;
 
 procedure TfrmGrid<TE, TS>.FormShow(Sender: TObject);
 begin
+  BuildFooter;
   FQry.Open;
 
   PrepareFilteredColumns;
-  PrepareStatusBar;
   PanelSidebar.Visible := False;
+  PrepareStatusBar;
 end;
 
 function TfrmGrid<TE, TS>.getFilterEditData: string;
@@ -648,10 +848,20 @@ begin
 //
 end;
 
+procedure TfrmGrid<TE, TS>.grdColumnMoved(Sender: TObject; FromIndex, ToIndex: Integer);
+begin
+//
+end;
+
 procedure TfrmGrid<TE, TS>.grdDblClick(Sender: TObject);
 begin
   if FIsHelper then
-    SetSelectedItem
+  begin
+    SetSelectedItem;
+    DataAktar := True;
+    ModalResult := mrYes;
+    Self.Close;
+  end
   else
     mniPreviewClick(Grd);
 end;
@@ -663,12 +873,12 @@ end;
 
 procedure TfrmGrid<TE, TS>.grdKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
-  AGrid: TDBGrid;
+  AGrid: THackDBGrid;
 begin
-  if not (Sender is TDBGrid) then
+  if not (Sender is THackDBGrid) then
     Exit;
 
-  AGrid := (Sender as TDBGrid);
+  AGrid := (Sender as THackDBGrid);
   if AGrid.Focused then
   begin
     if Shift = [ssCtrl, ssShift] then
@@ -704,170 +914,115 @@ begin
 //
 end;
 
+procedure TfrmGrid<TE, TS>.grdMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+//
+end;
+
 procedure TfrmGrid<TE, TS>.grdTitleClick(Column: TColumn);
 begin
   SortGridTitle(Column);
 end;
 
-procedure TfrmGrid<TE, TS>.SetQry(const Value: TFDQuery);
+procedure TfrmGrid<TE, TS>.GridColWidthsChanged(Sender: TObject);
 begin
-  FQry := Value;
+  UpdateFooterLayout;
 end;
 
-procedure TfrmGrid<TE, TS>.SetSelectedItem;
-{var
-  AField: TField;
-  n1, n2: Integer;}
+procedure TfrmGrid<TE, TS>.UpdateFooterLayout;
+var
+  FooterCol: TFooterColumn;
+  GridCol: TColumn;
+  i: Integer;
+  CurrentLeft: Integer;
+  fc: TFooterColumn;
+  FormatText: string;
+  Value: Variant;
 begin
-{  if Grd.DataSource.DataSet.RecordCount > 0 then
+  if (FFooterPanel = nil) or not FFooterPanel.Visible then
+    Exit;
+  if FFooterColumns = nil then
+    Exit;
+
+  CurrentLeft := 0;
+  if dgIndicator in Grd.Options then
+    CurrentLeft := IndicatorWidth;
+
+  for i := 0 to Grd.Columns.Count - 1 do
   begin
-    AField := Grd.DataSource.DataSet.FindField(Table.Id.FieldName);
-    if not Assigned(AField) or (AField = nil) or AField.IsNull then
-      Exit;
+    GridCol := Grd.Columns[i];
+    FooterCol := nil;
 
-    Table.Id.Value := VarToStr(AField.Value).ToInteger;
-
-    for n1 := 0 to Table.Fields.Count-1 do
+    for fc in FFooterColumns do
     begin
-      for n2 := 0 to grd.Columns.Count-1 do
+      if SameText(fc.ColumnFieldName, GridCol.FieldName) then
       begin
-        if (Table.Fields.Items[n1]).FieldName = grd.Columns.Items[n2].Field.FieldName then
-        begin
-          Table.Fields[n1].Value := grd.Columns.Items[n2].Field.Value;
-          Table.Fields[n1].IsNullable := not grd.Columns.Items[n2].Field.Required;
-          Break;
-        end;
+        FooterCol := fc;
+        Break;
       end;
     end;
-  end;
-}
-end;
 
-procedure TfrmGrid<TE, TS>.SetTable(Value: TE);
-begin
-  FTable := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.ShowInputForm(Sender: TObject; AFormType: TInputFormMode);
-var
-  LForm: TForm;
-  LOldTable: TE;
-  n1: Integer;
-begin
-  if (AFormType = ifmRewiev)
-  or ((not FQry.Connection.InTransaction) and ((AFormType = ifmNewRecord) or (AFormType = ifmCopyNewRecord)))
-  then
-  begin
-    if (AFormType = ifmRewiev) or (AFormType = ifmCopyNewRecord) then
+    // Footer varsa konumlandır
+    if Assigned(FooterCol) and Assigned(FooterCol.DisplayControl) then
     begin
-      LOldTable := Table;
-      Table := Service.FindById(Table.Id.Value, False);
-      for n1 := 0 to LOldTable.fields.Count-1 do
-        LOldTable.fields[n1].OwnerEntity := nil;
+      if GridCol.Visible then
+      begin
+        FooterCol.DisplayControl.Visible := True;
+        FooterCol.DisplayControl.Left := CurrentLeft;
+        FooterCol.DisplayControl.Width := GridCol.Width;
+        FooterCol.DisplayControl.Height := 20;
+        FooterCol.DisplayControl.Top := 5;
+
+        Value := FooterCol.AggregateField.Value;
+        if not VarIsNull(Value) then
+        begin
+          case GridCol.Field.DataType of
+            ftByte,
+            ftWord,
+            ftLongWord,
+            ftShortint,
+            ftSmallint,
+            ftInteger,
+            ftLargeint,
+            ftFloat,
+            ftCurrency,
+            ftBCD,
+            ftFMTBcd,
+            ftExtended,
+            ftSingle:
+              begin
+                FormatText := '0.00';
+                FooterCol.DisplayControl.Caption := FormatFloat(FormatText, Value);
+              end;
+
+            ftDate,
+            ftTime,
+            ftDateTime,
+            ftTimeStamp:
+              begin
+                FooterCol.DisplayControl.Caption := FormatDateTime('dd.mm.yyyy hh:nn:ss', Value);
+              end;
+
+          else
+            FooterCol.DisplayControl.Caption := VarToStr(Value);
+          end;
+        end
+        else
+          FooterCol.DisplayControl.Caption := '';
+
+        case GridCol.Alignment of
+          taLeftJustify:  FooterCol.DisplayControl.Alignment := taLeftJustify;
+          taRightJustify: FooterCol.DisplayControl.Alignment := taRightJustify;
+          taCenter:       FooterCol.DisplayControl.Alignment := taCenter;
+        end;
+      end
+      else
+        FooterCol.DisplayControl.Visible := False;
     end;
 
-    LForm := CreateInputForm(Sender, AFormType);
-//    if Table is TTableDetailed then
-//      PTable.FreeDetayListContent;
-    LForm.Show;
-  end
-  else
-    raise Exception.Create('Başka bir pencere giriş veya güncelleme için açılmış, önce bu işlemi tamamlayın.');
-end;
-
-procedure TfrmGrid<TE, TS>.SetPanelMain(const Value: TPanel);
-begin
-  FPanelMain := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetService(const Value: TS);
-begin
-  FService := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetEdtFilter(const Value: TEdit);
-begin
-  FEdtFilter := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetPanelFooter(const Value: TPanel);
-begin
-  FPanelFooter := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetGrd(const Value: TDBGrid);
-begin
-  FGrd := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetPanelContent(const Value: TPanel);
-begin
-  FPanelContent := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetPanelHeader(const Value: TPanel);
-begin
-  FPanelHeader := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetPanelSidebar(const Value: TPanel);
-begin
-  FPanelSidebar := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetPanelButtons(const Value: TPanel);
-begin
-  FPanelButtons := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetPopupMenu(const Value: TPopupMenu);
-begin
-  FGridPopMenu := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetmniExportCsv(const Value: TMenuItem);
-begin
-  FmniExportCsv := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetmniExportExcel(const Value: TMenuItem);
-begin
-  FmniExportExcel := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetmniFilter(const Value: TMenuItem);
-begin
-  FmniFilter := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetmniFilterBack(const Value: TMenuItem);
-begin
-  FmniFilterBack := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetmniFilterExclude(const Value: TMenuItem);
-begin
-  FmniFilterExclude := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetmniFilterRemove(const Value: TMenuItem);
-begin
-  FmniFilterRemove := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetmniPreview(const Value: TMenuItem);
-begin
-  FmniPreview := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetmniPrint(const Value: TMenuItem);
-begin
-  FmniPrint := Value;
-end;
-
-procedure TfrmGrid<TE, TS>.SetmniRemoveGridSort(const Value: TMenuItem);
-begin
-  FmniRemoveGridSort := Value;
+    if GridCol.Visible then
+      CurrentLeft := CurrentLeft + GridCol.Width;
+  end;
 end;
 
 procedure TfrmGrid<TE, TS>.mniExportExcelClick(Sender: TObject);
@@ -885,140 +1040,14 @@ begin
 end;
 
 procedure TfrmGrid<TE, TS>.mniFilterClick(Sender: TObject);
-var
-  LFilterBefore, LFilterVal: string;
 begin
-  LFilterBefore := '';
-  if FFilterGrid.Count > 0 then
-    LFilterBefore := ' AND ';
-  if (Grd.SelectedField <> nil) and (not Grd.SelectedField.IsNull) then
-  begin
-    case Grd.SelectedField.DataType of
-      ftUnknown: ;
-      ftString:       LFilterVal := Grd.SelectedField.FieldName + '=' + QuotedStr(Grd.SelectedField.AsString);
-      ftSmallint:     LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftInteger:      LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftWord:         LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftBoolean:      LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftFloat:        LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftCurrency:     LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftBCD:          LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftDate:         LFilterVal := Grd.SelectedField.FieldName + '=' + QuotedStr(Grd.SelectedField.AsString);
-      ftTime:         LFilterVal := Grd.SelectedField.FieldName + '=' + QuotedStr(Grd.SelectedField.AsString);
-      ftDateTime:     LFilterVal := Grd.SelectedField.FieldName + '=' + QuotedStr(Grd.SelectedField.AsString);
-      ftBytes:        LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftVarBytes:     LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftAutoInc:      LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftBlob:         LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftMemo:         LFilterVal := Grd.SelectedField.FieldName + '=' + QuotedStr(Grd.SelectedField.AsString);
-      ftGraphic:      LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftFmtMemo:      LFilterVal := Grd.SelectedField.FieldName + '=' + QuotedStr(Grd.SelectedField.AsString);
-      ftParadoxOle: ;
-      ftDBaseOle: ;
-      ftTypedBinary: ;
-      ftCursor: ;
-      ftFixedChar:    LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftWideString:   LFilterVal := Grd.SelectedField.FieldName + '=' + QuotedStr(Grd.SelectedField.AsString);
-      ftLargeint:     LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftADT: ;
-      ftArray:        LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftReference: ;
-      ftDataSet: ;
-      ftOraBlob: ;
-      ftOraClob: ;
-      ftVariant: ;
-      ftInterface: ;
-      ftIDispatch: ;
-      ftGuid: ;
-      ftTimeStamp:    LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftFMTBcd:       LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftFixedWideChar:LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftWideMemo:     LFilterVal := Grd.SelectedField.FieldName + '=' + QuotedStr(Grd.SelectedField.AsString);
-      ftOraTimeStamp: LFilterVal := Grd.SelectedField.FieldName + '=' + QuotedStr(Grd.SelectedField.AsString);
-      ftOraInterval: ;
-      ftLongWord:     LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftShortint:     LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftByte:         LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftExtended:     LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-      ftConnection: ;
-      ftParams: ;
-      ftStream: ;
-      ftTimeStampOffset: ;
-      ftObject: ;
-      ftSingle:       LFilterVal := Grd.SelectedField.FieldName + '=' + Grd.SelectedField.AsString;
-    end;
-
-    FFilterGrid.Add(LFilterBefore + LFilterVal);
-  end;
+  BuildFilterExpression('=');
   FilterApply;
 end;
 
 procedure TfrmGrid<TE, TS>.mniFilterExcludeClick(Sender: TObject);
-var
-  LFilterBefore, LFilterVal: string;
 begin
-  LFilterBefore := '';
-  if FFilterGrid.Count > 0 then
-    LFilterBefore := ' AND ';
-  if (Grd.SelectedField <> nil) and (not Grd.SelectedField.IsNull) then
-  begin
-    case Grd.SelectedField.DataType of
-      ftUnknown: ;
-      ftString:       LFilterVal := Grd.SelectedField.FieldName + '<>' + QuotedStr(Grd.SelectedField.AsString);
-      ftSmallint:     LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftInteger:      LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftWord:         LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftBoolean:      LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftFloat:        LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftCurrency:     LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftBCD:          LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftDate:         LFilterVal := Grd.SelectedField.FieldName + '<>' + QuotedStr(Grd.SelectedField.AsString);
-      ftTime:         LFilterVal := Grd.SelectedField.FieldName + '<>' + QuotedStr(Grd.SelectedField.AsString);
-      ftDateTime:     LFilterVal := Grd.SelectedField.FieldName + '<>' + QuotedStr(Grd.SelectedField.AsString);
-      ftBytes:        LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftVarBytes:     LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftAutoInc:      LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftBlob:         LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftMemo:         LFilterVal := Grd.SelectedField.FieldName + '<>' + QuotedStr(Grd.SelectedField.AsString);
-      ftGraphic:      LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftFmtMemo:      LFilterVal := Grd.SelectedField.FieldName + '<>' + QuotedStr(Grd.SelectedField.AsString);
-      ftParadoxOle: ;
-      ftDBaseOle: ;
-      ftTypedBinary: ;
-      ftCursor: ;
-      ftFixedChar:    LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftWideString:   LFilterVal := Grd.SelectedField.FieldName + '<>' + QuotedStr(Grd.SelectedField.AsString);
-      ftLargeint:     LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftADT: ;
-      ftArray:        LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftReference: ;
-      ftDataSet: ;
-      ftOraBlob: ;
-      ftOraClob: ;
-      ftVariant: ;
-      ftInterface: ;
-      ftIDispatch: ;
-      ftGuid: ;
-      ftTimeStamp:    LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftFMTBcd:       LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftFixedWideChar:LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftWideMemo:     LFilterVal := Grd.SelectedField.FieldName + '<>' + QuotedStr(Grd.SelectedField.AsString);
-      ftOraTimeStamp: LFilterVal := Grd.SelectedField.FieldName + '<>' + QuotedStr(Grd.SelectedField.AsString);
-      ftOraInterval: ;
-      ftLongWord:     LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftShortint:     LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftByte:         LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftExtended:     LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-      ftConnection: ;
-      ftParams: ;
-      ftStream: ;
-      ftTimeStampOffset: ;
-      ftObject: ;
-      ftSingle:       LFilterVal := Grd.SelectedField.FieldName + '<>' + Grd.SelectedField.AsString;
-    end;
-
-    FFilterGrid.Add(LFilterBefore + LFilterVal);
-  end;
+  BuildFilterExpression('<>');
   FilterApply;
 end;
 
@@ -1032,15 +1061,54 @@ begin
 end;
 
 procedure TfrmGrid<TE, TS>.mniExportCsvClick(Sender: TObject);
+var
+  SL: TStringList;
+  i, j: Integer;
+  Line: string;
 begin
-  ShowMessage('not implemented yet!' + sLineBreak + 'Export Csv');
+  SL := TStringList.Create;
+  try
+    Line := '';
+    for i := 0 to Grd.Columns.Count - 1 do
+    begin
+      Line := Line + Grd.Columns[i].Title.Caption;
+      if i < Grd.Columns.Count - 1 then
+        Line := Line + ',';
+    end;
+    SL.Add(Line);
+
+    Grd.DataSource.DataSet.DisableControls;
+    try
+      Grd.DataSource.DataSet.First;
+      while not Grd.DataSource.DataSet.Eof do
+      begin
+        Line := '';
+        for j := 0 to Grd.Columns.Count - 1 do
+        begin
+          Line := Line + CsvSafe(Grd.Columns[j].Field.AsString);
+          if j < Grd.Columns.Count - 1 then
+            Line := Line + ',';
+        end;
+        SL.Add(Line);
+
+        Grd.DataSource.DataSet.Next;
+      end;
+    finally
+      Grd.DataSource.DataSet.EnableControls;
+    end;
+
+    SL.SaveToFile('export.csv', TEncoding.UTF8);
+    ShowMessage('CSV export tamamlandı!');
+  finally
+    SL.Free;
+  end;
 end;
 
 procedure TfrmGrid<TE, TS>.mniPreviewClick(Sender: TObject);
 begin
   if mniPreview.Visible then
   begin
-    if (Grd.DataSource.DataSet.RecordCount <> 0) and (Grd.DataSource.DataSet.RecordCount > 0) then
+    if (Grd.DataSource.DataSet.RecordCount > 0) then
     begin
       SetSelectedItem();
       ShowInputForm(mniPreview, ifmRewiev);
@@ -1061,13 +1129,13 @@ end;
 
 procedure TfrmGrid<TE, TS>.MoveDown;
 begin
-  Grd.DataSource.DataSet.Prior;
+  Grd.DataSource.DataSet.Next;
   SetSelectedItem();
 end;
 
 procedure TfrmGrid<TE, TS>.MoveUp;
 begin
-  Grd.DataSource.DataSet.Next;
+  Grd.DataSource.DataSet.Prior;
   SetSelectedItem();
 end;
 
@@ -1148,6 +1216,7 @@ begin
   CreatePanelFooter;
     CreateBtnSpin;
     CreateBtnClose;
+  CreateFooterPanel;
 
   FStatusBase := TStatusBar.Create(Self);
   FStatusBase.Align := alBottom;
@@ -1191,7 +1260,7 @@ begin
 
 
   if Service.Uow.Connection.Connected then
-    RefreshStatusRecorCount;
+    RefreshStatusRecordCount;
 
   if Service.Uow.Connection.Connected then
     FStatusBase.Panels.Items[DB_STATUS_SQL_SERVER].Text := Service.Uow.Connection.Params.Values['Server'];
@@ -1199,7 +1268,7 @@ begin
   FStatusBase.Panels.Items[DB_STATUS_PERIOD].Text := 'Dönem:2025';//TranslateText('Dönem', FrameworkLang.GeneralPeriod, LngGeneral, LngSystem) + ' ' + GSysApplicationSetting.Donem.AsString;
 
   if Service.Uow.Connection.Connected then
-    FStatusBase.Panels.Items[DB_STATUS_USER].Text := GSysKullanici.AdSoyad.AsString;
+    FStatusBase.Panels.Items[DB_STATUS_USER].Text := TAppContext.Instance.CurrentUser.User.Person.FullName;
 
   FStatusBase.Panels.Items[DB_STATUS_KEY_F6].Text := 'F6 İPTAL/KAPAT';
   FStatusBase.Panels.Items[DB_STATUS_KEY_F7].Text := 'F7 KAYIT EKLE';
@@ -1208,30 +1277,30 @@ end;
 
 procedure TfrmGrid<TE, TS>.RefreshData;
 begin
-  if (Table <> nil) and (Table.Id.Value > 0) then
-    grd.DataSource.DataSet.Locate(Table.Id.FieldName, Table.Id.Value,[]);
+  if (Table <> nil) and (Table.Id > 0) then
+    grd.DataSource.DataSet.Locate('id', Table.Id,[]);
 
   if FFilterGrid.Text <> '' then
   begin
     grd.DataSource.DataSet.Filter := FFilterGrid.Text;
     grd.DataSource.DataSet.Filtered := True;
-    mniFilterRemove.Visible := True;
-    mniFilterBack.Visible := True;
+    mniFilterRemove.Enabled := True;
+    mniFilterBack.Enabled := True;
   end
   else
   begin
     grd.DataSource.DataSet.Filtered := False;
     grd.DataSource.DataSet.Filter := '';
-    mniFilterRemove.Visible := False;
-    mniFilterBack.Visible := False;
+    mniFilterRemove.Enabled := False;
+    mniFilterBack.Enabled := False;
   end;
 
-  RefreshStatusRecorCount;
+  RefreshStatusRecordCount;
 end;
 
 procedure TfrmGrid<TE, TS>.RefreshDataFirst;
 begin
-
+//
 end;
 
 procedure TfrmGrid<TE, TS>.RefreshParentGrid(AFocusSelectedItem: Boolean);
@@ -1239,15 +1308,61 @@ begin
   Grd.DataSource.DataSet.Refresh;
   if AFocusSelectedItem then
   begin
-    Table.Id.Value := Table.Id.Value;
-    Grd.DataSource.DataSet.Locate(Table.Id.FieldName, Table.Id.Value, [loCaseInsensitive]);
+    Grd.DataSource.DataSet.Locate('id', Table.Id, [loCaseInsensitive]);
   end;
+  UpdateFooterLayout;
 end;
 
-procedure TfrmGrid<TE, TS>.RefreshStatusRecorCount();
+procedure TfrmGrid<TE, TS>.RefreshStatusRecordCount();
 begin
   if FStatusBase.Panels.Count > 0 then
     FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text := Format('Records: %d', [Grd.DataSource.DataSet.RecordCount]);
+  UpdateFooterLayout;
+end;
+
+procedure TfrmGrid<TE, TS>.SetColumnWidth(const AFieldName: string; AWidth: Integer);
+var
+  i: Integer;
+begin
+  for i := 0 to Grd.Columns.Count - 1 do
+  begin
+    if SameText(Grd.Columns[i].FieldName, AFieldName) then
+    begin
+      if AWidth <= 0 then
+        Grd.Columns[i].Visible := False
+      else
+        Grd.Columns[i].Width := AWidth;
+      Break;
+    end;
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.SetSelectedItem;
+begin
+  Service.FillEntityFromDataSet(Qry, Table);
+end;
+
+procedure TfrmGrid<TE, TS>.ShowInputForm(Sender: TObject; AFormType: TInputFormMode);
+var
+  LForm: TForm;
+  LId: Int64;
+begin
+  if (AFormType = ifmRewiev)
+  or ((not Service.UoW.InTransaction) and ((AFormType = ifmNewRecord) or (AFormType = ifmCopyNewRecord)))
+  then
+  begin
+    if (AFormType = ifmRewiev) or (AFormType = ifmCopyNewRecord) then
+    begin
+      LId := Table.Id;
+      FreeAndNil(Table);
+      Table := Service.FindById(LId, False);
+    end;
+
+    LForm := CreateInputForm(Sender, AFormType);
+    LForm.Show;
+  end
+  else
+    raise Exception.Create('Başka bir pencere giriş veya güncelleme için açılmış, önce bu işlemi tamamlayın.');
 end;
 
 procedure TfrmGrid<TE, TS>.SortGridTitle(Sender: TObject);
@@ -1268,7 +1383,7 @@ begin
   sl := TStringList.Create;
   try
     AQuery := TFDQuery(Grd.DataSource.DataSet);
-    begin
+
       //sort düzenle
       sl.Delimiter := ';';
       if AQuery.IndexFieldNames <> '' then
@@ -1338,7 +1453,7 @@ begin
         mniRemoveGridSort.Enabled := True;
 
       AQuery.IndexFieldNames := LOrderList;
-    end;
+
   finally
     sl.Free;
   end;

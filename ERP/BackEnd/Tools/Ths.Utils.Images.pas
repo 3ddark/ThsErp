@@ -3,13 +3,13 @@
 interface
 
 uses SysUtils, Classes, StdCtrls, ExtCtrls, Graphics, System.NetEncoding, Vcl.Imaging.jpeg,
-  Vcl.Imaging.pngimage, Ths.Database.Table;
+  Vcl.Imaging.pngimage;
 
 type
   TImageProcess = class
     class procedure LoadImageFromFile(AFileName: string; AImage: TImage; AMaxWidth: Integer = 0; AMaxHeight: Integer = 0);
-    class procedure LoadImageFromDB(AField: TFieldDB; AImage: TImage);
-    class procedure setValueFromImage(AField: TFieldDB; AImage: TImage);
+    class procedure LoadImageFromDB(AValue: TArray<Byte>; AImage: TImage);
+    class procedure setValueFromImage(AValue: TArray<Byte>; AImage: TImage);
     class procedure DrawEmptyImage(AImage: TImage; AMaxWidth, AMaxHeight: Integer);
   end;
 
@@ -102,19 +102,16 @@ begin
   end;
 end;
 
-class procedure TImageProcess.LoadImageFromDB(AField: TFieldDB; AImage: TImage);
+class procedure TImageProcess.LoadImageFromDB(AValue: TArray<Byte>; AImage: TImage);
 var
   LStream: TMemoryStream;
   LBytes: TBytes;
   jpgLogo: TJpegImage;
 begin
-  if AField.AsString = '' then
-    Exit;
-
   LStream := TMemoryStream.Create;
   jpgLogo := TJpegImage.Create;
   try
-    LBytes := AField.Value;
+    LBytes := AValue;
     LStream.Position := 0;
     LStream.Write(LBytes, Length(LBytes));
     LStream.Position := 0;
@@ -129,17 +126,16 @@ begin
   end;
 end;
 
-class procedure TImageProcess.setValueFromImage(AField: TFieldDB; AImage: TImage);
+class procedure TImageProcess.setValueFromImage(AValue: TArray<Byte>; AImage: TImage);
 var
   LStream: TStringStream;
 begin
   LStream := TStringStream.Create;
   try
-    AField.Value := '';
     AImage.Picture.Bitmap.SaveToStream(LStream);
 
     if LStream.Size > 0 then
-      AField.Value := LStream.Bytes;
+      AValue := LStream.Bytes;
   finally
     LStream.Free;
   end;
