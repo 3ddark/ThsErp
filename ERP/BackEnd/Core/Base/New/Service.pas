@@ -46,8 +46,6 @@ type
     procedure FillNestedEntityFromDataSet(ADataSet: TFDDataSet; AEntity: TObject; AClass: TClass);
     function HasAttribute(AProp: TRttiProperty; AAttrClass: TClass): Boolean;
     function GetColumnAttribute(AProp: TRttiProperty): Column;
-    function GetBelongsToAttribute(AProp: TRttiProperty): BelongsToAttribute;
-    function GetHasOneAttribute(AProp: TRttiProperty): HasOneAttribute;
   public
     Filter: TFilterCriteria;
     property UoW: TUnitOfWork read GetUnitOfWork;
@@ -166,26 +164,6 @@ begin
   for attr in AProp.GetAttributes do
     if attr is Column then
       Exit(attr as Column);
-end;
-
-function TService<T>.GetBelongsToAttribute(AProp: TRttiProperty): BelongsToAttribute;
-var
-  attr: TCustomAttribute;
-begin
-  Result := nil;
-  for attr in AProp.GetAttributes do
-    if attr is BelongsToAttribute then
-      Exit(attr as BelongsToAttribute);
-end;
-
-function TService<T>.GetHasOneAttribute(AProp: TRttiProperty): HasOneAttribute;
-var
-  attr: TCustomAttribute;
-begin
-  Result := nil;
-  for attr in AProp.GetAttributes do
-    if attr is HasOneAttribute then
-      Exit(attr as HasOneAttribute);
 end;
 
 procedure TService<T>.FillEntityFromDataSet(ADataSet: TFDDataSet; AEntity: T);

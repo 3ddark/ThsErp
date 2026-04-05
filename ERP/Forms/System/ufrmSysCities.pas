@@ -36,9 +36,11 @@ end;
 
 procedure TfrmSysCities.DefineColumnWidths;
 begin
-  SetColumnWidth('id',               0);
-  SetColumnWidth('city_name',      100);
-  SetColumnWidth('car_plate_code',  90);
+  SetColumnProperty('id',               0, 'Id');
+  SetColumnProperty('city_name',      100, 'Şehir Adı');
+  SetColumnProperty('car_plate_code',  90, 'Plaka Kodu');
+  SetColumnProperty('country_id',       0, 'Country Id');
+  SetColumnProperty('region_id',        0, 'Region Id');
 end;
 
 procedure TfrmSysCities.DefineFooterColumns;

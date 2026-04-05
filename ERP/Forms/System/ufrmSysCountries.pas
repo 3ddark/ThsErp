@@ -35,12 +35,12 @@ end;
 
 procedure TfrmSysCountries.DefineColumnWidths;
 begin
-  SetColumnWidth('id',             0);
-  SetColumnWidth('country_code',  80);
-  SetColumnWidth('country_name', 220);
-  SetColumnWidth('iso_year',      70);
-  SetColumnWidth('iso_cctld',     90);
-  SetColumnWidth('is_eu_member', 100);
+  SetColumnProperty('id',             0, 'Id');
+  SetColumnProperty('country_code',  80, 'Ülke Kodu');
+  SetColumnProperty('country_name', 220, 'Ülke Adı');
+  SetColumnProperty('iso_year',      70, 'ISO Yıl');
+  SetColumnProperty('iso_cctld',     90, 'ISO CCTLD');
+  SetColumnProperty('is_eu_member', 100, 'EU Üyesi');
 end;
 
 procedure TfrmSysCountries.DefineFooterColumns;

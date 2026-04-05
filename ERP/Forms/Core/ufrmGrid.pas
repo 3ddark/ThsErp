@@ -157,7 +157,7 @@ type
     procedure AddFooterColumn(const AColumnFieldName: string; AAggregateType: TAggregateType; const ADisplayFormat: string = '');
     procedure DefineFooterColumns; virtual;
     procedure DefineColumnWidths; virtual;
-    procedure SetColumnWidth(const AFieldName: string; AWidth: Integer);
+    procedure SetColumnProperty(const AFieldName: string; AWidth: Integer; AColumnTitle: string);
     procedure BuildFooter;
     procedure CreateFooterPanel;
     procedure UpdateFooterLayout;
@@ -337,7 +337,7 @@ end;
 procedure TfrmGrid<TE, TS>.BtnAddClick(Sender: TObject);
 begin
   ShowInputForm(Sender, ifmNewRecord);
-end;                                  
+end;
 
 procedure TfrmGrid<TE, TS>.BtnSpinDownClick(Sender: TObject);
 begin
@@ -1320,7 +1320,7 @@ begin
   UpdateFooterLayout;
 end;
 
-procedure TfrmGrid<TE, TS>.SetColumnWidth(const AFieldName: string; AWidth: Integer);
+procedure TfrmGrid<TE, TS>.SetColumnProperty(const AFieldName: string; AWidth: Integer; AColumnTitle: string);
 var
   i: Integer;
 begin
@@ -1332,6 +1332,7 @@ begin
         Grd.Columns[i].Visible := False
       else
         Grd.Columns[i].Width := AWidth;
+      Grd.Columns[i].Title.Caption := AColumnTitle;
       Break;
     end;
   end;
@@ -1357,7 +1358,6 @@ begin
       FreeAndNil(Table);
       Table := Service.FindById(LId, False);
     end;
-
     LForm := CreateInputForm(Sender, AFormType);
     LForm.Show;
   end

@@ -34,8 +34,8 @@ end;
 
 procedure TfrmSysRegions.DefineColumnWidths;
 begin
-  SetColumnWidth('id',            0);
-  SetColumnWidth('region_name',  80);
+  SetColumnProperty('id',            0, 'Id');
+  SetColumnProperty('region_name',  80, 'Bölge Adı');
 end;
 
 procedure TfrmSysRegions.DefineFooterColumns;
