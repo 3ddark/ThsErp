@@ -12,21 +12,8 @@ type
   public
     [Column('region_name'), MaxLength(64), Required()]
     property RegionName: string read FRegionName write FRegionName;
-
-    constructor Create(); override;
-    destructor Destroy; override;
   end;
 
 implementation
-
-constructor TSysRegion.Create();
-begin
-  inherited;
-end;
-
-destructor TSysRegion.Destroy;
-begin
-  inherited;
-end;
 
 end.

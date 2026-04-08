@@ -10,13 +10,11 @@ uses
 
 type
   TfrmSysCities = class(TfrmGrid<TSysCity, TSysCityService>)
-    procedure FormShow(Sender: TObject); override;
-  published
-    function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
   public
+    function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
-    procedure SetSelectedItem; override;
+    procedure FormShow(Sender: TObject); override;
   end;
 
 implementation
@@ -52,12 +50,6 @@ procedure TfrmSysCities.FormShow(Sender: TObject);
 begin
   inherited;
   Self.Caption := 'Sistem Şehirler';
-end;
-
-procedure TfrmSysCities.SetSelectedItem;
-begin
-  inherited;
-
 end;
 
 end.

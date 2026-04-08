@@ -9,12 +9,11 @@ uses
 
 type
   TfrmSysRegions = class(TfrmGrid<TSysRegion, TSysRegionService>)
-    procedure FormShow(Sender: TObject); override;
-  published
-    function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
   public
+    function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
+    procedure FormShow(Sender: TObject); override;
   end;
 
 implementation

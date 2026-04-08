@@ -9,13 +9,11 @@ uses
 
 type
   TfrmSysCountries = class(TfrmGrid<TSysCountry, TSysCountryService>)
-    procedure FormShow(Sender: TObject); override;
-  published
-    function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
   public
-    procedure SetSelectedItem; override;
+    function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
+    procedure FormShow(Sender: TObject); override;
   end;
 
 implementation
@@ -52,11 +50,6 @@ procedure TfrmSysCountries.FormShow(Sender: TObject);
 begin
   inherited;
   Self.Caption := 'Sistem Ülkeler';
-end;
-
-procedure TfrmSysCountries.SetSelectedItem;
-begin
-  inherited;
 end;
 
 end.

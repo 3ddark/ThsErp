@@ -23,15 +23,13 @@ type
     edtcountry_id: TEdit;
     lblregion_id: TLabel;
     edtregion_id: TEdit;
+  public
+    procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
-
-  published
-    procedure BtnAcceptClick(Sender: TObject); override;
-  public
-    procedure RefreshData; override;
     procedure HelperProcess(Sender: TObject);
     procedure InitializeInputCase; override;
+    procedure RefreshData; override;
   end;
 
 implementation

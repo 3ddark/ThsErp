@@ -17,9 +17,7 @@ type
     edtregion_name: TEdit;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
-  published
     procedure BtnAcceptClick(Sender: TObject); override;
-  public
     procedure RefreshData; override;
   end;
 

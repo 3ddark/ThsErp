@@ -25,6 +25,8 @@ const
 type
   TAggregateType = (atSum, atCount, atAverage, atMin, atMax);
 
+  TSortType = (stNone, stAsc, stDesc);
+
   TFooterColumn = class
   public
     ColumnFieldName: string;
@@ -836,6 +838,11 @@ begin
   PrepareFilteredColumns;
   PanelSidebar.Visible := False;
   PrepareStatusBar;
+
+  if FIsHelper then
+  begin
+    EdtFilter.SetFocus;
+  end;
 end;
 
 function TfrmGrid<TE, TS>.getFilterEditData: string;
@@ -867,8 +874,152 @@ begin
 end;
 
 procedure TfrmGrid<TE, TS>.grdDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+const
+  CtrlState: array[Boolean] of integer = (DFCS_BUTTONCHECK, DFCS_BUTTONCHECK or DFCS_CHECKED) ;
+  sEMPTY = '';
+
+var
+  nValue, nWidth1, nLeft2: Integer;
+  clActualPenColor, clActualBrushColor: TColor;
+  bEmptyDS: Boolean;
+  DrawRect: TRect;
+  sValue: string;
+
+  Bmp: TBitmap;
+
+  LColorActive: TColor;
+  LColor1: TColor;
+  LColor2: TColor;
 begin
+  //Satırı renklendir.
+  LColorActive := 4752;
+  LColor1 := 5435345;
+  LColor2 := 3543;
+
+  if THackDBGrid(Sender).DataLink.ActiveRecord = THackDBGrid(Sender).Row - 1 then
+  begin
+    if LColorActive > 0 then  THackDBGrid(Sender).Canvas.Brush.Color := LColorActive
+  end
+  else if (THackDBGrid(Sender).DataSource.DataSet.RecNo mod 2 = 0) then
+  begin
+    if LColor1 > 0 then THackDBGrid(Sender).Canvas.Brush.Color := LColor1
+  end
+  else if THackDBGrid(Sender).DataSource.DataSet.RecNo mod 2 = 1 then
+  begin
+    if LColor2 > 0 then THackDBGrid(Sender).Canvas.Brush.Color := LColor2;
+  end;
+
+  THackDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+  //boolean tipler için checkbox çiz
+  if (Column.Field.DataType = ftBoolean) then
+  begin
+    THackDBGrid(Sender).Canvas.FillRect(Rect);
+    if Column.Field.IsNull then
+      DrawFrameControl(THackDBGrid(Sender).Canvas.Handle, Rect, DFC_BUTTON, DFCS_BUTTONCHECK or DFCS_INACTIVE)
+    else
+      DrawFrameControl(THackDBGrid(Sender).Canvas.Handle, Rect, DFC_BUTTON, CtrlState[Column.Field.AsBoolean]);
+  end
+  else if Column.Field is TGraphicField then
+  begin
+    Bmp := TBitmap.Create;
+    try
+      Bmp.Assign(Column.Field);
+      THackDBGrid(Sender).Canvas.StretchDraw(Rect, Bmp);
+    finally
+      Bmp.Free;
+    end
+  end
+  else
+  begin
+{    if IsYuzdeCizimAlaniVar(Column.FieldName) then
+    begin
+      begin
+        bEmptyDS := ((TDBGrid(Sender).DataSource.DataSet.EoF) and (TDBGrid(Sender).DataSource.DataSet.Bof));
+
+        if (Column.Field.IsNull) then
+        begin
+          nValue := -1;
+          sValue := sEMPTY;
+        end
+        else
+        begin
+          nValue := Column.Field.AsInteger;
+          sValue := IntToStr(nValue);// + ' ' + chPERCENT;
+        end;
+
+        DrawRect := Rect;
+        InflateRect(DrawRect, -1, -1);
+
+        nWidth1 := (((DrawRect.Right - DrawRect.Left) * nValue) DIV Trunc(GetPercentMaxVal(Column.Field)) );
+
+        clActualPenColor := TDBGrid(Sender).Canvas.Pen.Color;
+        clActualBrushColor := TDBGrid(Sender).Canvas.Brush.Color;
+
+        TDBGrid(Sender).Canvas.Pen.Color := clBlack;
+        TDBGrid(Sender).Canvas.Brush.Color := ColorBarBack;
+        if THackDBGrid(Sender).DataLink.ActiveRecord = THackDBGrid(Sender).Row - 1 then
+          TDBGrid(Sender).Canvas.Font.Color := FColorBarTextActive// clActualFontColor
+        else
+          TDBGrid(Sender).Canvas.Font.Color := FColorBarText;
+
+        TDBGrid(Sender).Canvas.Rectangle(DrawRect);
+
+        if (nValue > 0) then
+        begin
+          TDBGrid(Sender).Canvas.Pen.Color := ColorBar;
+          TDBGrid(Sender).Canvas.Brush.Color := ColorBar;
+          DrawRect.Right := DrawRect.Left + nWidth1;
+          InflateRect(DrawRect, -1, -1);
+          TDBGrid(Sender).Canvas.Rectangle(DrawRect);
+        end;
+
+        if not (bEmptyDS) then
+        begin
+          DrawRect := Rect;
+          InflateRect(DrawRect, -2, -2);
+          TDBGrid(Sender).Canvas.Brush.Style := bsClear;
+          nLeft2 := DrawRect.Left + (DrawRect.Right - DrawRect.Left) shr 1 -
+                    (TDBGrid(Sender).Canvas.TextWidth(sValue) shr 1);
+          TDBGrid(Sender).Canvas.TextRect(DrawRect, nLeft2, DrawRect.Top, sValue);
+        end;
+
+        TDBGrid(Sender).Canvas.Pen.Color := clActualPenColor;
+        TDBGrid(Sender).Canvas.Brush.Color := clActualBrushColor;
+      end;
+    end
+    else if IsRenkliRakamVar(Column.FieldName) then
+    begin
+//      clActualBrushColor := TDBGrid(Sender).Canvas.Brush.Color;
 //
+//      TDBGrid(Sender).Canvas.Brush.Color := GetLowHighEqual(Column.Field, TDBGrid(Sender).Canvas.Brush.Color);
+//
+//      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+//      TDBGrid(Sender).Canvas.Brush.Color := clActualBrushColor;
+    end;  }
+  end;
+
+{
+  if  (Column.Visible) and (Pos(Column.FieldName, TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0) then
+  begin
+    sValue := '';
+    if Pos(Column.FieldName + ':A', TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0 then
+      sValue := MidStr(
+        TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames,
+        Pos(Column.FieldName + ':A', TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames),
+        Length(Column.FieldName + ':A'))
+    else if Pos(Column.FieldName + ':D', TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames) > 0 then
+      sValue := MidStr(
+        TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames,
+        Pos(Column.FieldName + ':D', TFDQuery(THackDBGrid(Sender).DataSource.DataSet).IndexFieldNames),
+        Length(Column.FieldName + ':D'));
+
+    if Pos(':A', sValue) > 0 then //yukarý yöndeki ok ASC
+      drawTriangleInRect(THackDBGrid(Sender).CellRect(DataCol+1, 0), stAsc, taLeftJustify)
+    else if Pos(':D', sValue) > 0 then  //aþaðý yöndeki ok DESC
+      drawTriangleInRect(THackDBGrid(Sender).CellRect(DataCol+1, 0), stDesc, taLeftJustify);
+  end;
+}
 end;
 
 procedure TfrmGrid<TE, TS>.grdKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -1369,7 +1520,7 @@ procedure TfrmGrid<TE, TS>.SortGridTitle(Sender: TObject);
 var
   sl: TStringList;
   LOrderList: string;
-  LOrderedColumn: Boolean;
+  LOrderedColumn, LIsCTRLKeyPress: Boolean;
   nIndex: Integer;
   LColumn: TColumn;
   AQuery: TFDQuery;
@@ -1380,16 +1531,19 @@ begin
     Exit;
 
   LOrderedColumn := False;
+  LIsCTRLKeyPress := False;
   sl := TStringList.Create;
   try
-    AQuery := TFDQuery(Grd.DataSource.DataSet);
-
+    AQuery := TFDQuery(grd.DataSource.DataSet);
+    begin
+      if isCtrlDown then
+        LIsCTRLKeyPress := True;
       //sort düzenle
       sl.Delimiter := ';';
       if AQuery.IndexFieldNames <> '' then
         sl.DelimitedText := AQuery.IndexFieldNames;
 
-      if KeyboardStateToShiftState() = [ssCtrl] then
+      if LIsCTRLKeyPress then
       begin
         //CTRL tuşuna basılmışsa
         for nIndex := 0 to sl.Count-1 do
@@ -1450,13 +1604,16 @@ begin
       end;
 
       if LOrderList <> '' then
-        mniRemoveGridSort.Enabled := True;
+        mniRemoveGridSort.Visible := True;
 
       AQuery.IndexFieldNames := LOrderList;
+    end;
 
+    THackDBGrid(grd).InvalidateTitles;
   finally
     sl.Free;
   end;
+
 end;
 
 procedure TfrmGrid<TE, TS>.StatusBarAddPanel(AWidth: Integer; AStyle: TStatusPanelStyle);

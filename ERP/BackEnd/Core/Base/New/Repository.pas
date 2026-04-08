@@ -750,7 +750,6 @@ var
   LQuery: TFDQuery;
   LParentClass: TClass;
   LParentEntity: TObject;
-  LExistingEntity: TObject;   // <-- Ekle
   LForeignKey: string;
   LForeignIdValue: TValue;
   LForeignIdProp: TRttiProperty;
@@ -758,7 +757,7 @@ var
   LSql: string;
   LWhereClause: string;
   LParentValue: TValue;
-  LExistingValue: TValue;     // <-- Ekle
+  LExistingValue: TValue;
 begin
   LQuery := TFDQuery.Create(nil);
   try

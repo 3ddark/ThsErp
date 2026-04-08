@@ -17,7 +17,8 @@ uses
   AppContext, UserContext, UnitOfWork,
   ufrmSysRegions, SysRegion.Service, SysRegion,
   ufrmSysCities, SysCity.Service, SysCity,
-  ufrmSysCountries, SysCountry.Service, SysCountry;
+  ufrmSysCountries, SysCountry.Service, SysCountry,
+  ufrmSysUomTypes, SysUomType.Service, SysUomType;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -550,7 +551,7 @@ end;
 
 procedure TfrmDashboard.actsys_cityExecute(Sender: TObject);
 begin
-  TfrmSysCities.Create(Self, TSysCityService.Create, TSysCity.Create).ShowModal;
+  TfrmSysCities.Create(Self, TSysCityService.Create, TSysCity.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_grid_columnExecute(Sender: TObject);
@@ -560,7 +561,7 @@ end;
 
 procedure TfrmDashboard.actsys_countryExecute(Sender: TObject);
 begin
-  TfrmSysCountries.Create(Self, TSysCountryService.Create, TSysCountry.Create).ShowModal;
+  TfrmSysCountries.Create(Self, TSysCountryService.Create, TSysCountry.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_dayExecute(Sender: TObject);
@@ -600,12 +601,12 @@ end;
 
 procedure TfrmDashboard.actsys_regionExecute(Sender: TObject);
 begin
-  TfrmSysRegions.Create(Self, TSysRegionService.Create, TSysRegion.Create).ShowModal;
+  TfrmSysRegions.Create(Self, TSysRegionService.Create, TSysRegion.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_unit_typeExecute(Sender: TObject);
 begin
-//
+  TfrmSysUomTypes.Create(Self, TSysUomTypeService.Create, TSysUomType.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_unitExecute(Sender: TObject);
