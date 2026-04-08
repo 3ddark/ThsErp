@@ -43,8 +43,8 @@ implementation
 constructor TSysCity.Create();
 begin
   inherited;
-//  FCountry := TSysCountry.Create;
-//  FRegion := TSysRegion.Create;
+  FCountry := TSysCountry.Create;
+  FRegion := TSysRegion.Create;
 end;
 
 destructor TSysCity.Destroy;

@@ -750,6 +750,7 @@ var
   LQuery: TFDQuery;
   LParentClass: TClass;
   LParentEntity: TObject;
+  LExistingEntity: TObject;   // <-- Ekle
   LForeignKey: string;
   LForeignIdValue: TValue;
   LForeignIdProp: TRttiProperty;
@@ -757,6 +758,7 @@ var
   LSql: string;
   LWhereClause: string;
   LParentValue: TValue;
+  LExistingValue: TValue;     // <-- Ekle
 begin
   LQuery := TFDQuery.Create(nil);
   try
@@ -767,7 +769,7 @@ begin
       Exit;
 
     if ABelongsToAttr.RemoteKeyProperty <> '' then
-      LForeignKey := ABelongsToAttr.LocalKeyProperty//RemoteKeyProperty
+      LForeignKey := ABelongsToAttr.LocalKeyProperty
     else
       LForeignKey := Format('%s_id', [AProp.Name.ToLower]);
 
@@ -781,18 +783,21 @@ begin
       Exit;
 
     LWhereClause := Format('%s = %s', [GetPrimaryKeyColumn(LParentClass), QuotedStr(LForeignIdValue.ToString)]);
-
     LSql := GenerateSelectSql(LParentClass, LWhereClause);
     LQuery.SQL.Text := LSql;
     LQuery.Open;
 
     if not LQuery.IsEmpty then
     begin
-      LParentEntity := CreateEntityInstanceByClass(LParentClass);
+      LExistingValue := AProp.GetValue(AEntity);
+      LParentEntity := LExistingValue.AsObject;
+      if not Assigned(LParentEntity) then
+      begin
+        LParentEntity := CreateEntityInstanceByClass(LParentClass);
+        LParentValue := TValue.From<TObject>(LParentEntity);
+        AProp.SetValue(AEntity, LParentValue);
+      end;
       FillEntityFromDataSet(LParentEntity, LQuery);
-
-      LParentValue := TValue.From<TObject>(LParentEntity);
-      AProp.SetValue(AEntity, LParentValue);
     end;
 
   finally
