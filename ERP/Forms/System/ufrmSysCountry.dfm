@@ -3,7 +3,7 @@ object frmSysCountry: TfrmSysCountry
   Top = 0
   Caption = 'frmSysCountry'
   ClientHeight = 182
-  ClientWidth = 467
+  ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,13 +15,13 @@ object frmSysCountry: TfrmSysCountry
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 467
+    Width = 500
     Height = 182
     Align = alClient
     Caption = 'pnlContent'
     TabOrder = 0
     object lblcountry_code: TLabel
-      Left = 27
+      Left = 51
       Top = 6
       Width = 77
       Height = 13
@@ -37,8 +37,8 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lblcountry_name: TLabel
-      Left = 24
-      Top = 30
+      Left = 48
+      Top = 29
       Width = 80
       Height = 13
       Alignment = taRightJustify
@@ -53,8 +53,8 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lbliso_year: TLabel
-      Left = 52
-      Top = 54
+      Left = 76
+      Top = 52
       Width = 52
       Height = 13
       Alignment = taRightJustify
@@ -69,8 +69,8 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lbliso_cctld: TLabel
-      Left = 38
-      Top = 78
+      Left = 62
+      Top = 75
       Width = 66
       Height = 13
       Alignment = taRightJustify
@@ -85,8 +85,8 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lblis_eu_member: TLabel
-      Left = 38
-      Top = 102
+      Left = 62
+      Top = 95
       Width = 66
       Height = 13
       Alignment = taRightJustify
@@ -101,36 +101,36 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object edtcountry_code: TEdit
-      Left = 108
+      Left = 132
       Top = 2
       Width = 333
       Height = 23
       TabOrder = 0
     end
     object edtcountry_name: TEdit
-      Left = 108
-      Top = 26
+      Left = 132
+      Top = 25
       Width = 333
       Height = 23
       TabOrder = 1
     end
     object edtiso_year: TEdit
-      Left = 108
-      Top = 50
+      Left = 132
+      Top = 48
       Width = 333
       Height = 23
       TabOrder = 2
     end
     object edtiso_cctld: TEdit
-      Left = 108
-      Top = 74
+      Left = 132
+      Top = 71
       Width = 333
       Height = 23
       TabOrder = 3
     end
     object chkis_eu_member: TCheckBox
-      Left = 108
-      Top = 101
+      Left = 132
+      Top = 94
       Width = 333
       Height = 17
       TabOrder = 4

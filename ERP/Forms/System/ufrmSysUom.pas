@@ -14,14 +14,18 @@ uses
 type
   TfrmSysUom = class(TfrmInputSimpleDB<TSysUom, TSysUomService>)
     pnlContent: TPanel;
-    lblcity_name: TLabel;
-    lblcar_plate_code: TLabel;
-    lblcountry_id: TLabel;
-    lblregion_id: TLabel;
-    edtcity_name: TEdit;
-    edtcar_plate_code: TEdit;
-    edtcountry_id: TEdit;
-    edtregion_id: TEdit;
+    edtmultiplier: TEdit;
+    chkdecimal: TCheckBox;
+    edtmeasure_type_id: TEdit;
+    edtdescription: TEdit;
+    edtunit_einv: TEdit;
+    edtunit: TEdit;
+    lblmultiplier: TLabel;
+    lbldecimal: TLabel;
+    lblmeasure_type_id: TLabel;
+    lbldescription: TLabel;
+    lblunit_einv: TLabel;
+    lblunit: TLabel;
   public
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
@@ -37,8 +41,12 @@ implementation
 
 procedure TfrmSysUom.BtnAcceptClick(Sender: TObject);
 begin
-  Table._Unit := edtcity_name.Text;
-  Table.UnitEInv := edtcar_plate_code.Text;
+  Table._Unit := edtunit.Text;
+  Table.UnitEInv := edtunit_einv.Text;
+  Table.Description := edtdescription.Text;
+  Table.Decimal := chkdecimal.Checked;
+  Table.MeasureType.MeasureType := edtmeasure_type_id.Text;
+  Table.Multiplier := StrToIntDef(edtmultiplier.Text, 0);
   inherited;
 end;
 
@@ -46,17 +54,16 @@ procedure TfrmSysUom.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtcountry_id.OnHelperProcess := HelperProcess;
-  edtregion_id.OnHelperProcess := HelperProcess;
+  edtmeasure_type_id.OnHelperProcess := HelperProcess;
 end;
 
 procedure TfrmSysUom.FormShow(Sender: TObject);
 begin
   inherited;
 
-  Self.Caption := 'Sistem Ölçü Birimleri';
+  Self.Caption := 'System Unit of Measurement';
 
-  edtcity_name.SetFocus;
+  edtunit.SetFocus;
 end;
 
 procedure TfrmSysUom.HelperProcess(Sender: TObject);
@@ -65,7 +72,7 @@ var
 begin
   if Sender is TEdit then
   begin
-    if (Sender as TEdit).Name = edtcountry_id.Name then
+    if (Sender as TEdit).Name = edtmeasure_type_id.Name then
     begin
       LFrm := TfrmSysUomTypes.Create((Sender as TEdit), TSysUomTypeService.Create, TSysUomType.Create);
       try
@@ -94,19 +101,21 @@ end;
 procedure TfrmSysUom.InitializeInputCase;
 begin
   inherited;
-  edtcity_name.thsInputDataType := itString;
-  edtcar_plate_code.thsInputDataType := itInteger;
-  edtcountry_id.thsInputDataType := itInteger;
-  edtregion_id.thsInputDataType := itInteger;
-
-  edtcity_name.MaxLength := 32;
+  edtunit.thsInputDataType := itString;
+  edtunit_einv.thsInputDataType := itString;
+  edtdescription.thsInputDataType := itString;
+  edtmeasure_type_id.thsInputDataType := itInteger;
 end;
 
 procedure TfrmSysUom.RefreshData;
 begin
   inherited;
-  edtcity_name.Text := Table._Unit;
-  edtcar_plate_code.Text := Table.UnitEInv;
+  edtunit.Text := Table._Unit;
+  edtunit_einv.Text := Table.UnitEInv;
+  edtdescription.Text := Table.Description;
+  chkdecimal.Checked := Table.Decimal;
+  edtmeasure_type_id.Text := Table.MeasureType.MeasureType;
+  edtmultiplier.Text := Table.Multiplier.ToString;
 end;
 
 end.

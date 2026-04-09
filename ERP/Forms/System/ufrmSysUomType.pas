@@ -41,7 +41,7 @@ procedure TfrmSysUomType.FormShow(Sender: TObject);
 begin
   inherited;
 
-  Self.Caption := 'System Measurement Type';
+  Self.Caption := 'System Unit of Measurement Type';
 
   edtmeasure_type.SetFocus;
 end;

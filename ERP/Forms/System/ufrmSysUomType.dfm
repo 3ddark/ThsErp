@@ -2,8 +2,8 @@ object frmSysUomType: TfrmSysUomType
   Left = 0
   Top = 0
   Caption = 'frmSysUomType'
-  ClientHeight = 126
-  ClientWidth = 502
+  ClientHeight = 106
+  ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,15 +14,13 @@ object frmSysUomType: TfrmSysUomType
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 502
-    Height = 126
+    Width = 500
+    Height = 106
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 463
-    ExplicitHeight = 104
     object lblmeasure_type: TLabel
       Left = 47
-      Top = 7
+      Top = 6
       Width = 81
       Height = 13
       Alignment = taRightJustify
@@ -38,7 +36,7 @@ object frmSysUomType: TfrmSysUomType
     end
     object edtmeasure_type: TEdit
       Left = 132
-      Top = 3
+      Top = 2
       Width = 333
       Height = 23
       TabOrder = 0

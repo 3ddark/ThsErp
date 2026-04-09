@@ -154,12 +154,12 @@ end;
 
 function TSysUomService.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUom>;
 begin
-  Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock, [ioIncludeAll]);
 end;
 
 function TSysUomService.FindById(AId: Int64; ALock: Boolean): TSysUom;
 begin
-  Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
 end;
 
 procedure TSysUomService.Add(AEntity: TSysUom);

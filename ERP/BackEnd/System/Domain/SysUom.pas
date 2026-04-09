@@ -25,7 +25,7 @@ type
     [Column('description'), MaxLength(64)]
     property Description: string read FDescription write FDescription;
 
-    [Column('is_decimal'), Required()]
+    [Column('decimal'), Required()]
     property Decimal: Boolean read FDecimal write FDecimal;
 
     [Column('measure_type_id')]
@@ -36,8 +36,26 @@ type
 
     [Column('multiplier')]
     property Multiplier: Integer read FMultiplier write FMultiplier;
+
+    constructor Create(); override;
+    destructor Destroy; override;
   end;
 
 implementation
+
+{ TSysUom }
+
+constructor TSysUom.Create;
+begin
+  inherited;
+  FMeasureType := TSysUomType.Create;
+end;
+
+destructor TSysUom.Destroy;
+begin
+  if Assigned(FMeasureType) then
+    FreeAndNil(FMeasureType);
+  inherited;
+end;
 
 end.

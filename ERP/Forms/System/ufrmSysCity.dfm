@@ -4,7 +4,7 @@ object frmSysCity: TfrmSysCity
   ActiveControl = edtcity_name
   Caption = 'frmSysCity'
   ClientHeight = 166
-  ClientWidth = 463
+  ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,13 +17,14 @@ object frmSysCity: TfrmSysCity
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 463
+    Width = 500
     Height = 166
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 463
     object lblcity_name: TLabel
-      Left = 38
-      Top = 7
+      Left = 70
+      Top = 6
       Width = 58
       Height = 13
       Alignment = taRightJustify
@@ -38,8 +39,8 @@ object frmSysCity: TfrmSysCity
       ParentFont = False
     end
     object lblcar_plate_code: TLabel
-      Left = 10
-      Top = 31
+      Left = 42
+      Top = 29
       Width = 86
       Height = 13
       Alignment = taRightJustify
@@ -54,8 +55,8 @@ object frmSysCity: TfrmSysCity
       ParentFont = False
     end
     object lblcountry_id: TLabel
-      Left = 52
-      Top = 55
+      Left = 84
+      Top = 52
       Width = 44
       Height = 13
       Alignment = taRightJustify
@@ -70,8 +71,8 @@ object frmSysCity: TfrmSysCity
       ParentFont = False
     end
     object lblregion_id: TLabel
-      Left = 55
-      Top = 79
+      Left = 87
+      Top = 75
       Width = 41
       Height = 13
       Alignment = taRightJustify
@@ -86,29 +87,29 @@ object frmSysCity: TfrmSysCity
       ParentFont = False
     end
     object edtcity_name: TEdit
-      Left = 100
-      Top = 3
+      Left = 132
+      Top = 2
       Width = 333
       Height = 23
       TabOrder = 0
     end
     object edtcar_plate_code: TEdit
-      Left = 100
-      Top = 27
+      Left = 132
+      Top = 25
       Width = 333
       Height = 23
       TabOrder = 1
     end
     object edtcountry_id: TEdit
-      Left = 100
-      Top = 51
+      Left = 132
+      Top = 48
       Width = 333
       Height = 23
       TabOrder = 2
     end
     object edtregion_id: TEdit
-      Left = 100
-      Top = 75
+      Left = 132
+      Top = 71
       Width = 333
       Height = 23
       TabOrder = 3

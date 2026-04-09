@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict Sg4lwA1NlroSbFs3tNb62i9wfpjS0ZF1hqBS1oQwvWZKVoWtKpT6kLjrOqSdcEy
+\restrict qnuf5lwDgv6xk5CSVaXOQmgeuz4XXiv8galKRtAVFc3WcakfhofYQSnzaxpylmB
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -3198,7 +3198,7 @@ CREATE TABLE public.sys_uom (
     unit character varying(16) CONSTRAINT sys_measures_measure_unit_not_null NOT NULL,
     unit_einv character varying(3),
     description character varying(64),
-    is_decimal boolean DEFAULT false CONSTRAINT sys_measures_is_decimal_not_null NOT NULL,
+    "decimal" boolean DEFAULT false CONSTRAINT sys_measures_is_decimal_not_null NOT NULL,
     measure_type_id bigint,
     multiplier integer
 );
@@ -6015,5 +6015,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Sg4lwA1NlroSbFs3tNb62i9wfpjS0ZF1hqBS1oQwvWZKVoWtKpT6kLjrOqSdcEy
+\unrestrict qnuf5lwDgv6xk5CSVaXOQmgeuz4XXiv8galKRtAVFc3WcakfhofYQSnzaxpylmB
 

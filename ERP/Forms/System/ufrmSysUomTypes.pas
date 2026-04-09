@@ -34,19 +34,19 @@ end;
 procedure TfrmSysUomTypes.DefineColumnWidths;
 begin
   SetColumnProperty('id',              0, 'Id');
-  SetColumnProperty('measure_type',  150, 'Ölçü Birimi Tipi');
+  SetColumnProperty('measure_type',  150, 'Measurement Type');
 end;
 
 procedure TfrmSysUomTypes.DefineFooterColumns;
 begin
   inherited;
-  AddFooterColumn('measure_type', atCount, '#,##0 " Ölçü Birimi Tipi"');
+  AddFooterColumn('measure_type', atCount, '#,##0 " Measurement Type"');
 end;
 
 procedure TfrmSysUomTypes.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Sistem Ölçü Birimi Tipleri';
+  Self.Caption := 'System Unit Of Measurement Types';
 end;
 
 end.

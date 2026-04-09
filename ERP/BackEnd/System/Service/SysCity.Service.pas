@@ -147,14 +147,8 @@ begin
 end;
 
 function TSysCityService.CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery;
-//var LTableName: string;
 begin
   Result := FRepo.FindAllGridQuery(AFilter);
-//  Result := FRepo.FindAllGridQuery(AFilter);
-//  LTableName := GetTableName(T);
-//  Result := TFDQuery.Create(nil);
-//  Result.Connection := Self.UoW.Connection;
-//  Result.SQL.Text := 'SELECT * FROM vw_sys_cities WHERE 1=1 ';
 end;
 
 function TSysCityService.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysCity>;

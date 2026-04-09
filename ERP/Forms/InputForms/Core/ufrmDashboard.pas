@@ -18,7 +18,8 @@ uses
   ufrmSysRegions, SysRegion.Service, SysRegion,
   ufrmSysCities, SysCity.Service, SysCity,
   ufrmSysCountries, SysCountry.Service, SysCountry,
-  ufrmSysUomTypes, SysUomType.Service, SysUomType;
+  ufrmSysUomTypes, SysUomType.Service, SysUomType,
+  ufrmSysUoms, SysUom.Service, SysUom;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -611,7 +612,7 @@ end;
 
 procedure TfrmDashboard.actsys_unitExecute(Sender: TObject);
 begin
-//
+  TfrmSysUoms.Create(Self, TSysUomService.Create, TSysUom.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_currencyExecute(Sender: TObject);

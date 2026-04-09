@@ -3,7 +3,7 @@ object frmSysRegion: TfrmSysRegion
   Top = 0
   Caption = 'frmSysRegion'
   ClientHeight = 104
-  ClientWidth = 463
+  ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,13 +16,14 @@ object frmSysRegion: TfrmSysRegion
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 463
+    Width = 500
     Height = 104
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 463
     object lblregion_name: TLabel
-      Left = 11
-      Top = 7
+      Left = 51
+      Top = 6
       Width = 77
       Height = 13
       Alignment = taRightJustify
@@ -37,8 +38,8 @@ object frmSysRegion: TfrmSysRegion
       ParentFont = False
     end
     object edtregion_name: TEdit
-      Left = 92
-      Top = 3
+      Left = 132
+      Top = 2
       Width = 333
       Height = 23
       TabOrder = 0

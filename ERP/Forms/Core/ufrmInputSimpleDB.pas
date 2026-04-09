@@ -134,10 +134,10 @@ begin
         (ctrl as TEdit).MaxLength := 10
       else if SameText(propMeta.PropertyType.Name, 'TTime') then
         (ctrl as TEdit).MaxLength := 5;
-    end;
 
-    if propMeta.Required then
-      ctrl.Tag := 1;
+      if propMeta.Required then
+        (ctrl as  Ths.Helper.Edit.TEdit).thsRequiredData := True;
+    end;
   end;
 end;
 
@@ -290,7 +290,7 @@ end;
 constructor TfrmInputSimpleDB<TE, TS>.Create(AOwner: TComponent; AService: TS; ATable: TE; AFormMode: TInputFormMode; ARefreshGridEvent: TAfterCrudRefreshGrid);
 var LModeStr: string;
 begin
-  Create(Owner);
+  Create(AOwner);
 
   case AFormMode of
     ifmNone: LModeStr := 'None';

@@ -35,21 +35,21 @@ end;
 procedure TfrmSysCities.DefineColumnWidths;
 begin
   SetColumnProperty('id',               0, 'Id');
-  SetColumnProperty('city_name',      100, 'Şehir Adı');
-  SetColumnProperty('car_plate_code',  90, 'Plaka Kodu');
+  SetColumnProperty('city_name',      100, 'City Name');
+  SetColumnProperty('car_plate_code',  90, 'Car Plate Code');
   SetColumnProperty('country_id',       0, 'Country Id');
   SetColumnProperty('region_id',        0, 'Region Id');
 end;
 
 procedure TfrmSysCities.DefineFooterColumns;
 begin
-  AddFooterColumn('id', atCount, '#,##0 " Şehir"');
+  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysCities.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Sistem Şehirler';
+  Self.Caption := 'System Cities';
 end;
 
 end.

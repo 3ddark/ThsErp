@@ -34,19 +34,19 @@ end;
 procedure TfrmSysRegions.DefineColumnWidths;
 begin
   SetColumnProperty('id',            0, 'Id');
-  SetColumnProperty('region_name',  80, 'Bölge Adı');
+  SetColumnProperty('region_name',  80, 'Region Name');
 end;
 
 procedure TfrmSysRegions.DefineFooterColumns;
 begin
   inherited;
-  AddFooterColumn('region_name', atCount, '#,##0 " Bölge"');
+  AddFooterColumn('region_name', atCount, '#,##0 " Region"');
 end;
 
 procedure TfrmSysRegions.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Sistem Bölgeler';
+  Self.Caption := 'System Regions';
 end;
 
 end.

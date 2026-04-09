@@ -2,8 +2,8 @@ object frmSysUom: TfrmSysUom
   Left = 0
   Top = 0
   Caption = 'frmSysUom'
-  ClientHeight = 441
-  ClientWidth = 624
+  ClientHeight = 199
+  ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,20 +14,18 @@ object frmSysUom: TfrmSysUom
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 624
-    Height = 441
+    Width = 500
+    Height = 199
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 463
-    ExplicitHeight = 166
-    object lblcity_name: TLabel
-      Left = 38
-      Top = 7
-      Width = 58
+    object lblmultiplier: TLabel
+      Left = 79
+      Top = 115
+      Width = 49
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'City Name'
+      Caption = 'Multipler'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -36,14 +34,14 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblcar_plate_code: TLabel
-      Left = 10
-      Top = 31
-      Width = 86
+    object lbldecimal: TLabel
+      Left = 82
+      Top = 72
+      Width = 46
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Car Plate Code'
+      Caption = 'Decimal'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -52,14 +50,14 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblcountry_id: TLabel
-      Left = 52
-      Top = 55
-      Width = 44
+    object lblmeasure_type_id: TLabel
+      Left = 47
+      Top = 92
+      Width = 81
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Country'
+      Caption = 'Measure Type'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -68,14 +66,14 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblregion_id: TLabel
-      Left = 55
-      Top = 79
-      Width = 41
+    object lbldescription: TLabel
+      Left = 63
+      Top = 52
+      Width = 65
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Region'
+      Caption = 'Description'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -84,33 +82,79 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtcity_name: TEdit
-      Left = 100
-      Top = 3
+    object lblunit_einv: TLabel
+      Left = 47
+      Top = 29
+      Width = 81
+      Height = 13
+      Alignment = taRightJustify
+      BiDiMode = bdLeftToRight
+      Caption = 'Unit e-Invoice'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentBiDiMode = False
+      ParentFont = False
+    end
+    object lblunit: TLabel
+      Left = 104
+      Top = 6
+      Width = 24
+      Height = 13
+      Alignment = taRightJustify
+      BiDiMode = bdLeftToRight
+      Caption = 'Unit'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentBiDiMode = False
+      ParentFont = False
+    end
+    object edtmultiplier: TEdit
+      Left = 132
+      Top = 111
       Width = 333
       Height = 23
-      TabOrder = 0
+      TabOrder = 5
     end
-    object edtcar_plate_code: TEdit
-      Left = 100
-      Top = 27
+    object chkdecimal: TCheckBox
+      Left = 132
+      Top = 71
+      Width = 333
+      Height = 17
+      TabOrder = 3
+    end
+    object edtmeasure_type_id: TEdit
+      Left = 132
+      Top = 88
       Width = 333
       Height = 23
-      TabOrder = 1
+      TabOrder = 4
     end
-    object edtcountry_id: TEdit
-      Left = 100
-      Top = 51
+    object edtdescription: TEdit
+      Left = 132
+      Top = 48
       Width = 333
       Height = 23
       TabOrder = 2
     end
-    object edtregion_id: TEdit
-      Left = 100
-      Top = 75
+    object edtunit_einv: TEdit
+      Left = 132
+      Top = 25
       Width = 333
       Height = 23
-      TabOrder = 3
+      TabOrder = 1
+    end
+    object edtunit: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 23
+      TabOrder = 0
     end
   end
 end
