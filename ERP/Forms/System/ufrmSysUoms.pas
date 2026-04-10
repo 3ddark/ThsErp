@@ -26,18 +26,23 @@ function TfrmSysUoms.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode)
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysUom.Create(Application, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysUom.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmSysUom.Create(Application, Service, TSysUom.Create, AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysUom.Create(Self, Service, TSysUom.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysUom.Create(Application, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysUom.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysUoms.DefineColumnWidths;
 begin
   inherited;
   SetColumnProperty('id',              0, 'Id');
-  SetColumnProperty('unit',          150, 'Unit');
+  SetColumnProperty('unit',           70, 'Unit');
+  SetColumnProperty('unit_einv',      70, 'Unit e-Invoice');
+  SetColumnProperty('description',   150, 'Description');
+  SetColumnProperty('decimal',        70, 'Decimal');
+  SetColumnProperty('measure_type_id', 0, 'Measure Type Id');
+  SetColumnProperty('multiplier',     70, 'Multiplier');
 end;
 
 procedure TfrmSysUoms.DefineFooterColumns;

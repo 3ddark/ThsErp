@@ -16,8 +16,8 @@ type
     destructor Destroy; override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUom>; override;
-    function FindById(AId: Int64; ALock: Boolean): TSysUom; override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysUom>; override;
+    function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysUom; override;
     procedure Add(AEntity: TSysUom); override;
     procedure Update(AEntity: TSysUom); override;
     procedure Delete(AId: Int64); override;
@@ -152,14 +152,20 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TSysUomService.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUom>;
+function TSysUomService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysUom>;
 begin
-  Result := FRepo.Find(AFilter, ALock, [ioIncludeAll]);
+  if AIncludeNestedEntities then
+    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
+  else
+    Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysUomService.FindById(AId: Int64; ALock: Boolean): TSysUom;
+function TSysUomService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysUom;
 begin
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  if AIncludeNestedEntities then
+    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
+  else
+    Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TSysUomService.Add(AEntity: TSysUom);

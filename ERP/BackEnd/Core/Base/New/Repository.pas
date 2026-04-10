@@ -54,6 +54,7 @@ type
     ACtx: TRttiContext;
 
     function StringListToArray(AStringList: TStringList): TArray<string>;
+    function SnakeToPascal(const S: string): string;
     function GenerateSelectSql(AClass: TClass; const AWhereClause: string = ''): string;
     function GetSelectColumns(AClass: TClass): string;
     function GetColumnNameForProperty(const APropertyName: string): string; overload;
@@ -773,7 +774,7 @@ begin
       LForeignKey := Format('%s_id', [AProp.Name.ToLower]);
 
     LEntityType := ACtx.GetType(AEntity.ClassInfo);
-    LForeignIdProp := LEntityType.GetProperty(LForeignKey.Replace('_id', 'Id'));
+    LForeignIdProp := LEntityType.GetProperty(SnakeToPascal(LForeignKey));
     if LForeignIdProp = nil then
       Exit;
 
@@ -876,6 +877,31 @@ begin
   end;
 
   Result := True;
+end;
+
+function TRepository<T>.SnakeToPascal(const S: string): string;
+var
+  i: Integer;
+  UpperNext: Boolean;
+begin
+  Result := '';
+  UpperNext := True;
+
+  for i := 1 to Length(S) do
+  begin
+    if S[i] = '_' then
+      UpperNext := True
+    else
+    begin
+      if UpperNext then
+      begin
+        Result := Result + UpCase(S[i]);
+        UpperNext := False;
+      end
+      else
+        Result := Result + LowerCase(S[i]);
+    end;
+  end;
 end;
 
 function TRepository<T>.IsChildRelationProperty(AProp: TRttiProperty): Boolean;

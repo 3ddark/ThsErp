@@ -18,6 +18,7 @@ type
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
+  public
     procedure RefreshData; override;
   end;
 

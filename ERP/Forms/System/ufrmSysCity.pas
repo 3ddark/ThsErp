@@ -16,17 +16,17 @@ type
   TfrmSysCity = class(TfrmInputSimpleDB<TSysCity, TSysCityService>)
     pnlContent: TPanel;
     lblcity_name: TLabel;
-    edtcity_name: TEdit;
     lblcar_plate_code: TLabel;
-    edtcar_plate_code: TEdit;
     lblcountry_id: TLabel;
-    edtcountry_id: TEdit;
     lblregion_id: TLabel;
+    edtcity_name: TEdit;
+    edtcar_plate_code: TEdit;
+    edtcountry_id: TEdit;
     edtregion_id: TEdit;
-  public
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
+  public
     procedure HelperProcess(Sender: TObject);
     procedure InitializeInputCase; override;
     procedure RefreshData; override;

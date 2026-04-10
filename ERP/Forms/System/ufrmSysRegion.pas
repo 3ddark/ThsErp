@@ -15,9 +15,10 @@ type
     pnlContent: TPanel;
     lblregion_name: TLabel;
     edtregion_name: TEdit;
+    procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
-    procedure BtnAcceptClick(Sender: TObject); override;
+  public
     procedure RefreshData; override;
   end;
 

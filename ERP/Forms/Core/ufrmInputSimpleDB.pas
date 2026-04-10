@@ -59,6 +59,8 @@ type
     property BtnClose: TButton read FBtnClose write FBtnClose;
     property BtnDelete: TButton read FBtnDelete write FBtnDelete;
 
+    property AfterDeleteEvent: TNotifyEvent read FAfterDeleteEvent write FAfterDeleteEvent;
+
     constructor Create(AOwner: TComponent; AService: TS; ATable: TE; AFormMode: TInputFormMode; ARefreshGridEvent: TAfterCrudRefreshGrid); reintroduce; overload;
     destructor Destroy; override;
 
@@ -94,8 +96,6 @@ type
     procedure CreateBtnAccept;
     procedure CreateBtnClose;
     procedure CreateBtnDelete;
-  published
-    property AfterDeleteEvent: TNotifyEvent read FAfterDeleteEvent write FAfterDeleteEvent;
   end;
 
 implementation

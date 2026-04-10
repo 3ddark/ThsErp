@@ -26,10 +26,10 @@ type
     lbldescription: TLabel;
     lblunit_einv: TLabel;
     lblunit: TLabel;
-  public
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
+  public
     procedure HelperProcess(Sender: TObject);
     procedure InitializeInputCase; override;
     procedure RefreshData; override;

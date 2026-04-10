@@ -3,7 +3,7 @@ object frmSysUoms: TfrmSysUoms
   Top = 0
   Caption = 'frmSysUoms'
   ClientHeight = 441
-  ClientWidth = 624
+  ClientWidth = 836
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
   SysRegion.Repository, SysRegion;
 
@@ -16,8 +16,8 @@ type
     destructor Destroy; override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysRegion>; override;
-    function FindById(AId: Int64; ALock: Boolean): TSysRegion; override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysRegion>; override;
+    function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysRegion; override;
     procedure Add(AEntity: TSysRegion); override;
     procedure Update(AEntity: TSysRegion); override;
     procedure Delete(AId: Int64); override;
@@ -152,14 +152,20 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TSysRegionService.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysRegion>;
+function TSysRegionService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysRegion>;
 begin
-  Result := FRepo.Find(AFilter, ALock);
+  if AIncludeNestedEntities then
+    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
+  else
+    Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysRegionService.FindById(AId: Int64; ALock: Boolean): TSysRegion;
+function TSysRegionService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysRegion;
 begin
-  Result := FRepo.FindById(AId, ALock);
+  if AIncludeNestedEntities then
+    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
+  else
+    Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TSysRegionService.Add(AEntity: TSysRegion);

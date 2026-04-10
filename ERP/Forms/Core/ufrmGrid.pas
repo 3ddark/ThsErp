@@ -1507,7 +1507,7 @@ begin
     begin
       LId := Table.Id;
       FreeAndNil(Table);
-      Table := Service.FindById(LId, False);
+      Table := Service.FindById(LId, False, True);
     end;
     LForm := CreateInputForm(Sender, AFormType);
     LForm.Show;

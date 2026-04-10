@@ -22,10 +22,9 @@ type
     edtiso_year: TEdit;
     edtiso_cctld: TEdit;
     chkis_eu_member: TCheckBox;
-    procedure FormShow(Sender: TObject); override;
-    procedure FormCreate(Sender: TObject); override;
-  published
     procedure BtnAcceptClick(Sender: TObject); override;
+    procedure FormCreate(Sender: TObject); override;
+    procedure FormShow(Sender: TObject); override;
   public
     procedure RefreshData; override;
   end;

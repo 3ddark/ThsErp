@@ -4,20 +4,20 @@ interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork,
+  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
   SysUser.Repository, SysUser;
 
 type
   TSysCityService = class(TCrudService<TSysUser>)
   private
-    repo: IRepository<TSysUser>;
+    FRepo: IRepository<TSysUser>;
   public
     constructor Create;
     destructor Destroy; override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUser>; override;
-    function FindById(AId: Int64; ALock: Boolean): TSysUser; override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysUser>; override;
+    function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysUser; override;
     procedure Add(AEntity: TSysUser); override;
     procedure Update(AEntity: TSysUser); override;
     procedure Delete(AId: Int64); override;
@@ -34,45 +34,39 @@ implementation
 constructor TSysCityService.Create;
 begin
   inherited;
+  FRepo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
 end;
 
 destructor TSysCityService.Destroy;
 begin
+  FRepo := nil;
   inherited;
-end;
-
-function TSysCityService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysUser;
-begin
-  if APermissionControl then
-  begin
-    //CheckPermission if not throw exception
-  end;
-  if AWithBegin then
-    Self.UoW.BeginTransaction;
-
-  repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-  try
-    Result := repo.FindById(AId, ALock);
-  finally
-    (repo as TRepository<TSysUser>).Free;
-  end;
 end;
 
 function TSysCityService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysUser>;
 begin
   if APermissionControl then
   begin
+    Self.UoW.IsAuthorized(ptRead, APermissionControl);
     //CheckPermission if not throw exception
   end;
-  if AWithBegin then
+  if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-  try
-    Result := repo.Find(AFilter, ALock);
-  finally
-    (repo as TRepository<TSysUser>).Free;
+  Result := FRepo.Find(AFilter, ALock);
+end;
+
+function TSysCityService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysUser;
+begin
+  if APermissionControl then
+  begin
+    Self.UoW.IsAuthorized(ptRead, APermissionControl);
+    //CheckPermission if not throw exception
   end;
+  if AWithBegin and not Self.UoW.InTransaction then
+    Self.UoW.BeginTransaction;
+
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TSysCityService.BusinessInsert(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -80,18 +74,14 @@ begin
   try
     if APermissionControl then
     begin
+      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
       //CheckPermission if not throw exception
     end;
 
-    if AWithBegin then
+    if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-    try
-      repo.Add(AEntity);
-    finally
-      (repo as TRepository<TSysUser>).Free;
-    end;
+    FRepo.Add(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -107,112 +97,90 @@ end;
 
 procedure TSysCityService.BusinessUpdate(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
-  if APermissionControl then
-  begin
-    //CheckPermission if not throw exception
-  end;
-
   try
-    if AWithBegin then
-      Self.UoW.BeginTransaction;
-
-    repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-    try
-      repo.Update(AEntity);
-    finally
-      (repo as TRepository<TSysUser>).Free;
+    if APermissionControl then
+    begin
+      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
+      //CheckPermission if not throw exception
     end;
 
-    if AWithCommit then
+    if AWithBegin and not Self.UoW.InTransaction then
+      Self.UoW.BeginTransaction;
+
+    FRepo.Update(AEntity);
+
+    if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
   except
-    if Self.UoW.InTransaction then
-      Self.UoW.Rollback;
-    raise;
+    on E: Exception do
+    begin
+      if Self.UoW.InTransaction then
+        Self.UoW.Rollback;
+      raise;
+    end;
   end;
 end;
 
 procedure TSysCityService.BusinessDelete(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
-  if APermissionControl then
-  begin
-    //CheckPermission if not throw exception
-  end;
-
   try
-    if AWithBegin then
-      Self.UoW.BeginTransaction;
-
-    repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-    try
-      repo.Delete(AEntity);
-    finally
-      (repo as TRepository<TSysUser>).Free;
+    if APermissionControl then
+    begin
+      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
+      //CheckPermission if not throw exception
     end;
 
-    if AWithCommit then
+    if AWithBegin and not Self.UoW.InTransaction then
+      Self.UoW.BeginTransaction;
+
+    FRepo.Delete(AEntity);
+
+    if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
   except
-    if Self.UoW.InTransaction then
-      Self.UoW.Rollback;
-    raise;
+    on E: Exception do
+    begin
+      if Self.UoW.InTransaction then
+        Self.UoW.Rollback;
+      raise;
+    end;
   end;
 end;
 
 function TSysCityService.CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery;
 begin
-  repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-  Result := repo.FindAllGridQuery(AFilter);
+  Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TSysCityService.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUser>;
+function TSysCityService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysUser>;
 begin
-  repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-  try
-    Result := repo.Find(AFilter, ALock);
-  finally
-    (repo as TRepository<TSysUser>).Free;
-  end;
+  if AIncludeNestedEntities then
+    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
+  else
+    Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysCityService.FindById(AId: Int64; ALock: Boolean): TSysUser;
+function TSysCityService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysUser;
 begin
-  repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-  try
-    Result := repo.FindById(AId, ALock);
-  finally
-    (repo as TRepository<TSysUser>).Free;
-  end;
+  if AIncludeNestedEntities then
+    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
+  else
+    Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TSysCityService.Add(AEntity: TSysUser);
 begin
-  repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-  try
-    repo.Add(AEntity);
-  finally
-    (repo as TRepository<TSysUser>).Free;
-  end;
+  FRepo.Add(AEntity);
 end;
 
 procedure TSysCityService.Update(AEntity: TSysUser);
 begin
-  repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-  try
-    repo.Update(AEntity);
-  finally
-    (repo as TRepository<TSysUser>).Free;
-  end;
+  FRepo.Update(AEntity);
 end;
 
 procedure TSysCityService.Delete(AId: Int64);
 begin
-  repo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-  try
-    repo.Delete(AId);
-  finally
-    (repo as TRepository<TSysUser>).Free;
-  end;
+  FRepo.Delete(AId);
 end;
 
 end.

@@ -1,7 +1,6 @@
 object frmSysCity: TfrmSysCity
   Left = 0
   Top = 0
-  ActiveControl = edtcity_name
   Caption = 'frmSysCity'
   ClientHeight = 166
   ClientWidth = 500
@@ -21,7 +20,6 @@ object frmSysCity: TfrmSysCity
     Height = 166
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 463
     object lblcity_name: TLabel
       Left = 70
       Top = 6

@@ -43,8 +43,6 @@ type
 
 implementation
 
-{ TSysUom }
-
 constructor TSysUom.Create;
 begin
   inherited;

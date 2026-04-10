@@ -25,11 +25,11 @@ function TfrmSysCities.CreateInputForm(Sender: TObject; AFormMode: TInputFormMod
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysCity.Create(Application, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysCity.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmSysCity.Create(Application, Service, TSysCity.Create, AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysCity.Create(Self, Service, TSysCity.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysCity.Create(Application, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysCity.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysCities.DefineColumnWidths;

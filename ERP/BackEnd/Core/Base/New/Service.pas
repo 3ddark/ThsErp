@@ -21,8 +21,8 @@ type
     function IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean; AShowException: Boolean=True): Boolean;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean): TList<T>;
-    function FindById(AId: Int64; ALock: Boolean): T;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<T>;
+    function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): T;
 
     function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): T;
     function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<T>;
@@ -68,8 +68,8 @@ type
     function IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean; AShowException: Boolean=True): Boolean;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; virtual; abstract;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean): TList<T>; virtual; abstract;
-    function FindById(AId: Int64; ALock: Boolean): T; virtual; abstract;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<T>; virtual; abstract;
+    function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): T; virtual; abstract;
 
     function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): T; virtual; abstract;
     function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<T>; virtual; abstract;

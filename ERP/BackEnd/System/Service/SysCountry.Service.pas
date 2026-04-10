@@ -16,8 +16,8 @@ type
     destructor Destroy; override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysCountry>; override;
-    function FindById(AId: Int64; ALock: Boolean): TSysCountry; override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysCountry>; override;
+    function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysCountry; override;
     procedure Add(AEntity: TSysCountry); override;
     procedure Update(AEntity: TSysCountry); override;
     procedure Delete(AId: Int64); override;
@@ -152,14 +152,20 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TSysCountryService.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysCountry>;
+function TSysCountryService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysCountry>;
 begin
-  Result := FRepo.Find(AFilter, ALock);
+  if AIncludeNestedEntities then
+    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
+  else
+    Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysCountryService.FindById(AId: Int64; ALock: Boolean): TSysCountry;
+function TSysCountryService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysCountry;
 begin
-  Result := FRepo.FindById(AId, ALock);
+  if AIncludeNestedEntities then
+    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
+  else
+    Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TSysCountryService.Add(AEntity: TSysCountry);
