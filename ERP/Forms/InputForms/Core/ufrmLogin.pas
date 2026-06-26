@@ -144,12 +144,14 @@ begin
         pb1.Visible := True;
 
         LLoginRes := LAuthSvc.Login(edtusername.Text, edtuser_password.Text);
-        if LLoginRes.UserId = Ord(TLoginStatus.lsUserNotFound) then
+        if (LLoginRes.UserId = Ord(TLoginStatus.lsUserNotFound)) then
           raise Exception.Create(edtusername.Text + ': böyle bir kullanıcı yok')
         else if LLoginRes.UserId = Ord(TLoginStatus.lsInactiveUser) then
           raise Exception.Create(edtusername.Text + ' kullanıcısı aktif değil!')
         else if LLoginRes.UserId = Ord(TLoginStatus.lsInvalidPassword) then
           raise Exception.Create('Geçersiz Kullanıcı Şifresi!')
+        else if (LLoginRes.UserId = 0) then
+          raise Exception.Create(edtusername.Text + ': böyle bir kullanıcı yok')
         else if LLoginRes.UserId = Ord(TLoginStatus.lsInvalidAppVersion) then
         begin
           Application.MessageBox('Yeni bir güncellemeniz var.', 'Güncelleme', MB_ICONINFORMATION);
@@ -233,8 +235,8 @@ begin
   edtusername.Text := ConnSetting.UserName;
   edtuser_password.Text := ConnSetting.UserPass;
   {$ELSE}
-  edtkullanici_adi.Clear;
-  edtkullanici_sifresi.Clear;
+  edtusername.Clear;
+  edtuser_password.Clear;
   {$ENDIF}
   edtdb_kullanici.Text := ConnSetting.DBUserName;
   edtdb_kullanici_sifre.Text := ConnSetting.DBUserPassword;

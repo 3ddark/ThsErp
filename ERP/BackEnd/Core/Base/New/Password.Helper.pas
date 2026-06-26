@@ -41,15 +41,22 @@ end;
 class function TPasswordHelper.VerifyPassword(const APlainPassword, AHashedPassword: string): Boolean;
 var
   LNeedRecalculate: Boolean;
+  LCnt: Byte;
 begin
   if APlainPassword.IsEmpty or AHashedPassword.IsEmpty then
     Exit(False);
 
   try
     // BCrypt hash doğrulaması
-    Result := TBCrypt.CheckPassword(APlainPassword, AHashedPassword, LNeedRecalculate);
-    if LNeedRecalculate then
-      Result := False;
+    LCnt := 0;
+    repeat
+      Inc(LCnt);
+      Result := TBCrypt.CheckPassword(APlainPassword, AHashedPassword, LNeedRecalculate);
+      if not LNeedRecalculate then
+        Result := True;
+      if LCnt >= 10 then
+        Break;
+    until (LNeedRecalculate);
   except
     Result := False;
   end;

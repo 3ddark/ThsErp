@@ -2,13 +2,14 @@
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes;
+uses SysUtils, Classes, Types, Entity, EntityAttributes, SysCity;
 
 type
   [Table('sys_addresses')]
   TSysAddress = class(TEntity)
   private
     FCityId: Int64;
+    FCity: TSysCity;
     FDistrict: string;
     FNeighborhood: string;
     FQuarter: string;
@@ -23,6 +24,9 @@ type
     [Column('city_id')]
     [Required('sysaddress.cityid.required', True)]
     property CityId: Int64 read FCityId write FCityId;
+
+    [BelongsTo('city_id', 'id')]
+    property City: TSysCity read FCity write FCity;
 
     [Column('district')]
     property District: string read FDistrict write FDistrict;

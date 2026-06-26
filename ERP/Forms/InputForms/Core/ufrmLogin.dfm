@@ -182,8 +182,8 @@ inherited frmLogin: TfrmLogin
   inherited pnlMain: TPanel
     Width = 484
     Height = 162
-    ExplicitWidth = 482
-    ExplicitHeight = 154
+    ExplicitWidth = 484
+    ExplicitHeight = 162
     object lblusername: TLabel
       Left = 100
       Top = 5
@@ -484,25 +484,25 @@ inherited frmLogin: TfrmLogin
     Top = 164
     Width = 480
     TabOrder = 2
-    ExplicitTop = 156
-    ExplicitWidth = 478
+    ExplicitTop = 164
+    ExplicitWidth = 480
     inherited btnAccept: TButton
       Left = 274
       Caption = 'Login'
       HotImageIndex = 62
       ImageIndex = 62
-      ExplicitLeft = 272
+      ExplicitLeft = 274
     end
     inherited btnClose: TButton
       Left = 378
-      ExplicitLeft = 376
+      ExplicitLeft = 378
     end
   end
   inherited stbBase: TStatusBar
     Top = 194
     Width = 484
-    ExplicitTop = 186
-    ExplicitWidth = 482
+    ExplicitTop = 194
+    ExplicitWidth = 484
   end
   object pb1: TProgressBar
     Left = 136
