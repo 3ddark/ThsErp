@@ -9,13 +9,15 @@ type
   TSysGridColumns = class(TEntity)
   private
     FTableName: string;
+    FLngCode: string;
+    FColumnLabel: string;
     FMinValue: Double;
     FColumnWidth: Integer;
     FMaxValueColor: Integer;
     FIsShowHelper: Boolean;
     FColumnOrder: Integer;
     FBarBgColor: Integer;
-    FMaxValuePercent: Integer;
+    FMaxValuePercent: Double;
     FBarTextColor: Integer;
     FMinValueColor: Integer;
     FDataFormat: string;
@@ -24,10 +26,16 @@ type
     FMaxValue: Double;
     FColumnName: string;
   public
-    [Column('table_name')]
+    [Column('table_name'), MaxLength(128), Required()]
     property TableName: string read FTableName write FTableName;
 
-    [Column('column_name')]
+    [Column('lng_code'), MaxLength(2), Required()]
+    property LngCode: string read FLngCode write FLngCode;
+
+    [Column('column_label'), MaxLength(64)]
+    property ColumnLabel: string read FColumnLabel write FColumnLabel;
+
+    [Column('column_name'), MaxLength(128), Required()]
     property ColumnName: string read FColumnName write FColumnName;
 
     [Column('column_order')]
@@ -36,7 +44,7 @@ type
     [Column('column_width')]
     property ColumnWidth: Integer read FColumnWidth write FColumnWidth;
 
-    [Column('data_format')]
+    [Column('data_format'), MaxLength(16)]
     property DataFormat: string read FDataFormat write FDataFormat;
 
     [Column('is_show')]
@@ -58,7 +66,7 @@ type
     property MaxValueColor: Integer read FMaxValueColor write FMaxValueColor;
 
     [Column('max_value_percent')]
-    property MaxValuePercent: Integer read FMaxValuePercent write FMaxValuePercent;
+    property MaxValuePercent: Double read FMaxValuePercent write FMaxValuePercent;
 
     [Column('bar_color')]
     property BarColor: Integer read FBarColor write FBarColor;
@@ -66,7 +74,7 @@ type
     [Column('bar_bg_color')]
     property BarBgColor: Integer read FBarBgColor write FBarBgColor;
 
-    [Column('bar_text_color')]
+    [Column('bar_text_coolor')]
     property BarTextColor: Integer read FBarTextColor write FBarTextColor;
 
     constructor Create(); override;
@@ -78,6 +86,18 @@ implementation
 constructor TSysGridColumns.Create();
 begin
   inherited;
+  FColumnOrder := 1;
+  FColumnWidth := 0;
+  FIsShow := True;
+  FIsShowHelper := False;
+  FMinValue := 0;
+  FMinValueColor := 0;
+  FMaxValue := 0;
+  FMaxValueColor := 0;
+  FMaxValuePercent := 0;
+  FBarColor := 0;
+  FBarBgColor := 0;
+  FBarTextColor := 0;
 end;
 
 destructor TSysGridColumns.Destroy;

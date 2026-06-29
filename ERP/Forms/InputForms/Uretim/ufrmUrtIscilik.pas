@@ -56,7 +56,7 @@ type
 implementation
 
 uses
-  Ths.Database.Table.UrtIscilikler,
+  Ths.Database.Table.PrdLabour,
   Ths.Database.Table.SysOlcuBirimiTipleri,
   Ths.Database.Table.ChHesapKarti,
   ufrmChHesapKartlari;
@@ -69,13 +69,13 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TUrtIscilik(Table).GiderKodu.Value := edtgider_kodu.Text;
-      TUrtIscilik(Table).GiderAdi.Value := edtgider_adi.Text;
-      TUrtIscilik(Table).Fiyat.Value := edtfiyat.Text;
+      TPrdLabour(Table).GiderKodu.Value := edtgider_kodu.Text;
+      TPrdLabour(Table).GiderAdi.Value := edtgider_adi.Text;
+      TPrdLabour(Table).Fiyat.Value := edtfiyat.Text;
       if (cbbolcu_birimi_id.ItemIndex > -1) and Assigned(cbbolcu_birimi_id.Items.Objects[cbbolcu_birimi_id.ItemIndex]) then
-        TUrtIscilik(Table).BirimID.Value := TSysOlcuBirimi(cbbolcu_birimi_id.Items.Objects[cbbolcu_birimi_id.ItemIndex]).Id.Value;
-      TUrtIscilik(Table).Birim.Value := cbbolcu_birimi_id.Text;
-      TUrtIscilik(Table).GiderTipi.Value := cbbgider_tipi_id.Text;
+        TPrdLabour(Table).BirimID.Value := TSysOlcuBirimi(cbbolcu_birimi_id.Items.Objects[cbbolcu_birimi_id.ItemIndex]).Id.Value;
+      TPrdLabour(Table).Birim.Value := cbbolcu_birimi_id.Text;
+      TPrdLabour(Table).GiderTipi.Value := cbbgider_tipi_id.Text;
       inherited;
     end;
   end
@@ -134,11 +134,11 @@ end;
 
 procedure TfrmUrtIscilik.RefreshData;
 begin
-  edtgider_kodu.Text := TUrtIscilik(Table).GiderKodu.Value;
-  edtgider_adi.Text := TUrtIscilik(Table).GiderAdi.Value;
-  edtfiyat.Text := TUrtIscilik(Table).Fiyat.AsString;
-  cbbolcu_birimi_id.ItemIndex := cbbolcu_birimi_id.Items.IndexOf(TUrtIscilik(Table).BirimID.Value);
-  cbbgider_tipi_id.ItemIndex := cbbgider_tipi_id.Items.IndexOf(TUrtIscilik(Table).GiderTipi.Value);
+  edtgider_kodu.Text := TPrdLabour(Table).GiderKodu.Value;
+  edtgider_adi.Text := TPrdLabour(Table).GiderAdi.Value;
+  edtfiyat.Text := TPrdLabour(Table).Fiyat.AsString;
+  cbbolcu_birimi_id.ItemIndex := cbbolcu_birimi_id.Items.IndexOf(TPrdLabour(Table).BirimID.Value);
+  cbbgider_tipi_id.ItemIndex := cbbgider_tipi_id.Items.IndexOf(TPrdLabour(Table).GiderTipi.Value);
 end;
 
 end.

@@ -13,10 +13,10 @@ type
     FPermissionGroupId: Int64;
     FPermissionGroup: TSysPermissionGroup;
   public
-    [Column('permission_code')]
+    [Column('permission_code'), Required()]
     property PermissionCode: Integer read FPermissionCode write FPermissionCode;
 
-    [Column('permission_name')]
+    [Column('permission_name'), MaxLength(64), Required()]
     property PermissionName: string read FPermissionName write FPermissionName;
 
     [Column('permission_group_id')]

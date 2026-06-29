@@ -34,7 +34,7 @@ uses
   ufrmBase,
   ufrmBaseDetaylar,
   Ths.Database.Table,
-  Ths.Database.Table.UrtReceteler;
+  Ths.Database.Table.PrdBom;
 
 const
   RH_MAL_KODU = 1;
@@ -107,10 +107,10 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TUrtRecete(Table).UrunKodu.Value := edtrecete_kodu.Text;
-      TUrtRecete(Table).UrunAdi.Value := edtrecete_adi.Text;
-      TUrtRecete(Table).OrnekMiktari.Value := edtornek_uretm_miktari.Text;
-      TUrtRecete(Table).Aciklama.Value := edtaciklama.Text;
+      TUrtBom(Table).UrunKodu.Value := edtrecete_kodu.Text;
+      TUrtBom(Table).UrunAdi.Value := edtrecete_adi.Text;
+      TUrtBom(Table).OrnekMiktari.Value := edtornek_uretm_miktari.Text;
+      TUrtBom(Table).Aciklama.Value := edtaciklama.Text;
 
       inherited;
     end;
@@ -136,11 +136,11 @@ function TfrmRctReceteDetaylar.CreateDetailInputForm1(AFormMode: TInputFormMode;
 begin
   Result := inherited;
   if (AFormMode = ifmNewRecord) or (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmRctReceteHammadde.Create(Application, AGrid, Self, TUrtReceteHammadde.Create(Table.Database), AFormMode)
+    Result := TfrmRctReceteHammadde.Create(Application, AGrid, Self, TUrtBomRawMat.Create(Table.Database), AFormMode)
   else if (AFormMode = ifmRewiev) or (AFormMode = ifmUpdate) then
   begin
     if Assigned(AGrid.Objects[COLUMN_GRID_OBJECT, AGrid.Row]) then
-      Result := TfrmRctReceteHammadde.Create(Application, AGrid, Self, TUrtReceteHammadde(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd1.Row]), AFormMode);
+      Result := TfrmRctReceteHammadde.Create(Application, AGrid, Self, TUrtBomRawMat(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd1.Row]), AFormMode);
   end;
 end;
 
@@ -148,11 +148,11 @@ function TfrmRctReceteDetaylar.CreateDetailInputForm2(AFormMode: TInputFormMode;
 begin
   Result := inherited;
   if (AFormMode = ifmNewRecord) or (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmRctReceteIscilik.Create(Application, AGrid, Self, TUrtReceteIscilik.Create(Table.Database), AFormMode)
+    Result := TfrmRctReceteIscilik.Create(Application, AGrid, Self, TUrtBomLabour.Create(Table.Database), AFormMode)
   else if (AFormMode = ifmRewiev) or (AFormMode = ifmUpdate) then
   begin
     if Assigned(AGrid.Objects[COLUMN_GRID_OBJECT, AGrid.Row]) then
-      Result := TfrmRctReceteIscilik.Create(Application, AGrid, Self, TUrtReceteIscilik(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd2.Row]), AFormMode);
+      Result := TfrmRctReceteIscilik.Create(Application, AGrid, Self, TUrtBomLabour(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd2.Row]), AFormMode);
   end;
 end;
 
@@ -160,11 +160,11 @@ function TfrmRctReceteDetaylar.CreateDetailInputForm3(AFormMode: TInputFormMode;
 begin
   Result := inherited;
   if (AFormMode = ifmNewRecord) or (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmRctReceteYanUrun.Create(Application, AGrid, Self, TUrtReceteYanUrun.Create(Table.Database), AFormMode)
+    Result := TfrmRctReceteYanUrun.Create(Application, AGrid, Self, TUrtBomByProduct.Create(Table.Database), AFormMode)
   else if (AFormMode = ifmRewiev) or (AFormMode = ifmUpdate) then
   begin
     if Assigned(AGrid.Objects[COLUMN_GRID_OBJECT, AGrid.Row]) then
-      Result := TfrmRctReceteYanUrun.Create(Application, AGrid, Self, TUrtReceteYanUrun(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd2.Row]), AFormMode);
+      Result := TfrmRctReceteYanUrun.Create(Application, AGrid, Self, TUrtBomByProduct(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd2.Row]), AFormMode);
   end;
 end;
 
@@ -188,68 +188,68 @@ begin
     GridReset();
 
 
-    if TUrtRecete(Table).ReceteMaliyet.HammaddeCount > 0 then
-      strngrd1.RowCount := TUrtRecete(Table).ReceteMaliyet.HammaddeCount + strngrd1.FixedRows;
+    if TUrtBom(Table).ReceteMaliyet.HammaddeCount > 0 then
+      strngrd1.RowCount := TUrtBom(Table).ReceteMaliyet.HammaddeCount + strngrd1.FixedRows;
     strngrd1.ColStyleDouble(RH_MIKTAR);
     strngrd1.ColStyleMoney(RH_FIYAT);
 
-    if TUrtRecete(Table).ReceteMaliyet.IscilikCount > 0 then
-      strngrd2.RowCount := TUrtRecete(Table).ReceteMaliyet.IscilikCount + strngrd2.FixedRows;
+    if TUrtBom(Table).ReceteMaliyet.IscilikCount > 0 then
+      strngrd2.RowCount := TUrtBom(Table).ReceteMaliyet.IscilikCount + strngrd2.FixedRows;
     strngrd2.ColStyleDouble(RI_MIKTAR);
     strngrd2.ColStyleMoney(RI_FIYAT);
 
-    if TUrtRecete(Table).ReceteMaliyet.YanUrunCount > 0 then
-      strngrd3.RowCount := TUrtRecete(Table).ReceteMaliyet.YanUrunCount + strngrd3.FixedRows;
+    if TUrtBom(Table).ReceteMaliyet.YanUrunCount > 0 then
+      strngrd3.RowCount := TUrtBom(Table).ReceteMaliyet.YanUrunCount + strngrd3.FixedRows;
     strngrd3.ColStyleDouble(RY_MIKTAR);
     strngrd3.ColStyleMoney(RY_FIYAT);
 
     LFirstHam := False;
     LFirstIsc := False;
     LFirstYan := False;
-    for n1 := 0 to TUrtRecete(Table).ListDetay.Count-1 do
+    for n1 := 0 to TUrtBom(Table).ListDetay.Count-1 do
     begin
-      if TObject(TUrtRecete(Table).ListDetay[n1]).ClassType = TUrtReceteHammadde then
+      if TObject(TUrtBom(Table).ListDetay[n1]).ClassType = TUrtBomRawMat then
       begin
         if LFirstHam then
           strngrd1.Row := strngrd1.Row + 1;
         LFirstHam := True;
 
-        strngrd1.Objects[COLUMN_GRID_OBJECT, strngrd1.Row] := TUrtReceteHammadde(TUrtRecete(Table).ListDetay[n1]);
+        strngrd1.Objects[COLUMN_GRID_OBJECT, strngrd1.Row] := TUrtBomRawMat(TUrtBom(Table).ListDetay[n1]);
 
-        strngrd1.Cells[RH_MAL_KODU, strngrd1.Row] := TUrtReceteHammadde(TUrtRecete(Table).ListDetay[n1]).StokKodu.AsString;
-        strngrd1.Cells[RH_MAL_ADI, strngrd1.Row] := TUrtReceteHammadde(TUrtRecete(Table).ListDetay[n1]).StokAdi.AsString;
-        strngrd1.Cells[RH_MIKTAR, strngrd1.Row] := TUrtReceteHammadde(TUrtRecete(Table).ListDetay[n1]).Miktar.AsString;
-        strngrd1.Cells[RH_BIRIM, strngrd1.Row] := TUrtReceteHammadde(TUrtRecete(Table).ListDetay[n1]).OlcuBirimi.AsString;
-        strngrd1.Cells[RH_FIRE_ORANI, strngrd1.Row] := TUrtReceteHammadde(TUrtRecete(Table).ListDetay[n1]).FireOrani.AsString;
-        strngrd1.Cells[RH_FIYAT, strngrd1.Row] := TUrtReceteHammadde(TUrtRecete(Table).ListDetay[n1]).Fiyat.AsString;
+        strngrd1.Cells[RH_MAL_KODU, strngrd1.Row] := TUrtBomRawMat(TUrtBom(Table).ListDetay[n1]).StokKodu.AsString;
+        strngrd1.Cells[RH_MAL_ADI, strngrd1.Row] := TUrtBomRawMat(TUrtBom(Table).ListDetay[n1]).StokAdi.AsString;
+        strngrd1.Cells[RH_MIKTAR, strngrd1.Row] := TUrtBomRawMat(TUrtBom(Table).ListDetay[n1]).Miktar.AsString;
+        strngrd1.Cells[RH_BIRIM, strngrd1.Row] := TUrtBomRawMat(TUrtBom(Table).ListDetay[n1]).OlcuBirimi.AsString;
+        strngrd1.Cells[RH_FIRE_ORANI, strngrd1.Row] := TUrtBomRawMat(TUrtBom(Table).ListDetay[n1]).FireOrani.AsString;
+        strngrd1.Cells[RH_FIYAT, strngrd1.Row] := TUrtBomRawMat(TUrtBom(Table).ListDetay[n1]).Fiyat.AsString;
       end
-      else if TObject(TUrtRecete(Table).ListDetay[n1]).ClassType = TUrtReceteIscilik then
+      else if TObject(TUrtBom(Table).ListDetay[n1]).ClassType = TUrtBomLabour then
       begin
         if LFirstIsc then
           strngrd2.Row := strngrd2.Row + 1;
         LFirstIsc := True;
 
-        strngrd2.Objects[COLUMN_GRID_OBJECT, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]);
+        strngrd2.Objects[COLUMN_GRID_OBJECT, strngrd2.Row] := TUrtBomLabour(TUrtBom(Table).ListDetay[n1]);
 
-        strngrd2.Cells[RI_GIDER_KODU, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]).IscilikKodu.AsString;
-        //strngrd2.Cells[RI_GIDER_ADI, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]).GiderAdi.AsString;
-        strngrd2.Cells[RI_MIKTAR, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]).Miktar.AsString;
-        strngrd2.Cells[RI_BIRIM, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]).Birim.AsString;
-        strngrd2.Cells[RI_FIYAT, strngrd2.Row] := TUrtReceteIscilik(TUrtRecete(Table).ListDetay[n1]).Fiyat.AsString;
+        strngrd2.Cells[RI_GIDER_KODU, strngrd2.Row] := TUrtBomLabour(TUrtBom(Table).ListDetay[n1]).IscilikKodu.AsString;
+        //strngrd2.Cells[RI_GIDER_ADI, strngrd2.Row] := TUrtBomLabour(TUrtBom(Table).ListDetay[n1]).GiderAdi.AsString;
+        strngrd2.Cells[RI_MIKTAR, strngrd2.Row] := TUrtBomLabour(TUrtBom(Table).ListDetay[n1]).Miktar.AsString;
+        strngrd2.Cells[RI_BIRIM, strngrd2.Row] := TUrtBomLabour(TUrtBom(Table).ListDetay[n1]).Birim.AsString;
+        strngrd2.Cells[RI_FIYAT, strngrd2.Row] := TUrtBomLabour(TUrtBom(Table).ListDetay[n1]).Fiyat.AsString;
       end
-      else if TObject(TUrtRecete(Table).ListDetay[n1]).ClassType = TUrtReceteYanUrun then
+      else if TObject(TUrtBom(Table).ListDetay[n1]).ClassType = TUrtBomByProduct then
       begin
         if LFirstYan then
           strngrd3.Row := strngrd3.Row + 1;
         LFirstYan := True;
 
-        strngrd3.Objects[COLUMN_GRID_OBJECT, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]);
+        strngrd3.Objects[COLUMN_GRID_OBJECT, strngrd3.Row] := TUrtBomByProduct(TUrtBom(Table).ListDetay[n1]);
 
-        strngrd3.Cells[RY_MAL_KODU, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).UrunKodu.AsString;
-        strngrd3.Cells[RY_MAL_ADI, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).StokAdi.AsString;
-        strngrd3.Cells[RY_MIKTAR, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).Miktar.AsString;
-        strngrd3.Cells[RY_BIRIM, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).OlcuBirimi.AsString;
-        strngrd3.Cells[RY_FIYAT, strngrd3.Row] := TUrtReceteYanUrun(TUrtRecete(Table).ListDetay[n1]).Fiyat.AsString;
+        strngrd3.Cells[RY_MAL_KODU, strngrd3.Row] := TUrtBomByProduct(TUrtBom(Table).ListDetay[n1]).UrunKodu.AsString;
+        strngrd3.Cells[RY_MAL_ADI, strngrd3.Row] := TUrtBomByProduct(TUrtBom(Table).ListDetay[n1]).StokAdi.AsString;
+        strngrd3.Cells[RY_MIKTAR, strngrd3.Row] := TUrtBomByProduct(TUrtBom(Table).ListDetay[n1]).Miktar.AsString;
+        strngrd3.Cells[RY_BIRIM, strngrd3.Row] := TUrtBomByProduct(TUrtBom(Table).ListDetay[n1]).OlcuBirimi.AsString;
+        strngrd3.Cells[RY_FIYAT, strngrd3.Row] := TUrtBomByProduct(TUrtBom(Table).ListDetay[n1]).Fiyat.AsString;
         strngrd3.Cells[RY_FIRE_ORANI, strngrd3.Row] := '';
       end
     end;
@@ -277,10 +277,10 @@ var
   LFmt: TFormatSettings;
 begin
   LFmt := FormatSettings;
-  lblValToplamTutar.Caption := FloatToStrF(TUrtRecete(Table).ReceteMaliyet.MaliyetHam, ffCurrency, 10, GSysOndalikHane.Fiyat.Value, LFmt);
-  lblValToplamIskontoTutar.Caption := FloatToStrF(TUrtRecete(Table).ReceteMaliyet.MaliyetIsc, ffCurrency, 10, GSysOndalikHane.Fiyat.Value, LFmt);
-  lblValAraToplam.Caption := FloatToStrF(TUrtRecete(Table).ReceteMaliyet.MaliyetYan, ffCurrency, 10, GSysOndalikHane.Fiyat.Value, LFmt);
-  lblValToplamKDVTutar.Caption := FloatToStrF(TUrtRecete(Table).ReceteMaliyet.MaliyetHam + TUrtRecete(Table).ReceteMaliyet.MaliyetIsc - TUrtRecete(Table).ReceteMaliyet.MaliyetYan, ffCurrency, 10, GSysOndalikHane.Fiyat.Value, LFmt);
+  lblValToplamTutar.Caption := FloatToStrF(TUrtBom(Table).ReceteMaliyet.MaliyetHam, ffCurrency, 10, GSysOndalikHane.Fiyat.Value, LFmt);
+  lblValToplamIskontoTutar.Caption := FloatToStrF(TUrtBom(Table).ReceteMaliyet.MaliyetIsc, ffCurrency, 10, GSysOndalikHane.Fiyat.Value, LFmt);
+  lblValAraToplam.Caption := FloatToStrF(TUrtBom(Table).ReceteMaliyet.MaliyetYan, ffCurrency, 10, GSysOndalikHane.Fiyat.Value, LFmt);
+  lblValToplamKDVTutar.Caption := FloatToStrF(TUrtBom(Table).ReceteMaliyet.MaliyetHam + TUrtBom(Table).ReceteMaliyet.MaliyetIsc - TUrtBom(Table).ReceteMaliyet.MaliyetYan, ffCurrency, 10, GSysOndalikHane.Fiyat.Value, LFmt);
 end;
 
 procedure TfrmRctReceteDetaylar.FormCreate(Sender: TObject);
@@ -400,10 +400,10 @@ end;
 
 procedure TfrmRctReceteDetaylar.RefreshData;
 begin
-  edtrecete_kodu.Text := TUrtRecete(Table).UrunKodu.Value;
-  edtrecete_adi.Text := TUrtRecete(Table).UrunAdi.Value;
-  edtornek_uretm_miktari.Text := TUrtRecete(Table).OrnekMiktari.Value;
-  edtaciklama.Text := TUrtRecete(Table).Aciklama.Value;
+  edtrecete_kodu.Text := TUrtBom(Table).UrunKodu.Value;
+  edtrecete_adi.Text := TUrtBom(Table).UrunAdi.Value;
+  edtornek_uretm_miktari.Text := TUrtBom(Table).OrnekMiktari.Value;
+  edtaciklama.Text := TUrtBom(Table).Aciklama.Value;
 
   GridFill();
 end;

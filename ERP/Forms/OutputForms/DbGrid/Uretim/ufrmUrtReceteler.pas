@@ -23,7 +23,7 @@ implementation
 
 uses
   Ths.Globals,
-  Ths.Database.Table.UrtReceteler,
+  Ths.Database.Table.PrdBom,
   ufrmRctReceteDetaylar;
 
 {$R *.dfm}
@@ -32,11 +32,11 @@ function TfrmRctReceteler.CreateInputForm(Sender: TObject; AFormMode: TInputForm
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmRctReceteDetaylar.Create(Application, Self, TUrtRecete(Table.List[0]).Clone, AFormMode)
+    Result := TfrmRctReceteDetaylar.Create(Application, Self, TUrtBom(Table.List[0]).Clone, AFormMode)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmRctReceteDetaylar.Create(Application, Self, TUrtRecete.Create(Table.Database), AFormMode)
+    Result := TfrmRctReceteDetaylar.Create(Application, Self, TUrtBom.Create(Table.Database), AFormMode)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmRctReceteDetaylar.Create(Application, Self, TUrtRecete(Table.List[0]).Clone, AFormMode);
+    Result := TfrmRctReceteDetaylar.Create(Application, Self, TUrtBom(Table.List[0]).Clone, AFormMode);
 end;
 
 end.

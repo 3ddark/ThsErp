@@ -22,7 +22,7 @@ type
 implementation
 
 uses
-  ufrmUrtIscilik, Ths.Database.Table.UrtIscilikler;
+  ufrmUrtIscilik, Ths.Database.Table.PrdLabour;
 
 {$R *.dfm}
 
@@ -32,7 +32,7 @@ begin
   if (pFormMode = ifmRewiev) then
     Result := TfrmUrtIscilik.Create(Application, Self, Table.Clone(), pFormMode)
   else if (pFormMode = ifmNewRecord) then
-    Result := TfrmUrtIscilik.Create(Application, Self, TUrtIscilik.Create(Table.Database), pFormMode)
+    Result := TfrmUrtIscilik.Create(Application, Self, TPrdLabour.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
     Result := TfrmUrtIscilik.Create(Application, Self, Table.Clone(), pFormMode);
 end;

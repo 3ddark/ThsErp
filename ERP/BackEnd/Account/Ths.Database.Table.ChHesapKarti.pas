@@ -10,7 +10,7 @@ uses
   Ths.Database.Table.ChGruplar, Ths.Database.Table.SetChHesapTipi,
   Ths.Database.Table.ChHesapPlanlari, Ths.Database.Table.ChBolgeler,
   Ths.Database.Table.SysUlkeler, Ths.Database.Table.SysSehirler,
-  Ths.Database.Table.SysAdresler, Ths.Database.Table.PrsPersoneller,
+  Ths.Database.Table.SysAdresler, Ths.Database.Table.EmpPersonnel,
   Ths.Database.Table.SysParaBirimleri;
 
 type

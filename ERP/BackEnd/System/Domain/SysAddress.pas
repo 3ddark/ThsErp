@@ -31,7 +31,7 @@ type
     [Column('district')]
     property District: string read FDistrict write FDistrict;
 
-    [Column('neigborhood')]
+    [Column('neighborhood')]
     property Neighborhood: string read FNeighborhood write FNeighborhood;
 
     [Column('quarter')]

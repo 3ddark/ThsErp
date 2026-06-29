@@ -77,7 +77,7 @@ type
     btnrct_iscilik_gideri: TButton;
     btnrct_paket_hammadde: TButton;
     tsaccounting: TTabSheet;
-    btnmhs_doviz_kuru: TButton;
+    btnAccDovizKuru: TButton;
     actsys_unit_type: TAction;
     btnsys_olcu_birimleri: TButton;
     btnsys_para_birimleri: TButton;
@@ -1073,7 +1073,7 @@ begin
           end
           else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_MHS_DOVIZ_KURU then
           begin
-            btnmhs_doviz_kuru.Enabled := True;
+            btnAccDovizKuru.Enabled := True;
           end;
         end
 

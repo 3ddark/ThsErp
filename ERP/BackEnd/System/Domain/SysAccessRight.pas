@@ -2,7 +2,7 @@ unit SysAccessRight;
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes;
+uses SysUtils, Classes, Types, Entity, EntityAttributes, SysPermission, SysUser;
 
 type
   [Table('sys_access_rights')]
@@ -15,6 +15,8 @@ type
     FIsDelete: Boolean;
     FIsSpecial: Boolean;
     FUserId: Int64;
+    FPermission: TSysPermission;
+    FUser: TSysUser;
   public
     [Column('permission_id')]
     [Required('sysaccessright.permissionid.required', True)]
@@ -40,6 +42,12 @@ type
     [Required('sysaccessright.userid.required', True)]
     property UserId: Int64 read FUserId write FUserId;
 
+    [BelongsTo('PermissionId')]
+    property Permission: TSysPermission read FPermission write FPermission;
+
+    [BelongsTo('UserId')]
+    property User: TSysUser read FUser write FUser;
+
     constructor Create(); override;
     destructor Destroy; override;
   end;
@@ -49,10 +57,16 @@ implementation
 constructor TSysAccessRight.Create();
 begin
   inherited;
+  FPermission := TSysPermission.Create;
+  FUser := TSysUser.Create;
 end;
 
 destructor TSysAccessRight.Destroy;
 begin
+  if Assigned(FPermission) then
+    FreeAndNil(FPermission);
+  if Assigned(FUser) then
+    FreeAndNil(FUser);
   inherited;
 end;
 

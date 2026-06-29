@@ -12,10 +12,10 @@ type
     FSymbol: string;
     FDescription: string;
   public
-    [Column('currency')]
+    [Column('currnecy'), MaxLength(3), Required()]
     property Currency: string read FCurrency write FCurrency;
 
-    [Column('symbol')]
+    [Column('symbol'), MaxLength(3), Required()]
     property Symbol: string read FSymbol write FSymbol;
 
     [Column('description')]

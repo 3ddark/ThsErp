@@ -32,7 +32,7 @@ uses
 
   ufrmBase,
   ufrmBaseDetaylarDetay,
-  Ths.Database.Table.UrtReceteler;
+  Ths.Database.Table.PrdBom;
 
 type
   TfrmRctReceteYanUrun = class(TfrmBaseDetaylarDetay)
@@ -95,7 +95,7 @@ begin
             edtstok_kodu.Text := TStkKart(LFrmStokKarti.Table).StokKodu.AsString;
             lblstok_aciklama.Caption := TStkKart(LFrmStokKarti.Table).StokAdi.AsString;
             lblmiktar_birim.Caption := TStkKart(LFrmStokKarti.Table).OlcuBirimi.AsString;
-            TUrtReceteYanUrun(Table).Fiyat.Value := TStkKart(LFrmStokKarti.Table).AlisFiyat.AsFloat;
+            TUrtBomByProduct(Table).Fiyat.Value := TStkKart(LFrmStokKarti.Table).AlisFiyat.AsFloat;
           end;
         finally
           LFrmStokKarti.Free;
@@ -107,10 +107,10 @@ end;
 
 procedure TfrmRctReceteYanUrun.RefreshData();
 begin
-  edtstok_kodu.Text := TUrtReceteYanUrun(Table).UrunKodu.AsString;
-  lblstok_aciklama.Caption := TUrtReceteYanUrun(Table).StokAdi.AsString;
-  edtmiktar.Text := TUrtReceteYanUrun(Table).Miktar.AsString;
-  lblmiktar_birim.Caption := TUrtReceteYanUrun(Table).OlcuBirimi.AsString;
+  edtstok_kodu.Text := TUrtBomByProduct(Table).UrunKodu.AsString;
+  lblstok_aciklama.Caption := TUrtBomByProduct(Table).StokAdi.AsString;
+  edtmiktar.Text := TUrtBomByProduct(Table).Miktar.AsString;
+  lblmiktar_birim.Caption := TUrtBomByProduct(Table).OlcuBirimi.AsString;
 end;
 
 procedure TfrmRctReceteYanUrun.btnAcceptClick(Sender: TObject);
@@ -119,10 +119,10 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TUrtReceteYanUrun(Table).UrunKodu.Value := edtstok_kodu.Text;
-      TUrtReceteYanUrun(Table).StokAdi.Value := lblstok_aciklama.Caption;
-      TUrtReceteYanUrun(Table).Miktar.Value := StrToFloatDef(edtMiktar.Text, 0);
-      TUrtReceteYanUrun(Table).OlcuBirimi.Value := lblmiktar_birim.Caption;
+      TUrtBomByProduct(Table).UrunKodu.Value := edtstok_kodu.Text;
+      TUrtBomByProduct(Table).StokAdi.Value := lblstok_aciklama.Caption;
+      TUrtBomByProduct(Table).Miktar.Value := StrToFloatDef(edtMiktar.Text, 0);
+      TUrtBomByProduct(Table).OlcuBirimi.Value := lblmiktar_birim.Caption;
 
       inherited;
     end;

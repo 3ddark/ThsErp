@@ -5,13 +5,13 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [TableName('sys_grid_sorts')]
-  TSysGridFilters = class(TEntity)
+  [Table('sys_grid_sorts')]
+  TSysGridSorts = class(TEntity)
   private
     FTableName: string;
     FSortContent: string;
   public
-    [Column('table_name')]
+    [Column('table_name'), MaxLength(32)]
     property TableName: string read FTableName write FTableName;
 
     [Column('sort_content')]
@@ -23,12 +23,12 @@ type
 
 implementation
 
-constructor TSysGridFilters.Create();
+constructor TSysGridSorts.Create();
 begin
   inherited;
 end;
 
-destructor TSysGridFilters.Destroy;
+destructor TSysGridSorts.Destroy;
 begin
   inherited;
 end;

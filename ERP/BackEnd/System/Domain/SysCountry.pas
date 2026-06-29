@@ -29,8 +29,16 @@ type
 
     [Column('is_eu_member'), Required()]
     property IsEuMember: Boolean read FIsEuMember write FIsEuMember;
+
+    constructor Create(); override;
   end;
 
 implementation
+
+constructor TSysCountry.Create();
+begin
+  inherited;
+  FIsEuMember := False;
+end;
 
 end.

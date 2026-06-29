@@ -35,7 +35,7 @@ uses
 
   ufrmBase,
   ufrmBaseDetaylarDetay,
-  Ths.Database.Table.UrtReceteler;
+  Ths.Database.Table.PrdBom;
 
 type
   TfrmRctReceteIscilik = class(TfrmBaseDetaylarDetay)
@@ -61,7 +61,7 @@ implementation
 uses
   Ths.Globals,
   Ths.Constants,
-  Ths.Database.Table.UrtIscilikler,
+  Ths.Database.Table.PrdLabour,
   ufrmUrtIscilikler,
   ufrmRctReceteDetaylar;
 
@@ -100,16 +100,16 @@ begin
     begin
       if TEdit(Sender).Name = edtgider_kodu.Name then
       begin
-        LFrmIsc := TfrmUrtIscilikler.Create(edtgider_kodu, Self, TUrtIscilik.Create(Table.Database), fomNormal, True);
+        LFrmIsc := TfrmUrtIscilikler.Create(edtgider_kodu, Self, TPrdLabour.Create(Table.Database), fomNormal, True);
         try
           LFrmIsc.ShowModal;
 
           if LFrmIsc.DataAktar then
           begin
-            edtgider_kodu.Text := TUrtIscilik(LFrmIsc.Table).GiderKodu.AsString;
-            lblgider_adi.Caption := TUrtIscilik(LFrmIsc.Table).GiderAdi.AsString;
-            lblmiktar_birim.Caption := TUrtIscilik(LFrmIsc.Table).Birim.AsString;
-            edtfiyat.Text := TUrtIscilik(LFrmIsc.Table).Fiyat.AsString;
+            edtgider_kodu.Text := TPrdLabour(LFrmIsc.Table).GiderKodu.AsString;
+            lblgider_adi.Caption := TPrdLabour(LFrmIsc.Table).GiderAdi.AsString;
+            lblmiktar_birim.Caption := TPrdLabour(LFrmIsc.Table).Birim.AsString;
+            edtfiyat.Text := TPrdLabour(LFrmIsc.Table).Fiyat.AsString;
           end;
         finally
           LFrmIsc.Free;
@@ -121,11 +121,11 @@ end;
 
 procedure TfrmRctReceteIscilik.RefreshData();
 begin
-  edtgider_kodu.Text := TUrtReceteIscilik(Table).IscilikKodu.AsString;
-  lblgider_adi.Caption := TUrtReceteIscilik(Table).GiderAdi.AsString;
-  edtmiktar.Text := TUrtReceteIscilik(Table).Miktar.AsString;
-  lblmiktar_birim.Caption := TUrtReceteIscilik(Table).Birim.AsString;
-  edtfiyat.Text := TUrtReceteIscilik(Table).Fiyat.AsString;
+  edtgider_kodu.Text := TUrtBomLabour(Table).IscilikKodu.AsString;
+  lblgider_adi.Caption := TUrtBomLabour(Table).GiderAdi.AsString;
+  edtmiktar.Text := TUrtBomLabour(Table).Miktar.AsString;
+  lblmiktar_birim.Caption := TUrtBomLabour(Table).Birim.AsString;
+  edtfiyat.Text := TUrtBomLabour(Table).Fiyat.AsString;
 end;
 
 procedure TfrmRctReceteIscilik.btnAcceptClick(Sender: TObject);
@@ -134,11 +134,11 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TUrtReceteIscilik(Table).IscilikKodu.Value := edtgider_kodu.Text;
-      TUrtReceteIscilik(Table).GiderAdi.Value := lblgider_adi.Caption;
-      TUrtReceteIscilik(Table).Miktar.Value := StrToFloatDef(edtMiktar.Text, 0);
-      TUrtReceteIscilik(Table).Birim.Value := lblmiktar_birim.Caption;
-      TUrtReceteIscilik(Table).Fiyat.Value := StrToFloatDef(edtfiyat.Text, 0);
+      TUrtBomLabour(Table).IscilikKodu.Value := edtgider_kodu.Text;
+      TUrtBomLabour(Table).GiderAdi.Value := lblgider_adi.Caption;
+      TUrtBomLabour(Table).Miktar.Value := StrToFloatDef(edtMiktar.Text, 0);
+      TUrtBomLabour(Table).Birim.Value := lblmiktar_birim.Caption;
+      TUrtBomLabour(Table).Fiyat.Value := StrToFloatDef(edtfiyat.Text, 0);
 
       inherited;
     end;

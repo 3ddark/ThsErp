@@ -17,7 +17,7 @@ uses
   Ths.Database.Table,
   Ths.Database.TableDetailed,
   Ths.Database.Table.SysOndalikHaneler,
-  Ths.Database.Table.PrsPersoneller,
+  Ths.Database.Table.EmpPersonnel,
   Ths.Database.Table.StkKartlar,
   Ths.Database.Table.SysUlkeler,
   Ths.Database.Table.SysSehirler,
@@ -169,7 +169,7 @@ type
     FFaturaTipi: TSetEinvFaturaTipi;
     FSysUlke: TSysUlke;
     FSysSehir: TSysSehir;
-    FTemsilci: TPrsPersonel;
+    FTemsilci: TEmpPersonnel;
     FSetTeklifDurum: TSetSatTeklifDurum;
     FSetTeslimSekli: TSetEinvTeslimSekli;
     FSetOdemeSekli: TSetEinvOdemeSekli;
@@ -544,7 +544,7 @@ begin
 
   FSysUlke := TSysUlke.Create(Database);
   FSysSehir := TSysSehir.Create(Database);
-  FTemsilci := TPrsPersonel.Create(Database);
+  FTemsilci := TEmpPersonnel.Create(Database);
   FFaturaTipi := TSetEinvFaturaTipi.Create(Database);
   FSetTeklifDurum := TSetSatTeklifDurum.Create(Database);
   FSetTeslimSekli := TSetEinvTeslimSekli.Create(Database);

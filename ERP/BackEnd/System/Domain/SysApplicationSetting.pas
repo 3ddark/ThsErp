@@ -1,10 +1,23 @@
-﻿unit SysApplicationSetting;
+unit SysApplicationSetting;
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes, SysAddress;
+uses SysUtils, Classes, Types, Entity, EntityAttributes, SysAddress, SysCurrency, Rest.Json;
 
 type
+  TSysApplicationSettingOtherSettings = class(TObject)
+  private
+    FStockCardImagePath: string;
+    FPersonnelCardImagePath: string;
+    FUpdatePath: string;
+  public
+    property StockCardImagePath: string read FStockCardImagePath write FStockCardImagePath;
+    property PersonnelCardImagePath: string read FPersonnelCardImagePath write FPersonnelCardImagePath;
+    property UpdatePath: string read FUpdatePath write FUpdatePath;
+
+    constructor Create;
+  end;
+
   [Table('sys_application_settings')]
   TSysApplicationSetting = class(TEntity)
   private
@@ -30,11 +43,13 @@ type
     FGridColorActive: Integer;
     FGridColor1: Integer;
     FLogo: TArray<Byte>;
+    FCurrencyRef: TSysCurrency;
     FAppCurrency: string;
     FMailSmtpPort: Integer;
     FAppVersion: string;
     FTaxNo: string;
     FAddress: TSysAddress;
+    FOtherSettingsObj: TSysApplicationSettingOtherSettings;
   public
     [Column('company_title')]
     [Required('sysapplicationsetting.companytitle.required', True)]
@@ -103,6 +118,9 @@ type
     [Column('app_currency')]
     property AppCurrency: string read FAppCurrency write FAppCurrency;
 
+    [BelongsTo('AppCurrency', 'Currency')]
+    property Currency: TSysCurrency read FCurrencyRef write FCurrencyRef;
+
     [Column('address_id')]
     property AddressId: Int64 read FAddressId write FAddressId;
 
@@ -110,7 +128,10 @@ type
     property Address: TSysAddress read FAddress write FAddress;
 
     [Column('other_settings')]
-    property OtherSettings: string read FOtherSettings write FOtherSettings;//json data
+    property OtherSettings: string read FOtherSettings write FOtherSettings;
+
+    procedure DeserializeOtherSettings;
+    procedure SerializeOtherSettings;
 
     [Column('taxpayer_name')]
     property TaxpayerName: string read FTaxpayerName write FTaxpayerName;
@@ -124,20 +145,60 @@ type
     [Column('logo')]
     property Logo: TArray<Byte> read FLogo write FLogo;
 
+    property OtherSettingsObj: TSysApplicationSettingOtherSettings read FOtherSettingsObj;
+
     constructor Create(); override;
     destructor Destroy; override;
   end;
 
 implementation
 
+constructor TSysApplicationSettingOtherSettings.Create;
+begin
+  inherited;
+  FStockCardImagePath := '';
+  FPersonnelCardImagePath := '';
+  FUpdatePath := '';
+end;
+
 constructor TSysApplicationSetting.Create();
 begin
   inherited;
+  FAddress := TSysAddress.Create;
+  FCurrencyRef := TSysCurrency.Create;
+  FOtherSettingsObj := TSysApplicationSettingOtherSettings.Create;
 end;
 
 destructor TSysApplicationSetting.Destroy;
 begin
+  if Assigned(FOtherSettingsObj) then
+    FOtherSettingsObj.Free;
+  if Assigned(FCurrencyRef) then
+    FCurrencyRef.Free;
+  if Assigned(FAddress) then
+    FAddress.Free;
   inherited;
+end;
+
+procedure TSysApplicationSetting.DeserializeOtherSettings;
+begin
+  if Trim(FOtherSettings) = '' then
+    Exit;
+  try
+    FOtherSettingsObj := TJson.JsonToObject<TSysApplicationSettingOtherSettings>(Trim(FOtherSettings));
+    if not Assigned(FOtherSettingsObj) then
+      FOtherSettingsObj := TSysApplicationSettingOtherSettings.Create;
+  except
+    FOtherSettingsObj.Free;
+    FOtherSettingsObj := TSysApplicationSettingOtherSettings.Create;
+  end;
+end;
+
+procedure TSysApplicationSetting.SerializeOtherSettings;
+begin
+  if not Assigned(FOtherSettingsObj) then
+    Exit;
+  FOtherSettings := TJson.ObjectToJsonString(FOtherSettingsObj);
 end;
 
 end.

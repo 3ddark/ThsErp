@@ -309,17 +309,17 @@
         <DCCReference Include="BackEnd\System\Service\SysPermissionGroup.Service.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysViewColumn.Service.pas"/>
         <DCCReference Include="BackEnd\System\Domain\SysLanguage.pas"/>
-        <DCCReference Include="BackEnd\Person\PrsDriverLicence.pas"/>
-        <DCCReference Include="BackEnd\Person\PrsLanguageAbility.pas"/>
-        <DCCReference Include="BackEnd\Person\PrsPerson.pas"/>
-        <DCCReference Include="BackEnd\Person\SetPrsUnit.pas"/>
-        <DCCReference Include="BackEnd\Person\SetPrsSection.pas"/>
-        <DCCReference Include="BackEnd\Person\SetPrsDriverLicenceType.pas"/>
-        <DCCReference Include="BackEnd\Person\SetPrsTask.pas"/>
-        <DCCReference Include="BackEnd\Person\SetPrsLanguage.pas"/>
-        <DCCReference Include="BackEnd\Person\SetPrsLanguageLevel.pas"/>
-        <DCCReference Include="BackEnd\Person\SetPrsPersonType.pas"/>
-        <DCCReference Include="BackEnd\Person\SetPrsTransportation.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpDriverLicence.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpLanguageAbility.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpPerson.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpUnit.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpSection.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpDriverLicenceType.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpTask.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpLanguage.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpLanguageLevel.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpPersonType.pas"/>
+        <DCCReference Include="BackEnd\Person\Domain\EmpTransportation.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -1329,3 +1329,4 @@
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>
+

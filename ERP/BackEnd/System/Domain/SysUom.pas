@@ -46,6 +46,8 @@ implementation
 constructor TSysUom.Create;
 begin
   inherited;
+  FDecimal := False;
+  FMultiplier := 1;
   FMeasureType := TSysUomType.Create;
 end;
 

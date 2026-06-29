@@ -1,4 +1,4 @@
-unit Ths.Database.Table.SysKullanicilar;
+﻿unit Ths.Database.Table.SysKullanicilar;
 
 interface
 
@@ -54,18 +54,18 @@ implementation
 
 uses
   Ths.Globals, Ths.Constants, Ths.Database.Table.SysErisimHaklari,
-  Ths.Database.Table.SysKaynaklar, Ths.Database.Table.PrsPersoneller,
+  Ths.Database.Table.SysKaynaklar, Ths.Database.Table.EmpPersonnel,
   Ths.Database.Table.SysUygulamaAyarlari;
 
 constructor TSysKullanici.Create(ADatabase: TDatabase);
 var
-  LEmployee: TPrsPersonel;
+  LEmployee: TEmpPersonnel;
 begin
   TableName := 'sys_kullanicilar';
   TableSourceCode := MODULE_SISTEM_AYAR;
   inherited Create(ADatabase);
 
-  LEmployee := TPrsPersonel.Create(Database);
+  LEmployee := TEmpPersonnel.Create(Database);
   try
     FKullaniciAdi := TFieldDB.Create('kullanici_adi', ftString, '', Self);
     FKullaniciSifre := TFieldDB.Create('kullanici_sifre', ftString, '', Self);
@@ -84,12 +84,12 @@ end;
 function TSysKullanici.SelectToDatasource(AFilter: string; APermissionControl: Boolean; AAllColumn: Boolean; AHelper: Boolean): string;
 var
   LQry: TFDQuery;
-  LEmployee: TPrsPersonel;
+  LEmployee: TEmpPersonnel;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
 
-  LEmployee := TPrsPersonel.Create(Database);
+  LEmployee := TEmpPersonnel.Create(Database);
   LQry := Database.NewQuery;
   try
     Database.SQLBuilder.GetSQLSelectCmd(LQry, TableName, [
@@ -117,7 +117,7 @@ end;
 procedure TSysKullanici.SelectToList(AFilter: string; ALock: Boolean; APermissionControl: Boolean);
 var
   LQry: TFDQuery;
-  LEmployee: TPrsPersonel;
+  LEmployee: TEmpPersonnel;
 begin
   if not IsAuthorized(ptRead, APermissionControl) then
     Exit;
@@ -125,7 +125,7 @@ begin
   AFilter := GetLockSQL(AFilter, ALock);
 
   LQry := Database.NewQuery();
-  LEmployee := TPrsPersonel.Create(Database);
+  LEmployee := TEmpPersonnel.Create(Database);
   try
     with LQry do
     begin

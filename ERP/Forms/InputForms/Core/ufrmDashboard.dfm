@@ -520,7 +520,7 @@ inherited frmDashboard: TfrmDashboard
       object tsaccounting: TTabSheet
         Caption = 'Muhasebe'
         ImageIndex = 6
-        object btnmhs_doviz_kuru: TButton
+        object btnAccDovizKuru: TButton
           Left = 314
           Top = 2
           Width = 150

@@ -10,6 +10,7 @@ type
   private
     FMonthName: string;
   public
+    [Column('month_name'), MaxLength(16), Required()]
     property MonthName: string read FMonthName write FMonthName;
 
     constructor Create(); override;

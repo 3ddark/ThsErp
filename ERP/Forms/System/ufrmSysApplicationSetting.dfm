@@ -20,10 +20,10 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
       Top = 0
       Width = 694
       Height = 334
-      ActivePage = tsMain
+      ActivePage = tsdiger
       TabOrder = 0
       object tsMain: TTabSheet
-        object lblunvan: TLabel
+        object lblcompany_title: TLabel
           Left = 99
           Top = 6
           Width = 36
@@ -39,7 +39,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lbltelefon: TLabel
+        object lblphone: TLabel
           Left = 93
           Top = 29
           Width = 42
@@ -55,7 +55,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblfaks: TLabel
+        object lblfax: TLabel
           Left = 109
           Top = 52
           Width = 26
@@ -71,21 +71,21 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtunvan: TEdit
+        object edtcompany_title: TEdit
           Left = 137
           Top = 2
           Width = 543
           Height = 23
           TabOrder = 0
         end
-        object edttelefon: TEdit
+        object edtphone: TEdit
           Left = 137
           Top = 25
           Width = 136
           Height = 23
           TabOrder = 1
         end
-        object edtfaks: TEdit
+        object edtfax: TEdit
           Left = 137
           Top = 48
           Width = 136
@@ -114,23 +114,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
       object tsadres: TTabSheet
         Caption = 'Adres'
         ImageIndex = 2
-        object lblvergi_dairesi: TLabel
-          Left = 400
-          Top = 36
-          Width = 71
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Vergi Dairesi'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblvergi_numarasi: TLabel
+        object lbltax_no: TLabel
           Left = 386
           Top = 13
           Width = 85
@@ -146,14 +130,62 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblweb: TLabel
-          Left = 412
-          Top = 255
-          Width = 59
+        object lbltax_authority: TLabel
+          Left = 400
+          Top = 36
+          Width = 71
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Web Sitesi'
+          Caption = 'Vergi Dairesi'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblmukellef_tipi: TLabel
+          Left = 62
+          Top = 13
+          Width = 71
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'M'#252'kellef Tipi'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblmukellef_adi: TLabel
+          Left = 64
+          Top = 36
+          Width = 69
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'M'#252'kellef Ad'#305
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblmukellef_soyadi: TLabel
+          Left = 44
+          Top = 57
+          Width = 89
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'M'#252'kellef Soyad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -170,6 +202,22 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = 'e-Posta'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblweb: TLabel
+          Left = 412
+          Top = 255
+          Width = 59
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Web Sitesi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -218,6 +266,38 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
           Caption = #304'l'#231'e'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblsemt: TLabel
+          Left = 441
+          Top = 167
+          Width = 30
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Semt'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblcadde: TLabel
+          Left = 436
+          Top = 189
+          Width = 35
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Cadde'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -306,113 +386,49 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsemt: TLabel
-          Left = 441
-          Top = 167
-          Width = 30
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Semt'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblcadde: TLabel
-          Left = 436
-          Top = 189
-          Width = 35
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Cadde'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblmukellef_tipi: TLabel
-          Left = 62
-          Top = 13
-          Width = 71
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'M'#252'kellef Tipi'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblmukellef_adi: TLabel
-          Left = 64
-          Top = 36
-          Width = 69
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'M'#252'kellef Ad'#305
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblmukellef_soyadi: TLabel
-          Left = 44
-          Top = 57
-          Width = 89
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'M'#252'kellef Soyad'#305
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object edtvergi_dairesi: TEdit
-          Left = 473
-          Top = 32
-          Width = 200
-          Height = 23
-          TabOrder = 3
-        end
-        object edtvergi_numarasi: TEdit
+        object edttax_no: TEdit
           Left = 473
           Top = 9
           Width = 120
           Height = 23
           TabOrder = 1
         end
-        object edtweb: TEdit
-          Left = 473
-          Top = 251
-          Width = 200
+        object cbbmukellef_tipi: TComboBox
+          Left = 137
+          Top = 9
+          Width = 178
           Height = 23
-          TabOrder = 16
+          Style = csDropDownList
+          TabOrder = 0
+          OnChange = cbbmukellef_tipiChange
         end
-        object edtemail: TEdit
-          Left = 135
-          Top = 251
+        object edttax_authority: TEdit
+          Left = 473
+          Top = 32
           Width = 200
           Height = 23
-          TabOrder = 15
+          TabOrder = 3
+        end
+        object edtmukellef_adi: TEdit
+          Left = 135
+          Top = 32
+          Width = 180
+          Height = 23
+          TabOrder = 2
+        end
+        object edtmukellef_soyadi: TEdit
+          Left = 135
+          Top = 53
+          Width = 180
+          Height = 23
+          TabOrder = 4
+        end
+        object edtulke_adi: TEdit
+          Left = 135
+          Top = 141
+          Width = 200
+          Height = 23
+          TabOrder = 5
         end
         object edtsehir_id: TEdit
           Left = 473
@@ -427,6 +443,20 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Width = 200
           Height = 23
           TabOrder = 7
+        end
+        object edtsemt: TEdit
+          Left = 473
+          Top = 163
+          Width = 200
+          Height = 23
+          TabOrder = 8
+        end
+        object edtcadde: TEdit
+          Left = 473
+          Top = 185
+          Width = 200
+          Height = 23
+          TabOrder = 10
         end
         object edtmahalle: TEdit
           Left = 135
@@ -463,203 +493,25 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Height = 23
           TabOrder = 14
         end
-        object edtulke_adi: TEdit
+        object edtemail: TEdit
           Left = 135
-          Top = 141
+          Top = 251
           Width = 200
           Height = 23
-          TabOrder = 5
+          TabOrder = 15
         end
-        object edtsemt: TEdit
+        object edtweb: TEdit
           Left = 473
-          Top = 163
+          Top = 251
           Width = 200
           Height = 23
-          TabOrder = 8
-        end
-        object edtcadde: TEdit
-          Left = 473
-          Top = 185
-          Width = 200
-          Height = 23
-          TabOrder = 10
-        end
-        object cbbmukellef_tipi: TComboBox
-          Left = 137
-          Top = 9
-          Width = 178
-          Height = 23
-          Style = csDropDownList
-          TabOrder = 0
-          OnChange = cbbmukellef_tipiChange
-        end
-        object edtmukellef_adi: TEdit
-          Left = 135
-          Top = 32
-          Width = 180
-          Height = 23
-          TabOrder = 2
-        end
-        object edtmukellef_soyadi: TEdit
-          Left = 135
-          Top = 53
-          Width = 180
-          Height = 23
-          TabOrder = 4
-        end
-      end
-      object tsgorsel: TTabSheet
-        Caption = 'G'#246'rsel'
-        ImageIndex = 2
-        object lblversiyon: TLabel
-          Left = 33
-          Top = 168
-          Width = 102
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Uygulama Version'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lbldonem: TLabel
-          Left = 95
-          Top = 122
-          Width = 40
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'D'#246'nem'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblcrypt_key: TLabel
-          Left = 29
-          Top = 98
-          Width = 106
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = #350'ifreleme Anahtar'#305
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblgrid_renk_aktif: TLabel
-          Left = 50
-          Top = 75
-          Width = 85
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Grid Renk Aktif'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblgrid_renk_2: TLabel
-          Left = 70
-          Top = 52
-          Width = 65
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Grid Renk 2'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblgrid_renk_1: TLabel
-          Left = 70
-          Top = 29
-          Width = 65
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Grid Renk 1'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object edtcrypt_key: TEdit
-          Left = 137
-          Top = 94
-          Width = 160
-          Height = 23
-          TabOrder = 3
-        end
-        object edtversiyon: TEdit
-          Left = 137
-          Top = 164
-          Width = 160
-          Height = 23
-          TabOrder = 5
-        end
-        object edtdonem: TEdit
-          Left = 137
-          Top = 118
-          Width = 160
-          Height = 23
-          TabOrder = 4
-        end
-        object edtgrid_renk_aktif: TEdit
-          Left = 137
-          Top = 71
-          Width = 160
-          Height = 23
-          TabOrder = 2
-          OnDblClick = edtgrid_renk_aktifDblClick
-          OnExit = edtgrid_renk_aktifExit
-        end
-        object edtgrid_renk_2: TEdit
-          Left = 137
-          Top = 48
-          Width = 160
-          Height = 23
-          TabOrder = 1
-          OnDblClick = edtgrid_renk_2DblClick
-          OnExit = edtgrid_renk_2Exit
-        end
-        object edtgrid_renk_1: TEdit
-          Left = 137
-          Top = 25
-          Width = 160
-          Height = 23
-          TabOrder = 0
-          OnDblClick = edtgrid_renk_1DblClick
-          OnExit = edtgrid_renk_1Exit
+          TabOrder = 16
         end
       end
       object tsservis_ayarlari: TTabSheet
         Caption = 'Servis Ayarlar'#305
         ImageIndex = 1
-        object lblmail_sunucu: TLabel
+        object lblmail_host: TLabel
           Left = 387
           Top = 7
           Width = 88
@@ -675,7 +527,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmail_kullanici: TLabel
+        object lblmail_user: TLabel
           Left = 338
           Top = 30
           Width = 137
@@ -691,7 +543,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmail_sifre: TLabel
+        object lblmail_password: TLabel
           Left = 321
           Top = 53
           Width = 154
@@ -723,7 +575,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsms_sunucu: TLabel
+        object lblsms_host: TLabel
           Left = 360
           Top = 162
           Width = 115
@@ -739,7 +591,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsms_kullanici: TLabel
+        object lblsms_user: TLabel
           Left = 381
           Top = 185
           Width = 94
@@ -755,7 +607,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsms_sifre: TLabel
+        object lblsms_password: TLabel
           Left = 364
           Top = 208
           Width = 111
@@ -771,7 +623,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsms_baslik: TLabel
+        object lblsms_title: TLabel
           Left = 415
           Top = 231
           Width = 60
@@ -787,21 +639,21 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtmail_sunucu: TEdit
+        object edtmail_host: TEdit
           Left = 477
           Top = 3
           Width = 200
           Height = 23
           TabOrder = 0
         end
-        object edtmail_kullanici: TEdit
+        object edtmail_user: TEdit
           Left = 477
           Top = 26
           Width = 200
           Height = 23
           TabOrder = 1
         end
-        object edtmail_sifre: TEdit
+        object edtmail_password: TEdit
           Left = 477
           Top = 49
           Width = 200
@@ -816,21 +668,21 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Height = 23
           TabOrder = 3
         end
-        object edtsms_sunucu: TEdit
+        object edtsms_host: TEdit
           Left = 477
           Top = 158
           Width = 200
           Height = 23
           TabOrder = 4
         end
-        object edtsms_kullanici: TEdit
+        object edtsms_user: TEdit
           Left = 477
           Top = 181
           Width = 200
           Height = 23
           TabOrder = 5
         end
-        object edtsms_sifre: TEdit
+        object edtsms_password: TEdit
           Left = 477
           Top = 204
           Width = 200
@@ -838,7 +690,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           PasswordChar = '#'
           TabOrder = 6
         end
-        object edtsms_baslik: TEdit
+        object edtsms_title: TEdit
           Left = 477
           Top = 227
           Width = 200
@@ -849,27 +701,13 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
       object tsdiger: TTabSheet
         Caption = 'Di'#287'er Ayarlar'
         ImageIndex = 3
-        object lblpath_stok_karti_resim: TLabel
+        object lblpath_stock_card_image: TLabel
           Left = 33
           Top = 5
           Width = 121
           Height = 13
           Alignment = taRightJustify
           Caption = 'Stok Kart'#305' Resim Yolu'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object lblpath_guncelleme: TLabel
-          Left = 23
-          Top = 53
-          Width = 131
-          Height = 13
-          Alignment = taRightJustify
-          Caption = 'G'#252'ncelleme Dosya Yolu'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -891,37 +729,35 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object edtpath_stok_karti_resim: TEdit
+        object lblpath_update: TLabel
+          Left = 23
+          Top = 53
+          Width = 131
+          Height = 13
+          Alignment = taRightJustify
+          Caption = 'G'#252'ncelleme Dosya Yolu'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object edtpath_stock_card_image: TEdit
           Left = 160
           Top = 2
           Width = 462
           Height = 23
           TabOrder = 0
         end
-        object btnpath_stok_karti_resim: TButton
+        object btnpath_stock_card_image: TButton
           Left = 624
           Top = 2
           Width = 21
           Height = 21
           Caption = '...'
           TabOrder = 1
-          OnClick = btnpath_stok_karti_resimClick
-        end
-        object edtpath_guncelleme: TEdit
-          Left = 160
-          Top = 50
-          Width = 462
-          Height = 23
-          TabOrder = 4
-        end
-        object btnpath_guncelleme: TButton
-          Left = 624
-          Top = 50
-          Width = 21
-          Height = 21
-          Caption = '...'
-          TabOrder = 5
-          OnClick = btnpath_guncellemeClick
+          OnClick = btnpath_stock_card_imageClick
         end
         object edtpath_personel_karti_resim: TEdit
           Left = 160
@@ -938,6 +774,170 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Caption = '...'
           TabOrder = 3
           OnClick = btnpath_personel_karti_resimClick
+        end
+        object edtpath_update: TEdit
+          Left = 160
+          Top = 50
+          Width = 462
+          Height = 23
+          TabOrder = 4
+        end
+        object btnpath_update: TButton
+          Left = 624
+          Top = 50
+          Width = 21
+          Height = 21
+          Caption = '...'
+          TabOrder = 5
+          OnClick = btnpath_updateClick
+        end
+      end
+      object tsgorsel: TTabSheet
+        Caption = 'G'#246'rsel'
+        ImageIndex = 2
+        object lblgrid_color_1: TLabel
+          Left = 70
+          Top = 29
+          Width = 65
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Grid Renk 1'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblgrid_color_2: TLabel
+          Left = 70
+          Top = 52
+          Width = 65
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Grid Renk 2'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblgrid_color_active: TLabel
+          Left = 50
+          Top = 75
+          Width = 85
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Grid Renk Aktif'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblcrypt_key: TLabel
+          Left = 29
+          Top = 98
+          Width = 106
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = #350'ifreleme Anahtar'#305
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblperiod: TLabel
+          Left = 95
+          Top = 122
+          Width = 40
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'D'#246'nem'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblapp_version: TLabel
+          Left = 33
+          Top = 168
+          Width = 102
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Uygulama Version'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object edtgrid_color_1: TEdit
+          Left = 137
+          Top = 25
+          Width = 160
+          Height = 23
+          TabOrder = 0
+          OnDblClick = edtgrid_color_1DblClick
+          OnExit = edtgrid_color_1Exit
+        end
+        object edtgrid_color_2: TEdit
+          Left = 137
+          Top = 48
+          Width = 160
+          Height = 23
+          TabOrder = 1
+          OnDblClick = edtgrid_color_2DblClick
+          OnExit = edtgrid_color_2Exit
+        end
+        object edtgrid_color_active: TEdit
+          Left = 137
+          Top = 71
+          Width = 160
+          Height = 23
+          TabOrder = 2
+          OnDblClick = edtgrid_color_activeDblClick
+          OnExit = edtgrid_color_activeExit
+        end
+        object edtcrypt_key: TEdit
+          Left = 137
+          Top = 94
+          Width = 160
+          Height = 23
+          TabOrder = 3
+        end
+        object edtdonem: TEdit
+          Left = 137
+          Top = 118
+          Width = 160
+          Height = 23
+          TabOrder = 4
+        end
+        object edtapp_version: TEdit
+          Left = 137
+          Top = 164
+          Width = 160
+          Height = 23
+          TabOrder = 5
         end
       end
     end

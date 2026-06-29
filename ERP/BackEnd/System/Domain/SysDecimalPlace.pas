@@ -8,26 +8,26 @@ type
   [Table('sys_decimal_places')]
   TSysDecimalPlace = class(TEntity)
   private
-    FQuantity: Word;
-    FPrice: Word;
-    FTotal: Word;
-    FStockQuantity: Word;
-    FExchangeRate: Word;
+    FQuantity: SmallInt;
+    FPrice: SmallInt;
+    FTotal: SmallInt;
+    FStockQuantity: SmallInt;
+    FExchangeRate: SmallInt;
   public
     [Column('quantity')]
-    property Quantity: Word read FQuantity write FQuantity;
+    property Quantity: SmallInt read FQuantity write FQuantity;
 
     [Column('price')]
-    property Price: Word read FPrice write FPrice;
+    property Price: SmallInt read FPrice write FPrice;
 
     [Column('total')]
-    property Total: Word read FTotal write FTotal;
+    property Total: SmallInt read FTotal write FTotal;
 
     [Column('stock_quantity')]
-    property StockQuantity: Word read FStockQuantity write FStockQuantity;
+    property StockQuantity: SmallInt read FStockQuantity write FStockQuantity;
 
     [Column('exchange_rate')]
-    property ExchangeRate: Word read FExchangeRate write FExchangeRate;
+    property ExchangeRate: SmallInt read FExchangeRate write FExchangeRate;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -38,6 +38,11 @@ implementation
 constructor TSysDecimalPlace.Create();
 begin
   inherited;
+  FQuantity := 2;
+  FPrice := 2;
+  FTotal := 2;
+  FStockQuantity := 4;
+  FExchangeRate := 4;
 end;
 
 destructor TSysDecimalPlace.Destroy;

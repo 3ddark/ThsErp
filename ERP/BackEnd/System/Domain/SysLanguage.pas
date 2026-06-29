@@ -6,15 +6,15 @@ uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
   [Table('sys_languages')]
-  TSysCurrency = class(TEntity)
+  TSysLanguage = class(TEntity)
   private
     FLngCode: string;
     FDescription: string;
   public
-    [Column('lng_code')]
+    [Column('lng_code'), MaxLength(2), Required()]
     property LngCode: string read FLngCode write FLngCode;
 
-    [Column('description')]
+    [Column('description'), MaxLength(128)]
     property Description: string read FDescription write FDescription;
 
     constructor Create(); override;
@@ -23,12 +23,12 @@ type
 
 implementation
 
-constructor TSysCurrency.Create();
+constructor TSysLanguage.Create();
 begin
   inherited;
 end;
 
-destructor TSysCurrency.Destroy;
+destructor TSysLanguage.Destroy;
 begin
   inherited;
 end;

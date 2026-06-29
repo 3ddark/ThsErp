@@ -10,7 +10,7 @@ type
   private
     FDayName: string;
   public
-    [Column('day_name')]
+    [Column('day_name'), MaxLength(16), Required()]
     property DayName: string read FDayName write FDayName;
 
     constructor Create(); override;

@@ -10,7 +10,7 @@ type
   private
     FGroupName: string;
   public
-    [Column('group_name')]
+    [Column('group_name'), MaxLength(64), Required()]
     property GroupName: string read FGroupName write FGroupName;
 
     constructor Create(); override;

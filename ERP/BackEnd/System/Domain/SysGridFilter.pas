@@ -11,7 +11,7 @@ type
     FTableName: string;
     FFilterContent: string;
   public
-    [Column('table_name')]
+    [Column('table_name'), MaxLength(32)]
     property TableName: string read FTableName write FTableName;
 
     [Column('filter_content')]

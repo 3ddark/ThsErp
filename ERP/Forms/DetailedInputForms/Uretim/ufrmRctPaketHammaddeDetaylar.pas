@@ -34,7 +34,7 @@ uses
   ufrmBase,
   ufrmBaseDetaylar,
   Ths.Database.Table,
-  Ths.Database.Table.UrtPaketHammaddeler;
+  Ths.Database.Table.PrdPktRawMats;
 
 const
   PH_MAL_KODU = 1;
@@ -75,7 +75,7 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TUrtPaketHammadde(Table).PaketAdi.Value := edtpaket_adi.Text;
+      TPrdPktRawMat(Table).PaketAdi.Value := edtpaket_adi.Text;
 
       inherited;
     end;
@@ -88,11 +88,11 @@ function TfrmRctPaketHammaddeDetaylar.CreateDetailInputForm1(pFormMode: TInputFo
 begin
   Result := inherited;
   if (pFormMode = ifmNewRecord) or (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmRctPaketHammaddeDetay.Create(Application, AGrid, Self, TUrtPaketHammaddeDetay.Create(Table.Database), pFormMode)
+    Result := TfrmRctPaketHammaddeDetay.Create(Application, AGrid, Self, TPrdPktRawMatDetail.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmRewiev) or (pFormMode = ifmUpdate) then
   begin
     if Assigned(AGrid.Objects[COLUMN_GRID_OBJECT, AGrid.Row]) then
-      Result := TfrmRctPaketHammaddeDetay.Create(Application, AGrid, Self, TUrtPaketHammaddeDetay(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd1.Row]), pFormMode);
+      Result := TfrmRctPaketHammaddeDetay.Create(Application, AGrid, Self, TPrdPktRawMatDetail(AGrid.Objects[COLUMN_GRID_OBJECT, strngrd1.Row]), pFormMode);
   end;
 end;
 
@@ -110,20 +110,20 @@ begin
     strngrd1.ColStyleMoney(PH_FIYAT);
 
     LFirstHam := False;
-    for n1 := 0 to TUrtPaketHammadde(Table).ListDetay.Count-1 do
+    for n1 := 0 to TPrdPktRawMat(Table).ListDetay.Count-1 do
     begin
       if LFirstHam then
         strngrd1.Row := strngrd1.Row + 1;
       LFirstHam := True;
 
-      strngrd1.Objects[COLUMN_GRID_OBJECT, strngrd1.Row] := TUrtPaketHammaddeDetay(TUrtPaketHammadde(Table).ListDetay[n1]);
+      strngrd1.Objects[COLUMN_GRID_OBJECT, strngrd1.Row] := TPrdPktRawMatDetail(TPrdPktRawMat(Table).ListDetay[n1]);
 
-      strngrd1.Cells[PH_MAL_KODU, strngrd1.Row] := TUrtPaketHammaddeDetay(TUrtPaketHammadde(Table).ListDetay[n1]).StokKodu.Value;
-      strngrd1.Cells[PH_MAL_ADI, strngrd1.Row] := TUrtPaketHammaddeDetay(TUrtPaketHammadde(Table).ListDetay[n1]).StokAdi.Value;
-      strngrd1.Cells[PH_MIKTAR, strngrd1.Row] := TUrtPaketHammaddeDetay(TUrtPaketHammadde(Table).ListDetay[n1]).Miktar.Value;
-      strngrd1.Cells[PH_BIRIM, strngrd1.Row] := TUrtPaketHammaddeDetay(TUrtPaketHammadde(Table).ListDetay[n1]).OlcuBirimi.Value;
-      strngrd1.Cells[PH_FIRE_ORANI, strngrd1.Row] := TUrtPaketHammaddeDetay(TUrtPaketHammadde(Table).ListDetay[n1]).FireOrani.Value;
-      strngrd1.Cells[PH_FIYAT, strngrd1.Row] := TUrtPaketHammaddeDetay(TUrtPaketHammadde(Table).ListDetay[n1]).Fiyat.Value;
+      strngrd1.Cells[PH_MAL_KODU, strngrd1.Row] := TPrdPktRawMatDetail(TPrdPktRawMat(Table).ListDetay[n1]).StokKodu.Value;
+      strngrd1.Cells[PH_MAL_ADI, strngrd1.Row] := TPrdPktRawMatDetail(TPrdPktRawMat(Table).ListDetay[n1]).StokAdi.Value;
+      strngrd1.Cells[PH_MIKTAR, strngrd1.Row] := TPrdPktRawMatDetail(TPrdPktRawMat(Table).ListDetay[n1]).Miktar.Value;
+      strngrd1.Cells[PH_BIRIM, strngrd1.Row] := TPrdPktRawMatDetail(TPrdPktRawMat(Table).ListDetay[n1]).OlcuBirimi.Value;
+      strngrd1.Cells[PH_FIRE_ORANI, strngrd1.Row] := TPrdPktRawMatDetail(TPrdPktRawMat(Table).ListDetay[n1]).FireOrani.Value;
+      strngrd1.Cells[PH_FIYAT, strngrd1.Row] := TPrdPktRawMatDetail(TPrdPktRawMat(Table).ListDetay[n1]).Fiyat.Value;
     end;
 
   finally
@@ -183,7 +183,7 @@ procedure TfrmRctPaketHammaddeDetaylar.RefreshData;
 begin
   inherited;
 
-  edtpaket_adi.Text := TUrtPaketHammadde(Table).PaketAdi.Value;
+  edtpaket_adi.Text := TPrdPktRawMat(Table).PaketAdi.Value;
 
   GridFill();
 end;

@@ -24,7 +24,7 @@ implementation
 uses
   Ths.Globals,
   Ths.Constants,
-  Ths.Database.Table.UrtPaketHammaddeler,
+  Ths.Database.Table.PrdPktRawMats,
   ufrmRctPaketHammaddeDetaylar;
 
 {$R *.dfm}
@@ -35,7 +35,7 @@ begin
   if (pFormMode = ifmRewiev) then
     Result := TfrmRctPaketHammaddeDetaylar.Create(Application, Self, Table.Clone(), pFormMode)
   else if (pFormMode = ifmNewRecord) then
-    Result := TfrmRctPaketHammaddeDetaylar.Create(Application, Self, TUrtPaketHammadde.Create(Table.Database), pFormMode)
+    Result := TfrmRctPaketHammaddeDetaylar.Create(Application, Self, TPrdPktRawMat.Create(Table.Database), pFormMode)
   else if (pFormMode = ifmCopyNewRecord) then
     Result := TfrmRctPaketHammaddeDetaylar.Create(Application, Self, Table.Clone(), pFormMode);
 end;

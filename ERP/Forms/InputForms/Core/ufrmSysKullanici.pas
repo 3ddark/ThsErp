@@ -84,8 +84,8 @@ end;
 
 procedure TfrmSysKullanici.HelperProcess(Sender: TObject);
 var
-  LFrmEmpCard: TfrmPrsPersoneller;
-  LEmpCard: TPrsPersonel;
+  LFrmEmpCard: TEmpPersonnelListForm;
+  LEmpCard: TEmpPersonnel;
 begin
   if Sender.ClassType = TEdit then
   begin
@@ -93,8 +93,8 @@ begin
     begin
       if TEdit(Sender).Name = edtpersonel_id.Name then
       begin
-        LEmpCard := TPrsPersonel.Create(Table.Database);
-        LFrmEmpCard := TfrmPrsPersoneller.Create(TEdit(Sender), Self, LEmpCard, fomNormal, True);
+        LEmpCard := TEmpPersonnel.Create(Table.Database);
+        LFrmEmpCard := TEmpPersonnelListForm.Create(TEdit(Sender), Self, LEmpCard, fomNormal, True);
         try
           LFrmEmpCard.ShowModal;
           if LFrmEmpCard.DataAktar then
@@ -137,4 +137,5 @@ begin
 end;
 
 end.
+
 
