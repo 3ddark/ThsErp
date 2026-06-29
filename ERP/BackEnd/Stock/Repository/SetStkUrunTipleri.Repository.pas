@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  Entity, Repository, SetStkUrunTipleri;
+  FireDAC.Comp.Client, Entity, Repository, SetStkUrunTipleri;
 
 type
   TSetStkUrunTipleriRepository = class(TRepository<TSetStkUrunTipleri>)

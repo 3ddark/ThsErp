@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  Entity, Repository, SetStkBarkodTezgah;
+  FireDAC.Comp.Client, Entity, Repository, SetStkBarkodTezgah;
 
 type
   TSetStkBarkodTezgahRepository = class(TRepository<TSetStkBarkodTezgah>)

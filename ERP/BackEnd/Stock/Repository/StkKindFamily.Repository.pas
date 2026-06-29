@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  Entity, Repository, StkKindFamily;
+  FireDAC.Comp.Client, Entity, Repository, StkKindFamily;
 
 type
   TStkKindFamilyRepository = class(TRepository<TStkKindFamily>)

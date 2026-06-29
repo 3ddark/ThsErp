@@ -3,8 +3,9 @@ unit SysParaBirimiService;
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types,
-  Service, UnitOfWork, SysParaBirimiRepository, SysCurrency;
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
+  SysParaBirimiRepository, SysCurrency;
 
 type
   TSysParaBirimiService = class(TCrudService<TSysCurrency>)

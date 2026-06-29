@@ -1,9 +1,242 @@
 ﻿# THS ERP — Yapay Zeka Beyin Dosyası
 
-**Son güncelleme:** 2026-06-28  
-**DB durumu:** ✅ Temel değişiklikler tamamlandı (tablo + kolon + constraint + sequence + fonksiyon)  
-**Delphi durumu:** Entity layer refactor devam ediyor — Person ve Stock klasörleri organize edildi, SYS/STK DB şema doğrulamaları yapıldı  
-**Kalan:** Sys/Stk tablo & kolon İngilizce isimlerine çevirme (Delphi tarafında)
+**Son güncelleme:** 2026-06-29  
+**DB durumu:** ✅ Şema migration tamamlandı (tablo/kon/idx/cnsq/fn)  
+**Delphi durumu:** prs→emp rename %85 tamamlandı — Core Prs+Person Domain+Repo+Service+Forms bitmiş, kalan: DFM component rename + ufrmDashboard event handler + Ths.dpr/DCCReference sync
+
+---
+
+## 📊 Proje Genel Durumu
+
+| Kategori | Durum |
+|---|---|
+| Toplam Delphi dosyası | ~773 (.pas + .dfm) |
+| BackEnd modül sayısı | 10 (System, Person, Stock, Account, Order, Offer, Invoice, DataBank, Erp/Tek, Uretim) |
+| Core framework | ✅ Entity/Repository/Service pattern (generic) |
+| Core Prs → Emp table classes | ✅ 11 dosya bitmiş |
+| Person Domain entityleri | ✅ 11 dosya emp_ prefix ile bitmiş |
+| Person Repository | ✅ 11 dosya bitmiş |
+| Person Service | ✅ 11 dosya bitmiş |
+| Person Forms (Input) | 🔻 13/27 .pas bitmiş, 14 .dfm kaldı |
+| Person Forms (Output/DbGrid) | 🔻 14/28 .pas bitmiş, 14 .dfm kaldı |
+| Ths.dpr uses clause | 🔻 güncellenmeli |
+| Ths.dproj DCCReference | 🔻 güncellenmeli |
+| ufrmDashboard event handlers | 🔻 actset_prs_* → actsys_emp_* |
+| Stock Domain/Repo/Service | ✅ 51 dosya TEntity pattern ile bitmiş |
+| System SYS entities | 🔻 21 tablo entity mapping SQL'e eşleştirilmeli |
+| acc_ prefix migration | ✅ ch_→acc_, set_ch_→acc_set_ tamamlandı |
+| prs_set_ prefix migration | ✅ set_prs_*→prs_set_* tamamlandı |
+| prod → prd migration | ✅ tamamlanmış |
+| stk_inventory constraints | 🔻 23 eski isim temizliği (opsiyonel) |
+
+---
+
+## 🏗️ Proje Yapısı
+
+```
+ThsERP/
+├── ERP/                          ← Ana Delphi projesi
+│   ├── Ths.dpr                   ← Program entry point
+│   ├── Ths.inc                   ← Derleme tanımları (THSERP, MIGRATE, CRUD_MODE_PURE_SQL)
+│   ├── BackEnd/                  ← Business logic (~207 .pas)
+│   │   ├── System/               ← SYS entities (Domain+Repo+Service, 45 dosya)
+│   │   ├── Person/               ← EMP entities (Domain+Repo+Service, 33 dosya)
+│   │   ├── Stock/                ← STK entities (Domain+Repo+Service, 57 dosya)
+│   │   ├── Account/              ← Muhasebe modülü (13 dosya)
+│   │   ├── Order/                ← Sipariş modülü (4 dosya)
+│   │   ├── Offer/                ← Teklif modülü (6 dosya)
+│   │   ├── Invoice/              ← Fatura modülü
+│   │   ├── DataBank/             ← Veri bankası tabloları (5 dosya)
+│   │   ├── Erp/Tek/              ← Alış teklif modülü
+│   │   ├── Uretim/               ← Üretim modülü (4 dosya, prd_* tablo mapping)
+│   │   ├── Core/
+│   │   │   ├── Base/New/         ← Entity, Repository, Service, UnitOfWork (generic base)
+│   │   │   └── Prs/              ← Core table classes (EMP patternine geçiş tamamlandı)
+│   │   └── Tools/                ← SynPDF ve yardımcı sınıflar
+│   ├── Forms/                    ← UI layer (~503 dosya .pas+.dfm)
+│   │   ├── Core/                 ← Temel form sınıfları (ufrmBase, ufrmGrid, vb.)
+│   │   ├── InputForms/
+│   │   │   ├── Core/Prs/         ← Person input forms (13 .pas bitmiş, 14 .dfm kaldı)
+│   │   │   ├── Stock/
+│   │   │   ├── Account/
+│   │   │   └── Uretim/
+│   │   ├── OutputForms/
+│   │   │   └── DbGrid/Core/Prs/  ← Person grid forms (14 .pas bitmiş, 14 .dfm kaldı)
+│   │   └── System/
+│   ├── Settings/
+│   └── Tools/
+├── ERPDevWizard/                 ← Geliştirici yardımcı aracı
+├── ai.md                         ← Bu dosya
+└── README.md
+```
+
+---
+
+## 🏗️ Mimari Katmanlar (Her Module için)
+
+```
+ERP/BackEnd/{Module}/
+├── Domain/           ← TEntity + [Table] + [Column] attribute mapping
+├── Repository/       ← IRepository<T> generic CRUD + custom query'ler
+└── Service/          ← ICrudService<T>, business logic + authorization
+```
+
+**Person modülü:**
+- Domain: `BackEnd/Person/Domain/` — 11 entity (EmpPerson, EmpDriverLicence, EmpUnit, vb.)
+- Repository: `BackEnd/Person/Repository/` — 11 repo
+- Service: `BackEnd/Person/Service/` — 11 service
+
+**Core Prs → Emp tablo sınıfları:**
+- Location: `BackEnd/Core/Prs/` — 11 dosya ( tamamlandı)
+- TableName: `emp_*` prefix ile eşleşiyor
+
+---
+
+## ✅ Tamamlanan Büyük İşler
+
+### Person Domain/Repo/Service Refactor (commit 705744b, 96350ac, 98ad211)
+- **Önce:** Person/ kökünde 12 dosya karışık (PrsPerson.pas, PrsDriverLicence.pas, vb.)
+- **Sonra:**
+  ```
+  BackEnd/Person/
+  ├── Domain/     ← EmpPerson.pas, EmpDriverLicence.pas, EmpUnit.pas, vb. (11 dosya)
+  ├── Repository/ ← EmpPerson.Repository.pas, vb. (11 dosya)
+  └── Service/    ← EmpPerson.Service.pas, vb. (11 dosya)
+  ```
+- Ths.dpr path'leri güncellenmeli (hala Prs* referansları var)
+
+### Core Prs → Emp Table Classes (commit 98ad211)
+- `BackEnd/Core/Prs/` içindeki tüm klas adları ve class isimleri TPrs*→TEmp*
+- TableName stringleri `prs_*`→`emp_*`
+- Cross-module refs: Order, Offer, ERP-Tek, Account güncellenmeli
+
+### Stock Domain/Repo/Service Refactor
+- 51 dosya TEntity pattern ile oluşturuldu, eski 15 TTable dosyası silindi
+- Ths.dpr path'leri güncellendi (51 entry)
+
+### DB Şema Migrations (Tamamlandı)
+| Kategori | Detay |
+|---|---|
+| Tablo isimleri (stk_/sys_) | ✅ 30/30 tablo tekil form + İngilizce |
+| Kolon isimleri (stk_/sys_) | ✅ Türkçe → İngilizce |
+| Index/constraint/sequence | ✅ Tüm isimler güncellendi |
+| Fonksiyon isimleri | ✅ 10 fonksiyon `sp*`→`fn_*` |
+| acc_ prefix | ✅ ch_→acc_, set_ch_→acc_set_ (11 tablo) |
+| prs_set_ prefix | ✅ set_prs_*→prs_set_* (8 tablo) |
+| prod_* → prd_* | ✅ Üretim modülü migration |
+
+---
+
+## 🔜 Kalan İşler — Öncelik Sırasına Göre
+
+### Öncelik 1: DFM Component Rename (~28 dosya)
+
+**Input Forms DFM (14 dosya):**
+```
+Forms/InputForms/Core/Prs/ufrmPrsPersonel.dfm          → component rename gerekli
+Forms/InputForms/Core/Prs/ufrmPrsEhliyet.dfm
+Forms/InputForms/Core/Prs/ufrmPrsLisanBilgisi.dfm
+Forms/InputForms/Core/Prs/ufrmSetPrsAyrilmaNedeni.dfm  → component: btnprs_→btnemp_
+Forms/InputForms/Core/Prs/ufrmSetPrsAyrilmaTipi.dfm
+Forms/InputForms/Core/Prs/ufrmSetPrsBirim.dfm
+Forms/InputForms/Core/Prs/ufrmSetPrsBolum.dfm
+Forms/InputForms/Core/Prs/ufrmSetPrsEhliyet.dfm
+Forms/InputForms/Core/Prs/ufrmSetPrsGorev.dfm
+Forms/InputForms/Core/Prs/ufrmSetPrsLisan.dfm
+Forms/InputForms/Core/Prs/ufrmSetPrsLisanSeviyesi.dfm
+Forms/InputForms/Core/Prs/ufrmSetPrsPersonelTipi.dfm
+Forms/InputForms/Core/Prs/ufrmSetPrsTasimaServisi.dfm
+Forms/InputForms/Core/Prs/ufrmSetEmpEducationLevel.dfm  → component: prs_→emp_
+```
+
+**Output Forms DFM (14 dosya):**
+```
+Forms/OutputForms/DbGrid/Core/Prs/ufrmPrsPersoneller.dfm
+Forms/OutputForms/DbGrid/Core/Prs/ufrmPrsEhliyetler.dfm
+Forms/OutputForms/DbGrid/Core/Prs/ufrmPrsLisanBilgileri.dfm
+Forms/OutputForms/DbGrid/Core/Prs/ufrmSetPrsAyrilmaNedenleri.dfm
+... (11 daha)
+```
+
+> **DFM değişiklikleri:** btnprs_*→btnemp_*, actset_prs_*→actsys_emp_*, mni/pri/prs_*→mnp/actprv*/emp_*
+
+### Öncelik 2: ufrmDashboard Event Handler Update
+```pas
+Forms/InputForms/Core/ufrmDashboard.pas:
+  actset_prs_birimlerExecute → actsys_emp_unitExecute
+  TPrsPersonel → TEmpPersonnel
+  (tüm method/event isimleri güncellenmeli)
+```
+
+### Öncelik 3: Ths.dpr + Ths.dproj Sync
+- uses clause: `Prs* in '...'` → `Emp* in '...'` (path de değişecek)
+- DCCReference path'leri yeni dosya isimleriyle eşleşmeli
+
+### Öncelik 4: Cross-module References
+```pas
+BackEnd/Order/Ths.Database.Table.SatSiparis.pas     → uses EmpPersonnel
+BackEnd/Offer/Ths.Database.Table.SatTeklif.pas       → uses EmpPersonnel
+BackEnd/Erp/Tek/Ths.Database.Table.AlsTeklifler.pas  → uses EmpPersonnel
+BackEnd/Account/Ths.Database.Table.ChHesapKarti.pas  → TPrsPersonel → TEmpPersonnel
+```
+
+### Öncelik 5: SYS Entity SQL Mapping
+21 SYS entity'nin TableName + Column mapping'i güncellenmeli (ai.md'deki tablo referanslı):
+- `TSysCity` → `[Table('sys_city')]`, city_name→name, car_plate_code→plate_code
+- `TSysCountry` → `[Table('sys_country')]`, country_name→name, country_code→code
+- `TSysDay` → `[Table('sys_day')]`, day_name→name
+- `TSysMonth` → `[Table('sys_month')]`, month_name→name
+- `TSysPermissionGroup` → `[Table('sys_permission_group')]`
+- `TSysPermission` → `[Table('sys_permission')]`
+- `TSysRegion` → `[Table('sys_region')]`
+- vb.
+
+### Öncelik 6: STK Entity SQL Mapping
+```
+TStkGroup.group_name → name
+TStkImage.stk_card_id → card_id
+TStkKartCinsBilgileri → StkCardKindInfo (dosya+class rename)
+TStkCardSummary → StkInventorySummary (dosya+class rename)
+```
+
+---
+
+## 💡 DB Bağlantı Bilgileri
+
+- **Host:** localhost
+- **Kullanıcı:** postgres
+- **Şifre:** qwe
+- **Database:** ths_erp
+- **Toplam tablo:** (pg_dump ile 157 KB schema)
+- **Schema:** public
+
+### Komutlar
+
+```powershell
+# Schema dump
+$env:PGPASSWORD = "qwe"
+& pg_dump -h localhost -U postgres -s ths_erp > 'D:\Projects\ThsErp\ERP\db_schema.sql'
+
+# Fonksiyon test
+PGPASSWORD=qwe psql -h localhost -U postgres -d ths_erp -t -c "SELECT * FROM fn_default_product_type_id();"
+
+# Tablo kontrolü
+PGPASSWORD=qwe psql -h localhost -U postgres -d ths_erp -t -c "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;"
+```
+
+---
+
+## 📋 Özet — Durum Yüzdesi
+
+| Alan | İlerleme |
+|---|---|
+| DB schema migrations | ✅ 100% |
+| Core Prs→Emp table classes | ✅ 100% |
+| Person Domain/Repo/Service | ✅ 100% |
+| Stock Domain/Repo/Service | ✅ 100% |
+| prs_* → emp_* (Delphi kod) | 🔻 ~85% |
+| DFM component rename | 🔻 ~0% (28 dosya)
+
 
 ---
 
@@ -356,3 +589,355 @@ $env:PGPASSWORD = "qwe"
 ---
 
 **Not:** Bu dosya projenin yapay zeka beyin dosyasıdır. Her yeni değişiklik ve karar burada kayıt altına alınır.
+
+---
+
+## Turkish DB Migration Plan
+
+### 1. COLUMN RENAME — Turkish Column Names
+
+#### als_teklifler (pur_offer) — 4 columns
+| Old | New | Description |
+|---|---|---|
+| sehir_id | city_id | sys_city FK |
+| ulke_id | country_id | sys_country FK |
+| para_birimi | currency_code | currency reference |
+| muhattap_telefon | contact_phone | contact phone |
+
+#### als_teklif_detaylari (pur_offer_detail) — 13 columns  
+| Old | New | Description |
+|---|---|---|
+| olcu_birimi | uom_code | sys_uom FK code |
+| kdv_orani | tax_rate | VAT rate (%) |
+| kdv_tutar | tax_amount | VAT amount |
+| tutar | amount | line amount |
+| net_tutar | net_amount | net line total |
+| toplam_tutar | total_amount | gross line total |
+| iskonto_orani | discount_rate | discount percentage |
+| iskonto_tutar | discount_amount | discount value |
+| stok_aciklama | stock_description | description |
+| kullanici_aciklama | user_description | user note |
+| mensei_ulke_adi | country_of_origin | origin country name |
+| siparis_detay_id | order_detail_id | FK reference |
+| fatura_detay_id | invoice_detail_id | FK reference |
+
+#### sat_siparisler (sls_order) — 7 columns
+| Old | New | Description |
+|---|---|---|
+| sehir_id | city_id | sys_city FK |
+| ulke_id | country_id | sys_country FK |
+| para_birimi | currency_code | currency code |
+| siparis_no | order_number | order identifier |
+| teslim_tarihi | delivery_date | delivery date |
+| muhattap_telefon | contact_phone | contact phone |
+| siparis_durum_id | status_id | order status FK |
+
+#### sat_siparis_detaylari (sls_order_detail) — 12 columns
+| Old | New | Description |
+|---|---|---|
+| olcu_birimi | uom_code | sys_uom FK code |
+| kdv_orani | tax_rate | VAT rate (%) |
+| kdv_tutar | tax_amount | VAT amount |
+| tutar | amount | line amount |
+| net_tutar | net_amount | net line total |
+| toplam_tutar | total_amount | gross line total |
+| iskonto_orani | discount_rate | discount percentage |
+| iskonto_tutar | discount_amount | discount value |
+| stok_aciklama | stock_description | description |
+| kullanici_aciklama | user_description | user note |
+| siparis_detay_id | order_detail_id | FK reference |
+| fatura_detay_id | invoice_detail_id | FK reference |
+
+#### sat_teklifler (sls_offer) — 6 columns
+| Old | New | Description |
+|---|---|---|
+| sehir_id | city_id | sys_city FK |
+| ulke_id | country_id | sys_country FK |
+| para_birimi | currency_code | currency code |
+| siparis_durum_id | status_id | status FK |
+| muhattap_telefon | contact_phone | contact phone |
+| teslim_tarihi | delivery_date | delivery date |
+
+#### sat_teklif_detaylari (sls_offer_detail) — 12 columns
+| Old | New | Description |
+|---|---|---|
+| olcu_birimi | uom_code | sys_uom FK code |
+| kdv_orani | tax_rate | VAT rate (%) |
+| kdv_tutar | tax_amount | VAT amount |
+| tutar | amount | line amount |
+| net_tutar | net_amount | net line total |
+| toplam_tutar | total_amount | gross line total |
+| iskonto_orani | discount_rate | discount percentage |
+| iskonto_tutar | discount_amount | discount value |
+| stok_aciklama | stock_description | description |
+| kullanici_aciklama | user_description | user note |
+
+#### pur_offer (als_teklif) — 3 columns
+| Old | New | Description |
+|---|---|---|
+| siparis_durum_id | status_id | status FK |
+| teslim_tarihi | delivery_date | delivery date |
+| muhattap_telefon | contact_phone | contact phone |
+
+### 2. SEQUENCE RENAME — Snake_case + English Names
+
+| Old Name | New Name |
+|---|---|
+| sys_erisim_hakki_id_seq | sys_access_right_id_seq |
+| set_ch_firma_tipi_id_seq | acc_set_company_type_id_seq |
+| set_ch_firma_turu_id_seq | acc_set_company_legal_form_id_seq |
+| set_ch_hesap_tipi_id_seq | acc_set_account_type_id_seq |
+| set_ch_vergi_orani_id_seq | acc_set_tax_rate_id_seq |
+| set_einv_fatura_tipi_id_seq | einv_invoice_type_id_seq |
+| set_einv_paket_tipi_id_seq | einv_packet_type_id_seq |
+| set_prs_birim_id_seq | prs_set_unit_id_seq |
+| set_prs_personel_tipi_id_seq | prs_set_person_type_id_seq |
+| sys_olcu_birimi_id_seq | sys_uom_id_seq |
+| sys_olcu_birimi_tipi_id_seq | sys_uom_type_id_seq |
+| sys_para_birimi_id_seq | sys_currency_id_seq |
+
+### 3. VIEW COLUMN RENAME — English Aliases
+
+#### sat_siparis_rapor view (line ~1810)
+| Old Alias | New Alias |
+|---|---|
+| sehir_adi | city_name |
+| stok_grubu | stock_group_name |
+| stok_aciklama | stock_description |
+| siparis_no | order_number |
+| siparis_tarihi | order_date |
+| teslim_tarihi | delivery_date |
+| siparis_durum | status_name |
+| aciklama (s) | notes |
+| referans | reference |
+| referans_satir | line_reference |
+
+#### sys_view_databases view (line ~3187)
+| Old Alias | New Alias |
+|---|---|
+| aciklama | description |
+
+#### fn_get_sys_kalite_form_no function (line ~283)
+- Rename: n_get_sys_quality_form_no (already correct, just verify)
+- Parameter: ptablo_adi → p_table_name, pform_tipi_id → p_form_type_id
+- SQL body: sys_kalite_form_no table ref → sys_quality_form_no
+
+### 4. TRIGGER UPDATE — Old Table Names
+
+Triggers referencing prs_persons, prs_driver_abilities, prs_language_abilities tables need updates after table renames (prs_* → emp_* migration from the earlier plan).
+
+### 5. CONSTRAINT NAME RENAMES
+
+Check constraint names that reference old column names:
+- ls_teklifler_kdv_oran1_not_null → ls_teklifler_tax_rate_1_not_null
+- sat_siparisler_kdv_oran1_not_null → sls_order_tax_rate_1_not_null
+- etc. (all kdv_oran/kdv_tutar related constraints need renaming)
+
+### Migration Order:
+1. COLUMN RENAME (ALTER TABLE ... RENAME COLUMN)
+2. CONSTRAINT RENAME (ALTER TABLE ... RENAME CONSTRAINT)
+3. SEQUENCE RENAME (ALTER SEQUENCE ... RENAME TO)
+4. VIEW RECREATE (DROP + CREATE with new aliases)
+5. FUNCTION PARAMETER/SQL updates
+
+---
+
+## PostgreSQL Türkçe - English Migration Plan (db_schema.sql 2026-06-29T23:01)
+
+### GENEL KURAL: Table name, column name, sequence name = snake_case. All content must be in English.
+
+---
+
+### ALREADY CORRECT (NO CHANGE NEEDED)
+- Table names: acc_*, sys_*, stk_*, prd_* prefixes are already English + snake_case
+- Index names: idx_* format, no Turkish characters
+- Constraint names: acc_acc_pkey, sys_access_right_pkey etc. (snake_case + English)
+
+---
+
+### NEED CHANGE
+
+#### 1. COLUMN NAMES - Turkish Content Tables
+
+als_teklifler (pur_offer) - 4 columns:
+| Old | New | Description |
+| sehir_id | city_id | sys_city FK |
+| ulke_id | country_id | sys_country FK |
+| para_birimi | currency_code | Currency code |
+| muhattap_telefon | contact_phone | Contact phone |
+
+als_teklif_detaylari (pur_offer_detail) - 13 columns:
+| Old | New | Description |
+| olcu_birimi | uom_code | UoM FK code |
+| kdv_orani | tax_rate | VAT rate (%) |
+| kdv_tutar | tax_amount | VAT amount |
+| tutar | amount | Amount |
+| net_tutar | net_amount | Net amount |
+| toplam_tutar | total_amount | Total amount |
+| iskonto_orani | discount_rate | Discount rate |
+| iskonto_tutar | discount_amount | Discount amount |
+| siparis_detay_id | order_detail_id | Order detail FK |
+| irsaliye_detay_id | delivery_note_detail_id | Delivery note FK |
+| fatura_detay_id | invoice_detail_id | Invoice detail FK |
+| stok_aciklama | stock_description | Stock description |
+| kullanici_aciklama | user_description | User description |
+| mensei_ulke_adi | country_of_origin | Country of origin |
+
+sat_siparisler (sls_order) - 7 columns:
+| Old | New | Description |
+| sehir_id | city_id | sys_city FK |
+| ulke_id | country_id | sys_country FK |
+| para_birimi | currency_code | Currency code |
+| siparis_no | order_number | Order number |
+| siparis_tarihi | order_date | Order date |
+| teslim_tarihi | delivery_date | Delivery date |
+| muhattap_telefon | contact_phone | Contact phone |
+
+sat_siparis_detaylari (sls_order_detail) - 12 columns:
+| Old | New | Description |
+| olcu_birimi | uom_code | UoM FK code |
+| kdv_orani | tax_rate | VAT rate (%) |
+| kdv_tutar | tax_amount | VAT amount |
+| tutar | amount | Amount |
+| net_tutar | net_amount | Net amount |
+| toplam_tutar | total_amount | Total amount |
+| iskonto_orani | discount_rate | Discount rate |
+| iskonto_tutar | discount_amount | Discount amount |
+| siparis_detay_id | order_detail_id | Order detail FK |
+| irsaliye_detay_id | delivery_note_detail_id | Delivery note FK |
+| fatura_detay_id | invoice_detail_id | Invoice detail FK |
+| stok_aciklama | stock_description | Stock description |
+| kullanici_aciklama | user_description | User description |
+
+sat_teklifler (sls_offer) - 6 columns:
+| Old | New | Description |
+| sehir_id | city_id | sys_city FK |
+| ulke_id | country_id | sys_country FK |
+| para_birimi | currency_code | Currency code |
+| siparis_durum_id | status_id | Status FK |
+| muhattap_telefon | contact_phone | Contact phone |
+| teslim_tarihi | delivery_date | Delivery date |
+
+sat_teklif_detaylari (sls_offer_detail) - 12 columns:
+| Old | New | Description |
+| olcu_birimi | uom_code | UoM FK code |
+| kdv_orani | tax_rate | VAT rate (%) |
+| kdv_tutar | tax_amount | VAT amount |
+| tutar | amount | Amount |
+| net_tutar | net_amount | Net amount |
+| toplam_tutar | total_amount | Total amount |
+| iskonto_orani | discount_rate | Discount rate |
+| iskonto_tutar | discount_amount | Discount amount |
+| stok_aciklama | stock_description | Stock description |
+| kullanici_aciklama | user_description | User description |
+
+prd_bom_raw - fire_orani:
+| Old | New | Description |
+| fire_orani | scrap_rate | Scrap rate |
+
+---
+
+#### 2. SEQUENCE RENAME - English Names (38 sequences)
+
+| Old Sequence Name | New Sequence Name |
+| ch_banka_id_seq | acc_bank_id_seq |
+| ch_banka_subesi_id_seq | acc_bank_branch_id_seq |
+| ch_bolge_id_seq | acc_region_id_seq |
+| ch_hesap_karti_id_seq | acc_account_id_seq |
+| als_teklifler_id_seq | pur_offer_id_seq |
+| als_teklif_detaylari_id_seq | pur_offer_detail_id_seq |
+| mhs_doviz_kuru_id_seq | mhs_exchange_rate_id_seq |
+| mhs_fis_detaylari_id_seq | mhs_voucher_detail_id_seq |
+| mhs_fisler_id_seq | mhs_voucher_id_seq |
+| mhs_transfer_kodlari_id_seq | mhs_transfer_code_id_seq |
+| rct_iscilik_gideri_id_seq | rct_labor_cost_id_seq |
+| rct_paket_hammadde_detay_id | rct_pkg_rawmat_detail_id |
+| rct_paket_hammadde_id | rct_pkg_rawmat_id |
+| rct_paket_iscilik_detay_id | rct_pkg_labor_detail_id |
+| rct_paket_iscilik_id | rct_pkg_labor_id |
+| rct_recete_hammadde_id | rct_bom_rawmat_id |
+| rct_recete_id | rct_recipe_id |
+| rct_recete_iscilik_id | rct_recipe_labor_id |
+| rct_recete_paket_hammadde_id | rct_recipe_pkg_rawmat_id |
+| rct_recete_paket_iscilik_id | rct_recipe_pkg_labor_id |
+| sat_fatura_detay_id_seq | sls_invoice_detail_id_seq |
+| sat_fatura_id_seq | sls_invoice_id_seq |
+| sat_irsaliye_detay_id_seq | sls_delivery_note_detail_id_seq |
+| sat_irsaliye_id_seq | sls_delivery_note_id_seq |
+| sat_siparis_detay_id_seq | sls_order_detail_id_seq |
+| sat_siparis_id_seq | sls_order_id_seq |
+| sat_teklif_detay_id_seq | sls_offer_detail_id_seq |
+| sat_teklif_id_seq | sls_offer_id_seq |
+| set_ch_firma_tipi_id_seq | acc_set_company_type_id_seq |
+| set_ch_firma_turu_id_seq | acc_set_legal_form_id_seq |
+| set_ch_grup_id_seq | acc_group_id_seq |
+| set_ch_hesap_plani_id_seq | acc_account_plan_id_seq |
+| set_ch_hesap_tipi_id_seq | acc_set_account_type_id_seq |
+| set_ch_vergi_orani_id_seq | acc_set_tax_rate_id_seq |
+| set_einv_fatura_tipi_id_seq | einv_invoice_type_id_seq |
+| set_einv_odeme_sekli_id_seq | einv_payment_method_id_seq |
+| set_einv_paket_tipi_id_seq | einv_packet_type_id_seq |
+| set_einv_tasima_ucreti_id_seq | einv_transport_price_id_seq |
+| set_einv_teslim_sekli_id_seq | einv_delivery_type_id_seq |
+| sys_erisim_hakki_id_seq | sys_access_right_id_seq |
+| set_prs_birim_id_seq | prs_set_unit_id_seq |
+| set_prs_bolum_id_seq | prs_set_section_id_seq |
+| set_prs_ehliyet_id_seq | prs_set_license_type_id_seq |
+| set_prs_gorev_id_seq | prs_set_task_id_seq |
+| set_prs_lisan_id_seq | prs_set_language_id_seq |
+| set_prs_lisan_seviyesi_id_seq | prs_set_lang_level_id_seq |
+| set_prs_personel_tipi_id_seq | prs_set_person_type_id_seq |
+| set_prs_servis_araci_id_seq | prs_set_transport_id_seq |
+| sys_olcu_birimi_id_seq | sys_uom_id_seq |
+| sys_olcu_birimi_tipi_id_seq | sys_uom_type_id_seq |
+| sys_para_birimi_id_seq | sys_currency_id_seq |
+
+---
+
+#### 3. VIEW COLUMN RENAME - English Aliases
+
+sat_siparis_rapor (line ~1810):
+| Old Alias | New Alias |
+| sehir_adi | city_name |
+| stok_grubu | stock_group_name |
+| stok_aciklama | stock_description |
+| siparis_no | order_number |
+| siparis_tarihi | order_date |
+| teslim_tarihi | delivery_date |
+| siparis_durum | status_name |
+| s.aciklama | notes |
+| referans | reference |
+| referans_satir | line_reference |
+
+sys_view_databases (line ~3187):
+| Old Alias | New Alias |
+| aciklama | description |
+
+---
+
+#### 4. FUNCTION SQL REF - Turkish Table Name in Body
+
+fn_get_sys_kalite_form_no (line ~283):
+OLD: FROM sys_kalite_form_no WHERE tablo_adi = ptablo_adi
+NEW: FROM sys_quality_form_no WHERE table_name = p_table_name
+
+---
+
+#### 5. CONSTRAINT NAMES - Column Ref Renames (~50+)
+
+ALL kdv_/tutar_/oran_* constraint names need renaming:
+als_teklifler_kdv_oran1_not_null -> pur_offer_tax_rate_1_nn
+sat_siparisler_kdv_oran1_not_null -> sls_order_tax_rate_1_nn
+sat_teklifler_kdv_oran1_not_null -> sls_offer_tax_rate_1_nn
+-- plus all kdv_tutar, tutar, net_tutar, toplam_tutar, iskonto related constraints
+
+---
+
+### Migration Order:
+1. ALTER TABLE ... RENAME COLUMN (each table)
+2. ALTER TABLE ... RENAME CONSTRAINT (~50+ constraint renames)
+3. ALTER SEQUENCE ... RENAME TO (38 sequences)
+4. DROP VIEW + CREATE VIEW (aliases updated)
+5. FUNCTION SQL content updates
+
+

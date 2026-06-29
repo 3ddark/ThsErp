@@ -3,8 +3,8 @@ unit SysParaBirimiRepository;
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, FireDAC.Stan.Param, Repository, SysCurrency;
+  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
+  FireDAC.Comp.Client, Entity, Repository, SysCurrency;
 
 type
   TSysParaBirimiRepository = class(TRepository<TSysCurrency>)

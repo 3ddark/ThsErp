@@ -8,22 +8,22 @@ uses
   EmpDriverLicenceType.Repository, EmpDriverLicenceType;
 
 type
-  TEmpDriverLicenceTypeService = class(TCrudService<TEmpDriverLicenceType>)
+  TEmpDriverLicenceTypeService = class(TCrudService<TEmpDriverLicenseType>)
   private
-    FRepo: IRepository<TEmpDriverLicenceType>;
+    FRepo: IRepository<TEmpDriverLicenseType>;
   public
     constructor Create;
     destructor Destroy; override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TEmpDriverLicenceType>; override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TEmpDriverLicenseType>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TEmpDriverLicenseType; override;
     procedure Add(AEntity: TEmpDriverLicenseType); override;
     procedure Update(AEntity: TEmpDriverLicenseType); override;
     procedure Delete(AId: Int64); override;
 
     function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TEmpDriverLicenseType; override;
-    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TEmpDriverLicenceType>; override;
+    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TEmpDriverLicenseType>; override;
     procedure BusinessInsert(AEntity: TEmpDriverLicenseType; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
     procedure BusinessUpdate(AEntity: TEmpDriverLicenseType; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
     procedure BusinessDelete(AEntity: TEmpDriverLicenseType; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
@@ -34,7 +34,7 @@ implementation
 constructor TEmpDriverLicenceTypeService.Create;
 begin
   inherited;
-  FRepo := Self.UoW.GetRepository<TEmpDriverLicenceType, TEmpDriverLicenceTypeRepository>;
+  FRepo := Self.UoW.GetRepository<TEmpDriverLicenseType, TEmpDriverLicenceTypeRepository>;
 end;
 
 destructor TEmpDriverLicenceTypeService.Destroy;
@@ -42,7 +42,7 @@ begin
   inherited;
 end;
 
-function TEmpDriverLicenceTypeService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TEmpDriverLicenceType>;
+function TEmpDriverLicenceTypeService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TEmpDriverLicenseType>;
 begin
   if APermissionControl then
   begin
@@ -151,7 +151,7 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TEmpDriverLicenceTypeService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TEmpDriverLicenceType>;
+function TEmpDriverLicenceTypeService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TEmpDriverLicenseType>;
 begin
   if AIncludeNestedEntities then
     Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])

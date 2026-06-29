@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes, Emp.Section;
+  System.SysUtils, Entity, EntityAttributes, EmpSection;
 
 type
   [Table('emp_units')]

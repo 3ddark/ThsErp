@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  Entity, Repository, StkWarehouse;
+  FireDAC.Comp.Client, Entity, Repository, StkWarehouse;
 
 type
   TStkWarehouseRepository = class(TRepository<TStkWarehouse>)

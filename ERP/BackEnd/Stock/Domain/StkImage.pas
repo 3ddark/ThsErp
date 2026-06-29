@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes;
+  System.SysUtils, Entity, EntityAttributes, Data.DB;
 
 type
   [Table('stk_images')]
@@ -18,7 +18,7 @@ type
     [Column('stk_card_id')]
     Property StkCardID: Int64 read FStkCardID write FStkCardID;
 
-    [Column('image', ftBlob)]
+    [Column('image')]
     Property Image: TBytes read FImage write FImage;
 
     [Column('file_name')]

@@ -5,7 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes, EmpDriverLicenseType;
+  System.SysUtils, FireDAC.Comp.Client, Entity, Repository, EntityAttributes,
+  EmpDriverLicenceType;
 
 type
   [Table('emp_person_driver_license')]

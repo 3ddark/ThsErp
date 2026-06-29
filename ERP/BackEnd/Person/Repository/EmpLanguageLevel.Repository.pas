@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  Entity, Repository, EmpLanguageLevel;
+  FireDAC.Comp.Client, Entity, Repository, EmpLanguageLevel;
 
 type
   TEmpLanguageLevelRepository = class(TRepository<TEmpLanguageLevel>)

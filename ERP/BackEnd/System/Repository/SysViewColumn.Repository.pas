@@ -3,8 +3,8 @@
 interface
 
 uses
-  SysUtils, Classes, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, SysViewColumn;
+  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
+  FireDAC.Comp.Client, Entity, Repository, SysViewColumn;
 
 type
   TSysViewColumnRepository = class(TRepository<TSysViewColumn>)

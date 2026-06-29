@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  Entity, Repository, SetChFirmaTipleri;
+  FireDAC.Comp.Client, Entity, Repository, SetChFirmaTipleri;
 
 type
   TSetChFirmaTipleriRepository = class(TRepository<TSetChFirmaTipleri>)

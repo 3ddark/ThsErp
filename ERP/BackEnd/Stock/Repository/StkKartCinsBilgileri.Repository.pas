@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  Entity, Repository, StkKartCinsBilgileri;
+  FireDAC.Comp.Client, Entity, Repository, StkKartCinsBilgileri;
 
 type
   TStkKartCinsBilgileriRepository = class(TRepository<TStkKartCinsBilgileri>)

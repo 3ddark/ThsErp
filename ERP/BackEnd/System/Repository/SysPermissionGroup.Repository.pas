@@ -3,9 +3,8 @@ unit SysPermissionGroup.Repository;
 interface
 
 uses
-  SysUtils, Classes, Types, DB, System.Generics.Collections,
-  FireDAC.Comp.DataSet, FireDAC.Comp.Client, FireDAC.Stan.Param,
-  Entity, Repository, SysPermissionGroup;
+  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
+  FireDAC.Comp.Client, Entity, Repository, SysPermissionGroup;
 
 type
   TSysPermissionGroupRepository = class(TRepository<TSysPermissionGroup>)

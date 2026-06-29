@@ -3,8 +3,8 @@ unit SysViewColumn.Service;
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, System.Generics.Collections,
-  Entity, Service, UnitOfWork,
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
   SysViewColumn.Repository, SysViewColumn;
 
 type

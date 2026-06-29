@@ -3,9 +3,8 @@ unit SysAccessRight.Repository;
 interface
 
 uses
-  SysUtils, Classes, Types, DB, System.Generics.Collections,
-  FireDAC.Comp.DataSet, FireDAC.Comp.Client, FireDAC.Stan.Param,
-  Entity, Repository, SysAccessRight, SharedFormTypes;
+  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
+  FireDAC.Comp.Client, Entity, Repository, SysAccessRight, SharedFormTypes;
 
 type
   TSysAccessRightRepository = class(TRepository<TSysAccessRight>)

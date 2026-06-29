@@ -3,7 +3,7 @@ unit SysUom.Repository;
 interface
 
 uses
-  SysUtils, Classes, Types, DB, System.Generics.Collections,
+  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
   FireDAC.Comp.Client, Entity, Repository, SysUom;
 
 type

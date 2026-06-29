@@ -4,7 +4,8 @@ interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Service, UnitOfWork, SysPermissionGroup.Repository, SysPermissionGroup;
+  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
+  SysPermissionGroup.Repository, SysPermissionGroup;
 
 type
   TSysPermissionGroupService = class(TCrudService<TSysPermissionGroup>)

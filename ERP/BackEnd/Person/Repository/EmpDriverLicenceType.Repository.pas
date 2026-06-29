@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  Entity, Repository, EmpDriverLicenceType;
+  FireDAC.Comp.Client, Entity, Repository, EmpDriverLicenceType;
 
 type
   TEmpDriverLicenceTypeRepository = class(TRepository<TEmpDriverLicenseType>)

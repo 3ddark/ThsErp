@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  Entity, Repository, StkImage;
+  FireDAC.Comp.Client, Entity, Repository, StkImage;
 
 type
   TStkImageRepository = class(TRepository<TStkImage>)

@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  Entity, Repository, EmpTransportation;
+  FireDAC.Comp.Client, Entity, Repository, EmpTransportation;
 
 type
   TEmpTransportationRepository = class(TRepository<TEmpTransportation>)
