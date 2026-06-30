@@ -1,8 +1,8 @@
-object frmSysUoms: TfrmSysUoms
+object frmSysResources: TfrmSysResources
   Left = 0
   Top = 0
-  Caption = 'frmSysUoms'
-  ClientHeight = 514
+  Caption = 'frmSysResources'
+  ClientHeight = 441
   ClientWidth = 836
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET

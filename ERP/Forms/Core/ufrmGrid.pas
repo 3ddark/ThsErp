@@ -475,6 +475,7 @@ begin
   FIsHelper := AUseHelper;
 
   Self.Caption := 'Base Title';
+  Self.Constraints.MinHeight := 600;
 
   FQry := FService.CreateQueryForUI(nil);
   FQry.FetchOptions.Mode := fmAll;
@@ -831,9 +832,28 @@ begin
 end;
 
 procedure TfrmGrid<TE, TS>.FormShow(Sender: TObject);
+var
+  n1, LMaxWidth, LTotalWidth: Integer;
 begin
   BuildFooter;
   FQry.Open;
+
+  LMaxWidth := Screen.MonitorFromWindow(Self.Handle).WorkareaRect.Width;
+  LTotalWidth := 0;
+  for n1 := 0 to Grd.Columns.Count-1 do
+  begin
+    LTotalWidth := LTotalWidth + Grd.Columns.Items[n1].Width;
+    if dgColLines in Grd.Options then
+    begin
+      if Grd.Columns.Items[n1].Width > 0 then
+      begin
+        LTotalWidth := LTotalWidth + THackDBGrid(Grd).Col
+      end;
+    end;
+  end;
+
+  if LTotalWidth > LMaxWidth then
+    LTotalWidth := LMaxWidth;
 
   PrepareFilteredColumns;
   PanelSidebar.Visible := False;

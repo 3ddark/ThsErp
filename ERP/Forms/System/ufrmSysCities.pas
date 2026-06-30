@@ -39,6 +39,9 @@ begin
   SetColumnProperty('car_plate_code',  90, 'Car Plate Code');
   SetColumnProperty('country_id',       0, 'Country Id');
   SetColumnProperty('region_id',        0, 'Region Id');
+  SetColumnProperty('country_code',    70, 'Country Code');
+  SetColumnProperty('country_name',   100, 'Country Name');
+  SetColumnProperty('region_name',    100, 'Region Name');
 end;
 
 procedure TfrmSysCities.DefineFooterColumns;

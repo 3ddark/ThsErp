@@ -13,13 +13,17 @@ uses
   Vcl.ToolWin, Vcl.ImgList, Vcl.StdActns, Vcl.CategoryButtons, Vcl.WinXCtrls,
   Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client, udm, ufrmBase, ufrmGrid,
 
-  ConnectionManager, Logger, MetaProvider,
+  ConnectionManager, Logger, MetaProvider, SharedFormTypes, FilterCriterion,
   AppContext, UserContext, UnitOfWork,
-  ufrmSysRegions, SysRegion.Service, SysRegion,
   ufrmSysCities, SysCity.Service, SysCity,
   ufrmSysCountries, SysCountry.Service, SysCountry,
+  //ufrmSysCurrencies, SysCurrency.Service, SysCurrency,
+  ufrmSysRegions, SysRegion.Service, SysRegion,
+  //ufrmSysResourceGroups, SysResourceGroup.Service, SysResourceGroup,
+  //ufrmSysPermissions, SysPermission.Service, SysPermission,
   ufrmSysUomTypes, SysUomType.Service, SysUomType,
-  ufrmSysUoms, SysUom.Service, SysUom;
+  ufrmSysUoms, SysUom.Service, SysUom,
+  ufrmSysApplicationSetting, SysApplicationSetting.Service, SysApplicationSetting;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -90,7 +94,7 @@ type
     Hakknda2: TMenuItem;
     N3: TMenuItem;
     mnimenu_system: TMenuItem;
-    mnisys_access_right: TMenuItem;
+    mnisys_user_resources: TMenuItem;
     mnisys_application_setting: TMenuItem;
     mnisys_city: TMenuItem;
     mnisys_country: TMenuItem;
@@ -617,22 +621,27 @@ end;
 
 procedure TfrmDashboard.actsys_currencyExecute(Sender: TObject);
 begin
-//
+  TfrmSysCurrencies.Create(Self, TSysCurrencyService.Create, TSysCurrency.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_resourceExecute(Sender: TObject);
 begin
-//
+  TfrmSysResources.Create(Self, TSysResourceService.Create, TSysResource.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_resource_groupExecute(Sender: TObject);
 begin
-//
+  TfrmSysResourceGroups.Create(Self, TSysResourceGroupService.Create, TSysResourceGroup.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_application_settingExecute(Sender: TObject);
+var
+  LAppSettings: TSysApplicationSetting;
+  LAppSettingsSvc: TSysApplicationSettingService;
 begin
-//
+  LAppSettingsSvc := TSysApplicationSettingService.Create;
+  LAppSettings := LAppSettingsSvc.Find(TFilterCriteria.Create, False)[0];
+  TfrmSysApplicationSetting.Create(Self, TSysApplicationSettingService.Create, TSysApplicationSetting.Create, ifmRewiev, nil).Show;
 end;
 
 procedure TfrmDashboard.actsys_userExecute(Sender: TObject);

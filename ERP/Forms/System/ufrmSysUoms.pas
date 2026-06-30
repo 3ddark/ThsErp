@@ -43,6 +43,7 @@ begin
   SetColumnProperty('decimal',        70, 'Decimal');
   SetColumnProperty('measure_type_id', 0, 'Measure Type Id');
   SetColumnProperty('multiplier',     70, 'Multiplier');
+  SetColumnProperty('measure_type',   70, 'Measure Type');
 end;
 
 procedure TfrmSysUoms.DefineFooterColumns;

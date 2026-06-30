@@ -87,7 +87,7 @@ type
     function GetTableName(AClass: TClass): string;
     function GetFullTableName(AClass: TClass): string;
   public
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; virtual;
 
     function FindById(AId: TValue; ALock: Boolean = False; AInclude: TIncludeOptions = [ioIncludeNone]; ARelations: TRelationNames = nil): T;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AInclude: TIncludeOptions = [ioIncludeNone]; ARelations: TRelationNames = nil): T;
