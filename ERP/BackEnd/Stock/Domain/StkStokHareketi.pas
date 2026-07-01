@@ -8,7 +8,7 @@ uses
   System.SysUtils, Entity, EntityAttributes;
 
 type
-  [Table('stk_stok_hareketi')]
+  [Table('stk_transaction')]
   TStkStokHareketi = class(TEntity)
   private
     FStokID: Int64;

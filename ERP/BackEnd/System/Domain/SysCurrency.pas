@@ -5,14 +5,14 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_currencies')]
+  [Table('sys_currency')]
   TSysCurrency = class(TEntity)
   private
     FCurrency: string;
     FSymbol: string;
     FDescription: string;
   public
-    [Column('currnecy'), MaxLength(3), Required()]
+    [Column('currency'), MaxLength(3), Required()]
     property Currency: string read FCurrency write FCurrency;
 
     [Column('symbol'), MaxLength(3), Required()]

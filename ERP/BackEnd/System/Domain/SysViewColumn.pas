@@ -5,6 +5,8 @@ interface
 uses
   SysUtils, Classes, Types, Data.DB, Entity, EntityAttributes;
 
+// DEPRECATED: sys_view_columns tablosu DB'de bulunmamaktadır.
+// View column metadata tracking özelliği implement edilmemiştir.
 type
   [Table('sys_view_columns')]
   TSysViewColumn = class(TEntity)

@@ -8,7 +8,7 @@ uses
   System.SysUtils, Entity, EntityAttributes;
 
 type
-  [Table('stk_card_summaries')]
+  [Table('stk_inventory_summary')]
   TStkCardSummary = class(TEntity)
   private
     FStkCardID: Int64;

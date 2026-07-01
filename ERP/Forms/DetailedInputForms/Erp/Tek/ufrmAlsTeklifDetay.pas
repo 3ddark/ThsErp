@@ -81,7 +81,7 @@ uses
   Ths.Database.Table.SysOlcuBirimleri, ufrmSysOlcuBirimleri,
   Ths.Database.Table.SysParaBirimleri, ufrmSysParaBirimleri,
   Ths.Database.Table.SetChVergiOranlari, ufrmSetChVergiOranlari,
-  Ths.Database.Table.StkKartlar, ufrmStkKartlar;
+  Ths.Database.Table.StkInventory, ufrmStkInventory;
 
 {$R *.dfm}
 
@@ -215,8 +215,8 @@ end;
 
 procedure TfrmAlsTeklifDetay.HelperProcess(Sender: TObject);
 var
-  LFrmStk: TfrmStkKartlar;
-  LStk: TStkKart;
+  LFrmStk: TfrmStkInventory;
+  LStk: TStkInventory;
   LFrmVergi: TfrmSetChVergiOranlari;
   LStokParaVarsayilan: Boolean;
   n1: Integer;
@@ -227,8 +227,8 @@ begin
     begin
       if TEdit(Sender).Name = edtstok_kodu.Name then
       begin
-        LStk := TStkKart.Create(GDataBase);
-        LFrmStk := TfrmStkKartlar.Create(TEdit(Sender), Self, LStk, fomNormal, True);
+        LStk := TStkInventory.Create(GDataBase);
+        LFrmStk := TfrmStkInventory.Create(TEdit(Sender), Self, LStk, fomNormal, True);
         try
           LFrmStk.QryFiltreVarsayilan := ' AND ' + LStk.IsSatilabilir.FieldName + '=True';
           LFrmStk.ShowModal;

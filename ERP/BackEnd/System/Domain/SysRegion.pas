@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_regions')]
+  [Table('sys_region')]
   TSysRegion = class(TEntity)
   private
     FRegionName: string;

@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_days')]
+  [Table('sys_day')]
   TSysDay = class(TEntity)
   private
     FDayName: string;

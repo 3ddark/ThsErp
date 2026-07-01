@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_gui_contents')]
+  [Table('sys_gui_content')]
   TSysGridContents = class(TEntity)
   private
     FCode: string;

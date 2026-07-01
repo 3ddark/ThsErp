@@ -1,4 +1,6 @@
-﻿unit Ths.Database.Table.SysOndalikHaneler;
+﻿{ *** DEPRECATED - Use Domain/Repository/Service pattern instead.***
+{    Old migration path: Ths.Database.Table -> BackEnd/System/Domain/, BackEnd/{Module}/Domain/ }
+unit Ths.Database.Table.SysOndalikHaneler;
 
 interface
 
@@ -202,3 +204,4 @@ begin
 end;
 
 end.
+

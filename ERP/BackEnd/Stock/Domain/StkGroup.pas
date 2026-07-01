@@ -8,7 +8,7 @@ uses
   System.SysUtils, Entity, EntityAttributes;
 
 type
-  [Table('stk_groups')]
+  [Table('stk_group')]
   TStkGroup = class(TEntity)
   private
     FGroupName: string;

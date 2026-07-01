@@ -1,4 +1,6 @@
-﻿unit Ths.Database.Table.OthMailReciever;
+﻿{ *** DEPRECATED - Use Domain/Repository/Service pattern instead.***
+{    Old migration path: Ths.Database.Table -> BackEnd/System/Domain/, BackEnd/{Module}/Domain/ }
+unit Ths.Database.Table.OthMailReciever;
 
 interface
 
@@ -143,3 +145,4 @@ begin
 end;
 
 end.
+

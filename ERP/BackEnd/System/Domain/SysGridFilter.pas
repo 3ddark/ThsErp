@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_grid_filters')]
+  [Table('sys_grid_filter')]
   TSysGridFilters = class(TEntity)
   private
     FTableName: string;

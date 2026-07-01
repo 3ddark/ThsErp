@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes, SysPermission, SysUser;
 
 type
-  [Table('sys_access_rights')]
+  [Table('sys_access_right')]
   TSysAccessRight = class(TEntity)
   private
     FPermissionId: Int64;

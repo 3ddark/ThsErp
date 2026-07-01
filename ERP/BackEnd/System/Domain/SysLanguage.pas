@@ -5,17 +5,17 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_languages')]
+  [Table('sys_diller')]
   TSysLanguage = class(TEntity)
   private
-    FLngCode: string;
-    FDescription: string;
+    FKod: string;
+    FAciklama: string;
   public
-    [Column('lng_code'), MaxLength(2), Required()]
-    property LngCode: string read FLngCode write FLngCode;
+    [Column('kod'), MaxLength(2), Required()]
+    property Kod: string read FKod write FKod;
 
-    [Column('description'), MaxLength(128)]
-    property Description: string read FDescription write FDescription;
+    [Column('aciklama'), MaxLength(128)]
+    property Aciklama: string read FAciklama write FAciklama;
 
     constructor Create(); override;
     destructor Destroy; override;

@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_decimal_places')]
+  [Table('sys_decimal_place')]
   TSysDecimalPlace = class(TEntity)
   private
     FQuantity: SmallInt;

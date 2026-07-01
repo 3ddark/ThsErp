@@ -8,7 +8,7 @@ uses
   System.SysUtils, Entity, EntityAttributes, Data.DB;
 
 type
-  [Table('stk_images')]
+  [Table('stk_image')]
   TStkImage = class(TEntity)
   private
     FStkCardID: Int64;

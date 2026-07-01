@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_permission_groups')]
+  [Table('sys_permission_group')]
   TSysPermissionGroup = class(TEntity)
   private
     FGroupName: string;

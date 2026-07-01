@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes, SysPermissionGroup;
 
 type
-  [Table('sys_permissions')]
+  [Table('sys_permission')]
   TSysPermission = class(TEntity)
   private
     FPermissionCode: Integer;

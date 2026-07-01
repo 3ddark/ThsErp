@@ -8,7 +8,7 @@ uses
   System.SysUtils, Entity, EntityAttributes;
 
 type
-  [Table('stk_warehouses')]
+  [Table('stk_warehouse')]
   TStkWarehouse = class(TEntity)
   private
     FWarehouseName: string;

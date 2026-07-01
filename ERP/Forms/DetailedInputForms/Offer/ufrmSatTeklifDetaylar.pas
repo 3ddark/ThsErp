@@ -164,7 +164,7 @@ uses
   Ths.Globals,
   Ths.Constants,
   ufrmSatTeklifDetay,
-  Ths.Database.Table.ChHesapKarti, ufrmChHesapKartlari,
+  Ths.Database.Table.ChHesapKarti, ufrmAccHesapKartlari,
   Ths.Database.Table.SysSehirler, ufrmSysSehirler,
   Ths.Database.Table.SetEInvFaturaTipleri,
   Ths.Database.Table.PrsPersoneller, ufrmPrsPersoneller,

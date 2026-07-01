@@ -8,7 +8,7 @@ uses
   System.SysUtils, Entity, EntityAttributes;
 
 type
-  [Table('stk_kind_families')]
+  [Table('stk_kind_family')]
   TStkKindFamily = class(TEntity)
   private
     FFamily: string;

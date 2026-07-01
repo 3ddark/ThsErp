@@ -1,4 +1,6 @@
-﻿unit Ths.Database.Table.SysUlkeler;
+﻿{ *** DEPRECATED - Use Domain/Repository/Service pattern instead.***
+{    Old migration path: Ths.Database.Table -> BackEnd/System/Domain/, BackEnd/{Module}/Domain/ }
+unit Ths.Database.Table.SysUlkeler;
 
 interface
 
@@ -165,3 +167,4 @@ begin
 end;
 
 end.
+

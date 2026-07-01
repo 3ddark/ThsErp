@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, Types, Entity, EntityAttributes, SysRegion, SysCountry;
 
 type
-  [Table('sys_cities')]
+  [Table('sys_city')]
   TSysCity = class(TEntity)
   private
     FCityName: string;
@@ -16,10 +16,10 @@ type
     FCountry: TSysCountry;
     FRegion: TSysRegion;
   public
-    [Column('city_name')]
+    [Column('name')]
     property CityName: string read FCityName write FCityName;
 
-    [Column('car_plate_code')]
+    [Column('plate_code')]
     property CarPlateCode: Integer read FCarPlateCode write FCarPlateCode;
 
     [Column('country_id')]

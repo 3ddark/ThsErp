@@ -1,4 +1,6 @@
-﻿unit Ths.Database.Table.SatTeklif;
+﻿{ *** DEPRECATED - Use Domain/Repository/Service pattern instead.***
+{    Old migration path: Ths.Database.Table -> BackEnd/System/Domain/, BackEnd/{Module}/Domain/ }
+unit Ths.Database.Table.SatTeklif;
 
 interface
 
@@ -18,7 +20,7 @@ uses
   Ths.Database.TableDetailed,
   Ths.Database.Table.SysOndalikHaneler,
   Ths.Database.Table.EmpPersonnel,
-  Ths.Database.Table.StkKartlar,
+  Ths.Database.Table.StkInventory,
   Ths.Database.Table.SysUlkeler,
   Ths.Database.Table.SysSehirler,
   Ths.Database.Table.SetEInvFaturaTipleri,
@@ -1203,6 +1205,7 @@ begin
 end;
 
 end.
+
 
 
 

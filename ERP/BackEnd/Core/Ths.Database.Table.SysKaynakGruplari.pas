@@ -1,4 +1,6 @@
-﻿unit Ths.Database.Table.SysKaynakGruplari;
+﻿{ *** DEPRECATED - Use Domain/Repository/Service pattern instead.***
+{    Old migration path: Ths.Database.Table -> BackEnd/System/Domain/, BackEnd/{Module}/Domain/ }
+unit Ths.Database.Table.SysKaynakGruplari;
 
 interface
 
@@ -139,3 +141,4 @@ begin
 end;
 
 end.
+

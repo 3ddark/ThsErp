@@ -1,4 +1,6 @@
-﻿unit Ths.Database.Table.SysOlcuBirimleri;
+﻿{ *** DEPRECATED - Use Domain/Repository/Service pattern instead.***
+{    Old migration path: Ths.Database.Table -> BackEnd/System/Domain/, BackEnd/{Module}/Domain/ }
+unit Ths.Database.Table.SysOlcuBirimleri;
 
 interface
 
@@ -194,3 +196,4 @@ begin
 end;
 
 end.
+

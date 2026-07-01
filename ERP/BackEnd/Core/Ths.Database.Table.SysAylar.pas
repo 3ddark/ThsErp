@@ -1,4 +1,6 @@
-﻿unit Ths.Database.Table.SysAylar;
+﻿{ *** DEPRECATED - Use Domain/Repository/Service pattern instead.***
+{    Old migration path: Ths.Database.Table -> BackEnd/System/Domain/, BackEnd/{Module}/Domain/ }
+unit Ths.Database.Table.SysAylar;
 
 interface
 
@@ -142,3 +144,4 @@ begin
 end;
 
 end.
+

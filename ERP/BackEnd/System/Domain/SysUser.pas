@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes, EmpPerson;
 
 type
-  [Table('sys_users')]
+  [Table('sys_user')]
   TSysUser = class(TEntity)
   private
     FUsername: string;

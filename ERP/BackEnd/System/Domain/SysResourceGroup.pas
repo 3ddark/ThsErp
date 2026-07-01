@@ -5,13 +5,13 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_resource_groups')]
+  [Table('sys_kaynak_gruplari')]
   TSysResourceGroup = class(TEntity)
   private
-    FGroupName: string;
+    FName: string;
   public
-    [Column('group_name'), MaxLength(64), Required()]
-    property GroupName: string read FGroupName write FGroupName;
+    [Column('ad'), MaxLength(64), Required()]
+    property Name: string read FName write FName;
   end;
 
 implementation

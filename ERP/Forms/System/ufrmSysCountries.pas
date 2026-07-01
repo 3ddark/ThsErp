@@ -2,10 +2,14 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysCountry.Service, SysCountry, ufrmSysCountry;
+  SharedFormTypes, ufrmSysCountry,
+  SysCountry.Service, SysCountry;
+
 
 type
   TfrmSysCountries = class(TfrmGrid<TSysCountry, TSysCountryService>)
@@ -33,23 +37,23 @@ end;
 
 procedure TfrmSysCountries.DefineColumnWidths;
 begin
-  SetColumnProperty('id',             0, 'Id');
-  SetColumnProperty('country_code',  80, 'Ülke Kodu');
-  SetColumnProperty('country_name', 220, 'Ülke Adı');
-  SetColumnProperty('iso_year',      70, 'ISO Yıl');
-  SetColumnProperty('iso_cctld',     90, 'ISO CCTLD');
-  SetColumnProperty('is_eu_member', 100, 'EU Üyesi');
+  SetColumnProperty('id',               0, 'Id');
+  SetColumnProperty('country_code',    70, 'Country Code');
+  SetColumnProperty('country_name',   100, 'Country Name');
+  SetColumnProperty('iso_year',        40, 'ISO Year');
+  SetColumnProperty('iso_cctld',       70, 'ISO CCTLD');
+  SetColumnProperty('is_eu_member',    60, 'EU?');
 end;
 
 procedure TfrmSysCountries.DefineFooterColumns;
 begin
-  AddFooterColumn('iso_year', atAverage, 'Ort: #,##0.00');
+  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysCountries.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Sistem Ülkeler';
+  Self.Caption := 'System Countries';
 end;
 
 end.

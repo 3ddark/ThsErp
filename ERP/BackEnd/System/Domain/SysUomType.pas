@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_uom_types')]
+  [Table('sys_uom_type')]
   TSysUomType = class(TEntity)
   private
     FMeasureType: string;

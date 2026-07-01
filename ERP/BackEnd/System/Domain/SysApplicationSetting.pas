@@ -18,7 +18,7 @@ type
     constructor Create;
   end;
 
-  [Table('sys_application_settings')]
+  [Table('sys_application_setting')]
   TSysApplicationSetting = class(TEntity)
   private
     FCompanyTitle: string;

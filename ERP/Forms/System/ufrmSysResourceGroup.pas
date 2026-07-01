@@ -28,7 +28,7 @@ implementation
 
 procedure TfrmSysResourceGroup.BtnAcceptClick(Sender: TObject);
 begin
-  Table.GroupName := edtgroup_name.Text;
+  Table.Name := edtgroup_name.Text;
   inherited;
 end;
 
@@ -50,7 +50,7 @@ end;
 procedure TfrmSysResourceGroup.RefreshData;
 begin
   inherited;
-  edtgroup_name.Text := Table.GroupName;
+  edtgroup_name.Text := Table.Name;
 end;
 
 end.

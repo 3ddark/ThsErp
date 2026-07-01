@@ -1,4 +1,6 @@
-﻿unit Ths.Database.TableDetailed;
+﻿{ *** DEPRECATED - Use Domain/Repository/Service pattern instead.***
+{    Old migration path: Ths.Database.Table -> BackEnd/System/Domain/, BackEnd/{Module}/Domain/ }
+unit Ths.Database.TableDetailed;
 
 interface
 
@@ -90,3 +92,4 @@ begin
 end;
 
 end.
+

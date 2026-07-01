@@ -1,39 +1,31 @@
-﻿unit SysGridColumn;
+unit SysGridColumn;
 
 interface
 
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_grid_columns')]
-  TSysGridColumns = class(TEntity)
+  [Table('sys_grid_column')]
+  TSysGridColumn = class(TEntity)
   private
     FTableName: string;
-    FLngCode: string;
-    FColumnLabel: string;
-    FMinValue: Double;
-    FColumnWidth: Integer;
-    FMaxValueColor: Integer;
-    FIsShowHelper: Boolean;
+    FColumnName: string;
     FColumnOrder: Integer;
-    FBarBgColor: Integer;
-    FMaxValuePercent: Double;
-    FBarTextColor: Integer;
-    FMinValueColor: Integer;
+    FColumnWidth: Integer;
     FDataFormat: string;
     FIsShow: Boolean;
-    FBarColor: Integer;
+    FIsShowHelper: Boolean;
+    FMinValue: Double;
+    FMinValueColor: Integer;
     FMaxValue: Double;
-    FColumnName: string;
+    FMaxValueColor: Integer;
+    FMaxValuePercent: Double;
+    FBarColor: Integer;
+    FBarBgColor: Integer;
+    FBarTextColor: Integer;
   public
     [Column('table_name'), MaxLength(128), Required()]
     property TableName: string read FTableName write FTableName;
-
-    [Column('lng_code'), MaxLength(2), Required()]
-    property LngCode: string read FLngCode write FLngCode;
-
-    [Column('column_label'), MaxLength(64)]
-    property ColumnLabel: string read FColumnLabel write FColumnLabel;
 
     [Column('column_name'), MaxLength(128), Required()]
     property ColumnName: string read FColumnName write FColumnName;
@@ -74,7 +66,7 @@ type
     [Column('bar_bg_color')]
     property BarBgColor: Integer read FBarBgColor write FBarBgColor;
 
-    [Column('bar_text_coolor')]
+    [Column('bar_text_color')]
     property BarTextColor: Integer read FBarTextColor write FBarTextColor;
 
     constructor Create(); override;
@@ -83,7 +75,7 @@ type
 
 implementation
 
-constructor TSysGridColumns.Create();
+constructor TSysGridColumn.Create();
 begin
   inherited;
   FColumnOrder := 1;
@@ -100,7 +92,7 @@ begin
   FBarTextColor := 0;
 end;
 
-destructor TSysGridColumns.Destroy;
+destructor TSysGridColumn.Destroy;
 begin
   inherited;
 end;

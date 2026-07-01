@@ -8,13 +8,13 @@ uses
   System.SysUtils, Entity, EntityAttributes;
 
 type
-  [Table('set_stk_urun_tipleri')]
+  [Table('stk_product_type')]
   TSetStkUrunTipleri = class(TEntity)
   private
-    FUrunTipi: string;
+    FProductName: string;
   public
-    [Column('urun_tipi')]
-    Property UrunTipi: string read FUrunTipi write FUrunTipi;
+    [Column('product_type_name')]
+    Property ProductTypeName: string read FProductName write FProductName;
 
     constructor Create(); override;
     destructor Destroy; override;

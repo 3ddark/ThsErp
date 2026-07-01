@@ -20,6 +20,8 @@ object frmSysCity: TfrmSysCity
     Height = 166
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 494
+    ExplicitHeight = 149
     object lblcity_name: TLabel
       Left = 70
       Top = 6

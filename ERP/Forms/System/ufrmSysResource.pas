@@ -35,9 +35,9 @@ implementation
 
 procedure TfrmSysResource.BtnAcceptClick(Sender: TObject);
 begin
-  Table.ResourceCode := edtresource_code.Text;
-  Table.ResourceName := edtresource_name.Text;
-  Table.ResourceGroup.GroupName := edtresource_group_id.Text;
+  Table.Kod := edtresource_code.Text;
+  Table.Ad := edtresource_name.Text;
+  Table.ResourceGroup.Name := edtresource_group_id.Text;
   inherited;
 end;
 
@@ -73,13 +73,13 @@ begin
         begin
           if LFrm.CleanAndClose then
           begin
-            Table.ResourceGroupId := 0;
+            Table.UstId := 0;
             (Sender as TEdit).Clear;
           end
           else
           begin
-            Table.ResourceGroupId := LFrm.Table.Id;
-            (Sender as TEdit).Text := LFrm.Table.GroupName;
+            Table.UstId := LFrm.Table.Id;
+            (Sender as TEdit).Text := LFrm.Table.Name;
           end;
         end;
       finally
@@ -100,9 +100,9 @@ end;
 procedure TfrmSysResource.RefreshData;
 begin
   inherited;
-  edtresource_code.Text := Table.ResourceCode;
-  edtresource_name.Text := Table.ResourceName;
-  edtresource_group_id.Text := Table.ResourceGroup.GroupName;
+  edtresource_code.Text := Table.Kod;
+  edtresource_name.Text := Table.Ad;
+  edtresource_group_id.Text := Table.ResourceGroup.Name;
 end;
 
 end.

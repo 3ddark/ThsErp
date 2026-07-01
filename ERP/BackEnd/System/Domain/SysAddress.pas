@@ -5,7 +5,7 @@ interface
 uses SysUtils, Classes, Types, Entity, EntityAttributes, SysCity;
 
 type
-  [Table('sys_addresses')]
+  [Table('sys_address')]
   TSysAddress = class(TEntity)
   private
     FCityId: Int64;

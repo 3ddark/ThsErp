@@ -1,4 +1,6 @@
-﻿unit Ths.Database.Table.SysGuiIcerikler;
+﻿{ *** DEPRECATED - Use Domain/Repository/Service pattern instead.***
+{    Old migration path: Ths.Database.Table -> BackEnd/System/Domain/, BackEnd/{Module}/Domain/ }
+unit Ths.Database.Table.SysGuiIcerikler;
 
 interface
 
@@ -208,3 +210,4 @@ begin
 end;
 
 end.
+

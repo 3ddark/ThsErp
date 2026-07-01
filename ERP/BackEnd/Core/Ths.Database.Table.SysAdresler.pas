@@ -1,4 +1,6 @@
-﻿unit Ths.Database.Table.SysAdresler;
+﻿{ *** DEPRECATED - Use Domain/Repository/Service pattern instead.***
+{    Old migration path: Ths.Database.Table -> BackEnd/System/Domain/, BackEnd/{Module}/Domain/ }
+unit Ths.Database.Table.SysAdresler;
 
 interface
 
@@ -250,3 +252,4 @@ begin
 end;
 
 end.
+

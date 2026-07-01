@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
-  [Table('sys_countries')]
+  [Table('sys_country')]
   TSysCountry = class(TEntity)
   private
     FCountryCode: string;
