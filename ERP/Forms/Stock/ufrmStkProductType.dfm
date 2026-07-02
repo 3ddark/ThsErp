@@ -1,7 +1,7 @@
-object frmStkKindFamily: TfrmStkKindFamily
+object frmStkProductType: TfrmStkProductType
   Left = 0
   Top = 0
-  Caption = 'frmStkKindFamily'
+  Caption = 'frmStkProductType'
   ClientHeight = 232
   ClientWidth = 463
   Color = clBtnFace
@@ -22,18 +22,18 @@ object frmStkKindFamily: TfrmStkKindFamily
     Align = alClient
     TabOrder = 0
     TabStop = False
-    ExplicitWidth = 461
-    ExplicitHeight = 224
+    ExplicitWidth = 459
+    ExplicitHeight = 222
     object tsMain: TTabSheet
       Caption = 'Genel'
-      object lblaile
-        Left = 52
-        Top = 7
-        Width = 36
+      object lblProductName
+        Left = 37
+        Top = 10
+        Width = 84
         Height = 13
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
-        Caption = 'Family'
+        Caption = 'Product Type Name'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -42,10 +42,17 @@ object frmStkKindFamily: TfrmStkKindFamily
         ParentBiDiMode = False
         ParentFont = False
       end
+      object edtProductName
+        Left = 127
+        Top = 6
+        Width = 300
+        Height = 23
+        TabOrder = 0
+      end
       object lbldescription
-        Left = 21
-        Top = 36
-        Width = 65
+        Left = 45
+        Top = 40
+        Width = 76
         Height = 13
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
@@ -58,10 +65,17 @@ object frmStkKindFamily: TfrmStkKindFamily
         ParentBiDiMode = False
         ParentFont = False
       end
+      object edtDescription
+        Left = 127
+        Top = 36
+        Width = 300
+        Height = 23
+        TabOrder = 1
+      end
       object lblactive
-        Left = 51
-        Top = 128
-        Width = 37
+        Left = 54
+        Top = 75
+        Width = 67
         Height = 13
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
@@ -74,23 +88,9 @@ object frmStkKindFamily: TfrmStkKindFamily
         ParentBiDiMode = False
         ParentFont = False
       end
-      object edtfamily
-        Left = 92
-        Top = 3
-        Width = 333
-        Height = 23
-        TabOrder = 0
-      end
-      object mmodescription
-        Left = 92
-        Top = 27
-        Width = 333
-        Height = 89
-        TabOrder = 1
-      end
-      object chkactive
-        Left = 92
-        Top = 124
+      object chkActive
+        Left = 127
+        Top = 72
         Width = 97
         Height = 17
         TabOrder = 2

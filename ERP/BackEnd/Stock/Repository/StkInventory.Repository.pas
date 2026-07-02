@@ -7,14 +7,14 @@ uses
   FireDAC.Comp.Client, Entity, Repository, StkInventory;
 
 type
-  TStkKartRepository = class(TRepository<TStkInventory>)
+  TStkInventoryRepository = class(TRepository<TStkInventory>)
   public
     constructor Create(AConnection: TFDConnection);
   end;
 
 implementation
 
-constructor TStkKartRepository.Create(AConnection: TFDConnection);
+constructor TStkInventoryRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
 end;

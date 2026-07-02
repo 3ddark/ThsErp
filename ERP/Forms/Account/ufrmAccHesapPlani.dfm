@@ -1,127 +1,84 @@
-﻿inherited frmAccHesapPlani: TfrmAccHesapPlani
-  Left = 501
-  Top = 443
-  ActiveControl = btnClose
-  Caption = 'Hesap Plan'#305
-  ClientHeight = 147
-  ClientWidth = 368
-  Font.Name = 'MS Sans Serif'
-  ExplicitWidth = 384
-  ExplicitHeight = 186
+inherited frmAccHesapPlani: TfrmAccHesapPlani
+  Caption = 'Hesap Plani'
+  ClientWidth = 500
+  ClientHeight = 166
+  ExplicitClientWidth = 500
+  ExplicitClientHeight = 166
   TextHeight = 14
-  inherited pnlMain: TPanel
-    Width = 368
-    Height = 97
-    Color = clWindow
-    ParentColor = False
-    ExplicitWidth = 366
-    ExplicitHeight = 158
-    inherited pgcMain: TPageControl
-      Width = 368
-      Height = 97
-      ExplicitWidth = 366
-      ExplicitHeight = 158
-      inherited tsMain: TTabSheet
-        ExplicitTop = 25
-        ExplicitWidth = 360
-        ExplicitHeight = 68
-        object lbltek_duzen_kodu: TLabel
-          Left = 58
-          Top = 6
-          Width = 88
-          Height = 14
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Tek D'#252'zen Kodu'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblaciklama: TLabel
-          Left = 96
-          Top = 28
-          Width = 50
-          Height = 14
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'A'#231#305'klama'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblseviye_sayisi: TLabel
-          Left = 75
-          Top = 50
-          Width = 71
-          Height = 14
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Seviye Say'#305's'#305
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object edttek_duzen_kodu: TEdit
-          Left = 150
-          Top = 3
-          Width = 200
-          Height = 21
-          TabOrder = 0
-        end
-        object edtaciklama: TEdit
-          Left = 150
-          Top = 25
-          Width = 200
-          Height = 21
-          TabOrder = 1
-        end
-        object cbbseviye_sayisi: TComboBox
-          Left = 150
-          Top = 47
-          Width = 200
-          Height = 22
-          Style = csDropDownList
-          ItemIndex = 0
-          TabOrder = 2
-          Text = '1'
-          Items.Strings = (
-            '1'
-            '2'
-            '3')
-        end
-      end
+  object pnlContent: TPanel
+    Left = 0
+    Top = 0
+    Width = 500
+    Height = 166
+    Align = alClient
+    TabOrder = 0
+    ExplicitWidth = 500
+    ExplicitHeight = 166
+    object lblcode: TLabel
+      Left = 70
+      Top = 6
+      Width = 24
+      Height = 14
+      Alignment = taRightJustify
+      Caption = 'Kod'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
-  end
-  inherited pnlBottom: TPanel
-    Top = 99
-    Width = 364
-    ExplicitTop = 160
-    ExplicitWidth = 362
-    inherited btnAccept: TButton
-      Left = 158
-      ExplicitLeft = 156
+    object edtcode: TEdit
+      Left = 132
+      Top = 2
+      Width = 200
+      Height = 21
+      TabOrder = 0
     end
-    inherited btnClose: TButton
-      Left = 262
-      ExplicitLeft = 260
+    object lblname: TLabel
+      Left = 84
+      Top = 29
+      Width = 16
+      Height = 14
+      Alignment = taRightJustify
+      Caption = 'Ad'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
-  end
-  inherited stbBase: TStatusBar
-    Top = 129
-    Width = 368
-    ExplicitTop = 190
-    ExplicitWidth = 366
+    object edtname: TEdit
+      Left = 132
+      Top = 25
+      Width = 200
+      Height = 21
+      TabOrder = 1
+    end
+    object lbllevel: TLabel
+      Left = 80
+      Top = 52
+      Width = 28
+      Height = 14
+      Alignment = taRightJustify
+      Caption = 'Seviye'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtlevel: TSpinEdit
+      Left = 132
+      Top = 48
+      Width = 60
+      Height = 21
+      MaxValue = 9999
+      MinValue = 0
+      TabOrder = 2
+      Value = 0
+    end
   end
 end

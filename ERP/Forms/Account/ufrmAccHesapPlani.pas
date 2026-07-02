@@ -1,87 +1,90 @@
-﻿unit ufrmAccHesapPlani;
+unit ufrmAccHesapPlani;
 
 interface
 
-{$I Ths.inc}
-
 uses
   Winapi.Windows,
-  Winapi.Messages,
   System.SysUtils,
   System.Variants,
   System.Classes,
-  System.StrUtils,
-  Vcl.Graphics,
-  Vcl.Controls,
-  Vcl.Forms,
-  Vcl.Dialogs,
   Vcl.StdCtrls,
-  Vcl.ExtCtrls,
   Vcl.ComCtrls,
-  Vcl.Menus,
+  Vcl.ExtCtrls,
   Vcl.Samples.Spin,
-  Vcl.AppEvnts,
+  ufrmInputSimpleDB,
+  SharedFormTypes,
+  Ths.Helper.BaseTypes,
   Ths.Helper.Edit,
-  Ths.Helper.Memo,
-  Ths.Helper.ComboBox,
-  ufrmBase,
-  ufrmBaseInputDB;
+  AccAccountPlan.Service,
+  AccAccountPlan;
 
 type
-  TfrmAccHesapPlani = class(TfrmBaseInputDB)
-    lbltek_duzen_kodu: TLabel;
-    edttek_duzen_kodu: TEdit;
-    lblaciklama: TLabel;
-    edtaciklama: TEdit;
-    lblseviye_sayisi: TLabel;
-    cbbseviye_sayisi: TComboBox;
-  published
-    procedure btnAcceptClick(Sender: TObject);override;
-    procedure RefreshData; override;
+  TfrmAccHesapPlani = class(TfrmInputSimpleDB<TAccAccountPlan, TAaccAccountPlanService>)
+    edtcode: TEdit;
+    edtname: TEdit;
+    edtlevel: TSpinEdit;
+    lblcode: TLabel;
+    lblname: TLabel;
+    lbllevel: TLabel;
+  protected
+    procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
+    procedure FormShow(Sender: TObject); override;
+    procedure InitializeInputCase; override;
+    procedure RefreshData; override;
+    procedure HelperProcess(Sender: TObject);
   end;
+
+var
+  frmAccHesapPlani: TfrmAccHesapPlani;
 
 implementation
 
-uses
-  Ths.Globals,
-  Ths.Constants,
-  Ths.Database.Table.ChHesapPlanlari;
-
 {$R *.dfm}
 
-procedure TfrmAccHesapPlani.btnAcceptClick(Sender: TObject);
-begin
-  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
-  begin
-    if (ValidateInput) then
-    begin
-      TChHesapPlani(Table).PlanKodu.Value := edttek_duzen_kodu.Text;
-      TChHesapPlani(Table).PlanAdi.Value := edtaciklama.Text;
-      TChHesapPlani(Table).Seviye.Value := StrToIntDef(cbbseviye_sayisi.Text, 1);
+{ TfrmAccHesapPlani }
 
-      inherited;
-    end;
-  end
-  else
-    inherited;
+procedure TfrmAccHesapPlani.BtnAcceptClick(Sender: TObject);
+begin
+  Table.Code := edtcode.Text;
+  Table.Name := edtname.Text;
+  Table.Level := StrToIntDef(edtlevel.Text, 0);
+  inherited;
 end;
 
 procedure TfrmAccHesapPlani.FormCreate(Sender: TObject);
 begin
   inherited;
-  cbbseviye_sayisi.Clear;
-  cbbseviye_sayisi.Items.Add('1');
-  cbbseviye_sayisi.Items.Add('2');
-  cbbseviye_sayisi.Items.Add('3');
-  cbbseviye_sayisi.ItemIndex := 0;
+end;
+
+procedure TfrmAccHesapPlani.FormShow(Sender: TObject);
+begin
+  inherited;
+  Self.Caption := 'Hesap Plani';
+  edtcode.SetFocus;
+end;
+
+procedure TfrmAccHesapPlani.InitializeInputCase;
+begin
+  edtcode.InputDataType := itString;
+  edtname.InputDataType := itString;
+  edtlevel.InputDataType := itInteger;
+
+  edtcode.MaxLength := 16;
+  edtname.MaxLength := 128;
+  edtlevel.MaxLength := 5;
 end;
 
 procedure TfrmAccHesapPlani.RefreshData;
 begin
-  edttek_duzen_kodu.Text := TChHesapPlani(Table).PlanKodu.AsString;
-  edtaciklama.Text := TChHesapPlani(Table).PlanAdi.AsString;
-  cbbseviye_sayisi.ItemIndex := cbbseviye_sayisi.Items.IndexOf(TChHesapPlani(Table).Seviye.AsString);
+  edtcode.Text := Table.Code;
+  edtname.Text := Table.Name;
+  edtlevel.Text := IntToStr(Table.Level);
+end;
+
+procedure TfrmAccHesapPlani.HelperProcess(Sender: TObject);
+begin
+  // Placeholder for helper form processing logic
 end;
 
 end.

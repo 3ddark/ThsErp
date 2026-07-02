@@ -44,7 +44,6 @@ end;
 procedure TfrmStkKindFamily.FormCreate(Sender: TObject);
 begin
   inherited;
-
   pgcMain.Parent := PanelMain;
   PgcBase := pgcMain;
 end;
@@ -52,9 +51,7 @@ end;
 procedure TfrmStkKindFamily.FormShow(Sender: TObject);
 begin
   inherited;
-
   Self.Caption := 'Input Stk Kind Family';
-
   edtfamily.SetFocus;
 end;
 
@@ -73,4 +70,3 @@ begin
 end;
 
 end.
-

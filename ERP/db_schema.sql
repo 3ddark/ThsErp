@@ -1,8 +1,8 @@
-﻿--
+--
 -- PostgreSQL database dump
 --
 
-\restrict jjHaaeUibe8hFqvsG11vgFmZusHKWpWhMEUvzH9Cr6FhfaJhDmttKovQYwfQwAD
+\restrict F2nAKi9LLYA1aSIGOYqnQ9SdDCMaUgdLnug7B6gWTbowv7HjfEskCGgEP0D22Qc
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -18,6 +18,21 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: acc_default_currency(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.acc_default_currency() RETURNS bigint
+    LANGUAGE plpgsql
+    AS $$
+DECLARE v_id BIGINT;
+BEGIN
+    SELECT id INTO v_id FROM public.sys_currency WHERE is_default = true LIMIT 1;
+    RETURN COALESCE(v_id, (SELECT id FROM public.sys_currency ORDER BY id LIMIT 1));
+END;
+$$;
+
 
 --
 -- Name: audit(); Type: FUNCTION; Schema: public; Owner: -
@@ -79,13 +94,20 @@ $$;
 
 
 --
--- Name: fn_default_currency(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: emp_person_full_name(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.fn_default_currency() RETURNS character varying
-    LANGUAGE sql
+CREATE FUNCTION public.emp_person_full_name() RETURNS text
+    LANGUAGE plpgsql
     AS $$
-	SELECT para_birimi FROM sys_para_birimi WHERE is_varsayilan LIMIT 1;
+DECLARE
+    result TEXT;
+BEGIN
+    SELECT COALESCE(p.full_name, p.name || ' ' || p.surname) INTO result
+    FROM public.emp_person p
+    WHERE p.id = (SELECT su.person_id FROM public.sys_user su LIMIT 1);
+    RETURN result;
+END;
 $$;
 
 
@@ -96,6 +118,23 @@ $$;
 CREATE FUNCTION public.fn_default_product_type_id() RETURNS integer
     LANGUAGE sql
     AS $$ SELECT id FROM stk_product_type WHERE product_type_name='HAMMADDE'; $$;
+
+
+--
+-- Name: fn_get_by_product_cost(bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.fn_get_by_product_cost(p_recipe_id bigint) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
+DECLARE v_total NUMERIC := 0;
+BEGIN
+    SELECT COALESCE(SUM(bp.quantity * si.average_cost), 0) INTO v_total
+    FROM public.prd_bom_by_product bp JOIN public.stk_inventory si ON si.code = bp.product_sku
+    WHERE bp.header_id = p_recipe_id;
+    RETURN v_total;
+END;
+$$;
 
 
 --
@@ -131,145 +170,76 @@ $$;
 
 CREATE FUNCTION public.fn_get_lang_text(_default_value text, _table_name text, _column_name text, _data_col text, _lang text) RETURNS character varying
     LANGUAGE plpgsql SECURITY DEFINER
-    AS $$declare
-
-	--dmp text;
-
-	--_default_val text;
-
-begin
-
---  _default_val := exec(concat('SELECT raw', _table_name, '.', pRawTableColName, ' FROM ', _table_name, ' as raw', _table_name ' WHERE raw', _table_name, '.id=', pDataTableName, '.', pDataColName));
-
-/*
-
-	SELECT INTO dmp val FROM sys_lang_data_content 
-
-	WHERE	1=1
-
-		AND row_id = _row_id
-
-		AND lang = _lang
-
-		AND column_name = _column_name
-
-		AND table_name = _table_name
-
-	LIMIT 1;
-
-  
-
-	IF (dmp is null) OR (dmp = '') THEN*/
-
-		return _default_value;
-
-/*	ELSE
-
-		return dmp;
-
-	END IF;
-
-*/
-
-end
-
+    AS $$declare
+	--dmp text;
+	--_default_val text;
+begin
+--  _default_val := exec(concat('SELECT raw', _table_name, '.', pRawTableColName, ' FROM ', _table_name, ' as raw', _table_name ' WHERE raw', _table_name, '.id=', pDataTableName, '.', pDataColName));
+/*
+	SELECT INTO dmp val FROM sys_lang_data_content 
+	WHERE	1=1
+		AND row_id = _row_id
+		AND lang = _lang
+		AND column_name = _column_name
+		AND table_name = _table_name
+	LIMIT 1;
+  
+	IF (dmp is null) OR (dmp = '') THEN*/
+		return _default_value;
+/*	ELSE
+		return dmp;
+	END IF;
+*/
+end
 $$;
 
 
 --
--- Name: fn_get_rct_hammadde_maliyet(bigint); Type: FUNCTION; Schema: public; Owner: -
+-- Name: fn_get_recipe_labour_cost(bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.fn_get_rct_hammadde_maliyet(prct_recete_id bigint) RETURNS numeric
+CREATE FUNCTION public.fn_get_recipe_labour_cost(p_recipe_id bigint) RETURNS numeric
     LANGUAGE plpgsql
     AS $$
-DECLARE
-	_row record;
-	_toplam numeric;
+DECLARE v_total NUMERIC := 0;
 BEGIN
-	_toplam := 0;
-	FOR _row IN
-		SELECT h.miktar * s.alis_fiyat tutar FROM urt_recete_hammaddeler h
-		LEFT JOIN stk_kartlar s ON s.stok_kodu = h.stok_kodu
-		WHERE h.header_id = prct_recete_id
-	LOOP
-		_toplam := _toplam + coalesce(_row.tutar, 0);
-	END LOOP;
-	
-	RETURN _toplam;
+    SELECT COALESCE(SUM(pl.quantity * pl.unit_price), 0) INTO v_total
+    FROM public.prd_bom_labour pl WHERE pl.header_id = p_recipe_id;
+    RETURN v_total;
 END;
 $$;
 
 
 --
--- Name: fn_get_rct_iscilik_maliyet(bigint); Type: FUNCTION; Schema: public; Owner: -
+-- Name: fn_get_recipe_raw_material_cost(bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.fn_get_rct_iscilik_maliyet(prct_recete_id bigint) RETURNS numeric
+CREATE FUNCTION public.fn_get_recipe_raw_material_cost(p_recipe_id bigint) RETURNS numeric
     LANGUAGE plpgsql
     AS $$
-DECLARE
-	_row record;
-	_toplam numeric;
+DECLARE v_total NUMERIC := 0;
 BEGIN
-	_toplam := 0;
-	FOR _row IN
-		SELECT (i.miktar * ig.fiyat) tutar FROM urt_recete_iscilikler i
-		LEFT JOIN urt_iscilikler ig ON i.iscilik_kodu = ig.gider_kodu
-		WHERE i.header_id = prct_recete_id
-	LOOP
-		_toplam := _toplam + coalesce(_row.tutar, 0);
-	END LOOP;
-	
-	RETURN _toplam;
+    SELECT COALESCE(SUM(pr.quantity * si.average_cost), 0) INTO v_total
+    FROM public.prd_bom_raw pr JOIN public.stk_inventory si ON si.code = pr.sku_code
+    WHERE pr.recete_id = p_recipe_id;
+    RETURN v_total;
 END;
 $$;
 
 
 --
--- Name: fn_get_rct_toplam(bigint); Type: FUNCTION; Schema: public; Owner: -
+-- Name: fn_get_recipe_total(bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.fn_get_rct_toplam(prct_recete_id bigint) RETURNS numeric
+CREATE FUNCTION public.fn_get_recipe_total(p_recipe_id bigint) RETURNS numeric
     LANGUAGE plpgsql
     AS $$
-DECLARE
-	_tmp numeric;
-	_toplam numeric;
+DECLARE v_raw_cost NUMERIC; v_labour_cost NUMERIC; v_by_product_discount NUMERIC;
 BEGIN
-	_toplam := 0;
-	SELECT spget_rct_hammadde_maliyet(prct_recete_id) INTO _tmp;
-	_toplam := _toplam + _tmp;
-	SELECT spget_rct_iscilik_maliyet(prct_recete_id) INTO _tmp;
-	_toplam := _toplam + _tmp;
-	SELECT spget_rct_yan_urun_maliyet(prct_recete_id) INTO _tmp;
-	_toplam := _toplam - _tmp;
-	RETURN _toplam;
-END;
-$$;
-
-
---
--- Name: fn_get_rct_yan_urun_maliyet(bigint); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.fn_get_rct_yan_urun_maliyet(prct_recete_id bigint) RETURNS numeric
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	_row record;
-	_toplam numeric;
-BEGIN
-	_toplam := 0;
-	FOR _row IN
-		SELECT (yu.miktar * s.alis_fiyat) tutar FROM urt_recete_yan_urunler yu
-		LEFT JOIN stk_kartlar s ON s.stok_kodu = yu.urun_kodu
-		WHERE yu.header_id = prct_recete_id
-	LOOP
-		_toplam := _toplam - coalesce(_row.tutar, 0);
-	END LOOP;
-
-	RETURN _toplam;
+    SELECT fn_get_recipe_raw_material_cost(p_recipe_id) INTO v_raw_cost;
+    SELECT fn_get_recipe_labour_cost(p_recipe_id) INTO v_labour_cost;
+    SELECT COALESCE(fn_get_by_product_cost(p_recipe_id), 0) INTO v_by_product_discount;
+    RETURN v_raw_cost + v_labour_cost - v_by_product_discount;
 END;
 $$;
 
@@ -296,20 +266,13 @@ $$;
 
 CREATE FUNCTION public.fn_get_sys_lang_id(planguage text) RETURNS integer
     LANGUAGE plpgsql
-    AS $$
-
-DECLARE
-
- _id Integer;
-
-BEGIN
-
-	SELECT INTO _id id FROM sys_lang WHERE language=planguage;
-
-	RETURN _id;
-
-END;
-
+    AS $$
+DECLARE
+ _id Integer;
+BEGIN
+	SELECT INTO _id id FROM sys_lang WHERE language=planguage;
+	RETURN _id;
+END;
 $$;
 
 
@@ -319,32 +282,19 @@ $$;
 
 CREATE FUNCTION public.fn_get_sys_quality_form_type_id(ptype integer) RETURNS integer
     LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-
-DECLARE
-
-	idx Integer;
-
-BEGIN
-
-	CASE
-
-		WHEN ptype = 1 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='INPUT';
-
-		WHEN ptype = 2 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='OUTPUT';
-
-		WHEN ptype = 3 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='PRINT LIST';
-
-		WHEN ptype = 4 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='PRINT DETAIL';
-
-		WHEN ptype = 5 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='SPECIAL';
-
-	END CASE;
-
-	return idx;
-
-END;
-
+    AS $$
+DECLARE
+	idx Integer;
+BEGIN
+	CASE
+		WHEN ptype = 1 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='INPUT';
+		WHEN ptype = 2 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='OUTPUT';
+		WHEN ptype = 3 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='PRINT LIST';
+		WHEN ptype = 4 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='PRINT DETAIL';
+		WHEN ptype = 5 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='SPECIAL';
+	END CASE;
+	return idx;
+END;
 $$;
 
 
@@ -360,7 +310,7 @@ DECLARE
     v_query text;
     v_has_custom_columns boolean;
 BEGIN
-    -- sys_grid_columns'da bu tablo i├ğin kay─▒t var m─▒ kontrol et
+    -- sys_grid_columns'da bu tablo için kayıt var mı kontrol et
     SELECT EXISTS(
         SELECT 1 
         FROM sys_grid_columns 
@@ -368,7 +318,7 @@ BEGIN
     ) INTO v_has_custom_columns;
     
     IF v_has_custom_columns THEN
-        -- ├ûzelle┼ştirilmi┼ş kolonlar varsa, sadece is_show=true olanlar─▒ s─▒ral─▒ getir
+        -- Özelleştirilmiş kolonlar varsa, sadece is_show=true olanları sıralı getir
         SELECT string_agg(quote_ident(column_name), ', ' ORDER BY column_order)
         INTO v_columns
         FROM sys_grid_columns
@@ -378,7 +328,7 @@ BEGIN
 		IF v_columns IS NULL THEN
         	RAISE EXCEPTION 'Table % not found or has no columns', p_table_name;
     	END IF;
-    	-- Dinamik sorgu olu┼ştur ve ├ğal─▒┼şt─▒r
+    	-- Dinamik sorgu oluştur ve çalıştır
     	v_query := format('SELECT %s FROM %I', v_columns, p_table_name);
     ELSE
         v_query := format('SELECT * FROM %I', p_table_name);
@@ -390,50 +340,16 @@ $$;
 
 
 --
--- Name: personel_adsoyad(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.personel_adsoyad() RETURNS trigger
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$DECLARE
-
-    BEGIN
-
-	IF (TG_OP = 'UPDATE') OR (TG_OP = 'INSERT') THEN
-
-		UPDATE personel_karti SET 
-
-			personel_ad_soyad=personel_ad || ' ' || personel_soyad
-
-		WHERE personel_karti.id=NEW.id;
-
-	END IF;
-
-	
-
-        RETURN NULL;
-
-    END;
-
-$$;
-
-
---
 -- Name: table_listen(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public.table_listen(table_name text) RETURNS void
     LANGUAGE plpgsql
-    AS $$
-
-BEGIN
-
-  SELECT listen table_name;
-
-  RETURN;
-
-END;
-
+    AS $$
+BEGIN
+  SELECT listen table_name;
+  RETURN;
+END;
 $$;
 
 
@@ -465,16 +381,11 @@ $$;
 
 CREATE FUNCTION public.table_notify(table_name text) RETURNS void
     LANGUAGE plpgsql
-    AS $$
-
-BEGIN
-
-  SELECT notify table_name;
-
-  RETURN;
-
-END;
-
+    AS $$
+BEGIN
+  SELECT notify table_name;
+  RETURN;
+END;
 $$;
 
 
@@ -484,40 +395,17 @@ $$;
 
 CREATE FUNCTION public.table_unlisten(table_name text) RETURNS void
     LANGUAGE plpgsql
-    AS $$
-
-BEGIN
-
-  SELECT unlisten table_name;
-
-  RETURN;
-
-END;
-
+    AS $$
+BEGIN
+  SELECT unlisten table_name;
+  RETURN;
+END;
 $$;
 
 
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
-
---
--- Name: _audit_log; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public._audit_log (
-    id bigint CONSTRAINT audits_id_not_null NOT NULL,
-    user_name character varying CONSTRAINT audits_user_name_not_null NOT NULL,
-    ip_address character varying(32) CONSTRAINT audits_ip_address_not_null NOT NULL,
-    table_name character varying CONSTRAINT audits_table_name_not_null NOT NULL,
-    access_type character varying(1) CONSTRAINT audits_access_type_not_null NOT NULL,
-    time_of_change timestamp without time zone CONSTRAINT audits_time_of_change_not_null NOT NULL,
-    row_id bigint CONSTRAINT audits_row_id_not_null NOT NULL,
-    client_username character varying,
-    old_val text,
-    new_val text
-);
-
 
 --
 -- Name: acc_account; Type: TABLE; Schema: public; Owner: -
@@ -661,6 +549,20 @@ CREATE TABLE public.acc_exchange_rate (
     rate_date date CONSTRAINT acc_er_date_nn NOT NULL,
     rate numeric(10,4) CONSTRAINT acc_er_rate_nn NOT NULL,
     currency character varying(3)
+);
+
+
+--
+-- Name: acc_exchange_rate_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.acc_exchange_rate ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.acc_exchange_rate_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
 
 
@@ -818,10 +720,24 @@ ALTER TABLE public.acc_set_tax_rate ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 --
 
 CREATE TABLE public.acc_transfer_code (
-    id bigint CONSTRAINT mhs_transfer_kodlari_id_not_null NOT NULL,
-    transfer_code character varying(32) CONSTRAINT mhs_transfer_kodlari_transfer_kodu_not_null NOT NULL,
-    description character varying(128) CONSTRAINT mhs_transfer_kodlari_aciklama_not_null NOT NULL,
-    account character varying(16) CONSTRAINT mhs_transfer_kodlari_hesap_kodu_not_null NOT NULL
+    id bigint CONSTRAINT acc_transfer_code_id_nn NOT NULL,
+    transfer_code character varying(32) CONSTRAINT acc_transfer_code_code_nn NOT NULL,
+    description character varying(128) CONSTRAINT acc_transfer_code_description_nn NOT NULL,
+    account character varying(16) CONSTRAINT acc_transfer_code_account_nn NOT NULL
+);
+
+
+--
+-- Name: acc_transfer_code_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.acc_transfer_code ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.acc_transfer_code_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
 
 
@@ -830,8 +746,8 @@ CREATE TABLE public.acc_transfer_code (
 --
 
 CREATE TABLE public.acc_voucher (
-    id bigint CONSTRAINT mhs_fisler_id_not_null NOT NULL,
-    journal_no integer CONSTRAINT mhs_fisler_yevmiye_no_not_null NOT NULL,
+    id bigint CONSTRAINT acc_voucher_id_nn NOT NULL,
+    journal_no integer CONSTRAINT acc_voucher_journal_no_nn NOT NULL,
     journal_date date
 );
 
@@ -841,8 +757,54 @@ CREATE TABLE public.acc_voucher (
 --
 
 CREATE TABLE public.acc_voucher_detail (
-    id bigint CONSTRAINT mhs_fis_detaylari_id_not_null NOT NULL,
-    header_id bigint CONSTRAINT mhs_fis_detaylari_header_id_not_null NOT NULL
+    id bigint CONSTRAINT acc_voucher_detail_id_nn NOT NULL,
+    header_id bigint CONSTRAINT acc_voucher_detail_header_nn NOT NULL
+);
+
+
+--
+-- Name: acc_voucher_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.acc_voucher_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.acc_voucher_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: acc_voucher_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.acc_voucher ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.acc_voucher_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: audit; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.audit (
+    id bigint CONSTRAINT audits_id_not_null NOT NULL,
+    user_name character varying CONSTRAINT audits_user_name_not_null NOT NULL,
+    ip_address character varying(32) CONSTRAINT audits_ip_address_not_null NOT NULL,
+    table_name character varying CONSTRAINT audits_table_name_not_null NOT NULL,
+    access_type character varying(1) CONSTRAINT audits_access_type_not_null NOT NULL,
+    time_of_change timestamp without time zone CONSTRAINT audits_time_of_change_not_null NOT NULL,
+    row_id bigint CONSTRAINT audits_row_id_not_null NOT NULL,
+    client_username character varying,
+    old_val text,
+    new_val text
 );
 
 
@@ -850,7 +812,7 @@ CREATE TABLE public.acc_voucher_detail (
 -- Name: audit_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-ALTER TABLE public._audit_log ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.audit ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.audit_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -868,7 +830,7 @@ CREATE TABLE public.einv_delivery_type (
     id bigint CONSTRAINT einv_delivery_type_id_nn NOT NULL,
     delivery_method character varying(16) CONSTRAINT einv_delivery_type_delivery_code_nn NOT NULL,
     description character varying(96) CONSTRAINT einv_delivery_type_description_nn NOT NULL,
-    is_efatura boolean DEFAULT false
+    is_einvoice boolean DEFAULT false
 );
 
 
@@ -891,8 +853,8 @@ ALTER TABLE public.einv_delivery_type ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 --
 
 CREATE TABLE public.einv_invoice_type (
-    id bigint CONSTRAINT set_einv_fatura_tipleri_id_not_null NOT NULL,
-    invoice_type_code character varying(32) CONSTRAINT set_einv_fatura_tipleri_fatura_tipi_not_null NOT NULL
+    id bigint CONSTRAINT einv_invoice_type_id_nn NOT NULL,
+    invoice_type_code character varying(32) CONSTRAINT einv_invoice_type_code_nn NOT NULL
 );
 
 
@@ -915,7 +877,7 @@ ALTER TABLE public.einv_invoice_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 --
 
 CREATE TABLE public.einv_packet_type (
-    id bigint CONSTRAINT set_einv_paket_tipleri_id_not_null NOT NULL,
+    id bigint CONSTRAINT einv_packet_type_id_nn NOT NULL,
     code character varying(2),
     packet_type_code character varying(128),
     description character varying(512)
@@ -941,11 +903,11 @@ ALTER TABLE public.einv_packet_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 --
 
 CREATE TABLE public.einv_payment_method (
-    id bigint CONSTRAINT set_einv_odeme_sekilleri_id_not_null NOT NULL,
+    id bigint CONSTRAINT einv_payment_method_id_nn NOT NULL,
     payment_method_code character varying(96),
     code character varying(16),
     description character varying(512),
-    is_efatura boolean DEFAULT false
+    is_einvoice boolean DEFAULT false
 );
 
 
@@ -968,7 +930,7 @@ ALTER TABLE public.einv_payment_method ALTER COLUMN id ADD GENERATED ALWAYS AS I
 --
 
 CREATE TABLE public.einv_transport_price (
-    id bigint CONSTRAINT set_einv_tasima_ucretleri_id_not_null NOT NULL,
+    id bigint CONSTRAINT einv_transport_price_id_nn NOT NULL,
     transport_charge character varying(16)
 );
 
@@ -999,12 +961,40 @@ CREATE TABLE public.emp_driver_ability (
 
 
 --
+-- Name: emp_driver_license_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.emp_driver_ability ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_driver_license_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: emp_driver_license_type; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.emp_driver_license_type (
     id bigint CONSTRAINT prs_set_dlt_id_nn NOT NULL,
     license_name character varying(32) CONSTRAINT prs_set_dlt_nname_nn NOT NULL
+);
+
+
+--
+-- Name: emp_driver_license_type_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.emp_driver_license_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_driver_license_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
 
 
@@ -1019,12 +1009,68 @@ CREATE TABLE public.emp_language (
 
 
 --
+-- Name: emp_person_language_ability; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.emp_person_language_ability (
+    id bigint CONSTRAINT prs_language_abilities_id_not_null NOT NULL,
+    language_id bigint,
+    read_id bigint,
+    write_id bigint,
+    speak_id bigint,
+    person_id bigint
+);
+
+
+--
+-- Name: emp_language_ability_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.emp_person_language_ability ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_language_ability_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: emp_language_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.emp_language ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_language_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: emp_language_level; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.emp_language_level (
     id bigint CONSTRAINT prs_set_lll_id_nn NOT NULL,
     language_level character varying(16) CONSTRAINT prs_set_lll_lname_nn NOT NULL
+);
+
+
+--
+-- Name: emp_language_level_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.emp_language_level ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_language_level_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
 
 
@@ -1086,16 +1132,16 @@ COMMENT ON COLUMN public.emp_person.marital_status IS '1 Married, 2 Single';
 
 
 --
--- Name: emp_person_language_ability; Type: TABLE; Schema: public; Owner: -
+-- Name: emp_person_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.emp_person_language_ability (
-    id bigint CONSTRAINT prs_language_abilities_id_not_null NOT NULL,
-    language_id bigint,
-    read_id bigint,
-    write_id bigint,
-    speak_id bigint,
-    person_id bigint
+ALTER TABLE public.emp_person ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_person_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
 
 
@@ -1110,6 +1156,20 @@ CREATE TABLE public.emp_person_type (
 
 
 --
+-- Name: emp_person_type_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.emp_person_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_person_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: emp_section; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1120,12 +1180,40 @@ CREATE TABLE public.emp_section (
 
 
 --
+-- Name: emp_section_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.emp_section ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_section_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: emp_task; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.emp_task (
     id bigint CONSTRAINT prs_set_tsk_id_nn NOT NULL,
     task_name character varying(32) CONSTRAINT prs_set_tsk_nname_nn NOT NULL
+);
+
+
+--
+-- Name: emp_task_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.emp_task ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_task_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
 
 
@@ -1142,6 +1230,20 @@ CREATE TABLE public.emp_transportation (
 
 
 --
+-- Name: emp_transportation_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.emp_transportation ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_transportation_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: emp_unit; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1153,53 +1255,11 @@ CREATE TABLE public.emp_unit (
 
 
 --
--- Name: mhs_exchange_rate_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: emp_unit_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-ALTER TABLE public.acc_exchange_rate ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.mhs_exchange_rate_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: mhs_transfer_code_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.acc_transfer_code ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.mhs_transfer_code_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: mhs_voucher_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.acc_voucher_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.mhs_voucher_detail_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: mhs_voucher_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.acc_voucher ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.mhs_voucher_id_seq
+ALTER TABLE public.emp_unit ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.emp_unit_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1252,7 +1312,7 @@ CREATE TABLE public.prd_bom_labour (
 CREATE TABLE public.prd_bom_packet_labour (
     id bigint CONSTRAINT prd_bom_packet_labour_id_nn NOT NULL,
     header_id bigint CONSTRAINT prd_bom_packet_labour_header_nn NOT NULL,
-    paket_id bigint CONSTRAINT urt_recete_paket_iscilikler_paket_id_not_null NOT NULL,
+    package_id bigint CONSTRAINT urt_recete_paket_iscilikler_paket_id_not_null NOT NULL,
     quantity numeric(18,6)
 );
 
@@ -1264,7 +1324,7 @@ CREATE TABLE public.prd_bom_packet_labour (
 CREATE TABLE public.prd_bom_packet_raw (
     id bigint CONSTRAINT prd_bom_packet_raw_id_nn NOT NULL,
     header_id bigint CONSTRAINT prd_bom_packet_raw_header_nn NOT NULL,
-    paket_id bigint CONSTRAINT urt_recete_paket_hammaddeler_paket_id_not_null NOT NULL,
+    package_id bigint CONSTRAINT urt_recete_paket_hammaddeler_paket_id_not_null NOT NULL,
     quantity numeric(18,6)
 );
 
@@ -1277,7 +1337,7 @@ CREATE TABLE public.prd_bom_raw (
     id bigint CONSTRAINT prd_bom_raw_id_nn NOT NULL,
     header_id bigint CONSTRAINT prd_bom_raw_header_nn NOT NULL,
     recete_id bigint,
-    stok_kodu character varying(32) CONSTRAINT prd_bom_raw_sku_nn NOT NULL,
+    sku_code character varying(32) CONSTRAINT prd_bom_raw_sku_nn NOT NULL,
     quantity numeric(18,6) CONSTRAINT prd_bom_raw_qty_nn NOT NULL,
     scrap_rate numeric(18,6) DEFAULT 0 CONSTRAINT prd_bom_raw_scrap_rate_nn NOT NULL
 );
@@ -1343,172 +1403,18 @@ CREATE TABLE public.prd_packet_raw_detail (
 
 
 --
--- Name: prs_lisan_bilgisi_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_person_language_ability ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_lisan_bilgisi_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_personel_ehliyetleri_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_driver_ability ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_personel_ehliyetleri_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_personel_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_person ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_personel_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_set_lang_level_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_language_level ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_set_lang_level_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_set_language_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_language ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_set_language_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_set_license_type_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_driver_license_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_set_license_type_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_set_person_type_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_person_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_set_person_type_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_set_section_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_section ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_set_section_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_set_task_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_task ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_set_task_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_set_transport_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_transportation ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_set_transport_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_set_unit_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.emp_unit ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_set_unit_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
 -- Name: pur_offer; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.pur_offer (
-    id bigint CONSTRAINT als_teklifler_id_not_null NOT NULL,
+    id bigint CONSTRAINT pur_offer_id_nn NOT NULL,
     order_id bigint,
-    irsaliye_id bigint,
-    fatura_id bigint,
+    delivery_note_id bigint,
+    invoice_id bigint,
     is_confirmed boolean CONSTRAINT pur_offer_is_confirmed_nn NOT NULL,
     total_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_total_amount_nn NOT NULL,
     discount_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_discount_amount_nn NOT NULL,
-    ara_toplam numeric(18,6) DEFAULT 0 CONSTRAINT als_teklifler_ara_toplam_not_null NOT NULL,
+    ara_toplam numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_subtotal_nn NOT NULL,
     tax_rate_1 integer DEFAULT 0 CONSTRAINT pur_offer_tax_rate_1_nn NOT NULL,
     tax_amount_1 numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_tax_amount_1_nn NOT NULL,
     tax_rate_2 integer DEFAULT 0 CONSTRAINT pur_offer_tax_rate_2_nn NOT NULL,
@@ -1519,31 +1425,31 @@ CREATE TABLE public.pur_offer (
     tax_amount_4 numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_tax_amount_4_nn NOT NULL,
     tax_rate_5 integer DEFAULT 0 CONSTRAINT pur_offer_tax_rate_5_nn NOT NULL,
     tax_amount_5 numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_tax_amount_5_nn NOT NULL,
-    genel_toplam numeric(18,6) DEFAULT 0 CONSTRAINT als_teklifler_genel_toplam_not_null NOT NULL,
+    genel_toplam numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_grand_total_nn NOT NULL,
     operation_type_id bigint,
-    offer_number character varying(16) CONSTRAINT als_teklifler_teklif_no_not_null NOT NULL,
-    offer_date date CONSTRAINT als_teklifler_teklif_tarihi_not_null NOT NULL,
-    validity_date date CONSTRAINT als_teklifler_gecerlilik_tarihi_not_null NOT NULL,
+    offer_number character varying(16) CONSTRAINT pur_offer_number_nn NOT NULL,
+    offer_date date CONSTRAINT pur_offer_date_nn NOT NULL,
+    validity_date date CONSTRAINT pur_offer_validity_nn NOT NULL,
     customer_code character varying(16),
     customer_name character varying(128),
-    tax_office character varying(32) CONSTRAINT als_teklifler_vergi_dairesi_not_null NOT NULL,
-    tax_number character varying(32) CONSTRAINT als_teklifler_vergi_no_not_null NOT NULL,
+    tax_office character varying(32) CONSTRAINT pur_offer_tax_office_nn NOT NULL,
+    tax_number character varying(32) CONSTRAINT pur_offer_tax_number_nn NOT NULL,
     country_id bigint,
     city_id bigint,
     district character varying(64),
-    mahalle character varying(64),
-    semt character varying(64),
-    cadde character varying(64),
-    sokak character varying(64),
+    neighborhood character varying(64),
+    district_area character varying(64),
+    avenue character varying(64),
+    street character varying(64),
     building_name character varying(64),
     door_number character varying(16),
-    posta_kodu character varying(16),
+    postal_code character varying(16),
     web character varying(64),
     email character varying(128),
     customer_representative character varying(64),
     contact_name character varying(32),
     contact_phone character varying(24),
-    referans character varying(128),
+    reference character varying(128),
     currency_code character varying(3) CONSTRAINT pur_offer_currency_code_nn NOT NULL,
     exchange_rate_usd numeric(7,4) DEFAULT 1,
     exchange_rate_eur numeric(7,4) DEFAULT 1,
@@ -1560,7 +1466,7 @@ CREATE TABLE public.pur_offer (
 --
 
 CREATE TABLE public.pur_offer_detail (
-    id bigint CONSTRAINT als_teklif_detaylari_id_not_null NOT NULL,
+    id bigint CONSTRAINT pur_offer_detail_id_nn NOT NULL,
     header_id bigint,
     order_detail_id bigint,
     delivery_note_detail_id bigint,
@@ -1568,22 +1474,22 @@ CREATE TABLE public.pur_offer_detail (
     sku_code character varying(32),
     stock_description character varying(128),
     user_description character varying(128),
-    referans character varying(128),
-    miktar double precision DEFAULT 1 CONSTRAINT als_teklif_detaylari_miktar_not_null NOT NULL,
+    reference character varying(128),
+    quantity double precision DEFAULT 1 CONSTRAINT pur_offer_detail_quantity_nn NOT NULL,
     uom_code character varying(8),
     discount_rate numeric(6,3) DEFAULT 0,
     tax_rate integer DEFAULT 0,
-    fiyat numeric(18,6) DEFAULT 0,
-    net_fiyat numeric(18,6) DEFAULT 0 CONSTRAINT als_teklif_detaylari_net_fiyat_not_null NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0,
+    net_unit_price numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_net_price_nn NOT NULL,
     amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_amount_nn NOT NULL,
     discount_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_discount_amount_nn NOT NULL,
     net_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_net_amount_nn NOT NULL,
     tax_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_tax_amount_nn NOT NULL,
     total_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_total_amount_nn NOT NULL,
-    is_ana_urun boolean DEFAULT false CONSTRAINT als_teklif_detaylari_is_ana_urun_not_null NOT NULL,
-    referans_ana_urun_id bigint,
-    gtip_no character varying(16),
-    mensei_ulke_adi character varying(128)
+    is_main_product boolean DEFAULT false CONSTRAINT pur_offer_detail_main_product_nn NOT NULL,
+    reference_main_product_id bigint,
+    hs_code character varying(16),
+    origin_country_name character varying(128)
 );
 
 
@@ -1621,205 +1527,15 @@ ALTER TABLE public.pur_offer ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- Name: rct_labor_cost_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.prd_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_labor_cost_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_paket_hammadde_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.prd_packet_raw_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_paket_hammadde_detay_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_paket_hammadde_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.prd_packet_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_paket_hammadde_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_paket_iscilik_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.prd_packet_labour_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_paket_iscilik_detay_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_paket_iscilik_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.prd_packet_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_paket_iscilik_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_recete_hammadde_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.prd_bom_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_recete_hammadde_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_recete_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.prd_bom ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_recete_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_recete_iscilik_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.prd_bom_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_recete_iscilik_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_recete_paket_hammadde_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.prd_bom_packet_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_recete_paket_hammadde_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_recete_paket_iscilik_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.prd_bom_packet_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_recete_paket_iscilik_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: sls_order_status; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.sls_order_status (
-    id bigint CONSTRAINT set_sls_order_status_id_not_null NOT NULL,
-    order_status character varying(32) CONSTRAINT set_sls_order_status_siparis_durum_not_null NOT NULL,
-    description character varying(64)
-);
-
-
---
--- Name: set_sat_siparis_durum_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.sls_order_status ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_sat_siparis_durum_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: sls_offer_status; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.sls_offer_status (
-    id bigint CONSTRAINT set_sls_offer_status_id_not_null NOT NULL,
-    status_code character varying(32) CONSTRAINT set_sls_offer_status_teklif_durum_not_null NOT NULL,
-    aciklama character varying(64)
-);
-
-
---
--- Name: set_sat_teklif_durum_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.sls_offer_status ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_sat_teklif_durum_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
 -- Name: sls_dispatch_detail; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.sls_dispatch_detail (
-    id bigint CONSTRAINT sat_irsaliye_detaylari_id_not_null NOT NULL,
+    id bigint CONSTRAINT sls_delivery_note_detail_id_nn NOT NULL,
     header_id bigint,
-    teklif_detay_id bigint,
+    offer_detail_id bigint,
     order_detail_id bigint,
-    fatura_detay_id bigint
+    invoice_detail_id bigint
 );
 
 
@@ -1842,12 +1558,12 @@ ALTER TABLE public.sls_dispatch_detail ALTER COLUMN id ADD GENERATED ALWAYS AS I
 --
 
 CREATE TABLE public.sls_dispatch (
-    id bigint CONSTRAINT sat_irsaliyeler_id_not_null NOT NULL,
+    id bigint CONSTRAINT sls_delivery_note_id_nn NOT NULL,
     delivery_note_number character varying(16),
     delivery_note_date timestamp without time zone,
-    teklif_id bigint,
+    offer_id bigint,
     order_id bigint,
-    fatura_id bigint
+    invoice_id bigint
 );
 
 
@@ -1870,12 +1586,12 @@ ALTER TABLE public.sls_dispatch ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 --
 
 CREATE TABLE public.sls_invoice (
-    id bigint CONSTRAINT sat_faturalar_id_not_null NOT NULL,
+    id bigint CONSTRAINT sls_invoice_id_nn NOT NULL,
     invoice_number character varying(16),
     invoice_date timestamp without time zone,
-    teklif_id bigint,
+    offer_id bigint,
     order_id bigint,
-    irsaliye_id bigint
+    delivery_note_id bigint
 );
 
 
@@ -1884,11 +1600,11 @@ CREATE TABLE public.sls_invoice (
 --
 
 CREATE TABLE public.sls_invoice_detail (
-    id bigint CONSTRAINT sat_fatura_detaylari_id_not_null NOT NULL,
+    id bigint CONSTRAINT sls_invoice_detail_id_nn NOT NULL,
     header_id bigint,
-    teklif_detay_id bigint,
+    offer_detail_id bigint,
     order_detail_id bigint,
-    irsaliye_detay_id bigint
+    delivery_note_detail_id bigint
 );
 
 
@@ -1925,14 +1641,14 @@ ALTER TABLE public.sls_invoice ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 --
 
 CREATE TABLE public.sls_offer (
-    id bigint CONSTRAINT sat_teklifler_id_not_null NOT NULL,
+    id bigint CONSTRAINT sls_offer_id_nn NOT NULL,
     order_id bigint,
-    irsaliye_id bigint,
-    fatura_id bigint,
+    delivery_note_id bigint,
+    invoice_id bigint,
     is_confirmed boolean CONSTRAINT sls_offer_is_confirmed_nn NOT NULL,
     total_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_total_amount_nn NOT NULL,
     discount_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_discount_amount_nn NOT NULL,
-    ara_toplam numeric(18,6) DEFAULT 0 CONSTRAINT sat_teklifler_ara_toplam_not_null NOT NULL,
+    ara_toplam numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_subtotal_nn NOT NULL,
     tax_rate_1 integer DEFAULT 0 CONSTRAINT sls_offer_tax_rate_1_nn NOT NULL,
     tax_amount_1 numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_tax_amount_1_nn NOT NULL,
     tax_rate_2 integer DEFAULT 0 CONSTRAINT sls_offer_tax_rate_2_nn NOT NULL,
@@ -1943,37 +1659,37 @@ CREATE TABLE public.sls_offer (
     tax_amount_4 numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_tax_amount_4_nn NOT NULL,
     tax_rate_5 integer DEFAULT 0 CONSTRAINT sls_offer_tax_rate_5_nn NOT NULL,
     tax_amount_5 numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_tax_amount_5_nn NOT NULL,
-    genel_toplam numeric(18,6) DEFAULT 0 CONSTRAINT sat_teklifler_genel_toplam_not_null NOT NULL,
+    genel_toplam numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_grand_total_nn NOT NULL,
     operation_type_id bigint,
-    offer_number character varying(16) CONSTRAINT sat_teklifler_teklif_no_not_null NOT NULL,
-    offer_date date CONSTRAINT sat_teklifler_teklif_tarihi_not_null NOT NULL,
-    validity_date date CONSTRAINT sat_teklifler_gecerlilik_tarihi_not_null NOT NULL,
+    offer_number character varying(16) CONSTRAINT sls_offer_number_nn NOT NULL,
+    offer_date date CONSTRAINT sls_offer_date_nn NOT NULL,
+    validity_date date CONSTRAINT sls_offer_validity_nn NOT NULL,
     customer_code character varying(16),
     customer_name character varying(128),
-    tax_office character varying(32) CONSTRAINT sat_teklifler_vergi_dairesi_not_null NOT NULL,
-    tax_number character varying(32) CONSTRAINT sat_teklifler_vergi_no_not_null NOT NULL,
+    tax_office character varying(32) CONSTRAINT sls_offer_tax_office_nn NOT NULL,
+    tax_number character varying(32) CONSTRAINT sls_offer_tax_number_nn NOT NULL,
     country_id bigint,
     city_id bigint,
     district character varying(32),
-    mahalle character varying(40),
-    cadde character varying(40),
-    sokak character varying(40),
-    posta_kodu character varying(7),
+    neighborhood character varying(40),
+    avenue character varying(40),
+    street character varying(40),
+    postal_code character varying(7),
     building_name character varying(40),
     door_number character varying(6),
     customer_representative_id bigint,
     contact_name character varying(32),
     contact_phone character varying(24),
-    referans character varying(128),
+    reference character varying(128),
     currency_code character varying(3) CONSTRAINT sls_offer_currency_code_nn NOT NULL,
     exchange_rate_usd numeric(7,4) DEFAULT 1,
     exchange_rate_eur numeric(7,4) DEFAULT 1,
     description character varying(128),
     proforma_no integer,
     delivery_method_id bigint CONSTRAINT sls_offer_delivery_type_id_nn NOT NULL,
-    payment_method_id bigint CONSTRAINT sat_teklifler_odeme_sekli_id_not_null NOT NULL,
-    packet_type_id bigint CONSTRAINT sat_teklifler_paket_tipi_id_not_null NOT NULL,
-    transport_charge_id bigint CONSTRAINT sat_teklifler_tasima_ucreti_id_not_null NOT NULL
+    payment_method_id bigint CONSTRAINT sls_offer_payment_method_nn NOT NULL,
+    packet_type_id bigint CONSTRAINT sls_offer_packet_type_nn NOT NULL,
+    transport_charge_id bigint CONSTRAINT sls_offer_shipping_cost_nn NOT NULL
 );
 
 
@@ -1982,29 +1698,29 @@ CREATE TABLE public.sls_offer (
 --
 
 CREATE TABLE public.sls_offer_detail (
-    id bigint CONSTRAINT sat_teklif_detaylari_id_not_null NOT NULL,
+    id bigint CONSTRAINT sls_offer_detail_id_nn NOT NULL,
     header_id bigint,
     order_detail_id bigint,
-    irsaliye_detay_id bigint,
-    fatura_detay_id bigint,
-    stok_kodu character varying(32),
+    delivery_note_detail_id bigint,
+    invoice_detail_id bigint,
+    sku_code character varying(32),
     stock_description character varying(128),
     user_description character varying(128),
-    referans character varying(128),
-    miktar double precision DEFAULT 1 CONSTRAINT sat_teklif_detaylari_miktar_not_null NOT NULL,
+    reference character varying(128),
+    quantity double precision DEFAULT 1 CONSTRAINT sls_offer_detail_quantity_nn NOT NULL,
     uom_code character varying(8),
     discount_rate numeric(6,3) DEFAULT 0,
     tax_rate integer DEFAULT 0,
-    fiyat numeric(18,6) DEFAULT 0,
-    net_fiyat numeric(18,6) DEFAULT 0 CONSTRAINT sat_teklif_detaylari_net_fiyat_not_null NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0,
+    net_unit_price numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_detail_net_price_nn NOT NULL,
     amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_detail_amount_nn NOT NULL,
     discount_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_detail_discount_amount_nn NOT NULL,
     net_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_detail_net_amount_nn NOT NULL,
     tax_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_detail_tax_amount_nn NOT NULL,
     total_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_offer_detail_total_amount_nn NOT NULL,
-    is_ana_urun boolean DEFAULT false CONSTRAINT sat_teklif_detaylari_is_ana_urun_not_null NOT NULL,
-    referans_ana_urun_id bigint,
-    gtip_no character varying(16)
+    is_main_product boolean DEFAULT false CONSTRAINT sls_offer_detail_main_product_nn NOT NULL,
+    reference_main_product_id bigint,
+    hs_code character varying(16)
 );
 
 
@@ -2037,15 +1753,40 @@ ALTER TABLE public.sls_offer ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: sls_offer_status; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sls_offer_status (
+    id bigint CONSTRAINT sls_offer_status_id_nn NOT NULL,
+    status_code character varying(32) CONSTRAINT sls_offer_status_description_nn NOT NULL,
+    description character varying(64)
+);
+
+
+--
+-- Name: sls_offer_status_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sls_offer_status ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sls_offer_status_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sls_order; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.sls_order (
     id bigint CONSTRAINT sls_order_id_nn NOT NULL,
-    teklif_id bigint,
-    irsaliye_id bigint,
-    fatura_id bigint,
-    total_amount numeric(18,6) DEFAULT 0 CONSTRAINT sat_siparisler_tutar_not_null NOT NULL,
+    offer_id bigint,
+    delivery_note_id bigint,
+    invoice_id bigint,
+    total_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_amount_nn NOT NULL,
     discount_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_discount_amount_nn NOT NULL,
     subtotal numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_subtotal_nn NOT NULL,
     tax_rate_1 integer DEFAULT 0 CONSTRAINT sls_order_tax_rate_1_nn NOT NULL,
@@ -2099,28 +1840,28 @@ CREATE TABLE public.sls_order (
 CREATE TABLE public.sls_order_detail (
     id bigint CONSTRAINT sls_order_detail_id_nn NOT NULL,
     header_id bigint,
-    teklif_detay_id bigint,
-    irsaliye_detay_id bigint,
-    fatura_detay_id bigint,
-    stok_kodu character varying(32),
+    offer_detail_id bigint,
+    delivery_note_detail_id bigint,
+    invoice_detail_id bigint,
+    sku_code character varying(32),
     stock_description character varying(128),
     user_description character varying(128),
-    referans character varying(128),
-    miktar numeric(18,6) DEFAULT 1 CONSTRAINT sls_order_detail_qty_nn NOT NULL,
+    reference character varying(128),
+    quantity numeric(18,6) DEFAULT 1 CONSTRAINT sls_order_detail_qty_nn NOT NULL,
     outgoing_quantity numeric(18,6) DEFAULT 1 CONSTRAINT sls_order_detail_sent_qty_nn NOT NULL,
     uom_code character varying(8),
     discount_rate numeric(18,6) DEFAULT 0,
     tax_rate integer DEFAULT 0,
-    fiyat numeric(18,6) DEFAULT 0,
-    net_fiyat numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_net_price_nn NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0,
+    net_unit_price numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_net_price_nn NOT NULL,
     amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_amount_nn NOT NULL,
     discount_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_discount_amount_nn NOT NULL,
     net_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_net_amount_nn NOT NULL,
     tax_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_tax_amount_nn NOT NULL,
     total_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_total_amount_nn NOT NULL,
-    is_ana_urun boolean DEFAULT false CONSTRAINT sls_order_detail_is_main_product_nn NOT NULL,
-    referans_ana_urun_id bigint,
-    gtip_no character varying(16),
+    is_main_product boolean DEFAULT false CONSTRAINT sls_order_detail_is_main_product_nn NOT NULL,
+    reference_main_product_id bigint,
+    hs_code character varying(16),
     en numeric(12,6) DEFAULT 0,
     boy numeric(12,6) DEFAULT 0,
     height_en numeric(12,6) DEFAULT 0,
@@ -2151,6 +1892,31 @@ ALTER TABLE public.sls_order_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 ALTER TABLE public.sls_order ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sls_order_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sls_order_status; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sls_order_status (
+    id bigint CONSTRAINT sls_order_status_id_nn NOT NULL,
+    order_status character varying(32) CONSTRAINT sls_order_status_description_nn NOT NULL,
+    description character varying(64)
+);
+
+
+--
+-- Name: sls_order_status_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sls_order_status ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sls_order_status_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2203,6 +1969,55 @@ CREATE TABLE public.stk_card_kind_info (
 
 
 --
+-- Name: stk_inventory; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.stk_inventory (
+    id bigint CONSTRAINT stk_inventory_id_nn NOT NULL,
+    sellable boolean DEFAULT true,
+    code character varying(32) CONSTRAINT stk_inventory_sku_nn NOT NULL,
+    name character varying(128) CONSTRAINT stk_inventory_stock_name_nn NOT NULL,
+    group_id bigint CONSTRAINT stk_inventory_group_id_nn NOT NULL,
+    measurement_id bigint CONSTRAINT stk_inventory_uom_code_nn NOT NULL,
+    product_type smallint CONSTRAINT stk_inventory_product_type_nn NOT NULL,
+    buying_discount numeric(5,2) DEFAULT 0,
+    sales_discount numeric(5,2) DEFAULT 0,
+    buying_price numeric(18,6) DEFAULT 0,
+    buying_currency character varying(3) CONSTRAINT stk_inventory_buy_currency_nn NOT NULL,
+    sales_price numeric(18,6) DEFAULT 0,
+    sales_currency character varying(3) CONSTRAINT stk_inventory_sell_currency_nn NOT NULL,
+    export_price numeric(18,6) DEFAULT 0,
+    export_currency character varying(3) CONSTRAINT stk_inventory_export_currency_nn NOT NULL,
+    width double precision DEFAULT 0,
+    length double precision DEFAULT 0,
+    height double precision DEFAULT 0,
+    weight double precision DEFAULT 0,
+    supply_duration smallint,
+    special_code character varying(16),
+    brand character varying(32),
+    origin_id bigint,
+    hs_no character varying(16),
+    diib_product_description character varying(64),
+    min_stock_amount double precision DEFAULT 0,
+    product_overview text
+);
+
+
+--
+-- Name: stk_cards_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.stk_inventory ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_cards_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: stk_group; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2217,33 +2032,11 @@ CREATE TABLE public.stk_group (
 
 
 --
--- Name: stk_transaction; Type: TABLE; Schema: public; Owner: -
+-- Name: stk_group_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.stk_transaction (
-    id bigint NOT NULL,
-    sku character varying(32) NOT NULL,
-    quantity numeric(18,6) NOT NULL,
-    amount numeric(18,6) NOT NULL,
-    amount_foreign numeric(18,6) NOT NULL,
-    currency character varying(3),
-    direction boolean DEFAULT true,
-    transaction_date timestamp without time zone NOT NULL,
-    from_warehouse bigint NOT NULL,
-    to_warehouse bigint NOT NULL,
-    is_opening boolean DEFAULT false,
-    description character varying(128),
-    dispatch_id bigint,
-    production_id bigint
-);
-
-
---
--- Name: stk_hareketler_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.stk_transaction ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_hareketler_id_seq
+ALTER TABLE public.stk_group ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_group_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2265,37 +2058,16 @@ CREATE TABLE public.stk_image (
 
 
 --
--- Name: stk_inventory; Type: TABLE; Schema: public; Owner: -
+-- Name: stk_images_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.stk_inventory (
-    id bigint CONSTRAINT stk_inventory_id_nn NOT NULL,
-    sellable boolean DEFAULT true,
-    code character varying(32) CONSTRAINT stk_inventory_sku_nn NOT NULL,
-    name character varying(128) CONSTRAINT stk_inventory_stock_name_nn NOT NULL,
-    group_id bigint CONSTRAINT stk_inventory_group_id_nn NOT NULL,
-    measurement_id bigint CONSTRAINT stk_inventory_uom_code_nn NOT NULL,
-    product_type smallint CONSTRAINT stk_inventory_product_type_nn NOT NULL,
-    buying_discount numeric(5,2) DEFAULT 0,
-    sales_discount numeric(5,2) DEFAULT 0,
-    buying_price numeric(18,6) DEFAULT 0,
-    buying_currency character varying(3) DEFAULT public.fn_default_currency() CONSTRAINT stk_inventory_buy_currency_nn NOT NULL,
-    sales_price numeric(18,6) DEFAULT 0,
-    sales_currency character varying(3) DEFAULT public.fn_default_currency() CONSTRAINT stk_inventory_sell_currency_nn NOT NULL,
-    export_price numeric(18,6) DEFAULT 0,
-    export_currency character varying(3) DEFAULT public.fn_default_currency() CONSTRAINT stk_inventory_export_currency_nn NOT NULL,
-    width double precision DEFAULT 0,
-    length double precision DEFAULT 0,
-    height double precision DEFAULT 0,
-    weight double precision DEFAULT 0,
-    supply_duration smallint,
-    special_code character varying(16),
-    brand character varying(32),
-    origin_id bigint,
-    hs_no character varying(16),
-    diib_product_description character varying(64),
-    min_stock_amount double precision DEFAULT 0,
-    product_overview text
+ALTER TABLE public.stk_image ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_images_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
 
 
@@ -2324,25 +2096,11 @@ CREATE TABLE public.stk_inventory_summary (
 
 
 --
--- Name: stk_kart_ozetleri_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: stk_inventory_summary_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.stk_inventory_summary ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_kart_ozetleri_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: stk_kartlar_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.stk_inventory ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_kartlar_id_seq
+    SEQUENCE NAME public.stk_inventory_summary_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2457,11 +2215,33 @@ ALTER SEQUENCE public.stk_product_type_id_seq OWNED BY public.stk_product_type.i
 
 
 --
--- Name: stk_resimler_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: stk_transaction; Type: TABLE; Schema: public; Owner: -
 --
 
-ALTER TABLE public.stk_image ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_resimler_id_seq
+CREATE TABLE public.stk_transaction (
+    id bigint NOT NULL,
+    sku character varying(32) NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    amount numeric(18,6) NOT NULL,
+    amount_foreign numeric(18,6) NOT NULL,
+    currency character varying(3),
+    direction boolean DEFAULT true,
+    transaction_date timestamp without time zone NOT NULL,
+    from_warehouse bigint NOT NULL,
+    to_warehouse bigint NOT NULL,
+    is_opening boolean DEFAULT false,
+    description character varying(128),
+    dispatch_id bigint,
+    production_id bigint
+);
+
+
+--
+-- Name: stk_transaction_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.stk_transaction ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.stk_transaction_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2487,29 +2267,15 @@ CREATE TABLE public.stk_warehouse (
 -- Name: TABLE stk_warehouse; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE public.stk_warehouse IS 'Stok hareketlerinin tutuldu─şu ambar bilgisi';
+COMMENT ON TABLE public.stk_warehouse IS 'Stok hareketlerinin tutulduğu ambar bilgisi';
 
 
 --
--- Name: stk_stok_ambar_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: stk_warehouse_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.stk_warehouse ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_stok_ambar_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: stk_stok_grubu_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.stk_group ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.stk_stok_grubu_id_seq
+    SEQUENCE NAME public.stk_warehouse_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2569,11 +2335,11 @@ CREATE TABLE public.sys_address (
 
 
 --
--- Name: sys_adresler_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: sys_addresses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.sys_address ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_adresler_id_seq
+    SEQUENCE NAME public.sys_addresses_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2588,7 +2354,7 @@ ALTER TABLE public.sys_address ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 CREATE TABLE public.sys_application_setting (
     id bigint CONSTRAINT sys_app_set_id_not_null NOT NULL,
-    company_title character varying(128) DEFAULT 'THUNDERSOFT A.┼Ş.'::character varying CONSTRAINT sys_app_set_cttl_not_null NOT NULL,
+    company_title character varying(128) DEFAULT 'THUNDERSOFT A.Ş.'::character varying CONSTRAINT sys_app_set_cttl_not_null NOT NULL,
     phone character varying(24) DEFAULT '0123 456 78 90'::character varying CONSTRAINT sys_app_set_phone_not_null NOT NULL,
     fax character varying(24),
     tax_authority character varying(32),
@@ -2614,6 +2380,20 @@ CREATE TABLE public.sys_application_setting (
     taxpayer_surname character varying,
     taxpayer_type character varying(8),
     logo bytea
+);
+
+
+--
+-- Name: sys_app_settings_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sys_application_setting ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_app_settings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
 
 
@@ -2762,6 +2542,20 @@ CREATE TABLE public.sys_decimal_place (
 
 
 --
+-- Name: sys_decimal_places_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sys_decimal_place ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_decimal_places_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sys_grid_column; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2813,6 +2607,20 @@ ALTER TABLE public.sys_grid_column_title ALTER COLUMN id ADD GENERATED ALWAYS AS
 
 
 --
+-- Name: sys_grid_columns_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sys_grid_column ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_grid_columns_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sys_grid_filter; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2824,34 +2632,6 @@ CREATE TABLE public.sys_grid_filter (
 
 
 --
--- Name: sys_grid_filtre_siralama_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.sys_grid_filter ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_grid_filtre_siralama_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: sys_grid_kolon_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.sys_grid_column ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_grid_kolon_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
 -- Name: sys_grid_sort; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2859,6 +2639,20 @@ CREATE TABLE public.sys_grid_sort (
     id bigint CONSTRAINT sys_gs_iid_not_null NOT NULL,
     table_name character varying(32),
     sort_content character varying
+);
+
+
+--
+-- Name: sys_grid_sort_filter_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sys_grid_filter ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_grid_sort_filter_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
 
 
@@ -2892,87 +2686,6 @@ CREATE TABLE public.sys_gui_content (
 
 
 --
--- Name: sys_permission_group; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.sys_permission_group (
-    id bigint CONSTRAINT sys_pg_iid_not_null NOT NULL,
-    name character varying(64) CONSTRAINT sys_pg_nn_not_null NOT NULL
-);
-
-
---
--- Name: sys_kaynak_grup_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.sys_permission_group ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_kaynak_grup_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: sys_permission; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.sys_permission (
-    id bigint CONSTRAINT sys_perm_iid_not_null NOT NULL,
-    code integer CONSTRAINT sys_perm_pc_not_null NOT NULL,
-    name character varying(64) CONSTRAINT sys_perm_pn_not_null NOT NULL,
-    group_id bigint CONSTRAINT sys_permissions_permission_group_id_not_null NOT NULL
-);
-
-
---
--- Name: sys_kaynak_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.sys_permission ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_kaynak_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: sys_user; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.sys_user (
-    id bigint CONSTRAINT sys_usr_iid_not_null NOT NULL,
-    username character varying(64) CONSTRAINT sys_usr_un_not_null NOT NULL,
-    user_password text CONSTRAINT sys_usr_pw_not_null NOT NULL,
-    active boolean DEFAULT true CONSTRAINT sys_usr_act_not_null NOT NULL,
-    manager boolean DEFAULT false CONSTRAINT sys_usr_mgr_not_null NOT NULL,
-    super_user boolean DEFAULT false CONSTRAINT sys_usr_su_not_null NOT NULL,
-    ip_address character varying(32) DEFAULT '127.0.0.1'::character varying CONSTRAINT sys_usr_ip_not_null NOT NULL,
-    mac_address character varying(32),
-    person_id bigint CONSTRAINT sys_users_person_id_not_null NOT NULL
-);
-
-
---
--- Name: sys_kullanici_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-ALTER TABLE public.sys_user ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_kullanici_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
 -- Name: sys_language; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2984,11 +2697,11 @@ CREATE TABLE public.sys_language (
 
 
 --
--- Name: sys_languages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: sys_language_gui_content_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-ALTER TABLE public.sys_language ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_languages_id_seq
+ALTER TABLE public.sys_gui_content ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_language_gui_content_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2998,11 +2711,11 @@ ALTER TABLE public.sys_language ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
--- Name: sys_lisan_gui_icerik_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: sys_languages_data_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-ALTER TABLE public.sys_gui_content ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_lisan_gui_icerik_id_seq
+ALTER TABLE public.sys_language ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_languages_data_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3036,16 +2749,24 @@ ALTER TABLE public.sys_month ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- Name: sys_ondalik_hane_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: sys_permission; Type: TABLE; Schema: public; Owner: -
 --
 
-ALTER TABLE public.sys_decimal_place ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_ondalik_hane_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
+CREATE TABLE public.sys_permission (
+    id bigint CONSTRAINT sys_perm_iid_not_null NOT NULL,
+    code integer CONSTRAINT sys_perm_pc_not_null NOT NULL,
+    name character varying(64) CONSTRAINT sys_perm_pn_not_null NOT NULL,
+    group_id bigint CONSTRAINT sys_permissions_permission_group_id_not_null NOT NULL
+);
+
+
+--
+-- Name: sys_permission_group; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sys_permission_group (
+    id bigint CONSTRAINT sys_pg_iid_not_null NOT NULL,
+    name character varying(64) CONSTRAINT sys_pg_nn_not_null NOT NULL
 );
 
 
@@ -3065,6 +2786,34 @@ CREATE TABLE public.sys_region (
 
 ALTER TABLE public.sys_region ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sys_region_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sys_resource_groups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sys_permission_group ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_resource_groups_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sys_resources_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sys_permission ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_resources_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3127,11 +2876,28 @@ ALTER TABLE public.sys_uom_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
--- Name: sys_uygulama_ayari_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: sys_user; Type: TABLE; Schema: public; Owner: -
 --
 
-ALTER TABLE public.sys_application_setting ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sys_uygulama_ayari_id_seq
+CREATE TABLE public.sys_user (
+    id bigint CONSTRAINT sys_usr_iid_not_null NOT NULL,
+    username character varying(64) CONSTRAINT sys_usr_un_not_null NOT NULL,
+    user_password text CONSTRAINT sys_usr_pw_not_null NOT NULL,
+    active boolean DEFAULT true CONSTRAINT sys_usr_act_not_null NOT NULL,
+    manager boolean DEFAULT false CONSTRAINT sys_usr_mgr_not_null NOT NULL,
+    super_user boolean DEFAULT false CONSTRAINT sys_usr_su_not_null NOT NULL,
+    ip_address character varying(32) DEFAULT '127.0.0.1'::character varying CONSTRAINT sys_usr_ip_not_null NOT NULL,
+    mac_address character varying(32),
+    person_id bigint CONSTRAINT sys_users_person_id_not_null NOT NULL
+);
+
+
+--
+-- Name: sys_users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.sys_user ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_users_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3191,11 +2957,151 @@ CREATE VIEW public.sys_view_databases AS
 
 
 --
--- Name: urt_recete_yan_urunler_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: urd_by_product_items_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.prd_bom_by_product ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.urt_recete_yan_urunler_id_seq
+    SEQUENCE NAME public.urd_by_product_items_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: urd_labor_cost_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.prd_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urd_labor_cost_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: urd_package_labour_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.prd_packet_labour_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urd_package_labour_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: urd_package_labour_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.prd_packet_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urd_package_labour_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: urd_package_raw_material_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.prd_packet_raw_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urd_package_raw_material_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: urd_package_raw_material_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.prd_packet_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urd_package_raw_material_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: urd_recipe_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.prd_bom ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urd_recipe_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: urd_recipe_labour_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.prd_bom_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urd_recipe_labour_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: urd_recipe_package_labour_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.prd_bom_packet_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urd_recipe_package_labour_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: urd_recipe_package_raw_material_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.prd_bom_packet_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urd_recipe_package_raw_material_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: urd_recipe_raw_material_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.prd_bom_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.urd_recipe_raw_material_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3413,34 +3319,50 @@ ALTER TABLE ONLY public.acc_set_tax_rate
 
 
 --
--- Name: pur_offer_detail als_teklif_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: acc_transfer_code acc_transfer_code_code_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.pur_offer_detail
-    ADD CONSTRAINT als_teklif_detaylari_pkey PRIMARY KEY (id);
-
-
---
--- Name: pur_offer als_teklifler_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT als_teklifler_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.acc_transfer_code
+    ADD CONSTRAINT acc_transfer_code_code_key UNIQUE (transfer_code);
 
 
 --
--- Name: pur_offer als_teklifler_teklif_no_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: acc_transfer_code acc_transfer_code_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT als_teklifler_teklif_no_key UNIQUE (offer_number);
+ALTER TABLE ONLY public.acc_transfer_code
+    ADD CONSTRAINT acc_transfer_code_pkey PRIMARY KEY (id);
 
 
 --
--- Name: _audit_log audit_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: acc_voucher_detail acc_voucher_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public._audit_log
+ALTER TABLE ONLY public.acc_voucher_detail
+    ADD CONSTRAINT acc_voucher_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: acc_voucher acc_voucher_journal_no_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.acc_voucher
+    ADD CONSTRAINT acc_voucher_journal_no_key UNIQUE (journal_no);
+
+
+--
+-- Name: acc_voucher acc_voucher_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.acc_voucher
+    ADD CONSTRAINT acc_voucher_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: audit audit_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.audit
     ADD CONSTRAINT audit_pkey PRIMARY KEY (id);
 
 
@@ -3453,43 +3375,75 @@ ALTER TABLE ONLY public.einv_delivery_type
 
 
 --
--- Name: acc_voucher_detail mhs_fis_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: einv_delivery_type einv_delivery_type_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.acc_voucher_detail
-    ADD CONSTRAINT mhs_fis_detaylari_pkey PRIMARY KEY (id);
-
-
---
--- Name: acc_voucher mhs_fisler_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.acc_voucher
-    ADD CONSTRAINT mhs_fisler_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.einv_delivery_type
+    ADD CONSTRAINT einv_delivery_type_pkey PRIMARY KEY (id);
 
 
 --
--- Name: acc_voucher mhs_fisler_yevmiye_no_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: einv_invoice_type einv_invoice_type_code_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.acc_voucher
-    ADD CONSTRAINT mhs_fisler_yevmiye_no_key UNIQUE (journal_no);
-
-
---
--- Name: acc_transfer_code mhs_transfer_kodlari_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.acc_transfer_code
-    ADD CONSTRAINT mhs_transfer_kodlari_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.einv_invoice_type
+    ADD CONSTRAINT einv_invoice_type_code_key UNIQUE (invoice_type_code);
 
 
 --
--- Name: acc_transfer_code mhs_transfer_kodlari_transfer_kodu_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: einv_invoice_type einv_invoice_type_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.acc_transfer_code
-    ADD CONSTRAINT mhs_transfer_kodlari_transfer_kodu_key UNIQUE (transfer_code);
+ALTER TABLE ONLY public.einv_invoice_type
+    ADD CONSTRAINT einv_invoice_type_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_packet_type einv_packet_type_code_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.einv_packet_type
+    ADD CONSTRAINT einv_packet_type_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_packet_type einv_packet_type_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.einv_packet_type
+    ADD CONSTRAINT einv_packet_type_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_payment_method einv_payment_method_code_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.einv_payment_method
+    ADD CONSTRAINT einv_payment_method_code_key UNIQUE (payment_method_code);
+
+
+--
+-- Name: einv_payment_method einv_payment_method_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.einv_payment_method
+    ADD CONSTRAINT einv_payment_method_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_transport_price einv_transport_price_charge_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.einv_transport_price
+    ADD CONSTRAINT einv_transport_price_charge_key UNIQUE (transport_charge);
+
+
+--
+-- Name: einv_transport_price einv_transport_price_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.einv_transport_price
+    ADD CONSTRAINT einv_transport_price_pkey PRIMARY KEY (id);
 
 
 --
@@ -3537,7 +3491,7 @@ ALTER TABLE ONLY public.prd_bom_packet_labour
 --
 
 ALTER TABLE ONLY public.prd_bom_packet_labour
-    ADD CONSTRAINT prd_bom_packet_labour_pkg_id_nn UNIQUE (header_id, paket_id);
+    ADD CONSTRAINT prd_bom_packet_labour_pkg_id_nn UNIQUE (header_id, package_id);
 
 
 --
@@ -3553,7 +3507,7 @@ ALTER TABLE ONLY public.prd_bom_packet_raw
 --
 
 ALTER TABLE ONLY public.prd_bom_packet_raw
-    ADD CONSTRAINT prd_bom_packet_raw_pkg_id_nn UNIQUE (header_id, paket_id);
+    ADD CONSTRAINT prd_bom_packet_raw_pkg_id_nn UNIQUE (header_id, package_id);
 
 
 --
@@ -3665,7 +3619,7 @@ ALTER TABLE ONLY public.prd_bom_raw
 --
 
 ALTER TABLE ONLY public.prd_bom_raw
-    ADD CONSTRAINT prd_rhmd_sih_key UNIQUE (stok_kodu, header_id);
+    ADD CONSTRAINT prd_rhmd_sih_key UNIQUE (sku_code, header_id);
 
 
 --
@@ -3837,163 +3791,99 @@ ALTER TABLE ONLY public.emp_unit
 
 
 --
--- Name: sls_invoice_detail sat_fatura_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: pur_offer_detail pur_offer_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.sls_invoice_detail
-    ADD CONSTRAINT sat_fatura_detaylari_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_invoice sat_faturalar_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_invoice
-    ADD CONSTRAINT sat_faturalar_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.pur_offer_detail
+    ADD CONSTRAINT pur_offer_detail_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sls_dispatch_detail sat_irsaliye_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: pur_offer pur_offer_number_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pur_offer
+    ADD CONSTRAINT pur_offer_number_key UNIQUE (offer_number);
+
+
+--
+-- Name: pur_offer pur_offer_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pur_offer
+    ADD CONSTRAINT pur_offer_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_dispatch_detail sls_delivery_note_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sls_dispatch_detail
-    ADD CONSTRAINT sat_irsaliye_detaylari_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT sls_delivery_note_detail_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sls_dispatch sat_irsaliyeler_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sls_dispatch sls_delivery_note_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sls_dispatch
-    ADD CONSTRAINT sat_irsaliyeler_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT sls_delivery_note_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sls_offer_detail sat_teklif_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sls_invoice_detail sls_invoice_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_invoice sls_invoice_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_offer_detail sls_offer_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sls_offer_detail
-    ADD CONSTRAINT sat_teklif_detaylari_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT sls_offer_detail_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sls_offer sat_teklif_teklif_no_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklif_teklif_no_key UNIQUE (offer_number);
-
-
---
--- Name: sls_offer sat_teklifler_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sls_offer sls_offer_number_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT sls_offer_number_key UNIQUE (offer_number);
 
 
 --
--- Name: einv_invoice_type set_einv_fatura_tipleri_fatura_tipi_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sls_offer sls_offer_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.einv_invoice_type
-    ADD CONSTRAINT set_einv_fatura_tipleri_fatura_tipi_key UNIQUE (invoice_type_code);
-
-
---
--- Name: einv_invoice_type set_einv_fatura_tipleri_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.einv_invoice_type
-    ADD CONSTRAINT set_einv_fatura_tipleri_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_pkey PRIMARY KEY (id);
 
 
 --
--- Name: einv_payment_method set_einv_odeme_sekilleri_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.einv_payment_method
-    ADD CONSTRAINT set_einv_odeme_sekilleri_pkey PRIMARY KEY (id);
-
-
---
--- Name: einv_payment_method set_einv_odeme_sekli_odeme_sekilleri_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.einv_payment_method
-    ADD CONSTRAINT set_einv_odeme_sekli_odeme_sekilleri_key UNIQUE (payment_method_code);
-
-
---
--- Name: einv_packet_type set_einv_paket_tipleri_kod_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.einv_packet_type
-    ADD CONSTRAINT set_einv_paket_tipleri_kod_key UNIQUE (code);
-
-
---
--- Name: einv_packet_type set_einv_paket_tipleri_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.einv_packet_type
-    ADD CONSTRAINT set_einv_paket_tipleri_pkey PRIMARY KEY (id);
-
-
---
--- Name: einv_transport_price set_einv_tasima_ucretleri_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.einv_transport_price
-    ADD CONSTRAINT set_einv_tasima_ucretleri_pkey PRIMARY KEY (id);
-
-
---
--- Name: einv_transport_price set_einv_tasima_ucretleri_tasima_ucreti_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.einv_transport_price
-    ADD CONSTRAINT set_einv_tasima_ucretleri_tasima_ucreti_key UNIQUE (transport_charge);
-
-
---
--- Name: einv_delivery_type set_einv_teslim_sekilleri_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.einv_delivery_type
-    ADD CONSTRAINT set_einv_teslim_sekilleri_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_order_status set_sat_siparis_durum_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_order_status
-    ADD CONSTRAINT set_sat_siparis_durum_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_order_status set_sat_siparis_durum_siparis_durum_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_order_status
-    ADD CONSTRAINT set_sat_siparis_durum_siparis_durum_key UNIQUE (order_status);
-
-
---
--- Name: sls_offer_status set_sat_teklif_durum_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sls_offer_status sls_offer_status_code_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sls_offer_status
-    ADD CONSTRAINT set_sat_teklif_durum_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT sls_offer_status_code_key UNIQUE (status_code);
 
 
 --
--- Name: sls_offer_status set_sat_teklif_durum_teklif_durum_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: sls_offer_status sls_offer_status_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sls_offer_status
-    ADD CONSTRAINT set_sat_teklif_durum_teklif_durum_key UNIQUE (status_code);
+    ADD CONSTRAINT sls_offer_status_pkey PRIMARY KEY (id);
 
 
 --
@@ -4010,6 +3900,22 @@ ALTER TABLE ONLY public.sls_order_detail
 
 ALTER TABLE ONLY public.sls_order
     ADD CONSTRAINT sls_order_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_order_status sls_order_status_code_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_order_status
+    ADD CONSTRAINT sls_order_status_code_key UNIQUE (order_status);
+
+
+--
+-- Name: sls_order_status sls_order_status_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_order_status
+    ADD CONSTRAINT sls_order_status_pkey PRIMARY KEY (id);
 
 
 --
@@ -4865,59 +4771,19 @@ ALTER TABLE ONLY public.acc_set_tax_rate
 
 
 --
--- Name: pur_offer_detail als_teklif_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.pur_offer_detail
-    ADD CONSTRAINT als_teklif_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.pur_offer(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: pur_offer_detail als_teklif_detaylari_referans_ana_urun_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.pur_offer_detail
-    ADD CONSTRAINT als_teklif_detaylari_referans_ana_urun_id_fkey FOREIGN KEY (referans_ana_urun_id) REFERENCES public.pur_offer_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: pur_offer_detail als_teklif_detaylari_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.pur_offer_detail
-    ADD CONSTRAINT als_teklif_detaylari_stok_kodu_fkey FOREIGN KEY (sku_code) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: pur_offer als_teklifler_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT als_teklifler_islem_tipi_id_fkey FOREIGN KEY (operation_type_id) REFERENCES public.einv_invoice_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: pur_offer als_teklifler_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT als_teklifler_musteri_kodu_fkey FOREIGN KEY (customer_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: acc_voucher_detail mhs_fis_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.acc_voucher_detail
-    ADD CONSTRAINT mhs_fis_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.acc_voucher(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: acc_transfer_code mhs_transfer_kodlari_hesap_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: acc_transfer_code acc_transfer_code_account_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.acc_transfer_code
-    ADD CONSTRAINT mhs_transfer_kodlari_hesap_kodu_fkey FOREIGN KEY (account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT acc_transfer_code_account_fk FOREIGN KEY (account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: acc_voucher_detail acc_voucher_detail_header_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.acc_voucher_detail
+    ADD CONSTRAINT acc_voucher_detail_header_id_fk FOREIGN KEY (header_id) REFERENCES public.acc_voucher(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -4965,7 +4831,7 @@ ALTER TABLE ONLY public.prd_bom_packet_labour
 --
 
 ALTER TABLE ONLY public.prd_bom_packet_labour
-    ADD CONSTRAINT prd_bom_packet_labour_pkg_fk FOREIGN KEY (paket_id) REFERENCES public.prd_packet_labour(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT prd_bom_packet_labour_pkg_fk FOREIGN KEY (package_id) REFERENCES public.prd_packet_labour(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -4981,7 +4847,7 @@ ALTER TABLE ONLY public.prd_bom_packet_raw
 --
 
 ALTER TABLE ONLY public.prd_bom_packet_raw
-    ADD CONSTRAINT prd_bom_packet_raw_pkg_fk FOREIGN KEY (paket_id) REFERENCES public.prd_packet_raw(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT prd_bom_packet_raw_pkg_fk FOREIGN KEY (package_id) REFERENCES public.prd_packet_raw(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -4997,7 +4863,7 @@ ALTER TABLE ONLY public.prd_bom
 --
 
 ALTER TABLE ONLY public.prd_bom_raw
-    ADD CONSTRAINT prd_bom_raw_sku_fk FOREIGN KEY (stok_kodu) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prd_bom_raw_sku_fk FOREIGN KEY (sku_code) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5201,6 +5067,38 @@ ALTER TABLE ONLY public.pur_offer
 
 
 --
+-- Name: pur_offer pur_offer_customer_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pur_offer
+    ADD CONSTRAINT pur_offer_customer_code_fk FOREIGN KEY (customer_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_offer_detail pur_offer_detail_header_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pur_offer_detail
+    ADD CONSTRAINT pur_offer_detail_header_id_fk FOREIGN KEY (header_id) REFERENCES public.pur_offer(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: pur_offer_detail pur_offer_detail_ref_product_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pur_offer_detail
+    ADD CONSTRAINT pur_offer_detail_ref_product_fk FOREIGN KEY (reference_main_product_id) REFERENCES public.pur_offer_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_offer_detail pur_offer_detail_sku_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.pur_offer_detail
+    ADD CONSTRAINT pur_offer_detail_sku_fk FOREIGN KEY (sku_code) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: pur_offer_detail pur_offer_detail_uom_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5209,123 +5107,27 @@ ALTER TABLE ONLY public.pur_offer_detail
 
 
 --
--- Name: sls_invoice_detail sat_fatura_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: pur_offer pur_offer_op_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.sls_invoice_detail
-    ADD CONSTRAINT sat_fatura_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sls_invoice(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.pur_offer
+    ADD CONSTRAINT pur_offer_op_type_fk FOREIGN KEY (operation_type_id) REFERENCES public.einv_invoice_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_dispatch_detail sat_irsaliye_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sls_dispatch_detail sls_delivery_note_detail_header_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sls_dispatch_detail
-    ADD CONSTRAINT sat_irsaliye_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sls_dispatch(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT sls_delivery_note_detail_header_id_fk FOREIGN KEY (header_id) REFERENCES public.sls_dispatch(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: sls_order sat_siparisler_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: sls_invoice_detail sls_invoice_detail_header_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sat_siparisler_sehir_id_fkey FOREIGN KEY (city_id) REFERENCES public.sys_city(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: sls_order sat_siparisler_siparis_durum_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sat_siparisler_siparis_durum_id_fkey FOREIGN KEY (status_id) REFERENCES public.sls_order_status(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_order sat_siparisler_teslim_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sat_siparisler_teslim_sekli_id_fkey FOREIGN KEY (delivery_method_id) REFERENCES public.einv_delivery_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_order sat_siparisler_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sat_siparisler_ulke_id_fkey FOREIGN KEY (country_id) REFERENCES public.sys_country(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: sls_offer_detail sat_teklif_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_offer_detail
-    ADD CONSTRAINT sat_teklif_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sls_offer(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: sls_offer_detail sat_teklif_detaylari_referans_ana_urun_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_offer_detail
-    ADD CONSTRAINT sat_teklif_detaylari_referans_ana_urun_id_fkey FOREIGN KEY (referans_ana_urun_id) REFERENCES public.sls_offer_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer_detail sat_teklif_detaylari_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_offer_detail
-    ADD CONSTRAINT sat_teklif_detaylari_stok_kodu_fkey FOREIGN KEY (stok_kodu) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
-
-
---
--- Name: sls_offer sat_teklifler_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_islem_tipi_id_fkey FOREIGN KEY (operation_type_id) REFERENCES public.einv_invoice_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_musteri_kodu_fkey FOREIGN KEY (customer_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_musteri_temsilcisi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_musteri_temsilcisi_id_fkey FOREIGN KEY (customer_representative_id) REFERENCES public.emp_person(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_nakliye_ucreti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_nakliye_ucreti_id_fkey FOREIGN KEY (transport_charge_id) REFERENCES public.einv_transport_price(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_odeme_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_odeme_sekli_id_fkey FOREIGN KEY (payment_method_id) REFERENCES public.einv_payment_method(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_paket_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_paket_tipi_id_fkey FOREIGN KEY (packet_type_id) REFERENCES public.einv_packet_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_header_id_fk FOREIGN KEY (header_id) REFERENCES public.sls_invoice(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5353,6 +5155,14 @@ ALTER TABLE ONLY public.sls_offer
 
 
 --
+-- Name: sls_offer sls_offer_customer_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_customer_code_fk FOREIGN KEY (customer_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sls_offer sls_offer_delivery_type_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5361,11 +5171,91 @@ ALTER TABLE ONLY public.sls_offer
 
 
 --
+-- Name: sls_offer_detail sls_offer_detail_header_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_offer_detail
+    ADD CONSTRAINT sls_offer_detail_header_id_fk FOREIGN KEY (header_id) REFERENCES public.sls_offer(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sls_offer_detail sls_offer_detail_ref_product_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_offer_detail
+    ADD CONSTRAINT sls_offer_detail_ref_product_fk FOREIGN KEY (reference_main_product_id) REFERENCES public.sls_offer_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer_detail sls_offer_detail_sku_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_offer_detail
+    ADD CONSTRAINT sls_offer_detail_sku_fk FOREIGN KEY (sku_code) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
+
+
+--
 -- Name: sls_offer_detail sls_offer_detail_uom_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.sls_offer_detail
     ADD CONSTRAINT sls_offer_detail_uom_code_fk FOREIGN KEY (uom_code) REFERENCES public.sys_uom(unit_code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer sls_offer_op_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_op_type_fk FOREIGN KEY (operation_type_id) REFERENCES public.einv_invoice_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer sls_offer_packet_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_packet_type_fk FOREIGN KEY (packet_type_id) REFERENCES public.einv_packet_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer sls_offer_payment_method_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_payment_method_fk FOREIGN KEY (payment_method_id) REFERENCES public.einv_payment_method(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer sls_offer_representative_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_representative_fk FOREIGN KEY (customer_representative_id) REFERENCES public.emp_person(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer sls_offer_transport_charge_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_transport_charge_fk FOREIGN KEY (transport_charge_id) REFERENCES public.einv_transport_price(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_order sls_order_city_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_order
+    ADD CONSTRAINT sls_order_city_fk FOREIGN KEY (city_id) REFERENCES public.sys_city(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: sls_order sls_order_country_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_order
+    ADD CONSTRAINT sls_order_country_fk FOREIGN KEY (country_id) REFERENCES public.sys_country(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5385,6 +5275,14 @@ ALTER TABLE ONLY public.sls_order
 
 
 --
+-- Name: sls_order sls_order_delivery_method_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_order
+    ADD CONSTRAINT sls_order_delivery_method_fk FOREIGN KEY (delivery_method_id) REFERENCES public.einv_delivery_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sls_order_detail sls_order_detail_header_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5397,7 +5295,7 @@ ALTER TABLE ONLY public.sls_order_detail
 --
 
 ALTER TABLE ONLY public.sls_order_detail
-    ADD CONSTRAINT sls_order_detail_ref_main_product_id_fk FOREIGN KEY (referans_ana_urun_id) REFERENCES public.sls_order_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sls_order_detail_ref_main_product_id_fk FOREIGN KEY (reference_main_product_id) REFERENCES public.sls_order_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5405,7 +5303,7 @@ ALTER TABLE ONLY public.sls_order_detail
 --
 
 ALTER TABLE ONLY public.sls_order_detail
-    ADD CONSTRAINT sls_order_detail_sku_fk FOREIGN KEY (stok_kodu) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
+    ADD CONSTRAINT sls_order_detail_sku_fk FOREIGN KEY (sku_code) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
 
 
 --
@@ -5446,6 +5344,14 @@ ALTER TABLE ONLY public.sls_order
 
 ALTER TABLE ONLY public.sls_order
     ADD CONSTRAINT sls_order_shipping_cost_id_fk FOREIGN KEY (transport_charge_id) REFERENCES public.einv_transport_price(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_order sls_order_status_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sls_order
+    ADD CONSTRAINT sls_order_status_fk FOREIGN KEY (status_id) REFERENCES public.sls_order_status(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5636,5 +5542,5 @@ ALTER TABLE ONLY public.sys_user
 -- PostgreSQL database dump complete
 --
 
-\unrestrict jjHaaeUibe8hFqvsG11vgFmZusHKWpWhMEUvzH9Cr6FhfaJhDmttKovQYwfQwAD
+\unrestrict F2nAKi9LLYA1aSIGOYqnQ9SdDCMaUgdLnug7B6gWTbowv7HjfEskCGgEP0D22Qc
 

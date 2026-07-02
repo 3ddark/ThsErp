@@ -126,7 +126,7 @@ type
 
 implementation
 
-constructor TStkKart.Create;
+constructor TStkInventory.Create;
 begin
   inherited;
   FIsSatilabilir := False;
@@ -145,7 +145,7 @@ begin
   FEnAzStokSeviyesi := 0;
 end;
 
-destructor TStkKart.Destroy;
+destructor TStkInventory.Destroy;
 begin
   inherited;
 end;
