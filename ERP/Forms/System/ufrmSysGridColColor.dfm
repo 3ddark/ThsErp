@@ -2,7 +2,7 @@ inherited frmSysGridColColor: TfrmSysGridColColor
   Left = 501
   Top = 443
   ActiveControl = btnClose
-  Caption = 'Sys Grid Colomn Color'
+  Caption = 'Sutun Renk Ayarlari'
   ClientHeight = 249
   ClientWidth = 377
   ParentFont = True
@@ -26,14 +26,14 @@ inherited frmSysGridColColor: TfrmSysGridColColor
       inherited tsMain: TTabSheet
         ExplicitWidth = 363
         ExplicitHeight = 153
-        object lblcolumn_name: TLabel
+        object lblColumnName: TLabel
           Left = 39
           Top = 30
           Width = 77
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Column Name'
+          Caption = 'Kolon Adi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -42,14 +42,14 @@ inherited frmSysGridColColor: TfrmSysGridColColor
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmax_color: TLabel
+        object lblMaxColor: TLabel
           Left = 60
           Top = 122
           Width = 56
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Max Color'
+          Caption = 'Maks Renk'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -58,14 +58,14 @@ inherited frmSysGridColColor: TfrmSysGridColColor
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmax_value: TLabel
+        object lblMaxValue: TLabel
           Left = 58
           Top = 99
           Width = 58
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Max Value'
+          Caption = 'Maks Deger'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -74,14 +74,14 @@ inherited frmSysGridColColor: TfrmSysGridColColor
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmin_color: TLabel
+        object lblMinColor: TLabel
           Left = 64
           Top = 76
           Width = 52
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Min Color'
+          Caption = 'Min Renk'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -90,14 +90,14 @@ inherited frmSysGridColColor: TfrmSysGridColColor
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmin_value: TLabel
+        object lblMinValue: TLabel
           Left = 62
           Top = 53
           Width = 54
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Min Value'
+          Caption = 'Min Deger'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -106,14 +106,14 @@ inherited frmSysGridColColor: TfrmSysGridColColor
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lbltable_name: TLabel
+        object lblTableName: TLabel
           Left = 50
           Top = 7
           Width = 66
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Table Name'
+          Caption = 'Tablo Adi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -122,50 +122,50 @@ inherited frmSysGridColColor: TfrmSysGridColColor
           ParentBiDiMode = False
           ParentFont = False
         end
-        object cbbtable_name: TComboBox
+        object cbbTableName: TComboBox
           Left = 122
           Top = 4
           Width = 240
           Height = 21
           TabOrder = 0
-          OnChange = cbbtable_nameChange
+          OnChange = cbbTableNameChange
         end
-        object cbbcolumn_name: TComboBox
+        object cbbColumnName: TComboBox
           Left = 122
           Top = 27
           Width = 240
           Height = 21
           TabOrder = 1
         end
-        object edtmin_value: TEdit
+        object edtMinValue: TEdit
           Left = 122
           Top = 50
           Width = 240
           Height = 21
           TabOrder = 2
         end
-        object edtmin_color: TEdit
+        object edtMinColor: TEdit
           Left = 122
           Top = 73
           Width = 240
           Height = 21
           TabOrder = 3
-          OnDblClick = edtmin_colorDblClick
+          OnDblClick = edtMinColorDblClick
         end
-        object edtmax_value: TEdit
+        object edtMaxValue: TEdit
           Left = 122
           Top = 96
           Width = 240
           Height = 21
           TabOrder = 4
         end
-        object edtmax_color: TEdit
+        object edtMaxColor: TEdit
           Left = 122
           Top = 119
           Width = 240
           Height = 21
           TabOrder = 5
-          OnDblClick = edtmax_colorDblClick
+          OnDblClick = edtMaxColorDblClick
         end
       end
     end

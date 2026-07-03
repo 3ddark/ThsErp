@@ -1,4 +1,4 @@
-﻿unit SysGridFilter;
+unit SysGridSort;
 
 interface
 
@@ -6,7 +6,7 @@ uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
   [Table('sys_grid_sort')]
-  TSysGridSorts = class(TEntity)
+  TSysGridSort = class(TEntity)
   private
     FTableName: string;
     FSortContent: string;
@@ -23,12 +23,12 @@ type
 
 implementation
 
-constructor TSysGridSorts.Create();
+constructor TSysGridSort.Create();
 begin
   inherited;
 end;
 
-destructor TSysGridSorts.Destroy;
+destructor TSysGridSort.Destroy;
 begin
   inherited;
 end;

@@ -12,16 +12,16 @@ uses
 type
   TfrmSysCountry = class(TfrmInputSimpleDB<TSysCountry, TSysCountryService>)
     pnlContent: TPanel;
-    lblcountry_code: TLabel;
-    lblcountry_name: TLabel;
-    lbliso_year: TLabel;
-    lbliso_cctld: TLabel;
-    lblis_eu_member: TLabel;
-    edtcountry_code: TEdit;
-    edtcountry_name: TEdit;
-    edtiso_year: TEdit;
-    edtiso_cctld: TEdit;
-    chkis_eu_member: TCheckBox;
+    lblCountryCode: TLabel;
+    lblCountryName: TLabel;
+    lblISOYear: TLabel;
+    lblISOCCTLD: TLabel;
+    lblIsEuMember: TLabel;
+    edtCountryCode: TEdit;
+    edtCountryName: TEdit;
+    edtISOYear: TEdit;
+    edtISOCCTLD: TEdit;
+    chkIsEuMember: TCheckBox;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -35,11 +35,11 @@ implementation
 
 procedure TfrmSysCountry.BtnAcceptClick(Sender: TObject);
 begin
-  Table.CountryCode := edtcountry_code.Text;
-  Table.CountryName := edtcountry_name.Text;
-  Table.ISOYear := StrToIntDef(edtiso_year.Text, 0);
-  Table.ISOCCTLD :=  edtiso_cctld.Text;
-  Table.IsEuMember := chkis_eu_member.Checked;
+  Table.CountryCode := edtCountryCode.Text;
+  Table.CountryName := edtCountryName.Text;
+  Table.ISOYear := StrToIntDef(edtISOYear.Text, 0);
+  Table.ISOCCTLD := edtISOCCTLD.Text;
+  Table.IsEuMember := chkIsEuMember.Checked;
   inherited;
 end;
 
@@ -55,18 +55,17 @@ begin
 
   Self.Caption := 'System Country';
 
-  edtcountry_code.SetFocus;
+  edtCountryCode.SetFocus;
 end;
 
 procedure TfrmSysCountry.RefreshData;
 begin
   inherited;
-  edtcountry_code.Text := Table.CountryCode;
-  edtcountry_name.Text := Table.CountryName;
-  edtiso_year.Text := Table.ISOYear.ToString;
-  edtiso_cctld.Text := Table.ISOCCTLD;
-  chkis_eu_member.Checked := Table.IsEuMember;
+  edtCountryCode.Text := Table.CountryCode;
+  edtCountryName.Text := Table.CountryName;
+  edtISOYear.Text := Table.ISOYear.ToString;
+  edtISOCCTLD.Text := Table.ISOCCTLD;
+  chkIsEuMember.Checked := Table.IsEuMember;
 end;
 
 end.
-

@@ -170,27 +170,27 @@ $$;
 
 CREATE FUNCTION public.fn_get_lang_text(_default_value text, _table_name text, _column_name text, _data_col text, _lang text) RETURNS character varying
     LANGUAGE plpgsql SECURITY DEFINER
-    AS $$declare
-	--dmp text;
-	--_default_val text;
-begin
---  _default_val := exec(concat('SELECT raw', _table_name, '.', pRawTableColName, ' FROM ', _table_name, ' as raw', _table_name ' WHERE raw', _table_name, '.id=', pDataTableName, '.', pDataColName));
-/*
-	SELECT INTO dmp val FROM sys_lang_data_content 
-	WHERE	1=1
-		AND row_id = _row_id
-		AND lang = _lang
-		AND column_name = _column_name
-		AND table_name = _table_name
-	LIMIT 1;
-  
-	IF (dmp is null) OR (dmp = '') THEN*/
-		return _default_value;
-/*	ELSE
-		return dmp;
-	END IF;
-*/
-end
+    AS $$declare
+	--dmp text;
+	--_default_val text;
+begin
+--  _default_val := exec(concat('SELECT raw', _table_name, '.', pRawTableColName, ' FROM ', _table_name, ' as raw', _table_name ' WHERE raw', _table_name, '.id=', pDataTableName, '.', pDataColName));
+/*
+	SELECT INTO dmp val FROM sys_lang_data_content 
+	WHERE	1=1
+		AND row_id = _row_id
+		AND lang = _lang
+		AND column_name = _column_name
+		AND table_name = _table_name
+	LIMIT 1;
+  
+	IF (dmp is null) OR (dmp = '') THEN*/
+		return _default_value;
+/*	ELSE
+		return dmp;
+	END IF;
+*/
+end
 $$;
 
 
@@ -266,13 +266,13 @@ $$;
 
 CREATE FUNCTION public.fn_get_sys_lang_id(planguage text) RETURNS integer
     LANGUAGE plpgsql
-    AS $$
-DECLARE
- _id Integer;
-BEGIN
-	SELECT INTO _id id FROM sys_lang WHERE language=planguage;
-	RETURN _id;
-END;
+    AS $$
+DECLARE
+ _id Integer;
+BEGIN
+	SELECT INTO _id id FROM sys_lang WHERE language=planguage;
+	RETURN _id;
+END;
 $$;
 
 
@@ -282,19 +282,19 @@ $$;
 
 CREATE FUNCTION public.fn_get_sys_quality_form_type_id(ptype integer) RETURNS integer
     LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-	idx Integer;
-BEGIN
-	CASE
-		WHEN ptype = 1 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='INPUT';
-		WHEN ptype = 2 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='OUTPUT';
-		WHEN ptype = 3 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='PRINT LIST';
-		WHEN ptype = 4 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='PRINT DETAIL';
-		WHEN ptype = 5 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='SPECIAL';
-	END CASE;
-	return idx;
-END;
+    AS $$
+DECLARE
+	idx Integer;
+BEGIN
+	CASE
+		WHEN ptype = 1 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='INPUT';
+		WHEN ptype = 2 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='OUTPUT';
+		WHEN ptype = 3 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='PRINT LIST';
+		WHEN ptype = 4 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='PRINT DETAIL';
+		WHEN ptype = 5 THEN	SELECT INTO idx id FROM sys_quality_form_type WHERE form_type='SPECIAL';
+	END CASE;
+	return idx;
+END;
 $$;
 
 
@@ -345,11 +345,11 @@ $$;
 
 CREATE FUNCTION public.table_listen(table_name text) RETURNS void
     LANGUAGE plpgsql
-    AS $$
-BEGIN
-  SELECT listen table_name;
-  RETURN;
-END;
+    AS $$
+BEGIN
+  SELECT listen table_name;
+  RETURN;
+END;
 $$;
 
 
@@ -381,11 +381,11 @@ $$;
 
 CREATE FUNCTION public.table_notify(table_name text) RETURNS void
     LANGUAGE plpgsql
-    AS $$
-BEGIN
-  SELECT notify table_name;
-  RETURN;
-END;
+    AS $$
+BEGIN
+  SELECT notify table_name;
+  RETURN;
+END;
 $$;
 
 
@@ -395,11 +395,11 @@ $$;
 
 CREATE FUNCTION public.table_unlisten(table_name text) RETURNS void
     LANGUAGE plpgsql
-    AS $$
-BEGIN
-  SELECT unlisten table_name;
-  RETURN;
-END;
+    AS $$
+BEGIN
+  SELECT unlisten table_name;
+  RETURN;
+END;
 $$;
 
 
@@ -2398,6 +2398,52 @@ ALTER TABLE public.sys_application_setting ALTER COLUMN id ADD GENERATED ALWAYS 
 
 
 --
+-- Name: vw_sys_application_setting; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.vw_sys_application_setting AS
+ SELECT s.id,
+    s.company_title,
+    s.phone,
+    s.fax,
+    s.tax_authority,
+    s.tax_no,
+    s.active_period,
+    s.mail_host,
+    s.mail_user,
+    s.mail_smtp_port,
+    s.grid_color_1,
+    s.grid_color_2,
+    s.grid_color_active,
+    s.crypt_key,
+    s.sms_host,
+    s.sms_user,
+    s.sms_title,
+    s.app_version,
+    s.app_currency,
+    s.address_id,
+    s.other_settings,
+    s.taxpayer_name,
+    s.taxpayer_surname,
+    s.taxpayer_type,
+    a.web AS address_web,
+    a.email AS address_email,
+    a.district AS address_district,
+    a.neighborhood AS address_neighborhood,
+    a.quarter AS address_quarter,
+    a.road AS address_road,
+    a.street AS address_street,
+    a.building_name AS address_building_name,
+    a.door_number AS address_door_number,
+    a.zip_code AS address_zip_code,
+    c.name AS currency_name
+   FROM (public.sys_application_setting s
+     LEFT JOIN public.sys_address a ON ((a.id = s.address_id))
+     LEFT JOIN public.sys_currency c ON ((c.currency = s.app_currency)))
+  WHERE (1 = 1);
+
+
+--
 -- Name: sys_city; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2453,6 +2499,21 @@ ALTER TABLE public.sys_country ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
+-- Name: vw_sys_countries; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.vw_sys_countries AS
+ SELECT id,
+    code AS country_code,
+    name AS country_name,
+    iso_year,
+    iso_cctld AS iso_cctld,
+    is_eu_member
+   FROM public.sys_country
+  WHERE (1 = 1);
+
+
+--
 -- Name: sys_currency; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2479,6 +2540,19 @@ ALTER TABLE public.sys_currency ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
+-- Name: vw_sys_currencies; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.vw_sys_currencies AS
+ SELECT id,
+    currency,
+    symbol,
+    description
+   FROM public.sys_currency
+  WHERE (1 = 1);
+
+
+--
 -- Name: sys_day; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2500,6 +2574,17 @@ ALTER TABLE public.sys_day ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     NO MAXVALUE
     CACHE 1
 );
+
+
+--
+-- Name: vw_sys_days; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.vw_sys_days AS
+ SELECT id,
+    name AS day_name
+   FROM public.sys_day
+  WHERE (1 = 1);
 
 
 --
@@ -2556,6 +2641,21 @@ ALTER TABLE public.sys_decimal_place ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 
 --
+-- Name: vw_sys_decimal_places; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.vw_sys_decimal_places AS
+ SELECT id,
+    quantity,
+    price,
+    total,
+    stock_quantity,
+    exchange_rate
+   FROM public.sys_decimal_place
+  WHERE (1 = 1);
+
+
+--
 -- Name: sys_grid_column; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2607,6 +2707,20 @@ ALTER TABLE public.sys_grid_column_title ALTER COLUMN id ADD GENERATED ALWAYS AS
 
 
 --
+-- Name: vw_sys_grid_column_titles; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.vw_sys_grid_column_titles AS
+ SELECT id,
+    table_name,
+    column_name,
+    lng_code,
+    column_label
+   FROM public.sys_grid_column_title
+  WHERE (1 = 1);
+
+
+--
 -- Name: sys_grid_columns_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -2619,6 +2733,30 @@ ALTER TABLE public.sys_grid_column ALTER COLUMN id ADD GENERATED ALWAYS AS IDENT
     CACHE 1
 );
 
+
+--
+-- Name: vw_sys_grid_columns; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.vw_sys_grid_columns AS
+ SELECT id,
+    table_name,
+    column_name,
+    column_order,
+    column_width,
+    data_format,
+    is_show,
+    is_show_helper,
+    min_value,
+    min_value_color,
+    max_value,
+    max_value_color,
+    max_value_percent,
+    bar_color,
+    bar_bg_color,
+    bar_text_color
+   FROM public.sys_grid_column
+  WHERE (1 = 1);
 
 --
 -- Name: sys_grid_filter; Type: TABLE; Schema: public; Owner: -
@@ -2657,6 +2795,18 @@ ALTER TABLE public.sys_grid_filter ALTER COLUMN id ADD GENERATED ALWAYS AS IDENT
 
 
 --
+-- Name: vw_sys_grid_filters; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.vw_sys_grid_filters AS
+ SELECT id,
+    table_name,
+    filter_content
+   FROM public.sys_grid_filter
+  WHERE (1 = 1);
+
+
+--
 -- Name: sys_grid_sorts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -2668,6 +2818,18 @@ ALTER TABLE public.sys_grid_sort ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
     NO MAXVALUE
     CACHE 1
 );
+
+
+--
+-- Name: vw_sys_grid_sorts; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.vw_sys_grid_sorts AS
+ SELECT id,
+    table_name,
+    sort_content
+   FROM public.sys_grid_sort
+  WHERE (1 = 1);
 
 
 --

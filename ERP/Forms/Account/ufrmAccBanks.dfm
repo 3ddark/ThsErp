@@ -1,12 +1,15 @@
-﻿inherited frmAccBankalar: TfrmAccBankalar
-  Caption = 'Bankalar'
-  TextHeight = 13
-  inherited pnlMain: TPanel
-    inherited splLeft: TSplitter
-      ExplicitHeight = 347
-    end
-    inherited splHeader: TSplitter
-      ExplicitWidth = 795
-    end
-  end
+object frmAccBanks: TfrmAccBanks
+  Left = 0
+  Top = 0
+  Caption = 'frmAccBanks'
+  ClientHeight = 441
+  ClientWidth = 650
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  OnShow = FormShow
+  TextHeight = 15
 end

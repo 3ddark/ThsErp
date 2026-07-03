@@ -13,8 +13,8 @@ uses
 type
   TfrmSysDay = class(TfrmInputSimpleDB<TSysDay, TSysDayService>)
     pnlContent: TPanel;
-    lblday_name: TLabel;
-    edtday_name: TEdit;
+    lblDayName: TLabel;
+    edtDayName: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -29,7 +29,7 @@ implementation
 
 procedure TfrmSysDay.BtnAcceptClick(Sender: TObject);
 begin
-  Table.DayName := edtday_name.Text;
+  Table.DayName := edtDayName.Text;
   inherited;
 end;
 
@@ -45,20 +45,20 @@ begin
 
   Self.Caption := 'System Day';
 
-  edtday_name.SetFocus;
+  edtDayName.SetFocus;
 end;
 
 procedure TfrmSysDay.InitializeInputCase;
 begin
   inherited;
-  edtday_name.thsInputDataType := itString;
-  edtday_name.MaxLength := 16;
+  edtDayName.thsInputDataType := itString;
+  edtDayName.MaxLength := 16;
 end;
 
 procedure TfrmSysDay.RefreshData;
 begin
   inherited;
-  edtday_name.Text := Table.DayName;
+  edtDayName.Text := Table.DayName;
 end;
 
 end.

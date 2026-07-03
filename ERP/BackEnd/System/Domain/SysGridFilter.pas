@@ -6,7 +6,7 @@ uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
   [Table('sys_grid_filter')]
-  TSysGridFilters = class(TEntity)
+  TSysGridFilter = class(TEntity)
   private
     FTableName: string;
     FFilterContent: string;

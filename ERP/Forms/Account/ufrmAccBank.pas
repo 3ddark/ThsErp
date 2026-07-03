@@ -1,54 +1,57 @@
-﻿unit ufrmAccBank;
+unit ufrmAccBank;
 
 interface
 
-{$I Ths.inc}
-
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls, Vcl.Menus, Vcl.Samples.Spin,
-  Vcl.AppEvnts,
-  Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo, ufrmBase,
-  ufrmBaseInputDB;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
+  AccBank.Service, AccBank;
 
 type
-  TfrmAccBank = class(TfrmBaseInputDB)
+  TfrmAccBank = class(TfrmInputSimpleDB<TAccBank, TAccBankService>)
+    pnlContent: TPanel;
     lblbanka_adi: TLabel;
     edtbanka_adi: TEdit;
     lblswift_kodu: TLabel;
     edtswift_kodu: TEdit;
-  published
-    procedure RefreshData(); override;
-    procedure btnAcceptClick(Sender: TObject); override;
+    procedure BtnAcceptClick(Sender: TObject); override;
+    procedure FormCreate(Sender: TObject); override;
+    procedure FormShow(Sender: TObject); override;
+  public
+    procedure RefreshData; override;
   end;
 
 implementation
 
-uses
-  Ths.Globals, Ths.Database.Table.ChBankalar;
-
 {$R *.dfm}
 
-procedure TfrmAccBank.RefreshData();
+procedure TfrmAccBank.BtnAcceptClick(Sender: TObject);
 begin
-  edtbanka_adi.Text := TChBanka(Table).BankaAdi.AsString;
-  edtswift_kodu.Text := TChBanka(Table).SwiftKodu.AsString;
+  Table.Name := edtbanka_adi.Text;
+  Table.SWiftCode := edtswift_kodu.Text;
+  inherited;
 end;
 
-procedure TfrmAccBank.btnAcceptClick(Sender: TObject);
+procedure TfrmAccBank.FormCreate(Sender: TObject);
 begin
-  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
-  begin
-    if (ValidateInput) then
-    begin
-      TChBanka(Table).BankaAdi.Value := edtbanka_adi.Text;
-      TChBanka(Table).SwiftKodu.Value := edtswift_kodu.Text;
-      inherited;
-    end;
-  end
-  else
-    inherited;
+  inherited;
+  pnlContent.Parent := PanelMain;
+end;
+
+procedure TfrmAccBank.FormShow(Sender: TObject);
+begin
+  inherited;
+  Self.Caption := 'Banka';
+  edtbanka_adi.SetFocus;
+end;
+
+procedure TfrmAccBank.RefreshData;
+begin
+  inherited;
+  edtbanka_adi.Text := Table.Name;
+  edtswift_kodu.Text := Table.SWiftCode;
 end;
 
 end.
-

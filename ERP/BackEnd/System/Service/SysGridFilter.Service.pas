@@ -8,25 +8,25 @@ uses
   SysGridFilter.Repository, SysGridFilter;
 
 type
-  TSysGridFilterService = class(TCrudService<TSysGridFilters>)
+  TSysGridFilterService = class(TCrudService<TSysGridFilter>)
   private
-    FRepo: IRepository<TSysGridFilters>;
+    FRepo: IRepository<TSysGridFilter>;
   public
     constructor Create;
     destructor Destroy; override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysGridFilters>; override;
-    function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysGridFilters; override;
-    procedure Add(AEntity: TSysGridFilters); override;
-    procedure Update(AEntity: TSysGridFilters); override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysGridFilter>; override;
+    function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysGridFilter; override;
+    procedure Add(AEntity: TSysGridFilter); override;
+    procedure Update(AEntity: TSysGridFilter); override;
     procedure Delete(AId: Int64); override;
 
-    function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysGridFilters; override;
-    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysGridFilters>; override;
-    procedure BusinessInsert(AEntity: TSysGridFilters; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
-    procedure BusinessUpdate(AEntity: TSysGridFilters; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
-    procedure BusinessDelete(AEntity: TSysGridFilters; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
+    function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysGridFilter; override;
+    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysGridFilter>; override;
+    procedure BusinessInsert(AEntity: TSysGridFilter; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
+    procedure BusinessUpdate(AEntity: TSysGridFilter; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
+    procedure BusinessDelete(AEntity: TSysGridFilter; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
   end;
 
 implementation
@@ -34,7 +34,7 @@ implementation
 constructor TSysGridFilterService.Create;
 begin
   inherited;
-  FRepo := Self.UoW.GetRepository<TSysGridFilters, TSysGridFilterRepository>;
+  FRepo := Self.UoW.GetRepository<TSysGridFilter, TSysGridFilterRepository>;
 end;
 
 destructor TSysGridFilterService.Destroy;
@@ -42,7 +42,7 @@ begin
   inherited;
 end;
 
-function TSysGridFilterService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysGridFilters>;
+function TSysGridFilterService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysGridFilter>;
 begin
   if APermissionControl then
   begin
@@ -54,7 +54,7 @@ begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysGridFilterService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysGridFilters;
+function TSysGridFilterService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysGridFilter;
 begin
   if APermissionControl then
   begin
@@ -66,7 +66,7 @@ begin
   Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
 end;
 
-procedure TSysGridFilterService.BusinessInsert(AEntity: TSysGridFilters; AWithBegin, AWithCommit, APermissionControl: Boolean);
+procedure TSysGridFilterService.BusinessInsert(AEntity: TSysGridFilter; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
     if APermissionControl then
@@ -91,7 +91,7 @@ begin
   end;
 end;
 
-procedure TSysGridFilterService.BusinessUpdate(AEntity: TSysGridFilters; AWithBegin, AWithCommit, APermissionControl: Boolean);
+procedure TSysGridFilterService.BusinessUpdate(AEntity: TSysGridFilter; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
     if APermissionControl then
@@ -116,7 +116,7 @@ begin
   end;
 end;
 
-procedure TSysGridFilterService.BusinessDelete(AEntity: TSysGridFilters; AWithBegin, AWithCommit, APermissionControl: Boolean);
+procedure TSysGridFilterService.BusinessDelete(AEntity: TSysGridFilter; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
     if APermissionControl then
@@ -146,7 +146,7 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TSysGridFilterService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysGridFilters>;
+function TSysGridFilterService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysGridFilter>;
 begin
   if AIncludeNestedEntities then
     Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
@@ -154,7 +154,7 @@ begin
     Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysGridFilterService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysGridFilters;
+function TSysGridFilterService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysGridFilter;
 begin
   if AIncludeNestedEntities then
     Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
@@ -162,12 +162,12 @@ begin
     Result := FRepo.FindById(AId, ALock);
 end;
 
-procedure TSysGridFilterService.Add(AEntity: TSysGridFilters);
+procedure TSysGridFilterService.Add(AEntity: TSysGridFilter);
 begin
   FRepo.Add(AEntity);
 end;
 
-procedure TSysGridFilterService.Update(AEntity: TSysGridFilters);
+procedure TSysGridFilterService.Update(AEntity: TSysGridFilter);
 begin
   FRepo.Update(AEntity);
 end;

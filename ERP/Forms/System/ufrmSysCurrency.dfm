@@ -1,7 +1,7 @@
 object frmSysCurrency: TfrmSysCurrency
   Left = 0
   Top = 0
-  Caption = 'frmSysCurrency'
+  Caption = 'Para Birimi Kayit'
   ClientHeight = 157
   ClientWidth = 500
   Color = clBtnFace
@@ -21,14 +21,14 @@ object frmSysCurrency: TfrmSysCurrency
     TabOrder = 0
     ExplicitWidth = 498
     ExplicitHeight = 174
-    object lblcurrency: TLabel
+    object lblCurrency: TLabel
       Left = 77
       Top = 6
       Width = 51
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Currency'
+      Caption = 'Para Birimi'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -37,14 +37,14 @@ object frmSysCurrency: TfrmSysCurrency
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblsymbol: TLabel
+    object lblSymbol: TLabel
       Left = 87
       Top = 29
       Width = 41
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Symbol'
+      Caption = 'Simge'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -53,14 +53,14 @@ object frmSysCurrency: TfrmSysCurrency
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lbldescription: TLabel
+    object lblDescription: TLabel
       Left = 63
       Top = 52
       Width = 65
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Description'
+      Caption = 'Aciklama'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -69,21 +69,21 @@ object frmSysCurrency: TfrmSysCurrency
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtcurrency: TEdit
+    object edtCurrency: TEdit
       Left = 132
       Top = 2
       Width = 333
       Height = 23
       TabOrder = 0
     end
-    object edtsymbol: TEdit
+    object edtSymbol: TEdit
       Left = 132
       Top = 25
       Width = 333
       Height = 23
       TabOrder = 1
     end
-    object edtdescription: TEdit
+    object edtDescription: TEdit
       Left = 132
       Top = 48
       Width = 333

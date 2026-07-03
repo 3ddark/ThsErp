@@ -37,18 +37,18 @@ uses
 
 type
   TfrmSysGridColSummary = class(TfrmBaseInputDB)
-    lbltable_name: TLabel;
-    cbbtable_name: TComboBox;
-    lblcolumn_name: TLabel;
-    cbbcolumn_name: TComboBox;
-    lblsummary_type: TLabel;
-    cbbsummary_type: TComboBox;
-    lblformat: TLabel;
-    edtformat: TEdit;
+    lblTableName: TLabel;
+    cbbTableName: TComboBox;
+    lblColumnName: TLabel;
+    cbbColumnName: TComboBox;
+    lblSummaryType: TLabel;
+    cbbSummaryType: TComboBox;
+    lblFormat: TLabel;
+    edtFormat: TEdit;
     procedure FormCreate(Sender: TObject);override;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject);override;
-    procedure cbbtable_nameChange(Sender: TObject);
+    procedure cbbTableNameChange(Sender: TObject);
   private
     FSysViewTables: TSysViewTables;
 
@@ -95,9 +95,9 @@ begin
   end;
 end;
 
-procedure TfrmSysGridColSummary.cbbtable_nameChange(Sender: TObject);
+procedure TfrmSysGridColSummary.cbbTableNameChange(Sender: TObject);
 begin
-  FillColNameForColSummary(TComboBox(cbbcolumn_name), ReplaceRealColOrTableNameTo(cbbtable_name.Text));
+  FillColNameForColSummary(TComboBox(cbbColumnName), ReplaceRealColOrTableNameTo(cbbTableName.Text));
 end;
 
 destructor TfrmSysGridColSummary.Destroy;
@@ -111,34 +111,34 @@ procedure TfrmSysGridColSummary.FormCreate(Sender: TObject);
 begin
   inherited;
 
-  //standart dýþý olan küçük harf kullanýlacak bilgileri özellikle belirt. diðerleri büyük harf olarak çalýþýr.
-  cbbtable_name.CharCase := ecNormal;
-  cbbcolumn_name.CharCase := ecNormal;
+  //standart default olan kucuk harf kullanilacak bilgileri ozellikle belirt. digerleri buyuk harf olarak calisir.
+  cbbTableName.CharCase := ecNormal;
+  cbbColumnName.CharCase := ecNormal;
 
 
   FSysViewTables := TSysViewTables.Create(GDatabase);
 
-  fillComboBoxData(cbbtable_name, FSysViewTables, [FSysViewTables.TableName1.FieldName], '');
-  cbbtable_nameChange(cbbtable_name);
+  fillComboBoxData(cbbTableName, FSysViewTables, [FSysViewTables.TableName1.FieldName], '');
+  cbbTableNameChange(cbbTableName);
 
-  cbbsummary_type.Items.Add('0 NONE');
-  cbbsummary_type.Items.Add('1 SUM');
-  cbbsummary_type.Items.Add('2 MIN');
-  cbbsummary_type.Items.Add('3 MAX');
-  cbbsummary_type.Items.Add('4 COUNT');
-  cbbsummary_type.Items.Add('5 AVG');
+  cbbSummaryType.Items.Add('0 NONE');
+  cbbSummaryType.Items.Add('1 SUM');
+  cbbSummaryType.Items.Add('2 MIN');
+  cbbSummaryType.Items.Add('3 MAX');
+  cbbSummaryType.Items.Add('4 COUNT');
+  cbbSummaryType.Items.Add('5 AVG');
 end;
 
 procedure TfrmSysGridColSummary.RefreshData();
 begin
-  cbbtable_name.ItemIndex := cbbtable_name.Items.IndexOf(TSysGridColSummary(Table).TableName1.Value);
-  cbbtable_nameChange(cbbtable_name);
+  cbbTableName.ItemIndex := cbbTableName.Items.IndexOf(TSysGridColSummary(Table).TableName1.Value);
+  cbbTableNameChange(cbbTableName);
 
-  if cbbcolumn_name.Items.IndexOf(TSysGridColSummary(Table).ColumnName.Value) = -1 then
-    cbbcolumn_name.Items.Add(TSysGridColSummary(Table).ColumnName.Value);
-  cbbcolumn_name.ItemIndex := cbbcolumn_name.Items.IndexOf(TSysGridColSummary(Table).ColumnName.Value);
-  cbbsummary_type.ItemIndex := TSysGridColSummary(Table).SumaryType.Value;
-  edtformat.Text := TSysGridColSummary(Table).Format.Value;
+  if cbbColumnName.Items.IndexOf(TSysGridColSummary(Table).ColumnName.Value) = -1 then
+    cbbColumnName.Items.Add(TSysGridColSummary(Table).ColumnName.Value);
+  cbbColumnName.ItemIndex := cbbColumnName.Items.IndexOf(TSysGridColSummary(Table).ColumnName.Value);
+  cbbSummaryType.ItemIndex := TSysGridColSummary(Table).SumaryType.Value;
+  edtFormat.Text := TSysGridColSummary(Table).Format.Value;
 end;
 
 procedure TfrmSysGridColSummary.btnAcceptClick(Sender: TObject);
@@ -147,17 +147,17 @@ begin
   begin
     if (ValidateInput) then
     begin
-      if cbbtable_name.Items.IndexOf(cbbtable_name.Text) = -1 then
-        raise Exception.Create( TranslateText('Listede olmayan bir Tablo Adý giremezsiniz!', '#1', LngMsgError, LngSystem) );
-//      if cbbcolumn_name.Items.IndexOf(cbbcolumn_name.Text) = -1 then
-//        raise Exception.Create( TranslateText('Listede olmayan bir Tablo Adý giremezsiniz!', '#1', LngMsgError, LngSystem) );
-      if cbbsummary_type.ItemIndex = -1 then
-        raise Exception.Create( TranslateText('Listede olmayan bir Tablo Adý giremezsiniz!', '#1', LngMsgError, LngSystem) );
+      if cbbTableName.Items.IndexOf(cbbTableName.Text) = -1 then
+        raise Exception.Create( TranslateText('Listede olmayan bir Tablo Adi giremezsiniz!', '#1', LngMsgError, LngSystem) );
+//      if cbbColumnName.Items.IndexOf(cbbColumnName.Text) = -1 then
+//        raise Exception.Create( TranslateText('Listede olmayan bir Tablo Adi giremezsiniz!', '#1', LngMsgError, LngSystem) );
+      if cbbSummaryType.ItemIndex = -1 then
+        raise Exception.Create( TranslateText('Listede olmayan bir Tablo Adi giremezsiniz!', '#1', LngMsgError, LngSystem) );
 
-      TSysGridColSummary(Table).TableName1.Value := cbbtable_name.Text;
-      TSysGridColSummary(Table).ColumnName.Value := cbbcolumn_name.Text;
-      TSysGridColSummary(Table).SumaryType.Value := cbbsummary_type.ItemIndex;
-      TSysGridColSummary(Table).Format.Value := edtformat.Text;
+      TSysGridColSummary(Table).TableName1.Value := cbbTableName.Text;
+      TSysGridColSummary(Table).ColumnName.Value := cbbColumnName.Text;
+      TSysGridColSummary(Table).SumaryType.Value := cbbSummaryType.ItemIndex;
+      TSysGridColSummary(Table).Format.Value := edtFormat.Text;
       inherited;
     end;
   end

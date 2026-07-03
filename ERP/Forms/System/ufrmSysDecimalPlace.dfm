@@ -1,7 +1,7 @@
 object frmSysDecimalPlace: TfrmSysDecimalPlace
   Left = 0
   Top = 0
-  Caption = 'frmSysDecimalPlace'
+  Caption = 'Ondalik Hane Kayit'
   ClientHeight = 395
   ClientWidth = 500
   Color = clBtnFace
@@ -20,14 +20,14 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
     Height = 395
     Align = alClient
     TabOrder = 0
-    object lblquantity: TLabel
+    object lblQuantity: TLabel
       Left = 84
       Top = 12
       Width = 44
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Quantity'
+      Caption = 'Miktar'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -36,14 +36,14 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblprice: TLabel
+    object lblPrice: TLabel
       Left = 105
       Top = 42
       Width = 23
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Price'
+      Caption = 'Fiyat'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -52,14 +52,14 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lbltotal: TLabel
+    object lblTotal: TLabel
       Left = 105
       Top = 72
       Width = 23
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Total'
+      Caption = 'Toplam'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -68,14 +68,14 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblstock_quantity: TLabel
+    object lblStockQuantity: TLabel
       Left = 39
       Top = 102
       Width = 89
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Stock Quantity'
+      Caption = 'Stok Miktari'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -84,14 +84,14 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblexchange_rate: TLabel
+    object lblExchangeRate: TLabel
       Left = 30
       Top = 132
       Width = 98
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Exchange Rate'
+      Caption = 'Doviz Kuru'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -100,7 +100,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtquantity: TSpinEdit
+    object edtQuantity: TSpinEdit
       Left = 134
       Top = 8
       Width = 75
@@ -110,7 +110,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       TabOrder = 0
       Value = 2
     end
-    object edtprice: TSpinEdit
+    object edtPrice: TSpinEdit
       Left = 134
       Top = 38
       Width = 75
@@ -120,7 +120,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       TabOrder = 1
       Value = 2
     end
-    object edttotal: TSpinEdit
+    object edtTotal: TSpinEdit
       Left = 134
       Top = 68
       Width = 75
@@ -130,7 +130,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       TabOrder = 2
       Value = 2
     end
-    object edtstock_quantity: TSpinEdit
+    object edtStockQuantity: TSpinEdit
       Left = 134
       Top = 98
       Width = 75
@@ -140,7 +140,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       TabOrder = 3
       Value = 4
     end
-    object edtexchange_rate: TSpinEdit
+    object edtExchangeRate: TSpinEdit
       Left = 134
       Top = 128
       Width = 75

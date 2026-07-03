@@ -13,16 +13,16 @@ uses
 type
   TfrmSysDecimalPlace = class(TfrmInputSimpleDB<TSysDecimalPlace, TSysDecimalPlaceService>)
     pnlContent: TPanel;
-    lblquantity: TLabel;
-    lblprice: TLabel;
-    lbltotal: TLabel;
-    lblstock_quantity: TLabel;
-    lblexchange_rate: TLabel;
-    edtquantity: TSpinEdit;
-    edtprice: TSpinEdit;
-    edttotal: TSpinEdit;
-    edtstock_quantity: TSpinEdit;
-    edtexchange_rate: TSpinEdit;
+    lblQuantity: TLabel;
+    lblPrice: TLabel;
+    lblTotal: TLabel;
+    lblStockQuantity: TLabel;
+    lblExchangeRate: TLabel;
+    edtQuantity: TSpinEdit;
+    edtPrice: TSpinEdit;
+    edtTotal: TSpinEdit;
+    edtStockQuantity: TSpinEdit;
+    edtExchangeRate: TSpinEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -37,11 +37,11 @@ implementation
 
 procedure TfrmSysDecimalPlace.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Quantity := edtquantity.Value;
-  Table.Price := edtprice.Value;
-  Table.Total := edttotal.Value;
-  Table.StockQuantity := edtstock_quantity.Value;
-  Table.ExchangeRate := edtexchange_rate.Value;
+  Table.Quantity := edtQuantity.Value;
+  Table.Price := edtPrice.Value;
+  Table.Total := edtTotal.Value;
+  Table.StockQuantity := edtStockQuantity.Value;
+  Table.ExchangeRate := edtExchangeRate.Value;
   inherited;
 end;
 
@@ -55,29 +55,29 @@ procedure TfrmSysDecimalPlace.FormShow(Sender: TObject);
 begin
   inherited;
 
-  Self.Caption := 'Decimal Place';
+  Self.Caption := 'System Decimal Place';
 
-  edtquantity.SetFocus;
+  edtQuantity.SetFocus;
 end;
 
 procedure TfrmSysDecimalPlace.InitializeInputCase;
 begin
   inherited;
-  edtquantity.thsInputDataType := itInteger;
-  edtprice.thsInputDataType := itInteger;
-  edttotal.thsInputDataType := itInteger;
-  edtstock_quantity.thsInputDataType := itInteger;
-  edtexchange_rate.thsInputDataType := itInteger;
+  edtQuantity.thsInputDataType := itInteger;
+  edtPrice.thsInputDataType := itInteger;
+  edtTotal.thsInputDataType := itInteger;
+  edtStockQuantity.thsInputDataType := itInteger;
+  edtExchangeRate.thsInputDataType := itInteger;
 end;
 
 procedure TfrmSysDecimalPlace.RefreshData;
 begin
   inherited;
-  edtquantity.Value := Table.Quantity;
-  edtprice.Value := Table.Price;
-  edttotal.Value := Table.Total;
-  edtstock_quantity.Value := Table.StockQuantity;
-  edtexchange_rate.Value := Table.ExchangeRate;
+  edtQuantity.Value := Table.Quantity;
+  edtPrice.Value := Table.Price;
+  edtTotal.Value := Table.Total;
+  edtStockQuantity.Value := Table.StockQuantity;
+  edtExchangeRate.Value := Table.ExchangeRate;
 end;
 
 end.

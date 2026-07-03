@@ -1,4 +1,4 @@
-﻿unit ufrmSysApplicationSetting;
+unit ufrmSysApplicationSetting;
 
 interface
 
@@ -12,116 +12,114 @@ uses
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   ufrmBase, ufrmInputSimpleDB, SharedFormTypes,
   SysApplicationSetting, SysApplicationSetting.Service,
-  SysCity.Service, SysCity, ufrmSysCities,
-  SysCountry.Service, SysCountry, ufrmSysCountries,
-  SysRegion.Service, SysRegion, ufrmSysRegions;
+  SysCity.Service, SysCity, ufrmSysCities;
 
 type
   TfrmSysApplicationSetting = class(TfrmInputSimpleDB<TSysApplicationSetting, TSysApplicationSettingService>)
     pnlMain: TPanel;
     pgcMain: TPageControl;
-    tsMain: TTabSheet;
-    lblcompany_title: TLabel;
-    lblphone: TLabel;
-    lblfax: TLabel;
-    edtcompany_title: TEdit;
-    edtphone: TEdit;
-    edtfax: TEdit;
-    tsservis_ayarlari: TTabSheet;
-    lblmail_host: TLabel;
-    edtmail_host: TEdit;
-    lblmail_user: TLabel;
-    edtmail_user: TEdit;
-    lblmail_password: TLabel;
-    edtmail_password: TEdit;
-    lblmail_smtp_port: TLabel;
-    edtmail_smtp_port: TEdit;
-    tsadres: TTabSheet;
-    lbltax_authority: TLabel;
-    edttax_authority: TEdit;
-    lbltax_no: TLabel;
-    edttax_no: TEdit;
-    lblweb: TLabel;
-    edtweb: TEdit;
-    lblemail: TLabel;
-    edtemail: TEdit;
-    lblulke_adi: TLabel;
-    lblsehir_id: TLabel;
-    edtsehir_id: TEdit;
-    lblilce: TLabel;
-    edtilce: TEdit;
-    lblmahalle: TLabel;
-    edtmahalle: TEdit;
-    lblsokak: TLabel;
-    edtsokak: TEdit;
-    lblbina_adi: TLabel;
-    edtbina_adi: TEdit;
-    lblkapi_no: TLabel;
-    edtkapi_no: TEdit;
-    lblposta_kodu: TLabel;
-    edtposta_kodu: TEdit;
-    edtulke_adi: TEdit;
-    lblsms_host: TLabel;
-    lblsms_user: TLabel;
-    lblsms_password: TLabel;
-    lblsms_title: TLabel;
-    edtsms_host: TEdit;
-    edtsms_user: TEdit;
-    edtsms_password: TEdit;
-    edtsms_title: TEdit;
-    tsdiger: TTabSheet;
-    lblpath_stock_card_image: TLabel;
-    lblpath_update: TLabel;
-    edtpath_stock_card_image: TEdit;
-    btnpath_stock_card_image: TButton;
-    edtpath_update: TEdit;
-    btnpath_update: TButton;
-    tsgorsel: TTabSheet;
-    edtcrypt_key: TEdit;
-    edtapp_version: TEdit;
-    edtdonem: TEdit;
-    edtgrid_color_active: TEdit;
-    edtgrid_color_2: TEdit;
-    edtgrid_color_1: TEdit;
-    lblapp_version: TLabel;
-    lblperiod: TLabel;
-    lblcrypt_key: TLabel;
-    lblgrid_color_active: TLabel;
-    lblgrid_color_2: TLabel;
-    lblgrid_color_1: TLabel;
-    lblsemt: TLabel;
-    edtsemt: TEdit;
-    lblcadde: TLabel;
-    edtcadde: TEdit;
-    lblpath_personel_karti_resim: TLabel;
-    edtpath_personel_karti_resim: TEdit;
-    btnpath_personel_karti_resim: TButton;
-    pnllogo: TPanel;
-    imglogo: TImage;
-    lblmukellef_tipi: TLabel;
-    cbbmukellef_tipi: TComboBox;
-    lblmukellef_adi: TLabel;
-    lblmukellef_soyadi: TLabel;
-    edtmukellef_adi: TEdit;
-    edtmukellef_soyadi: TEdit;
-    procedure imglogoDblClick(Sender: TObject);
-    procedure edtgrid_color_1DblClick(Sender: TObject);
-    procedure edtgrid_color_2DblClick(Sender: TObject);
-    procedure edtgrid_color_activeDblClick(Sender: TObject);
-    procedure edtgrid_color_1Exit(Sender: TObject);
-    procedure edtgrid_color_2Exit(Sender: TObject);
-    procedure edtgrid_color_activeExit(Sender: TObject);
-    procedure btnpath_stock_card_imageClick(Sender: TObject);
-    procedure btnpath_updateClick(Sender: TObject);
-    procedure btnpath_personel_karti_resimClick(Sender: TObject);
-    procedure cbbmukellef_tipiChange(Sender: TObject);
+    tsGenel: TTabSheet;
+    lblCompanyTitle: TLabel;
+    edtCompanyTitle: TEdit;
+    lblPhone: TLabel;
+    edtPhone: TEdit;
+    lblFax: TLabel;
+    edtFax: TEdit;
+    pnlLogo: TPanel;
+    imgLogo: TImage;
+    tsAdres: TTabSheet;
+    lblMukellefTipi: TLabel;
+    cbbMukellefTipi: TComboBox;
+    lblTaxpayerName: TLabel;
+    edtTaxpayerName: TEdit;
+    lblTaxpayerSurname: TLabel;
+    edtTaxpayerSurname: TEdit;
+    lblTaxNo: TLabel;
+    edtTaxNo: TEdit;
+    lblTaxAuthority: TLabel;
+    edtTaxAuthority: TEdit;
+    lblUlkeAdi: TLabel;
+    edtUlkeAdi: TEdit;
+    lblSehirId: TLabel;
+    edtSehirId: TEdit;
+    lblIlce: TLabel;
+    edtIlce: TEdit;
+    lblMahalle: TLabel;
+    edtMahalle: TEdit;
+    lblSemt: TLabel;
+    edtSemt: TEdit;
+    lblCadde: TLabel;
+    edtCadde: TEdit;
+    lblSokak: TLabel;
+    edtSokak: TEdit;
+    lblBinaAdi: TLabel;
+    edtBinaAdi: TEdit;
+    lblKapiNo: TLabel;
+    edtKapiNo: TEdit;
+    lblPostaKodu: TLabel;
+    edtPostaKodu: TEdit;
+    lblWeb: TLabel;
+    edtWeb: TEdit;
+    lblEmail: TLabel;
+    edtEmail: TEdit;
+    tsServisAyarlari: TTabSheet;
+    lblMailHost: TLabel;
+    edtMailHost: TEdit;
+    lblMailUser: TLabel;
+    edtMailUser: TEdit;
+    lblMailPassword: TLabel;
+    edtMailPassword: TEdit;
+    lblMailSmtpPort: TLabel;
+    edtMailSmtpPort: TEdit;
+    lblSmsHost: TLabel;
+    edtSmsHost: TEdit;
+    lblSmsUser: TLabel;
+    edtSmsUser: TEdit;
+    lblSmsPassword: TLabel;
+    edtSmsPassword: TEdit;
+    lblSmsTitle: TLabel;
+    edtSmsTitle: TEdit;
+    tsDigerAyarlar: TTabSheet;
+    lblPathStockCardImage: TLabel;
+    edtPathStockCardImage: TEdit;
+    btnPathStockCardImage: TButton;
+    lblPathPersonnelCardImage: TLabel;
+    edtPathPersonnelCardImage: TEdit;
+    btnPathPersonnelCardImage: TButton;
+    lblPathUpdate: TLabel;
+    edtPathUpdate: TEdit;
+    btnPathUpdate: TButton;
+    tsGorsel: TTabSheet;
+    lblGridColor1: TLabel;
+    edtGridColor1: TEdit;
+    lblGridColor2: TLabel;
+    edtGridColor2: TEdit;
+    lblGridColorActive: TLabel;
+    edtGridColorActive: TEdit;
+    lblCryptKey: TLabel;
+    edtCryptKey: TEdit;
+    lblPeriod: TLabel;
+    edtPeriod: TEdit;
+    lblAppVersion: TLabel;
+    edtAppVersion: TEdit;
+    procedure imgLogoDblClick(Sender: TObject);
+    procedure edtGridColor1DblClick(Sender: TObject);
+    procedure edtGridColor2DblClick(Sender: TObject);
+    procedure edtGridColorActiveDblClick(Sender: TObject);
+    procedure edtGridColor1Exit(Sender: TObject);
+    procedure edtGridColor2Exit(Sender: TObject);
+    procedure edtGridColorActiveExit(Sender: TObject);
+    procedure btnPathStockCardImageClick(Sender: TObject);
+    procedure btnPathPersonnelCardImageClick(Sender: TObject);
+    procedure btnPathUpdateClick(Sender: TObject);
+    procedure cbbMukellefTipiChange(Sender: TObject);
   private
     procedure SetColor(color: TColor; editColor: TEdit);
   protected
     procedure HelperProcess(Sender: TObject);
     function ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl = nil): Boolean; override;
   published
-    procedure btnAcceptClick(Sender: TObject); override;
+    procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormPaint(Sender: TObject);
     procedure FormShow(Sender: TObject); override;
@@ -135,156 +133,155 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmSysApplicationSetting.btnpath_stock_card_imageClick(Sender: TObject);
+procedure TfrmSysApplicationSetting.btnPathStockCardImageClick(Sender: TObject);
 begin
-  edtpath_stock_card_image.Text := GetDialogDirectory;
+  edtPathStockCardImage.Text := GetDialogDirectory;
 end;
 
-procedure TfrmSysApplicationSetting.cbbmukellef_tipiChange(Sender: TObject);
+procedure TfrmSysApplicationSetting.cbbMukellefTipiChange(Sender: TObject);
 begin
   inherited;
-  if cbbmukellef_tipi.ItemIndex = Ord(TMukellefTipi.TCKN) then
+  if cbbMukellefTipi.ItemIndex = Ord(TMukellefTipi.TCKN) then
   begin
-    edttax_no.MaxLength := 11;
-    edttax_authority.Clear;
-    lbltax_authority.Visible := False;
-    edttax_authority.Visible := False;
+    edtTaxNo.MaxLength := 11;
+    edtTaxAuthority.Clear;
+    lblTaxAuthority.Visible := False;
+    edtTaxAuthority.Visible := False;
 
-    lblmukellef_adi.Visible := True;
-    edtmukellef_adi.Visible := True;
-    lblmukellef_soyadi.Visible := True;
-    edtmukellef_soyadi.Visible := True;
+    lblTaxpayerName.Visible := True;
+    edtTaxpayerName.Visible := True;
+    lblTaxpayerSurname.Visible := True;
+    edtTaxpayerSurname.Visible := True;
   end
-  else if cbbmukellef_tipi.ItemIndex = Ord(TMukellefTipi.VKN) then
+  else if cbbMukellefTipi.ItemIndex = Ord(TMukellefTipi.VKN) then
   begin
-    edttax_no.MaxLength := 10;
-    lbltax_authority.Visible := True;
-    edttax_authority.Visible := True;
+    edtTaxNo.MaxLength := 10;
+    lblTaxAuthority.Visible := True;
+    edtTaxAuthority.Visible := True;
 
-    edtmukellef_adi.Clear;
-    lblmukellef_adi.Visible := False;
-    edtmukellef_adi.Visible := False;
-    edtmukellef_soyadi.Clear;
-    lblmukellef_soyadi.Visible := False;
-    edtmukellef_soyadi.Visible := False;
+    edtTaxpayerName.Clear;
+    lblTaxpayerName.Visible := False;
+    edtTaxpayerName.Visible := False;
+    edtTaxpayerSurname.Clear;
+    lblTaxpayerSurname.Visible := False;
+    edtTaxpayerSurname.Visible := False;
   end;
 end;
 
-procedure TfrmSysApplicationSetting.btnpath_updateClick(Sender: TObject);
+procedure TfrmSysApplicationSetting.btnPathUpdateClick(Sender: TObject);
 begin
-  edtpath_update.Text := GetDialogDirectory;
+  edtPathUpdate.Text := GetDialogDirectory;
 end;
 
-procedure TfrmSysApplicationSetting.btnpath_personel_karti_resimClick(Sender: TObject);
+procedure TfrmSysApplicationSetting.btnPathPersonnelCardImageClick(Sender: TObject);
 begin
-  edtpath_personel_karti_resim.Text := GetDialogDirectory;
+  edtPathPersonnelCardImage.Text := GetDialogDirectory;
 end;
 
-procedure TfrmSysApplicationSetting.edtgrid_color_1DblClick(Sender: TObject);
+procedure TfrmSysApplicationSetting.edtGridColor1DblClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
-    SetColor(GetDialogColor(StrToIntDef(edtgrid_color_1.Text, 0)), edtgrid_color_1);
+    SetColor(GetDialogColor(StrToIntDef(edtGridColor1.Text, 0)), edtGridColor1);
 end;
 
-procedure TfrmSysApplicationSetting.edtgrid_color_1Exit(Sender: TObject);
+procedure TfrmSysApplicationSetting.edtGridColor1Exit(Sender: TObject);
 begin
   inherited;
-  SetColor(StrToIntDef(edtgrid_color_1.Text, 0), edtgrid_color_1);
-  edtgrid_color_1.Refresh;
+  SetColor(StrToIntDef(edtGridColor1.Text, 0), edtGridColor1);
+  edtGridColor1.Refresh;
 end;
 
-procedure TfrmSysApplicationSetting.edtgrid_color_2DblClick(Sender: TObject);
+procedure TfrmSysApplicationSetting.edtGridColor2DblClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
-    SetColor(GetDialogColor(StrToIntDef(edtgrid_color_2.Text, 0)), edtgrid_color_2);
-
+    SetColor(GetDialogColor(StrToIntDef(edtGridColor2.Text, 0)), edtGridColor2);
 end;
 
-procedure TfrmSysApplicationSetting.edtgrid_color_2Exit(Sender: TObject);
+procedure TfrmSysApplicationSetting.edtGridColor2Exit(Sender: TObject);
 begin
   inherited;
-  SetColor(StrToIntDef(edtgrid_color_2.Text, 0), edtgrid_color_2);
-  edtgrid_color_2.Refresh;
+  SetColor(StrToIntDef(edtGridColor2.Text, 0), edtGridColor2);
+  edtGridColor2.Refresh;
 end;
 
-procedure TfrmSysApplicationSetting.edtgrid_color_activeDblClick(Sender: TObject);
+procedure TfrmSysApplicationSetting.edtGridColorActiveDblClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
-    SetColor(GetDialogColor(StrToIntDef(edtgrid_color_active.Text, 0)), edtgrid_color_active);
+    SetColor(GetDialogColor(StrToIntDef(edtGridColorActive.Text, 0)), edtGridColorActive);
 end;
 
-procedure TfrmSysApplicationSetting.edtgrid_color_activeExit(Sender: TObject);
+procedure TfrmSysApplicationSetting.edtGridColorActiveExit(Sender: TObject);
 begin
   inherited;
-  SetColor(StrToIntDef(edtgrid_color_active.Text, 0), edtgrid_color_active);
-  edtgrid_color_active.Repaint;
+  SetColor(StrToIntDef(edtGridColorActive.Text, 0), edtGridColorActive);
+  edtGridColorActive.Repaint;
 end;
 
 procedure TfrmSysApplicationSetting.FormCreate(Sender: TObject);
 begin
   inherited;
 
-  edtcompany_title.CharCase := TEditCharCase.ecNormal;
-  edtweb.CharCase := TEditCharCase.ecNormal;
-  edtemail.CharCase := TEditCharCase.ecNormal;
-  edtmail_host.CharCase := TEditCharCase.ecNormal;
-  edtmail_user.CharCase := TEditCharCase.ecNormal;
-  edtmail_password.CharCase := TEditCharCase.ecNormal;
-  edtapp_version.CharCase := TEditCharCase.ecNormal;
+  edtCompanyTitle.CharCase := TEditCharCase.ecNormal;
+  edtWeb.CharCase := TEditCharCase.ecNormal;
+  edtEmail.CharCase := TEditCharCase.ecNormal;
+  edtMailHost.CharCase := TEditCharCase.ecNormal;
+  edtMailUser.CharCase := TEditCharCase.ecNormal;
+  edtMailPassword.CharCase := TEditCharCase.ecNormal;
+  edtAppVersion.CharCase := TEditCharCase.ecNormal;
 
-  edtsms_host.CharCase := TEditCharCase.ecNormal;
-  edtsms_user.CharCase := TEditCharCase.ecNormal;
-  edtsms_password.CharCase := TEditCharCase.ecNormal;
-  edtsms_title.CharCase := TEditCharCase.ecNormal;
+  edtSmsHost.CharCase := TEditCharCase.ecNormal;
+  edtSmsUser.CharCase := TEditCharCase.ecNormal;
+  edtSmsPassword.CharCase := TEditCharCase.ecNormal;
+  edtSmsTitle.CharCase := TEditCharCase.ecNormal;
 
-  edtpath_stock_card_image.CharCase := TEditCharCase.ecNormal;
-  edtpath_personel_karti_resim.CharCase := TEditCharCase.ecNormal;
-  edtpath_update.CharCase := TEditCharCase.ecNormal;
+  edtPathStockCardImage.CharCase := TEditCharCase.ecNormal;
+  edtPathPersonnelCardImage.CharCase := TEditCharCase.ecNormal;
+  edtPathUpdate.CharCase := TEditCharCase.ecNormal;
 
-  edtcrypt_key.CharCase := TEditCharCase.ecNormal;
+  edtCryptKey.CharCase := TEditCharCase.ecNormal;
 
-  cbbmukellef_tipi.CharCase := TEditCharCase.ecNormal;
-  cbbmukellef_tipi.Clear;
-  cbbmukellef_tipi.Items.Add('TC Kimlik No(TCKN)');
-  cbbmukellef_tipi.Items.Add('Vergi Kimlik No(VKN)');
-  cbbmukellef_tipi.ItemIndex := 0;
-  cbbmukellef_tipiChange(cbbmukellef_tipi)
+  cbbMukellefTipi.CharCase := TEditCharCase.ecNormal;
+  cbbMukellefTipi.Clear;
+  cbbMukellefTipi.Items.Add('TC Kimlik No (TCKN)');
+  cbbMukellefTipi.Items.Add('Vergi Kimlik No (VKN)');
+  cbbMukellefTipi.ItemIndex := 0;
+  cbbMukellefTipiChange(cbbMukellefTipi);
 end;
 
 procedure TfrmSysApplicationSetting.FormPaint(Sender: TObject);
 begin
   inherited;
-  edtpath_stock_card_image.ReadOnly := True;
-  edtpath_personel_karti_resim.ReadOnly := True;
-  edtpath_update.ReadOnly := True;
+  edtPathStockCardImage.ReadOnly := True;
+  edtPathPersonnelCardImage.ReadOnly := True;
+  edtPathUpdate.ReadOnly := True;
 
-  btnpath_stock_card_image.Enabled := False;
-  btnpath_personel_karti_resim.Enabled := False;
-  btnpath_update.Enabled := False;
+  btnPathStockCardImage.Enabled := False;
+  btnPathPersonnelCardImage.Enabled := False;
+  btnPathUpdate.Enabled := False;
 
   if (FormMode = ifmNewRecord) or (FormMode = ifmUpdate) then
   begin
-    btnpath_stock_card_image.Enabled := True;
-    btnpath_personel_karti_resim.Enabled := True;
-    btnpath_update.Enabled := True;
+    btnPathStockCardImage.Enabled := True;
+    btnPathPersonnelCardImage.Enabled := True;
+    btnPathUpdate.Enabled := True;
   end;
 end;
 
 procedure TfrmSysApplicationSetting.FormShow(Sender: TObject);
 begin
-  edtsehir_id.OnHelperProcess := HelperProcess;
+  edtSehirId.OnHelperProcess := HelperProcess;
 
   inherited;
 
-  edtulke_adi.ReadOnly := True;
-  edtilce.CharCase := ecUpperCase;
-  edtmahalle.CharCase := ecUpperCase;
-  edtsemt.CharCase := ecUpperCase;
-  edtcadde.CharCase := ecUpperCase;
-  edtsokak.CharCase := ecUpperCase;
-  edtbina_adi.CharCase := ecUpperCase;
-  edtkapi_no.CharCase := ecUpperCase;
-  edtposta_kodu.CharCase := ecUpperCase;
+  edtUlkeAdi.ReadOnly := True;
+  edtIlce.CharCase := ecUpperCase;
+  edtMahalle.CharCase := ecUpperCase;
+  edtSemt.CharCase := ecUpperCase;
+  edtCadde.CharCase := ecUpperCase;
+  edtSokak.CharCase := ecUpperCase;
+  edtBinaAdi.CharCase := ecUpperCase;
+  edtKapiNo.CharCase := ecUpperCase;
+  edtPostaKodu.CharCase := ecUpperCase;
 end;
 
 procedure TfrmSysApplicationSetting.HelperProcess(Sender: TObject);
@@ -297,7 +294,7 @@ begin
   if (FormMode <> ifmNewRecord) and (FormMode <> ifmCopyNewRecord) and (FormMode <> ifmUpdate) then
     Exit;
 
-  if TEdit(Sender).Name = edtsehir_id.Name then
+  if TEdit(Sender).Name = edtSehirId.Name then
   begin
     LFrmCity := TfrmSysCities.Create(TEdit(Sender), TSysCityService.Create, TSysCity.Create, True, True);
     try
@@ -318,96 +315,95 @@ begin
     finally
       LFrmCity.Free;
     end;
-  end
+  end;
 end;
 
-procedure TfrmSysApplicationSetting.imglogoDblClick(Sender: TObject);
+procedure TfrmSysApplicationSetting.imgLogoDblClick(Sender: TObject);
 var
   LFileName: string;
 begin
   if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
   begin
-    if CustomMsgDlg('Mevcut logoyu kayıt etmek istiyor musun?', mtConfirmation, mbYesNo, ['Evet Kaydet', 'Hayır Yenisini Yükle'], mbNo, 'Kullanıcı Onayı') = mrYes then
+    if CustomMsgDlg('Mevcut logoyu kaydetmek istiyor musun?', mtConfirmation, mbYesNo, ['Evet Kaydet', 'Hayır Yenisini Yükle'], mbNo, 'Kullanıcı Onayı') = mrYes then
     begin
-      imglogo.Picture.SaveToFile(GetDialogSave('', FILE_FILTER_IMAGE, ''));
+      imgLogo.Picture.SaveToFile(GetDialogSave('', FILE_FILTER_IMAGE, ''));
     end
     else
     begin
       GetDialogOpen(FILE_FILTER_IMAGE, LFileName);
       if (LFileName <> '') and FileExists(LFileName) then
-        TImageProcess.LoadImageFromFile(LFileName, imglogo, 320, 240);
+        TImageProcess.LoadImageFromFile(LFileName, imgLogo, 320, 240);
     end;
   end;
 end;
 
 procedure TfrmSysApplicationSetting.RefreshData;
 begin
-  edtcompany_title.Text := Table.CompanyTitle;
-  edtphone.Text := Table.Phone;
-  edtfax.Text := Table.Fax;
+  edtCompanyTitle.Text := Table.CompanyTitle;
+  edtPhone.Text := Table.Phone;
+  edtFax.Text := Table.Fax;
 
-  TImageProcess.LoadImageFromDB(Table.Logo, imglogo);
+  TImageProcess.LoadImageFromDB(Table.Logo, imgLogo);
 
-  edtgrid_color_1.Text := Table.GridColor1.ToString;
-  edtgrid_color_2.Text := Table.GridColor2.ToString;
-  edtgrid_color_active.Text := Table.GridColorActive.ToString;
-  edtcrypt_key.Text := Table.CryptKey;
-  edtdonem.Text := Table.ActivePeriod.ToString;
-  edtapp_version.Text := Table.AppVersion;
+  edtGridColor1.Text := Table.GridColor1.ToString;
+  edtGridColor2.Text := Table.GridColor2.ToString;
+  edtGridColorActive.Text := Table.GridColorActive.ToString;
+  edtCryptKey.Text := Table.CryptKey;
+  edtPeriod.Text := Table.ActivePeriod.ToString;
+  edtAppVersion.Text := Table.AppVersion;
 
-  edtmail_host.Text := Table.MailHost;
-  edtmail_user.Text := Table.MailUser;
+  edtMailHost.Text := Table.MailHost;
+  edtMailUser.Text := Table.MailUser;
   if FormMode = ifmUpdate then
   begin
     if Table.MailPassword <> '' then
-      edtmail_password.Text := DecryptStr(Table.MailPassword, Table.CryptKey)
+      edtMailPassword.Text := DecryptStr(Table.MailPassword, Table.CryptKey)
   end
   else
-    edtmail_password.Text := Table.MailPassword;
-  edtmail_smtp_port.Text := Table.MailSmtpPort.ToString;
-  edtsms_host.Text := Table.SmsHost;
-  edtsms_user.Text := Table.SmsUser;
+    edtMailPassword.Text := Table.MailPassword;
+  edtMailSmtpPort.Text := Table.MailSmtpPort.ToString;
+  edtSmsHost.Text := Table.SmsHost;
+  edtSmsUser.Text := Table.SmsUser;
   if FormMode = ifmUpdate then
   begin
     if Table.SmsPassword <> '' then
-      edtsms_password.Text := DecryptStr(Table.SmsPassword, Table.CryptKey)
+      edtSmsPassword.Text := DecryptStr(Table.SmsPassword, Table.CryptKey)
   end
   else
-    edtsms_password.Text := Table.SmsPassword;
-  edtsms_title.Text := Table.SmsTitle;
+    edtSmsPassword.Text := Table.SmsPassword;
+  edtSmsTitle.Text := Table.SmsTitle;
 
   if Table.Taxpayertype = 'TCKN' then
-    cbbmukellef_tipi.ItemIndex := 0
+    cbbMukellefTipi.ItemIndex := 0
   else if Table.Taxpayertype = 'VKN' then
-    cbbmukellef_tipi.ItemIndex := 1;
-  cbbmukellef_tipiChange(cbbmukellef_tipi);
+    cbbMukellefTipi.ItemIndex := 1;
+  cbbMukellefTipiChange(cbbMukellefTipi);
 
-  edttax_authority.Text := Table.TaxAuthority;
-  edttax_no.Text := Table.TaxNo;
-  edtmukellef_adi.Text := Table.TaxpayerName;
-  edtmukellef_soyadi.Text := Table.TaxpayerSurname;
+  edtTaxAuthority.Text := Table.TaxAuthority;
+  edtTaxNo.Text := Table.TaxNo;
+  edtTaxpayerName.Text := Table.TaxpayerName;
+  edtTaxpayerSurname.Text := Table.TaxpayerSurname;
 
-  edtweb.Text := Table.Address.Web;
-  edtemail.Text := Table.Address.Email;
-//  edtulke_adi.Text := Table.Address.UlkeAdi.AsString;
-//  edtsehir_id.Text := Table.Address.CityName;
-  edtilce.Text := Table.Address.District;
-  edtmahalle.Text := Table.Address.Neighborhood;
-  edtsemt.Text := Table.Address.Quarter;
-  edtcadde.Text := Table.Address.Road;
-  edtsokak.Text := Table.Address.Street;
-  edtbina_adi.Text := Table.Address.BuildingName;
-  edtkapi_no.Text := Table.Address.DoorNumber;
-  edtposta_kodu.Text := Table.Address.ZipCode;
+  edtWeb.Text := Table.Address.Web;
+  edtEmail.Text := Table.Address.EMail;
+  edtUlkeAdi.Text := Table.Address.UlkeAdi.AsString;
+  edtIlce.Text := Table.Address.District;
+  edtMahalle.Text := Table.Address.Neighborhood;
+  edtSemt.Text := Table.Address.Quarter;
+  edtCadde.Text := Table.Address.Road;
+  edtSokak.Text := Table.Address.Street;
+  edtBinaAdi.Text := Table.Address.BuildingName;
+  edtKapiNo.Text := Table.Address.DoorNumber;
+  edtPostaKodu.Text := Table.Address.ZipCode;
 
-  SetColor(StrToIntDef(edtgrid_color_1.Text, 0), edtgrid_color_1);
-  SetColor(StrToIntDef(edtgrid_color_2.Text, 0), edtgrid_color_2);
-  SetColor(StrToIntDef(edtgrid_color_active.Text, 0), edtgrid_color_active);
+  SetColor(StrToIntDef(edtGridColor1.Text, 0), edtGridColor1);
+  SetColor(StrToIntDef(edtGridColor2.Text, 0), edtGridColor2);
+  SetColor(StrToIntDef(edtGridColorActive.Text, 0), edtGridColorActive);
 
   Table.DeserializeOtherSettings;
-  edtpath_stock_card_image.Text := Table.OtherSettingsObj.StockCardImagePath;
-  edtpath_personel_karti_resim.Text := Table.OtherSettingsObj.PersonnelCardImagePath;
-  edtpath_update.Text := Table.OtherSettingsObj.UpdatePath;
+  edtPathStockCardImage.Text := Table.OtherSettingsObj.StockCardImagePath;
+  edtPathPersonnelCardImage.Text := Table.OtherSettingsObj.PersonnelCardImagePath;
+  edtPathUpdate.Text := Table.OtherSettingsObj.UpdatePath;
 
 end;
 
@@ -424,87 +420,87 @@ function TfrmSysApplicationSetting.ValidateInput(panel_groupbox_pagecontrol_tabs
 begin
   Result := inherited ValidateInput(panel_groupbox_pagecontrol_tabsheet);
 
-  if (edtpath_stock_card_image.Text <> '') and not DirectoryExists(edtpath_stock_card_image.Text) then
+  if (edtPathStockCardImage.Text <> '') and not DirectoryExists(edtPathStockCardImage.Text) then
   begin
-    pgcMain.ActivePage := tsdiger;
-    edtpath_stock_card_image.SetFocus;
+    pgcMain.ActivePage := tsDigerAyarlar;
+    edtPathStockCardImage.SetFocus;
     raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
   end;
 
-  if (edtpath_personel_karti_resim.Text <> '') and not DirectoryExists(edtpath_personel_karti_resim.Text) then
+  if (edtPathPersonnelCardImage.Text <> '') and not DirectoryExists(edtPathPersonnelCardImage.Text) then
   begin
-    pgcMain.ActivePage := tsdiger;
-    edtpath_personel_karti_resim.SetFocus;
+    pgcMain.ActivePage := tsDigerAyarlar;
+    edtPathPersonnelCardImage.SetFocus;
     raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
   end;
 
-  if (edtpath_update.Text <> '') and not DirectoryExists(edtpath_update.Text) then
+  if (edtPathUpdate.Text <> '') and not DirectoryExists(edtPathUpdate.Text) then
   begin
-    pgcMain.ActivePage := tsdiger;
-    edtpath_update.SetFocus;
+    pgcMain.ActivePage := tsDigerAyarlar;
+    edtPathUpdate.SetFocus;
     raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
   end;
 end;
 
-procedure TfrmSysApplicationSetting.btnAcceptClick(Sender: TObject);
+procedure TfrmSysApplicationSetting.BtnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
     if ValidateInput(pgcMain) then
     begin
-      Table.CompanyTitle := edtcompany_title.Text;
-      Table.Phone := edtphone.Text;
-      Table.Fax := edtfax.Text;
+      Table.CompanyTitle := edtCompanyTitle.Text;
+      Table.Phone := edtPhone.Text;
+      Table.Fax := edtFax.Text;
 
-      TImageProcess.setValueFromImage(Table.Logo, imglogo);
+      TImageProcess.setValueFromImage(Table.Logo, imgLogo);
 
-      Table.GridColor1 := StrToIntDef(edtgrid_color_1.Text, 0);
-      Table.GridColor2 := StrToIntDef(edtgrid_color_2.Text, 0);
-      Table.GridColorActive := StrToIntDef(edtgrid_color_active.Text, 0);
-      Table.CryptKey := edtcrypt_key.Text;
-      Table.ActivePeriod := StrToIntDef(edtdonem.Text, 2000);
-      Table.AppVersion := edtapp_version.Text;
+      Table.GridColor1 := StrToIntDef(edtGridColor1.Text, 0);
+      Table.GridColor2 := StrToIntDef(edtGridColor2.Text, 0);
+      Table.GridColorActive := StrToIntDef(edtGridColorActive.Text, 0);
+      Table.CryptKey := edtCryptKey.Text;
+      Table.ActivePeriod := StrToIntDef(edtPeriod.Text, 2000);
+      Table.AppVersion := edtAppVersion.Text;
 
-      Table.MailHost := edtmail_host.Text;
-      Table.MailUser := edtmail_user.Text;
-      if edtmail_password.Text <> '' then
-        Table.MailPassword := EncryptStr(edtmail_password.Text, Table.CryptKey)
+      Table.MailHost := edtMailHost.Text;
+      Table.MailUser := edtMailUser.Text;
+      if edtMailPassword.Text <> '' then
+        Table.MailPassword := EncryptStr(edtMailPassword.Text, Table.CryptKey)
       else
         Table.MailPassword := '';
-      Table.MailSmtpPort := StrToInt(edtmail_smtp_port.Text);
+      Table.MailSmtpPort := StrToInt(edtMailSmtpPort.Text);
 
-      Table.SmsHost := edtsms_host.Text;
-      Table.SmsUser := edtsms_user.Text;
-      Table.SmsTitle := edtsms_title.Text;
-      if edtsms_password.Text <> '' then
-        Table.SmsPassword := EncryptStr(edtsms_password.Text, Table.CryptKey)
+      Table.SmsHost := edtSmsHost.Text;
+      Table.SmsUser := edtSmsUser.Text;
+      Table.SmsTitle := edtSmsTitle.Text;
+      if edtSmsPassword.Text <> '' then
+        Table.SmsPassword := EncryptStr(edtSmsPassword.Text, Table.CryptKey)
       else
         Table.SmsPassword := '';
 
-      if cbbmukellef_tipi.ItemIndex = Ord(TMukellefTipi.TCKN) then
+      if cbbMukellefTipi.ItemIndex = Ord(TMukellefTipi.TCKN) then
         Table.Taxpayertype := 'TCKN'
-      else if cbbmukellef_tipi.ItemIndex = Ord(TMukellefTipi.VKN) then
+      else if cbbMukellefTipi.ItemIndex = Ord(TMukellefTipi.VKN) then
         Table.Taxpayertype := 'VKN';
-      Table.TaxAuthority := edttax_authority.Text;
-      Table.TaxNo := edttax_no.Text;
-      Table.TaxpayerName := edtmukellef_adi.Text;
-      Table.TaxpayerSurname := edtmukellef_soyadi.Text;
+      Table.TaxAuthority := edtTaxAuthority.Text;
+      Table.TaxNo := edtTaxNo.Text;
+      Table.TaxpayerName := edtTaxpayerName.Text;
+      Table.TaxpayerSurname := edtTaxpayerSurname.Text;
 
-      Table.Address.Web := edtweb.Text;
-      Table.Address.EMail := edtemail.Text;
-      Table.Address.District := edtilce.Text;
-      Table.Address.Neighborhood := edtmahalle.Text;
-      Table.Address.Quarter := edtsemt.Text;
-      Table.Address.Road := edtcadde.Text;
-      Table.Address.Street := edtsokak.Text;
-      Table.Address.BuildingName := edtbina_adi.Text;
-      Table.Address.DoorNumber := edtkapi_no.Text;
-      Table.Address.ZipCode := edtposta_kodu.Text;
+      Table.Address.Web := edtWeb.Text;
+      Table.Address.EMail := edtEmail.Text;
+      Table.Address.District := edtIlce.Text;
+      Table.Address.Neighborhood := edtMahalle.Text;
+      Table.Address.Quarter := edtSemt.Text;
+      Table.Address.Road := edtCadde.Text;
+      Table.Address.Street := edtSokak.Text;
+      Table.Address.BuildingName := edtBinaAdi.Text;
+      Table.Address.DoorNumber := edtKapiNo.Text;
+      Table.Address.ZipCode := edtPostaKodu.Text;
 
       // Diğer ayarlar JSONB
-      Table.OtherSettingsObj.StockCardImagePath := edtpath_stock_card_image.Text;
-      Table.OtherSettingsObj.PersonnelCardImagePath := edtpath_personel_karti_resim.Text;
-      Table.OtherSettingsObj.UpdatePath := edtpath_update.Text;
+      Table.OtherSettingsObj.StockCardImagePath := edtPathStockCardImage.Text;
+      Table.OtherSettingsObj.PersonnelCardImagePath := edtPathPersonnelCardImage.Text;
+      Table.OtherSettingsObj.UpdatePath := edtPathUpdate.Text;
       Table.SerializeOtherSettings;
 
       inherited;

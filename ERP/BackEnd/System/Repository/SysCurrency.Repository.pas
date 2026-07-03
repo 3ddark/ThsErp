@@ -4,13 +4,14 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  FireDAC.Comp.Client, Entity, Repository, SysCurrency;
+  FireDAC.Comp.Client, Entity, Repository, SysCurrency, FilterCriterion;
 
 type
   TSysCurrencyRepository = class(TRepository<TSysCurrency>)
   public
     constructor Create(AConnection: TFDConnection);
     destructor Destroy; override;
+    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
   end;
 
 implementation
@@ -24,6 +25,13 @@ destructor TSysCurrencyRepository.Destroy;
 begin
   //
   inherited;
+end;
+
+function TSysCurrencyRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+begin
+  Result := TFDQuery.Create(nil);
+  Result.Connection := Self.Connection;
+  Result.SQL.Text := 'SELECT * FROM vw_sys_currencies WHERE 1=1 ';
 end;
 
 end.

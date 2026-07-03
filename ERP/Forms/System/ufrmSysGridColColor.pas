@@ -37,24 +37,24 @@ uses
 
 type
   TfrmSysGridColColor = class(TfrmBaseInputDB)
-    lblcolumn_name: TLabel;
-    lblmax_color: TLabel;
-    lblmax_value: TLabel;
-    lblmin_color: TLabel;
-    lblmin_value: TLabel;
-    lbltable_name: TLabel;
-    cbbtable_name: TComboBox;
-    cbbcolumn_name: TComboBox;
-    edtmin_value: TEdit;
-    edtmin_color: TEdit;
-    edtmax_value: TEdit;
-    edtmax_color: TEdit;
+    lblColumnName: TLabel;
+    lblMaxColor: TLabel;
+    lblMaxValue: TLabel;
+    lblMinColor: TLabel;
+    lblMinValue: TLabel;
+    lblTableName: TLabel;
+    cbbTableName: TComboBox;
+    cbbColumnName: TComboBox;
+    edtMinValue: TEdit;
+    edtMinColor: TEdit;
+    edtMaxValue: TEdit;
+    edtMaxColor: TEdit;
     procedure FormCreate(Sender: TObject);override;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject);override;
-    procedure cbbtable_nameChange(Sender: TObject);
-    procedure edtmin_colorDblClick(Sender: TObject);
-    procedure edtmax_colorDblClick(Sender: TObject);
+    procedure cbbTableNameChange(Sender: TObject);
+    procedure edtMinColorDblClick(Sender: TObject);
+    procedure edtMaxColorDblClick(Sender: TObject);
   private
     FSysViewColumns: TSysViewColumns;
     FSysViewTables: TSysViewTables;
@@ -78,14 +78,14 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmSysGridColColor.cbbtable_nameChange(Sender: TObject);
+procedure TfrmSysGridColColor.cbbTableNameChange(Sender: TObject);
 var
   n1: Integer;
 begin
-  FSysViewColumns.SelectToList(' AND ' + FSysViewColumns.TableName + '.' + FSysViewColumns.TableName1.FieldName + '=' + QuotedStr(cbbtable_name.Text), False, False);
-  cbbcolumn_name.Clear;
+  FSysViewColumns.SelectToList(' AND ' + FSysViewColumns.TableName + '.' + FSysViewColumns.TableName1.FieldName + '=' + QuotedStr(cbbTableName.Text), False, False);
+  cbbColumnName.Clear;
   for n1 := 0 to FSysViewColumns.List.Count-1 do
-    cbbcolumn_name.Items.Add(TSysViewColumns(FSysViewColumns.List[n1]).ColumnName.Value);
+    cbbColumnName.Items.Add(TSysViewColumns(FSysViewColumns.List[n1]).ColumnName.Value);
 end;
 
 destructor TfrmSysGridColColor.Destroy;
@@ -95,28 +95,28 @@ begin
   inherited;
 end;
 
-procedure TfrmSysGridColColor.edtmax_colorDblClick(Sender: TObject);
+procedure TfrmSysGridColColor.edtMaxColorDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtmax_color.Text, 0)), edtmax_color);
+  SetColor(GetDialogColor(StrToIntDef(edtMaxColor.Text, 0)), edtMaxColor);
 end;
 
-procedure TfrmSysGridColColor.edtmin_colorDblClick(Sender: TObject);
+procedure TfrmSysGridColColor.edtMinColorDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtmin_color.Text, 0)), edtmin_color);
+  SetColor(GetDialogColor(StrToIntDef(edtMinColor.Text, 0)), edtMinColor);
 end;
 
 procedure TfrmSysGridColColor.FormCreate(Sender: TObject);
 begin
   inherited;
 
-  cbbtable_name.CharCase := ecNormal;
-  cbbcolumn_name.CharCase := ecNormal;
+  cbbTableName.CharCase := ecNormal;
+  cbbColumnName.CharCase := ecNormal;
 
   FSysViewTables := TSysViewTables.Create(Table.Database);
   FSysViewColumns := TSysViewColumns.Create(Table.Database);
 
-  fillComboBoxData(cbbtable_name, FSysViewTables, [FSysViewTables.TableName1.FieldName], '', True);
-  cbbtable_nameChange(cbbtable_name);
+  fillComboBoxData(cbbTableName, FSysViewTables, [FSysViewTables.TableName1.FieldName], '', True);
+  cbbTableNameChange(cbbTableName);
 end;
 
 procedure TfrmSysGridColColor.FormShow(Sender: TObject);
@@ -127,18 +127,18 @@ end;
 procedure TfrmSysGridColColor.RefreshData();
 begin
   inherited;
-  cbbtable_nameChange(cbbtable_name);
-  cbbcolumn_name.ItemIndex := cbbcolumn_name.Items.IndexOf(FormatedVariantVal(TSysGridColColor(Table).ColumnName));
+  cbbTableNameChange(cbbTableName);
+  cbbColumnName.ItemIndex := cbbColumnName.Items.IndexOf(FormatedVariantVal(TSysGridColColor(Table).ColumnName));
 
-  SetColor(StrToIntDef(edtmin_color.Text, 0), edtmin_color);
-  SetColor(StrToIntDef(edtmax_color.Text, 0), edtmax_color);
+  SetColor(StrToIntDef(edtMinColor.Text, 0), edtMinColor);
+  SetColor(StrToIntDef(edtMaxColor.Text, 0), edtMaxColor);
 end;
 
 procedure TfrmSysGridColColor.Repaint;
 begin
   inherited;
-  edtmin_color.ReadOnly := True;
-  edtmax_color.ReadOnly := True;
+  edtMinColor.ReadOnly := True;
+  edtMaxColor.ReadOnly := True;
 end;
 
 procedure TfrmSysGridColColor.SetColor(color: TColor; editColor: TEdit);
@@ -156,11 +156,11 @@ begin
   begin
     if (ValidateInput) then
     begin
-      if cbbtable_name.Items.IndexOf(cbbtable_name.Text) = -1 then
-        raise Exception.Create( TranslateText('Listede olmayan bir Tablo Adý giremezsiniz!', '#1', LngMsgError, LngSystem) );
+      if cbbTableName.Items.IndexOf(cbbTableName.Text) = -1 then
+        raise Exception.Create( TranslateText('Listede olmayan bir Tablo Adi giremezsiniz!', '#1', LngMsgError, LngSystem) );
 
-      if cbbcolumn_name.Items.IndexOf(cbbcolumn_name.Text) = -1 then
-        raise Exception.Create(TranslateText('Listede olmayan bir Kolon Adý giremezsiniz!', '#1', LngMsgError, LngSystem) );
+      if cbbColumnName.Items.IndexOf(cbbColumnName.Text) = -1 then
+        raise Exception.Create(TranslateText('Listede olmayan bir Kolon Adi giremezsiniz!', '#1', LngMsgError, LngSystem) );
 
       btnAcceptAuto;
 

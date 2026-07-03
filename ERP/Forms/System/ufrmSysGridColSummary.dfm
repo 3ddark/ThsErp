@@ -1,7 +1,7 @@
 inherited frmSysGridColSummary: TfrmSysGridColSummary
   Left = 501
   Top = 443
-  Caption = 'Grid Column Summary'
+  Caption = 'Sutun Ozet Ayarlari'
   ClientHeight = 198
   ClientWidth = 392
   ParentFont = True
@@ -25,14 +25,14 @@ inherited frmSysGridColSummary: TfrmSysGridColSummary
       inherited tsMain: TTabSheet
         ExplicitWidth = 378
         ExplicitHeight = 102
-        object lbltable_name: TLabel
+        object lblTableName: TLabel
           Left = 50
           Top = 7
           Width = 66
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Table Name'
+          Caption = 'Tablo Adi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -41,14 +41,14 @@ inherited frmSysGridColSummary: TfrmSysGridColSummary
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcolumn_name: TLabel
+        object lblColumnName: TLabel
           Left = 39
           Top = 30
           Width = 77
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Column Name'
+          Caption = 'Kolon Adi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -57,14 +57,14 @@ inherited frmSysGridColSummary: TfrmSysGridColSummary
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsummary_type: TLabel
+        object lblSummaryType: TLabel
           Left = 30
           Top = 53
           Width = 86
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Summary Type'
+          Caption = 'Ozet Tipi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -73,7 +73,7 @@ inherited frmSysGridColSummary: TfrmSysGridColSummary
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblformat: TLabel
+        object lblFormat: TLabel
           Left = 75
           Top = 76
           Width = 41
@@ -89,22 +89,22 @@ inherited frmSysGridColSummary: TfrmSysGridColSummary
           ParentBiDiMode = False
           ParentFont = False
         end
-        object cbbtable_name: TComboBox
+        object cbbTableName: TComboBox
           Left = 122
           Top = 4
           Width = 239
           Height = 21
           TabOrder = 0
-          OnChange = cbbtable_nameChange
+          OnChange = cbbTableNameChange
         end
-        object cbbcolumn_name: TComboBox
+        object cbbColumnName: TComboBox
           Left = 122
           Top = 27
           Width = 239
           Height = 21
           TabOrder = 1
         end
-        object cbbsummary_type: TComboBox
+        object cbbSummaryType: TComboBox
           Left = 122
           Top = 50
           Width = 239
@@ -112,7 +112,7 @@ inherited frmSysGridColSummary: TfrmSysGridColSummary
           Style = csDropDownList
           TabOrder = 2
         end
-        object edtformat: TEdit
+        object edtFormat: TEdit
           Left = 122
           Top = 73
           Width = 239

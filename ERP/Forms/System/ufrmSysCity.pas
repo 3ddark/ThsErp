@@ -15,14 +15,14 @@ uses
 type
   TfrmSysCity = class(TfrmInputSimpleDB<TSysCity, TSysCityService>)
     pnlContent: TPanel;
-    lblcity_name: TLabel;
-    lblcar_plate_code: TLabel;
-    lblcountry_id: TLabel;
-    lblregion_id: TLabel;
-    edtcity_name: TEdit;
-    edtcar_plate_code: TEdit;
-    edtcountry_id: TEdit;
-    edtregion_id: TEdit;
+    lblCityName: TLabel;
+    lblCarPlateCode: TLabel;
+    lblCountryId: TLabel;
+    lblRegionId: TLabel;
+    edtCityName: TEdit;
+    edtCarPlateCode: TEdit;
+    edtCountryId: TEdit;
+    edtRegionId: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -38,8 +38,8 @@ implementation
 
 procedure TfrmSysCity.BtnAcceptClick(Sender: TObject);
 begin
-  Table.CityName := edtcity_name.Text;
-  Table.CarPlateCode := StrToIntDef(edtcar_plate_code.Text, 0);
+  Table.CityName := edtCityName.Text;
+  Table.CarPlateCode := StrToIntDef(edtCarPlateCode.Text, 0);
   inherited;
 end;
 
@@ -47,8 +47,8 @@ procedure TfrmSysCity.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtcountry_id.OnHelperProcess := HelperProcess;
-  edtregion_id.OnHelperProcess := HelperProcess;
+  edtCountryId.OnHelperProcess := HelperProcess;
+  edtRegionId.OnHelperProcess := HelperProcess;
 end;
 
 procedure TfrmSysCity.FormShow(Sender: TObject);
@@ -57,7 +57,7 @@ begin
 
   Self.Caption := 'System City';
 
-  edtcity_name.SetFocus;
+  edtCityName.SetFocus;
 end;
 
 procedure TfrmSysCity.HelperProcess(Sender: TObject);
@@ -67,7 +67,7 @@ var
 begin
   if Sender is TEdit then
   begin
-    if (Sender as TEdit).Name = edtcountry_id.Name then
+    if (Sender as TEdit).Name = edtCountryId.Name then
     begin
       LFrmCountry := TfrmSysCountries.Create((Sender as TEdit), TSysCountryService.Create, TSysCountry.Create);
       try
@@ -90,7 +90,7 @@ begin
         LFrmCountry.Free;
       end;
     end
-    else if (Sender as TEdit).Name = edtregion_id.Name then
+    else if (Sender as TEdit).Name = edtRegionId.Name then
     begin
       LFrmRegion := TfrmSysRegions.Create((Sender as TEdit), TSysRegionService.Create, TSysRegion.Create);
       try
@@ -119,22 +119,21 @@ end;
 procedure TfrmSysCity.InitializeInputCase;
 begin
   inherited;
-  edtcity_name.thsInputDataType := itString;
-  edtcar_plate_code.thsInputDataType := itInteger;
-  edtcountry_id.thsInputDataType := itInteger;
-  edtregion_id.thsInputDataType := itInteger;
+  edtCityName.thsInputDataType := itString;
+  edtCarPlateCode.thsInputDataType := itInteger;
+  edtCountryId.thsInputDataType := itInteger;
+  edtRegionId.thsInputDataType := itInteger;
 
-  edtcity_name.MaxLength := 32;
+  edtCityName.MaxLength := 32;
 end;
 
 procedure TfrmSysCity.RefreshData;
 begin
   inherited;
-  edtcity_name.Text := Table.CityName;
-  edtcar_plate_code.Text := IntToStr(Table.CarPlateCode);
-  edtcountry_id.Text := Table.Country.CountryName;
-  edtregion_id.Text := Table.Region.RegionName;
+  edtCityName.Text := Table.CityName;
+  edtCarPlateCode.Text := IntToStr(Table.CarPlateCode);
+  edtCountryId.Text := Table.Country.CountryName;
+  edtRegionId.Text := Table.Region.RegionName;
 end;
 
 end.
-

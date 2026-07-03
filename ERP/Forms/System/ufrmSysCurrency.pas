@@ -12,12 +12,12 @@ uses
 type
   TfrmSysCurrency = class(TfrmInputSimpleDB<TSysCurrency, TSysCurrencyService>)
     pnlContent: TPanel;
-    lblcurrency: TLabel;
-    lblsymbol: TLabel;
-    lbldescription: TLabel;
-    edtcurrency: TEdit;
-    edtsymbol: TEdit;
-    edtdescription: TEdit;
+    lblCurrency: TLabel;
+    lblSymbol: TLabel;
+    lblDescription: TLabel;
+    edtCurrency: TEdit;
+    edtSymbol: TEdit;
+    edtDescription: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -31,9 +31,9 @@ implementation
 
 procedure TfrmSysCurrency.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Currency := edtcurrency.Text;
-  Table.Symbol := edtsymbol.Text;
-  Table.Description :=  edtdescription.Text;
+  Table.Currency := edtCurrency.Text;
+  Table.Symbol := edtSymbol.Text;
+  Table.Description := edtDescription.Text;
   inherited;
 end;
 
@@ -49,16 +49,15 @@ begin
 
   Self.Caption := 'System Currency';
 
-  edtcurrency.SetFocus;
+  edtCurrency.SetFocus;
 end;
 
 procedure TfrmSysCurrency.RefreshData;
 begin
   inherited;
-  edtcurrency.Text := Table.Currency;
-  edtsymbol.Text := Table.Symbol;
-  edtdescription.Text := Table.Description;
+  edtCurrency.Text := Table.Currency;
+  edtSymbol.Text := Table.Symbol;
+  edtDescription.Text := Table.Description;
 end;
 
 end.
-

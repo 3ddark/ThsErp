@@ -20,7 +20,7 @@ uses
   Ths.Helper.Memo, Ths.Helper.ComboBox, udm, ufrmBase, ufrmBaseOutput,
   Ths.Database.Table.SysGridKolonlar, ufrmSysGridKolon, Ths.Constants,
   Ths.Database, Ths.Database.Table, Ths.Database.TableDetailed,
-  Ths.Database.Table.SysGuiIcerikler, ufrmSysGuiIcerik;
+  Ths.Database.Table.SysGuiContent, ufrmSysGuiContent;
 
 type
   TSortType = (stNone, stAsc, stDesc);
@@ -1497,20 +1497,20 @@ end;
 
 procedure TfrmBaseDBGrid.mniColumnTitleByLangClick(Sender: TObject);
 var
-  LSysLisanGuiIcerik: TSysGuiIcerik;
+  LSysLisanGuiContent: TSysGridContents;
   AColumn: TColumn;
 begin
   AColumn := grd.Columns[grd.SelectedField.Index];
   if Assigned(AColumn) then
   begin
-    LSysLisanGuiIcerik := TSysGuiIcerik.Create(GDataBase);
+    LSysLisanGuiContent := TSysGridContents.Create(GDataBase);
 
-    LSysLisanGuiIcerik.Kod.Value := AColumn.FieldName;
-    LSysLisanGuiIcerik.IcerikTipi.Value := LngDGridFieldCaption;
-    LSysLisanGuiIcerik.TabloAdi.Value := Table.TableName;
-    LSysLisanGuiIcerik.Deger.Value := AColumn.Title.Caption;
+    LSysLisanGuiContent.Code.Value := AColumn.FieldName;
+    LSysLisanGuiContent.ContentType.Value := LngDGridFieldCaption;
+    LSysLisanGuiContent.TableName.Value := Table.TableName;
+    LSysLisanGuiContent.Content.Value := AColumn.Title.Caption;
 
-    TfrmSysGuiIcerik.Create(Self, nil, LSysLisanGuiIcerik, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
+    TfrmSysGuiContent.Create(Self, nil, LSysLisanGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
     SetTitleFromLangContent();
   end;
 end;
@@ -2158,19 +2158,19 @@ end;
 procedure TfrmBaseDBGrid.SetTitleFromLangContent;
 var
   n1, n2: Integer;
-  LLangVal: TSysGuiIcerik;
+  LLangVal: TSysGridContents;
 begin
   if Assigned(Table) then
   begin
-    LLangVal := TSysGuiIcerik.Create(Table.Database);
+    LLangVal := TSysGridContents.Create(Table.Database);
     try
       LLangVal.SelectToList(
-          ' AND ' + LLangVal.TabloAdi.QryName + '=' + QuotedStr(Table.TableName) +
-          ' AND ' + LLangVal.IcerikTipi.QryName + '=' + QuotedStr(LngDGridFieldCaption), False, False);
+          ' AND ' + LLangVal.TableName.QryName + '=' + QuotedStr(Table.TableName) +
+          ' AND ' + LLangVal.ContentType.QryName + '=' + QuotedStr(LngDGridFieldCaption), False, False);
       for n1 := 0 to LLangVal.List.Count-1 do
         for n2 := 0 to grd.Columns.Count - 1 do
-          if grd.Columns.Items[n2].FieldName = TSysGuiIcerik(LLangVal.List[n1]).Kod.Value then
-            grd.Columns.Items[n2].Title.Caption := TSysGuiIcerik(LLangVal.List[n1]).Deger.Value;
+          if grd.Columns.Items[n2].FieldName = TSysGridContents(LLangVal.List[n1]).Code.Value then
+            grd.Columns.Items[n2].Title.Caption := TSysGridContents(LLangVal.List[n1]).Content.Value;
 
     finally
       LLangVal.Free;

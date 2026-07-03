@@ -8,7 +8,7 @@ uses
   SysUser.Repository, SysUser;
 
 type
-  TSysCityService = class(TCrudService<TSysUser>)
+  TSysUserService = class(TCrudService<TSysUser>)
   private
     FRepo: IRepository<TSysUser>;
   public
@@ -31,19 +31,19 @@ type
 
 implementation
 
-constructor TSysCityService.Create;
+constructor TSysUserService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
 end;
 
-destructor TSysCityService.Destroy;
+destructor TSysUserService.Destroy;
 begin
   FRepo := nil;
   inherited;
 end;
 
-function TSysCityService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysUser>;
+function TSysUserService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysUser>;
 begin
   if APermissionControl then
   begin
@@ -56,7 +56,7 @@ begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysCityService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysUser;
+function TSysUserService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysUser;
 begin
   if APermissionControl then
   begin
@@ -69,7 +69,7 @@ begin
   Result := FRepo.FindById(AId, ALock);
 end;
 
-procedure TSysCityService.BusinessInsert(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
+procedure TSysUserService.BusinessInsert(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
     if APermissionControl then
@@ -95,7 +95,7 @@ begin
   end;
 end;
 
-procedure TSysCityService.BusinessUpdate(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
+procedure TSysUserService.BusinessUpdate(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
     if APermissionControl then
@@ -121,7 +121,7 @@ begin
   end;
 end;
 
-procedure TSysCityService.BusinessDelete(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
+procedure TSysUserService.BusinessDelete(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
     if APermissionControl then
@@ -147,12 +147,12 @@ begin
   end;
 end;
 
-function TSysCityService.CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery;
+function TSysUserService.CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery;
 begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TSysCityService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysUser>;
+function TSysUserService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysUser>;
 begin
   if AIncludeNestedEntities then
     Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
@@ -160,7 +160,7 @@ begin
     Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysCityService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysUser;
+function TSysUserService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysUser;
 begin
   if AIncludeNestedEntities then
     Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
@@ -168,17 +168,17 @@ begin
     Result := FRepo.FindById(AId, ALock);
 end;
 
-procedure TSysCityService.Add(AEntity: TSysUser);
+procedure TSysUserService.Add(AEntity: TSysUser);
 begin
   FRepo.Add(AEntity);
 end;
 
-procedure TSysCityService.Update(AEntity: TSysUser);
+procedure TSysUserService.Update(AEntity: TSysUser);
 begin
   FRepo.Update(AEntity);
 end;
 
-procedure TSysCityService.Delete(AId: Int64);
+procedure TSysUserService.Delete(AId: Int64);
 begin
   FRepo.Delete(AId);
 end;

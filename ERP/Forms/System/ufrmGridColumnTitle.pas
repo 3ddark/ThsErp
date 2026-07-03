@@ -8,19 +8,19 @@ uses
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
   ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  GridColumnTitle.Service, GridColumnTitle;
+  SysGridColumnTitle.Service, SysGridColumnTitle;
 
 type
-  TfrmGridColumnTitle = class(TfrmInputSimpleDB<TGridColumnTitle, TGridColumnTitleService>)
+  TfrmGridColumnTitle = class(TfrmInputSimpleDB<TSysGridColumnTitle, TSysGridColumnTitleService>)
     pnlContent: TPanel;
-    lbltable_name: TLabel;
-    lblcolumn_name: TLabel;
-    llblng_code: TLabel;
-    lblcolumn_label: TLabel;
-    edttable_name: TEdit;
-    edtcolumn_name: TEdit;
-    edtlng_code: TEdit;
-    edtcolumn_label: TEdit;
+    lblTableName: TLabel;
+    lblColumnName: TLabel;
+    lblLngCode: TLabel;
+    lblColumnLabel: TLabel;
+    edtTableName: TEdit;
+    edtColumnName: TEdit;
+    edtLngCode: TEdit;
+    edtColumnLabel: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -35,10 +35,10 @@ implementation
 
 procedure TfrmGridColumnTitle.BtnAcceptClick(Sender: TObject);
 begin
-  Table.TableName := edttable_name.Text;
-  Table.ColumnName := edtcolumn_name.Text;
-  Table.LngCode := edtlng_code.Text;
-  Table.ColumnLabel := edtcolumn_label.Text;
+  Table.TableName := edtTableName.Text;
+  Table.ColumnName := edtColumnName.Text;
+  Table.LngCode := edtLngCode.Text;
+  Table.ColumnLabel := edtColumnLabel.Text;
   inherited;
 end;
 
@@ -52,31 +52,31 @@ procedure TfrmGridColumnTitle.FormShow(Sender: TObject);
 begin
   inherited;
 
-  Self.Caption := 'Grid Column Title';
+  Self.Caption := 'System Grid Column Title';
 
-  edttable_name.SetFocus;
+  edtTableName.SetFocus;
 end;
 
 procedure TfrmGridColumnTitle.InitializeInputCase;
 begin
   inherited;
-  edttable_name.thsInputDataType := itString;
-  edttable_name.MaxLength := 64;
-  edtcolumn_name.thsInputDataType := itString;
-  edtcolumn_name.MaxLength := 64;
-  edtlng_code.thsInputDataType := itString;
-  edtlng_code.MaxLength := 2;
-  edtcolumn_label.thsInputDataType := itString;
-  edtcolumn_label.MaxLength := 64;
+  edtTableName.thsInputDataType := itString;
+  edtTableName.MaxLength := 64;
+  edtColumnName.thsInputDataType := itString;
+  edtColumnName.MaxLength := 64;
+  edtLngCode.thsInputDataType := itString;
+  edtLngCode.MaxLength := 2;
+  edtColumnLabel.thsInputDataType := itString;
+  edtColumnLabel.MaxLength := 64;
 end;
 
 procedure TfrmGridColumnTitle.RefreshData;
 begin
   inherited;
-  edttable_name.Text := Table.TableName;
-  edtcolumn_name.Text := Table.ColumnName;
-  edtlng_code.Text := Table.LngCode;
-  edtcolumn_label.Text := Table.ColumnLabel;
+  edtTableName.Text := Table.TableName;
+  edtColumnName.Text := Table.ColumnName;
+  edtLngCode.Text := Table.LngCode;
+  edtColumnLabel.Text := Table.ColumnLabel;
 end;
 
 end.

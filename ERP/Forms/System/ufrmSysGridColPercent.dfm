@@ -2,7 +2,7 @@ inherited frmSysGridColPercent: TfrmSysGridColPercent
   Left = 501
   Top = 443
   ActiveControl = btnClose
-  Caption = 'City'
+  Caption = 'Sutun Yuzde Ayarlari'
   ClientHeight = 299
   ClientWidth = 388
   ParentFont = True
@@ -32,14 +32,14 @@ inherited frmSysGridColPercent: TfrmSysGridColPercent
           Width = 240
           Height = 26
         end
-        object lblcolor_bar: TLabel
+        object lblColorBar: TLabel
           Left = 65
           Top = 76
           Width = 51
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Color Bar'
+          Caption = 'Cubuk Rengi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -48,14 +48,14 @@ inherited frmSysGridColPercent: TfrmSysGridColPercent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcolor_bar_back: TLabel
+        object lblColorBarBack: TLabel
           Left = 35
           Top = 99
           Width = 81
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Color Bar Back'
+          Caption = 'Cubuk Arka Plan'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -64,14 +64,14 @@ inherited frmSysGridColPercent: TfrmSysGridColPercent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcolor_bar_text: TLabel
+        object lblColorBarText: TLabel
           Left = 58
           Top = 122
           Width = 58
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Color Text'
+          Caption = 'Cubuk Metin'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -80,14 +80,14 @@ inherited frmSysGridColPercent: TfrmSysGridColPercent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcolor_bar_text_active: TLabel
+        object lblColorBarTextActive: TLabel
           Left = 19
           Top = 145
           Width = 97
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Color Text Active'
+          Caption = 'Aktif Metin Rengi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -96,14 +96,14 @@ inherited frmSysGridColPercent: TfrmSysGridColPercent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcolumn_name: TLabel
+        object lblColumnName: TLabel
           Left = 39
           Top = 30
           Width = 77
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Column Name'
+          Caption = 'Kolon Adi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -112,14 +112,14 @@ inherited frmSysGridColPercent: TfrmSysGridColPercent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmax_value: TLabel
+        object lblMaxValue: TLabel
           Left = 58
           Top = 53
           Width = 58
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Max Value'
+          Caption = 'Maks Deger'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -128,14 +128,14 @@ inherited frmSysGridColPercent: TfrmSysGridColPercent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lbltable_name: TLabel
+        object lblTableName: TLabel
           Left = 50
           Top = 7
           Width = 66
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Table Name'
+          Caption = 'Tablo Adi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -144,59 +144,59 @@ inherited frmSysGridColPercent: TfrmSysGridColPercent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object cbbtable_name: TComboBox
+        object cbbTableName: TComboBox
           Left = 122
           Top = 4
           Width = 240
           Height = 21
           TabOrder = 0
-          OnChange = cbbtable_nameChange
+          OnChange = cbbTableNameChange
         end
-        object cbbcolumn_name: TComboBox
+        object cbbColumnName: TComboBox
           Left = 122
           Top = 27
           Width = 240
           Height = 21
           TabOrder = 1
         end
-        object edtmax_value: TEdit
+        object edtMaxValue: TEdit
           Left = 122
           Top = 50
           Width = 240
           Height = 21
           TabOrder = 2
         end
-        object edtcolor_bar: TEdit
+        object edtColorBar: TEdit
           Left = 122
           Top = 73
           Width = 240
           Height = 21
           TabOrder = 3
-          OnDblClick = edtcolor_barDblClick
+          OnDblClick = edtColorBarDblClick
         end
-        object edtcolor_bar_back: TEdit
+        object edtColorBarBack: TEdit
           Left = 122
           Top = 96
           Width = 240
           Height = 21
           TabOrder = 4
-          OnDblClick = edtcolor_bar_backDblClick
+          OnDblClick = edtColorBarBackDblClick
         end
-        object edtcolor_bar_text: TEdit
+        object edtColorBarText: TEdit
           Left = 122
           Top = 119
           Width = 240
           Height = 21
           TabOrder = 5
-          OnDblClick = edtcolor_bar_textDblClick
+          OnDblClick = edtColorBarTextDblClick
         end
-        object edtcolor_bar_text_active: TEdit
+        object edtColorBarTextActive: TEdit
           Left = 122
           Top = 142
           Width = 240
           Height = 21
           TabOrder = 6
-          OnDblClick = edtcolor_bar_text_activeDblClick
+          OnDblClick = edtColorBarTextActiveDblClick
         end
       end
     end

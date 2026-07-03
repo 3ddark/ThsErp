@@ -43,7 +43,6 @@ type
     actsys_grid_filter_sort: TAction;
     actsys_lang_gui_content: TAction;
     actsys_application_setting: TAction;
-    actsys_application_setting_other: TAction;
     actsys_day: TAction;
     actsys_month: TAction;
     actsys_database_status: TAction;

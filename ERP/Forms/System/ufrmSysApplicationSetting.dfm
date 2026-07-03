@@ -2,8 +2,8 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
   Left = 501
   Top = 443
   Caption = 'Sistem Uygulama Ayarlar'#305
-  ClientHeight = 384
-  ClientWidth = 694
+  ClientHeight = 480
+  ClientWidth = 720
   Color = clBtnFace
   ParentFont = True
   Position = poDesktopCenter
@@ -11,26 +11,31 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 694
-    Height = 334
+    Width = 720
+    Height = 430
     Color = clWindow
     TabOrder = 0
     object pgcMain: TPageControl
       Left = 0
       Top = 0
-      Width = 694
-      Height = 334
-      ActivePage = tsdiger
+      Width = 720
+      Height = 430
+      ActivePage = tsGenel
       TabOrder = 0
-      object tsMain: TTabSheet
-        object lblcompany_title: TLabel
-          Left = 99
+      object tsGenel: TTabSheet
+        Caption = 'Genel Ayarlar'
+        ImageIndex = 0
+        DesignSize = (
+          712
+          398)
+        object lblCompanyTitle: TLabel
+          Left = 58
           Top = 6
-          Width = 36
+          Width = 78
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = #220'nvan'
+          Caption = #220'rtn Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -39,10 +44,10 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblphone: TLabel
-          Left = 93
-          Top = 29
-          Width = 42
+        object lblPhone: TLabel
+          Left = 82
+          Top = 30
+          Width = 54
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -55,10 +60,10 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblfax: TLabel
-          Left = 109
-          Top = 52
-          Width = 26
+        object lblFax: TLabel
+          Left = 98
+          Top = 54
+          Width = 38
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -71,82 +76,51 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtcompany_title: TEdit
+        object edtCompanyTitle: TEdit
           Left = 137
           Top = 2
-          Width = 543
+          Width = 450
           Height = 23
           TabOrder = 0
         end
-        object edtphone: TEdit
+        object edtPhone: TEdit
           Left = 137
-          Top = 25
+          Top = 26
           Width = 136
           Height = 23
           TabOrder = 1
         end
-        object edtfax: TEdit
+        object edtFax: TEdit
           Left = 137
-          Top = 48
+          Top = 50
           Width = 136
           Height = 23
           TabOrder = 3
         end
-        object pnllogo: TPanel
-          Left = 360
-          Top = 25
-          Width = 322
-          Height = 242
-          Caption = 'Logo 320x240'
+        object pnlLogo: TPanel
+          Left = 8
+          Top = 78
+          Width = 696
+          Height = 40
+          Anchors = [akLeft, akTop, akRight]
+          Caption = 'Logo'
           TabOrder = 2
-          object imglogo: TImage
+          object imgLogo: TImage
             Left = 1
             Top = 1
             Width = 320
             Height = 240
             Align = alClient
-            OnDblClick = imglogoDblClick
+            OnDblClick = imgLogoDblClick
             ExplicitLeft = 0
             ExplicitTop = 0
           end
         end
       end
-      object tsadres: TTabSheet
-        Caption = 'Adres'
+      object tsAdres: TTabSheet
+        Caption = 'Adres Bilgileri'
         ImageIndex = 2
-        object lbltax_no: TLabel
-          Left = 386
-          Top = 13
-          Width = 85
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Vergi Numaras'#305
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lbltax_authority: TLabel
-          Left = 400
-          Top = 36
-          Width = 71
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Vergi Dairesi'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblmukellef_tipi: TLabel
+        object lblMukellefTipi: TLabel
           Left = 62
           Top = 13
           Width = 71
@@ -162,10 +136,10 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmukellef_adi: TLabel
-          Left = 64
+        object lblTaxpayerName: TLabel
+          Left = 40
           Top = 36
-          Width = 69
+          Width = 93
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -178,10 +152,10 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmukellef_soyadi: TLabel
-          Left = 44
+        object lblTaxpayerSurname: TLabel
+          Left = 20
           Top = 57
-          Width = 89
+          Width = 113
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -194,14 +168,14 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblemail: TLabel
-          Left = 89
-          Top = 255
-          Width = 44
+        object lblTaxNo: TLabel
+          Left = 386
+          Top = 13
+          Width = 85
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'e-Posta'
+          Caption = 'Vergi Numaras'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -210,14 +184,14 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblweb: TLabel
-          Left = 412
-          Top = 255
-          Width = 59
+        object lblTaxAuthority: TLabel
+          Left = 400
+          Top = 36
+          Width = 71
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Web Sitesi'
+          Caption = 'Vergi Dairesi'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -226,14 +200,14 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblulke_adi: TLabel
-          Left = 108
-          Top = 145
-          Width = 25
+        object lblUlkeAdi: TLabel
+          Left = 60
+          Top = 80
+          Width = 71
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = #220'lke'
+          Caption = #220'lke Ad'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -242,10 +216,10 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsehir_id: TLabel
-          Left = 442
-          Top = 145
-          Width = 29
+        object lblSehirId: TLabel
+          Left = 408
+          Top = 80
+          Width = 37
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -258,14 +232,14 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblilce: TLabel
-          Left = 112
-          Top = 167
-          Width = 21
+        object lblIlce: TLabel
+          Left = 60
+          Top = 103
+          Width = 71
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = #304'l'#231'e'
+          Caption = #304'l'#231'e
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -274,9 +248,25 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsemt: TLabel
-          Left = 441
-          Top = 167
+        object lblMahalle: TLabel
+          Left = 60
+          Top = 126
+          Width = 71
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Mahalle'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object lblSemt: TLabel
+          Left = 408
+          Top = 103
           Width = 30
           Height = 13
           Alignment = taRightJustify
@@ -290,9 +280,9 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcadde: TLabel
-          Left = 436
-          Top = 189
+        object lblCadde: TLabel
+          Left = 408
+          Top = 126
           Width = 35
           Height = 13
           Alignment = taRightJustify
@@ -306,26 +296,10 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmahalle: TLabel
-          Left = 89
-          Top = 189
-          Width = 44
-          Height = 13
-          Alignment = taRightJustify
-          BiDiMode = bdLeftToRight
-          Caption = 'Mahalle'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentBiDiMode = False
-          ParentFont = False
-        end
-        object lblsokak: TLabel
-          Left = 98
-          Top = 211
-          Width = 35
+        object lblSokak: TLabel
+          Left = 60
+          Top = 149
+          Width = 71
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -338,10 +312,10 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblbina_adi: TLabel
-          Left = 426
-          Top = 211
-          Width = 45
+        object lblBinaAdi: TLabel
+          Left = 408
+          Top = 149
+          Width = 71
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -354,10 +328,10 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblkapi_no: TLabel
-          Left = 92
-          Top = 233
-          Width = 41
+        object lblKapiNo: TLabel
+          Left = 60
+          Top = 172
+          Width = 71
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -370,10 +344,10 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblposta_kodu: TLabel
+        object lblPostaKodu: TLabel
           Left = 408
-          Top = 233
-          Width = 63
+          Top = 172
+          Width = 71
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
@@ -386,133 +360,169 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edttax_no: TEdit
-          Left = 473
-          Top = 9
-          Width = 120
-          Height = 23
-          TabOrder = 1
+        object lblEmail: TLabel
+          Left = 60
+          Top = 240
+          Width = 71
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'e-Posta'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
         end
-        object cbbmukellef_tipi: TComboBox
+        object lblWeb: TLabel
+          Left = 408
+          Top = 240
+          Width = 71
+          Height = 13
+          Alignment = taRightJustify
+          BiDiMode = bdLeftToRight
+          Caption = 'Web Sitesi'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBiDiMode = False
+          ParentFont = False
+        end
+        object cbbMukellefTipi: TComboBox
           Left = 137
           Top = 9
-          Width = 178
+          Width = 200
           Height = 23
           Style = csDropDownList
           TabOrder = 0
-          OnChange = cbbmukellef_tipiChange
+          OnChange = cbbMukellefTipiChange
         end
-        object edttax_authority: TEdit
-          Left = 473
+        object edtTaxpayerName: TEdit
+          Left = 137
           Top = 32
+          Width = 200
+          Height = 23
+          TabOrder = 1
+        end
+        object edtTaxpayerSurname: TEdit
+          Left = 137
+          Top = 53
+          Width = 200
+          Height = 23
+          TabOrder = 2
+        end
+        object edtTaxNo: TEdit
+          Left = 479
+          Top = 9
           Width = 200
           Height = 23
           TabOrder = 3
         end
-        object edtmukellef_adi: TEdit
-          Left = 135
+        object edtTaxAuthority: TEdit
+          Left = 479
           Top = 32
-          Width = 180
-          Height = 23
-          TabOrder = 2
-        end
-        object edtmukellef_soyadi: TEdit
-          Left = 135
-          Top = 53
-          Width = 180
+          Width = 200
           Height = 23
           TabOrder = 4
         end
-        object edtulke_adi: TEdit
-          Left = 135
-          Top = 141
+        object edtUlkeAdi: TEdit
+          Left = 137
+          Top = 76
           Width = 200
           Height = 23
+          ReadOnly = True
           TabOrder = 5
         end
-        object edtsehir_id: TEdit
-          Left = 473
-          Top = 141
+        object edtSehirId: TEdit
+          Left = 479
+          Top = 76
           Width = 200
           Height = 23
           TabOrder = 6
         end
-        object edtilce: TEdit
-          Left = 135
-          Top = 163
+        object edtIlce: TEdit
+          Left = 137
+          Top = 99
           Width = 200
           Height = 23
           TabOrder = 7
         end
-        object edtsemt: TEdit
-          Left = 473
-          Top = 163
+        object edtMahalle: TEdit
+          Left = 137
+          Top = 122
           Width = 200
           Height = 23
           TabOrder = 8
         end
-        object edtcadde: TEdit
-          Left = 473
-          Top = 185
-          Width = 200
-          Height = 23
-          TabOrder = 10
-        end
-        object edtmahalle: TEdit
-          Left = 135
-          Top = 185
+        object edtSemt: TEdit
+          Left = 479
+          Top = 99
           Width = 200
           Height = 23
           TabOrder = 9
         end
-        object edtsokak: TEdit
-          Left = 135
-          Top = 207
+        object edtCadde: TEdit
+          Left = 479
+          Top = 122
+          Width = 200
+          Height = 23
+          TabOrder = 10
+        end
+        object edtSokak: TEdit
+          Left = 137
+          Top = 145
           Width = 200
           Height = 23
           TabOrder = 11
         end
-        object edtbina_adi: TEdit
-          Left = 473
-          Top = 207
+        object edtBinaAdi: TEdit
+          Left = 479
+          Top = 145
           Width = 200
           Height = 23
           TabOrder = 12
         end
-        object edtkapi_no: TEdit
-          Left = 135
-          Top = 229
+        object edtKapiNo: TEdit
+          Left = 137
+          Top = 168
           Width = 200
           Height = 23
           TabOrder = 13
         end
-        object edtposta_kodu: TEdit
-          Left = 473
-          Top = 229
+        object edtPostaKodu: TEdit
+          Left = 479
+          Top = 168
           Width = 200
           Height = 23
           TabOrder = 14
         end
-        object edtemail: TEdit
-          Left = 135
-          Top = 251
+        object edtEmail: TEdit
+          Left = 137
+          Top = 236
           Width = 200
           Height = 23
           TabOrder = 15
         end
-        object edtweb: TEdit
-          Left = 473
-          Top = 251
+        object edtWeb: TEdit
+          Left = 479
+          Top = 236
           Width = 200
           Height = 23
           TabOrder = 16
         end
       end
-      object tsservis_ayarlari: TTabSheet
+      object tsServisAyarlari: TTabSheet
         Caption = 'Servis Ayarlar'#305
         ImageIndex = 1
-        object lblmail_host: TLabel
-          Left = 387
+        DesignSize = (
+          712
+          398)
+        object lblMailHost: TLabel
+          Left = 426
           Top = 7
           Width = 88
           Height = 13
@@ -527,8 +537,8 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmail_user: TLabel
-          Left = 338
+        object lblMailUser: TLabel
+          Left = 377
           Top = 30
           Width = 137
           Height = 13
@@ -543,8 +553,8 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmail_password: TLabel
-          Left = 321
+        object lblMailPassword: TLabel
+          Left = 360
           Top = 53
           Width = 154
           Height = 13
@@ -559,8 +569,8 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblmail_smtp_port: TLabel
-          Left = 325
+        object lblMailSmtpPort: TLabel
+          Left = 364
           Top = 76
           Width = 150
           Height = 13
@@ -575,8 +585,8 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsms_host: TLabel
-          Left = 360
+        object lblSmsHost: TLabel
+          Left = 399
           Top = 162
           Width = 115
           Height = 13
@@ -591,8 +601,8 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsms_user: TLabel
-          Left = 381
+        object lblSmsUser: TLabel
+          Left = 420
           Top = 185
           Width = 94
           Height = 13
@@ -607,8 +617,8 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsms_password: TLabel
-          Left = 364
+        object lblSmsPassword: TLabel
+          Left = 403
           Top = 208
           Width = 111
           Height = 13
@@ -623,8 +633,8 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblsms_title: TLabel
-          Left = 415
+        object lblSmsTitle: TLabel
+          Left = 454
           Top = 231
           Width = 60
           Height = 13
@@ -639,21 +649,21 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtmail_host: TEdit
+        object edtMailHost: TEdit
           Left = 477
           Top = 3
           Width = 200
           Height = 23
           TabOrder = 0
         end
-        object edtmail_user: TEdit
+        object edtMailUser: TEdit
           Left = 477
           Top = 26
           Width = 200
           Height = 23
           TabOrder = 1
         end
-        object edtmail_password: TEdit
+        object edtMailPassword: TEdit
           Left = 477
           Top = 49
           Width = 200
@@ -661,28 +671,28 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           PasswordChar = '#'
           TabOrder = 2
         end
-        object edtmail_smtp_port: TEdit
+        object edtMailSmtpPort: TEdit
           Left = 477
           Top = 72
           Width = 200
           Height = 23
           TabOrder = 3
         end
-        object edtsms_host: TEdit
+        object edtSmsHost: TEdit
           Left = 477
           Top = 158
           Width = 200
           Height = 23
           TabOrder = 4
         end
-        object edtsms_user: TEdit
+        object edtSmsUser: TEdit
           Left = 477
           Top = 181
           Width = 200
           Height = 23
           TabOrder = 5
         end
-        object edtsms_password: TEdit
+        object edtSmsPassword: TEdit
           Left = 477
           Top = 204
           Width = 200
@@ -690,7 +700,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           PasswordChar = '#'
           TabOrder = 6
         end
-        object edtsms_title: TEdit
+        object edtSmsTitle: TEdit
           Left = 477
           Top = 227
           Width = 200
@@ -698,10 +708,13 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           TabOrder = 7
         end
       end
-      object tsdiger: TTabSheet
+      object tsDigerAyarlar: TTabSheet
         Caption = 'Di'#287'er Ayarlar'
         ImageIndex = 3
-        object lblpath_stock_card_image: TLabel
+        DesignSize = (
+          712
+          398)
+        object lblPathStockCardImage: TLabel
           Left = 33
           Top = 5
           Width = 121
@@ -715,7 +728,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblpath_personel_karti_resim: TLabel
+        object lblPathPersonnelCardImage: TLabel
           Left = 10
           Top = 29
           Width = 144
@@ -729,7 +742,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object lblpath_update: TLabel
+        object lblPathUpdate: TLabel
           Left = 23
           Top = 53
           Width = 131
@@ -743,59 +756,68 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object edtpath_stock_card_image: TEdit
+        object edtPathStockCardImage: TEdit
           Left = 160
           Top = 2
           Width = 462
           Height = 23
+          Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
         end
-        object btnpath_stock_card_image: TButton
+        object btnPathStockCardImage: TButton
           Left = 624
           Top = 2
           Width = 21
           Height = 21
           Caption = '...'
+          Anchors = [akTop, akRight]
           TabOrder = 1
-          OnClick = btnpath_stock_card_imageClick
+          OnClick = btnPathStockCardImageClick
         end
-        object edtpath_personel_karti_resim: TEdit
+        object edtPathPersonnelCardImage: TEdit
           Left = 160
           Top = 26
           Width = 462
           Height = 23
+          Anchors = [akLeft, akTop, akRight]
           TabOrder = 2
         end
-        object btnpath_personel_karti_resim: TButton
+        object btnPathPersonnelCardImage: TButton
           Left = 624
           Top = 26
           Width = 21
           Height = 21
           Caption = '...'
+          Anchors = [akTop, akRight]
           TabOrder = 3
-          OnClick = btnpath_personel_karti_resimClick
+          OnClick = btnPathPersonnelCardImageClick
         end
-        object edtpath_update: TEdit
+        object edtPathUpdate: TEdit
           Left = 160
           Top = 50
           Width = 462
           Height = 23
+          Anchors = [akLeft, akTop, akRight]
           TabOrder = 4
         end
-        object btnpath_update: TButton
+        object btnPathUpdate: TButton
           Left = 624
           Top = 50
           Width = 21
           Height = 21
           Caption = '...'
+          Anchors = [akTop, akRight]
           TabOrder = 5
-          OnClick = btnpath_updateClick
+          OnClick = btnPathUpdateClick
         end
       end
-      object tsgorsel: TTabSheet
-        Caption = 'G'#246'rsel'
+      object tsGorsel: TTabSheet
+        Caption = 'G'#246'rsel Ayarlar'
         ImageIndex = 2
-        object lblgrid_color_1: TLabel
+        DesignSize = (
+          712
+          398)
+        object lblGridColor1: TLabel
           Left = 70
           Top = 29
           Width = 65
@@ -811,7 +833,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblgrid_color_2: TLabel
+        object lblGridColor2: TLabel
           Left = 70
           Top = 52
           Width = 65
@@ -827,7 +849,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblgrid_color_active: TLabel
+        object lblGridColorActive: TLabel
           Left = 50
           Top = 75
           Width = 85
@@ -843,7 +865,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblcrypt_key: TLabel
+        object lblCryptKey: TLabel
           Left = 29
           Top = 98
           Width = 106
@@ -859,7 +881,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblperiod: TLabel
+        object lblPeriod: TLabel
           Left = 95
           Top = 122
           Width = 40
@@ -875,14 +897,14 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblapp_version: TLabel
+        object lblAppVersion: TLabel
           Left = 33
           Top = 168
           Width = 102
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Uygulama Version'
+          Caption = 'Uygulama Versiyon'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -891,52 +913,58 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtgrid_color_1: TEdit
+        object edtGridColor1: TEdit
           Left = 137
           Top = 25
           Width = 160
           Height = 23
+          Anchors = [akLeft, akTop]
           TabOrder = 0
-          OnDblClick = edtgrid_color_1DblClick
-          OnExit = edtgrid_color_1Exit
+          OnDblClick = edtGridColor1DblClick
+          OnExit = edtGridColor1Exit
         end
-        object edtgrid_color_2: TEdit
+        object edtGridColor2: TEdit
           Left = 137
           Top = 48
           Width = 160
           Height = 23
+          Anchors = [akLeft, akTop]
           TabOrder = 1
-          OnDblClick = edtgrid_color_2DblClick
-          OnExit = edtgrid_color_2Exit
+          OnDblClick = edtGridColor2DblClick
+          OnExit = edtGridColor2Exit
         end
-        object edtgrid_color_active: TEdit
+        object edtGridColorActive: TEdit
           Left = 137
           Top = 71
           Width = 160
           Height = 23
+          Anchors = [akLeft, akTop]
           TabOrder = 2
-          OnDblClick = edtgrid_color_activeDblClick
-          OnExit = edtgrid_color_activeExit
+          OnDblClick = edtGridColorActiveDblClick
+          OnExit = edtGridColorActiveExit
         end
-        object edtcrypt_key: TEdit
+        object edtCryptKey: TEdit
           Left = 137
           Top = 94
           Width = 160
           Height = 23
+          Anchors = [akLeft, akTop]
           TabOrder = 3
         end
-        object edtdonem: TEdit
+        object edtPeriod: TEdit
           Left = 137
           Top = 118
           Width = 160
           Height = 23
+          Anchors = [akLeft, akTop]
           TabOrder = 4
         end
-        object edtapp_version: TEdit
+        object edtAppVersion: TEdit
           Left = 137
           Top = 164
           Width = 160
           Height = 23
+          Anchors = [akLeft, akTop]
           TabOrder = 5
         end
       end

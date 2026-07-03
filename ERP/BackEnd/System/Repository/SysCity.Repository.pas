@@ -23,11 +23,9 @@ end;
 function TSysCityRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var LTableName: string;
 begin
-  LTableName := GetTableName(TSysCity);
-
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM vw_' + LTableName + ' WHERE 1=1 ';
+  Result.SQL.Text := 'SELECT * FROM vw_sys_cities WHERE 1=1 ';
 end;
 
 end.

@@ -1,0 +1,97 @@
+object frmAccAccountPlan: TfrmAccAccountPlan
+  Left = 0
+  Top = 0
+  Caption = 'frmAccAccountPlan'
+  ClientHeight = 167
+  ClientWidth = 500
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  OnCreate = FormCreate
+  TextHeight = 15
+  object pnlContent: TPanel
+    Left = 0
+    Top = 0
+    Width = 500
+    Height = 167
+    Align = alClient
+    TabOrder = 0
+    ExplicitWidth = 498
+    ExplicitHeight = 165
+    object lblcode: TLabel
+      Left = 70
+      Top = 11
+      Width = 66
+      Height = 13
+      Alignment = taRightJustify
+      BiDiMode = bdLeftToRight
+      Caption = 'Code'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentBiDiMode = False
+      ParentFont = False
+    end
+    object lblname: TLabel
+      Left = 72
+      Top = 38
+      Width = 64
+      Height = 13
+      Alignment = taRightJustify
+      BiDiMode = bdLeftToRight
+      Caption = 'Name'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentBiDiMode = False
+      ParentFont = False
+    end
+    object lbllevel: TLabel
+      Left = 57
+      Top = 65
+      Width = 79
+      Height = 13
+      Alignment = taRightJustify
+      BiDiMode = bdLeftToRight
+      Caption = 'Level'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentBiDiMode = False
+      ParentFont = False
+    end
+    object edtcode: TEdit
+      Left = 132
+      Top = 7
+      Width = 333
+      Height = 23
+      TabOrder = 0
+    end
+    object edtname: TEdit
+      Left = 132
+      Top = 34
+      Width = 333
+      Height = 23
+      TabOrder = 1
+    end
+    object edtlevel: TSpinEdit
+      Left = 132
+      Top = 61
+      Width = 60
+      Height = 23
+      MaxValue = 9999
+      MinValue = 0
+      TabOrder = 2
+      Value = 0
+    end
+  end
+end

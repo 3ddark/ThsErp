@@ -1,7 +1,7 @@
 object frmSysCountry: TfrmSysCountry
   Left = 0
   Top = 0
-  Caption = 'frmSysCountry'
+  Caption = 'Ulke Kayit'
   ClientHeight = 182
   ClientWidth = 500
   Color = clBtnFace
@@ -18,16 +18,15 @@ object frmSysCountry: TfrmSysCountry
     Width = 500
     Height = 182
     Align = alClient
-    Caption = 'pnlContent'
     TabOrder = 0
-    object lblcountry_code: TLabel
+    object lblCountryCode: TLabel
       Left = 51
       Top = 6
       Width = 77
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Country Code'
+      Caption = 'Ulke Kodu'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -36,14 +35,14 @@ object frmSysCountry: TfrmSysCountry
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblcountry_name: TLabel
+    object lblCountryName: TLabel
       Left = 48
       Top = 29
       Width = 80
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Country Name'
+      Caption = 'Ulke Adi'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -52,14 +51,14 @@ object frmSysCountry: TfrmSysCountry
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lbliso_year: TLabel
+    object lblISOYear: TLabel
       Left = 76
       Top = 52
       Width = 52
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'ISO Year'
+      Caption = 'ISO Yil'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -68,7 +67,7 @@ object frmSysCountry: TfrmSysCountry
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lbliso_cctld: TLabel
+    object lblISOCCTLD: TLabel
       Left = 62
       Top = 75
       Width = 66
@@ -84,14 +83,14 @@ object frmSysCountry: TfrmSysCountry
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblis_eu_member: TLabel
+    object lblIsEuMember: TLabel
       Left = 62
       Top = 95
       Width = 66
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'EU Member'
+      Caption = 'AB Üyesi'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -100,35 +99,35 @@ object frmSysCountry: TfrmSysCountry
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtcountry_code: TEdit
+    object edtCountryCode: TEdit
       Left = 132
       Top = 2
       Width = 333
       Height = 23
       TabOrder = 0
     end
-    object edtcountry_name: TEdit
+    object edtCountryName: TEdit
       Left = 132
       Top = 25
       Width = 333
       Height = 23
       TabOrder = 1
     end
-    object edtiso_year: TEdit
+    object edtISOYear: TEdit
       Left = 132
       Top = 48
       Width = 333
       Height = 23
       TabOrder = 2
     end
-    object edtiso_cctld: TEdit
+    object edtISOCCTLD: TEdit
       Left = 132
       Top = 71
       Width = 333
       Height = 23
       TabOrder = 3
     end
-    object chkis_eu_member: TCheckBox
+    object chkIsEuMember: TCheckBox
       Left = 132
       Top = 94
       Width = 333

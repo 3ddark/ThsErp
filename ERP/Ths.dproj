@@ -9,7 +9,7 @@
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
         <ProjectVersion>20.4</ProjectVersion>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -246,11 +246,30 @@
         <DCCReference Include="BackEnd\System\Domain\SysAccessRight.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysAccessRight.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysAccessRight.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysAccessRights.pas">
+            <Form>frmSysAccessRights</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysAccessRight.pas">
+            <Form>frmSysAccessRight</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysUser.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysUser.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysUser.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysUsers.pas">
+            <Form>frmSysUsers</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysUser.pas">
+            <Form>frmSysUser</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysPermission.pas"/>
-        <DCCReference Include="BackEnd\System\Domain\SysResourceGroup.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysPermission.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysPermission.Service.pas"/>
         <DCCReference Include="BackEnd\System\Domain\SysPermissionGroup.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysPermissionGroup.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysPermissionGroup.Service.pas"/>
         <DCCReference Include="BackEnd\Employee\Domain\EmpPerson.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpPerson.Repository.pas"/>
+        <DCCReference Include="BackEnd\Employee\Service\EmpPerson.Service.pas"/>
         <DCCReference Include="BackEnd\Employee\Domain\EmpPersonType.pas"/>
         <DCCReference Include="BackEnd\Employee\Domain\EmpUnit.pas"/>
         <DCCReference Include="BackEnd\Employee\Domain\EmpSection.pas"/>
@@ -261,21 +280,12 @@
         <DCCReference Include="BackEnd\System\Domain\SysCountry.pas"/>
         <DCCReference Include="BackEnd\System\Domain\SysRegion.pas"/>
         <DCCReference Include="BackEnd\System\Domain\SysViewColumn.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysUser.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysPermission.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysPermissionGroup.Repository.pas"/>
-        <DCCReference Include="BackEnd\Employee\Repository\EmpPerson.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpPersonType.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpUnit.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpSection.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpTask.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysCountry.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysRegion.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysUser.Service.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysPermission.Service.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysResourceGroup.Service.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysPermissionGroup.Service.pas"/>
-        <DCCReference Include="BackEnd\Employee\Service\EmpPerson.Service.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpPersonType.Service.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpUnit.Service.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpSection.Service.pas"/>
@@ -292,7 +302,6 @@
         <DCCReference Include="Forms\System\ufrmSysRegions.pas">
             <Form>frmSysRegions</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\System\Repository\SysResourceGroup.Repository.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -327,6 +336,12 @@
                 <DeployFile LocalName="Ths.exe" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployFile LocalName="Ths.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
+                        <RemoteName>Ths.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Ths.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64">
                         <RemoteName>Ths.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>

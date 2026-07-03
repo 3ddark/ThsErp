@@ -1,7 +1,7 @@
 object frmSysCity: TfrmSysCity
   Left = 0
   Top = 0
-  Caption = 'frmSysCity'
+  Caption = 'Sehir Kayit'
   ClientHeight = 166
   ClientWidth = 500
   Color = clBtnFace
@@ -22,14 +22,14 @@ object frmSysCity: TfrmSysCity
     TabOrder = 0
     ExplicitWidth = 494
     ExplicitHeight = 149
-    object lblcity_name: TLabel
+    object lblCityName: TLabel
       Left = 70
       Top = 6
       Width = 58
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'City Name'
+      Caption = 'Sehir Adi'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -38,14 +38,14 @@ object frmSysCity: TfrmSysCity
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblcar_plate_code: TLabel
+    object lblCarPlateCode: TLabel
       Left = 42
       Top = 29
       Width = 86
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Car Plate Code'
+      Caption = 'Plaka Kodu'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -54,14 +54,14 @@ object frmSysCity: TfrmSysCity
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblcountry_id: TLabel
+    object lblCountryId: TLabel
       Left = 84
       Top = 52
       Width = 44
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Country'
+      Caption = 'Ulke'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -70,14 +70,14 @@ object frmSysCity: TfrmSysCity
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblregion_id: TLabel
+    object lblRegionId: TLabel
       Left = 87
       Top = 75
       Width = 41
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Region'
+      Caption = 'Bolge'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -86,28 +86,28 @@ object frmSysCity: TfrmSysCity
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtcity_name: TEdit
+    object edtCityName: TEdit
       Left = 132
       Top = 2
       Width = 333
       Height = 23
       TabOrder = 0
     end
-    object edtcar_plate_code: TEdit
+    object edtCarPlateCode: TEdit
       Left = 132
       Top = 25
       Width = 333
       Height = 23
       TabOrder = 1
     end
-    object edtcountry_id: TEdit
+    object edtCountryId: TEdit
       Left = 132
       Top = 48
       Width = 333
       Height = 23
       TabOrder = 2
     end
-    object edtregion_id: TEdit
+    object edtRegionId: TEdit
       Left = 132
       Top = 71
       Width = 333

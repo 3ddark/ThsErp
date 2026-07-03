@@ -38,28 +38,28 @@ uses
 type
   TfrmSysGridColPercent = class(TfrmBaseInputDB)
     imgExample: TImage;
-    lblcolor_bar: TLabel;
-    lblcolor_bar_back: TLabel;
-    lblcolor_bar_text: TLabel;
-    lblcolor_bar_text_active: TLabel;
-    lblcolumn_name: TLabel;
-    lblmax_value: TLabel;
-    lbltable_name: TLabel;
-    cbbtable_name: TComboBox;
-    cbbcolumn_name: TComboBox;
-    edtmax_value: TEdit;
-    edtcolor_bar: TEdit;
-    edtcolor_bar_back: TEdit;
-    edtcolor_bar_text: TEdit;
-    edtcolor_bar_text_active: TEdit;
+    lblColorBar: TLabel;
+    lblColorBarBack: TLabel;
+    lblColorBarText: TLabel;
+    lblColorBarTextActive: TLabel;
+    lblColumnName: TLabel;
+    lblMaxValue: TLabel;
+    lblTableName: TLabel;
+    cbbTableName: TComboBox;
+    cbbColumnName: TComboBox;
+    edtMaxValue: TEdit;
+    edtColorBar: TEdit;
+    edtColorBarBack: TEdit;
+    edtColorBarText: TEdit;
+    edtColorBarTextActive: TEdit;
     procedure FormCreate(Sender: TObject);override;
     procedure RefreshData();override;
     procedure btnAcceptClick(Sender: TObject);override;
-    procedure cbbtable_nameChange(Sender: TObject);
-    procedure edtcolor_barDblClick(Sender: TObject);
-    procedure edtcolor_bar_backDblClick(Sender: TObject);
-    procedure edtcolor_bar_textDblClick(Sender: TObject);
-    procedure edtcolor_bar_text_activeDblClick(Sender: TObject);
+    procedure cbbTableNameChange(Sender: TObject);
+    procedure edtColorBarDblClick(Sender: TObject);
+    procedure edtColorBarBackDblClick(Sender: TObject);
+    procedure edtColorBarTextDblClick(Sender: TObject);
+    procedure edtColorBarTextActiveDblClick(Sender: TObject);
   private
     FSysViewTables: TSysViewTables;
     FSysViewColumns: TSysViewColumns;
@@ -85,9 +85,9 @@ uses
 
 {$R *.dfm}
 
-procedure TfrmSysGridColPercent.cbbtable_nameChange(Sender: TObject);
+procedure TfrmSysGridColPercent.cbbTableNameChange(Sender: TObject);
 begin
-  fillComboBoxData(cbbcolumn_name, FSysViewColumns, [FSysViewColumns.ColumnName.FieldName], ' AND ' + FSysViewColumns.TableName1.FieldName + '=' + QuotedStr(cbbtable_name.Text) + ' ORDER BY ' + FSysViewColumns.OrdinalPosition.FieldName + ' ASC ');
+  fillComboBoxData(cbbColumnName, FSysViewColumns, [FSysViewColumns.ColumnName.FieldName], ' AND ' + FSysViewColumns.TableName1.FieldName + '=' + QuotedStr(cbbTableName.Text) + ' ORDER BY ' + FSysViewColumns.OrdinalPosition.FieldName + ' ASC ');
 end;
 
 destructor TfrmSysGridColPercent.Destroy;
@@ -104,10 +104,10 @@ var
   vTemp: string;
 begin
   vTemp := 'Example %40';
-  if  (TryStrToInt(edtcolor_bar.Text, vVal))
-  and (TryStrToInt(edtcolor_bar_back.Text, vVal))
-  and (TryStrToInt(edtcolor_bar_text.Text, vVal))
-  and (TryStrToInt(edtcolor_bar_text_active.Text, vVal))
+  if  (TryStrToInt(edtColorBar.Text, vVal))
+  and (TryStrToInt(edtColorBarBack.Text, vVal))
+  and (TryStrToInt(edtColorBarText.Text, vVal))
+  and (TryStrToInt(edtColorBarTextActive.Text, vVal))
   then
   begin
     with imgExample do
@@ -115,19 +115,18 @@ begin
       Canvas.Pen.Style := psSolid;
       Canvas.Pen.Width := 1;
 
-      Canvas.Pen.Color := StringToColor(edtcolor_bar_back.Text);
-      Canvas.Brush.Color := StringToColor(edtcolor_bar_back.Text);
+      Canvas.Pen.Color := StringToColor(edtColorBarBack.Text);
+      Canvas.Brush.Color := StringToColor(edtColorBarBack.Text);
       x1 := 0;  x2 := Width;  y1 := 0;  y2 := Height;
       Canvas.Rectangle( x1, y1, x2, y2 );
 
-      Canvas.Pen.Color := StringToColor(edtcolor_bar.Text);
-      Canvas.Brush.Color := StringToColor(edtcolor_bar.Text);
+      Canvas.Pen.Color := StringToColor(edtColorBar.Text);
+      Canvas.Brush.Color := StringToColor(edtColorBar.Text);
       x1 := 1;  x2 := trunc(Width*0.40);  y1 := 1;  y2 := Height;
       Canvas.Rectangle( x1, y1, x2, y2 );
 
       Canvas.Brush.Style := bsClear;
-      Canvas.Font.Color := StringToColor( edtcolor_bar_text.Text );
-      //Canvas.Brush.Color := StringToColor(edtcolor_bar_text.Text);
+      Canvas.Font.Color := StringToColor( edtColorBarText.Text );
       rect.Left := (imgExample.Width - Canvas.TextWidth(vTemp)) div 2;
       rect.Right := rect.Left + Canvas.TextWidth(vTemp);
       rect.Top := (imgExample.Height - Canvas.TextHeight(vTemp)) div 2;
@@ -139,38 +138,38 @@ begin
   end;
 end;
 
-procedure TfrmSysGridColPercent.edtcolor_barDblClick(Sender: TObject);
+procedure TfrmSysGridColPercent.edtColorBarDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtcolor_bar.Text, 0)), edtcolor_bar);
+  SetColor(GetDialogColor(StrToIntDef(edtColorBar.Text, 0)), edtColorBar);
 end;
 
-procedure TfrmSysGridColPercent.edtcolor_bar_backDblClick(Sender: TObject);
+procedure TfrmSysGridColPercent.edtColorBarBackDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtcolor_bar_back.Text, 0)), edtcolor_bar_back);
+  SetColor(GetDialogColor(StrToIntDef(edtColorBarBack.Text, 0)), edtColorBarBack);
 end;
 
-procedure TfrmSysGridColPercent.edtcolor_bar_textDblClick(Sender: TObject);
+procedure TfrmSysGridColPercent.edtColorBarTextDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtcolor_bar_text.Text, 0)), edtcolor_bar_text);
+  SetColor(GetDialogColor(StrToIntDef(edtColorBarText.Text, 0)), edtColorBarText);
 end;
 
-procedure TfrmSysGridColPercent.edtcolor_bar_text_activeDblClick(Sender: TObject);
+procedure TfrmSysGridColPercent.edtColorBarTextActiveDblClick(Sender: TObject);
 begin
-  SetColor(GetDialogColor(StrToIntDef(edtcolor_bar_text_active.Text, 0)), edtcolor_bar_text_active);
+  SetColor(GetDialogColor(StrToIntDef(edtColorBarTextActive.Text, 0)), edtColorBarTextActive);
 end;
 
 procedure TfrmSysGridColPercent.FormCreate(Sender: TObject);
 begin
   inherited;
 
-  cbbtable_name.CharCase := ecNormal;
-  cbbcolumn_name.CharCase := ecNormal;
+  cbbTableName.CharCase := ecNormal;
+  cbbColumnName.CharCase := ecNormal;
 
   FSysViewTables := TSysViewTables.Create(Table.Database);
   FSysViewColumns := TSysViewColumns.Create(Table.Database);
 
-  fillComboBoxData(cbbtable_name, FSysViewTables, [FSysViewTables.TableName1.FieldName], '');
-  cbbtable_nameChange(cbbtable_name);
+  fillComboBoxData(cbbTableName, FSysViewTables, [FSysViewTables.TableName1.FieldName], '');
+  cbbTableNameChange(cbbTableName);
 end;
 
 procedure TfrmSysGridColPercent.FormShow(Sender: TObject);
@@ -181,13 +180,13 @@ end;
 procedure TfrmSysGridColPercent.RefreshData();
 begin
   inherited;
-  cbbtable_nameChange(cbbtable_name);
-  cbbcolumn_name.ItemIndex := cbbcolumn_name.Items.IndexOf(FormatedVariantVal(TSysGridColPercent(Table).ColumnName));
+  cbbTableNameChange(cbbTableName);
+  cbbColumnName.ItemIndex := cbbColumnName.Items.IndexOf(FormatedVariantVal(TSysGridColPercent(Table).ColumnName));
 
-  SetColor(StrToIntDef(edtcolor_bar.Text, 0), edtcolor_bar);
-  SetColor(StrToIntDef(edtcolor_bar_back.Text, 0), edtcolor_bar_back);
-  SetColor(StrToIntDef(edtcolor_bar_text.Text, 0), edtcolor_bar_text);
-  SetColor(StrToIntDef(edtcolor_bar_text_active.Text, 0), edtcolor_bar_text_active);
+  SetColor(StrToIntDef(edtColorBar.Text, 0), edtColorBar);
+  SetColor(StrToIntDef(edtColorBarBack.Text, 0), edtColorBarBack);
+  SetColor(StrToIntDef(edtColorBarText.Text, 0), edtColorBarText);
+  SetColor(StrToIntDef(edtColorBarTextActive.Text, 0), edtColorBarTextActive);
 
   DrawBar;
 end;
@@ -195,10 +194,10 @@ end;
 procedure TfrmSysGridColPercent.Repaint;
 begin
   inherited;
-  edtcolor_bar.ReadOnly := True;
-  edtcolor_bar_back.ReadOnly := True;
-  edtcolor_bar_text.ReadOnly := True;
-  edtcolor_bar_text_active.ReadOnly := True;
+  edtColorBar.ReadOnly := True;
+  edtColorBarBack.ReadOnly := True;
+  edtColorBarText.ReadOnly := True;
+  edtColorBarTextActive.ReadOnly := True;
 end;
 
 procedure TfrmSysGridColPercent.SetColor(color: TColor; editColor: TEdit);
@@ -217,11 +216,11 @@ begin
   begin
     if (ValidateInput) then
     begin
-      if cbbtable_name.Items.IndexOf(cbbtable_name.Text) = -1 then
-        raise Exception.Create( TranslateText('Listede olmayan bir Tablo Adý giremezsiniz!', '#1', LngMsgError, LngSystem) );
+      if cbbTableName.Items.IndexOf(cbbTableName.Text) = -1 then
+        raise Exception.Create( TranslateText('Listede olmayan bir Tablo Adi giremezsiniz!', '#1', LngMsgError, LngSystem) );
 
-      if cbbcolumn_name.Items.IndexOf(cbbcolumn_name.Text) = -1 then
-        raise Exception.Create(TranslateText('Listede olmayan bir Kolon Adý giremezsiniz!', '#1', LngMsgError, LngSystem) );
+      if cbbColumnName.Items.IndexOf(cbbColumnName.Text) = -1 then
+        raise Exception.Create(TranslateText('Listede olmayan bir Kolon Adi giremezsiniz!', '#1', LngMsgError, LngSystem) );
 
       btnAcceptAuto;
 

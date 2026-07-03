@@ -1,7 +1,7 @@
 object frmSysDay: TfrmSysDay
   Left = 0
   Top = 0
-  Caption = 'frmSysDay'
+  Caption = 'Gun Kayit'
   ClientHeight = 127
   ClientWidth = 500
   Color = clBtnFace
@@ -20,14 +20,14 @@ object frmSysDay: TfrmSysDay
     Height = 127
     Align = alClient
     TabOrder = 0
-    object lblday_name: TLabel
+    object lblDayName: TLabel
       Left = 89
       Top = 12
       Width = 39
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Day Name'
+      Caption = 'Gun Adi'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -36,7 +36,7 @@ object frmSysDay: TfrmSysDay
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtday_name: TEdit
+    object edtDayName: TEdit
       Left = 134
       Top = 8
       Width = 333

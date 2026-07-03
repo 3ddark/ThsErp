@@ -5,10 +5,10 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, GridColumnTitle.Service, GridColumnTitle, ufrmGridColumnTitle;
+  SharedFormTypes, SysGridColumnTitle.Service, SysGridColumnTitle, ufrmGridColumnTitle;
 
 type
-  TfrmGridColumnTitles = class(TfrmGrid<TGridColumnTitle, TGridColumnTitleService>)
+  TfrmGridColumnTitles = class(TfrmGrid<TSysGridColumnTitle, TSysGridColumnTitleService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineFooterColumns; override;
@@ -25,7 +25,7 @@ begin
   if (AFormMode = ifmRewiev) then
     Result := TfrmGridColumnTitle.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmGridColumnTitle.Create(Self, Service, TGridColumnTitle.Create, AFormMode, Self.RefreshParentGrid)
+    Result := TfrmGridColumnTitle.Create(Self, Service, TSysGridColumnTitle.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
     Result := TfrmGridColumnTitle.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
 end;
@@ -49,7 +49,7 @@ end;
 procedure TfrmGridColumnTitles.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Grid Column Titles';
+  Self.Caption := 'System Grid Column Titles';
 end;
 
 end.

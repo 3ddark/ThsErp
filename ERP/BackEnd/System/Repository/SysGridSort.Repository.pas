@@ -4,10 +4,10 @@ interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  FireDAC.Comp.Client, Entity, Repository, SysGridFilter, FilterCriterion;
+  FireDAC.Comp.Client, Entity, Repository, SysGridSort, FilterCriterion;
 
 type
-  TSysGridSortRepository = class(TRepository<TSysGridSorts>)
+  TSysGridSortRepository = class(TRepository<TSysGridSort>)
   public
     constructor Create(AConnection: TFDConnection);
     function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
@@ -21,13 +21,10 @@ begin
 end;
 
 function TSysGridSortRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
-var LTableName: string;
 begin
-  LTableName := GetTableName(TSysGridSorts);
-
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM ' + LTableName + ' WHERE 1=1 ';
+  Result.SQL.Text := 'SELECT * FROM vw_sys_grid_sorts WHERE 1=1 ';
 end;
 
 end.

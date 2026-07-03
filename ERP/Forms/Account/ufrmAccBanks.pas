@@ -1,41 +1,52 @@
-﻿unit ufrmAccBankalar;
+unit ufrmAccBanks;
 
 interface
 
-{$I Ths.inc}
-
 uses
-  System.SysUtils, System.Classes, System.ImageList, System.Actions,
-  Vcl.Controls, Vcl.Forms, Vcl.DBGrids, Vcl.Menus, Vcl.AppEvnts, Vcl.ComCtrls,
-  Vcl.ExtCtrls, Vcl.ImgList, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Grids,
-  Vcl.Dialogs, Vcl.ActnList, Data.DB, ufrmBase, ufrmBaseDBGrid,
-  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
-  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
-  FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
+  Winapi.Windows, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
+  SharedFormTypes, AccBank.Service, AccBank, ufrmAccBank;
 
 type
-  TfrmAccBankalar = class(TfrmBaseDBGrid)
-  protected
-    function CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm; override;
+  TfrmAccBanks = class(TfrmGrid<TAccBank, TAccBankService>)
+  public
+    function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
+    procedure DefineFooterColumns; override;
+    procedure DefineColumnWidths; override;
+    procedure FormShow(Sender: TObject); override;
   end;
 
 implementation
 
-uses
-  ufrmAccBanka, Ths.Database.Table.ChBankalar;
-
 {$R *.dfm}
 
-function TfrmAccBankalar.CreateInputForm(Sender: TObject; pFormMode: TInputFormMode): TForm;
+function TfrmAccBanks.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
 begin
   Result := nil;
-  if (pFormMode = ifmRewiev) then
-    Result := TfrmAccBanka.Create(Application, Self, Table.Clone(), pFormMode)
-  else if (pFormMode = ifmNewRecord) then
-    Result := TfrmAccBanka.Create(Application, Self, TChBanka.Create(Table.Database), pFormMode)
-  else if (pFormMode = ifmCopyNewRecord) then
-    Result := TfrmAccBanka.Create(Application, Self, Table.Clone(), pFormMode);
+  if (AFormMode = ifmRewiev) then
+    Result := TfrmAccBank.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+  else if (AFormMode = ifmNewRecord) then
+    Result := TfrmAccBank.Create(Self, Service, TAccBank.Create, AFormMode, Self.RefreshParentGrid)
+  else if (AFormMode = ifmCopyNewRecord) then
+    Result := TfrmAccBank.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+end;
+
+procedure TfrmAccBanks.DefineColumnWidths;
+begin
+  SetColumnProperty('id',           0, 'Id');
+  SetColumnProperty('name',        250, 'Banka Ad'#305);
+  SetColumnProperty('swift_code',   120, 'SWIFT Kodu');
+end;
+
+procedure TfrmAccBanks.DefineFooterColumns;
+begin
+  // No footer columns
+end;
+
+procedure TfrmAccBanks.FormShow(Sender: TObject);
+begin
+  inherited;
+  Self.Caption := 'Bankalar';
 end;
 
 end.
-
