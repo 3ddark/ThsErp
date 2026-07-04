@@ -10,6 +10,7 @@ uses
 type
   TfrmSysPermissionGroups = class(TfrmGrid<TSysPermissionGroup, TSysPermissionGroupService>)
   public
+    procedure DefineColumnWidths;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;

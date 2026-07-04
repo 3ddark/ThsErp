@@ -31,8 +31,8 @@ implementation
 
 procedure TfrmSysLanguage.BtnAcceptClick(Sender: TObject);
 begin
-  Table.LngCode := edtlng_code.Text;
-  Table.Description := edtdescription.Text;
+  Table.Kod := edtlng_code.Text;
+  Table.Aciklama := edtdescription.Text;
   inherited;
 end;
 
@@ -63,8 +63,8 @@ end;
 procedure TfrmSysLanguage.RefreshData;
 begin
   inherited;
-  edtlng_code.Text := Table.LngCode;
-  edtdescription.Text := Table.Description;
+  edtlng_code.Text := Table.Kod;
+  edtdescription.Text := Table.Aciklama;
 end;
 
 end.

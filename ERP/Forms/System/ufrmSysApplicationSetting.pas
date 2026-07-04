@@ -1,4 +1,4 @@
-unit ufrmSysApplicationSetting;
+﻿unit ufrmSysApplicationSetting;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.StrUtils, System.Math, Vcl.Graphics, Vcl.Controls,
   Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts,
-  Vcl.Menus, Vcl.Samples.Spin, Vcl.Imaging.pngimage, Vcl.Imaging.jpeg, REST.Json,
+  Vcl.Menus, Vcl.Samples.Spin, REST.Json,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   ufrmBase, ufrmInputSimpleDB, SharedFormTypes,
   SysApplicationSetting, SysApplicationSetting.Service,
@@ -26,7 +26,6 @@ type
     lblFax: TLabel;
     edtFax: TEdit;
     pnlLogo: TPanel;
-    imgLogo: TImage;
     tsAdres: TTabSheet;
     lblMukellefTipi: TLabel;
     cbbMukellefTipi: TComboBox;
@@ -102,7 +101,6 @@ type
     edtPeriod: TEdit;
     lblAppVersion: TLabel;
     edtAppVersion: TEdit;
-    procedure imgLogoDblClick(Sender: TObject);
     procedure edtGridColor1DblClick(Sender: TObject);
     procedure edtGridColor2DblClick(Sender: TObject);
     procedure edtGridColorActiveDblClick(Sender: TObject);
@@ -318,32 +316,11 @@ begin
   end;
 end;
 
-procedure TfrmSysApplicationSetting.imgLogoDblClick(Sender: TObject);
-var
-  LFileName: string;
-begin
-  if (FormMode = ifmUpdate) or (FormMode = ifmNewRecord) then
-  begin
-    if CustomMsgDlg('Mevcut logoyu kaydetmek istiyor musun?', mtConfirmation, mbYesNo, ['Evet Kaydet', 'Hayır Yenisini Yükle'], mbNo, 'Kullanıcı Onayı') = mrYes then
-    begin
-      imgLogo.Picture.SaveToFile(GetDialogSave('', FILE_FILTER_IMAGE, ''));
-    end
-    else
-    begin
-      GetDialogOpen(FILE_FILTER_IMAGE, LFileName);
-      if (LFileName <> '') and FileExists(LFileName) then
-        TImageProcess.LoadImageFromFile(LFileName, imgLogo, 320, 240);
-    end;
-  end;
-end;
-
 procedure TfrmSysApplicationSetting.RefreshData;
 begin
   edtCompanyTitle.Text := Table.CompanyTitle;
   edtPhone.Text := Table.Phone;
   edtFax.Text := Table.Fax;
-
-  TImageProcess.LoadImageFromDB(Table.Logo, imgLogo);
 
   edtGridColor1.Text := Table.GridColor1.ToString;
   edtGridColor2.Text := Table.GridColor2.ToString;
@@ -386,7 +363,7 @@ begin
 
   edtWeb.Text := Table.Address.Web;
   edtEmail.Text := Table.Address.EMail;
-  edtUlkeAdi.Text := Table.Address.UlkeAdi.AsString;
+  edtUlkeAdi.Text := Table.Address.City.Country.CountryName;
   edtIlce.Text := Table.Address.District;
   edtMahalle.Text := Table.Address.Neighborhood;
   edtSemt.Text := Table.Address.Quarter;
@@ -451,8 +428,6 @@ begin
       Table.CompanyTitle := edtCompanyTitle.Text;
       Table.Phone := edtPhone.Text;
       Table.Fax := edtFax.Text;
-
-      TImageProcess.setValueFromImage(Table.Logo, imgLogo);
 
       Table.GridColor1 := StrToIntDef(edtGridColor1.Text, 0);
       Table.GridColor2 := StrToIntDef(edtGridColor2.Text, 0);

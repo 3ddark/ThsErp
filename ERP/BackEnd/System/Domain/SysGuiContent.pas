@@ -1,4 +1,4 @@
-﻿unit SysGuiContent;
+unit SysGuiContent;
 
 interface
 
@@ -6,7 +6,7 @@ uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
 type
   [Table('sys_gui_content')]
-  TSysGridContents = class(TEntity)
+  TSysGuiContent = class(TEntity)
   private
     FCode: string;
     FIsFactory: Boolean;
@@ -39,13 +39,13 @@ type
 
 implementation
 
-constructor TSysGridContents.Create();
+constructor TSysGuiContent.Create();
 begin
   inherited;
   FIsFactory := False;
 end;
 
-destructor TSysGridContents.Destroy;
+destructor TSysGuiContent.Destroy;
 begin
   inherited;
 end;

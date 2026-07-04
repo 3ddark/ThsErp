@@ -23,12 +23,12 @@ type
 
 implementation
 
-constructor TSysGridFilters.Create();
+constructor TSysGridFilter.Create();
 begin
   inherited;
 end;
 
-destructor TSysGridFilters.Destroy;
+destructor TSysGridFilter.Destroy;
 begin
   inherited;
 end;

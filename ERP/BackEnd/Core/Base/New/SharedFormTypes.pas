@@ -7,6 +7,7 @@ uses
 
 type
   TInputFormMode = (ifmNone, ifmNewRecord, ifmRewiev, ifmUpdate, ifmReadOnly, ifmCopyNewRecord);
+  TInputFormViewMode = (ivmNormal, ivmSort);
   TPermissionType = (ptRead, ptAddRecord, ptUpdate, ptDelete, ptSpecial);
 
   TAfterCrudRefreshGrid = procedure(AFocusSelectedItem: Boolean) of object;

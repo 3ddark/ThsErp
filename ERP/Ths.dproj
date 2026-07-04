@@ -9,7 +9,7 @@
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
         <ProjectVersion>20.4</ProjectVersion>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -211,10 +211,10 @@
         <DCCReference Include="Forms\Core\ufrmConfirmation.pas">
             <Form>frmConfirmation</Form>
         </DCCReference>
-        <DCCReference Include="Forms\System\ufrmLogin.pas">
+        <DCCReference Include="Forms\Core\ufrmLogin.pas">
             <Form>frmLogin</Form>
         </DCCReference>
-        <DCCReference Include="Forms\System\ufrmDashboard.pas">
+        <DCCReference Include="Forms\Core\ufrmDashboard.pas">
             <Form>frmDashboard</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Logger.pas"/>
@@ -234,6 +234,30 @@
         <DCCReference Include="Forms\Core\ufrmGrid.pas"/>
         <DCCReference Include="Forms\Core\ufrmInputSimpleDB.pas"/>
         <DCCReference Include="BackEnd\Core\Auth.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysAccessRight.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysAccessRight.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysAccessRight.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysAccessRight.pas">
+            <Form>frmSysAccessRight</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysAccessRights.pas">
+            <Form>frmSysAccessRights</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysAddress.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysAddress.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysAddress.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysAddress.pas">
+            <Form>frmSysAddress</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysAddresses.pas">
+            <Form>frmSysAddresses</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysApplicationSetting.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysApplicationSetting.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysApplicationSetting.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysApplicationSetting.pas">
+            <Form>frmSysApplicationSetting</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysCity.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysCity.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysCity.Service.pas"/>
@@ -243,30 +267,168 @@
         <DCCReference Include="Forms\System\ufrmSysCities.pas">
             <Form>frmSysCities</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\System\Domain\SysAccessRight.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysAccessRight.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysAccessRight.Service.pas"/>
-        <DCCReference Include="Forms\System\ufrmSysAccessRights.pas">
-            <Form>frmSysAccessRights</Form>
+        <DCCReference Include="BackEnd\System\Domain\SysCountry.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysCountry.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysCountry.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysCountry.pas">
+            <Form>frmSysCountry</Form>
         </DCCReference>
-        <DCCReference Include="Forms\System\ufrmSysAccessRight.pas">
-            <Form>frmSysAccessRight</Form>
+        <DCCReference Include="Forms\System\ufrmSysCountries.pas">
+            <Form>frmSysCountries</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\System\Domain\SysUser.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysUser.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysUser.Service.pas"/>
-        <DCCReference Include="Forms\System\ufrmSysUsers.pas">
-            <Form>frmSysUsers</Form>
+        <DCCReference Include="BackEnd\System\Domain\SysCurrency.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysCurrency.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysCurrency.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysCurrency.pas">
+            <Form>frmSysCurrency</Form>
         </DCCReference>
-        <DCCReference Include="Forms\System\ufrmSysUser.pas">
-            <Form>frmSysUser</Form>
+        <DCCReference Include="Forms\System\ufrmSysCurrencies.pas">
+            <Form>frmSysCurrencies</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysDay.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysDay.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysDay.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysDay.pas">
+            <Form>frmSysDay</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysDays.pas">
+            <Form>frmSysDays</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysDecimalPlace.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysDecimalPlace.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysDecimalPlace.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysDecimalPlace.pas">
+            <Form>frmSysDecimalPlace</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysDecimalPlaces.pas">
+            <Form>frmSysDecimalPlaces</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysGridColumn.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysGridColumn.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysGridColumn.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysGridColumn.pas">
+            <Form>frmSysGridColumn</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysGridColumns.pas">
+            <Form>frmSysGridColumns</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysGridColumnTitle.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysGridColumnTitle.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysGridColumnTitle.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysGridColumnTitle.pas">
+            <Form>frmSysGridColumnTitle</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysGridColumnTitles.pas">
+            <Form>frmSysGridColumnTitles</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysGridFilter.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysGridFilter.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysGridFilter.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysGridFilter.pas">
+            <Form>frmSysGridFilter</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysGridFilters.pas">
+            <Form>frmSysGridFilters</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysGridSort.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysGridSort.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysGridSort.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysGridSort.pas">
+            <Form>frmSysGridSort</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysGridSorts.pas">
+            <Form>frmSysGridSorts</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysGuiContent.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysGuiContent.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysGuiContent.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysGuiContent.pas">
+            <Form>frmSysGuiContent</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysGuiContents.pas">
+            <Form>frmSysGuiContents</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysLanguage.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysLanguage.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysLanguage.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysLanguage.pas">
+            <Form>frmSysLanguage</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysLanguages.pas">
+            <Form>frmSysLanguages</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysMonth.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysMonth.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysMonth.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysMonth.pas">
+            <Form>frmSysMonth</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysMonths.pas">
+            <Form>frmSysMonths</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysPermission.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysPermission.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysPermission.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysPermission.pas">
+            <Form>frmSysPermission</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysPermissions.pas">
+            <Form>frmSysPermissions</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysPermissionGroup.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysPermissionGroup.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysPermissionGroup.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysPermissionGroup.pas">
+            <Form>frmSysPermissionGroup</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysPermissionGroups.pas">
+            <Form>frmSysPermissionGroups</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysRegion.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysRegion.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysRegion.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysRegion.pas">
+            <Form>frmSysRegion</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysRegions.pas">
+            <Form>frmSysRegions</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysUom.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysUom.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysUom.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysUom.pas">
+            <Form>frmSysUom</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysUoms.pas">
+            <Form>frmSysUoms</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysUomType.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysUomType.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysUomType.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysUomType.pas">
+            <Form>frmSysUomType</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysUomTypes.pas">
+            <Form>frmSysUomTypes</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysUser.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysUser.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysUser.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysUser.pas">
+            <Form>frmSysUser</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\ufrmSysUsers.pas">
+            <Form>frmSysUsers</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysViewTable.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysViewTable.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysViewTable.Service.pas"/>
+        <DCCReference Include="Forms\System\ufrmSysViewTables.pas">
+            <Form>frmSysViewTables</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysViewColumn.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysViewColumn.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysViewColumn.Service.pas"/>
         <DCCReference Include="BackEnd\Employee\Domain\EmpPerson.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpPerson.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpPerson.Service.pas"/>
@@ -274,33 +436,15 @@
         <DCCReference Include="BackEnd\Employee\Domain\EmpUnit.pas"/>
         <DCCReference Include="BackEnd\Employee\Domain\EmpSection.pas"/>
         <DCCReference Include="BackEnd\Employee\Domain\EmpTask.pas"/>
-        <DCCReference Include="BackEnd\System\Domain\SysAddress.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysAddress.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysAddress.Service.pas"/>
-        <DCCReference Include="BackEnd\System\Domain\SysCountry.pas"/>
-        <DCCReference Include="BackEnd\System\Domain\SysRegion.pas"/>
-        <DCCReference Include="BackEnd\System\Domain\SysViewColumn.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpPersonType.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpUnit.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpSection.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpTask.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysCountry.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysRegion.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpPersonType.Service.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpUnit.Service.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpSection.Service.pas"/>
-        <DCCReference Include="BackEnd\Employee\Service\EmpTask.Service.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysCountry.Service.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysRegion.Service.pas"/>
-        <DCCReference Include="Forms\System\ufrmSysCountries.pas"/>
-        <DCCReference Include="Forms\System\ufrmSysCountry.pas">
-            <Form>frmSysCountry</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\System\ufrmSysRegion.pas">
-            <Form>frmSysRegion</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\System\ufrmSysRegions.pas">
-            <Form>frmSysRegions</Form>
+        <DCCReference Include="BackEnd\Employee\Service\EmpTask.Service.pas">
+            <Form>$R *.res</Form>
         </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

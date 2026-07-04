@@ -1,6 +1,6 @@
 object frmSysApplicationSetting: TfrmSysApplicationSetting
-  Left = 501
-  Top = 443
+  Left = 0
+  Top = 0
   Caption = 'Sistem Uygulama Ayarlar'#305
   ClientHeight = 480
   ClientWidth = 720
@@ -105,16 +105,6 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Anchors = [akLeft, akTop, akRight]
           Caption = 'Logo'
           TabOrder = 2
-          object imgLogo: TImage
-            Left = 1
-            Top = 1
-            Width = 320
-            Height = 240
-            Align = alClient
-            OnDblClick = imgLogoDblClick
-            ExplicitLeft = 0
-            ExplicitTop = 0
-          end
         end
       end
       object tsAdres: TTabSheet

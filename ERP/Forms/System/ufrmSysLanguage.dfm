@@ -21,9 +21,9 @@ object frmSysLanguage: TfrmSysLanguage
     Align = alClient
     TabOrder = 0
     object lbllng_code: TLabel
-      Left = 64
+      Left = 38
       Top = 12
-      Width = 64
+      Width = 90
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -37,9 +37,9 @@ object frmSysLanguage: TfrmSysLanguage
       ParentFont = False
     end
     object lbldescription: TLabel
-      Left = 49
+      Left = 63
       Top = 37
-      Width = 79
+      Width = 65
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight

@@ -1497,13 +1497,13 @@ end;
 
 procedure TfrmBaseDBGrid.mniColumnTitleByLangClick(Sender: TObject);
 var
-  LSysLisanGuiContent: TSysGridContents;
+  LSysLisanGuiContent: TSysGuiContent;
   AColumn: TColumn;
 begin
   AColumn := grd.Columns[grd.SelectedField.Index];
   if Assigned(AColumn) then
   begin
-    LSysLisanGuiContent := TSysGridContents.Create(GDataBase);
+    LSysLisanGuiContent := TSysGuiContent.Create(GDataBase);
 
     LSysLisanGuiContent.Code.Value := AColumn.FieldName;
     LSysLisanGuiContent.ContentType.Value := LngDGridFieldCaption;
@@ -2158,19 +2158,19 @@ end;
 procedure TfrmBaseDBGrid.SetTitleFromLangContent;
 var
   n1, n2: Integer;
-  LLangVal: TSysGridContents;
+  LLangVal: TSysGuiContent;
 begin
   if Assigned(Table) then
   begin
-    LLangVal := TSysGridContents.Create(Table.Database);
+    LLangVal := TSysGuiContent.Create(Table.Database);
     try
       LLangVal.SelectToList(
           ' AND ' + LLangVal.TableName.QryName + '=' + QuotedStr(Table.TableName) +
           ' AND ' + LLangVal.ContentType.QryName + '=' + QuotedStr(LngDGridFieldCaption), False, False);
       for n1 := 0 to LLangVal.List.Count-1 do
         for n2 := 0 to grd.Columns.Count - 1 do
-          if grd.Columns.Items[n2].FieldName = TSysGridContents(LLangVal.List[n1]).Code.Value then
-            grd.Columns.Items[n2].Title.Caption := TSysGridContents(LLangVal.List[n1]).Content.Value;
+          if grd.Columns.Items[n2].FieldName = TSysGuiContent(LLangVal.List[n1]).Code.Value then
+            grd.Columns.Items[n2].Title.Caption := TSysGuiContent(LLangVal.List[n1]).Content.Value;
 
     finally
       LLangVal.Free;

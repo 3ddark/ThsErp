@@ -8,12 +8,13 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.StrUtils, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
   Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus,
-  Vcl.Samples.Spin, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  Ths.Helper.ComboBox, ufrmBase, ufrmBaseInputDB, Ths.Database.Table,
-  Ths.Database.Table.View.SysViewTables;
+  Vcl.Samples.Spin, System.Generics.Collections,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
+  ufrmBase, ufrmInputSimpleDB, SharedFormTypes, SysGuiContent, SysGuiContent.Service,
+  SysViewTable, SysViewTable.Service;
 
 type
-  TfrmSysGuiContent = class(TfrmBaseInputDB)
+  TfrmSysGuiContent = class(TfrmInputSimpleDB<TSysGuiContent, TSysGuiContentService>)
     lblkod: TLabel;
     edtkod: TEdit;
     lbldeger: TLabel;
@@ -27,7 +28,9 @@ type
     lblis_fabrika: TLabel;
     chkis_fabrika: TCheckBox;
   private
-    FSysViewTables: TSysViewTables;
+
+    FSysViewTable: TList<TSysViewTable>;
+    FSysViewTableSvc: TSysViewTableService;
   published
     procedure btnAcceptClick(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -39,11 +42,13 @@ type
 implementation
 
 uses
-  Ths.Database.Table.SysGuiContent, Ths.Globals;
+  Ths.Globals;
 
 {$R *.dfm}
 
 procedure TfrmSysGuiContent.FormCreate(Sender: TObject);
+var
+  n1: Integer;
 begin
   inherited;
 
@@ -53,14 +58,15 @@ begin
   cbbtablo_adi.CharCase := ecNormal;
   edtform_adi.CharCase := ecNormal;
 
-  FSysViewTables := TSysViewTables.Create(GDatabase);
-
-  fillComboBoxData(cbbtablo_adi, FSysViewTables, [FSysViewTables.TableName1.FieldName], '');
+  FSysViewTableSvc := TSysViewTableService.Create;
+  FSysViewTable := FSysViewTableSvc.Find(nil, False);
+  for n1 := 0 to FSysViewTable.Count-1 do
+    cbbtablo_adi.AddItem(FSysViewTable.Items[n1].TableName, FSysViewTable.Items[n1]);
 end;
 
 procedure TfrmSysGuiContent.FormDestroy(Sender: TObject);
 begin
-  FSysViewTables.Free;
+  FSysViewTable.Free;
   inherited;
 end;
 
@@ -101,10 +107,10 @@ begin
     Height := 290;
   end;
 
-  if cbbtablo_adi.Items.IndexOf(TSysGridContents(Table).TableName.Value) = -1 then
-    cbbtablo_adi.Items.Add(TSysGridContents(Table).TableName.Value);
-  if TSysGridContents(Table).TableName.Value <> '' then
-    cbbtablo_adi.ItemIndex := cbbtablo_adi.Items.IndexOf(TSysGridContents(Table).TableName.Value);
+  if cbbtablo_adi.Items.IndexOf(Table.TableName) = -1 then
+    cbbtablo_adi.Items.Add(Table.TableName);
+  if Table.TableName <> '' then
+    cbbtablo_adi.ItemIndex := cbbtablo_adi.Items.IndexOf(Table.TableName);
 end;
 
 procedure TfrmSysGuiContent.btnAcceptClick(Sender: TObject);
@@ -113,11 +119,11 @@ begin
   begin
     if (ValidateInput) then
     begin
-      TSysGridContents(Table).Code.Value := edtkod.Text;
-      TSysGridContents(Table).ContentType.Value := edticerik_tipi.Text;
-      TSysGridContents(Table).TableName.Value := cbbtablo_adi.Text;
-      TSysGridContents(Table).Content.Value := edtdeger.Text;
-      TSysGridContents(Table).IsFactory.Value := chkis_fabrika.Checked;
+      Table.Code := edtkod.Text;
+      Table.ContentType := edticerik_tipi.Text;
+      Table.TableName := cbbtablo_adi.Text;
+      Table.Content := edtdeger.Text;
+      Table.IsFactory := chkis_fabrika.Checked;
 
       inherited;
     end;

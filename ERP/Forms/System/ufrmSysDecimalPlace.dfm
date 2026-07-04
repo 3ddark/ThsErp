@@ -21,9 +21,9 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
     Align = alClient
     TabOrder = 0
     object lblQuantity: TLabel
-      Left = 84
+      Left = 92
       Top = 12
-      Width = 44
+      Width = 36
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -37,9 +37,9 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       ParentFont = False
     end
     object lblPrice: TLabel
-      Left = 105
+      Left = 100
       Top = 42
-      Width = 23
+      Width = 28
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -53,9 +53,9 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       ParentFont = False
     end
     object lblTotal: TLabel
-      Left = 105
+      Left = 86
       Top = 72
-      Width = 23
+      Width = 42
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -69,9 +69,9 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       ParentFont = False
     end
     object lblStockQuantity: TLabel
-      Left = 39
+      Left = 59
       Top = 102
-      Width = 89
+      Width = 69
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -85,9 +85,9 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       ParentFont = False
     end
     object lblExchangeRate: TLabel
-      Left = 30
+      Left = 65
       Top = 132
-      Width = 98
+      Width = 63
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -104,7 +104,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       Left = 134
       Top = 8
       Width = 75
-      Height = 25
+      Height = 24
       MaxValue = 99
       MinValue = 0
       TabOrder = 0
@@ -114,7 +114,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       Left = 134
       Top = 38
       Width = 75
-      Height = 25
+      Height = 24
       MaxValue = 99
       MinValue = 0
       TabOrder = 1
@@ -124,7 +124,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       Left = 134
       Top = 68
       Width = 75
-      Height = 25
+      Height = 24
       MaxValue = 99
       MinValue = 0
       TabOrder = 2
@@ -134,7 +134,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       Left = 134
       Top = 98
       Width = 75
-      Height = 25
+      Height = 24
       MaxValue = 99
       MinValue = 0
       TabOrder = 3
@@ -144,7 +144,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       Left = 134
       Top = 128
       Width = 75
-      Height = 25
+      Height = 24
       MaxValue = 99
       MinValue = 0
       TabOrder = 4

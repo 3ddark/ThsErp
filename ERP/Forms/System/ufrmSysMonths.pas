@@ -30,6 +30,12 @@ begin
     Result := TfrmSysMonth.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
 end;
 
+procedure TfrmSysMonths.DefineFooterColumns;
+begin
+  inherited;
+
+end;
+
 procedure TfrmSysMonths.FormShow(Sender: TObject);
 begin
   inherited;

@@ -10,6 +10,7 @@ uses
 type
   TfrmSysGridSorts = class(TfrmGrid<TSysGridSort, TSysGridSortService>)
   public
+    procedure DefineColumnWidths;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;

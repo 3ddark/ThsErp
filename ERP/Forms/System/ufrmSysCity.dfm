@@ -23,9 +23,9 @@ object frmSysCity: TfrmSysCity
     ExplicitWidth = 494
     ExplicitHeight = 149
     object lblCityName: TLabel
-      Left = 70
+      Left = 76
       Top = 6
-      Width = 58
+      Width = 52
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -39,9 +39,9 @@ object frmSysCity: TfrmSysCity
       ParentFont = False
     end
     object lblCarPlateCode: TLabel
-      Left = 42
+      Left = 62
       Top = 29
-      Width = 86
+      Width = 66
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -55,9 +55,9 @@ object frmSysCity: TfrmSysCity
       ParentFont = False
     end
     object lblCountryId: TLabel
-      Left = 84
+      Left = 101
       Top = 52
-      Width = 44
+      Width = 27
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -71,9 +71,9 @@ object frmSysCity: TfrmSysCity
       ParentFont = False
     end
     object lblRegionId: TLabel
-      Left = 87
+      Left = 95
       Top = 75
-      Width = 41
+      Width = 33
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight

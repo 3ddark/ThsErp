@@ -63,11 +63,6 @@ end;
 procedure TfrmSysDecimalPlace.InitializeInputCase;
 begin
   inherited;
-  edtQuantity.thsInputDataType := itInteger;
-  edtPrice.thsInputDataType := itInteger;
-  edtTotal.thsInputDataType := itInteger;
-  edtStockQuantity.thsInputDataType := itInteger;
-  edtExchangeRate.thsInputDataType := itInteger;
 end;
 
 procedure TfrmSysDecimalPlace.RefreshData;

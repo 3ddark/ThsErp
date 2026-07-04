@@ -1,13 +1,13 @@
-unit SysGuiContent.Repository;
+unit SysViewTable.Repository;
 
 interface
 
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  FireDAC.Comp.Client, Entity, Repository, SysGuiContent, FilterCriterion;
+  FireDAC.Comp.Client, Entity, Repository, SysViewTable, FilterCriterion;
 
 type
-  TSysGuiContentRepository = class(TRepository<TSysGuiContent>)
+  TSysViewTableRepository = class(TRepository<TSysViewTable>)
   public
     constructor Create(AConnection: TFDConnection);
     function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
@@ -15,15 +15,16 @@ type
 
 implementation
 
-constructor TSysGuiContentRepository.Create(AConnection: TFDConnection);
+constructor TSysViewTableRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
 end;
 
-function TSysGuiContentRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
-var LTableName: string;
+function TSysViewTableRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+var
+  LTableName: string;
 begin
-  LTableName := GetTableName(TSysGuiContent);
+  LTableName := GetTableName(TSysViewTable);
 
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;

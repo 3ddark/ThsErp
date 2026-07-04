@@ -19,6 +19,7 @@ type
     FTable: TE;
 
     FFormMode: TInputFormMode;
+    FFormViewMode: TInputFormViewMode;
     FDefaultSelectFilter: string;
     FRefreshGridEvent: TAfterCrudRefreshGrid;
     FAfterDeleteEvent: TNotifyEvent;
@@ -47,6 +48,7 @@ type
     property Table: TE read FTable write SetTable;
 
     property FormMode: TInputFormMode read FFormMode write FFormMode;
+    property FormViewMode: TInputFormViewMode read FFormViewMode write FFormViewMode;
     property DefaultSelectFilter: string read FDefaultSelectFilter write FDefaultSelectFilter;
 
     property PanelMain: TPanel read FPanelMain write FPanelMain;
@@ -61,7 +63,11 @@ type
 
     property AfterDeleteEvent: TNotifyEvent read FAfterDeleteEvent write FAfterDeleteEvent;
 
-    constructor Create(AOwner: TComponent; AService: TS; ATable: TE; AFormMode: TInputFormMode; ARefreshGridEvent: TAfterCrudRefreshGrid); reintroduce; overload;
+    constructor Create(
+      AOwner: TComponent; AService: TS; ATable: TE;
+      AFormMode: TInputFormMode;
+      ARefreshGridEvent: TAfterCrudRefreshGrid;
+      AFormViewMode: TInputFormViewMode = ivmNormal); reintroduce; overload;
     destructor Destroy; override;
 
     //***form***
@@ -287,7 +293,13 @@ begin
   ShowMessage('not implemented yet');
 end;
 
-constructor TfrmInputSimpleDB<TE, TS>.Create(AOwner: TComponent; AService: TS; ATable: TE; AFormMode: TInputFormMode; ARefreshGridEvent: TAfterCrudRefreshGrid);
+constructor TfrmInputSimpleDB<TE, TS>.Create(
+  AOwner: TComponent; AService: TS; ATable: TE;
+  AFormMode: TInputFormMode;
+  ARefreshGridEvent: TAfterCrudRefreshGrid;
+  AFormViewMode: TInputFormViewMode
+);
+
 var LModeStr: string;
 begin
   Create(AOwner);
@@ -307,6 +319,7 @@ begin
   SetTable(ATable);
 
   FFormMode := AFormMode;
+  FFormViewMode := AFormViewMode;
 
   FRefreshGridEvent := ARefreshGridEvent;
 

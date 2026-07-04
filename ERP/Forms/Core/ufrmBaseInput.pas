@@ -153,7 +153,7 @@ end;
 
 procedure TfrmBaseInput.mniAddLanguageContentClick(Sender: TObject);
 //var
-//  LLangGuiContent: TSysGridContents;
+//  LLangGuiContent: TSysGuiContent;
 //  LCode, LValue, LContentType, LTableName: string;
 begin
 (*  if pmLabels.PopupComponent.ClassType = TLabel then
@@ -173,7 +173,7 @@ begin
   end;
 
 
-  LLangGuiContent := TSysGridContents.Create(GDataBase);
+  LLangGuiContent := TSysGuiContent.Create(GDataBase);
 
   LLangGuiContent.Code.Value := LCode;
   LLangGuiContent.ContentType.Value := LContentType;
@@ -245,7 +245,7 @@ procedure TfrmBaseInput.SetCaptionFromLangContent;
     LLabel: TLabel;
     n1: Integer;
     LLabelNames, LLabelName, LFilter: string;
-    LLangGuiContent: TSysGridContents;
+    LLangGuiContent: TSysGuiContent;
   begin
     //label component isimleri lbl + db_field_name olacak şekilde verileceği varsayılarak bu kod yazildi. Örnek: lblcountry_code
     LLabelNames := '';
@@ -263,7 +263,7 @@ procedure TfrmBaseInput.SetCaptionFromLangContent;
     if Length(LLabelNames) > 0 then
       LLabelNames := LeftStr(LLabelNames, Length(LLabelNames)-1);
 
-    LLangGuiContent := TSysGridContents.Create(GDataBase);
+    LLangGuiContent := TSysGuiContent.Create(GDataBase);
     try
       if Assigned(Table) then
         LFilter :=  ' AND ' + LLangGuiContent.TableName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Table.TableName))
@@ -275,12 +275,12 @@ procedure TfrmBaseInput.SetCaptionFromLangContent;
           LFilter, False, False);
       for n1 := 0 to LLangGuiContent.List.Count-1 do
       begin
-        if not VarIsNull(TSysGridContents(LLangGuiContent.List[n1]).Code.Value) then
+        if not VarIsNull(TSysGuiContent(LLangGuiContent.List[n1]).Code.Value) then
         begin
-          LLabelName := VarToStr(TSysGridContents(LLangGuiContent.List[n1]).Code.Value);
+          LLabelName := VarToStr(TSysGuiContent(LLangGuiContent.List[n1]).Code.Value);
           LLabel := TLabel(FindComponent(PRX_LABEL + LLabelName));
-          if not VarIsNull(TSysGridContents(LLangGuiContent.List[n1]).Content.Value) then
-            TLabel(LLabel).Caption := VarToStr(TSysGridContents(LLangGuiContent.List[n1]).Content.Value);
+          if not VarIsNull(TSysGuiContent(LLangGuiContent.List[n1]).Content.Value) then
+            TLabel(LLabel).Caption := VarToStr(TSysGuiContent(LLangGuiContent.List[n1]).Content.Value);
         end;
       end;
     finally

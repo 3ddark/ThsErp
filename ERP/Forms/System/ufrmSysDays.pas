@@ -30,6 +30,12 @@ begin
     Result := TfrmSysDay.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
 end;
 
+procedure TfrmSysDays.DefineFooterColumns;
+begin
+  inherited;
+//
+end;
+
 procedure TfrmSysDays.FormShow(Sender: TObject);
 begin
   inherited;
