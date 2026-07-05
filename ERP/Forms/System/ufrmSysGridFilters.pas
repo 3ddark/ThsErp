@@ -10,7 +10,7 @@ uses
 type
   TfrmSysGridFilters = class(TfrmGrid<TSysGridFilter, TSysGridFilterService>)
   public
-    procedure DefineColumnWidths;
+    procedure DefineColumnWidths; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;

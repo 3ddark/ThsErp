@@ -1,4 +1,4 @@
-unit ufrmSysCountry;
+﻿unit ufrmSysCountry;
 
 interface
 
@@ -26,6 +26,7 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
+    procedure InitializeInputCase; override;
     procedure RefreshData; override;
   end;
 
@@ -47,6 +48,12 @@ procedure TfrmSysCountry.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+end;
+
+procedure TfrmSysCountry.InitializeInputCase;
+begin
+  inherited;
+  edtISOYear.thsInputDataType := itInteger;
 end;
 
 procedure TfrmSysCountry.FormShow(Sender: TObject);

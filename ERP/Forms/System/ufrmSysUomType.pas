@@ -13,12 +13,13 @@ uses
 type
   TfrmSysUomType = class(TfrmInputSimpleDB<TSysUomType, TSysUomTypeService>)
     pnlContent: TPanel;
-    lblmeasure_type: TLabel;
-    edtmeasure_type: TEdit;
+    lblMeasureType: TLabel;
+    edtMeasureType: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
+    procedure InitializeInputCase; override;
     procedure RefreshData; override;
   end;
 
@@ -28,7 +29,7 @@ implementation
 
 procedure TfrmSysUomType.BtnAcceptClick(Sender: TObject);
 begin
-  Table.MeasureType := edtmeasure_type.Text;
+  Table.MeasureType := edtMeasureType.Text;
   inherited;
 end;
 
@@ -38,19 +39,25 @@ begin
   pnlContent.Parent := PanelMain;
 end;
 
+procedure TfrmSysUomType.InitializeInputCase;
+begin
+  inherited;
+  edtMeasureType.thsInputDataType := itString;
+end;
+
 procedure TfrmSysUomType.FormShow(Sender: TObject);
 begin
   inherited;
 
   Self.Caption := 'System Unit of Measurement Type';
 
-  edtmeasure_type.SetFocus;
+  edtMeasureType.SetFocus;
 end;
 
 procedure TfrmSysUomType.RefreshData;
 begin
   inherited;
-  edtmeasure_type.Text := Table.MeasureType;
+  edtMeasureType.Text := Table.MeasureType;
 end;
 
 end.

@@ -414,8 +414,181 @@ Requirements:
 Rules:
 
 * writable fields only
-* FK fields via helper forms
+* FK fields via helper forms using `OnHelperProcess` event binding (see FK Field Helper Process Rule below)
 * readonly fields excluded
+
+---
+
+## FK Field Helper Process Rule
+
+When an input form contains FK reference fields that require selection from another table, use the **`OnHelperProcess`** pattern. This allows TEdit controls to automatically open a helper selection modal when the user clicks into them.
+
+### Pattern Overview
+
+1. Define a `HelperProcess(Sender: TObject)` procedure on the form class.
+2. In `FormCreate`, assign `OnHelperProcess := HelperProcess` for each FK TEdit control.
+3. The `HelperProcess` handler identifies which TEdit triggered it by checking `Sender.Name`, then creates and shows the appropriate helper selection form.
+
+### FormCreate Setup
+
+```pascal
+procedure TfrmSysCountry.FormCreate(Sender: TObject);
+begin
+  inherited;
+  edtRegionId.OnHelperProcess := HelperProcess;
+end;
+```
+
+### Helper Process Handler
+
+The `HelperProcess` procedure must:
+
+* Check if `Sender is TEdit`.
+* Match the sender's `Name` to determine which FK field was triggered.
+* Create the corresponding helper form (passing the sender, a service instance, and an entity class).
+* Set `IsHelper := True` on the helper form before showing it modally.
+* After modal close, transfer data from the helper form back to the parent:
+  * If `CleanAndClose` returned True → clear the FK id in the table and clear the edit text (user cancelled/cleared).
+  * Otherwise → set the FK id in the table (`Table.FkId := Helper.Table.Id`) and populate the edit text with a readable display field from the helper's table.
+
+### Example Implementation
+
+```pascal
+procedure TfrmSysCountry.HelperProcess(Sender: TObject);
+var
+  LFrmRegion: TfrmSysRegions;
+begin
+  if Sender is TEdit then
+  begin
+    if (Sender as TEdit).Name = edtRegionId.Name then
+    begin
+      LFrmRegion := TfrmSysRegions.Create(
+        (Sender as TEdit), TSysRegionService.Create, TSysRegion.Create);
+      try
+        LFrmRegion.IsHelper := True;
+        LFrmRegion.ShowModal;
+        if LFrmRegion.DataTransfer then
+          if LFrmRegion.CleanAndClose then
+          begin
+            Table.RegionId := 0;
+            (Sender as TEdit).Clear;
+          end
+          else
+          begin
+            Table.RegionId := LFrmRegion.Table.Id;
+            (Sender as TEdit).Text := LFrmRegion.Table.RegionName;
+          end;
+      finally
+        LFrmRegion.Free;
+      end;
+    end;
+  end;
+end;
+```
+
+### Rules
+
+* Each FK field that needs helper selection must have its `OnHelperProcess` assigned in `FormCreate`.
+* The helper form is always created with three arguments: the triggering TEdit, a service instance, and an entity class.
+* The helper form sets `IsHelper := True` before showing modally.
+* After modal close, data transfer logic checks `DataTransfer` to determine if the user confirmed selection or cancelled/cleared.
+* CleanAndClose handling: when cleared, reset FK id to 0 in the table and clear the edit text.
+
+### Implementation Uses Clause
+
+Every helper output form unit used inside `HelperProcess` must be listed in the **implementation** section's `uses` clause of the input form's `.pas` file. This keeps the interface uses minimal and avoids circular dependency issues.
+
+```pascal
+implementation
+
+{$R *.dfm}
+
+uses
+  ufrmSysRegions;   // TfrmSysRegions helper output form
+  ufrmSysCountries; // TfrmSysCountries helper output form (if used)
+```
+
+The rule is: for each FK field that uses the `OnHelperProcess` pattern, add a line in the implementation uses listing the corresponding helper output form unit. One line per helper form. Comment with the class name and role (`helper output form`) for clarity.
+
+### Naming Convention for Helper Forms
+
+Helper forms follow the same naming rules as regular forms:
+
+| Parent FK Field | Helper Form Class | Helper Form Unit |
+|---|---|---|
+| `edtCountryId` | `TfrmSysCountries` | `ufrmSysCountries.pas` |
+| `edtRegionId` | `TfrmSysRegions` | `ufrmSysRegions.pas` |
+
+The helper form name matches the output form for that entity (pluralized).
+
+---
+
+### Input Control Naming Rule
+
+Input controls (TEdit, TComboBox, TCheckBox, TMemo, etc.) must use database field names instead of Turkish or descriptive names.
+
+Rule:
+
+```text
+edt{field_name}  →  edt{database_field_name}
+```
+
+Example:
+
+❌ `edticerik_tipi`
+✅ `edtcontent_type`
+
+### Input Control Type Rule
+
+Use generic TEdit for all data types with customization via `thsInputDataType` property.
+
+Supported types:
+
+* String → `itString`
+* Integer → `itInteger`
+* Float → `itFloat`
+* Date → `itDate`
+* Time → `itTime`
+
+Example:
+
+```pascal
+edticerik_tipi.thsInputDataType := itString;
+edtcontent_type.thsInputDataType := itString;
+edtsayi.thsInputDataType := itInteger;
+edtfiyat.thsInputDataType := itFloat;
+edttarih.thsInputDataType := itDate;
+edtsaat.thsInputDataType := itTime;
+```
+
+Customization is enabled through this property — no separate control types needed.
+
+### Input Control Prefix Rule
+
+Each Delphi component type must use a specific prefix:
+
+| Component Type | Prefix | Example |
+|---|---|---|
+| TEdit | `edt` | `edtCode`, `edtContentType` |
+| TComboBox | `cbb` | `cbbTableName` |
+| TCheckBox | `chk` | `chkIsFactory` |
+| TMemo | `mmo` | `mmoDescription` |
+| TLabel | `lbl` | `lblCode` |
+| TListBox | `lbx` | `lbxItems` |
+
+Rule: `{prefix}{database_field_name}`  (PascalCase direct concatenation, NO separator)
+
+Example:
+
+❌ `edt_ip_address`
+❌ `edtipAddress`
+✅ `edtIpAddress`
+
+❌ `cbbtablo_adi`
+✅ `cbbTableName`
+
+❌ `edtIcerikTipi`
+✅ `edtContentType`
 
 
 # 13A — FORM INHERITANCE & DFM CONTRACT

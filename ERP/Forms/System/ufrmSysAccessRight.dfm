@@ -1,8 +1,8 @@
 object frmSysAccessRight: TfrmSysAccessRight
   Left = 0
   Top = 0
-  Caption = 'frmSysAccessRight'
-  ClientHeight = 267
+  Caption = 'Access Right'
+  ClientHeight = 187
   ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,15 +16,15 @@ object frmSysAccessRight: TfrmSysAccessRight
     Left = 0
     Top = 0
     Width = 500
-    Height = 267
+    Height = 187
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 498
-    ExplicitHeight = 265
-    object lbluser_id: TLabel
-      Left = 31
+    ExplicitWidth = 494
+    ExplicitHeight = 170
+    object lblUserId: TLabel
+      Left = 59
       Top = 11
-      Width = 55
+      Width = 27
       Height = 13
       Alignment = taRightJustify
       Caption = 'User'
@@ -33,27 +33,12 @@ object frmSysAccessRight: TfrmSysAccessRight
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtuser_id: TEdit
-      Left = 80
-      Top = 7
-      Width = 250
-      Height = 23
-      ReadOnly = True
-      TabOrder = 0
-    end
-    object btnuser_sec: TButton
-      Left = 336
-      Top = 3
-      Width = 75
-      Height = 25
-      Caption = 'Select'
-      TabOrder = 1
-    end
-    object lblpermission_id: TLabel
-      Left = 8
+    object lblPermissionId: TLabel
+      Left = 25
       Top = 41
-      Width = 78
+      Width = 61
       Height = 13
       Alignment = taRightJustify
       Caption = 'Permission'
@@ -62,62 +47,63 @@ object frmSysAccessRight: TfrmSysAccessRight
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtpermission_id: TEdit
+    object edtUserId: TEdit
       Left = 80
-      Top = 37
-      Width = 250
+      Top = 7
+      Width = 350
       Height = 23
       ReadOnly = True
-      TabOrder = 2
+      TabOrder = 0
     end
-    object btnpermission_sec: TButton
-      Left = 336
-      Top = 33
-      Width = 75
-      Height = 25
-      Caption = 'Select'
-      TabOrder = 3
+    object edtPermissionId: TEdit
+      Left = 80
+      Top = 37
+      Width = 350
+      Height = 23
+      ReadOnly = True
+      TabOrder = 1
     end
-    object chkis_read: TCheckBox
+    object chkIsRead: TCheckBox
       Left = 80
       Top = 70
       Width = 140
       Height = 17
       Caption = 'Read'
-      TabOrder = 4
+      TabOrder = 2
     end
-    object chkis_add: TCheckBox
+    object chkIsAdd: TCheckBox
       Left = 230
       Top = 70
       Width = 140
       Height = 17
       Caption = 'Add'
-      TabOrder = 5
+      TabOrder = 3
     end
-    object chkis_update: TCheckBox
+    object chkIsUpdate: TCheckBox
       Left = 80
       Top = 95
       Width = 140
       Height = 17
       Caption = 'Update'
-      TabOrder = 6
+      TabOrder = 4
     end
-    object chkis_delete: TCheckBox
+    object chkIsDelete: TCheckBox
       Left = 230
       Top = 95
       Width = 140
       Height = 17
       Caption = 'Delete'
-      TabOrder = 7
+      TabOrder = 5
     end
-    object chkis_special: TCheckBox
+    object chkIsSpecial: TCheckBox
       Left = 80
       Top = 120
       Width = 290
       Height = 17
       Caption = 'Special'
-      TabOrder = 8
+      TabOrder = 6
     end
   end
 end

@@ -1,7 +1,7 @@
 object frmSysCurrency: TfrmSysCurrency
   Left = 0
   Top = 0
-  Caption = 'Para Birimi Kayit'
+  Caption = 'System Currency'
   ClientHeight = 157
   ClientWidth = 500
   Color = clBtnFace
@@ -19,12 +19,12 @@ object frmSysCurrency: TfrmSysCurrency
     Height = 157
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 498
-    ExplicitHeight = 174
+    ExplicitWidth = 494
+    ExplicitHeight = 140
     object lblCurrency: TLabel
-      Left = 77
+      Left = 67
       Top = 6
-      Width = 51
+      Width = 61
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -38,9 +38,9 @@ object frmSysCurrency: TfrmSysCurrency
       ParentFont = False
     end
     object lblSymbol: TLabel
-      Left = 87
+      Left = 93
       Top = 29
-      Width = 41
+      Width = 35
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -54,9 +54,9 @@ object frmSysCurrency: TfrmSysCurrency
       ParentFont = False
     end
     object lblDescription: TLabel
-      Left = 63
+      Left = 76
       Top = 52
-      Width = 65
+      Width = 52
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight

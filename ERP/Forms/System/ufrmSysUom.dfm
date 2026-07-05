@@ -1,7 +1,7 @@
 object frmSysUom: TfrmSysUom
   Left = 0
   Top = 0
-  Caption = 'frmSysUom'
+  Caption = 'System Unit of Measurement'
   ClientHeight = 199
   ClientWidth = 500
   Color = clBtnFace
@@ -18,7 +18,7 @@ object frmSysUom: TfrmSysUom
     Height = 199
     Align = alClient
     TabOrder = 0
-    object lblmultiplier: TLabel
+    object lblMultiplier: TLabel
       Left = 79
       Top = 115
       Width = 49
@@ -34,7 +34,7 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lbldecimal: TLabel
+    object lblDecimal: TLabel
       Left = 82
       Top = 72
       Width = 46
@@ -50,7 +50,7 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblmeasure_type_id: TLabel
+    object lblMeasureTypeId: TLabel
       Left = 47
       Top = 92
       Width = 81
@@ -66,7 +66,7 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lbldescription: TLabel
+    object lblDescription: TLabel
       Left = 63
       Top = 52
       Width = 65
@@ -82,7 +82,7 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblunit_einv: TLabel
+    object lblUnitEInv: TLabel
       Left = 47
       Top = 29
       Width = 81
@@ -98,7 +98,7 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblunit: TLabel
+    object lblUnit: TLabel
       Left = 104
       Top = 6
       Width = 24
@@ -114,42 +114,42 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtmultiplier: TEdit
+    object edtMultiplier: TEdit
       Left = 132
       Top = 111
       Width = 333
       Height = 23
       TabOrder = 5
     end
-    object chkdecimal: TCheckBox
+    object chkDecimal: TCheckBox
       Left = 132
       Top = 71
       Width = 333
       Height = 17
       TabOrder = 3
     end
-    object edtmeasure_type_id: TEdit
+    object edtMeasureTypeId: TEdit
       Left = 132
       Top = 88
       Width = 333
       Height = 23
       TabOrder = 4
     end
-    object edtdescription: TEdit
+    object edtDescription: TEdit
       Left = 132
       Top = 48
       Width = 333
       Height = 23
       TabOrder = 2
     end
-    object edtunit_einv: TEdit
+    object edtUnitEInv: TEdit
       Left = 132
       Top = 25
       Width = 333
       Height = 23
       TabOrder = 1
     end
-    object edtunit: TEdit
+    object edtUnit: TEdit
       Left = 132
       Top = 2
       Width = 333

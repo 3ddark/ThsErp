@@ -1,7 +1,7 @@
 object frmSysCountry: TfrmSysCountry
   Left = 0
   Top = 0
-  Caption = 'Ulke Kayit'
+  Caption = 'System Country'
   ClientHeight = 182
   ClientWidth = 500
   Color = clBtnFace
@@ -19,10 +19,12 @@ object frmSysCountry: TfrmSysCountry
     Height = 182
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 494
+    ExplicitHeight = 165
     object lblCountryCode: TLabel
-      Left = 51
+      Left = 68
       Top = 6
-      Width = 77
+      Width = 60
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -36,9 +38,9 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lblCountryName: TLabel
-      Left = 48
+      Left = 79
       Top = 29
-      Width = 80
+      Width = 49
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -52,9 +54,9 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lblISOYear: TLabel
-      Left = 76
+      Left = 88
       Top = 52
-      Width = 52
+      Width = 40
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -84,13 +86,13 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lblIsEuMember: TLabel
-      Left = 62
+      Left = 76
       Top = 95
-      Width = 66
+      Width = 52
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'AB Üyesi'
+      Caption = 'AB '#220'yesi'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11

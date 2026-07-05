@@ -35,8 +35,8 @@ type
     tsemployee: TTabSheet;
     btnch_hesap_karti: TButton;
     actlstMain: TActionList;
-    actsys_resource_group: TAction;
-    actsys_resource: TAction;
+    actsys_permission_group: TAction;
+    actsys_permission: TAction;
     actsys_user: TAction;
     actsys_access_right: TAction;
     actsys_grid_column: TAction;
@@ -181,8 +181,8 @@ type
     procedure FormActivate(Sender: TObject);
     procedure ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);
     procedure tmrcheck_is_update_requiredTimer(Sender: TObject);
-    procedure actsys_resource_groupExecute(Sender: TObject);
-    procedure actsys_resourceExecute(Sender: TObject);
+    procedure actsys_permission_groupExecute(Sender: TObject);
+    procedure actsys_permissionExecute(Sender: TObject);
     procedure actsys_userExecute(Sender: TObject);
     procedure actsys_access_rightExecute(Sender: TObject);
     procedure actsys_grid_columnExecute(Sender: TObject);
@@ -623,12 +623,12 @@ begin
   //TfrmSysCurrencies.Create(Self, TSysCurrencyService.Create, TSysCurrency.Create).Show;
 end;
 
-procedure TfrmDashboard.actsys_resourceExecute(Sender: TObject);
+procedure TfrmDashboard.actsys_permissionExecute(Sender: TObject);
 begin
   TfrmSysPermissions.Create(Self, TSysPermissionService.Create, TSysPermission.Create).Show;
 end;
 
-procedure TfrmDashboard.actsys_resource_groupExecute(Sender: TObject);
+procedure TfrmDashboard.actsys_permission_groupExecute(Sender: TObject);
 begin
   TfrmSysPermissionGroups.Create(Self, TSysPermissionGroupService.Create, TSysPermissionGroup.Create).Show;
 end;

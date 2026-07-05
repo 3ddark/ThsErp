@@ -1,4 +1,4 @@
-unit ufrmSysCurrency;
+﻿unit ufrmSysCurrency;
 
 interface
 
@@ -22,6 +22,7 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
+    procedure InitializeInputCase; override;
     procedure RefreshData; override;
   end;
 
@@ -41,6 +42,14 @@ procedure TfrmSysCurrency.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+end;
+
+procedure TfrmSysCurrency.InitializeInputCase;
+begin
+  inherited;
+  edtCurrency.thsInputDataType := itString;
+  edtSymbol.thsInputDataType := itString;
+  edtDescription.thsInputDataType := itString;
 end;
 
 procedure TfrmSysCurrency.FormShow(Sender: TObject);

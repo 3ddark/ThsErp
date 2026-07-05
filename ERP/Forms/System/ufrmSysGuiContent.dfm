@@ -25,14 +25,14 @@ inherited frmSysGuiContent: TfrmSysGuiContent
         ExplicitTop = 26
         ExplicitWidth = 425
         ExplicitHeight = 141
-        object lblkod: TLabel
+        object lblCode: TLabel
           Left = 111
           Top = 5
           Width = 21
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Kod'
+          Caption = 'Code'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -41,14 +41,14 @@ inherited frmSysGuiContent: TfrmSysGuiContent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lbldeger: TLabel
+        object lblContent: TLabel
           Left = 98
           Top = 27
           Width = 34
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'De'#287'er'
+          Caption = 'Content'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -57,14 +57,14 @@ inherited frmSysGuiContent: TfrmSysGuiContent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblicerik_tipi: TLabel
+        object lblContentType: TLabel
           Left = 76
           Top = 49
           Width = 56
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = #304#231'erik Tipi'
+          Caption = 'Content Type'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -73,14 +73,14 @@ inherited frmSysGuiContent: TfrmSysGuiContent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lbltablo_adi: TLabel
+        object lblTableName: TLabel
           Left = 80
           Top = 71
           Width = 52
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Tablo Ad'#305
+          Caption = 'Table Name'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -89,14 +89,14 @@ inherited frmSysGuiContent: TfrmSysGuiContent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblform_adi: TLabel
+        object lblFormName: TLabel
           Left = 82
           Top = 93
           Width = 50
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Form Ad'#305
+          Caption = 'Form Name'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -105,14 +105,14 @@ inherited frmSysGuiContent: TfrmSysGuiContent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblis_fabrika: TLabel
+        object lblIsFactory: TLabel
           Left = 50
           Top = 117
           Width = 82
           Height = 13
           Alignment = taRightJustify
           BiDiMode = bdLeftToRight
-          Caption = 'Fabrika De'#287'eri'
+          Caption = 'Is Factory'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -121,42 +121,42 @@ inherited frmSysGuiContent: TfrmSysGuiContent
           ParentBiDiMode = False
           ParentFont = False
         end
-        object edtkod: TEdit
+        object edtCode: TEdit
           Left = 138
           Top = 2
           Width = 279
           Height = 23
           TabOrder = 0
         end
-        object edtdeger: TEdit
+        object edtContent: TEdit
           Left = 138
           Top = 24
           Width = 279
           Height = 23
           TabOrder = 1
         end
-        object edticerik_tipi: TEdit
+        object edtContentType: TEdit
           Left = 138
           Top = 46
           Width = 279
           Height = 23
           TabOrder = 2
         end
-        object cbbtablo_adi: TComboBox
+        object cbbTableName: TComboBox
           Left = 138
           Top = 68
           Width = 279
           Height = 23
           TabOrder = 3
         end
-        object edtform_adi: TEdit
+        object edtFormName: TEdit
           Left = 138
           Top = 90
           Width = 279
           Height = 23
           TabOrder = 4
         end
-        object chkis_fabrika: TCheckBox
+        object chkIsFactory: TCheckBox
           Left = 138
           Top = 116
           Width = 279

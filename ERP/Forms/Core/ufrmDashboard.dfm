@@ -27,13 +27,12 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 913
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
       Top = 2
       Width = 201
-      Height = 25
+      Height = 36
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -47,6 +46,7 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
@@ -55,22 +55,22 @@ inherited frmDashboard: TfrmDashboard
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 394
-    ExplicitWidth = 909
+    ExplicitTop = 402
+    ExplicitWidth = 911
     inherited btnAccept: TButton
       Left = 705
-      ExplicitLeft = 703
+      ExplicitLeft = 705
     end
     inherited btnClose: TButton
       Left = 809
-      ExplicitLeft = 807
+      ExplicitLeft = 809
     end
   end
   inherited stbBase: TStatusBar [2]
     Top = 432
     Width = 915
-    ExplicitTop = 424
-    ExplicitWidth = 913
+    ExplicitTop = 432
+    ExplicitWidth = 915
   end
   inherited pnlMain: TPanel [3]
     Top = 40
@@ -78,8 +78,8 @@ inherited frmDashboard: TfrmDashboard
     Height = 360
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 913
-    ExplicitHeight = 352
+    ExplicitWidth = 915
+    ExplicitHeight = 360
     object PageControl1: TPageControl
       Left = 0
       Top = 0
@@ -618,17 +618,17 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 85
       OnExecute = actsys_dayExecute
     end
-    object actsys_resource: TAction
+    object actsys_permission: TAction
       Category = 'System'
       Caption = 'Kaynaklar'
       ImageIndex = 81
-      OnExecute = actsys_resourceExecute
+      OnExecute = actsys_permissionExecute
     end
-    object actsys_resource_group: TAction
+    object actsys_permission_group: TAction
       Category = 'System'
       Caption = 'Kaynak Gruplar'#305
       ImageIndex = 81
-      OnExecute = actsys_resource_groupExecute
+      OnExecute = actsys_permission_groupExecute
     end
     object actsys_user: TAction
       Category = 'System'
@@ -864,10 +864,10 @@ inherited frmDashboard: TfrmDashboard
         Caption = '-'
       end
       object mnisys_resource_group: TMenuItem
-        Action = actsys_resource_group
+        Action = actsys_permission_group
       end
       object mnisys_resource: TMenuItem
-        Action = actsys_resource
+        Action = actsys_permission
       end
       object mniSystemSubSettings: TMenuItem
         Caption = 'Ayarlar'

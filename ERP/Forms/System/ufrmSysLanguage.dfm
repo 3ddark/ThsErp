@@ -1,7 +1,7 @@
-object frmSysLanguage: TfrmSysLanguage
+﻿object frmSysLanguage: TfrmSysLanguage
   Left = 0
   Top = 0
-  Caption = 'frmSysLanguage'
+  Caption = ''System Language'
   ClientHeight = 197
   ClientWidth = 500
   Color = clBtnFace
@@ -20,7 +20,7 @@ object frmSysLanguage: TfrmSysLanguage
     Height = 197
     Align = alClient
     TabOrder = 0
-    object lbllng_code: TLabel
+    object lblLngCode: TLabel
       Left = 38
       Top = 12
       Width = 90
@@ -36,7 +36,7 @@ object frmSysLanguage: TfrmSysLanguage
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lbldescription: TLabel
+    object lblDescription: TLabel
       Left = 63
       Top = 37
       Width = 65
@@ -52,14 +52,14 @@ object frmSysLanguage: TfrmSysLanguage
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtlng_code: TEdit
+    object edtKod: TEdit
       Left = 134
       Top = 8
       Width = 333
       Height = 23
       TabOrder = 0
     end
-    object edtdescription: TEdit
+    object edtAciklama: TEdit
       Left = 134
       Top = 33
       Width = 333

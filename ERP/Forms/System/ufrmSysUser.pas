@@ -12,20 +12,20 @@ uses
 type
   TfrmSysUser = class(TfrmInputSimpleDB<TSysUser, TSysUserService>)
     pnlContent: TPanel;
-    lblusername: TLabel;
-    edtusername: TEdit;
-    lbluser_password: TLabel;
-    edtuser_password: TEdit;
-    lblactive: TLabel;
-    chkactive: TCheckBox;
-    lblmanager: TLabel;
-    chkmanager: TCheckBox;
-    lblsuper_user: TLabel;
-    chksuper_user: TCheckBox;
-    lbllp_address: TLabel;
-    edtlp_address: TEdit;
-    lblmac_address: TLabel;
-    edtmac_address: TEdit;
+    lblUsername: TLabel;
+    edtUsername: TEdit;
+    lblUserPassword: TLabel;
+    edtUserPassword: TEdit;
+    lblActive: TLabel;
+    chkActive: TCheckBox;
+    lblManager: TLabel;
+    chkManager: TCheckBox;
+    lblSuperUser: TLabel;
+    chkSuperUser: TCheckBox;
+    lblIpAddress: TLabel;
+    edtIpAddress: TEdit;
+    lblMacAddress: TLabel;
+    edtMacAddress: TEdit;
   published
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
@@ -40,13 +40,13 @@ implementation
 
 procedure TfrmSysUser.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Username := edtusername.Text;
-  Table.UserPassword := edtuser_password.Text;
-  Table.Active := chkactive.Checked;
-  Table.Manager := chkmanager.Checked;
-  Table.SuperUser := chksuper_user.Checked;
-  Table.IpAddress := edtlp_address.Text;
-  Table.MacAddress := edtmac_address.Text;
+  Table.Username := edtUsername.Text;
+  Table.UserPassword := edtUserPassword.Text;
+  Table.Active := chkActive.Checked;
+  Table.Manager := chkManager.Checked;
+  Table.SuperUser := chkSuperUser.Checked;
+  Table.IpAddress := edtIpAddress.Text;
+  Table.MacAddress := edtMacAddress.Text;
   inherited;
 end;
 
@@ -54,26 +54,26 @@ procedure TfrmSysUser.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtuser_password.PasswordChar := '#';
+  edtUserPassword.PasswordChar := '#';
 end;
 
 procedure TfrmSysUser.FormShow(Sender: TObject);
 begin
   inherited;
   Self.Caption := 'User';
-  edtusername.SetFocus;
+  edtUsername.SetFocus;
 end;
 
 procedure TfrmSysUser.RefreshData;
 begin
   inherited;
-  edtusername.Text := Table.Username;
-  edtuser_password.Text := ''; // Password should not be displayed
-  chkactive.Checked := Table.Active;
-  chkmanager.Checked := Table.Manager;
-  chksuper_user.Checked := Table.SuperUser;
-  edtlp_address.Text := Table.IpAddress;
-  edtmac_address.Text := Table.MacAddress;
+  edtUsername.Text := Table.Username;
+  edtUserPassword.Text := ''; // Password should not be displayed
+  chkActive.Checked := Table.Active;
+  chkManager.Checked := Table.Manager;
+  chkSuperUser.Checked := Table.SuperUser;
+  edtIpAddress.Text := Table.IpAddress;
+  edtMacAddress.Text := Table.MacAddress;
 end;
 
 end.

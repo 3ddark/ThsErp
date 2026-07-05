@@ -1,7 +1,7 @@
 object frmSysApplicationSetting: TfrmSysApplicationSetting
   Left = 0
   Top = 0
-  Caption = 'Sistem Uygulama Ayarlar'#305
+  Caption = 'Application Setting'
   ClientHeight = 480
   ClientWidth = 720
   Color = clBtnFace
@@ -110,7 +110,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
       object tsAdres: TTabSheet
         Caption = 'Adres Bilgileri'
         ImageIndex = 2
-        object lblMukellefTipi: TLabel
+        object lblTaxpayerType: TLabel
           Left = 62
           Top = 13
           Width = 71
@@ -190,7 +190,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblUlkeAdi: TLabel
+        object lblCountryName: TLabel
           Left = 60
           Top = 80
           Width = 71
@@ -206,7 +206,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblSehirId: TLabel
+        object lblCityId: TLabel
           Left = 408
           Top = 80
           Width = 37
@@ -222,7 +222,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblIlce: TLabel
+        object lblDistrict: TLabel
           Left = 60
           Top = 103
           Width = 71
@@ -238,7 +238,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblMahalle: TLabel
+        object lblNeighborhood: TLabel
           Left = 60
           Top = 126
           Width = 71
@@ -254,7 +254,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblSemt: TLabel
+        object lblQuarter: TLabel
           Left = 408
           Top = 103
           Width = 30
@@ -270,7 +270,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblCadde: TLabel
+        object lblRoad: TLabel
           Left = 408
           Top = 126
           Width = 35
@@ -286,7 +286,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblSokak: TLabel
+        object lblStreet: TLabel
           Left = 60
           Top = 149
           Width = 71
@@ -302,7 +302,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblBinaAdi: TLabel
+        object lblBuildingName: TLabel
           Left = 408
           Top = 149
           Width = 71
@@ -318,7 +318,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblKapiNo: TLabel
+        object lblDoorNumber: TLabel
           Left = 60
           Top = 172
           Width = 71
@@ -334,7 +334,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblPostaKodu: TLabel
+        object lblZipCode: TLabel
           Left = 408
           Top = 172
           Width = 71
@@ -382,14 +382,14 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object cbbMukellefTipi: TComboBox
+        object cbbTaxpayerType: TComboBox
           Left = 137
           Top = 9
           Width = 200
           Height = 23
           Style = csDropDownList
           TabOrder = 0
-          OnChange = cbbMukellefTipiChange
+          OnChange = cbbTaxpayerTypeChange
         end
         object edtTaxpayerName: TEdit
           Left = 137
@@ -419,7 +419,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Height = 23
           TabOrder = 4
         end
-        object edtUlkeAdi: TEdit
+        object edtCountryName: TEdit
           Left = 137
           Top = 76
           Width = 200
@@ -427,63 +427,63 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ReadOnly = True
           TabOrder = 5
         end
-        object edtSehirId: TEdit
+        object edtCityId: TEdit
           Left = 479
           Top = 76
           Width = 200
           Height = 23
           TabOrder = 6
         end
-        object edtIlce: TEdit
+        object edtDistrict: TEdit
           Left = 137
           Top = 99
           Width = 200
           Height = 23
           TabOrder = 7
         end
-        object edtMahalle: TEdit
+        object edtNeighborhood: TEdit
           Left = 137
           Top = 122
           Width = 200
           Height = 23
           TabOrder = 8
         end
-        object edtSemt: TEdit
+        object edtQuarter: TEdit
           Left = 479
           Top = 99
           Width = 200
           Height = 23
           TabOrder = 9
         end
-        object edtCadde: TEdit
+        object edtRoad: TEdit
           Left = 479
           Top = 122
           Width = 200
           Height = 23
           TabOrder = 10
         end
-        object edtSokak: TEdit
+        object edtStreet: TEdit
           Left = 137
           Top = 145
           Width = 200
           Height = 23
           TabOrder = 11
         end
-        object edtBinaAdi: TEdit
+        object edtBuildingName: TEdit
           Left = 479
           Top = 145
           Width = 200
           Height = 23
           TabOrder = 12
         end
-        object edtKapiNo: TEdit
+        object edtDoorNumber: TEdit
           Left = 137
           Top = 168
           Width = 200
           Height = 23
           TabOrder = 13
         end
-        object edtPostaKodu: TEdit
+        object edtZipCode: TEdit
           Left = 479
           Top = 168
           Width = 200

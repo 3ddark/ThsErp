@@ -1,7 +1,7 @@
-object frmSysGridColumn: TfrmSysGridColumn
+﻿object frmSysGridColumn: TfrmSysGridColumn
   Left = 0
   Top = 0
-  Caption = 'frmSysGridColumn'
+  Caption = ''System Grid Column'
   ClientHeight = 480
   ClientWidth = 624
   Color = clBtnFace
@@ -271,7 +271,7 @@ object frmSysGridColumn: TfrmSysGridColumn
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object edtBarBgColor: TEdit
+    object edtBarBkColor: TEdit
       Left = 314
       Top = 172
       Width = 120

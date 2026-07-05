@@ -13,12 +13,13 @@ uses
 type
   TfrmSysRegion = class(TfrmInputSimpleDB<TSysRegion, TSysRegionService>)
     pnlContent: TPanel;
-    lblregion_name: TLabel;
-    edtregion_name: TEdit;
+    lblRegionName: TLabel;
+    edtRegionName: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
+    procedure InitializeInputCase; override;
     procedure RefreshData; override;
   end;
 
@@ -28,7 +29,7 @@ implementation
 
 procedure TfrmSysRegion.BtnAcceptClick(Sender: TObject);
 begin
-  Table.RegionName := edtregion_name.Text;
+  Table.RegionName := edtRegionName.Text;
   inherited;
 end;
 
@@ -38,19 +39,25 @@ begin
   pnlContent.Parent := PanelMain;
 end;
 
+procedure TfrmSysRegion.InitializeInputCase;
+begin
+  inherited;
+  edtRegionName.thsInputDataType := itString;
+end;
+
 procedure TfrmSysRegion.FormShow(Sender: TObject);
 begin
   inherited;
 
   Self.Caption := 'System Region';
 
-  edtregion_name.SetFocus;
+  edtRegionName.SetFocus;
 end;
 
 procedure TfrmSysRegion.RefreshData;
 begin
   inherited;
-  edtregion_name.Text := Table.RegionName;
+  edtRegionName.Text := Table.RegionName;
 end;
 
 end.

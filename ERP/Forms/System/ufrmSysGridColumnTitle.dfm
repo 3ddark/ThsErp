@@ -1,7 +1,7 @@
-object frmSysGridColumnTitle: TfrmSysGridColumnTitle
+﻿object frmSysGridColumnTitle: TfrmSysGridColumnTitle
   Left = 0
   Top = 0
-  Caption = 'frmSysGridColumnTitle'
+  Caption = ''System Grid Column Title'
   ClientHeight = 180
   ClientWidth = 520
   Color = clBtnFace

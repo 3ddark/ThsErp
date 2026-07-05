@@ -12,16 +12,16 @@ uses
 type
   TfrmSysPermission = class(TfrmInputSimpleDB<TSysPermission, TSysPermissionService>)
     pnlContent: TPanel;
-    lblpermission_code: TLabel;
-    edtpermission_code: TEdit;
-    lblpermission_name: TLabel;
-    edtpermission_name: TEdit;
-    lblpermission_group_id: TLabel;
-    edtpermission_group_id: TEdit;
-    btnpermission_group_sec: TButton;
+    lblPermissionCode: TLabel;
+    edtPermissionCode: TEdit;
+    lblPermissionName: TLabel;
+    edtPermissionName: TEdit;
+    lblPermissionGroupId: TLabel;
+    edtPermissionGroupId: TEdit;
+    btnPermissionGroupSelect: TButton;
   private
     FPermissionGroupId: Int64;
-    procedure btnpermission_group_secClick(Sender: TObject);
+    procedure btnPermissionGroupSelectClick(Sender: TObject);
   published
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
@@ -36,8 +36,8 @@ implementation
 
 procedure TfrmSysPermission.BtnAcceptClick(Sender: TObject);
 begin
-  Table.PermissionCode := StrToIntDef(edtpermission_code.Text, 0);
-  Table.PermissionName := edtpermission_name.Text;
+  Table.PermissionCode := StrToIntDef(edtPermissionCode.Text, 0);
+  Table.PermissionName := edtPermissionName.Text;
   Table.PermissionGroupId := FPermissionGroupId;
   inherited;
 end;
@@ -46,17 +46,17 @@ procedure TfrmSysPermission.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  btnpermission_group_sec.OnClick := btnpermission_group_secClick;
+  btnPermissionGroupSelect.OnClick := btnPermissionGroupSelectClick;
 end;
 
 procedure TfrmSysPermission.FormShow(Sender: TObject);
 begin
   inherited;
   Self.Caption := 'Permission';
-  edtpermission_code.SetFocus;
+  edtPermissionCode.SetFocus;
 end;
 
-procedure TfrmSysPermission.btnpermission_group_secClick(Sender: TObject);
+procedure TfrmSysPermission.btnPermissionGroupSelectClick(Sender: TObject);
 var
   LId: Int64;
   LName: string;
@@ -67,16 +67,16 @@ begin
   if LId > 0 then
   begin
     FPermissionGroupId := LId;
-    edtpermission_group_id.Text := LName;
+    edtPermissionGroupId.Text := LName;
   end;
 end;
 
 procedure TfrmSysPermission.RefreshData;
 begin
   inherited;
-  edtpermission_code.Text := IntToStr(Table.PermissionCode);
-  edtpermission_name.Text := Table.PermissionName;
-  edtpermission_group_id.Text := Table.PermissionGroupId.ToString;
+  edtPermissionCode.Text := IntToStr(Table.PermissionCode);
+  edtPermissionName.Text := Table.PermissionName;
+  edtPermissionGroupId.Text := Table.PermissionGroupId.ToString;
   FPermissionGroupId := Table.PermissionGroupId;
 end;
 

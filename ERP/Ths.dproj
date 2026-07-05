@@ -255,9 +255,6 @@
         <DCCReference Include="BackEnd\System\Domain\SysApplicationSetting.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysApplicationSetting.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysApplicationSetting.Service.pas"/>
-        <DCCReference Include="Forms\System\ufrmSysApplicationSetting.pas">
-            <Form>frmSysApplicationSetting</Form>
-        </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysCity.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysCity.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysCity.Service.pas"/>

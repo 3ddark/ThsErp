@@ -1,7 +1,7 @@
-object frmSysMonth: TfrmSysMonth
+﻿object frmSysMonth: TfrmSysMonth
   Left = 0
   Top = 0
-  Caption = 'frmSysMonth'
+  Caption = ''System Month'
   ClientHeight = 127
   ClientWidth = 500
   Color = clBtnFace
@@ -20,10 +20,10 @@ object frmSysMonth: TfrmSysMonth
     Height = 127
     Align = alClient
     TabOrder = 0
-    object lblmonth_name: TLabel
-      Left = 80
+    object lblMonthName: TLabel
+      Left = 56
       Top = 12
-      Width = 48
+      Width = 72
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -36,7 +36,7 @@ object frmSysMonth: TfrmSysMonth
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtmonth_name: TEdit
+    object edtMonthName: TEdit
       Left = 134
       Top = 8
       Width = 333

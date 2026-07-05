@@ -21,7 +21,7 @@ object frmSysRegion: TfrmSysRegion
     Align = alClient
     TabOrder = 0
     ExplicitWidth = 463
-    object lblregion_name: TLabel
+    object lblRegionName: TLabel
       Left = 51
       Top = 6
       Width = 77
@@ -37,7 +37,7 @@ object frmSysRegion: TfrmSysRegion
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtregion_name: TEdit
+    object edtRegionName: TEdit
       Left = 132
       Top = 2
       Width = 333

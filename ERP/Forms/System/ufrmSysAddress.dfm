@@ -1,7 +1,7 @@
-object frmSysAddress: TfrmSysAddress
+﻿object frmSysAddress: TfrmSysAddress
   Left = 0
   Top = 0
-  Caption = 'frmSysAddress'
+  Caption = ''Address'
   ClientHeight = 467
   ClientWidth = 500
   Color = clBtnFace
@@ -19,12 +19,10 @@ object frmSysAddress: TfrmSysAddress
     Height = 467
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 498
-    ExplicitHeight = 465
-    object lblcity_id: TLabel
-      Left = 31
+    object lblCityId: TLabel
+      Left = 72
       Top = 11
-      Width = 55
+      Width = 22
       Height = 13
       Alignment = taRightJustify
       Caption = 'City'
@@ -33,27 +31,12 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtcity_id: TEdit
-      Left = 80
-      Top = 7
-      Width = 250
-      Height = 23
-      ReadOnly = True
-      TabOrder = 0
-    end
-    object btncity_sec: TButton
-      Left = 336
-      Top = 3
-      Width = 75
-      Height = 25
-      Caption = 'Select'
-      TabOrder = 1
-    end
-    object lbldistrict: TLabel
-      Left = 20
+    object lblDistrict: TLabel
+      Left = 53
       Top = 41
-      Width = 66
+      Width = 41
       Height = 13
       Alignment = taRightJustify
       Caption = 'District'
@@ -62,18 +45,12 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtdistrict: TEdit
-      Left = 80
-      Top = 37
-      Width = 385
-      Height = 23
-      TabOrder = 2
-    end
-    object lblneighborhood: TLabel
-      Left = -4
+    object lblNeighborhood: TLabel
+      Left = 14
       Top = 71
-      Width = 90
+      Width = 80
       Height = 13
       Alignment = taRightJustify
       Caption = 'Neighborhood'
@@ -82,18 +59,12 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtneighborhood: TEdit
-      Left = 80
-      Top = 67
-      Width = 385
-      Height = 23
-      TabOrder = 3
-    end
-    object lblquarter: TLabel
-      Left = 24
+    object lblQuarter: TLabel
+      Left = 51
       Top = 101
-      Width = 62
+      Width = 43
       Height = 13
       Alignment = taRightJustify
       Caption = 'Quarter'
@@ -102,18 +73,12 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtquarter: TEdit
-      Left = 80
-      Top = 97
-      Width = 385
-      Height = 23
-      TabOrder = 4
-    end
-    object lblroad: TLabel
-      Left = 36
+    object lblRoad: TLabel
+      Left = 63
       Top = 131
-      Width = 50
+      Width = 31
       Height = 13
       Alignment = taRightJustify
       Caption = 'Road'
@@ -122,18 +87,12 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtroad: TEdit
-      Left = 80
-      Top = 127
-      Width = 385
-      Height = 23
-      TabOrder = 5
-    end
-    object lblstreet: TLabel
-      Left = 26
+    object lblStreet: TLabel
+      Left = 59
       Top = 161
-      Width = 60
+      Width = 35
       Height = 13
       Alignment = taRightJustify
       Caption = 'Street'
@@ -142,18 +101,12 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtstreet: TEdit
-      Left = 80
-      Top = 157
-      Width = 385
-      Height = 23
-      TabOrder = 6
-    end
-    object lblbuilding_name: TLabel
-      Left = -24
+    object lblBuildingName: TLabel
+      Left = 12
       Top = 191
-      Width = 110
+      Width = 82
       Height = 13
       Alignment = taRightJustify
       Caption = 'Building Name'
@@ -162,18 +115,12 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtbuilding_name: TEdit
-      Left = 80
-      Top = 187
-      Width = 385
-      Height = 23
-      TabOrder = 7
-    end
-    object lbldoor_number: TLabel
-      Left = -14
+    object lblDoorNumber: TLabel
+      Left = 19
       Top = 221
-      Width = 100
+      Width = 75
       Height = 13
       Alignment = taRightJustify
       Caption = 'Door Number'
@@ -182,18 +129,12 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtdoor_number: TEdit
-      Left = 80
-      Top = 217
-      Width = 150
-      Height = 23
-      TabOrder = 8
-    end
-    object lblzip_code: TLabel
-      Left = 6
+    object lblZipCode: TLabel
+      Left = 36
       Top = 251
-      Width = 74
+      Width = 52
       Height = 13
       Alignment = taRightJustify
       Caption = 'Zip Code'
@@ -202,18 +143,12 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtzip_code: TEdit
-      Left = 80
-      Top = 247
-      Width = 150
-      Height = 23
-      TabOrder = 9
-    end
-    object lblweb: TLabel
-      Left = 44
+    object lblWeb: TLabel
+      Left = 61
       Top = 281
-      Width = 36
+      Width = 27
       Height = 13
       Alignment = taRightJustify
       Caption = 'Web'
@@ -222,18 +157,12 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtweb: TEdit
-      Left = 80
-      Top = 277
-      Width = 385
-      Height = 23
-      TabOrder = 10
-    end
-    object lblemail: TLabel
-      Left = 34
+    object lblEmail: TLabel
+      Left = 57
       Top = 311
-      Width = 46
+      Width = 31
       Height = 13
       Alignment = taRightJustify
       Caption = 'Email'
@@ -242,9 +171,89 @@ object frmSysAddress: TfrmSysAddress
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtemail: TEdit
-      Left = 80
+    object edtCityId: TEdit
+      Left = 96
+      Top = 7
+      Width = 250
+      Height = 23
+      ReadOnly = True
+      TabOrder = 1
+    end
+    object btnCitySelect: TButton
+      Left = 352
+      Top = 3
+      Width = 75
+      Height = 25
+      Caption = 'Select'
+      TabOrder = 0
+    end
+    object edtDistrict: TEdit
+      Left = 96
+      Top = 37
+      Width = 385
+      Height = 23
+      TabOrder = 2
+    end
+    object edtNeighborhood: TEdit
+      Left = 96
+      Top = 67
+      Width = 385
+      Height = 23
+      TabOrder = 3
+    end
+    object edtQuarter: TEdit
+      Left = 96
+      Top = 97
+      Width = 385
+      Height = 23
+      TabOrder = 4
+    end
+    object edtRoad: TEdit
+      Left = 96
+      Top = 127
+      Width = 385
+      Height = 23
+      TabOrder = 5
+    end
+    object edtStreet: TEdit
+      Left = 96
+      Top = 157
+      Width = 385
+      Height = 23
+      TabOrder = 6
+    end
+    object edtBuildingName: TEdit
+      Left = 96
+      Top = 187
+      Width = 385
+      Height = 23
+      TabOrder = 7
+    end
+    object edtDoorNumber: TEdit
+      Left = 96
+      Top = 217
+      Width = 150
+      Height = 23
+      TabOrder = 8
+    end
+    object edtZipCode: TEdit
+      Left = 96
+      Top = 247
+      Width = 150
+      Height = 23
+      TabOrder = 9
+    end
+    object edtWeb: TEdit
+      Left = 96
+      Top = 277
+      Width = 385
+      Height = 23
+      TabOrder = 10
+    end
+    object edtEmail: TEdit
+      Left = 96
       Top = 307
       Width = 385
       Height = 23

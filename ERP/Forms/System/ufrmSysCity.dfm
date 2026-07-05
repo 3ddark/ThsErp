@@ -1,7 +1,7 @@
 object frmSysCity: TfrmSysCity
   Left = 0
   Top = 0
-  Caption = 'Sehir Kayit'
+  Caption = 'System City'
   ClientHeight = 166
   ClientWidth = 500
   Color = clBtnFace

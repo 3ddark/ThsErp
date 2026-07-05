@@ -1,4 +1,4 @@
-unit ufrmSysAccessRight;
+﻿unit ufrmSysAccessRight;
 
 interface
 
@@ -12,43 +12,41 @@ uses
 type
   TfrmSysAccessRight = class(TfrmInputSimpleDB<TSysAccessRight, TSysAccessRightService>)
     pnlContent: TPanel;
-    lbluser_id: TLabel;
-    edtuser_id: TEdit;
-    btnuser_sec: TButton;
-    lblpermission_id: TLabel;
-    edtpermission_id: TEdit;
-    btnpermission_sec: TButton;
-    chkis_read: TCheckBox;
-    chkis_add: TCheckBox;
-    chkis_update: TCheckBox;
-    chkis_delete: TCheckBox;
-    chkis_special: TCheckBox;
-  private
-    FUserId: Int64;
-    FPermissionId: Int64;
-    procedure btnuser_secClick(Sender: TObject);
-    procedure btnpermission_secClick(Sender: TObject);
+    lblUserId: TLabel;
+    edtUserId: TEdit;
+    lblPermissionId: TLabel;
+    edtPermissionId: TEdit;
+    chkIsRead: TCheckBox;
+    chkIsAdd: TCheckBox;
+    chkIsUpdate: TCheckBox;
+    chkIsDelete: TCheckBox;
+    chkIsSpecial: TCheckBox;
   published
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
     procedure RefreshData; override;
+    procedure HelperProcess(Sender: TObject);
   end;
 
 implementation
 
 {$R *.dfm}
 
+uses
+  ufrmSysUsers;      // TfrmSysUsers helper output form (user selection)
+  ufrmSysPermissions; // TfrmSysPermissions helper output form (permission selection)
+
 procedure TfrmSysAccessRight.BtnAcceptClick(Sender: TObject);
 begin
-  Table.UserId := FUserId;
-  Table.PermissionId := FPermissionId;
-  Table.IsRead := chkis_read.Checked;
-  Table.IsAdd := chkis_add.Checked;
-  Table.IsUpdate := chkis_update.Checked;
-  Table.IsDelete := chkis_delete.Checked;
-  Table.IsSpecial := chkis_special.Checked;
+  Table.UserId := edtUserId.Tag;
+  Table.PermissionId := edtPermissionId.Tag;
+  Table.IsRead := chkIsRead.Checked;
+  Table.IsAdd := chkIsAdd.Checked;
+  Table.IsUpdate := chkIsUpdate.Checked;
+  Table.IsDelete := chkIsDelete.Checked;
+  Table.IsSpecial := chkIsSpecial.Checked;
   inherited;
 end;
 
@@ -56,59 +54,87 @@ procedure TfrmSysAccessRight.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  btnuser_sec.OnClick := btnuser_secClick;
-  btnpermission_sec.OnClick := btnpermission_secClick;
+  edtUserId.OnHelperProcess := HelperProcess;
+  edtPermissionId.OnHelperProcess := HelperProcess;
+end;
+
+procedure TfrmSysAccessRight.InitializeInputCase;
+begin
+  inherited;
+  edtUserId.thsInputDataType := itInteger;
+  edtPermissionId.thsInputDataType := itInteger;
 end;
 
 procedure TfrmSysAccessRight.FormShow(Sender: TObject);
 begin
   inherited;
   Self.Caption := 'Access Right';
-  edtuser_id.SetFocus;
+  edtUserId.SetFocus;
 end;
 
-procedure TfrmSysAccessRight.btnuser_secClick(Sender: TObject);
+procedure TfrmSysAccessRight.HelperProcess(Sender: TObject);
 var
-  LId: Int64;
-  LName: string;
+  LFrmUser: TfrmSysUsers;
+  LFrmPermission: TfrmSysPermissions;
 begin
-  // TODO: Show user selection helper form (ufrmSysUsers)
-  LId := 0;
-  LName := '';
-  if LId > 0 then
+  if Sender is TEdit then
   begin
-    FUserId := LId;
-    edtuser_id.Text := LName;
-  end;
-end;
-
-procedure TfrmSysAccessRight.btnpermission_secClick(Sender: TObject);
-var
-  LId: Int64;
-  LName: string;
-begin
-  // TODO: Show permission selection helper form (ufrmSysPermissions)
-  LId := 0;
-  LName := '';
-  if LId > 0 then
-  begin
-    FPermissionId := LId;
-    edtpermission_id.Text := LName;
+    if (Sender as TEdit).Name = edtUserId.Name then
+    begin
+      LFrmUser := TfrmSysUsers.Create(
+        (Sender as TEdit), TSysUserService.Create, TSysUser.Create);
+      try
+        LFrmUser.IsHelper := True;
+        LFrmUser.ShowModal;
+        if LFrmUser.DataTransfer then
+          if LFrmUser.CleanAndClose then
+          begin
+            edtUserId.Tag := 0;
+            (Sender as TEdit).Clear;
+          end
+          else
+          begin
+            edtUserId.Tag := LFrmUser.Table.Id;
+            (Sender as TEdit).Text := LFrmUser.Table.Username;
+          end;
+      finally
+        LFrmUser.Free;
+      end;
+    end
+    else if (Sender as TEdit).Name = edtPermissionId.Name then
+    begin
+      LFrmPermission := TfrmSysPermissions.Create(
+        (Sender as TEdit), TSysPermissionService.Create, TSysPermission.Create);
+      try
+        LFrmPermission.IsHelper := True;
+        LFrmPermission.ShowModal;
+        if LFrmPermission.DataTransfer then
+          if LFrmPermission.CleanAndClose then
+          begin
+            edtPermissionId.Tag := 0;
+            (Sender as TEdit).Clear;
+          end
+          else
+          begin
+            edtPermissionId.Tag := LFrmPermission.Table.Id;
+            (Sender as TEdit).Text := LFrmPermission.Table.PermissionName;
+          end;
+    end;
   end;
 end;
 
 procedure TfrmSysAccessRight.RefreshData;
 begin
   inherited;
-  edtuser_id.Text := Table.UserId.ToString;
-  edtpermission_id.Text := Table.PermissionId.ToString;
-  FUserId := Table.UserId;
-  FPermissionId := Table.PermissionId;
-  chkis_read.Checked := Table.IsRead;
-  chkis_add.Checked := Table.IsAdd;
-  chkis_update.Checked := Table.IsUpdate;
-  chkis_delete.Checked := Table.IsDelete;
-  chkis_special.Checked := Table.IsSpecial;
+  edtUserId.Text := Table.UserId.ToString;
+  edtPermissionId.Text := Table.PermissionId.ToString;
+  edtUserId.Tag := Table.UserId;
+  edtPermissionId.Tag := Table.PermissionId;
+  chkIsRead.Checked := Table.IsRead;
+  chkIsAdd.Checked := Table.IsAdd;
+  chkIsUpdate.Checked := Table.IsUpdate;
+  chkIsDelete.Checked := Table.IsDelete;
+  chkIsSpecial.Checked := Table.IsSpecial;
 end;
 
 end.

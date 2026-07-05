@@ -12,37 +12,38 @@ uses
 type
   TfrmSysAddress = class(TfrmInputSimpleDB<TSysAddress, TSysAddressService>)
     pnlContent: TPanel;
-    lblcity_id: TLabel;
-    edtcity_id: TEdit;
-    btncity_sec: TButton;
-    lbldistrict: TLabel;
-    edtdistrict: TEdit;
-    lblneighborhood: TLabel;
-    edtneighborhood: TEdit;
-    lblquarter: TLabel;
-    edtquarter: TEdit;
-    lblroad: TLabel;
-    edtroad: TEdit;
-    lblstreet: TLabel;
-    edtstreet: TEdit;
-    lblbuilding_name: TLabel;
-    edtbuilding_name: TEdit;
-    lbldoor_number: TLabel;
-    edtdoor_number: TEdit;
-    lblzip_code: TLabel;
-    edtzip_code: TEdit;
-    lblweb: TLabel;
-    edtweb: TEdit;
-    lblemail: TLabel;
-    edtemail: TEdit;
+    lblCityId: TLabel;
+    edtCityId: TEdit;
+    btnCitySelect: TButton;
+    lblDistrict: TLabel;
+    edtDistrict: TEdit;
+    lblNeighborhood: TLabel;
+    edtNeighborhood: TEdit;
+    lblQuarter: TLabel;
+    edtQuarter: TEdit;
+    lblRoad: TLabel;
+    edtRoad: TEdit;
+    lblStreet: TLabel;
+    edtStreet: TEdit;
+    lblBuildingName: TLabel;
+    edtBuildingName: TEdit;
+    lblDoorNumber: TLabel;
+    edtDoorNumber: TEdit;
+    lblZipCode: TLabel;
+    edtZipCode: TEdit;
+    lblWeb: TLabel;
+    edtWeb: TEdit;
+    lblEmail: TLabel;
+    edtEmail: TEdit;
   private
     FCityId: Int64;
-    procedure btncity_secClick(Sender: TObject);
+    procedure btnCitySelectClick(Sender: TObject);
   published
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
+    procedure InitializeInputCase; override;
     procedure RefreshData; override;
   end;
 
@@ -53,16 +54,16 @@ implementation
 procedure TfrmSysAddress.BtnAcceptClick(Sender: TObject);
 begin
   Table.CityId := FCityId;
-  Table.District := edtdistrict.Text;
-  Table.Neighborhood := edtneighborhood.Text;
-  Table.Quarter := edtquarter.Text;
-  Table.Road := edtroad.Text;
-  Table.Street := edtstreet.Text;
-  Table.BuildingName := edtbuilding_name.Text;
-  Table.DoorNumber := edtdoor_number.Text;
-  Table.ZipCode := edtzip_code.Text;
-  Table.Web := edtweb.Text;
-  Table.Email := edtemail.Text;
+  Table.District := edtDistrict.Text;
+  Table.Neighborhood := edtNeighborhood.Text;
+  Table.Quarter := edtQuarter.Text;
+  Table.Road := edtRoad.Text;
+  Table.Street := edtStreet.Text;
+  Table.BuildingName := edtBuildingName.Text;
+  Table.DoorNumber := edtDoorNumber.Text;
+  Table.ZipCode := edtZipCode.Text;
+  Table.Web := edtWeb.Text;
+  Table.Email := edtEmail.Text;
   inherited;
 end;
 
@@ -70,17 +71,25 @@ procedure TfrmSysAddress.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  btncity_sec.OnClick := btncity_secClick;
+  btnCitySelect.OnClick := btnCitySelectClick;
+end;
+
+procedure TfrmSysAddress.InitializeInputCase;
+begin
+  inherited;
+  edtCityId.thsInputDataType := itInteger;
+  edtDoorNumber.thsInputDataType := itInteger;
+  edtZipCode.thsInputDataType := itInteger;
 end;
 
 procedure TfrmSysAddress.FormShow(Sender: TObject);
 begin
   inherited;
   Self.Caption := 'Address';
-  edtdistrict.SetFocus;
+  edtDistrict.SetFocus;
 end;
 
-procedure TfrmSysAddress.btncity_secClick(Sender: TObject);
+procedure TfrmSysAddress.btnCitySelectClick(Sender: TObject);
 var
   LId: Int64;
   LName: string;
@@ -91,24 +100,24 @@ begin
   if LId > 0 then
   begin
     FCityId := LId;
-    edtcity_id.Text := LName;
+    edtCityId.Text := LName;
   end;
 end;
 
 procedure TfrmSysAddress.RefreshData;
 begin
   inherited;
-  edtcity_id.Text := Table.CityId.ToString;
-  edtdistrict.Text := Table.District;
-  edtneighborhood.Text := Table.Neighborhood;
-  edtquarter.Text := Table.Quarter;
-  edtroad.Text := Table.Road;
-  edtstreet.Text := Table.Street;
-  edtbuilding_name.Text := Table.BuildingName;
-  edtdoor_number.Text := Table.DoorNumber;
-  edtzip_code.Text := Table.ZipCode;
-  edtweb.Text := Table.Web;
-  edtemail.Text := Table.Email;
+  edtCityId.Text := Table.CityId.ToString;
+  edtDistrict.Text := Table.District;
+  edtNeighborhood.Text := Table.Neighborhood;
+  edtQuarter.Text := Table.Quarter;
+  edtRoad.Text := Table.Road;
+  edtStreet.Text := Table.Street;
+  edtBuildingName.Text := Table.BuildingName;
+  edtDoorNumber.Text := Table.DoorNumber;
+  edtZipCode.Text := Table.ZipCode;
+  edtWeb.Text := Table.Web;
+  edtEmail.Text := Table.Email;
   FCityId := Table.CityId;
 end;
 

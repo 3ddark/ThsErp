@@ -21,7 +21,7 @@ object frmSysPermission: TfrmSysPermission
     TabOrder = 0
     ExplicitWidth = 498
     ExplicitHeight = 195
-    object lblpermission_code: TLabel
+    object lblPermissionCode: TLabel
       Left = 12
       Top = 11
       Width = 78
@@ -34,14 +34,14 @@ object frmSysPermission: TfrmSysPermission
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object edtpermission_code: TEdit
+    object edtPermissionCode: TEdit
       Left = 80
       Top = 7
       Width = 120
       Height = 23
       TabOrder = 0
     end
-    object lblpermission_name: TLabel
+    object lblPermissionName: TLabel
       Left = 26
       Top = 41
       Width = 64
@@ -54,14 +54,14 @@ object frmSysPermission: TfrmSysPermission
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object edtpermission_name: TEdit
+    object edtPermissionName: TEdit
       Left = 80
       Top = 37
       Width = 385
       Height = 23
       TabOrder = 1
     end
-    object lblpermission_group_id: TLabel
+    object lblPermissionGroupId: TLabel
       Left = -4
       Top = 71
       Width = 94
@@ -74,7 +74,7 @@ object frmSysPermission: TfrmSysPermission
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object edtpermission_group_id: TEdit
+    object edtPermissionGroupId: TEdit
       Left = 80
       Top = 67
       Width = 250
@@ -82,7 +82,7 @@ object frmSysPermission: TfrmSysPermission
       ReadOnly = True
       TabOrder = 2
     end
-    object btnpermission_group_sec: TButton
+    object btnPermissionGroupSelect: TButton
       Left = 336
       Top = 63
       Width = 75

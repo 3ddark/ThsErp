@@ -21,7 +21,7 @@ object frmSysUser: TfrmSysUser
     TabOrder = 0
     ExplicitWidth = 498
     ExplicitHeight = 235
-    object lblusername: TLabel
+    object lblUsername: TLabel
       Left = 26
       Top = 11
       Width = 54
@@ -34,14 +34,14 @@ object frmSysUser: TfrmSysUser
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object edtusername: TEdit
+    object edtUsername: TEdit
       Left = 80
       Top = 7
       Width = 385
       Height = 23
       TabOrder = 0
     end
-    object lbluser_password: TLabel
+    object lblUserPassword: TLabel
       Left = 14
       Top = 41
       Width = 66
@@ -54,14 +54,14 @@ object frmSysUser: TfrmSysUser
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object edtuser_password: TEdit
+    object edtUserPassword: TEdit
       Left = 80
       Top = 37
       Width = 385
       Height = 23
       TabOrder = 1
     end
-    object lblactive: TLabel
+    object lblActive: TLabel
       Left = 42
       Top = 71
       Width = 38
@@ -74,7 +74,7 @@ object frmSysUser: TfrmSysUser
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object chkactive: TCheckBox
+    object chkActive: TCheckBox
       Left = 80
       Top = 67
       Width = 90
@@ -82,7 +82,7 @@ object frmSysUser: TfrmSysUser
       Caption = 'Active'
       TabOrder = 2
     end
-    object lblmanager: TLabel
+    object lblManager: TLabel
       Left = 34
       Top = 96
       Width = 46
@@ -95,7 +95,7 @@ object frmSysUser: TfrmSysUser
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object chkmanager: TCheckBox
+    object chkManager: TCheckBox
       Left = 80
       Top = 92
       Width = 90
@@ -103,7 +103,7 @@ object frmSysUser: TfrmSysUser
       Caption = 'Manager'
       TabOrder = 3
     end
-    object lblsuper_user: TLabel
+    object lblSuperUser: TLabel
       Left = 14
       Top = 121
       Width = 66
@@ -116,7 +116,7 @@ object frmSysUser: TfrmSysUser
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object chksuper_user: TCheckBox
+    object chkSuperUser: TCheckBox
       Left = 80
       Top = 117
       Width = 90
@@ -124,7 +124,7 @@ object frmSysUser: TfrmSysUser
       Caption = 'Super User'
       TabOrder = 4
     end
-    object lbllp_address: TLabel
+    object lblIpAddress: TLabel
       Left = 12
       Top = 151
       Width = 68
@@ -137,14 +137,14 @@ object frmSysUser: TfrmSysUser
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object edtlp_address: TEdit
+    object edtIpAddress: TEdit
       Left = 80
       Top = 147
       Width = 385
       Height = 23
       TabOrder = 5
     end
-    object lblmac_address: TLabel
+    object lblMacAddress: TLabel
       Left = 6
       Top = 181
       Width = 74
@@ -157,7 +157,7 @@ object frmSysUser: TfrmSysUser
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
     end
-    object edtmac_address: TEdit
+    object edtMacAddress: TEdit
       Left = 80
       Top = 177
       Width = 385

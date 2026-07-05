@@ -38,7 +38,7 @@ type
     lblBarColor: TLabel;
     edtBarColor: TEdit;
     lblBarBgColor: TLabel;
-    edtBarBgColor: TEdit;
+    edtBarBkColor: TEdit;
     lblBarTextColor: TLabel;
     edtBarTextColor: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
@@ -68,7 +68,7 @@ begin
   Table.MaxValueColor := StrToIntDef(edtMaxValueColor.Text, 0);
   Table.MaxValuePercent := StrToFloatDef(edtMaxValuePercent.Text, 0);
   Table.BarColor := StrToIntDef(edtBarColor.Text, 0);
-  Table.BarBgColor := StrToIntDef(edtBarBgColor.Text, 0);
+  Table.BarBgColor := StrToIntDef(edtBarBkColor.Text, 0);
   Table.BarTextColor := StrToIntDef(edtBarTextColor.Text, 0);
   inherited;
 end;
@@ -105,7 +105,7 @@ begin
   edtMaxValueColor.thsInputDataType := itInteger;
   edtMaxValuePercent.thsInputDataType := itFloat;
   edtBarColor.thsInputDataType := itInteger;
-  edtBarBgColor.thsInputDataType := itInteger;
+  edtBarBkColor.thsInputDataType := itInteger;
   edtBarTextColor.thsInputDataType := itInteger;
 end;
 
@@ -125,7 +125,7 @@ begin
   edtMaxValueColor.Text := IntToStr(Table.MaxValueColor);
   edtMaxValuePercent.Text := FloatToStr(Table.MaxValuePercent);
   edtBarColor.Text := IntToStr(Table.BarColor);
-  edtBarBgColor.Text := IntToStr(Table.BarBgColor);
+  edtBarBkColor.Text := IntToStr(Table.BarBgColor);
   edtBarTextColor.Text := IntToStr(Table.BarTextColor);
 end;
 

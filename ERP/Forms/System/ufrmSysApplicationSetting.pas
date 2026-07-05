@@ -27,8 +27,8 @@ type
     edtFax: TEdit;
     pnlLogo: TPanel;
     tsAdres: TTabSheet;
-    lblMukellefTipi: TLabel;
-    cbbMukellefTipi: TComboBox;
+    lblTaxpayerType: TLabel;
+    cbbTaxpayerType: TComboBox;
     lblTaxpayerName: TLabel;
     edtTaxpayerName: TEdit;
     lblTaxpayerSurname: TLabel;
@@ -37,26 +37,26 @@ type
     edtTaxNo: TEdit;
     lblTaxAuthority: TLabel;
     edtTaxAuthority: TEdit;
-    lblUlkeAdi: TLabel;
-    edtUlkeAdi: TEdit;
-    lblSehirId: TLabel;
-    edtSehirId: TEdit;
-    lblIlce: TLabel;
-    edtIlce: TEdit;
-    lblMahalle: TLabel;
-    edtMahalle: TEdit;
-    lblSemt: TLabel;
-    edtSemt: TEdit;
-    lblCadde: TLabel;
-    edtCadde: TEdit;
-    lblSokak: TLabel;
-    edtSokak: TEdit;
-    lblBinaAdi: TLabel;
-    edtBinaAdi: TEdit;
-    lblKapiNo: TLabel;
-    edtKapiNo: TEdit;
-    lblPostaKodu: TLabel;
-    edtPostaKodu: TEdit;
+    lblCountryName: TLabel;
+    edtCountryName: TEdit;
+    lblCityId: TLabel;
+    edtCityId: TEdit;
+    lblDistrict: TLabel;
+    edtDistrict: TEdit;
+    lblNeighborhood: TLabel;
+    edtNeighborhood: TEdit;
+    lblQuarter: TLabel;
+    edtQuarter: TEdit;
+    lblRoad: TLabel;
+    edtRoad: TEdit;
+    lblStreet: TLabel;
+    edtStreet: TEdit;
+    lblBuildingName: TLabel;
+    edtBuildingName: TEdit;
+    lblDoorNumber: TLabel;
+    edtDoorNumber: TEdit;
+    lblZipCode: TLabel;
+    edtZipCode: TEdit;
     lblWeb: TLabel;
     edtWeb: TEdit;
     lblEmail: TLabel;
@@ -110,7 +110,7 @@ type
     procedure btnPathStockCardImageClick(Sender: TObject);
     procedure btnPathPersonnelCardImageClick(Sender: TObject);
     procedure btnPathUpdateClick(Sender: TObject);
-    procedure cbbMukellefTipiChange(Sender: TObject);
+    procedure cbbTaxpayerTypeChange(Sender: TObject);
   private
     procedure SetColor(color: TColor; editColor: TEdit);
   protected
@@ -121,6 +121,7 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormPaint(Sender: TObject);
     procedure FormShow(Sender: TObject); override;
+    procedure InitializeInputCase; override;
     procedure RefreshData(); override;
   end;
 
@@ -128,6 +129,12 @@ implementation
 
 uses
   Ths.Globals, Ths.Constants, Ths.Utils.Images;
+
+procedure TfrmSysApplicationSetting.InitializeInputCase;
+begin
+  inherited;
+  edtCityId.thsInputDataType := itInteger;
+end;
 
 {$R *.dfm}
 
@@ -238,12 +245,12 @@ begin
 
   edtCryptKey.CharCase := TEditCharCase.ecNormal;
 
-  cbbMukellefTipi.CharCase := TEditCharCase.ecNormal;
-  cbbMukellefTipi.Clear;
-  cbbMukellefTipi.Items.Add('TC Kimlik No (TCKN)');
-  cbbMukellefTipi.Items.Add('Vergi Kimlik No (VKN)');
-  cbbMukellefTipi.ItemIndex := 0;
-  cbbMukellefTipiChange(cbbMukellefTipi);
+  cbbTaxpayerType.CharCase := TEditCharCase.ecNormal;
+  cbbTaxpayerType.Clear;
+  cbbTaxpayerType.Items.Add('TC Kimlik No (TCKN)');
+  cbbTaxpayerType.Items.Add('Vergi Kimlik No (VKN)');
+  cbbTaxpayerType.ItemIndex := 0;
+  cbbTaxpayerTypeChange(cbbTaxpayerType);
 end;
 
 procedure TfrmSysApplicationSetting.FormPaint(Sender: TObject);
@@ -267,19 +274,19 @@ end;
 
 procedure TfrmSysApplicationSetting.FormShow(Sender: TObject);
 begin
-  edtSehirId.OnHelperProcess := HelperProcess;
+  edtCityId.OnHelperProcess := HelperProcess;
 
   inherited;
 
-  edtUlkeAdi.ReadOnly := True;
-  edtIlce.CharCase := ecUpperCase;
-  edtMahalle.CharCase := ecUpperCase;
-  edtSemt.CharCase := ecUpperCase;
-  edtCadde.CharCase := ecUpperCase;
-  edtSokak.CharCase := ecUpperCase;
-  edtBinaAdi.CharCase := ecUpperCase;
-  edtKapiNo.CharCase := ecUpperCase;
-  edtPostaKodu.CharCase := ecUpperCase;
+  edtCountryName.ReadOnly := True;
+  edtDistrict.CharCase := ecUpperCase;
+  edtNeighborhood.CharCase := ecUpperCase;
+  edtQuarter.CharCase := ecUpperCase;
+  edtRoad.CharCase := ecUpperCase;
+  edtStreet.CharCase := ecUpperCase;
+  edtBuildingName.CharCase := ecUpperCase;
+  edtDoorNumber.CharCase := ecUpperCase;
+  edtZipCode.CharCase := ecUpperCase;
 end;
 
 procedure TfrmSysApplicationSetting.HelperProcess(Sender: TObject);
@@ -292,7 +299,7 @@ begin
   if (FormMode <> ifmNewRecord) and (FormMode <> ifmCopyNewRecord) and (FormMode <> ifmUpdate) then
     Exit;
 
-  if TEdit(Sender).Name = edtSehirId.Name then
+  if TEdit(Sender).Name = edtCityId.Name then
   begin
     LFrmCity := TfrmSysCities.Create(TEdit(Sender), TSysCityService.Create, TSysCity.Create, True, True);
     try
@@ -351,10 +358,10 @@ begin
   edtSmsTitle.Text := Table.SmsTitle;
 
   if Table.Taxpayertype = 'TCKN' then
-    cbbMukellefTipi.ItemIndex := 0
+    cbbTaxpayerType.ItemIndex := 0
   else if Table.Taxpayertype = 'VKN' then
-    cbbMukellefTipi.ItemIndex := 1;
-  cbbMukellefTipiChange(cbbMukellefTipi);
+    cbbTaxpayerType.ItemIndex := 1;
+  cbbTaxpayerTypeChange(cbbTaxpayerType);
 
   edtTaxAuthority.Text := Table.TaxAuthority;
   edtTaxNo.Text := Table.TaxNo;
@@ -363,15 +370,15 @@ begin
 
   edtWeb.Text := Table.Address.Web;
   edtEmail.Text := Table.Address.EMail;
-  edtUlkeAdi.Text := Table.Address.City.Country.CountryName;
-  edtIlce.Text := Table.Address.District;
-  edtMahalle.Text := Table.Address.Neighborhood;
-  edtSemt.Text := Table.Address.Quarter;
-  edtCadde.Text := Table.Address.Road;
-  edtSokak.Text := Table.Address.Street;
-  edtBinaAdi.Text := Table.Address.BuildingName;
-  edtKapiNo.Text := Table.Address.DoorNumber;
-  edtPostaKodu.Text := Table.Address.ZipCode;
+  edtCountryName.Text := Table.Address.City.Country.CountryName;
+  edtDistrict.Text := Table.Address.District;
+  edtNeighborhood.Text := Table.Address.Neighborhood;
+  edtQuarter.Text := Table.Address.Quarter;
+  edtRoad.Text := Table.Address.Road;
+  edtStreet.Text := Table.Address.Street;
+  edtBuildingName.Text := Table.Address.BuildingName;
+  edtDoorNumber.Text := Table.Address.DoorNumber;
+  edtZipCode.Text := Table.Address.ZipCode;
 
   SetColor(StrToIntDef(edtGridColor1.Text, 0), edtGridColor1);
   SetColor(StrToIntDef(edtGridColor2.Text, 0), edtGridColor2);
@@ -452,9 +459,9 @@ begin
       else
         Table.SmsPassword := '';
 
-      if cbbMukellefTipi.ItemIndex = Ord(TMukellefTipi.TCKN) then
+      if cbbTaxpayerType.ItemIndex = Ord(TMukellefTipi.TCKN) then
         Table.Taxpayertype := 'TCKN'
-      else if cbbMukellefTipi.ItemIndex = Ord(TMukellefTipi.VKN) then
+      else if cbbTaxpayerType.ItemIndex = Ord(TMukellefTipi.VKN) then
         Table.Taxpayertype := 'VKN';
       Table.TaxAuthority := edtTaxAuthority.Text;
       Table.TaxNo := edtTaxNo.Text;
@@ -463,14 +470,14 @@ begin
 
       Table.Address.Web := edtWeb.Text;
       Table.Address.EMail := edtEmail.Text;
-      Table.Address.District := edtIlce.Text;
-      Table.Address.Neighborhood := edtMahalle.Text;
-      Table.Address.Quarter := edtSemt.Text;
-      Table.Address.Road := edtCadde.Text;
-      Table.Address.Street := edtSokak.Text;
-      Table.Address.BuildingName := edtBinaAdi.Text;
-      Table.Address.DoorNumber := edtKapiNo.Text;
-      Table.Address.ZipCode := edtPostaKodu.Text;
+      Table.Address.District := edtDistrict.Text;
+      Table.Address.Neighborhood := edtNeighborhood.Text;
+      Table.Address.Quarter := edtQuarter.Text;
+      Table.Address.Road := edtRoad.Text;
+      Table.Address.Street := edtStreet.Text;
+      Table.Address.BuildingName := edtBuildingName.Text;
+      Table.Address.DoorNumber := edtDoorNumber.Text;
+      Table.Address.ZipCode := edtZipCode.Text;
 
       // Diğer ayarlar JSONB
       Table.OtherSettingsObj.StockCardImagePath := edtPathStockCardImage.Text;

@@ -13,8 +13,8 @@ uses
 type
   TfrmSysPermissionGroup = class(TfrmInputSimpleDB<TSysPermissionGroup, TSysPermissionGroupService>)
     pnlContent: TPanel;
-    lblgroup_name: TLabel;
-    edtgroup_name: TEdit;
+    lblGroupName: TLabel;
+    edtGroupName: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -29,7 +29,7 @@ implementation
 
 procedure TfrmSysPermissionGroup.BtnAcceptClick(Sender: TObject);
 begin
-  Table.GroupName := edtgroup_name.Text;
+  Table.GroupName := edtGroupName.Text;
   inherited;
 end;
 
@@ -45,20 +45,20 @@ begin
 
   Self.Caption := 'Permission Group';
 
-  edtgroup_name.SetFocus;
+  edtGroupName.SetFocus;
 end;
 
 procedure TfrmSysPermissionGroup.InitializeInputCase;
 begin
   inherited;
-  edtgroup_name.thsInputDataType := itString;
-  edtgroup_name.MaxLength := 64;
+  edtGroupName.thsInputDataType := itString;
+  edtGroupName.MaxLength := 64;
 end;
 
 procedure TfrmSysPermissionGroup.RefreshData;
 begin
   inherited;
-  edtgroup_name.Text := Table.GroupName;
+  edtGroupName.Text := Table.GroupName;
 end;
 
 end.

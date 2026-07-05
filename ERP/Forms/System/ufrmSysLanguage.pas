@@ -13,10 +13,10 @@ uses
 type
   TfrmSysLanguage = class(TfrmInputSimpleDB<TSysLanguage, TSysLanguageService>)
     pnlContent: TPanel;
-    lbllng_code: TLabel;
-    lbldescription: TLabel;
-    edtlng_code: TEdit;
-    edtdescription: TEdit;
+    lblLngCode: TLabel;
+    lblDescription: TLabel;
+    edtKod: TEdit;
+    edtAciklama: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -31,8 +31,8 @@ implementation
 
 procedure TfrmSysLanguage.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Kod := edtlng_code.Text;
-  Table.Aciklama := edtdescription.Text;
+  Table.Kod := edtKod.Text;
+  Table.Aciklama := edtAciklama.Text;
   inherited;
 end;
 
@@ -48,23 +48,23 @@ begin
 
   Self.Caption := 'System Language';
 
-  edtlng_code.SetFocus;
+  edtKod.SetFocus;
 end;
 
 procedure TfrmSysLanguage.InitializeInputCase;
 begin
   inherited;
-  edtlng_code.thsInputDataType := itString;
-  edtlng_code.MaxLength := 2;
-  edtdescription.thsInputDataType := itString;
-  edtdescription.MaxLength := 128;
+  edtKod.thsInputDataType := itString;
+  edtKod.MaxLength := 2;
+  edtAciklama.thsInputDataType := itString;
+  edtAciklama.MaxLength := 128;
 end;
 
 procedure TfrmSysLanguage.RefreshData;
 begin
   inherited;
-  edtlng_code.Text := Table.Kod;
-  edtdescription.Text := Table.Aciklama;
+  edtKod.Text := Table.Kod;
+  edtAciklama.Text := Table.Aciklama;
 end;
 
 end.

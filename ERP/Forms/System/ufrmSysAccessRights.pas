@@ -1,4 +1,4 @@
-unit ufrmSysAccessRights;
+﻿unit ufrmSysAccessRights;
 
 interface
 
@@ -34,8 +34,8 @@ end;
 procedure TfrmSysAccessRights.DefineColumnWidths;
 begin
   SetColumnProperty('id',           0, 'Id');
-  SetColumnProperty('user_id',      80, 'User ID');
-  SetColumnProperty('permission_id', 100, 'Permission ID');
+  SetColumnProperty('username',     120, 'Username');
+  SetColumnProperty('permission_name', 160, 'Permission Name');
   SetColumnProperty('is_read',       50, 'Read');
   SetColumnProperty('is_add',        50, 'Add');
   SetColumnProperty('is_update',     60, 'Update');

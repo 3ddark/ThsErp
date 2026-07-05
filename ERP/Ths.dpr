@@ -72,7 +72,6 @@ uses
   SysApplicationSetting in 'BackEnd\System\Domain\SysApplicationSetting.pas',
   SysApplicationSetting.Repository in 'BackEnd\System\Repository\SysApplicationSetting.Repository.pas',
   SysApplicationSetting.Service in 'BackEnd\System\Service\SysApplicationSetting.Service.pas',
-  ufrmSysApplicationSetting in 'Forms\System\ufrmSysApplicationSetting.pas' {frmSysApplicationSetting},
   SysCity in 'BackEnd\System\Domain\SysCity.pas',
   SysCity.Repository in 'BackEnd\System\Repository\SysCity.Repository.pas',
   SysCity.Service in 'BackEnd\System\Service\SysCity.Service.pas',

@@ -1,7 +1,7 @@
 object frmSysUomType: TfrmSysUomType
   Left = 0
   Top = 0
-  Caption = 'frmSysUomType'
+  Caption = 'System Unit of Measurement Type'
   ClientHeight = 106
   ClientWidth = 500
   Color = clBtnFace
@@ -18,7 +18,7 @@ object frmSysUomType: TfrmSysUomType
     Height = 106
     Align = alClient
     TabOrder = 0
-    object lblmeasure_type: TLabel
+    object lblMeasureType: TLabel
       Left = 47
       Top = 6
       Width = 81
@@ -34,7 +34,7 @@ object frmSysUomType: TfrmSysUomType
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtmeasure_type: TEdit
+    object edtMeasureType: TEdit
       Left = 132
       Top = 2
       Width = 333

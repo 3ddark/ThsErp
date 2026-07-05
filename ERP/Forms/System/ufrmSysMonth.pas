@@ -13,8 +13,8 @@ uses
 type
   TfrmSysMonth = class(TfrmInputSimpleDB<TSysMonth, TSysMonthService>)
     pnlContent: TPanel;
-    lblmonth_name: TLabel;
-    edtmonth_name: TEdit;
+    lblMonthName: TLabel;
+    edtMonthName: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -29,7 +29,7 @@ implementation
 
 procedure TfrmSysMonth.BtnAcceptClick(Sender: TObject);
 begin
-  Table.MonthName := edtmonth_name.Text;
+  Table.MonthName := edtMonthName.Text;
   inherited;
 end;
 
@@ -45,20 +45,20 @@ begin
 
   Self.Caption := 'System Month';
 
-  edtmonth_name.SetFocus;
+  edtMonthName.SetFocus;
 end;
 
 procedure TfrmSysMonth.InitializeInputCase;
 begin
   inherited;
-  edtmonth_name.thsInputDataType := itString;
-  edtmonth_name.MaxLength := 16;
+  edtMonthName.thsInputDataType := itString;
+  edtMonthName.MaxLength := 16;
 end;
 
 procedure TfrmSysMonth.RefreshData;
 begin
   inherited;
-  edtmonth_name.Text := Table.MonthName;
+  edtMonthName.Text := Table.MonthName;
 end;
 
 end.

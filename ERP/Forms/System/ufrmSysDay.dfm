@@ -1,7 +1,7 @@
-object frmSysDay: TfrmSysDay
+﻿object frmSysDay: TfrmSysDay
   Left = 0
   Top = 0
-  Caption = 'frmSysDay'
+  Caption = ''System Day'
   ClientHeight = 127
   ClientWidth = 500
   Color = clBtnFace
@@ -20,12 +20,10 @@ object frmSysDay: TfrmSysDay
     Height = 127
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 500
-    ExplicitHeight = 127
     object lblDayName: TLabel
-      Left = 89
+      Left = 93
       Top = 12
-      Width = 63
+      Width = 59
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight

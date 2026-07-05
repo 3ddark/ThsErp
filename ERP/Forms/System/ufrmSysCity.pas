@@ -62,14 +62,16 @@ end;
 
 procedure TfrmSysCity.HelperProcess(Sender: TObject);
 var
+  LEdit: TEdit;
   LFrmCountry: TfrmSysCountries;
   LFrmRegion: TfrmSysRegions;
 begin
   if Sender is TEdit then
   begin
-    if (Sender as TEdit).Name = edtCountryId.Name then
+    LEdit := (Sender as TEdit);
+    if LEdit.Name = edtCountryId.Name then
     begin
-      LFrmCountry := TfrmSysCountries.Create((Sender as TEdit), TSysCountryService.Create, TSysCountry.Create);
+      LFrmCountry := TfrmSysCountries.Create(LEdit, TSysCountryService.Create, TSysCountry.Create);
       try
         LFrmCountry.IsHelper := True;
         LFrmCountry.ShowModal;
@@ -78,21 +80,21 @@ begin
           if LFrmCountry.CleanAndClose then
           begin
             Table.CountryId := 0;
-            (Sender as TEdit).Clear;
+            LEdit.Clear;
           end
           else
           begin
             Table.CountryId := LFrmCountry.Table.Id;
-            (Sender as TEdit).Text := LFrmCountry.Table.CountryName;
+            LEdit.Text := LFrmCountry.Table.CountryName;
           end;
         end;
       finally
         LFrmCountry.Free;
       end;
     end
-    else if (Sender as TEdit).Name = edtRegionId.Name then
+    else if LEdit.Name = edtRegionId.Name then
     begin
-      LFrmRegion := TfrmSysRegions.Create((Sender as TEdit), TSysRegionService.Create, TSysRegion.Create);
+      LFrmRegion := TfrmSysRegions.Create(LEdit, TSysRegionService.Create, TSysRegion.Create);
       try
         LFrmRegion.IsHelper := True;
         LFrmRegion.ShowModal;
@@ -101,12 +103,12 @@ begin
           if LFrmRegion.CleanAndClose then
           begin
             Table.RegionId := 0;
-            (Sender as TEdit).Clear;
+            LEdit.Clear;
           end
           else
           begin
             Table.RegionId := LFrmRegion.Table.Id;
-            (Sender as TEdit).Text := LFrmRegion.Table.RegionName;
+            LEdit.Text := LFrmRegion.Table.RegionName;
           end;
         end;
       finally
