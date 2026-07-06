@@ -19,6 +19,8 @@ object frmSysAddress: TfrmSysAddress
     Height = 467
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 494
+    ExplicitHeight = 450
     object lblCityId: TLabel
       Left = 72
       Top = 11
@@ -179,14 +181,6 @@ object frmSysAddress: TfrmSysAddress
       Width = 250
       Height = 23
       ReadOnly = True
-      TabOrder = 1
-    end
-    object btnCitySelect: TButton
-      Left = 352
-      Top = 3
-      Width = 75
-      Height = 25
-      Caption = 'Select'
       TabOrder = 0
     end
     object edtDistrict: TEdit
@@ -194,70 +188,70 @@ object frmSysAddress: TfrmSysAddress
       Top = 37
       Width = 385
       Height = 23
-      TabOrder = 2
+      TabOrder = 1
     end
     object edtNeighborhood: TEdit
       Left = 96
       Top = 67
       Width = 385
       Height = 23
-      TabOrder = 3
+      TabOrder = 2
     end
     object edtQuarter: TEdit
       Left = 96
       Top = 97
       Width = 385
       Height = 23
-      TabOrder = 4
+      TabOrder = 3
     end
     object edtRoad: TEdit
       Left = 96
       Top = 127
       Width = 385
       Height = 23
-      TabOrder = 5
+      TabOrder = 4
     end
     object edtStreet: TEdit
       Left = 96
       Top = 157
       Width = 385
       Height = 23
-      TabOrder = 6
+      TabOrder = 5
     end
     object edtBuildingName: TEdit
       Left = 96
       Top = 187
       Width = 385
       Height = 23
-      TabOrder = 7
+      TabOrder = 6
     end
     object edtDoorNumber: TEdit
       Left = 96
       Top = 217
       Width = 150
       Height = 23
-      TabOrder = 8
+      TabOrder = 7
     end
     object edtZipCode: TEdit
       Left = 96
       Top = 247
       Width = 150
       Height = 23
-      TabOrder = 9
+      TabOrder = 8
     end
     object edtWeb: TEdit
       Left = 96
       Top = 277
       Width = 385
       Height = 23
-      TabOrder = 10
+      TabOrder = 9
     end
     object edtEmail: TEdit
       Left = 96
       Top = 307
       Width = 385
       Height = 23
-      TabOrder = 11
+      TabOrder = 10
     end
   end
 end

@@ -225,6 +225,7 @@ end;
 procedure TfrmSysApplicationSetting.FormCreate(Sender: TObject);
 begin
   inherited;
+  pnlMain.Parent := PanelMain;
 
   edtCompanyTitle.CharCase := TEditCharCase.ecNormal;
   edtWeb.CharCase := TEditCharCase.ecNormal;
@@ -368,17 +369,17 @@ begin
   edtTaxpayerName.Text := Table.TaxpayerName;
   edtTaxpayerSurname.Text := Table.TaxpayerSurname;
 
-  edtWeb.Text := Table.Address.Web;
-  edtEmail.Text := Table.Address.EMail;
-  edtCountryName.Text := Table.Address.City.Country.CountryName;
-  edtDistrict.Text := Table.Address.District;
-  edtNeighborhood.Text := Table.Address.Neighborhood;
-  edtQuarter.Text := Table.Address.Quarter;
-  edtRoad.Text := Table.Address.Road;
-  edtStreet.Text := Table.Address.Street;
-  edtBuildingName.Text := Table.Address.BuildingName;
-  edtDoorNumber.Text := Table.Address.DoorNumber;
-  edtZipCode.Text := Table.Address.ZipCode;
+//  edtWeb.Text := Table.Address.Web;
+//  edtEmail.Text := Table.Address.EMail;
+//  edtCountryName.Text := Table.Address.City.Country.CountryName;
+//  edtDistrict.Text := Table.Address.District;
+//  edtNeighborhood.Text := Table.Address.Neighborhood;
+//  edtQuarter.Text := Table.Address.Quarter;
+//  edtRoad.Text := Table.Address.Road;
+//  edtStreet.Text := Table.Address.Street;
+//  edtBuildingName.Text := Table.Address.BuildingName;
+//  edtDoorNumber.Text := Table.Address.DoorNumber;
+//  edtZipCode.Text := Table.Address.ZipCode;
 
   SetColor(StrToIntDef(edtGridColor1.Text, 0), edtGridColor1);
   SetColor(StrToIntDef(edtGridColor2.Text, 0), edtGridColor2);

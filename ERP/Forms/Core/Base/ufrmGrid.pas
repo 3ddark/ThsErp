@@ -912,9 +912,9 @@ var
   LColor2: TColor;
 begin
   //Satırı renklendir.
-  LColorActive := 4752;
-  LColor1 := 5435345;
-  LColor2 := 3543;
+  LColorActive := 9539955;
+  LColor1 := 12189695;
+  LColor2 := 13158655;
 
   if THackDBGrid(Sender).DataLink.ActiveRecord = THackDBGrid(Sender).Row - 1 then
   begin

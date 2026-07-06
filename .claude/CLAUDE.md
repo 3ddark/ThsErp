@@ -21,7 +21,7 @@ Higher priority overrides lower priority.
 
 * Project Name: Ths ERP
 * Database: PostgreSQL
-* Tech Stack: Modern Delphi Desktop ERP
+* Tech Stack: Modern Delphi Desktop ERP (11 Alexandria / 12 Athens veya ilgili sürüm)
 * Goal: ERP + CRM + Accounting Desktop Application
 
 Long-term roadmap:
@@ -71,6 +71,13 @@ ThsERP/
 │   │   ├── Core/
 │   │   └── Tools/
 │   ├── Forms/
+│   │   ├── System/
+│   │   │   ├── Input/
+│   │   │   └── Output/
+│   │   ├── Production/
+│   │   │   ├── DetailInput/
+│   │   │   ├── Input/
+│   │   │   └── Output/
 │   ├── Settings/
 │   ├── Tools/
 │   └── db_schema.sql
@@ -238,10 +245,15 @@ Forms are module-based.
 ```bash
 ERP/Forms/
 ├── System/
+│   ├── Input/
+│   └── Output/
 ├── Account/
 ├── Stock/
 ├── Employee/
 ├── Production/
+│   ├── DetailInput/
+│   ├── Input/
+│   └── Output/
 ```
 
 Input and output forms must stay in same module folder.

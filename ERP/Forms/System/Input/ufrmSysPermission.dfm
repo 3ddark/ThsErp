@@ -1,7 +1,7 @@
 object frmSysPermission: TfrmSysPermission
   Left = 0
   Top = 0
-  Caption = 'frmSysPermission'
+  Caption = 'Permission'
   ClientHeight = 197
   ClientWidth = 500
   Color = clBtnFace
@@ -19,7 +19,7 @@ object frmSysPermission: TfrmSysPermission
     Height = 197
     Align = alClient
     TabOrder = 0
-    object lblPermissionCode: TLabel
+    object lblCode: TLabel
       Left = 12
       Top = 11
       Width = 94
@@ -33,7 +33,7 @@ object frmSysPermission: TfrmSysPermission
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object lblPermissionName: TLabel
+    object lblName: TLabel
       Left = 9
       Top = 41
       Width = 97
@@ -47,7 +47,7 @@ object frmSysPermission: TfrmSysPermission
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object lblPermissionGroupId: TLabel
+    object lblGroupId: TLabel
       Left = 7
       Top = 71
       Width = 99
@@ -61,35 +61,27 @@ object frmSysPermission: TfrmSysPermission
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtPermissionCode: TEdit
+    object edtCode: TEdit
       Left = 108
       Top = 7
       Width = 120
       Height = 23
       TabOrder = 0
     end
-    object edtPermissionName: TEdit
+    object edtName: TEdit
       Left = 108
       Top = 37
       Width = 385
       Height = 23
       TabOrder = 1
     end
-    object edtPermissionGroupId: TEdit
+    object edtGroupId: TEdit
       Left = 108
       Top = 67
       Width = 250
       Height = 23
       ReadOnly = True
       TabOrder = 2
-    end
-    object btnPermissionGroupSelect: TButton
-      Left = 364
-      Top = 63
-      Width = 75
-      Height = 25
-      Caption = 'Select'
-      TabOrder = 3
     end
   end
 end

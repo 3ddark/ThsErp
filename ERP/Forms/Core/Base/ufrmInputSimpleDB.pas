@@ -353,9 +353,11 @@ procedure TfrmInputSimpleDB<TE, TS>.CreateBtnAccept;
 begin
   BtnAccept := TButton.Create(PanelFooter);
   BtnAccept.Parent := PanelFooter;
+  BtnAccept.ScaleForPPI(Self.CurrentPPI);
+  BtnAccept.ParentFont := True;
   BtnAccept.AlignWithMargins := True;
-  BtnAccept.Padding.Left := 4;
-  BtnAccept.Padding.Right := 4;
+  BtnAccept.Margins.Left := MulDiv(4, Self.CurrentPPI, 96);
+  BtnAccept.Margins.Right := MulDiv(4, Self.CurrentPPI, 96);
   BtnAccept.TabOrder := 1;
   BtnAccept.Caption := '&' + 'Kaydet';
   BtnAccept.OnClick := BtnAcceptClick;

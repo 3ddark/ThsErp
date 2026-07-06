@@ -97,15 +97,15 @@ begin
           else
           begin
             edtUserId.Tag := LFrmUser.Table.Id;
-            (Sender as TEdit).Text := LFrmUser.Table.Username;
+            LEdit.Text := LFrmUser.Table.Username;
           end;
       finally
         LFrmUser.Free;
       end;
     end
-    else if (Sender as TEdit).Name = edtPermissionId.Name then
+    else if LEdit.Name = edtPermissionId.Name then
     begin
-      LFrmPermission := TfrmSysPermissions.Create((Sender as TEdit), TSysPermissionService.Create, TSysPermission.Create);
+      LFrmPermission := TfrmSysPermissions.Create(LEdit, TSysPermissionService.Create, TSysPermission.Create);
       try
         LFrmPermission.IsHelper := True;
         LFrmPermission.ShowModal;
@@ -113,12 +113,12 @@ begin
           if LFrmPermission.CleanAndClose then
           begin
             edtPermissionId.Tag := 0;
-            (Sender as TEdit).Clear;
+            LEdit.Clear;
           end
           else
           begin
             edtPermissionId.Tag := LFrmPermission.Table.Id;
-            (Sender as TEdit).Text := LFrmPermission.Table.PermissionName;
+            LEdit.Text := LFrmPermission.Table.Name;
           end;
       finally
         LFrmPermission.Free;

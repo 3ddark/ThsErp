@@ -94,7 +94,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Top = 50
           Width = 136
           Height = 23
-          TabOrder = 3
+          TabOrder = 2
         end
         object pnlLogo: TPanel
           Left = 8
@@ -103,7 +103,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Height = 40
           Anchors = [akLeft, akTop, akRight]
           Caption = 'Logo'
-          TabOrder = 2
+          TabOrder = 3
         end
       end
       object tsAdres: TTabSheet
@@ -395,28 +395,28 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Top = 32
           Width = 200
           Height = 23
-          TabOrder = 1
+          TabOrder = 2
         end
         object edtTaxpayerSurname: TEdit
           Left = 137
           Top = 53
           Width = 200
           Height = 23
-          TabOrder = 2
+          TabOrder = 4
         end
         object edtTaxNo: TEdit
           Left = 479
           Top = 9
           Width = 200
           Height = 23
-          TabOrder = 3
+          TabOrder = 1
         end
         object edtTaxAuthority: TEdit
           Left = 479
           Top = 32
           Width = 200
           Height = 23
-          TabOrder = 4
+          TabOrder = 3
         end
         object edtCountryName: TEdit
           Left = 137
@@ -445,14 +445,14 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Top = 122
           Width = 200
           Height = 23
-          TabOrder = 8
+          TabOrder = 9
         end
         object edtQuarter: TEdit
           Left = 479
           Top = 99
           Width = 200
           Height = 23
-          TabOrder = 9
+          TabOrder = 8
         end
         object edtRoad: TEdit
           Left = 479

@@ -20,10 +20,10 @@ object frmSysPermissionGroup: TfrmSysPermissionGroup
     Height = 127
     Align = alClient
     TabOrder = 0
-    object lblGroupName: TLabel
-      Left = 69
+    object lblName: TLabel
+      Left = 57
       Top = 12
-      Width = 59
+      Width = 71
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -36,7 +36,7 @@ object frmSysPermissionGroup: TfrmSysPermissionGroup
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtGroupName: TEdit
+    object edtName: TEdit
       Left = 134
       Top = 8
       Width = 333

@@ -8,21 +8,21 @@ type
   [Table('sys_permission')]
   TSysPermission = class(TEntity)
   private
-    FPermissionCode: Integer;
-    FPermissionName: string;
-    FPermissionGroupId: Int64;
+    FCode: Integer;
+    FName: string;
+    FGroupId: Int64;
     FPermissionGroup: TSysPermissionGroup;
   public
-    [Column('permission_code'), Required()]
-    property PermissionCode: Integer read FPermissionCode write FPermissionCode;
+    [Column('code'), Required()]
+    property Code: Integer read FCode write FCode;
 
-    [Column('permission_name'), MaxLength(64), Required()]
-    property PermissionName: string read FPermissionName write FPermissionName;
+    [Column('name'), MaxLength(64), Required()]
+    property Name: string read FName write FName;
 
-    [Column('permission_group_id')]
-    property PermissionGroupId: Int64 read FPermissionGroupId write FPermissionGroupId;
+    [Column('group_id')]
+    property GroupId: Int64 read FGroupId write FGroupId;
 
-    [BelongsTo('PermissionGroupId')]
+    [BelongsTo('GroupId')]
     property PermissionGroup: TSysPermissionGroup read FPermissionGroup write FPermissionGroup;
 
     constructor Create(); override;

@@ -7,14 +7,13 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysAddress.Service, SysAddress;
+  SysAddress.Service, SysAddress, SysCity, SysCity.Service;
 
 type
   TfrmSysAddress = class(TfrmInputSimpleDB<TSysAddress, TSysAddressService>)
     pnlContent: TPanel;
     lblCityId: TLabel;
     edtCityId: TEdit;
-    btnCitySelect: TButton;
     lblDistrict: TLabel;
     edtDistrict: TEdit;
     lblNeighborhood: TLabel;
@@ -36,13 +35,12 @@ type
     lblEmail: TLabel;
     edtEmail: TEdit;
   private
-    FCityId: Int64;
-    procedure btnCitySelectClick(Sender: TObject);
   published
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
+    procedure HelperProcess(Sender: TObject);
     procedure InitializeInputCase; override;
     procedure RefreshData; override;
   end;
@@ -51,9 +49,43 @@ implementation
 
 {$R *.dfm}
 
+uses
+  ufrmSysCities; // TfrmSysCities helper output form (city selection)
+
+procedure TfrmSysAddress.HelperProcess(Sender: TObject);
+var
+  LEdit: TEdit;
+  LFrmCity: TfrmSysCities;
+begin
+  if Sender is TEdit then
+  begin
+    LEdit := (Sender as TEdit);
+    if LEdit.Name = edtCityId.Name then
+    begin
+      LFrmCity := TfrmSysCities.Create(LEdit, TSysCityService.Create, TSysCity.Create);
+      try
+        LFrmCity.IsHelper := True;
+        LFrmCity.ShowModal;
+        if LFrmCity.DataTransfer then
+          if LFrmCity.CleanAndClose then
+          begin
+            Table.CityId := 0;
+            LEdit.Clear;
+          end
+          else
+          begin
+            Table.CityId := LFrmCity.Table.Id;
+            LEdit.Text := LFrmCity.Table.CityName;
+          end;
+      finally
+        LFrmCity.Free;
+      end;
+    end;
+  end;
+end;
+
 procedure TfrmSysAddress.BtnAcceptClick(Sender: TObject);
 begin
-  Table.CityId := FCityId;
   Table.District := edtDistrict.Text;
   Table.Neighborhood := edtNeighborhood.Text;
   Table.Quarter := edtQuarter.Text;
@@ -71,7 +103,7 @@ procedure TfrmSysAddress.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  btnCitySelect.OnClick := btnCitySelectClick;
+  edtCityId.OnHelperProcess := HelperProcess;
 end;
 
 procedure TfrmSysAddress.InitializeInputCase;
@@ -89,25 +121,10 @@ begin
   edtDistrict.SetFocus;
 end;
 
-procedure TfrmSysAddress.btnCitySelectClick(Sender: TObject);
-var
-  LId: Int64;
-  LName: string;
-begin
-  // TODO: Show city selection helper form (ufrmSysCities)
-  LId := 0;
-  LName := '';
-  if LId > 0 then
-  begin
-    FCityId := LId;
-    edtCityId.Text := LName;
-  end;
-end;
-
 procedure TfrmSysAddress.RefreshData;
 begin
   inherited;
-  edtCityId.Text := Table.CityId.ToString;
+  edtCityId.Text := Table.City.CityName;
   edtDistrict.Text := Table.District;
   edtNeighborhood.Text := Table.Neighborhood;
   edtQuarter.Text := Table.Quarter;
@@ -118,7 +135,6 @@ begin
   edtZipCode.Text := Table.ZipCode;
   edtWeb.Text := Table.Web;
   edtEmail.Text := Table.Email;
-  FCityId := Table.CityId;
 end;
 
 end.

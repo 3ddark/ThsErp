@@ -22,8 +22,8 @@ uses
   ufrmSysPermissionGroups, SysPermissionGroup.Service, SysPermissionGroup,
   ufrmSysPermissions, SysPermission.Service, SysPermission,
   ufrmSysUomTypes, SysUomType.Service, SysUomType,
-  ufrmSysUoms, SysUom.Service, SysUom;
-//  ufrmSysApplicationSetting, SysApplicationSetting.Service, SysApplicationSetting;
+  ufrmSysUoms, SysUom.Service, SysUom,
+  ufrmSysApplicationSetting, SysApplicationSetting.Service, SysApplicationSetting;
 
 type
   TfrmDashboard = class(TfrmBase)
@@ -634,13 +634,13 @@ begin
 end;
 
 procedure TfrmDashboard.actsys_application_settingExecute(Sender: TObject);
-//var
-//  LAppSettings: TSysApplicationSetting;
-//  LAppSettingsSvc: TSysApplicationSettingService;
+var
+  LAppSettings: TSysApplicationSetting;
+  LAppSettingsSvc: TSysApplicationSettingService;
 begin
-//  LAppSettingsSvc := TSysApplicationSettingService.Create;
-//  LAppSettings := LAppSettingsSvc.Find(TFilterCriteria.Create, False)[0];
-//  TfrmSysApplicationSetting.Create(Self, TSysApplicationSettingService.Create, TSysApplicationSetting.Create, ifmRewiev, nil).Show;
+  LAppSettingsSvc := TSysApplicationSettingService.Create;
+  LAppSettings := LAppSettingsSvc.Find(TFilterCriteria.Create, False)[0];
+  TfrmSysApplicationSetting.Create(Self, TSysApplicationSettingService.Create, TSysApplicationSetting.Create, ifmRewiev, nil).Show;
 end;
 
 procedure TfrmDashboard.actsys_userExecute(Sender: TObject);

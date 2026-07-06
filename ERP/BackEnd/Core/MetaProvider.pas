@@ -154,7 +154,7 @@ begin
         try
           qry.Connection := FConnection;
           qry.SQL.Text :=
-            'SELECT column_label FROM sys_grid_column_titles ' +
+            'SELECT column_label FROM sys_grid_column_title ' +
             'WHERE table_name = :tableName AND column_name = :colName AND lng_code=:lng_code';
           qry.ParamByName('tableName').AsString := tableName;
           qry.ParamByName('colName').AsString := columnName;

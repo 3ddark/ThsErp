@@ -36,7 +36,7 @@ uses
   Ths.Database.Connection.Settings in 'BackEnd\Core\Ths.Database.Connection.Settings.pas',
   Ths.Globals in 'BackEnd\Core\Ths.Globals.pas',
   Ths.Constants in 'BackEnd\Core\Ths.Constants.pas',
-  ufrmBase in 'Forms\Core\ufrmBase.pas' {frmBase},
+  ufrmBase in 'Forms\Core\Base\ufrmBase.pas' {frmBase},
   ufrmAbout in 'Forms\Core\Input\ufrmAbout.pas' {frmAbout},
   ufrmCalculator in 'Forms\Core\Input\ufrmCalculator.pas' {frmCalculator},
   ufrmConfirmation in 'Forms\Core\Input\ufrmConfirmation.pas' {frmConfirmation},

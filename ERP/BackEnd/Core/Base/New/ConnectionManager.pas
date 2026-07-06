@@ -73,7 +73,12 @@ begin
   begin
     try
       FDriverLink := TFDPhysPgDriverLink.Create(nil);
-      FDriverLink.VendorLib := TPath.Combine(TPath.Combine(TPath.GetLibraryPath, 'lib'), 'libpq.dll');
+
+      if TOSVersion.Architecture = TOSVersion.TArchitecture.arIntelX86 then
+        FDriverLink.VendorLib := TPath.Combine(TPath.Combine(TPath.GetLibraryPath, 'lib'), 'libpq.dll')
+      else if TOSVersion.Architecture = TOSVersion.TArchitecture.arIntelX64 then
+        FDriverLink.VendorLib := TPath.Combine(TPath.Combine(TPath.GetLibraryPath, 'lib'), 'libpq64.dll');
+
       GLogger.InfoFmt('PostgreSQL driver yüklendi: %s', [FDriverLink.VendorLib]);
     except
       on E: Exception do

@@ -8,10 +8,10 @@ type
   [Table('sys_permission_group')]
   TSysPermissionGroup = class(TEntity)
   private
-    FGroupName: string;
+    FName: string;
   public
-    [Column('group_name'), MaxLength(64), Required()]
-    property GroupName: string read FGroupName write FGroupName;
+    [Column('name'), MaxLength(64), Required()]
+    property Name: string read FName write FName;
 
     constructor Create(); override;
     destructor Destroy; override;

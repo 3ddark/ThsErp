@@ -24,7 +24,7 @@ function TSysGridColumnTitleRepository.FindAllGridQuery(AFilter: TFilterCriteria
 begin
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM vw_sys_grid_column_titles WHERE 1=1 ';
+  Result.SQL.Text := 'SELECT * FROM vw_sys_grid_column_title WHERE 1=1 ';
 end;
 
 end.
