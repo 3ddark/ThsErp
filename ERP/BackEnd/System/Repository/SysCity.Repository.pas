@@ -21,7 +21,6 @@ begin
 end;
 
 function TSysCityRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
-var LTableName: string;
 begin
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
