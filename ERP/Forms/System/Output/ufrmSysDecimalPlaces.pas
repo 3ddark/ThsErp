@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysDecimalPlace.Service, SysDecimalPlace, ufrmSysDecimalPlace;
+  SharedFormTypes, SysDecimalPlace.Service, SysDecimalPlace, ufrmSysDecimalPlace, LocalizationManager;
 
 type
   TfrmSysDecimalPlaces = class(TfrmGrid<TSysDecimalPlace, TSysDecimalPlaceService>)
@@ -14,6 +14,7 @@ type
     procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -34,12 +35,12 @@ end;
 procedure TfrmSysDecimalPlaces.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',               0, 'Id');
-  SetColumnProperty('quantity',         70, 'Quantity');
-  SetColumnProperty('price',            70, 'Price');
-  SetColumnProperty('total',            70, 'Total');
-  SetColumnProperty('stock_quantity',   70, 'Stock Quantity');
-  SetColumnProperty('exchange_rate',    70, 'Exchange Rate');
+  SetColumnProperty('id',               0, TLocalizationManager.Translate('sys_decimal_place.col_id', 'Id'));
+  SetColumnProperty('quantity',        70, TLocalizationManager.Translate('sys_decimal_place.col_quantity', 'Quantity'));
+  SetColumnProperty('price',           70, TLocalizationManager.Translate('sys_decimal_place.col_price', 'Price'));
+  SetColumnProperty('total',           70, TLocalizationManager.Translate('sys_decimal_place.col_total', 'Total'));
+  SetColumnProperty('stock_quantity',  70, TLocalizationManager.Translate('sys_decimal_place.col_stock_quantity', 'Stock Quantity'));
+  SetColumnProperty('exchange_rate',   70, TLocalizationManager.Translate('sys_decimal_place.col_exchange_rate', 'Exchange Rate'));
 end;
 
 procedure TfrmSysDecimalPlaces.DefineFooterColumns;
@@ -51,7 +52,13 @@ end;
 procedure TfrmSysDecimalPlaces.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Decimal Places';
+  ApplyLocalization;
+end;
+
+procedure TfrmSysDecimalPlaces.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_decimal_place.title_plural', 'Decimal Places');
 end;
 
 end.

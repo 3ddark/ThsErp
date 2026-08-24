@@ -1,4 +1,4 @@
-﻿inherited frmAccTemsilciGrupTurleri: TfrmAccTemsilciGrupTurleri
+inherited frmAccTemsilciGrupTurleri: TfrmAccTemsilciGrupTurleri
   Caption = 'Temsilci Grup T'#252'rleri'
   PixelsPerInch = 96
   TextHeight = 13

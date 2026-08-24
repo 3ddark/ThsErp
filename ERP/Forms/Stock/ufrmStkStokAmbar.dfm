@@ -5,7 +5,7 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
   Caption = 'Ambar'
   ClientHeight = 187
   ClientWidth = 410
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 426
   ExplicitHeight = 226
   TextHeight = 14
@@ -36,7 +36,7 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -52,7 +52,7 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -68,7 +68,7 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -84,7 +84,7 @@ inherited frmStkStokAmbar: TfrmStkStokAmbar
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

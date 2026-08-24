@@ -60,7 +60,7 @@ begin
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TAccRegionService.BusinessInsert(AEntity: TAccRegion; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -139,18 +139,12 @@ end;
 
 function TAccRegionService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TAccRegion>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TAccRegionService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccRegion;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TAccRegionService.Add(AEntity: TAccRegion);

@@ -8,7 +8,7 @@ uses
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Samples.Spin,
   ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  SysDecimalPlace.Service, SysDecimalPlace;
+  SysDecimalPlace.Service, SysDecimalPlace, LocalizationManager;
 
 type
   TfrmSysDecimalPlace = class(TfrmInputSimpleDB<TSysDecimalPlace, TSysDecimalPlaceService>)
@@ -29,6 +29,7 @@ type
   public
     procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -54,10 +55,14 @@ end;
 procedure TfrmSysDecimalPlace.FormShow(Sender: TObject);
 begin
   inherited;
-
-  Self.Caption := 'System Decimal Place';
-
+  ApplyLocalization;
   edtQuantity.SetFocus;
+end;
+
+procedure TfrmSysDecimalPlace.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_decimal_place.title_singular', 'Ondalık Basamak Ayarı');
 end;
 
 procedure TfrmSysDecimalPlace.InitializeInputCase;

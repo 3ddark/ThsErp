@@ -10,6 +10,7 @@ type
   TStkKindPropertyRepository = class(TRepository<TStkKindProperty>)
   public
     constructor Create(AConnection: TFDConnection);
+    procedure Delete(AModel: TStkKindProperty); override;
   end;
 
 implementation
@@ -17,6 +18,11 @@ implementation
 constructor TStkKindPropertyRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+procedure TStkKindPropertyRepository.Delete(AModel: TStkKindProperty);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

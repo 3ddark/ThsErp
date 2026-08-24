@@ -5,7 +5,7 @@ inherited frmSetStkBarkodUrunTuru: TfrmSetStkBarkodUrunTuru
   Caption = 'Ayar Barkod '#220'r'#252'n T'#252'r'#252
   ClientHeight = 121
   ClientWidth = 344
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 350
   ExplicitHeight = 150
   PixelsPerInch = 96
@@ -39,7 +39,7 @@ inherited frmSetStkBarkodUrunTuru: TfrmSetStkBarkodUrunTuru
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

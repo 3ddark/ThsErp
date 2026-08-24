@@ -8,21 +8,21 @@ uses
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
   ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  SysLanguage.Service, SysLanguage;
+  AppContext, SysLanguage.Service, SysLanguage, LocalizationManager;
 
 type
   TfrmSysLanguage = class(TfrmInputSimpleDB<TSysLanguage, TSysLanguageService>)
     pnlContent: TPanel;
-    lblLngCode: TLabel;
-    lblDescription: TLabel;
-    edtKod: TEdit;
-    edtAciklama: TEdit;
+    lblLocale: TLabel;
+    lblNativeName: TLabel;
+    edtLocale: TEdit;
+    edtNativeName: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -31,8 +31,8 @@ implementation
 
 procedure TfrmSysLanguage.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Kod := edtKod.Text;
-  Table.Aciklama := edtAciklama.Text;
+  Table.Locale := edtLocale.Text;
+  Table.NativeName := edtNativeName.Text;
   inherited;
 end;
 
@@ -45,26 +45,23 @@ end;
 procedure TfrmSysLanguage.FormShow(Sender: TObject);
 begin
   inherited;
-
-  Self.Caption := 'System Language';
-
-  edtKod.SetFocus;
+  ApplyLocalization;
+  edtLocale.SetFocus;
 end;
 
-procedure TfrmSysLanguage.InitializeInputCase;
+procedure TfrmSysLanguage.ApplyLocalization;
 begin
   inherited;
-  edtKod.thsInputDataType := itString;
-  edtKod.MaxLength := 2;
-  edtAciklama.thsInputDataType := itString;
-  edtAciklama.MaxLength := 128;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.TitleSingular, 'Lisan');
+  lblLocale.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.LblLocale, 'Lisan Kodu (Locale)');
+  lblNativeName.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.LblNativeName, 'Lisan Adı (Native Name)');
 end;
 
 procedure TfrmSysLanguage.RefreshData;
 begin
   inherited;
-  edtKod.Text := Table.Kod;
-  edtAciklama.Text := Table.Aciklama;
+  edtLocale.Text := Table.Locale;
+  edtNativeName.Text := Table.NativeName;
 end;
 
 end.

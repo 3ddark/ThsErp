@@ -1,4 +1,4 @@
-﻿unit ufrmBase;
+unit ufrmBase;
 
 interface
 
@@ -10,7 +10,7 @@ uses
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Dialogs,
   Vcl.ImgList, Vcl.Graphics, Vcl.Menus, Vcl.ActnList, Data.DB,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Combobox, Ths.Helper.Memo,
-  udm;
+  udm, SharedFormTypes;
 
 const
   WM_AFTER_SHOW = WM_USER + 300; // custom message
@@ -20,10 +20,6 @@ const
   COLUMN_GRID_OBJECT = 0;
 
 type
-  TInputFormMode = (ifmNone, ifmNewRecord, ifmRewiev, ifmUpdate, ifmReadOnly, ifmCopyNewRecord);
-  TInputFormViewMode = (ivmNormal, ivmSort);
-  TFormDecimalMode = (fomBuying, fomSale, fomStock, fomNormal);
-
   //forward declaration
   TfrmConfirmation = class
   end;
@@ -111,13 +107,15 @@ type
     procedure CreateLangGuiContentFormforFormCaption();
     procedure DoAfterCreateLogic; virtual;
     procedure DoAfterShowLogic; virtual;
+    procedure ApplyLocalization; virtual;
   end;
 
 implementation
 
 uses
   Ths.Constants,
-  Ths.Globals;
+  Ths.Globals,
+  LocalizationManager;
 
 {$R *.dfm}
 
@@ -164,6 +162,16 @@ end;
 procedure TfrmBase.DoAfterShowLogic;
 begin
 //
+end;
+
+procedure TfrmBase.ApplyLocalization;
+begin
+  if Assigned(btnClose) then
+    btnClose.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Kapat');
+  if Assigned(btnAccept) then
+    btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Save, 'Kaydet');
+  if Assigned(btnDelete) then
+    btnDelete.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Delete, 'Sil');
 end;
 
 procedure TfrmBase.btnAcceptClick(Sender: TObject);
@@ -331,13 +339,30 @@ begin
 //  Self.Release;
 end;
 
+type
+  TControlAccess = class(TControl);
+
+procedure ApplyFontRecursive(AControl: TControl; const AFontName: string = DefaultFontName);
+var
+  i: Integer;
+  LWin: TWinControl;
+begin
+  if AControl = nil then Exit;
+
+  TControlAccess(AControl).Font.Name := AFontName;
+
+  if AControl is TWinControl then
+  begin
+    LWin := TWinControl(AControl);
+    for i := 0 to LWin.ControlCount - 1 do
+      ApplyFontRecursive(LWin.Controls[i], AFontName);
+  end;
+end;
+
 procedure TfrmBase.FormCreate(Sender: TObject);
 begin
-//  if Table <> nil then
-//  begin
-//    if Table.Id.AsInteger > 0 then
-//      FDefaultSelectFilter := ' and ' + Table.Id.QryName + '=' + Table.Id.AsString;
-//  end;
+  Self.Font.Name := DefaultFontName;
+  ApplyFontRecursive(Self, DefaultFontName);
 
   frmConfirmation := TfrmConfirmation.Create;
 
@@ -352,9 +377,6 @@ begin
   btnAccept.Visible := False;
 
   stbBase.Visible := False;
-  //statusbar manual draw mode
-//  for n1 := 0 to stbBase.Panels.Count - 1 do
-//    stbBase.Panels.Items[n1].Style := psOwnerDraw;
 
   PostMessage(self.Handle, WM_AFTER_CREATE, 0, 0);
 end;
@@ -371,6 +393,23 @@ end;
 
 procedure TfrmBase.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
+  if Assigned(btnSpin) and btnSpin.Visible then
+  begin
+    if Key = VK_PRIOR then
+    begin
+      Key := 0;
+      btnSpinUpClick(btnSpin);
+      Exit;
+    end;
+
+    if Key = VK_NEXT then
+    begin
+      Key := 0;
+      btnSpinDownClick(btnSpin);
+      Exit;
+    end;
+  end;
+
   inherited;
 //  frmMain.RefreshStatusBar;
 end;
@@ -444,6 +483,7 @@ end;
 procedure TfrmBase.FormShow(Sender: TObject);
 begin
   inherited;
+  ApplyFontRecursive(Self, DefaultFontName);
   FocusedFirstControl(pnlMain);
 
   PostMessage(Self.Handle, WM_AFTER_SHOW, 0, 0);

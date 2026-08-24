@@ -1,11 +1,11 @@
-﻿inherited frmAccFasonMarka: TfrmAccFasonMarka
+inherited frmAccFasonMarka: TfrmAccFasonMarka
   Left = 501
   Top = 443
   ActiveControl = btnClose
   Caption = 'Set Ch Fason Marka'
   ClientHeight = 121
   ClientWidth = 377
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 383
   ExplicitHeight = 150
   PixelsPerInch = 96
@@ -36,7 +36,7 @@
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

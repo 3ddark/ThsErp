@@ -60,7 +60,7 @@ begin
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TSetAccAccountTypeService.BusinessInsert(AEntity: TSetAccAccountType; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -139,18 +139,12 @@ end;
 
 function TSetAccAccountTypeService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSetAccAccountType>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TSetAccAccountTypeService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSetAccAccountType;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TSetAccAccountTypeService.Add(AEntity: TSetAccAccountType);

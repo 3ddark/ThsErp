@@ -1,4 +1,4 @@
-﻿unit SysDay;
+unit SysDay;
 
 interface
 
@@ -13,7 +13,7 @@ type
     [Column('day_name'), MaxLength(16), Required()]
     property DayName: string read FDayName write FDayName;
 
-    constructor Create(); override;
+    constructor Create();
     destructor Destroy; override;
   end;
 

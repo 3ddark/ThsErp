@@ -1,11 +1,11 @@
-﻿unit ufrmSysCurrencies;
+unit ufrmSysCurrencies;
 
 interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysCurrency.Service, SysCurrency, ufrmSysCurrency;
+  SharedFormTypes, SysCurrency.Service, SysCurrency, ufrmSysCurrency, LocalizationManager;
 
 type
   TfrmSysCurrencies = class(TfrmGrid<TSysCurrency, TSysCurrencyService>)
@@ -14,6 +14,7 @@ type
     procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -33,21 +34,29 @@ end;
 
 procedure TfrmSysCurrencies.DefineColumnWidths;
 begin
-  SetColumnProperty('id',             0, 'Id');
-  SetColumnProperty('currency',      80, 'Currency');
-  SetColumnProperty('symbol',        60, 'Symbol');
-  SetColumnProperty('description',  220, 'Description');
+  inherited;
+  SetColumnProperty('id',             0, TLocalizationManager.Translate('sys_currency.col_id', 'Id'));
+  SetColumnProperty('currency',     100, TLocalizationManager.Translate('sys_currency.col_code', 'Currency Code'));
+  SetColumnProperty('symbol',        80, TLocalizationManager.Translate('sys_currency.col_symbol', 'Symbol'));
+  SetColumnProperty('description',  220, TLocalizationManager.Translate('sys_currency.col_description', 'Description'));
 end;
 
 procedure TfrmSysCurrencies.DefineFooterColumns;
 begin
-  AddFooterColumn('currency', atCount, 'Ort: #,##0');
+  inherited;
+  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysCurrencies.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'System Currency';
+  ApplyLocalization;
+end;
+
+procedure TfrmSysCurrencies.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_currency.title_plural', 'Currencies');
 end;
 
 end.

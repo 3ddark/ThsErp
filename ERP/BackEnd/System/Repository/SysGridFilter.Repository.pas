@@ -11,6 +11,7 @@ type
   public
     constructor Create(AConnection: TFDConnection);
     function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+    procedure Delete(AModel: TSysGridFilter); override;
   end;
 
 implementation
@@ -25,6 +26,11 @@ begin
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
   Result.SQL.Text := 'SELECT * FROM vw_sys_grid_filters WHERE 1=1 ';
+end;
+
+procedure TSysGridFilterRepository.Delete(AModel: TSysGridFilter);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

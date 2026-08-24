@@ -5,7 +5,7 @@ inherited frmSetStkBarkodHazirlikDosyaTuru: TfrmSetStkBarkodHazirlikDosyaTuru
   Caption = 'Ayar Barkod Haz'#305'rl'#305'k Dosya T'#252'r'#252
   ClientHeight = 121
   ClientWidth = 344
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 350
   ExplicitHeight = 150
   PixelsPerInch = 96
@@ -38,7 +38,7 @@ inherited frmSetStkBarkodHazirlikDosyaTuru: TfrmSetStkBarkodHazirlikDosyaTuru
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysLanguage.Service, SysLanguage, ufrmSysLanguage;
+  SharedFormTypes, SysLanguage.Service, SysLanguage, ufrmSysLanguage,
+  LocalizationManager;
 
 type
   TfrmSysLanguages = class(TfrmGrid<TSysLanguage, TSysLanguageService>)
@@ -14,6 +15,7 @@ type
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -34,21 +36,27 @@ end;
 procedure TfrmSysLanguages.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',            0, 'Id');
-  SetColumnProperty('lng_code',     70, 'Language Code');
-  SetColumnProperty('description', 250, 'Description');
+  SetColumnProperty('id',            0, TLocalizationManager.Translate('sys_language.col_id', 'Id'));
+  SetColumnProperty('locale',      120, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Lisan Kodu'));
+  SetColumnProperty('native_name', 250, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColNativeName, 'Lisan Adı'));
 end;
 
 procedure TfrmSysLanguages.DefineFooterColumns;
 begin
   inherited;
-  AddFooterColumn('lng_code', atCount, '#,##0 " Lang"');
+  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysLanguages.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'System Languages';
+  ApplyLocalization;
+end;
+
+procedure TfrmSysLanguages.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.TitlePlural, 'Lisanlar');
 end;
 
 end.

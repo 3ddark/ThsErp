@@ -1,4 +1,4 @@
-﻿unit EmpLanguage.Repository;
+unit EmpLanguage.Repository;
 
 interface
 
@@ -10,6 +10,7 @@ type
   TEmpLanguageRepository = class(TRepository<TEmpLanguage>)
   public
     constructor Create(AConnection: TFDConnection);
+    procedure Delete(AModel: TEmpLanguage); override;
   end;
 
 implementation
@@ -17,6 +18,11 @@ implementation
 constructor TEmpLanguageRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+procedure TEmpLanguageRepository.Delete(AModel: TEmpLanguage);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

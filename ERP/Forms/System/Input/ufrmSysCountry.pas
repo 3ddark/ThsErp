@@ -1,4 +1,4 @@
-﻿unit ufrmSysCountry;
+unit ufrmSysCountry;
 
 interface
 
@@ -7,7 +7,8 @@ uses
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.StdCtrls, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysCountry.Service, SysCountry, Vcl.ExtCtrls, Vcl.Samples.Spin;
+  SysCountry.Service, SysCountry, Vcl.ExtCtrls, Vcl.Samples.Spin,
+  LocalizationManager;
 
 type
   TfrmSysCountry = class(TfrmInputSimpleDB<TSysCountry, TSysCountryService>)
@@ -26,8 +27,8 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -50,19 +51,19 @@ begin
   pnlContent.Parent := PanelMain;
 end;
 
-procedure TfrmSysCountry.InitializeInputCase;
-begin
-  inherited;
-  edtISOYear.thsInputDataType := itInteger;
-end;
-
 procedure TfrmSysCountry.FormShow(Sender: TObject);
 begin
   inherited;
-
-  Self.Caption := 'System Country';
-
+  ApplyLocalization;
   edtCountryCode.SetFocus;
+end;
+
+procedure TfrmSysCountry.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_country.title_singular', 'Ülke');
+  lblCountryCode.Caption := TLocalizationManager.Translate('sys_country.lbl_code', 'Ülke Kodu (ISO 2)');
+  lblCountryName.Caption := TLocalizationManager.Translate('sys_country.lbl_name', 'Ülke Adı');
 end;
 
 procedure TfrmSysCountry.RefreshData;

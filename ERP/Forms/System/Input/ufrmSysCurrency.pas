@@ -1,4 +1,4 @@
-﻿unit ufrmSysCurrency;
+unit ufrmSysCurrency;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysCurrency.Service, SysCurrency;
+  SysCurrency.Service, SysCurrency, LocalizationManager;
 
 type
   TfrmSysCurrency = class(TfrmInputSimpleDB<TSysCurrency, TSysCurrencyService>)
@@ -22,8 +22,8 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -44,21 +44,19 @@ begin
   pnlContent.Parent := PanelMain;
 end;
 
-procedure TfrmSysCurrency.InitializeInputCase;
-begin
-  inherited;
-  edtCurrency.thsInputDataType := itString;
-  edtSymbol.thsInputDataType := itString;
-  edtDescription.thsInputDataType := itString;
-end;
-
 procedure TfrmSysCurrency.FormShow(Sender: TObject);
 begin
   inherited;
-
-  Self.Caption := 'System Currency';
-
+  ApplyLocalization;
   edtCurrency.SetFocus;
+end;
+
+procedure TfrmSysCurrency.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_currency.title_singular', 'Para Birimi');
+  lblCurrency.Caption := TLocalizationManager.Translate('sys_currency.lbl_code', 'Para Birimi Kodu');
+  lblSymbol.Caption := TLocalizationManager.Translate('sys_currency.lbl_symbol', 'Sembol');
 end;
 
 procedure TfrmSysCurrency.RefreshData;

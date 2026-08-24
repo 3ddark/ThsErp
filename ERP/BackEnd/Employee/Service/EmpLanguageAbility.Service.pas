@@ -65,7 +65,7 @@ begin
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TEmpLanguageAbilityService.BusinessInsert(AEntity: TEmpLanguageAbility; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -153,18 +153,12 @@ end;
 
 function TEmpLanguageAbilityService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TEmpLanguageAbility>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TEmpLanguageAbilityService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TEmpLanguageAbility;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TEmpLanguageAbilityService.Add(AEntity: TEmpLanguageAbility);

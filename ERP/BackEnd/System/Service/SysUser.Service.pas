@@ -4,8 +4,9 @@ interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  SysUser.Repository, SysUser;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext,
+  SysUser.Repository, SysUser, SysUser.Exception;
 
 type
   TSysUserService = class(TCrudService<TSysUser>)
@@ -15,9 +16,14 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TSysUser; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysUser>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysUser; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TSysUser; override;
+
     procedure Add(AEntity: TSysUser); override;
     procedure Update(AEntity: TSysUser); override;
     procedure Delete(AId: Int64); override;
@@ -26,7 +32,7 @@ type
     function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysUser>; override;
     procedure BusinessInsert(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
     procedure BusinessUpdate(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
-    procedure BusinessDelete(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
+    procedure BusinessDelete(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
   end;
 
 implementation
@@ -45,38 +51,45 @@ end;
 
 function TSysUserService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysUser>;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
-
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+    begin
+      Self.UoW.Rollback;
+    end;
+    raise;
+  end;
 end;
 
 function TSysUserService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysUser;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+    begin
+      Self.UoW.Rollback;
+    end;
+    raise;
+  end;
 end;
 
 procedure TSysUserService.BusinessInsert(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
+
+    ValidateAll(AEntity, coInsert);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -89,8 +102,10 @@ begin
     on E: Exception do
     begin
       if Uow.InTransaction then
+      begin
         Self.UoW.Rollback;
-      raise
+      end;
+      raise;
     end;
   end;
 end;
@@ -98,11 +113,9 @@ end;
 procedure TSysUserService.BusinessUpdate(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
+
+    ValidateAll(AEntity, coUpdate);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -115,7 +128,9 @@ begin
     on E: Exception do
     begin
       if Self.UoW.InTransaction then
+      begin
         Self.UoW.Rollback;
+      end;
       raise;
     end;
   end;
@@ -124,11 +139,9 @@ end;
 procedure TSysUserService.BusinessDelete(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
+
+    ValidateAll(AEntity, coDelete);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -141,7 +154,9 @@ begin
     on E: Exception do
     begin
       if Self.UoW.InTransaction then
+      begin
         Self.UoW.Rollback;
+      end;
       raise;
     end;
   end;
@@ -152,20 +167,19 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TSysUserService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysUser>;
+function TSysUserService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TSysUser>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysUserService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysUser;
+function TSysUserService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TSysUser;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
+end;
+
+function TSysUserService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysUser;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
 end;
 
 procedure TSysUserService.Add(AEntity: TSysUser);
@@ -181,6 +195,31 @@ end;
 procedure TSysUserService.Delete(AId: Int64);
 begin
   FRepo.Delete(AId);
+end;
+
+procedure TSysUserService.ValidateBusinessRules(AEntity: TSysUser; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TSysUser;
+begin
+  //check unique
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('username', '=', TValue.From<string>(AEntity.Username)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      if Assigned(LModel) then
+        raise ESysUserExceptionUsernameUnique.Create;
+    finally
+      LFilter.Free;
+      if Assigned(LModel) then
+        LModel.Free;
+    end;
+  end;
 end;
 
 end.

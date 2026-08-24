@@ -1,11 +1,11 @@
-﻿inherited frmAccFirmaTuru: TfrmAccFirmaTuru
+inherited frmAccFirmaTuru: TfrmAccFirmaTuru
   Left = 501
   Top = 443
   ActiveControl = btnClose
   Caption = 'Ayar Firma T'#252'r'#252
   ClientHeight = 121
   ClientWidth = 359
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 375
   ExplicitHeight = 160
   TextHeight = 14
@@ -36,7 +36,7 @@
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

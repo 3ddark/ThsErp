@@ -8,7 +8,7 @@ object frmBaseDBGrid2: TfrmBaseDBGrid2
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
-  Font.Name = 'Segoe UI'
+  Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
   OnClose = FormClose
@@ -115,7 +115,7 @@ object frmBaseDBGrid2: TfrmBaseDBGrid2
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clWindowText
         TitleFont.Height = -12
-        TitleFont.Name = 'Segoe UI'
+        TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
         OnCellClick = grdCellClick
         OnColEnter = grdColEnter

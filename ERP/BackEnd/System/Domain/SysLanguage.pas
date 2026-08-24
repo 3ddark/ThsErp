@@ -1,21 +1,27 @@
-﻿unit SysLanguage;
+unit SysLanguage;
 
 interface
 
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
+const
+  CLangID_EN = 1;
+  CLangID_TR = 2;
+  CLangLocaleEN = 'en-US';
+  CLangLocaleTR = 'tr-TR';
+
 type
-  [Table('sys_diller')]
+  [Table('sys_language')]
   TSysLanguage = class(TEntity)
   private
-    FKod: string;
-    FAciklama: string;
+    FLocale: string;
+    FNativeName: string;
   public
-    [Column('kod'), MaxLength(2), Required()]
-    property Kod: string read FKod write FKod;
+    [Column('locale'), MaxLength(32), Required()]
+    property Locale: string read FLocale write FLocale;
 
-    [Column('aciklama'), MaxLength(128)]
-    property Aciklama: string read FAciklama write FAciklama;
+    [Column('native_name'), MaxLength(64)]
+    property NativeName: string read FNativeName write FNativeName;
 
     constructor Create(); override;
     destructor Destroy; override;

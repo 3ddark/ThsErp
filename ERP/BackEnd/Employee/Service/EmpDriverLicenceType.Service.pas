@@ -65,7 +65,7 @@ begin
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TEmpDriverLicenceTypeService.BusinessInsert(AEntity: TEmpDriverLicenseType; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -153,18 +153,12 @@ end;
 
 function TEmpDriverLicenceTypeService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TEmpDriverLicenseType>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TEmpDriverLicenceTypeService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TEmpDriverLicenseType;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TEmpDriverLicenceTypeService.Add(AEntity: TEmpDriverLicenseType);

@@ -1,50 +1,36 @@
-unit UnitOfWork;
+﻿unit UnitOfWork;
 
 interface
 
 uses
-  SysUtils, Classes, FireDAC.Comp.Client, FireDAC.Phys,FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Error, Logger,
-  SharedFormTypes,
-
-  SysViewColumn.Repository,
-  SysCountry.Repository,
-  SysRegion.Repository,
-  SysCity.Repository,
-  SysPermissionGroup.Repository,
-  SysPermission.Repository,
-  SysAccessRight.Repository,
-
-  StkKindFamilyRepository;
+  System.Generics.Collections, System.Rtti, System.SysUtils, Classes,
+  FireDAC.Comp.Client, FireDAC.Phys,FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Error,
+  SharedFormTypes, Entity, Repository, SysPermission;
 
 type
-  TUnitOfWork = class
+  IUnitOfWork = interface
+    ['{68AEA695-44AC-449B-892D-488310A0954C}']
+    function GetConnection: TFDConnection;
+
+    procedure BeginTransaction;
+    procedure Commit;
+    procedure Rollback;
+    function InTransaction: Boolean;
+
+    function IsAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean): Boolean; overload;
+    function IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean): Boolean; overload;
+
+    property Connection: TFDConnection read GetConnection;
+  end;
+
+  TUnitOfWork = class(TInterfacedObject, IUnitOfWork)
   private
     class var FInstance: TUnitOfWork;
     class var FLock: TObject;
+    FRepositoryCache: TDictionary<TClass, IInterface>;
   private
     FConnection: TFDConnection;
-
-    FSysViewColumnRepository: TSysViewColumnRepository;
-    FSysCityRepository: TSysCityRepository;
-    FSysCountryRepository: TSysCountryRepository;
-    FSysRegionRepository: TSysRegionRepository;
-    FSysAccessRightRepository: TSysAccessRightRepository;
-    FSysPermissionRepository: TSysPermissionRepository;
-    FSysPermissionGroupRepository: TSysPermissionGroupRepository;
-
-    FStkCinsAileRepository: TStkKindFamilyRepository;
-
-    function GetSysViewColumnRepository: TSysViewColumnRepository;
-    function GetSysCityRepository: TSysCityRepository;
-    function GetSysCountryRepository: TSysCountryRepository;
-    function GetSysRegionRepository: TSysRegionRepository;
-    function GetSysAccessRightRepository: TSysAccessRightRepository;
-    function GetSysPermissionRepository: TSysPermissionRepository;
-    function GetSysPermissionGroupRepository: TSysPermissionGroupRepository;
-
-    function GetStkCinsAileRepository: TStkKindFamilyRepository;
-
     function GetConnection: TFDConnection;
   protected
     constructor Create(AConnection: TFDConnection);
@@ -54,69 +40,112 @@ type
     class procedure Initialize(AConnection: TFDConnection);
     class function Instance: TUnitOfWork;
 
+    function GetRepository<T: TEntity, constructor; R: class, constructor>: IRepository<T>;
+
     procedure BeginTransaction;
     procedure Commit;
     procedure Rollback;
+    procedure SavePoint(const AName: string);
+    procedure RollbackToSavePoint(const AName: string);
     function InTransaction: Boolean;
 
-    function IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean; AShowException: Boolean=True): Boolean;
+    function IsAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean): Boolean; overload;
+    function IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean): Boolean; overload;
+
+    /// <summary>
+    /// Yetki kontrolünü sistem erişim yetkisi servisine yönlendirir.
+    /// </summary>
+    /// <remarks>
+    /// Yetki kontrolünün gerçek uygulaması
+    /// <c>TSysAccessRightService.EnsureAuthorized</c> metodunda gerçekleştirilir.
+    /// </remarks>
+    procedure EnsureAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean);
 
     property Connection: TFDConnection read GetConnection;
-
-    property SysViewColumnRepository: TSysViewColumnRepository read GetSysViewColumnRepository;
-    property SysCityRepository: TSysCityRepository read GetSysCityRepository;
-    property SysCountryRepository: TSysCountryRepository read GetSysCountryRepository;
-    property SysRegionRepository: TSysRegionRepository read GetSysRegionRepository;
-    property SysAccessRightepository: TSysAccessRightRepository read GetSysAccessRightRepository;
-    property SysPermissionRepository: TSysPermissionRepository read GetSysPermissionRepository;
-    property SysPermissionGroupRepository: TSysPermissionGroupRepository read GetSysPermissionGroupRepository;
-
-    property StkCinsAileRepository: TStkKindFamilyRepository read GetStkCinsAileRepository;
   end;
 
 implementation
 
+uses
+  Logger, SysAccessRight, SysAccessRight.Service, SysAccessRight.Repository;
+
 constructor TUnitOfWork.Create(AConnection: TFDConnection);
 begin
+  FRepositoryCache := TDictionary<TClass, IInterface>.Create;
   Self.FConnection := AConnection;
 end;
 
 destructor TUnitOfWork.Destroy;
 begin
-  FreeAndNil(FSysViewColumnRepository);
-  FreeAndNil(FSysCityRepository);
-  FreeAndNil(FSysCountryRepository);
-  FreeAndNil(FSysRegionRepository);
-  FreeAndNil(FSysAccessRightRepository);
-  FreeAndNil(FSysPermissionRepository);
-  FreeAndNil(FSysPermissionGroupRepository);
-
-  FreeAndNil(FStkCinsAileRepository);
-
+  FRepositoryCache.Free;
   inherited;
 end;
 
 function TUnitOfWork.GetConnection: TFDConnection;
 begin
-  Result := FInstance.FConnection;
+  Result := FConnection;
+end;
+
+function TUnitOfWork.GetRepository<T, R>: IRepository<T>;
+var
+  LRepo: IInterface;
+  LKey: TClass;
+  LContext: TRttiContext;
+  LRttiType: TRttiType;
+  LRttiMethod: TRttiMethod;
+begin
+  if not Assigned(FConnection) then
+    raise Exception.Create('TRepositoryManager initialize edilmeden kullanılamaz!');
+
+  LKey := R;
+
+  if not FRepositoryCache.TryGetValue(LKey, LRepo) then
+  begin
+    LContext := TRttiContext.Create;
+    try
+      LRttiType := LContext.GetType(R);
+      LRttiMethod := LRttiType.GetMethod('Create');
+      if not Assigned(LRttiMethod) or (Length(LRttiMethod.GetParameters) <> 1) then
+        raise Exception.CreateFmt('%s uygun constructor bulamadı!', [R.ClassName]);
+      LRepo := LRttiMethod.Invoke(LRttiType.AsInstance.MetaclassType, [FConnection]).AsInterface as IRepository<T>;
+    finally
+      LContext.Free;
+    end;
+
+    FRepositoryCache.Add(LKey, LRepo);
+  end;
+
+  Result := LRepo as IRepository<T>;
 end;
 
 procedure TUnitOfWork.BeginTransaction;
 begin
-  FInstance.FConnection.StartTransaction;
-  GLogger.RunLog('TRANSACTION BEGIN');
+  FConnection.StartTransaction;
+  GLogger.Info('TRANSACTION BEGIN');
 end;
 
 procedure TUnitOfWork.Commit;
 begin
-  FInstance.FConnection.Commit;
-  GLogger.RunLog('TRANSACTION COMMIT');
+  FConnection.Commit;
+  GLogger.Info('TRANSACTION COMMIT');
 end;
 
 procedure TUnitOfWork.Rollback;
 begin
   FInstance.FConnection.Rollback;
-  GLogger.RunLog('TRANSACTION ROLLBACK');
+  GLogger.Info('TRANSACTION ROLLBACK');
+end;
+
+procedure TUnitOfWork.RollbackToSavePoint(const AName: string);
+begin
+  if InTransaction then
+    FInstance.FConnection.ExecSQL('ROLLBACK TO SAVEPOINT ' + AName);
+end;
+
+procedure TUnitOfWork.SavePoint(const AName: string);
+begin
+  if InTransaction then
+    FInstance.FConnection.ExecSQL('SAVEPOINT ' + AName);
 end;
 
 function TUnitOfWork.InTransaction: Boolean;
@@ -124,65 +153,33 @@ begin
   Result := FInstance.Connection.InTransaction;
 end;
 
-function TUnitOfWork.IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean; AShowException: Boolean=True): Boolean;
+function TUnitOfWork.IsAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean): Boolean;
+var
+  LSvcAccess: TSysAccessRightService;
 begin
-  Result := FInstance.SysAccessRightepository.IsAuthorized(APermissionType, APermissionControl, AShowException);
+  LSvcAccess := TSysAccessRightService.Create;
+  try
+    Result := LSvcAccess.IsAuthorized(APermissionCode, APermissionType, APermissionControl);
+  finally
+    LSvcAccess.Free;
+  end;
 end;
 
-function TUnitOfWork.GetSysViewColumnRepository: TSysViewColumnRepository;
+function TUnitOfWork.IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean): Boolean;
 begin
-  if Self.FInstance.FSysViewColumnRepository = nil then
-    Self.FInstance.FSysViewColumnRepository := TSysViewColumnRepository.Create(FInstance.FConnection);
-  Result := Self.FInstance.FSysViewColumnRepository;
+  Result := IsAuthorized(0, APermissionType, APermissionControl);
 end;
 
-function TUnitOfWork.GetSysCountryRepository: TSysCountryRepository;
+procedure TUnitOfWork.EnsureAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean);
+var
+  LSvcAccess: TSysAccessRightService;
 begin
-  if Self.FInstance.FSysCountryRepository = nil then
-    Self.FInstance.FSysCountryRepository := TSysCountryRepository.Create(FInstance.FConnection);
-  Result := Self.FInstance.FSysCountryRepository;
-end;
-
-function TUnitOfWork.GetSysPermissionGroupRepository: TSysPermissionGroupRepository;
-begin
-  if Self.FInstance.FSysPermissionGroupRepository = nil then
-    Self.FInstance.FSysPermissionGroupRepository := TSysPermissionGroupRepository.Create(FInstance.FConnection);
-  Result := Self.FInstance.FSysPermissionGroupRepository;
-end;
-
-function TUnitOfWork.GetSysAccessRightRepository: TSysAccessRightRepository;
-begin
-  if Self.FInstance.FSysAccessRightRepository = nil then
-    Self.FInstance.FSysAccessRightRepository := TSysAccessRightRepository.Create(FInstance.FConnection);
-  Result := Self.FInstance.FSysAccessRightRepository;
-end;
-
-function TUnitOfWork.GetSysPermissionRepository: TSysPermissionRepository;
-begin
-  if Self.FInstance.FSysPermissionRepository = nil then
-    Self.FInstance.FSysPermissionRepository := TSysPermissionRepository.Create(FInstance.FConnection);
-  Result := Self.FInstance.FSysPermissionRepository;
-end;
-
-function TUnitOfWork.GetSysCityRepository: TSysCityRepository;
-begin
-  if Self.FInstance.FSysCityRepository = nil then
-    Self.FInstance.FSysCityRepository := TSysCityRepository.Create(FInstance.FConnection);
-  Result := Self.FInstance.FSysCityRepository;
-end;
-
-function TUnitOfWork.GetSysRegionRepository: TSysRegionRepository;
-begin
-  if Self.FInstance.FSysRegionRepository = nil then
-    Self.FInstance.FSysRegionRepository := TSysRegionRepository.Create(FInstance.FConnection);
-  Result := Self.FInstance.FSysRegionRepository;
-end;
-
-function TUnitOfWork.GetStkCinsAileRepository: TStkKindFamilyRepository;
-begin
-  if Self.FInstance.FStkCinsAileRepository = nil then
-    Self.FInstance.FStkCinsAileRepository := TStkKindFamilyRepository.Create(FInstance.FConnection);
-  Result := Self.FInstance.FStkCinsAileRepository;
+  LSvcAccess := TSysAccessRightService.Create;
+  try
+    LSvcAccess.EnsureAuthorized(APermissionCode, APermissionType, APermissionControl);
+  finally
+    LSvcAccess.Free;
+  end;
 end;
 
 class procedure TUnitOfWork.Initialize(AConnection: TFDConnection);

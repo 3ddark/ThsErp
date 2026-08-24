@@ -5,7 +5,7 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
   Caption = 'Teklif Tipi'
   ClientHeight = 162
   ClientWidth = 357
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 373
   ExplicitHeight = 201
   TextHeight = 14
@@ -36,7 +36,7 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -52,7 +52,7 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -68,7 +68,7 @@ inherited frmSetTekTeklifTipi: TfrmSetTekTeklifTipi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

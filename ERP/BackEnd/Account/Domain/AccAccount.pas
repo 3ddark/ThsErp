@@ -145,7 +145,7 @@ type
     property Group: TAccGroup read FGroup write FGroup;
 
     [BelongsTo('type_id', 'id')]
-    property Type: TSetAccAccountType read FType write FType;
+    property _Type: TSetAccAccountType read FType write FType;
 
     [BelongsTo('region_id', 'id')]
     property Region: TAccRegion read FRegion write FRegion;

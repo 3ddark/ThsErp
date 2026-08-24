@@ -34,10 +34,13 @@ type
     class var FCache: TDictionary<string, TEntityMeta>;  // TObject yerine string key
     class var FConnection: TFDConnection;
     class var FCtx: TRttiContext;  // class var olmalı
+    class var FLanguageCode: string;
   public
     class constructor Create;
     class destructor Destroy;
     class procedure SetConnection(AConnection: TFDConnection);
+    class procedure SetLanguage(const ALanguageCode: string);
+    class function GetLanguage: string;
     class function GetMeta(AClass: TClass): TEntityMeta; overload;  // TClass parametresi
     class function GetMetaFromInstance(AInstance: TObject): TEntityMeta; overload;  // Instance için
   end;
@@ -64,6 +67,7 @@ class constructor TMetaProviderManager.Create;
 begin
   FCache := TDictionary<string, TEntityMeta>.Create;
   FCtx := TRttiContext.Create;
+  FLanguageCode := 'tr';
 end;
 
 class destructor TMetaProviderManager.Destroy;
@@ -79,6 +83,27 @@ end;
 class procedure TMetaProviderManager.SetConnection(AConnection: TFDConnection);
 begin
   FConnection := AConnection;
+end;
+
+class procedure TMetaProviderManager.SetLanguage(const ALanguageCode: string);
+var
+  meta: TEntityMeta;
+begin
+  if (ALanguageCode <> '') and not SameText(FLanguageCode, ALanguageCode) then
+  begin
+    FLanguageCode := ALanguageCode;
+    if Assigned(FCache) then
+    begin
+      for meta in FCache.Values do
+        meta.Free;
+      FCache.Clear;
+    end;
+  end;
+end;
+
+class function TMetaProviderManager.GetLanguage: string;
+begin
+  Result := FLanguageCode;
 end;
 
 class function TMetaProviderManager.GetMetaFromInstance(AInstance: TObject): TEntityMeta;
@@ -99,7 +124,7 @@ var
   reqAttr: Required;
   tableAttr: TableAttribute;
   tableName, columnName, cacheKey: string;
-  qry: TFDQuery;
+//  qry: TFDQuery;
 begin
   if AClass = nil then
     Exit(nil);
@@ -147,30 +172,33 @@ begin
       pMeta.ColumnName := colAttr.Name;
       columnName := colAttr.Name;
 
-      // DisplayLabel DB'den çek
-      if Assigned(FConnection) then
-      begin
-        qry := TFDQuery.Create(nil);
-        try
-          qry.Connection := FConnection;
-          qry.SQL.Text :=
-            'SELECT column_label FROM sys_grid_column_title ' +
-            'WHERE table_name = :tableName AND column_name = :colName AND lng_code=:lng_code';
-          qry.ParamByName('tableName').AsString := tableName;
-          qry.ParamByName('colName').AsString := columnName;
-          qry.ParamByName('lng_code').AsString := 'tr';
-          qry.Open;
-
-          if not qry.IsEmpty then
-            pMeta.DisplayLabel := qry.FieldByName('column_label').AsString
-          else
-            pMeta.DisplayLabel := prop.Name; // Fallback
-        finally
-          qry.Free;
-        end;
-      end
-      else
-        pMeta.DisplayLabel := prop.Name;
+//      // DisplayLabel DB'den çek
+//      if Assigned(FConnection) then
+//      begin
+//        qry := TFDQuery.Create(nil);
+//        try
+//          qry.Connection := FConnection;
+//          qry.SQL.Text :=
+//            'SELECT column_label FROM sys_grid_column_title ' +
+//            'WHERE table_name = :tableName AND column_name = :colName AND lng_code=:lng_code';
+//          qry.ParamByName('tableName').AsString := tableName;
+//          qry.ParamByName('colName').AsString := columnName;
+//          if FLanguageCode <> '' then
+//            qry.ParamByName('lng_code').AsString := FLanguageCode
+//          else
+//            qry.ParamByName('lng_code').AsString := 'tr';
+//          qry.Open;
+//
+//          if not qry.IsEmpty then
+//            pMeta.DisplayLabel := qry.FieldByName('column_label').AsString
+//          else
+//            pMeta.DisplayLabel := prop.Name; // Fallback
+//        finally
+//          qry.Free;
+//        end;
+//      end
+//      else
+//        pMeta.DisplayLabel := prop.Name;
     end
     else
       pMeta.DisplayLabel := prop.Name;

@@ -8,7 +8,7 @@ uses
   Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.ComCtrls,
   ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysRegion.Service, SysRegion;
+  SysRegion.Service, SysRegion, LocalizationManager;
 
 type
   TfrmSysRegion = class(TfrmInputSimpleDB<TSysRegion, TSysRegionService>)
@@ -19,8 +19,8 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -39,19 +39,18 @@ begin
   pnlContent.Parent := PanelMain;
 end;
 
-procedure TfrmSysRegion.InitializeInputCase;
-begin
-  inherited;
-  edtRegionName.thsInputDataType := itString;
-end;
-
 procedure TfrmSysRegion.FormShow(Sender: TObject);
 begin
   inherited;
-
-  Self.Caption := 'System Region';
-
+  ApplyLocalization;
   edtRegionName.SetFocus;
+end;
+
+procedure TfrmSysRegion.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_region.title.singular', 'Bölge');
+  lblRegionName.Caption := TLocalizationManager.Translate('sys_region.name', 'Bölge Adı');
 end;
 
 procedure TfrmSysRegion.RefreshData;

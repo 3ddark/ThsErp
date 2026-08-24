@@ -8,7 +8,7 @@ uses
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
   ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  SysGridFilter.Service, SysGridFilter;
+  SysGridFilter.Service, SysGridFilter, LocalizationManager;
 
 type
   TfrmSysGridFilter = class(TfrmInputSimpleDB<TSysGridFilter, TSysGridFilterService>)
@@ -23,6 +23,7 @@ type
   public
     procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -45,10 +46,14 @@ end;
 procedure TfrmSysGridFilter.FormShow(Sender: TObject);
 begin
   inherited;
-
-  Self.Caption := 'System Grid Filter';
-
+  ApplyLocalization;
   edtTableName.SetFocus;
+end;
+
+procedure TfrmSysGridFilter.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_grid_filter.title_singular', 'Grid Filtresi');
 end;
 
 procedure TfrmSysGridFilter.InitializeInputCase;

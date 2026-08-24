@@ -1,4 +1,4 @@
-﻿inherited frmAccTemsilciGrubulari: TfrmAccTemsilciGrubulari
+inherited frmAccTemsilciGrubulari: TfrmAccTemsilciGrubulari
   Caption = 'Temsilci Gruplar'
   PixelsPerInch = 96
   TextHeight = 13

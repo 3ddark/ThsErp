@@ -5,7 +5,7 @@ inherited frmStkStokHareketi: TfrmStkStokHareketi
   Caption = 'Stok Hareketi'
   ClientHeight = 190
   ClientWidth = 344
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 350
   ExplicitHeight = 219
   PixelsPerInch = 96
@@ -37,7 +37,7 @@ inherited frmStkStokHareketi: TfrmStkStokHareketi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -52,7 +52,7 @@ inherited frmStkStokHareketi: TfrmStkStokHareketi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -68,7 +68,7 @@ inherited frmStkStokHareketi: TfrmStkStokHareketi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -84,7 +84,7 @@ inherited frmStkStokHareketi: TfrmStkStokHareketi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

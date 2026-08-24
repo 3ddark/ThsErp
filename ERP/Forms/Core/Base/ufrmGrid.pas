@@ -4,12 +4,12 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  FireDAC.Comp.Client, FireDAC.Comp.DataSet, FireDAC.Stan.Option,
+  FireDAC.Comp.Client, FireDAC.Comp.DataSet, FireDAC.Stan.Option, FireDAC.Stan.Param,
   System.SysUtils, System.Variants, System.Classes, System.StrUtils,
   System.Rtti, System.TypInfo, System.Generics.Collections,
   Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd,
-  Vcl.DBGrids, Vcl.Samples.Spin, Data.DB, Vcl.DBCtrls,
+  Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd, Vcl.CheckLst,
+  Vcl.DBGrids, Vcl.Samples.Spin, Data.DB, Vcl.DBCtrls, LocalizationManager,
   udm, Ths.Constants, Ths.Globals, Ths.Helper.BaseTypes, Ths.Helper.Edit,
   SharedFormTypes, Entity, Service, AppContext, UserContext, FilterCriterion;
 
@@ -70,6 +70,7 @@ type
 
     FGridPopMenu: TPopupMenu;
     FmniPreview: TMenuItem;
+    FmniDuplicate: TMenuItem;
     FmniFilter: TMenuItem;
     FmniFilterExclude: TMenuItem;
     FmniFilterBack: TMenuItem;
@@ -103,7 +104,6 @@ type
     procedure CreateBtnSpin;
     procedure CreateBtnClose;
     procedure CreateButtonAdd;
-    procedure PreparePopupMenu();
 
     procedure FilterApply;
     procedure PrepareFilteredColumns;
@@ -136,6 +136,7 @@ type
 
     property GridPopMenu: TPopupMenu read FGridPopMenu write FGridPopMenu;
     property mniPreview: TMenuItem read FmniPreview write FmniPreview;
+    property mniDuplicate: TMenuItem read FmniDuplicate write FmniDuplicate;
     property mniFilter: TMenuItem read FmniFilter write FmniFilter;
     property mniFilterExclude: TMenuItem read FmniFilterExclude write FmniFilterExclude;
     property mniFilterBack: TMenuItem read FmniFilterBack write FmniFilterBack;
@@ -163,12 +164,14 @@ type
     procedure BuildFooter;
     procedure CreateFooterPanel;
     procedure UpdateFooterLayout;
+    procedure PreparePopupMenu(); virtual;
 
     //***form***
     procedure FormCreate(Sender: TObject); virtual;
     procedure FormDestroy(Sender: TObject); virtual;
     procedure FormShow(Sender: TObject); virtual;
     procedure FormClose(Sender: TObject; var Action: TCloseAction); virtual;
+    procedure ApplyLocalization; virtual;
     procedure FormKeyPress(Sender: TObject; var Key: Char); virtual;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
@@ -185,6 +188,11 @@ type
     procedure GridColWidthsChanged(Sender: TObject);
     procedure SortGridTitle(Sender: TObject);
 
+    function  GetGridViewName: string; virtual;
+    procedure LoadColumnWidthsFromDB; virtual;
+    procedure SaveColumnWidthsToDB; virtual;
+    procedure AdjustFormWidth; virtual;
+
     procedure RefreshDataFirst();
     procedure RefreshData();
     //***query***
@@ -200,6 +208,7 @@ type
     function AddMenu(ATitle, AMenuName: string; AClickEvent: TNotifyEvent; AVibisle: Boolean = True; AShortCut: TShortCut = 0; AParentMenu: TMenuItem = nil): TMenuItem;
     procedure AddPopupMenuSpliter(AParentMenu: TMenuItem = nil);
     procedure mniPreviewClick(Sender: TObject); virtual;
+    procedure mniDuplicateClick(Sender: TObject); virtual;
     procedure mniFilterClick(Sender: TObject); virtual;
     procedure mniFilterExcludeClick(Sender: TObject); virtual;
     procedure mniFilterBackClick(Sender: TObject); virtual;
@@ -208,6 +217,8 @@ type
     procedure mniExportCsvClick(Sender: TObject); virtual;
     procedure mniPrintClick(Sender: TObject); virtual;
     procedure mniRemoveSortClick(Sender: TObject); virtual;
+
+    procedure mniColumnsClick(Sender: TObject); virtual;
 
     //***footer button events***
     procedure BtnSpinDownClick(Sender: TObject); virtual;
@@ -220,13 +231,28 @@ type
     procedure RefreshParentGrid(AFocusSelectedItem: Boolean);
   end;
 
+  TfrmColumnSelector = class(TForm)
+  private
+    FEditSearch: TEdit;
+    FCheckListBox: TCheckListBox;
+    FColumns: TList<TColumn>;
+    FCheckedStates: TDictionary<TColumn, Boolean>;
+    procedure EditSearchChange(Sender: TObject);
+    procedure CheckListBoxClickCheck(Sender: TObject);
+    procedure RebuildList;
+  public
+    constructor Create(AOwner: TComponent; AColumns: TList<TColumn>); reintroduce;
+    destructor Destroy; override;
+    function GetCheckedState(AColumn: TColumn): Boolean;
+  end;
+
   function UpperCaseTr(S: string): string;
   function LowerCaseTr(S: string): string;
   function CsvSafe(const S: string): string;
 
 implementation
 
-uses ufrmInputSimpleDB, Logger;
+uses ufrmInputSimpleDB, Logger, SysGridColumn, SysGridColumn.Repository;
 
 { TFooterColumn }
 
@@ -319,8 +345,11 @@ end;
 
 procedure TfrmGrid<TE, TS>.AfterDatasetOpen(Dataset: TDataset);
 begin
-  DefineColumnWidths;
-  RefreshStatusRecordCount();
+  Grd.Columns.RestoreDefaults;
+  DefineColumnWidths;         // subclass'ın kod tanımlı genişlikleri
+  LoadColumnWidthsFromDB;     // DB'deki kayıtlı genişlikler (önceliklidir)
+  AdjustFormWidth;
+  RefreshStatusRecordCount;
 end;
 
 procedure TfrmGrid<TE, TS>.BtnCloseClick(Sender: TObject);
@@ -614,7 +643,7 @@ begin
   EdtFilter.Margins.Right := 3;
   EdtFilter.Margins.Top := 3;
   EdtFilter.Margins.Bottom := 3;
-  EdtFilter.TextHint := 'Filter';
+  EdtFilter.TextHint := TLocalizationManager.Translate(TLangKeys.TGeneral.FilterHint, 'Filter');
   EdtFilter.TabStop := False;
   EdtFilter.OnChange := EdtFilterChange;
 end;
@@ -634,7 +663,7 @@ procedure TfrmGrid<TE, TS>.CreateBtnClose;
 begin
   BtnClose := TButton.Create(PanelFooter);
   BtnClose.Parent := PanelFooter;
-  BtnClose.Caption := 'Kapat';
+  BtnClose.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Kapat');
   BtnClose.OnClick := BtnCloseClick;
   BtnClose.Align := alRight;
   BtnClose.Margins.Right := 8;
@@ -645,7 +674,7 @@ procedure TfrmGrid<TE, TS>.CreateButtonAdd;
 begin
   BtnAdd := TButton.Create(FPanelButtons);
   BtnAdd.Parent := FPanelButtons;
-  BtnAdd.Caption := 'Kayıt Ekle';
+  BtnAdd.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.AddRecord, 'Kayıt Ekle');
   BtnAdd.OnClick := BtnAddClick;
   BtnAdd.Align := alNone;
   BtnAdd.Width := 80;
@@ -776,7 +805,44 @@ end;
 
 procedure TfrmGrid<TE, TS>.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  SaveColumnWidthsToDB;       // kullanıcı değişikliklerini kalıcı yap
   Action := caFree;
+end;
+
+procedure TfrmGrid<TE, TS>.ApplyLocalization;
+begin
+  inherited;
+  if Assigned(EdtFilter) then
+    EdtFilter.TextHint := TLocalizationManager.Translate(TLangKeys.TGeneral.FilterHint, 'Filtre');
+
+  if Assigned(BtnClose) then
+    BtnClose.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Kapat');
+
+  if Assigned(BtnAdd) then
+    BtnAdd.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.AddRecord, 'Kayıt Ekle');
+
+  if Assigned(mniPreview) then
+    mniPreview.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Preview, 'Önizleme');
+  if Assigned(mniDuplicate) then
+    mniDuplicate.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Duplicate, 'Çoğalt');
+  if Assigned(mniFilter) then
+    mniFilter.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Filter, 'Filtrele');
+  if Assigned(mniFilterExclude) then
+    mniFilterExclude.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterExclude, 'Filtre Dışında Tut');
+  if Assigned(mniFilterBack) then
+    mniFilterBack.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterBack, 'Filtreye Geri Dön');
+  if Assigned(mniFilterRemove) then
+    mniFilterRemove.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterRemove, 'Filtreyi Kaldır');
+  if Assigned(mniExportExcel) then
+    mniExportExcel.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportExcel, 'Excel''e Aktar');
+  if Assigned(mniExportCsv) then
+    mniExportCsv.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportCsv, 'CSV Dosyasına Aktar');
+  if Assigned(mniPrint) then
+    mniPrint.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Print, 'Yazdır');
+  if Assigned(mniRemoveGridSort) then
+    mniRemoveGridSort.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.RemoveSort, 'Sıralamayı Kaldır');
+
+  PrepareStatusBar;
 end;
 
 procedure TfrmGrid<TE, TS>.FormCreate(Sender: TObject);
@@ -832,28 +898,10 @@ begin
 end;
 
 procedure TfrmGrid<TE, TS>.FormShow(Sender: TObject);
-var
-  n1, LMaxWidth, LTotalWidth: Integer;
 begin
   BuildFooter;
   FQry.Open;
-
-  LMaxWidth := Screen.MonitorFromWindow(Self.Handle).WorkareaRect.Width;
-  LTotalWidth := 0;
-  for n1 := 0 to Grd.Columns.Count-1 do
-  begin
-    LTotalWidth := LTotalWidth + Grd.Columns.Items[n1].Width;
-    if dgColLines in Grd.Options then
-    begin
-      if Grd.Columns.Items[n1].Width > 0 then
-      begin
-        LTotalWidth := LTotalWidth + THackDBGrid(Grd).Col
-      end;
-    end;
-  end;
-
-  if LTotalWidth > LMaxWidth then
-    LTotalWidth := LMaxWidth;
+  AdjustFormWidth;
 
   PrepareFilteredColumns;
   PanelSidebar.Visible := False;
@@ -1287,6 +1335,18 @@ begin
   end;
 end;
 
+procedure TfrmGrid<TE, TS>.mniDuplicateClick(Sender: TObject);
+begin
+  if mniDuplicate.Visible then
+  begin
+    if (Grd.DataSource.DataSet.RecordCount > 0) then
+    begin
+      SetSelectedItem();
+      ShowInputForm(mniDuplicate, ifmCopyNewRecord);
+    end;
+  end;
+end;
+
 procedure TfrmGrid<TE, TS>.mniPrintClick(Sender: TObject);
 begin
   ShowMessage('not implemented yet!' + sLineBreak + 'Print');
@@ -1363,8 +1423,9 @@ begin
   Self.KeyPreview := True;
   Self.Constraints.MinWidth := 720;
   Self.Constraints.MaxWidth := Monitor.Width;
-  Self.Constraints.MinHeight := 480;
+  Self.Constraints.MinHeight := 600;
   Self.Constraints.MaxHeight := Monitor.Height;
+  Self.Height := 600;
 
   //form event
   Self.OnCreate := FormCreate;
@@ -1399,20 +1460,173 @@ end;
 procedure TfrmGrid<TE, TS>.PreparePopupMenu;
 begin
   GridPopMenu := TPopupMenu.Create(Self);
-  mniPreview := AddMenu('Preview', 'mniPreview', mniPreviewClick, True, TextToShortCut('Ctrl+Enter'));
+  mniPreview := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Preview, 'Önizleme'), 'mniPreview', mniPreviewClick, True, TextToShortCut('Ctrl+Enter'));
+  mniDuplicate := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Duplicate, 'Çoğalt'), 'mniDuplicate', mniDuplicateClick, False, TextToShortCut('Ctrl+D'));
   AddPopupMenuSpliter();
-  mniFilter := AddMenu('Filter', 'mniFilter', mniFilterClick, True, TextToShortCut('F3'));
-  mniFilterExclude := AddMenu('Exclude Filter', 'mniFilterExclude', mniFilterExcludeClick, True, TextToShortCut('Ctrl+F3'));
-  mniFilterBack := AddMenu('Filter Back', 'mniFilterBack', mniFilterBackClick, True, TextToShortCut('Ctrl+F8'));
+  mniFilter := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Filter, 'Filtrele'), 'mniFilter', mniFilterClick, True, TextToShortCut('F3'));
+  mniFilterExclude := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterExclude, 'Filtre Dışında Tut'), 'mniFilterExclude', mniFilterExcludeClick, True, TextToShortCut('Ctrl+F3'));
+  mniFilterBack := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterBack, 'Filtreye Geri Dön'), 'mniFilterBack', mniFilterBackClick, True, TextToShortCut('Ctrl+F8'));
   mniFilterBack.Enabled := False;
-  mniFilterRemove := AddMenu('Remove Filter', 'mniFilterRemove', mniFilterRemoveClick, True, TextToShortCut('F8'));
+  mniFilterRemove := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterRemove, 'Filtreyi Kaldır'), 'mniFilterRemove', mniFilterRemoveClick, True, TextToShortCut('F8'));
   mniFilterRemove.Enabled := False;
   AddPopupMenuSpliter();
-  mniExportExcel := AddMenu('Export Excel', 'mniExportExcel', mniExportExcelClick, True, TextToShortCut('Ctrl+E'));
-  mniExportCsv := AddMenu('Export Csv File', 'mniExportCsv', mniExportCsvClick, True, TextToShortCut('Ctrl+Shift+E'));
-  mniPrint := AddMenu('Print', 'mniPrint', mniPrintClick, True, TextToShortCut('Ctrl+P'));
-  mniRemoveGridSort := AddMenu('Remove Sort', 'mniRemoveGridSort', mniRemoveSortClick);
+  mniExportExcel := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportExcel, 'Excel''e Aktar'), 'mniExportExcel', mniExportExcelClick, True, TextToShortCut('Ctrl+E'));
+  mniExportCsv := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportCsv, 'CSV Dosyasına Aktar'), 'mniExportCsv', mniExportCsvClick, True, TextToShortCut('Ctrl+Shift+E'));
+  mniPrint := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Print, 'Yazdır'), 'mniPrint', mniPrintClick, True, TextToShortCut('Ctrl+P'));
+  mniRemoveGridSort := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.RemoveSort, 'Sıralamayı Kaldır'), 'mniRemoveGridSort', mniRemoveSortClick);
   mniRemoveGridSort.Enabled := False;
+  AddPopupMenuSpliter();
+  AddMenu(TLocalizationManager.Translate('popup.columns', 'Kolonlar'), 'mniColumns', mniColumnsClick);
+end;
+
+procedure TfrmGrid<TE, TS>.mniColumnsClick(Sender: TObject);
+var
+  LColumns: TList<TColumn>;
+  i: Integer;
+  LSelector: TfrmColumnSelector;
+  LCol: TColumn;
+begin
+  LColumns := TList<TColumn>.Create;
+  try
+    for i := 0 to Grd.Columns.Count - 1 do
+      LColumns.Add(Grd.Columns[i]);
+
+    LSelector := TfrmColumnSelector.Create(Self, LColumns);
+    try
+      if LSelector.ShowModal = mrOk then
+      begin
+        for LCol in LColumns do
+          LCol.Visible := LSelector.GetCheckedState(LCol);
+
+        AdjustFormWidth;
+        SaveColumnWidthsToDB;
+      end;
+    finally
+      LSelector.Free;
+    end;
+  finally
+    LColumns.Free;
+  end;
+end;
+
+{ TfrmColumnSelector }
+
+constructor TfrmColumnSelector.Create(AOwner: TComponent; AColumns: TList<TColumn>);
+var
+  LPanelButtons: TPanel;
+  LBtnOk, LBtnCancel: TButton;
+  LCol: TColumn;
+begin
+  inherited CreateNew(AOwner);
+  
+  FColumns := AColumns;
+  FCheckedStates := TDictionary<TColumn, Boolean>.Create;
+  for LCol in FColumns do
+    FCheckedStates.Add(LCol, LCol.Visible);
+
+  Caption := TLocalizationManager.Translate('column_selector.title', 'Kolon Seçimi');
+  Position := poOwnerFormCenter;
+  Width := 450;
+  Height := 500;
+  BorderStyle := bsSizeable;
+
+  FEditSearch := TEdit.Create(Self);
+  FEditSearch.Parent := Self;
+  FEditSearch.Align := alTop;
+  FEditSearch.Height := 24;
+  FEditSearch.Margins.SetBounds(8, 8, 8, 8);
+  FEditSearch.AlignWithMargins := True;
+  FEditSearch.TextHint := TLocalizationManager.Translate('column_selector.search_hint', 'Kolon Ara...');
+  FEditSearch.OnChange := EditSearchChange;
+
+  LPanelButtons := TPanel.Create(Self);
+  LPanelButtons.Parent := Self;
+  LPanelButtons.Align := alBottom;
+  LPanelButtons.Height := 40;
+  LPanelButtons.BevelOuter := bvNone;
+
+  LBtnCancel := TButton.Create(Self);
+  LBtnCancel.Parent := LPanelButtons;
+  LBtnCancel.Caption := TLocalizationManager.Translate('general.cancel', 'İptal');
+  LBtnCancel.ModalResult := mrCancel;
+  LBtnCancel.Left := Self.ClientWidth - LBtnCancel.Width - 12;
+  LBtnCancel.Top := 8;
+  LBtnCancel.Anchors := [akRight, akBottom];
+
+  LBtnOk := TButton.Create(Self);
+  LBtnOk.Parent := LPanelButtons;
+  LBtnOk.Caption := TLocalizationManager.Translate('general.ok', 'Tamam');
+  LBtnOk.ModalResult := mrOk;
+  LBtnOk.Default := True;
+  LBtnOk.Left := LBtnCancel.Left - LBtnOk.Width - 8;
+  LBtnOk.Top := 8;
+  LBtnOk.Anchors := [akRight, akBottom];
+
+  FCheckListBox := TCheckListBox.Create(Self);
+  FCheckListBox.Parent := Self;
+  FCheckListBox.Align := alClient;
+  FCheckListBox.Margins.SetBounds(8, 0, 8, 0);
+  FCheckListBox.AlignWithMargins := True;
+  FCheckListBox.OnClickCheck := CheckListBoxClickCheck;
+
+  RebuildList;
+end;
+
+destructor TfrmColumnSelector.Destroy;
+begin
+  FCheckedStates.Free;
+  inherited;
+end;
+
+procedure TfrmColumnSelector.EditSearchChange(Sender: TObject);
+begin
+  RebuildList;
+end;
+
+procedure TfrmColumnSelector.CheckListBoxClickCheck(Sender: TObject);
+var
+  I: Integer;
+  LCol: TColumn;
+begin
+  for I := 0 to FCheckListBox.Items.Count - 1 do
+  begin
+    LCol := TColumn(FCheckListBox.Items.Objects[I]);
+    FCheckedStates[LCol] := FCheckListBox.Checked[I];
+  end;
+end;
+
+function TfrmColumnSelector.GetCheckedState(AColumn: TColumn): Boolean;
+begin
+  Result := FCheckedStates[AColumn];
+end;
+
+procedure TfrmColumnSelector.RebuildList;
+var
+  LCol: TColumn;
+  LSearchText: string;
+  LIndex: Integer;
+  LText: string;
+begin
+  FCheckListBox.Items.BeginUpdate;
+  try
+    FCheckListBox.Items.Clear;
+    LSearchText := Trim(FEditSearch.Text);
+    
+    for LCol in FColumns do
+    begin
+      LText := LCol.Title.Caption;
+      if LText = '' then
+        LText := LCol.FieldName;
+        
+      if (LSearchText = '') or (Pos(LowerCaseTr(LSearchText), LowerCaseTr(LText)) > 0) then
+      begin
+        LIndex := FCheckListBox.Items.AddObject(LText, LCol);
+        FCheckListBox.Checked[LIndex] := FCheckedStates[LCol];
+      end;
+    end;
+  finally
+    FCheckListBox.Items.EndUpdate;
+  end;
 end;
 
 procedure TfrmGrid<TE, TS>.PrepareStatusBar;
@@ -1436,14 +1650,14 @@ begin
   if Service.Uow.Connection.Connected then
     FStatusBase.Panels.Items[DB_STATUS_SQL_SERVER].Text := Service.Uow.Connection.Params.Values['Server'];
 
-  FStatusBase.Panels.Items[DB_STATUS_PERIOD].Text := 'Dönem:2025';//TranslateText('Dönem', FrameworkLang.GeneralPeriod, LngGeneral, LngSystem) + ' ' + GSysApplicationSetting.Donem.AsString;
+  FStatusBase.Panels.Items[DB_STATUS_PERIOD].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.Period, 'Dönem') + ':2025';
 
-  if Service.Uow.Connection.Connected then
-    FStatusBase.Panels.Items[DB_STATUS_USER].Text := TAppContext.Instance.CurrentUser.User.Person.FullName;
+  if Assigned(TAppContext.Instance.CurrentUser) then
+    FStatusBase.Panels.Items[DB_STATUS_USER].Text := TAppContext.Instance.CurrentUser.GetUsername;
 
-  FStatusBase.Panels.Items[DB_STATUS_KEY_F6].Text := 'F6 İPTAL/KAPAT';
-  FStatusBase.Panels.Items[DB_STATUS_KEY_F7].Text := 'F7 KAYIT EKLE';
-  FStatusBase.Panels.Items[DB_STATUS_KEY_F11].Text := 'F11 ŞEFFAFLIK';
+  FStatusBase.Panels.Items[DB_STATUS_KEY_F6].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF6, 'F6 İptal / Kapat');
+  FStatusBase.Panels.Items[DB_STATUS_KEY_F7].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF7, 'F7 Kayıt Ekle');
+  FStatusBase.Panels.Items[DB_STATUS_KEY_F11].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF11, 'F11 Şeffaflık');
 end;
 
 procedure TfrmGrid<TE, TS>.RefreshData;
@@ -1487,7 +1701,7 @@ end;
 procedure TfrmGrid<TE, TS>.RefreshStatusRecordCount();
 begin
   if FStatusBase.Panels.Count > 0 then
-    FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text := Format('Records: %d', [Grd.DataSource.DataSet.RecordCount]);
+    FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text := Format(TLocalizationManager.Translate(TLangKeys.TGeneral.RecordsCount, 'Records: %d'), [Grd.DataSource.DataSet.RecordCount]) + ' ' + Self.Width.ToString;
   UpdateFooterLayout;
 end;
 
@@ -1528,6 +1742,9 @@ begin
       LId := Table.Id;
       FreeAndNil(Table);
       Table := Service.FindById(LId, False, True);
+
+      Table := Service.BusinessFindById(LId, False, True, True);
+
     end;
     LForm := CreateInputForm(Sender, AFormType);
     LForm.Show;
@@ -1672,6 +1889,155 @@ begin
   begin
     dm.il16.Draw(StatusBar.Canvas, Rect.Left, Rect.Top, vIco);
     Panel.Width := FStatusBase.Canvas.TextWidth(Panel.Text)+ dm.il16.Width + 16;
+  end;
+end;
+
+function TfrmGrid<TE, TS>.GetGridViewName: string;
+var
+  sql, upper : string;
+  fromPos    : Integer;
+  endPos     : Integer;
+  dotPos     : Integer;
+begin
+  Result := '';
+  if not Assigned(FQry) or (FQry.SQL.Count = 0) then Exit;
+
+  sql   := FQry.SQL.Text;
+  upper := UpperCase(sql);
+
+  fromPos := Pos(' FROM ', upper);
+  if fromPos = 0 then Exit;
+  Inc(fromPos, 6);
+
+  endPos := fromPos;
+  while endPos <= Length(sql) do
+  begin
+    if CharInSet(sql[endPos], [' ', #9, #13, #10]) then Break;
+    Inc(endPos);
+  end;
+
+  Result := LowerCase(Trim(Copy(sql, fromPos, endPos - fromPos)));
+
+  dotPos := LastDelimiter('.', Result);
+  if dotPos > 0 then
+    Result := Copy(Result, dotPos + 1, MaxInt);
+end;
+
+procedure TfrmGrid<TE, TS>.LoadColumnWidthsFromDB;
+var
+  viewName : string;
+  i, j     : Integer;
+  LRepo    : TSysGridColumnRepository;
+  LColumns : TList<TSysGridColumn>;
+  LCol     : TSysGridColumn;
+begin
+  viewName := GetGridViewName;
+  if viewName = '' then Exit;
+
+  if not Service.Uow.Connection.Connected then Exit;
+
+  LRepo := TSysGridColumnRepository(Service.Uow.GetRepository<TSysGridColumn, TSysGridColumnRepository> as TObject);
+  LColumns := LRepo.LoadColumns(viewName);
+  try
+    if LColumns.Count = 0 then Exit;
+
+    for LCol in LColumns do
+    begin
+      for i := 0 to Grd.Columns.Count - 1 do
+        if SameText(Grd.Columns[i].FieldName, LCol.ColumnName) then
+        begin
+          if not LCol.IsShow then
+            Grd.Columns[i].Visible := False
+          else
+          begin
+            Grd.Columns[i].Visible := True;
+            if LCol.ColumnWidth > 0 then
+              Grd.Columns[i].Width := LCol.ColumnWidth;
+          end;
+          Break;
+        end;
+    end;
+
+    // Apply column order
+    j := 0;
+    for LCol in LColumns do
+    begin
+      if LCol.IsShow then
+        for i := 0 to Grd.Columns.Count - 1 do
+          if SameText(Grd.Columns[i].FieldName, LCol.ColumnName) and
+             Grd.Columns[i].Visible then
+          begin
+            if Grd.Columns[i].Index <> j then
+              Grd.Columns[i].Index := j;
+            Inc(j);
+            Break;
+          end;
+    end;
+  finally
+    LColumns.Free;
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.AdjustFormWidth;
+var
+  n1, LTotalWidth: Integer;
+begin
+  LTotalWidth := 0;
+  for n1 := 0 to Grd.Columns.Count - 1 do
+  begin
+    if Grd.Columns[n1].Visible then
+    begin
+      LTotalWidth := LTotalWidth + Grd.Columns[n1].Width;
+      if dgColLines in Grd.Options then
+        LTotalWidth := LTotalWidth + 1;
+    end;
+  end;
+
+  if dgIndicator in Grd.Options then
+    LTotalWidth := LTotalWidth + IndicatorWidth;
+
+  // Add scrollbar width and borders/margins
+  LTotalWidth := LTotalWidth + (Self.Width - Self.ClientWidth) + 30;
+
+  // Apply constraints
+  if (Self.Constraints.MinWidth > 0) and (LTotalWidth < Self.Constraints.MinWidth) then
+    LTotalWidth := Self.Constraints.MinWidth;
+
+  if (Self.Constraints.MaxWidth > 0) and (LTotalWidth > Self.Constraints.MaxWidth) then
+    LTotalWidth := Self.Constraints.MaxWidth;
+
+  Self.Width := LTotalWidth;
+end;
+
+procedure TfrmGrid<TE, TS>.SaveColumnWidthsToDB;
+var
+  viewName : string;
+  i        : Integer;
+  LRepo    : TSysGridColumnRepository;
+  LColumns : TList<TSysGridColumn>;
+  LCol     : TSysGridColumn;
+begin
+  viewName := GetGridViewName;
+  if viewName = '' then Exit;
+  if Service.Uow.InTransaction then Exit;
+
+  LColumns := TObjectList<TSysGridColumn>.Create(True);
+  try
+    for i := 0 to Grd.Columns.Count - 1 do
+    begin
+      LCol := TSysGridColumn.Create;
+      LCol.TableName := viewName;
+      LCol.ColumnName := Grd.Columns[i].FieldName;
+      LCol.ColumnOrder := Grd.Columns[i].Index;
+      LCol.ColumnWidth := Grd.Columns[i].Width;
+      LCol.IsShow := Grd.Columns[i].Visible;
+      LColumns.Add(LCol);
+    end;
+
+    LRepo := TSysGridColumnRepository(Service.Uow.GetRepository<TSysGridColumn, TSysGridColumnRepository> as TObject);
+    LRepo.SaveColumns(viewName, LColumns);
+  finally
+    LColumns.Free;
   end;
 end;
 

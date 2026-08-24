@@ -57,7 +57,7 @@ begin
     Self.UoW.IsAuthorized(ptRead, APermissionControl);
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TAccAccountPlanService.BusinessInsert(AEntity: TAccAccountPlan; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -124,18 +124,12 @@ end;
 
 function TAccAccountPlanService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TAccAccountPlan>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TAccAccountPlanService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccAccountPlan;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TAccAccountPlanService.Add(AEntity: TAccAccountPlan);

@@ -8,7 +8,7 @@ uses
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
   ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  SysGridSort.Service, SysGridSort;
+  SysGridSort.Service, SysGridSort, LocalizationManager;
 
 type
   TfrmSysGridSort = class(TfrmInputSimpleDB<TSysGridSort, TSysGridSortService>)
@@ -23,6 +23,7 @@ type
   public
     procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -45,10 +46,14 @@ end;
 procedure TfrmSysGridSort.FormShow(Sender: TObject);
 begin
   inherited;
-
-  Self.Caption := 'System Grid Sort';
-
+  ApplyLocalization;
   edtTableName.SetFocus;
+end;
+
+procedure TfrmSysGridSort.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_grid_sort.title_singular', 'Grid Sıralaması');
 end;
 
 procedure TfrmSysGridSort.InitializeInputCase;

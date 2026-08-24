@@ -1,4 +1,4 @@
-﻿unit SysRegion.Repository;
+unit SysRegion.Repository;
 
 interface
 
@@ -10,6 +10,7 @@ type
   TSysRegionRepository = class(TRepository<TSysRegion>)
   public
     constructor Create(AConnection: TFDConnection);
+    procedure Delete(AModel: TSysRegion); override;
   end;
 
 implementation
@@ -17,6 +18,11 @@ implementation
 constructor TSysRegionRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+procedure TSysRegionRepository.Delete(AModel: TSysRegion);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

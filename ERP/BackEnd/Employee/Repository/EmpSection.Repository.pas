@@ -1,4 +1,4 @@
-﻿unit EmpSection.Repository;
+unit EmpSection.Repository;
 
 interface
 
@@ -10,6 +10,7 @@ type
   TEmpSectionRepository = class(TRepository<TEmpSection>)
   public
     constructor Create(AConnection: TFDConnection);
+    procedure Delete(AModel: TEmpSection); override;
   end;
 
 implementation
@@ -17,6 +18,11 @@ implementation
 constructor TEmpSectionRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+procedure TEmpSectionRepository.Delete(AModel: TEmpSection);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

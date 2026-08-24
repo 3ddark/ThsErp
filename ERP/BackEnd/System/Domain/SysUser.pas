@@ -1,4 +1,4 @@
-﻿unit SysUser;
+unit SysUser;
 
 interface
 
@@ -17,6 +17,11 @@ type
     FIpAddress: string;
     FActive: Boolean;
     FPerson: TEmpPerson;
+    FPersonName: string;
+    FPersonSurname: string;
+    FActiveLanguage: string;
+    function GetPersonName: string;
+    function GetPersonSurname: string;
   public
     [Column('username'), MaxLength(64), Required()]
     property Username: string read FUsername write FUsername;
@@ -45,6 +50,11 @@ type
     [BelongsTo('PersonId')]
     property Person: TEmpPerson read FPerson write FPerson;
 
+    property PersonName: string read GetPersonName write FPersonName;
+    property PersonSurname: string read GetPersonSurname write FPersonSurname;
+
+    property ActiveLanguage: string read FActiveLanguage write FActiveLanguage;
+
     constructor Create(); override;
     destructor Destroy; override;
   end;
@@ -65,6 +75,26 @@ begin
   if Assigned(Person) then
     FreeAndNil(Person);
   inherited;
+end;
+
+function TSysUser.GetPersonName: string;
+begin
+  if FPersonName <> '' then
+    Result := FPersonName
+  else if Assigned(FPerson) then
+    Result := FPerson.Name
+  else
+    Result := '';
+end;
+
+function TSysUser.GetPersonSurname: string;
+begin
+  if FPersonSurname <> '' then
+    Result := FPersonSurname
+  else if Assigned(FPerson) then
+    Result := FPerson.Surname
+  else
+    Result := '';
 end;
 
 end.

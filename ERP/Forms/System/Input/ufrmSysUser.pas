@@ -1,4 +1,4 @@
-unit ufrmSysUser;
+﻿unit ufrmSysUser;
 
 interface
 
@@ -7,15 +7,15 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysUser.Service, SysUser;
+  SysUser.Service, SysUser, LocalizationManager;
 
 type
   TfrmSysUser = class(TfrmInputSimpleDB<TSysUser, TSysUserService>)
     pnlContent: TPanel;
     lblUsername: TLabel;
     edtUsername: TEdit;
-    lblUserPassword: TLabel;
-    edtUserPassword: TEdit;
+    lblPersonId: TLabel;
+    edtPersonId: TEdit;
     lblActive: TLabel;
     chkActive: TCheckBox;
     lblManager: TLabel;
@@ -32,16 +32,21 @@ type
     procedure FormShow(Sender: TObject); override;
   public
     procedure RefreshData; override;
+    procedure HelperProcess(Sender: TObject);
+    procedure ApplyLocalization; override;
   end;
 
 implementation
 
 {$R *.dfm}
 
+uses
+  ufrmEmpPersons, EmpPerson, EmpPerson.Service, Ths.Globals;
+
 procedure TfrmSysUser.BtnAcceptClick(Sender: TObject);
 begin
   Table.Username := edtUsername.Text;
-  Table.UserPassword := edtUserPassword.Text;
+  Table.PersonId := edtPersonId.Tag;
   Table.Active := chkActive.Checked;
   Table.Manager := chkManager.Checked;
   Table.SuperUser := chkSuperUser.Checked;
@@ -54,21 +59,76 @@ procedure TfrmSysUser.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtUserPassword.PasswordChar := '#';
+  edtPersonId.OnHelperProcess := HelperProcess;
 end;
 
 procedure TfrmSysUser.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'User';
+  ApplyLocalization;
   edtUsername.SetFocus;
+end;
+
+procedure TfrmSysUser.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_user.title_singular', 'Kullanıcı');
+  lblUsername.Caption := TLocalizationManager.Translate('sys_user.lbl_username', 'Kullanıcı Adı');
+  lblPersonId.Caption := TLocalizationManager.Translate('sys_user.lbl_person_id', 'Personel');
+  lblActive.Caption := TLocalizationManager.Translate('sys_user.lbl_is_active', 'Aktif');
+  lblManager.Caption := TLocalizationManager.Translate('sys_user.lbl_is_admin', 'Yönetici');
+  lblSuperUser.Caption := TLocalizationManager.Translate('sys_user.lbl_is_superuser', 'Süper Kullanıcı');
+  lblIpAddress.Caption := TLocalizationManager.Translate('sys_user.lbl_ip_address', 'IP Adresi');
+  lblMacAddress.Caption := TLocalizationManager.Translate('sys_user.lbl_mac_address', 'MAC Adresi');
+end;
+
+procedure TfrmSysUser.HelperProcess(Sender: TObject);
+var
+  LEdit: TEdit;
+  LFrmPrs: TfrmEmpPersons;
+begin
+  if Sender is TEdit then
+  begin
+    LEdit := (Sender as TEdit);
+    if LEdit.Name = edtPersonId.Name then
+    begin
+      LFrmPrs := TfrmEmpPersons.Create(LEdit, TEmpPersonService.Create, TEmpPerson.Create, True, True);
+      try
+        LFrmPrs.ShowModal;
+        if LFrmPrs.DataTransfer then
+        begin
+          if LFrmPrs.CleanAndClose then
+          begin
+            edtPersonId.Tag := 0;
+            LEdit.Clear;
+          end
+          else
+          begin
+            edtPersonId.Tag := LFrmPrs.Table.Id;
+            LEdit.Text := LFrmPrs.Table.FullName;
+          end;
+        end;
+      finally
+        LFrmPrs.Free;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmSysUser.RefreshData;
 begin
   inherited;
   edtUsername.Text := Table.Username;
-  edtUserPassword.Text := ''; // Password should not be displayed
+  edtPersonId.Tag := Table.PersonId;
+  if Table.PersonId > 0 then
+  begin
+    if Table.PersonName <> '' then
+      edtPersonId.Text := Trim(Table.PersonName + ' ' + Table.PersonSurname)
+    else
+      edtPersonId.Text := Table.PersonId.ToString;
+  end
+  else
+    edtPersonId.Text := '';
   chkActive.Checked := Table.Active;
   chkManager.Checked := Table.Manager;
   chkSuperUser.Checked := Table.SuperUser;

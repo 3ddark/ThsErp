@@ -33,7 +33,7 @@ type
     [Column('form_name'), MaxLength(64)]
     property FormName: string read FFormName write FFormName;
 
-    constructor Create(); override;
+    constructor Create();
     destructor Destroy; override;
   end;
 

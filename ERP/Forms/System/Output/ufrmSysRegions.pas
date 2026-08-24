@@ -1,11 +1,11 @@
-﻿unit ufrmSysRegions;
+unit ufrmSysRegions;
 
 interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysRegion.Service, SysRegion, ufrmSysRegion;
+  SharedFormTypes, SysRegion.Service, SysRegion, ufrmSysRegion, LocalizationManager;
 
 type
   TfrmSysRegions = class(TfrmGrid<TSysRegion, TSysRegionService>)
@@ -14,6 +14,7 @@ type
     procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -33,20 +34,29 @@ end;
 
 procedure TfrmSysRegions.DefineColumnWidths;
 begin
-  SetColumnProperty('id',            0, 'Id');
-  SetColumnProperty('region_name',  80, 'Region Name');
+  inherited;
+  SetColumnProperty('id',    0, TLocalizationManager.Translate('sys_region.col_id', 'Id'));
+  SetColumnProperty('name', 200, TLocalizationManager.Translate('sys_region.col_name', 'Region Name'));
 end;
 
 procedure TfrmSysRegions.DefineFooterColumns;
 begin
   inherited;
-  AddFooterColumn('region_name', atCount, '#,##0 " Region"');
+  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysRegions.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'System Regions';
+  mniDuplicate.Visible := True;
+  ApplyLocalization;
+end;
+
+procedure TfrmSysRegions.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_region.title_plural', 'Regions');
+
 end;
 
 end.

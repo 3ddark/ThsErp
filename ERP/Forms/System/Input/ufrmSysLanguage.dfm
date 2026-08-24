@@ -8,7 +8,7 @@ object frmSysLanguage: TfrmSysLanguage
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
-  Font.Name = 'Segoe UI'
+  Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
   OnShow = FormShow
@@ -20,46 +20,46 @@ object frmSysLanguage: TfrmSysLanguage
     Height = 197
     Align = alClient
     TabOrder = 0
-    object lblLngCode: TLabel
-      Left = 38
+    object lblLocale: TLabel
+      Left = 89
       Top = 12
-      Width = 90
+      Width = 39
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Language Code'
+      Caption = 'Locale'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblDescription: TLabel
-      Left = 63
+    object lblNativeName: TLabel
+      Left = 54
       Top = 37
-      Width = 65
+      Width = 74
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Description'
+      Caption = 'Native Name'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtKod: TEdit
+    object edtLocale: TEdit
       Left = 134
       Top = 8
       Width = 333
       Height = 23
       TabOrder = 0
     end
-    object edtAciklama: TEdit
+    object edtNativeName: TEdit
       Left = 134
       Top = 33
       Width = 333

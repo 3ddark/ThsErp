@@ -1,4 +1,4 @@
-﻿inherited frmAccBolgeHedefler: TfrmAccBolgeHedefler
+inherited frmAccBolgeHedefler: TfrmAccBolgeHedefler
   Caption = 'B'#246'lge Hedefler'
   PixelsPerInch = 96
   TextHeight = 13

@@ -24,11 +24,6 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='WinARM64EC' and '$(Base)'=='true') or '$(Base_WinARM64EC)'!=''">
-        <Base_WinARM64EC>true</Base_WinARM64EC>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
@@ -46,12 +41,6 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='WinARM64EC' and '$(Cfg_1)'=='true') or '$(Cfg_1_WinARM64EC)'!=''">
-        <Cfg_1_WinARM64EC>true</Cfg_1_WinARM64EC>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
@@ -65,12 +54,6 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
         <Cfg_2_Win64>true</Cfg_2_Win64>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='WinARM64EC' and '$(Cfg_2)'=='true') or '$(Cfg_2_WinARM64EC)'!=''">
-        <Cfg_2_WinARM64EC>true</Cfg_2_WinARM64EC>
         <CfgParent>Cfg_2</CfgParent>
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
@@ -113,14 +96,6 @@
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_WinARM64EC)'!=''">
-        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_DebugInformation>0</DCC_DebugInformation>
@@ -140,9 +115,6 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <Icon_MainIcon>Ths_Icon.ico</Icon_MainIcon>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_WinARM64EC)'!=''">
-        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -164,9 +136,6 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <Icon_MainIcon>Ths_Icon.ico</Icon_MainIcon>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_WinARM64EC)'!=''">
-        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -218,17 +187,18 @@
             <Form>frmDashboard</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\Logger.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\New\SharedFormTypes.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\New\EntityAttributes.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\New\Entity.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\New\FilterCriterion.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\New\LocalizationManager.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\New\ConnectionManager.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\New\Repository.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\New\Service.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\New\UnitOfWork.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\SharedFormTypes.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\EntityAttributes.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\Entity.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\FilterCriterion.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\LocalizationManager.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\ConnectionManager.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\Repository.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\Service.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\UnitOfWork.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\EntitySchemaCache.pas"/>
         <DCCReference Include="BackEnd\Core\MetaProvider.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\New\Password.Helper.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\Password.Helper.pas"/>
         <DCCReference Include="BackEnd\Core\AppContext.pas"/>
         <DCCReference Include="BackEnd\Core\UserContext.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmGrid.pas"/>
@@ -285,15 +255,6 @@
         <DCCReference Include="Forms\System\Output\ufrmSysCurrencies.pas">
             <Form>frmSysCurrencies</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\System\Domain\SysDay.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysDay.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysDay.Service.pas"/>
-        <DCCReference Include="Forms\System\Input\ufrmSysDay.pas">
-            <Form>frmSysDay</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\System\Output\ufrmSysDays.pas">
-            <Form>frmSysDays</Form>
-        </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysDecimalPlace.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysDecimalPlace.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysDecimalPlace.Service.pas"/>
@@ -311,15 +272,6 @@
         </DCCReference>
         <DCCReference Include="Forms\System\Output\ufrmSysGridColumns.pas">
             <Form>frmSysGridColumns</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\System\Domain\SysGridColumnTitle.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysGridColumnTitle.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysGridColumnTitle.Service.pas"/>
-        <DCCReference Include="Forms\System\Input\ufrmSysGridColumnTitle.pas">
-            <Form>frmSysGridColumnTitle</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\System\Output\ufrmSysGridColumnTitles.pas">
-            <Form>frmSysGridColumnTitles</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysGridFilter.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysGridFilter.Repository.pas"/>
@@ -339,15 +291,6 @@
         <DCCReference Include="Forms\System\Output\ufrmSysGridSorts.pas">
             <Form>frmSysGridSorts</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\System\Domain\SysGuiContent.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysGuiContent.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysGuiContent.Service.pas"/>
-        <DCCReference Include="Forms\System\Input\ufrmSysGuiContent.pas">
-            <Form>frmSysGuiContent</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\System\Output\ufrmSysGuiContents.pas">
-            <Form>frmSysGuiContents</Form>
-        </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysLanguage.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysLanguage.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysLanguage.Service.pas"/>
@@ -356,15 +299,6 @@
         </DCCReference>
         <DCCReference Include="Forms\System\Output\ufrmSysLanguages.pas">
             <Form>frmSysLanguages</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\System\Domain\SysMonth.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysMonth.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysMonth.Service.pas"/>
-        <DCCReference Include="Forms\System\Input\ufrmSysMonth.pas">
-            <Form>frmSysMonth</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\System\Output\ufrmSysMonths.pas">
-            <Form>frmSysMonths</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysPermission.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysPermission.Repository.pas"/>
@@ -402,13 +336,13 @@
         <DCCReference Include="Forms\System\Output\ufrmSysUoms.pas">
             <Form>frmSysUoms</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\System\Domain\SysUomType.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysUomType.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysUomType.Service.pas"/>
-        <DCCReference Include="Forms\System\Input\ufrmSysUomType.pas">
+        <DCCReference Include="BackEnd\System\Domain\SysUomGroup.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysUomGroup.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysUomGroup.Service.pas"/>
+        <DCCReference Include="Forms\System\Input\ufrmSysUomGroup.pas">
             <Form>frmSysUomType</Form>
         </DCCReference>
-        <DCCReference Include="Forms\System\Output\ufrmSysUomTypes.pas">
+        <DCCReference Include="Forms\System\Output\ufrmSysUomGroups.pas">
             <Form>frmSysUomTypes</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysUser.pas"/>
@@ -432,18 +366,299 @@
         <DCCReference Include="BackEnd\Employee\Domain\EmpPerson.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpPerson.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpPerson.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpPerson.pas">
+            <Form>frmEmpPerson</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpPersons.pas">
+            <Form>frmEmpPersons</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\Employee\Domain\EmpPersonType.pas"/>
-        <DCCReference Include="BackEnd\Employee\Domain\EmpUnit.pas"/>
-        <DCCReference Include="BackEnd\Employee\Domain\EmpSection.pas"/>
-        <DCCReference Include="BackEnd\Employee\Domain\EmpTask.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpPersonType.Repository.pas"/>
-        <DCCReference Include="BackEnd\Employee\Repository\EmpUnit.Repository.pas"/>
-        <DCCReference Include="BackEnd\Employee\Repository\EmpSection.Repository.pas"/>
-        <DCCReference Include="BackEnd\Employee\Repository\EmpTask.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpPersonType.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpPersonType.pas">
+            <Form>frmEmpPersonType</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpPersonTypes.pas">
+            <Form>frmEmpPersonTypes</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Employee\Domain\EmpUnit.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpUnit.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpUnit.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpUnit.pas">
+            <Form>frmEmpUnit</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpUnits.pas">
+            <Form>frmEmpUnits</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Employee\Domain\EmpSection.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpSection.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpSection.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpSection.pas">
+            <Form>frmEmpSection</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpSections.pas">
+            <Form>frmEmpSections</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Employee\Domain\EmpTask.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpTask.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpTask.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpTask.pas">
+            <Form>frmEmpTask</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpTasks.pas">
+            <Form>frmEmpTasks</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Employee\Domain\EmpLanguage.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpLanguage.Repository.pas"/>
+        <DCCReference Include="BackEnd\Employee\Service\EmpLanguage.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpLanguage.pas">
+            <Form>frmEmpLanguage</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpLanguages.pas">
+            <Form>frmEmpLanguages</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Employee\Domain\EmpLanguageLevel.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpLanguageLevel.Repository.pas"/>
+        <DCCReference Include="BackEnd\Employee\Service\EmpLanguageLevel.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpLanguageLevel.pas">
+            <Form>frmEmpLanguageLevel</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpLanguageLevels.pas">
+            <Form>frmEmpLanguageLevels</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Employee\Domain\EmpDriverLicenceType.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpDriverLicenceType.Repository.pas"/>
+        <DCCReference Include="BackEnd\Employee\Service\EmpDriverLicenceType.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpDriverLicenceType.pas">
+            <Form>frmEmpDriverLicenceType</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpDriverLicenceTypes.pas">
+            <Form>frmEmpDriverLicenceTypes</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Employee\Domain\EmpDriverLicence.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpDriverLicence.Repository.pas"/>
+        <DCCReference Include="BackEnd\Employee\Service\EmpDriverLicence.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpDriverLicence.pas">
+            <Form>frmEmpDriverLicence</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpDriverLicences.pas">
+            <Form>frmEmpDriverLicences</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Employee\Domain\EmpLanguageAbility.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpLanguageAbility.Repository.pas"/>
+        <DCCReference Include="BackEnd\Employee\Service\EmpLanguageAbility.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpLanguageAbility.pas">
+            <Form>frmEmpLanguageAbility</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpLanguageAbilities.pas">
+            <Form>frmEmpLanguageAbilities</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Employee\Domain\EmpTransportation.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpTransportation.Repository.pas"/>
+        <DCCReference Include="BackEnd\Employee\Service\EmpTransportation.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpTransportation.pas">
+            <Form>frmEmpTransportation</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpTransportations.pas">
+            <Form>frmEmpTransportations</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Employee\Domain\EmpPersonAddress.pas"/>
+        <DCCReference Include="BackEnd\Employee\Repository\EmpPersonAddress.Repository.pas"/>
+        <DCCReference Include="BackEnd\Employee\Service\EmpPersonAddress.Service.pas"/>
+        <DCCReference Include="Forms\Employee\Input\ufrmEmpPersonAddress.pas">
+            <Form>frmEmpPersonAddress</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Employee\Output\ufrmEmpPersonAddresses.pas">
+            <Form>frmEmpPersonAddresses</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Account\Domain\AccAccount.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccAccount.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccAccount.Service.pas"/>
+        <DCCReference Include="Forms\Account\Input\ufrmAccAccount.pas">
+            <Form>frmAccAccount</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\Input\ufrmAccAccountLookup.pas">
+            <Form>frmAccAccountLookup</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\Output\ufrmAccAccounts.pas">
+            <Form>frmAccAccounts</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\Output\ufrmAccAccountsLookup.pas">
+            <Form>frmAccAccountsLookup</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Account\Domain\AccAccountAddress.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccAccountAddress.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccAccountAddress.Service.pas"/>
+        <DCCReference Include="BackEnd\Account\Domain\AccAccountPlan.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccAccountPlan.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccAccountPlan.Service.pas"/>
+        <DCCReference Include="Forms\Account\Input\ufrmAccAccountPlan.pas">
+            <Form>frmAccAccountPlan</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\Output\ufrmAccAccountPlans.pas">
+            <Form>frmAccAccountPlans</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Account\Domain\AccBank.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccBank.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccBank.Service.pas"/>
+        <DCCReference Include="Forms\Account\Input\ufrmAccBank.pas">
+            <Form>frmAccBank</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\Output\ufrmAccBanks.pas">
+            <Form>frmAccBanks</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Account\Domain\AccBankBranch.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccBankBranch.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccBankBranch.Service.pas"/>
+        <DCCReference Include="Forms\Account\Input\ufrmAccBankBranch.pas">
+            <Form>frmAccBankBranch</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\Output\ufrmAccBankBranches.pas">
+            <Form>frmAccBankBranches</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Account\Domain\AccExchangeRate.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccExchangeRate.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccExchangeRate.Service.pas"/>
+        <DCCReference Include="Forms\Account\Input\ufrmAccExchangeRate.pas">
+            <Form>frmAccExchangeRate</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\Output\ufrmAccExchangeRates.pas">
+            <Form>frmAccExchangeRates</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Account\Domain\AccGroup.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccGroup.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccGroup.Service.pas"/>
+        <DCCReference Include="Forms\Account\Input\ufrmAccGroup.pas">
+            <Form>frmAccGroup</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\Output\ufrmAccGroups.pas">
+            <Form>frmAccGroups</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Account\Domain\AccRegion.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccRegion.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccRegion.Service.pas"/>
+        <DCCReference Include="Forms\Account\Input\ufrmAccRegion.pas">
+            <Form>frmAccRegion</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\ufrmAccRegions.pas">
+            <Form>frmAccRegions</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Account\Domain\AccTransferCode.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccTransferCode.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccTransferCode.Service.pas"/>
+        <DCCReference Include="BackEnd\Account\Domain\AccVoucher.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccVoucher.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccVoucher.Service.pas"/>
+        <DCCReference Include="BackEnd\Account\Domain\AccVoucherDetail.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccVoucherDetail.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccVoucherDetail.Service.pas"/>
+        <DCCReference Include="BackEnd\Account\Domain\SetAccAccountType.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\SetAccAccountType.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\SetAccAccountType.Service.pas"/>
+        <DCCReference Include="Forms\Account\Input\ufrmAccSetAccountType.pas">
+            <Form>frmAccSetAccountType</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\ufrmAccSetAccountTypes.pas">
+            <Form>frmAccSetAccountTypes</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Account\Domain\SetAccCompanyLegalForm.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\SetAccCompanyLegalForm.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\SetAccCompanyLegalForm.Service.pas"/>
+        <DCCReference Include="BackEnd\Account\Domain\SetAccOwnershipType.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\SetAccOwnershipType.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\SetAccOwnershipType.Service.pas"/>
+        <DCCReference Include="BackEnd\Account\Domain\SetAccTaxRate.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\SetAccTaxRate.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\SetAccTaxRate.Service.pas"/>
+        <DCCReference Include="BackEnd\Stock\Domain\StkCardKindInfo.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkCardKindInfo.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkCardKindInfo.Service.pas"/>
+        <DCCReference Include="Forms\Stock\Input\ufrmStkCardKindInfo.pas">
+            <Form>frmStkCardKindInfo</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Stock\Output\ufrmStkCardKindInfos.pas">
+            <Form>frmStkCardKindInfos</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Stock\Domain\StkCardSummary.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkCardSummary.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkCardSummary.Service.pas"/>
+        <DCCReference Include="BackEnd\Stock\Domain\StkGroup.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkGroup.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkGroup.Service.pas"/>
+        <DCCReference Include="Forms\Stock\Input\ufrmStkGroup.pas">
+            <Form>frmStkGroup</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Stock\Output\ufrmStkGroups.pas">
+            <Form>frmStkGroups</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Stock\Domain\StkImage.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkImage.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkImage.Service.pas"/>
+        <DCCReference Include="BackEnd\Stock\Domain\StkInventory.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkInventory.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkInventory.Service.pas"/>
+        <DCCReference Include="Forms\Stock\Input\ufrmStkInventory.pas">
+            <Form>frmStkInventory</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Stock\Output\ufrmStkInventories.pas">
+            <Form>frmStkInventories</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Stock\Domain\StkInventorySummary.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkInventorySummary.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkInventorySummary.Service.pas"/>
+        <DCCReference Include="Forms\Stock\Input\ufrmStkInventorySummary.pas">
+            <Form>frmStkInventorySummary</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Stock\Output\ufrmStkInventorySummaries.pas">
+            <Form>frmStkInventorySummaries</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Stock\Domain\StkKindFamily.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkKindFamily.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkKindFamily.Service.pas"/>
+        <DCCReference Include="Forms\Stock\Input\ufrmStkKindFamily.pas">
+            <Form>frmStkKindFamily</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Stock\Output\ufrmStkKindFamilies.pas">
+            <Form>frmStkKindFamilies</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Stock\Domain\StkKindProperty.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkKindProperty.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkKindProperty.Service.pas"/>
+        <DCCReference Include="Forms\Stock\Input\ufrmStkKindProperty.pas">
+            <Form>frmStkKindProperty</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Stock\Output\ufrmStkKindProperties.pas">
+            <Form>frmStkKindProperties</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Stock\Domain\StkProductType.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkProductType.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkProductType.Service.pas"/>
+        <DCCReference Include="Forms\Stock\Input\ufrmStkProductType.pas">
+            <Form>frmStkProductType</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Stock\Output\ufrmStkProductTypes.pas">
+            <Form>frmStkProductTypes</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Stock\Domain\StkTransaction.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkTransaction.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkTransaction.Service.pas"/>
+        <DCCReference Include="BackEnd\Stock\Domain\StkWarehouse.pas"/>
+        <DCCReference Include="BackEnd\Stock\Repository\StkWarehouse.Repository.pas"/>
+        <DCCReference Include="BackEnd\Stock\Service\StkWarehouse.Service.pas"/>
+        <DCCReference Include="Forms\Stock\Input\ufrmStkWarehouse.pas">
+            <Form>frmStkWarehouse</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Stock\Output\ufrmStkWarehouses.pas">
+            <Form>frmStkWarehouses</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Exception\SysAccessRight.Exception.pas"/>
+        <DCCReference Include="BackEnd\Core\Core.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysUser.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysLanguage.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysPermissionGroup.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysPermission.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysUomGroup.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysUom.Exception.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -464,12 +679,14 @@
                 <Source>
                     <Source Name="MainSource">Ths.dpr</Source>
                 </Source>
-                <Excluded_Packages/>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
-                <Platform value="WinARM64EC">False</Platform>
             </Platforms>
             <Deployment Version="5">
                 <DeployFile LocalName="Ths.exe" Configuration="Debug" Class="ProjectOutput"/>
@@ -1142,9 +1359,6 @@
                     <Platform Name="Win64x">
                         <Operation>1</Operation>
                     </Platform>
-                    <Platform Name="WinARM64EC">
-                        <Operation>1</Operation>
-                    </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSDeviceDebug">
                     <Platform Name="iOSDevice32">
@@ -1215,10 +1429,6 @@
                         <RemoteDir>Assets</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
-                    <Platform Name="WinARM64EC">
-                        <RemoteDir>Assets</RemoteDir>
-                        <Operation>1</Operation>
-                    </Platform>
                 </DeployClass>
                 <DeployClass Name="UWP_DelphiLogo44">
                     <Platform Name="Win32">
@@ -1226,10 +1436,6 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win64">
-                        <RemoteDir>Assets</RemoteDir>
-                        <Operation>1</Operation>
-                    </Platform>
-                    <Platform Name="WinARM64EC">
                         <RemoteDir>Assets</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>

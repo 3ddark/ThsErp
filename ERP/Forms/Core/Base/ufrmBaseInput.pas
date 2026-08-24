@@ -1,4 +1,4 @@
-﻿unit ufrmBaseInput;
+unit ufrmBaseInput;
 
 interface
 
@@ -49,7 +49,8 @@ implementation
 uses
   Ths.Globals,
   Ths.Constants,
-  ufrmCalculator;
+  ufrmCalculator,
+  LocalizationManager;
 
 {$R *.dfm}
 
@@ -59,12 +60,17 @@ begin
     inherited
   else
   begin
-    if CustomMsgDlg('Çıkmak istediğinden emin misin?' + AddLBs(2) +
-                    'Yapılan tüm değişiklikler kaybolacaktır',
-                    mtConfirmation,
-                    mbYesNo, ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı'
-    ) = mrYes
-    then
+    if CustomMsgDlg(
+      TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmCloseWindow, 'Çıkmak istediğinden emin misin?' + AddLBs(2) + 'Yapılan tüm değişiklikler kaybolacaktır'),
+      mtConfirmation,
+      mbYesNo,
+      [
+        TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Evet'),
+        TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'Hayır')
+      ],
+      mbNo,
+      TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Kullanıcı Onayı')
+    ) = mrYes then
       inherited;
   end;
 end;
@@ -238,54 +244,8 @@ end;
 procedure TfrmBaseInput.SetCaptionFromLangContent;
 
   procedure SubSetLabelCaption();
-  var
-    LC: TRttiContext;
-    LF: TRttiField;
-    LT: TRttiType;
-    LLabel: TLabel;
-    n1: Integer;
-    LLabelNames, LLabelName, LFilter: string;
-    LLangGuiContent: TSysGuiContent;
   begin
-    //label component isimleri lbl + db_field_name olacak şekilde verileceği varsayılarak bu kod yazildi. Örnek: lblcountry_code
-    LLabelNames := '';
-    LC := TRttiContext.Create;
-    LT := LC.GetType(Self.ClassType);
-    for LF in LT.GetFields do
-      if LF.FieldType.Name = TLabel.ClassName then
-      begin
-        LLabel := TLabel(FindComponent(LF.Name));
-        if Assigned(LLabel) then
-          LLabelNames := LLabelNames + QuotedStr(StringReplace(TLabel(LLabel).Name, PRX_LABEL, '', [rfReplaceAll])) + ', ';
-      end;
-
-    LLabelNames := Trim(LLabelNames);
-    if Length(LLabelNames) > 0 then
-      LLabelNames := LeftStr(LLabelNames, Length(LLabelNames)-1);
-
-    LLangGuiContent := TSysGuiContent.Create(GDataBase);
-    try
-      if Assigned(Table) then
-        LFilter :=  ' AND ' + LLangGuiContent.TableName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Table.TableName))
-      else
-        LFilter :=  ' AND ' + LLangGuiContent.FormName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(Self.Name));
-      LLangGuiContent.SelectToList(
-          ' AND ' + LLangGuiContent.Code.QryName + ' IN (' +  LLabelNames + ')' +
-          ' AND ' + LLangGuiContent.ContentType.QryName + '=' + QuotedStr(LngLabelCaption) +
-          LFilter, False, False);
-      for n1 := 0 to LLangGuiContent.List.Count-1 do
-      begin
-        if not VarIsNull(TSysGuiContent(LLangGuiContent.List[n1]).Code.Value) then
-        begin
-          LLabelName := VarToStr(TSysGuiContent(LLangGuiContent.List[n1]).Code.Value);
-          LLabel := TLabel(FindComponent(PRX_LABEL + LLabelName));
-          if not VarIsNull(TSysGuiContent(LLangGuiContent.List[n1]).Content.Value) then
-            TLabel(LLabel).Caption := VarToStr(TSysGuiContent(LLangGuiContent.List[n1]).Content.Value);
-        end;
-      end;
-    finally
-      LLangGuiContent.Free;
-    end;
+    // Deprecated: UI localization is now handled via JSON files and TLocalizationManager
   end;
 
   procedure SubSetTabSheetCaption();

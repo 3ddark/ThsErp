@@ -5,16 +5,17 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Classes, System.Generics.Collections, Vcl.Controls,
-  Vcl.Forms, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Dialogs, Vcl.Graphics,
-  Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Menus, Vcl.Themes, Vcl.Styles,
+  System.SysUtils, System.Classes, System.Generics.Collections, System.StrUtils,
+  Vcl.Controls, Vcl.Forms, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Dialogs, Vcl.Menus,
+  Vcl.Graphics, Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Themes, Vcl.Styles,
   Vcl.Imaging.pngimage, Winapi.Windows, FireDAC.Comp.Client, Logger,
   Ths.Helper.Edit, Ths.Helper.ComboBox, udm, ufrmBase,
   Ths.Database.Connection.Settings,
 
-  AppContext, UserContext, Repository,
-  ConnectionManager, UnitOfWork, FilterCriterion, Auth.Service, SysUser.Repository,
-  SysPermission.Repository, SysPermission;
+  AppContext, UserContext, Repository, LocalizationManager,
+  ConnectionManager, UnitOfWork, FilterCriterion, Auth.Service,
+  SysPermission.Repository, SysPermission, SysLanguage, SysLanguage.Repository,
+  SysUser.Repository, SysAccessRight.Repository;
 
 type
   TfrmLogin = class(TfrmBase)
@@ -45,7 +46,10 @@ type
     chkayarlari_kaydet: TCheckBox;
     imglogo: TImage;
     pb1: TProgressBar;
+    lbllanguage: TLabel;
+    cbblanguage: TComboBox;
     procedure cbbthemeChange(Sender: TObject);
+    procedure cbblanguageChange(Sender: TObject);
     procedure edtusernameDblClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject); override;
   private
@@ -88,8 +92,11 @@ var
   LConn: TFDConnection;
 
   LUserRepo: TSysUserRepository;
+  LLangRepo: IRepository<TSysLanguage>;
   LAuthSvc: TAuthService;
   LLoginRes: TLoginResult;
+  LLangs: TArray<string>;
+  LSelectedLang: string;
 
   procedure IncProgress;
   begin
@@ -97,6 +104,14 @@ var
   end;
 
 begin
+  LLangs := SplitString(cbblanguage.Text, '|');
+  LSelectedLang := IfThen(Length(LLangs) > 1, Trim(LLangs[1]), 'tr');
+  TLocalizationManager.SetLanguage(LSelectedLang);
+
+  TAppContext.Initialize(LConn);
+  TAppContext.Instance.SetCurrentUser(TUserContext.Create(nil, True));
+  TAppContext.Instance.CurrentUser.ActiveLanguage := LSelectedLang;
+
   if (edtusername.Text = '') or (edtuser_password.Text = '') then
     Exit;
 
@@ -134,9 +149,10 @@ begin
 
     LAuthSvc := TAuthService.Create;
     LUserRepo := TSysUserRepository.Create(LConn);
+    LLangRepo := TUnitOfWork.Instance.GetRepository<TSysLanguage, TSysLanguageRepository>();
     try
       try
-        LConn.ExecSQL('SET ths_erp.user_name = ' + QuotedStr(edtusername.Text));
+        LConn.ExecSQLScalar('SELECT set_config(''ths_erp.user_name'', :uname, false)', [edtusername.Text]);
 
         pb1.Max := 11;
         pb1.Min := 0;
@@ -144,27 +160,45 @@ begin
         pb1.Visible := True;
 
         LLoginRes := LAuthSvc.Login(edtusername.Text, edtuser_password.Text);
-        if (LLoginRes.UserId = Ord(TLoginStatus.lsUserNotFound)) then
-          raise Exception.Create(edtusername.Text + ': böyle bir kullanıcı yok')
+        if (LLoginRes.UserId = Ord(TLoginStatus.lsUserNotFound)) or (LLoginRes.UserId = 0) then
+          raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TLogin.UserNotFound, [edtusername.Text], edtusername.Text + ': böyle bir kullanıcı yok'))
         else if LLoginRes.UserId = Ord(TLoginStatus.lsInactiveUser) then
-          raise Exception.Create(edtusername.Text + ' kullanıcısı aktif değil!')
+          raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TLogin.UserInactive, [edtusername.Text], edtusername.Text + ' kullanıcısı aktif değil!'))
         else if LLoginRes.UserId = Ord(TLoginStatus.lsInvalidPassword) then
-          raise Exception.Create('Geçersiz Kullanıcı Şifresi!')
-        else if (LLoginRes.UserId = 0) then
-          raise Exception.Create(edtusername.Text + ': böyle bir kullanıcı yok')
+          raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TLogin.InvalidPassword, 'Geçersiz Kullanıcı Şifresi!'))
         else if LLoginRes.UserId = Ord(TLoginStatus.lsInvalidAppVersion) then
         begin
-          Application.MessageBox('Yeni bir güncellemeniz var.', 'Güncelleme', MB_ICONINFORMATION);
+          Application.MessageBox(
+            PChar(TLocalizationManager.Translate(TLangKeys.TLogin.UpdateAvailable, 'Yeni bir güncellemeniz var.')),
+            PChar(TLocalizationManager.Translate(TLangKeys.TLogin.UpdateTitle, 'Güncelleme')),
+            MB_ICONINFORMATION
+          );
           TfrmDashboard(Application.MainForm).UpdateApplicationExe();
           Exit;
         end;
 
+        var filter := TFilterCriteria.Create(TFilterCriterion.New('locale', '=', LSelectedLang));
+        var LLang := LLangRepo.FindOne(filter);
+        try
+          var user := LUserRepo.FindById(LLoginRes.UserId, False);
+          if not Assigned(LLang) then
+            raise Exception.Create(TLangKeys.TLogin.UserNotFound);
+          TAppContext.Instance.CurrentUser.User := user;
 
-        var user := LUserRepo.FindById(LLoginRes.UserId, False, [ioIncludeParent]);
+          if Assigned(LLang) then
+            TAppContext.Instance.CurrentUser.ActiveLanguageId := LLang.Id;
+        finally
+          LLang.Free;
+          filter.Free;
+        end;
 
-        TAppContext.Initialize(LConn);
-
-        TAppContext.Instance.SetCurrentUser(TUserContext.Create(user));
+        var LAccessRepo := TSysAccessRightRepository.Create(LConn);
+        try
+          var LPerms := LAccessRepo.GetUserPermissions(LLoginRes.UserId);
+          TAppContext.Instance.CurrentUser.AddPermissions(LPerms);
+        finally
+          LAccessRepo.Free;
+        end;
 
         ModalResult := mrYes;
 
@@ -174,6 +208,7 @@ begin
           ConnSetting.SaveToFile(True);
       except
         pb1.Visible := False;
+        raise;
       end;
     finally
       LAuthSvc.Free;
@@ -185,6 +220,16 @@ end;
 procedure TfrmLogin.cbbthemeChange(Sender: TObject);
 begin
   TStyleManager.TrySetStyle(cbbtheme.Text, False);
+end;
+
+procedure TfrmLogin.cbblanguageChange(Sender: TObject);
+var
+  LLangs: TArray<string>;
+  LSelectedLang: string;
+begin
+  LLangs := SplitString(cbblanguage.Text, '|');
+  LSelectedLang := IfThen(Length(LLangs) > 1, Trim(LLangs[1]), 'tr');
+  TLocalizationManager.SetLanguage(LSelectedLang);
 end;
 
 procedure TfrmLogin.edtusernameDblClick(Sender: TObject);
@@ -223,6 +268,12 @@ begin
 
   if cbbtheme.Text <> '' then
     TStyleManager.TrySetStyle(cbbtheme.Text);
+
+  cbblanguage.Clear;
+  cbblanguage.Items.Add('Türkçe | tr-TR');
+  cbblanguage.Items.Add('English | en-US');
+  cbblanguage.ItemIndex := 0;
+  cbblanguageChange(nil);
 
   edtusername.CharCase := ecUpperCase;
 

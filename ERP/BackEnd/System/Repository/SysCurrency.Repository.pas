@@ -12,6 +12,7 @@ type
     constructor Create(AConnection: TFDConnection);
     destructor Destroy; override;
     function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+    procedure Delete(AModel: TSysCurrency); override;
   end;
 
 implementation
@@ -32,6 +33,11 @@ begin
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
   Result.SQL.Text := 'SELECT * FROM vw_sys_currencies WHERE 1=1 ';
+end;
+
+procedure TSysCurrencyRepository.Delete(AModel: TSysCurrency);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

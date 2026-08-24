@@ -2,150 +2,109 @@ object frmSysUser: TfrmSysUser
   Left = 0
   Top = 0
   Caption = 'frmSysUser'
-  ClientHeight = 237
+  ClientHeight = 276
   ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
-  Font.Name = 'Segoe UI'
+  Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
     Width = 500
-    Height = 237
+    Height = 276
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 498
-    ExplicitHeight = 235
     object lblUsername: TLabel
-      Left = 26
+      Left = 46
       Top = 11
-      Width = 54
+      Width = 58
       Height = 13
       Alignment = taRightJustify
       Caption = 'Username'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtUsername: TEdit
-      Left = 80
-      Top = 7
-      Width = 385
-      Height = 23
-      TabOrder = 0
-    end
-    object lblUserPassword: TLabel
-      Left = 14
+    object lblPersonId: TLabel
+      Left = 48
       Top = 41
-      Width = 66
+      Width = 56
       Height = 13
       Alignment = taRightJustify
-      Caption = 'Password'
+      Caption = 'Personnel'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-    end
-    object edtUserPassword: TEdit
-      Left = 80
-      Top = 37
-      Width = 385
-      Height = 23
-      TabOrder = 1
+      ParentFont = False
     end
     object lblActive: TLabel
-      Left = 42
+      Left = 68
       Top = 71
-      Width = 38
+      Width = 36
       Height = 13
       Alignment = taRightJustify
       Caption = 'Active'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-    end
-    object chkActive: TCheckBox
-      Left = 80
-      Top = 67
-      Width = 90
-      Height = 17
-      Caption = 'Active'
-      TabOrder = 2
+      ParentFont = False
     end
     object lblManager: TLabel
-      Left = 34
+      Left = 54
       Top = 96
-      Width = 46
+      Width = 50
       Height = 13
       Alignment = taRightJustify
       Caption = 'Manager'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-    end
-    object chkManager: TCheckBox
-      Left = 80
-      Top = 92
-      Width = 90
-      Height = 17
-      Caption = 'Manager'
-      TabOrder = 3
+      ParentFont = False
     end
     object lblSuperUser: TLabel
-      Left = 14
+      Left = 42
       Top = 121
-      Width = 66
+      Width = 62
       Height = 13
       Alignment = taRightJustify
       Caption = 'Super User'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-    end
-    object chkSuperUser: TCheckBox
-      Left = 80
-      Top = 117
-      Width = 90
-      Height = 17
-      Caption = 'Super User'
-      TabOrder = 4
+      ParentFont = False
     end
     object lblIpAddress: TLabel
-      Left = 12
+      Left = 43
       Top = 151
-      Width = 68
+      Width = 61
       Height = 13
       Alignment = taRightJustify
       Caption = 'IP Address'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-    end
-    object edtIpAddress: TEdit
-      Left = 80
-      Top = 147
-      Width = 385
-      Height = 23
-      TabOrder = 5
+      ParentFont = False
     end
     object lblMacAddress: TLabel
-      Left = 6
+      Left = 30
       Top = 181
       Width = 74
       Height = 13
@@ -154,14 +113,60 @@ object frmSysUser: TfrmSysUser
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtUsername: TEdit
+      Left = 104
+      Top = 7
+      Width = 385
+      Height = 22
+      TabOrder = 0
+    end
+    object edtPersonId: TEdit
+      Left = 104
+      Top = 37
+      Width = 385
+      Height = 22
+      TabOrder = 1
+    end
+    object chkActive: TCheckBox
+      Left = 104
+      Top = 67
+      Width = 90
+      Height = 17
+      Caption = 'Active'
+      TabOrder = 2
+    end
+    object chkManager: TCheckBox
+      Left = 104
+      Top = 92
+      Width = 90
+      Height = 17
+      Caption = 'Manager'
+      TabOrder = 3
+    end
+    object chkSuperUser: TCheckBox
+      Left = 104
+      Top = 117
+      Width = 90
+      Height = 17
+      Caption = 'Super User'
+      TabOrder = 4
+    end
+    object edtIpAddress: TEdit
+      Left = 104
+      Top = 147
+      Width = 385
+      Height = 22
+      TabOrder = 5
     end
     object edtMacAddress: TEdit
-      Left = 80
+      Left = 104
       Top = 177
       Width = 385
-      Height = 23
+      Height = 22
       TabOrder = 6
     end
   end

@@ -5,7 +5,7 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
   Caption = 'Set '#214'deme Ba'#351'lang'#305#231' D'#246'nemi'
   ClientHeight = 166
   ClientWidth = 340
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 356
   ExplicitHeight = 205
   TextHeight = 14
@@ -36,7 +36,7 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -52,7 +52,7 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -68,7 +68,7 @@ inherited frmSetOdemeBaslangicDonemi: TfrmSetOdemeBaslangicDonemi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

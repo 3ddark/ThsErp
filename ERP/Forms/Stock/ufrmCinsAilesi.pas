@@ -5,13 +5,12 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, StrUtils,
-  Vcl.AppEvnts,
-  Ths.Erp.Helper.Edit, Ths.Erp.Helper.ComboBox, Ths.Erp.Helper.Memo,
+  Vcl.AppEvnts, Ths.Erp.Edit, Ths.Erp.ComboBox, Ths.Erp.Memo,
 
-  ufrmBase, ufrmBaseInputDB, Vcl.Menus, Vcl.Samples.Spin;
+  ufrmBase, ufrmInputSimpleDB, Vcl.Menus, Vcl.Samples.Spin;
 
 type
-  TfrmCinsAilesi = class(TfrmBaseInputDB)
+  TfrmCinsAilesi = class(TfrmInputSimpleDB<>)
     edtAile: TEdit;
     lblAile: TLabel;
     procedure FormCreate(Sender: TObject);override;
@@ -25,10 +24,6 @@ type
 
 implementation
 
-uses
-  Ths.Erp.Database.Singleton,
-  Ths.Erp.Database.Table.CinsAilesi;
-
 {$R *.dfm}
 
 procedure TfrmCinsAilesi.FormCreate(Sender: TObject);
@@ -40,7 +35,7 @@ end;
 
 procedure TfrmCinsAilesi.RefreshData();
 begin
-  //control içeriðini table class ile doldur
+  //control iï¿½eriï¿½ini table class ile doldur
   edtAile.Text := FormatedVariantVal(TCinsAilesi(Table).Aile.FieldType, TCinsAilesi(Table).Aile.Value);
 end;
 

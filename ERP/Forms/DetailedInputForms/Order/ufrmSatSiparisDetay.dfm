@@ -5,7 +5,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
   Caption = 'Sat'#305#351' Siparis Detay'
   ClientHeight = 362
   ClientWidth = 585
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 601
   ExplicitHeight = 401
   TextHeight = 13
@@ -35,7 +35,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -51,7 +51,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -67,7 +67,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -83,7 +83,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -99,7 +99,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -115,7 +115,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -131,7 +131,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -147,7 +147,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -163,7 +163,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -184,7 +184,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -199,7 +199,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -213,7 +213,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -226,7 +226,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -239,7 +239,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -252,7 +252,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -266,7 +266,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -280,7 +280,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -295,7 +295,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -311,7 +311,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -327,7 +327,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -341,7 +341,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -356,7 +356,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -370,7 +370,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
         end
@@ -385,7 +385,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -463,7 +463,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -478,7 +478,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -491,7 +491,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -505,7 +505,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -520,7 +520,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -533,7 +533,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -547,7 +547,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -562,7 +562,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -575,7 +575,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -589,7 +589,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -604,7 +604,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -617,7 +617,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -631,7 +631,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -646,7 +646,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -659,7 +659,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -673,7 +673,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -688,7 +688,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end
@@ -701,7 +701,7 @@ inherited frmSatSiparisDetay: TfrmSatSiparisDetay
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = []
             ParentFont = False
           end

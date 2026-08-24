@@ -5,7 +5,7 @@ inherited frmSetChKategori: TfrmSetChKategori
   Caption = 'Set Ch Kategori'
   ClientHeight = 167
   ClientWidth = 377
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 383
   ExplicitHeight = 196
   PixelsPerInch = 96
@@ -36,7 +36,7 @@ inherited frmSetChKategori: TfrmSetChKategori
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -52,7 +52,7 @@ inherited frmSetChKategori: TfrmSetChKategori
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -68,7 +68,7 @@ inherited frmSetChKategori: TfrmSetChKategori
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

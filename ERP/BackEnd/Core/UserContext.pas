@@ -1,4 +1,4 @@
-﻿unit UserContext;
+unit UserContext;
 
 interface
 
@@ -11,16 +11,19 @@ type
   TUserContext = class
   private
     FUser: TSysUser;
-    FPermissions: TDictionary<Integer, TSysAccessRight>;
+    FPermissions: TObjectDictionary<Integer, TSysAccessRight>;
     FOwnsUser: Boolean;
+    FActiveLanguage: string;
+    FActiveLanguageId: Int64;
 
     function GetPermission(AKey: Integer): TSysAccessRight;
+    procedure SetUser(const Value: TSysUser);
   public
     constructor Create(AUser: TSysUser; AOwnsUser: Boolean = True);
     destructor Destroy; override;
 
     procedure AddPermission(AKey: Integer; APermission: TSysAccessRight);
-    procedure AddPermissions(APermissionsList: TDictionary<Integer, TSysAccessRight>);
+    procedure AddPermissions(APermissionsList: TObjectDictionary<Integer, TSysAccessRight>);
     function HasPermission(AKey: Integer; AAccessType: TAccessType): Boolean;
     function TryGetPermission(AKey: Integer; out APermission: TSysAccessRight): Boolean;
 
@@ -28,8 +31,10 @@ type
     function GetUserId: Integer;
     function GetUsername: string;
 
-    property User: TSysUser read FUser;
+    property User: TSysUser read FUser write SetUser;
     property Permissions[AKey: Integer]: TSysAccessRight read GetPermission;
+    property ActiveLanguage: string read FActiveLanguage write FActiveLanguage;
+    property ActiveLanguageId: Int64 read FActiveLanguageId write FActiveLanguageId;
   end;
 
 implementation
@@ -38,21 +43,20 @@ constructor TUserContext.Create(AUser: TSysUser; AOwnsUser: Boolean);
 begin
   inherited Create;
 
-  if not Assigned(AUser) then
-    raise EArgumentNilException.Create('AUser cannot be nil');
+//  if not Assigned(AUser) then
+//    raise EArgumentNilException.Create('AUser cannot be nil');
 
   FUser := AUser;
   FOwnsUser := AOwnsUser;
-  FPermissions := TDictionary<Integer, TSysAccessRight>.Create;
+  FPermissions := TObjectDictionary<Integer, TSysAccessRight>.Create;
 end;
 
 destructor TUserContext.Destroy;
 begin
-  ClearPermissions;
-  FreeAndNil(FPermissions);
+  FPermissions.Free;
 
-  if FOwnsUser and Assigned(FUser) then
-    FreeAndNil(FUser);
+  if FOwnsUser then
+    FUser.Free;
 
   inherited;
 end;
@@ -78,7 +82,7 @@ begin
   end;
 end;
 
-procedure TUserContext.AddPermissions(APermissionsList: TDictionary<Integer, TSysAccessRight>);
+procedure TUserContext.AddPermissions(APermissionsList: TObjectDictionary<Integer, TSysAccessRight>);
 var
   LPair: TPair<Integer, TSysAccessRight>;
 begin
@@ -107,6 +111,11 @@ begin
   end;
 end;
 
+procedure TUserContext.SetUser(const Value: TSysUser);
+begin
+  FUser := Value;
+end;
+
 function TUserContext.TryGetPermission(AKey: Integer; out APermission: TSysAccessRight): Boolean;
 begin
   Result := FPermissions.TryGetValue(AKey, APermission);
@@ -122,6 +131,9 @@ procedure TUserContext.ClearPermissions;
 var
   LPermission: TSysAccessRight;
 begin
+  if not Assigned(FPermissions) then
+    Exit;
+
   for LPermission in FPermissions.Values do
     LPermission.Free;
 

@@ -5,7 +5,7 @@ inherited frmUrtIscilik: TfrmUrtIscilik
   Caption = 'I'#351#231'ilik Gideri'
   ClientHeight = 204
   ClientWidth = 340
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   Position = poDesktopCenter
   ExplicitWidth = 356
   ExplicitHeight = 243
@@ -37,7 +37,7 @@ inherited frmUrtIscilik: TfrmUrtIscilik
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -53,7 +53,7 @@ inherited frmUrtIscilik: TfrmUrtIscilik
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -69,7 +69,7 @@ inherited frmUrtIscilik: TfrmUrtIscilik
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -85,7 +85,7 @@ inherited frmUrtIscilik: TfrmUrtIscilik
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -101,7 +101,7 @@ inherited frmUrtIscilik: TfrmUrtIscilik
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

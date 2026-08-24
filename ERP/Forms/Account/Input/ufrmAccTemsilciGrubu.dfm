@@ -1,11 +1,11 @@
-﻿inherited frmAccTemsilciGrubu: TfrmAccTemsilciGrubu
+inherited frmAccTemsilciGrubu: TfrmAccTemsilciGrubu
   Left = 501
   Top = 443
   ActiveControl = btnClose
   Caption = 'Temilci Grup'
   ClientHeight = 150
   ClientWidth = 344
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 350
   ExplicitHeight = 179
   PixelsPerInch = 96
@@ -36,7 +36,7 @@
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -52,7 +52,7 @@
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

@@ -1,4 +1,4 @@
-﻿unit ufrmBaseDBGrid;
+unit ufrmBaseDBGrid;
 
 interface
 
@@ -18,9 +18,7 @@ uses
   FireDAC.DApt, FireDAC.Phys.PGDef, FireDAC.Comp.Client, FireDAC.Phys.PG,
   FireDAC.Comp.DataSet, mORMotReport, Ths.Helper.BaseTypes, Ths.Helper.Edit,
   Ths.Helper.Memo, Ths.Helper.ComboBox, udm, ufrmBase, ufrmBaseOutput,
-  Ths.Database.Table.SysGridKolonlar, ufrmSysGridKolon, Ths.Constants,
-  Ths.Database, Ths.Database.Table, Ths.Database.TableDetailed,
-  Ths.Database.Table.SysGuiContent, ufrmSysGuiContent;
+  Ths.Database, Ths.Database.Table, Ths.Database.TableDetailed;
 
 type
   TSortType = (stNone, stAsc, stDesc);
@@ -1496,23 +1494,8 @@ begin
 end;
 
 procedure TfrmBaseDBGrid.mniColumnTitleByLangClick(Sender: TObject);
-var
-  LSysLisanGuiContent: TSysGuiContent;
-  AColumn: TColumn;
 begin
-  AColumn := grd.Columns[grd.SelectedField.Index];
-  if Assigned(AColumn) then
-  begin
-    LSysLisanGuiContent := TSysGuiContent.Create(GDataBase);
-
-    LSysLisanGuiContent.Code.Value := AColumn.FieldName;
-    LSysLisanGuiContent.ContentType.Value := LngDGridFieldCaption;
-    LSysLisanGuiContent.TableName.Value := Table.TableName;
-    LSysLisanGuiContent.Content.Value := AColumn.Title.Caption;
-
-    TfrmSysGuiContent.Create(Self, nil, LSysLisanGuiContent, ifmCopyNewRecord, fomNormal, ivmSort).ShowModal;
-    SetTitleFromLangContent();
-  end;
+  // Deprecated
 end;
 
 procedure TfrmBaseDBGrid.mniexport_excel_allClick(Sender: TObject);
@@ -2156,26 +2139,8 @@ begin
 end;
 
 procedure TfrmBaseDBGrid.SetTitleFromLangContent;
-var
-  n1, n2: Integer;
-  LLangVal: TSysGuiContent;
 begin
-  if Assigned(Table) then
-  begin
-    LLangVal := TSysGuiContent.Create(Table.Database);
-    try
-      LLangVal.SelectToList(
-          ' AND ' + LLangVal.TableName.QryName + '=' + QuotedStr(Table.TableName) +
-          ' AND ' + LLangVal.ContentType.QryName + '=' + QuotedStr(LngDGridFieldCaption), False, False);
-      for n1 := 0 to LLangVal.List.Count-1 do
-        for n2 := 0 to grd.Columns.Count - 1 do
-          if grd.Columns.Items[n2].FieldName = TSysGuiContent(LLangVal.List[n1]).Code.Value then
-            grd.Columns.Items[n2].Title.Caption := TSysGuiContent(LLangVal.List[n1]).Content.Value;
-
-    finally
-      LLangVal.Free;
-    end;
-  end;
+  // Deprecated
 end;
 
 procedure TfrmBaseDBGrid.ShowInputForm(Sender: TObject; pFormType: TInputFormMode);

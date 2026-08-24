@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes, System.Generics.Collections, System.SysUtils,
+  System.Classes, System.Generics.Collections, System.SysUtils, System.Rtti,
   FireDAC.Comp.Client, FireDAC.Stan.Param, Data.DB,
   Logger, Password.Helper, ConnectionManager, Repository, Service, FilterCriterion,
   SysUser, SysUser.Repository;
@@ -77,7 +77,7 @@ begin
     LRepo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
 
     Filter.Clear;
-    Filter.Add(TFilterCriterion.New('Username', '=', AUserName));
+    Filter.Add(TFilterCriterion.New('username', '=', TValue.From<string>(AUserName)));
     LUser := LRepo.FindOne(Filter);
     if LUser = nil then
     begin
@@ -156,7 +156,7 @@ begin
     LRepo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
 
     Filter.Clear;
-    Filter.Add(TFilterCriterion.New('Username', '=', AUser.Username));
+    Filter.Add(TFilterCriterion.New('user_name', '=', AUser.Username));
     LExistingUser := LRepo.FindOne(Filter);
     if LExistingUser <> nil then
     begin

@@ -1,4 +1,4 @@
-﻿unit ufrmSysAccessRight;
+unit ufrmSysAccessRight;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysAccessRight.Service, SysAccessRight;
+  SysAccessRight.Service, SysAccessRight, LocalizationManager;
 
 type
   TfrmSysAccessRight = class(TfrmInputSimpleDB<TSysAccessRight, TSysAccessRightService>)
@@ -24,11 +24,11 @@ type
   published
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
-    procedure InitializeInputCase; override;
     procedure FormShow(Sender: TObject); override;
   public
     procedure RefreshData; override;
     procedure HelperProcess(Sender: TObject);
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -59,18 +59,19 @@ begin
   edtPermissionId.OnHelperProcess := HelperProcess;
 end;
 
-procedure TfrmSysAccessRight.InitializeInputCase;
-begin
-  inherited;
-  edtUserId.thsInputDataType := itInteger;
-  edtPermissionId.thsInputDataType := itInteger;
-end;
-
 procedure TfrmSysAccessRight.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Access Right';
+  ApplyLocalization;
   edtUserId.SetFocus;
+end;
+
+procedure TfrmSysAccessRight.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_access_right.title_singular', 'Kullanıcı Erişim Hakkı');
+  lblUserId.Caption := TLocalizationManager.Translate('sys_access_right.lbl_user', 'Kullanıcı');
+  lblPermissionId.Caption := TLocalizationManager.Translate('sys_access_right.lbl_permission', 'Yetki');
 end;
 
 procedure TfrmSysAccessRight.HelperProcess(Sender: TObject);
@@ -118,7 +119,7 @@ begin
           else
           begin
             edtPermissionId.Tag := LFrmPermission.Table.Id;
-            LEdit.Text := LFrmPermission.Table.Name;
+//            LEdit.Text := LFrmPermission.Table.Name;
           end;
       finally
         LFrmPermission.Free;
@@ -130,8 +131,16 @@ end;
 procedure TfrmSysAccessRight.RefreshData;
 begin
   inherited;
-  edtUserId.Text := Table.UserId.ToString;
-  edtPermissionId.Text := Table.PermissionId.ToString;
+  if Table.Username <> '' then
+    edtUserId.Text := Table.Username
+  else
+    edtUserId.Text := Table.UserId.ToString;
+
+  if Table.PermissionName <> '' then
+    edtPermissionId.Text := Table.PermissionName
+  else
+    edtPermissionId.Text := Table.PermissionId.ToString;
+
   edtUserId.Tag := Table.UserId;
   edtPermissionId.Tag := Table.PermissionId;
   chkIsRead.Checked := Table.IsRead;

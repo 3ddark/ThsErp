@@ -1,4 +1,4 @@
-﻿unit SysGridFilter;
+unit SysGridFilter;
 
 interface
 

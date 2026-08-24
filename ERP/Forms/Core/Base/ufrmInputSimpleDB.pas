@@ -10,7 +10,7 @@ uses
   Vcl.DBGrids, Vcl.Samples.Spin, Data.DB,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   Ths.DialogHelper, Ths.Globals, SysViewColumn, MetaProvider,
-  Entity, Service, SharedFormTypes;
+  Entity, Service, SharedFormTypes, LocalizationManager;
 
 type
   TfrmInputSimpleDB<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TForm)
@@ -75,6 +75,7 @@ type
     procedure FormDestroy(Sender: TObject); virtual;
     procedure FormShow(Sender: TObject); virtual;
     procedure FormClose(Sender: TObject; var Action: TCloseAction); virtual;
+    procedure ApplyLocalization; virtual;
     procedure FormKeyPress(Sender: TObject; var Key: Char); virtual;
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
@@ -112,6 +113,7 @@ procedure TfrmInputSimpleDB<TE, TS>.BindEntityToControls(AEntity: TObject; AForm
 var
   propMeta: TPropertyMeta;
   ctrl: TControl;
+  lblCtrl: TComponent;
 begin
   if Meta = nil then
     Exit;
@@ -120,12 +122,16 @@ begin
   begin
     ctrl := AForm.FindComponent('edt' + propMeta.ColumnName) as TControl;
     if not Assigned(ctrl) then
-      Continue;
+      ctrl := AForm.FindComponent('edt' + propMeta.Name) as TControl;
 
-    if Assigned(AForm.FindComponent('lbl' + propMeta.ColumnName)) then
-      (AForm.FindComponent('lbl' + propMeta.ColumnName) as TLabel).Caption := propMeta.DisplayLabel;
+    lblCtrl := AForm.FindComponent('lbl' + propMeta.ColumnName);
+    if not Assigned(lblCtrl) then
+      lblCtrl := AForm.FindComponent('lbl' + propMeta.Name);
 
-    if ctrl is TEdit then
+    if Assigned(lblCtrl) and (lblCtrl is TLabel) then
+      (lblCtrl as TLabel).Caption := propMeta.DisplayLabel;
+
+    if Assigned(ctrl) and (ctrl is TEdit) then
     begin
       if propMeta.MaxLength > 0 then
         (ctrl as TEdit).MaxLength := propMeta.MaxLength
@@ -142,33 +148,38 @@ begin
         (ctrl as TEdit).MaxLength := 5;
 
       if propMeta.Required then
-        (ctrl as  Ths.Helper.Edit.TEdit).thsRequiredData := True;
+        (ctrl as Ths.Helper.Edit.TEdit).thsRequiredData := True;
+
+      if ctrl is Ths.Helper.Edit.TEdit then
+      begin
+        case propMeta.PropertyType.TypeKind of
+          tkInteger, tkInt64:
+            Ths.Helper.Edit.TEdit(ctrl).thsInputDataType := itInteger;
+          tkFloat:
+            begin
+              if SameText(propMeta.PropertyType.Name, 'TDate') then
+                Ths.Helper.Edit.TEdit(ctrl).thsInputDataType := itDate
+              else if SameText(propMeta.PropertyType.Name, 'TTime') then
+                Ths.Helper.Edit.TEdit(ctrl).thsInputDataType := itTime
+              else
+                Ths.Helper.Edit.TEdit(ctrl).thsInputDataType := itFloat;
+            end;
+          tkUString, tkString, tkLString, tkWString:
+            Ths.Helper.Edit.TEdit(ctrl).thsInputDataType := itString;
+        end;
+      end;
     end;
   end;
 end;
 
 procedure TfrmInputSimpleDB<TE, TS>.BtnAcceptClick(Sender: TObject);
 var
-  n1: Integer;
   LId: Int64;
-  validation: TValidationResult;
-  LMsgs: string;
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
-    validation := Table.Validate;
-    if validation.IsValid then
-      validation.Free
-    else
-    begin
-      LMsgs := '';
-      for n1 := 0 to Length(validation.Errors)-1 do
-        LMsgs := LMsgs + validation.Errors[n1].FieldName + ': ' + validation.Errors[n1].Message + sLineBreak;
-      ShowMessage(LMsgs);
-      validation.Free;
+    if not ValidateInput(PanelMain) then
       Exit;
-    end;
-    //ValidateInput(PanelMain);
   end;
 
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
@@ -190,7 +201,17 @@ begin
   end
   else if (FormMode = ifmUpdate) then
   begin
-    if TThsDialogHelper.CustomMsgDlg('Kaydı güncellemek istediğinden emin misin?', TMsgDlgType.mtConfirmation, [mbYes, mbNo], ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
+    if TThsDialogHelper.CustomMsgDlg(
+      TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmUpdate, 'Kaydı güncellemek istediğinden emin misin?'),
+      TMsgDlgType.mtConfirmation,
+      [mbYes, mbNo],
+      [
+        TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Evet'),
+        TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'Hayır')
+      ],
+      mbNo,
+      TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Kullanıcı Onayı')
+    ) = mrYes then
     begin
       SetControlsDisabledOrEnabled(PanelMain, True);
       try
@@ -202,7 +223,7 @@ begin
         ModalResult := mrNone;
         btnSpin.Visible := true;
         FormMode := ifmRewiev;
-        btnAccept.Caption := 'Güncelle';
+        btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Güncelle');
         btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
         btnAccept.Width := Max(100, btnAccept.Width);
         btnDelete.Visible := false;
@@ -221,16 +242,16 @@ begin
       Table := Service.BusinessFindById(LId, (not Service.UoW.InTransaction), True, True);
 
       if (Table = nil) then
-        raise Exception.Create('Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş.' + AddLBs(2) + 'Kaydı tekrar kontrol edin!');
+        raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordDeletedWhileReview, 'Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş.' + AddLBs(2) + 'Kaydı tekrar kontrol edin!'));
 
       FormMode := ifmUpdate;
 
       btnSpin.Visible := false;
 
-      btnAccept.Caption := 'Onayla';
+      btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Onayla');
       btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
       btnAccept.Width := Max(100, btnAccept.Width);
-      if Service.Uow.IsAuthorized(ptUpdate, True, False)
+      if Service.IsAuthorized(ptUpdate, True)
       then  btnAccept.Enabled := True
       else  btnAccept.Enabled := False;
 
@@ -246,7 +267,14 @@ begin
       btnDelete.Left := btnAccept.Left-btnDelete.Width;
     end
     else
-      CustomMsgDlg('Aktif bir kayıt güncellemeniz var. önce açık olan işleminizi bitirin!', mtError, [mbOK], ['Tamam'], mbOK, 'Bilgilendirme');
+      CustomMsgDlg(
+        TLocalizationManager.Translate(TLangKeys.TMessage.ActiveTransactionExist, 'Aktif bir kayıt güncellemeniz var. önce açık olan işleminizi bitirin!'),
+        mtError,
+        [mbOK],
+        [TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'Tamam')],
+        mbOK,
+        TLocalizationManager.Translate(TLangKeys.TMessage.InformationTitle, 'Bilgilendirme')
+      );
   end;
 end;
 
@@ -259,7 +287,17 @@ procedure TfrmInputSimpleDB<TE, TS>.BtnDeleteClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate)then
   begin
-    if CustomMsgDlg('Kaydı silmek istediğinden emin misin?', mtConfirmation, mbYesNo, ['Evet', 'Hayır'], mbNo, 'Kullanıcı Onayı') = mrYes then
+    if CustomMsgDlg(
+      TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmDelete, 'Kaydı silmek istediğinden emin misin?'),
+      mtConfirmation,
+      mbYesNo,
+      [
+        TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Evet'),
+        TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'Hayır')
+      ],
+      mbNo,
+      TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Kullanıcı Onayı')
+    ) = mrYes then
     begin
       try
         Service.BusinessDelete(Table, not Service.Uow.InTransaction, True, False);
@@ -273,7 +311,7 @@ begin
         FormMode := ifmRewiev;
         btnSpin.Visible := True;
         btnDelete.Visible := False;
-        btnAccept.Caption := 'Güncelle';
+        btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Güncelle');
         btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
         btnAccept.Width := Max(100, btnAccept.Width);
 
@@ -284,13 +322,69 @@ begin
 end;
 
 procedure TfrmInputSimpleDB<TE, TS>.BtnSpinDownClick(Sender: TObject);
+var
+  LContext: TRttiContext;
+  LType: TRttiType;
+  LMethod: TRttiMethod;
+  LProp: TRttiProperty;
+  LNewId: Int64;
 begin
-  ShowMessage('not implemented yet');
+  if not Assigned(Owner) then Exit;
+
+  LContext := TRttiContext.Create;
+  try
+    LType := LContext.GetType(Owner.ClassType);
+    LMethod := LType.GetMethod('MoveDown');
+    if Assigned(LMethod) then
+      LMethod.Invoke(Owner, []);
+
+    LProp := LType.GetProperty('Table');
+    if Assigned(LProp) then
+    begin
+      LNewId := (LProp.GetValue(Owner).AsObject as TEntity).Id;
+      if (LNewId > 0) and (LNewId <> Table.Id) then
+      begin
+        FreeAndNil(FTable);
+        FTable := Service.FindById(LNewId, False, True);
+        RefreshData;
+      end;
+    end;
+  finally
+    LContext.Free;
+  end;
 end;
 
 procedure TfrmInputSimpleDB<TE, TS>.BtnSpinUpClick(Sender: TObject);
+var
+  LContext: TRttiContext;
+  LType: TRttiType;
+  LMethod: TRttiMethod;
+  LProp: TRttiProperty;
+  LNewId: Int64;
 begin
-  ShowMessage('not implemented yet');
+  if not Assigned(Owner) then Exit;
+
+  LContext := TRttiContext.Create;
+  try
+    LType := LContext.GetType(Owner.ClassType);
+    LMethod := LType.GetMethod('MoveUp');
+    if Assigned(LMethod) then
+      LMethod.Invoke(Owner, []);
+
+    LProp := LType.GetProperty('Table');
+    if Assigned(LProp) then
+    begin
+      LNewId := (LProp.GetValue(Owner).AsObject as TEntity).Id;
+      if (LNewId > 0) and (LNewId <> Table.Id) then
+      begin
+        FreeAndNil(FTable);
+        FTable := Service.FindById(LNewId, False, True);
+        RefreshData;
+      end;
+    end;
+  finally
+    LContext.Free;
+  end;
 end;
 
 constructor TfrmInputSimpleDB<TE, TS>.Create(
@@ -331,7 +425,7 @@ begin
   begin
     BtnAccept.Visible := True;
     BtnClose.Visible := True;
-    BtnAccept.Caption := 'Onayla';
+    BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Onayla');
     BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
     BtnAccept.Width := Max(100, BtnAccept.Width);
   end
@@ -340,10 +434,10 @@ begin
     BtnAccept.Visible := True;
     BtnClose.Visible := True;
 
-    BtnAccept.Caption := 'Güncelle';
+    BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Güncelle');
     BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
     BtnAccept.Width := Max(100, BtnAccept.Width);
-    BtnDelete.Caption := 'Kayıt Sil';
+    BtnDelete.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.DeleteRecord, 'Kayıt Sil');
     BtnDelete.Width := Canvas.TextWidth(BtnDelete.Caption) + 56;
     BtnDelete.Width := Max(100, BtnDelete.Width);
   end;
@@ -359,7 +453,7 @@ begin
   BtnAccept.Margins.Left := MulDiv(4, Self.CurrentPPI, 96);
   BtnAccept.Margins.Right := MulDiv(4, Self.CurrentPPI, 96);
   BtnAccept.TabOrder := 1;
-  BtnAccept.Caption := '&' + 'Kaydet';
+  BtnAccept.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Save, 'Kaydet');
   BtnAccept.OnClick := BtnAcceptClick;
   BtnAccept.Align := alRight;
 end;
@@ -372,7 +466,7 @@ begin
   BtnClose.Padding.Left := 4;
   BtnClose.Padding.Right := 4;
   BtnClose.TabOrder := 2;
-  BtnClose.Caption := '&' + 'Kapat';
+  BtnClose.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Kapat');
   BtnClose.OnClick := BtnCloseClick;
   BtnClose.Align := alRight;
 end;
@@ -385,7 +479,7 @@ begin
   BtnDelete.Padding.Left := 4;
   BtnDelete.Padding.Right := 4;
   BtnDelete.TabOrder := 3;
-  BtnDelete.Caption := '&' + 'Sil';
+  BtnDelete.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Delete, 'Sil');
   BtnDelete.OnClick := BtnDeleteClick;
   BtnDelete.Align := alLeft;
 end;
@@ -455,6 +549,64 @@ begin
   Action := caFree;
 end;
 
+procedure TfrmInputSimpleDB<TE, TS>.ApplyLocalization;
+var
+  meta: TEntityMeta;
+begin
+  inherited;
+  if Assigned(Table) then
+  begin
+    TMetaProviderManager.SetConnection(Service.Uow.Connection);
+    meta := TMetaProviderManager.GetMeta(Table.ClassType);
+    BindEntityToControls(Table, Self, meta);
+  end;
+
+  if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
+  begin
+    if Assigned(BtnAccept) then
+    begin
+      BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Onayla');
+      BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
+      BtnAccept.Width := Max(100, BtnAccept.Width);
+    end;
+  end
+  else if FormMode = ifmRewiev then
+  begin
+    if Assigned(BtnAccept) then
+    begin
+      BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Güncelle');
+      BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
+      BtnAccept.Width := Max(100, BtnAccept.Width);
+    end;
+    if Assigned(BtnDelete) then
+    begin
+      BtnDelete.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.DeleteRecord, 'Kayıt Sil');
+      BtnDelete.Width := Canvas.TextWidth(BtnDelete.Caption) + 56;
+      BtnDelete.Width := Max(100, BtnDelete.Width);
+    end;
+  end
+  else if FormMode = ifmUpdate then
+  begin
+    if Assigned(BtnAccept) then
+    begin
+      BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Onayla');
+      BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
+      BtnAccept.Width := Max(100, BtnAccept.Width);
+    end;
+    if Assigned(BtnDelete) then
+    begin
+      BtnDelete.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Delete, 'Sil');
+      BtnDelete.Width := Canvas.TextWidth(BtnDelete.Caption) + 56;
+      BtnDelete.Width := Max(100, BtnDelete.Width);
+    end;
+  end;
+
+  if Assigned(BtnClose) then
+    BtnClose.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Kapat');
+
+  RefreshData;
+end;
+
 procedure TfrmInputSimpleDB<TE, TS>.FormCreate(Sender: TObject);
 begin
 //
@@ -467,7 +619,24 @@ end;
 
 procedure TfrmInputSimpleDB<TE, TS>.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-//
+  if Assigned(BtnSpin) and BtnSpin.Visible then
+  begin
+    if Key = VK_PRIOR then
+    begin
+      Key := 0;
+      BtnSpinUpClick(BtnSpin);
+      Exit;
+    end;
+
+    if Key = VK_NEXT then
+    begin
+      Key := 0;
+      BtnSpinDownClick(BtnSpin);
+      Exit;
+    end;
+  end;
+
+  inherited;
 end;
 
 procedure TfrmInputSimpleDB<TE, TS>.FormKeyPress(Sender: TObject; var Key: Char);
@@ -793,7 +962,7 @@ begin
   begin
     Repaint;
     if (not Result) then
-      raise Exception.Create('Zorunlu alanlar boş olamaz. Kırmızı renkli girişler zorunludur.' + AddLBs(3) + LControlName);
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TValidation.RequiredFieldsEmpty, 'Zorunlu alanlar boş olamaz. Kırmızı renkli girişler zorunludur.') + AddLBs(3) + LControlName);
   end;
 end;
 

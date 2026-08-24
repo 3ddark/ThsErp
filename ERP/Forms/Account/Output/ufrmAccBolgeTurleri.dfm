@@ -1,4 +1,4 @@
-﻿inherited frmAccBolgeTurleri: TfrmAccBolgeTurleri
+inherited frmAccBolgeTurleri: TfrmAccBolgeTurleri
   Caption = 'B'#246'lge T'#252'rleri'
   PixelsPerInch = 96
   TextHeight = 13

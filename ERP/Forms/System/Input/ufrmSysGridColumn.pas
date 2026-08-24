@@ -8,7 +8,7 @@ uses
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.CheckLst,
   ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  SysGridColumn.Service, SysGridColumn;
+  SysGridColumn.Service, SysGridColumn, LocalizationManager;
 
 type
   TfrmSysGridColumn = class(TfrmInputSimpleDB<TSysGridColumn, TSysGridColumnService>)
@@ -47,6 +47,7 @@ type
   public
     procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -82,10 +83,14 @@ end;
 procedure TfrmSysGridColumn.FormShow(Sender: TObject);
 begin
   inherited;
-
-  Self.Caption := 'System Grid Column';
-
+  ApplyLocalization;
   edtTableName.SetFocus;
+end;
+
+procedure TfrmSysGridColumn.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_grid_column.title_singular', 'Grid Kolon Ayarı');
 end;
 
 procedure TfrmSysGridColumn.InitializeInputCase;

@@ -5,7 +5,7 @@ inherited frmSetEinvTeslimSekli: TfrmSetEinvTeslimSekli
   Caption = 'Teslim Sekli'
   ClientHeight = 195
   ClientWidth = 344
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 360
   ExplicitHeight = 234
   TextHeight = 13
@@ -35,7 +35,7 @@ inherited frmSetEinvTeslimSekli: TfrmSetEinvTeslimSekli
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -51,7 +51,7 @@ inherited frmSetEinvTeslimSekli: TfrmSetEinvTeslimSekli
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -67,7 +67,7 @@ inherited frmSetEinvTeslimSekli: TfrmSetEinvTeslimSekli
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

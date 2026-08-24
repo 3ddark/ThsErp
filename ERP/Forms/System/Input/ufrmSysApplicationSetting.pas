@@ -1,4 +1,4 @@
-﻿unit ufrmSysApplicationSetting;
+unit ufrmSysApplicationSetting;
 
 interface
 
@@ -12,7 +12,7 @@ uses
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   ufrmBase, ufrmInputSimpleDB, SharedFormTypes,
   SysApplicationSetting, SysApplicationSetting.Service,
-  SysCity.Service, SysCity, ufrmSysCities;
+  SysCity.Service, SysCity, ufrmSysCities, LocalizationManager;
 
 type
   TfrmSysApplicationSetting = class(TfrmInputSimpleDB<TSysApplicationSetting, TSysApplicationSettingService>)
@@ -123,6 +123,7 @@ type
     procedure FormShow(Sender: TObject); override;
     procedure InitializeInputCase; override;
     procedure RefreshData(); override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -278,6 +279,7 @@ begin
   edtCityId.OnHelperProcess := HelperProcess;
 
   inherited;
+  ApplyLocalization;
 
   edtCountryName.ReadOnly := True;
   edtDistrict.CharCase := ecUpperCase;
@@ -288,6 +290,12 @@ begin
   edtBuildingName.CharCase := ecUpperCase;
   edtDoorNumber.CharCase := ecUpperCase;
   edtZipCode.CharCase := ecUpperCase;
+end;
+
+procedure TfrmSysApplicationSetting.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_application_setting.title_singular', 'Uygulama Ayarları');
 end;
 
 procedure TfrmSysApplicationSetting.HelperProcess(Sender: TObject);

@@ -5,7 +5,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
   Caption = 'M'#252#351'teri Temsilci Grubu'
   ClientHeight = 464
   ClientWidth = 711
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 717
   ExplicitHeight = 493
   PixelsPerInch = 96
@@ -35,7 +35,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -51,7 +51,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -67,7 +67,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -83,7 +83,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -99,7 +99,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -115,7 +115,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -131,7 +131,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -147,7 +147,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -163,7 +163,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -179,7 +179,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -195,7 +195,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -211,7 +211,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -227,7 +227,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -243,7 +243,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -259,7 +259,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -275,7 +275,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -291,7 +291,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -307,7 +307,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -323,7 +323,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -339,7 +339,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -355,7 +355,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -371,7 +371,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -387,7 +387,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -403,7 +403,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -419,7 +419,7 @@ inherited frmMusteriTemsilciGrubu: TfrmMusteriTemsilciGrubu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

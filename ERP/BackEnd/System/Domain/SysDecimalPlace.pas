@@ -1,4 +1,4 @@
-﻿unit SysDecimalPlace;
+unit SysDecimalPlace;
 
 interface
 

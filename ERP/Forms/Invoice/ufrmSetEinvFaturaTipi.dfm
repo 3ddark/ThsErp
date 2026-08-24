@@ -5,7 +5,7 @@ inherited frmSetEinvFaturaTipi: TfrmSetEinvFaturaTipi
   Caption = 'Fatura Tipi'
   ClientHeight = 121
   ClientWidth = 344
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 360
   ExplicitHeight = 160
   TextHeight = 14
@@ -36,7 +36,7 @@ inherited frmSetEinvFaturaTipi: TfrmSetEinvFaturaTipi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

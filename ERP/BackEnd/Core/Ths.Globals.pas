@@ -390,25 +390,7 @@ type
   /// </summary>
 //  procedure NewParamForQuery(AQuery: TFDQuery; AField: TFieldDB);
 
-  /// <summary>
-  ///  Bu fonksiyon DBGrid üzerinde gösterilen sütunların genişlik değerini değiştirmek için kullanılır.
-  ///  Yaptığı iş hızlıca <b>sys_grid_col_width</b> tablosundaki <b>column_width</b>
-  ///  değerini hızlıca güncellemek için kullanılır. Açık DBGrid(output form)
-  ///  ekranındaki sütun genişliğinin hızlıca görselden ayarlamak için bu fonksiyon yazildi.
-  ///  <param name="pTableName">Database Table Name</param>
-  ///  <param name="pColName">Database Table Column Name</param>
-  ///  <param name="pColWidth">DBGrid Column Width</param>
-  ///  <example>
-  ///   <code lang="Delphi">UpdateColWidth(olcu_birimi, birim, 100)</code>
-  ///  </example>
-  /// </summary>
-  function UpdateColWidth(ATableName: string; AGrid: TDBGrid): Boolean;
-
   function GetGridDefaultOrderFilter(AKey: string; AIsOrder: Boolean): string;
-  function GetIsRequired(ATableName, AFieldName: string): Boolean;
-  function GetMaxLength(ATableName, AFieldName: string): Integer;
-
-  function GetDistinctColumnName(ATableName: string): TStringList;
 
   function ExistForm(AFormClassType: TClass): Boolean;
 
@@ -433,43 +415,6 @@ var
   ///  Bu nedenle uygulama ilk açılışta Path bu değişkende tutluyor. Buradan kullanılacak.
   /// </summary>
   GUygulamaAnaDizin: string;
-
-  /// <summary>
-  ///  Giriş yapan kullanıcı bilgilerine bu tablo bilgisinden ulaşıyor.
-  ///  <example>
-  ///   <code lang="Delphi">GSysKullanici.KullaniciAdi</code>
-  ///  </example>
-  /// </summary>
-//  GSysKullanici: TSysKullanici;
-
-  /// <summary>
-  ///  Virgüllü sayılarda hane sayısı değerlerine buradan ulaşılıyor. Bu ayara göre işlemler yapılacak.
-  ///  <example>
-  ///   <code lang="Delphi">GSysOndalikHane.SatisMiktar</code>
-  ///  </example>
-  /// </summary>
-//  GSysOndalikHane: TSysOndalikHane;
-
-  /// <summary>
-  ///  Uygulama ayarlarına bu tablo bilgisinden ulaşılıyor.
-  ///  <example>
-  ///   <code lang="Delphi">GSysUygulamaAyari.Unvan</code>
-  ///  </example>
-  /// </summary>
-//  GSysApplicationSetting: TSysUygulamaAyari;
-
-
-  /// <summary>
-  ///  Sistemde tanımlı olan para birimleri burada tutuluyor
-  /// </summary>
-//  GParaBirimi: TSysParaBirimi;
-
-  /// <summary>
-  ///  Table sınıfındaki field özelliklerini almak için kullanılıyor.
-  /// </summary>
-//  GSysTableInfo: TSysViewColumns;
-
-//  GGuiIcerik: TDictionary<string, TGuiIcerik>;
 
 implementation
 
@@ -1973,50 +1918,6 @@ end;
 //  end;
 //end;
 
-function UpdateColWidth(ATableName: string; AGrid: TDBGrid): Boolean;
-//var
-//  LColWidth: TSysGridKolon;
-//  n1, n2, nNo: Integer;
-begin
-//  Result := True;
-//  LColWidth := TSysGridKolon.Create(GDataBase);
-//  LColWidth.Database.Connection.StartTransaction;
-//  try
-//    try
-//      LColWidth.Clear;
-//      LColWidth.SelectToList(' AND ' + LColWidth.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)), False, False);
-//
-//      for n1 := 0 to AGrid.Columns.Count - 1 do
-//        for n2 := 0 to LColWidth.List.Count-1 do
-//          if ReplaceRealColOrTableNameTo(AGrid.Columns[n1].FieldName) = TSysGridKolon(LColWidth.List[n2]).KolonAdi.Value then
-//          begin
-//            TSysGridKolon(LColWidth.List[n2]).SiraNo.Value := 99 + n1;
-//            TSysGridKolon(LColWidth.List[n2]).Update(False);
-//          end;
-//
-//      nNo := 0;
-//      for n1 := 0 to AGrid.Columns.Count-1 do
-//        for n2 := 0 to LColWidth.List.Count-1 do
-//          if ReplaceRealColOrTableNameTo(AGrid.Columns[n1].FieldName) = TSysGridKolon(LColWidth.List[n2]).KolonAdi.Value then
-//          begin
-//            TSysGridKolon(LColWidth.List[n2]).KolonGenislik.Value := AGrid.Columns[n1].Width;
-//            TSysGridKolon(LColWidth.List[n2]).SiraNo.Value := nNo+1;
-//            TSysGridKolon(LColWidth.List[n2]).Update(False);
-//            Inc(nNo);
-//            Break;
-//          end;
-//    except
-//      Result := False;
-//      if LColWidth.Database.Connection.InTransaction then
-//        LColWidth.Database.Connection.Rollback;
-//    end;
-//  finally
-//    if LColWidth.Database.Connection.InTransaction then
-//      LColWidth.Database.Connection.Commit;
-//    LColWidth.Free;
-//  end;
-end;
-
 function GetGridDefaultOrderFilter(AKey: string; AIsOrder: Boolean): string;
 //var
 //  LSysOrderFilter: TSysGridFiltreSiralama;
@@ -2040,76 +1941,6 @@ begin
 //  if System.SysUtils.Trim(Result) <> '' then
 //    if not AIsOrder then
 //      Result := ' AND ' + Result;
-end;
-
-function GetIsRequired(ATableName, AFieldName: string): Boolean;
-//var
-//  LSysInputGui: TSysViewColumns;
-begin
-//  Result := False;
-//
-//  LSysInputGui := TSysViewColumns.Create(GDataBase);
-//  try
-//    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
-//                              ' AND ' + LSysInputGui.ColumnName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(AFieldName)), False, False);
-//    if LSysInputGui.List.Count=1 then
-//      Result := not TSysViewColumns(LSysInputGui.List[0]).IsNullable.Value;
-//  finally
-//    LSysInputGui.Free;
-//  end;
-end;
-
-function GetMaxLength(ATableName, AFieldName: string): Integer;
-//var
-//  LSysInputGui: TSysViewColumns;
-begin
-//  Result := 0;
-//
-//  LSysInputGui := TSysViewColumns.Create(GDataBase);
-//  try
-//    LSysInputGui.SelectToList(' AND ' + LSysInputGui.TabloAdi.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(ATableName)) +
-//                              ' AND ' + LSysInputGui.ColumnName.QryName + '=' + QuotedStr(ReplaceRealColOrTableNameTo(AFieldName)), False, False);
-//    if LSysInputGui.List.Count=1 then
-//      Result := TSysViewColumns(LSysInputGui.List[0]).CharacterMaximumLength.Value;
-//  finally
-//    LSysInputGui.Free;
-//  end;
-end;
-
-function GetDistinctColumnName(ATableName: string): TStringList;
-//var
-//  LCol: TSysViewColumns;
-//  LColWidth: TSysGridKolon;
-//  LQry: TFDQuery;
-begin
-//  Result := TStringList.Create;
-//
-//  LCol := TSysViewColumns.Create(GDataBase);
-//  LColWidth := TSysGridKolon.Create(GDataBase);
-//  LQry := GDataBase.NewQuery;
-//  try
-//    Result.BeginUpdate;
-//    LQry.Close;
-//    LQry.SQL.Text := 'SELECT DISTINCT ' + LCol.ColumnName.FieldName + ' FROM ' + LCol.TableName +
-//                ' LEFT JOIN ' + LColWidth.TableName + ' ON '
-//                              + LColWidth.TabloAdi.FieldName + '=' + LCol.TabloAdi.FieldName +
-//                      ' AND ' + LColWidth.KolonAdi.FieldName + '=' + LCol.ColumnName.FieldName +
-//                ' WHERE ' + LCol.TabloAdi.FieldName + '=' + QuotedStr(ATableName) +
-//                  ' AND ' + LColWidth.KolonAdi.FieldName + ' IS NULL ';
-//    LQry.Open;
-//    while NOT LQry.Eof do
-//    begin
-//      Result.Add( LQry.Fields.Fields[0].AsString );
-//      LQry.Next;
-//    end;
-//    LQry.EmptyDataSet;
-//    LQry.Close;
-//  finally
-//    LQry.Free;
-//    LCol.Free;
-//    LColWidth.Free;
-//    Result.EndUpdate;
-//  end;
 end;
 
 function ExistForm(AFormClassType: TClass): Boolean;

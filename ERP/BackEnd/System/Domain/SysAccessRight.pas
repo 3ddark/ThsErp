@@ -17,6 +17,10 @@ type
     FUserId: Int64;
     FPermission: TSysPermission;
     FUser: TSysUser;
+    FUsername: string;
+    FPermissionName: string;
+    function GetUsername: string;
+    function GetPermissionName: string;
   public
     [Column('permission_id')]
     [Required('sysaccessright.permissionid.required', True)]
@@ -48,6 +52,9 @@ type
     [BelongsTo('UserId')]
     property User: TSysUser read FUser write FUser;
 
+    property Username: string read GetUsername write FUsername;
+    property PermissionName: string read GetPermissionName write FPermissionName;
+
     constructor Create(); override;
     destructor Destroy; override;
   end;
@@ -68,6 +75,26 @@ begin
   if Assigned(FUser) then
     FreeAndNil(FUser);
   inherited;
+end;
+
+function TSysAccessRight.GetUsername: string;
+begin
+  if FUsername <> '' then
+    Result := FUsername
+  else if Assigned(FUser) then
+    Result := FUser.Username
+  else
+    Result := '';
+end;
+
+function TSysAccessRight.GetPermissionName: string;
+begin
+  if FPermissionName <> '' then
+    Result := FPermissionName
+  else if Assigned(FPermission) then
+    Result := FPermission.Key
+  else
+    Result := '';
 end;
 
 end.

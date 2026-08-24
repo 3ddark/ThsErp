@@ -1,4 +1,4 @@
-unit SysViewColumn;
+﻿unit SysViewColumn;
 
 interface
 

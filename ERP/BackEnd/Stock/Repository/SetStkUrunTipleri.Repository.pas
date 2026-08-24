@@ -10,6 +10,7 @@ type
   TSetStkUrunTipleriRepository = class(TRepository<TSetStkUrunTipleri>)
   public
     constructor Create(AConnection: TFDConnection);
+    procedure Delete(AModel: TSetStkUrunTipleri; ACascade: TCascadeOperations = []); override;
   end;
 
 implementation
@@ -17,6 +18,11 @@ implementation
 constructor TSetStkUrunTipleriRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+procedure TSetStkUrunTipleriRepository.Delete(AModel: TSetStkUrunTipleri; ACascade: TCascadeOperations);
+begin
+  Delete(AModel.Id, ACascade);
 end;
 
 end.

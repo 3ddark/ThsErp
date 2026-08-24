@@ -3,7 +3,7 @@ inherited frmDashboard: TfrmDashboard
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Main'
-  ClientHeight = 450
+  ClientHeight = 472
   ClientWidth = 915
   Constraints.MinHeight = 300
   Constraints.MinWidth = 400
@@ -12,10 +12,11 @@ inherited frmDashboard: TfrmDashboard
   Menu = mm1
   Position = poScreenCenter
   Scaled = False
-  WindowMenu = VeritabanYedekAl1
+  WindowMenu = mnisys_do_database_backup
   OnActivate = FormActivate
+  OnClose = nil
   ExplicitWidth = 931
-  ExplicitHeight = 519
+  ExplicitHeight = 531
   TextHeight = 15
   object pnlToolbar: TPanel [0]
     Left = 0
@@ -27,13 +28,12 @@ inherited frmDashboard: TfrmDashboard
     Color = 12477460
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 909
     object lblTitle: TLabel
       AlignWithMargins = True
       Left = 8
       Top = 2
       Width = 201
-      Height = 36
+      Height = 25
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -47,71 +47,50 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
-      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
-    Top = 402
+    Top = 424
     Width = 911
     Color = clBtnFace
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 385
-    ExplicitWidth = 905
+    ExplicitTop = 424
+    ExplicitWidth = 911
     inherited btnAccept: TButton
       Left = 705
-      ExplicitLeft = 699
+      ExplicitLeft = 705
     end
     inherited btnClose: TButton
       Left = 809
-      ExplicitLeft = 803
+      ExplicitLeft = 809
     end
   end
   inherited stbBase: TStatusBar [2]
-    Top = 432
+    Top = 454
     Width = 915
-    ExplicitTop = 415
-    ExplicitWidth = 909
+    ExplicitTop = 454
+    ExplicitWidth = 915
   end
   inherited pnlMain: TPanel [3]
     Top = 40
     Width = 915
-    Height = 360
+    Height = 382
     TabOrder = 1
     ExplicitTop = 40
-    ExplicitWidth = 909
-    ExplicitHeight = 343
+    ExplicitWidth = 915
+    ExplicitHeight = 382
     object PageControl1: TPageControl
       Left = 0
       Top = 0
       Width = 915
-      Height = 360
-      ActivePage = tsemployee
+      Height = 382
+      ActivePage = tsgeneral
       Align = alClient
       MultiLine = True
       TabOrder = 0
-      ExplicitWidth = 909
-      ExplicitHeight = 343
       object tsgeneral: TTabSheet
         Caption = 'Genel'
-        object btnbbk_kayit: TButton
-          Left = 3
-          Top = 229
-          Width = 150
-          Height = 36
-          Caption = 'Bilgi Bankas'#305
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ImageIndex = 18
-          Images = dm.il32
-          ParentFont = False
-          TabOrder = 0
-          WordWrap = True
-          OnClick = actbbk_kayitExecute
-        end
       end
       object tssales: TTabSheet
         Caption = 'Sat'#305#351'lar'
@@ -343,7 +322,7 @@ inherited frmDashboard: TfrmDashboard
           Images = dm.il32
           ParentFont = False
           TabOrder = 1
-          Visible = False
+          OnClick = actch_bankalarExecute
         end
         object btnch_banka_subesi: TButton
           Left = 2
@@ -360,7 +339,7 @@ inherited frmDashboard: TfrmDashboard
           Images = dm.il32
           ParentFont = False
           TabOrder = 2
-          Visible = False
+          OnClick = actch_banka_subeleriExecute
         end
         object btnset_ch_grup: TButton
           Left = 160
@@ -573,12 +552,6 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 74
       OnExecute = actset_prs_gorevlerExecute
     end
-    object actsys_month: TAction
-      Category = 'System'
-      Caption = 'Aylar'
-      ImageIndex = 8
-      OnExecute = actsys_monthExecute
-    end
     object actset_prs_lisanlar: TAction
       Category = 'Personel'
       Caption = 'Lisanlar'
@@ -615,12 +588,6 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 12
       OnExecute = actsys_grid_columnExecute
     end
-    object actsys_day: TAction
-      Category = 'System'
-      Caption = 'G'#252'nler'
-      ImageIndex = 85
-      OnExecute = actsys_dayExecute
-    end
     object actsys_permission: TAction
       Category = 'System'
       Caption = 'Kaynaklar'
@@ -638,12 +605,6 @@ inherited frmDashboard: TfrmDashboard
       Caption = 'Kullan'#305'c'#305'lar'
       ImageIndex = 64
       OnExecute = actsys_userExecute
-    end
-    object actsys_lang_gui_content: TAction
-      Category = 'System'
-      Caption = 'GUI '#304#231'erikleri'
-      ImageIndex = 35
-      OnExecute = actsys_lang_gui_contentExecute
     end
     object actsys_unit: TAction
       Category = 'System'
@@ -709,13 +670,11 @@ inherited frmDashboard: TfrmDashboard
       Category = 'System'
       Caption = 'Database Monitor'
       ImageIndex = 55
-      OnExecute = actsys_database_statusExecute
     end
     object actsys_do_database_backup: TAction
       Category = 'System'
       Caption = 'Database Backup'
       ImageIndex = 18
-      OnExecute = actsys_do_database_backupExecute
     end
     object actstk_ambarlar: TAction
       Category = 'Stok'
@@ -825,6 +784,12 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 98
       OnExecute = actset_prs_tasima_servisleriExecute
     end
+    object actsys_language: TAction
+      Category = 'System'
+      Caption = 'Language'
+      ImageIndex = 72
+      OnExecute = actsys_languageExecute
+    end
   end
   object tmrcheck_is_update_required: TTimer
     Enabled = False
@@ -839,10 +804,11 @@ inherited frmDashboard: TfrmDashboard
     Top = 144
     object mnimenu_system: TMenuItem
       Caption = 'Sistem'
+      ImageIndex = 76
       object mnisys_user: TMenuItem
         Action = actsys_user
       end
-      object mnisys_user_resources: TMenuItem
+      object mnisys_access_right: TMenuItem
         Action = actsys_access_right
       end
       object mniN8: TMenuItem
@@ -859,9 +825,6 @@ inherited frmDashboard: TfrmDashboard
       end
       object mnisys_grid_filter_sort: TMenuItem
         Action = actsys_grid_filter_sort
-      end
-      object mnisys_lang_gui_content: TMenuItem
-        Action = actsys_lang_gui_content
       end
       object mniN10: TMenuItem
         Caption = '-'
@@ -886,135 +849,140 @@ inherited frmDashboard: TfrmDashboard
         object mniN7: TMenuItem
           Caption = '-'
         end
-        object mnisys_unit_type: TMenuItem
+        object mnisys_uom_type: TMenuItem
           Action = actsys_unit_type
         end
-        object mnisys_unit: TMenuItem
+        object mnisys_uom: TMenuItem
           Action = actsys_unit
         end
         object mnisys_currency: TMenuItem
           Action = actsys_currency
         end
-        object mniN4: TMenuItem
+        object mniN1: TMenuItem
           Caption = '-'
         end
-        object mnisys_month: TMenuItem
-          Action = actsys_month
-        end
-        object mnisys_day: TMenuItem
-          Action = actsys_day
+        object mnisys_language: TMenuItem
+          Action = actsys_language
         end
       end
     end
-    object mnimenu_alim: TMenuItem
+    object mnimenu_purchase: TMenuItem
       Caption = 'Al'#305'mlar'
-      object mnialim_teklif: TMenuItem
+      ImageIndex = 88
+      object mnipur_offer: TMenuItem
         Action = actals_teklifler
       end
-      object mnialim_siparis: TMenuItem
+      object mnipur_order: TMenuItem
         Caption = 'Sipari'#351
       end
-      object mnialim_irsaliye: TMenuItem
+      object mnipur_dispatch_note: TMenuItem
         Caption = #304'rsaliye'
       end
-      object mnialim_fatura: TMenuItem
+      object mnipur_invoice: TMenuItem
         Caption = 'Fatura'
       end
     end
-    object mnimenu_satis: TMenuItem
+    object mnimenu_sales: TMenuItem
       Caption = 'Sat'#305#351'lar'
+      ImageIndex = 93
     end
-    object mnimenu_muhasebe: TMenuItem
+    object mnimenu_accounting: TMenuItem
       Caption = 'Muhasebe'
-      object mnich_bankalar: TMenuItem
+      ImageIndex = 69
+      object mniacc_bank: TMenuItem
         Action = actch_bankalar
       end
-      object mnich_banka_subeleri: TMenuItem
+      object mniacc_bank_branch: TMenuItem
         Action = actch_banka_subeleri
       end
-      object mnimuhasebe_ayarlar: TMenuItem
+      object mniAccountingSubSettings: TMenuItem
         Caption = 'Ayarlar'
-        object mniset_ch_vergi_orani: TMenuItem
+        object mniset_acc_vat_rate: TMenuItem
           Action = actset_ch_vergi_orani
         end
       end
     end
-    object mnimenu_stok: TMenuItem
+    object mnimenu_stock: TMenuItem
       Caption = 'Stoklar'
-      object mnistk_ambarlar: TMenuItem
+      ImageIndex = 83
+      object mnistk_warehouse: TMenuItem
         Action = actstk_ambarlar
       end
-      object mnistk_gruplar: TMenuItem
+      object mnistk_group: TMenuItem
         Action = actstk_gruplar
       end
     end
-    object mnimenu_personel: TMenuItem
+    object mnimenu_employee: TMenuItem
       Caption = 'Personel'
       ImageIndex = 14
-      object mniprs_personeller: TMenuItem
+      object mniprs_persons: TMenuItem
         Action = actprs_personeller
       end
-      object mniprs_ehliyetler: TMenuItem
+      object mniprs_driver_licences: TMenuItem
         Action = actprs_ehliyetler
       end
-      object mniprs_lisan_bilgileri: TMenuItem
+      object mniprs_languages: TMenuItem
         Action = actprs_lisan_bilgileri
       end
-      object mnipersonel_ayarlar: TMenuItem
+      object mniEmployeeSubSettings: TMenuItem
         Caption = 'Ayarlar'
         ImageIndex = 76
-        object mniset_prs_bolumler: TMenuItem
+        object mniset_prs_departments: TMenuItem
           Action = actset_prs_bolumler
         end
-        object mniset_prs_birimller: TMenuItem
+        object mniset_prs_units: TMenuItem
           Action = actset_prs_birimler
         end
-        object mniset_prs_gorevler: TMenuItem
+        object mniset_prs_tasks: TMenuItem
           Action = actset_prs_gorevler
         end
-        object mniset_prs_ehliyetler: TMenuItem
+        object mniset_prs_driver_licences: TMenuItem
           Action = actset_prs_ehliyetler
         end
-        object mniset_prs_lisanlar: TMenuItem
+        object mniset_prs_languages: TMenuItem
           Action = actset_prs_lisanlar
         end
-        object mniset_prs_lisan_seviyeleri: TMenuItem
+        object mniset_prs_language_levels: TMenuItem
           Action = actset_prs_lisan_seviyeleri
         end
-        object mniset_prs_personel_tipleri: TMenuItem
+        object mniset_prs_person_types: TMenuItem
           Action = actset_prs_personel_tipleri
         end
-        object mniset_prs_tasima_servisleri: TMenuItem
+        object mniset_prs_shuttle_services: TMenuItem
           Action = actset_prs_tasima_servisleri
         end
       end
     end
-    object mnimenu_hakkinda: TMenuItem
+    object mnimenu_language: TMenuItem
+      Caption = 'Lisan / Language'
+      ImageIndex = 35
+    end
+    object mnimenu_about: TMenuItem
       Caption = 'Hakk'#305'nda'
       ImageIndex = 34
-      object Hakknda2: TMenuItem
+      object mnisys_about: TMenuItem
         Action = actsys_about
         Caption = 'Hakk'#305'nda'
       end
       object N3: TMenuItem
         Caption = '-'
       end
-      object ifreDeitir1: TMenuItem
+      object mnisys_update_password: TMenuItem
         Action = actsys_update_password
         Caption = #350'ifre De'#287'i'#351'tir'
       end
-      object DatabaseMonitor1: TMenuItem
+      object mnisys_database_status: TMenuItem
         Action = actsys_database_status
         Caption = 'Veri Taban'#305' Monitor'
       end
-      object VeritabanYedekAl1: TMenuItem
+      object mnisys_do_database_backup: TMenuItem
         Action = actsys_do_database_backup
         Caption = 'Veri Taban'#305' Yedek'
       end
       object N2: TMenuItem
         Caption = '-'
       end
-      object Gncelle1: TMenuItem
+      object mnisys_update: TMenuItem
         Action = actsys_update
         Caption = 'G'#252'ncelleme'
       end

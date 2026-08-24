@@ -1,4 +1,4 @@
-﻿inherited frmAccTemsilciGrubuHedefleri: TfrmAccTemsilciGrubuHedefleri
+inherited frmAccTemsilciGrubuHedefleri: TfrmAccTemsilciGrubuHedefleri
   Caption = 'B'#246'lge Hedefler'
   PixelsPerInch = 96
   TextHeight = 13

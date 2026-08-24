@@ -65,7 +65,7 @@ begin
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TEmpUnitService.BusinessInsert(AEntity: TEmpUnit; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -153,18 +153,12 @@ end;
 
 function TEmpUnitService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TEmpUnit>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TEmpUnitService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TEmpUnit;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TEmpUnitService.Add(AEntity: TEmpUnit);

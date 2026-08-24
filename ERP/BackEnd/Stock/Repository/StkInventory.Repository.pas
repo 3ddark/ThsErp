@@ -10,6 +10,7 @@ type
   TStkInventoryRepository = class(TRepository<TStkInventory>)
   public
     constructor Create(AConnection: TFDConnection);
+    procedure Delete(AModel: TStkInventory); override;
   end;
 
 implementation
@@ -17,6 +18,11 @@ implementation
 constructor TStkInventoryRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+procedure TStkInventoryRepository.Delete(AModel: TStkInventory);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

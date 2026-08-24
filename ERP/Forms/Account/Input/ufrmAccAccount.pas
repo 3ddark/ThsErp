@@ -73,7 +73,7 @@ begin
   Table.TaxpayerName := edtaxpayer_name.Text;
   Table.TaxpayerSurname := edtaxpayer_surname.Text;
   Table.TaxNo := edtax_no.Text;
-  Table.TaxOffice := edt_tax_office.Text;
+  Table.TaxOffice := edtax_office.Text;
   Table.IBAN := edtiban.Text;
   Table.Fax := edtfax.Text;
   Table.AccountantPhone := edtaccountant_phone.Text;
@@ -158,7 +158,7 @@ begin
   edtaxpayer_name.Text := Table.TaxpayerName;
   edtaxpayer_surname.Text := Table.TaxpayerSurname;
   edtax_no.Text := Table.TaxNo;
-  edt_tax_office.Text := Table.TaxOffice;
+  edtax_office.Text := Table.TaxOffice;
   edtiban.Text := Table.IBAN;
   edtfax.Text := Table.Fax;
   edtaccountant_phone.Text := Table.AccountantPhone;

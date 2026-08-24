@@ -10,7 +10,7 @@ uses
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   SysCity.Service, SysCity,
   SysCountry.Service, SysCountry, ufrmSysCountries,
-  SysRegion.Service, SysRegion, ufrmSysRegions;
+  SysRegion.Service, SysRegion, ufrmSysRegions, LocalizationManager;
 
 type
   TfrmSysCity = class(TfrmInputSimpleDB<TSysCity, TSysCityService>)
@@ -28,8 +28,8 @@ type
     procedure FormShow(Sender: TObject); override;
   public
     procedure HelperProcess(Sender: TObject);
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -54,10 +54,16 @@ end;
 procedure TfrmSysCity.FormShow(Sender: TObject);
 begin
   inherited;
-
-  Self.Caption := 'System City';
-
+  ApplyLocalization;
   edtCityName.SetFocus;
+end;
+
+procedure TfrmSysCity.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_city.title_singular', 'Şehir');
+  lblCityName.Caption := TLocalizationManager.Translate('sys_city.lbl_name', 'Şehir Adı');
+  lblCountryId.Caption := TLocalizationManager.Translate('sys_city.lbl_country_id', 'Ülke');
 end;
 
 procedure TfrmSysCity.HelperProcess(Sender: TObject);
@@ -116,17 +122,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TfrmSysCity.InitializeInputCase;
-begin
-  inherited;
-  edtCityName.thsInputDataType := itString;
-  edtCarPlateCode.thsInputDataType := itInteger;
-  edtCountryId.thsInputDataType := itInteger;
-  edtRegionId.thsInputDataType := itInteger;
-
-  edtCityName.MaxLength := 32;
 end;
 
 procedure TfrmSysCity.RefreshData;

@@ -2,31 +2,65 @@ unit SysPermission;
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes, SysPermissionGroup;
+uses
+  SysUtils, Classes, Types, Entity, EntityAttributes, System.Generics.Collections,
+  SysPermissionGroup, SysLanguage;
 
 type
-  [Table('sys_permission')]
+  TSysPermission = class;
+
+  [Table('sys_permission_translation', 'public')]
+  TSysPermissionTranslation = class(TEntityBase)
+  private
+    FPermissionId: Int64;
+    FLanguageId: Int64;
+    FName: string;
+
+    FPermission: TSysPermission;
+    FLanguage: TSysLanguage;
+  public
+    [Column('sys_permission_id', [cpPrimaryKey])]
+    property PermissionId: Int64 read FPermissionId write FPermissionId;
+
+    [Column('sys_language_id', [cpPrimaryKey])]
+    property LanguageId: Int64 read FLanguageId write FLanguageId;
+
+    [Column('name')]
+    property Name: string read FName write FName;
+
+    [BelongsTo('PermissionId')]
+    property Permission: TSysPermission read FPermission write FPermission;
+
+    [BelongsTo('LanguageId')]
+    property Language: TSysLanguage read FLanguage write FLanguage;
+  end;
+
+  [Table('sys_permission', 'public')]
   TSysPermission = class(TEntity)
   private
     FCode: Integer;
-    FName: string;
+    FKey: string;
     FGroupId: Int64;
-    FPermissionGroup: TSysPermissionGroup;
+    FGroup: TSysPermissionGroup;
+    FTranslations: TObjectList<TSysPermissionTranslation>;
   public
-    [Column('code'), Required()]
+    constructor Create; override;
+    destructor Destroy; override;
+
+    [Column('code', [cpNotNull])]
     property Code: Integer read FCode write FCode;
 
-    [Column('name'), MaxLength(64), Required()]
-    property Name: string read FName write FName;
+    [Column('key', [cpNotNull])]
+    property Key: string read FKey write FKey;
 
-    [Column('group_id')]
+    [Column('group_id', [cpNotNull])]
     property GroupId: Int64 read FGroupId write FGroupId;
 
-    [BelongsTo('GroupId')]
-    property PermissionGroup: TSysPermissionGroup read FPermissionGroup write FPermissionGroup;
+    [BelongsTo('GroupId', 'Id')]
+    property Group: TSysPermissionGroup read FGroup write FGroup;
 
-    constructor Create(); override;
-    destructor Destroy; override;
+    [HasMany('PermissionId', 'Id')]
+    property Translations: TObjectList<TSysPermissionTranslation> read FTranslations write FTranslations;
   end;
 
 implementation
@@ -34,13 +68,14 @@ implementation
 constructor TSysPermission.Create();
 begin
   inherited;
+  FGroup        := TSysPermissionGroup.Create;
+  FTranslations := TObjectList<TSysPermissionTranslation>.Create(True);
 end;
 
 destructor TSysPermission.Destroy;
 begin
-  if Assigned(FPermissionGroup) then
-    FreeAndNil(FPermissionGroup);
-
+  FreeAndNil(FGroup);
+  FreeAndNil(FTranslations);
   inherited;
 end;
 

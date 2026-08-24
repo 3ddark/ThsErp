@@ -11,6 +11,7 @@ type
   public
     constructor Create(AConnection: TFDConnection);
     function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+    procedure Delete(AModel: TAccTransferCode); override;
   end;
 
 implementation
@@ -28,6 +29,11 @@ begin
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
   Result.SQL.Text := 'SELECT * FROM vw_' + LTableName + ' WHERE 1=1 ';
+end;
+
+procedure TAccTransferCodeRepository.Delete(AModel: TAccTransferCode);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

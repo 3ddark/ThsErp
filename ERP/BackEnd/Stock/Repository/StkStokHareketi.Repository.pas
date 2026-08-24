@@ -10,6 +10,7 @@ type
   TStkStokHareketiRepository = class(TRepository<TStkStokHareketi>)
   public
     constructor Create(AConnection: TFDConnection);
+    procedure Delete(AModel: TStkStokHareketi; ACascade: TCascadeOperations = []); override;
   end;
 
 implementation
@@ -17,6 +18,11 @@ implementation
 constructor TStkStokHareketiRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+procedure TStkStokHareketiRepository.Delete(AModel: TStkStokHareketi; ACascade: TCascadeOperations);
+begin
+  Delete(AModel.Id, ACascade);
 end;
 
 end.

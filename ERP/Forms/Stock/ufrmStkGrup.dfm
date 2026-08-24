@@ -5,7 +5,7 @@ inherited frmStkGrup: TfrmStkGrup
   Caption = 'Stok Grubu'
   ClientHeight = 293
   ClientWidth = 534
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 550
   ExplicitHeight = 332
   TextHeight = 14

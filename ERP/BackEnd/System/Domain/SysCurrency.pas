@@ -1,4 +1,4 @@
-﻿unit SysCurrency;
+unit SysCurrency;
 
 interface
 

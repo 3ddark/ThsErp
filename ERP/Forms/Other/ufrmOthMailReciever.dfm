@@ -5,7 +5,7 @@ inherited frmOthMailReciever: TfrmOthMailReciever
   Caption = 'Kalite Formlar'#305' Mail Al'#305'c'#305's'#305
   ClientHeight = 123
   ClientWidth = 342
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   Position = poDesktopCenter
   ExplicitWidth = 358
   ExplicitHeight = 162
@@ -39,7 +39,7 @@ inherited frmOthMailReciever: TfrmOthMailReciever
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

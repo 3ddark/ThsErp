@@ -18,6 +18,7 @@ type
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysCountry>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysCountry; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TSysCountry; override;
     procedure Add(AEntity: TSysCountry); override;
     procedure Update(AEntity: TSysCountry); override;
     procedure Delete(AId: Int64); override;
@@ -58,11 +59,8 @@ end;
 
 function TSysCountryService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysCountry;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
@@ -154,18 +152,17 @@ end;
 
 function TSysCountryService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysCountry>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TSysCountryService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysCountry;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
+end;
+
+function TSysCountryService.FindOne(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TSysCountry;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
 end;
 
 procedure TSysCountryService.Add(AEntity: TSysCountry);

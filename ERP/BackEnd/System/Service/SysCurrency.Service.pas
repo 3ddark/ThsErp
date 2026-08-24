@@ -154,18 +154,12 @@ end;
 
 function TSysCurrencyService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysCurrency>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TSysCurrencyService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysCurrency;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+   Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TSysCurrencyService.Add(AEntity: TSysCurrency);

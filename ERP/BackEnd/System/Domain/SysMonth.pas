@@ -1,4 +1,4 @@
-﻿unit SysMonth;
+unit SysMonth;
 
 interface
 
@@ -13,7 +13,7 @@ type
     [Column('month_name'), MaxLength(16), Required()]
     property MonthName: string read FMonthName write FMonthName;
 
-    constructor Create(); override;
+    constructor Create();
     destructor Destroy; override;
   end;
 

@@ -7,7 +7,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysAddress.Service, SysAddress, SysCity, SysCity.Service;
+  SysAddress.Service, SysAddress, SysCity, SysCity.Service, LocalizationManager;
 
 type
   TfrmSysAddress = class(TfrmInputSimpleDB<TSysAddress, TSysAddressService>)
@@ -41,8 +41,8 @@ type
     procedure FormShow(Sender: TObject); override;
   public
     procedure HelperProcess(Sender: TObject);
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -106,19 +106,18 @@ begin
   edtCityId.OnHelperProcess := HelperProcess;
 end;
 
-procedure TfrmSysAddress.InitializeInputCase;
-begin
-  inherited;
-  edtCityId.thsInputDataType := itInteger;
-  edtDoorNumber.thsInputDataType := itInteger;
-  edtZipCode.thsInputDataType := itInteger;
-end;
-
 procedure TfrmSysAddress.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Address';
+  ApplyLocalization;
   edtDistrict.SetFocus;
+end;
+
+procedure TfrmSysAddress.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_address.title_singular', 'Adres');
+  lblCityId.Caption := TLocalizationManager.Translate('sys_address.lbl_city', 'Şehir');
 end;
 
 procedure TfrmSysAddress.RefreshData;

@@ -5,7 +5,7 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
   Caption = #304'stisna Kodu'
   ClientHeight = 196
   ClientWidth = 344
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 360
   ExplicitHeight = 235
   TextHeight = 14
@@ -36,7 +36,7 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -52,7 +52,7 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -68,7 +68,7 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -84,7 +84,7 @@ inherited frmSetEinvIstisnaKodu: TfrmSetEinvIstisnaKodu
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

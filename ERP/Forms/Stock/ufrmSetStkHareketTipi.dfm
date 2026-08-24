@@ -5,7 +5,7 @@ inherited frmSetStkHareketTipi: TfrmSetStkHareketTipi
   Caption = 'Ayar Stok Hareket Tipi'
   ClientHeight = 171
   ClientWidth = 344
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 350
   ExplicitHeight = 200
   PixelsPerInch = 96
@@ -35,7 +35,7 @@ inherited frmSetStkHareketTipi: TfrmSetStkHareketTipi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -51,7 +51,7 @@ inherited frmSetStkHareketTipi: TfrmSetStkHareketTipi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

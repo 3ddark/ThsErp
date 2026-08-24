@@ -1,4 +1,4 @@
-﻿inherited frmAccFasonMarkalari: TfrmAccFasonMarkalari
+inherited frmAccFasonMarkalari: TfrmAccFasonMarkalari
   Caption = 'Set Ch Fason Markalar'
   ClientHeight = 311
   ClientWidth = 548

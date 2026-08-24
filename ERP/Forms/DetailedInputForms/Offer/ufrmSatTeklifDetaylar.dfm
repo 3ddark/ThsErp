@@ -57,7 +57,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -71,7 +71,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -85,7 +85,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -99,7 +99,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -113,7 +113,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -127,7 +127,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -141,7 +141,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -155,7 +155,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -169,7 +169,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -183,7 +183,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -197,7 +197,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -211,7 +211,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
             WordWrap = True
@@ -226,7 +226,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -240,7 +240,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -255,7 +255,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentBiDiMode = False
             ParentFont = False
@@ -271,7 +271,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentBiDiMode = False
             ParentFont = False
@@ -287,7 +287,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentBiDiMode = False
             ParentFont = False
@@ -303,7 +303,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentBiDiMode = False
             ParentFont = False
@@ -319,7 +319,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentBiDiMode = False
             ParentFont = False
@@ -335,7 +335,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentBiDiMode = False
             ParentFont = False
@@ -351,7 +351,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentBiDiMode = False
             ParentFont = False
@@ -367,7 +367,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentBiDiMode = False
             ParentFont = False
@@ -383,7 +383,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentBiDiMode = False
             ParentFont = False
@@ -398,7 +398,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -412,7 +412,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -426,7 +426,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -440,7 +440,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
             WordWrap = True
@@ -455,7 +455,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -469,7 +469,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -696,7 +696,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
             WordWrap = True
@@ -711,7 +711,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
             WordWrap = True
@@ -726,7 +726,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
             WordWrap = True
@@ -741,7 +741,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
             WordWrap = True
@@ -756,7 +756,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
             WordWrap = True
@@ -771,7 +771,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
             WordWrap = True
@@ -786,7 +786,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
             WordWrap = True
@@ -800,7 +800,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -16
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -814,7 +814,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -828,7 +828,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -842,7 +842,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end
@@ -855,7 +855,7 @@ inherited frmSatTeklifDetaylar: TfrmSatTeklifDetaylar
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -16
-            Font.Name = 'MS Sans Serif'
+            Font.Name = 'Tahoma'
             Font.Style = [fsBold]
             ParentFont = False
           end

@@ -10,6 +10,7 @@ type
   TStkWarehouseRepository = class(TRepository<TStkWarehouse>)
   public
     constructor Create(AConnection: TFDConnection);
+    procedure Delete(AModel: TStkWarehouse); override;
   end;
 
 implementation
@@ -17,6 +18,11 @@ implementation
 constructor TStkWarehouseRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+procedure TStkWarehouseRepository.Delete(AModel: TStkWarehouse);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

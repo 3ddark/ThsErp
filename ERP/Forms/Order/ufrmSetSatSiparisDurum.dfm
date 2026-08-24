@@ -5,7 +5,7 @@ inherited frmSetSatSiparisDurum: TfrmSetSatSiparisDurum
   Caption = 'Sipari'#351' Durum'
   ClientHeight = 173
   ClientWidth = 342
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 358
   ExplicitHeight = 212
   TextHeight = 13
@@ -35,7 +35,7 @@ inherited frmSetSatSiparisDurum: TfrmSetSatSiparisDurum
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -51,7 +51,7 @@ inherited frmSetSatSiparisDurum: TfrmSetSatSiparisDurum
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

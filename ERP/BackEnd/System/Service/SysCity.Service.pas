@@ -18,6 +18,8 @@ type
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysCity>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysCity; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TSysCity; override;
+
     procedure Add(AEntity: TSysCity); override;
     procedure Update(AEntity: TSysCity); override;
     procedure Delete(AId: Int64); override;
@@ -44,11 +46,8 @@ end;
 
 function TSysCityService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysCity>;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
@@ -57,25 +56,18 @@ end;
 
 function TSysCityService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysCity;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TSysCityService.BusinessInsert(AEntity: TSysCity; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -97,11 +89,7 @@ end;
 procedure TSysCityService.BusinessUpdate(AEntity: TSysCity; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -123,11 +111,7 @@ end;
 procedure TSysCityService.BusinessDelete(AEntity: TSysCity; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -153,18 +137,17 @@ end;
 
 function TSysCityService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysCity>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TSysCityService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysCity;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
+end;
+
+function TSysCityService.FindOne(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TSysCity;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
 end;
 
 procedure TSysCityService.Add(AEntity: TSysCity);

@@ -60,7 +60,7 @@ begin
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TAccTransferCodeService.BusinessInsert(AEntity: TAccTransferCode; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -139,18 +139,12 @@ end;
 
 function TAccTransferCodeService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TAccTransferCode>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TAccTransferCodeService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccTransferCode;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TAccTransferCodeService.Add(AEntity: TAccTransferCode);

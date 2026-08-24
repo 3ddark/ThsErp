@@ -45,12 +45,9 @@ end;
 
 procedure TfrmAccAccountsLookup.FormShow(Sender: TObject);
 begin
+  Qry.SQL.Add(' AND (code LIKE ''%-%%-%%'' OR code LIKE ''%-%'')');
   inherited;
   Self.Caption := 'Select Account';
-  // Filter for intermediate/root accounts only (type = Ara)
-  QryFiltreVarsayilanKullanici :=
-    ' AND (' + TAccAccount(Table).Code.FieldName + ' LIKE ''%-%%-%%'' OR ' +
-             TAccAccount(Table).Code.FieldName + ' LIKE ''%-%'' )';
 end;
 
 end.

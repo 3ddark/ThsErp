@@ -5,7 +5,7 @@ inherited frmSetChVergiOrani: TfrmSetChVergiOrani
   Caption = 'Ayar Cari Hesap Vergi Oran'#305
   ClientHeight = 207
   ClientWidth = 539
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   Position = poDesktopCenter
   ExplicitWidth = 555
   ExplicitHeight = 246

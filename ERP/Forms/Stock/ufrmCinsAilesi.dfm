@@ -5,7 +5,7 @@ inherited frmCinsAilesi: TfrmCinsAilesi
   Caption = 'Cins Ailesi'
   ClientHeight = 121
   ClientWidth = 344
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   Position = poDesktopCenter
   ExplicitWidth = 350
   ExplicitHeight = 150
@@ -38,7 +38,7 @@ inherited frmCinsAilesi: TfrmCinsAilesi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

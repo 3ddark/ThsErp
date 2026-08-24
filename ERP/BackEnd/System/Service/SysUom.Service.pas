@@ -4,8 +4,9 @@ interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  SysUom.Repository, SysUom;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext,
+  SysUom.Repository, SysUom, SysUom.Exception;
 
 type
   TSysUomService = class(TCrudService<TSysUom>)
@@ -15,9 +16,14 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TSysUom; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysUom>; override;
-    function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysUom; override;
+
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysUom>; override;
+    function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysUom; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TSysUom; override;
+
     procedure Add(AEntity: TSysUom); override;
     procedure Update(AEntity: TSysUom); override;
     procedure Delete(AId: Int64); override;
@@ -35,48 +41,55 @@ constructor TSysUomService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysUom, TSysUomRepository>;
+  Self.PermissionCode := 1;
 end;
 
 destructor TSysUomService.Destroy;
 begin
-  FRepo := nil;
   inherited;
 end;
 
 function TSysUomService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysUom>;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
-
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+    begin
+      Self.UoW.Rollback;
+    end;
+    raise;
+  end;
 end;
 
 function TSysUomService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysUom;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+    begin
+      Self.UoW.Rollback;
+    end;
+    raise;
+  end;
 end;
 
 procedure TSysUomService.BusinessInsert(AEntity: TSysUom; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
+
+    ValidateAll(AEntity, coInsert);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -89,8 +102,10 @@ begin
     on E: Exception do
     begin
       if Uow.InTransaction then
+      begin
         Self.UoW.Rollback;
-      raise
+      end;
+      raise;
     end;
   end;
 end;
@@ -98,11 +113,9 @@ end;
 procedure TSysUomService.BusinessUpdate(AEntity: TSysUom; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
+
+    ValidateAll(AEntity, coUpdate);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -115,7 +128,9 @@ begin
     on E: Exception do
     begin
       if Self.UoW.InTransaction then
+      begin
         Self.UoW.Rollback;
+      end;
       raise;
     end;
   end;
@@ -124,11 +139,9 @@ end;
 procedure TSysUomService.BusinessDelete(AEntity: TSysUom; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
+
+    ValidateAll(AEntity, coDelete);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -141,7 +154,9 @@ begin
     on E: Exception do
     begin
       if Self.UoW.InTransaction then
+      begin
         Self.UoW.Rollback;
+      end;
       raise;
     end;
   end;
@@ -152,20 +167,19 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TSysUomService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysUom>;
+function TSysUomService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TSysUom>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysUomService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysUom;
+function TSysUomService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TSysUom;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
+end;
+
+function TSysUomService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysUom;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
 end;
 
 procedure TSysUomService.Add(AEntity: TSysUom);
@@ -181,6 +195,31 @@ end;
 procedure TSysUomService.Delete(AId: Int64);
 begin
   FRepo.Delete(AId);
+end;
+
+procedure TSysUomService.ValidateBusinessRules(AEntity: TSysUom; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TSysUom;
+begin
+  //check unique
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('unit_code', '=', TValue.From<string>(AEntity.UnitCode)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      if Assigned(LModel) then
+        raise ESysUomExceptionUnitCodeUnique.Create;
+    finally
+      LFilter.Free;
+      if Assigned(LModel) then
+        LModel.Free;
+    end;
+  end;
 end;
 
 end.

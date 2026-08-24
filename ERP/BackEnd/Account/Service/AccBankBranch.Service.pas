@@ -18,6 +18,8 @@ type
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TAccBankBranch>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TAccBankBranch; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TAccBankBranch; override;
+
     procedure Add(AEntity: TAccBankBranch); override;
     procedure Update(AEntity: TAccBankBranch); override;
     procedure Delete(AId: Int64); override;
@@ -60,7 +62,7 @@ begin
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  Result := FRepo.FindById(AId, ALock);
 end;
 
 procedure TAccBankBranchService.BusinessInsert(AEntity: TAccBankBranch; AWithBegin, AWithCommit, APermissionControl: Boolean);
@@ -139,18 +141,17 @@ end;
 
 function TAccBankBranchService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TAccBankBranch>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
 function TAccBankBranchService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccBankBranch;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
+end;
+
+function TAccBankBranchService.FindOne(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TAccBankBranch;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
 end;
 
 procedure TAccBankBranchService.Add(AEntity: TAccBankBranch);

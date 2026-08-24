@@ -1,4 +1,4 @@
-﻿unit SysViewColumn.Repository;
+unit SysViewColumn.Repository;
 
 interface
 
@@ -11,6 +11,7 @@ type
   public
     constructor Create(AConnection: TFDConnection);
     function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+    procedure Delete(AModel: TSysViewColumn); override;
   end;
 
 implementation
@@ -27,6 +28,11 @@ begin
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
   Result.SQL.Text := 'SELECT * FROM vw_' + LTableName + ' WHERE 1=1 ';
+end;
+
+procedure TSysViewColumnRepository.Delete(AModel: TSysViewColumn);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

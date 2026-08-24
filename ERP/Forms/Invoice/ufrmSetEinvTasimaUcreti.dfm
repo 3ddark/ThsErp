@@ -5,7 +5,7 @@ inherited frmSetEinvTasimaUcreti: TfrmSetEinvTasimaUcreti
   Caption = 'Ta'#351#305'ma '#220'creti'
   ClientHeight = 144
   ClientWidth = 344
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 360
   ExplicitHeight = 183
   TextHeight = 13
@@ -35,7 +35,7 @@ inherited frmSetEinvTasimaUcreti: TfrmSetEinvTasimaUcreti
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

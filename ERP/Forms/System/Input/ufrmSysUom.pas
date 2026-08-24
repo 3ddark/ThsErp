@@ -1,4 +1,4 @@
-unit ufrmSysUom;
+﻿unit ufrmSysUom;
 
 interface
 
@@ -9,30 +9,33 @@ uses
   ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   SysUom.Service, SysUom,
-  SysUomType.Service, SysUomType, ufrmSysUomTypes;
+  SysUomGroup.Service, SysUomGroup, ufrmSysUomGroups,
+  SysLanguage, LocalizationManager;
 
 type
   TfrmSysUom = class(TfrmInputSimpleDB<TSysUom, TSysUomService>)
     pnlContent: TPanel;
-    edtMultiplier: TEdit;
-    chkDecimal: TCheckBox;
-    edtMeasureTypeId: TEdit;
-    edtDescription: TEdit;
-    edtUnitEInv: TEdit;
-    edtUnit: TEdit;
-    lblMultiplier: TLabel;
-    lblDecimal: TLabel;
-    lblMeasureTypeId: TLabel;
-    lblDescription: TLabel;
-    lblUnitEInv: TLabel;
     lblUnit: TLabel;
+    edtUnit: TEdit;
+    lblUnitEInv: TLabel;
+    edtUnitEInv: TEdit;
+    lblDescriptionEN: TLabel;
+    edtDescriptionEN: TEdit;
+    lblDescriptionTR: TLabel;
+    edtDescriptionTR: TEdit;
+    lblDecimal: TLabel;
+    chkDecimal: TCheckBox;
+    lblMeasureTypeId: TLabel;
+    edtMeasureTypeId: TEdit;
+    lblMultiplier: TLabel;
+    edtMultiplier: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
     procedure HelperProcess(Sender: TObject);
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -40,13 +43,48 @@ implementation
 {$R *.dfm}
 
 procedure TfrmSysUom.BtnAcceptClick(Sender: TObject);
+  procedure SetOrAddTranslation(ALangId: Int64; const ALocale, ADesc: string);
+  var
+    i: Integer;
+    LTrans: TSysUomTranslation;
+    LFound: Boolean;
+  begin
+    LFound := False;
+    if Assigned(Table.Translations) then
+    begin
+      for i := 0 to Table.Translations.Count - 1 do
+      begin
+        if (Assigned(Table.Translations[i].Language) and SameText(Table.Translations[i].Language.Locale, ALocale))
+        or (Table.Translations[i].SysLanguageId = ALangId) then
+        begin
+          Table.Translations[i].Name := ADesc;
+          LFound := True;
+          Break;
+        end;
+      end;
+    end;
+
+    if not LFound and (Trim(ADesc) <> '') then
+    begin
+      LTrans := TSysUomTranslation.Create;
+      LTrans.SysUomId := Table.Id;
+      LTrans.SysLanguageId := ALangId;
+      LTrans.Name := ADesc;
+      LTrans.Language := TSysLanguage.Create;
+      LTrans.Language.Id := ALangId;
+      LTrans.Language.Locale := ALocale;
+      Table.Translations.Add(LTrans);
+    end;
+  end;
 begin
-  Table._Unit := edtUnit.Text;
+  Table.UnitCode := edtUnit.Text;
   Table.UnitEInv := edtUnitEInv.Text;
-  Table.Description := edtDescription.Text;
   Table.Decimal := chkDecimal.Checked;
-  Table.MeasureType.MeasureType := edtMeasureTypeId.Text;
-  Table.Multiplier := StrToIntDef(edtMultiplier.Text, 0);
+  Table.Multiplier := StrToIntDef(edtMultiplier.Text, 1);
+
+  SetOrAddTranslation(CLangID_EN, CLangLocaleEN, edtDescriptionEN.Text);
+  SetOrAddTranslation(CLangID_TR, CLangLocaleTR, edtDescriptionTR.Text);
+
   inherited;
 end;
 
@@ -60,10 +98,21 @@ end;
 procedure TfrmSysUom.FormShow(Sender: TObject);
 begin
   inherited;
-
-  Self.Caption := 'System Unit of Measurement';
-
+  ApplyLocalization;
   edtUnit.SetFocus;
+end;
+
+procedure TfrmSysUom.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_uom.title.singular', 'Ölçü Birimi');
+  lblUnit.Caption := TLocalizationManager.Translate('sys_uom.unit_code', 'Birim Kodu');
+  lblUnitEInv.Caption := TLocalizationManager.Translate('sys_uom.unit_einv', 'E-Fatura Birim Kodu');
+  lblDescriptionEN.Caption := TLocalizationManager.Translate('sys_uom.desc_en', 'Açıklama (İngilizce)');
+  lblDescriptionTR.Caption := TLocalizationManager.Translate('sys_uom.desc_tr', 'Açıklama (Türkçe)');
+  lblDecimal.Caption := TLocalizationManager.Translate('sys_uom.decimal', 'Ondalıklı');
+  lblMeasureTypeId.Caption := TLocalizationManager.Translate('sys_uom.measure_type', 'Ölçü Birimi Tipi');
+  lblMultiplier.Caption := TLocalizationManager.Translate('sys_uom.multiplier', 'Çarpan');
 end;
 
 procedure TfrmSysUom.HelperProcess(Sender: TObject);
@@ -74,7 +123,7 @@ begin
   begin
     if (Sender as TEdit).Name = edtMeasureTypeId.Name then
     begin
-      LFrm := TfrmSysUomTypes.Create((Sender as TEdit), TSysUomTypeService.Create, TSysUomType.Create);
+      LFrm := TfrmSysUomTypes.Create((Sender as TEdit), TSysUomGroupService.Create, TSysUomGroup.Create);
       try
         LFrm.IsHelper := True;
         LFrm.ShowModal;
@@ -82,13 +131,13 @@ begin
         begin
           if LFrm.CleanAndClose then
           begin
-            Table.MeasureTypeId := 0;
+            Table.GroupId := 0;
             (Sender as TEdit).Clear;
           end
           else
           begin
-            Table.MeasureTypeId := LFrm.Table.Id;
-            (Sender as TEdit).Text := LFrm.Table.MeasureType;
+            Table.GroupId := LFrm.Table.Id;
+            (Sender as TEdit).Text := LFrm.Table.Key;
           end;
         end;
       finally
@@ -98,24 +147,43 @@ begin
   end;
 end;
 
-procedure TfrmSysUom.InitializeInputCase;
-begin
-  inherited;
-  edtUnit.thsInputDataType := itString;
-  edtUnitEInv.thsInputDataType := itString;
-  edtDescription.thsInputDataType := itString;
-  edtMeasureTypeId.thsInputDataType := itInteger;
-end;
-
 procedure TfrmSysUom.RefreshData;
+var
+  i: Integer;
 begin
   inherited;
-  edtUnit.Text := Table._Unit;
+  edtUnit.Text := Table.UnitCode;
   edtUnitEInv.Text := Table.UnitEInv;
-  edtDescription.Text := Table.Description;
+  edtDescriptionEN.Text := '';
+  edtDescriptionTR.Text := '';
   chkDecimal.Checked := Table.Decimal;
-  edtMeasureTypeId.Text := Table.MeasureType.MeasureType;
   edtMultiplier.Text := Table.Multiplier.ToString;
+
+  if Assigned(Table.Translations) then
+  begin
+    for i := 0 to Table.Translations.Count - 1 do
+    begin
+      if Assigned(Table.Translations[i].Language) then
+      begin
+        if SameText(Table.Translations[i].Language.Locale, CLangLocaleEN) then
+          edtDescriptionEN.Text := Table.Translations[i].Name
+        else if SameText(Table.Translations[i].Language.Locale, CLangLocaleTR) then
+          edtDescriptionTR.Text := Table.Translations[i].Name;
+      end
+      else
+      begin
+        if Table.Translations[i].SysLanguageId = CLangID_EN then
+          edtDescriptionEN.Text := Table.Translations[i].Name
+        else if Table.Translations[i].SysLanguageId = CLangID_TR then
+          edtDescriptionTR.Text := Table.Translations[i].Name;
+      end;
+    end;
+  end;
+
+  if Assigned(Table.SysUomGroup) then
+    edtMeasureTypeId.Text := Table.SysUomGroup.Key
+  else
+    edtMeasureTypeId.Text := '';
 end;
 
 end.

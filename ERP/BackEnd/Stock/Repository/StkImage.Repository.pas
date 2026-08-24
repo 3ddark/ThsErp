@@ -10,6 +10,7 @@ type
   TStkImageRepository = class(TRepository<TStkImage>)
   public
     constructor Create(AConnection: TFDConnection);
+    procedure Delete(AModel: TStkImage); override;
   end;
 
 implementation
@@ -17,6 +18,11 @@ implementation
 constructor TStkImageRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+procedure TStkImageRepository.Delete(AModel: TStkImage);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

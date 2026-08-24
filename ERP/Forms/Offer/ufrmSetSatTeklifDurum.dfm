@@ -5,7 +5,7 @@ inherited frmSetSatTeklifDurum: TfrmSetSatTeklifDurum
   Caption = 'Teklif Durum'
   ClientHeight = 162
   ClientWidth = 358
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   ExplicitWidth = 374
   ExplicitHeight = 201
   TextHeight = 13
@@ -35,7 +35,7 @@ inherited frmSetSatTeklifDurum: TfrmSetSatTeklifDurum
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -51,7 +51,7 @@ inherited frmSetSatTeklifDurum: TfrmSetSatTeklifDurum
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

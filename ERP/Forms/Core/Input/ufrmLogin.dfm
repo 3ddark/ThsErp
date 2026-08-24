@@ -2,7 +2,7 @@ inherited frmLogin: TfrmLogin
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'System Login'
-  ClientHeight = 212
+  ClientHeight = 220
   ClientWidth = 484
   Icon.Data = {
     000001000200101000000100200068040000260000002020000001002000A810
@@ -177,12 +177,12 @@ inherited frmLogin: TfrmLogin
     80FFFF8080FFFFFF80FFFFFFFEFFFFFFFFFFFFFFFFFF}
   Position = poScreenCenter
   ExplicitWidth = 500
-  ExplicitHeight = 251
+  ExplicitHeight = 259
   TextHeight = 13
   inherited pnlMain: TPanel
     Width = 484
-    Height = 162
-    ExplicitWidth = 484
+    Height = 170
+    ExplicitWidth = 482
     ExplicitHeight = 162
     object lblusername: TLabel
       Left = 100
@@ -200,7 +200,7 @@ inherited frmLogin: TfrmLogin
     end
     object lbluser_password: TLabel
       Left = 104
-      Top = 27
+      Top = 29
       Width = 54
       Height = 13
       Alignment = taRightJustify
@@ -313,7 +313,7 @@ inherited frmLogin: TfrmLogin
     end
     object lblprocess_id: TLabel
       Left = 41
-      Top = 82
+      Top = 112
       Width = 113
       Height = 13
       Alignment = taRightJustify
@@ -329,14 +329,14 @@ inherited frmLogin: TfrmLogin
     end
     object lblprocess_id_val: TLabel
       Left = 160
-      Top = 82
+      Top = 112
       Width = 81
       Height = 13
       Caption = 'lblprocess_id_val'
     end
     object lblip_address: TLabel
       Left = 93
-      Top = 96
+      Top = 126
       Width = 61
       Height = 13
       Alignment = taRightJustify
@@ -352,14 +352,14 @@ inherited frmLogin: TfrmLogin
     end
     object lblip_address_val: TLabel
       Left = 160
-      Top = 96
+      Top = 126
       Width = 82
       Height = 13
       Caption = 'lblip_address_val'
     end
     object lblversion: TLabel
       Left = 112
-      Top = 68
+      Top = 98
       Width = 42
       Height = 13
       Alignment = taRightJustify
@@ -375,14 +375,14 @@ inherited frmLogin: TfrmLogin
     end
     object lblversion_val: TLabel
       Left = 160
-      Top = 68
+      Top = 98
       Width = 65
       Height = 13
       Caption = 'lblversion_val'
     end
     object lbltheme: TLabel
       Left = 38
-      Top = 49
+      Top = 53
       Width = 120
       Height = 13
       Alignment = taRightJustify
@@ -402,9 +402,24 @@ inherited frmLogin: TfrmLogin
       Height = 324
       Proportional = True
     end
+    object lbllanguage: TLabel
+      Left = 39
+      Top = 77
+      Width = 120
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Language'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
     object cbbtheme: TComboBox
       Left = 160
-      Top = 46
+      Top = 50
       Width = 145
       Height = 21
       Style = csDropDownList
@@ -424,7 +439,7 @@ inherited frmLogin: TfrmLogin
     end
     object edtuser_password: TEdit
       Left = 160
-      Top = 24
+      Top = 26
       Width = 145
       Height = 21
       PasswordChar = '#'
@@ -479,30 +494,41 @@ inherited frmLogin: TfrmLogin
       Height = 17
       TabOrder = 8
     end
+    object cbblanguage: TComboBox
+      Left = 160
+      Top = 74
+      Width = 145
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 9
+      Items.Strings = (
+        'English en-US'
+        'T'#252'rk'#231'e tr-TR')
+    end
   end
   inherited pnlBottom: TPanel
-    Top = 164
+    Top = 172
     Width = 480
     TabOrder = 2
     ExplicitTop = 164
-    ExplicitWidth = 480
+    ExplicitWidth = 478
     inherited btnAccept: TButton
       Left = 274
       Caption = 'Login'
       HotImageIndex = 62
       ImageIndex = 62
-      ExplicitLeft = 274
+      ExplicitLeft = 272
     end
     inherited btnClose: TButton
       Left = 378
-      ExplicitLeft = 378
+      ExplicitLeft = 376
     end
   end
   inherited stbBase: TStatusBar
-    Top = 194
+    Top = 202
     Width = 484
     ExplicitTop = 194
-    ExplicitWidth = 484
+    ExplicitWidth = 482
   end
   object pb1: TProgressBar
     Left = 136

@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysPermission.Service, SysPermission, ufrmSysPermission;
+  SharedFormTypes, SysPermission.Service, SysPermission, ufrmSysPermission,
+  LocalizationManager;
 
 type
   TfrmSysPermissions = class(TfrmGrid<TSysPermission, TSysPermissionService>)
@@ -14,6 +15,7 @@ type
     procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -33,10 +35,15 @@ end;
 
 procedure TfrmSysPermissions.DefineColumnWidths;
 begin
-  SetColumnProperty('id',           0, 'Id');
-  SetColumnProperty('permission_code', 120, 'Permission Code');
-  SetColumnProperty('permission_name', 300, 'Permission Name');
-  SetColumnProperty('permission_group_id', 120, 'Group ID');
+  inherited;
+  SetColumnProperty('id',          0, TLocalizationManager.Translate('sys_permission.col_id', 'Id'));
+  SetColumnProperty('code',      100, TLocalizationManager.Translate(TLangKeys.TPermission.ColCode, 'Permission Code'));
+  SetColumnProperty('key',       150, TLocalizationManager.Translate(TLangKeys.TPermission.ColKey, 'Key'));
+  SetColumnProperty('name',      250, TLocalizationManager.Translate(TLangKeys.TPermission.ColName, 'Permission Name'));
+  SetColumnProperty('group_id',    0, TLocalizationManager.Translate('sys_permission.col_group_id', 'Group ID'));
+  SetColumnProperty('group_key', 120, TLocalizationManager.Translate(TLangKeys.TPermission.ColGroupKey, 'Group Key'));
+  SetColumnProperty('group_name', 200, TLocalizationManager.Translate(TLangKeys.TPermission.ColGroupName, 'Group Name'));
+  SetColumnProperty('locale',      0, TLocalizationManager.Translate('sys_permission.col_locale', 'Locale'));
 end;
 
 procedure TfrmSysPermissions.DefineFooterColumns;
@@ -47,7 +54,14 @@ end;
 procedure TfrmSysPermissions.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Permissions';
+  mniDuplicate.Visible := True;
+  ApplyLocalization;
+end;
+
+procedure TfrmSysPermissions.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TPermission.TitlePlural, 'Permissions');
 end;
 
 end.

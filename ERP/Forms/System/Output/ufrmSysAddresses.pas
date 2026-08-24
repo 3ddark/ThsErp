@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysAddress.Service, SysAddress, ufrmSysAddress;
+  SharedFormTypes, SysAddress.Service, SysAddress, ufrmSysAddress, LocalizationManager;
 
 type
   TfrmSysAddresses = class(TfrmGrid<TSysAddress, TSysAddressService>)
@@ -14,6 +14,7 @@ type
     procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -33,25 +34,33 @@ end;
 
 procedure TfrmSysAddresses.DefineColumnWidths;
 begin
-  SetColumnProperty('id',           0, 'Id');
-  SetColumnProperty('city_id',      80, 'City ID');
-  SetColumnProperty('district',    120, 'District');
-  SetColumnProperty('neighborhood', 120, 'Neighborhood');
-  SetColumnProperty('quarter',     100, 'Quarter');
-  SetColumnProperty('road',        120, 'Road');
-  SetColumnProperty('street',      120, 'Street');
-  SetColumnProperty('zip_code',     80, 'Zip Code');
+  inherited;
+  SetColumnProperty('id',           0, TLocalizationManager.Translate('sys_address.col_id', 'Id'));
+  SetColumnProperty('city_id',      0, TLocalizationManager.Translate('sys_address.col_city_id', 'City ID'));
+  SetColumnProperty('district',    120, TLocalizationManager.Translate('sys_address.col_district', 'District'));
+  SetColumnProperty('neighborhood', 120, TLocalizationManager.Translate('sys_address.col_neighborhood', 'Neighborhood'));
+  SetColumnProperty('quarter',     100, TLocalizationManager.Translate('sys_address.col_quarter', 'Quarter'));
+  SetColumnProperty('road',        120, TLocalizationManager.Translate('sys_address.col_road', 'Road'));
+  SetColumnProperty('street',      120, TLocalizationManager.Translate('sys_address.col_street', 'Street'));
+  SetColumnProperty('zip_code',     80, TLocalizationManager.Translate('sys_address.col_zip_code', 'Zip Code'));
 end;
 
 procedure TfrmSysAddresses.DefineFooterColumns;
 begin
-  // No footer columns
+  inherited;
+  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysAddresses.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Addresses';
+  ApplyLocalization;
+end;
+
+procedure TfrmSysAddresses.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate('sys_address.title_plural', 'Addresses');
 end;
 
 end.

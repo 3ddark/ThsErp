@@ -1,4 +1,4 @@
-﻿unit EmpDriverLicence.Repository;
+unit EmpDriverLicence.Repository;
 
 interface
 
@@ -10,6 +10,7 @@ type
   TEmpDriverLicenceRepository = class(TRepository<TEmpDriverLicence>)
   public
     constructor Create(AConnection: TFDConnection);
+    procedure Delete(AModel: TEmpDriverLicence); override;
   end;
 
 implementation
@@ -17,6 +18,11 @@ implementation
 constructor TEmpDriverLicenceRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+procedure TEmpDriverLicenceRepository.Delete(AModel: TEmpDriverLicence);
+begin
+  Delete(AModel.Id);
 end;
 
 end.

@@ -11,114 +11,110 @@ type
   [Table('stk_inventory')]
   TStkInventory = class(TEntity)
   private
-    FIsSatilabilir: Boolean;
-    FStokKodu: string;
-    FStokAdi: string;
-    FStokGrubuID: Int64;
-    FOlcuBirimiID: Int64;
-    FUrunTipi: SmallInt;
-    FAlisIskonto: Double;
-    FSatisIskonto: Double;
-    FAlisFiyat: Double;
-    FAlisPara: string;
-    FSatisFiyat: Double;
-    FSatisPara: string;
-    FIhracFiyat: Double;
-    FIhracPara: string;
-    FOrtalamaMaliyet: Double;
-    FEn: Double;
-    FBoy: Double;
-    FYukseklik: Double;
-    FAgirlik: Double;
-    FTeminSuresi: Integer;
-    FOzelKod: string;
-    FMarka: string;
-    FMenseiID: Int64;
-    FGtipNo: string;
-    FDiibUrunTanimi: string;
-    FEnAzStokSeviyesi: Double;
-    FTanim: string;
+    FSellable: Boolean;
+    FCode: string;
+    FName: string;
+    FGroupId: Int64;
+    FMeasurementId: Int64;
+    FProductType: SmallInt;
+    FBuyingDiscount: Double;
+    FSalesDiscount: Double;
+    FBuyingPrice: Double;
+    FBuyingCurrency: string;
+    FSalesPrice: Double;
+    FSalesCurrency: string;
+    FExportPrice: Double;
+    FExportCurrency: string;
+    FWidth: Double;
+    FLength: Double;
+    FHeight: Double;
+    FWeight: Double;
+    FSupplyDuration: Integer;
+    FSpecialCode: string;
+    FBrand: string;
+    FOriginId: Int64;
+    FHsNo: string;
+    FDiibProductDescription: string;
+    FMinStockAmount: Double;
+    FProductOverview: string;
   public
-    [Column('is_satilabilir')]
-    Property IsSatilabilir: Boolean read FIsSatilabilir write FIsSatilabilir;
+    [Column('sellable')]
+    Property Sellable: Boolean read FSellable write FSellable;
 
-    [Column('stok_kodu')]
-    Property StokKodu: string read FStokKodu write FStokKodu;
+    [Column('code'), MaxLength(64), Required()]
+    Property Code: string read FCode write FCode;
 
-    [Column('stok_adi')]
-    Property StokAdi: string read FStokAdi write FStokAdi;
+    [Column('name'), MaxLength(128), Required()]
+    Property Name: string read FName write FName;
 
-    [Column('stok_grubu_id')]
-    Property StokGrubuID: Int64 read FStokGrubuID write FStokGrubuID;
+    [Column('group_id')]
+    Property GroupId: Int64 read FGroupId write FGroupId;
 
-    [Column('olcu_birimi_id')]
-    Property OlcuBirimiID: Int64 read FOlcuBirimiID write FOlcuBirimiID;
+    [Column('measurement_id')]
+    Property MeasurementId: Int64 read FMeasurementId write FMeasurementId;
 
-    [Column('urun_tipi')]
-    Property UrunTipi: SmallInt read FUrunTipi write FUrunTipi;
+    [Column('product_type')]
+    Property ProductType: SmallInt read FProductType write FProductType;
 
-    [Column('alis_iskonto')]
-    Property AlisIskonto: Double read FAlisIskonto write FAlisIskonto;
+    [Column('buying_discount')]
+    Property BuyingDiscount: Double read FBuyingDiscount write FBuyingDiscount;
 
-    [Column('satis_iskonto')]
-    Property SatisIskonto: Double read FSatisIskonto write FSatisIskonto;
+    [Column('sales_discount')]
+    Property SalesDiscount: Double read FSalesDiscount write FSalesDiscount;
 
-    [Column('alis_fiyat')]
-    Property AlisFiyat: Double read FAlisFiyat write FAlisFiyat;
+    [Column('buying_price')]
+    Property BuyingPrice: Double read FBuyingPrice write FBuyingPrice;
 
-    [Column('alis_para')]
-    Property AlisPara: string read FAlisPara write FAlisPara;
+    [Column('buying_currency'), MaxLength(8)]
+    Property BuyingCurrency: string read FBuyingCurrency write FBuyingCurrency;
 
-    [Column('satis_fiyat')]
-    Property SatisFiyat: Double read FSatisFiyat write FSatisFiyat;
+    [Column('sales_price')]
+    Property SalesPrice: Double read FSalesPrice write FSalesPrice;
 
-    [Column('satis_para')]
-    Property SatisPara: string read FSatisPara write FSatisPara;
+    [Column('sales_currency'), MaxLength(8)]
+    Property SalesCurrency: string read FSalesCurrency write FSalesCurrency;
 
-    [Column('ihrac_fiyat')]
-    Property IhracFiyat: Double read FIhracFiyat write FIhracFiyat;
+    [Column('export_price')]
+    Property ExportPrice: Double read FExportPrice write FExportPrice;
 
-    [Column('ihrac_para')]
-    Property IhracPara: string read FIhracPara write FIhracPara;
+    [Column('export_currency'), MaxLength(8)]
+    Property ExportCurrency: string read FExportCurrency write FExportCurrency;
 
-    [Column('ortalama_maliyet')]
-    Property OrtalamaMaliyet: Double read FOrtalamaMaliyet write FOrtalamaMaliyet;
+    [Column('width')]
+    Property Width: Double read FWidth write FWidth;
 
-    [Column('en')]
-    Property En: Double read FEn write FEn;
+    [Column('length')]
+    Property Length: Double read FLength write FLength;
 
-    [Column('boy')]
-    Property Boy: Double read FBoy write FBoy;
+    [Column('height')]
+    Property Height: Double read FHeight write FHeight;
 
-    [Column('yukseklik')]
-    Property Yukseklik: Double read FYukseklik write FYukseklik;
+    [Column('weight')]
+    Property Weight: Double read FWeight write FWeight;
 
-    [Column('agirlik')]
-    Property Agirlik: Double read FAgirlik write FAgirlik;
+    [Column('supply_duration')]
+    Property SupplyDuration: Integer read FSupplyDuration write FSupplyDuration;
 
-    [Column('temin_suresi')]
-    Property TeminSuresi: Integer read FTeminSuresi write FTeminSuresi;
+    [Column('special_code'), MaxLength(64)]
+    Property SpecialCode: string read FSpecialCode write FSpecialCode;
 
-    [Column('ozel_kod')]
-    Property OzelKod: string read FOzelKod write FOzelKod;
+    [Column('brand'), MaxLength(64)]
+    Property Brand: string read FBrand write FBrand;
 
-    [Column('marka')]
-    Property Marka: string read FMarka write FMarka;
+    [Column('origin_id')]
+    Property OriginId: Int64 read FOriginId write FOriginId;
 
-    [Column('mensei_id')]
-    Property MenseiID: Int64 read FMenseiID write FMenseiID;
+    [Column('hs_no'), MaxLength(32)]
+    Property HsNo: string read FHsNo write FHsNo;
 
-    [Column('gtip_no')]
-    Property GtipNo: string read FGtipNo write FGtipNo;
+    [Column('diib_product_description'), MaxLength(256)]
+    Property DiibProductDescription: string read FDiibProductDescription write FDiibProductDescription;
 
-    [Column('diib_urun_tanimi')]
-    Property DiibUrunTanimi: string read FDiibUrunTanimi write FDiibUrunTanimi;
+    [Column('min_stock_amount')]
+    Property MinStockAmount: Double read FMinStockAmount write FMinStockAmount;
 
-    [Column('en_az_stok_seviyesi')]
-    Property EnAzStokSeviyesi: Double read FEnAzStokSeviyesi write FEnAzStokSeviyesi;
-
-    [Column('tanim')]
-    Property Tanim: string read FTanim write FTanim;
+    [Column('product_overview'), MaxLength(512)]
+    Property ProductOverview: string read FProductOverview write FProductOverview;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -129,20 +125,19 @@ implementation
 constructor TStkInventory.Create;
 begin
   inherited;
-  FIsSatilabilir := False;
-  FUrunTipi := 0;
-  FAlisIskonto := 0;
-  FSatisIskonto := 0;
-  FAlisFiyat := 0;
-  FSatisFiyat := 0;
-  FIhracFiyat := 0;
-  FOrtalamaMaliyet := 0;
-  FEn := 0;
-  FBoy := 0;
-  FYukseklik := 0;
-  FAgirlik := 0;
-  FTeminSuresi := 0;
-  FEnAzStokSeviyesi := 0;
+  FSellable := True;
+  FProductType := 0;
+  FBuyingDiscount := 0;
+  FSalesDiscount := 0;
+  FBuyingPrice := 0;
+  FSalesPrice := 0;
+  FExportPrice := 0;
+  FWidth := 0;
+  FLength := 0;
+  FHeight := 0;
+  FWeight := 0;
+  FSupplyDuration := 0;
+  FMinStockAmount := 0;
 end;
 
 destructor TStkInventory.Destroy;

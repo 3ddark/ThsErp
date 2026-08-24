@@ -25,7 +25,7 @@ type
     [Column('column_label'), MaxLength(64)]
     property ColumnLabel: string read FColumnLabel write FColumnLabel;
 
-    constructor Create(); override;
+    constructor Create();
     destructor Destroy; override;
   end;
 

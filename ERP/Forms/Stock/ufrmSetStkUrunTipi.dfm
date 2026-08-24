@@ -5,7 +5,7 @@ inherited frmSetStkUrunTipi: TfrmSetStkUrunTipi
   Caption = #220'r'#252'n Tipi'
   ClientHeight = 117
   ClientWidth = 354
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   Position = poDesktopCenter
   ExplicitWidth = 370
   ExplicitHeight = 156
@@ -36,7 +36,7 @@ inherited frmSetStkUrunTipi: TfrmSetStkUrunTipi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False

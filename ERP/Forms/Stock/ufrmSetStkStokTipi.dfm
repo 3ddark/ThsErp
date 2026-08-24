@@ -5,7 +5,7 @@ inherited frmSetStkStokTipi: TfrmSetStkStokTipi
   Caption = 'Stok Tipi'
   ClientHeight = 174
   ClientWidth = 356
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Tahoma'
   Position = poDesktopCenter
   ExplicitWidth = 362
   ExplicitHeight = 203
@@ -40,7 +40,7 @@ inherited frmSetStkStokTipi: TfrmSetStkStokTipi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -56,7 +56,7 @@ inherited frmSetStkStokTipi: TfrmSetStkStokTipi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
@@ -72,7 +72,7 @@ inherited frmSetStkStokTipi: TfrmSetStkStokTipi
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'MS Sans Serif'
+          Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentBiDiMode = False
           ParentFont = False
