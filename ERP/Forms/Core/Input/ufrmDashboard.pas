@@ -982,9 +982,9 @@ begin
     actsys_grid_filter_sort.Caption := TLocalizationManager.Translate('dashboard.action.grid_filters', 'Grid Filtre ve Sıralamalar');
 
   if Assigned(actsys_permission_group) then
-    actsys_permission_group.Caption := TLocalizationManager.Translate(TLangKeys.TPermissionGroup.TitlePlural, 'Yetki Grupları');
+    actsys_permission_group.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.TitlePlural, 'Yetki Grupları');
   if Assigned(actsys_permission) then
-    actsys_permission.Caption := TLocalizationManager.Translate(TLangKeys.TPermission.TitlePlural, 'Yetkiler');
+    actsys_permission.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.TitlePlural, 'Yetkiler');
   if Assigned(actsys_country) then
     actsys_country.Caption := TLocalizationManager.Translate('dashboard.action.countries', 'Ülkeler');
   if Assigned(actsys_city) then

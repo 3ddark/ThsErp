@@ -1,4 +1,4 @@
-unit ufrmSysPermission;
+﻿unit ufrmSysPermission;
 
 interface
 
@@ -131,14 +131,14 @@ begin
 
   if StrToIntDef(edtCode.Text, 0) <= 0 then
   begin
-    ShowMessage(TLocalizationManager.Translate(TLangKeys.TPermission.CodePositive, 'Yetki Kodu pozitif bir sayı olmalıdır.'));
+    ShowMessage(TLocalizationManager.Translate(TLangKeys.TSysPermission.CodePositive, 'Yetki Kodu pozitif bir sayı olmalıdır.'));
     edtCode.SetFocus;
     Exit(False);
   end;
 
   if Table.GroupId <= 0 then
   begin
-    ShowMessage(TLocalizationManager.Translate(TLangKeys.TPermission.GroupRequired, 'Lütfen geçerli bir Yetki Grubu seçiniz.'));
+    ShowMessage(TLocalizationManager.Translate(TLangKeys.TSysPermission.GroupRequired, 'Lütfen geçerli bir Yetki Grubu seçiniz.'));
     edtGroupId.SetFocus;
     Exit(False);
   end;
@@ -154,12 +154,12 @@ end;
 procedure TfrmSysPermission.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TPermission.TitleSingular, 'Yetki');
-  lblCode.Caption := TLocalizationManager.Translate(TLangKeys.TPermission.LblCode, 'Yetki Kodu');
-  lblKey.Caption := TLocalizationManager.Translate(TLangKeys.TPermission.LblKey, 'Yetki Anahtarı');
-  lblNameEN.Caption := TLocalizationManager.Translate(TLangKeys.TPermission.LblNameEN, 'Yetki Adı (İngilizce)');
-  lblNameTR.Caption := TLocalizationManager.Translate(TLangKeys.TPermission.LblNameTR, 'Yetki Adı (Türkçe)');
-  lblGroupId.Caption := TLocalizationManager.Translate(TLangKeys.TPermission.LblGroupId, 'Yetki Grubu');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.TitleSingular, 'Yetki');
+  lblCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.LblCode, 'Yetki Kodu');
+  lblKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.LblKey, 'Yetki Anahtarı');
+  lblNameEN.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.LblNameEN, 'Yetki Adı (İngilizce)');
+  lblNameTR.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.LblNameTR, 'Yetki Adı (Türkçe)');
+  lblGroupId.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.LblGroupId, 'Yetki Grubu');
 end;
 
 procedure TfrmSysPermission.RefreshData;

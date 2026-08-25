@@ -1,4 +1,4 @@
-unit LocalizationManager;
+﻿unit LocalizationManager;
 
 interface
 
@@ -17,14 +17,7 @@ type
         const Email = 'validation.email';
         const RegEx = 'validation.regex';
         const RequiredFieldsEmpty = 'validation.required_fields_empty';
-      end;
-
-      TCountry = record
-        const CodeRequired = 'country.code.required';
-        const CodeLength = 'country.code.length';
-        const NameRequired = 'country.name.required';
-        const NameMinLength = 'country.name.minlength';
-        const NameMaxLength = 'country.name.maxlength';
+        const NegativeValueNotAllowed = 'validation.negative_value_not_allowed';
       end;
 
       TGeneral = record
@@ -62,82 +55,20 @@ type
         const RemoveSort = 'popup.remove_sort';
       end;
 
-      TPermissionGroup = record
-        const TitlePlural = 'permission_group.title_plural';
-        const TitleSingular = 'permission_group.title_singular';
-        const ColKey = 'permission_group.col_key';
-        const ColName = 'permission_group.col_name';
-        const LblKey = 'permission_group.lbl_key';
-        const LblNameEN = 'permission_group.lbl_name_en';
-        const LblNameTR = 'permission_group.lbl_name_tr';
-        const KeyRequired = 'permission_group.key.required';
-        const NameRequired = 'permission_group.name.required';
+      TUnitOfWork = record
+        const NotInitialized = 'unitofwork.not_initialized';
+        const ConstructorNotFound = 'unitofwork.constructor_not_found';
       end;
 
-      TPermission = record
-        const TitlePlural = 'permission.title_plural';
-        const TitleSingular = 'permission.title_singular';
-        const ColCode = 'permission.col_code';
-        const ColKey = 'permission.col_key';
-        const ColName = 'permission.col_name';
-        const ColGroupKey = 'permission.col_group_key';
-        const ColGroupName = 'permission.col_group_name';
-        const LblCode = 'permission.lbl_code';
-        const LblKey = 'permission.lbl_key';
-        const LblNameEN = 'permission.lbl_name_en';
-        const LblNameTR = 'permission.lbl_name_tr';
-        const LblGroupId = 'permission.lbl_group_id';
-        const CodeRequired = 'permission.code.required';
-        const CodePositive = 'permission.code.positive';
-        const KeyRequired = 'permission.key.required';
-        const GroupRequired = 'permission.group.required';
-      end;
-
-      TSysUser = record
-        const UsernameUnique = 'sys_user.username_unique';
-      end;
-
-      TSysUomGroup = record
-        const TitlePlural = 'sys_umo_group.title_plural';
-        const TitleSingular = 'sys_umo_group.title_singular';
-        const ColKey = 'sys_umo_group.col_key';
-        const ColName = 'sys_umo_group.col_name';
-        const ColLocale = 'sys_umo_group.col_locale';
-        const KeyUnique = 'sys_umo_group.key_unique';
-      end;
-
-      TSysUom = record
-        const TitlePlural = 'sys_uom.title_plural';
-        const TitleSingular = 'sys_uom.title_singular';
-        const UnitCodeUnique = 'sys_uom.unit_code_unique';
-      end;
-
-      TSysPermissionGroup = record
-        const KeyUnique = 'sys_permission_group.key_unique';
-      end;
-
-      TSysPermission = record
-        const KeyUnique = 'sys_permission.key_unique';
-      end;
-
-      TSysAccessRight = record
-        const NoAccessRightToRead = 'sys_access_right.no_access_right_to_read';
-        const NoAccessRightToAdd = 'sys_access_right.no_access_right_to_add';
-        const NoAccessRightToUpdate = 'sys_access_right.no_access_right_to_update';
-        const NoAccessRightToDelete = 'sys_access_right.no_access_right_to_delete';
-        const NoAccessRightToSpecial = 'sys_access_right.no_access_right_to_special';
-        const PermissionUserUnique = 'sys_access_right.permission_user_unique';
-      end;
-
-      TSysLanguage = record
-        const TitlePlural = 'sys_language.title_plural';
-        const TitleSingular = 'sys_language.title_singular';
-        const ColLocale = 'sys_language.col_locale';
-        const ColNativeName = 'sys_language.col_native_name';
-        const LblLocale = 'sys_language.lbl_locale';
-        const LblNativeName = 'sys_language.lbl_native_name';
-        const LocaleRequired = 'sys_language.locale.required';
-        const LocaleUnique = 'sys_language.locale.unique';
+      TMessage = record
+        const ConfirmDelete = 'msg.confirm_delete';
+        const ConfirmUpdate = 'msg.confirm_update_record';
+        const UserConfirmationTitle = 'msg.title.user_confirmation';
+        const ActiveTransactionExist = 'msg.active_transaction_exist';
+        const InformationTitle = 'msg.title.information';
+        const ConfirmCloseWindow = 'msg.confirm_close_window';
+        const RecordDeletedWhileReview = 'msg.record_deleted_while_review';
+        const MustContainOnlyOneRecord = 'msg.must_contain_only_one_record';
       end;
 
       TLogin = record
@@ -156,6 +87,128 @@ type
         const AccessDeniedCode = 'security.access_denied_code';
       end;
 
+      //System Module
+      TSysAccessRight = record
+        const NoAccessRightToRead = 'sys_access_right.no_access_right_to_read';
+        const NoAccessRightToAdd = 'sys_access_right.no_access_right_to_add';
+        const NoAccessRightToUpdate = 'sys_access_right.no_access_right_to_update';
+        const NoAccessRightToDelete = 'sys_access_right.no_access_right_to_delete';
+        const NoAccessRightToSpecial = 'sys_access_right.no_access_right_to_special';
+        const PermissionUserUnique = 'sys_access_right.permission_user_unique';
+      end;
+
+      TSysAddress = record
+
+      end;
+
+      TSysApplicationSetting = record
+
+      end;
+
+      TSysCity = record
+        const CityCountryUnique = 'sys_city.city_country.unique';
+      end;
+
+      TSysCountry = record
+        const CodeRequired = 'sys_country.code.required';
+        const CodeLength = 'sys_country.code.length';
+        const NameRequired = 'sys_country.name.required';
+        const NameMinLength = 'sys_country.name.minlength';
+        const NameMaxLength = 'sys_country.name.maxlength';
+        const CodeUnique = 'sys_country.code.unique';
+      end;
+
+      TSysCurrency = record
+        const CurrencyUnique = 'sys_currency.currency.unique';
+      end;
+
+      TSysDecimalPlace = record
+        const NameMinLength = 'sys_country.name.minlength';
+      end;
+
+      TSysGridColumn = record
+        const TableNameColumnName = 'sys_grid_column.table_name_column_name.unique';
+        const TableNameColumnOrder = 'sys_grid_column.table_name_column_order.unique';
+      end;
+
+      TSysGridFilter = record
+        const TableNameUnique = 'sys_grid_filter.table_name.unique';
+      end;
+
+      TSysGridSort = record
+
+      end;
+
+      TSysLanguage = record
+        const TitlePlural = 'sys_language.title_plural';
+        const TitleSingular = 'sys_language.title_singular';
+        const ColLocale = 'sys_language.col_locale';
+        const ColNativeName = 'sys_language.col_native_name';
+        const LblLocale = 'sys_language.lbl_locale';
+        const LblNativeName = 'sys_language.lbl_native_name';
+        const LocaleRequired = 'sys_language.locale.required';
+        const LocaleUnique = 'sys_language.locale.unique';
+      end;
+
+      TSysPermission = record
+        const TitlePlural = 'permission.title_plural';
+        const TitleSingular = 'permission.title_singular';
+        const ColCode = 'permission.col_code';
+        const ColKey = 'permission.col_key';
+        const ColName = 'permission.col_name';
+        const ColGroupKey = 'permission.col_group_key';
+        const ColGroupName = 'permission.col_group_name';
+        const LblCode = 'permission.lbl_code';
+        const LblKey = 'permission.lbl_key';
+        const LblNameEN = 'permission.lbl_name_en';
+        const LblNameTR = 'permission.lbl_name_tr';
+        const LblGroupId = 'permission.lbl_group_id';
+        const CodeRequired = 'permission.code.required';
+        const CodePositive = 'permission.code.positive';
+        const KeyRequired = 'permission.key.required';
+        const GroupRequired = 'permission.group.required';
+        const KeyUnique = 'sys_permission.key_unique';
+      end;
+
+      TSysPermissionGroup = record
+        const TitlePlural = 'permission_group.title_plural';
+        const TitleSingular = 'permission_group.title_singular';
+        const ColKey = 'permission_group.col_key';
+        const ColName = 'permission_group.col_name';
+        const ColLocale = 'permission_group.col_locale';
+        const LblKey = 'permission_group.lbl_key';
+        const LblNameEN = 'permission_group.lbl_name_en';
+        const LblNameTR = 'permission_group.lbl_name_tr';
+        const KeyRequired = 'permission_group.key.required';
+        const NameRequired = 'permission_group.name.required';
+        const KeyUnique = 'sys_permission_group.key_unique';
+      end;
+
+      TSysRegion = record
+        const NameUnique = 'sys_region.name.unique';
+      end;
+
+      TSysUom = record
+        const TitlePlural = 'sys_uom.title_plural';
+        const TitleSingular = 'sys_uom.title_singular';
+        const UnitCodeUnique = 'sys_uom.unit_code_unique';
+      end;
+
+      TSysUomGroup = record
+        const TitlePlural = 'sys_umo_group.title_plural';
+        const TitleSingular = 'sys_umo_group.title_singular';
+        const ColKey = 'sys_umo_group.col_key';
+        const ColName = 'sys_umo_group.col_name';
+        const ColLocale = 'sys_umo_group.col_locale';
+        const KeyUnique = 'sys_umo_group.key_unique';
+      end;
+
+      TSysUser = record
+        const UsernameUnique = 'sys_user.username_unique';
+      end;
+
+
+      //Stock Module
       TStock = record
         const GroupNameRequired = 'stock.group_name.required';
         const CodeRequired = 'stock.code.required';
@@ -164,21 +217,6 @@ type
         const SkuRequired = 'stock.sku.required';
         const QuantityMustBePositive = 'stock.quantity.must_be_positive';
         const WarehouseNameRequired = 'stock.warehouse_name.required';
-      end;
-
-      TUnitOfWork = record
-        const NotInitialized = 'unitofwork.not_initialized';
-        const ConstructorNotFound = 'unitofwork.constructor_not_found';
-      end;
-
-      TMessage = record
-        const ConfirmDelete = 'msg.confirm_delete';
-        const ConfirmUpdate = 'msg.confirm_update_record';
-        const UserConfirmationTitle = 'msg.title.user_confirmation';
-        const ActiveTransactionExist = 'msg.active_transaction_exist';
-        const InformationTitle = 'msg.title.information';
-        const ConfirmCloseWindow = 'msg.confirm_close_window';
-        const RecordDeletedWhileReview = 'msg.record_deleted_while_review';
       end;
   end;
 

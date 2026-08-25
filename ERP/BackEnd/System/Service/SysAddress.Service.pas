@@ -41,11 +41,11 @@ constructor TSysAddressService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysAddress, TSysAddressRepository>;
+  Self.PermissionCode := 1;
 end;
 
 destructor TSysAddressService.Destroy;
 begin
-  FRepo := nil;
   inherited;
 end;
 
@@ -55,6 +55,7 @@ begin
 
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
+
   try
     Result := FRepo.Find(AFilter, ALock);
   except
@@ -199,7 +200,12 @@ end;
 
 procedure TSysAddressService.ValidateBusinessRules(AEntity: TSysAddress; AOperation: TCrudOperation);
 begin
-  //
+  //check unique
+  if AOperation in [coInsert, coUpdate] then
+  begin
+
+  end;
 end;
+
 
 end.

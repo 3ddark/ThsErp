@@ -9,7 +9,7 @@ uses
   Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd,
   Vcl.DBGrids, Vcl.Samples.Spin, Data.DB,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  Ths.DialogHelper, Ths.Globals, SysViewColumn, MetaProvider,
+  Ths.DialogHelper, Ths.Globals, MetaProvider,
   Entity, Service, SharedFormTypes, LocalizationManager;
 
 type
@@ -190,12 +190,7 @@ begin
       ModalResult := mrOK;
       Close;
     except
-      ModalResult := mrNone;//dont close window in exception
-
-      //eger begin transaction demiyorsa insert pencere kapansin cunku rollback yapildi artik insert etmemeli
-      //Onceki islemler geri alindigi icin
-      if (Service.UoW.InTransaction) then
-        Close;
+      ModalResult := mrNone;
       raise;
     end;
   end
@@ -215,7 +210,7 @@ begin
     begin
       SetControlsDisabledOrEnabled(PanelMain, True);
       try
-        Service.BusinessUpdate(Table, Service.UoW.InTransaction, True, True);
+        Service.BusinessUpdate(Table, not Service.UoW.InTransaction, Service.UoW.InTransaction, True);
         RefreshParentGrid(True);
         ModalResult := mrOK;
         Close;
@@ -228,6 +223,7 @@ begin
         btnAccept.Width := Max(100, btnAccept.Width);
         btnDelete.Visible := false;
         Repaint;
+        raise;
       end;
     end;
   end
@@ -235,38 +231,7 @@ begin
   begin
     SetControlsDisabledOrEnabled(PanelMain, False);
 
-    if (not Service.UoW.InTransaction) then
-    begin
-      LId := Table.Id;
-      FreeAndNil(Table);
-      Table := Service.BusinessFindById(LId, (not Service.UoW.InTransaction), True, True);
-
-      if (Table = nil) then
-        raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordDeletedWhileReview, 'Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş.' + AddLBs(2) + 'Kaydı tekrar kontrol edin!'));
-
-      FormMode := ifmUpdate;
-
-      btnSpin.Visible := false;
-
-      btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Onayla');
-      btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
-      btnAccept.Width := Max(100, btnAccept.Width);
-      if Service.IsAuthorized(ptUpdate, True)
-      then  btnAccept.Enabled := True
-      else  btnAccept.Enabled := False;
-
-      btnDelete.Visible := True;
-      btnDelete.OnClick := btnDeleteClick;
-
-      RefreshData;
-
-      Repaint;
-
-//      FocusFirstControl;
-
-      btnDelete.Left := btnAccept.Left-btnDelete.Width;
-    end
-    else
+    if (Service.UoW.InTransaction) then
       CustomMsgDlg(
         TLocalizationManager.Translate(TLangKeys.TMessage.ActiveTransactionExist, 'Aktif bir kayıt güncellemeniz var. önce açık olan işleminizi bitirin!'),
         mtError,
@@ -275,6 +240,35 @@ begin
         mbOK,
         TLocalizationManager.Translate(TLangKeys.TMessage.InformationTitle, 'Bilgilendirme')
       );
+
+    LId := Table.Id;
+    FreeAndNil(Table);
+    Table := Service.BusinessFindById(LId, (not Service.UoW.InTransaction), True, True);
+
+    if (Table = nil) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordDeletedWhileReview, 'Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş.' + AddLBs(2) + 'Kaydı tekrar kontrol edin!'));
+
+    FormMode := ifmUpdate;
+
+    btnSpin.Visible := false;
+
+    btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Onayla');
+    btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
+    btnAccept.Width := Max(100, btnAccept.Width);
+    if Service.IsAuthorized(ptUpdate, True)
+    then  btnAccept.Enabled := True
+    else  btnAccept.Enabled := False;
+
+    btnDelete.Visible := True;
+    btnDelete.OnClick := btnDeleteClick;
+
+    RefreshData;
+
+    Repaint;
+
+//    FocusFirstControl;
+
+    btnDelete.Left := btnAccept.Left-btnDelete.Width;
   end;
 end;
 

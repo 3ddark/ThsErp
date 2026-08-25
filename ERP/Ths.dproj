@@ -205,6 +205,7 @@
         <DCCReference Include="Forms\Core\Base\ufrmInputSimpleDB.pas"/>
         <DCCReference Include="BackEnd\Core\Auth.Service.pas"/>
         <DCCReference Include="BackEnd\System\Domain\SysAccessRight.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysAccessRight.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysAccessRight.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysAccessRight.Service.pas"/>
         <DCCReference Include="Forms\System\Input\ufrmSysAccessRight.pas">
@@ -354,15 +355,6 @@
         <DCCReference Include="Forms\System\Output\ufrmSysUsers.pas">
             <Form>frmSysUsers</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\System\Domain\SysViewTable.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysViewTable.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysViewTable.Service.pas"/>
-        <DCCReference Include="Forms\System\Output\ufrmSysViewTables.pas">
-            <Form>frmSysViewTables</Form>
-        </DCCReference>
-        <DCCReference Include="BackEnd\System\Domain\SysViewColumn.pas"/>
-        <DCCReference Include="BackEnd\System\Repository\SysViewColumn.Repository.pas"/>
-        <DCCReference Include="BackEnd\System\Service\SysViewColumn.Service.pas"/>
         <DCCReference Include="BackEnd\Employee\Domain\EmpPerson.pas"/>
         <DCCReference Include="BackEnd\Employee\Repository\EmpPerson.Repository.pas"/>
         <DCCReference Include="BackEnd\Employee\Service\EmpPerson.Service.pas"/>
@@ -651,7 +643,6 @@
         <DCCReference Include="Forms\Stock\Output\ufrmStkWarehouses.pas">
             <Form>frmStkWarehouses</Form>
         </DCCReference>
-        <DCCReference Include="BackEnd\System\Exception\SysAccessRight.Exception.pas"/>
         <DCCReference Include="BackEnd\Core\Core.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysUser.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysLanguage.Exception.pas"/>
@@ -659,6 +650,13 @@
         <DCCReference Include="BackEnd\System\Exception\SysPermission.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysUomGroup.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysUom.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysCity.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysCountry.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysRegion.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysCurrency.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysGridColumn.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysGridFilter.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysDecimalPlace.Exception.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

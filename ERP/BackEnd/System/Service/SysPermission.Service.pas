@@ -8,6 +8,11 @@ uses
   UnitOfWork, SharedFormTypes, AppContext,
   SysPermission.Repository, SysPermission, SysPermission.Exception;
 
+const
+  PERMISSION_TEMPLATE   = 1;
+  PERMISSION_CITY       = 1000;
+  PERMISSION_COUNTRY    = 1001;
+
 type
   TSysPermissionService = class(TCrudService<TSysPermission>)
   private
@@ -41,7 +46,7 @@ constructor TSysPermissionService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysPermission, TSysPermissionRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TSysPermissionService.Destroy;

@@ -4,7 +4,8 @@ interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext,
   SysGridSort.Repository, SysGridSort;
 
 type
@@ -15,9 +16,14 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TSysGridSort; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysGridSort>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysGridSort; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TSysGridSort; override;
+
     procedure Add(AEntity: TSysGridSort); override;
     procedure Update(AEntity: TSysGridSort); override;
     procedure Delete(AId: Int64); override;
@@ -156,6 +162,11 @@ begin
   Result := FRepo.FindById(AId, ALock);
 end;
 
+function TSysGridSortService.FindOne(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TSysGridSort;
+begin
+
+end;
+
 procedure TSysGridSortService.Add(AEntity: TSysGridSort);
 begin
   FRepo.Add(AEntity);
@@ -164,6 +175,13 @@ end;
 procedure TSysGridSortService.Update(AEntity: TSysGridSort);
 begin
   FRepo.Update(AEntity);
+end;
+
+procedure TSysGridSortService.ValidateBusinessRules(AEntity: TSysGridSort;
+  AOperation: TCrudOperation);
+begin
+  inherited;
+
 end;
 
 procedure TSysGridSortService.Delete(AId: Int64);

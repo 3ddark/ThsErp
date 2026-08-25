@@ -2,7 +2,8 @@ unit SysDecimalPlace;
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes;
+uses
+  SysUtils, Classes, Types, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('sys_decimal_place')]
@@ -15,18 +16,23 @@ type
     FExchangeRate: SmallInt;
   public
     [Column('quantity')]
+    [Range(0, 6, TLangKeys.TValidation.Range, True)]
     property Quantity: SmallInt read FQuantity write FQuantity;
 
     [Column('price')]
+    [Range(0, 6, TLangKeys.TValidation.Range, True)]
     property Price: SmallInt read FPrice write FPrice;
 
     [Column('total')]
+    [Range(0, 6, TLangKeys.TValidation.Range, True)]
     property Total: SmallInt read FTotal write FTotal;
 
     [Column('stock_quantity')]
+    [Range(0, 6, TLangKeys.TValidation.Range, True)]
     property StockQuantity: SmallInt read FStockQuantity write FStockQuantity;
 
     [Column('exchange_rate')]
+    [Range(0, 6, TLangKeys.TValidation.Range, True)]
     property ExchangeRate: SmallInt read FExchangeRate write FExchangeRate;
 
     constructor Create(); override;

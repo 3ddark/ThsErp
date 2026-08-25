@@ -1,4 +1,4 @@
-unit ufrmSysPermissionGroup;
+﻿unit ufrmSysPermissionGroup;
 
 interface
 
@@ -90,10 +90,10 @@ end;
 procedure TfrmSysPermissionGroup.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TPermissionGroup.TitleSingular, 'Yetki Grubu');
-  lblKey.Caption := TLocalizationManager.Translate(TLangKeys.TPermissionGroup.LblKey, 'Grup Anahtarı');
-  lblNameEN.Caption := TLocalizationManager.Translate(TLangKeys.TPermissionGroup.LblNameEN, 'Grup Adı (İngilizce)');
-  lblNameTR.Caption := TLocalizationManager.Translate(TLangKeys.TPermissionGroup.LblNameTR, 'Grup Adı (Türkçe)');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.TitleSingular, 'Yetki Grubu');
+  lblKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblKey, 'Grup Anahtarı');
+  lblNameEN.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblNameEN, 'Grup Adı (İngilizce)');
+  lblNameTR.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblNameTR, 'Grup Adı (Türkçe)');
 end;
 
 procedure TfrmSysPermissionGroup.RefreshData;

@@ -4,8 +4,9 @@ interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  SysGridFilter.Repository, SysGridFilter;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext,
+  SysGridFilter.Repository, SysGridFilter, SysGridFilter.Exception;
 
 type
   TSysGridFilterService = class(TCrudService<TSysGridFilter>)
@@ -15,9 +16,14 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TSysGridFilter; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysGridFilter>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysGridFilter; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TSysGridFilter; override;
+
     procedure Add(AEntity: TSysGridFilter); override;
     procedure Update(AEntity: TSysGridFilter); override;
     procedure Delete(AId: Int64); override;
@@ -35,6 +41,7 @@ constructor TSysGridFilterService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysGridFilter, TSysGridFilterRepository>;
+  Self.PermissionCode := 1;
 end;
 
 destructor TSysGridFilterService.Destroy;
@@ -44,35 +51,46 @@ end;
 
 function TSysGridFilterService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysGridFilter>;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+    begin
+      Self.UoW.Rollback;
+    end;
+    raise;
+  end;
 end;
 
 function TSysGridFilterService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysGridFilter;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+    begin
+      Self.UoW.Rollback;
+    end;
+    raise;
+  end;
 end;
 
 procedure TSysGridFilterService.BusinessInsert(AEntity: TSysGridFilter; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
+
+    ValidateAll(AEntity, coInsert);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -85,8 +103,10 @@ begin
     on E: Exception do
     begin
       if Uow.InTransaction then
+      begin
         Self.UoW.Rollback;
-      raise
+      end;
+      raise;
     end;
   end;
 end;
@@ -94,10 +114,9 @@ end;
 procedure TSysGridFilterService.BusinessUpdate(AEntity: TSysGridFilter; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
+
+    ValidateAll(AEntity, coUpdate);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -110,7 +129,9 @@ begin
     on E: Exception do
     begin
       if Self.UoW.InTransaction then
+      begin
         Self.UoW.Rollback;
+      end;
       raise;
     end;
   end;
@@ -119,10 +140,9 @@ end;
 procedure TSysGridFilterService.BusinessDelete(AEntity: TSysGridFilter; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
+
+    ValidateAll(AEntity, coDelete);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -135,7 +155,9 @@ begin
     on E: Exception do
     begin
       if Self.UoW.InTransaction then
+      begin
         Self.UoW.Rollback;
+      end;
       raise;
     end;
   end;
@@ -146,14 +168,19 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TSysGridFilterService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysGridFilter>;
+function TSysGridFilterService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TSysGridFilter>;
 begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysGridFilterService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysGridFilter;
+function TSysGridFilterService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TSysGridFilter;
 begin
   Result := FRepo.FindById(AId, ALock);
+end;
+
+function TSysGridFilterService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysGridFilter;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
 end;
 
 procedure TSysGridFilterService.Add(AEntity: TSysGridFilter);
@@ -169,6 +196,31 @@ end;
 procedure TSysGridFilterService.Delete(AId: Int64);
 begin
   FRepo.Delete(AId);
+end;
+
+procedure TSysGridFilterService.ValidateBusinessRules(AEntity: TSysGridFilter; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TSysGridFilter;
+begin
+  //check unique
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('table_name', '=', TValue.From<string>(AEntity.TableName)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      if Assigned(LModel) then
+        raise ESysGridFilterExceptionTableNameUnique.Create;
+    finally
+      LFilter.Free;
+      if Assigned(LModel) then
+        LModel.Free;
+    end;
+  end;
 end;
 
 end.

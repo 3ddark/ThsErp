@@ -6,6 +6,7 @@
   "validation.email": "Geçersiz e-posta formatı",
   "validation.regex": "Geçersiz format",
   "validation.required_fields_empty": "Zorunlu alanlar boş olamaz. Kırmızı renkli girişler zorunludur.",
+  "validation.negative_value_not_allowed": "Negatif değerler kabul edilmez",
   "country.code.required": "Ülke kodu zorunludur",
   "country.code.length": "Ülke Kodu tam olarak 2 karakter olmalıdır (Örn: TR, US).",
   "country.name.required": "Ülke Adı boş bırakılamaz.",
