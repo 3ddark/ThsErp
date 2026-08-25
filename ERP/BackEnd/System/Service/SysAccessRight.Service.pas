@@ -141,6 +141,7 @@ constructor TSysAccessRightService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysAccessRight, TSysAccessRightRepository>;
+  Self.PermissionCode := 1;
 end;
 
 destructor TSysAccessRightService.Destroy;
@@ -154,6 +155,7 @@ begin
 
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
+
   try
     Result := FRepo.Find(AFilter, ALock);
   except

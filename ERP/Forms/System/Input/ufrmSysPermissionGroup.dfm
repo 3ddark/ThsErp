@@ -12,7 +12,7 @@ object frmSysPermissionGroup: TfrmSysPermissionGroup
   Font.Style = []
   OnCreate = FormCreate
   OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
@@ -22,9 +22,9 @@ object frmSysPermissionGroup: TfrmSysPermissionGroup
     TabOrder = 0
     ExplicitHeight = 141
     object lblKey: TLabel
-      Left = 126
+      Left = 127
       Top = 8
-      Width = 22
+      Width = 21
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -38,9 +38,9 @@ object frmSysPermissionGroup: TfrmSysPermissionGroup
       ParentFont = False
     end
     object lblNameEN: TLabel
-      Left = 24
+      Left = 27
       Top = 32
-      Width = 124
+      Width = 121
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -54,9 +54,9 @@ object frmSysPermissionGroup: TfrmSysPermissionGroup
       ParentFont = False
     end
     object lblNameTR: TLabel
-      Left = 25
+      Left = 27
       Top = 56
-      Width = 123
+      Width = 121
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight

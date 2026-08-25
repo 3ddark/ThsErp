@@ -6,6 +6,7 @@
   "validation.email": "Invalid email format",
   "validation.regex": "Invalid format",
   "validation.required_fields_empty": "Required fields cannot be empty. Highlighted fields are required.",
+  "validation.negative_value_not_allowed": "Negative values are not allowed",
   "country.code.required": "Country code is required",
   "country.code.length": "Country code must be exactly 2 characters (e.g. TR, US).",
   "country.name.required": "Country name is required",

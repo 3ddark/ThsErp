@@ -6,6 +6,7 @@
   "validation.email": "Ungültiges E-Mail-Format",
   "validation.regex": "Ungültiges Format",
   "validation.required_fields_empty": "Pflichtfelder dürfen nicht leer sein.",
+  "validation.negative_value_not_allowed": "Negative Werte sind nicht erlaubt",
   "country.code.required": "Ländercode ist erforderlich",
   "country.code.length": "Der Ländercode muss genau 2 Zeichen lang sein (z.B. TR, US).",
   "country.name.required": "Ländername ist erforderlich",

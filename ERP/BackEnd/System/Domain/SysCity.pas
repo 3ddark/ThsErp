@@ -16,7 +16,7 @@ type
     FCountry: TSysCountry;
     FRegion: TSysRegion;
   public
-    [Column('name')]
+    [Column('city_name')]
     property CityName: string read FCityName write FCityName;
 
     [Column('plate_code')]

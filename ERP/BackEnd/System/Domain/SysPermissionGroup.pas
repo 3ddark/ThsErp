@@ -32,7 +32,7 @@ type
 
     [Column('name')]
     [MaxLength(64, TLangKeys.TValidation.MaxLength)]
-    [Required(TLangKeys.TPermissionGroup.KeyRequired)]
+    [Required(TLangKeys.TSysPermissionGroup.KeyRequired)]
     property Name: string read FName write FName;
 
     [BelongsTo('PermissionGroupId', 'Id')]

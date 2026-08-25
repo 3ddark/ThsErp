@@ -106,8 +106,6 @@ type
     procedure ValidateBusinessRules(AEntity: T; AOperation: TCrudOperation); virtual;
     procedure ValidateAll(AEntity: T; AOperation: TCrudOperation); virtual;
 
-    function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): T; virtual; abstract;
-    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<T>; virtual; abstract;
     procedure BusinessInsert(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;
     procedure BusinessUpdate(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;
     procedure BusinessDelete(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;

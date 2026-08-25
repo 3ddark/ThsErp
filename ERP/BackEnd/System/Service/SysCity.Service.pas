@@ -4,8 +4,9 @@ interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  SysCity.Repository, SysCity;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext,
+  SysCity.Repository, SysCity, SysCity.Exception;
 
 type
   TSysCityService = class(TCrudService<TSysCity>)
@@ -15,7 +16,10 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TSysCity; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysCity>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysCity; override;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TSysCity; override;
@@ -33,10 +37,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysCityService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysCity, TSysCityRepository>;
+  Self.PermissionCode := PERMISSION_CITY;
 end;
 
 destructor TSysCityService.Destroy;
@@ -51,7 +59,15 @@ begin
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+    begin
+      Self.UoW.Rollback;
+    end;
+    raise;
+  end;
 end;
 
 function TSysCityService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysCity;
@@ -61,13 +77,23 @@ begin
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+    begin
+      Self.UoW.Rollback;
+    end;
+    raise;
+  end;
 end;
 
 procedure TSysCityService.BusinessInsert(AEntity: TSysCity; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
+
+    ValidateAll(AEntity, coInsert);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -80,8 +106,10 @@ begin
     on E: Exception do
     begin
       if Uow.InTransaction then
+      begin
         Self.UoW.Rollback;
-      raise
+      end;
+      raise;
     end;
   end;
 end;
@@ -90,6 +118,8 @@ procedure TSysCityService.BusinessUpdate(AEntity: TSysCity; AWithBegin, AWithCom
 begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
+
+    ValidateAll(AEntity, coUpdate);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -102,7 +132,9 @@ begin
     on E: Exception do
     begin
       if Self.UoW.InTransaction then
+      begin
         Self.UoW.Rollback;
+      end;
       raise;
     end;
   end;
@@ -112,6 +144,8 @@ procedure TSysCityService.BusinessDelete(AEntity: TSysCity; AWithBegin, AWithCom
 begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
+
+    ValidateAll(AEntity, coDelete);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
@@ -124,7 +158,9 @@ begin
     on E: Exception do
     begin
       if Self.UoW.InTransaction then
+      begin
         Self.UoW.Rollback;
+      end;
       raise;
     end;
   end;
@@ -135,17 +171,17 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TSysCityService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysCity>;
+function TSysCityService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TSysCity>;
 begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TSysCityService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysCity;
+function TSysCityService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TSysCity;
 begin
   Result := FRepo.FindById(AId, ALock);
 end;
 
-function TSysCityService.FindOne(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TSysCity;
+function TSysCityService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysCity;
 begin
   Result := FRepo.FindOne(AFilter, ALock);
 end;
@@ -163,6 +199,32 @@ end;
 procedure TSysCityService.Delete(AId: Int64);
 begin
   FRepo.Delete(AId);
+end;
+
+procedure TSysCityService.ValidateBusinessRules(AEntity: TSysCity; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TSysCity;
+begin
+  //check unique
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('country_id', '=', TValue.From<Int64>(AEntity.CountryId)));
+      LFilter.Add(TFilterCriterion.New('city_name', '=', TValue.From<string>(AEntity.CityName)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      if Assigned(LModel) then
+        raise ESysCityExceptionCityCountryUnique.Create;
+    finally
+      LFilter.Free;
+      if Assigned(LModel) then
+        LModel.Free;
+    end;
+  end;
 end;
 
 end.
