@@ -108,10 +108,6 @@ begin
   LSelectedLang := IfThen(Length(LLangs) > 1, Trim(LLangs[1]), 'tr');
   TLocalizationManager.SetLanguage(LSelectedLang);
 
-  TAppContext.Initialize(LConn);
-  TAppContext.Instance.SetCurrentUser(TUserContext.Create(nil, True));
-  TAppContext.Instance.CurrentUser.ActiveLanguage := LSelectedLang;
-
   if (edtusername.Text = '') or (edtuser_password.Text = '') then
     Exit;
 
@@ -140,6 +136,10 @@ begin
       Exit;
     end;
   end;
+
+  TAppContext.Initialize(LConn);
+  TAppContext.Instance.SetCurrentUser(TUserContext.Create(nil, True));
+  TAppContext.Instance.CurrentUser.ActiveLanguage := LSelectedLang;
 
   if LConn.Connected then
   begin
