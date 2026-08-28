@@ -3,15 +3,40 @@ unit SysDecimalPlace.Repository;
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  FireDAC.Comp.Client, Entity, Repository, SysDecimalPlace, FilterCriterion;
+  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
+  FireDAC.Comp.Client, FireDAC.Stan.Param, SharedFormTypes, AppContext, Entity,
+  Repository, FilterCriterion, SysDecimalPlace;
 
 type
   TSysDecimalPlaceRepository = class(TRepository<TSysDecimalPlace>)
+  protected
+    function PrepareAddSql: string;
+    function PrepareUpdateSql: string;
+    function PrepareDeleteSql: string;
+
+    procedure SetInsertParams(Q: TFDQuery; AModel: TSysDecimalPlace; AIndex: Integer = -1);
+    procedure SetUpdateParams(Q: TFDQuery; AModel: TSysDecimalPlace; AIndex: Integer = -1);
+    function MapFromQuery(Q: TFDQuery): TSysDecimalPlace; override;
   public
     constructor Create(AConnection: TFDConnection);
+
     function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysDecimalPlace>; override;
+    function FindById(AId: TValue; ALock: Boolean = False): TSysDecimalPlace; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysDecimalPlace; override;
+
+    procedure Add(AModel: TSysDecimalPlace); override;
+    procedure AddBatch(AModels: TArray<TSysDecimalPlace>); override;
+
+    procedure Update(AModel: TSysDecimalPlace); override;
+    procedure UpdateBatch(AModels: TArray<TSysDecimalPlace>); override;
+
+    procedure Delete(AID: Int64); override;
     procedure Delete(AModel: TSysDecimalPlace); override;
+    procedure DeleteBatch(AModels: TArray<TSysDecimalPlace>); override;
+    procedure DeleteBatch(AIDs: TArray<Int64>); override;
+    procedure DeleteBatch(AFilter: TFilterCriteria); override;
   end;
 
 implementation
@@ -21,16 +46,345 @@ begin
   inherited Create(AConnection);
 end;
 
+function TSysDecimalPlaceRepository.PrepareAddSql: string;
+begin
+  Result := 'INSERT INTO public.' + Self.GetTableName(TSysDecimalPlace) +
+            ' (quantity, price, total, stock_quantity, exchange_rate) ' +
+            ' VALUES (:quantity, :price, :total, :stock_quantity, :exchange_rate)';
+end;
+
+function TSysDecimalPlaceRepository.PrepareUpdateSql: string;
+begin
+  Result := 'UPDATE public.' + Self.GetTableName(TSysDecimalPlace) +
+            ' SET quantity = :quantity, price = :price, total = :total, ' +
+            '     stock_quantity = :stock_quantity, exchange_rate = :exchange_rate ' +
+            ' WHERE id = :id';
+end;
+
+function TSysDecimalPlaceRepository.PrepareDeleteSql: string;
+begin
+  //WHERE kýsmý özellikle böyle yazýldý. Filtre vermeden iþlem yapýlmamasý için. Hatalý kodlamada tüm tabloyu siler.
+  Result := 'DELETE FROM public.' + Self.GetTableName(TSysDecimalPlace) + ' WHERE';
+end;
+
+procedure TSysDecimalPlaceRepository.SetInsertParams(Q: TFDQuery; AModel: TSysDecimalPlace; AIndex: Integer);
+begin
+  if AIndex < 0 then
+  begin
+    Q.ParamByName('quantity').AsSmallInt := AModel.Quantity;
+    Q.ParamByName('price').AsSmallInt := AModel.Price;
+    Q.ParamByName('total').AsSmallInt := AModel.Total;
+    Q.ParamByName('stock_quantity').AsSmallInt := AModel.StockQuantity;
+    Q.ParamByName('exchange_rate').AsSmallInt := AModel.ExchangeRate;
+  end
+  else
+  begin
+    Q.ParamByName('quantity').AsSmallInts[AIndex] := AModel.Quantity;
+    Q.ParamByName('price').AsSmallInts[AIndex] := AModel.Price;
+    Q.ParamByName('total').AsSmallInts[AIndex] := AModel.Total;
+    Q.ParamByName('stock_quantity').AsSmallInts[AIndex] := AModel.StockQuantity;
+    Q.ParamByName('exchange_rate').AsSmallInts[AIndex] := AModel.ExchangeRate;
+  end;
+end;
+
+procedure TSysDecimalPlaceRepository.SetUpdateParams(Q: TFDQuery; AModel: TSysDecimalPlace; AIndex: Integer);
+begin
+  if AIndex < 0 then
+  begin
+    Q.ParamByName('id').AsSmallInt              := AModel.Id;
+    Q.ParamByName('quantity').AsSmallInt        := AModel.Quantity;
+    Q.ParamByName('price').AsSmallInt           := AModel.Price;
+    Q.ParamByName('total').AsSmallInt           := AModel.Total;
+    Q.ParamByName('stock_quantity').AsSmallInt  := AModel.StockQuantity;
+    Q.ParamByName('exchange_rate').AsSmallInt   := AModel.ExchangeRate;
+  end
+  else
+  begin
+    Q.ParamByName('id').AsLargeInts[AIndex]             := AModel.Id;
+    Q.ParamByName('quantity').AsSmallInts[AIndex]       := AModel.Quantity;
+    Q.ParamByName('price').AsSmallInts[AIndex]          := AModel.Price;
+    Q.ParamByName('total').AsSmallInts[AIndex]          := AModel.Total;
+    Q.ParamByName('stock_quantity').AsSmallInts[AIndex] := AModel.StockQuantity;
+    Q.ParamByName('exchange_rate').AsSmallInts[AIndex]  := AModel.ExchangeRate;
+  end;
+end;
+
+function TSysDecimalPlaceRepository.MapFromQuery(Q: TFDQuery): TSysDecimalPlace;
+begin
+  Result                := TSysDecimalPlace.Create;
+  Result.Id             := Q.FieldByName('id').AsLargeInt;
+  Result.Quantity       := Q.FieldByName('quantity').AsInteger;
+  Result.Price          := Q.FieldByName('price').AsInteger;
+  Result.Total          := Q.FieldByName('total').AsInteger;
+  Result.StockQuantity  := Q.FieldByName('stock_quantity').AsInteger;
+  Result.ExchangeRate   := Q.FieldByName('exchange_rate').AsInteger;
+end;
+
 function TSysDecimalPlaceRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+var
+  Criteria: TFilterCriterion;
 begin
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM vw_sys_decimal_places WHERE 1=1 ';
+  Result.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysDecimalPlace) + ' WHERE 1=1 ';
+
+  if Assigned(AFilter) and (AFilter.Count > 0) then
+  begin
+    for Criteria in AFilter do
+      Result.SQL.Text := Result.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.ParamName;
+    for Criteria in AFilter do
+      Result.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+  end;
+end;
+
+function TSysDecimalPlaceRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysDecimalPlace>;
+var
+  Q: TFDQuery;
+  Item: TSysDecimalPlace;
+  Criteria: TFilterCriterion;
+begin
+  Result := TObjectList<TSysDecimalPlace>.Create(True);
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, False, False);
+
+    if Assigned(AFilter) and (AFilter.Count > 0) then
+    begin
+      for Criteria in AFilter do
+        Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+    end;
+
+    Q.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
+
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Item := MapFromQuery(Q);
+      Result.Add(Item);
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSysDecimalPlaceRepository.FindById(AId: TValue; ALock: Boolean): TSysDecimalPlace;
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriteria;
+begin
+  Result := nil;
+  Q := TFDQuery.Create(nil);
+  Criteria := TFilterCriteria.Create;
+  try
+    Q.Connection := Connection;
+
+    Criteria.Add(TFilterCriterion.New('id', '=', AId));
+    Q.SQL.Text := Self.PrepareSelectFromView(Criteria, ALock, True, False);
+
+    Q.ParamByName('id').AsLargeInt := AId.AsInt64;
+    Q.Open;
+
+    if not Q.IsEmpty then
+      Result := MapFromQuery(Q);
+  finally
+    Q.Free;
+    Criteria.Free;
+  end;
+end;
+
+function TSysDecimalPlaceRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysDecimalPlace;
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriterion;
+begin
+  Result := nil;
+  if not Assigned(AFilter) or (AFilter.Count = 0) then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, True, False);
+
+    for Criteria in AFilter do
+      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+    Q.Open;
+
+    if not Q.IsEmpty then
+      Result := MapFromQuery(Q);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysDecimalPlaceRepository.Add(AModel: TSysDecimalPlace);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareAddSql + ' RETURNING id';
+    SetInsertParams(Q, AModel);
+    Q.Open;
+    AModel.Id := Q.FieldByName('id').AsLargeInt;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysDecimalPlaceRepository.AddBatch(AModels: TArray<TSysDecimalPlace>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareAddSql;
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      SetInsertParams(Q, AModels[I], I);
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysDecimalPlaceRepository.Update(AModel: TSysDecimalPlace);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareUpdateSql;
+    SetUpdateParams(Q, AModel);
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysDecimalPlaceRepository.UpdateBatch(AModels: TArray<TSysDecimalPlace>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareUpdateSql;
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      SetUpdateParams(Q, AModels[I], I);
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysDecimalPlaceRepository.Delete(AID: Int64);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
 end;
 
 procedure TSysDecimalPlaceRepository.Delete(AModel: TSysDecimalPlace);
 begin
   Delete(AModel.Id);
+end;
+
+procedure TSysDecimalPlaceRepository.DeleteBatch(AModels: TArray<TSysDecimalPlace>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysDecimalPlaceRepository.DeleteBatch(AIDs: TArray<Int64>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AIDs);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I];
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysDecimalPlaceRepository.DeleteBatch(AFilter: TFilterCriteria);
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriterion;
+begin
+  if not Assigned(AFilter) or (AFilter.Count = 0) then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' 1=1 ';
+
+    for Criteria in AFilter do
+      Q.SQL.Text := Q.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.ParamName;
+
+    for Criteria in AFilter do
+      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
 end;
 
 end.

@@ -33,7 +33,7 @@ inherited frmDashboard: TfrmDashboard
       Left = 8
       Top = 2
       Width = 201
-      Height = 25
+      Height = 36
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -47,6 +47,7 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
@@ -790,6 +791,12 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 72
       OnExecute = actsys_languageExecute
     end
+    object actsys_decimal_place: TAction
+      Category = 'System'
+      Caption = 'Decimal Place'
+      ImageIndex = 96
+      OnExecute = actsys_decimal_placeExecute
+    end
   end
   object tmrcheck_is_update_required: TTimer
     Enabled = False
@@ -845,6 +852,12 @@ inherited frmDashboard: TfrmDashboard
         end
         object mnisys_region: TMenuItem
           Action = actsys_region
+        end
+        object mniN2: TMenuItem
+          Caption = '-'
+        end
+        object mnisys_decimal_place: TMenuItem
+          Action = actsys_decimal_place
         end
         object mniN7: TMenuItem
           Caption = '-'

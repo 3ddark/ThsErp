@@ -1,4 +1,4 @@
-unit Entity;
+﻿unit Entity;
 
 interface
 
@@ -47,6 +47,9 @@ type
   end;
 
 implementation
+
+uses
+  LocalizationManager;
 
 constructor TEntityBase.Create;
 begin
@@ -198,7 +201,7 @@ begin
   except
     on E: Exception do
     begin
-      Result.AddError(APropertyName, 'Validation error: ' + E.Message);
+      Result.AddError(APropertyName, TLocalizationManager.Translate(TLangKeys.TMessage.ValidationErrorTitle, 'Validation error') + ': ' + E.Message);
     end;
   end;
 end;

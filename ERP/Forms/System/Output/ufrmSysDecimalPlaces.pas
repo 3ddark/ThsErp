@@ -35,12 +35,12 @@ end;
 procedure TfrmSysDecimalPlaces.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',               0, TLocalizationManager.Translate('sys_decimal_place.col_id', 'Id'));
-  SetColumnProperty('quantity',        70, TLocalizationManager.Translate('sys_decimal_place.col_quantity', 'Quantity'));
-  SetColumnProperty('price',           70, TLocalizationManager.Translate('sys_decimal_place.col_price', 'Price'));
-  SetColumnProperty('total',           70, TLocalizationManager.Translate('sys_decimal_place.col_total', 'Total'));
-  SetColumnProperty('stock_quantity',  70, TLocalizationManager.Translate('sys_decimal_place.col_stock_quantity', 'Stock Quantity'));
-  SetColumnProperty('exchange_rate',   70, TLocalizationManager.Translate('sys_decimal_place.col_exchange_rate', 'Exchange Rate'));
+  SetColumnProperty('id',               0, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColId, 'Id'));
+  SetColumnProperty('quantity',        70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColQuantity, 'Quantity'));
+  SetColumnProperty('price',           70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColPrice, 'Price'));
+  SetColumnProperty('total',           70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColTotal, 'Total'));
+  SetColumnProperty('stock_quantity',  70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColStockQuantity, 'Stock Quantity'));
+  SetColumnProperty('exchange_rate',   70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColExchangeRate, 'Exchange Rate'));
 end;
 
 procedure TfrmSysDecimalPlaces.DefineFooterColumns;
@@ -58,7 +58,7 @@ end;
 procedure TfrmSysDecimalPlaces.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_decimal_place.title_plural', 'Decimal Places');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.TitlePlural, 'Decimal Places');
 end;
 
 end.

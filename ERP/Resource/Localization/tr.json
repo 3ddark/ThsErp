@@ -354,6 +354,7 @@
   "msg.title.information": "Bilgilendirme",
   "msg.confirm_close_window": "Çıkmak istediğinden emin misin?\nYapılan tüm değişiklikler kaybolacaktır",
   "msg.record_deleted_while_review": "Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş. Kaydı tekrar kontrol edin!",
+  "msg.title.validation_error": "Doğrulama Hatası",
   "stock.group_name.required": "Stok grup adı boş bırakılamaz.",
   "stock.code.required": "Stok Kodu boş bırakılamaz.",
   "stock.name.required": "Stok Adı boş bırakılamaz.",

@@ -84,7 +84,9 @@ begin
   LFilter := TFilterCriteria.Create;
   try
     if AOperation = coUpdate then
-      LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+      LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)))
+    else if AOperation = coDelete then
+      raise ESysDecimalPlaceExceptionMustContainOnlyOneRecord.Create;
 
     LModel := FRepo.FindOne(LFilter, False);
     if Assigned(LModel) then

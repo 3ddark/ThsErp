@@ -18,6 +18,7 @@ uses
   ufrmSysCities, SysCity.Service, SysCity,
   ufrmSysCountries, SysCountry.Service, SysCountry,
   ufrmSysCurrencies, SysCurrency.Service, SysCurrency,
+  ufrmSysDecimalPlaces, SysDecimalPlace.Service, SysDecimalPlace,
   ufrmSysLanguages, SysLanguage.Service, SysLanguage.Repository, SysLanguage,
   ufrmSysRegions, SysRegion.Service, SysRegion,
   ufrmSysPermissionGroups, SysPermissionGroup.Service, SysPermissionGroup,
@@ -171,6 +172,9 @@ type
     mnisys_language: TMenuItem;
     actsys_language: TAction;
     mnimenu_language: TMenuItem;
+    actsys_decimal_place: TAction;
+    mniN2: TMenuItem;
+    mnisys_decimal_place: TMenuItem;
 
     procedure DynamicLangMenuItemClick(Sender: TObject);
     procedure BuildLanguageMenu;
@@ -264,6 +268,7 @@ type
     procedure actch_banka_subeleriExecute(Sender: TObject);
     procedure actset_prs_tasima_servisleriExecute(Sender: TObject);
     procedure btnTestClick(Sender: TObject);
+    procedure actsys_decimal_placeExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
   published
@@ -597,6 +602,11 @@ begin
   TfrmSysCurrencies.Create(Self, TSysCurrencyService.Create, TSysCurrency.Create).Show;
 end;
 
+procedure TfrmDashboard.actsys_decimal_placeExecute(Sender: TObject);
+begin
+  TfrmSysDecimalPlaces.Create(Self, TSysDecimalPlaceService.Create, TSysDecimalPlace.Create).Show;
+end;
+
 procedure TfrmDashboard.actsys_languageExecute(Sender: TObject);
 begin
   TfrmSysLanguages.Create(Self, TSysLanguageService.Create, TSysLanguage.Create).Show;
@@ -925,31 +935,31 @@ begin
 
   // Language menu caption
   if Assigned(mnimenu_language) then
-    mnimenu_language.Caption := TLocalizationManager.Translate('menu.language', 'Lisan / Language');
+    mnimenu_language.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuLanguage, 'Lisan / Language');
 
   // Main menu top-level items
   if Assigned(mnimenu_system) then
-    mnimenu_system.Caption := TLocalizationManager.Translate('dashboard.menu.system', 'Sistem');
+    mnimenu_system.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSystem, 'Sistem');
   if Assigned(mnimenu_purchase) then
-    mnimenu_purchase.Caption := TLocalizationManager.Translate('dashboard.menu.purchasing', 'Alımlar');
+    mnimenu_purchase.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuPurchasing, 'Alımlar');
   if Assigned(mnimenu_sales) then
-    mnimenu_sales.Caption := TLocalizationManager.Translate('dashboard.menu.sales', 'Satışlar');
+    mnimenu_sales.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSales, 'Satışlar');
   if Assigned(mnimenu_accounting) then
-    mnimenu_accounting.Caption := TLocalizationManager.Translate('dashboard.menu.accounting', 'Muhasebe');
+    mnimenu_accounting.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuAccounting, 'Muhasebe');
   if Assigned(mnimenu_stock) then
-    mnimenu_stock.Caption := TLocalizationManager.Translate('dashboard.menu.stock', 'Stoklar');
+    mnimenu_stock.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuStock, 'Stoklar');
   if Assigned(mnimenu_employee) then
-    mnimenu_employee.Caption := TLocalizationManager.Translate('dashboard.menu.personnel', 'Personel');
+    mnimenu_employee.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuPersonnel, 'Personel');
   if Assigned(mnimenu_about) then
-    mnimenu_about.Caption := TLocalizationManager.Translate('dashboard.menu.about', 'Hakkında');
+    mnimenu_about.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuAbout, 'Hakkında');
 
   // Submenu items & section headers
   if Assigned(mniSystemSubSettings) then
-    mniSystemSubSettings.Caption := TLocalizationManager.Translate('dashboard.menu.settings', 'Ayarlar');
+    mniSystemSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Ayarlar');
   if Assigned(mniAccountingSubSettings) then
-    mniAccountingSubSettings.Caption := TLocalizationManager.Translate('dashboard.menu.settings', 'Ayarlar');
+    mniAccountingSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Ayarlar');
   if Assigned(mniEmployeeSubSettings) then
-    mniEmployeeSubSettings.Caption := TLocalizationManager.Translate('dashboard.menu.settings', 'Ayarlar');
+    mniEmployeeSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Ayarlar');
   if Assigned(mnipur_offer) then
     mnipur_offer.Caption := TLocalizationManager.Translate('dashboard.menu.proposals', 'Teklifler');
   if Assigned(mnipur_order) then
