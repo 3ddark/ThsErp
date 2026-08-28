@@ -64,16 +64,16 @@ implementation
 constructor TSysAccessRight.Create();
 begin
   inherited;
-  FPermission := TSysPermission.Create;
-  FUser := TSysUser.Create;
+//  FPermission := TSysPermission.Create;
+//  FUser := TSysUser.Create;
 end;
 
 destructor TSysAccessRight.Destroy;
 begin
-  if Assigned(FPermission) then
-    FreeAndNil(FPermission);
-  if Assigned(FUser) then
-    FreeAndNil(FUser);
+//  if Assigned(FPermission) then
+//    FreeAndNil(FPermission);
+//  if Assigned(FUser) then
+//    FreeAndNil(FUser);
   inherited;
 end;
 

@@ -15,7 +15,7 @@ uses
   AppContext, UserContext, Repository, LocalizationManager,
   ConnectionManager, UnitOfWork, FilterCriterion, Auth.Service,
   SysPermission.Repository, SysPermission, SysLanguage, SysLanguage.Repository,
-  SysUser.Repository, SysAccessRight.Repository;
+  SysUser.Repository, SysAccessRight.Repository, SysAccessRight;
 
 type
   TfrmLogin = class(TfrmBase)
@@ -95,6 +95,7 @@ var
   LLangRepo: IRepository<TSysLanguage>;
   LAuthSvc: TAuthService;
   LLoginRes: TLoginResult;
+  LPerms: TObjectDictionary<Integer, TSysAccessRight>;
   LLangs: TArray<string>;
   LSelectedLang: string;
 
@@ -194,10 +195,11 @@ begin
 
         var LAccessRepo := TSysAccessRightRepository.Create(LConn);
         try
-          var LPerms := LAccessRepo.GetUserPermissions(LLoginRes.UserId);
+          LPerms := LAccessRepo.GetUserPermissions(LLoginRes.UserId);
           TAppContext.Instance.CurrentUser.AddPermissions(LPerms);
         finally
           LAccessRepo.Free;
+          LPerms.Free;
         end;
 
         ModalResult := mrYes;

@@ -48,7 +48,7 @@ begin
 
   FUser := AUser;
   FOwnsUser := AOwnsUser;
-  FPermissions := TObjectDictionary<Integer, TSysAccessRight>.Create;
+  FPermissions := TObjectDictionary<Integer, TSysAccessRight>.Create([doOwnsValues]);
 end;
 
 destructor TUserContext.Destroy;

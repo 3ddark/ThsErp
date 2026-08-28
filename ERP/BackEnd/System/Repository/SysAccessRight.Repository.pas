@@ -412,7 +412,7 @@ var
   Q: TFDQuery;
   Right: TSysAccessRight;
 begin
-  Result := TObjectDictionary<Integer, TSysAccessRight>.Create;
+  Result := TObjectDictionary<Integer, TSysAccessRight>.Create();
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
