@@ -69,6 +69,7 @@ type
         const ConfirmCloseWindow = 'msg.confirm_close_window';
         const RecordDeletedWhileReview = 'msg.record_deleted_while_review';
         const MustContainOnlyOneRecord = 'msg.must_contain_only_one_record';
+        const ValidationErrorTitle = 'msg.title.validation_error';
       end;
 
       TLogin = record
@@ -85,6 +86,18 @@ type
         const UserNotAuthenticated = 'security.user_not_authenticated';
         const AccessDenied = 'security.access_denied';
         const AccessDeniedCode = 'security.access_denied_code';
+      end;
+
+      TDashboard = record
+        const MenuLanguage = 'dashboard.menu.language';
+        const MenuSystem = 'dashboard.menu.system';
+        const MenuPurchasing = 'dashboard.menu.purchasing';
+        const MenuSales = 'dashboard.menu.sales';
+        const MenuAccounting = 'dashboard.menu.accounting';
+        const MenuStock = 'dashboard.menu.stock';
+        const MenuPersonnel = 'dashboard.menu.personnel';
+        const MenuAbout = 'dashboard.menu.about';
+        const MenuSettings = 'dashboard.menu.settings';
       end;
 
       //System Module
@@ -123,7 +136,15 @@ type
       end;
 
       TSysDecimalPlace = record
-        const NameMinLength = 'sys_country.name.minlength';
+        const TitlePlural = 'sys_decimal_place.title_plural';
+        const TitleSingular = 'sys_decimal_place.title_singular';
+        const ColId = 'sys_decimal_place.col_id';
+        const ColQuantity = 'sys_decimal_place.col_quantity';
+        const ColPrice = 'sys_decimal_place.col_price';
+        const ColTotal = 'sys_decimal_place.col_total';
+        const ColStockQuantity = 'sys_decimal_place.col_stock_quantity';
+        const ColExchangeRate = 'sys_decimal_place.col_exchange_rate';
+        const NameMinLength = 'sys_decimal_place.name.minlength';
       end;
 
       TSysGridColumn = record

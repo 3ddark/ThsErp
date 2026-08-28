@@ -216,12 +216,6 @@ begin
         Close;
       except
         ModalResult := mrNone;
-        btnSpin.Visible := true;
-        FormMode := ifmRewiev;
-        btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Güncelle');
-        btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
-        btnAccept.Width := Max(100, btnAccept.Width);
-        btnDelete.Visible := false;
         Repaint;
         raise;
       end;
@@ -274,7 +268,27 @@ end;
 
 procedure TfrmInputSimpleDB<TE, TS>.BtnCloseClick(Sender: TObject);
 begin
-  Self.Close;
+
+  if (FormMode = ifmRewiev)
+  or (FormMode = ifmReadOnly)
+  then
+  begin
+    Self.Close;
+  end
+  else
+  if (CustomMsgDlg(
+    TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmCloseWindow, 'Ekranı Kapatmak istediğinden emin misin? Değişiklerin varsa kaybolacak.'),
+    mtConfirmation,
+    mbYesNo,
+    [
+      TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Evet'),
+      TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'Hayır')
+    ],
+    mbNo,
+    TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Kullanıcı Onayı')
+  ) = mrYes)
+  then
+    Self.Close;
 end;
 
 procedure TfrmInputSimpleDB<TE, TS>.BtnDeleteClick(Sender: TObject);
@@ -302,14 +316,14 @@ begin
         Close;
       except
         ModalResult := mrNone;
-        FormMode := ifmRewiev;
-        btnSpin.Visible := True;
-        btnDelete.Visible := False;
-        btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Güncelle');
-        btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
-        btnAccept.Width := Max(100, btnAccept.Width);
+//        FormMode := ifmRewiev;
+//        btnSpin.Visible := True;
+//        btnDelete.Visible := False;
+//        btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Güncelle');
+//        btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
+//        btnAccept.Width := Max(100, btnAccept.Width);
 
-        Repaint;
+        Repaint;raise;
       end;
     end;
   end;
@@ -641,7 +655,7 @@ begin
     Char(VK_ESCAPE):
       begin
         Key := #0;
-        Self.Close;
+        BtnCloseClick(Sender);
       end;
     Char(VK_RETURN):
       begin

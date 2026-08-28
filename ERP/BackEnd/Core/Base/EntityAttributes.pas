@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.Variants, System.Generics.Collections,
-  System.Rtti, System.TypInfo, LocalizationManager;
+  System.Rtti, System.TypInfo, System.StrUtils, LocalizationManager;
 
 type
   TColumnProperty = (cpNotNull, cpUnique, cpPrimaryKey, cpAutoIncrement);
@@ -182,16 +182,17 @@ type
   private
     FMinValue: TValue;
     FMaxValue: TValue;
+    FPropName: string;
     FMessage: string;
     FMessageKey: string;
     FUseTranslation: Boolean;
   public
-    constructor Create(const AMinValue, AMaxValue: Integer; const AMessage: string = ''); overload;
-    constructor Create(const AMinValue, AMaxValue: Integer; const AMessageKey: string; const AUseTranslation: Boolean); overload;
-    constructor Create(const AMinValue, AMaxValue: Int64; const AMessage: string = ''); overload;
-    constructor Create(const AMinValue, AMaxValue: Int64; const AMessageKey: string; const AUseTranslation: Boolean); overload;
-    constructor Create(const AMinValue, AMaxValue: Double; const AMessage: string = ''); overload;
-    constructor Create(const AMinValue, AMaxValue: Double; const AMessageKey: string; const AUseTranslation: Boolean); overload;
+    constructor Create(const AMinValue, AMaxValue: Integer; const APropName: string; const AMessage: string = ''); overload;
+    constructor Create(const AMinValue, AMaxValue: Integer; const APropName: string; const AMessageKey: string; const AUseTranslation: Boolean); overload;
+    constructor Create(const AMinValue, AMaxValue: Int64; const APropName: string; const AMessage: string = ''); overload;
+    constructor Create(const AMinValue, AMaxValue: Int64; const APropName: string; const AMessageKey: string; const AUseTranslation: Boolean); overload;
+    constructor Create(const AMinValue, AMaxValue: Double; const APropName: string; const AMessage: string = ''); overload;
+    constructor Create(const AMinValue, AMaxValue: Double; const APropName: string; const AMessageKey: string; const AUseTranslation: Boolean); overload;
     function Validate(const AValue: TValue; const AFieldName: string): TValidationResult;
     property UseTranslation: Boolean read FUseTranslation;
   end;
@@ -729,11 +730,12 @@ begin
   end;
 end;
 
-constructor Range.Create(const AMinValue, AMaxValue: Integer; const AMessage: string = '');
+constructor Range.Create(const AMinValue, AMaxValue: Integer; const APropName: string; const AMessage: string = '');
 begin
   inherited Create;
   FMinValue := AMinValue;
   FMaxValue := AMaxValue;
+  FPropName := APropName;
   FMessage := AMessage;
   FMessageKey := '';
   FUseTranslation := False;
@@ -741,11 +743,12 @@ begin
     FMessage := Format('Field must be between %s and %s', [AMinValue.ToString, AMaxValue.ToString]);
 end;
 
-constructor Range.Create(const AMinValue, AMaxValue: Integer; const AMessageKey: string; const AUseTranslation: Boolean);
+constructor Range.Create(const AMinValue, AMaxValue: Integer; const APropName: string; const AMessageKey: string; const AUseTranslation: Boolean);
 begin
   inherited Create;
   FMinValue := AMinValue;
   FMaxValue := AMaxValue;
+  FPropName := APropName;
   FMessageKey := AMessageKey;
   FUseTranslation := AUseTranslation;
   if AUseTranslation then
@@ -754,11 +757,12 @@ begin
     FMessage := AMessageKey;
 end;
 
-constructor Range.Create(const AMinValue, AMaxValue: Int64; const AMessage: string = '');
+constructor Range.Create(const AMinValue, AMaxValue: Int64; const APropName: string; const AMessage: string = '');
 begin
   inherited Create;
   FMinValue := AMinValue;
   FMaxValue := AMaxValue;
+  FPropName := APropName;
   FMessage := AMessage;
   FMessageKey := '';
   FUseTranslation := False;
@@ -766,11 +770,12 @@ begin
     FMessage := Format('Field must be between %s and %s', [AMinValue.ToString, AMaxValue.ToString]);
 end;
 
-constructor Range.Create(const AMinValue, AMaxValue: Int64; const AMessageKey: string; const AUseTranslation: Boolean);
+constructor Range.Create(const AMinValue, AMaxValue: Int64; const APropName: string; const AMessageKey: string; const AUseTranslation: Boolean);
 begin
   inherited Create;
   FMinValue := AMinValue;
   FMaxValue := AMaxValue;
+  FPropName := APropName;
   FMessageKey := AMessageKey;
   FUseTranslation := AUseTranslation;
   if AUseTranslation then
@@ -779,11 +784,12 @@ begin
     FMessage := AMessageKey;
 end;
 
-constructor Range.Create(const AMinValue, AMaxValue: Double; const AMessage: string = '');
+constructor Range.Create(const AMinValue, AMaxValue: Double; const APropName: string; const AMessage: string = '');
 begin
   inherited Create;
   FMinValue := AMinValue;
   FMaxValue := AMaxValue;
+  FPropName := APropName;
   FMessage := AMessage;
   FMessageKey := '';
   FUseTranslation := False;
@@ -791,11 +797,12 @@ begin
     FMessage := Format('Field must be between %s and %s', [AMinValue.ToString, AMaxValue.ToString]);
 end;
 
-constructor Range.Create(const AMinValue, AMaxValue: Double; const AMessageKey: string; const AUseTranslation: Boolean);
+constructor Range.Create(const AMinValue, AMaxValue: Double; const APropName: string; const AMessageKey: string; const AUseTranslation: Boolean);
 begin
   inherited Create;
   FMinValue := AMinValue;
   FMaxValue := AMaxValue;
+  FPropName := APropName;
   FMessageKey := AMessageKey;
   FUseTranslation := AUseTranslation;
   if AUseTranslation then
@@ -837,12 +844,11 @@ begin
     if not IsInRange then
     begin
       if FUseTranslation and (FMessageKey <> '') then
-        ErrorMessage := TLocalizationManager.Translate(FMessageKey,
-          [FMinValue.ToString, FMaxValue.ToString], FMessage)
+        ErrorMessage := TLocalizationManager.Translate(FMessageKey, [FMinValue.ToString, FMaxValue.ToString], FMessage)
       else
         ErrorMessage := Format(FMessage, [FMinValue.ToString, FMaxValue.ToString]);
 
-      Result.AddError(AFieldName, ErrorMessage);
+      Result.AddError(TLocalizationManager.Translate(FPropName, AFieldName), ErrorMessage);
     end;
   end;
 end;

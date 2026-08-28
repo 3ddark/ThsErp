@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict fbJG9nzdeniDmL0d7I71HUFcQxZPsu9ZyZcljTyLIwBiHyjX7chjfg4dHO321a2
+\restrict 3LuycwfXucL8ibaMR6wlj1bTQ70pgmzkJxRk8CE8ZevZwZXRFMZefR2x96QZgFX
 
--- Dumped from database version 18.6
--- Dumped by pg_dump version 18.6
+-- Dumped from database version 18.1
+-- Dumped by pg_dump version 18.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2932,7 +2932,7 @@ ALTER TABLE public.sys_application_setting OWNER TO ths_admin;
 
 CREATE TABLE public.sys_city (
     id bigint NOT NULL,
-    name character varying(32) NOT NULL,
+    city_name character varying(32) CONSTRAINT sys_city_name_not_null NOT NULL,
     plate_code integer,
     country_id bigint,
     region_id bigint
@@ -3694,51 +3694,13 @@ CREATE VIEW public.vw_sys_access_right AS
 ALTER VIEW public.vw_sys_access_right OWNER TO ths_admin;
 
 --
--- Name: vw_sys_cities; Type: VIEW; Schema: public; Owner: ths_admin
+-- Name: vw_sys_address; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
-CREATE VIEW public.vw_sys_cities AS
- SELECT ct.id,
-    ct.name AS city_name,
-    ct.plate_code AS car_plate_code,
-    ct.country_id,
-    ct.region_id,
-    cn.code AS country_code,
-    cn.key AS country_name,
-    r.name AS region_name
-   FROM ((public.sys_city ct
-     LEFT JOIN public.sys_country cn ON ((cn.id = ct.country_id)))
-     LEFT JOIN public.sys_region r ON ((r.id = ct.region_id)))
-  WHERE (1 = 1);
-
-
-ALTER VIEW public.vw_sys_cities OWNER TO ths_admin;
-
---
--- Name: vw_sys_countries; Type: VIEW; Schema: public; Owner: ths_admin
---
-
-CREATE VIEW public.vw_sys_countries AS
- SELECT id,
-    code,
-    key AS name,
-    iso_year,
-    iso_cctld,
-    is_eu_member
-   FROM public.sys_country ct
-  WHERE (1 = 1);
-
-
-ALTER VIEW public.vw_sys_countries OWNER TO ths_admin;
-
---
--- Name: vw_sys_country; Type: VIEW; Schema: public; Owner: ths_admin
---
-
-CREATE VIEW public.vw_sys_country AS
+CREATE VIEW public.vw_sys_address AS
  SELECT a.id,
     cnt.name AS country,
-    ct.name AS city,
+    ct.city_name AS city,
     a.city_id,
     cn.id AS country_id,
     a.district,
@@ -3759,7 +3721,64 @@ CREATE VIEW public.vw_sys_country AS
      LEFT JOIN public.sys_language l ON ((l.id = cnt.sys_language_id)));
 
 
+ALTER VIEW public.vw_sys_address OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_city; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_city AS
+ SELECT ct.id,
+    ct.city_name,
+    ct.plate_code AS car_plate_code,
+    ct.country_id,
+    ct.region_id,
+    cn.code AS country_code,
+    cn.key AS country_name,
+    r.name AS region_name
+   FROM ((public.sys_city ct
+     LEFT JOIN public.sys_country cn ON ((cn.id = ct.country_id)))
+     LEFT JOIN public.sys_region r ON ((r.id = ct.region_id)))
+  WHERE (1 = 1);
+
+
+ALTER VIEW public.vw_sys_city OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_country; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_country AS
+ SELECT cn.id,
+    cn.code,
+    cn.key,
+    cn.iso_year,
+    cn.iso_cctld,
+    cn.is_eu_member,
+    cnt.name AS country_name,
+    l.locale
+   FROM ((public.sys_country cn
+     LEFT JOIN public.sys_country_translation cnt ON ((cnt.sys_country_id = cn.id)))
+     LEFT JOIN public.sys_language l ON ((l.id = cnt.sys_language_id)));
+
+
 ALTER VIEW public.vw_sys_country OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_decimal_place; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_decimal_place AS
+ SELECT id,
+    quantity,
+    price,
+    total,
+    stock_quantity,
+    exchange_rate
+   FROM public.sys_decimal_place;
+
+
+ALTER VIEW public.vw_sys_decimal_place OWNER TO ths_admin;
 
 --
 -- Name: vw_sys_language; Type: VIEW; Schema: public; Owner: ths_admin
@@ -4928,11 +4947,11 @@ ALTER TABLE ONLY public.sys_application_setting
 
 
 --
--- Name: sys_city sys_city_cid_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_city sys_city_cid_city_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_city
-    ADD CONSTRAINT sys_city_cid_name_key UNIQUE (country_id, name);
+    ADD CONSTRAINT sys_city_cid_city_name_key UNIQUE (country_id, city_name);
 
 
 --
@@ -6719,5 +6738,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict fbJG9nzdeniDmL0d7I71HUFcQxZPsu9ZyZcljTyLIwBiHyjX7chjfg4dHO321a2
+\unrestrict 3LuycwfXucL8ibaMR6wlj1bTQ70pgmzkJxRk8CE8ZevZwZXRFMZefR2x96QZgFX
 

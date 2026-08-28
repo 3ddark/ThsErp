@@ -12,7 +12,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
   Font.Style = []
   OnCreate = FormCreate
   OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
@@ -21,9 +21,9 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
     Align = alClient
     TabOrder = 0
     object lblQuantity: TLabel
-      Left = 92
+      Left = 91
       Top = 12
-      Width = 36
+      Width = 37
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -85,9 +85,9 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       ParentFont = False
     end
     object lblExchangeRate: TLabel
-      Left = 65
+      Left = 68
       Top = 132
-      Width = 63
+      Width = 60
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -104,7 +104,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       Left = 134
       Top = 8
       Width = 75
-      Height = 24
+      Height = 23
       MaxValue = 99
       MinValue = 0
       TabOrder = 0
@@ -114,7 +114,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       Left = 134
       Top = 38
       Width = 75
-      Height = 24
+      Height = 23
       MaxValue = 99
       MinValue = 0
       TabOrder = 1
@@ -124,7 +124,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       Left = 134
       Top = 68
       Width = 75
-      Height = 24
+      Height = 23
       MaxValue = 99
       MinValue = 0
       TabOrder = 2
@@ -134,7 +134,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       Left = 134
       Top = 98
       Width = 75
-      Height = 24
+      Height = 23
       MaxValue = 99
       MinValue = 0
       TabOrder = 3
@@ -144,7 +144,7 @@ object frmSysDecimalPlace: TfrmSysDecimalPlace
       Left = 134
       Top = 128
       Width = 75
-      Height = 24
+      Height = 23
       MaxValue = 99
       MinValue = 0
       TabOrder = 4
