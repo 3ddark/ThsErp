@@ -182,8 +182,8 @@ inherited frmLogin: TfrmLogin
   inherited pnlMain: TPanel
     Width = 484
     Height = 170
-    ExplicitWidth = 482
-    ExplicitHeight = 162
+    ExplicitWidth = 484
+    ExplicitHeight = 170
     object lblusername: TLabel
       Left = 100
       Top = 5
@@ -451,7 +451,7 @@ inherited frmLogin: TfrmLogin
       Top = 177
       Width = 145
       Height = 21
-      TabOrder = 3
+      TabOrder = 4
       Text = 'edtUserName'
     end
     object edtdb_kullanici_sifre: TEdit
@@ -460,7 +460,7 @@ inherited frmLogin: TfrmLogin
       Width = 145
       Height = 21
       PasswordChar = '#'
-      TabOrder = 4
+      TabOrder = 5
       Text = 'thsEdit1'
     end
     object edtdb_host: TEdit
@@ -468,7 +468,7 @@ inherited frmLogin: TfrmLogin
       Top = 221
       Width = 145
       Height = 21
-      TabOrder = 5
+      TabOrder = 6
       Text = 'edtdb_host'
     end
     object edtdb_adi: TEdit
@@ -476,7 +476,7 @@ inherited frmLogin: TfrmLogin
       Top = 261
       Width = 145
       Height = 21
-      TabOrder = 6
+      TabOrder = 7
       Text = 'edtServer'
     end
     object edtdb_port: TEdit
@@ -484,7 +484,7 @@ inherited frmLogin: TfrmLogin
       Top = 283
       Width = 145
       Height = 21
-      TabOrder = 7
+      TabOrder = 8
       Text = 'edtServer'
     end
     object chkayarlari_kaydet: TCheckBox
@@ -492,7 +492,7 @@ inherited frmLogin: TfrmLogin
       Top = 308
       Width = 145
       Height = 17
-      TabOrder = 8
+      TabOrder = 9
     end
     object cbblanguage: TComboBox
       Left = 160
@@ -500,7 +500,7 @@ inherited frmLogin: TfrmLogin
       Width = 145
       Height = 21
       Style = csDropDownList
-      TabOrder = 9
+      TabOrder = 3
       Items.Strings = (
         'English en-US'
         'T'#252'rk'#231'e tr-TR')
@@ -510,25 +510,25 @@ inherited frmLogin: TfrmLogin
     Top = 172
     Width = 480
     TabOrder = 2
-    ExplicitTop = 164
-    ExplicitWidth = 478
+    ExplicitTop = 172
+    ExplicitWidth = 480
     inherited btnAccept: TButton
       Left = 274
       Caption = 'Login'
       HotImageIndex = 62
       ImageIndex = 62
-      ExplicitLeft = 272
+      ExplicitLeft = 274
     end
     inherited btnClose: TButton
       Left = 378
-      ExplicitLeft = 376
+      ExplicitLeft = 378
     end
   end
   inherited stbBase: TStatusBar
     Top = 202
     Width = 484
-    ExplicitTop = 194
-    ExplicitWidth = 482
+    ExplicitTop = 202
+    ExplicitWidth = 484
   end
   object pb1: TProgressBar
     Left = 136
