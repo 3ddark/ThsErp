@@ -63,7 +63,7 @@ end;
 
 function TSysDecimalPlaceRepository.PrepareDeleteSql: string;
 begin
-  //WHERE kýsmý özellikle böyle yazýldý. Filtre vermeden iþlem yapýlmamasý için. Hatalý kodlamada tüm tabloyu siler.
+  //WHERE kï¿½smï¿½ ï¿½zellikle bï¿½yle yazï¿½ldï¿½. Filtre vermeden iï¿½lem yapï¿½lmamasï¿½ iï¿½in. Hatalï¿½ kodlamada tï¿½m tabloyu siler.
   Result := 'DELETE FROM public.' + Self.GetTableName(TSysDecimalPlace) + ' WHERE';
 end;
 
@@ -200,16 +200,15 @@ var
   Criteria: TFilterCriterion;
 begin
   Result := nil;
-  if not Assigned(AFilter) or (AFilter.Count = 0) then
-    Exit;
 
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
     Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, True, False);
 
-    for Criteria in AFilter do
-      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+    if Assigned(AFilter) and (AFilter.Count > 0) then
+      for Criteria in AFilter do
+        Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
     Q.Open;
 
     if not Q.IsEmpty then

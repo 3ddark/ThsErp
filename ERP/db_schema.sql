@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict 3LuycwfXucL8ibaMR6wlj1bTQ70pgmzkJxRk8CE8ZevZwZXRFMZefR2x96QZgFX
+\restrict qrqTctm1uGVE6prTqTCvhSBjRmD2WQit7IfTQg2IjtXE7l7mZjVNKjaKm2KJoFz
 
--- Dumped from database version 18.1
--- Dumped by pg_dump version 18.1
+-- Dumped from database version 18.6
+-- Dumped by pg_dump version 18.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3730,15 +3730,18 @@ ALTER VIEW public.vw_sys_address OWNER TO ths_admin;
 CREATE VIEW public.vw_sys_city AS
  SELECT ct.id,
     ct.city_name,
-    ct.plate_code AS car_plate_code,
+    ct.plate_code,
     ct.country_id,
     ct.region_id,
     cn.code AS country_code,
-    cn.key AS country_name,
-    r.name AS region_name
-   FROM ((public.sys_city ct
+    cnt.name AS country_name,
+    r.name AS region_name,
+    l.locale
+   FROM ((((public.sys_city ct
      LEFT JOIN public.sys_country cn ON ((cn.id = ct.country_id)))
+     LEFT JOIN public.sys_country_translation cnt ON ((cnt.sys_country_id = ct.country_id)))
      LEFT JOIN public.sys_region r ON ((r.id = ct.region_id)))
+     LEFT JOIN public.sys_language l ON ((cnt.sys_language_id = l.id)))
   WHERE (1 = 1);
 
 
@@ -6738,5 +6741,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 3LuycwfXucL8ibaMR6wlj1bTQ70pgmzkJxRk8CE8ZevZwZXRFMZefR2x96QZgFX
+\unrestrict qrqTctm1uGVE6prTqTCvhSBjRmD2WQit7IfTQg2IjtXE7l7mZjVNKjaKm2KJoFz
 

@@ -6,12 +6,21 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext,
-  SysApplicationSetting.Repository, SysApplicationSetting;
+  SysApplicationSetting.Repository, SysApplicationSetting, SysApplicationSetting.Exception;
 
 type
   TSysApplicationSettingService = class(TCrudService<TSysApplicationSetting>)
   private
     FRepo: IRepository<TSysApplicationSetting>;
+
+    procedure DoAdd(AEntity: TSysApplicationSetting);
+    procedure DoUpdate(AEntity: TSysApplicationSetting);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateInsert(AEntity: TSysApplicationSetting);
+    procedure ValidateUpdate(AEntity: TSysApplicationSetting);
+    procedure ValidateDelete(AEntity: TSysApplicationSetting);
+    procedure ValidateMustContainOneRecord(AEntity: TSysApplicationSetting; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
@@ -37,16 +46,83 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysApplicationSettingService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysApplicationSetting, TSysApplicationSettingRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TSysApplicationSettingService.Destroy;
 begin
   inherited;
+end;
+
+procedure TSysApplicationSettingService.ValidateInsert(AEntity: TSysApplicationSetting);
+begin
+  ValidateMustContainOneRecord(AEntity, coInsert);
+end;
+
+procedure TSysApplicationSettingService.ValidateUpdate(AEntity: TSysApplicationSetting);
+begin
+  ValidateMustContainOneRecord(AEntity, coUpdate);
+end;
+
+procedure TSysApplicationSettingService.ValidateDelete(AEntity: TSysApplicationSetting);
+begin
+  ValidateMustContainOneRecord(AEntity, coDelete);
+end;
+
+procedure TSysApplicationSettingService.ValidateMustContainOneRecord(AEntity: TSysApplicationSetting; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TSysApplicationSetting;
+begin
+  LFilter := TFilterCriteria.Create;
+  try
+    if AOperation = coUpdate then
+      LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)))
+    else if AOperation = coDelete then
+      raise ESysApplicationSettingExceptionMustContainOnlyOneRecord.Create;
+
+    LModel := FRepo.FindOne(LFilter, False);
+    if Assigned(LModel) then
+      raise ESysApplicationSettingExceptionMustContainOnlyOneRecord.Create;
+  finally
+    LFilter.Free;
+    LModel.Free;
+  end;
+end;
+
+procedure TSysApplicationSettingService.DoAdd(AEntity: TSysApplicationSetting);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TSysApplicationSettingService.DoUpdate(AEntity: TSysApplicationSetting);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TSysApplicationSettingService.DoDelete(AId: Int64);
+var
+  LEntity: TSysApplicationSetting;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.CreateFmt('Record not found: %d', [AId]);
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TSysApplicationSettingService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysApplicationSetting>;
@@ -90,12 +166,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
-    ValidateAll(AEntity, coInsert);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -116,12 +190,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
-    ValidateAll(AEntity, coUpdate);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -142,12 +214,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
-    ValidateAll(AEntity, coDelete);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -185,25 +255,25 @@ end;
 
 procedure TSysApplicationSettingService.Add(AEntity: TSysApplicationSetting);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity)
 end;
 
 procedure TSysApplicationSettingService.Update(AEntity: TSysApplicationSetting);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity)
 end;
 
 procedure TSysApplicationSettingService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 procedure TSysApplicationSettingService.ValidateBusinessRules(AEntity: TSysApplicationSetting; AOperation: TCrudOperation);
 begin
-  //check unique
-  if AOperation in [coInsert, coUpdate] then
-  begin
-
+  case AOperation of
+    coInsert: ValidateInsert(AEntity);
+    coUpdate: ValidateUpdate(AEntity);
+    coDelete: ValidateDelete(AEntity);
   end;
 end;
 

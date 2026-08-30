@@ -330,7 +330,8 @@ uses
   SysCurrency.Exception in 'BackEnd\System\Exception\SysCurrency.Exception.pas',
   SysGridColumn.Exception in 'BackEnd\System\Exception\SysGridColumn.Exception.pas',
   SysGridFilter.Exception in 'BackEnd\System\Exception\SysGridFilter.Exception.pas',
-  SysDecimalPlace.Exception in 'BackEnd\System\Exception\SysDecimalPlace.Exception.pas';
+  SysDecimalPlace.Exception in 'BackEnd\System\Exception\SysDecimalPlace.Exception.pas',
+  SysApplicationSetting.Exception in 'BackEnd\System\Exception\SysApplicationSetting.Exception.pas';
 
 {$R *.res}
 

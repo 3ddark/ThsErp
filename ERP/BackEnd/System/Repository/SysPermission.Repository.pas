@@ -107,12 +107,12 @@ begin
       Trans := TSysPermissionTranslation.Create;
       Trans.PermissionId := Q.FieldByName('sys_permission_id').AsLargeInt;
       Trans.LanguageId := Q.FieldByName('sys_language_id').AsLargeInt;
-      Trans.Name := Q.FieldByName('name').AsString;
+      Trans.Name := Q.FieldByName('name').AsWideString;
 
       Trans.Language := TSysLanguage.Create;
       Trans.Language.Id := Q.FieldByName('sys_language_id').AsLargeInt;
-      Trans.Language.Locale := Q.FieldByName('locale').AsString;
-      Trans.Language.NativeName := Q.FieldByName('native_name').AsString;
+      Trans.Language.Locale := Q.FieldByName('locale').AsWideString;
+      Trans.Language.NativeName := Q.FieldByName('native_name').AsWideString;
 
       AModel.Translations.Add(Trans);
       Q.Next;
@@ -139,7 +139,7 @@ begin
       Trans.PermissionId := AModel.Id;
       Q.ParamByName('sys_permission_id').AsLargeInt := Trans.PermissionId;
       Q.ParamByName('sys_language_id').AsLargeInt := Trans.LanguageId;
-      Q.ParamByName('name').AsString := Trans.Name;
+      Q.ParamByName('name').AsWideString := Trans.Name;
       Q.ExecSQL;
     end;
   finally
@@ -153,13 +153,13 @@ begin
   begin
     Q.ParamByName('code').AsInteger                 := AModel.Code;
     Q.ParamByName('group_id').AsLargeInt            := AModel.GroupId;
-    Q.ParamByName('key').AsString                   := AModel.Key;
+    Q.ParamByName('key').AsWideString               := AModel.Key;
   end
   else
   begin
     Q.ParamByName('code').AsIntegers[AIndex]        := AModel.Code;
     Q.ParamByName('group_id').AsLargeInts[AIndex]   := AModel.GroupId;
-    Q.ParamByName('key').AsStrings[AIndex]          := AModel.Key;
+    Q.ParamByName('key').AsWideStrings[AIndex]          := AModel.Key;
   end;
 end;
 

@@ -1,4 +1,4 @@
-unit ufrmSysCity;
+﻿unit ufrmSysCity;
 
 interface
 
@@ -16,11 +16,11 @@ type
   TfrmSysCity = class(TfrmInputSimpleDB<TSysCity, TSysCityService>)
     pnlContent: TPanel;
     lblCityName: TLabel;
-    lblCarPlateCode: TLabel;
+    lblPlateCode: TLabel;
     lblCountryId: TLabel;
     lblRegionId: TLabel;
     edtCityName: TEdit;
-    edtCarPlateCode: TEdit;
+    edtPlateCode: TEdit;
     edtCountryId: TEdit;
     edtRegionId: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
@@ -39,7 +39,7 @@ implementation
 procedure TfrmSysCity.BtnAcceptClick(Sender: TObject);
 begin
   Table.CityName := edtCityName.Text;
-  Table.CarPlateCode := StrToIntDef(edtCarPlateCode.Text, 0);
+  Table.PlateCode := StrToIntDef(edtPlateCode.Text, 0);
   inherited;
 end;
 
@@ -61,9 +61,11 @@ end;
 procedure TfrmSysCity.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_city.title_singular', 'Şehir');
-  lblCityName.Caption := TLocalizationManager.Translate('sys_city.lbl_name', 'Şehir Adı');
-  lblCountryId.Caption := TLocalizationManager.Translate('sys_city.lbl_country_id', 'Ülke');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.TitleSingular, 'City');
+  lblCityName.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColCityName, 'City Name');
+  lblPlateCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColPlateCode, 'Car Plate Code');
+  lblCountryId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountry, 'Country');
+  lblRegionId.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region');
 end;
 
 procedure TfrmSysCity.HelperProcess(Sender: TObject);
@@ -128,7 +130,7 @@ procedure TfrmSysCity.RefreshData;
 begin
   inherited;
   edtCityName.Text := Table.CityName;
-  edtCarPlateCode.Text := IntToStr(Table.CarPlateCode);
+  edtPlateCode.Text := IntToStr(Table.PlateCode);
   edtCountryId.Text := Table.Country.CountryName;
   edtRegionId.Text := Table.Region.RegionName;
 end;
