@@ -1,4 +1,4 @@
-unit SysCity.Exception;
+ï»¿unit SysCity.Exception;
 
 interface
 
@@ -18,7 +18,7 @@ implementation
 
 class function ESysCityExceptionCityCountryUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysCity.CityCountryUnique, '%s þehri bu %s zaten atanmýþ. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysCity.CityCountryUnique, '%s Åžehri bu %s zaten atanmÄ±ÅŸ. Tekrar atanamaz.');
 end;
 
 end.

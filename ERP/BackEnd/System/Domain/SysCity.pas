@@ -10,17 +10,20 @@ type
   TSysCity = class(TEntity)
   private
     FCityName: string;
-    FCarPlateCode: Integer;
+    FPlateCode: Integer;
     FCountryId: Int64;
     FRegionId: Int64;
     FCountry: TSysCountry;
     FRegion: TSysRegion;
   public
+    constructor Create(); override;
+    destructor Destroy; override;
+
     [Column('city_name')]
     property CityName: string read FCityName write FCityName;
 
     [Column('plate_code')]
-    property CarPlateCode: Integer read FCarPlateCode write FCarPlateCode;
+    property PlateCode: Integer read FPlateCode write FPlateCode;
 
     [Column('country_id')]
     property CountryId: Int64 read FCountryId write FCountryId;
@@ -33,9 +36,6 @@ type
 
     [BelongsTo('region_id', 'id')]
     property Region: TSysRegion read FRegion write FRegion;
-
-    constructor Create(); override;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -49,10 +49,8 @@ end;
 
 destructor TSysCity.Destroy;
 begin
-  if Assigned(FCountry) then
-    FreeAndNil(FCountry);
-  if Assigned(FRegion) then
-    FreeAndNil(FRegion);
+  FreeAndNil(FCountry);
+  FreeAndNil(FRegion);
 
   inherited;
 end;

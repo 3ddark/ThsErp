@@ -36,14 +36,14 @@ end;
 procedure TfrmSysCities.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',               0, TLocalizationManager.Translate('sys_city.col_id', 'Id'));
-  SetColumnProperty('city_name',      150, TLocalizationManager.Translate('sys_city.col_name', 'City Name'));
-  SetColumnProperty('car_plate_code',  90, TLocalizationManager.Translate('sys_city.col_car_plate_code', 'Plate Code'));
-  SetColumnProperty('country_id',       0, TLocalizationManager.Translate('sys_city.col_country_id', 'Country Id'));
-  SetColumnProperty('region_id',        0, TLocalizationManager.Translate('sys_city.col_region_id', 'Region Id'));
-  SetColumnProperty('country_code',    70, TLocalizationManager.Translate('sys_country.col_code', 'Country Code'));
-  SetColumnProperty('country_name',   150, TLocalizationManager.Translate('sys_city.col_country', 'Country'));
-  SetColumnProperty('region_name',    150, TLocalizationManager.Translate('sys_region.col_name', 'Region Name'));
+  SetColumnProperty('id',               0, TLocalizationManager.Translate(TLangKeys.TSysCity.ColId, 'Id'));
+  SetColumnProperty('city_name',      150, TLocalizationManager.Translate(TLangKeys.TSysCity.ColCityName, 'City Name'));
+  SetColumnProperty('plate_code',      90, TLocalizationManager.Translate(TLangKeys.TSysCity.ColPlateCode, 'Plate Code'));
+  SetColumnProperty('country_id',       0, TLocalizationManager.Translate(TLangKeys.TSysCity.ColCountryId, 'Country Id'));
+  SetColumnProperty('region_id',        0, TLocalizationManager.Translate(TLangKeys.TSysCity.ColRegionId, 'Region Id'));
+  SetColumnProperty('country_code',    70, TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCode, 'Country Code'));
+  SetColumnProperty('country_name',   150, TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountry, 'Country'));
+  SetColumnProperty('region_name',    150, TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region Name'));
 end;
 
 procedure TfrmSysCities.DefineFooterColumns;
@@ -62,7 +62,7 @@ end;
 procedure TfrmSysCities.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_city.title_plural', 'Cities');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.TitlePlural, 'Cities');
 end;
 
 end.

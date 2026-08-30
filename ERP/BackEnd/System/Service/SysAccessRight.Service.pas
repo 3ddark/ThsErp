@@ -12,6 +12,15 @@ type
   TSysAccessRightService = class(TCrudService<TSysAccessRight>)
   private
     FRepo: IRepository<TSysAccessRight>;
+
+    procedure DoAdd(AEntity: TSysAccessRight);
+    procedure DoUpdate(AEntity: TSysAccessRight);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateInsert(AEntity: TSysAccessRight);
+    procedure ValidateUpdate(AEntity: TSysAccessRight);
+    procedure ValidateDelete(AEntity: TSysAccessRight);
+    procedure ValidateUniqueUserPermission(AEntity: TSysAccessRight; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
@@ -149,6 +158,49 @@ begin
   inherited;
 end;
 
+procedure TSysAccessRightService.ValidateInsert(AEntity: TSysAccessRight);
+begin
+  ValidateUniqueUserPermission(AEntity, coInsert);
+end;
+
+procedure TSysAccessRightService.ValidateUpdate(AEntity: TSysAccessRight);
+begin
+  ValidateUniqueUserPermission(AEntity, coUpdate);
+end;
+
+procedure TSysAccessRightService.ValidateDelete(AEntity: TSysAccessRight);
+begin
+
+end;
+
+procedure TSysAccessRightService.DoAdd(AEntity: TSysAccessRight);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TSysAccessRightService.DoUpdate(AEntity: TSysAccessRight);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TSysAccessRightService.DoDelete(AId: Int64);
+var
+  LEntity: TSysAccessRight;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.CreateFmt('Record not found: %d', [AId]);
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
+end;
+
 function TSysAccessRightService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysAccessRight>;
 begin
   Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
@@ -190,12 +242,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
-    ValidateAll(AEntity, coInsert);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -216,12 +266,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
-    ValidateAll(AEntity, coUpdate);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -242,12 +290,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
-    ValidateAll(AEntity, coDelete);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -285,20 +331,29 @@ end;
 
 procedure TSysAccessRightService.Add(AEntity: TSysAccessRight);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity)
 end;
 
 procedure TSysAccessRightService.Update(AEntity: TSysAccessRight);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TSysAccessRightService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 procedure TSysAccessRightService.ValidateBusinessRules(AEntity: TSysAccessRight; AOperation: TCrudOperation);
+begin
+  case AOperation of
+    coInsert: ValidateInsert(AEntity);
+    coUpdate: ValidateUpdate(AEntity);
+    coDelete: ValidateDelete(AEntity);
+  end;
+end;
+
+procedure TSysAccessRightService.ValidateUniqueUserPermission(AEntity: TSysAccessRight; AOperation: TCrudOperation);
 var
   LFilter: TFilterCriteria;
   LModel: TSysAccessRight;

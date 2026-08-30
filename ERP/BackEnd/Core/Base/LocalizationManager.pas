@@ -119,6 +119,13 @@ type
       end;
 
       TSysCity = record
+        const TitlePlural = 'sys_city.title_plural';
+        const TitleSingular = 'sys_city.title_singular';
+        const ColId = 'sys_city.col_id';
+        const ColCityName = 'sys_city.col_city_name';
+        const ColPlateCode = 'sys_city.col_plate_code';
+        const ColCountryId = 'sys_city.col_country_id';
+        const ColRegionId = 'sys_city.col_region_id';
         const CityCountryUnique = 'sys_city.city_country.unique';
       end;
 
@@ -129,6 +136,12 @@ type
         const NameMinLength = 'sys_country.name.minlength';
         const NameMaxLength = 'sys_country.name.maxlength';
         const CodeUnique = 'sys_country.code.unique';
+        const ColCode = 'sys_country.col_code';
+        const ColKey = 'sys_country.col_key';
+        const ColIsoYear = 'sys_country.col_iso_year';
+        const ColIsoCctld = 'sys_country.col_iso_cctld';
+        const ColIsEuMember = 'sys_country.col_is_eu_member';
+        const ColCountry = 'sys_country.col_country';
       end;
 
       TSysCurrency = record
@@ -206,6 +219,7 @@ type
       end;
 
       TSysRegion = record
+        const ColName = 'sys_region.name';
         const NameUnique = 'sys_region.name.unique';
       end;
 

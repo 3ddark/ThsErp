@@ -12,6 +12,15 @@ type
   TSysCityService = class(TCrudService<TSysCity>)
   private
     FRepo: IRepository<TSysCity>;
+
+    procedure DoAdd(AEntity: TSysCity);
+    procedure DoUpdate(AEntity: TSysCity);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateInsert(AEntity: TSysCity);
+    procedure ValidateUpdate(AEntity: TSysCity);
+    procedure ValidateDelete(AEntity: TSysCity);
+    procedure ValidateUniqueCountryCity(AEntity: TSysCity; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
@@ -50,6 +59,75 @@ end;
 destructor TSysCityService.Destroy;
 begin
   inherited;
+end;
+
+procedure TSysCityService.ValidateInsert(AEntity: TSysCity);
+begin
+  ValidateUniqueCountryCity(AEntity, coInsert);
+end;
+
+procedure TSysCityService.ValidateUpdate(AEntity: TSysCity);
+begin
+  ValidateUniqueCountryCity(AEntity, coUpdate);
+end;
+
+procedure TSysCityService.ValidateDelete(AEntity: TSysCity);
+begin
+
+end;
+
+procedure TSysCityService.ValidateUniqueCountryCity(AEntity: TSysCity; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TSysCity;
+begin
+  //check unique
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('country_id', '=', TValue.From<Int64>(AEntity.CountryId)));
+      LFilter.Add(TFilterCriterion.New('city_name', '=', TValue.From<string>(AEntity.CityName)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      if Assigned(LModel) then
+        raise ESysCityExceptionCityCountryUnique.Create;
+    finally
+      LFilter.Free;
+      if Assigned(LModel) then
+        LModel.Free;
+    end;
+  end;
+end;
+
+procedure TSysCityService.DoAdd(AEntity: TSysCity);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TSysCityService.DoUpdate(AEntity: TSysCity);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TSysCityService.DoDelete(AId: Int64);
+var
+  LEntity: TSysCity;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.CreateFmt('Record not found: %d', [AId]);
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TSysCityService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysCity>;
@@ -93,12 +171,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
-    ValidateAll(AEntity, coInsert);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -119,12 +195,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
-    ValidateAll(AEntity, coUpdate);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -145,12 +219,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
-    ValidateAll(AEntity, coDelete);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -188,42 +260,25 @@ end;
 
 procedure TSysCityService.Add(AEntity: TSysCity);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity)
 end;
 
 procedure TSysCityService.Update(AEntity: TSysCity);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity)
 end;
 
 procedure TSysCityService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 procedure TSysCityService.ValidateBusinessRules(AEntity: TSysCity; AOperation: TCrudOperation);
-var
-  LFilter: TFilterCriteria;
-  LModel: TSysCity;
 begin
-  //check unique
-  if AOperation in [coInsert, coUpdate] then
-  begin
-    LFilter := TFilterCriteria.Create;
-    try
-      LFilter.Add(TFilterCriterion.New('country_id', '=', TValue.From<Int64>(AEntity.CountryId)));
-      LFilter.Add(TFilterCriterion.New('city_name', '=', TValue.From<string>(AEntity.CityName)));
-      if AOperation = coUpdate then
-        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
-
-      LModel := FRepo.FindOne(LFilter, False);
-      if Assigned(LModel) then
-        raise ESysCityExceptionCityCountryUnique.Create;
-    finally
-      LFilter.Free;
-      if Assigned(LModel) then
-        LModel.Free;
-    end;
+  case AOperation of
+    coInsert: ValidateInsert(AEntity);
+    coUpdate: ValidateUpdate(AEntity);
+    coDelete: ValidateDelete(AEntity);
   end;
 end;
 

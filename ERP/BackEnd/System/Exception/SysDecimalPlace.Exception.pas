@@ -1,4 +1,4 @@
-unit SysDecimalPlace.Exception;
+ï»¿unit SysDecimalPlace.Exception;
 
 interface
 
@@ -22,12 +22,12 @@ implementation
 
 class function ESysDecimalPlaceExceptionMustContainOnlyOneRecord.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TMessage.MustContainOnlyOneRecord, 'Yalnýzca tek bir kayýt içermelidir');
+  Result := TLocalizationManager.Translate(TLangKeys.TMessage.MustContainOnlyOneRecord, 'YalnÄ±zca tek bir kayÄ±t iÃ§ermelidir');
 end;
 
 class function ESysDecimalPlaceExceptionNegativeValueNotAllowed.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TValidation.NegativeValueNotAllowed, 'Negatif deðer olamaz');
+  Result := TLocalizationManager.Translate(TLangKeys.TValidation.NegativeValueNotAllowed, 'Negatif deÄŸer olamaz');
 end;
 
 end.

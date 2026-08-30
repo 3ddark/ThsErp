@@ -20,8 +20,6 @@ object frmSysCity: TfrmSysCity
     Height = 166
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 498
-    ExplicitHeight = 158
     object lblCityName: TLabel
       Left = 78
       Top = 6
@@ -38,7 +36,7 @@ object frmSysCity: TfrmSysCity
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblCarPlateCode: TLabel
+    object lblPlateCode: TLabel
       Left = 66
       Top = 29
       Width = 62
@@ -90,28 +88,28 @@ object frmSysCity: TfrmSysCity
       Left = 132
       Top = 2
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 0
     end
-    object edtCarPlateCode: TEdit
+    object edtPlateCode: TEdit
       Left = 132
       Top = 25
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 1
     end
     object edtCountryId: TEdit
       Left = 132
       Top = 48
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 2
     end
     object edtRegionId: TEdit
       Left = 132
       Top = 71
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 3
     end
   end

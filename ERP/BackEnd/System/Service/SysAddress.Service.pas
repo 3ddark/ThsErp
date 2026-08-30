@@ -12,6 +12,14 @@ type
   TSysAddressService = class(TCrudService<TSysAddress>)
   private
     FRepo: IRepository<TSysAddress>;
+
+    procedure DoAdd(AEntity: TSysAddress);
+    procedure DoUpdate(AEntity: TSysAddress);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateInsert(AEntity: TSysAddress);
+    procedure ValidateUpdate(AEntity: TSysAddress);
+    procedure ValidateDelete(AEntity: TSysAddress);
   public
     constructor Create;
     destructor Destroy; override;
@@ -37,16 +45,62 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysAddressService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysAddress, TSysAddressRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TSysAddressService.Destroy;
 begin
   inherited;
+end;
+
+procedure TSysAddressService.ValidateInsert(AEntity: TSysAddress);
+begin
+
+end;
+
+procedure TSysAddressService.ValidateUpdate(AEntity: TSysAddress);
+begin
+
+end;
+
+procedure TSysAddressService.ValidateDelete(AEntity: TSysAddress);
+begin
+
+end;
+
+procedure TSysAddressService.DoAdd(AEntity: TSysAddress);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TSysAddressService.DoUpdate(AEntity: TSysAddress);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TSysAddressService.DoDelete(AId: Int64);
+var
+  LEntity: TSysAddress;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.CreateFmt('Record not found: %d', [AId]);
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TSysAddressService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysAddress>;
@@ -90,12 +144,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
-    ValidateAll(AEntity, coInsert);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -116,12 +168,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
-    ValidateAll(AEntity, coUpdate);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -142,12 +192,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
-    ValidateAll(AEntity, coDelete);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -185,27 +233,26 @@ end;
 
 procedure TSysAddressService.Add(AEntity: TSysAddress);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity)
 end;
 
 procedure TSysAddressService.Update(AEntity: TSysAddress);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity)
 end;
 
 procedure TSysAddressService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 procedure TSysAddressService.ValidateBusinessRules(AEntity: TSysAddress; AOperation: TCrudOperation);
 begin
-  //check unique
-  if AOperation in [coInsert, coUpdate] then
-  begin
-
+  case AOperation of
+    coInsert: ValidateInsert(AEntity);
+    coUpdate: ValidateUpdate(AEntity);
+    coDelete: ValidateDelete(AEntity);
   end;
 end;
-
 
 end.
