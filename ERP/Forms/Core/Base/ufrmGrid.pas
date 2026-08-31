@@ -1756,8 +1756,6 @@ begin
     begin
       LId := Table.Id;
       FreeAndNil(Table);
-      Table := Service.FindById(LId, False, True);
-
       Table := Service.BusinessFindById(LId, False, True, True);
 
     end;

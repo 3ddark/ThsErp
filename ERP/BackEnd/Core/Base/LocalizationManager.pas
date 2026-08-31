@@ -97,6 +97,7 @@ type
 
       TDashboard = record
         const MenuLanguage = 'dashboard.menu.language';
+        const MenuLanguageChanger = 'dashboard.menu.language_changer';
         const MenuSystem = 'dashboard.menu.system';
         const MenuPurchasing = 'dashboard.menu.purchasing';
         const MenuSales = 'dashboard.menu.sales';
@@ -123,6 +124,7 @@ type
         const ActionPermissions = 'dashboard.action.permissions';
         const ActionCountries = 'dashboard.action.countries';
         const ActionCities = 'dashboard.action.cities';
+        const ActionDecimalPlace = 'dashboard.action.decimal_place';
         const ActionRegions = 'dashboard.action.regions';
         const ActionUnitTypes = 'dashboard.action.unit_types';
         const ActionUnits = 'dashboard.action.units';

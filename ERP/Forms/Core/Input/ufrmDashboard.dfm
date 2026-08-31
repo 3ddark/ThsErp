@@ -33,7 +33,7 @@ inherited frmDashboard: TfrmDashboard
       Left = 8
       Top = 2
       Width = 201
-      Height = 25
+      Height = 36
       Margins.Left = 8
       Margins.Top = 2
       Margins.Right = 2
@@ -47,6 +47,7 @@ inherited frmDashboard: TfrmDashboard
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitHeight = 25
     end
   end
   inherited pnlBottom: TPanel [1]
@@ -537,7 +538,6 @@ inherited frmDashboard: TfrmDashboard
   end
   object actlstMain: TActionList
     Images = dm.il16
-    OnExecute = actlstMainExecute
     Left = 344
     Top = 136
     object actset_prs_birimler: TAction
@@ -843,14 +843,14 @@ inherited frmDashboard: TfrmDashboard
       end
       object mniSystemSubSettings: TMenuItem
         Caption = 'Ayarlar'
+        object mnisys_region: TMenuItem
+          Action = actsys_region
+        end
         object mnisys_country: TMenuItem
           Action = actsys_country
         end
         object mnisys_city: TMenuItem
           Action = actsys_city
-        end
-        object mnisys_region: TMenuItem
-          Action = actsys_region
         end
         object mniN2: TMenuItem
           Caption = '-'
@@ -887,7 +887,7 @@ inherited frmDashboard: TfrmDashboard
       object mnipur_order: TMenuItem
         Caption = 'Sipari'#351
       end
-      object mnipur_dispatch_note: TMenuItem
+      object mnipur_waybill: TMenuItem
         Caption = #304'rsaliye'
       end
       object mnipur_invoice: TMenuItem
