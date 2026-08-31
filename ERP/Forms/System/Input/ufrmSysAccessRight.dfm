@@ -2,7 +2,7 @@ object frmSysAccessRight: TfrmSysAccessRight
   Left = 0
   Top = 0
   Caption = 'Access Right'
-  ClientHeight = 187
+  ClientHeight = 212
   ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -11,18 +11,19 @@ object frmSysAccessRight: TfrmSysAccessRight
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
     Width = 500
-    Height = 187
+    Height = 212
     Align = alClient
     TabOrder = 0
+    ExplicitHeight = 187
     object lblUserId: TLabel
-      Left = 59
+      Left = 60
       Top = 11
-      Width = 27
+      Width = 26
       Height = 13
       Alignment = taRightJustify
       Caption = 'User'
@@ -34,9 +35,9 @@ object frmSysAccessRight: TfrmSysAccessRight
       ParentFont = False
     end
     object lblPermissionId: TLabel
-      Left = 25
+      Left = 24
       Top = 41
-      Width = 61
+      Width = 62
       Height = 13
       Alignment = taRightJustify
       Caption = 'Permission'
@@ -51,7 +52,7 @@ object frmSysAccessRight: TfrmSysAccessRight
       Left = 88
       Top = 7
       Width = 350
-      Height = 23
+      Height = 22
       ReadOnly = True
       TabOrder = 0
     end
@@ -59,7 +60,7 @@ object frmSysAccessRight: TfrmSysAccessRight
       Left = 88
       Top = 37
       Width = 350
-      Height = 23
+      Height = 22
       ReadOnly = True
       TabOrder = 1
     end

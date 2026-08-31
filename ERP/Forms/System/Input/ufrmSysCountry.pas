@@ -1,4 +1,4 @@
-unit ufrmSysCountry;
+﻿unit ufrmSysCountry;
 
 interface
 
@@ -38,7 +38,7 @@ implementation
 procedure TfrmSysCountry.BtnAcceptClick(Sender: TObject);
 begin
   Table.CountryCode := edtCountryCode.Text;
-  Table.CountryName := edtCountryName.Text;
+  Table.CountryKey := edtCountryName.Text;
   Table.ISOYear := StrToIntDef(edtISOYear.Text, 0);
   Table.ISOCCTLD := edtISOCCTLD.Text;
   Table.IsEuMember := chkIsEuMember.Checked;
@@ -70,7 +70,7 @@ procedure TfrmSysCountry.RefreshData;
 begin
   inherited;
   edtCountryCode.Text := Table.CountryCode;
-  edtCountryName.Text := Table.CountryName;
+  edtCountryName.Text := Table.CountryKey;
   edtISOYear.Text := Table.ISOYear.ToString;
   edtISOCCTLD.Text := Table.ISOCCTLD;
   chkIsEuMember.Checked := Table.IsEuMember;

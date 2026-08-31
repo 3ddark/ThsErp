@@ -93,7 +93,7 @@ begin
           else
           begin
             Table.CountryId := LFrmCountry.Table.Id;
-            LEdit.Text := LFrmCountry.Table.CountryName;
+            LEdit.Text := LFrmCountry.Table.CountryCode;
           end;
         end;
       finally
@@ -131,7 +131,7 @@ begin
   inherited;
   edtCityName.Text := Table.CityName;
   edtPlateCode.Text := IntToStr(Table.PlateCode);
-  edtCountryId.Text := Table.Country.CountryName;
+  edtCountryId.Text := Table.Country.CountryCode;
   edtRegionId.Text := Table.Region.RegionName;
 end;
 

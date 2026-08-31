@@ -5,13 +5,22 @@ interface
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
-  UnitOfWork, SharedFormTypes, AppContext,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
   SysRegion.Repository, SysRegion, SysRegion.Exception;
 
 type
   TSysRegionService = class(TCrudService<TSysRegion>)
   private
     FRepo: IRepository<TSysRegion>;
+
+    procedure DoAdd(AEntity: TSysRegion);
+    procedure DoUpdate(AEntity: TSysRegion);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateInsert(AEntity: TSysRegion);
+    procedure ValidateUpdate(AEntity: TSysRegion);
+    procedure ValidateDelete(AEntity: TSysRegion);
+    procedure ValidateRegionNameUnique(AEntity: TSysRegion; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
@@ -37,16 +46,82 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysRegionService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysRegion, TSysRegionRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_SYS_REGION;
 end;
 
 destructor TSysRegionService.Destroy;
 begin
   inherited;
+end;
+
+procedure TSysRegionService.ValidateInsert(AEntity: TSysRegion);
+begin
+  ValidateRegionNameUnique(AEntity, coInsert);
+end;
+
+procedure TSysRegionService.ValidateUpdate(AEntity: TSysRegion);
+begin
+  ValidateRegionNameUnique(AEntity, coUpdate);
+end;
+
+procedure TSysRegionService.ValidateDelete(AEntity: TSysRegion);
+begin
+
+end;
+
+procedure TSysRegionService.ValidateRegionNameUnique(AEntity: TSysRegion; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TSysRegion;
+begin
+  LFilter := TFilterCriteria.Create;
+  try
+    LFilter.Add(TFilterCriterion.New('region_name', '=', TValue.From<string>(AEntity.RegionName)));
+    if AOperation = coUpdate then
+      LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+    LModel := FRepo.FindOne(LFilter, False);
+    if Assigned(LModel) then
+      raise ESysRegionExceptionNameUnique.Create;
+  finally
+    LFilter.Free;
+    LModel.Free;
+  end;
+end;
+
+procedure TSysRegionService.DoAdd(AEntity: TSysRegion);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TSysRegionService.DoUpdate(AEntity: TSysRegion);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TSysRegionService.DoDelete(AId: Int64);
+var
+  LEntity: TSysRegion;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.CreateFmt('Record not found: %d', [AId]);
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TSysRegionService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysRegion>;
@@ -90,12 +165,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
-    ValidateAll(AEntity, coInsert);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -116,12 +189,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
-    ValidateAll(AEntity, coUpdate);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -142,12 +213,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
-    ValidateAll(AEntity, coDelete);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -185,41 +254,25 @@ end;
 
 procedure TSysRegionService.Add(AEntity: TSysRegion);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity)
 end;
 
 procedure TSysRegionService.Update(AEntity: TSysRegion);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity)
 end;
 
 procedure TSysRegionService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 procedure TSysRegionService.ValidateBusinessRules(AEntity: TSysRegion; AOperation: TCrudOperation);
-var
-  LFilter: TFilterCriteria;
-  LModel: TSysRegion;
 begin
-  //check unique
-  if AOperation in [coInsert, coUpdate] then
-  begin
-    LFilter := TFilterCriteria.Create;
-    try
-      LFilter.Add(TFilterCriterion.New('name', '=', TValue.From<string>(AEntity.RegionName)));
-      if AOperation = coUpdate then
-        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
-
-      LModel := FRepo.FindOne(LFilter, False);
-      if Assigned(LModel) then
-        raise ESysRegionExceptionNameUnique.Create;
-    finally
-      LFilter.Free;
-      if Assigned(LModel) then
-        LModel.Free;
-    end;
+  case AOperation of
+    coInsert: ValidateInsert(AEntity);
+    coUpdate: ValidateUpdate(AEntity);
+    coDelete: ValidateDelete(AEntity);
   end;
 end;
 

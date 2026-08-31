@@ -1,4 +1,4 @@
-unit SysRegion.Exception;
+ï»¿unit SysRegion.Exception;
 
 interface
 
@@ -15,10 +15,9 @@ type
 
 implementation
 
-
 class function ESysRegionExceptionNameUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysRegion.NameUnique, '%s zaten atanmýþ. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysRegion.NameUnique, '%s is already in use. Cannot be assigned again.');
 end;
 
 end.

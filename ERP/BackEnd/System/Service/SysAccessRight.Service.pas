@@ -44,6 +44,7 @@ type
     procedure BusinessDelete(AEntity: TSysAccessRight; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
 
     procedure CopyUserAccessRights(ASourceUserId, ATargetUserId: Int64);
+    procedure AddPermissionToAllUser(APermissionId: Int64; AWithBegin, AWithCommit: Boolean);
 
     /// <summary>
     /// Belirtilen yetki kodu ve erişim türü için kullanıcının yetkili olup
@@ -146,11 +147,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysAccessRightService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysAccessRight, TSysAccessRightRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TSysAccessRightService.Destroy;
@@ -393,6 +397,22 @@ begin
   end;
 end;
 
+procedure TSysAccessRightService.AddPermissionToAllUser(APermissionId: Int64; AWithBegin, AWithCommit: Boolean);
+begin
+  if AWithBegin and not Self.UoW.InTransaction then
+    Self.UoW.BeginTransaction;
+  try
+    TSysAccessRightRepository(FRepo).AddPermissionToAllUser(APermissionId);
+
+    if AWithCommit then
+      Self.UoW.Commit;
+  except
+    if AWithCommit and Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
+end;
+
 function TSysAccessRightService.IsAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean): Boolean;
 var
   LFilter: TFilterCriteria;
@@ -417,7 +437,7 @@ begin
       ptDelete:     Exit(LAccess.IsDelete);
       ptSpecial:    Exit(LAccess.IsSpecial);
     else
-      raise EArgumentOutOfRangeException.CreateFmt('Bilinmeyen PermissionType: %d', [Ord(APermissionType)]);
+      raise EArgumentOutOfRangeException.CreateFmt('Unknown PermissionType: %d', [Ord(APermissionType)]);
     end;
   finally
     LFilter.Free;
@@ -438,7 +458,7 @@ begin
       ptDelete:     raise EAuthorizationExceptionDelete.Create;
       ptSpecial:    raise EAuthorizationExceptionSpecial.Create;
   else
-    raise EArgumentOutOfRangeException.CreateFmt('Bilinmeyen PermissionType: %d', [Ord(APermissionType)]);
+    raise EArgumentOutOfRangeException.CreateFmt('Unknown PermissionType: %d', [Ord(APermissionType)]);
   end;
 end;
 

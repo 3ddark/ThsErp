@@ -1,4 +1,4 @@
-unit ufrmBase;
+﻿unit ufrmBase;
 
 interface
 
@@ -25,7 +25,12 @@ type
   end;
 
 type
-  TfrmBase = class(TForm)
+  ILocalizable = interface
+    ['{9757C36C-3634-4A3D-9A0B-366C567E802A}']
+    procedure ApplyLocalization;
+  end;
+
+  TfrmBase = class(TForm, ILocalizable)
     pnlBottom: TPanel;
     pnlMain: TPanel;
     btnSpin: TSpinButton;

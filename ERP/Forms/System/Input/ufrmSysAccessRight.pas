@@ -1,4 +1,4 @@
-unit ufrmSysAccessRight;
+﻿unit ufrmSysAccessRight;
 
 interface
 

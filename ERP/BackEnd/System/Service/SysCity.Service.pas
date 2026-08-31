@@ -53,7 +53,7 @@ constructor TSysCityService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysCity, TSysCityRepository>;
-  Self.PermissionCode := PERMISSION_CITY;
+  Self.PermissionCode := PERMISSION_SYS_CITY;
 end;
 
 destructor TSysCityService.Destroy;

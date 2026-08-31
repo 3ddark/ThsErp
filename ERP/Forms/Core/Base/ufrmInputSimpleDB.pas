@@ -10,10 +10,10 @@ uses
   Vcl.DBGrids, Vcl.Samples.Spin, Data.DB,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   Ths.DialogHelper, Ths.Globals, MetaProvider,
-  Entity, Service, SharedFormTypes, LocalizationManager;
+  Entity, Service, SharedFormTypes, ufrmBase, LocalizationManager;
 
 type
-  TfrmInputSimpleDB<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TForm)
+  TfrmInputSimpleDB<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TForm, ILocalizable)
   private
     FService: TS;
     FTable: TE;
@@ -115,8 +115,7 @@ var
   ctrl: TControl;
   lblCtrl: TComponent;
 begin
-  if Meta = nil then
-    Exit;
+  if Meta = nil then Exit;
 
   for propMeta in Meta.Properties.Values do
   begin
