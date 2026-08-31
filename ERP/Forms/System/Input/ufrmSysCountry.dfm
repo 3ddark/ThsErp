@@ -11,7 +11,7 @@ object frmSysCountry: TfrmSysCountry
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
@@ -22,9 +22,9 @@ object frmSysCountry: TfrmSysCountry
     ExplicitWidth = 494
     ExplicitHeight = 165
     object lblCountryCode: TLabel
-      Left = 68
+      Left = 72
       Top = 6
-      Width = 60
+      Width = 56
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -38,9 +38,9 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lblCountryName: TLabel
-      Left = 79
+      Left = 82
       Top = 29
-      Width = 49
+      Width = 46
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -54,9 +54,9 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lblISOYear: TLabel
-      Left = 88
+      Left = 92
       Top = 52
-      Width = 40
+      Width = 36
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -70,9 +70,9 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lblISOCCTLD: TLabel
-      Left = 62
+      Left = 70
       Top = 75
-      Width = 66
+      Width = 58
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -86,9 +86,9 @@ object frmSysCountry: TfrmSysCountry
       ParentFont = False
     end
     object lblIsEuMember: TLabel
-      Left = 76
+      Left = 79
       Top = 95
-      Width = 52
+      Width = 49
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight

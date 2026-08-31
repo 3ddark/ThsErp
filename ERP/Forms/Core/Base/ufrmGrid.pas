@@ -11,7 +11,7 @@ uses
   Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd, Vcl.CheckLst,
   Vcl.DBGrids, Vcl.Samples.Spin, Data.DB, Vcl.DBCtrls, LocalizationManager,
   udm, Ths.Constants, Ths.Globals, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  SharedFormTypes, Entity, Service, AppContext, UserContext, FilterCriterion;
+  SharedFormTypes, ufrmBase, Entity, Service, AppContext, UserContext, FilterCriterion;
 
 const
   DB_STATUS_RECORD_COUNT = 0;
@@ -46,7 +46,7 @@ type
     property OnColWidthsChanged: TNotifyEvent read FOnColWidthsChanged write FOnColWidthsChanged;
   end;
 
-  TfrmGrid<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TForm)
+  TfrmGrid<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TForm, ILocalizable)
   private
     FFooterPanel: TPanel;
     FFooterColumns: TObjectList<TFooterColumn>;
@@ -161,6 +161,7 @@ type
     procedure DefineFooterColumns; virtual;
     procedure DefineColumnWidths; virtual;
     procedure SetColumnProperty(const AFieldName: string; AWidth: Integer; AColumnTitle: string);
+    procedure SetColumnTitle(const AFieldName: string; AColumnTitle: string);
     procedure BuildFooter;
     procedure CreateFooterPanel;
     procedure UpdateFooterLayout;
@@ -1717,6 +1718,20 @@ begin
         Grd.Columns[i].Visible := False
       else
         Grd.Columns[i].Width := AWidth;
+      Grd.Columns[i].Title.Caption := AColumnTitle;
+      Break;
+    end;
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.SetColumnTitle(const AFieldName: string; AColumnTitle: string);
+var
+  i: Integer;
+begin
+  for i := 0 to Grd.Columns.Count - 1 do
+  begin
+    if SameText(Grd.Columns[i].FieldName, AFieldName) then
+    begin
       Grd.Columns[i].Title.Caption := AColumnTitle;
       Break;
     end;

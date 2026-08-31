@@ -11,7 +11,8 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.ComCtrls, Vcl.Menus, Vcl.ActnList, Vcl.AppEvnts,
   Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.Dialogs,
   Vcl.ToolWin, Vcl.ImgList, Vcl.StdActns, Vcl.CategoryButtons, Vcl.WinXCtrls,
-  Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client, udm, ufrmBase, ufrmGrid,
+  Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client,
+  udm, ufrmBase, Entity, ufrmGrid, ufrmInputSimpleDB, Service,
 
   ConnectionManager, Logger, MetaProvider, SharedFormTypes, FilterCriterion,
   AppContext, UserContext, UnitOfWork,
@@ -655,14 +656,14 @@ end;
 procedure TfrmDashboard.actsys_updateExecute(Sender: TObject);
 begin
   if CustomMsgDlg(
-    TLocalizationManager.Translate('msg.confirm_update', 'Güncelleme işlemini yapmak istediğinize emin misiniz?'),
+    TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmUpdate, 'Are you sure you want to proceed with the update?'),
     mtConfirmation, mbYesNo,
     [
-      TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Evet'),
-      TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'Hayır')
+      TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Yes'),
+      TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'No')
     ],
     mbNo,
-    TLocalizationManager.Translate('msg.title.update_confirmation', 'Güncelleme Onayı')
+    TLocalizationManager.Translate(TLangKeys.TMessage.UpdateConfirmation, 'Confirm Update')
   ) = mrYes then
     UpdateApplicationExe;
 end;
@@ -684,15 +685,16 @@ end;
 
 procedure TfrmDashboard.btnCloseClick(Sender: TObject);
 begin
+
   if CustomMsgDlg(
-    TLocalizationManager.Translate('msg.confirm_exit_app', 'Uygulama sonlandırılacak. Devam etmek istediğinize emin misiniz?'),
+    TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmExitApp, 'The application will be terminated. Are you sure you want to continue?'),
     mtConfirmation, mbYesNo,
     [
-      TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Evet'),
-      TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'Hayır')
+      TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Yes'),
+      TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'No')
     ],
     mbNo,
-    TLocalizationManager.Translate(TLangKeys.TGeneral.Confirmation, 'Onay')
+    TLocalizationManager.Translate(TLangKeys.TGeneral.Confirmation, 'Approve')
   ) = mrYes then
     inherited;
 end;
@@ -712,16 +714,16 @@ begin
   if APP_VERSION <> LSurum then
   begin
     LMr := CustomMsgDlg(
-      TLocalizationManager.Translate('msg.new_version_available', 'Programda yeni bir güncelleme var. Şimdi güncellemek ister misiniz?') + AddLBs(2) +
-      TLocalizationManager.Translate('msg.update_recommended', 'Sistemsel hatalar veya kritik güncellemeler yapıldığı için güncellemeyi bir an önce yapmanız önerilir.'),
+      TLocalizationManager.Translate(TLangKeys.TMessage.NewVersionAvailable, 'There is a new update for the program. Would you like to update now?') + AddLBs(2) +
+      TLocalizationManager.Translate(TLangKeys.TMessage.UpdateRecommended, 'Due to system errors or critical updates, it is recommended that you update as soon as possible.'),
       mtConfirmation,
       mbYesNo,
       [
-        TLocalizationManager.Translate('btn.update_now', 'Evet Güncelle'),
-        TLocalizationManager.Translate('btn.update_later', 'Hayır Sonra Güncelle')
+        TLocalizationManager.Translate('btn.update_now', 'Yes Update'),
+        TLocalizationManager.Translate('btn.update_later', 'No Update later')
       ],
       mbNo,
-      TLocalizationManager.Translate('msg.title.user_update_confirmation', 'Kullanıcı Güncelleme Onayı')
+      TLocalizationManager.Translate(TLangKeys.TMessage.UserUpdateConfirmation, 'Update | User Confirmation')
     );
     if LMr = mrYes then
       UpdateApplicationExe
@@ -885,6 +887,7 @@ procedure TfrmDashboard.ChangeLanguage(const ALocale: string);
 var
   i: Integer;
   LForm: TForm;
+  LLocalizable: ILocalizable;
   LHasEditingForm: Boolean;
 begin
   LHasEditingForm := False;
@@ -904,11 +907,11 @@ begin
   if LHasEditingForm then
   begin
     CustomMsgDlg(
-      TLocalizationManager.Translate('msg.finish_editing_before_lang_change', 'Lütfen lisan değiştirmeden önce açık düzenleme ekranlarındaki kaydetme/iptal işlemlerinizi tamamlayın.'),
+      TLocalizationManager.Translate(TLangKeys.TMessage.FinishEditingBeforeLangChange, 'Please complete your save/cancel actions on the open editing screens before changing the language.'),
       mtWarning, [mbOK],
-      [TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'Tamam')],
+      [TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'Ok')],
       mbOK,
-      TLocalizationManager.Translate('msg.title.warning', 'Uyarı')
+      TLocalizationManager.Translate(TLangKeys.TMessage.WarningTitle, 'Warning')
     );
     Exit;
   end;
@@ -921,9 +924,12 @@ begin
 
   for i := 0 to Screen.FormCount - 1 do
   begin
-    LForm := Screen.Forms[i];
-    if (LForm <> Self) and (LForm is TfrmBase) then
-      TfrmBase(LForm).ApplyLocalization;
+     LForm := Screen.Forms[i];
+    if (LForm = Self) then
+      Continue;
+
+    if Supports(LForm, ILocalizable, LLocalizable) then
+      LLocalizable.ApplyLocalization;
   end;
 end;
 
@@ -931,93 +937,93 @@ procedure TfrmDashboard.ApplyLocalization;
 begin
   inherited;
   if Assigned(btnClose) then
-    btnClose.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Kapat');
+    btnClose.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Close');
 
   // Language menu caption
   if Assigned(mnimenu_language) then
-    mnimenu_language.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuLanguage, 'Lisan / Language');
+    mnimenu_language.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuLanguage, 'Lisan | Language');
 
   // Main menu top-level items
   if Assigned(mnimenu_system) then
-    mnimenu_system.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSystem, 'Sistem');
+    mnimenu_system.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSystem, 'System');
   if Assigned(mnimenu_purchase) then
-    mnimenu_purchase.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuPurchasing, 'Alımlar');
+    mnimenu_purchase.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuPurchasing, 'Purchasing');
   if Assigned(mnimenu_sales) then
-    mnimenu_sales.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSales, 'Satışlar');
+    mnimenu_sales.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSales, 'Sales');
   if Assigned(mnimenu_accounting) then
-    mnimenu_accounting.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuAccounting, 'Muhasebe');
+    mnimenu_accounting.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuAccounting, 'Accounting');
   if Assigned(mnimenu_stock) then
-    mnimenu_stock.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuStock, 'Stoklar');
+    mnimenu_stock.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuStock, 'Stocks');
   if Assigned(mnimenu_employee) then
-    mnimenu_employee.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuPersonnel, 'Personel');
+    mnimenu_employee.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuPersonnel, 'Personnels');
   if Assigned(mnimenu_about) then
-    mnimenu_about.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuAbout, 'Hakkında');
+    mnimenu_about.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuAbout, 'About');
 
   // Submenu items & section headers
   if Assigned(mniSystemSubSettings) then
-    mniSystemSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Ayarlar');
+    mniSystemSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Setting');
   if Assigned(mniAccountingSubSettings) then
-    mniAccountingSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Ayarlar');
+    mniAccountingSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Setting');
   if Assigned(mniEmployeeSubSettings) then
-    mniEmployeeSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Ayarlar');
+    mniEmployeeSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Setting');
   if Assigned(mnipur_offer) then
-    mnipur_offer.Caption := TLocalizationManager.Translate('dashboard.menu.proposals', 'Teklifler');
+    mnipur_offer.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuOffers, 'Offers');
   if Assigned(mnipur_order) then
-    mnipur_order.Caption := TLocalizationManager.Translate('dashboard.menu.orders', 'Siparişler');
+    mnipur_order.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuOrders, 'Orders');
   if Assigned(mnipur_dispatch_note) then
-    mnipur_dispatch_note.Caption := TLocalizationManager.Translate('dashboard.menu.waybills', 'İrsaliyeler');
+    mnipur_dispatch_note.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuWaybills, 'Waybills');
   if Assigned(mnipur_invoice) then
-    mnipur_invoice.Caption := TLocalizationManager.Translate('dashboard.menu.invoices', 'Faturalar');
+    mnipur_invoice.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuInvoices, 'Invoices');
   if Assigned(mnisys_update_password) then
-    mnisys_update_password.Caption := TLocalizationManager.Translate('dashboard.menu.change_password', 'Şifre Değiştir');
+    mnisys_update_password.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuChangePassword, 'Change Password');
   if Assigned(mnisys_database_status) then
-    mnisys_database_status.Caption := TLocalizationManager.Translate('dashboard.menu.db_monitor', 'Veritabanı Durumu');
+    mnisys_database_status.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuDbMonitor, 'Database Status');
   if Assigned(mnisys_do_database_backup) then
-    mnisys_do_database_backup.Caption := TLocalizationManager.Translate('dashboard.menu.db_backup', 'Veritabanı Yedek Al');
+    mnisys_do_database_backup.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuDbBackup, 'Backup Database');
   if Assigned(mnisys_update) then
-    mnisys_update.Caption := TLocalizationManager.Translate('dashboard.menu.update', 'Güncelleme');
+    mnisys_update.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuUpdate, 'Update');
   if Assigned(mnisys_about) then
-    mnisys_about.Caption := TLocalizationManager.Translate('dashboard.menu.about', 'Hakkında');
+    mnisys_about.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuAbout, 'About');
 
   // Actions (updates both linked actions and menu items / action buttons)
   if Assigned(actsys_user) then
-    actsys_user.Caption := TLocalizationManager.Translate('dashboard.action.users', 'Kullanıcılar');
+    actsys_user.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionUsers, 'Users');
   if Assigned(actsys_access_right) then
-    actsys_access_right.Caption := TLocalizationManager.Translate('dashboard.action.access_rights', 'Kullanıcı Erişim Hakları');
+    actsys_access_right.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionAccessRights, 'User Access Rights');
   if Assigned(actsys_application_setting) then
-    actsys_application_setting.Caption := TLocalizationManager.Translate('dashboard.action.app_settings', 'Uygulama Ayarları');
+    actsys_application_setting.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionAppSettings, 'Aplication Setting');
   if Assigned(actsys_grid_column) then
-    actsys_grid_column.Caption := TLocalizationManager.Translate('dashboard.action.grid_columns', 'Grid Kolonları');
+    actsys_grid_column.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionGridColumns, 'Grid Columns');
   if Assigned(actsys_grid_filter_sort) then
-    actsys_grid_filter_sort.Caption := TLocalizationManager.Translate('dashboard.action.grid_filters', 'Grid Filtre ve Sıralamalar');
+    actsys_grid_filter_sort.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionGridFilters, 'Grid Filter and Sorts');
 
   if Assigned(actsys_permission_group) then
-    actsys_permission_group.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.TitlePlural, 'Yetki Grupları');
+    actsys_permission_group.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionPermissionGroups, 'Permission Groups');
   if Assigned(actsys_permission) then
-    actsys_permission.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.TitlePlural, 'Yetkiler');
+    actsys_permission.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionPermissions, 'Permissions');
   if Assigned(actsys_country) then
-    actsys_country.Caption := TLocalizationManager.Translate('dashboard.action.countries', 'Ülkeler');
+    actsys_country.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionCountries, 'Countries');
   if Assigned(actsys_city) then
-    actsys_city.Caption := TLocalizationManager.Translate('dashboard.action.cities', 'Şehirler');
+    actsys_city.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionCities, 'Cities');
   if Assigned(actsys_region) then
-    actsys_region.Caption := TLocalizationManager.Translate('dashboard.action.regions', 'Bölgeler');
+    actsys_region.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionRegions, 'Regions');
   if Assigned(actsys_unit_type) then
-    actsys_unit_type.Caption := TLocalizationManager.Translate('dashboard.action.unit_types', 'Ölçü Birimi Tipleri');
+    actsys_unit_type.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionUnitTypes, 'Measurement Types');
   if Assigned(actsys_unit) then
-    actsys_unit.Caption := TLocalizationManager.Translate('dashboard.action.units', 'Ölçü Birimleri');
+    actsys_unit.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionUnits, 'Measurements');
   if Assigned(actsys_currency) then
-    actsys_currency.Caption := TLocalizationManager.Translate('dashboard.action.currencies', 'Para Birimleri');
+    actsys_currency.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionCurrencies, 'Currencies');
 
   if Assigned(actsys_language) then
-    actsys_language.Caption := TLocalizationManager.Translate('dashboard.action.languages', 'Lisanlar');
+    actsys_language.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionLanguages, 'Languages');
   if Assigned(actstk_stok_kartlari) then
-    actstk_stok_kartlari.Caption := TLocalizationManager.Translate('dashboard.action.stock_cards', 'Stok Kartları');
+    actstk_stok_kartlari.Caption := TLocalizationManager.Translate('dashboard.action.stock_cards', 'Stocks');
   if Assigned(actstk_cins_ozellikleri) then
-    actstk_cins_ozellikleri.Caption := TLocalizationManager.Translate('dashboard.action.type_properties', 'Cins Özellikleri');
+    actstk_cins_ozellikleri.Caption := TLocalizationManager.Translate('dashboard.action.type_properties', 'Stock Kind Properties');
   if Assigned(actstk_ambarlar) then
-    actstk_ambarlar.Caption := TLocalizationManager.Translate('dashboard.action.warehouses', 'Ambarlar');
+    actstk_ambarlar.Caption := TLocalizationManager.Translate('dashboard.action.warehouses', 'Warehouses');
   if Assigned(actstk_gruplar) then
-    actstk_gruplar.Caption := TLocalizationManager.Translate('dashboard.action.stock_groups', 'Stok Grupları');
+    actstk_gruplar.Caption := TLocalizationManager.Translate('dashboard.action.stock_groups', 'Stock Groups');
 //  if Assigned(actsat_teklifler) then
 //    actsat_teklifler.Caption := TLocalizationManager.Translate('dashboard.action.sales_proposals', 'Satış Teklifleri');
 //  if Assigned(actsat_siparis) then

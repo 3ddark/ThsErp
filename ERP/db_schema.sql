@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict qrqTctm1uGVE6prTqTCvhSBjRmD2WQit7IfTQg2IjtXE7l7mZjVNKjaKm2KJoFz
+\restrict yaYhndKKbvEh9yo1ffe8UW4LIY0igMavxD5PBw210OiaBjc7mmQXHKCuuK8baeA
 
--- Dumped from database version 18.6
--- Dumped by pg_dump version 18.6
+-- Dumped from database version 18.1
+-- Dumped by pg_dump version 18.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2933,9 +2933,9 @@ ALTER TABLE public.sys_application_setting OWNER TO ths_admin;
 CREATE TABLE public.sys_city (
     id bigint NOT NULL,
     city_name character varying(32) CONSTRAINT sys_city_name_not_null NOT NULL,
-    plate_code integer,
-    country_id bigint,
-    region_id bigint
+    car_plate_code integer,
+    sys_country_id bigint,
+    sys_region_id bigint
 );
 
 
@@ -2961,8 +2961,8 @@ ALTER TABLE public.sys_city ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 CREATE TABLE public.sys_country (
     id bigint NOT NULL,
-    code character varying(2) NOT NULL,
-    key character varying(128) CONSTRAINT sys_country_name_not_null NOT NULL,
+    country_code character varying(2) CONSTRAINT sys_country_code_not_null NOT NULL,
+    country_key character varying(128) CONSTRAINT sys_country_name_not_null NOT NULL,
     iso_year integer,
     iso_cctld character varying(3),
     is_eu_member boolean DEFAULT false CONSTRAINT sys_country_eu_not_null NOT NULL
@@ -2992,7 +2992,7 @@ ALTER TABLE public.sys_country ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 CREATE TABLE public.sys_country_translation (
     sys_country_id bigint NOT NULL,
     sys_language_id bigint NOT NULL,
-    name character varying(64)
+    country_name character varying(64)
 );
 
 
@@ -3323,7 +3323,7 @@ ALTER TABLE public.sys_permission_translation OWNER TO ths_admin;
 
 CREATE TABLE public.sys_region (
     id bigint CONSTRAINT sys_reg_iid_not_null NOT NULL,
-    name character varying(64) CONSTRAINT sys_reg_rn_not_null NOT NULL
+    region_name character varying(64) CONSTRAINT sys_reg_rn_not_null NOT NULL
 );
 
 
@@ -3699,7 +3699,7 @@ ALTER VIEW public.vw_sys_access_right OWNER TO ths_admin;
 
 CREATE VIEW public.vw_sys_address AS
  SELECT a.id,
-    cnt.name AS country,
+    cnt.country_name AS country,
     ct.city_name AS city,
     a.city_id,
     cn.id AS country_id,
@@ -3716,7 +3716,7 @@ CREATE VIEW public.vw_sys_address AS
     l.locale
    FROM ((((public.sys_address a
      LEFT JOIN public.sys_city ct ON ((ct.id = a.city_id)))
-     LEFT JOIN public.sys_country cn ON ((cn.id = ct.country_id)))
+     LEFT JOIN public.sys_country cn ON ((cn.id = ct.sys_country_id)))
      LEFT JOIN public.sys_country_translation cnt ON ((cnt.sys_country_id = cn.id)))
      LEFT JOIN public.sys_language l ON ((l.id = cnt.sys_language_id)));
 
@@ -3730,17 +3730,17 @@ ALTER VIEW public.vw_sys_address OWNER TO ths_admin;
 CREATE VIEW public.vw_sys_city AS
  SELECT ct.id,
     ct.city_name,
-    ct.plate_code,
-    ct.country_id,
-    ct.region_id,
-    cn.code AS country_code,
-    cnt.name AS country_name,
-    r.name AS region_name,
+    ct.car_plate_code,
+    ct.sys_country_id,
+    ct.sys_region_id,
+    cn.country_code,
+    cnt.country_name,
+    r.region_name,
     l.locale
    FROM ((((public.sys_city ct
-     LEFT JOIN public.sys_country cn ON ((cn.id = ct.country_id)))
-     LEFT JOIN public.sys_country_translation cnt ON ((cnt.sys_country_id = ct.country_id)))
-     LEFT JOIN public.sys_region r ON ((r.id = ct.region_id)))
+     LEFT JOIN public.sys_country cn ON ((cn.id = ct.sys_country_id)))
+     LEFT JOIN public.sys_country_translation cnt ON ((cnt.sys_country_id = ct.sys_country_id)))
+     LEFT JOIN public.sys_region r ON ((r.id = ct.sys_region_id)))
      LEFT JOIN public.sys_language l ON ((cnt.sys_language_id = l.id)))
   WHERE (1 = 1);
 
@@ -3753,12 +3753,12 @@ ALTER VIEW public.vw_sys_city OWNER TO ths_admin;
 
 CREATE VIEW public.vw_sys_country AS
  SELECT cn.id,
-    cn.code,
-    cn.key,
+    cn.country_code,
+    cn.country_key,
     cn.iso_year,
     cn.iso_cctld,
     cn.is_eu_member,
-    cnt.name AS country_name,
+    cnt.country_name,
     l.locale
    FROM ((public.sys_country cn
      LEFT JOIN public.sys_country_translation cnt ON ((cnt.sys_country_id = cn.id)))
@@ -3833,6 +3833,18 @@ CREATE VIEW public.vw_sys_permission_group AS
 
 
 ALTER VIEW public.vw_sys_permission_group OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_region; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_region AS
+ SELECT id,
+    region_name
+   FROM public.sys_region;
+
+
+ALTER VIEW public.vw_sys_region OWNER TO ths_admin;
 
 --
 -- Name: vw_sys_uom; Type: VIEW; Schema: public; Owner: ths_admin
@@ -4950,14 +4962,6 @@ ALTER TABLE ONLY public.sys_application_setting
 
 
 --
--- Name: sys_city sys_city_cid_city_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_city
-    ADD CONSTRAINT sys_city_cid_city_name_key UNIQUE (country_id, city_name);
-
-
---
 -- Name: sys_city sys_city_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -4966,11 +4970,19 @@ ALTER TABLE ONLY public.sys_city
 
 
 --
--- Name: sys_country sys_country_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_city sys_city_sys_country_id_city_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_city
+    ADD CONSTRAINT sys_city_sys_country_id_city_name_key UNIQUE (sys_country_id, city_name);
+
+
+--
+-- Name: sys_country sys_country_country_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_country
-    ADD CONSTRAINT sys_country_code_key UNIQUE (code);
+    ADD CONSTRAINT sys_country_country_code_key UNIQUE (country_code);
 
 
 --
@@ -5146,7 +5158,7 @@ ALTER TABLE ONLY public.sys_permission_translation
 --
 
 ALTER TABLE ONLY public.sys_region
-    ADD CONSTRAINT sys_region_name_key UNIQUE (name);
+    ADD CONSTRAINT sys_region_name_key UNIQUE (region_name);
 
 
 --
@@ -6490,19 +6502,19 @@ ALTER TABLE ONLY public.sys_application_setting
 
 
 --
--- Name: sys_city sys_city_cid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_city sys_city_sys_country_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_city
-    ADD CONSTRAINT sys_city_cid_fkey FOREIGN KEY (country_id) REFERENCES public.sys_country(id) ON UPDATE SET NULL;
+    ADD CONSTRAINT sys_city_sys_country_id_fkey FOREIGN KEY (sys_country_id) REFERENCES public.sys_country(id) ON UPDATE SET NULL;
 
 
 --
--- Name: sys_city sys_city_rid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_city sys_city_sys_region_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_city
-    ADD CONSTRAINT sys_city_rid_fkey FOREIGN KEY (region_id) REFERENCES public.sys_region(id) ON UPDATE SET NULL;
+    ADD CONSTRAINT sys_city_sys_region_id_fkey FOREIGN KEY (sys_region_id) REFERENCES public.sys_region(id) ON UPDATE SET NULL;
 
 
 --
@@ -6741,5 +6753,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict qrqTctm1uGVE6prTqTCvhSBjRmD2WQit7IfTQg2IjtXE7l7mZjVNKjaKm2KJoFz
+\unrestrict yaYhndKKbvEh9yo1ffe8UW4LIY0igMavxD5PBw210OiaBjc7mmQXHKCuuK8baeA
 

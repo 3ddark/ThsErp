@@ -3,9 +3,10 @@ unit ufrmSysRegions;
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysRegion.Service, SysRegion, ufrmSysRegion, LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysRegion.Service, SysRegion, ufrmSysRegion;
 
 type
   TfrmSysRegions = class(TfrmGrid<TSysRegion, TSysRegionService>)
@@ -35,8 +36,8 @@ end;
 procedure TfrmSysRegions.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',    0, TLocalizationManager.Translate('sys_region.col_id', 'Id'));
-  SetColumnProperty('name', 200, TLocalizationManager.Translate('sys_region.col_name', 'Region Name'));
+  SetColumnProperty('id',             0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId,  'Id'));
+  SetColumnProperty('region_name',  200, TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region Name'));
 end;
 
 procedure TfrmSysRegions.DefineFooterColumns;
@@ -55,8 +56,9 @@ end;
 procedure TfrmSysRegions.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_region.title_plural', 'Regions');
-
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.TitlePlural, 'Regions');
+  SetColumnTitle('id',          TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
+  SetColumnTitle('region_name', TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region Name'));
 end;
 
 end.

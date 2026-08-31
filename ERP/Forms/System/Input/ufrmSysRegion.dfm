@@ -12,7 +12,7 @@ object frmSysRegion: TfrmSysRegion
   Font.Style = []
   OnCreate = FormCreate
   OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
@@ -20,11 +20,10 @@ object frmSysRegion: TfrmSysRegion
     Height = 104
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 463
     object lblRegionName: TLabel
-      Left = 51
+      Left = 54
       Top = 6
-      Width = 77
+      Width = 74
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -41,7 +40,7 @@ object frmSysRegion: TfrmSysRegion
       Left = 132
       Top = 2
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 0
     end
   end

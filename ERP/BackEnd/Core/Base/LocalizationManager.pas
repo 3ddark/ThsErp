@@ -70,6 +70,13 @@ type
         const RecordDeletedWhileReview = 'msg.record_deleted_while_review';
         const MustContainOnlyOneRecord = 'msg.must_contain_only_one_record';
         const ValidationErrorTitle = 'msg.title.validation_error';
+        const UpdateConfirmation = 'msg.title.update_confirmation';
+        const ConfirmExitApp = 'msg.confirm_exit_app';
+        const NewVersionAvailable = 'msg.new_version_available';
+        const UpdateRecommended = 'msg.update_recommended';
+        const UserUpdateConfirmation = 'msg.title.user_update_confirmation';
+        const WarningTitle = 'msg.title.warning';
+        const FinishEditingBeforeLangChange = 'msg.finish_editing_before_lang_change';
       end;
 
       TLogin = record
@@ -98,6 +105,33 @@ type
         const MenuPersonnel = 'dashboard.menu.personnel';
         const MenuAbout = 'dashboard.menu.about';
         const MenuSettings = 'dashboard.menu.settings';
+        const MenuOffers = 'dashboard.menu.offers';
+        const MenuOrders = 'dashboard.menu.orders';
+        const MenuWaybills = 'dashboard.menu.waybills';
+        const MenuInvoices = 'dashboard.menu.invoices';
+        const MenuChangePassword = 'dashboard.menu.change_password';
+        const MenuDbMonitor = 'dashboard.menu.db_monitor';
+        const MenuDbBackup = 'dashboard.menu.db_backup';
+        const MenuUpdate = 'dashboard.menu.update';
+
+        const ActionUsers = 'dashboard.action.users';
+        const ActionAccessRights = 'dashboard.action.access_rights';
+        const ActionAppSettings = 'dashboard.action.app_settings';
+        const ActionGridColumns = 'dashboard.action.grid_columns';
+        const ActionGridFilters = 'dashboard.action.grid_filters';
+        const ActionPermissionGroups = 'dashboard.action.permission_groups';
+        const ActionPermissions = 'dashboard.action.permissions';
+        const ActionCountries = 'dashboard.action.countries';
+        const ActionCities = 'dashboard.action.cities';
+        const ActionRegions = 'dashboard.action.regions';
+        const ActionUnitTypes = 'dashboard.action.unit_types';
+        const ActionUnits = 'dashboard.action.units';
+        const ActionCurrencies = 'dashboard.action.currencies';
+        const ActionLanguages = 'dashboard.action.languages';
+      end;
+
+      TGridColumn = record
+        const ColId = 'grid_column.col_id';
       end;
 
       //System Module
@@ -121,7 +155,6 @@ type
       TSysCity = record
         const TitlePlural = 'sys_city.title_plural';
         const TitleSingular = 'sys_city.title_singular';
-        const ColId = 'sys_city.col_id';
         const ColCityName = 'sys_city.col_city_name';
         const ColPlateCode = 'sys_city.col_plate_code';
         const ColCountryId = 'sys_city.col_country_id';
@@ -151,7 +184,6 @@ type
       TSysDecimalPlace = record
         const TitlePlural = 'sys_decimal_place.title_plural';
         const TitleSingular = 'sys_decimal_place.title_singular';
-        const ColId = 'sys_decimal_place.col_id';
         const ColQuantity = 'sys_decimal_place.col_quantity';
         const ColPrice = 'sys_decimal_place.col_price';
         const ColTotal = 'sys_decimal_place.col_total';
@@ -219,6 +251,8 @@ type
       end;
 
       TSysRegion = record
+        const TitlePlural = 'sys_region.title.title_plural';
+        const TitleSingular = 'sys_region.title.singular';
         const ColName = 'sys_region.name';
         const NameUnique = 'sys_region.name.unique';
       end;

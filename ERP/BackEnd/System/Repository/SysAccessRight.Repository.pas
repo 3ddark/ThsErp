@@ -40,6 +40,7 @@ type
 
     function GetUserPermissions(AUserId: Int64): TObjectDictionary<Integer, TSysAccessRight>;
     procedure CopyUserAccessRights(ASourceUserId, ATargetUserId: Int64);
+    procedure AddPermissionToAllUser(APermissionId: Int64);
   end;
 
 implementation
@@ -455,6 +456,25 @@ begin
   finally
     Q.Free;
     LFilter.Free;
+  end;
+end;
+
+procedure TSysAccessRightRepository.AddPermissionToAllUser(APermissionId: Int64);
+var
+  Q: TFDQuery;
+  LFilter: TFilterCriteria;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) + ' (permission_id, is_read, is_add, is_update, is_delete, is_special, user_id) ' +
+                  'SELECT :permission_id, false, false, false, false, false, id FROM ' + Self.GetTableName(TSysUser) +
+                  ' WHERE active ' +
+                  'ON CONFLICT (permission_id, user_id) DO UPDATE SET permission_id = EXCLUDED.permission_id';
+    Q.ParamByName('permission_id').AsLargeInt := APermissionId;
+    Q.ExecSQL;
+  finally
+    Q.Free;
   end;
 end;
 

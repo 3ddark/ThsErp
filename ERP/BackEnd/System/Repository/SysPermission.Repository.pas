@@ -67,7 +67,8 @@ end;
 
 function TSysPermissionRepository.PrepareDeleteSql: string;
 begin
-  Result := 'DELETE FROM public.' + Self.GetTableName(TSysPermission) + ' WHERE id = :id';
+  //WHERE kýsmý özellikle böyle yazýldý. Filtre vermeden iþlem yapýlmamasý için. Hatalý kodlamada tüm tabloyu siler.
+  Result := 'DELETE FROM public.' + Self.GetTableName(TSysPermission) + ' WHERE';
 end;
 
 function TSysPermissionRepository.PrepareLoadTranslationSql: string;

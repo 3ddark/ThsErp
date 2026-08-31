@@ -44,7 +44,7 @@ constructor TSysCountryService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysCountry, TSysCountryRepository>;
-  Self.PermissionCode := PERMISSION_COUNTRY;
+  Self.PermissionCode := PERMISSION_SYS_COUNTRY;
 end;
 
 destructor TSysCountryService.Destroy;

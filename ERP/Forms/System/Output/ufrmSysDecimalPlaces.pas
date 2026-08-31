@@ -35,7 +35,7 @@ end;
 procedure TfrmSysDecimalPlaces.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',               0, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColId, 'Id'));
+  SetColumnProperty('id',               0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
   SetColumnProperty('quantity',        70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColQuantity, 'Quantity'));
   SetColumnProperty('price',           70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColPrice, 'Price'));
   SetColumnProperty('total',           70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColTotal, 'Total'));

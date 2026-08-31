@@ -1,4 +1,4 @@
-unit ufrmSysRegion;
+﻿unit ufrmSysRegion;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.ComCtrls,
   ufrmInputSimpleDB, SharedFormTypes,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysRegion.Service, SysRegion, LocalizationManager;
+  LocalizationManager, SysRegion.Service, SysRegion;
 
 type
   TfrmSysRegion = class(TfrmInputSimpleDB<TSysRegion, TSysRegionService>)
@@ -49,8 +49,8 @@ end;
 procedure TfrmSysRegion.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_region.title.singular', 'Bölge');
-  lblRegionName.Caption := TLocalizationManager.Translate('sys_region.name', 'Bölge Adı');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.TitleSingular, 'Region');
+  lblRegionName.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region Name');
 end;
 
 procedure TfrmSysRegion.RefreshData;

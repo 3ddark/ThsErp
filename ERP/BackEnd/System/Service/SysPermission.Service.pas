@@ -6,12 +6,14 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext,
-  SysPermission.Repository, SysPermission, SysPermission.Exception;
+  SysPermission.Repository, SysPermission, SysPermission.Exception,
+  SysAccessRight.Service;
 
 const
-  PERMISSION_TEMPLATE   = 1;
-  PERMISSION_CITY       = 1000;
-  PERMISSION_COUNTRY    = 1001;
+  PERMISSION_TEMPLATE       = 1;
+  PERMISSION_SYS_CITY       = 1000;
+  PERMISSION_SYS_COUNTRY    = 1001;
+  PERMISSION_SYS_REGION     = 1002;
 
 type
   TSysPermissionService = class(TCrudService<TSysPermission>)
@@ -90,6 +92,8 @@ begin
 end;
 
 procedure TSysPermissionService.BusinessInsert(AEntity: TSysPermission; AWithBegin, AWithCommit, APermissionControl: Boolean);
+var
+  LSvc: TSysAccessRightService;
 begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
@@ -100,6 +104,14 @@ begin
       Self.UoW.BeginTransaction;
 
     FRepo.Add(AEntity);
+
+    //add permission to all user with false permission
+    LSvc := TSysAccessRightService.Create;
+    try
+      LSvc.AddPermissionToAllUser(AEntity.Id, False, False);
+    finally
+      LSvc.Free;
+    end;
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;

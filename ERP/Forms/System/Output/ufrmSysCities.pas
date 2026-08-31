@@ -36,13 +36,13 @@ end;
 procedure TfrmSysCities.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',               0, TLocalizationManager.Translate(TLangKeys.TSysCity.ColId, 'Id'));
+  SetColumnProperty('id',               0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
   SetColumnProperty('city_name',      150, TLocalizationManager.Translate(TLangKeys.TSysCity.ColCityName, 'City Name'));
-  SetColumnProperty('plate_code',      90, TLocalizationManager.Translate(TLangKeys.TSysCity.ColPlateCode, 'Plate Code'));
+  SetColumnProperty('plate_code',      90, TLocalizationManager.Translate(TLangKeys.TSysCity.ColPlateCode, 'Car Plate Code'));
   SetColumnProperty('country_id',       0, TLocalizationManager.Translate(TLangKeys.TSysCity.ColCountryId, 'Country Id'));
   SetColumnProperty('region_id',        0, TLocalizationManager.Translate(TLangKeys.TSysCity.ColRegionId, 'Region Id'));
   SetColumnProperty('country_code',    70, TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCode, 'Country Code'));
-  SetColumnProperty('country_name',   150, TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountry, 'Country'));
+  SetColumnProperty('country_name',   150, TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountry, 'Country Name'));
   SetColumnProperty('region_name',    150, TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region Name'));
 end;
 
