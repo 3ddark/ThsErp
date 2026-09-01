@@ -36,8 +36,7 @@ end;
 procedure TfrmSysRegions.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',             0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId,  'Id'));
-  SetColumnProperty('region_name',  200, TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region Name'));
+  SetColumnProperty('id', 0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
 end;
 
 procedure TfrmSysRegions.DefineFooterColumns;
@@ -58,7 +57,7 @@ begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.TitlePlural, 'Regions');
   SetColumnTitle('id',          TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
-  SetColumnTitle('region_name', TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region Name'));
+  SetColumnTitle('region_name', TLocalizationManager.Translate(TLangKeys.TSysRegion.ColRegionName, 'Region Name'));
 end;
 
 end.

@@ -2,7 +2,9 @@ unit SysAccessRight;
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes, SysPermission, SysUser;
+uses
+  SysUtils, Classes, Types, Entity, EntityAttributes, SysPermission, SysUser,
+  LocalizationManager;
 
 type
   [Table('sys_access_right')]
@@ -22,15 +24,17 @@ type
     function GetUsername: string;
     function GetPermissionName: string;
   public
+    constructor Create(); override;
+    destructor Destroy; override;
+
     [Column('permission_id')]
-    [Required('sysaccessright.permissionid.required', True)]
+    [Required(TLangKeys.TValidation.Required, True)]
     property PermissionId: Int64 read FPermissionId write FPermissionId;
 
     [Column('is_read')]
     property IsRead: Boolean read FIsRead write FIsRead;
 
     [Column('is_add')]
-    [Required('', True)]
     property IsAdd: Boolean read FIsAdd write FIsAdd;
 
     [Column('is_update')]
@@ -43,7 +47,7 @@ type
     property IsSpecial: Boolean read FIsSpecial write FIsSpecial;
 
     [Column('user_id')]
-    [Required('sysaccessright.userid.required', True)]
+    [Required(TLangKeys.TValidation.Required, True)]
     property UserId: Int64 read FUserId write FUserId;
 
     [BelongsTo('PermissionId')]
@@ -54,9 +58,6 @@ type
 
     property Username: string read GetUsername write FUsername;
     property PermissionName: string read GetPermissionName write FPermissionName;
-
-    constructor Create(); override;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -64,16 +65,16 @@ implementation
 constructor TSysAccessRight.Create();
 begin
   inherited;
-//  FPermission := TSysPermission.Create;
-//  FUser := TSysUser.Create;
+  FPermission := TSysPermission.Create;
+  FUser := TSysUser.Create;
 end;
 
 destructor TSysAccessRight.Destroy;
 begin
-//  if Assigned(FPermission) then
-//    FreeAndNil(FPermission);
-//  if Assigned(FUser) then
-//    FreeAndNil(FUser);
+  if Assigned(FPermission) then
+    FreeAndNil(FPermission);
+  if Assigned(FUser) then
+    FreeAndNil(FUser);
   inherited;
 end;
 

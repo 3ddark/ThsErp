@@ -36,14 +36,9 @@ end;
 procedure TfrmSysCities.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',               0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
-  SetColumnProperty('city_name',      150, TLocalizationManager.Translate(TLangKeys.TSysCity.ColCityName, 'City Name'));
-  SetColumnProperty('plate_code',      90, TLocalizationManager.Translate(TLangKeys.TSysCity.ColPlateCode, 'Car Plate Code'));
-  SetColumnProperty('country_id',       0, TLocalizationManager.Translate(TLangKeys.TSysCity.ColCountryId, 'Country Id'));
-  SetColumnProperty('region_id',        0, TLocalizationManager.Translate(TLangKeys.TSysCity.ColRegionId, 'Region Id'));
-  SetColumnProperty('country_code',    70, TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCode, 'Country Code'));
-  SetColumnProperty('country_name',   150, TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountry, 'Country Name'));
-  SetColumnProperty('region_name',    150, TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region Name'));
+  SetColumnProperty('id',         0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
+  SetColumnProperty('country_id', 0, TLocalizationManager.Translate(TLangKeys.TSysCity.ColCountryId, 'Country Id'));
+  SetColumnProperty('region_id',  0, TLocalizationManager.Translate(TLangKeys.TSysCity.ColRegionId, 'Region Id'));
 end;
 
 procedure TfrmSysCities.DefineFooterColumns;
@@ -63,6 +58,14 @@ procedure TfrmSysCities.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.TitlePlural, 'Cities');
+  SetColumnTitle('id',           TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
+  SetColumnTitle('country_id',   TLocalizationManager.Translate(TLangKeys.TSysCity.ColCountryId, 'Country Id'));
+  SetColumnTitle('region_id',    TLocalizationManager.Translate(TLangKeys.TSysCity.ColRegionId, 'Region Id'));
+  SetColumnTitle('city_name',    TLocalizationManager.Translate(TLangKeys.TSysCity.ColCityName, 'City Name'));
+  SetColumnTitle('plate_code',   TLocalizationManager.Translate(TLangKeys.TSysCity.ColPlateCode, 'Car Plate Code'));
+  SetColumnTitle('country_code', TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountryCode, 'Country Code'));
+  SetColumnTitle('country_name', TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountryName, 'Country Name'));
+  SetColumnTitle('region_name',  TLocalizationManager.Translate(TLangKeys.TSysRegion.ColRegionName, 'Region Name'));
 end;
 
 end.

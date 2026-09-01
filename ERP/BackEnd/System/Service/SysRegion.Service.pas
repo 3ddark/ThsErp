@@ -81,18 +81,21 @@ var
   LFilter: TFilterCriteria;
   LModel: TSysRegion;
 begin
-  LFilter := TFilterCriteria.Create;
-  try
-    LFilter.Add(TFilterCriterion.New('region_name', '=', TValue.From<string>(AEntity.RegionName)));
-    if AOperation = coUpdate then
-      LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('region_name', '=', TValue.From<string>(AEntity.RegionName)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 
-    LModel := FRepo.FindOne(LFilter, False);
-    if Assigned(LModel) then
-      raise ESysRegionExceptionNameUnique.Create;
-  finally
-    LFilter.Free;
-    LModel.Free;
+      LModel := FRepo.FindOne(LFilter, False);
+      if Assigned(LModel) then
+        raise ESysRegionExceptionNameUnique.Create;
+    finally
+      LFilter.Free;
+      LModel.Free;
+    end;
   end;
 end;
 
@@ -115,7 +118,7 @@ begin
   LEntity := FRepo.FindById(AId, False);
   try
     if not Assigned(LEntity) then
-      raise Exception.CreateFmt('Record not found: %d', [AId]);
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
 
     ValidateAll(LEntity, coDelete);
     FRepo.Delete(LEntity);

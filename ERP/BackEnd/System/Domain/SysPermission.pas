@@ -19,6 +19,9 @@ type
     FPermission: TSysPermission;
     FLanguage: TSysLanguage;
   public
+    constructor Create; override;
+    destructor Destroy; override;
+
     [Column('sys_permission_id', [cpPrimaryKey])]
     property PermissionId: Int64 read FPermissionId write FPermissionId;
 
@@ -76,6 +79,20 @@ destructor TSysPermission.Destroy;
 begin
   FreeAndNil(FGroup);
   FreeAndNil(FTranslations);
+  inherited;
+end;
+
+constructor TSysPermissionTranslation.Create;
+begin
+  inherited;
+  FPermission := TSysPermission.Create;
+  FLanguage := TSysLanguage.Create;
+end;
+
+destructor TSysPermissionTranslation.Destroy;
+begin
+  FreeAndNil(FPermission);
+  FreeAndNil(FLanguage);
   inherited;
 end;
 

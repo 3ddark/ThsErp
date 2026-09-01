@@ -77,6 +77,9 @@ type
         const UserUpdateConfirmation = 'msg.title.user_update_confirmation';
         const WarningTitle = 'msg.title.warning';
         const FinishEditingBeforeLangChange = 'msg.finish_editing_before_lang_change';
+        const RecordNotFoundD = 'Record not found: %d';
+        const RecordNotFoundS = 'Record not found: %s';
+        const UnknownPermissionType = 'Unknown PermissionType: %d';
       end;
 
       TLogin = record
@@ -130,6 +133,28 @@ type
         const ActionUnits = 'dashboard.action.units';
         const ActionCurrencies = 'dashboard.action.currencies';
         const ActionLanguages = 'dashboard.action.languages';
+        const TabGeneral = 'dashboard.tab.general';
+        const TabSales = 'dashboard.tab.sales';
+        const TabStock = 'dashboard.tab.stock';
+        const TabAccounts = 'dashboard.tab.accounts';
+        const TabEmployee = 'dashboard.tab.personnel';
+        const TabRecipes = 'dashboard.tab.recipes';
+        const TabAccounting = 'dashboard.tab.accounting';
+        const BtnOffers = 'dashboard.btn.offers';
+        const BtnOrders = 'dashboard.btn.orders';
+        const BtnOfferReports = 'dashboard.btn.offer_reports';
+        const BtnOrderReports = 'dashboard.btn.order_reports';
+        const BtnRegion = 'dashboard.btn.region';
+        const BtnBanks = 'dashboard.btn.banks';
+        const BtnBankBranches = 'dashboard.btn.bank_branches';
+        const BtnAccountGroups = 'dashboard.btn.account_groups';
+        const BtnAccountPlans = 'dashboard.btn.account_plans';
+        const BtnSubAccount = 'dashboard.btn.sub_account';
+        const BtnAccountCard = 'dashboard.btn.account_card';
+        const BtnTaxRates = 'dashboard.btn.tax_rates';
+        const BtnRecipes = 'dashboard.btn.recipes';
+        const BtnLaborCosts = 'dashboard.btn.labor_costs';
+        const BtnPacketRawMaterials = 'dashboard.btn.packet_raw_materials';
       end;
 
       TGridColumn = record
@@ -138,16 +163,47 @@ type
 
       //System Module
       TSysAccessRight = record
-        const NoAccessRightToRead = 'sys_access_right.no_access_right_to_read';
-        const NoAccessRightToAdd = 'sys_access_right.no_access_right_to_add';
-        const NoAccessRightToUpdate = 'sys_access_right.no_access_right_to_update';
-        const NoAccessRightToDelete = 'sys_access_right.no_access_right_to_delete';
-        const NoAccessRightToSpecial = 'sys_access_right.no_access_right_to_special';
-        const PermissionUserUnique = 'sys_access_right.permission_user_unique';
+        const TitlePlural = 'sys_access_right.title_plural';
+        const TitleSingular = 'sys_access_right.title_singular';
+
+        const ColUserId = 'sys_access_right.col_user_id';
+        const ColPermissionId = 'sys_access_right.col_permission_id';
+        const ColRead = 'sys_access_right.col_is_read';
+        const ColAdd = 'sys_access_right.col_is_add';
+        const ColUpdate = 'sys_access_right.col_is_update';
+        const ColDelete = 'sys_access_right.col_is_delete';
+        const ColSpecial = 'sys_access_right.col_is_special';
+
+        const MenuCopUserRights = 'sys_access_right.popup.copy_user_rights';
+
+        const MsgSelectSourceUser = 'sys_access_right.msg.select_source_user';
+        const MsgSelectTargetUser = 'sys_access_right.msg.select_target_user';
+        const MsgSourceTargetSame = 'sys_access_right.msg.source_target_same';
+        const MsgConfirmCopy = 'sys_access_right.msg.confirm_copy';
+        const MsgCopySuccess = 'sys_access_right.msg.copy_success';
+        const MsgCopyError = 'sys_access_right.msg.copy_error';
+        const MsgNoAccessRightToRead = 'sys_access_right.msg.no_access_right_to_read';
+        const MsgNoAccessRightToAdd = 'sys_access_right.msg.no_access_right_to_add';
+        const MsgNoAccessRightToUpdate = 'sys_access_right.msg.no_access_right_to_update';
+        const MsgNoAccessRightToDelete = 'sys_access_right.msg.no_access_right_to_delete';
+        const MsgNoAccessRightToSpecial = 'sys_access_right.msg.no_access_right_to_special';
+        const MsgPermissionUserUnique = 'sys_access_right.msg.permission_user_unique';
       end;
 
       TSysAddress = record
+        const TitlePlural = 'sys_address.title_plural';
+        const TitleSingular = 'sys_address.title_singular';
 
+        const ColDistrict = 'sys_address.col_district';
+        const ColNeighborhood = 'sys_address.col_neighborhood';
+        const ColQuarter = 'sys_address.col_quarter';
+        const ColRoad = 'sys_address.col_road';
+        const ColStreet = 'sys_address.col_street';
+        const ColBuildingName = 'sys_address.col_building_name';
+        const ColDoorNumber = 'sys_address.col_door_number';
+        const ColZipCode = 'sys_address.col_zip_code';
+        const ColWeb = 'sys_address.col_web';
+        const ColEmail = 'sys_address.col_email';
       end;
 
       TSysApplicationSetting = record
@@ -165,18 +221,14 @@ type
       end;
 
       TSysCountry = record
-        const CodeRequired = 'sys_country.code.required';
-        const CodeLength = 'sys_country.code.length';
-        const NameRequired = 'sys_country.name.required';
-        const NameMinLength = 'sys_country.name.minlength';
-        const NameMaxLength = 'sys_country.name.maxlength';
+        const TitlePlural = 'sys_country.title_plural';
+        const TitleSingular = 'sys_country.title_singular';
         const CodeUnique = 'sys_country.code.unique';
-        const ColCode = 'sys_country.col_code';
-        const ColKey = 'sys_country.col_key';
+        const ColCountryCode = 'sys_country.col_country_code';
         const ColIsoYear = 'sys_country.col_iso_year';
         const ColIsoCctld = 'sys_country.col_iso_cctld';
         const ColIsEuMember = 'sys_country.col_is_eu_member';
-        const ColCountry = 'sys_country.col_country';
+        const ColCountryName = 'sys_country.col_country_name';
       end;
 
       TSysCurrency = record
@@ -219,44 +271,44 @@ type
       end;
 
       TSysPermission = record
-        const TitlePlural = 'permission.title_plural';
-        const TitleSingular = 'permission.title_singular';
-        const ColCode = 'permission.col_code';
-        const ColKey = 'permission.col_key';
-        const ColName = 'permission.col_name';
-        const ColGroupKey = 'permission.col_group_key';
-        const ColGroupName = 'permission.col_group_name';
-        const LblCode = 'permission.lbl_code';
-        const LblKey = 'permission.lbl_key';
-        const LblNameEN = 'permission.lbl_name_en';
-        const LblNameTR = 'permission.lbl_name_tr';
-        const LblGroupId = 'permission.lbl_group_id';
-        const CodeRequired = 'permission.code.required';
-        const CodePositive = 'permission.code.positive';
-        const KeyRequired = 'permission.key.required';
-        const GroupRequired = 'permission.group.required';
+        const TitlePlural = 'sys_permission.title_plural';
+        const TitleSingular = 'sys_permission.title_singular';
+        const ColCode = 'sys_permission.col_permission_code';
+        const ColKey = 'sys_permission.col_permission_key';
+        const ColPermissionName = 'sys_permission.col_permission_name';
+        const ColGroupKey = 'sys_permission.col_group_key';
+        const ColGroupName = 'sys_permission.col_group_name';
+        const LblCode = 'sys_permission.lbl_code';
+        const LblKey = 'sys_permission.lbl_key';
+        const LblNameEN = 'sys_permission.lbl_name_en';
+        const LblNameTR = 'sys_permission.lbl_name_tr';
+        const LblGroupId = 'sys_permission.lbl_group_id';
+        const CodeRequired = 'sys_permission.code.required';
+        const CodePositive = 'sys_permission.code.positive';
+        const KeyRequired = 'sys_permission.key.required';
+        const GroupRequired = 'sys_permission.group.required';
         const KeyUnique = 'sys_permission.key_unique';
       end;
 
       TSysPermissionGroup = record
-        const TitlePlural = 'permission_group.title_plural';
-        const TitleSingular = 'permission_group.title_singular';
-        const ColKey = 'permission_group.col_key';
-        const ColName = 'permission_group.col_name';
-        const ColLocale = 'permission_group.col_locale';
-        const LblKey = 'permission_group.lbl_key';
-        const LblNameEN = 'permission_group.lbl_name_en';
-        const LblNameTR = 'permission_group.lbl_name_tr';
-        const KeyRequired = 'permission_group.key.required';
-        const NameRequired = 'permission_group.name.required';
-        const KeyUnique = 'sys_permission_group.key_unique';
+        const TitlePlural = 'sys_permission_group.title_plural';
+        const TitleSingular = 'sys_permission_group.title_singular';
+        const ColGroupKey = 'sys_permission_group.col_group_key';
+        const ColGroupName = 'sys_permission_group.col_group_name';
+        const ColLocale = 'sys_permission_group.col_locale';
+        const LblKey = 'sys_permission_group.lbl_key';
+        const LblNameEN = 'sys_permission_group.lbl_name_en';
+        const LblNameTR = 'sys_permission_group.lbl_name_tr';
+        const KeyRequired = 'sys_permission_group.key.required';
+        const NameRequired = 'sys_permission_group.name.required';
+        const GroupKeyUnique = 'sys_permission_group.group_key_unique';
       end;
 
       TSysRegion = record
         const TitlePlural = 'sys_region.title.title_plural';
         const TitleSingular = 'sys_region.title.singular';
-        const ColName = 'sys_region.name';
-        const NameUnique = 'sys_region.name.unique';
+        const ColRegionName = 'sys_region.region_name';
+        const RegionNameUnique = 'sys_region.region_name.unique';
       end;
 
       TSysUom = record
@@ -275,9 +327,21 @@ type
       end;
 
       TSysUser = record
+        const TitlePlural = 'sys_user.title_plural';
+        const TitleSingular = 'sys_user.title_singular';
+
+        const ColUserName = 'sys_user.col_username';
+
         const UsernameUnique = 'sys_user.username_unique';
       end;
 
+
+      //Employee Module
+      TEmpEmployee = record
+        const TitlePlural = 'emp_person.title_plural';
+        const TitleSingular = 'emp_person.title_singular';
+        const ColFullName = 'emp_person.col_full_name';
+      end;
 
       //Stock Module
       TStock = record

@@ -44,7 +44,7 @@ procedure TfrmSysAccessRights.PreparePopupMenu;
 begin
   inherited;
   AddPopupMenuSpliter();
-  FmniCopyUserRights := AddMenu(TLocalizationManager.Translate('sys_access_right.popup.copy_user_rights', 'Kullanıcı Haklarını Kopyala'), 'mniCopyUserRights', mniCopyUserRightsClick, True, TextToShortCut('Ctrl+C'));
+  FmniCopyUserRights := AddMenu(TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MenuCopUserRights, 'Copy User Rights'), 'mniCopyUserRights', mniCopyUserRightsClick, True, TextToShortCut('Ctrl+C'));
 end;
 
 procedure TfrmSysAccessRights.mniCopyUserRightsClick(Sender: TObject);
@@ -62,7 +62,7 @@ begin
   LFrmSourceUser := TfrmSysUsers.Create(Self, TSysUserService.Create, TSysUser.Create);
   try
     LFrmSourceUser.IsHelper := True;
-    LFrmSourceUser.Caption := TLocalizationManager.Translate('sys_access_right.msg.select_source_user', 'Hakları Kopyalanacak Kaynak Kullanıcıyı Seçin');
+    LFrmSourceUser.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgSelectSourceUser, 'Select the source user whose rights will be copied.');
     LFrmSourceUser.ShowModal;
     if LFrmSourceUser.DataTransfer and not LFrmSourceUser.CleanAndClose then
     begin
@@ -79,7 +79,7 @@ begin
   LFrmTargetUser := TfrmSysUsers.Create(Self, TSysUserService.Create, TSysUser.Create);
   try
     LFrmTargetUser.IsHelper := True;
-    LFrmTargetUser.Caption := TLocalizationManager.Translate('sys_access_right.msg.select_target_user', 'Hakların Aktarılacağı Hedef Kullanıcıyı Seçin');
+    LFrmTargetUser.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgSelectTargetUser, 'Select the target user to whom the rights will be transferred.');
     LFrmTargetUser.ShowModal;
     if LFrmTargetUser.DataTransfer and not LFrmTargetUser.CleanAndClose then
     begin
@@ -94,23 +94,23 @@ begin
 
   if LSourceUserId = LTargetUserId then
   begin
-    ShowMessage(TLocalizationManager.Translate('sys_access_right.msg.source_target_same', 'Kaynak ve hedef kullanıcı aynı olamaz.'));
+    ShowMessage(TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgSourceTargetSame, 'The source and target users cannot be the same.'));
     Exit;
   end;
 
   // 3. Confirm and copy
-  if MessageDlg(Format(TLocalizationManager.Translate('sys_access_right.msg.confirm_copy', '"%s" kullanıcısının tüm haklarını "%s" kullanıcısına kopyalamak istediğinizden emin misiniz?' + sLineBreak + 
-                       'Not: Hedef kullanıcının var olan hakları silinip kaynak kullanıcının hakları kopyalanacaktır.'), 
-                       [LSourceUsername, LTargetUsername]), 
+  if MessageDlg(Format(TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgConfirmCopy, 'Are you sure you want to copy all rights of user "%s" to user "%s"?' + sLineBreak +
+                       'Note: The target user is existing rights will be deleted, and the source user is rights will be copied.'),
+                       [LSourceUsername, LTargetUsername]),
                 mtConfirmation, [mbYes, mbNo], 0) = mrYes then
   begin
     try
       Service.CopyUserAccessRights(LSourceUserId, LTargetUserId);
-      ShowMessage(TLocalizationManager.Translate('sys_access_right.msg.copy_success', 'Haklar başarıyla kopyalandı.'));
+      ShowMessage(TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgCopySuccess, 'The rights were successfully copied.'));
       RefreshData();
     except
       on E: Exception do
-        ShowMessage(TLocalizationManager.Translate('sys_access_right.msg.copy_error', 'Hata oluştu: ') + E.Message);
+        ShowMessage(TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgCopyError, 'An error occurred: ') + E.Message);
     end;
   end;
 end;
@@ -136,27 +136,16 @@ begin
   SetColumnProperty('user_id',         0, '');
   SetColumnProperty('locale',          0, '');
 
-  SetColumnProperty('username',      120, TLocalizationManager.Translate('sys_access_right.col_username', 'Username'));
-  SetColumnProperty('full_name', 150, TLocalizationManager.Translate('sys_access_right.col_user_full_name', 'Full Name'));
-  SetColumnProperty('permission_name', 160, TLocalizationManager.Translate('sys_access_right.col_permission_name', 'Permission Name'));
-  SetColumnProperty('permission_group', 160, TLocalizationManager.Translate('sys_access_right.col_permission_group', 'Permission Group'));
-  SetColumnProperty('code', 70, TLocalizationManager.Translate('sys_access_right.col_code', 'Code'));
-  SetColumnProperty('is_read',        50, TLocalizationManager.Translate('sys_access_right.col_is_read', 'Read'));
-  SetColumnProperty('is_add',         50, TLocalizationManager.Translate('sys_access_right.col_is_add', 'Add'));
-  SetColumnProperty('is_update',      60, TLocalizationManager.Translate('sys_access_right.col_is_update', 'Update'));
-  SetColumnProperty('is_delete',      60, TLocalizationManager.Translate('sys_access_right.col_is_delete', 'Delete'));
-  SetColumnProperty('is_special',     70, TLocalizationManager.Translate('sys_access_right.col_is_special', 'Special'));
-
-  SetColumnIndex('username', 0);
-  SetColumnIndex('full_name', 1);
-  SetColumnIndex('permission_name', 2);
-  SetColumnIndex('permission_group', 3);
-  SetColumnIndex('code', 4);
-  SetColumnIndex('is_read', 5);
-  SetColumnIndex('is_add', 6);
-  SetColumnIndex('is_update', 7);
-  SetColumnIndex('is_delete', 8);
-  SetColumnIndex('is_special', 9);
+//  SetColumnProperty('username',      120, TLocalizationManager.Translate('sys_access_right.col_username', 'Username'));
+//  SetColumnProperty('full_name', 150, TLocalizationManager.Translate('sys_access_right.col_user_full_name', 'Full Name'));
+//  SetColumnProperty('permission_name', 160, TLocalizationManager.Translate('sys_access_right.col_permission_name', 'Permission Name'));
+//  SetColumnProperty('permission_group', 160, TLocalizationManager.Translate('sys_access_right.col_permission_group', 'Permission Group'));
+//  SetColumnProperty('code', 70, TLocalizationManager.Translate('sys_access_right.col_code', 'Code'));
+//  SetColumnProperty('is_read',        50, TLocalizationManager.Translate('sys_access_right.col_is_read', 'Read'));
+//  SetColumnProperty('is_add',         50, TLocalizationManager.Translate('sys_access_right.col_is_add', 'Add'));
+//  SetColumnProperty('is_update',      60, TLocalizationManager.Translate('sys_access_right.col_is_update', 'Update'));
+//  SetColumnProperty('is_delete',      60, TLocalizationManager.Translate('sys_access_right.col_is_delete', 'Delete'));
+//  SetColumnProperty('is_special',     70, TLocalizationManager.Translate('sys_access_right.col_is_special', 'Special'));
 end;
 
 procedure TfrmSysAccessRights.DefineFooterColumns;
@@ -175,9 +164,20 @@ end;
 procedure TfrmSysAccessRights.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_access_right.title_plural', 'User Access Rights');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.TitlePlural, 'User Access Rights');
   if Assigned(FmniCopyUserRights) then
-    FmniCopyUserRights.Caption := TLocalizationManager.Translate('sys_access_right.popup.copy_user_rights', 'Kullanıcı Haklarını Kopyala');
+    FmniCopyUserRights.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MenuCopUserRights, 'Copy User Rights');
+
+  SetColumnTitle('username', TLocalizationManager.Translate(TLangKeys.TSysUser.ColUserName, 'Username'));
+  SetColumnTitle('full_name', TLocalizationManager.Translate(TLangKeys.TEmpEmployee.ColFullName, 'Full Name'));
+  SetColumnTitle('permission_name', TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionName, 'Permission Name'));
+  SetColumnTitle('permission_group', TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Permission Group'));
+  SetColumnTitle('code', TLocalizationManager.Translate(TLangKeys.TSysPermission.ColCode, 'Code'));
+  SetColumnTitle('is_read', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColRead, 'Read'));
+  SetColumnTitle('is_add', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColAdd, 'Add'));
+  SetColumnTitle('is_update', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColUpdate, 'Update'));
+  SetColumnTitle('is_delete', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColDelete, 'Delete'));
+  SetColumnTitle('is_special', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColSpecial, 'Special'));
 end;
 
 end.

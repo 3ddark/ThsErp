@@ -1,4 +1,4 @@
-unit ufrmSysAddress;
+﻿unit ufrmSysAddress;
 
 interface
 
@@ -34,7 +34,6 @@ type
     edtWeb: TEdit;
     lblEmail: TLabel;
     edtEmail: TEdit;
-  private
   published
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
@@ -50,7 +49,7 @@ implementation
 {$R *.dfm}
 
 uses
-  ufrmSysCities; // TfrmSysCities helper output form (city selection)
+  ufrmSysCities;
 
 procedure TfrmSysAddress.HelperProcess(Sender: TObject);
 var
@@ -69,12 +68,12 @@ begin
         if LFrmCity.DataTransfer then
           if LFrmCity.CleanAndClose then
           begin
-            Table.CityId := 0;
+            Table.SysCityId := 0;
             LEdit.Clear;
           end
           else
           begin
-            Table.CityId := LFrmCity.Table.Id;
+            Table.SysCityId := LFrmCity.Table.Id;
             LEdit.Text := LFrmCity.Table.CityName;
           end;
       finally
@@ -116,14 +115,24 @@ end;
 procedure TfrmSysAddress.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_address.title_singular', 'Adres');
-  lblCityId.Caption := TLocalizationManager.Translate('sys_address.lbl_city', 'Şehir');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.TitleSingular, 'Address');
+  lblCityId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColCityName, 'City Name');
+  lblDistrict.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColDistrict, 'District');
+  lblNeighborhood.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColNeighborhood, 'Neighborhood');
+  lblQuarter.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColQuarter, 'Quarter');
+  lblRoad.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColRoad, 'Road');
+  lblStreet.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColStreet, 'Street');
+  lblBuildingName.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColBuildingName, 'Building Name');
+  lblDoorNumber.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColDoorNumber, 'Door Number');
+  lblZipCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColZipCode, 'Zip Code');
+  lblWeb.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColWeb, 'Web');
+  lblEmail.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColEmail, 'e-Mail');
 end;
 
 procedure TfrmSysAddress.RefreshData;
 begin
   inherited;
-  edtCityId.Text := Table.City.CityName;
+  edtCityId.Text := Table.SysCity.CityName;
   edtDistrict.Text := Table.District;
   edtNeighborhood.Text := Table.Neighborhood;
   edtQuarter.Text := Table.Quarter;

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict yaYhndKKbvEh9yo1ffe8UW4LIY0igMavxD5PBw210OiaBjc7mmQXHKCuuK8baeA
+\restrict 2i6ymaAQd04XTGQ1VyYUvncafJyiNa7agcYzSTmlt4dXkIOaFLtUZmca2GXUh3b
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -2859,7 +2859,7 @@ ALTER TABLE public.sys_access_right ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 CREATE TABLE public.sys_address (
     id bigint NOT NULL,
-    city_id bigint NOT NULL,
+    sys_city_id bigint CONSTRAINT sys_address_city_id_not_null NOT NULL,
     district character varying(64),
     neighborhood character varying(64),
     quarter character varying(64),
@@ -2932,7 +2932,7 @@ ALTER TABLE public.sys_application_setting OWNER TO ths_admin;
 
 CREATE TABLE public.sys_city (
     id bigint NOT NULL,
-    city_name character varying(32) CONSTRAINT sys_city_name_not_null NOT NULL,
+    city_name character varying(128) CONSTRAINT sys_city_name_not_null NOT NULL,
     car_plate_code integer,
     sys_country_id bigint,
     sys_region_id bigint
@@ -2962,7 +2962,6 @@ ALTER TABLE public.sys_city ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE public.sys_country (
     id bigint NOT NULL,
     country_code character varying(2) CONSTRAINT sys_country_code_not_null NOT NULL,
-    country_key character varying(128) CONSTRAINT sys_country_name_not_null NOT NULL,
     iso_year integer,
     iso_cctld character varying(3),
     is_eu_member boolean DEFAULT false CONSTRAINT sys_country_eu_not_null NOT NULL
@@ -2992,7 +2991,7 @@ ALTER TABLE public.sys_country ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 CREATE TABLE public.sys_country_translation (
     sys_country_id bigint NOT NULL,
     sys_language_id bigint NOT NULL,
-    country_name character varying(64)
+    country_name character varying(128)
 );
 
 
@@ -3169,7 +3168,7 @@ ALTER TABLE public.sys_grid_sort ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
 
 CREATE TABLE public.sys_permission_group (
     id bigint CONSTRAINT sys_pg_iid_not_null NOT NULL,
-    key character varying(64)
+    permission_group_key character varying(128)
 );
 
 
@@ -3195,9 +3194,9 @@ ALTER TABLE public.sys_permission_group ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 CREATE TABLE public.sys_permission (
     id bigint CONSTRAINT sys_perm_iid_not_null NOT NULL,
-    code integer CONSTRAINT sys_perm_pc_not_null NOT NULL,
-    group_id bigint CONSTRAINT sys_permissions_permission_group_id_not_null NOT NULL,
-    key character varying(64) NOT NULL
+    permission_code integer CONSTRAINT sys_perm_pc_not_null NOT NULL,
+    permission_group_id bigint CONSTRAINT sys_permissions_permission_group_id_not_null NOT NULL,
+    permission_key character varying(128) CONSTRAINT sys_permission_key_not_null NOT NULL
 );
 
 
@@ -3298,7 +3297,7 @@ ALTER TABLE public.sys_decimal_place ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 CREATE TABLE public.sys_permission_group_translation (
     sys_permission_group_id bigint CONSTRAINT sys_permission_group_translati_sys_permission_group_id_not_null NOT NULL,
     sys_language_id bigint NOT NULL,
-    name character varying(64)
+    permission_group_name character varying(128)
 );
 
 
@@ -3311,7 +3310,7 @@ ALTER TABLE public.sys_permission_group_translation OWNER TO ths_admin;
 CREATE TABLE public.sys_permission_translation (
     sys_permission_id bigint NOT NULL,
     sys_language_id bigint NOT NULL,
-    name character varying(64)
+    permission_name character varying(128)
 );
 
 
@@ -3323,7 +3322,7 @@ ALTER TABLE public.sys_permission_translation OWNER TO ths_admin;
 
 CREATE TABLE public.sys_region (
     id bigint CONSTRAINT sys_reg_iid_not_null NOT NULL,
-    region_name character varying(64) CONSTRAINT sys_reg_rn_not_null NOT NULL
+    region_name character varying(128) CONSTRAINT sys_reg_rn_not_null NOT NULL
 );
 
 
@@ -3670,9 +3669,9 @@ CREATE VIEW public.vw_sys_access_right AS
  SELECT DISTINCT a.id,
     u.username,
     e.full_name,
-    p.code,
-    pt.name AS permission_name,
-    pgt.name AS permission_group,
+    p.permission_code,
+    pt.permission_name,
+    pgt.permission_group_name,
     a.permission_id,
     a.is_read,
     a.is_add,
@@ -3684,8 +3683,8 @@ CREATE VIEW public.vw_sys_access_right AS
    FROM (((((((public.sys_access_right a
      LEFT JOIN public.sys_permission p ON ((p.id = a.permission_id)))
      LEFT JOIN public.sys_permission_translation pt ON ((pt.sys_permission_id = p.id)))
-     LEFT JOIN public.sys_permission_group pg ON ((pg.id = p.group_id)))
-     LEFT JOIN public.sys_permission_group_translation pgt ON (((pgt.sys_permission_group_id = p.group_id) AND (pt.sys_language_id = pgt.sys_language_id))))
+     LEFT JOIN public.sys_permission_group pg ON ((pg.id = p.permission_group_id)))
+     LEFT JOIN public.sys_permission_group_translation pgt ON (((pgt.sys_permission_group_id = p.permission_group_id) AND (pt.sys_language_id = pgt.sys_language_id))))
      LEFT JOIN public.sys_language l ON ((l.id = pt.sys_language_id)))
      LEFT JOIN public.sys_user u ON ((u.id = a.user_id)))
      LEFT JOIN public.emp_person e ON ((e.id = u.person_id)));
@@ -3699,9 +3698,9 @@ ALTER VIEW public.vw_sys_access_right OWNER TO ths_admin;
 
 CREATE VIEW public.vw_sys_address AS
  SELECT a.id,
-    cnt.country_name AS country,
-    ct.city_name AS city,
-    a.city_id,
+    cnt.country_name,
+    ct.city_name,
+    a.sys_city_id,
     cn.id AS country_id,
     a.district,
     a.neighborhood,
@@ -3715,7 +3714,7 @@ CREATE VIEW public.vw_sys_address AS
     a.email,
     l.locale
    FROM ((((public.sys_address a
-     LEFT JOIN public.sys_city ct ON ((ct.id = a.city_id)))
+     LEFT JOIN public.sys_city ct ON ((ct.id = a.sys_city_id)))
      LEFT JOIN public.sys_country cn ON ((cn.id = ct.sys_country_id)))
      LEFT JOIN public.sys_country_translation cnt ON ((cnt.sys_country_id = cn.id)))
      LEFT JOIN public.sys_language l ON ((l.id = cnt.sys_language_id)));
@@ -3754,7 +3753,6 @@ ALTER VIEW public.vw_sys_city OWNER TO ths_admin;
 CREATE VIEW public.vw_sys_country AS
  SELECT cn.id,
     cn.country_code,
-    cn.country_key,
     cn.iso_year,
     cn.iso_cctld,
     cn.is_eu_member,
@@ -3802,15 +3800,15 @@ ALTER VIEW public.vw_sys_language OWNER TO ths_admin;
 
 CREATE VIEW public.vw_sys_permission AS
  SELECT p.id,
-    p.key,
-    p.code,
-    pt.name,
-    p.group_id,
-    pg.key AS group_key,
-    pgt.name AS group_name,
+    p.permission_key,
+    p.permission_code,
+    pt.permission_name,
+    p.permission_group_id,
+    pg.permission_group_key,
+    pgt.permission_group_name,
     l.locale
    FROM ((((public.sys_permission p
-     LEFT JOIN public.sys_permission_group pg ON ((pg.id = p.group_id)))
+     LEFT JOIN public.sys_permission_group pg ON ((pg.id = p.permission_group_id)))
      LEFT JOIN public.sys_permission_translation pt ON ((pt.sys_permission_id = p.id)))
      LEFT JOIN public.sys_language l ON ((l.id = pt.sys_language_id)))
      LEFT JOIN public.sys_permission_group_translation pgt ON (((pgt.sys_permission_group_id = pg.id) AND (pgt.sys_language_id = l.id))));
@@ -3824,8 +3822,8 @@ ALTER VIEW public.vw_sys_permission OWNER TO ths_admin;
 
 CREATE VIEW public.vw_sys_permission_group AS
  SELECT pg.id,
-    pg.key,
-    pgt.name,
+    pg.permission_group_key,
+    pgt.permission_group_name,
     l.locale
    FROM ((public.sys_permission_group pg
      LEFT JOIN public.sys_permission_group_translation pgt ON ((pgt.sys_permission_group_id = pg.id)))
@@ -5098,27 +5096,27 @@ ALTER TABLE ONLY public.sys_language
 
 
 --
--- Name: sys_permission_group sys_perm_group_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_permission_group sys_permission_group_permission_group_key_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_permission_group
-    ADD CONSTRAINT sys_perm_group_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT sys_permission_group_permission_group_key_key UNIQUE (permission_group_key);
 
 
 --
--- Name: sys_permission sys_permission_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_permission
-    ADD CONSTRAINT sys_permission_code_key UNIQUE (code);
-
-
---
--- Name: sys_permission_group sys_permission_group_key_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_permission_group sys_permission_group_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_permission_group
-    ADD CONSTRAINT sys_permission_group_key_key UNIQUE (key);
+    ADD CONSTRAINT sys_permission_group_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_permission_group_translation sys_permission_group_translat_sys_permission_group_id_sys_l_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission_group_translation
+    ADD CONSTRAINT sys_permission_group_translat_sys_permission_group_id_sys_l_key UNIQUE (sys_permission_group_id, sys_language_id);
 
 
 --
@@ -5130,11 +5128,19 @@ ALTER TABLE ONLY public.sys_permission_group_translation
 
 
 --
--- Name: sys_permission sys_permission_key_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_permission sys_permission_permission_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_permission
-    ADD CONSTRAINT sys_permission_key_key UNIQUE (key);
+    ADD CONSTRAINT sys_permission_permission_code_key UNIQUE (permission_code);
+
+
+--
+-- Name: sys_permission sys_permission_permission_key_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission
+    ADD CONSTRAINT sys_permission_permission_key_key UNIQUE (permission_key);
 
 
 --
@@ -5151,6 +5157,14 @@ ALTER TABLE ONLY public.sys_permission
 
 ALTER TABLE ONLY public.sys_permission_translation
     ADD CONSTRAINT sys_permission_translation_pkey PRIMARY KEY (sys_permission_id, sys_language_id);
+
+
+--
+-- Name: sys_permission_translation sys_permission_translation_sys_permission_id_sys_language_i_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission_translation
+    ADD CONSTRAINT sys_permission_translation_sys_permission_id_sys_language_i_key UNIQUE (sys_permission_id, sys_language_id);
 
 
 --
@@ -6462,27 +6476,27 @@ ALTER TABLE ONLY public.stk_transaction
 
 
 --
--- Name: sys_access_right sys_access_right_perm_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_access_right sys_access_right_permission_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_access_right
-    ADD CONSTRAINT sys_access_right_perm_id_fkey FOREIGN KEY (permission_id) REFERENCES public.sys_permission(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT sys_access_right_permission_id_fkey FOREIGN KEY (permission_id) REFERENCES public.sys_permission(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: sys_access_right sys_access_right_usr_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_access_right sys_access_right_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_access_right
-    ADD CONSTRAINT sys_access_right_usr_id_fkey FOREIGN KEY (user_id) REFERENCES public.sys_user(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT sys_access_right_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.sys_user(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: sys_address sys_address_city_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sys_address sys_address_sys_city_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sys_address
-    ADD CONSTRAINT sys_address_city_id_fkey FOREIGN KEY (city_id) REFERENCES public.sys_city(id) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT sys_address_sys_city_id_fkey FOREIGN KEY (sys_city_id) REFERENCES public.sys_city(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -6534,14 +6548,6 @@ ALTER TABLE ONLY public.sys_country_translation
 
 
 --
--- Name: sys_permission sys_perm_grp_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sys_permission
-    ADD CONSTRAINT sys_perm_grp_fkey FOREIGN KEY (group_id) REFERENCES public.sys_permission_group(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
 -- Name: sys_permission_group_translation sys_permission_group_translation_sys_language_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -6555,6 +6561,14 @@ ALTER TABLE ONLY public.sys_permission_group_translation
 
 ALTER TABLE ONLY public.sys_permission_group_translation
     ADD CONSTRAINT sys_permission_group_translation_sys_permission_group_id_fkey FOREIGN KEY (sys_permission_group_id) REFERENCES public.sys_permission_group(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sys_permission sys_permission_permission_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission
+    ADD CONSTRAINT sys_permission_permission_group_id_fkey FOREIGN KEY (permission_group_id) REFERENCES public.sys_permission_group(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -6753,5 +6767,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict yaYhndKKbvEh9yo1ffe8UW4LIY0igMavxD5PBw210OiaBjc7mmQXHKCuuK8baeA
+\unrestrict 2i6ymaAQd04XTGQ1VyYUvncafJyiNa7agcYzSTmlt4dXkIOaFLtUZmca2GXUh3b
 

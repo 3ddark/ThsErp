@@ -13,12 +13,12 @@ uses
 type
   TfrmSysPermissionGroup = class(TfrmInputSimpleDB<TSysPermissionGroup, TSysPermissionGroupService>)
     pnlContent: TPanel;
-    lblKey: TLabel;
-    edtKey: TEdit;
-    lblNameEN: TLabel;
-    edtNameEN: TEdit;
-    lblNameTR: TLabel;
-    edtNameTR: TEdit;
+    lblPermissionGroupKey: TLabel;
+    edtPermissionGroupKey: TEdit;
+    lblPermissionGroupName_en_US: TLabel;
+    edtPermissionGroupName_en_US: TEdit;
+    lblPermissionGroupName_tr_TR: TLabel;
+    edtPermissionGroupName_tr_TR: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -43,10 +43,10 @@ procedure TfrmSysPermissionGroup.BtnAcceptClick(Sender: TObject);
     begin
       for i := 0 to Table.Translations.Count - 1 do
       begin
-        if (Assigned(Table.Translations[i].Language) and SameText(Table.Translations[i].Language.Locale, ALocale))
-        or (Table.Translations[i].LanguageId = ALangId) then
+        if (Assigned(Table.Translations[i].SysLanguage) and SameText(Table.Translations[i].SysLanguage.Locale, ALocale))
+        or (Table.Translations[i].SysLanguageId = ALangId) then
         begin
-          Table.Translations[i].Name := AName;
+          Table.Translations[i].PermissionGroupName := AName;
           LFound := True;
           Break;
         end;
@@ -56,20 +56,20 @@ procedure TfrmSysPermissionGroup.BtnAcceptClick(Sender: TObject);
     if not LFound and (Trim(AName) <> '') then
     begin
       LTrans := TSysPermissionGroupTranslation.Create;
-      LTrans.PermissionGroupId := Table.Id;
-      LTrans.LanguageId := ALangId;
-      LTrans.Name := AName;
-      LTrans.Language := TSysLanguage.Create;
-      LTrans.Language.Id := ALangId;
-      LTrans.Language.Locale := ALocale;
+      LTrans.SysPermissionGroupId := Table.Id;
+      LTrans.SysLanguageId := ALangId;
+      LTrans.PermissionGroupName := AName;
+      LTrans.SysLanguage := TSysLanguage.Create;
+      LTrans.SysLanguage.Id := ALangId;
+      LTrans.SysLanguage.Locale := ALocale;
       Table.Translations.Add(LTrans);
     end;
   end;
 begin
-  Table.Key := edtKey.Text;
+  Table.PermissionGroupKey := edtPermissionGroupKey.Text;
 
-  SetOrAddTranslation(CLangID_EN, CLangLocaleEN, edtNameEN.Text);
-  SetOrAddTranslation(CLangID_TR, CLangLocaleTR, edtNameTR.Text);
+  SetOrAddTranslation(CLangID_EN, CLangLocaleEN, edtPermissionGroupName_en_US.Text);
+  SetOrAddTranslation(CLangID_TR, CLangLocaleTR, edtPermissionGroupName_tr_TR.Text);
 
   inherited;
 end;
@@ -84,16 +84,16 @@ procedure TfrmSysPermissionGroup.FormShow(Sender: TObject);
 begin
   inherited;
   ApplyLocalization;
-  edtKey.SetFocus;
+  edtPermissionGroupKey.SetFocus;
 end;
 
 procedure TfrmSysPermissionGroup.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.TitleSingular, 'Yetki Grubu');
-  lblKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblKey, 'Grup Anahtarı');
-  lblNameEN.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblNameEN, 'Grup Adı (İngilizce)');
-  lblNameTR.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblNameTR, 'Grup Adı (Türkçe)');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.TitleSingular, 'Permission Group');
+  lblPermissionGroupKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblKey, 'Permission Group Key');
+  lblPermissionGroupName_en_US.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblNameEN, 'Group Name (en-US)');
+  lblPermissionGroupName_tr_TR.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblNameTR, 'Group Name (tr-TR)');
 end;
 
 procedure TfrmSysPermissionGroup.RefreshData;
@@ -101,27 +101,27 @@ var
   i: Integer;
 begin
   inherited;
-  edtKey.Text := Table.Key;
-  edtNameEN.Text := '';
-  edtNameTR.Text := '';
+  edtPermissionGroupKey.Text := Table.PermissionGroupKey;
+  edtPermissionGroupName_en_US.Text := '';
+  edtPermissionGroupName_tr_TR.Text := '';
 
   if Assigned(Table.Translations) then
   begin
     for i := 0 to Table.Translations.Count - 1 do
     begin
-      if Assigned(Table.Translations[i].Language) then
+      if Assigned(Table.Translations[i].SysLanguage) then
       begin
-        if SameText(Table.Translations[i].Language.Locale, CLangLocaleEN) then
-          edtNameEN.Text := Table.Translations[i].Name
-        else if SameText(Table.Translations[i].Language.Locale, CLangLocaleTR) then
-          edtNameTR.Text := Table.Translations[i].Name;
+        if SameText(Table.Translations[i].SysLanguage.Locale, CLangLocaleEN) then
+          edtPermissionGroupName_en_US.Text := Table.Translations[i].PermissionGroupName
+        else if SameText(Table.Translations[i].SysLanguage.Locale, CLangLocaleTR) then
+          edtPermissionGroupName_tr_TR.Text := Table.Translations[i].PermissionGroupName;
       end
       else
       begin
-        if Table.Translations[i].LanguageId = CLangID_EN then
-          edtNameEN.Text := Table.Translations[i].Name
-        else if Table.Translations[i].LanguageId = CLangID_TR then
-          edtNameTR.Text := Table.Translations[i].Name;
+        if Table.Translations[i].SysLanguageId = CLangID_EN then
+          edtPermissionGroupName_en_US.Text := Table.Translations[i].PermissionGroupName
+        else if Table.Translations[i].SysLanguageId = CLangID_TR then
+          edtPermissionGroupName_tr_TR.Text := Table.Translations[i].PermissionGroupName;
       end;
     end;
   end;

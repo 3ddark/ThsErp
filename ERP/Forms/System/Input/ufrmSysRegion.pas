@@ -50,7 +50,7 @@ procedure TfrmSysRegion.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.TitleSingular, 'Region');
-  lblRegionName.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region Name');
+  lblRegionName.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.ColRegionName, 'Region Name');
 end;
 
 procedure TfrmSysRegion.RefreshData;
