@@ -11,7 +11,7 @@ object frmSysAddress: TfrmSysAddress
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
@@ -19,8 +19,6 @@ object frmSysAddress: TfrmSysAddress
     Height = 467
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 494
-    ExplicitHeight = 450
     object lblCityId: TLabel
       Left = 72
       Top = 11
@@ -50,9 +48,9 @@ object frmSysAddress: TfrmSysAddress
       ParentFont = False
     end
     object lblNeighborhood: TLabel
-      Left = 14
+      Left = 16
       Top = 71
-      Width = 80
+      Width = 78
       Height = 13
       Alignment = taRightJustify
       Caption = 'Neighborhood'
@@ -64,9 +62,9 @@ object frmSysAddress: TfrmSysAddress
       ParentFont = False
     end
     object lblQuarter: TLabel
-      Left = 51
+      Left = 50
       Top = 101
-      Width = 43
+      Width = 44
       Height = 13
       Alignment = taRightJustify
       Caption = 'Quarter'
@@ -78,9 +76,9 @@ object frmSysAddress: TfrmSysAddress
       ParentFont = False
     end
     object lblRoad: TLabel
-      Left = 63
+      Left = 65
       Top = 131
-      Width = 31
+      Width = 29
       Height = 13
       Alignment = taRightJustify
       Caption = 'Road'
@@ -92,9 +90,9 @@ object frmSysAddress: TfrmSysAddress
       ParentFont = False
     end
     object lblStreet: TLabel
-      Left = 59
+      Left = 58
       Top = 161
-      Width = 35
+      Width = 36
       Height = 13
       Alignment = taRightJustify
       Caption = 'Street'
@@ -106,9 +104,9 @@ object frmSysAddress: TfrmSysAddress
       ParentFont = False
     end
     object lblBuildingName: TLabel
-      Left = 12
+      Left = 15
       Top = 191
-      Width = 82
+      Width = 79
       Height = 13
       Alignment = taRightJustify
       Caption = 'Building Name'
@@ -120,9 +118,9 @@ object frmSysAddress: TfrmSysAddress
       ParentFont = False
     end
     object lblDoorNumber: TLabel
-      Left = 19
+      Left = 20
       Top = 221
-      Width = 75
+      Width = 74
       Height = 13
       Alignment = taRightJustify
       Caption = 'Door Number'
@@ -134,9 +132,9 @@ object frmSysAddress: TfrmSysAddress
       ParentFont = False
     end
     object lblZipCode: TLabel
-      Left = 36
+      Left = 40
       Top = 251
-      Width = 52
+      Width = 48
       Height = 13
       Alignment = taRightJustify
       Caption = 'Zip Code'
@@ -148,9 +146,9 @@ object frmSysAddress: TfrmSysAddress
       ParentFont = False
     end
     object lblWeb: TLabel
-      Left = 61
+      Left = 63
       Top = 281
-      Width = 27
+      Width = 25
       Height = 13
       Alignment = taRightJustify
       Caption = 'Web'
@@ -162,9 +160,9 @@ object frmSysAddress: TfrmSysAddress
       ParentFont = False
     end
     object lblEmail: TLabel
-      Left = 57
+      Left = 58
       Top = 311
-      Width = 31
+      Width = 30
       Height = 13
       Alignment = taRightJustify
       Caption = 'Email'
@@ -179,7 +177,7 @@ object frmSysAddress: TfrmSysAddress
       Left = 96
       Top = 7
       Width = 250
-      Height = 23
+      Height = 22
       ReadOnly = True
       TabOrder = 0
     end
@@ -187,70 +185,70 @@ object frmSysAddress: TfrmSysAddress
       Left = 96
       Top = 37
       Width = 385
-      Height = 23
+      Height = 22
       TabOrder = 1
     end
     object edtNeighborhood: TEdit
       Left = 96
       Top = 67
       Width = 385
-      Height = 23
+      Height = 22
       TabOrder = 2
     end
     object edtQuarter: TEdit
       Left = 96
       Top = 97
       Width = 385
-      Height = 23
+      Height = 22
       TabOrder = 3
     end
     object edtRoad: TEdit
       Left = 96
       Top = 127
       Width = 385
-      Height = 23
+      Height = 22
       TabOrder = 4
     end
     object edtStreet: TEdit
       Left = 96
       Top = 157
       Width = 385
-      Height = 23
+      Height = 22
       TabOrder = 5
     end
     object edtBuildingName: TEdit
       Left = 96
       Top = 187
       Width = 385
-      Height = 23
+      Height = 22
       TabOrder = 6
     end
     object edtDoorNumber: TEdit
       Left = 96
       Top = 217
       Width = 150
-      Height = 23
+      Height = 22
       TabOrder = 7
     end
     object edtZipCode: TEdit
       Left = 96
       Top = 247
       Width = 150
-      Height = 23
+      Height = 22
       TabOrder = 8
     end
     object edtWeb: TEdit
       Left = 96
       Top = 277
       Width = 385
-      Height = 23
+      Height = 22
       TabOrder = 9
     end
     object edtEmail: TEdit
       Left = 96
       Top = 307
       Width = 385
-      Height = 23
+      Height = 22
       TabOrder = 10
     end
   end

@@ -2,14 +2,14 @@
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes, SysCity;
+uses
+  SysUtils, Classes, Types, Entity, EntityAttributes, SysCity, LocalizationManager;
 
 type
   [Table('sys_address')]
   TSysAddress = class(TEntity)
   private
-    FCityId: Int64;
-    FCity: TSysCity;
+    FSysCityId: Int64;
     FDistrict: string;
     FNeighborhood: string;
     FQuarter: string;
@@ -20,13 +20,15 @@ type
     FZipCode: string;
     FWeb: string;
     FEmail: string;
-  public
-    [Column('city_id')]
-    [Required('sysaddress.cityid.required', True)]
-    property CityId: Int64 read FCityId write FCityId;
 
-    [BelongsTo('city_id', 'id')]
-    property City: TSysCity read FCity write FCity;
+    FSysCity: TSysCity;
+  public
+    [Column('sys_city_id')]
+    [Required(TLangKeys.TValidation.Required, True)]
+    property SysCityId: Int64 read FSysCityId write FSysCityId;
+
+    [BelongsTo('sys_city_id', 'id')]
+    property SysCity: TSysCity read FSysCity write FSysCity;
 
     [Column('district')]
     property District: string read FDistrict write FDistrict;
@@ -67,12 +69,13 @@ implementation
 constructor TSysAddress.Create();
 begin
   inherited;
-  
+  FSysCity := TSysCity.Create;
 end;
 
 destructor TSysAddress.Destroy;
 begin
   inherited;
+  FSysCity.Free;
 end;
 
 end.

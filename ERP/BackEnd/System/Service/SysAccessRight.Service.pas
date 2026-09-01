@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
-  UnitOfWork, SharedFormTypes, AppContext,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
   SysAccessRight.Repository, SysAccessRight, SysAccessRight.Exception;
 
 type
@@ -196,7 +196,7 @@ begin
   LEntity := FRepo.FindById(AId, False);
   try
     if not Assigned(LEntity) then
-      raise Exception.CreateFmt('Record not found: %d', [AId]);
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
 
     ValidateAll(LEntity, coDelete);
     FRepo.Delete(LEntity);
@@ -423,7 +423,7 @@ begin
 
   LFilter := TFilterCriteria.Create;
   try
-    LFilter.Add(TFilterCriterion.New('code', '=', TValue.From<Integer>(APermissionCode)));
+    LFilter.Add(TFilterCriterion.New('permission_code', '=', TValue.From<Integer>(APermissionCode)));
     LFilter.Add(TFilterCriterion.New('user_id', '=', TValue.From<Int64>(TAppContext.Instance.CurrentUser.User.Id)));
 
     LAccess := FRepo.FindOne(LFilter, False);
@@ -437,7 +437,7 @@ begin
       ptDelete:     Exit(LAccess.IsDelete);
       ptSpecial:    Exit(LAccess.IsSpecial);
     else
-      raise EArgumentOutOfRangeException.CreateFmt('Unknown PermissionType: %d', [Ord(APermissionType)]);
+      raise EArgumentOutOfRangeException.Create(TLocalizationManager.Translate(TLangKeys.TMessage.UnknownPermissionType, [Ord(APermissionType)]));
     end;
   finally
     LFilter.Free;
@@ -458,7 +458,7 @@ begin
       ptDelete:     raise EAuthorizationExceptionDelete.Create;
       ptSpecial:    raise EAuthorizationExceptionSpecial.Create;
   else
-    raise EArgumentOutOfRangeException.CreateFmt('Unknown PermissionType: %d', [Ord(APermissionType)]);
+    raise EArgumentOutOfRangeException.Create(TLocalizationManager.Translate(TLangKeys.TMessage.UnknownPermissionType, [Ord(APermissionType)]));
   end;
 end;
 

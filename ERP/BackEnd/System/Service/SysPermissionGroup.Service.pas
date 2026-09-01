@@ -5,13 +5,22 @@ interface
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
-  UnitOfWork, SharedFormTypes, AppContext,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
   SysPermissionGroup.Repository, SysPermissionGroup, SysPermissionGroup.Exception;
 
 type
   TSysPermissionGroupService = class(TCrudService<TSysPermissionGroup>)
   private
     FRepo: IRepository<TSysPermissionGroup>;
+
+    procedure DoAdd(AEntity: TSysPermissionGroup);
+    procedure DoUpdate(AEntity: TSysPermissionGroup);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateInsert(AEntity: TSysPermissionGroup);
+    procedure ValidateUpdate(AEntity: TSysPermissionGroup);
+    procedure ValidateDelete(AEntity: TSysPermissionGroup);
+    procedure ValidateUniqueUserPermission(AEntity: TSysPermissionGroup; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
@@ -37,16 +46,62 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysPermissionGroupService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysPermissionGroup, TSysPermissionGroupRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TSysPermissionGroupService.Destroy;
 begin
   inherited;
+end;
+
+procedure TSysPermissionGroupService.ValidateInsert(AEntity: TSysPermissionGroup);
+begin
+  ValidateUniqueUserPermission(AEntity, coInsert);
+end;
+
+procedure TSysPermissionGroupService.ValidateUpdate(AEntity: TSysPermissionGroup);
+begin
+  ValidateUniqueUserPermission(AEntity, coUpdate);
+end;
+
+procedure TSysPermissionGroupService.ValidateDelete(AEntity: TSysPermissionGroup);
+begin
+
+end;
+
+procedure TSysPermissionGroupService.DoAdd(AEntity: TSysPermissionGroup);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TSysPermissionGroupService.DoUpdate(AEntity: TSysPermissionGroup);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TSysPermissionGroupService.DoDelete(AId: Int64);
+var
+  LEntity: TSysPermissionGroup;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TSysPermissionGroupService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysPermissionGroup>;
@@ -55,6 +110,7 @@ begin
 
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
+
   try
     Result := FRepo.Find(AFilter, ALock);
   except
@@ -89,12 +145,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
-    ValidateAll(AEntity, coInsert);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -115,12 +169,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
-    ValidateAll(AEntity, coUpdate);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -141,12 +193,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
-    ValidateAll(AEntity, coDelete);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -184,20 +234,29 @@ end;
 
 procedure TSysPermissionGroupService.Add(AEntity: TSysPermissionGroup);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity)
 end;
 
 procedure TSysPermissionGroupService.Update(AEntity: TSysPermissionGroup);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TSysPermissionGroupService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 procedure TSysPermissionGroupService.ValidateBusinessRules(AEntity: TSysPermissionGroup; AOperation: TCrudOperation);
+begin
+  case AOperation of
+    coInsert: ValidateInsert(AEntity);
+    coUpdate: ValidateUpdate(AEntity);
+    coDelete: ValidateDelete(AEntity);
+  end;
+end;
+
+procedure TSysPermissionGroupService.ValidateUniqueUserPermission(AEntity: TSysPermissionGroup; AOperation: TCrudOperation);
 var
   LFilter: TFilterCriteria;
   LModel: TSysPermissionGroup;
@@ -207,7 +266,7 @@ begin
   begin
     LFilter := TFilterCriteria.Create;
     try
-      LFilter.Add(TFilterCriterion.New('key', '=', TValue.From<string>(AEntity.Key)));
+      LFilter.Add(TFilterCriterion.New('permission_group_key', '=', TValue.From<string>(AEntity.PermissionGroupKey)));
       if AOperation = coUpdate then
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 

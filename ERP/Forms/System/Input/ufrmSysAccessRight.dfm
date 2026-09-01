@@ -19,7 +19,6 @@ object frmSysAccessRight: TfrmSysAccessRight
     Height = 212
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 187
     object lblUserId: TLabel
       Left = 60
       Top = 11

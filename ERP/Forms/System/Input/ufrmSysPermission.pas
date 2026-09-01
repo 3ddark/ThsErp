@@ -63,7 +63,7 @@ begin
         else
         begin
           Table.GroupId := LFrmGroup.Table.Id;
-          LEdit.Text := LFrmGroup.Table.Key;
+          LEdit.Text := LFrmGroup.Table.PermissionGroupKey;
         end;
       end;
     finally
@@ -194,7 +194,7 @@ begin
   end;
 
   if Assigned(Table.Group) then
-    edtGroupId.Text := Table.Group.Key
+    edtGroupId.Text := Table.Group.PermissionGroupKey
   else
     edtGroupId.Text := '';
 end;

@@ -5,13 +5,22 @@ interface
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
-  UnitOfWork, SharedFormTypes, AppContext,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
   SysCountry.Repository, SysCountry, SysCountry.Exception;
 
 type
   TSysCountryService = class(TCrudService<TSysCountry>)
   private
     FRepo: IRepository<TSysCountry>;
+
+    procedure DoAdd(AEntity: TSysCountry);
+    procedure DoUpdate(AEntity: TSysCountry);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateInsert(AEntity: TSysCountry);
+    procedure ValidateUpdate(AEntity: TSysCountry);
+    procedure ValidateDelete(AEntity: TSysCountry);
+    procedure ValidateRegionNameUnique(AEntity: TSysCountry; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
@@ -50,6 +59,72 @@ end;
 destructor TSysCountryService.Destroy;
 begin
   inherited;
+end;
+
+procedure TSysCountryService.ValidateInsert(AEntity: TSysCountry);
+begin
+  ValidateRegionNameUnique(AEntity, coInsert);
+end;
+
+procedure TSysCountryService.ValidateUpdate(AEntity: TSysCountry);
+begin
+  ValidateRegionNameUnique(AEntity, coUpdate);
+end;
+
+procedure TSysCountryService.ValidateDelete(AEntity: TSysCountry);
+begin
+
+end;
+
+procedure TSysCountryService.ValidateRegionNameUnique(AEntity: TSysCountry; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TSysCountry;
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('country_code', '=', TValue.From<string>(AEntity.CountryCode)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      if Assigned(LModel) then
+        raise ESysCountryExceptionCodeUnique.Create;
+    finally
+      LFilter.Free;
+      LModel.Free;
+    end;
+  end;
+end;
+
+procedure TSysCountryService.DoAdd(AEntity: TSysCountry);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TSysCountryService.DoUpdate(AEntity: TSysCountry);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TSysCountryService.DoDelete(AId: Int64);
+var
+  LEntity: TSysCountry;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TSysCountryService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysCountry>;
@@ -93,12 +168,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
-    ValidateAll(AEntity, coInsert);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -119,12 +192,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
-    ValidateAll(AEntity, coUpdate);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -145,12 +216,10 @@ begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
-    ValidateAll(AEntity, coDelete);
-
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -188,43 +257,26 @@ end;
 
 procedure TSysCountryService.Add(AEntity: TSysCountry);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity)
 end;
 
 procedure TSysCountryService.Update(AEntity: TSysCountry);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity)
 end;
 
 procedure TSysCountryService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 procedure TSysCountryService.ValidateBusinessRules(AEntity: TSysCountry; AOperation: TCrudOperation);
-var
-  LFilter: TFilterCriteria;
-  LModel: TSysCountry;
 begin
-  //check unique
-  if AOperation in [coInsert, coUpdate] then
-  begin
-    LFilter := TFilterCriteria.Create;
-    try
-      LFilter.Add(TFilterCriterion.New('permission_id', '=', TValue.From<string>(AEntity.CountryCode)));
-      if AOperation = coUpdate then
-        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
-
-      LModel := FRepo.FindOne(LFilter, False);
-      if Assigned(LModel) then
-        raise ESysCountryExceptionCodeUnique.Create;
-    finally
-      LFilter.Free;
-      if Assigned(LModel) then
-        LModel.Free;
-    end;
+  case AOperation of
+    coInsert: ValidateInsert(AEntity);
+    coUpdate: ValidateUpdate(AEntity);
+    coDelete: ValidateDelete(AEntity);
   end;
 end;
 
 end.
-

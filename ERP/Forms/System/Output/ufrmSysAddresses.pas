@@ -35,14 +35,8 @@ end;
 procedure TfrmSysAddresses.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',           0, TLocalizationManager.Translate('sys_address.col_id', 'Id'));
-  SetColumnProperty('city_id',      0, TLocalizationManager.Translate('sys_address.col_city_id', 'City ID'));
-  SetColumnProperty('district',    120, TLocalizationManager.Translate('sys_address.col_district', 'District'));
-  SetColumnProperty('neighborhood', 120, TLocalizationManager.Translate('sys_address.col_neighborhood', 'Neighborhood'));
-  SetColumnProperty('quarter',     100, TLocalizationManager.Translate('sys_address.col_quarter', 'Quarter'));
-  SetColumnProperty('road',        120, TLocalizationManager.Translate('sys_address.col_road', 'Road'));
-  SetColumnProperty('street',      120, TLocalizationManager.Translate('sys_address.col_street', 'Street'));
-  SetColumnProperty('zip_code',     80, TLocalizationManager.Translate('sys_address.col_zip_code', 'Zip Code'));
+  SetColumnProperty('id',           0, 'Id');
+  SetColumnProperty('sys_city_id',  0, 'City ID');
 end;
 
 procedure TfrmSysAddresses.DefineFooterColumns;
@@ -60,7 +54,17 @@ end;
 procedure TfrmSysAddresses.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_address.title_plural', 'Addresses');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.TitlePlural, 'Addresses');
+  SetColumnTitle('district',     TLocalizationManager.Translate(TLangKeys.TSysAddress.ColDistrict, 'District'));
+  SetColumnTitle('neighborhood', TLocalizationManager.Translate(TLangKeys.TSysAddress.ColNeighborhood, 'Neighborhood'));
+  SetColumnTitle('quarter',      TLocalizationManager.Translate(TLangKeys.TSysAddress.ColQuarter, 'Quarter'));
+  SetColumnTitle('road',         TLocalizationManager.Translate(TLangKeys.TSysAddress.ColRoad, 'Road'));
+  SetColumnTitle('street',       TLocalizationManager.Translate(TLangKeys.TSysAddress.ColStreet, 'Street'));
+  SetColumnTitle('building_name',TLocalizationManager.Translate(TLangKeys.TSysAddress.ColBuildingName, 'Building Name'));
+  SetColumnTitle('door_number',  TLocalizationManager.Translate(TLangKeys.TSysAddress.ColDoorNumber, 'Door Number'));
+  SetColumnTitle('zip_code',     TLocalizationManager.Translate(TLangKeys.TSysAddress.ColZipCode, 'Zip Code'));
+  SetColumnTitle('web',          TLocalizationManager.Translate(TLangKeys.TSysAddress.ColWeb, 'Web'));
+  SetColumnTitle('email',        TLocalizationManager.Translate(TLangKeys.TSysAddress.ColEmail, 'e-Mail'));
 end;
 
 end.

@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
-  UnitOfWork, SharedFormTypes, AppContext,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
   SysAddress.Repository, SysAddress;
 
 type
@@ -94,7 +94,7 @@ begin
   LEntity := FRepo.FindById(AId, False);
   try
     if not Assigned(LEntity) then
-      raise Exception.CreateFmt('Record not found: %d', [AId]);
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
 
     ValidateAll(LEntity, coDelete);
     FRepo.Delete(LEntity);

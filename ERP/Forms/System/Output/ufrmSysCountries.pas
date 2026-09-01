@@ -39,12 +39,7 @@ end;
 procedure TfrmSysCountries.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',               0, TLocalizationManager.Translate('sys_country.col_id', 'Id'));
-  SetColumnProperty('country_code',    70, TLocalizationManager.Translate('sys_country.col_code', 'Country Code'));
-  SetColumnProperty('country_name',   150, TLocalizationManager.Translate('sys_country.col_name', 'Country Name'));
-  SetColumnProperty('iso_year',        60, TLocalizationManager.Translate('sys_country.col_iso_year', 'ISO Year'));
-  SetColumnProperty('iso_cctld',       70, TLocalizationManager.Translate('sys_country.col_iso_cctld', 'ISO CCTLD'));
-  SetColumnProperty('is_eu_member',    60, TLocalizationManager.Translate('sys_country.col_is_eu_member', 'EU?'));
+  SetColumnProperty('id', 0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
 end;
 
 procedure TfrmSysCountries.DefineFooterColumns;
@@ -63,7 +58,12 @@ end;
 procedure TfrmSysCountries.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_country.title_plural', 'Countries');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysCountry.TitlePlural, 'Countries');
+  SetColumnTitle('country_code', TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountryCode, 'Country Code'));
+  SetColumnTitle('country_name', TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountryName, 'Country Name'));
+  SetColumnTitle('iso_year',     TLocalizationManager.Translate(TLangKeys.TSysCountry.ColIsoYear, 'ISO Year'));
+  SetColumnTitle('iso_cctld',    TLocalizationManager.Translate(TLangKeys.TSysCountry.ColIsoCctld, 'ISO CCTLD'));
+  SetColumnTitle('is_eu_member', TLocalizationManager.Translate(TLangKeys.TSysCountry.ColIsEuMember, 'EU?'));
 end;
 
 end.

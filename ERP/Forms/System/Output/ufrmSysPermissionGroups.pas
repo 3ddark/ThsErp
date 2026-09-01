@@ -36,10 +36,9 @@ end;
 procedure TfrmSysPermissionGroups.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',     0, TLocalizationManager.Translate('sys_permission_group.col_id', 'Id'));
-  SetColumnProperty('key',  150, TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColKey, 'Group Key'));
-  SetColumnProperty('name', 250, TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColName, 'Group Name'));
-  SetColumnProperty('locale', 0, TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColLocale, 'Locale'));
+  //default column title and width and visibility
+  SetColumnProperty('id',     0, 'Id');
+  SetColumnProperty('locale', 0, 'Locale');
 end;
 
 procedure TfrmSysPermissionGroups.DefineFooterColumns;
@@ -59,6 +58,10 @@ procedure TfrmSysPermissionGroups.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.TitlePlural, 'Permission Groups');
+  SetColumnTitle('id',     'Id');
+  SetColumnTitle('permission_group_key',  TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupKey, 'Permission Group Key'));
+  SetColumnTitle('permission_group_name', TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Permission Group Name'));
+  SetColumnTitle('locale',                TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColLocale, 'Locale'));
 end;
 
 end.

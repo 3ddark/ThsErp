@@ -1702,7 +1702,7 @@ end;
 procedure TfrmGrid<TE, TS>.RefreshStatusRecordCount();
 begin
   if FStatusBase.Panels.Count > 0 then
-    FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text := Format(TLocalizationManager.Translate(TLangKeys.TGeneral.RecordsCount, 'Records: %d'), [Grd.DataSource.DataSet.RecordCount]) + ' ' + Self.Width.ToString;
+    FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text := Format(TLocalizationManager.Translate(TLangKeys.TGeneral.RecordsCount, 'Records: %d'), [Grd.DataSource.DataSet.RecordCount]);
   UpdateFooterLayout;
 end;
 
@@ -1883,8 +1883,8 @@ begin
   FStatusBase.Canvas.Font.Style := [fsBold];
 
   FStatusBase.Canvas.TextRect(Rect,
-    Rect.Left + dm.il16.Width,
-    Rect.Top + (FStatusBase.Height-Canvas.TextHeight(Panel.Text)) div 2 - 2,
+    Rect.Left + dm.il16.Width + 2,
+    Rect.Top + (FStatusBase.Height-Canvas.TextHeight(Panel.Text)) div 2 - 1,
     Panel.Text);
 
   vIco := -1;
@@ -1901,7 +1901,7 @@ begin
   if vIco > -1 then
   begin
     dm.il16.Draw(StatusBar.Canvas, Rect.Left, Rect.Top, vIco);
-    Panel.Width := FStatusBase.Canvas.TextWidth(Panel.Text)+ dm.il16.Width + 16;
+    Panel.Width := FStatusBase.Canvas.TextWidth(Panel.Text)+ dm.il16.Width + 8;
   end;
 end;
 

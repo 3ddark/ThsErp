@@ -15,10 +15,9 @@ type
 
 implementation
 
-
 class function ESysPermissionGroupExceptionKeyUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.KeyUnique, 'İzin Grubu Key değeri zaten atanmış. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.GroupKeyUnique, 'The Permission Group Key value has already been assigned. It cannot be reassigned.');
 end;
 
 end.

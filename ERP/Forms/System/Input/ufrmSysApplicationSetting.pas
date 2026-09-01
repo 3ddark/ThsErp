@@ -1,4 +1,4 @@
-unit ufrmSysApplicationSetting;
+﻿unit ufrmSysApplicationSetting;
 
 interface
 
@@ -319,12 +319,12 @@ begin
       if LFrmCity.CleanAndClose then
       begin
         TEdit(Sender).Clear;
-        Table.Address.CityId := 0;
+        Table.Address.SysCityId := 0;
       end
       else
       begin
         TEdit(Sender).Text := LFrmCity.Table.CityName;
-        Table.Address.CityId := LFrmCity.Table.Id;
+        Table.Address.SysCityId := LFrmCity.Table.Id;
       end;
     finally
       LFrmCity.Free;

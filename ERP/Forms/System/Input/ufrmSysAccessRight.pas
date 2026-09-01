@@ -69,9 +69,14 @@ end;
 procedure TfrmSysAccessRight.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_access_right.title_singular', 'Kullanıcı Erişim Hakkı');
-  lblUserId.Caption := TLocalizationManager.Translate('sys_access_right.lbl_user', 'Kullanıcı');
-  lblPermissionId.Caption := TLocalizationManager.Translate('sys_access_right.lbl_permission', 'Yetki');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.TitleSingular, 'User Access Right');
+  lblUserId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColUserName, 'User');
+  lblPermissionId.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionName, 'Permission Name');
+  chkIsRead.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColRead, 'Read');
+  chkIsAdd.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColAdd, 'Add');
+  chkIsUpdate.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColUpdate, 'Update');
+  chkIsDelete.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColDelete, 'Delete');
+  chkIsSpecial.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColSpecial, 'Special');
 end;
 
 procedure TfrmSysAccessRight.HelperProcess(Sender: TObject);

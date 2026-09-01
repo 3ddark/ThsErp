@@ -17,7 +17,7 @@ implementation
 
 class function ESysRegionExceptionNameUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysRegion.NameUnique, '%s is already in use. Cannot be assigned again.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysRegion.RegionNameUnique, '%s is already in use. Cannot be assigned again.');
 end;
 
 end.

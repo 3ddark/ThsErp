@@ -1033,55 +1033,54 @@ begin
   {$ENDREGION}
 
 
-
-
   // PageControl Tabs
   if Assigned(tsgeneral) then
-    tsgeneral.Caption := TLocalizationManager.Translate('dashboard.tab.general', 'General');
+    tsgeneral.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabGeneral, 'General');
   if Assigned(tssales) then
-    tssales.Caption := TLocalizationManager.Translate('dashboard.tab.sales', 'Sales');
+    tssales.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabSales, 'Sales');
   if Assigned(tsstock) then
-    tsstock.Caption := TLocalizationManager.Translate('dashboard.tab.stock', 'Stocks');
+    tsstock.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabStock, 'Stocks');
   if Assigned(tsaccount) then
-    tsaccount.Caption := TLocalizationManager.Translate('dashboard.tab.accounts', 'Accounts');
+    tsaccount.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabAccounts, 'Accounts');
   if Assigned(tsemployee) then
-    tsemployee.Caption := TLocalizationManager.Translate('dashboard.tab.personnel', 'Employee');
+    tsemployee.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabEmployee, 'Employee');
   if Assigned(tsbom) then
-    tsbom.Caption := TLocalizationManager.Translate('dashboard.tab.recipes', 'BoM');
+    tsbom.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabRecipes, 'BoM');
   if Assigned(tsaccounting) then
-    tsaccounting.Caption := TLocalizationManager.Translate('dashboard.tab.accounting', 'Accounting');
+    tsaccounting.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabAccounting, 'Accounting');
+
 
   // Tab Buttons
   if Assigned(btnsat_teklif) then
-    btnsat_teklif.Caption := TLocalizationManager.Translate('dashboard.btn.proposals', 'Offers');
+    btnsat_teklif.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnOffers, 'Offers');
   if Assigned(btnsat_siparis) then
-    btnsat_siparis.Caption := TLocalizationManager.Translate('dashboard.btn.orders', 'Orders');
+    btnsat_siparis.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnOrders, 'Orders');
   if Assigned(btnsat_teklif_rapor) then
-    btnsat_teklif_rapor.Caption := TLocalizationManager.Translate('dashboard.btn.proposal_reports', 'Offer Reports');
+    btnsat_teklif_rapor.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnOfferReports, 'Offer Reports');
   if Assigned(btnsat_siparis_rapor) then
-    btnsat_siparis_rapor.Caption := TLocalizationManager.Translate('dashboard.btn.order_reports', 'Order Reports');
+    btnsat_siparis_rapor.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnOrderReports, 'Order Reports');
   if Assigned(btnch_bolge) then
-    btnch_bolge.Caption := TLocalizationManager.Translate('dashboard.btn.region', 'Region');
+    btnch_bolge.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnRegion, 'Region');
   if Assigned(btnch_banka) then
-    btnch_banka.Caption := TLocalizationManager.Translate('dashboard.btn.banks', 'Banks');
+    btnch_banka.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnBanks, 'Banks');
   if Assigned(btnch_banka_subesi) then
-    btnch_banka_subesi.Caption := TLocalizationManager.Translate('dashboard.btn.bank_branches', 'Bank Branches');
+    btnch_banka_subesi.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnBankBranches, 'Bank Branches');
   if Assigned(btnset_ch_grup) then
-    btnset_ch_grup.Caption := TLocalizationManager.Translate('dashboard.btn.account_groups', 'Account Groups');
+    btnset_ch_grup.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnAccountGroups, 'Account Groups');
   if Assigned(btnset_ch_hesap_plani) then
-    btnset_ch_hesap_plani.Caption := TLocalizationManager.Translate('dashboard.btn.chart_of_accounts', 'Account Plans');
+    btnset_ch_hesap_plani.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnAccountPlans, 'Account Plans');
   if Assigned(btnch_hesap_karti_ara) then
-    btnch_hesap_karti_ara.Caption := TLocalizationManager.Translate('dashboard.btn.search_account', 'Sub Account Cards');
+    btnch_hesap_karti_ara.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnSubAccount, 'Sub Account Cards');
   if Assigned(btnch_hesap_karti) then
-    btnch_hesap_karti.Caption := TLocalizationManager.Translate('dashboard.btn.account_card', 'Account Cards');
+    btnch_hesap_karti.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnAccountCard, 'Account Cards');
   if Assigned(btnset_ch_vergi_orani) then
-    btnset_ch_vergi_orani.Caption := TLocalizationManager.Translate('dashboard.btn.tax_rates', 'Vat Rates');
+    btnset_ch_vergi_orani.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnTaxRates, 'Vat Rates');
   if Assigned(btnrct_recete) then
-    btnrct_recete.Caption := TLocalizationManager.Translate('dashboard.btn.recipes', 'BoM');
+    btnrct_recete.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnRecipes, 'BoM');
   if Assigned(btnrct_iscilik_gideri) then
-    btnrct_iscilik_gideri.Caption := TLocalizationManager.Translate('dashboard.btn.labor_costs', 'Labours');
+    btnrct_iscilik_gideri.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnLaborCosts, 'Labours');
   if Assigned(btnrct_paket_hammadde) then
-    btnrct_paket_hammadde.Caption := TLocalizationManager.Translate('dashboard.btn.raw_materials', 'Packet Raw Materials');
+    btnrct_paket_hammadde.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnPacketRawMaterials, 'Packet Raw Materials');
 
   // Status Bar Panels
   if stbBase.Panels.Count >= STATUS_KEY_F4+1 then

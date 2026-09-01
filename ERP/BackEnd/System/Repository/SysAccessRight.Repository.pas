@@ -426,7 +426,7 @@ begin
     while not Q.Eof do
     begin
       Right := MapFromQuery(Q);
-      Result.Add(Q.FieldByName('code').AsInteger, Right);
+      Result.Add(Q.FieldByName('permission_code').AsInteger, Right);
       Q.Next;
     end;
   finally

@@ -1,4 +1,4 @@
-unit SysAddress.Repository;
+﻿unit SysAddress.Repository;
 
 interface
 
@@ -49,14 +49,14 @@ end;
 function TSysAddressRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSysAddress) +
-            ' (city_id, district, neighborhood, quarter, road, street, building_name, door_number, zip_code, web, email) ' +
-            ' VALUES (:city_id, :district, :neighborhood, :quarter, :road, :street, :building_name, :door_number, :zip_code, :web, :email)';
+            ' (sys_city_id, district, neighborhood, quarter, road, street, building_name, door_number, zip_code, web, email) ' +
+            ' VALUES (:sys_city_id, :district, :neighborhood, :quarter, :road, :street, :building_name, :door_number, :zip_code, :web, :email)';
 end;
 
 function TSysAddressRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSysAddress) +
-            ' SET city_id = :city_id, district = :district, neighborhood = :neighborhood, ' +
+            ' SET sys_city_id = :sys_city_id, district = :district, neighborhood = :neighborhood, ' +
             '     quarter = :quarter, road = :road, street = :street, building_name = :building_name, ' +
             '     door_number = :door_number, zip_code = :zip_code, web = :web, email = :email  ' +
             ' WHERE id = :id';
@@ -72,7 +72,7 @@ procedure TSysAddressRepository.SetInsertParams(Q: TFDQuery; AModel: TSysAddress
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('city_id').AsLargeInt               := AModel.CityId;
+    Q.ParamByName('sys_city_id').AsLargeInt           := AModel.SysCityId;
     Q.ParamByName('district').AsString                := AModel.District;
     Q.ParamByName('neighborhood').AsString            := AModel.Neighborhood;
     Q.ParamByName('quarter').AsString                 := AModel.Quarter;
@@ -86,7 +86,7 @@ begin
   end
   else
   begin
-    Q.ParamByName('city_id').AsLargeInts[AIndex]      := AModel.CityId;
+    Q.ParamByName('sys_city_id').AsLargeInts[AIndex]  := AModel.SysCityId;
     Q.ParamByName('district').AsStrings[AIndex]       := AModel.District;
     Q.ParamByName('neighborhood').AsStrings[AIndex]   := AModel.Neighborhood;
     Q.ParamByName('quarter').AsStrings[AIndex]        := AModel.Quarter;
@@ -105,7 +105,7 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt                    := AModel.Id;
-    Q.ParamByName('city_id').AsLargeInt               := AModel.CityId;
+    Q.ParamByName('sys_city_id').AsLargeInt           := AModel.SysCityId;
     Q.ParamByName('district').AsString                := AModel.District;
     Q.ParamByName('neighborhood').AsString            := AModel.Neighborhood;
     Q.ParamByName('quarter').AsString                 := AModel.Quarter;
@@ -120,7 +120,7 @@ begin
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex]           := AModel.Id;
-    Q.ParamByName('city_id').AsLargeInts[AIndex]      := AModel.CityId;
+    Q.ParamByName('sys_city_id').AsLargeInts[AIndex]  := AModel.SysCityId;
     Q.ParamByName('district').AsStrings[AIndex]       := AModel.District;
     Q.ParamByName('neighborhood').AsStrings[AIndex]   := AModel.Neighborhood;
     Q.ParamByName('quarter').AsStrings[AIndex]        := AModel.Quarter;
@@ -138,7 +138,7 @@ function TSysAddressRepository.MapFromQuery(Q: TFDQuery): TSysAddress;
 begin
   Result := TSysAddress.Create;
   Result.Id           := Q.FieldByName('id').AsLargeInt;
-  Result.CityId       := Q.ParamByName('city_id').AsLargeInt;
+  Result.SysCityId    := Q.ParamByName('sys_city_id').AsLargeInt;
   Result.District     := Q.ParamByName('district').AsString;
   Result.Neighborhood := Q.ParamByName('neighborhood').AsString;
   Result.Quarter      := Q.ParamByName('quarter').AsString;

@@ -64,8 +64,8 @@ begin
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.TitleSingular, 'City');
   lblCityName.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColCityName, 'City Name');
   lblPlateCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColPlateCode, 'Car Plate Code');
-  lblCountryId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountry, 'Country');
-  lblRegionId.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.ColName, 'Region');
+  lblCountryId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountryName, 'Country Name');
+  lblRegionId.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.ColRegionName, 'Region Name');
 end;
 
 procedure TfrmSysCity.HelperProcess(Sender: TObject);
