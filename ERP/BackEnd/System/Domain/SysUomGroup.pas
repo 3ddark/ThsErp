@@ -15,9 +15,10 @@ type
     FSysUomGroupId: Int64;
     FSysLanguageId: Int64;
     FName: string;
-    FSysUomGroup: TSysUomGroup;
+
     FSysLanguage: TSysLanguage;
   public
+    constructor Create; override;
     destructor Destroy; override;
 
     [Column('sys_uom_group_id', [cpPrimaryKey, cpNotNull])]
@@ -29,9 +30,6 @@ type
     [Column('name')]
     [MaxLength(64)]
     property Name: string read FName write FName;
-
-    [BelongsTo('SysUomGroupId', 'Id')]
-    property SysUomGroup: TSysUomGroup read FSysUomGroup write FSysUomGroup;
 
     [BelongsTo('SysLanguageId', 'Id')]
     property SysLanguage: TSysLanguage read FSysLanguage write FSysLanguage;
@@ -55,13 +53,6 @@ type
 
 implementation
 
-destructor TSysUomGroupTranslation.Destroy;
-begin
-  FSysUomGroup.Free;
-  FSysLanguage.Free;
-  inherited;
-end;
-
 constructor TSysUomGroup.Create();
 begin
   inherited;
@@ -71,6 +62,18 @@ end;
 destructor TSysUomGroup.Destroy;
 begin
   FTranslations.Free;
+  inherited;
+end;
+
+constructor TSysUomGroupTranslation.Create;
+begin
+  inherited;
+  FSysLanguage := nil;
+end;
+
+destructor TSysUomGroupTranslation.Destroy;
+begin
+  FSysLanguage.Free;
   inherited;
 end;
 

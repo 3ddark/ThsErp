@@ -172,7 +172,7 @@ procedure TSysCountryRepository.SetUpdateParams(Q: TFDQuery; AModel: TSysCountry
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('id').AsLargeInt     := AModel.Id;
+    Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('country_code').AsString := AModel.CountryCode;
     Q.ParamByName('iso_year').AsInteger := AModel.ISOYear;
     Q.ParamByName('iso_cctld').AsString := AModel.ISOCCTLD;
@@ -180,7 +180,7 @@ begin
   end
   else
   begin
-    Q.ParamByName('id').AsLargeInts[AIndex]     := AModel.Id;
+    Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
     Q.ParamByName('country_code').AsStrings[AIndex] := AModel.CountryCode;
     Q.ParamByName('iso_year').AsIntegers[AIndex] := AModel.ISOYear;
     Q.ParamByName('iso_cctld').AsStrings[AIndex] := AModel.ISOCCTLD;
@@ -191,8 +191,11 @@ end;
 function TSysCountryRepository.MapFromQuery(Q: TFDQuery): TSysCountry;
 begin
   Result := TSysCountry.Create;
-  Result.Id                 := Q.FieldByName('id').AsLargeInt;
+  Result.Id := Q.FieldByName('id').AsLargeInt;
   Result.CountryCode := Q.FieldByName('country_code').AsString;
+  Result.ISOYear := Q.FieldByName('iso_year').AsInteger;
+  Result.ISOCCTLD := Q.FieldByName('iso_cctld').AsString;
+  Result.IsEuMember := Q.FieldByName('is_eu_member').AsBoolean;
 end;
 
 function TSysCountryRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

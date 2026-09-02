@@ -165,10 +165,10 @@ begin
       Trans.SysLanguageId := Q.FieldByName('sys_language_id').AsLargeInt;
       Trans.Name := Q.FieldByName('name').AsString;
 
-      Trans.Language := TSysLanguage.Create;
-      Trans.Language.Id := Q.FieldByName('sys_language_id').AsLargeInt;
-      Trans.Language.Locale := Q.FieldByName('locale').AsString;
-      Trans.Language.NativeName := Q.FieldByName('native_name').AsString;
+      Trans.SysLanguage := TSysLanguage.Create;
+      Trans.SysLanguage.Id := Q.FieldByName('sys_language_id').AsLargeInt;
+      Trans.SysLanguage.Locale := Q.FieldByName('locale').AsString;
+      Trans.SysLanguage.NativeName := Q.FieldByName('native_name').AsString;
 
       AModel.Translations.Add(Trans);
       Q.Next;

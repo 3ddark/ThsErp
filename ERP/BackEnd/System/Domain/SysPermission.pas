@@ -16,7 +16,6 @@ type
     FLanguageId: Int64;
     FName: string;
 
-    FPermission: TSysPermission;
     FLanguage: TSysLanguage;
   public
     constructor Create; override;
@@ -30,9 +29,6 @@ type
 
     [Column('name')]
     property Name: string read FName write FName;
-
-    [BelongsTo('PermissionId')]
-    property Permission: TSysPermission read FPermission write FPermission;
 
     [BelongsTo('LanguageId')]
     property Language: TSysLanguage read FLanguage write FLanguage;
@@ -77,22 +73,20 @@ end;
 
 destructor TSysPermission.Destroy;
 begin
-  FreeAndNil(FGroup);
-  FreeAndNil(FTranslations);
+  FGroup.Free;
+  FTranslations.Free;
   inherited;
 end;
 
 constructor TSysPermissionTranslation.Create;
 begin
   inherited;
-  FPermission := TSysPermission.Create;
-  FLanguage := TSysLanguage.Create;
+  FLanguage := nil;
 end;
 
 destructor TSysPermissionTranslation.Destroy;
 begin
-  FreeAndNil(FPermission);
-  FreeAndNil(FLanguage);
+  FLanguage.Free;
   inherited;
 end;
 

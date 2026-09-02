@@ -532,7 +532,7 @@ end;
 
 destructor TfrmInputSimpleDB<TE, TS>.Destroy;
 begin
-  FreeAndNil(Table);
+  Table.Free;
   Service := nil;
   inherited;
 end;

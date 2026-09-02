@@ -16,7 +16,6 @@ type
     FSysLanguageId: Int64;
     FPermissionGroupName: string;
 
-    FSysPermissionGroup: TSysPermissionGroup;
     FSysLanguage: TSysLanguage;
   public
     constructor Create; override;
@@ -32,9 +31,6 @@ type
     [MaxLength(128, TLangKeys.TValidation.MaxLength)]
     [Required(TLangKeys.TSysPermissionGroup.KeyRequired)]
     property PermissionGroupName: string read FPermissionGroupName write FPermissionGroupName;
-
-    [BelongsTo('SysPermissionGroupId', 'Id')]
-    property SysPermissionGroup: TSysPermissionGroup read FSysPermissionGroup write FSysPermissionGroup;
 
     [BelongsTo('SysLanguageId', 'Id')]
     property SysLanguage: TSysLanguage read FSysLanguage write FSysLanguage;
@@ -59,18 +55,6 @@ type
 
 implementation
 
-constructor TSysPermissionGroupTranslation.Create;
-begin
-  inherited;
-  FSysLanguage := TSysLanguage.Create;
-end;
-
-destructor TSysPermissionGroupTranslation.Destroy;
-begin
-  FreeAndNil(FSysLanguage);
-  inherited;
-end;
-
 constructor TSysPermissionGroup.Create();
 begin
   inherited;
@@ -79,7 +63,19 @@ end;
 
 destructor TSysPermissionGroup.Destroy;
 begin
-  FreeAndNil(FTranslations);
+  FTranslations.Free;
+  inherited;
+end;
+
+constructor TSysPermissionGroupTranslation.Create;
+begin
+  inherited;
+  FSysLanguage := nil;
+end;
+
+destructor TSysPermissionGroupTranslation.Destroy;
+begin
+  FSysLanguage.Free;
   inherited;
 end;
 

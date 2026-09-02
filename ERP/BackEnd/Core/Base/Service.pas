@@ -233,6 +233,9 @@ begin
       col.Prop.SetValue(ATarget, val);
   end;
 
+  if not ADeepClone then
+    Exit;
+
   // Deep clone: ilişkisel property'ler (BelongsTo)
   ACtx := TRttiContext.Create;
   try
