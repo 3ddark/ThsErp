@@ -241,6 +241,7 @@ type
     procedure EditSearchChange(Sender: TObject);
     procedure CheckListBoxClickCheck(Sender: TObject);
     procedure RebuildList;
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
   public
     constructor Create(AOwner: TComponent; AColumns: TList<TColumn>); reintroduce;
     destructor Destroy; override;
@@ -865,6 +866,7 @@ procedure TfrmGrid<TE, TS>.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = Chr(VK_ESCAPE) then
   begin
+    Key := #0;
     Self.Close;
   end;
 end;
@@ -873,14 +875,17 @@ procedure TfrmGrid<TE, TS>.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShi
 begin
   if Key = VK_F6 then
   begin
+    Key := 0;
     Self.Close;
   end
   else if Key = VK_F7 then
   begin
+    Key := 0;
     BtnAddClick(BtnAdd);
   end
   else if Key = VK_F11 then
   begin
+    Key := 0;
     if (Self.AlphaBlendValue = 255) or (Self.AlphaBlendValue = 80) then
     begin
       Self.AlphaBlend := not Self.AlphaBlend;
@@ -896,6 +901,13 @@ begin
       150: Self.AlphaBlendValue := 80;
     end;
   end
+  else if (ssCtrl in Shift) and (Key = Ord('F')) then
+  begin
+    Key := 0;
+    if EdtFilter.Focused
+    then  Grd.SetFocus
+    else  EdtFilter.SetFocus;
+  end;
 end;
 
 procedure TfrmGrid<TE, TS>.FormShow(Sender: TObject);
@@ -1519,12 +1531,15 @@ var
   LCol: TColumn;
 begin
   inherited CreateNew(AOwner);
-  
+
+  Self.OnKeyPress := FormKeyPress;
+
   FColumns := AColumns;
   FCheckedStates := TDictionary<TColumn, Boolean>.Create;
   for LCol in FColumns do
     FCheckedStates.Add(LCol, LCol.Visible);
 
+  KeyPreview := True;
   Caption := TLocalizationManager.Translate('column_selector.title', 'Kolon Seçimi');
   Position := poOwnerFormCenter;
   Width := 450;
@@ -1582,6 +1597,15 @@ end;
 procedure TfrmColumnSelector.EditSearchChange(Sender: TObject);
 begin
   RebuildList;
+end;
+
+procedure TfrmColumnSelector.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = Chr(VK_ESCAPE) then
+  begin
+    Key := #0;
+    Self.Close;
+  end;
 end;
 
 procedure TfrmColumnSelector.CheckListBoxClickCheck(Sender: TObject);

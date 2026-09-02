@@ -16,7 +16,6 @@ type
     FSysLanguageId: Int64;
     FCountryName: string;
 
-    FSysCountry: TSysCountry;
     FSysLanguage: TSysLanguage;
   public
     constructor Create(); override;
@@ -30,9 +29,6 @@ type
 
     [Column('country_name')]
     property CountryName: string read FCountryName write FCountryName;
-
-    [BelongsTo('SysCountryId')]
-    property SysCountry: TSysCountry read FSysCountry write FSysCountry;
 
     [BelongsTo('SysLanguageId')]
     property SysLanguage: TSysLanguage read FSysLanguage write FSysLanguage;
@@ -78,21 +74,19 @@ end;
 
 destructor TSysCountry.Destroy;
 begin
-  FreeAndNil(FTranslations);
+  FTranslations.Free;
   inherited;
 end;
 
 constructor TSysCountryTranslation.Create;
 begin
   inherited;
-  FSysCountry := TSysCountry.Create;
-  FSysLanguage := TSysLanguage.Create;
+  FSysLanguage := nil;
 end;
 
 destructor TSysCountryTranslation.Destroy;
 begin
-  FreeAndNil(FSysCountry);
-  FreeAndNil(FSysLanguage);
+  FSysLanguage.Free;
   inherited;
 end;
 

@@ -54,7 +54,7 @@ procedure TfrmSysUom.BtnAcceptClick(Sender: TObject);
     begin
       for i := 0 to Table.Translations.Count - 1 do
       begin
-        if (Assigned(Table.Translations[i].Language) and SameText(Table.Translations[i].Language.Locale, ALocale))
+        if (Assigned(Table.Translations[i].SysLanguage) and SameText(Table.Translations[i].SysLanguage.Locale, ALocale))
         or (Table.Translations[i].SysLanguageId = ALangId) then
         begin
           Table.Translations[i].Name := ADesc;
@@ -70,9 +70,9 @@ procedure TfrmSysUom.BtnAcceptClick(Sender: TObject);
       LTrans.SysUomId := Table.Id;
       LTrans.SysLanguageId := ALangId;
       LTrans.Name := ADesc;
-      LTrans.Language := TSysLanguage.Create;
-      LTrans.Language.Id := ALangId;
-      LTrans.Language.Locale := ALocale;
+      LTrans.SysLanguage := TSysLanguage.Create;
+      LTrans.SysLanguage.Id := ALangId;
+      LTrans.SysLanguage.Locale := ALocale;
       Table.Translations.Add(LTrans);
     end;
   end;
@@ -163,11 +163,11 @@ begin
   begin
     for i := 0 to Table.Translations.Count - 1 do
     begin
-      if Assigned(Table.Translations[i].Language) then
+      if Assigned(Table.Translations[i].SysLanguage) then
       begin
-        if SameText(Table.Translations[i].Language.Locale, CLangLocaleEN) then
+        if SameText(Table.Translations[i].SysLanguage.Locale, CLangLocaleEN) then
           edtDescriptionEN.Text := Table.Translations[i].Name
-        else if SameText(Table.Translations[i].Language.Locale, CLangLocaleTR) then
+        else if SameText(Table.Translations[i].SysLanguage.Locale, CLangLocaleTR) then
           edtDescriptionTR.Text := Table.Translations[i].Name;
       end
       else
