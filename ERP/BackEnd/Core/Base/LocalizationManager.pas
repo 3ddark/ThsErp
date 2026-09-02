@@ -214,9 +214,9 @@ type
         const TitlePlural = 'sys_city.title_plural';
         const TitleSingular = 'sys_city.title_singular';
         const ColCityName = 'sys_city.col_city_name';
-        const ColPlateCode = 'sys_city.col_plate_code';
-        const ColCountryId = 'sys_city.col_country_id';
-        const ColRegionId = 'sys_city.col_region_id';
+        const ColCarPlateCode = 'sys_city.col_car_plate_code';
+        const ColSysCountryId = 'sys_city.col_sys_country_id';
+        const ColSysRegionId = 'sys_city.col_sys_region_id';
         const CityCountryUnique = 'sys_city.city_country.unique';
       end;
 

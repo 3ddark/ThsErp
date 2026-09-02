@@ -16,13 +16,13 @@ type
   TfrmSysCity = class(TfrmInputSimpleDB<TSysCity, TSysCityService>)
     pnlContent: TPanel;
     lblCityName: TLabel;
-    lblPlateCode: TLabel;
-    lblCountryId: TLabel;
-    lblRegionId: TLabel;
+    lblCarPlateCode: TLabel;
+    lblSysCountryId: TLabel;
+    lblSysRegionId: TLabel;
     edtCityName: TEdit;
-    edtPlateCode: TEdit;
-    edtCountryId: TEdit;
-    edtRegionId: TEdit;
+    edtCarPlateCode: TEdit;
+    edtSysCountryId: TEdit;
+    edtSysRegionId: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -39,7 +39,7 @@ implementation
 procedure TfrmSysCity.BtnAcceptClick(Sender: TObject);
 begin
   Table.CityName := edtCityName.Text;
-  Table.PlateCode := StrToIntDef(edtPlateCode.Text, 0);
+  Table.CarPlateCode := StrToIntDef(edtCarPlateCode.Text, 0);
   inherited;
 end;
 
@@ -47,8 +47,8 @@ procedure TfrmSysCity.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtCountryId.OnHelperProcess := HelperProcess;
-  edtRegionId.OnHelperProcess := HelperProcess;
+  edtSysCountryId.OnHelperProcess := HelperProcess;
+  edtSysRegionId.OnHelperProcess := HelperProcess;
 end;
 
 procedure TfrmSysCity.FormShow(Sender: TObject);
@@ -63,9 +63,9 @@ begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.TitleSingular, 'City');
   lblCityName.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColCityName, 'City Name');
-  lblPlateCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColPlateCode, 'Car Plate Code');
-  lblCountryId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountryName, 'Country Name');
-  lblRegionId.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.ColRegionName, 'Region Name');
+  lblCarPlateCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColCarPlateCode, 'Car Plate Code');
+  lblSysCountryId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountryName, 'Country Name');
+  lblSysRegionId.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.ColRegionName, 'Region Name');
 end;
 
 procedure TfrmSysCity.HelperProcess(Sender: TObject);
@@ -77,7 +77,7 @@ begin
   if Sender is TEdit then
   begin
     LEdit := (Sender as TEdit);
-    if LEdit.Name = edtCountryId.Name then
+    if LEdit.Name = edtSysCountryId.Name then
     begin
       LFrmCountry := TfrmSysCountries.Create(LEdit, TSysCountryService.Create, TSysCountry.Create);
       try
@@ -87,20 +87,20 @@ begin
         begin
           if LFrmCountry.CleanAndClose then
           begin
-            Table.CountryId := 0;
+            Table.SysCountryId := 0;
             LEdit.Clear;
           end
           else
           begin
-            Table.CountryId := LFrmCountry.Table.Id;
-            LEdit.Text := LFrmCountry.Table.CountryCode;
+            Table.SysCountryId := LFrmCountry.Table.Id;
+            LEdit.Text := LFrmCountry.Table.CountryName;
           end;
         end;
       finally
         LFrmCountry.Free;
       end;
     end
-    else if LEdit.Name = edtRegionId.Name then
+    else if LEdit.Name = edtSysRegionId.Name then
     begin
       LFrmRegion := TfrmSysRegions.Create(LEdit, TSysRegionService.Create, TSysRegion.Create);
       try
@@ -110,12 +110,12 @@ begin
         begin
           if LFrmRegion.CleanAndClose then
           begin
-            Table.RegionId := 0;
+            Table.SysRegionId := 0;
             LEdit.Clear;
           end
           else
           begin
-            Table.RegionId := LFrmRegion.Table.Id;
+            Table.SysRegionId := LFrmRegion.Table.Id;
             LEdit.Text := LFrmRegion.Table.RegionName;
           end;
         end;
@@ -130,9 +130,9 @@ procedure TfrmSysCity.RefreshData;
 begin
   inherited;
   edtCityName.Text := Table.CityName;
-  edtPlateCode.Text := IntToStr(Table.PlateCode);
-  edtCountryId.Text := Table.Country.CountryCode;
-  edtRegionId.Text := Table.Region.RegionName;
+  edtCarPlateCode.Text := IntToStr(Table.CarPlateCode);
+  edtSysCountryId.Text := Table.SysCountry.CountryName;
+  edtSysRegionId.Text := Table.SysRegion.RegionName;
 end;
 
 end.

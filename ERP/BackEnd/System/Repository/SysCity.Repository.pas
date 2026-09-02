@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
   FireDAC.Comp.Client, FireDAC.Stan.Param, SharedFormTypes, AppContext, Entity,
-  Repository, FilterCriterion, SysCity;
+  Repository, FilterCriterion, SysCity, SysCountry;
 
 type
   TSysCityRepository = class(TRepository<TSysCity>)
@@ -49,15 +49,15 @@ end;
 function TSysCityRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSysCity) +
-            ' (city_name, plate_code, country_id, region_id) ' +
-            ' VALUES (:city_name, :plate_code, :country_id, :region_id)';
+            ' (city_name, car_plate_code, sys_country_id, sys_region_id) ' +
+            ' VALUES (:city_name, :car_plate_code, :sys_country_id, :sys_region_id)';
 end;
 
 function TSysCityRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSysCity) +
-            ' SET city_name = :city_name, plate_code = :plate_code, ' +
-            '     country_id = :country_id, region_id = :region_id ' +
+            ' SET city_name = :city_name, car_plate_code = :car_plate_code, ' +
+            '     sys_country_id = :sys_country_id, sys_region_id = :sys_region_id ' +
             ' WHERE id = :id';
 end;
 
@@ -71,17 +71,17 @@ procedure TSysCityRepository.SetInsertParams(Q: TFDQuery; AModel: TSysCity; AInd
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('city_name').AsString     := AModel.CityName;
-    Q.ParamByName('plate_code').AsInteger   := AModel.PlateCode;
-    Q.ParamByName('country_id').AsLargeInt  := AModel.CountryId;
-    Q.ParamByName('region_id').AsLargeInt   := AModel.RegionId;
+    Q.ParamByName('city_name').AsString := AModel.CityName;
+    Q.ParamByName('car_plate_code').AsInteger := AModel.CarPlateCode;
+    Q.ParamByName('sys_country_id').AsLargeInt := AModel.SysCountryId;
+    Q.ParamByName('sys_region_id').AsLargeInt := AModel.SysRegionId;
   end
   else
   begin
-    Q.ParamByName('city_name').AsStrings[AIndex]    := AModel.CityName;
-    Q.ParamByName('plate_code').AsIntegers[AIndex]  := AModel.PlateCode;
-    Q.ParamByName('country_id').AsLargeInts[AIndex] := AModel.CountryId;
-    Q.ParamByName('region_id').AsLargeInts[AIndex]  := AModel.RegionId;
+    Q.ParamByName('city_name').AsStrings[AIndex] := AModel.CityName;
+    Q.ParamByName('car_plate_code').AsIntegers[AIndex] := AModel.CarPlateCode;
+    Q.ParamByName('sys_country_id').AsLargeInts[AIndex] := AModel.SysCountryId;
+    Q.ParamByName('sys_region_id').AsLargeInts[AIndex] := AModel.SysRegionId;
   end;
 end;
 
@@ -89,30 +89,34 @@ procedure TSysCityRepository.SetUpdateParams(Q: TFDQuery; AModel: TSysCity; AInd
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('id').AsLargeInt          := AModel.Id;
-    Q.ParamByName('city_name').AsString     := AModel.CityName;
-    Q.ParamByName('plate_code').AsInteger   := AModel.PlateCode;
-    Q.ParamByName('country_id').AsLargeInt  := AModel.CountryId;
-    Q.ParamByName('region_id').AsLargeInt   := AModel.RegionId;
+    Q.ParamByName('id').AsLargeInt := AModel.Id;
+    Q.ParamByName('city_name').AsString := AModel.CityName;
+    Q.ParamByName('car_plate_code').AsInteger := AModel.CarPlateCode;
+    Q.ParamByName('sys_country_id').AsLargeInt := AModel.SysCountryId;
+    Q.ParamByName('sys_region_id').AsLargeInt := AModel.SysRegionId;
   end
   else
   begin
-    Q.ParamByName('id').AsLargeInts[AIndex]         := AModel.Id;
-    Q.ParamByName('city_name').AsStrings[AIndex]    := AModel.CityName;
-    Q.ParamByName('plate_code').AsIntegers[AIndex]  := AModel.PlateCode;
-    Q.ParamByName('country_id').AsLargeInts[AIndex] := AModel.CountryId;
-    Q.ParamByName('region_id').AsLargeInts[AIndex]  := AModel.RegionId;
+    Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('city_name').AsStrings[AIndex] := AModel.CityName;
+    Q.ParamByName('car_plate_code').AsIntegers[AIndex] := AModel.CarPlateCode;
+    Q.ParamByName('sys_country_id').AsLargeInts[AIndex] := AModel.SysCountryId;
+    Q.ParamByName('sys_region_id').AsLargeInts[AIndex] := AModel.SysRegionId;
   end;
 end;
 
 function TSysCityRepository.MapFromQuery(Q: TFDQuery): TSysCity;
 begin
   Result := TSysCity.Create;
-  Result.Id           := Q.FieldByName('id').AsLargeInt;
-  Result.CityName     := Q.FieldByName('city_name').AsString;
-  Result.PlateCode    := Q.FieldByName('plate_code').AsInteger;
-  Result.CountryId    := Q.FieldByName('country_id').AsLargeInt;
-  Result.RegionId     := Q.FieldByName('region_id').AsLargeInt;
+  Result.Id := Q.FieldByName('id').AsLargeInt;
+  Result.CityName := Q.FieldByName('city_name').AsString;
+  Result.CarPlateCode := Q.FieldByName('car_plate_code').AsInteger;
+  Result.SysCountryId := Q.FieldByName('sys_country_id').AsLargeInt;
+  Result.SysRegionId := Q.FieldByName('sys_region_id').AsLargeInt;
+  Result.SysCountry.Id := Q.FieldByName('sys_country_id').AsLargeInt;
+  Result.SysCountry.CountryCode := Q.FieldByName('country_code').AsString;
+  Result.SysCountry.CountryName := Q.FieldByName('country_name').AsString;
+  Result.SysRegion.RegionName := Q.FieldByName('region_name').AsString;
 end;
 
 function TSysCityRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

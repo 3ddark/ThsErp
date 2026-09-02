@@ -43,6 +43,8 @@ type
     FIsEuMember: Boolean;
 
     FTranslations: TObjectList<TSysCountryTranslation>;
+
+    FCountryName: string;
   public
     constructor Create(); override;
     destructor Destroy; override;
@@ -61,6 +63,9 @@ type
 
     [HasMany('SysCountryId', 'Id')]
     property Translations: TObjectList<TSysCountryTranslation> read FTranslations write FTranslations;
+
+    [NotMapped()]
+    property CountryName: string read FCountryName write FCountryName;
   end;
 
 implementation

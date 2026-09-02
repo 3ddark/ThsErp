@@ -19,6 +19,7 @@ type
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
+    procedure SetSelectedItem; override;
   end;
 
 implementation
@@ -53,6 +54,12 @@ begin
   inherited;
   mniDuplicate.Visible := True;
   ApplyLocalization;
+end;
+
+procedure TfrmSysCountries.SetSelectedItem;
+begin
+  inherited;
+  Table.CountryName := Grd.DataSource.DataSet.FieldByName('country_name').AsString;
 end;
 
 procedure TfrmSysCountries.ApplyLocalization;

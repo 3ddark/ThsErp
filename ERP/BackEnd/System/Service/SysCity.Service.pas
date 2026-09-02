@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
-  UnitOfWork, SharedFormTypes, AppContext,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
   SysCity.Repository, SysCity, SysCity.Exception;
 
 type
@@ -86,7 +86,7 @@ begin
   begin
     LFilter := TFilterCriteria.Create;
     try
-      LFilter.Add(TFilterCriterion.New('country_id', '=', TValue.From<Int64>(AEntity.CountryId)));
+      LFilter.Add(TFilterCriterion.New('sys_country_id', '=', TValue.From<Int64>(AEntity.SysCountryId)));
       LFilter.Add(TFilterCriterion.New('city_name', '=', TValue.From<string>(AEntity.CityName)));
       if AOperation = coUpdate then
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
@@ -121,7 +121,7 @@ begin
   LEntity := FRepo.FindById(AId, False);
   try
     if not Assigned(LEntity) then
-      raise Exception.CreateFmt('Record not found: %d', [AId]);
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
 
     ValidateAll(LEntity, coDelete);
     FRepo.Delete(LEntity);
