@@ -69,7 +69,7 @@ end;
 
 function TSysCountryRepository.PrepareDeleteSql: string;
 begin
-  //WHERE kýsmý özellikle böyle yazýldý. Filtre vermeden iþlem yapýlmamasý için. Hatalý kodlamada tüm tabloyu siler.
+  //WHERE kï¿½smï¿½ ï¿½zellikle bï¿½yle yazï¿½ldï¿½. Filtre vermeden iï¿½lem yapï¿½lmamasï¿½ iï¿½in. Hatalï¿½ kodlamada tï¿½m tabloyu siler.
   Result := 'DELETE FROM public.' + Self.GetTableName(TSysCountry) + ' WHERE';
 end;
 
@@ -118,6 +118,10 @@ begin
       Trans.SysLanguage.NativeName := Q.FieldByName('native_name').AsString;
 
       AModel.Translations.Add(Trans);
+
+      if Trans.SysLanguage.Locale = TAppContext.Instance.CurrentUser.ActiveLanguage then
+        AModel.CountryName := Trans.CountryName;
+
       Q.Next;
     end;
   finally

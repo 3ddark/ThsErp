@@ -10,11 +10,12 @@ type
   TSysCity = class(TEntity)
   private
     FCityName: string;
-    FPlateCode: Integer;
-    FCountryId: Int64;
-    FRegionId: Int64;
-    FCountry: TSysCountry;
-    FRegion: TSysRegion;
+    FCarPlateCode: Integer;
+    FSysCountryId: Int64;
+    FSysRegionId: Int64;
+
+    FSysCountry: TSysCountry;
+    FSysRegion: TSysRegion;
   public
     constructor Create(); override;
     destructor Destroy; override;
@@ -22,20 +23,20 @@ type
     [Column('city_name')]
     property CityName: string read FCityName write FCityName;
 
-    [Column('plate_code')]
-    property PlateCode: Integer read FPlateCode write FPlateCode;
+    [Column('car_plate_code')]
+    property CarPlateCode: Integer read FCarPlateCode write FCarPlateCode;
 
-    [Column('country_id')]
-    property CountryId: Int64 read FCountryId write FCountryId;
+    [Column('sys_country_id')]
+    property SysCountryId: Int64 read FSysCountryId write FSysCountryId;
 
-    [Column('region_id')]
-    property RegionId: Int64 read FRegionId write FRegionId;
+    [Column('sys_region_id')]
+    property SysRegionId: Int64 read FSysRegionId write FSysRegionId;
 
-    [BelongsTo('country_id', 'id')]
-    property Country: TSysCountry read FCountry write FCountry;
+    [BelongsTo('sys_country_id', 'id')]
+    property SysCountry: TSysCountry read FSysCountry write FSysCountry;
 
-    [BelongsTo('region_id', 'id')]
-    property Region: TSysRegion read FRegion write FRegion;
+    [BelongsTo('sys_region_id', 'id')]
+    property SysRegion: TSysRegion read FSysRegion write FSysRegion;
   end;
 
 implementation
@@ -43,14 +44,14 @@ implementation
 constructor TSysCity.Create();
 begin
   inherited;
-  FCountry := TSysCountry.Create;
-  FRegion := TSysRegion.Create;
+  FSysCountry := TSysCountry.Create;
+  FSysRegion := TSysRegion.Create;
 end;
 
 destructor TSysCity.Destroy;
 begin
-  FreeAndNil(FCountry);
-  FreeAndNil(FRegion);
+  FSysCountry.Free;
+  FSysRegion.Free;
 
   inherited;
 end;

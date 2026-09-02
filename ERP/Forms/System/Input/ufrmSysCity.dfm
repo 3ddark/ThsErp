@@ -36,7 +36,7 @@ object frmSysCity: TfrmSysCity
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblPlateCode: TLabel
+    object lblCarPlateCode: TLabel
       Left = 66
       Top = 29
       Width = 62
@@ -52,7 +52,7 @@ object frmSysCity: TfrmSysCity
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblCountryId: TLabel
+    object lblSysCountryId: TLabel
       Left = 103
       Top = 52
       Width = 25
@@ -68,7 +68,7 @@ object frmSysCity: TfrmSysCity
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblRegionId: TLabel
+    object lblSysRegionId: TLabel
       Left = 97
       Top = 75
       Width = 31
@@ -91,21 +91,21 @@ object frmSysCity: TfrmSysCity
       Height = 22
       TabOrder = 0
     end
-    object edtPlateCode: TEdit
+    object edtCarPlateCode: TEdit
       Left = 132
       Top = 25
       Width = 333
       Height = 22
       TabOrder = 1
     end
-    object edtCountryId: TEdit
+    object edtSysCountryId: TEdit
       Left = 132
       Top = 48
       Width = 333
       Height = 22
       TabOrder = 2
     end
-    object edtRegionId: TEdit
+    object edtSysRegionId: TEdit
       Left = 132
       Top = 71
       Width = 333
