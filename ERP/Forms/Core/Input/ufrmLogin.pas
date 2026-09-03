@@ -8,7 +8,7 @@ uses
   System.SysUtils, System.Classes, System.Generics.Collections, System.StrUtils,
   Vcl.Controls, Vcl.Forms, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Dialogs, Vcl.Menus,
   Vcl.Graphics, Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Themes, Vcl.Styles,
-  Vcl.Imaging.pngimage, Winapi.Windows, FireDAC.Comp.Client, Logger,
+  Vcl.Imaging.pngimage, Winapi.Windows, FireDAC.Comp.Client, Logger, System.Threading,
   Ths.Helper.Edit, Ths.Helper.ComboBox, udm, ufrmBase,
   Ths.Database.Connection.Settings,
 
@@ -78,10 +78,7 @@ class function TfrmLogin.Execute(): boolean;
 begin
   with TfrmLogin.Create(nil) do
   try
-    if (ShowModal = mrYes) then
-      Result := True
-    else
-      Result := False;
+    Result := (ShowModal = mrYes);
   finally
     Free;
   end;
@@ -134,7 +131,6 @@ begin
     begin
       ModalResult := mrNone;
       raise;
-      Exit;
     end;
   end;
 
@@ -185,9 +181,7 @@ begin
           if not Assigned(LLang) then
             raise Exception.Create(TLangKeys.TLogin.UserNotFound);
           TAppContext.Instance.CurrentUser.User := user;
-
-          if Assigned(LLang) then
-            TAppContext.Instance.CurrentUser.ActiveLanguageId := LLang.Id;
+          TAppContext.Instance.CurrentUser.ActiveLanguageId := LLang.Id;
         finally
           LLang.Free;
           filter.Free;
@@ -196,10 +190,13 @@ begin
         var LAccessRepo := TSysAccessRightRepository.Create(LConn);
         try
           LPerms := LAccessRepo.GetUserPermissions(LLoginRes.UserId);
-          TAppContext.Instance.CurrentUser.AddPermissions(LPerms);
+          try
+            TAppContext.Instance.CurrentUser.AddPermissions(LPerms);
+          finally
+            LPerms.Free;
+          end;
         finally
           LAccessRepo.Free;
-          LPerms.Free;
         end;
 
         ModalResult := mrYes;
@@ -296,6 +293,27 @@ begin
   edtdb_host.Text := ConnSetting.SQLServer;
   edtdb_adi.Text := ConnSetting.DatabaseName;
   edtdb_port.Text := ConnSetting.DBPortNo.ToString;
+
+  TTask.Run(
+    procedure
+    begin
+      TThread.Synchronize(nil,
+        procedure
+        var
+          n1: Integer;
+          LList: TNetworkCardInfoList;
+          LLen: Integer;
+        begin
+
+          lblip_address_val.Caption := '';
+          LList := GetMACAddress;
+          LLen := Length(LList);
+          for n1 := 0 to LLen - 1 do
+            lblip_address_val.Caption := lblip_address_val.Caption + LList[n1].IPAddress + AddLBs + LList[n1].MacAddress + AddLBs(2);
+
+        end
+      );
+    end);
 end;
 
 procedure TfrmLogin.FormDestroy(Sender: TObject);
@@ -305,21 +323,11 @@ begin
 end;
 
 procedure TfrmLogin.FormShow(Sender: TObject);
-var
-  n1: Integer;
-  LList: TNetworkCardInfoList;
-  LLen: Integer;
 begin
   inherited;
 
   lblprocess_id_val.Caption := GetPIDByHWnd(Application.Handle).ToString;
   lblversion_val.Caption := APP_VERSION;
-
-  lblip_address_val.Caption := '';
-  LList := GetMACAddress;
-  LLen := Length(LList);
-  for n1 := 0 to LLen - 1 do
-    lblip_address_val.Caption := lblip_address_val.Caption + LList[n1].IPAddress + AddLBs + LList[n1].MacAddress + AddLBs(2);
 end;
 
 procedure TfrmLogin.Repaint;

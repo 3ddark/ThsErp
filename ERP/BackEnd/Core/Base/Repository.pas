@@ -23,10 +23,10 @@ type
     procedure Update(AModel: T);
     procedure UpdateBatch(AModels: TArray<T>); overload;
 
-    procedure Delete(AID: Int64); overload;
+    procedure Delete(AID: TValue); overload;
     procedure Delete(AModel: T); overload;
     procedure DeleteBatch(AModels: TArray<T>); overload;
-    procedure DeleteBatch(AIDs: TArray<Int64>); overload;
+    procedure DeleteBatch(AIDs: TArray<TValue>); overload;
     procedure DeleteBatch(AFilter: TFilterCriteria); overload;
   end;
 
@@ -43,24 +43,43 @@ type
     function GetViewName(AClass: TClass): string;
 
     function MapFromQuery(Q: TFDQuery): T; virtual; abstract;
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; virtual; abstract;
+
+    function DoFindById(AId: TValue; ALock: Boolean = False): T; virtual; abstract;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T; virtual; abstract;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<T>; virtual; abstract;
+
+    procedure DoAdd(AModel: T); virtual; abstract;
+    procedure DoAddBatch(AModels: TArray<T>); virtual; abstract;
+
+    procedure DoUpdate(AModel: T); virtual; abstract;
+    procedure DoUpdateBatch(AModels: TArray<T>); virtual; abstract;
+
+    procedure DoDelete(AId: TValue); overload; virtual; abstract;
+    procedure DoDelete(AModel: T); overload; virtual; abstract;
+    procedure DoDeleteBatch(AModels: TArray<T>); overload; virtual; abstract;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); overload; virtual; abstract;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); overload; virtual; abstract;
   public
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; virtual; abstract;
+    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; virtual;
 
-    function FindById(AId: TValue; ALock: Boolean = False): T; virtual; abstract;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T; virtual; abstract;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<T>; virtual; abstract;
+    function FindById(AId: TValue; ALock: Boolean = False): T; virtual;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T; virtual;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<T>; virtual;
 
-    procedure Add(AModel: T); virtual; abstract;
-    procedure AddBatch(AModels: TArray<T>); virtual; abstract;
+    procedure Add(AModel: T); virtual;
+    procedure AddBatch(AModels: TArray<T>); virtual;
 
-    procedure Update(AModel: T); virtual; abstract;
-    procedure UpdateBatch(AModels: TArray<T>); virtual; abstract;
+    procedure Update(AModel: T); virtual;
+    procedure UpdateBatch(AModels: TArray<T>); virtual;
 
-    procedure Delete(AID: Int64); overload; virtual; abstract;
-    procedure Delete(AModel: T); overload; virtual; abstract;
-    procedure DeleteBatch(AModels: TArray<T>); overload; virtual; abstract;
-    procedure DeleteBatch(AIDs: TArray<Int64>); overload; virtual; abstract;
-    procedure DeleteBatch(AFilter: TFilterCriteria); overload; virtual; abstract;
+    procedure Delete(AId: TValue); overload; virtual;
+    procedure Delete(AModel: T); overload; virtual;
+    procedure DeleteBatch(AModels: TArray<T>); overload; virtual;
+    procedure DeleteBatch(AIDs: TArray<TValue>); overload; virtual;
+    procedure DeleteBatch(AFilter: TFilterCriteria); overload; virtual;
 
     constructor Create(AConnection: TFDConnection);
     destructor Destroy; override;
@@ -143,12 +162,105 @@ begin
       ') ' +
       'SELECT v.* ' +
       'FROM ' + GetFullViewName(T) + ' v ' +
-      'INNER JOIN lock_rows l ON l.id = v.id' + Limit1  // kilitli kayıtları oku
+      'INNER JOIN lock_rows l ON l.id = v.id ' +
+      'WHERE 1=1 ' + LLocaleFilter +
+      Limit1  // kilitli kayıtları oku
   else
     Result :=
       'SELECT v.* ' +
       'FROM ' + GetFullViewName(T) + ' v ' +
       'WHERE 1=1' + LFilterSql + Limit1;
+end;
+
+function TRepository<T>.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+begin
+  GLogger.InfoFmt('FindAllGridQuery %s', [Self.ClassName]);
+  Result := DoFindAllGridQuery(AFilter);
+  GLogger.InfoFmt('FindAllGridQuery Done %s', [Self.ClassName]);
+end;
+
+function TRepository<T>.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<T>;
+begin
+  GLogger.InfoFmt('Find %s', [Self.ClassName]);
+  Result := DoFind(AFilter, ALock);
+  GLogger.InfoFmt('Find Done %s', [Self.ClassName]);
+end;
+
+function TRepository<T>.FindById(AId: TValue; ALock: Boolean): T;
+begin
+  GLogger.InfoFmt('FindById %s  ID:%s', [Self.ClassName, AId.AsInt64.ToString]);
+  Result := DoFindById(AId, ALock);
+  GLogger.InfoFmt('FindById Done %s  ID:%s', [Self.ClassName, AId.AsInt64.ToString]);
+end;
+
+function TRepository<T>.FindOne(AFilter: TFilterCriteria; ALock: Boolean): T;
+begin
+  GLogger.InfoFmt('FindOne %s', [Self.ClassName]);
+  Result := DoFindOne(AFilter, ALock);
+  GLogger.InfoFmt('FindOne Done %s', [Self.ClassName]);
+end;
+
+procedure TRepository<T>.Add(AModel: T);
+begin
+  GLogger.InfoFmt('Add %s', [Self.ClassName]);
+  DoAdd(AModel);
+  GLogger.InfoFmt('Add Done %s', [Self.ClassName]);
+end;
+
+procedure TRepository<T>.AddBatch(AModels: TArray<T>);
+begin
+  GLogger.InfoFmt('AddBatch %s', [Self.ClassName]);
+  DoAddBatch(AModels);
+  GLogger.InfoFmt('AddBatch Done %s', [Self.ClassName]);
+end;
+
+procedure TRepository<T>.Update(AModel: T);
+begin
+  GLogger.InfoFmt('Update %s', [Self.ClassName]);
+  DoUpdate(AModel);
+  GLogger.InfoFmt('Update Done %s', [Self.ClassName]);
+end;
+
+procedure TRepository<T>.UpdateBatch(AModels: TArray<T>);
+begin
+  GLogger.InfoFmt('UpdateBatch %s', [Self.ClassName]);
+  DoUpdateBatch(AModels);
+  GLogger.InfoFmt('UpdateBatch Done %s', [Self.ClassName]);
+end;
+
+procedure TRepository<T>.Delete(AModel: T);
+begin
+  GLogger.InfoFmt('Delete %s', [Self.ClassName]);
+  DoDelete(AModel);
+  GLogger.InfoFmt('Delete Done %s', [Self.ClassName]);
+end;
+
+procedure TRepository<T>.Delete(AId: TValue);
+begin
+  GLogger.InfoFmt('Delete %s', [Self.ClassName]);
+  DoDelete(AID);
+  GLogger.InfoFmt('Delete Done %s', [Self.ClassName]);
+end;
+
+procedure TRepository<T>.DeleteBatch(AModels: TArray<T>);
+begin
+  GLogger.InfoFmt('DeleteBatch %s', [Self.ClassName]);
+  DoDeleteBatch(AModels);
+  GLogger.InfoFmt('DeleteBatch Done %s', [Self.ClassName]);
+end;
+
+procedure TRepository<T>.DeleteBatch(AIDs: TArray<TValue>);
+begin
+  GLogger.InfoFmt('DeleteBatch %s', [Self.ClassName]);
+  DoDeleteBatch(AIDs);
+  GLogger.InfoFmt('DeleteBatch Done %s', [Self.ClassName]);
+end;
+
+procedure TRepository<T>.DeleteBatch(AFilter: TFilterCriteria);
+begin
+  GLogger.InfoFmt('DeleteBatch Filter ', [Self.ClassName]);
+  DoDeleteBatch(AFilter);
+  GLogger.InfoFmt('DeleteBatch Filter Done ', [Self.ClassName]);
 end;
 
 end.

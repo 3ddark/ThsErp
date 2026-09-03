@@ -252,7 +252,7 @@ begin
 
     for attr in prop.GetAttributes do
     begin
-      if (attr is NotMapped)       or
+      if //(attr is NotMapped)       or
          (attr is HasManyAttribute) or
          (attr is BelongsToAttribute) or
          (attr is HasOneAttribute)

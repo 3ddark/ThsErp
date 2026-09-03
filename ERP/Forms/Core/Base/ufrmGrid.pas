@@ -108,6 +108,7 @@ type
     procedure FilterApply;
     procedure PrepareFilteredColumns;
     procedure EdtFilterChange(Sender: TObject);
+    procedure EdtFilterKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure PrepareStatusBar;
     procedure BuildFilterExpression(AOperator: string);
   public
@@ -362,7 +363,6 @@ begin
     FCleanAndClose := True;
     if Owner is TEdit then
       TEdit(Owner).Clear;
-    btnCloseClick(btnClose);
   end;
   Self.Close;
 end;
@@ -498,7 +498,7 @@ begin
   if ACreateNewBase then
     CreateNew(AOwner);
 
-  GLogger.InfoFmt('Created Grid Form %s: %s %s', [IfThen(AUseHelper, 'with Helper Mode', ''), Self.ClassName, ATable.ClassName]);
+  GLogger.InfoFmt('Open Grid Form %s: %s %s', [IfThen(AUseHelper, 'with Helper Mode', ''), Self.ClassName, ATable.ClassName]);
 
   FService := AService;
   FTable := ATable;
@@ -648,6 +648,7 @@ begin
   EdtFilter.TextHint := TLocalizationManager.Translate(TLangKeys.TGeneral.FilterHint, 'Filter');
   EdtFilter.TabStop := False;
   EdtFilter.OnChange := EdtFilterChange;
+  EdtFilter.OnKeyDown := EdtFilterKeyDown;
 end;
 
 procedure TfrmGrid<TE, TS>.CreateBtnSpin;
@@ -805,9 +806,42 @@ begin
   Self.RefreshStatusRecordCount;
 end;
 
+procedure TfrmGrid<TE, TS>.EdtFilterKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_RETURN:
+      begin
+        if FIsHelper then
+        begin
+          SetSelectedItem();
+          DataTransfer := True;
+          ModalResult := mrYes;
+          Self.Close;
+        end;
+      end;
+    VK_UP:
+      begin
+        Key := 0;
+        BtnSpinUpClick(BtnSpin)
+      end;
+    VK_DOWN:
+      begin
+        Key := 0;
+        BtnSpinDownClick(BtnSpin)
+      end;
+    VK_PRIOR, VK_NEXT:
+      begin
+        SendMessage(Grd.Handle, WM_KEYDOWN, Key, MapVirtualKey(Key, MAPVK_VK_TO_VSC) shl 16 or 1);
+        Key := 0;
+      end;
+  end;
+end;
+
 procedure TfrmGrid<TE, TS>.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  SaveColumnWidthsToDB;       // kullanıcı değişikliklerini kalıcı yap
+  GLogger.InfoFmt('Close Grid Form %s: %s %s', [IfThen(FIsHelper, 'with Helper Mode', ''), Self.ClassName, Table.ClassName]);
+  if not FIsHelper then
+    SaveColumnWidthsToDB;       // kullanıcı değişikliklerini kalıcı yap
   Action := caFree;
 end;
 
@@ -859,21 +893,12 @@ end;
 
 procedure TfrmGrid<TE, TS>.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-//
-end;
-
-procedure TfrmGrid<TE, TS>.FormKeyPress(Sender: TObject; var Key: Char);
-begin
-  if Key = Chr(VK_ESCAPE) then
+  if Key = VK_ESCAPE then
   begin
-    Key := #0;
+    Key := 0;
     Self.Close;
-  end;
-end;
-
-procedure TfrmGrid<TE, TS>.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  if Key = VK_F6 then
+  end
+  else if Key = VK_F6 then
   begin
     Key := 0;
     Self.Close;
@@ -886,28 +911,48 @@ begin
   else if Key = VK_F11 then
   begin
     Key := 0;
-    if (Self.AlphaBlendValue = 255) or (Self.AlphaBlendValue = 80) then
-    begin
-      Self.AlphaBlend := not Self.AlphaBlend;
-      if not Self.AlphaBlend then
-      begin
-        Self.AlphaBlendValue := 255;
-        Exit;
-      end;
-    end;
-
     case Self.AlphaBlendValue of
-      255: Self.AlphaBlendValue := 150;
-      150: Self.AlphaBlendValue := 80;
+      255:
+        begin
+          Self.AlphaBlend := True;
+          Self.AlphaBlendValue := 150;
+        end;
+      150:
+        begin
+          Self.AlphaBlendValue := 80;
+        end;
+      80:
+        begin
+          Self.AlphaBlend := False;
+          Self.AlphaBlendValue := 255;
+        end
+    else
+      Self.AlphaBlend := False;
+      Self.AlphaBlendValue := 255;
     end;
   end
   else if (ssCtrl in Shift) and (Key = Ord('F')) then
   begin
     Key := 0;
-    if EdtFilter.Focused
-    then  Grd.SetFocus
-    else  EdtFilter.SetFocus;
+    if EdtFilter.Focused then
+    begin
+      ActiveControl := Grd;
+    end
+    else
+    begin
+      ActiveControl := EdtFilter;
+    end;
   end;
+end;
+
+procedure TfrmGrid<TE, TS>.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+//
+end;
+
+procedure TfrmGrid<TE, TS>.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+//
 end;
 
 procedure TfrmGrid<TE, TS>.FormShow(Sender: TObject);
@@ -960,11 +1005,11 @@ const
   sEMPTY = '';
 
 var
-  nValue, nWidth1, nLeft2: Integer;
-  clActualPenColor, clActualBrushColor: TColor;
-  bEmptyDS: Boolean;
-  DrawRect: TRect;
-  sValue: string;
+//  nValue, nWidth1, nLeft2: Integer;
+//  clActualPenColor, clActualBrushColor: TColor;
+//  bEmptyDS: Boolean;
+//  DrawRect: TRect;
+//  sValue: string;
 
   Bmp: TBitmap;
 
@@ -1115,7 +1160,7 @@ begin
   begin
     if Shift = [ssCtrl, ssShift] then
     begin
-      if (UpCase(Char(Key)) = 'C') then
+      if (Key = Ord('C')) then
       begin
         Clipboard.Clear;
         Clipboard.SetTextBuf(PWideChar(Grd.DataSource.DataSet.Fields.Fields[0].AsString + sLineBreak));
@@ -1127,7 +1172,7 @@ begin
       begin
         Key := 0;
       end
-      else if (UpCase(Char(Key)) = 'C') then
+      else if (Key = Ord('C')) then
       begin
         Clipboard.Clear;
         Clipboard.SetTextBuf(PWideChar(Grd.SelectedField.AsString + sLineBreak));
@@ -1343,7 +1388,14 @@ begin
     if (Grd.DataSource.DataSet.RecordCount > 0) then
     begin
       SetSelectedItem();
-      ShowInputForm(mniPreview, ifmRewiev);
+      if FIsHelper then
+      begin
+        DataTransfer := True;
+        ModalResult := mrYes;
+        Self.Close;
+      end
+      else
+        ShowInputForm(mniPreview, ifmRewiev);
     end;
   end;
 end;

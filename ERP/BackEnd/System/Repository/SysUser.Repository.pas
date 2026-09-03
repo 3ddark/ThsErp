@@ -3,9 +3,10 @@
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
-  FireDAC.Comp.Client, FireDAC.Stan.Param, SharedFormTypes, AppContext, Entity,
-  Repository, FilterCriterion, SysUser;
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
+  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  SysUser;
 
 type
   TSysUserRepository = class(TRepository<TSysUser>)
@@ -17,26 +18,27 @@ type
     procedure SetInsertParams(Q: TFDQuery; AModel: TSysUser; AIndex: Integer = -1);
     procedure SetUpdateParams(Q: TFDQuery; AModel: TSysUser; AIndex: Integer = -1);
     function MapFromQuery(Q: TFDQuery): TSysUser; override;
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysUser>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysUser; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysUser; override;
+
+    procedure DoAdd(AModel: TSysUser); override;
+    procedure DoAddBatch(AModels: TArray<TSysUser>); override;
+
+    procedure DoUpdate(AModel: TSysUser); override;
+    procedure DoUpdateBatch(AModels: TArray<TSysUser>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TSysUser); override;
+    procedure DoDeleteBatch(AModels: TArray<TSysUser>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysUser>; override;
-    function FindById(AId: TValue; ALock: Boolean = False): TSysUser; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysUser; override;
-
-    procedure Add(AModel: TSysUser); override;
-    procedure AddBatch(AModels: TArray<TSysUser>); override;
-
-    procedure Update(AModel: TSysUser); override;
-    procedure UpdateBatch(AModels: TArray<TSysUser>); override;
-
-    procedure Delete(AID: Int64); override;
-    procedure Delete(AModel: TSysUser); override;
-    procedure DeleteBatch(AModels: TArray<TSysUser>); override;
-    procedure DeleteBatch(AIDs: TArray<Int64>); override;
-    procedure DeleteBatch(AFilter: TFilterCriteria); override;
   end;
 
 implementation
@@ -59,7 +61,7 @@ end;
 function TSysUserRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSysUser) +
-            ' SET username = :username, user_password = :user_password, active = :active, ' +
+            ' SET username = :username, active = :active, ' +//user_password = :user_password,
             '     manager = :manager, super_user = :super_user, ip_address = :ip_address, ' +
             '     mac_address = :mac_address, person_id = :person_id ' +
             ' WHERE id = :id';
@@ -103,7 +105,7 @@ begin
   begin
     Q.ParamByName('id').AsLargeInt            := AModel.Id;
     Q.ParamByName('username').AsString := AModel.Username;
-    Q.ParamByName('user_password').AsString := AModel.UserPassword;
+//    Q.ParamByName('user_password').AsString := AModel.UserPassword;
     Q.ParamByName('active').AsBoolean := AModel.Active;
     Q.ParamByName('manager').AsBoolean := AModel.Manager;
     Q.ParamByName('super_user').AsBoolean := AModel.SuperUser;
@@ -115,7 +117,7 @@ begin
   begin
     Q.ParamByName('id').AsLargeInts[AIndex]            := AModel.Id;
     Q.ParamByName('username').AsStrings[AIndex] := AModel.Username;
-    Q.ParamByName('user_password').AsStrings[AIndex] := AModel.UserPassword;
+//    Q.ParamByName('user_password').AsStrings[AIndex] := AModel.UserPassword;
     Q.ParamByName('active').AsBooleans[AIndex] := AModel.Active;
     Q.ParamByName('manager').AsBooleans[AIndex] := AModel.Manager;
     Q.ParamByName('super_user').AsBooleans[AIndex] := AModel.SuperUser;
@@ -139,7 +141,7 @@ begin
   Result.PersonId     := Q.FieldByName('person_id').AsLargeInt;
 end;
 
-function TSysUserRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+function TSysUserRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
 begin
@@ -156,7 +158,7 @@ begin
   end;
 end;
 
-function TSysUserRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUser>;
+function TSysUserRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUser>;
 var
   Q: TFDQuery;
   Item: TSysUser;
@@ -188,7 +190,7 @@ begin
   end;
 end;
 
-function TSysUserRepository.FindById(AId: TValue; ALock: Boolean): TSysUser;
+function TSysUserRepository.DoFindById(AId: TValue; ALock: Boolean): TSysUser;
 var
   Q: TFDQuery;
   Criteria: TFilterCriteria;
@@ -214,7 +216,7 @@ begin
   end;
 end;
 
-function TSysUserRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysUser;
+function TSysUserRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysUser;
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;
@@ -240,7 +242,7 @@ begin
   end;
 end;
 
-procedure TSysUserRepository.Add(AModel: TSysUser);
+procedure TSysUserRepository.DoAdd(AModel: TSysUser);
 var
   Q: TFDQuery;
 begin
@@ -256,7 +258,7 @@ begin
   end;
 end;
 
-procedure TSysUserRepository.AddBatch(AModels: TArray<TSysUser>);
+procedure TSysUserRepository.DoAddBatch(AModels: TArray<TSysUser>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -279,7 +281,7 @@ begin
   end;
 end;
 
-procedure TSysUserRepository.Update(AModel: TSysUser);
+procedure TSysUserRepository.DoUpdate(AModel: TSysUser);
 var
   Q: TFDQuery;
 begin
@@ -294,7 +296,7 @@ begin
   end;
 end;
 
-procedure TSysUserRepository.UpdateBatch(AModels: TArray<TSysUser>);
+procedure TSysUserRepository.DoUpdateBatch(AModels: TArray<TSysUser>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -317,7 +319,7 @@ begin
   end;
 end;
 
-procedure TSysUserRepository.Delete(AID: Int64);
+procedure TSysUserRepository.DoDelete(AID: TValue);
 var
   Q: TFDQuery;
 begin
@@ -325,19 +327,19 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql + ' id = :id';
-    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;
   end;
 end;
 
-procedure TSysUserRepository.Delete(AModel: TSysUser);
+procedure TSysUserRepository.DoDelete(AModel: TSysUser);
 begin
   Delete(AModel.Id);
 end;
 
-procedure TSysUserRepository.DeleteBatch(AModels: TArray<TSysUser>);
+procedure TSysUserRepository.DoDeleteBatch(AModels: TArray<TSysUser>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -360,7 +362,7 @@ begin
   end;
 end;
 
-procedure TSysUserRepository.DeleteBatch(AIDs: TArray<Int64>);
+procedure TSysUserRepository.DoDeleteBatch(AIDs: TArray<TValue>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -375,7 +377,7 @@ begin
     Q.Params.ArraySize := Count;
 
     for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AIDs[I];
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
 
     Q.Execute(Count, 0);
   finally
@@ -383,7 +385,7 @@ begin
   end;
 end;
 
-procedure TSysUserRepository.DeleteBatch(AFilter: TFilterCriteria);
+procedure TSysUserRepository.DoDeleteBatch(AFilter: TFilterCriteria);
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;

@@ -18,6 +18,8 @@ type
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TEmpSection>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TEmpSection; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TEmpSection; override;
+
     procedure Add(AEntity: TEmpSection); override;
     procedure Update(AEntity: TEmpSection); override;
     procedure Delete(AId: Int64); override;
@@ -159,6 +161,11 @@ end;
 function TEmpSectionService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TEmpSection;
 begin
   Result := FRepo.FindById(AId, ALock);
+end;
+
+function TEmpSectionService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TEmpSection;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
 end;
 
 procedure TEmpSectionService.Add(AEntity: TEmpSection);

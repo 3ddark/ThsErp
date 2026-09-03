@@ -3,9 +3,10 @@
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
-  FireDAC.Comp.Client, FireDAC.Stan.Param, SharedFormTypes, AppContext, Entity,
-  Repository, FilterCriterion, SysCity, SysCountry;
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
+  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  SysCity, SysCountry;
 
 type
   TSysCityRepository = class(TRepository<TSysCity>)
@@ -17,26 +18,27 @@ type
     procedure SetInsertParams(Q: TFDQuery; AModel: TSysCity; AIndex: Integer = -1);
     procedure SetUpdateParams(Q: TFDQuery; AModel: TSysCity; AIndex: Integer = -1);
     function MapFromQuery(Q: TFDQuery): TSysCity; override;
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysCity>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysCity; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysCity; override;
+
+    procedure DoAdd(AModel: TSysCity); override;
+    procedure DoAddBatch(AModels: TArray<TSysCity>); override;
+
+    procedure DoUpdate(AModel: TSysCity); override;
+    procedure DoUpdateBatch(AModels: TArray<TSysCity>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TSysCity); override;
+    procedure DoDeleteBatch(AModels: TArray<TSysCity>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysCity>; override;
-    function FindById(AId: TValue; ALock: Boolean = False): TSysCity; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysCity; override;
-
-    procedure Add(AModel: TSysCity); override;
-    procedure AddBatch(AModels: TArray<TSysCity>); override;
-
-    procedure Update(AModel: TSysCity); override;
-    procedure UpdateBatch(AModels: TArray<TSysCity>); override;
-
-    procedure Delete(AID: Int64); override;
-    procedure Delete(AModel: TSysCity); override;
-    procedure DeleteBatch(AModels: TArray<TSysCity>); override;
-    procedure DeleteBatch(AIDs: TArray<Int64>); override;
-    procedure DeleteBatch(AFilter: TFilterCriteria); override;
   end;
 
 implementation
@@ -119,7 +121,7 @@ begin
   Result.SysRegion.RegionName := Q.FieldByName('region_name').AsString;
 end;
 
-function TSysCityRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+function TSysCityRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
 begin
@@ -137,7 +139,7 @@ begin
   Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysCityRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysCity>;
+function TSysCityRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysCity>;
 var
   Q: TFDQuery;
   Item: TSysCity;
@@ -169,7 +171,7 @@ begin
   end;
 end;
 
-function TSysCityRepository.FindById(AId: TValue; ALock: Boolean): TSysCity;
+function TSysCityRepository.DoFindById(AId: TValue; ALock: Boolean): TSysCity;
 var
   Q: TFDQuery;
   Criteria: TFilterCriteria;
@@ -197,7 +199,7 @@ begin
   end;
 end;
 
-function TSysCityRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysCity;
+function TSysCityRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysCity;
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;
@@ -225,7 +227,7 @@ begin
   end;
 end;
 
-procedure TSysCityRepository.Add(AModel: TSysCity);
+procedure TSysCityRepository.DoAdd(AModel: TSysCity);
 var
   Q: TFDQuery;
 begin
@@ -241,7 +243,7 @@ begin
   end;
 end;
 
-procedure TSysCityRepository.AddBatch(AModels: TArray<TSysCity>);
+procedure TSysCityRepository.DoAddBatch(AModels: TArray<TSysCity>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -264,7 +266,7 @@ begin
   end;
 end;
 
-procedure TSysCityRepository.Update(AModel: TSysCity);
+procedure TSysCityRepository.DoUpdate(AModel: TSysCity);
 var
   Q: TFDQuery;
 begin
@@ -279,7 +281,7 @@ begin
   end;
 end;
 
-procedure TSysCityRepository.UpdateBatch(AModels: TArray<TSysCity>);
+procedure TSysCityRepository.DoUpdateBatch(AModels: TArray<TSysCity>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -302,7 +304,7 @@ begin
   end;
 end;
 
-procedure TSysCityRepository.Delete(AID: Int64);
+procedure TSysCityRepository.DoDelete(AID: TValue);
 var
   Q: TFDQuery;
 begin
@@ -310,19 +312,19 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql + ' id = :id';
-    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;
   end;
 end;
 
-procedure TSysCityRepository.Delete(AModel: TSysCity);
+procedure TSysCityRepository.DoDelete(AModel: TSysCity);
 begin
   Delete(AModel.Id);
 end;
 
-procedure TSysCityRepository.DeleteBatch(AModels: TArray<TSysCity>);
+procedure TSysCityRepository.DoDeleteBatch(AModels: TArray<TSysCity>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -345,7 +347,7 @@ begin
   end;
 end;
 
-procedure TSysCityRepository.DeleteBatch(AIDs: TArray<Int64>);
+procedure TSysCityRepository.DoDeleteBatch(AIDs: TArray<TValue>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -360,7 +362,7 @@ begin
     Q.Params.ArraySize := Count;
 
     for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AIDs[I];
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
 
     Q.Execute(Count, 0);
   finally
@@ -368,7 +370,7 @@ begin
   end;
 end;
 
-procedure TSysCityRepository.DeleteBatch(AFilter: TFilterCriteria);
+procedure TSysCityRepository.DoDeleteBatch(AFilter: TFilterCriteria);
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;

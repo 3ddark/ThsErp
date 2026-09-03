@@ -19,7 +19,7 @@ uses
   ufrmSysCities, SysCity.Service, SysCity,
   ufrmSysCountries, SysCountry.Service, SysCountry,
   ufrmSysCurrencies, SysCurrency.Service, SysCurrency,
-  ufrmSysDecimalPlaces, SysDecimalPlace.Service, SysDecimalPlace,
+  ufrmSysDecimalPlace, SysDecimalPlace.Service, SysDecimalPlace,
   ufrmSysLanguages, SysLanguage.Service, SysLanguage.Repository, SysLanguage,
   ufrmSysRegions, SysRegion.Service, SysRegion,
   ufrmSysPermissionGroups, SysPermissionGroup.Service, SysPermissionGroup,
@@ -597,8 +597,20 @@ begin
 end;
 
 procedure TfrmDashboard.actsys_decimal_placeExecute(Sender: TObject);
+var
+  LSvc: TSysDecimalPlaceService;
 begin
-  TfrmSysDecimalPlaces.Create(Self, TSysDecimalPlaceService.Create, TSysDecimalPlace.Create).Show;
+  LSvc := TSysDecimalPlaceService.Create;
+  try
+    var LDecimalPlace: TSysDecimalPlace;
+    LDecimalPlace := LSvc.FindOne(TFilterCriteria.Create, False);
+    if LDecimalPlace = nil then
+      TfrmSysDecimalPlace.Create(Self, TSysDecimalPlaceService.Create, TSysDecimalPlace.Create, ifmNewRecord, nil, ivmNormal).Show
+    else
+      TfrmSysDecimalPlace.Create(Self, TSysDecimalPlaceService.Create, LDecimalPlace, ifmRewiev, nil, ivmNormal).Show;
+  finally
+    LSvc.Free;
+  end;
 end;
 
 procedure TfrmDashboard.actsys_languageExecute(Sender: TObject);

@@ -89,11 +89,14 @@ begin
       raise ESysDecimalPlaceExceptionMustContainOnlyOneRecord.Create;
 
     LModel := FRepo.FindOne(LFilter, False);
-    if Assigned(LModel) then
-      raise ESysDecimalPlaceExceptionMustContainOnlyOneRecord.Create;
+    try
+      if Assigned(LModel) then
+        raise ESysDecimalPlaceExceptionMustContainOnlyOneRecord.Create;
+    finally
+      LModel.Free;
+    end;
   finally
     LFilter.Free;
-    LModel.Free;
   end;
 end;
 

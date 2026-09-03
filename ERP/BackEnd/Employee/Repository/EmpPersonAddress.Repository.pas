@@ -30,7 +30,7 @@ type
     procedure Update(AModel: TEmpPersonAddress); override;
     procedure UpdateBatch(AModels: TArray<TEmpPersonAddress>); override;
 
-    procedure Delete(AID: Int64); overload; override;
+    procedure Delete(AID: TValue); overload; override;
     procedure Delete(AModel: TEmpPersonAddress); overload; override;
     procedure DeleteBatch(AModels: TArray<TEmpPersonAddress>); override;
   end;
@@ -194,7 +194,7 @@ begin
   end;
 end;
 
-procedure TEmpPersonAddressRepository.Delete(AID: Int64);
+procedure TEmpPersonAddressRepository.Delete(AID: TValue);
 var
   Q: TFDQuery;
 begin
@@ -202,7 +202,7 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql;
-    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;

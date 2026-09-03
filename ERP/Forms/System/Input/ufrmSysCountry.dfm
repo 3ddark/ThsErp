@@ -19,7 +19,6 @@ object frmSysCountry: TfrmSysCountry
     Height = 220
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 182
     object lblCountryCode: TLabel
       Left = 72
       Top = 6

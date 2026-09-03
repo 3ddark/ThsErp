@@ -40,6 +40,7 @@ type
     FCode: Integer;
     FKey: string;
     FGroupId: Int64;
+
     FGroup: TSysPermissionGroup;
     FTranslations: TObjectList<TSysPermissionTranslation>;
   public
@@ -67,7 +68,7 @@ implementation
 constructor TSysPermission.Create();
 begin
   inherited;
-  FGroup        := TSysPermissionGroup.Create;
+  FGroup := TSysPermissionGroup.Create;
   FTranslations := TObjectList<TSysPermissionTranslation>.Create(True);
 end;
 

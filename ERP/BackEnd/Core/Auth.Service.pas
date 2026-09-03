@@ -168,7 +168,7 @@ begin
 
     LHashedPassword := TPasswordHelper.HashPassword(AUser.UserPassword);
 
-    AUser := TSysUser.Create;
+//    AUser := TSysUser.Create;
     AUser.UserPassword := LHashedPassword;
 
     LRepo.Add(AUser);

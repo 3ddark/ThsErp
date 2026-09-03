@@ -209,6 +209,7 @@ var
   LSourceNested: TObject;
   LTargetNested: TObject;
   LNestedClass: TClass;
+  LIsNotMapped: Boolean;
 begin
   if not Assigned(ASource) or not Assigned(ATarget) then Exit;
 
@@ -233,32 +234,53 @@ begin
       col.Prop.SetValue(ATarget, val);
   end;
 
-  if not ADeepClone then
-    Exit;
-
   // Deep clone: ilişkisel property'ler (BelongsTo)
   ACtx := TRttiContext.Create;
   try
     LType := ACtx.GetType(AEntityClass);
     for LProp in LType.GetProperties do
     begin
+
+
+      if not LProp.IsReadable or not LProp.IsWritable then Continue;
+
+      LIsNotMapped := False;
       for LAttr in LProp.GetAttributes do
-      begin
-        if LAttr is BelongsToAttribute then
+        if LAttr is NotMapped then
         begin
-          LSourceNested := LProp.GetValue(ASource).AsObject;
-          if Assigned(LSourceNested) then
-          begin
-            LNestedClass := LProp.PropertyType.AsInstance.MetaclassType;
-            LTargetNested := LProp.GetValue(ATarget).AsObject;
-            if not Assigned(LTargetNested) then
-            begin
-              LTargetNested := CreateEntityInstanceByClass(LNestedClass);
-              LProp.SetValue(ATarget, LTargetNested);
-            end;
-            CloneEntityProperties(LSourceNested, LTargetNested, LNestedClass, False);
-          end;
+          LIsNotMapped := True;
           Break;
+        end;
+
+      // NotMapped ama basit tip (string, integer vs.) → kopyala
+      if LIsNotMapped and (LProp.PropertyType.TypeKind <> tkClass) then
+      begin
+        val := LProp.GetValue(ASource);
+        if not val.IsEmpty then
+          LProp.SetValue(ATarget, val);
+        Continue;
+      end;
+
+      if ADeepClone then
+      begin
+        for LAttr in LProp.GetAttributes do
+        begin
+          if LAttr is BelongsToAttribute then
+          begin
+            LSourceNested := LProp.GetValue(ASource).AsObject;
+            if Assigned(LSourceNested) then
+            begin
+              LNestedClass := LProp.PropertyType.AsInstance.MetaclassType;
+              LTargetNested := LProp.GetValue(ATarget).AsObject;
+              if not Assigned(LTargetNested) then
+              begin
+                LTargetNested := CreateEntityInstanceByClass(LNestedClass);
+                LProp.SetValue(ATarget, LTargetNested);
+              end;
+              CloneEntityProperties(LSourceNested, LTargetNested, LNestedClass, False);
+            end;
+            Break;
+          end;
         end;
       end;
     end;
@@ -391,11 +413,12 @@ begin
 
       for attr in prop.GetAttributes do
       begin
-        if attr is NotMapped then
-        begin
-          Break;
-        end
-        else if attr is Column then
+//        if attr is NotMapped then
+//        begin
+//          Break;
+//        end
+//        else
+        if attr is Column then
           colAttr := attr as Column
         else if attr is HasOneAttribute then
           hasOneAttr := attr as HasOneAttribute
@@ -406,7 +429,19 @@ begin
       end;
 
       if (colAttr = nil) and (hasOneAttr = nil) and (hasManyAttr = nil) and (belongsToAttr = nil) then
+      begin
+        // NotMapped basit property ise yine de kopyala
+        if prop.PropertyType.TypeKind <> tkClass then
+          for attr in prop.GetAttributes do
+            if attr is NotMapped then
+            begin
+              propValue := prop.GetValue(TObject(ASource));
+              if not propValue.IsEmpty then
+                prop.SetValue(TObject(Result), propValue);
+              Break;
+            end;
         Continue;
+      end;
 
       propValue := prop.GetValue(TObject(ASource));
 
@@ -592,8 +627,8 @@ begin
       if not prop.IsWritable then
         Continue;
 
-      if HasAttribute(prop, NotMapped) then
-        Continue;
+//      if HasAttribute(prop, NotMapped) then
+//        Continue;
 
       // ✅ Generic GetAttribute<> yerine yardımcı fonksiyon
       colAttr := GetColumnAttribute(prop);
@@ -717,8 +752,8 @@ begin
       if not prop.IsWritable then
         Continue;
 
-      if HasAttribute(prop, NotMapped) then
-        Continue;
+//      if HasAttribute(prop, NotMapped) then
+//        Continue;
 
       // Nested içindeki nested entity'leri recursive doldur
       if prop.PropertyType.TypeKind = tkClass then

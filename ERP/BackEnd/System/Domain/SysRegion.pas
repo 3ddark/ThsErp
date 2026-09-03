@@ -10,10 +10,10 @@ type
   private
     FRegionName: string;
   public
+    constructor Create(); override;
+
     [Column('region_name'), MaxLength(64), Required()]
     property RegionName: string read FRegionName write FRegionName;
-
-    constructor Create(); override;
   end;
 
 implementation

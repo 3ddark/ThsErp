@@ -211,13 +211,13 @@ begin
     PanelContainer := pnlMain
   else
   begin
-    if panel_groupbox_pagecontrol_tabsheet.ClassType = TPanel then
+    if panel_groupbox_pagecontrol_tabsheet is TPanel then
       PanelContainer := panel_groupbox_pagecontrol_tabsheet as TPanel
-    else if panel_groupbox_pagecontrol_tabsheet.ClassType = TGroupBox then
+    else if panel_groupbox_pagecontrol_tabsheet is TGroupBox then
       PanelContainer := panel_groupbox_pagecontrol_tabsheet as TGroupBox
-    else if panel_groupbox_pagecontrol_tabsheet.ClassType = TPageControl then
+    else if panel_groupbox_pagecontrol_tabsheet is TPageControl then
       PanelContainer := panel_groupbox_pagecontrol_tabsheet as TPageControl
-    else if panel_groupbox_pagecontrol_tabsheet.ClassType = TTabSheet then
+    else if panel_groupbox_pagecontrol_tabsheet is TTabSheet then
       PanelContainer := panel_groupbox_pagecontrol_tabsheet as TTabSheet;
   end;
 
@@ -226,13 +226,13 @@ begin
     if Result then
       Exit;
 
-    if PanelContainer.Controls[nIndex].ClassType = TPanel then
+    if PanelContainer.Controls[nIndex] is TPanel then
       Result := FocusedFirstControl(PanelContainer.Controls[nIndex] as TPanel)
-    else if PanelContainer.Controls[nIndex].ClassType = TGroupBox then
+    else if PanelContainer.Controls[nIndex] is TGroupBox then
       Result := FocusedFirstControl(PanelContainer.Controls[nIndex] as TGroupBox)
-    else if PanelContainer.Controls[nIndex].ClassType = TPageControl then
+    else if PanelContainer.Controls[nIndex] is TPageControl then
       Result := FocusedFirstControl(PanelContainer.Controls[nIndex] as TPageControl)
-    else if PanelContainer.Controls[nIndex].ClassType = TTabSheet then
+    else if PanelContainer.Controls[nIndex] is TTabSheet then
     begin
       if PanelContainer is TPageControl then
       begin
@@ -243,12 +243,12 @@ begin
         Result := FocusedFirstControl(PanelContainer.Controls[nIndex] as TTabSheet)
     end
     else
-    if (TControl(PanelContainer.Controls[nIndex]).ClassType = TCheckBox)
-    or (TControl(PanelContainer.Controls[nIndex]).ClassType = TRadioGroup)
-    or (TControl(PanelContainer.Controls[nIndex]).ClassType = TRadioButton)
-    or (TControl(PanelContainer.Controls[nIndex]).ClassType = TEdit)
-    or (TControl(PanelContainer.Controls[nIndex]).ClassType = TComboBox)
-    or (TControl(PanelContainer.Controls[nIndex]).ClassType = TMemo)
+    if (TControl(PanelContainer.Controls[nIndex]) is TCheckBox)
+    or (TControl(PanelContainer.Controls[nIndex]) is TRadioGroup)
+    or (TControl(PanelContainer.Controls[nIndex]) is TRadioButton)
+    or (TControl(PanelContainer.Controls[nIndex]) is TEdit)
+    or (TControl(PanelContainer.Controls[nIndex]) is TComboBox)
+    or (TControl(PanelContainer.Controls[nIndex]) is TMemo)
     then
     begin
 
@@ -283,25 +283,25 @@ begin
     PanelContainer := pnlMain
   else
   begin
-    if vPanelGroupboxPagecontrolTabsheet.ClassType = TPanel then
+    if vPanelGroupboxPagecontrolTabsheet is TPanel then
       PanelContainer := vPanelGroupboxPagecontrolTabsheet as TPanel
-    else if vPanelGroupboxPagecontrolTabsheet.ClassType = TGroupBox then
+    else if vPanelGroupboxPagecontrolTabsheet is TGroupBox then
       PanelContainer := vPanelGroupboxPagecontrolTabsheet as TGroupBox
-    else if vPanelGroupboxPagecontrolTabsheet.ClassType = TPageControl then
+    else if vPanelGroupboxPagecontrolTabsheet is TPageControl then
       PanelContainer := vPanelGroupboxPagecontrolTabsheet as TPageControl
-    else if vPanelGroupboxPagecontrolTabsheet.ClassType = TTabSheet then
+    else if vPanelGroupboxPagecontrolTabsheet is TTabSheet then
       PanelContainer := vPanelGroupboxPagecontrolTabsheet as TTabSheet;
   end;
 
   for nIndex := 0 to PanelContainer.ControlCount-1 do
   begin
-    if PanelContainer.Controls[nIndex].ClassType = TPanel then
+    if PanelContainer.Controls[nIndex] is TPanel then
       RepaintThsEditComboForHelperProcessSing(PanelContainer.Controls[nIndex] as TPanel)
-    else if PanelContainer.Controls[nIndex].ClassType = TGroupBox then
+    else if PanelContainer.Controls[nIndex] is TGroupBox then
       RepaintThsEditComboForHelperProcessSing(PanelContainer.Controls[nIndex] as TGroupBox)
-    else if PanelContainer.Controls[nIndex].ClassType = TPageControl then
+    else if PanelContainer.Controls[nIndex] is TPageControl then
       RepaintThsEditComboForHelperProcessSing(PanelContainer.Controls[nIndex] as TPageControl)
-    else if PanelContainer.Controls[nIndex].ClassType = TTabSheet then
+    else if PanelContainer.Controls[nIndex] is TTabSheet then
     begin
       if PanelContainer is TPageControl then
       begin
@@ -312,8 +312,8 @@ begin
         RepaintThsEditComboForHelperProcessSing(PanelContainer.Controls[nIndex] as TTabSheet)
     end
     else
-    if (TControl(PanelContainer.Controls[nIndex]).ClassType = TEdit)
-    or (TControl(PanelContainer.Controls[nIndex]).ClassType = TCombobox)
+    if (TControl(PanelContainer.Controls[nIndex]) is TEdit)
+    or (TControl(PanelContainer.Controls[nIndex]) is TCombobox)
     then
     begin
       TWinControl(PanelContainer.Controls[nIndex]).Repaint;
@@ -432,9 +432,9 @@ begin
     Key := #0;
     if (Sender is TWinControl) then
     begin
-      if (Sender.ClassType <> TEdit)
-      and (Sender.ClassType <> TMemo)
-      and (Sender.ClassType <> TCombobox)
+      if  not (Sender is TEdit)
+      and not (Sender is TMemo)
+      and not (Sender is TCombobox)
       then
         if GetKeyState(VK_SHIFT) < 0 then
           PostMessage((Sender as TWinControl).Handle, WM_NEXTDLGCTL, 1, 0)
@@ -576,22 +576,20 @@ var
     if Sender.Visible then
     begin
       AControlName := Sender.Name;
-      if (Sender.ClassType = TEdit)
-      or (Sender.ClassType = TMemo)
-      or (Sender.ClassType = TCombobox) then begin
-        if Sender.ClassType = TEdit then begin
+      if (Sender is TEdit) or (Sender is TMemo) or (Sender is TCombobox) then begin
+        if Sender is TEdit then begin
           if (TEdit(Sender).thsRequiredData) then
             if (TEdit(Sender).Text = '') then begin
               Result := False;
               TEdit(Sender).Repaint;
             end;
-        end else if Sender.ClassType = TMemo then begin
+        end else if Sender is TMemo then begin
           if (TMemo(Sender).thsRequiredData) then
             if (TMemo(Sender).Text = '') then begin
               Result := False;
               TMemo(Sender).Repaint;
             end;
-        end else if Sender.ClassType = TCombobox then begin
+        end else if Sender is TCombobox then begin
           if (TCombobox(Sender).thsRequiredData) then
             if (TCombobox(Sender).Text  = '') then begin
               Result := False;
@@ -601,21 +599,21 @@ var
       end else begin
         for nIndex := 0 to Sender.ControlCount -1 do begin
           AControlName := Sender.Controls[nIndex].Name;
-          if Sender.Controls[nIndex].ClassType = TEdit then begin
+          if Sender.Controls[nIndex] is TEdit then begin
             if (TEdit(Sender.Controls[nIndex]).thsRequiredData) then
               if (TEdit(Sender.Controls[nIndex]).Text = '') then begin
                 Result := False;
                 TEdit(Sender.Controls[nIndex]).Repaint;
                 Break;
               end;
-          end else if Sender.Controls[nIndex].ClassType = TMemo then begin
+          end else if Sender.Controls[nIndex] is TMemo then begin
             if (TMemo(Sender.Controls[nIndex]).thsRequiredData) then
               if (TMemo(Sender.Controls[nIndex]).Text = '') then begin
                 Result := False;
                 TMemo(Sender.Controls[nIndex]).Repaint;
                 Break;
               end;
-          end else if Sender.Controls[nIndex].ClassType = TCombobox then begin
+          end else if Sender.Controls[nIndex] is TCombobox then begin
             if (TCombobox(Sender.Controls[nIndex]).thsRequiredData) then
               if (TCombobox(Sender.Controls[nIndex]).Text  = '') then begin
                 Result := False;
@@ -637,23 +635,23 @@ begin
   if panel_groupbox_pagecontrol_tabsheet = nil then
     PanelContainer := pnlMain
   else begin
-    if panel_groupbox_pagecontrol_tabsheet.ClassType = TPanel then
+    if panel_groupbox_pagecontrol_tabsheet is TPanel then
       PanelContainer := panel_groupbox_pagecontrol_tabsheet as TPanel
-    else if panel_groupbox_pagecontrol_tabsheet.ClassType = TGroupBox then
+    else if panel_groupbox_pagecontrol_tabsheet is TGroupBox then
       PanelContainer := panel_groupbox_pagecontrol_tabsheet as TGroupBox
-    else if panel_groupbox_pagecontrol_tabsheet.ClassType = TPageControl then
+    else if panel_groupbox_pagecontrol_tabsheet is TPageControl then
       PanelContainer := panel_groupbox_pagecontrol_tabsheet as TPageControl
-    else if panel_groupbox_pagecontrol_tabsheet.ClassType = TTabSheet then
+    else if panel_groupbox_pagecontrol_tabsheet is TTabSheet then
       PanelContainer := panel_groupbox_pagecontrol_tabsheet as TTabSheet;
   end;
 
   if (FormMode=ifmUpdate) or (FormMode=ifmNewRecord) or (FormMode=ifmCopyNewRecord) then begin
     for nIndex := 0 to PanelContainer.ControlCount -1 do begin
-      if PanelContainer.Controls[nIndex].ClassType = TPanel then
+      if PanelContainer.Controls[nIndex] is TPanel then
         Result := ValidateSubControls(PanelContainer.Controls[nIndex] as TPanel, LControlName)
-      else if PanelContainer.Controls[nIndex].ClassType = TGroupBox then
+      else if PanelContainer.Controls[nIndex] is TGroupBox then
         Result := ValidateSubControls(PanelContainer.Controls[nIndex] as TGroupBox, LControlName)
-      else if PanelContainer.Controls[nIndex].ClassType = TPageControl then
+      else if PanelContainer.Controls[nIndex] is TPageControl then
       begin
         for nIndex2 := 0 to (PanelContainer.Controls[nIndex] as TPageControl).PageCount-1 do
         begin
@@ -662,13 +660,13 @@ begin
             Break;
         end;
       end
-      else if PanelContainer.Controls[nIndex].ClassType = TTabSheet then
+      else if PanelContainer.Controls[nIndex] is TTabSheet then
         Result := ValidateSubControls(PanelContainer.Controls[nIndex] as TTabSheet, LControlName)
-      else if PanelContainer.Controls[nIndex].ClassType = TEdit then
+      else if PanelContainer.Controls[nIndex] is TEdit then
         Result := ValidateSubControls(TEdit(PanelContainer.Controls[nIndex]), LControlName)
-      else if PanelContainer.Controls[nIndex].ClassType = TMemo then
+      else if PanelContainer.Controls[nIndex] is TMemo then
         Result := ValidateSubControls(TMemo(PanelContainer.Controls[nIndex]), LControlName)
-      else if PanelContainer.Controls[nIndex].ClassType = TCombobox then
+      else if PanelContainer.Controls[nIndex] is TCombobox then
         Result := ValidateSubControls(TCombobox(PanelContainer.Controls[nIndex]), LControlName);
 
       if not Result then

@@ -92,12 +92,15 @@ begin
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 
       LModel := FRepo.FindOne(LFilter, False);
-      if Assigned(LModel) then
-        raise ESysCityExceptionCityCountryUnique.Create;
+      try
+        if Assigned(LModel) then
+          raise ESysCityExceptionCityCountryUnique.Create;
+      finally
+        if Assigned(LModel) then
+          LModel.Free;
+      end;
     finally
       LFilter.Free;
-      if Assigned(LModel) then
-        LModel.Free;
     end;
   end;
 end;

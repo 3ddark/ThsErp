@@ -88,6 +88,7 @@ procedure TfrmSysCountry.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+  edtCountryCode.CharCase := TEditCharCase.ecUpperCase;
 end;
 
 procedure TfrmSysCountry.FormShow(Sender: TObject);

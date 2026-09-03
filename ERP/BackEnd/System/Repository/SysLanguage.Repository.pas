@@ -1,11 +1,12 @@
-unit SysLanguage.Repository;
+﻿unit SysLanguage.Repository;
 
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
-  FireDAC.Comp.Client, FireDAC.Stan.Param, SharedFormTypes, AppContext, Entity,
-  Repository, FilterCriterion, SysLanguage;
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
+  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  SysLanguage;
 
 type
   TSysLanguageRepository = class(TRepository<TSysLanguage>)
@@ -17,26 +18,27 @@ type
     procedure SetInsertParams(Q: TFDQuery; AModel: TSysLanguage; AIndex: Integer = -1);
     procedure SetUpdateParams(Q: TFDQuery; AModel: TSysLanguage; AIndex: Integer = -1);
     function MapFromQuery(Q: TFDQuery): TSysLanguage; override;
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysLanguage>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysLanguage; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysLanguage; override;
+
+    procedure DoAdd(AModel: TSysLanguage); override;
+    procedure DoAddBatch(AModels: TArray<TSysLanguage>); override;
+
+    procedure DoUpdate(AModel: TSysLanguage); override;
+    procedure DoUpdateBatch(AModels: TArray<TSysLanguage>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TSysLanguage); override;
+    procedure DoDeleteBatch(AModels: TArray<TSysLanguage>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysLanguage>; override;
-    function FindById(AId: TValue; ALock: Boolean = False): TSysLanguage; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysLanguage; override;
-
-    procedure Add(AModel: TSysLanguage); override;
-    procedure AddBatch(AModels: TArray<TSysLanguage>); override;
-
-    procedure Update(AModel: TSysLanguage); override;
-    procedure UpdateBatch(AModels: TArray<TSysLanguage>); override;
-
-    procedure Delete(AID: Int64); override;
-    procedure Delete(AModel: TSysLanguage); override;
-    procedure DeleteBatch(AModels: TArray<TSysLanguage>); override;
-    procedure DeleteBatch(AIDs: TArray<Int64>); override;
-    procedure DeleteBatch(AFilter: TFilterCriteria); override;
   end;
 
 implementation
@@ -104,7 +106,7 @@ begin
   Result.NativeName := Q.FieldByName('native_name').AsString;
 end;
 
-function TSysLanguageRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+function TSysLanguageRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
 begin
@@ -121,7 +123,7 @@ begin
   end;
 end;
 
-function TSysLanguageRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysLanguage>;
+function TSysLanguageRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysLanguage>;
 var
   Q: TFDQuery;
   Item: TSysLanguage;
@@ -151,7 +153,7 @@ begin
   end;
 end;
 
-function TSysLanguageRepository.FindById(AId: TValue; ALock: Boolean): TSysLanguage;
+function TSysLanguageRepository.DoFindById(AId: TValue; ALock: Boolean): TSysLanguage;
 var
   Q: TFDQuery;
   Criteria: TFilterCriteria;
@@ -176,7 +178,7 @@ begin
   end;
 end;
 
-function TSysLanguageRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysLanguage;
+function TSysLanguageRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysLanguage;
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;
@@ -201,7 +203,7 @@ begin
   end;
 end;
 
-procedure TSysLanguageRepository.Add(AModel: TSysLanguage);
+procedure TSysLanguageRepository.DoAdd(AModel: TSysLanguage);
 var
   Q: TFDQuery;
 begin
@@ -217,7 +219,7 @@ begin
   end;
 end;
 
-procedure TSysLanguageRepository.AddBatch(AModels: TArray<TSysLanguage>);
+procedure TSysLanguageRepository.DoAddBatch(AModels: TArray<TSysLanguage>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -240,7 +242,7 @@ begin
   end;
 end;
 
-procedure TSysLanguageRepository.Update(AModel: TSysLanguage);
+procedure TSysLanguageRepository.DoUpdate(AModel: TSysLanguage);
 var
   Q: TFDQuery;
 begin
@@ -255,7 +257,7 @@ begin
   end;
 end;
 
-procedure TSysLanguageRepository.UpdateBatch(AModels: TArray<TSysLanguage>);
+procedure TSysLanguageRepository.DoUpdateBatch(AModels: TArray<TSysLanguage>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -278,7 +280,7 @@ begin
   end;
 end;
 
-procedure TSysLanguageRepository.Delete(AID: Int64);
+procedure TSysLanguageRepository.DoDelete(AID: TValue);
 var
   Q: TFDQuery;
 begin
@@ -286,19 +288,19 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql + ' id = :id';
-    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;
   end;
 end;
 
-procedure TSysLanguageRepository.Delete(AModel: TSysLanguage);
+procedure TSysLanguageRepository.DoDelete(AModel: TSysLanguage);
 begin
   Delete(AModel.Id);
 end;
 
-procedure TSysLanguageRepository.DeleteBatch(AModels: TArray<TSysLanguage>);
+procedure TSysLanguageRepository.DoDeleteBatch(AModels: TArray<TSysLanguage>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -321,7 +323,7 @@ begin
   end;
 end;
 
-procedure TSysLanguageRepository.DeleteBatch(AIDs: TArray<Int64>);
+procedure TSysLanguageRepository.DoDeleteBatch(AIDs: TArray<TValue>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -336,7 +338,7 @@ begin
     Q.Params.ArraySize := Count;
 
     for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AIDs[I];
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
 
     Q.Execute(Count, 0);
   finally
@@ -344,7 +346,7 @@ begin
   end;
 end;
 
-procedure TSysLanguageRepository.DeleteBatch(AFilter: TFilterCriteria);
+procedure TSysLanguageRepository.DoDeleteBatch(AFilter: TFilterCriteria);
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;

@@ -72,10 +72,10 @@ end;
 procedure TfrmSysUser.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_user.title_singular', 'Kullanıcı');
-  lblUsername.Caption := TLocalizationManager.Translate('sys_user.lbl_username', 'Kullanıcı Adı');
-  lblPersonId.Caption := TLocalizationManager.Translate('sys_user.lbl_person_id', 'Personel');
-  lblActive.Caption := TLocalizationManager.Translate('sys_user.lbl_is_active', 'Aktif');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.TitleSingular, 'Kullanıcı');
+  lblUsername.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColUserName, 'Kullanıcı Adı');
+  lblPersonId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColPersonId, 'Personel');
+  lblActive.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColIsActive, 'Aktif');
   lblManager.Caption := TLocalizationManager.Translate('sys_user.lbl_is_admin', 'Yönetici');
   lblSuperUser.Caption := TLocalizationManager.Translate('sys_user.lbl_is_superuser', 'Süper Kullanıcı');
   lblIpAddress.Caption := TLocalizationManager.Translate('sys_user.lbl_ip_address', 'IP Adresi');
