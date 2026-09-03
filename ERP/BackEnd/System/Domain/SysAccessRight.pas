@@ -56,7 +56,10 @@ type
     [BelongsTo('UserId')]
     property User: TSysUser read FUser write FUser;
 
+    [NotMapped]
     property Username: string read GetUsername write FUsername;
+
+    [NotMapped]
     property PermissionName: string read GetPermissionName write FPermissionName;
   end;
 
@@ -71,10 +74,8 @@ end;
 
 destructor TSysAccessRight.Destroy;
 begin
-  if Assigned(FPermission) then
-    FreeAndNil(FPermission);
-  if Assigned(FUser) then
-    FreeAndNil(FUser);
+  FPermission.Free;
+  FUser.Free;
   inherited;
 end;
 

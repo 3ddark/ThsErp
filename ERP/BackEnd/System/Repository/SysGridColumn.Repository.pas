@@ -3,9 +3,10 @@
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
-  FireDAC.Comp.Client, FireDAC.Stan.Param,
-  Entity, Repository, FilterCriterion, AppContext, SysGridColumn;
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
+  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  SysGridColumn;
 
 type
   TSysGridColumnRepository = class(TRepository<TSysGridColumn>)
@@ -16,22 +17,27 @@ type
     function PrepareDeleteSql: string; virtual;
 
     procedure SetModelParams(Q: TFDQuery; AModel: TSysGridColumn; AIndex: Integer = -1);
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysGridColumn; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysGridColumn; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysGridColumn>; override;
+
+    procedure DoAdd(AModel: TSysGridColumn); override;
+    procedure DoAddBatch(AModels: TArray<TSysGridColumn>); override;
+
+    procedure DoUpdate(AModel: TSysGridColumn); override;
+    procedure DoUpdateBatch(AModels: TArray<TSysGridColumn>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TSysGridColumn); override;
+    procedure DoDeleteBatch(AModels: TArray<TSysGridColumn>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function FindById(AId: TValue; ALock: Boolean = False): TSysGridColumn; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysGridColumn; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysGridColumn>; override;
-
-    procedure Add(AModel: TSysGridColumn); override;
-    procedure AddBatch(AModels: TArray<TSysGridColumn>); override;
-
-    procedure Update(AModel: TSysGridColumn); override;
-    procedure UpdateBatch(AModels: TArray<TSysGridColumn>); override;
-
-    procedure Delete(AID: Int64); override;
-    procedure DeleteBatch(AModels: TArray<TSysGridColumn>); override;
 
     procedure SaveColumns(const ATableName: string; const AColumns: TList<TSysGridColumn>);
     function LoadColumns(const ATableName: string): TList<TSysGridColumn>;
@@ -120,129 +126,69 @@ begin
   end;
 end;
 
-function TSysGridColumnRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+function TSysGridColumnRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 begin
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
   Result.SQL.Text := 'SELECT * FROM public.' + Self.GetTableName(TSysGridColumn);
 end;
 
-procedure TSysGridColumnRepository.Add(AModel: TSysGridColumn);
+function TSysGridColumnRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysGridColumn>;
 var
   Q: TFDQuery;
+  Item: TSysGridColumn;
+  Criterion: TFilterCriterion;
 begin
+  Result := TObjectList<TSysGridColumn>.Create(True);
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := PrepareAddSql + ' RETURNING id';
-    SetModelParams(Q, AModel);
+    Q.SQL.Text := PrepareSelectSql + ' WHERE 1=1';
+
+    if Assigned(AFilter) and (AFilter.Count > 0) then
+    begin
+      for Criterion in AFilter do
+        Q.SQL.Text := Q.SQL.Text + ' AND ' + Criterion.FieldName + ' ' + Criterion.Operator + ' :' + Criterion.FieldName;
+    end;
+
+    if ALock then
+      Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
+
+    if Assigned(AFilter) and (AFilter.Count > 0) then
+    begin
+      for Criterion in AFilter do
+        Q.ParamByName(Criterion.FieldName).Value := Criterion.Value.AsVariant;
+    end;
+
     Q.Open;
-    AModel.Id := Q.FieldByName('id').AsLargeInt;
+    while not Q.Eof do
+    begin
+      Item := TSysGridColumn.Create;
+      Item.Id := Q.FieldByName('id').AsLargeInt;
+      Item.TableName := Q.FieldByName('table_name').AsString;
+      Item.ColumnName := Q.FieldByName('column_name').AsString;
+      Item.ColumnOrder := Q.FieldByName('column_order').AsInteger;
+      Item.ColumnWidth := Q.FieldByName('column_width').AsInteger;
+      Item.DataFormat := Q.FieldByName('data_format').AsString;
+      Item.IsShow := Q.FieldByName('is_show').AsBoolean;
+      Item.IsShowHelper := Q.FieldByName('is_show_helper').AsBoolean;
+      Item.MinValue := Q.FieldByName('min_value').AsFloat;
+      Item.MinValueColor := Q.FieldByName('min_value_color').AsInteger;
+      Item.MaxValue := Q.FieldByName('max_value').AsFloat;
+      Item.MaxValueColor := Q.FieldByName('max_value_color').AsInteger;
+      Item.MaxValuePercent := Q.FieldByName('max_value_percent').AsFloat;
+      Item.BarColor := Q.FieldByName('bar_color').AsInteger;
+      Item.BarBgColor := Q.FieldByName('bar_bg_color').AsInteger;
+      Item.BarTextColor := Q.FieldByName('bar_text_color').AsInteger;
+      Result.Add(Item);
+      Q.Next;
+    end;
   finally
     Q.Free;
   end;
 end;
 
-procedure TSysGridColumnRepository.AddBatch(AModels: TArray<TSysGridColumn>);
-var
-  Q: TFDQuery;
-  I, Count: Integer;
-begin
-  Count := Length(AModels);
-  if Count = 0 then Exit;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareAddSql;
-    Q.Params.ArraySize := Count;
-
-    for I := 0 to Count - 1 do
-      SetModelParams(Q, AModels[I], I);
-
-    Q.Execute(Count, 0);
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TSysGridColumnRepository.Update(AModel: TSysGridColumn);
-var
-  Q: TFDQuery;
-begin
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareUpdateSql;
-    SetModelParams(Q, AModel);
-    Q.ExecSQL;
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TSysGridColumnRepository.UpdateBatch(AModels: TArray<TSysGridColumn>);
-var
-  Q: TFDQuery;
-  I, Count: Integer;
-begin
-  Count := Length(AModels);
-  if Count = 0 then Exit;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareUpdateSql;
-    Q.Params.ArraySize := Count;
-
-    for I := 0 to Count - 1 do
-      SetModelParams(Q, AModels[I], I);
-
-    Q.Execute(Count, 0);
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TSysGridColumnRepository.Delete(AID: Int64);
-var
-  Q: TFDQuery;
-begin
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareDeleteSql;
-    Q.ParamByName('id').AsLargeInt := AID;
-    Q.ExecSQL;
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TSysGridColumnRepository.DeleteBatch(AModels: TArray<TSysGridColumn>);
-var
-  Q: TFDQuery;
-  I, Count: Integer;
-begin
-  Count := Length(AModels);
-  if Count = 0 then Exit;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareDeleteSql;
-    Q.Params.ArraySize := Count;
-
-    for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
-
-    Q.Execute(Count, 0);
-  finally
-    Q.Free;
-  end;
-end;
-
-function TSysGridColumnRepository.FindById(AId: TValue; ALock: Boolean): TSysGridColumn;
+function TSysGridColumnRepository.DoFindById(AId: TValue; ALock: Boolean): TSysGridColumn;
 var
   Q: TFDQuery;
 begin
@@ -282,7 +228,7 @@ begin
   end;
 end;
 
-function TSysGridColumnRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysGridColumn;
+function TSysGridColumnRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysGridColumn;
 var
   Q: TFDQuery;
   Criterion: TFilterCriterion;
@@ -334,56 +280,169 @@ begin
   end;
 end;
 
-function TSysGridColumnRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysGridColumn>;
+procedure TSysGridColumnRepository.DoAdd(AModel: TSysGridColumn);
 var
   Q: TFDQuery;
-  Item: TSysGridColumn;
-  Criterion: TFilterCriterion;
 begin
-  Result := TObjectList<TSysGridColumn>.Create(True);
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := PrepareSelectSql + ' WHERE 1=1';
-
-    if Assigned(AFilter) and (AFilter.Count > 0) then
-    begin
-      for Criterion in AFilter do
-        Q.SQL.Text := Q.SQL.Text + ' AND ' + Criterion.FieldName + ' ' + Criterion.Operator + ' :' + Criterion.FieldName;
-    end;
-
-    if ALock then
-      Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
-
-    if Assigned(AFilter) and (AFilter.Count > 0) then
-    begin
-      for Criterion in AFilter do
-        Q.ParamByName(Criterion.FieldName).Value := Criterion.Value.AsVariant;
-    end;
-
+    Q.SQL.Text := PrepareAddSql + ' RETURNING id';
+    SetModelParams(Q, AModel);
     Q.Open;
-    while not Q.Eof do
-    begin
-      Item := TSysGridColumn.Create;
-      Item.Id := Q.FieldByName('id').AsLargeInt;
-      Item.TableName := Q.FieldByName('table_name').AsString;
-      Item.ColumnName := Q.FieldByName('column_name').AsString;
-      Item.ColumnOrder := Q.FieldByName('column_order').AsInteger;
-      Item.ColumnWidth := Q.FieldByName('column_width').AsInteger;
-      Item.DataFormat := Q.FieldByName('data_format').AsString;
-      Item.IsShow := Q.FieldByName('is_show').AsBoolean;
-      Item.IsShowHelper := Q.FieldByName('is_show_helper').AsBoolean;
-      Item.MinValue := Q.FieldByName('min_value').AsFloat;
-      Item.MinValueColor := Q.FieldByName('min_value_color').AsInteger;
-      Item.MaxValue := Q.FieldByName('max_value').AsFloat;
-      Item.MaxValueColor := Q.FieldByName('max_value_color').AsInteger;
-      Item.MaxValuePercent := Q.FieldByName('max_value_percent').AsFloat;
-      Item.BarColor := Q.FieldByName('bar_color').AsInteger;
-      Item.BarBgColor := Q.FieldByName('bar_bg_color').AsInteger;
-      Item.BarTextColor := Q.FieldByName('bar_text_color').AsInteger;
-      Result.Add(Item);
-      Q.Next;
-    end;
+    AModel.Id := Q.FieldByName('id').AsLargeInt;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysGridColumnRepository.DoAddBatch(AModels: TArray<TSysGridColumn>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareAddSql;
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      SetModelParams(Q, AModels[I], I);
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysGridColumnRepository.DoUpdate(AModel: TSysGridColumn);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareUpdateSql;
+    SetModelParams(Q, AModel);
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysGridColumnRepository.DoUpdateBatch(AModels: TArray<TSysGridColumn>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareUpdateSql;
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      SetModelParams(Q, AModels[I], I);
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysGridColumnRepository.DoDelete(AID: TValue);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysGridColumnRepository.DoDelete(AModel: TSysGridColumn);
+begin
+  Delete(AModel.Id);
+end;
+
+procedure TSysGridColumnRepository.DoDeleteBatch(AModels: TArray<TSysGridColumn>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysGridColumnRepository.DoDeleteBatch(AIDs: TArray<TValue>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AIDs);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysGridColumnRepository.DoDeleteBatch(AFilter: TFilterCriteria);
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriterion;
+begin
+  if not Assigned(AFilter) or (AFilter.Count = 0) then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' 1=1 ';
+
+    for Criteria in AFilter do
+      Q.SQL.Text := Q.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.ParamName;
+
+    for Criteria in AFilter do
+      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+
+    Q.ExecSQL;
   finally
     Q.Free;
   end;

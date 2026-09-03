@@ -12,6 +12,9 @@ type
     FSymbol: string;
     FDescription: string;
   public
+    constructor Create(); override;
+    destructor Destroy; override;
+
     [Column('currency'), MaxLength(3), Required()]
     property Currency: string read FCurrency write FCurrency;
 
@@ -20,9 +23,6 @@ type
 
     [Column('description')]
     property Description: string read FDescription write FDescription;
-
-    constructor Create(); override;
-    destructor Destroy; override;
   end;
 
 implementation

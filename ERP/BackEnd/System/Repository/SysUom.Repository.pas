@@ -3,9 +3,10 @@ unit SysUom.Repository;
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
-  FireDAC.Comp.Client, FireDAC.Stan.Param,
-  Entity, Repository, FilterCriterion, AppContext, SysUom, SysLanguage, LocalizationManager;
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
+  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  SysUom, SysLanguage;
 
 type
   TSysUomRepository = class(TRepository<TSysUom>)
@@ -22,22 +23,27 @@ type
     procedure SetModelParams(Q: TFDQuery; AModel: TSysUom; AIndex: Integer = -1);
     procedure SaveTranslations(AModel: TSysUom); virtual;
     procedure LoadTranslations(AModel: TSysUom); virtual;
-    procedure DeleteTranslations(AID: Int64); virtual;
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysUom>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysUom; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysUom; override;
+
+    procedure DoAdd(AModel: TSysUom); override;
+    procedure DoAddBatch(AModels: TArray<TSysUom>); override;
+
+    procedure DoUpdate(AModel: TSysUom); override;
+    procedure DoUpdateBatch(AModels: TArray<TSysUom>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TSysUom); override;
+    procedure DoDeleteBatch(AModels: TArray<TSysUom>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function FindById(AId: TValue; ALock: Boolean = False): TSysUom; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysUom>; override;
-
-    procedure Add(AModel: TSysUom); override;
-    procedure AddBatch(AModels: TArray<TSysUom>); override;
-
-    procedure Update(AModel: TSysUom); override;
-    procedure UpdateBatch(AModels: TArray<TSysUom>); override;
-
-    procedure Delete(AID: Int64); override;
-    procedure DeleteBatch(AModels: TArray<TSysUom>); override;
   end;
 
 implementation
@@ -178,22 +184,7 @@ begin
   end;
 end;
 
-procedure TSysUomRepository.DeleteTranslations(AID: Int64);
-var
-  Q: TFDQuery;
-begin
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareDeleteTranslationSql;
-    Q.ParamByName('id').AsLargeInt := AID;
-    Q.ExecSQL;
-  finally
-    Q.Free;
-  end;
-end;
-
-function TSysUomRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+function TSysUomRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 begin
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
@@ -201,173 +192,7 @@ begin
   Result.ParamByName('locale').AsString := TLocalizationManager.GetCurrentLanguage;
 end;
 
-procedure TSysUomRepository.Add(AModel: TSysUom);
-var
-  Q: TFDQuery;
-begin
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareAddSql + ' RETURNING id';
-    SetModelParams(Q, AModel);
-    Q.Open;
-    AModel.Id := Q.FieldByName('id').AsLargeInt;
-  finally
-    Q.Free;
-  end;
-
-  SaveTranslations(AModel);
-end;
-
-procedure TSysUomRepository.AddBatch(AModels: TArray<TSysUom>);
-var
-  Q: TFDQuery;
-  I, Count: Integer;
-begin
-  Count := Length(AModels);
-  if Count = 0 then Exit;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareAddSql;
-    Q.Params.ArraySize := Count;
-
-    for I := 0 to Count - 1 do
-      SetModelParams(Q, AModels[I], I);
-
-    Q.Execute(Count, 0);
-  finally
-    Q.Free;
-  end;
-
-  for I := 0 to Count - 1 do
-    SaveTranslations(AModels[I]);
-end;
-
-procedure TSysUomRepository.Update(AModel: TSysUom);
-var
-  Q: TFDQuery;
-begin
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareUpdateSql;
-    SetModelParams(Q, AModel);
-    Q.ExecSQL;
-  finally
-    Q.Free;
-  end;
-
-  SaveTranslations(AModel);
-end;
-
-procedure TSysUomRepository.UpdateBatch(AModels: TArray<TSysUom>);
-var
-  Q: TFDQuery;
-  I, Count: Integer;
-begin
-  Count := Length(AModels);
-  if Count = 0 then Exit;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareUpdateSql;
-    Q.Params.ArraySize := Count;
-
-    for I := 0 to Count - 1 do
-      SetModelParams(Q, AModels[I], I);
-
-    Q.Execute(Count, 0);
-  finally
-    Q.Free;
-  end;
-
-  for I := 0 to Count - 1 do
-    SaveTranslations(AModels[I]);
-end;
-
-procedure TSysUomRepository.Delete(AID: Int64);
-var
-  Q: TFDQuery;
-begin
-  DeleteTranslations(AID);
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareDeleteSql;
-    Q.ParamByName('id').AsLargeInt := AID;
-    Q.ExecSQL;
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TSysUomRepository.DeleteBatch(AModels: TArray<TSysUom>);
-var
-  Q: TFDQuery;
-  I, Count: Integer;
-begin
-  Count := Length(AModels);
-  if Count = 0 then Exit;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareDeleteTranslationSql;
-    Q.Params.ArraySize := Count;
-
-    for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
-
-    Q.Execute(Count, 0);
-
-    Q.SQL.Text := PrepareDeleteSql;
-    Q.Params.ArraySize := Count;
-
-    for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
-
-    Q.Execute(Count, 0);
-  finally
-    Q.Free;
-  end;
-end;
-
-function TSysUomRepository.FindById(AId: TValue; ALock: Boolean): TSysUom;
-var
-  Q: TFDQuery;
-begin
-  Result := nil;
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareSelectSql + ' WHERE id = :id';
-    if ALock then
-      Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
-
-    Q.ParamByName('id').AsLargeInt := AId.AsInt64;
-    Q.Open;
-
-    if not Q.IsEmpty then
-    begin
-      Result := TSysUom.Create;
-      Result.Id := Q.FieldByName('id').AsLargeInt;
-      Result.UnitCode := Q.FieldByName('unit').AsString;
-      Result.UnitEInv := Q.FieldByName('unit_einv').AsString;
-      Result.Decimal := Q.FieldByName('decimal').AsBoolean;
-      Result.GroupId := Q.FieldByName('group_id').AsLargeInt;
-      Result.Multiplier := Q.FieldByName('multiplier').AsInteger;
-      LoadTranslations(Result);
-    end;
-  finally
-    Q.Free;
-  end;
-end;
-
-function TSysUomRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUom>;
+function TSysUomRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUom>;
 var
   Q: TFDQuery;
   Item: TSysUom;
@@ -408,6 +233,244 @@ begin
       Result.Add(Item);
       Q.Next;
     end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSysUomRepository.DoFindById(AId: TValue; ALock: Boolean): TSysUom;
+var
+  Q: TFDQuery;
+begin
+  Result := nil;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareSelectSql + ' WHERE id = :id';
+    if ALock then
+      Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
+
+    Q.ParamByName('id').AsLargeInt := AId.AsInt64;
+    Q.Open;
+
+    if not Q.IsEmpty then
+    begin
+      Result := TSysUom.Create;
+      Result.Id := Q.FieldByName('id').AsLargeInt;
+      Result.UnitCode := Q.FieldByName('unit').AsString;
+      Result.UnitEInv := Q.FieldByName('unit_einv').AsString;
+      Result.Decimal := Q.FieldByName('decimal').AsBoolean;
+      Result.GroupId := Q.FieldByName('group_id').AsLargeInt;
+      Result.Multiplier := Q.FieldByName('multiplier').AsInteger;
+      LoadTranslations(Result);
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSysUomRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysUom;
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriterion;
+begin
+  Result := nil;
+  if not Assigned(AFilter) or (AFilter.Count = 0) then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, True, True);
+
+    for Criteria in AFilter do
+      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+    Q.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
+    Q.Open;
+
+    if not Q.IsEmpty then
+    begin
+      Result := MapFromQuery(Q);
+      LoadTranslations(Result);
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysUomRepository.DoAdd(AModel: TSysUom);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareAddSql + ' RETURNING id';
+    SetModelParams(Q, AModel);
+    Q.Open;
+    AModel.Id := Q.FieldByName('id').AsLargeInt;
+  finally
+    Q.Free;
+  end;
+
+  SaveTranslations(AModel);
+end;
+
+procedure TSysUomRepository.DoAddBatch(AModels: TArray<TSysUom>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareAddSql;
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      SetModelParams(Q, AModels[I], I);
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+
+  for I := 0 to Count - 1 do
+    SaveTranslations(AModels[I]);
+end;
+
+procedure TSysUomRepository.DoUpdate(AModel: TSysUom);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareUpdateSql;
+    SetModelParams(Q, AModel);
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+
+  SaveTranslations(AModel);
+end;
+
+procedure TSysUomRepository.DoUpdateBatch(AModels: TArray<TSysUom>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareUpdateSql;
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      SetModelParams(Q, AModels[I], I);
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+
+  for I := 0 to Count - 1 do
+    SaveTranslations(AModels[I]);
+end;
+
+procedure TSysUomRepository.DoDelete(AID: TValue);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysUomRepository.DoDelete(AModel: TSysUom);
+begin
+  Delete(AModel.Id);
+end;
+
+procedure TSysUomRepository.DoDeleteBatch(AModels: TArray<TSysUom>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysUomRepository.DoDeleteBatch(AIDs: TArray<TValue>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AIDs);
+  if Count = 0 then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
+
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysUomRepository.DoDeleteBatch(AFilter: TFilterCriteria);
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriterion;
+begin
+  if not Assigned(AFilter) or (AFilter.Count = 0) then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' 1=1 ';
+
+    for Criteria in AFilter do
+      Q.SQL.Text := Q.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.ParamName;
+
+    for Criteria in AFilter do
+      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+
+    Q.ExecSQL;
   finally
     Q.Free;
   end;

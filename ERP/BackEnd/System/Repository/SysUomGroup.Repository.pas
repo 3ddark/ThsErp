@@ -3,9 +3,9 @@
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
-  FireDAC.Comp.Client, FireDAC.Stan.Param,
-  Entity, Repository, FilterCriterion, AppContext, LocalizationManager,
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
+  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
   SysUomGroup, SysLanguage;
 
 type
@@ -24,26 +24,27 @@ type
 
     procedure SaveTranslations(AModel: TSysUomGroup);
     procedure LoadTranslations(AModel: TSysUomGroup);
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysUomGroup>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysUomGroup; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysUomGroup; override;
+
+    procedure DoAdd(AModel: TSysUomGroup); override;
+    procedure DoAddBatch(AModels: TArray<TSysUomGroup>); override;
+
+    procedure DoUpdate(AModel: TSysUomGroup); override;
+    procedure DoUpdateBatch(AModels: TArray<TSysUomGroup>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TSysUomGroup); override;
+    procedure DoDeleteBatch(AModels: TArray<TSysUomGroup>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysUomGroup>; override;
-    function FindById(AId: TValue; ALock: Boolean = False): TSysUomGroup; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysUomGroup; override;
-
-    procedure Add(AModel: TSysUomGroup); override;
-    procedure AddBatch(AModels: TArray<TSysUomGroup>); override;
-
-    procedure Update(AModel: TSysUomGroup); override;
-    procedure UpdateBatch(AModels: TArray<TSysUomGroup>); override;
-
-    procedure Delete(AID: Int64); override;
-    procedure Delete(AModel: TSysUomGroup); override;
-    procedure DeleteBatch(AModels: TArray<TSysUomGroup>); override;
-    procedure DeleteBatch(AIDs: TArray<Int64>); override;
-    procedure DeleteBatch(AFilter: TFilterCriteria); override;
   end;
 
 implementation
@@ -179,7 +180,7 @@ begin
   Result.Key          := Q.FieldByName('key').AsString;
 end;
 
-function TSysUomGroupRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+function TSysUomGroupRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
 begin
@@ -197,7 +198,7 @@ begin
   Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysUomGroupRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUomGroup>;
+function TSysUomGroupRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUomGroup>;
 var
   Q: TFDQuery;
   Item: TSysUomGroup;
@@ -230,7 +231,7 @@ begin
   end;
 end;
 
-function TSysUomGroupRepository.FindById(AId: TValue; ALock: Boolean): TSysUomGroup;
+function TSysUomGroupRepository.DoFindById(AId: TValue; ALock: Boolean): TSysUomGroup;
 var
   Q: TFDQuery;
   Criteria: TFilterCriteria;
@@ -259,7 +260,7 @@ begin
   end;
 end;
 
-function TSysUomGroupRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysUomGroup;
+function TSysUomGroupRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysUomGroup;
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;
@@ -288,7 +289,7 @@ begin
   end;
 end;
 
-procedure TSysUomGroupRepository.Add(AModel: TSysUomGroup);
+procedure TSysUomGroupRepository.DoAdd(AModel: TSysUomGroup);
 var
   Q: TFDQuery;
 begin
@@ -306,7 +307,7 @@ begin
   SaveTranslations(AModel);
 end;
 
-procedure TSysUomGroupRepository.AddBatch(AModels: TArray<TSysUomGroup>);
+procedure TSysUomGroupRepository.DoAddBatch(AModels: TArray<TSysUomGroup>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -332,7 +333,7 @@ begin
     SaveTranslations(AModels[I]);
 end;
 
-procedure TSysUomGroupRepository.Update(AModel: TSysUomGroup);
+procedure TSysUomGroupRepository.DoUpdate(AModel: TSysUomGroup);
 var
   Q: TFDQuery;
 begin
@@ -349,7 +350,7 @@ begin
   SaveTranslations(AModel);
 end;
 
-procedure TSysUomGroupRepository.UpdateBatch(AModels: TArray<TSysUomGroup>);
+procedure TSysUomGroupRepository.DoUpdateBatch(AModels: TArray<TSysUomGroup>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -375,7 +376,7 @@ begin
     SaveTranslations(AModels[I]);
 end;
 
-procedure TSysUomGroupRepository.Delete(AID: Int64);
+procedure TSysUomGroupRepository.DoDelete(AID: TValue);
 var
   Q: TFDQuery;
 begin
@@ -383,19 +384,19 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql + ' id = :id';
-    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;
   end;
 end;
 
-procedure TSysUomGroupRepository.Delete(AModel: TSysUomGroup);
+procedure TSysUomGroupRepository.DoDelete(AModel: TSysUomGroup);
 begin
   Delete(AModel.Id);
 end;
 
-procedure TSysUomGroupRepository.DeleteBatch(AModels: TArray<TSysUomGroup>);
+procedure TSysUomGroupRepository.DoDeleteBatch(AModels: TArray<TSysUomGroup>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -418,7 +419,7 @@ begin
   end;
 end;
 
-procedure TSysUomGroupRepository.DeleteBatch(AIDs: TArray<Int64>);
+procedure TSysUomGroupRepository.DoDeleteBatch(AIDs: TArray<TValue>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -433,7 +434,7 @@ begin
     Q.Params.ArraySize := Count;
 
     for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AIDs[I];
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
 
     Q.Execute(Count, 0);
   finally
@@ -441,7 +442,7 @@ begin
   end;
 end;
 
-procedure TSysUomGroupRepository.DeleteBatch(AFilter: TFilterCriteria);
+procedure TSysUomGroupRepository.DoDeleteBatch(AFilter: TFilterCriteria);
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;

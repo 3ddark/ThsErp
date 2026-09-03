@@ -21,12 +21,20 @@ object frmEmpUnit: TfrmEmpUnit
     Align = alClient
     TabOrder = 0
     object lblUnitName: TLabel
-      Left = 20
+      Left = 48
       Top = 30
-      Width = 90
+      Width = 62
       Height = 15
       Alignment = taRightJustify
-      Caption = 'Birim Adı'
+      Caption = 'Birim Ad'#196#177
+    end
+    object lblSectionId: TLabel
+      Left = 56
+      Top = 65
+      Width = 54
+      Height = 15
+      Alignment = taRightJustify
+      Caption = 'B'#195#182'l'#195#188'm'
     end
     object edtUnitName: TEdit
       Left = 120
@@ -34,14 +42,6 @@ object frmEmpUnit: TfrmEmpUnit
       Width = 280
       Height = 23
       TabOrder = 0
-    end
-    object lblSectionId: TLabel
-      Left = 20
-      Top = 65
-      Width = 90
-      Height = 15
-      Alignment = taRightJustify
-      Caption = 'Bölüm'
     end
     object edtSectionId: TEdit
       Left = 120

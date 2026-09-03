@@ -23,6 +23,9 @@ type
     function GetPersonName: string;
     function GetPersonSurname: string;
   public
+    constructor Create(); override;
+    destructor Destroy; override;
+
     [Column('username'), MaxLength(64), Required()]
     property Username: string read FUsername write FUsername;
 
@@ -54,9 +57,6 @@ type
     property PersonSurname: string read GetPersonSurname write FPersonSurname;
 
     property ActiveLanguage: string read FActiveLanguage write FActiveLanguage;
-
-    constructor Create(); override;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -64,6 +64,8 @@ implementation
 constructor TSysUser.Create();
 begin
   inherited;
+  FPerson := TEmpPerson.Create;
+
   FActive := True;
   FManager := False;
   FSuperUser := False;
@@ -72,8 +74,7 @@ end;
 
 destructor TSysUser.Destroy;
 begin
-  if Assigned(Person) then
-    FreeAndNil(Person);
+  FPerson.Free;
   inherited;
 end;
 

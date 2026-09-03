@@ -1,11 +1,11 @@
-unit SysCountry.Repository;
+﻿unit SysCountry.Repository;
 
 interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
-  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
+  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
   SysCountry, SysLanguage;
 
 type
@@ -24,26 +24,27 @@ type
 
     procedure SaveTranslations(AModel: TSysCountry);
     procedure LoadTranslations(AModel: TSysCountry);
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysCountry>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysCountry; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysCountry; override;
+
+    procedure DoAdd(AModel: TSysCountry); override;
+    procedure DoAddBatch(AModels: TArray<TSysCountry>); override;
+
+    procedure DoUpdate(AModel: TSysCountry); override;
+    procedure DoUpdateBatch(AModels: TArray<TSysCountry>); override;
+
+    procedure DoDelete(AId: TValue); override;
+    procedure DoDelete(AModel: TSysCountry); override;
+    procedure DoDeleteBatch(AModels: TArray<TSysCountry>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysCountry>; override;
-    function FindById(AId: TValue; ALock: Boolean = False): TSysCountry; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysCountry; override;
-
-    procedure Add(AModel: TSysCountry); override;
-    procedure AddBatch(AModels: TArray<TSysCountry>); override;
-
-    procedure Update(AModel: TSysCountry); override;
-    procedure UpdateBatch(AModels: TArray<TSysCountry>); override;
-
-    procedure Delete(AID: Int64); override;
-    procedure Delete(AModel: TSysCountry); override;
-    procedure DeleteBatch(AModels: TArray<TSysCountry>); override;
-    procedure DeleteBatch(AIDs: TArray<Int64>); override;
-    procedure DeleteBatch(AFilter: TFilterCriteria); override;
   end;
 
 implementation
@@ -202,7 +203,7 @@ begin
   Result.IsEuMember := Q.FieldByName('is_eu_member').AsBoolean;
 end;
 
-function TSysCountryRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+function TSysCountryRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
 begin
@@ -220,7 +221,7 @@ begin
   Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysCountryRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysCountry>;
+function TSysCountryRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysCountry>;
 var
   Q: TFDQuery;
   Item: TSysCountry;
@@ -253,7 +254,7 @@ begin
   end;
 end;
 
-function TSysCountryRepository.FindById(AId: TValue; ALock: Boolean): TSysCountry;
+function TSysCountryRepository.DoFindById(AId: TValue; ALock: Boolean): TSysCountry;
 var
   Q: TFDQuery;
   Criteria: TFilterCriteria;
@@ -282,7 +283,7 @@ begin
   end;
 end;
 
-function TSysCountryRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysCountry;
+function TSysCountryRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysCountry;
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;
@@ -311,7 +312,7 @@ begin
   end;
 end;
 
-procedure TSysCountryRepository.Add(AModel: TSysCountry);
+procedure TSysCountryRepository.DoAdd(AModel: TSysCountry);
 var
   Q: TFDQuery;
 begin
@@ -329,7 +330,7 @@ begin
   SaveTranslations(AModel);
 end;
 
-procedure TSysCountryRepository.AddBatch(AModels: TArray<TSysCountry>);
+procedure TSysCountryRepository.DoAddBatch(AModels: TArray<TSysCountry>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -355,7 +356,7 @@ begin
     SaveTranslations(AModels[I]);
 end;
 
-procedure TSysCountryRepository.Update(AModel: TSysCountry);
+procedure TSysCountryRepository.DoUpdate(AModel: TSysCountry);
 var
   Q: TFDQuery;
 begin
@@ -372,7 +373,7 @@ begin
   SaveTranslations(AModel);
 end;
 
-procedure TSysCountryRepository.UpdateBatch(AModels: TArray<TSysCountry>);
+procedure TSysCountryRepository.DoUpdateBatch(AModels: TArray<TSysCountry>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -398,7 +399,7 @@ begin
     SaveTranslations(AModels[I]);
 end;
 
-procedure TSysCountryRepository.Delete(AID: Int64);
+procedure TSysCountryRepository.DoDelete(AId: TValue);
 var
   Q: TFDQuery;
 begin
@@ -406,19 +407,19 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql + ' id = :id';
-    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ParamByName('id').AsLargeInt := AId.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;
   end;
 end;
 
-procedure TSysCountryRepository.Delete(AModel: TSysCountry);
+procedure TSysCountryRepository.DoDelete(AModel: TSysCountry);
 begin
   Delete(AModel.Id);
 end;
 
-procedure TSysCountryRepository.DeleteBatch(AModels: TArray<TSysCountry>);
+procedure TSysCountryRepository.DoDeleteBatch(AModels: TArray<TSysCountry>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -441,7 +442,7 @@ begin
   end;
 end;
 
-procedure TSysCountryRepository.DeleteBatch(AIDs: TArray<Int64>);
+procedure TSysCountryRepository.DoDeleteBatch(AIDs: TArray<TValue>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -456,7 +457,7 @@ begin
     Q.Params.ArraySize := Count;
 
     for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AIDs[I];
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
 
     Q.Execute(Count, 0);
   finally
@@ -464,7 +465,7 @@ begin
   end;
 end;
 
-procedure TSysCountryRepository.DeleteBatch(AFilter: TFilterCriteria);
+procedure TSysCountryRepository.DoDeleteBatch(AFilter: TFilterCriteria);
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;

@@ -29,7 +29,7 @@ type
     procedure Update(AModel: TAccAccountAddress); override;
     procedure UpdateBatch(AModels: TArray<TAccAccountAddress>); override;
 
-    procedure Delete(AID: Int64); override;
+    procedure Delete(AID: TValue); override;
     procedure Delete(AModel: TAccAccountAddress); override;
     procedure DeleteBatch(AModels: TArray<TAccAccountAddress>); override;
   end;
@@ -193,7 +193,7 @@ begin
   end;
 end;
 
-procedure TAccAccountAddressRepository.Delete(AID: Int64);
+procedure TAccAccountAddressRepository.Delete(AID: TValue);
 var
   Q: TFDQuery;
 begin
@@ -201,7 +201,7 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql;
-    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;

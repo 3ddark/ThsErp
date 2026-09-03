@@ -32,7 +32,7 @@ type
     function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysLanguage>; override;
     procedure BusinessInsert(AEntity: TSysLanguage; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
     procedure BusinessUpdate(AEntity: TSysLanguage; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
-    procedure BusinessDelete(AEntity: TSysLanguage; AWithBegin, AWithCommit, APermissionControl: Boolean);
+    procedure BusinessDelete(AEntity: TSysLanguage; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
   end;
 
 implementation
@@ -211,12 +211,14 @@ begin
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 
       LModel := FRepo.FindOne(LFilter, False);
-      if Assigned(LModel) then
-        raise ESysLanguageExceptionLocaleUnique.Create;
+      try
+        if Assigned(LModel) then
+          raise ESysLanguageExceptionLocaleUnique.Create;
+      finally
+        LModel.Free;
+      end;
     finally
       LFilter.Free;
-      if Assigned(LModel) then
-        LModel.Free;
     end;
   end;
 end;

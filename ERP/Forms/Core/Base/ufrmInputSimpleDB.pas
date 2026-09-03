@@ -414,7 +414,7 @@ begin
     ifmCopyNewRecord: LModeStr := 'Copy with New Record';
   end;
 
-  GLogger.InfoFmt('Created Input Form: %s %s "%s"', [Self.ClassName, ATable.ClassName, LModeStr]);
+  GLogger.InfoFmt('Open Input Form: %s %s "%s"', [Self.ClassName, ATable.ClassName, LModeStr]);
 
   SetService(AService);
   SetTable(ATable);
@@ -545,6 +545,8 @@ end;
 
 procedure TfrmInputSimpleDB<TE, TS>.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  GLogger.InfoFmt('Close Input Form: %s %s', [Self.ClassName, Table.ClassName]);
+
   if FormMode = ifmUpdate then
   begin
     if Service.Uow.InTransaction then

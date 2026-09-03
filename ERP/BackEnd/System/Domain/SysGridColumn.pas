@@ -24,6 +24,9 @@ type
     FBarBgColor: Integer;
     FBarTextColor: Integer;
   public
+    constructor Create(); override;
+    destructor Destroy; override;
+
     [Column('table_name'), MaxLength(128), Required()]
     property TableName: string read FTableName write FTableName;
 
@@ -68,9 +71,6 @@ type
 
     [Column('bar_text_color')]
     property BarTextColor: Integer read FBarTextColor write FBarTextColor;
-
-    constructor Create(); override;
-    destructor Destroy; override;
   end;
 
 implementation

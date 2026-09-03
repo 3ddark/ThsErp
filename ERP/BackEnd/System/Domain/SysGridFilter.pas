@@ -11,14 +11,14 @@ type
     FTableName: string;
     FFilterContent: string;
   public
+    constructor Create(); override;
+    destructor Destroy; override;
+
     [Column('table_name'), MaxLength(32)]
     property TableName: string read FTableName write FTableName;
 
     [Column('filter_content')]
     property FilterContent: string read FFilterContent write FFilterContent;
-
-    constructor Create(); override;
-    destructor Destroy; override;
   end;
 
 implementation

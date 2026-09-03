@@ -3,9 +3,10 @@
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
-  FireDAC.Comp.Client, FireDAC.Stan.Param, SharedFormTypes, AppContext, Entity,
-  Repository, SysAddress, FilterCriterion;
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
+  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  SysAddress;
 
 type
   TSysAddressRepository = class(TRepository<TSysAddress>)
@@ -17,26 +18,27 @@ type
     procedure SetInsertParams(Q: TFDQuery; AModel: TSysAddress; AIndex: Integer = -1);
     procedure SetUpdateParams(Q: TFDQuery; AModel: TSysAddress; AIndex: Integer = -1);
     function MapFromQuery(Q: TFDQuery): TSysAddress; override;
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysAddress>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysAddress; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysAddress; override;
+
+    procedure DoAdd(AModel: TSysAddress); override;
+    procedure DoAddBatch(AModels: TArray<TSysAddress>); override;
+
+    procedure DoUpdate(AModel: TSysAddress); override;
+    procedure DoUpdateBatch(AModels: TArray<TSysAddress>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TSysAddress); override;
+    procedure DoDeleteBatch(AModels: TArray<TSysAddress>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysAddress>; override;
-    function FindById(AId: TValue; ALock: Boolean = False): TSysAddress; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysAddress; override;
-
-    procedure Add(AModel: TSysAddress); override;
-    procedure AddBatch(AModels: TArray<TSysAddress>); override;
-
-    procedure Update(AModel: TSysAddress); override;
-    procedure UpdateBatch(AModels: TArray<TSysAddress>); override;
-
-    procedure Delete(AID: Int64); override;
-    procedure Delete(AModel: TSysAddress); override;
-    procedure DeleteBatch(AModels: TArray<TSysAddress>); override;
-    procedure DeleteBatch(AIDs: TArray<Int64>); override;
-    procedure DeleteBatch(AFilter: TFilterCriteria); override;
   end;
 
 implementation
@@ -151,7 +153,7 @@ begin
   Result.Email        := Q.ParamByName('email').AsString;
 end;
 
-function TSysAddressRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+function TSysAddressRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
 begin
@@ -168,7 +170,7 @@ begin
   end;
 end;
 
-function TSysAddressRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysAddress>;
+function TSysAddressRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysAddress>;
 var
   Q: TFDQuery;
   Item: TSysAddress;
@@ -200,7 +202,7 @@ begin
   end;
 end;
 
-function TSysAddressRepository.FindById(AId: TValue; ALock: Boolean): TSysAddress;
+function TSysAddressRepository.DoFindById(AId: TValue; ALock: Boolean): TSysAddress;
 var
   Q: TFDQuery;
   Criteria: TFilterCriteria;
@@ -226,7 +228,7 @@ begin
   end;
 end;
 
-function TSysAddressRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysAddress;
+function TSysAddressRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysAddress;
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;
@@ -252,7 +254,7 @@ begin
   end;
 end;
 
-procedure TSysAddressRepository.Add(AModel: TSysAddress);
+procedure TSysAddressRepository.DoAdd(AModel: TSysAddress);
 var
   Q: TFDQuery;
 begin
@@ -268,7 +270,7 @@ begin
   end;
 end;
 
-procedure TSysAddressRepository.AddBatch(AModels: TArray<TSysAddress>);
+procedure TSysAddressRepository.DoAddBatch(AModels: TArray<TSysAddress>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -291,7 +293,7 @@ begin
   end;
 end;
 
-procedure TSysAddressRepository.Update(AModel: TSysAddress);
+procedure TSysAddressRepository.DoUpdate(AModel: TSysAddress);
 var
   Q: TFDQuery;
 begin
@@ -306,7 +308,7 @@ begin
   end;
 end;
 
-procedure TSysAddressRepository.UpdateBatch(AModels: TArray<TSysAddress>);
+procedure TSysAddressRepository.DoUpdateBatch(AModels: TArray<TSysAddress>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -329,7 +331,7 @@ begin
   end;
 end;
 
-procedure TSysAddressRepository.Delete(AID: Int64);
+procedure TSysAddressRepository.DoDelete(AID: TValue);
 var
   Q: TFDQuery;
 begin
@@ -337,19 +339,19 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql + ' id = :id';
-    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;
   end;
 end;
 
-procedure TSysAddressRepository.Delete(AModel: TSysAddress);
+procedure TSysAddressRepository.DoDelete(AModel: TSysAddress);
 begin
   Delete(AModel.Id);
 end;
 
-procedure TSysAddressRepository.DeleteBatch(AModels: TArray<TSysAddress>);
+procedure TSysAddressRepository.DoDeleteBatch(AModels: TArray<TSysAddress>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -372,7 +374,7 @@ begin
   end;
 end;
 
-procedure TSysAddressRepository.DeleteBatch(AIDs: TArray<Int64>);
+procedure TSysAddressRepository.DoDeleteBatch(AIDs: TArray<TValue>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -387,7 +389,7 @@ begin
     Q.Params.ArraySize := Count;
 
     for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AIDs[I];
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
 
     Q.Execute(Count, 0);
   finally
@@ -395,7 +397,7 @@ begin
   end;
 end;
 
-procedure TSysAddressRepository.DeleteBatch(AFilter: TFilterCriteria);
+procedure TSysAddressRepository.DoDeleteBatch(AFilter: TFilterCriteria);
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;

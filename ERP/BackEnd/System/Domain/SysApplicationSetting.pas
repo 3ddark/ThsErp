@@ -51,6 +51,9 @@ type
     FAddress: TSysAddress;
     FOtherSettingsObj: TSysApplicationSettingOtherSettings;
   public
+    constructor Create(); override;
+    destructor Destroy; override;
+
     [Column('company_title')]
     [Required('sysapplicationsetting.companytitle.required', True)]
     property CompanyTitle: string read FCompanyTitle write FCompanyTitle;
@@ -146,9 +149,6 @@ type
     property Logo: TArray<Byte> read FLogo write FLogo;
 
     property OtherSettingsObj: TSysApplicationSettingOtherSettings read FOtherSettingsObj;
-
-    constructor Create(); override;
-    destructor Destroy; override;
   end;
 
 implementation

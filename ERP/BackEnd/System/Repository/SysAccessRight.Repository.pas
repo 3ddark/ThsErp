@@ -3,9 +3,10 @@
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
-  FireDAC.Comp.Client, FireDAC.Stan.Param, SharedFormTypes, AppContext, Entity,
-  Repository, FilterCriterion, SysAccessRight;
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
+  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  SysAccessRight;
 
 type
   TSysAccessRightRepository = class(TRepository<TSysAccessRight>)
@@ -17,30 +18,31 @@ type
     procedure SetInsertParams(Q: TFDQuery; AModel: TSysAccessRight; AIndex: Integer = -1);
     procedure SetUpdateParams(Q: TFDQuery; AModel: TSysAccessRight; AIndex: Integer = -1);
     function MapFromQuery(Q: TFDQuery): TSysAccessRight; override;
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysAccessRight>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysAccessRight; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysAccessRight; override;
+
+    procedure DoAdd(AModel: TSysAccessRight); override;
+    procedure DoAddBatch(AModels: TArray<TSysAccessRight>); override;
+
+    procedure DoUpdate(AModel: TSysAccessRight); override;
+    procedure DoUpdateBatch(AModels: TArray<TSysAccessRight>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TSysAccessRight); override;
+    procedure DoDeleteBatch(AModels: TArray<TSysAccessRight>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
 
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysAccessRight>; override;
-    function FindById(AId: TValue; ALock: Boolean = False): TSysAccessRight; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysAccessRight; override;
-
-    procedure Add(AModel: TSysAccessRight); override;
-    procedure AddBatch(AModels: TArray<TSysAccessRight>); override;
-
-    procedure Update(AModel: TSysAccessRight); override;
-    procedure UpdateBatch(AModels: TArray<TSysAccessRight>); override;
-
-    procedure Delete(AID: Int64); override;
-    procedure Delete(AModel: TSysAccessRight); override;
-    procedure DeleteBatch(AModels: TArray<TSysAccessRight>); override;
-    procedure DeleteBatch(AIDs: TArray<Int64>); override;
-    procedure DeleteBatch(AFilter: TFilterCriteria); override;
-
-    function GetUserPermissions(AUserId: Int64): TObjectDictionary<Integer, TSysAccessRight>;
-    procedure CopyUserAccessRights(ASourceUserId, ATargetUserId: Int64);
-    procedure AddPermissionToAllUser(APermissionId: Int64);
+    function GetUserPermissions(AUserId: TValue): TObjectDictionary<Integer, TSysAccessRight>;
+    procedure CopyUserAccessRights(ASourceUserId, ATargetUserId: TValue);
+    procedure AddPermissionToAllUser(APermissionId: TValue);
   end;
 
 implementation
@@ -138,7 +140,7 @@ begin
   Result.UserId       := Q.FieldByName('user_id').AsLargeInt;
 end;
 
-function TSysAccessRightRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+function TSysAccessRightRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
 begin
@@ -156,7 +158,7 @@ begin
   Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysAccessRightRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysAccessRight>;
+function TSysAccessRightRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysAccessRight>;
 var
   Q: TFDQuery;
   Item: TSysAccessRight;
@@ -188,7 +190,7 @@ begin
   end;
 end;
 
-function TSysAccessRightRepository.FindById(AId: TValue; ALock: Boolean): TSysAccessRight;
+function TSysAccessRightRepository.DoFindById(AId: TValue; ALock: Boolean): TSysAccessRight;
 var
   Q: TFDQuery;
   Criteria: TFilterCriteria;
@@ -214,7 +216,7 @@ begin
   end;
 end;
 
-function TSysAccessRightRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysAccessRight;
+function TSysAccessRightRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysAccessRight;
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;
@@ -240,7 +242,7 @@ begin
   end;
 end;
 
-procedure TSysAccessRightRepository.Add(AModel: TSysAccessRight);
+procedure TSysAccessRightRepository.DoAdd(AModel: TSysAccessRight);
 var
   Q: TFDQuery;
 begin
@@ -256,7 +258,7 @@ begin
   end;
 end;
 
-procedure TSysAccessRightRepository.AddBatch(AModels: TArray<TSysAccessRight>);
+procedure TSysAccessRightRepository.DoAddBatch(AModels: TArray<TSysAccessRight>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -279,7 +281,7 @@ begin
   end;
 end;
 
-procedure TSysAccessRightRepository.Update(AModel: TSysAccessRight);
+procedure TSysAccessRightRepository.DoUpdate(AModel: TSysAccessRight);
 var
   Q: TFDQuery;
 begin
@@ -294,7 +296,7 @@ begin
   end;
 end;
 
-procedure TSysAccessRightRepository.UpdateBatch(AModels: TArray<TSysAccessRight>);
+procedure TSysAccessRightRepository.DoUpdateBatch(AModels: TArray<TSysAccessRight>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -317,7 +319,7 @@ begin
   end;
 end;
 
-procedure TSysAccessRightRepository.Delete(AID: Int64);
+procedure TSysAccessRightRepository.DoDelete(AID: TValue);
 var
   Q: TFDQuery;
 begin
@@ -325,19 +327,19 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql + ' id = :id';
-    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;
   end;
 end;
 
-procedure TSysAccessRightRepository.Delete(AModel: TSysAccessRight);
+procedure TSysAccessRightRepository.DoDelete(AModel: TSysAccessRight);
 begin
   Delete(AModel.Id);
 end;
 
-procedure TSysAccessRightRepository.DeleteBatch(AModels: TArray<TSysAccessRight>);
+procedure TSysAccessRightRepository.DoDeleteBatch(AModels: TArray<TSysAccessRight>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -360,7 +362,7 @@ begin
   end;
 end;
 
-procedure TSysAccessRightRepository.DeleteBatch(AIDs: TArray<Int64>);
+procedure TSysAccessRightRepository.DoDeleteBatch(AIDs: TArray<TValue>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -375,7 +377,7 @@ begin
     Q.Params.ArraySize := Count;
 
     for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AIDs[I];
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
 
     Q.Execute(Count, 0);
   finally
@@ -383,7 +385,7 @@ begin
   end;
 end;
 
-procedure TSysAccessRightRepository.DeleteBatch(AFilter: TFilterCriteria);
+procedure TSysAccessRightRepository.DoDeleteBatch(AFilter: TFilterCriteria);
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;
@@ -408,7 +410,7 @@ begin
   end;
 end;
 
-function TSysAccessRightRepository.GetUserPermissions(AUserId: Int64): TObjectDictionary<Integer, TSysAccessRight>;
+function TSysAccessRightRepository.GetUserPermissions(AUserId: TValue): TObjectDictionary<Integer, TSysAccessRight>;
 var
   Q: TFDQuery;
   Right: TSysAccessRight;
@@ -418,7 +420,7 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysAccessRight) + ' WHERE locale = :locale and user_id = :user_id';
-    Q.ParamByName('user_id').AsLargeInt := AUserId;
+    Q.ParamByName('user_id').AsLargeInt := AUserId.AsInt64;
     Q.ParamByName('locale').AsString := TAppContext.Instance.CurrentUser.ActiveLanguage;
     Q.Open;
 
@@ -434,7 +436,7 @@ begin
   end;
 end;
 
-procedure TSysAccessRightRepository.CopyUserAccessRights(ASourceUserId, ATargetUserId: Int64);
+procedure TSysAccessRightRepository.CopyUserAccessRights(ASourceUserId, ATargetUserId: TValue);
 var
   Q: TFDQuery;
   LFilter: TFilterCriteria;
@@ -444,14 +446,14 @@ begin
   try
     Q.Connection := Connection;
 
-    LFilter.Add(TFilterCriterion.New('user_id', '=', TValue.From<Int64>(ATargetUserId)));
+    LFilter.Add(TFilterCriterion.New('user_id', '=', ATargetUserId));
     DeleteBatch(LFilter);
 
     Q.SQL.Text := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) + ' (permission_id, is_read, is_add, is_update, is_delete, is_special, user_id) ' +
                   'SELECT permission_id, is_read, is_add, is_update, is_delete, is_special, :target_user_id ' +
                   'FROM public.' + Self.GetTableName(TSysAccessRight) + ' WHERE user_id = :source_user_id';
-    Q.ParamByName('target_user_id').AsLargeInt := ATargetUserId;
-    Q.ParamByName('source_user_id').AsLargeInt := ASourceUserId;
+    Q.ParamByName('target_user_id').AsLargeInt := ATargetUserId.AsInt64;
+    Q.ParamByName('source_user_id').AsLargeInt := ASourceUserId.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;
@@ -459,10 +461,9 @@ begin
   end;
 end;
 
-procedure TSysAccessRightRepository.AddPermissionToAllUser(APermissionId: Int64);
+procedure TSysAccessRightRepository.AddPermissionToAllUser(APermissionId: TValue);
 var
   Q: TFDQuery;
-  LFilter: TFilterCriteria;
 begin
   Q := TFDQuery.Create(nil);
   try
@@ -471,7 +472,7 @@ begin
                   'SELECT :permission_id, false, false, false, false, false, id FROM ' + Self.GetTableName(TSysUser) +
                   ' WHERE active ' +
                   'ON CONFLICT (permission_id, user_id) DO UPDATE SET permission_id = EXCLUDED.permission_id';
-    Q.ParamByName('permission_id').AsLargeInt := APermissionId;
+    Q.ParamByName('permission_id').AsLargeInt := APermissionId.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;

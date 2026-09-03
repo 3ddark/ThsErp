@@ -76,12 +76,11 @@ begin
   FLock.Enter;
   try
     if Assigned(FInstance) then
-      raise Exception.Create('AppContext already initialized. Call Finalize first.');
+      FreeAndNil(FInstance);
+    FInstance := TAppContext.CreatePrivate(AConnection, AOwnsConnection);
 
     if not Assigned(AConnection) then
       raise EArgumentNilException.Create('AConnection cannot be nil');
-
-    FInstance := TAppContext.CreatePrivate(AConnection, AOwnsConnection);
   finally
     FLock.Leave;
   end;
@@ -100,12 +99,12 @@ end;
 
 function TAppContext.GetConnection: TFDConnection;
 begin
-  Result := FInstance.FDBConnection;
+  Result := FDBConnection;
 end;
 
 function TAppContext.GetCurrentUser: TUserContext;
 begin
-  Result := FInstance.FCurrentUser;
+  Result := FCurrentUser;
 end;
 
 class function TAppContext.Instance: TAppContext;

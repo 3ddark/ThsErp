@@ -271,12 +271,14 @@ begin
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 
       LModel := FRepo.FindOne(LFilter, False);
-      if Assigned(LModel) then
-        raise ESysPermissionGroupExceptionKeyUnique.Create;
+      try
+        if Assigned(LModel) then
+          raise ESysPermissionGroupExceptionKeyUnique.Create;
+      finally
+        LModel.Free;
+      end;
     finally
       LFilter.Free;
-      if Assigned(LModel) then
-        LModel.Free;
     end;
   end;
 end;

@@ -3,9 +3,9 @@
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
-  FireDAC.Comp.Client, FireDAC.Stan.Param,
-  Entity, Repository, FilterCriterion, AppContext, LocalizationManager,
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
+  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
   SysPermissionGroup, SysLanguage;
 
 type
@@ -24,26 +24,27 @@ type
 
     procedure SaveTranslations(AModel: TSysPermissionGroup);
     procedure LoadTranslations(AModel: TSysPermissionGroup);
+
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysPermissionGroup>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysPermissionGroup; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysPermissionGroup; override;
+
+    procedure DoAdd(AModel: TSysPermissionGroup); override;
+    procedure DoAddBatch(AModels: TArray<TSysPermissionGroup>); override;
+
+    procedure DoUpdate(AModel: TSysPermissionGroup); override;
+    procedure DoUpdateBatch(AModels: TArray<TSysPermissionGroup>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TSysPermissionGroup); override;
+    procedure DoDeleteBatch(AModels: TArray<TSysPermissionGroup>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysPermissionGroup>; override;
-    function FindById(AId: TValue; ALock: Boolean = False): TSysPermissionGroup; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysPermissionGroup; override;
-
-    procedure Add(AModel: TSysPermissionGroup); override;
-    procedure AddBatch(AModels: TArray<TSysPermissionGroup>); override;
-
-    procedure Update(AModel: TSysPermissionGroup); override;
-    procedure UpdateBatch(AModels: TArray<TSysPermissionGroup>); override;
-
-    procedure Delete(AID: Int64); override;
-    procedure Delete(AModel: TSysPermissionGroup); override;
-    procedure DeleteBatch(AModels: TArray<TSysPermissionGroup>); override;
-    procedure DeleteBatch(AIDs: TArray<Int64>); override;
-    procedure DeleteBatch(AFilter: TFilterCriteria); override;
   end;
 
 implementation
@@ -179,7 +180,7 @@ begin
   Result.PermissionGroupKey := Q.FieldByName('permission_group_key').AsString;
 end;
 
-function TSysPermissionGroupRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+function TSysPermissionGroupRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
 begin
@@ -197,7 +198,7 @@ begin
   Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysPermissionGroupRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysPermissionGroup>;
+function TSysPermissionGroupRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysPermissionGroup>;
 var
   Q: TFDQuery;
   Item: TSysPermissionGroup;
@@ -230,7 +231,7 @@ begin
   end;
 end;
 
-function TSysPermissionGroupRepository.FindById(AId: TValue; ALock: Boolean): TSysPermissionGroup;
+function TSysPermissionGroupRepository.DoFindById(AId: TValue; ALock: Boolean): TSysPermissionGroup;
 var
   Q: TFDQuery;
   Criteria: TFilterCriteria;
@@ -259,7 +260,7 @@ begin
   end;
 end;
 
-function TSysPermissionGroupRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysPermissionGroup;
+function TSysPermissionGroupRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysPermissionGroup;
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;
@@ -288,7 +289,7 @@ begin
   end;
 end;
 
-procedure TSysPermissionGroupRepository.Add(AModel: TSysPermissionGroup);
+procedure TSysPermissionGroupRepository.DoAdd(AModel: TSysPermissionGroup);
 var
   Q: TFDQuery;
 begin
@@ -306,7 +307,7 @@ begin
   SaveTranslations(AModel);
 end;
 
-procedure TSysPermissionGroupRepository.AddBatch(AModels: TArray<TSysPermissionGroup>);
+procedure TSysPermissionGroupRepository.DoAddBatch(AModels: TArray<TSysPermissionGroup>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -332,7 +333,7 @@ begin
     SaveTranslations(AModels[I]);
 end;
 
-procedure TSysPermissionGroupRepository.Update(AModel: TSysPermissionGroup);
+procedure TSysPermissionGroupRepository.DoUpdate(AModel: TSysPermissionGroup);
 var
   Q: TFDQuery;
 begin
@@ -349,7 +350,7 @@ begin
   SaveTranslations(AModel);
 end;
 
-procedure TSysPermissionGroupRepository.UpdateBatch(AModels: TArray<TSysPermissionGroup>);
+procedure TSysPermissionGroupRepository.DoUpdateBatch(AModels: TArray<TSysPermissionGroup>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -375,7 +376,7 @@ begin
     SaveTranslations(AModels[I]);
 end;
 
-procedure TSysPermissionGroupRepository.Delete(AID: Int64);
+procedure TSysPermissionGroupRepository.DoDelete(AID: TValue);
 var
   Q: TFDQuery;
 begin
@@ -383,19 +384,19 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql + ' id = :id';
-    Q.ParamByName('id').AsLargeInt := AID;
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;
   end;
 end;
 
-procedure TSysPermissionGroupRepository.Delete(AModel: TSysPermissionGroup);
+procedure TSysPermissionGroupRepository.DoDelete(AModel: TSysPermissionGroup);
 begin
   Delete(AModel.Id);
 end;
 
-procedure TSysPermissionGroupRepository.DeleteBatch(AModels: TArray<TSysPermissionGroup>);
+procedure TSysPermissionGroupRepository.DoDeleteBatch(AModels: TArray<TSysPermissionGroup>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -418,7 +419,7 @@ begin
   end;
 end;
 
-procedure TSysPermissionGroupRepository.DeleteBatch(AIDs: TArray<Int64>);
+procedure TSysPermissionGroupRepository.DoDeleteBatch(AIDs: TArray<TValue>);
 var
   Q: TFDQuery;
   I, Count: Integer;
@@ -433,7 +434,7 @@ begin
     Q.Params.ArraySize := Count;
 
     for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AIDs[I];
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
 
     Q.Execute(Count, 0);
   finally
@@ -441,7 +442,7 @@ begin
   end;
 end;
 
-procedure TSysPermissionGroupRepository.DeleteBatch(AFilter: TFilterCriteria);
+procedure TSysPermissionGroupRepository.DoDeleteBatch(AFilter: TFilterCriteria);
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;

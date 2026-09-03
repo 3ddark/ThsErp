@@ -11,14 +11,14 @@ type
     FTableName: string;
     FSortContent: string;
   public
+    constructor Create(); override;
+    destructor Destroy; override;
+
     [Column('table_name'), MaxLength(32)]
     property TableName: string read FTableName write FTableName;
 
     [Column('sort_content')]
     property SortContent: string read FSortContent write FSortContent;
-
-    constructor Create(); override;
-    destructor Destroy; override;
   end;
 
 implementation

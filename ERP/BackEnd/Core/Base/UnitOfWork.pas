@@ -90,31 +90,40 @@ function TUnitOfWork.GetRepository<T, R>: IRepository<T>;
 var
   LRepo: IInterface;
   LKey: TClass;
+  LRttiType: TRttiInstanceType;
+  LMethod: TRttiMethod;
   LContext: TRttiContext;
-  LRttiType: TRttiType;
-  LRttiMethod: TRttiMethod;
 begin
-  if not Assigned(FConnection) then
-    raise Exception.Create('TRepositoryManager initialize edilmeden kullanılamaz!');
-
   LKey := R;
+  if FRepositoryCache.TryGetValue(LKey, LRepo) then
+    Exit(LRepo as IRepository<T>);
 
-  if not FRepositoryCache.TryGetValue(LKey, LRepo) then
-  begin
-    LContext := TRttiContext.Create;
-    try
-      LRttiType := LContext.GetType(R);
-      LRttiMethod := LRttiType.GetMethod('Create');
-      if not Assigned(LRttiMethod) or (Length(LRttiMethod.GetParameters) <> 1) then
-        raise Exception.CreateFmt('%s uygun constructor bulamadı!', [R.ClassName]);
-      LRepo := LRttiMethod.Invoke(LRttiType.AsInstance.MetaclassType, [FConnection]).AsInterface as IRepository<T>;
-    finally
-      LContext.Free;
+  LContext := TRttiContext.Create;
+  try
+    LRttiType := LContext.GetType(R).AsInstance;
+    LMethod := nil;
+
+    // TFDConnection parametreli Create'i bul
+    for var LM in LRttiType.GetMethods('Create') do
+    begin
+      var LParams := LM.GetParameters;
+      if (Length(LParams) = 1) and (LParams[0].ParamType.Handle = TypeInfo(TFDConnection)) then
+      begin
+        LMethod := LM;
+        Break;
+      end;
     end;
 
-    FRepositoryCache.Add(LKey, LRepo);
+    if not Assigned(LMethod) then
+      raise Exception.CreateFmt('%s: TFDConnection alan constructor bulunamadı', [R.ClassName]);
+
+    LRepo := LMethod.Invoke(LRttiType.MetaclassType, [FConnection])
+                    .AsInterface as IRepository<T>;
+  finally
+    LContext.Free;
   end;
 
+  FRepositoryCache.Add(LKey, LRepo);
   Result := LRepo as IRepository<T>;
 end;
 
@@ -132,25 +141,25 @@ end;
 
 procedure TUnitOfWork.Rollback;
 begin
-  FInstance.FConnection.Rollback;
+  FConnection.Rollback;
   GLogger.Info('TRANSACTION ROLLBACK');
 end;
 
 procedure TUnitOfWork.RollbackToSavePoint(const AName: string);
 begin
   if InTransaction then
-    FInstance.FConnection.ExecSQL('ROLLBACK TO SAVEPOINT ' + AName);
+    FConnection.ExecSQL('ROLLBACK TO SAVEPOINT ' + AName);
 end;
 
 procedure TUnitOfWork.SavePoint(const AName: string);
 begin
   if InTransaction then
-    FInstance.FConnection.ExecSQL('SAVEPOINT ' + AName);
+    FConnection.ExecSQL('SAVEPOINT ' + AName);
 end;
 
 function TUnitOfWork.InTransaction: Boolean;
 begin
-  Result := FInstance.Connection.InTransaction;
+  Result := Connection.InTransaction;
 end;
 
 function TUnitOfWork.IsAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean): Boolean;

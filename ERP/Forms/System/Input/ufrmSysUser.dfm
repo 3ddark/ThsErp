@@ -20,7 +20,7 @@ object frmSysUser: TfrmSysUser
     Align = alClient
     TabOrder = 0
     object lblUsername: TLabel
-      Left = 46
+      Left = 45
       Top = 11
       Width = 58
       Height = 13
@@ -34,7 +34,7 @@ object frmSysUser: TfrmSysUser
       ParentFont = False
     end
     object lblPersonId: TLabel
-      Left = 48
+      Left = 47
       Top = 41
       Width = 56
       Height = 13
@@ -48,8 +48,8 @@ object frmSysUser: TfrmSysUser
       ParentFont = False
     end
     object lblActive: TLabel
-      Left = 68
-      Top = 71
+      Left = 67
+      Top = 68
       Width = 36
       Height = 13
       Alignment = taRightJustify
@@ -62,8 +62,8 @@ object frmSysUser: TfrmSysUser
       ParentFont = False
     end
     object lblManager: TLabel
-      Left = 54
-      Top = 96
+      Left = 53
+      Top = 93
       Width = 50
       Height = 13
       Alignment = taRightJustify
@@ -76,8 +76,8 @@ object frmSysUser: TfrmSysUser
       ParentFont = False
     end
     object lblSuperUser: TLabel
-      Left = 42
-      Top = 121
+      Left = 41
+      Top = 118
       Width = 62
       Height = 13
       Alignment = taRightJustify
@@ -90,7 +90,7 @@ object frmSysUser: TfrmSysUser
       ParentFont = False
     end
     object lblIpAddress: TLabel
-      Left = 43
+      Left = 42
       Top = 151
       Width = 61
       Height = 13
@@ -104,7 +104,7 @@ object frmSysUser: TfrmSysUser
       ParentFont = False
     end
     object lblMacAddress: TLabel
-      Left = 30
+      Left = 29
       Top = 181
       Width = 74
       Height = 13

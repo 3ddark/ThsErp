@@ -331,6 +331,8 @@ type
         const TitleSingular = 'sys_user.title_singular';
 
         const ColUserName = 'sys_user.col_username';
+        const ColPersonId = 'sys_user.col_person_id';
+        const ColIsActive = 'sys_user.col_is_active';
 
         const UsernameUnique = 'sys_user.username_unique';
       end;

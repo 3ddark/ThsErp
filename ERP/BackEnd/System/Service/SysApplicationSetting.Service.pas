@@ -89,11 +89,14 @@ begin
       raise ESysApplicationSettingExceptionMustContainOnlyOneRecord.Create;
 
     LModel := FRepo.FindOne(LFilter, False);
-    if Assigned(LModel) then
-      raise ESysApplicationSettingExceptionMustContainOnlyOneRecord.Create;
+    try
+      if Assigned(LModel) then
+        raise ESysApplicationSettingExceptionMustContainOnlyOneRecord.Create;
+    finally
+      LModel.Free;
+    end;
   finally
     LFilter.Free;
-    LModel.Free;
   end;
 end;
 

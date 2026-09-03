@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
-  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager, Logger,
   SysCountry.Repository, SysCountry, SysCountry.Exception;
 
 type
@@ -90,11 +90,14 @@ begin
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 
       LModel := FRepo.FindOne(LFilter, False);
-      if Assigned(LModel) then
-        raise ESysCountryExceptionCodeUnique.Create;
+      try
+        if Assigned(LModel) then
+          raise ESysCountryExceptionCodeUnique.Create;
+      finally
+        LModel.Free;
+      end;
     finally
       LFilter.Free;
-      LModel.Free;
     end;
   end;
 end;

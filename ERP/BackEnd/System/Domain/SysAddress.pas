@@ -23,12 +23,12 @@ type
 
     FSysCity: TSysCity;
   public
+    constructor Create(); override;
+    destructor Destroy; override;
+
     [Column('sys_city_id')]
     [Required(TLangKeys.TValidation.Required, True)]
     property SysCityId: Int64 read FSysCityId write FSysCityId;
-
-    [BelongsTo('sys_city_id', 'id')]
-    property SysCity: TSysCity read FSysCity write FSysCity;
 
     [Column('district')]
     property District: string read FDistrict write FDistrict;
@@ -60,8 +60,8 @@ type
     [Column('email')]
     property Email: string read FEmail write FEmail;
 
-    constructor Create(); override;
-    destructor Destroy; override;
+    [BelongsTo('sys_city_id', 'id')]
+    property SysCity: TSysCity read FSysCity write FSysCity;
   end;
 
 implementation

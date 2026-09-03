@@ -164,7 +164,7 @@ end;
 
 function TSysGridSortService.FindOne(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TSysGridSort;
 begin
-
+  Result := FRepo.FindOne(AFilter, ALock);
 end;
 
 procedure TSysGridSortService.Add(AEntity: TSysGridSort);

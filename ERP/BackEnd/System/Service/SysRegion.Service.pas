@@ -90,11 +90,14 @@ begin
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 
       LModel := FRepo.FindOne(LFilter, False);
-      if Assigned(LModel) then
-        raise ESysRegionExceptionNameUnique.Create;
+      try
+        if Assigned(LModel) then
+          raise ESysRegionExceptionNameUnique.Create;
+      finally
+        LModel.Free;
+      end;
     finally
       LFilter.Free;
-      LModel.Free;
     end;
   end;
 end;
