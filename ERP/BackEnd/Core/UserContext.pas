@@ -10,10 +10,10 @@ type
 
   TUserContext = class
   private
-    FUser: TSysUser;
-    FPermissions: TObjectDictionary<Integer, TSysAccessRight>;
-    FOwnsUser: Boolean;
-    FActiveLanguage: string;
+    FUser           : TSysUser;
+    FPermissions    : TObjectDictionary<Integer, TSysAccessRight>;
+    FOwnsUser       : Boolean;
+    FActiveLanguage : string;
     FActiveLanguageId: Int64;
 
     function GetPermission(AKey: Integer): TSysAccessRight;
@@ -31,10 +31,10 @@ type
     function GetUserId: Integer;
     function GetUsername: string;
 
-    property User: TSysUser read FUser write SetUser;
+    property User            : TSysUser read FUser write SetUser;
     property Permissions[AKey: Integer]: TSysAccessRight read GetPermission;
-    property ActiveLanguage: string read FActiveLanguage write FActiveLanguage;
-    property ActiveLanguageId: Int64 read FActiveLanguageId write FActiveLanguageId;
+    property ActiveLanguage  : string   read FActiveLanguage   write FActiveLanguage;
+    property ActiveLanguageId: Int64    read FActiveLanguageId write FActiveLanguageId;
   end;
 
 implementation
@@ -42,12 +42,8 @@ implementation
 constructor TUserContext.Create(AUser: TSysUser; AOwnsUser: Boolean);
 begin
   inherited Create;
-
-//  if not Assigned(AUser) then
-//    raise EArgumentNilException.Create('AUser cannot be nil');
-
-  FUser := AUser;
-  FOwnsUser := AOwnsUser;
+  FUser        := AUser;
+  FOwnsUser    := AOwnsUser;
   FPermissions := TObjectDictionary<Integer, TSysAccessRight>.Create([doOwnsValues]);
 end;
 
@@ -61,6 +57,14 @@ begin
   inherited;
 end;
 
+procedure TUserContext.SetUser(const Value: TSysUser);
+begin
+  if FOwnsUser and Assigned(FUser) and (FUser <> Value) then
+    FUser.Free;
+
+  FUser := Value;
+end;
+
 procedure TUserContext.AddPermission(AKey: Integer; APermission: TSysAccessRight);
 var
   LExisting: TSysAccessRight;
@@ -70,10 +74,10 @@ begin
 
   if FPermissions.TryGetValue(AKey, LExisting) then
   begin
-    LExisting.IsRead := APermission.IsRead;
-    LExisting.IsAdd := APermission.IsAdd;
-    LExisting.IsUpdate := APermission.IsUpdate;
-    LExisting.IsDelete := APermission.IsDelete;
+    LExisting.IsRead    := APermission.IsRead;
+    LExisting.IsAdd     := APermission.IsAdd;
+    LExisting.IsUpdate  := APermission.IsUpdate;
+    LExisting.IsDelete  := APermission.IsDelete;
     LExisting.IsSpecial := APermission.IsSpecial;
   end
   else
@@ -84,13 +88,34 @@ end;
 
 procedure TUserContext.AddPermissions(APermissionsList: TObjectDictionary<Integer, TSysAccessRight>);
 var
-  LPair: TPair<Integer, TSysAccessRight>;
+  LPair     : TPair<Integer, TSysAccessRight>;
+  LExisting : TSysAccessRight;
+  LNew      : TSysAccessRight;
 begin
   if not Assigned(APermissionsList) then
     Exit;
 
   for LPair in APermissionsList do
-    AddPermission(LPair.Key, LPair.Value);
+  begin
+    if FPermissions.TryGetValue(LPair.Key, LExisting) then
+    begin
+      LExisting.IsRead    := LPair.Value.IsRead;
+      LExisting.IsAdd     := LPair.Value.IsAdd;
+      LExisting.IsUpdate  := LPair.Value.IsUpdate;
+      LExisting.IsDelete  := LPair.Value.IsDelete;
+      LExisting.IsSpecial := LPair.Value.IsSpecial;
+    end
+    else
+    begin
+      LNew            := TSysAccessRight.Create;
+      LNew.IsRead     := LPair.Value.IsRead;
+      LNew.IsAdd      := LPair.Value.IsAdd;
+      LNew.IsUpdate   := LPair.Value.IsUpdate;
+      LNew.IsDelete   := LPair.Value.IsDelete;
+      LNew.IsSpecial  := LPair.Value.IsSpecial;
+      FPermissions.Add(LPair.Key, LNew);
+    end;
+  end;
 end;
 
 function TUserContext.HasPermission(AKey: Integer; AAccessType: TAccessType): Boolean;
@@ -103,22 +128,12 @@ begin
     Exit;
 
   case AAccessType of
-    atRead:    Result := LPermission.IsRead;
-    atAdd:     Result := LPermission.IsAdd;
-    atUpdate:  Result := LPermission.IsUpdate;
-    atDelete:  Result := LPermission.IsDelete;
+    atRead   : Result := LPermission.IsRead;
+    atAdd    : Result := LPermission.IsAdd;
+    atUpdate : Result := LPermission.IsUpdate;
+    atDelete : Result := LPermission.IsDelete;
     atSpecial: Result := LPermission.IsSpecial;
   end;
-end;
-
-procedure TUserContext.SetUser(const Value: TSysUser);
-begin
-  FUser := Value;
-end;
-
-function TUserContext.TryGetPermission(AKey: Integer; out APermission: TSysAccessRight): Boolean;
-begin
-  Result := FPermissions.TryGetValue(AKey, APermission);
 end;
 
 function TUserContext.GetPermission(AKey: Integer): TSysAccessRight;
@@ -127,16 +142,14 @@ begin
     Result := nil;
 end;
 
-procedure TUserContext.ClearPermissions;
-var
-  LPermission: TSysAccessRight;
+function TUserContext.TryGetPermission(AKey: Integer;
+  out APermission: TSysAccessRight): Boolean;
 begin
-  if not Assigned(FPermissions) then
-    Exit;
+  Result := FPermissions.TryGetValue(AKey, APermission);
+end;
 
-  for LPermission in FPermissions.Values do
-    LPermission.Free;
-
+procedure TUserContext.ClearPermissions;
+begin
   FPermissions.Clear;
 end;
 

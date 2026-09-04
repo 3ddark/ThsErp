@@ -24,7 +24,7 @@ type
 
     procedure SaveTranslations(AModel: TSysCountry);
     procedure LoadTranslations(AModel: TSysCountry);
-
+    procedure LoadTranslationsBatch(AList: TList<TSysCountry>);
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
@@ -70,7 +70,7 @@ end;
 
 function TSysCountryRepository.PrepareDeleteSql: string;
 begin
-  //WHERE k�sm� �zellikle b�yle yaz�ld�. Filtre vermeden i�lem yap�lmamas� i�in. Hatal� kodlamada t�m tabloyu siler.
+  //WHERE kısmı özellikle böyle yazıldı. Filtre vermeden işlem yapılmaması için. Hatalı kodlamada tüm tabloyu siler.
   Result := 'DELETE FROM public.' + Self.GetTableName(TSysCountry) + ' WHERE';
 end;
 
@@ -127,6 +127,71 @@ begin
     end;
   finally
     Q.Free;
+  end;
+end;
+
+procedure TSysCountryRepository.LoadTranslationsBatch(AList: TList<TSysCountry>);
+var
+  Q        : TFDQuery;
+  LIds     : TStringBuilder;
+  LItem    : TSysCountry;
+  LMap     : TDictionary<Int64, TSysCountry>;
+  Trans    : TSysCountryTranslation;
+  LCountry : TSysCountry;
+begin
+  if (AList = nil) or (AList.Count = 0) then
+    Exit;
+
+  LIds := TStringBuilder.Create;
+  LMap := TDictionary<Int64, TSysCountry>.Create;
+  try
+    for LItem in AList do
+    begin
+      LItem.Translations.Clear;
+      if LIds.Length > 0 then LIds.Append(',');
+      LIds.Append(LItem.Id.ToString);
+      LMap.AddOrSetValue(LItem.Id, LItem);
+    end;
+
+    Q := TFDQuery.Create(nil);
+    try
+      Q.Connection := Connection;
+      // FIX: N ayrı SELECT yerine tek IN sorgusu
+      Q.SQL.Text :=
+        'SELECT t.sys_country_id, t.sys_language_id, t.country_name, ' +
+        '       l.locale, l.native_name ' +
+        'FROM public.' + Self.GetTableName(TSysCountryTranslation) + ' t ' +
+        'LEFT JOIN public.sys_language l ON l.id = t.sys_language_id ' +
+        'WHERE t.sys_country_id IN (' + LIds.ToString + ')';
+      Q.Open;
+
+      while not Q.Eof do
+      begin
+        if LMap.TryGetValue(Q.FieldByName('sys_country_id').AsLargeInt, LCountry) then
+        begin
+          Trans := TSysCountryTranslation.Create;
+          Trans.SysCountryId  := Q.FieldByName('sys_country_id').AsLargeInt;
+          Trans.SysLanguageId := Q.FieldByName('sys_language_id').AsLargeInt;
+          Trans.CountryName   := Q.FieldByName('country_name').AsString;
+
+          Trans.SysLanguage          := TSysLanguage.Create;
+          Trans.SysLanguage.Id       := Trans.SysLanguageId;
+          Trans.SysLanguage.Locale   := Q.FieldByName('locale').AsString;
+          Trans.SysLanguage.NativeName := Q.FieldByName('native_name').AsString;
+
+          LCountry.Translations.Add(Trans);
+
+          if Trans.SysLanguage.Locale = TAppContext.Instance.CurrentUser.ActiveLanguage then
+            LCountry.CountryName := Trans.CountryName;
+        end;
+        Q.Next;
+      end;
+    finally
+      Q.Free;
+    end;
+  finally
+    LMap.Free;
+    LIds.Free;
   end;
 end;
 
@@ -245,19 +310,21 @@ begin
     while not Q.Eof do
     begin
       Item := MapFromQuery(Q);
-      LoadTranslations(Item);
       Result.Add(Item);
       Q.Next;
     end;
   finally
     Q.Free;
   end;
+
+  LoadTranslationsBatch(Result);
 end;
 
 function TSysCountryRepository.DoFindById(AId: TValue; ALock: Boolean): TSysCountry;
 var
   Q: TFDQuery;
   Criteria: TFilterCriteria;
+  LList: TList<TSysCountry>;
 begin
   Result := nil;
   Q := TFDQuery.Create(nil);
@@ -273,13 +340,21 @@ begin
     Q.Open;
 
     if not Q.IsEmpty then
-    begin
       Result := MapFromQuery(Q);
-      LoadTranslations(Result);
-    end;
   finally
     Q.Free;
     Criteria.Free;
+  end;
+
+  if Assigned(Result) then
+  begin
+    LList := TList<TSysCountry>.Create;
+    try
+      LList.Add(Result);
+      LoadTranslationsBatch(LList);
+    finally
+      LList.Free;
+    end;
   end;
 end;
 

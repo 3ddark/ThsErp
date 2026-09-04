@@ -6,9 +6,10 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.Generics.Collections, System.StrUtils,
-  Vcl.Controls, Vcl.Forms, Vcl.Samples.Spin, Vcl.StdCtrls, Vcl.Dialogs, Vcl.Menus,
-  Vcl.Graphics, Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Themes, Vcl.Styles,
-  Vcl.Imaging.pngimage, Winapi.Windows, FireDAC.Comp.Client, Logger, System.Threading,
+  System.Rtti, System.Threading, Vcl.Controls, Vcl.Forms, Vcl.Samples.Spin,
+  Vcl.StdCtrls, Vcl.Dialogs, Vcl.Menus, Vcl.Graphics, Vcl.AppEvnts,
+  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Themes, Vcl.Styles,
+  Vcl.Imaging.pngimage, Winapi.Windows, FireDAC.Comp.Client, Logger,
   Ths.Helper.Edit, Ths.Helper.ComboBox, udm, ufrmBase,
   Ths.Database.Connection.Settings,
 
@@ -86,14 +87,13 @@ end;
 
 procedure TfrmLogin.btnAcceptClick(Sender: TObject);
 var
-  LConn: TFDConnection;
-
+  LConn    : TFDConnection;
   LUserRepo: TSysUserRepository;
   LLangRepo: IRepository<TSysLanguage>;
-  LAuthSvc: TAuthService;
+  LAuthSvc : TAuthService;
   LLoginRes: TLoginResult;
-  LPerms: TObjectDictionary<Integer, TSysAccessRight>;
-  LLangs: TArray<string>;
+  LPerms   : TObjectDictionary<Integer, TSysAccessRight>;
+  LLangs   : TArray<string>;
   LSelectedLang: string;
 
   procedure IncProgress;
@@ -102,23 +102,23 @@ var
   end;
 
 begin
-  LLangs := SplitString(cbblanguage.Text, '|');
+  LLangs        := SplitString(cbblanguage.Text, '|');
   LSelectedLang := IfThen(Length(LLangs) > 1, Trim(LLangs[1]), 'tr');
   TLocalizationManager.SetLanguage(LSelectedLang);
 
   if (edtusername.Text = '') or (edtuser_password.Text = '') then
     Exit;
 
-  try
-    ConnSetting.Theme := cbbtheme.Text;
-    ConnSetting.SQLServer := edtdb_host.Text;
-    ConnSetting.DatabaseName := edtdb_adi.Text;
-    ConnSetting.DBUserName := edtdb_kullanici.Text;
-    ConnSetting.DBUserPassword := edtdb_kullanici_sifre.Text;
-    ConnSetting.DBPortNo := StrToIntDef(edtdb_port.Text, 0);
-    ConnSetting.UserName := edtusername.Text;
-    ConnSetting.UserPass := edtuser_password.Text;
+  ConnSetting.Theme           := cbbtheme.Text;
+  ConnSetting.SQLServer       := edtdb_host.Text;
+  ConnSetting.DatabaseName    := edtdb_adi.Text;
+  ConnSetting.DBUserName      := edtdb_kullanici.Text;
+  ConnSetting.DBUserPassword  := edtdb_kullanici_sifre.Text;
+  ConnSetting.DBPortNo        := StrToIntDef(edtdb_port.Text, 0);
+  ConnSetting.UserName        := edtusername.Text;
+  ConnSetting.UserPass        := edtuser_password.Text;
 
+  try
     LConn := TConnectionManager.Instance.GetConnection(
       ContextMain,
       ConnSetting.SQLServer,
@@ -134,85 +134,114 @@ begin
     end;
   end;
 
-  TAppContext.Initialize(LConn);
-  TAppContext.Instance.SetCurrentUser(TUserContext.Create(nil, True));
-  TAppContext.Instance.CurrentUser.ActiveLanguage := LSelectedLang;
+  if not LConn.Connected then Exit;
 
-  if LConn.Connected then
-  begin
-    GLogger.DBConnectionPID := TConnectionManager.Instance.GetConnectionPID(ContextMain).ToString;
+  GLogger.DBConnectionPID := TConnectionManager.Instance.GetConnectionPID(ContextMain).ToString;
 
-    TUnitOfWork.Initialize(LConn);
+  TUnitOfWork.Initialize(LConn);
 
-    LAuthSvc := TAuthService.Create;
-    LUserRepo := TSysUserRepository.Create(LConn);
-    LLangRepo := TUnitOfWork.Instance.GetRepository<TSysLanguage, TSysLanguageRepository>();
+  LAuthSvc  := TAuthService.Create;
+  LUserRepo := TSysUserRepository.Create(LConn);
+  try
     try
-      try
-        LConn.ExecSQLScalar('SELECT set_config(''ths_erp.user_name'', :uname, false)', [edtusername.Text]);
+      LConn.ExecSQLScalar('SELECT set_config(''ths_erp.user_name'', :uname, false)', [edtusername.Text]);
 
-        pb1.Max := 11;
-        pb1.Min := 0;
-        pb1.Position := 0;
-        pb1.Visible := True;
+      pb1.Max      := 11;
+      pb1.Min      := 0;
+      pb1.Position := 0;
+      pb1.Visible  := True;
 
-        LLoginRes := LAuthSvc.Login(edtusername.Text, edtuser_password.Text);
-        if (LLoginRes.UserId = Ord(TLoginStatus.lsUserNotFound)) or (LLoginRes.UserId = 0) then
-          raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TLogin.UserNotFound, [edtusername.Text], edtusername.Text + ': böyle bir kullanıcı yok'))
-        else if LLoginRes.UserId = Ord(TLoginStatus.lsInactiveUser) then
-          raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TLogin.UserInactive, [edtusername.Text], edtusername.Text + ' kullanıcısı aktif değil!'))
-        else if LLoginRes.UserId = Ord(TLoginStatus.lsInvalidPassword) then
-          raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TLogin.InvalidPassword, 'Geçersiz Kullanıcı Şifresi!'))
-        else if LLoginRes.UserId = Ord(TLoginStatus.lsInvalidAppVersion) then
+      TAppContext.Initialize(LConn);
+
+      var LUserCtx := TUserContext.Create(nil, True);
+      LUserCtx.ActiveLanguage := LSelectedLang;
+      TAppContext.Instance.SetCurrentUser(LUserCtx);
+
+      IncProgress;
+
+      LLoginRes := LAuthSvc.Login(edtusername.Text, edtuser_password.Text);
+
+      case LLoginRes.Status of
+        lsUserNotFound:
+          raise Exception.Create(
+            TLocalizationManager.Translate(TLangKeys.TLogin.UserNotFound, [edtusername.Text], edtusername.Text + ': böyle bir kullanıcı yok'));
+
+        lsInactiveUser:
+          raise Exception.Create(
+            TLocalizationManager.Translate(TLangKeys.TLogin.UserInactive, [edtusername.Text], edtusername.Text + ' kullanıcısı aktif değil!'));
+
+        lsInvalidPassword:
+          raise Exception.Create(
+            TLocalizationManager.Translate(TLangKeys.TLogin.InvalidPassword, 'Geçersiz Kullanıcı Şifresi!'));
+
+        lsInvalidAppVersion:
         begin
           Application.MessageBox(
             PChar(TLocalizationManager.Translate(TLangKeys.TLogin.UpdateAvailable, 'Yeni bir güncellemeniz var.')),
             PChar(TLocalizationManager.Translate(TLangKeys.TLogin.UpdateTitle, 'Güncelleme')),
-            MB_ICONINFORMATION
-          );
-          TfrmDashboard(Application.MainForm).UpdateApplicationExe();
+            MB_ICONINFORMATION);
+          TfrmDashboard(Application.MainForm).UpdateApplicationExe;
           Exit;
         end;
 
-        var filter := TFilterCriteria.Create(TFilterCriterion.New('locale', '=', LSelectedLang));
-        var LLang := LLangRepo.FindOne(filter);
+        lsSuccess: ;
+      else
+        raise Exception.Create(LLoginRes.ErrorMessage);
+      end;
+
+      IncProgress;
+
+      LLangRepo := TUnitOfWork.Instance.GetRepository<TSysLanguage, TSysLanguageRepository>();
+
+      var LFilter := TFilterCriteria.Create;
+      try
+        LFilter.Add(TFilterCriterion.New('locale', '=', TValue.From<string>(LSelectedLang)));
+        var LLang := LLangRepo.FindOne(LFilter);
         try
-          var user := LUserRepo.FindById(LLoginRes.UserId, False);
           if not Assigned(LLang) then
-            raise Exception.Create(TLangKeys.TLogin.UserNotFound);
-          TAppContext.Instance.CurrentUser.User := user;
+            raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TLogin.UserNotFound, 'Dil bulunamadı'));
+
+          var LUser := LUserRepo.FindById(TValue.From<Int64>(LLoginRes.UserId), False);
+
+          TAppContext.Instance.CurrentUser.User          := LUser;
           TAppContext.Instance.CurrentUser.ActiveLanguageId := LLang.Id;
         finally
           LLang.Free;
-          filter.Free;
         end;
-
-        var LAccessRepo := TSysAccessRightRepository.Create(LConn);
-        try
-          LPerms := LAccessRepo.GetUserPermissions(LLoginRes.UserId);
-          try
-            TAppContext.Instance.CurrentUser.AddPermissions(LPerms);
-          finally
-            LPerms.Free;
-          end;
-        finally
-          LAccessRepo.Free;
-        end;
-
-        ModalResult := mrYes;
-
-        if chkayarlari_kaydet.Checked then
-          ConnSetting.SaveToFile
-        else
-          ConnSetting.SaveToFile(True);
-      except
-        pb1.Visible := False;
-        raise;
+      finally
+        LFilter.Free;
       end;
-    finally
-      LAuthSvc.Free;
-      LUserRepo.Free;
+
+      IncProgress;
+
+      var LAccessRepo := TSysAccessRightRepository.Create(LConn);
+      try
+        LPerms := LAccessRepo.GetUserPermissions(TValue.From<Int64>(LLoginRes.UserId));
+        try
+          TAppContext.Instance.CurrentUser.AddPermissions(LPerms);
+        finally
+          LPerms.Free;
+        end;
+      finally
+        LAccessRepo.Free;
+      end;
+
+      IncProgress;
+
+      ModalResult := mrYes;
+
+      if chkayarlari_kaydet.Checked then
+        ConnSetting.SaveToFile
+      else
+        ConnSetting.SaveToFile(True);
+
+    except
+      pb1.Visible := False;
+      raise;
     end;
+  finally
+    LAuthSvc.Free;
+    LUserRepo.Free;
   end;
 end;
 

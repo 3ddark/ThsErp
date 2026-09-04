@@ -93,9 +93,6 @@ begin
 end;
 
 destructor TConnectionManager.Destroy;
-//var
-//  LKey: string;
-//  LConn: TFDConnection;
 begin
   try
     GLogger.Info('ConnectionManager kapatılıyor...');
@@ -106,7 +103,7 @@ begin
     FConnectionTimes.Free;
     FContextKeys.Free;
 
-    if FDriverLink <> nil then
+    if Assigned(FDriverLink) then
     begin
       FDriverLink.Free;
       FDriverLink := nil;
@@ -115,9 +112,8 @@ begin
     GLogger.Info('ConnectionManager başarıyla kapatıldı');
   except
     on E: Exception do
-      GLogger.ErrorLog(E, 'ConnectionManager kapatılırken hata');
+      GLogger.ErrorFmt('ConnectionManager kapatılırken hata: %s', [E.Message]);
   end;
-
   inherited;
 end;
 
@@ -285,7 +281,7 @@ function TConnectionManager.GetConnection(
   const APort: Integer = 5432
 ): TFDConnection;
 var
-  Conn: TFDConnection;
+  Conn   : TFDConnection;
   LExists: Boolean;
 begin
   if AContextKey.IsEmpty then
@@ -303,28 +299,27 @@ begin
 
     try
       Conn := TFDConnection.Create(nil);
-      Conn.Name := AContextKey;
+      Conn.Name       := AContextKey;
       Conn.DriverName := 'PG';
 
       with Conn.Params do
       begin
-        Values['DriverID'] := 'PG';
-        Values['Server'] := AHostName;
-        Values['Database'] := ADatabase;
-        Values['User_Name'] := AUser;
-        Values['Password'] := APassword;
-        Values['Port'] := APort.ToString;
-        Values['CharacterSet'] := 'UTF8';
+        Values['DriverID']        := 'PG';
+        Values['Server']          := AHostName;
+        Values['Database']        := ADatabase;
+        Values['User_Name']       := AUser;
+        Values['Password']        := APassword;
+        Values['Port']            := APort.ToString;
+        Values['CharacterSet']    := 'UTF8';
         Values['ApplicationName'] := 'ThsErp_' + AContextKey;
       end;
 
-      Conn.LoginPrompt := False;
-      Conn.TxOptions.AutoCommit := False;
-      Conn.TxOptions.AutoStart := False;
-      Conn.TxOptions.DisconnectAction := xdRollback;
+      Conn.LoginPrompt                  := False;
+      Conn.TxOptions.AutoCommit         := False;
+      Conn.TxOptions.AutoStart          := False;
+      Conn.TxOptions.DisconnectAction   := xdRollback;
 
       SetupConnectionEvents(Conn, AContextKey);
-
       Conn.Connected := True;
       FConnections.Add(AContextKey, Conn);
 
@@ -332,7 +327,7 @@ begin
     except
       on E: Exception do
       begin
-        GLogger.ErrorLog(E, Format('Bağlantı oluşturulurken hata [%s]', [AContextKey]));
+        GLogger.ErrorFmt('[%s] Bağlantı oluşturulurken hata: %s', [AContextKey, E.Message]);
         Conn.Free;
         raise;
       end;

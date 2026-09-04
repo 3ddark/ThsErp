@@ -258,9 +258,9 @@ end;
 
 procedure TRepository<T>.DeleteBatch(AFilter: TFilterCriteria);
 begin
-  GLogger.InfoFmt('DeleteBatch Filter ', [Self.ClassName]);
+  GLogger.InfoFmt('DeleteBatch Filter [%s]', [Self.ClassName]);
   DoDeleteBatch(AFilter);
-  GLogger.InfoFmt('DeleteBatch Filter Done ', [Self.ClassName]);
+  GLogger.InfoFmt('DeleteBatch Filter Done [%s]', [Self.ClassName]);
 end;
 
 end.

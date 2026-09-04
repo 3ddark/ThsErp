@@ -49,7 +49,7 @@ type
 implementation
 
 uses
-  LocalizationManager;
+  LocalizationManager, EntitySchemaCache;
 
 constructor TEntityBase.Create;
 begin
@@ -68,71 +68,66 @@ end;
 
 function TEntityBase.Validate: TValidationResult;
 var
-  RttiContext: TRttiContext;
-  RttiType: TRttiType;
-  RttiProperty: TRttiProperty;
-  PropertyValue: TValue;
-  PropertyResult: TValidationResult;
-  HasColumnAttribute: Boolean;
-  Attribute: TCustomAttribute;
-  Error: TValidationError;
+  Schema   : TEntitySchema;
+  Col      : TColumnSchema;
+  PropVal  : TValue;
+  PropRes  : TValidationResult;
+  Error    : TValidationError;
+  Attr     : TCustomAttribute;
+  ValResult: TValidationResult;
 begin
   Result := TValidationResult.Create;
 
-  try
-    RttiContext := TRttiContext.Create;
+  // FIX: TEntitySchemaCache üzerinden schema al — RTTI context açılmıyor
+  Schema := TEntitySchemaCache.GetSchema(Self.ClassType);
+  if not Assigned(Schema) then
+    Exit;
+
+  for Col in Schema.Columns do
+  begin
+    if not Col.IsReadable then
+      Continue;
+
     try
-      RttiType := RttiContext.GetType(Self.ClassType);
-      if not Assigned(RttiType) then
-        Exit;
-
-      // Check all properties
-      for RttiProperty in RttiType.GetProperties do
-      begin
-        // Only validate properties with Column attribute
-        HasColumnAttribute := False;
-        for Attribute in RttiProperty.GetAttributes do
+      PropVal := Col.Prop.GetValue(Self);
+      PropRes := TValidationResult.Create;
+      try
+        for Attr in Col.Prop.GetAttributes do
         begin
-          if Attribute is Column then
-          begin
-            HasColumnAttribute := True;
-            Break;
-          end;
-        end;
+          ValResult := nil;
 
-        if not HasColumnAttribute then
-          Continue;
+          if Attr is Required then
+            ValResult := Required(Attr).Validate(PropVal, Col.PropertyName)
+          else if Attr is MinLength then
+            ValResult := MinLength(Attr).Validate(PropVal, Col.PropertyName)
+          else if Attr is MaxLength then
+            ValResult := MaxLength(Attr).Validate(PropVal, Col.PropertyName)
+          else if Attr is Range then
+            ValResult := Range(Attr).Validate(PropVal, Col.PropertyName)
+          else if Attr is Email then
+            ValResult := Email(Attr).Validate(PropVal, Col.PropertyName)
+          else if Attr is RegEx then
+            ValResult := RegEx(Attr).Validate(PropVal, Col.PropertyName);
 
-        try
-          // Get property value
-          PropertyValue := RttiProperty.GetValue(Self);
-
-          // Validate property
-          PropertyResult := ValidateProperty(RttiProperty.Name, PropertyValue);
+          if Assigned(ValResult) then
           try
-            // Add errors to main result
-            if not PropertyResult.IsValid then
-            begin
-              for Error in PropertyResult.Errors do
-                Result.AddError(Error.FieldName, Error.Message);
-            end;
+            if not ValResult.IsValid then
+              for Error in ValResult.Errors do
+                PropRes.AddError(Error.FieldName, Error.Message);
           finally
-            PropertyResult.Free;
-          end;
-        except
-          on E: Exception do
-          begin
-            Result.AddError(RttiProperty.Name, 'Property validation error: ' + E.Message);
+            ValResult.Free;
           end;
         end;
+
+        if not PropRes.IsValid then
+          for Error in PropRes.Errors do
+            Result.AddError(Error.FieldName, Error.Message);
+      finally
+        PropRes.Free;
       end;
-    finally
-      RttiContext.Free;
-    end;
-  except
-    on E: Exception do
-    begin
-      Result.AddError('General', 'Validation error: ' + E.Message);
+    except
+      on E: Exception do
+        Result.AddError(Col.PropertyName, 'Property validation error: ' + E.Message);
     end;
   end;
 end;
