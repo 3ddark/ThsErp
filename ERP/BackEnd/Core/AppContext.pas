@@ -8,32 +8,27 @@ uses
 type
   TAppContext = class
   private
-    class var FInstance: TAppContext;
-    class var FLock: TCriticalSection;
-
-    FDBConnection: TFDConnection;
-    FCurrentUser: TUserContext;
-    FOwnsConnection: Boolean;
-
+    class var
+      FInstance: TAppContext;
+    class var
+      FLock: TCriticalSection;
+      FDBConnection: TFDConnection;
+      FCurrentUser: TUserContext;
+      FOwnsConnection: Boolean;
     constructor CreatePrivate(AConnection: TFDConnection; AOwnsConnection: Boolean);
     function GetConnection: TFDConnection;
     function GetCurrentUser: TUserContext;
   public
     class constructor Create;
     class destructor Destroy;
-
     class procedure Initialize(AConnection: TFDConnection; AOwnsConnection: Boolean = False);
     class procedure Finalize;
     class function Instance: TAppContext;
-
     procedure SetCurrentUser(AUser: TUserContext);
     procedure ClearCurrentUser;
     function IsAuthenticated: Boolean;
     function ApplicationPath: string;
-
-
     destructor Destroy; override;
-
     property DBConnection: TFDConnection read GetConnection;
     property CurrentUser: TUserContext read GetCurrentUser;
   end;
@@ -42,7 +37,7 @@ implementation
 
 class constructor TAppContext.Create;
 begin
-  FLock := TCriticalSection.Create;
+  FLock     := TCriticalSection.Create;
   FInstance := nil;
 end;
 
@@ -56,31 +51,32 @@ end;
 constructor TAppContext.CreatePrivate(AConnection: TFDConnection; AOwnsConnection: Boolean);
 begin
   inherited Create;
-  FDBConnection := AConnection;
+  FDBConnection   := AConnection;
   FOwnsConnection := AOwnsConnection;
-  FCurrentUser := nil;
+  FCurrentUser    := nil;
 end;
 
 destructor TAppContext.Destroy;
 begin
   ClearCurrentUser;
-
   if FOwnsConnection and Assigned(FDBConnection) then
     FreeAndNil(FDBConnection);
-
   inherited;
 end;
 
 class procedure TAppContext.Initialize(AConnection: TFDConnection; AOwnsConnection: Boolean);
+var
+  LNew: TAppContext;
 begin
+  if not Assigned(AConnection) then
+    raise EArgumentNilException.Create('AConnection cannot be nil');
+
   FLock.Enter;
   try
     if Assigned(FInstance) then
-      FreeAndNil(FInstance);
-    FInstance := TAppContext.CreatePrivate(AConnection, AOwnsConnection);
-
-    if not Assigned(AConnection) then
-      raise EArgumentNilException.Create('AConnection cannot be nil');
+      Self.FInstance.Free;
+    LNew := TAppContext.CreatePrivate(AConnection, AOwnsConnection);
+    FInstance := LNew;
   finally
     FLock.Leave;
   end;
@@ -125,23 +121,20 @@ begin
   end;
 end;
 
-function TAppContext.ApplicationPath: string;
-begin
-  Result := ParamStr(0);
-end;
-
 procedure TAppContext.ClearCurrentUser;
 begin
   if Assigned(FCurrentUser) then
-  begin
-    FCurrentUser.Free;
-    FCurrentUser := nil;
-  end;
+    FreeAndNil(FCurrentUser);
 end;
 
 function TAppContext.IsAuthenticated: Boolean;
 begin
   Result := Assigned(FCurrentUser) and Assigned(FCurrentUser.User);
+end;
+
+function TAppContext.ApplicationPath: string;
+begin
+  Result := ParamStr(0);
 end;
 
 end.

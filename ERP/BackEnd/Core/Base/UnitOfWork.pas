@@ -29,6 +29,9 @@ type
     class var FInstance: TUnitOfWork;
     class var FLock: TObject;
     FRepositoryCache: TDictionary<TClass, IInterface>;
+
+    FAccessService: TObject;
+    function GetAccessService: TObject;
   private
     FConnection: TFDConnection;
     function GetConnection: TFDConnection;
@@ -77,8 +80,16 @@ end;
 
 destructor TUnitOfWork.Destroy;
 begin
+  FAccessService.Free;
   FRepositoryCache.Free;
   inherited;
+end;
+
+function TUnitOfWork.GetAccessService: TObject;
+begin
+  if not Assigned(FAccessService) then
+    FAccessService := TSysAccessRightService.Create;
+  Result := FAccessService;
 end;
 
 function TUnitOfWork.GetConnection: TFDConnection;
@@ -146,13 +157,25 @@ begin
 end;
 
 procedure TUnitOfWork.RollbackToSavePoint(const AName: string);
+var
+  Ch: Char;
 begin
+  for Ch in AName do
+    if not CharInSet(Ch, ['a'..'z', 'A'..'Z', '0'..'9', '_']) then
+      raise Exception.CreateFmt('Geçersiz savepoint adı: %s', [AName]);
+
   if InTransaction then
     FConnection.ExecSQL('ROLLBACK TO SAVEPOINT ' + AName);
 end;
 
 procedure TUnitOfWork.SavePoint(const AName: string);
+var
+  Ch: Char;
 begin
+  for Ch in AName do
+    if not CharInSet(Ch, ['a'..'z', 'A'..'Z', '0'..'9', '_']) then
+      raise Exception.CreateFmt('Geçersiz savepoint adı: %s', [AName]);
+
   if InTransaction then
     FConnection.ExecSQL('SAVEPOINT ' + AName);
 end;
@@ -163,15 +186,8 @@ begin
 end;
 
 function TUnitOfWork.IsAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean): Boolean;
-var
-  LSvcAccess: TSysAccessRightService;
 begin
-  LSvcAccess := TSysAccessRightService.Create;
-  try
-    Result := LSvcAccess.IsAuthorized(APermissionCode, APermissionType, APermissionControl);
-  finally
-    LSvcAccess.Free;
-  end;
+  Result := TSysAccessRightService(GetAccessService).IsAuthorized(APermissionCode, APermissionType, APermissionControl);
 end;
 
 function TUnitOfWork.IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean): Boolean;
@@ -180,19 +196,15 @@ begin
 end;
 
 procedure TUnitOfWork.EnsureAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean);
-var
-  LSvcAccess: TSysAccessRightService;
 begin
-  LSvcAccess := TSysAccessRightService.Create;
-  try
-    LSvcAccess.EnsureAuthorized(APermissionCode, APermissionType, APermissionControl);
-  finally
-    LSvcAccess.Free;
-  end;
+  TSysAccessRightService(GetAccessService).EnsureAuthorized(APermissionCode, APermissionType, APermissionControl);
 end;
 
 class procedure TUnitOfWork.Initialize(AConnection: TFDConnection);
 begin
+  if not Assigned(AConnection) then
+    raise EArgumentNilException.Create('AConnection cannot be nil');
+
   if FInstance = nil then
   begin
     TMonitor.Enter(FLock);
@@ -216,7 +228,8 @@ initialization
   TUnitOfWork.FLock := TObject.Create;
 
 finalization
-  TUnitOfWork.FInstance.Free;
-  TUnitOfWork.FLock.Free;
+  if Assigned(TUnitOfWork.FInstance) then
+    FreeAndNil(TUnitOfWork.FInstance);
+  FreeAndNil(TUnitOfWork.FLock);
 
 end.

@@ -3,51 +3,69 @@
 interface
 
 uses
-  SysUtils, Winapi.Windows, Vcl.Forms, System.IOUtils, System.SyncObjs, Classes;
+  SysUtils, Winapi.Windows, Vcl.Forms, System.IOUtils, System.SyncObjs,
+  Classes, System.Generics.Collections, System.Threading;
 
 type
   TLogLevel = (llDebug, llInfo, llWarning, llError, llCritical);
 
   TLogger = class
   private
-    FLogFileName: TFileName;
-    FProcessID: string;
+    FLogFileName    : TFileName;
+    FCachedFilePath : string;
+    FProcessID      : string;
     FDBConnectionPID: string;
-    FMinLogLevel: TLogLevel;
-    FMaxFileSize: Int64;
-    FCriticalSection: TCriticalSection;
-    FEnabled: Boolean;
-    procedure InternalWriteLog(const AMessage: string; ALevel: TLogLevel);
-    function LevelToStr(ALevel: TLogLevel): string;
+    FMinLogLevel    : TLogLevel;
+    FMaxFileSize    : Int64;
+    FEnabled        : Boolean;
+
+    FQueue          : TQueue<string>;
+    FQueueLock      : TCriticalSection;
+    FFlushEvent     : TEvent;
+    FWorker         : TThread;
+    FShutdown       : Boolean;
+
+    procedure BuildFilePath;
     procedure CheckAndRotateLog;
-    function GetLogFilePath: string;
+    function  LevelToStr(ALevel: TLogLevel): string;
+    procedure EnqueueLine(const ALine: string);
+    procedure FlushQueue;
   public
-    property LogFileName: TFileName read FLogFileName write FLogFileName;
-    property ProcessID: string read FProcessID write FProcessID;
-    property DBConnectionPID: string read FDBConnectionPID write FDBConnectionPID;
-    property MinLogLevel: TLogLevel read FMinLogLevel write FMinLogLevel;
-    property MaxFileSize: Int64 read FMaxFileSize write FMaxFileSize;
-    property Enabled: Boolean read FEnabled write FEnabled;
+    property LogFileName    : TFileName read FLogFileName;
+    property ProcessID      : string    read FProcessID      write FProcessID;
+    property DBConnectionPID: string    read FDBConnectionPID write FDBConnectionPID;
+    property MinLogLevel    : TLogLevel read FMinLogLevel    write FMinLogLevel;
+    property MaxFileSize    : Int64     read FMaxFileSize    write FMaxFileSize;
+    property Enabled        : Boolean   read FEnabled        write FEnabled;
 
     constructor Create(AFileName: TFileName = '');
-    destructor Destroy; override;
+    destructor  Destroy; override;
 
-    procedure Debug(const AMessage: string);
-    procedure Info(const AMessage: string);
-    procedure Warning(const AMessage: string);
-    procedure Error(const AMessage: string);
+    procedure Debug   (const AMessage: string);
+    procedure Info    (const AMessage: string);
+    procedure Warning (const AMessage: string);
+    procedure Error   (const AMessage: string);
     procedure Critical(const AMessage: string);
     procedure ErrorLog(E: Exception; const AContext: string = '');
-    procedure Log(const AMessage: string; ALevel: TLogLevel);
+    procedure Log     (const AMessage: string; ALevel: TLogLevel);
 
-    procedure DebugFmt(const AFormat: string; const Args: array of const);
-    procedure InfoFmt(const AFormat: string; const Args: array of const);
-    procedure WarningFmt(const AFormat: string; const Args: array of const);
-    procedure ErrorFmt(const AFormat: string; const Args: array of const);
+    procedure DebugFmt   (const AFormat: string; const Args: array of const);
+    procedure InfoFmt    (const AFormat: string; const Args: array of const);
+    procedure WarningFmt (const AFormat: string; const Args: array of const);
+    procedure ErrorFmt   (const AFormat: string; const Args: array of const);
     procedure CriticalFmt(const AFormat: string; const Args: array of const);
 
+    procedure Flush;
     procedure ClearLog;
-    function GetLogFileSize: Int64;
+    function  GetLogFileSize: Int64;
+  end;
+
+  TLogWorker = class(TThread)
+  private
+    FOwner: TLogger;
+  public
+    constructor Create(AOwner: TLogger);
+    procedure Execute; override;
   end;
 
 var
@@ -55,137 +73,198 @@ var
 
 implementation
 
+constructor TLogWorker.Create(AOwner: TLogger);
+begin
+  inherited Create(False);
+  FOwner := AOwner;
+  FreeOnTerminate := False;
+end;
+
+procedure TLogWorker.Execute;
+begin
+  while not Terminated do
+  begin
+    FOwner.FFlushEvent.WaitFor(200);
+    FOwner.FFlushEvent.ResetEvent;
+    FOwner.FlushQueue;
+  end;
+  FOwner.FlushQueue;
+end;
+
 constructor TLogger.Create(AFileName: TFileName);
 var
   PID: DWORD;
 begin
   inherited Create;
 
-  FCriticalSection := TCriticalSection.Create;
-  FEnabled := True;
+  FEnabled     := True;
   FMinLogLevel := llInfo;
-  FMaxFileSize := 10 * 1024 * 1024; // 10 MB varsayılan
+  FMaxFileSize := 10 * 1024 * 1024;
+  FShutdown    := False;
 
   if AFileName = '' then
     AFileName := ChangeFileExt(ExtractFileName(Application.ExeName), '');
 
-  PID := GetCurrentProcessId;
+  PID        := GetCurrentProcessId;
   FProcessID := PID.ToString;
   FDBConnectionPID := '';
 
-  FLogFileName := Format('%s-%s.log', [AFileName, FormatDateTime('YYYYMMDD', Now)]);
+  FLogFileName := Format('%s-%s.log',
+    [AFileName, FormatDateTime('YYYYMMDD', Now)]);
+
+  BuildFilePath;
+
+  FQueue     := TQueue<string>.Create;
+  FQueueLock := TCriticalSection.Create;
+  FFlushEvent:= TEvent.Create(nil, True, False, '');
+  FWorker    := TLogWorker.Create(Self);
 end;
 
 destructor TLogger.Destroy;
 begin
-  FCriticalSection.Free;
+  FShutdown := True;
+  FWorker.Terminate;
+  FFlushEvent.SetEvent;
+  FWorker.WaitFor;
+
+  FWorker.Free;
+  FFlushEvent.Free;
+  FQueueLock.Free;
+  FQueue.Free;
   inherited;
 end;
 
-function TLogger.GetLogFilePath: string;
+procedure TLogger.BuildFilePath;
 begin
-  Result := TPath.Combine(ExtractFilePath(Application.ExeName), FLogFileName);
+  FCachedFilePath := TPath.Combine(ExtractFilePath(Application.ExeName), FLogFileName);
 end;
 
 procedure TLogger.CheckAndRotateLog;
 var
-  LFullPath: string;
   LBackupPath: string;
 begin
-  LFullPath := GetLogFilePath;
-
-  if not FileExists(LFullPath) then
-    Exit;
+  if not FileExists(FCachedFilePath) then Exit;
 
   if GetLogFileSize > FMaxFileSize then
   begin
-    LBackupPath := ChangeFileExt(LFullPath, Format('.%s.log', [FormatDateTime('HHNNSS', Now)]));
+    LBackupPath := ChangeFileExt(FCachedFilePath, Format('.%s.log', [FormatDateTime('HHNNSS', Now)]));
     try
-      TFile.Move(LFullPath, LBackupPath);
+      TFile.Move(FCachedFilePath, LBackupPath);
     except
-      TFile.Delete(LFullPath);
+      try
+        TFile.Delete(FCachedFilePath);
+      except
+      end;
     end;
   end;
 end;
 
-procedure TLogger.InternalWriteLog(const AMessage: string; ALevel: TLogLevel);
-var
-  LData: string;
-  LFullPath: string;
+procedure TLogger.EnqueueLine(const ALine: string);
 begin
-  if not FEnabled then
-    Exit;
+  if not FEnabled then Exit;
 
-  if ALevel < FMinLogLevel then
-    Exit;
-
-  FCriticalSection.Enter;
+  FQueueLock.Enter;
   try
+    FQueue.Enqueue(ALine);
+    if FQueue.Count >= 500 then
+      FFlushEvent.SetEvent;
+  finally
+    FQueueLock.Leave;
+  end;
+end;
+
+procedure TLogger.FlushQueue;
+var
+  LLines : TStringBuilder;
+  LLine  : string;
+  LCount : Integer;
+begin
+  FQueueLock.Enter;
+  LCount := FQueue.Count;
+  FQueueLock.Leave;
+
+  if LCount = 0 then Exit;
+
+  LLines := TStringBuilder.Create;
+  try
+    FQueueLock.Enter;
+    try
+      while FQueue.Count > 0 do
+        LLines.AppendLine(FQueue.Dequeue);
+    finally
+      FQueueLock.Leave;
+    end;
+
     CheckAndRotateLog;
 
-    LData := Format('[%s] %s [App:%s] [DB:%s] %s',
-      [LevelToStr(ALevel),
-       FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now),
-       FProcessID,
-       FDBConnectionPID,
-       AMessage]);
-
-    LFullPath := GetLogFilePath;
-
     try
-      TFile.AppendAllText(LFullPath, LData + sLineBreak, TEncoding.UTF8);
+      TFile.AppendAllText(FCachedFilePath, LLines.ToString, TEncoding.UTF8);
     except
       on E: Exception do
-      begin
-        OutputDebugString(PChar('Logger Error: ' + E.Message));
-      end;
+        OutputDebugString(PChar('Logger flush error: ' + E.Message));
     end;
   finally
-    FCriticalSection.Leave;
+    LLines.Free;
   end;
+end;
+
+procedure TLogger.Log(const AMessage: string; ALevel: TLogLevel);
+var
+  LLine: string;
+begin
+  if not FEnabled then Exit;
+  if ALevel < FMinLogLevel then Exit;
+
+  LLine := Format('[%s] %s [App:%s] [DB:%s] %s',
+    [LevelToStr(ALevel),
+     FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now),
+     FProcessID,
+     FDBConnectionPID,
+     AMessage
+    ]);
+
+  EnqueueLine(LLine);
+
+  if ALevel = llCritical then
+    FFlushEvent.SetEvent;
 end;
 
 function TLogger.LevelToStr(ALevel: TLogLevel): string;
 begin
   case ALevel of
-    llDebug:    Result := 'DEBUG   ';
-    llInfo:     Result := 'INFO    ';
-    llWarning:  Result := 'WARNING ';
-    llError:    Result := 'ERROR   ';
+    llDebug   : Result := 'DEBUG   ';
+    llInfo    : Result := 'INFO    ';
+    llWarning : Result := 'WARNING ';
+    llError   : Result := 'ERROR   ';
     llCritical: Result := 'CRITICAL';
   else
     Result := 'INFO    ';
   end;
 end;
 
-procedure TLogger.Log(const AMessage: string; ALevel: TLogLevel);
+procedure TLogger.Debug   (const AMessage: string);
 begin
-  InternalWriteLog(AMessage, ALevel);
+  Log(AMessage, llDebug);
 end;
 
-procedure TLogger.Debug(const AMessage: string);
+procedure TLogger.Info    (const AMessage: string);
 begin
-  InternalWriteLog(AMessage, llDebug);
+  Log(AMessage, llInfo);
 end;
 
-procedure TLogger.Info(const AMessage: string);
+procedure TLogger.Warning (const AMessage: string);
 begin
-  InternalWriteLog(AMessage, llInfo);
+  Log(AMessage, llWarning);
 end;
 
-procedure TLogger.Warning(const AMessage: string);
+procedure TLogger.Error   (const AMessage: string);
 begin
-  InternalWriteLog(AMessage, llWarning);
-end;
-
-procedure TLogger.Error(const AMessage: string);
-begin
-  InternalWriteLog(AMessage, llError);
+  Log(AMessage, llError);
 end;
 
 procedure TLogger.Critical(const AMessage: string);
 begin
-  InternalWriteLog(AMessage, llCritical);
+  Log(AMessage, llCritical);
 end;
 
 procedure TLogger.ErrorLog(E: Exception; const AContext: string);
@@ -197,30 +276,28 @@ begin
   else
     LMsg := E.Message;
 
-  InternalWriteLog(LMsg, llError);
+  Log(LMsg, llError);
 
   if E.StackTrace <> '' then
-    InternalWriteLog('StackTrace: ' + E.StackTrace, llError);
-
-  Application.ShowException(E);
+    Log('StackTrace: ' + E.StackTrace, llError);
 end;
 
-procedure TLogger.DebugFmt(const AFormat: string; const Args: array of const);
+procedure TLogger.DebugFmt   (const AFormat: string; const Args: array of const);
 begin
   Debug(Format(AFormat, Args));
 end;
 
-procedure TLogger.InfoFmt(const AFormat: string; const Args: array of const);
+procedure TLogger.InfoFmt    (const AFormat: string; const Args: array of const);
 begin
   Info(Format(AFormat, Args));
 end;
 
-procedure TLogger.WarningFmt(const AFormat: string; const Args: array of const);
+procedure TLogger.WarningFmt (const AFormat: string; const Args: array of const);
 begin
   Warning(Format(AFormat, Args));
 end;
 
-procedure TLogger.ErrorFmt(const AFormat: string; const Args: array of const);
+procedure TLogger.ErrorFmt   (const AFormat: string; const Args: array of const);
 begin
   Error(Format(AFormat, Args));
 end;
@@ -230,28 +307,35 @@ begin
   Critical(Format(AFormat, Args));
 end;
 
-procedure TLogger.ClearLog;
-var
-  LFullPath: string;
+procedure TLogger.Flush;
 begin
-  FCriticalSection.Enter;
+  FFlushEvent.SetEvent;
+  Sleep(50);
+end;
+
+procedure TLogger.ClearLog;
+begin
+  FQueueLock.Enter;
   try
-    LFullPath := GetLogFilePath;
-    if FileExists(LFullPath) then
-      TFile.Delete(LFullPath);
+    FQueue.Clear;
   finally
-    FCriticalSection.Leave;
+    FQueueLock.Leave;
+  end;
+
+  if FileExists(FCachedFilePath) then
+  begin
+    try
+      TFile.Delete(FCachedFilePath);
+    except
+    end;
   end;
 end;
 
 function TLogger.GetLogFileSize: Int64;
-var
-  LFullPath: string;
 begin
   Result := 0;
-  LFullPath := GetLogFilePath;
-  if FileExists(LFullPath) then
-    Result := TFile.GetSize(LFullPath);
+  if FileExists(FCachedFilePath) then
+    Result := TFile.GetSize(FCachedFilePath);
 end;
 
 initialization

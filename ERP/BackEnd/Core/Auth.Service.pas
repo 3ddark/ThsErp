@@ -5,33 +5,33 @@ interface
 uses
   System.Classes, System.Generics.Collections, System.SysUtils, System.Rtti,
   FireDAC.Comp.Client, FireDAC.Stan.Param, Data.DB,
-  Logger, Password.Helper, ConnectionManager, Repository, Service, FilterCriterion,
+  Logger, Password.Helper, Repository, Service, FilterCriterion,
   SysUser, SysUser.Repository;
 
 type
   TLoginStatus = (
-    lsSuccess = 0,
-    lsUserNotFound = -1,
-    lsInactiveUser = -2,
+    lsSuccess         =  0,
+    lsUserNotFound    = -1,
+    lsInactiveUser    = -2,
     lsInvalidAppVersion = -3,
     lsInvalidPassword = -4,
-    lsAccountLocked = -5
+    lsAccountLocked   = -5
   );
 
   TLoginResult = record
-    UserId: Int64;
-    Username: string;
-    IsManager: Boolean;
-    IsSuperUser: Boolean;
-    Success: Boolean;
-    Status: TLoginStatus;
+    UserId      : Int64;
+    Username    : string;
+    IsManager   : Boolean;
+    IsSuperUser : Boolean;
+    Success     : Boolean;
+    Status      : TLoginStatus;
     ErrorMessage: string;
     class function Create: TLoginResult; static;
   end;
 
   TRegisterResult = record
-    UserId: Int64;
-    Success: Boolean;
+    UserId      : Int64;
+    Success     : Boolean;
     ErrorMessage: string;
     class function Create: TRegisterResult; static;
   end;
@@ -47,29 +47,32 @@ type
 
 implementation
 
+uses
+  UnitOfWork;
+
 class function TLoginResult.Create: TLoginResult;
 begin
-  Result.UserId := 0;
-  Result.Username := '';
-  Result.IsManager := False;
-  Result.IsSuperUser := False;
-  Result.Success := False;
-  Result.Status := lsUserNotFound;
+  Result.UserId       := 0;
+  Result.Username     := '';
+  Result.IsManager    := False;
+  Result.IsSuperUser  := False;
+  Result.Success      := False;
+  Result.Status       := lsUserNotFound;
   Result.ErrorMessage := '';
 end;
 
 class function TRegisterResult.Create: TRegisterResult;
 begin
-  Result.UserId := 0;
-  Result.Success := False;
+  Result.UserId       := 0;
+  Result.Success      := False;
   Result.ErrorMessage := '';
 end;
 
 function TAuthService.Login(const AUserName, AUserPassword: string): TLoginResult;
 var
-  LUser: TSysUser;
-  LPasswordValid: Boolean;
-  LRepo: IRepository<TSysUser>;
+  LUser          : TSysUser;
+  LPasswordValid : Boolean;
+  LRepo          : IRepository<TSysUser>;
 begin
   Result := TLoginResult.Create;
   GLogger.InfoFmt('Login denemesi: %s', [AUserName]);
@@ -79,9 +82,10 @@ begin
     Filter.Clear;
     Filter.Add(TFilterCriterion.New('username', '=', TValue.From<string>(AUserName)));
     LUser := LRepo.FindOne(Filter);
+
     if LUser = nil then
     begin
-      Result.Status := lsUserNotFound;
+      Result.Status       := lsUserNotFound;
       Result.ErrorMessage := 'Kullanıcı bulunamadı';
       GLogger.WarningFmt('Login başarısız: Kullanıcı bulunamadı [%s]', [AUserName]);
       Exit;
@@ -90,29 +94,30 @@ begin
     try
       if not LUser.Active then
       begin
-        Result.Status := lsInactiveUser;
+        Result.Status       := lsInactiveUser;
         Result.ErrorMessage := 'Kullanıcı hesabı aktif değil';
         GLogger.WarningFmt('Login başarısız: Hesap aktif değil [%s]', [AUserName]);
         Exit;
       end;
-      //LUser.UserPassword := TPasswordHelper.HashPassword(AUserPassword);
-      LPasswordValid := TPasswordHelper.VerifyPassword(AUserPassword, LUser.UserPassword);
+
+      LPasswordValid := TPasswordHelper.VerifyPassword(
+        AUserPassword, LUser.UserPassword);
 
       if not LPasswordValid then
       begin
-        Result.Status := lsInvalidPassword;
+        Result.Status       := lsInvalidPassword;
         Result.ErrorMessage := 'Geçersiz şifre';
         GLogger.WarningFmt('Login başarısız: Geçersiz şifre [%s]', [AUserName]);
         Exit;
       end;
 
-      Result.Success := True;
-      Result.Status := lsSuccess;
-      Result.UserId := LUser.Id;
-      Result.Username := LUser.Username;
-      Result.IsManager := LUser.Manager;
+      Result.Success     := True;
+      Result.Status      := lsSuccess;
+      Result.UserId      := LUser.Id;
+      Result.Username    := LUser.Username;
+      Result.IsManager   := LUser.Manager;
       Result.IsSuperUser := LUser.SuperUser;
-      Result.ErrorMessage := 'Giriş başarılı';
+      Result.ErrorMessage:= 'Giriş başarılı';
 
       GLogger.InfoFmt('Login başarılı: %s (ID: %d)', [AUserName, LUser.Id]);
     finally
@@ -121,9 +126,9 @@ begin
   except
     on E: Exception do
     begin
-      Result.Status := lsInvalidPassword;
-      Result.ErrorMessage := 'Beklenmeyen hata: ' + E.Message;
-      GLogger.ErrorLog(E, Format('Login hatası [%s]', [AUserName]));
+      Result.Status       := lsUserNotFound;
+      Result.ErrorMessage := E.Message;
+      GLogger.ErrorFmt('Login hatası [%s]: %s', [AUserName, E.Message]);
     end;
   end;
 end;
@@ -131,10 +136,9 @@ end;
 function TAuthService.Register(AUser: TSysUser): TRegisterResult;
 var
   LHashedPassword: string;
-  LErrorMsg: string;
-//  LNewUser,
-  LExistingUser: TSysUser;
-  LRepo: IRepository<TSysUser>;
+  LErrorMsg      : string;
+  LExistingUser  : TSysUser;
+  LRepo          : IRepository<TSysUser>;
 begin
   Result := TRegisterResult.Create;
   GLogger.InfoFmt('Kayıt denemesi: %s', [AUser.Username]);
@@ -166,9 +170,7 @@ begin
       Exit;
     end;
 
-    LHashedPassword := TPasswordHelper.HashPassword(AUser.UserPassword);
-
-//    AUser := TSysUser.Create;
+    LHashedPassword    := TPasswordHelper.HashPassword(AUser.UserPassword);
     AUser.UserPassword := LHashedPassword;
 
     LRepo.Add(AUser);
@@ -176,7 +178,7 @@ begin
 
     if Result.UserId > 0 then
     begin
-      Result.Success := True;
+      Result.Success      := True;
       Result.ErrorMessage := 'Kayıt başarılı';
       GLogger.InfoFmt('Kayıt başarılı: %s (ID: %d)', [AUser.Username, Result.UserId]);
     end
@@ -188,18 +190,18 @@ begin
   except
     on E: Exception do
     begin
-      Result.ErrorMessage := 'Beklenmeyen hata: ' + E.Message;
-      GLogger.ErrorLog(E, Format('Kayıt hatası [%s]', [AUser.Username]));
+      Result.ErrorMessage := E.Message;
+      GLogger.ErrorFmt('Kayıt hatası [%s]: %s', [AUser.Username, E.Message]);
     end;
   end;
 end;
 
 function TAuthService.ChangePassword(AUserId: Int64; const AOldPassword, ANewPassword: string): Boolean;
 var
-  LQuery: TFDQuery;
-  LConn: TFDConnection;
-  LCurrentHash, LNewHash: string;
-  LErrorMsg: string;
+  LQuery        : TFDQuery;
+  LCurrentHash  : string;
+  LNewHash      : string;
+  LErrorMsg     : string;
 begin
   Result := False;
   GLogger.InfoFmt('Şifre değiştirme: UserID=%d', [AUserId]);
@@ -210,11 +212,10 @@ begin
       Exit;
     end;
 
-    LConn := TConnectionManager.Instance.GetConnection(ContextMain);
     LQuery := TFDQuery.Create(nil);
     try
-      LQuery.Connection := LConn;
-      LQuery.SQL.Text := 'SELECT user_password FROM sys_users WHERE id = :id';
+      LQuery.Connection := Self.UoW.Connection;
+      LQuery.SQL.Text   := 'SELECT user_password FROM sys_users WHERE id = :id';
       LQuery.ParamByName('id').AsLargeInt := AUserId;
       LQuery.Open;
 
@@ -236,28 +237,25 @@ begin
 
       LQuery.Close;
       LQuery.SQL.Text := 'UPDATE sys_users SET user_password = :password WHERE id = :id';
-      LQuery.ParamByName('password').AsString := LNewHash;
-      LQuery.ParamByName('id').AsLargeInt := AUserId;
+      LQuery.ParamByName('password').AsString    := LNewHash;
+      LQuery.ParamByName('id').AsLargeInt        := AUserId;
       LQuery.ExecSQL;
 
       Result := True;
       GLogger.InfoFmt('Şifre başarıyla değiştirildi [UserID=%d]', [AUserId]);
-
     finally
       LQuery.Free;
     end;
-
   except
     on E: Exception do
-      GLogger.ErrorLog(E, Format('Şifre değiştirme hatası [UserID=%d]', [AUserId]));
+      GLogger.ErrorFmt('Şifre değiştirme hatası [UserID=%d]: %s', [AUserId, E.Message]);
   end;
 end;
 
 function TAuthService.ResetPassword(AUserId: Int64; const ANewPassword: string): Boolean;
 var
-  LQuery: TFDQuery;
-  LConn: TFDConnection;
-  LNewHash: string;
+  LQuery   : TFDQuery;
+  LNewHash : string;
   LErrorMsg: string;
 begin
   Result := False;
@@ -271,13 +269,12 @@ begin
 
     LNewHash := TPasswordHelper.HashPassword(ANewPassword);
 
-    LConn := TConnectionManager.Instance.GetConnection(ContextMain);
     LQuery := TFDQuery.Create(nil);
     try
-      LQuery.Connection := LConn;
-      LQuery.SQL.Text := 'UPDATE sys_users SET user_password = :password WHERE id = :id';
+      LQuery.Connection := Self.UoW.Connection;
+      LQuery.SQL.Text   := 'UPDATE sys_users SET user_password = :password WHERE id = :id';
       LQuery.ParamByName('password').AsString := LNewHash;
-      LQuery.ParamByName('id').AsLargeInt := AUserId;
+      LQuery.ParamByName('id').AsLargeInt     := AUserId;
       LQuery.ExecSQL;
 
       Result := LQuery.RowsAffected > 0;
@@ -291,25 +288,23 @@ begin
     end;
   except
     on E: Exception do
-      GLogger.ErrorLog(E, Format('Şifre sıfırlama hatası [UserID=%d]', [AUserId]));
+      GLogger.ErrorFmt('Şifre sıfırlama hatası [UserID=%d]: %s', [AUserId, E.Message]);
   end;
 end;
 
 function TAuthService.SetUserActive(AUserId: Int64; AActive: Boolean): Boolean;
 var
   LQuery: TFDQuery;
-  LConn: TFDConnection;
 begin
   Result := False;
   GLogger.InfoFmt('Kullanıcı aktiflik değiştirme: UserID=%d, Active=%s', [AUserId, BoolToStr(AActive, True)]);
   try
-    LConn := TConnectionManager.Instance.GetConnection(ContextMain);
     LQuery := TFDQuery.Create(nil);
     try
-      LQuery.Connection := LConn;
-      LQuery.SQL.Text := 'UPDATE sys_users SET active = :active WHERE id = :id';
-      LQuery.ParamByName('active').AsBoolean := AActive;
-      LQuery.ParamByName('id').AsLargeInt := AUserId;
+      LQuery.Connection := Self.UoW.Connection;
+      LQuery.SQL.Text   := 'UPDATE sys_users SET active = :active WHERE id = :id';
+      LQuery.ParamByName('active').AsBoolean  := AActive;
+      LQuery.ParamByName('id').AsLargeInt     := AUserId;
       LQuery.ExecSQL;
 
       Result := LQuery.RowsAffected > 0;
@@ -323,7 +318,7 @@ begin
     end;
   except
     on E: Exception do
-      GLogger.ErrorLog(E, Format('Aktiflik değiştirme hatası [UserID=%d]', [AUserId]));
+      GLogger.ErrorFmt('Aktiflik değiştirme hatası [UserID=%d]: %s', [AUserId, E.Message]);
   end;
 end;
 

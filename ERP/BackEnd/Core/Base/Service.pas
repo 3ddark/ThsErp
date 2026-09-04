@@ -70,9 +70,7 @@ type
   TViewService<T: TEntity, constructor> = class(TService<T>)
   private
     FPermissionCode: integer;
-    function GetUnitOfWork: TUnitOfWork;
   public
-    property UoW: TUnitOfWork read GetUnitOfWork;
     property PermissionCode: Integer read FPermissionCode write FPermissionCode;
 
     constructor Create();
@@ -90,11 +88,7 @@ type
   end;
 
   TCrudService<T: TEntity, constructor> = class(TViewService<T>)
-  private
-    function GetUnitOfWork: TUnitOfWork;
   public
-    property UoW: TUnitOfWork read GetUnitOfWork;
-
     constructor Create();
     destructor Destroy; override;
 
@@ -160,11 +154,6 @@ end;
 destructor TCrudService<T>.Destroy;
 begin
   inherited;
-end;
-
-function TCrudService<T>.GetUnitOfWork: TUnitOfWork;
-begin
-  Result := TUnitOfWork.Instance;
 end;
 
 function TService<T>.CreateEntityInstanceByClass(AClass: TClass): TObject;
@@ -607,122 +596,82 @@ end;
 
 procedure TService<T>.FillEntityFromDataSet(ADataSet: TFDDataSet; AEntity: T);
 var
-  ctx: TRttiContext;
-  rType: TRttiType;
-  prop: TRttiProperty;
-  colAttr: Column;
-  field: TField;
-  val: TValue;
-  ordValue: Integer;
-  nestedEntity: TObject;  // inline var yerine burada tanımla
+  Schema : TEntitySchema;
+  Col    : TColumnSchema;
+  Field  : TField;
+  Val    : TValue;
+  OrdVal : Integer;
 begin
   if not Assigned(AEntity) or not Assigned(ADataSet) then
     Exit;
 
-  ctx := TRttiContext.Create;
-  try
-    rType := ctx.GetType(AEntity.ClassType);
-    for prop in rType.GetProperties do
+  // FIX: Schema cache'den al — her çağrıda RTTI context açılmıyor
+  Schema := TEntitySchemaCache.GetSchema(AEntity.ClassType);
+  if not Assigned(Schema) then
+    Exit;
+
+  for Col in Schema.Columns do
+  begin
+    if not Col.IsWritable then
+      Continue;
+
+    // Column adıyla ara, bulamazsan property adıyla
+    Field := ADataSet.FindField(Col.ColumnName);
+    if not Assigned(Field) then
+      Field := ADataSet.FindField(Col.PropertyName);
+
+    if not Assigned(Field) then
+      Continue;
+
+    if Field.IsNull then
     begin
-      if not prop.IsWritable then
-        Continue;
-
-//      if HasAttribute(prop, NotMapped) then
-//        Continue;
-
-      // ✅ Generic GetAttribute<> yerine yardımcı fonksiyon
-      colAttr := GetColumnAttribute(prop);
-
-      // -------------------------------------------------------
-      // tkClass — BelongsTo / HasOne nested entity doldurma
-      // -------------------------------------------------------
-      if prop.PropertyType.TypeKind = tkClass then
-      begin
-        if not HasAttribute(prop, BelongsToAttribute) and
-           not HasAttribute(prop, HasOneAttribute) then
-          Continue;
-
-        nestedEntity := prop.GetValue(TObject(AEntity)).AsObject;
-        if not Assigned(nestedEntity) then
-          Continue;
-
-        FillNestedEntityFromDataSet(ADataSet, nestedEntity,
-                                    prop.PropertyType.AsInstance.MetaclassType);
-        Continue;
-      end;
-
-      // -------------------------------------------------------
-      // Normal Column mapping with View fallback
-      // -------------------------------------------------------
-      if Assigned(colAttr) then
-        field := ADataSet.FindField(colAttr.Name)
-      else
-        field := ADataSet.FindField(prop.Name);
-
-      if not Assigned(field) then
-        field := ADataSet.FindField(prop.Name);
-
-      if not Assigned(field) then
-        field := ADataSet.FindField(PascalToSnake(prop.Name));
-
-      if not Assigned(field) then
-        Continue;
-
-      if field.IsNull then
-      begin
-        prop.SetValue(TObject(AEntity), TValue.Empty);
-        Continue;
-      end;
-
-      case prop.PropertyType.TypeKind of
-        tkUString, tkString, tkLString, tkWString:
-          val := field.AsString;
-
-        tkInteger:
-          begin
-            if prop.PropertyType.IsOrdinal
-               and (prop.PropertyType.Handle <> nil)
-               and (GetTypeData(prop.PropertyType.Handle)^.OrdType <> otSByte)
-            then
-              val := TValue.FromOrdinal(prop.PropertyType.Handle, field.AsInteger)
-            else
-              val := field.AsInteger;
-          end;
-
-        tkInt64:
-          val := TValue.From<Int64>(field.AsLargeInt);
-
-        tkFloat:
-          begin
-            case field.DataType of
-              ftDate, ftTime, ftDateTime, ftTimeStamp:
-                val := TValue.From<TDateTime>(field.AsDateTime);
-            else
-              val := TValue.From<Double>(field.AsFloat);
-            end;
-          end;
-
-        tkEnumeration:
-          begin
-            if SameText(prop.PropertyType.Name, 'Boolean') then
-              val := TValue.From<Boolean>(field.AsBoolean)
-            else
-            begin
-              if field.DataType in [ftInteger, ftSmallint, ftWord, ftAutoInc] then
-                ordValue := field.AsInteger
-              else
-                ordValue := GetEnumValue(prop.PropertyType.Handle, field.AsString);
-              val := TValue.FromOrdinal(prop.PropertyType.Handle, ordValue);
-            end;
-          end;
-      else
-        Continue;
-      end;
-
-      prop.SetValue(TObject(AEntity), val);
+      Col.Prop.SetValue(TObject(AEntity), TValue.Empty);
+      Continue;
     end;
-  finally
-    ctx.Free;
+
+    case Col.TypeKind of
+      tkUString, tkString, tkLString, tkWString:
+        Val := Field.AsString;
+
+      tkInteger:
+        begin
+          if Col.TypeHandle <> nil then
+            Val := TValue.FromOrdinal(Col.TypeHandle, Field.AsInteger)
+          else
+            Val := Field.AsInteger;
+        end;
+
+      tkInt64:
+        Val := TValue.From<Int64>(Field.AsLargeInt);
+
+      tkFloat:
+        begin
+          case Field.DataType of
+            ftDate, ftTime, ftDateTime, ftTimeStamp:
+              Val := TValue.From<TDateTime>(Field.AsDateTime);
+          else
+            Val := TValue.From<Double>(Field.AsFloat);
+          end;
+        end;
+
+      tkEnumeration:
+        begin
+          if SameText(Col.TypeName, 'Boolean') then
+            Val := TValue.From<Boolean>(Field.AsBoolean)
+          else
+          begin
+            if Field.DataType in [ftInteger, ftSmallint, ftWord, ftAutoInc] then
+              OrdVal := Field.AsInteger
+            else
+              OrdVal := GetEnumValue(Col.TypeHandle, Field.AsString);
+            Val := TValue.FromOrdinal(Col.TypeHandle, OrdVal);
+          end;
+        end;
+    else
+      Continue;
+    end;
+
+    Col.Prop.SetValue(TObject(AEntity), Val);
   end;
 end;
 
@@ -851,11 +800,6 @@ end;
 destructor TViewService<T>.Destroy;
 begin
   inherited;
-end;
-
-function TViewService<T>.GetUnitOfWork: TUnitOfWork;
-begin
-  Result := TUnitOfWork.Instance;
 end;
 
 function TViewService<T>.IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean): Boolean;

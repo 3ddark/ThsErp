@@ -35,6 +35,8 @@ type
   private
     FIsValid: Boolean;
     FErrors: TObjectList<TValidationError>;
+    FCachedErrors: TArray<TValidationError>;
+    FDirty       : Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -460,6 +462,7 @@ begin
   inherited Create;
   FIsValid := True;
   FErrors := TObjectList<TValidationError>.Create();
+  FDirty   := False;
 end;
 
 destructor TValidationResult.Destroy;
@@ -472,11 +475,17 @@ procedure TValidationResult.AddError(const AFieldName, AMessage: string);
 begin
   FErrors.Add(TValidationError.Create(AFieldName, AMessage));
   FIsValid := False;
+  FDirty   := True;
 end;
 
 function TValidationResult.GetErrors: TArray<TValidationError>;
 begin
-  Result := FErrors.ToArray;
+  if FDirty or (Length(FCachedErrors) = 0) then
+  begin
+    FCachedErrors := FErrors.ToArray;
+    FDirty        := False;
+  end;
+  Result := FCachedErrors;
 end;
 
 constructor TableAttribute.Create(const AName: string; const ASchema: string = ''; const AEngine: string = ''; const ACharset: string = 'utf8mb4');

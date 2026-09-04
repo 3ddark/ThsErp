@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
-  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  SharedFormTypes, AppContext, LocalizationManager,
   SysAccessRight.Repository, SysAccessRight, SysAccessRight.Exception;
 
 type
@@ -148,7 +148,7 @@ type
 implementation
 
 uses
-  SysPermission.Service;
+  UnitOfWork, SysPermission.Service;
 
 constructor TSysAccessRightService.Create;
 begin

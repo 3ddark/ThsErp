@@ -3,7 +3,8 @@
 interface
 
 uses
-  System.SysUtils, System.Generics.Collections, System.Classes;
+  System.SysUtils, System.JSON, System.IOUtils, System.Generics.Collections,
+  System.Classes;
 
 type
   TLangKeys = record
@@ -386,7 +387,7 @@ type
 implementation
 
 uses
-  System.JSON, System.IOUtils, MetaProvider;
+  Logger, MetaProvider;
 
 class constructor TLocalizationManager.Create;
 begin
@@ -447,21 +448,24 @@ end;
 
 class procedure TLocalizationManager.EnsureLanguageLoaded(const ALanguageCode: string);
 var
-  LangKey: string;
+  LangKey : string;
   FilePath: string;
+  LDict   : TDictionary<string, string>;
 begin
   LangKey := NormalizeLanguageCode(ALanguageCode);
 
-  // If translation dictionary for this language already has loaded file entries, skip reloading
-  if FTranslations.ContainsKey(LangKey) and (FTranslations[LangKey].Count > 10) then
+  if FTranslations.TryGetValue(LangKey, LDict) and (LDict.Count > 0) then
     Exit;
 
   FilePath := TPath.Combine(ExtractFilePath(ParamStr(0)), 'Resource\Localization\' + LangKey + '.json');
+
   if not TFile.Exists(FilePath) then
     FilePath := TPath.GetFullPath(TPath.Combine(ExtractFilePath(ParamStr(0)), '..\..\Resource\Localization\' + LangKey + '.json'));
 
   if TFile.Exists(FilePath) then
-    LoadTranslationsFromFile(FilePath);
+    LoadTranslationsFromFile(FilePath)
+  else
+    GLogger.WarningFmt('Lokalizasyon dosyası bulunamadı: %s', [LangKey]);
 end;
 
 class procedure TLocalizationManager.LoadDefaultTranslations;
@@ -553,11 +557,13 @@ end;
 
 class procedure TLocalizationManager.LoadTranslationsFromFile(const AFileName: string);
 var
-  JsonText: string;
-  JsonObj, LangObj: TJSONObject;
-  LangPair: TJSONPair;
-  TransPair: TJSONPair;
-  LanguageCode, FileLangCode: string;
+  JsonText    : string;
+  JsonObj     : TJSONObject;
+  LangPair    : TJSONPair;
+  TransPair   : TJSONPair;
+  LangObj     : TJSONObject;
+  LanguageCode: string;
+  FileLangCode: string;
 begin
   if not TFile.Exists(AFileName) then
     Exit;
@@ -566,46 +572,50 @@ begin
 
   try
     JsonText := TFile.ReadAllText(AFileName, TEncoding.UTF8);
-    JsonObj := TJSONObject.ParseJSONValue(JsonText) as TJSONObject;
-    if Assigned(JsonObj) then
-    begin
-      try
-        TMonitor.Enter(FLock);
-        try
-          for LangPair in JsonObj do
-          begin
-            if LangPair.JsonValue is TJSONObject then
-            begin
-              LanguageCode := LangPair.JsonString.Value;
-              LangObj := LangPair.JsonValue as TJSONObject;
-
-              if not FTranslations.ContainsKey(LanguageCode) then
-                FTranslations.Add(LanguageCode, TDictionary<string, string>.Create);
-
-              for TransPair in LangObj do
-                FTranslations[LanguageCode].AddOrSetValue(
-                  TransPair.JsonString.Value,
-                  TransPair.JsonValue.Value);
-            end
-            else
-            begin
-              if not FTranslations.ContainsKey(FileLangCode) then
-                FTranslations.Add(FileLangCode, TDictionary<string, string>.Create);
-
-              FTranslations[FileLangCode].AddOrSetValue(
-                LangPair.JsonString.Value,
-                LangPair.JsonValue.Value);
-            end;
-          end;
-        finally
-          TMonitor.Exit(FLock);
-        end;
-      finally
-        JsonObj.Free;
-      end;
-    end;
   except
-    // JSON parsing error - ignore and use defaults
+    on E: Exception do
+    begin
+      GLogger.ErrorFmt('Lokalizasyon dosyası okunamadı [%s]: %s', [AFileName, E.Message]);
+      Exit;
+    end;
+  end;
+
+  JsonObj := TJSONObject.ParseJSONValue(JsonText) as TJSONObject;
+  if not Assigned(JsonObj) then
+  begin
+    GLogger.ErrorFmt('Geçersiz JSON [%s]', [AFileName]);
+    Exit;
+  end;
+
+  try
+    TMonitor.Enter(FLock);
+    try
+      for LangPair in JsonObj do
+      begin
+        if LangPair.JsonValue is TJSONObject then
+        begin
+          LanguageCode := LangPair.JsonString.Value;
+          LangObj      := LangPair.JsonValue as TJSONObject;
+
+          if not FTranslations.ContainsKey(LanguageCode) then
+            FTranslations.Add(LanguageCode, TDictionary<string, string>.Create);
+
+          for TransPair in LangObj do
+            FTranslations[LanguageCode].AddOrSetValue(TransPair.JsonString.Value, TransPair.JsonValue.Value);
+        end
+        else
+        begin
+          if not FTranslations.ContainsKey(FileLangCode) then
+            FTranslations.Add(FileLangCode, TDictionary<string, string>.Create);
+
+          FTranslations[FileLangCode].AddOrSetValue(LangPair.JsonString.Value, LangPair.JsonValue.Value);
+        end;
+      end;
+    finally
+      TMonitor.Exit(FLock);
+    end;
+  finally
+    JsonObj.Free;
   end;
 end;
 
