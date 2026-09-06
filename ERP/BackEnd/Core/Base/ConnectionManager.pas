@@ -54,7 +54,6 @@ type
     procedure LogConnectionStatus;
     procedure CloseConnection(const AContextKey: string);
     procedure CloseAllConnections;
-    function GetToday(): string;
   end;
 
 implementation
@@ -121,11 +120,6 @@ function TConnectionManager.GetContextKey(AConn: TFDConnection): string;
 begin
   if not FContextKeys.TryGetValue(AConn, Result) then
     Result := 'Unknown';
-end;
-
-function TConnectionManager.GetToday: string;
-begin
-  Result := FormatDateTime('dd.mm.yyyy', Now);
 end;
 
 procedure TConnectionManager.OnConnectionAfterConnect(Sender: TObject);

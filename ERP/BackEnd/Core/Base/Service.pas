@@ -46,6 +46,8 @@ type
 
   TService<T: TEntity, constructor> = class(TInterfacedObject, IService<T>)
   private
+    FFilter: TFilterCriteria;
+
     function GetUnitOfWork: TUnitOfWork;
     procedure FillNestedEntityFromDataSet(ADataSet: TFDDataSet; AEntity: TObject; AClass: TClass);
     function HasAttribute(AProp: TRttiProperty; AAttrClass: TClass): Boolean;
@@ -55,8 +57,9 @@ type
     procedure CloneEntityProperties(ASource, ATarget: TObject; AEntityClass: TClass; ADeepClone: Boolean);
     procedure SetBackReferenceProperty(AChildEntity, AParentEntity: TObject);
     function ExtractGenericTypeFromList(AListType: TRttiType): TClass;
+  protected
+    property Filter: TFilterCriteria read FFilter;
   public
-    Filter: TFilterCriteria;
     property UoW: TUnitOfWork read GetUnitOfWork;
 
     constructor Create();
@@ -551,7 +554,7 @@ end;
 constructor TService<T>.Create;
 begin
   inherited;
-  Filter := TFilterCriteria.Create;
+  FFilter := TFilterCriteria.Create;
 end;
 
 destructor TService<T>.Destroy;

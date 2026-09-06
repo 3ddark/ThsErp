@@ -958,7 +958,26 @@ end;
 procedure TfrmGrid<TE, TS>.FormShow(Sender: TObject);
 begin
   BuildFooter;
+
   FQry.Open;
+
+if Assigned(FQry) and not FQry.Active then
+  begin
+    try
+      FQry.Open;
+    except
+      on E: Exception do
+      begin
+        GLogger.ErrorFmt('Grid sorgusu açılamadı [%s]: %s',
+          [Self.ClassName, E.Message]);
+        // Kullanıcıya bilgi ver, formu kilitlemeden devam et
+        ShowMessage(
+          TLocalizationManager.Translate(TLangKeys.TMessage.DataIsNotLoaded, 'Veriler yüklenemedi: ') + E.Message);
+        Exit;
+      end;
+    end;
+  end;
+
   AdjustFormWidth;
 
   PrepareFilteredColumns;
@@ -1442,42 +1461,41 @@ end;
 
 procedure TfrmGrid<TE, TS>.PrepareFilteredColumns;
 var
-  n1: Integer;
+  n1  : Integer;
+  Col : TColumn;
+  Fld : TField;
 begin
+  // FIX: Her çağrıda temizle — duplicate birikmesini önle
+  FFilterStringFields.Clear;
+  FFilterNumericFields.Clear;
+  FFilterDateFields.Clear;
+  FFilterBoolFields.Clear;
+
   for n1 := 0 to Grd.Columns.Count - 1 do
   begin
-    if Grd.Columns[n1].FieldName = 'id' then
+    Col := Grd.Columns[n1];
+
+    if Col.FieldName = 'id' then
       Continue;
 
-    if (Grd.Columns[n1].Field.DataType = Data.DB.ftString)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftWideString)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftMemo)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftWideMemo)
-    then begin
-      FFilterStringFields.Add(Grd.Columns[n1].FieldName);
-    end else
-    if (Grd.Columns[n1].Field.DataType = Data.DB.ftWord)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftLongWord)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftByte)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftShortint)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftSmallint)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftInteger)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftLargeint)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftFloat)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftCurrency)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftBCD)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftSingle)
-    then begin
-      FFilterNumericFields.Add(Grd.Columns[n1].FieldName);
-    end
-    else if (Grd.Columns[n1].Field.DataType = Data.DB.ftBoolean) then begin
-      FFilterBoolFields.Add(Grd.Columns[n1].FieldName);
-    end else
-    if (Grd.Columns[n1].Field.DataType = Data.DB.ftDate)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftTime)
-    or (Grd.Columns[n1].Field.DataType = Data.DB.ftDateTime)
-    then begin
-      FFilterDateFields.Add(Grd.Columns[n1].FieldName);
+    // FIX: Field nil kontrolü — atanmamış kolonda AV önle
+    Fld := Col.Field;
+    if not Assigned(Fld) then
+      Continue;
+
+    case Fld.DataType of
+      ftString, ftWideString, ftMemo, ftWideMemo:
+        FFilterStringFields.Add(Col.FieldName);
+
+      ftWord, ftLongWord, ftByte, ftShortint, ftSmallint,
+      ftInteger, ftLargeint, ftFloat, ftCurrency, ftBCD, ftSingle:
+        FFilterNumericFields.Add(Col.FieldName);
+
+      ftBoolean:
+        FFilterBoolFields.Add(Col.FieldName);
+
+      ftDate, ftTime, ftDateTime:
+        FFilterDateFields.Add(Col.FieldName);
     end;
   end;
 end;
@@ -1739,22 +1757,28 @@ end;
 
 procedure TfrmGrid<TE, TS>.RefreshData;
 begin
-  if (Table <> nil) and (Table.Id > 0) then
-    grd.DataSource.DataSet.Locate('id', Table.Id,[]);
+  // FIX: grd.DataSource.DataSet yerine FQry direkt
+  if not Assigned(FQry) or not FQry.Active then
+    Exit;
 
+  // Mevcut kaydı bul
+  if Assigned(FTable) and (FTable.Id > 0) then
+    FQry.Locate('id', FTable.Id, []);
+
+  // Filtre uygula
   if FFilterGrid.Text <> '' then
   begin
-    grd.DataSource.DataSet.Filter := FFilterGrid.Text;
-    grd.DataSource.DataSet.Filtered := True;
+    FQry.Filter    := FFilterGrid.Text;
+    FQry.Filtered  := True;
     mniFilterRemove.Enabled := True;
-    mniFilterBack.Enabled := True;
+    mniFilterBack.Enabled   := True;
   end
   else
   begin
-    grd.DataSource.DataSet.Filtered := False;
-    grd.DataSource.DataSet.Filter := '';
+    FQry.Filtered  := False;
+    FQry.Filter    := '';
     mniFilterRemove.Enabled := False;
-    mniFilterBack.Enabled := False;
+    mniFilterBack.Enabled   := False;
   end;
 
   RefreshStatusRecordCount;
@@ -1767,18 +1791,28 @@ end;
 
 procedure TfrmGrid<TE, TS>.RefreshParentGrid(AFocusSelectedItem: Boolean);
 begin
-  Grd.DataSource.DataSet.Refresh;
-  if AFocusSelectedItem then
-  begin
-    Grd.DataSource.DataSet.Locate('id', Table.Id, [loCaseInsensitive]);
-  end;
+  if not Assigned(FQry) or not FQry.Active then
+    Exit;
+
+  FQry.Refresh;
+
+  // FIX: Table nil kontrolü
+  if AFocusSelectedItem and Assigned(FTable) and (FTable.Id > 0) then
+    FQry.Locate('id', FTable.Id, []); // FIX: loCaseInsensitive integer için anlamsız, kaldırıldı
+
   UpdateFooterLayout;
 end;
 
 procedure TfrmGrid<TE, TS>.RefreshStatusRecordCount();
 begin
-  if FStatusBase.Panels.Count > 0 then
-    FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text := Format(TLocalizationManager.Translate(TLangKeys.TGeneral.RecordsCount, 'Records: %d'), [Grd.DataSource.DataSet.RecordCount]);
+  // FIX: Panel index güvenli kontrol
+  if (FStatusBase.Panels.Count > DB_STATUS_RECORD_COUNT) then
+    FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text :=
+      Format(
+        TLocalizationManager.Translate(
+          TLangKeys.TGeneral.RecordsCount, 'Records: %d'),
+        [FQry.RecordCount]);
+
   UpdateFooterLayout;
 end;
 
@@ -2014,53 +2048,58 @@ end;
 
 procedure TfrmGrid<TE, TS>.LoadColumnWidthsFromDB;
 var
-  viewName : string;
-  i, j     : Integer;
-  LRepo    : TSysGridColumnRepository;
+  LViewName: string;
+  LSysRepo : ISysGridColumnRepository;
   LColumns : TList<TSysGridColumn>;
   LCol     : TSysGridColumn;
+  LColMap  : TDictionary<string, Integer>;
+  LColIndex: Integer;
+  i, j     : Integer;
 begin
-  viewName := GetGridViewName;
-  if viewName = '' then Exit;
+  LViewName := GetGridViewName;
+  if LViewName = '' then Exit;
+  if not Service.UoW.Connection.Connected then Exit;
 
-  if not Service.Uow.Connection.Connected then Exit;
+  // FIX: Interface üzerinden — tehlikeli TObject cast yok
+  LSysRepo := Service.UoW.GetRepository<TSysGridColumn,
+    TSysGridColumnRepository> as ISysGridColumnRepository;
 
-  LRepo := TSysGridColumnRepository(Service.Uow.GetRepository<TSysGridColumn, TSysGridColumnRepository> as TObject);
-  LColumns := LRepo.LoadColumns(viewName);
+  LColumns := LSysRepo.LoadColumns(LViewName);
   try
     if LColumns.Count = 0 then Exit;
 
-    for LCol in LColumns do
-    begin
+    LColMap := TDictionary<string, Integer>.Create(Grd.Columns.Count);
+    try
       for i := 0 to Grd.Columns.Count - 1 do
-        if SameText(Grd.Columns[i].FieldName, LCol.ColumnName) then
-        begin
-          if not LCol.IsShow then
-            Grd.Columns[i].Visible := False
-          else
-          begin
-            Grd.Columns[i].Visible := True;
-            if LCol.ColumnWidth > 0 then
-              Grd.Columns[i].Width := LCol.ColumnWidth;
-          end;
-          Break;
-        end;
-    end;
+        LColMap.AddOrSetValue(LowerCase(Grd.Columns[i].FieldName), i);
 
-    // Apply column order
-    j := 0;
-    for LCol in LColumns do
-    begin
-      if LCol.IsShow then
-        for i := 0 to Grd.Columns.Count - 1 do
-          if SameText(Grd.Columns[i].FieldName, LCol.ColumnName) and
-             Grd.Columns[i].Visible then
-          begin
-            if Grd.Columns[i].Index <> j then
-              Grd.Columns[i].Index := j;
-            Inc(j);
-            Break;
-          end;
+      for LCol in LColumns do
+      begin
+        if not LColMap.TryGetValue(LowerCase(LCol.ColumnName), LColIndex) then
+          Continue;
+        if not LCol.IsShow then
+          Grd.Columns[LColIndex].Visible := False
+        else
+        begin
+          Grd.Columns[LColIndex].Visible := True;
+          if LCol.ColumnWidth > 0 then
+            Grd.Columns[LColIndex].Width := LCol.ColumnWidth;
+        end;
+      end;
+
+      j := 0;
+      for LCol in LColumns do
+      begin
+        if not LCol.IsShow then Continue;
+        if not LColMap.TryGetValue(LowerCase(LCol.ColumnName), LColIndex) then
+          Continue;
+        if not Grd.Columns[LColIndex].Visible then Continue;
+        if Grd.Columns[LColIndex].Index <> j then
+          Grd.Columns[LColIndex].Index := j;
+        Inc(j);
+      end;
+    finally
+      LColMap.Free;
     end;
   finally
     LColumns.Free;
