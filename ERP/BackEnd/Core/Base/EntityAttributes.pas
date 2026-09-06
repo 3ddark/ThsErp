@@ -902,7 +902,7 @@ begin
     if Trim(StrValue) = '' then
       Exit;
 
-    EmailRegex := '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}';
+    EmailRegex := '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
 
     if not TRegEx.IsMatch(StrValue, EmailRegex) then
     begin

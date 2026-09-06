@@ -81,6 +81,7 @@ type
         const RecordNotFoundD = 'Record not found: %d';
         const RecordNotFoundS = 'Record not found: %s';
         const UnknownPermissionType = 'Unknown PermissionType: %d';
+        const DataIsNotLoaded = 'Data is not loaded';
       end;
 
       TLogin = record
