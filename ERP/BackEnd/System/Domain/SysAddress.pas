@@ -23,9 +23,6 @@ type
 
     FSysCity: TSysCity;
   public
-    constructor Create(); override;
-    destructor Destroy; override;
-
     [Column('sys_city_id')]
     [Required(TLangKeys.TValidation.Required, True)]
     property SysCityId: Int64 read FSysCityId write FSysCityId;
@@ -60,8 +57,13 @@ type
     [Column('email')]
     property Email: string read FEmail write FEmail;
 
-    [BelongsTo('sys_city_id', 'id')]
+    [BelongsTo('SysCityId')]
     property SysCity: TSysCity read FSysCity write FSysCity;
+
+    constructor Create(); override;
+    destructor Destroy; override;
+
+    function Clone: TSysAddress;
   end;
 
 implementation
@@ -69,13 +71,32 @@ implementation
 constructor TSysAddress.Create();
 begin
   inherited;
-  FSysCity := TSysCity.Create;
+  FSysCity := nil;
 end;
 
 destructor TSysAddress.Destroy;
 begin
   inherited;
   FSysCity.Free;
+end;
+
+function TSysAddress.Clone: TSysAddress;
+begin
+  Result := TSysAddress.Create;
+  Result.SysCityId := Self.SysCityId;
+  Result.District := Self.District;
+  Result.Neighborhood := Self.Neighborhood;
+  Result.Quarter := Self.Quarter;
+  Result.Road := Self.Road;
+  Result.Street := Self.Street;
+  Result.BuildingName := Self.BuildingName;
+  Result.DoorNumber := Self.DoorNumber;
+  Result.ZipCode := Self.ZipCode;
+  Result.Web := Self.Web;
+  Result.Email := Self.Email;
+
+  if Assigned(Self.SysCity) then
+    Result.SysCity := Self.SysCity.Clone;
 end;
 
 end.

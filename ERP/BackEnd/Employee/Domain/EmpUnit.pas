@@ -26,6 +26,8 @@ type
 
     destructor Destroy; override;
     constructor Create(); override;
+
+    function Clone: TEmpUnit;
   end;
 
 implementation
@@ -38,6 +40,16 @@ end;
 destructor TEmpUnit.Destroy;
 begin
   inherited;
+end;
+
+function TEmpUnit.Clone: TEmpUnit;
+begin
+  Result := TEmpUnit.Create;
+  Result.SectionId := Self.SectionId;
+  Result.UnitName_ := Self.UnitName_;
+
+  if Assigned(Self.Section) then
+    Result.Section := Self.Section.Clone;
 end;
 
 end.

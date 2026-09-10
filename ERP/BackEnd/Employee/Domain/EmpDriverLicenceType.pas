@@ -18,6 +18,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TEmpDriverLicenseType;
   end;
 
 implementation
@@ -31,6 +33,12 @@ destructor TEmpDriverLicenseType.Destroy;
 begin
 
   inherited;
+end;
+
+function TEmpDriverLicenseType.Clone: TEmpDriverLicenseType;
+begin
+  Result := TEmpDriverLicenseType.Create;
+  Result.LicenseName := Self.LicenseName;
 end;
 
 end.

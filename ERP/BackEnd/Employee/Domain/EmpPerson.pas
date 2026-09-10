@@ -148,6 +148,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TEmpPerson;
   end;
 
 implementation
@@ -162,6 +164,49 @@ begin
   inherited;
 end;
 
-end.
+function TEmpPerson.Clone: TEmpPerson;
+begin
+  Result := TEmpPerson.Create;
+  Result.Name := Self.Name;
+  Result.Surname := Self.Surname;
+  Result.FullName := Self.FullName;
+  Result.Phone1 := Self.Phone1;
+  Result.Phone2 := Self.Phone2;
+  Result.PersonTypeId := Self.PersonTypeId;
+  Result.UnitId := Self.UnitId;
+  Result.TaskId := Self.TaskId;
+  Result.Birth := Self.Birth;
+  Result.Blood := Self.Blood;
+  Result.Gender := Self.Gender;
+  Result.MilitaryStatus := Self.MilitaryStatus;
+  Result.MaritalStatus := Self.MaritalStatus;
+  Result.Child := Self.Child;
+  Result.RelatedName := Self.RelatedName;
+  Result.FRelatedPhone := Self.RelatedPhone;
+  Result.Shoe := Self.Shoe;
+  Result.Dress := Self.Dress;
+  Result.Notes := Self.Notes;
+  Result.TransportationId := Self.TransportationId;
+  Result.SpecialNotes := Self.SpecialNotes;
+  Result.Salary := Self.Salary;
+  Result.NumberOfBonus := Self.NumberOfBonus;
+  Result.Bonus := Self.Bonus;
+  Result.Identification := Self.Identification;
+  Result.AddressId := Self.AddressId;
+  Result.Active := Self.Active;
 
+  if Assigned(Self.PersonType) then
+    Result.PersonType := Self.PersonType.Clone;
+
+  if Assigned(Self.Unit_) then
+    Result.Unit_ := Self.Unit_.Clone;
+
+  if Assigned(Self.Task) then
+    Result.Task := Self.Task.Clone;
+
+  if Assigned(Self.Address) then
+    Result.Address := Self.Address.Clone;
+end;
+
+end.
 

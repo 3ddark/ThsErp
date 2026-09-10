@@ -17,6 +17,11 @@ type
     ['{03DA6AFF-C934-443B-976E-3D400662465C}']
   end;
 
+  ICloneable<T: class> = interface
+    ['{09530B5E-0954-41BE-9F01-61C292B70E3D}']
+    function Clone: T;
+  end;
+
   TEntityBase = class(TInterfacedObject, IEntityBase)
   protected
     function ValidateProperty(const APropertyName: string; const AValue: TValue): TValidationResult;

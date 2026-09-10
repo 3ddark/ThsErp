@@ -2,8 +2,8 @@ object frmSysPermissionGroup: TfrmSysPermissionGroup
   Left = 0
   Top = 0
   Caption = 'frmSysPermissionGroup'
-  ClientHeight = 150
-  ClientWidth = 500
+  ClientHeight = 160
+  ClientWidth = 497
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,13 +16,15 @@ object frmSysPermissionGroup: TfrmSysPermissionGroup
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 500
-    Height = 150
+    Width = 497
+    Height = 160
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 500
+    ExplicitHeight = 150
     object lblPermissionGroupKey: TLabel
       Left = 127
-      Top = 8
+      Top = 6
       Width = 21
       Height = 13
       Alignment = taRightJustify
@@ -36,58 +38,20 @@ object frmSysPermissionGroup: TfrmSysPermissionGroup
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblPermissionGroupName_en_US: TLabel
-      Left = 27
-      Top = 32
-      Width = 121
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = 'Group Name (English)'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
-    object lblPermissionGroupName_tr_TR: TLabel
-      Left = 27
-      Top = 56
-      Width = 121
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = 'Group Name (T'#252'rk'#231'e)'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
     object edtPermissionGroupKey: TEdit
       Left = 150
-      Top = 4
+      Top = 2
       Width = 333
       Height = 22
       TabOrder = 0
     end
-    object edtPermissionGroupName_en_US: TEdit
-      Left = 150
-      Top = 28
-      Width = 333
-      Height = 22
+    object scrlbxTranslations: TScrollBox
+      Left = 8
+      Top = 24
+      Width = 480
+      Height = 72
+      HorzScrollBar.Visible = False
       TabOrder = 1
-    end
-    object edtPermissionGroupName_tr_TR: TEdit
-      Left = 150
-      Top = 52
-      Width = 333
-      Height = 22
-      TabOrder = 2
     end
   end
 end

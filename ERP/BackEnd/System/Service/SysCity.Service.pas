@@ -81,7 +81,6 @@ var
   LFilter: TFilterCriteria;
   LModel: TSysCity;
 begin
-  //check unique
   if AOperation in [coInsert, coUpdate] then
   begin
     LFilter := TFilterCriteria.Create;

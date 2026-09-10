@@ -2,10 +2,13 @@ unit ufrmSysGridFilters;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysGridFilter.Service, SysGridFilter, ufrmSysGridFilter, LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysGridFilter.Service, SysGridFilter, ufrmSysGridFilter;
 
 type
   TfrmSysGridFilters = class(TfrmGrid<TSysGridFilter, TSysGridFilterService>)
@@ -25,11 +28,11 @@ function TfrmSysGridFilters.CreateInputForm(Sender: TObject; AFormMode: TInputFo
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysGridFilter.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysGridFilter.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysGridFilter.Create(Self, Service, TSysGridFilter.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysGridFilter.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysGridFilter.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysGridFilters.DefineColumnWidths;

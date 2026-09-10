@@ -18,6 +18,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TStkProductType;
   end;
 
 implementation
@@ -30,6 +32,12 @@ end;
 destructor TStkProductType.Destroy;
 begin
   inherited;
+end;
+
+function TStkProductType.Clone: TStkProductType;
+begin
+  Result := TStkProductType.Create;
+  Result.ProductTypeName := Self.ProductTypeName;
 end;
 
 end.

@@ -2,10 +2,13 @@ unit ufrmSysUomGroups;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysUomGroup.Service, SysUomGroup, ufrmSysUomGroup, LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysUomGroup.Service, SysUomGroup, ufrmSysUomGroup;
 
 type
   TfrmSysUomTypes = class(TfrmGrid<TSysUomGroup, TSysUomGroupService>)
@@ -25,19 +28,17 @@ function TfrmSysUomTypes.CreateInputForm(Sender: TObject; AFormMode: TInputFormM
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysUomType.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysUomType.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysUomType.Create(Self, Service, TSysUomGroup.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysUomType.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysUomType.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysUomTypes.DefineColumnWidths;
 begin
   inherited;
   SetColumnProperty('id',      0, 'Id');
-  SetColumnProperty('key',   150, TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColKey, 'Type Key'));
-  SetColumnProperty('name',  200, TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColName, 'Type Name'));
   SetColumnProperty('locale',  0, TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColLocale, 'Locale'));
 end;
 
@@ -57,6 +58,10 @@ procedure TfrmSysUomTypes.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.TitlePlural, 'Unit of Measurement Types');
+  SetColumnTitle('id',     'Id');
+  SetColumnTitle('key',    TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColKey, 'Type Key'));
+  SetColumnTitle('name',   TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColName, 'Type Name'));
+  SetColumnTitle('locale', TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColLocale, 'Locale'));
 end;
 
 end.

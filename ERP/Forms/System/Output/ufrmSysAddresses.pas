@@ -2,10 +2,13 @@ unit ufrmSysAddresses;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysAddress.Service, SysAddress, ufrmSysAddress, LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysAddress.Service, SysAddress, ufrmSysAddress;
 
 type
   TfrmSysAddresses = class(TfrmGrid<TSysAddress, TSysAddressService>)
@@ -25,11 +28,11 @@ function TfrmSysAddresses.CreateInputForm(Sender: TObject; AFormMode: TInputForm
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysAddress.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysAddress.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysAddress.Create(Self, Service, TSysAddress.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysAddress.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysAddress.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysAddresses.DefineColumnWidths;

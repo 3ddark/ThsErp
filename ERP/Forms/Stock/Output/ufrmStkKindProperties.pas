@@ -26,11 +26,11 @@ function TfrmStkKindProperties.CreateInputForm(Sender: TObject; AFormMode: TInpu
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmStkKindProperty.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmStkKindProperty.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmStkKindProperty.Create(Self, Service, TStkKindProperty.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmStkKindProperty.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmStkKindProperty.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmStkKindProperties.DefineColumnWidths;

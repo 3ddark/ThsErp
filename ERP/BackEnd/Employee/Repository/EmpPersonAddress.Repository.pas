@@ -22,7 +22,7 @@ type
 
     function FindById(AId: TValue; ALock: Boolean = False): TEmpPersonAddress; override;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TEmpPersonAddress; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TEmpPersonAddress>; override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TEmpPersonAddress>; override;
 
     procedure Add(AModel: TEmpPersonAddress); override;
     procedure AddBatch(AModels: TArray<TEmpPersonAddress>); override;
@@ -312,7 +312,7 @@ begin
   end;
 end;
 
-function TEmpPersonAddressRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TEmpPersonAddress>;
+function TEmpPersonAddressRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TEmpPersonAddress>;
 var
   Q: TFDQuery;
   Item: TEmpPersonAddress;

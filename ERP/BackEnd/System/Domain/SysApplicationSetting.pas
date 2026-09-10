@@ -16,6 +16,8 @@ type
     property UpdatePath: string read FUpdatePath write FUpdatePath;
 
     constructor Create;
+
+    function Clone: TSysApplicationSettingOtherSettings;
   end;
 
   [Table('sys_application_setting')]
@@ -27,7 +29,7 @@ type
     FFax: string;
     FCryptKey: string;
     FTaxpayertype: string;
-    FAddressId: Int64;
+    FSysAddressId: Int64;
     FTaxAuthority: string;
     FActivePeriod: SmallInt;
     FSmsPassword: string;
@@ -43,17 +45,14 @@ type
     FGridColorActive: Integer;
     FGridColor1: Integer;
     FLogo: TArray<Byte>;
-    FCurrencyRef: TSysCurrency;
+    FSysCurrency: TSysCurrency;
     FAppCurrency: string;
     FMailSmtpPort: Integer;
     FAppVersion: string;
     FTaxNo: string;
-    FAddress: TSysAddress;
+    FSysAddress: TSysAddress;
     FOtherSettingsObj: TSysApplicationSettingOtherSettings;
   public
-    constructor Create(); override;
-    destructor Destroy; override;
-
     [Column('company_title')]
     [Required('sysapplicationsetting.companytitle.required', True)]
     property CompanyTitle: string read FCompanyTitle write FCompanyTitle;
@@ -121,14 +120,14 @@ type
     [Column('app_currency')]
     property AppCurrency: string read FAppCurrency write FAppCurrency;
 
-    [BelongsTo('AppCurrency', 'Currency')]
-    property Currency: TSysCurrency read FCurrencyRef write FCurrencyRef;
+    [BelongsTo('AppCurrency')]
+    property SysCurrency: TSysCurrency read FSysCurrency write FSysCurrency;
 
-    [Column('address_id')]
-    property AddressId: Int64 read FAddressId write FAddressId;
+    [Column('sys_address_id')]
+    property SysAddressId: Int64 read FSysAddressId write FSysAddressId;
 
-    [BelongsTo('address_id', 'id')]
-    property Address: TSysAddress read FAddress write FAddress;
+    [BelongsTo('SysAddressId')]
+    property SysAddress: TSysAddress read FSysAddress write FSysAddress;
 
     [Column('other_settings')]
     property OtherSettings: string read FOtherSettings write FOtherSettings;
@@ -149,9 +148,22 @@ type
     property Logo: TArray<Byte> read FLogo write FLogo;
 
     property OtherSettingsObj: TSysApplicationSettingOtherSettings read FOtherSettingsObj;
+
+    constructor Create(); override;
+    destructor Destroy; override;
+
+    function Clone: TSysApplicationSetting;
   end;
 
 implementation
+
+function TSysApplicationSettingOtherSettings.Clone: TSysApplicationSettingOtherSettings;
+begin
+  Result := TSysApplicationSettingOtherSettings.Create;
+  Result.StockCardImagePath := Self.StockCardImagePath;
+  Result.PersonnelCardImagePath := Self.PersonnelCardImagePath;
+  Result.UpdatePath := Self.UpdatePath;
+end;
 
 constructor TSysApplicationSettingOtherSettings.Create;
 begin
@@ -164,8 +176,8 @@ end;
 constructor TSysApplicationSetting.Create();
 begin
   inherited;
-  FAddress := TSysAddress.Create;
-  FCurrencyRef := TSysCurrency.Create;
+  FSysAddress := nil;
+  FSysCurrency := nil;
   FOtherSettingsObj := TSysApplicationSettingOtherSettings.Create;
 end;
 
@@ -173,11 +185,51 @@ destructor TSysApplicationSetting.Destroy;
 begin
   if Assigned(FOtherSettingsObj) then
     FOtherSettingsObj.Free;
-  if Assigned(FCurrencyRef) then
-    FCurrencyRef.Free;
-  if Assigned(FAddress) then
-    FAddress.Free;
+  FSysCurrency.Free;
+  FSysAddress.Free;
   inherited;
+end;
+
+function TSysApplicationSetting.Clone: TSysApplicationSetting;
+begin
+  Result := TSysApplicationSetting.Create;
+
+  Result.CompanyTitle := Self.CompanyTitle;
+  Result.TaxpayerSurname := Self.TaxpayerSurname;
+  Result.SmsTitle := Self.SmsTitle;
+  Result.Fax := Self.Fax;
+  Result.CryptKey := Self.CryptKey;
+  Result.Taxpayertype := Self.Taxpayertype;
+  Result.SysAddressId := Self.SysAddressId;
+  Result.TaxAuthority := Self.TaxAuthority;
+  Result.ActivePeriod := Self.ActivePeriod;
+  Result.SmsPassword := Self.SmsPassword;
+  Result.MailPassword := Self.MailPassword;
+  Result.Phone := Self.Phone;
+  Result.OtherSettings := Self.OtherSettings;
+  Result.SmsHost := Self.SmsHost;
+  Result.SmsUser := Self.SmsUser;
+  Result.MailHost := Self.MailHost;
+  Result.MailUser := Self.MailUser;
+  Result.TaxpayerName := Self.TaxpayerName;
+  Result.GridColor2 := Self.GridColor2;
+  Result.GridColorActive := Self.GridColorActive;
+  Result.GridColor1 := Self.GridColor1;
+  Result.Logo := Self.Logo;
+
+  if Assigned(Self.SysCurrency) then
+    Result.SysCurrency := Self.SysCurrency.Clone;
+
+  Result.AppCurrency := Self.AppCurrency;
+  Result.MailSmtpPort := Self.MailSmtpPort;
+  Result.AppVersion := Self.AppVersion;
+  Result.TaxNo := Self.TaxNo;
+
+  if Assigned(Self.SysAddress) then
+    Result.SysAddress := Self.SysAddress.Clone;
+
+    //read only prop !!!
+//  Result.OtherSettingsObj := Self.OtherSettingsObj.Clone;
 end;
 
 procedure TSysApplicationSetting.DeserializeOtherSettings;

@@ -2,12 +2,15 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysAccessRight.Service, SysAccessRight, LocalizationManager;
+  SysAccessRight.Service, SysAccessRight;
 
 type
   TfrmSysAccessRight = class(TfrmInputSimpleDB<TSysAccessRight, TSysAccessRightService>)
@@ -41,8 +44,8 @@ uses
 
 procedure TfrmSysAccessRight.BtnAcceptClick(Sender: TObject);
 begin
-  Table.UserId := edtUserId.Tag;
-  Table.PermissionId := edtPermissionId.Tag;
+  Table.SysUserId := edtUserId.Tag;
+  Table.SysPermissionId := edtPermissionId.Tag;
   Table.IsRead := chkIsRead.Checked;
   Table.IsAdd := chkIsAdd.Checked;
   Table.IsUpdate := chkIsUpdate.Checked;
@@ -124,7 +127,7 @@ begin
           else
           begin
             edtPermissionId.Tag := LFrmPermission.Table.Id;
-//            LEdit.Text := LFrmPermission.Table.Name;
+            LEdit.Text := LFrmPermission.Table.Key;
           end;
       finally
         LFrmPermission.Free;
@@ -139,15 +142,15 @@ begin
   if Table.Username <> '' then
     edtUserId.Text := Table.Username
   else
-    edtUserId.Text := Table.UserId.ToString;
+    edtUserId.Text := Table.SysUserId.ToString;
 
   if Table.PermissionName <> '' then
     edtPermissionId.Text := Table.PermissionName
   else
-    edtPermissionId.Text := Table.PermissionId.ToString;
+    edtPermissionId.Text := Table.SysPermissionId.ToString;
 
-  edtUserId.Tag := Table.UserId;
-  edtPermissionId.Tag := Table.PermissionId;
+  edtUserId.Tag := Table.SysUserId;
+  edtPermissionId.Tag := Table.SysPermissionId;
   chkIsRead.Checked := Table.IsRead;
   chkIsAdd.Checked := Table.IsAdd;
   chkIsUpdate.Checked := Table.IsUpdate;

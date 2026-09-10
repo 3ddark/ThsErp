@@ -12,9 +12,6 @@ type
     FSymbol: string;
     FDescription: string;
   public
-    constructor Create(); override;
-    destructor Destroy; override;
-
     [Column('currency'), MaxLength(3), Required()]
     property Currency: string read FCurrency write FCurrency;
 
@@ -23,6 +20,11 @@ type
 
     [Column('description')]
     property Description: string read FDescription write FDescription;
+
+    constructor Create(); override;
+    destructor Destroy; override;
+
+    function Clone: TSysCurrency;
   end;
 
 implementation
@@ -35,6 +37,14 @@ end;
 destructor TSysCurrency.Destroy;
 begin
   inherited;
+end;
+
+function TSysCurrency.Clone: TSysCurrency;
+begin
+  Result := TSysCurrency.Create;
+  Result.Currency := Self.Currency;
+  Result.Symbol := Self.Symbol;
+  Result.Description := Self.Description;
 end;
 
 end.

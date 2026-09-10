@@ -26,11 +26,11 @@ function TfrmStkInventorySummaries.CreateInputForm(Sender: TObject; AFormMode: T
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmStkInventorySummary.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmStkInventorySummary.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmStkInventorySummary.Create(Self, Service, TStkInventorySummary.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmStkInventorySummary.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmStkInventorySummary.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmStkInventorySummaries.DefineColumnWidths;

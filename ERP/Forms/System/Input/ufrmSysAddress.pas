@@ -2,12 +2,15 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysAddress.Service, SysAddress, SysCity, SysCity.Service, LocalizationManager;
+  SysAddress.Service, SysAddress, SysCity, SysCity.Service;
 
 type
   TfrmSysAddress = class(TfrmInputSimpleDB<TSysAddress, TSysAddressService>)

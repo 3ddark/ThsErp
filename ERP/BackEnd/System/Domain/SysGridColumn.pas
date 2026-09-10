@@ -24,9 +24,6 @@ type
     FBarBgColor: Integer;
     FBarTextColor: Integer;
   public
-    constructor Create(); override;
-    destructor Destroy; override;
-
     [Column('table_name'), MaxLength(128), Required()]
     property TableName: string read FTableName write FTableName;
 
@@ -71,6 +68,11 @@ type
 
     [Column('bar_text_color')]
     property BarTextColor: Integer read FBarTextColor write FBarTextColor;
+
+    constructor Create(); override;
+    destructor Destroy; override;
+
+    function Clone: TSysGridColumn;
   end;
 
 implementation
@@ -95,6 +97,26 @@ end;
 destructor TSysGridColumn.Destroy;
 begin
   inherited;
+end;
+
+function TSysGridColumn.Clone: TSysGridColumn;
+begin
+  Result := TSysGridColumn.Create;
+  Result.TableName := Self.TableName;
+  Result.ColumnName := Self.ColumnName;
+  Result.ColumnOrder := Self.ColumnOrder;
+  Result.ColumnWidth := Self.ColumnWidth;
+  Result.DataFormat := Self.DataFormat;
+  Result.IsShow := Self.IsShow;
+  Result.IsShowHelper := Self.IsShowHelper;
+  Result.MinValue := Self.MinValue;
+  Result.MinValueColor := Self.MinValueColor;
+  Result.MaxValue := Self.MaxValue;
+  Result.MaxValueColor := Self.MaxValueColor;
+  Result.MaxValuePercent := Self.MaxValuePercent;
+  Result.BarColor := Self.BarColor;
+  Result.BarBgColor := Self.BarBgColor;
+  Result.BarTextColor := Self.BarTextColor;
 end;
 
 end.

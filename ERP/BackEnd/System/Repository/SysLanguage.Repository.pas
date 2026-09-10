@@ -22,7 +22,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysLanguage>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysLanguage>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysLanguage; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysLanguage; override;
 
@@ -123,7 +123,7 @@ begin
   end;
 end;
 
-function TSysLanguageRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysLanguage>;
+function TSysLanguageRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysLanguage>;
 var
   Q: TFDQuery;
   Item: TSysLanguage;

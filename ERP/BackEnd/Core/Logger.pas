@@ -175,9 +175,8 @@ end;
 
 procedure TLogger.FlushQueue;
 var
-  LLines : TStringBuilder;
-  LLine  : string;
-  LCount : Integer;
+  LLines: TStringBuilder;
+  LCount: Integer;
 begin
   FQueueLock.Enter;
   LCount := FQueue.Count;

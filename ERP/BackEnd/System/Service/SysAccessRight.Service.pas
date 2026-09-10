@@ -367,8 +367,8 @@ begin
   begin
     LFilter := TFilterCriteria.Create;
     try
-      LFilter.Add(TFilterCriterion.New('permission_id', '=', TValue.From<Int64>(AEntity.PermissionId)));
-      LFilter.Add(TFilterCriterion.New('user_id', '=', TValue.From<Int64>(TAppContext.Instance.CurrentUser.GetUserId)));
+      LFilter.Add(TFilterCriterion.New('sys_permission_id', '=', TValue.From<Int64>(AEntity.SysPermissionId)));
+      LFilter.Add(TFilterCriterion.New('sys_user_id', '=', TValue.From<Int64>(TAppContext.Instance.CurrentUser.GetUserId)));
       if AOperation = coUpdate then
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 
@@ -387,6 +387,9 @@ end;
 
 procedure TSysAccessRightService.CopyUserAccessRights(ASourceUserId, ATargetUserId: Int64);
 begin
+  if Self.UoW.InTransaction then
+    raise Exception.Create(TLangKeys.TMessage.ActiveTransactionExist);
+
   if not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
   try
@@ -426,7 +429,7 @@ begin
   LFilter := TFilterCriteria.Create;
   try
     LFilter.Add(TFilterCriterion.New('permission_code', '=', TValue.From<Integer>(APermissionCode)));
-    LFilter.Add(TFilterCriterion.New('user_id', '=', TValue.From<Int64>(TAppContext.Instance.CurrentUser.User.Id)));
+    LFilter.Add(TFilterCriterion.New('sys_user_id', '=', TValue.From<Int64>(TAppContext.Instance.CurrentUser.User.Id)));
 
     LAccess := FRepo.FindOne(LFilter, False);
     if not Assigned(LAccess) then

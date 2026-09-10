@@ -1,7 +1,7 @@
 object frmAccBankBranch: TfrmAccBankBranch
   Left = 0
   Top = 0
-  Caption = 'Banka Şubesi'
+  Caption = 'Banka '#197#158'ubesi'
   ClientHeight = 160
   ClientWidth = 500
   Color = clBtnFace
@@ -23,13 +23,13 @@ object frmAccBankBranch: TfrmAccBankBranch
     ExplicitWidth = 498
     ExplicitHeight = 158
     object lblsube_kodu: TLabel
-      Left = 36
+      Left = 65
       Top = 11
-      Width = 92
+      Width = 63
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Şube Kodu'
+      Caption = #197#158'ube Kodu'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -39,13 +39,13 @@ object frmAccBankBranch: TfrmAccBankBranch
       ParentFont = False
     end
     object lblsube_adi: TLabel
-      Left = 45
+      Left = 64
       Top = 38
-      Width = 83
+      Width = 64
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Şube Adı'
+      Caption = #197#158'ube Ad'#196#177
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -55,9 +55,9 @@ object frmAccBankBranch: TfrmAccBankBranch
       ParentFont = False
     end
     object lblbanka: TLabel
-      Left = 54
+      Left = 91
       Top = 65
-      Width = 74
+      Width = 37
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -71,13 +71,13 @@ object frmAccBankBranch: TfrmAccBankBranch
       ParentFont = False
     end
     object lblsehir: TLabel
-      Left = 52
+      Left = 98
       Top = 92
-      Width = 76
+      Width = 30
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
-      Caption = 'Şehir'
+      Caption = #197#158'ehir'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11

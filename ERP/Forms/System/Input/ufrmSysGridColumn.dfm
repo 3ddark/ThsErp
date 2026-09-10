@@ -12,7 +12,7 @@ object frmSysGridColumn: TfrmSysGridColumn
   Font.Style = []
   OnCreate = FormCreate
   OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
@@ -22,9 +22,9 @@ object frmSysGridColumn: TfrmSysGridColumn
     TabOrder = 0
     ExplicitWidth = 624
     object lblTableName: TLabel
-      Left = 19
+      Left = 22
       Top = 16
-      Width = 69
+      Width = 66
       Height = 13
       Alignment = taRightJustify
       Caption = 'Table Name'
@@ -36,9 +36,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblColumnName: TLabel
-      Left = 10
+      Left = 11
       Top = 48
-      Width = 78
+      Width = 77
       Height = 13
       Alignment = taRightJustify
       Caption = 'Column Name'
@@ -64,9 +64,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblColumnWidth: TLabel
-      Left = 229
+      Left = 230
       Top = 80
-      Width = 79
+      Width = 78
       Height = 13
       Alignment = taRightJustify
       Caption = 'Column Width'
@@ -78,9 +78,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblDataFormat: TLabel
-      Left = 447
+      Left = 446
       Top = 80
-      Width = 70
+      Width = 71
       Height = 13
       Alignment = taRightJustify
       Caption = 'Data Format'
@@ -92,9 +92,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblMinValue: TLabel
-      Left = 322
+      Left = 325
       Top = 112
-      Width = 57
+      Width = 54
       Height = 13
       Alignment = taRightJustify
       Caption = 'Min Value'
@@ -106,9 +106,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblMinValueColor: TLabel
-      Left = 513
+      Left = 517
       Top = 112
-      Width = 90
+      Width = 86
       Height = 13
       Alignment = taRightJustify
       Caption = 'Min Value Color'
@@ -120,9 +120,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblMaxValue: TLabel
-      Left = 28
+      Left = 30
       Top = 144
-      Width = 60
+      Width = 58
       Height = 13
       Alignment = taRightJustify
       Caption = 'Max Value'
@@ -134,9 +134,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblMaxValueColor: TLabel
-      Left = 215
+      Left = 218
       Top = 144
-      Width = 93
+      Width = 90
       Height = 13
       Alignment = taRightJustify
       Caption = 'Max Value Color'
@@ -148,9 +148,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblMaxValuePercent: TLabel
-      Left = 444
+      Left = 443
       Top = 144
-      Width = 73
+      Width = 74
       Height = 13
       Alignment = taRightJustify
       Caption = 'Max % Value'
@@ -162,9 +162,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblBarColor: TLabel
-      Left = 35
+      Left = 37
       Top = 176
-      Width = 53
+      Width = 51
       Height = 13
       Alignment = taRightJustify
       Caption = 'Bar Color'
@@ -176,9 +176,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblBarBgColor: TLabel
-      Left = 234
+      Left = 239
       Top = 176
-      Width = 74
+      Width = 69
       Height = 13
       Alignment = taRightJustify
       Caption = 'Bar BG Color'
@@ -190,9 +190,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblBarTextColor: TLabel
-      Left = 435
+      Left = 437
       Top = 176
-      Width = 82
+      Width = 80
       Height = 13
       Alignment = taRightJustify
       Caption = 'Bar Text Color'

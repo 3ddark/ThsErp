@@ -18,6 +18,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TEmpPersonType;
   end;
 
 implementation
@@ -31,6 +33,12 @@ destructor TEmpPersonType.Destroy;
 begin
 
   inherited;
+end;
+
+function TEmpPersonType.Clone: TEmpPersonType;
+begin
+  Result := TEmpPersonType.Create;
+  Result.PersonType := Self.PersonType;
 end;
 
 end.

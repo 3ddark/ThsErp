@@ -2,10 +2,13 @@ unit ufrmSysGridSorts;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysGridSort.Service, SysGridSort, ufrmSysGridSort, LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysGridSort.Service, SysGridSort, ufrmSysGridSort;
 
 type
   TfrmSysGridSorts = class(TfrmGrid<TSysGridSort, TSysGridSortService>)
@@ -25,11 +28,11 @@ function TfrmSysGridSorts.CreateInputForm(Sender: TObject; AFormMode: TInputForm
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysGridSort.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysGridSort.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysGridSort.Create(Self, Service, TSysGridSort.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysGridSort.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysGridSort.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysGridSorts.DefineColumnWidths;

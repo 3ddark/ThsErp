@@ -2,6 +2,8 @@ unit ufrmSysRegions;
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
@@ -26,11 +28,11 @@ function TfrmSysRegions.CreateInputForm(Sender: TObject; AFormMode: TInputFormMo
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysRegion.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysRegion.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysRegion.Create(Self, Service, TSysRegion.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysRegion.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysRegion.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysRegions.DefineColumnWidths;

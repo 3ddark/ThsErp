@@ -21,7 +21,7 @@ type
 
     function FindById(AId: TValue; ALock: Boolean = False): TStkTransaction; override;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TStkTransaction; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TStkTransaction>; override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TStkTransaction>; override;
 
     procedure Add(AModel: TStkTransaction); override;
     procedure AddBatch(AModels: TArray<TStkTransaction>); override;
@@ -325,7 +325,7 @@ begin
   end;
 end;
 
-function TStkTransactionRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TStkTransaction>;
+function TStkTransactionRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TStkTransaction>;
 var
   Q: TFDQuery;
   Item: TStkTransaction;

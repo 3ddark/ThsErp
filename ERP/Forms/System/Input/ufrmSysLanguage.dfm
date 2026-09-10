@@ -12,7 +12,7 @@ object frmSysLanguage: TfrmSysLanguage
   Font.Style = []
   OnCreate = FormCreate
   OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
@@ -21,9 +21,9 @@ object frmSysLanguage: TfrmSysLanguage
     Align = alClient
     TabOrder = 0
     object lblLocale: TLabel
-      Left = 89
+      Left = 92
       Top = 12
-      Width = 39
+      Width = 36
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -37,9 +37,9 @@ object frmSysLanguage: TfrmSysLanguage
       ParentFont = False
     end
     object lblNativeName: TLabel
-      Left = 54
+      Left = 57
       Top = 37
-      Width = 74
+      Width = 71
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight

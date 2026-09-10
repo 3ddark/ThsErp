@@ -11,14 +11,16 @@ type
     FTableName: string;
     FSortContent: string;
   public
-    constructor Create(); override;
-    destructor Destroy; override;
-
     [Column('table_name'), MaxLength(32)]
     property TableName: string read FTableName write FTableName;
 
     [Column('sort_content')]
     property SortContent: string read FSortContent write FSortContent;
+
+    constructor Create(); override;
+    destructor Destroy; override;
+
+    function Clone: TSysGridSort;
   end;
 
 implementation
@@ -31,6 +33,13 @@ end;
 destructor TSysGridSort.Destroy;
 begin
   inherited;
+end;
+
+function TSysGridSort.Clone: TSysGridSort;
+begin
+  Result := TSysGridSort.Create;
+  Result.TableName := Self.TableName;
+  Result.SortContent := Self.SortContent;
 end;
 
 end.

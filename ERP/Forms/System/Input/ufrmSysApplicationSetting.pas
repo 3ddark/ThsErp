@@ -6,13 +6,13 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, System.StrUtils, System.Math, Vcl.Graphics, Vcl.Controls,
-  Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.AppEvnts,
-  Vcl.Menus, Vcl.Samples.Spin, REST.Json,
+  System.Classes, System.StrUtils, System.Math, REST.Json,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, Vcl.AppEvnts, Vcl.Menus,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  ufrmBase, ufrmInputSimpleDB, SharedFormTypes,
   SysApplicationSetting, SysApplicationSetting.Service,
-  SysCity.Service, SysCity, ufrmSysCities, LocalizationManager;
+  SysCity.Service, SysCity, ufrmSysCities;
 
 type
   TfrmSysApplicationSetting = class(TfrmInputSimpleDB<TSysApplicationSetting, TSysApplicationSettingService>)
@@ -319,12 +319,12 @@ begin
       if LFrmCity.CleanAndClose then
       begin
         TEdit(Sender).Clear;
-        Table.Address.SysCityId := 0;
+        Table.SysAddress.SysCityId := 0;
       end
       else
       begin
         TEdit(Sender).Text := LFrmCity.Table.CityName;
-        Table.Address.SysCityId := LFrmCity.Table.Id;
+        Table.SysAddress.SysCityId := LFrmCity.Table.Id;
       end;
     finally
       LFrmCity.Free;
@@ -477,16 +477,16 @@ begin
       Table.TaxpayerName := edtTaxpayerName.Text;
       Table.TaxpayerSurname := edtTaxpayerSurname.Text;
 
-      Table.Address.Web := edtWeb.Text;
-      Table.Address.EMail := edtEmail.Text;
-      Table.Address.District := edtDistrict.Text;
-      Table.Address.Neighborhood := edtNeighborhood.Text;
-      Table.Address.Quarter := edtQuarter.Text;
-      Table.Address.Road := edtRoad.Text;
-      Table.Address.Street := edtStreet.Text;
-      Table.Address.BuildingName := edtBuildingName.Text;
-      Table.Address.DoorNumber := edtDoorNumber.Text;
-      Table.Address.ZipCode := edtZipCode.Text;
+      Table.SysAddress.Web := edtWeb.Text;
+      Table.SysAddress.EMail := edtEmail.Text;
+      Table.SysAddress.District := edtDistrict.Text;
+      Table.SysAddress.Neighborhood := edtNeighborhood.Text;
+      Table.SysAddress.Quarter := edtQuarter.Text;
+      Table.SysAddress.Road := edtRoad.Text;
+      Table.SysAddress.Street := edtStreet.Text;
+      Table.SysAddress.BuildingName := edtBuildingName.Text;
+      Table.SysAddress.DoorNumber := edtDoorNumber.Text;
+      Table.SysAddress.ZipCode := edtZipCode.Text;
 
       // Diğer ayarlar JSONB
       Table.OtherSettingsObj.StockCardImagePath := edtPathStockCardImage.Text;

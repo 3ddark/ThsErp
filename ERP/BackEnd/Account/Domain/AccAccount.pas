@@ -152,6 +152,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TAccAccount;
   end;
 
 implementation
@@ -159,18 +161,24 @@ implementation
 constructor TAccAccount.Create();
 begin
   inherited;
-  FGroup := TAccGroup.Create;
-  FType := TSetAccAccountType.Create;
-  FRegion := TAccRegion.Create;
+  FGroup := nil;//TAccGroup.Create;
+  FType := nil;//TSetAccAccountType.Create;
+  FRegion := nil;//TAccRegion.Create;
 end;
 
 destructor TAccAccount.Destroy;
 begin
-  if Assigned(FGroup) then FreeAndNil(FGroup);
-  if Assigned(FType) then FreeAndNil(FType);
-  if Assigned(FRegion) then FreeAndNil(FRegion);
+  FGroup.Free;
+  FType.Free;
+  FRegion.Free;
 
   inherited;
+end;
+
+function TAccAccount.Clone: TAccAccount;
+begin
+  Result := TAccAccount.Create;
+  Result.Code := Self.Code;
 end;
 
 end.

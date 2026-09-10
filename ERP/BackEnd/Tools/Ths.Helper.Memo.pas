@@ -39,6 +39,7 @@ type
     FDBFieldName          : string;
     FInfo                 : string;
     FMesaj                : string;
+    FLocale: string;
 
     procedure SetAlignment(const pValue: TAlignment);
 
@@ -75,6 +76,7 @@ type
     property thsDBFieldName          : string          read FDBFieldName           write FDBFieldName;
     property thsInfo                 : string          read FInfo;
     property thsMesaj                : string          read FMesaj                 write FMesaj;
+    property thsLocale: string read FLocale write FLocale;
   end;
 
 implementation

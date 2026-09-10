@@ -118,6 +118,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TStkInventory;
   end;
 
 implementation
@@ -143,6 +145,37 @@ end;
 destructor TStkInventory.Destroy;
 begin
   inherited;
+end;
+
+function TStkInventory.Clone: TStkInventory;
+begin
+  Result := TStkInventory.Create;
+  Result.Sellable := Self.Sellable;
+  Result.Code := Self.Code;
+  Result.Name := Self.Name;
+  Result.GroupId := Self.GroupId;
+  Result.MeasurementId := Self.MeasurementId;
+  Result.ProductType := Self.ProductType;
+  Result.BuyingDiscount := Self.BuyingDiscount;
+  Result.SalesDiscount := Self.SalesDiscount;
+  Result.BuyingPrice := Self.BuyingPrice;
+  Result.BuyingCurrency := Self.BuyingCurrency;
+  Result.SalesPrice := Self.SalesPrice;
+  Result.SalesCurrency := Self.SalesCurrency;
+  Result.ExportPrice := Self.ExportPrice;
+  Result.ExportCurrency := Self.ExportCurrency;
+  Result.Width := Self.Width;
+  Result.Length := Self.Length;
+  Result.Height := Self.Height;
+  Result.Weight := Self.Weight;
+  Result.SupplyDuration := Self.SupplyDuration;
+  Result.SpecialCode := Self.SpecialCode;
+  Result.Brand := Self.Brand;
+  Result.OriginId := Self.OriginId;
+  Result.HsNo := Self.HsNo;
+  Result.DiibProductDescription := Self.DiibProductDescription;
+  Result.MinStockAmount := Self.MinStockAmount;
+  Result.ProductOverview := Self.ProductOverview;
 end;
 
 end.

@@ -17,9 +17,6 @@ type
     FSysCountry: TSysCountry;
     FSysRegion: TSysRegion;
   public
-    constructor Create(); override;
-    destructor Destroy; override;
-
     [Column('city_name')]
     property CityName: string read FCityName write FCityName;
 
@@ -32,11 +29,16 @@ type
     [Column('sys_region_id')]
     property SysRegionId: Int64 read FSysRegionId write FSysRegionId;
 
-    [BelongsTo('sys_country_id', 'id')]
+    [BelongsTo('SysCountryId')]
     property SysCountry: TSysCountry read FSysCountry write FSysCountry;
 
-    [BelongsTo('sys_region_id', 'id')]
+    [BelongsTo('SysRegionId')]
     property SysRegion: TSysRegion read FSysRegion write FSysRegion;
+
+    constructor Create(); override;
+    destructor Destroy; override;
+
+    function Clone: TSysCity;
   end;
 
 implementation
@@ -44,8 +46,8 @@ implementation
 constructor TSysCity.Create();
 begin
   inherited;
-  FSysCountry := TSysCountry.Create;
-  FSysRegion := TSysRegion.Create;
+  FSysCountry := nil;
+  FSysRegion := nil;
 end;
 
 destructor TSysCity.Destroy;
@@ -54,6 +56,21 @@ begin
   FSysRegion.Free;
 
   inherited;
+end;
+
+function TSysCity.Clone: TSysCity;
+begin
+  Result := TSysCity.Create;
+  Result.CityName := Self.CityName;
+  Result.CarPlateCode := Self.CarPlateCode;
+  Result.SysCountryId := Self.SysCountryId;
+  Result.SysRegionId := Self.SysRegionId;
+
+  if Assigned(Self.SysCountry) then
+    Result.SysCountry := Self.SysCountry.Clone;
+
+  if Assigned(Self.SysRegion) then
+    Result.SysRegion := Self.SysRegion.Clone;
 end;
 
 end.

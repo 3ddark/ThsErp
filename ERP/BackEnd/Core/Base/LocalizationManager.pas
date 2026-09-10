@@ -275,16 +275,12 @@ type
       TSysPermission = record
         const TitlePlural = 'sys_permission.title_plural';
         const TitleSingular = 'sys_permission.title_singular';
-        const ColCode = 'sys_permission.col_permission_code';
+        const ColPermissionCode = 'sys_permission.col_permission_code';
         const ColKey = 'sys_permission.col_permission_key';
         const ColPermissionName = 'sys_permission.col_permission_name';
         const ColGroupKey = 'sys_permission.col_group_key';
         const ColGroupName = 'sys_permission.col_group_name';
-        const LblCode = 'sys_permission.lbl_code';
-        const LblKey = 'sys_permission.lbl_key';
-        const LblNameEN = 'sys_permission.lbl_name_en';
-        const LblNameTR = 'sys_permission.lbl_name_tr';
-        const LblGroupId = 'sys_permission.lbl_group_id';
+        const ColGroupId = 'sys_permission.col_group_id';
         const CodeRequired = 'sys_permission.code.required';
         const CodePositive = 'sys_permission.code.positive';
         const KeyRequired = 'sys_permission.key.required';
@@ -316,6 +312,7 @@ type
       TSysUom = record
         const TitlePlural = 'sys_uom.title_plural';
         const TitleSingular = 'sys_uom.title_singular';
+        const ColDescription = 'sys_uom.col_description';
         const UnitCodeUnique = 'sys_uom.unit_code_unique';
       end;
 
@@ -333,8 +330,15 @@ type
         const TitleSingular = 'sys_user.title_singular';
 
         const ColUserName = 'sys_user.col_username';
-        const ColPersonId = 'sys_user.col_person_id';
-        const ColIsActive = 'sys_user.col_is_active';
+        const ColUserPassword = 'sys_user.col_username';
+        const ColActive = 'sys_user.col_active';
+        const ColManager = 'sys_user.col_manager';
+        const ColSuperUser = 'sys_user.col_super_user';
+        const ColIpAddress = 'sys_user.col_ip_address';
+        const ColMacAddress = 'sys_user.col_mac_mddress';
+        const ColEmployeeId = 'sys_user.col_employee_id';
+        const ColSysPermissionId = 'sys_user.col_permission_id';
+        const ColSysUserId = 'sys_user.col_user_id';
 
         const UsernameUnique = 'sys_user.username_unique';
       end;
@@ -342,9 +346,25 @@ type
 
       //Employee Module
       TEmpEmployee = record
-        const TitlePlural = 'emp_person.title_plural';
-        const TitleSingular = 'emp_person.title_singular';
-        const ColFullName = 'emp_person.col_full_name';
+        const TitlePlural = 'emp_employee.title_plural';
+        const TitleSingular = 'emp_employee.title_singular';
+        const ColFullName = 'emp_employee.col_full_name';
+        const ColName = 'emp_employee.col_name';
+        const ColSurname = 'emp_employee.col_surname';
+        const ColSection = '';
+      end;
+
+      TEmpSection = record
+        const TitlePlural = 'emp_section.title_plural';
+        const TitleSingular = 'emp_section.title_singular';
+        const ColSectionName = 'emp_section.col_section_name';
+      end;
+
+      TEmpUnit = record
+        const TitlePlural = 'emp_unit.title_plural';
+        const TitleSingular = 'emp_unit.title_singular';
+        const ColUnitName = 'emp_unit.unit_name';
+        const ColSectionId = 'emp_unit.section_id';
       end;
 
       //Stock Module

@@ -4,12 +4,6 @@ interface
 
 uses SysUtils, Classes, Types, Entity, EntityAttributes;
 
-const
-  CLangID_EN = 1;
-  CLangID_TR = 2;
-  CLangLocaleEN = 'en-US';
-  CLangLocaleTR = 'tr-TR';
-
 type
   [Table('sys_language')]
   TSysLanguage = class(TEntity)
@@ -17,14 +11,16 @@ type
     FLocale: string;
     FNativeName: string;
   public
-    constructor Create(); override;
-    destructor Destroy; override;
-
     [Column('locale'), MaxLength(32), Required()]
     property Locale: string read FLocale write FLocale;
 
     [Column('native_name'), MaxLength(64)]
     property NativeName: string read FNativeName write FNativeName;
+
+    constructor Create(); override;
+    destructor Destroy; override;
+
+    function Clone: TSysLanguage;
   end;
 
 implementation
@@ -37,6 +33,13 @@ end;
 destructor TSysLanguage.Destroy;
 begin
   inherited;
+end;
+
+function TSysLanguage.Clone: TSysLanguage;
+begin
+  Result := TSysLanguage.Create;
+  Result.Locale := Self.Locale;
+  Result.NativeName := Self.NativeName;
 end;
 
 end.

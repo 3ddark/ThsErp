@@ -26,6 +26,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TStkCardKindInfo;
   end;
 
 implementation
@@ -38,6 +40,14 @@ end;
 destructor TStkCardKindInfo.Destroy;
 begin
   inherited;
+end;
+
+function TStkCardKindInfo.Clone: TStkCardKindInfo;
+begin
+  Result := TStkCardKindInfo.Create;
+  Result.StkKartID := Self.StkKartID;
+  Result.CinsID := Self.CinsID;
+  Result.Deger := Self.Deger;
 end;
 
 end.

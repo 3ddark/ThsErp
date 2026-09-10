@@ -18,6 +18,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TEmpSection;
   end;
 
 implementation
@@ -31,6 +33,12 @@ destructor TEmpSection.Destroy;
 begin
 
   inherited;
+end;
+
+function TEmpSection.Clone: TEmpSection;
+begin
+  Result := TEmpSection.Create;
+  Result.SectionName := Self.SectionName;
 end;
 
 end.

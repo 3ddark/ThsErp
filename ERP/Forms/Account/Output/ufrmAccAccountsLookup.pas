@@ -24,11 +24,11 @@ function TfrmAccAccountsLookup.CreateInputForm(Sender: TObject; AFormMode: TInpu
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmAccAccountLookup.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmAccAccountLookup.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmAccAccountLookup.Create(Self, Service, TAccAccount.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmAccAccountLookup.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmAccAccountLookup.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmAccAccountsLookup.DefineColumnWidths;

@@ -1,4 +1,4 @@
-unit ufrmEmpTransportations;
+﻿unit ufrmEmpTransportations;
 
 interface
 
@@ -26,11 +26,11 @@ function TfrmEmpTransportations.CreateInputForm(Sender: TObject; AFormMode: TInp
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmEmpTransportation.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEmpTransportation.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmEmpTransportation.Create(Self, Service, TEmpTransportation.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEmpTransportation.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmEmpTransportation.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmEmpTransportations.DefineColumnWidths;
@@ -57,6 +57,9 @@ procedure TfrmEmpTransportations.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate('emp_transportation.title_plural', 'Servis / Ulaşım');
+  SetColumnTitle('id', TLocalizationManager.Translate('emp_transportation.col_id', 'Id'));
+  SetColumnTitle('car_no', TLocalizationManager.Translate('emp_transportation.col_car_no', 'Araç No'));
+  SetColumnTitle('car_name', TLocalizationManager.Translate('emp_transportation.col_car_name', 'Araç Adı'));
 end;
 
 end.

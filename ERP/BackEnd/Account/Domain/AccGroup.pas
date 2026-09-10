@@ -15,6 +15,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TAccGroup;
   end;
 
 implementation
@@ -27,6 +29,12 @@ end;
 destructor TAccGroup.Destroy;
 begin
   inherited;
+end;
+
+function TAccGroup.Clone: TAccGroup;
+begin
+  Result := TAccGroup.Create;
+  Result.Name := Self.Name;
 end;
 
 end.

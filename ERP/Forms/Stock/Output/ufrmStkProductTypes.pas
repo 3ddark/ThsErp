@@ -26,11 +26,11 @@ function TfrmStkProductTypes.CreateInputForm(Sender: TObject; AFormMode: TInputF
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmStkProductType.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmStkProductType.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmStkProductType.Create(Self, Service, TStkProductType.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmStkProductType.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmStkProductType.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmStkProductTypes.DefineColumnWidths;

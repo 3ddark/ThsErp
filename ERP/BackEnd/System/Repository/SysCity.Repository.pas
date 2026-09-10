@@ -22,7 +22,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysCity>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysCity>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysCity; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysCity; override;
 
@@ -139,7 +139,7 @@ begin
   Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysCityRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysCity>;
+function TSysCityRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysCity>;
 var
   Q: TFDQuery;
   Item: TSysCity;

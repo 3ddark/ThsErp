@@ -42,6 +42,7 @@ type
     FInfo                 : string;
     FMesaj                : string;
     FHasContainCustomVal  : Boolean;
+    FLocale: string;
 
     procedure SetAlignment(const pValue: TAlignment);
 
@@ -80,6 +81,7 @@ type
     property thsInfo                 : string          read FInfo;
     property thsMesaj                : string          read FMesaj                 write FMesaj;
     property thsHasContainCustomVal  : Boolean         read FHasContainCustomVal   write FHasContainCustomVal default True;
+    property thsLocale: string read FLocale write FLocale;
   end;
 
 implementation

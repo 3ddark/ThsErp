@@ -3,8 +3,8 @@
 interface
 
 uses
-  System.Generics.Collections, System.Rtti, System.SysUtils, Classes,
-  FireDAC.Comp.Client, FireDAC.Phys,FireDAC.Stan.Intf,
+  System.Generics.Collections, System.Rtti, System.SysUtils, System.TypInfo,
+  System.Classes, FireDAC.Comp.Client, FireDAC.Phys,FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Error,
   SharedFormTypes, Entity, Repository, SysPermission;
 

@@ -26,6 +26,8 @@ type
 
     destructor Destroy; override;
     constructor Create(); override;
+
+    function Clone: TEmpTransportation;
   end;
 
 implementation
@@ -40,6 +42,14 @@ destructor TEmpTransportation.Destroy;
 begin
 
   inherited;
+end;
+
+function TEmpTransportation.Clone: TEmpTransportation;
+begin
+  Result := TEmpTransportation.Create;
+  Result.CarNo := Self.CarNo;
+  Result.CarName := Self.CarName;
+  Result.Route := Self.Route;
 end;
 
 end.

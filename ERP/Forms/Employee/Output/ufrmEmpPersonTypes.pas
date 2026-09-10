@@ -26,11 +26,11 @@ function TfrmEmpPersonTypes.CreateInputForm(Sender: TObject; AFormMode: TInputFo
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmEmpPersonType.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEmpPersonType.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmEmpPersonType.Create(Self, Service, TEmpPersonType.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEmpPersonType.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmEmpPersonType.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmEmpPersonTypes.DefineColumnWidths;
@@ -56,6 +56,7 @@ procedure TfrmEmpPersonTypes.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate('emp_person_type.title_plural', 'Personel Tipleri');
+  SetColumnTitle('person_type', TLocalizationManager.Translate('emp_person_type.col_person_type', 'Personel Tipi'));
 end;
 
 end.

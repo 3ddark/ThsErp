@@ -2,10 +2,13 @@ unit ufrmSysCurrencies;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysCurrency.Service, SysCurrency, ufrmSysCurrency, LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysCurrency.Service, SysCurrency, ufrmSysCurrency;
 
 type
   TfrmSysCurrencies = class(TfrmGrid<TSysCurrency, TSysCurrencyService>)
@@ -25,20 +28,20 @@ function TfrmSysCurrencies.CreateInputForm(Sender: TObject; AFormMode: TInputFor
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysCurrency.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysCurrency.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysCurrency.Create(Self, Service, TSysCurrency.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysCurrency.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysCurrency.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysCurrencies.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',             0, TLocalizationManager.Translate('sys_currency.col_id', 'Id'));
-  SetColumnProperty('currency',     100, TLocalizationManager.Translate('sys_currency.col_code', 'Currency Code'));
-  SetColumnProperty('symbol',        80, TLocalizationManager.Translate('sys_currency.col_symbol', 'Symbol'));
-  SetColumnProperty('description',  220, TLocalizationManager.Translate('sys_currency.col_description', 'Description'));
+  SetColumnProperty('id',            0);
+  SetColumnProperty('currency',    100);
+  SetColumnProperty('symbol',       80);
+  SetColumnProperty('description', 220);
 end;
 
 procedure TfrmSysCurrencies.DefineFooterColumns;
@@ -57,6 +60,10 @@ procedure TfrmSysCurrencies.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate('sys_currency.title_plural', 'Currencies');
+  SetColumnTitle('id',          TLocalizationManager.Translate('sys_currency.col_id', 'Id'));
+  SetColumnTitle('currency',    TLocalizationManager.Translate('sys_currency.col_code', 'Currency Code'));
+  SetColumnTitle('symbol',      TLocalizationManager.Translate('sys_currency.col_symbol', 'Symbol'));
+  SetColumnTitle('description', TLocalizationManager.Translate('sys_currency.col_description', 'Description'));
 end;
 
 end.

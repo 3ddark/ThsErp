@@ -71,7 +71,7 @@ const
 implementation
 
 uses
-  Ths.Constants, Ths.Globals, ufrmDashboard;
+  Ths.Constants, Ths.Globals, ufrmDashboard, Ths.Language.Cache;
 
 {$R *.dfm}
 
@@ -139,6 +139,8 @@ begin
   GLogger.DBConnectionPID := TConnectionManager.Instance.GetConnectionPID(ContextMain).ToString;
 
   TUnitOfWork.Initialize(LConn);
+
+  TLanguageCache.Load;
 
   LAuthSvc  := TAuthService.Create;
   LUserRepo := TSysUserRepository.Create(LConn);

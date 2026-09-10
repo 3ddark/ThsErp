@@ -9,23 +9,20 @@ type
   TSysUser = class(TEntity)
   private
     FUsername: string;
-    FPersonId: Int64;
+    FEmpEmployeeId: Int64;
     FManager: Boolean;
     FSuperUser: Boolean;
     FMacAddress: string;
     FUserPassword: string;
     FIpAddress: string;
     FActive: Boolean;
-    FPerson: TEmpPerson;
+    FEmpPerson: TEmpPerson;
     FPersonName: string;
     FPersonSurname: string;
     FActiveLanguage: string;
     function GetPersonName: string;
     function GetPersonSurname: string;
   public
-    constructor Create(); override;
-    destructor Destroy; override;
-
     [Column('username'), MaxLength(64), Required()]
     property Username: string read FUsername write FUsername;
 
@@ -47,16 +44,21 @@ type
     [Column('mac_address'), MaxLength(32)]
     property MacAddress: string read FMacAddress write FMacAddress;
 
-    [Column('person_id'), Required()]
-    property PersonId: Int64 read FPersonId write FPersonId;
+    [Column('emp_employee_id'), Required()]
+    property EmpEmployeeId: Int64 read FEmpEmployeeId write FEmpEmployeeId;
 
-    [BelongsTo('PersonId')]
-    property Person: TEmpPerson read FPerson write FPerson;
+    [BelongsTo('EmpEmployeeId')]
+    property EmpPerson: TEmpPerson read FEmpPerson write FEmpPerson;
 
     property PersonName: string read GetPersonName write FPersonName;
     property PersonSurname: string read GetPersonSurname write FPersonSurname;
 
     property ActiveLanguage: string read FActiveLanguage write FActiveLanguage;
+
+    constructor Create(); override;
+    destructor Destroy; override;
+
+    function Clone: TSysUser;
   end;
 
 implementation
@@ -64,7 +66,7 @@ implementation
 constructor TSysUser.Create();
 begin
   inherited;
-  FPerson := TEmpPerson.Create;
+  FEmpPerson := nil;
 
   FActive := True;
   FManager := False;
@@ -74,16 +76,31 @@ end;
 
 destructor TSysUser.Destroy;
 begin
-  FPerson.Free;
+  FEmpPerson.Free;
   inherited;
+end;
+
+function TSysUser.Clone: TSysUser;
+begin
+  Result := TSysUser.Create;
+  Result.Username := Self.Username;
+  Result.EmpEmployeeId := Self.EmpEmployeeId;
+  Result.SuperUser := Self.SuperUser;
+  Result.MacAddress := Self.MacAddress;
+  Result.UserPassword := Self.UserPassword;
+  Result.IpAddress := Self.IpAddress;
+  Result.Active := Self.Active;
+
+  if Assigned(Self.EmpPerson) then
+    Result.EmpPerson := Self.EmpPerson.Clone;
 end;
 
 function TSysUser.GetPersonName: string;
 begin
   if FPersonName <> '' then
     Result := FPersonName
-  else if Assigned(FPerson) then
-    Result := FPerson.Name
+  else if Assigned(FEmpPerson) then
+    Result := FEmpPerson.Name
   else
     Result := '';
 end;
@@ -92,8 +109,8 @@ function TSysUser.GetPersonSurname: string;
 begin
   if FPersonSurname <> '' then
     Result := FPersonSurname
-  else if Assigned(FPerson) then
-    Result := FPerson.Surname
+  else if Assigned(FEmpPerson) then
+    Result := FEmpPerson.Surname
   else
     Result := '';
 end;

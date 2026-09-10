@@ -15,6 +15,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TSetAccAccountType;
   end;
 
 implementation
@@ -27,6 +29,12 @@ end;
 destructor TSetAccAccountType.Destroy;
 begin
   inherited;
+end;
+
+function TSetAccAccountType.Clone: TSetAccAccountType;
+begin
+  Result := TSetAccAccountType.Create;
+  Result.Name := Self.Name;
 end;
 
 end.

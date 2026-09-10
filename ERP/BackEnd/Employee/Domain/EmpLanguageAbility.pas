@@ -36,6 +36,8 @@ type
 
     destructor Destroy; override;
     constructor Create; override;
+
+    function Clone: TEmpLanguageAbility;
   end;
 
 implementation
@@ -50,6 +52,14 @@ begin
   inherited;
 end;
 
+function TEmpLanguageAbility.Clone: TEmpLanguageAbility;
+begin
+  Result := TEmpLanguageAbility.Create;
+  Result.LisanID := Self.LisanID;
+  Result.OkumaID := Self.OkumaID;
+  Result.YazmaID := Self.YazmaID;
+  Result.KonusmaID := Self.KonusmaID;
+  Result.PersonelID := Self.PersonelID;
+end;
+
 end.
-
-

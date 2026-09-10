@@ -43,8 +43,27 @@ type
 
     [Column('valid_to')]
     property ValidTo: TDate read FValidTo write FValidTo;
+
+    function Clone: TEmpPersonAddress;
   end;
 
 implementation
+
+function TEmpPersonAddress.Clone: TEmpPersonAddress;
+begin
+  Result := TEmpPersonAddress.Create;
+  Result.PersonId := Self.PersonId;
+  Result.AddressId := Self.AddressId;
+  Result.AddressType := Self.AddressType;
+  Result.IsPrimary := Self.IsPrimary;
+  Result.ValidFrom := Self.ValidFrom;
+  Result.ValidTo := Self.ValidTo;
+
+  if Assigned(Self.Person) then
+    Result.Person := Self.Person.Clone;
+
+  if Assigned(Self.Address) then
+    Result.Address := Self.Address.Clone;
+end;
 
 end.

@@ -22,7 +22,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysGridFilter>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysGridFilter>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysGridFilter; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysGridFilter; override;
 
@@ -123,7 +123,7 @@ begin
   end;
 end;
 
-function TSysGridFilterRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysGridFilter>;
+function TSysGridFilterRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysGridFilter>;
 var
   Q: TFDQuery;
   Item: TSysGridFilter;

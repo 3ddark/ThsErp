@@ -24,11 +24,11 @@ function TfrmAccExchangeRates.CreateInputForm(Sender: TObject; AFormMode: TInput
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmAccExchangeRate.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmAccExchangeRate.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmAccExchangeRate.Create(Self, Service, TAccExchangeRate.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmAccExchangeRate.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmAccExchangeRate.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmAccExchangeRates.DefineColumnWidths;

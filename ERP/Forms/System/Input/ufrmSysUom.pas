@@ -2,15 +2,16 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Samples.Spin,
-  ufrmInputSimpleDB, SharedFormTypes,
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysUom.Service, SysUom,
-  SysUomGroup.Service, SysUomGroup, ufrmSysUomGroups,
-  SysLanguage, LocalizationManager;
+  SysUom.Service, SysUom, SysUomGroup.Service, SysUomGroup, ufrmSysUomGroups,
+  SysLanguage;
 
 type
   TfrmSysUom = class(TfrmInputSimpleDB<TSysUom, TSysUomService>)
@@ -19,16 +20,13 @@ type
     edtUnit: TEdit;
     lblUnitEInv: TLabel;
     edtUnitEInv: TEdit;
-    lblDescriptionEN: TLabel;
-    edtDescriptionEN: TEdit;
-    lblDescriptionTR: TLabel;
-    edtDescriptionTR: TEdit;
     lblDecimal: TLabel;
     chkDecimal: TCheckBox;
     lblMeasureTypeId: TLabel;
     edtMeasureTypeId: TEdit;
     lblMultiplier: TLabel;
     edtMultiplier: TEdit;
+    scrlbxTranslations: TScrollBox;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -43,47 +41,46 @@ implementation
 {$R *.dfm}
 
 procedure TfrmSysUom.BtnAcceptClick(Sender: TObject);
-  procedure SetOrAddTranslation(ALangId: Int64; const ALocale, ADesc: string);
-  var
-    i: Integer;
-    LTrans: TSysUomTranslation;
-    LFound: Boolean;
-  begin
-    LFound := False;
-    if Assigned(Table.Translations) then
-    begin
-      for i := 0 to Table.Translations.Count - 1 do
-      begin
-        if (Assigned(Table.Translations[i].SysLanguage) and SameText(Table.Translations[i].SysLanguage.Locale, ALocale))
-        or (Table.Translations[i].SysLanguageId = ALangId) then
-        begin
-          Table.Translations[i].Name := ADesc;
-          LFound := True;
-          Break;
-        end;
-      end;
-    end;
-
-    if not LFound and (Trim(ADesc) <> '') then
-    begin
-      LTrans := TSysUomTranslation.Create;
-      LTrans.SysUomId := Table.Id;
-      LTrans.SysLanguageId := ALangId;
-      LTrans.Name := ADesc;
-      LTrans.SysLanguage := TSysLanguage.Create;
-      LTrans.SysLanguage.Id := ALangId;
-      LTrans.SysLanguage.Locale := ALocale;
-      Table.Translations.Add(LTrans);
-    end;
-  end;
+var
+  LValues: TTranslationMap;
+  LPair  : TPair<string, string>;
+  i      : Integer;
+  LTrans : TSysUomTranslation;
+  LFound : Boolean;
 begin
   Table.UnitCode := edtUnit.Text;
   Table.UnitEInv := edtUnitEInv.Text;
   Table.Decimal := chkDecimal.Checked;
   Table.Multiplier := StrToIntDef(edtMultiplier.Text, 1);
 
-  SetOrAddTranslation(CLangID_EN, CLangLocaleEN, edtDescriptionEN.Text);
-  SetOrAddTranslation(CLangID_TR, CLangLocaleTR, edtDescriptionTR.Text);
+  LValues := CollectTranslationValues(scrlbxTranslations, 'PermissionGroupName');
+  try
+    for LPair in LValues do
+    begin
+      LFound := False;
+      if Assigned(Table.Translations) then
+        for i := 0 to Table.Translations.Count - 1 do
+          if SameText(Table.Translations[i].SysLanguage.Locale, LPair.Key) then
+          begin
+            Table.Translations[i].Name := LPair.Value;
+            LFound := True;
+            Break;
+          end;
+
+      if not LFound and (Trim(LPair.Value) <> '') then
+      begin
+        LTrans := TSysUomTranslation.Create;
+        LTrans.SysUomId := Table.Id;
+        LTrans.SysLanguageId := 0;
+        LTrans.Name := LPair.Value;
+        LTrans.SysLanguage := TSysLanguage.Create;
+        LTrans.SysLanguage.Locale := LPair.Key;
+        Table.Translations.Add(LTrans);
+      end;
+    end;
+  finally
+    LValues.Free;
+  end;
 
   inherited;
 end;
@@ -93,6 +90,12 @@ begin
   inherited;
   pnlContent.Parent := PanelMain;
   edtMeasureTypeId.OnHelperProcess := HelperProcess;
+
+  BuildTranslationControls(
+    scrlbxTranslations,
+    'Description',
+    TLocalizationManager.Translate(TLangKeys.TSysUom.ColDescription, 'Description'),
+    lblUnitEInv);
 end;
 
 procedure TfrmSysUom.FormShow(Sender: TObject);
@@ -108,8 +111,6 @@ begin
   Self.Caption := TLocalizationManager.Translate('sys_uom.title.singular', 'Ölçü Birimi');
   lblUnit.Caption := TLocalizationManager.Translate('sys_uom.unit_code', 'Birim Kodu');
   lblUnitEInv.Caption := TLocalizationManager.Translate('sys_uom.unit_einv', 'E-Fatura Birim Kodu');
-  lblDescriptionEN.Caption := TLocalizationManager.Translate('sys_uom.desc_en', 'Açıklama (İngilizce)');
-  lblDescriptionTR.Caption := TLocalizationManager.Translate('sys_uom.desc_tr', 'Açıklama (Türkçe)');
   lblDecimal.Caption := TLocalizationManager.Translate('sys_uom.decimal', 'Ondalıklı');
   lblMeasureTypeId.Caption := TLocalizationManager.Translate('sys_uom.measure_type', 'Ölçü Birimi Tipi');
   lblMultiplier.Caption := TLocalizationManager.Translate('sys_uom.multiplier', 'Çarpan');
@@ -149,35 +150,29 @@ end;
 
 procedure TfrmSysUom.RefreshData;
 var
-  i: Integer;
+  LValues: TTranslationMap;
+  i      : Integer;
+  LTrans : TSysUomTranslation;
 begin
   inherited;
   edtUnit.Text := Table.UnitCode;
   edtUnitEInv.Text := Table.UnitEInv;
-  edtDescriptionEN.Text := '';
-  edtDescriptionTR.Text := '';
   chkDecimal.Checked := Table.Decimal;
   edtMultiplier.Text := Table.Multiplier.ToString;
 
-  if Assigned(Table.Translations) then
-  begin
-    for i := 0 to Table.Translations.Count - 1 do
-    begin
-      if Assigned(Table.Translations[i].SysLanguage) then
+  LValues := TTranslationMap.Create;
+  try
+    if Assigned(Table.Translations) then
+      for i := 0 to Table.Translations.Count - 1 do
       begin
-        if SameText(Table.Translations[i].SysLanguage.Locale, CLangLocaleEN) then
-          edtDescriptionEN.Text := Table.Translations[i].Name
-        else if SameText(Table.Translations[i].SysLanguage.Locale, CLangLocaleTR) then
-          edtDescriptionTR.Text := Table.Translations[i].Name;
-      end
-      else
-      begin
-        if Table.Translations[i].SysLanguageId = CLangID_EN then
-          edtDescriptionEN.Text := Table.Translations[i].Name
-        else if Table.Translations[i].SysLanguageId = CLangID_TR then
-          edtDescriptionTR.Text := Table.Translations[i].Name;
+        LTrans := Table.Translations[i];
+        if Assigned(LTrans.SysLanguage) and (LTrans.SysLanguage.Locale <> '') then
+          LValues.AddOrSetValue(LTrans.SysLanguage.Locale, LTrans.Name);
       end;
-    end;
+
+    FillTranslationControls(scrlbxTranslations, LValues);
+  finally
+    LValues.Free;
   end;
 
   if Assigned(Table.SysUomGroup) then

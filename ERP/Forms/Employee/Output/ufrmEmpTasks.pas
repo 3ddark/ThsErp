@@ -1,4 +1,4 @@
-unit ufrmEmpTasks;
+﻿unit ufrmEmpTasks;
 
 interface
 
@@ -26,11 +26,11 @@ function TfrmEmpTasks.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmEmpTask.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEmpTask.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmEmpTask.Create(Self, Service, TEmpTask.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEmpTask.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmEmpTask.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmEmpTasks.DefineColumnWidths;
