@@ -18,6 +18,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TEmpTask;
   end;
 
 implementation
@@ -31,6 +33,12 @@ destructor TEmpTask.Destroy;
 begin
 
   inherited;
+end;
+
+function TEmpTask.Clone: TEmpTask;
+begin
+  Result := TEmpTask.Create;
+  Result.TaskName := Self.TaskName;
 end;
 
 end.

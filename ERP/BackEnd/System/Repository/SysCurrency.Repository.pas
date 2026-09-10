@@ -22,7 +22,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysCurrency>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysCurrency>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysCurrency; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysCurrency; override;
 
@@ -124,7 +124,7 @@ begin
   end;
 end;
 
-function TSysCurrencyRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysCurrency>;
+function TSysCurrencyRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysCurrency>;
 var
   Q: TFDQuery;
   Item: TSysCurrency;

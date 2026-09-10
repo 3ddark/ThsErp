@@ -1,4 +1,4 @@
-unit ufrmEmpUnits;
+﻿unit ufrmEmpUnits;
 
 interface
 
@@ -26,18 +26,17 @@ function TfrmEmpUnits.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmEmpUnit.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEmpUnit.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmEmpUnit.Create(Self, Service, TEmpUnit.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEmpUnit.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmEmpUnit.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmEmpUnits.DefineColumnWidths;
 begin
   inherited;
   SetColumnProperty('id', 0, TLocalizationManager.Translate('emp_unit.col_id', 'Id'));
-  SetColumnProperty('unit_name', 200, TLocalizationManager.Translate('emp_unit.col_unit_name', 'Birim Adı'));
   SetColumnProperty('section_id', 0, TLocalizationManager.Translate('emp_unit.col_section_id', 'Bölüm Id'));
 end;
 
@@ -57,6 +56,9 @@ procedure TfrmEmpUnits.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate('emp_unit.title_plural', 'Birimler');
+  SetColumnTitle('id', TLocalizationManager.Translate('emp_unit.col_id', 'Id'));
+  SetColumnTitle('unit_name', TLocalizationManager.Translate('emp_unit.col_unit_name', 'Birim Adı'));
+  SetColumnTitle('section_id', TLocalizationManager.Translate('emp_unit.col_section_id', 'Bölüm Id'));
 end;
 
 end.

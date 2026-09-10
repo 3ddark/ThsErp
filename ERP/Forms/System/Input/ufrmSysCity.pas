@@ -2,15 +2,17 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Samples.Spin,
-  ufrmInputSimpleDB, SharedFormTypes,
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   SysCity.Service, SysCity,
   SysCountry.Service, SysCountry, ufrmSysCountries,
-  SysRegion.Service, SysRegion, ufrmSysRegions, LocalizationManager;
+  SysRegion.Service, SysRegion, ufrmSysRegions;
 
 type
   TfrmSysCity = class(TfrmInputSimpleDB<TSysCity, TSysCityService>)

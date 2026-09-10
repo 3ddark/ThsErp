@@ -24,11 +24,11 @@ function TfrmAccBankBranches.CreateInputForm(Sender: TObject; AFormMode: TInputF
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmAccBankBranch.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmAccBankBranch.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmAccBankBranch.Create(Self, Service, TAccBankBranch.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmAccBankBranch.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmAccBankBranch.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmAccBankBranches.DefineColumnWidths;

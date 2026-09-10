@@ -161,7 +161,7 @@ type
     procedure AddFooterColumn(const AColumnFieldName: string; AAggregateType: TAggregateType; const ADisplayFormat: string = '');
     procedure DefineFooterColumns; virtual;
     procedure DefineColumnWidths; virtual;
-    procedure SetColumnProperty(const AFieldName: string; AWidth: Integer; AColumnTitle: string);
+    procedure SetColumnProperty(const AFieldName: string; AWidth: Integer; AColumnTitle: string = '');
     procedure SetColumnTitle(const AFieldName: string; AColumnTitle: string);
     procedure BuildFooter;
     procedure CreateFooterPanel;
@@ -709,11 +709,16 @@ begin
   FreeAndNil(FFilterBoolFields);
   FreeAndNil(FFilterGrid);
 
-  FQry.Close;
-  FQry.Free;
-  FreeAndNil(FDataSource);
+  // FIX: DataSource'u önce ayır
+  if Assigned(FDataSource) then
+    FDataSource.DataSet := nil;
 
-  FService.Free;
+  if Assigned(FQry) then
+    FQry.Close;
+  FreeAndNil(FQry);
+
+  FreeAndNil(FDataSource);
+  FreeAndNil(FService);
   FreeAndNil(FTable);
   inherited;
 end;
@@ -738,71 +743,66 @@ end;
 
 procedure TfrmGrid<TE, TS>.EdtFilterChange(Sender: TObject);
 var
-  n1: Integer;
-  LIntValue: Integer;
-  LDoubleValue: Double;
+  n1            : Integer;
+  LIntValue     : Integer;
+  LDoubleValue  : Double;
   LDateTimeValue: TDateTime;
-  LFilter: string;
+  LFilter       : string;
 begin
   LFilter := '';
-  grd.DataSource.DataSet.Filter := LFilter;
-  grd.DataSource.DataSet.Filtered := False;
+  FQry.Filter   := '';
+  FQry.Filtered := False;
 
-  if EdtFilter.Text <> '' then
+  if EdtFilter.Text = '' then
   begin
-    if TryStrToInt(EdtFilter.Text, LIntValue)
-    or TryStrToFloat(EdtFilter.Text, LDoubleValue)
-    then
-    begin
-      for n1 := 0 to FFilterNumericFields.Count-1 do
-      begin
-        if LFilter <> '' then
-          LFilter := LFilter + ' OR ';
-        LFilter := LFilter + FFilterNumericFields.Strings[n1] + ' LIKE ' + QuotedStr('%' + EdtFilter.Text + '%');
-      end;
-    end;
-
-    if (UpperCaseTr(EdtFilter.Text) = 'TRUE')
-    or (LowerCaseTr(EdtFilter.Text) = 'true')
-    or (UpperCaseTr(EdtFilter.Text) = 'FALSE')
-    or (LowerCaseTr(EdtFilter.Text) = 'false')
-    then
-    begin
-      for n1 := 0 to FFilterBoolFields.Count-1 do
-      begin
-        if LFilter <> '' then
-          LFilter := LFilter + ' OR ';
-        LFilter := LFilter + FFilterBoolFields.Strings[n1] + '=' + UpperCaseTr(EdtFilter.Text);
-      end;
-    end;
-
-    if TryStrToDate(EdtFilter.Text, LDateTimeValue)
-    or TryStrToTime(EdtFilter.Text, LDateTimeValue)
-    or TryStrToDateTime(EdtFilter.Text, LDateTimeValue)
-    then
-    begin
-      for n1 := 0 to FFilterDateFields.Count-1 do
-      begin
-        if LFilter <> '' then
-          LFilter := LFilter + ' OR ';
-        LFilter := LFilter + FFilterDateFields.Strings[n1] + '=' + EdtFilter.Text;
-      end;
-    end;
-
-    if EdtFilter.Text <> '' then
-    begin
-      for n1 := 0 to FFilterStringFields.Count-1 do
-      begin
-        if LFilter <> '' then
-          LFilter := LFilter + ' OR ';
-        LFilter := LFilter + FFilterStringFields.Strings[n1] + ' LIKE ' + QuotedStr('%' + UpperCaseTr(EdtFilter.Text) + '%');
-        LFilter := LFilter + ' OR ' + FFilterStringFields.Strings[n1] + ' LIKE ' + QuotedStr('%' + LowerCaseTr(EdtFilter.Text) + '%');
-      end;
-    end;
-
-    grd.DataSource.DataSet.Filter := LFilter;
-    grd.DataSource.DataSet.Filtered := True;
+    Self.RefreshStatusRecordCount;
+    Exit;
   end;
+
+  if TryStrToInt(EdtFilter.Text, LIntValue) or TryStrToFloat(EdtFilter.Text, LDoubleValue) then
+  begin
+    for n1 := 0 to FFilterNumericFields.Count - 1 do
+    begin
+      if LFilter <> '' then
+        LFilter := LFilter + ' OR ';
+      LFilter := LFilter + FFilterNumericFields[n1] + ' = ' + StringReplace(EdtFilter.Text, ',', '.', [rfReplaceAll]);
+    end;
+  end;
+
+  if SameText(EdtFilter.Text, 'TRUE') or SameText(EdtFilter.Text, 'FALSE') then
+  begin
+    for n1 := 0 to FFilterBoolFields.Count - 1 do
+    begin
+      if LFilter <> '' then
+        LFilter := LFilter + ' OR ';
+      LFilter := LFilter + FFilterBoolFields[n1] + ' = ' + UpperCase(EdtFilter.Text);
+    end;
+  end;
+
+  if TryStrToDate(EdtFilter.Text, LDateTimeValue) or TryStrToTime(EdtFilter.Text, LDateTimeValue) or TryStrToDateTime(EdtFilter.Text, LDateTimeValue) then
+  begin
+    for n1 := 0 to FFilterDateFields.Count - 1 do
+    begin
+      if LFilter <> '' then
+        LFilter := LFilter + ' OR ';
+      LFilter := LFilter + FFilterDateFields[n1] + ' = ' + QuotedStr(EdtFilter.Text);
+    end;
+  end;
+
+  for n1 := 0 to FFilterStringFields.Count - 1 do
+  begin
+    if LFilter <> '' then
+      LFilter := LFilter + ' OR ';
+    LFilter := LFilter + FFilterStringFields[n1] + ' LIKE ' + QuotedStr('%' + UpperCaseTr(EdtFilter.Text) + '%') +
+                ' OR ' + FFilterStringFields[n1] + ' LIKE ' + QuotedStr('%' + LowerCaseTr(EdtFilter.Text) + '%');
+  end;
+
+  if LFilter <> '' then
+  begin
+    FQry.Filter   := LFilter;
+    FQry.Filtered := True;
+  end;
+
   Self.RefreshStatusRecordCount;
 end;
 
@@ -841,7 +841,7 @@ procedure TfrmGrid<TE, TS>.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   GLogger.InfoFmt('Close Grid Form %s: %s %s', [IfThen(FIsHelper, 'with Helper Mode', ''), Self.ClassName, Table.ClassName]);
   if not FIsHelper then
-    SaveColumnWidthsToDB;       // kullanıcı değişikliklerini kalıcı yap
+    SaveColumnWidthsToDB;
   Action := caFree;
 end;
 
@@ -959,35 +959,28 @@ procedure TfrmGrid<TE, TS>.FormShow(Sender: TObject);
 begin
   BuildFooter;
 
-  FQry.Open;
-
-if Assigned(FQry) and not FQry.Active then
+  // FIX: Tek Open çağrısı, korumalı
+  if Assigned(FQry) and not FQry.Active then
   begin
     try
       FQry.Open;
     except
       on E: Exception do
       begin
-        GLogger.ErrorFmt('Grid sorgusu açılamadı [%s]: %s',
-          [Self.ClassName, E.Message]);
-        // Kullanıcıya bilgi ver, formu kilitlemeden devam et
-        ShowMessage(
-          TLocalizationManager.Translate(TLangKeys.TMessage.DataIsNotLoaded, 'Veriler yüklenemedi: ') + E.Message);
+        GLogger.ErrorFmt('Grid sorgusu açılamadı [%s]: %s', [Self.ClassName, E.Message]);
+        ShowMessage(TLocalizationManager.Translate(TLangKeys.TMessage.DataIsNotLoaded, 'Veriler yüklenemedi: ') + E.Message);
         Exit;
       end;
     end;
   end;
 
   AdjustFormWidth;
-
   PrepareFilteredColumns;
   PanelSidebar.Visible := False;
   PrepareStatusBar;
 
   if FIsHelper then
-  begin
     EdtFilter.SetFocus;
-  end;
 end;
 
 function TfrmGrid<TE, TS>.getFilterEditData: string;
@@ -1726,24 +1719,49 @@ end;
 
 procedure TfrmGrid<TE, TS>.PrepareStatusBar;
 begin
-  //Status Bar content for Output DBGrid Forms
-  //NumberOfRecords | SQL Server IP | Period | FirmTitle
-  //Total: 2 | 127.0.0.1 | 2018 | JOHNDOE | F6 | F7 | F77
+  // FormShow her gösterimde çağrılır, paneller birikmesin
+  if FStatusBase.Panels.Count > 0 then
+  begin
+    // Sadece içerikleri güncelle
+    if FStatusBase.Panels.Count > DB_STATUS_SQL_SERVER then
+      if Service.UoW.Connection.Connected then
+        FStatusBase.Panels.Items[DB_STATUS_SQL_SERVER].Text := Service.UoW.Connection.Params.Values['Server'];
 
-  StatusBarAddPanel(80, psOwnerDraw);
-  StatusBarAddPanel(80, psOwnerDraw);
-  StatusBarAddPanel(80, psOwnerDraw);
-  StatusBarAddPanel(80, psOwnerDraw);
-  StatusBarAddPanel(80, psOwnerDraw);
-  StatusBarAddPanel(80, psOwnerDraw);
-  StatusBarAddPanel(80, psOwnerDraw);
+    if FStatusBase.Panels.Count > DB_STATUS_PERIOD then
+      FStatusBase.Panels.Items[DB_STATUS_PERIOD].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.Period, 'Dönem') + ':2025';
 
+    if FStatusBase.Panels.Count > DB_STATUS_USER then
+      if Assigned(TAppContext.Instance.CurrentUser) then
+        FStatusBase.Panels.Items[DB_STATUS_USER].Text := TAppContext.Instance.CurrentUser.GetUsername;
 
-  if Service.Uow.Connection.Connected then
+    if FStatusBase.Panels.Count > DB_STATUS_KEY_F6 then
+      FStatusBase.Panels.Items[DB_STATUS_KEY_F6].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF6, 'F6 İptal / Kapat');
+
+    if FStatusBase.Panels.Count > DB_STATUS_KEY_F7 then
+      FStatusBase.Panels.Items[DB_STATUS_KEY_F7].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF7, 'F7 Kayıt Ekle');
+
+    if FStatusBase.Panels.Count > DB_STATUS_KEY_F11 then
+      FStatusBase.Panels.Items[DB_STATUS_KEY_F11].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF11, 'F11 Şeffaflık');
+
+    if Service.UoW.Connection.Connected then
+      RefreshStatusRecordCount;
+
+    Exit;
+  end;
+
+  StatusBarAddPanel(80, psOwnerDraw); // DB_STATUS_RECORD_COUNT = 0
+  StatusBarAddPanel(80, psOwnerDraw); // DB_STATUS_SQL_SERVER   = 1
+  StatusBarAddPanel(80, psOwnerDraw); // DB_STATUS_PERIOD       = 2
+  StatusBarAddPanel(80, psOwnerDraw); // DB_STATUS_USER         = 3
+  StatusBarAddPanel(80, psOwnerDraw); // DB_STATUS_KEY_F6       = 4
+  StatusBarAddPanel(80, psOwnerDraw); // DB_STATUS_KEY_F7       = 5
+  StatusBarAddPanel(80, psOwnerDraw); // DB_STATUS_KEY_F11      = 6
+
+  if Service.UoW.Connection.Connected then
+  begin
     RefreshStatusRecordCount;
-
-  if Service.Uow.Connection.Connected then
-    FStatusBase.Panels.Items[DB_STATUS_SQL_SERVER].Text := Service.Uow.Connection.Params.Values['Server'];
+    FStatusBase.Panels.Items[DB_STATUS_SQL_SERVER].Text := Service.UoW.Connection.Params.Values['Server'];
+  end;
 
   FStatusBase.Panels.Items[DB_STATUS_PERIOD].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.Period, 'Dönem') + ':2025';
 
@@ -1816,7 +1834,7 @@ begin
   UpdateFooterLayout;
 end;
 
-procedure TfrmGrid<TE, TS>.SetColumnProperty(const AFieldName: string; AWidth: Integer; AColumnTitle: string);
+procedure TfrmGrid<TE, TS>.SetColumnProperty(const AFieldName: string; AWidth: Integer; AColumnTitle: string = '');
 var
   i: Integer;
 begin
@@ -1828,7 +1846,8 @@ begin
         Grd.Columns[i].Visible := False
       else
         Grd.Columns[i].Width := AWidth;
-      Grd.Columns[i].Title.Caption := AColumnTitle;
+      if AColumnTitle <> '' then
+        Grd.Columns[i].Title.Caption := AColumnTitle;
       Break;
     end;
   end;
@@ -1867,7 +1886,6 @@ begin
       LId := Table.Id;
       FreeAndNil(Table);
       Table := Service.BusinessFindById(LId, False, True, True);
-
     end;
     LForm := CreateInputForm(Sender, AFormType);
     LForm.Show;
@@ -2139,31 +2157,31 @@ end;
 
 procedure TfrmGrid<TE, TS>.SaveColumnWidthsToDB;
 var
-  viewName : string;
-  i        : Integer;
-  LRepo    : TSysGridColumnRepository;
-  LColumns : TList<TSysGridColumn>;
-  LCol     : TSysGridColumn;
+  LViewName : string;
+  LSysRepo  : ISysGridColumnRepository;
+  LColumns  : TObjectList<TSysGridColumn>;
+  LCol      : TSysGridColumn;
+  i         : Integer;
 begin
-  viewName := GetGridViewName;
-  if viewName = '' then Exit;
-  if Service.Uow.InTransaction then Exit;
+  LViewName := GetGridViewName;
+  if LViewName = '' then Exit;
+  if Service.UoW.InTransaction then Exit;
 
   LColumns := TObjectList<TSysGridColumn>.Create(True);
   try
     for i := 0 to Grd.Columns.Count - 1 do
     begin
-      LCol := TSysGridColumn.Create;
-      LCol.TableName := viewName;
-      LCol.ColumnName := Grd.Columns[i].FieldName;
+      LCol             := TSysGridColumn.Create;
+      LCol.TableName   := LViewName;
+      LCol.ColumnName  := Grd.Columns[i].FieldName;
       LCol.ColumnOrder := Grd.Columns[i].Index;
       LCol.ColumnWidth := Grd.Columns[i].Width;
-      LCol.IsShow := Grd.Columns[i].Visible;
+      LCol.IsShow      := Grd.Columns[i].Visible;
       LColumns.Add(LCol);
     end;
 
-    LRepo := TSysGridColumnRepository(Service.Uow.GetRepository<TSysGridColumn, TSysGridColumnRepository> as TObject);
-    LRepo.SaveColumns(viewName, LColumns);
+    LSysRepo := Service.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository> as ISysGridColumnRepository;
+    LSysRepo.SaveColumns(LViewName, LColumns);
   finally
     LColumns.Free;
   end;

@@ -26,6 +26,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TStkKindFamily;
   end;
 
 implementation
@@ -39,6 +41,14 @@ end;
 destructor TStkKindFamily.Destroy;
 begin
   inherited;
+end;
+
+function TStkKindFamily.Clone: TStkKindFamily;
+begin
+  Result := TStkKindFamily.Create;
+  Result.Family := Self.Family;
+  Result.Description := Self.Description;
+  Result.Active := Self.Active;
 end;
 
 end.

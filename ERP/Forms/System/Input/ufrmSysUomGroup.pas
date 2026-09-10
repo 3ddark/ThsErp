@@ -2,23 +2,22 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  ufrmInputSimpleDB, SharedFormTypes,
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  AppContext, SysUomGroup.Service, SysUomGroup, SysLanguage, LocalizationManager;
+  AppContext, SysUomGroup.Service, SysUomGroup, SysLanguage;
 
 type
   TfrmSysUomType = class(TfrmInputSimpleDB<TSysUomGroup, TSysUomGroupService>)
     pnlContent: TPanel;
     lblKey: TLabel;
     edtKey: TEdit;
-    lblNameEN: TLabel;
-    edtNameEN: TEdit;
-    lblNameTR: TLabel;
-    edtNameTR: TEdit;
+    scrlbxTranslations: TScrollBox;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -32,45 +31,43 @@ implementation
 {$R *.dfm}
 
 procedure TfrmSysUomType.BtnAcceptClick(Sender: TObject);
-  procedure SetOrAddTranslation(ALangId: Int64; const ALocale, AName: string);
-  var
-    i: Integer;
-    LTrans: TSysUomGroupTranslation;
-    LFound: Boolean;
-  begin
-    LFound := False;
-    if Assigned(Table.Translations) then
-    begin
-      for i := 0 to Table.Translations.Count - 1 do
-      begin
-        if (Assigned(Table.Translations[i].SysLanguage) and SameText(Table.Translations[i].SysLanguage.Locale, ALocale))
-        or (Table.Translations[i].SysLanguageId = ALangId) then
-        begin
-          Table.Translations[i].Name := AName;
-          LFound := True;
-          Break;
-        end;
-      end;
-    end;
-
-    if not LFound and (Trim(AName) <> '') then
-    begin
-      LTrans := TSysUomGroupTranslation.Create;
-      LTrans.SysUomGroupId := Table.Id;
-      LTrans.SysLanguageId := ALangId;
-      LTrans.Name := AName;
-      LTrans.SysLanguage := TSysLanguage.Create;
-      LTrans.SysLanguage.Id := ALangId;
-      LTrans.SysLanguage.Locale := ALocale;
-      Table.Translations.Add(LTrans);
-    end;
-  end;
+var
+  LValues: TTranslationMap;
+  LPair  : TPair<string, string>;
+  i      : Integer;
+  LTrans : TSysUomGroupTranslation;
+  LFound : Boolean;
 begin
   Table.Key := edtKey.Text;
 
-  SetOrAddTranslation(CLangID_EN, CLangLocaleEN, edtNameEN.Text);
-  SetOrAddTranslation(CLangID_TR, CLangLocaleTR, edtNameTR.Text);
+  LValues := CollectTranslationValues(scrlbxTranslations, 'PermissionGroupName');
+  try
+    for LPair in LValues do
+    begin
+      LFound := False;
+      if Assigned(Table.Translations) then
+        for i := 0 to Table.Translations.Count - 1 do
+          if SameText(Table.Translations[i].SysLanguage.Locale, LPair.Key) then
+          begin
+            Table.Translations[i].Name := LPair.Value;
+            LFound := True;
+            Break;
+          end;
 
+      if not LFound and (Trim(LPair.Value) <> '') then
+      begin
+        LTrans := TSysUomGroupTranslation.Create;
+        LTrans.SysUomGroupId := Table.Id;
+        LTrans.SysLanguageId := 0;
+        LTrans.Name := LPair.Value;
+        LTrans.SysLanguage := TSysLanguage.Create;
+        LTrans.SysLanguage.Locale := LPair.Key;
+        Table.Translations.Add(LTrans);
+      end;
+    end;
+  finally
+    LValues.Free;
+  end;
   inherited;
 end;
 
@@ -78,6 +75,12 @@ procedure TfrmSysUomType.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+
+  BuildTranslationControls(
+    scrlbxTranslations,
+    'Name',
+    TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColName, 'Name'),
+    lblKey);
 end;
 
 procedure TfrmSysUomType.FormShow(Sender: TObject);
@@ -92,38 +95,30 @@ begin
   inherited;
   Self.Caption := TLocalizationManager.Translate('sys_uom_type.title.singular', 'Ölçü Birimi Tipi');
   lblKey.Caption := TLocalizationManager.Translate('sys_uom_type.key', 'Tip Anahtarı');
-  lblNameEN.Caption := TLocalizationManager.Translate('sys_uom_type.name_en', 'Tip Adı (İngilizce)');
-  lblNameTR.Caption := TLocalizationManager.Translate('sys_uom_type.name_tr', 'Tip Adı (Türkçe)');
 end;
 
 procedure TfrmSysUomType.RefreshData;
 var
-  i: Integer;
+  LValues: TTranslationMap;
+  i      : Integer;
+  LTrans : TSysUomGroupTranslation;
 begin
   inherited;
   edtKey.Text := Table.Key;
-  edtNameEN.Text := '';
-  edtNameTR.Text := '';
 
-  if Assigned(Table.Translations) then
-  begin
-    for i := 0 to Table.Translations.Count - 1 do
-    begin
-      if Assigned(Table.Translations[i].SysLanguage) then
+  LValues := TTranslationMap.Create;
+  try
+    if Assigned(Table.Translations) then
+      for i := 0 to Table.Translations.Count - 1 do
       begin
-        if SameText(Table.Translations[i].SysLanguage.Locale, CLangLocaleEN) then
-          edtNameEN.Text := Table.Translations[i].Name
-        else if SameText(Table.Translations[i].SysLanguage.Locale, CLangLocaleTR) then
-          edtNameTR.Text := Table.Translations[i].Name;
-      end
-      else
-      begin
-        if Table.Translations[i].SysLanguageId = CLangID_EN then
-          edtNameEN.Text := Table.Translations[i].Name
-        else if Table.Translations[i].SysLanguageId = CLangID_TR then
-          edtNameTR.Text := Table.Translations[i].Name;
+        LTrans := Table.Translations[i];
+        if Assigned(LTrans.SysLanguage) and (LTrans.SysLanguage.Locale <> '') then
+          LValues.AddOrSetValue(LTrans.SysLanguage.Locale, LTrans.Name);
       end;
-    end;
+
+    FillTranslationControls(scrlbxTranslations, LValues);
+  finally
+    LValues.Free;
   end;
 end;
 

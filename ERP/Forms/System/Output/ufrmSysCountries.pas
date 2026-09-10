@@ -5,11 +5,10 @@ interface
 {$I Ths.inc}
 
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, ufrmSysCountry,
-  SysCountry.Service, SysCountry, LocalizationManager;
-
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  ufrmSysCountry, SysCountry.Service, SysCountry;
 
 type
   TfrmSysCountries = class(TfrmGrid<TSysCountry, TSysCountryService>)
@@ -30,11 +29,11 @@ function TfrmSysCountries.CreateInputForm(Sender: TObject; AFormMode: TInputForm
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysCountry.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysCountry.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysCountry.Create(Self, Service, TSysCountry.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysCountry.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysCountry.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysCountries.DefineColumnWidths;

@@ -2,11 +2,13 @@ unit ufrmSysCities;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysCity.Service, SysCity, ufrmSysCity,
-  SysCountry.Service, SysCountry, LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysCity.Service, SysCity, ufrmSysCity, SysCountry.Service, SysCountry;
 
 type
   TfrmSysCities = class(TfrmGrid<TSysCity, TSysCityService>)
@@ -27,11 +29,11 @@ function TfrmSysCities.CreateInputForm(Sender: TObject; AFormMode: TInputFormMod
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysCity.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysCity.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysCity.Create(Self, Service, TSysCity.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysCity.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysCity.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysCities.DefineColumnWidths;

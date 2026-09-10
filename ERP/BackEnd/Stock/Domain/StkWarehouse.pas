@@ -30,6 +30,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TStkWarehouse;
   end;
 
 implementation
@@ -45,6 +47,15 @@ end;
 destructor TStkWarehouse.Destroy;
 begin
   inherited;
+end;
+
+function TStkWarehouse.Clone: TStkWarehouse;
+begin
+  Result := TStkWarehouse.Create;
+  Result.WarehouseName := Self.WarehouseName;
+  Result.DefaultRawMaterial := Self.DefaultRawMaterial;
+  Result.DefaultProduction := Self.DefaultProduction;
+  Result.DefaultSales := Self.DefaultSales;
 end;
 
 end.

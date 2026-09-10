@@ -2,20 +2,23 @@ unit AccBankBranch;
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes, AccBank;
+uses
+  SysUtils, Classes, Types, Entity, EntityAttributes, AccBank, SysCity;
 
 type
   [Table('acc_bank_branch')]
   TAccBankBranch = class(TEntity)
   private
-    FBankId: Int64;
+    FAccBankId: Int64;
     FCode: Integer;
     FName: string;
-    FCityId: Int64;
-    FBank: TAccBank;
+    FSysCityId: Int64;
+
+    FAccBank: TAccBank;
+    FSysCity: TSysCity;
   public
-    [Column('bank_id'), Required()]
-    property BankId: Int64 read FBankId write FBankId;
+    [Column('acc_bank_id'), Required()]
+    property AccBankId: Int64 read FAccBankId write FAccBankId;
 
     [Column('code'), Required()]
     property Code: Integer read FCode write FCode;
@@ -23,14 +26,19 @@ type
     [Column('name'), MaxLength(64), Required()]
     property Name: string read FName write FName;
 
-    [Column('city_id'), Required()]
-    property CityId: Int64 read FCityId write FCityId;
+    [Column('sys_city_id'), Required()]
+    property SysCityId: Int64 read FSysCityId write FSysCityId;
 
-    [BelongsTo('bank_id', 'id')]
-    property Bank: TAccBank read FBank write FBank;
+    [BelongsTo('AccBankId')]
+    property AccBank: TAccBank read FAccBank write FAccBank;
+
+    [BelongsTo('SysCityId')]
+    property SysCity: TSysCity read FSysCity write FSysCity;
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TAccBankBranch;
   end;
 
 implementation
@@ -38,14 +46,29 @@ implementation
 constructor TAccBankBranch.Create();
 begin
   inherited;
-  FBank := TAccBank.Create;
+  FAccBank := TAccBank.Create;
 end;
 
 destructor TAccBankBranch.Destroy;
 begin
-  if Assigned(FBank) then FreeAndNil(FBank);
+  if Assigned(FAccBank) then FreeAndNil(FAccBank);
 
   inherited;
+end;
+
+function TAccBankBranch.Clone: TAccBankBranch;
+begin
+  Result := TAccBankBranch.Create;
+  Result.AccBankId := Self.AccBankId;
+  Result.Code := Self.Code;
+  Result.Name := Self.Name;
+  Result.SysCityId := Self.SysCityId;
+
+  if Assigned(Self.AccBank) then
+    Result.AccBank := Self.AccBank.Clone;
+
+  if Assigned(Self.SysCity) then
+    Result.SysCity:= Self.SysCity.Clone;
 end;
 
 end.

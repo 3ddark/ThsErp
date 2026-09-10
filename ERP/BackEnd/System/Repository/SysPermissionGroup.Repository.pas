@@ -28,7 +28,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysPermissionGroup>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysPermissionGroup>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysPermissionGroup; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysPermissionGroup; override;
 
@@ -198,7 +198,7 @@ begin
   Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysPermissionGroupRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysPermissionGroup>;
+function TSysPermissionGroupRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysPermissionGroup>;
 var
   Q: TFDQuery;
   Item: TSysPermissionGroup;

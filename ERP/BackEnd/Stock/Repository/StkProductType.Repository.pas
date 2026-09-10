@@ -21,7 +21,7 @@ type
 
     function FindById(AId: TValue; ALock: Boolean = False): TStkProductType; override;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TStkProductType; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TStkProductType>; override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TStkProductType>; override;
 
     procedure Add(AModel: TStkProductType); override;
     procedure AddBatch(AModels: TArray<TStkProductType>); override;
@@ -272,7 +272,7 @@ begin
   end;
 end;
 
-function TStkProductTypeRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TStkProductType>;
+function TStkProductTypeRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TStkProductType>;
 var
   Q: TFDQuery;
   Item: TStkProductType;

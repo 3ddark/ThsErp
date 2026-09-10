@@ -1,12 +1,14 @@
-unit ufrmSysLanguages;
+﻿unit ufrmSysLanguages;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysLanguage.Service, SysLanguage, ufrmSysLanguage,
-  LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysLanguage.Service, SysLanguage, ufrmSysLanguage;
 
 type
   TfrmSysLanguages = class(TfrmGrid<TSysLanguage, TSysLanguageService>)
@@ -26,11 +28,11 @@ function TfrmSysLanguages.CreateInputForm(Sender: TObject; AFormMode: TInputForm
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysLanguage.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysLanguage.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysLanguage.Create(Self, Service, TSysLanguage.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysLanguage.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysLanguage.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysLanguages.DefineColumnWidths;

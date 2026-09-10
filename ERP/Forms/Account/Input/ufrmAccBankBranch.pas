@@ -1,4 +1,4 @@
-unit ufrmAccBankBranch;
+﻿unit ufrmAccBankBranch;
 
 interface
 
@@ -86,12 +86,12 @@ begin
         begin
           if LFrmBanks.CleanAndClose then
           begin
-            Table.BankId := 0;
+            Table.AccBankId := 0;
             LEdit.Clear;
           end
           else
           begin
-            Table.BankId := LFrmBanks.Table.Id;
+            Table.AccBankId := LFrmBanks.Table.Id;
             LEdit.Text := LFrmBanks.Table.Name;
           end;
         end;
@@ -109,12 +109,12 @@ begin
         begin
           if LFrmCities.CleanAndClose then
           begin
-            Table.CityId := 0;
+            Table.SysCityId := 0;
             LEdit.Clear;
           end
           else
           begin
-            Table.CityId := LFrmCities.Table.Id;
+            Table.SysCityId := LFrmCities.Table.Id;
             LEdit.Text := LFrmCities.Table.CityName;
           end;
         end;
@@ -136,11 +136,11 @@ begin
   edtsube_kodu.Text := IntToStr(Table.Code);
   edtsube_adi.Text := Table.Name;
 
-  if Table.BankId > 0 then
+  if Table.AccBankId > 0 then
   begin
     LBankService := TAccBankService.Create;
     try
-      LBank := LBankService.FindById(Table.BankId, False);
+      LBank := LBankService.FindById(Table.AccBankId, False);
       if Assigned(LBank) then
       begin
         edtbanka_adi.Text := LBank.Name;
@@ -153,11 +153,11 @@ begin
   else
     edtbanka_adi.Text := '';
 
-  if Table.CityId > 0 then
+  if Table.SysCityId > 0 then
   begin
     LCityService := TSysCityService.Create;
     try
-      LCity := LCityService.FindById(Table.CityId, False);
+      LCity := LCityService.FindById(Table.SysCityId, False);
       if Assigned(LCity) then
       begin
         edtsehir_adi.Text := LCity.CityName;

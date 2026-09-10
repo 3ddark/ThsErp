@@ -37,6 +37,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TSysDecimalPlace;
   end;
 
 implementation
@@ -54,6 +56,16 @@ end;
 destructor TSysDecimalPlace.Destroy;
 begin
   inherited;
+end;
+
+function TSysDecimalPlace.Clone: TSysDecimalPlace;
+begin
+  Result := TSysDecimalPlace.Create;
+  Result.Quantity := Self.Quantity;
+  Result.Price := Self.Price;
+  Result.Total := Self.Total;
+  Result.StockQuantity := Self.StockQuantity;
+  Result.ExchangeRate := Self.ExchangeRate;
 end;
 
 end.

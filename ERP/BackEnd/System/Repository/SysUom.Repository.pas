@@ -27,7 +27,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysUom>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysUom>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysUom; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysUom; override;
 
@@ -192,13 +192,13 @@ begin
   Result.ParamByName('locale').AsString := TLocalizationManager.GetCurrentLanguage;
 end;
 
-function TSysUomRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUom>;
+function TSysUomRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysUom>;
 var
   Q: TFDQuery;
   Item: TSysUom;
   Criterion: TFilterCriterion;
 begin
-  Result := TList<TSysUom>.Create;
+  Result := TObjectList<TSysUom>.Create;
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;

@@ -2,8 +2,8 @@ object frmSysCountry: TfrmSysCountry
   Left = 0
   Top = 0
   Caption = 'System Country'
-  ClientHeight = 220
-  ClientWidth = 500
+  ClientHeight = 223
+  ClientWidth = 477
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,10 +15,12 @@ object frmSysCountry: TfrmSysCountry
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 500
-    Height = 220
+    Width = 477
+    Height = 223
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 484
+    ExplicitHeight = 213
     object lblCountryCode: TLabel
       Left = 72
       Top = 6
@@ -35,25 +37,9 @@ object frmSysCountry: TfrmSysCountry
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblCountryName_en_US: TLabel
-      Left = 35
-      Top = 29
-      Width = 93
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = #220'lke Ad'#305' (en-US)'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
     object lblISOYear: TLabel
       Left = 92
-      Top = 76
+      Top = 100
       Width = 36
       Height = 13
       Alignment = taRightJustify
@@ -69,7 +55,7 @@ object frmSysCountry: TfrmSysCountry
     end
     object lblISOCCTLD: TLabel
       Left = 70
-      Top = 99
+      Top = 123
       Width = 58
       Height = 13
       Alignment = taRightJustify
@@ -85,28 +71,12 @@ object frmSysCountry: TfrmSysCountry
     end
     object lblIsEuMember: TLabel
       Left = 79
-      Top = 119
+      Top = 143
       Width = 49
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
       Caption = 'AB '#220'yesi'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
-    object lblCountryName_tr_TR: TLabel
-      Left = 39
-      Top = 52
-      Width = 89
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = #220'lke Ad'#305' (tr-TR)'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -122,40 +92,34 @@ object frmSysCountry: TfrmSysCountry
       Height = 22
       TabOrder = 0
     end
-    object edtCountryName_en_US: TEdit
-      Left = 132
-      Top = 25
-      Width = 333
-      Height = 22
-      TabOrder = 1
-    end
     object edtISOYear: TEdit
       Left = 132
-      Top = 72
+      Top = 96
+      Width = 333
+      Height = 22
+      TabOrder = 2
+    end
+    object edtISOCCTLD: TEdit
+      Left = 132
+      Top = 119
       Width = 333
       Height = 22
       TabOrder = 3
     end
-    object edtISOCCTLD: TEdit
-      Left = 132
-      Top = 95
-      Width = 333
-      Height = 22
-      TabOrder = 4
-    end
     object chkIsEuMember: TCheckBox
       Left = 132
-      Top = 118
+      Top = 142
       Width = 333
       Height = 17
-      TabOrder = 5
+      TabOrder = 4
     end
-    object edtCountryName_tr_TR: TEdit
-      Left = 132
-      Top = 48
-      Width = 333
-      Height = 22
-      TabOrder = 2
+    object scrlbxTranslations: TScrollBox
+      Left = 8
+      Top = 24
+      Width = 462
+      Height = 72
+      HorzScrollBar.Visible = False
+      TabOrder = 1
     end
   end
 end

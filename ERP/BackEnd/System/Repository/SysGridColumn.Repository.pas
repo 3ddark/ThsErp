@@ -11,15 +11,12 @@ uses
 type
   ISysGridColumnRepository = interface(IRepository<TSysGridColumn>)
     ['{0DC72463-5EB7-4CE6-8F8C-D555F01338B9}']
-    function LoadColumns(const ATableName: string): TList<TSysGridColumn>;
-    procedure SaveColumns(const ATableName: string;
-                          const AColumns: TList<TSysGridColumn>);
+    function LoadColumns(const ATableName: string): TObjectList<TSysGridColumn>;
+    procedure SaveColumns(const ATableName: string; const AColumns: TObjectList<TSysGridColumn>);
   end;
 
-  TSysGridColumnRepository = class(TRepository<TSysGridColumn>,
-    ISysGridColumnRepository)
+  TSysGridColumnRepository = class(TRepository<TSysGridColumn>, ISysGridColumnRepository)
   private
-    // FIX: pg_tables kontrolü bir kez yapılıp cache'lenir
     FTableExists       : Boolean;
     FTableExistsChecked: Boolean;
     function CheckTableExists: Boolean;
@@ -29,17 +26,13 @@ type
     function PrepareUpdateSql  : string;
     function PrepareDeleteSql  : string;
 
-    procedure SetModelParams(Q: TFDQuery; AModel: TSysGridColumn;
-                             AIndex: Integer = -1);
+    procedure SetModelParams(Q: TFDQuery; AModel: TSysGridColumn; AIndex: Integer = -1);
     function  MapFromQuery(Q: TFDQuery): TSysGridColumn; override;
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-    function DoFindById(AId: TValue; ALock: Boolean = False)
-               : TSysGridColumn; override;
-    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False)
-               : TSysGridColumn; override;
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False)
-               : TList<TSysGridColumn>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TSysGridColumn; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysGridColumn; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysGridColumn>; override;
 
     procedure DoAdd(AModel: TSysGridColumn); override;
     procedure DoAddBatch(AModels: TArray<TSysGridColumn>); override;
@@ -52,9 +45,8 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-    procedure SaveColumns(const ATableName: string;
-                          const AColumns: TList<TSysGridColumn>);
-    function  LoadColumns(const ATableName: string): TList<TSysGridColumn>;
+    procedure SaveColumns(const ATableName: string; const AColumns: TObjectList<TSysGridColumn>);
+    function  LoadColumns(const ATableName: string): TObjectList<TSysGridColumn>;
   end;
 
 implementation
@@ -68,7 +60,6 @@ begin
   FTableExistsChecked := False;
 end;
 
-// FIX: pg_tables kontrolü tek seferlik — her çağrıda sorgu atmaz
 function TSysGridColumnRepository.CheckTableExists: Boolean;
 var
   Q: TFDQuery;
@@ -218,8 +209,7 @@ begin
     'SELECT * FROM public.' + Self.GetTableName(TSysGridColumn);
 end;
 
-function TSysGridColumnRepository.DoFind(AFilter: TFilterCriteria;
-  ALock: Boolean): TList<TSysGridColumn>;
+function TSysGridColumnRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysGridColumn>;
 var
   Q        : TFDQuery;
   Criterion: TFilterCriterion;
@@ -469,14 +459,12 @@ begin
   end;
 end;
 
-function TSysGridColumnRepository.LoadColumns(
-  const ATableName: string): TList<TSysGridColumn>;
+function TSysGridColumnRepository.LoadColumns(const ATableName: string): TObjectList<TSysGridColumn>;
 var
   Q   : TFDQuery;
 begin
   Result := TObjectList<TSysGridColumn>.Create(True);
 
-  // FIX: Cache'li kontrol — her yüklemede pg_tables sorgusu atmaz
   if not CheckTableExists then Exit;
 
   Q := TFDQuery.Create(nil);
@@ -484,9 +472,9 @@ begin
     Q.Connection  := Connection;
     Q.SQL.Text    :=
       'SELECT id, table_name, column_name, column_order, column_width, is_show ' +
-      'FROM public.sys_grid_column ' +
-      'WHERE table_name = :t ' +
-      'ORDER BY column_order';
+      'FROM public.' + GetTableName(TSysGridColumn) +
+      ' WHERE table_name = :t ' +
+      ' ORDER BY column_order';
     Q.ParamByName('t').AsString := ATableName;
     try
       Q.Open;
@@ -515,7 +503,7 @@ begin
   end;
 end;
 
-procedure TSysGridColumnRepository.SaveColumns(const ATableName: string; const AColumns: TList<TSysGridColumn>);
+procedure TSysGridColumnRepository.SaveColumns(const ATableName: string; const AColumns: TObjectList<TSysGridColumn>);
 type
   TColType = record
     Order: Integer;
@@ -527,7 +515,7 @@ var
   Q       : TFDQuery;
   I       : Integer;
   SQLText : string;
-  // FIX: O(n²) karşılaştırma yerine dictionary
+
   LExisting: TDictionary<string, TColType>;
   LKey    : string;
   LRec    : TColType;
@@ -563,8 +551,7 @@ begin
       LRec.Order := Q.FieldByName('column_order').AsInteger;
       LRec.Width := Q.FieldByName('column_width').AsInteger;
       LRec.Show  := Q.FieldByName('is_show').AsBoolean;
-      LExisting.AddOrSetValue(
-        LowerCase(Q.FieldByName('column_name').AsString), LRec);
+      LExisting.AddOrSetValue(LowerCase(Q.FieldByName('column_name').AsString), LRec);
       Q.Next;
     end;
     Q.Close;
@@ -578,7 +565,8 @@ begin
         if not LExisting.TryGetValue(LKey, LRec) or
            (LRec.Order <> AColumns[I].ColumnOrder) or
            (LRec.Width <> AColumns[I].ColumnWidth) or
-           (LRec.Show  <> AColumns[I].IsShow) then
+           (LRec.Show  <> AColumns[I].IsShow)
+        then
         begin
           LChanged := True;
           Break;
@@ -587,16 +575,15 @@ begin
 
     if not LChanged then Exit;
 
-    // Upsert — tek sorgu, tüm kolonları güncelle
     SQLText :=
       'INSERT INTO public.sys_grid_column ' +
       '(table_name, column_name, column_order, column_width, is_show) VALUES ';
 
     for I := 0 to AColumns.Count - 1 do
     begin
-      if I > 0 then SQLText := SQLText + ', ';
-      SQLText := SQLText +
-        Format('(:t, :cn%d, :co%d, :cw%d, :cs%d)', [I, I, I, I]);
+      if I > 0 then
+        SQLText := SQLText + ', ';
+      SQLText := SQLText + Format('(:t, :cn%d, :co%d, :cw%d, :cs%d)', [I, I, I, I]);
     end;
 
     SQLText := SQLText +

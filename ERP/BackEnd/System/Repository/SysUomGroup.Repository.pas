@@ -28,7 +28,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysUomGroup>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysUomGroup>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysUomGroup; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysUomGroup; override;
 
@@ -198,7 +198,7 @@ begin
   Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysUomGroupRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUomGroup>;
+function TSysUomGroupRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysUomGroup>;
 var
   Q: TFDQuery;
   Item: TSysUomGroup;

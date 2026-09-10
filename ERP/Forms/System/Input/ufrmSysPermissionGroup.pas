@@ -2,23 +2,22 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  ufrmInputSimpleDB, SharedFormTypes,
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  AppContext, SysPermissionGroup.Service, SysPermissionGroup, SysLanguage, LocalizationManager;
+  SysPermissionGroup.Service, SysPermissionGroup, SysLanguage;
 
 type
   TfrmSysPermissionGroup = class(TfrmInputSimpleDB<TSysPermissionGroup, TSysPermissionGroupService>)
     pnlContent: TPanel;
     lblPermissionGroupKey: TLabel;
     edtPermissionGroupKey: TEdit;
-    lblPermissionGroupName_en_US: TLabel;
-    edtPermissionGroupName_en_US: TEdit;
-    lblPermissionGroupName_tr_TR: TLabel;
-    edtPermissionGroupName_tr_TR: TEdit;
+    scrlbxTranslations: TScrollBox;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -32,44 +31,43 @@ implementation
 {$R *.dfm}
 
 procedure TfrmSysPermissionGroup.BtnAcceptClick(Sender: TObject);
-  procedure SetOrAddTranslation(ALangId: Int64; const ALocale, AName: string);
-  var
-    i: Integer;
-    LTrans: TSysPermissionGroupTranslation;
-    LFound: Boolean;
-  begin
-    LFound := False;
-    if Assigned(Table.Translations) then
-    begin
-      for i := 0 to Table.Translations.Count - 1 do
-      begin
-        if (Assigned(Table.Translations[i].SysLanguage) and SameText(Table.Translations[i].SysLanguage.Locale, ALocale))
-        or (Table.Translations[i].SysLanguageId = ALangId) then
-        begin
-          Table.Translations[i].PermissionGroupName := AName;
-          LFound := True;
-          Break;
-        end;
-      end;
-    end;
-
-    if not LFound and (Trim(AName) <> '') then
-    begin
-      LTrans := TSysPermissionGroupTranslation.Create;
-      LTrans.SysPermissionGroupId := Table.Id;
-      LTrans.SysLanguageId := ALangId;
-      LTrans.PermissionGroupName := AName;
-      LTrans.SysLanguage := TSysLanguage.Create;
-      LTrans.SysLanguage.Id := ALangId;
-      LTrans.SysLanguage.Locale := ALocale;
-      Table.Translations.Add(LTrans);
-    end;
-  end;
+var
+  LValues: TTranslationMap;
+  LPair  : TPair<string, string>;
+  i      : Integer;
+  LTrans : TSysPermissionGroupTranslation;
+  LFound : Boolean;
 begin
   Table.PermissionGroupKey := edtPermissionGroupKey.Text;
 
-  SetOrAddTranslation(CLangID_EN, CLangLocaleEN, edtPermissionGroupName_en_US.Text);
-  SetOrAddTranslation(CLangID_TR, CLangLocaleTR, edtPermissionGroupName_tr_TR.Text);
+  LValues := CollectTranslationValues(scrlbxTranslations, 'PermissionGroupName');
+  try
+    for LPair in LValues do
+    begin
+      LFound := False;
+      if Assigned(Table.Translations) then
+        for i := 0 to Table.Translations.Count - 1 do
+          if SameText(Table.Translations[i].SysLanguage.Locale, LPair.Key) then
+          begin
+            Table.Translations[i].PermissionGroupName := LPair.Value;
+            LFound := True;
+            Break;
+          end;
+
+      if not LFound and (Trim(LPair.Value) <> '') then
+      begin
+        LTrans := TSysPermissionGroupTranslation.Create;
+        LTrans.SysPermissionGroupId := Table.Id;
+        LTrans.SysLanguageId := 0;
+        LTrans.PermissionGroupName := LPair.Value;
+        LTrans.SysLanguage := TSysLanguage.Create;
+        LTrans.SysLanguage.Locale := LPair.Key;
+        Table.Translations.Add(LTrans);
+      end;
+    end;
+  finally
+    LValues.Free;
+  end;
 
   inherited;
 end;
@@ -78,6 +76,12 @@ procedure TfrmSysPermissionGroup.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+
+  BuildTranslationControls(
+    scrlbxTranslations,
+    'PermissionGroupName',
+    TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Group Name'),
+    lblPermissionGroupKey);
 end;
 
 procedure TfrmSysPermissionGroup.FormShow(Sender: TObject);
@@ -92,38 +96,30 @@ begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.TitleSingular, 'Permission Group');
   lblPermissionGroupKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblKey, 'Permission Group Key');
-  lblPermissionGroupName_en_US.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblNameEN, 'Group Name (en-US)');
-  lblPermissionGroupName_tr_TR.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblNameTR, 'Group Name (tr-TR)');
 end;
 
 procedure TfrmSysPermissionGroup.RefreshData;
 var
-  i: Integer;
+  LValues: TTranslationMap;
+  i      : Integer;
+  LTrans : TSysPermissionGroupTranslation;
 begin
   inherited;
   edtPermissionGroupKey.Text := Table.PermissionGroupKey;
-  edtPermissionGroupName_en_US.Text := '';
-  edtPermissionGroupName_tr_TR.Text := '';
 
-  if Assigned(Table.Translations) then
-  begin
-    for i := 0 to Table.Translations.Count - 1 do
-    begin
-      if Assigned(Table.Translations[i].SysLanguage) then
+  LValues := TTranslationMap.Create;
+  try
+    if Assigned(Table.Translations) then
+      for i := 0 to Table.Translations.Count - 1 do
       begin
-        if SameText(Table.Translations[i].SysLanguage.Locale, CLangLocaleEN) then
-          edtPermissionGroupName_en_US.Text := Table.Translations[i].PermissionGroupName
-        else if SameText(Table.Translations[i].SysLanguage.Locale, CLangLocaleTR) then
-          edtPermissionGroupName_tr_TR.Text := Table.Translations[i].PermissionGroupName;
-      end
-      else
-      begin
-        if Table.Translations[i].SysLanguageId = CLangID_EN then
-          edtPermissionGroupName_en_US.Text := Table.Translations[i].PermissionGroupName
-        else if Table.Translations[i].SysLanguageId = CLangID_TR then
-          edtPermissionGroupName_tr_TR.Text := Table.Translations[i].PermissionGroupName;
+        LTrans := Table.Translations[i];
+        if Assigned(LTrans.SysLanguage) and (LTrans.SysLanguage.Locale <> '') then
+          LValues.AddOrSetValue(LTrans.SysLanguage.Locale, LTrans.PermissionGroupName);
       end;
-    end;
+
+    FillTranslationControls(scrlbxTranslations, LValues);
+  finally
+    LValues.Free;
   end;
 end;
 

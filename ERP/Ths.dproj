@@ -658,6 +658,7 @@
         <DCCReference Include="BackEnd\System\Exception\SysGridFilter.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysDecimalPlace.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysApplicationSetting.Exception.pas"/>
+        <DCCReference Include="BackEnd\Core\Ths.Language.Cache.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

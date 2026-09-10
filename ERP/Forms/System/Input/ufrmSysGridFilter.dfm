@@ -11,7 +11,7 @@ object frmSysGridFilter: TfrmSysGridFilter
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
@@ -22,9 +22,9 @@ object frmSysGridFilter: TfrmSysGridFilter
     ExplicitWidth = 498
     ExplicitHeight = 174
     object lblTableName: TLabel
-      Left = 77
+      Left = 76
       Top = 6
-      Width = 51
+      Width = 52
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -38,9 +38,9 @@ object frmSysGridFilter: TfrmSysGridFilter
       ParentFont = False
     end
     object lblFilterContent: TLabel
-      Left = 68
+      Left = 60
       Top = 29
-      Width = 60
+      Width = 68
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight

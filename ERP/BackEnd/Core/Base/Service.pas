@@ -42,6 +42,7 @@ type
     procedure BusinessDelete(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean);
 
     function Clone(ASource: T): T;
+    function CloneByRtti(ASource: T): T;
   end;
 
   TService<T: TEntity, constructor> = class(TInterfacedObject, IService<T>)
@@ -52,11 +53,10 @@ type
     procedure FillNestedEntityFromDataSet(ADataSet: TFDDataSet; AEntity: TObject; AClass: TClass);
     function HasAttribute(AProp: TRttiProperty; AAttrClass: TClass): Boolean;
     function GetColumnAttribute(AProp: TRttiProperty): Column;
-    function PascalToSnake(const AStr: string): string;
-    function CreateEntityInstanceByClass(AClass: TClass): TObject;
-    procedure CloneEntityProperties(ASource, ATarget: TObject; AEntityClass: TClass; ADeepClone: Boolean);
-    procedure SetBackReferenceProperty(AChildEntity, AParentEntity: TObject);
-    function ExtractGenericTypeFromList(AListType: TRttiType): TClass;
+//    function CreateEntityInstanceByClass(AClass: TClass): TObject;
+//    procedure CloneEntityProperties(ASource, ATarget: TObject; AEntityClass: TClass; ADeepClone: Boolean);
+//    procedure SetBackReferenceProperty(AChildEntity, AParentEntity: TObject);
+//    function ExtractGenericTypeFromList(AListType: TRttiType): TClass;
   protected
     property Filter: TFilterCriteria read FFilter;
   public
@@ -67,7 +67,8 @@ type
 
     procedure FillEntityFromDataSet(ADataSet: TFDDataSet; AEntity: T);
 
-    function Clone(ASource: T): T;
+//    function Clone(ASource: T): T;
+//    function CloneByRtti(ASource: T): T;
   end;
 
   TViewService<T: TEntity, constructor> = class(TService<T>)
@@ -111,7 +112,7 @@ type
 implementation
 
 uses
-  EntitySchemaCache;
+  Logger, EntitySchemaCache;
 
 procedure TCrudService<T>.ValidateEntity(AEntity: T);
 var
@@ -158,7 +159,7 @@ destructor TCrudService<T>.Destroy;
 begin
   inherited;
 end;
-
+{
 function TService<T>.CreateEntityInstanceByClass(AClass: TClass): TObject;
 var
   ACtx: TRttiContext;
@@ -355,42 +356,54 @@ begin
     end;
   end;
 end;
-
+}
+{
 function TService<T>.Clone(ASource: T): T;
 var
-  ctx: TRttiContext;
-  rType: TRttiType;
-  prop: TRttiProperty;
-  attr: TCustomAttribute;
-  colAttr: Column;
-  hasOneAttr: HasOneAttribute;
-  hasManyAttr: HasManyAttribute;
-  belongsToAttr: BelongsToAttribute;
-  propValue: TValue;
-  sourceList: TObject;
-  targetList: TObject;
-  listType: TRttiType;
-  countProp: TRttiProperty;
-  getItemMethod: TRttiMethod;
-  addMethod: TRttiMethod;
-  clearMethod: TRttiMethod;
-  count, i: Integer;
-  sourceItem: TObject;
-  clonedItem: TObject;
-  sourceNestedEntity: TObject;
-  clonedNestedEntity: TObject;
-  nestedEntityClass: TClass;
-  method: TRttiMethod;
+  LCloneable: ICloneable<T>;
 begin
   Result := nil;
+  if not Assigned(ASource) then Exit;
 
-  if not Assigned(ASource) then
-    Exit;
+  if Supports(TObject(ASource), ICloneable<T>, LCloneable) then
+    Result := LCloneable.Clone
+  else
+    Result := CloneByRtti(ASource);
+end;
+
+function TService<T>.CloneByRtti(ASource: T): T;
+var
+  ctx           : TRttiContext;
+  rType         : TRttiType;
+  prop          : TRttiProperty;
+  attr          : TCustomAttribute;
+  colAttr       : Column;
+  hasOneAttr    : HasOneAttribute;
+  hasManyAttr   : HasManyAttribute;
+  belongsToAttr : BelongsToAttribute;
+  propValue     : TValue;
+  sourceList    : TObject;
+  targetList    : TObject;
+  listType      : TRttiType;
+  countProp     : TRttiProperty;
+  getItemMethod : TRttiMethod;
+  addMethod     : TRttiMethod;
+  clearMethod   : TRttiMethod;
+  count, i      : Integer;
+  sourceItem    : TObject;
+  clonedItem    : TObject;
+  sourceNestedEntity : TObject;
+  clonedNestedEntity : TObject;
+  nestedEntityClass  : TClass;
+  method        : TRttiMethod;
+  LCloneValue   : TValue;
+begin
+  Result := nil;
+  if not Assigned(ASource) then Exit;
 
   ctx := TRttiContext.Create;
   try
-    rType := ctx.GetType(T);
-
+    rType  := ctx.GetType(T);
     Result := CreateEntityInstanceByClass(T) as T;
 
     for prop in rType.GetProperties do
@@ -405,11 +418,6 @@ begin
 
       for attr in prop.GetAttributes do
       begin
-//        if attr is NotMapped then
-//        begin
-//          Break;
-//        end
-//        else
         if attr is Column then
           colAttr := attr as Column
         else if attr is HasOneAttribute then
@@ -422,7 +430,6 @@ begin
 
       if (colAttr = nil) and (hasOneAttr = nil) and (hasManyAttr = nil) and (belongsToAttr = nil) then
       begin
-        // NotMapped basit property ise yine de kopyala
         if prop.PropertyType.TypeKind <> tkClass then
           for attr in prop.GetAttributes do
             if attr is NotMapped then
@@ -435,10 +442,10 @@ begin
         Continue;
       end;
 
-      propValue := prop.GetValue(TObject(ASource));
-
       if Assigned(colAttr) then
       begin
+        propValue := prop.GetValue(TObject(ASource));
+
         if colAttr.IsPrimaryKey and colAttr.IsAutoIncrement and not propValue.IsEmpty then
         begin
           case prop.PropertyType.TypeKind of
@@ -446,36 +453,18 @@ begin
             tkInt64:   prop.SetValue(TObject(Result), propValue);
           end;
         end
-        else
-        begin
-          if not propValue.IsEmpty then
-            prop.SetValue(TObject(Result), propValue);
-        end;
+        else if not propValue.IsEmpty then
+          prop.SetValue(TObject(Result), propValue);
       end
+
       else if Assigned(belongsToAttr) then
       begin
+        propValue := prop.GetValue(TObject(ASource));
         sourceNestedEntity := propValue.AsObject;
+
         if Assigned(sourceNestedEntity) then
         begin
-          nestedEntityClass := prop.PropertyType.AsInstance.MetaclassType;
-
-          clonedNestedEntity := prop.GetValue(TObject(Result)).AsObject;
-
-          if not Assigned(clonedNestedEntity) then
-          begin
-            clonedNestedEntity := CreateEntityInstanceByClass(nestedEntityClass);
-            prop.SetValue(TObject(Result), clonedNestedEntity);
-          end;
-          CloneEntityProperties(sourceNestedEntity, clonedNestedEntity, nestedEntityClass, False);
-        end;
-      end
-      else if Assigned(hasOneAttr) then
-      begin
-        sourceNestedEntity := propValue.AsObject;
-        if Assigned(sourceNestedEntity) then
-        begin
-          nestedEntityClass := prop.PropertyType.AsInstance.MetaclassType;
-
+          nestedEntityClass  := prop.PropertyType.AsInstance.MetaclassType;
           clonedNestedEntity := prop.GetValue(TObject(Result)).AsObject;
 
           if not Assigned(clonedNestedEntity) then
@@ -484,63 +473,93 @@ begin
             prop.SetValue(TObject(Result), clonedNestedEntity);
           end;
           CloneEntityProperties(sourceNestedEntity, clonedNestedEntity,
-                                nestedEntityClass, False);
+            nestedEntityClass, False);
         end;
       end
+
+      else if Assigned(hasOneAttr) then
+      begin
+        propValue := prop.GetValue(TObject(ASource));
+        sourceNestedEntity := propValue.AsObject;
+
+        if Assigned(sourceNestedEntity) then
+        begin
+          nestedEntityClass  := prop.PropertyType.AsInstance.MetaclassType;
+          clonedNestedEntity := prop.GetValue(TObject(Result)).AsObject;
+
+          if not Assigned(clonedNestedEntity) then
+          begin
+            clonedNestedEntity := CreateEntityInstanceByClass(nestedEntityClass);
+            prop.SetValue(TObject(Result), clonedNestedEntity);
+          end;
+          CloneEntityProperties(sourceNestedEntity, clonedNestedEntity,
+            nestedEntityClass, False);
+        end;
+      end
+
       else if Assigned(hasManyAttr) then
       begin
+        try
+          propValue := prop.GetValue(TObject(ASource));
+        except
+          on E: Exception do
+          begin
+            GLogger.WarningFmt('Clone.HasMany GetValue atlandı [%s.%s]: %s', [T.ClassName, prop.Name, E.Message]);
+            Continue;
+          end;
+        end;
+
         sourceList := propValue.AsObject;
         targetList := prop.GetValue(TObject(Result)).AsObject;
 
-        if Assigned(sourceList) and Assigned(targetList) then
+        if not Assigned(sourceList) or not Assigned(targetList) then
+          Continue;
+
+        nestedEntityClass := ExtractGenericTypeFromList(prop.PropertyType);
+        if not Assigned(nestedEntityClass) then
         begin
-          nestedEntityClass := ExtractGenericTypeFromList(prop.PropertyType);
-          if not Assigned(nestedEntityClass) then
-            Continue;
+          GLogger.WarningFmt('Clone.HasMany: generic type çözümlenemedi [%s.%s]', [T.ClassName, prop.Name]);
+          Continue;
+        end;
 
-          listType := ctx.GetType(sourceList.ClassType);
+        listType  := ctx.GetType(sourceList.ClassType);
+        countProp := listType.GetProperty('Count');
+        if not Assigned(countProp) then Continue;
 
-          countProp := listType.GetProperty('Count');
-          if not Assigned(countProp) then
-            Continue;
+        count := countProp.GetValue(sourceList).AsInteger;
+        if count = 0 then Continue;
 
-          count := countProp.GetValue(sourceList).AsInteger;
-          if count = 0 then
-            Continue;
+        getItemMethod := nil;
+        addMethod     := nil;
+        clearMethod   := nil;
 
-          getItemMethod := nil;
-          addMethod     := nil;
-          clearMethod   := nil;
+        for method in listType.GetMethods do
+        begin
+          if (method.Name = 'GetItem') and (Length(method.GetParameters) = 1) then
+            getItemMethod := method
+          else if (method.Name = 'Add') and (Length(method.GetParameters) = 1) then
+            addMethod := method
+          else if (method.Name = 'Clear') and (Length(method.GetParameters) = 0) then
+            clearMethod := method;
+        end;
 
-          for method in listType.GetMethods do
-          begin
-            if (method.Name = 'GetItem') and (Length(method.GetParameters) = 1) then
-              getItemMethod := method
-            else if (method.Name = 'Add') and (Length(method.GetParameters) = 1) then
-              addMethod := method
-            else if (method.Name = 'Clear') and (Length(method.GetParameters) = 0) then
-              clearMethod := method;
-          end;
+        if not Assigned(getItemMethod) or not Assigned(addMethod) then
+          Continue;
 
-          if not Assigned(getItemMethod) or not Assigned(addMethod) then
-            Continue;
+        if Assigned(clearMethod) then
+          clearMethod.Invoke(targetList, []);
 
-          if Assigned(clearMethod) then
-            clearMethod.Invoke(targetList, []);
+        for i := 0 to count - 1 do
+        begin
+          sourceItem := getItemMethod.Invoke(sourceList, [i]).AsObject;
+          if not Assigned(sourceItem) then Continue;
 
-          for i := 0 to count - 1 do
-          begin
-            sourceItem := getItemMethod.Invoke(sourceList, [i]).AsObject;
-            if Assigned(sourceItem) then
-            begin
-              clonedItem := CreateEntityInstanceByClass(nestedEntityClass);
-              SetBackReferenceProperty(clonedItem, TObject(Result));
-              CloneEntityProperties(sourceItem, clonedItem, nestedEntityClass, False);
-              var LCloneValue: TValue;
-              TValue.Make(@clonedItem, clonedItem.ClassInfo, LCloneValue);
-              addMethod.Invoke(targetList, [LCloneValue]);
-            end;
-          end;
+          clonedItem := CreateEntityInstanceByClass(nestedEntityClass);
+          SetBackReferenceProperty(clonedItem, TObject(Result));
+          CloneEntityProperties(sourceItem, clonedItem, nestedEntityClass, True);
+
+          TValue.Make(@clonedItem, clonedItem.ClassInfo, LCloneValue);
+          addMethod.Invoke(targetList, [LCloneValue]);
         end;
       end;
 
@@ -550,7 +569,7 @@ begin
     ctx.Free;
   end;
 end;
-
+}
 constructor TService<T>.Create;
 begin
   inherited;
@@ -563,7 +582,6 @@ begin
   inherited;
 end;
 
-// Unit'in private/protected bölümüne ekle
 function TService<T>.HasAttribute(AProp: TRttiProperty; AAttrClass: TClass): Boolean;
 var
   attr: TCustomAttribute;
@@ -582,19 +600,6 @@ begin
   for attr in AProp.GetAttributes do
     if attr is Column then
       Exit(attr as Column);
-end;
-
-function TService<T>.PascalToSnake(const AStr: string): string;
-var
-  i: Integer;
-begin
-  Result := '';
-  for i := 1 to Length(AStr) do
-  begin
-    if (i > 1) and CharInSet(AStr[i], ['A'..'Z']) then
-      Result := Result + '_';
-    Result := Result + LowerCase(AStr[i]);
-  end;
 end;
 
 procedure TService<T>.FillEntityFromDataSet(ADataSet: TFDDataSet; AEntity: T);

@@ -22,7 +22,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysAccessRight>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysAccessRight>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysAccessRight; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysAccessRight; override;
 
@@ -58,16 +58,16 @@ end;
 function TSysAccessRightRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) +
-            ' (permission_id, is_read, is_add, is_update, is_delete, is_special, user_id) ' +
-            ' VALUES (:permission_id, :is_read, :is_add, :is_update, :is_delete, :is_special, :user_id)';
+            ' (sys_permission_id, is_read, is_add, is_update, is_delete, is_special, sys_user_id) ' +
+            ' VALUES (:sys_permission_id, :is_read, :is_add, :is_update, :is_delete, :is_special, :sys_user_id)';
 end;
 
 function TSysAccessRightRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSysAccessRight) +
-            ' SET permission_id = :permission_id, is_read = :is_read, is_add = :is_add, ' +
+            ' SET sys_permission_id = :sys_permission_id, is_read = :is_read, is_add = :is_add, ' +
             '     is_update = :is_update, is_delete = :is_delete, is_special = :is_special, ' +
-            '     user_id = :user_id ' +
+            '     sys_user_id = :sys_user_id ' +
             ' WHERE id = :id';
 end;
 
@@ -81,23 +81,23 @@ procedure TSysAccessRightRepository.SetInsertParams(Q: TFDQuery; AModel: TSysAcc
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('permission_id').AsLargeInt := AModel.PermissionId;
-    Q.ParamByName('is_read').AsBoolean        := AModel.IsRead;
-    Q.ParamByName('is_add').AsBoolean         := AModel.IsAdd;
-    Q.ParamByName('is_update').AsBoolean      := AModel.IsUpdate;
-    Q.ParamByName('is_delete').AsBoolean      := AModel.IsDelete;
-    Q.ParamByName('is_special').AsBoolean     := AModel.IsSpecial;
-    Q.ParamByName('user_id').AsLargeInt       := AModel.UserId;
+    Q.ParamByName('sys_permission_id').AsLargeInt := AModel.SysPermissionId;
+    Q.ParamByName('is_read').AsBoolean := AModel.IsRead;
+    Q.ParamByName('is_add').AsBoolean := AModel.IsAdd;
+    Q.ParamByName('is_update').AsBoolean := AModel.IsUpdate;
+    Q.ParamByName('is_delete').AsBoolean := AModel.IsDelete;
+    Q.ParamByName('is_special').AsBoolean := AModel.IsSpecial;
+    Q.ParamByName('sys_user_id').AsLargeInt := AModel.SysUserId;
   end
   else
   begin
-    Q.ParamByName('permission_id').AsLargeInts[AIndex] := AModel.PermissionId;
-    Q.ParamByName('is_read').AsBooleans[AIndex]        := AModel.IsRead;
-    Q.ParamByName('is_add').AsBooleans[AIndex]         := AModel.IsAdd;
-    Q.ParamByName('is_update').AsBooleans[AIndex]      := AModel.IsUpdate;
-    Q.ParamByName('is_delete').AsBooleans[AIndex]      := AModel.IsDelete;
-    Q.ParamByName('is_special').AsBooleans[AIndex]     := AModel.IsSpecial;
-    Q.ParamByName('user_id').AsLargeInts[AIndex]       := AModel.UserId;
+    Q.ParamByName('sys_permission_id').AsLargeInts[AIndex] := AModel.SysPermissionId;
+    Q.ParamByName('is_read').AsBooleans[AIndex] := AModel.IsRead;
+    Q.ParamByName('is_add').AsBooleans[AIndex] := AModel.IsAdd;
+    Q.ParamByName('is_update').AsBooleans[AIndex] := AModel.IsUpdate;
+    Q.ParamByName('is_delete').AsBooleans[AIndex] := AModel.IsDelete;
+    Q.ParamByName('is_special').AsBooleans[AIndex] := AModel.IsSpecial;
+    Q.ParamByName('sys_user_id').AsLargeInts[AIndex] := AModel.SysUserId;
   end;
 end;
 
@@ -105,39 +105,39 @@ procedure TSysAccessRightRepository.SetUpdateParams(Q: TFDQuery; AModel: TSysAcc
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('id').AsLargeInt            := AModel.Id;
-    Q.ParamByName('permission_id').AsLargeInt := AModel.PermissionId;
-    Q.ParamByName('is_read').AsBoolean        := AModel.IsRead;
-    Q.ParamByName('is_add').AsBoolean         := AModel.IsAdd;
-    Q.ParamByName('is_update').AsBoolean      := AModel.IsUpdate;
-    Q.ParamByName('is_delete').AsBoolean      := AModel.IsDelete;
-    Q.ParamByName('is_special').AsBoolean     := AModel.IsSpecial;
-    Q.ParamByName('user_id').AsLargeInt       := AModel.UserId;
+    Q.ParamByName('id').AsLargeInt := AModel.Id;
+    Q.ParamByName('sys_permission_id').AsLargeInt := AModel.SysPermissionId;
+    Q.ParamByName('is_read').AsBoolean := AModel.IsRead;
+    Q.ParamByName('is_add').AsBoolean := AModel.IsAdd;
+    Q.ParamByName('is_update').AsBoolean := AModel.IsUpdate;
+    Q.ParamByName('is_delete').AsBoolean := AModel.IsDelete;
+    Q.ParamByName('is_special').AsBoolean := AModel.IsSpecial;
+    Q.ParamByName('sys_user_id').AsLargeInt := AModel.SysUserId;
   end
   else
   begin
-    Q.ParamByName('id').AsLargeInts[AIndex]            := AModel.Id;
-    Q.ParamByName('permission_id').AsLargeInts[AIndex] := AModel.PermissionId;
-    Q.ParamByName('is_read').AsBooleans[AIndex]        := AModel.IsRead;
-    Q.ParamByName('is_add').AsBooleans[AIndex]         := AModel.IsAdd;
-    Q.ParamByName('is_update').AsBooleans[AIndex]      := AModel.IsUpdate;
-    Q.ParamByName('is_delete').AsBooleans[AIndex]      := AModel.IsDelete;
-    Q.ParamByName('is_special').AsBooleans[AIndex]     := AModel.IsSpecial;
-    Q.ParamByName('user_id').AsLargeInts[AIndex]       := AModel.UserId;
+    Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('sys_permission_id').AsLargeInts[AIndex] := AModel.SysPermissionId;
+    Q.ParamByName('is_read').AsBooleans[AIndex] := AModel.IsRead;
+    Q.ParamByName('is_add').AsBooleans[AIndex] := AModel.IsAdd;
+    Q.ParamByName('is_update').AsBooleans[AIndex] := AModel.IsUpdate;
+    Q.ParamByName('is_delete').AsBooleans[AIndex] := AModel.IsDelete;
+    Q.ParamByName('is_special').AsBooleans[AIndex] := AModel.IsSpecial;
+    Q.ParamByName('sys_user_id').AsLargeInts[AIndex] := AModel.SysUserId;
   end;
 end;
 
 function TSysAccessRightRepository.MapFromQuery(Q: TFDQuery): TSysAccessRight;
 begin
   Result := TSysAccessRight.Create;
-  Result.Id           := Q.FieldByName('id').AsLargeInt;
-  Result.PermissionId := Q.FieldByName('permission_id').AsLargeInt;
-  Result.IsRead       := Q.FieldByName('is_read').AsBoolean;
-  Result.IsAdd        := Q.FieldByName('is_add').AsBoolean;
-  Result.IsUpdate     := Q.FieldByName('is_update').AsBoolean;
-  Result.IsDelete     := Q.FieldByName('is_delete').AsBoolean;
-  Result.IsSpecial    := Q.FieldByName('is_special').AsBoolean;
-  Result.UserId       := Q.FieldByName('user_id').AsLargeInt;
+  Result.Id := Q.FieldByName('id').AsLargeInt;
+  Result.SysPermissionId := Q.FieldByName('sys_permission_id').AsLargeInt;
+  Result.IsRead := Q.FieldByName('is_read').AsBoolean;
+  Result.IsAdd := Q.FieldByName('is_add').AsBoolean;
+  Result.IsUpdate := Q.FieldByName('is_update').AsBoolean;
+  Result.IsDelete := Q.FieldByName('is_delete').AsBoolean;
+  Result.IsSpecial := Q.FieldByName('is_special').AsBoolean;
+  Result.SysUserId := Q.FieldByName('sys_user_id').AsLargeInt;
 end;
 
 function TSysAccessRightRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
@@ -158,7 +158,7 @@ begin
   Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysAccessRightRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysAccessRight>;
+function TSysAccessRightRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysAccessRight>;
 var
   Q: TFDQuery;
   Item: TSysAccessRight;
@@ -419,8 +419,8 @@ begin
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysAccessRight) + ' WHERE locale = :locale and user_id = :user_id';
-    Q.ParamByName('user_id').AsLargeInt := AUserId.AsInt64;
+    Q.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysAccessRight) + ' WHERE locale = :locale and sys_user_id = :sys_user_id';
+    Q.ParamByName('sys_user_id').AsLargeInt := AUserId.AsInt64;
     Q.ParamByName('locale').AsString := TAppContext.Instance.CurrentUser.ActiveLanguage;
     Q.Open;
 
@@ -446,12 +446,12 @@ begin
   try
     Q.Connection := Connection;
 
-    LFilter.Add(TFilterCriterion.New('user_id', '=', ATargetUserId));
+    LFilter.Add(TFilterCriterion.New('sys_user_id', '=', ATargetUserId));
     DeleteBatch(LFilter);
 
-    Q.SQL.Text := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) + ' (permission_id, is_read, is_add, is_update, is_delete, is_special, user_id) ' +
-                  'SELECT permission_id, is_read, is_add, is_update, is_delete, is_special, :target_user_id ' +
-                  'FROM public.' + Self.GetTableName(TSysAccessRight) + ' WHERE user_id = :source_user_id';
+    Q.SQL.Text := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) + ' (sys_permission_id, is_read, is_add, is_update, is_delete, is_special, sys_user_id) ' +
+                  'SELECT sys_permission_id, is_read, is_add, is_update, is_delete, is_special, :target_user_id ' +
+                  'FROM public.' + Self.GetTableName(TSysAccessRight) + ' WHERE sys_user_id = :source_user_id';
     Q.ParamByName('target_user_id').AsLargeInt := ATargetUserId.AsInt64;
     Q.ParamByName('source_user_id').AsLargeInt := ASourceUserId.AsInt64;
     Q.ExecSQL;
@@ -468,11 +468,11 @@ begin
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) + ' (permission_id, is_read, is_add, is_update, is_delete, is_special, user_id) ' +
-                  'SELECT :permission_id, false, false, false, false, false, id FROM ' + Self.GetTableName(TSysUser) +
+    Q.SQL.Text := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) + ' (sys_permission_id, is_read, is_add, is_update, is_delete, is_special, sys_user_id) ' +
+                  'SELECT :sys_permission_id, false, false, false, false, false, id FROM ' + Self.GetTableName(TSysUser) +
                   ' WHERE active ' +
-                  'ON CONFLICT (permission_id, user_id) DO UPDATE SET permission_id = EXCLUDED.permission_id';
-    Q.ParamByName('permission_id').AsLargeInt := APermissionId.AsInt64;
+                  'ON CONFLICT (sys_permission_id, sys_user_id) DO UPDATE SET sys_permission_id = EXCLUDED.sys_permission_id';
+    Q.ParamByName('sys_permission_id').AsLargeInt := APermissionId.AsInt64;
     Q.ExecSQL;
   finally
     Q.Free;

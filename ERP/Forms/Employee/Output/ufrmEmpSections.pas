@@ -1,4 +1,4 @@
-unit ufrmEmpSections;
+﻿unit ufrmEmpSections;
 
 interface
 
@@ -26,11 +26,11 @@ function TfrmEmpSections.CreateInputForm(Sender: TObject; AFormMode: TInputFormM
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmEmpSection.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEmpSection.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmEmpSection.Create(Self, Service, TEmpSection.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEmpSection.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmEmpSection.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmEmpSections.DefineColumnWidths;
@@ -56,6 +56,7 @@ procedure TfrmEmpSections.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate('emp_section.title_plural', 'Bölümler');
+  SetColumnTitle('section_name', TLocalizationManager.Translate('emp_section.col_section_name', 'Bölüm Adı'));
 end;
 
 end.

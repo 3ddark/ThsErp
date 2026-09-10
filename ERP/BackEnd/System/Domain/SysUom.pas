@@ -18,9 +18,6 @@ type
 
     FSysLanguage: TSysLanguage;
   public
-    constructor Create; override;
-    destructor Destroy; override;
-
     [Column('sys_uom_id', [cpPrimaryKey, cpNotNull])]
     property SysUomId: Int64 read FSysUomId write FSysUomId;
 
@@ -33,6 +30,11 @@ type
 
     [BelongsTo('SysLanguageId', 'Id')]
     property SysLanguage: TSysLanguage read FSysLanguage write FSysLanguage;
+
+    constructor Create; override;
+    destructor Destroy; override;
+
+    function Clone: TSysUomTranslation;
   end;
 
   [Table('sys_uom')]
@@ -46,9 +48,6 @@ type
     FSysUomGroup: TSysUomGroup;
     FTranslations: TObjectList<TSysUomTranslation>;
   public
-    constructor Create; override;
-    destructor Destroy; override;
-
     [Column('unit_code'), MaxLength(16), Required()]
     property UnitCode: string read FUnitCode write FUnitCode;
 
@@ -69,6 +68,11 @@ type
 
     [HasMany('SysUomId', 'Id')]
     property Translations: TObjectList<TSysUomTranslation> read FTranslations write FTranslations;
+
+    constructor Create; override;
+    destructor Destroy; override;
+
+    function Clone: TSysUom;
   end;
 
 implementation
@@ -78,8 +82,8 @@ begin
   inherited;
   FDecimal := False;
   FMultiplier := 1;
-  FSysUomGroup := TSysUomGroup.Create;
-  FTranslations := TObjectList<TSysUomTranslation>.Create(True);
+  FSysUomGroup := nil;
+  FTranslations := nil;
 end;
 
 destructor TSysUom.Destroy;
@@ -87,6 +91,26 @@ begin
   FSysUomGroup.Free;
   FTranslations.Free;
   inherited;
+end;
+
+function TSysUom.Clone: TSysUom;
+var
+  item: TSysUomTranslation;
+begin
+  Result := TSysUom.Create;
+  Result.UnitCode := Self.UnitCode;
+  Result.UnitEInv := Self.UnitEInv;
+  Result.Decimal := Self.Decimal;
+  Result.GroupId := Self.GroupId;
+  Result.Multiplier := Self.Multiplier;
+
+  if Assigned(Self.SysUomGroup) then
+    Result.SysUomGroup := Self.SysUomGroup;
+
+  Result.Translations := TObjectList<TSysUomTranslation>.Create(True);
+  if Assigned(Self.Translations) then
+    for item in Self.Translations do
+      Result.Translations.Add(item.Clone);
 end;
 
 constructor TSysUomTranslation.Create;
@@ -99,6 +123,17 @@ destructor TSysUomTranslation.Destroy;
 begin
   FSysLanguage.Free;
   inherited;
+end;
+
+function TSysUomTranslation.Clone: TSysUomTranslation;
+begin
+  Result := TSysUomTranslation.Create;
+  Result.SysUomId := Self.SysUomId;
+  Result.SysLanguageId := Self.SysLanguageId;
+  Result.Name := Self.Name;
+
+  if Assigned(Self.SysLanguage) then
+    Result.SysLanguage := Self.SysLanguage.Clone;
 end;
 
 end.

@@ -21,7 +21,7 @@ type
 
     function FindById(AId: TValue; ALock: Boolean = False): TAccAccountAddress; override;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TAccAccountAddress; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TAccAccountAddress>; override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TAccAccountAddress>; override;
 
     procedure Add(AModel: TAccAccountAddress); override;
     procedure AddBatch(AModels: TArray<TAccAccountAddress>); override;
@@ -310,7 +310,7 @@ begin
   end;
 end;
 
-function TAccAccountAddressRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<TAccAccountAddress>;
+function TAccAccountAddressRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TAccAccountAddress>;
 var
   Q: TFDQuery;
   Item: TAccAccountAddress;

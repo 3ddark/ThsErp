@@ -61,6 +61,7 @@ type
     FInfo                 : string;
     FWrongDateMessage     : string;
     FOldValue             : string;
+    FLocale: string;
 
     DatePicker: TDateTimePicker;
 
@@ -119,6 +120,7 @@ type
     property thsInfo                 : string          read FInfo;
     property thsWrongDateMessage     : string          read FWrongDateMessage      write FWrongDateMessage;
     property thsOldValue             : string          read FOldValue              write FOldValue;
+    property thsLocale: string read FLocale write FLocale;
 
     function moneyToDouble: Double;
   end;

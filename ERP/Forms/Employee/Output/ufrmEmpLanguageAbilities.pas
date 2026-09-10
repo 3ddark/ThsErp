@@ -1,4 +1,4 @@
-unit ufrmEmpLanguageAbilities;
+﻿unit ufrmEmpLanguageAbilities;
 
 interface
 
@@ -26,11 +26,11 @@ function TfrmEmpLanguageAbilities.CreateInputForm(Sender: TObject; AFormMode: TI
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmEmpLanguageAbility.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEmpLanguageAbility.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmEmpLanguageAbility.Create(Self, Service, TEmpLanguageAbility.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEmpLanguageAbility.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmEmpLanguageAbility.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmEmpLanguageAbilities.DefineColumnWidths;

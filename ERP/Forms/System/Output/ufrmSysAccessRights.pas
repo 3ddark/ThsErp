@@ -2,11 +2,13 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants, System.UITypes, System.Classes,
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes, System.UITypes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus,
-  ufrmGrid, SharedFormTypes, SysAccessRight.Service, SysAccessRight,
-  ufrmSysAccessRight, LocalizationManager;
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysAccessRight.Service, SysAccessRight, ufrmSysAccessRight;
 
 type
   TfrmSysAccessRights = class(TfrmGrid<TSysAccessRight, TSysAccessRightService>)
@@ -33,11 +35,11 @@ function TfrmSysAccessRights.CreateInputForm(Sender: TObject; AFormMode: TInputF
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysAccessRight.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysAccessRight.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysAccessRight.Create(Self, Service, TSysAccessRight.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysAccessRight.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysAccessRight.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysAccessRights.PreparePopupMenu;
@@ -58,7 +60,6 @@ begin
   LSourceUsername := '';
   LTargetUsername := '';
 
-  // 1. Select Source User
   LFrmSourceUser := TfrmSysUsers.Create(Self, TSysUserService.Create, TSysUser.Create);
   try
     LFrmSourceUser.IsHelper := True;
@@ -75,7 +76,6 @@ begin
 
   if LSourceUserId = 0 then Exit;
 
-  // 2. Select Target User
   LFrmTargetUser := TfrmSysUsers.Create(Self, TSysUserService.Create, TSysUser.Create);
   try
     LFrmTargetUser.IsHelper := True;
@@ -98,7 +98,6 @@ begin
     Exit;
   end;
 
-  // 3. Confirm and copy
   if MessageDlg(Format(TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgConfirmCopy, 'Are you sure you want to copy all rights of user "%s" to user "%s"?' + sLineBreak +
                        'Note: The target user is existing rights will be deleted, and the source user is rights will be copied.'),
                        [LSourceUsername, LTargetUsername]),
@@ -131,21 +130,10 @@ procedure TfrmSysAccessRights.DefineColumnWidths;
   end;
 begin
   inherited;
-  SetColumnProperty('id',              0, '');
-  SetColumnProperty('permission_id',   0, '');
-  SetColumnProperty('user_id',         0, '');
-  SetColumnProperty('locale',          0, '');
-
-//  SetColumnProperty('username',      120, TLocalizationManager.Translate('sys_access_right.col_username', 'Username'));
-//  SetColumnProperty('full_name', 150, TLocalizationManager.Translate('sys_access_right.col_user_full_name', 'Full Name'));
-//  SetColumnProperty('permission_name', 160, TLocalizationManager.Translate('sys_access_right.col_permission_name', 'Permission Name'));
-//  SetColumnProperty('permission_group', 160, TLocalizationManager.Translate('sys_access_right.col_permission_group', 'Permission Group'));
-//  SetColumnProperty('code', 70, TLocalizationManager.Translate('sys_access_right.col_code', 'Code'));
-//  SetColumnProperty('is_read',        50, TLocalizationManager.Translate('sys_access_right.col_is_read', 'Read'));
-//  SetColumnProperty('is_add',         50, TLocalizationManager.Translate('sys_access_right.col_is_add', 'Add'));
-//  SetColumnProperty('is_update',      60, TLocalizationManager.Translate('sys_access_right.col_is_update', 'Update'));
-//  SetColumnProperty('is_delete',      60, TLocalizationManager.Translate('sys_access_right.col_is_delete', 'Delete'));
-//  SetColumnProperty('is_special',     70, TLocalizationManager.Translate('sys_access_right.col_is_special', 'Special'));
+  SetColumnProperty('id', 0);
+  SetColumnProperty('sys_permission_id', 0);
+  SetColumnProperty('sys_user_id', 0);
+  SetColumnProperty('locale', 0);
 end;
 
 procedure TfrmSysAccessRights.DefineFooterColumns;
@@ -170,14 +158,17 @@ begin
 
   SetColumnTitle('username', TLocalizationManager.Translate(TLangKeys.TSysUser.ColUserName, 'Username'));
   SetColumnTitle('full_name', TLocalizationManager.Translate(TLangKeys.TEmpEmployee.ColFullName, 'Full Name'));
+  SetColumnTitle('permission_code', TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionCode, 'Permission Code'));
   SetColumnTitle('permission_name', TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionName, 'Permission Name'));
-  SetColumnTitle('permission_group', TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Permission Group'));
-  SetColumnTitle('code', TLocalizationManager.Translate(TLangKeys.TSysPermission.ColCode, 'Code'));
+  SetColumnTitle('permission_group_name', TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Permission Group'));
+  SetColumnTitle('sys_permission_id', TLocalizationManager.Translate(TLangKeys.TSysUser.ColSysPermissionId, 'SysPermission Id'));
   SetColumnTitle('is_read', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColRead, 'Read'));
   SetColumnTitle('is_add', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColAdd, 'Add'));
   SetColumnTitle('is_update', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColUpdate, 'Update'));
   SetColumnTitle('is_delete', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColDelete, 'Delete'));
   SetColumnTitle('is_special', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColSpecial, 'Special'));
+  SetColumnTitle('sys_user_id', TLocalizationManager.Translate(TLangKeys.TSysUser.ColSysUserId, 'SysUser Id'));
+  SetColumnTitle('locale', TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
 end;
 
 end.

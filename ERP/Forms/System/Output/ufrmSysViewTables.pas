@@ -5,10 +5,10 @@ interface
 {$I Ths.inc}
 
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysViewTable.Service, SysViewTable, LocalizationManager;
-
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysViewTable.Service, SysViewTable;
 
 type
   TfrmSysViewTables = class(TfrmGrid<TSysViewTable, TSysViewTableService>)

@@ -1,4 +1,4 @@
-unit ufrmEmpDriverLicenceTypes;
+﻿unit ufrmEmpDriverLicenceTypes;
 
 interface
 
@@ -26,11 +26,11 @@ function TfrmEmpDriverLicenceTypes.CreateInputForm(Sender: TObject; AFormMode: T
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmEmpDriverLicenceType.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEmpDriverLicenceType.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmEmpDriverLicenceType.Create(Self, Service, TEmpDriverLicenseType.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEmpDriverLicenceType.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmEmpDriverLicenceType.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmEmpDriverLicenceTypes.DefineColumnWidths;

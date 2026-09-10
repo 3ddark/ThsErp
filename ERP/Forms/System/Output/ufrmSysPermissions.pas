@@ -2,11 +2,13 @@ unit ufrmSysPermissions;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysPermission.Service, SysPermission, ufrmSysPermission,
-  LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysPermission.Service, SysPermission, ufrmSysPermission;
 
 type
   TfrmSysPermissions = class(TfrmGrid<TSysPermission, TSysPermissionService>)
@@ -26,24 +28,24 @@ function TfrmSysPermissions.CreateInputForm(Sender: TObject; AFormMode: TInputFo
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysPermission.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysPermission.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysPermission.Create(Self, Service, TSysPermission.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysPermission.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysPermission.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysPermissions.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',          0, 'Id');
-  SetColumnProperty('code',      100, TLocalizationManager.Translate(TLangKeys.TSysPermission.ColCode, 'Permission Code'));
-  SetColumnProperty('key',       150, TLocalizationManager.Translate(TLangKeys.TSysPermission.ColKey, 'Key'));
-  SetColumnProperty('name',      250, TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionName, 'Permission Name'));
-  SetColumnProperty('group_id',    0, 'Group ID');
-  SetColumnProperty('group_key', 120, TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupKey, 'Group Key'));
-  SetColumnProperty('group_name', 200, TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Group Name'));
-  SetColumnProperty('locale',      0, TLocalizationManager.Translate('sys_permission.col_locale', 'Locale'));
+  SetColumnProperty('id', 0);
+  SetColumnProperty('code', 100);
+  SetColumnProperty('key', 150);
+  SetColumnProperty('name', 250);
+  SetColumnProperty('group_id', 0);
+  SetColumnProperty('group_key', 120);
+  SetColumnProperty('group_name', 200);
+  SetColumnProperty('locale', 0);
 end;
 
 procedure TfrmSysPermissions.DefineFooterColumns;
@@ -62,6 +64,14 @@ procedure TfrmSysPermissions.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.TitlePlural, 'Permissions');
+
+  SetColumnTitle('code',      TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionCode, 'Permission Code'));
+  SetColumnTitle('key',       TLocalizationManager.Translate(TLangKeys.TSysPermission.ColKey, 'Key'));
+  SetColumnTitle('name',      TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionName, 'Permission Name'));
+  SetColumnTitle('group_id',  TLocalizationManager.Translate(TLangKeys.TSysPermission.ColGroupId, 'Group Id'));
+  SetColumnTitle('group_key',  TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupKey, 'Group Key'));
+  SetColumnTitle('group_name', TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Group Name'));
+  SetColumnTitle('locale',     TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
 end;
 
 end.

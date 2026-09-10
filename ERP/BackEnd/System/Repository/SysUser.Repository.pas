@@ -22,7 +22,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysUser>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysUser>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysUser; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysUser; override;
 
@@ -54,8 +54,8 @@ end;
 function TSysUserRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSysUser) +
-            ' (username, user_password, active, manager, super_user, ip_address, mac_address, person_id) ' +
-            ' VALUES (:username, :user_password, :active, :manager, :super_user, :ip_address, :mac_address, :person_id)';
+            ' (username, user_password, active, manager, super_user, ip_address, mac_address, emp_employee_id) ' +
+            ' VALUES (:username, :user_password, :active, :manager, :super_user, :ip_address, :mac_address, :emp_employee_id)';
 end;
 
 function TSysUserRepository.PrepareUpdateSql: string;
@@ -63,7 +63,7 @@ begin
   Result := 'UPDATE public.' + Self.GetTableName(TSysUser) +
             ' SET username = :username, active = :active, ' +//user_password = :user_password,
             '     manager = :manager, super_user = :super_user, ip_address = :ip_address, ' +
-            '     mac_address = :mac_address, person_id = :person_id ' +
+            '     mac_address = :mac_address, emp_employee_id = :emp_employee_id ' +
             ' WHERE id = :id';
 end;
 
@@ -84,7 +84,7 @@ begin
     Q.ParamByName('super_user').AsBoolean := AModel.SuperUser;
     Q.ParamByName('ip_address').AsString := AModel.IpAddress;
     Q.ParamByName('mac_address').AsString := AModel.MacAddress;
-    Q.ParamByName('person_id').AsLargeInt := AModel.PersonId;
+    Q.ParamByName('emp_employee_id').AsLargeInt := AModel.EmpEmployeeId;
   end
   else
   begin
@@ -95,7 +95,7 @@ begin
     Q.ParamByName('super_user').AsBooleans[AIndex] := AModel.SuperUser;
     Q.ParamByName('ip_address').AsStrings[AIndex] := AModel.IpAddress;
     Q.ParamByName('mac_address').AsStrings[AIndex] := AModel.MacAddress;
-    Q.ParamByName('person_id').AsLargeInts[AIndex] := AModel.PersonId;
+    Q.ParamByName('emp_employee_id').AsLargeInts[AIndex] := AModel.EmpEmployeeId;
   end;
 end;
 
@@ -111,7 +111,7 @@ begin
     Q.ParamByName('super_user').AsBoolean := AModel.SuperUser;
     Q.ParamByName('ip_address').AsString := AModel.IpAddress;
     Q.ParamByName('mac_address').AsString := AModel.MacAddress;
-    Q.ParamByName('person_id').AsLargeInt := AModel.PersonId;
+    Q.ParamByName('emp_employee_id').AsLargeInt := AModel.EmpEmployeeId;
   end
   else
   begin
@@ -123,7 +123,7 @@ begin
     Q.ParamByName('super_user').AsBooleans[AIndex] := AModel.SuperUser;
     Q.ParamByName('ip_address').AsStrings[AIndex] := AModel.IpAddress;
     Q.ParamByName('mac_address').AsStrings[AIndex] := AModel.MacAddress;
-    Q.ParamByName('person_id').AsLargeInts[AIndex] := AModel.PersonId;
+    Q.ParamByName('emp_employee_id').AsLargeInts[AIndex] := AModel.EmpEmployeeId;
   end;
 end;
 
@@ -138,7 +138,7 @@ begin
   Result.SuperUser    := Q.FieldByName('super_user').AsBoolean;
   Result.IpAddress    := Q.FieldByName('ip_address').AsString;
   Result.MacAddress   := Q.FieldByName('mac_address').AsString;
-  Result.PersonId     := Q.FieldByName('person_id').AsLargeInt;
+  Result.EmpEmployeeId:= Q.FieldByName('emp_employee_id').AsLargeInt;
 end;
 
 function TSysUserRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
@@ -147,7 +147,7 @@ var
 begin
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysUser) + ' WHERE 1=1 ';
+  Result.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysUser) + ' WHERE locale = :locale ';
 
   if Assigned(AFilter) and (AFilter.Count > 0) then
   begin
@@ -156,9 +156,10 @@ begin
     for Criteria in AFilter do
       Result.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
   end;
+  Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysUserRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysUser>;
+function TSysUserRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysUser>;
 var
   Q: TFDQuery;
   Item: TSysUser;

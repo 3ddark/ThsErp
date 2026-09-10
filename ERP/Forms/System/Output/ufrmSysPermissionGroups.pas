@@ -2,11 +2,13 @@ unit ufrmSysPermissionGroups;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, SysPermissionGroup.Service, SysPermissionGroup, ufrmSysPermissionGroup,
-  LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  SysPermissionGroup.Service, SysPermissionGroup, ufrmSysPermissionGroup;
 
 type
   TfrmSysPermissionGroups = class(TfrmGrid<TSysPermissionGroup, TSysPermissionGroupService>)
@@ -26,11 +28,11 @@ function TfrmSysPermissionGroups.CreateInputForm(Sender: TObject; AFormMode: TIn
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSysPermissionGroup.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSysPermissionGroup.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmSysPermissionGroup.Create(Self, Service, TSysPermissionGroup.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmSysPermissionGroup.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSysPermissionGroup.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmSysPermissionGroups.DefineColumnWidths;

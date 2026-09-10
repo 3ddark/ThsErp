@@ -2,7 +2,7 @@ object frmSysUom: TfrmSysUom
   Left = 0
   Top = 0
   Caption = 'frmSysUom'
-  ClientHeight = 220
+  ClientHeight = 244
   ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,9 +17,10 @@ object frmSysUom: TfrmSysUom
     Left = 0
     Top = 0
     Width = 500
-    Height = 220
+    Height = 244
     Align = alClient
     TabOrder = 0
+    ExplicitHeight = 220
     object lblUnit: TLabel
       Left = 105
       Top = 6
@@ -38,7 +39,7 @@ object frmSysUom: TfrmSysUom
     end
     object lblUnitEInv: TLabel
       Left = 48
-      Top = 29
+      Top = 27
       Width = 80
       Height = 13
       Alignment = taRightJustify
@@ -52,41 +53,9 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblDescriptionEN: TLabel
-      Left = 12
-      Top = 52
-      Width = 116
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = 'Description (English)'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
-    object lblDescriptionTR: TLabel
-      Left = 12
-      Top = 76
-      Width = 116
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = 'Description (T'#252'rk'#231'e)'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
     object lblDecimal: TLabel
       Left = 83
-      Top = 100
+      Top = 119
       Width = 45
       Height = 13
       Alignment = taRightJustify
@@ -102,7 +71,7 @@ object frmSysUom: TfrmSysUom
     end
     object lblMeasureTypeId: TLabel
       Left = 48
-      Top = 120
+      Top = 139
       Width = 80
       Height = 13
       Alignment = taRightJustify
@@ -118,7 +87,7 @@ object frmSysUom: TfrmSysUom
     end
     object lblMultiplier: TLabel
       Left = 75
-      Top = 144
+      Top = 163
       Width = 53
       Height = 13
       Alignment = taRightJustify
@@ -141,45 +110,39 @@ object frmSysUom: TfrmSysUom
     end
     object edtUnitEInv: TEdit
       Left = 132
-      Top = 25
+      Top = 23
       Width = 333
       Height = 22
       TabOrder = 1
     end
-    object edtDescriptionEN: TEdit
-      Left = 132
-      Top = 48
-      Width = 333
-      Height = 22
-      TabOrder = 2
-    end
-    object edtDescriptionTR: TEdit
-      Left = 132
-      Top = 72
-      Width = 333
-      Height = 22
-      TabOrder = 3
-    end
     object chkDecimal: TCheckBox
       Left = 132
-      Top = 98
+      Top = 117
       Width = 333
       Height = 17
-      TabOrder = 4
+      TabOrder = 3
     end
     object edtMeasureTypeId: TEdit
       Left = 132
-      Top = 116
+      Top = 135
+      Width = 333
+      Height = 22
+      TabOrder = 4
+    end
+    object edtMultiplier: TEdit
+      Left = 132
+      Top = 159
       Width = 333
       Height = 22
       TabOrder = 5
     end
-    object edtMultiplier: TEdit
-      Left = 132
-      Top = 140
-      Width = 333
-      Height = 22
-      TabOrder = 6
+    object scrlbxTranslations: TScrollBox
+      Left = 8
+      Top = 44
+      Width = 480
+      Height = 72
+      HorzScrollBar.Visible = False
+      TabOrder = 2
     end
   end
 end

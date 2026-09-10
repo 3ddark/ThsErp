@@ -18,6 +18,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TEmpLanguageLevel;
   end;
 
 implementation
@@ -31,6 +33,12 @@ destructor TEmpLanguageLevel.Destroy;
 begin
 
   inherited;
+end;
+
+function TEmpLanguageLevel.Clone: TEmpLanguageLevel;
+begin
+  Result := TEmpLanguageLevel.Create;
+  Result.LanguageLevel := Self.LanguageLevel;
 end;
 
 end.

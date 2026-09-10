@@ -24,11 +24,11 @@ function TfrmAccAccountPlans.CreateInputForm(Sender: TObject; AFormMode: TInputF
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmAccAccountPlan.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmAccAccountPlan.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmAccAccountPlan.Create(Self, Service, TAccAccountPlan.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmAccAccountPlan.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmAccAccountPlan.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmAccAccountPlans.DefineColumnWidths;

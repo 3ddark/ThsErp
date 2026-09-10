@@ -22,7 +22,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysDecimalPlace>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysDecimalPlace>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysDecimalPlace; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysDecimalPlace; override;
 
@@ -139,7 +139,7 @@ begin
   end;
 end;
 
-function TSysDecimalPlaceRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysDecimalPlace>;
+function TSysDecimalPlaceRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysDecimalPlace>;
 var
   Q: TFDQuery;
   Item: TSysDecimalPlace;

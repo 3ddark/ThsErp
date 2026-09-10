@@ -22,7 +22,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysAddress>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysAddress>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysAddress; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysAddress; override;
 
@@ -170,7 +170,7 @@ begin
   end;
 end;
 
-function TSysAddressRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysAddress>;
+function TSysAddressRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysAddress>;
 var
   Q: TFDQuery;
   Item: TSysAddress;

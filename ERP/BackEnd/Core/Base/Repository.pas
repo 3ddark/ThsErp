@@ -15,7 +15,7 @@ type
 
     function FindById(AId: TValue; ALock: Boolean = False): T;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<T>;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<T>;
 
     procedure Add(AModel: T); overload;
     procedure AddBatch(AModels: TArray<T>); overload;
@@ -49,7 +49,7 @@ type
 
     function DoFindById(AId: TValue; ALock: Boolean = False): T; virtual; abstract;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T; virtual; abstract;
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<T>; virtual; abstract;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<T>; virtual; abstract;
 
     procedure DoAdd(AModel: T); virtual; abstract;
     procedure DoAddBatch(AModels: TArray<T>); virtual; abstract;
@@ -67,7 +67,7 @@ type
 
     function FindById(AId: TValue; ALock: Boolean = False): T; virtual;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T; virtual;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TList<T>; virtual;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<T>; virtual;
 
     procedure Add(AModel: T); virtual;
     procedure AddBatch(AModels: TArray<T>); virtual;
@@ -179,7 +179,7 @@ begin
   GLogger.InfoFmt('FindAllGridQuery Done %s', [Self.ClassName]);
 end;
 
-function TRepository<T>.Find(AFilter: TFilterCriteria; ALock: Boolean): TList<T>;
+function TRepository<T>.Find(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<T>;
 begin
   GLogger.InfoFmt('Find %s', [Self.ClassName]);
   Result := DoFind(AFilter, ALock);

@@ -598,17 +598,29 @@ end;
 
 procedure TfrmDashboard.actsys_decimal_placeExecute(Sender: TObject);
 var
-  LSvc: TSysDecimalPlaceService;
+  LSvc         : TSysDecimalPlaceService;
+  LDecimalPlace: TSysDecimalPlace;
+  LFilter      : TFilterCriteria;
 begin
-  LSvc := TSysDecimalPlaceService.Create;
+  LSvc    := TSysDecimalPlaceService.Create;
+  LFilter := TFilterCriteria.Create;
   try
-    var LDecimalPlace: TSysDecimalPlace;
-    LDecimalPlace := LSvc.FindOne(TFilterCriteria.Create, False);
+    LDecimalPlace := LSvc.FindOne(LFilter, False);
+    // LDecimalPlace ownership input form'a geçiyor — form free eder
     if LDecimalPlace = nil then
-      TfrmSysDecimalPlace.Create(Self, TSysDecimalPlaceService.Create, TSysDecimalPlace.Create, ifmNewRecord, nil, ivmNormal).Show
+      TfrmSysDecimalPlace.Create(
+        Self,
+        TSysDecimalPlaceService.Create,
+        TSysDecimalPlace.Create,
+        ifmNewRecord, nil, ivmNormal).Show
     else
-      TfrmSysDecimalPlace.Create(Self, TSysDecimalPlaceService.Create, LDecimalPlace, ifmRewiev, nil, ivmNormal).Show;
+      TfrmSysDecimalPlace.Create(
+        Self,
+        TSysDecimalPlaceService.Create,
+        LDecimalPlace,
+        ifmRewiev, nil, ivmNormal).Show;
   finally
+    LFilter.Free;
     LSvc.Free;
   end;
 end;
@@ -668,7 +680,7 @@ begin
       TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'No')
     ],
     mbNo,
-    TLocalizationManager.Translate(TLangKeys.TMessage.UpdateConfirmation, 'Confirm Update')
+    TLocalizationManager.Translate(TLangKeys.TMessage.UpdateConfirmation, 'Confirmation')
   ) = mrYes then
     UpdateApplicationExe;
 end;
@@ -699,7 +711,7 @@ begin
       TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'No')
     ],
     mbNo,
-    TLocalizationManager.Translate(TLangKeys.TGeneral.Confirmation, 'Approve')
+    TLocalizationManager.Translate(TLangKeys.TGeneral.Confirmation, 'Confirmation')
   ) = mrYes then
     inherited;
 end;
@@ -728,7 +740,7 @@ begin
         TLocalizationManager.Translate('btn.update_later', 'No Update later')
       ],
       mbNo,
-      TLocalizationManager.Translate(TLangKeys.TMessage.UserUpdateConfirmation, 'Update | User Confirmation')
+      TLocalizationManager.Translate(TLangKeys.TMessage.UserUpdateConfirmation, 'Confirmation')
     );
     if LMr = mrYes then
       UpdateApplicationExe
@@ -1146,59 +1158,55 @@ procedure TfrmDashboard.FormShow(Sender: TObject);
 begin
   inherited;
 
-  addPanel(80, psOwnerDraw);
-  addPanel(80, psOwnerDraw);
-  addPanel(80, psOwnerDraw);
-  addPanel(80, psOwnerDraw);
-  addPanel(80, psOwnerDraw);
-  addPanel(80, psOwnerDraw);
-  addPanel(80, psOwnerDraw);
-  addPanel(80, psOwnerDraw);
+  // FIX: Panel eklemeyi bir kez yap
+  if stbBase.Panels.Count = 0 then
+  begin
+    AddPanel(80, psOwnerDraw); // STATUS_RECORD_COUNT
+    AddPanel(80, psOwnerDraw); // STATUS_SQL_SERVER
+    AddPanel(80, psOwnerDraw); // STATUS_DATE
+    AddPanel(80, psOwnerDraw); // STATUS_USERNAME
+    AddPanel(80, psOwnerDraw); // STATUS_KEY_F4
+    AddPanel(80, psOwnerDraw); // STATUS_KEY_F5
+    AddPanel(80, psOwnerDraw); // STATUS_KEY_F6
+    AddPanel(80, psOwnerDraw); // STATUS_KEY_F7 / F11
+  end;
 
-  if stbBase.Panels.Count >= STATUS_SQL_SERVER+1 then
+  if TConnectionManager.Instance.IsConnected(ContextMain) then
+  begin
+    if stbBase.Panels.Count > STATUS_SQL_SERVER then
+      stbBase.Panels.Items[STATUS_SQL_SERVER].Text :=
+        TConnectionManager.Instance.GetConnection(ContextMain)
+          .Params.Values['Server'];
 
-    if TConnectionManager.Instance.GetConnection(ContextMain).Connected then
-      stbBase.Panels.Items[STATUS_SQL_SERVER].Text := TConnectionManager.Instance.GetConnection(ContextMain).Params.Values['Server'];
-
-  if stbBase.Panels.Count >= STATUS_DATE+1 then
-    if TConnectionManager.Instance.GetConnection(ContextMain).Connected then
+    if stbBase.Panels.Count > STATUS_DATE then
       stbBase.Panels.Items[STATUS_DATE].Text := DateToStr(Now);
+  end;
 
-  if stbBase.Panels.Count >= STATUS_USERNAME+1 then
-
-    if TConnectionManager.Instance.GetConnection(ContextMain).Connected then
-      stbBase.Panels.Items[STATUS_USERNAME].Text := TAppContext.Instance.CurrentUser.GetUsername;
+  if Assigned(TAppContext.Instance.CurrentUser) and
+     (stbBase.Panels.Count > STATUS_USERNAME) then
+    stbBase.Panels.Items[STATUS_USERNAME].Text :=
+      TAppContext.Instance.CurrentUser.GetUsername;
 
   ApplyLocalization;
-
-
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
 
-//  if GSysKullanici.IsYonetici.Value then
-//  begin
-    mnimenu_system.Visible := True;
-//  end
-//  else
-  begin
-//    mnimenu_system.Visible := False;
-
-    tsemployee.TabVisible := False;
-    tsaccount.TabVisible := False;
-    tsstock.TabVisible := False;
-    tssales.TabVisible := False;
-    tsgeneral.TabVisible := False;
-  end;
+  mnimenu_system.Visible := True;
+  tsemployee.TabVisible  := False;
+  tsaccount.TabVisible   := False;
+  tsstock.TabVisible     := False;
+  tssales.TabVisible     := False;
+  tsgeneral.TabVisible   := False;
 
   FocusedFirstControl(PageControl1.ActivePage);
 
   tmrcheck_is_update_required.Enabled := True;
-
   Caption := Caption + ' v' + APP_VERSION;
 
-  SetSession();
+  SetSession;
   FIsFormShow := False;
 
-  TUnitOfWork.Initialize(TConnectionManager.Instance.GetConnection(ContextMain));
+  // FIX: TUnitOfWork.Initialize login'de zaten çağrıldı
+  // Burada tekrar çağırmak gerekmiyor — sadece bağlantı kontrolü
   BuildLanguageMenu;
 end;
 

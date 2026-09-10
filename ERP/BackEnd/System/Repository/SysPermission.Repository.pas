@@ -28,7 +28,7 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TList<TSysPermission>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysPermission>; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysPermission; override;
     function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysPermission; override;
 
@@ -107,14 +107,14 @@ begin
     while not Q.Eof do
     begin
       Trans := TSysPermissionTranslation.Create;
-      Trans.PermissionId := Q.FieldByName('sys_permission_id').AsLargeInt;
-      Trans.LanguageId := Q.FieldByName('sys_language_id').AsLargeInt;
+      Trans.SysPermissionId := Q.FieldByName('sys_permission_id').AsLargeInt;
+      Trans.SysLanguageId := Q.FieldByName('sys_language_id').AsLargeInt;
       Trans.Name := Q.FieldByName('name').AsWideString;
 
-      Trans.Language := TSysLanguage.Create;
-      Trans.Language.Id := Q.FieldByName('sys_language_id').AsLargeInt;
-      Trans.Language.Locale := Q.FieldByName('locale').AsWideString;
-      Trans.Language.NativeName := Q.FieldByName('native_name').AsWideString;
+      Trans.SysLanguage := TSysLanguage.Create;
+      Trans.SysLanguage.Id := Trans.SysLanguageId;
+      Trans.SysLanguage.Locale := Q.FieldByName('locale').AsWideString;
+      Trans.SysLanguage.NativeName := Q.FieldByName('native_name').AsWideString;
 
       AModel.Translations.Add(Trans);
       Q.Next;
@@ -138,9 +138,9 @@ begin
     Q.SQL.Text := PrepareSaveTranslationSql;
     for Trans in AModel.Translations do
     begin
-      Trans.PermissionId := AModel.Id;
-      Q.ParamByName('sys_permission_id').AsLargeInt := Trans.PermissionId;
-      Q.ParamByName('sys_language_id').AsLargeInt := Trans.LanguageId;
+      Trans.SysPermissionId := AModel.Id;
+      Q.ParamByName('sys_permission_id').AsLargeInt := Trans.SysPermissionId;
+      Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;
       Q.ParamByName('name').AsWideString := Trans.Name;
       Q.ExecSQL;
     end;
@@ -161,7 +161,7 @@ begin
   begin
     Q.ParamByName('code').AsIntegers[AIndex]        := AModel.Code;
     Q.ParamByName('group_id').AsLargeInts[AIndex]   := AModel.GroupId;
-    Q.ParamByName('key').AsWideStrings[AIndex]          := AModel.Key;
+    Q.ParamByName('key').AsWideStrings[AIndex]      := AModel.Key;
   end;
 end;
 
@@ -210,7 +210,7 @@ begin
   Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
-function TSysPermissionRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TList<TSysPermission>;
+function TSysPermissionRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysPermission>;
 var
   Q: TFDQuery;
   Item: TSysPermission;

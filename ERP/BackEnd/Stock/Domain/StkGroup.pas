@@ -12,7 +12,7 @@ type
   TStkGroup = class(TEntity)
   private
     FGroupName: string;
-    FWatRate: Double;
+    FVatRate: Double;
     FRawMaterialStockAccount: string;
     FRawMaterialUsageAccount: string;
     FSemiProductAccount: string;
@@ -21,7 +21,7 @@ type
     Property GroupName: string read FGroupName write FGroupName;
 
     [Column('vat_rate')]
-    Property VatRate: Double read FWatRate write FWatRate;
+    Property VatRate: Double read FVatRate write FVatRate;
 
     [Column('raw_material_stock_account')]
     Property RawMaterialStockAccount: string read FRawMaterialStockAccount write FRawMaterialStockAccount;
@@ -34,6 +34,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TStkGroup;
   end;
 
 implementation
@@ -46,6 +48,16 @@ end;
 destructor TStkGroup.Destroy;
 begin
   inherited;
+end;
+
+function TStkGroup.Clone: TStkGroup;
+begin
+  Result := TStkGroup.Create;
+  Result.GroupName := Self.GroupName;
+  Result.VatRate := Self.VatRate;
+  Result.RawMaterialStockAccount := Self.RawMaterialStockAccount;
+  Result.RawMaterialUsageAccount := Self.RawMaterialUsageAccount;
+  Result.SemiProductAccount := Self.SemiProductAccount;
 end;
 
 end.

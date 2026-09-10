@@ -26,11 +26,11 @@ function TfrmEmpLanguageLevels.CreateInputForm(Sender: TObject; AFormMode: TInpu
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmEmpLanguageLevel.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEmpLanguageLevel.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmEmpLanguageLevel.Create(Self, Service, TEmpLanguageLevel.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEmpLanguageLevel.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmEmpLanguageLevel.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmEmpLanguageLevels.DefineColumnWidths;

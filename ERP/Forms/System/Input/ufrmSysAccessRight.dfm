@@ -2,7 +2,7 @@ object frmSysAccessRight: TfrmSysAccessRight
   Left = 0
   Top = 0
   Caption = 'Access Right'
-  ClientHeight = 212
+  ClientHeight = 176
   ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,12 +16,13 @@ object frmSysAccessRight: TfrmSysAccessRight
     Left = 0
     Top = 0
     Width = 500
-    Height = 212
+    Height = 176
     Align = alClient
     TabOrder = 0
+    ExplicitHeight = 212
     object lblUserId: TLabel
       Left = 60
-      Top = 11
+      Top = 6
       Width = 26
       Height = 13
       Alignment = taRightJustify
@@ -35,7 +36,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object lblPermissionId: TLabel
       Left = 24
-      Top = 41
+      Top = 27
       Width = 62
       Height = 13
       Alignment = taRightJustify
@@ -49,7 +50,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object edtUserId: TEdit
       Left = 88
-      Top = 7
+      Top = 2
       Width = 350
       Height = 22
       ReadOnly = True
@@ -57,7 +58,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object edtPermissionId: TEdit
       Left = 88
-      Top = 37
+      Top = 23
       Width = 350
       Height = 22
       ReadOnly = True
@@ -65,7 +66,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object chkIsRead: TCheckBox
       Left = 88
-      Top = 70
+      Top = 48
       Width = 140
       Height = 17
       Caption = 'Read'
@@ -73,7 +74,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object chkIsAdd: TCheckBox
       Left = 238
-      Top = 70
+      Top = 48
       Width = 140
       Height = 17
       Caption = 'Add'
@@ -81,7 +82,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object chkIsUpdate: TCheckBox
       Left = 88
-      Top = 95
+      Top = 66
       Width = 140
       Height = 17
       Caption = 'Update'
@@ -89,7 +90,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object chkIsDelete: TCheckBox
       Left = 238
-      Top = 95
+      Top = 66
       Width = 140
       Height = 17
       Caption = 'Delete'
@@ -97,7 +98,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object chkIsSpecial: TCheckBox
       Left = 88
-      Top = 120
+      Top = 84
       Width = 290
       Height = 17
       Caption = 'Special'

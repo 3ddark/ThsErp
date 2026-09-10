@@ -26,11 +26,11 @@ function TfrmStkWarehouses.CreateInputForm(Sender: TObject; AFormMode: TInputFor
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmStkWarehouse.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmStkWarehouse.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmStkWarehouse.Create(Self, Service, TStkWarehouse.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmStkWarehouse.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmStkWarehouse.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmStkWarehouses.DefineColumnWidths;

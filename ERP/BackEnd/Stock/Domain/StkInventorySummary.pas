@@ -74,9 +74,31 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TStkInventorySummary;
   end;
 
 implementation
+
+function TStkInventorySummary.Clone: TStkInventorySummary;
+begin
+  Result := TStkInventorySummary.Create;
+  Result.InventoryID := Self.InventoryID;
+  Result.CurrentQuantity := Self.CurrentQuantity;
+  Result.AverageCost := Self.AverageCost;
+  Result.OpeningPrice := Self.OpeningPrice;
+  Result.OpeningQuantity := Self.OpeningQuantity;
+  Result.OpeningAmount := Self.OpeningAmount;
+  Result.IncomingQuantity := Self.IncomingQuantity;
+  Result.IncomingAmount := Self.IncomingAmount;
+  Result.OutgoingQuantity := Self.OutgoingQuantity;
+  Result.OutgoingAmount := Self.OutgoingAmount;
+  Result.LastBuyPrice := Self.LastBuyPrice;
+  Result.LastBuyMoney := Self.LastBuyMoney;
+  Result.LastBuyDate := Self.LastBuyDate;
+  Result.LastBuyQuantity := Self.LastBuyQuantity;
+  Result.LastBuyExchangeRate := Self.LastBuyExchangeRate;
+end;
 
 constructor TStkInventorySummary.Create;
 begin

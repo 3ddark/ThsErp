@@ -11,7 +11,7 @@ type
     FRateDate: TDateTime;
     FRate: Double;
     FCurrency: string;
-    FCurrencyEntity: TSysCurrency;
+    FSysCurrency: TSysCurrency;
   public
     [Column('rate_date'), Required()]
     property RateDate: TDateTime read FRateDate write FRateDate;
@@ -22,11 +22,13 @@ type
     [Column('currency'), MaxLength(3)]
     property Currency: string read FCurrency write FCurrency;
 
-    [BelongsTo('currency', 'currency')]
-    property CurrencyEntity: TSysCurrency read FCurrencyEntity write FCurrencyEntity;
+    [BelongsTo('Currency')]
+    property SysCurrency: TSysCurrency read FSysCurrency write FSysCurrency;
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TAccExchangeRate;
   end;
 
 implementation
@@ -34,14 +36,25 @@ implementation
 constructor TAccExchangeRate.Create();
 begin
   inherited;
-  FCurrencyEntity := TSysCurrency.Create;
+  FSysCurrency := nil;//TSysCurrency.Create;
 end;
 
 destructor TAccExchangeRate.Destroy;
 begin
-  if Assigned(FCurrencyEntity) then FreeAndNil(FCurrencyEntity);
+  FSysCurrency.Free;
 
   inherited;
+end;
+
+function TAccExchangeRate.Clone: TAccExchangeRate;
+begin
+  Result := TAccExchangeRate.Create;
+  Result.RateDate := Self.RateDate;
+  Result.Rate := Self.Rate;
+  Result.Currency := Self.Currency;
+
+  if Assigned(Self.SysCurrency) then
+    Result.SysCurrency := Self.SysCurrency.Clone;
 end;
 
 end.

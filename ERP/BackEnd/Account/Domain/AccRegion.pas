@@ -15,6 +15,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TAccRegion;
   end;
 
 implementation
@@ -27,6 +29,12 @@ end;
 destructor TAccRegion.Destroy;
 begin
   inherited;
+end;
+
+function TAccRegion.Clone: TAccRegion;
+begin
+  Result := TAccRegion.Create;
+  Result.Name := Self.Name;
 end;
 
 end.

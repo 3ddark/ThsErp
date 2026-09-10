@@ -11,5 +11,5 @@ object frmSysLanguages: TfrmSysLanguages
   Font.Name = 'Tahoma'
   Font.Style = []
   OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
 end

@@ -23,6 +23,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TAccAccountPlan;
   end;
 
 implementation
@@ -35,6 +37,14 @@ end;
 destructor TAccAccountPlan.Destroy;
 begin
   inherited;
+end;
+
+function TAccAccountPlan.Clone: TAccAccountPlan;
+begin
+  Result := TAccAccountPlan.Create;
+  Result.Code := Self.Code;
+  Result.Name := Self.Name;
+  Result.Level := Self.Level;
 end;
 
 end.

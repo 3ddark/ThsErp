@@ -66,6 +66,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TStkKindProperty;
   end;
 
 implementation
@@ -78,6 +80,31 @@ end;
 destructor TStkKindProperty.Destroy;
 begin
   inherited;
+end;
+
+function TStkKindProperty.Clone: TStkKindProperty;
+begin
+  Result := TStkKindProperty.Create;
+  Result.Kind := Self.Kind;
+  Result.Desciption := Self.Desciption;
+  Result.S1 := Self.S1;
+  Result.S2 := Self.S2;
+  Result.S3 := Self.S3;
+  Result.S4 := Self.S4;
+  Result.S5 := Self.S5;
+  Result.S6 := Self.S6;
+  Result.S7 := Self.S7;
+  Result.S8 := Self.S8;
+  Result.I1 := Self.I1;
+  Result.I2 := Self.I2;
+  Result.I3 := Self.I3;
+  Result.I4 := Self.I4;
+  Result.I5 := Self.I5;
+  Result.D1 := Self.D1;
+  Result.D2 := Self.D2;
+  Result.D3 := Self.D3;
+  Result.D4 := Self.D4;
+  Result.D5 := Self.D5;
 end;
 
 end.

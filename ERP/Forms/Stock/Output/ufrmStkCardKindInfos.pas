@@ -26,11 +26,11 @@ function TfrmStkCardKindInfos.CreateInputForm(Sender: TObject; AFormMode: TInput
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmStkCardKindInfo.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmStkCardKindInfo.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmStkCardKindInfo.Create(Self, Service, TStkCardKindInfo.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmStkCardKindInfo.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmStkCardKindInfo.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmStkCardKindInfos.DefineColumnWidths;

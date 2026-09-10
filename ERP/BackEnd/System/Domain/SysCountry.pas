@@ -10,7 +10,7 @@ type
   TSysCountry = class;
 
   [Table('sys_country_translation', 'public')]
-  TSysCountryTranslation = class(TEntityBase)
+  TSysCountryTranslation = class(TEntityBase, ICloneable<TSysCountryTranslation>)
   private
     FSysCountryId: Int64;
     FSysLanguageId: Int64;
@@ -18,9 +18,6 @@ type
 
     FSysLanguage: TSysLanguage;
   public
-    constructor Create(); override;
-    destructor Destroy; override;
-
     [Column('sys_country_id', [cpPrimaryKey])]
     property SysCountryId: Int64 read FSysCountryId write FSysCountryId;
 
@@ -32,10 +29,15 @@ type
 
     [BelongsTo('SysLanguageId')]
     property SysLanguage: TSysLanguage read FSysLanguage write FSysLanguage;
+
+    constructor Create(); override;
+    destructor Destroy; override;
+
+    function Clone: TSysCountryTranslation;
   end;
 
   [Table('sys_country')]
-  TSysCountry = class(TEntity)
+  TSysCountry = class(TEntity, ICloneable<TSysCountry>)
   private
     FCountryCode: string;
     FISOYear: Integer;
@@ -46,9 +48,6 @@ type
 
     FCountryName: string;
   public
-    constructor Create(); override;
-    destructor Destroy; override;
-
     [Column('country_code'), MaxLength(2), Required()]
     property CountryCode: string read FCountryCode write FCountryCode;
 
@@ -66,6 +65,11 @@ type
 
     [NotMapped()]
     property CountryName: string read FCountryName write FCountryName;
+
+    constructor Create(); override;
+    destructor Destroy; override;
+
+    function Clone: TSysCountry;
   end;
 
 implementation
@@ -73,7 +77,7 @@ implementation
 constructor TSysCountry.Create();
 begin
   inherited;
-  FTranslations := TObjectList<TSysCountryTranslation>.Create(True);
+  FTranslations := nil;
   FIsEuMember := False;
 end;
 
@@ -81,6 +85,23 @@ destructor TSysCountry.Destroy;
 begin
   FTranslations.Free;
   inherited;
+end;
+
+function TSysCountry.Clone: TSysCountry;
+var
+  LTrans: TSysCountryTranslation;
+begin
+  Result             := TSysCountry.Create;
+  Result.Id          := Self.Id;
+  Result.CountryCode := Self.CountryCode;
+  Result.ISOYear     := Self.ISOYear;
+  Result.ISOCCTLD    := Self.ISOCCTLD;
+  Result.IsEuMember  := Self.IsEuMember;
+  Result.CountryName := Self.CountryName;
+
+  Result.Translations := TObjectList<TSysCountryTranslation>.Create(True);
+  for LTrans in Self.Translations do
+    Result.Translations.Add(LTrans.Clone);
 end;
 
 constructor TSysCountryTranslation.Create;
@@ -93,6 +114,17 @@ destructor TSysCountryTranslation.Destroy;
 begin
   FSysLanguage.Free;
   inherited;
+end;
+
+function TSysCountryTranslation.Clone: TSysCountryTranslation;
+begin
+  Result := TSysCountryTranslation.Create;
+  Result.SysCountryId := Self.SysCountryId;
+  Result.SysLanguageId := Self.SysLanguageId;
+  Result.CountryName := Self.CountryName;
+
+  if Assigned(Self.SysLanguage) then
+    Result.SysLanguage := Self.SysLanguage.Clone;
 end;
 
 end.

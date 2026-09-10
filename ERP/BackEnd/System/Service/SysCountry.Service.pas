@@ -124,7 +124,7 @@ begin
       raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
 
     ValidateAll(LEntity, coDelete);
-    FRepo.Delete(LEntity);
+    FRepo.Delete(TValue.From<Int64>(AId));
   finally
     LEntity.Free;
   end;

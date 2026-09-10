@@ -2,12 +2,15 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysUser.Service, SysUser, LocalizationManager;
+  SysUser.Service, SysUser;
 
 type
   TfrmSysUser = class(TfrmInputSimpleDB<TSysUser, TSysUserService>)
@@ -46,7 +49,7 @@ uses
 procedure TfrmSysUser.BtnAcceptClick(Sender: TObject);
 begin
   Table.Username := edtUsername.Text;
-  Table.PersonId := edtPersonId.Tag;
+  Table.EmpEmployeeId := edtPersonId.Tag;
   Table.Active := chkActive.Checked;
   Table.Manager := chkManager.Checked;
   Table.SuperUser := chkSuperUser.Checked;
@@ -72,14 +75,14 @@ end;
 procedure TfrmSysUser.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.TitleSingular, 'Kullanıcı');
-  lblUsername.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColUserName, 'Kullanıcı Adı');
-  lblPersonId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColPersonId, 'Personel');
-  lblActive.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColIsActive, 'Aktif');
-  lblManager.Caption := TLocalizationManager.Translate('sys_user.lbl_is_admin', 'Yönetici');
-  lblSuperUser.Caption := TLocalizationManager.Translate('sys_user.lbl_is_superuser', 'Süper Kullanıcı');
-  lblIpAddress.Caption := TLocalizationManager.Translate('sys_user.lbl_ip_address', 'IP Adresi');
-  lblMacAddress.Caption := TLocalizationManager.Translate('sys_user.lbl_mac_address', 'MAC Adresi');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.TitleSingular, 'User');
+  lblUsername.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColUserName, 'Username');
+  lblPersonId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColEmployeeId, 'Employee');
+  lblActive.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColActive, 'Active');
+  lblManager.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColManager, 'Manager');
+  lblSuperUser.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColSuperUser, 'Super User');
+  lblIpAddress.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColIpAddress, 'IP Address');
+  lblMacAddress.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColMacAddress, 'MAC Address');
 end;
 
 procedure TfrmSysUser.HelperProcess(Sender: TObject);
@@ -119,13 +122,13 @@ procedure TfrmSysUser.RefreshData;
 begin
   inherited;
   edtUsername.Text := Table.Username;
-  edtPersonId.Tag := Table.PersonId;
-  if Table.PersonId > 0 then
+  edtPersonId.Tag := Table.EmpEmployeeId;
+  if Table.EmpEmployeeId > 0 then
   begin
     if Table.PersonName <> '' then
       edtPersonId.Text := Trim(Table.PersonName + ' ' + Table.PersonSurname)
     else
-      edtPersonId.Text := Table.PersonId.ToString;
+      edtPersonId.Text := Table.EmpEmployeeId.ToString;
   end
   else
     edtPersonId.Text := '';

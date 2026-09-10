@@ -7,12 +7,14 @@ uses
   System.StrUtils, System.Rtti, System.Types, System.TypInfo,
   Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd,
-  Vcl.DBGrids, Vcl.Samples.Spin, Data.DB,
+  Vcl.DBGrids, Vcl.Samples.Spin, Data.DB, System.Generics.Collections,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  Ths.DialogHelper, Ths.Globals, MetaProvider,
+  Ths.DialogHelper, Ths.Globals, MetaProvider, Ths.Language.Cache,
   Entity, Service, SharedFormTypes, ufrmBase, LocalizationManager;
 
 type
+  TTranslationMap = TDictionary<string, string>;
+
   TfrmInputSimpleDB<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TForm, ILocalizable)
   private
     FService: TS;
@@ -43,6 +45,11 @@ type
     procedure SetControlsDisabledOrEnabled(AContainerControl: TWinControl = nil; ADisable: Boolean = True);
 
     procedure BindEntityToControls(AEntity: TObject; AForm: TForm; Meta: TEntityMeta);
+
+    procedure BuildTranslationControls(AContainer: TWinControl; const AFieldName, ALabel: string; ARefLabel: TLabel = nil);
+    procedure UpdateTranslationLabels(AContainer: TWinControl; const AFieldName, ALabel: string);
+    function CollectTranslationValues(AContainer: TWinControl; const AFieldName: string = ''): TTranslationMap;
+    procedure FillTranslationControls(AContainer: TWinControl; AValues: TTranslationMap);
   public
     property Service: TS read FService write SetService;
     property Table: TE read FTable write SetTable;
@@ -171,6 +178,155 @@ begin
   end;
 end;
 
+procedure TfrmInputSimpleDB<TE, TS>.BuildTranslationControls(AContainer : TWinControl;
+  const AFieldName, ALabel: string; ARefLabel  : TLabel = nil);
+var
+  LLocales  : TArray<TLanguageInfo>;
+  LInfo     : TLanguageInfo;
+  LLbl      : TLabel;
+  LEdit     : Ths.Helper.Edit.TEdit;
+  LTop      : Integer;
+  LLblRight : Integer;
+  LPrefix   : string;
+  i         : Integer;
+  LToDelete : TList<TComponent>;
+  LComp     : TComponent;
+begin
+  if not TLanguageCache.IsLoaded then Exit;
+
+  LPrefix := 'edt' + AFieldName + '_';
+
+  LToDelete := TList<TComponent>.Create;
+  try
+    for i := AContainer.ComponentCount - 1 downto 0 do
+    begin
+      LComp := AContainer.Components[i];
+      if StartsText('edt' + AFieldName + '_', LComp.Name)
+      or StartsText('lbl' + AFieldName + '_', LComp.Name)
+      then
+        LToDelete.Add(LComp);
+    end;
+    for LComp in LToDelete do
+      LComp.Free;
+  finally
+    LToDelete.Free;
+  end;
+
+  LLocales := TLanguageCache.GetLocales;
+  LTop     := 4;
+
+  if Assigned(ARefLabel) then
+    LLblRight := (ARefLabel.Left - AContainer.Left) + ARefLabel.Width
+  else
+    LLblRight := 168;
+
+
+  for LInfo in LLocales do
+  begin
+    LLbl              := TLabel.Create(AContainer);
+    LLbl.Parent       := AContainer;
+    LLbl.Name         := 'lbl' + AFieldName + '_' + StringReplace(LInfo.Locale, '-', '_', [rfReplaceAll]);
+    LLbl.Caption      := ALabel + ' (' + LInfo.Locale + ')';
+
+    LLbl.Font.Size    := 8;
+    LLbl.Font.Style   := [fsBold];
+    LLbl.Alignment    := taRightJustify;
+
+    LLbl.AutoSize     := False;
+    LLbl.Width        := LLblRight;
+    LLbl.Left         := 0;
+    LLbl.Top          := LTop + 2;
+    LLbl.Height       := 13;
+
+    LEdit             := Ths.Helper.Edit.TEdit.Create(AContainer);
+    LEdit.Parent      := AContainer;
+    LEdit.Name        := LPrefix + StringReplace(LInfo.Locale, '-', '_', [rfReplaceAll]);
+    LEdit.thsLocale   := LInfo.Locale;
+    LEdit.Top         := LTop;
+    LEdit.Left        := LLblRight + 4;
+    LEdit.Width       := AContainer.ClientWidth - LLblRight - 8;
+    LEdit.Anchors     := [akLeft, akTop, akRight];
+    LEdit.Text        := '';
+
+    Inc(LTop, 22);
+  end;
+
+  AContainer.Height := LTop + 2;
+end;
+
+procedure TfrmInputSimpleDB<TE, TS>.UpdateTranslationLabels(AContainer : TWinControl; const AFieldName, ALabel: string);
+var
+  i        : Integer;
+  LComp    : TComponent;
+  LLblName : string;
+  LLocale  : string;
+begin
+  for i := 0 to AContainer.ComponentCount - 1 do
+  begin
+    LComp := AContainer.Components[i];
+    if not (LComp is TLabel) then Continue;
+
+    if not StartsText('lbl' + AFieldName + '_', LComp.Name) then Continue;
+
+    LLblName := LComp.Name;
+    LLocale  := Copy(LLblName, Length('lbl' + AFieldName + '_') + 1, MaxInt);
+    LLocale  := StringReplace(LLocale, '_', '-', [rfReplaceAll]);
+
+    TLabel(LComp).Caption := ALabel + ' (' + LLocale + ')';
+  end;
+end;
+
+function TfrmInputSimpleDB<TE, TS>.CollectTranslationValues(
+  AContainer : TWinControl;
+  const AFieldName: string): TTranslationMap;
+var
+  i    : Integer;
+  LCtrl: TControl;
+  LEdit: Ths.Helper.Edit.TEdit;
+  LName: string;
+begin
+  Result := TTranslationMap.Create;
+
+  for i := 0 to AContainer.ControlCount - 1 do
+  begin
+    LCtrl := AContainer.Controls[i];
+    if not (LCtrl is Ths.Helper.Edit.TEdit) then Continue;
+
+    LEdit := LCtrl as Ths.Helper.Edit.TEdit;
+    if LEdit.thsLocale = '' then Continue;
+
+    if AFieldName <> '' then
+    begin
+      LName := 'edt' + AFieldName + '_';
+      if not StartsText(LName, LEdit.Name) then Continue;
+    end;
+
+    Result.AddOrSetValue(LEdit.thsLocale, LEdit.Text);
+  end;
+end;
+
+procedure TfrmInputSimpleDB<TE, TS>.FillTranslationControls(AContainer: TWinControl; AValues: TTranslationMap);
+var
+  i    : Integer;
+  LCtrl: TControl;
+  LEdit: Ths.Helper.Edit.TEdit;
+  LVal : string;
+begin
+  if not Assigned(AValues) then Exit;
+
+  for i := 0 to AContainer.ControlCount - 1 do
+  begin
+    LCtrl := AContainer.Controls[i];
+    if not (LCtrl is Ths.Helper.Edit.TEdit) then Continue;
+
+    LEdit := LCtrl as Ths.Helper.Edit.TEdit;
+    if LEdit.thsLocale = '' then Continue;
+
+    if AValues.TryGetValue(LEdit.thsLocale, LVal) then
+      LEdit.Text := LVal;
+  end;
+end;
+
 procedure TfrmInputSimpleDB<TE, TS>.BtnAcceptClick(Sender: TObject);
 var
   LId: Int64;
@@ -196,15 +352,15 @@ begin
   else if (FormMode = ifmUpdate) then
   begin
     if TThsDialogHelper.CustomMsgDlg(
-      TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmUpdate, 'Kaydı güncellemek istediğinden emin misin?'),
+      TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmUpdate, 'Are you sure you want to update the record?'),
       TMsgDlgType.mtConfirmation,
       [mbYes, mbNo],
       [
-        TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Evet'),
-        TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'Hayır')
+        TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Yes'),
+        TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'No')
       ],
       mbNo,
-      TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Kullanıcı Onayı')
+      TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Confirmation')
     ) = mrYes then
     begin
       SetControlsDisabledOrEnabled(PanelMain, True);
@@ -226,12 +382,12 @@ begin
 
     if (Service.UoW.InTransaction) then
       CustomMsgDlg(
-        TLocalizationManager.Translate(TLangKeys.TMessage.ActiveTransactionExist, 'Aktif bir kayıt güncellemeniz var. önce açık olan işleminizi bitirin!'),
+        TLocalizationManager.Translate(TLangKeys.TMessage.ActiveTransactionExist, 'You have an active record update. Please complete your current operation first!'),
         mtError,
         [mbOK],
-        [TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'Tamam')],
+        [TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'Ok')],
         mbOK,
-        TLocalizationManager.Translate(TLangKeys.TMessage.InformationTitle, 'Bilgilendirme')
+        TLocalizationManager.Translate(TLangKeys.TMessage.InformationTitle, 'Information')
       );
 
     LId := Table.Id;
@@ -239,13 +395,13 @@ begin
     Table := Service.BusinessFindById(LId, (not Service.UoW.InTransaction), True, True);
 
     if (Table = nil) then
-      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordDeletedWhileReview, 'Siz inceleme ekranındayken kayıt başka kullanıcı tarafından silinmiş.' + AddLBs(2) + 'Kaydı tekrar kontrol edin!'));
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordDeletedWhileReview, 'The record was deleted by another user while you were on the review screen.' + AddLBs(2) + 'Check the record again!'));
 
     FormMode := ifmUpdate;
 
     btnSpin.Visible := false;
 
-    btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Onayla');
+    btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Confirm');
     btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
     btnAccept.Width := Max(100, btnAccept.Width);
     if Service.IsAuthorized(ptUpdate, True)
@@ -276,15 +432,15 @@ begin
   end
   else
   if (CustomMsgDlg(
-    TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmCloseWindow, 'Ekranı Kapatmak istediğinden emin misin? Değişiklerin varsa kaybolacak.'),
+    TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmCloseWindow, 'Are you sure you want to close the screen? Any changes you have made will be lost.'),
     mtConfirmation,
     mbYesNo,
     [
-      TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Evet'),
-      TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'Hayır')
+      TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Yes'),
+      TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'No')
     ],
     mbNo,
-    TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Kullanıcı Onayı')
+    TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Confirmation')
   ) = mrYes)
   then
     Self.Close;
@@ -295,15 +451,15 @@ begin
   if (FormMode = ifmUpdate)then
   begin
     if CustomMsgDlg(
-      TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmDelete, 'Kaydı silmek istediğinden emin misin?'),
+      TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmDelete, 'Are you sure you want to delete the record?'),
       mtConfirmation,
       mbYesNo,
       [
-        TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Evet'),
-        TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'Hayır')
+        TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Yes'),
+        TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'No')
       ],
       mbNo,
-      TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Kullanıcı Onayı')
+      TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Confirmation')
     ) = mrYes then
     begin
       try
@@ -330,17 +486,17 @@ end;
 
 procedure TfrmInputSimpleDB<TE, TS>.BtnSpinDownClick(Sender: TObject);
 var
-  LContext: TRttiContext;
-  LType: TRttiType;
-  LMethod: TRttiMethod;
-  LProp: TRttiProperty;
-  LNewId: Int64;
+  LContext : TRttiContext;
+  LType    : TRttiType;
+  LMethod  : TRttiMethod;
+  LProp    : TRttiProperty;
+  LNewId   : Int64;
 begin
   if not Assigned(Owner) then Exit;
 
   LContext := TRttiContext.Create;
   try
-    LType := LContext.GetType(Owner.ClassType);
+    LType   := LContext.GetType(Owner.ClassType);
     LMethod := LType.GetMethod('MoveDown');
     if Assigned(LMethod) then
       LMethod.Invoke(Owner, []);
@@ -363,17 +519,17 @@ end;
 
 procedure TfrmInputSimpleDB<TE, TS>.BtnSpinUpClick(Sender: TObject);
 var
-  LContext: TRttiContext;
-  LType: TRttiType;
-  LMethod: TRttiMethod;
-  LProp: TRttiProperty;
-  LNewId: Int64;
+  LContext : TRttiContext;
+  LType    : TRttiType;
+  LMethod  : TRttiMethod;
+  LProp    : TRttiProperty;
+  LNewId   : Int64;
 begin
   if not Assigned(Owner) then Exit;
 
   LContext := TRttiContext.Create;
   try
-    LType := LContext.GetType(Owner.ClassType);
+    LType   := LContext.GetType(Owner.ClassType);
     LMethod := LType.GetMethod('MoveUp');
     if Assigned(LMethod) then
       LMethod.Invoke(Owner, []);
@@ -432,7 +588,7 @@ begin
   begin
     BtnAccept.Visible := True;
     BtnClose.Visible := True;
-    BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Onayla');
+    BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Confirm');
     BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
     BtnAccept.Width := Max(100, BtnAccept.Width);
   end
@@ -441,10 +597,10 @@ begin
     BtnAccept.Visible := True;
     BtnClose.Visible := True;
 
-    BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Güncelle');
+    BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Update');
     BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
     BtnAccept.Width := Max(100, BtnAccept.Width);
-    BtnDelete.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.DeleteRecord, 'Kayıt Sil');
+    BtnDelete.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.DeleteRecord, 'Delete');
     BtnDelete.Width := Canvas.TextWidth(BtnDelete.Caption) + 56;
     BtnDelete.Width := Max(100, BtnDelete.Width);
   end;
@@ -460,7 +616,7 @@ begin
   BtnAccept.Margins.Left := MulDiv(4, Self.CurrentPPI, 96);
   BtnAccept.Margins.Right := MulDiv(4, Self.CurrentPPI, 96);
   BtnAccept.TabOrder := 1;
-  BtnAccept.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Save, 'Kaydet');
+  BtnAccept.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Save, 'Save');
   BtnAccept.OnClick := BtnAcceptClick;
   BtnAccept.Align := alRight;
 end;
@@ -473,9 +629,10 @@ begin
   BtnClose.Padding.Left := 4;
   BtnClose.Padding.Right := 4;
   BtnClose.TabOrder := 2;
-  BtnClose.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Kapat');
+  BtnClose.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Close');
   BtnClose.OnClick := BtnCloseClick;
   BtnClose.Align := alRight;
+  BtnClose.Left := PanelFooter.Left + PanelFooter.Width - BtnClose.Width - 2;
 end;
 
 procedure TfrmInputSimpleDB<TE, TS>.CreateBtnDelete;
@@ -486,7 +643,7 @@ begin
   BtnDelete.Padding.Left := 4;
   BtnDelete.Padding.Right := 4;
   BtnDelete.TabOrder := 3;
-  BtnDelete.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Delete, 'Sil');
+  BtnDelete.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Delete, 'Delete');
   BtnDelete.OnClick := BtnDeleteClick;
   BtnDelete.Align := alLeft;
 end;
@@ -532,7 +689,7 @@ end;
 
 destructor TfrmInputSimpleDB<TE, TS>.Destroy;
 begin
-  Table.Free;
+  FreeAndNil(FTable);
   Service := nil;
   inherited;
 end;
@@ -574,7 +731,7 @@ begin
   begin
     if Assigned(BtnAccept) then
     begin
-      BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Onayla');
+      BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Confirm');
       BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
       BtnAccept.Width := Max(100, BtnAccept.Width);
     end;
@@ -583,13 +740,13 @@ begin
   begin
     if Assigned(BtnAccept) then
     begin
-      BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Güncelle');
+      BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Update');
       BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
       BtnAccept.Width := Max(100, BtnAccept.Width);
     end;
     if Assigned(BtnDelete) then
     begin
-      BtnDelete.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.DeleteRecord, 'Kayıt Sil');
+      BtnDelete.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.DeleteRecord, 'Delete');
       BtnDelete.Width := Canvas.TextWidth(BtnDelete.Caption) + 56;
       BtnDelete.Width := Max(100, BtnDelete.Width);
     end;
@@ -598,20 +755,20 @@ begin
   begin
     if Assigned(BtnAccept) then
     begin
-      BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Onayla');
+      BtnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Confirm');
       BtnAccept.Width := Canvas.TextWidth(BtnAccept.Caption) + 56;
       BtnAccept.Width := Max(100, BtnAccept.Width);
     end;
     if Assigned(BtnDelete) then
     begin
-      BtnDelete.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Delete, 'Sil');
+      BtnDelete.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Delete, 'Delete');
       BtnDelete.Width := Canvas.TextWidth(BtnDelete.Caption) + 56;
       BtnDelete.Width := Max(100, BtnDelete.Width);
     end;
   end;
 
   if Assigned(BtnClose) then
-    BtnClose.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Kapat');
+    BtnClose.Caption := '&' + TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Close');
 
   RefreshData;
 end;
@@ -714,60 +871,59 @@ procedure TfrmInputSimpleDB<TE, TS>.FormShow(Sender: TObject);
 var
   meta: TEntityMeta;
 begin
-  BtnAccept.Visible := False;
   BtnAccept.Visible := True;
 
-  TMetaProviderManager.SetConnection(Service.Uow.Connection);
+  TMetaProviderManager.SetConnection(Service.UoW.Connection);
   meta := TMetaProviderManager.GetMeta(Table.ClassType);
   BindEntityToControls(Table, Self, meta);
-
 
   InitializeInputCase;
 
   case FormMode of
-    ifmNone:
-      begin
-      end;
+    ifmNone: ;
+
     ifmNewRecord:
-      begin
-        BtnSpin.Visible := False;
-        BtnDelete.Visible := False;
-        BtnDelete.OnClick := nil;
-      end;
+    begin
+      BtnSpin.Visible   := False;
+      BtnDelete.Visible := False;
+      BtnDelete.OnClick := nil;
+    end;
+
     ifmRewiev:
-      begin
-        RefreshData;
-        BtnDelete.Visible := False;
-        BtnDelete.OnClick := nil;
-      end;
+    begin
+//      RefreshData;
+      BtnDelete.Visible := False;
+      BtnDelete.OnClick := nil;
+    end;
+
     ifmUpdate:
-      begin
-        RefreshData;
-        BtnDelete.Visible := True;
-        BtnDelete.OnClick := BtnDeleteClick;
-      end;
+    begin
+//      RefreshData;
+      BtnDelete.Visible := True;
+      BtnDelete.OnClick := BtnDeleteClick;
+    end;
+
     ifmReadOnly:
-      begin
-        RefreshData;
-        BtnDelete.Visible := False;
-        BtnDelete.OnClick := nil;
-      end;
+    begin
+//      RefreshData;
+      BtnDelete.Visible := False;
+      BtnDelete.OnClick := nil;
+    end;
+
     ifmCopyNewRecord:
-      begin
-        BtnSpin.Visible := False;
-        BtnDelete.Visible := False;
-        BtnDelete.OnClick := nil;
-      end;
+    begin
+      BtnSpin.Visible   := False;
+      BtnDelete.Visible := False;
+      BtnDelete.OnClick := nil;
+    end;
   end;
 
-  if (Self.FormMode = ifmRewiev)
-  or (Self.FormMode = ifmReadOnly)
-  then
-  begin
+  if (FormMode = ifmRewiev) or (FormMode = ifmReadOnly) then
     SetControlsDisabledOrEnabled(PgcBase, True);
-  end;
 
   Repaint;
+
+  ApplyLocalization;
 end;
 
 procedure TfrmInputSimpleDB<TE, TS>.InitializeInputCase;
@@ -796,9 +952,9 @@ begin
     CreatePageControl;
   CreatePanelFooter;
     CreateBtnSpin;
-    CreateBtnAccept;
-    CreateBtnClose;
     CreateBtnDelete;
+    CreateBtnClose;
+    CreateBtnAccept;
 
   FStatusBase := TStatusBar.Create(Self);
   FStatusBase.Align := alBottom;
@@ -916,63 +1072,58 @@ end;
 
 function TfrmInputSimpleDB<TE, TS>.ValidateInput(AContainerControl: TWinControl): Boolean;
 var
-  nIndex, nIndex2, nProcessCount: Integer;
-  LPanelContainer: TWinControl;
+  LContainer  : TWinControl;
   LControlName: string;
+  n1, n2      : Integer;
 begin
-  nProcessCount := 0;
-  nProcessCount := nProcessCount + 1;
-  Result := true;
-  LPanelContainer := nil;
+  Result     := True;
+  LContainer := nil;
 
   if AContainerControl = nil then
-    LPanelContainer := PanelMain
-  else begin
-    if AContainerControl.ClassType = TPanel then
-      LPanelContainer := AContainerControl as TPanel
-    else if AContainerControl.ClassType = TGroupBox then
-      LPanelContainer := AContainerControl as TGroupBox
-    else if AContainerControl.ClassType = TPageControl then
-      LPanelContainer := AContainerControl as TPageControl
-    else if AContainerControl.ClassType = TTabSheet then
-      LPanelContainer := AContainerControl as TTabSheet;
-  end;
+    LContainer := PanelMain
+  else if AContainerControl is TPanel then
+    LContainer := AContainerControl
+  else if AContainerControl is TGroupBox then
+    LContainer := AContainerControl
+  else if AContainerControl is TPageControl then
+    LContainer := AContainerControl
+  else if AContainerControl is TTabSheet then
+    LContainer := AContainerControl;
 
-  if (FormMode=ifmUpdate) or (FormMode=ifmNewRecord) or (FormMode=ifmCopyNewRecord) then begin
-    for nIndex := 0 to LPanelContainer.ControlCount -1 do begin
-      if LPanelContainer.Controls[nIndex].ClassType = TPanel then
-        Result := ValidateSubControls(LPanelContainer.Controls[nIndex] as TPanel, LControlName)
-      else if LPanelContainer.Controls[nIndex].ClassType = TGroupBox then
-        Result := ValidateSubControls(LPanelContainer.Controls[nIndex] as TGroupBox, LControlName)
-      else if LPanelContainer.Controls[nIndex].ClassType = TPageControl then
-      begin
-        for nIndex2 := 0 to (LPanelContainer.Controls[nIndex] as TPageControl).PageCount-1 do
-        begin
-          Result := ValidateSubControls((LPanelContainer.Controls[nIndex] as TPageControl).Pages[nIndex2], LControlName);
-          if not Result then
-            Break;
-        end;
-      end
-      else if LPanelContainer.Controls[nIndex].ClassType = TTabSheet then
-        Result := ValidateSubControls(LPanelContainer.Controls[nIndex] as TTabSheet, LControlName)
-      else if LPanelContainer.Controls[nIndex].ClassType = TEdit then
-        Result := ValidateSubControls(TEdit(LPanelContainer.Controls[nIndex]), LControlName)
-      else if LPanelContainer.Controls[nIndex].ClassType = TMemo then
-        Result := ValidateSubControls(TMemo(LPanelContainer.Controls[nIndex]), LControlName)
-      else if LPanelContainer.Controls[nIndex].ClassType = TCombobox then
-        Result := ValidateSubControls(TCombobox(LPanelContainer.Controls[nIndex]), LControlName);
+  if not Assigned(LContainer) then Exit;
 
-      if not Result then
-        Break;
-    end;
-  end;
+  if not (FormMode in [ifmUpdate, ifmNewRecord, ifmCopyNewRecord]) then
+    Exit;
 
-  if (nProcessCount = 1) then
+  for n1 := 0 to LContainer.ControlCount - 1 do
   begin
-    Repaint;
-    if (not Result) then
-      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TValidation.RequiredFieldsEmpty, 'Zorunlu alanlar boş olamaz. Kırmızı renkli girişler zorunludur.') + AddLBs(3) + LControlName);
+    if LContainer.Controls[n1] is TPageControl then
+    begin
+      for n2 := 0 to (LContainer.Controls[n1] as TPageControl).PageCount - 1 do
+      begin
+        Result := ValidateSubControls(
+          (LContainer.Controls[n1] as TPageControl).Pages[n2],
+          LControlName);
+        if not Result then Break;
+      end;
+    end
+    else if LContainer.Controls[n1] is TWinControl then
+    begin
+      Result := ValidateSubControls(
+        LContainer.Controls[n1] as TWinControl, LControlName);
+    end;
+
+    if not Result then Break;
   end;
+
+  Repaint;
+
+  // FIX: En dış çağrıda (nil parametre) hata mesajı göster
+  if not Result and (AContainerControl = nil) then
+    raise Exception.Create(
+      TLocalizationManager.Translate(
+        TLangKeys.TValidation.RequiredFieldsEmpty,
+        'Required fields cannot be left blank.') + AddLBs(3) + LControlName);
 end;
 
 function TfrmInputSimpleDB<TE, TS>.ValidateSubControls(Sender: TWinControl; out AControlName: string): Boolean;

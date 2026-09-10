@@ -11,7 +11,7 @@ object frmSysCurrency: TfrmSysCurrency
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
@@ -19,8 +19,6 @@ object frmSysCurrency: TfrmSysCurrency
     Height = 157
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 494
-    ExplicitHeight = 140
     object lblCurrency: TLabel
       Left = 67
       Top = 6
@@ -73,21 +71,21 @@ object frmSysCurrency: TfrmSysCurrency
       Left = 132
       Top = 2
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 0
     end
     object edtSymbol: TEdit
       Left = 132
       Top = 25
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 1
     end
     object edtDescription: TEdit
       Left = 132
       Top = 48
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 2
     end
   end

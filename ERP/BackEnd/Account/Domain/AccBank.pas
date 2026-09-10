@@ -19,6 +19,8 @@ type
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TAccBank;
   end;
 
 implementation
@@ -31,6 +33,13 @@ end;
 destructor TAccBank.Destroy;
 begin
   inherited;
+end;
+
+function TAccBank.Clone: TAccBank;
+begin
+  Result := TAccBank.Create;
+  Result.SWiftCode := Self.SWiftCode;
+  Result.Name := Self.Name;
 end;
 
 end.

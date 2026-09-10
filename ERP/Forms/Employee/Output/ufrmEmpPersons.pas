@@ -1,4 +1,4 @@
-unit ufrmEmpPersons;
+﻿unit ufrmEmpPersons;
 
 interface
 
@@ -26,11 +26,11 @@ function TfrmEmpPersons.CreateInputForm(Sender: TObject; AFormMode: TInputFormMo
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmEmpPerson.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEmpPerson.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
     Result := TfrmEmpPerson.Create(Self, Service, TEmpPerson.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEmpPerson.Create(Self, Service, Service.Clone(Table), AFormMode, Self.RefreshParentGrid);
+    Result := TfrmEmpPerson.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 procedure TfrmEmpPersons.DefineColumnWidths;

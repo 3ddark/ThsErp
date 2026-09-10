@@ -22,7 +22,7 @@ object frmSysUomType: TfrmSysUomType
     TabOrder = 0
     object lblKey: TLabel
       Left = 127
-      Top = 8
+      Top = 6
       Width = 21
       Height = 13
       Alignment = taRightJustify
@@ -36,58 +36,20 @@ object frmSysUomType: TfrmSysUomType
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblNameEN: TLabel
-      Left = 33
-      Top = 32
-      Width = 115
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = 'Type Name (English)'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
-    object lblNameTR: TLabel
-      Left = 33
-      Top = 56
-      Width = 115
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = 'Type Name (T'#252'rk'#231'e)'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
     object edtKey: TEdit
       Left = 150
-      Top = 4
+      Top = 2
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 0
     end
-    object edtNameEN: TEdit
-      Left = 150
-      Top = 28
-      Width = 333
-      Height = 23
+    object scrlbxTranslations: TScrollBox
+      Left = 8
+      Top = 24
+      Width = 480
+      Height = 72
+      HorzScrollBar.Visible = False
       TabOrder = 1
-    end
-    object edtNameTR: TEdit
-      Left = 150
-      Top = 52
-      Width = 333
-      Height = 23
-      TabOrder = 2
     end
   end
 end
