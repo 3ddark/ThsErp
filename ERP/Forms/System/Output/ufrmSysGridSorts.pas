@@ -38,9 +38,9 @@ end;
 procedure TfrmSysGridSorts.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',              0, TLocalizationManager.Translate('sys_grid_sort.col_id', 'Id'));
-  SetColumnProperty('table_name',    120, TLocalizationManager.Translate('sys_grid_sort.col_table_name', 'Table Name'));
-  SetColumnProperty('sort_content',  300, TLocalizationManager.Translate('sys_grid_sort.col_sort_content', 'Sort Content'));
+  SetColumnProperty('id',              0, TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColId, 'Id'));
+  SetColumnProperty('table_name',    120, TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColTableName, 'Table Name'));
+  SetColumnProperty('sort_content',  300, TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColSortContent, 'Sort Content'));
 end;
 
 procedure TfrmSysGridSorts.DefineFooterColumns;
@@ -58,7 +58,7 @@ end;
 procedure TfrmSysGridSorts.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_grid_sort.title_plural', 'Grid Sorts');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridSort.TitlePlural, 'Grid Sorts');
 end;
 
 end.

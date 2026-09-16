@@ -1,4 +1,4 @@
-﻿unit ufrmSysGridSort;
+unit ufrmSysGridSort;
 
 interface
 
@@ -55,7 +55,7 @@ end;
 procedure TfrmSysGridSort.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_grid_sort.title_singular', 'Grid Sıralaması');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridSort.TitleSingular, 'Grid Sıralaması');
 end;
 
 procedure TfrmSysGridSort.InitializeInputCase;

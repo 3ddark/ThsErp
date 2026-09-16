@@ -56,9 +56,9 @@ end;
 procedure TfrmSysCurrency.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_currency.title_singular', 'Para Birimi');
-  lblCurrency.Caption := TLocalizationManager.Translate('sys_currency.lbl_code', 'Para Birimi Kodu');
-  lblSymbol.Caption := TLocalizationManager.Translate('sys_currency.lbl_symbol', 'Sembol');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysCurrency.TitleSingular, 'Para Birimi');
+  lblCurrency.Caption := TLocalizationManager.Translate(TLangKeys.TSysCurrency.LblCode, 'Para Birimi Kodu');
+  lblSymbol.Caption := TLocalizationManager.Translate(TLangKeys.TSysCurrency.LblSymbol, 'Sembol');
 end;
 
 procedure TfrmSysCurrency.RefreshData;

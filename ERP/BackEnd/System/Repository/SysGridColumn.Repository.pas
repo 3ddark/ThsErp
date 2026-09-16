@@ -214,11 +214,23 @@ end;
 
 function TSysGridColumnRepository.DoFindAllGridQuery(
   AFilter: TFilterCriteria): TFDQuery;
+var
+  Criteria: TFilterCriterion;
+  SelectCols: string;
 begin
+  SelectCols := Self.BuildSelectColumns(['id']);
   Result            := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
   Result.SQL.Text   :=
-    'SELECT * FROM public.' + Self.GetTableName(TSysGridColumn);
+    'SELECT ' + SelectCols + ' FROM public.' + Self.GetTableName(TSysGridColumn) + ' WHERE 1=1 ';
+
+  if Assigned(AFilter) and (AFilter.Count > 0) then
+  begin
+    for Criteria in AFilter do
+      Result.SQL.Text := Result.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.ParamName;
+    for Criteria in AFilter do
+      Result.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+  end;
 end;
 
 function TSysGridColumnRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysGridColumn>;

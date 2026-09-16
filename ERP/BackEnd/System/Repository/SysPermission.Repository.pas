@@ -68,7 +68,7 @@ end;
 
 function TSysPermissionRepository.PrepareDeleteSql: string;
 begin
-  //WHERE kısmı özellikle böyle yazıldı. Filtre vermeden işlem yapılmaması için. Hatalı kodlamada tüm tabloyu siler.
+  //WHERE kÄ±smÄ± Ã¶zellikle bÃ¶yle yazÄ±ldÄ±. Filtre vermeden iÅŸlem yapÄ±lmamasÄ± iÃ§in. HatalÄ± kodlamada tÃ¼m tabloyu siler.
   Result := 'DELETE FROM public.' + Self.GetTableName(TSysPermission) + ' WHERE';
 end;
 
@@ -195,10 +195,12 @@ end;
 function TSysPermissionRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
+  SelectCols: string;
 begin
+  SelectCols := Self.BuildSelectColumns(['id', 'locale']);
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysPermission) + ' WHERE locale = :locale ';
+  Result.SQL.Text := 'SELECT ' + SelectCols + ' FROM ' + Self.GetFullViewName(TSysPermission) + ' WHERE locale = :locale ';
 
   if Assigned(AFilter) and (AFilter.Count > 0) then
   begin

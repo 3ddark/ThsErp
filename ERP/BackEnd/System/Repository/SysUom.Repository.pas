@@ -185,11 +185,23 @@ begin
 end;
 
 function TSysUomRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+var
+  Criteria: TFilterCriterion;
+  SelectCols: string;
 begin
+  SelectCols := Self.BuildSelectColumns(['id', 'locale']);
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM vw_sys_uom WHERE locale = :locale';
-  Result.ParamByName('locale').AsString := TLocalizationManager.GetCurrentLanguage;
+  Result.SQL.Text := 'SELECT ' + SelectCols + ' FROM ' + Self.GetFullViewName(TSysUom) + ' WHERE locale = :locale ';
+
+  if Assigned(AFilter) and (AFilter.Count > 0) then
+  begin
+    for Criteria in AFilter do
+      Result.SQL.Text := Result.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.ParamName;
+    for Criteria in AFilter do
+      Result.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+  end;
+  Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
 function TSysUomRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysUom>;

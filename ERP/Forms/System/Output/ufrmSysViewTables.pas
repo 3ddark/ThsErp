@@ -32,9 +32,9 @@ end;
 procedure TfrmSysViewTables.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',           50, TLocalizationManager.Translate('sys_view_tables.col_id', 'Id'));
-  SetColumnProperty('table_name',  200, TLocalizationManager.Translate('sys_view_tables.col_table_name', 'Table Name'));
-  SetColumnProperty('table_type',   80, TLocalizationManager.Translate('sys_view_tables.col_table_type', 'Type'));
+  SetColumnProperty('id',           50, TLocalizationManager.Translate(TLangKeys.TSysViewTable.ColId, 'Id'));
+  SetColumnProperty('table_name',  200, TLocalizationManager.Translate(TLangKeys.TSysViewTable.ColTableName, 'Table Name'));
+  SetColumnProperty('table_type',   80, TLocalizationManager.Translate(TLangKeys.TSysViewTable.ColTableType, 'Type'));
 end;
 
 procedure TfrmSysViewTables.DefineFooterColumns;
@@ -52,7 +52,7 @@ end;
 procedure TfrmSysViewTables.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_view_tables.title_plural', 'System View Tables');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysViewTable.TitlePlural, 'System View Tables');
 end;
 
 end.

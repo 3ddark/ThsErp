@@ -38,13 +38,13 @@ end;
 procedure TfrmSysGridColumns.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',           0, TLocalizationManager.Translate('sys_grid_column.col_id', 'Id'));
-  SetColumnProperty('table_name', 150, TLocalizationManager.Translate('sys_grid_column.col_table_name', 'Table Name'));
-  SetColumnProperty('column_name',150, TLocalizationManager.Translate('sys_grid_column.col_column_name', 'Column Name'));
-  SetColumnProperty('column_width',80, TLocalizationManager.Translate('sys_grid_column.col_column_width', 'Width'));
-  SetColumnProperty('column_order',80, TLocalizationManager.Translate('sys_grid_column.col_column_order', 'Order'));
-  SetColumnProperty('is_show',     60, TLocalizationManager.Translate('sys_grid_column.col_is_show', 'Show'));
-  SetColumnProperty('is_fetch',    60, TLocalizationManager.Translate('sys_grid_column.col_is_fetch', 'Fetch'));
+  SetColumnProperty('id',           0, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColId, 'Id'));
+  SetColumnProperty('table_name', 150, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColTableName, 'Table Name'));
+  SetColumnProperty('column_name',150, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnName, 'Column Name'));
+  SetColumnProperty('column_width',80, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnWidth, 'Width'));
+  SetColumnProperty('column_order',80, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnOrder, 'Order'));
+  SetColumnProperty('is_show',     60, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsShow, 'Show'));
+  SetColumnProperty('is_fetch',    60, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsFetch, 'Fetch'));
 end;
 
 procedure TfrmSysGridColumns.DefineFooterColumns;
@@ -62,7 +62,7 @@ end;
 procedure TfrmSysGridColumns.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_grid_column.title_plural', 'Grid Column Settings');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TitlePlural, 'Grid Column Settings');
 end;
 
 end.

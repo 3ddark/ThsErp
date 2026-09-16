@@ -183,10 +183,12 @@ end;
 function TSysPermissionGroupRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
+  SelectCols: string;
 begin
+  SelectCols := Self.BuildSelectColumns(['id', 'locale']);
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysPermissionGroup) + ' WHERE locale = :locale ';
+  Result.SQL.Text := 'SELECT ' + SelectCols + ' FROM ' + Self.GetFullViewName(TSysPermissionGroup) + ' WHERE locale = :locale ';
 
   if Assigned(AFilter) and (AFilter.Count > 0) then
   begin

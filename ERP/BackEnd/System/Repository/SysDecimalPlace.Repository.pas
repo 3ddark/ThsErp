@@ -1,4 +1,4 @@
-﻿unit SysDecimalPlace.Repository;
+unit SysDecimalPlace.Repository;
 
 interface
 
@@ -125,10 +125,12 @@ end;
 function TSysDecimalPlaceRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
+  SelectCols: string;
 begin
+  SelectCols := Self.BuildSelectColumns(['id']);
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysDecimalPlace) + ' WHERE 1=1 ';
+  Result.SQL.Text := 'SELECT ' + SelectCols + ' FROM ' + Self.GetFullViewName(TSysDecimalPlace) + ' WHERE 1=1 ';
 
   if Assigned(AFilter) and (AFilter.Count > 0) then
   begin

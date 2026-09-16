@@ -1,4 +1,4 @@
-﻿unit ufrmSysUomGroup;
+unit ufrmSysUomGroup;
 
 interface
 
@@ -93,8 +93,8 @@ end;
 procedure TfrmSysUomType.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_uom_type.title.singular', 'Ölçü Birimi Tipi');
-  lblKey.Caption := TLocalizationManager.Translate('sys_uom_type.key', 'Tip Anahtarı');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.TitleSingular, 'Ölçü Birimi Tipi');
+  lblKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColKey, 'Tip Anahtarı');
 end;
 
 procedure TfrmSysUomType.RefreshData;

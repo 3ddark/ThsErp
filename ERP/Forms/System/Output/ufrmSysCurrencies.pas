@@ -59,11 +59,11 @@ end;
 procedure TfrmSysCurrencies.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_currency.title_plural', 'Currencies');
-  SetColumnTitle('id',          TLocalizationManager.Translate('sys_currency.col_id', 'Id'));
-  SetColumnTitle('currency',    TLocalizationManager.Translate('sys_currency.col_code', 'Currency Code'));
-  SetColumnTitle('symbol',      TLocalizationManager.Translate('sys_currency.col_symbol', 'Symbol'));
-  SetColumnTitle('description', TLocalizationManager.Translate('sys_currency.col_description', 'Description'));
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysCurrency.TitlePlural, 'Currencies');
+  SetColumnTitle('id',          TLocalizationManager.Translate(TLangKeys.TSysCurrency.ColId, 'Id'));
+  SetColumnTitle('currency',    TLocalizationManager.Translate(TLangKeys.TSysCurrency.ColCode, 'Currency Code'));
+  SetColumnTitle('symbol',      TLocalizationManager.Translate(TLangKeys.TSysCurrency.ColSymbol, 'Symbol'));
+  SetColumnTitle('description', TLocalizationManager.Translate(TLangKeys.TSysCurrency.ColDescription, 'Description'));
 end;
 
 end.
