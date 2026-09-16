@@ -201,6 +201,7 @@
         <DCCReference Include="BackEnd\Core\Base\Password.Helper.pas"/>
         <DCCReference Include="BackEnd\Core\AppContext.pas"/>
         <DCCReference Include="BackEnd\Core\UserContext.pas"/>
+        <DCCReference Include="BackEnd\Core\Ths.Language.Cache.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmGrid.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmInputSimpleDB.pas"/>
         <DCCReference Include="BackEnd\Core\Auth.Service.pas"/>
@@ -658,7 +659,6 @@
         <DCCReference Include="BackEnd\System\Exception\SysGridFilter.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysDecimalPlace.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysApplicationSetting.Exception.pas"/>
-        <DCCReference Include="BackEnd\Core\Ths.Language.Cache.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

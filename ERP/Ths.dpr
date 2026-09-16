@@ -57,6 +57,7 @@ uses
   Password.Helper in 'BackEnd\Core\Base\Password.Helper.pas',
   AppContext in 'BackEnd\Core\AppContext.pas',
   UserContext in 'BackEnd\Core\UserContext.pas',
+  Ths.Language.Cache in 'BackEnd\Core\Ths.Language.Cache.pas',
   ufrmGrid in 'Forms\Core\Base\ufrmGrid.pas',
   ufrmInputSimpleDB in 'Forms\Core\Base\ufrmInputSimpleDB.pas',
   Auth.Service in 'BackEnd\Core\Auth.Service.pas',
@@ -331,8 +332,7 @@ uses
   SysGridColumn.Exception in 'BackEnd\System\Exception\SysGridColumn.Exception.pas',
   SysGridFilter.Exception in 'BackEnd\System\Exception\SysGridFilter.Exception.pas',
   SysDecimalPlace.Exception in 'BackEnd\System\Exception\SysDecimalPlace.Exception.pas',
-  SysApplicationSetting.Exception in 'BackEnd\System\Exception\SysApplicationSetting.Exception.pas',
-  Ths.Language.Cache in 'BackEnd\Core\Ths.Language.Cache.pas';
+  SysApplicationSetting.Exception in 'BackEnd\System\Exception\SysApplicationSetting.Exception.pas';
 
 {$R *.res}
 
