@@ -1,4 +1,4 @@
-﻿unit SysGridColumn.Repository;
+unit SysGridColumn.Repository;
 
 interface
 
@@ -13,6 +13,8 @@ type
     ['{0DC72463-5EB7-4CE6-8F8C-D555F01338B9}']
     function LoadColumns(const ATableName: string): TObjectList<TSysGridColumn>;
     procedure SaveColumns(const ATableName: string; const AColumns: TObjectList<TSysGridColumn>);
+    function LoadUserColumns(const ATableName: string; AUserId: Int64): TObjectList<TSysGridColumn>;
+    procedure SaveUserColumns(const ATableName: string; AUserId: Int64; const AColumns: TObjectList<TSysGridColumn>);
   end;
 
   TSysGridColumnRepository = class(TRepository<TSysGridColumn>, ISysGridColumnRepository)
@@ -47,6 +49,8 @@ type
     constructor Create(AConnection: TFDConnection);
     procedure SaveColumns(const ATableName: string; const AColumns: TObjectList<TSysGridColumn>);
     function  LoadColumns(const ATableName: string): TObjectList<TSysGridColumn>;
+    function  LoadUserColumns(const ATableName: string; AUserId: Int64): TObjectList<TSysGridColumn>;
+    procedure SaveUserColumns(const ATableName: string; AUserId: Int64; const AColumns: TObjectList<TSysGridColumn>);
   end;
 
 implementation
@@ -93,7 +97,7 @@ function TSysGridColumnRepository.PrepareSelectSql: string;
 begin
   Result :=
     'SELECT id, table_name, column_name, column_order, column_width, ' +
-    '       data_format, is_show, is_show_helper, ' +
+    '       data_format, is_show, is_show_helper, is_fetch, ' +
     '       min_value, min_value_color, max_value, max_value_color, ' +
     '       max_value_percent, bar_color, bar_bg_color, bar_text_color ' +
     'FROM public.' + Self.GetTableName(TSysGridColumn);
@@ -104,11 +108,11 @@ begin
   Result :=
     'INSERT INTO public.' + Self.GetTableName(TSysGridColumn) +
     ' (table_name, column_name, column_order, column_width, data_format, ' +
-    '  is_show, is_show_helper, min_value, min_value_color, max_value, ' +
+    '  is_show, is_show_helper, is_fetch, min_value, min_value_color, max_value, ' +
     '  max_value_color, max_value_percent, bar_color, bar_bg_color, bar_text_color) ' +
     'VALUES ' +
     ' (:table_name, :column_name, :column_order, :column_width, :data_format, ' +
-    '  :is_show, :is_show_helper, :min_value, :min_value_color, :max_value, ' +
+    '  :is_show, :is_show_helper, :is_fetch, :min_value, :min_value_color, :max_value, ' +
     '  :max_value_color, :max_value_percent, :bar_color, :bar_bg_color, :bar_text_color)';
 end;
 
@@ -119,7 +123,7 @@ begin
     ' SET table_name = :table_name, column_name = :column_name, ' +
     '     column_order = :column_order, column_width = :column_width, ' +
     '     data_format = :data_format, is_show = :is_show, ' +
-    '     is_show_helper = :is_show_helper, min_value = :min_value, ' +
+    '     is_show_helper = :is_show_helper, is_fetch = :is_fetch, min_value = :min_value, ' +
     '     min_value_color = :min_value_color, max_value = :max_value, ' +
     '     max_value_color = :max_value_color, ' +
     '     max_value_percent = :max_value_percent, ' +
@@ -145,6 +149,10 @@ begin
   Result.DataFormat       := Q.FieldByName('data_format').AsString;
   Result.IsShow           := Q.FieldByName('is_show').AsBoolean;
   Result.IsShowHelper     := Q.FieldByName('is_show_helper').AsBoolean;
+  if Q.FindField('is_fetch') <> nil then
+    Result.IsFetch        := Q.FieldByName('is_fetch').AsBoolean
+  else
+    Result.IsFetch        := True;
   Result.MinValue         := Q.FieldByName('min_value').AsFloat;
   Result.MinValueColor    := Q.FieldByName('min_value_color').AsInteger;
   Result.MaxValue         := Q.FieldByName('max_value').AsFloat;
@@ -167,6 +175,8 @@ begin
     Q.ParamByName('data_format').AsString     := AModel.DataFormat;
     Q.ParamByName('is_show').AsBoolean        := AModel.IsShow;
     Q.ParamByName('is_show_helper').AsBoolean := AModel.IsShowHelper;
+    if Q.FindParam('is_fetch') <> nil then
+      Q.ParamByName('is_fetch').AsBoolean     := AModel.IsFetch;
     Q.ParamByName('min_value').AsFloat        := AModel.MinValue;
     Q.ParamByName('min_value_color').AsInteger:= AModel.MinValueColor;
     Q.ParamByName('max_value').AsFloat        := AModel.MaxValue;
@@ -187,6 +197,8 @@ begin
     Q.ParamByName('data_format').AsStrings[AIndex]      := AModel.DataFormat;
     Q.ParamByName('is_show').AsBooleans[AIndex]         := AModel.IsShow;
     Q.ParamByName('is_show_helper').AsBooleans[AIndex]  := AModel.IsShowHelper;
+    if Q.FindParam('is_fetch') <> nil then
+      Q.ParamByName('is_fetch').AsBooleans[AIndex]      := AModel.IsFetch;
     Q.ParamByName('min_value').AsFloats[AIndex]         := AModel.MinValue;
     Q.ParamByName('min_value_color').AsIntegers[AIndex] := AModel.MinValueColor;
     Q.ParamByName('max_value').AsFloats[AIndex]         := AModel.MaxValue;
@@ -471,7 +483,7 @@ begin
   try
     Q.Connection  := Connection;
     Q.SQL.Text    :=
-      'SELECT id, table_name, column_name, column_order, column_width, is_show ' +
+      'SELECT id, table_name, column_name, column_order, column_width, is_show, is_fetch ' +
       'FROM public.' + GetTableName(TSysGridColumn) +
       ' WHERE table_name = :t ' +
       ' ORDER BY column_order';
@@ -495,6 +507,10 @@ begin
       Item.ColumnOrder:= Q.FieldByName('column_order').AsInteger;
       Item.ColumnWidth:= Q.FieldByName('column_width').AsInteger;
       Item.IsShow     := Q.FieldByName('is_show').AsBoolean;
+      if Q.FindField('is_fetch') <> nil then
+        Item.IsFetch  := Q.FieldByName('is_fetch').AsBoolean
+      else
+        Item.IsFetch  := True;
       Result.Add(Item);
       Q.Next;
     end;
@@ -613,6 +629,104 @@ begin
   finally
     Q.Free;
     LExisting.Free;
+  end;
+end;
+
+function TSysGridColumnRepository.LoadUserColumns(const ATableName: string; AUserId: Int64): TObjectList<TSysGridColumn>;
+var
+  Q: TFDQuery;
+  UserColMap: TDictionary<string, TSysGridColumn>;
+  ColName: string;
+  Item: TSysGridColumn;
+begin
+  Result := LoadColumns(ATableName);
+  if (AUserId <= 0) or (Result.Count = 0) then Exit;
+
+  UserColMap := TDictionary<string, TSysGridColumn>.Create;
+  try
+    for Item in Result do
+      UserColMap.AddOrSetValue(LowerCase(Item.ColumnName), Item);
+
+    Q := TFDQuery.Create(nil);
+    try
+      Q.Connection := Connection;
+      Q.SQL.Text :=
+        'SELECT column_name, column_order, column_width, is_show ' +
+        'FROM public.sys_user_grid_column ' +
+        'WHERE user_id = :uid AND table_name = :t';
+      Q.ParamByName('uid').AsLargeInt := AUserId;
+      Q.ParamByName('t').AsString := ATableName;
+      try
+        Q.Open;
+        while not Q.Eof do
+        begin
+          ColName := LowerCase(Q.FieldByName('column_name').AsString);
+          if UserColMap.TryGetValue(ColName, Item) then
+          begin
+            Item.ColumnOrder := Q.FieldByName('column_order').AsInteger;
+            Item.ColumnWidth := Q.FieldByName('column_width').AsInteger;
+            Item.IsShow      := Q.FieldByName('is_show').AsBoolean;
+          end;
+          Q.Next;
+        end;
+      except
+        on E: Exception do
+          GLogger.ErrorFmt('LoadUserColumns okuma hatası [%s, User %d]: %s', [ATableName, AUserId, E.Message]);
+      end;
+    finally
+      Q.Free;
+    end;
+  finally
+    UserColMap.Free;
+  end;
+end;
+
+procedure TSysGridColumnRepository.SaveUserColumns(const ATableName: string; AUserId: Int64; const AColumns: TObjectList<TSysGridColumn>);
+var
+  Q: TFDQuery;
+  i: Integer;
+  SQLText: string;
+begin
+  if (AColumns = nil) or (AColumns.Count = 0) or (AUserId <= 0) then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    SQLText :=
+      'INSERT INTO public.sys_user_grid_column ' +
+      '(user_id, table_name, column_name, column_order, column_width, is_show) VALUES ';
+
+    for i := 0 to AColumns.Count - 1 do
+    begin
+      if i > 0 then SQLText := SQLText + ', ';
+      SQLText := SQLText + Format('(:u, :t, :cn%d, :co%d, :cw%d, :cs%d)', [i, i, i, i]);
+    end;
+
+    SQLText := SQLText +
+      ' ON CONFLICT (user_id, table_name, column_name) DO UPDATE SET ' +
+      '  column_order = EXCLUDED.column_order, ' +
+      '  column_width = EXCLUDED.column_width, ' +
+      '  is_show      = EXCLUDED.is_show';
+
+    Q.SQL.Text := SQLText;
+    Q.ParamByName('u').AsLargeInt := AUserId;
+    Q.ParamByName('t').AsString := ATableName;
+    for i := 0 to AColumns.Count - 1 do
+    begin
+      Q.ParamByName('cn' + i.ToString).AsString  := AColumns[i].ColumnName;
+      Q.ParamByName('co' + i.ToString).AsInteger := AColumns[i].ColumnOrder;
+      Q.ParamByName('cw' + i.ToString).AsInteger := AColumns[i].ColumnWidth;
+      Q.ParamByName('cs' + i.ToString).AsBoolean := AColumns[i].IsShow;
+    end;
+
+    try
+      Q.ExecSQL;
+    except
+      on E: Exception do
+        GLogger.ErrorFmt('SaveUserColumns kayıt hatası [%s, User %d]: %s', [ATableName, AUserId, E.Message]);
+    end;
+  finally
+    Q.Free;
   end;
 end;
 

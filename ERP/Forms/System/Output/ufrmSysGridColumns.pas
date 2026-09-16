@@ -44,6 +44,7 @@ begin
   SetColumnProperty('column_width',80, TLocalizationManager.Translate('sys_grid_column.col_column_width', 'Width'));
   SetColumnProperty('column_order',80, TLocalizationManager.Translate('sys_grid_column.col_column_order', 'Order'));
   SetColumnProperty('is_show',     60, TLocalizationManager.Translate('sys_grid_column.col_is_show', 'Show'));
+  SetColumnProperty('is_fetch',    60, TLocalizationManager.Translate('sys_grid_column.col_is_fetch', 'Fetch'));
 end;
 
 procedure TfrmSysGridColumns.DefineFooterColumns;

@@ -1,4 +1,4 @@
-﻿unit ufrmGrid;
+unit ufrmGrid;
 
 interface
 
@@ -215,6 +215,7 @@ type
     procedure mniFilterExcludeClick(Sender: TObject); virtual;
     procedure mniFilterBackClick(Sender: TObject); virtual;
     procedure mniFilterRemoveClick(Sender: TObject); virtual;
+    function CollectVisibleIds: TArray<Int64>; virtual;
     procedure mniExportExcelClick(Sender: TObject); virtual;
     procedure mniExportCsvClick(Sender: TObject); virtual;
     procedure mniPrintClick(Sender: TObject); virtual;
@@ -255,7 +256,7 @@ type
 
 implementation
 
-uses ufrmInputSimpleDB, Logger, SysGridColumn, SysGridColumn.Repository;
+uses Winapi.ShellAPI, System.Threading, ufrmInputSimpleDB, Logger, SysGridColumn, SysGridColumn.Repository, EntitySchemaCache, ExcelExportTask, ufrmExportProgress;
 
 { TFooterColumn }
 
@@ -1314,9 +1315,161 @@ begin
   end;
 end;
 
-procedure TfrmGrid<TE, TS>.mniExportExcelClick(Sender: TObject);
+function TfrmGrid<TE, TS>.CollectVisibleIds: TArray<Int64>;
+var
+  Bkm: TBookmark;
+  IdList: TList<Int64>;
 begin
-  ShowMessage('not implemented yet!' + sLineBreak + 'Export Excel');
+  IdList := TList<Int64>.Create;
+  try
+    if Assigned(FQry) and FQry.Active then
+    begin
+      FQry.DisableControls;
+      try
+        Bkm := FQry.GetBookmark;
+        try
+          FQry.First;
+          while not FQry.Eof do
+          begin
+            if FQry.FindField('id') <> nil then
+              IdList.Add(FQry.FieldByName('id').AsLargeInt);
+            FQry.Next;
+          end;
+        finally
+          if FQry.BookmarkValid(Bkm) then
+            FQry.GotoBookmark(Bkm);
+          FQry.FreeBookmark(Bkm);
+        end;
+      finally
+        FQry.EnableControls;
+      end;
+    end;
+    Result := IdList.ToArray;
+  finally
+    IdList.Free;
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.mniExportExcelClick(Sender: TObject);
+var
+  SavePath: string;
+  VisibleIds: TArray<Int64>;
+  Strategy: TExportStrategy;
+  ExportTask: TExcelExportTask;
+  ProgForm: TfrmExportProgress;
+  ColList: TList<TExportColumnInfo>;
+  ColInfo: TExportColumnInfo;
+  ParamArray: TList<TExportParamInfo>;
+  ParamInfo: TExportParamInfo;
+  i: Integer;
+  TableName: string;
+  WhereClause: string;
+begin
+  if not Assigned(FQry) or not FQry.Active then
+  begin
+    ShowMessage('Dışa aktarılacak veri bulunamadı.');
+    Exit;
+  end;
+
+  SavePath := GetDialogSave(GetGridViewName + '.xlsx', 'Excel Dosyası (*.xlsx)|*.xlsx');
+  if SavePath = '' then Exit;
+
+  VisibleIds := CollectVisibleIds;
+  if Length(VisibleIds) = 0 then
+  begin
+    ShowMessage('Görüntülenen kayıt bulunamadı.');
+    Exit;
+  end;
+
+  if Length(VisibleIds) <= 5000 then
+    Strategy := esSmall
+  else if Length(VisibleIds) <= 100000 then
+    Strategy := esMedium
+  else
+    Strategy := esLarge;
+
+  ColList := TList<TExportColumnInfo>.Create;
+  try
+    for i := 0 to Grd.Columns.Count - 1 do
+    begin
+      if Grd.Columns[i].Visible and Assigned(Grd.Columns[i].Field) then
+      begin
+        ColInfo.FieldName := Grd.Columns[i].FieldName;
+        ColInfo.Caption := Grd.Columns[i].Title.Caption;
+        ColList.Add(ColInfo);
+      end;
+    end;
+
+    ParamArray := TList<TExportParamInfo>.Create;
+    try
+      for i := 0 to FQry.Params.Count - 1 do
+      begin
+        ParamInfo.Name := FQry.Params[i].Name;
+        ParamInfo.Value := FQry.Params[i].Value;
+        ParamArray.Add(ParamInfo);
+      end;
+
+      TableName := GetGridViewName;
+      if TableName = '' then
+        TableName := 'vw_' + TEntitySchemaCache.GetSchema(TE).TableName;
+
+      WhereClause := '';
+      if Pos('WHERE', UpperCase(FQry.SQL.Text)) > 0 then
+        WhereClause := FQry.SQL.Text.Substring(Pos('WHERE', UpperCase(FQry.SQL.Text)) - 1);
+
+      ExportTask := TExcelExportTask.Create(
+        FService.UoW.Connection.Params,
+        VisibleIds,
+        Strategy,
+        TableName,
+        WhereClause,
+        ParamArray.ToArray,
+        ColList.ToArray,
+        SavePath
+      );
+    finally
+      ParamArray.Free;
+    end;
+  finally
+    ColList.Free;
+  end;
+
+  ProgForm := TfrmExportProgress.Create(Self);
+  ProgForm.Show;
+
+  ExportTask.OnProgress := procedure(ACurrent, ATotal: Integer; const AStatus: string)
+  begin
+    if Assigned(ProgForm) then
+      ProgForm.UpdateProgress(ACurrent, ATotal, AStatus);
+  end;
+
+  ExportTask.OnComplete := procedure(ASuccess: Boolean; const AErrorMsg: string)
+  begin
+    if Assigned(ProgForm) then
+      ProgForm.Close;
+
+    if ASuccess then
+    begin
+      if FileExists(SavePath) then
+        ShellExecute(0, 'open', PChar(SavePath), nil, nil, SW_SHOWNORMAL);
+    end
+    else if AErrorMsg <> '' then
+      ShowMessage('Export Hatası: ' + AErrorMsg);
+
+    FreeAndNil(ExportTask);
+  end;
+
+  ProgForm.OnCancel := procedure
+  begin
+    if Assigned(ExportTask) then
+      ExportTask.Cancel;
+  end;
+
+  var RunTaskProc: TProc := procedure
+  begin
+    ExportTask.Execute;
+  end;
+  TTask.Run(RunTaskProc);
 end;
 
 procedure TfrmGrid<TE, TS>.mniFilterBackClick(Sender: TObject);
@@ -2073,16 +2226,23 @@ var
   LColMap  : TDictionary<string, Integer>;
   LColIndex: Integer;
   i, j     : Integer;
+  LUserId  : Int64;
 begin
   LViewName := GetGridViewName;
   if LViewName = '' then Exit;
   if not Service.UoW.Connection.Connected then Exit;
 
-  // FIX: Interface üzerinden — tehlikeli TObject cast yok
-  LSysRepo := Service.UoW.GetRepository<TSysGridColumn,
-    TSysGridColumnRepository> as ISysGridColumnRepository;
+  LUserId := 0;
+  if (TAppContext.Instance.CurrentUser <> nil) then
+    LUserId := TAppContext.Instance.CurrentUser.GetUserId;
 
-  LColumns := LSysRepo.LoadColumns(LViewName);
+  LSysRepo := Service.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository> as ISysGridColumnRepository;
+
+  if LUserId > 0 then
+    LColumns := LSysRepo.LoadUserColumns(LViewName, LUserId)
+  else
+    LColumns := LSysRepo.LoadColumns(LViewName);
+
   try
     if LColumns.Count = 0 then Exit;
 
@@ -2142,10 +2302,8 @@ begin
   if dgIndicator in Grd.Options then
     LTotalWidth := LTotalWidth + IndicatorWidth;
 
-  // Add scrollbar width and borders/margins
   LTotalWidth := LTotalWidth + (Self.Width - Self.ClientWidth) + 30;
 
-  // Apply constraints
   if (Self.Constraints.MinWidth > 0) and (LTotalWidth < Self.Constraints.MinWidth) then
     LTotalWidth := Self.Constraints.MinWidth;
 
@@ -2162,10 +2320,15 @@ var
   LColumns  : TObjectList<TSysGridColumn>;
   LCol      : TSysGridColumn;
   i         : Integer;
+  LUserId   : Int64;
 begin
   LViewName := GetGridViewName;
   if LViewName = '' then Exit;
   if Service.UoW.InTransaction then Exit;
+
+  LUserId := 0;
+  if (TAppContext.Instance.CurrentUser <> nil) then
+    LUserId := TAppContext.Instance.CurrentUser.GetUserId;
 
   LColumns := TObjectList<TSysGridColumn>.Create(True);
   try
@@ -2181,7 +2344,10 @@ begin
     end;
 
     LSysRepo := Service.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository> as ISysGridColumnRepository;
-    LSysRepo.SaveColumns(LViewName, LColumns);
+    if LUserId > 0 then
+      LSysRepo.SaveUserColumns(LViewName, LUserId, LColumns)
+    else
+      LSysRepo.SaveColumns(LViewName, LColumns);
   finally
     LColumns.Free;
   end;
