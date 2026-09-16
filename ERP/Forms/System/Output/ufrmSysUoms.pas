@@ -40,8 +40,8 @@ end;
 procedure TfrmSysUoms.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',              0, TLocalizationManager.Translate('sys_uom.col_id', 'Id'));
-  SetColumnProperty('measure_type_id', 0, TLocalizationManager.Translate('sys_uom.col_measure_type_id', 'Measure Type Id'));
+  SetColumnProperty('id',              0, TLocalizationManager.Translate(TLangKeys.TSysUom.ColId, 'Id'));
+  SetColumnProperty('measure_type_id', 0, TLocalizationManager.Translate(TLangKeys.TSysUom.ColMeasureTypeId, 'Measure Type Id'));
 end;
 
 procedure TfrmSysUoms.DefineFooterColumns;
@@ -59,12 +59,12 @@ end;
 procedure TfrmSysUoms.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_uom.title_plural', 'Units of Measurement');
-  SetColumnTitle('unit_code',   TLocalizationManager.Translate('sys_uom.col_unit', 'Unit Code'));
-  SetColumnTitle('unit_einv',   TLocalizationManager.Translate('sys_uom.col_unit_einv', 'E-Invoice Unit Code'));
-  SetColumnTitle('description', TLocalizationManager.Translate('sys_uom.col_description', 'Description'));
-  SetColumnTitle('decimal',     TLocalizationManager.Translate('sys_uom.col_decimal', 'Decimal'));
-  SetColumnTitle('multiplier',  TLocalizationManager.Translate('sys_uom.col_multiplier', 'Multiplier'));
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.TitlePlural, 'Units of Measurement');
+  SetColumnTitle('unit_code',   TLocalizationManager.Translate(TLangKeys.TSysUom.ColUnit, 'Unit Code'));
+  SetColumnTitle('unit_einv',   TLocalizationManager.Translate(TLangKeys.TSysUom.ColUnitEinv, 'E-Invoice Unit Code'));
+  SetColumnTitle('description', TLocalizationManager.Translate(TLangKeys.TSysUom.ColDescription, 'Description'));
+  SetColumnTitle('decimal',     TLocalizationManager.Translate(TLangKeys.TSysUom.ColDecimal, 'Decimal'));
+  SetColumnTitle('multiplier',  TLocalizationManager.Translate(TLangKeys.TSysUom.ColMultiplier, 'Multiplier'));
 end;
 
 end.

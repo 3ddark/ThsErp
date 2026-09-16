@@ -1,4 +1,4 @@
-﻿unit ufrmSysLanguages;
+unit ufrmSysLanguages;
 
 interface
 
@@ -38,7 +38,7 @@ end;
 procedure TfrmSysLanguages.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',            0, TLocalizationManager.Translate('sys_language.col_id', 'Id'));
+  SetColumnProperty('id',            0, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColId, 'Id'));
   SetColumnProperty('locale',      120, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Lisan Kodu'));
   SetColumnProperty('native_name', 250, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColNativeName, 'Lisan Adı'));
 end;

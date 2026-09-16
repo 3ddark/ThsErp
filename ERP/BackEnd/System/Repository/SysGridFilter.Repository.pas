@@ -64,7 +64,7 @@ end;
 
 function TSysGridFilterRepository.PrepareDeleteSql: string;
 begin
-  //WHERE kısmı özellikle böyle yazıldı. Filtre vermeden işlem yapılmaması için. Hatalı kodlamada tüm tabloyu siler.
+  //WHERE kÄ±smÄ± Ã¶zellikle bÃ¶yle yazÄ±ldÄ±. Filtre vermeden iÅŸlem yapÄ±lmamasÄ± iÃ§in. HatalÄ± kodlamada tÃ¼m tabloyu siler.
   Result := 'DELETE FROM public.' + Self.GetTableName(TSysGridFilter) + ' WHERE';
 end;
 
@@ -109,10 +109,12 @@ end;
 function TSysGridFilterRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 var
   Criteria: TFilterCriterion;
+  SelectCols: string;
 begin
+  SelectCols := Self.BuildSelectColumns(['id']);
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysGridFilter) + ' WHERE 1=1 ';
+  Result.SQL.Text := 'SELECT ' + SelectCols + ' FROM ' + Self.GetFullViewName(TSysGridFilter) + ' WHERE 1=1 ';
 
   if Assigned(AFilter) and (AFilter.Count > 0) then
   begin

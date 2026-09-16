@@ -105,7 +105,7 @@ end;
 procedure TfrmSysGridColumn.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_grid_column.title_singular', 'Grid Kolon Ayarı');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TitleSingular, 'Grid Kolon Ayarı');
 end;
 
 procedure TfrmSysGridColumn.InitializeInputCase;

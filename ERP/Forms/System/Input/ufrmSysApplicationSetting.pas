@@ -1,4 +1,4 @@
-﻿unit ufrmSysApplicationSetting;
+unit ufrmSysApplicationSetting;
 
 interface
 
@@ -295,7 +295,7 @@ end;
 procedure TfrmSysApplicationSetting.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_application_setting.title_singular', 'Uygulama Ayarları');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TitleSingular, 'Uygulama Ayarları');
 end;
 
 procedure TfrmSysApplicationSetting.HelperProcess(Sender: TObject);

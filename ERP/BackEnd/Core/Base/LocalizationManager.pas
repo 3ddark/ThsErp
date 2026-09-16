@@ -1,4 +1,4 @@
-﻿unit LocalizationManager;
+unit LocalizationManager;
 
 interface
 
@@ -209,7 +209,7 @@ type
       end;
 
       TSysApplicationSetting = record
-
+        const TitleSingular = 'sys_application_setting.title_singular';
       end;
 
       TSysCity = record
@@ -234,6 +234,14 @@ type
       end;
 
       TSysCurrency = record
+        const TitleSingular = 'sys_currency.title_singular';
+        const TitlePlural = 'sys_currency.title_plural';
+        const LblCode = 'sys_currency.lbl_code';
+        const LblSymbol = 'sys_currency.lbl_symbol';
+        const ColId = 'sys_currency.col_id';
+        const ColCode = 'sys_currency.col_code';
+        const ColSymbol = 'sys_currency.col_symbol';
+        const ColDescription = 'sys_currency.col_description';
         const CurrencyUnique = 'sys_currency.currency.unique';
       end;
 
@@ -249,21 +257,40 @@ type
       end;
 
       TSysGridColumn = record
+        const TitleSingular = 'sys_grid_column.title_singular';
+        const TitlePlural = 'sys_grid_column.title_plural';
+        const ColId = 'sys_grid_column.col_id';
+        const ColTableName = 'sys_grid_column.col_table_name';
+        const ColColumnName = 'sys_grid_column.col_column_name';
+        const ColColumnWidth = 'sys_grid_column.col_column_width';
+        const ColColumnOrder = 'sys_grid_column.col_column_order';
+        const ColIsShow = 'sys_grid_column.col_is_show';
+        const ColIsFetch = 'sys_grid_column.col_is_fetch';
         const TableNameColumnName = 'sys_grid_column.table_name_column_name.unique';
         const TableNameColumnOrder = 'sys_grid_column.table_name_column_order.unique';
       end;
 
       TSysGridFilter = record
+        const TitleSingular = 'sys_grid_filter.title_singular';
+        const TitlePlural = 'sys_grid_filter.title_plural';
+        const ColId = 'sys_grid_filter.col_id';
+        const ColTableName = 'sys_grid_filter.col_table_name';
+        const ColFilterContent = 'sys_grid_filter.col_filter_content';
         const TableNameUnique = 'sys_grid_filter.table_name.unique';
       end;
 
       TSysGridSort = record
-
+        const TitleSingular = 'sys_grid_sort.title_singular';
+        const TitlePlural = 'sys_grid_sort.title_plural';
+        const ColId = 'sys_grid_sort.col_id';
+        const ColTableName = 'sys_grid_sort.col_table_name';
+        const ColSortContent = 'sys_grid_sort.col_sort_content';
       end;
 
       TSysLanguage = record
         const TitlePlural = 'sys_language.title_plural';
         const TitleSingular = 'sys_language.title_singular';
+        const ColId = 'sys_language.col_id';
         const ColLocale = 'sys_language.col_locale';
         const ColNativeName = 'sys_language.col_native_name';
         const LblLocale = 'sys_language.lbl_locale';
@@ -278,12 +305,8 @@ type
         const ColPermissionCode = 'sys_permission.col_permission_code';
         const ColKey = 'sys_permission.col_permission_key';
         const ColPermissionName = 'sys_permission.col_permission_name';
-        const ColGroupKey = 'sys_permission.col_group_key';
-        const ColGroupName = 'sys_permission.col_group_name';
         const ColGroupId = 'sys_permission.col_group_id';
-        const CodeRequired = 'sys_permission.code.required';
         const CodePositive = 'sys_permission.code.positive';
-        const KeyRequired = 'sys_permission.key.required';
         const GroupRequired = 'sys_permission.group.required';
         const KeyUnique = 'sys_permission.key_unique';
       end;
@@ -295,16 +318,13 @@ type
         const ColGroupName = 'sys_permission_group.col_group_name';
         const ColLocale = 'sys_permission_group.col_locale';
         const LblKey = 'sys_permission_group.lbl_key';
-        const LblNameEN = 'sys_permission_group.lbl_name_en';
-        const LblNameTR = 'sys_permission_group.lbl_name_tr';
-        const KeyRequired = 'sys_permission_group.key.required';
-        const NameRequired = 'sys_permission_group.name.required';
         const GroupKeyUnique = 'sys_permission_group.group_key_unique';
+        const KeyRequired = 'sys_permission_group.key.required';
       end;
 
       TSysRegion = record
-        const TitlePlural = 'sys_region.title.title_plural';
-        const TitleSingular = 'sys_region.title.singular';
+        const TitlePlural = 'sys_region.title_plural';
+        const TitleSingular = 'sys_region.title_singular';
         const ColRegionName = 'sys_region.region_name';
         const RegionNameUnique = 'sys_region.region_name.unique';
       end;
@@ -312,17 +332,28 @@ type
       TSysUom = record
         const TitlePlural = 'sys_uom.title_plural';
         const TitleSingular = 'sys_uom.title_singular';
+        const UnitCode = 'sys_uom.unit_code';
+        const UnitEinv = 'sys_uom.unit_einv';
+        const DecimalPlace = 'sys_uom.decimal';
+        const MeasureType = 'sys_uom.measure_type';
+        const Multiplier = 'sys_uom.multiplier';
+        const ColId = 'sys_uom.col_id';
+        const ColUnit = 'sys_uom.col_unit';
+        const ColUnitEinv = 'sys_uom.col_unit_einv';
+        const ColMeasureTypeId = 'sys_uom.col_measure_type_id';
         const ColDescription = 'sys_uom.col_description';
+        const ColDecimal = 'sys_uom.col_decimal';
+        const ColMultiplier = 'sys_uom.col_multiplier';
         const UnitCodeUnique = 'sys_uom.unit_code_unique';
       end;
 
       TSysUomGroup = record
-        const TitlePlural = 'sys_umo_group.title_plural';
-        const TitleSingular = 'sys_umo_group.title_singular';
-        const ColKey = 'sys_umo_group.col_key';
-        const ColName = 'sys_umo_group.col_name';
-        const ColLocale = 'sys_umo_group.col_locale';
-        const KeyUnique = 'sys_umo_group.key_unique';
+        const TitlePlural = 'sys_uom_group.title_plural';
+        const TitleSingular = 'sys_uom_group.title_singular';
+        const ColKey = 'sys_uom_group.col_key';
+        const ColName = 'sys_uom_group.col_name';
+        const ColLocale = 'sys_uom_group.col_locale';
+        const KeyUnique = 'sys_uom_group.key_unique';
       end;
 
       TSysUser = record
@@ -330,17 +361,24 @@ type
         const TitleSingular = 'sys_user.title_singular';
 
         const ColUserName = 'sys_user.col_username';
-        const ColUserPassword = 'sys_user.col_username';
+        const ColUserPassword = 'sys_user.col_user_password';
         const ColActive = 'sys_user.col_active';
         const ColManager = 'sys_user.col_manager';
         const ColSuperUser = 'sys_user.col_super_user';
         const ColIpAddress = 'sys_user.col_ip_address';
-        const ColMacAddress = 'sys_user.col_mac_mddress';
+        const ColMacAddress = 'sys_user.col_mac_address';
         const ColEmployeeId = 'sys_user.col_employee_id';
         const ColSysPermissionId = 'sys_user.col_permission_id';
         const ColSysUserId = 'sys_user.col_user_id';
 
         const UsernameUnique = 'sys_user.username_unique';
+      end;
+
+      TSysViewTable = record
+        const TitlePlural = 'sys_view_tables.title_plural';
+        const ColId = 'sys_view_tables.col_id';
+        const ColTableName = 'sys_view_tables.col_table_name';
+        const ColTableType = 'sys_view_tables.col_table_type';
       end;
 
 
@@ -351,7 +389,6 @@ type
         const ColFullName = 'emp_employee.col_full_name';
         const ColName = 'emp_employee.col_name';
         const ColSurname = 'emp_employee.col_surname';
-        const ColSection = '';
       end;
 
       TEmpSection = record

@@ -1,4 +1,4 @@
-﻿unit ufrmSysUom;
+unit ufrmSysUom;
 
 interface
 
@@ -108,12 +108,12 @@ end;
 procedure TfrmSysUom.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('sys_uom.title.singular', 'Ölçü Birimi');
-  lblUnit.Caption := TLocalizationManager.Translate('sys_uom.unit_code', 'Birim Kodu');
-  lblUnitEInv.Caption := TLocalizationManager.Translate('sys_uom.unit_einv', 'E-Fatura Birim Kodu');
-  lblDecimal.Caption := TLocalizationManager.Translate('sys_uom.decimal', 'Ondalıklı');
-  lblMeasureTypeId.Caption := TLocalizationManager.Translate('sys_uom.measure_type', 'Ölçü Birimi Tipi');
-  lblMultiplier.Caption := TLocalizationManager.Translate('sys_uom.multiplier', 'Çarpan');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.TitleSingular, 'Ölçü Birimi');
+  lblUnit.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitCode, 'Birim Kodu');
+  lblUnitEInv.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitEinv, 'E-Fatura Birim Kodu');
+  lblDecimal.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.DecimalPlace, 'Ondalıklı');
+  lblMeasureTypeId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.MeasureType, 'Ölçü Birimi Tipi');
+  lblMultiplier.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.Multiplier, 'Çarpan');
 end;
 
 procedure TfrmSysUom.HelperProcess(Sender: TObject);
