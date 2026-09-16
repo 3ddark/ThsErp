@@ -15,6 +15,7 @@ type
     FDataFormat: string;
     FIsShow: Boolean;
     FIsShowHelper: Boolean;
+    FIsFetch: Boolean;
     FMinValue: Double;
     FMinValueColor: Integer;
     FMaxValue: Double;
@@ -44,6 +45,9 @@ type
 
     [Column('is_show_helper')]
     property IsShowHelper: Boolean read FIsShowHelper write FIsShowHelper;
+
+    [Column('is_fetch')]
+    property IsFetch: Boolean read FIsFetch write FIsFetch;
 
     [Column('min_value')]
     property MinValue: Double read FMinValue write FMinValue;
@@ -84,6 +88,7 @@ begin
   FColumnWidth := 0;
   FIsShow := True;
   FIsShowHelper := False;
+  FIsFetch := True;
   FMinValue := 0;
   FMinValueColor := 0;
   FMaxValue := 0;
@@ -109,6 +114,7 @@ begin
   Result.DataFormat := Self.DataFormat;
   Result.IsShow := Self.IsShow;
   Result.IsShowHelper := Self.IsShowHelper;
+  Result.IsFetch := Self.IsFetch;
   Result.MinValue := Self.MinValue;
   Result.MinValueColor := Self.MinValueColor;
   Result.MaxValue := Self.MaxValue;

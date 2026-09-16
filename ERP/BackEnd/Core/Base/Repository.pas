@@ -1,4 +1,4 @@
-﻿unit Repository;
+unit Repository;
 
 interface
 
@@ -35,6 +35,7 @@ type
     FConnection: TFDConnection;
   protected
     function PrepareSelectFromView(AFilter: TFilterCriteria; ALock: Boolean; AGetOnlyOneRecord: Boolean = False; AApplyLocaleFilter: Boolean = False): string;
+    function BuildSelectColumns(const AAlwaysFetch: TArray<string> = []): string; virtual;
 
     function Connection: TFDConnection;
     function GetTableName(AClass: TClass): string;
@@ -88,7 +89,17 @@ type
 implementation
 
 uses
-  EntitySchemaCache, Logger, AppContext;
+  EntitySchemaCache, Logger, AppContext, SysGridColumnHelper;
+
+function TRepository<T>.BuildSelectColumns(const AAlwaysFetch: TArray<string>): string;
+var
+  Always: TArray<string>;
+begin
+  Always := AAlwaysFetch;
+  if Length(Always) = 0 then
+    Always := ['id', 'locale'];
+  Result := TGridColumnHelper.BuildSelectColumns(FConnection, GetViewName(T), Always);
+end;
 
 constructor TRepository<T>.Create(AConnection: TFDConnection);
 begin

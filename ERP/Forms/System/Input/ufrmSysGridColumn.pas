@@ -1,4 +1,4 @@
-﻿unit ufrmSysGridColumn;
+unit ufrmSysGridColumn;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls,
-  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager, AppContext,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
   SysGridColumn.Service, SysGridColumn;
 
@@ -27,6 +27,7 @@ type
     edtDataFormat: TEdit;
     chkIsShow: TCheckBox;
     chkIsShowHelper: TCheckBox;
+    chkIsFetch: TCheckBox;
     lblMinValue: TLabel;
     edtMinValue: TEdit;
     lblMinValueColor: TLabel;
@@ -65,6 +66,8 @@ begin
   Table.DataFormat := edtDataFormat.Text;
   Table.IsShow := chkIsShow.Checked;
   Table.IsShowHelper := chkIsShowHelper.Checked;
+  if Assigned(chkIsFetch) then
+    Table.IsFetch := chkIsFetch.Checked;
   Table.MinValue := StrToFloatDef(edtMinValue.Text, 0);
   Table.MinValueColor := StrToIntDef(edtMinValueColor.Text, 0);
   Table.MaxValue := StrToFloatDef(edtMaxValue.Text, 0);
@@ -83,9 +86,19 @@ begin
 end;
 
 procedure TfrmSysGridColumn.FormShow(Sender: TObject);
+var
+  LIsAdminOrManager: Boolean;
 begin
   inherited;
   ApplyLocalization;
+
+  LIsAdminOrManager := (TAppContext.Instance.CurrentUser <> nil) and
+                       (TAppContext.Instance.CurrentUser.User <> nil) and
+                       (TAppContext.Instance.CurrentUser.User.SuperUser or TAppContext.Instance.CurrentUser.User.Manager);
+
+  if Assigned(chkIsFetch) then
+    chkIsFetch.Enabled := LIsAdminOrManager;
+
   edtTableName.SetFocus;
 end;
 
@@ -126,6 +139,8 @@ begin
   edtDataFormat.Text := Table.DataFormat;
   chkIsShow.Checked := Table.IsShow;
   chkIsShowHelper.Checked := Table.IsShowHelper;
+  if Assigned(chkIsFetch) then
+    chkIsFetch.Checked := Table.IsFetch;
   edtMinValue.Text := FloatToStr(Table.MinValue);
   edtMinValueColor.Text := IntToStr(Table.MinValueColor);
   edtMaxValue.Text := FloatToStr(Table.MaxValue);
