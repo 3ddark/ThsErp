@@ -1,4 +1,4 @@
-unit LocalizationManager;
+﻿unit LocalizationManager;
 
 interface
 
@@ -167,14 +167,13 @@ type
       TSysAccessRight = record
         const TitlePlural = 'sys_access_right.title_plural';
         const TitleSingular = 'sys_access_right.title_singular';
-
-        const ColUserId = 'sys_access_right.col_user_id';
-        const ColPermissionId = 'sys_access_right.col_permission_id';
+        const ColSysPermissionId = 'sys_access_right.col_sys_permission_id';
         const ColRead = 'sys_access_right.col_is_read';
         const ColAdd = 'sys_access_right.col_is_add';
         const ColUpdate = 'sys_access_right.col_is_update';
         const ColDelete = 'sys_access_right.col_is_delete';
         const ColSpecial = 'sys_access_right.col_is_special';
+        const ColSysUserId = 'sys_access_right.col_sys_user_id';
 
         const MenuCopUserRights = 'sys_access_right.popup.copy_user_rights';
 
@@ -368,8 +367,6 @@ type
         const ColIpAddress = 'sys_user.col_ip_address';
         const ColMacAddress = 'sys_user.col_mac_address';
         const ColEmployeeId = 'sys_user.col_employee_id';
-        const ColSysPermissionId = 'sys_user.col_permission_id';
-        const ColSysUserId = 'sys_user.col_user_id';
 
         const UsernameUnique = 'sys_user.username_unique';
       end;

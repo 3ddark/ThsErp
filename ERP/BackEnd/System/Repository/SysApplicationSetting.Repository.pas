@@ -1,4 +1,4 @@
-unit SysApplicationSetting.Repository;
+﻿unit SysApplicationSetting.Repository;
 
 interface
 

@@ -1,4 +1,4 @@
-unit SysAccessRight;
+﻿unit SysAccessRight;
 
 interface
 

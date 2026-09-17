@@ -17,7 +17,7 @@ implementation
 
 class function ESysLanguageExceptionLocaleUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysLanguage.LocaleUnique, 'Locale zaten atanmış. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysLanguage.LocaleUnique, 'The locale has already been assigned. It cannot be assigned again.');
 end;
 
 end.

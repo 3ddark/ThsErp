@@ -1,4 +1,4 @@
-unit SysPermissionGroup.Service;
+﻿unit SysPermissionGroup.Service;
 
 interface
 

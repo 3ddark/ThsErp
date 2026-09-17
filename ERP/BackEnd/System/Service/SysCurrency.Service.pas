@@ -1,4 +1,4 @@
-unit SysCurrency.Service;
+﻿unit SysCurrency.Service;
 
 interface
 

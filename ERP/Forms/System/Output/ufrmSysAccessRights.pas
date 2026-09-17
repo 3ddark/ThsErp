@@ -98,10 +98,14 @@ begin
     Exit;
   end;
 
-  if MessageDlg(Format(TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgConfirmCopy, 'Are you sure you want to copy all rights of user "%s" to user "%s"?' + sLineBreak +
-                       'Note: The target user is existing rights will be deleted, and the source user is rights will be copied.'),
-                       [LSourceUsername, LTargetUsername]),
-                mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  if MessageDlg(Format(TLocalizationManager.Translate(
+      TLangKeys.TSysAccessRight.MsgConfirmCopy,
+      'Are you sure you want to copy all rights of user "%s" to user "%s"?' + sLineBreak +
+      'Note: The target user is existing rights will be deleted, and the source user is rights will be copied.'),
+      [LSourceUsername, LTargetUsername]),
+      mtConfirmation, [mbYes, mbNo], 0
+  ) = mrYes
+  then
   begin
     try
       Service.CopyUserAccessRights(LSourceUserId, LTargetUserId);
@@ -115,19 +119,6 @@ begin
 end;
 
 procedure TfrmSysAccessRights.DefineColumnWidths;
-  procedure SetColumnIndex(const AFieldName: string; AIndex: Integer);
-  var
-    i: Integer;
-  begin
-    for i := 0 to Grd.Columns.Count - 1 do
-    begin
-      if SameText(Grd.Columns[i].FieldName, AFieldName) then
-      begin
-        Grd.Columns[i].Index := AIndex;
-        Break;
-      end;
-    end;
-  end;
 begin
   inherited;
   SetColumnProperty('id', 0);
@@ -161,13 +152,13 @@ begin
   SetColumnTitle('permission_code', TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionCode, 'Permission Code'));
   SetColumnTitle('permission_name', TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionName, 'Permission Name'));
   SetColumnTitle('permission_group_name', TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Permission Group'));
-  SetColumnTitle('sys_permission_id', TLocalizationManager.Translate(TLangKeys.TSysUser.ColSysPermissionId, 'SysPermission Id'));
+  SetColumnTitle('sys_permission_id', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColSysPermissionId, 'SysPermission Id'));
   SetColumnTitle('is_read', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColRead, 'Read'));
   SetColumnTitle('is_add', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColAdd, 'Add'));
   SetColumnTitle('is_update', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColUpdate, 'Update'));
   SetColumnTitle('is_delete', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColDelete, 'Delete'));
   SetColumnTitle('is_special', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColSpecial, 'Special'));
-  SetColumnTitle('sys_user_id', TLocalizationManager.Translate(TLangKeys.TSysUser.ColSysUserId, 'SysUser Id'));
+  SetColumnTitle('sys_user_id', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColSysUserId, 'SysUser Id'));
   SetColumnTitle('locale', TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
 end;
 

@@ -1,4 +1,4 @@
-unit SysPermission;
+﻿unit SysPermission;
 
 interface
 

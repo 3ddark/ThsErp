@@ -1,4 +1,4 @@
-unit SysUser.Service;
+﻿unit SysUser.Service;
 
 interface
 
@@ -37,10 +37,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysUserService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
+  PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TSysUserService.Destroy;

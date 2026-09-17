@@ -22,12 +22,12 @@ implementation
 
 class function ESysDecimalPlaceExceptionMustContainOnlyOneRecord.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TMessage.MustContainOnlyOneRecord, 'Yalnızca tek bir kayıt içermelidir');
+  Result := TLocalizationManager.Translate(TLangKeys.TMessage.MustContainOnlyOneRecord, 'It must contain only a single record.');
 end;
 
 class function ESysDecimalPlaceExceptionNegativeValueNotAllowed.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TValidation.NegativeValueNotAllowed, 'Negatif değer olamaz');
+  Result := TLocalizationManager.Translate(TLangKeys.TValidation.NegativeValueNotAllowed, 'It cannot be a negative value.');
 end;
 
 end.

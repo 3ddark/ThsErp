@@ -1,4 +1,4 @@
-unit SysGridColumnHelper;
+﻿unit SysGridColumnHelper;
 
 interface
 

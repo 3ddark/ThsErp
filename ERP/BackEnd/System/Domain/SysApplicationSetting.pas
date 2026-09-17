@@ -1,4 +1,4 @@
-unit SysApplicationSetting;
+﻿unit SysApplicationSetting;
 
 interface
 

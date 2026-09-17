@@ -1,4 +1,4 @@
-unit SysLanguage;
+﻿unit SysLanguage;
 
 interface
 
