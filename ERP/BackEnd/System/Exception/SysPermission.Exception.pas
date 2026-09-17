@@ -17,7 +17,7 @@ implementation
 
 class function ESysPermissionExceptionKeyUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysPermission.KeyUnique, 'İzin Key değeri zaten atanmış. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysPermission.KeyUnique, 'The Permission Key value has already been assigned. It cannot be assigned again.');
 end;
 
 end.

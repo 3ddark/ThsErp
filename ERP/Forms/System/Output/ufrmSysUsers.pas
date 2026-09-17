@@ -39,18 +39,20 @@ procedure TfrmSysUsers.DefineColumnWidths;
 begin
   inherited;
   SetColumnProperty('id', 0);
-  SetColumnProperty('username', 120);
+  SetColumnProperty('name', 120);
+  SetColumnProperty('surname', 120);
   SetColumnProperty('user_password', 0);
-  SetColumnProperty('emp_employee_id', 0);
-  SetColumnProperty('person_name', 120);
-  SetColumnProperty('person_surname', 120);
-  SetColumnProperty('person_section', 120);
-  SetColumnProperty('person_unit', 120);
+  SetColumnProperty('full_name', 120);
+  SetColumnProperty('section_name', 120);
+  SetColumnProperty('unit_name', 120);
+  SetColumnProperty('username', 120);
   SetColumnProperty('active', 60);
   SetColumnProperty('manager', 70);
   SetColumnProperty('super_user', 80);
   SetColumnProperty('ip_address', 100);
   SetColumnProperty('mac_address', 100);
+  SetColumnProperty('emp_employee_id', 0);
+  SetColumnProperty('locale', 0);
 end;
 
 procedure TfrmSysUsers.DefineFooterColumns;
@@ -73,17 +75,20 @@ begin
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.TitlePlural, 'Users');
 
   SetColumnTitle('id',              'Id');
+  SetColumnTitle('name',            TLocalizationManager.Translate(TLangKeys.TEmpEmployee.ColName, 'First Name'));
+  SetColumnTitle('surname',         TLocalizationManager.Translate(TLangKeys.TEmpEmployee.ColSurname, 'Surname'));
+  SetColumnTitle('user_password',   TLocalizationManager.Translate(TLangKeys.TSysUser.ColUserPassword, 'User Password'));
+  SetColumnTitle('full_name',       TLocalizationManager.Translate(TLangKeys.TEmpEmployee.ColFullName, 'Full Name'));
+  SetColumnTitle('section_name',    TLocalizationManager.Translate(TLangKeys.TEmpSection.ColSectionName, 'Section'));
+  SetColumnTitle('unit_name',       TLocalizationManager.Translate(TLangKeys.TEmpUnit.ColUnitName, 'Unit'));
   SetColumnTitle('username',        TLocalizationManager.Translate(TLangKeys.TSysUser.ColUserName, 'Username'));
-  SetColumnTitle('emp_employee_id', TLocalizationManager.Translate(TLangKeys.TSysUser.ColEmployeeId, 'Employee ID'));
-  SetColumnTitle('person_name',     TLocalizationManager.Translate(TLangKeys.TEmpEmployee.ColName, 'First Name'));
-  SetColumnTitle('person_surname',  TLocalizationManager.Translate(TLangKeys.TEmpEmployee.ColSurname, 'Surname'));
-  SetColumnTitle('person_section',  TLocalizationManager.Translate(TLangKeys.TEmpSection.ColSectionName, 'Section'));
-  SetColumnTitle('person_unit',     TLocalizationManager.Translate(TLangKeys.TEmpUnit.ColUnitName, 'Unit'));
   SetColumnTitle('active',          TLocalizationManager.Translate(TLangKeys.TSysUser.ColActive, 'Active'));
   SetColumnTitle('manager',         TLocalizationManager.Translate(TLangKeys.TSysUser.ColManager, 'Manager'));
   SetColumnTitle('super_user',      TLocalizationManager.Translate(TLangKeys.TSysUser.ColSuperUser, 'Super User'));
   SetColumnTitle('ip_address',      TLocalizationManager.Translate(TLangKeys.TSysUser.ColIpAddress, 'IP Address'));
   SetColumnTitle('mac_address',     TLocalizationManager.Translate(TLangKeys.TSysUser.ColMacAddress, 'MAC Address'));
+  SetColumnTitle('emp_employee_id', TLocalizationManager.Translate(TLangKeys.TSysUser.ColEmployeeId, 'Employee Id'));
+  SetColumnTitle('locale',          TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
 end;
 
 end.

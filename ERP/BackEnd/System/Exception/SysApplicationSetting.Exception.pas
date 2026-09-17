@@ -17,7 +17,7 @@ implementation
 
 class function ESysApplicationSettingExceptionMustContainOnlyOneRecord.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TMessage.MustContainOnlyOneRecord, 'Yalnızca tek bir kayıt içermelidir');
+  Result := TLocalizationManager.Translate(TLangKeys.TMessage.MustContainOnlyOneRecord, 'It must contain only a single record.');
 end;
 
 end.

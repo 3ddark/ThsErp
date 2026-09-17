@@ -15,10 +15,9 @@ type
 
 implementation
 
-
 class function ESysUserExceptionUsernameUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysUser.UsernameUnique, 'Username kullanıcıya zaten atanmış. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysUser.UsernameUnique, 'The username has already been assigned to the user. It cannot be assigned again.');
 end;
 
 end.

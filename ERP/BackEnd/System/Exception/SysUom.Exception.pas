@@ -15,10 +15,9 @@ type
 
 implementation
 
-
 class function ESysUomExceptionUnitCodeUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitCodeUnique, 'Ölçü Birimi Kodu değeri zaten atanmış. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitCodeUnique, 'The Unit of Measure Code value has already been assigned. It cannot be assigned again.');
 end;
 
 end.

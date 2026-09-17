@@ -1,4 +1,4 @@
-unit SysCurrency.Exception;
+ï»¿unit SysCurrency.Exception;
 
 interface
 
@@ -15,10 +15,9 @@ type
 
 implementation
 
-
 class function ESysCurrencyExceptionCurrencyUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysCurrency.CurrencyUnique, '%s zaten atanmýþ. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysCurrency.CurrencyUnique, '%s is already assigned. It cannot be assigned again.');
 end;
 
 end.

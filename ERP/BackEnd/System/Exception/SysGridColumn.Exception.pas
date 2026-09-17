@@ -1,4 +1,4 @@
-unit SysGridColumn.Exception;
+ï»¿unit SysGridColumn.Exception;
 
 interface
 
@@ -20,14 +20,14 @@ type
 
 implementation
 
-
 class function ESysGridColumnExceptionTableNameColumnNameUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TableNameColumnName, '%s, %s ikilisi zaten atanmýþ. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TableNameColumnName, 'The pair %s, %s has already been assigned. It cannot be assigned again.');
 end;
 
 class function ESysGridColumnExceptionTableNameColumnOrderUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TableNameColumnOrder, '%s, %s ikilisi zaten atanmýþ. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TableNameColumnOrder, 'The pair %s, %s has already been assigned. It cannot be assigned again.');
 end;
+
 end.

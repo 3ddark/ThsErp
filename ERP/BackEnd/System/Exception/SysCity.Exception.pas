@@ -15,10 +15,9 @@ type
 
 implementation
 
-
 class function ESysCityExceptionCityCountryUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysCity.CityCountryUnique, '%s Şehri bu %s zaten atanmış. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysCity.CityCountryUnique, 'City %s has already been assigned to this %s. It cannot be assigned again.');
 end;
 
 end.

@@ -1,4 +1,4 @@
-unit SysGridFilter.Exception;
+ï»¿unit SysGridFilter.Exception;
 
 interface
 
@@ -15,10 +15,9 @@ type
 
 implementation
 
-
 class function ESysGridFilterExceptionTableNameUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysGridFilter.TableNameUnique, '%s zaten atanmýþ. Tekrar atanamaz.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysGridFilter.TableNameUnique, '%s is already assigned. It cannot be assigned again.');
 end;
 
 end.
