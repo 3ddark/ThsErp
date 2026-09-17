@@ -1,4 +1,4 @@
-unit SysGridColumn.Repository;
+﻿unit SysGridColumn.Repository;
 
 interface
 
@@ -485,11 +485,16 @@ end;
 
 function TSysGridColumnRepository.LoadColumns(const ATableName: string): TObjectList<TSysGridColumn>;
 var
-  Q   : TFDQuery;
+  Q: TFDQuery;
+  CleanTbl: string;
 begin
   Result := TObjectList<TSysGridColumn>.Create(True);
 
   if not CheckTableExists then Exit;
+
+  CleanTbl := ATableName;
+  if CleanTbl.StartsWith('public.', True) then
+    CleanTbl := CleanTbl.Substring(7);
 
   Q := TFDQuery.Create(nil);
   try
@@ -497,9 +502,9 @@ begin
     Q.SQL.Text    :=
       'SELECT id, table_name, column_name, column_order, column_width, is_show, is_fetch ' +
       'FROM public.' + GetTableName(TSysGridColumn) +
-      ' WHERE table_name = :t ' +
+      ' WHERE (table_name = :tbl_vw) ' +
       ' ORDER BY column_order';
-    Q.ParamByName('t').AsString := ATableName;
+    Q.ParamByName('tbl_vw').AsString := CleanTbl;
     try
       Q.Open;
     except
@@ -551,10 +556,8 @@ var
 begin
   if AColumns.Count = 0 then Exit;
 
-  // FIX: Cache'li kontrol
   if not CheckTableExists then Exit;
 
-  // FIX: Mevcut kayıtları dictionary'e al — O(n) karşılaştırma
   LExisting := TDictionary<string, TColType>.Create;
   Q := TFDQuery.Create(nil);
   try
@@ -584,7 +587,6 @@ begin
     end;
     Q.Close;
 
-    // FIX: Değişiklik kontrolü O(n) — dictionary ile
     LChanged := LExisting.Count <> AColumns.Count;
     if not LChanged then
       for I := 0 to AColumns.Count - 1 do
@@ -650,9 +652,17 @@ var
   UserColMap: TDictionary<string, TSysGridColumn>;
   ColName: string;
   Item: TSysGridColumn;
+  CleanTbl: string;
+  HasGlobalColumns: Boolean;
 begin
   Result := LoadColumns(ATableName);
-  if (AUserId <= 0) or (Result.Count = 0) then Exit;
+  if AUserId <= 0 then Exit;
+
+  CleanTbl := ATableName;
+  if CleanTbl.StartsWith('public.', True) then
+    CleanTbl := CleanTbl.Substring(7);
+
+  HasGlobalColumns := Result.Count > 0;
 
   UserColMap := TDictionary<string, TSysGridColumn>.Create;
   try
@@ -665,9 +675,10 @@ begin
       Q.SQL.Text :=
         'SELECT column_name, column_order, column_width, is_show ' +
         'FROM public.sys_user_grid_column ' +
-        'WHERE user_id = :uid AND table_name = :t';
+        'WHERE user_id = :uid AND (table_name = :tbl_vw) ' +
+        'ORDER BY column_order';
       Q.ParamByName('uid').AsLargeInt := AUserId;
-      Q.ParamByName('t').AsString := ATableName;
+      Q.ParamByName('tbl_vw').AsString := CleanTbl;
       try
         Q.Open;
         while not Q.Eof do
@@ -678,6 +689,18 @@ begin
             Item.ColumnOrder := Q.FieldByName('column_order').AsInteger;
             Item.ColumnWidth := Q.FieldByName('column_width').AsInteger;
             Item.IsShow      := Q.FieldByName('is_show').AsBoolean;
+          end
+          else if not HasGlobalColumns then
+          begin
+            Item             := TSysGridColumn.Create;
+            Item.TableName   := ATableName;
+            Item.ColumnName  := Q.FieldByName('column_name').AsString;
+            Item.ColumnOrder := Q.FieldByName('column_order').AsInteger;
+            Item.ColumnWidth := Q.FieldByName('column_width').AsInteger;
+            Item.IsShow      := Q.FieldByName('is_show').AsBoolean;
+            Item.IsFetch     := True;
+            Result.Add(Item);
+            UserColMap.AddOrSetValue(ColName, Item);
           end;
           Q.Next;
         end;

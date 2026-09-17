@@ -7,8 +7,8 @@ interface
 uses
   Winapi.Windows, System.Variants, System.Math, System.StrUtils, System.Actions,
   System.Classes, System.SysUtils, System.DateUtils, System.Rtti, System.Generics.Collections,
-  System.ImageList, System.Threading, Winapi.ShellAPI, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.ComCtrls, Vcl.Menus, Vcl.ActnList, Vcl.AppEvnts,
+  System.ImageList, System.Threading, Winapi.ShellAPI, Vcl.Graphics, Vcl.Forms,
+  Vcl.Controls, Vcl.Themes, Vcl.ComCtrls, Vcl.Menus, Vcl.ActnList, Vcl.AppEvnts,
   Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.Dialogs,
   Vcl.ToolWin, Vcl.ImgList, Vcl.StdActns, Vcl.CategoryButtons, Vcl.WinXCtrls,
   Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client,
@@ -292,12 +292,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Vcl.Themes,
-  ufrmAbout,
-  Ths.Helper.BaseTypes,
-  Ths.Helper.Edit,
-  Ths.Constants,
-  Ths.Globals;
+  ufrmAbout, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Constants, Ths.Globals;
 
 procedure TfrmDashboard.actsys_aboutExecute(Sender: TObject);
 var
@@ -681,7 +676,8 @@ begin
     ],
     mbNo,
     TLocalizationManager.Translate(TLangKeys.TMessage.UpdateConfirmation, 'Confirmation')
-  ) = mrYes then
+  ) = mrYes
+  then
     UpdateApplicationExe;
 end;
 
@@ -712,7 +708,8 @@ begin
     ],
     mbNo,
     TLocalizationManager.Translate(TLangKeys.TGeneral.Confirmation, 'Confirmation')
-  ) = mrYes then
+  ) = mrYes
+  then
     inherited;
 end;
 
@@ -727,7 +724,7 @@ var
   LMr: Integer;
 begin
   Exit;
-  //interval 1 minute
+
   if APP_VERSION <> LSurum then
   begin
     LMr := CustomMsgDlg(
@@ -1174,18 +1171,14 @@ begin
   if TConnectionManager.Instance.IsConnected(ContextMain) then
   begin
     if stbBase.Panels.Count > STATUS_SQL_SERVER then
-      stbBase.Panels.Items[STATUS_SQL_SERVER].Text :=
-        TConnectionManager.Instance.GetConnection(ContextMain)
-          .Params.Values['Server'];
+      stbBase.Panels.Items[STATUS_SQL_SERVER].Text := TConnectionManager.Instance.GetConnection(ContextMain).Params.Values['Server'];
 
     if stbBase.Panels.Count > STATUS_DATE then
       stbBase.Panels.Items[STATUS_DATE].Text := DateToStr(Now);
   end;
 
-  if Assigned(TAppContext.Instance.CurrentUser) and
-     (stbBase.Panels.Count > STATUS_USERNAME) then
-    stbBase.Panels.Items[STATUS_USERNAME].Text :=
-      TAppContext.Instance.CurrentUser.GetUsername;
+  if Assigned(TAppContext.Instance.CurrentUser) and (stbBase.Panels.Count > STATUS_USERNAME) then
+    stbBase.Panels.Items[STATUS_USERNAME].Text := TAppContext.Instance.CurrentUser.GetUsername;
 
   ApplyLocalization;
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
