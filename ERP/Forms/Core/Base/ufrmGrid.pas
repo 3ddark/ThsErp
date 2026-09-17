@@ -1030,7 +1030,6 @@ var
   LColor1: TColor;
   LColor2: TColor;
 begin
-  //Satırı renklendir.
   LColorActive := 9539955;
   LColor1 := 12189695;
   LColor2 := 13158655;
@@ -1050,7 +1049,6 @@ begin
 
   THackDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
 
-  //boolean tipler için checkbox çiz
   if (Column.Field.DataType = ftBoolean) then
   begin
     THackDBGrid(Sender).Canvas.FillRect(Rect);
@@ -1181,7 +1179,7 @@ begin
     end
     else if Shift = [ssCtrl] then
     begin
-      if (Key = VK_DELETE) then //Cancel Delete Record with CTRL+DELETE key conbination
+      if (Key = VK_DELETE) then
       begin
         Key := 0;
       end
@@ -1252,7 +1250,6 @@ begin
       end;
     end;
 
-    // Footer varsa konumlandır
     if Assigned(FooterCol) and Assigned(FooterCol.DisplayControl) then
     begin
       if GridCol.Visible then
@@ -1611,7 +1608,6 @@ var
   Col : TColumn;
   Fld : TField;
 begin
-  // FIX: Her çağrıda temizle — duplicate birikmesini önle
   FFilterStringFields.Clear;
   FFilterNumericFields.Clear;
   FFilterDateFields.Clear;
@@ -1624,7 +1620,6 @@ begin
     if Col.FieldName = 'id' then
       Continue;
 
-    // FIX: Field nil kontrolü — atanmamış kolonda AV önle
     Fld := Col.Field;
     if not Assigned(Fld) then
       Continue;
@@ -1656,7 +1651,6 @@ begin
   Self.Constraints.MaxHeight := Monitor.Height;
   Self.Height := 600;
 
-  //form event
   Self.OnCreate := FormCreate;
   Self.OnShow := FormShow;
   Self.OnClose := FormClose;
@@ -1737,8 +1731,6 @@ begin
     LColumns.Free;
   end;
 end;
-
-{ TfrmColumnSelector }
 
 constructor TfrmColumnSelector.Create(AOwner: TComponent; AColumns: TList<TColumn>);
 var
@@ -1872,10 +1864,8 @@ end;
 
 procedure TfrmGrid<TE, TS>.PrepareStatusBar;
 begin
-  // FormShow her gösterimde çağrılır, paneller birikmesin
   if FStatusBase.Panels.Count > 0 then
   begin
-    // Sadece içerikleri güncelle
     if FStatusBase.Panels.Count > DB_STATUS_SQL_SERVER then
       if Service.UoW.Connection.Connected then
         FStatusBase.Panels.Items[DB_STATUS_SQL_SERVER].Text := Service.UoW.Connection.Params.Values['Server'];
@@ -1928,15 +1918,13 @@ end;
 
 procedure TfrmGrid<TE, TS>.RefreshData;
 begin
-  // FIX: grd.DataSource.DataSet yerine FQry direkt
   if not Assigned(FQry) or not FQry.Active then
     Exit;
 
-  // Mevcut kaydı bul
   if Assigned(FTable) and (FTable.Id > 0) then
     FQry.Locate('id', FTable.Id, []);
 
-  // Filtre uygula
+
   if FFilterGrid.Text <> '' then
   begin
     FQry.Filter    := FFilterGrid.Text;
@@ -1967,22 +1955,17 @@ begin
 
   FQry.Refresh;
 
-  // FIX: Table nil kontrolü
   if AFocusSelectedItem and Assigned(FTable) and (FTable.Id > 0) then
-    FQry.Locate('id', FTable.Id, []); // FIX: loCaseInsensitive integer için anlamsız, kaldırıldı
+    FQry.Locate('id', FTable.Id, []);
 
   UpdateFooterLayout;
 end;
 
 procedure TfrmGrid<TE, TS>.RefreshStatusRecordCount();
 begin
-  // FIX: Panel index güvenli kontrol
   if (FStatusBase.Panels.Count > DB_STATUS_RECORD_COUNT) then
     FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text :=
-      Format(
-        TLocalizationManager.Translate(
-          TLangKeys.TGeneral.RecordsCount, 'Records: %d'),
-        [FQry.RecordCount]);
+      Format(TLocalizationManager.Translate(TLangKeys.TGeneral.RecordsCount, 'Records: %d'), [FQry.RecordCount]);
 
   UpdateFooterLayout;
 end;
