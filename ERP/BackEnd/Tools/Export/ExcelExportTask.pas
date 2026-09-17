@@ -4,8 +4,8 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.Generics.Collections, System.Threading,
-  Data.DB, FireDAC.Comp.Client, FireDAC.Stan.Param, FireDAC.Stan.Intf, Logger,
-  zexmlss, zexlsx;
+  Data.DB, FireDAC.Comp.Client, FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Intf, Logger,
+  Vcl.Graphics, zexmlss, zexlsx;
 
 type
   TExportStrategy = (esSmall, esMedium, esLarge);
@@ -190,36 +190,67 @@ var
   i: Integer;
   Field: TField;
   Ext: string;
+  HeaderStyleIndex: Integer;
+  Fields: TArray<TField>;
 begin
   Ext := LowerCase(ExtractFileExt(FFilePath));
   if (Ext <> '.xlsx') and (Ext <> '.xls') then
     FFilePath := ChangeFileExt(FFilePath, '.xlsx');
 
+  if Length(FColumns) = 0 then
+  begin
+    SetLength(FColumns, Qry.FieldCount);
+    for i := 0 to Qry.FieldCount - 1 do
+    begin
+      FColumns[i].FieldName := Qry.Fields[i].FieldName;
+      FColumns[i].Caption := Qry.Fields[i].DisplayName;
+    end;
+  end;
+
+  if Length(FColumns) = 0 then Exit;
+
   Book := TZEXMLSS.Create(nil);
   try
+    HeaderStyleIndex := Book.Styles.Add(Book.Styles.DefaultStyle, False);
+    Book.Styles[HeaderStyleIndex].Font.Style := [fsBold];
+
     Book.Sheets.Count := 1;
     Sheet := Book.Sheets[0];
     Sheet.Title := 'Sheet1';
+
+    Total := Qry.RecordCount;
+    if Total < 0 then
+      Total := 0;
+
+    Sheet.ColCount := Length(FColumns);
+    Sheet.RowCount := Total + 1;
 
     // Header row
     for i := 0 to High(FColumns) do
     begin
       Sheet.Cell[i, 0].AsString := FColumns[i].Caption;
-      Sheet.Cell[i, 0].CellStyle := 0;
+      Sheet.Cell[i, 0].CellStyle := HeaderStyleIndex;
     end;
+
+    // Cache field references for performance
+    SetLength(Fields, Length(FColumns));
+    for i := 0 to High(FColumns) do
+      Fields[i] := Qry.FindField(FColumns[i].FieldName);
 
     // Data rows
     Qry.First;
     Row := 1;
-    Total := Qry.RecordCount;
 
     while not Qry.Eof do
     begin
       if FCancelled then Break;
 
+      if Row >= Sheet.RowCount then
+        Sheet.RowCount := Row + 1000;
+
       for i := 0 to High(FColumns) do
       begin
-        Field := Qry.FindField(FColumns[i].FieldName);
+        Field := Fields[i];
         if Assigned(Field) and not Field.IsNull then
         begin
           case Field.DataType of
@@ -250,12 +281,14 @@ begin
         end;
       end;
 
-      Inc(Row);
       if (Row mod 500 = 0) or (Row = Total) then
         ReportProgress(Row, Total, Format('Excel (XLSX) yazılıyor: %d / %d', [Row, Total]));
 
+      Inc(Row);
       Qry.Next;
     end;
+
+    Sheet.RowCount := Row;
 
     if not FCancelled then
     begin
@@ -289,6 +322,7 @@ begin
     ReportProgress(0, 0, 'Sorgu hazırlanıyor...');
     Qry := TFDQuery.Create(nil);
     Qry.Connection := Conn;
+    Qry.FetchOptions.Mode := fmAll;
 
     // Build SELECT column list from FColumns
     SelectCols := TStringBuilder.Create;
