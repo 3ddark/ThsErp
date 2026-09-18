@@ -1,4 +1,4 @@
-﻿unit SysGridColumn.Repository;
+unit SysGridColumn.Repository;
 
 interface
 
@@ -99,7 +99,8 @@ begin
     'SELECT id, table_name, column_name, column_order, column_width, ' +
     '       data_format, is_show, is_show_helper, is_fetch, ' +
     '       min_value, min_value_color, max_value, max_value_color, ' +
-    '       max_value_percent, bar_color, bar_bg_color, bar_text_color ' +
+    '       max_value_percent, bar_color, bar_bg_color, bar_text_color, ' +
+    '       aggregate_type ' +
     'FROM public.' + Self.GetTableName(TSysGridColumn);
 end;
 
@@ -109,11 +110,11 @@ begin
     'INSERT INTO public.' + Self.GetTableName(TSysGridColumn) +
     ' (table_name, column_name, column_order, column_width, data_format, ' +
     '  is_show, is_show_helper, is_fetch, min_value, min_value_color, max_value, ' +
-    '  max_value_color, max_value_percent, bar_color, bar_bg_color, bar_text_color) ' +
+    '  max_value_color, max_value_percent, bar_color, bar_bg_color, bar_text_color, aggregate_type) ' +
     'VALUES ' +
     ' (:table_name, :column_name, :column_order, :column_width, :data_format, ' +
     '  :is_show, :is_show_helper, :is_fetch, :min_value, :min_value_color, :max_value, ' +
-    '  :max_value_color, :max_value_percent, :bar_color, :bar_bg_color, :bar_text_color)';
+    '  :max_value_color, :max_value_percent, :bar_color, :bar_bg_color, :bar_text_color, :aggregate_type)';
 end;
 
 function TSysGridColumnRepository.PrepareUpdateSql: string;
@@ -128,7 +129,8 @@ begin
     '     max_value_color = :max_value_color, ' +
     '     max_value_percent = :max_value_percent, ' +
     '     bar_color = :bar_color, bar_bg_color = :bar_bg_color, ' +
-    '     bar_text_color = :bar_text_color ' +
+    '     bar_text_color = :bar_text_color, ' +
+    '     aggregate_type = :aggregate_type ' +
     'WHERE id = :id';
 end;
 
@@ -161,6 +163,10 @@ begin
   Result.BarColor         := Q.FieldByName('bar_color').AsInteger;
   Result.BarBgColor       := Q.FieldByName('bar_bg_color').AsInteger;
   Result.BarTextColor     := Q.FieldByName('bar_text_color').AsInteger;
+  if Q.FindField('aggregate_type') <> nil then
+    Result.AggregateType  := Q.FieldByName('aggregate_type').AsInteger
+  else
+    Result.AggregateType  := 0;
 end;
 
 procedure TSysGridColumnRepository.SetModelParams(Q: TFDQuery;
@@ -185,6 +191,8 @@ begin
     Q.ParamByName('bar_color').AsInteger      := AModel.BarColor;
     Q.ParamByName('bar_bg_color').AsInteger   := AModel.BarBgColor;
     Q.ParamByName('bar_text_color').AsInteger := AModel.BarTextColor;
+    if Q.FindParam('aggregate_type') <> nil then
+      Q.ParamByName('aggregate_type').AsInteger := AModel.AggregateType;
     if (AModel.Id > 0) and (Q.FindParam('id') <> nil) then
       Q.ParamByName('id').AsLargeInt := AModel.Id;
   end
@@ -207,6 +215,8 @@ begin
     Q.ParamByName('bar_color').AsIntegers[AIndex]       := AModel.BarColor;
     Q.ParamByName('bar_bg_color').AsIntegers[AIndex]    := AModel.BarBgColor;
     Q.ParamByName('bar_text_color').AsIntegers[AIndex]  := AModel.BarTextColor;
+    if Q.FindParam('aggregate_type') <> nil then
+      Q.ParamByName('aggregate_type').AsIntegers[AIndex]:= AModel.AggregateType;
     if (AModel.Id > 0) and (Q.FindParam('id') <> nil) then
       Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
   end;
@@ -487,6 +497,11 @@ function TSysGridColumnRepository.LoadColumns(const ATableName: string): TObject
 var
   Q: TFDQuery;
   CleanTbl: string;
+  BaseTbl: string;
+  ViewTbl: string;
+  Seen: TDictionary<string, Integer>;
+  ColName: string;
+  Item: TSysGridColumn;
 begin
   Result := TObjectList<TSysGridColumn>.Create(True);
 
@@ -496,15 +511,22 @@ begin
   if CleanTbl.StartsWith('public.', True) then
     CleanTbl := CleanTbl.Substring(7);
 
+  BaseTbl := CleanTbl;
+  if BaseTbl.StartsWith('vw_', True) then
+    BaseTbl := BaseTbl.Substring(3);
+  ViewTbl := 'vw_' + BaseTbl;
+
   Q := TFDQuery.Create(nil);
   try
     Q.Connection  := Connection;
     Q.SQL.Text    :=
-      'SELECT id, table_name, column_name, column_order, column_width, is_show, is_fetch ' +
+      'SELECT id, table_name, column_name, column_order, column_width, data_format, is_show, is_fetch, aggregate_type ' +
       'FROM public.' + GetTableName(TSysGridColumn) +
-      ' WHERE (table_name = :tbl_vw) ' +
-      ' ORDER BY column_order';
-    Q.ParamByName('tbl_vw').AsString := CleanTbl;
+      ' WHERE (table_name = :tbl OR table_name = :tbl_vw) ' +
+      ' ORDER BY CASE WHEN table_name = :exact THEN 0 ELSE 1 END, column_order';
+    Q.ParamByName('tbl').AsString := BaseTbl;
+    Q.ParamByName('tbl_vw').AsString := ViewTbl;
+    Q.ParamByName('exact').AsString := CleanTbl;
     try
       Q.Open;
     except
@@ -515,21 +537,37 @@ begin
       end;
     end;
 
-    while not Q.Eof do
-    begin
-      var Item        := TSysGridColumn.Create;
-      Item.Id         := Q.FieldByName('id').AsLargeInt;
-      Item.TableName  := Q.FieldByName('table_name').AsString;
-      Item.ColumnName := Q.FieldByName('column_name').AsString;
-      Item.ColumnOrder:= Q.FieldByName('column_order').AsInteger;
-      Item.ColumnWidth:= Q.FieldByName('column_width').AsInteger;
-      Item.IsShow     := Q.FieldByName('is_show').AsBoolean;
-      if Q.FindField('is_fetch') <> nil then
-        Item.IsFetch  := Q.FieldByName('is_fetch').AsBoolean
-      else
-        Item.IsFetch  := True;
-      Result.Add(Item);
-      Q.Next;
+    Seen := TDictionary<string, Integer>.Create;
+    try
+      while not Q.Eof do
+      begin
+        ColName := LowerCase(Q.FieldByName('column_name').AsString);
+        if not Seen.ContainsKey(ColName) then
+        begin
+          Item            := TSysGridColumn.Create;
+          Item.Id         := Q.FieldByName('id').AsLargeInt;
+          Item.TableName  := Q.FieldByName('table_name').AsString;
+          Item.ColumnName := Q.FieldByName('column_name').AsString;
+          Item.ColumnOrder:= Q.FieldByName('column_order').AsInteger;
+          Item.ColumnWidth:= Q.FieldByName('column_width').AsInteger;
+          Item.IsShow     := Q.FieldByName('is_show').AsBoolean;
+          if Q.FindField('is_fetch') <> nil then
+            Item.IsFetch  := Q.FieldByName('is_fetch').AsBoolean
+          else
+            Item.IsFetch  := True;
+          if Q.FindField('data_format') <> nil then
+            Item.DataFormat := Q.FieldByName('data_format').AsString;
+          if Q.FindField('aggregate_type') <> nil then
+            Item.AggregateType := Q.FieldByName('aggregate_type').AsInteger
+          else
+            Item.AggregateType := 0;
+          Result.Add(Item);
+          Seen.Add(ColName, Result.Count - 1);
+        end;
+        Q.Next;
+      end;
+    finally
+      Seen.Free;
     end;
   finally
     Q.Free;

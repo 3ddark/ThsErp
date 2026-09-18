@@ -11,7 +11,6 @@ type
   TfrmAccSetAccountTypes = class(TfrmGrid<TSetAccAccountType, TSetAccAccountTypeService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
   end;
@@ -35,11 +34,6 @@ procedure TfrmAccSetAccountTypes.DefineColumnWidths;
 begin
   SetColumnProperty('id',           0, 'Id');
   SetColumnProperty('name',        250, 'Name');
-end;
-
-procedure TfrmAccSetAccountTypes.DefineFooterColumns;
-begin
-  // No footer columns
 end;
 
 procedure TfrmAccSetAccountTypes.FormShow(Sender: TObject);

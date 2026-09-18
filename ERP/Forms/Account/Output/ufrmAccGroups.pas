@@ -11,7 +11,6 @@ type
   TfrmAccGroups = class(TfrmGrid<TAccGroup, TAccGroupService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
   end;
@@ -35,11 +34,6 @@ procedure TfrmAccGroups.DefineColumnWidths;
 begin
   SetColumnProperty('id',           0, 'Id');
   SetColumnProperty('name',        250, 'Group');
-end;
-
-procedure TfrmAccGroups.DefineFooterColumns;
-begin
-  // No footer columns
 end;
 
 procedure TfrmAccGroups.FormShow(Sender: TObject);

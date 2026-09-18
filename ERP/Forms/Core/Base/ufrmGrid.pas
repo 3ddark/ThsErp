@@ -1,4 +1,4 @@
-﻿unit ufrmGrid;
+unit ufrmGrid;
 
 interface
 
@@ -23,7 +23,7 @@ const
   DB_STATUS_KEY_F11      = 6;
 
 type
-  TAggregateType = (atSum, atCount, atAverage, atMin, atMax);
+  TAggregateType = SharedFormTypes.TAggregateType;
 
   TSortType = (stNone, stAsc, stDesc);
 
@@ -160,6 +160,7 @@ type
     procedure MoveDown(); virtual;
     procedure AddFooterColumn(const AColumnFieldName: string; AAggregateType: TAggregateType; const ADisplayFormat: string = '');
     procedure DefineFooterColumns; virtual;
+    procedure LoadFooterColumnsFromDB; virtual;
     procedure DefineColumnWidths; virtual;
     procedure SetColumnProperty(const AFieldName: string; AWidth: Integer; AColumnTitle: string = '');
     procedure SetColumnTitle(const AFieldName: string; AColumnTitle: string);
@@ -281,9 +282,21 @@ end;
 { TfrmGrid }
 
 procedure TfrmGrid<TE, TS>.AddFooterColumn(const AColumnFieldName: string; AAggregateType: TAggregateType; const ADisplayFormat: string);
+var
+  i: Integer;
 begin
   if FFooterColumns = nil then
     FFooterColumns := TObjectList<TFooterColumn>.Create(True);
+
+  for i := FFooterColumns.Count - 1 downto 0 do
+  begin
+    if SameText(FFooterColumns[i].ColumnFieldName, AColumnFieldName) then
+    begin
+      FFooterColumns.Delete(i);
+      Break;
+    end;
+  end;
+
   FFooterColumns.Add(TFooterColumn.Create(AColumnFieldName, AAggregateType, ADisplayFormat));
 end;
 
@@ -457,24 +470,27 @@ var
   FooterCol: TFooterColumn;
   AggregateFuncName: string;
 begin
+  if Assigned(FFooterPanel) then
+  begin
+    while FFooterPanel.ControlCount > 0 do
+      FFooterPanel.Controls[0].Free;
+  end;
+
   if (FFooterColumns = nil) or (FFooterColumns.Count = 0) then
+  begin
+    if Assigned(FFooterPanel) then
+      FFooterPanel.Visible := False;
     Exit;
+  end;
 
   if FQry.Active then
     raise Exception.Create('BuildFooter: Query must be closed before creating aggregate fields');
 
+  FQry.Aggregates.Clear;
+
   for FooterCol in FFooterColumns do
   begin
-    case FooterCol.AggregateType of
-      atSum: AggregateFuncName := 'SUM';
-      atCount: AggregateFuncName := 'COUNT';
-      atAverage: AggregateFuncName := 'AVG';
-      atMin: AggregateFuncName := 'MIN';
-      atMax: AggregateFuncName := 'MAX';
-    else
-      AggregateFuncName := 'SUM';
-    end;
-
+    AggregateFuncName := AggregateTypeToSqlFunc(FooterCol.AggregateType);
 
     FooterCol.AggregateField := FQry.Aggregates.Add;
     FooterCol.AggregateField.Name := Format('AGG_%s_%s', [AggregateFuncName, FooterCol.ColumnFieldName]);
@@ -487,11 +503,54 @@ begin
     FooterCol.DisplayControl.Font.Size := 8;
     FooterCol.DisplayControl.Font.Color := clBlack;
     FooterCol.DisplayControl.AutoSize := True;
-    FooterCol.DisplayControl.Caption := FooterCol.AggregateField.Name;
+    FooterCol.DisplayControl.Caption := '';
   end;
 
   FFooterPanel.Visible := True;
   FQry.AggregatesActive := True;
+end;
+
+procedure TfrmGrid<TE, TS>.LoadFooterColumnsFromDB;
+var
+  LViewName: string;
+  LSysRepo : ISysGridColumnRepository;
+  LColumns : TList<TSysGridColumn>;
+  LCol     : TSysGridColumn;
+  LAggType : TAggregateType;
+  LFormat  : string;
+begin
+  if FFooterColumns = nil then
+    FFooterColumns := TObjectList<TFooterColumn>.Create(True)
+  else
+    FFooterColumns.Clear;
+
+  LViewName := GetGridViewName;
+  if LViewName = '' then Exit;
+  if not Assigned(Service) or not Assigned(Service.UoW) or (Service.UoW.Connection = nil) or not Service.UoW.Connection.Connected then Exit;
+
+  try
+    LSysRepo := Service.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository> as ISysGridColumnRepository;
+    if LSysRepo = nil then Exit;
+
+    LColumns := LSysRepo.LoadColumns(LViewName);
+    try
+      for LCol in LColumns do
+      begin
+        if IntToAggregateType(LCol.AggregateType, LAggType) then
+        begin
+          LFormat := LCol.DataFormat;
+          if LFormat = '' then
+            LFormat := AggregateTypeToDefaultFormat(LAggType);
+          AddFooterColumn(LCol.ColumnName, LAggType, LFormat);
+        end;
+      end;
+    finally
+      LColumns.Free;
+    end;
+  except
+    on E: Exception do
+      GLogger.WarningFmt('LoadFooterColumnsFromDB hatası [%s]: %s', [LViewName, E.Message]);
+  end;
 end;
 
 constructor TfrmGrid<TE, TS>.Create(AOwner: TComponent; AService: TS; ATable: TE; ACreateNewBase, AUseHelper: Boolean);
@@ -958,6 +1017,7 @@ end;
 
 procedure TfrmGrid<TE, TS>.FormShow(Sender: TObject);
 begin
+  LoadFooterColumnsFromDB;
   BuildFooter;
 
   // FIX: Tek Open çağrısı, korumalı
@@ -981,7 +1041,9 @@ begin
   PrepareStatusBar;
 
   if FIsHelper then
-    EdtFilter.SetFocus;
+    EdtFilter.SetFocus
+  else
+    Self.ActiveControl := Grd;
 end;
 
 function TfrmGrid<TE, TS>.getFilterEditData: string;
@@ -996,7 +1058,7 @@ end;
 
 procedure TfrmGrid<TE, TS>.grdColumnMoved(Sender: TObject; FromIndex, ToIndex: Integer);
 begin
-//
+  UpdateFooterLayout;
 end;
 
 procedure TfrmGrid<TE, TS>.grdDblClick(Sender: TObject);
@@ -1263,6 +1325,13 @@ begin
         Value := FooterCol.AggregateField.Value;
         if not VarIsNull(Value) then
         begin
+          if FooterCol.DisplayFormat <> '' then
+            FormatText := FooterCol.DisplayFormat
+          else if FooterCol.AggregateType = atCount then
+            FormatText := '#,##0'
+          else
+            FormatText := '#,##0.00';
+
           case GridCol.Field.DataType of
             ftByte,
             ftWord,
@@ -1278,7 +1347,6 @@ begin
             ftExtended,
             ftSingle:
               begin
-                FormatText := '0.00';
                 FooterCol.DisplayControl.Caption := FormatFloat(FormatText, Value);
               end;
 
@@ -1287,7 +1355,10 @@ begin
             ftDateTime,
             ftTimeStamp:
               begin
-                FooterCol.DisplayControl.Caption := FormatDateTime('dd.mm.yyyy hh:nn:ss', Value);
+                if FooterCol.DisplayFormat <> '' then
+                  FooterCol.DisplayControl.Caption := FormatDateTime(FooterCol.DisplayFormat, Value)
+                else
+                  FooterCol.DisplayControl.Caption := FormatDateTime('dd.mm.yyyy hh:nn:ss', Value);
               end;
 
           else

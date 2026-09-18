@@ -11,7 +11,6 @@ type
   TfrmAccRegions = class(TfrmGrid<TAccRegion, TAccRegionService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
   end;
@@ -35,11 +34,6 @@ procedure TfrmAccRegions.DefineColumnWidths;
 begin
   SetColumnProperty('id',           0, 'Id');
   SetColumnProperty('name',        250, 'Region');
-end;
-
-procedure TfrmAccRegions.DefineFooterColumns;
-begin
-  // No footer columns
 end;
 
 procedure TfrmAccRegions.FormShow(Sender: TObject);

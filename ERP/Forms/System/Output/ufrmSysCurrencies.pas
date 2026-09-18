@@ -14,7 +14,6 @@ type
   TfrmSysCurrencies = class(TfrmGrid<TSysCurrency, TSysCurrencyService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -42,12 +41,6 @@ begin
   SetColumnProperty('currency',    100);
   SetColumnProperty('symbol',       80);
   SetColumnProperty('description', 220);
-end;
-
-procedure TfrmSysCurrencies.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysCurrencies.FormShow(Sender: TObject);

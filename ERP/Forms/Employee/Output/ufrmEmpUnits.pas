@@ -12,7 +12,6 @@ type
   TfrmEmpUnits = class(TfrmGrid<TEmpUnit, TEmpUnitService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -38,12 +37,6 @@ begin
   inherited;
   SetColumnProperty('id', 0, TLocalizationManager.Translate('emp_unit.col_id', 'Id'));
   SetColumnProperty('section_id', 0, TLocalizationManager.Translate('emp_unit.col_section_id', 'Bölüm Id'));
-end;
-
-procedure TfrmEmpUnits.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmEmpUnits.FormShow(Sender: TObject);

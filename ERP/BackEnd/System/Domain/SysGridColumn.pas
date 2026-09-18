@@ -1,4 +1,4 @@
-﻿unit SysGridColumn;
+unit SysGridColumn;
 
 interface
 
@@ -24,6 +24,7 @@ type
     FBarColor: Integer;
     FBarBgColor: Integer;
     FBarTextColor: Integer;
+    FAggregateType: Integer;
   public
     [Column('table_name'), MaxLength(128), Required()]
     property TableName: string read FTableName write FTableName;
@@ -73,6 +74,9 @@ type
     [Column('bar_text_color')]
     property BarTextColor: Integer read FBarTextColor write FBarTextColor;
 
+    [Column('aggregate_type')]
+    property AggregateType: Integer read FAggregateType write FAggregateType;
+
     constructor Create(); override;
     destructor Destroy; override;
 
@@ -97,6 +101,7 @@ begin
   FBarColor := 0;
   FBarBgColor := 0;
   FBarTextColor := 0;
+  FAggregateType := 0;
 end;
 
 destructor TSysGridColumn.Destroy;
@@ -123,6 +128,7 @@ begin
   Result.BarColor := Self.BarColor;
   Result.BarBgColor := Self.BarBgColor;
   Result.BarTextColor := Self.BarTextColor;
+  Result.AggregateType := Self.AggregateType;
 end;
 
 end.

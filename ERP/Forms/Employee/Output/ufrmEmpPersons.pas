@@ -12,7 +12,6 @@ type
   TfrmEmpPersons = class(TfrmGrid<TEmpPerson, TEmpPersonService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -57,12 +56,6 @@ begin
   SetColumnProperty('clothing_size', 60, TLocalizationManager.Translate('emp_person.col_dress', 'Beden'));
   SetColumnProperty('notes', 150, TLocalizationManager.Translate('emp_person.col_notes', 'Notlar'));
   SetColumnProperty('active', 60, TLocalizationManager.Translate('emp_person.col_active', 'Aktif'));
-end;
-
-procedure TfrmEmpPersons.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmEmpPersons.FormShow(Sender: TObject);

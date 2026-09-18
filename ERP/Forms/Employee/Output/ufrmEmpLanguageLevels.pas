@@ -12,7 +12,6 @@ type
   TfrmEmpLanguageLevels = class(TfrmGrid<TEmpLanguageLevel, TEmpLanguageLevelService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -38,12 +37,6 @@ begin
   inherited;
   SetColumnProperty('id', 0, TLocalizationManager.Translate('emp_language_level.col_id', 'Id'));
   SetColumnProperty('language_level', 200, TLocalizationManager.Translate('emp_language_level.col_language_level', 'Dil Seviyesi'));
-end;
-
-procedure TfrmEmpLanguageLevels.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmEmpLanguageLevels.FormShow(Sender: TObject);

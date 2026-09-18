@@ -14,7 +14,6 @@ type
   TfrmSysPermissions = class(TfrmGrid<TSysPermission, TSysPermissionService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -46,11 +45,6 @@ begin
   SetColumnProperty('group_key', 120);
   SetColumnProperty('group_name', 200);
   SetColumnProperty('locale', 0);
-end;
-
-procedure TfrmSysPermissions.DefineFooterColumns;
-begin
-  // No footer columns
 end;
 
 procedure TfrmSysPermissions.FormShow(Sender: TObject);

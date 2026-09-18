@@ -14,7 +14,6 @@ type
   TfrmSysDecimalPlaces = class(TfrmGrid<TSysDecimalPlace, TSysDecimalPlaceService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -44,12 +43,6 @@ begin
   SetColumnProperty('total',           70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColTotal, 'Total'));
   SetColumnProperty('stock_quantity',  70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColStockQuantity, 'Stock Quantity'));
   SetColumnProperty('exchange_rate',   70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColExchangeRate, 'Exchange Rate'));
-end;
-
-procedure TfrmSysDecimalPlaces.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysDecimalPlaces.FormShow(Sender: TObject);

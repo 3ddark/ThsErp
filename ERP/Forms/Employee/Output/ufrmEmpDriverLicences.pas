@@ -12,7 +12,6 @@ type
   TfrmEmpDriverLicences = class(TfrmGrid<TEmpDriverLicence, TEmpDriverLicenceService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -39,12 +38,6 @@ begin
   SetColumnProperty('id', 0, TLocalizationManager.Translate('emp_driver_ability.col_id', 'Id'));
   SetColumnProperty('person_id', 0, TLocalizationManager.Translate('emp_driver_ability.col_person_id', 'Personel Id'));
   SetColumnProperty('driver_license_id', 0, TLocalizationManager.Translate('emp_driver_ability.col_license_id', 'Ehliyet Id'));
-end;
-
-procedure TfrmEmpDriverLicences.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmEmpDriverLicences.FormShow(Sender: TObject);

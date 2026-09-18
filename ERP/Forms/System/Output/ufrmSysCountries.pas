@@ -14,7 +14,6 @@ type
   TfrmSysCountries = class(TfrmGrid<TSysCountry, TSysCountryService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -40,12 +39,6 @@ procedure TfrmSysCountries.DefineColumnWidths;
 begin
   inherited;
   SetColumnProperty('id', 0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
-end;
-
-procedure TfrmSysCountries.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysCountries.FormShow(Sender: TObject);

@@ -12,7 +12,6 @@ type
   TfrmEmpTasks = class(TfrmGrid<TEmpTask, TEmpTaskService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -38,12 +37,6 @@ begin
   inherited;
   SetColumnProperty('id', 0, TLocalizationManager.Translate('emp_task.col_id', 'Id'));
   SetColumnProperty('task_name', 200, TLocalizationManager.Translate('emp_task.col_task_name', 'Görev Adı'));
-end;
-
-procedure TfrmEmpTasks.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmEmpTasks.FormShow(Sender: TObject);

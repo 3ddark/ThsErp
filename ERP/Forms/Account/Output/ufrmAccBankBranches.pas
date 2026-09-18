@@ -11,7 +11,6 @@ type
   TfrmAccBankBranches = class(TfrmGrid<TAccBankBranch, TAccBankBranchService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
   end;
@@ -38,11 +37,6 @@ begin
   SetColumnProperty('code',         60, 'Code');
   SetColumnProperty('name',        200, 'Name');
   SetColumnProperty('city_id',      80, 'City ID');
-end;
-
-procedure TfrmAccBankBranches.DefineFooterColumns;
-begin
-  // No footer columns
 end;
 
 procedure TfrmAccBankBranches.FormShow(Sender: TObject);
