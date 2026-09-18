@@ -55,6 +55,12 @@ procedure TfrmSysDecimalPlaces.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.TitlePlural, 'Decimal Places');
+  SetColumnTitle('id',             TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
+  SetColumnTitle('quantity',       TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColQuantity, 'Quantity'));
+  SetColumnTitle('price',          TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColPrice, 'Price'));
+  SetColumnTitle('total',          TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColTotal, 'Total'));
+  SetColumnTitle('stock_quantity', TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColStockQuantity, 'Stock Quantity'));
+  SetColumnTitle('exchange_rate',  TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColExchangeRate, 'Exchange Rate'));
 end;
 
 end.

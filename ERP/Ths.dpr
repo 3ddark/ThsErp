@@ -122,6 +122,7 @@ uses
   ufrmSysDecimalPlaces in 'Forms\System\Output\ufrmSysDecimalPlaces.pas' {frmSysDecimalPlaces},
   SysGridColumn in 'BackEnd\System\Domain\SysGridColumn.pas',
   SysGridColumn.Exception in 'BackEnd\System\Exception\SysGridColumn.Exception.pas',
+  SysGridColumn.Cache in 'BackEnd\System\Cache\SysGridColumn.Cache.pas',
   SysGridColumn.Repository in 'BackEnd\System\Repository\SysGridColumn.Repository.pas',
   SysGridColumn.Service in 'BackEnd\System\Service\SysGridColumn.Service.pas',
   ufrmSysGridColumn in 'Forms\System\Input\ufrmSysGridColumn.pas' {frmSysGridColumn},

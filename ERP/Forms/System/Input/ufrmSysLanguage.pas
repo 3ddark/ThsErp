@@ -54,9 +54,9 @@ end;
 procedure TfrmSysLanguage.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.TitleSingular, 'Lisan');
-  lblLocale.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.LblLocale, 'Lisan Kodu (Locale)');
-  lblNativeName.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.LblNativeName, 'Lisan Adı (Native Name)');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.TitleSingular, 'Language');
+  lblLocale.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.LblLocale, 'Locale');
+  lblNativeName.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.LblNativeName, 'Native Name');
 end;
 
 procedure TfrmSysLanguage.RefreshData;

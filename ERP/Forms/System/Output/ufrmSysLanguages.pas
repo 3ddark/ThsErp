@@ -38,8 +38,8 @@ procedure TfrmSysLanguages.DefineColumnWidths;
 begin
   inherited;
   SetColumnProperty('id',            0, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColId, 'Id'));
-  SetColumnProperty('locale',      120, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Lisan Kodu'));
-  SetColumnProperty('native_name', 250, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColNativeName, 'Lisan Adı'));
+  SetColumnProperty('locale',      120, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
+  SetColumnProperty('native_name', 250, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColNativeName, 'Native Name'));
 end;
 
 procedure TfrmSysLanguages.FormShow(Sender: TObject);
@@ -51,7 +51,10 @@ end;
 procedure TfrmSysLanguages.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.TitlePlural, 'Lisanlar');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysLanguage.TitlePlural, 'Languages');
+  SetColumnTitle('id',          TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColId, 'Id'));
+  SetColumnTitle('locale',      TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
+  SetColumnTitle('native_name', TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColNativeName, 'Native Name'));
 end;
 
 end.

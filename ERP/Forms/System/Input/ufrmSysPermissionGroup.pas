@@ -96,6 +96,7 @@ begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.TitleSingular, 'Permission Group');
   lblPermissionGroupKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.LblKey, 'Permission Group Key');
+  UpdateTranslationLabels(scrlbxTranslations, 'PermissionGroupName', TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Permission Group Name'));
 end;
 
 procedure TfrmSysPermissionGroup.RefreshData;

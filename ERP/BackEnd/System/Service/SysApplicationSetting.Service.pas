@@ -1,11 +1,11 @@
-﻿unit SysApplicationSetting.Service;
+unit SysApplicationSetting.Service;
 
 interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
-  UnitOfWork, SharedFormTypes, AppContext,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
   SysApplicationSetting.Repository, SysApplicationSetting, SysApplicationSetting.Exception;
 
 type
@@ -119,7 +119,7 @@ begin
   LEntity := FRepo.FindById(AId, False);
   try
     if not Assigned(LEntity) then
-      raise Exception.CreateFmt('Record not found: %d', [AId]);
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId], 'Record not found: %d'));
 
     ValidateAll(LEntity, coDelete);
     FRepo.Delete(LEntity);

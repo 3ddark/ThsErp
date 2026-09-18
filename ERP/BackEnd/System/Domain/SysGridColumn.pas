@@ -112,6 +112,7 @@ end;
 function TSysGridColumn.Clone: TSysGridColumn;
 begin
   Result := TSysGridColumn.Create;
+  Result.Id := Self.Id;
   Result.TableName := Self.TableName;
   Result.ColumnName := Self.ColumnName;
   Result.ColumnOrder := Self.ColumnOrder;

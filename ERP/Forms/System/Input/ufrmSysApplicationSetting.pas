@@ -295,7 +295,62 @@ end;
 procedure TfrmSysApplicationSetting.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TitleSingular, 'Uygulama Ayarları');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TitleSingular, 'Application Settings');
+
+  // Tabs
+  tsGenel.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabGeneral, 'General Settings');
+  tsAdres.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabAddress, 'Address Information');
+  tsServisAyarlari.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabService, 'Service Settings');
+  tsDigerAyarlar.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabOther, 'Other Settings');
+  tsGorsel.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabVisual, 'Visual Settings');
+
+  // General tab
+  lblCompanyTitle.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColCompanyTitle, 'Company Title');
+  lblPhone.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColPhone, 'Phone');
+  lblFax.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColFax, 'Fax');
+  pnlLogo.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColLogo, 'Logo');
+
+  // Address tab
+  lblTaxpayerType.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColTaxpayerType, 'Taxpayer Type');
+  lblTaxpayerName.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColTaxpayerName, 'Taxpayer Name');
+  lblTaxpayerSurname.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColTaxpayerSurname, 'Taxpayer Surname');
+  lblTaxNo.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColTaxNo, 'Tax Number');
+  lblTaxAuthority.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColTaxAuthority, 'Tax Authority');
+  lblCountryName.Caption := TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountryName, 'Country Name');
+  lblCityId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.TitleSingular, 'City');
+  lblDistrict.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColDistrict, 'District');
+  lblNeighborhood.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColNeighborhood, 'Neighborhood');
+  lblQuarter.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColQuarter, 'Quarter');
+  lblRoad.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColRoad, 'Road');
+  lblStreet.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColStreet, 'Street');
+  lblBuildingName.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColBuildingName, 'Building Name');
+  lblDoorNumber.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColDoorNumber, 'Door Number');
+  lblZipCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColZipCode, 'Zip Code');
+  lblEmail.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColEmail, 'e-Mail');
+  lblWeb.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColWeb, 'Web');
+
+  // Service tab
+  lblMailHost.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColMailHost, 'Mail Host');
+  lblMailUser.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColMailUser, 'Mail User');
+  lblMailPassword.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColMailPassword, 'Mail Password');
+  lblMailSmtpPort.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColMailSmtpPort, 'SMTP Port');
+  lblSmsHost.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColSmsHost, 'SMS Host');
+  lblSmsUser.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColSmsUser, 'SMS User');
+  lblSmsPassword.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColSmsPassword, 'SMS Password');
+  lblSmsTitle.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColSmsTitle, 'SMS Title');
+
+  // Other settings tab
+  lblPathStockCardImage.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColPathStockCardImage, 'Stock Card Image Path');
+  lblPathPersonnelCardImage.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColPathPersonnelCardImage, 'Personnel Card Image Path');
+  lblPathUpdate.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColPathUpdate, 'Update File Path');
+
+  // Visual tab
+  lblGridColor1.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColGridColor1, 'Grid Color 1');
+  lblGridColor2.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColGridColor2, 'Grid Color 2');
+  lblGridColorActive.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColGridColorActive, 'Grid Color Active');
+  lblCryptKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColCryptKey, 'Encryption Key');
+  lblPeriod.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColPeriod, 'Period');
+  lblAppVersion.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColAppVersion, 'App Version');
 end;
 
 procedure TfrmSysApplicationSetting.HelperProcess(Sender: TObject);

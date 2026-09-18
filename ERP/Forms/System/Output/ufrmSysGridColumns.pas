@@ -57,6 +57,14 @@ procedure TfrmSysGridColumns.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TitlePlural, 'Grid Column Settings');
+  SetColumnTitle('id',             TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColId, 'Id'));
+  SetColumnTitle('table_name',     TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColTableName, 'Table Name'));
+  SetColumnTitle('column_name',    TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnName, 'Column Name'));
+  SetColumnTitle('column_width',   TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnWidth, 'Width'));
+  SetColumnTitle('column_order',   TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnOrder, 'Order'));
+  SetColumnTitle('is_show',        TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsShow, 'Show'));
+  SetColumnTitle('is_fetch',       TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsFetch, 'Fetch'));
+  SetColumnTitle('aggregate_type', TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColAggregateType, 'Aggregate Type'));
 end;
 
 end.

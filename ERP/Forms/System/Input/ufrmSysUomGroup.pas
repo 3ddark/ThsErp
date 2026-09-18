@@ -93,8 +93,9 @@ end;
 procedure TfrmSysUomType.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.TitleSingular, 'Ölçü Birimi Tipi');
-  lblKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColKey, 'Tip Anahtarı');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.TitleSingular, 'Unit of Measurement Type');
+  lblKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColKey, 'Type Key');
+  UpdateTranslationLabels(scrlbxTranslations, 'Name', TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColName, 'Name'));
 end;
 
 procedure TfrmSysUomType.RefreshData;

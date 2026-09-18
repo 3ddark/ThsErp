@@ -1,4 +1,4 @@
-﻿unit SysDecimalPlace.Service;
+unit SysDecimalPlace.Service;
 
 interface
 
@@ -119,7 +119,7 @@ begin
   LEntity := FRepo.FindById(AId, False);
   try
     if not Assigned(LEntity) then
-      raise Exception.CreateFmt('Record not found: %d', [AId]);
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId], 'Record not found: %d'));
 
     ValidateAll(LEntity, coDelete);
     FRepo.Delete(LEntity);

@@ -1,4 +1,4 @@
-unit SysAddress.Repository;
+﻿unit SysAddress.Repository;
 
 interface
 
@@ -192,6 +192,7 @@ begin
 
     Q.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 
+    LogQuery(Q, 'DoFind');
     Q.Open;
     while not Q.Eof do
     begin
@@ -220,6 +221,7 @@ begin
 
     Q.ParamByName('id').AsLargeInt := AId.AsInt64;
     Q.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
+    LogQuery(Q, 'DoFindById');
     Q.Open;
 
     if not Q.IsEmpty then
@@ -247,6 +249,7 @@ begin
     for Criteria in AFilter do
       Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
     Q.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
+    LogQuery(Q, 'DoFindOne');
     Q.Open;
 
     if not Q.IsEmpty then
@@ -265,6 +268,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
   finally
@@ -289,6 +293,7 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
     Q.Free;
@@ -304,6 +309,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
     Q.Free;
@@ -327,6 +333,7 @@ begin
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
 
+    LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);
   finally
     Q.Free;
@@ -342,6 +349,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareDeleteSql + ' id = :id';
     Q.ParamByName('id').AsLargeInt := AID.AsInt64;
+    LogQuery(Q, 'DoDelete');
     Q.ExecSQL;
   finally
     Q.Free;
@@ -370,6 +378,7 @@ begin
     for I := 0 to Count - 1 do
       Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
 
+    LogQuery(Q, 'DoDeleteBatch');
     Q.Execute(Count, 0);
   finally
     Q.Free;
@@ -393,6 +402,7 @@ begin
     for I := 0 to Count - 1 do
       Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
 
+    LogQuery(Q, 'DoDeleteBatch');
     Q.Execute(Count, 0);
   finally
     Q.Free;
@@ -418,6 +428,7 @@ begin
     for Criteria in AFilter do
       Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
 
+    LogQuery(Q, 'DoDeleteBatch');
     Q.ExecSQL;
   finally
     Q.Free;

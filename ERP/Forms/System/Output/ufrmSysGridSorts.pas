@@ -52,6 +52,9 @@ procedure TfrmSysGridSorts.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridSort.TitlePlural, 'Grid Sorts');
+  SetColumnTitle('id',           TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColId, 'Id'));
+  SetColumnTitle('table_name',   TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColTableName, 'Table Name'));
+  SetColumnTitle('sort_content', TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColSortContent, 'Sort Content'));
 end;
 
 end.
