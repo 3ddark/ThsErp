@@ -108,12 +108,13 @@ end;
 procedure TfrmSysUom.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.TitleSingular, 'Ölçü Birimi');
-  lblUnit.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitCode, 'Birim Kodu');
-  lblUnitEInv.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitEinv, 'E-Fatura Birim Kodu');
-  lblDecimal.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.DecimalPlace, 'Ondalıklı');
-  lblMeasureTypeId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.MeasureType, 'Ölçü Birimi Tipi');
-  lblMultiplier.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.Multiplier, 'Çarpan');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.TitleSingular, 'Unit of Measurement');
+  lblUnit.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitCode, 'Unit Code');
+  lblUnitEInv.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitEinv, 'E-Invoice Unit Code');
+  lblDecimal.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.DecimalPlace, 'Decimal');
+  lblMeasureTypeId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.MeasureType, 'Unit of Measurement Type');
+  lblMultiplier.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.Multiplier, 'Multiplier');
+  UpdateTranslationLabels(scrlbxTranslations, 'Description', TLocalizationManager.Translate(TLangKeys.TSysUom.ColDescription, 'Description'));
 end;
 
 procedure TfrmSysUom.HelperProcess(Sender: TObject);

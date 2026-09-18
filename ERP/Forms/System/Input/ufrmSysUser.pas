@@ -83,6 +83,9 @@ begin
   lblSuperUser.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColSuperUser, 'Super User');
   lblIpAddress.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColIpAddress, 'IP Address');
   lblMacAddress.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColMacAddress, 'MAC Address');
+  chkActive.Caption := lblActive.Caption;
+  chkManager.Caption := lblManager.Caption;
+  chkSuperUser.Caption := lblSuperUser.Caption;
 end;
 
 procedure TfrmSysUser.HelperProcess(Sender: TObject);

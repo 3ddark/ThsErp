@@ -64,13 +64,13 @@ end;
 procedure TfrmSysDecimalPlace.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.TitleSingular, 'Ondalık Basamak Ayarı');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.TitleSingular, 'Decimal Place Setting');
 
-  lblQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColQuantity, 'Ondalık Basamak Ayarı');
-  lblPrice.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColPrice, 'Ondalık Basamak Ayarı');
-  lblTotal.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColTotal, 'Ondalık Basamak Ayarı');
-  lblStockQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColStockQuantity, 'Ondalık Basamak Ayarı');
-  lblExchangeRate.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColExchangeRate, 'Ondalık Basamak Ayarı');
+  lblQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColQuantity, 'Quantity');
+  lblPrice.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColPrice, 'Price');
+  lblTotal.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColTotal, 'Total');
+  lblStockQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColStockQuantity, 'Stock Quantity');
+  lblExchangeRate.Caption := TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColExchangeRate, 'Exchange Rate');
 end;
 
 procedure TfrmSysDecimalPlace.InitializeInputCase;

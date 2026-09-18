@@ -53,6 +53,9 @@ procedure TfrmSysViewTables.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysViewTable.TitlePlural, 'System View Tables');
+  SetColumnTitle('id',         TLocalizationManager.Translate(TLangKeys.TSysViewTable.ColId, 'Id'));
+  SetColumnTitle('table_name', TLocalizationManager.Translate(TLangKeys.TSysViewTable.ColTableName, 'Table Name'));
+  SetColumnTitle('table_type', TLocalizationManager.Translate(TLangKeys.TSysViewTable.ColTableType, 'Type'));
 end;
 
 end.

@@ -1,4 +1,4 @@
-﻿unit SysGridColumn.Service;
+unit SysGridColumn.Service;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext,
-  SysGridColumn.Repository, SysGridColumn, SysGridColumn.Exception;
+  SysGridColumn.Repository, SysGridColumn, SysGridColumn.Exception, SysGridColumn.Cache;
 
 type
   TSysGridColumnService = class(TCrudService<TSysGridColumn>)
@@ -99,6 +99,8 @@ begin
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
+
+    TSysGridColumnCache.InvalidateTable(AEntity.TableName);
   except
     on E: Exception do
     begin
@@ -125,6 +127,8 @@ begin
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
+
+    TSysGridColumnCache.InvalidateTable(AEntity.TableName);
   except
     on E: Exception do
     begin
@@ -151,6 +155,8 @@ begin
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
+
+    TSysGridColumnCache.InvalidateTable(AEntity.TableName);
   except
     on E: Exception do
     begin

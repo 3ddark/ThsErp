@@ -1,4 +1,4 @@
-unit ufrmGrid;
+﻿unit ufrmGrid;
 
 interface
 
@@ -192,6 +192,7 @@ type
     procedure SortGridTitle(Sender: TObject);
 
     function  GetGridViewName: string; virtual;
+    procedure AutoPopulateSysGridColumns(const AViewName: string); virtual;
     procedure LoadColumnWidthsFromDB; virtual;
     procedure SaveColumnWidthsToDB; virtual;
     procedure AdjustFormWidth; virtual;
@@ -2271,6 +2272,46 @@ begin
     Result := Copy(Result, dotPos + 1, MaxInt);
 end;
 
+procedure TfrmGrid<TE, TS>.AutoPopulateSysGridColumns(const AViewName: string);
+var
+  LSysRepo : ISysGridColumnRepository;
+  LAutoCols: TObjectList<TSysGridColumn>;
+  LCol     : TSysGridColumn;
+  i        : Integer;
+begin
+  if (AViewName = '') or (Grd.Columns.Count = 0) then Exit;
+  if not Assigned(Service) or not Assigned(Service.UoW) or (Service.UoW.Connection = nil) or not Service.UoW.Connection.Connected then Exit;
+
+  LSysRepo := Service.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository> as ISysGridColumnRepository;
+  if LSysRepo = nil then Exit;
+
+  LAutoCols := TObjectList<TSysGridColumn>.Create(True);
+  try
+    for i := 0 to Grd.Columns.Count - 1 do
+    begin
+      if Grd.Columns[i].FieldName = '' then Continue;
+
+      LCol             := TSysGridColumn.Create;
+      LCol.TableName   := AViewName;
+      LCol.ColumnName  := Grd.Columns[i].FieldName;
+      LCol.ColumnOrder := Grd.Columns[i].Index + 1;
+      LCol.ColumnWidth := Grd.Columns[i].Width;
+      LCol.IsShow      := Grd.Columns[i].Visible;
+      LCol.IsShowHelper:= False;
+      LCol.IsFetch     := True;
+      LAutoCols.Add(LCol);
+    end;
+
+    if LAutoCols.Count > 0 then
+    begin
+      LSysRepo.SaveColumns(AViewName, LAutoCols);
+      GLogger.InfoFmt('sys_grid_column: [%s] tablosu için %d kolon otomatik eklendi.', [AViewName, LAutoCols.Count]);
+    end;
+  finally
+    LAutoCols.Free;
+  end;
+end;
+
 procedure TfrmGrid<TE, TS>.LoadColumnWidthsFromDB;
 var
   LViewName: string;
@@ -2286,11 +2327,16 @@ begin
   if LViewName = '' then Exit;
   if not Service.UoW.Connection.Connected then Exit;
 
+  LSysRepo := Service.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository> as ISysGridColumnRepository;
+  if LSysRepo = nil then Exit;
+
+  // sys_grid_column içinde bu forma ait hiç kayıt yoksa tüm alanları otomatik ekle
+  if not LSysRepo.HasTableColumns(LViewName) then
+    AutoPopulateSysGridColumns(LViewName);
+
   LUserId := 0;
   if (TAppContext.Instance.CurrentUser <> nil) then
     LUserId := TAppContext.Instance.CurrentUser.GetUserId;
-
-  LSysRepo := Service.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository> as ISysGridColumnRepository;
 
   if LUserId > 0 then
     LColumns := LSysRepo.LoadUserColumns(LViewName, LUserId)

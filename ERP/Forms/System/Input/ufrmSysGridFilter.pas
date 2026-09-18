@@ -55,7 +55,9 @@ end;
 procedure TfrmSysGridFilter.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridFilter.TitleSingular, 'Grid Filtresi');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridFilter.TitleSingular, 'Grid Filter');
+  lblTableName.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridFilter.ColTableName, 'Table Name');
+  lblFilterContent.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridFilter.ColFilterContent, 'Filter Content');
 end;
 
 procedure TfrmSysGridFilter.InitializeInputCase;

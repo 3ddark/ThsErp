@@ -16,7 +16,8 @@ uses
   AppContext, UserContext, Repository, LocalizationManager,
   ConnectionManager, UnitOfWork, FilterCriterion, Auth.Service,
   SysPermission.Repository, SysPermission, SysLanguage, SysLanguage.Repository,
-  SysUser.Repository, SysAccessRight.Repository, SysAccessRight;
+  SysUser.Repository, SysAccessRight.Repository, SysAccessRight,
+  SysGridColumn.Cache;
 
 type
   TfrmLogin = class(TfrmBase)
@@ -141,6 +142,7 @@ begin
   TUnitOfWork.Initialize(LConn);
 
   TLanguageCache.Load;
+  TSysGridColumnCache.LoadGlobal(LConn);
 
   LAuthSvc  := TAuthService.Create;
   LUserRepo := TSysUserRepository.Create(LConn);
@@ -227,6 +229,8 @@ begin
       finally
         LAccessRepo.Free;
       end;
+
+      TSysGridColumnCache.LoadUser(LConn, LLoginRes.UserId);
 
       IncProgress;
 

@@ -1,4 +1,4 @@
-﻿unit SysAccessRight.Service;
+unit SysAccessRight.Service;
 
 interface
 
@@ -388,7 +388,7 @@ end;
 procedure TSysAccessRightService.CopyUserAccessRights(ASourceUserId, ATargetUserId: Int64);
 begin
   if Self.UoW.InTransaction then
-    raise Exception.Create(TLangKeys.TMessage.ActiveTransactionExist);
+    raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.ActiveTransactionExist, 'Active transaction exists'));
 
   if not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;

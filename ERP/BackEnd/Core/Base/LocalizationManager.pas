@@ -208,7 +208,39 @@ type
       end;
 
       TSysApplicationSetting = record
+        const TitlePlural = 'sys_application_setting.title_plural';
         const TitleSingular = 'sys_application_setting.title_singular';
+        const TabGeneral = 'sys_application_setting.tab.general';
+        const TabAddress = 'sys_application_setting.tab.address';
+        const TabService = 'sys_application_setting.tab.service';
+        const TabOther = 'sys_application_setting.tab.other';
+        const TabVisual = 'sys_application_setting.tab.visual';
+        const ColCompanyTitle = 'sys_application_setting.col_company_title';
+        const ColPhone = 'sys_application_setting.col_phone';
+        const ColFax = 'sys_application_setting.col_fax';
+        const ColLogo = 'sys_application_setting.col_logo';
+        const ColTaxpayerType = 'sys_application_setting.col_taxpayer_type';
+        const ColTaxpayerName = 'sys_application_setting.col_taxpayer_name';
+        const ColTaxpayerSurname = 'sys_application_setting.col_taxpayer_surname';
+        const ColTaxNo = 'sys_application_setting.col_tax_no';
+        const ColTaxAuthority = 'sys_application_setting.col_tax_authority';
+        const ColMailHost = 'sys_application_setting.col_mail_host';
+        const ColMailUser = 'sys_application_setting.col_mail_user';
+        const ColMailPassword = 'sys_application_setting.col_mail_password';
+        const ColMailSmtpPort = 'sys_application_setting.col_mail_smtp_port';
+        const ColSmsHost = 'sys_application_setting.col_sms_host';
+        const ColSmsUser = 'sys_application_setting.col_sms_user';
+        const ColSmsPassword = 'sys_application_setting.col_sms_password';
+        const ColSmsTitle = 'sys_application_setting.col_sms_title';
+        const ColPathStockCardImage = 'sys_application_setting.col_path_stock_card_image';
+        const ColPathPersonnelCardImage = 'sys_application_setting.col_path_personnel_card_image';
+        const ColPathUpdate = 'sys_application_setting.col_path_update';
+        const ColGridColor1 = 'sys_application_setting.col_grid_color_1';
+        const ColGridColor2 = 'sys_application_setting.col_grid_color_2';
+        const ColGridColorActive = 'sys_application_setting.col_grid_color_active';
+        const ColCryptKey = 'sys_application_setting.col_crypt_key';
+        const ColPeriod = 'sys_application_setting.col_period';
+        const ColAppVersion = 'sys_application_setting.col_app_version';
       end;
 
       TSysCity = record
@@ -266,6 +298,16 @@ type
         const ColIsShow = 'sys_grid_column.col_is_show';
         const ColIsFetch = 'sys_grid_column.col_is_fetch';
         const ColAggregateType = 'sys_grid_column.col_aggregate_type';
+        const ColDataFormat = 'sys_grid_column.col_data_format';
+        const ColIsShowHelper = 'sys_grid_column.col_is_show_helper';
+        const ColMinValue = 'sys_grid_column.col_min_value';
+        const ColMinValueColor = 'sys_grid_column.col_min_value_color';
+        const ColMaxValue = 'sys_grid_column.col_max_value';
+        const ColMaxValueColor = 'sys_grid_column.col_max_value_color';
+        const ColMaxValuePercent = 'sys_grid_column.col_max_value_percent';
+        const ColBarColor = 'sys_grid_column.col_bar_color';
+        const ColBarBkColor = 'sys_grid_column.col_bar_bk_color';
+        const ColBarTextColor = 'sys_grid_column.col_bar_text_color';
         const TableNameColumnName = 'sys_grid_column.table_name_column_name.unique';
         const TableNameColumnOrder = 'sys_grid_column.table_name_column_order.unique';
       end;

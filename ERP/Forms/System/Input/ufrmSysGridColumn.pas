@@ -134,10 +134,29 @@ var
   LPrevIndex: Integer;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TitleSingular, 'Grid Kolon Ayarı');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TitleSingular, 'Grid Column Setting');
+
+  lblTableName.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColTableName, 'Table Name');
+  lblColumnName.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnName, 'Column Name');
+  lblColumnOrder.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnOrder, 'Column Order');
+  lblColumnWidth.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnWidth, 'Column Width');
+  lblDataFormat.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColDataFormat, 'Data Format');
+  chkIsShow.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsShow, 'Show');
+  chkIsShowHelper.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsShowHelper, 'Show in Helper');
+  if Assigned(chkIsFetch) then
+    chkIsFetch.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsFetch, 'Fetch');
+
+  lblMinValue.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColMinValue, 'Min Value');
+  lblMinValueColor.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColMinValueColor, 'Min Value Color');
+  lblMaxValue.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColMaxValue, 'Max Value');
+  lblMaxValueColor.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColMaxValueColor, 'Max Value Color');
+  lblMaxValuePercent.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColMaxValuePercent, 'Max Value Percent');
+  lblBarColor.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColBarColor, 'Bar Color');
+  lblBarBgColor.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColBarBkColor, 'Bar Background Color');
+  lblBarTextColor.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColBarTextColor, 'Bar Text Color');
 
   if Assigned(lblAggregateType) then
-    lblAggregateType.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColAggregateType, 'Alt Toplam Tipi');
+    lblAggregateType.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColAggregateType, 'Aggregate Type');
 
   if Assigned(cbbAggregateType) then
   begin
@@ -145,12 +164,12 @@ begin
     cbbAggregateType.Items.BeginUpdate;
     try
       cbbAggregateType.Items.Clear;
-      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.None, 'Yok'));
-      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Sum, 'Toplam (Sum)'));
-      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Count, 'Kayıt Sayısı (Count)'));
-      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Average, 'Ortalama (Average)'));
-      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Min, 'En Küçük (Min)'));
-      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Max, 'En Büyük (Max)'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.None, 'None'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Sum, 'Sum'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Count, 'Count'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Average, 'Average'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Min, 'Min'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Max, 'Max'));
     finally
       cbbAggregateType.Items.EndUpdate;
     end;

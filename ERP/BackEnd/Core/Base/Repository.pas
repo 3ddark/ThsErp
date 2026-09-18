@@ -2,6 +2,8 @@ unit Repository;
 
 interface
 
+{$I Ths.inc}
+
 uses
   System.SysUtils, System.StrUtils, System.Classes, System.Variants, Data.DB,
   System.TypInfo, System.Rtti, System.Generics.Collections, System.Types,
@@ -34,6 +36,9 @@ type
   private
     FConnection: TFDConnection;
   protected
+    function ExpandSQLWithParams(Q: TFDQuery): string;
+    procedure LogQuery(Q: TFDQuery; const AOperation: string = '');
+
     function PrepareSelectFromView(AFilter: TFilterCriteria; ALock: Boolean; AGetOnlyOneRecord: Boolean = False; AApplyLocaleFilter: Boolean = False): string;
     function BuildSelectColumns(const AAlwaysFetch: TArray<string> = []): string; virtual;
 
@@ -183,10 +188,63 @@ begin
       'WHERE 1=1' + LFilterSql + Limit1;
 end;
 
+function TRepository<T>.ExpandSQLWithParams(Q: TFDQuery): string;
+var
+  SQLText: string;
+  Param: TFDParam;
+  ParamValue: string;
+  I: Integer;
+begin
+  if Q = nil then Exit('');
+  SQLText := Q.SQL.Text;
+
+  for I := 0 to Q.Params.Count - 1 do
+  begin
+    Param := Q.Params[I];
+
+    if Param.IsNull then
+      ParamValue := 'NULL'
+    else if Param.DataType in [ftSmallint, ftInteger, ftWord, ftFloat, ftCurrency, ftBCD, ftFMTBcd, ftLargeInt, ftShortint, ftByte, ftLongWord] then
+      ParamValue := Param.AsString
+    else if Param.DataType = ftBoolean then
+    begin
+      if Param.AsBoolean then
+        ParamValue := 'TRUE'
+      else
+        ParamValue := 'FALSE';
+    end
+    else if Param.DataType in [ftDate, ftTime, ftDateTime, ftTimeStamp] then
+      ParamValue := QuotedStr(FormatDateTime('yyyy-mm-dd hh:nn:ss', Param.AsDateTime))
+    else
+      ParamValue := QuotedStr(Param.AsString);
+
+    SQLText := StringReplace(SQLText, ':' + Param.Name, ParamValue, [rfReplaceAll, rfIgnoreCase]);
+  end;
+
+  if Q.Params.ArraySize > 1 then
+    SQLText := Format('%s /* [ArraySize: %d] */', [SQLText, Q.Params.ArraySize]);
+
+  Result := Trim(SQLText);
+end;
+
+procedure TRepository<T>.LogQuery(Q: TFDQuery; const AOperation: string);
+begin
+  {$IF Defined(DEBUG) or Defined(FULL_LOG_SQL)}
+  if Assigned(Q) then
+  begin
+    if AOperation <> '' then
+      GLogger.LogSQL(ExpandSQLWithParams(Q), Self.ClassName + '.' + AOperation)
+    else
+      GLogger.LogSQL(ExpandSQLWithParams(Q), Self.ClassName);
+  end;
+  {$IFEND}
+end;
+
 function TRepository<T>.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 begin
   GLogger.InfoFmt('FindAllGridQuery %s', [Self.ClassName]);
   Result := DoFindAllGridQuery(AFilter);
+  LogQuery(Result, 'FindAllGridQuery');
   GLogger.InfoFmt('FindAllGridQuery Done %s', [Self.ClassName]);
 end;
 

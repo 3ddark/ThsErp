@@ -6,11 +6,12 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
   FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  SysGridColumn;
+  SysGridColumn, SysGridColumn.Cache;
 
 type
   ISysGridColumnRepository = interface(IRepository<TSysGridColumn>)
     ['{0DC72463-5EB7-4CE6-8F8C-D555F01338B9}']
+    function HasTableColumns(const ATableName: string): Boolean;
     function LoadColumns(const ATableName: string): TObjectList<TSysGridColumn>;
     procedure SaveColumns(const ATableName: string; const AColumns: TObjectList<TSysGridColumn>);
     function LoadUserColumns(const ATableName: string; AUserId: Int64): TObjectList<TSysGridColumn>;
@@ -47,6 +48,7 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    function  HasTableColumns(const ATableName: string): Boolean;
     procedure SaveColumns(const ATableName: string; const AColumns: TObjectList<TSysGridColumn>);
     function  LoadColumns(const ATableName: string): TObjectList<TSysGridColumn>;
     function  LoadUserColumns(const ATableName: string; AUserId: Int64): TObjectList<TSysGridColumn>;
@@ -65,32 +67,8 @@ begin
 end;
 
 function TSysGridColumnRepository.CheckTableExists: Boolean;
-var
-  Q: TFDQuery;
 begin
-  if FTableExistsChecked then
-    Exit(FTableExists);
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text   :=
-      'SELECT EXISTS (' +
-      '  SELECT FROM pg_tables ' +
-      '  WHERE schemaname = ''public'' ' +
-      '  AND tablename = ''sys_grid_column'')';
-    try
-      Q.Open;
-      FTableExists := Q.Fields[0].AsBoolean;
-    except
-      FTableExists := False;
-    end;
-  finally
-    Q.Free;
-  end;
-
-  FTableExistsChecked := True;
-  Result := FTableExists;
+  Result := TSysGridColumnCache.CheckTableExists(Connection);
 end;
 
 function TSysGridColumnRepository.PrepareSelectSql: string;
@@ -241,6 +219,7 @@ begin
     for Criteria in AFilter do
       Result.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
   end;
+  LogQuery(Result, 'DoFindAllGridQuery');
 end;
 
 function TSysGridColumnRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysGridColumn>;
@@ -268,6 +247,7 @@ begin
         Q.ParamByName(Criterion.ParamName).Value := // FIX: ParamName
           Criterion.Value.AsVariant;
 
+    LogQuery(Q, 'DoFind');
     Q.Open;
     while not Q.Eof do
     begin
@@ -292,6 +272,7 @@ begin
     if ALock then
       Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
     Q.ParamByName('id').AsLargeInt := AId.AsInt64;
+    LogQuery(Q, 'DoFindById');
     Q.Open;
     if not Q.IsEmpty then
       Result := MapFromQuery(Q);
@@ -327,6 +308,7 @@ begin
       Q.ParamByName(Criterion.ParamName).Value := // FIX: ParamName
         Criterion.Value.AsVariant;
 
+    LogQuery(Q, 'DoFindOne');
     Q.Open;
     if not Q.IsEmpty then
       Result := MapFromQuery(Q);
@@ -344,8 +326,10 @@ begin
     Q.Connection  := Connection;
     Q.SQL.Text    := PrepareAddSql + ' RETURNING id';
     SetModelParams(Q, AModel);
+    LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
+    TSysGridColumnCache.InvalidateTable(AModel.TableName);
   finally
     Q.Free;
   end;
@@ -366,7 +350,9 @@ begin
     Q.Params.ArraySize := N;
     for I := 0 to N - 1 do
       SetModelParams(Q, AModels[I], I);
+    LogQuery(Q, 'DoAddBatch');
     Q.Execute(N, 0);
+    TSysGridColumnCache.InvalidateAll;
   finally
     Q.Free;
   end;
@@ -381,7 +367,9 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text   := PrepareUpdateSql;
     SetModelParams(Q, AModel);
+    LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
+    TSysGridColumnCache.InvalidateTable(AModel.TableName);
   finally
     Q.Free;
   end;
@@ -402,7 +390,9 @@ begin
     Q.Params.ArraySize := N;
     for I := 0 to N - 1 do
       SetModelParams(Q, AModels[I], I);
+    LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(N, 0);
+    TSysGridColumnCache.InvalidateAll;
   finally
     Q.Free;
   end;
@@ -417,7 +407,9 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text   := PrepareDeleteSql;
     Q.ParamByName('id').AsLargeInt := AID.AsInt64;
+    LogQuery(Q, 'DoDelete');
     Q.ExecSQL;
+    TSysGridColumnCache.InvalidateAll;
   finally
     Q.Free;
   end;
@@ -443,6 +435,7 @@ begin
     Q.Params.ArraySize := N;
     for I := 0 to N - 1 do
       Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
+    LogQuery(Q, 'DoDeleteBatch');
     Q.Execute(N, 0);
   finally
     Q.Free;
@@ -463,6 +456,7 @@ begin
     Q.Params.ArraySize := N;
     for I := 0 to N - 1 do
       Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
+    LogQuery(Q, 'DoDeleteBatch');
     Q.Execute(N, 0);
   finally
     Q.Free;
@@ -487,6 +481,7 @@ begin
         ' :' + Criteria.ParamName;
     for Criteria in AFilter do
       Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+    LogQuery(Q, 'DoDeleteBatch');
     Q.ExecSQL;
   finally
     Q.Free;
@@ -494,84 +489,13 @@ begin
 end;
 
 function TSysGridColumnRepository.LoadColumns(const ATableName: string): TObjectList<TSysGridColumn>;
-var
-  Q: TFDQuery;
-  CleanTbl: string;
-  BaseTbl: string;
-  ViewTbl: string;
-  Seen: TDictionary<string, Integer>;
-  ColName: string;
-  Item: TSysGridColumn;
 begin
-  Result := TObjectList<TSysGridColumn>.Create(True);
+  Result := TSysGridColumnCache.LoadColumns(Connection, ATableName);
+end;
 
-  if not CheckTableExists then Exit;
-
-  CleanTbl := ATableName;
-  if CleanTbl.StartsWith('public.', True) then
-    CleanTbl := CleanTbl.Substring(7);
-
-  BaseTbl := CleanTbl;
-  if BaseTbl.StartsWith('vw_', True) then
-    BaseTbl := BaseTbl.Substring(3);
-  ViewTbl := 'vw_' + BaseTbl;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection  := Connection;
-    Q.SQL.Text    :=
-      'SELECT id, table_name, column_name, column_order, column_width, data_format, is_show, is_fetch, aggregate_type ' +
-      'FROM public.' + GetTableName(TSysGridColumn) +
-      ' WHERE (table_name = :tbl OR table_name = :tbl_vw) ' +
-      ' ORDER BY CASE WHEN table_name = :exact THEN 0 ELSE 1 END, column_order';
-    Q.ParamByName('tbl').AsString := BaseTbl;
-    Q.ParamByName('tbl_vw').AsString := ViewTbl;
-    Q.ParamByName('exact').AsString := CleanTbl;
-    try
-      Q.Open;
-    except
-      on E: Exception do
-      begin
-        GLogger.ErrorFmt('LoadColumns hatası [%s]: %s', [ATableName, E.Message]);
-        Exit;
-      end;
-    end;
-
-    Seen := TDictionary<string, Integer>.Create;
-    try
-      while not Q.Eof do
-      begin
-        ColName := LowerCase(Q.FieldByName('column_name').AsString);
-        if not Seen.ContainsKey(ColName) then
-        begin
-          Item            := TSysGridColumn.Create;
-          Item.Id         := Q.FieldByName('id').AsLargeInt;
-          Item.TableName  := Q.FieldByName('table_name').AsString;
-          Item.ColumnName := Q.FieldByName('column_name').AsString;
-          Item.ColumnOrder:= Q.FieldByName('column_order').AsInteger;
-          Item.ColumnWidth:= Q.FieldByName('column_width').AsInteger;
-          Item.IsShow     := Q.FieldByName('is_show').AsBoolean;
-          if Q.FindField('is_fetch') <> nil then
-            Item.IsFetch  := Q.FieldByName('is_fetch').AsBoolean
-          else
-            Item.IsFetch  := True;
-          if Q.FindField('data_format') <> nil then
-            Item.DataFormat := Q.FieldByName('data_format').AsString;
-          if Q.FindField('aggregate_type') <> nil then
-            Item.AggregateType := Q.FieldByName('aggregate_type').AsInteger
-          else
-            Item.AggregateType := 0;
-          Result.Add(Item);
-          Seen.Add(ColName, Result.Count - 1);
-        end;
-        Q.Next;
-      end;
-    finally
-      Seen.Free;
-    end;
-  finally
-    Q.Free;
-  end;
+function TSysGridColumnRepository.HasTableColumns(const ATableName: string): Boolean;
+begin
+  Result := TSysGridColumnCache.HasTableColumns(Connection, ATableName);
 end;
 
 procedure TSysGridColumnRepository.SaveColumns(const ATableName: string; const AColumns: TObjectList<TSysGridColumn>);
@@ -586,6 +510,7 @@ var
   Q       : TFDQuery;
   I       : Integer;
   SQLText : string;
+  CleanTbl: string;
 
   LExisting: TDictionary<string, TColType>;
   LKey    : string;
@@ -596,6 +521,10 @@ begin
 
   if not CheckTableExists then Exit;
 
+  CleanTbl := ATableName;
+  if CleanTbl.StartsWith('public.', True) then
+    CleanTbl := CleanTbl.Substring(7);
+
   LExisting := TDictionary<string, TColType>.Create;
   Q := TFDQuery.Create(nil);
   try
@@ -603,14 +532,15 @@ begin
     Q.SQL.Text   :=
       'SELECT column_name, column_order, column_width, is_show ' +
       'FROM public.sys_grid_column WHERE table_name = :t';
-    Q.ParamByName('t').AsString := ATableName;
+    Q.ParamByName('t').AsString := CleanTbl;
     try
+      LogQuery(Q, 'SaveColumns');
       Q.Open;
     except
       on E: Exception do
       begin
-        GLogger.ErrorFmt('SaveColumns okuma hatası [%s]: %s',
-          [ATableName, E.Message]);
+        GLogger.ErrorFmt('SaveColumns read error [%s]: %s',
+          [CleanTbl, E.Message]);
         Exit;
       end;
     end;
@@ -645,13 +575,13 @@ begin
 
     SQLText :=
       'INSERT INTO public.sys_grid_column ' +
-      '(table_name, column_name, column_order, column_width, is_show) VALUES ';
+      '(table_name, column_name, column_order, column_width, is_show, is_fetch) VALUES ';
 
     for I := 0 to AColumns.Count - 1 do
     begin
       if I > 0 then
         SQLText := SQLText + ', ';
-      SQLText := SQLText + Format('(:t, :cn%d, :co%d, :cw%d, :cs%d)', [I, I, I, I]);
+      SQLText := SQLText + Format('(:t, :cn%d, :co%d, :cw%d, :cs%d, :cf%d)', [I, I, I, I, I]);
     end;
 
     SQLText := SQLText +
@@ -661,21 +591,24 @@ begin
       '  is_show      = EXCLUDED.is_show';
 
     Q.SQL.Text := SQLText;
-    Q.ParamByName('t').AsString := ATableName;
+    Q.ParamByName('t').AsString := CleanTbl;
     for I := 0 to AColumns.Count - 1 do
     begin
       Q.ParamByName('cn' + I.ToString).AsString  := AColumns[I].ColumnName;
       Q.ParamByName('co' + I.ToString).AsInteger := AColumns[I].ColumnOrder;
       Q.ParamByName('cw' + I.ToString).AsInteger := AColumns[I].ColumnWidth;
       Q.ParamByName('cs' + I.ToString).AsBoolean := AColumns[I].IsShow;
+      Q.ParamByName('cf' + I.ToString).AsBoolean := AColumns[I].IsFetch;
     end;
 
     try
+      LogQuery(Q, 'SaveColumns');
       Q.ExecSQL;
+      TSysGridColumnCache.UpdateGlobal(CleanTbl, AColumns);
     except
       on E: Exception do
-        GLogger.ErrorFmt('SaveColumns kayıt hatası [%s]: %s',
-          [ATableName, E.Message]);
+        GLogger.ErrorFmt('SaveColumns save error [%s]: %s',
+          [CleanTbl, E.Message]);
     end;
 
   finally
@@ -685,73 +618,8 @@ begin
 end;
 
 function TSysGridColumnRepository.LoadUserColumns(const ATableName: string; AUserId: Int64): TObjectList<TSysGridColumn>;
-var
-  Q: TFDQuery;
-  UserColMap: TDictionary<string, TSysGridColumn>;
-  ColName: string;
-  Item: TSysGridColumn;
-  CleanTbl: string;
-  HasGlobalColumns: Boolean;
 begin
-  Result := LoadColumns(ATableName);
-  if AUserId <= 0 then Exit;
-
-  CleanTbl := ATableName;
-  if CleanTbl.StartsWith('public.', True) then
-    CleanTbl := CleanTbl.Substring(7);
-
-  HasGlobalColumns := Result.Count > 0;
-
-  UserColMap := TDictionary<string, TSysGridColumn>.Create;
-  try
-    for Item in Result do
-      UserColMap.AddOrSetValue(LowerCase(Item.ColumnName), Item);
-
-    Q := TFDQuery.Create(nil);
-    try
-      Q.Connection := Connection;
-      Q.SQL.Text :=
-        'SELECT column_name, column_order, column_width, is_show ' +
-        'FROM public.sys_user_grid_column ' +
-        'WHERE user_id = :uid AND (table_name = :tbl_vw) ' +
-        'ORDER BY column_order';
-      Q.ParamByName('uid').AsLargeInt := AUserId;
-      Q.ParamByName('tbl_vw').AsString := CleanTbl;
-      try
-        Q.Open;
-        while not Q.Eof do
-        begin
-          ColName := LowerCase(Q.FieldByName('column_name').AsString);
-          if UserColMap.TryGetValue(ColName, Item) then
-          begin
-            Item.ColumnOrder := Q.FieldByName('column_order').AsInteger;
-            Item.ColumnWidth := Q.FieldByName('column_width').AsInteger;
-            Item.IsShow      := Q.FieldByName('is_show').AsBoolean;
-          end
-          else if not HasGlobalColumns then
-          begin
-            Item             := TSysGridColumn.Create;
-            Item.TableName   := ATableName;
-            Item.ColumnName  := Q.FieldByName('column_name').AsString;
-            Item.ColumnOrder := Q.FieldByName('column_order').AsInteger;
-            Item.ColumnWidth := Q.FieldByName('column_width').AsInteger;
-            Item.IsShow      := Q.FieldByName('is_show').AsBoolean;
-            Item.IsFetch     := True;
-            Result.Add(Item);
-            UserColMap.AddOrSetValue(ColName, Item);
-          end;
-          Q.Next;
-        end;
-      except
-        on E: Exception do
-          GLogger.ErrorFmt('LoadUserColumns okuma hatası [%s, User %d]: %s', [ATableName, AUserId, E.Message]);
-      end;
-    finally
-      Q.Free;
-    end;
-  finally
-    UserColMap.Free;
-  end;
+  Result := TSysGridColumnCache.LoadUserColumns(Connection, ATableName, AUserId);
 end;
 
 procedure TSysGridColumnRepository.SaveUserColumns(const ATableName: string; AUserId: Int64; const AColumns: TObjectList<TSysGridColumn>);
@@ -759,8 +627,17 @@ var
   Q: TFDQuery;
   i: Integer;
   SQLText: string;
+  CleanTbl: string;
 begin
   if (AColumns = nil) or (AColumns.Count = 0) or (AUserId <= 0) then Exit;
+
+  CleanTbl := ATableName;
+  if CleanTbl.StartsWith('public.', True) then
+    CleanTbl := CleanTbl.Substring(7);
+
+  // Değişiklik yoksa gereksiz DB sorgusu çalıştırma
+  if not TSysGridColumnCache.IsUserColumnsChanged(CleanTbl, AUserId, AColumns) then
+    Exit;
 
   Q := TFDQuery.Create(nil);
   try
@@ -783,7 +660,7 @@ begin
 
     Q.SQL.Text := SQLText;
     Q.ParamByName('u').AsLargeInt := AUserId;
-    Q.ParamByName('t').AsString := ATableName;
+    Q.ParamByName('t').AsString := CleanTbl;
     for i := 0 to AColumns.Count - 1 do
     begin
       Q.ParamByName('cn' + i.ToString).AsString  := AColumns[i].ColumnName;
@@ -793,10 +670,12 @@ begin
     end;
 
     try
+      LogQuery(Q, 'SaveUserColumns');
       Q.ExecSQL;
+      TSysGridColumnCache.UpdateUser(CleanTbl, AUserId, AColumns);
     except
       on E: Exception do
-        GLogger.ErrorFmt('SaveUserColumns kayıt hatası [%s, User %d]: %s', [ATableName, AUserId, E.Message]);
+        GLogger.ErrorFmt('SaveUserColumns save error [%s, User %d]: %s', [CleanTbl, AUserId, E.Message]);
     end;
   finally
     Q.Free;

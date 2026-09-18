@@ -2,6 +2,8 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
   SysUtils, Winapi.Windows, Vcl.Forms, System.IOUtils, System.SyncObjs,
   Classes, System.Generics.Collections, System.Threading;
@@ -31,6 +33,8 @@ type
     procedure EnqueueLine(const ALine: string);
     procedure FlushQueue;
   public
+    class function Instance: TLogger; static;
+
     property LogFileName    : TFileName read FLogFileName;
     property ProcessID      : string    read FProcessID      write FProcessID;
     property DBConnectionPID: string    read FDBConnectionPID write FDBConnectionPID;
@@ -48,6 +52,8 @@ type
     procedure Critical(const AMessage: string);
     procedure ErrorLog(E: Exception; const AContext: string = '');
     procedure Log     (const AMessage: string; ALevel: TLogLevel);
+    procedure RunLog  (const AMessage: string);
+    procedure LogSQL  (const ASQL: string; const AContext: string = '');
 
     procedure DebugFmt   (const AFormat: string; const Args: array of const);
     procedure InfoFmt    (const AFormat: string; const Args: array of const);
@@ -68,10 +74,33 @@ type
     procedure Execute; override;
   end;
 
-var
-  GLogger: TLogger;
+function GLogger: TLogger; inline;
 
 implementation
+
+var
+  FInstance: TLogger = nil;
+  FLock: TCriticalSection = nil;
+
+function GLogger: TLogger;
+begin
+  Result := TLogger.Instance;
+end;
+
+class function TLogger.Instance: TLogger;
+begin
+  if not Assigned(FInstance) then
+  begin
+    FLock.Enter;
+    try
+      if not Assigned(FInstance) then
+        FInstance := TLogger.Create('');
+    finally
+      FLock.Leave;
+    end;
+  end;
+  Result := FInstance;
+end;
 
 constructor TLogWorker.Create(AOwner: TLogger);
 begin
@@ -98,7 +127,11 @@ begin
   inherited Create;
 
   FEnabled     := True;
+  {$IF Defined(DEBUG) or Defined(FULL_LOG_SQL)}
+  FMinLogLevel := llDebug;
+  {$ELSE}
   FMinLogLevel := llInfo;
+  {$IFEND}
   FMaxFileSize := 10 * 1024 * 1024;
   FShutdown    := False;
 
@@ -131,6 +164,10 @@ begin
   FFlushEvent.Free;
   FQueueLock.Free;
   FQueue.Free;
+
+  if FInstance = Self then
+    FInstance := nil;
+
   inherited;
 end;
 
@@ -281,6 +318,25 @@ begin
     Log('StackTrace: ' + E.StackTrace, llError);
 end;
 
+procedure TLogger.RunLog(const AMessage: string);
+begin
+  {$IF Defined(DEBUG) or Defined(FULL_LOG_SQL)}
+  Debug(AMessage);
+  {$ELSE}
+  Info(AMessage);
+  {$IFEND}
+end;
+
+procedure TLogger.LogSQL(const ASQL: string; const AContext: string);
+begin
+  {$IF Defined(DEBUG) or Defined(FULL_LOG_SQL)}
+  if AContext <> '' then
+    DebugFmt('[SQL] [%s] %s', [AContext, ASQL])
+  else
+    Debug('[SQL] ' + ASQL);
+  {$IFEND}
+end;
+
 procedure TLogger.DebugFmt   (const AFormat: string; const Args: array of const);
 begin
   Debug(Format(AFormat, Args));
@@ -338,9 +394,14 @@ begin
 end;
 
 initialization
-  GLogger := TLogger.Create('');
+  FLock := TCriticalSection.Create;
 
 finalization
-  FreeAndNil(GLogger);
+  if Assigned(FInstance) then
+  begin
+    FInstance.Flush;
+    FreeAndNil(FInstance);
+  end;
+  FreeAndNil(FLock);
 
 end.

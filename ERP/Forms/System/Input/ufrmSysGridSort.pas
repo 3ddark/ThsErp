@@ -55,7 +55,9 @@ end;
 procedure TfrmSysGridSort.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridSort.TitleSingular, 'Grid Sıralaması');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridSort.TitleSingular, 'Grid Sort');
+  lblTableName.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColTableName, 'Table Name');
+  lblSortContent.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColSortContent, 'Sort Content');
 end;
 
 procedure TfrmSysGridSort.InitializeInputCase;
