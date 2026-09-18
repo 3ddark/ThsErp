@@ -11,7 +11,6 @@ type
   TfrmAccAccountsLookup = class(TfrmGrid<TAccAccount, TAccAccountService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
   end;
@@ -36,11 +35,6 @@ begin
   SetColumnProperty('id',           0, 'Id');
   SetColumnProperty('code',        150, 'Account Code');
   SetColumnProperty('name',        300, 'Account Name');
-end;
-
-procedure TfrmAccAccountsLookup.DefineFooterColumns;
-begin
-  // No footer columns
 end;
 
 procedure TfrmAccAccountsLookup.FormShow(Sender: TObject);

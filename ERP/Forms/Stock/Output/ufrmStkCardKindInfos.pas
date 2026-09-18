@@ -12,7 +12,6 @@ type
   TfrmStkCardKindInfos = class(TfrmGrid<TStkCardKindInfo, TStkCardKindInfoService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -40,12 +39,6 @@ begin
   SetColumnProperty('stk_kart_id', 80, TLocalizationManager.Translate('stk_card_kind_info.col_stk_kart_id', 'Card Id'));
   SetColumnProperty('cins_id',     60, TLocalizationManager.Translate('stk_card_kind_info.col_cins_id', 'Kind Id'));
   SetColumnProperty('deger',      150, TLocalizationManager.Translate('stk_card_kind_info.col_deger', 'Value'));
-end;
-
-procedure TfrmStkCardKindInfos.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmStkCardKindInfos.FormShow(Sender: TObject);

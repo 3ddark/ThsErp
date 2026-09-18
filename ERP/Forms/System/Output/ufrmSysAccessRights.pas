@@ -18,7 +18,6 @@ type
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure PreparePopupMenu; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -125,12 +124,6 @@ begin
   SetColumnProperty('sys_permission_id', 0);
   SetColumnProperty('sys_user_id', 0);
   SetColumnProperty('locale', 0);
-end;
-
-procedure TfrmSysAccessRights.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysAccessRights.FormShow(Sender: TObject);

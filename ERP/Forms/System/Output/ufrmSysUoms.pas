@@ -15,7 +15,6 @@ type
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineColumnWidths; override;
-    procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
   end;
@@ -42,12 +41,6 @@ begin
   inherited;
   SetColumnProperty('id',              0, TLocalizationManager.Translate(TLangKeys.TSysUom.ColId, 'Id'));
   SetColumnProperty('measure_type_id', 0, TLocalizationManager.Translate(TLangKeys.TSysUom.ColMeasureTypeId, 'Measure Type Id'));
-end;
-
-procedure TfrmSysUoms.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysUoms.FormShow(Sender: TObject);

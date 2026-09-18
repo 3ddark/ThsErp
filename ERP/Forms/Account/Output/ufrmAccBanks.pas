@@ -11,7 +11,6 @@ type
   TfrmAccBanks = class(TfrmGrid<TAccBank, TAccBankService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
   end;
@@ -36,11 +35,6 @@ begin
   SetColumnProperty('id',           0, 'Id');
   SetColumnProperty('name',        250, 'Banka Ad'#305);
   SetColumnProperty('swift_code',   120, 'SWIFT Kodu');
-end;
-
-procedure TfrmAccBanks.DefineFooterColumns;
-begin
-  // No footer columns
 end;
 
 procedure TfrmAccBanks.FormShow(Sender: TObject);

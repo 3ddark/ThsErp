@@ -15,7 +15,6 @@ type
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineColumnWidths; override;
-    procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
   end;
@@ -40,12 +39,6 @@ begin
   inherited;
   SetColumnProperty('id',      0, 'Id');
   SetColumnProperty('locale',  0, TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColLocale, 'Locale'));
-end;
-
-procedure TfrmSysUomTypes.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysUomTypes.FormShow(Sender: TObject);

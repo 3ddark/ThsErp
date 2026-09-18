@@ -15,7 +15,6 @@ type
   public
     procedure DefineColumnWidths; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
   end;
@@ -41,12 +40,6 @@ begin
   //default column title and width and visibility
   SetColumnProperty('id',     0, 'Id');
   SetColumnProperty('locale', 0, 'Locale');
-end;
-
-procedure TfrmSysPermissionGroups.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysPermissionGroups.FormShow(Sender: TObject);

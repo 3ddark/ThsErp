@@ -15,7 +15,6 @@ type
   public
     procedure DefineColumnWidths; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
   end;
@@ -41,12 +40,6 @@ begin
   SetColumnProperty('id',              0, TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColId, 'Id'));
   SetColumnProperty('table_name',    120, TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColTableName, 'Table Name'));
   SetColumnProperty('sort_content',  300, TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColSortContent, 'Sort Content'));
-end;
-
-procedure TfrmSysGridSorts.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysGridSorts.FormShow(Sender: TObject);

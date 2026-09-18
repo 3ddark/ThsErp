@@ -12,7 +12,6 @@ type
   TfrmStkKindFamilies = class(TfrmGrid<TStkKindFamily, TStkKindFamilyService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -40,12 +39,6 @@ begin
   SetColumnProperty('family',         120, TLocalizationManager.Translate('stk_kind_family.col_family', 'Family'));
   SetColumnProperty('description',    200, TLocalizationManager.Translate('stk_kind_family.col_description', 'Description'));
   SetColumnProperty('active',          60, TLocalizationManager.Translate('stk_kind_family.col_active', 'Active'));
-end;
-
-procedure TfrmStkKindFamilies.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmStkKindFamilies.FormShow(Sender: TObject);

@@ -15,7 +15,6 @@ type
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure DefineColumnWidths; override;
-    procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
   end;
@@ -43,14 +42,9 @@ begin
   SetColumnProperty('column_name',150, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnName, 'Column Name'));
   SetColumnProperty('column_width',80, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnWidth, 'Width'));
   SetColumnProperty('column_order',80, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnOrder, 'Order'));
-  SetColumnProperty('is_show',     60, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsShow, 'Show'));
-  SetColumnProperty('is_fetch',    60, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsFetch, 'Fetch'));
-end;
-
-procedure TfrmSysGridColumns.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
+  SetColumnProperty('is_show',        60, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsShow, 'Show'));
+  SetColumnProperty('is_fetch',       60, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsFetch, 'Fetch'));
+  SetColumnProperty('aggregate_type',110, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColAggregateType, 'Aggregate Type'));
 end;
 
 procedure TfrmSysGridColumns.FormShow(Sender: TObject);

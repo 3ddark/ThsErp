@@ -12,7 +12,6 @@ type
   TfrmStkWarehouses = class(TfrmGrid<TStkWarehouse, TStkWarehouseService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -41,12 +40,6 @@ begin
   SetColumnProperty('default_raw_material', 80, TLocalizationManager.Translate('stk_warehouse.col_default_raw_material', 'Default RM'));
   SetColumnProperty('default_production',   80, TLocalizationManager.Translate('stk_warehouse.col_default_production', 'Default Production'));
   SetColumnProperty('default_sales',        70, TLocalizationManager.Translate('stk_warehouse.col_default_sales', 'Default Sales'));
-end;
-
-procedure TfrmStkWarehouses.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmStkWarehouses.FormShow(Sender: TObject);

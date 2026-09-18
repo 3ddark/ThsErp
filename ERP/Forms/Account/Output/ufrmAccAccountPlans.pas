@@ -11,7 +11,6 @@ type
   TfrmAccAccountPlans = class(TfrmGrid<TAccAccountPlan, TAccAccountPlanService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
   end;
@@ -37,11 +36,6 @@ begin
   SetColumnProperty('code',        120, 'Code');
   SetColumnProperty('name',        300, 'Name');
   SetColumnProperty('level',         60, 'Level');
-end;
-
-procedure TfrmAccAccountPlans.DefineFooterColumns;
-begin
-  // No footer columns
 end;
 
 procedure TfrmAccAccountPlans.FormShow(Sender: TObject);

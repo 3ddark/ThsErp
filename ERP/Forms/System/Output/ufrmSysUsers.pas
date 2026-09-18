@@ -14,7 +14,6 @@ type
   TfrmSysUsers = class(TfrmGrid<TSysUser, TSysUserService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -53,12 +52,6 @@ begin
   SetColumnProperty('mac_address', 100);
   SetColumnProperty('emp_employee_id', 0);
   SetColumnProperty('locale', 0);
-end;
-
-procedure TfrmSysUsers.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysUsers.FormShow(Sender: TObject);

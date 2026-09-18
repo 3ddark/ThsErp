@@ -12,7 +12,6 @@ type
   TfrmStkInventorySummaries = class(TfrmGrid<TStkInventorySummary, TStkInventorySummaryService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -52,12 +51,6 @@ begin
   SetColumnProperty('last_buy_date',           80, TLocalizationManager.Translate('stk_inventory_summary.col_last_buy_date', 'Last Buy Date'));
   SetColumnProperty('last_buy_quantity',       90, TLocalizationManager.Translate('stk_inventory_summary.col_last_buy_quantity', 'Last Buy Qty'));
   SetColumnProperty('last_buy_exchange_rate', 100, TLocalizationManager.Translate('stk_inventory_summary.col_last_buy_exchange_rate', 'Last Buy ExR'));
-end;
-
-procedure TfrmStkInventorySummaries.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmStkInventorySummaries.FormShow(Sender: TObject);

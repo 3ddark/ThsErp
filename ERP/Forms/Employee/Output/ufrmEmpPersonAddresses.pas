@@ -12,7 +12,6 @@ type
   TfrmEmpPersonAddresses = class(TfrmGrid<TEmpPersonAddress, TEmpPersonAddressService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -43,12 +42,6 @@ begin
   SetColumnProperty('is_primary', 80, TLocalizationManager.Translate('emp_person_address.col_is_primary', 'Birincil'));
   SetColumnProperty('valid_from', 90, TLocalizationManager.Translate('emp_person_address.col_valid_from', 'Başlangıç'));
   SetColumnProperty('valid_to', 90, TLocalizationManager.Translate('emp_person_address.col_valid_to', 'Bitiş'));
-end;
-
-procedure TfrmEmpPersonAddresses.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmEmpPersonAddresses.FormShow(Sender: TObject);

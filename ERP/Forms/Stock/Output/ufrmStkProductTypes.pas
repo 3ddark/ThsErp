@@ -12,7 +12,6 @@ type
   TfrmStkProductTypes = class(TfrmGrid<TStkProductType, TStkProductTypeService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -38,12 +37,6 @@ begin
   inherited;
   SetColumnProperty('id',                    0, TLocalizationManager.Translate('stk_product_type.col_id', 'Id'));
   SetColumnProperty('product_type_name',   200, TLocalizationManager.Translate('stk_product_type.col_product_type_name', 'Product Type Name'));
-end;
-
-procedure TfrmStkProductTypes.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmStkProductTypes.FormShow(Sender: TObject);

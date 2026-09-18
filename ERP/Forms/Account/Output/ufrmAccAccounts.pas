@@ -11,7 +11,6 @@ type
   TfrmAccAccounts = class(TfrmGrid<TAccAccount, TAccAccountService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
   end;
@@ -39,11 +38,6 @@ begin
   SetColumnProperty('type_id',      70, 'Type ID');
   SetColumnProperty('group_id',     80, 'Group ID');
   SetColumnProperty('region_id',    80, 'Region ID');
-end;
-
-procedure TfrmAccAccounts.DefineFooterColumns;
-begin
-  // No footer columns
 end;
 
 procedure TfrmAccAccounts.FormShow(Sender: TObject);

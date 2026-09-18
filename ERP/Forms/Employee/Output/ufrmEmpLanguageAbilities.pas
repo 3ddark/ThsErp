@@ -12,7 +12,6 @@ type
   TfrmEmpLanguageAbilities = class(TfrmGrid<TEmpLanguageAbility, TEmpLanguageAbilityService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -42,12 +41,6 @@ begin
   SetColumnProperty('read_id', 0, TLocalizationManager.Translate('emp_language_ability.col_read_id', 'Okuma Id'));
   SetColumnProperty('write_id', 0, TLocalizationManager.Translate('emp_language_ability.col_write_id', 'Yazma Id'));
   SetColumnProperty('speak_id', 0, TLocalizationManager.Translate('emp_language_ability.col_speak_id', 'Konuşma Id'));
-end;
-
-procedure TfrmEmpLanguageAbilities.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmEmpLanguageAbilities.FormShow(Sender: TObject);

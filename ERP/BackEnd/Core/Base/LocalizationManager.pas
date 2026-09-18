@@ -1,4 +1,4 @@
-﻿unit LocalizationManager;
+unit LocalizationManager;
 
 interface
 
@@ -265,8 +265,18 @@ type
         const ColColumnOrder = 'sys_grid_column.col_column_order';
         const ColIsShow = 'sys_grid_column.col_is_show';
         const ColIsFetch = 'sys_grid_column.col_is_fetch';
+        const ColAggregateType = 'sys_grid_column.col_aggregate_type';
         const TableNameColumnName = 'sys_grid_column.table_name_column_name.unique';
         const TableNameColumnOrder = 'sys_grid_column.table_name_column_order.unique';
+      end;
+
+      TAggregateType = record
+        const None = 'aggregate_type.none';
+        const Sum = 'aggregate_type.sum';
+        const Count = 'aggregate_type.count';
+        const Average = 'aggregate_type.average';
+        const Min = 'aggregate_type.min';
+        const Max = 'aggregate_type.max';
       end;
 
       TSysGridFilter = record

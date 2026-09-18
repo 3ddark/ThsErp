@@ -12,7 +12,6 @@ type
   TfrmStkInventories = class(TfrmGrid<TStkInventory, TStkInventoryService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -57,12 +56,6 @@ begin
   SetColumnProperty('supply_duration',            60, TLocalizationManager.Translate('stk_inventory.col_supply_duration', 'Supply Days'));
   SetColumnProperty('special_code',               80, TLocalizationManager.Translate('stk_inventory.col_special_code', 'Special Code'));
   SetColumnProperty('brand',                      80, TLocalizationManager.Translate('stk_inventory.col_brand', 'Brand'));
-end;
-
-procedure TfrmStkInventories.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmStkInventories.FormShow(Sender: TObject);

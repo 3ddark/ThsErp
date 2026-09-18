@@ -11,7 +11,6 @@ type
   TfrmAccExchangeRates = class(TfrmGrid<TAccExchangeRate, TAccExchangeRateService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
   end;
@@ -37,11 +36,6 @@ begin
   SetColumnProperty('rate_date',   100, 'Date');
   SetColumnProperty('currency',     80, 'Currency');
   SetColumnProperty('rate',        120, 'Rate');
-end;
-
-procedure TfrmAccExchangeRates.DefineFooterColumns;
-begin
-  // No footer columns
 end;
 
 procedure TfrmAccExchangeRates.FormShow(Sender: TObject);

@@ -1,4 +1,4 @@
-unit ufrmSysLanguages;
+﻿unit ufrmSysLanguages;
 
 interface
 
@@ -15,7 +15,6 @@ type
   public
     procedure DefineColumnWidths; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
   end;
@@ -41,12 +40,6 @@ begin
   SetColumnProperty('id',            0, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColId, 'Id'));
   SetColumnProperty('locale',      120, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Lisan Kodu'));
   SetColumnProperty('native_name', 250, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColNativeName, 'Lisan Adı'));
-end;
-
-procedure TfrmSysLanguages.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmSysLanguages.FormShow(Sender: TObject);

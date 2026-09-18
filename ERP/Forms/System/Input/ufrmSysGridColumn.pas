@@ -44,6 +44,8 @@ type
     edtBarBkColor: TEdit;
     lblBarTextColor: TLabel;
     edtBarTextColor: TEdit;
+    lblAggregateType: TLabel;
+    cbbAggregateType: TComboBox;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -76,6 +78,10 @@ begin
   Table.BarColor := StrToIntDef(edtBarColor.Text, 0);
   Table.BarBgColor := StrToIntDef(edtBarBkColor.Text, 0);
   Table.BarTextColor := StrToIntDef(edtBarTextColor.Text, 0);
+  if Assigned(cbbAggregateType) and (cbbAggregateType.ItemIndex >= 0) then
+    Table.AggregateType := cbbAggregateType.ItemIndex
+  else
+    Table.AggregateType := 0;
   inherited;
 end;
 
@@ -83,6 +89,27 @@ procedure TfrmSysGridColumn.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+
+  lblAggregateType := TLabel.Create(Self);
+  lblAggregateType.Parent := pnlContent;
+  lblAggregateType.Left := 11;
+  lblAggregateType.Top := 208;
+  lblAggregateType.Width := 77;
+  lblAggregateType.Height := 13;
+  lblAggregateType.Alignment := taRightJustify;
+  lblAggregateType.Font.Name := 'Tahoma';
+  lblAggregateType.Font.Size := 8;
+  lblAggregateType.Font.Style := [fsBold];
+  lblAggregateType.Caption := 'Aggregate Type';
+
+  cbbAggregateType := TComboBox.Create(Self);
+  cbbAggregateType.Parent := pnlContent;
+  cbbAggregateType.Left := 94;
+  cbbAggregateType.Top := 204;
+  cbbAggregateType.Width := 200;
+  cbbAggregateType.Height := 23;
+  cbbAggregateType.Style := csDropDownList;
+  cbbAggregateType.TabOrder := 15;
 end;
 
 procedure TfrmSysGridColumn.FormShow(Sender: TObject);
@@ -103,9 +130,35 @@ begin
 end;
 
 procedure TfrmSysGridColumn.ApplyLocalization;
+var
+  LPrevIndex: Integer;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TitleSingular, 'Grid Kolon Ayarı');
+
+  if Assigned(lblAggregateType) then
+    lblAggregateType.Caption := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColAggregateType, 'Alt Toplam Tipi');
+
+  if Assigned(cbbAggregateType) then
+  begin
+    LPrevIndex := cbbAggregateType.ItemIndex;
+    cbbAggregateType.Items.BeginUpdate;
+    try
+      cbbAggregateType.Items.Clear;
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.None, 'Yok'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Sum, 'Toplam (Sum)'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Count, 'Kayıt Sayısı (Count)'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Average, 'Ortalama (Average)'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Min, 'En Küçük (Min)'));
+      cbbAggregateType.Items.Add(TLocalizationManager.Translate(TLangKeys.TAggregateType.Max, 'En Büyük (Max)'));
+    finally
+      cbbAggregateType.Items.EndUpdate;
+    end;
+    if (LPrevIndex >= 0) and (LPrevIndex < cbbAggregateType.Items.Count) then
+      cbbAggregateType.ItemIndex := LPrevIndex
+    else
+      cbbAggregateType.ItemIndex := 0;
+  end;
 end;
 
 procedure TfrmSysGridColumn.InitializeInputCase;
@@ -149,6 +202,13 @@ begin
   edtBarColor.Text := IntToStr(Table.BarColor);
   edtBarBkColor.Text := IntToStr(Table.BarBgColor);
   edtBarTextColor.Text := IntToStr(Table.BarTextColor);
+  if Assigned(cbbAggregateType) then
+  begin
+    if (Table.AggregateType >= 0) and (Table.AggregateType < cbbAggregateType.Items.Count) then
+      cbbAggregateType.ItemIndex := Table.AggregateType
+    else
+      cbbAggregateType.ItemIndex := 0;
+  end;
 end;
 
 end.

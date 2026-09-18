@@ -12,7 +12,6 @@ type
   TfrmStkGroups = class(TfrmGrid<TStkGroup, TStkGroupService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
-    procedure DefineFooterColumns; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -42,12 +41,6 @@ begin
   SetColumnProperty('raw_material_stock_account', 130, TLocalizationManager.Translate('stk_group.col_rm_stock_account', 'RM Stock Account'));
   SetColumnProperty('raw_material_usage_account', 130, TLocalizationManager.Translate('stk_group.col_rm_usage_account', 'RM Usage Account'));
   SetColumnProperty('semi_product_account',      130, TLocalizationManager.Translate('stk_group.col_semi_product_account', 'Semi Product Acct'));
-end;
-
-procedure TfrmStkGroups.DefineFooterColumns;
-begin
-  inherited;
-  AddFooterColumn('id', atCount, '#,##0');
 end;
 
 procedure TfrmStkGroups.FormShow(Sender: TObject);
