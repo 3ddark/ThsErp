@@ -125,6 +125,7 @@ type
         const ActionAppSettings = 'dashboard.action.app_settings';
         const ActionGridColumns = 'dashboard.action.grid_columns';
         const ActionGridFilters = 'dashboard.action.grid_filters';
+        const ActionGridSorts = 'dashboard.action.grid_sorts';
         const ActionPermissionGroups = 'dashboard.action.permission_groups';
         const ActionPermissions = 'dashboard.action.permissions';
         const ActionCountries = 'dashboard.action.countries';
@@ -336,6 +337,7 @@ type
         const ColId = 'sys_grid_sort.col_id';
         const ColTableName = 'sys_grid_sort.col_table_name';
         const ColSortContent = 'sys_grid_sort.col_sort_content';
+        const TableNameUnique = 'sys_grid_sort.table_name.unique';
       end;
 
       TSysLanguage = record

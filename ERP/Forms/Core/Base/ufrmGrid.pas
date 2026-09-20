@@ -1,4 +1,4 @@
-﻿unit ufrmGrid;
+unit ufrmGrid;
 
 interface
 
@@ -193,6 +193,9 @@ type
 
     function  GetGridViewName: string; virtual;
     procedure AutoPopulateSysGridColumns(const AViewName: string); virtual;
+    procedure AutoPopulateSysGridFilter(const AViewName: string); virtual;
+    procedure AutoPopulateSysGridSort(const AViewName: string); virtual;
+    procedure ApplyDynamicFilterAndSort; virtual;
     procedure LoadColumnWidthsFromDB; virtual;
     procedure SaveColumnWidthsToDB; virtual;
     procedure AdjustFormWidth; virtual;
@@ -257,8 +260,12 @@ type
   function CsvSafe(const S: string): string;
 
 implementation
-
-uses Winapi.ShellAPI, System.Threading, ufrmInputSimpleDB, Logger, SysGridColumn, SysGridColumn.Repository, EntitySchemaCache, ExcelExportTask, ufrmExportProgress;
+ 
+uses Winapi.ShellAPI, System.Threading, ufrmInputSimpleDB, Logger,
+  SysGridColumn, SysGridColumn.Repository,
+  SysGridFilter, SysGridFilter.Repository,
+  SysGridSort, SysGridSort.Repository,
+  EntitySchemaCache, ExcelExportTask, ufrmExportProgress;
 
 { TFooterColumn }
 
@@ -362,8 +369,20 @@ begin
 end;
 
 procedure TfrmGrid<TE, TS>.AfterDatasetOpen(Dataset: TDataset);
+var
+  I: Integer;
+  LCol: TColumn;
 begin
   Grd.Columns.RestoreDefaults;
+
+  for I := 0 to Grd.Columns.Count-1 do
+  begin
+    LCol := Grd.Columns.Items[I];
+
+    LCol.Title.Font.Style := [fsBold];
+    LCol.Title.Alignment := TAlignment.taCenter;
+  end;
+
   DefineColumnWidths;         // subclass'ın kod tanımlı genişlikleri
   LoadColumnWidthsFromDB;     // DB'deki kayıtlı genişlikler (önceliklidir)
   AdjustFormWidth;
@@ -1024,6 +1043,7 @@ begin
   // FIX: Tek Open çağrısı, korumalı
   if Assigned(FQry) and not FQry.Active then
   begin
+    ApplyDynamicFilterAndSort;
     try
       FQry.Open;
     except
@@ -2309,6 +2329,122 @@ begin
     end;
   finally
     LAutoCols.Free;
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.AutoPopulateSysGridFilter(const AViewName: string);
+var
+  LFilterRepo: ISysGridFilterRepository;
+begin
+  if (AViewName = '') then Exit;
+  if not Assigned(Service) or not Assigned(Service.UoW) or (Service.UoW.Connection = nil) or not Service.UoW.Connection.Connected then Exit;
+
+  try
+    LFilterRepo := Service.UoW.GetRepository<TSysGridFilter, TSysGridFilterRepository> as ISysGridFilterRepository;
+    if LFilterRepo = nil then Exit;
+
+    LFilterRepo.SaveFilter(AViewName, '');
+    GLogger.InfoFmt('sys_grid_filter: [%s] tablosu için varsayılan filtre kaydı eklendi.', [AViewName]);
+  except
+    on E: Exception do
+      GLogger.WarningFmt('AutoPopulateSysGridFilter hatası [%s]: %s', [AViewName, E.Message]);
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.AutoPopulateSysGridSort(const AViewName: string);
+var
+  LSortRepo: ISysGridSortRepository;
+  LDefaultSort: string;
+begin
+  if (AViewName = '') then Exit;
+  if not Assigned(Service) or not Assigned(Service.UoW) or (Service.UoW.Connection = nil) or not Service.UoW.Connection.Connected then Exit;
+
+  try
+    LSortRepo := Service.UoW.GetRepository<TSysGridSort, TSysGridSortRepository> as ISysGridSortRepository;
+    if LSortRepo = nil then Exit;
+
+    LDefaultSort := 'id ASC';
+    LSortRepo.SaveSort(AViewName, LDefaultSort);
+    GLogger.InfoFmt('sys_grid_sort: [%s] tablosu için varsayılan sıralama kaydı eklendi.', [AViewName]);
+  except
+    on E: Exception do
+      GLogger.WarningFmt('AutoPopulateSysGridSort hatası [%s]: %s', [AViewName, E.Message]);
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.ApplyDynamicFilterAndSort;
+var
+  LViewName: string;
+  LFilterRepo: ISysGridFilterRepository;
+  LSortRepo  : ISysGridSortRepository;
+  LFilter    : TSysGridFilter;
+  LSort      : TSysGridSort;
+  LFilterContent: string;
+  LSortContent  : string;
+begin
+  LViewName := GetGridViewName;
+  if LViewName = '' then Exit;
+  if not Assigned(Service) or not Assigned(Service.UoW) or (Service.UoW.Connection = nil) or not Service.UoW.Connection.Connected then Exit;
+
+  try
+    LFilterRepo := Service.UoW.GetRepository<TSysGridFilter, TSysGridFilterRepository> as ISysGridFilterRepository;
+    if LFilterRepo <> nil then
+    begin
+      if not LFilterRepo.HasFilter(LViewName) then
+        AutoPopulateSysGridFilter(LViewName);
+
+      LFilter := LFilterRepo.LoadFilter(LViewName);
+      if LFilter <> nil then
+      begin
+        try
+          LFilterContent := Trim(LFilter.FilterContent);
+          if LFilterContent <> '' then
+          begin
+            if Pos('WHERE', UpperCase(FQry.SQL.Text)) > 0 then
+              FQry.SQL.Text := FQry.SQL.Text + ' AND (' + LFilterContent + ')'
+            else
+              FQry.SQL.Text := FQry.SQL.Text + ' WHERE (' + LFilterContent + ')';
+          end;
+        finally
+          LFilter.Free;
+        end;
+      end;
+    end;
+  except
+    on E: Exception do
+      GLogger.WarningFmt('ApplyDynamicFilterAndSort (Filter) hatası [%s]: %s', [LViewName, E.Message]);
+  end;
+
+  try
+    LSortRepo := Service.UoW.GetRepository<TSysGridSort, TSysGridSortRepository> as ISysGridSortRepository;
+    if LSortRepo <> nil then
+    begin
+      if not LSortRepo.HasSort(LViewName) then
+        AutoPopulateSysGridSort(LViewName);
+
+      LSort := LSortRepo.LoadSort(LViewName);
+      if LSort <> nil then
+      begin
+        try
+          LSortContent := Trim(LSort.SortContent);
+          if LSortContent <> '' then
+          begin
+            if Pos('ORDER BY', UpperCase(FQry.SQL.Text)) = 0 then
+            begin
+              if UpperCase(Copy(LSortContent, 1, 8)) = 'ORDER BY' then
+                FQry.SQL.Text := FQry.SQL.Text + ' ' + LSortContent
+              else
+                FQry.SQL.Text := FQry.SQL.Text + ' ORDER BY ' + LSortContent;
+            end;
+          end;
+        finally
+          LSort.Free;
+        end;
+      end;
+    end;
+  except
+    on E: Exception do
+      GLogger.WarningFmt('ApplyDynamicFilterAndSort (Sort) hatası [%s]: %s', [LViewName, E.Message]);
   end;
 end;
 

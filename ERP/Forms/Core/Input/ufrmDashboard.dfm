@@ -576,11 +576,17 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 62
       OnExecute = actsys_access_rightExecute
     end
-    object actsys_grid_filter_sort: TAction
+    object actsys_grid_filter: TAction
       Category = 'System'
-      Caption = 'Grid Filtre ve S'#305'ralamalar'
+      Caption = 'Grid Filtreleri'
       ImageIndex = 26
-      OnExecute = actsys_grid_filter_sortExecute
+      OnExecute = actsys_grid_filterExecute
+    end
+    object actsys_grid_sort: TAction
+      Category = 'System'
+      Caption = 'Grid S'#305'ralamalar'#305
+      ImageIndex = 26
+      OnExecute = actsys_grid_sortExecute
     end
     object actsys_grid_column: TAction
       Category = 'System'
@@ -829,8 +835,11 @@ inherited frmDashboard: TfrmDashboard
       object mnisys_grid_column: TMenuItem
         Action = actsys_grid_column
       end
-      object mnisys_grid_filter_sort: TMenuItem
-        Action = actsys_grid_filter_sort
+      object mnisys_grid_filter: TMenuItem
+        Action = actsys_grid_filter
+      end
+      object mnisys_grid_sort: TMenuItem
+        Action = actsys_grid_sort
       end
       object mniN10: TMenuItem
         Caption = '-'

@@ -1,4 +1,4 @@
-﻿unit SysGridFilter.Repository;
+unit SysGridFilter.Repository;
 
 interface
 
@@ -9,7 +9,14 @@ uses
   SysGridFilter;
 
 type
-  TSysGridFilterRepository = class(TRepository<TSysGridFilter>)
+  ISysGridFilterRepository = interface(IRepository<TSysGridFilter>)
+    ['{74F9B4D5-8A1C-4B6D-9F0A-0C3B7E6F9D1E}']
+    function HasFilter(const ATableName: string): Boolean;
+    function LoadFilter(const ATableName: string): TSysGridFilter;
+    procedure SaveFilter(const ATableName: string; const AFilterContent: string);
+  end;
+
+  TSysGridFilterRepository = class(TRepository<TSysGridFilter>, ISysGridFilterRepository)
   protected
     function PrepareAddSql: string;
     function PrepareUpdateSql: string;
@@ -39,6 +46,9 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    function HasFilter(const ATableName: string): Boolean;
+    function LoadFilter(const ATableName: string): TSysGridFilter;
+    procedure SaveFilter(const ATableName: string; const AFilterContent: string);
   end;
 
 implementation
@@ -381,6 +391,65 @@ begin
     Q.ExecSQL;
   finally
     Q.Free;
+  end;
+end;
+
+function TSysGridFilterRepository.HasFilter(const ATableName: string): Boolean;
+var
+  LCriteria: TFilterCriteria;
+  LModel: TSysGridFilter;
+begin
+  LCriteria := TFilterCriteria.Create;
+  try
+    LCriteria.Add(TFilterCriterion.New('table_name', '=', TValue.From<string>(ATableName)));
+    LModel := DoFindOne(LCriteria, False);
+    try
+      Result := Assigned(LModel);
+    finally
+      LModel.Free;
+    end;
+  finally
+    LCriteria.Free;
+  end;
+end;
+
+function TSysGridFilterRepository.LoadFilter(const ATableName: string): TSysGridFilter;
+var
+  LCriteria: TFilterCriteria;
+begin
+  LCriteria := TFilterCriteria.Create;
+  try
+    LCriteria.Add(TFilterCriterion.New('table_name', '=', TValue.From<string>(ATableName)));
+    Result := DoFindOne(LCriteria, False);
+  finally
+    LCriteria.Free;
+  end;
+end;
+
+procedure TSysGridFilterRepository.SaveFilter(const ATableName: string; const AFilterContent: string);
+var
+  LFilter: TSysGridFilter;
+begin
+  LFilter := LoadFilter(ATableName);
+  if Assigned(LFilter) then
+  begin
+    try
+      LFilter.FilterContent := AFilterContent;
+      DoUpdate(LFilter);
+    finally
+      LFilter.Free;
+    end;
+  end
+  else
+  begin
+    LFilter := TSysGridFilter.Create;
+    try
+      LFilter.TableName := ATableName;
+      LFilter.FilterContent := AFilterContent;
+      DoAdd(LFilter);
+    finally
+      LFilter.Free;
+    end;
   end;
 end;
 

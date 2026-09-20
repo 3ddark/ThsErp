@@ -134,6 +134,7 @@ uses
   ufrmSysGridFilter in 'Forms\System\Input\ufrmSysGridFilter.pas' {frmSysGridFilter},
   ufrmSysGridFilters in 'Forms\System\Output\ufrmSysGridFilters.pas' {frmSysGridFilters},
   SysGridSort in 'BackEnd\System\Domain\SysGridSort.pas',
+  SysGridSort.Exception in 'BackEnd\System\Exception\SysGridSort.Exception.pas',
   SysGridSort.Repository in 'BackEnd\System\Repository\SysGridSort.Repository.pas',
   SysGridSort.Service in 'BackEnd\System\Service\SysGridSort.Service.pas',
   ufrmSysGridSort in 'Forms\System\Input\ufrmSysGridSort.pas' {frmSysGridSort},
