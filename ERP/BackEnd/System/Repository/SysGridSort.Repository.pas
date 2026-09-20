@@ -1,4 +1,4 @@
-﻿unit SysGridSort.Repository;
+unit SysGridSort.Repository;
 
 interface
 
@@ -9,7 +9,14 @@ uses
   SysGridSort;
 
 type
-  TSysGridSortRepository = class(TRepository<TSysGridSort>)
+  ISysGridSortRepository = interface(IRepository<TSysGridSort>)
+    ['{91E72A5C-D8F3-43A1-94B8-8C6E2A1D7B40}']
+    function HasSort(const ATableName: string): Boolean;
+    function LoadSort(const ATableName: string): TSysGridSort;
+    procedure SaveSort(const ATableName: string; const ASortContent: string);
+  end;
+
+  TSysGridSortRepository = class(TRepository<TSysGridSort>, ISysGridSortRepository)
   protected
     function PrepareAddSql: string;
     function PrepareUpdateSql: string;
@@ -39,6 +46,9 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    function HasSort(const ATableName: string): Boolean;
+    function LoadSort(const ATableName: string): TSysGridSort;
+    procedure SaveSort(const ATableName: string; const ASortContent: string);
   end;
 
 implementation
@@ -381,6 +391,65 @@ begin
     Q.ExecSQL;
   finally
     Q.Free;
+  end;
+end;
+
+function TSysGridSortRepository.HasSort(const ATableName: string): Boolean;
+var
+  LCriteria: TFilterCriteria;
+  LModel: TSysGridSort;
+begin
+  LCriteria := TFilterCriteria.Create;
+  try
+    LCriteria.Add(TFilterCriterion.New('table_name', '=', TValue.From<string>(ATableName)));
+    LModel := DoFindOne(LCriteria, False);
+    try
+      Result := Assigned(LModel);
+    finally
+      LModel.Free;
+    end;
+  finally
+    LCriteria.Free;
+  end;
+end;
+
+function TSysGridSortRepository.LoadSort(const ATableName: string): TSysGridSort;
+var
+  LCriteria: TFilterCriteria;
+begin
+  LCriteria := TFilterCriteria.Create;
+  try
+    LCriteria.Add(TFilterCriterion.New('table_name', '=', TValue.From<string>(ATableName)));
+    Result := DoFindOne(LCriteria, False);
+  finally
+    LCriteria.Free;
+  end;
+end;
+
+procedure TSysGridSortRepository.SaveSort(const ATableName: string; const ASortContent: string);
+var
+  LSort: TSysGridSort;
+begin
+  LSort := LoadSort(ATableName);
+  if Assigned(LSort) then
+  begin
+    try
+      LSort.SortContent := ASortContent;
+      DoUpdate(LSort);
+    finally
+      LSort.Free;
+    end;
+  end
+  else
+  begin
+    LSort := TSysGridSort.Create;
+    try
+      LSort.TableName := ATableName;
+      LSort.SortContent := ASortContent;
+      DoAdd(LSort);
+    finally
+      LSort.Free;
+    end;
   end;
 end;
 

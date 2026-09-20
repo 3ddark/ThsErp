@@ -1,4 +1,4 @@
-﻿unit ufrmDashboard;
+unit ufrmDashboard;
 
 interface
 
@@ -51,7 +51,8 @@ type
     actsys_user: TAction;
     actsys_access_right: TAction;
     actsys_grid_column: TAction;
-    actsys_grid_filter_sort: TAction;
+    actsys_grid_filter: TAction;
+    actsys_grid_sort: TAction;
     actsys_application_setting: TAction;
     actsys_database_status: TAction;
     actsys_about: TAction;
@@ -105,7 +106,8 @@ type
     mnisys_city: TMenuItem;
     mnisys_country: TMenuItem;
     mnisys_grid_column: TMenuItem;
-    mnisys_grid_filter_sort: TMenuItem;
+    mnisys_grid_filter: TMenuItem;
+    mnisys_grid_sort: TMenuItem;
     mnisys_region: TMenuItem;
     mnisys_resource: TMenuItem;
     mnisys_resource_group: TMenuItem;
@@ -201,7 +203,8 @@ type
     procedure actsys_userExecute(Sender: TObject);
     procedure actsys_access_rightExecute(Sender: TObject);
     procedure actsys_grid_columnExecute(Sender: TObject);
-    procedure actsys_grid_filter_sortExecute(Sender: TObject);
+    procedure actsys_grid_filterExecute(Sender: TObject);
+    procedure actsys_grid_sortExecute(Sender: TObject);
     procedure actsys_languageExecute(Sender: TObject);
     procedure actsys_application_settingExecute(Sender: TObject);
     procedure actquality_form_mail_recieversExecute(Sender: TObject);
@@ -561,9 +564,14 @@ begin
   TfrmSysGridColumns.Create(Self, TSysGridColumnService.Create, TSysGridColumn.Create).Show;
 end;
 
-procedure TfrmDashboard.actsys_grid_filter_sortExecute(Sender: TObject);
+procedure TfrmDashboard.actsys_grid_filterExecute(Sender: TObject);
 begin
   TfrmSysGridFilters.Create(Self, TSysGridFilterService.Create, TSysGridFilter.Create).Show;
+end;
+
+procedure TfrmDashboard.actsys_grid_sortExecute(Sender: TObject);
+begin
+  TfrmSysGridSorts.Create(Self, TSysGridSortService.Create, TSysGridSort.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_countryExecute(Sender: TObject);
@@ -969,8 +977,10 @@ begin
 
       if Assigned(actsys_grid_column) then
         actsys_grid_column.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionGridColumns, 'Grid Columns');
-      if Assigned(actsys_grid_filter_sort) then
-        actsys_grid_filter_sort.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionGridFilters, 'Grid Filter and Sorts');
+      if Assigned(actsys_grid_filter) then
+        actsys_grid_filter.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionGridFilters, 'Grid Filters');
+      if Assigned(actsys_grid_sort) then
+        actsys_grid_sort.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionGridSorts, 'Grid Sorts');
 
       if Assigned(actsys_permission_group) then
         actsys_permission_group.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionPermissionGroups, 'Permission Groups');

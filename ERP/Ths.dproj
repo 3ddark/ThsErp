@@ -1,4 +1,4 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{EF504BC3-B0B0-41E1-A3FB-DDDD403C643A}</ProjectGuid>
         <MainSource>Ths.dpr</MainSource>
@@ -315,6 +315,7 @@
             <Form>frmSysGridFilters</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysGridSort.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysGridSort.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysGridSort.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysGridSort.Service.pas"/>
         <DCCReference Include="Forms\System\Input\ufrmSysGridSort.pas">
