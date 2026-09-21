@@ -1,4 +1,4 @@
-Program Ths;
+﻿Program Ths;
 
 {$I Ths.inc}
 
@@ -139,6 +139,10 @@ uses
   SysGridSort.Service in 'BackEnd\System\Service\SysGridSort.Service.pas',
   ufrmSysGridSort in 'Forms\System\Input\ufrmSysGridSort.pas' {frmSysGridSort},
   ufrmSysGridSorts in 'Forms\System\Output\ufrmSysGridSorts.pas' {frmSysGridSorts},
+  SysViewTable in 'BackEnd\System\Domain\SysViewTable.pas',
+  SysViewTable.Repository in 'BackEnd\System\Repository\SysViewTable.Repository.pas',
+  SysViewTable.Service in 'BackEnd\System\Service\SysViewTable.Service.pas',
+  ufrmSysViewTables in 'Forms\System\Output\ufrmSysViewTables.pas' {frmSysViewTables},
   SysLanguage in 'BackEnd\System\Domain\SysLanguage.pas',
   SysLanguage.Exception in 'BackEnd\System\Exception\SysLanguage.Exception.pas',
   SysLanguage.Repository in 'BackEnd\System\Repository\SysLanguage.Repository.pas',

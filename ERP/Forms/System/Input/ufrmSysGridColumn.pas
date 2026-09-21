@@ -1,4 +1,4 @@
-unit ufrmSysGridColumn;
+﻿unit ufrmSysGridColumn;
 
 interface
 
@@ -10,7 +10,8 @@ uses
   Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls,
   ufrmInputSimpleDB, SharedFormTypes, LocalizationManager, AppContext,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  SysGridColumn.Service, SysGridColumn;
+  SysGridColumn.Service, SysGridColumn,
+  SysViewTable.Service, SysViewTable, ufrmSysViewTables;
 
 type
   TfrmSysGridColumn = class(TfrmInputSimpleDB<TSysGridColumn, TSysGridColumnService>)
@@ -50,6 +51,7 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
+    procedure HelperProcess(Sender: TObject);
     procedure InitializeInputCase; override;
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
@@ -89,6 +91,7 @@ procedure TfrmSysGridColumn.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+  edtTableName.OnHelperProcess := HelperProcess;
 
   lblAggregateType := TLabel.Create(Self);
   lblAggregateType.Parent := pnlContent;
@@ -110,6 +113,35 @@ begin
   cbbAggregateType.Height := 23;
   cbbAggregateType.Style := csDropDownList;
   cbbAggregateType.TabOrder := 15;
+end;
+
+procedure TfrmSysGridColumn.HelperProcess(Sender: TObject);
+var
+  LFrmViewTables: TfrmSysViewTables;
+begin
+  if Sender = edtTableName then
+  begin
+    LFrmViewTables := TfrmSysViewTables.Create(edtTableName, TSysViewTableService.Create, TSysViewTable.Create);
+    try
+      LFrmViewTables.IsHelper := True;
+      LFrmViewTables.ShowModal;
+      if LFrmViewTables.DataTransfer then
+      begin
+        if LFrmViewTables.CleanAndClose then
+        begin
+          Table.TableName := '';
+          edtTableName.Clear;
+        end
+        else
+        begin
+          Table.TableName := LFrmViewTables.Table.TableName;
+          edtTableName.Text := LFrmViewTables.Table.TableName;
+        end;
+      end;
+    finally
+      LFrmViewTables.Free;
+    end;
+  end;
 end;
 
 procedure TfrmSysGridColumn.FormShow(Sender: TObject);

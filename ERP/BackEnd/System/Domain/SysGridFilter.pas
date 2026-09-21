@@ -38,6 +38,7 @@ end;
 function TSysGridFilter.Clone: TSysGridFilter;
 begin
   Result := TSysGridFilter.Create;
+  Result.Id := Self.Id;
   Result.TableName := Self.TableName;
   Result.FilterContent := Self.FilterContent;
 end;

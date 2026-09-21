@@ -1,4 +1,4 @@
-unit SysGridFilter.Service;
+﻿unit SysGridFilter.Service;
 
 interface
 
@@ -46,11 +46,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysGridFilterService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysGridFilter, TSysGridFilterRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TSysGridFilterService.Destroy;
@@ -70,6 +73,7 @@ end;
 
 procedure TSysGridFilterService.ValidateDelete(AEntity: TSysGridFilter);
 begin
+
 end;
 
 procedure TSysGridFilterService.ValidateTableNameUnique(AEntity: TSysGridFilter; AOperation: TCrudOperation);

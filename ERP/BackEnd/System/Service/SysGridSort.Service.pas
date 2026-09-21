@@ -1,4 +1,4 @@
-unit SysGridSort.Service;
+﻿unit SysGridSort.Service;
 
 interface
 
@@ -46,11 +46,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysGridSortService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysGridSort, TSysGridSortRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TSysGridSortService.Destroy;

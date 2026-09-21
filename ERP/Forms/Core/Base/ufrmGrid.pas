@@ -1,4 +1,4 @@
-unit ufrmGrid;
+﻿unit ufrmGrid;
 
 interface
 
@@ -746,7 +746,7 @@ procedure TfrmGrid<TE, TS>.CreateBtnClose;
 begin
   BtnClose := TButton.Create(PanelFooter);
   BtnClose.Parent := PanelFooter;
-  BtnClose.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Kapat');
+  BtnClose.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Close');
   BtnClose.OnClick := BtnCloseClick;
   BtnClose.Align := alRight;
   BtnClose.Margins.Right := 8;
@@ -757,7 +757,7 @@ procedure TfrmGrid<TE, TS>.CreateButtonAdd;
 begin
   BtnAdd := TButton.Create(FPanelButtons);
   BtnAdd.Parent := FPanelButtons;
-  BtnAdd.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.AddRecord, 'Kayıt Ekle');
+  BtnAdd.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.AddRecord, 'Add Record');
   BtnAdd.OnClick := BtnAddClick;
   BtnAdd.Align := alNone;
   BtnAdd.Width := 80;
@@ -929,34 +929,34 @@ procedure TfrmGrid<TE, TS>.ApplyLocalization;
 begin
   inherited;
   if Assigned(EdtFilter) then
-    EdtFilter.TextHint := TLocalizationManager.Translate(TLangKeys.TGeneral.FilterHint, 'Filtre');
+    EdtFilter.TextHint := TLocalizationManager.Translate(TLangKeys.TGeneral.FilterHint, 'Filter');
 
   if Assigned(BtnClose) then
-    BtnClose.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Kapat');
+    BtnClose.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Close');
 
   if Assigned(BtnAdd) then
-    BtnAdd.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.AddRecord, 'Kayıt Ekle');
+    BtnAdd.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.AddRecord, 'Add Record');
 
   if Assigned(mniPreview) then
-    mniPreview.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Preview, 'Önizleme');
+    mniPreview.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Preview, 'Preview');
   if Assigned(mniDuplicate) then
-    mniDuplicate.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Duplicate, 'Çoğalt');
+    mniDuplicate.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Duplicate, 'Duplicate');
   if Assigned(mniFilter) then
-    mniFilter.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Filter, 'Filtrele');
+    mniFilter.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Filter, 'Filter');
   if Assigned(mniFilterExclude) then
-    mniFilterExclude.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterExclude, 'Filtre Dışında Tut');
+    mniFilterExclude.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterExclude, 'Filter Exclude');
   if Assigned(mniFilterBack) then
-    mniFilterBack.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterBack, 'Filtreye Geri Dön');
+    mniFilterBack.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterBack, 'Filter Back');
   if Assigned(mniFilterRemove) then
-    mniFilterRemove.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterRemove, 'Filtreyi Kaldır');
+    mniFilterRemove.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterRemove, 'Remove Filter');
   if Assigned(mniExportExcel) then
-    mniExportExcel.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportExcel, 'Excel''e Aktar');
+    mniExportExcel.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportExcel, 'Export to Excel');
   if Assigned(mniExportCsv) then
-    mniExportCsv.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportCsv, 'CSV Dosyasına Aktar');
+    mniExportCsv.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportCsv, 'Export to CSV');
   if Assigned(mniPrint) then
-    mniPrint.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Print, 'Yazdır');
+    mniPrint.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Print, 'Print');
   if Assigned(mniRemoveGridSort) then
-    mniRemoveGridSort.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.RemoveSort, 'Sıralamayı Kaldır');
+    mniRemoveGridSort.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.RemoveSort, 'Remove Sort');
 
   PrepareStatusBar;
 end;
@@ -1050,7 +1050,7 @@ begin
       on E: Exception do
       begin
         GLogger.ErrorFmt('Grid sorgusu açılamadı [%s]: %s', [Self.ClassName, E.Message]);
-        ShowMessage(TLocalizationManager.Translate(TLangKeys.TMessage.DataIsNotLoaded, 'Veriler yüklenemedi: ') + E.Message);
+        ShowMessage(TLocalizationManager.Translate(TLangKeys.TMessage.DataIsNotLoaded, 'Data could not be loaded: ') + E.Message);
         Exit;
       end;
     end;
@@ -1456,17 +1456,17 @@ var
 begin
   if not Assigned(FQry) or not FQry.Active then
   begin
-    ShowMessage('Dışa aktarılacak veri bulunamadı.');
+    ShowMessage(TLocalizationManager.Translate('msg.no_data_to_export', 'No data found to export.'));
     Exit;
   end;
 
-  SavePath := GetDialogSave(GetGridViewName + '.xlsx', 'Excel Dosyası (*.xlsx)|*.xlsx');
+  SavePath := GetDialogSave(GetGridViewName + '.xlsx', TLocalizationManager.Translate('dialog.excel_filter', 'Excel Files (*.xlsx)|*.xlsx'));
   if SavePath = '' then Exit;
 
   VisibleIds := CollectVisibleIds;
   if Length(VisibleIds) = 0 then
   begin
-    ShowMessage('Görüntülenen kayıt bulunamadı.');
+    ShowMessage(TLocalizationManager.Translate('msg.no_records_displayed', 'No displayed records found.'));
     Exit;
   end;
 
@@ -1543,7 +1543,7 @@ begin
         ShellExecute(0, 'open', PChar(SavePath), nil, nil, SW_SHOWNORMAL);
     end
     else if AErrorMsg <> '' then
-      ShowMessage('Export Hatası: ' + AErrorMsg);
+      ShowMessage(TLocalizationManager.Translate('msg.export_error', 'Export Error: ') + AErrorMsg);
 
     FreeAndNil(ExportTask);
   end;
@@ -1629,7 +1629,7 @@ begin
     end;
 
     SL.SaveToFile('export.csv', TEncoding.UTF8);
-    ShowMessage('CSV export tamamlandı!');
+    ShowMessage(TLocalizationManager.Translate('msg.csv_export_completed', 'CSV export completed!'));
   finally
     SL.Free;
   end;
@@ -1775,23 +1775,23 @@ end;
 procedure TfrmGrid<TE, TS>.PreparePopupMenu;
 begin
   GridPopMenu := TPopupMenu.Create(Self);
-  mniPreview := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Preview, 'Önizleme'), 'mniPreview', mniPreviewClick, True, TextToShortCut('Ctrl+Enter'));
-  mniDuplicate := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Duplicate, 'Çoğalt'), 'mniDuplicate', mniDuplicateClick, False, TextToShortCut('Ctrl+D'));
+  mniPreview := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Preview, 'Preview'), 'mniPreview', mniPreviewClick, True, TextToShortCut('Ctrl+Enter'));
+  mniDuplicate := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Duplicate, 'Duplicate'), 'mniDuplicate', mniDuplicateClick, False, TextToShortCut('Ctrl+D'));
   AddPopupMenuSpliter();
-  mniFilter := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Filter, 'Filtrele'), 'mniFilter', mniFilterClick, True, TextToShortCut('F3'));
-  mniFilterExclude := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterExclude, 'Filtre Dışında Tut'), 'mniFilterExclude', mniFilterExcludeClick, True, TextToShortCut('Ctrl+F3'));
-  mniFilterBack := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterBack, 'Filtreye Geri Dön'), 'mniFilterBack', mniFilterBackClick, True, TextToShortCut('Ctrl+F8'));
+  mniFilter := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Filter, 'Filter'), 'mniFilter', mniFilterClick, True, TextToShortCut('F3'));
+  mniFilterExclude := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterExclude, 'Filter Exclude'), 'mniFilterExclude', mniFilterExcludeClick, True, TextToShortCut('Ctrl+F3'));
+  mniFilterBack := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterBack, 'Filter Back'), 'mniFilterBack', mniFilterBackClick, True, TextToShortCut('Ctrl+F8'));
   mniFilterBack.Enabled := False;
-  mniFilterRemove := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterRemove, 'Filtreyi Kaldır'), 'mniFilterRemove', mniFilterRemoveClick, True, TextToShortCut('F8'));
+  mniFilterRemove := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.FilterRemove, 'Remove Filter'), 'mniFilterRemove', mniFilterRemoveClick, True, TextToShortCut('F8'));
   mniFilterRemove.Enabled := False;
   AddPopupMenuSpliter();
-  mniExportExcel := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportExcel, 'Excel''e Aktar'), 'mniExportExcel', mniExportExcelClick, True, TextToShortCut('Ctrl+E'));
-  mniExportCsv := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportCsv, 'CSV Dosyasına Aktar'), 'mniExportCsv', mniExportCsvClick, True, TextToShortCut('Ctrl+Shift+E'));
-  mniPrint := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Print, 'Yazdır'), 'mniPrint', mniPrintClick, True, TextToShortCut('Ctrl+P'));
-  mniRemoveGridSort := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.RemoveSort, 'Sıralamayı Kaldır'), 'mniRemoveGridSort', mniRemoveSortClick);
+  mniExportExcel := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportExcel, 'Export to Excel'), 'mniExportExcel', mniExportExcelClick, True, TextToShortCut('Ctrl+E'));
+  mniExportCsv := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.ExportCsv, 'Export to CSV'), 'mniExportCsv', mniExportCsvClick, True, TextToShortCut('Ctrl+Shift+E'));
+  mniPrint := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.Print, 'Print'), 'mniPrint', mniPrintClick, True, TextToShortCut('Ctrl+P'));
+  mniRemoveGridSort := AddMenu(TLocalizationManager.Translate(TLangKeys.TPopupMenu.RemoveSort, 'Remove Sort'), 'mniRemoveGridSort', mniRemoveSortClick);
   mniRemoveGridSort.Enabled := False;
   AddPopupMenuSpliter();
-  AddMenu(TLocalizationManager.Translate('popup.columns', 'Kolonlar'), 'mniColumns', mniColumnsClick);
+  AddMenu(TLocalizationManager.Translate('popup.columns', 'Columns'), 'mniColumns', mniColumnsClick);
 end;
 
 procedure TfrmGrid<TE, TS>.mniColumnsClick(Sender: TObject);
@@ -1840,7 +1840,7 @@ begin
     FCheckedStates.Add(LCol, LCol.Visible);
 
   KeyPreview := True;
-  Caption := TLocalizationManager.Translate('column_selector.title', 'Kolon Seçimi');
+  Caption := TLocalizationManager.Translate('column_selector.title', 'Column Selection');
   Position := poOwnerFormCenter;
   Width := 450;
   Height := 500;
@@ -1852,7 +1852,7 @@ begin
   FEditSearch.Height := 24;
   FEditSearch.Margins.SetBounds(8, 8, 8, 8);
   FEditSearch.AlignWithMargins := True;
-  FEditSearch.TextHint := TLocalizationManager.Translate('column_selector.search_hint', 'Kolon Ara...');
+  FEditSearch.TextHint := TLocalizationManager.Translate('column_selector.search_hint', 'Search Column...');
   FEditSearch.OnChange := EditSearchChange;
 
   LPanelButtons := TPanel.Create(Self);
@@ -1863,7 +1863,7 @@ begin
 
   LBtnCancel := TButton.Create(Self);
   LBtnCancel.Parent := LPanelButtons;
-  LBtnCancel.Caption := TLocalizationManager.Translate('general.cancel', 'İptal');
+  LBtnCancel.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Cancel, 'Cancel');
   LBtnCancel.ModalResult := mrCancel;
   LBtnCancel.Left := Self.ClientWidth - LBtnCancel.Width - 12;
   LBtnCancel.Top := 8;
@@ -1871,7 +1871,7 @@ begin
 
   LBtnOk := TButton.Create(Self);
   LBtnOk.Parent := LPanelButtons;
-  LBtnOk.Caption := TLocalizationManager.Translate('general.ok', 'Tamam');
+  LBtnOk.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'OK');
   LBtnOk.ModalResult := mrOk;
   LBtnOk.Default := True;
   LBtnOk.Left := LBtnCancel.Left - LBtnOk.Width - 8;
@@ -1963,20 +1963,20 @@ begin
         FStatusBase.Panels.Items[DB_STATUS_SQL_SERVER].Text := Service.UoW.Connection.Params.Values['Server'];
 
     if FStatusBase.Panels.Count > DB_STATUS_PERIOD then
-      FStatusBase.Panels.Items[DB_STATUS_PERIOD].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.Period, 'Dönem') + ':2025';
+      FStatusBase.Panels.Items[DB_STATUS_PERIOD].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.Period, 'Period') + ':2025';
 
     if FStatusBase.Panels.Count > DB_STATUS_USER then
       if Assigned(TAppContext.Instance.CurrentUser) then
         FStatusBase.Panels.Items[DB_STATUS_USER].Text := TAppContext.Instance.CurrentUser.GetUsername;
 
     if FStatusBase.Panels.Count > DB_STATUS_KEY_F6 then
-      FStatusBase.Panels.Items[DB_STATUS_KEY_F6].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF6, 'F6 İptal / Kapat');
+      FStatusBase.Panels.Items[DB_STATUS_KEY_F6].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF6, 'F6 Cancel / Close');
 
     if FStatusBase.Panels.Count > DB_STATUS_KEY_F7 then
-      FStatusBase.Panels.Items[DB_STATUS_KEY_F7].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF7, 'F7 Kayıt Ekle');
+      FStatusBase.Panels.Items[DB_STATUS_KEY_F7].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF7, 'F7 Add Record');
 
     if FStatusBase.Panels.Count > DB_STATUS_KEY_F11 then
-      FStatusBase.Panels.Items[DB_STATUS_KEY_F11].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF11, 'F11 Şeffaflık');
+      FStatusBase.Panels.Items[DB_STATUS_KEY_F11].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF11, 'F11 Transparency');
 
     if Service.UoW.Connection.Connected then
       RefreshStatusRecordCount;
@@ -1998,14 +1998,14 @@ begin
     FStatusBase.Panels.Items[DB_STATUS_SQL_SERVER].Text := Service.UoW.Connection.Params.Values['Server'];
   end;
 
-  FStatusBase.Panels.Items[DB_STATUS_PERIOD].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.Period, 'Dönem') + ':2025';
+  FStatusBase.Panels.Items[DB_STATUS_PERIOD].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.Period, 'Period') + ':2025';
 
   if Assigned(TAppContext.Instance.CurrentUser) then
     FStatusBase.Panels.Items[DB_STATUS_USER].Text := TAppContext.Instance.CurrentUser.GetUsername;
 
-  FStatusBase.Panels.Items[DB_STATUS_KEY_F6].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF6, 'F6 İptal / Kapat');
-  FStatusBase.Panels.Items[DB_STATUS_KEY_F7].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF7, 'F7 Kayıt Ekle');
-  FStatusBase.Panels.Items[DB_STATUS_KEY_F11].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF11, 'F11 Şeffaflık');
+  FStatusBase.Panels.Items[DB_STATUS_KEY_F6].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF6, 'F6 Cancel / Close');
+  FStatusBase.Panels.Items[DB_STATUS_KEY_F7].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF7, 'F7 Add Record');
+  FStatusBase.Panels.Items[DB_STATUS_KEY_F11].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF11, 'F11 Transparency');
 end;
 
 procedure TfrmGrid<TE, TS>.RefreshData;
@@ -2042,15 +2042,22 @@ end;
 
 procedure TfrmGrid<TE, TS>.RefreshParentGrid(AFocusSelectedItem: Boolean);
 begin
-  if not Assigned(FQry) or not FQry.Active then
+  if not Assigned(FQry) then
     Exit;
 
-  FQry.Refresh;
+  FQry.DisableControls;
+  try
+    FQry.Close;
+    FQry.Open;
 
-  if AFocusSelectedItem and Assigned(FTable) and (FTable.Id > 0) then
-    FQry.Locate('id', FTable.Id, []);
+    if AFocusSelectedItem and Assigned(FTable) and (FTable.Id > 0) then
+      FQry.Locate('id', FTable.Id, []);
+  finally
+    FQry.EnableControls;
+  end;
 
   UpdateFooterLayout;
+  RefreshStatusRecordCount;
 end;
 
 procedure TfrmGrid<TE, TS>.RefreshStatusRecordCount();
@@ -2305,6 +2312,9 @@ begin
   LSysRepo := Service.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository> as ISysGridColumnRepository;
   if LSysRepo = nil then Exit;
 
+  // Güvenlik kontrolü: Tabloda 1 veya daha fazla kayıt varsa AutoPopulate ASLA çalışmamalı
+  if LSysRepo.HasTableColumns(AViewName) then Exit;
+
   LAutoCols := TObjectList<TSysGridColumn>.Create(True);
   try
     for i := 0 to Grd.Columns.Count - 1 do
@@ -2333,43 +2343,13 @@ begin
 end;
 
 procedure TfrmGrid<TE, TS>.AutoPopulateSysGridFilter(const AViewName: string);
-var
-  LFilterRepo: ISysGridFilterRepository;
 begin
-  if (AViewName = '') then Exit;
-  if not Assigned(Service) or not Assigned(Service.UoW) or (Service.UoW.Connection = nil) or not Service.UoW.Connection.Connected then Exit;
-
-  try
-    LFilterRepo := Service.UoW.GetRepository<TSysGridFilter, TSysGridFilterRepository> as ISysGridFilterRepository;
-    if LFilterRepo = nil then Exit;
-
-    LFilterRepo.SaveFilter(AViewName, '');
-    GLogger.InfoFmt('sys_grid_filter: [%s] tablosu için varsayılan filtre kaydı eklendi.', [AViewName]);
-  except
-    on E: Exception do
-      GLogger.WarningFmt('AutoPopulateSysGridFilter hatası [%s]: %s', [AViewName, E.Message]);
-  end;
+  // sys_grid_filter için otomatik kayıt ekleme kaldırıldı (isteğe bağlı CRUD)
 end;
 
 procedure TfrmGrid<TE, TS>.AutoPopulateSysGridSort(const AViewName: string);
-var
-  LSortRepo: ISysGridSortRepository;
-  LDefaultSort: string;
 begin
-  if (AViewName = '') then Exit;
-  if not Assigned(Service) or not Assigned(Service.UoW) or (Service.UoW.Connection = nil) or not Service.UoW.Connection.Connected then Exit;
-
-  try
-    LSortRepo := Service.UoW.GetRepository<TSysGridSort, TSysGridSortRepository> as ISysGridSortRepository;
-    if LSortRepo = nil then Exit;
-
-    LDefaultSort := 'id ASC';
-    LSortRepo.SaveSort(AViewName, LDefaultSort);
-    GLogger.InfoFmt('sys_grid_sort: [%s] tablosu için varsayılan sıralama kaydı eklendi.', [AViewName]);
-  except
-    on E: Exception do
-      GLogger.WarningFmt('AutoPopulateSysGridSort hatası [%s]: %s', [AViewName, E.Message]);
-  end;
+  // sys_grid_sort için otomatik kayıt ekleme kaldırıldı (isteğe bağlı CRUD)
 end;
 
 procedure TfrmGrid<TE, TS>.ApplyDynamicFilterAndSort;
@@ -2390,9 +2370,6 @@ begin
     LFilterRepo := Service.UoW.GetRepository<TSysGridFilter, TSysGridFilterRepository> as ISysGridFilterRepository;
     if LFilterRepo <> nil then
     begin
-      if not LFilterRepo.HasFilter(LViewName) then
-        AutoPopulateSysGridFilter(LViewName);
-
       LFilter := LFilterRepo.LoadFilter(LViewName);
       if LFilter <> nil then
       begin
@@ -2419,9 +2396,6 @@ begin
     LSortRepo := Service.UoW.GetRepository<TSysGridSort, TSysGridSortRepository> as ISysGridSortRepository;
     if LSortRepo <> nil then
     begin
-      if not LSortRepo.HasSort(LViewName) then
-        AutoPopulateSysGridSort(LViewName);
-
       LSort := LSortRepo.LoadSort(LViewName);
       if LSort <> nil then
       begin
@@ -2486,6 +2460,22 @@ begin
     try
       for i := 0 to Grd.Columns.Count - 1 do
         LColMap.AddOrSetValue(LowerCase(Grd.Columns[i].FieldName), i);
+
+      // Veritabanında (sys_grid_column) tanımlı olmayan DFM kolonlarını gizle
+      for i := 0 to Grd.Columns.Count - 1 do
+      begin
+        var LFound := False;
+        for LCol in LColumns do
+        begin
+          if SameText(LCol.ColumnName, Grd.Columns[i].FieldName) then
+          begin
+            LFound := True;
+            Break;
+          end;
+        end;
+        if not LFound then
+          Grd.Columns[i].Visible := False;
+      end;
 
       for LCol in LColumns do
       begin
@@ -2566,6 +2556,10 @@ begin
   if (TAppContext.Instance.CurrentUser <> nil) then
     LUserId := TAppContext.Instance.CurrentUser.GetUserId;
 
+  // Yalnızca oturum açmış kullanıcının kişiselleştirmelerini (sys_user_grid_column) kaydet
+  // Form kapanırken sys_grid_column sistem tablosunu ezme
+  if LUserId <= 0 then Exit;
+
   LColumns := TObjectList<TSysGridColumn>.Create(True);
   try
     for i := 0 to Grd.Columns.Count - 1 do
@@ -2580,10 +2574,7 @@ begin
     end;
 
     LSysRepo := Service.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository> as ISysGridColumnRepository;
-    if LUserId > 0 then
-      LSysRepo.SaveUserColumns(LViewName, LUserId, LColumns)
-    else
-      LSysRepo.SaveColumns(LViewName, LColumns);
+    LSysRepo.SaveUserColumns(LViewName, LUserId, LColumns);
   finally
     LColumns.Free;
   end;

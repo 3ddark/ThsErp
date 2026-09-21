@@ -1,4 +1,4 @@
-unit ufrmSysGridSorts;
+﻿unit ufrmSysGridSorts;
 
 interface
 
@@ -37,9 +37,9 @@ end;
 procedure TfrmSysGridSorts.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',              0, TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColId, 'Id'));
-  SetColumnProperty('table_name',    120, TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColTableName, 'Table Name'));
-  SetColumnProperty('sort_content',  300, TLocalizationManager.Translate(TLangKeys.TSysGridSort.ColSortContent, 'Sort Content'));
+  SetColumnProperty('id',              0);
+  SetColumnProperty('table_name',    120);
+  SetColumnProperty('sort_content',  300);
 end;
 
 procedure TfrmSysGridSorts.FormShow(Sender: TObject);

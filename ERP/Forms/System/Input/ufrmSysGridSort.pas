@@ -1,4 +1,4 @@
-unit ufrmSysGridSort;
+﻿unit ufrmSysGridSort;
 
 interface
 
@@ -10,7 +10,8 @@ uses
   Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls,
   ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
-  SysGridSort.Service, SysGridSort;
+  SysGridSort.Service, SysGridSort,
+  SysViewTable.Service, SysViewTable, ufrmSysViewTables;
 
 type
   TfrmSysGridSort = class(TfrmInputSimpleDB<TSysGridSort, TSysGridSortService>)
@@ -23,6 +24,7 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
+    procedure HelperProcess(Sender: TObject);
     procedure InitializeInputCase; override;
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
@@ -43,6 +45,36 @@ procedure TfrmSysGridSort.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+  edtTableName.OnHelperProcess := HelperProcess;
+end;
+
+procedure TfrmSysGridSort.HelperProcess(Sender: TObject);
+var
+  LFrmViewTables: TfrmSysViewTables;
+begin
+  if Sender = edtTableName then
+  begin
+    LFrmViewTables := TfrmSysViewTables.Create(edtTableName, TSysViewTableService.Create, TSysViewTable.Create);
+    try
+      LFrmViewTables.IsHelper := True;
+      LFrmViewTables.ShowModal;
+      if LFrmViewTables.DataTransfer then
+      begin
+        if LFrmViewTables.CleanAndClose then
+        begin
+          Table.TableName := '';
+          edtTableName.Clear;
+        end
+        else
+        begin
+          Table.TableName := LFrmViewTables.Table.TableName;
+          edtTableName.Text := LFrmViewTables.Table.TableName;
+        end;
+      end;
+    finally
+      LFrmViewTables.Free;
+    end;
+  end;
 end;
 
 procedure TfrmSysGridSort.FormShow(Sender: TObject);

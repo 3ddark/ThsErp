@@ -1,4 +1,4 @@
-unit ufrmSysGridColumns;
+﻿unit ufrmSysGridColumns;
 
 interface
 
@@ -37,14 +37,14 @@ end;
 procedure TfrmSysGridColumns.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',           0, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColId, 'Id'));
-  SetColumnProperty('table_name', 150, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColTableName, 'Table Name'));
-  SetColumnProperty('column_name',150, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnName, 'Column Name'));
-  SetColumnProperty('column_width',80, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnWidth, 'Width'));
-  SetColumnProperty('column_order',80, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColColumnOrder, 'Order'));
-  SetColumnProperty('is_show',        60, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsShow, 'Show'));
-  SetColumnProperty('is_fetch',       60, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsFetch, 'Fetch'));
-  SetColumnProperty('aggregate_type',110, TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColAggregateType, 'Aggregate Type'));
+  SetColumnProperty('id',              0);
+  SetColumnProperty('table_name',    150);
+  SetColumnProperty('column_name',   150);
+  SetColumnProperty('column_width',   80);
+  SetColumnProperty('column_order',   80);
+  SetColumnProperty('is_show',        60);
+  SetColumnProperty('is_fetch',       60);
+  SetColumnProperty('aggregate_type',110);
 end;
 
 procedure TfrmSysGridColumns.FormShow(Sender: TObject);
