@@ -38,6 +38,7 @@ end;
 function TSysGridSort.Clone: TSysGridSort;
 begin
   Result := TSysGridSort.Create;
+  Result.Id := Self.Id;
   Result.TableName := Self.TableName;
   Result.SortContent := Self.SortContent;
 end;

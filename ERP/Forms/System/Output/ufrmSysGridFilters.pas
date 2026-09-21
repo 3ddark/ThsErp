@@ -1,4 +1,4 @@
-unit ufrmSysGridFilters;
+﻿unit ufrmSysGridFilters;
 
 interface
 
@@ -37,9 +37,9 @@ end;
 procedure TfrmSysGridFilters.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',              0, TLocalizationManager.Translate(TLangKeys.TSysGridFilter.ColId, 'Id'));
-  SetColumnProperty('table_name',    120, TLocalizationManager.Translate(TLangKeys.TSysGridFilter.ColTableName, 'Table Name'));
-  SetColumnProperty('filter_content', 300, TLocalizationManager.Translate(TLangKeys.TSysGridFilter.ColFilterContent, 'Filter Content'));
+  SetColumnProperty('id',              0);
+  SetColumnProperty('table_name',    120);
+  SetColumnProperty('filter_content', 300);
 end;
 
 procedure TfrmSysGridFilters.FormShow(Sender: TObject);

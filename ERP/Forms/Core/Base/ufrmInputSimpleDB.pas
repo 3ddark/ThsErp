@@ -474,7 +474,7 @@ begin
 //        FormMode := ifmRewiev;
 //        btnSpin.Visible := True;
 //        btnDelete.Visible := False;
-//        btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Güncelle');
+//        btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Update, 'Update');
 //        btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
 //        btnAccept.Width := Max(100, btnAccept.Width);
 

@@ -1,4 +1,4 @@
-unit ufrmSysUoms;
+﻿unit ufrmSysUoms;
 
 interface
 
@@ -39,7 +39,7 @@ end;
 procedure TfrmSysUoms.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',              0, TLocalizationManager.Translate(TLangKeys.TSysUom.ColId, 'Id'));
+  SetColumnProperty('id',              0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
   SetColumnProperty('measure_type_id', 0, TLocalizationManager.Translate(TLangKeys.TSysUom.ColMeasureTypeId, 'Measure Type Id'));
 end;
 

@@ -1,4 +1,4 @@
-unit ufrmSysUomGroups;
+﻿unit ufrmSysUomGroups;
 
 interface
 
@@ -37,8 +37,8 @@ end;
 procedure TfrmSysUomTypes.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',      0, 'Id');
-  SetColumnProperty('locale',  0, TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColLocale, 'Locale'));
+  SetColumnProperty('id',      0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
+  SetColumnProperty('locale',  0, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
 end;
 
 procedure TfrmSysUomTypes.FormShow(Sender: TObject);
@@ -51,10 +51,9 @@ procedure TfrmSysUomTypes.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.TitlePlural, 'Unit of Measurement Types');
-  SetColumnTitle('id',     'Id');
   SetColumnTitle('key',    TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColKey, 'Type Key'));
   SetColumnTitle('name',   TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColName, 'Type Name'));
-  SetColumnTitle('locale', TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColLocale, 'Locale'));
+  SetColumnTitle('locale', TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
 end;
 
 end.

@@ -64,6 +64,7 @@ type
     class function IsUserLoaded(AUserId: Int64): Boolean; static;
 
     class function CheckTableExists(AConnection: TFDConnection = nil): Boolean; static;
+    class function ReloadTable(AConnection: TFDConnection; const ATableName: string): Boolean; static;
     class function HasTableColumns(AConnection: TFDConnection; const ATableName: string): Boolean; static;
     class function LoadColumns(AConnection: TFDConnection; const ATableName: string): TObjectList<TSysGridColumn>; static;
     class function LoadUserColumns(AConnection: TFDConnection; const ATableName: string; AUserId: Int64): TObjectList<TSysGridColumn>; static;
@@ -511,9 +512,98 @@ begin
   end;
 end;
 
+class function TSysGridColumnCache.ReloadTable(AConnection: TFDConnection; const ATableName: string): Boolean;
+var
+  Q: TFDQuery;
+  LItem: TGridColumnItem;
+  LCleanTbl, LBaseTbl, LViewTbl: string;
+  LTempList: TList<TGridColumnItem>;
+begin
+  Result := False;
+  if (AConnection = nil) or not AConnection.Connected then Exit;
+
+  GetTableVariants(ATableName, LCleanTbl, LBaseTbl, LViewTbl);
+
+  Q := TFDQuery.Create(nil);
+  LTempList := TList<TGridColumnItem>.Create;
+  try
+    Q.Connection := AConnection;
+    Q.SQL.Text :=
+      'SELECT id, table_name, column_name, column_order, column_width, ' +
+      '       data_format, is_show, is_show_helper, is_fetch, ' +
+      '       min_value, min_value_color, max_value, max_value_color, max_value_percent, ' +
+      '       bar_color, bar_bg_color, bar_text_color, aggregate_type ' +
+      'FROM public.sys_grid_column ' +
+      'WHERE table_name IN (:t1, :t2, :t3) ' +
+      'ORDER BY table_name, column_order';
+    Q.ParamByName('t1').AsString := LCleanTbl;
+    Q.ParamByName('t2').AsString := LBaseTbl;
+    Q.ParamByName('t3').AsString := LViewTbl;
+
+    try
+      Q.Open;
+      while not Q.Eof do
+      begin
+        LItem.Id            := Q.FieldByName('id').AsLargeInt;
+        LItem.TableName     := Q.FieldByName('table_name').AsString;
+        LItem.ColumnName    := Q.FieldByName('column_name').AsString;
+        LItem.ColumnOrder   := Q.FieldByName('column_order').AsInteger;
+        LItem.ColumnWidth   := Q.FieldByName('column_width').AsInteger;
+        LItem.DataFormat    := Q.FieldByName('data_format').AsString;
+        LItem.IsShow        := Q.FieldByName('is_show').AsBoolean;
+        LItem.IsShowHelper  := Q.FieldByName('is_show_helper').AsBoolean;
+        LItem.IsFetch       := Q.FieldByName('is_fetch').AsBoolean;
+        LItem.MinValue      := Q.FieldByName('min_value').AsFloat;
+        LItem.MinValueColor := Q.FieldByName('min_value_color').AsInteger;
+        LItem.MaxValue      := Q.FieldByName('max_value').AsFloat;
+        LItem.MaxValueColor := Q.FieldByName('max_value_color').AsInteger;
+        LItem.MaxValuePercent := Q.FieldByName('max_value_percent').AsFloat;
+        LItem.BarColor      := Q.FieldByName('bar_color').AsInteger;
+        if Q.FindField('bar_bg_color') <> nil then
+          LItem.BarBgColor  := Q.FieldByName('bar_bg_color').AsInteger
+        else
+          LItem.BarBgColor  := 0;
+        if Q.FindField('bar_text_color') <> nil then
+          LItem.BarTextColor := Q.FieldByName('bar_text_color').AsInteger
+        else
+          LItem.BarTextColor := 0;
+        if Q.FindField('aggregate_type') <> nil then
+          LItem.AggregateType := Q.FieldByName('aggregate_type').AsInteger
+        else
+          LItem.AggregateType := 0;
+
+        LTempList.Add(LItem);
+        Q.Next;
+      end;
+    except
+      on E: Exception do
+      begin
+        GLogger.ErrorFmt('TSysGridColumnCache.ReloadTable error [%s]: %s', [ATableName, E.Message]);
+        Exit(False);
+      end;
+    end;
+
+    if LTempList.Count > 0 then
+    begin
+      FLock.Enter;
+      try
+        FGlobalCols.AddOrSetValue(LCleanTbl, LTempList.ToArray);
+      finally
+        FLock.Leave;
+      end;
+      Result := True;
+    end;
+  finally
+    LTempList.Free;
+    Q.Free;
+  end;
+end;
+
 class function TSysGridColumnCache.HasTableColumns(AConnection: TFDConnection; const ATableName: string): Boolean;
 var
   LCleanTbl, LBaseTbl, LViewTbl: string;
+  LHasInCache: Boolean;
+  Q: TFDQuery;
 begin
   if not IsGlobalLoaded and (AConnection <> nil) then
     LoadGlobal(AConnection);
@@ -522,23 +612,74 @@ begin
 
   FLock.Enter;
   try
-    Result := FGlobalCols.ContainsKey(LCleanTbl) or
-              FGlobalCols.ContainsKey(LBaseTbl) or
-              FGlobalCols.ContainsKey(LViewTbl);
+    LHasInCache := (FGlobalCols.ContainsKey(LCleanTbl) and (Length(FGlobalCols[LCleanTbl]) > 0)) or
+                   (FGlobalCols.ContainsKey(LBaseTbl) and (Length(FGlobalCols[LBaseTbl]) > 0)) or
+                   (FGlobalCols.ContainsKey(LViewTbl) and (Length(FGlobalCols[LViewTbl]) > 0));
   finally
     FLock.Leave;
   end;
+
+  if LHasInCache then
+    Exit(True);
+
+  // Önbellekte yoksa (örneğin InvalidateTable sonrası veya henüz yüklenmediyse),
+  // doğrudan veritabanından kontrol et: Bu tablo için en az 1 kayıt var mı?
+  if (AConnection <> nil) and AConnection.Connected then
+  begin
+    Q := TFDQuery.Create(nil);
+    try
+      Q.Connection := AConnection;
+      Q.SQL.Text :=
+        'SELECT 1 FROM public.sys_grid_column ' +
+        'WHERE table_name IN (:t1, :t2, :t3) LIMIT 1';
+      Q.ParamByName('t1').AsString := LCleanTbl;
+      Q.ParamByName('t2').AsString := LBaseTbl;
+      Q.ParamByName('t3').AsString := LViewTbl;
+      try
+        Q.Open;
+        if not Q.Eof then
+        begin
+          // Veritabanında en az 1 kayıt var! Kolonları önbelleğe de yükle
+          ReloadTable(AConnection, ATableName);
+          Exit(True);
+        end;
+      except
+        on E: Exception do
+          GLogger.ErrorFmt('TSysGridColumnCache.HasTableColumns DB check error [%s]: %s', [ATableName, E.Message]);
+      end;
+    finally
+      Q.Free;
+    end;
+  end;
+
+  Result := False;
 end;
 
 class function TSysGridColumnCache.LoadColumns(AConnection: TFDConnection; const ATableName: string): TObjectList<TSysGridColumn>;
 var
   LItems: TArray<TGridColumnItem>;
   Item: TGridColumnItem;
+  LCleanTbl, LBaseTbl, LViewTbl: string;
+  LInCache: Boolean;
 begin
   Result := TObjectList<TSysGridColumn>.Create(True);
 
   if not IsGlobalLoaded and (AConnection <> nil) then
     LoadGlobal(AConnection);
+
+  GetTableVariants(ATableName, LCleanTbl, LBaseTbl, LViewTbl);
+
+  FLock.Enter;
+  try
+    LInCache := (FGlobalCols.ContainsKey(LCleanTbl) and (Length(FGlobalCols[LCleanTbl]) > 0)) or
+                (FGlobalCols.ContainsKey(LBaseTbl) and (Length(FGlobalCols[LBaseTbl]) > 0)) or
+                (FGlobalCols.ContainsKey(LViewTbl) and (Length(FGlobalCols[LViewTbl]) > 0));
+  finally
+    FLock.Leave;
+  end;
+
+  if not LInCache and (AConnection <> nil) and AConnection.Connected then
+    ReloadTable(AConnection, ATableName);
 
   LItems := InternalLoadColumns(ATableName);
   for Item in LItems do
