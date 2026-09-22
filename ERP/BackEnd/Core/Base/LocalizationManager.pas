@@ -322,6 +322,43 @@ type
         const Max = 'aggregate_type.max';
       end;
 
+      TSysGrid = record
+        const ColColumnName = 'sys_grid.col_column_name';
+        const LblSortDirection = 'sys_grid.lbl_sort_direction';
+        const LblSortList = 'sys_grid.lbl_sort_list';
+        const SortAsc = 'sys_grid.sort_asc';
+        const SortDesc = 'sys_grid.sort_desc';
+        const BtnAdd = 'sys_grid.btn_add';
+        const BtnDelete = 'sys_grid.btn_delete';
+        const BtnMoveUp = 'sys_grid.btn_move_up';
+        const BtnMoveDown = 'sys_grid.btn_move_down';
+        const BtnClear = 'sys_grid.btn_clear';
+        const LblOperator = 'sys_grid.lbl_operator';
+        const LblValue = 'sys_grid.lbl_value';
+        const LblConjunction = 'sys_grid.lbl_conjunction';
+        const ChkNot = 'sys_grid.chk_not';
+        const LblFilterList = 'sys_grid.lbl_filter_list';
+        const OpEqual = 'sys_grid.op_equal';
+        const OpNotEqual = 'sys_grid.op_not_equal';
+        const OpGreater = 'sys_grid.op_greater';
+        const OpGreaterEqual = 'sys_grid.op_greater_equal';
+        const OpLess = 'sys_grid.op_less';
+        const OpLessEqual = 'sys_grid.op_less_equal';
+        const OpLike = 'sys_grid.op_like';
+        const OpNotLike = 'sys_grid.op_not_like';
+        const OpStartsWith = 'sys_grid.op_starts_with';
+        const OpEndsWith = 'sys_grid.op_ends_with';
+        const OpIsNull = 'sys_grid.op_is_null';
+        const OpIsNotNull = 'sys_grid.op_is_not_null';
+        const OpIn = 'sys_grid.op_in';
+        const OpNotIn = 'sys_grid.op_not_in';
+        const WarnSelectColumn = 'sys_grid.warn_select_column';
+        const WarnInvalidColumn = 'sys_grid.warn_invalid_column';
+        const WarnEnterValue = 'sys_grid.warn_enter_value';
+        const SecInvalidSort = 'sys_grid.sec_invalid_sort';
+        const SecInvalidFilter = 'sys_grid.sec_invalid_filter';
+      end;
+
       TSysGridFilter = record
         const TitleSingular = 'sys_grid_filter.title_singular';
         const TitlePlural = 'sys_grid_filter.title_plural';
@@ -329,6 +366,35 @@ type
         const ColTableName = 'sys_grid_filter.col_table_name';
         const ColFilterContent = 'sys_grid_filter.col_filter_content';
         const TableNameUnique = 'sys_grid_filter.table_name.unique';
+        const ColColumnName = 'sys_grid.col_column_name';
+        const LblOperator = 'sys_grid.lbl_operator';
+        const LblValue = 'sys_grid.lbl_value';
+        const LblConjunction = 'sys_grid.lbl_conjunction';
+        const ChkNot = 'sys_grid.chk_not';
+        const LblFilterList = 'sys_grid.lbl_filter_list';
+        const OpEqual = 'sys_grid.op_equal';
+        const OpNotEqual = 'sys_grid.op_not_equal';
+        const OpGreater = 'sys_grid.op_greater';
+        const OpGreaterEqual = 'sys_grid.op_greater_equal';
+        const OpLess = 'sys_grid.op_less';
+        const OpLessEqual = 'sys_grid.op_less_equal';
+        const OpLike = 'sys_grid.op_like';
+        const OpNotLike = 'sys_grid.op_not_like';
+        const OpStartsWith = 'sys_grid.op_starts_with';
+        const OpEndsWith = 'sys_grid.op_ends_with';
+        const OpIsNull = 'sys_grid.op_is_null';
+        const OpIsNotNull = 'sys_grid.op_is_not_null';
+        const OpIn = 'sys_grid.op_in';
+        const OpNotIn = 'sys_grid.op_not_in';
+        const BtnAdd = 'sys_grid.btn_add';
+        const BtnDelete = 'sys_grid.btn_delete';
+        const BtnMoveUp = 'sys_grid.btn_move_up';
+        const BtnMoveDown = 'sys_grid.btn_move_down';
+        const BtnClear = 'sys_grid.btn_clear';
+        const WarnSelectColumn = 'sys_grid.warn_select_column';
+        const WarnInvalidColumn = 'sys_grid.warn_invalid_column';
+        const WarnEnterValue = 'sys_grid.warn_enter_value';
+        const SecInvalidFilter = 'sys_grid.sec_invalid_filter';
       end;
 
       TSysGridSort = record
@@ -338,6 +404,19 @@ type
         const ColTableName = 'sys_grid_sort.col_table_name';
         const ColSortContent = 'sys_grid_sort.col_sort_content';
         const TableNameUnique = 'sys_grid_sort.table_name.unique';
+        const ColColumnName = 'sys_grid.col_column_name';
+        const LblSortDirection = 'sys_grid.lbl_sort_direction';
+        const LblSortList = 'sys_grid.lbl_sort_list';
+        const SortAsc = 'sys_grid.sort_asc';
+        const SortDesc = 'sys_grid.sort_desc';
+        const BtnAdd = 'sys_grid.btn_add';
+        const BtnDelete = 'sys_grid.btn_delete';
+        const BtnMoveUp = 'sys_grid.btn_move_up';
+        const BtnMoveDown = 'sys_grid.btn_move_down';
+        const BtnClear = 'sys_grid.btn_clear';
+        const WarnSelectColumn = 'sys_grid.warn_select_column';
+        const WarnInvalidColumn = 'sys_grid.warn_invalid_column';
+        const SecInvalidSort = 'sys_grid.sec_invalid_sort';
       end;
 
       TSysLanguage = record
