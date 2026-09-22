@@ -1,4 +1,4 @@
-﻿unit ufrmInputSimpleDB;
+unit ufrmInputSimpleDB;
 
 interface
 
@@ -18,6 +18,7 @@ type
   TfrmInputSimpleDB<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TForm, ILocalizable)
   private
     FService: TS;
+    FOwnsService: Boolean;
     FTable: TE;
 
     FFormMode: TInputFormMode;
@@ -52,6 +53,7 @@ type
     procedure FillTranslationControls(AContainer: TWinControl; AValues: TTranslationMap);
   public
     property Service: TS read FService write SetService;
+    property OwnsService: Boolean read FOwnsService write FOwnsService;
     property Table: TE read FTable write SetTable;
 
     property FormMode: TInputFormMode read FFormMode write FFormMode;
@@ -74,7 +76,8 @@ type
       AOwner: TComponent; AService: TS; ATable: TE;
       AFormMode: TInputFormMode;
       ARefreshGridEvent: TAfterCrudRefreshGrid;
-      AFormViewMode: TInputFormViewMode = ivmNormal); reintroduce; overload;
+      AFormViewMode: TInputFormViewMode = ivmNormal;
+      AOwnsService: Boolean = False); reintroduce; overload;
     destructor Destroy; override;
 
     //***form***
@@ -554,7 +557,8 @@ constructor TfrmInputSimpleDB<TE, TS>.Create(
   AOwner: TComponent; AService: TS; ATable: TE;
   AFormMode: TInputFormMode;
   ARefreshGridEvent: TAfterCrudRefreshGrid;
-  AFormViewMode: TInputFormViewMode
+  AFormViewMode: TInputFormViewMode;
+  AOwnsService: Boolean
 );
 
 var LModeStr: string;
@@ -574,6 +578,7 @@ begin
 
   SetService(AService);
   SetTable(ATable);
+  FOwnsService := AOwnsService or not Assigned(ARefreshGridEvent);
 
   FFormMode := AFormMode;
   FFormViewMode := AFormViewMode;
@@ -690,7 +695,10 @@ end;
 destructor TfrmInputSimpleDB<TE, TS>.Destroy;
 begin
   FreeAndNil(FTable);
-  Service := nil;
+  if FOwnsService and Assigned(FService) then
+    FreeAndNil(FService)
+  else
+    Service := nil;
   inherited;
 end;
 

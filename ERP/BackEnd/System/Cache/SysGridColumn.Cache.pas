@@ -84,8 +84,6 @@ type
 
 implementation
 
-{ TGridColumnItem }
-
 function TGridColumnItem.ToEntity: TSysGridColumn;
 begin
   Result := TSysGridColumn.Create;
@@ -130,8 +128,6 @@ begin
   Result.BarTextColor    := AEntity.BarTextColor;
   Result.AggregateType   := AEntity.AggregateType;
 end;
-
-{ TSysGridColumnCache }
 
 class constructor TSysGridColumnCache.Create;
 begin

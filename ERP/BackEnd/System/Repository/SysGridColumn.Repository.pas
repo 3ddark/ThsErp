@@ -239,7 +239,7 @@ begin
           Criterion.FieldName + ' ' + Criterion.Operator +
           ' :' + Criterion.ParamName; // FIX: ParamName, FieldName değil
 
-    if ALock then
+    if ALock and (Connection <> nil) and Connection.InTransaction then
       Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
 
     if Assigned(AFilter) and (AFilter.Count > 0) then
@@ -269,7 +269,7 @@ begin
   try
     Q.Connection  := Connection;
     Q.SQL.Text    := PrepareSelectSql + ' WHERE id = :id';
-    if ALock then
+    if ALock and (Connection <> nil) and Connection.InTransaction then
       Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
     Q.ParamByName('id').AsLargeInt := AId.AsInt64;
     LogQuery(Q, 'DoFindById');
@@ -300,7 +300,7 @@ begin
         Criterion.FieldName + ' ' + Criterion.Operator +
         ' :' + Criterion.ParamName; // FIX: ParamName
 
-    if ALock then
+    if ALock and (Connection <> nil) and Connection.InTransaction then
       Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
     Q.SQL.Text := Q.SQL.Text + ' LIMIT 1';
 
