@@ -1,4 +1,4 @@
-unit StkKindProperty;
+﻿unit StkKindProperty;
 
 interface
 
@@ -85,6 +85,7 @@ end;
 function TStkKindProperty.Clone: TStkKindProperty;
 begin
   Result := TStkKindProperty.Create;
+  Result.Id := Self.Id;
   Result.Kind := Self.Kind;
   Result.Desciption := Self.Desciption;
   Result.S1 := Self.S1;

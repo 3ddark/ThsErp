@@ -1,4 +1,4 @@
-unit StkCardKindInfo;
+﻿unit StkCardKindInfo;
 
 interface
 
@@ -45,6 +45,7 @@ end;
 function TStkCardKindInfo.Clone: TStkCardKindInfo;
 begin
   Result := TStkCardKindInfo.Create;
+  Result.Id := Self.Id;
   Result.StkKartID := Self.StkKartID;
   Result.CinsID := Self.CinsID;
   Result.Deger := Self.Deger;

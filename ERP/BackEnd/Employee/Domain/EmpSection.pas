@@ -38,6 +38,7 @@ end;
 function TEmpSection.Clone: TEmpSection;
 begin
   Result := TEmpSection.Create;
+  Result.Id := Self.Id;
   Result.SectionName := Self.SectionName;
 end;
 

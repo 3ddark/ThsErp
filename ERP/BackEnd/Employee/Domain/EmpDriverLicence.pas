@@ -46,6 +46,7 @@ end;
 function TEmpDriverLicence.Clone: TEmpDriverLicence;
 begin
   Result := TEmpDriverLicence.Create;
+  Result.Id := Self.Id;
   Result.DriverLicenseId := Self.DriverLicenseId;
   Result.PersonId := Self.PersonId;
 end;

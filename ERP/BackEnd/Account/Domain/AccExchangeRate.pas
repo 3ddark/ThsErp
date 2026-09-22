@@ -1,4 +1,4 @@
-unit AccExchangeRate;
+﻿unit AccExchangeRate;
 
 interface
 
@@ -49,6 +49,7 @@ end;
 function TAccExchangeRate.Clone: TAccExchangeRate;
 begin
   Result := TAccExchangeRate.Create;
+  Result.Id := Self.Id;
   Result.RateDate := Self.RateDate;
   Result.Rate := Self.Rate;
   Result.Currency := Self.Currency;

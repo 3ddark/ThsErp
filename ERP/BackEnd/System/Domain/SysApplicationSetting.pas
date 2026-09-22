@@ -193,6 +193,7 @@ end;
 function TSysApplicationSetting.Clone: TSysApplicationSetting;
 begin
   Result := TSysApplicationSetting.Create;
+  Result.Id := Self.Id;
 
   Result.CompanyTitle := Self.CompanyTitle;
   Result.TaxpayerSurname := Self.TaxpayerSurname;

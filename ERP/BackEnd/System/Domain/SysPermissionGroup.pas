@@ -76,6 +76,7 @@ var
   item: TSysPermissionGroupTranslation;
 begin
   Result := TSysPermissionGroup.Create;
+  Result.Id := Self.Id;
   Result.PermissionGroupKey := Self.PermissionGroupKey;
 
   Result.Translations := TObjectList<TSysPermissionGroupTranslation>.Create(True);

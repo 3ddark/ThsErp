@@ -1,4 +1,4 @@
-unit StkInventorySummary;
+﻿unit StkInventorySummary;
 
 interface
 
@@ -83,6 +83,7 @@ implementation
 function TStkInventorySummary.Clone: TStkInventorySummary;
 begin
   Result := TStkInventorySummary.Create;
+  Result.Id := Self.Id;
   Result.InventoryID := Self.InventoryID;
   Result.CurrentQuantity := Self.CurrentQuantity;
   Result.AverageCost := Self.AverageCost;

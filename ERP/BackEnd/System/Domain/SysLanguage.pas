@@ -38,6 +38,7 @@ end;
 function TSysLanguage.Clone: TSysLanguage;
 begin
   Result := TSysLanguage.Create;
+  Result.Id := Self.Id;
   Result.Locale := Self.Locale;
   Result.NativeName := Self.NativeName;
 end;

@@ -38,6 +38,7 @@ end;
 function TEmpLanguageLevel.Clone: TEmpLanguageLevel;
 begin
   Result := TEmpLanguageLevel.Create;
+  Result.Id := Self.Id;
   Result.LanguageLevel := Self.LanguageLevel;
 end;
 

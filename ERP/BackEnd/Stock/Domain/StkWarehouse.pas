@@ -1,4 +1,4 @@
-unit StkWarehouse;
+﻿unit StkWarehouse;
 
 interface
 
@@ -52,6 +52,7 @@ end;
 function TStkWarehouse.Clone: TStkWarehouse;
 begin
   Result := TStkWarehouse.Create;
+  Result.Id := Self.Id;
   Result.WarehouseName := Self.WarehouseName;
   Result.DefaultRawMaterial := Self.DefaultRawMaterial;
   Result.DefaultProduction := Self.DefaultProduction;

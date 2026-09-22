@@ -74,6 +74,7 @@ var
   item: TSysUomGroupTranslation;
 begin
   Result := TSysUomGroup.Create;
+  Result.Id := Self.Id;
   Result.Key := Self.Key;
 
   Result.Translations := TObjectList<TSysUomGroupTranslation>.Create(True);

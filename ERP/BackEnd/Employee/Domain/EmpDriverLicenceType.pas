@@ -38,6 +38,7 @@ end;
 function TEmpDriverLicenseType.Clone: TEmpDriverLicenseType;
 begin
   Result := TEmpDriverLicenseType.Create;
+  Result.Id := Self.Id;
   Result.LicenseName := Self.LicenseName;
 end;
 
