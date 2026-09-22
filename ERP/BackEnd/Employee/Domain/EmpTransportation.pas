@@ -47,6 +47,7 @@ end;
 function TEmpTransportation.Clone: TEmpTransportation;
 begin
   Result := TEmpTransportation.Create;
+  Result.Id := Self.Id;
   Result.CarNo := Self.CarNo;
   Result.CarName := Self.CarName;
   Result.Route := Self.Route;

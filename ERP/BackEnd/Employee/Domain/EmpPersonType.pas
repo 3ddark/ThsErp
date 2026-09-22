@@ -38,6 +38,7 @@ end;
 function TEmpPersonType.Clone: TEmpPersonType;
 begin
   Result := TEmpPersonType.Create;
+  Result.Id := Self.Id;
   Result.PersonType := Self.PersonType;
 end;
 

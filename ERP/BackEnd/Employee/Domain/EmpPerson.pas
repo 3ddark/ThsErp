@@ -167,6 +167,7 @@ end;
 function TEmpPerson.Clone: TEmpPerson;
 begin
   Result := TEmpPerson.Create;
+  Result.Id := Self.Id;
   Result.Name := Self.Name;
   Result.Surname := Self.Surname;
   Result.FullName := Self.FullName;

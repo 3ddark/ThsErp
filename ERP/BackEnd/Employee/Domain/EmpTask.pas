@@ -38,6 +38,7 @@ end;
 function TEmpTask.Clone: TEmpTask;
 begin
   Result := TEmpTask.Create;
+  Result.Id := Self.Id;
   Result.TaskName := Self.TaskName;
 end;
 

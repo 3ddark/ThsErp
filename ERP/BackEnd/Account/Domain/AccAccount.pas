@@ -1,4 +1,4 @@
-unit AccAccount;
+﻿unit AccAccount;
 
 interface
 
@@ -178,6 +178,7 @@ end;
 function TAccAccount.Clone: TAccAccount;
 begin
   Result := TAccAccount.Create;
+  Result.Id := Self.Id;
   Result.Code := Self.Code;
 end;
 

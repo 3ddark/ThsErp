@@ -88,6 +88,7 @@ var
   item: TSysPermissionTranslation;
 begin
   Result := TSysPermission.Create;
+  Result.Id := Self.Id;
   Result.Code := Self.Code;
   Result.Key := Self.Key;
   Result.GroupId := Self.GroupId;

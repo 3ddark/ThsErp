@@ -98,6 +98,7 @@ var
   item: TSysUomTranslation;
 begin
   Result := TSysUom.Create;
+  Result.Id := Self.Id;
   Result.UnitCode := Self.UnitCode;
   Result.UnitEInv := Self.UnitEInv;
   Result.Decimal := Self.Decimal;

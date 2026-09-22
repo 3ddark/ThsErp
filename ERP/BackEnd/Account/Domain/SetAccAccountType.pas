@@ -1,4 +1,4 @@
-unit SetAccAccountType;
+﻿unit SetAccAccountType;
 
 interface
 
@@ -34,6 +34,7 @@ end;
 function TSetAccAccountType.Clone: TSetAccAccountType;
 begin
   Result := TSetAccAccountType.Create;
+  Result.Id := Self.Id;
   Result.Name := Self.Name;
 end;
 

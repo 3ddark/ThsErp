@@ -42,6 +42,7 @@ end;
 function TSysCurrency.Clone: TSysCurrency;
 begin
   Result := TSysCurrency.Create;
+  Result.Id := Self.Id;
   Result.Currency := Self.Currency;
   Result.Symbol := Self.Symbol;
   Result.Description := Self.Description;

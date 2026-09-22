@@ -1,4 +1,4 @@
-unit StkProductType;
+﻿unit StkProductType;
 
 interface
 
@@ -37,6 +37,7 @@ end;
 function TStkProductType.Clone: TStkProductType;
 begin
   Result := TStkProductType.Create;
+  Result.Id := Self.Id;
   Result.ProductTypeName := Self.ProductTypeName;
 end;
 

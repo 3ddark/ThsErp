@@ -61,6 +61,7 @@ end;
 function TSysCity.Clone: TSysCity;
 begin
   Result := TSysCity.Create;
+  Result.Id := Self.Id;
   Result.CityName := Self.CityName;
   Result.CarPlateCode := Self.CarPlateCode;
   Result.SysCountryId := Self.SysCountryId;

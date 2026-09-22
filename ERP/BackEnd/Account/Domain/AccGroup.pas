@@ -1,4 +1,4 @@
-unit AccGroup;
+﻿unit AccGroup;
 
 interface
 
@@ -34,6 +34,7 @@ end;
 function TAccGroup.Clone: TAccGroup;
 begin
   Result := TAccGroup.Create;
+  Result.Id := Self.Id;
   Result.Name := Self.Name;
 end;
 

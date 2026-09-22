@@ -61,6 +61,7 @@ end;
 function TSysDecimalPlace.Clone: TSysDecimalPlace;
 begin
   Result := TSysDecimalPlace.Create;
+  Result.Id := Self.Id;
   Result.Quantity := Self.Quantity;
   Result.Price := Self.Price;
   Result.Total := Self.Total;

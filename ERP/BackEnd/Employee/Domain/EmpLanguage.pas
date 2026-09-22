@@ -38,6 +38,7 @@ end;
 function TEmpLanguage.Clone: TEmpLanguage;
 begin
   Result := TEmpLanguage.Create;
+  Result.Id := Self.Id;
   Result.LanguageName := Self.LanguageName;
 end;
 

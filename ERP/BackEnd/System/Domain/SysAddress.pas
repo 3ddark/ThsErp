@@ -83,6 +83,7 @@ end;
 function TSysAddress.Clone: TSysAddress;
 begin
   Result := TSysAddress.Create;
+  Result.Id := Self.Id;
   Result.SysCityId := Self.SysCityId;
   Result.District := Self.District;
   Result.Neighborhood := Self.Neighborhood;

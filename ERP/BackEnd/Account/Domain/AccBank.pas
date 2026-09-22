@@ -1,4 +1,4 @@
-unit AccBank;
+﻿unit AccBank;
 
 interface
 
@@ -38,6 +38,7 @@ end;
 function TAccBank.Clone: TAccBank;
 begin
   Result := TAccBank.Create;
+  Result.Id := Self.Id;
   Result.SWiftCode := Self.SWiftCode;
   Result.Name := Self.Name;
 end;

@@ -1,4 +1,4 @@
-unit StkKindFamily;
+﻿unit StkKindFamily;
 
 interface
 
@@ -46,6 +46,7 @@ end;
 function TStkKindFamily.Clone: TStkKindFamily;
 begin
   Result := TStkKindFamily.Create;
+  Result.Id := Self.Id;
   Result.Family := Self.Family;
   Result.Description := Self.Description;
   Result.Active := Self.Active;

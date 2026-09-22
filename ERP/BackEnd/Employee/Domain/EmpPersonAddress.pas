@@ -1,4 +1,4 @@
-unit EmpPersonAddress;
+﻿unit EmpPersonAddress;
 
 interface
 
@@ -52,6 +52,7 @@ implementation
 function TEmpPersonAddress.Clone: TEmpPersonAddress;
 begin
   Result := TEmpPersonAddress.Create;
+  Result.Id := Self.Id;
   Result.PersonId := Self.PersonId;
   Result.AddressId := Self.AddressId;
   Result.AddressType := Self.AddressType;

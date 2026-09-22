@@ -55,6 +55,7 @@ end;
 function TEmpLanguageAbility.Clone: TEmpLanguageAbility;
 begin
   Result := TEmpLanguageAbility.Create;
+  Result.Id := Self.Id;
   Result.LisanID := Self.LisanID;
   Result.OkumaID := Self.OkumaID;
   Result.YazmaID := Self.YazmaID;

@@ -45,6 +45,7 @@ end;
 function TEmpUnit.Clone: TEmpUnit;
 begin
   Result := TEmpUnit.Create;
+  Result.Id := Self.Id;
   Result.SectionId := Self.SectionId;
   Result.UnitName_ := Self.UnitName_;
 

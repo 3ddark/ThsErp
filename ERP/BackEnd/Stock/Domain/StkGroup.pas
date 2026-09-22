@@ -1,4 +1,4 @@
-unit StkGroup;
+﻿unit StkGroup;
 
 interface
 
@@ -53,6 +53,7 @@ end;
 function TStkGroup.Clone: TStkGroup;
 begin
   Result := TStkGroup.Create;
+  Result.Id := Self.Id;
   Result.GroupName := Self.GroupName;
   Result.VatRate := Self.VatRate;
   Result.RawMaterialStockAccount := Self.RawMaterialStockAccount;

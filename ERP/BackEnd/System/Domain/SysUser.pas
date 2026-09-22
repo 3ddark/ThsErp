@@ -83,6 +83,7 @@ end;
 function TSysUser.Clone: TSysUser;
 begin
   Result := TSysUser.Create;
+  Result.Id := Self.Id;
   Result.Username := Self.Username;
   Result.EmpEmployeeId := Self.EmpEmployeeId;
   Result.SuperUser := Self.SuperUser;

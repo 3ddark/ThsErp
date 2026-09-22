@@ -1,4 +1,4 @@
-unit AccRegion;
+﻿unit AccRegion;
 
 interface
 
@@ -34,6 +34,7 @@ end;
 function TAccRegion.Clone: TAccRegion;
 begin
   Result := TAccRegion.Create;
+  Result.Id := Self.Id;
   Result.Name := Self.Name;
 end;
 

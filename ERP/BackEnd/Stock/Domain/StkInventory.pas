@@ -1,4 +1,4 @@
-unit StkInventory;
+﻿unit StkInventory;
 
 interface
 
@@ -150,6 +150,7 @@ end;
 function TStkInventory.Clone: TStkInventory;
 begin
   Result := TStkInventory.Create;
+  Result.Id := Self.Id;
   Result.Sellable := Self.Sellable;
   Result.Code := Self.Code;
   Result.Name := Self.Name;

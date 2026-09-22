@@ -1,4 +1,4 @@
-unit AccBankBranch;
+﻿unit AccBankBranch;
 
 interface
 
@@ -59,6 +59,7 @@ end;
 function TAccBankBranch.Clone: TAccBankBranch;
 begin
   Result := TAccBankBranch.Create;
+  Result.Id := Self.Id;
   Result.AccBankId := Self.AccBankId;
   Result.Code := Self.Code;
   Result.Name := Self.Name;

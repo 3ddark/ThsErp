@@ -87,6 +87,7 @@ end;
 function TSysAccessRight.Clone: TSysAccessRight;
 begin
   Result := TSysAccessRight.Create;
+  Result.Id := Self.Id;
   Result.SysPermissionId := Self.SysPermissionId;
   Result.IsRead := Self.IsRead;
   Result.IsAdd := Self.IsAdd;
