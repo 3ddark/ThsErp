@@ -1,4 +1,4 @@
-unit Repository;
+﻿unit Repository;
 
 interface
 
@@ -164,7 +164,7 @@ begin
       LFilterSql := LFilterSql + ' AND ' + Criterion.FieldName + ' ' + Criterion.Operator + ' :' + Criterion.ParamName;
   LFilterSql := LFilterSql + LLocaleFilter;
 
-  if ALock then
+  if ALock and (FConnection <> nil) and FConnection.InTransaction then
     Result :=
       'WITH filtered AS (' +
       '  SELECT v.id' +

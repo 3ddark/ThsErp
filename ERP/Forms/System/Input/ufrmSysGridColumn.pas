@@ -28,7 +28,6 @@ type
     edtDataFormat: TEdit;
     chkIsShow: TCheckBox;
     chkIsShowHelper: TCheckBox;
-    chkIsFetch: TCheckBox;
     lblMinValue: TLabel;
     edtMinValue: TEdit;
     lblMinValueColor: TLabel;
@@ -45,8 +44,9 @@ type
     edtBarBkColor: TEdit;
     lblBarTextColor: TLabel;
     edtBarTextColor: TEdit;
-    lblAggregateType: TLabel;
+    chkIsFetch: TCheckBox;
     cbbAggregateType: TComboBox;
+    lblAggregateType: TLabel;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -93,7 +93,6 @@ begin
   pnlContent.Parent := PanelMain;
   edtTableName.OnHelperProcess := HelperProcess;
 
-  lblAggregateType := TLabel.Create(Self);
   lblAggregateType.Parent := pnlContent;
   lblAggregateType.Left := 11;
   lblAggregateType.Top := 208;
@@ -103,9 +102,7 @@ begin
   lblAggregateType.Font.Name := 'Tahoma';
   lblAggregateType.Font.Size := 8;
   lblAggregateType.Font.Style := [fsBold];
-  lblAggregateType.Caption := 'Aggregate Type';
 
-  cbbAggregateType := TComboBox.Create(Self);
   cbbAggregateType.Parent := pnlContent;
   cbbAggregateType.Left := 94;
   cbbAggregateType.Top := 204;

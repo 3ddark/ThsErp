@@ -20,7 +20,6 @@ object frmSysGridColumn: TfrmSysGridColumn
     Height = 480
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 624
     object lblTableName: TLabel
       Left = 22
       Top = 16
@@ -203,39 +202,53 @@ object frmSysGridColumn: TfrmSysGridColumn
       Font.Style = [fsBold]
       ParentFont = False
     end
+    object lblAggregateType: TLabel
+      Left = 375
+      Top = 244
+      Width = 91
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Aggregate Type'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
     object edtTableName: TEdit
       Left = 94
       Top = 12
       Width = 500
-      Height = 23
+      Height = 22
       TabOrder = 0
     end
     object edtColumnName: TEdit
       Left = 94
       Top = 44
       Width = 500
-      Height = 23
+      Height = 22
       TabOrder = 1
     end
     object edtColumnOrder: TEdit
       Left = 94
       Top = 76
       Width = 120
-      Height = 23
+      Height = 22
       TabOrder = 2
     end
     object edtColumnWidth: TEdit
       Left = 314
       Top = 76
       Width = 120
-      Height = 23
+      Height = 22
       TabOrder = 3
     end
     object edtDataFormat: TEdit
       Left = 523
       Top = 76
       Width = 80
-      Height = 23
+      Height = 22
       TabOrder = 4
     end
     object chkIsShow: TCheckBox
@@ -244,7 +257,7 @@ object frmSysGridColumn: TfrmSysGridColumn
       Width = 120
       Height = 17
       Caption = 'Is Show'
-      TabOrder = 5
+      TabOrder = 7
     end
     object chkIsShowHelper: TCheckBox
       Left = 150
@@ -252,63 +265,79 @@ object frmSysGridColumn: TfrmSysGridColumn
       Width = 150
       Height = 17
       Caption = 'Is Show Helper'
-      TabOrder = 6
+      TabOrder = 8
     end
     object edtMinValue: TEdit
       Left = 385
       Top = 108
       Width = 120
-      Height = 23
-      TabOrder = 7
+      Height = 22
+      TabOrder = 5
     end
     object edtMinValueColor: TEdit
       Left = 609
       Top = 108
       Width = 80
-      Height = 23
-      TabOrder = 8
+      Height = 22
+      TabOrder = 6
     end
     object edtMaxValue: TEdit
       Left = 94
       Top = 140
       Width = 120
-      Height = 23
+      Height = 22
       TabOrder = 9
     end
     object edtMaxValueColor: TEdit
       Left = 314
       Top = 140
       Width = 120
-      Height = 23
+      Height = 22
       TabOrder = 10
     end
     object edtMaxValuePercent: TEdit
       Left = 523
       Top = 140
       Width = 80
-      Height = 23
+      Height = 22
       TabOrder = 11
     end
     object edtBarColor: TEdit
       Left = 94
       Top = 172
       Width = 120
-      Height = 23
+      Height = 22
       TabOrder = 12
     end
     object edtBarBkColor: TEdit
       Left = 314
       Top = 172
       Width = 120
-      Height = 23
+      Height = 22
       TabOrder = 13
     end
     object edtBarTextColor: TEdit
       Left = 523
       Top = 172
       Width = 80
-      Height = 23
+      Height = 22
       TabOrder = 14
+    end
+    object chkIsFetch: TCheckBox
+      Left = 15
+      Top = 200
+      Width = 120
+      Height = 17
+      Caption = 'Is Show'
+      TabOrder = 15
+    end
+    object cbbAggregateType: TComboBox
+      Left = 472
+      Top = 240
+      Width = 145
+      Height = 22
+      TabOrder = 16
+      Text = 'cbbAggregateType'
     end
   end
 end

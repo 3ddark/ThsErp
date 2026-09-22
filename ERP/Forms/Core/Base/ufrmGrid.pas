@@ -2120,7 +2120,7 @@ begin
     begin
       LId := Table.Id;
       FreeAndNil(Table);
-      Table := Service.BusinessFindById(LId, False, True, True);
+      Table := Service.BusinessFindById(LId, False, False, True);
     end;
     LForm := CreateInputForm(Sender, AFormType);
     LForm.Show;

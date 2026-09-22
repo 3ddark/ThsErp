@@ -609,19 +609,19 @@ begin
   LFilter := TFilterCriteria.Create;
   try
     LDecimalPlace := LSvc.FindOne(LFilter, False);
-    // LDecimalPlace ownership input form'a geçiyor — form free eder
     if LDecimalPlace = nil then
       TfrmSysDecimalPlace.Create(
         Self,
-        TSysDecimalPlaceService.Create,
+        LSvc,
         TSysDecimalPlace.Create,
-        ifmNewRecord, nil, ivmNormal).Show
+        ifmNewRecord, nil, ivmNormal, True).Show
     else
       TfrmSysDecimalPlace.Create(
         Self,
-        TSysDecimalPlaceService.Create,
+        LSvc,
         LDecimalPlace,
-        ifmRewiev, nil, ivmNormal).Show;
+        ifmRewiev, nil, ivmNormal, True).Show;
+    LSvc := nil; // Ownership transferred to form
   finally
     LFilter.Free;
     LSvc.Free;
@@ -645,7 +645,7 @@ end;
 
 procedure TfrmDashboard.actsys_application_settingExecute(Sender: TObject);
 begin
-  TfrmSysApplicationSetting.Create(Self, TSysApplicationSettingService.Create, TSysApplicationSetting.Create, ifmRewiev, nil).Show;
+  TfrmSysApplicationSetting.Create(Self, TSysApplicationSettingService.Create, TSysApplicationSetting.Create, ifmRewiev, nil, ivmNormal, True).Show;
 end;
 
 procedure TfrmDashboard.actsys_userExecute(Sender: TObject);

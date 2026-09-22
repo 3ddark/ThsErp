@@ -37,11 +37,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysGridColumnService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TSysGridColumnService.Destroy;
