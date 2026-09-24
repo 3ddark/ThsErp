@@ -531,5 +531,21 @@
   "stk_product_type.title_plural": "Produkttypen",
   "stk_product_type.col_id": "Id",
   "stk_product_type.lbl_product_type_name": "Produkttypname",
-  "stk_product_type.col_product_type_name": "Produkttypname"
+  "stk_product_type.col_product_type_name": "Produkttypname",
+  "btn.login": "Anmelden",
+  "login.window_title": "Systemanmeldung",
+  "login.username": "Benutzername",
+  "login.password": "Passwort",
+  "login.db_host": "Datenbankserver IP",
+  "login.db_host_hint": "Serverbeispiel: 192.168.1.100 / localhost / 127.0.0.1",
+  "login.db_name": "Datenbankname",
+  "login.db_port": "Datenbankport",
+  "login.save_settings": "Einstellungen speichern",
+  "login.db_user": "Datenbank-Benutzer",
+  "login.db_password": "Datenbank-Passwort",
+  "login.process_id": "Windows Prozess-ID",
+  "login.ip_address": "IP-Adresse",
+  "login.version": "Version",
+  "login.theme": "Design",
+  "login.language": "Sprache"
 }

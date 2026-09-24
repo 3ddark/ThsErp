@@ -1,4 +1,4 @@
-unit LocalizationManager;
+﻿unit LocalizationManager;
 
 interface
 
@@ -34,6 +34,7 @@ type
         const No = 'btn.no';
         const OK = 'btn.ok';
         const Confirmation = 'btn.confirmation';
+        const Login = 'btn.login';
 
         const FilterHint = 'grid.filter_hint';
         const RecordsCount = 'grid.records_count';
@@ -90,6 +91,21 @@ type
         const InvalidPassword = 'login.invalid_password';
         const UpdateAvailable = 'login.update_available';
         const UpdateTitle = 'login.update_title';
+        const WindowTitle = 'login.window_title';
+        const Username = 'login.username';
+        const Password = 'login.password';
+        const DbHost = 'login.db_host';
+        const DbHostHint = 'login.db_host_hint';
+        const DbName = 'login.db_name';
+        const DbPort = 'login.db_port';
+        const SaveSettings = 'login.save_settings';
+        const DbUser = 'login.db_user';
+        const DbPassword = 'login.db_password';
+        const ProcessId = 'login.process_id';
+        const IpAddress = 'login.ip_address';
+        const Version = 'login.version';
+        const Theme = 'login.theme';
+        const Language = 'login.language';
       end;
 
       TSecurity = record
@@ -561,6 +577,8 @@ type
   public
     class function Instance: TLocalizationManager;
     class function NormalizeLanguageCode(const ALanguageCode: string): string;
+    class function GetLanguageFilePath(const ALanguageCode: string): string;
+    class function LanguageFileExists(const ALanguageCode: string): Boolean;
     class procedure EnsureLanguageLoaded(const ALanguageCode: string);
     class procedure SetLanguage(const ALanguageCode: string);
     class function GetCurrentLanguage: string;
@@ -580,7 +598,7 @@ uses
 class constructor TLocalizationManager.Create;
 begin
   FLock := TObject.Create;
-  FCurrentLanguage := 'en';
+  FCurrentLanguage := 'tr-tr';
   FTranslations := TDictionary<string, TDictionary<string, string>>.Create;
   InitializeTranslations;
 end;
@@ -620,18 +638,39 @@ begin
 end;
 
 class function TLocalizationManager.NormalizeLanguageCode(const ALanguageCode: string): string;
-var
-  Idx: Integer;
 begin
   Result := LowerCase(Trim(ALanguageCode));
-  Idx := Pos('-', Result);
-  if Idx > 1 then
-    Result := Copy(Result, 1, Idx - 1);
-  Idx := Pos('_', Result);
-  if Idx > 1 then
-    Result := Copy(Result, 1, Idx - 1);
   if Result = '' then
-    Result := 'tr';
+    Result := 'tr-tr';
+end;
+
+class function TLocalizationManager.GetLanguageFilePath(const ALanguageCode: string): string;
+var
+  LangKey: string;
+  AppDir : string;
+begin
+  Result := '';
+  LangKey := NormalizeLanguageCode(ALanguageCode);
+  AppDir := ExtractFilePath(ParamStr(0));
+
+  Result := TPath.Combine(AppDir, 'Resource\Localization\' + ALanguageCode + '.json');
+  if TFile.Exists(Result) then Exit;
+
+  Result := TPath.Combine(AppDir, 'Resource\Localization\' + LangKey + '.json');
+  if TFile.Exists(Result) then Exit;
+
+  Result := TPath.GetFullPath(TPath.Combine(AppDir, '..\..\Resource\Localization\' + ALanguageCode + '.json'));
+  if TFile.Exists(Result) then Exit;
+
+  Result := TPath.GetFullPath(TPath.Combine(AppDir, '..\..\Resource\Localization\' + LangKey + '.json'));
+  if TFile.Exists(Result) then Exit;
+
+  Result := '';
+end;
+
+class function TLocalizationManager.LanguageFileExists(const ALanguageCode: string): Boolean;
+begin
+  Result := GetLanguageFilePath(ALanguageCode) <> '';
 end;
 
 class procedure TLocalizationManager.EnsureLanguageLoaded(const ALanguageCode: string);
@@ -645,21 +684,17 @@ begin
   if FTranslations.TryGetValue(LangKey, LDict) and (LDict.Count > 0) then
     Exit;
 
-  FilePath := TPath.Combine(ExtractFilePath(ParamStr(0)), 'Resource\Localization\' + LangKey + '.json');
-
-  if not TFile.Exists(FilePath) then
-    FilePath := TPath.GetFullPath(TPath.Combine(ExtractFilePath(ParamStr(0)), '..\..\Resource\Localization\' + LangKey + '.json'));
-
-  if TFile.Exists(FilePath) then
+  FilePath := GetLanguageFilePath(ALanguageCode);
+  if FilePath <> '' then
     LoadTranslationsFromFile(FilePath)
   else
-    GLogger.WarningFmt('Lokalizasyon dosyası bulunamadı: %s', [LangKey]);
+    GLogger.WarningFmt('Localization file not found: %s', [ALanguageCode]);
 end;
 
 class procedure TLocalizationManager.LoadDefaultTranslations;
 begin
-  EnsureLanguageLoaded('en');
-  EnsureLanguageLoaded('tr');
+  EnsureLanguageLoaded('en-US');
+  EnsureLanguageLoaded('tr-TR');
 end;
 
 class procedure TLocalizationManager.SetLanguage(const ALanguageCode: string);
@@ -688,18 +723,19 @@ begin
 end;
 
 class function TLocalizationManager.Translate(const AKey: string; const ADefault: string): string;
+var
+  LDict: TDictionary<string, string>;
 begin
   TMonitor.Enter(FLock);
   try
-    if FTranslations.ContainsKey(FCurrentLanguage) and
-       FTranslations[FCurrentLanguage].ContainsKey(AKey)
-    then
-      Result := FTranslations[FCurrentLanguage][AKey]
-    else if FTranslations.ContainsKey('en') and
-            FTranslations['en'].ContainsKey(AKey)
-    then
-      Result := FTranslations['en'][AKey]
-    else if ADefault <> '' then
+    if FTranslations.TryGetValue(FCurrentLanguage, LDict) and LDict.TryGetValue(AKey, Result) then
+      Exit;
+
+    // Fallback to English (en-us)
+    if (FCurrentLanguage <> 'en-us') and FTranslations.TryGetValue('en-us', LDict) and LDict.TryGetValue(AKey, Result) then
+      Exit;
+
+    if ADefault <> '' then
       Result := ADefault
     else
       Result := AKey;
