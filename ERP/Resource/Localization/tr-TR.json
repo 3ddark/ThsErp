@@ -616,5 +616,21 @@
   "sys_grid_column.col_max_value_percent": "Max Değer Yüzdesi",
   "sys_grid_column.col_bar_color": "Bar Rengi",
   "sys_grid_column.col_bar_bk_color": "Bar Arka Plan Rengi",
-  "sys_grid_column.col_bar_text_color": "Bar Metin Rengi"
+  "sys_grid_column.col_bar_text_color": "Bar Metin Rengi",
+  "btn.login": "Giriş",
+  "login.window_title": "Sistem Girişi",
+  "login.username": "Kullanıcı Adı",
+  "login.password": "Şifre",
+  "login.db_host": "Veri Tabanı Sunucu IP",
+  "login.db_host_hint": "Sunucu Örnek: 192.168.1.100 / localhost / 127.0.0.1",
+  "login.db_name": "Veri Tabanı Adı",
+  "login.db_port": "Veri Tabanı Port No",
+  "login.save_settings": "Ayarları Kaydet",
+  "login.db_user": "Veri Tabanı Kullanıcı Adı",
+  "login.db_password": "Veri Tabanı Kullanıcı Şifresi",
+  "login.process_id": "Windows Process ID",
+  "login.ip_address": "IP Adresi",
+  "login.version": "Versiyon",
+  "login.theme": "Tema",
+  "login.language": "Lisan"
 }

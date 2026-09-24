@@ -63,6 +63,7 @@ type
     procedure FormShow(Sender: TObject); override;
     procedure btnAcceptClick(Sender: TObject); override;
     procedure Repaint; override;
+    procedure ApplyLocalization; override;
   end;
 
 const
@@ -104,8 +105,9 @@ var
 
 begin
   LLangs        := SplitString(cbblanguage.Text, '|');
-  LSelectedLang := IfThen(Length(LLangs) > 1, Trim(LLangs[1]), 'tr');
+  LSelectedLang := IfThen(Length(LLangs) > 1, Trim(LLangs[1]), 'tr-TR');
   TLocalizationManager.SetLanguage(LSelectedLang);
+  ConnSetting.Language := LSelectedLang;
 
   if (edtusername.Text = '') or (edtuser_password.Text = '') then
     Exit;
@@ -236,6 +238,10 @@ begin
 
       ModalResult := mrYes;
 
+      ConnSetting.Language := LSelectedLang;
+      if TLanguageCache.IsLoaded then
+        ConnSetting.SaveSupportedLanguages(TLanguageCache.GetLocales);
+
       if chkayarlari_kaydet.Checked then
         ConnSetting.SaveToFile
       else
@@ -262,8 +268,14 @@ var
   LSelectedLang: string;
 begin
   LLangs := SplitString(cbblanguage.Text, '|');
-  LSelectedLang := IfThen(Length(LLangs) > 1, Trim(LLangs[1]), 'tr');
+  LSelectedLang := IfThen(Length(LLangs) > 1, Trim(LLangs[1]), 'tr-TR');
   TLocalizationManager.SetLanguage(LSelectedLang);
+  if Assigned(ConnSetting) then
+  begin
+    ConnSetting.Language := LSelectedLang;
+    ConnSetting.SaveToFile(True);
+  end;
+  ApplyLocalization;
 end;
 
 procedure TfrmLogin.edtusernameDblClick(Sender: TObject);
@@ -282,6 +294,9 @@ end;
 procedure TfrmLogin.FormCreate(Sender: TObject);
 var
   n1: Integer;
+  LTargetLang: string;
+  LFoundIdx: Integer;
+  LParts: TArray<string>;
 begin
   inherited;
 
@@ -303,10 +318,49 @@ begin
   if cbbtheme.Text <> '' then
     TStyleManager.TrySetStyle(cbbtheme.Text);
 
-  cbblanguage.Clear;
-  cbblanguage.Items.Add('Türkçe | tr-TR');
-  cbblanguage.Items.Add('English | en-US');
-  cbblanguage.ItemIndex := 0;
+  cbblanguage.Items.BeginUpdate;
+  try
+    cbblanguage.Clear;
+    ConnSetting.ReadSupportedLanguages(cbblanguage.Items);
+    if cbblanguage.Items.Count = 0 then
+    begin
+      if TLocalizationManager.LanguageFileExists('tr-TR') then
+        cbblanguage.Items.Add('Turkce | tr-TR');
+      if TLocalizationManager.LanguageFileExists('en-US') then
+        cbblanguage.Items.Add('English | en-US');
+    end;
+  finally
+    cbblanguage.Items.EndUpdate;
+  end;
+
+  LTargetLang := ConnSetting.Language;
+  if LTargetLang = '' then
+    LTargetLang := 'tr-TR';
+
+  LFoundIdx := -1;
+  for n1 := 0 to cbblanguage.Items.Count - 1 do
+  begin
+    LParts := SplitString(cbblanguage.Items[n1], '|');
+    if Length(LParts) > 1 then
+    begin
+      if SameText(Trim(LParts[1]), LTargetLang) then
+      begin
+        LFoundIdx := n1;
+        Break;
+      end;
+    end
+    else if SameText(Trim(cbblanguage.Items[n1]), LTargetLang) then
+    begin
+      LFoundIdx := n1;
+      Break;
+    end;
+  end;
+
+  if LFoundIdx >= 0 then
+    cbblanguage.ItemIndex := LFoundIdx
+  else
+    cbblanguage.ItemIndex := 0;
+
   cbblanguageChange(nil);
 
   edtusername.CharCase := ecUpperCase;
@@ -381,6 +435,30 @@ begin
   edtdb_adi.Visible := LVisible;
   edtdb_port.Visible := LVisible;
   chkayarlari_kaydet.Visible := LVisible;
+end;
+
+procedure TfrmLogin.ApplyLocalization;
+begin
+  inherited;
+  Caption := TLocalizationManager.Translate(TLangKeys.TLogin.WindowTitle, 'System Login');
+
+  lblusername.Caption           := TLocalizationManager.Translate(TLangKeys.TLogin.Username, 'User Name');
+  lbluser_password.Caption      := TLocalizationManager.Translate(TLangKeys.TLogin.Password, 'Password');
+  lbldb_host.Caption            := TLocalizationManager.Translate(TLangKeys.TLogin.DbHost, 'Database Server IP');
+  lblsuncu_ornek.Caption        := TLocalizationManager.Translate(TLangKeys.TLogin.DbHostHint, 'Server Example: 192.168.1.100 / localhost / 127.0.0.1');
+  lbldb_adi.Caption             := TLocalizationManager.Translate(TLangKeys.TLogin.DbName, 'Database Name');
+  lbldb_port.Caption            := TLocalizationManager.Translate(TLangKeys.TLogin.DbPort, 'Database Port');
+  lblayarlari_kaydet.Caption    := TLocalizationManager.Translate(TLangKeys.TLogin.SaveSettings, 'Save Settings');
+  lbldb_kullanici.Caption       := TLocalizationManager.Translate(TLangKeys.TLogin.DbUser, 'Database User');
+  lbldb_kullanici_sifre.Caption := TLocalizationManager.Translate(TLangKeys.TLogin.DbPassword, 'Database Password');
+  lblprocess_id.Caption         := TLocalizationManager.Translate(TLangKeys.TLogin.ProcessId, 'Process ID');
+  lblip_address.Caption         := TLocalizationManager.Translate(TLangKeys.TLogin.IpAddress, 'IP Address');
+  lblversion.Caption            := TLocalizationManager.Translate(TLangKeys.TLogin.Version, 'Version');
+  lbltheme.Caption              := TLocalizationManager.Translate(TLangKeys.TLogin.Theme, 'Theme');
+  lbllanguage.Caption           := TLocalizationManager.Translate(TLangKeys.TLogin.Language, 'Language');
+
+  if Assigned(btnAccept) then
+    btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Login, 'Login');
 end;
 
 end.

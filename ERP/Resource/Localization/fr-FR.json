@@ -531,5 +531,21 @@
   "stk_product_type.title_plural": "Types de produit",
   "stk_product_type.col_id": "Id",
   "stk_product_type.lbl_product_type_name": "Nom du type de produit",
-  "stk_product_type.col_product_type_name": "Nom du type de produit"
+  "stk_product_type.col_product_type_name": "Nom du type de produit",
+  "btn.login": "Connexion",
+  "login.window_title": "Connexion système",
+  "login.username": "Nom d'utilisateur",
+  "login.password": "Mot de passe",
+  "login.db_host": "IP du serveur de base de données",
+  "login.db_host_hint": "Exemple de serveur: 192.168.1.100 / localhost / 127.0.0.1",
+  "login.db_name": "Nom de la base de données",
+  "login.db_port": "Port de base de données",
+  "login.save_settings": "Enregistrer les paramètres",
+  "login.db_user": "Utilisateur de la base de données",
+  "login.db_password": "Mot de passe de la base de données",
+  "login.process_id": "ID de processus Windows",
+  "login.ip_address": "Adresse IP",
+  "login.version": "Version",
+  "login.theme": "Thème",
+  "login.language": "Langue"
 }

@@ -1,4 +1,4 @@
-unit ufrmDashboard;
+﻿unit ufrmDashboard;
 
 interface
 
@@ -882,6 +882,9 @@ begin
       try
         for LLang in LLangList do
         begin
+          if not TLocalizationManager.LanguageFileExists(LLang.Locale) then
+            Continue;
+
           LMenuItem := TMenuItem.Create(mnimenu_language);
           if Trim(LLang.NativeName) <> '' then
             LCaptionText := Format('%s (%s)', [LLang.NativeName, LLang.Locale])
