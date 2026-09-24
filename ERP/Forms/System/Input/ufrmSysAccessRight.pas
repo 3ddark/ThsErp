@@ -127,7 +127,7 @@ begin
           else
           begin
             edtPermissionId.Tag := LFrmPermission.Table.Id;
-            LEdit.Text := LFrmPermission.Table.Key;
+            LEdit.Text := LFrmPermission.Table.PermissionKey;
           end;
       finally
         LFrmPermission.Free;

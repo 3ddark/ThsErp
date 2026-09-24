@@ -16,12 +16,12 @@ uses
 type
   TfrmSysPermission = class(TfrmInputSimpleDB<TSysPermission, TSysPermissionService>)
     pnlContent: TPanel;
-    lblCode: TLabel;
-    edtCode: TEdit;
-    lblKey: TLabel;
-    edtKey: TEdit;
-    lblGroupId: TLabel;
-    edtGroupId: TEdit;
+    lblPermissionCode: TLabel;
+    edtPermissionCode: TEdit;
+    lblPermissionKey: TLabel;
+    edtPermissionKey: TEdit;
+    lblSysPermissionGroupId: TLabel;
+    edtSysPermissionGroupId: TEdit;
     scrlbxTranslations: TScrollBox;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -46,7 +46,7 @@ begin
     Exit;
 
   LEdit := (Sender as TEdit);
-  if LEdit.Name = edtGroupId.Name then
+  if LEdit.Name = edtSysPermissionGroupId.Name then
   begin
     LFrmGroup := TfrmSysPermissionGroups.Create(LEdit, TSysPermissionGroupService.Create, TSysPermissionGroup.Create);
     try
@@ -56,12 +56,12 @@ begin
       begin
         if LFrmGroup.CleanAndClose then
         begin
-          Table.GroupId := 0;
+          Table.SysPermissionGroupId := 0;
           LEdit.Clear;
         end
         else
         begin
-          Table.GroupId := LFrmGroup.Table.Id;
+          Table.SysPermissionGroupId := LFrmGroup.Table.Id;
           LEdit.Text := LFrmGroup.Table.PermissionGroupKey;
         end;
       end;
@@ -79,8 +79,8 @@ var
   LTrans : TSysPermissionTranslation;
   LFound : Boolean;
 begin
-  Table.Code := StrToIntDef(edtCode.Text, 0);
-  Table.Key  := edtKey.Text;
+  Table.PermissionCode := StrToIntDef(edtPermissionCode.Text, 0);
+  Table.PermissionKey  := edtPermissionKey.Text;
 
   LValues := CollectTranslationValues(scrlbxTranslations, 'Name');
   try
@@ -91,7 +91,7 @@ begin
         for i := 0 to Table.Translations.Count - 1 do
           if SameText(Table.Translations[i].SysLanguage.Locale, LPair.Key) then
           begin
-            Table.Translations[i].Name := LPair.Value;
+            Table.Translations[i].PermissionName := LPair.Value;
             LFound := True;
             Break;
           end;
@@ -101,7 +101,7 @@ begin
         LTrans := TSysPermissionTranslation.Create;
         LTrans.SysPermissionId := Table.Id;
         LTrans.SysLanguageId := 0;
-        LTrans.Name := LPair.Value;
+        LTrans.PermissionName := LPair.Value;
         LTrans.SysLanguage := TSysLanguage.Create;
         LTrans.SysLanguage.Locale := LPair.Key;
         Table.Translations.Add(LTrans);
@@ -118,13 +118,13 @@ procedure TfrmSysPermission.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtGroupId.OnHelperProcess := HelperProcess;
+  edtSysPermissionGroupId.OnHelperProcess := HelperProcess;
 
   BuildTranslationControls(
     scrlbxTranslations,
     'PermissionGroupName',
     TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Group Name'),
-    lblKey);
+    lblPermissionKey);
 end;
 
 function TfrmSysPermission.ValidateInput(AContainerControl: TWinControl): Boolean;
@@ -132,17 +132,17 @@ begin
   Result := inherited ValidateInput(AContainerControl);
   if not Result then Exit;
 
-  if StrToIntDef(edtCode.Text, 0) <= 0 then
+  if StrToIntDef(edtPermissionCode.Text, 0) <= 0 then
   begin
     ShowMessage(TLocalizationManager.Translate(TLangKeys.TSysPermission.CodePositive, 'The Permission Code must be a positive number.'));
-    edtCode.SetFocus;
+    edtPermissionCode.SetFocus;
     Exit(False);
   end;
 
-  if Table.GroupId <= 0 then
+  if Table.SysPermissionGroupId <= 0 then
   begin
     ShowMessage(TLocalizationManager.Translate(TLangKeys.TSysPermission.GroupRequired, 'Please select a valid Permission Group.'));
-    edtGroupId.SetFocus;
+    edtSysPermissionGroupId.SetFocus;
     Exit(False);
   end;
 end;
@@ -151,16 +151,16 @@ procedure TfrmSysPermission.FormShow(Sender: TObject);
 begin
   inherited;
   ApplyLocalization;
-  edtCode.SetFocus;
+  edtPermissionCode.SetFocus;
 end;
 
 procedure TfrmSysPermission.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.TitleSingular, 'SysPermission');
-  lblCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionCode, 'Permission Code');
-  lblKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.ColKey, 'Permission Key');
-  lblGroupId.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.ColGroupId, 'Permission Group');
+  lblPermissionCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionCode, 'Permission Code');
+  lblPermissionKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.ColKey, 'Permission Key');
+  lblSysPermissionGroupId.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.ColGroupId, 'Permission Group');
 end;
 
 procedure TfrmSysPermission.RefreshData;
@@ -170,8 +170,8 @@ var
   LTrans : TSysPermissionTranslation;
 begin
   inherited;
-  edtCode.Text := IntToStr(Table.Code);
-  edtKey.Text := Table.Key;
+  edtPermissionCode.Text := IntToStr(Table.PermissionCode);
+  edtPermissionKey.Text := Table.PermissionKey;
 
   LValues := TTranslationMap.Create;
   try
@@ -180,7 +180,7 @@ begin
       begin
         LTrans := Table.Translations[i];
         if Assigned(LTrans.SysLanguage) and (LTrans.SysLanguage.Locale <> '') then
-          LValues.AddOrSetValue(LTrans.SysLanguage.Locale, LTrans.Name);
+          LValues.AddOrSetValue(LTrans.SysLanguage.Locale, LTrans.PermissionName);
       end;
 
     FillTranslationControls(scrlbxTranslations, LValues);
@@ -188,7 +188,7 @@ begin
     LValues.Free;
   end;
 
-  edtGroupId.Text := Table.SysPermissionGroup.PermissionGroupKey;
+  edtSysPermissionGroupId.Text := Table.SysPermissionGroupId.ToString;
 end;
 
 end.

@@ -224,7 +224,7 @@ begin
   begin
     LFilter := TFilterCriteria.Create;
     try
-      LFilter.Add(TFilterCriterion.New('key', '=', TValue.From<string>(AEntity.Key)));
+      LFilter.Add(TFilterCriterion.New('permission_key', '=', TValue.From<string>(AEntity.PermissionKey)));
       if AOperation = coUpdate then
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 

@@ -14,7 +14,7 @@ type
   private
     FSysPermissionId: Int64;
     FSysLanguageId: Int64;
-    FName: string;
+    FPermissionName: string;
 
     FSysLanguage: TSysLanguage;
   public
@@ -24,8 +24,8 @@ type
     [Column('sys_language_id', [cpPrimaryKey])]
     property SysLanguageId: Int64 read FSysLanguageId write FSysLanguageId;
 
-    [Column('name')]
-    property Name: string read FName write FName;
+    [Column('permission_name')]
+    property PermissionName: string read FPermissionName write FPermissionName;
 
     [BelongsTo('SysLanguageId')]
     property SysLanguage: TSysLanguage read FSysLanguage write FSysLanguage;
@@ -39,23 +39,23 @@ type
   [Table('sys_permission', 'public')]
   TSysPermission = class(TEntity)
   private
-    FCode: Integer;
-    FKey: string;
-    FGroupId: Int64;
+    FPermissionCode: Integer;
+    FPermissionKey: string;
+    FSysPermissionGroupId: Int64;
 
     FSysPermissionGroup: TSysPermissionGroup;
     FTranslations: TObjectList<TSysPermissionTranslation>;
   public
-    [Column('code', [cpNotNull])]
-    property Code: Integer read FCode write FCode;
+    [Column('permission_code', [cpNotNull])]
+    property PermissionCode: Integer read FPermissionCode write FPermissionCode;
 
-    [Column('key', [cpNotNull])]
-    property Key: string read FKey write FKey;
+    [Column('permission_key', [cpNotNull])]
+    property PermissionKey: string read FPermissionKey write FPermissionKey;
 
-    [Column('group_id', [cpNotNull])]
-    property GroupId: Int64 read FGroupId write FGroupId;
+    [Column('sys_permission_group_id', [cpNotNull])]
+    property SysPermissionGroupId: Int64 read FSysPermissionGroupId write FSysPermissionGroupId;
 
-    [BelongsTo('GroupId', 'Id')]
+    [BelongsTo('SysPermissionGroupId', 'Id')]
     property SysPermissionGroup: TSysPermissionGroup read FSysPermissionGroup write FSysPermissionGroup;
 
     [HasMany('SysPermissionId', 'Id')]
@@ -89,19 +89,16 @@ var
 begin
   Result := TSysPermission.Create;
   Result.Id := Self.Id;
-  Result.Code := Self.Code;
-  Result.Key := Self.Key;
-  Result.GroupId := Self.GroupId;
+  Result.PermissionCode := Self.PermissionCode;
+  Result.PermissionKey := Self.PermissionKey;
+  Result.SysPermissionGroupId := Self.SysPermissionGroupId;
 
   if Assigned(Self.SysPermissionGroup) then
     Result.SysPermissionGroup := Self.SysPermissionGroup.Clone;
 
   Result.Translations := TObjectList<TSysPermissionTranslation>.Create(True);
-  if Assigned(Self.Translations) then
-    for item in Self.Translations do
-    begin
-      Result.Translations.Add(item.Clone);
-    end;
+  for item in Self.Translations do
+    Result.Translations.Add(item.Clone);
 end;
 
 constructor TSysPermissionTranslation.Create;
@@ -121,7 +118,7 @@ begin
   Result := TSysPermissionTranslation.Create;
   Result.SysPermissionId := Self.SysPermissionId;
   Result.SysLanguageId := Self.SysLanguageId;
-  Result.Name := Self.Name;
+  Result.PermissionName := Self.PermissionName;
 
   if Assigned(Self.SysLanguage) then
     Result.SysLanguage := Self.SysLanguage.Clone;

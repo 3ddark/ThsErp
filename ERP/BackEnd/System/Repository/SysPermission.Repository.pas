@@ -57,13 +57,13 @@ end;
 function TSysPermissionRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSysPermission) +
-            ' (code, group_id, key) VALUES (:code, :group_id, :key)';
+            ' (permission_code, sys_permission_group_id, permission_key) VALUES (:permission_code, :sys_permission_group_id, :permission_key)';
 end;
 
 function TSysPermissionRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSysPermission) +
-            ' SET code = :code, group_id = :group_id, key = :key WHERE id = :id';
+            ' SET permission_code = :permission_code, sys_permission_group_id = :sys_permission_group_id, permission_key = :permission_key WHERE id = :id';
 end;
 
 function TSysPermissionRepository.PrepareDeleteSql: string;
@@ -74,20 +74,20 @@ end;
 
 function TSysPermissionRepository.PrepareLoadTranslationSql: string;
 begin
-  Result := 'SELECT t.sys_permission_id, t.sys_language_id, t.name, ' +
+  Result := 'SELECT t.sys_permission_id, t.sys_language_id, t.permission_name, ' +
             '       l.locale, l.native_name ' +
             ' FROM public.' + Self.GetTableName(TSysPermissionTranslation) + ' t ' +
             ' LEFT JOIN public.' + Self.GetTableName(TSysLanguage) + ' l ON l.id = t.sys_language_id ' +
-            ' WHERE t.sys_permission_id = :permission_id';
+            ' WHERE t.sys_permission_id = :sys_permission_id';
 end;
 
 function TSysPermissionRepository.PrepareSaveTranslationSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSysPermissionTranslation) +
-            ' (sys_permission_id, sys_language_id, name) ' +
-            ' VALUES (:sys_permission_id, :sys_language_id, :name) ' +
+            ' (sys_permission_id, sys_language_id, permission_name) ' +
+            ' VALUES (:sys_permission_id, :sys_language_id, :permission_name) ' +
             ' ON CONFLICT (sys_permission_id, sys_language_id) DO UPDATE ' +
-            ' SET name = EXCLUDED.name';
+            ' SET permission_name = EXCLUDED.permission_name';
 end;
 
 procedure TSysPermissionRepository.LoadTranslations(AModel: TSysPermission);
@@ -102,7 +102,7 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareLoadTranslationSql;
-    Q.ParamByName('permission_id').AsLargeInt := AModel.Id;
+    Q.ParamByName('sys_permission_id').AsLargeInt := AModel.Id;
     LogQuery(Q, 'LoadTranslations');
     Q.Open;
     while not Q.Eof do
@@ -110,7 +110,7 @@ begin
       Trans := TSysPermissionTranslation.Create;
       Trans.SysPermissionId := Q.FieldByName('sys_permission_id').AsLargeInt;
       Trans.SysLanguageId := Q.FieldByName('sys_language_id').AsLargeInt;
-      Trans.Name := Q.FieldByName('name').AsWideString;
+      Trans.PermissionName := Q.FieldByName('permission_name').AsWideString;
 
       Trans.SysLanguage := TSysLanguage.Create;
       Trans.SysLanguage.Id := Trans.SysLanguageId;
@@ -142,7 +142,7 @@ begin
       Trans.SysPermissionId := AModel.Id;
       Q.ParamByName('sys_permission_id').AsLargeInt := Trans.SysPermissionId;
       Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;
-      Q.ParamByName('name').AsWideString := Trans.Name;
+      Q.ParamByName('permission_name').AsWideString := Trans.PermissionName;
       LogQuery(Q, 'SaveTranslations');
       Q.ExecSQL;
     end;
@@ -155,15 +155,15 @@ procedure TSysPermissionRepository.SetInsertParams(Q: TFDQuery; AModel: TSysPerm
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('code').AsInteger                 := AModel.Code;
-    Q.ParamByName('group_id').AsLargeInt            := AModel.GroupId;
-    Q.ParamByName('key').AsWideString               := AModel.Key;
+    Q.ParamByName('permission_code').AsInteger := AModel.PermissionCode;
+    Q.ParamByName('sys_permission_group_id').AsLargeInt := AModel.SysPermissionGroupId;
+    Q.ParamByName('permission_key').AsWideString := AModel.PermissionKey;
   end
   else
   begin
-    Q.ParamByName('code').AsIntegers[AIndex]        := AModel.Code;
-    Q.ParamByName('group_id').AsLargeInts[AIndex]   := AModel.GroupId;
-    Q.ParamByName('key').AsWideStrings[AIndex]      := AModel.Key;
+    Q.ParamByName('permission_code').AsIntegers[AIndex] := AModel.PermissionCode;
+    Q.ParamByName('sys_permission_group_id').AsLargeInts[AIndex] := AModel.SysPermissionGroupId;
+    Q.ParamByName('permission_key').AsWideStrings[AIndex] := AModel.PermissionKey;
   end;
 end;
 
@@ -171,27 +171,27 @@ procedure TSysPermissionRepository.SetUpdateParams(Q: TFDQuery; AModel: TSysPerm
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('id').AsLargeInt                  := AModel.Id;
-    Q.ParamByName('code').AsInteger                 := AModel.Code;
-    Q.ParamByName('group_id').AsLargeInt            := AModel.GroupId;
-    Q.ParamByName('key').AsString                   := AModel.Key;
+    Q.ParamByName('id').AsLargeInt := AModel.Id;
+    Q.ParamByName('permission_code').AsInteger := AModel.PermissionCode;
+    Q.ParamByName('sys_permission_group_id').AsLargeInt := AModel.SysPermissionGroupId;
+    Q.ParamByName('permission_key').AsString := AModel.PermissionKey;
   end
   else
   begin
-    Q.ParamByName('id').AsLargeInts[AIndex]         := AModel.Id;
-    Q.ParamByName('code').AsIntegers[AIndex]        := AModel.Code;
-    Q.ParamByName('group_id').AsLargeInts[AIndex]   := AModel.GroupId;
-    Q.ParamByName('key').AsStrings[AIndex]          := AModel.Key;
+    Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('permission_code').AsIntegers[AIndex] := AModel.PermissionCode;
+    Q.ParamByName('sys_permission_group_id').AsLargeInts[AIndex] := AModel.SysPermissionGroupId;
+    Q.ParamByName('permission_key').AsStrings[AIndex] := AModel.PermissionKey;
   end;
 end;
 
 function TSysPermissionRepository.MapFromQuery(Q: TFDQuery): TSysPermission;
 begin
   Result := TSysPermission.Create;
-  Result.Id           := Q.FieldByName('id').AsLargeInt;
-  Result.Code         := Q.FieldByName('code').AsInteger;
-  Result.GroupId      := Q.FieldByName('group_id').AsLargeInt;
-  Result.Key          := Q.FieldByName('key').AsString;
+  Result.Id := Q.FieldByName('id').AsLargeInt;
+  Result.PermissionCode := Q.FieldByName('permission_code').AsInteger;
+  Result.SysPermissionGroupId := Q.FieldByName('sys_permission_group_id').AsLargeInt;
+  Result.PermissionKey := Q.FieldByName('permission_key').AsString;
 end;
 
 function TSysPermissionRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

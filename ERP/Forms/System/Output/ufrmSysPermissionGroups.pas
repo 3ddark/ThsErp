@@ -38,8 +38,8 @@ procedure TfrmSysPermissionGroups.DefineColumnWidths;
 begin
   inherited;
   //default column title and width and visibility
-  SetColumnProperty('id',     0, 'Id');
-  SetColumnProperty('locale', 0, 'Locale');
+  SetColumnProperty('id',     0);
+  SetColumnProperty('locale', 0);
 end;
 
 procedure TfrmSysPermissionGroups.FormShow(Sender: TObject);
@@ -53,7 +53,7 @@ procedure TfrmSysPermissionGroups.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.TitlePlural, 'Permission Groups');
-  SetColumnTitle('id',     'Id');
+  SetColumnTitle('id',                    TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
   SetColumnTitle('permission_group_key',  TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupKey, 'Permission Group Key'));
   SetColumnTitle('permission_group_name', TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Permission Group Name'));
   SetColumnTitle('locale',                TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColLocale, 'Locale'));

@@ -19,8 +19,7 @@ object frmSysPermission: TfrmSysPermission
     Height = 204
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 197
-    object lblCode: TLabel
+    object lblPermissionCode: TLabel
       Left = 57
       Top = 6
       Width = 93
@@ -34,7 +33,7 @@ object frmSysPermission: TfrmSysPermission
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object lblKey: TLabel
+    object lblPermissionKey: TLabel
       Left = 64
       Top = 27
       Width = 86
@@ -48,7 +47,7 @@ object frmSysPermission: TfrmSysPermission
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object lblGroupId: TLabel
+    object lblSysPermissionGroupId: TLabel
       Left = 51
       Top = 119
       Width = 99
@@ -62,21 +61,21 @@ object frmSysPermission: TfrmSysPermission
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtCode: TEdit
+    object edtPermissionCode: TEdit
       Left = 150
       Top = 2
       Width = 333
       Height = 22
       TabOrder = 0
     end
-    object edtKey: TEdit
+    object edtPermissionKey: TEdit
       Left = 150
       Top = 23
       Width = 333
       Height = 22
       TabOrder = 1
     end
-    object edtGroupId: TEdit
+    object edtSysPermissionGroupId: TEdit
       Left = 150
       Top = 115
       Width = 333
