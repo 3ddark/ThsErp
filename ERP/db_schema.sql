@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict VmVeKO37G5mnTx3zBjIIRmdZhqNzXYq8JYilMlW6gzCErYo1jf4nv2IzSyVEPQ3
+\restrict LVYshPH7jF4k3tJFIpxlcffWebMM2nAIFMfp9VraTYPs3xaR5k9akfVHEWPv76t
 
--- Dumped from database version 18.1
--- Dumped by pg_dump version 18.1
+-- Dumped from database version 18.3
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3367,7 +3367,7 @@ ALTER TABLE public.sys_uom OWNER TO ths_admin;
 
 CREATE TABLE public.sys_uom_group (
     id bigint CONSTRAINT sys_uomt_iid_not_null NOT NULL,
-    key character varying(16) CONSTRAINT sys_uomt_nm_not_null NOT NULL
+    uom_group_key character varying(16) CONSTRAINT sys_uomt_nm_not_null NOT NULL
 );
 
 
@@ -3380,7 +3380,7 @@ ALTER TABLE public.sys_uom_group OWNER TO ths_admin;
 CREATE TABLE public.sys_uom_group_translation (
     sys_uom_group_id bigint CONSTRAINT sys_uom_type_translation_sys_uom_type_id_not_null NOT NULL,
     sys_language_id bigint CONSTRAINT sys_uom_type_translation_sys_language_id_not_null NOT NULL,
-    name character varying(16) CONSTRAINT sys_uom_type_translation_name_not_null NOT NULL
+    uom_group_name character varying(16) CONSTRAINT sys_uom_type_translation_name_not_null NOT NULL
 );
 
 
@@ -3407,7 +3407,7 @@ ALTER TABLE public.sys_uom ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE public.sys_uom_translation (
     sys_uom_id bigint NOT NULL,
     sys_language_id bigint NOT NULL,
-    name character varying(64)
+    uom_name character varying(64)
 );
 
 
@@ -3956,9 +3956,9 @@ CREATE VIEW public.vw_sys_uom AS
     u.unit_einv,
     u."decimal",
     u.multiplier,
-    u.sys_uom_group_id AS group_id,
-    ut.name,
-    ug.key AS group_key,
+    u.sys_uom_group_id,
+    ut.uom_name,
+    ug.uom_group_key,
     l.locale
    FROM ((((public.sys_uom u
      LEFT JOIN public.sys_uom_group ug ON ((ug.id = u.sys_uom_group_id)))
@@ -3975,8 +3975,8 @@ ALTER VIEW public.vw_sys_uom OWNER TO ths_admin;
 
 CREATE VIEW public.vw_sys_uom_group AS
  SELECT ut.id,
-    ut.key,
-    utt.name,
+    ut.uom_group_key,
+    utt.uom_group_name,
     l.locale
    FROM ((public.sys_uom_group ut
      LEFT JOIN public.sys_uom_group_translation utt ON ((utt.sys_uom_group_id = ut.id)))
@@ -5290,7 +5290,7 @@ ALTER TABLE ONLY public.sys_region
 --
 
 ALTER TABLE ONLY public.sys_uom_group
-    ADD CONSTRAINT sys_uom_group_key_key UNIQUE (key);
+    ADD CONSTRAINT sys_uom_group_key_key UNIQUE (uom_group_key);
 
 
 --
@@ -6927,5 +6927,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict VmVeKO37G5mnTx3zBjIIRmdZhqNzXYq8JYilMlW6gzCErYo1jf4nv2IzSyVEPQ3
+\unrestrict LVYshPH7jF4k3tJFIpxlcffWebMM2nAIFMfp9VraTYPs3xaR5k9akfVHEWPv76t
 

@@ -208,7 +208,7 @@ begin
   begin
     LFilter := TFilterCriteria.Create;
     try
-      LFilter.Add(TFilterCriterion.New('key', '=', TValue.From<string>(AEntity.Key)));
+      LFilter.Add(TFilterCriterion.New('uom_group_key', '=', TValue.From<string>(AEntity.UomGroupKey)));
       if AOperation = coUpdate then
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 

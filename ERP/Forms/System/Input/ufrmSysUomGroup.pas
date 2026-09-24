@@ -38,7 +38,7 @@ var
   LTrans : TSysUomGroupTranslation;
   LFound : Boolean;
 begin
-  Table.Key := edtKey.Text;
+  Table.UomGroupKey := edtKey.Text;
 
   LValues := CollectTranslationValues(scrlbxTranslations, 'PermissionGroupName');
   try
@@ -49,7 +49,7 @@ begin
         for i := 0 to Table.Translations.Count - 1 do
           if SameText(Table.Translations[i].SysLanguage.Locale, LPair.Key) then
           begin
-            Table.Translations[i].Name := LPair.Value;
+            Table.Translations[i].UomGroupName := LPair.Value;
             LFound := True;
             Break;
           end;
@@ -59,7 +59,7 @@ begin
         LTrans := TSysUomGroupTranslation.Create;
         LTrans.SysUomGroupId := Table.Id;
         LTrans.SysLanguageId := 0;
-        LTrans.Name := LPair.Value;
+        LTrans.UomGroupName := LPair.Value;
         LTrans.SysLanguage := TSysLanguage.Create;
         LTrans.SysLanguage.Locale := LPair.Key;
         Table.Translations.Add(LTrans);
@@ -78,8 +78,8 @@ begin
 
   BuildTranslationControls(
     scrlbxTranslations,
-    'Name',
-    TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColName, 'Name'),
+    'UomGroupName',
+    TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColName, 'UomGroupName'),
     lblKey);
 end;
 
@@ -95,7 +95,7 @@ begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.TitleSingular, 'Unit of Measurement Type');
   lblKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColKey, 'Type Key');
-  UpdateTranslationLabels(scrlbxTranslations, 'Name', TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColName, 'Name'));
+  UpdateTranslationLabels(scrlbxTranslations, 'UomGroupName', TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColName, 'Name'));
 end;
 
 procedure TfrmSysUomType.RefreshData;
@@ -105,7 +105,7 @@ var
   LTrans : TSysUomGroupTranslation;
 begin
   inherited;
-  edtKey.Text := Table.Key;
+  edtKey.Text := Table.UomGroupKey;
 
   LValues := TTranslationMap.Create;
   try
@@ -114,7 +114,7 @@ begin
       begin
         LTrans := Table.Translations[i];
         if Assigned(LTrans.SysLanguage) and (LTrans.SysLanguage.Locale <> '') then
-          LValues.AddOrSetValue(LTrans.SysLanguage.Locale, LTrans.Name);
+          LValues.AddOrSetValue(LTrans.SysLanguage.Locale, LTrans.UomGroupName);
       end;
 
     FillTranslationControls(scrlbxTranslations, LValues);

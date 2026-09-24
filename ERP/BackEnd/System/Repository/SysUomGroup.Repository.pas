@@ -56,12 +56,12 @@ end;
 
 function TSysUomGroupRepository.PrepareAddSql: string;
 begin
-  Result := 'INSERT INTO public.' + Self.GetTableName(TSysUomGroup) + ' (key) VALUES (:key)';
+  Result := 'INSERT INTO public.' + Self.GetTableName(TSysUomGroup) + ' (uom_group_key) VALUES (:uom_group_key)';
 end;
 
 function TSysUomGroupRepository.PrepareUpdateSql: string;
 begin
-  Result := 'UPDATE public.' + Self.GetTableName(TSysUomGroup) + ' SET key = :key WHERE id = :id';
+  Result := 'UPDATE public.' + Self.GetTableName(TSysUomGroup) + ' SET uom_group_key = :uom_group_key WHERE id = :id';
 end;
 
 function TSysUomGroupRepository.PrepareDeleteSql: string;
@@ -72,7 +72,7 @@ end;
 
 function TSysUomGroupRepository.PrepareLoadTranslationSql: string;
 begin
-  Result := 'SELECT t.sys_uom_type_id, t.sys_language_id, t.name, ' +
+  Result := 'SELECT t.sys_uom_type_id, t.sys_language_id, t.uom_group_name, ' +
             '       l.locale, l.native_name ' +
             ' FROM public.' + Self.GetTableName(TSysUomGroupTranslation) + ' t ' +
             ' LEFT JOIN public.sys_language l ON l.id = t.sys_language_id ' +
@@ -82,10 +82,10 @@ end;
 function TSysUomGroupRepository.PrepareSaveTranslationSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSysUomGroupTranslation) +
-            ' (sys_uom_type_id, sys_language_id, name) ' +
-            ' VALUES (:sys_uom_type_id, :sys_language_id, :name) ' +
+            ' (sys_uom_type_id, sys_language_id, uom_group_name) ' +
+            ' VALUES (:sys_uom_type_id, :sys_language_id, :uom_group_name) ' +
             ' ON CONFLICT (sys_uom_type_id, sys_language_id) DO UPDATE ' +
-            ' SET name = EXCLUDED.name';
+            ' SET uom_group_name = EXCLUDED.uom_group_name';
 end;
 
 procedure TSysUomGroupRepository.LoadTranslations(AModel: TSysUomGroup);
@@ -93,8 +93,12 @@ var
   Q: TFDQuery;
   Trans: TSysUomGroupTranslation;
 begin
-  if (AModel = nil) or (AModel.Translations = nil) then Exit;
-  AModel.Translations.Clear;
+  if (AModel = nil) then Exit;
+
+  if Assigned(AModel.Translations) then
+    AModel.Translations.Clear
+  else
+    AModel.Translations := TObjectList<TSysUomGroupTranslation>.Create(True);
 
   Q := TFDQuery.Create(nil);
   try
@@ -108,7 +112,7 @@ begin
       Trans := TSysUomGroupTranslation.Create;
       Trans.SysUomGroupId := Q.FieldByName('sys_uom_type_id').AsLargeInt;
       Trans.SysLanguageId := Q.FieldByName('sys_language_id').AsLargeInt;
-      Trans.Name := Q.FieldByName('name').AsString;
+      Trans.UomGroupName := Q.FieldByName('uom_group_name').AsString;
 
       Trans.SysLanguage := TSysLanguage.Create;
       Trans.SysLanguage.Id := Q.FieldByName('sys_language_id').AsLargeInt;
@@ -140,7 +144,7 @@ begin
       Trans.SysUomGroupId := AModel.Id;
       Q.ParamByName('sys_uom_type_id').AsLargeInt := Trans.SysUomGroupId;
       Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;
-      Q.ParamByName('name').AsString := Trans.Name;
+      Q.ParamByName('uom_group_name').AsString := Trans.UomGroupName;
       LogQuery(Q, 'SaveTranslations');
       Q.ExecSQL;
     end;
@@ -153,11 +157,11 @@ procedure TSysUomGroupRepository.SetInsertParams(Q: TFDQuery; AModel: TSysUomGro
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('key').AsString := AModel.Key;
+    Q.ParamByName('uom_group_key').AsString := AModel.UomGroupKey;
   end
   else
   begin
-    Q.ParamByName('key').AsStrings[AIndex] := AModel.Key;
+    Q.ParamByName('uom_group_key').AsStrings[AIndex] := AModel.UomGroupKey;
   end;
 end;
 
@@ -166,12 +170,12 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt     := AModel.Id;
-    Q.ParamByName('key').AsString      := AModel.Key;
+    Q.ParamByName('uom_group_key').AsString      := AModel.UomGroupKey;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex]     := AModel.Id;
-    Q.ParamByName('key').AsStrings[AIndex]      := AModel.Key;
+    Q.ParamByName('uom_group_key').AsStrings[AIndex]      := AModel.UomGroupKey;
   end;
 end;
 
@@ -179,7 +183,7 @@ function TSysUomGroupRepository.MapFromQuery(Q: TFDQuery): TSysUomGroup;
 begin
   Result := TSysUomGroup.Create;
   Result.Id           := Q.FieldByName('id').AsLargeInt;
-  Result.Key          := Q.FieldByName('key').AsString;
+  Result.UomGroupKey  := Q.FieldByName('uom_group_key').AsString;
 end;
 
 function TSysUomGroupRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

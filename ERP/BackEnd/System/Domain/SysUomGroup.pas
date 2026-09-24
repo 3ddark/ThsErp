@@ -14,7 +14,7 @@ type
   private
     FSysUomGroupId: Int64;
     FSysLanguageId: Int64;
-    FName: string;
+    FUomGroupName: string;
 
     FSysLanguage: TSysLanguage;
   public
@@ -24,9 +24,9 @@ type
     [Column('sys_language_id', [cpPrimaryKey, cpNotNull])]
     property SysLanguageId: Int64 read FSysLanguageId write FSysLanguageId;
 
-    [Column('name')]
-    [MaxLength(64)]
-    property Name: string read FName write FName;
+    [Column('uom_group_name')]
+    [MaxLength(16)]
+    property UomGroupName: string read FUomGroupName write FUomGroupName;
 
     [BelongsTo('SysLanguageId', 'Id')]
     property SysLanguage: TSysLanguage read FSysLanguage write FSysLanguage;
@@ -40,11 +40,11 @@ type
   [Table('sys_uom_group')]
   TSysUomGroup = class(TEntity)
   private
-    FKey: string;
+    FUomGroupKey: string;
     FTranslations: TObjectList<TSysUomGroupTranslation>;
   public
-    [Column('key'), MaxLength(64), Required()]
-    property Key: string read FKey write FKey;
+    [Column('uom_group_key'), MaxLength(16), Required()]
+    property UomGroupKey: string read FUomGroupKey write FUomGroupKey;
 
     [HasMany('SysUomGroupId', 'Id')]
     property Translations: TObjectList<TSysUomGroupTranslation> read FTranslations write FTranslations;
@@ -75,7 +75,7 @@ var
 begin
   Result := TSysUomGroup.Create;
   Result.Id := Self.Id;
-  Result.Key := Self.Key;
+  Result.UomGroupKey := Self.UomGroupKey;
 
   Result.Translations := TObjectList<TSysUomGroupTranslation>.Create(True);
   if Assigned(Self.Translations) then
@@ -100,7 +100,7 @@ begin
   Result := TSysUomGroupTranslation.Create;
   Result.SysUomGroupId := Self.SysUomGroupId;
   Result.SysLanguageId := Self.SysLanguageId;
-  Result.Name := Self.Name;
+  Result.UomGroupName := Self.UomGroupName;
 end;
 
 end.

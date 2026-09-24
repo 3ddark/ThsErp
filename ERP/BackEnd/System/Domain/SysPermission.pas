@@ -97,8 +97,9 @@ begin
     Result.SysPermissionGroup := Self.SysPermissionGroup.Clone;
 
   Result.Translations := TObjectList<TSysPermissionTranslation>.Create(True);
-  for item in Self.Translations do
-    Result.Translations.Add(item.Clone);
+  if Assigned(Self.Translations) then
+    for item in Self.Translations do
+      Result.Translations.Add(item.Clone);
 end;
 
 constructor TSysPermissionTranslation.Create;

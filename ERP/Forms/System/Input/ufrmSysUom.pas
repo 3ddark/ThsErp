@@ -139,7 +139,7 @@ begin
           else
           begin
             Table.GroupId := LFrm.Table.Id;
-            (Sender as TEdit).Text := LFrm.Table.Key;
+            (Sender as TEdit).Text := LFrm.Table.UomGroupKey;
           end;
         end;
       finally
@@ -177,7 +177,7 @@ begin
   end;
 
   if Assigned(Table.SysUomGroup) then
-    edtMeasureTypeId.Text := Table.SysUomGroup.Key
+    edtMeasureTypeId.Text := Table.SysUomGroup.UomGroupKey
   else
     edtMeasureTypeId.Text := '';
 end;
