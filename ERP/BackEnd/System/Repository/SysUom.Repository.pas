@@ -156,8 +156,12 @@ var
   Q: TFDQuery;
   Trans: TSysUomTranslation;
 begin
-  if (AModel = nil) or (AModel.Translations = nil) then Exit;
-  AModel.Translations.Clear;
+  if (AModel = nil) then Exit;
+
+  if Assigned(AModel.Translations) then
+    AModel.Translations.Clear
+  else
+    AModel.Translations := TObjectList<TSysUomTranslation>.Create(True);
 
   Q := TFDQuery.Create(nil);
   try
