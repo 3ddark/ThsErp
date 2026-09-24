@@ -118,7 +118,7 @@ begin
   if FPermissionName <> '' then
     Result := FPermissionName
   else if Assigned(FSysPermission) then
-    Result := FSysPermission.Key
+    Result := FSysPermission.PermissionKey
   else
     Result := '';
 end;

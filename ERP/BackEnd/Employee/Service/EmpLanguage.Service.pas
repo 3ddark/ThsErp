@@ -31,10 +31,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TEmpLanguageService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TEmpLanguage, TEmpLanguageRepository>;
+  Self.PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TEmpLanguageService.Destroy;

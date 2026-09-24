@@ -38,12 +38,12 @@ procedure TfrmSysPermissions.DefineColumnWidths;
 begin
   inherited;
   SetColumnProperty('id', 0);
-  SetColumnProperty('code', 100);
-  SetColumnProperty('key', 150);
-  SetColumnProperty('name', 250);
-  SetColumnProperty('group_id', 0);
-  SetColumnProperty('group_key', 120);
-  SetColumnProperty('group_name', 200);
+  SetColumnProperty('permission_code', 100);
+  SetColumnProperty('permission_key', 150);
+  SetColumnProperty('permission_name', 250);
+  SetColumnProperty('sys_permission_group_id', 0);
+  SetColumnProperty('permission_group_key', 120);
+  SetColumnProperty('permission_group_name', 200);
   SetColumnProperty('locale', 0);
 end;
 
@@ -59,13 +59,13 @@ begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.TitlePlural, 'Permissions');
 
-  SetColumnTitle('code',      TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionCode, 'Permission Code'));
-  SetColumnTitle('key',       TLocalizationManager.Translate(TLangKeys.TSysPermission.ColKey, 'Key'));
-  SetColumnTitle('name',      TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionName, 'Permission Name'));
-  SetColumnTitle('group_id',  TLocalizationManager.Translate(TLangKeys.TSysPermission.ColGroupId, 'Group Id'));
-  SetColumnTitle('group_key',  TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupKey, 'Group Key'));
-  SetColumnTitle('group_name', TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Group Name'));
-  SetColumnTitle('locale',     TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
+  SetColumnTitle('permission_code',         TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionCode, 'Permission Code'));
+  SetColumnTitle('permission_key',          TLocalizationManager.Translate(TLangKeys.TSysPermission.ColKey, 'Permission Key'));
+  SetColumnTitle('permission_name',         TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionName, 'Permission Name'));
+  SetColumnTitle('sys_permission_group_id', TLocalizationManager.Translate(TLangKeys.TSysPermission.ColGroupId, 'Group Id'));
+  SetColumnTitle('permission_group_key',    TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupKey, 'Group Key'));
+  SetColumnTitle('permission_group_name',   TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Group Name'));
+  SetColumnTitle('locale',                  TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
 end;
 
 end.

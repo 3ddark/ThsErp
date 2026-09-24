@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict FBwLDxMWm2AinpPabdaSkpBTuQ80QFeBHEZlcZgEgNkPftdA6wTc7rRXWxgQYo6
+\restrict VmVeKO37G5mnTx3zBjIIRmdZhqNzXYq8JYilMlW6gzCErYo1jf4nv2IzSyVEPQ3
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -3477,9 +3477,9 @@ ALTER TABLE public.sys_application_setting ALTER COLUMN id ADD GENERATED ALWAYS 
 --
 
 CREATE VIEW public.sys_view_tables AS
- SELECT (row_number() OVER (ORDER BY tables.table_type, tables.table_name))::integer AS id,
-    initcap(replace((table_name)::text, '_'::text, ' '::text)) AS table_name,
-    (table_type)::text AS table_type
+ SELECT (row_number() OVER (ORDER BY table_type, table_name))::integer AS id,
+    table_name,
+    table_type
    FROM information_schema.tables
   WHERE ((table_schema)::text = 'public'::text)
   ORDER BY (table_type)::text, (initcap(replace((table_name)::text, '_'::text, ' '::text)));
@@ -3508,7 +3508,7 @@ CREATE VIEW public.sys_view_columns AS
     columns.numeric_precision,
     columns.numeric_scale
    FROM (information_schema.columns
-     JOIN public.sys_view_tables vt ON ((( SELECT lower(replace(vt.table_name, ' '::text, '_'::text)) AS lower) = (columns.table_name)::text)))
+     JOIN public.sys_view_tables vt ON ((( SELECT lower(replace((vt.table_name)::text, ' '::text, '_'::text)) AS lower) = (columns.table_name)::text)))
   ORDER BY vt.table_type, columns.table_name, columns.ordinal_position;
 
 
@@ -3905,7 +3905,7 @@ CREATE VIEW public.vw_sys_permission AS
     p.permission_key,
     p.permission_code,
     pt.permission_name,
-    p.sys_permission_group_id AS permission_group_id,
+    p.sys_permission_group_id,
     pg.permission_group_key,
     pgt.permission_group_name,
     l.locale
@@ -6927,5 +6927,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict FBwLDxMWm2AinpPabdaSkpBTuQ80QFeBHEZlcZgEgNkPftdA6wTc7rRXWxgQYo6
+\unrestrict VmVeKO37G5mnTx3zBjIIRmdZhqNzXYq8JYilMlW6gzCErYo1jf4nv2IzSyVEPQ3
 
