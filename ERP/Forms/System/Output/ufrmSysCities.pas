@@ -8,7 +8,7 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   ufrmGrid, SharedFormTypes, LocalizationManager,
-  SysCity.Service, SysCity, ufrmSysCity, SysCountry.Service, SysCountry;
+  SysCity.Service, SysCity, ufrmSysCity, SysCountry, SysRegion;
 
 type
   TfrmSysCities = class(TfrmGrid<TSysCity, TSysCityService>)
@@ -53,7 +53,14 @@ end;
 procedure TfrmSysCities.SetSelectedItem;
 begin
   inherited;
+  if not Assigned(Table.SysCountry) then
+    Table.SysCountry := TSysCountry.Create;
   Table.SysCountry.CountryName := Grd.DataSource.DataSet.FieldByName('country_name').AsString;
+  Table.SysCountry.CountryCode := Grd.DataSource.DataSet.FieldByName('country_code').AsString;
+
+  if not Assigned(Table.SysRegion) then
+    Table.SysRegion := TSysRegion.Create;
+  Table.SysRegion.RegionName := Grd.DataSource.DataSet.FieldByName('region_name').AsString;
 end;
 
 procedure TfrmSysCities.ApplyLocalization;

@@ -39,8 +39,8 @@ end;
 procedure TfrmSysUoms.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',              0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
-  SetColumnProperty('measure_type_id', 0, TLocalizationManager.Translate(TLangKeys.TSysUom.ColMeasureTypeId, 'Measure Type Id'));
+  SetColumnProperty('id', 0);
+  SetColumnProperty('sys_uom_group_id', 0);
 end;
 
 procedure TfrmSysUoms.FormShow(Sender: TObject);
@@ -55,7 +55,7 @@ begin
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.TitlePlural, 'Units of Measurement');
   SetColumnTitle('unit_code',   TLocalizationManager.Translate(TLangKeys.TSysUom.ColUnit, 'Unit Code'));
   SetColumnTitle('unit_einv',   TLocalizationManager.Translate(TLangKeys.TSysUom.ColUnitEinv, 'E-Invoice Unit Code'));
-  SetColumnTitle('description', TLocalizationManager.Translate(TLangKeys.TSysUom.ColDescription, 'Description'));
+  SetColumnTitle('uom_name',    TLocalizationManager.Translate(TLangKeys.TSysUom.ColUomName, 'Uom Name'));
   SetColumnTitle('decimal',     TLocalizationManager.Translate(TLangKeys.TSysUom.ColDecimal, 'Decimal'));
   SetColumnTitle('multiplier',  TLocalizationManager.Translate(TLangKeys.TSysUom.ColMultiplier, 'Multiplier'));
 end;

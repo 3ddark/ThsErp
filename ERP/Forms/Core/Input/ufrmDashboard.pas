@@ -586,7 +586,7 @@ end;
 
 procedure TfrmDashboard.actsys_unit_typeExecute(Sender: TObject);
 begin
-  TfrmSysUomTypes.Create(Self, TSysUomGroupService.Create, TSysUomGroup.Create).Show;
+  TfrmSysUomGroups.Create(Self, TSysUomGroupService.Create, TSysUomGroup.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_unitExecute(Sender: TObject);

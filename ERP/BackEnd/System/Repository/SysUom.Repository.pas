@@ -55,21 +55,21 @@ end;
 
 function TSysUomRepository.PrepareSelectSql: string;
 begin
-  Result := 'SELECT id, unit_code, unit_einv, decimali group_id, multiplier FROM public.' + Self.GetTableName(TSysUom);
+  Result := 'SELECT id, unit_code, unit_einv, decimal, sys_uom_group_id, multiplier FROM public.' + Self.GetTableName(TSysUom);
 end;
 
 function TSysUomRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSysUom) +
-            ' (unit_code, unit_einv, decimal, group_id, multiplier) ' +
-            ' VALUES (:unit_code, :unit_einv, :decimal, :group_id, :multiplier)';
+            ' (unit_code, unit_einv, decimal, sys_uom_group_id, multiplier) ' +
+            ' VALUES (:unit_code, :unit_einv, :decimal, :sys_uom_group_id, :multiplier)';
 end;
 
 function TSysUomRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSysUom) +
             ' SET unit_code = :unit_code, unit_einv = :unit_einv, ' +
-            '     decimal = :decimal, group_id = :group_id, multiplier = :multiplier WHERE id = :id';
+            '     decimal = :decimal, sys_uom_group_id = :sys_uom_group_id, multiplier = :multiplier WHERE id = :id';
 end;
 
 function TSysUomRepository.PrepareDeleteSql: string;
@@ -80,19 +80,19 @@ end;
 function TSysUomRepository.PrepareSaveTranslationSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSysUomTranslation) +
-            ' (sys_uom_id, sys_language_id, name) ' +
-            ' VALUES (:uom_id, :lang_id, :name) ' +
+            ' (sys_uom_id, sys_language_id, uom_name) ' +
+            ' VALUES (:sys_uom_id, :sys_language_id, :uom_name) ' +
             ' ON CONFLICT (sys_uom_id, sys_language_id) DO UPDATE ' +
-            ' SET name = EXCLUDED.name';
+            ' SET uom_name = EXCLUDED.uom_name';
 end;
 
 function TSysUomRepository.PrepareLoadTranslationSql: string;
 begin
-  Result := 'SELECT t.sys_uom_id, t.sys_language_id, t.name, ' +
+  Result := 'SELECT t.sys_uom_id, t.sys_language_id, t.uom_name, ' +
             '       l.locale, l.native_name ' +
             ' FROM public.' + Self.GetTableName(TSysUomTranslation) + ' t ' +
             ' LEFT JOIN public.sys_language l ON l.id = t.sys_language_id ' +
-            ' WHERE t.sys_uom_id = :uom_id';
+            ' WHERE t.sys_uom_id = :sys_uom_id';
 end;
 
 function TSysUomRepository.PrepareDeleteTranslationSql: string;
@@ -108,7 +108,7 @@ begin
     Q.ParamByName('unit_code').AsString := AModel.UnitCode;
     Q.ParamByName('unit_einv').AsString := AModel.UnitEInv;
     Q.ParamByName('decimal').AsBoolean := AModel.Decimal;
-    Q.ParamByName('group_id').AsLargeInt := AModel.GroupId;
+    Q.ParamByName('sys_uom_group_id').AsLargeInt := AModel.SysUomGroupId;
     Q.ParamByName('multiplier').AsInteger := AModel.Multiplier;
     if (AModel.Id > 0) and (Q.FindParam('id') <> nil) then
       Q.ParamByName('id').AsLargeInt := AModel.Id;
@@ -118,7 +118,7 @@ begin
     Q.ParamByName('unit_code').AsStrings[AIndex] := AModel.UnitCode;
     Q.ParamByName('unit_einv').AsStrings[AIndex] := AModel.UnitEInv;
     Q.ParamByName('decimal').AsBooleans[AIndex] := AModel.Decimal;
-    Q.ParamByName('group_id').AsLargeInts[AIndex] := AModel.GroupId;
+    Q.ParamByName('sys_uom_group_id').AsLargeInts[AIndex] := AModel.SysUomGroupId;
     Q.ParamByName('multiplier').AsIntegers[AIndex] := AModel.Multiplier;
     if (AModel.Id > 0) and (Q.FindParam('id') <> nil) then
       Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
@@ -141,8 +141,8 @@ begin
     begin
       Trans.SysUomId := AModel.Id;
       Q.ParamByName('sys_uom_id').AsLargeInt := Trans.SysUomId;
-      Q.ParamByName('sys_lang_id').AsLargeInt := Trans.SysLanguageId;
-      Q.ParamByName('name').AsString := Trans.Name;
+      Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;
+      Q.ParamByName('uom_name').AsString := Trans.UomName;
       LogQuery(Q, 'SaveTranslations');
       Q.ExecSQL;
     end;
@@ -175,7 +175,7 @@ begin
       Trans := TSysUomTranslation.Create;
       Trans.SysUomId := Q.FieldByName('sys_uom_id').AsLargeInt;
       Trans.SysLanguageId := Q.FieldByName('sys_language_id').AsLargeInt;
-      Trans.Name := Q.FieldByName('name').AsString;
+      Trans.UomName := Q.FieldByName('uom_name').AsString;
 
       Trans.SysLanguage := TSysLanguage.Create;
       Trans.SysLanguage.Id := Q.FieldByName('sys_language_id').AsLargeInt;
@@ -243,10 +243,10 @@ begin
     begin
       Item := TSysUom.Create;
       Item.Id := Q.FieldByName('id').AsLargeInt;
-      Item.UnitCode := Q.FieldByName('unit').AsString;
+      Item.UnitCode := Q.FieldByName('unit_code').AsString;
       Item.UnitEInv := Q.FieldByName('unit_einv').AsString;
       Item.Decimal := Q.FieldByName('decimal').AsBoolean;
-      Item.GroupId := Q.FieldByName('group_id').AsLargeInt;
+      Item.SysUomGroupId := Q.FieldByName('sys_uom_group_id').AsLargeInt;
       Item.Multiplier := Q.FieldByName('multiplier').AsInteger;
       LoadTranslations(Item);
       Result.Add(Item);
@@ -277,10 +277,10 @@ begin
     begin
       Result := TSysUom.Create;
       Result.Id := Q.FieldByName('id').AsLargeInt;
-      Result.UnitCode := Q.FieldByName('unit').AsString;
+      Result.UnitCode := Q.FieldByName('unit_code').AsString;
       Result.UnitEInv := Q.FieldByName('unit_einv').AsString;
       Result.Decimal := Q.FieldByName('decimal').AsBoolean;
-      Result.GroupId := Q.FieldByName('group_id').AsLargeInt;
+      Result.SysUomGroupId := Q.FieldByName('sys_uom_group_id').AsLargeInt;
       Result.Multiplier := Q.FieldByName('multiplier').AsInteger;
       LoadTranslations(Result);
     end;

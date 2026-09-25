@@ -14,7 +14,7 @@ type
   private
     FSysUomId: Int64;
     FSysLanguageId: Int64;
-    FName: string;
+    FUomName: string;
 
     FSysLanguage: TSysLanguage;
   public
@@ -24,9 +24,9 @@ type
     [Column('sys_language_id', [cpPrimaryKey, cpNotNull])]
     property SysLanguageId: Int64 read FSysLanguageId write FSysLanguageId;
 
-    [Column('name')]
+    [Column('uom_name')]
     [MaxLength(64)]
-    property Name: string read FName write FName;
+    property UomName: string read FUomName write FUomName;
 
     [BelongsTo('SysLanguageId', 'Id')]
     property SysLanguage: TSysLanguage read FSysLanguage write FSysLanguage;
@@ -43,7 +43,7 @@ type
     FUnitCode: string;
     FUnitEInv: string;
     FDecimal: Boolean;
-    FGroupId: Int64;
+    FSysUomGroupId: Int64;
     FMultiplier: Integer;
     FSysUomGroup: TSysUomGroup;
     FTranslations: TObjectList<TSysUomTranslation>;
@@ -57,10 +57,10 @@ type
     [Column('decimal'), Required()]
     property Decimal: Boolean read FDecimal write FDecimal;
 
-    [Column('group_id')]
-    property GroupId: Int64 read FGroupId write FGroupId;
+    [Column('sys_uom_group_id')]
+    property SysUomGroupId: Int64 read FSysUomGroupId write FSysUomGroupId;
 
-    [BelongsTo('GroupId', 'Id')]
+    [BelongsTo('SysUomGroupId', 'Id')]
     property SysUomGroup: TSysUomGroup read FSysUomGroup write FSysUomGroup;
 
     [Column('multiplier')]
@@ -102,7 +102,7 @@ begin
   Result.UnitCode := Self.UnitCode;
   Result.UnitEInv := Self.UnitEInv;
   Result.Decimal := Self.Decimal;
-  Result.GroupId := Self.GroupId;
+  Result.SysUomGroupId := Self.SysUomGroupId;
   Result.Multiplier := Self.Multiplier;
 
   if Assigned(Self.SysUomGroup) then
@@ -131,7 +131,7 @@ begin
   Result := TSysUomTranslation.Create;
   Result.SysUomId := Self.SysUomId;
   Result.SysLanguageId := Self.SysLanguageId;
-  Result.Name := Self.Name;
+  Result.UomName := Self.UomName;
 
   if Assigned(Self.SysLanguage) then
     Result.SysLanguage := Self.SysLanguage.Clone;

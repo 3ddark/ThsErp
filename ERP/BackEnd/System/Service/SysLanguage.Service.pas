@@ -37,10 +37,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysLanguageService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysLanguage, TSysLanguageRepository>;
+  Self.PermissionCode := PERMISSION_TEMPLATE;
 end;
 
 destructor TSysLanguageService.Destroy;

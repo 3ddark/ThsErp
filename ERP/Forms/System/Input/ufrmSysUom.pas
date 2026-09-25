@@ -53,7 +53,7 @@ begin
   Table.Decimal := chkDecimal.Checked;
   Table.Multiplier := StrToIntDef(edtMultiplier.Text, 1);
 
-  LValues := CollectTranslationValues(scrlbxTranslations, 'PermissionGroupName');
+  LValues := CollectTranslationValues(scrlbxTranslations, 'UomName');
   try
     for LPair in LValues do
     begin
@@ -62,7 +62,7 @@ begin
         for i := 0 to Table.Translations.Count - 1 do
           if SameText(Table.Translations[i].SysLanguage.Locale, LPair.Key) then
           begin
-            Table.Translations[i].Name := LPair.Value;
+            Table.Translations[i].UomName := LPair.Value;
             LFound := True;
             Break;
           end;
@@ -72,7 +72,7 @@ begin
         LTrans := TSysUomTranslation.Create;
         LTrans.SysUomId := Table.Id;
         LTrans.SysLanguageId := 0;
-        LTrans.Name := LPair.Value;
+        LTrans.UomName := LPair.Value;
         LTrans.SysLanguage := TSysLanguage.Create;
         LTrans.SysLanguage.Locale := LPair.Key;
         Table.Translations.Add(LTrans);
@@ -93,8 +93,8 @@ begin
 
   BuildTranslationControls(
     scrlbxTranslations,
-    'Description',
-    TLocalizationManager.Translate(TLangKeys.TSysUom.ColDescription, 'Description'),
+    'UomName',
+    TLocalizationManager.Translate(TLangKeys.TSysUom.ColUomName, 'UomName'),
     lblUnitEInv);
 end;
 
@@ -114,18 +114,18 @@ begin
   lblDecimal.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.DecimalPlace, 'Decimal');
   lblMeasureTypeId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.MeasureType, 'Unit of Measurement Type');
   lblMultiplier.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.Multiplier, 'Multiplier');
-  UpdateTranslationLabels(scrlbxTranslations, 'Description', TLocalizationManager.Translate(TLangKeys.TSysUom.ColDescription, 'Description'));
+  UpdateTranslationLabels(scrlbxTranslations, 'UomName', TLocalizationManager.Translate(TLangKeys.TSysUom.ColUomName, 'Uom Name'));
 end;
 
 procedure TfrmSysUom.HelperProcess(Sender: TObject);
 var
-  LFrm: TfrmSysUomTypes;
+  LFrm: TfrmSysUomGroups;
 begin
   if Sender is TEdit then
   begin
     if (Sender as TEdit).Name = edtMeasureTypeId.Name then
     begin
-      LFrm := TfrmSysUomTypes.Create((Sender as TEdit), TSysUomGroupService.Create, TSysUomGroup.Create);
+      LFrm := TfrmSysUomGroups.Create((Sender as TEdit), TSysUomGroupService.Create, TSysUomGroup.Create);
       try
         LFrm.IsHelper := True;
         LFrm.ShowModal;
@@ -133,12 +133,12 @@ begin
         begin
           if LFrm.CleanAndClose then
           begin
-            Table.GroupId := 0;
+            Table.SysUomGroupId := 0;
             (Sender as TEdit).Clear;
           end
           else
           begin
-            Table.GroupId := LFrm.Table.Id;
+            Table.SysUomGroupId := LFrm.Table.Id;
             (Sender as TEdit).Text := LFrm.Table.UomGroupKey;
           end;
         end;
@@ -168,7 +168,7 @@ begin
       begin
         LTrans := Table.Translations[i];
         if Assigned(LTrans.SysLanguage) and (LTrans.SysLanguage.Locale <> '') then
-          LValues.AddOrSetValue(LTrans.SysLanguage.Locale, LTrans.Name);
+          LValues.AddOrSetValue(LTrans.SysLanguage.Locale, LTrans.UomName);
       end;
 
     FillTranslationControls(scrlbxTranslations, LValues);

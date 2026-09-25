@@ -46,8 +46,8 @@ implementation
 constructor TSysCity.Create();
 begin
   inherited;
-  FSysCountry := nil;
-  FSysRegion := nil;
+  FSysCountry := TSysCountry.Create;
+  FSysRegion := TSysRegion.Create;
 end;
 
 destructor TSysCity.Destroy;
@@ -68,10 +68,18 @@ begin
   Result.SysRegionId := Self.SysRegionId;
 
   if Assigned(Self.SysCountry) then
+  begin
+    if Assigned(Result.SysCountry) then
+      Result.SysCountry.Free;
     Result.SysCountry := Self.SysCountry.Clone;
+  end;
 
   if Assigned(Self.SysRegion) then
+  begin
+    if Assigned(Result.SysRegion) then
+      Result.SysRegion.Free;
     Result.SysRegion := Self.SysRegion.Clone;
+  end;
 end;
 
 end.
