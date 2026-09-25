@@ -100,8 +100,9 @@ begin
   Result.CountryName := Self.CountryName;
 
   Result.Translations := TObjectList<TSysCountryTranslation>.Create(True);
-  for LTrans in Self.Translations do
-    Result.Translations.Add(LTrans.Clone);
+  if Assigned(Self.Translations) then
+    for LTrans in Self.Translations do
+      Result.Translations.Add(LTrans.Clone);
 end;
 
 constructor TSysCountryTranslation.Create;

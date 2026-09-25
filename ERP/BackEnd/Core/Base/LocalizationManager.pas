@@ -489,7 +489,7 @@ type
         const ColUnit = 'sys_uom.col_unit';
         const ColUnitEinv = 'sys_uom.col_unit_einv';
         const ColMeasureTypeId = 'sys_uom.col_measure_type_id';
-        const ColDescription = 'sys_uom.col_description';
+        const ColUomName = 'sys_uom.col_uom_name';
         const ColDecimal = 'sys_uom.col_decimal';
         const ColMultiplier = 'sys_uom.col_multiplier';
         const UnitCodeUnique = 'sys_uom.unit_code_unique';

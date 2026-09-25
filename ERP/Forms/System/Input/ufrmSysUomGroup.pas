@@ -13,7 +13,7 @@ uses
   AppContext, SysUomGroup.Service, SysUomGroup, SysLanguage;
 
 type
-  TfrmSysUomType = class(TfrmInputSimpleDB<TSysUomGroup, TSysUomGroupService>)
+  TfrmSysUomGroup = class(TfrmInputSimpleDB<TSysUomGroup, TSysUomGroupService>)
     pnlContent: TPanel;
     lblKey: TLabel;
     edtKey: TEdit;
@@ -30,7 +30,7 @@ implementation
 
 {$R *.dfm}
 
-procedure TfrmSysUomType.BtnAcceptClick(Sender: TObject);
+procedure TfrmSysUomGroup.BtnAcceptClick(Sender: TObject);
 var
   LValues: TTranslationMap;
   LPair  : TPair<string, string>;
@@ -71,7 +71,7 @@ begin
   inherited;
 end;
 
-procedure TfrmSysUomType.FormCreate(Sender: TObject);
+procedure TfrmSysUomGroup.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
@@ -83,14 +83,14 @@ begin
     lblKey);
 end;
 
-procedure TfrmSysUomType.FormShow(Sender: TObject);
+procedure TfrmSysUomGroup.FormShow(Sender: TObject);
 begin
   inherited;
   ApplyLocalization;
   edtKey.SetFocus;
 end;
 
-procedure TfrmSysUomType.ApplyLocalization;
+procedure TfrmSysUomGroup.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUomGroup.TitleSingular, 'Unit of Measurement Type');
@@ -98,7 +98,7 @@ begin
   UpdateTranslationLabels(scrlbxTranslations, 'UomGroupName', TLocalizationManager.Translate(TLangKeys.TSysUomGroup.ColName, 'Name'));
 end;
 
-procedure TfrmSysUomType.RefreshData;
+procedure TfrmSysUomGroup.RefreshData;
 var
   LValues: TTranslationMap;
   i      : Integer;
