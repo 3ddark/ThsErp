@@ -41,13 +41,19 @@ type
   TSysUomGroup = class(TEntity)
   private
     FUomGroupKey: string;
+
     FTranslations: TObjectList<TSysUomGroupTranslation>;
+
+    FUomGroupName: string;
   public
     [Column('uom_group_key'), MaxLength(16), Required()]
     property UomGroupKey: string read FUomGroupKey write FUomGroupKey;
 
     [HasMany('SysUomGroupId', 'Id')]
     property Translations: TObjectList<TSysUomGroupTranslation> read FTranslations write FTranslations;
+
+    [NotMapped()]
+    property UomGroupName: string read FUomGroupName write FUomGroupName;
 
     constructor Create; override;
     destructor Destroy; override;
@@ -76,6 +82,7 @@ begin
   Result := TSysUomGroup.Create;
   Result.Id := Self.Id;
   Result.UomGroupKey := Self.UomGroupKey;
+  Result.UomGroupName := Self.UomGroupName;
 
   Result.Translations := TObjectList<TSysUomGroupTranslation>.Create(True);
   if Assigned(Self.Translations) then
@@ -101,6 +108,9 @@ begin
   Result.SysUomGroupId := Self.SysUomGroupId;
   Result.SysLanguageId := Self.SysLanguageId;
   Result.UomGroupName := Self.UomGroupName;
+
+  if Assigned(Self.SysLanguage) then
+    Result.SysLanguage := Self.SysLanguage.Clone;
 end;
 
 end.

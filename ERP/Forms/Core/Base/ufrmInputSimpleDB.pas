@@ -1,4 +1,4 @@
-unit ufrmInputSimpleDB;
+﻿unit ufrmInputSimpleDB;
 
 interface
 
@@ -216,7 +216,7 @@ begin
   end;
 
   LLocales := TLanguageCache.GetLocales;
-  LTop     := 4;
+  LTop     := 1;
 
   if Assigned(ARefLabel) then
     LLblRight := (ARefLabel.Left - AContainer.Left) + ARefLabel.Width
@@ -254,7 +254,7 @@ begin
     Inc(LTop, 22);
   end;
 
-  AContainer.Height := LTop + 2;
+  AContainer.Height := LTop + 4;
 end;
 
 procedure TfrmInputSimpleDB<TE, TS>.UpdateTranslationLabels(AContainer : TWinControl; const AFieldName, ALabel: string);

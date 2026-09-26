@@ -1,4 +1,4 @@
-object frmSysUomType: TfrmSysUomType
+object frmSysUomType: TfrmSysUomGroup
   Left = 0
   Top = 0
   Caption = 'frmSysUomType'
