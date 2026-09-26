@@ -11,19 +11,19 @@ uses
 type
   TSysUomRepository = class(TRepository<TSysUom>)
   protected
-    function PrepareSelectSql: string; virtual;
     function PrepareAddSql: string; virtual;
     function PrepareUpdateSql: string; virtual;
     function PrepareDeleteSql: string; virtual;
 
     function PrepareSaveTranslationSql: string; virtual;
     function PrepareLoadTranslationSql: string; virtual;
-    function PrepareDeleteTranslationSql: string; virtual;
 
-    procedure SetModelParams(Q: TFDQuery; AModel: TSysUom; AIndex: Integer = -1);
+    procedure SetInsertParams(Q: TFDQuery; AModel: TSysUom; AIndex: Integer = -1);
+    procedure SetUpdateParams(Q: TFDQuery; AModel: TSysUom; AIndex: Integer = -1);
+    function MapFromQuery(Q: TFDQuery): TSysUom; override;
+
     procedure SaveTranslations(AModel: TSysUom); virtual;
     procedure LoadTranslations(AModel: TSysUom); virtual;
-
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
@@ -48,14 +48,12 @@ type
 
 implementation
 
+uses
+  Logger, Ths.Language.Cache;
+
 constructor TSysUomRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
-end;
-
-function TSysUomRepository.PrepareSelectSql: string;
-begin
-  Result := 'SELECT id, unit_code, unit_einv, decimal, sys_uom_group_id, multiplier FROM public.' + Self.GetTableName(TSysUom);
 end;
 
 function TSysUomRepository.PrepareAddSql: string;
@@ -74,16 +72,8 @@ end;
 
 function TSysUomRepository.PrepareDeleteSql: string;
 begin
+  //WHERE kısmı özellikle böyle yazıldı. Filtre vermeden işlem yapılmaması için. Hatalı kodlamada tüm tabloyu siler.
   Result := 'DELETE FROM public.' + Self.GetTableName(TSysUom) + ' WHERE id = :id';
-end;
-
-function TSysUomRepository.PrepareSaveTranslationSql: string;
-begin
-  Result := 'INSERT INTO public.' + Self.GetTableName(TSysUomTranslation) +
-            ' (sys_uom_id, sys_language_id, uom_name) ' +
-            ' VALUES (:sys_uom_id, :sys_language_id, :uom_name) ' +
-            ' ON CONFLICT (sys_uom_id, sys_language_id) DO UPDATE ' +
-            ' SET uom_name = EXCLUDED.uom_name';
 end;
 
 function TSysUomRepository.PrepareLoadTranslationSql: string;
@@ -95,60 +85,13 @@ begin
             ' WHERE t.sys_uom_id = :sys_uom_id';
 end;
 
-function TSysUomRepository.PrepareDeleteTranslationSql: string;
+function TSysUomRepository.PrepareSaveTranslationSql: string;
 begin
-  Result := 'DELETE FROM public.' + Self.GetTableName(TSysUomTranslation) +
-            ' WHERE sys_uom_id = :id';
-end;
-
-procedure TSysUomRepository.SetModelParams(Q: TFDQuery; AModel: TSysUom; AIndex: Integer);
-begin
-  if AIndex < 0 then
-  begin
-    Q.ParamByName('unit_code').AsString := AModel.UnitCode;
-    Q.ParamByName('unit_einv').AsString := AModel.UnitEInv;
-    Q.ParamByName('decimal').AsBoolean := AModel.Decimal;
-    Q.ParamByName('sys_uom_group_id').AsLargeInt := AModel.SysUomGroupId;
-    Q.ParamByName('multiplier').AsInteger := AModel.Multiplier;
-    if (AModel.Id > 0) and (Q.FindParam('id') <> nil) then
-      Q.ParamByName('id').AsLargeInt := AModel.Id;
-  end
-  else
-  begin
-    Q.ParamByName('unit_code').AsStrings[AIndex] := AModel.UnitCode;
-    Q.ParamByName('unit_einv').AsStrings[AIndex] := AModel.UnitEInv;
-    Q.ParamByName('decimal').AsBooleans[AIndex] := AModel.Decimal;
-    Q.ParamByName('sys_uom_group_id').AsLargeInts[AIndex] := AModel.SysUomGroupId;
-    Q.ParamByName('multiplier').AsIntegers[AIndex] := AModel.Multiplier;
-    if (AModel.Id > 0) and (Q.FindParam('id') <> nil) then
-      Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-  end;
-end;
-
-procedure TSysUomRepository.SaveTranslations(AModel: TSysUom);
-var
-  Q: TFDQuery;
-  Trans: TSysUomTranslation;
-begin
-  if (AModel = nil) or (AModel.Translations = nil) or (AModel.Translations.Count = 0) then
-    Exit;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareSaveTranslationSql;
-    for Trans in AModel.Translations do
-    begin
-      Trans.SysUomId := AModel.Id;
-      Q.ParamByName('sys_uom_id').AsLargeInt := Trans.SysUomId;
-      Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;
-      Q.ParamByName('uom_name').AsString := Trans.UomName;
-      LogQuery(Q, 'SaveTranslations');
-      Q.ExecSQL;
-    end;
-  finally
-    Q.Free;
-  end;
+  Result := 'INSERT INTO public.' + Self.GetTableName(TSysUomTranslation) +
+            ' (sys_uom_id, sys_language_id, uom_name) ' +
+            ' VALUES (:sys_uom_id, :sys_language_id, :uom_name) ' +
+            ' ON CONFLICT (sys_uom_id, sys_language_id) DO UPDATE ' +
+            ' SET uom_name = EXCLUDED.uom_name';
 end;
 
 procedure TSysUomRepository.LoadTranslations(AModel: TSysUom);
@@ -167,9 +110,10 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareLoadTranslationSql;
-    Q.ParamByName('uom_id').AsLargeInt := AModel.Id;
+    Q.ParamByName('sys_uom_id').AsLargeInt := AModel.Id;
     LogQuery(Q, 'LoadTranslations');
     Q.Open;
+
     while not Q.Eof do
     begin
       Trans := TSysUomTranslation.Create;
@@ -179,15 +123,115 @@ begin
 
       Trans.SysLanguage := TSysLanguage.Create;
       Trans.SysLanguage.Id := Q.FieldByName('sys_language_id').AsLargeInt;
-      Trans.SysLanguage.Locale := Q.FieldByName('locale').AsString;
+      Trans.SysLanguage.Locale := TLanguageCache.GetLocaleById(Trans.SysLanguageId);
+
+      if Trans.SysLanguage.Locale = '' then
+        Trans.SysLanguage.Locale := Q.FieldByName('locale').AsString;
+
       Trans.SysLanguage.NativeName := Q.FieldByName('native_name').AsString;
 
       AModel.Translations.Add(Trans);
+
+      if SameText(Trans.SysLanguage.Locale, TAppContext.Instance.CurrentUser.ActiveLanguage) then
+        AModel.UomName := Trans.UomName;
+
       Q.Next;
     end;
   finally
     Q.Free;
   end;
+end;
+
+procedure TSysUomRepository.SaveTranslations(AModel: TSysUom);
+var
+  Q: TFDQuery;
+  Trans: TSysUomTranslation;
+  LLangId: Int64;
+begin
+  if (AModel = nil) or (AModel.Translations = nil) or (AModel.Translations.Count = 0) then Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text   := PrepareSaveTranslationSql;
+
+    for Trans in AModel.Translations do
+    begin
+      LLangId := Trans.SysLanguageId;
+
+      if (LLangId = 0) and Assigned(Trans.SysLanguage) and (Trans.SysLanguage.Locale <> '') then
+        LLangId := TLanguageCache.GetIdByLocale(Trans.SysLanguage.Locale);
+
+      if LLangId = 0 then
+      begin
+        GLogger.WarningFmt('SaveTranslations: locale could not be resolved [%s]', [Trans.SysLanguage.Locale]);
+        Continue;
+      end;
+
+      Trans.SysUomId := AModel.Id;
+      Q.ParamByName('sys_uom_id').AsLargeInt := Trans.SysUomId;
+      Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;
+      Q.ParamByName('uom_name').AsString := Trans.UomName;
+      LogQuery(Q, 'SaveTranslations');
+      Q.ExecSQL;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSysUomRepository.SetInsertParams(Q: TFDQuery; AModel: TSysUom; AIndex: Integer);
+begin
+  if AIndex < 0 then
+  begin
+    Q.ParamByName('unit_code').AsString := AModel.UnitCode;
+    Q.ParamByName('unit_einv').AsString := AModel.UnitEInv;
+    Q.ParamByName('decimal').AsBoolean := AModel.Decimal;
+    Q.ParamByName('sys_uom_group_id').AsLargeInt := AModel.SysUomGroupId;
+    Q.ParamByName('multiplier').AsInteger := AModel.Multiplier;
+  end
+  else
+  begin
+    Q.ParamByName('unit_code').AsStrings[AIndex] := AModel.UnitCode;
+    Q.ParamByName('unit_einv').AsStrings[AIndex] := AModel.UnitEInv;
+    Q.ParamByName('decimal').AsBooleans[AIndex] := AModel.Decimal;
+    Q.ParamByName('sys_uom_group_id').AsLargeInts[AIndex] := AModel.SysUomGroupId;
+    Q.ParamByName('multiplier').AsIntegers[AIndex] := AModel.Multiplier;
+  end;
+end;
+
+procedure TSysUomRepository.SetUpdateParams(Q: TFDQuery; AModel: TSysUom; AIndex: Integer);
+begin
+  if AIndex < 0 then
+  begin
+    Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('unit_code').AsString := AModel.UnitCode;
+    Q.ParamByName('unit_einv').AsString := AModel.UnitEInv;
+    Q.ParamByName('decimal').AsBoolean := AModel.Decimal;
+    Q.ParamByName('sys_uom_group_id').AsLargeInt := AModel.SysUomGroupId;
+    Q.ParamByName('multiplier').AsInteger := AModel.Multiplier;
+  end
+  else
+  begin
+    Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('unit_code').AsStrings[AIndex] := AModel.UnitCode;
+    Q.ParamByName('unit_einv').AsStrings[AIndex] := AModel.UnitEInv;
+    Q.ParamByName('decimal').AsBooleans[AIndex] := AModel.Decimal;
+    Q.ParamByName('sys_uom_group_id').AsLargeInts[AIndex] := AModel.SysUomGroupId;
+    Q.ParamByName('multiplier').AsIntegers[AIndex] := AModel.Multiplier;
+  end;
+end;
+
+function TSysUomRepository.MapFromQuery(Q: TFDQuery): TSysUom;
+begin
+  Result := TSysUom.Create;
+  Result.Id := Q.FieldByName('id').AsLargeInt;
+  Result.UnitCode := Q.FieldByName('unit_code').AsString;
+  Result.UnitEInv := Q.FieldByName('unit_einv').AsString;
+  Result.Decimal := Q.FieldByName('decimal').AsBoolean;
+  Result.SysUomGroupId := Q.FieldByName('sys_uom_group_id').AsLargeInt;
+  Result.Multiplier := Q.FieldByName('multiplier').AsInteger;
+  Result.UomName := Q.FieldByName('uom_name').AsString;
 end;
 
 function TSysUomRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
@@ -214,40 +258,27 @@ function TSysUomRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TOb
 var
   Q: TFDQuery;
   Item: TSysUom;
-  Criterion: TFilterCriterion;
+  Criteria: TFilterCriterion;
 begin
   Result := TObjectList<TSysUom>.Create;
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := PrepareSelectSql + ' WHERE 1=1';
+    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, False, True);
 
     if Assigned(AFilter) and (AFilter.Count > 0) then
     begin
-      for Criterion in AFilter do
-        Q.SQL.Text := Q.SQL.Text + ' AND ' + Criterion.FieldName + ' ' + Criterion.Operator + ' :' + Criterion.FieldName;
+      for Criteria in AFilter do
+        Q.SQL.Text := Q.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.FieldName;
     end;
 
-    if ALock then
-      Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
-
-    if Assigned(AFilter) and (AFilter.Count > 0) then
-    begin
-      for Criterion in AFilter do
-        Q.ParamByName(Criterion.FieldName).Value := Criterion.Value.AsVariant;
-    end;
+    Q.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 
     LogQuery(Q, 'DoFind');
     Q.Open;
     while not Q.Eof do
     begin
-      Item := TSysUom.Create;
-      Item.Id := Q.FieldByName('id').AsLargeInt;
-      Item.UnitCode := Q.FieldByName('unit_code').AsString;
-      Item.UnitEInv := Q.FieldByName('unit_einv').AsString;
-      Item.Decimal := Q.FieldByName('decimal').AsBoolean;
-      Item.SysUomGroupId := Q.FieldByName('sys_uom_group_id').AsLargeInt;
-      Item.Multiplier := Q.FieldByName('multiplier').AsInteger;
+      Item := MapFromQuery(Q);
       LoadTranslations(Item);
       Result.Add(Item);
       Q.Next;
@@ -260,32 +291,31 @@ end;
 function TSysUomRepository.DoFindById(AId: TValue; ALock: Boolean): TSysUom;
 var
   Q: TFDQuery;
+  Criteria: TFilterCriteria;
 begin
   Result := nil;
   Q := TFDQuery.Create(nil);
+  Criteria := TFilterCriteria.Create;
   try
     Q.Connection := Connection;
-    Q.SQL.Text := PrepareSelectSql + ' WHERE id = :id';
-    if ALock then
-      Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
+
+    Criteria.Add(TFilterCriterion.New('id', '=', AId));
+    Q.SQL.Text := Self.PrepareSelectFromView(Criteria, ALock, True, True);
 
     Q.ParamByName('id').AsLargeInt := AId.AsInt64;
+    Q.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
     LogQuery(Q, 'DoFindById');
     Q.Open;
 
     if not Q.IsEmpty then
     begin
-      Result := TSysUom.Create;
-      Result.Id := Q.FieldByName('id').AsLargeInt;
-      Result.UnitCode := Q.FieldByName('unit_code').AsString;
-      Result.UnitEInv := Q.FieldByName('unit_einv').AsString;
-      Result.Decimal := Q.FieldByName('decimal').AsBoolean;
-      Result.SysUomGroupId := Q.FieldByName('sys_uom_group_id').AsLargeInt;
-      Result.Multiplier := Q.FieldByName('multiplier').AsInteger;
-      LoadTranslations(Result);
+      Result := MapFromQuery(Q);
+      if Assigned(Result) then
+        LoadTranslations(Result);
     end;
   finally
     Q.Free;
+    Criteria.Free;
   end;
 end;
 
@@ -327,7 +357,7 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
-    SetModelParams(Q, AModel);
+    SetInsertParams(Q, AModel);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -353,7 +383,7 @@ begin
     Q.Params.ArraySize := Count;
 
     for I := 0 to Count - 1 do
-      SetModelParams(Q, AModels[I], I);
+      SetInsertParams(Q, AModels[I], I);
 
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
@@ -373,7 +403,7 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
-    SetModelParams(Q, AModel);
+    SetUpdateParams(Q, AModel);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -398,7 +428,7 @@ begin
     Q.Params.ArraySize := Count;
 
     for I := 0 to Count - 1 do
-      SetModelParams(Q, AModels[I], I);
+      SetUpdateParams(Q, AModels[I], I);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

@@ -46,7 +46,10 @@ type
     FSysUomGroupId: Int64;
     FMultiplier: Integer;
     FSysUomGroup: TSysUomGroup;
+
     FTranslations: TObjectList<TSysUomTranslation>;
+
+    FUomName: string;
   public
     [Column('unit_code'), MaxLength(16), Required()]
     property UnitCode: string read FUnitCode write FUnitCode;
@@ -68,6 +71,9 @@ type
 
     [HasMany('SysUomId', 'Id')]
     property Translations: TObjectList<TSysUomTranslation> read FTranslations write FTranslations;
+
+    [NotMapped()]
+    property UomName: string read FUomName write FUomName;
 
     constructor Create; override;
     destructor Destroy; override;
@@ -104,6 +110,7 @@ begin
   Result.Decimal := Self.Decimal;
   Result.SysUomGroupId := Self.SysUomGroupId;
   Result.Multiplier := Self.Multiplier;
+  Result.UomName := Self.UomName;
 
   if Assigned(Self.SysUomGroup) then
     Result.SysUomGroup := Self.SysUomGroup;

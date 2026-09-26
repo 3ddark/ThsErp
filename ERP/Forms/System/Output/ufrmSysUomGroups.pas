@@ -37,8 +37,8 @@ end;
 procedure TfrmSysUomGroups.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',      0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
-  SetColumnProperty('locale',  0, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
+  SetColumnProperty('id', 0);
+  SetColumnProperty('locale', 0);
 end;
 
 procedure TfrmSysUomGroups.FormShow(Sender: TObject);

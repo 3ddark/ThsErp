@@ -11,6 +11,8 @@ uses
 type
   TSysLanguageRepository = class(TRepository<TSysLanguage>)
   protected
+    function GetLanguageIdByLocale(const ALocale: string): Int64;
+
     function PrepareAddSql: string;
     function PrepareUpdateSql: string;
     function PrepareDeleteSql: string;
@@ -383,5 +385,25 @@ begin
     Q.Free;
   end;
 end;
+
+function TSysLanguageRepository.GetLanguageIdByLocale(const ALocale: string): Int64;
+var
+  Q: TFDQuery;
+begin
+  Result := 0;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT id FROM ' + Self.GetTableName(TSysLanguage) + ' WHERE locale = :locale LIMIT 1';
+    Q.ParamByName('locale').AsString := ALocale;
+    LogQuery(Q, 'GetLanguageIdByLocale');
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := Q.Fields[0].AsLargeInt;
+  finally
+    Q.Free;
+  end;
+end;
+
 
 end.

@@ -22,7 +22,6 @@ type
     procedure SetUpdateParams(Q: TFDQuery; AModel: TSysCountry; AIndex: Integer = -1);
     function MapFromQuery(Q: TFDQuery): TSysCountry; override;
 
-    function GetLanguageIdByLocale(const ALocale: string): Int64;
     procedure SaveTranslations(AModel: TSysCountry);
     procedure LoadTranslations(AModel: TSysCountry);
 
@@ -97,7 +96,7 @@ end;
 
 procedure TSysCountryRepository.LoadTranslations(AModel: TSysCountry);
 var
-  Q    : TFDQuery;
+  Q: TFDQuery;
   Trans: TSysCountryTranslation;
 begin
   if (AModel = nil) then Exit;
@@ -110,20 +109,20 @@ begin
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text   := PrepareLoadTranslationSql;
+    Q.SQL.Text := PrepareLoadTranslationSql;
     Q.ParamByName('sys_country_id').AsLargeInt := AModel.Id;
     LogQuery(Q, 'LoadTranslations');
     Q.Open;
 
     while not Q.Eof do
     begin
-      Trans                  := TSysCountryTranslation.Create;
-      Trans.SysCountryId     := Q.FieldByName('sys_country_id').AsLargeInt;
-      Trans.SysLanguageId    := Q.FieldByName('sys_language_id').AsLargeInt;
-      Trans.CountryName      := Q.FieldByName('country_name').AsString;
+      Trans := TSysCountryTranslation.Create;
+      Trans.SysCountryId := Q.FieldByName('sys_country_id').AsLargeInt;
+      Trans.SysLanguageId := Q.FieldByName('sys_language_id').AsLargeInt;
+      Trans.CountryName := Q.FieldByName('country_name').AsString;
 
-      Trans.SysLanguage      := TSysLanguage.Create;
-      Trans.SysLanguage.Id   := Trans.SysLanguageId;
+      Trans.SysLanguage := TSysLanguage.Create;
+      Trans.SysLanguage.Id := Trans.SysLanguageId;
       Trans.SysLanguage.Locale := TLanguageCache.GetLocaleById(Trans.SysLanguageId);
 
       if Trans.SysLanguage.Locale = '' then
@@ -145,8 +144,8 @@ end;
 
 procedure TSysCountryRepository.SaveTranslations(AModel: TSysCountry);
 var
-  Q      : TFDQuery;
-  Trans  : TSysCountryTranslation;
+  Q: TFDQuery;
+  Trans: TSysCountryTranslation;
   LLangId: Int64;
 begin
   if (AModel = nil) or (AModel.Translations = nil) or (AModel.Translations.Count = 0) then Exit;
@@ -170,31 +169,12 @@ begin
       end;
 
       Trans.SysCountryId := AModel.Id;
-      Q.ParamByName('sys_country_id').AsLargeInt  := Trans.SysCountryId;
+      Q.ParamByName('sys_country_id').AsLargeInt := Trans.SysCountryId;
       Q.ParamByName('sys_language_id').AsLargeInt := LLangId;
-      Q.ParamByName('country_name').AsString      := Trans.CountryName;
+      Q.ParamByName('country_name').AsString := Trans.CountryName;
       LogQuery(Q, 'SaveTranslations');
       Q.ExecSQL;
     end;
-  finally
-    Q.Free;
-  end;
-end;
-
-function TSysCountryRepository.GetLanguageIdByLocale(const ALocale: string): Int64;
-var
-  Q: TFDQuery;
-begin
-  Result := 0;
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := 'SELECT id FROM ' + Self.GetTableName(TSysLanguage) + ' WHERE locale = :locale LIMIT 1';
-    Q.ParamByName('locale').AsString := ALocale;
-    LogQuery(Q, 'GetLanguageIdByLocale');
-    Q.Open;
-    if not Q.IsEmpty then
-      Result := Q.Fields[0].AsLargeInt;
   finally
     Q.Free;
   end;
