@@ -1,4 +1,4 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{EF504BC3-B0B0-41E1-A3FB-DDDD403C643A}</ProjectGuid>
         <MainSource>Ths.dpr</MainSource>
@@ -296,6 +296,7 @@
         </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysGridColumn.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysGridColumn.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Cache\SysGridColumn.Cache.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysGridColumn.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysGridColumn.Service.pas"/>
         <DCCReference Include="Forms\System\Input\ufrmSysGridColumn.pas">
@@ -323,6 +324,12 @@
         </DCCReference>
         <DCCReference Include="Forms\System\Output\ufrmSysGridSorts.pas">
             <Form>frmSysGridSorts</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysViewTable.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysViewTable.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysViewTable.Service.pas"/>
+        <DCCReference Include="Forms\System\Output\ufrmSysViewTables.pas">
+            <Form>frmSysViewTables</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\System\Domain\SysLanguage.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysLanguage.Exception.pas"/>
@@ -530,6 +537,7 @@
             <Form>frmAccAccountPlans</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Account\Domain\AccBank.pas"/>
+        <DCCReference Include="BackEnd\Account\Exception\AccBank.Exception.pas"/>
         <DCCReference Include="BackEnd\Account\Repository\AccBank.Repository.pas"/>
         <DCCReference Include="BackEnd\Account\Service\AccBank.Service.pas"/>
         <DCCReference Include="Forms\Account\Input\ufrmAccBank.pas">
@@ -1382,6 +1390,9 @@
                     <Platform Name="Win64x">
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="WinARM64EC">
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSDeviceDebug">
                     <Platform Name="iOSDevice32">
@@ -1452,6 +1463,10 @@
                         <RemoteDir>Assets</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
+                    <Platform Name="WinARM64EC">
+                        <RemoteDir>Assets</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
                 </DeployClass>
                 <DeployClass Name="UWP_DelphiLogo44">
                     <Platform Name="Win32">
@@ -1459,6 +1474,10 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win64">
+                        <RemoteDir>Assets</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="WinARM64EC">
                         <RemoteDir>Assets</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>

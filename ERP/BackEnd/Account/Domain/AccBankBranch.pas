@@ -10,8 +10,8 @@ type
   TAccBankBranch = class(TEntity)
   private
     FAccBankId: Int64;
-    FCode: Integer;
-    FName: string;
+    FBranchCode: Integer;
+    FBranchName: string;
     FSysCityId: Int64;
 
     FAccBank: TAccBank;
@@ -20,11 +20,11 @@ type
     [Column('acc_bank_id'), Required()]
     property AccBankId: Int64 read FAccBankId write FAccBankId;
 
-    [Column('code'), Required()]
-    property Code: Integer read FCode write FCode;
+    [Column('branch_code'), Required()]
+    property BranchCode: Integer read FBranchCode write FBranchCode;
 
-    [Column('name'), MaxLength(64), Required()]
-    property Name: string read FName write FName;
+    [Column('branch_name'), MaxLength(128), Required()]
+    property BranchName: string read FBranchName write FBranchName;
 
     [Column('sys_city_id'), Required()]
     property SysCityId: Int64 read FSysCityId write FSysCityId;
@@ -51,7 +51,7 @@ end;
 
 destructor TAccBankBranch.Destroy;
 begin
-  if Assigned(FAccBank) then FreeAndNil(FAccBank);
+  FAccBank.Free;
 
   inherited;
 end;
@@ -61,15 +61,23 @@ begin
   Result := TAccBankBranch.Create;
   Result.Id := Self.Id;
   Result.AccBankId := Self.AccBankId;
-  Result.Code := Self.Code;
-  Result.Name := Self.Name;
+  Result.BranchCode := Self.BranchCode;
+  Result.BranchName := Self.BranchName;
   Result.SysCityId := Self.SysCityId;
 
   if Assigned(Self.AccBank) then
+  begin
+    if Assigned(Result.AccBank) then
+      Result.AccBank.Free;
     Result.AccBank := Self.AccBank.Clone;
+  end;
 
   if Assigned(Self.SysCity) then
+  begin
+    if Assigned(Result.SysCity) then
+      Result.SysCity.Free;
     Result.SysCity:= Self.SysCity.Clone;
+  end;
 end;
 
 end.

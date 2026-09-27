@@ -37,8 +37,8 @@ implementation
 
 procedure TfrmAccBankBranch.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Code := StrToIntDef(edtsube_kodu.Text, 0);
-  Table.Name := edtsube_adi.Text;
+  Table.BranchCode := StrToIntDef(edtsube_kodu.Text, 0);
+  Table.BranchName := edtsube_adi.Text;
   inherited;
 end;
 
@@ -92,7 +92,7 @@ begin
           else
           begin
             Table.AccBankId := LFrmBanks.Table.Id;
-            LEdit.Text := LFrmBanks.Table.Name;
+            LEdit.Text := LFrmBanks.Table.BankName;
           end;
         end;
       finally
@@ -133,8 +133,8 @@ var
   LCity: TSysCity;
 begin
   inherited;
-  edtsube_kodu.Text := IntToStr(Table.Code);
-  edtsube_adi.Text := Table.Name;
+  edtsube_kodu.Text := IntToStr(Table.BranchCode);
+  edtsube_adi.Text := Table.BranchName;
 
   if Table.AccBankId > 0 then
   begin
@@ -143,7 +143,7 @@ begin
       LBank := LBankService.FindById(Table.AccBankId, False);
       if Assigned(LBank) then
       begin
-        edtbanka_adi.Text := LBank.Name;
+        edtbanka_adi.Text := LBank.BankName;
         LBank.Free;
       end;
     finally

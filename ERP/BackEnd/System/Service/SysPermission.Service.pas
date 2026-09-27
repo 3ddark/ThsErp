@@ -15,6 +15,8 @@ const
   PERMISSION_SYS_COUNTRY    = 1001;
   PERMISSION_SYS_REGION     = 1002;
 
+  PERMISSION_ACC_BANK       = 1032;
+
 type
   TSysPermissionService = class(TCrudService<TSysPermission>)
   private

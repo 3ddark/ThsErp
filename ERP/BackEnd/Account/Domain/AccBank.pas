@@ -9,10 +9,10 @@ type
   TAccBank = class(TEntity)
   private
     FSWiftCode: string;
-    FName: string;
+    FBankName: string;
   public
-    [Column('name'), MaxLength(64), Required()]
-    property Name: string read FName write FName;
+    [Column('bank_name'), MaxLength(128), Required()]
+    property BankName: string read FBankName write FBankName;
 
     [Column('swift_code'), MaxLength(16)]
     property SWiftCode: string read FSWiftCode write FSWiftCode;
@@ -40,7 +40,7 @@ begin
   Result := TAccBank.Create;
   Result.Id := Self.Id;
   Result.SWiftCode := Self.SWiftCode;
-  Result.Name := Self.Name;
+  Result.BankName := Self.BankName;
 end;
 
 end.

@@ -527,6 +527,15 @@ type
         const ColTableType = 'sys_view_tables.col_table_type';
       end;
 
+      //Account Module
+      TAccBank = record
+        const TitlePlural = 'acc_bank.title_plural';
+        const TitleSingular = 'acc_bank.title_singular';
+        const ColBankName = 'acc_bank.col_bank_name';
+        const ColSwiftCode = 'acc_bank.col_swift_code';
+        const BankNameUnique = 'acc_bank.bank_name_unique';
+      end;
+
 
       //Employee Module
       TEmpEmployee = record
