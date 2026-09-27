@@ -4,23 +4,25 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   AccBank.Service, AccBank;
 
 type
   TfrmAccBank = class(TfrmInputSimpleDB<TAccBank, TAccBankService>)
     pnlContent: TPanel;
-    lblbanka_adi: TLabel;
-    edtbanka_adi: TEdit;
-    lblswift_kodu: TLabel;
-    edtswift_kodu: TEdit;
+    lblBankName: TLabel;
+    edtBankName: TEdit;
+    lblSwiftCode: TLabel;
+    edtSwiftCode: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -29,8 +31,8 @@ implementation
 
 procedure TfrmAccBank.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Name := edtbanka_adi.Text;
-  Table.SWiftCode := edtswift_kodu.Text;
+  Table.BankName := edtBankName.Text;
+  Table.SWiftCode := edtSwiftCode.Text;
   inherited;
 end;
 
@@ -43,15 +45,23 @@ end;
 procedure TfrmAccBank.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Banka';
-  edtbanka_adi.SetFocus;
+  ApplyLocalization;
+  edtBankName.SetFocus;
+end;
+
+procedure TfrmAccBank.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TAccBank.TitleSingular, 'Region');
+  lblBankName.Caption := TLocalizationManager.Translate(TLangKeys.TAccBank.ColBankName, 'Bank Name');
+  lblSwiftCode.Caption := TLocalizationManager.Translate(TLangKeys.TAccBank.ColSwiftCode, 'Swift Code');
 end;
 
 procedure TfrmAccBank.RefreshData;
 begin
   inherited;
-  edtbanka_adi.Text := Table.Name;
-  edtswift_kodu.Text := Table.SWiftCode;
+  edtBankName.Text := Table.BankName;
+  edtSwiftCode.Text := Table.SWiftCode;
 end;
 
 end.

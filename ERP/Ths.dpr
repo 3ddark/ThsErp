@@ -261,6 +261,7 @@ uses
   ufrmAccAccountPlan in 'Forms\Account\Input\ufrmAccAccountPlan.pas' {frmAccAccountPlan},
   ufrmAccAccountPlans in 'Forms\Account\Output\ufrmAccAccountPlans.pas' {frmAccAccountPlans},
   AccBank in 'BackEnd\Account\Domain\AccBank.pas',
+  AccBank.Exception in 'BackEnd\Account\Exception\AccBank.Exception.pas',
   AccBank.Repository in 'BackEnd\Account\Repository\AccBank.Repository.pas',
   AccBank.Service in 'BackEnd\Account\Service\AccBank.Service.pas',
   ufrmAccBank in 'Forms\Account\Input\ufrmAccBank.pas' {frmAccBank},

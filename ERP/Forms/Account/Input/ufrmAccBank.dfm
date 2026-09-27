@@ -11,7 +11,7 @@ object frmAccBank: TfrmAccBank
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
@@ -19,12 +19,10 @@ object frmAccBank: TfrmAccBank
     Height = 137
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 498
-    ExplicitHeight = 135
-    object lblbanka_adi: TLabel
-      Left = 62
+    object lblBankName: TLabel
+      Left = 72
       Top = 11
-      Width = 66
+      Width = 56
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -37,10 +35,10 @@ object frmAccBank: TfrmAccBank
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblswift_kodu: TLabel
-      Left = 53
+    object lblSwiftCode: TLabel
+      Left = 61
       Top = 38
-      Width = 75
+      Width = 67
       Height = 13
       Alignment = taRightJustify
       BiDiMode = bdLeftToRight
@@ -53,18 +51,18 @@ object frmAccBank: TfrmAccBank
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtbanka_adi: TEdit
+    object edtBankName: TEdit
       Left = 132
       Top = 7
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 0
     end
-    object edtswift_kodu: TEdit
+    object edtSwiftCode: TEdit
       Left = 132
       Top = 34
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 1
     end
   end

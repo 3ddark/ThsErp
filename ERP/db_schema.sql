@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict LVYshPH7jF4k3tJFIpxlcffWebMM2nAIFMfp9VraTYPs3xaR5k9akfVHEWPv76t
+\restrict HbmiP4wn7UvIGBJzN1Xe4gddUZHolRw5seu90jF9DAgGngTl3wDXl5bede7laXt
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -636,7 +636,7 @@ ALTER TABLE public.acc_account_taxpayer OWNER TO ths_admin;
 
 CREATE TABLE public.acc_bank (
     id bigint CONSTRAINT acc_bank_id_nn NOT NULL,
-    name character varying(64) CONSTRAINT acc_bank_name_nn NOT NULL,
+    bank_name character varying(128) CONSTRAINT acc_bank_name_nn NOT NULL,
     swift_code character varying(16)
 );
 
@@ -649,10 +649,10 @@ ALTER TABLE public.acc_bank OWNER TO ths_admin;
 
 CREATE TABLE public.acc_bank_branch (
     id bigint CONSTRAINT acc_branch_id_nn NOT NULL,
-    bank_id bigint CONSTRAINT acc_branch_bank_nn NOT NULL,
-    code integer CONSTRAINT acc_branch_code_nn NOT NULL,
-    name character varying(64) CONSTRAINT acc_branch_name_nn NOT NULL,
-    city_id bigint CONSTRAINT acc_branch_city_nn NOT NULL
+    acc_bank_id bigint CONSTRAINT acc_branch_bank_nn NOT NULL,
+    branch_code integer CONSTRAINT acc_branch_code_nn NOT NULL,
+    branch_name character varying(128) CONSTRAINT acc_branch_name_nn NOT NULL,
+    sys_city_id bigint CONSTRAINT acc_branch_city_nn NOT NULL
 );
 
 
@@ -3587,6 +3587,19 @@ CREATE VIEW public.vw_acc_account AS
 ALTER VIEW public.vw_acc_account OWNER TO ths_admin;
 
 --
+-- Name: vw_acc_bank; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_bank AS
+ SELECT id,
+    bank_name,
+    swift_code
+   FROM public.acc_bank;
+
+
+ALTER VIEW public.vw_acc_bank OWNER TO ths_admin;
+
+--
 -- Name: vw_acc_set_account_type; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -4086,11 +4099,11 @@ ALTER TABLE ONLY public.acc_account_plan
 
 
 --
--- Name: acc_bank acc_bank_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: acc_bank acc_bank_bank_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.acc_bank
-    ADD CONSTRAINT acc_bank_name_key UNIQUE (name);
+    ADD CONSTRAINT acc_bank_bank_name_key UNIQUE (bank_name);
 
 
 --
@@ -4102,11 +4115,11 @@ ALTER TABLE ONLY public.acc_bank
 
 
 --
--- Name: acc_bank_branch acc_branch_bc_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: acc_bank_branch acc_branch_acc_bank_id_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.acc_bank_branch
-    ADD CONSTRAINT acc_branch_bc_key UNIQUE (bank_id, code);
+    ADD CONSTRAINT acc_branch_acc_bank_id_code_key UNIQUE (acc_bank_id, branch_code);
 
 
 --
@@ -5772,19 +5785,19 @@ ALTER TABLE ONLY public.acc_account_taxpayer
 
 
 --
--- Name: acc_bank_branch acc_branch_bank_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: acc_bank_branch acc_branch_acc_bank_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.acc_bank_branch
-    ADD CONSTRAINT acc_branch_bank_fkey FOREIGN KEY (bank_id) REFERENCES public.acc_bank(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT acc_branch_acc_bank_id_fkey FOREIGN KEY (acc_bank_id) REFERENCES public.acc_bank(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: acc_bank_branch acc_branch_city_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: acc_bank_branch acc_branch_sys_city_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.acc_bank_branch
-    ADD CONSTRAINT acc_branch_city_fkey FOREIGN KEY (city_id) REFERENCES public.sys_city(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT acc_branch_sys_city_id_fkey FOREIGN KEY (sys_city_id) REFERENCES public.sys_city(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6927,5 +6940,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict LVYshPH7jF4k3tJFIpxlcffWebMM2nAIFMfp9VraTYPs3xaR5k9akfVHEWPv76t
+\unrestrict HbmiP4wn7UvIGBJzN1Xe4gddUZHolRw5seu90jF9DAgGngTl3wDXl5bede7laXt
 
