@@ -1,4 +1,4 @@
-﻿unit SysLanguage.Repository;
+unit SysLanguage.Repository;
 
 interface
 
@@ -24,9 +24,11 @@ type
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysLanguage>; override;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TSysLanguage>; overload; override;
+    function DoFind(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False): TObjectList<TSysLanguage>; overload; override;
     function DoFindById(AId: TValue; ALock: Boolean = False): TSysLanguage; override;
-    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysLanguage; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TSysLanguage; overload; override;
+    function DoFindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False): TSysLanguage; overload; override;
 
     procedure DoAdd(AModel: TSysLanguage); override;
     procedure DoAddBatch(AModels: TArray<TSysLanguage>); override;
@@ -128,6 +130,11 @@ begin
 end;
 
 function TSysLanguageRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysLanguage>;
+begin
+  Result := DoFind(AFilter, nil, ALock);
+end;
+
+function TSysLanguageRepository.DoFind(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean): TObjectList<TSysLanguage>;
 var
   Q: TFDQuery;
   Item: TSysLanguage;
@@ -137,7 +144,7 @@ begin
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock);
+    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ASort, ALock);
 
     if Assigned(AFilter) and (AFilter.Count > 0) then
     begin
@@ -185,6 +192,11 @@ begin
 end;
 
 function TSysLanguageRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TSysLanguage;
+begin
+  Result := DoFindOne(AFilter, nil, ALock);
+end;
+
+function TSysLanguageRepository.DoFindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean): TSysLanguage;
 var
   Q: TFDQuery;
   Criteria: TFilterCriterion;
@@ -196,7 +208,7 @@ begin
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, True);
+    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ASort, ALock, True);
 
     for Criteria in AFilter do
       Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;

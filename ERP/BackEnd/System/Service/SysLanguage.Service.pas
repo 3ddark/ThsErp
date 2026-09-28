@@ -1,4 +1,4 @@
-﻿unit SysLanguage.Service;
+unit SysLanguage.Service;
 
 interface
 
@@ -20,16 +20,19 @@ type
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
-    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysLanguage>; override;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysLanguage>; overload; override;
+    function Find(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TList<TSysLanguage>; overload; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TSysLanguage; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TSysLanguage; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TSysLanguage; overload; override;
+    function FindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TSysLanguage; overload; override;
 
     procedure Add(AEntity: TSysLanguage); override;
     procedure Update(AEntity: TSysLanguage); override;
     procedure Delete(AId: Int64); override;
 
     function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysLanguage; override;
-    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysLanguage>; override;
+    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysLanguage>; overload; override;
+    function BusinessFind(AFilter: TFilterCriteria; ASort: TSortCriteria; AWithBegin: Boolean = False; ALock: Boolean = False; APermissionControl: Boolean = False): TList<TSysLanguage>; overload; override;
     procedure BusinessInsert(AEntity: TSysLanguage; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
     procedure BusinessUpdate(AEntity: TSysLanguage; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
     procedure BusinessDelete(AEntity: TSysLanguage; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
@@ -53,13 +56,30 @@ begin
 end;
 
 function TSysLanguageService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysLanguage>;
+var
+  LSort: TSortCriteria;
+begin
+  LSort := nil;
+  if Self.Sort.Count > 0 then
+    LSort := Self.Sort;
+  Result := BusinessFind(AFilter, LSort, AWithBegin, ALock, APermissionControl);
+end;
+
+function TSysLanguageService.BusinessFind(AFilter: TFilterCriteria; ASort: TSortCriteria; AWithBegin: Boolean; ALock: Boolean; APermissionControl: Boolean): TList<TSysLanguage>;
+var
+  LSort: TSortCriteria;
 begin
   Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
 
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
+
+  LSort := ASort;
+  if (LSort = nil) and (Self.Sort.Count > 0) then
+    LSort := Self.Sort;
+
   try
-    Result := FRepo.Find(AFilter, ALock);
+    Result := FRepo.Find(AFilter, LSort, ALock);
   except
     if Self.UoW.InTransaction then
     begin
@@ -171,8 +191,23 @@ begin
 end;
 
 function TSysLanguageService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TSysLanguage>;
+var
+  LSort: TSortCriteria;
 begin
-  Result := FRepo.Find(AFilter, ALock);
+  LSort := nil;
+  if Self.Sort.Count > 0 then
+    LSort := Self.Sort;
+  Result := Find(AFilter, LSort, ALock, AIncludeNestedEntities);
+end;
+
+function TSysLanguageService.Find(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TSysLanguage>;
+var
+  LSort: TSortCriteria;
+begin
+  LSort := ASort;
+  if (LSort = nil) and (Self.Sort.Count > 0) then
+    LSort := Self.Sort;
+  Result := FRepo.Find(AFilter, LSort, ALock);
 end;
 
 function TSysLanguageService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TSysLanguage;
@@ -181,8 +216,23 @@ begin
 end;
 
 function TSysLanguageService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysLanguage;
+var
+  LSort: TSortCriteria;
 begin
-  Result := FRepo.FindOne(AFilter, ALock);
+  LSort := nil;
+  if Self.Sort.Count > 0 then
+    LSort := Self.Sort;
+  Result := FindOne(AFilter, LSort, ALock, AIncludeNestedEntities);
+end;
+
+function TSysLanguageService.FindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TSysLanguage;
+var
+  LSort: TSortCriteria;
+begin
+  LSort := ASort;
+  if (LSort = nil) and (Self.Sort.Count > 0) then
+    LSort := Self.Sort;
+  Result := FRepo.FindOne(AFilter, LSort, ALock);
 end;
 
 procedure TSysLanguageService.Add(AEntity: TSysLanguage);
