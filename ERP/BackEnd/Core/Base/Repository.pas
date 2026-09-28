@@ -1,4 +1,4 @@
-﻿unit Repository;
+unit Repository;
 
 interface
 
@@ -16,8 +16,10 @@ type
     function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
 
     function FindById(AId: TValue; ALock: Boolean = False): T;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<T>;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T; overload;
+    function FindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False): T; overload;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<T>; overload;
+    function Find(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False): TObjectList<T>; overload;
 
     procedure Add(AModel: T); overload;
     procedure AddBatch(AModels: TArray<T>); overload;
@@ -39,7 +41,8 @@ type
     function ExpandSQLWithParams(Q: TFDQuery): string;
     procedure LogQuery(Q: TFDQuery; const AOperation: string = '');
 
-    function PrepareSelectFromView(AFilter: TFilterCriteria; ALock: Boolean; AGetOnlyOneRecord: Boolean = False; AApplyLocaleFilter: Boolean = False): string;
+    function PrepareSelectFromView(AFilter: TFilterCriteria; ALock: Boolean; AGetOnlyOneRecord: Boolean = False; AApplyLocaleFilter: Boolean = False): string; overload;
+    function PrepareSelectFromView(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean; AGetOnlyOneRecord: Boolean = False; AApplyLocaleFilter: Boolean = False): string; overload;
     function BuildSelectColumns(const AAlwaysFetch: TArray<string> = []): string; virtual;
 
     function Connection: TFDConnection;
@@ -54,8 +57,10 @@ type
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; virtual; abstract;
 
     function DoFindById(AId: TValue; ALock: Boolean = False): T; virtual; abstract;
-    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T; virtual; abstract;
-    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<T>; virtual; abstract;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T; overload; virtual; abstract;
+    function DoFindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False): T; overload; virtual;
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<T>; overload; virtual; abstract;
+    function DoFind(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False): TObjectList<T>; overload; virtual;
 
     procedure DoAdd(AModel: T); virtual; abstract;
     procedure DoAddBatch(AModels: TArray<T>); virtual; abstract;
@@ -72,8 +77,10 @@ type
     function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; virtual;
 
     function FindById(AId: TValue; ALock: Boolean = False): T; virtual;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T; virtual;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<T>; virtual;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): T; overload; virtual;
+    function FindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False): T; overload; virtual;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<T>; overload; virtual;
+    function Find(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False): TObjectList<T>; overload; virtual;
 
     procedure Add(AModel: T); virtual;
     procedure AddBatch(AModels: TArray<T>); virtual;
@@ -145,13 +152,19 @@ begin
 end;
 
 function TRepository<T>.PrepareSelectFromView(AFilter: TFilterCriteria; ALock: Boolean; AGetOnlyOneRecord: Boolean; AApplyLocaleFilter: Boolean): string;
+begin
+  Result := PrepareSelectFromView(AFilter, nil, ALock, AGetOnlyOneRecord, AApplyLocaleFilter);
+end;
+
+function TRepository<T>.PrepareSelectFromView(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean; AGetOnlyOneRecord: Boolean; AApplyLocaleFilter: Boolean): string;
 var
-  LFilterSql, LLocaleFilter, Limit1: string;
+  LFilterSql, LLocaleFilter, Limit1, LOrderBySql: string;
   Criterion: TFilterCriterion;
 begin
   LFilterSql := '';
   Limit1 := '';
   LLocaleFilter := '';
+  LOrderBySql := BuildOrderByClause(ASort);
 
   if AGetOnlyOneRecord then
     Limit1 := ' LIMIT 1 ';
@@ -169,7 +182,7 @@ begin
       'WITH filtered AS (' +
       '  SELECT v.id' +
       '  FROM ' + GetFullViewName(T) + ' v' +
-      '  WHERE 1=1' + LFilterSql + Limit1 +  // view üzerinde filtrele
+      '  WHERE 1=1' + LFilterSql + LOrderBySql + Limit1 +  // view üzerinde filtrele
       '), ' +
       'lock_rows AS (' +
       '  SELECT id FROM ' + GetFullTableName(T) +  // table'ı kilitle
@@ -180,12 +193,13 @@ begin
       'FROM ' + GetFullViewName(T) + ' v ' +
       'INNER JOIN lock_rows l ON l.id = v.id ' +
       'WHERE 1=1 ' + LLocaleFilter +
+      LOrderBySql +
       Limit1  // kilitli kayıtları oku
   else
     Result :=
       'SELECT v.* ' +
       'FROM ' + GetFullViewName(T) + ' v ' +
-      'WHERE 1=1' + LFilterSql + Limit1;
+      'WHERE 1=1' + LFilterSql + LOrderBySql + Limit1;
 end;
 
 function TRepository<T>.ExpandSQLWithParams(Q: TFDQuery): string;
@@ -248,11 +262,28 @@ begin
   GLogger.InfoFmt('FindAllGridQuery Done %s', [Self.ClassName]);
 end;
 
+function TRepository<T>.DoFind(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean): TObjectList<T>;
+begin
+  Result := DoFind(AFilter, ALock);
+end;
+
+function TRepository<T>.DoFindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean): T;
+begin
+  Result := DoFindOne(AFilter, ALock);
+end;
+
 function TRepository<T>.Find(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<T>;
 begin
   GLogger.InfoFmt('Find %s', [Self.ClassName]);
   Result := DoFind(AFilter, ALock);
   GLogger.InfoFmt('Find Done %s', [Self.ClassName]);
+end;
+
+function TRepository<T>.Find(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean): TObjectList<T>;
+begin
+  GLogger.InfoFmt('Find (Sort) %s', [Self.ClassName]);
+  Result := DoFind(AFilter, ASort, ALock);
+  GLogger.InfoFmt('Find (Sort) Done %s', [Self.ClassName]);
 end;
 
 function TRepository<T>.FindById(AId: TValue; ALock: Boolean): T;
@@ -267,6 +298,13 @@ begin
   GLogger.InfoFmt('FindOne %s', [Self.ClassName]);
   Result := DoFindOne(AFilter, ALock);
   GLogger.InfoFmt('FindOne Done %s', [Self.ClassName]);
+end;
+
+function TRepository<T>.FindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean): T;
+begin
+  GLogger.InfoFmt('FindOne (Sort) %s', [Self.ClassName]);
+  Result := DoFindOne(AFilter, ASort, ALock);
+  GLogger.InfoFmt('FindOne (Sort) Done %s', [Self.ClassName]);
 end;
 
 procedure TRepository<T>.Add(AModel: T);

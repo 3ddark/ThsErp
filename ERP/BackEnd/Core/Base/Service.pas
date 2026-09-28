@@ -1,4 +1,4 @@
-﻿
+
 unit Service;
 
 interface
@@ -25,11 +25,14 @@ type
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): T;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): T;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<T>;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): T; overload;
+    function FindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): T; overload;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<T>; overload;
+    function Find(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TList<T>; overload;
 
     function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): T;
-    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<T>;
+    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<T>; overload;
+    function BusinessFind(AFilter: TFilterCriteria; ASort: TSortCriteria; AWithBegin: Boolean = False; ALock: Boolean = False; APermissionControl: Boolean = False): TList<T>; overload;
   end;
 
   ICrudService<T: TEntity> = interface(IViewService<T>)
@@ -48,6 +51,7 @@ type
   TService<T: TEntity, constructor> = class(TInterfacedObject, IService<T>)
   private
     FFilter: TFilterCriteria;
+    FSort: TSortCriteria;
 
     function GetUnitOfWork: TUnitOfWork;
     procedure FillNestedEntityFromDataSet(ADataSet: TFDDataSet; AEntity: TObject; AClass: TClass);
@@ -59,6 +63,7 @@ type
 //    function ExtractGenericTypeFromList(AListType: TRttiType): TClass;
   protected
     property Filter: TFilterCriteria read FFilter;
+    property Sort: TSortCriteria read FSort;
   public
     property UoW: TUnitOfWork read GetUnitOfWork;
 
@@ -84,11 +89,14 @@ type
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; virtual; abstract;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): T; virtual; abstract;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): T; virtual; abstract;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<T>; virtual; abstract;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): T; overload; virtual; abstract;
+    function FindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): T; overload; virtual;
+    function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<T>; overload; virtual; abstract;
+    function Find(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TList<T>; overload; virtual;
 
     function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): T; virtual; abstract;
-    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<T>; virtual; abstract;
+    function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<T>; overload; virtual; abstract;
+    function BusinessFind(AFilter: TFilterCriteria; ASort: TSortCriteria; AWithBegin: Boolean = False; ALock: Boolean = False; APermissionControl: Boolean = False): TList<T>; overload; virtual;
   end;
 
   TCrudService<T: TEntity, constructor> = class(TViewService<T>)
@@ -574,10 +582,12 @@ constructor TService<T>.Create;
 begin
   inherited;
   FFilter := TFilterCriteria.Create;
+  FSort := TSortCriteria.Create;
 end;
 
 destructor TService<T>.Destroy;
 begin
+  FSort.Free;
   Filter.Free;
   inherited;
 end;
@@ -813,6 +823,36 @@ end;
 function TViewService<T>.IsAuthorized(APermissionType: TPermissionType; APermissionControl: Boolean): Boolean;
 begin
   Result := Self.UoW.IsAuthorized(Self.PermissionCode, APermissionType, APermissionControl);
+end;
+
+function TViewService<T>.Find(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<T>;
+begin
+  if (ASort <> nil) and (ASort <> Self.Sort) then
+  begin
+    Self.Sort.Clear;
+    Self.Sort.AddRange(ASort);
+  end;
+  Result := Find(AFilter, ALock, AIncludeNestedEntities);
+end;
+
+function TViewService<T>.FindOne(AFilter: TFilterCriteria; ASort: TSortCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): T;
+begin
+  if (ASort <> nil) and (ASort <> Self.Sort) then
+  begin
+    Self.Sort.Clear;
+    Self.Sort.AddRange(ASort);
+  end;
+  Result := FindOne(AFilter, ALock, AIncludeNestedEntities);
+end;
+
+function TViewService<T>.BusinessFind(AFilter: TFilterCriteria; ASort: TSortCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<T>;
+begin
+  if (ASort <> nil) and (ASort <> Self.Sort) then
+  begin
+    Self.Sort.Clear;
+    Self.Sort.AddRange(ASort);
+  end;
+  Result := BusinessFind(AFilter, AWithBegin, ALock, APermissionControl);
 end;
 
 end.

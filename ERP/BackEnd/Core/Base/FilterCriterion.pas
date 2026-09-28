@@ -1,4 +1,4 @@
-﻿unit FilterCriterion;
+unit FilterCriterion;
 
 interface
 
@@ -28,6 +28,26 @@ type
   end;
 
   TFilterCriteria = TList<TFilterCriterion>;
+
+  TSortDirection = (sdAsc, sdDesc);
+
+  TSortCriterion = record
+  private
+    FFieldName : string;
+    FDirection : TSortDirection;
+    procedure SetFieldName(const AValue: string);
+  public
+    class function New(const AFieldName: string; ADirection: TSortDirection = sdAsc): TSortCriterion; static;
+    class function Asc(const AFieldName: string): TSortCriterion; static;
+    class function Desc(const AFieldName: string): TSortCriterion; static;
+    function ToSql: string;
+    property FieldName : string read FFieldName write SetFieldName;
+    property Direction : TSortDirection read FDirection write FDirection;
+  end;
+
+  TSortCriteria = TList<TSortCriterion>;
+
+function BuildOrderByClause(ASort: TSortCriteria): string;
 
 implementation
 
@@ -98,6 +118,62 @@ begin
   Result.Operator  := AOperator;
   Result.ParamName := AParamName;
   Result.Value     := AValue;
+end;
+
+{ TSortCriterion }
+
+procedure TSortCriterion.SetFieldName(const AValue: string);
+var
+  CleanPath: string;
+  Ch: Char;
+begin
+  CleanPath := Trim(AValue);
+  for Ch in CleanPath do
+    if not CharInSet(Ch, ['a'..'z', 'A'..'Z', '0'..'9', '_', '.']) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TSecurity.InvalidFieldName, [AValue]));
+  FFieldName := CleanPath;
+end;
+
+class function TSortCriterion.New(const AFieldName: string; ADirection: TSortDirection): TSortCriterion;
+begin
+  Result.FieldName := AFieldName;
+  Result.Direction := ADirection;
+end;
+
+class function TSortCriterion.Asc(const AFieldName: string): TSortCriterion;
+begin
+  Result := New(AFieldName, sdAsc);
+end;
+
+class function TSortCriterion.Desc(const AFieldName: string): TSortCriterion;
+begin
+  Result := New(AFieldName, sdDesc);
+end;
+
+function TSortCriterion.ToSql: string;
+begin
+  if FDirection = sdDesc then
+    Result := FFieldName + ' DESC'
+  else
+    Result := FFieldName + ' ASC';
+end;
+
+function BuildOrderByClause(ASort: TSortCriteria): string;
+var
+  I: Integer;
+  Criterion: TSortCriterion;
+begin
+  Result := '';
+  if not Assigned(ASort) or (ASort.Count = 0) then Exit;
+
+  Result := ' ORDER BY ';
+  for I := 0 to ASort.Count - 1 do
+  begin
+    Criterion := ASort[I];
+    if I > 0 then
+      Result := Result + ', ';
+    Result := Result + Criterion.ToSql;
+  end;
 end;
 
 end.
