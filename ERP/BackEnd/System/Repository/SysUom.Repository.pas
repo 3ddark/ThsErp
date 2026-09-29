@@ -73,7 +73,7 @@ end;
 function TSysUomRepository.PrepareDeleteSql: string;
 begin
   //WHERE kısmı özellikle böyle yazıldı. Filtre vermeden işlem yapılmaması için. Hatalı kodlamada tüm tabloyu siler.
-  Result := 'DELETE FROM public.' + Self.GetTableName(TSysUom) + ' WHERE id = :id';
+  Result := 'DELETE FROM public.' + Self.GetTableName(TSysUom) + ' WHERE';
 end;
 
 function TSysUomRepository.PrepareLoadTranslationSql: string;

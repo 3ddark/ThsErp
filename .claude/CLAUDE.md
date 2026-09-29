@@ -1,4 +1,4 @@
-﻿# CLAUDE_MASTER.md
+﻿# CLAUDE.md
 
 # 01 — MASTER EXECUTION RULES
 
@@ -7,7 +7,7 @@
 Claude must follow instructions in this order:
 
 1. Safety Rules
-2. CLAUDE_MASTER.md
+2. CLAUDE.md
 3. Resume State (`docs/claude_resume.md`)
 4. User Commands
 
@@ -19,10 +19,10 @@ Higher priority overrides lower priority.
 
 ## Project Info
 
-* Project Name: Ths ERP
-* Database: PostgreSQL
-* Tech Stack: Modern Delphi Desktop ERP (11 Alexandria / 12 Athens veya ilgili sürüm)
-* Goal: ERP + CRM + Accounting Desktop Application
+- Project Name: Ths ERP
+- Database: PostgreSQL
+- Tech Stack: Modern Delphi Desktop ERP (11 Alexandria / 12 Athens / 13 veya ilgili sürüm)
+- Goal: ERP + CRM + Accounting Desktop Application
 
 Long-term roadmap:
 
@@ -32,8 +32,8 @@ Long-term roadmap:
 
 Future stack:
 
-* Backend: Go
-* Frontend: React + Vite
+- Backend: Go / .Net Core
+- Frontend: React + Vite
 
 ## Core Philosophy
 
@@ -48,7 +48,7 @@ Truth source priority:
 
 If conflicts occur:
 
-* MCP is source of truth.
+- MCP is source of truth.
 
 ---
 
@@ -83,7 +83,7 @@ ThsERP/
 │   └── db_schema.sql
 ├── ERPDevWizard/
 ├── docs/
-├── CLAUDE_MASTER.md
+├── .claude/CLAUDE.md
 └── README.md
 ```
 
@@ -108,16 +108,16 @@ ERP/BackEnd/{Module}/
 
 Rules:
 
-* Domain = schema only
-* Repository = DB access only
-* Service = business logic + authorization + transactions
-* Forms = UI only
+- Domain = schema only
+- Repository = DB access only
+- Service = business logic + authorization + transactions
+- Forms = UI only
 
 Forbidden:
 
-* Repository business logic
-* Form direct DB access
-* Service bypass
+- Repository business logic
+- Form direct DB access
+- Service bypass
 
 ---
 
@@ -125,11 +125,14 @@ Forbidden:
 
 ## Database
 
-* Host: localhost
-* User: postgres
-* Password: qwe
-* Database: ths_erp
-* Schema: public
+`Bilgiler açık yazıldı hiç önemli değil. Test ortamı`
+
+- Host: localhost
+- User: postgres
+- Password: qwe
+- Database: ths_erp
+- Schema: public
+- Port: 5432 / 5433 --iki farklı çalışma ortamı var. Bu nedenle iki farklı port var. Önemli değil. Asıl referans GlobalSettings.ini
 
 ---
 
@@ -137,14 +140,14 @@ Forbidden:
 
 All DB identifiers must:
 
-* be English
-* use snake_case
-* keep module prefixes
+- be English
+- use snake_case
+- keep module prefixes
 
 Forbidden:
 
-* Turkish identifiers
-* Turkish characters
+- Turkish identifiers
+- Turkish characters
 
 Examples:
 
@@ -159,16 +162,16 @@ Prefixes must never be removed.
 
 Examples:
 
-* sys_
-* acc_
-* stk_
-* emp_
-* prd_
-* sls_
-* pur_
-* einv_
-* ord_
-* inv_
+- sys\_
+- acc\_
+- stk\_
+- emp\_
+- prd\_
+- sls\_
+- pur\_
+- einv\_
+- ord\_
+- inv\_
 
 ---
 
@@ -176,18 +179,23 @@ Examples:
 
 After every DDL operation:
 
-* create table
-* alter table
-* add column
-* rename column
-* create index
-* create view
-* modify constraint
+- create table
+- alter table
+- add column
+- rename column
+- create index
+- create view
+- modify constraint
 
 Mandatory schema dump:
 
 ```bash
-pg_dump schema-only → ERP/db_schema.sql
+Use postgres 18 version pg_dump following folder
+
+C:\Program Files\PostgreSQL\18\bin\
+
+pg_dump -U {username} -s {dbname} > {filename}
+pg_dump -U postgres -s ths_erp > ERP/db_schema.sql
 ```
 
 This step cannot be skipped.
@@ -205,6 +213,7 @@ host: localhost
 database: ths_erp
 user: postgres
 schema: public
+port: 5432 / 5433     --use two different pc
 ```
 
 Query priority:
@@ -230,11 +239,11 @@ Extract prefixes dynamically.
 
 Examples:
 
-* sys
-* stk
-* acc
-* emp
-* prd
+- sys
+- stk
+- acc
+- emp
+- prd
 
 ---
 
@@ -260,8 +269,8 @@ Input and output forms must stay in same module folder.
 
 Forbidden:
 
-* InputForms/
-* OutputForms/
+- InputForms/
+- OutputForms/
 
 Form naming:
 
@@ -279,8 +288,8 @@ ufrm{EntityName}s
 
 Examples:
 
-* ufrmSysCity
-* ufrmSysCities
+- ufrmSysCity
+- ufrmSysCities
 
 ---
 
@@ -290,20 +299,20 @@ Given a table name Claude generates:
 
 ### Backend
 
-* Domain
-* Repository
-* Service
+- Domain
+- Repository
+- Service
 
 ### Forms
 
-* Input Form
-* Output Form
-* DFM
+- Input Form
+- Output Form
+- DFM
 
 Optional:
 
-* Detail Form
-* SQL View
+- Detail Form
+- SQL View
 
 Generation order:
 
@@ -330,14 +339,14 @@ Each column must map to property.
 
 DB → Delphi mapping:
 
-* bigint → Int64
-* integer → Integer
-* varchar → string
-* text → string
-* boolean → Boolean
-* numeric → Currency
-* timestamp → TDateTime
-* date → TDate
+- bigint → Int64
+- integer → Integer
+- varchar → string
+- text → string
+- boolean → Boolean
+- numeric → Currency
+- timestamp → TDateTime
+- date → TDate
 
 ---
 
@@ -351,8 +360,8 @@ TSysCityRepository = class(TRepository<TSysCity>)
 
 Required:
 
-* constructor
-* FindAllGridQuery override
+- constructor
+- FindAllGridQuery override
 
 Query:
 
@@ -374,16 +383,16 @@ TSysCityService = class(TCrudService<TSysCity>)
 
 Mandatory methods:
 
-* Find
-* FindById
-* Add
-* Update
-* Delete
-* BusinessFind
-* BusinessFindById
-* BusinessInsert
-* BusinessUpdate
-* BusinessDelete
+- Find
+- FindById
+- Add
+- Update
+- Delete
+- BusinessFind
+- BusinessFindById
+- BusinessInsert
+- BusinessUpdate
+- BusinessDelete
 
 Transaction pattern:
 
@@ -408,26 +417,26 @@ Rollback is mandatory.
 
 Requirements:
 
-* Grid columns
-* Hidden id
-* Hidden FK ids
-* Show readable names
+- Grid columns
+- Hidden id
+- Hidden FK ids
+- Show readable names
 
 ## Input Form
 
 Requirements:
 
-* FormCreate
-* FormShow
-* BtnAcceptClick
-* InitializeInputCase
-* RefreshData
+- FormCreate
+- FormShow
+- BtnAcceptClick
+- InitializeInputCase
+- RefreshData
 
 Rules:
 
-* writable fields only
-* FK fields via helper forms using `OnHelperProcess` event binding (see FK Field Helper Process Rule below)
-* readonly fields excluded
+- writable fields only
+- FK fields via helper forms using `OnHelperProcess` event binding (see FK Field Helper Process Rule below)
+- readonly fields excluded
 
 ---
 
@@ -455,13 +464,13 @@ end;
 
 The `HelperProcess` procedure must:
 
-* Check if `Sender is TEdit`.
-* Match the sender's `Name` to determine which FK field was triggered.
-* Create the corresponding helper form (passing the sender, a service instance, and an entity class).
-* Set `IsHelper := True` on the helper form before showing it modally.
-* After modal close, transfer data from the helper form back to the parent:
-  * If `CleanAndClose` returned True → clear the FK id in the table and clear the edit text (user cancelled/cleared).
-  * Otherwise → set the FK id in the table (`Table.FkId := Helper.Table.Id`) and populate the edit text with a readable display field from the helper's table.
+- Check if `Sender is TEdit`.
+- Match the sender's `Name` to determine which FK field was triggered.
+- Create the corresponding helper form (passing the sender, a service instance, and an entity class).
+- Set `IsHelper := True` on the helper form before showing it modally.
+- After modal close, transfer data from the helper form back to the parent:
+  - If `CleanAndClose` returned True → clear the FK id in the table and clear the edit text (user cancelled/cleared).
+  - Otherwise → set the FK id in the table (`Table.FkId := Helper.Table.Id`) and populate the edit text with a readable display field from the helper's table.
 
 ### Example Implementation
 
@@ -500,11 +509,11 @@ end;
 
 ### Rules
 
-* Each FK field that needs helper selection must have its `OnHelperProcess` assigned in `FormCreate`.
-* The helper form is always created with three arguments: the triggering TEdit, a service instance, and an entity class.
-* The helper form sets `IsHelper := True` before showing modally.
-* After modal close, data transfer logic checks `DataTransfer` to determine if the user confirmed selection or cancelled/cleared.
-* CleanAndClose handling: when cleared, reset FK id to 0 in the table and clear the edit text.
+- Each FK field that needs helper selection must have its `OnHelperProcess` assigned in `FormCreate`.
+- The helper form is always created with three arguments: the triggering TEdit, a service instance, and an entity class.
+- The helper form sets `IsHelper := True` before showing modally.
+- After modal close, data transfer logic checks `DataTransfer` to determine if the user confirmed selection or cancelled/cleared.
+- CleanAndClose handling: when cleared, reset FK id to 0 in the table and clear the edit text.
 
 ### Implementation Uses Clause
 
@@ -526,10 +535,10 @@ The rule is: for each FK field that uses the `OnHelperProcess` pattern, add a li
 
 Helper forms follow the same naming rules as regular forms:
 
-| Parent FK Field | Helper Form Class | Helper Form Unit |
-|---|---|---|
-| `edtCountryId` | `TfrmSysCountries` | `ufrmSysCountries.pas` |
-| `edtRegionId` | `TfrmSysRegions` | `ufrmSysRegions.pas` |
+| Parent FK Field | Helper Form Class  | Helper Form Unit       |
+| --------------- | ------------------ | ---------------------- |
+| `edtCountryId`  | `TfrmSysCountries` | `ufrmSysCountries.pas` |
+| `edtRegionId`   | `TfrmSysRegions`   | `ufrmSysRegions.pas`   |
 
 The helper form name matches the output form for that entity (pluralized).
 
@@ -556,11 +565,11 @@ Use generic TEdit for all data types with customization via `thsInputDataType` p
 
 Supported types:
 
-* String → `itString`
-* Integer → `itInteger`
-* Float → `itFloat`
-* Date → `itDate`
-* Time → `itTime`
+- String → `itString`
+- Integer → `itInteger`
+- Float → `itFloat`
+- Date → `itDate`
+- Time → `itTime`
 
 Example:
 
@@ -579,16 +588,16 @@ Customization is enabled through this property — no separate control types nee
 
 Each Delphi component type must use a specific prefix:
 
-| Component Type | Prefix | Example |
-|---|---|---|
-| TEdit | `edt` | `edtCode`, `edtContentType` |
-| TComboBox | `cbb` | `cbbTableName` |
-| TCheckBox | `chk` | `chkIsFactory` |
-| TMemo | `mmo` | `mmoDescription` |
-| TLabel | `lbl` | `lblCode` |
-| TListBox | `lbx` | `lbxItems` |
+| Component Type | Prefix | Example                     |
+| -------------- | ------ | --------------------------- |
+| TEdit          | `edt`  | `edtCode`, `edtContentType` |
+| TComboBox      | `cbb`  | `cbbTableName`              |
+| TCheckBox      | `chk`  | `chkIsFactory`              |
+| TMemo          | `mmo`  | `mmoDescription`            |
+| TLabel         | `lbl`  | `lblCode`                   |
+| TListBox       | `lbx`  | `lbxItems`                  |
 
-Rule: `{prefix}{database_field_name}`  (PascalCase direct concatenation, NO separator)
+Rule: `{prefix}{database_field_name}` (PascalCase direct concatenation, NO separator)
 
 Example:
 
@@ -602,7 +611,6 @@ Example:
 ❌ `edtIcerikTipi`
 ✅ `edtContentType`
 
-
 # 13A — FORM INHERITANCE & DFM CONTRACT
 
 This section is mandatory for all generated Delphi Forms.
@@ -615,8 +623,8 @@ Forms must inherit from existing ERP base forms.
 
 Forbidden:
 
-* TForm direct inheritance
-* standalone forms without ERP base classes
+- TForm direct inheritance
+- standalone forms without ERP base classes
 
 ---
 
@@ -636,17 +644,17 @@ TfrmSysCities = class(TfrmGrid<TSysCity, TSysCityService>)
 
 Mandatory inherited methods:
 
-* CreateInputForm
-* DefineFooterColumns
-* DefineColumnWidths
-* FormShow
+- CreateInputForm
+- DefineFooterColumns
+- DefineColumnWidths
+- FormShow
 
 Required behavior:
 
-* grid datasource bind to Service
-* id column hidden
-* FK id columns hidden
-* readable lookup columns visible
+- grid datasource bind to Service
+- id column hidden
+- FK id columns hidden
+- readable lookup columns visible
 
 ---
 
@@ -666,18 +674,18 @@ TfrmSysCity = class(TfrmInputSimpleDB<TSysCity, TSysCityService>)
 
 Mandatory methods:
 
-* FormCreate
-* FormShow
-* BtnAcceptClick
-* InitializeInputCase
-* RefreshData
+- FormCreate
+- FormShow
+- BtnAcceptClick
+- InitializeInputCase
+- RefreshData
 
 Required behavior:
 
-* bind UI controls to entity fields
-* writable fields editable
-* readonly fields hidden or readonly
-* FK fields via helper lookup forms
+- bind UI controls to entity fields
+- writable fields editable
+- readonly fields hidden or readonly
+- FK fields via helper lookup forms
 
 ---
 
@@ -703,9 +711,9 @@ TfrmPrdByProduct = class(TfrmInput<TPrdByProduct>)
 
 Rules:
 
-* master entity on parent form
-* detail entities on sub grids/pages
-* all child forms linked to master entity id
+- master entity on parent form
+- detail entities on sub grids/pages
+- all child forms linked to master entity id
 
 ---
 
@@ -728,8 +736,8 @@ ufrm{EntityName}{SlaveType}.dfm
 
 Forbidden:
 
-* PAS without DFM
-* DFM without PAS
+- PAS without DFM
+- DFM without PAS
 
 ---
 
@@ -751,16 +759,16 @@ Mismatch is forbidden.
 
 Output forms must include:
 
-* grid
-* datasource
-* toolbar/buttons
+- grid
+- datasource
+- toolbar/buttons
 
 Input forms must include:
 
-* labels
-* editors
-* accept button
-* cancel button
+- labels
+- editors
+- accept button
+- cancel button
 
 ---
 
@@ -789,9 +797,9 @@ Fix priority:
 
 Existing file rule:
 
-* analyze first
-* patch if needed
-* do not regenerate unnecessarily
+- analyze first
+- patch if needed
+- do not regenerate unnecessarily
 
 ---
 
@@ -801,8 +809,8 @@ Migration order is FK-driven.
 
 Rule:
 
-* Parent first
-* Child later
+- Parent first
+- Child later
 
 Example:
 
@@ -866,14 +874,14 @@ Claude runs in FULL AUTHORITY mode.
 
 Allowed:
 
-* analyze
-* generate code
-* patch files
-* move files
-* delete obsolete files
-* create migrations
-* run SQL
-* fix build errors
+- analyze
+- generate code
+- patch files
+- move files
+- delete obsolete files
+- create migrations
+- run SQL
+- fix build errors
 
 No unnecessary questions.
 
@@ -909,11 +917,11 @@ Priority:
 
 Validation pipeline:
 
-* compile Delphi project
-* validate schema
-* validate transactions
-* validate form bindings
-* validate repository queries
+- compile Delphi project
+- validate schema
+- validate transactions
+- validate form bindings
+- validate repository queries
 
 ---
 
@@ -921,10 +929,10 @@ Validation pipeline:
 
 Trigger continuation if:
 
-* Context > 85%
-* Remaining tasks > 20
-* Generated files > 50
-* Large migration queue
+- Context > 85%
+- Remaining tasks > 20
+- Generated files > 50
+- Large migration queue
 
 Critical threshold:
 95%
@@ -943,11 +951,11 @@ docs/claude_resume.md
 
 Tracks:
 
-* goal
-* completed tasks
-* remaining tasks
-* failures
-* blockers
+- goal
+- completed tasks
+- remaining tasks
+- failures
+- blockers
 
 Commands:
 
@@ -1001,23 +1009,23 @@ issues:
 
 Phase 1:
 
-* stabilize Delphi ERP
+- stabilize Delphi ERP
 
 Phase 2:
 
-* Go backend
+- Go backend
 
 Phase 3:
 
-* React + Vite frontend
+- React + Vite frontend
 
 Phase 4:
 
-* module migration
+- module migration
 
 Phase 5:
 
-* SaaS infrastructure
+- SaaS infrastructure
 
 Target:
 Desktop ERP → Web ERP → SaaS

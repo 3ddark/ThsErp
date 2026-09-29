@@ -17,7 +17,7 @@ implementation
 
 class function ESysCurrencyExceptionCurrencyUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysCurrency.CurrencyUnique, '%s is already assigned. It cannot be assigned again.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysCurrency.CurrencyUnique, 'This currency already exists.');
 end;
 
 end.

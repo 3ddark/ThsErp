@@ -11,7 +11,7 @@ uses
   ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
   SysGridFilter.Service, SysGridFilter,
-  SysViewTable.Service, SysViewTable, ufrmSysViewTables,
+  SysViewTable.Service, SysViewTable,
   SysGridColumnHelper;
 
 type
@@ -59,6 +59,9 @@ type
 implementation
 
 {$R *.dfm}
+
+uses
+  ufrmSysViewTables;
 
 procedure TfrmSysGridFilter.FormCreate(Sender: TObject);
 begin

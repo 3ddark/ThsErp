@@ -240,6 +240,23 @@ begin
     finally
       LFilter.Free;
     end;
+
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('permission_code', '=', TValue.From<Integer>(AEntity.PermissionCode)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      try
+        if Assigned(LModel) then
+          raise ESysPermissionExceptionCodeUnique.Create;
+      finally
+        LModel.Free;
+      end;
+    finally
+      LFilter.Free;
+    end;
   end;
 end;
 

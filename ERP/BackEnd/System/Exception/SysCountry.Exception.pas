@@ -17,7 +17,7 @@ implementation
 
 class function ESysCountryExceptionCodeUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysCountry.CodeUnique, 'The country code %s has already been assigned. It cannot be reassigned.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysCountry.CodeUnique, 'The country code already exists. It cannot be added again.');
 end;
 
 end.

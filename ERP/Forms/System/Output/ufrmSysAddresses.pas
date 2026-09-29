@@ -37,8 +37,9 @@ end;
 procedure TfrmSysAddresses.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',           0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
-  SetColumnProperty('sys_city_id',  0, TLocalizationManager.Translate(TLangKeys.TSysCity.TitleSingular, 'City'));
+  SetColumnProperty('id', 0);
+  SetColumnProperty('sys_city_id', 0);
+  SetColumnProperty('country_id', 0);
 end;
 
 procedure TfrmSysAddresses.FormShow(Sender: TObject);

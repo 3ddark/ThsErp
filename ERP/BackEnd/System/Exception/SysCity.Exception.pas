@@ -17,7 +17,7 @@ implementation
 
 class function ESysCityExceptionCityCountryUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysCity.CityCountryUnique, 'City %s has already been assigned to this %s. It cannot be assigned again.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysCity.CityCountryUnique, 'The specified city already exists for this country.');
 end;
 
 end.

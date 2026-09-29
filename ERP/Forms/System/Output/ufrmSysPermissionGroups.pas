@@ -38,7 +38,7 @@ procedure TfrmSysPermissionGroups.DefineColumnWidths;
 begin
   inherited;
   //default column title and width and visibility
-  SetColumnProperty('id',     0);
+  SetColumnProperty('id', 0);
   SetColumnProperty('locale', 0);
 end;
 

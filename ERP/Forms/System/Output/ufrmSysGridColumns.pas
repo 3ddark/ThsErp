@@ -37,14 +37,14 @@ end;
 procedure TfrmSysGridColumns.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',              0);
-  SetColumnProperty('table_name',    150);
-  SetColumnProperty('column_name',   150);
-  SetColumnProperty('column_width',   80);
-  SetColumnProperty('column_order',   80);
-  SetColumnProperty('is_show',        60);
-  SetColumnProperty('is_fetch',       60);
-  SetColumnProperty('aggregate_type',110);
+  SetColumnProperty('id', 0);
+  SetColumnProperty('table_name', 150);
+  SetColumnProperty('column_name', 150);
+  SetColumnProperty('column_width', 80);
+  SetColumnProperty('column_order', 80);
+  SetColumnProperty('is_show', 60);
+  SetColumnProperty('is_fetch', 60);
+  SetColumnProperty('aggregate_type', 110);
 end;
 
 procedure TfrmSysGridColumns.FormShow(Sender: TObject);

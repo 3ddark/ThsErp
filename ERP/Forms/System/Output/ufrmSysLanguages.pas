@@ -37,9 +37,9 @@ end;
 procedure TfrmSysLanguages.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',            0, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColId, 'Id'));
-  SetColumnProperty('locale',      120, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
-  SetColumnProperty('native_name', 250, TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColNativeName, 'Native Name'));
+  SetColumnProperty('id', 0);
+  SetColumnProperty('locale', 120);
+  SetColumnProperty('native_name', 250);
 end;
 
 procedure TfrmSysLanguages.FormShow(Sender: TObject);

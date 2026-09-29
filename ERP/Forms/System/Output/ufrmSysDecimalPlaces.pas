@@ -37,12 +37,12 @@ end;
 procedure TfrmSysDecimalPlaces.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',               0, TLocalizationManager.Translate(TLangKeys.TGridColumn.ColId, 'Id'));
-  SetColumnProperty('quantity',        70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColQuantity, 'Quantity'));
-  SetColumnProperty('price',           70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColPrice, 'Price'));
-  SetColumnProperty('total',           70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColTotal, 'Total'));
-  SetColumnProperty('stock_quantity',  70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColStockQuantity, 'Stock Quantity'));
-  SetColumnProperty('exchange_rate',   70, TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.ColExchangeRate, 'Exchange Rate'));
+  SetColumnProperty('id', 0);
+  SetColumnProperty('quantity', 70);
+  SetColumnProperty('price', 70);
+  SetColumnProperty('total', 70);
+  SetColumnProperty('stock_quantity', 70);
+  SetColumnProperty('exchange_rate', 70);
 end;
 
 procedure TfrmSysDecimalPlaces.FormShow(Sender: TObject);
