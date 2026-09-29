@@ -37,9 +37,9 @@ end;
 procedure TfrmSysCurrencies.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',            0);
-  SetColumnProperty('currency',    100);
-  SetColumnProperty('symbol',       80);
+  SetColumnProperty('id', 0);
+  SetColumnProperty('currency', 100);
+  SetColumnProperty('symbol', 80);
   SetColumnProperty('description', 220);
 end;
 

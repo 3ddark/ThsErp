@@ -11,7 +11,7 @@ uses
   ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
   SysGridSort.Service, SysGridSort,
-  SysViewTable.Service, SysViewTable, ufrmSysViewTables,
+  SysViewTable.Service, SysViewTable,
   SysGridColumnHelper;
 
 type
@@ -53,6 +53,9 @@ type
 implementation
 
 {$R *.dfm}
+
+uses
+  ufrmSysViewTables;
 
 procedure TfrmSysGridSort.FormCreate(Sender: TObject);
 begin

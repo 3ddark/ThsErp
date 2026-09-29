@@ -37,9 +37,9 @@ end;
 procedure TfrmSysGridSorts.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',              0);
-  SetColumnProperty('table_name',    120);
-  SetColumnProperty('sort_content',  300);
+  SetColumnProperty('id', 0);
+  SetColumnProperty('table_name', 120);
+  SetColumnProperty('sort_content', 300);
 end;
 
 procedure TfrmSysGridSorts.FormShow(Sender: TObject);

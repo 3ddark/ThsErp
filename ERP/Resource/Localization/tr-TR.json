@@ -345,6 +345,7 @@
   "emp_unit.title_singular": "Birim",
   "emp_unit.col_unit_name": "Birim Adı",
   "emp_unit.col_section": "Bölüm",
+  "emp_unit.unit_name": "Birim",
   "emp_task.title_plural": "Görevler",
   "emp_task.title_singular": "Görev",
   "emp_task.col_task_name": "Görev Adı",
@@ -515,7 +516,7 @@
   "sys_region.title_plural": "Bölgeler",
   "sys_region.title_singular": "Bölge",
   "sys_region.col_region_name": "Bölge Adı",
-  "sys_region.region_name.unique": "%s zaten kullanımda. Tekrar atanamaz.",
+  "sys_region.region_name.unique": "Bu bölge adı zaten kullanımda. Tekrar atanamaz.",
   "country.code.required": "Ülke kodu zorunludur",
   "country.code.length": "Ülke Kodu tam olarak 2 karakter olmalıdır (Örn: TR, US).",
   "country.name.required": "Ülke Adı boş bırakılamaz.",
@@ -575,6 +576,7 @@
   "sys_permission.code.positive": "Yetki kodu pozitif bir sayı olmalıdır.",
   "sys_permission.group.required": "Yetki grubu seçimi zorunludur.",
   "sys_permission.key_unique": "Bu yetki anahtarı zaten tanımlı.",
+  "sys_permission.code_unique": "Bu yetki kodu zaten tanımlı.",
   "sys_permission_group.lbl_key": "Grup Anahtarı",
   "sys_permission_group.group_key_unique": "Bu yetki grubu anahtarı zaten tanımlı.",
   "sys_region.region_name": "Bölge Adı",
@@ -585,6 +587,7 @@
   "sys_uom.multiplier": "Çarpan",
   "sys_uom.col_id": "Id",
   "sys_uom.unit_code_unique": "Bu birim kodu zaten mevcut.",
+  "sys_uom.col_uom_name": "Birim Adı",
   "sys_uom_group.title_plural": "Ölçü Birimi Tipleri",
   "sys_uom_group.title_singular": "Ölçü Birimi Tipi",
   "sys_uom_group.col_key": "Tip Anahtarı",
@@ -632,5 +635,6 @@
   "login.ip_address": "IP Adresi",
   "login.version": "Versiyon",
   "login.theme": "Tema",
-  "login.language": "Lisan"
+  "login.language": "Lisan",
+  "grid_column.col_id": "Id"
 }

@@ -232,6 +232,24 @@ begin
     finally
       LFilter.Free;
     end;
+
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('table_name', '=', TValue.From<string>(AEntity.TableName)));
+      LFilter.Add(TFilterCriterion.New('column_order', '=', TValue.From<Integer>(AEntity.ColumnOrder)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      try
+        if Assigned(LModel) then
+          raise ESysGridColumnExceptionTableNameColumnOrderUnique.Create;
+      finally
+        LModel.Free;
+      end;
+    finally
+      LFilter.Free;
+    end;
   end;
 end;
 

@@ -11,7 +11,7 @@ uses
   ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   SysPermission.Service, SysPermission, SysLanguage,
-  SysPermissionGroup, SysPermissionGroup.Service, ufrmSysPermissionGroups;
+  SysPermissionGroup, SysPermissionGroup.Service;
 
 type
   TfrmSysPermission = class(TfrmInputSimpleDB<TSysPermission, TSysPermissionService>)
@@ -36,6 +36,9 @@ type
 implementation
 
 {$R *.dfm}
+
+uses
+  ufrmSysPermissionGroups;
 
 procedure TfrmSysPermission.HelperProcess(Sender: TObject);
 var

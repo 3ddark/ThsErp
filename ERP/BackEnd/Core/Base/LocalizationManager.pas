@@ -457,6 +457,7 @@ type
         const CodePositive = 'sys_permission.code.positive';
         const GroupRequired = 'sys_permission.group.required';
         const KeyUnique = 'sys_permission.key_unique';
+        const CodeUnique = 'sys_permission.code_unique';
       end;
 
       TSysPermissionGroup = record

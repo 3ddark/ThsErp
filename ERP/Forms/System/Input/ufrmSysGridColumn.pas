@@ -11,7 +11,7 @@ uses
   ufrmInputSimpleDB, SharedFormTypes, LocalizationManager, AppContext,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo,
   SysGridColumn.Service, SysGridColumn,
-  SysViewTable.Service, SysViewTable, ufrmSysViewTables;
+  SysViewTable.Service, SysViewTable;
 
 type
   TfrmSysGridColumn = class(TfrmInputSimpleDB<TSysGridColumn, TSysGridColumnService>)
@@ -60,6 +60,9 @@ type
 implementation
 
 {$R *.dfm}
+
+uses
+  ufrmSysViewTables;
 
 procedure TfrmSysGridColumn.BtnAcceptClick(Sender: TObject);
 begin

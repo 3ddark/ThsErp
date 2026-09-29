@@ -34,9 +34,9 @@ end;
 procedure TfrmSysViewTables.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',           50, TLocalizationManager.Translate(TLangKeys.TSysViewTable.ColId, 'Id'));
-  SetColumnProperty('table_name',  250, TLocalizationManager.Translate(TLangKeys.TSysViewTable.ColTableName, 'Table Name'));
-  SetColumnProperty('table_type',  100, TLocalizationManager.Translate(TLangKeys.TSysViewTable.ColTableType, 'Type'));
+  SetColumnProperty('id', 50);
+  SetColumnProperty('table_name', 250);
+  SetColumnProperty('table_type', 100);
 end;
 
 procedure TfrmSysViewTables.DefineFooterColumns;

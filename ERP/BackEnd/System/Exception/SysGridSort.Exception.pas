@@ -17,7 +17,7 @@ implementation
 
 class function ESysGridSortExceptionTableNameUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysGridSort.TableNameUnique, '%s is already assigned. It cannot be assigned again.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysGridSort.TableNameUnique, 'A sort record already exists for this table.');
 end;
 
 end.

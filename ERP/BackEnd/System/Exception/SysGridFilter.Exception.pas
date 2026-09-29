@@ -17,7 +17,7 @@ implementation
 
 class function ESysGridFilterExceptionTableNameUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysGridFilter.TableNameUnique, '%s is already assigned. It cannot be assigned again.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysGridFilter.TableNameUnique, 'A filter record already exists for this table.');
 end;
 
 end.

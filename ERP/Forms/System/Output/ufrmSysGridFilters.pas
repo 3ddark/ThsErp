@@ -37,8 +37,8 @@ end;
 procedure TfrmSysGridFilters.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',              0);
-  SetColumnProperty('table_name',    120);
+  SetColumnProperty('id', 0);
+  SetColumnProperty('table_name', 120);
   SetColumnProperty('filter_content', 300);
 end;
 

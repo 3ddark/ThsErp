@@ -12,7 +12,7 @@ uses
   ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   SysApplicationSetting, SysApplicationSetting.Service,
-  SysCity.Service, SysCity, ufrmSysCities;
+  SysCity.Service, SysCity;
 
 type
   TfrmSysApplicationSetting = class(TfrmInputSimpleDB<TSysApplicationSetting, TSysApplicationSettingService>)
@@ -131,7 +131,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Ths.Globals, Ths.Constants, Ths.Utils.Images;
+  Ths.Globals, Ths.Constants, Ths.Utils.Images, ufrmSysCities;
 
 procedure TfrmSysApplicationSetting.InitializeInputCase;
 begin

@@ -134,8 +134,6 @@ begin
         Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
     end;
 
-    Q.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
-
     LogQuery(Q, 'DoFind');
     Q.Open;
     while not Q.Eof do

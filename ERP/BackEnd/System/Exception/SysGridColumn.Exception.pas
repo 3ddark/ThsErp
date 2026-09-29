@@ -22,12 +22,12 @@ implementation
 
 class function ESysGridColumnExceptionTableNameColumnNameUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TableNameColumnName, 'The pair %s, %s has already been assigned. It cannot be assigned again.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TableNameColumnName, 'This column is already defined for this table.');
 end;
 
 class function ESysGridColumnExceptionTableNameColumnOrderUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TableNameColumnOrder, 'The pair %s, %s has already been assigned. It cannot be assigned again.');
+  Result := TLocalizationManager.Translate(TLangKeys.TSysGridColumn.TableNameColumnOrder, 'This column order is already in use for this table.');
 end;
 
 end.

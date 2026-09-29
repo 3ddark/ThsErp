@@ -11,8 +11,8 @@ uses
   ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   SysCity.Service, SysCity,
-  SysCountry.Service, SysCountry, ufrmSysCountries,
-  SysRegion.Service, SysRegion, ufrmSysRegions;
+  SysCountry.Service, SysCountry,
+  SysRegion.Service, SysRegion;
 
 type
   TfrmSysCity = class(TfrmInputSimpleDB<TSysCity, TSysCityService>)
@@ -37,6 +37,9 @@ type
 implementation
 
 {$R *.dfm}
+
+uses
+  ufrmSysCountries, ufrmSysRegions;
 
 procedure TfrmSysCity.BtnAcceptClick(Sender: TObject);
 begin

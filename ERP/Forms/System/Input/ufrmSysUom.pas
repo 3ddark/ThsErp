@@ -10,7 +10,7 @@ uses
   Vcl.ExtCtrls, Vcl.Samples.Spin, Vcl.ComCtrls, System.Generics.Collections,
   ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  SysUom.Service, SysUom, SysUomGroup.Service, SysUomGroup, ufrmSysUomGroups,
+  SysUom.Service, SysUom, SysUomGroup.Service, SysUomGroup,
   SysLanguage;
 
 type
@@ -39,6 +39,9 @@ type
 implementation
 
 {$R *.dfm}
+
+uses
+  ufrmSysUomGroups;
 
 procedure TfrmSysUom.BtnAcceptClick(Sender: TObject);
 var
