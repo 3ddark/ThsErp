@@ -15,8 +15,8 @@ uses
 type
   TfrmSysAddress = class(TfrmInputSimpleDB<TSysAddress, TSysAddressService>)
     pnlContent: TPanel;
-    lblCityId: TLabel;
-    edtCityId: TEdit;
+    lblSysCityId: TLabel;
+    edtSysCityId: TEdit;
     lblDistrict: TLabel;
     edtDistrict: TEdit;
     lblNeighborhood: TLabel;
@@ -62,7 +62,7 @@ begin
   if Sender is TEdit then
   begin
     LEdit := (Sender as TEdit);
-    if LEdit.Name = edtCityId.Name then
+    if LEdit.Name = edtSysCityId.Name then
     begin
       LFrmCity := TfrmSysCities.Create(LEdit, TSysCityService.Create, TSysCity.Create);
       try
@@ -105,13 +105,12 @@ procedure TfrmSysAddress.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtCityId.OnHelperProcess := HelperProcess;
+  edtSysCityId.OnHelperProcess := HelperProcess;
 end;
 
 procedure TfrmSysAddress.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtDistrict.SetFocus;
 end;
 
@@ -119,7 +118,7 @@ procedure TfrmSysAddress.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.TitleSingular, 'Address');
-  lblCityId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColCityName, 'City Name');
+  lblSysCityId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.TitleSingular, 'City');
   lblDistrict.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColDistrict, 'District');
   lblNeighborhood.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColNeighborhood, 'Neighborhood');
   lblQuarter.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColQuarter, 'Quarter');
@@ -135,7 +134,10 @@ end;
 procedure TfrmSysAddress.RefreshData;
 begin
   inherited;
-  edtCityId.Text := Table.SysCity.CityName;
+  if Assigned(Table.SysCity) then
+    edtSysCityId.Text := Table.SysCity.CityName
+  else
+    edtSysCityId.Text := '';
   edtDistrict.Text := Table.District;
   edtNeighborhood.Text := Table.Neighborhood;
   edtQuarter.Text := Table.Quarter;

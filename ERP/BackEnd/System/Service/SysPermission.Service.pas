@@ -10,12 +10,69 @@ uses
   SysAccessRight.Service;
 
 const
-  PERMISSION_TEMPLATE       = 1;
-  PERMISSION_SYS_CITY       = 1000;
-  PERMISSION_SYS_COUNTRY    = 1001;
-  PERMISSION_SYS_REGION     = 1002;
+  // Yetki kodları: her form/kaynak için ayrı kod (sys_permission.permission_code).
+  // Yeni kod eklenirken DB'de sys_permission + sys_permission_translation satırı da eklenmelidir.
+  PERMISSION_TEMPLATE                     = 1;
 
-  PERMISSION_ACC_BANK       = 1032;
+  // System - Tanımlar
+  PERMISSION_SYS_CITY                     = 1000;
+  PERMISSION_SYS_COUNTRY                  = 1001;
+  PERMISSION_SYS_REGION                   = 1002;
+  PERMISSION_SYS_CURRENCY                 = 1003;
+  PERMISSION_SYS_UOM_GROUP                = 1004;
+  PERMISSION_SYS_UOM                      = 1005;
+  PERMISSION_SYS_LANGUAGE                 = 1006;
+  PERMISSION_SYS_DECIMAL_PLACE            = 1007;
+  PERMISSION_SYS_ADDRESS                  = 1008;
+
+  // System - Yönetim
+  PERMISSION_SYS_USER                     = 1100;
+  PERMISSION_SYS_ACCESS_RIGHT             = 1101;
+  PERMISSION_SYS_PERMISSION               = 1102;
+  PERMISSION_SYS_PERMISSION_GROUP         = 1103;
+  PERMISSION_SYS_PERMISSION_TEMPLATE      = 1104;
+  PERMISSION_SYS_USER_PERMISSION_TEMPLATE = 1105;
+  PERMISSION_SYS_APPLICATION_SETTING      = 1106;
+  PERMISSION_SYS_GRID_COLUMN              = 1107;
+  PERMISSION_SYS_GRID_FILTER              = 1108;
+  PERMISSION_SYS_GRID_SORT                = 1109;
+  PERMISSION_SYS_VIEW_TABLE               = 1110;
+
+  // Employee
+  PERMISSION_EMP_EMPLOYEE                 = 1021;   // + detaylar: ehliyet, dil bilgisi, adres
+  PERMISSION_EMP_PERSON_TYPE              = 1022;
+  PERMISSION_EMP_SECTION                  = 1023;
+  PERMISSION_EMP_UNIT                     = 1024;
+  PERMISSION_EMP_TASK                     = 1025;
+  PERMISSION_EMP_TRANSPORTATION           = 1026;
+  PERMISSION_EMP_LANGUAGE                 = 1027;
+  PERMISSION_EMP_DRIVER_LICENSE_TYPE      = 1029;
+
+  // Account (cari hesap)
+  PERMISSION_ACC_ACCOUNT                  = 1031;   // + detay: hesap adresleri
+  PERMISSION_ACC_BANK                     = 1032;   // + detay: banka şubeleri
+  PERMISSION_ACC_GROUP                    = 1033;
+  PERMISSION_ACC_REGION                   = 1034;
+  PERMISSION_ACC_ACCOUNT_TYPE             = 1035;
+  PERMISSION_ACC_OWNERSHIP_TYPE           = 1036;
+  PERMISSION_ACC_COMPANY_LEGAL_FORM       = 1037;
+
+  // Stock (1040 boş: eski "stock-card-settings" silindi)
+  PERMISSION_STK_INVENTORY                = 1041;   // + detaylar: resim, cins bilgisi
+  PERMISSION_STK_TRANSACTION              = 1042;
+  PERMISSION_STK_GROUP                    = 1043;
+  PERMISSION_STK_WAREHOUSE                = 1044;
+  PERMISSION_STK_PRODUCT_TYPE             = 1045;
+  PERMISSION_STK_KIND_FAMILY              = 1046;
+  PERMISSION_STK_KIND_PROPERTY            = 1047;
+  PERMISSION_STK_INVENTORY_SUMMARY        = 1048;
+
+  // Accounting (muhasebe)
+  PERMISSION_ACC_EXCHANGE_RATE            = 3001;
+  PERMISSION_ACC_ACCOUNT_PLAN             = 3002;
+  PERMISSION_ACC_TAX_RATE                 = 3003;
+  PERMISSION_ACC_TRANSFER_CODE            = 3004;
+  PERMISSION_ACC_VOUCHER                  = 3005;   // + detay: fiş satırları
 
 type
   TSysPermissionService = class(TCrudService<TSysPermission>)
@@ -50,7 +107,7 @@ constructor TSysPermissionService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysPermission, TSysPermissionRepository>;
-  Self.PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_PERMISSION;
 end;
 
 destructor TSysPermissionService.Destroy;

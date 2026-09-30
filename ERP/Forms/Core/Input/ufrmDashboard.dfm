@@ -278,110 +278,101 @@ inherited frmDashboard: TfrmDashboard
           Top = 170
           Width = 150
           Height = 36
+          Action = actch_hesap_karti
           Caption = 'Hesap Kart'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
-          ImageIndex = 14
           Images = dm.il32
           ParentFont = False
           TabOrder = 6
-          OnClick = actch_hesap_kartiExecute
         end
         object btnch_hesap_karti_ara: TButton
           Left = 2
           Top = 128
           Width = 150
           Height = 36
+          Action = actch_hesap_karti_ara
           Caption = 'Hesap Kart'#305' Ara Hesap'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
-          ImageIndex = 14
           Images = dm.il32
           ParentFont = False
           TabOrder = 4
           WordWrap = True
-          OnClick = actch_hesap_karti_araExecute
         end
         object btnch_banka: TButton
           Left = 2
           Top = 44
           Width = 150
           Height = 36
-          Caption = 'Bankalar'
+          Action = actch_bankalar
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
-          ImageIndex = 69
           Images = dm.il32
           ParentFont = False
           TabOrder = 1
-          OnClick = actch_bankalarExecute
         end
         object btnch_banka_subesi: TButton
           Left = 2
           Top = 86
           Width = 150
           Height = 36
-          Caption = 'Banka '#350'ubeleri'
+          Action = actch_banka_subeleri
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
-          ImageIndex = 69
           Images = dm.il32
           ParentFont = False
           TabOrder = 2
-          OnClick = actch_banka_subeleriExecute
         end
         object btnset_ch_grup: TButton
           Left = 160
           Top = 86
           Width = 150
           Height = 36
-          Caption = 'Hesap Gruplar'#305
+          Action = actset_ch_grup
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
-          ImageIndex = 70
           Images = dm.il32
           ParentFont = False
           TabOrder = 3
-          OnClick = actset_ch_grupExecute
         end
         object btnset_ch_hesap_plani: TButton
           Left = 160
           Top = 128
           Width = 150
           Height = 36
-          Caption = 'Hesap Planlar'#305
+          Action = actset_ch_hesap_plani
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
-          ImageIndex = 76
           Images = dm.il32
           ParentFont = False
           TabOrder = 5
           Visible = False
-          OnClick = actset_ch_hesap_planiExecute
         end
         object btnset_ch_vergi_orani: TButton
           Left = 160
           Top = 212
           Width = 150
           Height = 36
+          Action = actset_ch_vergi_orani
           Caption = 'Vergi Oranlar'#305
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -399,17 +390,16 @@ inherited frmDashboard: TfrmDashboard
           Top = 2
           Width = 150
           Height = 36
+          Action = actch_bolge
           Caption = 'B'#246'lge'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
-          ImageIndex = 72
           Images = dm.il32
           ParentFont = False
           TabOrder = 0
-          OnClick = actch_bolgeExecute
         end
       end
       object tsemployee: TTabSheet
@@ -642,6 +632,11 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 62
       OnExecute = actsys_update_passwordExecute
     end
+    object actsys_refresh_permissions: TAction
+      Category = 'System'
+      Caption = 'Refresh My Permissions'
+      OnExecute = actsys_refresh_permissionsExecute
+    end
     object actsys_country: TAction
       Category = 'System'
       Caption = #220'lkeler'
@@ -718,6 +713,18 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 59
       OnExecute = actstk_stok_karti_ozetleriExecute
     end
+    object actstk_product_types: TAction
+      Category = 'Stok'
+      Caption = #220'r'#252'n Tipleri'
+      ImageIndex = 70
+      OnExecute = actstk_product_typesExecute
+    end
+    object actstk_kind_families: TAction
+      Category = 'Stok'
+      Caption = 'Cins Aileleri'
+      ImageIndex = 84
+      OnExecute = actstk_kind_familiesExecute
+    end
     object actset_ch_vergi_orani: TAction
       Category = 'CariHesap'
       Caption = 'KDV Vergi Oranlar'#305
@@ -735,12 +742,6 @@ inherited frmDashboard: TfrmDashboard
       Caption = 'Ehliyetler'
       ImageIndex = 98
       OnExecute = actset_prs_ehliyetlerExecute
-    end
-    object actset_prs_lisan_seviyeleri: TAction
-      Category = 'Personel'
-      Caption = 'Lisan Seviyeleri'
-      ImageIndex = 97
-      OnExecute = actset_prs_lisan_seviyeleriExecute
     end
     object actset_prs_personel_tipleri: TAction
       Category = 'Personel'
@@ -784,6 +785,60 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 69
       OnExecute = actch_banka_subeleriExecute
     end
+    object actch_hesap_karti: TAction
+      Category = 'CariHesap'
+      Caption = 'Hesap Kartlar'#305
+      ImageIndex = 14
+      OnExecute = actch_hesap_kartiExecute
+    end
+    object actch_hesap_karti_ara: TAction
+      Category = 'CariHesap'
+      Caption = 'Ara Hesaplar'
+      ImageIndex = 14
+      OnExecute = actch_hesap_karti_araExecute
+    end
+    object actch_bolge: TAction
+      Category = 'CariHesap'
+      Caption = 'Hesap B'#246'lgeleri'
+      ImageIndex = 72
+      OnExecute = actch_bolgeExecute
+    end
+    object actset_ch_grup: TAction
+      Category = 'CariHesap'
+      Caption = 'Hesap Gruplar'#305
+      ImageIndex = 70
+      OnExecute = actset_ch_grupExecute
+    end
+    object actset_ch_hesap_plani: TAction
+      Category = 'CariHesap'
+      Caption = 'Hesap Planlar'#305
+      ImageIndex = 76
+      OnExecute = actset_ch_hesap_planiExecute
+    end
+    object actset_ch_hesap_tipi: TAction
+      Category = 'CariHesap'
+      Caption = 'Hesap Tipleri'
+      ImageIndex = 70
+      OnExecute = actset_ch_hesap_tipiExecute
+    end
+    object actset_ch_firma_turu: TAction
+      Category = 'CariHesap'
+      Caption = 'M'#252'lkiyet Tipleri'
+      ImageIndex = 70
+      OnExecute = actset_ch_firma_turuExecute
+    end
+    object actset_ch_firma_tipi: TAction
+      Category = 'CariHesap'
+      Caption = #350'irket Tipleri'
+      ImageIndex = 70
+      OnExecute = actset_ch_firma_tipiExecute
+    end
+    object actacc_transfer_code: TAction
+      Category = 'CariHesap'
+      Caption = 'Transfer Kodlar'#305
+      ImageIndex = 76
+      OnExecute = actacc_transfer_codeExecute
+    end
     object actset_prs_tasima_servisleri: TAction
       Category = 'Personel'
       Caption = 'Personel Ta'#351#305'ma Servisleri'
@@ -802,6 +857,24 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 96
       OnExecute = actsys_decimal_placeExecute
     end
+    object actsys_permission_template: TAction
+      Category = 'System'
+      Caption = 'Permission Templates'
+      ImageIndex = 81
+      OnExecute = actsys_permission_templateExecute
+    end
+    object actsys_permission_template_right: TAction
+      Category = 'System'
+      Caption = 'Template Rights'
+      ImageIndex = 81
+      OnExecute = actsys_permission_template_rightExecute
+    end
+    object actsys_user_permission_template: TAction
+      Category = 'System'
+      Caption = 'User Permission Templates'
+      ImageIndex = 64
+      OnExecute = actsys_user_permission_templateExecute
+    end
   end
   object tmrcheck_is_update_required: TTimer
     Enabled = False
@@ -817,6 +890,12 @@ inherited frmDashboard: TfrmDashboard
     object mnimenu_system: TMenuItem
       Caption = 'Sistem'
       ImageIndex = 76
+      object mnisys_refresh_permissions: TMenuItem
+        Action = actsys_refresh_permissions
+      end
+      object mnisys_refresh_permissions_sep: TMenuItem
+        Caption = '-'
+      end
       object mnisys_user: TMenuItem
         Action = actsys_user
       end
@@ -849,6 +928,15 @@ inherited frmDashboard: TfrmDashboard
       end
       object mnisys_resource: TMenuItem
         Action = actsys_permission
+      end
+      object mnisys_permission_template: TMenuItem
+        Action = actsys_permission_template
+      end
+      object mnisys_permission_template_right: TMenuItem
+        Action = actsys_permission_template_right
+      end
+      object mnisys_user_permission_template: TMenuItem
+        Action = actsys_user_permission_template
       end
       object mniSystemSubSettings: TMenuItem
         Caption = 'Ayarlar'
@@ -910,27 +998,78 @@ inherited frmDashboard: TfrmDashboard
     object mnimenu_accounting: TMenuItem
       Caption = 'Muhasebe'
       ImageIndex = 69
+      object mniacc_account: TMenuItem
+        Action = actch_hesap_karti
+      end
+      object mniacc_account_intermediate: TMenuItem
+        Action = actch_hesap_karti_ara
+      end
       object mniacc_bank: TMenuItem
         Action = actch_bankalar
       end
       object mniacc_bank_branch: TMenuItem
         Action = actch_banka_subeleri
       end
+      object mniacc_exchange_rate: TMenuItem
+        Action = actacc_exchange_rate
+      end
       object mniAccountingSubSettings: TMenuItem
         Caption = 'Ayarlar'
         object mniset_acc_vat_rate: TMenuItem
           Action = actset_ch_vergi_orani
+        end
+        object mniacc_account_plan: TMenuItem
+          Action = actset_ch_hesap_plani
+        end
+        object mniacc_group: TMenuItem
+          Action = actset_ch_grup
+        end
+        object mniacc_region: TMenuItem
+          Action = actch_bolge
+        end
+        object mniacc_account_type: TMenuItem
+          Action = actset_ch_hesap_tipi
+        end
+        object mniacc_ownership_type: TMenuItem
+          Action = actset_ch_firma_turu
+        end
+        object mniacc_company_legal_form: TMenuItem
+          Action = actset_ch_firma_tipi
+        end
+        object mniacc_transfer_code: TMenuItem
+          Action = actacc_transfer_code
         end
       end
     end
     object mnimenu_stock: TMenuItem
       Caption = 'Stoklar'
       ImageIndex = 83
-      object mnistk_warehouse: TMenuItem
-        Action = actstk_ambarlar
+      object mnistk_inventory: TMenuItem
+        Action = actstk_stok_kartlari
       end
-      object mnistk_group: TMenuItem
-        Action = actstk_gruplar
+      object mnistk_transaction: TMenuItem
+        Action = actstk_hareketler
+      end
+      object mnistk_inventory_summary: TMenuItem
+        Action = actstk_stok_karti_ozetleri
+      end
+      object mniStockSubSettings: TMenuItem
+        Caption = 'Ayarlar'
+        object mnistk_warehouse: TMenuItem
+          Action = actstk_ambarlar
+        end
+        object mnistk_group: TMenuItem
+          Action = actstk_gruplar
+        end
+        object mnistk_product_type: TMenuItem
+          Action = actstk_product_types
+        end
+        object mnistk_kind_family: TMenuItem
+          Action = actstk_kind_families
+        end
+        object mnistk_kind_property: TMenuItem
+          Action = actstk_cins_ozellikleri
+        end
       end
     end
     object mnimenu_employee: TMenuItem
@@ -962,9 +1101,6 @@ inherited frmDashboard: TfrmDashboard
         end
         object mniset_prs_languages: TMenuItem
           Action = actset_prs_lisanlar
-        end
-        object mniset_prs_language_levels: TMenuItem
-          Action = actset_prs_lisan_seviyeleri
         end
         object mniset_prs_person_types: TMenuItem
           Action = actset_prs_personel_tipleri

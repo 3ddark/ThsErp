@@ -49,6 +49,9 @@ type
 
 implementation
 
+uses
+  Logger, Ths.Language.Cache;
+
 constructor TSysPermissionGroupRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
@@ -141,6 +144,15 @@ begin
     Q.SQL.Text := PrepareSaveTranslationSql;
     for Trans in AModel.Translations do
     begin
+      if (Trans.SysLanguageId = 0) and Assigned(Trans.SysLanguage) and (Trans.SysLanguage.Locale <> '') then
+        Trans.SysLanguageId := TLanguageCache.GetIdByLocale(Trans.SysLanguage.Locale);
+
+      if Trans.SysLanguageId = 0 then
+      begin
+        GLogger.WarningFmt('SaveTranslations: locale could not be resolved [%s]', [Trans.SysLanguage.Locale]);
+        Continue;
+      end;
+
       Trans.SysPermissionGroupId := AModel.Id;
       Q.ParamByName('sys_permission_group_id').AsLargeInt := Trans.SysPermissionGroupId;
       Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;

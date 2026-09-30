@@ -2,7 +2,7 @@ object frmSysUser: TfrmSysUser
   Left = 0
   Top = 0
   Caption = 'frmSysUser'
-  ClientHeight = 276
+  ClientHeight = 306
   ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,7 +16,7 @@ object frmSysUser: TfrmSysUser
     Left = 0
     Top = 0
     Width = 500
-    Height = 276
+    Height = 306
     Align = alClient
     TabOrder = 0
     object lblUsername: TLabel
@@ -33,7 +33,7 @@ object frmSysUser: TfrmSysUser
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object lblPersonId: TLabel
+    object lblEmpEmployeeId: TLabel
       Left = 47
       Top = 41
       Width = 56
@@ -117,6 +117,20 @@ object frmSysUser: TfrmSysUser
       Font.Style = [fsBold]
       ParentFont = False
     end
+    object lblUserPassword: TLabel
+      Left = 49
+      Top = 211
+      Width = 54
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Password'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
     object edtUsername: TEdit
       Left = 104
       Top = 7
@@ -124,7 +138,7 @@ object frmSysUser: TfrmSysUser
       Height = 22
       TabOrder = 0
     end
-    object edtPersonId: TEdit
+    object edtEmpEmployeeId: TEdit
       Left = 104
       Top = 37
       Width = 385
@@ -168,6 +182,14 @@ object frmSysUser: TfrmSysUser
       Width = 385
       Height = 22
       TabOrder = 6
+    end
+    object edtUserPassword: TEdit
+      Left = 104
+      Top = 207
+      Width = 385
+      Height = 22
+      PasswordChar = '*'
+      TabOrder = 7
     end
   end
 end

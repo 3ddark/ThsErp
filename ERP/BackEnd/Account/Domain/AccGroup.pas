@@ -2,7 +2,10 @@
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes;
+{$I Ths.inc}
+
+uses
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('acc_group')]
@@ -10,7 +13,8 @@ type
   private
     FName: string;
   public
-    [Column('name'), MaxLength(16), Required()]
+    [Column('name')]
+    [MaxLength(16), Required(TLangKeys.TValidation.Required, True)]
     property Name: string read FName write FName;
 
     constructor Create(); override;
@@ -21,7 +25,7 @@ type
 
 implementation
 
-constructor TAccGroup.Create();
+constructor TAccGroup.Create;
 begin
   inherited;
 end;

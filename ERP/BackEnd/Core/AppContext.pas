@@ -24,6 +24,8 @@ type
     class procedure Initialize(AConnection: TFDConnection; AOwnsConnection: Boolean = False);
     class procedure Finalize;
     class function Instance: TAppContext;
+    // Login öncesi (Initialize çağrılmadan) güvenli kontrol; Instance hata fırlatır
+    class function IsInitialized: Boolean;
     procedure SetCurrentUser(AUser: TUserContext);
     procedure ClearCurrentUser;
     function IsAuthenticated: Boolean;
@@ -101,6 +103,11 @@ end;
 function TAppContext.GetCurrentUser: TUserContext;
 begin
   Result := FCurrentUser;
+end;
+
+class function TAppContext.IsInitialized: Boolean;
+begin
+  Result := Assigned(FInstance);
 end;
 
 class function TAppContext.Instance: TAppContext;

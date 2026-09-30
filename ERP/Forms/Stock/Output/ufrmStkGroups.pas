@@ -1,17 +1,20 @@
-unit ufrmStkGroups;
+﻿unit ufrmStkGroups;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, StkGroup.Service, StkGroup, ufrmStkGroup,
-  LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  StkGroup.Service, StkGroup, ufrmStkGroup;
 
 type
   TfrmStkGroups = class(TfrmGrid<TStkGroup, TStkGroupService>)
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
+    procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -32,15 +35,28 @@ begin
     Result := TfrmStkGroup.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
+// Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)
+procedure TfrmStkGroups.SetSelectedItem;
+
+  function FieldText(const AFieldName: string): string;
+  var
+    LField: TField;
+  begin
+    LField := Grd.DataSource.DataSet.FindField(AFieldName);
+    if Assigned(LField) then
+      Result := LField.AsString
+    else
+      Result := '';
+  end;
+
+begin
+  inherited;
+end;
+
 procedure TfrmStkGroups.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',                          0, TLocalizationManager.Translate('stk_group.col_id', 'Id'));
-  SetColumnProperty('name',                      120, TLocalizationManager.Translate('stk_group.col_group_name', 'Group Name'));
-  SetColumnProperty('vat_rate',                   80, TLocalizationManager.Translate('stk_group.col_vat_rate', 'VAT Rate'));
-  SetColumnProperty('raw_material_stock_account', 130, TLocalizationManager.Translate('stk_group.col_rm_stock_account', 'RM Stock Account'));
-  SetColumnProperty('raw_material_usage_account', 130, TLocalizationManager.Translate('stk_group.col_rm_usage_account', 'RM Usage Account'));
-  SetColumnProperty('semi_product_account',      130, TLocalizationManager.Translate('stk_group.col_semi_product_account', 'Semi Product Acct'));
+  SetColumnProperty('id', 0);
 end;
 
 procedure TfrmStkGroups.FormShow(Sender: TObject);
@@ -53,7 +69,12 @@ end;
 procedure TfrmStkGroups.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('stk_group.title_plural', 'Stock Groups');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.TitlePlural, 'Stock Groups');
+  SetColumnTitle('name', TLocalizationManager.Translate(TLangKeys.TStkGroup.ColName, 'Group Name'));
+  SetColumnTitle('vat_rate', TLocalizationManager.Translate(TLangKeys.TStkGroup.ColVatRate, 'VAT Rate (%)'));
+  SetColumnTitle('raw_material_stock_account', TLocalizationManager.Translate(TLangKeys.TStkGroup.ColRawMaterialStockAccount, 'Raw Material Stock Account'));
+  SetColumnTitle('raw_material_usage_account', TLocalizationManager.Translate(TLangKeys.TStkGroup.ColRawMaterialUsageAccount, 'Raw Material Usage Account'));
+  SetColumnTitle('semi_product_account', TLocalizationManager.Translate(TLangKeys.TStkGroup.ColSemiProductAccount, 'Semi-Product Account'));
 end;
 
 end.

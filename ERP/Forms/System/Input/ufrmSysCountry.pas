@@ -74,6 +74,8 @@ begin
         LTrans.CountryName   := LPair.Value;
         LTrans.SysLanguage   := TSysLanguage.Create;
         LTrans.SysLanguage.Locale := LPair.Key;
+        if not Assigned(Table.Translations) then
+          Table.Translations := TObjectList<TSysCountryTranslation>.Create(True);
         Table.Translations.Add(LTrans);
       end;
     end;

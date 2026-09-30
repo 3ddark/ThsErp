@@ -16,6 +16,11 @@ type
     FIsUpdate: Boolean;
     FIsDelete: Boolean;
     FIsSpecial: Boolean;
+    FDenyRead: Boolean;
+    FDenyAdd: Boolean;
+    FDenyUpdate: Boolean;
+    FDenyDelete: Boolean;
+    FDenySpecial: Boolean;
     FSysUserId: Int64;
     FSysPermission: TSysPermission;
     FSysUser: TSysUser;
@@ -43,6 +48,22 @@ type
     [Column('is_special')]
     property IsSpecial: Boolean read FIsSpecial write FIsSpecial;
 
+    // Override (engelleme): şablondan gelse bile ilgili hak kaldırılır
+    [Column('deny_read')]
+    property DenyRead: Boolean read FDenyRead write FDenyRead;
+
+    [Column('deny_add')]
+    property DenyAdd: Boolean read FDenyAdd write FDenyAdd;
+
+    [Column('deny_update')]
+    property DenyUpdate: Boolean read FDenyUpdate write FDenyUpdate;
+
+    [Column('deny_delete')]
+    property DenyDelete: Boolean read FDenyDelete write FDenyDelete;
+
+    [Column('deny_special')]
+    property DenySpecial: Boolean read FDenySpecial write FDenySpecial;
+
     [Column('sys_user_id')]
     [Required(TLangKeys.TValidation.Required, True)]
     property SysUserId: Int64 read FSysUserId write FSysUserId;
@@ -68,7 +89,7 @@ type
 implementation
 
 uses
-  EmpPerson;
+  EmpEmployee;
 
 constructor TSysAccessRight.Create();
 begin
@@ -94,7 +115,14 @@ begin
   Result.IsUpdate := Self.IsUpdate;
   Result.IsDelete := Self.IsDelete;
   Result.IsSpecial := Self.IsSpecial;
+  Result.DenyRead := Self.DenyRead;
+  Result.DenyAdd := Self.DenyAdd;
+  Result.DenyUpdate := Self.DenyUpdate;
+  Result.DenyDelete := Self.DenyDelete;
+  Result.DenySpecial := Self.DenySpecial;
   Result.SysUserId := Self.SysUserId;
+  Result.Username := Self.FUsername;
+  Result.PermissionName := Self.FPermissionName;
 
   if Assigned(Self.SysPermission) then
     Result.SysPermission := Self.SysPermission.Clone;

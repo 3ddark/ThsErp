@@ -2,7 +2,7 @@ object frmSysAccessRight: TfrmSysAccessRight
   Left = 0
   Top = 0
   Caption = 'Access Right'
-  ClientHeight = 176
+  ClientHeight = 267
   ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,11 +16,11 @@ object frmSysAccessRight: TfrmSysAccessRight
     Left = 0
     Top = 0
     Width = 500
-    Height = 176
+    Height = 267
     Align = alClient
     TabOrder = 0
-    ExplicitHeight = 212
-    object lblUserId: TLabel
+    ExplicitHeight = 206
+    object lblSysUserId: TLabel
       Left = 60
       Top = 6
       Width = 26
@@ -34,7 +34,7 @@ object frmSysAccessRight: TfrmSysAccessRight
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object lblPermissionId: TLabel
+    object lblSysPermissionId: TLabel
       Left = 24
       Top = 27
       Width = 62
@@ -48,7 +48,35 @@ object frmSysAccessRight: TfrmSysAccessRight
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtUserId: TEdit
+    object lblGrant: TLabel
+      Left = 88
+      Top = 50
+      Width = 350
+      Height = 13
+      AutoSize = False
+      Caption = 'Extra Grant'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblDeny: TLabel
+      Left = 88
+      Top = 128
+      Width = 350
+      Height = 13
+      AutoSize = False
+      Caption = 'Deny'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtSysUserId: TEdit
       Left = 88
       Top = 2
       Width = 350
@@ -56,7 +84,7 @@ object frmSysAccessRight: TfrmSysAccessRight
       ReadOnly = True
       TabOrder = 0
     end
-    object edtPermissionId: TEdit
+    object edtSysPermissionId: TEdit
       Left = 88
       Top = 23
       Width = 350
@@ -66,7 +94,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object chkIsRead: TCheckBox
       Left = 88
-      Top = 48
+      Top = 68
       Width = 140
       Height = 17
       Caption = 'Read'
@@ -74,7 +102,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object chkIsAdd: TCheckBox
       Left = 238
-      Top = 48
+      Top = 68
       Width = 140
       Height = 17
       Caption = 'Add'
@@ -82,7 +110,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object chkIsUpdate: TCheckBox
       Left = 88
-      Top = 66
+      Top = 86
       Width = 140
       Height = 17
       Caption = 'Update'
@@ -90,7 +118,7 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object chkIsDelete: TCheckBox
       Left = 238
-      Top = 66
+      Top = 86
       Width = 140
       Height = 17
       Caption = 'Delete'
@@ -98,11 +126,51 @@ object frmSysAccessRight: TfrmSysAccessRight
     end
     object chkIsSpecial: TCheckBox
       Left = 88
-      Top = 84
+      Top = 104
       Width = 290
       Height = 17
       Caption = 'Special'
       TabOrder = 6
+    end
+    object chkDenyRead: TCheckBox
+      Left = 88
+      Top = 146
+      Width = 140
+      Height = 17
+      Caption = 'Read'
+      TabOrder = 7
+    end
+    object chkDenyAdd: TCheckBox
+      Left = 238
+      Top = 146
+      Width = 140
+      Height = 17
+      Caption = 'Add'
+      TabOrder = 8
+    end
+    object chkDenyUpdate: TCheckBox
+      Left = 88
+      Top = 164
+      Width = 140
+      Height = 17
+      Caption = 'Update'
+      TabOrder = 9
+    end
+    object chkDenyDelete: TCheckBox
+      Left = 238
+      Top = 164
+      Width = 140
+      Height = 17
+      Caption = 'Delete'
+      TabOrder = 10
+    end
+    object chkDenySpecial: TCheckBox
+      Left = 88
+      Top = 182
+      Width = 290
+      Height = 17
+      Caption = 'Special'
+      TabOrder = 11
     end
   end
 end

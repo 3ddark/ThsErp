@@ -1,23 +1,34 @@
-unit AccGroup.Service;
+﻿unit AccGroup.Service;
 
 interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  AccGroup.Repository, AccGroup;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  AccGroup.Repository, AccGroup, AccGroup.Exception;
 
 type
   TAccGroupService = class(TCrudService<TAccGroup>)
   private
     FRepo: IRepository<TAccGroup>;
+
+    procedure DoAdd(AEntity: TAccGroup);
+    procedure DoUpdate(AEntity: TAccGroup);
+    procedure DoDelete(AId: Int64);
+    procedure ValidateUnique(AEntity: TAccGroup; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TAccGroup; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TAccGroup>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TAccGroup; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TAccGroup; override;
+
     procedure Add(AEntity: TAccGroup); override;
     procedure Update(AEntity: TAccGroup); override;
     procedure Delete(AId: Int64); override;
@@ -31,104 +42,171 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TAccGroupService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TAccGroup, TAccGroupRepository>;
+  Self.PermissionCode := PERMISSION_ACC_GROUP;
 end;
 
 destructor TAccGroupService.Destroy;
 begin
-  FRepo := nil;
   inherited;
+end;
+
+procedure TAccGroupService.ValidateUnique(AEntity: TAccGroup; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TAccGroup;
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('name', '=', TValue.From<string>(AEntity.Name)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      try
+        if Assigned(LModel) then
+          raise EAccGroupExceptionNameUnique.Create;
+      finally
+        LModel.Free;
+      end;
+    finally
+      LFilter.Free;
+    end;
+  end;
+end;
+
+procedure TAccGroupService.ValidateBusinessRules(AEntity: TAccGroup; AOperation: TCrudOperation);
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    AEntity.Name := AnsiUpperCase(Trim(AEntity.Name));
+  end;
+
+  ValidateUnique(AEntity, AOperation);
+end;
+
+procedure TAccGroupService.DoAdd(AEntity: TAccGroup);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TAccGroupService.DoUpdate(AEntity: TAccGroup);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TAccGroupService.DoDelete(AId: Int64);
+var
+  LEntity: TAccGroup;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TAccGroupService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TAccGroup>;
 begin
-  if APermissionControl then
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 function TAccGroupService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TAccGroup;
 begin
-  if APermissionControl then
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 procedure TAccGroupService.BusinessInsert(AEntity: TAccGroup; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Uow.InTransaction then
-        Self.UoW.Rollback;
-      raise
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TAccGroupService.BusinessUpdate(AEntity: TAccGroup; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TAccGroupService.BusinessDelete(AEntity: TAccGroup; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -137,29 +215,34 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TAccGroupService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TAccGroup>;
+function TAccGroupService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TAccGroup>;
 begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TAccGroupService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccGroup;
+function TAccGroupService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TAccGroup;
 begin
   Result := FRepo.FindById(AId, ALock);
 end;
 
+function TAccGroupService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccGroup;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
+end;
+
 procedure TAccGroupService.Add(AEntity: TAccGroup);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity);
 end;
 
 procedure TAccGroupService.Update(AEntity: TAccGroup);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TAccGroupService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 end.

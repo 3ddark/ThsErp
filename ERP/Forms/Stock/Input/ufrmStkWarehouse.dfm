@@ -1,8 +1,8 @@
 object frmStkWarehouse: TfrmStkWarehouse
   Left = 0
   Top = 0
-  Caption = 'frmStkWarehouse'
-  ClientHeight = 260
+  Caption = 'Warehouse'
+  ClientHeight = 162
   ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -11,113 +11,102 @@ object frmStkWarehouse: TfrmStkWarehouse
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  OnShow = FormShow
-  TextHeight = 15
-  object pgcMain: TPageControl
+  TextHeight = 14
+  object pnlContent: TPanel
     Left = 0
     Top = 0
     Width = 480
-    Height = 260
-    ActivePage = tsMain
+    Height = 162
     Align = alClient
     TabOrder = 0
-    TabStop = False
-    ExplicitWidth = 476
-    ExplicitHeight = 250
-    object tsMain: TTabSheet
-      Caption = 'Genel'
-      object lblWarehouseName
-        Left = 31
-        Top = 10
-        Width = 91
-        Height = 13
-        Alignment = taRightJustify
-        BiDiMode = bdLeftToRight
-        Caption = 'Warehouse Name'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentBiDiMode = False
-        ParentFont = False
-      end
-      object edtWarehouseName
-        Left = 128
-        Top = 6
-        Width = 310
-        Height = 23
-        TabOrder = 0
-      end
-      object lblDefaultRawMaterial
-        Left = 5
-        Top = 45
-        Width = 117
-        Height = 13
-        Alignment = taRightJustify
-        BiDiMode = bdLeftToRight
-        Caption = 'Default Raw Material'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentBiDiMode = False
-        ParentFont = False
-      end
-      object chkDefaultRawMaterial
-        Left = 128
-        Top = 42
-        Width = 97
-        Height = 17
-        TabOrder = 1
-      end
-      object lblDefaultProduction
-        Left = 5
-        Top = 70
-        Width = 117
-        Height = 13
-        Alignment = taRightJustify
-        BiDiMode = bdLeftToRight
-        Caption = 'Default Production'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentBiDiMode = False
-        ParentFont = False
-      end
-      object chkDefaultProduction
-        Left = 128
-        Top = 67
-        Width = 97
-        Height = 17
-        TabOrder = 2
-      end
-      object lblDefaultSales
-        Left = 5
-        Top = 95
-        Width = 117
-        Height = 13
-        Alignment = taRightJustify
-        BiDiMode = bdLeftToRight
-        Caption = 'Default Sales'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentBiDiMode = False
-        ParentFont = False
-      end
-      object chkDefaultSales
-        Left = 128
-        Top = 92
-        Width = 97
-        Height = 17
-        TabOrder = 3
-      end
+    object lblWarehouseName: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Warehouse Name'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtWarehouseName: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      MaxLength = 32
+      TabOrder = 0
+    end
+    object lblDefaultRawMaterial: TLabel
+      Left = 4
+      Top = 29
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Default Raw Material'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object chkDefaultRawMaterial: TCheckBox
+      Left = 132
+      Top = 27
+      Width = 333
+      Height = 17
+      TabOrder = 1
+    end
+    object lblDefaultProduction: TLabel
+      Left = 4
+      Top = 52
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Default Production'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object chkDefaultProduction: TCheckBox
+      Left = 132
+      Top = 50
+      Width = 333
+      Height = 17
+      TabOrder = 2
+    end
+    object lblDefaultSales: TLabel
+      Left = 4
+      Top = 75
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Default Sales'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object chkDefaultSales: TCheckBox
+      Left = 132
+      Top = 73
+      Width = 333
+      Height = 17
+      TabOrder = 3
     end
   end
 end

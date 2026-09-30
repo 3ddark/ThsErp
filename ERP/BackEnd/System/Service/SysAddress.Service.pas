@@ -52,7 +52,7 @@ constructor TSysAddressService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysAddress, TSysAddressRepository>;
-  Self.PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_ADDRESS;
 end;
 
 destructor TSysAddressService.Destroy;

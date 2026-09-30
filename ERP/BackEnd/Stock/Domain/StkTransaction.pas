@@ -1,71 +1,93 @@
-unit StkTransaction;
+﻿unit StkTransaction;
 
 interface
 
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('stk_transaction')]
   TStkTransaction = class(TEntity)
   private
-    FSku: string;
-    FQuantity: Double;
-    FAmount: Double;
-    FAmountForeign: Double;
+    FTransactionDate: TDate;
+    FTransactionType: SmallInt;
+    FStkInventoryId: Int64;
+    FFromStkWarehouseId: Int64;
+    FToStkWarehouseId: Int64;
+    FQuantity: Currency;
+    FAmount: Currency;
+    FAmountForeign: Currency;
     FCurrency: string;
-    FDirection: SmallInt;
-    FTransactionDate: TDateTime;
-    FFromWarehouseId: Int64;
-    FToWarehouseId: Int64;
     FIsOpening: Boolean;
     FDescription: string;
     FDispatchId: Int64;
     FProductionId: Int64;
+
+    // View (vw_stk_transaction) okunabilir alanları
+    FInventoryName: string;
+    FFromWarehouseName: string;
+    FToWarehouseName: string;
+    FInventoryCode: string;
   public
-    [Column('sku'), MaxLength(64), Required()]
-    Property Sku: string read FSku write FSku;
+    [Column('transaction_date')]
+    property TransactionDate: TDate read FTransactionDate write FTransactionDate;
+
+    [Column('transaction_type')]
+    property TransactionType: SmallInt read FTransactionType write FTransactionType;
+
+    [Column('stk_inventory_id')]
+    property StkInventoryId: Int64 read FStkInventoryId write FStkInventoryId;
+
+    [Column('from_stk_warehouse_id')]
+    property FromStkWarehouseId: Int64 read FFromStkWarehouseId write FFromStkWarehouseId;
+
+    [Column('to_stk_warehouse_id')]
+    property ToStkWarehouseId: Int64 read FToStkWarehouseId write FToStkWarehouseId;
 
     [Column('quantity')]
-    Property Quantity: Double read FQuantity write FQuantity;
+    property Quantity: Currency read FQuantity write FQuantity;
 
     [Column('amount')]
-    Property Amount: Double read FAmount write FAmount;
+    property Amount: Currency read FAmount write FAmount;
 
     [Column('amount_foreign')]
-    Property AmountForeign: Double read FAmountForeign write FAmountForeign;
+    property AmountForeign: Currency read FAmountForeign write FAmountForeign;
 
-    [Column('currency'), MaxLength(8)]
-    Property Currency: string read FCurrency write FCurrency;
-
-    [Column('direction')]
-    Property Direction: SmallInt read FDirection write FDirection;
-
-    [Column('transaction_date')]
-    Property TransactionDate: TDateTime read FTransactionDate write FTransactionDate;
-
-    [Column('from_warehouse')]
-    Property FromWarehouseId: Int64 read FFromWarehouseId write FFromWarehouseId;
-
-    [Column('to_warehouse')]
-    Property ToWarehouseId: Int64 read FToWarehouseId write FToWarehouseId;
+    [Column('currency')]
+    [MaxLength(3)]
+    property Currency: string read FCurrency write FCurrency;
 
     [Column('is_opening')]
-    Property IsOpening: Boolean read FIsOpening write FIsOpening;
+    property IsOpening: Boolean read FIsOpening write FIsOpening;
 
-    [Column('description'), MaxLength(256)]
-    Property Description: string read FDescription write FDescription;
+    [Column('description')]
+    [MaxLength(128)]
+    property Description: string read FDescription write FDescription;
 
     [Column('dispatch_id')]
-    Property DispatchId: Int64 read FDispatchId write FDispatchId;
+    property DispatchId: Int64 read FDispatchId write FDispatchId;
 
     [Column('production_id')]
-    Property ProductionId: Int64 read FProductionId write FProductionId;
+    property ProductionId: Int64 read FProductionId write FProductionId;
+
+    [NotMapped]
+    property InventoryName: string read FInventoryName write FInventoryName;
+
+    [NotMapped]
+    property FromWarehouseName: string read FFromWarehouseName write FFromWarehouseName;
+
+    [NotMapped]
+    property ToWarehouseName: string read FToWarehouseName write FToWarehouseName;
+
+    [NotMapped]
+    property InventoryCode: string read FInventoryCode write FInventoryCode;
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TStkTransaction;
   end;
 
 implementation
@@ -73,12 +95,36 @@ implementation
 constructor TStkTransaction.Create;
 begin
   inherited;
-  FIsOpening := False;
+  FTransactionDate := Date;
+  FTransactionType := 1;  // STK_TRANSACTION_IN
 end;
 
 destructor TStkTransaction.Destroy;
 begin
   inherited;
+end;
+
+function TStkTransaction.Clone: TStkTransaction;
+begin
+  Result := TStkTransaction.Create;
+  Result.Id := Self.Id;
+  Result.TransactionDate := Self.TransactionDate;
+  Result.TransactionType := Self.TransactionType;
+  Result.StkInventoryId := Self.StkInventoryId;
+  Result.FromStkWarehouseId := Self.FromStkWarehouseId;
+  Result.ToStkWarehouseId := Self.ToStkWarehouseId;
+  Result.Quantity := Self.Quantity;
+  Result.Amount := Self.Amount;
+  Result.AmountForeign := Self.AmountForeign;
+  Result.Currency := Self.Currency;
+  Result.IsOpening := Self.IsOpening;
+  Result.Description := Self.Description;
+  Result.DispatchId := Self.DispatchId;
+  Result.ProductionId := Self.ProductionId;
+  Result.InventoryName := Self.InventoryName;
+  Result.FromWarehouseName := Self.FromWarehouseName;
+  Result.ToWarehouseName := Self.ToWarehouseName;
+  Result.InventoryCode := Self.InventoryCode;
 end;
 
 end.

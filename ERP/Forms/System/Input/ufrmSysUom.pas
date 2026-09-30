@@ -16,14 +16,14 @@ uses
 type
   TfrmSysUom = class(TfrmInputSimpleDB<TSysUom, TSysUomService>)
     pnlContent: TPanel;
-    lblUnit: TLabel;
-    edtUnit: TEdit;
+    lblUnitCode: TLabel;
+    edtUnitCode: TEdit;
     lblUnitEInv: TLabel;
     edtUnitEInv: TEdit;
     lblDecimal: TLabel;
     chkDecimal: TCheckBox;
-    lblMeasureTypeId: TLabel;
-    edtMeasureTypeId: TEdit;
+    lblSysUomGroupId: TLabel;
+    edtSysUomGroupId: TEdit;
     lblMultiplier: TLabel;
     edtMultiplier: TEdit;
     scrlbxTranslations: TScrollBox;
@@ -51,7 +51,7 @@ var
   LTrans : TSysUomTranslation;
   LFound : Boolean;
 begin
-  Table.UnitCode := edtUnit.Text;
+  Table.UnitCode := edtUnitCode.Text;
   Table.UnitEInv := edtUnitEInv.Text;
   Table.Decimal := chkDecimal.Checked;
   Table.Multiplier := StrToIntDef(edtMultiplier.Text, 1);
@@ -78,6 +78,8 @@ begin
         LTrans.UomName := LPair.Value;
         LTrans.SysLanguage := TSysLanguage.Create;
         LTrans.SysLanguage.Locale := LPair.Key;
+        if not Assigned(Table.Translations) then
+          Table.Translations := TObjectList<TSysUomTranslation>.Create(True);
         Table.Translations.Add(LTrans);
       end;
     end;
@@ -92,7 +94,7 @@ procedure TfrmSysUom.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtMeasureTypeId.OnHelperProcess := HelperProcess;
+  edtSysUomGroupId.OnHelperProcess := HelperProcess;
 
   BuildTranslationControls(
     scrlbxTranslations,
@@ -104,18 +106,17 @@ end;
 procedure TfrmSysUom.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtUnit.SetFocus;
+  edtUnitCode.SetFocus;
 end;
 
 procedure TfrmSysUom.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.TitleSingular, 'Unit of Measurement');
-  lblUnit.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitCode, 'Unit Code');
+  lblUnitCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitCode, 'Unit Code');
   lblUnitEInv.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.UnitEinv, 'E-Invoice Unit Code');
   lblDecimal.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.DecimalPlace, 'Decimal');
-  lblMeasureTypeId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.MeasureType, 'Unit of Measurement Type');
+  lblSysUomGroupId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.MeasureType, 'Unit of Measurement Type');
   lblMultiplier.Caption := TLocalizationManager.Translate(TLangKeys.TSysUom.Multiplier, 'Multiplier');
   UpdateTranslationLabels(scrlbxTranslations, 'UomName', TLocalizationManager.Translate(TLangKeys.TSysUom.ColUomName, 'Uom Name'));
 end;
@@ -126,7 +127,7 @@ var
 begin
   if Sender is TEdit then
   begin
-    if (Sender as TEdit).Name = edtMeasureTypeId.Name then
+    if (Sender as TEdit).Name = edtSysUomGroupId.Name then
     begin
       LFrm := TfrmSysUomGroups.Create((Sender as TEdit), TSysUomGroupService.Create, TSysUomGroup.Create);
       try
@@ -159,7 +160,7 @@ var
   LTrans : TSysUomTranslation;
 begin
   inherited;
-  edtUnit.Text := Table.UnitCode;
+  edtUnitCode.Text := Table.UnitCode;
   edtUnitEInv.Text := Table.UnitEInv;
   chkDecimal.Checked := Table.Decimal;
   edtMultiplier.Text := Table.Multiplier.ToString;
@@ -180,9 +181,9 @@ begin
   end;
 
   if Assigned(Table.SysUomGroup) then
-    edtMeasureTypeId.Text := Table.SysUomGroup.UomGroupKey
+    edtSysUomGroupId.Text := Table.SysUomGroup.UomGroupKey
   else
-    edtMeasureTypeId.Text := '';
+    edtSysUomGroupId.Text := '';
 end;
 
 end.

@@ -215,7 +215,7 @@ begin
     LQuery := TFDQuery.Create(nil);
     try
       LQuery.Connection := Self.UoW.Connection;
-      LQuery.SQL.Text   := 'SELECT user_password FROM sys_users WHERE id = :id';
+      LQuery.SQL.Text   := 'SELECT user_password FROM public.sys_user WHERE id = :id';
       LQuery.ParamByName('id').AsLargeInt := AUserId;
       LQuery.Open;
 
@@ -236,7 +236,7 @@ begin
       LNewHash := TPasswordHelper.HashPassword(ANewPassword);
 
       LQuery.Close;
-      LQuery.SQL.Text := 'UPDATE sys_users SET user_password = :password WHERE id = :id';
+      LQuery.SQL.Text := 'UPDATE public.sys_user SET user_password = :password WHERE id = :id';
       LQuery.ParamByName('password').AsString    := LNewHash;
       LQuery.ParamByName('id').AsLargeInt        := AUserId;
       LQuery.ExecSQL;
@@ -272,7 +272,7 @@ begin
     LQuery := TFDQuery.Create(nil);
     try
       LQuery.Connection := Self.UoW.Connection;
-      LQuery.SQL.Text   := 'UPDATE sys_users SET user_password = :password WHERE id = :id';
+      LQuery.SQL.Text   := 'UPDATE public.sys_user SET user_password = :password WHERE id = :id';
       LQuery.ParamByName('password').AsString := LNewHash;
       LQuery.ParamByName('id').AsLargeInt     := AUserId;
       LQuery.ExecSQL;
@@ -302,7 +302,7 @@ begin
     LQuery := TFDQuery.Create(nil);
     try
       LQuery.Connection := Self.UoW.Connection;
-      LQuery.SQL.Text   := 'UPDATE sys_users SET active = :active WHERE id = :id';
+      LQuery.SQL.Text   := 'UPDATE public.sys_user SET active = :active WHERE id = :id';
       LQuery.ParamByName('active').AsBoolean  := AActive;
       LQuery.ParamByName('id').AsLargeInt     := AUserId;
       LQuery.ExecSQL;

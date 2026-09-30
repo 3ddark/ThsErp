@@ -15,10 +15,10 @@ type
     [Column('currency'), MaxLength(3), Required()]
     property Currency: string read FCurrency write FCurrency;
 
-    [Column('symbol'), MaxLength(3), Required()]
+    [Column('symbol'), MaxLength(8), Required()]
     property Symbol: string read FSymbol write FSymbol;
 
-    [Column('description')]
+    [Column('description'), MaxLength(128)]
     property Description: string read FDescription write FDescription;
 
     constructor Create(); override;

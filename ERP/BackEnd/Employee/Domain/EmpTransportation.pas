@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes, EmpSection;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('emp_transportation')]
@@ -13,19 +13,16 @@ type
   private
     FCarNo: SmallInt;
     FCarName: string;
-    FRoute: TArray<Double>;
   public
     [Column('car_no')]
-    Property CarNo: SmallInt read FCarNo write FCarNo;
+    property CarNo: SmallInt read FCarNo write FCarNo;
 
     [Column('car_name')]
-    Property CarName: string read FCarName write FCarName;
+    [MaxLength(32), Required(TLangKeys.TValidation.Required, True)]
+    property CarName: string read FCarName write FCarName;
 
-    [Column('route')]
-    property Route: TArray<Double> read FRoute write FRoute;
-
-    destructor Destroy; override;
     constructor Create(); override;
+    destructor Destroy; override;
 
     function Clone: TEmpTransportation;
   end;
@@ -35,12 +32,10 @@ implementation
 constructor TEmpTransportation.Create;
 begin
   inherited;
-
 end;
 
 destructor TEmpTransportation.Destroy;
 begin
-
   inherited;
 end;
 
@@ -50,7 +45,6 @@ begin
   Result.Id := Self.Id;
   Result.CarNo := Self.CarNo;
   Result.CarName := Self.CarName;
-  Result.Route := Self.Route;
 end;
 
 end.

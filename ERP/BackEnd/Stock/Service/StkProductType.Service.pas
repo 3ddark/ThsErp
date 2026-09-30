@@ -4,25 +4,34 @@ interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  StkProductType.Repository, StkProductType, LocalizationManager;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  StkProductType.Repository, StkProductType, StkProductType.Exception;
 
 type
   TStkProductTypeService = class(TCrudService<TStkProductType>)
   private
     FRepo: IRepository<TStkProductType>;
+
+    procedure DoAdd(AEntity: TStkProductType);
+    procedure DoUpdate(AEntity: TStkProductType);
+    procedure DoDelete(AId: Int64);
+    procedure ValidateUnique(AEntity: TStkProductType; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TStkProductType; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TStkProductType>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TStkProductType; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TStkProductType; override;
+
     procedure Add(AEntity: TStkProductType); override;
     procedure Update(AEntity: TStkProductType); override;
     procedure Delete(AId: Int64); override;
-
-    procedure ValidateBusinessRules(AEntity: TStkProductType; AOperation: TCrudOperation); override;
 
     function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TStkProductType; override;
     function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TStkProductType>; override;
@@ -33,147 +42,170 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TStkProductTypeService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TStkProductType, TStkProductTypeRepository>;
-  PermissionCode := 1043;
+  Self.PermissionCode := PERMISSION_STK_PRODUCT_TYPE;
 end;
 
 destructor TStkProductTypeService.Destroy;
 begin
-  FRepo := nil;
   inherited;
+end;
+
+procedure TStkProductTypeService.ValidateUnique(AEntity: TStkProductType; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TStkProductType;
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('product_type_name', '=', TValue.From<string>(AEntity.ProductTypeName)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      try
+        if Assigned(LModel) then
+          raise EStkProductTypeExceptionProductTypeNameUnique.Create;
+      finally
+        LModel.Free;
+      end;
+    finally
+      LFilter.Free;
+    end;
+  end;
 end;
 
 procedure TStkProductTypeService.ValidateBusinessRules(AEntity: TStkProductType; AOperation: TCrudOperation);
 begin
-  if Trim(AEntity.ProductTypeName) = '' then
-    raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStock.ProductTypeNameRequired, 'Ürün tipi adı boş bırakılamaz.'));
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    AEntity.ProductTypeName := AnsiUpperCase(Trim(AEntity.ProductTypeName));
+    AEntity.Description := Trim(AEntity.Description);
+  end;
+
+  ValidateUnique(AEntity, AOperation);
+end;
+
+procedure TStkProductTypeService.DoAdd(AEntity: TStkProductType);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TStkProductTypeService.DoUpdate(AEntity: TStkProductType);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TStkProductTypeService.DoDelete(AId: Int64);
+var
+  LEntity: TStkProductType;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TStkProductTypeService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TStkProductType>;
-var
-  LStartedTx: Boolean;
 begin
-  Self.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
 
-  LStartedTx := False;
   if AWithBegin and not Self.UoW.InTransaction then
-  begin
     Self.UoW.BeginTransaction;
-    LStartedTx := True;
-  end;
 
   try
     Result := FRepo.Find(AFilter, ALock);
   except
-    if LStartedTx and Self.UoW.InTransaction then
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
     raise;
   end;
 end;
 
 function TStkProductTypeService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TStkProductType;
-var
-  LStartedTx: Boolean;
 begin
-  Self.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
 
-  LStartedTx := False;
   if AWithBegin and not Self.UoW.InTransaction then
-  begin
     Self.UoW.BeginTransaction;
-    LStartedTx := True;
-  end;
 
   try
     Result := FRepo.FindById(AId, ALock);
-    if (Result = nil) and LStartedTx and Self.UoW.InTransaction then
-      Self.UoW.Rollback;
   except
-    if LStartedTx and Self.UoW.InTransaction then
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
     raise;
   end;
 end;
 
 procedure TStkProductTypeService.BusinessInsert(AEntity: TStkProductType; AWithBegin, AWithCommit, APermissionControl: Boolean);
-var
-  LStartedTx: Boolean;
 begin
-  Self.IsAuthorized(ptAddRecord, APermissionControl);
-
-  ValidateAll(AEntity, coInsert);
-
-  LStartedTx := False;
-  if AWithBegin and not Self.UoW.InTransaction then
-  begin
-    Self.UoW.BeginTransaction;
-    LStartedTx := True;
-  end;
-
   try
-    FRepo.Add(AEntity);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
-    if AWithCommit and Self.UoW.InTransaction and (LStartedTx or AWithBegin) then
+    if AWithBegin and not Self.UoW.InTransaction then
+      Self.UoW.BeginTransaction;
+
+    DoAdd(AEntity);
+
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    if LStartedTx and Self.UoW.InTransaction then
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
     raise;
   end;
 end;
 
 procedure TStkProductTypeService.BusinessUpdate(AEntity: TStkProductType; AWithBegin, AWithCommit, APermissionControl: Boolean);
-var
-  LStartedTx: Boolean;
 begin
-  Self.IsAuthorized(ptUpdate, APermissionControl);
-
-  ValidateAll(AEntity, coUpdate);
-
-  LStartedTx := False;
-  if AWithBegin and not Self.UoW.InTransaction then
-  begin
-    Self.UoW.BeginTransaction;
-    LStartedTx := True;
-  end;
-
   try
-    FRepo.Update(AEntity);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
-    if AWithCommit and Self.UoW.InTransaction and (LStartedTx or AWithBegin) then
+    if AWithBegin and not Self.UoW.InTransaction then
+      Self.UoW.BeginTransaction;
+
+    DoUpdate(AEntity);
+
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    if LStartedTx and Self.UoW.InTransaction then
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
     raise;
   end;
 end;
 
 procedure TStkProductTypeService.BusinessDelete(AEntity: TStkProductType; AWithBegin, AWithCommit, APermissionControl: Boolean);
-var
-  LStartedTx: Boolean;
 begin
-  Self.IsAuthorized(ptDelete, APermissionControl);
-
-  ValidateAll(AEntity, coDelete);
-
-  LStartedTx := False;
-  if AWithBegin and not Self.UoW.InTransaction then
-  begin
-    Self.UoW.BeginTransaction;
-    LStartedTx := True;
-  end;
-
   try
-    FRepo.Delete(AEntity);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
-    if AWithCommit and Self.UoW.InTransaction and (LStartedTx or AWithBegin) then
+    if AWithBegin and not Self.UoW.InTransaction then
+      Self.UoW.BeginTransaction;
+
+    DoDelete(AEntity.Id);
+
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    if LStartedTx and Self.UoW.InTransaction then
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
     raise;
   end;
@@ -184,29 +216,34 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TStkProductTypeService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TStkProductType>;
+function TStkProductTypeService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TStkProductType>;
 begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TStkProductTypeService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TStkProductType;
+function TStkProductTypeService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TStkProductType;
 begin
   Result := FRepo.FindById(AId, ALock);
 end;
 
+function TStkProductTypeService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TStkProductType;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
+end;
+
 procedure TStkProductTypeService.Add(AEntity: TStkProductType);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity);
 end;
 
 procedure TStkProductTypeService.Update(AEntity: TStkProductType);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TStkProductTypeService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 end.

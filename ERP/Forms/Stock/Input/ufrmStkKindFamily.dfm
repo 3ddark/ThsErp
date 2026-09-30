@@ -1,9 +1,9 @@
 object frmStkKindFamily: TfrmStkKindFamily
   Left = 0
   Top = 0
-  Caption = 'frmStkKindFamily'
-  ClientHeight = 232
-  ClientWidth = 463
+  Caption = 'Kind Family'
+  ClientHeight = 139
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,90 +11,81 @@ object frmStkKindFamily: TfrmStkKindFamily
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  OnShow = FormShow
-  TextHeight = 15
-  object pgcMain: TPageControl
+  TextHeight = 14
+  object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 463
-    Height = 232
-    ActivePage = tsMain
+    Width = 480
+    Height = 139
     Align = alClient
     TabOrder = 0
-    TabStop = False
-    ExplicitWidth = 461
-    ExplicitHeight = 224
-    object tsMain: TTabSheet
-      Caption = 'Genel'
-      object lblaile
-        Left = 52
-        Top = 7
-        Width = 36
-        Height = 13
-        Alignment = taRightJustify
-        BiDiMode = bdLeftToRight
-        Caption = 'Family'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentBiDiMode = False
-        ParentFont = False
-      end
-      object lbldescription
-        Left = 21
-        Top = 36
-        Width = 65
-        Height = 13
-        Alignment = taRightJustify
-        BiDiMode = bdLeftToRight
-        Caption = 'Description'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentBiDiMode = False
-        ParentFont = False
-      end
-      object lblactive
-        Left = 51
-        Top = 128
-        Width = 37
-        Height = 13
-        Alignment = taRightJustify
-        BiDiMode = bdLeftToRight
-        Caption = 'Active'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentBiDiMode = False
-        ParentFont = False
-      end
-      object edtfamily
-        Left = 92
-        Top = 3
-        Width = 333
-        Height = 23
-        TabOrder = 0
-      end
-      object mmodescription
-        Left = 92
-        Top = 27
-        Width = 333
-        Height = 89
-        TabOrder = 1
-      end
-      object chkactive
-        Left = 92
-        Top = 124
-        Width = 97
-        Height = 17
-        TabOrder = 2
-      end
+    object lblFamily: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Family'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtFamily: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      MaxLength = 32
+      TabOrder = 0
+    end
+    object lblDescription: TLabel
+      Left = 4
+      Top = 29
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Description'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtDescription: TEdit
+      Left = 132
+      Top = 25
+      Width = 333
+      Height = 22
+      MaxLength = 250
+      TabOrder = 1
+    end
+    object lblActive: TLabel
+      Left = 4
+      Top = 52
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Active'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object chkActive: TCheckBox
+      Left = 132
+      Top = 50
+      Width = 333
+      Height = 17
+      TabOrder = 2
     end
   end
 end

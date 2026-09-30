@@ -1,23 +1,34 @@
-unit AccVoucher.Service;
+﻿unit AccVoucher.Service;
 
 interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  AccVoucher.Repository, AccVoucher;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  AccVoucher.Repository, AccVoucher, AccVoucher.Exception;
 
 type
   TAccVoucherService = class(TCrudService<TAccVoucher>)
   private
     FRepo: IRepository<TAccVoucher>;
+
+    procedure DoAdd(AEntity: TAccVoucher);
+    procedure DoUpdate(AEntity: TAccVoucher);
+    procedure DoDelete(AId: Int64);
+    procedure ValidateUnique(AEntity: TAccVoucher; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TAccVoucher; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TAccVoucher>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TAccVoucher; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TAccVoucher; override;
+
     procedure Add(AEntity: TAccVoucher); override;
     procedure Update(AEntity: TAccVoucher); override;
     procedure Delete(AId: Int64); override;
@@ -31,104 +42,166 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TAccVoucherService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TAccVoucher, TAccVoucherRepository>;
+  Self.PermissionCode := PERMISSION_ACC_VOUCHER;
 end;
 
 destructor TAccVoucherService.Destroy;
 begin
-  FRepo := nil;
   inherited;
+end;
+
+procedure TAccVoucherService.ValidateUnique(AEntity: TAccVoucher; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TAccVoucher;
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('journal_no', '=', TValue.From<Integer>(AEntity.JournalNo)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      try
+        if Assigned(LModel) then
+          raise EAccVoucherExceptionJournalNoUnique.Create;
+      finally
+        LModel.Free;
+      end;
+    finally
+      LFilter.Free;
+    end;
+  end;
+end;
+
+procedure TAccVoucherService.ValidateBusinessRules(AEntity: TAccVoucher; AOperation: TCrudOperation);
+begin
+  ValidateUnique(AEntity, AOperation);
+end;
+
+procedure TAccVoucherService.DoAdd(AEntity: TAccVoucher);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TAccVoucherService.DoUpdate(AEntity: TAccVoucher);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TAccVoucherService.DoDelete(AId: Int64);
+var
+  LEntity: TAccVoucher;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TAccVoucherService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TAccVoucher>;
 begin
-  if APermissionControl then
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 function TAccVoucherService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TAccVoucher;
 begin
-  if APermissionControl then
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 procedure TAccVoucherService.BusinessInsert(AEntity: TAccVoucher; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Uow.InTransaction then
-        Self.UoW.Rollback;
-      raise
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TAccVoucherService.BusinessUpdate(AEntity: TAccVoucher; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TAccVoucherService.BusinessDelete(AEntity: TAccVoucher; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -137,29 +210,34 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TAccVoucherService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TAccVoucher>;
+function TAccVoucherService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TAccVoucher>;
 begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TAccVoucherService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccVoucher;
+function TAccVoucherService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TAccVoucher;
 begin
   Result := FRepo.FindById(AId, ALock);
 end;
 
+function TAccVoucherService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccVoucher;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
+end;
+
 procedure TAccVoucherService.Add(AEntity: TAccVoucher);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity);
 end;
 
 procedure TAccVoucherService.Update(AEntity: TAccVoucher);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TAccVoucherService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 end.

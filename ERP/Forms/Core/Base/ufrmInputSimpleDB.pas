@@ -39,9 +39,17 @@ type
 
     procedure DoAfterDeleteEvent(Sender: TObject);
 
+  private
+    // Yetki durumu (FormShow'da bir kez okunur); butonlar buna göre pasif
+    FCanAdd: Boolean;
+    FCanUpdate: Boolean;
+    FCanDelete: Boolean;
+    procedure LoadPermissionState;
+    procedure ApplyPermissionState;
+
     procedure SetService(const Value: TS);
     procedure SetTable(const Value: TE);
-    function ValidateSubControls(Sender: TWinControl; out AControlName: string): Boolean;
+    function ValidateSubControls(Sender: TWinControl; out AFailedControl: TWinControl): Boolean;
   protected
     procedure SetControlsDisabledOrEnabled(AContainerControl: TWinControl = nil; ADisable: Boolean = True);
 
@@ -142,6 +150,14 @@ begin
 
     if Assigned(ctrl) and (ctrl is TEdit) then
     begin
+      // Helper (FK) edit: okunabilir metin gösterir, tip/uzunluk entity'den ezilmez
+      if Assigned(Ths.Helper.Edit.TEdit(ctrl).OnHelperProcess) then
+      begin
+        if propMeta.Required then
+          Ths.Helper.Edit.TEdit(ctrl).thsRequiredData := True;
+        Continue;
+      end;
+
       if propMeta.MaxLength > 0 then
         (ctrl as TEdit).MaxLength := propMeta.MaxLength
       else
@@ -334,6 +350,15 @@ procedure TfrmInputSimpleDB<TE, TS>.BtnAcceptClick(Sender: TObject);
 var
   LId: Int64;
 begin
+  // Buton bir şekilde aktif edilse bile: doğrulamadan / kilitlemeden önce yetki
+  // (backend Business* metotları ayrıca kontrol eder)
+  if ((FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord)) and not FCanAdd then
+    Service.UoW.EnsureAuthorized(Service.PermissionCode, ptAddRecord, True)
+  else if (FormMode = ifmUpdate) and not FCanUpdate then
+    Service.UoW.EnsureAuthorized(Service.PermissionCode, ptUpdate, True)
+  else if (FormMode = ifmRewiev) and not (FCanUpdate or FCanDelete) then
+    Service.UoW.EnsureAuthorized(Service.PermissionCode, ptUpdate, True);
+
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
     if not ValidateInput(PanelMain) then
@@ -343,7 +368,7 @@ begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) then
   begin
     try
-      Service.BusinessInsert(Self.Table, True, True, False);
+      Service.BusinessInsert(Self.Table, True, True, True);
       RefreshParentGrid(True);
       ModalResult := mrOK;
       Close;
@@ -374,6 +399,8 @@ begin
         Close;
       except
         ModalResult := mrNone;
+        // Hata sonrası kullanıcı düzeltme yapabilsin
+        SetControlsDisabledOrEnabled(PanelMain, False);
         Repaint;
         raise;
       end;
@@ -381,9 +408,8 @@ begin
   end
   else if (FormMode = ifmRewiev) then
   begin
-    SetControlsDisabledOrEnabled(PanelMain, False);
-
     if (Service.UoW.InTransaction) then
+    begin
       CustomMsgDlg(
         TLocalizationManager.Translate(TLangKeys.TMessage.ActiveTransactionExist, 'You have an active record update. Please complete your current operation first!'),
         mtError,
@@ -392,6 +418,10 @@ begin
         mbOK,
         TLocalizationManager.Translate(TLangKeys.TMessage.InformationTitle, 'Information')
       );
+      Exit;
+    end;
+
+    SetControlsDisabledOrEnabled(PanelMain, False);
 
     LId := Table.Id;
     FreeAndNil(Table);
@@ -407,12 +437,9 @@ begin
     btnAccept.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Confirm, 'Confirm');
     btnAccept.Width := Canvas.TextWidth(btnAccept.Caption) + 56;
     btnAccept.Width := Max(100, btnAccept.Width);
-    if Service.IsAuthorized(ptUpdate, True)
-    then  btnAccept.Enabled := True
-    else  btnAccept.Enabled := False;
-
     btnDelete.Visible := True;
     btnDelete.OnClick := btnDeleteClick;
+    ApplyPermissionState;
 
     RefreshData;
 
@@ -421,6 +448,42 @@ begin
 //    FocusFirstControl;
 
     btnDelete.Left := btnAccept.Left-btnDelete.Width;
+  end;
+end;
+
+procedure TfrmInputSimpleDB<TE, TS>.LoadPermissionState;
+begin
+  try
+    FCanAdd := Service.IsAuthorized(ptAddRecord, True);
+    FCanUpdate := Service.IsAuthorized(ptUpdate, True);
+    FCanDelete := Service.IsAuthorized(ptDelete, True);
+  except
+    on E: Exception do
+    begin
+      // Yetki okunamazsa UI kısıtlanmaz; işlem sırasında backend yine kontrol eder
+      GLogger.ErrorFmt('Yetki durumu okunamadı [%s]: %s', [Self.ClassName, E.Message]);
+      FCanAdd := True;
+      FCanUpdate := True;
+      FCanDelete := True;
+    end;
+  end;
+end;
+
+procedure TfrmInputSimpleDB<TE, TS>.ApplyPermissionState;
+begin
+  case FormMode of
+    ifmNewRecord, ifmCopyNewRecord:
+      BtnAccept.Enabled := FCanAdd;
+
+    // "Güncelle" düzenleme moduna geçirir (kayıt kilitlenir); silme de bu moddan yapılır
+    ifmRewiev:
+      BtnAccept.Enabled := FCanUpdate or FCanDelete;
+
+    ifmUpdate:
+    begin
+      BtnAccept.Enabled := FCanUpdate;
+      BtnDelete.Enabled := FCanDelete;
+    end;
   end;
 end;
 
@@ -453,6 +516,9 @@ procedure TfrmInputSimpleDB<TE, TS>.BtnDeleteClick(Sender: TObject);
 begin
   if (FormMode = ifmUpdate)then
   begin
+    if not FCanDelete then
+      Service.UoW.EnsureAuthorized(Service.PermissionCode, ptDelete, True);
+
     if CustomMsgDlg(
       TLocalizationManager.Translate(TLangKeys.TMessage.ConfirmDelete, 'Are you sure you want to delete the record?'),
       mtConfirmation,
@@ -466,7 +532,7 @@ begin
     ) = mrYes then
     begin
       try
-        Service.BusinessDelete(Table, not Service.Uow.InTransaction, True, False);
+        Service.BusinessDelete(Table, not Service.Uow.InTransaction, True, True);
         DoAfterDeleteEvent(Sender);
 
         RefreshParentGrid(False);
@@ -929,6 +995,9 @@ begin
   if (FormMode = ifmRewiev) or (FormMode = ifmReadOnly) then
     SetControlsDisabledOrEnabled(PgcBase, True);
 
+  LoadPermissionState;
+  ApplyPermissionState;
+
   Repaint;
 
   ApplyLocalization;
@@ -1005,8 +1074,13 @@ begin
     else if AContainerControl.ClassType = TPageControl then
       LPanelContainer := AContainerControl as TPageControl
     else if AContainerControl.ClassType = TTabSheet then
-      LPanelContainer := AContainerControl as TTabSheet;
+      LPanelContainer := AContainerControl as TTabSheet
+    else if AContainerControl.ClassType = TScrollBox then
+      LPanelContainer := AContainerControl as TScrollBox;
   end;
+
+  if not Assigned(LPanelContainer) then
+    Exit;
 
   for n1 := 0 to LPanelContainer.ControlCount-1 do
   begin
@@ -1018,8 +1092,19 @@ begin
       SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TPageControl, ADisable)
     else if LPanelContainer.Controls[n1].ClassType = TTabSheet then
       SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TTabSheet, ADisable)
+    else if LPanelContainer.Controls[n1].ClassType = TScrollBox then
+      SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TScrollBox, ADisable)
     else if LPanelContainer.Controls[n1].ClassType = TEdit then
-      TEdit(LPanelContainer.Controls[n1]).ReadOnly := ADisable
+    begin
+      // Helper (FK) edit her zaman ReadOnly; salt okunur modda helper kilitlenir (odak alabilir kalır)
+      if Assigned(TEdit(LPanelContainer.Controls[n1]).OnHelperProcess) then
+      begin
+        TEdit(LPanelContainer.Controls[n1]).ReadOnly := True;
+        TEdit(LPanelContainer.Controls[n1]).thsHelperLocked := ADisable;
+      end
+      else
+        TEdit(LPanelContainer.Controls[n1]).ReadOnly := ADisable;
+    end
     else if LPanelContainer.Controls[n1].ClassType = TComboBox then
       TComboBox(LPanelContainer.Controls[n1]).Enabled := (ADisable = False)
     else if LPanelContainer.Controls[n1].ClassType = TMemo then
@@ -1080,22 +1165,17 @@ end;
 
 function TfrmInputSimpleDB<TE, TS>.ValidateInput(AContainerControl: TWinControl): Boolean;
 var
-  LContainer  : TWinControl;
-  LControlName: string;
-  n1, n2      : Integer;
+  LContainer: TWinControl;
+  LFailed   : TWinControl;
+  LParent   : TWinControl;
+  LLabel    : TComponent;
+  LFieldText: string;
 begin
-  Result     := True;
-  LContainer := nil;
+  Result := True;
 
   if AContainerControl = nil then
     LContainer := PanelMain
-  else if AContainerControl is TPanel then
-    LContainer := AContainerControl
-  else if AContainerControl is TGroupBox then
-    LContainer := AContainerControl
-  else if AContainerControl is TPageControl then
-    LContainer := AContainerControl
-  else if AContainerControl is TTabSheet then
+  else
     LContainer := AContainerControl;
 
   if not Assigned(LContainer) then Exit;
@@ -1103,95 +1183,94 @@ begin
   if not (FormMode in [ifmUpdate, ifmNewRecord, ifmCopyNewRecord]) then
     Exit;
 
-  for n1 := 0 to LContainer.ControlCount - 1 do
-  begin
-    if LContainer.Controls[n1] is TPageControl then
-    begin
-      for n2 := 0 to (LContainer.Controls[n1] as TPageControl).PageCount - 1 do
-      begin
-        Result := ValidateSubControls(
-          (LContainer.Controls[n1] as TPageControl).Pages[n2],
-          LControlName);
-        if not Result then Break;
-      end;
-    end
-    else if LContainer.Controls[n1] is TWinControl then
-    begin
-      Result := ValidateSubControls(
-        LContainer.Controls[n1] as TWinControl, LControlName);
-    end;
-
-    if not Result then Break;
-  end;
+  Result := ValidateSubControls(LContainer, LFailed);
 
   Repaint;
 
-  // FIX: En dış çağrıda (nil parametre) hata mesajı göster
-  if not Result and (AContainerControl = nil) then
+  // Formun tamamı doğrulanırken (nil veya PanelMain) kullanıcıya mesaj göster
+  if not Result and ((AContainerControl = nil) or (AContainerControl = PanelMain)) then
+  begin
+    LFieldText := '';
+    if Assigned(LFailed) then
+    begin
+      // Hatalı alanın bulunduğu sekmeleri aç ve alana odaklan
+      LParent := LFailed.Parent;
+      while Assigned(LParent) do
+      begin
+        if (LParent is TTabSheet) and Assigned(TTabSheet(LParent).PageControl) then
+          TTabSheet(LParent).PageControl.ActivePage := TTabSheet(LParent);
+        LParent := LParent.Parent;
+      end;
+      if LFailed.CanFocus then
+        LFailed.SetFocus;
+
+      // edtXxx -> lblXxx başlığı, yoksa kontrol adı
+      LLabel := Self.FindComponent('lbl' + Copy(LFailed.Name, 4, MaxInt));
+      if Assigned(LLabel) and (LLabel is TLabel) and (TLabel(LLabel).Caption <> '') then
+        LFieldText := TLabel(LLabel).Caption
+      else
+        LFieldText := LFailed.Name;
+    end;
+
     raise Exception.Create(
       TLocalizationManager.Translate(
         TLangKeys.TValidation.RequiredFieldsEmpty,
-        'Required fields cannot be left blank.') + AddLBs(3) + LControlName);
+        'Required fields cannot be left blank.') + AddLBs(2) + LFieldText);
+  end;
 end;
 
-function TfrmInputSimpleDB<TE, TS>.ValidateSubControls(Sender: TWinControl; out AControlName: string): Boolean;
+function TfrmInputSimpleDB<TE, TS>.ValidateSubControls(Sender: TWinControl; out AFailedControl: TWinControl): Boolean;
 var
-  n1: Integer;
+  n1   : Integer;
+  LText: string;
+  LReq : Boolean;
 begin
-    Result := True;
-    if Sender.Visible then
-    begin
-      AControlName := Sender.Name;
-      if (Sender.ClassType = TEdit)
-      or (Sender.ClassType = TMemo)
-      or (Sender.ClassType = TCombobox) then begin
-        if Sender.ClassType = TEdit then begin
-          if (TEdit(Sender).thsRequiredData) then
-            if (TEdit(Sender).Text = '') then begin
-              Result := False;
-              TEdit(Sender).Repaint;
-            end;
-        end else if Sender.ClassType = TMemo then begin
-          if (TMemo(Sender).thsRequiredData) then
-            if (TMemo(Sender).Text = '') then begin
-              Result := False;
-              TMemo(Sender).Repaint;
-            end;
-        end else if Sender.ClassType = TCombobox then begin
-          if (TCombobox(Sender).thsRequiredData) then
-            if (TCombobox(Sender).Text  = '') then begin
-              Result := False;
-              TCombobox(Sender).Repaint;
-            end;
-        end;
-      end else begin
-        for n1 := 0 to Sender.ControlCount -1 do begin
-          AControlName := Sender.Controls[n1].Name;
-          if Sender.Controls[n1].ClassType = TEdit then begin
-            if (TEdit(Sender.Controls[n1]).thsRequiredData) then
-              if (TEdit(Sender.Controls[n1]).Text = '') then begin
-                Result := False;
-                TEdit(Sender.Controls[n1]).Repaint;
-                Break;
-              end;
-          end else if Sender.Controls[n1].ClassType = TMemo then begin
-            if (TMemo(Sender.Controls[n1]).thsRequiredData) then
-              if (TMemo(Sender.Controls[n1]).Text = '') then begin
-                Result := False;
-                TMemo(Sender.Controls[n1]).Repaint;
-                Break;
-              end;
-          end else if Sender.Controls[n1].ClassType = TCombobox then begin
-            if (TCombobox(Sender.Controls[n1]).thsRequiredData) then
-              if (TCombobox(Sender.Controls[n1]).Text  = '') then begin
-                Result := False;
-                TCombobox(Sender.Controls[n1]).Repaint;
-                Break;
-              end;
-          end;
-        end;
+  Result := True;
+  AFailedControl := nil;
+
+  // Pasif sekmelerin Visible değeri False olur; sekme için TabVisible esas alınır
+  if Sender is TTabSheet then
+  begin
+    if not TTabSheet(Sender).TabVisible then
+      Exit;
+  end
+  else if not Sender.Visible then
+    Exit;
+
+  if Sender.ClassType = TEdit then
+  begin
+    LReq := TEdit(Sender).thsRequiredData;
+    LText := TEdit(Sender).Text;
+  end
+  else if Sender.ClassType = TMemo then
+  begin
+    LReq := TMemo(Sender).thsRequiredData;
+    LText := TMemo(Sender).Text;
+  end
+  else if Sender.ClassType = TComboBox then
+  begin
+    LReq := TComboBox(Sender).thsRequiredData;
+    LText := TComboBox(Sender).Text;
+  end
+  else
+  begin
+    // Container: tüm alt kontrolleri özyinelemeli dolaş
+    for n1 := 0 to Sender.ControlCount - 1 do
+      if Sender.Controls[n1] is TWinControl then
+      begin
+        Result := ValidateSubControls(TWinControl(Sender.Controls[n1]), AFailedControl);
+        if not Result then
+          Exit;
       end;
-    end;
+    Exit;
+  end;
+
+  if LReq and (Trim(LText) = '') then
+  begin
+    Result := False;
+    AFailedControl := Sender;
+    Sender.Repaint;
+  end;
 end;
 
 end.

@@ -1,9 +1,9 @@
 object frmAccSetAccountType: TfrmAccSetAccountType
   Left = 0
   Top = 0
-  Caption = 'frmAccSetAccountType'
-  ClientHeight = 87
-  ClientWidth = 500
+  Caption = 'Account Type'
+  ClientHeight = 169
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,35 +11,44 @@ object frmAccSetAccountType: TfrmAccSetAccountType
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 500
-    Height = 87
+    Width = 480
+    Height = 169
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 498
-    ExplicitHeight = 85
-    object lblname: TLabel
-      Left = 56
-      Top = 11
-      Width = 34
+    object lblAccountTypeKey: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
       Height = 13
       Alignment = taRightJustify
-      Caption = 'Name'
+      AutoSize = False
+      Caption = 'Key'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtname: TEdit
-      Left = 80
-      Top = 7
-      Width = 385
-      Height = 23
+    object edtAccountTypeKey: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      MaxLength = 32
       TabOrder = 0
+    end
+    object scrlbxTranslations: TScrollBox
+      Left = 8
+      Top = 26
+      Width = 462
+      Height = 72
+      HorzScrollBar.Visible = False
+      TabOrder = 1
     end
   end
 end

@@ -6,14 +6,22 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
   SysUser.Service, SysUser, ufrmSysUser;
 
 type
   TfrmSysUsers = class(TfrmGrid<TSysUser, TSysUserService>)
+  private
+    FmniPermissionTemplates: TMenuItem;
+    FmniAccessRights: TMenuItem;
+    FmniResetPassword: TMenuItem;
+    procedure mniPermissionTemplatesClick(Sender: TObject);
+    procedure mniAccessRightsClick(Sender: TObject);
+    procedure mniResetPasswordClick(Sender: TObject);
   public
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
+    procedure PreparePopupMenu; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -22,6 +30,56 @@ type
 implementation
 
 {$R *.dfm}
+
+uses
+  ufrmSysUserPermissionTemplates, SysUserPermissionTemplate, SysUserPermissionTemplate.Service, // kullanıcının şablonları
+  ufrmSysAccessRights, SysAccessRight, SysAccessRight.Service,                                  // kullanıcının override hakları
+  ufrmSysUserPassword;                                                                          // şifre sıfırlama
+
+procedure TfrmSysUsers.PreparePopupMenu;
+begin
+  inherited;
+  AddPopupMenuSpliter();
+  FmniPermissionTemplates := AddMenu(TLocalizationManager.Translate(TLangKeys.TSysUser.MenuPermissionTemplates, 'Permission Templates'), 'mniUserPermissionTemplates', mniPermissionTemplatesClick);
+  FmniAccessRights := AddMenu(TLocalizationManager.Translate(TLangKeys.TSysUser.MenuAccessRights, 'Custom Rights (Override)'), 'mniUserAccessRights', mniAccessRightsClick);
+  AddPopupMenuSpliter();
+  FmniResetPassword := AddMenu(TLocalizationManager.Translate(TLangKeys.TSysUser.MenuResetPassword, 'Reset Password'), 'mniUserResetPassword', mniResetPasswordClick);
+end;
+
+procedure TfrmSysUsers.mniPermissionTemplatesClick(Sender: TObject);
+var
+  LFrm: TfrmSysUserPermissionTemplates;
+begin
+  if Grd.DataSource.DataSet.IsEmpty then
+    Exit;
+
+  SetSelectedItem;
+  LFrm := TfrmSysUserPermissionTemplates.Create(Self, TSysUserPermissionTemplateService.Create, TSysUserPermissionTemplate.Create);
+  LFrm.SetFixedUser(Table.Id, Table.Username);
+  LFrm.Show;
+end;
+
+procedure TfrmSysUsers.mniAccessRightsClick(Sender: TObject);
+var
+  LFrm: TfrmSysAccessRights;
+begin
+  if Grd.DataSource.DataSet.IsEmpty then
+    Exit;
+
+  SetSelectedItem;
+  LFrm := TfrmSysAccessRights.Create(Self, TSysAccessRightService.Create, TSysAccessRight.Create);
+  LFrm.SetFixedUser(Table.Id, Table.Username);
+  LFrm.Show;
+end;
+
+procedure TfrmSysUsers.mniResetPasswordClick(Sender: TObject);
+begin
+  if Grd.DataSource.DataSet.IsEmpty then
+    Exit;
+
+  SetSelectedItem;
+  TfrmSysUserPassword.ShowReset(Self, Table.Id, Table.Username);
+end;
 
 function TfrmSysUsers.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
 begin
@@ -58,6 +116,13 @@ procedure TfrmSysUsers.FormShow(Sender: TObject);
 begin
   inherited;
   mniDuplicate.Visible := True;
+  // Yardımcı (seçim) modunda yönetim menüleri gizlenir
+  if Assigned(FmniPermissionTemplates) then
+    FmniPermissionTemplates.Visible := not IsHelper;
+  if Assigned(FmniAccessRights) then
+    FmniAccessRights.Visible := not IsHelper;
+  if Assigned(FmniResetPassword) then
+    FmniResetPassword.Visible := not IsHelper;
   ApplyLocalization;
 end;
 
@@ -66,6 +131,12 @@ begin
   inherited;
 
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.TitlePlural, 'Users');
+  if Assigned(FmniPermissionTemplates) then
+    FmniPermissionTemplates.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.MenuPermissionTemplates, 'Permission Templates');
+  if Assigned(FmniAccessRights) then
+    FmniAccessRights.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.MenuAccessRights, 'Custom Rights (Override)');
+  if Assigned(FmniResetPassword) then
+    FmniResetPassword.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.MenuResetPassword, 'Reset Password');
 
   SetColumnTitle('id',              'Id');
   SetColumnTitle('name',            TLocalizationManager.Translate(TLangKeys.TEmpEmployee.ColName, 'First Name'));

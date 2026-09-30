@@ -168,9 +168,10 @@ begin
         Continue;
       end;
 
+      Trans.SysLanguageId := LLangId;
       Trans.SysUomId := AModel.Id;
       Q.ParamByName('sys_uom_id').AsLargeInt := Trans.SysUomId;
-      Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;
+      Q.ParamByName('sys_language_id').AsLargeInt := LLangId;
       Q.ParamByName('uom_name').AsString := Trans.UomName;
       LogQuery(Q, 'SaveTranslations');
       Q.ExecSQL;
@@ -187,7 +188,6 @@ begin
     Q.ParamByName('unit_code').AsString := AModel.UnitCode;
     Q.ParamByName('unit_einv').AsString := AModel.UnitEInv;
     Q.ParamByName('decimal').AsBoolean := AModel.Decimal;
-    Q.ParamByName('sys_uom_group_id').AsLargeInt := AModel.SysUomGroupId;
     Q.ParamByName('multiplier').AsInteger := AModel.Multiplier;
   end
   else
@@ -195,20 +195,19 @@ begin
     Q.ParamByName('unit_code').AsStrings[AIndex] := AModel.UnitCode;
     Q.ParamByName('unit_einv').AsStrings[AIndex] := AModel.UnitEInv;
     Q.ParamByName('decimal').AsBooleans[AIndex] := AModel.Decimal;
-    Q.ParamByName('sys_uom_group_id').AsLargeInts[AIndex] := AModel.SysUomGroupId;
     Q.ParamByName('multiplier').AsIntegers[AIndex] := AModel.Multiplier;
   end;
+  SetNullableParam(Q.ParamByName('sys_uom_group_id'), ftLargeint, AModel.SysUomGroupId, AIndex);
 end;
 
 procedure TSysUomRepository.SetUpdateParams(Q: TFDQuery; AModel: TSysUom; AIndex: Integer);
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('unit_code').AsString := AModel.UnitCode;
     Q.ParamByName('unit_einv').AsString := AModel.UnitEInv;
     Q.ParamByName('decimal').AsBoolean := AModel.Decimal;
-    Q.ParamByName('sys_uom_group_id').AsLargeInt := AModel.SysUomGroupId;
     Q.ParamByName('multiplier').AsInteger := AModel.Multiplier;
   end
   else
@@ -217,9 +216,9 @@ begin
     Q.ParamByName('unit_code').AsStrings[AIndex] := AModel.UnitCode;
     Q.ParamByName('unit_einv').AsStrings[AIndex] := AModel.UnitEInv;
     Q.ParamByName('decimal').AsBooleans[AIndex] := AModel.Decimal;
-    Q.ParamByName('sys_uom_group_id').AsLargeInts[AIndex] := AModel.SysUomGroupId;
     Q.ParamByName('multiplier').AsIntegers[AIndex] := AModel.Multiplier;
   end;
+  SetNullableParam(Q.ParamByName('sys_uom_group_id'), ftLargeint, AModel.SysUomGroupId, AIndex);
 end;
 
 function TSysUomRepository.MapFromQuery(Q: TFDQuery): TSysUom;

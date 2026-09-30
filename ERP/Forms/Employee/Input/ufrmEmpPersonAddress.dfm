@@ -1,126 +1,161 @@
 object frmEmpPersonAddress: TfrmEmpPersonAddress
   Left = 0
   Top = 0
-  Caption = 'Personel Adresi'
-  ClientHeight = 280
+  Caption = 'Employee Address'
+  ClientHeight = 208
   ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
-  Font.Name = 'Segoe UI'
+  Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
     Width = 480
-    Height = 280
+    Height = 208
     Align = alClient
     TabOrder = 0
-    object lblPersonId: TLabel
-      Left = 95
-      Top = 30
-      Width = 45
-      Height = 15
+    object lblEmpEmployeeId: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
+      Height = 13
       Alignment = taRightJustify
-      Caption = 'Personel'
+      AutoSize = False
+      Caption = 'Employee'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
-    object lblAddressId: TLabel
-      Left = 110
-      Top = 65
-      Width = 30
-      Height = 15
-      Alignment = taRightJustify
-      Caption = 'Adres'
-    end
-    object lblAddressType: TLabel
-      Left = 87
-      Top = 100
-      Width = 53
-      Height = 15
-      Alignment = taRightJustify
-      Caption = 'Adres Tipi'
-    end
-    object lblIsPrimary: TLabel
-      Left = 71
-      Top = 135
-      Width = 69
-      Height = 15
-      Alignment = taRightJustify
-      Caption = 'Birincil Adres'
-    end
-    object lblValidFrom: TLabel
-      Left = 36
-      Top = 170
-      Width = 104
-      Height = 15
-      Alignment = taRightJustify
-      Caption = 'Ge'#231'erlilik Ba'#351'lang'#305'c'#305
-    end
-    object lblValidTo: TLabel
-      Left = 64
-      Top = 205
-      Width = 76
-      Height = 15
-      Alignment = taRightJustify
-      Caption = 'Ge'#231'erlilik Biti'#351'i'
-    end
-    object edtPersonId: TEdit
-      Left = 150
-      Top = 27
-      Width = 280
-      Height = 23
+    object edtEmpEmployeeId: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      ReadOnly = True
       TabOrder = 0
     end
-    object edtAddressId: TEdit
-      Left = 150
-      Top = 62
-      Width = 280
-      Height = 23
+    object lblSysAddressId: TLabel
+      Left = 4
+      Top = 29
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Address'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtSysAddressId: TEdit
+      Left = 132
+      Top = 25
+      Width = 333
+      Height = 22
+      ReadOnly = True
       TabOrder = 1
     end
+    object lblAddressType: TLabel
+      Left = 4
+      Top = 52
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Address Type'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
     object cbbAddressType: TComboBox
-      Left = 150
-      Top = 97
-      Width = 280
-      Height = 23
+      Left = 132
+      Top = 48
+      Width = 333
+      Height = 22
       Style = csDropDownList
-      ItemIndex = 0
       TabOrder = 2
-      Text = 'HOME'
       Items.Strings = (
         'HOME'
         'WORK'
-        'MAILING'
-        'LEGAL'
         'OTHER')
     end
+    object lblIsPrimary: TLabel
+      Left = 4
+      Top = 75
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Primary'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
     object chkIsPrimary: TCheckBox
-      Left = 150
-      Top = 134
-      Width = 150
+      Left = 132
+      Top = 73
+      Width = 333
       Height = 17
       TabOrder = 3
     end
-    object dtpValidFrom: TDateTimePicker
-      Left = 150
-      Top = 167
-      Width = 150
-      Height = 23
-      Date = 45000.000000000000000000
-      Time = 45000.000000000000000000
+    object lblValidFrom: TLabel
+      Left = 4
+      Top = 98
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Valid From'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtValidFrom: TEdit
+      Left = 132
+      Top = 94
+      Width = 333
+      Height = 22
       TabOrder = 4
     end
-    object dtpValidTo: TDateTimePicker
-      Left = 150
-      Top = 202
-      Width = 150
-      Height = 23
-      Date = 45000.000000000000000000
-      Time = 45000.000000000000000000
+    object lblValidTo: TLabel
+      Left = 4
+      Top = 121
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Valid To'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtValidTo: TEdit
+      Left = 132
+      Top = 117
+      Width = 333
+      Height = 22
       TabOrder = 5
     end
   end

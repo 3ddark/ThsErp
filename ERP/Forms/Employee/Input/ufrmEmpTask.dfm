@@ -1,39 +1,54 @@
 object frmEmpTask: TfrmEmpTask
   Left = 0
   Top = 0
-  Caption = 'Görev'
-  ClientHeight = 120
-  ClientWidth = 450
+  Caption = 'Task'
+  ClientHeight = 169
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
-  Font.Name = 'Segoe UI'
+  Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 450
-    Height = 120
+    Width = 480
+    Height = 169
     Align = alClient
     TabOrder = 0
-    object lblTaskName: TLabel
-      Left = 20
-      Top = 30
-      Width = 90
-      Height = 15
+    object lblTaskKey: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
+      Height = 13
       Alignment = taRightJustify
-      Caption = 'Görev Adı'
+      AutoSize = False
+      Caption = 'Key'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtTaskName: TEdit
-      Left = 120
-      Top = 27
-      Width = 280
-      Height = 23
+    object edtTaskKey: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      MaxLength = 32
       TabOrder = 0
+    end
+    object scrlbxTranslations: TScrollBox
+      Left = 8
+      Top = 26
+      Width = 462
+      Height = 72
+      HorzScrollBar.Visible = False
+      TabOrder = 1
     end
   end
 end

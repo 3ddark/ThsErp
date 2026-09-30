@@ -21,6 +21,7 @@ type
     procedure ValidateUpdate(AEntity: TSysAccessRight);
     procedure ValidateDelete(AEntity: TSysAccessRight);
     procedure ValidateUniqueUserPermission(AEntity: TSysAccessRight; AOperation: TCrudOperation);
+    procedure ValidateGrantDeny(AEntity: TSysAccessRight);
   public
     constructor Create;
     destructor Destroy; override;
@@ -143,18 +144,23 @@ type
     /// Özel işlem yetkisi bulunmadığında fırlatılır.
     /// </exception>
     procedure EnsureAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean);
+
+    // Oturumdaki kullanıcının okuma hakkı olan yetki kodları (menü / ekran erişimi için tek sorgu)
+    // Super user için tüm kodlar geçerlidir; çağıran IsSuperUser'ı ayrıca kontrol etmeli.
+    function GetReadablePermissionCodes: TArray<Integer>;
   end;
 
 implementation
 
 uses
-  UnitOfWork, SysPermission.Service;
+  UnitOfWork, SysPermission.Service,
+  SysUserPermissionTemplate, SysUserPermissionTemplate.Repository;
 
 constructor TSysAccessRightService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysAccessRight, TSysAccessRightRepository>;
-  Self.PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_ACCESS_RIGHT;
 end;
 
 destructor TSysAccessRightService.Destroy;
@@ -164,12 +170,43 @@ end;
 
 procedure TSysAccessRightService.ValidateInsert(AEntity: TSysAccessRight);
 begin
+  ValidateGrantDeny(AEntity);
   ValidateUniqueUserPermission(AEntity, coInsert);
 end;
 
 procedure TSysAccessRightService.ValidateUpdate(AEntity: TSysAccessRight);
 begin
+  ValidateGrantDeny(AEntity);
   ValidateUniqueUserPermission(AEntity, coUpdate);
+end;
+
+procedure TSysAccessRightService.ValidateGrantDeny(AEntity: TSysAccessRight);
+var
+  LConflicts: string;
+
+  procedure Check(AGrant, ADeny: Boolean; const AKey, ADefault: string);
+  begin
+    if AGrant and ADeny then
+    begin
+      if LConflicts <> '' then
+        LConflicts := LConflicts + ', ';
+      LConflicts := LConflicts + TLocalizationManager.Translate(AKey, ADefault);
+    end;
+  end;
+
+begin
+  // Aynı hak için hem ek izin hem engel verilemez (anlamsız kombinasyon)
+  LConflicts := '';
+  Check(AEntity.IsRead,    AEntity.DenyRead,    TLangKeys.TSysAccessRight.ColRead,    'Read');
+  Check(AEntity.IsAdd,     AEntity.DenyAdd,     TLangKeys.TSysAccessRight.ColAdd,     'Add');
+  Check(AEntity.IsUpdate,  AEntity.DenyUpdate,  TLangKeys.TSysAccessRight.ColUpdate,  'Update');
+  Check(AEntity.IsDelete,  AEntity.DenyDelete,  TLangKeys.TSysAccessRight.ColDelete,  'Delete');
+  Check(AEntity.IsSpecial, AEntity.DenySpecial, TLangKeys.TSysAccessRight.ColSpecial, 'Special');
+
+  if LConflicts <> '' then
+    raise Exception.Create(Format(
+      TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgGrantDenyConflict, 'The same right cannot be both granted and denied: %s'),
+      [LConflicts]));
 end;
 
 procedure TSysAccessRightService.ValidateDelete(AEntity: TSysAccessRight);
@@ -368,7 +405,7 @@ begin
     LFilter := TFilterCriteria.Create;
     try
       LFilter.Add(TFilterCriterion.New('sys_permission_id', '=', TValue.From<Int64>(AEntity.SysPermissionId)));
-      LFilter.Add(TFilterCriterion.New('sys_user_id', '=', TValue.From<Int64>(TAppContext.Instance.CurrentUser.GetUserId)));
+      LFilter.Add(TFilterCriterion.New('sys_user_id', '=', TValue.From<Int64>(AEntity.SysUserId)));
       if AOperation = coUpdate then
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 
@@ -386,14 +423,21 @@ begin
 end;
 
 procedure TSysAccessRightService.CopyUserAccessRights(ASourceUserId, ATargetUserId: Int64);
+var
+  LTemplateRepo: IRepository<TSysUserPermissionTemplate>;
 begin
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, True);
+
   if Self.UoW.InTransaction then
     raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.ActiveTransactionExist, 'Active transaction exists'));
 
   if not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
   try
+    // Override hakları + yetki şablonu atamaları birlikte kopyalanır
     TSysAccessRightRepository(FRepo).CopyUserAccessRights(ASourceUserId, ATargetUserId);
+    LTemplateRepo := Self.UoW.GetRepository<TSysUserPermissionTemplate, TSysUserPermissionTemplateRepository>;
+    TSysUserPermissionTemplateRepository(LTemplateRepo).CopyUserTemplates(ASourceUserId, ATargetUserId);
     Self.UoW.Commit;
   except
     if Self.UoW.InTransaction then
@@ -420,18 +464,23 @@ end;
 
 function TSysAccessRightService.IsAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean): Boolean;
 var
-  LFilter: TFilterCriteria;
   LAccess: TSysAccessRight;
 begin
   if not APermissionControl then
     Exit(True);
 
-  LFilter := TFilterCriteria.Create;
-  try
-    LFilter.Add(TFilterCriterion.New('permission_code', '=', TValue.From<Integer>(APermissionCode)));
-    LFilter.Add(TFilterCriterion.New('sys_user_id', '=', TValue.From<Int64>(TAppContext.Instance.CurrentUser.User.Id)));
+  if not Assigned(TAppContext.Instance.CurrentUser) or not Assigned(TAppContext.Instance.CurrentUser.User) then
+    Exit(False);
 
-    LAccess := FRepo.FindOne(LFilter, False);
+  // Süper kullanıcı tüm yetkilere sahiptir
+  if TAppContext.Instance.CurrentUser.IsSuperUser then
+    Exit(True);
+
+  // Etkin yetki = şablonlar + override (is_* ek izin, deny_* engelleme)
+  LAccess := nil;
+  try
+    LAccess := TSysAccessRightRepository(FRepo).GetEffectivePermission(
+      TAppContext.Instance.CurrentUser.GetUserId, APermissionCode);
     if not Assigned(LAccess) then
       Exit(False);
 
@@ -445,10 +494,16 @@ begin
       raise EArgumentOutOfRangeException.Create(TLocalizationManager.Translate(TLangKeys.TMessage.UnknownPermissionType, [Ord(APermissionType)]));
     end;
   finally
-    LFilter.Free;
-    if Assigned(LAccess) then
-      FreeAndNil(LAccess);
+    LAccess.Free;
   end;
+end;
+
+function TSysAccessRightService.GetReadablePermissionCodes: TArray<Integer>;
+begin
+  Result := [];
+  if not Assigned(TAppContext.Instance.CurrentUser) or not Assigned(TAppContext.Instance.CurrentUser.User) then
+    Exit;
+  Result := TSysAccessRightRepository(FRepo).GetReadablePermissionCodes(TAppContext.Instance.CurrentUser.GetUserId);
 end;
 
 procedure TSysAccessRightService.EnsureAuthorized(APermissionCode: Integer; APermissionType: TPermissionType; APermissionControl: Boolean);

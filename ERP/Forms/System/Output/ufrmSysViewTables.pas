@@ -34,7 +34,7 @@ end;
 procedure TfrmSysViewTables.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id', 50);
+  SetColumnProperty('id', 0);
   SetColumnProperty('table_name', 250);
   SetColumnProperty('table_type', 100);
 end;

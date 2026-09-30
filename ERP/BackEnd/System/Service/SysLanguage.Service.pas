@@ -47,7 +47,7 @@ constructor TSysLanguageService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysLanguage, TSysLanguageRepository>;
-  Self.PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_LANGUAGE;
 end;
 
 destructor TSysLanguageService.Destroy;

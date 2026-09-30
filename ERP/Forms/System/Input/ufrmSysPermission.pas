@@ -85,7 +85,7 @@ begin
   Table.PermissionCode := StrToIntDef(edtPermissionCode.Text, 0);
   Table.PermissionKey  := edtPermissionKey.Text;
 
-  LValues := CollectTranslationValues(scrlbxTranslations, 'Name');
+  LValues := CollectTranslationValues(scrlbxTranslations, 'PermissionName');
   try
     for LPair in LValues do
     begin
@@ -107,6 +107,8 @@ begin
         LTrans.PermissionName := LPair.Value;
         LTrans.SysLanguage := TSysLanguage.Create;
         LTrans.SysLanguage.Locale := LPair.Key;
+        if not Assigned(Table.Translations) then
+          Table.Translations := TObjectList<TSysPermissionTranslation>.Create(True);
         Table.Translations.Add(LTrans);
       end;
     end;
@@ -125,8 +127,8 @@ begin
 
   BuildTranslationControls(
     scrlbxTranslations,
-    'PermissionGroupName',
-    TLocalizationManager.Translate(TLangKeys.TSysPermissionGroup.ColGroupName, 'Group Name'),
+    'PermissionName',
+    TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionName, 'Permission Name'),
     lblPermissionKey);
 end;
 
@@ -153,7 +155,6 @@ end;
 procedure TfrmSysPermission.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtPermissionCode.SetFocus;
 end;
 
@@ -164,6 +165,7 @@ begin
   lblPermissionCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionCode, 'Permission Code');
   lblPermissionKey.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.ColKey, 'Permission Key');
   lblSysPermissionGroupId.Caption := TLocalizationManager.Translate(TLangKeys.TSysPermission.ColGroupId, 'Permission Group');
+  UpdateTranslationLabels(scrlbxTranslations, 'PermissionName', TLocalizationManager.Translate(TLangKeys.TSysPermission.ColPermissionName, 'Permission Name'));
 end;
 
 procedure TfrmSysPermission.RefreshData;
@@ -191,7 +193,10 @@ begin
     LValues.Free;
   end;
 
-  edtSysPermissionGroupId.Text := Table.SysPermissionGroupId.ToString;
+  if Assigned(Table.SysPermissionGroup) then
+    edtSysPermissionGroupId.Text := Table.SysPermissionGroup.PermissionGroupKey
+  else
+    edtSysPermissionGroupId.Text := '';
 end;
 
 end.

@@ -44,7 +44,7 @@ constructor TSysGridColumnService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysGridColumn, TSysGridColumnRepository>;
-  Self.PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_GRID_COLUMN;
 end;
 
 destructor TSysGridColumnService.Destroy;

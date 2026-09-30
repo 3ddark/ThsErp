@@ -57,7 +57,6 @@ end;
 procedure TfrmSysDecimalPlace.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtQuantity.SetFocus;
 end;
 

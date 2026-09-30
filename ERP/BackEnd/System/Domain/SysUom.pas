@@ -54,7 +54,7 @@ type
     [Column('unit_code'), MaxLength(16), Required()]
     property UnitCode: string read FUnitCode write FUnitCode;
 
-    [Column('unit_einv'), MaxLength(3), Required()]
+    [Column('unit_einv'), MaxLength(3)]
     property UnitEInv: string read FUnitEInv write FUnitEInv;
 
     [Column('decimal'), Required()]

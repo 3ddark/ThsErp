@@ -67,7 +67,6 @@ end;
 procedure TfrmSysGridSort.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtTableName.SetFocus;
 end;
 

@@ -47,7 +47,6 @@ end;
 procedure TfrmSysLanguage.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtLocale.SetFocus;
 end;
 

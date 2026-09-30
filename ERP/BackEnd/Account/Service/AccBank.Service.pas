@@ -1,4 +1,4 @@
-unit AccBank.Service;
+﻿unit AccBank.Service;
 
 interface
 
@@ -16,11 +16,7 @@ type
     procedure DoAdd(AEntity: TAccBank);
     procedure DoUpdate(AEntity: TAccBank);
     procedure DoDelete(AId: Int64);
-
-    procedure ValidateInsert(AEntity: TAccBank);
-    procedure ValidateUpdate(AEntity: TAccBank);
-    procedure ValidateDelete(AEntity: TAccBank);
-    procedure ValidateBankNameUnique(AEntity: TAccBank; AOperation: TCrudOperation);
+    procedure ValidateUnique(AEntity: TAccBank; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
@@ -61,22 +57,7 @@ begin
   inherited;
 end;
 
-procedure TAccBankService.ValidateInsert(AEntity: TAccBank);
-begin
-  ValidateBankNameUnique(AEntity, coInsert);
-end;
-
-procedure TAccBankService.ValidateUpdate(AEntity: TAccBank);
-begin
-  ValidateBankNameUnique(AEntity, coUpdate);
-end;
-
-procedure TAccBankService.ValidateDelete(AEntity: TAccBank);
-begin
-
-end;
-
-procedure TAccBankService.ValidateBankNameUnique(AEntity: TAccBank; AOperation: TCrudOperation);
+procedure TAccBankService.ValidateUnique(AEntity: TAccBank; AOperation: TCrudOperation);
 var
   LFilter: TFilterCriteria;
   LModel: TAccBank;
@@ -100,6 +81,17 @@ begin
       LFilter.Free;
     end;
   end;
+end;
+
+procedure TAccBankService.ValidateBusinessRules(AEntity: TAccBank; AOperation: TCrudOperation);
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    AEntity.BankName := AnsiUpperCase(Trim(AEntity.BankName));
+    AEntity.SwiftCode := AnsiUpperCase(Trim(AEntity.SwiftCode));
+  end;
+
+  ValidateUnique(AEntity, AOperation);
 end;
 
 procedure TAccBankService.DoAdd(AEntity: TAccBank);
@@ -141,9 +133,7 @@ begin
     Result := FRepo.Find(AFilter, ALock);
   except
     if Self.UoW.InTransaction then
-    begin
       Self.UoW.Rollback;
-    end;
     raise;
   end;
 end;
@@ -159,9 +149,7 @@ begin
     Result := FRepo.FindById(AId, ALock);
   except
     if Self.UoW.InTransaction then
-    begin
       Self.UoW.Rollback;
-    end;
     raise;
   end;
 end;
@@ -176,17 +164,12 @@ begin
 
     DoAdd(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Uow.InTransaction then
-      begin
-        Self.UoW.Rollback;
-      end;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -200,17 +183,12 @@ begin
 
     DoUpdate(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-      begin
-        Self.UoW.Rollback;
-      end;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -224,17 +202,12 @@ begin
 
     DoDelete(AEntity.Id);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-      begin
-        Self.UoW.Rollback;
-      end;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -260,26 +233,17 @@ end;
 
 procedure TAccBankService.Add(AEntity: TAccBank);
 begin
-  DoAdd(AEntity)
+  DoAdd(AEntity);
 end;
 
 procedure TAccBankService.Update(AEntity: TAccBank);
 begin
-  DoUpdate(AEntity)
+  DoUpdate(AEntity);
 end;
 
 procedure TAccBankService.Delete(AId: Int64);
 begin
   DoDelete(AId);
-end;
-
-procedure TAccBankService.ValidateBusinessRules(AEntity: TAccBank; AOperation: TCrudOperation);
-begin
-  case AOperation of
-    coInsert: ValidateInsert(AEntity);
-    coUpdate: ValidateUpdate(AEntity);
-    coDelete: ValidateDelete(AEntity);
-  end;
 end;
 
 end.

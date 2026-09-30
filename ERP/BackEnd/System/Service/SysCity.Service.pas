@@ -63,11 +63,15 @@ end;
 
 procedure TSysCityService.ValidateInsert(AEntity: TSysCity);
 begin
+  if AEntity.SysCountryId <= 0 then
+    raise ESysCityExceptionCountryRequired.Create;
   ValidateUniqueCountryCity(AEntity, coInsert);
 end;
 
 procedure TSysCityService.ValidateUpdate(AEntity: TSysCity);
 begin
+  if AEntity.SysCountryId <= 0 then
+    raise ESysCityExceptionCountryRequired.Create;
   ValidateUniqueCountryCity(AEntity, coUpdate);
 end;
 

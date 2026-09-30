@@ -53,6 +53,8 @@ type
 
     function MapFromQuery(Q: TFDQuery): T; virtual; abstract;
 
+    // Nullable FK/int kolonlar: AValue <= 0 ise NULL gönderir (0 FK ihlalini önler)
+    procedure SetNullableParam(AParam: TFDParam; ADataType: TFieldType; AValue: Int64; AIndex: Integer = -1);
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; virtual; abstract;
 
@@ -111,6 +113,35 @@ begin
   if Length(Always) = 0 then
     Always := ['id', 'locale'];
   Result := TGridColumnHelper.BuildSelectColumns(FConnection, GetViewName(T), Always);
+end;
+
+procedure TRepository<T>.SetNullableParam(AParam: TFDParam; ADataType: TFieldType; AValue: Int64; AIndex: Integer);
+begin
+  AParam.DataType := ADataType;
+  if AValue > 0 then
+  begin
+    if ADataType = ftInteger then
+    begin
+      if AIndex < 0 then
+        AParam.AsInteger := Integer(AValue)
+      else
+        AParam.AsIntegers[AIndex] := Integer(AValue);
+    end
+    else
+    begin
+      if AIndex < 0 then
+        AParam.AsLargeInt := AValue
+      else
+        AParam.AsLargeInts[AIndex] := AValue;
+    end;
+  end
+  else
+  begin
+    if AIndex < 0 then
+      AParam.Clear
+    else
+      AParam.Clear(AIndex);
+  end;
 end;
 
 constructor TRepository<T>.Create(AConnection: TFDConnection);

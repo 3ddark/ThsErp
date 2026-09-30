@@ -1,17 +1,28 @@
-unit ufrmStkInventorySummaries;
+﻿unit ufrmStkInventorySummaries;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ufrmGrid,
-  SharedFormTypes, StkInventorySummary.Service, StkInventorySummary, ufrmStkInventorySummary,
-  LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
+  ufrmGrid, SharedFormTypes, LocalizationManager,
+  StkInventorySummary.Service, StkInventorySummary;
 
 type
   TfrmStkInventorySummaries = class(TfrmGrid<TStkInventorySummary, TStkInventorySummaryService>)
+  private
+    FFixedInventoryId: Int64;
+    FFixedInventoryName: string;
   public
+    procedure SetFixedInventory(AInventoryId: Int64; const AInventoryName: string);
+
+    // Salt okunur liste: kayıtlar stok hareketlerinden hesaplanır, giriş formu yok
+    procedure ShowInputForm(Sender: TObject; AFormType: TInputFormMode); override;
+    procedure ApplyPermissionState; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
+    procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
@@ -21,49 +32,87 @@ implementation
 
 {$R *.dfm}
 
+procedure TfrmStkInventorySummaries.SetFixedInventory(AInventoryId: Int64; const AInventoryName: string);
+begin
+  FFixedInventoryId := AInventoryId;
+  FFixedInventoryName := AInventoryName;
+  AddFixedFilter('stk_inventory_id', AInventoryId);
+end;
+
 function TfrmStkInventorySummaries.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
 begin
   Result := nil;
-  if (AFormMode = ifmRewiev) then
-    Result := TfrmStkInventorySummary.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
-  else if (AFormMode = ifmNewRecord) then
-    Result := TfrmStkInventorySummary.Create(Self, Service, TStkInventorySummary.Create, AFormMode, Self.RefreshParentGrid)
-  else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmStkInventorySummary.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
+end;
+
+procedure TfrmStkInventorySummaries.ShowInputForm(Sender: TObject; AFormType: TInputFormMode);
+begin
+  // giriş formu yok
+end;
+
+procedure TfrmStkInventorySummaries.ApplyPermissionState;
+begin
+  inherited;
+  if Assigned(BtnAdd) then
+    BtnAdd.Visible := False;
+  if Assigned(mniDuplicate) then
+    mniDuplicate.Visible := False;
+end;
+
+// Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)
+procedure TfrmStkInventorySummaries.SetSelectedItem;
+
+  function FieldText(const AFieldName: string): string;
+  var
+    LField: TField;
+  begin
+    LField := Grd.DataSource.DataSet.FindField(AFieldName);
+    if Assigned(LField) then
+      Result := LField.AsString
+    else
+      Result := '';
+  end;
+
+begin
+  inherited;
+  Table.InventoryName := FieldText('inventory_name');
+  Table.InventoryCode := FieldText('inventory_code');
 end;
 
 procedure TfrmStkInventorySummaries.DefineColumnWidths;
 begin
   inherited;
-  SetColumnProperty('id',                     0, TLocalizationManager.Translate('stk_inventory_summary.col_id', 'Id'));
-  SetColumnProperty('inventory_id',             0, TLocalizationManager.Translate('stk_inventory_summary.col_inventory_id', 'Inventory Id'));
-  SetColumnProperty('current_quantity',        90, TLocalizationManager.Translate('stk_inventory_summary.col_current_quantity', 'Current Qty'));
-  SetColumnProperty('average_cost',            80, TLocalizationManager.Translate('stk_inventory_summary.col_average_cost', 'Avg Cost'));
-  SetColumnProperty('opening_price',           80, TLocalizationManager.Translate('stk_inventory_summary.col_opening_price', 'Opening Price'));
-  SetColumnProperty('opening_quantity',        90, TLocalizationManager.Translate('stk_inventory_summary.col_opening_quantity', 'Opening Qty'));
-  SetColumnProperty('opening_amount',          90, TLocalizationManager.Translate('stk_inventory_summary.col_opening_amount', 'Opening Amt'));
-  SetColumnProperty('incoming_quantity',       90, TLocalizationManager.Translate('stk_inventory_summary.col_incoming_quantity', 'Incoming Qty'));
-  SetColumnProperty('incoming_amount',         90, TLocalizationManager.Translate('stk_inventory_summary.col_incoming_amount', 'Incoming Amt'));
-  SetColumnProperty('outgoing_quantity',       90, TLocalizationManager.Translate('stk_inventory_summary.col_outgoing_quantity', 'Outgoing Qty'));
-  SetColumnProperty('outgoing_amount',         90, TLocalizationManager.Translate('stk_inventory_summary.col_outgoing_amount', 'Outgoing Amt'));
-  SetColumnProperty('last_buy_price',          80, TLocalizationManager.Translate('stk_inventory_summary.col_last_buy_price', 'Last Buy Price'));
-  SetColumnProperty('last_buy_money',          60, TLocalizationManager.Translate('stk_inventory_summary.col_last_buy_money', 'Buy Curr'));
-  SetColumnProperty('last_buy_date',           80, TLocalizationManager.Translate('stk_inventory_summary.col_last_buy_date', 'Last Buy Date'));
-  SetColumnProperty('last_buy_quantity',       90, TLocalizationManager.Translate('stk_inventory_summary.col_last_buy_quantity', 'Last Buy Qty'));
-  SetColumnProperty('last_buy_exchange_rate', 100, TLocalizationManager.Translate('stk_inventory_summary.col_last_buy_exchange_rate', 'Last Buy ExR'));
+  SetColumnProperty('id', 0);
+  SetColumnProperty('stk_inventory_id', 0);
 end;
 
 procedure TfrmStkInventorySummaries.FormShow(Sender: TObject);
 begin
   inherited;
-  mniDuplicate.Visible := True;
   ApplyLocalization;
 end;
 
 procedure TfrmStkInventorySummaries.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('stk_inventory_summary.title_plural', 'Stock Inventory Summaries');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.TitlePlural, 'Stock Summaries');
+  if FFixedInventoryName <> '' then
+    Self.Caption := Self.Caption + ' - ' + FFixedInventoryName;
+  SetColumnTitle('inventory_name', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColInventory, 'Stock Card'));
+  SetColumnTitle('current_quantity', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColCurrentQuantity, 'Current Quantity'));
+  SetColumnTitle('average_cost', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColAverageCost, 'Average Cost'));
+  SetColumnTitle('opening_quantity', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColOpeningQuantity, 'Opening Quantity'));
+  SetColumnTitle('opening_price', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColOpeningPrice, 'Opening Price'));
+  SetColumnTitle('opening_amount', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColOpeningAmount, 'Opening Amount'));
+  SetColumnTitle('incoming_quantity', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColIncomingQuantity, 'Incoming Quantity'));
+  SetColumnTitle('incoming_amount', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColIncomingAmount, 'Incoming Amount'));
+  SetColumnTitle('outgoing_quantity', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColOutgoingQuantity, 'Outgoing Quantity'));
+  SetColumnTitle('outgoing_amount', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColOutgoingAmount, 'Outgoing Amount'));
+  SetColumnTitle('last_buy_date', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColLastBuyDate, 'Last Purchase Date'));
+  SetColumnTitle('last_buy_quantity', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColLastBuyQuantity, 'Last Purchase Quantity'));
+  SetColumnTitle('last_buy_price', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColLastBuyPrice, 'Last Purchase Price'));
+  SetColumnTitle('last_buy_currency', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColLastBuyCurrency, 'Last Purchase Currency'));
+  SetColumnTitle('last_buy_exchange_rate', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColLastBuyExchangeRate, 'Last Purchase Exchange Rate'));
+  SetColumnTitle('inventory_code', TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColInventoryCode, 'Stock Code'));
 end;
 
 end.

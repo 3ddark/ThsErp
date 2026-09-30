@@ -13,7 +13,17 @@ type
     class function GetMessage: string; override;
   end;
 
+  ESysUserExceptionOldPasswordInvalid = class(ESysUserException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
 implementation
+
+class function ESysUserExceptionOldPasswordInvalid.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSysUser.OldPasswordInvalid, 'The current password is incorrect.');
+end;
 
 class function ESysUserExceptionUsernameUnique.GetMessage: string;
 begin

@@ -53,7 +53,7 @@ constructor TSysGridFilterService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysGridFilter, TSysGridFilterRepository>;
-  Self.PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_GRID_FILTER;
 end;
 
 destructor TSysGridFilterService.Destroy;

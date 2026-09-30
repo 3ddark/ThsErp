@@ -1,37 +1,42 @@
-unit AccAccountAddress.Repository;
+﻿unit AccAccountAddress.Repository;
 
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections, System.Rtti,
-  FireDAC.Comp.Client, FireDAC.Stan.Param, Entity, Repository, AccAccountAddress, FilterCriterion;
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, FilterCriterion,
+  AppContext, AccAccountAddress;
 
 type
   TAccAccountAddressRepository = class(TRepository<TAccAccountAddress>)
   protected
-    function PrepareSelectSql: string; virtual;
-    function PrepareAddSql: string; virtual;
-    function PrepareUpdateSql: string; virtual;
-    function PrepareDeleteSql: string; virtual;
+    function PrepareAddSql: string;
+    function PrepareUpdateSql: string;
+    function PrepareDeleteSql: string;
 
-    procedure SetModelParams(Q: TFDQuery; AModel: TAccAccountAddress; AIndex: Integer = -1);
+    procedure SetInsertParams(Q: TFDQuery; AModel: TAccAccountAddress; AIndex: Integer = -1);
+    procedure SetUpdateParams(Q: TFDQuery; AModel: TAccAccountAddress; AIndex: Integer = -1);
+    function MapFromQuery(Q: TFDQuery): TAccAccountAddress; override;
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TAccAccountAddress>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TAccAccountAddress; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TAccAccountAddress; override;
+
+    procedure DoAdd(AModel: TAccAccountAddress); override;
+    procedure DoAddBatch(AModels: TArray<TAccAccountAddress>); override;
+
+    procedure DoUpdate(AModel: TAccAccountAddress); override;
+    procedure DoUpdateBatch(AModels: TArray<TAccAccountAddress>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TAccAccountAddress); override;
+    procedure DoDeleteBatch(AModels: TArray<TAccAccountAddress>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-
-    function FindById(AId: TValue; ALock: Boolean = False): TAccAccountAddress; override;
-    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TAccAccountAddress; override;
-    function Find(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TAccAccountAddress>; override;
-
-    procedure Add(AModel: TAccAccountAddress); override;
-    procedure AddBatch(AModels: TArray<TAccAccountAddress>); override;
-
-    procedure Update(AModel: TAccAccountAddress); override;
-    procedure UpdateBatch(AModels: TArray<TAccAccountAddress>); override;
-
-    procedure Delete(AID: TValue); override;
-    procedure Delete(AModel: TAccAccountAddress); override;
-    procedure DeleteBatch(AModels: TArray<TAccAccountAddress>); override;
   end;
 
 implementation
@@ -41,236 +46,197 @@ begin
   inherited Create(AConnection);
 end;
 
-function TAccAccountAddressRepository.PrepareSelectSql: string;
-begin
-  Result := 'SELECT id, account_id, address_id, address_type, is_primary, valid_from, valid_to FROM public.' + Self.GetTableName(TAccAccountAddress);
-end;
-
 function TAccAccountAddressRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TAccAccountAddress) +
-    ' (account_id, address_id, address_type, is_primary, valid_from, valid_to)' +
-    ' VALUES (:account_id, :address_id, :address_type, :is_primary, :valid_from, :valid_to)';
+            ' (acc_account_id, sys_address_id, address_type, is_primary, valid_from, valid_to) ' +
+            ' VALUES (:acc_account_id, :sys_address_id, :address_type, :is_primary, :valid_from, :valid_to)';
 end;
 
 function TAccAccountAddressRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TAccAccountAddress) +
-    ' SET account_id = :account_id, address_id = :address_id, address_type = :address_type,' +
-    ' is_primary = :is_primary, valid_from = :valid_from, valid_to = :valid_to WHERE id = :id';
+            ' SET acc_account_id = :acc_account_id, sys_address_id = :sys_address_id, address_type = :address_type, is_primary = :is_primary, valid_from = :valid_from, valid_to = :valid_to ' +
+            ' WHERE id = :id';
 end;
 
 function TAccAccountAddressRepository.PrepareDeleteSql: string;
 begin
-  Result := 'DELETE FROM public.' + Self.GetTableName(TAccAccountAddress) + ' WHERE id = :id';
+  //WHERE kısmı özellikle böyle yazıldı. Filtre vermeden işlem yapılmaması için. Hatalı kodlamada tüm tabloyu siler.
+  Result := 'DELETE FROM public.' + Self.GetTableName(TAccAccountAddress) + ' WHERE';
 end;
 
-procedure TAccAccountAddressRepository.SetModelParams(Q: TFDQuery; AModel: TAccAccountAddress; AIndex: Integer);
+procedure TAccAccountAddressRepository.SetInsertParams(Q: TFDQuery; AModel: TAccAccountAddress; AIndex: Integer);
+
+  procedure SetDate(const AName: string; AValue: TDate);
+  begin
+    Q.ParamByName(AName).DataType := ftDate;
+    if AValue > 0 then
+    begin
+      if AIndex < 0 then
+        Q.ParamByName(AName).AsDate := AValue
+      else
+        Q.ParamByName(AName).AsDates[AIndex] := AValue;
+    end
+    else if AIndex < 0 then
+      Q.ParamByName(AName).Clear
+    else
+      Q.ParamByName(AName).Clear(AIndex);
+  end;
+
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('account_id').AsLargeInt := AModel.AccountId;
-    Q.ParamByName('address_id').AsLargeInt := AModel.AddressId;
     Q.ParamByName('address_type').AsString := AModel.AddressType;
     Q.ParamByName('is_primary').AsBoolean := AModel.IsPrimary;
-
-    if AModel.ValidFrom > 0 then
-      Q.ParamByName('valid_from').AsDate := AModel.ValidFrom
-    else
-      Q.ParamByName('valid_from').Clear;
-
-    if AModel.ValidTo > 0 then
-      Q.ParamByName('valid_to').AsDate := AModel.ValidTo
-    else
-      Q.ParamByName('valid_to').Clear;
-
-    if (AModel.Id > 0) and (Q.FindParam('id') <> nil) then
-      Q.ParamByName('id').AsLargeInt := AModel.Id;
   end
   else
   begin
-    Q.ParamByName('account_id').AsLargeInts[AIndex] := AModel.AccountId;
-    Q.ParamByName('address_id').AsLargeInts[AIndex] := AModel.AddressId;
     Q.ParamByName('address_type').AsStrings[AIndex] := AModel.AddressType;
     Q.ParamByName('is_primary').AsBooleans[AIndex] := AModel.IsPrimary;
-
-    if AModel.ValidFrom > 0 then
-      Q.ParamByName('valid_from').AsDates[AIndex] := AModel.ValidFrom
-    else
-      Q.ParamByName('valid_from').Clear(AIndex);
-
-    if AModel.ValidTo > 0 then
-      Q.ParamByName('valid_to').AsDates[AIndex] := AModel.ValidTo
-    else
-      Q.ParamByName('valid_to').Clear(AIndex);
-
-    if (AModel.Id > 0) and (Q.FindParam('id') <> nil) then
-      Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
   end;
+
+  SetNullableParam(Q.ParamByName('acc_account_id'), ftLargeint, AModel.AccAccountId, AIndex);
+  SetNullableParam(Q.ParamByName('sys_address_id'), ftLargeint, AModel.SysAddressId, AIndex);
+  SetDate('valid_from', AModel.ValidFrom);
+  SetDate('valid_to', AModel.ValidTo);
 end;
 
-function TAccAccountAddressRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+procedure TAccAccountAddressRepository.SetUpdateParams(Q: TFDQuery; AModel: TAccAccountAddress; AIndex: Integer);
+
+  procedure SetDate(const AName: string; AValue: TDate);
+  begin
+    Q.ParamByName(AName).DataType := ftDate;
+    if AValue > 0 then
+    begin
+      if AIndex < 0 then
+        Q.ParamByName(AName).AsDate := AValue
+      else
+        Q.ParamByName(AName).AsDates[AIndex] := AValue;
+    end
+    else if AIndex < 0 then
+      Q.ParamByName(AName).Clear
+    else
+      Q.ParamByName(AName).Clear(AIndex);
+  end;
+
 begin
+  if AIndex < 0 then
+  begin
+    Q.ParamByName('id').AsLargeInt := AModel.Id;
+    Q.ParamByName('address_type').AsString := AModel.AddressType;
+    Q.ParamByName('is_primary').AsBoolean := AModel.IsPrimary;
+  end
+  else
+  begin
+    Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('address_type').AsStrings[AIndex] := AModel.AddressType;
+    Q.ParamByName('is_primary').AsBooleans[AIndex] := AModel.IsPrimary;
+  end;
+
+  SetNullableParam(Q.ParamByName('acc_account_id'), ftLargeint, AModel.AccAccountId, AIndex);
+  SetNullableParam(Q.ParamByName('sys_address_id'), ftLargeint, AModel.SysAddressId, AIndex);
+  SetDate('valid_from', AModel.ValidFrom);
+  SetDate('valid_to', AModel.ValidTo);
+end;
+
+function TAccAccountAddressRepository.MapFromQuery(Q: TFDQuery): TAccAccountAddress;
+begin
+  Result := TAccAccountAddress.Create;
+  Result.Id := Q.FieldByName('id').AsLargeInt;
+  Result.AccAccountId := Q.FieldByName('acc_account_id').AsLargeInt;
+  Result.SysAddressId := Q.FieldByName('sys_address_id').AsLargeInt;
+  Result.AddressType := Q.FieldByName('address_type').AsString;
+  Result.IsPrimary := Q.FieldByName('is_primary').AsBoolean;
+  if Q.FieldByName('valid_from').IsNull then
+    Result.ValidFrom := 0
+  else
+    Result.ValidFrom := Q.FieldByName('valid_from').AsDateTime;
+  if Q.FieldByName('valid_to').IsNull then
+    Result.ValidTo := 0
+  else
+    Result.ValidTo := Q.FieldByName('valid_to').AsDateTime;
+  Result.AccountName := Q.FieldByName('account_name').AsString;
+  Result.AddressText := Q.FieldByName('address_text').AsString;
+  Result.AccountCode := Q.FieldByName('account_code').AsString;
+end;
+
+function TAccAccountAddressRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+var
+  Criteria: TFilterCriterion;
+  SelectCols: string;
+begin
+  SelectCols := Self.BuildSelectColumns(['id']);
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM public.' + GetTableName(TAccAccountAddress) + ' WHERE 1=1 ';
+  Result.SQL.Text := 'SELECT ' + SelectCols + ' FROM ' + Self.GetFullViewName(TAccAccountAddress) + ' WHERE 1=1 ';
+
+  if Assigned(AFilter) and (AFilter.Count > 0) then
+  begin
+    for Criteria in AFilter do
+      Result.SQL.Text := Result.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.ParamName;
+    for Criteria in AFilter do
+      Result.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+  end;
 end;
 
-procedure TAccAccountAddressRepository.Add(AModel: TAccAccountAddress);
+function TAccAccountAddressRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TAccAccountAddress>;
 var
   Q: TFDQuery;
+  Criteria: TFilterCriterion;
 begin
+  Result := TObjectList<TAccAccountAddress>.Create(True);
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := PrepareAddSql + ' RETURNING id';
-    SetModelParams(Q, AModel);
+    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, False, False);
+
+    if Assigned(AFilter) and (AFilter.Count > 0) then
+      for Criteria in AFilter do
+        Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+
+    LogQuery(Q, 'DoFind');
     Q.Open;
-    AModel.Id := Q.FieldByName('id').AsLargeInt;
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TAccAccountAddressRepository.AddBatch(AModels: TArray<TAccAccountAddress>);
-var
-  Q: TFDQuery;
-  I, Count: Integer;
-begin
-  Count := Length(AModels);
-  if Count = 0 then Exit;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareAddSql;
-    Q.Params.ArraySize := Count;
-
-    for I := 0 to Count - 1 do
-      SetModelParams(Q, AModels[I], I);
-
-    Q.Execute(Count, 0);
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TAccAccountAddressRepository.Update(AModel: TAccAccountAddress);
-var
-  Q: TFDQuery;
-begin
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareUpdateSql;
-    SetModelParams(Q, AModel);
-    Q.ExecSQL;
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TAccAccountAddressRepository.UpdateBatch(AModels: TArray<TAccAccountAddress>);
-var
-  Q: TFDQuery;
-  I, Count: Integer;
-begin
-  Count := Length(AModels);
-  if Count = 0 then Exit;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareUpdateSql;
-    Q.Params.ArraySize := Count;
-
-    for I := 0 to Count - 1 do
-      SetModelParams(Q, AModels[I], I);
-
-    Q.Execute(Count, 0);
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TAccAccountAddressRepository.Delete(AID: TValue);
-var
-  Q: TFDQuery;
-begin
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareDeleteSql;
-    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
-    Q.ExecSQL;
-  finally
-    Q.Free;
-  end;
-end;
-
-procedure TAccAccountAddressRepository.Delete(AModel: TAccAccountAddress);
-begin
-  Delete(AModel.Id);
-end;
-
-procedure TAccAccountAddressRepository.DeleteBatch(AModels: TArray<TAccAccountAddress>);
-var
-  Q: TFDQuery;
-  I, Count: Integer;
-begin
-  Count := Length(AModels);
-  if Count = 0 then Exit;
-
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareDeleteSql;
-    Q.Params.ArraySize := Count;
-
-    for I := 0 to Count - 1 do
-      Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
-
-    Q.Execute(Count, 0);
-  finally
-    Q.Free;
-  end;
-end;
-
-function TAccAccountAddressRepository.FindById(AId: TValue; ALock: Boolean): TAccAccountAddress;
-var
-  Q: TFDQuery;
-begin
-  Result := nil;
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := PrepareSelectSql + ' WHERE id = :id';
-    if ALock then
-      Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
-
-    Q.ParamByName('id').AsLargeInt := AId.AsInt64;
-    Q.Open;
-
-    if not Q.IsEmpty then
+    while not Q.Eof do
     begin
-      Result := TAccAccountAddress.Create;
-      Result.Id := Q.FieldByName('id').AsLargeInt;
-      Result.AccountId := Q.FieldByName('account_id').AsLargeInt;
-      Result.AddressId := Q.FieldByName('address_id').AsLargeInt;
-      Result.AddressType := Q.FieldByName('address_type').AsString;
-      Result.IsPrimary := Q.FieldByName('is_primary').AsBoolean;
-      Result.ValidFrom := Q.FieldByName('valid_from').AsDateTime;
-      Result.ValidTo := Q.FieldByName('valid_to').AsDateTime;
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
     end;
   finally
     Q.Free;
   end;
 end;
 
-function TAccAccountAddressRepository.FindOne(AFilter: TFilterCriteria; ALock: Boolean): TAccAccountAddress;
+function TAccAccountAddressRepository.DoFindById(AId: TValue; ALock: Boolean): TAccAccountAddress;
 var
   Q: TFDQuery;
-  Criterion: TFilterCriterion;
+  Criteria: TFilterCriteria;
+begin
+  Result := nil;
+  Q := TFDQuery.Create(nil);
+  Criteria := TFilterCriteria.Create;
+  try
+    Q.Connection := Connection;
+
+    Criteria.Add(TFilterCriterion.New('id', '=', AId));
+    Q.SQL.Text := Self.PrepareSelectFromView(Criteria, ALock, True, False);
+
+    Q.ParamByName('id').AsLargeInt := AId.AsInt64;
+    LogQuery(Q, 'DoFindById');
+    Q.Open;
+
+    if not Q.IsEmpty then
+      Result := MapFromQuery(Q);
+  finally
+    Q.Free;
+    Criteria.Free;
+  end;
+end;
+
+function TAccAccountAddressRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TAccAccountAddress;
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriterion;
 begin
   Result := nil;
   if not Assigned(AFilter) or (AFilter.Count = 0) then
@@ -279,78 +245,195 @@ begin
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := PrepareSelectSql + ' WHERE 1=1';
+    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, True, False);
 
-    for Criterion in AFilter do
-      Q.SQL.Text := Q.SQL.Text + ' AND ' + Criterion.FieldName + ' ' + Criterion.Operator + ' :' + Criterion.FieldName;
-
-    if ALock then
-      Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
-
-    Q.SQL.Text := Q.SQL.Text + ' LIMIT 1';
-
-    for Criterion in AFilter do
-      Q.ParamByName(Criterion.FieldName).Value := Criterion.Value.AsVariant;
-
+    for Criteria in AFilter do
+      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+    LogQuery(Q, 'DoFindOne');
     Q.Open;
 
     if not Q.IsEmpty then
-    begin
-      Result := TAccAccountAddress.Create;
-      Result.Id := Q.FieldByName('id').AsLargeInt;
-      Result.AccountId := Q.FieldByName('account_id').AsLargeInt;
-      Result.AddressId := Q.FieldByName('address_id').AsLargeInt;
-      Result.AddressType := Q.FieldByName('address_type').AsString;
-      Result.IsPrimary := Q.FieldByName('is_primary').AsBoolean;
-      Result.ValidFrom := Q.FieldByName('valid_from').AsDateTime;
-      Result.ValidTo := Q.FieldByName('valid_to').AsDateTime;
-    end;
+      Result := MapFromQuery(Q);
   finally
     Q.Free;
   end;
 end;
 
-function TAccAccountAddressRepository.Find(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TAccAccountAddress>;
+procedure TAccAccountAddressRepository.DoAdd(AModel: TAccAccountAddress);
 var
   Q: TFDQuery;
-  Item: TAccAccountAddress;
-  Criterion: TFilterCriterion;
 begin
-  Result := TObjectList<TAccAccountAddress>.Create(True);
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := PrepareSelectSql + ' WHERE 1=1';
-
-    if Assigned(AFilter) and (AFilter.Count > 0) then
-    begin
-      for Criterion in AFilter do
-        Q.SQL.Text := Q.SQL.Text + ' AND ' + Criterion.FieldName + ' ' + Criterion.Operator + ' :' + Criterion.FieldName;
-    end;
-
-    if ALock then
-      Q.SQL.Text := Q.SQL.Text + ' FOR UPDATE';
-
-    if Assigned(AFilter) and (AFilter.Count > 0) then
-    begin
-      for Criterion in AFilter do
-        Q.ParamByName(Criterion.FieldName).Value := Criterion.Value.AsVariant;
-    end;
-
+    Q.SQL.Text := PrepareAddSql + ' RETURNING id';
+    SetInsertParams(Q, AModel);
+    LogQuery(Q, 'DoAdd');
     Q.Open;
-    while not Q.Eof do
-    begin
-      Item := TAccAccountAddress.Create;
-      Item.Id := Q.FieldByName('id').AsLargeInt;
-      Item.AccountId := Q.FieldByName('account_id').AsLargeInt;
-      Item.AddressId := Q.FieldByName('address_id').AsLargeInt;
-      Item.AddressType := Q.FieldByName('address_type').AsString;
-      Item.IsPrimary := Q.FieldByName('is_primary').AsBoolean;
-      Item.ValidFrom := Q.FieldByName('valid_from').AsDateTime;
-      Item.ValidTo := Q.FieldByName('valid_to').AsDateTime;
-      Result.Add(Item);
-      Q.Next;
-    end;
+    AModel.Id := Q.FieldByName('id').AsLargeInt;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TAccAccountAddressRepository.DoAddBatch(AModels: TArray<TAccAccountAddress>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareAddSql;
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      SetInsertParams(Q, AModels[I], I);
+
+    LogQuery(Q, 'DoAddBatch');
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TAccAccountAddressRepository.DoUpdate(AModel: TAccAccountAddress);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareUpdateSql;
+    SetUpdateParams(Q, AModel);
+    LogQuery(Q, 'DoUpdate');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TAccAccountAddressRepository.DoUpdateBatch(AModels: TArray<TAccAccountAddress>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareUpdateSql;
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      SetUpdateParams(Q, AModels[I], I);
+
+    LogQuery(Q, 'DoUpdateBatch');
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TAccAccountAddressRepository.DoDelete(AID: TValue);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
+    LogQuery(Q, 'DoDelete');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TAccAccountAddressRepository.DoDelete(AModel: TAccAccountAddress);
+begin
+  Delete(AModel.Id);
+end;
+
+procedure TAccAccountAddressRepository.DoDeleteBatch(AModels: TArray<TAccAccountAddress>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
+
+    LogQuery(Q, 'DoDeleteBatch');
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TAccAccountAddressRepository.DoDeleteBatch(AIDs: TArray<TValue>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AIDs);
+  if Count = 0 then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
+
+    LogQuery(Q, 'DoDeleteBatch');
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TAccAccountAddressRepository.DoDeleteBatch(AFilter: TFilterCriteria);
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriterion;
+begin
+  if not Assigned(AFilter) or (AFilter.Count = 0) then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' 1=1 ';
+
+    for Criteria in AFilter do
+      Q.SQL.Text := Q.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.ParamName;
+
+    for Criteria in AFilter do
+      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+
+    LogQuery(Q, 'DoDeleteBatch');
+    Q.ExecSQL;
   finally
     Q.Free;
   end;

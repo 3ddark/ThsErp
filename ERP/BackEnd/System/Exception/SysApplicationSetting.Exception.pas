@@ -13,7 +13,17 @@ type
     class function GetMessage: string; override;
   end;
 
+  ESysApplicationSettingExceptionAddressCityRequired = class(ESysApplicationSettingException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
 implementation
+
+class function ESysApplicationSettingExceptionAddressCityRequired.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.AddressCityRequired, 'City is required when address information is entered.');
+end;
 
 class function ESysApplicationSettingExceptionMustContainOnlyOneRecord.GetMessage: string;
 begin

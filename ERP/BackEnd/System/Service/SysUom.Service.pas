@@ -37,11 +37,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysUomService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysUom, TSysUomRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_SYS_UOM;
 end;
 
 destructor TSysUomService.Destroy;

@@ -10,7 +10,7 @@ type
   private
     FRegionName: string;
   public
-    [Column('region_name'), MaxLength(64), Required()]
+    [Column('region_name'), MaxLength(128), Required()]
     property RegionName: string read FRegionName write FRegionName;
 
     constructor Create(); override;

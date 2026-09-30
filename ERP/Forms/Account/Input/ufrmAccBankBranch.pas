@@ -2,26 +2,27 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
-  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox, Ths.Helper.Memo,
-  AccBankBranch.Service, AccBankBranch, ufrmAccBanks, AccBank.Service, AccBank,
-  ufrmSysCities, SysCity.Service, SysCity, LocalizationManager;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
+  AccBankBranch.Service, AccBankBranch;
 
 type
   TfrmAccBankBranch = class(TfrmInputSimpleDB<TAccBankBranch, TAccBankBranchService>)
     pnlContent: TPanel;
-    lblsube_kodu: TLabel;
-    edtsube_kodu: TEdit;
-    lblsube_adi: TLabel;
-    edtsube_adi: TEdit;
-    lblbanka: TLabel;
-    edtbanka_adi: TEdit;
-    lblsehir: TLabel;
-    edtsehir_adi: TEdit;
-  published
+    lblAccBankId: TLabel;
+    edtAccBankId: TEdit;
+    lblBranchCode: TLabel;
+    edtBranchCode: TEdit;
+    lblBranchName: TLabel;
+    edtBranchName: TEdit;
+    lblSysCityId: TLabel;
+    edtSysCityId: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -35,10 +36,15 @@ implementation
 
 {$R *.dfm}
 
+uses
+  AccBank, AccBank.Service, ufrmAccBanks,                                       // TfrmAccBanks helper output form
+  SysCity, SysCity.Service, ufrmSysCities;                                      // TfrmSysCities helper output form
+
 procedure TfrmAccBankBranch.BtnAcceptClick(Sender: TObject);
 begin
-  Table.BranchCode := StrToIntDef(edtsube_kodu.Text, 0);
-  Table.BranchName := edtsube_adi.Text;
+  // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
+  Table.BranchCode := StrToIntDef(edtBranchCode.Text, 0);
+  Table.BranchName := edtBranchName.Text;
   inherited;
 end;
 
@@ -46,129 +52,95 @@ procedure TfrmAccBankBranch.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtbanka_adi.OnHelperProcess := HelperProcess;
-  edtsehir_adi.OnHelperProcess := HelperProcess;
+  edtAccBankId.OnHelperProcess := HelperProcess;
+  edtSysCityId.OnHelperProcess := HelperProcess;
+  edtBranchCode.thsInputDataType := itInteger;
+  edtBranchName.thsInputDataType := itString;
+  edtBranchName.CharCase := TEditCharCase.ecUpperCase;
 end;
 
 procedure TfrmAccBankBranch.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtsube_kodu.SetFocus;
+  if edtBranchCode.CanFocus then
+    edtBranchCode.SetFocus;
 end;
 
 procedure TfrmAccBankBranch.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('acc_bank_branch.title_singular', 'Banka Şubesi');
-  lblsube_kodu.Caption := TLocalizationManager.Translate('acc_bank_branch.lbl_code', 'Şube Kodu');
-  lblsube_adi.Caption := TLocalizationManager.Translate('acc_bank_branch.lbl_name', 'Şube Adı');
-  lblbanka.Caption := TLocalizationManager.Translate('acc_bank_branch.lbl_bank', 'Banka');
-  lblsehir.Caption := TLocalizationManager.Translate('acc_bank_branch.lbl_city', 'Şehir');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TAccBankBranch.TitleSingular, 'Bank Branch');
+  lblAccBankId.Caption := TLocalizationManager.Translate(TLangKeys.TAccBankBranch.ColBank, 'Bank');
+  lblBranchCode.Caption := TLocalizationManager.Translate(TLangKeys.TAccBankBranch.ColBranchCode, 'Branch Code');
+  lblBranchName.Caption := TLocalizationManager.Translate(TLangKeys.TAccBankBranch.ColBranchName, 'Branch Name');
+  lblSysCityId.Caption := TLocalizationManager.Translate(TLangKeys.TAccBankBranch.ColCity, 'City');
 end;
 
 procedure TfrmAccBankBranch.HelperProcess(Sender: TObject);
 var
   LEdit: TEdit;
-  LFrmBanks: TfrmAccBanks;
-  LFrmCities: TfrmSysCities;
+  LFrmAccBankId: TfrmAccBanks;
+  LFrmSysCityId: TfrmSysCities;
 begin
-  if Sender is TEdit then
+  if not (Sender is TEdit) then
+    Exit;
+
+  LEdit := (Sender as TEdit);
+  if LEdit.Name = edtAccBankId.Name then
   begin
-    LEdit := (Sender as TEdit);
-    if LEdit.Name = edtbanka_adi.Name then
-    begin
-      LFrmBanks := TfrmAccBanks.Create(LEdit, TAccBankService.Create, TAccBank.Create);
-      try
-        LFrmBanks.IsHelper := True;
-        LFrmBanks.ShowModal;
-        if LFrmBanks.DataTransfer then
+    LFrmAccBankId := TfrmAccBanks.Create(LEdit, TAccBankService.Create, TAccBank.Create);
+    try
+      LFrmAccBankId.IsHelper := True;
+      LFrmAccBankId.ShowModal;
+      if LFrmAccBankId.DataTransfer then
+        if LFrmAccBankId.CleanAndClose then
         begin
-          if LFrmBanks.CleanAndClose then
-          begin
-            Table.AccBankId := 0;
-            LEdit.Clear;
-          end
-          else
-          begin
-            Table.AccBankId := LFrmBanks.Table.Id;
-            LEdit.Text := LFrmBanks.Table.BankName;
-          end;
-        end;
-      finally
-        LFrmBanks.Free;
-      end;
-    end
-    else if LEdit.Name = edtsehir_adi.Name then
-    begin
-      LFrmCities := TfrmSysCities.Create(LEdit, TSysCityService.Create, TSysCity.Create);
-      try
-        LFrmCities.IsHelper := True;
-        LFrmCities.ShowModal;
-        if LFrmCities.DataTransfer then
+          Table.AccBankId := 0;
+          Table.BankName := '';
+          LEdit.Clear;
+        end
+        else
         begin
-          if LFrmCities.CleanAndClose then
-          begin
-            Table.SysCityId := 0;
-            LEdit.Clear;
-          end
-          else
-          begin
-            Table.SysCityId := LFrmCities.Table.Id;
-            LEdit.Text := LFrmCities.Table.CityName;
-          end;
+          Table.AccBankId := LFrmAccBankId.Table.Id;
+          Table.BankName := LFrmAccBankId.Table.BankName;
+          LEdit.Text := Table.BankName;
         end;
-      finally
-        LFrmCities.Free;
-      end;
+    finally
+      LFrmAccBankId.Free;
+    end;
+  end
+  else if LEdit.Name = edtSysCityId.Name then
+  begin
+    LFrmSysCityId := TfrmSysCities.Create(LEdit, TSysCityService.Create, TSysCity.Create);
+    try
+      LFrmSysCityId.IsHelper := True;
+      LFrmSysCityId.ShowModal;
+      if LFrmSysCityId.DataTransfer then
+        if LFrmSysCityId.CleanAndClose then
+        begin
+          Table.SysCityId := 0;
+          Table.CityName := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.SysCityId := LFrmSysCityId.Table.Id;
+          Table.CityName := LFrmSysCityId.Table.CityName;
+          LEdit.Text := Table.CityName;
+        end;
+    finally
+      LFrmSysCityId.Free;
     end;
   end;
 end;
 
 procedure TfrmAccBankBranch.RefreshData;
-var
-  LBankService: TAccBankService;
-  LCityService: TSysCityService;
-  LBank: TAccBank;
-  LCity: TSysCity;
 begin
   inherited;
-  edtsube_kodu.Text := IntToStr(Table.BranchCode);
-  edtsube_adi.Text := Table.BranchName;
-
-  if Table.AccBankId > 0 then
-  begin
-    LBankService := TAccBankService.Create;
-    try
-      LBank := LBankService.FindById(Table.AccBankId, False);
-      if Assigned(LBank) then
-      begin
-        edtbanka_adi.Text := LBank.BankName;
-        LBank.Free;
-      end;
-    finally
-      LBankService.Free;
-    end;
-  end
-  else
-    edtbanka_adi.Text := '';
-
-  if Table.SysCityId > 0 then
-  begin
-    LCityService := TSysCityService.Create;
-    try
-      LCity := LCityService.FindById(Table.SysCityId, False);
-      if Assigned(LCity) then
-      begin
-        edtsehir_adi.Text := LCity.CityName;
-        LCity.Free;
-      end;
-    finally
-      LCityService.Free;
-    end;
-  end
-  else
-    edtsehir_adi.Text := '';
+  edtAccBankId.Text := Table.BankName;
+  edtBranchCode.Text := IntToStr(Table.BranchCode);
+  edtBranchName.Text := Table.BranchName;
+  edtSysCityId.Text := Table.CityName;
 end;
 
 end.

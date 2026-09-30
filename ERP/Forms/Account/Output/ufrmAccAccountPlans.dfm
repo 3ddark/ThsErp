@@ -3,7 +3,7 @@ object frmAccAccountPlans: TfrmAccAccountPlans
   Top = 0
   Caption = 'frmAccAccountPlans'
   ClientHeight = 441
-  ClientWidth = 650
+  ClientWidth = 624
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

@@ -2,8 +2,10 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
-  SysUtils, Classes, Types, Entity, EntityAttributes, AccBank, SysCity;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('acc_bank_branch')]
@@ -14,26 +16,28 @@ type
     FBranchName: string;
     FSysCityId: Int64;
 
-    FAccBank: TAccBank;
-    FSysCity: TSysCity;
+    // View (vw_acc_bank_branch) okunabilir alanları
+    FBankName: string;
+    FCityName: string;
   public
-    [Column('acc_bank_id'), Required()]
+    [Column('acc_bank_id')]
     property AccBankId: Int64 read FAccBankId write FAccBankId;
 
-    [Column('branch_code'), Required()]
+    [Column('branch_code')]
     property BranchCode: Integer read FBranchCode write FBranchCode;
 
-    [Column('branch_name'), MaxLength(128), Required()]
+    [Column('branch_name')]
+    [MaxLength(128), Required(TLangKeys.TValidation.Required, True)]
     property BranchName: string read FBranchName write FBranchName;
 
-    [Column('sys_city_id'), Required()]
+    [Column('sys_city_id')]
     property SysCityId: Int64 read FSysCityId write FSysCityId;
 
-    [BelongsTo('AccBankId')]
-    property AccBank: TAccBank read FAccBank write FAccBank;
+    [NotMapped]
+    property BankName: string read FBankName write FBankName;
 
-    [BelongsTo('SysCityId')]
-    property SysCity: TSysCity read FSysCity write FSysCity;
+    [NotMapped]
+    property CityName: string read FCityName write FCityName;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -43,16 +47,13 @@ type
 
 implementation
 
-constructor TAccBankBranch.Create();
+constructor TAccBankBranch.Create;
 begin
   inherited;
-  FAccBank := TAccBank.Create;
 end;
 
 destructor TAccBankBranch.Destroy;
 begin
-  FAccBank.Free;
-
   inherited;
 end;
 
@@ -64,20 +65,8 @@ begin
   Result.BranchCode := Self.BranchCode;
   Result.BranchName := Self.BranchName;
   Result.SysCityId := Self.SysCityId;
-
-  if Assigned(Self.AccBank) then
-  begin
-    if Assigned(Result.AccBank) then
-      Result.AccBank.Free;
-    Result.AccBank := Self.AccBank.Clone;
-  end;
-
-  if Assigned(Self.SysCity) then
-  begin
-    if Assigned(Result.SysCity) then
-      Result.SysCity.Free;
-    Result.SysCity:= Self.SysCity.Clone;
-  end;
+  Result.BankName := Self.BankName;
+  Result.CityName := Self.CityName;
 end;
 
 end.

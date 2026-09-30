@@ -4,20 +4,33 @@ interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  EmpLanguageAbility.Repository, EmpLanguageAbility;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  EmpLanguageAbility.Repository, EmpLanguageAbility, EmpLanguageAbility.Exception;
 
 type
   TEmpLanguageAbilityService = class(TCrudService<TEmpLanguageAbility>)
   private
     FRepo: IRepository<TEmpLanguageAbility>;
+
+    procedure DoAdd(AEntity: TEmpLanguageAbility);
+    procedure DoUpdate(AEntity: TEmpLanguageAbility);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateRequiredReferences(AEntity: TEmpLanguageAbility);
+    procedure ValidateUnique(AEntity: TEmpLanguageAbility; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TEmpLanguageAbility; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TEmpLanguageAbility>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TEmpLanguageAbility; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TEmpLanguageAbility; override;
+
     procedure Add(AEntity: TEmpLanguageAbility); override;
     procedure Update(AEntity: TEmpLanguageAbility); override;
     procedure Delete(AId: Int64); override;
@@ -31,10 +44,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TEmpLanguageAbilityService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TEmpLanguageAbility, TEmpLanguageAbilityRepository>;
+  Self.PermissionCode := PERMISSION_EMP_EMPLOYEE;
 end;
 
 destructor TEmpLanguageAbilityService.Destroy;
@@ -42,107 +59,174 @@ begin
   inherited;
 end;
 
+procedure TEmpLanguageAbilityService.ValidateRequiredReferences(AEntity: TEmpLanguageAbility);
+
+  procedure Check(AValue: Int64; const AKey, ADefault: string);
+  begin
+    if AValue <= 0 then
+      raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
+        TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
+  end;
+
+begin
+  Check(AEntity.EmpEmployeeId, TLangKeys.TEmpLanguageAbility.ColEmployee, 'Employee');
+  Check(AEntity.EmpLanguageId, TLangKeys.TEmpLanguageAbility.ColLanguageName, 'Language');
+  Check(AEntity.ReadLevel, TLangKeys.TEmpLanguageAbility.ColReadLevel, 'Reading');
+  Check(AEntity.WriteLevel, TLangKeys.TEmpLanguageAbility.ColWriteLevel, 'Writing');
+  Check(AEntity.SpeakLevel, TLangKeys.TEmpLanguageAbility.ColSpeakLevel, 'Speaking');
+end;
+
+procedure TEmpLanguageAbilityService.ValidateUnique(AEntity: TEmpLanguageAbility; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TEmpLanguageAbility;
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('emp_employee_id', '=', TValue.From<Int64>(AEntity.EmpEmployeeId)));
+      LFilter.Add(TFilterCriterion.New('emp_language_id', '=', TValue.From<Int64>(AEntity.EmpLanguageId)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      try
+        if Assigned(LModel) then
+          raise EEmpLanguageAbilityExceptionEmployeeLanguageUnique.Create;
+      finally
+        LModel.Free;
+      end;
+    finally
+      LFilter.Free;
+    end;
+  end;
+end;
+
+procedure TEmpLanguageAbilityService.ValidateBusinessRules(AEntity: TEmpLanguageAbility; AOperation: TCrudOperation);
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    ValidateRequiredReferences(AEntity);
+  end;
+
+  ValidateUnique(AEntity, AOperation);
+end;
+
+procedure TEmpLanguageAbilityService.DoAdd(AEntity: TEmpLanguageAbility);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TEmpLanguageAbilityService.DoUpdate(AEntity: TEmpLanguageAbility);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TEmpLanguageAbilityService.DoDelete(AId: Int64);
+var
+  LEntity: TEmpLanguageAbility;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
+end;
+
 function TEmpLanguageAbilityService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TEmpLanguageAbility>;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 function TEmpLanguageAbilityService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TEmpLanguageAbility;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 procedure TEmpLanguageAbilityService.BusinessInsert(AEntity: TEmpLanguageAbility; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Uow.InTransaction then
-        Self.UoW.Rollback;
-      raise
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TEmpLanguageAbilityService.BusinessUpdate(AEntity: TEmpLanguageAbility; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TEmpLanguageAbilityService.BusinessDelete(AEntity: TEmpLanguageAbility; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -151,29 +235,34 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TEmpLanguageAbilityService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TEmpLanguageAbility>;
+function TEmpLanguageAbilityService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TEmpLanguageAbility>;
 begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TEmpLanguageAbilityService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TEmpLanguageAbility;
+function TEmpLanguageAbilityService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TEmpLanguageAbility;
 begin
   Result := FRepo.FindById(AId, ALock);
 end;
 
+function TEmpLanguageAbilityService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TEmpLanguageAbility;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
+end;
+
 procedure TEmpLanguageAbilityService.Add(AEntity: TEmpLanguageAbility);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity);
 end;
 
 procedure TEmpLanguageAbilityService.Update(AEntity: TEmpLanguageAbility);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TEmpLanguageAbilityService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 end.

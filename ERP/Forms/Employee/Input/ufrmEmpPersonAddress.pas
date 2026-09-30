@@ -2,33 +2,36 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes, Ths.Helper.BaseTypes,
-  Ths.Helper.Edit, EmpPersonAddress.Service, EmpPersonAddress, LocalizationManager;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
+  EmpPersonAddress.Service, EmpPersonAddress;
 
 type
   TfrmEmpPersonAddress = class(TfrmInputSimpleDB<TEmpPersonAddress, TEmpPersonAddressService>)
     pnlContent: TPanel;
-    lblPersonId: TLabel;
-    edtPersonId: TEdit;
-    lblAddressId: TLabel;
-    edtAddressId: TEdit;
+    lblEmpEmployeeId: TLabel;
+    edtEmpEmployeeId: TEdit;
+    lblSysAddressId: TLabel;
+    edtSysAddressId: TEdit;
     lblAddressType: TLabel;
     cbbAddressType: TComboBox;
     lblIsPrimary: TLabel;
     chkIsPrimary: TCheckBox;
     lblValidFrom: TLabel;
-    dtpValidFrom: TDateTimePicker;
+    edtValidFrom: TEdit;
     lblValidTo: TLabel;
-    dtpValidTo: TDateTimePicker;
+    edtValidTo: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
     procedure HelperProcess(Sender: TObject);
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
   end;
@@ -38,18 +41,44 @@ implementation
 {$R *.dfm}
 
 uses
-  EmpPerson, EmpPerson.Service, ufrmEmpPersons,
-  SysAddress, SysAddress.Service, ufrmSysAddresses;
+  EmpEmployee, EmpEmployee.Service, ufrmEmpEmployees,                           // TfrmEmpEmployees helper output form
+  SysAddress, SysAddress.Service, ufrmSysAddresses;                             // TfrmSysAddresses helper output form
+
+function AddressToText(AAddress: TSysAddress): string;
+var
+  LParts: TStringList;
+
+  procedure AddPart(const AValue: string);
+  begin
+    if Trim(AValue) <> '' then
+      LParts.Add(Trim(AValue));
+  end;
+
+begin
+  LParts := TStringList.Create;
+  try
+    AddPart(AAddress.Neighborhood);
+    AddPart(AAddress.Street);
+    AddPart(AAddress.DoorNumber);
+    AddPart(AAddress.District);
+    LParts.Delimiter := ',';
+    LParts.StrictDelimiter := True;
+    Result := StringReplace(LParts.DelimitedText, ',', ', ', [rfReplaceAll]);
+  finally
+    LParts.Free;
+  end;
+end;
 
 procedure TfrmEmpPersonAddress.BtnAcceptClick(Sender: TObject);
 begin
+  // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
   if cbbAddressType.ItemIndex >= 0 then
     Table.AddressType := cbbAddressType.Items[cbbAddressType.ItemIndex]
   else
-    Table.AddressType := 'HOME';
+    Table.AddressType := '';
   Table.IsPrimary := chkIsPrimary.Checked;
-  Table.ValidFrom := dtpValidFrom.Date;
-  Table.ValidTo := dtpValidTo.Date;
+  Table.ValidFrom := StrToDateDef(edtValidFrom.Text, 0);
+  Table.ValidTo := StrToDateDef(edtValidTo.Text, 0);
   inherited;
 end;
 
@@ -57,116 +86,106 @@ procedure TfrmEmpPersonAddress.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtPersonId.OnHelperProcess := HelperProcess;
-  edtAddressId.OnHelperProcess := HelperProcess;
+  edtEmpEmployeeId.OnHelperProcess := HelperProcess;
+  edtSysAddressId.OnHelperProcess := HelperProcess;
+  edtValidFrom.thsInputDataType := itDate;
+  edtValidTo.thsInputDataType := itDate;
 end;
 
 procedure TfrmEmpPersonAddress.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtPersonId.SetFocus;
+  if edtSysAddressId.CanFocus then
+    edtSysAddressId.SetFocus;
 end;
 
 procedure TfrmEmpPersonAddress.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('emp_person_address.title_singular', 'Personel Adresi');
-  lblPersonId.Caption := TLocalizationManager.Translate('emp_person_address.lbl_person_id', 'Personel');
-  lblAddressId.Caption := TLocalizationManager.Translate('emp_person_address.lbl_address_id', 'Adres');
-  lblAddressType.Caption := TLocalizationManager.Translate('emp_person_address.lbl_address_type', 'Adres Tipi');
-  lblIsPrimary.Caption := TLocalizationManager.Translate('emp_person_address.lbl_is_primary', 'Birincil Adres');
-  lblValidFrom.Caption := TLocalizationManager.Translate('emp_person_address.lbl_valid_from', 'Geçerlilik Başlangıcı');
-  lblValidTo.Caption := TLocalizationManager.Translate('emp_person_address.lbl_valid_to', 'Geçerlilik Bitişi');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TEmpPersonAddress.TitleSingular, 'Employee Address');
+  lblEmpEmployeeId.Caption := TLocalizationManager.Translate(TLangKeys.TEmpPersonAddress.ColEmployee, 'Employee');
+  lblSysAddressId.Caption := TLocalizationManager.Translate(TLangKeys.TEmpPersonAddress.ColAddress, 'Address');
+  lblAddressType.Caption := TLocalizationManager.Translate(TLangKeys.TEmpPersonAddress.ColAddressType, 'Address Type');
+  lblIsPrimary.Caption := TLocalizationManager.Translate(TLangKeys.TEmpPersonAddress.ColIsPrimary, 'Primary');
+  lblValidFrom.Caption := TLocalizationManager.Translate(TLangKeys.TEmpPersonAddress.ColValidFrom, 'Valid From');
+  lblValidTo.Caption := TLocalizationManager.Translate(TLangKeys.TEmpPersonAddress.ColValidTo, 'Valid To');
 end;
 
 procedure TfrmEmpPersonAddress.HelperProcess(Sender: TObject);
 var
   LEdit: TEdit;
-  LFrmPerson: TfrmEmpPersons;
-  LFrmAddress: TfrmSysAddresses;
+  LFrmEmpEmployeeId: TfrmEmpEmployees;
+  LFrmSysAddressId: TfrmSysAddresses;
 begin
-  if Sender is TEdit then
+  if not (Sender is TEdit) then
+    Exit;
+
+  LEdit := (Sender as TEdit);
+  if LEdit.Name = edtEmpEmployeeId.Name then
   begin
-    LEdit := (Sender as TEdit);
-    if LEdit.Name = edtPersonId.Name then
-    begin
-      LFrmPerson := TfrmEmpPersons.Create(LEdit, TEmpPersonService.Create, TEmpPerson.Create);
-      try
-        LFrmPerson.IsHelper := True;
-        LFrmPerson.ShowModal;
-        if LFrmPerson.DataTransfer then
+    LFrmEmpEmployeeId := TfrmEmpEmployees.Create(LEdit, TEmpEmployeeService.Create, TEmpEmployee.Create);
+    try
+      LFrmEmpEmployeeId.IsHelper := True;
+      LFrmEmpEmployeeId.ShowModal;
+      if LFrmEmpEmployeeId.DataTransfer then
+        if LFrmEmpEmployeeId.CleanAndClose then
         begin
-          if LFrmPerson.CleanAndClose then
-          begin
-            Table.PersonId := 0;
-            LEdit.Clear;
-          end
-          else
-          begin
-            Table.PersonId := LFrmPerson.Table.Id;
-            LEdit.Text := LFrmPerson.Table.FullName;
-          end;
-        end;
-      finally
-        LFrmPerson.Free;
-      end;
-    end
-    else if LEdit.Name = edtAddressId.Name then
-    begin
-      LFrmAddress := TfrmSysAddresses.Create(LEdit, TSysAddressService.Create, TSysAddress.Create);
-      try
-        LFrmAddress.IsHelper := True;
-        LFrmAddress.ShowModal;
-        if LFrmAddress.DataTransfer then
+          Table.EmpEmployeeId := 0;
+          Table.EmployeeFullName := '';
+          LEdit.Clear;
+        end
+        else
         begin
-          if LFrmAddress.CleanAndClose then
-          begin
-//            Table.AddressId := 0;
-//            LEdit.Clear;
-          end
-          else
-          begin
-//            Table.AddressId := LFrmAddress.Table.Id;
-//            LEdit.Text := LFrmAddress.Table.District;
-          end;
+          Table.EmpEmployeeId := LFrmEmpEmployeeId.Table.Id;
+          Table.EmployeeFullName := LFrmEmpEmployeeId.Table.FullName;
+          LEdit.Text := Table.EmployeeFullName;
         end;
-      finally
-        LFrmAddress.Free;
-      end;
+    finally
+      LFrmEmpEmployeeId.Free;
+    end;
+  end
+  else if LEdit.Name = edtSysAddressId.Name then
+  begin
+    LFrmSysAddressId := TfrmSysAddresses.Create(LEdit, TSysAddressService.Create, TSysAddress.Create);
+    try
+      LFrmSysAddressId.IsHelper := True;
+      LFrmSysAddressId.ShowModal;
+      if LFrmSysAddressId.DataTransfer then
+        if LFrmSysAddressId.CleanAndClose then
+        begin
+          Table.SysAddressId := 0;
+          Table.AddressText := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.SysAddressId := LFrmSysAddressId.Table.Id;
+          Table.AddressText := AddressToText(LFrmSysAddressId.Table);
+          LEdit.Text := Table.AddressText;
+        end;
+    finally
+      LFrmSysAddressId.Free;
     end;
   end;
 end;
 
-procedure TfrmEmpPersonAddress.InitializeInputCase;
-begin
-  inherited;
-  edtPersonId.thsInputDataType := itInteger;
-  edtAddressId.thsInputDataType := itInteger;
-end;
-
 procedure TfrmEmpPersonAddress.RefreshData;
-var
-  LIdx: Integer;
 begin
   inherited;
-  edtPersonId.Text := Table.PersonId.ToString;
-  if Assigned(Table.Person) then
-    edtPersonId.Text := Table.Person.FullName;
-
-  edtAddressId.Text := Table.AddressId.ToString;
-  if Assigned(Table.Address) then
-    edtAddressId.Text := Table.Address.District;
-
-  LIdx := cbbAddressType.Items.IndexOf(Table.AddressType);
-  if LIdx >= 0 then
-    cbbAddressType.ItemIndex := LIdx
-  else
+  edtEmpEmployeeId.Text := Table.EmployeeFullName;
+  edtSysAddressId.Text := Table.AddressText;
+  cbbAddressType.ItemIndex := cbbAddressType.Items.IndexOf(Table.AddressType);
+  if cbbAddressType.ItemIndex < 0 then
     cbbAddressType.ItemIndex := 0;
-
   chkIsPrimary.Checked := Table.IsPrimary;
-  dtpValidFrom.Date := Table.ValidFrom;
-  dtpValidTo.Date := Table.ValidTo;
+  if Table.ValidFrom > 0 then
+    edtValidFrom.Text := DateToStr(Table.ValidFrom)
+  else
+    edtValidFrom.Text := '';
+  if Table.ValidTo > 0 then
+    edtValidTo.Text := DateToStr(Table.ValidTo)
+  else
+    edtValidTo.Text := '';
 end;
 
 end.

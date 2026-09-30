@@ -1,25 +1,28 @@
-unit ufrmAccRegion;
+﻿unit ufrmAccRegion;
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
-  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
   AccRegion.Service, AccRegion;
 
 type
   TfrmAccRegion = class(TfrmInputSimpleDB<TAccRegion, TAccRegionService>)
     pnlContent: TPanel;
-    lblbolge: TLabel;
-    edtbolge: TEdit;
-  published
+    lblName: TLabel;
+    edtName: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -28,7 +31,7 @@ implementation
 
 procedure TfrmAccRegion.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Name := edtbolge.Text;
+  Table.Name := edtName.Text;
   inherited;
 end;
 
@@ -36,19 +39,28 @@ procedure TfrmAccRegion.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+  edtName.thsInputDataType := itString;
+  edtName.CharCase := TEditCharCase.ecUpperCase;
 end;
 
 procedure TfrmAccRegion.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Bölge';
-  edtbolge.SetFocus;
+  if edtName.CanFocus then
+    edtName.SetFocus;
+end;
+
+procedure TfrmAccRegion.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TAccRegion.TitleSingular, 'Account Region');
+  lblName.Caption := TLocalizationManager.Translate(TLangKeys.TAccRegion.ColName, 'Region Name');
 end;
 
 procedure TfrmAccRegion.RefreshData;
 begin
   inherited;
-  edtbolge.Text := Table.Name;
+  edtName.Text := Table.Name;
 end;
 
 end.

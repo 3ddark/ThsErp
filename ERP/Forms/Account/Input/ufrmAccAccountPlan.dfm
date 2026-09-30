@@ -1,9 +1,9 @@
 object frmAccAccountPlan: TfrmAccAccountPlan
   Left = 0
   Top = 0
-  Caption = 'frmAccAccountPlan'
-  ClientHeight = 167
-  ClientWidth = 500
+  Caption = 'Account Plan'
+  ClientHeight = 139
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,87 +11,81 @@ object frmAccAccountPlan: TfrmAccAccountPlan
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 500
-    Height = 167
+    Width = 480
+    Height = 139
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 498
-    ExplicitHeight = 165
-    object lblcode: TLabel
-      Left = 70
-      Top = 11
-      Width = 66
+    object lblCode: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
       Height = 13
       Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
+      AutoSize = False
       Caption = 'Code'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-      ParentBiDiMode = False
       ParentFont = False
     end
-    object lblname: TLabel
-      Left = 72
-      Top = 38
-      Width = 64
+    object edtCode: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      MaxLength = 16
+      TabOrder = 0
+    end
+    object lblName: TLabel
+      Left = 4
+      Top = 29
+      Width = 124
       Height = 13
       Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
+      AutoSize = False
       Caption = 'Name'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-      ParentBiDiMode = False
       ParentFont = False
     end
-    object lbllevel: TLabel
-      Left = 57
-      Top = 65
-      Width = 79
+    object edtName: TEdit
+      Left = 132
+      Top = 25
+      Width = 333
+      Height = 22
+      MaxLength = 128
+      TabOrder = 1
+    end
+    object lblLevel: TLabel
+      Left = 4
+      Top = 52
+      Width = 124
       Height = 13
       Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
+      AutoSize = False
       Caption = 'Level'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-      ParentBiDiMode = False
       ParentFont = False
     end
-    object edtcode: TEdit
+    object edtLevel: TEdit
       Left = 132
-      Top = 7
+      Top = 48
       Width = 333
-      Height = 23
-      TabOrder = 0
-    end
-    object edtname: TEdit
-      Left = 132
-      Top = 34
-      Width = 333
-      Height = 23
-      TabOrder = 1
-    end
-    object edtlevel: TSpinEdit
-      Left = 132
-      Top = 61
-      Width = 60
-      Height = 23
-      MaxValue = 9999
-      MinValue = 0
+      Height = 22
       TabOrder = 2
-      Value = 0
     end
   end
 end

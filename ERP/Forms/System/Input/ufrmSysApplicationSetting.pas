@@ -18,7 +18,7 @@ type
   TfrmSysApplicationSetting = class(TfrmInputSimpleDB<TSysApplicationSetting, TSysApplicationSettingService>)
     pnlMain: TPanel;
     pgcMain: TPageControl;
-    tsGenel: TTabSheet;
+    tsGeneral: TTabSheet;
     lblCompanyTitle: TLabel;
     edtCompanyTitle: TEdit;
     lblPhone: TLabel;
@@ -26,7 +26,7 @@ type
     lblFax: TLabel;
     edtFax: TEdit;
     pnlLogo: TPanel;
-    tsAdres: TTabSheet;
+    tsAddress: TTabSheet;
     lblTaxpayerType: TLabel;
     cbbTaxpayerType: TComboBox;
     lblTaxpayerName: TLabel;
@@ -39,8 +39,8 @@ type
     edtTaxAuthority: TEdit;
     lblCountryName: TLabel;
     edtCountryName: TEdit;
-    lblCityId: TLabel;
-    edtCityId: TEdit;
+    lblSysCityId: TLabel;
+    edtSysCityId: TEdit;
     lblDistrict: TLabel;
     edtDistrict: TEdit;
     lblNeighborhood: TLabel;
@@ -61,7 +61,7 @@ type
     edtWeb: TEdit;
     lblEmail: TLabel;
     edtEmail: TEdit;
-    tsServisAyarlari: TTabSheet;
+    tsService: TTabSheet;
     lblMailHost: TLabel;
     edtMailHost: TEdit;
     lblMailUser: TLabel;
@@ -78,7 +78,7 @@ type
     edtSmsPassword: TEdit;
     lblSmsTitle: TLabel;
     edtSmsTitle: TEdit;
-    tsDigerAyarlar: TTabSheet;
+    tsOther: TTabSheet;
     lblPathStockCardImage: TLabel;
     edtPathStockCardImage: TEdit;
     btnPathStockCardImage: TButton;
@@ -88,7 +88,7 @@ type
     lblPathUpdate: TLabel;
     edtPathUpdate: TEdit;
     btnPathUpdate: TButton;
-    tsGorsel: TTabSheet;
+    tsVisual: TTabSheet;
     lblGridColor1: TLabel;
     edtGridColor1: TEdit;
     lblGridColor2: TLabel;
@@ -113,15 +113,14 @@ type
     procedure cbbTaxpayerTypeChange(Sender: TObject);
   private
     procedure SetColor(color: TColor; editColor: TEdit);
+    procedure UpdatePathButtons;
   protected
     procedure HelperProcess(Sender: TObject);
   public
     function ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl = nil): Boolean; override;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
-    procedure FormPaint(Sender: TObject);
     procedure FormShow(Sender: TObject); override;
-    procedure InitializeInputCase; override;
     procedure RefreshData(); override;
     procedure ApplyLocalization; override;
   end;
@@ -131,13 +130,8 @@ implementation
 {$R *.dfm}
 
 uses
-  Ths.Globals, Ths.Constants, Ths.Utils.Images, ufrmSysCities;
-
-procedure TfrmSysApplicationSetting.InitializeInputCase;
-begin
-  inherited;
-  edtCityId.thsInputDataType := itInteger;
-end;
+  Ths.Globals, Ths.Constants, Ths.Utils.Images, SysAddress,
+  ufrmSysCities; // TfrmSysCities helper output form
 
 procedure TfrmSysApplicationSetting.btnPathStockCardImageClick(Sender: TObject);
 begin
@@ -227,6 +221,7 @@ procedure TfrmSysApplicationSetting.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlMain.Parent := PanelMain;
+  edtSysCityId.OnHelperProcess := HelperProcess;
 
   edtCompanyTitle.CharCase := TEditCharCase.ecNormal;
   edtWeb.CharCase := TEditCharCase.ecNormal;
@@ -255,31 +250,24 @@ begin
   cbbTaxpayerTypeChange(cbbTaxpayerType);
 end;
 
-procedure TfrmSysApplicationSetting.FormPaint(Sender: TObject);
+procedure TfrmSysApplicationSetting.UpdatePathButtons;
+var
+  LEditable: Boolean;
 begin
-  inherited;
+  // Dizin alanları yalnızca seçim düğmesiyle doldurulur
   edtPathStockCardImage.ReadOnly := True;
   edtPathPersonnelCardImage.ReadOnly := True;
   edtPathUpdate.ReadOnly := True;
 
-  btnPathStockCardImage.Enabled := False;
-  btnPathPersonnelCardImage.Enabled := False;
-  btnPathUpdate.Enabled := False;
-
-  if (FormMode = ifmNewRecord) or (FormMode = ifmUpdate) then
-  begin
-    btnPathStockCardImage.Enabled := True;
-    btnPathPersonnelCardImage.Enabled := True;
-    btnPathUpdate.Enabled := True;
-  end;
+  LEditable := FormMode in [ifmNewRecord, ifmCopyNewRecord, ifmUpdate];
+  btnPathStockCardImage.Enabled := LEditable;
+  btnPathPersonnelCardImage.Enabled := LEditable;
+  btnPathUpdate.Enabled := LEditable;
 end;
 
 procedure TfrmSysApplicationSetting.FormShow(Sender: TObject);
 begin
-  edtCityId.OnHelperProcess := HelperProcess;
-
   inherited;
-  ApplyLocalization;
 
   edtCountryName.ReadOnly := True;
   edtDistrict.CharCase := ecUpperCase;
@@ -298,11 +286,11 @@ begin
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TitleSingular, 'Application Settings');
 
   // Tabs
-  tsGenel.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabGeneral, 'General Settings');
-  tsAdres.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabAddress, 'Address Information');
-  tsServisAyarlari.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabService, 'Service Settings');
-  tsDigerAyarlar.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabOther, 'Other Settings');
-  tsGorsel.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabVisual, 'Visual Settings');
+  tsGeneral.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabGeneral, 'General Settings');
+  tsAddress.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabAddress, 'Address Information');
+  tsService.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabService, 'Service Settings');
+  tsOther.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabOther, 'Other Settings');
+  tsVisual.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabVisual, 'Visual Settings');
 
   // General tab
   lblCompanyTitle.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColCompanyTitle, 'Company Title');
@@ -317,7 +305,7 @@ begin
   lblTaxNo.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColTaxNo, 'Tax Number');
   lblTaxAuthority.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.ColTaxAuthority, 'Tax Authority');
   lblCountryName.Caption := TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountryName, 'Country Name');
-  lblCityId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.TitleSingular, 'City');
+  lblSysCityId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.TitleSingular, 'City');
   lblDistrict.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColDistrict, 'District');
   lblNeighborhood.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColNeighborhood, 'Neighborhood');
   lblQuarter.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.ColQuarter, 'Quarter');
@@ -363,7 +351,10 @@ begin
   if (FormMode <> ifmNewRecord) and (FormMode <> ifmCopyNewRecord) and (FormMode <> ifmUpdate) then
     Exit;
 
-  if TEdit(Sender).Name = edtCityId.Name then
+  if not Assigned(Table.SysAddress) then
+    Table.SysAddress := TSysAddress.Create;
+
+  if TEdit(Sender).Name = edtSysCityId.Name then
   begin
     LFrmCity := TfrmSysCities.Create(TEdit(Sender), TSysCityService.Create, TSysCity.Create, True, True);
     try
@@ -374,11 +365,14 @@ begin
       if LFrmCity.CleanAndClose then
       begin
         TEdit(Sender).Clear;
+        edtCountryName.Clear;
         Table.SysAddress.SysCityId := 0;
       end
       else
       begin
         TEdit(Sender).Text := LFrmCity.Table.CityName;
+        if Assigned(LFrmCity.Table.SysCountry) then
+          edtCountryName.Text := LFrmCity.Table.SysCountry.CountryName;
         Table.SysAddress.SysCityId := LFrmCity.Table.Id;
       end;
     finally
@@ -432,17 +426,29 @@ begin
   edtTaxpayerName.Text := Table.TaxpayerName;
   edtTaxpayerSurname.Text := Table.TaxpayerSurname;
 
-//  edtWeb.Text := Table.Address.Web;
-//  edtEmail.Text := Table.Address.EMail;
-//  edtCountryName.Text := Table.Address.City.Country.CountryName;
-//  edtDistrict.Text := Table.Address.District;
-//  edtNeighborhood.Text := Table.Address.Neighborhood;
-//  edtQuarter.Text := Table.Address.Quarter;
-//  edtRoad.Text := Table.Address.Road;
-//  edtStreet.Text := Table.Address.Street;
-//  edtBuildingName.Text := Table.Address.BuildingName;
-//  edtDoorNumber.Text := Table.Address.DoorNumber;
-//  edtZipCode.Text := Table.Address.ZipCode;
+  if not Assigned(Table.SysAddress) then
+    Table.SysAddress := TSysAddress.Create;
+
+  edtWeb.Text := Table.SysAddress.Web;
+  edtEmail.Text := Table.SysAddress.Email;
+  if Assigned(Table.SysAddress.SysCity) then
+  begin
+    edtSysCityId.Text := Table.SysAddress.SysCity.CityName;
+    edtCountryName.Text := Table.SysAddress.SysCity.SysCountry.CountryName;
+  end
+  else
+  begin
+    edtSysCityId.Text := '';
+    edtCountryName.Text := '';
+  end;
+  edtDistrict.Text := Table.SysAddress.District;
+  edtNeighborhood.Text := Table.SysAddress.Neighborhood;
+  edtQuarter.Text := Table.SysAddress.Quarter;
+  edtRoad.Text := Table.SysAddress.Road;
+  edtStreet.Text := Table.SysAddress.Street;
+  edtBuildingName.Text := Table.SysAddress.BuildingName;
+  edtDoorNumber.Text := Table.SysAddress.DoorNumber;
+  edtZipCode.Text := Table.SysAddress.ZipCode;
 
   SetColor(StrToIntDef(edtGridColor1.Text, 0), edtGridColor1);
   SetColor(StrToIntDef(edtGridColor2.Text, 0), edtGridColor2);
@@ -453,6 +459,7 @@ begin
   edtPathPersonnelCardImage.Text := Table.OtherSettingsObj.PersonnelCardImagePath;
   edtPathUpdate.Text := Table.OtherSettingsObj.UpdatePath;
 
+  UpdatePathButtons;
 end;
 
 procedure TfrmSysApplicationSetting.SetColor(color: TColor; editColor: TEdit);
@@ -465,36 +472,32 @@ begin
 end;
 
 function TfrmSysApplicationSetting.ValidateInput(panel_groupbox_pagecontrol_tabsheet: TWinControl): Boolean;
+
+  procedure CheckDirectory(AEdit: TEdit);
+  begin
+    if (AEdit.Text <> '') and not DirectoryExists(AEdit.Text) then
+    begin
+      pgcMain.ActivePage := tsOther;
+      AEdit.SetFocus;
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.InvalidDirectory, 'Please select a valid directory!'));
+    end;
+  end;
+
 begin
   Result := inherited ValidateInput(panel_groupbox_pagecontrol_tabsheet);
+  if not Result then
+    Exit;
 
-  if (edtPathStockCardImage.Text <> '') and not DirectoryExists(edtPathStockCardImage.Text) then
-  begin
-    pgcMain.ActivePage := tsDigerAyarlar;
-    edtPathStockCardImage.SetFocus;
-    raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
-  end;
-
-  if (edtPathPersonnelCardImage.Text <> '') and not DirectoryExists(edtPathPersonnelCardImage.Text) then
-  begin
-    pgcMain.ActivePage := tsDigerAyarlar;
-    edtPathPersonnelCardImage.SetFocus;
-    raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
-  end;
-
-  if (edtPathUpdate.Text <> '') and not DirectoryExists(edtPathUpdate.Text) then
-  begin
-    pgcMain.ActivePage := tsDigerAyarlar;
-    edtPathUpdate.SetFocus;
-    raise Exception.Create(Trim('Lütfen geçerli bir dizin seçin!'));
-  end;
+  CheckDirectory(edtPathStockCardImage);
+  CheckDirectory(edtPathPersonnelCardImage);
+  CheckDirectory(edtPathUpdate);
 end;
 
 procedure TfrmSysApplicationSetting.BtnAcceptClick(Sender: TObject);
 begin
   if (FormMode = ifmNewRecord) or (FormMode = ifmCopyNewRecord) or (FormMode = ifmUpdate) then
   begin
-    if ValidateInput(pgcMain) then
+    if ValidateInput(PanelMain) then
     begin
       Table.CompanyTitle := edtCompanyTitle.Text;
       Table.Phone := edtPhone.Text;
@@ -513,7 +516,7 @@ begin
         Table.MailPassword := EncryptStr(edtMailPassword.Text, Table.CryptKey)
       else
         Table.MailPassword := '';
-      Table.MailSmtpPort := StrToInt(edtMailSmtpPort.Text);
+      Table.MailSmtpPort := StrToIntDef(edtMailSmtpPort.Text, 0);
 
       Table.SmsHost := edtSmsHost.Text;
       Table.SmsUser := edtSmsUser.Text;
@@ -532,6 +535,8 @@ begin
       Table.TaxpayerName := edtTaxpayerName.Text;
       Table.TaxpayerSurname := edtTaxpayerSurname.Text;
 
+      if not Assigned(Table.SysAddress) then
+        Table.SysAddress := TSysAddress.Create;
       Table.SysAddress.Web := edtWeb.Text;
       Table.SysAddress.EMail := edtEmail.Text;
       Table.SysAddress.District := edtDistrict.Text;

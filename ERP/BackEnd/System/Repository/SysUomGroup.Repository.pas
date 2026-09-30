@@ -167,9 +167,10 @@ begin
         Continue;
       end;
 
+      Trans.SysLanguageId := LLangId;
       Trans.SysUomGroupId := AModel.Id;
-      Q.ParamByName('sys_group_uom_id').AsLargeInt := Trans.SysUomGroupId;
-      Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;
+      Q.ParamByName('sys_uom_group_id').AsLargeInt := Trans.SysUomGroupId;
+      Q.ParamByName('sys_language_id').AsLargeInt := LLangId;
       Q.ParamByName('uom_group_name').AsString := Trans.UomGroupName;
       LogQuery(Q, 'SaveTranslations');
       Q.ExecSQL;
@@ -195,7 +196,7 @@ procedure TSysUomGroupRepository.SetUpdateParams(Q: TFDQuery; AModel: TSysUomGro
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('uom_group_key').AsString := AModel.UomGroupKey;
   end
   else

@@ -53,7 +53,7 @@ constructor TSysGridSortService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysGridSort, TSysGridSortRepository>;
-  Self.PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_GRID_SORT;
 end;
 
 destructor TSysGridSortService.Destroy;

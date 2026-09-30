@@ -39,7 +39,8 @@ begin
   inherited;
   SetColumnProperty('id', 0);
   SetColumnProperty('sys_city_id', 0);
-  SetColumnProperty('country_id', 0);
+  SetColumnProperty('sys_country_id', 0);
+  SetColumnProperty('locale', 0);
 end;
 
 procedure TfrmSysAddresses.FormShow(Sender: TObject);

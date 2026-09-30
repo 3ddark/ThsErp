@@ -1,85 +1,130 @@
-unit ufrmAccAccount;
+﻿unit ufrmAccAccount;
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
-  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
   AccAccount.Service, AccAccount;
 
 type
   TfrmAccAccount = class(TfrmInputSimpleDB<TAccAccount, TAccAccountService>)
     pnlContent: TPanel;
-    lblcode: TLabel;
-    edtcode: TEdit;
-    lblname: TLabel;
-    edtname: TEdit;
-    lbltype_id: TLabel;
-    eddtype_id: TEdit;
-    btn_type_sec: TButton;
-    lblgroup_id: TLabel;
-    edtgroup_id: TEdit;
-    btn_group_sec: TButton;
-    lblregion_id: TLabel;
-    edtregion_id: TEdit;
-    btn_region_sec: TButton;
-    lbntaxpayer_name: TLabel;
-    edtaxpayer_name: TEdit;
-    lbntaxpayer_surname: TLabel;
-    edtaxpayer_surname: TEdit;
-    lbntax_no: TLabel;
-    edtax_no: TEdit;
-    lbntax_office: TLabel;
-    edtax_office: TEdit;
-    lbliban: TLabel;
-    edtiban: TEdit;
-    lblfax: TLabel;
-    edtfax: TEdit;
-    lblaccountant_phone: TLabel;
-    edtaccountant_phone: TEdit;
-    lblaccountant_email: TLabel;
-    edtaccountant_email: TEdit;
-    chk_e_invoice_active: TCheckBox;
-    lbldiscount_rate: TLabel;
-    edtdiscount_rate: TSpinEdit;
-  private
-    FTypeId: Int64;
-    FGroupId: Int64;
-    FRegionId: Int64;
-    procedure btn_type_secClick(Sender: TObject);
-    procedure btn_group_secClick(Sender: TObject);
-    procedure btn_region_secClick(Sender: TObject);
-  published
+    lblCode: TLabel;
+    edtCode: TEdit;
+    lblName: TLabel;
+    edtName: TEdit;
+    lblAccSetAccountTypeId: TLabel;
+    edtAccSetAccountTypeId: TEdit;
+    lblAccGroupId: TLabel;
+    edtAccGroupId: TEdit;
+    lblAccRegionId: TLabel;
+    edtAccRegionId: TEdit;
+    lblRootCode: TLabel;
+    edtRootCode: TEdit;
+    lblSubCode: TLabel;
+    edtSubCode: TEdit;
+    lblIban: TLabel;
+    edtIban: TEdit;
+    lblIbanCurrency: TLabel;
+    edtIbanCurrency: TEdit;
+    lblDiscountRate: TLabel;
+    edtDiscountRate: TEdit;
+    lblEInvoiceActive: TLabel;
+    chkEInvoiceActive: TCheckBox;
+    lblEInvoicePackageName: TLabel;
+    edtEInvoicePackageName: TEdit;
+    lblIsPassive: TLabel;
+    chkIsPassive: TCheckBox;
+    lblNotes: TLabel;
+    edtNotes: TEdit;
+    lblTaxpayerType: TLabel;
+    cbbTaxpayerType: TComboBox;
+    lblTaxpayerName: TLabel;
+    edtTaxpayerName: TEdit;
+    lblTaxpayerName2: TLabel;
+    edtTaxpayerName2: TEdit;
+    lblTaxpayerSurname: TLabel;
+    edtTaxpayerSurname: TEdit;
+    lblTaxOffice: TLabel;
+    edtTaxOffice: TEdit;
+    lblTaxNo: TLabel;
+    edtTaxNo: TEdit;
+    lblNaceCode: TLabel;
+    edtNaceCode: TEdit;
+    lblAuthorizedPerson1: TLabel;
+    edtAuthorizedPerson1: TEdit;
+    lblAuthorizedPhone1: TLabel;
+    edtAuthorizedPhone1: TEdit;
+    lblAuthorizedPerson2: TLabel;
+    edtAuthorizedPerson2: TEdit;
+    lblAuthorizedPhone2: TLabel;
+    edtAuthorizedPhone2: TEdit;
+    lblAuthorizedPerson3: TLabel;
+    edtAuthorizedPerson3: TEdit;
+    lblAuthorizedPhone3: TLabel;
+    edtAuthorizedPhone3: TEdit;
+    lblFax: TLabel;
+    edtFax: TEdit;
+    lblAccountantPhone: TLabel;
+    edtAccountantPhone: TEdit;
+    lblAccountantEmail: TLabel;
+    edtAccountantEmail: TEdit;
+    lblAccountantAuthorized: TLabel;
+    edtAccountantAuthorized: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
+    procedure HelperProcess(Sender: TObject);
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
 
 {$R *.dfm}
 
+uses
+  AccLookup,
+  AccSetAccountType, AccSetAccountType.Service, ufrmAccSetAccountTypes,         // TfrmAccSetAccountTypes helper output form
+  AccGroup, AccGroup.Service, ufrmAccGroups,                                    // TfrmAccGroups helper output form
+  AccRegion, AccRegion.Service, ufrmAccRegions,                                 // TfrmAccRegions helper output form
+  SysCurrency, SysCurrency.Service, ufrmSysCurrencies;                          // TfrmSysCurrencies helper output form
+
 procedure TfrmAccAccount.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Code := edtcode.Text;
-  Table.Name := edtname.Text;
-  Table.TypeId := FTypeId;
-  Table.GroupId := FGroupId;
-  Table.RegionId := FRegionId;
-  Table.TaxpayerName := edtaxpayer_name.Text;
-  Table.TaxpayerSurname := edtaxpayer_surname.Text;
-  Table.TaxNo := edtax_no.Text;
-  Table.TaxOffice := edtax_office.Text;
-  Table.IBAN := edtiban.Text;
-  Table.Fax := edtfax.Text;
-  Table.AccountantPhone := edtaccountant_phone.Text;
-  Table.AccountantEmail := edtaccountant_email.Text;
-  Table.EInvoiceActive := chk_e_invoice_active.Checked;
-  Table.DiscountRate := StrToFloatDef(edtdiscount_rate.Text, 0);
+  // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
+  Table.Code := edtCode.Text;
+  Table.Name := edtName.Text;
+  Table.Iban := edtIban.Text;
+  Table.DiscountRate := StrToCurrDef(edtDiscountRate.Text, 0);
+  Table.EInvoiceActive := chkEInvoiceActive.Checked;
+  Table.EInvoicePackageName := edtEInvoicePackageName.Text;
+  Table.IsPassive := chkIsPassive.Checked;
+  Table.Notes := edtNotes.Text;
+  Table.TaxpayerType := cbbTaxpayerType.ItemIndex + 1;  // seçim yoksa 0 -> zorunluluk kontrolü
+  Table.TaxpayerName := edtTaxpayerName.Text;
+  Table.TaxpayerName2 := edtTaxpayerName2.Text;
+  Table.TaxpayerSurname := edtTaxpayerSurname.Text;
+  Table.TaxOffice := edtTaxOffice.Text;
+  Table.TaxNo := edtTaxNo.Text;
+  Table.NaceCode := edtNaceCode.Text;
+  Table.AuthorizedPerson1 := edtAuthorizedPerson1.Text;
+  Table.AuthorizedPhone1 := edtAuthorizedPhone1.Text;
+  Table.AuthorizedPerson2 := edtAuthorizedPerson2.Text;
+  Table.AuthorizedPhone2 := edtAuthorizedPhone2.Text;
+  Table.AuthorizedPerson3 := edtAuthorizedPerson3.Text;
+  Table.AuthorizedPhone3 := edtAuthorizedPhone3.Text;
+  Table.Fax := edtFax.Text;
+  Table.AccountantPhone := edtAccountantPhone.Text;
+  Table.AccountantEmail := edtAccountantEmail.Text;
+  Table.AccountantAuthorized := edtAccountantAuthorized.Text;
   inherited;
 end;
 
@@ -87,84 +132,227 @@ procedure TfrmAccAccount.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  btn_type_sec.OnClick := btn_type_secClick;
-  btn_group_sec.OnClick := btn_group_secClick;
-  btn_region_sec.OnClick := btn_region_secClick;
+  edtAccSetAccountTypeId.OnHelperProcess := HelperProcess;
+  edtAccGroupId.OnHelperProcess := HelperProcess;
+  edtAccRegionId.OnHelperProcess := HelperProcess;
+  edtIbanCurrency.OnHelperProcess := HelperProcess;
+  edtCode.thsInputDataType := itString;
+  edtCode.CharCase := TEditCharCase.ecUpperCase;
+  edtName.thsInputDataType := itString;
+  edtName.CharCase := TEditCharCase.ecUpperCase;
+  edtRootCode.thsInputDataType := itString;
+  edtSubCode.thsInputDataType := itString;
+  edtIban.thsInputDataType := itString;
+  edtIban.CharCase := TEditCharCase.ecUpperCase;
+  edtDiscountRate.thsInputDataType := itFloat;
+  edtEInvoicePackageName.thsInputDataType := itString;
+  edtNotes.thsInputDataType := itString;
+  TAccLookup.FillItems(cbbTaxpayerType.Items, alkTaxpayerType);
+  edtTaxpayerName.thsInputDataType := itString;
+  edtTaxpayerName2.thsInputDataType := itString;
+  edtTaxpayerSurname.thsInputDataType := itString;
+  edtTaxOffice.thsInputDataType := itString;
+  edtTaxNo.thsInputDataType := itString;
+  edtNaceCode.thsInputDataType := itString;
+  edtAuthorizedPerson1.thsInputDataType := itString;
+  edtAuthorizedPhone1.thsInputDataType := itString;
+  edtAuthorizedPerson2.thsInputDataType := itString;
+  edtAuthorizedPhone2.thsInputDataType := itString;
+  edtAuthorizedPerson3.thsInputDataType := itString;
+  edtAuthorizedPhone3.thsInputDataType := itString;
+  edtFax.thsInputDataType := itString;
+  edtAccountantPhone.thsInputDataType := itString;
+  edtAccountantEmail.thsInputDataType := itString;
+  edtAccountantAuthorized.thsInputDataType := itString;
 end;
 
 procedure TfrmAccAccount.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Account';
-  edtcode.SetFocus;
+  if edtCode.CanFocus then
+    edtCode.SetFocus;
 end;
 
-procedure TfrmAccAccount.btn_type_secClick(Sender: TObject);
+procedure TfrmAccAccount.ApplyLocalization;
 var
-  LId: Int64;
-  LName: string;
+  LIndex: Integer;
 begin
-  // TODO: Show account type selection helper form
-  LId := 0;
-  LName := '';
-  if LId > 0 then
-  begin
-    FTypeId := LId;
-    eddtype_id.Text := LName;
-  end;
+  inherited;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.TitleSingular, 'Account Card');
+  lblCode.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColCode, 'Account Code');
+  lblName.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColName, 'Account Name');
+  lblAccSetAccountTypeId.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAccountType, 'Account Type');
+  lblAccGroupId.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColGroup, 'Group');
+  lblAccRegionId.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColRegion, 'Region');
+  lblRootCode.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColRootCode, 'Root Code');
+  lblSubCode.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColSubCode, 'Parent Code');
+  lblIban.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIban, 'IBAN');
+  lblIbanCurrency.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIbanCurrency, 'IBAN Currency');
+  lblDiscountRate.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColDiscountRate, 'Discount Rate');
+  lblEInvoiceActive.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoiceActive, 'E-Invoice Active');
+  lblEInvoicePackageName.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoicePackageName, 'E-Invoice Package');
+  lblIsPassive.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIsPassive, 'Passive');
+  lblNotes.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColNotes, 'Notes');
+  lblTaxpayerType.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColTaxpayerType, 'Taxpayer Type');
+  lblTaxpayerName.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColTaxpayerName, 'Taxpayer Name');
+  lblTaxpayerName2.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColTaxpayerName2, 'Taxpayer Name 2');
+  lblTaxpayerSurname.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColTaxpayerSurname, 'Taxpayer Surname');
+  lblTaxOffice.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColTaxOffice, 'Tax Office');
+  lblTaxNo.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColTaxNo, 'Tax No');
+  lblNaceCode.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColNaceCode, 'NACE Code');
+  lblAuthorizedPerson1.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAuthorizedPerson1, 'Contact Person 1');
+  lblAuthorizedPhone1.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAuthorizedPhone1, 'Contact Phone 1');
+  lblAuthorizedPerson2.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAuthorizedPerson2, 'Contact Person 2');
+  lblAuthorizedPhone2.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAuthorizedPhone2, 'Contact Phone 2');
+  lblAuthorizedPerson3.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAuthorizedPerson3, 'Contact Person 3');
+  lblAuthorizedPhone3.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAuthorizedPhone3, 'Contact Phone 3');
+  lblFax.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColFax, 'Fax');
+  lblAccountantPhone.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAccountantPhone, 'Accountant Phone');
+  lblAccountantEmail.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAccountantEmail, 'Accountant E-Mail');
+  lblAccountantAuthorized.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAccountantAuthorized, 'Accountant Contact');
+  LIndex := cbbTaxpayerType.ItemIndex;
+  TAccLookup.FillItems(cbbTaxpayerType.Items, alkTaxpayerType);
+  cbbTaxpayerType.ItemIndex := LIndex;
 end;
 
-procedure TfrmAccAccount.btn_group_secClick(Sender: TObject);
+procedure TfrmAccAccount.HelperProcess(Sender: TObject);
 var
-  LId: Int64;
-  LName: string;
+  LEdit: TEdit;
+  LFrmAccSetAccountTypeId: TfrmAccSetAccountTypes;
+  LFrmAccGroupId: TfrmAccGroups;
+  LFrmAccRegionId: TfrmAccRegions;
+  LFrmIbanCurrency: TfrmSysCurrencies;
 begin
-  // TODO: Show group selection helper form (ufrmAccGroups)
-  LId := 0;
-  LName := '';
-  if LId > 0 then
-  begin
-    FGroupId := LId;
-    edtgroup_id.Text := LName;
-  end;
-end;
+  if not (Sender is TEdit) then
+    Exit;
 
-procedure TfrmAccAccount.btn_region_secClick(Sender: TObject);
-var
-  LId: Int64;
-  LName: string;
-begin
-  // TODO: Show region selection helper form (ufrmAccRegions)
-  LId := 0;
-  LName := '';
-  if LId > 0 then
+  LEdit := (Sender as TEdit);
+  if LEdit.Name = edtAccSetAccountTypeId.Name then
   begin
-    FRegionId := LId;
-    edtregion_id.Text := LName;
+    LFrmAccSetAccountTypeId := TfrmAccSetAccountTypes.Create(LEdit, TAccSetAccountTypeService.Create, TAccSetAccountType.Create);
+    try
+      LFrmAccSetAccountTypeId.IsHelper := True;
+      LFrmAccSetAccountTypeId.ShowModal;
+      if LFrmAccSetAccountTypeId.DataTransfer then
+        if LFrmAccSetAccountTypeId.CleanAndClose then
+        begin
+          Table.AccSetAccountTypeId := 0;
+          Table.AccountTypeName := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.AccSetAccountTypeId := LFrmAccSetAccountTypeId.Table.Id;
+          Table.AccountTypeName := LFrmAccSetAccountTypeId.Table.AccountTypeName;
+          LEdit.Text := Table.AccountTypeName;
+        end;
+    finally
+      LFrmAccSetAccountTypeId.Free;
+    end;
+  end
+  else if LEdit.Name = edtAccGroupId.Name then
+  begin
+    LFrmAccGroupId := TfrmAccGroups.Create(LEdit, TAccGroupService.Create, TAccGroup.Create);
+    try
+      LFrmAccGroupId.IsHelper := True;
+      LFrmAccGroupId.ShowModal;
+      if LFrmAccGroupId.DataTransfer then
+        if LFrmAccGroupId.CleanAndClose then
+        begin
+          Table.AccGroupId := 0;
+          Table.GroupName := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.AccGroupId := LFrmAccGroupId.Table.Id;
+          Table.GroupName := LFrmAccGroupId.Table.Name;
+          LEdit.Text := Table.GroupName;
+        end;
+    finally
+      LFrmAccGroupId.Free;
+    end;
+  end
+  else if LEdit.Name = edtAccRegionId.Name then
+  begin
+    LFrmAccRegionId := TfrmAccRegions.Create(LEdit, TAccRegionService.Create, TAccRegion.Create);
+    try
+      LFrmAccRegionId.IsHelper := True;
+      LFrmAccRegionId.ShowModal;
+      if LFrmAccRegionId.DataTransfer then
+        if LFrmAccRegionId.CleanAndClose then
+        begin
+          Table.AccRegionId := 0;
+          Table.RegionName := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.AccRegionId := LFrmAccRegionId.Table.Id;
+          Table.RegionName := LFrmAccRegionId.Table.Name;
+          LEdit.Text := Table.RegionName;
+        end;
+    finally
+      LFrmAccRegionId.Free;
+    end;
+  end
+  else if LEdit.Name = edtIbanCurrency.Name then
+  begin
+    LFrmIbanCurrency := TfrmSysCurrencies.Create(LEdit, TSysCurrencyService.Create, TSysCurrency.Create);
+    try
+      LFrmIbanCurrency.IsHelper := True;
+      LFrmIbanCurrency.ShowModal;
+      if LFrmIbanCurrency.DataTransfer then
+        if LFrmIbanCurrency.CleanAndClose then
+        begin
+          Table.IbanCurrency := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.IbanCurrency := LFrmIbanCurrency.Table.Currency;
+          LEdit.Text := Table.IbanCurrency;
+        end;
+    finally
+      LFrmIbanCurrency.Free;
+    end;
   end;
 end;
 
 procedure TfrmAccAccount.RefreshData;
 begin
   inherited;
-  edtcode.Text := Table.Code;
-  edtname.Text := Table.Name;
-  eddtype_id.Text := Table.TypeId.ToString;
-  edtgroup_id.Text := Table.GroupId.ToString;
-  edtregion_id.Text := Table.RegionId.ToString;
-  FTypeId := Table.TypeId;
-  FGroupId := Table.GroupId;
-  FRegionId := Table.RegionId;
-  edtaxpayer_name.Text := Table.TaxpayerName;
-  edtaxpayer_surname.Text := Table.TaxpayerSurname;
-  edtax_no.Text := Table.TaxNo;
-  edtax_office.Text := Table.TaxOffice;
-  edtiban.Text := Table.IBAN;
-  edtfax.Text := Table.Fax;
-  edtaccountant_phone.Text := Table.AccountantPhone;
-  edtaccountant_email.Text := Table.AccountantEmail;
-  chk_e_invoice_active.Checked := Table.EInvoiceActive;
-  edtdiscount_rate.Text := FloatToStr(Table.DiscountRate);
+  edtCode.Text := Table.Code;
+  edtName.Text := Table.Name;
+  edtAccSetAccountTypeId.Text := Table.AccountTypeName;
+  edtAccGroupId.Text := Table.GroupName;
+  edtAccRegionId.Text := Table.RegionName;
+  edtRootCode.Text := Table.RootCode;
+  edtSubCode.Text := Table.SubCode;
+  edtIban.Text := Table.Iban;
+  edtIbanCurrency.Text := Table.IbanCurrency;
+  edtDiscountRate.Text := CurrToStr(Table.DiscountRate);
+  chkEInvoiceActive.Checked := Table.EInvoiceActive;
+  edtEInvoicePackageName.Text := Table.EInvoicePackageName;
+  chkIsPassive.Checked := Table.IsPassive;
+  edtNotes.Text := Table.Notes;
+  cbbTaxpayerType.ItemIndex := Table.TaxpayerType - 1;
+  edtTaxpayerName.Text := Table.TaxpayerName;
+  edtTaxpayerName2.Text := Table.TaxpayerName2;
+  edtTaxpayerSurname.Text := Table.TaxpayerSurname;
+  edtTaxOffice.Text := Table.TaxOffice;
+  edtTaxNo.Text := Table.TaxNo;
+  edtNaceCode.Text := Table.NaceCode;
+  edtAuthorizedPerson1.Text := Table.AuthorizedPerson1;
+  edtAuthorizedPhone1.Text := Table.AuthorizedPhone1;
+  edtAuthorizedPerson2.Text := Table.AuthorizedPerson2;
+  edtAuthorizedPhone2.Text := Table.AuthorizedPhone2;
+  edtAuthorizedPerson3.Text := Table.AuthorizedPerson3;
+  edtAuthorizedPhone3.Text := Table.AuthorizedPhone3;
+  edtFax.Text := Table.Fax;
+  edtAccountantPhone.Text := Table.AccountantPhone;
+  edtAccountantEmail.Text := Table.AccountantEmail;
+  edtAccountantAuthorized.Text := Table.AccountantAuthorized;
 end;
 
 end.

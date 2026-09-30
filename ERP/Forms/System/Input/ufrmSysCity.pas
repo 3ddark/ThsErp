@@ -59,7 +59,6 @@ end;
 procedure TfrmSysCity.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtCityName.SetFocus;
 end;
 
@@ -69,8 +68,8 @@ begin
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.TitleSingular, 'City');
   lblCityName.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColCityName, 'City Name');
   lblCarPlateCode.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColCarPlateCode, 'Car Plate Code');
-  lblSysCountryId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCountry.ColCountryName, 'Country Name');
-  lblSysRegionId.Caption := TLocalizationManager.Translate(TLangKeys.TSysRegion.ColRegionName, 'Region Name');
+  lblSysCountryId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColSysCountryId, 'Country');
+  lblSysRegionId.Caption := TLocalizationManager.Translate(TLangKeys.TSysCity.ColSysRegionId, 'Region');
 end;
 
 procedure TfrmSysCity.HelperProcess(Sender: TObject);

@@ -1,9 +1,9 @@
 object frmAccExchangeRate: TfrmAccExchangeRate
   Left = 0
   Top = 0
-  Caption = 'frmAccExchangeRate'
-  ClientHeight = 167
-  ClientWidth = 500
+  Caption = 'Exchange Rate'
+  ClientHeight = 139
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,93 +11,81 @@ object frmAccExchangeRate: TfrmAccExchangeRate
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 500
-    Height = 167
+    Width = 480
+    Height = 139
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 498
-    ExplicitHeight = 165
-    object lbltarih: TLabel
-      Left = 62
-      Top = 11
-      Width = 66
+    object lblRateDate: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
       Height = 13
       Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
+      AutoSize = False
       Caption = 'Date'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-      ParentBiDiMode = False
       ParentFont = False
     end
-    object lblpara_birimi: TLabel
-      Left = 35
-      Top = 38
-      Width = 93
+    object edtRateDate: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      TabOrder = 0
+    end
+    object lblCurrency: TLabel
+      Left = 4
+      Top = 29
+      Width = 124
       Height = 13
       Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
+      AutoSize = False
       Caption = 'Currency'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-      ParentBiDiMode = False
       ParentFont = False
     end
-    object lblkur: TLabel
-      Left = 80
-      Top = 65
-      Width = 48
+    object edtCurrency: TEdit
+      Left = 132
+      Top = 25
+      Width = 333
+      Height = 22
+      MaxLength = 3
+      ReadOnly = True
+      TabOrder = 1
+    end
+    object lblRate: TLabel
+      Left = 4
+      Top = 52
+      Width = 124
       Height = 13
       Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
+      AutoSize = False
       Caption = 'Rate'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-      ParentBiDiMode = False
       ParentFont = False
     end
-    object edttarih: TEdit
+    object edtRate: TEdit
       Left = 132
-      Top = 7
-      Width = 120
-      Height = 23
-      TabOrder = 0
-    end
-    object edtpara_birimi: TEdit
-      Left = 132
-      Top = 34
-      Width = 250
-      Height = 23
-      ReadOnly = True
-      TabOrder = 1
-    end
-    object edtkur: TEdit
-      Left = 132
-      Top = 61
-      Width = 120
-      Height = 23
+      Top = 48
+      Width = 333
+      Height = 22
       TabOrder = 2
-    end
-    object btnpara_sec: TButton
-      Left = 388
-      Top = 30
-      Width = 77
-      Height = 25
-      Caption = 'Select'
-      TabOrder = 3
     end
   end
 end

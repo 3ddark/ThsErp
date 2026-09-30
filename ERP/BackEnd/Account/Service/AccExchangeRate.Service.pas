@@ -1,23 +1,36 @@
-unit AccExchangeRate.Service;
+﻿unit AccExchangeRate.Service;
 
 interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  AccExchangeRate.Repository, AccExchangeRate;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  AccExchangeRate.Repository, AccExchangeRate, AccExchangeRate.Exception;
 
 type
   TAccExchangeRateService = class(TCrudService<TAccExchangeRate>)
   private
     FRepo: IRepository<TAccExchangeRate>;
+
+    procedure DoAdd(AEntity: TAccExchangeRate);
+    procedure DoUpdate(AEntity: TAccExchangeRate);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateRequiredReferences(AEntity: TAccExchangeRate);
+    procedure ValidateUnique(AEntity: TAccExchangeRate; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TAccExchangeRate; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TAccExchangeRate>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TAccExchangeRate; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TAccExchangeRate; override;
+
     procedure Add(AEntity: TAccExchangeRate); override;
     procedure Update(AEntity: TAccExchangeRate); override;
     procedure Delete(AId: Int64); override;
@@ -31,104 +44,189 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TAccExchangeRateService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TAccExchangeRate, TAccExchangeRateRepository>;
+  Self.PermissionCode := PERMISSION_ACC_EXCHANGE_RATE;
 end;
 
 destructor TAccExchangeRateService.Destroy;
 begin
-  FRepo := nil;
   inherited;
+end;
+
+procedure TAccExchangeRateService.ValidateRequiredReferences(AEntity: TAccExchangeRate);
+
+  procedure Check(AValue: Int64; const AKey, ADefault: string);
+  begin
+    if AValue <= 0 then
+      raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
+        TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
+  end;
+
+begin
+  Check(Trunc(AEntity.RateDate), TLangKeys.TAccExchangeRate.ColRateDate, 'Date');
+end;
+
+procedure TAccExchangeRateService.ValidateUnique(AEntity: TAccExchangeRate; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TAccExchangeRate;
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('rate_date', '=', TValue.From<TDate>(AEntity.RateDate)));
+      LFilter.Add(TFilterCriterion.New('currency', '=', TValue.From<string>(AEntity.Currency)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      try
+        if Assigned(LModel) then
+          raise EAccExchangeRateExceptionRateDateCurrencyUnique.Create;
+      finally
+        LModel.Free;
+      end;
+    finally
+      LFilter.Free;
+    end;
+  end;
+end;
+
+procedure TAccExchangeRateService.ValidateBusinessRules(AEntity: TAccExchangeRate; AOperation: TCrudOperation);
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    AEntity.Currency := Trim(AEntity.Currency);
+    ValidateRequiredReferences(AEntity);
+    if AEntity.Rate <= 0 then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.ColRate, 'Rate') + ': ' +
+        TLocalizationManager.Translate(TLangKeys.TValidation.NegativeValueNotAllowed, 'Negative values are not allowed'));
+  end;
+
+  ValidateUnique(AEntity, AOperation);
+end;
+
+procedure TAccExchangeRateService.DoAdd(AEntity: TAccExchangeRate);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TAccExchangeRateService.DoUpdate(AEntity: TAccExchangeRate);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TAccExchangeRateService.DoDelete(AId: Int64);
+var
+  LEntity: TAccExchangeRate;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TAccExchangeRateService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TAccExchangeRate>;
 begin
-  if APermissionControl then
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 function TAccExchangeRateService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TAccExchangeRate;
 begin
-  if APermissionControl then
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 procedure TAccExchangeRateService.BusinessInsert(AEntity: TAccExchangeRate; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Uow.InTransaction then
-        Self.UoW.Rollback;
-      raise
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TAccExchangeRateService.BusinessUpdate(AEntity: TAccExchangeRate; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TAccExchangeRateService.BusinessDelete(AEntity: TAccExchangeRate; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -137,29 +235,34 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TAccExchangeRateService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TAccExchangeRate>;
+function TAccExchangeRateService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TAccExchangeRate>;
 begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TAccExchangeRateService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccExchangeRate;
+function TAccExchangeRateService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TAccExchangeRate;
 begin
   Result := FRepo.FindById(AId, ALock);
 end;
 
+function TAccExchangeRateService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccExchangeRate;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
+end;
+
 procedure TAccExchangeRateService.Add(AEntity: TAccExchangeRate);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity);
 end;
 
 procedure TAccExchangeRateService.Update(AEntity: TAccExchangeRate);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TAccExchangeRateService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 end.

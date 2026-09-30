@@ -2,25 +2,29 @@
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ufrmInputSimpleDB, SharedFormTypes, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  EmpUnit.Service, EmpUnit, LocalizationManager;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
+  EmpUnit.Service, EmpUnit;
 
 type
   TfrmEmpUnit = class(TfrmInputSimpleDB<TEmpUnit, TEmpUnitService>)
     pnlContent: TPanel;
-    lblUnitName: TLabel;
-    edtUnitName: TEdit;
-    lblSectionId: TLabel;
-    edtSectionId: TEdit;
+    lblUnitKey: TLabel;
+    edtUnitKey: TEdit;
+    scrlbxTranslations: TScrollBox;
+    lblEmpSectionId: TLabel;
+    edtEmpSectionId: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
     procedure HelperProcess(Sender: TObject);
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
   end;
@@ -30,11 +34,51 @@ implementation
 {$R *.dfm}
 
 uses
-  EmpSection, EmpSection.Service, ufrmEmpSections;
+  SysLanguage,
+  EmpSection, EmpSection.Service, ufrmEmpSections;                              // TfrmEmpSections helper output form
 
 procedure TfrmEmpUnit.BtnAcceptClick(Sender: TObject);
+var
+  LValues: TTranslationMap;
+  LPair: TPair<string, string>;
+  LTrans: TEmpUnitTranslation;
+  LFound: Boolean;
+  i: Integer;
 begin
-  Table.UnitName_ := edtUnitName.Text;
+  // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
+  Table.UnitKey := edtUnitKey.Text;
+
+  LValues := CollectTranslationValues(scrlbxTranslations, 'Name');
+  try
+    for LPair in LValues do
+    begin
+      LFound := False;
+      if Assigned(Table.Translations) then
+        for i := 0 to Table.Translations.Count - 1 do
+          if Assigned(Table.Translations[i].SysLanguage)
+          and SameText(Table.Translations[i].SysLanguage.Locale, LPair.Key) then
+          begin
+            Table.Translations[i].Name := LPair.Value;
+            LFound := True;
+            Break;
+          end;
+
+      if not LFound and (Trim(LPair.Value) <> '') then
+      begin
+        LTrans := TEmpUnitTranslation.Create;
+        LTrans.EmpUnitId := Table.Id;
+        LTrans.SysLanguageId := 0;
+        LTrans.Name := LPair.Value;
+        LTrans.SysLanguage := TSysLanguage.Create;
+        LTrans.SysLanguage.Locale := LPair.Key;
+        if not Assigned(Table.Translations) then
+          Table.Translations := TObjectList<TEmpUnitTranslation>.Create(True);
+        Table.Translations.Add(LTrans);
+      end;
+    end;
+  finally
+    LValues.Free;
+  end;
   inherited;
 end;
 
@@ -42,74 +86,86 @@ procedure TfrmEmpUnit.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtSectionId.OnHelperProcess := HelperProcess;
+  edtEmpSectionId.OnHelperProcess := HelperProcess;
+  edtUnitKey.thsInputDataType := itString;
+
+  BuildTranslationControls(
+    scrlbxTranslations,
+    'Name',
+    TLocalizationManager.Translate(TLangKeys.TEmpUnit.ColUnitName, 'Unit Name'),
+    lblUnitKey);
 end;
 
 procedure TfrmEmpUnit.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtUnitName.SetFocus;
+  if edtUnitKey.CanFocus then
+    edtUnitKey.SetFocus;
 end;
 
 procedure TfrmEmpUnit.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('emp_unit.title_singular', 'Birim');
-  lblUnitName.Caption := TLocalizationManager.Translate('emp_unit.lbl_unit_name', 'Birim Adı');
-  lblSectionId.Caption := TLocalizationManager.Translate('emp_unit.lbl_section_id', 'Bölüm');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TEmpUnit.TitleSingular, 'Unit');
+  lblUnitKey.Caption := TLocalizationManager.Translate(TLangKeys.TEmpUnit.ColUnitKey, 'Key');
+  lblEmpSectionId.Caption := TLocalizationManager.Translate(TLangKeys.TEmpUnit.ColSection, 'Section');
+  UpdateTranslationLabels(scrlbxTranslations, 'Name', TLocalizationManager.Translate(TLangKeys.TEmpUnit.ColUnitName, 'Unit Name'));
 end;
 
 procedure TfrmEmpUnit.HelperProcess(Sender: TObject);
 var
   LEdit: TEdit;
-  LFrmSection: TfrmEmpSections;
+  LFrmEmpSectionId: TfrmEmpSections;
 begin
-  if Sender is TEdit then
+  if not (Sender is TEdit) then
+    Exit;
+
+  LEdit := (Sender as TEdit);
+  if LEdit.Name = edtEmpSectionId.Name then
   begin
-    LEdit := (Sender as TEdit);
-    if LEdit.Name = edtSectionId.Name then
-    begin
-      LFrmSection := TfrmEmpSections.Create(LEdit, TEmpSectionService.Create, TEmpSection.Create);
-      try
-        LFrmSection.IsHelper := True;
-        LFrmSection.ShowModal;
-        if LFrmSection.DataTransfer then
+    LFrmEmpSectionId := TfrmEmpSections.Create(LEdit, TEmpSectionService.Create, TEmpSection.Create);
+    try
+      LFrmEmpSectionId.IsHelper := True;
+      LFrmEmpSectionId.ShowModal;
+      if LFrmEmpSectionId.DataTransfer then
+        if LFrmEmpSectionId.CleanAndClose then
         begin
-          if LFrmSection.CleanAndClose then
-          begin
-            Table.SectionId := 0;
-            LEdit.Clear;
-          end
-          else
-          begin
-            Table.SectionId := LFrmSection.Table.Id;
-            LEdit.Text := LFrmSection.Table.SectionName;
-          end;
+          Table.EmpSectionId := 0;
+          Table.SectionName := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.EmpSectionId := LFrmEmpSectionId.Table.Id;
+          Table.SectionName := LFrmEmpSectionId.Table.SectionName;
+          LEdit.Text := Table.SectionName;
         end;
-      finally
-        LFrmSection.Free;
-      end;
+    finally
+      LFrmEmpSectionId.Free;
     end;
   end;
 end;
 
-procedure TfrmEmpUnit.InitializeInputCase;
-begin
-  inherited;
-  edtUnitName.thsInputDataType := itString;
-  edtSectionId.thsInputDataType := itInteger;
-  edtUnitName.MaxLength := 32;
-end;
-
 procedure TfrmEmpUnit.RefreshData;
+var
+  LValues: TTranslationMap;
+  LTrans: TEmpUnitTranslation;
 begin
   inherited;
-  edtUnitName.Text := Table.UnitName_;
-  if Assigned(Table.Section) then
-    edtSectionId.Text := Table.Section.SectionName
-  else
-    edtSectionId.Text := '';
+  edtUnitKey.Text := Table.UnitKey;
+  edtEmpSectionId.Text := Table.SectionName;
+
+  LValues := TTranslationMap.Create;
+  try
+    if Assigned(Table.Translations) then
+      for LTrans in Table.Translations do
+        if Assigned(LTrans.SysLanguage) and (LTrans.SysLanguage.Locale <> '') then
+          LValues.AddOrSetValue(LTrans.SysLanguage.Locale, LTrans.Name);
+
+    FillTranslationControls(scrlbxTranslations, LValues);
+  finally
+    LValues.Free;
+  end;
 end;
 
 end.

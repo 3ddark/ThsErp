@@ -1,12 +1,11 @@
-unit AccBank.Repository;
+ï»¿unit AccBank.Repository;
 
 interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
-  FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  AccBank;
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, FilterCriterion,
+  AppContext, AccBank;
 
 type
   TAccBankRepository = class(TRepository<TAccBank>)
@@ -18,7 +17,6 @@ type
     procedure SetInsertParams(Q: TFDQuery; AModel: TAccBank; AIndex: Integer = -1);
     procedure SetUpdateParams(Q: TFDQuery; AModel: TAccBank; AIndex: Integer = -1);
     function MapFromQuery(Q: TFDQuery): TAccBank; override;
-
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
@@ -50,17 +48,21 @@ end;
 
 function TAccBankRepository.PrepareAddSql: string;
 begin
-  Result := 'INSERT INTO public.' + Self.GetTableName(TAccBank) + ' (bank_name, swift_code) VALUES (:bank_name, :swift_code)';
+  Result := 'INSERT INTO public.' + Self.GetTableName(TAccBank) +
+            ' (bank_name, swift_code) ' +
+            ' VALUES (:bank_name, :swift_code)';
 end;
 
 function TAccBankRepository.PrepareUpdateSql: string;
 begin
-  Result := 'UPDATE public.' + Self.GetTableName(TAccBank) + ' SET bank_name = :bank_name, swift_code = :swift_code WHERE id = :id';
+  Result := 'UPDATE public.' + Self.GetTableName(TAccBank) +
+            ' SET bank_name = :bank_name, swift_code = :swift_code ' +
+            ' WHERE id = :id';
 end;
 
 function TAccBankRepository.PrepareDeleteSql: string;
 begin
-  //WHERE kýsmý özellikle böyle yazýldý. Filtre vermeden iþlem yapýlmamasý için. Hatalý kodlamada tüm tabloyu siler.
+  //WHERE kÄ±smÄ± Ã¶zellikle bÃ¶yle yazÄ±ldÄ±. Filtre vermeden iÅŸlem yapÄ±lmamasÄ± iÃ§in. HatalÄ± kodlamada tÃ¼m tabloyu siler.
   Result := 'DELETE FROM public.' + Self.GetTableName(TAccBank) + ' WHERE';
 end;
 
@@ -69,12 +71,12 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('bank_name').AsString := AModel.BankName;
-    Q.ParamByName('swift_code').AsString := AModel.SWiftCode;
+    Q.ParamByName('swift_code').AsString := AModel.SwiftCode;
   end
   else
   begin
     Q.ParamByName('bank_name').AsStrings[AIndex] := AModel.BankName;
-    Q.ParamByName('swift_code').AsStrings[AIndex] := AModel.SWiftCode;
+    Q.ParamByName('swift_code').AsStrings[AIndex] := AModel.SwiftCode;
   end;
 end;
 
@@ -82,15 +84,15 @@ procedure TAccBankRepository.SetUpdateParams(Q: TFDQuery; AModel: TAccBank; AInd
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('id').AsSmallInt := AModel.Id;
+    Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('bank_name').AsString := AModel.BankName;
-    Q.ParamByName('swift_code').AsString := AModel.SWiftCode;
+    Q.ParamByName('swift_code').AsString := AModel.SwiftCode;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
     Q.ParamByName('bank_name').AsStrings[AIndex] := AModel.BankName;
-    Q.ParamByName('swift_code').AsStrings[AIndex] := AModel.SWiftCode;
+    Q.ParamByName('swift_code').AsStrings[AIndex] := AModel.SwiftCode;
   end;
 end;
 
@@ -99,7 +101,7 @@ begin
   Result := TAccBank.Create;
   Result.Id := Q.FieldByName('id').AsLargeInt;
   Result.BankName := Q.FieldByName('bank_name').AsString;
-  Result.SWiftCode := Q.FieldByName('swift_code').AsString;
+  Result.SwiftCode := Q.FieldByName('swift_code').AsString;
 end;
 
 function TAccBankRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
@@ -124,7 +126,6 @@ end;
 function TAccBankRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TAccBank>;
 var
   Q: TFDQuery;
-  Item: TAccBank;
   Criteria: TFilterCriterion;
 begin
   Result := TObjectList<TAccBank>.Create(True);
@@ -134,19 +135,14 @@ begin
     Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, False, False);
 
     if Assigned(AFilter) and (AFilter.Count > 0) then
-    begin
       for Criteria in AFilter do
         Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
-    end;
-
-    Q.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 
     LogQuery(Q, 'DoFind');
     Q.Open;
     while not Q.Eof do
     begin
-      Item := MapFromQuery(Q);
-      Result.Add(Item);
+      Result.Add(MapFromQuery(Q));
       Q.Next;
     end;
   finally
@@ -186,15 +182,16 @@ var
   Criteria: TFilterCriterion;
 begin
   Result := nil;
+  if not Assigned(AFilter) or (AFilter.Count = 0) then
+    Exit;
 
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
     Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, True, False);
 
-    if Assigned(AFilter) and (AFilter.Count > 0) then
-      for Criteria in AFilter do
-        Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+    for Criteria in AFilter do
+      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
     LogQuery(Q, 'DoFindOne');
     Q.Open;
 
@@ -228,7 +225,8 @@ var
   I, Count: Integer;
 begin
   Count := Length(AModels);
-  if Count = 0 then Exit;
+  if Count = 0 then
+    Exit;
 
   Q := TFDQuery.Create(nil);
   try
@@ -268,7 +266,8 @@ var
   I, Count: Integer;
 begin
   Count := Length(AModels);
-  if Count = 0 then Exit;
+  if Count = 0 then
+    Exit;
 
   Q := TFDQuery.Create(nil);
   try
@@ -313,7 +312,8 @@ var
   I, Count: Integer;
 begin
   Count := Length(AModels);
-  if Count = 0 then Exit;
+  if Count = 0 then
+    Exit;
 
   Q := TFDQuery.Create(nil);
   try
@@ -337,7 +337,8 @@ var
   I, Count: Integer;
 begin
   Count := Length(AIDs);
-  if Count = 0 then Exit;
+  if Count = 0 then
+    Exit;
 
   Q := TFDQuery.Create(nil);
   try

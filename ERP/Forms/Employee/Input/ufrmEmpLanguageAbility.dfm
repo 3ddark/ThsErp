@@ -1,98 +1,137 @@
 object frmEmpLanguageAbility: TfrmEmpLanguageAbility
   Left = 0
   Top = 0
-  Caption = 'Personel Dil Yetkinliği'
-  ClientHeight = 250
-  ClientWidth = 450
+  Caption = 'Employee Language'
+  ClientHeight = 185
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
-  Font.Name = 'Segoe UI'
+  Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 450
-    Height = 250
+    Width = 480
+    Height = 185
     Align = alClient
     TabOrder = 0
-    object lblPersonelId: TLabel
-      Left = 20
-      Top = 30
-      Width = 90
-      Height = 15
+    object lblEmpEmployeeId: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
+      Height = 13
       Alignment = taRightJustify
-      Caption = 'Personel'
+      AutoSize = False
+      Caption = 'Employee'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtPersonelId: TEdit
-      Left = 120
-      Top = 27
-      Width = 280
-      Height = 23
+    object edtEmpEmployeeId: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      ReadOnly = True
       TabOrder = 0
     end
-    object lblLisanId: TLabel
-      Left = 20
-      Top = 65
-      Width = 90
-      Height = 15
+    object lblEmpLanguageId: TLabel
+      Left = 4
+      Top = 29
+      Width = 124
+      Height = 13
       Alignment = taRightJustify
-      Caption = 'Yabancı Dil'
+      AutoSize = False
+      Caption = 'Language'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtLisanId: TEdit
-      Left = 120
-      Top = 62
-      Width = 280
-      Height = 23
+    object edtEmpLanguageId: TEdit
+      Left = 132
+      Top = 25
+      Width = 333
+      Height = 22
+      ReadOnly = True
       TabOrder = 1
     end
-    object lblOkumaId: TLabel
-      Left = 20
-      Top = 100
-      Width = 90
-      Height = 15
+    object lblReadLevel: TLabel
+      Left = 4
+      Top = 52
+      Width = 124
+      Height = 13
       Alignment = taRightJustify
-      Caption = 'Okuma'
+      AutoSize = False
+      Caption = 'Reading'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtOkumaId: TEdit
-      Left = 120
-      Top = 97
-      Width = 280
-      Height = 23
+    object cbbReadLevel: TComboBox
+      Left = 132
+      Top = 48
+      Width = 333
+      Height = 22
+      Style = csDropDownList
       TabOrder = 2
     end
-    object lblYazmaId: TLabel
-      Left = 20
-      Top = 135
-      Width = 90
-      Height = 15
+    object lblWriteLevel: TLabel
+      Left = 4
+      Top = 75
+      Width = 124
+      Height = 13
       Alignment = taRightJustify
-      Caption = 'Yazma'
+      AutoSize = False
+      Caption = 'Writing'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtYazmaId: TEdit
-      Left = 120
-      Top = 132
-      Width = 280
-      Height = 23
+    object cbbWriteLevel: TComboBox
+      Left = 132
+      Top = 71
+      Width = 333
+      Height = 22
+      Style = csDropDownList
       TabOrder = 3
     end
-    object lblKonusmaId: TLabel
-      Left = 20
-      Top = 170
-      Width = 90
-      Height = 15
+    object lblSpeakLevel: TLabel
+      Left = 4
+      Top = 98
+      Width = 124
+      Height = 13
       Alignment = taRightJustify
-      Caption = 'Konuşma'
+      AutoSize = False
+      Caption = 'Speaking'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
-    object edtKonusmaId: TEdit
-      Left = 120
-      Top = 167
-      Width = 280
-      Height = 23
+    object cbbSpeakLevel: TComboBox
+      Left = 132
+      Top = 94
+      Width = 333
+      Height = 22
+      Style = csDropDownList
       TabOrder = 4
     end
   end
