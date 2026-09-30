@@ -3,7 +3,7 @@ object frmAccGroups: TfrmAccGroups
   Top = 0
   Caption = 'frmAccGroups'
   ClientHeight = 441
-  ClientWidth = 500
+  ClientWidth = 624
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

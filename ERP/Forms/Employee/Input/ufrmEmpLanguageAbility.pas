@@ -1,32 +1,35 @@
-unit ufrmEmpLanguageAbility;
+﻿unit ufrmEmpLanguageAbility;
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ufrmInputSimpleDB, SharedFormTypes, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  EmpLanguageAbility.Service, EmpLanguageAbility, LocalizationManager;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
+  EmpLanguageAbility.Service, EmpLanguageAbility;
 
 type
   TfrmEmpLanguageAbility = class(TfrmInputSimpleDB<TEmpLanguageAbility, TEmpLanguageAbilityService>)
     pnlContent: TPanel;
-    lblPersonelId: TLabel;
-    edtPersonelId: TEdit;
-    lblLisanId: TLabel;
-    edtLisanId: TEdit;
-    lblOkumaId: TLabel;
-    edtOkumaId: TEdit;
-    lblYazmaId: TLabel;
-    edtYazmaId: TEdit;
-    lblKonusmaId: TLabel;
-    edtKonusmaId: TEdit;
+    lblEmpEmployeeId: TLabel;
+    edtEmpEmployeeId: TEdit;
+    lblEmpLanguageId: TLabel;
+    edtEmpLanguageId: TEdit;
+    lblReadLevel: TLabel;
+    cbbReadLevel: TComboBox;
+    lblWriteLevel: TLabel;
+    cbbWriteLevel: TComboBox;
+    lblSpeakLevel: TLabel;
+    cbbSpeakLevel: TComboBox;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
     procedure HelperProcess(Sender: TObject);
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
   end;
@@ -36,12 +39,16 @@ implementation
 {$R *.dfm}
 
 uses
-  EmpPerson, EmpPerson.Service, ufrmEmpPersons,
-  EmpLanguage, EmpLanguage.Service, ufrmEmpLanguages,
-  EmpLanguageLevel, EmpLanguageLevel.Service, ufrmEmpLanguageLevels;
+  EmpLookup,
+  EmpEmployee, EmpEmployee.Service, ufrmEmpEmployees,                           // TfrmEmpEmployees helper output form
+  EmpLanguage, EmpLanguage.Service, ufrmEmpLanguages;                           // TfrmEmpLanguages helper output form
 
 procedure TfrmEmpLanguageAbility.BtnAcceptClick(Sender: TObject);
 begin
+  // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
+  Table.ReadLevel := cbbReadLevel.ItemIndex + 1;  // seçim yoksa 0 -> zorunluluk kontrolü
+  Table.WriteLevel := cbbWriteLevel.ItemIndex + 1;  // seçim yoksa 0 -> zorunluluk kontrolü
+  Table.SpeakLevel := cbbSpeakLevel.ItemIndex + 1;  // seçim yoksa 0 -> zorunluluk kontrolü
   inherited;
 end;
 
@@ -49,150 +56,108 @@ procedure TfrmEmpLanguageAbility.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtPersonelId.OnHelperProcess := HelperProcess;
-  edtLisanId.OnHelperProcess := HelperProcess;
-  edtOkumaId.OnHelperProcess := HelperProcess;
-  edtYazmaId.OnHelperProcess := HelperProcess;
-  edtKonusmaId.OnHelperProcess := HelperProcess;
+  edtEmpEmployeeId.OnHelperProcess := HelperProcess;
+  edtEmpLanguageId.OnHelperProcess := HelperProcess;
+  TEmpLookup.FillItems(cbbReadLevel.Items, elkLanguageLevel);
+  TEmpLookup.FillItems(cbbWriteLevel.Items, elkLanguageLevel);
+  TEmpLookup.FillItems(cbbSpeakLevel.Items, elkLanguageLevel);
 end;
 
 procedure TfrmEmpLanguageAbility.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtPersonelId.SetFocus;
+  if edtEmpLanguageId.CanFocus then
+    edtEmpLanguageId.SetFocus;
 end;
 
 procedure TfrmEmpLanguageAbility.ApplyLocalization;
+var
+  LIndex: Integer;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('emp_language_ability.title_singular', 'Personel Dil Yetkinliği');
-  lblPersonelId.Caption := TLocalizationManager.Translate('emp_language_ability.lbl_personel_id', 'Personel');
-  lblLisanId.Caption := TLocalizationManager.Translate('emp_language_ability.lbl_lisan_id', 'Yabancı Dil');
-  lblOkumaId.Caption := TLocalizationManager.Translate('emp_language_ability.lbl_okuma_id', 'Okuma');
-  lblYazmaId.Caption := TLocalizationManager.Translate('emp_language_ability.lbl_yazma_id', 'Yazma');
-  lblKonusmaId.Caption := TLocalizationManager.Translate('emp_language_ability.lbl_konusma_id', 'Konuşma');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TEmpLanguageAbility.TitleSingular, 'Employee Language');
+  lblEmpEmployeeId.Caption := TLocalizationManager.Translate(TLangKeys.TEmpLanguageAbility.ColEmployee, 'Employee');
+  lblEmpLanguageId.Caption := TLocalizationManager.Translate(TLangKeys.TEmpLanguageAbility.ColLanguageName, 'Language');
+  lblReadLevel.Caption := TLocalizationManager.Translate(TLangKeys.TEmpLanguageAbility.ColReadLevel, 'Reading');
+  lblWriteLevel.Caption := TLocalizationManager.Translate(TLangKeys.TEmpLanguageAbility.ColWriteLevel, 'Writing');
+  lblSpeakLevel.Caption := TLocalizationManager.Translate(TLangKeys.TEmpLanguageAbility.ColSpeakLevel, 'Speaking');
+  LIndex := cbbReadLevel.ItemIndex;
+  TEmpLookup.FillItems(cbbReadLevel.Items, elkLanguageLevel);
+  cbbReadLevel.ItemIndex := LIndex;
+  LIndex := cbbWriteLevel.ItemIndex;
+  TEmpLookup.FillItems(cbbWriteLevel.Items, elkLanguageLevel);
+  cbbWriteLevel.ItemIndex := LIndex;
+  LIndex := cbbSpeakLevel.ItemIndex;
+  TEmpLookup.FillItems(cbbSpeakLevel.Items, elkLanguageLevel);
+  cbbSpeakLevel.ItemIndex := LIndex;
 end;
 
 procedure TfrmEmpLanguageAbility.HelperProcess(Sender: TObject);
 var
   LEdit: TEdit;
-  LFrmPerson: TfrmEmpPersons;
-  LFrmLang: TfrmEmpLanguages;
-  LFrmLevel: TfrmEmpLanguageLevels;
+  LFrmEmpEmployeeId: TfrmEmpEmployees;
+  LFrmEmpLanguageId: TfrmEmpLanguages;
 begin
-  if Sender is TEdit then
+  if not (Sender is TEdit) then
+    Exit;
+
+  LEdit := (Sender as TEdit);
+  if LEdit.Name = edtEmpEmployeeId.Name then
   begin
-    LEdit := (Sender as TEdit);
-    if LEdit.Name = edtPersonelId.Name then
-    begin
-      LFrmPerson := TfrmEmpPersons.Create(LEdit, TEmpPersonService.Create, TEmpPerson.Create);
-      try
-        LFrmPerson.IsHelper := True;
-        LFrmPerson.ShowModal;
-        if LFrmPerson.DataTransfer then
+    LFrmEmpEmployeeId := TfrmEmpEmployees.Create(LEdit, TEmpEmployeeService.Create, TEmpEmployee.Create);
+    try
+      LFrmEmpEmployeeId.IsHelper := True;
+      LFrmEmpEmployeeId.ShowModal;
+      if LFrmEmpEmployeeId.DataTransfer then
+        if LFrmEmpEmployeeId.CleanAndClose then
         begin
-          if LFrmPerson.CleanAndClose then
-          begin
-            Table.PersonelID := 0;
-            LEdit.Clear;
-          end
-          else
-          begin
-            Table.PersonelID := LFrmPerson.Table.Id;
-            LEdit.Text := LFrmPerson.Table.FullName;
-          end;
-        end;
-      finally
-        LFrmPerson.Free;
-      end;
-    end
-    else if LEdit.Name = edtLisanId.Name then
-    begin
-      LFrmLang := TfrmEmpLanguages.Create(LEdit, TEmpLanguageService.Create, TEmpLanguage.Create);
-      try
-        LFrmLang.IsHelper := True;
-        LFrmLang.ShowModal;
-        if LFrmLang.DataTransfer then
+          Table.EmpEmployeeId := 0;
+          Table.EmployeeFullName := '';
+          LEdit.Clear;
+        end
+        else
         begin
-          if LFrmLang.CleanAndClose then
-          begin
-            Table.LisanID := 0;
-            LEdit.Clear;
-          end
-          else
-          begin
-            Table.LisanID := LFrmLang.Table.Id;
-            LEdit.Text := LFrmLang.Table.LanguageName;
-          end;
+          Table.EmpEmployeeId := LFrmEmpEmployeeId.Table.Id;
+          Table.EmployeeFullName := LFrmEmpEmployeeId.Table.FullName;
+          LEdit.Text := Table.EmployeeFullName;
         end;
-      finally
-        LFrmLang.Free;
-      end;
-    end
-    else if (LEdit.Name = edtOkumaId.Name) or (LEdit.Name = edtYazmaId.Name) or (LEdit.Name = edtKonusmaId.Name) then
-    begin
-      LFrmLevel := TfrmEmpLanguageLevels.Create(LEdit, TEmpLanguageLevelService.Create, TEmpLanguageLevel.Create);
-      try
-        LFrmLevel.IsHelper := True;
-        LFrmLevel.ShowModal;
-        if LFrmLevel.DataTransfer then
+    finally
+      LFrmEmpEmployeeId.Free;
+    end;
+  end
+  else if LEdit.Name = edtEmpLanguageId.Name then
+  begin
+    LFrmEmpLanguageId := TfrmEmpLanguages.Create(LEdit, TEmpLanguageService.Create, TEmpLanguage.Create);
+    try
+      LFrmEmpLanguageId.IsHelper := True;
+      LFrmEmpLanguageId.ShowModal;
+      if LFrmEmpLanguageId.DataTransfer then
+        if LFrmEmpLanguageId.CleanAndClose then
         begin
-          if LFrmLevel.CleanAndClose then
-          begin
-            if LEdit.Name = edtOkumaId.Name then Table.OkumaID := 0
-            else if LEdit.Name = edtYazmaId.Name then Table.YazmaID := 0
-            else if LEdit.Name = edtKonusmaId.Name then Table.KonusmaID := 0;
-            LEdit.Clear;
-          end
-          else
-          begin
-            if LEdit.Name = edtOkumaId.Name then Table.OkumaID := LFrmLevel.Table.Id
-            else if LEdit.Name = edtYazmaId.Name then Table.YazmaID := LFrmLevel.Table.Id
-            else if LEdit.Name = edtKonusmaId.Name then Table.KonusmaID := LFrmLevel.Table.Id;
-            LEdit.Text := LFrmLevel.Table.LanguageLevel;
-          end;
+          Table.EmpLanguageId := 0;
+          Table.LanguageName := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.EmpLanguageId := LFrmEmpLanguageId.Table.Id;
+          Table.LanguageName := LFrmEmpLanguageId.Table.LanguageName;
+          LEdit.Text := Table.LanguageName;
         end;
-      finally
-        LFrmLevel.Free;
-      end;
+    finally
+      LFrmEmpLanguageId.Free;
     end;
   end;
-end;
-
-procedure TfrmEmpLanguageAbility.InitializeInputCase;
-begin
-  inherited;
-  edtPersonelId.thsInputDataType := itInteger;
-  edtLisanId.thsInputDataType := itInteger;
-  edtOkumaId.thsInputDataType := itInteger;
-  edtYazmaId.thsInputDataType := itInteger;
-  edtKonusmaId.thsInputDataType := itInteger;
 end;
 
 procedure TfrmEmpLanguageAbility.RefreshData;
 begin
   inherited;
-  edtPersonelId.Text := Table.PersonelID.ToString;
-  if Assigned(Table.Lisan) then
-    edtLisanId.Text := Table.Lisan.LanguageName
-  else
-    edtLisanId.Text := Table.LisanID.ToString;
-
-  if Assigned(Table.Okuma) then
-    edtOkumaId.Text := Table.Okuma.LanguageLevel
-  else
-    edtOkumaId.Text := Table.OkumaID.ToString;
-
-  if Assigned(Table.Yazma) then
-    edtYazmaId.Text := Table.Yazma.LanguageLevel
-  else
-    edtYazmaId.Text := Table.YazmaID.ToString;
-
-  if Assigned(Table.Konusma) then
-    edtKonusmaId.Text := Table.Konusma.LanguageLevel
-  else
-    edtKonusmaId.Text := Table.KonusmaID.ToString;
+  edtEmpEmployeeId.Text := Table.EmployeeFullName;
+  edtEmpLanguageId.Text := Table.LanguageName;
+  cbbReadLevel.ItemIndex := Table.ReadLevel - 1;
+  cbbWriteLevel.ItemIndex := Table.WriteLevel - 1;
+  cbbSpeakLevel.ItemIndex := Table.SpeakLevel - 1;
 end;
 
 end.

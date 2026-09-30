@@ -1,30 +1,31 @@
-unit ufrmStkKindFamily;
+﻿unit ufrmStkKindFamily;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
-  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  StkKindFamily.Service, StkKindFamily, LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
+  StkKindFamily.Service, StkKindFamily;
 
 type
   TfrmStkKindFamily = class(TfrmInputSimpleDB<TStkKindFamily, TStkKindFamilyService>)
-    pgcMain: TPageControl;
-    tsMain: TTabSheet;
-    lblaile: TLabel;
-    edtfamily: TEdit;
-    lbldescription: TLabel;
-    lblactive: TLabel;
-    mmodescription: TMemo;
-    chkactive: TCheckBox;
+    pnlContent: TPanel;
+    lblFamily: TLabel;
+    edtFamily: TEdit;
+    lblDescription: TLabel;
+    edtDescription: TEdit;
+    lblActive: TLabel;
+    chkActive: TCheckBox;
+    procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
-    procedure BtnAcceptClick(Sender: TObject); override;
   public
     procedure RefreshData; override;
-    procedure InitializeInputCase; override;
     procedure ApplyLocalization; override;
   end;
 
@@ -34,47 +35,43 @@ implementation
 
 procedure TfrmStkKindFamily.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Family := edtfamily.Text;
-  Table.Description := mmodescription.Lines.Text;
-  Table.Active := chkactive.Checked;
+  Table.Family := edtFamily.Text;
+  Table.Description := edtDescription.Text;
+  Table.Active := chkActive.Checked;
   inherited;
 end;
 
 procedure TfrmStkKindFamily.FormCreate(Sender: TObject);
 begin
   inherited;
-  pgcMain.Parent := PanelMain;
-  PgcBase := pgcMain;
+  pnlContent.Parent := PanelMain;
+  edtFamily.thsInputDataType := itString;
+  edtFamily.CharCase := TEditCharCase.ecUpperCase;
+  edtDescription.thsInputDataType := itString;
 end;
 
 procedure TfrmStkKindFamily.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtfamily.SetFocus;
+  if edtFamily.CanFocus then
+    edtFamily.SetFocus;
 end;
 
 procedure TfrmStkKindFamily.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('stk_kind_family.title_singular', 'Stok Cins Ailesi');
-  lblaile.Caption := TLocalizationManager.Translate('stk_kind_family.lbl_family', 'Cins Ailesi');
-  lbldescription.Caption := TLocalizationManager.Translate('stk_kind_family.lbl_description', 'Açıklama');
-  lblactive.Caption := TLocalizationManager.Translate('stk_kind_family.lbl_active', 'Aktif');
-end;
-
-procedure TfrmStkKindFamily.InitializeInputCase;
-begin
-  inherited;
-  mmodescription.CharCase := TEditCharCase.ecNormal;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TStkKindFamily.TitleSingular, 'Kind Family');
+  lblFamily.Caption := TLocalizationManager.Translate(TLangKeys.TStkKindFamily.ColFamily, 'Family');
+  lblDescription.Caption := TLocalizationManager.Translate(TLangKeys.TStkKindFamily.ColDescription, 'Description');
+  lblActive.Caption := TLocalizationManager.Translate(TLangKeys.TStkKindFamily.ColActive, 'Active');
 end;
 
 procedure TfrmStkKindFamily.RefreshData;
 begin
   inherited;
-  edtfamily.Text := Table.Family;
-  mmodescription.Lines.Text := Table.Description;
-  chkactive.Checked := Table.Active;
+  edtFamily.Text := Table.Family;
+  edtDescription.Text := Table.Description;
+  chkActive.Checked := Table.Active;
 end;
 
 end.

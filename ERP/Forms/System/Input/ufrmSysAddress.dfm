@@ -19,7 +19,7 @@ object frmSysAddress: TfrmSysAddress
     Height = 467
     Align = alClient
     TabOrder = 0
-    object lblCityId: TLabel
+    object lblSysCityId: TLabel
       Left = 72
       Top = 11
       Width = 22
@@ -173,7 +173,7 @@ object frmSysAddress: TfrmSysAddress
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtCityId: TEdit
+    object edtSysCityId: TEdit
       Left = 96
       Top = 7
       Width = 250

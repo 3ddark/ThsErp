@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('emp_language')]
@@ -14,7 +14,8 @@ type
     FLanguageName: string;
   public
     [Column('language_name')]
-    Property LanguageName: string read FLanguageName write FLanguageName;
+    [MaxLength(16), Required(TLangKeys.TValidation.Required, True)]
+    property LanguageName: string read FLanguageName write FLanguageName;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -31,7 +32,6 @@ end;
 
 destructor TEmpLanguage.Destroy;
 begin
-
   inherited;
 end;
 

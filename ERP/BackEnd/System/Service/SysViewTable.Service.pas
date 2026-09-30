@@ -35,11 +35,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysViewTableService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysViewTable, TSysViewTableRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_SYS_VIEW_TABLE;
 end;
 
 destructor TSysViewTableService.Destroy;

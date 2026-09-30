@@ -73,7 +73,6 @@ end;
 procedure TfrmSysGridFilter.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtTableName.SetFocus;
 end;
 

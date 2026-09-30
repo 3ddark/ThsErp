@@ -2,8 +2,8 @@ object frmStkInventorySummaries: TfrmStkInventorySummaries
   Left = 0
   Top = 0
   Caption = 'frmStkInventorySummaries'
-  ClientHeight = 480
-  ClientWidth = 960
+  ClientHeight = 441
+  ClientWidth = 624
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

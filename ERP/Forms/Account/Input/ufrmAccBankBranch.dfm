@@ -1,117 +1,113 @@
 object frmAccBankBranch: TfrmAccBankBranch
   Left = 0
   Top = 0
-  Caption = 'Banka '#197#158'ubesi'
-  ClientHeight = 160
-  ClientWidth = 500
+  Caption = 'Bank Branch'
+  ClientHeight = 162
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
-  Font.Name = 'Segoe UI'
+  Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 500
-    Height = 160
+    Width = 480
+    Height = 162
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 498
-    ExplicitHeight = 158
-    object lblsube_kodu: TLabel
-      Left = 65
-      Top = 11
-      Width = 63
+    object lblAccBankId: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
       Height = 13
       Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = #197#158'ube Kodu'
+      AutoSize = False
+      Caption = 'Bank'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'MS Sans Serif'
+      Font.Name = 'Tahoma'
       Font.Style = [fsBold]
-      ParentBiDiMode = False
       ParentFont = False
     end
-    object lblsube_adi: TLabel
-      Left = 64
-      Top = 38
-      Width = 64
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = #197#158'ube Ad'#196#177
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
-    object lblbanka: TLabel
-      Left = 91
-      Top = 65
-      Width = 37
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = 'Banka'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
-    object lblsehir: TLabel
-      Left = 98
-      Top = 92
-      Width = 30
-      Height = 13
-      Alignment = taRightJustify
-      BiDiMode = bdLeftToRight
-      Caption = #197#158'ehir'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentBiDiMode = False
-      ParentFont = False
-    end
-    object edtsube_kodu: TEdit
+    object edtAccBankId: TEdit
       Left = 132
-      Top = 7
-      Width = 120
-      Height = 23
+      Top = 2
+      Width = 333
+      Height = 22
+      ReadOnly = True
       TabOrder = 0
     end
-    object edtsube_adi: TEdit
+    object lblBranchCode: TLabel
+      Left = 4
+      Top = 29
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Branch Code'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtBranchCode: TEdit
       Left = 132
-      Top = 34
+      Top = 25
       Width = 333
-      Height = 23
+      Height = 22
       TabOrder = 1
     end
-    object edtbanka_adi: TEdit
+    object lblBranchName: TLabel
+      Left = 4
+      Top = 52
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Branch Name'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtBranchName: TEdit
       Left = 132
-      Top = 61
+      Top = 48
       Width = 333
-      Height = 23
+      Height = 22
+      MaxLength = 128
       TabOrder = 2
     end
-    object edtsehir_adi: TEdit
+    object lblSysCityId: TLabel
+      Left = 4
+      Top = 75
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'City'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtSysCityId: TEdit
       Left = 132
-      Top = 88
+      Top = 71
       Width = 333
-      Height = 23
+      Height = 22
+      ReadOnly = True
       TabOrder = 3
     end
   end

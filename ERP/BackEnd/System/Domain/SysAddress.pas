@@ -27,34 +27,34 @@ type
     [Required(TLangKeys.TValidation.Required, True)]
     property SysCityId: Int64 read FSysCityId write FSysCityId;
 
-    [Column('district')]
+    [Column('district'), MaxLength(64)]
     property District: string read FDistrict write FDistrict;
 
-    [Column('neighborhood')]
+    [Column('neighborhood'), MaxLength(64)]
     property Neighborhood: string read FNeighborhood write FNeighborhood;
 
-    [Column('quarter')]
+    [Column('quarter'), MaxLength(64)]
     property Quarter: string read FQuarter write FQuarter;
 
-    [Column('road')]
+    [Column('road'), MaxLength(64)]
     property Road: string read FRoad write FRoad;
 
-    [Column('street')]
+    [Column('street'), MaxLength(64)]
     property Street: string read FStreet write FStreet;
 
-    [Column('building_name')]
+    [Column('building_name'), MaxLength(48)]
     property BuildingName: string read FBuildingName write FBuildingName;
 
-    [Column('door_number')]
+    [Column('door_number'), MaxLength(16)]
     property DoorNumber: string read FDoorNumber write FDoorNumber;
 
-    [Column('zip_code')]
+    [Column('zip_code'), MaxLength(16)]
     property ZipCode: string read FZipCode write FZipCode;
 
-    [Column('web')]
+    [Column('web'), MaxLength(64)]
     property Web: string read FWeb write FWeb;
 
-    [Column('email')]
+    [Column('email'), MaxLength(128)]
     property Email: string read FEmail write FEmail;
 
     [BelongsTo('SysCityId')]
@@ -76,8 +76,8 @@ end;
 
 destructor TSysAddress.Destroy;
 begin
-  inherited;
   FSysCity.Free;
+  inherited;
 end;
 
 function TSysAddress.Clone: TSysAddress;

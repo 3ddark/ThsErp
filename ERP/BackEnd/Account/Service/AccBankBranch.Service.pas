@@ -1,21 +1,32 @@
-unit AccBankBranch.Service;
+﻿unit AccBankBranch.Service;
 
 interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  AccBankBranch.Repository, AccBankBranch;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  AccBankBranch.Repository, AccBankBranch, AccBankBranch.Exception;
 
 type
   TAccBankBranchService = class(TCrudService<TAccBankBranch>)
   private
     FRepo: IRepository<TAccBankBranch>;
+
+    procedure DoAdd(AEntity: TAccBankBranch);
+    procedure DoUpdate(AEntity: TAccBankBranch);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateRequiredReferences(AEntity: TAccBankBranch);
+    procedure ValidateUnique(AEntity: TAccBankBranch; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TAccBankBranch; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TAccBankBranch>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TAccBankBranch; override;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TAccBankBranch; override;
@@ -33,104 +44,187 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TAccBankBranchService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TAccBankBranch, TAccBankBranchRepository>;
+  Self.PermissionCode := PERMISSION_ACC_BANK;
 end;
 
 destructor TAccBankBranchService.Destroy;
 begin
-  FRepo := nil;
   inherited;
+end;
+
+procedure TAccBankBranchService.ValidateRequiredReferences(AEntity: TAccBankBranch);
+
+  procedure Check(AValue: Int64; const AKey, ADefault: string);
+  begin
+    if AValue <= 0 then
+      raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
+        TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
+  end;
+
+begin
+  Check(AEntity.AccBankId, TLangKeys.TAccBankBranch.ColBank, 'Bank');
+  Check(AEntity.SysCityId, TLangKeys.TAccBankBranch.ColCity, 'City');
+end;
+
+procedure TAccBankBranchService.ValidateUnique(AEntity: TAccBankBranch; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TAccBankBranch;
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('acc_bank_id', '=', TValue.From<Int64>(AEntity.AccBankId)));
+      LFilter.Add(TFilterCriterion.New('branch_code', '=', TValue.From<Integer>(AEntity.BranchCode)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      try
+        if Assigned(LModel) then
+          raise EAccBankBranchExceptionBranchCodeUnique.Create;
+      finally
+        LModel.Free;
+      end;
+    finally
+      LFilter.Free;
+    end;
+  end;
+end;
+
+procedure TAccBankBranchService.ValidateBusinessRules(AEntity: TAccBankBranch; AOperation: TCrudOperation);
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    AEntity.BranchName := AnsiUpperCase(Trim(AEntity.BranchName));
+    ValidateRequiredReferences(AEntity);
+  end;
+
+  ValidateUnique(AEntity, AOperation);
+end;
+
+procedure TAccBankBranchService.DoAdd(AEntity: TAccBankBranch);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TAccBankBranchService.DoUpdate(AEntity: TAccBankBranch);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TAccBankBranchService.DoDelete(AId: Int64);
+var
+  LEntity: TAccBankBranch;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
 end;
 
 function TAccBankBranchService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TAccBankBranch>;
 begin
-  if APermissionControl then
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 function TAccBankBranchService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TAccBankBranch;
 begin
-  if APermissionControl then
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 procedure TAccBankBranchService.BusinessInsert(AEntity: TAccBankBranch; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Uow.InTransaction then
-        Self.UoW.Rollback;
-      raise
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TAccBankBranchService.BusinessUpdate(AEntity: TAccBankBranch; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TAccBankBranchService.BusinessDelete(AEntity: TAccBankBranch; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -139,34 +233,34 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TAccBankBranchService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TAccBankBranch>;
+function TAccBankBranchService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TAccBankBranch>;
 begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TAccBankBranchService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccBankBranch;
+function TAccBankBranchService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TAccBankBranch;
 begin
   Result := FRepo.FindById(AId, ALock);
 end;
 
-function TAccBankBranchService.FindOne(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TAccBankBranch;
+function TAccBankBranchService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TAccBankBranch;
 begin
   Result := FRepo.FindOne(AFilter, ALock);
 end;
 
 procedure TAccBankBranchService.Add(AEntity: TAccBankBranch);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity);
 end;
 
 procedure TAccBankBranchService.Update(AEntity: TAccBankBranch);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TAccBankBranchService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 end.

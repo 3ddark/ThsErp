@@ -1,7 +1,7 @@
 object frmSysUomGroups: TfrmSysUomGroups
   Left = 0
   Top = 0
-  Caption = 'frmSysUomTypes'
+  Caption = 'frmSysUomGroups'
   ClientHeight = 441
   ClientWidth = 624
   Color = clBtnFace

@@ -72,19 +72,13 @@ end;
 procedure TSysCityRepository.SetInsertParams(Q: TFDQuery; AModel: TSysCity; AIndex: Integer);
 begin
   if AIndex < 0 then
-  begin
-    Q.ParamByName('city_name').AsString := AModel.CityName;
-    Q.ParamByName('car_plate_code').AsInteger := AModel.CarPlateCode;
-    Q.ParamByName('sys_country_id').AsLargeInt := AModel.SysCountryId;
-    Q.ParamByName('sys_region_id').AsLargeInt := AModel.SysRegionId;
-  end
+    Q.ParamByName('city_name').AsString := AModel.CityName
   else
-  begin
     Q.ParamByName('city_name').AsStrings[AIndex] := AModel.CityName;
-    Q.ParamByName('car_plate_code').AsIntegers[AIndex] := AModel.CarPlateCode;
-    Q.ParamByName('sys_country_id').AsLargeInts[AIndex] := AModel.SysCountryId;
-    Q.ParamByName('sys_region_id').AsLargeInts[AIndex] := AModel.SysRegionId;
-  end;
+
+  SetNullableParam(Q.ParamByName('car_plate_code'), ftInteger, AModel.CarPlateCode, AIndex);
+  SetNullableParam(Q.ParamByName('sys_country_id'), ftLargeint, AModel.SysCountryId, AIndex);
+  SetNullableParam(Q.ParamByName('sys_region_id'), ftLargeint, AModel.SysRegionId, AIndex);
 end;
 
 procedure TSysCityRepository.SetUpdateParams(Q: TFDQuery; AModel: TSysCity; AIndex: Integer);
@@ -93,18 +87,16 @@ begin
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('city_name').AsString := AModel.CityName;
-    Q.ParamByName('car_plate_code').AsInteger := AModel.CarPlateCode;
-    Q.ParamByName('sys_country_id').AsLargeInt := AModel.SysCountryId;
-    Q.ParamByName('sys_region_id').AsLargeInt := AModel.SysRegionId;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
     Q.ParamByName('city_name').AsStrings[AIndex] := AModel.CityName;
-    Q.ParamByName('car_plate_code').AsIntegers[AIndex] := AModel.CarPlateCode;
-    Q.ParamByName('sys_country_id').AsLargeInts[AIndex] := AModel.SysCountryId;
-    Q.ParamByName('sys_region_id').AsLargeInts[AIndex] := AModel.SysRegionId;
   end;
+
+  SetNullableParam(Q.ParamByName('car_plate_code'), ftInteger, AModel.CarPlateCode, AIndex);
+  SetNullableParam(Q.ParamByName('sys_country_id'), ftLargeint, AModel.SysCountryId, AIndex);
+  SetNullableParam(Q.ParamByName('sys_region_id'), ftLargeint, AModel.SysRegionId, AIndex);
 end;
 
 function TSysCityRepository.MapFromQuery(Q: TFDQuery): TSysCity;

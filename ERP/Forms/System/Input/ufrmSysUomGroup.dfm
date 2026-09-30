@@ -1,8 +1,8 @@
-object frmSysUomType: TfrmSysUomGroup
+object frmSysUomGroup: TfrmSysUomGroup
   Left = 0
   Top = 0
-  Caption = 'frmSysUomType'
-  ClientHeight = 150
+  Caption = 'frmSysUomGroup'
+  ClientHeight = 164
   ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,7 +17,7 @@ object frmSysUomType: TfrmSysUomGroup
     Left = 0
     Top = 0
     Width = 500
-    Height = 150
+    Height = 164
     Align = alClient
     TabOrder = 0
     object lblKey: TLabel

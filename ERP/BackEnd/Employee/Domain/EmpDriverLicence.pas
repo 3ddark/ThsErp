@@ -5,28 +5,33 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, FireDAC.Comp.Client, Entity, Repository, EntityAttributes,
-  EmpDriverLicenceType;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('emp_driver_ability')]
   TEmpDriverLicence = class(TEntity)
   private
-    FDriverLicenseId: Int64;
-    FEhliyet: TEmpDriverLicenseType;
-    FPersonId: Int64;
+    FEmpEmployeeId: Int64;
+    FEmpDriverLicenseTypeId: Int64;
+
+    // View (vw_emp_driver_ability) okunabilir alanları
+    FEmployeeFullName: string;
+    FLicenseName: string;
   public
-    [Column('driver_license_id')]
-    Property DriverLicenseId: Int64 read FDriverLicenseId write FDriverLicenseId;
+    [Column('emp_employee_id')]
+    property EmpEmployeeId: Int64 read FEmpEmployeeId write FEmpEmployeeId;
 
-    [BelongsTo('DriverLicenseId')]
-    Property Ehliyet: TEmpDriverLicenseType read FEhliyet write FEhliyet;
+    [Column('emp_driver_license_type_id')]
+    property EmpDriverLicenseTypeId: Int64 read FEmpDriverLicenseTypeId write FEmpDriverLicenseTypeId;
 
-    [Column('person_id')]
-    Property PersonId: Int64 read FPersonId write FPersonId;
+    [NotMapped]
+    property EmployeeFullName: string read FEmployeeFullName write FEmployeeFullName;
 
+    [NotMapped]
+    property LicenseName: string read FLicenseName write FLicenseName;
+
+    constructor Create(); override;
     destructor Destroy; override;
-    constructor Create; override;
 
     function Clone: TEmpDriverLicence;
   end;
@@ -47,8 +52,10 @@ function TEmpDriverLicence.Clone: TEmpDriverLicence;
 begin
   Result := TEmpDriverLicence.Create;
   Result.Id := Self.Id;
-  Result.DriverLicenseId := Self.DriverLicenseId;
-  Result.PersonId := Self.PersonId;
+  Result.EmpEmployeeId := Self.EmpEmployeeId;
+  Result.EmpDriverLicenseTypeId := Self.EmpDriverLicenseTypeId;
+  Result.EmployeeFullName := Self.EmployeeFullName;
+  Result.LicenseName := Self.LicenseName;
 end;
 
 end.

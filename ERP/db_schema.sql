@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict HbmiP4wn7UvIGBJzN1Xe4gddUZHolRw5seu90jF9DAgGngTl3wDXl5bede7laXt
+\restrict kULvD2kO9wyd91iuhXbzS4AbZGPX6m7BSX8rdu9Bhecndc3tuTPaKpfb6vsfLrc
 
--- Dumped from database version 18.3
--- Dumped by pg_dump version 18.3
+-- Dumped from database version 18.1
+-- Dumped by pg_dump version 18.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -100,10 +100,8 @@ ALTER FUNCTION public.audit() OWNER TO ths_admin;
 --
 
 CREATE FUNCTION public.fn_default_currency() RETURNS character varying
-    LANGUAGE sql
-    AS $$
-	SELECT para_birimi FROM sys_para_birimi WHERE is_varsayilan LIMIT 1;
-$$;
+    LANGUAGE sql STABLE
+    AS $$ SELECT COALESCE((SELECT app_currency FROM public.sys_application_setting LIMIT 1), (SELECT currency FROM public.sys_currency ORDER BY id LIMIT 1)) $$;
 
 
 ALTER FUNCTION public.fn_default_currency() OWNER TO postgres;
@@ -494,9 +492,9 @@ CREATE TABLE public.acc_account (
     id bigint CONSTRAINT acc_acc_id_nn NOT NULL,
     code character varying(16) CONSTRAINT acc_acc_code_nn NOT NULL,
     name character varying(128) CONSTRAINT acc_acc_name_nn NOT NULL,
-    type_id bigint CONSTRAINT acc_acc_type_nn NOT NULL,
-    group_id bigint,
-    region_id bigint,
+    acc_set_account_type_id bigint CONSTRAINT acc_acc_type_nn NOT NULL,
+    acc_group_id bigint,
+    acc_region_id bigint,
     iban character varying(64),
     iban_currency character varying(3),
     notes character varying(512),
@@ -517,12 +515,13 @@ ALTER TABLE public.acc_account OWNER TO ths_admin;
 
 CREATE TABLE public.acc_account_address (
     id bigint NOT NULL,
-    account_id bigint NOT NULL,
-    address_id bigint NOT NULL,
+    acc_account_id bigint CONSTRAINT acc_account_address_account_id_not_null NOT NULL,
+    sys_address_id bigint CONSTRAINT acc_account_address_address_id_not_null NOT NULL,
     address_type character varying(16) NOT NULL,
     is_primary boolean DEFAULT false NOT NULL,
     valid_from date,
-    valid_to date
+    valid_to date,
+    CONSTRAINT acc_account_address_type_check CHECK (((address_type)::text = ANY ((ARRAY['BILLING'::character varying, 'SHIPPING'::character varying, 'LEGAL'::character varying, 'OTHER'::character varying])::text[])))
 );
 
 
@@ -554,7 +553,7 @@ ALTER TABLE public.acc_account_address ALTER COLUMN id ADD GENERATED ALWAYS AS I
 --
 
 CREATE TABLE public.acc_account_contact (
-    account_id bigint NOT NULL,
+    acc_account_id bigint CONSTRAINT acc_account_contact_account_id_not_null NOT NULL,
     authorized_person_1 character varying(64),
     authorized_phone_1 character varying(32),
     authorized_person_2 character varying(64),
@@ -617,14 +616,15 @@ ALTER TABLE public.acc_account_plan ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 --
 
 CREATE TABLE public.acc_account_taxpayer (
-    account_id bigint NOT NULL,
+    acc_account_id bigint CONSTRAINT acc_account_taxpayer_account_id_not_null NOT NULL,
     taxpayer_type smallint,
     taxpayer_name character varying(32),
     taxpayer_name2 character varying(32),
     taxpayer_surname character varying(32),
     tax_office character varying(64),
     tax_no character varying(32),
-    nace_code character varying(32)
+    nace_code character varying(32),
+    CONSTRAINT acc_account_taxpayer_type_check CHECK (((taxpayer_type IS NULL) OR (taxpayer_type = ANY (ARRAY[1, 2]))))
 );
 
 
@@ -758,7 +758,7 @@ ALTER TABLE public.acc_region ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 CREATE TABLE public.acc_set_account_type (
     id bigint CONSTRAINT acc_set_at_id_nn NOT NULL,
-    name character varying(16) CONSTRAINT acc_set_at_name_nn NOT NULL
+    account_type_key character varying(32) CONSTRAINT acc_set_at_name_nn NOT NULL
 );
 
 
@@ -785,7 +785,7 @@ ALTER TABLE public.acc_set_account_type ALTER COLUMN id ADD GENERATED ALWAYS AS 
 CREATE TABLE public.acc_set_account_type_translation (
     acc_set_account_type_id bigint CONSTRAINT acc_set_account_type_translati_acc_set_account_type_id_not_null NOT NULL,
     sys_language_id bigint NOT NULL,
-    name character varying(16) NOT NULL
+    name character varying(64) NOT NULL
 );
 
 
@@ -797,8 +797,8 @@ ALTER TABLE public.acc_set_account_type_translation OWNER TO ths_admin;
 
 CREATE TABLE public.acc_set_company_legal_form (
     id bigint CONSTRAINT acc_clf_id_nn NOT NULL,
-    ownership_id bigint CONSTRAINT acc_clf_own_nn NOT NULL,
-    name character varying(48) CONSTRAINT acc_clf_name_nn NOT NULL
+    acc_set_ownership_type_id bigint CONSTRAINT acc_clf_own_nn NOT NULL,
+    legal_form_key character varying(48) CONSTRAINT acc_clf_name_nn NOT NULL
 );
 
 
@@ -811,7 +811,7 @@ ALTER TABLE public.acc_set_company_legal_form OWNER TO ths_admin;
 CREATE TABLE public.acc_set_company_legal_form_translation (
     acc_set_company_legal_form_id bigint CONSTRAINT acc_set_company_legal_form__acc_set_company_legal_form_not_null NOT NULL,
     sys_language_id bigint NOT NULL,
-    name character varying(48) NOT NULL
+    name character varying(64) NOT NULL
 );
 
 
@@ -837,7 +837,7 @@ ALTER TABLE public.acc_set_company_legal_form ALTER COLUMN id ADD GENERATED ALWA
 
 CREATE TABLE public.acc_set_ownership_type (
     id bigint CONSTRAINT acc_otn_id_nn NOT NULL,
-    name character varying(32) CONSTRAINT acc_otn_name_nn NOT NULL
+    ownership_type_key character varying(32) CONSTRAINT acc_otn_name_nn NOT NULL
 );
 
 
@@ -864,7 +864,7 @@ ALTER TABLE public.acc_set_ownership_type ALTER COLUMN id ADD GENERATED ALWAYS A
 CREATE TABLE public.acc_set_ownership_type_translation (
     acc_set_ownership_type_id bigint CONSTRAINT acc_set_ownership_type_trans_acc_set_ownership_type_id_not_null NOT NULL,
     sys_language_id bigint NOT NULL,
-    name character varying(32) NOT NULL
+    name character varying(64) NOT NULL
 );
 
 
@@ -933,7 +933,7 @@ ALTER TABLE public.acc_voucher OWNER TO ths_admin;
 
 CREATE TABLE public.acc_voucher_detail (
     id bigint CONSTRAINT mhs_fis_detaylari_id_not_null NOT NULL,
-    header_id bigint CONSTRAINT mhs_fis_detaylari_header_id_not_null NOT NULL
+    acc_voucher_id bigint CONSTRAINT mhs_fis_detaylari_header_id_not_null NOT NULL
 );
 
 
@@ -1116,8 +1116,8 @@ ALTER TABLE public.einv_transport_price ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 CREATE TABLE public.emp_driver_ability (
     id bigint CONSTRAINT prs_driver_abilities_id_not_null NOT NULL,
-    driver_license_id bigint,
-    person_id bigint
+    emp_driver_license_type_id bigint NOT NULL,
+    emp_employee_id bigint NOT NULL
 );
 
 
@@ -1154,7 +1154,7 @@ CREATE TABLE public.emp_employee (
     gender smallint CONSTRAINT prs_persons_gender_not_null NOT NULL,
     military_status smallint,
     marital_status smallint CONSTRAINT prs_persons_marital_status_not_null NOT NULL,
-    child smallint DEFAULT 0,
+    child smallint DEFAULT 0 NOT NULL,
     relative_name character varying(48),
     relative_phone character varying(24),
     shoe_size smallint,
@@ -1163,10 +1163,17 @@ CREATE TABLE public.emp_employee (
     emp_transportation_id bigint,
     special_notes character varying(256),
     salary_amount numeric(18,2) DEFAULT 0,
-    bonus_count integer DEFAULT 0,
+    bonus_count integer DEFAULT 0 NOT NULL,
     bonus_amount numeric(18,2) DEFAULT 0,
     id_document_no text,
-    active boolean DEFAULT false CONSTRAINT prs_persons_active_not_null NOT NULL
+    active boolean DEFAULT false CONSTRAINT prs_persons_active_not_null NOT NULL,
+    CONSTRAINT emp_employee_blood_type_chk CHECK (((blood_type IS NULL) OR ((blood_type)::text = ANY ((ARRAY['A Rh+'::character varying, 'A Rh-'::character varying, 'B Rh+'::character varying, 'B Rh-'::character varying, 'AB Rh+'::character varying, 'AB Rh-'::character varying, '0 Rh+'::character varying, '0 Rh-'::character varying])::text[])))),
+    CONSTRAINT emp_employee_bonus_count_chk CHECK (((bonus_count >= 0) AND (bonus_count <= 30))),
+    CONSTRAINT emp_employee_child_chk CHECK (((child >= 0) AND (child <= 30))),
+    CONSTRAINT emp_employee_clothing_size_chk CHECK (((clothing_size IS NULL) OR ((clothing_size)::text = ANY ((ARRAY['XXS'::character varying, 'XS'::character varying, 'S'::character varying, 'M'::character varying, 'L'::character varying, 'XL'::character varying, 'XXL'::character varying, '3XL'::character varying, '4XL'::character varying, '5XL'::character varying])::text[])))),
+    CONSTRAINT emp_employee_gender_chk CHECK (((gender >= 1) AND (gender <= 2))),
+    CONSTRAINT emp_employee_marital_status_chk CHECK (((marital_status >= 1) AND (marital_status <= 2))),
+    CONSTRAINT emp_employee_military_status_chk CHECK (((military_status IS NULL) OR ((military_status >= 1) AND (military_status <= 3))))
 );
 
 
@@ -1206,25 +1213,13 @@ CREATE TABLE public.emp_language (
 ALTER TABLE public.emp_language OWNER TO ths_admin;
 
 --
--- Name: emp_language_level; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.emp_language_level (
-    id bigint CONSTRAINT prs_set_lll_id_nn NOT NULL,
-    language_level character varying(16) CONSTRAINT prs_set_lll_lname_nn NOT NULL
-);
-
-
-ALTER TABLE public.emp_language_level OWNER TO ths_admin;
-
---
 -- Name: emp_person_address; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.emp_person_address (
     id bigint NOT NULL,
-    person_id bigint NOT NULL,
-    address_id bigint NOT NULL,
+    emp_employee_id bigint CONSTRAINT emp_person_address_person_id_not_null NOT NULL,
+    sys_address_id bigint CONSTRAINT emp_person_address_address_id_not_null NOT NULL,
     address_type character varying(16) NOT NULL,
     is_primary boolean DEFAULT false NOT NULL,
     valid_from date,
@@ -1261,11 +1256,14 @@ ALTER TABLE public.emp_person_address ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 CREATE TABLE public.emp_person_language_ability (
     id bigint CONSTRAINT prs_language_abilities_id_not_null NOT NULL,
-    language_id bigint,
-    read_id bigint,
-    write_id bigint,
-    speak_id bigint,
-    person_id bigint
+    emp_language_id bigint NOT NULL,
+    emp_employee_id bigint NOT NULL,
+    read_level smallint NOT NULL,
+    write_level smallint NOT NULL,
+    speak_level smallint NOT NULL,
+    CONSTRAINT emp_person_language_ability_read_level_chk CHECK (((read_level >= 1) AND (read_level <= 4))),
+    CONSTRAINT emp_person_language_ability_speak_level_chk CHECK (((speak_level >= 1) AND (speak_level <= 4))),
+    CONSTRAINT emp_person_language_ability_write_level_chk CHECK (((write_level >= 1) AND (write_level <= 4)))
 );
 
 
@@ -1277,7 +1275,7 @@ ALTER TABLE public.emp_person_language_ability OWNER TO ths_admin;
 
 CREATE TABLE public.emp_person_type (
     id bigint CONSTRAINT prs_set_ptp_id_nn NOT NULL,
-    person_type character varying(32) CONSTRAINT prs_set_ptp_pname_nn NOT NULL
+    person_type_key character varying(32) CONSTRAINT prs_set_ptp_pname_nn NOT NULL
 );
 
 
@@ -1290,7 +1288,7 @@ ALTER TABLE public.emp_person_type OWNER TO ths_admin;
 CREATE TABLE public.emp_person_type_translation (
     emp_person_type_id bigint NOT NULL,
     sys_language_id bigint NOT NULL,
-    person_type character varying(64) NOT NULL
+    name character varying(64) CONSTRAINT emp_person_type_translation_person_type_not_null NOT NULL
 );
 
 
@@ -1302,7 +1300,7 @@ ALTER TABLE public.emp_person_type_translation OWNER TO ths_admin;
 
 CREATE TABLE public.emp_section (
     id bigint CONSTRAINT prs_set_sec_id_nn NOT NULL,
-    section_name character varying(32) CONSTRAINT prs_set_sec_nname_nn NOT NULL
+    section_key character varying(32) CONSTRAINT prs_set_sec_nname_nn NOT NULL
 );
 
 
@@ -1327,7 +1325,7 @@ ALTER TABLE public.emp_section_translation OWNER TO ths_admin;
 
 CREATE TABLE public.emp_task (
     id bigint CONSTRAINT prs_set_tsk_id_nn NOT NULL,
-    task_name character varying(32) CONSTRAINT prs_set_tsk_nname_nn NOT NULL
+    task_key character varying(32) CONSTRAINT prs_set_tsk_nname_nn NOT NULL
 );
 
 
@@ -1366,8 +1364,8 @@ ALTER TABLE public.emp_transportation OWNER TO ths_admin;
 
 CREATE TABLE public.emp_unit (
     id bigint CONSTRAINT prs_set_unit_id_nn NOT NULL,
-    unit_name character varying(32) CONSTRAINT prs_set_unit_nname_nn NOT NULL,
-    section_id bigint
+    unit_key character varying(32) CONSTRAINT prs_set_unit_nname_nn NOT NULL,
+    emp_section_id bigint
 );
 
 
@@ -1632,20 +1630,6 @@ ALTER TABLE public.emp_driver_ability ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 ALTER TABLE public.emp_employee ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.prs_personel_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: prs_set_lang_level_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.emp_language_level ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.prs_set_lang_level_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2455,8 +2439,8 @@ ALTER SEQUENCE public.stk_card_kind_info_id_seq OWNER TO ths_admin;
 
 CREATE TABLE public.stk_card_kind_info (
     id bigint DEFAULT nextval('public.stk_card_kind_info_id_seq'::regclass) NOT NULL,
-    card_id bigint,
-    kind_id bigint,
+    stk_inventory_id bigint NOT NULL,
+    stk_kind_property_id bigint NOT NULL,
     s1 character varying(64),
     s2 character varying(64),
     s3 character varying(64),
@@ -2489,10 +2473,11 @@ ALTER TABLE public.stk_card_kind_info OWNER TO ths_admin;
 CREATE TABLE public.stk_group (
     id bigint NOT NULL,
     name character varying(32) NOT NULL,
-    vat_rate double precision NOT NULL,
+    vat_rate numeric(5,2) DEFAULT 0 NOT NULL,
     raw_material_stock_account character varying(16),
     raw_material_usage_account character varying(16),
-    semi_product_account character varying(16)
+    semi_product_account character varying(16),
+    CONSTRAINT stk_group_vat_rate_check CHECK (((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric)))
 );
 
 
@@ -2504,19 +2489,22 @@ ALTER TABLE public.stk_group OWNER TO ths_admin;
 
 CREATE TABLE public.stk_transaction (
     id bigint NOT NULL,
-    sku character varying(32) NOT NULL,
     quantity numeric(18,6) NOT NULL,
-    amount numeric(18,6) NOT NULL,
-    amount_foreign numeric(18,6) NOT NULL,
+    amount numeric(18,6) DEFAULT 0 NOT NULL,
+    amount_foreign numeric(18,6) DEFAULT 0 NOT NULL,
     currency character varying(3),
-    direction boolean DEFAULT true,
-    transaction_date timestamp without time zone NOT NULL,
-    from_warehouse bigint NOT NULL,
-    to_warehouse bigint NOT NULL,
-    is_opening boolean DEFAULT false,
+    transaction_date date DEFAULT CURRENT_DATE NOT NULL,
+    from_stk_warehouse_id bigint,
+    to_stk_warehouse_id bigint,
+    is_opening boolean DEFAULT false NOT NULL,
     description character varying(128),
     dispatch_id bigint,
-    production_id bigint
+    production_id bigint,
+    stk_inventory_id bigint NOT NULL,
+    transaction_type smallint NOT NULL,
+    CONSTRAINT stk_transaction_is_opening_check CHECK (((NOT is_opening) OR (transaction_type = 1))),
+    CONSTRAINT stk_transaction_quantity_check CHECK ((quantity > (0)::numeric)),
+    CONSTRAINT stk_transaction_transaction_type_check CHECK ((((transaction_type = 1) AND (to_stk_warehouse_id IS NOT NULL) AND (from_stk_warehouse_id IS NULL)) OR ((transaction_type = 2) AND (from_stk_warehouse_id IS NOT NULL) AND (to_stk_warehouse_id IS NULL)) OR ((transaction_type = 3) AND (from_stk_warehouse_id IS NOT NULL) AND (to_stk_warehouse_id IS NOT NULL) AND (from_stk_warehouse_id <> to_stk_warehouse_id))))
 );
 
 
@@ -2542,7 +2530,7 @@ ALTER TABLE public.stk_transaction ALTER COLUMN id ADD GENERATED ALWAYS AS IDENT
 
 CREATE TABLE public.stk_image (
     id bigint NOT NULL,
-    card_id bigint NOT NULL,
+    stk_inventory_id bigint CONSTRAINT stk_image_card_id_not_null NOT NULL,
     image bytea,
     file_name character varying
 );
@@ -2556,12 +2544,12 @@ ALTER TABLE public.stk_image OWNER TO ths_admin;
 
 CREATE TABLE public.stk_inventory (
     id bigint CONSTRAINT stk_inventory_id_nn NOT NULL,
-    sellable boolean DEFAULT true,
+    sellable boolean DEFAULT true NOT NULL,
     code character varying(32) CONSTRAINT stk_inventory_sku_nn NOT NULL,
     name character varying(128) CONSTRAINT stk_inventory_stock_name_nn NOT NULL,
-    group_id bigint CONSTRAINT stk_inventory_group_id_nn NOT NULL,
-    measurement_id bigint CONSTRAINT stk_inventory_uom_code_nn NOT NULL,
-    product_type smallint CONSTRAINT stk_inventory_product_type_nn NOT NULL,
+    stk_group_id bigint CONSTRAINT stk_inventory_group_id_nn NOT NULL,
+    sys_uom_id bigint CONSTRAINT stk_inventory_uom_code_nn NOT NULL,
+    stk_product_type_id bigint CONSTRAINT stk_inventory_product_type_nn NOT NULL,
     buying_discount numeric(5,2) DEFAULT 0,
     sales_discount numeric(5,2) DEFAULT 0,
     buying_price numeric(18,6) DEFAULT 0,
@@ -2577,11 +2565,13 @@ CREATE TABLE public.stk_inventory (
     supply_duration smallint,
     special_code character varying(16),
     brand character varying(32),
-    origin_id bigint,
+    sys_country_id bigint,
     hs_no character varying(16),
     diib_product_description character varying(64),
     min_stock_amount double precision DEFAULT 0,
-    product_overview text
+    product_overview text,
+    CONSTRAINT stk_inventory_buying_discount_check CHECK (((buying_discount >= (0)::numeric) AND (buying_discount <= (100)::numeric))),
+    CONSTRAINT stk_inventory_sales_discount_check CHECK (((sales_discount >= (0)::numeric) AND (sales_discount <= (100)::numeric)))
 );
 
 
@@ -2593,7 +2583,7 @@ ALTER TABLE public.stk_inventory OWNER TO ths_admin;
 
 CREATE TABLE public.stk_inventory_summary (
     id bigint NOT NULL,
-    inventory_id bigint NOT NULL,
+    stk_inventory_id bigint CONSTRAINT stk_inventory_summary_inventory_id_not_null NOT NULL,
     current_quantity numeric(18,6) DEFAULT 0,
     average_cost numeric(18,6) DEFAULT 0,
     opening_price numeric(18,6) DEFAULT 0,
@@ -2604,7 +2594,7 @@ CREATE TABLE public.stk_inventory_summary (
     outgoing_quantity numeric(18,6) DEFAULT 0,
     outgoing_amount numeric(18,6) DEFAULT 0,
     last_buy_price numeric(18,6),
-    last_buy_money character varying(3),
+    last_buy_currency character varying(3),
     last_buy_date date,
     last_buy_quantity numeric(18,6) DEFAULT 0,
     last_buy_exchange_rate numeric(18,6) DEFAULT 0
@@ -2717,28 +2707,29 @@ CREATE TABLE public.stk_kind_property (
     d2 character varying(32),
     d3 character varying(32),
     d4 character varying(32),
-    d5 character varying(32)
+    d5 character varying(32),
+    stk_kind_family_id bigint
 );
 
 
 ALTER TABLE public.stk_kind_property OWNER TO ths_admin;
 
 --
--- Name: stk_product_type; Type: TABLE; Schema: public; Owner: postgres
+-- Name: stk_product_type; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.stk_product_type (
     id bigint NOT NULL,
     product_type_name character varying(32) NOT NULL,
     description character varying(128),
-    active boolean DEFAULT true
+    active boolean DEFAULT true NOT NULL
 );
 
 
-ALTER TABLE public.stk_product_type OWNER TO postgres;
+ALTER TABLE public.stk_product_type OWNER TO ths_admin;
 
 --
--- Name: stk_product_type_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: stk_product_type_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
 CREATE SEQUENCE public.stk_product_type_id_seq
@@ -2749,10 +2740,10 @@ CREATE SEQUENCE public.stk_product_type_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.stk_product_type_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.stk_product_type_id_seq OWNER TO ths_admin;
 
 --
--- Name: stk_product_type_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: stk_product_type_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
 --
 
 ALTER SEQUENCE public.stk_product_type_id_seq OWNED BY public.stk_product_type.id;
@@ -2778,7 +2769,7 @@ ALTER TABLE public.stk_image ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 CREATE TABLE public.stk_warehouse (
     id bigint NOT NULL,
-    warehouse_name character varying(32),
+    warehouse_name character varying(32) NOT NULL,
     default_raw_material boolean DEFAULT false NOT NULL,
     default_production boolean DEFAULT false NOT NULL,
     default_sales boolean DEFAULT false NOT NULL
@@ -2834,7 +2825,12 @@ CREATE TABLE public.sys_access_right (
     is_update boolean DEFAULT false CONSTRAINT sys_access_right_is_upd_not_null NOT NULL,
     is_delete boolean DEFAULT false CONSTRAINT sys_access_right_is_del_not_null NOT NULL,
     is_special boolean DEFAULT false CONSTRAINT sys_access_right_is_spcl_not_null NOT NULL,
-    sys_user_id bigint CONSTRAINT sys_access_rights_user_id_not_null NOT NULL
+    sys_user_id bigint CONSTRAINT sys_access_rights_user_id_not_null NOT NULL,
+    deny_read boolean DEFAULT false NOT NULL,
+    deny_add boolean DEFAULT false NOT NULL,
+    deny_update boolean DEFAULT false NOT NULL,
+    deny_delete boolean DEFAULT false NOT NULL,
+    deny_special boolean DEFAULT false NOT NULL
 );
 
 
@@ -3307,6 +3303,67 @@ CREATE TABLE public.sys_permission_group_translation (
 ALTER TABLE public.sys_permission_group_translation OWNER TO ths_admin;
 
 --
+-- Name: sys_permission_template; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_permission_template (
+    id bigint NOT NULL,
+    template_key character varying(64) NOT NULL,
+    template_name character varying(128) NOT NULL,
+    description character varying(512),
+    active boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE public.sys_permission_template OWNER TO ths_admin;
+
+--
+-- Name: sys_permission_template_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_permission_template ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_permission_template_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sys_permission_template_right; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_permission_template_right (
+    id bigint NOT NULL,
+    sys_permission_template_id bigint CONSTRAINT sys_permission_template_rig_sys_permission_template_id_not_null NOT NULL,
+    sys_permission_id bigint NOT NULL,
+    is_read boolean DEFAULT false NOT NULL,
+    is_add boolean DEFAULT false NOT NULL,
+    is_update boolean DEFAULT false NOT NULL,
+    is_delete boolean DEFAULT false NOT NULL,
+    is_special boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public.sys_permission_template_right OWNER TO ths_admin;
+
+--
+-- Name: sys_permission_template_right_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_permission_template_right ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_permission_template_right_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sys_permission_translation; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -3459,6 +3516,33 @@ ALTER TABLE public.sys_user_grid_column ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 
 --
+-- Name: sys_user_permission_template; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_user_permission_template (
+    id bigint NOT NULL,
+    sys_user_id bigint NOT NULL,
+    sys_permission_template_id bigint CONSTRAINT sys_user_permission_templat_sys_permission_template_id_not_null NOT NULL
+);
+
+
+ALTER TABLE public.sys_user_permission_template OWNER TO ths_admin;
+
+--
+-- Name: sys_user_permission_template_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_user_permission_template ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_user_permission_template_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sys_uygulama_ayari_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
@@ -3550,9 +3634,12 @@ CREATE VIEW public.vw_acc_account AS
  SELECT a.id,
     a.code,
     a.name,
-    a.type_id,
-    a.group_id,
-    a.region_id,
+    a.acc_set_account_type_id,
+    (COALESCE(att.name, at.account_type_key))::character varying(64) AS account_type_name,
+    a.acc_group_id,
+    g.name AS group_name,
+    a.acc_region_id,
+    r.name AS region_name,
     a.iban,
     a.iban_currency,
     a.notes,
@@ -3578,13 +3665,56 @@ CREATE VIEW public.vw_acc_account AS
     c.fax,
     c.accountant_phone,
     c.accountant_email,
-    c.accountant_authorized
-   FROM ((public.acc_account a
-     LEFT JOIN public.acc_account_taxpayer t ON ((t.account_id = a.id)))
-     LEFT JOIN public.acc_account_contact c ON ((c.account_id = a.id)));
+    c.accountant_authorized,
+    l.locale
+   FROM (((((((public.acc_account a
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.acc_set_account_type at ON ((at.id = a.acc_set_account_type_id)))
+     LEFT JOIN public.acc_set_account_type_translation att ON (((att.acc_set_account_type_id = at.id) AND (att.sys_language_id = l.id))))
+     LEFT JOIN public.acc_group g ON ((g.id = a.acc_group_id)))
+     LEFT JOIN public.acc_region r ON ((r.id = a.acc_region_id)))
+     LEFT JOIN public.acc_account_taxpayer t ON ((t.acc_account_id = a.id)))
+     LEFT JOIN public.acc_account_contact c ON ((c.acc_account_id = a.id)));
 
 
 ALTER VIEW public.vw_acc_account OWNER TO ths_admin;
+
+--
+-- Name: vw_acc_account_address; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_account_address AS
+ SELECT aa.id,
+    aa.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    aa.sys_address_id,
+    (concat_ws(', '::text, NULLIF((ad.neighborhood)::text, ''::text), NULLIF((ad.street)::text, ''::text), NULLIF((ad.door_number)::text, ''::text), NULLIF((ad.district)::text, ''::text), NULLIF((c.city_name)::text, ''::text)))::character varying(256) AS address_text,
+    aa.address_type,
+    aa.is_primary,
+    aa.valid_from,
+    aa.valid_to
+   FROM (((public.acc_account_address aa
+     LEFT JOIN public.acc_account a ON ((a.id = aa.acc_account_id)))
+     LEFT JOIN public.sys_address ad ON ((ad.id = aa.sys_address_id)))
+     LEFT JOIN public.sys_city c ON ((c.id = ad.sys_city_id)));
+
+
+ALTER VIEW public.vw_acc_account_address OWNER TO ths_admin;
+
+--
+-- Name: vw_acc_account_plan; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_account_plan AS
+ SELECT id,
+    code,
+    name,
+    level
+   FROM public.acc_account_plan p;
+
+
+ALTER VIEW public.vw_acc_account_plan OWNER TO ths_admin;
 
 --
 -- Name: vw_acc_bank; Type: VIEW; Schema: public; Owner: ths_admin
@@ -3594,10 +3724,67 @@ CREATE VIEW public.vw_acc_bank AS
  SELECT id,
     bank_name,
     swift_code
-   FROM public.acc_bank;
+   FROM public.acc_bank b;
 
 
 ALTER VIEW public.vw_acc_bank OWNER TO ths_admin;
+
+--
+-- Name: vw_acc_bank_branch; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_bank_branch AS
+ SELECT br.id,
+    br.acc_bank_id,
+    b.bank_name,
+    br.branch_code,
+    br.branch_name,
+    br.sys_city_id,
+    c.city_name
+   FROM ((public.acc_bank_branch br
+     LEFT JOIN public.acc_bank b ON ((b.id = br.acc_bank_id)))
+     LEFT JOIN public.sys_city c ON ((c.id = br.sys_city_id)));
+
+
+ALTER VIEW public.vw_acc_bank_branch OWNER TO ths_admin;
+
+--
+-- Name: vw_acc_exchange_rate; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_exchange_rate AS
+ SELECT id,
+    rate_date,
+    rate,
+    currency
+   FROM public.acc_exchange_rate r;
+
+
+ALTER VIEW public.vw_acc_exchange_rate OWNER TO ths_admin;
+
+--
+-- Name: vw_acc_group; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_group AS
+ SELECT id,
+    name
+   FROM public.acc_group g;
+
+
+ALTER VIEW public.vw_acc_group OWNER TO ths_admin;
+
+--
+-- Name: vw_acc_region; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_region AS
+ SELECT id,
+    name
+   FROM public.acc_region r;
+
+
+ALTER VIEW public.vw_acc_region OWNER TO ths_admin;
 
 --
 -- Name: vw_acc_set_account_type; Type: VIEW; Schema: public; Owner: ths_admin
@@ -3605,11 +3792,12 @@ ALTER VIEW public.vw_acc_bank OWNER TO ths_admin;
 
 CREATE VIEW public.vw_acc_set_account_type AS
  SELECT t.id,
-    tt.name,
+    t.account_type_key,
+    (COALESCE(tt.name, t.account_type_key))::character varying(64) AS account_type_name,
     l.locale
    FROM ((public.acc_set_account_type t
-     LEFT JOIN public.acc_set_account_type_translation tt ON ((tt.acc_set_account_type_id = t.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = tt.sys_language_id)));
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.acc_set_account_type_translation tt ON (((tt.acc_set_account_type_id = t.id) AND (tt.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_acc_set_account_type OWNER TO ths_admin;
@@ -3620,12 +3808,16 @@ ALTER VIEW public.vw_acc_set_account_type OWNER TO ths_admin;
 
 CREATE VIEW public.vw_acc_set_company_legal_form AS
  SELECT f.id,
-    f.ownership_id,
-    ft.name,
+    f.legal_form_key,
+    (COALESCE(ft.name, f.legal_form_key))::character varying(64) AS legal_form_name,
+    f.acc_set_ownership_type_id,
+    (COALESCE(ot.name, o.ownership_type_key))::character varying(64) AS ownership_type_name,
     l.locale
-   FROM ((public.acc_set_company_legal_form f
-     LEFT JOIN public.acc_set_company_legal_form_translation ft ON ((ft.acc_set_company_legal_form_id = f.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = ft.sys_language_id)));
+   FROM ((((public.acc_set_company_legal_form f
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.acc_set_company_legal_form_translation ft ON (((ft.acc_set_company_legal_form_id = f.id) AND (ft.sys_language_id = l.id))))
+     LEFT JOIN public.acc_set_ownership_type o ON ((o.id = f.acc_set_ownership_type_id)))
+     LEFT JOIN public.acc_set_ownership_type_translation ot ON (((ot.acc_set_ownership_type_id = o.id) AND (ot.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_acc_set_company_legal_form OWNER TO ths_admin;
@@ -3636,14 +3828,211 @@ ALTER VIEW public.vw_acc_set_company_legal_form OWNER TO ths_admin;
 
 CREATE VIEW public.vw_acc_set_ownership_type AS
  SELECT o.id,
-    ot.name,
+    o.ownership_type_key,
+    (COALESCE(ot.name, o.ownership_type_key))::character varying(64) AS ownership_type_name,
     l.locale
    FROM ((public.acc_set_ownership_type o
-     LEFT JOIN public.acc_set_ownership_type_translation ot ON ((ot.acc_set_ownership_type_id = o.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = ot.sys_language_id)));
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.acc_set_ownership_type_translation ot ON (((ot.acc_set_ownership_type_id = o.id) AND (ot.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_acc_set_ownership_type OWNER TO ths_admin;
+
+--
+-- Name: vw_acc_set_tax_rate; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_set_tax_rate AS
+ SELECT id,
+    tax_rate,
+    sales_account,
+    sales_return_account,
+    purchase_account,
+    purchase_return_account
+   FROM public.acc_set_tax_rate tr;
+
+
+ALTER VIEW public.vw_acc_set_tax_rate OWNER TO ths_admin;
+
+--
+-- Name: vw_acc_transfer_code; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_transfer_code AS
+ SELECT tc.id,
+    tc.transfer_code,
+    tc.description,
+    tc.account,
+    a.name AS account_name
+   FROM (public.acc_transfer_code tc
+     LEFT JOIN public.acc_account a ON (((a.code)::text = (tc.account)::text)));
+
+
+ALTER VIEW public.vw_acc_transfer_code OWNER TO ths_admin;
+
+--
+-- Name: vw_acc_voucher; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_voucher AS
+ SELECT id,
+    journal_no,
+    journal_date
+   FROM public.acc_voucher v;
+
+
+ALTER VIEW public.vw_acc_voucher OWNER TO ths_admin;
+
+--
+-- Name: vw_acc_voucher_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_acc_voucher_detail AS
+ SELECT d.id,
+    d.acc_voucher_id,
+    v.journal_no
+   FROM (public.acc_voucher_detail d
+     LEFT JOIN public.acc_voucher v ON ((v.id = d.acc_voucher_id)));
+
+
+ALTER VIEW public.vw_acc_voucher_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_emp_driver_ability; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_emp_driver_ability AS
+ SELECT d.id,
+    d.emp_employee_id,
+    e.full_name,
+    d.emp_driver_license_type_id,
+    lt.license_name
+   FROM ((public.emp_driver_ability d
+     LEFT JOIN public.emp_employee e ON ((e.id = d.emp_employee_id)))
+     LEFT JOIN public.emp_driver_license_type lt ON ((lt.id = d.emp_driver_license_type_id)));
+
+
+ALTER VIEW public.vw_emp_driver_ability OWNER TO ths_admin;
+
+--
+-- Name: vw_emp_driver_license_type; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_emp_driver_license_type AS
+ SELECT id,
+    license_name
+   FROM public.emp_driver_license_type;
+
+
+ALTER VIEW public.vw_emp_driver_license_type OWNER TO ths_admin;
+
+--
+-- Name: vw_emp_employee; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_emp_employee AS
+ SELECT e.id,
+    e.name,
+    e.surname,
+    e.full_name,
+    e.phone1,
+    e.phone2,
+    e.emp_person_type_id,
+    (COALESCE(ptt.name, pt.person_type_key))::character varying(64) AS person_type,
+    e.emp_unit_id,
+    (COALESCE(ut.name, u.unit_key))::character varying(64) AS unit_name,
+    u.emp_section_id,
+    (COALESCE(st.name, s.section_key))::character varying(64) AS section_name,
+    e.emp_task_id,
+    (COALESCE(tt.name, t.task_key))::character varying(64) AS task_name,
+    e.birth_date,
+    e.blood_type,
+    e.gender,
+    e.military_status,
+    e.marital_status,
+    e.child,
+    e.relative_name,
+    e.relative_phone,
+    e.shoe_size,
+    e.clothing_size,
+    e.notes,
+    e.emp_transportation_id,
+    tr.car_name AS transportation_name,
+    e.special_notes,
+    e.salary_amount,
+    e.bonus_count,
+    e.bonus_amount,
+    e.id_document_no,
+    e.active,
+    l.locale
+   FROM ((((((((((public.emp_employee e
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.emp_person_type pt ON ((pt.id = e.emp_person_type_id)))
+     LEFT JOIN public.emp_person_type_translation ptt ON (((ptt.emp_person_type_id = pt.id) AND (ptt.sys_language_id = l.id))))
+     LEFT JOIN public.emp_unit u ON ((u.id = e.emp_unit_id)))
+     LEFT JOIN public.emp_unit_translation ut ON (((ut.emp_unit_id = u.id) AND (ut.sys_language_id = l.id))))
+     LEFT JOIN public.emp_section s ON ((s.id = u.emp_section_id)))
+     LEFT JOIN public.emp_section_translation st ON (((st.emp_section_id = s.id) AND (st.sys_language_id = l.id))))
+     LEFT JOIN public.emp_task t ON ((t.id = e.emp_task_id)))
+     LEFT JOIN public.emp_task_translation tt ON (((tt.emp_task_id = t.id) AND (tt.sys_language_id = l.id))))
+     LEFT JOIN public.emp_transportation tr ON ((tr.id = e.emp_transportation_id)));
+
+
+ALTER VIEW public.vw_emp_employee OWNER TO ths_admin;
+
+--
+-- Name: vw_emp_language; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_emp_language AS
+ SELECT id,
+    language_name
+   FROM public.emp_language;
+
+
+ALTER VIEW public.vw_emp_language OWNER TO ths_admin;
+
+--
+-- Name: vw_emp_person_address; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_emp_person_address AS
+ SELECT pa.id,
+    pa.emp_employee_id,
+    e.full_name,
+    pa.sys_address_id,
+    (concat_ws(', '::text, NULLIF((a.neighborhood)::text, ''::text), NULLIF((a.street)::text, ''::text), NULLIF((a.door_number)::text, ''::text), NULLIF((a.district)::text, ''::text), NULLIF((c.city_name)::text, ''::text)))::character varying(256) AS address_text,
+    pa.address_type,
+    pa.is_primary,
+    pa.valid_from,
+    pa.valid_to
+   FROM (((public.emp_person_address pa
+     LEFT JOIN public.emp_employee e ON ((e.id = pa.emp_employee_id)))
+     LEFT JOIN public.sys_address a ON ((a.id = pa.sys_address_id)))
+     LEFT JOIN public.sys_city c ON ((c.id = a.sys_city_id)));
+
+
+ALTER VIEW public.vw_emp_person_address OWNER TO ths_admin;
+
+--
+-- Name: vw_emp_person_language_ability; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_emp_person_language_ability AS
+ SELECT a.id,
+    a.emp_employee_id,
+    e.full_name,
+    a.emp_language_id,
+    lg.language_name,
+    a.read_level,
+    a.write_level,
+    a.speak_level
+   FROM ((public.emp_person_language_ability a
+     LEFT JOIN public.emp_employee e ON ((e.id = a.emp_employee_id)))
+     LEFT JOIN public.emp_language lg ON ((lg.id = a.emp_language_id)));
+
+
+ALTER VIEW public.vw_emp_person_language_ability OWNER TO ths_admin;
 
 --
 -- Name: vw_emp_person_type; Type: VIEW; Schema: public; Owner: ths_admin
@@ -3651,11 +4040,12 @@ ALTER VIEW public.vw_acc_set_ownership_type OWNER TO ths_admin;
 
 CREATE VIEW public.vw_emp_person_type AS
  SELECT pt.id,
-    ptt.person_type,
+    pt.person_type_key,
+    (COALESCE(t.name, pt.person_type_key))::character varying(64) AS person_type,
     l.locale
    FROM ((public.emp_person_type pt
-     LEFT JOIN public.emp_person_type_translation ptt ON ((ptt.emp_person_type_id = pt.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = ptt.sys_language_id)));
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.emp_person_type_translation t ON (((t.emp_person_type_id = pt.id) AND (t.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_emp_person_type OWNER TO ths_admin;
@@ -3666,11 +4056,12 @@ ALTER VIEW public.vw_emp_person_type OWNER TO ths_admin;
 
 CREATE VIEW public.vw_emp_section AS
  SELECT s.id,
-    st.name AS section_name,
+    s.section_key,
+    (COALESCE(t.name, s.section_key))::character varying(64) AS section_name,
     l.locale
    FROM ((public.emp_section s
-     LEFT JOIN public.emp_section_translation st ON ((st.emp_section_id = s.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = st.sys_language_id)));
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.emp_section_translation t ON (((t.emp_section_id = s.id) AND (t.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_emp_section OWNER TO ths_admin;
@@ -3680,15 +4071,29 @@ ALTER VIEW public.vw_emp_section OWNER TO ths_admin;
 --
 
 CREATE VIEW public.vw_emp_task AS
- SELECT t.id,
-    tt.name AS task_name,
+ SELECT tk.id,
+    tk.task_key,
+    (COALESCE(t.name, tk.task_key))::character varying(64) AS task_name,
     l.locale
-   FROM ((public.emp_task t
-     LEFT JOIN public.emp_task_translation tt ON ((tt.emp_task_id = t.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = tt.sys_language_id)));
+   FROM ((public.emp_task tk
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.emp_task_translation t ON (((t.emp_task_id = tk.id) AND (t.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_emp_task OWNER TO ths_admin;
+
+--
+-- Name: vw_emp_transportation; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_emp_transportation AS
+ SELECT id,
+    car_no,
+    car_name
+   FROM public.emp_transportation;
+
+
+ALTER VIEW public.vw_emp_transportation OWNER TO ths_admin;
 
 --
 -- Name: vw_emp_unit; Type: VIEW; Schema: public; Owner: ths_admin
@@ -3696,44 +4101,314 @@ ALTER VIEW public.vw_emp_task OWNER TO ths_admin;
 
 CREATE VIEW public.vw_emp_unit AS
  SELECT u.id,
-    u.section_id,
-    ut.name AS unit_name,
-    l.locale,
-    sec.section_name
-   FROM (((public.emp_unit u
-     LEFT JOIN public.emp_unit_translation ut ON ((ut.emp_unit_id = u.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = ut.sys_language_id)))
-     LEFT JOIN public.vw_emp_section sec ON (((sec.id = u.section_id) AND ((sec.locale)::text = (l.locale)::text))));
+    u.unit_key,
+    (COALESCE(ut.name, u.unit_key))::character varying(64) AS unit_name,
+    u.emp_section_id,
+    (COALESCE(st.name, s.section_key))::character varying(64) AS section_name,
+    l.locale
+   FROM ((((public.emp_unit u
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.emp_unit_translation ut ON (((ut.emp_unit_id = u.id) AND (ut.sys_language_id = l.id))))
+     LEFT JOIN public.emp_section s ON ((s.id = u.emp_section_id)))
+     LEFT JOIN public.emp_section_translation st ON (((st.emp_section_id = s.id) AND (st.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_emp_unit OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_card_kind_info; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_card_kind_info AS
+ SELECT k.id,
+    k.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    k.stk_kind_property_id,
+    p.kind AS kind_name,
+    k.s1,
+    k.s2,
+    k.s3,
+    k.s4,
+    k.s5,
+    k.s6,
+    k.s7,
+    k.s8,
+    k.s9,
+    k.s10,
+    k.i1,
+    k.i2,
+    k.i3,
+    k.i4,
+    k.i5,
+    k.d1,
+    k.d2,
+    k.d3,
+    k.d4,
+    k.d5
+   FROM ((public.stk_card_kind_info k
+     LEFT JOIN public.stk_inventory i ON ((i.id = k.stk_inventory_id)))
+     LEFT JOIN public.stk_kind_property p ON ((p.id = k.stk_kind_property_id)));
+
+
+ALTER VIEW public.vw_stk_card_kind_info OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_group; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_group AS
+ SELECT id,
+    name,
+    vat_rate,
+    raw_material_stock_account,
+    raw_material_usage_account,
+    semi_product_account
+   FROM public.stk_group g;
+
+
+ALTER VIEW public.vw_stk_group OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_inventory; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_inventory AS
+ SELECT i.id,
+    i.code,
+    i.name,
+    i.sellable,
+    i.stk_group_id,
+    g.name AS group_name,
+    i.sys_uom_id,
+    (COALESCE(ut.uom_name, u.unit_code))::character varying(64) AS uom_name,
+    i.stk_product_type_id,
+    pt.product_type_name,
+    i.buying_price,
+    i.buying_currency,
+    i.buying_discount,
+    i.sales_price,
+    i.sales_currency,
+    i.sales_discount,
+    i.export_price,
+    i.export_currency,
+    i.width,
+    i.length,
+    i.height,
+    i.weight,
+    i.supply_duration,
+    i.min_stock_amount,
+    i.special_code,
+    i.brand,
+    i.sys_country_id,
+    (COALESCE(ct.country_name, c.country_code))::character varying(128) AS country_name,
+    i.hs_no,
+    i.diib_product_description,
+    i.product_overview,
+    COALESCE(s.current_quantity, (0)::numeric) AS current_quantity,
+    COALESCE(s.average_cost, (0)::numeric) AS average_cost,
+    l.locale
+   FROM ((((((((public.stk_inventory i
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.stk_group g ON ((g.id = i.stk_group_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+     LEFT JOIN public.sys_uom_translation ut ON (((ut.sys_uom_id = u.id) AND (ut.sys_language_id = l.id))))
+     LEFT JOIN public.stk_product_type pt ON ((pt.id = i.stk_product_type_id)))
+     LEFT JOIN public.sys_country c ON ((c.id = i.sys_country_id)))
+     LEFT JOIN public.sys_country_translation ct ON (((ct.sys_country_id = c.id) AND (ct.sys_language_id = l.id))))
+     LEFT JOIN public.stk_inventory_summary s ON ((s.stk_inventory_id = i.id)));
+
+
+ALTER VIEW public.vw_stk_inventory OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_inventory_summary; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_inventory_summary AS
+ SELECT s.id,
+    s.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    s.current_quantity,
+    s.average_cost,
+    s.opening_quantity,
+    s.opening_price,
+    s.opening_amount,
+    s.incoming_quantity,
+    s.incoming_amount,
+    s.outgoing_quantity,
+    s.outgoing_amount,
+    s.last_buy_date,
+    s.last_buy_quantity,
+    s.last_buy_price,
+    s.last_buy_currency,
+    s.last_buy_exchange_rate
+   FROM (public.stk_inventory_summary s
+     JOIN public.stk_inventory i ON ((i.id = s.stk_inventory_id)));
+
+
+ALTER VIEW public.vw_stk_inventory_summary OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_kind_family; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_kind_family AS
+ SELECT id,
+    family,
+    description,
+    active
+   FROM public.stk_kind_family f;
+
+
+ALTER VIEW public.vw_stk_kind_family OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_kind_property; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_kind_property AS
+ SELECT p.id,
+    p.kind,
+    p.description,
+    p.stk_kind_family_id,
+    f.family AS family_name,
+    p.s1,
+    p.s2,
+    p.s3,
+    p.s4,
+    p.s5,
+    p.s6,
+    p.s7,
+    p.s8,
+    p.s9,
+    p.s10,
+    p.i1,
+    p.i2,
+    p.i3,
+    p.i4,
+    p.i5,
+    p.d1,
+    p.d2,
+    p.d3,
+    p.d4,
+    p.d5
+   FROM (public.stk_kind_property p
+     LEFT JOIN public.stk_kind_family f ON ((f.id = p.stk_kind_family_id)));
+
+
+ALTER VIEW public.vw_stk_kind_property OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_product_type; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_product_type AS
+ SELECT id,
+    product_type_name,
+    description,
+    active
+   FROM public.stk_product_type t;
+
+
+ALTER VIEW public.vw_stk_product_type OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_transaction; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_transaction AS
+ SELECT t.id,
+    t.transaction_date,
+    t.transaction_type,
+    t.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    t.from_stk_warehouse_id,
+    wf.warehouse_name AS from_warehouse_name,
+    t.to_stk_warehouse_id,
+    wt.warehouse_name AS to_warehouse_name,
+    t.quantity,
+    t.amount,
+    t.amount_foreign,
+    t.currency,
+    t.is_opening,
+    t.description,
+    t.dispatch_id,
+    t.production_id
+   FROM (((public.stk_transaction t
+     LEFT JOIN public.stk_inventory i ON ((i.id = t.stk_inventory_id)))
+     LEFT JOIN public.stk_warehouse wf ON ((wf.id = t.from_stk_warehouse_id)))
+     LEFT JOIN public.stk_warehouse wt ON ((wt.id = t.to_stk_warehouse_id)));
+
+
+ALTER VIEW public.vw_stk_transaction OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_warehouse; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_warehouse AS
+ SELECT id,
+    warehouse_name,
+    default_raw_material,
+    default_production,
+    default_sales
+   FROM public.stk_warehouse w;
+
+
+ALTER VIEW public.vw_stk_warehouse OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_permission; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_permission AS
+ SELECT p.id,
+    p.permission_key,
+    p.permission_code,
+    COALESCE(pt.permission_name, p.permission_key) AS permission_name,
+    p.sys_permission_group_id,
+    pg.permission_group_key,
+    COALESCE(pgt.permission_group_name, pg.permission_group_key) AS permission_group_name,
+    l.locale
+   FROM ((((public.sys_permission p
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.sys_permission_group pg ON ((pg.id = p.sys_permission_group_id)))
+     LEFT JOIN public.sys_permission_translation pt ON (((pt.sys_permission_id = p.id) AND (pt.sys_language_id = l.id))))
+     LEFT JOIN public.sys_permission_group_translation pgt ON (((pgt.sys_permission_group_id = pg.id) AND (pgt.sys_language_id = l.id))));
+
+
+ALTER VIEW public.vw_sys_permission OWNER TO ths_admin;
 
 --
 -- Name: vw_sys_access_right; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
 CREATE VIEW public.vw_sys_access_right AS
- SELECT DISTINCT a.id,
+ SELECT a.id,
     u.username,
     e.full_name,
     p.permission_code,
-    pt.permission_name,
-    pgt.permission_group_name,
+    p.permission_name,
+    p.permission_group_name,
     a.sys_permission_id,
     a.is_read,
     a.is_add,
     a.is_update,
     a.is_delete,
     a.is_special,
+    a.deny_read,
+    a.deny_add,
+    a.deny_update,
+    a.deny_delete,
+    a.deny_special,
     a.sys_user_id,
-    l.locale
-   FROM (((((((public.sys_access_right a
-     LEFT JOIN public.sys_permission p ON ((p.id = a.sys_permission_id)))
-     LEFT JOIN public.sys_permission_translation pt ON ((pt.sys_permission_id = p.id)))
-     LEFT JOIN public.sys_permission_group pg ON ((pg.id = p.sys_permission_group_id)))
-     LEFT JOIN public.sys_permission_group_translation pgt ON (((pgt.sys_permission_group_id = p.sys_permission_group_id) AND (pt.sys_language_id = pgt.sys_language_id))))
-     LEFT JOIN public.sys_language l ON ((l.id = pt.sys_language_id)))
-     LEFT JOIN public.sys_user u ON ((u.id = a.sys_user_id)))
+    p.locale
+   FROM (((public.sys_access_right a
+     JOIN public.vw_sys_permission p ON ((p.id = a.sys_permission_id)))
+     JOIN public.sys_user u ON ((u.id = a.sys_user_id)))
      LEFT JOIN public.emp_employee e ON ((e.id = u.emp_employee_id)));
 
 
@@ -3748,7 +4423,7 @@ CREATE VIEW public.vw_sys_address AS
     cnt.country_name,
     ct.city_name,
     a.sys_city_id,
-    cn.id AS country_id,
+    ct.sys_country_id,
     a.district,
     a.neighborhood,
     a.quarter,
@@ -3760,11 +4435,10 @@ CREATE VIEW public.vw_sys_address AS
     a.web,
     a.email,
     l.locale
-   FROM ((((public.sys_address a
+   FROM (((public.sys_address a
+     CROSS JOIN public.sys_language l)
      LEFT JOIN public.sys_city ct ON ((ct.id = a.sys_city_id)))
-     LEFT JOIN public.sys_country cn ON ((cn.id = ct.sys_country_id)))
-     LEFT JOIN public.sys_country_translation cnt ON ((cnt.sys_country_id = cn.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = cnt.sys_language_id)));
+     LEFT JOIN public.sys_country_translation cnt ON (((cnt.sys_country_id = ct.sys_country_id) AND (cnt.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_sys_address OWNER TO ths_admin;
@@ -3910,28 +4584,6 @@ CREATE VIEW public.vw_sys_language AS
 ALTER VIEW public.vw_sys_language OWNER TO ths_admin;
 
 --
--- Name: vw_sys_permission; Type: VIEW; Schema: public; Owner: ths_admin
---
-
-CREATE VIEW public.vw_sys_permission AS
- SELECT p.id,
-    p.permission_key,
-    p.permission_code,
-    pt.permission_name,
-    p.sys_permission_group_id,
-    pg.permission_group_key,
-    pgt.permission_group_name,
-    l.locale
-   FROM ((((public.sys_permission p
-     LEFT JOIN public.sys_permission_group pg ON ((pg.id = p.sys_permission_group_id)))
-     LEFT JOIN public.sys_permission_translation pt ON ((pt.sys_permission_id = p.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = pt.sys_language_id)))
-     LEFT JOIN public.sys_permission_group_translation pgt ON (((pgt.sys_permission_group_id = pg.id) AND (pgt.sys_language_id = l.id))));
-
-
-ALTER VIEW public.vw_sys_permission OWNER TO ths_admin;
-
---
 -- Name: vw_sys_permission_group; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -3946,6 +4598,54 @@ CREATE VIEW public.vw_sys_permission_group AS
 
 
 ALTER VIEW public.vw_sys_permission_group OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_permission_template; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_permission_template AS
+ SELECT id,
+    template_key,
+    template_name,
+    description,
+    active,
+    ( SELECT count(*) AS count
+           FROM public.sys_permission_template_right r
+          WHERE (r.sys_permission_template_id = t.id)) AS right_count,
+    ( SELECT count(*) AS count
+           FROM public.sys_user_permission_template u
+          WHERE (u.sys_permission_template_id = t.id)) AS user_count
+   FROM public.sys_permission_template t;
+
+
+ALTER VIEW public.vw_sys_permission_template OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_permission_template_right; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_permission_template_right AS
+ SELECT r.id,
+    r.sys_permission_template_id,
+    t.template_key,
+    t.template_name,
+    r.sys_permission_id,
+    p.permission_code,
+    p.permission_key,
+    p.permission_name,
+    p.permission_group_name,
+    r.is_read,
+    r.is_add,
+    r.is_update,
+    r.is_delete,
+    r.is_special,
+    p.locale
+   FROM ((public.sys_permission_template_right r
+     JOIN public.sys_permission_template t ON ((t.id = r.sys_permission_template_id)))
+     JOIN public.vw_sys_permission p ON ((p.id = r.sys_permission_id)));
+
+
+ALTER VIEW public.vw_sys_permission_template_right OWNER TO ths_admin;
 
 --
 -- Name: vw_sys_region; Type: VIEW; Schema: public; Owner: ths_admin
@@ -4003,13 +4703,13 @@ ALTER VIEW public.vw_sys_uom_group OWNER TO ths_admin;
 --
 
 CREATE VIEW public.vw_sys_user AS
- SELECT DISTINCT u.id,
+ SELECT u.id,
     e.name,
     e.surname,
     u.user_password,
     e.full_name,
-    est.name AS section_name,
-    eut.name AS unit_name,
+    e.section_name,
+    e.unit_name,
     u.username,
     u.active,
     u.manager,
@@ -4018,16 +4718,76 @@ CREATE VIEW public.vw_sys_user AS
     u.mac_address,
     u.emp_employee_id,
     l.locale
-   FROM ((((((public.sys_user u
-     LEFT JOIN public.emp_employee e ON ((e.id = u.emp_employee_id)))
-     LEFT JOIN public.emp_unit eu ON ((eu.id = e.emp_unit_id)))
-     LEFT JOIN public.emp_section es ON ((es.id = eu.section_id)))
-     LEFT JOIN public.emp_unit_translation eut ON ((eut.emp_unit_id = eu.id)))
-     LEFT JOIN public.emp_section_translation est ON ((est.emp_section_id = eu.section_id)))
-     LEFT JOIN public.sys_language l ON ((l.id = eut.sys_language_id)));
+   FROM ((public.sys_user u
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.vw_emp_employee e ON (((e.id = u.emp_employee_id) AND ((e.locale)::text = (l.locale)::text))));
 
 
 ALTER VIEW public.vw_sys_user OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_user_effective_permission; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_user_effective_permission AS
+ WITH tpl AS (
+         SELECT ut.sys_user_id,
+            r.sys_permission_id,
+            bool_or(r.is_read) AS is_read,
+            bool_or(r.is_add) AS is_add,
+            bool_or(r.is_update) AS is_update,
+            bool_or(r.is_delete) AS is_delete,
+            bool_or(r.is_special) AS is_special
+           FROM ((public.sys_user_permission_template ut
+             JOIN public.sys_permission_template t ON (((t.id = ut.sys_permission_template_id) AND t.active)))
+             JOIN public.sys_permission_template_right r ON ((r.sys_permission_template_id = t.id)))
+          GROUP BY ut.sys_user_id, r.sys_permission_id
+        ), k AS (
+         SELECT tpl_1.sys_user_id,
+            tpl_1.sys_permission_id
+           FROM tpl tpl_1
+        UNION
+         SELECT sys_access_right.sys_user_id,
+            sys_access_right.sys_permission_id
+           FROM public.sys_access_right
+        )
+ SELECT k.sys_user_id,
+    k.sys_permission_id,
+    p.permission_code,
+    p.permission_key,
+    ((COALESCE(tpl.is_read, false) OR COALESCE(a.is_read, false)) AND (NOT COALESCE(a.deny_read, false))) AS is_read,
+    ((COALESCE(tpl.is_add, false) OR COALESCE(a.is_add, false)) AND (NOT COALESCE(a.deny_add, false))) AS is_add,
+    ((COALESCE(tpl.is_update, false) OR COALESCE(a.is_update, false)) AND (NOT COALESCE(a.deny_update, false))) AS is_update,
+    ((COALESCE(tpl.is_delete, false) OR COALESCE(a.is_delete, false)) AND (NOT COALESCE(a.deny_delete, false))) AS is_delete,
+    ((COALESCE(tpl.is_special, false) OR COALESCE(a.is_special, false)) AND (NOT COALESCE(a.deny_special, false))) AS is_special
+   FROM (((k
+     JOIN public.sys_permission p ON ((p.id = k.sys_permission_id)))
+     LEFT JOIN tpl ON (((tpl.sys_user_id = k.sys_user_id) AND (tpl.sys_permission_id = k.sys_permission_id))))
+     LEFT JOIN public.sys_access_right a ON (((a.sys_user_id = k.sys_user_id) AND (a.sys_permission_id = k.sys_permission_id))));
+
+
+ALTER VIEW public.vw_sys_user_effective_permission OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_user_permission_template; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_user_permission_template AS
+ SELECT ut.id,
+    ut.sys_user_id,
+    u.username,
+    e.full_name,
+    ut.sys_permission_template_id,
+    t.template_key,
+    t.template_name,
+    t.active
+   FROM (((public.sys_user_permission_template ut
+     JOIN public.sys_user u ON ((u.id = ut.sys_user_id)))
+     JOIN public.sys_permission_template t ON ((t.id = ut.sys_permission_template_id)))
+     LEFT JOIN public.emp_employee e ON ((e.id = u.emp_employee_id)));
+
+
+ALTER VIEW public.vw_sys_user_permission_template OWNER TO ths_admin;
 
 --
 -- Name: pur_offer_detail id; Type: DEFAULT; Schema: public; Owner: ths_admin
@@ -4044,7 +4804,7 @@ ALTER TABLE ONLY public.stk_kind_family ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- Name: stk_product_type id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: stk_product_type id; Type: DEFAULT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_product_type ALTER COLUMN id SET DEFAULT nextval('public.stk_product_type_id_seq'::regclass);
@@ -4079,7 +4839,15 @@ ALTER TABLE ONLY public.acc_account_address
 --
 
 ALTER TABLE ONLY public.acc_account_contact
-    ADD CONSTRAINT acc_account_contact_pkey PRIMARY KEY (account_id);
+    ADD CONSTRAINT acc_account_contact_pkey PRIMARY KEY (acc_account_id);
+
+
+--
+-- Name: acc_account_plan acc_account_plan_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.acc_account_plan
+    ADD CONSTRAINT acc_account_plan_code_key UNIQUE (code);
 
 
 --
@@ -4087,7 +4855,7 @@ ALTER TABLE ONLY public.acc_account_contact
 --
 
 ALTER TABLE ONLY public.acc_account_taxpayer
-    ADD CONSTRAINT acc_account_taxpayer_pkey PRIMARY KEY (account_id);
+    ADD CONSTRAINT acc_account_taxpayer_pkey PRIMARY KEY (acc_account_id);
 
 
 --
@@ -4135,7 +4903,7 @@ ALTER TABLE ONLY public.acc_bank_branch
 --
 
 ALTER TABLE ONLY public.acc_set_company_legal_form
-    ADD CONSTRAINT acc_clf_name_key UNIQUE (name);
+    ADD CONSTRAINT acc_clf_name_key UNIQUE (legal_form_key);
 
 
 --
@@ -4183,7 +4951,7 @@ ALTER TABLE ONLY public.acc_group
 --
 
 ALTER TABLE ONLY public.acc_set_ownership_type
-    ADD CONSTRAINT acc_otn_name_key UNIQUE (name);
+    ADD CONSTRAINT acc_otn_name_key UNIQUE (ownership_type_key);
 
 
 --
@@ -4231,7 +4999,7 @@ ALTER TABLE ONLY public.acc_set_account_type
 --
 
 ALTER TABLE ONLY public.acc_set_account_type
-    ADD CONSTRAINT acc_set_at_type_key UNIQUE (name);
+    ADD CONSTRAINT acc_set_at_type_key UNIQUE (account_type_key);
 
 
 --
@@ -4575,7 +5343,7 @@ ALTER TABLE ONLY public.prd_bom_raw
 --
 
 ALTER TABLE ONLY public.emp_driver_ability
-    ADD CONSTRAINT prs_driver_abilities_driver_license_id_person_id_key UNIQUE (driver_license_id, person_id);
+    ADD CONSTRAINT prs_driver_abilities_driver_license_id_person_id_key UNIQUE (emp_driver_license_type_id, emp_employee_id);
 
 
 --
@@ -4591,7 +5359,7 @@ ALTER TABLE ONLY public.emp_driver_ability
 --
 
 ALTER TABLE ONLY public.emp_person_language_ability
-    ADD CONSTRAINT prs_language_abilities_language_id_person_id_key UNIQUE (language_id, person_id);
+    ADD CONSTRAINT prs_language_abilities_language_id_person_id_key UNIQUE (emp_language_id, emp_employee_id);
 
 
 --
@@ -4619,22 +5387,6 @@ ALTER TABLE ONLY public.emp_driver_license_type
 
 
 --
--- Name: emp_language_level prs_set_lll_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.emp_language_level
-    ADD CONSTRAINT prs_set_lll_key UNIQUE (language_level);
-
-
---
--- Name: emp_language_level prs_set_lll_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.emp_language_level
-    ADD CONSTRAINT prs_set_lll_pkey PRIMARY KEY (id);
-
-
---
 -- Name: emp_language prs_set_lng_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -4655,7 +5407,7 @@ ALTER TABLE ONLY public.emp_language
 --
 
 ALTER TABLE ONLY public.emp_person_type
-    ADD CONSTRAINT prs_set_ptp_name_key UNIQUE (person_type);
+    ADD CONSTRAINT prs_set_ptp_name_key UNIQUE (person_type_key);
 
 
 --
@@ -4671,7 +5423,7 @@ ALTER TABLE ONLY public.emp_person_type
 --
 
 ALTER TABLE ONLY public.emp_section
-    ADD CONSTRAINT prs_set_sec_name_key UNIQUE (section_name);
+    ADD CONSTRAINT prs_set_sec_name_key UNIQUE (section_key);
 
 
 --
@@ -4711,7 +5463,7 @@ ALTER TABLE ONLY public.emp_transportation
 --
 
 ALTER TABLE ONLY public.emp_task
-    ADD CONSTRAINT prs_set_tsk_name_key UNIQUE (task_name);
+    ADD CONSTRAINT prs_set_tsk_name_key UNIQUE (task_key);
 
 
 --
@@ -4719,7 +5471,7 @@ ALTER TABLE ONLY public.emp_task
 --
 
 ALTER TABLE ONLY public.emp_unit
-    ADD CONSTRAINT prs_set_unit_ns_key UNIQUE (unit_name, section_id);
+    ADD CONSTRAINT prs_set_unit_ns_key UNIQUE (unit_key, emp_section_id);
 
 
 --
@@ -4915,11 +5667,19 @@ ALTER TABLE ONLY public.stk_card_kind_info
 
 
 --
--- Name: stk_group stk_group_group_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_card_kind_info stk_card_kind_info_stk_inventory_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_card_kind_info
+    ADD CONSTRAINT stk_card_kind_info_stk_inventory_id_key UNIQUE (stk_inventory_id);
+
+
+--
+-- Name: stk_group stk_group_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_group
-    ADD CONSTRAINT stk_group_group_key UNIQUE (name);
+    ADD CONSTRAINT stk_group_name_key UNIQUE (name);
 
 
 --
@@ -4931,19 +5691,27 @@ ALTER TABLE ONLY public.stk_group
 
 
 --
--- Name: stk_image stk_image_card_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_image
-    ADD CONSTRAINT stk_image_card_id_key UNIQUE (card_id);
-
-
---
 -- Name: stk_image stk_image_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_image
     ADD CONSTRAINT stk_image_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: stk_image stk_image_stk_inventory_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_image
+    ADD CONSTRAINT stk_image_stk_inventory_id_key UNIQUE (stk_inventory_id);
+
+
+--
+-- Name: stk_inventory stk_inventory_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_code_key UNIQUE (code);
 
 
 --
@@ -4955,27 +5723,19 @@ ALTER TABLE ONLY public.stk_inventory
 
 
 --
--- Name: stk_inventory stk_inventory_sku_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_inventory
-    ADD CONSTRAINT stk_inventory_sku_key UNIQUE (code);
-
-
---
--- Name: stk_inventory_summary stk_inventory_summary_inventory_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_inventory_summary
-    ADD CONSTRAINT stk_inventory_summary_inventory_id_key UNIQUE (inventory_id);
-
-
---
 -- Name: stk_inventory_summary stk_inventory_summary_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_inventory_summary
     ADD CONSTRAINT stk_inventory_summary_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: stk_inventory_summary stk_inventory_summary_stk_inventory_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory_summary
+    ADD CONSTRAINT stk_inventory_summary_stk_inventory_id_key UNIQUE (stk_inventory_id);
 
 
 --
@@ -5011,11 +5771,19 @@ ALTER TABLE ONLY public.stk_kind_property
 
 
 --
--- Name: stk_product_type stk_product_type_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: stk_product_type stk_product_type_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_product_type
     ADD CONSTRAINT stk_product_type_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: stk_product_type stk_product_type_product_type_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_product_type
+    ADD CONSTRAINT stk_product_type_product_type_name_key UNIQUE (product_type_name);
 
 
 --
@@ -5267,6 +6035,38 @@ ALTER TABLE ONLY public.sys_permission
 
 
 --
+-- Name: sys_permission_template sys_permission_template_key_unique; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission_template
+    ADD CONSTRAINT sys_permission_template_key_unique UNIQUE (template_key);
+
+
+--
+-- Name: sys_permission_template sys_permission_template_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission_template
+    ADD CONSTRAINT sys_permission_template_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_permission_template_right sys_permission_template_right_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission_template_right
+    ADD CONSTRAINT sys_permission_template_right_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_permission_template_right sys_permission_template_right_unique; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission_template_right
+    ADD CONSTRAINT sys_permission_template_right_unique UNIQUE (sys_permission_template_id, sys_permission_id);
+
+
+--
 -- Name: sys_permission_translation sys_permission_translation_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5363,6 +6163,22 @@ ALTER TABLE ONLY public.sys_user_grid_column
 
 
 --
+-- Name: sys_user_permission_template sys_user_permission_template_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_permission_template
+    ADD CONSTRAINT sys_user_permission_template_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_user_permission_template sys_user_permission_template_unique; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_permission_template
+    ADD CONSTRAINT sys_user_permission_template_unique UNIQUE (sys_user_id, sys_permission_template_id);
+
+
+--
 -- Name: sys_user sys_user_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5376,6 +6192,97 @@ ALTER TABLE ONLY public.sys_user
 
 ALTER TABLE ONLY public.sys_user
     ADD CONSTRAINT sys_user_username_key UNIQUE (username);
+
+
+--
+-- Name: acc_account_acc_group_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX acc_account_acc_group_id_idx ON public.acc_account USING btree (acc_group_id);
+
+
+--
+-- Name: acc_account_acc_region_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX acc_account_acc_region_id_idx ON public.acc_account USING btree (acc_region_id);
+
+
+--
+-- Name: acc_account_acc_set_account_type_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX acc_account_acc_set_account_type_id_idx ON public.acc_account USING btree (acc_set_account_type_id);
+
+
+--
+-- Name: acc_account_address_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX acc_account_address_acc_account_id_idx ON public.acc_account_address USING btree (acc_account_id);
+
+
+--
+-- Name: acc_account_address_sys_address_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX acc_account_address_sys_address_id_idx ON public.acc_account_address USING btree (sys_address_id);
+
+
+--
+-- Name: acc_bank_branch_sys_city_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX acc_bank_branch_sys_city_id_idx ON public.acc_bank_branch USING btree (sys_city_id);
+
+
+--
+-- Name: acc_set_company_legal_form_ownership_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX acc_set_company_legal_form_ownership_idx ON public.acc_set_company_legal_form USING btree (acc_set_ownership_type_id);
+
+
+--
+-- Name: acc_voucher_detail_acc_voucher_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX acc_voucher_detail_acc_voucher_id_idx ON public.acc_voucher_detail USING btree (acc_voucher_id);
+
+
+--
+-- Name: emp_driver_ability_emp_employee_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX emp_driver_ability_emp_employee_id_idx ON public.emp_driver_ability USING btree (emp_employee_id);
+
+
+--
+-- Name: emp_person_address_emp_employee_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX emp_person_address_emp_employee_id_idx ON public.emp_person_address USING btree (emp_employee_id);
+
+
+--
+-- Name: emp_person_address_sys_address_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX emp_person_address_sys_address_id_idx ON public.emp_person_address USING btree (sys_address_id);
+
+
+--
+-- Name: emp_person_language_ability_emp_employee_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX emp_person_language_ability_emp_employee_id_idx ON public.emp_person_language_ability USING btree (emp_employee_id);
+
+
+--
+-- Name: emp_unit_emp_section_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX emp_unit_emp_section_id_idx ON public.emp_unit USING btree (emp_section_id);
 
 
 --
@@ -5407,10 +6314,122 @@ CREATE INDEX idx_sat_teklif_detaylari_header_id ON public.sls_offer_detail USING
 
 
 --
+-- Name: stk_card_kind_info_stk_kind_property_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_card_kind_info_stk_kind_property_id_idx ON public.stk_card_kind_info USING btree (stk_kind_property_id);
+
+
+--
+-- Name: stk_inventory_stk_group_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_stk_group_id_idx ON public.stk_inventory USING btree (stk_group_id);
+
+
+--
+-- Name: stk_inventory_stk_product_type_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_stk_product_type_id_idx ON public.stk_inventory USING btree (stk_product_type_id);
+
+
+--
+-- Name: stk_inventory_sys_country_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_sys_country_id_idx ON public.stk_inventory USING btree (sys_country_id);
+
+
+--
+-- Name: stk_inventory_sys_uom_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_sys_uom_id_idx ON public.stk_inventory USING btree (sys_uom_id);
+
+
+--
+-- Name: stk_kind_property_stk_kind_family_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_kind_property_stk_kind_family_id_idx ON public.stk_kind_property USING btree (stk_kind_family_id);
+
+
+--
+-- Name: stk_transaction_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_transaction_currency_idx ON public.stk_transaction USING btree (currency);
+
+
+--
+-- Name: stk_transaction_from_stk_warehouse_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_transaction_from_stk_warehouse_id_idx ON public.stk_transaction USING btree (from_stk_warehouse_id);
+
+
+--
+-- Name: stk_transaction_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_transaction_stk_inventory_id_idx ON public.stk_transaction USING btree (stk_inventory_id, transaction_date);
+
+
+--
+-- Name: stk_transaction_to_stk_warehouse_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_transaction_to_stk_warehouse_id_idx ON public.stk_transaction USING btree (to_stk_warehouse_id);
+
+
+--
+-- Name: stk_warehouse_default_production_uidx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE UNIQUE INDEX stk_warehouse_default_production_uidx ON public.stk_warehouse USING btree ((true)) WHERE default_production;
+
+
+--
+-- Name: stk_warehouse_default_raw_material_uidx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE UNIQUE INDEX stk_warehouse_default_raw_material_uidx ON public.stk_warehouse USING btree ((true)) WHERE default_raw_material;
+
+
+--
+-- Name: stk_warehouse_default_sales_uidx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE UNIQUE INDEX stk_warehouse_default_sales_uidx ON public.stk_warehouse USING btree ((true)) WHERE default_sales;
+
+
+--
+-- Name: sys_permission_template_right_permission_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sys_permission_template_right_permission_idx ON public.sys_permission_template_right USING btree (sys_permission_id);
+
+
+--
+-- Name: sys_user_permission_template_template_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sys_user_permission_template_template_idx ON public.sys_user_permission_template USING btree (sys_permission_template_id);
+
+
+--
 -- Name: emp_section audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
 CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.emp_section FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: sys_access_right audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_access_right FOR EACH ROW EXECUTE FUNCTION public.audit();
 
 
 --
@@ -5449,10 +6468,31 @@ CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_language FOR
 
 
 --
+-- Name: sys_permission_template audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_permission_template FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: sys_permission_template_right audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_permission_template_right FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
 -- Name: sys_region audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
 CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_region FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: sys_user_permission_template audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_user_permission_template FOR EACH ROW EXECUTE FUNCTION public.audit();
 
 
 --
@@ -5481,13 +6521,6 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.emp_employee FO
 --
 
 CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.emp_language FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: emp_language_level notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.emp_language_level FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -5729,43 +6762,43 @@ CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_
 
 
 --
--- Name: acc_account acc_acc_group_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: acc_account acc_account_acc_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.acc_account
-    ADD CONSTRAINT acc_acc_group_fkey FOREIGN KEY (group_id) REFERENCES public.acc_group(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT acc_account_acc_group_id_fkey FOREIGN KEY (acc_group_id) REFERENCES public.acc_group(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: acc_account acc_acc_region_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.acc_account
-    ADD CONSTRAINT acc_acc_region_fkey FOREIGN KEY (region_id) REFERENCES public.acc_account_plan(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: acc_account acc_acc_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: acc_account acc_account_acc_region_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.acc_account
-    ADD CONSTRAINT acc_acc_type_fkey FOREIGN KEY (type_id) REFERENCES public.acc_set_account_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT acc_account_acc_region_id_fkey FOREIGN KEY (acc_region_id) REFERENCES public.acc_region(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: acc_account_address acc_account_address_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: acc_account acc_account_acc_set_account_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.acc_account
+    ADD CONSTRAINT acc_account_acc_set_account_type_id_fkey FOREIGN KEY (acc_set_account_type_id) REFERENCES public.acc_set_account_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: acc_account_address acc_account_address_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.acc_account_address
-    ADD CONSTRAINT acc_account_address_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.acc_account(id) ON DELETE CASCADE;
+    ADD CONSTRAINT acc_account_address_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON DELETE CASCADE;
 
 
 --
--- Name: acc_account_address acc_account_address_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: acc_account_address acc_account_address_sys_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.acc_account_address
-    ADD CONSTRAINT acc_account_address_address_id_fkey FOREIGN KEY (address_id) REFERENCES public.sys_address(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT acc_account_address_sys_address_id_fkey FOREIGN KEY (sys_address_id) REFERENCES public.sys_address(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5773,7 +6806,7 @@ ALTER TABLE ONLY public.acc_account_address
 --
 
 ALTER TABLE ONLY public.acc_account_contact
-    ADD CONSTRAINT acc_account_contact_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT acc_account_contact_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5781,7 +6814,7 @@ ALTER TABLE ONLY public.acc_account_contact
 --
 
 ALTER TABLE ONLY public.acc_account_taxpayer
-    ADD CONSTRAINT acc_account_taxpayer_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT acc_account_taxpayer_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5798,14 +6831,6 @@ ALTER TABLE ONLY public.acc_bank_branch
 
 ALTER TABLE ONLY public.acc_bank_branch
     ADD CONSTRAINT acc_branch_sys_city_id_fkey FOREIGN KEY (sys_city_id) REFERENCES public.sys_city(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: acc_set_company_legal_form acc_clf_own_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.acc_set_company_legal_form
-    ADD CONSTRAINT acc_clf_own_fkey FOREIGN KEY (ownership_id) REFERENCES public.acc_set_ownership_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5830,6 +6855,14 @@ ALTER TABLE ONLY public.acc_set_account_type_translation
 
 ALTER TABLE ONLY public.acc_set_account_type_translation
     ADD CONSTRAINT acc_set_account_type_translation_type_id_fkey FOREIGN KEY (acc_set_account_type_id) REFERENCES public.acc_set_account_type(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: acc_set_company_legal_form acc_set_company_legal_form_acc_set_ownership_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.acc_set_company_legal_form
+    ADD CONSTRAINT acc_set_company_legal_form_acc_set_ownership_type_id_fkey FOREIGN KEY (acc_set_ownership_type_id) REFERENCES public.acc_set_ownership_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -5894,6 +6927,14 @@ ALTER TABLE ONLY public.acc_set_tax_rate
 
 ALTER TABLE ONLY public.acc_set_tax_rate
     ADD CONSTRAINT acc_set_tr_srturn_fkey FOREIGN KEY (sales_return_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: acc_voucher_detail acc_voucher_detail_acc_voucher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.acc_voucher_detail
+    ADD CONSTRAINT acc_voucher_detail_acc_voucher_id_fkey FOREIGN KEY (acc_voucher_id) REFERENCES public.acc_voucher(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5973,7 +7014,7 @@ ALTER TABLE ONLY public.emp_employee
 --
 
 ALTER TABLE ONLY public.emp_person_address
-    ADD CONSTRAINT emp_person_address_address_id_fkey FOREIGN KEY (address_id) REFERENCES public.sys_address(id) ON DELETE RESTRICT;
+    ADD CONSTRAINT emp_person_address_address_id_fkey FOREIGN KEY (sys_address_id) REFERENCES public.sys_address(id) ON DELETE RESTRICT;
 
 
 --
@@ -5981,7 +7022,7 @@ ALTER TABLE ONLY public.emp_person_address
 --
 
 ALTER TABLE ONLY public.emp_person_address
-    ADD CONSTRAINT emp_person_address_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.emp_employee(id) ON DELETE CASCADE;
+    ADD CONSTRAINT emp_person_address_person_id_fkey FOREIGN KEY (emp_employee_id) REFERENCES public.emp_employee(id) ON DELETE CASCADE;
 
 
 --
@@ -6046,14 +7087,6 @@ ALTER TABLE ONLY public.emp_unit_translation
 
 ALTER TABLE ONLY public.emp_unit_translation
     ADD CONSTRAINT emp_unit_translation_sys_language_id_fkey FOREIGN KEY (sys_language_id) REFERENCES public.sys_language(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: acc_voucher_detail mhs_fis_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.acc_voucher_detail
-    ADD CONSTRAINT mhs_fis_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.acc_voucher(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -6221,7 +7254,7 @@ ALTER TABLE ONLY public.prd_bom_raw
 --
 
 ALTER TABLE ONLY public.emp_driver_ability
-    ADD CONSTRAINT prs_driver_abilities_driver_license_id_fkey FOREIGN KEY (driver_license_id) REFERENCES public.emp_driver_license_type(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prs_driver_abilities_driver_license_id_fkey FOREIGN KEY (emp_driver_license_type_id) REFERENCES public.emp_driver_license_type(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -6229,7 +7262,7 @@ ALTER TABLE ONLY public.emp_driver_ability
 --
 
 ALTER TABLE ONLY public.emp_driver_ability
-    ADD CONSTRAINT prs_driver_abilities_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prs_driver_abilities_person_id_fkey FOREIGN KEY (emp_employee_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -6237,7 +7270,7 @@ ALTER TABLE ONLY public.emp_driver_ability
 --
 
 ALTER TABLE ONLY public.emp_person_language_ability
-    ADD CONSTRAINT prs_language_abilities_language_id_fkey FOREIGN KEY (language_id) REFERENCES public.emp_language(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prs_language_abilities_language_id_fkey FOREIGN KEY (emp_language_id) REFERENCES public.emp_language(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -6245,31 +7278,7 @@ ALTER TABLE ONLY public.emp_person_language_ability
 --
 
 ALTER TABLE ONLY public.emp_person_language_ability
-    ADD CONSTRAINT prs_language_abilities_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: emp_person_language_ability prs_language_abilities_read_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.emp_person_language_ability
-    ADD CONSTRAINT prs_language_abilities_read_id_fkey FOREIGN KEY (read_id) REFERENCES public.emp_language_level(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: emp_person_language_ability prs_language_abilities_speak_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.emp_person_language_ability
-    ADD CONSTRAINT prs_language_abilities_speak_id_fkey FOREIGN KEY (speak_id) REFERENCES public.emp_language_level(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: emp_person_language_ability prs_language_abilities_write_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.emp_person_language_ability
-    ADD CONSTRAINT prs_language_abilities_write_id_fkey FOREIGN KEY (write_id) REFERENCES public.emp_language_level(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prs_language_abilities_person_id_fkey FOREIGN KEY (emp_employee_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -6277,7 +7286,7 @@ ALTER TABLE ONLY public.emp_person_language_ability
 --
 
 ALTER TABLE ONLY public.emp_unit
-    ADD CONSTRAINT prs_set_unit_ssection_fkey FOREIGN KEY (section_id) REFERENCES public.emp_section(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT prs_set_unit_ssection_fkey FOREIGN KEY (emp_section_id) REFERENCES public.emp_section(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6553,67 +7562,123 @@ ALTER TABLE ONLY public.sls_order
 
 
 --
--- Name: stk_image stk_image_card_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_card_kind_info stk_card_kind_info_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_card_kind_info
+    ADD CONSTRAINT stk_card_kind_info_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: stk_card_kind_info stk_card_kind_info_stk_kind_property_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_card_kind_info
+    ADD CONSTRAINT stk_card_kind_info_stk_kind_property_id_fkey FOREIGN KEY (stk_kind_property_id) REFERENCES public.stk_kind_property(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_group stk_group_raw_material_stock_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_group
+    ADD CONSTRAINT stk_group_raw_material_stock_account_fkey FOREIGN KEY (raw_material_stock_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_group stk_group_raw_material_usage_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_group
+    ADD CONSTRAINT stk_group_raw_material_usage_account_fkey FOREIGN KEY (raw_material_usage_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_group stk_group_semi_product_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_group
+    ADD CONSTRAINT stk_group_semi_product_account_fkey FOREIGN KEY (semi_product_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_image stk_image_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_image
-    ADD CONSTRAINT stk_image_card_id_fkey FOREIGN KEY (card_id) REFERENCES public.stk_inventory(id);
+    ADD CONSTRAINT stk_image_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: stk_inventory stk_inventory_buy_currency_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_inventory
-    ADD CONSTRAINT stk_inventory_buy_currency_fk FOREIGN KEY (buying_currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: stk_inventory stk_inventory_export_currency_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_inventory stk_inventory_buying_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_inventory
-    ADD CONSTRAINT stk_inventory_export_currency_fk FOREIGN KEY (export_currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_inventory_buying_currency_fkey FOREIGN KEY (buying_currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: stk_inventory stk_inventory_group_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_inventory
-    ADD CONSTRAINT stk_inventory_group_id_fk FOREIGN KEY (group_id) REFERENCES public.stk_group(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: stk_inventory stk_inventory_origin_country_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_inventory stk_inventory_export_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_inventory
-    ADD CONSTRAINT stk_inventory_origin_country_id_fk FOREIGN KEY (origin_id) REFERENCES public.sys_country(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_inventory_export_currency_fkey FOREIGN KEY (export_currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: stk_inventory stk_inventory_sell_currency_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_inventory stk_inventory_sales_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_inventory
-    ADD CONSTRAINT stk_inventory_sell_currency_fk FOREIGN KEY (sales_currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_inventory_sales_currency_fkey FOREIGN KEY (sales_currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: stk_inventory_summary stk_inventory_summary_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_inventory stk_inventory_stk_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_stk_group_id_fkey FOREIGN KEY (stk_group_id) REFERENCES public.stk_group(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory stk_inventory_stk_product_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_stk_product_type_id_fkey FOREIGN KEY (stk_product_type_id) REFERENCES public.stk_product_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory_summary stk_inventory_summary_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_inventory_summary
-    ADD CONSTRAINT stk_inventory_summary_inventory_id_fkey FOREIGN KEY (inventory_id) REFERENCES public.stk_inventory(id);
+    ADD CONSTRAINT stk_inventory_summary_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: stk_inventory stk_inventory_uom_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_inventory stk_inventory_sys_country_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_inventory
-    ADD CONSTRAINT stk_inventory_uom_code_fk FOREIGN KEY (measurement_id) REFERENCES public.sys_uom(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_inventory_sys_country_id_fkey FOREIGN KEY (sys_country_id) REFERENCES public.sys_country(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory stk_inventory_sys_uom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_sys_uom_id_fkey FOREIGN KEY (sys_uom_id) REFERENCES public.sys_uom(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_kind_property stk_kind_property_stk_kind_family_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_kind_property
+    ADD CONSTRAINT stk_kind_property_stk_kind_family_id_fkey FOREIGN KEY (stk_kind_family_id) REFERENCES public.stk_kind_family(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6625,27 +7690,27 @@ ALTER TABLE ONLY public.stk_transaction
 
 
 --
--- Name: stk_transaction stk_transaction_from_warehouse_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_transaction stk_transaction_from_stk_warehouse_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_transaction
-    ADD CONSTRAINT stk_transaction_from_warehouse_fkey FOREIGN KEY (from_warehouse) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_transaction_from_stk_warehouse_id_fkey FOREIGN KEY (from_stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: stk_transaction stk_transaction_stock_code_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.stk_transaction
-    ADD CONSTRAINT stk_transaction_stock_code_fkey FOREIGN KEY (sku) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: stk_transaction stk_transaction_to_warehouse_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: stk_transaction stk_transaction_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_transaction
-    ADD CONSTRAINT stk_transaction_to_warehouse_fkey FOREIGN KEY (to_warehouse) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT stk_transaction_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_transaction stk_transaction_to_stk_warehouse_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_transaction
+    ADD CONSTRAINT stk_transaction_to_stk_warehouse_id_fkey FOREIGN KEY (to_stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6745,6 +7810,22 @@ ALTER TABLE ONLY public.sys_permission
 
 
 --
+-- Name: sys_permission_template_right sys_permission_template_right_permission_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission_template_right
+    ADD CONSTRAINT sys_permission_template_right_permission_fk FOREIGN KEY (sys_permission_id) REFERENCES public.sys_permission(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sys_permission_template_right sys_permission_template_right_template_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_permission_template_right
+    ADD CONSTRAINT sys_permission_template_right_template_fk FOREIGN KEY (sys_permission_template_id) REFERENCES public.sys_permission_template(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: sys_permission_translation sys_permission_translation_sys_language_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -6806,6 +7887,22 @@ ALTER TABLE ONLY public.sys_uom_translation
 
 ALTER TABLE ONLY public.sys_user
     ADD CONSTRAINT sys_user_emp_employee_id_fkey FOREIGN KEY (emp_employee_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sys_user_permission_template sys_user_permission_template_template_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_permission_template
+    ADD CONSTRAINT sys_user_permission_template_template_fk FOREIGN KEY (sys_permission_template_id) REFERENCES public.sys_permission_template(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sys_user_permission_template sys_user_permission_template_user_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_permission_template
+    ADD CONSTRAINT sys_user_permission_template_user_fk FOREIGN KEY (sys_user_id) REFERENCES public.sys_user(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -6940,5 +8037,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict HbmiP4wn7UvIGBJzN1Xe4gddUZHolRw5seu90jF9DAgGngTl3wDXl5bede7laXt
+\unrestrict kULvD2kO9wyd91iuhXbzS4AbZGPX6m7BSX8rdu9Bhecndc3tuTPaKpfb6vsfLrc
 

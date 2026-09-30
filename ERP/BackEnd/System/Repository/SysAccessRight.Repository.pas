@@ -18,6 +18,7 @@ type
     procedure SetInsertParams(Q: TFDQuery; AModel: TSysAccessRight; AIndex: Integer = -1);
     procedure SetUpdateParams(Q: TFDQuery; AModel: TSysAccessRight; AIndex: Integer = -1);
     function MapFromQuery(Q: TFDQuery): TSysAccessRight; override;
+    function MapEffectiveFromQuery(Q: TFDQuery): TSysAccessRight;
 
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
@@ -41,8 +42,12 @@ type
     constructor Create(AConnection: TFDConnection);
 
     function GetUserPermissions(AUserId: TValue): TObjectDictionary<Integer, TSysAccessRight>;
+    /// <summary>Kullanıcının ilgili yetki kodundaki etkin (şablon + override) hakları. Kayıt yoksa nil.</summary>
+    function GetEffectivePermission(AUserId: Int64; APermissionCode: Integer): TSysAccessRight;
+    function GetReadablePermissionCodes(AUserId: Int64): TArray<Integer>;
     procedure CopyUserAccessRights(ASourceUserId, ATargetUserId: TValue);
     procedure AddPermissionToAllUser(APermissionId: TValue);
+    procedure AddAllPermissionsToUser(AUserId: Int64);
   end;
 
 implementation
@@ -58,8 +63,10 @@ end;
 function TSysAccessRightRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) +
-            ' (sys_permission_id, is_read, is_add, is_update, is_delete, is_special, sys_user_id) ' +
-            ' VALUES (:sys_permission_id, :is_read, :is_add, :is_update, :is_delete, :is_special, :sys_user_id)';
+            ' (sys_permission_id, is_read, is_add, is_update, is_delete, is_special, ' +
+            '  deny_read, deny_add, deny_update, deny_delete, deny_special, sys_user_id) ' +
+            ' VALUES (:sys_permission_id, :is_read, :is_add, :is_update, :is_delete, :is_special, ' +
+            '  :deny_read, :deny_add, :deny_update, :deny_delete, :deny_special, :sys_user_id)';
 end;
 
 function TSysAccessRightRepository.PrepareUpdateSql: string;
@@ -67,6 +74,8 @@ begin
   Result := 'UPDATE public.' + Self.GetTableName(TSysAccessRight) +
             ' SET sys_permission_id = :sys_permission_id, is_read = :is_read, is_add = :is_add, ' +
             '     is_update = :is_update, is_delete = :is_delete, is_special = :is_special, ' +
+            '     deny_read = :deny_read, deny_add = :deny_add, deny_update = :deny_update, ' +
+            '     deny_delete = :deny_delete, deny_special = :deny_special, ' +
             '     sys_user_id = :sys_user_id ' +
             ' WHERE id = :id';
 end;
@@ -87,6 +96,11 @@ begin
     Q.ParamByName('is_update').AsBoolean := AModel.IsUpdate;
     Q.ParamByName('is_delete').AsBoolean := AModel.IsDelete;
     Q.ParamByName('is_special').AsBoolean := AModel.IsSpecial;
+    Q.ParamByName('deny_read').AsBoolean := AModel.DenyRead;
+    Q.ParamByName('deny_add').AsBoolean := AModel.DenyAdd;
+    Q.ParamByName('deny_update').AsBoolean := AModel.DenyUpdate;
+    Q.ParamByName('deny_delete').AsBoolean := AModel.DenyDelete;
+    Q.ParamByName('deny_special').AsBoolean := AModel.DenySpecial;
     Q.ParamByName('sys_user_id').AsLargeInt := AModel.SysUserId;
   end
   else
@@ -97,6 +111,11 @@ begin
     Q.ParamByName('is_update').AsBooleans[AIndex] := AModel.IsUpdate;
     Q.ParamByName('is_delete').AsBooleans[AIndex] := AModel.IsDelete;
     Q.ParamByName('is_special').AsBooleans[AIndex] := AModel.IsSpecial;
+    Q.ParamByName('deny_read').AsBooleans[AIndex] := AModel.DenyRead;
+    Q.ParamByName('deny_add').AsBooleans[AIndex] := AModel.DenyAdd;
+    Q.ParamByName('deny_update').AsBooleans[AIndex] := AModel.DenyUpdate;
+    Q.ParamByName('deny_delete').AsBooleans[AIndex] := AModel.DenyDelete;
+    Q.ParamByName('deny_special').AsBooleans[AIndex] := AModel.DenySpecial;
     Q.ParamByName('sys_user_id').AsLargeInts[AIndex] := AModel.SysUserId;
   end;
 end;
@@ -112,6 +131,11 @@ begin
     Q.ParamByName('is_update').AsBoolean := AModel.IsUpdate;
     Q.ParamByName('is_delete').AsBoolean := AModel.IsDelete;
     Q.ParamByName('is_special').AsBoolean := AModel.IsSpecial;
+    Q.ParamByName('deny_read').AsBoolean := AModel.DenyRead;
+    Q.ParamByName('deny_add').AsBoolean := AModel.DenyAdd;
+    Q.ParamByName('deny_update').AsBoolean := AModel.DenyUpdate;
+    Q.ParamByName('deny_delete').AsBoolean := AModel.DenyDelete;
+    Q.ParamByName('deny_special').AsBoolean := AModel.DenySpecial;
     Q.ParamByName('sys_user_id').AsLargeInt := AModel.SysUserId;
   end
   else
@@ -123,6 +147,11 @@ begin
     Q.ParamByName('is_update').AsBooleans[AIndex] := AModel.IsUpdate;
     Q.ParamByName('is_delete').AsBooleans[AIndex] := AModel.IsDelete;
     Q.ParamByName('is_special').AsBooleans[AIndex] := AModel.IsSpecial;
+    Q.ParamByName('deny_read').AsBooleans[AIndex] := AModel.DenyRead;
+    Q.ParamByName('deny_add').AsBooleans[AIndex] := AModel.DenyAdd;
+    Q.ParamByName('deny_update').AsBooleans[AIndex] := AModel.DenyUpdate;
+    Q.ParamByName('deny_delete').AsBooleans[AIndex] := AModel.DenyDelete;
+    Q.ParamByName('deny_special').AsBooleans[AIndex] := AModel.DenySpecial;
     Q.ParamByName('sys_user_id').AsLargeInts[AIndex] := AModel.SysUserId;
   end;
 end;
@@ -137,7 +166,14 @@ begin
   Result.IsUpdate := Q.FieldByName('is_update').AsBoolean;
   Result.IsDelete := Q.FieldByName('is_delete').AsBoolean;
   Result.IsSpecial := Q.FieldByName('is_special').AsBoolean;
+  Result.DenyRead := Q.FieldByName('deny_read').AsBoolean;
+  Result.DenyAdd := Q.FieldByName('deny_add').AsBoolean;
+  Result.DenyUpdate := Q.FieldByName('deny_update').AsBoolean;
+  Result.DenyDelete := Q.FieldByName('deny_delete').AsBoolean;
+  Result.DenySpecial := Q.FieldByName('deny_special').AsBoolean;
   Result.SysUserId := Q.FieldByName('sys_user_id').AsLargeInt;
+  Result.Username := Q.FieldByName('username').AsString;
+  Result.PermissionName := Q.FieldByName('permission_name').AsString;
 end;
 
 function TSysAccessRightRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
@@ -423,30 +459,90 @@ begin
   end;
 end;
 
+function TSysAccessRightRepository.MapEffectiveFromQuery(Q: TFDQuery): TSysAccessRight;
+begin
+  Result := TSysAccessRight.Create;
+  Result.SysUserId := Q.FieldByName('sys_user_id').AsLargeInt;
+  Result.SysPermissionId := Q.FieldByName('sys_permission_id').AsLargeInt;
+  Result.PermissionName := Q.FieldByName('permission_key').AsString;
+  Result.IsRead := Q.FieldByName('is_read').AsBoolean;
+  Result.IsAdd := Q.FieldByName('is_add').AsBoolean;
+  Result.IsUpdate := Q.FieldByName('is_update').AsBoolean;
+  Result.IsDelete := Q.FieldByName('is_delete').AsBoolean;
+  Result.IsSpecial := Q.FieldByName('is_special').AsBoolean;
+end;
+
 function TSysAccessRightRepository.GetUserPermissions(AUserId: TValue): TObjectDictionary<Integer, TSysAccessRight>;
 var
   Q: TFDQuery;
   Right: TSysAccessRight;
 begin
+  // Etkin yetkiler: şablonlar + override (is_* ek izin, deny_* engelleme)
   Result := TObjectDictionary<Integer, TSysAccessRight>.Create([doOwnsValues]);
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TSysAccessRight) + ' WHERE locale = :locale and sys_user_id = :sys_user_id';
+    Q.SQL.Text := 'SELECT * FROM public.vw_sys_user_effective_permission WHERE sys_user_id = :sys_user_id';
     Q.ParamByName('sys_user_id').AsLargeInt := AUserId.AsInt64;
-    Q.ParamByName('locale').AsString := TAppContext.Instance.CurrentUser.ActiveLanguage;
     LogQuery(Q, 'GetUserPermissions');
     Q.Open;
 
-    Q.First;
     while not Q.Eof do
     begin
-      Right := MapFromQuery(Q);
-      Result.Add(Q.FieldByName('permission_code').AsInteger, Right);
+      Right := MapEffectiveFromQuery(Q);
+      Result.AddOrSetValue(Q.FieldByName('permission_code').AsInteger, Right);
       Q.Next;
     end;
   finally
     Q.Free;
+  end;
+end;
+
+function TSysAccessRightRepository.GetEffectivePermission(AUserId: Int64; APermissionCode: Integer): TSysAccessRight;
+var
+  Q: TFDQuery;
+begin
+  Result := nil;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT * FROM public.vw_sys_user_effective_permission ' +
+                  ' WHERE sys_user_id = :sys_user_id AND permission_code = :permission_code';
+    Q.ParamByName('sys_user_id').AsLargeInt := AUserId;
+    Q.ParamByName('permission_code').AsInteger := APermissionCode;
+    LogQuery(Q, 'GetEffectivePermission');
+    Q.Open;
+
+    if not Q.IsEmpty then
+      Result := MapEffectiveFromQuery(Q);
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSysAccessRightRepository.GetReadablePermissionCodes(AUserId: Int64): TArray<Integer>;
+var
+  Q: TFDQuery;
+  LCodes: TList<Integer>;
+begin
+  LCodes := TList<Integer>.Create;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT permission_code FROM public.vw_sys_user_effective_permission ' +
+                  ' WHERE sys_user_id = :sys_user_id AND is_read';
+    Q.ParamByName('sys_user_id').AsLargeInt := AUserId;
+    LogQuery(Q, 'GetReadablePermissionCodes');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      LCodes.Add(Q.FieldByName('permission_code').AsInteger);
+      Q.Next;
+    end;
+    Result := LCodes.ToArray;
+  finally
+    Q.Free;
+    LCodes.Free;
   end;
 end;
 
@@ -463,8 +559,11 @@ begin
     LFilter.Add(TFilterCriterion.New('sys_user_id', '=', ATargetUserId));
     DeleteBatch(LFilter);
 
-    Q.SQL.Text := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) + ' (sys_permission_id, is_read, is_add, is_update, is_delete, is_special, sys_user_id) ' +
-                  'SELECT sys_permission_id, is_read, is_add, is_update, is_delete, is_special, :target_user_id ' +
+    Q.SQL.Text := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) +
+                  ' (sys_permission_id, is_read, is_add, is_update, is_delete, is_special, ' +
+                  '  deny_read, deny_add, deny_update, deny_delete, deny_special, sys_user_id) ' +
+                  'SELECT sys_permission_id, is_read, is_add, is_update, is_delete, is_special, ' +
+                  '  deny_read, deny_add, deny_update, deny_delete, deny_special, :target_user_id ' +
                   'FROM public.' + Self.GetTableName(TSysAccessRight) + ' WHERE sys_user_id = :source_user_id';
     Q.ParamByName('target_user_id').AsLargeInt := ATargetUserId.AsInt64;
     Q.ParamByName('source_user_id').AsLargeInt := ASourceUserId.AsInt64;
@@ -473,6 +572,28 @@ begin
   finally
     Q.Free;
     LFilter.Free;
+  end;
+end;
+
+// Yeni kullanıcı: her yetki için tüm hakları false (is_* ve deny_*) satır; mevcut satırlara dokunmaz
+procedure TSysAccessRightRepository.AddAllPermissionsToUser(AUserId: Int64);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) +
+                  ' (sys_permission_id, is_read, is_add, is_update, is_delete, is_special, ' +
+                  '  deny_read, deny_add, deny_update, deny_delete, deny_special, sys_user_id) ' +
+                  'SELECT p.id, false, false, false, false, false, false, false, false, false, false, :sys_user_id ' +
+                  '  FROM public.' + Self.GetTableName(TSysPermission) + ' p ' +
+                  'ON CONFLICT (sys_permission_id, sys_user_id) DO NOTHING';
+    Q.ParamByName('sys_user_id').AsLargeInt := AUserId;
+    LogQuery(Q, 'AddAllPermissionsToUser');
+    Q.ExecSQL;
+  finally
+    Q.Free;
   end;
 end;
 
@@ -485,8 +606,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := 'INSERT INTO public.' + Self.GetTableName(TSysAccessRight) + ' (sys_permission_id, is_read, is_add, is_update, is_delete, is_special, sys_user_id) ' +
                   'SELECT :sys_permission_id, false, false, false, false, false, id FROM ' + Self.GetTableName(TSysUser) +
-                  ' WHERE active ' +
-                  'ON CONFLICT (sys_permission_id, sys_user_id) DO UPDATE SET sys_permission_id = EXCLUDED.sys_permission_id';
+                  ' ON CONFLICT (sys_permission_id, sys_user_id) DO NOTHING';
     Q.ParamByName('sys_permission_id').AsLargeInt := APermissionId.AsInt64;
     LogQuery(Q, 'AddPermissionToAllUser');
     Q.ExecSQL;

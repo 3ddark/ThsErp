@@ -33,24 +33,90 @@ type
     procedure BusinessInsert(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
     procedure BusinessUpdate(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
     procedure BusinessDelete(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
+
+    // Yönetici: kullanıcının şifresini sıfırlar (kullanıcı yetkisi 1100, güncelleme hakkı)
+    procedure ResetPassword(AUserId: Int64; const ANewPassword: string; APermissionControl: Boolean = True);
+    // Oturumdaki kullanıcı kendi şifresini değiştirir (yetki gerekmez, eski şifre doğrulanır)
+    procedure ChangeOwnPassword(const AOldPassword, ANewPassword: string);
   end;
 
 implementation
 
 uses
-  SysPermission.Service;
+  SysPermission.Service, Password.Helper, LocalizationManager,
+  SysAccessRight, SysAccessRight.Repository;
+
+// Şifre kuralını uygular, bcrypt hash döner
+function HashNewPassword(const ANewPassword: string): string;
+var
+  LErrorMsg: string;
+begin
+  if not TPasswordHelper.ValidatePasswordStrength(ANewPassword, LErrorMsg) then
+    raise Exception.Create(LErrorMsg);
+  Result := TPasswordHelper.HashPassword(ANewPassword);
+end;
 
 constructor TSysUserService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysUser, TSysUserRepository>;
-  PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_USER;
 end;
 
 destructor TSysUserService.Destroy;
 begin
   FRepo := nil;
   inherited;
+end;
+
+procedure TSysUserService.ResetPassword(AUserId: Int64; const ANewPassword: string; APermissionControl: Boolean);
+var
+  LHash: string;
+begin
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
+
+  LHash := HashNewPassword(ANewPassword);
+
+  if not Self.UoW.InTransaction then
+    Self.UoW.BeginTransaction;
+  try
+    if not TSysUserRepository(FRepo).UpdatePasswordHash(AUserId, LHash) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AUserId]));
+    Self.UoW.Commit;
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
+end;
+
+procedure TSysUserService.ChangeOwnPassword(const AOldPassword, ANewPassword: string);
+var
+  LUserId: Int64;
+  LHash: string;
+begin
+  LUserId := 0;
+  if Assigned(TAppContext.Instance.CurrentUser) then
+    LUserId := TAppContext.Instance.CurrentUser.GetUserId;
+  if LUserId <= 0 then
+    raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TSecurity.UserNotAuthenticated, 'User is not authenticated.'));
+
+  if not TPasswordHelper.VerifyPassword(AOldPassword, TSysUserRepository(FRepo).GetPasswordHash(LUserId)) then
+    raise ESysUserExceptionOldPasswordInvalid.Create;
+
+  LHash := HashNewPassword(ANewPassword);
+
+  if not Self.UoW.InTransaction then
+    Self.UoW.BeginTransaction;
+  try
+    if not TSysUserRepository(FRepo).UpdatePasswordHash(LUserId, LHash) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [LUserId]));
+    Self.UoW.Commit;
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 function TSysUserService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysUser>;
@@ -89,16 +155,31 @@ begin
 end;
 
 procedure TSysUserService.BusinessInsert(AEntity: TSysUser; AWithBegin, AWithCommit, APermissionControl: Boolean);
+var
+  LErrorMsg: string;
 begin
   try
     Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
     ValidateAll(AEntity, coInsert);
 
+    // Formdan düz metin gelir; DB'ye yalnızca bcrypt hash yazılır
+    if not AEntity.UserPassword.StartsWith('$2') then
+    begin
+      if not TPasswordHelper.ValidatePasswordStrength(AEntity.UserPassword, LErrorMsg) then
+        raise Exception.Create(LErrorMsg);
+      AEntity.UserPassword := TPasswordHelper.HashPassword(AEntity.UserPassword);
+    end;
+
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
     FRepo.Add(AEntity);
+
+    // Erişim hakları ekranında tüm yetkiler görünsün: her yetki için tüm haklar false satır
+    // (etkin yetkiyi değiştirmez: şablonlar OR false AND NOT false = şablon)
+    TSysAccessRightRepository(Self.UoW.GetRepository<TSysAccessRight, TSysAccessRightRepository>)
+      .AddAllPermissionsToUser(AEntity.Id);
 
     if AWithCommit and Uow.InTransaction then
       Self.UoW.Commit;
@@ -209,6 +290,9 @@ begin
   //check unique
   if AOperation in [coInsert, coUpdate] then
   begin
+    // Kullanıcı adı standardı: boşluksuz + büyük harf (login ekranı da büyük harfe çevirir)
+    AEntity.Username := AnsiUpperCase(Trim(AEntity.Username));
+
     LFilter := TFilterCriteria.Create;
     try
       LFilter.Add(TFilterCriterion.New('username', '=', TValue.From<string>(AEntity.Username)));

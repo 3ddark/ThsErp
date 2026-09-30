@@ -1,4 +1,4 @@
-unit AccBank.Exception;
+﻿unit AccBank.Exception;
 
 interface
 
@@ -17,7 +17,7 @@ implementation
 
 class function EAccBankExceptionBankNameUnique.GetMessage: string;
 begin
-  Result := TLocalizationManager.Translate(TLangKeys.TAccBank.BankNameUnique, '%s is already in use. Cannot be assigned again.');
+  Result := TLocalizationManager.Translate(TLangKeys.TAccBank.BankNameUnique, 'This bank name already exists.');
 end;
 
 end.

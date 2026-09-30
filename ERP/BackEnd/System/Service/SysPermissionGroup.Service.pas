@@ -53,7 +53,7 @@ constructor TSysPermissionGroupService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysPermissionGroup, TSysPermissionGroupRepository>;
-  Self.PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_PERMISSION_GROUP;
 end;
 
 destructor TSysPermissionGroupService.Destroy;

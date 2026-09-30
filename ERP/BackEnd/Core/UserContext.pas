@@ -28,8 +28,10 @@ type
     function TryGetPermission(AKey: Integer; out APermission: TSysAccessRight): Boolean;
 
     procedure ClearPermissions;
-    function GetUserId: Integer;
+    function GetUserId: Int64;
     function GetUsername: string;
+    /// <summary>Süper kullanıcı tüm yetki kontrollerini atlar.</summary>
+    function IsSuperUser: Boolean;
 
     property User            : TSysUser read FUser write SetUser;
     property Permissions[AKey: Integer]: TSysAccessRight read GetPermission;
@@ -153,12 +155,17 @@ begin
   FPermissions.Clear;
 end;
 
-function TUserContext.GetUserId: Integer;
+function TUserContext.GetUserId: Int64;
 begin
   if Assigned(FUser) then
     Result := FUser.Id
   else
     Result := 0;
+end;
+
+function TUserContext.IsSuperUser: Boolean;
+begin
+  Result := Assigned(FUser) and FUser.SuperUser;
 end;
 
 function TUserContext.GetUsername: string;

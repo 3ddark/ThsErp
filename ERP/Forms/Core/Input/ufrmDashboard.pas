@@ -28,12 +28,44 @@ uses
   ufrmSysUoms, SysUom.Service, SysUom,
   ufrmSysApplicationSetting, SysApplicationSetting.Service, SysApplicationSetting,
   ufrmSysUsers, SysUser.Service, SysUser,
+  ufrmSysUserPassword,
   ufrmSysAccessRights, SysAccessRight.Service, SysAccessRight,
   ufrmSysGridColumns, SysGridColumn.Service, SysGridColumn,
   ufrmSysGridFilters, SysGridFilter.Service, SysGridFilter,
   ufrmSysGridSorts, SysGridSort.Service, SysGridSort,
+  ufrmSysPermissionTemplates, SysPermissionTemplate.Service, SysPermissionTemplate,
+  ufrmSysPermissionTemplateRights, SysPermissionTemplateRight.Service, SysPermissionTemplateRight,
+  ufrmSysUserPermissionTemplates, SysUserPermissionTemplate.Service, SysUserPermissionTemplate,
+  ufrmEmpEmployees, EmpEmployee.Service, EmpEmployee,
+  ufrmEmpPersonTypes, EmpPersonType.Service, EmpPersonType,
+  ufrmEmpSections, EmpSection.Service, EmpSection,
+  ufrmEmpUnits, EmpUnit.Service, EmpUnit,
+  ufrmEmpTasks, EmpTask.Service, EmpTask,
+  ufrmEmpTransportations, EmpTransportation.Service, EmpTransportation,
+  ufrmEmpLanguages, EmpLanguage.Service, EmpLanguage,
+  ufrmEmpDriverLicenceTypes, EmpDriverLicenceType.Service, EmpDriverLicenceType,
+  ufrmEmpDriverLicences, EmpDriverLicence.Service, EmpDriverLicence,
+  ufrmEmpLanguageAbilities, EmpLanguageAbility.Service, EmpLanguageAbility,
   ufrmAccBanks, AccBank.Service, AccBank,
   ufrmAccBankBranches, AccBankBranch.Service, AccBankBranch,
+  ufrmAccAccounts, AccAccount.Service, AccAccount, AccLookup,
+  AccSetAccountType.Service, AccSetAccountType,
+  ufrmAccSetAccountTypes, ufrmAccSetOwnershipTypes, AccSetOwnershipType.Service, AccSetOwnershipType,
+  ufrmAccSetCompanyLegalForms, AccSetCompanyLegalForm.Service, AccSetCompanyLegalForm,
+  ufrmAccGroups, AccGroup.Service, AccGroup,
+  ufrmAccRegions, AccRegion.Service, AccRegion,
+  ufrmAccAccountPlans, AccAccountPlan.Service, AccAccountPlan,
+  ufrmAccExchangeRates, AccExchangeRate.Service, AccExchangeRate,
+  ufrmAccSetTaxRates, AccSetTaxRate.Service, AccSetTaxRate,
+  ufrmAccTransferCodes, AccTransferCode.Service, AccTransferCode,
+  ufrmStkInventories, StkInventory.Service, StkInventory,
+  ufrmStkTransactions, StkTransaction.Service, StkTransaction,
+  ufrmStkInventorySummaries, StkInventorySummary.Service, StkInventorySummary,
+  ufrmStkWarehouses, StkWarehouse.Service, StkWarehouse,
+  ufrmStkGroups, StkGroup.Service, StkGroup,
+  ufrmStkProductTypes, StkProductType.Service, StkProductType,
+  ufrmStkKindFamilies, StkKindFamily.Service, StkKindFamily,
+  ufrmStkKindProperties, StkKindProperty.Service, StkKindProperty,
   LocalizationManager;
 
 type
@@ -57,6 +89,7 @@ type
     actsys_database_status: TAction;
     actsys_about: TAction;
     actsys_update_password: TAction;
+    actsys_refresh_permissions: TAction;
     actsys_update: TAction;
     tmrcheck_is_update_required: TTimer;
     pnlToolbar: TPanel;
@@ -96,6 +129,8 @@ type
     mm1: TMainMenu;
     mnimenu_about: TMenuItem;
     mnisys_update_password: TMenuItem;
+    mnisys_refresh_permissions: TMenuItem;
+    mnisys_refresh_permissions_sep: TMenuItem;
     mnisys_database_status: TMenuItem;
     mnisys_do_database_backup: TMenuItem;
     mnisys_about: TMenuItem;
@@ -138,11 +173,30 @@ type
     actstk_hareketler: TAction;
     actstk_stok_kartlari: TAction;
     actstk_stok_karti_ozetleri: TAction;
+    actstk_product_types: TAction;
+    actstk_kind_families: TAction;
     mnistk_warehouse: TMenuItem;
     mnistk_group: TMenuItem;
+    mnistk_inventory: TMenuItem;
+    mnistk_transaction: TMenuItem;
+    mnistk_inventory_summary: TMenuItem;
+    mnistk_product_type: TMenuItem;
+    mnistk_kind_family: TMenuItem;
+    mnistk_kind_property: TMenuItem;
+    mniStockSubSettings: TMenuItem;
     mniAccountingSubSettings: TMenuItem;
     actset_ch_vergi_orani: TAction;
     mniset_acc_vat_rate: TMenuItem;
+    mniacc_account: TMenuItem;
+    mniacc_account_intermediate: TMenuItem;
+    mniacc_exchange_rate: TMenuItem;
+    mniacc_account_plan: TMenuItem;
+    mniacc_group: TMenuItem;
+    mniacc_region: TMenuItem;
+    mniacc_account_type: TMenuItem;
+    mniacc_ownership_type: TMenuItem;
+    mniacc_company_legal_form: TMenuItem;
+    mniacc_transfer_code: TMenuItem;
     mnimenu_employee: TMenuItem;
     mniEmployeeSubSettings: TMenuItem;
     mniset_prs_departments: TMenuItem;
@@ -153,11 +207,9 @@ type
     actset_prs_gorevler: TAction;
     actset_prs_ehliyetler: TAction;
     actset_prs_lisanlar: TAction;
-    actset_prs_lisan_seviyeleri: TAction;
     actset_prs_personel_tipleri: TAction;
     mniset_prs_driver_licences: TMenuItem;
     mniset_prs_languages: TMenuItem;
-    mniset_prs_language_levels: TMenuItem;
     mniset_prs_person_types: TMenuItem;
     actprs_lisan_bilgileri: TAction;
     actprs_ehliyetler: TAction;
@@ -168,6 +220,15 @@ type
     actals_teklifler: TAction;
     actch_bankalar: TAction;
     actch_banka_subeleri: TAction;
+    actch_hesap_karti: TAction;
+    actch_hesap_karti_ara: TAction;
+    actch_bolge: TAction;
+    actset_ch_grup: TAction;
+    actset_ch_hesap_plani: TAction;
+    actset_ch_hesap_tipi: TAction;
+    actset_ch_firma_turu: TAction;
+    actset_ch_firma_tipi: TAction;
+    actacc_transfer_code: TAction;
     actset_prs_tasima_servisleri: TAction;
     mniset_prs_shuttle_services: TMenuItem;
     btnTest: TButton;
@@ -178,6 +239,12 @@ type
     actsys_decimal_place: TAction;
     mniN2: TMenuItem;
     mnisys_decimal_place: TMenuItem;
+    actsys_permission_template: TAction;
+    actsys_permission_template_right: TAction;
+    actsys_user_permission_template: TAction;
+    mnisys_permission_template: TMenuItem;
+    mnisys_permission_template_right: TMenuItem;
+    mnisys_user_permission_template: TMenuItem;
 
     procedure DynamicLangMenuItemClick(Sender: TObject);
     procedure BuildLanguageMenu;
@@ -195,6 +262,9 @@ type
 ///   Yeni Kayıt Ekle Buton başlığı için ButtonAdd
 /// </example>
     procedure SetSession;
+    procedure ApplyActionPermissions;
+    function ReloadCurrentUser: Boolean;
+    procedure RefreshUserPermissions(AShowInfo: Boolean);
     procedure FormActivate(Sender: TObject);
     procedure ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);
     procedure tmrcheck_is_update_requiredTimer(Sender: TObject);
@@ -215,6 +285,7 @@ type
     procedure actset_efatura_istisna_koduExecute(Sender: TObject);
     procedure actsys_aboutExecute(Sender: TObject);
     procedure actsys_update_passwordExecute(Sender: TObject);
+    procedure actsys_refresh_permissionsExecute(Sender: TObject);
     procedure actsys_updateExecute(Sender: TObject);
     procedure actsys_countryExecute(Sender: TObject);
     procedure actsys_cityExecute(Sender: TObject);
@@ -255,6 +326,8 @@ type
     procedure actstk_stok_kartlariExecute(Sender: TObject);
     procedure actstk_stok_karti_ozetleriExecute(Sender: TObject);
     procedure actstk_cins_ozellikleriExecute(Sender: TObject);
+    procedure actstk_product_typesExecute(Sender: TObject);
+    procedure actstk_kind_familiesExecute(Sender: TObject);
     procedure actset_ch_vergi_oraniExecute(Sender: TObject);
     procedure actset_prs_bolumlerExecute(Sender: TObject);
     procedure actset_prs_birimlerExecute(Sender: TObject);
@@ -264,14 +337,17 @@ type
     procedure actprs_personellerExecute(Sender: TObject);
     procedure actset_prs_lisanlarExecute(Sender: TObject);
     procedure actset_prs_ehliyetlerExecute(Sender: TObject);
-    procedure actset_prs_lisan_seviyeleriExecute(Sender: TObject);
     procedure actset_prs_personel_tipleriExecute(Sender: TObject);
     procedure actals_tekliflerExecute(Sender: TObject);
     procedure actch_bankalarExecute(Sender: TObject);
     procedure actch_banka_subeleriExecute(Sender: TObject);
+    procedure actacc_transfer_codeExecute(Sender: TObject);
     procedure actset_prs_tasima_servisleriExecute(Sender: TObject);
     procedure btnTestClick(Sender: TObject);
     procedure actsys_decimal_placeExecute(Sender: TObject);
+    procedure actsys_permission_templateExecute(Sender: TObject);
+    procedure actsys_permission_template_rightExecute(Sender: TObject);
+    procedure actsys_user_permission_templateExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
   published
@@ -303,7 +379,7 @@ var
 begin
   LTs := PageControl1.ActivePage;
   TfrmAbout.Create(Application).ShowModal;
-  SetSession;
+  RefreshUserPermissions(False);
 
   if LTs.TabVisible then
     PageControl1.ActivePage := LTs;
@@ -311,12 +387,17 @@ end;
 
 procedure TfrmDashboard.actacc_exchange_rateExecute(Sender: TObject);
 begin
-//
+  TfrmAccExchangeRates.Create(Self, TAccExchangeRateService.Create, TAccExchangeRate.Create).Show;
 end;
 
 procedure TfrmDashboard.actals_tekliflerExecute(Sender: TObject);
 begin
 //
+end;
+
+procedure TfrmDashboard.actacc_transfer_codeExecute(Sender: TObject);
+begin
+  TfrmAccTransferCodes.Create(Self, TAccTransferCodeService.Create, TAccTransferCode.Create).Show;
 end;
 
 procedure TfrmDashboard.actch_bankalarExecute(Sender: TObject);
@@ -331,22 +412,105 @@ end;
 
 procedure TfrmDashboard.actch_bolgeExecute(Sender: TObject);
 begin
-//
+  TfrmAccRegions.Create(Self, TAccRegionService.Create, TAccRegion.Create).Show;
 end;
 
 procedure TfrmDashboard.actch_hesap_kartiExecute(Sender: TObject);
 begin
-//
+  TfrmAccAccounts.Create(Self, TAccAccountService.Create, TAccAccount.Create).Show;
 end;
 
 procedure TfrmDashboard.actch_hesap_karti_araExecute(Sender: TObject);
+var
+  LTypeSvc: TAccSetAccountTypeService;
+  LType: TAccSetAccountType;
+  LTypeName: string;
+  LFrm: TfrmAccAccounts;
 begin
-//
+  // Ara hesaplar: hesap kartı listesi hesap tipine göre sabit filtreli açılır
+  LTypeName := '';
+  LTypeSvc := TAccSetAccountTypeService.Create;
+  try
+    LType := LTypeSvc.FindById(ACC_ACCOUNT_TYPE_INTERMEDIATE, False);
+    try
+      if Assigned(LType) then
+        LTypeName := LType.AccountTypeName;
+    finally
+      LType.Free;
+    end;
+  finally
+    LTypeSvc.Free;
+  end;
+
+  LFrm := TfrmAccAccounts.Create(Self, TAccAccountService.Create, TAccAccount.Create);
+  LFrm.SetFixedAccountType(ACC_ACCOUNT_TYPE_INTERMEDIATE, LTypeName);
+  LFrm.Show;
+end;
+
+procedure TfrmDashboard.actsys_refresh_permissionsExecute(Sender: TObject);
+begin
+  RefreshUserPermissions(True);
+end;
+
+// Oturumdaki kullanıcının DB'deki güncel durumu (super user, aktiflik, yönetici...) yerinde güncellenir.
+// Nesne değiştirilmez: TSysUser oturum bilgisi (ActiveLanguage vb.) de taşır.
+function TfrmDashboard.ReloadCurrentUser: Boolean;
+var
+  LSvc: TSysUserService;
+  LUser: TSysUser;
+begin
+  Result := True;
+  if not Assigned(TAppContext.Instance.CurrentUser) or not Assigned(TAppContext.Instance.CurrentUser.User) then
+    Exit;
+
+  LSvc := TSysUserService.Create;
+  try
+    LUser := LSvc.FindById(TAppContext.Instance.CurrentUser.GetUserId, False);
+    try
+      if not Assigned(LUser) or not LUser.Active then
+        Exit(False);
+
+      TAppContext.Instance.CurrentUser.User.Active := LUser.Active;
+      TAppContext.Instance.CurrentUser.User.SuperUser := LUser.SuperUser;
+      TAppContext.Instance.CurrentUser.User.Manager := LUser.Manager;
+    finally
+      LUser.Free;
+    end;
+  finally
+    LSvc.Free;
+  end;
+end;
+
+// Hak değişikliklerini uygular: gelen hakların menüleri açılır, gidenlerinki pasif olur.
+// Açık ekranlar etkilenmez; onlarda işlem anında servis yine güncel yetkiyi kontrol eder.
+procedure TfrmDashboard.RefreshUserPermissions(AShowInfo: Boolean);
+begin
+  // Dashboard login'den önce oluşturulur; oturum yokken yenilenecek bir şey yok
+  if not TAppContext.IsInitialized or not TAppContext.Instance.IsAuthenticated then
+    Exit;
+
+  try
+    if not ReloadCurrentUser then
+    begin
+      ShowMessage(TLocalizationManager.Translate(TLangKeys.TDashboard.MsgUserInactive,
+        'Your user account has been deactivated or deleted. The application will close.'));
+      Application.Terminate;
+      Exit;
+    end;
+  except
+    on E: Exception do
+      GLogger.ErrorFmt('Kullanıcı bilgisi yenilenemedi: %s', [E.Message]);
+  end;
+
+  SetSession;
+
+  if AShowInfo then
+    ShowMessage(TLocalizationManager.Translate(TLangKeys.TDashboard.MsgPermissionsRefreshed, 'Your permissions have been refreshed.'));
 end;
 
 procedure TfrmDashboard.actsys_update_passwordExecute(Sender: TObject);
 begin
-//
+  TfrmSysUserPassword.ShowChange(Self);
 end;
 
 procedure TfrmDashboard.actodeme_baslangic_donemleriExecute(Sender: TObject);
@@ -356,37 +520,37 @@ end;
 
 procedure TfrmDashboard.actset_prs_birimlerExecute(Sender: TObject);
 begin
-//
+  TfrmEmpUnits.Create(Self, TEmpUnitService.Create, TEmpUnit.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_bolumlerExecute(Sender: TObject);
 begin
-//
+  TfrmEmpSections.Create(Self, TEmpSectionService.Create, TEmpSection.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_ehliyetlerExecute(Sender: TObject);
 begin
-//
+  TfrmEmpDriverLicenceTypes.Create(Self, TEmpDriverLicenseTypeService.Create, TEmpDriverLicenseType.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_gorevlerExecute(Sender: TObject);
 begin
-//
+  TfrmEmpTasks.Create(Self, TEmpTaskService.Create, TEmpTask.Create).Show;
 end;
 
 procedure TfrmDashboard.actprs_ehliyetlerExecute(Sender: TObject);
 begin
-//
+  TfrmEmpDriverLicences.Create(Self, TEmpDriverLicenceService.Create, TEmpDriverLicence.Create).Show;
 end;
 
 procedure TfrmDashboard.actprs_lisan_bilgileriExecute(Sender: TObject);
 begin
-//
+  TfrmEmpLanguageAbilities.Create(Self, TEmpLanguageAbilityService.Create, TEmpLanguageAbility.Create).Show;
 end;
 
 procedure TfrmDashboard.actprs_personellerExecute(Sender: TObject);
 begin
-//
+  TfrmEmpEmployees.Create(Self, TEmpEmployeeService.Create, TEmpEmployee.Create).Show;
 end;
 
 procedure TfrmDashboard.actsat_siparisExecute(Sender: TObject);
@@ -421,32 +585,32 @@ end;
 
 procedure TfrmDashboard.actset_ch_firma_tipiExecute(Sender: TObject);
 begin
-//
+  TfrmAccSetCompanyLegalForms.Create(Self, TAccSetCompanyLegalFormService.Create, TAccSetCompanyLegalForm.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_ch_firma_turuExecute(Sender: TObject);
 begin
-//
+  TfrmAccSetOwnershipTypes.Create(Self, TAccSetOwnershipTypeService.Create, TAccSetOwnershipType.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_ch_grupExecute(Sender: TObject);
 begin
-//
+  TfrmAccGroups.Create(Self, TAccGroupService.Create, TAccGroup.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_ch_hesap_planiExecute(Sender: TObject);
 begin
-//
+  TfrmAccAccountPlans.Create(Self, TAccAccountPlanService.Create, TAccAccountPlan.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_ch_hesap_tipiExecute(Sender: TObject);
 begin
-//
+  TfrmAccSetAccountTypes.Create(Self, TAccSetAccountTypeService.Create, TAccSetAccountType.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_ch_vergi_oraniExecute(Sender: TObject);
 begin
-//
+  TfrmAccSetTaxRates.Create(Self, TAccSetTaxRateService.Create, TAccSetTaxRate.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_efatura_fatura_tipiExecute(Sender: TObject);
@@ -501,42 +665,47 @@ end;
 
 procedure TfrmDashboard.actset_prs_lisanlarExecute(Sender: TObject);
 begin
-//
-end;
-
-procedure TfrmDashboard.actset_prs_lisan_seviyeleriExecute(Sender: TObject);
-begin
-//
+  TfrmEmpLanguages.Create(Self, TEmpLanguageService.Create, TEmpLanguage.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_personel_tipleriExecute(Sender: TObject);
 begin
-//
+  TfrmEmpPersonTypes.Create(Self, TEmpPersonTypeService.Create, TEmpPersonType.Create).Show;
 end;
 
 procedure TfrmDashboard.actset_prs_tasima_servisleriExecute(Sender: TObject);
 begin
-//
+  TfrmEmpTransportations.Create(Self, TEmpTransportationService.Create, TEmpTransportation.Create).Show;
+end;
+
+procedure TfrmDashboard.actstk_product_typesExecute(Sender: TObject);
+begin
+  TfrmStkProductTypes.Create(Self, TStkProductTypeService.Create, TStkProductType.Create).Show;
+end;
+
+procedure TfrmDashboard.actstk_kind_familiesExecute(Sender: TObject);
+begin
+  TfrmStkKindFamilies.Create(Self, TStkKindFamilyService.Create, TStkKindFamily.Create).Show;
 end;
 
 procedure TfrmDashboard.actstk_ambarlarExecute(Sender: TObject);
 begin
-//
+  TfrmStkWarehouses.Create(Self, TStkWarehouseService.Create, TStkWarehouse.Create).Show;
 end;
 
 procedure TfrmDashboard.actstk_cins_ozellikleriExecute(Sender: TObject);
 begin
-//
+  TfrmStkKindProperties.Create(Self, TStkKindPropertyService.Create, TStkKindProperty.Create).Show;
 end;
 
 procedure TfrmDashboard.actstk_gruplarExecute(Sender: TObject);
 begin
-//
+  TfrmStkGroups.Create(Self, TStkGroupService.Create, TStkGroup.Create).Show;
 end;
 
 procedure TfrmDashboard.actstk_hareketlerExecute(Sender: TObject);
 begin
-//
+  TfrmStkTransactions.Create(Self, TStkTransactionService.Create, TStkTransaction.Create).Show;
 end;
 
 procedure TfrmDashboard.actstk_stok_hareketiExecute(Sender: TObject);
@@ -546,12 +715,12 @@ end;
 
 procedure TfrmDashboard.actstk_stok_karti_ozetleriExecute(Sender: TObject);
 begin
-//
+  TfrmStkInventorySummaries.Create(Self, TStkInventorySummaryService.Create, TStkInventorySummary.Create).Show;
 end;
 
 procedure TfrmDashboard.actstk_stok_kartlariExecute(Sender: TObject);
 begin
-//
+  TfrmStkInventories.Create(Self, TStkInventoryService.Create, TStkInventory.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_cityExecute(Sender: TObject);
@@ -644,8 +813,44 @@ begin
 end;
 
 procedure TfrmDashboard.actsys_application_settingExecute(Sender: TObject);
+var
+  LService: TSysApplicationSettingService;
+  LSetting: TSysApplicationSetting;
+  LMode: TInputFormMode;
 begin
-  TfrmSysApplicationSetting.Create(Self, TSysApplicationSettingService.Create, TSysApplicationSetting.Create, ifmRewiev, nil, ivmNormal, True).Show;
+  // Tablo tek kayıt tutar: varsa inceleme modunda, yoksa yeni kayıt olarak aç
+  LService := TSysApplicationSettingService.Create;
+  try
+    LSetting := LService.BusinessFindSetting(False, False, True);
+  except
+    LService.Free;
+    raise;
+  end;
+
+  if Assigned(LSetting) then
+    LMode := ifmRewiev
+  else
+  begin
+    LSetting := TSysApplicationSetting.Create;
+    LMode := ifmNewRecord;
+  end;
+
+  TfrmSysApplicationSetting.Create(Self, LService, LSetting, LMode, nil, ivmNormal, True).Show;
+end;
+
+procedure TfrmDashboard.actsys_permission_templateExecute(Sender: TObject);
+begin
+  TfrmSysPermissionTemplates.Create(Self, TSysPermissionTemplateService.Create, TSysPermissionTemplate.Create).Show;
+end;
+
+procedure TfrmDashboard.actsys_permission_template_rightExecute(Sender: TObject);
+begin
+  TfrmSysPermissionTemplateRights.Create(Self, TSysPermissionTemplateRightService.Create, TSysPermissionTemplateRight.Create).Show;
+end;
+
+procedure TfrmDashboard.actsys_user_permission_templateExecute(Sender: TObject);
+begin
+  TfrmSysUserPermissionTemplates.Create(Self, TSysUserPermissionTemplateService.Create, TSysUserPermissionTemplate.Create).Show;
 end;
 
 procedure TfrmDashboard.actsys_userExecute(Sender: TObject);
@@ -989,6 +1194,12 @@ begin
         actsys_permission_group.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionPermissionGroups, 'Permission Groups');
       if Assigned(actsys_permission) then
         actsys_permission.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionPermissions, 'Permissions');
+      if Assigned(actsys_permission_template) then
+        actsys_permission_template.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionPermissionTemplates, 'Permission Templates');
+      if Assigned(actsys_permission_template_right) then
+        actsys_permission_template_right.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionPermissionTemplateRights, 'Template Rights');
+      if Assigned(actsys_user_permission_template) then
+        actsys_user_permission_template.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionUserPermissionTemplates, 'User Permission Templates');
 
       if Assigned(mniSystemSubSettings) then
         mniSystemSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Setting');
@@ -1036,11 +1247,55 @@ begin
     mnimenu_accounting.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuAccounting, 'Accounting');
       if Assigned(mniAccountingSubSettings) then
         mniAccountingSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Setting');
+      if Assigned(actch_hesap_karti) then
+        actch_hesap_karti.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.TitlePlural, 'Account Cards');
+      if Assigned(actch_bolge) then
+        actch_bolge.Caption := TLocalizationManager.Translate(TLangKeys.TAccRegion.TitlePlural, 'Account Regions');
+      if Assigned(actset_ch_grup) then
+        actset_ch_grup.Caption := TLocalizationManager.Translate(TLangKeys.TAccGroup.TitlePlural, 'Account Groups');
+      if Assigned(actset_ch_hesap_plani) then
+        actset_ch_hesap_plani.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccountPlan.TitlePlural, 'Account Plans');
+      if Assigned(actset_ch_hesap_tipi) then
+        actset_ch_hesap_tipi.Caption := TLocalizationManager.Translate(TLangKeys.TAccSetAccountType.TitlePlural, 'Account Types');
+      if Assigned(actset_ch_firma_turu) then
+        actset_ch_firma_turu.Caption := TLocalizationManager.Translate(TLangKeys.TAccSetOwnershipType.TitlePlural, 'Ownership Types');
+      if Assigned(actset_ch_firma_tipi) then
+        actset_ch_firma_tipi.Caption := TLocalizationManager.Translate(TLangKeys.TAccSetCompanyLegalForm.TitlePlural, 'Company Legal Forms');
+      if Assigned(actacc_transfer_code) then
+        actacc_transfer_code.Caption := TLocalizationManager.Translate(TLangKeys.TAccTransferCode.TitlePlural, 'Transfer Codes');
+      if Assigned(actch_hesap_karti_ara) then
+        actch_hesap_karti_ara.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnSubAccount, 'Sub Account Cards');
+      if Assigned(actacc_exchange_rate) then
+        actacc_exchange_rate.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.TitlePlural, 'Exchange Rates');
+      if Assigned(actset_ch_vergi_orani) then
+        actset_ch_vergi_orani.Caption := TLocalizationManager.Translate(TLangKeys.TAccSetTaxRate.TitlePlural, 'Tax Rates');
+      if Assigned(actch_bankalar) then
+        actch_bankalar.Caption := TLocalizationManager.Translate(TLangKeys.TAccBank.TitlePlural, 'Banks');
+      if Assigned(actch_banka_subeleri) then
+        actch_banka_subeleri.Caption := TLocalizationManager.Translate(TLangKeys.TAccBankBranch.TitlePlural, 'Bank Branches');
   {$ENDREGION}
 
   {$REGION 'StockMenu'}
   if Assigned(mnimenu_stock) then
     mnimenu_stock.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuStock, 'Stocks');
+  if Assigned(actstk_stok_kartlari) then
+    actstk_stok_kartlari.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.TitlePlural, 'Stock Cards');
+  if Assigned(actstk_hareketler) then
+    actstk_hareketler.Caption := TLocalizationManager.Translate(TLangKeys.TStkTransaction.TitlePlural, 'Stock Transactions');
+  if Assigned(actstk_stok_karti_ozetleri) then
+    actstk_stok_karti_ozetleri.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.TitlePlural, 'Stock Summaries');
+  if Assigned(actstk_ambarlar) then
+    actstk_ambarlar.Caption := TLocalizationManager.Translate(TLangKeys.TStkWarehouse.TitlePlural, 'Warehouses');
+  if Assigned(actstk_gruplar) then
+    actstk_gruplar.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.TitlePlural, 'Stock Groups');
+  if Assigned(actstk_product_types) then
+    actstk_product_types.Caption := TLocalizationManager.Translate(TLangKeys.TStkProductType.TitlePlural, 'Product Types');
+  if Assigned(actstk_kind_families) then
+    actstk_kind_families.Caption := TLocalizationManager.Translate(TLangKeys.TStkKindFamily.TitlePlural, 'Kind Families');
+  if Assigned(actstk_cins_ozellikleri) then
+    actstk_cins_ozellikleri.Caption := TLocalizationManager.Translate(TLangKeys.TStkKindProperty.TitlePlural, 'Kind Properties');
+  if Assigned(mniStockSubSettings) then
+    mniStockSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Setting');
   {$ENDREGION}
 
 
@@ -1049,11 +1304,31 @@ begin
     mnimenu_employee.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuPersonnel, 'Personnels');
       if Assigned(mniEmployeeSubSettings) then
         mniEmployeeSubSettings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuSettings, 'Setting');
+      if Assigned(actprs_ehliyetler) then
+        actprs_ehliyetler.Caption := TLocalizationManager.Translate(TLangKeys.TEmpDriverAbility.TitlePlural, 'Employee Driver Licenses');
+      if Assigned(actprs_lisan_bilgileri) then
+        actprs_lisan_bilgileri.Caption := TLocalizationManager.Translate(TLangKeys.TEmpLanguageAbility.TitlePlural, 'Employee Languages');
+      if Assigned(actset_prs_bolumler) then
+        actset_prs_bolumler.Caption := TLocalizationManager.Translate(TLangKeys.TEmpSection.TitlePlural, 'Sections');
+      if Assigned(actset_prs_birimler) then
+        actset_prs_birimler.Caption := TLocalizationManager.Translate(TLangKeys.TEmpUnit.TitlePlural, 'Units');
+      if Assigned(actset_prs_gorevler) then
+        actset_prs_gorevler.Caption := TLocalizationManager.Translate(TLangKeys.TEmpTask.TitlePlural, 'Tasks');
+      if Assigned(actset_prs_ehliyetler) then
+        actset_prs_ehliyetler.Caption := TLocalizationManager.Translate(TLangKeys.TEmpDriverLicenseType.TitlePlural, 'Driver License Types');
+      if Assigned(actset_prs_lisanlar) then
+        actset_prs_lisanlar.Caption := TLocalizationManager.Translate(TLangKeys.TEmpLanguage.TitlePlural, 'Foreign Languages');
+      if Assigned(actset_prs_personel_tipleri) then
+        actset_prs_personel_tipleri.Caption := TLocalizationManager.Translate(TLangKeys.TEmpPersonType.TitlePlural, 'Employee Types');
+      if Assigned(actset_prs_tasima_servisleri) then
+        actset_prs_tasima_servisleri.Caption := TLocalizationManager.Translate(TLangKeys.TEmpTransportation.TitlePlural, 'Shuttle Services');
   {$ENDREGION}
 
   {$REGION 'AboutMenu'}
   if Assigned(mnimenu_about) then
     mnimenu_about.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuAbout, 'About');
+      if Assigned(actsys_refresh_permissions) then
+        actsys_refresh_permissions.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuRefreshPermissions, 'Refresh My Permissions');
       if Assigned(mnisys_update_password) then
         mnisys_update_password.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuChangePassword, 'Change Password');
       if Assigned(mnisys_database_status) then
@@ -1278,15 +1553,114 @@ begin
   end;
 end;
 
+// Menü / buton erişimi: okuma hakkı olmayan ekranın action'ı pasif (menü öğesi ve buton birlikte).
+// Ekranın kendisi (TfrmGrid) ve servisler ayrıca kontrol eder.
+procedure TfrmDashboard.ApplyActionPermissions;
+var
+  LIsSuperUser: Boolean;
+  LCodes: TArray<Integer>;
+  LSvc: TSysAccessRightService;
+
+  procedure SetAction(AAction: TAction; APermissionCode: Integer);
+  var
+    LCode: Integer;
+    LAllowed: Boolean;
+  begin
+    if not Assigned(AAction) then
+      Exit;
+    LAllowed := LIsSuperUser;
+    if not LAllowed then
+      for LCode in LCodes do
+        if LCode = APermissionCode then
+        begin
+          LAllowed := True;
+          Break;
+        end;
+    // ResetSession butonları doğrudan pasif yapabiliyor; değer değişmezse action istemcilere yaymaz
+    AAction.Enabled := not LAllowed;
+    AAction.Enabled := LAllowed;
+  end;
+
+begin
+  if not TAppContext.IsInitialized then
+    Exit;
+
+  LIsSuperUser := Assigned(TAppContext.Instance.CurrentUser) and TAppContext.Instance.CurrentUser.IsSuperUser;
+  LCodes := [];
+  if not LIsSuperUser then
+  begin
+    LSvc := TSysAccessRightService.Create;
+    try
+      try
+        LCodes := LSvc.GetReadablePermissionCodes;
+      except
+        on E: Exception do
+          GLogger.ErrorFmt('Menü yetkileri okunamadı: %s', [E.Message]);
+      end;
+    finally
+      LSvc.Free;
+    end;
+  end;
+
+  SetAction(actsys_city, PERMISSION_SYS_CITY);
+  SetAction(actsys_country, PERMISSION_SYS_COUNTRY);
+  SetAction(actsys_region, PERMISSION_SYS_REGION);
+  SetAction(actsys_currency, PERMISSION_SYS_CURRENCY);
+  SetAction(actsys_unit_type, PERMISSION_SYS_UOM_GROUP);
+  SetAction(actsys_unit, PERMISSION_SYS_UOM);
+  SetAction(actsys_language, PERMISSION_SYS_LANGUAGE);
+  SetAction(actsys_decimal_place, PERMISSION_SYS_DECIMAL_PLACE);
+  SetAction(actsys_user, PERMISSION_SYS_USER);
+  SetAction(actsys_access_right, PERMISSION_SYS_ACCESS_RIGHT);
+  SetAction(actsys_permission, PERMISSION_SYS_PERMISSION);
+  SetAction(actsys_permission_group, PERMISSION_SYS_PERMISSION_GROUP);
+  SetAction(actsys_permission_template, PERMISSION_SYS_PERMISSION_TEMPLATE);
+  SetAction(actsys_permission_template_right, PERMISSION_SYS_PERMISSION_TEMPLATE);
+  SetAction(actsys_user_permission_template, PERMISSION_SYS_USER_PERMISSION_TEMPLATE);
+  SetAction(actsys_application_setting, PERMISSION_SYS_APPLICATION_SETTING);
+  SetAction(actsys_grid_column, PERMISSION_SYS_GRID_COLUMN);
+  SetAction(actsys_grid_filter, PERMISSION_SYS_GRID_FILTER);
+  SetAction(actsys_grid_sort, PERMISSION_SYS_GRID_SORT);
+  SetAction(actprs_personeller, PERMISSION_EMP_EMPLOYEE);
+  SetAction(actprs_ehliyetler, PERMISSION_EMP_EMPLOYEE);
+  SetAction(actprs_lisan_bilgileri, PERMISSION_EMP_EMPLOYEE);
+  SetAction(actset_prs_personel_tipleri, PERMISSION_EMP_PERSON_TYPE);
+  SetAction(actset_prs_bolumler, PERMISSION_EMP_SECTION);
+  SetAction(actset_prs_birimler, PERMISSION_EMP_UNIT);
+  SetAction(actset_prs_gorevler, PERMISSION_EMP_TASK);
+  SetAction(actset_prs_tasima_servisleri, PERMISSION_EMP_TRANSPORTATION);
+  SetAction(actset_prs_lisanlar, PERMISSION_EMP_LANGUAGE);
+  SetAction(actset_prs_ehliyetler, PERMISSION_EMP_DRIVER_LICENSE_TYPE);
+  SetAction(actch_bankalar, PERMISSION_ACC_BANK);
+  SetAction(actch_banka_subeleri, PERMISSION_ACC_BANK);
+  SetAction(actch_hesap_karti, PERMISSION_ACC_ACCOUNT);
+  SetAction(actch_hesap_karti_ara, PERMISSION_ACC_ACCOUNT);
+  SetAction(actch_bolge, PERMISSION_ACC_REGION);
+  SetAction(actset_ch_grup, PERMISSION_ACC_GROUP);
+  SetAction(actset_ch_hesap_plani, PERMISSION_ACC_ACCOUNT_PLAN);
+  SetAction(actset_ch_hesap_tipi, PERMISSION_ACC_ACCOUNT_TYPE);
+  SetAction(actset_ch_firma_turu, PERMISSION_ACC_OWNERSHIP_TYPE);
+  SetAction(actset_ch_firma_tipi, PERMISSION_ACC_COMPANY_LEGAL_FORM);
+  SetAction(actacc_transfer_code, PERMISSION_ACC_TRANSFER_CODE);
+  SetAction(actacc_exchange_rate, PERMISSION_ACC_EXCHANGE_RATE);
+  SetAction(actset_ch_vergi_orani, PERMISSION_ACC_TAX_RATE);
+  SetAction(actstk_stok_kartlari, PERMISSION_STK_INVENTORY);
+  SetAction(actstk_hareketler, PERMISSION_STK_TRANSACTION);
+  SetAction(actstk_stok_karti_ozetleri, PERMISSION_STK_INVENTORY_SUMMARY);
+  SetAction(actstk_ambarlar, PERMISSION_STK_WAREHOUSE);
+  SetAction(actstk_gruplar, PERMISSION_STK_GROUP);
+  SetAction(actstk_product_types, PERMISSION_STK_PRODUCT_TYPE);
+  SetAction(actstk_kind_families, PERMISSION_STK_KIND_FAMILY);
+  SetAction(actstk_cins_ozellikleri, PERMISSION_STK_KIND_PROPERTY);
+end;
+
 procedure TfrmDashboard.SetSession;
 //var
 //  LRights: TSysErisimHakki;
 //  n1: Integer;
 begin
   ResetSession(pnlMain);
-  btnTest.Enabled := True;
-  btnsys_olcu_birimleri.Enabled := True;
-  btnsys_para_birimleri.Enabled := True;
+  ApplyActionPermissions;
 (*  LRights := TSysErisimHakki.Create(GDataBase);
   try
     LRights.SelectToList(' AND ' + LRights.TableName + '.' + LRights.KullaniciID.FieldName + '=' + VarToStr(GSysKullanici.Id.Value), False, False);

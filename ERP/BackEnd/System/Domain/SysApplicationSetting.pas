@@ -2,7 +2,7 @@
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes, SysAddress, SysCurrency, Rest.Json;
+uses SysUtils, Classes, Types, System.JSON, Entity, EntityAttributes, SysAddress, SysCurrency, Rest.Json;
 
 type
   TSysApplicationSettingOtherSettings = class(TObject)
@@ -234,16 +234,35 @@ begin
 end;
 
 procedure TSysApplicationSetting.DeserializeOtherSettings;
+
+  // Yeni anahtar yoksa eski (Türkçe) anahtara düşer
+  function ReadValue(AObj: TJSONObject; const AKey, ALegacyKey: string): string;
+  begin
+    if not AObj.TryGetValue<string>(AKey, Result) then
+      if not AObj.TryGetValue<string>(ALegacyKey, Result) then
+        Result := '';
+  end;
+
+var
+  LValue: TJSONValue;
+  LObj: TJSONObject;
 begin
+  FOtherSettingsObj.Free;
+  FOtherSettingsObj := TSysApplicationSettingOtherSettings.Create;
+
   if Trim(FOtherSettings) = '' then
     Exit;
+
+  LValue := TJSONObject.ParseJSONValue(Trim(FOtherSettings));
   try
-    FOtherSettingsObj := TJson.JsonToObject<TSysApplicationSettingOtherSettings>(Trim(FOtherSettings));
-    if not Assigned(FOtherSettingsObj) then
-      FOtherSettingsObj := TSysApplicationSettingOtherSettings.Create;
-  except
-    FOtherSettingsObj.Free;
-    FOtherSettingsObj := TSysApplicationSettingOtherSettings.Create;
+    if not (LValue is TJSONObject) then
+      Exit;
+    LObj := TJSONObject(LValue);
+    FOtherSettingsObj.StockCardImagePath := ReadValue(LObj, 'stockCardImagePath', 'pathStokKartiResim');
+    FOtherSettingsObj.PersonnelCardImagePath := ReadValue(LObj, 'personnelCardImagePath', 'pathPersonelKartiResim');
+    FOtherSettingsObj.UpdatePath := ReadValue(LObj, 'updatePath', 'pathUpdate');
+  finally
+    LValue.Free;
   end;
 end;
 

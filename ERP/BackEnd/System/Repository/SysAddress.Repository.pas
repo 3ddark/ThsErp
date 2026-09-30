@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, Service,
   FilterCriterion, UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  SysAddress;
+  SysAddress, SysCity;
 
 type
   TSysAddressRepository = class(TRepository<TSysAddress>)
@@ -140,17 +140,27 @@ function TSysAddressRepository.MapFromQuery(Q: TFDQuery): TSysAddress;
 begin
   Result := TSysAddress.Create;
   Result.Id           := Q.FieldByName('id').AsLargeInt;
-  Result.SysCityId    := Q.ParamByName('sys_city_id').AsLargeInt;
-  Result.District     := Q.ParamByName('district').AsString;
-  Result.Neighborhood := Q.ParamByName('neighborhood').AsString;
-  Result.Quarter      := Q.ParamByName('quarter').AsString;
-  Result.Road         := Q.ParamByName('road').AsString;
-  Result.Street       := Q.ParamByName('street').AsString;
-  Result.BuildingName := Q.ParamByName('building_name').AsString;
-  Result.DoorNumber   := Q.ParamByName('door_number').AsString;
-  Result.ZipCode      := Q.ParamByName('zip_code').AsString;
-  Result.Web          := Q.ParamByName('web').AsString;
-  Result.Email        := Q.ParamByName('email').AsString;
+  Result.SysCityId    := Q.FieldByName('sys_city_id').AsLargeInt;
+  Result.District     := Q.FieldByName('district').AsString;
+  Result.Neighborhood := Q.FieldByName('neighborhood').AsString;
+  Result.Quarter      := Q.FieldByName('quarter').AsString;
+  Result.Road         := Q.FieldByName('road').AsString;
+  Result.Street       := Q.FieldByName('street').AsString;
+  Result.BuildingName := Q.FieldByName('building_name').AsString;
+  Result.DoorNumber   := Q.FieldByName('door_number').AsString;
+  Result.ZipCode      := Q.FieldByName('zip_code').AsString;
+  Result.Web          := Q.FieldByName('web').AsString;
+  Result.Email        := Q.FieldByName('email').AsString;
+
+  // View'dan okunabilir şehir/ülke bilgisi
+  if Assigned(Q.FindField('city_name')) then
+  begin
+    Result.SysCity := TSysCity.Create;
+    Result.SysCity.Id := Result.SysCityId;
+    Result.SysCity.CityName := Q.FieldByName('city_name').AsString;
+    if Assigned(Q.FindField('country_name')) then
+      Result.SysCity.SysCountry.CountryName := Q.FieldByName('country_name').AsString;
+  end;
 end;
 
 function TSysAddressRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
@@ -158,10 +168,10 @@ var
   Criteria: TFilterCriterion;
   SelectCols: string;
 begin
-  SelectCols := Self.BuildSelectColumns(['id']);
+  SelectCols := Self.BuildSelectColumns(['id', 'locale']);
   Result := TFDQuery.Create(nil);
   Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT ' + SelectCols + ' FROM ' + Self.GetFullViewName(TSysAddress) + ' WHERE 1=1 ';
+  Result.SQL.Text := 'SELECT ' + SelectCols + ' FROM ' + Self.GetFullViewName(TSysAddress) + ' WHERE locale = :locale ';
 
   if Assigned(AFilter) and (AFilter.Count > 0) then
   begin
@@ -170,6 +180,7 @@ begin
     for Criteria in AFilter do
       Result.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
   end;
+  Result.ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage;
 end;
 
 function TSysAddressRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TSysAddress>;

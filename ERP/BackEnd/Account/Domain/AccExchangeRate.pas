@@ -2,28 +2,28 @@
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes, SysCurrency;
+{$I Ths.inc}
+
+uses
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('acc_exchange_rate')]
   TAccExchangeRate = class(TEntity)
   private
-    FRateDate: TDateTime;
-    FRate: Double;
+    FRateDate: TDate;
     FCurrency: string;
-    FSysCurrency: TSysCurrency;
+    FRate: Currency;
   public
-    [Column('rate_date'), Required()]
-    property RateDate: TDateTime read FRateDate write FRateDate;
+    [Column('rate_date')]
+    property RateDate: TDate read FRateDate write FRateDate;
 
-    [Column('rate'), Required()]
-    property Rate: Double read FRate write FRate;
-
-    [Column('currency'), MaxLength(3)]
+    [Column('currency')]
+    [MaxLength(3), Required(TLangKeys.TValidation.Required, True)]
     property Currency: string read FCurrency write FCurrency;
 
-    [BelongsTo('Currency')]
-    property SysCurrency: TSysCurrency read FSysCurrency write FSysCurrency;
+    [Column('rate')]
+    property Rate: Currency read FRate write FRate;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -33,16 +33,13 @@ type
 
 implementation
 
-constructor TAccExchangeRate.Create();
+constructor TAccExchangeRate.Create;
 begin
   inherited;
-  FSysCurrency := nil;//TSysCurrency.Create;
 end;
 
 destructor TAccExchangeRate.Destroy;
 begin
-  FSysCurrency.Free;
-
   inherited;
 end;
 
@@ -51,11 +48,8 @@ begin
   Result := TAccExchangeRate.Create;
   Result.Id := Self.Id;
   Result.RateDate := Self.RateDate;
-  Result.Rate := Self.Rate;
   Result.Currency := Self.Currency;
-
-  if Assigned(Self.SysCurrency) then
-    Result.SysCurrency := Self.SysCurrency.Clone;
+  Result.Rate := Self.Rate;
 end;
 
 end.

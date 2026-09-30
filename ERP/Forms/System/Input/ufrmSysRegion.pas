@@ -44,7 +44,6 @@ end;
 procedure TfrmSysRegion.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtRegionName.SetFocus;
 end;
 

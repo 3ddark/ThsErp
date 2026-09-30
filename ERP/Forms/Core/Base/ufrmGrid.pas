@@ -233,10 +233,18 @@ type
     procedure BtnSpinUpClick(Sender: TObject); virtual;
     procedure BtnCloseClick(Sender: TObject); virtual;
     procedure BtnAddClick(Sender: TObject); virtual;
+    // Yetkisi olmayan işlemler UI'da baştan pasif; backend (Business*) yine kontrol eder
+    procedure ApplyPermissionState; virtual;
 
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; virtual;
 
     procedure RefreshParentGrid(AFocusSelectedItem: Boolean);
+
+    /// <summary>
+    /// Grid sorgusuna kalıcı eşitlik filtresi ekler (ör. seçili şablonun hakları).
+    /// Form gösterilmeden (FormShow / Open öncesi) çağrılmalıdır.
+    /// </summary>
+    procedure AddFixedFilter(const AFieldName: string; const AValue: Variant);
   end;
 
   TfrmColumnSelector = class(TForm)
@@ -399,6 +407,27 @@ begin
       TEdit(Owner).Clear;
   end;
   Self.Close;
+end;
+
+procedure TfrmGrid<TE, TS>.ApplyPermissionState;
+var
+  LCanAdd: Boolean;
+begin
+  try
+    LCanAdd := Service.IsAuthorized(ptAddRecord, True);
+  except
+    on E: Exception do
+    begin
+      // Yetki okunamazsa UI kısıtlanmaz; kayıt sırasında backend yine kontrol eder
+      GLogger.ErrorFmt('Yetki durumu okunamadı [%s]: %s', [Self.ClassName, E.Message]);
+      LCanAdd := True;
+    end;
+  end;
+
+  if Assigned(BtnAdd) then
+    BtnAdd.Enabled := LCanAdd;
+  if Assigned(mniDuplicate) then
+    mniDuplicate.Enabled := LCanAdd;
 end;
 
 procedure TfrmGrid<TE, TS>.BtnAddClick(Sender: TObject);
@@ -1036,7 +1065,26 @@ begin
 end;
 
 procedure TfrmGrid<TE, TS>.FormShow(Sender: TObject);
+var
+  LCanRead: Boolean;
 begin
+  // Okuma yetkisi yoksa sorgu hiç açılmaz, ekran kapanır (menü, popup, helper — hangi yoldan açılırsa)
+  try
+    LCanRead := Service.IsAuthorized(ptRead, True);
+  except
+    on E: Exception do
+    begin
+      GLogger.ErrorFmt('Okuma yetkisi okunamadı [%s]: %s', [Self.ClassName, E.Message]);
+      LCanRead := False;
+    end;
+  end;
+  if not LCanRead then
+  begin
+    ShowMessage(TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgNoAccessRightToRead, 'You do not have permission to read the records!'));
+    PostMessage(Self.Handle, WM_CLOSE, 0, 0);
+    Exit;
+  end;
+
   LoadFooterColumnsFromDB;
   BuildFooter;
 
@@ -1060,6 +1108,7 @@ begin
   PrepareFilteredColumns;
   PanelSidebar.Visible := False;
   PrepareStatusBar;
+  ApplyPermissionState;
 
   if FIsHelper then
     EdtFilter.SetFocus
@@ -2060,6 +2109,25 @@ begin
   RefreshStatusRecordCount;
 end;
 
+procedure TfrmGrid<TE, TS>.AddFixedFilter(const AFieldName: string; const AValue: Variant);
+var
+  LParamName: string;
+begin
+  if not Assigned(FQry) then
+    Exit;
+
+  if FQry.Active then
+    FQry.Close;
+
+  LParamName := 'fixed_' + AFieldName;
+  if Pos('WHERE', UpperCase(FQry.SQL.Text)) > 0 then
+    FQry.SQL.Text := FQry.SQL.Text + ' AND ' + AFieldName + ' = :' + LParamName
+  else
+    FQry.SQL.Text := FQry.SQL.Text + ' WHERE ' + AFieldName + ' = :' + LParamName;
+
+  FQry.ParamByName(LParamName).Value := AValue;
+end;
+
 procedure TfrmGrid<TE, TS>.RefreshStatusRecordCount();
 begin
   if (FStatusBase.Panels.Count > DB_STATUS_RECORD_COUNT) then
@@ -2112,6 +2180,10 @@ var
   LForm: TForm;
   LId: Int64;
 begin
+  // Yetki yoksa form açılmadan uyar (F7 / menü / buton hangisiyle gelinirse gelsin)
+  if (AFormType = ifmNewRecord) or (AFormType = ifmCopyNewRecord) then
+    Service.UoW.EnsureAuthorized(Service.PermissionCode, ptAddRecord, True);
+
   if (AFormType = ifmRewiev)
   or ((not Service.UoW.InTransaction) and ((AFormType = ifmNewRecord) or (AFormType = ifmCopyNewRecord)))
   then

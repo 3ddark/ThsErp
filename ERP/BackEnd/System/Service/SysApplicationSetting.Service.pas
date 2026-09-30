@@ -21,6 +21,9 @@ type
     procedure ValidateUpdate(AEntity: TSysApplicationSetting);
     procedure ValidateDelete(AEntity: TSysApplicationSetting);
     procedure ValidateMustContainOneRecord(AEntity: TSysApplicationSetting; AOperation: TCrudOperation);
+
+    procedure LoadAddress(AEntity: TSysApplicationSetting);
+    procedure SaveAddress(AEntity: TSysApplicationSetting);
   public
     constructor Create;
     destructor Destroy; override;
@@ -38,6 +41,8 @@ type
     procedure Delete(AId: Int64); override;
 
     function BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TSysApplicationSetting; override;
+    // Tablo tek kayıt tutar; ilk (tek) kaydı adresiyle birlikte döner, yoksa nil
+    function BusinessFindSetting(AWithBegin, ALock, APermissionControl: Boolean): TSysApplicationSetting;
     function BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TSysApplicationSetting>; override;
     procedure BusinessInsert(AEntity: TSysApplicationSetting; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
     procedure BusinessUpdate(AEntity: TSysApplicationSetting; AWithBegin, AWithCommit, APermissionControl: Boolean); override;
@@ -47,13 +52,13 @@ type
 implementation
 
 uses
-  SysPermission.Service;
+  SysPermission.Service, SysAddress, SysAddress.Repository;
 
 constructor TSysApplicationSettingService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysApplicationSetting, TSysApplicationSettingRepository>;
-  Self.PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_APPLICATION_SETTING;
 end;
 
 destructor TSysApplicationSettingService.Destroy;
@@ -100,15 +105,70 @@ begin
   end;
 end;
 
+procedure TSysApplicationSettingService.LoadAddress(AEntity: TSysApplicationSetting);
+var
+  LRepo: IRepository<TSysAddress>;
+  LAddress: TSysAddress;
+begin
+  if not Assigned(AEntity) then
+    Exit;
+
+  LAddress := nil;
+  if AEntity.SysAddressId > 0 then
+  begin
+    LRepo := Self.UoW.GetRepository<TSysAddress, TSysAddressRepository>;
+    LAddress := LRepo.FindById(AEntity.SysAddressId, False);
+  end;
+
+  // Form her zaman bir adres nesnesi ile çalışır
+  if not Assigned(LAddress) then
+    LAddress := TSysAddress.Create;
+
+  AEntity.SysAddress.Free;
+  AEntity.SysAddress := LAddress;
+end;
+
+procedure TSysApplicationSettingService.SaveAddress(AEntity: TSysApplicationSetting);
+var
+  LRepo: IRepository<TSysAddress>;
+  LAddress: TSysAddress;
+  LHasData: Boolean;
+begin
+  LAddress := AEntity.SysAddress;
+  if not Assigned(LAddress) then
+    Exit;
+
+  LHasData := (LAddress.SysCityId > 0)
+           or (Trim(LAddress.District + LAddress.Neighborhood + LAddress.Quarter +
+                    LAddress.Road + LAddress.Street + LAddress.BuildingName +
+                    LAddress.DoorNumber + LAddress.ZipCode + LAddress.Web + LAddress.Email) <> '');
+  if not LHasData then
+    Exit;
+
+  // sys_address.sys_city_id NOT NULL
+  if LAddress.SysCityId <= 0 then
+    raise ESysApplicationSettingExceptionAddressCityRequired.Create;
+
+  LRepo := Self.UoW.GetRepository<TSysAddress, TSysAddressRepository>;
+  if LAddress.Id > 0 then
+    LRepo.Update(LAddress)
+  else
+    LRepo.Add(LAddress);
+
+  AEntity.SysAddressId := LAddress.Id;
+end;
+
 procedure TSysApplicationSettingService.DoAdd(AEntity: TSysApplicationSetting);
 begin
   ValidateAll(AEntity, coInsert);
+  SaveAddress(AEntity);
   FRepo.Add(AEntity);
 end;
 
 procedure TSysApplicationSettingService.DoUpdate(AEntity: TSysApplicationSetting);
 begin
   ValidateAll(AEntity, coUpdate);
+  SaveAddress(AEntity);
   FRepo.Update(AEntity);
 end;
 
@@ -155,6 +215,26 @@ begin
 
   try
     Result := FRepo.FindById(AId, ALock);
+    LoadAddress(Result);
+  except
+    if Self.UoW.InTransaction then
+    begin
+      Self.UoW.Rollback;
+    end;
+    raise;
+  end;
+end;
+
+function TSysApplicationSettingService.BusinessFindSetting(AWithBegin, ALock, APermissionControl: Boolean): TSysApplicationSetting;
+begin
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
+  if AWithBegin and not Self.UoW.InTransaction then
+    Self.UoW.BeginTransaction;
+
+  try
+    Result := FRepo.FindOne(nil, ALock);
+    LoadAddress(Result);
   except
     if Self.UoW.InTransaction then
     begin

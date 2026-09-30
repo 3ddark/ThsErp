@@ -2,7 +2,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
   Left = 0
   Top = 0
   Caption = 'Application Setting'
-  ClientHeight = 480
+  ClientHeight = 490
   ClientWidth = 720
   Color = clBtnFace
   ParentFont = True
@@ -20,9 +20,9 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
       Top = 0
       Width = 720
       Height = 430
-      ActivePage = tsGenel
+      ActivePage = tsGeneral
       TabOrder = 0
-      object tsGenel: TTabSheet
+      object tsGeneral: TTabSheet
         Caption = 'Genel Ayarlar'
         DesignSize = (
           712
@@ -106,7 +106,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           TabOrder = 3
         end
       end
-      object tsAdres: TTabSheet
+      object tsAddress: TTabSheet
         Caption = 'Adres Bilgileri'
         ImageIndex = 2
         object lblTaxpayerType: TLabel
@@ -205,7 +205,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ParentBiDiMode = False
           ParentFont = False
         end
-        object lblCityId: TLabel
+        object lblSysCityId: TLabel
           Left = 450
           Top = 80
           Width = 29
@@ -426,7 +426,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           ReadOnly = True
           TabOrder = 5
         end
-        object edtCityId: TEdit
+        object edtSysCityId: TEdit
           Left = 479
           Top = 76
           Width = 200
@@ -504,7 +504,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           TabOrder = 16
         end
       end
-      object tsServisAyarlari: TTabSheet
+      object tsService: TTabSheet
         Caption = 'Servis Ayarlar'#305
         ImageIndex = 1
         object lblMailHost: TLabel
@@ -694,7 +694,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           TabOrder = 7
         end
       end
-      object tsDigerAyarlar: TTabSheet
+      object tsOther: TTabSheet
         Caption = 'Di'#287'er Ayarlar'
         ImageIndex = 3
         DesignSize = (
@@ -797,7 +797,7 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           OnClick = btnPathUpdateClick
         end
       end
-      object tsGorsel: TTabSheet
+      object tsVisual: TTabSheet
         Caption = 'G'#246'rsel Ayarlar'
         ImageIndex = 2
         object lblGridColor1: TLabel

@@ -13,9 +13,14 @@ uses
 type
   TfrmSysAccessRights = class(TfrmGrid<TSysAccessRight, TSysAccessRightService>)
   private
+    FFixedUserId: Int64;
+    FFixedUsername: string;
     FmniCopyUserRights: TMenuItem;
     procedure mniCopyUserRightsClick(Sender: TObject);
   public
+    /// <summary>Grid'i tek kullanıcının override haklarıyla sınırlar. Show'dan önce çağrılmalıdır.</summary>
+    procedure SetFixedUser(AUserId: Int64; const AUsername: string);
+
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure PreparePopupMenu; override;
     procedure DefineColumnWidths; override;
@@ -30,13 +35,30 @@ uses
 
 {$R *.dfm}
 
+procedure TfrmSysAccessRights.SetFixedUser(AUserId: Int64; const AUsername: string);
+begin
+  FFixedUserId := AUserId;
+  FFixedUsername := AUsername;
+  AddFixedFilter('sys_user_id', AUserId);
+end;
+
 function TfrmSysAccessRights.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
+var
+  LNew: TSysAccessRight;
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
     Result := TfrmSysAccessRight.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmSysAccessRight.Create(Self, Service, TSysAccessRight.Create, AFormMode, Self.RefreshParentGrid)
+  begin
+    LNew := TSysAccessRight.Create;
+    if FFixedUserId > 0 then
+    begin
+      LNew.SysUserId := FFixedUserId;
+      LNew.Username := FFixedUsername;
+    end;
+    Result := TfrmSysAccessRight.Create(Self, Service, LNew, AFormMode, Self.RefreshParentGrid);
+  end
   else if (AFormMode = ifmCopyNewRecord) then
     Result := TfrmSysAccessRight.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
@@ -137,6 +159,8 @@ procedure TfrmSysAccessRights.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.TitlePlural, 'User Access Rights');
+  if FFixedUsername <> '' then
+    Self.Caption := Self.Caption + ' - ' + FFixedUsername;
   if Assigned(FmniCopyUserRights) then
     FmniCopyUserRights.Caption := TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MenuCopUserRights, 'Copy User Rights');
 
@@ -151,6 +175,11 @@ begin
   SetColumnTitle('is_update', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColUpdate, 'Update'));
   SetColumnTitle('is_delete', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColDelete, 'Delete'));
   SetColumnTitle('is_special', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColSpecial, 'Special'));
+  SetColumnTitle('deny_read', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColDenyRead, 'Deny Read'));
+  SetColumnTitle('deny_add', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColDenyAdd, 'Deny Add'));
+  SetColumnTitle('deny_update', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColDenyUpdate, 'Deny Update'));
+  SetColumnTitle('deny_delete', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColDenyDelete, 'Deny Delete'));
+  SetColumnTitle('deny_special', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColDenySpecial, 'Deny Special'));
   SetColumnTitle('sys_user_id', TLocalizationManager.Translate(TLangKeys.TSysAccessRight.ColSysUserId, 'SysUser Id'));
   SetColumnTitle('locale', TLocalizationManager.Translate(TLangKeys.TSysLanguage.ColLocale, 'Locale'));
 end;

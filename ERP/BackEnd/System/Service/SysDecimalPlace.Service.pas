@@ -53,7 +53,7 @@ constructor TSysDecimalPlaceService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysDecimalPlace, TSysDecimalPlaceRepository>;
-  Self.PermissionCode := PERMISSION_TEMPLATE;
+  Self.PermissionCode := PERMISSION_SYS_DECIMAL_PLACE;
 end;
 
 destructor TSysDecimalPlaceService.Destroy;

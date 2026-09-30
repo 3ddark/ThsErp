@@ -2,7 +2,10 @@
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes;
+{$I Ths.inc}
+
+uses
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('acc_account_plan')]
@@ -12,13 +15,15 @@ type
     FName: string;
     FLevel: SmallInt;
   public
-    [Column('code'), MaxLength(16), Required()]
+    [Column('code')]
+    [MaxLength(16), Required(TLangKeys.TValidation.Required, True)]
     property Code: string read FCode write FCode;
 
-    [Column('name'), MaxLength(128), Required()]
+    [Column('name')]
+    [MaxLength(128), Required(TLangKeys.TValidation.Required, True)]
     property Name: string read FName write FName;
 
-    [Column('level'), Required()]
+    [Column('level')]
     property Level: SmallInt read FLevel write FLevel;
 
     constructor Create(); override;
@@ -29,7 +34,7 @@ type
 
 implementation
 
-constructor TAccAccountPlan.Create();
+constructor TAccAccountPlan.Create;
 begin
   inherited;
 end;

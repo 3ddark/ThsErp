@@ -1,34 +1,36 @@
-unit ufrmStkGroup;
+﻿unit ufrmStkGroup;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants, Ths.Helper.SpinEdit,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls, ufrmInputSimpleDB, SharedFormTypes,
-  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  StkGroup.Service, StkGroup, LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
+  StkGroup.Service, StkGroup;
 
 type
   TfrmStkGroup = class(TfrmInputSimpleDB<TStkGroup, TStkGroupService>)
-    pgcMain: TPageControl;
-    tsMain: TTabSheet;
-    lblGroupName: TLabel;
-    edtGroupName: TEdit;
+    pnlContent: TPanel;
+    lblName: TLabel;
+    edtName: TEdit;
     lblVatRate: TLabel;
-    edtVatRate: TSpinEdit;
+    edtVatRate: TEdit;
     lblRawMaterialStockAccount: TLabel;
     edtRawMaterialStockAccount: TEdit;
     lblRawMaterialUsageAccount: TLabel;
     edtRawMaterialUsageAccount: TEdit;
     lblSemiProductAccount: TLabel;
     edtSemiProductAccount: TEdit;
+    procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
-    procedure BtnAcceptClick(Sender: TObject); override;
   public
+    procedure HelperProcess(Sender: TObject);
     procedure RefreshData; override;
-    procedure InitializeInputCase; override;
     procedure ApplyLocalization; override;
   end;
 
@@ -36,51 +38,128 @@ implementation
 
 {$R *.dfm}
 
+uses
+  AccAccount, AccAccount.Service, ufrmAccAccounts;                              // TfrmAccAccounts helper output form
+
 procedure TfrmStkGroup.BtnAcceptClick(Sender: TObject);
 begin
-  Table.GroupName := edtGroupName.Text;
-  Table.VatRate := edtVatRate.Value / 100;
-  Table.RawMaterialStockAccount := edtRawMaterialStockAccount.Text;
-  Table.RawMaterialUsageAccount := edtRawMaterialUsageAccount.Text;
-  Table.SemiProductAccount := edtSemiProductAccount.Text;
+  // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
+  Table.Name := edtName.Text;
+  Table.VatRate := StrToCurrDef(edtVatRate.Text, 0);
   inherited;
 end;
 
 procedure TfrmStkGroup.FormCreate(Sender: TObject);
 begin
   inherited;
-  pgcMain.Parent := PanelMain;
-  PgcBase := pgcMain;
+  pnlContent.Parent := PanelMain;
+  edtRawMaterialStockAccount.OnHelperProcess := HelperProcess;
+  edtRawMaterialUsageAccount.OnHelperProcess := HelperProcess;
+  edtSemiProductAccount.OnHelperProcess := HelperProcess;
+  edtName.thsInputDataType := itString;
+  edtName.CharCase := TEditCharCase.ecUpperCase;
+  edtVatRate.thsInputDataType := itFloat;
 end;
 
 procedure TfrmStkGroup.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtGroupName.SetFocus;
+  if edtName.CanFocus then
+    edtName.SetFocus;
 end;
 
 procedure TfrmStkGroup.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('stk_group.title_singular', 'Stok Grubu');
-  lblGroupName.Caption := TLocalizationManager.Translate('stk_group.lbl_group_name', 'Grup Adı');
-  lblVatRate.Caption := TLocalizationManager.Translate('stk_group.lbl_vat_rate', 'KDV Oranı (%)');
-  lblRawMaterialStockAccount.Caption := TLocalizationManager.Translate('stk_group.lbl_rm_stock_account', 'Hammadde Stok Hesabı');
-  lblRawMaterialUsageAccount.Caption := TLocalizationManager.Translate('stk_group.lbl_rm_usage_account', 'Hammadde Kullanım Hesabı');
-  lblSemiProductAccount.Caption := TLocalizationManager.Translate('stk_group.lbl_semi_product_account', 'Yarı Mamul Hesabı');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.TitleSingular, 'Stock Group');
+  lblName.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.ColName, 'Group Name');
+  lblVatRate.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.ColVatRate, 'VAT Rate (%)');
+  lblRawMaterialStockAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.ColRawMaterialStockAccount, 'Raw Material Stock Account');
+  lblRawMaterialUsageAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.ColRawMaterialUsageAccount, 'Raw Material Usage Account');
+  lblSemiProductAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.ColSemiProductAccount, 'Semi-Product Account');
 end;
 
-procedure TfrmStkGroup.InitializeInputCase;
+procedure TfrmStkGroup.HelperProcess(Sender: TObject);
+var
+  LEdit: TEdit;
+  LFrmRawMaterialStockAccount: TfrmAccAccounts;
+  LFrmRawMaterialUsageAccount: TfrmAccAccounts;
+  LFrmSemiProductAccount: TfrmAccAccounts;
 begin
-  inherited;
+  if not (Sender is TEdit) then
+    Exit;
+
+  LEdit := (Sender as TEdit);
+  if LEdit.Name = edtRawMaterialStockAccount.Name then
+  begin
+    LFrmRawMaterialStockAccount := TfrmAccAccounts.Create(LEdit, TAccAccountService.Create, TAccAccount.Create);
+    try
+      LFrmRawMaterialStockAccount.IsHelper := True;
+      LFrmRawMaterialStockAccount.ShowModal;
+      if LFrmRawMaterialStockAccount.DataTransfer then
+        if LFrmRawMaterialStockAccount.CleanAndClose then
+        begin
+          Table.RawMaterialStockAccount := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.RawMaterialStockAccount := LFrmRawMaterialStockAccount.Table.Code;
+          LEdit.Text := Table.RawMaterialStockAccount;
+        end;
+    finally
+      LFrmRawMaterialStockAccount.Free;
+    end;
+  end
+  else if LEdit.Name = edtRawMaterialUsageAccount.Name then
+  begin
+    LFrmRawMaterialUsageAccount := TfrmAccAccounts.Create(LEdit, TAccAccountService.Create, TAccAccount.Create);
+    try
+      LFrmRawMaterialUsageAccount.IsHelper := True;
+      LFrmRawMaterialUsageAccount.ShowModal;
+      if LFrmRawMaterialUsageAccount.DataTransfer then
+        if LFrmRawMaterialUsageAccount.CleanAndClose then
+        begin
+          Table.RawMaterialUsageAccount := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.RawMaterialUsageAccount := LFrmRawMaterialUsageAccount.Table.Code;
+          LEdit.Text := Table.RawMaterialUsageAccount;
+        end;
+    finally
+      LFrmRawMaterialUsageAccount.Free;
+    end;
+  end
+  else if LEdit.Name = edtSemiProductAccount.Name then
+  begin
+    LFrmSemiProductAccount := TfrmAccAccounts.Create(LEdit, TAccAccountService.Create, TAccAccount.Create);
+    try
+      LFrmSemiProductAccount.IsHelper := True;
+      LFrmSemiProductAccount.ShowModal;
+      if LFrmSemiProductAccount.DataTransfer then
+        if LFrmSemiProductAccount.CleanAndClose then
+        begin
+          Table.SemiProductAccount := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.SemiProductAccount := LFrmSemiProductAccount.Table.Code;
+          LEdit.Text := Table.SemiProductAccount;
+        end;
+    finally
+      LFrmSemiProductAccount.Free;
+    end;
+  end;
 end;
 
 procedure TfrmStkGroup.RefreshData;
 begin
   inherited;
-  edtGroupName.Text := Table.GroupName;
-  edtVatRate.Value := Round(Table.VatRate * 100);
+  edtName.Text := Table.Name;
+  edtVatRate.Text := CurrToStr(Table.VatRate);
   edtRawMaterialStockAccount.Text := Table.RawMaterialStockAccount;
   edtRawMaterialUsageAccount.Text := Table.RawMaterialUsageAccount;
   edtSemiProductAccount.Text := Table.SemiProductAccount;

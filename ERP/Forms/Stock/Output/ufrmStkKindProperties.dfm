@@ -2,8 +2,8 @@ object frmStkKindProperties: TfrmStkKindProperties
   Left = 0
   Top = 0
   Caption = 'frmStkKindProperties'
-  ClientHeight = 400
-  ClientWidth = 920
+  ClientHeight = 441
+  ClientWidth = 624
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

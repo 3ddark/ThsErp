@@ -1,23 +1,35 @@
-unit EmpPersonAddress.Service;
+﻿unit EmpPersonAddress.Service;
 
 interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  EmpPersonAddress.Repository, EmpPersonAddress;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  EmpPersonAddress.Repository, EmpPersonAddress, EmpPersonAddress.Exception;
 
 type
   TEmpPersonAddressService = class(TCrudService<TEmpPersonAddress>)
   private
     FRepo: IRepository<TEmpPersonAddress>;
+
+    procedure DoAdd(AEntity: TEmpPersonAddress);
+    procedure DoUpdate(AEntity: TEmpPersonAddress);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateRequiredReferences(AEntity: TEmpPersonAddress);
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TEmpPersonAddress; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TEmpPersonAddress>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TEmpPersonAddress; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TEmpPersonAddress; override;
+
     procedure Add(AEntity: TEmpPersonAddress); override;
     procedure Update(AEntity: TEmpPersonAddress); override;
     procedure Delete(AId: Int64); override;
@@ -31,11 +43,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TEmpPersonAddressService.Create;
 begin
   inherited;
-  PermissionCode := 1000;
   FRepo := Self.UoW.GetRepository<TEmpPersonAddress, TEmpPersonAddressRepository>;
+  Self.PermissionCode := PERMISSION_EMP_EMPLOYEE;
 end;
 
 destructor TEmpPersonAddressService.Destroy;
@@ -43,127 +58,143 @@ begin
   inherited;
 end;
 
-function TEmpPersonAddressService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TEmpPersonAddress>;
-var
-  LStartedTx: Boolean;
-begin
-  if APermissionControl then
-    Self.IsAuthorized(ptRead, APermissionControl);
+procedure TEmpPersonAddressService.ValidateRequiredReferences(AEntity: TEmpPersonAddress);
 
-  LStartedTx := False;
-  if AWithBegin and not Self.UoW.InTransaction then
+  procedure Check(AValue: Int64; const AKey, ADefault: string);
   begin
-    Self.UoW.BeginTransaction;
-    LStartedTx := True;
+    if AValue <= 0 then
+      raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
+        TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
   end;
+
+begin
+  Check(AEntity.EmpEmployeeId, TLangKeys.TEmpPersonAddress.ColEmployee, 'Employee');
+  Check(AEntity.SysAddressId, TLangKeys.TEmpPersonAddress.ColAddress, 'Address');
+end;
+
+procedure TEmpPersonAddressService.ValidateBusinessRules(AEntity: TEmpPersonAddress; AOperation: TCrudOperation);
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    AEntity.AddressType := Trim(AEntity.AddressType);
+    ValidateRequiredReferences(AEntity);
+    if (AEntity.ValidFrom > 0) and (AEntity.ValidTo > 0) and (AEntity.ValidTo < AEntity.ValidFrom) then
+      raise EEmpPersonAddressExceptionValidDateRange.Create;
+  end;
+end;
+
+procedure TEmpPersonAddressService.DoAdd(AEntity: TEmpPersonAddress);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TEmpPersonAddressService.DoUpdate(AEntity: TEmpPersonAddress);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TEmpPersonAddressService.DoDelete(AId: Int64);
+var
+  LEntity: TEmpPersonAddress;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
+end;
+
+function TEmpPersonAddressService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TEmpPersonAddress>;
+begin
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
+  if AWithBegin and not Self.UoW.InTransaction then
+    Self.UoW.BeginTransaction;
 
   try
     Result := FRepo.Find(AFilter, ALock);
   except
-    if LStartedTx and Self.UoW.InTransaction then
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
     raise;
   end;
 end;
 
 function TEmpPersonAddressService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TEmpPersonAddress;
-var
-  LStartedTx: Boolean;
 begin
-  if APermissionControl then
-    Self.IsAuthorized(ptRead, APermissionControl);
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
 
-  LStartedTx := False;
   if AWithBegin and not Self.UoW.InTransaction then
-  begin
     Self.UoW.BeginTransaction;
-    LStartedTx := True;
-  end;
 
   try
     Result := FRepo.FindById(AId, ALock);
-    if (Result = nil) and LStartedTx and Self.UoW.InTransaction then
-      Self.UoW.Rollback;
   except
-    if LStartedTx and Self.UoW.InTransaction then
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
     raise;
   end;
 end;
 
 procedure TEmpPersonAddressService.BusinessInsert(AEntity: TEmpPersonAddress; AWithBegin, AWithCommit, APermissionControl: Boolean);
-var
-  LStartedTx: Boolean;
 begin
-  if APermissionControl then
-    Self.IsAuthorized(ptAddRecord, APermissionControl);
-
-  LStartedTx := False;
-  if AWithBegin and not Self.UoW.InTransaction then
-  begin
-    Self.UoW.BeginTransaction;
-    LStartedTx := True;
-  end;
-
   try
-    FRepo.Add(AEntity);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
-    if AWithCommit and Self.UoW.InTransaction and (LStartedTx or AWithBegin) then
+    if AWithBegin and not Self.UoW.InTransaction then
+      Self.UoW.BeginTransaction;
+
+    DoAdd(AEntity);
+
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    if LStartedTx and Self.UoW.InTransaction then
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
     raise;
   end;
 end;
 
 procedure TEmpPersonAddressService.BusinessUpdate(AEntity: TEmpPersonAddress; AWithBegin, AWithCommit, APermissionControl: Boolean);
-var
-  LStartedTx: Boolean;
 begin
-  if APermissionControl then
-    Self.IsAuthorized(ptUpdate, APermissionControl);
-
-  LStartedTx := False;
-  if AWithBegin and not Self.UoW.InTransaction then
-  begin
-    Self.UoW.BeginTransaction;
-    LStartedTx := True;
-  end;
-
   try
-    FRepo.Update(AEntity);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
-    if AWithCommit and Self.UoW.InTransaction and (LStartedTx or AWithBegin) then
+    if AWithBegin and not Self.UoW.InTransaction then
+      Self.UoW.BeginTransaction;
+
+    DoUpdate(AEntity);
+
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    if LStartedTx and Self.UoW.InTransaction then
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
     raise;
   end;
 end;
 
 procedure TEmpPersonAddressService.BusinessDelete(AEntity: TEmpPersonAddress; AWithBegin, AWithCommit, APermissionControl: Boolean);
-var
-  LStartedTx: Boolean;
 begin
-  if APermissionControl then
-    Self.IsAuthorized(ptDelete, APermissionControl);
-
-  LStartedTx := False;
-  if AWithBegin and not Self.UoW.InTransaction then
-  begin
-    Self.UoW.BeginTransaction;
-    LStartedTx := True;
-  end;
-
   try
-    FRepo.Delete(AEntity);
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
-    if AWithCommit and Self.UoW.InTransaction and (LStartedTx or AWithBegin) then
+    if AWithBegin and not Self.UoW.InTransaction then
+      Self.UoW.BeginTransaction;
+
+    DoDelete(AEntity.Id);
+
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    if LStartedTx and Self.UoW.InTransaction then
+    if Self.UoW.InTransaction then
       Self.UoW.Rollback;
     raise;
   end;
@@ -184,19 +215,24 @@ begin
   Result := FRepo.FindById(AId, ALock);
 end;
 
+function TEmpPersonAddressService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TEmpPersonAddress;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
+end;
+
 procedure TEmpPersonAddressService.Add(AEntity: TEmpPersonAddress);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity);
 end;
 
 procedure TEmpPersonAddressService.Update(AEntity: TEmpPersonAddress);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TEmpPersonAddressService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 end.

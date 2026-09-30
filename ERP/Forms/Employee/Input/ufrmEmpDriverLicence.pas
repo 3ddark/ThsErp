@@ -1,26 +1,29 @@
-unit ufrmEmpDriverLicence;
+﻿unit ufrmEmpDriverLicence;
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ufrmInputSimpleDB, SharedFormTypes, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  EmpDriverLicence.Service, EmpDriverLicence, LocalizationManager;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
+  EmpDriverLicence.Service, EmpDriverLicence;
 
 type
   TfrmEmpDriverLicence = class(TfrmInputSimpleDB<TEmpDriverLicence, TEmpDriverLicenceService>)
     pnlContent: TPanel;
-    lblPersonId: TLabel;
-    edtPersonId: TEdit;
-    lblDriverLicenseId: TLabel;
-    edtDriverLicenseId: TEdit;
+    lblEmpEmployeeId: TLabel;
+    edtEmpEmployeeId: TEdit;
+    lblEmpDriverLicenseTypeId: TLabel;
+    edtEmpDriverLicenseTypeId: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
     procedure HelperProcess(Sender: TObject);
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
   end;
@@ -30,11 +33,12 @@ implementation
 {$R *.dfm}
 
 uses
-  EmpPerson, EmpPerson.Service, ufrmEmpPersons,
-  EmpDriverLicenceType, EmpDriverLicenceType.Service, ufrmEmpDriverLicenceTypes;
+  EmpEmployee, EmpEmployee.Service, ufrmEmpEmployees,                           // TfrmEmpEmployees helper output form
+  EmpDriverLicenceType, EmpDriverLicenceType.Service, ufrmEmpDriverLicenceTypes;// TfrmEmpDriverLicenceTypes helper output form
 
 procedure TfrmEmpDriverLicence.BtnAcceptClick(Sender: TObject);
 begin
+  // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
   inherited;
 end;
 
@@ -42,98 +46,88 @@ procedure TfrmEmpDriverLicence.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtPersonId.OnHelperProcess := HelperProcess;
-  edtDriverLicenseId.OnHelperProcess := HelperProcess;
+  edtEmpEmployeeId.OnHelperProcess := HelperProcess;
+  edtEmpDriverLicenseTypeId.OnHelperProcess := HelperProcess;
 end;
 
 procedure TfrmEmpDriverLicence.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtPersonId.SetFocus;
+  if edtEmpDriverLicenseTypeId.CanFocus then
+    edtEmpDriverLicenseTypeId.SetFocus;
 end;
 
 procedure TfrmEmpDriverLicence.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('emp_driver_ability.title_singular', 'Personel Sürücü Belgesi');
-  lblPersonId.Caption := TLocalizationManager.Translate('emp_driver_ability.lbl_person_id', 'Personel');
-  lblDriverLicenseId.Caption := TLocalizationManager.Translate('emp_driver_ability.lbl_license_id', 'Ehliyet Sınıfı');
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TEmpDriverAbility.TitleSingular, 'Employee Driver License');
+  lblEmpEmployeeId.Caption := TLocalizationManager.Translate(TLangKeys.TEmpDriverAbility.ColEmployee, 'Employee');
+  lblEmpDriverLicenseTypeId.Caption := TLocalizationManager.Translate(TLangKeys.TEmpDriverAbility.ColLicenseName, 'License Class');
 end;
 
 procedure TfrmEmpDriverLicence.HelperProcess(Sender: TObject);
 var
   LEdit: TEdit;
-  LFrmPerson: TfrmEmpPersons;
-  LFrmLicenceType: TfrmEmpDriverLicenceTypes;
+  LFrmEmpEmployeeId: TfrmEmpEmployees;
+  LFrmEmpDriverLicenseTypeId: TfrmEmpDriverLicenceTypes;
 begin
-  if Sender is TEdit then
+  if not (Sender is TEdit) then
+    Exit;
+
+  LEdit := (Sender as TEdit);
+  if LEdit.Name = edtEmpEmployeeId.Name then
   begin
-    LEdit := (Sender as TEdit);
-    if LEdit.Name = edtPersonId.Name then
-    begin
-      LFrmPerson := TfrmEmpPersons.Create(LEdit, TEmpPersonService.Create, TEmpPerson.Create);
-      try
-        LFrmPerson.IsHelper := True;
-        LFrmPerson.ShowModal;
-        if LFrmPerson.DataTransfer then
+    LFrmEmpEmployeeId := TfrmEmpEmployees.Create(LEdit, TEmpEmployeeService.Create, TEmpEmployee.Create);
+    try
+      LFrmEmpEmployeeId.IsHelper := True;
+      LFrmEmpEmployeeId.ShowModal;
+      if LFrmEmpEmployeeId.DataTransfer then
+        if LFrmEmpEmployeeId.CleanAndClose then
         begin
-          if LFrmPerson.CleanAndClose then
-          begin
-            Table.PersonId := 0;
-            LEdit.Clear;
-          end
-          else
-          begin
-            Table.PersonId := LFrmPerson.Table.Id;
-            LEdit.Text := LFrmPerson.Table.FullName;
-          end;
-        end;
-      finally
-        LFrmPerson.Free;
-      end;
-    end
-    else if LEdit.Name = edtDriverLicenseId.Name then
-    begin
-      LFrmLicenceType := TfrmEmpDriverLicenceTypes.Create(LEdit, TEmpDriverLicenceTypeService.Create, TEmpDriverLicenseType.Create);
-      try
-        LFrmLicenceType.IsHelper := True;
-        LFrmLicenceType.ShowModal;
-        if LFrmLicenceType.DataTransfer then
+          Table.EmpEmployeeId := 0;
+          Table.EmployeeFullName := '';
+          LEdit.Clear;
+        end
+        else
         begin
-          if LFrmLicenceType.CleanAndClose then
-          begin
-            Table.DriverLicenseId := 0;
-            LEdit.Clear;
-          end
-          else
-          begin
-            Table.DriverLicenseId := LFrmLicenceType.Table.Id;
-            LEdit.Text := LFrmLicenceType.Table.LicenseName;
-          end;
+          Table.EmpEmployeeId := LFrmEmpEmployeeId.Table.Id;
+          Table.EmployeeFullName := LFrmEmpEmployeeId.Table.FullName;
+          LEdit.Text := Table.EmployeeFullName;
         end;
-      finally
-        LFrmLicenceType.Free;
-      end;
+    finally
+      LFrmEmpEmployeeId.Free;
+    end;
+  end
+  else if LEdit.Name = edtEmpDriverLicenseTypeId.Name then
+  begin
+    LFrmEmpDriverLicenseTypeId := TfrmEmpDriverLicenceTypes.Create(LEdit, TEmpDriverLicenseTypeService.Create, TEmpDriverLicenseType.Create);
+    try
+      LFrmEmpDriverLicenseTypeId.IsHelper := True;
+      LFrmEmpDriverLicenseTypeId.ShowModal;
+      if LFrmEmpDriverLicenseTypeId.DataTransfer then
+        if LFrmEmpDriverLicenseTypeId.CleanAndClose then
+        begin
+          Table.EmpDriverLicenseTypeId := 0;
+          Table.LicenseName := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.EmpDriverLicenseTypeId := LFrmEmpDriverLicenseTypeId.Table.Id;
+          Table.LicenseName := LFrmEmpDriverLicenseTypeId.Table.LicenseName;
+          LEdit.Text := Table.LicenseName;
+        end;
+    finally
+      LFrmEmpDriverLicenseTypeId.Free;
     end;
   end;
-end;
-
-procedure TfrmEmpDriverLicence.InitializeInputCase;
-begin
-  inherited;
-  edtPersonId.thsInputDataType := itInteger;
-  edtDriverLicenseId.thsInputDataType := itInteger;
 end;
 
 procedure TfrmEmpDriverLicence.RefreshData;
 begin
   inherited;
-  edtPersonId.Text := Table.PersonId.ToString;
-  if Assigned(Table.Ehliyet) then
-    edtDriverLicenseId.Text := Table.Ehliyet.LicenseName
-  else
-    edtDriverLicenseId.Text := Table.DriverLicenseId.ToString;
+  edtEmpEmployeeId.Text := Table.EmployeeFullName;
+  edtEmpDriverLicenseTypeId.Text := Table.LicenseName;
 end;
 
 end.

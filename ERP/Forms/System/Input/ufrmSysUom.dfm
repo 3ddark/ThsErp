@@ -21,7 +21,7 @@ object frmSysUom: TfrmSysUom
     Align = alClient
     TabOrder = 0
     ExplicitHeight = 220
-    object lblUnit: TLabel
+    object lblUnitCode: TLabel
       Left = 105
       Top = 6
       Width = 23
@@ -69,7 +69,7 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object lblMeasureTypeId: TLabel
+    object lblSysUomGroupId: TLabel
       Left = 48
       Top = 139
       Width = 80
@@ -101,7 +101,7 @@ object frmSysUom: TfrmSysUom
       ParentBiDiMode = False
       ParentFont = False
     end
-    object edtUnit: TEdit
+    object edtUnitCode: TEdit
       Left = 132
       Top = 2
       Width = 333
@@ -122,7 +122,7 @@ object frmSysUom: TfrmSysUom
       Height = 17
       TabOrder = 3
     end
-    object edtMeasureTypeId: TEdit
+    object edtSysUomGroupId: TEdit
       Left = 132
       Top = 135
       Width = 333

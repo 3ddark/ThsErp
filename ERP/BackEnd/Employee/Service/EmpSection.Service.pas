@@ -4,18 +4,27 @@ interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  EmpSection.Repository, EmpSection;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  EmpSection.Repository, EmpSection, EmpSection.Exception;
 
 type
   TEmpSectionService = class(TCrudService<TEmpSection>)
   private
     FRepo: IRepository<TEmpSection>;
+
+    procedure DoAdd(AEntity: TEmpSection);
+    procedure DoUpdate(AEntity: TEmpSection);
+    procedure DoDelete(AId: Int64);
+    procedure ValidateUnique(AEntity: TEmpSection; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TEmpSection; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TEmpSection>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TEmpSection; override;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TEmpSection; override;
@@ -33,10 +42,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TEmpSectionService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TEmpSection, TEmpSectionRepository>;
+  Self.PermissionCode := PERMISSION_EMP_SECTION;
 end;
 
 destructor TEmpSectionService.Destroy;
@@ -44,107 +57,156 @@ begin
   inherited;
 end;
 
+procedure TEmpSectionService.ValidateUnique(AEntity: TEmpSection; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TEmpSection;
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('section_key', '=', TValue.From<string>(AEntity.SectionKey)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      try
+        if Assigned(LModel) then
+          raise EEmpSectionExceptionSectionKeyUnique.Create;
+      finally
+        LModel.Free;
+      end;
+    finally
+      LFilter.Free;
+    end;
+  end;
+end;
+
+procedure TEmpSectionService.ValidateBusinessRules(AEntity: TEmpSection; AOperation: TCrudOperation);
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    AEntity.SectionKey := Trim(AEntity.SectionKey);
+  end;
+
+  ValidateUnique(AEntity, AOperation);
+end;
+
+procedure TEmpSectionService.DoAdd(AEntity: TEmpSection);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TEmpSectionService.DoUpdate(AEntity: TEmpSection);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TEmpSectionService.DoDelete(AId: Int64);
+var
+  LEntity: TEmpSection;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
+end;
+
 function TEmpSectionService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TEmpSection>;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 function TEmpSectionService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TEmpSection;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-    //CheckPermission if not throw exception
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 procedure TEmpSectionService.BusinessInsert(AEntity: TEmpSection; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Uow.InTransaction then
-        Self.UoW.Rollback;
-      raise
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TEmpSectionService.BusinessUpdate(AEntity: TEmpSection; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TEmpSectionService.BusinessDelete(AEntity: TEmpSection; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
-      //CheckPermission if not throw exception
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -153,12 +215,12 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TEmpSectionService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TEmpSection>;
+function TEmpSectionService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TEmpSection>;
 begin
   Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TEmpSectionService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TEmpSection;
+function TEmpSectionService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TEmpSection;
 begin
   Result := FRepo.FindById(AId, ALock);
 end;
@@ -170,17 +232,17 @@ end;
 
 procedure TEmpSectionService.Add(AEntity: TEmpSection);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity);
 end;
 
 procedure TEmpSectionService.Update(AEntity: TEmpSection);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TEmpSectionService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 end.

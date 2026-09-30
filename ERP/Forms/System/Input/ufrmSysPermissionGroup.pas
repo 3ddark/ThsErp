@@ -62,6 +62,8 @@ begin
         LTrans.PermissionGroupName := LPair.Value;
         LTrans.SysLanguage := TSysLanguage.Create;
         LTrans.SysLanguage.Locale := LPair.Key;
+        if not Assigned(Table.Translations) then
+          Table.Translations := TObjectList<TSysPermissionGroupTranslation>.Create(True);
         Table.Translations.Add(LTrans);
       end;
     end;
@@ -87,7 +89,6 @@ end;
 procedure TfrmSysPermissionGroup.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtPermissionGroupKey.SetFocus;
 end;
 

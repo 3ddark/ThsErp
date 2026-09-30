@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('emp_driver_license_type')]
@@ -14,7 +14,8 @@ type
     FLicenseName: string;
   public
     [Column('license_name')]
-    Property LicenseName: string read FLicenseName write FLicenseName;
+    [MaxLength(32), Required(TLangKeys.TValidation.Required, True)]
+    property LicenseName: string read FLicenseName write FLicenseName;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -31,7 +32,6 @@ end;
 
 destructor TEmpDriverLicenseType.Destroy;
 begin
-
   inherited;
 end;
 

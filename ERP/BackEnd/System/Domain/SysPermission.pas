@@ -46,13 +46,13 @@ type
     FSysPermissionGroup: TSysPermissionGroup;
     FTranslations: TObjectList<TSysPermissionTranslation>;
   public
-    [Column('permission_code', [cpNotNull])]
+    [Column('permission_code', [cpNotNull]), Required()]
     property PermissionCode: Integer read FPermissionCode write FPermissionCode;
 
-    [Column('permission_key', [cpNotNull])]
+    [Column('permission_key', [cpNotNull]), MaxLength(128), Required()]
     property PermissionKey: string read FPermissionKey write FPermissionKey;
 
-    [Column('sys_permission_group_id', [cpNotNull])]
+    [Column('sys_permission_group_id', [cpNotNull]), Required()]
     property SysPermissionGroupId: Int64 read FSysPermissionGroupId write FSysPermissionGroupId;
 
     [BelongsTo('SysPermissionGroupId', 'Id')]

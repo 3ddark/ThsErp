@@ -49,6 +49,9 @@ type
 
 implementation
 
+uses
+  Logger, Ths.Language.Cache;
+
 constructor TSysPermissionRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
@@ -143,6 +146,15 @@ begin
     Q.SQL.Text := PrepareSaveTranslationSql;
     for Trans in AModel.Translations do
     begin
+      if (Trans.SysLanguageId = 0) and Assigned(Trans.SysLanguage) and (Trans.SysLanguage.Locale <> '') then
+        Trans.SysLanguageId := TLanguageCache.GetIdByLocale(Trans.SysLanguage.Locale);
+
+      if Trans.SysLanguageId = 0 then
+      begin
+        GLogger.WarningFmt('SaveTranslations: locale could not be resolved [%s]', [Trans.SysLanguage.Locale]);
+        Continue;
+      end;
+
       Trans.SysPermissionId := AModel.Id;
       Q.ParamByName('sys_permission_id').AsLargeInt := Trans.SysPermissionId;
       Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;
@@ -196,6 +208,13 @@ begin
   Result.PermissionCode := Q.FieldByName('permission_code').AsInteger;
   Result.SysPermissionGroupId := Q.FieldByName('sys_permission_group_id').AsLargeInt;
   Result.PermissionKey := Q.FieldByName('permission_key').AsString;
+
+  if Assigned(Q.FindField('permission_group_key')) then
+  begin
+    Result.SysPermissionGroup := TSysPermissionGroup.Create;
+    Result.SysPermissionGroup.Id := Result.SysPermissionGroupId;
+    Result.SysPermissionGroup.PermissionGroupKey := Q.FieldByName('permission_group_key').AsString;
+  end;
 end;
 
 function TSysPermissionRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

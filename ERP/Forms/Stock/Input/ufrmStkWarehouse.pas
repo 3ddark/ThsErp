@@ -1,18 +1,20 @@
-unit ufrmStkWarehouse;
+﻿unit ufrmStkWarehouse;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  Winapi.Windows, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
-  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  StkWarehouse.Service, StkWarehouse, LocalizationManager;
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
+  StkWarehouse.Service, StkWarehouse;
 
 type
   TfrmStkWarehouse = class(TfrmInputSimpleDB<TStkWarehouse, TStkWarehouseService>)
-    pgcMain: TPageControl;
-    tsMain: TTabSheet;
+    pnlContent: TPanel;
     lblWarehouseName: TLabel;
     edtWarehouseName: TEdit;
     lblDefaultRawMaterial: TLabel;
@@ -21,12 +23,11 @@ type
     chkDefaultProduction: TCheckBox;
     lblDefaultSales: TLabel;
     chkDefaultSales: TCheckBox;
+    procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
-    procedure BtnAcceptClick(Sender: TObject); override;
   public
     procedure RefreshData; override;
-    procedure InitializeInputCase; override;
     procedure ApplyLocalization; override;
   end;
 
@@ -46,30 +47,26 @@ end;
 procedure TfrmStkWarehouse.FormCreate(Sender: TObject);
 begin
   inherited;
-  pgcMain.Parent := PanelMain;
-  PgcBase := pgcMain;
+  pnlContent.Parent := PanelMain;
+  edtWarehouseName.thsInputDataType := itString;
+  edtWarehouseName.CharCase := TEditCharCase.ecUpperCase;
 end;
 
 procedure TfrmStkWarehouse.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtWarehouseName.SetFocus;
+  if edtWarehouseName.CanFocus then
+    edtWarehouseName.SetFocus;
 end;
 
 procedure TfrmStkWarehouse.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('stk_warehouse.title_singular', 'Stok Ambarı');
-  lblWarehouseName.Caption := TLocalizationManager.Translate('stk_warehouse.lbl_warehouse_name', 'Ambar Adı');
-  lblDefaultRawMaterial.Caption := TLocalizationManager.Translate('stk_warehouse.lbl_default_raw_material', 'Varsayılan Hammadde');
-  lblDefaultProduction.Caption := TLocalizationManager.Translate('stk_warehouse.lbl_default_production', 'Varsayılan Üretim');
-  lblDefaultSales.Caption := TLocalizationManager.Translate('stk_warehouse.lbl_default_sales', 'Varsayılan Satış');
-end;
-
-procedure TfrmStkWarehouse.InitializeInputCase;
-begin
-  inherited;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TStkWarehouse.TitleSingular, 'Warehouse');
+  lblWarehouseName.Caption := TLocalizationManager.Translate(TLangKeys.TStkWarehouse.ColWarehouseName, 'Warehouse Name');
+  lblDefaultRawMaterial.Caption := TLocalizationManager.Translate(TLangKeys.TStkWarehouse.ColDefaultRawMaterial, 'Default Raw Material');
+  lblDefaultProduction.Caption := TLocalizationManager.Translate(TLangKeys.TStkWarehouse.ColDefaultProduction, 'Default Production');
+  lblDefaultSales.Caption := TLocalizationManager.Translate(TLangKeys.TStkWarehouse.ColDefaultSales, 'Default Sales');
 end;
 
 procedure TfrmStkWarehouse.RefreshData;

@@ -17,8 +17,8 @@ type
     pnlContent: TPanel;
     lblUsername: TLabel;
     edtUsername: TEdit;
-    lblPersonId: TLabel;
-    edtPersonId: TEdit;
+    lblEmpEmployeeId: TLabel;
+    edtEmpEmployeeId: TEdit;
     lblActive: TLabel;
     chkActive: TCheckBox;
     lblManager: TLabel;
@@ -29,6 +29,8 @@ type
     edtIpAddress: TEdit;
     lblMacAddress: TLabel;
     edtMacAddress: TEdit;
+    lblUserPassword: TLabel;
+    edtUserPassword: TEdit;
   published
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
@@ -44,12 +46,14 @@ implementation
 {$R *.dfm}
 
 uses
-  ufrmEmpPersons, EmpPerson, EmpPerson.Service, Ths.Globals;
+  ufrmEmpEmployees, EmpEmployee, EmpEmployee.Service, Ths.Globals;
 
 procedure TfrmSysUser.BtnAcceptClick(Sender: TObject);
 begin
   Table.Username := edtUsername.Text;
-  Table.EmpEmployeeId := edtPersonId.Tag;
+
+  if edtUserPassword.Visible then
+    Table.UserPassword := edtUserPassword.Text;
   Table.Active := chkActive.Checked;
   Table.Manager := chkManager.Checked;
   Table.SuperUser := chkSuperUser.Checked;
@@ -62,13 +66,15 @@ procedure TfrmSysUser.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtPersonId.OnHelperProcess := HelperProcess;
+  edtEmpEmployeeId.OnHelperProcess := HelperProcess;
+  edtUserPassword.CharCase := ecNormal;
+  // Login ekranı gibi kullanıcı adı her zaman büyük harf (normalizasyon serviste de yapılır)
+  edtUsername.CharCase := TEditCharCase.ecUpperCase;
 end;
 
 procedure TfrmSysUser.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtUsername.SetFocus;
 end;
 
@@ -77,7 +83,8 @@ begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.TitleSingular, 'User');
   lblUsername.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColUserName, 'Username');
-  lblPersonId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColEmployeeId, 'Employee');
+  lblEmpEmployeeId.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColEmployeeId, 'Employee');
+  lblUserPassword.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColUserPassword, 'Password');
   lblActive.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColActive, 'Active');
   lblManager.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColManager, 'Manager');
   lblSuperUser.Caption := TLocalizationManager.Translate(TLangKeys.TSysUser.ColSuperUser, 'Super User');
@@ -91,26 +98,26 @@ end;
 procedure TfrmSysUser.HelperProcess(Sender: TObject);
 var
   LEdit: TEdit;
-  LFrmPrs: TfrmEmpPersons;
+  LFrmPrs: TfrmEmpEmployees;
 begin
   if Sender is TEdit then
   begin
     LEdit := (Sender as TEdit);
-    if LEdit.Name = edtPersonId.Name then
+    if LEdit.Name = edtEmpEmployeeId.Name then
     begin
-      LFrmPrs := TfrmEmpPersons.Create(LEdit, TEmpPersonService.Create, TEmpPerson.Create, True, True);
+      LFrmPrs := TfrmEmpEmployees.Create(LEdit, TEmpEmployeeService.Create, TEmpEmployee.Create, True, True);
       try
         LFrmPrs.ShowModal;
         if LFrmPrs.DataTransfer then
         begin
           if LFrmPrs.CleanAndClose then
           begin
-            edtPersonId.Tag := 0;
+            Table.EmpEmployeeId := 0;
             LEdit.Clear;
           end
           else
           begin
-            edtPersonId.Tag := LFrmPrs.Table.Id;
+            Table.EmpEmployeeId := LFrmPrs.Table.Id;
             LEdit.Text := LFrmPrs.Table.FullName;
           end;
         end;
@@ -125,16 +132,18 @@ procedure TfrmSysUser.RefreshData;
 begin
   inherited;
   edtUsername.Text := Table.Username;
-  edtPersonId.Tag := Table.EmpEmployeeId;
   if Table.EmpEmployeeId > 0 then
   begin
-    if Table.PersonName <> '' then
-      edtPersonId.Text := Trim(Table.PersonName + ' ' + Table.PersonSurname)
-    else
-      edtPersonId.Text := Table.EmpEmployeeId.ToString;
+    edtEmpEmployeeId.Text := Trim(Table.PersonName + ' ' + Table.PersonSurname);
+    if edtEmpEmployeeId.Text = '' then
+      edtEmpEmployeeId.Text := Table.EmpEmployeeId.ToString;
   end
   else
-    edtPersonId.Text := '';
+    edtEmpEmployeeId.Text := '';
+
+  lblUserPassword.Visible := FormMode in [ifmNewRecord, ifmCopyNewRecord];
+  edtUserPassword.Visible := lblUserPassword.Visible;
+  edtUserPassword.Clear;
   chkActive.Checked := Table.Active;
   chkManager.Checked := Table.Manager;
   chkSuperUser.Checked := Table.SuperUser;

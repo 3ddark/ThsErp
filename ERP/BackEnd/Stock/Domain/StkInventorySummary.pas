@@ -5,72 +5,83 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('stk_inventory_summary')]
   TStkInventorySummary = class(TEntity)
   private
-    FInventoryID: Int64;
+    FStkInventoryId: Int64;
     FCurrentQuantity: Currency;
     FAverageCost: Currency;
-    FOpeningPrice: Currency;
     FOpeningQuantity: Currency;
+    FOpeningPrice: Currency;
     FOpeningAmount: Currency;
     FIncomingQuantity: Currency;
     FIncomingAmount: Currency;
     FOutgoingQuantity: Currency;
     FOutgoingAmount: Currency;
-    FLastBuyPrice: Currency;
-    FLastBuyMoney: string;
     FLastBuyDate: TDate;
     FLastBuyQuantity: Currency;
+    FLastBuyPrice: Currency;
+    FLastBuyCurrency: string;
     FLastBuyExchangeRate: Currency;
+
+    // View (vw_stk_inventory_summary) okunabilir alanları
+    FInventoryName: string;
+    FInventoryCode: string;
   public
-    [Column('inventory_id')]
-    Property InventoryID: Int64 read FInventoryID write FInventoryID;
+    [Column('stk_inventory_id')]
+    property StkInventoryId: Int64 read FStkInventoryId write FStkInventoryId;
 
     [Column('current_quantity')]
-    Property CurrentQuantity: Currency read FCurrentQuantity write FCurrentQuantity;
+    property CurrentQuantity: Currency read FCurrentQuantity write FCurrentQuantity;
 
     [Column('average_cost')]
-    Property AverageCost: Currency read FAverageCost write FAverageCost;
-
-    [Column('opening_price')]
-    Property OpeningPrice: Currency read FOpeningPrice write FOpeningPrice;
+    property AverageCost: Currency read FAverageCost write FAverageCost;
 
     [Column('opening_quantity')]
-    Property OpeningQuantity: Currency read FOpeningQuantity write FOpeningQuantity;
+    property OpeningQuantity: Currency read FOpeningQuantity write FOpeningQuantity;
+
+    [Column('opening_price')]
+    property OpeningPrice: Currency read FOpeningPrice write FOpeningPrice;
 
     [Column('opening_amount')]
-    Property OpeningAmount: Currency read FOpeningAmount write FOpeningAmount;
+    property OpeningAmount: Currency read FOpeningAmount write FOpeningAmount;
 
     [Column('incoming_quantity')]
-    Property IncomingQuantity: Currency read FIncomingQuantity write FIncomingQuantity;
+    property IncomingQuantity: Currency read FIncomingQuantity write FIncomingQuantity;
 
     [Column('incoming_amount')]
-    Property IncomingAmount: Currency read FIncomingAmount write FIncomingAmount;
+    property IncomingAmount: Currency read FIncomingAmount write FIncomingAmount;
 
     [Column('outgoing_quantity')]
-    Property OutgoingQuantity: Currency read FOutgoingQuantity write FOutgoingQuantity;
+    property OutgoingQuantity: Currency read FOutgoingQuantity write FOutgoingQuantity;
 
     [Column('outgoing_amount')]
-    Property OutgoingAmount: Currency read FOutgoingAmount write FOutgoingAmount;
-
-    [Column('last_buy_price')]
-    Property LastBuyPrice: Currency read FLastBuyPrice write FLastBuyPrice;
-
-    [Column('last_buy_money')]
-    Property LastBuyMoney: string read FLastBuyMoney write FLastBuyMoney;
+    property OutgoingAmount: Currency read FOutgoingAmount write FOutgoingAmount;
 
     [Column('last_buy_date')]
-    Property LastBuyDate: TDate read FLastBuyDate write FLastBuyDate;
+    property LastBuyDate: TDate read FLastBuyDate write FLastBuyDate;
 
     [Column('last_buy_quantity')]
-    Property LastBuyQuantity: Currency read FLastBuyQuantity write FLastBuyQuantity;
+    property LastBuyQuantity: Currency read FLastBuyQuantity write FLastBuyQuantity;
+
+    [Column('last_buy_price')]
+    property LastBuyPrice: Currency read FLastBuyPrice write FLastBuyPrice;
+
+    [Column('last_buy_currency')]
+    [MaxLength(3)]
+    property LastBuyCurrency: string read FLastBuyCurrency write FLastBuyCurrency;
 
     [Column('last_buy_exchange_rate')]
-    Property LastBuyExchangeRate: Currency read FLastBuyExchangeRate write FLastBuyExchangeRate;
+    property LastBuyExchangeRate: Currency read FLastBuyExchangeRate write FLastBuyExchangeRate;
+
+    [NotMapped]
+    property InventoryName: string read FInventoryName write FInventoryName;
+
+    [NotMapped]
+    property InventoryCode: string read FInventoryCode write FInventoryCode;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -80,49 +91,37 @@ type
 
 implementation
 
-function TStkInventorySummary.Clone: TStkInventorySummary;
-begin
-  Result := TStkInventorySummary.Create;
-  Result.Id := Self.Id;
-  Result.InventoryID := Self.InventoryID;
-  Result.CurrentQuantity := Self.CurrentQuantity;
-  Result.AverageCost := Self.AverageCost;
-  Result.OpeningPrice := Self.OpeningPrice;
-  Result.OpeningQuantity := Self.OpeningQuantity;
-  Result.OpeningAmount := Self.OpeningAmount;
-  Result.IncomingQuantity := Self.IncomingQuantity;
-  Result.IncomingAmount := Self.IncomingAmount;
-  Result.OutgoingQuantity := Self.OutgoingQuantity;
-  Result.OutgoingAmount := Self.OutgoingAmount;
-  Result.LastBuyPrice := Self.LastBuyPrice;
-  Result.LastBuyMoney := Self.LastBuyMoney;
-  Result.LastBuyDate := Self.LastBuyDate;
-  Result.LastBuyQuantity := Self.LastBuyQuantity;
-  Result.LastBuyExchangeRate := Self.LastBuyExchangeRate;
-end;
-
 constructor TStkInventorySummary.Create;
 begin
   inherited;
-  FCurrentQuantity := 0;
-  FAverageCost := 0;
-  FOpeningPrice := 0;
-  FOpeningQuantity := 0;
-  FOpeningAmount := 0;
-  FIncomingQuantity := 0;
-  FIncomingAmount := 0;
-  FOutgoingQuantity := 0;
-  FOutgoingAmount := 0;
-  FLastBuyPrice := 0;
-  FLastBuyMoney := '';
-  FLastBuyDate := Date;
-  FLastBuyQuantity := 0;
-  FLastBuyExchangeRate := 0;
 end;
 
 destructor TStkInventorySummary.Destroy;
 begin
   inherited;
+end;
+
+function TStkInventorySummary.Clone: TStkInventorySummary;
+begin
+  Result := TStkInventorySummary.Create;
+  Result.Id := Self.Id;
+  Result.StkInventoryId := Self.StkInventoryId;
+  Result.CurrentQuantity := Self.CurrentQuantity;
+  Result.AverageCost := Self.AverageCost;
+  Result.OpeningQuantity := Self.OpeningQuantity;
+  Result.OpeningPrice := Self.OpeningPrice;
+  Result.OpeningAmount := Self.OpeningAmount;
+  Result.IncomingQuantity := Self.IncomingQuantity;
+  Result.IncomingAmount := Self.IncomingAmount;
+  Result.OutgoingQuantity := Self.OutgoingQuantity;
+  Result.OutgoingAmount := Self.OutgoingAmount;
+  Result.LastBuyDate := Self.LastBuyDate;
+  Result.LastBuyQuantity := Self.LastBuyQuantity;
+  Result.LastBuyPrice := Self.LastBuyPrice;
+  Result.LastBuyCurrency := Self.LastBuyCurrency;
+  Result.LastBuyExchangeRate := Self.LastBuyExchangeRate;
+  Result.InventoryName := Self.InventoryName;
+  Result.InventoryCode := Self.InventoryCode;
 end;
 
 end.

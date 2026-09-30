@@ -5,116 +5,162 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('stk_inventory')]
   TStkInventory = class(TEntity)
   private
-    FSellable: Boolean;
     FCode: string;
     FName: string;
-    FGroupId: Int64;
-    FMeasurementId: Int64;
-    FProductType: SmallInt;
-    FBuyingDiscount: Double;
-    FSalesDiscount: Double;
-    FBuyingPrice: Double;
+    FStkGroupId: Int64;
+    FStkProductTypeId: Int64;
+    FSysUomId: Int64;
+    FSellable: Boolean;
+    FBuyingPrice: Currency;
     FBuyingCurrency: string;
-    FSalesPrice: Double;
+    FBuyingDiscount: Currency;
+    FSalesPrice: Currency;
     FSalesCurrency: string;
-    FExportPrice: Double;
+    FSalesDiscount: Currency;
+    FExportPrice: Currency;
     FExportCurrency: string;
+    FSpecialCode: string;
+    FBrand: string;
     FWidth: Double;
     FLength: Double;
     FHeight: Double;
     FWeight: Double;
-    FSupplyDuration: Integer;
-    FSpecialCode: string;
-    FBrand: string;
-    FOriginId: Int64;
+    FSupplyDuration: SmallInt;
+    FMinStockAmount: Double;
+    FSysCountryId: Int64;
     FHsNo: string;
     FDiibProductDescription: string;
-    FMinStockAmount: Double;
     FProductOverview: string;
+
+    // View (vw_stk_inventory) okunabilir alanları
+    FGroupName: string;
+    FProductTypeName: string;
+    FUomName: string;
+    FCountryName: string;
+    FCurrentQuantity: string;
+    FAverageCost: string;
+
+    // stk_image (1:1) - yalnız FindById ile yüklenir; ImageLoaded False iken kayıtta resme dokunulmaz
+    FImage: TBytes;
+    FImageLoaded: Boolean;
+    procedure SetImage(const AValue: TBytes);
   public
+    [Column('code')]
+    [MaxLength(32), Required(TLangKeys.TValidation.Required, True)]
+    property Code: string read FCode write FCode;
+
+    [Column('name')]
+    [MaxLength(128), Required(TLangKeys.TValidation.Required, True)]
+    property Name: string read FName write FName;
+
+    [Column('stk_group_id')]
+    property StkGroupId: Int64 read FStkGroupId write FStkGroupId;
+
+    [Column('stk_product_type_id')]
+    property StkProductTypeId: Int64 read FStkProductTypeId write FStkProductTypeId;
+
+    [Column('sys_uom_id')]
+    property SysUomId: Int64 read FSysUomId write FSysUomId;
+
     [Column('sellable')]
-    Property Sellable: Boolean read FSellable write FSellable;
-
-    [Column('code'), MaxLength(64), Required()]
-    Property Code: string read FCode write FCode;
-
-    [Column('name'), MaxLength(128), Required()]
-    Property Name: string read FName write FName;
-
-    [Column('group_id')]
-    Property GroupId: Int64 read FGroupId write FGroupId;
-
-    [Column('measurement_id')]
-    Property MeasurementId: Int64 read FMeasurementId write FMeasurementId;
-
-    [Column('product_type')]
-    Property ProductType: SmallInt read FProductType write FProductType;
-
-    [Column('buying_discount')]
-    Property BuyingDiscount: Double read FBuyingDiscount write FBuyingDiscount;
-
-    [Column('sales_discount')]
-    Property SalesDiscount: Double read FSalesDiscount write FSalesDiscount;
+    property Sellable: Boolean read FSellable write FSellable;
 
     [Column('buying_price')]
-    Property BuyingPrice: Double read FBuyingPrice write FBuyingPrice;
+    property BuyingPrice: Currency read FBuyingPrice write FBuyingPrice;
 
-    [Column('buying_currency'), MaxLength(8)]
-    Property BuyingCurrency: string read FBuyingCurrency write FBuyingCurrency;
+    [Column('buying_currency')]
+    [MaxLength(3)]
+    property BuyingCurrency: string read FBuyingCurrency write FBuyingCurrency;
+
+    [Column('buying_discount')]
+    property BuyingDiscount: Currency read FBuyingDiscount write FBuyingDiscount;
 
     [Column('sales_price')]
-    Property SalesPrice: Double read FSalesPrice write FSalesPrice;
+    property SalesPrice: Currency read FSalesPrice write FSalesPrice;
 
-    [Column('sales_currency'), MaxLength(8)]
-    Property SalesCurrency: string read FSalesCurrency write FSalesCurrency;
+    [Column('sales_currency')]
+    [MaxLength(3)]
+    property SalesCurrency: string read FSalesCurrency write FSalesCurrency;
+
+    [Column('sales_discount')]
+    property SalesDiscount: Currency read FSalesDiscount write FSalesDiscount;
 
     [Column('export_price')]
-    Property ExportPrice: Double read FExportPrice write FExportPrice;
+    property ExportPrice: Currency read FExportPrice write FExportPrice;
 
-    [Column('export_currency'), MaxLength(8)]
-    Property ExportCurrency: string read FExportCurrency write FExportCurrency;
+    [Column('export_currency')]
+    [MaxLength(3)]
+    property ExportCurrency: string read FExportCurrency write FExportCurrency;
+
+    [Column('special_code')]
+    [MaxLength(16)]
+    property SpecialCode: string read FSpecialCode write FSpecialCode;
+
+    [Column('brand')]
+    [MaxLength(32)]
+    property Brand: string read FBrand write FBrand;
 
     [Column('width')]
-    Property Width: Double read FWidth write FWidth;
+    property Width: Double read FWidth write FWidth;
 
     [Column('length')]
-    Property Length: Double read FLength write FLength;
+    property Length: Double read FLength write FLength;
 
     [Column('height')]
-    Property Height: Double read FHeight write FHeight;
+    property Height: Double read FHeight write FHeight;
 
     [Column('weight')]
-    Property Weight: Double read FWeight write FWeight;
+    property Weight: Double read FWeight write FWeight;
 
     [Column('supply_duration')]
-    Property SupplyDuration: Integer read FSupplyDuration write FSupplyDuration;
-
-    [Column('special_code'), MaxLength(64)]
-    Property SpecialCode: string read FSpecialCode write FSpecialCode;
-
-    [Column('brand'), MaxLength(64)]
-    Property Brand: string read FBrand write FBrand;
-
-    [Column('origin_id')]
-    Property OriginId: Int64 read FOriginId write FOriginId;
-
-    [Column('hs_no'), MaxLength(32)]
-    Property HsNo: string read FHsNo write FHsNo;
-
-    [Column('diib_product_description'), MaxLength(256)]
-    Property DiibProductDescription: string read FDiibProductDescription write FDiibProductDescription;
+    property SupplyDuration: SmallInt read FSupplyDuration write FSupplyDuration;
 
     [Column('min_stock_amount')]
-    Property MinStockAmount: Double read FMinStockAmount write FMinStockAmount;
+    property MinStockAmount: Double read FMinStockAmount write FMinStockAmount;
 
-    [Column('product_overview'), MaxLength(512)]
-    Property ProductOverview: string read FProductOverview write FProductOverview;
+    [Column('sys_country_id')]
+    property SysCountryId: Int64 read FSysCountryId write FSysCountryId;
+
+    [Column('hs_no')]
+    [MaxLength(16)]
+    property HsNo: string read FHsNo write FHsNo;
+
+    [Column('diib_product_description')]
+    [MaxLength(64)]
+    property DiibProductDescription: string read FDiibProductDescription write FDiibProductDescription;
+
+    [Column('product_overview')]
+    property ProductOverview: string read FProductOverview write FProductOverview;
+
+    [NotMapped]
+    property GroupName: string read FGroupName write FGroupName;
+
+    [NotMapped]
+    property ProductTypeName: string read FProductTypeName write FProductTypeName;
+
+    [NotMapped]
+    property UomName: string read FUomName write FUomName;
+
+    [NotMapped]
+    property CountryName: string read FCountryName write FCountryName;
+
+    [NotMapped]
+    property CurrentQuantity: string read FCurrentQuantity write FCurrentQuantity;
+
+    [NotMapped]
+    property AverageCost: string read FAverageCost write FAverageCost;
+
+    [NotMapped]
+    property Image: TBytes read FImage write SetImage;
+
+    [NotMapped]
+    property ImageLoaded: Boolean read FImageLoaded write FImageLoaded;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -128,18 +174,14 @@ constructor TStkInventory.Create;
 begin
   inherited;
   FSellable := True;
-  FProductType := 0;
-  FBuyingDiscount := 0;
-  FSalesDiscount := 0;
-  FBuyingPrice := 0;
-  FSalesPrice := 0;
-  FExportPrice := 0;
-  FWidth := 0;
-  FLength := 0;
-  FHeight := 0;
-  FWeight := 0;
-  FSupplyDuration := 0;
-  FMinStockAmount := 0;
+  FImage := nil;
+  FImageLoaded := False;
+end;
+
+procedure TStkInventory.SetImage(const AValue: TBytes);
+begin
+  FImage := Copy(AValue);
+  FImageLoaded := True;
 end;
 
 destructor TStkInventory.Destroy;
@@ -151,32 +193,40 @@ function TStkInventory.Clone: TStkInventory;
 begin
   Result := TStkInventory.Create;
   Result.Id := Self.Id;
-  Result.Sellable := Self.Sellable;
   Result.Code := Self.Code;
   Result.Name := Self.Name;
-  Result.GroupId := Self.GroupId;
-  Result.MeasurementId := Self.MeasurementId;
-  Result.ProductType := Self.ProductType;
-  Result.BuyingDiscount := Self.BuyingDiscount;
-  Result.SalesDiscount := Self.SalesDiscount;
+  Result.StkGroupId := Self.StkGroupId;
+  Result.StkProductTypeId := Self.StkProductTypeId;
+  Result.SysUomId := Self.SysUomId;
+  Result.Sellable := Self.Sellable;
   Result.BuyingPrice := Self.BuyingPrice;
   Result.BuyingCurrency := Self.BuyingCurrency;
+  Result.BuyingDiscount := Self.BuyingDiscount;
   Result.SalesPrice := Self.SalesPrice;
   Result.SalesCurrency := Self.SalesCurrency;
+  Result.SalesDiscount := Self.SalesDiscount;
   Result.ExportPrice := Self.ExportPrice;
   Result.ExportCurrency := Self.ExportCurrency;
+  Result.SpecialCode := Self.SpecialCode;
+  Result.Brand := Self.Brand;
   Result.Width := Self.Width;
   Result.Length := Self.Length;
   Result.Height := Self.Height;
   Result.Weight := Self.Weight;
   Result.SupplyDuration := Self.SupplyDuration;
-  Result.SpecialCode := Self.SpecialCode;
-  Result.Brand := Self.Brand;
-  Result.OriginId := Self.OriginId;
+  Result.MinStockAmount := Self.MinStockAmount;
+  Result.SysCountryId := Self.SysCountryId;
   Result.HsNo := Self.HsNo;
   Result.DiibProductDescription := Self.DiibProductDescription;
-  Result.MinStockAmount := Self.MinStockAmount;
   Result.ProductOverview := Self.ProductOverview;
+  Result.GroupName := Self.GroupName;
+  Result.ProductTypeName := Self.ProductTypeName;
+  Result.UomName := Self.UomName;
+  Result.CountryName := Self.CountryName;
+  Result.CurrentQuantity := Self.CurrentQuantity;
+  Result.AverageCost := Self.AverageCost;
+  Result.FImage := Copy(Self.FImage);
+  Result.FImageLoaded := Self.FImageLoaded;
 end;
 
 end.

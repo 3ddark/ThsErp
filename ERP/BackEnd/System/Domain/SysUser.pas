@@ -2,7 +2,7 @@
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes, EmpPerson;
+uses SysUtils, Classes, Types, Entity, EntityAttributes, EmpEmployee;
 
 type
   [Table('sys_user')]
@@ -16,7 +16,7 @@ type
     FUserPassword: string;
     FIpAddress: string;
     FActive: Boolean;
-    FEmpPerson: TEmpPerson;
+    FEmpEmployee: TEmpEmployee;
     FPersonName: string;
     FPersonSurname: string;
     FActiveLanguage: string;
@@ -48,7 +48,7 @@ type
     property EmpEmployeeId: Int64 read FEmpEmployeeId write FEmpEmployeeId;
 
     [BelongsTo('EmpEmployeeId')]
-    property EmpPerson: TEmpPerson read FEmpPerson write FEmpPerson;
+    property EmpEmployee: TEmpEmployee read FEmpEmployee write FEmpEmployee;
 
     property PersonName: string read GetPersonName write FPersonName;
     property PersonSurname: string read GetPersonSurname write FPersonSurname;
@@ -66,7 +66,7 @@ implementation
 constructor TSysUser.Create();
 begin
   inherited;
-  FEmpPerson := nil;
+  FEmpEmployee := nil;
 
   FActive := True;
   FManager := False;
@@ -76,7 +76,7 @@ end;
 
 destructor TSysUser.Destroy;
 begin
-  FEmpPerson.Free;
+  FEmpEmployee.Free;
   inherited;
 end;
 
@@ -91,17 +91,21 @@ begin
   Result.UserPassword := Self.UserPassword;
   Result.IpAddress := Self.IpAddress;
   Result.Active := Self.Active;
+  Result.Manager := Self.Manager;
+  Result.ActiveLanguage := Self.ActiveLanguage;
+  Result.PersonName := Self.PersonName;
+  Result.PersonSurname := Self.PersonSurname;
 
-  if Assigned(Self.EmpPerson) then
-    Result.EmpPerson := Self.EmpPerson.Clone;
+  if Assigned(Self.EmpEmployee) then
+    Result.EmpEmployee := Self.EmpEmployee.Clone;
 end;
 
 function TSysUser.GetPersonName: string;
 begin
   if FPersonName <> '' then
     Result := FPersonName
-  else if Assigned(FEmpPerson) then
-    Result := FEmpPerson.Name
+  else if Assigned(FEmpEmployee) then
+    Result := FEmpEmployee.Name
   else
     Result := '';
 end;
@@ -110,8 +114,8 @@ function TSysUser.GetPersonSurname: string;
 begin
   if FPersonSurname <> '' then
     Result := FPersonSurname
-  else if Assigned(FEmpPerson) then
-    Result := FEmpPerson.Surname
+  else if Assigned(FEmpEmployee) then
+    Result := FEmpEmployee.Surname
   else
     Result := '';
 end;

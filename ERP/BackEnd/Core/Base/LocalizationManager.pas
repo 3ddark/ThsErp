@@ -132,6 +132,9 @@ type
         const MenuWaybills = 'dashboard.menu.waybills';
         const MenuInvoices = 'dashboard.menu.invoices';
         const MenuChangePassword = 'dashboard.menu.change_password';
+        const MenuRefreshPermissions = 'dashboard.menu.refresh_permissions';
+        const MsgPermissionsRefreshed = 'dashboard.msg.permissions_refreshed';
+        const MsgUserInactive = 'dashboard.msg.user_inactive';
         const MenuDbMonitor = 'dashboard.menu.db_monitor';
         const MenuDbBackup = 'dashboard.menu.db_backup';
         const MenuUpdate = 'dashboard.menu.update';
@@ -174,6 +177,9 @@ type
         const BtnRecipes = 'dashboard.btn.recipes';
         const BtnLaborCosts = 'dashboard.btn.labor_costs';
         const BtnPacketRawMaterials = 'dashboard.btn.packet_raw_materials';
+        const ActionPermissionTemplates = 'dashboard.action.permission_templates';
+        const ActionPermissionTemplateRights = 'dashboard.action.permission_template_rights';
+        const ActionUserPermissionTemplates = 'dashboard.action.user_permission_templates';
       end;
 
       TGridColumn = record
@@ -206,6 +212,14 @@ type
         const MsgNoAccessRightToDelete = 'sys_access_right.msg.no_access_right_to_delete';
         const MsgNoAccessRightToSpecial = 'sys_access_right.msg.no_access_right_to_special';
         const MsgPermissionUserUnique = 'sys_access_right.msg.permission_user_unique';
+        const ColDenyRead = 'sys_access_right.col_deny_read';
+        const ColDenyAdd = 'sys_access_right.col_deny_add';
+        const ColDenyUpdate = 'sys_access_right.col_deny_update';
+        const ColDenyDelete = 'sys_access_right.col_deny_delete';
+        const ColDenySpecial = 'sys_access_right.col_deny_special';
+        const LblGrant = 'sys_access_right.lbl_grant';
+        const LblDeny = 'sys_access_right.lbl_deny';
+        const MsgGrantDenyConflict = 'sys_access_right.msg.grant_deny_conflict';
       end;
 
       TSysAddress = record
@@ -258,6 +272,8 @@ type
         const ColCryptKey = 'sys_application_setting.col_crypt_key';
         const ColPeriod = 'sys_application_setting.col_period';
         const ColAppVersion = 'sys_application_setting.col_app_version';
+        const AddressCityRequired = 'sys_application_setting.address_city.required';
+        const InvalidDirectory = 'sys_application_setting.invalid_directory';
       end;
 
       TSysCity = record
@@ -268,6 +284,7 @@ type
         const ColSysCountryId = 'sys_city.col_sys_country_id';
         const ColSysRegionId = 'sys_city.col_sys_region_id';
         const CityCountryUnique = 'sys_city.city_country.unique';
+        const CountryRequired = 'sys_city.country.required';
       end;
 
       TSysCountry = record
@@ -519,6 +536,50 @@ type
         const ColEmployeeId = 'sys_user.col_employee_id';
 
         const UsernameUnique = 'sys_user.username_unique';
+        const MenuPermissionTemplates = 'sys_user.popup.permission_templates';
+        const MenuAccessRights = 'sys_user.popup.access_rights';
+        const MenuResetPassword = 'sys_user.popup.reset_password';
+        const TitleResetPassword = 'sys_user.title_reset_password';
+        const TitleChangePassword = 'sys_user.title_change_password';
+        const LblOldPassword = 'sys_user.lbl_old_password';
+        const LblNewPassword = 'sys_user.lbl_new_password';
+        const LblNewPasswordConfirm = 'sys_user.lbl_new_password_confirm';
+        const PasswordMismatch = 'sys_user.msg.password_mismatch';
+        const PasswordResetDone = 'sys_user.msg.password_reset_done';
+        const PasswordChangeDone = 'sys_user.msg.password_change_done';
+        const OldPasswordInvalid = 'sys_user.msg.old_password_invalid';
+      end;
+
+      TSysPermissionTemplate = record
+        const TitlePlural = 'sys_permission_template.title_plural';
+        const TitleSingular = 'sys_permission_template.title_singular';
+        const ColTemplateKey = 'sys_permission_template.col_template_key';
+        const ColTemplateName = 'sys_permission_template.col_template_name';
+        const ColDescription = 'sys_permission_template.col_description';
+        const ColActive = 'sys_permission_template.col_active';
+        const ColRightCount = 'sys_permission_template.col_right_count';
+        const ColUserCount = 'sys_permission_template.col_user_count';
+        const TemplateKeyUnique = 'sys_permission_template.template_key_unique';
+        const MenuRights = 'sys_permission_template.popup.rights';
+        const MenuUsers = 'sys_permission_template.popup.users';
+      end;
+
+      TSysPermissionTemplateRight = record
+        const TitlePlural = 'sys_permission_template_right.title_plural';
+        const TitleSingular = 'sys_permission_template_right.title_singular';
+        const TemplatePermissionUnique = 'sys_permission_template_right.template_permission_unique';
+        const MenuAddMissing = 'sys_permission_template_right.popup.add_missing';
+        const MenuGrantAll = 'sys_permission_template_right.popup.grant_all';
+        const MenuRevokeAll = 'sys_permission_template_right.popup.revoke_all';
+        const MsgSelectTemplate = 'sys_permission_template_right.msg.select_template';
+        const MsgAddedCount = 'sys_permission_template_right.msg.added_count';
+        const MsgConfirmAll = 'sys_permission_template_right.msg.confirm_all';
+      end;
+
+      TSysUserPermissionTemplate = record
+        const TitlePlural = 'sys_user_permission_template.title_plural';
+        const TitleSingular = 'sys_user_permission_template.title_singular';
+        const UserTemplateUnique = 'sys_user_permission_template.user_template_unique';
       end;
 
       TSysViewTable = record
@@ -528,15 +589,175 @@ type
         const ColTableType = 'sys_view_tables.col_table_type';
       end;
 
+
+
       //Account Module
+      TAccOption = record
+        const TaxpayerLegal = 'acc_option.taxpayer_legal';
+        const TaxpayerReal = 'acc_option.taxpayer_real';
+      end;
+
+      TAccSetAccountType = record
+        const TitlePlural = 'acc_set_account_type.title_plural';
+        const TitleSingular = 'acc_set_account_type.title_singular';
+        const ColAccountTypeKey = 'acc_set_account_type.col_account_type_key';
+        const ColAccountTypeName = 'acc_set_account_type.col_account_type_name';
+        const AccountTypeKeyUnique = 'acc_set_account_type.account_type_key_unique';
+      end;
+
+      TAccSetOwnershipType = record
+        const TitlePlural = 'acc_set_ownership_type.title_plural';
+        const TitleSingular = 'acc_set_ownership_type.title_singular';
+        const ColOwnershipTypeKey = 'acc_set_ownership_type.col_ownership_type_key';
+        const ColOwnershipTypeName = 'acc_set_ownership_type.col_ownership_type_name';
+        const OwnershipTypeKeyUnique = 'acc_set_ownership_type.ownership_type_key_unique';
+      end;
+
+      TAccSetCompanyLegalForm = record
+        const TitlePlural = 'acc_set_company_legal_form.title_plural';
+        const TitleSingular = 'acc_set_company_legal_form.title_singular';
+        const ColLegalFormKey = 'acc_set_company_legal_form.col_legal_form_key';
+        const ColLegalFormName = 'acc_set_company_legal_form.col_legal_form_name';
+        const ColOwnershipType = 'acc_set_company_legal_form.col_ownership_type';
+        const LegalFormKeyUnique = 'acc_set_company_legal_form.legal_form_key_unique';
+      end;
+
+      TAccGroup = record
+        const TitlePlural = 'acc_group.title_plural';
+        const TitleSingular = 'acc_group.title_singular';
+        const ColName = 'acc_group.col_name';
+        const NameUnique = 'acc_group.name_unique';
+      end;
+
+      TAccRegion = record
+        const TitlePlural = 'acc_region.title_plural';
+        const TitleSingular = 'acc_region.title_singular';
+        const ColName = 'acc_region.col_name';
+        const NameUnique = 'acc_region.name_unique';
+      end;
+
       TAccBank = record
         const TitlePlural = 'acc_bank.title_plural';
         const TitleSingular = 'acc_bank.title_singular';
         const ColBankName = 'acc_bank.col_bank_name';
         const ColSwiftCode = 'acc_bank.col_swift_code';
+        const MenuBranches = 'acc_bank.popup.branches';
         const BankNameUnique = 'acc_bank.bank_name_unique';
       end;
 
+      TAccBankBranch = record
+        const TitlePlural = 'acc_bank_branch.title_plural';
+        const TitleSingular = 'acc_bank_branch.title_singular';
+        const ColBank = 'acc_bank_branch.col_bank';
+        const ColBranchCode = 'acc_bank_branch.col_branch_code';
+        const ColBranchName = 'acc_bank_branch.col_branch_name';
+        const ColCity = 'acc_bank_branch.col_city';
+        const BranchCodeUnique = 'acc_bank_branch.branch_code_unique';
+      end;
+
+      TAccAccountPlan = record
+        const TitlePlural = 'acc_account_plan.title_plural';
+        const TitleSingular = 'acc_account_plan.title_singular';
+        const ColCode = 'acc_account_plan.col_code';
+        const ColName = 'acc_account_plan.col_name';
+        const ColLevel = 'acc_account_plan.col_level';
+        const CodeUnique = 'acc_account_plan.code_unique';
+      end;
+
+      TAccExchangeRate = record
+        const TitlePlural = 'acc_exchange_rate.title_plural';
+        const TitleSingular = 'acc_exchange_rate.title_singular';
+        const ColRateDate = 'acc_exchange_rate.col_rate_date';
+        const ColCurrency = 'acc_exchange_rate.col_currency';
+        const ColRate = 'acc_exchange_rate.col_rate';
+        const RateDateCurrencyUnique = 'acc_exchange_rate.rate_date_currency_unique';
+      end;
+
+      TAccSetTaxRate = record
+        const TitlePlural = 'acc_set_tax_rate.title_plural';
+        const TitleSingular = 'acc_set_tax_rate.title_singular';
+        const ColTaxRate = 'acc_set_tax_rate.col_tax_rate';
+        const ColSalesAccount = 'acc_set_tax_rate.col_sales_account';
+        const ColSalesReturnAccount = 'acc_set_tax_rate.col_sales_return_account';
+        const ColPurchaseAccount = 'acc_set_tax_rate.col_purchase_account';
+        const ColPurchaseReturnAccount = 'acc_set_tax_rate.col_purchase_return_account';
+        const TaxRateUnique = 'acc_set_tax_rate.tax_rate_unique';
+      end;
+
+      TAccTransferCode = record
+        const TitlePlural = 'acc_transfer_code.title_plural';
+        const TitleSingular = 'acc_transfer_code.title_singular';
+        const ColTransferCode = 'acc_transfer_code.col_transfer_code';
+        const ColDescription = 'acc_transfer_code.col_description';
+        const ColAccount = 'acc_transfer_code.col_account';
+        const ColAccountName = 'acc_transfer_code.col_account_name';
+        const TransferCodeUnique = 'acc_transfer_code.transfer_code_unique';
+      end;
+
+      TAccVoucher = record
+        const TitlePlural = 'acc_voucher.title_plural';
+        const TitleSingular = 'acc_voucher.title_singular';
+        const ColJournalNo = 'acc_voucher.col_journal_no';
+        const ColJournalDate = 'acc_voucher.col_journal_date';
+        const JournalNoUnique = 'acc_voucher.journal_no_unique';
+      end;
+
+      TAccVoucherDetail = record
+        const TitlePlural = 'acc_voucher_detail.title_plural';
+        const TitleSingular = 'acc_voucher_detail.title_singular';
+        const ColVoucher = 'acc_voucher_detail.col_voucher';
+      end;
+
+      TAccAccount = record
+        const TitlePlural = 'acc_account.title_plural';
+        const TitleSingular = 'acc_account.title_singular';
+        const ColCode = 'acc_account.col_code';
+        const ColName = 'acc_account.col_name';
+        const ColAccountType = 'acc_account.col_account_type';
+        const ColGroup = 'acc_account.col_group';
+        const ColRegion = 'acc_account.col_region';
+        const ColRootCode = 'acc_account.col_root_code';
+        const ColSubCode = 'acc_account.col_sub_code';
+        const ColIban = 'acc_account.col_iban';
+        const ColIbanCurrency = 'acc_account.col_iban_currency';
+        const ColDiscountRate = 'acc_account.col_discount_rate';
+        const ColEInvoiceActive = 'acc_account.col_e_invoice_active';
+        const ColEInvoicePackageName = 'acc_account.col_e_invoice_package_name';
+        const ColIsPassive = 'acc_account.col_is_passive';
+        const ColNotes = 'acc_account.col_notes';
+        const ColTaxpayerType = 'acc_account.col_taxpayer_type';
+        const ColTaxpayerName = 'acc_account.col_taxpayer_name';
+        const ColTaxpayerName2 = 'acc_account.col_taxpayer_name2';
+        const ColTaxpayerSurname = 'acc_account.col_taxpayer_surname';
+        const ColTaxOffice = 'acc_account.col_tax_office';
+        const ColTaxNo = 'acc_account.col_tax_no';
+        const ColNaceCode = 'acc_account.col_nace_code';
+        const ColAuthorizedPerson1 = 'acc_account.col_authorized_person1';
+        const ColAuthorizedPhone1 = 'acc_account.col_authorized_phone1';
+        const ColAuthorizedPerson2 = 'acc_account.col_authorized_person2';
+        const ColAuthorizedPhone2 = 'acc_account.col_authorized_phone2';
+        const ColAuthorizedPerson3 = 'acc_account.col_authorized_person3';
+        const ColAuthorizedPhone3 = 'acc_account.col_authorized_phone3';
+        const ColFax = 'acc_account.col_fax';
+        const ColAccountantPhone = 'acc_account.col_accountant_phone';
+        const ColAccountantEmail = 'acc_account.col_accountant_email';
+        const ColAccountantAuthorized = 'acc_account.col_accountant_authorized';
+        const MenuAddresses = 'acc_account.popup.addresses';
+        const CodeUnique = 'acc_account.code_unique';
+      end;
+
+      TAccAccountAddress = record
+        const TitlePlural = 'acc_account_address.title_plural';
+        const TitleSingular = 'acc_account_address.title_singular';
+        const ColAccount = 'acc_account_address.col_account';
+        const ColAddress = 'acc_account_address.col_address';
+        const ColAddressType = 'acc_account_address.col_address_type';
+        const ColIsPrimary = 'acc_account_address.col_is_primary';
+        const ColValidFrom = 'acc_account_address.col_valid_from';
+        const ColValidTo = 'acc_account_address.col_valid_to';
+        const ColAccountCode = 'acc_account_address.col_account_code';
+        const ValidDateRange = 'acc_account_address.valid_date_range';
+      end;
 
       //Employee Module
       TEmpEmployee = record
@@ -545,30 +766,325 @@ type
         const ColFullName = 'emp_employee.col_full_name';
         const ColName = 'emp_employee.col_name';
         const ColSurname = 'emp_employee.col_surname';
+        const ColPhone1 = 'emp_employee.col_phone1';
+        const ColPhone2 = 'emp_employee.col_phone2';
+        const ColPersonType = 'emp_employee.col_person_type';
+        const ColUnitName = 'emp_employee.col_unit_name';
+        const ColSectionName = 'emp_employee.col_section_name';
+        const ColTaskName = 'emp_employee.col_task_name';
+        const ColBirthDate = 'emp_employee.col_birth_date';
+        const ColBloodType = 'emp_employee.col_blood_type';
+        const ColGender = 'emp_employee.col_gender';
+        const ColMilitaryStatus = 'emp_employee.col_military_status';
+        const ColMaritalStatus = 'emp_employee.col_marital_status';
+        const ColChild = 'emp_employee.col_child';
+        const ColRelativeName = 'emp_employee.col_relative_name';
+        const ColRelativePhone = 'emp_employee.col_relative_phone';
+        const ColShoeSize = 'emp_employee.col_shoe_size';
+        const ColClothingSize = 'emp_employee.col_clothing_size';
+        const ColNotes = 'emp_employee.col_notes';
+        const ColTransportation = 'emp_employee.col_transportation';
+        const ColSpecialNotes = 'emp_employee.col_special_notes';
+        const ColSalaryAmount = 'emp_employee.col_salary_amount';
+        const ColBonusCount = 'emp_employee.col_bonus_count';
+        const ColBonusAmount = 'emp_employee.col_bonus_amount';
+        const ColIdDocumentNo = 'emp_employee.col_id_document_no';
+        const ColActive = 'emp_employee.col_active';
+        const MenuDriverLicences = 'emp_employee.popup.driver_licences';
+        const MenuLanguageAbilities = 'emp_employee.popup.language_abilities';
+        const MenuAddresses = 'emp_employee.popup.addresses';
+      end;
+
+      // Sabit seçenekler (EmpLookup)
+      TEmpOption = record
+        const GenderMale = 'emp_option.gender_male';
+        const GenderFemale = 'emp_option.gender_female';
+        const MilitaryCompleted = 'emp_option.military_completed';
+        const MilitaryExempt = 'emp_option.military_exempt';
+        const MilitaryNotCompleted = 'emp_option.military_not_completed';
+        const MaritalSingle = 'emp_option.marital_single';
+        const MaritalMarried = 'emp_option.marital_married';
+        const LevelBasic = 'emp_option.level_basic';
+        const LevelIntermediate = 'emp_option.level_intermediate';
+        const LevelGood = 'emp_option.level_good';
+        const LevelFluent = 'emp_option.level_fluent';
+        const RangeError = 'emp_option.range_error';
+      end;
+
+      TEmpPersonType = record
+        const TitlePlural = 'emp_person_type.title_plural';
+        const TitleSingular = 'emp_person_type.title_singular';
+        const ColPersonTypeKey = 'emp_person_type.col_person_type_key';
+        const ColPersonType = 'emp_person_type.col_person_type';
+        const PersonTypeKeyUnique = 'emp_person_type.person_type_key_unique';
       end;
 
       TEmpSection = record
         const TitlePlural = 'emp_section.title_plural';
         const TitleSingular = 'emp_section.title_singular';
+        const ColSectionKey = 'emp_section.col_section_key';
         const ColSectionName = 'emp_section.col_section_name';
+        const SectionKeyUnique = 'emp_section.section_key_unique';
+      end;
+
+      TEmpTask = record
+        const TitlePlural = 'emp_task.title_plural';
+        const TitleSingular = 'emp_task.title_singular';
+        const ColTaskKey = 'emp_task.col_task_key';
+        const ColTaskName = 'emp_task.col_task_name';
+        const TaskKeyUnique = 'emp_task.task_key_unique';
       end;
 
       TEmpUnit = record
         const TitlePlural = 'emp_unit.title_plural';
         const TitleSingular = 'emp_unit.title_singular';
-        const ColUnitName = 'emp_unit.unit_name';
+        const ColUnitKey = 'emp_unit.col_unit_key';
+        const ColUnitName = 'emp_unit.col_unit_name';
+        const ColSection = 'emp_unit.col_section';
+        const UnitKeyUnique = 'emp_unit.unit_key_unique';
         const ColSectionId = 'emp_unit.section_id';
       end;
 
+      TEmpLanguage = record
+        const TitlePlural = 'emp_language.title_plural';
+        const TitleSingular = 'emp_language.title_singular';
+        const ColLanguageName = 'emp_language.col_language_name';
+        const LanguageNameUnique = 'emp_language.language_name_unique';
+      end;
+
+      TEmpDriverLicenseType = record
+        const TitlePlural = 'emp_driver_license_type.title_plural';
+        const TitleSingular = 'emp_driver_license_type.title_singular';
+        const ColLicenseName = 'emp_driver_license_type.col_license_name';
+        const LicenseNameUnique = 'emp_driver_license_type.license_name_unique';
+      end;
+
+      TEmpTransportation = record
+        const TitlePlural = 'emp_transportation.title_plural';
+        const TitleSingular = 'emp_transportation.title_singular';
+        const ColCarNo = 'emp_transportation.col_car_no';
+        const ColCarName = 'emp_transportation.col_car_name';
+        const CarNoUnique = 'emp_transportation.car_no_unique';
+      end;
+
+      TEmpDriverAbility = record
+        const TitlePlural = 'emp_driver_ability.title_plural';
+        const TitleSingular = 'emp_driver_ability.title_singular';
+        const ColEmployee = 'emp_driver_ability.col_employee';
+        const ColLicenseName = 'emp_driver_ability.col_license_name';
+        const EmployeeLicenseUnique = 'emp_driver_ability.employee_license_unique';
+      end;
+
+      TEmpLanguageAbility = record
+        const TitlePlural = 'emp_person_language_ability.title_plural';
+        const TitleSingular = 'emp_person_language_ability.title_singular';
+        const ColEmployee = 'emp_person_language_ability.col_employee';
+        const ColLanguageName = 'emp_person_language_ability.col_language_name';
+        const ColReadLevel = 'emp_person_language_ability.col_read_level';
+        const ColWriteLevel = 'emp_person_language_ability.col_write_level';
+        const ColSpeakLevel = 'emp_person_language_ability.col_speak_level';
+        const EmployeeLanguageUnique = 'emp_person_language_ability.employee_language_unique';
+      end;
+
+      TEmpPersonAddress = record
+        const TitlePlural = 'emp_person_address.title_plural';
+        const TitleSingular = 'emp_person_address.title_singular';
+        const ColEmployee = 'emp_person_address.col_employee';
+        const ColAddress = 'emp_person_address.col_address';
+        const ColAddressType = 'emp_person_address.col_address_type';
+        const ColIsPrimary = 'emp_person_address.col_is_primary';
+        const ColValidFrom = 'emp_person_address.col_valid_from';
+        const ColValidTo = 'emp_person_address.col_valid_to';
+        const ValidDateRange = 'emp_person_address.valid_date_range';
+      end;
+
       //Stock Module
-      TStock = record
-        const GroupNameRequired = 'stock.group_name.required';
-        const CodeRequired = 'stock.code.required';
-        const NameRequired = 'stock.name.required';
-        const ProductTypeNameRequired = 'stock.product_type_name.required';
-        const SkuRequired = 'stock.sku.required';
-        const QuantityMustBePositive = 'stock.quantity.must_be_positive';
-        const WarehouseNameRequired = 'stock.warehouse_name.required';
+      TStkOption = record
+        const TransactionIn = 'stk_option.transaction_in';
+        const TransactionOut = 'stk_option.transaction_out';
+        const TransactionTransfer = 'stk_option.transaction_transfer';
+      end;
+
+      TStkGroup = record
+        const TitlePlural = 'stk_group.title_plural';
+        const TitleSingular = 'stk_group.title_singular';
+        const ColName = 'stk_group.col_name';
+        const ColVatRate = 'stk_group.col_vat_rate';
+        const ColRawMaterialStockAccount = 'stk_group.col_raw_material_stock_account';
+        const ColRawMaterialUsageAccount = 'stk_group.col_raw_material_usage_account';
+        const ColSemiProductAccount = 'stk_group.col_semi_product_account';
+        const NameUnique = 'stk_group.name_unique';
+      end;
+
+      TStkWarehouse = record
+        const TitlePlural = 'stk_warehouse.title_plural';
+        const TitleSingular = 'stk_warehouse.title_singular';
+        const ColWarehouseName = 'stk_warehouse.col_warehouse_name';
+        const ColDefaultRawMaterial = 'stk_warehouse.col_default_raw_material';
+        const ColDefaultProduction = 'stk_warehouse.col_default_production';
+        const ColDefaultSales = 'stk_warehouse.col_default_sales';
+        const WarehouseNameUnique = 'stk_warehouse.warehouse_name_unique';
+        const DefaultWarehouseExists = 'stk_warehouse.default_warehouse_exists';
+      end;
+
+      TStkProductType = record
+        const TitlePlural = 'stk_product_type.title_plural';
+        const TitleSingular = 'stk_product_type.title_singular';
+        const ColProductTypeName = 'stk_product_type.col_product_type_name';
+        const ColDescription = 'stk_product_type.col_description';
+        const ColActive = 'stk_product_type.col_active';
+        const ProductTypeNameUnique = 'stk_product_type.product_type_name_unique';
+      end;
+
+      TStkKindFamily = record
+        const TitlePlural = 'stk_kind_family.title_plural';
+        const TitleSingular = 'stk_kind_family.title_singular';
+        const ColFamily = 'stk_kind_family.col_family';
+        const ColDescription = 'stk_kind_family.col_description';
+        const ColActive = 'stk_kind_family.col_active';
+        const MenuProperties = 'stk_kind_family.popup.properties';
+        const FamilyUnique = 'stk_kind_family.family_unique';
+      end;
+
+      TStkKindProperty = record
+        const TitlePlural = 'stk_kind_property.title_plural';
+        const TitleSingular = 'stk_kind_property.title_singular';
+        const ColKind = 'stk_kind_property.col_kind';
+        const ColDescription = 'stk_kind_property.col_description';
+        const ColFamily = 'stk_kind_property.col_family';
+        const ColS1 = 'stk_kind_property.col_s1';
+        const ColS2 = 'stk_kind_property.col_s2';
+        const ColS3 = 'stk_kind_property.col_s3';
+        const ColS4 = 'stk_kind_property.col_s4';
+        const ColS5 = 'stk_kind_property.col_s5';
+        const ColS6 = 'stk_kind_property.col_s6';
+        const ColS7 = 'stk_kind_property.col_s7';
+        const ColS8 = 'stk_kind_property.col_s8';
+        const ColS9 = 'stk_kind_property.col_s9';
+        const ColS10 = 'stk_kind_property.col_s10';
+        const ColI1 = 'stk_kind_property.col_i1';
+        const ColI2 = 'stk_kind_property.col_i2';
+        const ColI3 = 'stk_kind_property.col_i3';
+        const ColI4 = 'stk_kind_property.col_i4';
+        const ColI5 = 'stk_kind_property.col_i5';
+        const ColD1 = 'stk_kind_property.col_d1';
+        const ColD2 = 'stk_kind_property.col_d2';
+        const ColD3 = 'stk_kind_property.col_d3';
+        const ColD4 = 'stk_kind_property.col_d4';
+        const ColD5 = 'stk_kind_property.col_d5';
+        const KindUnique = 'stk_kind_property.kind_unique';
+      end;
+
+      TStkInventory = record
+        const TitlePlural = 'stk_inventory.title_plural';
+        const TitleSingular = 'stk_inventory.title_singular';
+        const ColCode = 'stk_inventory.col_code';
+        const ColName = 'stk_inventory.col_name';
+        const ColGroup = 'stk_inventory.col_group';
+        const ColProductType = 'stk_inventory.col_product_type';
+        const ColUom = 'stk_inventory.col_uom';
+        const ColSellable = 'stk_inventory.col_sellable';
+        const ColBuyingPrice = 'stk_inventory.col_buying_price';
+        const ColBuyingCurrency = 'stk_inventory.col_buying_currency';
+        const ColBuyingDiscount = 'stk_inventory.col_buying_discount';
+        const ColSalesPrice = 'stk_inventory.col_sales_price';
+        const ColSalesCurrency = 'stk_inventory.col_sales_currency';
+        const ColSalesDiscount = 'stk_inventory.col_sales_discount';
+        const ColExportPrice = 'stk_inventory.col_export_price';
+        const ColExportCurrency = 'stk_inventory.col_export_currency';
+        const ColSpecialCode = 'stk_inventory.col_special_code';
+        const ColBrand = 'stk_inventory.col_brand';
+        const ColWidth = 'stk_inventory.col_width';
+        const ColLength = 'stk_inventory.col_length';
+        const ColHeight = 'stk_inventory.col_height';
+        const ColWeight = 'stk_inventory.col_weight';
+        const ColSupplyDuration = 'stk_inventory.col_supply_duration';
+        const ColMinStockAmount = 'stk_inventory.col_min_stock_amount';
+        const ColCountry = 'stk_inventory.col_country';
+        const ColHsNo = 'stk_inventory.col_hs_no';
+        const ColDiibProductDescription = 'stk_inventory.col_diib_product_description';
+        const ColProductOverview = 'stk_inventory.col_product_overview';
+        const ColCurrentQuantity = 'stk_inventory.col_current_quantity';
+        const ColAverageCost = 'stk_inventory.col_average_cost';
+        const MenuKindInfo = 'stk_inventory.popup.kind_info';
+        const MenuTransactions = 'stk_inventory.popup.transactions';
+        const CodeUnique = 'stk_inventory.code_unique';
+        const Image = 'stk_inventory.image';
+        const ImageLoad = 'stk_inventory.image_load';
+        const ImageClear = 'stk_inventory.image_clear';
+        const ImageTooLarge = 'stk_inventory.image_too_large';
+      end;
+
+      TStkCardKindInfo = record
+        const TitlePlural = 'stk_card_kind_info.title_plural';
+        const TitleSingular = 'stk_card_kind_info.title_singular';
+        const ColInventory = 'stk_card_kind_info.col_inventory';
+        const ColKind = 'stk_card_kind_info.col_kind';
+        const ColS1 = 'stk_card_kind_info.col_s1';
+        const ColS2 = 'stk_card_kind_info.col_s2';
+        const ColS3 = 'stk_card_kind_info.col_s3';
+        const ColS4 = 'stk_card_kind_info.col_s4';
+        const ColS5 = 'stk_card_kind_info.col_s5';
+        const ColS6 = 'stk_card_kind_info.col_s6';
+        const ColS7 = 'stk_card_kind_info.col_s7';
+        const ColS8 = 'stk_card_kind_info.col_s8';
+        const ColS9 = 'stk_card_kind_info.col_s9';
+        const ColS10 = 'stk_card_kind_info.col_s10';
+        const ColI1 = 'stk_card_kind_info.col_i1';
+        const ColI2 = 'stk_card_kind_info.col_i2';
+        const ColI3 = 'stk_card_kind_info.col_i3';
+        const ColI4 = 'stk_card_kind_info.col_i4';
+        const ColI5 = 'stk_card_kind_info.col_i5';
+        const ColD1 = 'stk_card_kind_info.col_d1';
+        const ColD2 = 'stk_card_kind_info.col_d2';
+        const ColD3 = 'stk_card_kind_info.col_d3';
+        const ColD4 = 'stk_card_kind_info.col_d4';
+        const ColD5 = 'stk_card_kind_info.col_d5';
+        const ColInventoryCode = 'stk_card_kind_info.col_inventory_code';
+        const InventoryUnique = 'stk_card_kind_info.inventory_unique';
+      end;
+
+      TStkTransaction = record
+        const TitlePlural = 'stk_transaction.title_plural';
+        const TitleSingular = 'stk_transaction.title_singular';
+        const ColTransactionDate = 'stk_transaction.col_transaction_date';
+        const ColTransactionType = 'stk_transaction.col_transaction_type';
+        const ColInventory = 'stk_transaction.col_inventory';
+        const ColFromWarehouse = 'stk_transaction.col_from_warehouse';
+        const ColToWarehouse = 'stk_transaction.col_to_warehouse';
+        const ColQuantity = 'stk_transaction.col_quantity';
+        const ColAmount = 'stk_transaction.col_amount';
+        const ColAmountForeign = 'stk_transaction.col_amount_foreign';
+        const ColCurrency = 'stk_transaction.col_currency';
+        const ColIsOpening = 'stk_transaction.col_is_opening';
+        const ColDescription = 'stk_transaction.col_description';
+        const ColInventoryCode = 'stk_transaction.col_inventory_code';
+        const QuantityPositive = 'stk_transaction.quantity_positive';
+        const FromWarehouseRequired = 'stk_transaction.from_warehouse_required';
+        const ToWarehouseRequired = 'stk_transaction.to_warehouse_required';
+        const WarehousesSame = 'stk_transaction.warehouses_same';
+        const OpeningOnlyIncoming = 'stk_transaction.opening_only_incoming';
+      end;
+
+      TStkInventorySummary = record
+        const TitlePlural = 'stk_inventory_summary.title_plural';
+        const TitleSingular = 'stk_inventory_summary.title_singular';
+        const ColInventory = 'stk_inventory_summary.col_inventory';
+        const ColCurrentQuantity = 'stk_inventory_summary.col_current_quantity';
+        const ColAverageCost = 'stk_inventory_summary.col_average_cost';
+        const ColOpeningQuantity = 'stk_inventory_summary.col_opening_quantity';
+        const ColOpeningPrice = 'stk_inventory_summary.col_opening_price';
+        const ColOpeningAmount = 'stk_inventory_summary.col_opening_amount';
+        const ColIncomingQuantity = 'stk_inventory_summary.col_incoming_quantity';
+        const ColIncomingAmount = 'stk_inventory_summary.col_incoming_amount';
+        const ColOutgoingQuantity = 'stk_inventory_summary.col_outgoing_quantity';
+        const ColOutgoingAmount = 'stk_inventory_summary.col_outgoing_amount';
+        const ColLastBuyDate = 'stk_inventory_summary.col_last_buy_date';
+        const ColLastBuyQuantity = 'stk_inventory_summary.col_last_buy_quantity';
+        const ColLastBuyPrice = 'stk_inventory_summary.col_last_buy_price';
+        const ColLastBuyCurrency = 'stk_inventory_summary.col_last_buy_currency';
+        const ColLastBuyExchangeRate = 'stk_inventory_summary.col_last_buy_exchange_rate';
+        const ColInventoryCode = 'stk_inventory_summary.col_inventory_code';
       end;
   end;
 

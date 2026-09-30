@@ -149,7 +149,6 @@ var
   LIsAdminOrManager: Boolean;
 begin
   inherited;
-  ApplyLocalization;
 
   LIsAdminOrManager := (TAppContext.Instance.CurrentUser <> nil) and
                        (TAppContext.Instance.CurrentUser.User <> nil) and

@@ -17,13 +17,13 @@ type
     FSysCountry: TSysCountry;
     FSysRegion: TSysRegion;
   public
-    [Column('city_name')]
+    [Column('city_name'), MaxLength(128), Required()]
     property CityName: string read FCityName write FCityName;
 
     [Column('car_plate_code')]
     property CarPlateCode: Integer read FCarPlateCode write FCarPlateCode;
 
-    [Column('sys_country_id')]
+    [Column('sys_country_id'), Required()]
     property SysCountryId: Int64 read FSysCountryId write FSysCountryId;
 
     [Column('sys_region_id')]

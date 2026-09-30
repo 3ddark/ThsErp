@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('stk_warehouse')]
@@ -17,16 +17,17 @@ type
     FDefaultSales: Boolean;
   public
     [Column('warehouse_name')]
-    Property WarehouseName: string read FWarehouseName write FWarehouseName;
+    [MaxLength(32), Required(TLangKeys.TValidation.Required, True)]
+    property WarehouseName: string read FWarehouseName write FWarehouseName;
 
     [Column('default_raw_material')]
-    Property DefaultRawMaterial: Boolean read FDefaultRawMaterial write FDefaultRawMaterial;
+    property DefaultRawMaterial: Boolean read FDefaultRawMaterial write FDefaultRawMaterial;
 
     [Column('default_production')]
-    Property DefaultProduction: Boolean read FDefaultProduction write FDefaultProduction;
+    property DefaultProduction: Boolean read FDefaultProduction write FDefaultProduction;
 
     [Column('default_sales')]
-    Property DefaultSales: Boolean read FDefaultSales write FDefaultSales;
+    property DefaultSales: Boolean read FDefaultSales write FDefaultSales;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -39,9 +40,6 @@ implementation
 constructor TStkWarehouse.Create;
 begin
   inherited;
-  FDefaultRawMaterial := False;
-  FDefaultProduction := False;
-  FDefaultSales := False;
 end;
 
 destructor TStkWarehouse.Destroy;

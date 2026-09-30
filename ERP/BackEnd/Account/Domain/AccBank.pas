@@ -2,20 +2,25 @@
 
 interface
 
-uses SysUtils, Classes, Types, Entity, EntityAttributes;
+{$I Ths.inc}
+
+uses
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('acc_bank')]
   TAccBank = class(TEntity)
   private
-    FSWiftCode: string;
     FBankName: string;
+    FSwiftCode: string;
   public
-    [Column('bank_name'), MaxLength(128), Required()]
+    [Column('bank_name')]
+    [MaxLength(128), Required(TLangKeys.TValidation.Required, True)]
     property BankName: string read FBankName write FBankName;
 
-    [Column('swift_code'), MaxLength(16)]
-    property SWiftCode: string read FSWiftCode write FSWiftCode;
+    [Column('swift_code')]
+    [MaxLength(16)]
+    property SwiftCode: string read FSwiftCode write FSwiftCode;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -25,7 +30,7 @@ type
 
 implementation
 
-constructor TAccBank.Create();
+constructor TAccBank.Create;
 begin
   inherited;
 end;
@@ -39,8 +44,8 @@ function TAccBank.Clone: TAccBank;
 begin
   Result := TAccBank.Create;
   Result.Id := Self.Id;
-  Result.SWiftCode := Self.SWiftCode;
   Result.BankName := Self.BankName;
+  Result.SwiftCode := Self.SwiftCode;
 end;
 
 end.

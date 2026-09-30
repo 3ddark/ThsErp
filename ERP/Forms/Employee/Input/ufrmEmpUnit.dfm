@@ -1,54 +1,77 @@
 object frmEmpUnit: TfrmEmpUnit
   Left = 0
   Top = 0
-  Caption = 'Birim'
-  ClientHeight = 150
-  ClientWidth = 450
+  Caption = 'Unit'
+  ClientHeight = 192
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
-  Font.Name = 'Segoe UI'
+  Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  OnShow = FormShow
-  TextHeight = 15
+  TextHeight = 14
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 450
-    Height = 150
+    Width = 480
+    Height = 192
     Align = alClient
     TabOrder = 0
-    object lblUnitName: TLabel
-      Left = 48
-      Top = 30
-      Width = 62
-      Height = 15
+    object lblUnitKey: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
+      Height = 13
       Alignment = taRightJustify
-      Caption = 'Birim Ad'#196#177
+      AutoSize = False
+      Caption = 'Key'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
     end
-    object lblSectionId: TLabel
-      Left = 56
-      Top = 65
-      Width = 54
-      Height = 15
-      Alignment = taRightJustify
-      Caption = 'B'#195#182'l'#195#188'm'
-    end
-    object edtUnitName: TEdit
-      Left = 120
-      Top = 27
-      Width = 280
-      Height = 23
+    object edtUnitKey: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      MaxLength = 32
       TabOrder = 0
     end
-    object edtSectionId: TEdit
-      Left = 120
-      Top = 62
-      Width = 280
-      Height = 23
+    object scrlbxTranslations: TScrollBox
+      Left = 8
+      Top = 26
+      Width = 462
+      Height = 72
+      HorzScrollBar.Visible = False
       TabOrder = 1
+    end
+    object lblEmpSectionId: TLabel
+      Left = 4
+      Top = 105
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Section'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtEmpSectionId: TEdit
+      Left = 132
+      Top = 101
+      Width = 333
+      Height = 22
+      ReadOnly = True
+      TabOrder = 2
     end
   end
 end

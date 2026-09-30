@@ -62,6 +62,7 @@ type
     FWrongDateMessage     : string;
     FOldValue             : string;
     FLocale: string;
+    FHelperLocked: Boolean;
 
     DatePicker: TDateTimePicker;
 
@@ -121,6 +122,8 @@ type
     property thsWrongDateMessage     : string          read FWrongDateMessage      write FWrongDateMessage;
     property thsOldValue             : string          read FOldValue              write FOldValue;
     property thsLocale: string read FLocale write FLocale;
+    // True iken helper (F1 / çift tık) açılmaz; salt okunur form modları için
+    property thsHelperLocked: Boolean read FHelperLocked write FHelperLocked;
 
     function moneyToDouble: Double;
   end;
@@ -451,7 +454,7 @@ begin
     end
     else
     begin
-      if Assigned(FOnHelperProcess) then
+      if Assigned(FOnHelperProcess) and not FHelperLocked then
         FOnHelperProcess(Self);
     end;
   end
@@ -572,7 +575,7 @@ begin
   end
   else
   begin
-    if Assigned(FOnHelperProcess) then
+    if Assigned(FOnHelperProcess) and not FHelperLocked then
       FOnHelperProcess(Self);
   end;
 end;
@@ -740,7 +743,7 @@ end;
 
 procedure TEdit.HelperProcess;
 begin
-  if Assigned(FOnHelperProcess) then
+  if Assigned(FOnHelperProcess) and not FHelperLocked then
     FOnHelperProcess(Self);
 end;
 

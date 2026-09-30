@@ -1,15 +1,19 @@
-unit ufrmEmpDriverLicenceType;
+﻿unit ufrmEmpDriverLicenceType;
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ufrmInputSimpleDB, SharedFormTypes, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  EmpDriverLicenceType.Service, EmpDriverLicenceType, LocalizationManager;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
+  EmpDriverLicenceType.Service, EmpDriverLicenceType;
 
 type
-  TfrmEmpDriverLicenceType = class(TfrmInputSimpleDB<TEmpDriverLicenseType, TEmpDriverLicenceTypeService>)
+  TfrmEmpDriverLicenceType = class(TfrmInputSimpleDB<TEmpDriverLicenseType, TEmpDriverLicenseTypeService>)
     pnlContent: TPanel;
     lblLicenseName: TLabel;
     edtLicenseName: TEdit;
@@ -17,7 +21,6 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
   end;
@@ -36,27 +39,22 @@ procedure TfrmEmpDriverLicenceType.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+  edtLicenseName.thsInputDataType := itString;
+  edtLicenseName.CharCase := TEditCharCase.ecUpperCase;
 end;
 
 procedure TfrmEmpDriverLicenceType.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtLicenseName.SetFocus;
+  if edtLicenseName.CanFocus then
+    edtLicenseName.SetFocus;
 end;
 
 procedure TfrmEmpDriverLicenceType.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('emp_driver_license_type.title_singular', 'Sürücü Belgesi Tipi');
-  lblLicenseName.Caption := TLocalizationManager.Translate('emp_driver_license_type.lbl_license_name', 'Ehliyet Sınıfı');
-end;
-
-procedure TfrmEmpDriverLicenceType.InitializeInputCase;
-begin
-  inherited;
-  edtLicenseName.thsInputDataType := itString;
-  edtLicenseName.MaxLength := 32;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TEmpDriverLicenseType.TitleSingular, 'Driver License Type');
+  lblLicenseName.Caption := TLocalizationManager.Translate(TLangKeys.TEmpDriverLicenseType.ColLicenseName, 'License Class');
 end;
 
 procedure TfrmEmpDriverLicenceType.RefreshData;

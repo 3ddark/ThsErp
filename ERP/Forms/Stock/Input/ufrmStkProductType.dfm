@@ -1,9 +1,9 @@
 object frmStkProductType: TfrmStkProductType
   Left = 0
   Top = 0
-  Caption = 'frmStkProductType'
-  ClientHeight = 232
-  ClientWidth = 463
+  Caption = 'Product Type'
+  ClientHeight = 139
+  ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,90 +11,81 @@ object frmStkProductType: TfrmStkProductType
   Font.Name = 'Tahoma'
   Font.Style = []
   OnCreate = FormCreate
-  OnShow = FormShow
-  TextHeight = 15
-  object pgcMain: TPageControl
+  TextHeight = 14
+  object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 463
-    Height = 232
-    ActivePage = tsMain
+    Width = 480
+    Height = 139
     Align = alClient
     TabOrder = 0
-    TabStop = False
-    ExplicitWidth = 459
-    ExplicitHeight = 222
-    object tsMain: TTabSheet
-      Caption = 'Genel'
-      object lblProductName
-        Left = 37
-        Top = 10
-        Width = 84
-        Height = 13
-        Alignment = taRightJustify
-        BiDiMode = bdLeftToRight
-        Caption = 'Product Type Name'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentBiDiMode = False
-        ParentFont = False
-      end
-      object edtProductName
-        Left = 127
-        Top = 6
-        Width = 300
-        Height = 23
-        TabOrder = 0
-      end
-      object lbldescription
-        Left = 45
-        Top = 40
-        Width = 76
-        Height = 13
-        Alignment = taRightJustify
-        BiDiMode = bdLeftToRight
-        Caption = 'Description'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentBiDiMode = False
-        ParentFont = False
-      end
-      object edtDescription
-        Left = 127
-        Top = 36
-        Width = 300
-        Height = 23
-        TabOrder = 1
-      end
-      object lblactive
-        Left = 54
-        Top = 75
-        Width = 67
-        Height = 13
-        Alignment = taRightJustify
-        BiDiMode = bdLeftToRight
-        Caption = 'Active'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentBiDiMode = False
-        ParentFont = False
-      end
-      object chkActive
-        Left = 127
-        Top = 72
-        Width = 97
-        Height = 17
-        TabOrder = 2
-      end
+    object lblProductTypeName: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Product Type'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtProductTypeName: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      MaxLength = 32
+      TabOrder = 0
+    end
+    object lblDescription: TLabel
+      Left = 4
+      Top = 29
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Description'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtDescription: TEdit
+      Left = 132
+      Top = 25
+      Width = 333
+      Height = 22
+      MaxLength = 128
+      TabOrder = 1
+    end
+    object lblActive: TLabel
+      Left = 4
+      Top = 52
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Active'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object chkActive: TCheckBox
+      Left = 132
+      Top = 50
+      Width = 333
+      Height = 17
+      TabOrder = 2
     end
   end
 end

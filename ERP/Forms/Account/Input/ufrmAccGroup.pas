@@ -1,25 +1,28 @@
-unit ufrmAccGroup;
+﻿unit ufrmAccGroup;
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Samples.Spin, Vcl.ComCtrls, ufrmInputSimpleDB, SharedFormTypes,
-  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
   AccGroup.Service, AccGroup;
 
 type
   TfrmAccGroup = class(TfrmInputSimpleDB<TAccGroup, TAccGroupService>)
     pnlContent: TPanel;
-    lblgrup: TLabel;
-    edtgrup: TEdit;
-  published
+    lblName: TLabel;
+    edtName: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
     procedure RefreshData; override;
+    procedure ApplyLocalization; override;
   end;
 
 implementation
@@ -28,7 +31,7 @@ implementation
 
 procedure TfrmAccGroup.BtnAcceptClick(Sender: TObject);
 begin
-  Table.Name := edtgrup.Text;
+  Table.Name := edtName.Text;
   inherited;
 end;
 
@@ -36,19 +39,28 @@ procedure TfrmAccGroup.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+  edtName.thsInputDataType := itString;
+  edtName.CharCase := TEditCharCase.ecUpperCase;
 end;
 
 procedure TfrmAccGroup.FormShow(Sender: TObject);
 begin
   inherited;
-  Self.Caption := 'Hesap Grubu';
-  edtgrup.SetFocus;
+  if edtName.CanFocus then
+    edtName.SetFocus;
+end;
+
+procedure TfrmAccGroup.ApplyLocalization;
+begin
+  inherited;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TAccGroup.TitleSingular, 'Account Group');
+  lblName.Caption := TLocalizationManager.Translate(TLangKeys.TAccGroup.ColName, 'Group Name');
 end;
 
 procedure TfrmAccGroup.RefreshData;
 begin
   inherited;
-  edtgrup.Text := Table.Name;
+  edtName.Text := Table.Name;
 end;
 
 end.

@@ -40,7 +40,7 @@ var
 begin
   Table.UomGroupKey := edtKey.Text;
 
-  LValues := CollectTranslationValues(scrlbxTranslations, 'PermissionGroupName');
+  LValues := CollectTranslationValues(scrlbxTranslations, 'UomGroupName');
   try
     for LPair in LValues do
     begin
@@ -62,6 +62,8 @@ begin
         LTrans.UomGroupName := LPair.Value;
         LTrans.SysLanguage := TSysLanguage.Create;
         LTrans.SysLanguage.Locale := LPair.Key;
+        if not Assigned(Table.Translations) then
+          Table.Translations := TObjectList<TSysUomGroupTranslation>.Create(True);
         Table.Translations.Add(LTrans);
       end;
     end;
@@ -86,7 +88,6 @@ end;
 procedure TfrmSysUomGroup.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
   edtKey.SetFocus;
 end;
 

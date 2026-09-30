@@ -1,12 +1,16 @@
-unit ufrmEmpLanguage;
+﻿unit ufrmEmpLanguage;
 
 interface
 
+{$I Ths.inc}
+
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  ufrmInputSimpleDB, SharedFormTypes, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  EmpLanguage.Service, EmpLanguage, LocalizationManager;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ExtCtrls, System.Generics.Collections,
+  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
+  EmpLanguage.Service, EmpLanguage;
 
 type
   TfrmEmpLanguage = class(TfrmInputSimpleDB<TEmpLanguage, TEmpLanguageService>)
@@ -17,7 +21,6 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   public
-    procedure InitializeInputCase; override;
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
   end;
@@ -36,27 +39,21 @@ procedure TfrmEmpLanguage.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+  edtLanguageName.thsInputDataType := itString;
 end;
 
 procedure TfrmEmpLanguage.FormShow(Sender: TObject);
 begin
   inherited;
-  ApplyLocalization;
-  edtLanguageName.SetFocus;
+  if edtLanguageName.CanFocus then
+    edtLanguageName.SetFocus;
 end;
 
 procedure TfrmEmpLanguage.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate('emp_language.title_singular', 'Yabancı Dil');
-  lblLanguageName.Caption := TLocalizationManager.Translate('emp_language.lbl_language_name', 'Dil Adı');
-end;
-
-procedure TfrmEmpLanguage.InitializeInputCase;
-begin
-  inherited;
-  edtLanguageName.thsInputDataType := itString;
-  edtLanguageName.MaxLength := 16;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TEmpLanguage.TitleSingular, 'Foreign Language');
+  lblLanguageName.Caption := TLocalizationManager.Translate(TLangKeys.TEmpLanguage.ColLanguageName, 'Language');
 end;
 
 procedure TfrmEmpLanguage.RefreshData;

@@ -39,16 +39,57 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+
+    // Şifre hash'i view'da değil tablodan okunur/yazılır (DoUpdate şifreye dokunmaz)
+    function GetPasswordHash(AUserId: Int64): string;
+    function UpdatePasswordHash(AUserId: Int64; const APasswordHash: string): Boolean;
   end;
 
 implementation
 
 uses
-  EmpPerson, EmpUnit, EmpSection;
+  EmpEmployee, EmpUnit, EmpSection;
 
 constructor TSysUserRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TSysUserRepository.GetPasswordHash(AUserId: Int64): string;
+var
+  Q: TFDQuery;
+begin
+  Result := '';
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT user_password FROM public.' + Self.GetTableName(TSysUser) + ' WHERE id = :id';
+    Q.ParamByName('id').AsLargeInt := AUserId;
+    LogQuery(Q, 'GetPasswordHash');
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := Q.FieldByName('user_password').AsString;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSysUserRepository.UpdatePasswordHash(AUserId: Int64; const APasswordHash: string): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'UPDATE public.' + Self.GetTableName(TSysUser) + ' SET user_password = :user_password WHERE id = :id';
+    Q.ParamByName('user_password').AsString := APasswordHash;
+    Q.ParamByName('id').AsLargeInt := AUserId;
+    LogQuery(Q, 'UpdatePasswordHash');
+    Q.ExecSQL;
+    Result := Q.RowsAffected > 0;
+  finally
+    Q.Free;
+  end;
 end;
 
 function TSysUserRepository.PrepareAddSql: string;
@@ -103,7 +144,7 @@ procedure TSysUserRepository.SetUpdateParams(Q: TFDQuery; AModel: TSysUser; AInd
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('id').AsLargeInt            := AModel.Id;
+    Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('username').AsString := AModel.Username;
 //    Q.ParamByName('user_password').AsString := AModel.UserPassword;
     Q.ParamByName('active').AsBoolean := AModel.Active;
@@ -139,6 +180,8 @@ begin
   Result.IpAddress    := Q.FieldByName('ip_address').AsString;
   Result.MacAddress   := Q.FieldByName('mac_address').AsString;
   Result.EmpEmployeeId:= Q.FieldByName('emp_employee_id').AsLargeInt;
+  Result.PersonName   := Q.FieldByName('name').AsString;
+  Result.PersonSurname:= Q.FieldByName('surname').AsString;
 end;
 
 function TSysUserRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

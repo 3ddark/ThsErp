@@ -37,11 +37,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TSysCurrencyService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSysCurrency, TSysCurrencyRepository>;
-  Self.PermissionCode := 1;
+  Self.PermissionCode := PERMISSION_SYS_CURRENCY;
 end;
 
 destructor TSysCurrencyService.Destroy;

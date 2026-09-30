@@ -70,6 +70,8 @@ type
     class function LoadUserColumns(AConnection: TFDConnection; const ATableName: string; AUserId: Int64): TObjectList<TSysGridColumn>; static;
 
     class function BuildSelectColumns(AConnection: TFDConnection; const ATableName: string; const AAlwaysFetch: TArray<string>): string; static;
+    /// <summary>View'ın gerçek kolon adlarını AList'e doldurur (okunamazsa boş).</summary>
+    class procedure LoadExistingColumns(AConnection: TFDConnection; const AViewName: string; AList: TStrings); static;
 
     class function IsUserColumnsChanged(const ATableName: string; AUserId: Int64; const AColumns: TObjectList<TSysGridColumn>): Boolean; static;
 
@@ -775,6 +777,8 @@ var
   Col: string;
   Item: TGridColumnItem;
   HasOtherCols: Boolean;
+  LExisting: TStringList;
+  I: Integer;
 
   function IsAlwaysFetch(const AColName: string): Boolean;
   var
@@ -804,8 +808,13 @@ begin
   LItems := InternalLoadColumns(ATableName);
 
   ColList := TStringList.Create;
+  LExisting := TStringList.Create;
   try
     ColList.CaseSensitive := False;
+    LExisting.CaseSensitive := False;
+    LExisting.Sorted := True;
+    LExisting.Duplicates := dupIgnore;
+    LoadExistingColumns(AConnection, LViewTbl, LExisting);
 
     for Col in AAlwaysFetch do
       if (Col <> '') and (ColList.IndexOf(Col) < 0) then
@@ -823,6 +832,24 @@ begin
       end;
     end;
 
+    // Ayar tablosunda kalmış ama view'da artık olmayan kolonlar (yeniden adlandırma vb.)
+    // SELECT'i kırmasın: view kolonları okunabildiyse olmayanlar atlanır.
+    if LExisting.Count > 0 then
+      for I := ColList.Count - 1 downto 0 do
+        if LExisting.IndexOf(ColList[I]) < 0 then
+        begin
+          GLogger.WarningFmt('BuildSelectColumns [%s]: "%s" kolonu view''da yok, atlandı (sys_grid_column ayarı eski).', [LViewTbl, ColList[I]]);
+          ColList.Delete(I);
+        end;
+
+    HasOtherCols := False;
+    for Col in ColList do
+      if not IsAlwaysFetch(Col) then
+      begin
+        HasOtherCols := True;
+        Break;
+      end;
+
     if not HasOtherCols then
       Result := '*'
     else
@@ -835,7 +862,42 @@ begin
       FLock.Leave;
     end;
   finally
+    LExisting.Free;
     ColList.Free;
+  end;
+end;
+
+class procedure TSysGridColumnCache.LoadExistingColumns(AConnection: TFDConnection; const AViewName: string; AList: TStrings);
+var
+  Q: TFDQuery;
+begin
+  AList.Clear;
+  if (AConnection = nil) or not AConnection.Connected then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    try
+      Q.Connection := AConnection;
+      Q.SQL.Text := 'SELECT column_name FROM information_schema.columns ' +
+                    ' WHERE table_schema = ''public'' AND table_name = :t';
+      Q.ParamByName('t').AsString := LowerCase(AViewName);
+      Q.Open;
+      while not Q.Eof do
+      begin
+        AList.Add(Q.Fields[0].AsString);
+        Q.Next;
+      end;
+    except
+      on E: Exception do
+      begin
+        // Kolon listesi okunamazsa filtre uygulanmaz (eski davranış)
+        AList.Clear;
+        GLogger.WarningFmt('LoadExistingColumns [%s]: %s', [AViewName, E.Message]);
+      end;
+    end;
+  finally
+    Q.Free;
   end;
 end;
 

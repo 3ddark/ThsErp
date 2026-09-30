@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('stk_kind_family')]
@@ -16,13 +16,15 @@ type
     FActive: Boolean;
   public
     [Column('family')]
-    Property Family: string read FFamily write FFamily;
+    [MaxLength(32), Required(TLangKeys.TValidation.Required, True)]
+    property Family: string read FFamily write FFamily;
 
     [Column('description')]
-    Property Description: string read FDescription write FDescription;
+    [MaxLength(250)]
+    property Description: string read FDescription write FDescription;
 
     [Column('active')]
-    Property Active: Boolean read FActive write FActive;
+    property Active: Boolean read FActive write FActive;
 
     constructor Create(); override;
     destructor Destroy; override;
