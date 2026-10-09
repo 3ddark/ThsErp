@@ -1,50 +1,95 @@
-unit PrdBom;
+﻿unit PrdBom;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  SysUtils, Classes, Types, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('prd_bom')]
   TPrdBom = class(TEntity)
   private
-    FProductSku: string;
-    FProductName: string;
-    FSampleQuantity: double;
+    FStkInventoryId: Int64;
+    FBomName: string;
+    FBaseQuantity: Currency;
+    FIsDefault: Boolean;
+    FIsActive: Boolean;
     FDescription: string;
+
+    // View (vw_prd_bom) okunabilir alanları
+    FInventoryCode: string;
+    FInventoryName: string;
+    FRawCount: string;
+    FLabourCount: string;
   public
-    [Column('product_sku')]
-    [Required]
-    [MaxLength(32)]
-    property ProductSku: string read FProductSku write FProductSku;
+    [Column('stk_inventory_id')]
+    property StkInventoryId: Int64 read FStkInventoryId write FStkInventoryId;
 
-    [Column('product_name')]
-    [Required]
-    [MaxLength(128)]
-    property ProductName: string read FProductName write FProductName;
+    [Column('bom_name')]
+    [MaxLength(128), Required(TLangKeys.TValidation.Required, True)]
+    property BomName: string read FBomName write FBomName;
 
-    [Column('sample_quantity')]
-    property SampleQuantity: double read FSampleQuantity write FSampleQuantity;
+    [Column('base_quantity')]
+    property BaseQuantity: Currency read FBaseQuantity write FBaseQuantity;
+
+    [Column('is_default')]
+    property IsDefault: Boolean read FIsDefault write FIsDefault;
+
+    [Column('is_active')]
+    property IsActive: Boolean read FIsActive write FIsActive;
 
     [Column('description')]
+    [MaxLength(256)]
     property Description: string read FDescription write FDescription;
+
+    [NotMapped]
+    property InventoryCode: string read FInventoryCode write FInventoryCode;
+
+    [NotMapped]
+    property InventoryName: string read FInventoryName write FInventoryName;
+
+    [NotMapped]
+    property RawCount: string read FRawCount write FRawCount;
+
+    [NotMapped]
+    property LabourCount: string read FLabourCount write FLabourCount;
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TPrdBom;
   end;
 
 implementation
 
-constructor TPrdBom.Create();
+constructor TPrdBom.Create;
 begin
   inherited;
-  FSampleQuantity := 1;
+  FBaseQuantity := 1;
+  FIsActive := True;
 end;
 
 destructor TPrdBom.Destroy;
 begin
   inherited;
+end;
+
+function TPrdBom.Clone: TPrdBom;
+begin
+  Result := TPrdBom.Create;
+  Result.Id := Self.Id;
+  Result.StkInventoryId := Self.StkInventoryId;
+  Result.BomName := Self.BomName;
+  Result.BaseQuantity := Self.BaseQuantity;
+  Result.IsDefault := Self.IsDefault;
+  Result.IsActive := Self.IsActive;
+  Result.Description := Self.Description;
+  Result.InventoryCode := Self.InventoryCode;
+  Result.InventoryName := Self.InventoryName;
+  Result.RawCount := Self.RawCount;
+  Result.LabourCount := Self.LabourCount;
 end;
 
 end.

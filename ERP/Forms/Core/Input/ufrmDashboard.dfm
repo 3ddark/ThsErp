@@ -439,6 +439,7 @@ inherited frmDashboard: TfrmDashboard
           Top = 2
           Width = 150
           Height = 36
+          Action = actprd_bom
           Caption = 'Re'#231'eteler'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -450,13 +451,13 @@ inherited frmDashboard: TfrmDashboard
           ParentFont = False
           TabOrder = 0
           WordWrap = True
-          OnClick = actrct_receteExecute
         end
         object btnrct_iscilik_gideri: TButton
           Left = 158
           Top = 2
           Width = 150
           Height = 36
+          Action = actprd_labour
           Caption = #304#351#231'ilik Giderleri'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -468,13 +469,13 @@ inherited frmDashboard: TfrmDashboard
           ParentFont = False
           TabOrder = 1
           WordWrap = True
-          OnClick = actrct_iscilik_gideriExecute
         end
         object btnrct_paket_hammadde: TButton
           Left = 158
           Top = 44
           Width = 150
           Height = 36
+          Action = actprd_packet_raw
           Caption = 'Paket Hammaddeler'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -485,9 +486,24 @@ inherited frmDashboard: TfrmDashboard
           Images = dm.il32
           ParentFont = False
           TabOrder = 2
-          Visible = False
           WordWrap = True
-          OnClick = actrct_paket_hammaddeExecute
+        end
+        object btnrct_paket_iscilik: TButton
+          Left = 158
+          Top = 86
+          Width = 150
+          Height = 36
+          Action = actprd_packet_labour
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ImageIndex = 76
+          Images = dm.il32
+          ParentFont = False
+          TabOrder = 3
+          WordWrap = True
         end
       end
       object tsaccounting: TTabSheet
@@ -712,6 +728,30 @@ inherited frmDashboard: TfrmDashboard
       Caption = 'Stok Kart'#305' '#214'zetleri'
       ImageIndex = 59
       OnExecute = actstk_stok_karti_ozetleriExecute
+    end
+    object actprd_bom: TAction
+      Category = 'Uretim'
+      Caption = 'Re'#231'eteler'
+      ImageIndex = 66
+      OnExecute = actprd_bomExecute
+    end
+    object actprd_labour: TAction
+      Category = 'Uretim'
+      Caption = #304#351#231'ilik / Giderler'
+      ImageIndex = 76
+      OnExecute = actprd_labourExecute
+    end
+    object actprd_packet_raw: TAction
+      Category = 'Uretim'
+      Caption = 'Hammadde Paketleri'
+      ImageIndex = 76
+      OnExecute = actprd_packet_rawExecute
+    end
+    object actprd_packet_labour: TAction
+      Category = 'Uretim'
+      Caption = #304#351#231'ilik Paketleri'
+      ImageIndex = 76
+      OnExecute = actprd_packet_labourExecute
     end
     object actstk_product_types: TAction
       Category = 'Stok'
@@ -1070,6 +1110,22 @@ inherited frmDashboard: TfrmDashboard
         object mnistk_kind_property: TMenuItem
           Action = actstk_cins_ozellikleri
         end
+      end
+    end
+    object mnimenu_production: TMenuItem
+      Caption = #220'retim'
+      ImageIndex = 66
+      object mniprd_bom: TMenuItem
+        Action = actprd_bom
+      end
+      object mniprd_labour: TMenuItem
+        Action = actprd_labour
+      end
+      object mniprd_packet_raw: TMenuItem
+        Action = actprd_packet_raw
+      end
+      object mniprd_packet_labour: TMenuItem
+        Action = actprd_packet_labour
       end
     end
     object mnimenu_employee: TMenuItem

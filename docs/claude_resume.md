@@ -1,7 +1,7 @@
 # Claude Resume State
 
 ## Goal
-Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock tamamlandı; sıradaki modül (prd_ / sls_) seçilecek.
+Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, Production (prd_) tamamlandı; sıradaki modül sls_ (satış).
 
 ## Tasarım Kararları
 - Her form/kaynak için ayrı `sys_permission` satırı ve `PERMISSION_*` sabiti (`SysPermission.Service.pas`).
@@ -152,8 +152,50 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock t
   şimdilik kalıyor (kayıtsız, derlenmez; ufrmStkCinsAileleri silinen StkKindFamilyService'e başvurur), sonra silinecek.
   Negatif stok engellenmiyor.
 
+## Stok kartı sekmeli tasarım + karta özel hesaplar (2026-10-09, commit edilmedi)
+- Git geçmişi tarandı: sekmeli stok kartı `f8df7b3^:ERP/Forms/Stock/ufrmStkKart.dfm` (2026-07) ve
+  `11bda36^:ERP/Forms/InputForms/Stock/ufrmStkStokKarti.dfm` (2023): Genel / Parasal / Cins Özelliği / Grup Özellikleri / Özetler (+ ambar).
+  Hesap kodu override'ı hiçbir commit'te yoktu (Grup Özellikleri sekmesi grubun hesaplarını salt okunur gösteriyordu); kullanıcının
+  tarifine göre yeniden kuruldu.
+- DB: `stk_inventory` + `vat_rate` (0-100) ve 7 hesap kolonu (raw_material_stock/usage, semi_product, sales, sales_return,
+  purchase, purchase_return; acc_account(code) FK, indeksli). NULL = gruptan gelir; KDV hesapları geçerli KDV oranının
+  (`COALESCE(kart, grup)`) `acc_set_tax_rate` satırından. `vw_stk_inventory` + override ve `default_*` kolonları;
+  yeni `vw_stk_inventory_account` (fiş kesimi için çözümlenmiş hesaplar + adlar + is_vat_rate_overridden / overridden_account_count);
+  yeni `vw_stk_inventory_warehouse` (ambar bazında miktar).
+- Kod: `TStkInventory` override + Default* alanları (HasVatRate = NULL ayrımı); repository FillDefaults / AccountExists /
+  GetWarehouseStocks / GetKindValues; service ValidateAccountOverrides (hesap planında olmalı), FillDefaults, GetSummary.
+  `ufrmStkInventory` TPageControl: Genel / Parasal Bilgi / Cins Özelliği (salt okunur + "Cins Bilgisini Düzenle" yalnız inceleme
+  modunda; UoW tek bağlantı, güncelleme modunda açık transaction var) / Grup Özellikleri-Muhasebe (karta özel | gruptan gelen) /
+  Özetler (stk_inventory_summary + ambar stokları). Üreteç: scratchpad gen_stk_inventory_dfm.py.
+- Not: acc_set_tax_rate test verisinde %10 ve %20 satırlarının satış/alış hesapları ters girilmiş görünüyor (dokunulmadı).
+
+## Production (prd_) modülü (2026-10-09, commit edilmedi)
+- DB: 11 tablo id tabanlı yeniden kuruldu (eski: kod tabanlı FK, header_id/recete_id/stok_kodu/paket_id, prd_bom_labour.labor_code
+  tek başına UNIQUE hatası). Test verisi (2 reçete, 3 hammadde, 1 işçilik, 1 paket + 2 kalem) id'leri korunarak taşındı.
+  prd_labour: code / name / cost_type (1 işçilik, 2 makine, 3 genel üretim gideri) / sys_uom_id / unit_price / currency /
+  acc_account_code (eski cost_code hesap koduydu). prd_bom: stk_inventory_id + bom_name (unique), base_quantity > 0, is_default
+  (ürün başına tek, partial unique), is_active. Detaylar: prd_bom_raw (sub_prd_bom_id, scrap_rate 0-<100), prd_bom_by_product,
+  prd_bom_labour, prd_packet_raw(+_detail), prd_packet_labour(+_detail), prd_bom_packet_raw/labour. 11 view (vw_prd_*;
+  gross_quantity, total_amount, raw/labour/item count). notify trigger'ları.
+- Yetkiler: 1061 reçete (+tüm detaylar), 1062 işçilik/gider, 1063 hammadde paketi, 1064 işçilik paketi (+tr/en/de; 1061 de-DE);
+  yönetici + üretim tam, satın alma okuma; sys_access_right backfill. 1060 (bom-settings) eski, kullanılmıyor (silinmedi).
+- Kod (üreteç: scratchpad gen_prd.py + prd_config.py): 11 entity Domain/Exception/Repository/Service + Output/Input form + DFM,
+  PrdLookup, TLangKeys (TPrdOption, TPrd*), TValidation.MustBePositive, TDashboard.MenuProduction, 4 dilde JSON.
+  Servis kuralları: zorunlu FK, miktar > 0, composite unique, varsayılan reçete tekilliği, alt reçete kendisi olamaz,
+  reçete ürünü kendi hammaddesi olamaz. Popup: Reçeteler -> Hammaddeler / Yan Ürünler / İşçilikler / Hammadde Paketleri /
+  İşçilik Paketleri; paketler -> Paket İçeriği. Dashboard: Üretim menüsü + Reçeteler sekmesi düğmeleri action'a bağlandı
+  (actprd_bom / labour / packet_raw / packet_labour), boş actrct_* handler'ları silindi.
+- Derleme (tam rebuild) 0 hata / 0 hint; dokunulan birimlerde uyarı yok. SQL dry-run (rollback) + repository kolon/view
+  eşleşme kontrolü başarılı. UI akışları çalıştırılarak test edilmedi.
+
 ## Kalan
-- Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi).
+- Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
+- Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.
+- Legacy Forms/Production/ufrmUrtReceteler.* ve Forms/DetailedInputForms/Production (kayıtsız) silinecek.
+- Kullanıcı onayı bekleyenler: gider tipi seçenekleri (1 işçilik / 2 makine / 3 genel üretim gideri), 1060 bom-settings yetkisinin
+  silinmesi, acc_set_tax_rate %10 / %20 satırlarında ters görünen satış/alış hesapları.
+- 2026-10-09 değişiklikleri commit edilmedi (kullanıcı isteği): 54 değişen + 4 yeni klasör (BackEnd/Production/Exception,
+  Forms/Production/Input|Output). Sıradaki modül: sls_ (satış).
 - vw_sys_user.user_password kaldırma (login hash'i tablodan ayrı sorgu ile almalı)
 - Diğer translation view'larında locale stratejisi (vw_sys_city, vw_sys_country, vw_sys_uom*, vw_emp_* ...) ve de-DE çeviri eksikleri
   (vw_emp_person_type locale NULL → personel tipi adı boş)
@@ -162,4 +204,7 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock t
   ölü Core/Base dosyaları
 
 ## Hatalar / Engeller
+- Bu PC'de güncel DB 5433'te; GlobalSettings.ini DBPortNo=5432 (diğer makine değeri) ve 5432'de 2023'ten kalma eski ths_erp var
+  (yalnız geçmiş referansı; değişiklik yapılmaz). Uygulama bu ini ile eski DB'ye bağlanır.
+- db_schema.sql git'te "-text": pg_dump -s -f sonrası her LF -> CRLF yapılmalı (fonksiyon gövdelerindeki CRLF dahil, körlemesine), yoksa tüm dosya değişmiş görünür.
 - `Ths.exe` açıkken link F2039 → derleme `/p:DCC_ExeOutput=%TEMP%\ths_build_out` ile yapılıyor.

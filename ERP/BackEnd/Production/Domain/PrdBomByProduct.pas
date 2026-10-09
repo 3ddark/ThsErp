@@ -1,42 +1,52 @@
-unit PrdBomByProduct;
+﻿unit PrdBomByProduct;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  SysUtils, Classes, Types, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('prd_bom_by_product')]
   TPrdBomByProduct = class(TEntity)
   private
-    FHeaderId: Int64;
-    FProductSku: string;
-    FQuantity: double;
-    FPrice: double;
-  public
-    [Column('header_id')]
-    [Required]
-    property HeaderId: Int64 read FHeaderId write FHeaderId;
+    FPrdBomId: Int64;
+    FStkInventoryId: Int64;
+    FQuantity: Currency;
 
-    [Column('product_sku')]
-    [Required]
-    [MaxLength(32)]
-    property ProductSku: string read FProductSku write FProductSku;
+    // View (vw_prd_bom_by_product) okunabilir alanları
+    FBomName: string;
+    FInventoryCode: string;
+    FInventoryName: string;
+  public
+    [Column('prd_bom_id')]
+    property PrdBomId: Int64 read FPrdBomId write FPrdBomId;
+
+    [Column('stk_inventory_id')]
+    property StkInventoryId: Int64 read FStkInventoryId write FStkInventoryId;
 
     [Column('quantity')]
-    [Required]
-    property Quantity: double read FQuantity write FQuantity;
+    property Quantity: Currency read FQuantity write FQuantity;
 
-    [Column('price')]
-    property Price: double read FPrice write FPrice;
+    [NotMapped]
+    property BomName: string read FBomName write FBomName;
+
+    [NotMapped]
+    property InventoryCode: string read FInventoryCode write FInventoryCode;
+
+    [NotMapped]
+    property InventoryName: string read FInventoryName write FInventoryName;
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TPrdBomByProduct;
   end;
 
 implementation
 
-constructor TPrdBomByProduct.Create();
+constructor TPrdBomByProduct.Create;
 begin
   inherited;
 end;
@@ -44,6 +54,18 @@ end;
 destructor TPrdBomByProduct.Destroy;
 begin
   inherited;
+end;
+
+function TPrdBomByProduct.Clone: TPrdBomByProduct;
+begin
+  Result := TPrdBomByProduct.Create;
+  Result.Id := Self.Id;
+  Result.PrdBomId := Self.PrdBomId;
+  Result.StkInventoryId := Self.StkInventoryId;
+  Result.Quantity := Self.Quantity;
+  Result.BomName := Self.BomName;
+  Result.InventoryCode := Self.InventoryCode;
+  Result.InventoryName := Self.InventoryName;
 end;
 
 end.

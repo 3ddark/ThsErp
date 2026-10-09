@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  StkInventory.Repository, StkInventory, StkInventory.Exception;
+  StkInventory.Repository, StkInventory, StkInventory.Exception, StkInventorySummary;
 
 type
   TStkInventoryService = class(TCrudService<TStkInventory>)
@@ -19,6 +19,7 @@ type
 
     procedure ValidateRequiredReferences(AEntity: TStkInventory);
     procedure ValidateUnique(AEntity: TStkInventory; AOperation: TCrudOperation);
+    procedure ValidateAccountOverrides(AEntity: TStkInventory);
   public
     constructor Create;
     destructor Destroy; override;
@@ -26,6 +27,13 @@ type
     procedure ValidateBusinessRules(AEntity: TStkInventory; AOperation: TCrudOperation); override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
+    // Stok kartı formu: grup / KDV oranı değişince karta özel olmayan (gruptan gelen) değerler
+    procedure FillDefaults(AEntity: TStkInventory);
+    // Stok kartı "Cins Özelliği" / "Özetler" sekmeleri (okuma yetkisi: stok kartı)
+    function GetKindValues(AInventoryId: Int64; out AKindName: string): TArray<TStkInventoryKindValue>;
+    function GetWarehouseStocks(AInventoryId: Int64): TArray<TStkInventoryWarehouseStock>;
+    function GetSummary(AInventoryId: Int64): TStkInventorySummary;
 
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TStkInventory>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TStkInventory; override;
@@ -45,7 +53,7 @@ type
 implementation
 
 uses
-  SysPermission.Service;
+  SysPermission.Service, StkInventorySummary.Repository;
 
 constructor TStkInventoryService.Create;
 begin
@@ -100,6 +108,31 @@ begin
   end;
 end;
 
+// Karta özel muhasebe ayarları: boş = gruptan gelir; dolu hesap kodu hesap planında olmalı
+procedure TStkInventoryService.ValidateAccountOverrides(AEntity: TStkInventory);
+
+  function Normalize(const AValue: string): string;
+  begin
+    Result := Trim(AValue);
+    if (Result <> '') and not TStkInventoryRepository(FRepo).AccountExists(Result) then
+      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TStkInventory.AccountNotFound,
+        'Account not found: %s'), [Result]));
+  end;
+
+begin
+  if AEntity.HasVatRate and ((AEntity.VatRate < 0) or (AEntity.VatRate > 100)) then
+    raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStkInventory.ColVatRate, 'VAT Rate (%)') + ': ' +
+      Format(TLocalizationManager.Translate(TLangKeys.TValidation.Range, 'Field must be between %s and %s'), ['0', '100']));
+
+  AEntity.RawMaterialStockAccount := Normalize(AEntity.RawMaterialStockAccount);
+  AEntity.RawMaterialUsageAccount := Normalize(AEntity.RawMaterialUsageAccount);
+  AEntity.SemiProductAccount := Normalize(AEntity.SemiProductAccount);
+  AEntity.SalesAccount := Normalize(AEntity.SalesAccount);
+  AEntity.SalesReturnAccount := Normalize(AEntity.SalesReturnAccount);
+  AEntity.PurchaseAccount := Normalize(AEntity.PurchaseAccount);
+  AEntity.PurchaseReturnAccount := Normalize(AEntity.PurchaseReturnAccount);
+end;
+
 procedure TStkInventoryService.ValidateBusinessRules(AEntity: TStkInventory; AOperation: TCrudOperation);
 var
   LDefaultCurrency: string;
@@ -137,6 +170,7 @@ begin
     if AEntity.MinStockAmount < 0 then
       raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStkInventory.ColMinStockAmount, 'Minimum Stock') + ': ' +
         TLocalizationManager.Translate(TLangKeys.TValidation.NegativeValueNotAllowed, 'Negative values are not allowed'));
+    ValidateAccountOverrides(AEntity);
   end;
 
   ValidateUnique(AEntity, AOperation);
@@ -262,6 +296,40 @@ end;
 function TStkInventoryService.CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery;
 begin
   Result := FRepo.FindAllGridQuery(AFilter);
+end;
+
+procedure TStkInventoryService.FillDefaults(AEntity: TStkInventory);
+begin
+  TStkInventoryRepository(FRepo).FillDefaults(AEntity);
+end;
+
+function TStkInventoryService.GetKindValues(AInventoryId: Int64; out AKindName: string): TArray<TStkInventoryKindValue>;
+begin
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, True);
+  Result := TStkInventoryRepository(FRepo).GetKindValues(AInventoryId, AKindName);
+end;
+
+function TStkInventoryService.GetWarehouseStocks(AInventoryId: Int64): TArray<TStkInventoryWarehouseStock>;
+begin
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, True);
+  Result := TStkInventoryRepository(FRepo).GetWarehouseStocks(AInventoryId);
+end;
+
+// Özet satırı yoksa (hiç hareket yok) nil döner; çağıran serbest bırakır
+function TStkInventoryService.GetSummary(AInventoryId: Int64): TStkInventorySummary;
+var
+  LRepo: IRepository<TStkInventorySummary>;
+  LFilter: TFilterCriteria;
+begin
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, True);
+  LRepo := Self.UoW.GetRepository<TStkInventorySummary, TStkInventorySummaryRepository>;
+  LFilter := TFilterCriteria.Create;
+  try
+    LFilter.Add(TFilterCriterion.New('stk_inventory_id', '=', TValue.From<Int64>(AInventoryId)));
+    Result := LRepo.FindOne(LFilter, False);
+  finally
+    LFilter.Free;
+  end;
 end;
 
 function TStkInventoryService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TStkInventory>;

@@ -19,6 +19,7 @@ type
         const RegEx = 'validation.regex';
         const RequiredFieldsEmpty = 'validation.required_fields_empty';
         const NegativeValueNotAllowed = 'validation.negative_value_not_allowed';
+        const MustBePositive = 'validation.must_be_positive';
       end;
 
       TGeneral = record
@@ -124,6 +125,7 @@ type
         const MenuSales = 'dashboard.menu.sales';
         const MenuAccounting = 'dashboard.menu.accounting';
         const MenuStock = 'dashboard.menu.stock';
+        const MenuProduction = 'dashboard.menu.production';
         const MenuPersonnel = 'dashboard.menu.personnel';
         const MenuAbout = 'dashboard.menu.about';
         const MenuSettings = 'dashboard.menu.settings';
@@ -1013,6 +1015,31 @@ type
         const ImageLoad = 'stk_inventory.image_load';
         const ImageClear = 'stk_inventory.image_clear';
         const ImageTooLarge = 'stk_inventory.image_too_large';
+        const TabGeneral = 'stk_inventory.tab_general';
+        const TabMonetary = 'stk_inventory.tab_monetary';
+        const TabKind = 'stk_inventory.tab_kind';
+        const TabAccounting = 'stk_inventory.tab_accounting';
+        const TabSummary = 'stk_inventory.tab_summary';
+        const ColVatRate = 'stk_inventory.col_vat_rate';
+        const ColRawMaterialStockAccount = 'stk_inventory.col_raw_material_stock_account';
+        const ColRawMaterialUsageAccount = 'stk_inventory.col_raw_material_usage_account';
+        const ColSemiProductAccount = 'stk_inventory.col_semi_product_account';
+        const ColSalesAccount = 'stk_inventory.col_sales_account';
+        const ColSalesReturnAccount = 'stk_inventory.col_sales_return_account';
+        const ColPurchaseAccount = 'stk_inventory.col_purchase_account';
+        const ColPurchaseReturnAccount = 'stk_inventory.col_purchase_return_account';
+        const LblOverride = 'stk_inventory.lbl_override';
+        const LblDefault = 'stk_inventory.lbl_default';
+        const AccountingInfo = 'stk_inventory.msg.accounting_info';
+        const AccountNotFound = 'stk_inventory.account_not_found';
+        const KindNotDefined = 'stk_inventory.msg.kind_not_defined';
+        const KindEdit = 'stk_inventory.kind_edit';
+        const SaveFirst = 'stk_inventory.msg.save_first';
+        const ColWarehouse = 'stk_inventory.col_warehouse';
+        const ColQuantity = 'stk_inventory.col_quantity';
+        const WarehouseStocks = 'stk_inventory.warehouse_stocks';
+        const ColProperty = 'stk_inventory.col_property';
+        const ColValue = 'stk_inventory.col_value';
       end;
 
       TStkCardKindInfo = record
@@ -1085,6 +1112,161 @@ type
         const ColLastBuyCurrency = 'stk_inventory_summary.col_last_buy_currency';
         const ColLastBuyExchangeRate = 'stk_inventory_summary.col_last_buy_exchange_rate';
         const ColInventoryCode = 'stk_inventory_summary.col_inventory_code';
+      end;
+
+      TPrdOption = record
+        const CostLabour = 'prd_option.cost_labour';
+        const CostMachine = 'prd_option.cost_machine';
+        const CostOverhead = 'prd_option.cost_overhead';
+      end;
+
+      TPrdLabour = record
+        const TitlePlural = 'prd_labour.title_plural';
+        const TitleSingular = 'prd_labour.title_singular';
+        const ColCode = 'prd_labour.col_code';
+        const ColName = 'prd_labour.col_name';
+        const ColCostType = 'prd_labour.col_cost_type';
+        const ColSysUomId = 'prd_labour.col_sys_uom_id';
+        const ColUnitPrice = 'prd_labour.col_unit_price';
+        const ColCurrency = 'prd_labour.col_currency';
+        const ColAccAccountCode = 'prd_labour.col_acc_account_code';
+        const CodeUnique = 'prd_labour.code_unique';
+      end;
+
+      TPrdBom = record
+        const TitlePlural = 'prd_bom.title_plural';
+        const TitleSingular = 'prd_bom.title_singular';
+        const ColStkInventoryId = 'prd_bom.col_stk_inventory_id';
+        const ColBomName = 'prd_bom.col_bom_name';
+        const ColBaseQuantity = 'prd_bom.col_base_quantity';
+        const ColIsDefault = 'prd_bom.col_is_default';
+        const ColIsActive = 'prd_bom.col_is_active';
+        const ColDescription = 'prd_bom.col_description';
+        const ColInventoryCode = 'prd_bom.col_inventory_code';
+        const ColInventoryName = 'prd_bom.col_inventory_name';
+        const ColRawCount = 'prd_bom.col_raw_count';
+        const ColLabourCount = 'prd_bom.col_labour_count';
+        const BomNameUnique = 'prd_bom.bom_name_unique';
+        const DefaultExists = 'prd_bom.default_exists';
+        const MenuRaws = 'prd_bom.popup.raws';
+        const MenuByProducts = 'prd_bom.popup.by_products';
+        const MenuLabours = 'prd_bom.popup.labours';
+        const MenuPacketRaws = 'prd_bom.popup.packet_raws';
+        const MenuPacketLabours = 'prd_bom.popup.packet_labours';
+      end;
+
+      TPrdBomRaw = record
+        const TitlePlural = 'prd_bom_raw.title_plural';
+        const TitleSingular = 'prd_bom_raw.title_singular';
+        const ColPrdBomId = 'prd_bom_raw.col_prd_bom_id';
+        const ColStkInventoryId = 'prd_bom_raw.col_stk_inventory_id';
+        const ColSubPrdBomId = 'prd_bom_raw.col_sub_prd_bom_id';
+        const ColQuantity = 'prd_bom_raw.col_quantity';
+        const ColScrapRate = 'prd_bom_raw.col_scrap_rate';
+        const ColBomName = 'prd_bom_raw.col_bom_name';
+        const ColInventoryCode = 'prd_bom_raw.col_inventory_code';
+        const ColInventoryName = 'prd_bom_raw.col_inventory_name';
+        const ColSubBomName = 'prd_bom_raw.col_sub_bom_name';
+        const ColGrossQuantity = 'prd_bom_raw.col_gross_quantity';
+        const InventoryUnique = 'prd_bom_raw.inventory_unique';
+        const SubBomSelf = 'prd_bom_raw.sub_bom_self';
+        const RawIsProduct = 'prd_bom_raw.raw_is_product';
+      end;
+
+      TPrdBomByProduct = record
+        const TitlePlural = 'prd_bom_by_product.title_plural';
+        const TitleSingular = 'prd_bom_by_product.title_singular';
+        const ColPrdBomId = 'prd_bom_by_product.col_prd_bom_id';
+        const ColStkInventoryId = 'prd_bom_by_product.col_stk_inventory_id';
+        const ColQuantity = 'prd_bom_by_product.col_quantity';
+        const ColBomName = 'prd_bom_by_product.col_bom_name';
+        const ColInventoryCode = 'prd_bom_by_product.col_inventory_code';
+        const ColInventoryName = 'prd_bom_by_product.col_inventory_name';
+        const InventoryUnique = 'prd_bom_by_product.inventory_unique';
+      end;
+
+      TPrdBomLabour = record
+        const TitlePlural = 'prd_bom_labour.title_plural';
+        const TitleSingular = 'prd_bom_labour.title_singular';
+        const ColPrdBomId = 'prd_bom_labour.col_prd_bom_id';
+        const ColPrdLabourId = 'prd_bom_labour.col_prd_labour_id';
+        const ColQuantity = 'prd_bom_labour.col_quantity';
+        const ColBomName = 'prd_bom_labour.col_bom_name';
+        const ColLabourCode = 'prd_bom_labour.col_labour_code';
+        const ColLabourName = 'prd_bom_labour.col_labour_name';
+        const ColUnitPrice = 'prd_bom_labour.col_unit_price';
+        const ColCurrency = 'prd_bom_labour.col_currency';
+        const ColTotalAmount = 'prd_bom_labour.col_total_amount';
+        const LabourUnique = 'prd_bom_labour.labour_unique';
+      end;
+
+      TPrdPacketRaw = record
+        const TitlePlural = 'prd_packet_raw.title_plural';
+        const TitleSingular = 'prd_packet_raw.title_singular';
+        const ColPacketName = 'prd_packet_raw.col_packet_name';
+        const ColItemCount = 'prd_packet_raw.col_item_count';
+        const PacketNameUnique = 'prd_packet_raw.packet_name_unique';
+        const MenuDetails = 'prd_packet_raw.popup.details';
+      end;
+
+      TPrdPacketRawDetail = record
+        const TitlePlural = 'prd_packet_raw_detail.title_plural';
+        const TitleSingular = 'prd_packet_raw_detail.title_singular';
+        const ColPrdPacketRawId = 'prd_packet_raw_detail.col_prd_packet_raw_id';
+        const ColStkInventoryId = 'prd_packet_raw_detail.col_stk_inventory_id';
+        const ColSubPrdBomId = 'prd_packet_raw_detail.col_sub_prd_bom_id';
+        const ColQuantity = 'prd_packet_raw_detail.col_quantity';
+        const ColPacketName = 'prd_packet_raw_detail.col_packet_name';
+        const ColInventoryCode = 'prd_packet_raw_detail.col_inventory_code';
+        const ColInventoryName = 'prd_packet_raw_detail.col_inventory_name';
+        const ColSubBomName = 'prd_packet_raw_detail.col_sub_bom_name';
+        const InventoryUnique = 'prd_packet_raw_detail.inventory_unique';
+      end;
+
+      TPrdPacketLabour = record
+        const TitlePlural = 'prd_packet_labour.title_plural';
+        const TitleSingular = 'prd_packet_labour.title_singular';
+        const ColPacketName = 'prd_packet_labour.col_packet_name';
+        const ColItemCount = 'prd_packet_labour.col_item_count';
+        const PacketNameUnique = 'prd_packet_labour.packet_name_unique';
+        const MenuDetails = 'prd_packet_labour.popup.details';
+      end;
+
+      TPrdPacketLabourDetail = record
+        const TitlePlural = 'prd_packet_labour_detail.title_plural';
+        const TitleSingular = 'prd_packet_labour_detail.title_singular';
+        const ColPrdPacketLabourId = 'prd_packet_labour_detail.col_prd_packet_labour_id';
+        const ColPrdLabourId = 'prd_packet_labour_detail.col_prd_labour_id';
+        const ColQuantity = 'prd_packet_labour_detail.col_quantity';
+        const ColPacketName = 'prd_packet_labour_detail.col_packet_name';
+        const ColLabourCode = 'prd_packet_labour_detail.col_labour_code';
+        const ColLabourName = 'prd_packet_labour_detail.col_labour_name';
+        const ColUnitPrice = 'prd_packet_labour_detail.col_unit_price';
+        const ColCurrency = 'prd_packet_labour_detail.col_currency';
+        const ColTotalAmount = 'prd_packet_labour_detail.col_total_amount';
+        const LabourUnique = 'prd_packet_labour_detail.labour_unique';
+      end;
+
+      TPrdBomPacketRaw = record
+        const TitlePlural = 'prd_bom_packet_raw.title_plural';
+        const TitleSingular = 'prd_bom_packet_raw.title_singular';
+        const ColPrdBomId = 'prd_bom_packet_raw.col_prd_bom_id';
+        const ColPrdPacketRawId = 'prd_bom_packet_raw.col_prd_packet_raw_id';
+        const ColQuantity = 'prd_bom_packet_raw.col_quantity';
+        const ColBomName = 'prd_bom_packet_raw.col_bom_name';
+        const ColPacketName = 'prd_bom_packet_raw.col_packet_name';
+        const PacketUnique = 'prd_bom_packet_raw.packet_unique';
+      end;
+
+      TPrdBomPacketLabour = record
+        const TitlePlural = 'prd_bom_packet_labour.title_plural';
+        const TitleSingular = 'prd_bom_packet_labour.title_singular';
+        const ColPrdBomId = 'prd_bom_packet_labour.col_prd_bom_id';
+        const ColPrdPacketLabourId = 'prd_bom_packet_labour.col_prd_packet_labour_id';
+        const ColQuantity = 'prd_bom_packet_labour.col_quantity';
+        const ColBomName = 'prd_bom_packet_labour.col_bom_name';
+        const ColPacketName = 'prd_bom_packet_labour.col_packet_name';
+        const PacketUnique = 'prd_bom_packet_labour.packet_unique';
       end;
   end;
 

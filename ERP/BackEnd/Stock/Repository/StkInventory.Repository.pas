@@ -16,6 +16,7 @@ type
 
     procedure SetInsertParams(Q: TFDQuery; AModel: TStkInventory; AIndex: Integer = -1);
     procedure SetUpdateParams(Q: TFDQuery; AModel: TStkInventory; AIndex: Integer = -1);
+    procedure SetOverrideParams(Q: TFDQuery; AModel: TStkInventory; AIndex: Integer);
     function MapFromQuery(Q: TFDQuery): TStkInventory; override;
 
     // stk_image: resim view'a konmaz (grid '*' ile okuyabilir); kartla aynı transaction'da yazılır
@@ -43,6 +44,12 @@ type
     constructor Create(AConnection: TFDConnection);
 
     function GetDefaultCurrency: string;
+
+    // Karta özel değer boşken uygulanacak KDV oranı + hesaplar (grup / geçerli KDV oranının acc_set_tax_rate satırı)
+    procedure FillDefaults(AModel: TStkInventory);
+    function AccountExists(const ACode: string): Boolean;
+    function GetWarehouseStocks(AInventoryId: Int64): TArray<TStkInventoryWarehouseStock>;
+    function GetKindValues(AInventoryId: Int64; out AKindName: string): TArray<TStkInventoryKindValue>;
   end;
 
 implementation
@@ -63,6 +70,146 @@ begin
     LogQuery(Q, 'GetDefaultCurrency');
     Q.Open;
     Result := Q.FieldByName('currency').AsString;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TStkInventoryRepository.FillDefaults(AModel: TStkInventory);
+var
+  Q: TFDQuery;
+begin
+  AModel.DefaultVatRate := '';
+  AModel.DefaultRawMaterialStockAccount := '';
+  AModel.DefaultRawMaterialUsageAccount := '';
+  AModel.DefaultSemiProductAccount := '';
+  AModel.DefaultSalesAccount := '';
+  AModel.DefaultSalesReturnAccount := '';
+  AModel.DefaultPurchaseAccount := '';
+  AModel.DefaultPurchaseReturnAccount := '';
+  if AModel.StkGroupId <= 0 then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    // vw_stk_inventory.default_* ile aynı kural: KDV hesapları kartın geçerli KDV oranına göre
+    Q.SQL.Text :=
+      'SELECT g.vat_rate, g.raw_material_stock_account, g.raw_material_usage_account, g.semi_product_account, ' +
+      '       tr.sales_account, tr.sales_return_account, tr.purchase_account, tr.purchase_return_account ' +
+      '  FROM public.stk_group g ' +
+      '  LEFT JOIN public.acc_set_tax_rate tr ON tr.tax_rate = COALESCE(CAST(:vat_rate AS numeric), g.vat_rate) ' +
+      ' WHERE g.id = :stk_group_id';
+    Q.ParamByName('stk_group_id').AsLargeInt := AModel.StkGroupId;
+    Q.ParamByName('vat_rate').DataType := ftCurrency;
+    if AModel.HasVatRate then
+      Q.ParamByName('vat_rate').AsCurrency := AModel.VatRate
+    else
+      Q.ParamByName('vat_rate').Clear;
+    LogQuery(Q, 'FillDefaults');
+    Q.Open;
+    if Q.IsEmpty then
+      Exit;
+
+    AModel.DefaultVatRate := Q.FieldByName('vat_rate').AsString;
+    AModel.DefaultRawMaterialStockAccount := Q.FieldByName('raw_material_stock_account').AsString;
+    AModel.DefaultRawMaterialUsageAccount := Q.FieldByName('raw_material_usage_account').AsString;
+    AModel.DefaultSemiProductAccount := Q.FieldByName('semi_product_account').AsString;
+    AModel.DefaultSalesAccount := Q.FieldByName('sales_account').AsString;
+    AModel.DefaultSalesReturnAccount := Q.FieldByName('sales_return_account').AsString;
+    AModel.DefaultPurchaseAccount := Q.FieldByName('purchase_account').AsString;
+    AModel.DefaultPurchaseReturnAccount := Q.FieldByName('purchase_return_account').AsString;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TStkInventoryRepository.AccountExists(const ACode: string): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT 1 FROM public.acc_account WHERE code = :code';
+    Q.ParamByName('code').AsString := ACode;
+    LogQuery(Q, 'AccountExists');
+    Q.Open;
+    Result := not Q.IsEmpty;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TStkInventoryRepository.GetWarehouseStocks(AInventoryId: Int64): TArray<TStkInventoryWarehouseStock>;
+var
+  Q: TFDQuery;
+  LItem: TStkInventoryWarehouseStock;
+begin
+  Result := nil;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT warehouse_name, quantity FROM public.vw_stk_inventory_warehouse ' +
+                  ' WHERE stk_inventory_id = :stk_inventory_id ORDER BY warehouse_name';
+    Q.ParamByName('stk_inventory_id').AsLargeInt := AInventoryId;
+    LogQuery(Q, 'GetWarehouseStocks');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      LItem.WarehouseName := Q.FieldByName('warehouse_name').AsString;
+      LItem.Quantity := Q.FieldByName('quantity').AsFloat;
+      Result := Result + [LItem];
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+// Etiketi tanımlı (stk_kind_property.s1..d5 dolu) alanlar sırayla döner
+function TStkInventoryRepository.GetKindValues(AInventoryId: Int64; out AKindName: string): TArray<TStkInventoryKindValue>;
+const
+  FIELDS: array[0..19] of string = ('s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10',
+                                    'i1', 'i2', 'i3', 'i4', 'i5', 'd1', 'd2', 'd3', 'd4', 'd5');
+var
+  Q: TFDQuery;
+  LField: string;
+  LCaption: string;
+  LItem: TStkInventoryKindValue;
+begin
+  Result := nil;
+  AKindName := '';
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text :=
+      'SELECT p.kind, ' +
+      '       p.s1 AS lbl_s1, p.s2 AS lbl_s2, p.s3 AS lbl_s3, p.s4 AS lbl_s4, p.s5 AS lbl_s5, ' +
+      '       p.s6 AS lbl_s6, p.s7 AS lbl_s7, p.s8 AS lbl_s8, p.s9 AS lbl_s9, p.s10 AS lbl_s10, ' +
+      '       p.i1 AS lbl_i1, p.i2 AS lbl_i2, p.i3 AS lbl_i3, p.i4 AS lbl_i4, p.i5 AS lbl_i5, ' +
+      '       p.d1 AS lbl_d1, p.d2 AS lbl_d2, p.d3 AS lbl_d3, p.d4 AS lbl_d4, p.d5 AS lbl_d5, ' +
+      '       k.s1, k.s2, k.s3, k.s4, k.s5, k.s6, k.s7, k.s8, k.s9, k.s10, ' +
+      '       k.i1, k.i2, k.i3, k.i4, k.i5, k.d1, k.d2, k.d3, k.d4, k.d5 ' +
+      '  FROM public.stk_card_kind_info k ' +
+      '  JOIN public.stk_kind_property p ON p.id = k.stk_kind_property_id ' +
+      ' WHERE k.stk_inventory_id = :stk_inventory_id';
+    Q.ParamByName('stk_inventory_id').AsLargeInt := AInventoryId;
+    LogQuery(Q, 'GetKindValues');
+    Q.Open;
+    if Q.IsEmpty then
+      Exit;
+
+    AKindName := Q.FieldByName('kind').AsString;
+    for LField in FIELDS do
+    begin
+      LCaption := Trim(Q.FieldByName('lbl_' + LField).AsString);
+      if LCaption = '' then
+        Continue;
+      LItem.Caption := LCaption;
+      LItem.Value := Q.FieldByName(LField).AsString;
+      Result := Result + [LItem];
+    end;
   finally
     Q.Free;
   end;
@@ -130,14 +277,17 @@ end;
 function TStkInventoryRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TStkInventory) +
-            ' (code, name, stk_group_id, stk_product_type_id, sys_uom_id, sellable, buying_price, buying_currency, buying_discount, sales_price, sales_currency, sales_discount, export_price, export_currency, special_code, brand, width, length, height, weight, supply_duration, min_stock_amount, sys_country_id, hs_no, diib_product_description, product_overview) ' +
-            ' VALUES (:code, :name, :stk_group_id, :stk_product_type_id, :sys_uom_id, :sellable, :buying_price, :buying_currency, :buying_discount, :sales_price, :sales_currency, :sales_discount, :export_price, :export_currency, :special_code, :brand, :width, :length, :height, :weight, :supply_duration, :min_stock_amount, :sys_country_id, :hs_no, :diib_product_description, :product_overview)';
+            ' (code, name, stk_group_id, stk_product_type_id, sys_uom_id, sellable, buying_price, buying_currency, buying_discount, sales_price, sales_currency, sales_discount, export_price, export_currency, special_code, brand, width, length, height, weight, supply_duration, min_stock_amount, sys_country_id, hs_no, diib_product_description, product_overview, ' +
+            ' vat_rate, raw_material_stock_account, raw_material_usage_account, semi_product_account, sales_account, sales_return_account, purchase_account, purchase_return_account) ' +
+            ' VALUES (:code, :name, :stk_group_id, :stk_product_type_id, :sys_uom_id, :sellable, :buying_price, :buying_currency, :buying_discount, :sales_price, :sales_currency, :sales_discount, :export_price, :export_currency, :special_code, :brand, :width, :length, :height, :weight, :supply_duration, :min_stock_amount, :sys_country_id, :hs_no, :diib_product_description, :product_overview, ' +
+            ' :vat_rate, :raw_material_stock_account, :raw_material_usage_account, :semi_product_account, :sales_account, :sales_return_account, :purchase_account, :purchase_return_account)';
 end;
 
 function TStkInventoryRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TStkInventory) +
-            ' SET code = :code, name = :name, stk_group_id = :stk_group_id, stk_product_type_id = :stk_product_type_id, sys_uom_id = :sys_uom_id, sellable = :sellable, buying_price = :buying_price, buying_currency = :buying_currency, buying_discount = :buying_discount, sales_price = :sales_price, sales_currency = :sales_currency, sales_discount = :sales_discount, export_price = :export_price, export_currency = :export_currency, special_code = :special_code, brand = :brand, width = :width, length = :length, height = :height, weight = :weight, supply_duration = :supply_duration, min_stock_amount = :min_stock_amount, sys_country_id = :sys_country_id, hs_no = :hs_no, diib_product_description = :diib_product_description, product_overview = :product_overview ' +
+            ' SET code = :code, name = :name, stk_group_id = :stk_group_id, stk_product_type_id = :stk_product_type_id, sys_uom_id = :sys_uom_id, sellable = :sellable, buying_price = :buying_price, buying_currency = :buying_currency, buying_discount = :buying_discount, sales_price = :sales_price, sales_currency = :sales_currency, sales_discount = :sales_discount, export_price = :export_price, export_currency = :export_currency, special_code = :special_code, brand = :brand, width = :width, length = :length, height = :height, weight = :weight, supply_duration = :supply_duration, min_stock_amount = :min_stock_amount, sys_country_id = :sys_country_id, hs_no = :hs_no, diib_product_description = :diib_product_description, product_overview = :product_overview, ' +
+            ' vat_rate = :vat_rate, raw_material_stock_account = :raw_material_stock_account, raw_material_usage_account = :raw_material_usage_account, semi_product_account = :semi_product_account, sales_account = :sales_account, sales_return_account = :sales_return_account, purchase_account = :purchase_account, purchase_return_account = :purchase_return_account ' +
             ' WHERE id = :id';
 end;
 
@@ -219,6 +369,7 @@ begin
   SetCode('sales_currency', AModel.SalesCurrency);
   SetCode('export_currency', AModel.ExportCurrency);
   SetNullableParam(Q.ParamByName('sys_country_id'), ftLargeint, AModel.SysCountryId, AIndex);
+  SetOverrideParams(Q, AModel, AIndex);
 end;
 
 procedure TStkInventoryRepository.SetUpdateParams(Q: TFDQuery; AModel: TStkInventory; AIndex: Integer);
@@ -295,6 +446,49 @@ begin
   SetCode('sales_currency', AModel.SalesCurrency);
   SetCode('export_currency', AModel.ExportCurrency);
   SetNullableParam(Q.ParamByName('sys_country_id'), ftLargeint, AModel.SysCountryId, AIndex);
+  SetOverrideParams(Q, AModel, AIndex);
+end;
+
+// Karta özel muhasebe ayarları: boş hesap / HasVatRate False = NULL (gruptan gelir)
+procedure TStkInventoryRepository.SetOverrideParams(Q: TFDQuery; AModel: TStkInventory; AIndex: Integer);
+
+  procedure SetCode(const AName, AValue: string);
+  begin
+    Q.ParamByName(AName).DataType := ftString;
+    if AValue <> '' then
+    begin
+      if AIndex < 0 then
+        Q.ParamByName(AName).AsString := AValue
+      else
+        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+    end
+    else if AIndex < 0 then
+      Q.ParamByName(AName).Clear
+    else
+      Q.ParamByName(AName).Clear(AIndex);
+  end;
+
+begin
+  Q.ParamByName('vat_rate').DataType := ftCurrency;
+  if AModel.HasVatRate then
+  begin
+    if AIndex < 0 then
+      Q.ParamByName('vat_rate').AsCurrency := AModel.VatRate
+    else
+      Q.ParamByName('vat_rate').AsCurrencys[AIndex] := AModel.VatRate;
+  end
+  else if AIndex < 0 then
+    Q.ParamByName('vat_rate').Clear
+  else
+    Q.ParamByName('vat_rate').Clear(AIndex);
+
+  SetCode('raw_material_stock_account', AModel.RawMaterialStockAccount);
+  SetCode('raw_material_usage_account', AModel.RawMaterialUsageAccount);
+  SetCode('semi_product_account', AModel.SemiProductAccount);
+  SetCode('sales_account', AModel.SalesAccount);
+  SetCode('sales_return_account', AModel.SalesReturnAccount);
+  SetCode('purchase_account', AModel.PurchaseAccount);
+  SetCode('purchase_return_account', AModel.PurchaseReturnAccount);
 end;
 
 function TStkInventoryRepository.MapFromQuery(Q: TFDQuery): TStkInventory;
@@ -333,6 +527,23 @@ begin
   Result.CountryName := Q.FieldByName('country_name').AsString;
   Result.CurrentQuantity := Q.FieldByName('current_quantity').AsString;
   Result.AverageCost := Q.FieldByName('average_cost').AsString;
+  Result.HasVatRate := not Q.FieldByName('vat_rate').IsNull;
+  Result.VatRate := Q.FieldByName('vat_rate').AsCurrency;
+  Result.RawMaterialStockAccount := Q.FieldByName('raw_material_stock_account').AsString;
+  Result.RawMaterialUsageAccount := Q.FieldByName('raw_material_usage_account').AsString;
+  Result.SemiProductAccount := Q.FieldByName('semi_product_account').AsString;
+  Result.SalesAccount := Q.FieldByName('sales_account').AsString;
+  Result.SalesReturnAccount := Q.FieldByName('sales_return_account').AsString;
+  Result.PurchaseAccount := Q.FieldByName('purchase_account').AsString;
+  Result.PurchaseReturnAccount := Q.FieldByName('purchase_return_account').AsString;
+  Result.DefaultVatRate := Q.FieldByName('default_vat_rate').AsString;
+  Result.DefaultRawMaterialStockAccount := Q.FieldByName('default_raw_material_stock_account').AsString;
+  Result.DefaultRawMaterialUsageAccount := Q.FieldByName('default_raw_material_usage_account').AsString;
+  Result.DefaultSemiProductAccount := Q.FieldByName('default_semi_product_account').AsString;
+  Result.DefaultSalesAccount := Q.FieldByName('default_sales_account').AsString;
+  Result.DefaultSalesReturnAccount := Q.FieldByName('default_sales_return_account').AsString;
+  Result.DefaultPurchaseAccount := Q.FieldByName('default_purchase_account').AsString;
+  Result.DefaultPurchaseReturnAccount := Q.FieldByName('default_purchase_return_account').AsString;
 end;
 
 function TStkInventoryRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

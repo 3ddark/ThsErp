@@ -1,49 +1,68 @@
-unit PrdLabour;
+﻿unit PrdLabour;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  SysUtils, Classes, Types, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('prd_labour')]
   TPrdLabour = class(TEntity)
   private
-    FCostCode: string;
-    FCostName: string;
-    FUnitPrice: double;
+    FCode: string;
+    FName: string;
+    FCostType: SmallInt;
+    FSysUomId: Int64;
+    FUnitPrice: Currency;
+    FCurrency: string;
+    FAccAccountCode: string;
+
+    // View (vw_prd_labour) okunabilir alanları
     FUomCode: string;
-    FCostType: Smallint;
+    FAccountName: string;
   public
-    [Column('cost_code')]
-    [Required]
-    [MaxLength(16)]
-    property CostCode: string read FCostCode write FCostCode;
+    [Column('code')]
+    [MaxLength(16), Required(TLangKeys.TValidation.Required, True)]
+    property Code: string read FCode write FCode;
 
-    [Column('cost_name')]
-    [MaxLength(128)]
-    property CostName: string read FCostName write FCostName;
-
-    [Column('unit_price')]
-    [Required]
-    property UnitPrice: double read FUnitPrice write FUnitPrice;
-
-    [Column('uom_code')]
-    [Required]
-    [MaxLength(8)]
-    property UomCode: string read FUomCode write FUomCode;
+    [Column('name')]
+    [MaxLength(128), Required(TLangKeys.TValidation.Required, True)]
+    property Name: string read FName write FName;
 
     [Column('cost_type')]
-    [Required]
-    property CostType: Smallint read FCostType write FCostType;
+    property CostType: SmallInt read FCostType write FCostType;
+
+    [Column('sys_uom_id')]
+    property SysUomId: Int64 read FSysUomId write FSysUomId;
+
+    [Column('unit_price')]
+    property UnitPrice: Currency read FUnitPrice write FUnitPrice;
+
+    [Column('currency')]
+    [MaxLength(3)]
+    property Currency: string read FCurrency write FCurrency;
+
+    [Column('acc_account_code')]
+    [MaxLength(16)]
+    property AccAccountCode: string read FAccAccountCode write FAccAccountCode;
+
+    [NotMapped]
+    property UomCode: string read FUomCode write FUomCode;
+
+    [NotMapped]
+    property AccountName: string read FAccountName write FAccountName;
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TPrdLabour;
   end;
 
 implementation
 
-constructor TPrdLabour.Create();
+constructor TPrdLabour.Create;
 begin
   inherited;
 end;
@@ -51,6 +70,21 @@ end;
 destructor TPrdLabour.Destroy;
 begin
   inherited;
+end;
+
+function TPrdLabour.Clone: TPrdLabour;
+begin
+  Result := TPrdLabour.Create;
+  Result.Id := Self.Id;
+  Result.Code := Self.Code;
+  Result.Name := Self.Name;
+  Result.CostType := Self.CostType;
+  Result.SysUomId := Self.SysUomId;
+  Result.UnitPrice := Self.UnitPrice;
+  Result.Currency := Self.Currency;
+  Result.AccAccountCode := Self.AccAccountCode;
+  Result.UomCode := Self.UomCode;
+  Result.AccountName := Self.AccountName;
 end;
 
 end.

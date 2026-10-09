@@ -1,17 +1,42 @@
-unit PrdPacketLabourDetail.Repository;
+﻿unit PrdPacketLabourDetail.Repository;
 
 interface
 
 uses
-  SysUtils, Classes, Contnrs, Types, DB, System.Generics.Collections,
-  FireDAC.Comp.Client, Entity, Repository, PrdPacketLabourDetail, FilterCriterion;
+  SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, FilterCriterion,
+  AppContext, PrdPacketLabourDetail;
 
 type
   TPrdPacketLabourDetailRepository = class(TRepository<TPrdPacketLabourDetail>)
+  protected
+    function PrepareAddSql: string;
+    function PrepareUpdateSql: string;
+    function PrepareDeleteSql: string;
+
+    procedure SetInsertParams(Q: TFDQuery; AModel: TPrdPacketLabourDetail; AIndex: Integer = -1);
+    procedure SetUpdateParams(Q: TFDQuery; AModel: TPrdPacketLabourDetail; AIndex: Integer = -1);
+    function MapFromQuery(Q: TFDQuery): TPrdPacketLabourDetail; override;
+
+    function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
+
+    function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TPrdPacketLabourDetail>; override;
+    function DoFindById(AId: TValue; ALock: Boolean = False): TPrdPacketLabourDetail; override;
+    function DoFindOne(AFilter: TFilterCriteria; ALock: Boolean = False): TPrdPacketLabourDetail; override;
+
+    procedure DoAdd(AModel: TPrdPacketLabourDetail); override;
+    procedure DoAddBatch(AModels: TArray<TPrdPacketLabourDetail>); override;
+
+    procedure DoUpdate(AModel: TPrdPacketLabourDetail); override;
+    procedure DoUpdateBatch(AModels: TArray<TPrdPacketLabourDetail>); override;
+
+    procedure DoDelete(AID: TValue); override;
+    procedure DoDelete(AModel: TPrdPacketLabourDetail); override;
+    procedure DoDeleteBatch(AModels: TArray<TPrdPacketLabourDetail>); override;
+    procedure DoDeleteBatch(AIDs: TArray<TValue>); override;
+    procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
-    function FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
-    procedure Delete(AModel: TPrdPacketLabourDetail; ACascade: TCascadeOperations = []); override;
   end;
 
 implementation
@@ -21,19 +46,349 @@ begin
   inherited Create(AConnection);
 end;
 
-function TPrdPacketLabourDetailRepository.FindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
-var LTableName: string;
+function TPrdPacketLabourDetailRepository.PrepareAddSql: string;
 begin
-  LTableName := GetTableName(TPrdPacketLabourDetail);
-
-  Result := TFDQuery.Create(nil);
-  Result.Connection := Self.Connection;
-  Result.SQL.Text := 'SELECT * FROM ' + LTableName + ' WHERE 1=1 ';
+  Result := 'INSERT INTO public.' + Self.GetTableName(TPrdPacketLabourDetail) +
+            ' (prd_packet_labour_id, prd_labour_id, quantity) ' +
+            ' VALUES (:prd_packet_labour_id, :prd_labour_id, :quantity)';
 end;
 
-procedure TPrdPacketLabourDetailRepository.Delete(AModel: TPrdPacketLabourDetail; ACascade: TCascadeOperations);
+function TPrdPacketLabourDetailRepository.PrepareUpdateSql: string;
 begin
-  Delete(AModel.Id, ACascade);
+  Result := 'UPDATE public.' + Self.GetTableName(TPrdPacketLabourDetail) +
+            ' SET prd_packet_labour_id = :prd_packet_labour_id, prd_labour_id = :prd_labour_id, quantity = :quantity ' +
+            ' WHERE id = :id';
+end;
+
+function TPrdPacketLabourDetailRepository.PrepareDeleteSql: string;
+begin
+  //WHERE kısmı özellikle böyle yazıldı. Filtre vermeden işlem yapılmaması için. Hatalı kodlamada tüm tabloyu siler.
+  Result := 'DELETE FROM public.' + Self.GetTableName(TPrdPacketLabourDetail) + ' WHERE';
+end;
+
+procedure TPrdPacketLabourDetailRepository.SetInsertParams(Q: TFDQuery; AModel: TPrdPacketLabourDetail; AIndex: Integer);
+begin
+  if AIndex < 0 then
+  begin
+    Q.ParamByName('quantity').AsCurrency := AModel.Quantity;
+  end
+  else
+  begin
+    Q.ParamByName('quantity').AsCurrencys[AIndex] := AModel.Quantity;
+  end;
+
+  SetNullableParam(Q.ParamByName('prd_packet_labour_id'), ftLargeint, AModel.PrdPacketLabourId, AIndex);
+  SetNullableParam(Q.ParamByName('prd_labour_id'), ftLargeint, AModel.PrdLabourId, AIndex);
+end;
+
+procedure TPrdPacketLabourDetailRepository.SetUpdateParams(Q: TFDQuery; AModel: TPrdPacketLabourDetail; AIndex: Integer);
+begin
+  if AIndex < 0 then
+  begin
+    Q.ParamByName('id').AsLargeInt := AModel.Id;
+    Q.ParamByName('quantity').AsCurrency := AModel.Quantity;
+  end
+  else
+  begin
+    Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('quantity').AsCurrencys[AIndex] := AModel.Quantity;
+  end;
+
+  SetNullableParam(Q.ParamByName('prd_packet_labour_id'), ftLargeint, AModel.PrdPacketLabourId, AIndex);
+  SetNullableParam(Q.ParamByName('prd_labour_id'), ftLargeint, AModel.PrdLabourId, AIndex);
+end;
+
+function TPrdPacketLabourDetailRepository.MapFromQuery(Q: TFDQuery): TPrdPacketLabourDetail;
+begin
+  Result := TPrdPacketLabourDetail.Create;
+  Result.Id := Q.FieldByName('id').AsLargeInt;
+  Result.PrdPacketLabourId := Q.FieldByName('prd_packet_labour_id').AsLargeInt;
+  Result.PrdLabourId := Q.FieldByName('prd_labour_id').AsLargeInt;
+  Result.Quantity := Q.FieldByName('quantity').AsCurrency;
+  Result.PacketName := Q.FieldByName('packet_name').AsString;
+  Result.LabourCode := Q.FieldByName('labour_code').AsString;
+  Result.LabourName := Q.FieldByName('labour_name').AsString;
+  Result.UnitPrice := Q.FieldByName('unit_price').AsString;
+  Result.Currency := Q.FieldByName('currency').AsString;
+  Result.TotalAmount := Q.FieldByName('total_amount').AsString;
+end;
+
+function TPrdPacketLabourDetailRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
+var
+  Criteria: TFilterCriterion;
+  SelectCols: string;
+begin
+  SelectCols := Self.BuildSelectColumns(['id']);
+  Result := TFDQuery.Create(nil);
+  Result.Connection := Self.Connection;
+  Result.SQL.Text := 'SELECT ' + SelectCols + ' FROM ' + Self.GetFullViewName(TPrdPacketLabourDetail) + ' WHERE 1=1 ';
+
+  if Assigned(AFilter) and (AFilter.Count > 0) then
+  begin
+    for Criteria in AFilter do
+      Result.SQL.Text := Result.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.ParamName;
+    for Criteria in AFilter do
+      Result.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+  end;
+end;
+
+function TPrdPacketLabourDetailRepository.DoFind(AFilter: TFilterCriteria; ALock: Boolean): TObjectList<TPrdPacketLabourDetail>;
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriterion;
+begin
+  Result := TObjectList<TPrdPacketLabourDetail>.Create(True);
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, False, False);
+
+    if Assigned(AFilter) and (AFilter.Count > 0) then
+      for Criteria in AFilter do
+        Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+
+    LogQuery(Q, 'DoFind');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TPrdPacketLabourDetailRepository.DoFindById(AId: TValue; ALock: Boolean): TPrdPacketLabourDetail;
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriteria;
+begin
+  Result := nil;
+  Q := TFDQuery.Create(nil);
+  Criteria := TFilterCriteria.Create;
+  try
+    Q.Connection := Connection;
+
+    Criteria.Add(TFilterCriterion.New('id', '=', AId));
+    Q.SQL.Text := Self.PrepareSelectFromView(Criteria, ALock, True, False);
+
+    Q.ParamByName('id').AsLargeInt := AId.AsInt64;
+    LogQuery(Q, 'DoFindById');
+    Q.Open;
+
+    if not Q.IsEmpty then
+      Result := MapFromQuery(Q);
+  finally
+    Q.Free;
+    Criteria.Free;
+  end;
+end;
+
+function TPrdPacketLabourDetailRepository.DoFindOne(AFilter: TFilterCriteria; ALock: Boolean): TPrdPacketLabourDetail;
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriterion;
+begin
+  Result := nil;
+  if not Assigned(AFilter) or (AFilter.Count = 0) then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := Self.PrepareSelectFromView(AFilter, ALock, True, False);
+
+    for Criteria in AFilter do
+      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+    LogQuery(Q, 'DoFindOne');
+    Q.Open;
+
+    if not Q.IsEmpty then
+      Result := MapFromQuery(Q);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TPrdPacketLabourDetailRepository.DoAdd(AModel: TPrdPacketLabourDetail);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareAddSql + ' RETURNING id';
+    SetInsertParams(Q, AModel);
+    LogQuery(Q, 'DoAdd');
+    Q.Open;
+    AModel.Id := Q.FieldByName('id').AsLargeInt;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TPrdPacketLabourDetailRepository.DoAddBatch(AModels: TArray<TPrdPacketLabourDetail>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareAddSql;
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      SetInsertParams(Q, AModels[I], I);
+
+    LogQuery(Q, 'DoAddBatch');
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TPrdPacketLabourDetailRepository.DoUpdate(AModel: TPrdPacketLabourDetail);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareUpdateSql;
+    SetUpdateParams(Q, AModel);
+    LogQuery(Q, 'DoUpdate');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TPrdPacketLabourDetailRepository.DoUpdateBatch(AModels: TArray<TPrdPacketLabourDetail>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareUpdateSql;
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      SetUpdateParams(Q, AModels[I], I);
+
+    LogQuery(Q, 'DoUpdateBatch');
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TPrdPacketLabourDetailRepository.DoDelete(AID: TValue);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.ParamByName('id').AsLargeInt := AID.AsInt64;
+    LogQuery(Q, 'DoDelete');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TPrdPacketLabourDetailRepository.DoDelete(AModel: TPrdPacketLabourDetail);
+begin
+  Delete(AModel.Id);
+end;
+
+procedure TPrdPacketLabourDetailRepository.DoDeleteBatch(AModels: TArray<TPrdPacketLabourDetail>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AModels);
+  if Count = 0 then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      Q.ParamByName('id').AsLargeInts[I] := AModels[I].Id;
+
+    LogQuery(Q, 'DoDeleteBatch');
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TPrdPacketLabourDetailRepository.DoDeleteBatch(AIDs: TArray<TValue>);
+var
+  Q: TFDQuery;
+  I, Count: Integer;
+begin
+  Count := Length(AIDs);
+  if Count = 0 then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' id = :id';
+    Q.Params.ArraySize := Count;
+
+    for I := 0 to Count - 1 do
+      Q.ParamByName('id').AsLargeInts[I] := AIDs[I].AsInt64;
+
+    LogQuery(Q, 'DoDeleteBatch');
+    Q.Execute(Count, 0);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TPrdPacketLabourDetailRepository.DoDeleteBatch(AFilter: TFilterCriteria);
+var
+  Q: TFDQuery;
+  Criteria: TFilterCriterion;
+begin
+  if not Assigned(AFilter) or (AFilter.Count = 0) then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := PrepareDeleteSql + ' 1=1 ';
+
+    for Criteria in AFilter do
+      Q.SQL.Text := Q.SQL.Text + ' AND ' + Criteria.FieldName + ' ' + Criteria.Operator + ' :' + Criteria.ParamName;
+
+    for Criteria in AFilter do
+      Q.ParamByName(Criteria.ParamName).Value := Criteria.Value.AsVariant;
+
+    LogQuery(Q, 'DoDeleteBatch');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
 end;
 
 end.

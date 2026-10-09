@@ -7,7 +7,7 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls, System.Generics.Collections,
+  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Grids, System.Generics.Collections,
   ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
   StkInventory.Service, StkInventory;
@@ -15,6 +15,8 @@ uses
 type
   TfrmStkInventory = class(TfrmInputSimpleDB<TStkInventory, TStkInventoryService>)
     pnlContent: TPanel;
+    pgcMain: TPageControl;
+    tsGeneral: TTabSheet;
     lblCode: TLabel;
     edtCode: TEdit;
     lblName: TLabel;
@@ -27,26 +29,14 @@ type
     edtSysUomId: TEdit;
     lblSellable: TLabel;
     chkSellable: TCheckBox;
-    lblBuyingPrice: TLabel;
-    edtBuyingPrice: TEdit;
-    lblBuyingCurrency: TLabel;
-    edtBuyingCurrency: TEdit;
-    lblBuyingDiscount: TLabel;
-    edtBuyingDiscount: TEdit;
-    lblSalesPrice: TLabel;
-    edtSalesPrice: TEdit;
-    lblSalesCurrency: TLabel;
-    edtSalesCurrency: TEdit;
-    lblSalesDiscount: TLabel;
-    edtSalesDiscount: TEdit;
-    lblExportPrice: TLabel;
-    edtExportPrice: TEdit;
-    lblExportCurrency: TLabel;
-    edtExportCurrency: TEdit;
     lblSpecialCode: TLabel;
     edtSpecialCode: TEdit;
     lblBrand: TLabel;
     edtBrand: TEdit;
+    lblMinStockAmount: TLabel;
+    edtMinStockAmount: TEdit;
+    lblSupplyDuration: TLabel;
+    edtSupplyDuration: TEdit;
     lblWidth: TLabel;
     edtWidth: TEdit;
     lblLength: TLabel;
@@ -55,10 +45,6 @@ type
     edtHeight: TEdit;
     lblWeight: TLabel;
     edtWeight: TEdit;
-    lblSupplyDuration: TLabel;
-    edtSupplyDuration: TEdit;
-    lblMinStockAmount: TLabel;
-    edtMinStockAmount: TEdit;
     lblSysCountryId: TLabel;
     edtSysCountryId: TEdit;
     lblHsNo: TLabel;
@@ -72,8 +58,90 @@ type
     imgImage: TImage;
     btnImageLoad: TButton;
     btnImageClear: TButton;
+    tsMonetary: TTabSheet;
+    lblBuyingPrice: TLabel;
+    edtBuyingPrice: TEdit;
+    lblBuyingCurrency: TLabel;
+    edtBuyingCurrency: TEdit;
+    lblBuyingDiscount: TLabel;
+    edtBuyingDiscount: TEdit;
+    lblExportPrice: TLabel;
+    edtExportPrice: TEdit;
+    lblExportCurrency: TLabel;
+    edtExportCurrency: TEdit;
+    lblSalesPrice: TLabel;
+    edtSalesPrice: TEdit;
+    lblSalesCurrency: TLabel;
+    edtSalesCurrency: TEdit;
+    lblSalesDiscount: TLabel;
+    edtSalesDiscount: TEdit;
+    lblCurrentQuantity: TLabel;
+    lblCurrentQuantityVal: TLabel;
+    lblAverageCost: TLabel;
+    lblAverageCostVal: TLabel;
+    tsKind: TTabSheet;
+    lblKindName: TLabel;
+    btnKindEdit: TButton;
+    grdKindValues: TStringGrid;
+    tsAccounting: TTabSheet;
+    lblAccountingInfo: TLabel;
+    lblOverrideHeader: TLabel;
+    lblDefaultHeader: TLabel;
+    lblVatRate: TLabel;
+    edtVatRate: TEdit;
+    lblDefaultVatRate: TLabel;
+    lblRawMaterialStockAccount: TLabel;
+    edtRawMaterialStockAccount: TEdit;
+    lblDefaultRawMaterialStockAccount: TLabel;
+    lblRawMaterialUsageAccount: TLabel;
+    edtRawMaterialUsageAccount: TEdit;
+    lblDefaultRawMaterialUsageAccount: TLabel;
+    lblSemiProductAccount: TLabel;
+    edtSemiProductAccount: TEdit;
+    lblDefaultSemiProductAccount: TLabel;
+    lblSalesAccount: TLabel;
+    edtSalesAccount: TEdit;
+    lblDefaultSalesAccount: TLabel;
+    lblSalesReturnAccount: TLabel;
+    edtSalesReturnAccount: TEdit;
+    lblDefaultSalesReturnAccount: TLabel;
+    lblPurchaseAccount: TLabel;
+    edtPurchaseAccount: TEdit;
+    lblDefaultPurchaseAccount: TLabel;
+    lblPurchaseReturnAccount: TLabel;
+    edtPurchaseReturnAccount: TEdit;
+    lblDefaultPurchaseReturnAccount: TLabel;
+    tsSummary: TTabSheet;
+    lblSumCurrentQuantity: TLabel;
+    lblSumCurrentQuantityVal: TLabel;
+    lblSumAverageCost: TLabel;
+    lblSumAverageCostVal: TLabel;
+    lblSumOpeningQuantity: TLabel;
+    lblSumOpeningQuantityVal: TLabel;
+    lblSumOpeningPrice: TLabel;
+    lblSumOpeningPriceVal: TLabel;
+    lblSumOpeningAmount: TLabel;
+    lblSumOpeningAmountVal: TLabel;
+    lblSumIncomingQuantity: TLabel;
+    lblSumIncomingQuantityVal: TLabel;
+    lblSumIncomingAmount: TLabel;
+    lblSumIncomingAmountVal: TLabel;
+    lblSumOutgoingQuantity: TLabel;
+    lblSumOutgoingQuantityVal: TLabel;
+    lblSumOutgoingAmount: TLabel;
+    lblSumOutgoingAmountVal: TLabel;
+    lblSumLastBuyDate: TLabel;
+    lblSumLastBuyDateVal: TLabel;
+    lblSumLastBuyQuantity: TLabel;
+    lblSumLastBuyQuantityVal: TLabel;
+    lblSumLastBuyPrice: TLabel;
+    lblSumLastBuyPriceVal: TLabel;
+    lblWarehouseStocks: TLabel;
+    grdWarehouseStocks: TStringGrid;
     procedure btnImageLoadClick(Sender: TObject);
     procedure btnImageClearClick(Sender: TObject);
+    procedure btnKindEditClick(Sender: TObject);
+    procedure edtVatRateExit(Sender: TObject);
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -82,6 +150,14 @@ type
     FImageBytes: TBytes;
     FImageChanged: Boolean;
     procedure ShowImage(const ABytes: TBytes);
+    // Grup / KDV oranı değişince gruptan gelen değerler yeniden okunur
+    procedure ApplyVatRateText;
+    procedure ReloadDefaults;
+    procedure RefreshDefaultLabels;
+    procedure LoadKindInfo;
+    procedure LoadSummary;
+    procedure ClearSummary;
+    function IsSavedRecord: Boolean;
   public
     procedure HelperProcess(Sender: TObject);
     procedure RefreshData; override;
@@ -98,6 +174,9 @@ uses
   SysUom, SysUom.Service, ufrmSysUoms,                                          // TfrmSysUoms helper output form
   SysCurrency, SysCurrency.Service, ufrmSysCurrencies,                          // TfrmSysCurrencies helper output form
   SysCountry, SysCountry.Service, ufrmSysCountries,                             // TfrmSysCountries helper output form
+  AccAccount, AccAccount.Service, ufrmAccAccounts,                              // TfrmAccAccounts helper output form
+  StkCardKindInfo, StkCardKindInfo.Service, ufrmStkCardKindInfos,               // TfrmStkCardKindInfos
+  StkInventorySummary,
   System.IOUtils, Vcl.ExtDlgs;
 
 const
@@ -105,7 +184,7 @@ const
 
 procedure TfrmStkInventory.BtnAcceptClick(Sender: TObject);
 begin
-  // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
+  // FK id'leri ve karta özel hesaplar HelperProcess içinde doğrudan Table'a yazılır
   Table.Code := edtCode.Text;
   Table.Name := edtName.Text;
   Table.Sellable := chkSellable.Checked;
@@ -125,6 +204,7 @@ begin
   Table.HsNo := edtHsNo.Text;
   Table.DiibProductDescription := edtDiibProductDescription.Text;
   Table.ProductOverview := mmoProductOverview.Lines.Text;
+  ApplyVatRateText;
 
   if FImageChanged then
     Table.Image := FImageBytes
@@ -137,6 +217,7 @@ procedure TfrmStkInventory.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+  pgcMain.ActivePage := tsGeneral;
   edtStkGroupId.OnHelperProcess := HelperProcess;
   edtStkProductTypeId.OnHelperProcess := HelperProcess;
   edtSysUomId.OnHelperProcess := HelperProcess;
@@ -144,6 +225,13 @@ begin
   edtSalesCurrency.OnHelperProcess := HelperProcess;
   edtExportCurrency.OnHelperProcess := HelperProcess;
   edtSysCountryId.OnHelperProcess := HelperProcess;
+  edtRawMaterialStockAccount.OnHelperProcess := HelperProcess;
+  edtRawMaterialUsageAccount.OnHelperProcess := HelperProcess;
+  edtSemiProductAccount.OnHelperProcess := HelperProcess;
+  edtSalesAccount.OnHelperProcess := HelperProcess;
+  edtSalesReturnAccount.OnHelperProcess := HelperProcess;
+  edtPurchaseAccount.OnHelperProcess := HelperProcess;
+  edtPurchaseReturnAccount.OnHelperProcess := HelperProcess;
   edtCode.thsInputDataType := itString;
   edtCode.CharCase := TEditCharCase.ecUpperCase;
   edtName.thsInputDataType := itString;
@@ -163,11 +251,15 @@ begin
   edtHsNo.thsInputDataType := itString;
   edtHsNo.CharCase := TEditCharCase.ecUpperCase;
   edtDiibProductDescription.thsInputDataType := itString;
+  // Boş = grubun KDV oranı; 0 geçerli bir karta özel orandır (itFloat: DoExit '0' değerini silmez)
+  edtVatRate.thsInputDataType := itFloat;
+  edtVatRate.OnExit := edtVatRateExit;
 end;
 
 procedure TfrmStkInventory.FormShow(Sender: TObject);
 begin
   inherited;
+  pgcMain.ActivePage := tsGeneral;
   if edtCode.CanFocus then
     edtCode.SetFocus;
 end;
@@ -176,6 +268,12 @@ procedure TfrmStkInventory.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.TitleSingular, 'Stock Card');
+  tsGeneral.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.TabGeneral, 'General');
+  tsMonetary.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.TabMonetary, 'Monetary');
+  tsKind.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.TabKind, 'Kind Properties');
+  tsAccounting.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.TabAccounting, 'Group Properties / Accounting');
+  tsSummary.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.TabSummary, 'Summary');
+
   lblCode.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColCode, 'Stock Code');
   lblName.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColName, 'Stock Name');
   lblStkGroupId.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColGroup, 'Group');
@@ -190,6 +288,8 @@ begin
   lblSalesDiscount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColSalesDiscount, 'Sales Discount (%)');
   lblExportPrice.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColExportPrice, 'Export Price');
   lblExportCurrency.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColExportCurrency, 'Export Currency');
+  lblCurrentQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColCurrentQuantity, 'Current Quantity');
+  lblAverageCost.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColAverageCost, 'Average Cost');
   lblSpecialCode.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColSpecialCode, 'Special Code');
   lblBrand.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColBrand, 'Brand');
   lblWidth.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColWidth, 'Width');
@@ -205,6 +305,43 @@ begin
   lblImage.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.Image, 'Image');
   btnImageLoad.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ImageLoad, 'Load...');
   btnImageClear.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ImageClear, 'Clear');
+
+  // Cins özelliği
+  btnKindEdit.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.KindEdit, 'Edit Kind Information...');
+  grdKindValues.Cells[0, 0] := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColProperty, 'Property');
+  grdKindValues.Cells[1, 0] := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColValue, 'Value');
+
+  // Grup özellikleri / muhasebe
+  lblAccountingInfo.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.AccountingInfo,
+    'Empty fields use the stock group value (VAT accounts: the tax rate row of the effective VAT rate). Fill a field to override it for this card only.');
+  lblOverrideHeader.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.LblOverride, 'Card Specific');
+  lblVatRate.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColVatRate, 'VAT Rate (%)');
+  lblRawMaterialStockAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColRawMaterialStockAccount, 'Raw Material Stock Account');
+  lblRawMaterialUsageAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColRawMaterialUsageAccount, 'Raw Material Usage Account');
+  lblSemiProductAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColSemiProductAccount, 'Semi-Product Account');
+  lblSalesAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColSalesAccount, 'Sales VAT Account');
+  lblSalesReturnAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColSalesReturnAccount, 'Sales Return VAT Account');
+  lblPurchaseAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColPurchaseAccount, 'Purchase VAT Account');
+  lblPurchaseReturnAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColPurchaseReturnAccount, 'Purchase Return VAT Account');
+  if Assigned(Table) then
+    RefreshDefaultLabels;
+
+  // Özetler
+  lblSumCurrentQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColCurrentQuantity, 'Current Quantity');
+  lblSumAverageCost.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColAverageCost, 'Average Cost');
+  lblSumOpeningQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColOpeningQuantity, 'Opening Quantity');
+  lblSumOpeningPrice.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColOpeningPrice, 'Opening Price');
+  lblSumOpeningAmount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColOpeningAmount, 'Opening Amount');
+  lblSumIncomingQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColIncomingQuantity, 'Incoming Quantity');
+  lblSumIncomingAmount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColIncomingAmount, 'Incoming Amount');
+  lblSumOutgoingQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColOutgoingQuantity, 'Outgoing Quantity');
+  lblSumOutgoingAmount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColOutgoingAmount, 'Outgoing Amount');
+  lblSumLastBuyDate.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColLastBuyDate, 'Last Buy Date');
+  lblSumLastBuyQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColLastBuyQuantity, 'Last Buy Quantity');
+  lblSumLastBuyPrice.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventorySummary.ColLastBuyPrice, 'Last Buy Price');
+  lblWarehouseStocks.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.WarehouseStocks, 'Warehouse Stock Status');
+  grdWarehouseStocks.Cells[0, 0] := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColWarehouse, 'Warehouse');
+  grdWarehouseStocks.Cells[1, 0] := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColQuantity, 'Quantity');
 end;
 
 procedure TfrmStkInventory.HelperProcess(Sender: TObject);
@@ -217,6 +354,30 @@ var
   LFrmSalesCurrency: TfrmSysCurrencies;
   LFrmExportCurrency: TfrmSysCurrencies;
   LFrmSysCountryId: TfrmSysCountries;
+  LAccount: string;
+
+  // Hesap planından seçim; temizle = karta özel değer kaldırılır (gruptan gelir)
+  function PickAccount(out ACode: string): Boolean;
+  var
+    LFrmAccount: TfrmAccAccounts;
+  begin
+    Result := False;
+    ACode := '';
+    LFrmAccount := TfrmAccAccounts.Create(LEdit, TAccAccountService.Create, TAccAccount.Create);
+    try
+      LFrmAccount.IsHelper := True;
+      LFrmAccount.ShowModal;
+      if LFrmAccount.DataTransfer then
+      begin
+        Result := True;
+        if not LFrmAccount.CleanAndClose then
+          ACode := LFrmAccount.Table.Code;
+      end;
+    finally
+      LFrmAccount.Free;
+    end;
+  end;
+
 begin
   if not (Sender is TEdit) then
     Exit;
@@ -229,6 +390,7 @@ begin
       LFrmStkGroupId.IsHelper := True;
       LFrmStkGroupId.ShowModal;
       if LFrmStkGroupId.DataTransfer then
+      begin
         if LFrmStkGroupId.CleanAndClose then
         begin
           Table.StkGroupId := 0;
@@ -241,6 +403,8 @@ begin
           Table.GroupName := LFrmStkGroupId.Table.Name;
           LEdit.Text := Table.GroupName;
         end;
+        ReloadDefaults;
+      end;
     finally
       LFrmStkGroupId.Free;
     end;
@@ -376,6 +540,30 @@ begin
     finally
       LFrmSysCountryId.Free;
     end;
+  end
+  else if (LEdit = edtRawMaterialStockAccount) or (LEdit = edtRawMaterialUsageAccount) or
+          (LEdit = edtSemiProductAccount) or (LEdit = edtSalesAccount) or (LEdit = edtSalesReturnAccount) or
+          (LEdit = edtPurchaseAccount) or (LEdit = edtPurchaseReturnAccount) then
+  begin
+    if not PickAccount(LAccount) then
+      Exit;
+
+    if LEdit = edtRawMaterialStockAccount then
+      Table.RawMaterialStockAccount := LAccount
+    else if LEdit = edtRawMaterialUsageAccount then
+      Table.RawMaterialUsageAccount := LAccount
+    else if LEdit = edtSemiProductAccount then
+      Table.SemiProductAccount := LAccount
+    else if LEdit = edtSalesAccount then
+      Table.SalesAccount := LAccount
+    else if LEdit = edtSalesReturnAccount then
+      Table.SalesReturnAccount := LAccount
+    else if LEdit = edtPurchaseAccount then
+      Table.PurchaseAccount := LAccount
+    else if LEdit = edtPurchaseReturnAccount then
+      Table.PurchaseReturnAccount := LAccount;
+    LEdit.Text := LAccount;
+    RefreshDefaultLabels;
   end;
 end;
 
@@ -409,9 +597,226 @@ begin
   edtDiibProductDescription.Text := Table.DiibProductDescription;
   mmoProductOverview.Lines.Text := Table.ProductOverview;
 
+  // Karta özel muhasebe ayarları
+  if Table.HasVatRate then
+    edtVatRate.Text := CurrToStr(Table.VatRate)
+  else
+    edtVatRate.Text := '';
+  edtRawMaterialStockAccount.Text := Table.RawMaterialStockAccount;
+  edtRawMaterialUsageAccount.Text := Table.RawMaterialUsageAccount;
+  edtSemiProductAccount.Text := Table.SemiProductAccount;
+  edtSalesAccount.Text := Table.SalesAccount;
+  edtSalesReturnAccount.Text := Table.SalesReturnAccount;
+  edtPurchaseAccount.Text := Table.PurchaseAccount;
+  edtPurchaseReturnAccount.Text := Table.PurchaseReturnAccount;
+  // Yeni kayıtta / kopyada view değerleri yok: gruptan gelenler yeniden okunur
+  if not IsSavedRecord then
+    ReloadDefaults
+  else
+    RefreshDefaultLabels;
+
   FImageBytes := Copy(Table.Image);
   FImageChanged := False;
   ShowImage(FImageBytes);
+
+  if IsSavedRecord then
+  begin
+    lblCurrentQuantityVal.Caption := Table.CurrentQuantity;
+    lblAverageCostVal.Caption := Table.AverageCost;
+  end
+  else
+  begin
+    lblCurrentQuantityVal.Caption := '-';
+    lblAverageCostVal.Caption := '-';
+  end;
+  LoadKindInfo;
+  LoadSummary;
+end;
+
+// Kopya (ifmCopyNewRecord) kaynak kaydın Id'sini taşır; cins/özet yalnız kayıtlı kart için gösterilir
+function TfrmStkInventory.IsSavedRecord: Boolean;
+begin
+  Result := (FormMode in [ifmRewiev, ifmUpdate, ifmReadOnly]) and (Table.Id > 0);
+end;
+
+procedure TfrmStkInventory.ApplyVatRateText;
+var
+  LValue: Currency;
+begin
+  if Trim(edtVatRate.Text) = '' then
+  begin
+    Table.HasVatRate := False;
+    Table.VatRate := 0;
+  end
+  else if TryStrToCurr(Trim(edtVatRate.Text), LValue) then
+  begin
+    Table.HasVatRate := True;
+    Table.VatRate := LValue;
+  end;
+end;
+
+procedure TfrmStkInventory.edtVatRateExit(Sender: TObject);
+var
+  LHadValue: Boolean;
+  LOldValue: Currency;
+begin
+  LHadValue := Table.HasVatRate;
+  LOldValue := Table.VatRate;
+  ApplyVatRateText;
+  if (LHadValue <> Table.HasVatRate) or (LOldValue <> Table.VatRate) then
+    ReloadDefaults;
+end;
+
+procedure TfrmStkInventory.ReloadDefaults;
+begin
+  Service.FillDefaults(Table);
+  RefreshDefaultLabels;
+end;
+
+procedure TfrmStkInventory.RefreshDefaultLabels;
+
+  procedure Show(ALabel: TLabel; const ADefault, AOverride: string);
+  begin
+    if ADefault = '' then
+      ALabel.Caption := '-'
+    else
+      ALabel.Caption := ADefault;
+    // Karta özel değer girilmişse gruptan gelen değer pasif görünür
+    if AOverride <> '' then
+      ALabel.Font.Color := clGrayText
+    else
+      ALabel.Font.Color := clWindowText;
+  end;
+
+var
+  LVatOverride: string;
+begin
+  lblDefaultHeader.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.LblDefault, 'From Group');
+  if Table.GroupName <> '' then
+    lblDefaultHeader.Caption := lblDefaultHeader.Caption + ' (' + Table.GroupName + ')';
+
+  if Table.HasVatRate then
+    LVatOverride := CurrToStr(Table.VatRate)
+  else
+    LVatOverride := '';
+  Show(lblDefaultVatRate, Table.DefaultVatRate, LVatOverride);
+  Show(lblDefaultRawMaterialStockAccount, Table.DefaultRawMaterialStockAccount, Table.RawMaterialStockAccount);
+  Show(lblDefaultRawMaterialUsageAccount, Table.DefaultRawMaterialUsageAccount, Table.RawMaterialUsageAccount);
+  Show(lblDefaultSemiProductAccount, Table.DefaultSemiProductAccount, Table.SemiProductAccount);
+  Show(lblDefaultSalesAccount, Table.DefaultSalesAccount, Table.SalesAccount);
+  Show(lblDefaultSalesReturnAccount, Table.DefaultSalesReturnAccount, Table.SalesReturnAccount);
+  Show(lblDefaultPurchaseAccount, Table.DefaultPurchaseAccount, Table.PurchaseAccount);
+  Show(lblDefaultPurchaseReturnAccount, Table.DefaultPurchaseReturnAccount, Table.PurchaseReturnAccount);
+end;
+
+procedure TfrmStkInventory.LoadKindInfo;
+var
+  LValues: TArray<TStkInventoryKindValue>;
+  LKindName: string;
+  I: Integer;
+begin
+  // Cins bilgisi ayrı tabloda; güncelleme modunda açık transaction olduğu için yalnız incelemede düzenlenir
+  btnKindEdit.Enabled := IsSavedRecord and (FormMode = ifmRewiev);
+  LValues := nil;
+  LKindName := '';
+  if IsSavedRecord then
+    LValues := Service.GetKindValues(Table.Id, LKindName);
+
+  if LKindName = '' then
+    lblKindName.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.KindNotDefined, 'No kind information has been entered for this stock card.')
+  else
+    lblKindName.Caption := TLocalizationManager.Translate(TLangKeys.TStkCardKindInfo.ColKind, 'Kind') + ': ' + LKindName;
+
+  grdKindValues.RowCount := Length(LValues) + 1;
+  if Length(LValues) = 0 then
+  begin
+    grdKindValues.RowCount := 2;
+    grdKindValues.Cells[0, 1] := '';
+    grdKindValues.Cells[1, 1] := '';
+  end;
+  for I := 0 to High(LValues) do
+  begin
+    grdKindValues.Cells[0, I + 1] := LValues[I].Caption;
+    grdKindValues.Cells[1, I + 1] := LValues[I].Value;
+  end;
+end;
+
+procedure TfrmStkInventory.ClearSummary;
+begin
+  lblSumCurrentQuantityVal.Caption := '-';
+  lblSumAverageCostVal.Caption := '-';
+  lblSumOpeningQuantityVal.Caption := '-';
+  lblSumOpeningPriceVal.Caption := '-';
+  lblSumOpeningAmountVal.Caption := '-';
+  lblSumIncomingQuantityVal.Caption := '-';
+  lblSumIncomingAmountVal.Caption := '-';
+  lblSumOutgoingQuantityVal.Caption := '-';
+  lblSumOutgoingAmountVal.Caption := '-';
+  lblSumLastBuyDateVal.Caption := '-';
+  lblSumLastBuyQuantityVal.Caption := '-';
+  lblSumLastBuyPriceVal.Caption := '-';
+  grdWarehouseStocks.RowCount := 2;
+  grdWarehouseStocks.Cells[0, 1] := '';
+  grdWarehouseStocks.Cells[1, 1] := '';
+end;
+
+procedure TfrmStkInventory.LoadSummary;
+var
+  LSummary: TStkInventorySummary;
+  LStocks: TArray<TStkInventoryWarehouseStock>;
+  I: Integer;
+begin
+  ClearSummary;
+  if not IsSavedRecord then
+    Exit;
+
+  LSummary := Service.GetSummary(Table.Id);
+  try
+    if Assigned(LSummary) then
+    begin
+      lblSumCurrentQuantityVal.Caption := CurrToStr(LSummary.CurrentQuantity);
+      lblSumAverageCostVal.Caption := CurrToStr(LSummary.AverageCost);
+      lblSumOpeningQuantityVal.Caption := CurrToStr(LSummary.OpeningQuantity);
+      lblSumOpeningPriceVal.Caption := CurrToStr(LSummary.OpeningPrice);
+      lblSumOpeningAmountVal.Caption := CurrToStr(LSummary.OpeningAmount);
+      lblSumIncomingQuantityVal.Caption := CurrToStr(LSummary.IncomingQuantity);
+      lblSumIncomingAmountVal.Caption := CurrToStr(LSummary.IncomingAmount);
+      lblSumOutgoingQuantityVal.Caption := CurrToStr(LSummary.OutgoingQuantity);
+      lblSumOutgoingAmountVal.Caption := CurrToStr(LSummary.OutgoingAmount);
+      if LSummary.LastBuyDate > 0 then
+        lblSumLastBuyDateVal.Caption := DateToStr(LSummary.LastBuyDate);
+      lblSumLastBuyQuantityVal.Caption := CurrToStr(LSummary.LastBuyQuantity);
+      lblSumLastBuyPriceVal.Caption := Trim(CurrToStr(LSummary.LastBuyPrice) + ' ' + LSummary.LastBuyCurrency);
+    end;
+  finally
+    LSummary.Free;
+  end;
+
+  LStocks := Service.GetWarehouseStocks(Table.Id);
+  if Length(LStocks) > 0 then
+    grdWarehouseStocks.RowCount := Length(LStocks) + 1;
+  for I := 0 to High(LStocks) do
+  begin
+    grdWarehouseStocks.Cells[0, I + 1] := LStocks[I].WarehouseName;
+    grdWarehouseStocks.Cells[1, I + 1] := FloatToStr(LStocks[I].Quantity);
+  end;
+end;
+
+procedure TfrmStkInventory.btnKindEditClick(Sender: TObject);
+var
+  LFrm: TfrmStkCardKindInfos;
+begin
+  if not IsSavedRecord then
+    raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStkInventory.SaveFirst, 'Save the stock card first.'));
+
+  LFrm := TfrmStkCardKindInfos.Create(Self, TStkCardKindInfoService.Create, TStkCardKindInfo.Create);
+  try
+    LFrm.SetFixedInventory(Table.Id, Table.Code + ' ' + Table.Name);
+    LFrm.ShowModal;
+  finally
+    LFrm.Free;
+  end;
+  LoadKindInfo;
 end;
 
 procedure TfrmStkInventory.ShowImage(const ABytes: TBytes);

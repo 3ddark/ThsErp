@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict kULvD2kO9wyd91iuhXbzS4AbZGPX6m7BSX8rdu9Bhecndc3tuTPaKpfb6vsfLrc
+\restrict 8hm0tJyd3OTuN0a4MUOCtEdK92WzpYZe8TQiYnWVzF1xP3lXLW1wPzL6fp2MNA8
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -1445,111 +1445,265 @@ ALTER TABLE public.acc_voucher ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 --
 
 CREATE TABLE public.prd_bom (
-    id bigint CONSTRAINT prd_bom_id_nn NOT NULL,
-    product_sku character varying(32) CONSTRAINT prd_bom_product_sku_nn NOT NULL,
-    product_name character varying(128) CONSTRAINT prd_bom_product_name_nn NOT NULL,
-    sample_quantity numeric(18,6) DEFAULT 1,
-    description character varying(128)
+    id bigint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    bom_name character varying(128) NOT NULL,
+    base_quantity numeric(18,6) DEFAULT 1 NOT NULL,
+    is_default boolean DEFAULT false NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    description character varying(256),
+    CONSTRAINT prd_bom_base_quantity_check CHECK ((base_quantity > (0)::numeric))
 );
 
 
 ALTER TABLE public.prd_bom OWNER TO ths_admin;
 
 --
+-- Name: COLUMN prd_bom.base_quantity; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.prd_bom.base_quantity IS 'Satır miktarlarının karşılık geldiği mamul miktarı';
+
+
+--
+-- Name: COLUMN prd_bom.is_default; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.prd_bom.is_default IS 'Ürünün varsayılan reçetesi (ürün başına tek)';
+
+
+--
 -- Name: prd_bom_by_product; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.prd_bom_by_product (
-    id bigint CONSTRAINT prd_bom_by_product_id_nn NOT NULL,
-    header_id bigint CONSTRAINT prd_bom_by_product_header_nn NOT NULL,
-    product_sku character varying(32) CONSTRAINT prd_bom_by_product_sku_nn NOT NULL,
-    quantity numeric(18,6) CONSTRAINT prd_bom_by_product_qty_nn NOT NULL
+    id bigint NOT NULL,
+    prd_bom_id bigint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    CONSTRAINT prd_bom_by_product_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
 
 ALTER TABLE public.prd_bom_by_product OWNER TO ths_admin;
 
 --
+-- Name: prd_bom_by_product_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_bom_by_product ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_bom_by_product_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: prd_bom_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_bom ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_bom_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: prd_bom_labour; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.prd_bom_labour (
-    id bigint CONSTRAINT prd_bom_labour_id_nn NOT NULL,
-    header_id bigint CONSTRAINT prd_bom_labour_header_nn NOT NULL,
-    labor_code character varying(16) CONSTRAINT prd_bom_labour_labor_code_nn NOT NULL,
-    quantity numeric(18,6) CONSTRAINT prd_bom_labour_qty_nn NOT NULL
+    id bigint NOT NULL,
+    prd_bom_id bigint NOT NULL,
+    prd_labour_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    CONSTRAINT prd_bom_labour_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
 
 ALTER TABLE public.prd_bom_labour OWNER TO ths_admin;
 
 --
+-- Name: prd_bom_labour_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_bom_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_bom_labour_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: prd_bom_packet_labour; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.prd_bom_packet_labour (
-    id bigint CONSTRAINT prd_bom_packet_labour_id_nn NOT NULL,
-    header_id bigint CONSTRAINT prd_bom_packet_labour_header_nn NOT NULL,
-    paket_id bigint CONSTRAINT urt_recete_paket_iscilikler_paket_id_not_null NOT NULL,
-    quantity numeric(18,6)
+    id bigint NOT NULL,
+    prd_bom_id bigint NOT NULL,
+    prd_packet_labour_id bigint NOT NULL,
+    quantity numeric(18,6) DEFAULT 1 NOT NULL,
+    CONSTRAINT prd_bom_packet_labour_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
 
 ALTER TABLE public.prd_bom_packet_labour OWNER TO ths_admin;
 
 --
+-- Name: prd_bom_packet_labour_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_bom_packet_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_bom_packet_labour_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: prd_bom_packet_raw; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.prd_bom_packet_raw (
-    id bigint CONSTRAINT prd_bom_packet_raw_id_nn NOT NULL,
-    header_id bigint CONSTRAINT prd_bom_packet_raw_header_nn NOT NULL,
-    paket_id bigint CONSTRAINT urt_recete_paket_hammaddeler_paket_id_not_null NOT NULL,
-    quantity numeric(18,6)
+    id bigint NOT NULL,
+    prd_bom_id bigint NOT NULL,
+    prd_packet_raw_id bigint NOT NULL,
+    quantity numeric(18,6) DEFAULT 1 NOT NULL,
+    CONSTRAINT prd_bom_packet_raw_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
 
 ALTER TABLE public.prd_bom_packet_raw OWNER TO ths_admin;
 
 --
+-- Name: prd_bom_packet_raw_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_bom_packet_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_bom_packet_raw_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: prd_bom_raw; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.prd_bom_raw (
-    id bigint CONSTRAINT prd_bom_raw_id_nn NOT NULL,
-    header_id bigint CONSTRAINT prd_bom_raw_header_nn NOT NULL,
-    recete_id bigint,
-    stok_kodu character varying(32) CONSTRAINT prd_bom_raw_sku_nn NOT NULL,
-    quantity numeric(18,6) CONSTRAINT prd_bom_raw_qty_nn NOT NULL,
-    scrap_rate numeric(18,6) DEFAULT 0 CONSTRAINT prd_bom_raw_scrap_rate_nn NOT NULL
+    id bigint NOT NULL,
+    prd_bom_id bigint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    sub_prd_bom_id bigint,
+    quantity numeric(18,6) NOT NULL,
+    scrap_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    CONSTRAINT prd_bom_raw_not_self_check CHECK (((sub_prd_bom_id IS NULL) OR (sub_prd_bom_id <> prd_bom_id))),
+    CONSTRAINT prd_bom_raw_quantity_check CHECK ((quantity > (0)::numeric)),
+    CONSTRAINT prd_bom_raw_scrap_rate_check CHECK (((scrap_rate >= (0)::numeric) AND (scrap_rate < (100)::numeric)))
 );
 
 
 ALTER TABLE public.prd_bom_raw OWNER TO ths_admin;
 
 --
+-- Name: COLUMN prd_bom_raw.sub_prd_bom_id; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.prd_bom_raw.sub_prd_bom_id IS 'Yarı mamul hammaddenin kullanılacak reçetesi (opsiyonel)';
+
+
+--
+-- Name: COLUMN prd_bom_raw.scrap_rate; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.prd_bom_raw.scrap_rate IS 'Fire oranı (%)';
+
+
+--
+-- Name: prd_bom_raw_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_bom_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_bom_raw_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: prd_labour; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.prd_labour (
-    id bigint CONSTRAINT prd_labour_id_nn NOT NULL,
-    cost_code character varying(16) CONSTRAINT prd_labour_cost_code_nn NOT NULL,
-    cost_name character varying(128),
-    unit_price numeric(18,6) CONSTRAINT prd_labour_price_nn NOT NULL,
-    uom_code character varying(8) CONSTRAINT prd_labour_unit_nn NOT NULL,
-    cost_type smallint CONSTRAINT prd_labour_cost_type_nn NOT NULL
+    id bigint NOT NULL,
+    code character varying(16) NOT NULL,
+    name character varying(128) NOT NULL,
+    cost_type smallint DEFAULT 1 NOT NULL,
+    sys_uom_id bigint NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0 NOT NULL,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    acc_account_code character varying(16),
+    CONSTRAINT prd_labour_cost_type_check CHECK (((cost_type >= 1) AND (cost_type <= 3))),
+    CONSTRAINT prd_labour_unit_price_check CHECK ((unit_price >= (0)::numeric))
 );
 
 
 ALTER TABLE public.prd_labour OWNER TO ths_admin;
 
 --
+-- Name: COLUMN prd_labour.cost_type; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.prd_labour.cost_type IS '1 işçilik / 2 makine / 3 genel üretim gideri';
+
+
+--
+-- Name: COLUMN prd_labour.acc_account_code; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.prd_labour.acc_account_code IS 'Maliyetin yazılacağı gider hesabı (opsiyonel)';
+
+
+--
+-- Name: prd_labour_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_labour_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: prd_packet_labour; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.prd_packet_labour (
-    id bigint CONSTRAINT prd_packet_labour_id_nn NOT NULL,
-    package_name character varying(128) CONSTRAINT prd_packet_labour_package_name_nn NOT NULL
+    id bigint NOT NULL,
+    packet_name character varying(128) NOT NULL
 );
 
 
@@ -1560,22 +1714,51 @@ ALTER TABLE public.prd_packet_labour OWNER TO ths_admin;
 --
 
 CREATE TABLE public.prd_packet_labour_detail (
-    id bigint CONSTRAINT prd_packet_labour_detail_id_nn NOT NULL,
-    header_id bigint CONSTRAINT prd_packet_labour_detail_header_nn NOT NULL,
-    labor_code character varying(32) CONSTRAINT prd_packet_labour_detail_labor_code_nn NOT NULL,
-    quantity numeric(18,6) CONSTRAINT prd_packet_labour_detail_qty_nn NOT NULL
+    id bigint NOT NULL,
+    prd_packet_labour_id bigint NOT NULL,
+    prd_labour_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    CONSTRAINT prd_packet_labour_detail_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
 
 ALTER TABLE public.prd_packet_labour_detail OWNER TO ths_admin;
 
 --
+-- Name: prd_packet_labour_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_packet_labour_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_packet_labour_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: prd_packet_labour_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_packet_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_packet_labour_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: prd_packet_raw; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.prd_packet_raw (
-    id bigint CONSTRAINT urt_paket_hammaddeler_id_not_null NOT NULL,
-    package_name character varying(128) CONSTRAINT urt_paket_hammaddeler_paket_adi_not_null NOT NULL
+    id bigint NOT NULL,
+    packet_name character varying(128) NOT NULL
 );
 
 
@@ -1586,15 +1769,44 @@ ALTER TABLE public.prd_packet_raw OWNER TO ths_admin;
 --
 
 CREATE TABLE public.prd_packet_raw_detail (
-    id bigint CONSTRAINT prd_packet_raw_detail_id_nn NOT NULL,
-    header_id bigint CONSTRAINT prd_packet_raw_detail_header_nn NOT NULL,
-    recete_id bigint,
-    sku_code character varying(32) CONSTRAINT prd_packet_raw_detail_sku_nn NOT NULL,
-    quantity numeric(18,6) CONSTRAINT prd_packet_raw_detail_qty_nn NOT NULL
+    id bigint NOT NULL,
+    prd_packet_raw_id bigint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    sub_prd_bom_id bigint,
+    quantity numeric(18,6) NOT NULL,
+    CONSTRAINT prd_packet_raw_detail_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
 
 ALTER TABLE public.prd_packet_raw_detail OWNER TO ths_admin;
+
+--
+-- Name: prd_packet_raw_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_packet_raw_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_packet_raw_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: prd_packet_raw_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.prd_packet_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.prd_packet_raw_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
 
 --
 -- Name: prs_lisan_bilgisi_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
@@ -1858,146 +2070,6 @@ ALTER SEQUENCE public.pur_offer_detail_id_seq OWNED BY public.pur_offer_detail.i
 
 ALTER TABLE public.pur_offer ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.pur_offer_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_labor_cost_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_labor_cost_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_paket_hammadde_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_packet_raw_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_paket_hammadde_detay_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_paket_hammadde_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_packet_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_paket_hammadde_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_paket_iscilik_detay_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_packet_labour_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_paket_iscilik_detay_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_paket_iscilik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_packet_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_paket_iscilik_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_recete_hammadde_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_bom_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_recete_hammadde_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_recete_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_bom ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_recete_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_recete_iscilik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_bom_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_recete_iscilik_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_recete_paket_hammadde_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_bom_packet_raw ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_recete_paket_hammadde_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: rct_recete_paket_iscilik_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_bom_packet_labour ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.rct_recete_paket_iscilik_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2570,12 +2642,77 @@ CREATE TABLE public.stk_inventory (
     diib_product_description character varying(64),
     min_stock_amount double precision DEFAULT 0,
     product_overview text,
+    vat_rate numeric(5,2),
+    raw_material_stock_account character varying(16),
+    raw_material_usage_account character varying(16),
+    semi_product_account character varying(16),
+    sales_account character varying(16),
+    sales_return_account character varying(16),
+    purchase_account character varying(16),
+    purchase_return_account character varying(16),
     CONSTRAINT stk_inventory_buying_discount_check CHECK (((buying_discount >= (0)::numeric) AND (buying_discount <= (100)::numeric))),
-    CONSTRAINT stk_inventory_sales_discount_check CHECK (((sales_discount >= (0)::numeric) AND (sales_discount <= (100)::numeric)))
+    CONSTRAINT stk_inventory_sales_discount_check CHECK (((sales_discount >= (0)::numeric) AND (sales_discount <= (100)::numeric))),
+    CONSTRAINT stk_inventory_vat_rate_check CHECK (((vat_rate IS NULL) OR ((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric))))
 );
 
 
 ALTER TABLE public.stk_inventory OWNER TO ths_admin;
+
+--
+-- Name: COLUMN stk_inventory.vat_rate; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.stk_inventory.vat_rate IS 'Karta özel KDV oranı; NULL = stk_group.vat_rate';
+
+
+--
+-- Name: COLUMN stk_inventory.raw_material_stock_account; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.stk_inventory.raw_material_stock_account IS 'Karta özel hesap; NULL = stk_group değeri';
+
+
+--
+-- Name: COLUMN stk_inventory.raw_material_usage_account; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.stk_inventory.raw_material_usage_account IS 'Karta özel hesap; NULL = stk_group değeri';
+
+
+--
+-- Name: COLUMN stk_inventory.semi_product_account; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.stk_inventory.semi_product_account IS 'Karta özel hesap; NULL = stk_group değeri';
+
+
+--
+-- Name: COLUMN stk_inventory.sales_account; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.stk_inventory.sales_account IS 'Karta özel hesap; NULL = geçerli KDV oranının acc_set_tax_rate değeri';
+
+
+--
+-- Name: COLUMN stk_inventory.sales_return_account; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.stk_inventory.sales_return_account IS 'Karta özel hesap; NULL = geçerli KDV oranının acc_set_tax_rate değeri';
+
+
+--
+-- Name: COLUMN stk_inventory.purchase_account; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.stk_inventory.purchase_account IS 'Karta özel hesap; NULL = geçerli KDV oranının acc_set_tax_rate değeri';
+
+
+--
+-- Name: COLUMN stk_inventory.purchase_return_account; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.stk_inventory.purchase_return_account IS 'Karta özel hesap; NULL = geçerli KDV oranının acc_set_tax_rate değeri';
+
 
 --
 -- Name: stk_inventory_summary; Type: TABLE; Schema: public; Owner: ths_admin
@@ -3613,20 +3750,6 @@ CREATE VIEW public.sys_view_databases AS
 ALTER VIEW public.sys_view_databases OWNER TO postgres;
 
 --
--- Name: urt_recete_yan_urunler_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.prd_bom_by_product ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.urt_recete_yan_urunler_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
 -- Name: vw_acc_account; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -4116,6 +4239,229 @@ CREATE VIEW public.vw_emp_unit AS
 ALTER VIEW public.vw_emp_unit OWNER TO ths_admin;
 
 --
+-- Name: vw_prd_bom; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_bom AS
+ SELECT b.id,
+    b.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    b.bom_name,
+    b.base_quantity,
+    b.is_default,
+    b.is_active,
+    b.description,
+    ( SELECT count(*) AS count
+           FROM public.prd_bom_raw r
+          WHERE (r.prd_bom_id = b.id)) AS raw_count,
+    ( SELECT count(*) AS count
+           FROM public.prd_bom_labour bl
+          WHERE (bl.prd_bom_id = b.id)) AS labour_count
+   FROM (public.prd_bom b
+     LEFT JOIN public.stk_inventory i ON ((i.id = b.stk_inventory_id)));
+
+
+ALTER VIEW public.vw_prd_bom OWNER TO ths_admin;
+
+--
+-- Name: vw_prd_bom_by_product; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_bom_by_product AS
+ SELECT p.id,
+    p.prd_bom_id,
+    b.bom_name,
+    p.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    p.quantity
+   FROM ((public.prd_bom_by_product p
+     LEFT JOIN public.prd_bom b ON ((b.id = p.prd_bom_id)))
+     LEFT JOIN public.stk_inventory i ON ((i.id = p.stk_inventory_id)));
+
+
+ALTER VIEW public.vw_prd_bom_by_product OWNER TO ths_admin;
+
+--
+-- Name: vw_prd_bom_labour; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_bom_labour AS
+ SELECT bl.id,
+    bl.prd_bom_id,
+    b.bom_name,
+    bl.prd_labour_id,
+    l.code AS labour_code,
+    l.name AS labour_name,
+    bl.quantity,
+    l.unit_price,
+    l.currency,
+    round((bl.quantity * l.unit_price), 6) AS total_amount
+   FROM ((public.prd_bom_labour bl
+     LEFT JOIN public.prd_bom b ON ((b.id = bl.prd_bom_id)))
+     LEFT JOIN public.prd_labour l ON ((l.id = bl.prd_labour_id)));
+
+
+ALTER VIEW public.vw_prd_bom_labour OWNER TO ths_admin;
+
+--
+-- Name: vw_prd_bom_packet_labour; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_bom_packet_labour AS
+ SELECT bp.id,
+    bp.prd_bom_id,
+    b.bom_name,
+    bp.prd_packet_labour_id,
+    p.packet_name,
+    bp.quantity
+   FROM ((public.prd_bom_packet_labour bp
+     LEFT JOIN public.prd_bom b ON ((b.id = bp.prd_bom_id)))
+     LEFT JOIN public.prd_packet_labour p ON ((p.id = bp.prd_packet_labour_id)));
+
+
+ALTER VIEW public.vw_prd_bom_packet_labour OWNER TO ths_admin;
+
+--
+-- Name: vw_prd_bom_packet_raw; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_bom_packet_raw AS
+ SELECT bp.id,
+    bp.prd_bom_id,
+    b.bom_name,
+    bp.prd_packet_raw_id,
+    p.packet_name,
+    bp.quantity
+   FROM ((public.prd_bom_packet_raw bp
+     LEFT JOIN public.prd_bom b ON ((b.id = bp.prd_bom_id)))
+     LEFT JOIN public.prd_packet_raw p ON ((p.id = bp.prd_packet_raw_id)));
+
+
+ALTER VIEW public.vw_prd_bom_packet_raw OWNER TO ths_admin;
+
+--
+-- Name: vw_prd_bom_raw; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_bom_raw AS
+ SELECT r.id,
+    r.prd_bom_id,
+    b.bom_name,
+    r.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    r.sub_prd_bom_id,
+    sb.bom_name AS sub_bom_name,
+    r.quantity,
+    r.scrap_rate,
+    round(((r.quantity * (100)::numeric) / ((100)::numeric - r.scrap_rate)), 6) AS gross_quantity
+   FROM (((public.prd_bom_raw r
+     LEFT JOIN public.prd_bom b ON ((b.id = r.prd_bom_id)))
+     LEFT JOIN public.stk_inventory i ON ((i.id = r.stk_inventory_id)))
+     LEFT JOIN public.prd_bom sb ON ((sb.id = r.sub_prd_bom_id)));
+
+
+ALTER VIEW public.vw_prd_bom_raw OWNER TO ths_admin;
+
+--
+-- Name: vw_prd_labour; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_labour AS
+ SELECT l.id,
+    l.code,
+    l.name,
+    l.cost_type,
+    l.sys_uom_id,
+    u.unit_code AS uom_code,
+    l.unit_price,
+    l.currency,
+    l.acc_account_code,
+    a.name AS account_name
+   FROM ((public.prd_labour l
+     LEFT JOIN public.sys_uom u ON ((u.id = l.sys_uom_id)))
+     LEFT JOIN public.acc_account a ON (((a.code)::text = (l.acc_account_code)::text)));
+
+
+ALTER VIEW public.vw_prd_labour OWNER TO ths_admin;
+
+--
+-- Name: vw_prd_packet_labour; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_packet_labour AS
+ SELECT id,
+    packet_name,
+    ( SELECT count(*) AS count
+           FROM public.prd_packet_labour_detail d
+          WHERE (d.prd_packet_labour_id = p.id)) AS item_count
+   FROM public.prd_packet_labour p;
+
+
+ALTER VIEW public.vw_prd_packet_labour OWNER TO ths_admin;
+
+--
+-- Name: vw_prd_packet_labour_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_packet_labour_detail AS
+ SELECT d.id,
+    d.prd_packet_labour_id,
+    p.packet_name,
+    d.prd_labour_id,
+    l.code AS labour_code,
+    l.name AS labour_name,
+    d.quantity,
+    l.unit_price,
+    l.currency,
+    round((d.quantity * l.unit_price), 6) AS total_amount
+   FROM ((public.prd_packet_labour_detail d
+     LEFT JOIN public.prd_packet_labour p ON ((p.id = d.prd_packet_labour_id)))
+     LEFT JOIN public.prd_labour l ON ((l.id = d.prd_labour_id)));
+
+
+ALTER VIEW public.vw_prd_packet_labour_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_prd_packet_raw; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_packet_raw AS
+ SELECT id,
+    packet_name,
+    ( SELECT count(*) AS count
+           FROM public.prd_packet_raw_detail d
+          WHERE (d.prd_packet_raw_id = p.id)) AS item_count
+   FROM public.prd_packet_raw p;
+
+
+ALTER VIEW public.vw_prd_packet_raw OWNER TO ths_admin;
+
+--
+-- Name: vw_prd_packet_raw_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_prd_packet_raw_detail AS
+ SELECT d.id,
+    d.prd_packet_raw_id,
+    p.packet_name,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    d.sub_prd_bom_id,
+    sb.bom_name AS sub_bom_name,
+    d.quantity
+   FROM (((public.prd_packet_raw_detail d
+     LEFT JOIN public.prd_packet_raw p ON ((p.id = d.prd_packet_raw_id)))
+     LEFT JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.prd_bom sb ON ((sb.id = d.sub_prd_bom_id)));
+
+
+ALTER VIEW public.vw_prd_packet_raw_detail OWNER TO ths_admin;
+
+--
 -- Name: vw_stk_card_kind_info; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -4207,10 +4553,27 @@ CREATE VIEW public.vw_stk_inventory AS
     i.product_overview,
     COALESCE(s.current_quantity, (0)::numeric) AS current_quantity,
     COALESCE(s.average_cost, (0)::numeric) AS average_cost,
+    i.vat_rate,
+    i.raw_material_stock_account,
+    i.raw_material_usage_account,
+    i.semi_product_account,
+    i.sales_account,
+    i.sales_return_account,
+    i.purchase_account,
+    i.purchase_return_account,
+    g.vat_rate AS default_vat_rate,
+    g.raw_material_stock_account AS default_raw_material_stock_account,
+    g.raw_material_usage_account AS default_raw_material_usage_account,
+    g.semi_product_account AS default_semi_product_account,
+    tr.sales_account AS default_sales_account,
+    tr.sales_return_account AS default_sales_return_account,
+    tr.purchase_account AS default_purchase_account,
+    tr.purchase_return_account AS default_purchase_return_account,
     l.locale
-   FROM ((((((((public.stk_inventory i
+   FROM (((((((((public.stk_inventory i
      CROSS JOIN public.sys_language l)
      LEFT JOIN public.stk_group g ON ((g.id = i.stk_group_id)))
+     LEFT JOIN public.acc_set_tax_rate tr ON ((tr.tax_rate = COALESCE(i.vat_rate, g.vat_rate))))
      LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
      LEFT JOIN public.sys_uom_translation ut ON (((ut.sys_uom_id = u.id) AND (ut.sys_language_id = l.id))))
      LEFT JOIN public.stk_product_type pt ON ((pt.id = i.stk_product_type_id)))
@@ -4220,6 +4583,62 @@ CREATE VIEW public.vw_stk_inventory AS
 
 
 ALTER VIEW public.vw_stk_inventory OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_inventory_account; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_inventory_account AS
+ SELECT x.id,
+    x.code,
+    x.name,
+    x.stk_group_id,
+    x.group_name,
+    x.vat_rate,
+    x.is_vat_rate_overridden,
+    x.raw_material_stock_account,
+    a1.name AS raw_material_stock_account_name,
+    x.raw_material_usage_account,
+    a2.name AS raw_material_usage_account_name,
+    x.semi_product_account,
+    a3.name AS semi_product_account_name,
+    x.sales_account,
+    a4.name AS sales_account_name,
+    x.sales_return_account,
+    a5.name AS sales_return_account_name,
+    x.purchase_account,
+    a6.name AS purchase_account_name,
+    x.purchase_return_account,
+    a7.name AS purchase_return_account_name,
+    x.overridden_account_count
+   FROM (((((((( SELECT i.id,
+            i.code,
+            i.name,
+            i.stk_group_id,
+            g.name AS group_name,
+            COALESCE(i.vat_rate, g.vat_rate) AS vat_rate,
+            (i.vat_rate IS NOT NULL) AS is_vat_rate_overridden,
+            COALESCE(i.raw_material_stock_account, g.raw_material_stock_account) AS raw_material_stock_account,
+            COALESCE(i.raw_material_usage_account, g.raw_material_usage_account) AS raw_material_usage_account,
+            COALESCE(i.semi_product_account, g.semi_product_account) AS semi_product_account,
+            COALESCE(i.sales_account, tr.sales_account) AS sales_account,
+            COALESCE(i.sales_return_account, tr.sales_return_account) AS sales_return_account,
+            COALESCE(i.purchase_account, tr.purchase_account) AS purchase_account,
+            COALESCE(i.purchase_return_account, tr.purchase_return_account) AS purchase_return_account,
+            num_nonnulls(i.raw_material_stock_account, i.raw_material_usage_account, i.semi_product_account, i.sales_account, i.sales_return_account, i.purchase_account, i.purchase_return_account) AS overridden_account_count
+           FROM ((public.stk_inventory i
+             LEFT JOIN public.stk_group g ON ((g.id = i.stk_group_id)))
+             LEFT JOIN public.acc_set_tax_rate tr ON ((tr.tax_rate = COALESCE(i.vat_rate, g.vat_rate))))) x
+     LEFT JOIN public.acc_account a1 ON (((a1.code)::text = (x.raw_material_stock_account)::text)))
+     LEFT JOIN public.acc_account a2 ON (((a2.code)::text = (x.raw_material_usage_account)::text)))
+     LEFT JOIN public.acc_account a3 ON (((a3.code)::text = (x.semi_product_account)::text)))
+     LEFT JOIN public.acc_account a4 ON (((a4.code)::text = (x.sales_account)::text)))
+     LEFT JOIN public.acc_account a5 ON (((a5.code)::text = (x.sales_return_account)::text)))
+     LEFT JOIN public.acc_account a6 ON (((a6.code)::text = (x.purchase_account)::text)))
+     LEFT JOIN public.acc_account a7 ON (((a7.code)::text = (x.purchase_return_account)::text)));
+
+
+ALTER VIEW public.vw_stk_inventory_account OWNER TO ths_admin;
 
 --
 -- Name: vw_stk_inventory_summary; Type: VIEW; Schema: public; Owner: ths_admin
@@ -4249,6 +4668,32 @@ CREATE VIEW public.vw_stk_inventory_summary AS
 
 
 ALTER VIEW public.vw_stk_inventory_summary OWNER TO ths_admin;
+
+--
+-- Name: vw_stk_inventory_warehouse; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_stk_inventory_warehouse AS
+ SELECT m.stk_inventory_id,
+    m.stk_warehouse_id,
+    w.warehouse_name,
+    sum(m.quantity) AS quantity
+   FROM (( SELECT t.stk_inventory_id,
+            t.to_stk_warehouse_id AS stk_warehouse_id,
+            t.quantity
+           FROM public.stk_transaction t
+          WHERE ((t.transaction_type = ANY (ARRAY[1, 3])) AND (t.to_stk_warehouse_id IS NOT NULL))
+        UNION ALL
+         SELECT t.stk_inventory_id,
+            t.from_stk_warehouse_id,
+            (- t.quantity)
+           FROM public.stk_transaction t
+          WHERE ((t.transaction_type = ANY (ARRAY[2, 3])) AND (t.from_stk_warehouse_id IS NOT NULL))) m
+     JOIN public.stk_warehouse w ON ((w.id = m.stk_warehouse_id)))
+  GROUP BY m.stk_inventory_id, m.stk_warehouse_id, w.warehouse_name;
+
+
+ALTER VIEW public.vw_stk_inventory_warehouse OWNER TO ths_admin;
 
 --
 -- Name: vw_stk_kind_family; Type: VIEW; Schema: public; Owner: ths_admin
@@ -5163,6 +5608,14 @@ ALTER TABLE ONLY public.acc_transfer_code
 
 
 --
+-- Name: prd_bom_by_product prd_bom_by_product_inventory_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_by_product
+    ADD CONSTRAINT prd_bom_by_product_inventory_key UNIQUE (prd_bom_id, stk_inventory_id);
+
+
+--
 -- Name: prd_bom_by_product prd_bom_by_product_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5171,19 +5624,11 @@ ALTER TABLE ONLY public.prd_bom_by_product
 
 
 --
--- Name: prd_bom_by_product prd_bom_by_product_sku_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_bom_by_product
-    ADD CONSTRAINT prd_bom_by_product_sku_key UNIQUE (product_sku, header_id);
-
-
---
--- Name: prd_bom_labour prd_bom_labour_cost_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_labour prd_bom_labour_labour_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_bom_labour
-    ADD CONSTRAINT prd_bom_labour_cost_code_key UNIQUE (labor_code);
+    ADD CONSTRAINT prd_bom_labour_labour_key UNIQUE (prd_bom_id, prd_labour_id);
 
 
 --
@@ -5195,6 +5640,22 @@ ALTER TABLE ONLY public.prd_bom_labour
 
 
 --
+-- Name: prd_bom prd_bom_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom
+    ADD CONSTRAINT prd_bom_name_key UNIQUE (stk_inventory_id, bom_name);
+
+
+--
+-- Name: prd_bom_packet_labour prd_bom_packet_labour_packet_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_packet_labour
+    ADD CONSTRAINT prd_bom_packet_labour_packet_key UNIQUE (prd_bom_id, prd_packet_labour_id);
+
+
+--
 -- Name: prd_bom_packet_labour prd_bom_packet_labour_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5203,11 +5664,11 @@ ALTER TABLE ONLY public.prd_bom_packet_labour
 
 
 --
--- Name: prd_bom_packet_labour prd_bom_packet_labour_pkg_id_nn; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_packet_raw prd_bom_packet_raw_packet_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prd_bom_packet_labour
-    ADD CONSTRAINT prd_bom_packet_labour_pkg_id_nn UNIQUE (header_id, paket_id);
+ALTER TABLE ONLY public.prd_bom_packet_raw
+    ADD CONSTRAINT prd_bom_packet_raw_packet_key UNIQUE (prd_bom_id, prd_packet_raw_id);
 
 
 --
@@ -5219,14 +5680,6 @@ ALTER TABLE ONLY public.prd_bom_packet_raw
 
 
 --
--- Name: prd_bom_packet_raw prd_bom_packet_raw_pkg_id_nn; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_bom_packet_raw
-    ADD CONSTRAINT prd_bom_packet_raw_pkg_id_nn UNIQUE (header_id, paket_id);
-
-
---
 -- Name: prd_bom prd_bom_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5235,19 +5688,27 @@ ALTER TABLE ONLY public.prd_bom
 
 
 --
--- Name: prd_bom prd_bom_product_sku_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_raw prd_bom_raw_inventory_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prd_bom
-    ADD CONSTRAINT prd_bom_product_sku_key UNIQUE (product_sku, product_name);
+ALTER TABLE ONLY public.prd_bom_raw
+    ADD CONSTRAINT prd_bom_raw_inventory_key UNIQUE (prd_bom_id, stk_inventory_id);
 
 
 --
--- Name: prd_labour prd_labour_cost_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_raw prd_bom_raw_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_raw
+    ADD CONSTRAINT prd_bom_raw_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: prd_labour prd_labour_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_labour
-    ADD CONSTRAINT prd_labour_cost_code_key UNIQUE (cost_code);
+    ADD CONSTRAINT prd_labour_code_key UNIQUE (code);
 
 
 --
@@ -5259,6 +5720,14 @@ ALTER TABLE ONLY public.prd_labour
 
 
 --
+-- Name: prd_packet_labour_detail prd_packet_labour_detail_labour_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_packet_labour_detail
+    ADD CONSTRAINT prd_packet_labour_detail_labour_key UNIQUE (prd_packet_labour_id, prd_labour_id);
+
+
+--
 -- Name: prd_packet_labour_detail prd_packet_labour_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5267,19 +5736,11 @@ ALTER TABLE ONLY public.prd_packet_labour_detail
 
 
 --
--- Name: prd_packet_labour_detail prd_packet_labour_detail_sku_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_packet_labour_detail
-    ADD CONSTRAINT prd_packet_labour_detail_sku_key UNIQUE (labor_code, header_id);
-
-
---
 -- Name: prd_packet_labour prd_packet_labour_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_packet_labour
-    ADD CONSTRAINT prd_packet_labour_name_key UNIQUE (package_name);
+    ADD CONSTRAINT prd_packet_labour_name_key UNIQUE (packet_name);
 
 
 --
@@ -5291,6 +5752,14 @@ ALTER TABLE ONLY public.prd_packet_labour
 
 
 --
+-- Name: prd_packet_raw_detail prd_packet_raw_detail_inventory_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_packet_raw_detail
+    ADD CONSTRAINT prd_packet_raw_detail_inventory_key UNIQUE (prd_packet_raw_id, stk_inventory_id);
+
+
+--
 -- Name: prd_packet_raw_detail prd_packet_raw_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -5299,19 +5768,11 @@ ALTER TABLE ONLY public.prd_packet_raw_detail
 
 
 --
--- Name: prd_packet_raw_detail prd_packet_raw_detail_sku_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_packet_raw_detail
-    ADD CONSTRAINT prd_packet_raw_detail_sku_key UNIQUE (sku_code, header_id);
-
-
---
 -- Name: prd_packet_raw prd_packet_raw_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_packet_raw
-    ADD CONSTRAINT prd_packet_raw_name_key UNIQUE (package_name);
+    ADD CONSTRAINT prd_packet_raw_name_key UNIQUE (packet_name);
 
 
 --
@@ -5320,22 +5781,6 @@ ALTER TABLE ONLY public.prd_packet_raw
 
 ALTER TABLE ONLY public.prd_packet_raw
     ADD CONSTRAINT prd_packet_raw_pkey PRIMARY KEY (id);
-
-
---
--- Name: prd_bom_raw prd_rhmd_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_bom_raw
-    ADD CONSTRAINT prd_rhmd_pkey PRIMARY KEY (id);
-
-
---
--- Name: prd_bom_raw prd_rhmd_sih_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_bom_raw
-    ADD CONSTRAINT prd_rhmd_sih_key UNIQUE (stok_kodu, header_id);
 
 
 --
@@ -6314,10 +6759,143 @@ CREATE INDEX idx_sat_teklif_detaylari_header_id ON public.sls_offer_detail USING
 
 
 --
+-- Name: prd_bom_by_product_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_bom_by_product_stk_inventory_id_idx ON public.prd_bom_by_product USING btree (stk_inventory_id);
+
+
+--
+-- Name: prd_bom_default_uidx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE UNIQUE INDEX prd_bom_default_uidx ON public.prd_bom USING btree (stk_inventory_id) WHERE is_default;
+
+
+--
+-- Name: prd_bom_labour_prd_labour_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_bom_labour_prd_labour_id_idx ON public.prd_bom_labour USING btree (prd_labour_id);
+
+
+--
+-- Name: prd_bom_packet_labour_prd_packet_labour_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_bom_packet_labour_prd_packet_labour_id_idx ON public.prd_bom_packet_labour USING btree (prd_packet_labour_id);
+
+
+--
+-- Name: prd_bom_packet_raw_prd_packet_raw_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_bom_packet_raw_prd_packet_raw_id_idx ON public.prd_bom_packet_raw USING btree (prd_packet_raw_id);
+
+
+--
+-- Name: prd_bom_raw_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_bom_raw_stk_inventory_id_idx ON public.prd_bom_raw USING btree (stk_inventory_id);
+
+
+--
+-- Name: prd_bom_raw_sub_prd_bom_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_bom_raw_sub_prd_bom_id_idx ON public.prd_bom_raw USING btree (sub_prd_bom_id);
+
+
+--
+-- Name: prd_labour_acc_account_code_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_labour_acc_account_code_idx ON public.prd_labour USING btree (acc_account_code);
+
+
+--
+-- Name: prd_labour_sys_uom_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_labour_sys_uom_id_idx ON public.prd_labour USING btree (sys_uom_id);
+
+
+--
+-- Name: prd_packet_labour_detail_prd_labour_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_packet_labour_detail_prd_labour_id_idx ON public.prd_packet_labour_detail USING btree (prd_labour_id);
+
+
+--
+-- Name: prd_packet_raw_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_packet_raw_detail_stk_inventory_id_idx ON public.prd_packet_raw_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: prd_packet_raw_detail_sub_prd_bom_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX prd_packet_raw_detail_sub_prd_bom_id_idx ON public.prd_packet_raw_detail USING btree (sub_prd_bom_id);
+
+
+--
 -- Name: stk_card_kind_info_stk_kind_property_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
 CREATE INDEX stk_card_kind_info_stk_kind_property_id_idx ON public.stk_card_kind_info USING btree (stk_kind_property_id);
+
+
+--
+-- Name: stk_inventory_purchase_account_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_purchase_account_idx ON public.stk_inventory USING btree (purchase_account);
+
+
+--
+-- Name: stk_inventory_purchase_return_account_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_purchase_return_account_idx ON public.stk_inventory USING btree (purchase_return_account);
+
+
+--
+-- Name: stk_inventory_raw_material_stock_account_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_raw_material_stock_account_idx ON public.stk_inventory USING btree (raw_material_stock_account);
+
+
+--
+-- Name: stk_inventory_raw_material_usage_account_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_raw_material_usage_account_idx ON public.stk_inventory USING btree (raw_material_usage_account);
+
+
+--
+-- Name: stk_inventory_sales_account_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_sales_account_idx ON public.stk_inventory USING btree (sales_account);
+
+
+--
+-- Name: stk_inventory_sales_return_account_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_sales_return_account_idx ON public.stk_inventory USING btree (sales_return_account);
+
+
+--
+-- Name: stk_inventory_semi_product_account_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_semi_product_account_idx ON public.stk_inventory USING btree (semi_product_account);
 
 
 --
@@ -6559,6 +7137,83 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.emp_unit FOR EA
 
 
 --
+-- Name: prd_bom notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prd_bom_by_product notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom_by_product FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prd_bom_labour notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom_labour FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prd_bom_packet_labour notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom_packet_labour FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prd_bom_packet_raw notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom_packet_raw FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prd_bom_raw notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom_raw FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prd_labour notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_labour FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prd_packet_labour notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_labour FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prd_packet_labour_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_labour_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prd_packet_raw notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_raw FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: prd_packet_raw_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_raw_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
 -- Name: stk_card_kind_info notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -6682,83 +7337,6 @@ CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.acc_voucher
 --
 
 CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.acc_voucher_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_bom trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_bom_by_product trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom_by_product FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_bom_labour trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom_labour FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_bom_packet_labour trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom_packet_labour FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_bom_packet_raw trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom_packet_raw FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_bom_raw trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_bom_raw FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_labour trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_labour FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_packet_labour trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_labour FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_packet_labour_detail trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_labour_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_packet_raw trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_raw FOR EACH ROW EXECUTE FUNCTION public.table_notify();
-
-
---
--- Name: prd_packet_raw_detail trg_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
---
-
-CREATE TRIGGER trg_notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_raw_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -7098,155 +7676,163 @@ ALTER TABLE ONLY public.acc_transfer_code
 
 
 --
--- Name: prd_bom_by_product prd_bom_by_product_header_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_by_product prd_bom_by_product_prd_bom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_bom_by_product
-    ADD CONSTRAINT prd_bom_by_product_header_fk FOREIGN KEY (header_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prd_bom_by_product_prd_bom_id_fkey FOREIGN KEY (prd_bom_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prd_bom_by_product prd_bom_by_product_sku_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_by_product prd_bom_by_product_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_bom_by_product
-    ADD CONSTRAINT prd_bom_by_product_sku_fk FOREIGN KEY (product_sku) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prd_bom_by_product_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: prd_bom_labour prd_bom_labour_cost_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_bom_labour
-    ADD CONSTRAINT prd_bom_labour_cost_code_fk FOREIGN KEY (labor_code) REFERENCES public.prd_labour(cost_code) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: prd_bom_labour prd_bom_labour_header_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_labour prd_bom_labour_prd_bom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_bom_labour
-    ADD CONSTRAINT prd_bom_labour_header_fk FOREIGN KEY (header_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prd_bom_labour_prd_bom_id_fkey FOREIGN KEY (prd_bom_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prd_bom_packet_labour prd_bom_packet_labour_header_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_labour prd_bom_labour_prd_labour_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_labour
+    ADD CONSTRAINT prd_bom_labour_prd_labour_id_fkey FOREIGN KEY (prd_labour_id) REFERENCES public.prd_labour(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: prd_bom_packet_labour prd_bom_packet_labour_prd_bom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_bom_packet_labour
-    ADD CONSTRAINT prd_bom_packet_labour_header_fk FOREIGN KEY (header_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prd_bom_packet_labour_prd_bom_id_fkey FOREIGN KEY (prd_bom_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prd_bom_packet_labour prd_bom_packet_labour_pkg_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_packet_labour prd_bom_packet_labour_prd_packet_labour_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_bom_packet_labour
-    ADD CONSTRAINT prd_bom_packet_labour_pkg_fk FOREIGN KEY (paket_id) REFERENCES public.prd_packet_labour(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT prd_bom_packet_labour_prd_packet_labour_id_fkey FOREIGN KEY (prd_packet_labour_id) REFERENCES public.prd_packet_labour(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: prd_bom_packet_raw prd_bom_packet_raw_header_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_bom_packet_raw
-    ADD CONSTRAINT prd_bom_packet_raw_header_fk FOREIGN KEY (header_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: prd_bom_packet_raw prd_bom_packet_raw_pkg_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_packet_raw prd_bom_packet_raw_prd_bom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_bom_packet_raw
-    ADD CONSTRAINT prd_bom_packet_raw_pkg_fk FOREIGN KEY (paket_id) REFERENCES public.prd_packet_raw(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT prd_bom_packet_raw_prd_bom_id_fkey FOREIGN KEY (prd_bom_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prd_bom prd_bom_product_sku_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_bom_packet_raw prd_bom_packet_raw_prd_packet_raw_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_packet_raw
+    ADD CONSTRAINT prd_bom_packet_raw_prd_packet_raw_id_fkey FOREIGN KEY (prd_packet_raw_id) REFERENCES public.prd_packet_raw(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: prd_bom_raw prd_bom_raw_prd_bom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_raw
+    ADD CONSTRAINT prd_bom_raw_prd_bom_id_fkey FOREIGN KEY (prd_bom_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: prd_bom_raw prd_bom_raw_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_raw
+    ADD CONSTRAINT prd_bom_raw_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: prd_bom_raw prd_bom_raw_sub_prd_bom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_raw
+    ADD CONSTRAINT prd_bom_raw_sub_prd_bom_id_fkey FOREIGN KEY (sub_prd_bom_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: prd_bom prd_bom_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_bom
-    ADD CONSTRAINT prd_bom_product_sku_fk FOREIGN KEY (product_sku) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prd_bom_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: prd_bom_raw prd_bom_raw_sku_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_bom_raw
-    ADD CONSTRAINT prd_bom_raw_sku_fk FOREIGN KEY (stok_kodu) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: prd_labour prd_labour_cost_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_labour prd_labour_acc_account_code_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_labour
-    ADD CONSTRAINT prd_labour_cost_code_fk FOREIGN KEY (cost_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT prd_labour_acc_account_code_fkey FOREIGN KEY (acc_account_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: prd_labour prd_labour_unit_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_labour prd_labour_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_labour
-    ADD CONSTRAINT prd_labour_unit_code_fk FOREIGN KEY (uom_code) REFERENCES public.sys_uom(unit_code) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
+    ADD CONSTRAINT prd_labour_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: prd_packet_labour_detail prd_packet_labour_detail_cost_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_labour prd_labour_sys_uom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_labour
+    ADD CONSTRAINT prd_labour_sys_uom_id_fkey FOREIGN KEY (sys_uom_id) REFERENCES public.sys_uom(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: prd_packet_labour_detail prd_packet_labour_detail_prd_labour_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_packet_labour_detail
-    ADD CONSTRAINT prd_packet_labour_detail_cost_code_fk FOREIGN KEY (labor_code) REFERENCES public.prd_labour(cost_code) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT prd_packet_labour_detail_prd_labour_id_fkey FOREIGN KEY (prd_labour_id) REFERENCES public.prd_labour(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: prd_packet_labour_detail prd_packet_labour_detail_header_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_packet_labour_detail prd_packet_labour_detail_prd_packet_labour_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_packet_labour_detail
-    ADD CONSTRAINT prd_packet_labour_detail_header_fk FOREIGN KEY (header_id) REFERENCES public.prd_packet_labour(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT prd_packet_labour_detail_prd_packet_labour_id_fkey FOREIGN KEY (prd_packet_labour_id) REFERENCES public.prd_packet_labour(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prd_packet_raw_detail prd_packet_raw_detail_header_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_packet_raw_detail
-    ADD CONSTRAINT prd_packet_raw_detail_header_fk FOREIGN KEY (header_id) REFERENCES public.prd_packet_raw(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: prd_packet_raw_detail prd_packet_raw_detail_recipe_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_packet_raw_detail prd_packet_raw_detail_prd_packet_raw_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_packet_raw_detail
-    ADD CONSTRAINT prd_packet_raw_detail_recipe_fk FOREIGN KEY (recete_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT prd_packet_raw_detail_prd_packet_raw_id_fkey FOREIGN KEY (prd_packet_raw_id) REFERENCES public.prd_packet_raw(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: prd_packet_raw_detail prd_packet_raw_detail_sku_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_packet_raw_detail prd_packet_raw_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_packet_raw_detail
-    ADD CONSTRAINT prd_packet_raw_detail_sku_fk FOREIGN KEY (sku_code) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT prd_packet_raw_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: prd_bom_raw prd_rhmd_hdr_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: prd_packet_raw_detail prd_packet_raw_detail_sub_prd_bom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.prd_bom_raw
-    ADD CONSTRAINT prd_rhmd_hdr_fkey FOREIGN KEY (header_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: prd_bom_raw prd_rhmd_rct_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.prd_bom_raw
-    ADD CONSTRAINT prd_rhmd_rct_fkey FOREIGN KEY (recete_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.prd_packet_raw_detail
+    ADD CONSTRAINT prd_packet_raw_detail_sub_prd_bom_id_fkey FOREIGN KEY (sub_prd_bom_id) REFERENCES public.prd_bom(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -7626,11 +8212,67 @@ ALTER TABLE ONLY public.stk_inventory
 
 
 --
+-- Name: stk_inventory stk_inventory_purchase_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_purchase_account_fkey FOREIGN KEY (purchase_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory stk_inventory_purchase_return_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_purchase_return_account_fkey FOREIGN KEY (purchase_return_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory stk_inventory_raw_material_stock_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_raw_material_stock_account_fkey FOREIGN KEY (raw_material_stock_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory stk_inventory_raw_material_usage_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_raw_material_usage_account_fkey FOREIGN KEY (raw_material_usage_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory stk_inventory_sales_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_sales_account_fkey FOREIGN KEY (sales_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: stk_inventory stk_inventory_sales_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.stk_inventory
     ADD CONSTRAINT stk_inventory_sales_currency_fkey FOREIGN KEY (sales_currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory stk_inventory_sales_return_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_sales_return_account_fkey FOREIGN KEY (sales_return_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory stk_inventory_semi_product_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_semi_product_account_fkey FOREIGN KEY (semi_product_account) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -8037,5 +8679,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict kULvD2kO9wyd91iuhXbzS4AbZGPX6m7BSX8rdu9Bhecndc3tuTPaKpfb6vsfLrc
+\unrestrict 8hm0tJyd3OTuN0a4MUOCtEdK92WzpYZe8TQiYnWVzF1xP3lXLW1wPzL6fp2MNA8
 

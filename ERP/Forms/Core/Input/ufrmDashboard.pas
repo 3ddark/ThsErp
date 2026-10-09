@@ -66,6 +66,10 @@ uses
   ufrmStkProductTypes, StkProductType.Service, StkProductType,
   ufrmStkKindFamilies, StkKindFamily.Service, StkKindFamily,
   ufrmStkKindProperties, StkKindProperty.Service, StkKindProperty,
+  ufrmPrdBoms, PrdBom.Service, PrdBom,
+  ufrmPrdLabours, PrdLabour.Service, PrdLabour,
+  ufrmPrdPacketRaws, PrdPacketRaw.Service, PrdPacketRaw,
+  ufrmPrdPacketLabours, PrdPacketLabour.Service, PrdPacketLabour,
   LocalizationManager;
 
 type
@@ -120,6 +124,7 @@ type
     btnrct_recete: TButton;
     btnrct_iscilik_gideri: TButton;
     btnrct_paket_hammadde: TButton;
+    btnrct_paket_iscilik: TButton;
     tsaccounting: TTabSheet;
     btnAccDovizKuru: TButton;
     actsys_unit_type: TAction;
@@ -175,6 +180,15 @@ type
     actstk_stok_karti_ozetleri: TAction;
     actstk_product_types: TAction;
     actstk_kind_families: TAction;
+    actprd_bom: TAction;
+    actprd_labour: TAction;
+    actprd_packet_raw: TAction;
+    actprd_packet_labour: TAction;
+    mnimenu_production: TMenuItem;
+    mniprd_bom: TMenuItem;
+    mniprd_labour: TMenuItem;
+    mniprd_packet_raw: TMenuItem;
+    mniprd_packet_labour: TMenuItem;
     mnistk_warehouse: TMenuItem;
     mnistk_group: TMenuItem;
     mnistk_inventory: TMenuItem;
@@ -300,7 +314,6 @@ type
     procedure actset_bbk_finans_durumuExecute(Sender: TObject);
     procedure actset_bbk_firma_tipiExecute(Sender: TObject);
     procedure actsat_teklifExecute(Sender: TObject);
-    procedure actrct_receteExecute(Sender: TObject);
     procedure actch_hesap_karti_araExecute(Sender: TObject);
     procedure actch_hesap_kartiExecute(Sender: TObject);
     procedure actch_bolgeExecute(Sender: TObject);
@@ -312,8 +325,6 @@ type
     procedure actstk_stok_hareketiExecute(Sender: TObject);
     procedure actsat_siparis_raporExecute(Sender: TObject);
     procedure actsat_siparisExecute(Sender: TObject);
-    procedure actrct_iscilik_gideriExecute(Sender: TObject);
-    procedure actrct_paket_hammaddeExecute(Sender: TObject);
     procedure actsys_unit_typeExecute(Sender: TObject);
     procedure actsys_regionExecute(Sender: TObject);
     procedure actset_einv_odeme_sekliExecute(Sender: TObject);
@@ -328,6 +339,10 @@ type
     procedure actstk_cins_ozellikleriExecute(Sender: TObject);
     procedure actstk_product_typesExecute(Sender: TObject);
     procedure actstk_kind_familiesExecute(Sender: TObject);
+    procedure actprd_bomExecute(Sender: TObject);
+    procedure actprd_labourExecute(Sender: TObject);
+    procedure actprd_packet_rawExecute(Sender: TObject);
+    procedure actprd_packet_labourExecute(Sender: TObject);
     procedure actset_ch_vergi_oraniExecute(Sender: TObject);
     procedure actset_prs_bolumlerExecute(Sender: TObject);
     procedure actset_prs_birimlerExecute(Sender: TObject);
@@ -688,6 +703,26 @@ begin
   TfrmStkKindFamilies.Create(Self, TStkKindFamilyService.Create, TStkKindFamily.Create).Show;
 end;
 
+procedure TfrmDashboard.actprd_bomExecute(Sender: TObject);
+begin
+  TfrmPrdBoms.Create(Self, TPrdBomService.Create, TPrdBom.Create).Show;
+end;
+
+procedure TfrmDashboard.actprd_labourExecute(Sender: TObject);
+begin
+  TfrmPrdLabours.Create(Self, TPrdLabourService.Create, TPrdLabour.Create).Show;
+end;
+
+procedure TfrmDashboard.actprd_packet_rawExecute(Sender: TObject);
+begin
+  TfrmPrdPacketRaws.Create(Self, TPrdPacketRawService.Create, TPrdPacketRaw.Create).Show;
+end;
+
+procedure TfrmDashboard.actprd_packet_labourExecute(Sender: TObject);
+begin
+  TfrmPrdPacketLabours.Create(Self, TPrdPacketLabourService.Create, TPrdPacketLabour.Create).Show;
+end;
+
 procedure TfrmDashboard.actstk_ambarlarExecute(Sender: TObject);
 begin
   TfrmStkWarehouses.Create(Self, TStkWarehouseService.Create, TStkWarehouse.Create).Show;
@@ -892,21 +927,6 @@ begin
   ) = mrYes
   then
     UpdateApplicationExe;
-end;
-
-procedure TfrmDashboard.actrct_iscilik_gideriExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actrct_paket_hammaddeExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actrct_receteExecute(Sender: TObject);
-begin
-//
 end;
 
 procedure TfrmDashboard.btnCloseClick(Sender: TObject);
@@ -1384,12 +1404,17 @@ begin
     btnch_hesap_karti.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnAccountCard, 'Account Cards');
   if Assigned(btnset_ch_vergi_orani) then
     btnset_ch_vergi_orani.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnTaxRates, 'Vat Rates');
-  if Assigned(btnrct_recete) then
-    btnrct_recete.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnRecipes, 'BoM');
-  if Assigned(btnrct_iscilik_gideri) then
-    btnrct_iscilik_gideri.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnLaborCosts, 'Labours');
-  if Assigned(btnrct_paket_hammadde) then
-    btnrct_paket_hammadde.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnPacketRawMaterials, 'Packet Raw Materials');
+  // Reçete sekmesi düğmeleri action'a bağlı: başlıklar action'lardan gelir
+  if Assigned(mnimenu_production) then
+    mnimenu_production.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuProduction, 'Production');
+  if Assigned(actprd_bom) then
+    actprd_bom.Caption := TLocalizationManager.Translate(TLangKeys.TPrdBom.TitlePlural, 'BoMs');
+  if Assigned(actprd_labour) then
+    actprd_labour.Caption := TLocalizationManager.Translate(TLangKeys.TPrdLabour.TitlePlural, 'Labours / Costs');
+  if Assigned(actprd_packet_raw) then
+    actprd_packet_raw.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRaw.TitlePlural, 'Raw Material Packets');
+  if Assigned(actprd_packet_labour) then
+    actprd_packet_labour.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketLabour.TitlePlural, 'Labour Packets');
 
   // Status Bar Panels
   if stbBase.Panels.Count >= STATUS_KEY_F4+1 then
@@ -1652,6 +1677,10 @@ begin
   SetAction(actstk_product_types, PERMISSION_STK_PRODUCT_TYPE);
   SetAction(actstk_kind_families, PERMISSION_STK_KIND_FAMILY);
   SetAction(actstk_cins_ozellikleri, PERMISSION_STK_KIND_PROPERTY);
+  SetAction(actprd_bom, PERMISSION_PRD_BOM);
+  SetAction(actprd_labour, PERMISSION_PRD_LABOUR);
+  SetAction(actprd_packet_raw, PERMISSION_PRD_PACKET_RAW);
+  SetAction(actprd_packet_labour, PERMISSION_PRD_PACKET_LABOUR);
 end;
 
 procedure TfrmDashboard.SetSession;

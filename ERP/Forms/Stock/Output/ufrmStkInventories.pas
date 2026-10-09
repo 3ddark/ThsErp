@@ -115,6 +115,15 @@ begin
   SetColumnProperty('sys_uom_id', 0);
   SetColumnProperty('sys_country_id', 0);
   SetColumnProperty('locale', 0);
+  // Gruptan gelen (default_*) değerler yalnız stok kartı formunda gösterilir
+  SetColumnProperty('default_vat_rate', 0);
+  SetColumnProperty('default_raw_material_stock_account', 0);
+  SetColumnProperty('default_raw_material_usage_account', 0);
+  SetColumnProperty('default_semi_product_account', 0);
+  SetColumnProperty('default_sales_account', 0);
+  SetColumnProperty('default_sales_return_account', 0);
+  SetColumnProperty('default_purchase_account', 0);
+  SetColumnProperty('default_purchase_return_account', 0);
 end;
 
 procedure TfrmStkInventories.FormShow(Sender: TObject);
@@ -158,6 +167,14 @@ begin
   SetColumnTitle('hs_no', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColHsNo, 'HS Code'));
   SetColumnTitle('diib_product_description', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColDiibProductDescription, 'DIIB Description'));
   SetColumnTitle('product_overview', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColProductOverview, 'Product Overview'));
+  SetColumnTitle('vat_rate', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColVatRate, 'VAT Rate (%)'));
+  SetColumnTitle('raw_material_stock_account', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColRawMaterialStockAccount, 'Raw Material Stock Account'));
+  SetColumnTitle('raw_material_usage_account', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColRawMaterialUsageAccount, 'Raw Material Usage Account'));
+  SetColumnTitle('semi_product_account', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColSemiProductAccount, 'Semi-Product Account'));
+  SetColumnTitle('sales_account', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColSalesAccount, 'Sales VAT Account'));
+  SetColumnTitle('sales_return_account', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColSalesReturnAccount, 'Sales Return VAT Account'));
+  SetColumnTitle('purchase_account', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColPurchaseAccount, 'Purchase VAT Account'));
+  SetColumnTitle('purchase_return_account', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColPurchaseReturnAccount, 'Purchase Return VAT Account'));
   SetColumnTitle('current_quantity', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColCurrentQuantity, 'Current Quantity'));
   SetColumnTitle('average_cost', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColAverageCost, 'Average Cost'));
 end;

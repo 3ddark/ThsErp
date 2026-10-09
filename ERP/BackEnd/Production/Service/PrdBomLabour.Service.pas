@@ -1,23 +1,36 @@
-unit PrdBomLabour.Service;
+﻿unit PrdBomLabour.Service;
 
 interface
 
 uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
-  Entity, Repository, Service, FilterCriterion, UnitOfWork, SharedFormTypes,
-  PrdBomLabour.Repository, PrdBomLabour;
+  FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
+  UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
+  PrdBomLabour.Repository, PrdBomLabour, PrdBomLabour.Exception;
 
 type
   TPrdBomLabourService = class(TCrudService<TPrdBomLabour>)
   private
     FRepo: IRepository<TPrdBomLabour>;
+
+    procedure DoAdd(AEntity: TPrdBomLabour);
+    procedure DoUpdate(AEntity: TPrdBomLabour);
+    procedure DoDelete(AId: Int64);
+
+    procedure ValidateRequiredReferences(AEntity: TPrdBomLabour);
+    procedure ValidateUnique(AEntity: TPrdBomLabour; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure ValidateBusinessRules(AEntity: TPrdBomLabour; AOperation: TCrudOperation); override;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TPrdBomLabour>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TPrdBomLabour; override;
+    function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TPrdBomLabour; override;
+
     procedure Add(AEntity: TPrdBomLabour); override;
     procedure Update(AEntity: TPrdBomLabour); override;
     procedure Delete(AId: Int64); override;
@@ -31,10 +44,14 @@ type
 
 implementation
 
+uses
+  SysPermission.Service;
+
 constructor TPrdBomLabourService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TPrdBomLabour, TPrdBomLabourRepository>;
+  Self.PermissionCode := PERMISSION_PRD_BOM;
 end;
 
 destructor TPrdBomLabourService.Destroy;
@@ -42,102 +59,174 @@ begin
   inherited;
 end;
 
+procedure TPrdBomLabourService.ValidateRequiredReferences(AEntity: TPrdBomLabour);
+
+  procedure CheckId(AValue: Int64; const AKey, ADefault: string);
+  begin
+    if AValue <= 0 then
+      raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
+        TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
+  end;
+
+begin
+  CheckId(AEntity.PrdBomId, TLangKeys.TPrdBomLabour.ColPrdBomId, 'BoM');
+  CheckId(AEntity.PrdLabourId, TLangKeys.TPrdBomLabour.ColPrdLabourId, 'Labour / Cost');
+end;
+
+procedure TPrdBomLabourService.ValidateUnique(AEntity: TPrdBomLabour; AOperation: TCrudOperation);
+var
+  LFilter: TFilterCriteria;
+  LModel: TPrdBomLabour;
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('prd_bom_id', '=', TValue.From<Int64>(AEntity.PrdBomId)));
+      LFilter.Add(TFilterCriterion.New('prd_labour_id', '=', TValue.From<Int64>(AEntity.PrdLabourId)));
+      if AOperation = coUpdate then
+        LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+
+      LModel := FRepo.FindOne(LFilter, False);
+      try
+        if Assigned(LModel) then
+          raise EPrdBomLabourExceptionLabourUnique.Create;
+      finally
+        LModel.Free;
+      end;
+    finally
+      LFilter.Free;
+    end;
+  end;
+end;
+
+procedure TPrdBomLabourService.ValidateBusinessRules(AEntity: TPrdBomLabour; AOperation: TCrudOperation);
+begin
+  if AOperation in [coInsert, coUpdate] then
+  begin
+    ValidateRequiredReferences(AEntity);
+    if AEntity.Quantity <= 0 then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TPrdBomLabour.ColQuantity, 'Quantity') + ': ' +
+        TLocalizationManager.Translate(TLangKeys.TValidation.MustBePositive, 'Value must be greater than zero'));
+  end;
+
+  ValidateUnique(AEntity, AOperation);
+end;
+
+procedure TPrdBomLabourService.DoAdd(AEntity: TPrdBomLabour);
+begin
+  ValidateAll(AEntity, coInsert);
+  FRepo.Add(AEntity);
+end;
+
+procedure TPrdBomLabourService.DoUpdate(AEntity: TPrdBomLabour);
+begin
+  ValidateAll(AEntity, coUpdate);
+  FRepo.Update(AEntity);
+end;
+
+procedure TPrdBomLabourService.DoDelete(AId: Int64);
+var
+  LEntity: TPrdBomLabour;
+begin
+  LEntity := FRepo.FindById(AId, False);
+  try
+    if not Assigned(LEntity) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AId]));
+
+    ValidateAll(LEntity, coDelete);
+    FRepo.Delete(LEntity);
+  finally
+    LEntity.Free;
+  end;
+end;
+
 function TPrdBomLabourService.BusinessFind(AFilter: TFilterCriteria; AWithBegin, ALock, APermissionControl: Boolean): TList<TPrdBomLabour>;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.Find(AFilter, ALock);
+  try
+    Result := FRepo.Find(AFilter, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 function TPrdBomLabourService.BusinessFindById(AId: Int64; AWithBegin, ALock, APermissionControl: Boolean): TPrdBomLabour;
 begin
-  if APermissionControl then
-  begin
-    Self.UoW.IsAuthorized(ptRead, APermissionControl);
-  end;
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
+
   if AWithBegin and not Self.UoW.InTransaction then
     Self.UoW.BeginTransaction;
 
-  Result := FRepo.FindById(AId, ALock, [ioIncludeAll]);
+  try
+    Result := FRepo.FindById(AId, ALock);
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
 end;
 
 procedure TPrdBomLabourService.BusinessInsert(AEntity: TPrdBomLabour; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptAddRecord, APermissionControl);
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Add(AEntity);
+    DoAdd(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Uow.InTransaction then
-        Self.UoW.Rollback;
-      raise
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TPrdBomLabourService.BusinessUpdate(AEntity: TPrdBomLabour; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptUpdate, APermissionControl);
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Update(AEntity);
+    DoUpdate(AEntity);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
 procedure TPrdBomLabourService.BusinessDelete(AEntity: TPrdBomLabour; AWithBegin, AWithCommit, APermissionControl: Boolean);
 begin
   try
-    if APermissionControl then
-    begin
-      Self.UoW.IsAuthorized(ptDelete, APermissionControl);
-    end;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptDelete, APermissionControl);
 
     if AWithBegin and not Self.UoW.InTransaction then
       Self.UoW.BeginTransaction;
 
-    FRepo.Delete(AEntity);
+    DoDelete(AEntity.Id);
 
-    if AWithCommit and Uow.InTransaction then
+    if AWithCommit and Self.UoW.InTransaction then
       Self.UoW.Commit;
   except
-    on E: Exception do
-    begin
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
-    end;
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -146,35 +235,34 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
-function TPrdBomLabourService.Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TList<TPrdBomLabour>;
+function TPrdBomLabourService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TPrdBomLabour>;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.Find(AFilter, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.Find(AFilter, ALock);
+  Result := FRepo.Find(AFilter, ALock);
 end;
 
-function TPrdBomLabourService.FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean): TPrdBomLabour;
+function TPrdBomLabourService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TPrdBomLabour;
 begin
-  if AIncludeNestedEntities then
-    Result := FRepo.FindById(AId, ALock, [ioIncludeAll])
-  else
-    Result := FRepo.FindById(AId, ALock);
+  Result := FRepo.FindById(AId, ALock);
+end;
+
+function TPrdBomLabourService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TPrdBomLabour;
+begin
+  Result := FRepo.FindOne(AFilter, ALock);
 end;
 
 procedure TPrdBomLabourService.Add(AEntity: TPrdBomLabour);
 begin
-  FRepo.Add(AEntity);
+  DoAdd(AEntity);
 end;
 
 procedure TPrdBomLabourService.Update(AEntity: TPrdBomLabour);
 begin
-  FRepo.Update(AEntity);
+  DoUpdate(AEntity);
 end;
 
 procedure TPrdBomLabourService.Delete(AId: Int64);
 begin
-  FRepo.Delete(AId);
+  DoDelete(AId);
 end;
 
 end.

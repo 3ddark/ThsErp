@@ -1,43 +1,67 @@
-unit PrdBomPacketLabour;
+﻿unit PrdBomPacketLabour;
 
 interface
 
+{$I Ths.inc}
+
 uses
-  SysUtils, Classes, Types, Entity, EntityAttributes;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
   [Table('prd_bom_packet_labour')]
   TPrdBomPacketLabour = class(TEntity)
   private
-    FHeaderId: Int64;
-    FPaketId: Int64;
-    FQuantity: double;
-  public
-    [Column('header_id')]
-    [Required]
-    property HeaderId: Int64 read FHeaderId write FHeaderId;
+    FPrdBomId: Int64;
+    FPrdPacketLabourId: Int64;
+    FQuantity: Currency;
 
-    [Column('paket_id')]
-    [Required]
-    property PaketId: Int64 read FPaketId write FPaketId;
+    // View (vw_prd_bom_packet_labour) okunabilir alanları
+    FBomName: string;
+    FPacketName: string;
+  public
+    [Column('prd_bom_id')]
+    property PrdBomId: Int64 read FPrdBomId write FPrdBomId;
+
+    [Column('prd_packet_labour_id')]
+    property PrdPacketLabourId: Int64 read FPrdPacketLabourId write FPrdPacketLabourId;
 
     [Column('quantity')]
-    property Quantity: double read FQuantity write FQuantity;
+    property Quantity: Currency read FQuantity write FQuantity;
+
+    [NotMapped]
+    property BomName: string read FBomName write FBomName;
+
+    [NotMapped]
+    property PacketName: string read FPacketName write FPacketName;
 
     constructor Create(); override;
     destructor Destroy; override;
+
+    function Clone: TPrdBomPacketLabour;
   end;
 
 implementation
 
-constructor TPrdBomPacketLabour.Create();
+constructor TPrdBomPacketLabour.Create;
 begin
   inherited;
+  FQuantity := 1;
 end;
 
 destructor TPrdBomPacketLabour.Destroy;
 begin
   inherited;
+end;
+
+function TPrdBomPacketLabour.Clone: TPrdBomPacketLabour;
+begin
+  Result := TPrdBomPacketLabour.Create;
+  Result.Id := Self.Id;
+  Result.PrdBomId := Self.PrdBomId;
+  Result.PrdPacketLabourId := Self.PrdPacketLabourId;
+  Result.Quantity := Self.Quantity;
+  Result.BomName := Self.BomName;
+  Result.PacketName := Self.PacketName;
 end;
 
 end.

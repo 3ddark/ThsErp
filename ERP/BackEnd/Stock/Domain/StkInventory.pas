@@ -8,6 +8,18 @@ uses
   System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
+  // Ambar bazında stok (vw_stk_inventory_warehouse) - stok kartı "Özetler" sekmesi
+  TStkInventoryWarehouseStock = record
+    WarehouseName: string;
+    Quantity: Double;
+  end;
+
+  // Cins bilgisi değeri (etiket stk_kind_property'den, değer stk_card_kind_info'dan)
+  TStkInventoryKindValue = record
+    Caption: string;
+    Value: string;
+  end;
+
   [Table('stk_inventory')]
   TStkInventory = class(TEntity)
   private
@@ -38,6 +50,17 @@ type
     FDiibProductDescription: string;
     FProductOverview: string;
 
+    // Karta özel muhasebe ayarları (boş = gruptan / KDV oranından gelen değer)
+    FVatRate: Currency;
+    FHasVatRate: Boolean;
+    FRawMaterialStockAccount: string;
+    FRawMaterialUsageAccount: string;
+    FSemiProductAccount: string;
+    FSalesAccount: string;
+    FSalesReturnAccount: string;
+    FPurchaseAccount: string;
+    FPurchaseReturnAccount: string;
+
     // View (vw_stk_inventory) okunabilir alanları
     FGroupName: string;
     FProductTypeName: string;
@@ -45,6 +68,14 @@ type
     FCountryName: string;
     FCurrentQuantity: string;
     FAverageCost: string;
+    FDefaultVatRate: string;
+    FDefaultRawMaterialStockAccount: string;
+    FDefaultRawMaterialUsageAccount: string;
+    FDefaultSemiProductAccount: string;
+    FDefaultSalesAccount: string;
+    FDefaultSalesReturnAccount: string;
+    FDefaultPurchaseAccount: string;
+    FDefaultPurchaseReturnAccount: string;
 
     // stk_image (1:1) - yalnız FindById ile yüklenir; ImageLoaded False iken kayıtta resme dokunulmaz
     FImage: TBytes;
@@ -138,6 +169,41 @@ type
     [Column('product_overview')]
     property ProductOverview: string read FProductOverview write FProductOverview;
 
+    // HasVatRate False = NULL (grubun KDV oranı geçerli); 0 da geçerli bir karta özel orandır
+    [Column('vat_rate')]
+    property VatRate: Currency read FVatRate write FVatRate;
+
+    [NotMapped]
+    property HasVatRate: Boolean read FHasVatRate write FHasVatRate;
+
+    [Column('raw_material_stock_account')]
+    [MaxLength(16)]
+    property RawMaterialStockAccount: string read FRawMaterialStockAccount write FRawMaterialStockAccount;
+
+    [Column('raw_material_usage_account')]
+    [MaxLength(16)]
+    property RawMaterialUsageAccount: string read FRawMaterialUsageAccount write FRawMaterialUsageAccount;
+
+    [Column('semi_product_account')]
+    [MaxLength(16)]
+    property SemiProductAccount: string read FSemiProductAccount write FSemiProductAccount;
+
+    [Column('sales_account')]
+    [MaxLength(16)]
+    property SalesAccount: string read FSalesAccount write FSalesAccount;
+
+    [Column('sales_return_account')]
+    [MaxLength(16)]
+    property SalesReturnAccount: string read FSalesReturnAccount write FSalesReturnAccount;
+
+    [Column('purchase_account')]
+    [MaxLength(16)]
+    property PurchaseAccount: string read FPurchaseAccount write FPurchaseAccount;
+
+    [Column('purchase_return_account')]
+    [MaxLength(16)]
+    property PurchaseReturnAccount: string read FPurchaseReturnAccount write FPurchaseReturnAccount;
+
     [NotMapped]
     property GroupName: string read FGroupName write FGroupName;
 
@@ -155,6 +221,31 @@ type
 
     [NotMapped]
     property AverageCost: string read FAverageCost write FAverageCost;
+
+    // Karta özel değer boşken uygulanacak değerler (vw_stk_inventory.default_*)
+    [NotMapped]
+    property DefaultVatRate: string read FDefaultVatRate write FDefaultVatRate;
+
+    [NotMapped]
+    property DefaultRawMaterialStockAccount: string read FDefaultRawMaterialStockAccount write FDefaultRawMaterialStockAccount;
+
+    [NotMapped]
+    property DefaultRawMaterialUsageAccount: string read FDefaultRawMaterialUsageAccount write FDefaultRawMaterialUsageAccount;
+
+    [NotMapped]
+    property DefaultSemiProductAccount: string read FDefaultSemiProductAccount write FDefaultSemiProductAccount;
+
+    [NotMapped]
+    property DefaultSalesAccount: string read FDefaultSalesAccount write FDefaultSalesAccount;
+
+    [NotMapped]
+    property DefaultSalesReturnAccount: string read FDefaultSalesReturnAccount write FDefaultSalesReturnAccount;
+
+    [NotMapped]
+    property DefaultPurchaseAccount: string read FDefaultPurchaseAccount write FDefaultPurchaseAccount;
+
+    [NotMapped]
+    property DefaultPurchaseReturnAccount: string read FDefaultPurchaseReturnAccount write FDefaultPurchaseReturnAccount;
 
     [NotMapped]
     property Image: TBytes read FImage write SetImage;
@@ -174,6 +265,7 @@ constructor TStkInventory.Create;
 begin
   inherited;
   FSellable := True;
+  FHasVatRate := False;
   FImage := nil;
   FImageLoaded := False;
 end;
@@ -219,12 +311,29 @@ begin
   Result.HsNo := Self.HsNo;
   Result.DiibProductDescription := Self.DiibProductDescription;
   Result.ProductOverview := Self.ProductOverview;
+  Result.VatRate := Self.VatRate;
+  Result.HasVatRate := Self.HasVatRate;
+  Result.RawMaterialStockAccount := Self.RawMaterialStockAccount;
+  Result.RawMaterialUsageAccount := Self.RawMaterialUsageAccount;
+  Result.SemiProductAccount := Self.SemiProductAccount;
+  Result.SalesAccount := Self.SalesAccount;
+  Result.SalesReturnAccount := Self.SalesReturnAccount;
+  Result.PurchaseAccount := Self.PurchaseAccount;
+  Result.PurchaseReturnAccount := Self.PurchaseReturnAccount;
   Result.GroupName := Self.GroupName;
   Result.ProductTypeName := Self.ProductTypeName;
   Result.UomName := Self.UomName;
   Result.CountryName := Self.CountryName;
   Result.CurrentQuantity := Self.CurrentQuantity;
   Result.AverageCost := Self.AverageCost;
+  Result.DefaultVatRate := Self.DefaultVatRate;
+  Result.DefaultRawMaterialStockAccount := Self.DefaultRawMaterialStockAccount;
+  Result.DefaultRawMaterialUsageAccount := Self.DefaultRawMaterialUsageAccount;
+  Result.DefaultSemiProductAccount := Self.DefaultSemiProductAccount;
+  Result.DefaultSalesAccount := Self.DefaultSalesAccount;
+  Result.DefaultSalesReturnAccount := Self.DefaultSalesReturnAccount;
+  Result.DefaultPurchaseAccount := Self.DefaultPurchaseAccount;
+  Result.DefaultPurchaseReturnAccount := Self.DefaultPurchaseReturnAccount;
   Result.FImage := Copy(Self.FImage);
   Result.FImageLoaded := Self.FImageLoaded;
 end;

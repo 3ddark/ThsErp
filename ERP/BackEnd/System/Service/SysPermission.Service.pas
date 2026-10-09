@@ -66,6 +66,10 @@ const
   PERMISSION_STK_KIND_FAMILY              = 1046;
   PERMISSION_STK_KIND_PROPERTY            = 1047;
   PERMISSION_STK_INVENTORY_SUMMARY        = 1048;
+  PERMISSION_PRD_BOM                      = 1061;   // reçete + hammadde / yan ürün / işçilik / paket bağlantıları
+  PERMISSION_PRD_LABOUR                   = 1062;   // işçilik / gider tanımı
+  PERMISSION_PRD_PACKET_RAW               = 1063;   // + paket kalemleri
+  PERMISSION_PRD_PACKET_LABOUR            = 1064;   // + paket kalemleri
 
   // Accounting (muhasebe)
   PERMISSION_ACC_EXCHANGE_RATE            = 3001;

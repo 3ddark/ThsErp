@@ -1,0 +1,91 @@
+object frmPrdPacketLabourDetail: TfrmPrdPacketLabourDetail
+  Left = 0
+  Top = 0
+  Caption = 'Labour Packet Item'
+  ClientHeight = 138
+  ClientWidth = 480
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OnCreate = FormCreate
+  TextHeight = 14
+  object pnlContent: TPanel
+    Left = 0
+    Top = 0
+    Width = 480
+    Height = 138
+    Align = alClient
+    TabOrder = 0
+    object lblPrdPacketLabourId: TLabel
+      Left = 4
+      Top = 6
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Packet'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtPrdPacketLabourId: TEdit
+      Left = 132
+      Top = 2
+      Width = 333
+      Height = 22
+      ReadOnly = True
+      TabOrder = 0
+    end
+    object lblPrdLabourId: TLabel
+      Left = 4
+      Top = 29
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Labour / Cost'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtPrdLabourId: TEdit
+      Left = 132
+      Top = 25
+      Width = 333
+      Height = 22
+      ReadOnly = True
+      TabOrder = 1
+    end
+    object lblQuantity: TLabel
+      Left = 4
+      Top = 52
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Quantity'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtQuantity: TEdit
+      Left = 132
+      Top = 48
+      Width = 333
+      Height = 22
+      TabOrder = 2
+    end
+  end
+end

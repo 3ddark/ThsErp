@@ -53,7 +53,11 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   Views already migrated to this pattern: `vw_emp_employee`, `vw_sys_user`, `vw_sys_permission`, `vw_sys_access_right`,
   `vw_sys_permission_template_right`, `vw_sys_address`, `vw_emp_person_type`, `vw_emp_section`, `vw_emp_unit`, `vw_emp_task`,
   `vw_acc_account`, `vw_acc_set_account_type`, `vw_acc_set_ownership_type`, `vw_acc_set_company_legal_form`,
-  `vw_stk_inventory` (uom / country names via their translation tables).
+  `vw_stk_inventory` (uom / country names via their translation tables; also exposes the card-specific accounting
+  overrides and their `default_*` fallbacks).
+- Stock card accounting overrides: `stk_inventory.vat_rate` + 7 account columns are NULL = inherit (group accounts from
+  `stk_group`, VAT accounts from the `acc_set_tax_rate` row of the effective VAT rate). Voucher posting must read the
+  resolved values from `vw_stk_inventory_account`, never `stk_group` directly.
   Others (`vw_sys_city`, `vw_sys_country`, `vw_sys_uom*` …)
   still derive locale from translations — migrate when touched.
 - Views without translations have no `locale` column; their repositories must not add a locale filter.
