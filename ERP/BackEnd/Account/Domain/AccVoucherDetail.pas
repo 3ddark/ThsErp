@@ -16,7 +16,7 @@ type
     // View (vw_acc_voucher_detail) okunabilir alanları
     FJournalNo: string;
   public
-    [Column('acc_voucher_id')]
+    [Column('acc_voucher_id'), Required()]
     property AccVoucherId: Int64 read FAccVoucherId write FAccVoucherId;
 
     [NotMapped]

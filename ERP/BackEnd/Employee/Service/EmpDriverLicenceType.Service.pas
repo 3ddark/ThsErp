@@ -43,6 +43,7 @@ type
 implementation
 
 uses
+  Ths.Helper.BaseTypes,
   SysPermission.Service;
 
 constructor TEmpDriverLicenseTypeService.Create;
@@ -87,7 +88,7 @@ procedure TEmpDriverLicenseTypeService.ValidateBusinessRules(AEntity: TEmpDriver
 begin
   if AOperation in [coInsert, coUpdate] then
   begin
-    AEntity.LicenseName := AnsiUpperCase(Trim(AEntity.LicenseName));
+    AEntity.LicenseName := UpperCaseTr(Trim(AEntity.LicenseName));
   end;
 
   ValidateUnique(AEntity, AOperation);

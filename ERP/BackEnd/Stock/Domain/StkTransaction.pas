@@ -34,10 +34,10 @@ type
     [Column('transaction_date')]
     property TransactionDate: TDate read FTransactionDate write FTransactionDate;
 
-    [Column('transaction_type')]
+    [Column('transaction_type'), Required()]
     property TransactionType: SmallInt read FTransactionType write FTransactionType;
 
-    [Column('stk_inventory_id')]
+    [Column('stk_inventory_id'), Required()]
     property StkInventoryId: Int64 read FStkInventoryId write FStkInventoryId;
 
     [Column('from_stk_warehouse_id')]

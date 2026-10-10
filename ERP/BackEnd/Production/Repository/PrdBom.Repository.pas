@@ -70,19 +70,19 @@ procedure TPrdBomRepository.SetInsertParams(Q: TFDQuery; AModel: TPrdBom; AIndex
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('bom_name').AsString := AModel.BomName;
-    Q.ParamByName('base_quantity').AsCurrency := AModel.BaseQuantity;
+    Q.ParamByName('bom_name').AsWideString := AModel.BomName;
+    Q.ParamByName('base_quantity').AsBCD := AModel.BaseQuantity;
     Q.ParamByName('is_default').AsBoolean := AModel.IsDefault;
     Q.ParamByName('is_active').AsBoolean := AModel.IsActive;
-    Q.ParamByName('description').AsString := AModel.Description;
+    Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
-    Q.ParamByName('bom_name').AsStrings[AIndex] := AModel.BomName;
-    Q.ParamByName('base_quantity').AsCurrencys[AIndex] := AModel.BaseQuantity;
+    Q.ParamByName('bom_name').AsWideStrings[AIndex] := AModel.BomName;
+    Q.ParamByName('base_quantity').AsBCDs[AIndex] := AModel.BaseQuantity;
     Q.ParamByName('is_default').AsBooleans[AIndex] := AModel.IsDefault;
     Q.ParamByName('is_active').AsBooleans[AIndex] := AModel.IsActive;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
   end;
 
   SetNullableParam(Q.ParamByName('stk_inventory_id'), ftLargeint, AModel.StkInventoryId, AIndex);
@@ -93,20 +93,20 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('bom_name').AsString := AModel.BomName;
-    Q.ParamByName('base_quantity').AsCurrency := AModel.BaseQuantity;
+    Q.ParamByName('bom_name').AsWideString := AModel.BomName;
+    Q.ParamByName('base_quantity').AsBCD := AModel.BaseQuantity;
     Q.ParamByName('is_default').AsBoolean := AModel.IsDefault;
     Q.ParamByName('is_active').AsBoolean := AModel.IsActive;
-    Q.ParamByName('description').AsString := AModel.Description;
+    Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('bom_name').AsStrings[AIndex] := AModel.BomName;
-    Q.ParamByName('base_quantity').AsCurrencys[AIndex] := AModel.BaseQuantity;
+    Q.ParamByName('bom_name').AsWideStrings[AIndex] := AModel.BomName;
+    Q.ParamByName('base_quantity').AsBCDs[AIndex] := AModel.BaseQuantity;
     Q.ParamByName('is_default').AsBooleans[AIndex] := AModel.IsDefault;
     Q.ParamByName('is_active').AsBooleans[AIndex] := AModel.IsActive;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
   end;
 
   SetNullableParam(Q.ParamByName('stk_inventory_id'), ftLargeint, AModel.StkInventoryId, AIndex);
@@ -235,6 +235,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -261,6 +262,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -277,6 +280,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -301,6 +305,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

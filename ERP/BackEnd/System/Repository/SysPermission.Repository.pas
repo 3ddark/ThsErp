@@ -190,14 +190,14 @@ begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('permission_code').AsInteger := AModel.PermissionCode;
     Q.ParamByName('sys_permission_group_id').AsLargeInt := AModel.SysPermissionGroupId;
-    Q.ParamByName('permission_key').AsString := AModel.PermissionKey;
+    Q.ParamByName('permission_key').AsWideString := AModel.PermissionKey;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
     Q.ParamByName('permission_code').AsIntegers[AIndex] := AModel.PermissionCode;
     Q.ParamByName('sys_permission_group_id').AsLargeInts[AIndex] := AModel.SysPermissionGroupId;
-    Q.ParamByName('permission_key').AsStrings[AIndex] := AModel.PermissionKey;
+    Q.ParamByName('permission_key').AsWideStrings[AIndex] := AModel.PermissionKey;
   end;
 end;
 
@@ -340,6 +340,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -367,6 +368,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -386,6 +389,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -411,6 +415,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

@@ -138,12 +138,14 @@ begin
           if LFrm.CleanAndClose then
           begin
             Table.SysUomGroupId := 0;
+            Table.UomGroupKey := '';
             (Sender as TEdit).Clear;
           end
           else
           begin
             Table.SysUomGroupId := LFrm.Table.Id;
-            (Sender as TEdit).Text := LFrm.Table.UomGroupKey;
+            Table.UomGroupKey := LFrm.Table.UomGroupKey;
+            (Sender as TEdit).Text := Table.UomGroupKey;
           end;
         end;
       finally
@@ -180,10 +182,7 @@ begin
     LValues.Free;
   end;
 
-  if Assigned(Table.SysUomGroup) then
-    edtSysUomGroupId.Text := Table.SysUomGroup.UomGroupKey
-  else
-    edtSysUomGroupId.Text := '';
+  edtSysUomGroupId.Text := Table.UomGroupKey;
 end;
 
 end.

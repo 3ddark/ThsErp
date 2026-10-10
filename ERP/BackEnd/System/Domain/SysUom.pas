@@ -50,6 +50,7 @@ type
     FTranslations: TObjectList<TSysUomTranslation>;
 
     FUomName: string;
+    FUomGroupKey: string;
   public
     [Column('unit_code'), MaxLength(16), Required()]
     property UnitCode: string read FUnitCode write FUnitCode;
@@ -74,6 +75,9 @@ type
 
     [NotMapped()]
     property UomName: string read FUomName write FUomName;
+
+    [NotMapped()]
+    property UomGroupKey: string read FUomGroupKey write FUomGroupKey;
 
     constructor Create; override;
     destructor Destroy; override;
@@ -111,9 +115,7 @@ begin
   Result.SysUomGroupId := Self.SysUomGroupId;
   Result.Multiplier := Self.Multiplier;
   Result.UomName := Self.UomName;
-
-  if Assigned(Self.SysUomGroup) then
-    Result.SysUomGroup := Self.SysUomGroup;
+  Result.UomGroupKey := Self.UomGroupKey;
 
   Result.Translations := TObjectList<TSysUomTranslation>.Create(True);
   if Assigned(Self.Translations) then

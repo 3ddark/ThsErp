@@ -65,6 +65,16 @@ begin
   SetColumnTitle('is_show',        TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsShow, 'Show'));
   SetColumnTitle('is_fetch',       TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsFetch, 'Fetch'));
   SetColumnTitle('aggregate_type', TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColAggregateType, 'Aggregate Type'));
+  SetColumnTitle('data_format',       TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColDataFormat, 'Data Format'));
+  SetColumnTitle('is_show_helper',    TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColIsShowHelper, 'Show in Helper'));
+  SetColumnTitle('min_value',         TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColMinValue, 'Min Value'));
+  SetColumnTitle('min_value_color',   TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColMinValueColor, 'Min Value Color'));
+  SetColumnTitle('max_value',         TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColMaxValue, 'Max Value'));
+  SetColumnTitle('max_value_color',   TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColMaxValueColor, 'Max Value Color'));
+  SetColumnTitle('max_value_percent', TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColMaxValuePercent, 'Max Value %'));
+  SetColumnTitle('bar_color',         TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColBarColor, 'Bar Color'));
+  SetColumnTitle('bar_bg_color',      TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColBarBkColor, 'Bar Background Color'));
+  SetColumnTitle('bar_text_color',    TLocalizationManager.Translate(TLangKeys.TSysGridColumn.ColBarTextColor, 'Bar Text Color'));
 end;
 
 end.

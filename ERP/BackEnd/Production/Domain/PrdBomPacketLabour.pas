@@ -19,10 +19,10 @@ type
     FBomName: string;
     FPacketName: string;
   public
-    [Column('prd_bom_id')]
+    [Column('prd_bom_id'), Required()]
     property PrdBomId: Int64 read FPrdBomId write FPrdBomId;
 
-    [Column('prd_packet_labour_id')]
+    [Column('prd_packet_labour_id'), Required()]
     property PrdPacketLabourId: Int64 read FPrdPacketLabourId write FPrdPacketLabourId;
 
     [Column('quantity')]

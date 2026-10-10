@@ -30,6 +30,13 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
   service and table.
 - Overrides used by every list form: `CreateInputForm`, `DefineColumnWidths`, `FormShow`, `ApplyLocalization`.
   Optional: `DefineFooterColumns`, `SetSelectedItem` (when nested display objects must be filled), `PreparePopupMenu`.
+  Base `SetSelectedItem` also fills `[NotMapped]` string props from the same-named snake_case grid column
+  (`UomName` ← `uom_name`) — the column must be fetched (`sys_grid_column` row for the view).
+- Read-only list (no input form): `CreateInputForm` returns nil and `BtnAdd` hidden; base `ShowInputForm` skips nil.
+- Every visible column of `vw_*` needs a `sys_grid_column` row (only those are fetched); after adding view columns
+  insert their rows, otherwise the list/helper silently lacks them.
+- UI regression: `ERP/Tests/Ui/build.sh` (rebuilds `ths_erp_it` from live + seed, compiles) then
+  `%TEMP%\ths_ui\bin\UiTest.exe [Module] [TfrmXxx]` drives every list + input form (dialogs auto-answered).
 - `CreateInputForm` pattern: `ifmRewiev` / `ifmCopyNewRecord` → `Table.Clone`, `ifmNewRecord` → `T{Entity}.Create`,
   always pass `Self.RefreshParentGrid`.
 - `DefineColumnWidths`: hide `id`, every FK id (`*_id`), `locale` with `SetColumnProperty('col', 0)`; show readable names.

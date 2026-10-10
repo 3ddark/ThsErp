@@ -181,12 +181,12 @@ begin
 //          qry.SQL.Text :=
 //            'SELECT column_label FROM sys_grid_column_title ' +
 //            'WHERE table_name = :tableName AND column_name = :colName AND lng_code=:lng_code';
-//          qry.ParamByName('tableName').AsString := tableName;
-//          qry.ParamByName('colName').AsString := columnName;
+//          qry.ParamByName('tableName').AsWideString := tableName;
+//          qry.ParamByName('colName').AsWideString := columnName;
 //          if FLanguageCode <> '' then
-//            qry.ParamByName('lng_code').AsString := FLanguageCode
+//            qry.ParamByName('lng_code').AsWideString := FLanguageCode
 //          else
-//            qry.ParamByName('lng_code').AsString := 'tr';
+//            qry.ParamByName('lng_code').AsWideString := 'tr';
 //          qry.Open;
 //
 //          if not qry.IsEmpty then

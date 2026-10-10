@@ -87,12 +87,12 @@ procedure TEmpPersonAddressRepository.SetInsertParams(Q: TFDQuery; AModel: TEmpP
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('address_type').AsString := AModel.AddressType;
+    Q.ParamByName('address_type').AsWideString := AModel.AddressType;
     Q.ParamByName('is_primary').AsBoolean := AModel.IsPrimary;
   end
   else
   begin
-    Q.ParamByName('address_type').AsStrings[AIndex] := AModel.AddressType;
+    Q.ParamByName('address_type').AsWideStrings[AIndex] := AModel.AddressType;
     Q.ParamByName('is_primary').AsBooleans[AIndex] := AModel.IsPrimary;
   end;
 
@@ -124,13 +124,13 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('address_type').AsString := AModel.AddressType;
+    Q.ParamByName('address_type').AsWideString := AModel.AddressType;
     Q.ParamByName('is_primary').AsBoolean := AModel.IsPrimary;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('address_type').AsStrings[AIndex] := AModel.AddressType;
+    Q.ParamByName('address_type').AsWideStrings[AIndex] := AModel.AddressType;
     Q.ParamByName('is_primary').AsBooleans[AIndex] := AModel.IsPrimary;
   end;
 
@@ -267,6 +267,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -293,6 +294,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -309,6 +312,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -333,6 +337,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

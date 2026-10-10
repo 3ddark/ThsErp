@@ -10,6 +10,8 @@ uses
 type
   TStkInventoryRepository = class(TRepository<TStkInventory>)
   protected
+    // vat_rate: NULL = gruptan gelir, 0 = %0 KDV (0 NULL'a çevrilmez)
+    function NullPolicyKeepZero: TArray<string>; override;
     function PrepareAddSql: string;
     function PrepareUpdateSql: string;
     function PrepareDeleteSql: string;
@@ -54,6 +56,11 @@ type
 
 implementation
 
+
+function TStkInventoryRepository.NullPolicyKeepZero: TArray<string>;
+begin
+  Result := ['vat_rate'];
+end;
 constructor TStkInventoryRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
@@ -101,9 +108,9 @@ begin
       '  LEFT JOIN public.acc_set_tax_rate tr ON tr.tax_rate = COALESCE(CAST(:vat_rate AS numeric), g.vat_rate) ' +
       ' WHERE g.id = :stk_group_id';
     Q.ParamByName('stk_group_id').AsLargeInt := AModel.StkGroupId;
-    Q.ParamByName('vat_rate').DataType := ftCurrency;
+    Q.ParamByName('vat_rate').DataType := ftBCD;
     if AModel.HasVatRate then
-      Q.ParamByName('vat_rate').AsCurrency := AModel.VatRate
+      Q.ParamByName('vat_rate').AsBCD := AModel.VatRate
     else
       Q.ParamByName('vat_rate').Clear;
     LogQuery(Q, 'FillDefaults');
@@ -132,7 +139,7 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := 'SELECT 1 FROM public.acc_account WHERE code = :code';
-    Q.ParamByName('code').AsString := ACode;
+    Q.ParamByName('code').AsWideString := ACode;
     LogQuery(Q, 'AccountExists');
     Q.Open;
     Result := not Q.IsEmpty;
@@ -302,13 +309,13 @@ procedure TStkInventoryRepository.SetInsertParams(Q: TFDQuery; AModel: TStkInven
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -319,47 +326,47 @@ procedure TStkInventoryRepository.SetInsertParams(Q: TFDQuery; AModel: TStkInven
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('code').AsString := AModel.Code;
-    Q.ParamByName('name').AsString := AModel.Name;
+    Q.ParamByName('code').AsWideString := AModel.Code;
+    Q.ParamByName('name').AsWideString := AModel.Name;
     Q.ParamByName('sellable').AsBoolean := AModel.Sellable;
-    Q.ParamByName('buying_price').AsCurrency := AModel.BuyingPrice;
-    Q.ParamByName('buying_discount').AsCurrency := AModel.BuyingDiscount;
-    Q.ParamByName('sales_price').AsCurrency := AModel.SalesPrice;
-    Q.ParamByName('sales_discount').AsCurrency := AModel.SalesDiscount;
-    Q.ParamByName('export_price').AsCurrency := AModel.ExportPrice;
-    Q.ParamByName('special_code').AsString := AModel.SpecialCode;
-    Q.ParamByName('brand').AsString := AModel.Brand;
+    Q.ParamByName('buying_price').AsBCD := AModel.BuyingPrice;
+    Q.ParamByName('buying_discount').AsBCD := AModel.BuyingDiscount;
+    Q.ParamByName('sales_price').AsBCD := AModel.SalesPrice;
+    Q.ParamByName('sales_discount').AsBCD := AModel.SalesDiscount;
+    Q.ParamByName('export_price').AsBCD := AModel.ExportPrice;
+    Q.ParamByName('special_code').AsWideString := AModel.SpecialCode;
+    Q.ParamByName('brand').AsWideString := AModel.Brand;
     Q.ParamByName('width').AsFloat := AModel.Width;
     Q.ParamByName('length').AsFloat := AModel.Length;
     Q.ParamByName('height').AsFloat := AModel.Height;
     Q.ParamByName('weight').AsFloat := AModel.Weight;
     Q.ParamByName('supply_duration').AsSmallInt := AModel.SupplyDuration;
     Q.ParamByName('min_stock_amount').AsFloat := AModel.MinStockAmount;
-    Q.ParamByName('hs_no').AsString := AModel.HsNo;
-    Q.ParamByName('diib_product_description').AsString := AModel.DiibProductDescription;
-    Q.ParamByName('product_overview').AsString := AModel.ProductOverview;
+    Q.ParamByName('hs_no').AsWideString := AModel.HsNo;
+    Q.ParamByName('diib_product_description').AsWideString := AModel.DiibProductDescription;
+    Q.ParamByName('product_overview').AsWideString := AModel.ProductOverview;
   end
   else
   begin
-    Q.ParamByName('code').AsStrings[AIndex] := AModel.Code;
-    Q.ParamByName('name').AsStrings[AIndex] := AModel.Name;
+    Q.ParamByName('code').AsWideStrings[AIndex] := AModel.Code;
+    Q.ParamByName('name').AsWideStrings[AIndex] := AModel.Name;
     Q.ParamByName('sellable').AsBooleans[AIndex] := AModel.Sellable;
-    Q.ParamByName('buying_price').AsCurrencys[AIndex] := AModel.BuyingPrice;
-    Q.ParamByName('buying_discount').AsCurrencys[AIndex] := AModel.BuyingDiscount;
-    Q.ParamByName('sales_price').AsCurrencys[AIndex] := AModel.SalesPrice;
-    Q.ParamByName('sales_discount').AsCurrencys[AIndex] := AModel.SalesDiscount;
-    Q.ParamByName('export_price').AsCurrencys[AIndex] := AModel.ExportPrice;
-    Q.ParamByName('special_code').AsStrings[AIndex] := AModel.SpecialCode;
-    Q.ParamByName('brand').AsStrings[AIndex] := AModel.Brand;
+    Q.ParamByName('buying_price').AsBCDs[AIndex] := AModel.BuyingPrice;
+    Q.ParamByName('buying_discount').AsBCDs[AIndex] := AModel.BuyingDiscount;
+    Q.ParamByName('sales_price').AsBCDs[AIndex] := AModel.SalesPrice;
+    Q.ParamByName('sales_discount').AsBCDs[AIndex] := AModel.SalesDiscount;
+    Q.ParamByName('export_price').AsBCDs[AIndex] := AModel.ExportPrice;
+    Q.ParamByName('special_code').AsWideStrings[AIndex] := AModel.SpecialCode;
+    Q.ParamByName('brand').AsWideStrings[AIndex] := AModel.Brand;
     Q.ParamByName('width').AsFloats[AIndex] := AModel.Width;
     Q.ParamByName('length').AsFloats[AIndex] := AModel.Length;
     Q.ParamByName('height').AsFloats[AIndex] := AModel.Height;
     Q.ParamByName('weight').AsFloats[AIndex] := AModel.Weight;
     Q.ParamByName('supply_duration').AsSmallInts[AIndex] := AModel.SupplyDuration;
     Q.ParamByName('min_stock_amount').AsFloats[AIndex] := AModel.MinStockAmount;
-    Q.ParamByName('hs_no').AsStrings[AIndex] := AModel.HsNo;
-    Q.ParamByName('diib_product_description').AsStrings[AIndex] := AModel.DiibProductDescription;
-    Q.ParamByName('product_overview').AsStrings[AIndex] := AModel.ProductOverview;
+    Q.ParamByName('hs_no').AsWideStrings[AIndex] := AModel.HsNo;
+    Q.ParamByName('diib_product_description').AsWideStrings[AIndex] := AModel.DiibProductDescription;
+    Q.ParamByName('product_overview').AsWideStrings[AIndex] := AModel.ProductOverview;
   end;
 
   SetNullableParam(Q.ParamByName('stk_group_id'), ftLargeint, AModel.StkGroupId, AIndex);
@@ -377,13 +384,13 @@ procedure TStkInventoryRepository.SetUpdateParams(Q: TFDQuery; AModel: TStkInven
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -395,48 +402,48 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('code').AsString := AModel.Code;
-    Q.ParamByName('name').AsString := AModel.Name;
+    Q.ParamByName('code').AsWideString := AModel.Code;
+    Q.ParamByName('name').AsWideString := AModel.Name;
     Q.ParamByName('sellable').AsBoolean := AModel.Sellable;
-    Q.ParamByName('buying_price').AsCurrency := AModel.BuyingPrice;
-    Q.ParamByName('buying_discount').AsCurrency := AModel.BuyingDiscount;
-    Q.ParamByName('sales_price').AsCurrency := AModel.SalesPrice;
-    Q.ParamByName('sales_discount').AsCurrency := AModel.SalesDiscount;
-    Q.ParamByName('export_price').AsCurrency := AModel.ExportPrice;
-    Q.ParamByName('special_code').AsString := AModel.SpecialCode;
-    Q.ParamByName('brand').AsString := AModel.Brand;
+    Q.ParamByName('buying_price').AsBCD := AModel.BuyingPrice;
+    Q.ParamByName('buying_discount').AsBCD := AModel.BuyingDiscount;
+    Q.ParamByName('sales_price').AsBCD := AModel.SalesPrice;
+    Q.ParamByName('sales_discount').AsBCD := AModel.SalesDiscount;
+    Q.ParamByName('export_price').AsBCD := AModel.ExportPrice;
+    Q.ParamByName('special_code').AsWideString := AModel.SpecialCode;
+    Q.ParamByName('brand').AsWideString := AModel.Brand;
     Q.ParamByName('width').AsFloat := AModel.Width;
     Q.ParamByName('length').AsFloat := AModel.Length;
     Q.ParamByName('height').AsFloat := AModel.Height;
     Q.ParamByName('weight').AsFloat := AModel.Weight;
     Q.ParamByName('supply_duration').AsSmallInt := AModel.SupplyDuration;
     Q.ParamByName('min_stock_amount').AsFloat := AModel.MinStockAmount;
-    Q.ParamByName('hs_no').AsString := AModel.HsNo;
-    Q.ParamByName('diib_product_description').AsString := AModel.DiibProductDescription;
-    Q.ParamByName('product_overview').AsString := AModel.ProductOverview;
+    Q.ParamByName('hs_no').AsWideString := AModel.HsNo;
+    Q.ParamByName('diib_product_description').AsWideString := AModel.DiibProductDescription;
+    Q.ParamByName('product_overview').AsWideString := AModel.ProductOverview;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('code').AsStrings[AIndex] := AModel.Code;
-    Q.ParamByName('name').AsStrings[AIndex] := AModel.Name;
+    Q.ParamByName('code').AsWideStrings[AIndex] := AModel.Code;
+    Q.ParamByName('name').AsWideStrings[AIndex] := AModel.Name;
     Q.ParamByName('sellable').AsBooleans[AIndex] := AModel.Sellable;
-    Q.ParamByName('buying_price').AsCurrencys[AIndex] := AModel.BuyingPrice;
-    Q.ParamByName('buying_discount').AsCurrencys[AIndex] := AModel.BuyingDiscount;
-    Q.ParamByName('sales_price').AsCurrencys[AIndex] := AModel.SalesPrice;
-    Q.ParamByName('sales_discount').AsCurrencys[AIndex] := AModel.SalesDiscount;
-    Q.ParamByName('export_price').AsCurrencys[AIndex] := AModel.ExportPrice;
-    Q.ParamByName('special_code').AsStrings[AIndex] := AModel.SpecialCode;
-    Q.ParamByName('brand').AsStrings[AIndex] := AModel.Brand;
+    Q.ParamByName('buying_price').AsBCDs[AIndex] := AModel.BuyingPrice;
+    Q.ParamByName('buying_discount').AsBCDs[AIndex] := AModel.BuyingDiscount;
+    Q.ParamByName('sales_price').AsBCDs[AIndex] := AModel.SalesPrice;
+    Q.ParamByName('sales_discount').AsBCDs[AIndex] := AModel.SalesDiscount;
+    Q.ParamByName('export_price').AsBCDs[AIndex] := AModel.ExportPrice;
+    Q.ParamByName('special_code').AsWideStrings[AIndex] := AModel.SpecialCode;
+    Q.ParamByName('brand').AsWideStrings[AIndex] := AModel.Brand;
     Q.ParamByName('width').AsFloats[AIndex] := AModel.Width;
     Q.ParamByName('length').AsFloats[AIndex] := AModel.Length;
     Q.ParamByName('height').AsFloats[AIndex] := AModel.Height;
     Q.ParamByName('weight').AsFloats[AIndex] := AModel.Weight;
     Q.ParamByName('supply_duration').AsSmallInts[AIndex] := AModel.SupplyDuration;
     Q.ParamByName('min_stock_amount').AsFloats[AIndex] := AModel.MinStockAmount;
-    Q.ParamByName('hs_no').AsStrings[AIndex] := AModel.HsNo;
-    Q.ParamByName('diib_product_description').AsStrings[AIndex] := AModel.DiibProductDescription;
-    Q.ParamByName('product_overview').AsStrings[AIndex] := AModel.ProductOverview;
+    Q.ParamByName('hs_no').AsWideStrings[AIndex] := AModel.HsNo;
+    Q.ParamByName('diib_product_description').AsWideStrings[AIndex] := AModel.DiibProductDescription;
+    Q.ParamByName('product_overview').AsWideStrings[AIndex] := AModel.ProductOverview;
   end;
 
   SetNullableParam(Q.ParamByName('stk_group_id'), ftLargeint, AModel.StkGroupId, AIndex);
@@ -454,13 +461,13 @@ procedure TStkInventoryRepository.SetOverrideParams(Q: TFDQuery; AModel: TStkInv
 
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -469,13 +476,13 @@ procedure TStkInventoryRepository.SetOverrideParams(Q: TFDQuery; AModel: TStkInv
   end;
 
 begin
-  Q.ParamByName('vat_rate').DataType := ftCurrency;
+  Q.ParamByName('vat_rate').DataType := ftBCD;
   if AModel.HasVatRate then
   begin
     if AIndex < 0 then
-      Q.ParamByName('vat_rate').AsCurrency := AModel.VatRate
+      Q.ParamByName('vat_rate').AsBCD := AModel.VatRate
     else
-      Q.ParamByName('vat_rate').AsCurrencys[AIndex] := AModel.VatRate;
+      Q.ParamByName('vat_rate').AsBCDs[AIndex] := AModel.VatRate;
   end
   else if AIndex < 0 then
     Q.ParamByName('vat_rate').Clear
@@ -660,6 +667,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -688,6 +696,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -704,6 +714,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -730,6 +741,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

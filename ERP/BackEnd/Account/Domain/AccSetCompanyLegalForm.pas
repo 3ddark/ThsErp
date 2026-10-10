@@ -49,7 +49,7 @@ type
     [MaxLength(48), Required(TLangKeys.TValidation.Required, True)]
     property LegalFormKey: string read FLegalFormKey write FLegalFormKey;
 
-    [Column('acc_set_ownership_type_id')]
+    [Column('acc_set_ownership_type_id'), Required()]
     property AccSetOwnershipTypeId: Int64 read FAccSetOwnershipTypeId write FAccSetOwnershipTypeId;
 
     [HasMany('AccSetCompanyLegalFormId', 'Id')]

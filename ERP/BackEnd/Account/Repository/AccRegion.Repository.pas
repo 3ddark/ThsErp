@@ -70,11 +70,11 @@ procedure TAccRegionRepository.SetInsertParams(Q: TFDQuery; AModel: TAccRegion; 
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('name').AsString := AModel.Name;
+    Q.ParamByName('name').AsWideString := AModel.Name;
   end
   else
   begin
-    Q.ParamByName('name').AsStrings[AIndex] := AModel.Name;
+    Q.ParamByName('name').AsWideStrings[AIndex] := AModel.Name;
   end;
 end;
 
@@ -83,12 +83,12 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('name').AsString := AModel.Name;
+    Q.ParamByName('name').AsWideString := AModel.Name;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('name').AsStrings[AIndex] := AModel.Name;
+    Q.ParamByName('name').AsWideStrings[AIndex] := AModel.Name;
   end;
 end;
 
@@ -206,6 +206,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -232,6 +233,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -248,6 +251,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -272,6 +276,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

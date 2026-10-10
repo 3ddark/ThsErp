@@ -257,18 +257,6 @@ inherited frmDashboard: TfrmDashboard
           TabOrder = 2
           WordWrap = True
         end
-        object btn1: TButton
-          Left = 340
-          Top = 164
-          Width = 94
-          Height = 31
-          Margins.Left = 4
-          Margins.Top = 4
-          Margins.Right = 4
-          Margins.Bottom = 4
-          Caption = 'Test Grid'
-          TabOrder = 5
-        end
       end
       object tsaccount: TTabSheet
         Caption = 'Hesaplar'
@@ -664,11 +652,6 @@ inherited frmDashboard: TfrmDashboard
       Caption = 'Uygulama Ayarlar'#305
       ImageIndex = 76
       OnExecute = actsys_application_settingExecute
-    end
-    object actsys_application_setting_other: TAction
-      Category = 'System'
-      Caption = 'Application Settings Other'
-      ImageIndex = 76
     end
     object actsys_update: TAction
       Category = 'System'

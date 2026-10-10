@@ -81,13 +81,13 @@ type
     [MaxLength(8)]
     property BloodType: string read FBloodType write FBloodType;          // EmpLookup elkBloodType, '' = NULL
 
-    [Column('gender')]
+    [Column('gender'), Required()]
     property Gender: SmallInt read FGender write FGender;
 
     [Column('military_status')]
     property MilitaryStatus: SmallInt read FMilitaryStatus write FMilitaryStatus;
 
-    [Column('marital_status')]
+    [Column('marital_status'), Required()]
     property MaritalStatus: SmallInt read FMaritalStatus write FMaritalStatus;
 
     [Column('child')]

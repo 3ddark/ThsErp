@@ -11,7 +11,7 @@ type
     FTableName: string;
     FSortContent: string;
   public
-    [Column('table_name'), MaxLength(32)]
+    [Column('table_name'), MaxLength(32), Required()]
     property TableName: string read FTableName write FTableName;
 
     [Column('sort_content')]

@@ -155,7 +155,8 @@ begin
                        (TAppContext.Instance.CurrentUser.User.SuperUser or TAppContext.Instance.CurrentUser.User.Manager);
 
   if Assigned(chkIsFetch) then
-    chkIsFetch.Enabled := LIsAdminOrManager;
+    // inceleme modunda tüm kontroller kilitli kalır (base FormShow); yalnız düzenlemede yetkiye bağlı
+    chkIsFetch.Enabled := LIsAdminOrManager and not (FormMode in [ifmRewiev, ifmReadOnly]);
 
   edtTableName.SetFocus;
 end;

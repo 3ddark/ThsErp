@@ -70,16 +70,16 @@ procedure TStkCardKindInfoRepository.SetInsertParams(Q: TFDQuery; AModel: TStkCa
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('s1').AsString := AModel.S1;
-    Q.ParamByName('s2').AsString := AModel.S2;
-    Q.ParamByName('s3').AsString := AModel.S3;
-    Q.ParamByName('s4').AsString := AModel.S4;
-    Q.ParamByName('s5').AsString := AModel.S5;
-    Q.ParamByName('s6').AsString := AModel.S6;
-    Q.ParamByName('s7').AsString := AModel.S7;
-    Q.ParamByName('s8').AsString := AModel.S8;
-    Q.ParamByName('s9').AsString := AModel.S9;
-    Q.ParamByName('s10').AsString := AModel.S10;
+    Q.ParamByName('s1').AsWideString := AModel.S1;
+    Q.ParamByName('s2').AsWideString := AModel.S2;
+    Q.ParamByName('s3').AsWideString := AModel.S3;
+    Q.ParamByName('s4').AsWideString := AModel.S4;
+    Q.ParamByName('s5').AsWideString := AModel.S5;
+    Q.ParamByName('s6').AsWideString := AModel.S6;
+    Q.ParamByName('s7').AsWideString := AModel.S7;
+    Q.ParamByName('s8').AsWideString := AModel.S8;
+    Q.ParamByName('s9').AsWideString := AModel.S9;
+    Q.ParamByName('s10').AsWideString := AModel.S10;
     Q.ParamByName('i1').AsInteger := AModel.I1;
     Q.ParamByName('i2').AsInteger := AModel.I2;
     Q.ParamByName('i3').AsInteger := AModel.I3;
@@ -93,16 +93,16 @@ begin
   end
   else
   begin
-    Q.ParamByName('s1').AsStrings[AIndex] := AModel.S1;
-    Q.ParamByName('s2').AsStrings[AIndex] := AModel.S2;
-    Q.ParamByName('s3').AsStrings[AIndex] := AModel.S3;
-    Q.ParamByName('s4').AsStrings[AIndex] := AModel.S4;
-    Q.ParamByName('s5').AsStrings[AIndex] := AModel.S5;
-    Q.ParamByName('s6').AsStrings[AIndex] := AModel.S6;
-    Q.ParamByName('s7').AsStrings[AIndex] := AModel.S7;
-    Q.ParamByName('s8').AsStrings[AIndex] := AModel.S8;
-    Q.ParamByName('s9').AsStrings[AIndex] := AModel.S9;
-    Q.ParamByName('s10').AsStrings[AIndex] := AModel.S10;
+    Q.ParamByName('s1').AsWideStrings[AIndex] := AModel.S1;
+    Q.ParamByName('s2').AsWideStrings[AIndex] := AModel.S2;
+    Q.ParamByName('s3').AsWideStrings[AIndex] := AModel.S3;
+    Q.ParamByName('s4').AsWideStrings[AIndex] := AModel.S4;
+    Q.ParamByName('s5').AsWideStrings[AIndex] := AModel.S5;
+    Q.ParamByName('s6').AsWideStrings[AIndex] := AModel.S6;
+    Q.ParamByName('s7').AsWideStrings[AIndex] := AModel.S7;
+    Q.ParamByName('s8').AsWideStrings[AIndex] := AModel.S8;
+    Q.ParamByName('s9').AsWideStrings[AIndex] := AModel.S9;
+    Q.ParamByName('s10').AsWideStrings[AIndex] := AModel.S10;
     Q.ParamByName('i1').AsIntegers[AIndex] := AModel.I1;
     Q.ParamByName('i2').AsIntegers[AIndex] := AModel.I2;
     Q.ParamByName('i3').AsIntegers[AIndex] := AModel.I3;
@@ -124,16 +124,16 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('s1').AsString := AModel.S1;
-    Q.ParamByName('s2').AsString := AModel.S2;
-    Q.ParamByName('s3').AsString := AModel.S3;
-    Q.ParamByName('s4').AsString := AModel.S4;
-    Q.ParamByName('s5').AsString := AModel.S5;
-    Q.ParamByName('s6').AsString := AModel.S6;
-    Q.ParamByName('s7').AsString := AModel.S7;
-    Q.ParamByName('s8').AsString := AModel.S8;
-    Q.ParamByName('s9').AsString := AModel.S9;
-    Q.ParamByName('s10').AsString := AModel.S10;
+    Q.ParamByName('s1').AsWideString := AModel.S1;
+    Q.ParamByName('s2').AsWideString := AModel.S2;
+    Q.ParamByName('s3').AsWideString := AModel.S3;
+    Q.ParamByName('s4').AsWideString := AModel.S4;
+    Q.ParamByName('s5').AsWideString := AModel.S5;
+    Q.ParamByName('s6').AsWideString := AModel.S6;
+    Q.ParamByName('s7').AsWideString := AModel.S7;
+    Q.ParamByName('s8').AsWideString := AModel.S8;
+    Q.ParamByName('s9').AsWideString := AModel.S9;
+    Q.ParamByName('s10').AsWideString := AModel.S10;
     Q.ParamByName('i1').AsInteger := AModel.I1;
     Q.ParamByName('i2').AsInteger := AModel.I2;
     Q.ParamByName('i3').AsInteger := AModel.I3;
@@ -148,16 +148,16 @@ begin
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('s1').AsStrings[AIndex] := AModel.S1;
-    Q.ParamByName('s2').AsStrings[AIndex] := AModel.S2;
-    Q.ParamByName('s3').AsStrings[AIndex] := AModel.S3;
-    Q.ParamByName('s4').AsStrings[AIndex] := AModel.S4;
-    Q.ParamByName('s5').AsStrings[AIndex] := AModel.S5;
-    Q.ParamByName('s6').AsStrings[AIndex] := AModel.S6;
-    Q.ParamByName('s7').AsStrings[AIndex] := AModel.S7;
-    Q.ParamByName('s8').AsStrings[AIndex] := AModel.S8;
-    Q.ParamByName('s9').AsStrings[AIndex] := AModel.S9;
-    Q.ParamByName('s10').AsStrings[AIndex] := AModel.S10;
+    Q.ParamByName('s1').AsWideStrings[AIndex] := AModel.S1;
+    Q.ParamByName('s2').AsWideStrings[AIndex] := AModel.S2;
+    Q.ParamByName('s3').AsWideStrings[AIndex] := AModel.S3;
+    Q.ParamByName('s4').AsWideStrings[AIndex] := AModel.S4;
+    Q.ParamByName('s5').AsWideStrings[AIndex] := AModel.S5;
+    Q.ParamByName('s6').AsWideStrings[AIndex] := AModel.S6;
+    Q.ParamByName('s7').AsWideStrings[AIndex] := AModel.S7;
+    Q.ParamByName('s8').AsWideStrings[AIndex] := AModel.S8;
+    Q.ParamByName('s9').AsWideStrings[AIndex] := AModel.S9;
+    Q.ParamByName('s10').AsWideStrings[AIndex] := AModel.S10;
     Q.ParamByName('i1').AsIntegers[AIndex] := AModel.I1;
     Q.ParamByName('i2').AsIntegers[AIndex] := AModel.I2;
     Q.ParamByName('i3').AsIntegers[AIndex] := AModel.I3;
@@ -312,6 +312,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -338,6 +339,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -354,6 +357,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -378,6 +382,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

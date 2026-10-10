@@ -90,13 +90,13 @@ type
     [MaxLength(128), Required(TLangKeys.TValidation.Required, True)]
     property Name: string read FName write FName;
 
-    [Column('stk_group_id')]
+    [Column('stk_group_id'), Required()]
     property StkGroupId: Int64 read FStkGroupId write FStkGroupId;
 
-    [Column('stk_product_type_id')]
+    [Column('stk_product_type_id'), Required()]
     property StkProductTypeId: Int64 read FStkProductTypeId write FStkProductTypeId;
 
-    [Column('sys_uom_id')]
+    [Column('sys_uom_id'), Required()]
     property SysUomId: Int64 read FSysUomId write FSysUomId;
 
     [Column('sellable')]

@@ -66,7 +66,8 @@ begin
   begin
     LFilter := TFilterCriteria.Create;
     try
-      LFilter.Add(TFilterCriterion.New('tax_rate', '=', TValue.From<Currency>(AEntity.TaxRate)));
+      // Currency variant FireDAC'ta money tipine bağlanır (numeric = money hatası) -> Double
+      LFilter.Add(TFilterCriterion.New('tax_rate', '=', TValue.From<Double>(AEntity.TaxRate)));
       if AOperation = coUpdate then
         LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
 

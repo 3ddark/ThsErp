@@ -24,7 +24,7 @@ type
     FRawCount: string;
     FLabourCount: string;
   public
-    [Column('stk_inventory_id')]
+    [Column('stk_inventory_id'), Required()]
     property StkInventoryId: Int64 read FStkInventoryId write FStkInventoryId;
 
     [Column('bom_name')]

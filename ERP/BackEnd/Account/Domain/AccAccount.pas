@@ -56,7 +56,7 @@ type
     [MaxLength(128), Required(TLangKeys.TValidation.Required, True)]
     property Name: string read FName write FName;
 
-    [Column('acc_set_account_type_id')]
+    [Column('acc_set_account_type_id'), Required()]
     property AccSetAccountTypeId: Int64 read FAccSetAccountTypeId write FAccSetAccountTypeId;
 
     [Column('acc_group_id')]

@@ -70,13 +70,13 @@ procedure TAccBankRepository.SetInsertParams(Q: TFDQuery; AModel: TAccBank; AInd
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('bank_name').AsString := AModel.BankName;
-    Q.ParamByName('swift_code').AsString := AModel.SwiftCode;
+    Q.ParamByName('bank_name').AsWideString := AModel.BankName;
+    Q.ParamByName('swift_code').AsWideString := AModel.SwiftCode;
   end
   else
   begin
-    Q.ParamByName('bank_name').AsStrings[AIndex] := AModel.BankName;
-    Q.ParamByName('swift_code').AsStrings[AIndex] := AModel.SwiftCode;
+    Q.ParamByName('bank_name').AsWideStrings[AIndex] := AModel.BankName;
+    Q.ParamByName('swift_code').AsWideStrings[AIndex] := AModel.SwiftCode;
   end;
 end;
 
@@ -85,14 +85,14 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('bank_name').AsString := AModel.BankName;
-    Q.ParamByName('swift_code').AsString := AModel.SwiftCode;
+    Q.ParamByName('bank_name').AsWideString := AModel.BankName;
+    Q.ParamByName('swift_code').AsWideString := AModel.SwiftCode;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('bank_name').AsStrings[AIndex] := AModel.BankName;
-    Q.ParamByName('swift_code').AsStrings[AIndex] := AModel.SwiftCode;
+    Q.ParamByName('bank_name').AsWideStrings[AIndex] := AModel.BankName;
+    Q.ParamByName('swift_code').AsWideStrings[AIndex] := AModel.SwiftCode;
   end;
 end;
 
@@ -211,6 +211,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -237,6 +238,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -253,6 +256,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -277,6 +281,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

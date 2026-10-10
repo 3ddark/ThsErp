@@ -72,9 +72,9 @@ end;
 procedure TSysCityRepository.SetInsertParams(Q: TFDQuery; AModel: TSysCity; AIndex: Integer);
 begin
   if AIndex < 0 then
-    Q.ParamByName('city_name').AsString := AModel.CityName
+    Q.ParamByName('city_name').AsWideString := AModel.CityName
   else
-    Q.ParamByName('city_name').AsStrings[AIndex] := AModel.CityName;
+    Q.ParamByName('city_name').AsWideStrings[AIndex] := AModel.CityName;
 
   SetNullableParam(Q.ParamByName('car_plate_code'), ftInteger, AModel.CarPlateCode, AIndex);
   SetNullableParam(Q.ParamByName('sys_country_id'), ftLargeint, AModel.SysCountryId, AIndex);
@@ -86,12 +86,12 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('city_name').AsString := AModel.CityName;
+    Q.ParamByName('city_name').AsWideString := AModel.CityName;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('city_name').AsStrings[AIndex] := AModel.CityName;
+    Q.ParamByName('city_name').AsWideStrings[AIndex] := AModel.CityName;
   end;
 
   SetNullableParam(Q.ParamByName('car_plate_code'), ftInteger, AModel.CarPlateCode, AIndex);
@@ -233,6 +233,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -258,6 +259,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -274,6 +277,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -297,6 +301,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

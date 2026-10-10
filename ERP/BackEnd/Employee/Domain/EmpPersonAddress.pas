@@ -22,10 +22,10 @@ type
     FEmployeeFullName: string;
     FAddressText: string;
   public
-    [Column('emp_employee_id')]
+    [Column('emp_employee_id'), Required()]
     property EmpEmployeeId: Int64 read FEmpEmployeeId write FEmpEmployeeId;
 
-    [Column('sys_address_id')]
+    [Column('sys_address_id'), Required()]
     property SysAddressId: Int64 read FSysAddressId write FSysAddressId;
 
     [Column('address_type')]

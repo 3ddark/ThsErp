@@ -71,12 +71,12 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('branch_code').AsInteger := AModel.BranchCode;
-    Q.ParamByName('branch_name').AsString := AModel.BranchName;
+    Q.ParamByName('branch_name').AsWideString := AModel.BranchName;
   end
   else
   begin
     Q.ParamByName('branch_code').AsIntegers[AIndex] := AModel.BranchCode;
-    Q.ParamByName('branch_name').AsStrings[AIndex] := AModel.BranchName;
+    Q.ParamByName('branch_name').AsWideStrings[AIndex] := AModel.BranchName;
   end;
 
   SetNullableParam(Q.ParamByName('acc_bank_id'), ftLargeint, AModel.AccBankId, AIndex);
@@ -89,13 +89,13 @@ begin
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('branch_code').AsInteger := AModel.BranchCode;
-    Q.ParamByName('branch_name').AsString := AModel.BranchName;
+    Q.ParamByName('branch_name').AsWideString := AModel.BranchName;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
     Q.ParamByName('branch_code').AsIntegers[AIndex] := AModel.BranchCode;
-    Q.ParamByName('branch_name').AsStrings[AIndex] := AModel.BranchName;
+    Q.ParamByName('branch_name').AsWideStrings[AIndex] := AModel.BranchName;
   end;
 
   SetNullableParam(Q.ParamByName('acc_bank_id'), ftLargeint, AModel.AccBankId, AIndex);
@@ -221,6 +221,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -247,6 +248,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -263,6 +266,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -287,6 +291,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

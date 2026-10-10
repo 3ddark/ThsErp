@@ -152,35 +152,35 @@ procedure TStkInventorySummaryRepository.SetInsertParams(Q: TFDQuery; AModel: TS
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('current_quantity').AsCurrency := AModel.CurrentQuantity;
-    Q.ParamByName('average_cost').AsCurrency := AModel.AverageCost;
-    Q.ParamByName('opening_quantity').AsCurrency := AModel.OpeningQuantity;
-    Q.ParamByName('opening_price').AsCurrency := AModel.OpeningPrice;
-    Q.ParamByName('opening_amount').AsCurrency := AModel.OpeningAmount;
-    Q.ParamByName('incoming_quantity').AsCurrency := AModel.IncomingQuantity;
-    Q.ParamByName('incoming_amount').AsCurrency := AModel.IncomingAmount;
-    Q.ParamByName('outgoing_quantity').AsCurrency := AModel.OutgoingQuantity;
-    Q.ParamByName('outgoing_amount').AsCurrency := AModel.OutgoingAmount;
-    Q.ParamByName('last_buy_quantity').AsCurrency := AModel.LastBuyQuantity;
-    Q.ParamByName('last_buy_price').AsCurrency := AModel.LastBuyPrice;
-    Q.ParamByName('last_buy_currency').AsString := AModel.LastBuyCurrency;
-    Q.ParamByName('last_buy_exchange_rate').AsCurrency := AModel.LastBuyExchangeRate;
+    Q.ParamByName('current_quantity').AsBCD := AModel.CurrentQuantity;
+    Q.ParamByName('average_cost').AsBCD := AModel.AverageCost;
+    Q.ParamByName('opening_quantity').AsBCD := AModel.OpeningQuantity;
+    Q.ParamByName('opening_price').AsBCD := AModel.OpeningPrice;
+    Q.ParamByName('opening_amount').AsBCD := AModel.OpeningAmount;
+    Q.ParamByName('incoming_quantity').AsBCD := AModel.IncomingQuantity;
+    Q.ParamByName('incoming_amount').AsBCD := AModel.IncomingAmount;
+    Q.ParamByName('outgoing_quantity').AsBCD := AModel.OutgoingQuantity;
+    Q.ParamByName('outgoing_amount').AsBCD := AModel.OutgoingAmount;
+    Q.ParamByName('last_buy_quantity').AsBCD := AModel.LastBuyQuantity;
+    Q.ParamByName('last_buy_price').AsBCD := AModel.LastBuyPrice;
+    Q.ParamByName('last_buy_currency').AsWideString := AModel.LastBuyCurrency;
+    Q.ParamByName('last_buy_exchange_rate').AsBCD := AModel.LastBuyExchangeRate;
   end
   else
   begin
-    Q.ParamByName('current_quantity').AsCurrencys[AIndex] := AModel.CurrentQuantity;
-    Q.ParamByName('average_cost').AsCurrencys[AIndex] := AModel.AverageCost;
-    Q.ParamByName('opening_quantity').AsCurrencys[AIndex] := AModel.OpeningQuantity;
-    Q.ParamByName('opening_price').AsCurrencys[AIndex] := AModel.OpeningPrice;
-    Q.ParamByName('opening_amount').AsCurrencys[AIndex] := AModel.OpeningAmount;
-    Q.ParamByName('incoming_quantity').AsCurrencys[AIndex] := AModel.IncomingQuantity;
-    Q.ParamByName('incoming_amount').AsCurrencys[AIndex] := AModel.IncomingAmount;
-    Q.ParamByName('outgoing_quantity').AsCurrencys[AIndex] := AModel.OutgoingQuantity;
-    Q.ParamByName('outgoing_amount').AsCurrencys[AIndex] := AModel.OutgoingAmount;
-    Q.ParamByName('last_buy_quantity').AsCurrencys[AIndex] := AModel.LastBuyQuantity;
-    Q.ParamByName('last_buy_price').AsCurrencys[AIndex] := AModel.LastBuyPrice;
-    Q.ParamByName('last_buy_currency').AsStrings[AIndex] := AModel.LastBuyCurrency;
-    Q.ParamByName('last_buy_exchange_rate').AsCurrencys[AIndex] := AModel.LastBuyExchangeRate;
+    Q.ParamByName('current_quantity').AsBCDs[AIndex] := AModel.CurrentQuantity;
+    Q.ParamByName('average_cost').AsBCDs[AIndex] := AModel.AverageCost;
+    Q.ParamByName('opening_quantity').AsBCDs[AIndex] := AModel.OpeningQuantity;
+    Q.ParamByName('opening_price').AsBCDs[AIndex] := AModel.OpeningPrice;
+    Q.ParamByName('opening_amount').AsBCDs[AIndex] := AModel.OpeningAmount;
+    Q.ParamByName('incoming_quantity').AsBCDs[AIndex] := AModel.IncomingQuantity;
+    Q.ParamByName('incoming_amount').AsBCDs[AIndex] := AModel.IncomingAmount;
+    Q.ParamByName('outgoing_quantity').AsBCDs[AIndex] := AModel.OutgoingQuantity;
+    Q.ParamByName('outgoing_amount').AsBCDs[AIndex] := AModel.OutgoingAmount;
+    Q.ParamByName('last_buy_quantity').AsBCDs[AIndex] := AModel.LastBuyQuantity;
+    Q.ParamByName('last_buy_price').AsBCDs[AIndex] := AModel.LastBuyPrice;
+    Q.ParamByName('last_buy_currency').AsWideStrings[AIndex] := AModel.LastBuyCurrency;
+    Q.ParamByName('last_buy_exchange_rate').AsBCDs[AIndex] := AModel.LastBuyExchangeRate;
   end;
 
   SetNullableParam(Q.ParamByName('stk_inventory_id'), ftLargeint, AModel.StkInventoryId, AIndex);
@@ -209,36 +209,36 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('current_quantity').AsCurrency := AModel.CurrentQuantity;
-    Q.ParamByName('average_cost').AsCurrency := AModel.AverageCost;
-    Q.ParamByName('opening_quantity').AsCurrency := AModel.OpeningQuantity;
-    Q.ParamByName('opening_price').AsCurrency := AModel.OpeningPrice;
-    Q.ParamByName('opening_amount').AsCurrency := AModel.OpeningAmount;
-    Q.ParamByName('incoming_quantity').AsCurrency := AModel.IncomingQuantity;
-    Q.ParamByName('incoming_amount').AsCurrency := AModel.IncomingAmount;
-    Q.ParamByName('outgoing_quantity').AsCurrency := AModel.OutgoingQuantity;
-    Q.ParamByName('outgoing_amount').AsCurrency := AModel.OutgoingAmount;
-    Q.ParamByName('last_buy_quantity').AsCurrency := AModel.LastBuyQuantity;
-    Q.ParamByName('last_buy_price').AsCurrency := AModel.LastBuyPrice;
-    Q.ParamByName('last_buy_currency').AsString := AModel.LastBuyCurrency;
-    Q.ParamByName('last_buy_exchange_rate').AsCurrency := AModel.LastBuyExchangeRate;
+    Q.ParamByName('current_quantity').AsBCD := AModel.CurrentQuantity;
+    Q.ParamByName('average_cost').AsBCD := AModel.AverageCost;
+    Q.ParamByName('opening_quantity').AsBCD := AModel.OpeningQuantity;
+    Q.ParamByName('opening_price').AsBCD := AModel.OpeningPrice;
+    Q.ParamByName('opening_amount').AsBCD := AModel.OpeningAmount;
+    Q.ParamByName('incoming_quantity').AsBCD := AModel.IncomingQuantity;
+    Q.ParamByName('incoming_amount').AsBCD := AModel.IncomingAmount;
+    Q.ParamByName('outgoing_quantity').AsBCD := AModel.OutgoingQuantity;
+    Q.ParamByName('outgoing_amount').AsBCD := AModel.OutgoingAmount;
+    Q.ParamByName('last_buy_quantity').AsBCD := AModel.LastBuyQuantity;
+    Q.ParamByName('last_buy_price').AsBCD := AModel.LastBuyPrice;
+    Q.ParamByName('last_buy_currency').AsWideString := AModel.LastBuyCurrency;
+    Q.ParamByName('last_buy_exchange_rate').AsBCD := AModel.LastBuyExchangeRate;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('current_quantity').AsCurrencys[AIndex] := AModel.CurrentQuantity;
-    Q.ParamByName('average_cost').AsCurrencys[AIndex] := AModel.AverageCost;
-    Q.ParamByName('opening_quantity').AsCurrencys[AIndex] := AModel.OpeningQuantity;
-    Q.ParamByName('opening_price').AsCurrencys[AIndex] := AModel.OpeningPrice;
-    Q.ParamByName('opening_amount').AsCurrencys[AIndex] := AModel.OpeningAmount;
-    Q.ParamByName('incoming_quantity').AsCurrencys[AIndex] := AModel.IncomingQuantity;
-    Q.ParamByName('incoming_amount').AsCurrencys[AIndex] := AModel.IncomingAmount;
-    Q.ParamByName('outgoing_quantity').AsCurrencys[AIndex] := AModel.OutgoingQuantity;
-    Q.ParamByName('outgoing_amount').AsCurrencys[AIndex] := AModel.OutgoingAmount;
-    Q.ParamByName('last_buy_quantity').AsCurrencys[AIndex] := AModel.LastBuyQuantity;
-    Q.ParamByName('last_buy_price').AsCurrencys[AIndex] := AModel.LastBuyPrice;
-    Q.ParamByName('last_buy_currency').AsStrings[AIndex] := AModel.LastBuyCurrency;
-    Q.ParamByName('last_buy_exchange_rate').AsCurrencys[AIndex] := AModel.LastBuyExchangeRate;
+    Q.ParamByName('current_quantity').AsBCDs[AIndex] := AModel.CurrentQuantity;
+    Q.ParamByName('average_cost').AsBCDs[AIndex] := AModel.AverageCost;
+    Q.ParamByName('opening_quantity').AsBCDs[AIndex] := AModel.OpeningQuantity;
+    Q.ParamByName('opening_price').AsBCDs[AIndex] := AModel.OpeningPrice;
+    Q.ParamByName('opening_amount').AsBCDs[AIndex] := AModel.OpeningAmount;
+    Q.ParamByName('incoming_quantity').AsBCDs[AIndex] := AModel.IncomingQuantity;
+    Q.ParamByName('incoming_amount').AsBCDs[AIndex] := AModel.IncomingAmount;
+    Q.ParamByName('outgoing_quantity').AsBCDs[AIndex] := AModel.OutgoingQuantity;
+    Q.ParamByName('outgoing_amount').AsBCDs[AIndex] := AModel.OutgoingAmount;
+    Q.ParamByName('last_buy_quantity').AsBCDs[AIndex] := AModel.LastBuyQuantity;
+    Q.ParamByName('last_buy_price').AsBCDs[AIndex] := AModel.LastBuyPrice;
+    Q.ParamByName('last_buy_currency').AsWideStrings[AIndex] := AModel.LastBuyCurrency;
+    Q.ParamByName('last_buy_exchange_rate').AsBCDs[AIndex] := AModel.LastBuyExchangeRate;
   end;
 
   SetNullableParam(Q.ParamByName('stk_inventory_id'), ftLargeint, AModel.StkInventoryId, AIndex);
@@ -378,6 +378,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -404,6 +405,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -420,6 +423,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -444,6 +448,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

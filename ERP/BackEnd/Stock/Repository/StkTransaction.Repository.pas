@@ -88,13 +88,13 @@ procedure TStkTransactionRepository.SetInsertParams(Q: TFDQuery; AModel: TStkTra
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -106,20 +106,20 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('transaction_type').AsSmallInt := AModel.TransactionType;
-    Q.ParamByName('quantity').AsCurrency := AModel.Quantity;
-    Q.ParamByName('amount').AsCurrency := AModel.Amount;
-    Q.ParamByName('amount_foreign').AsCurrency := AModel.AmountForeign;
+    Q.ParamByName('quantity').AsBCD := AModel.Quantity;
+    Q.ParamByName('amount').AsBCD := AModel.Amount;
+    Q.ParamByName('amount_foreign').AsBCD := AModel.AmountForeign;
     Q.ParamByName('is_opening').AsBoolean := AModel.IsOpening;
-    Q.ParamByName('description').AsString := AModel.Description;
+    Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
     Q.ParamByName('transaction_type').AsSmallInts[AIndex] := AModel.TransactionType;
-    Q.ParamByName('quantity').AsCurrencys[AIndex] := AModel.Quantity;
-    Q.ParamByName('amount').AsCurrencys[AIndex] := AModel.Amount;
-    Q.ParamByName('amount_foreign').AsCurrencys[AIndex] := AModel.AmountForeign;
+    Q.ParamByName('quantity').AsBCDs[AIndex] := AModel.Quantity;
+    Q.ParamByName('amount').AsBCDs[AIndex] := AModel.Amount;
+    Q.ParamByName('amount_foreign').AsBCDs[AIndex] := AModel.AmountForeign;
     Q.ParamByName('is_opening').AsBooleans[AIndex] := AModel.IsOpening;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
   end;
 
   SetDate('transaction_date', AModel.TransactionDate);
@@ -153,13 +153,13 @@ procedure TStkTransactionRepository.SetUpdateParams(Q: TFDQuery; AModel: TStkTra
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -172,21 +172,21 @@ begin
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('transaction_type').AsSmallInt := AModel.TransactionType;
-    Q.ParamByName('quantity').AsCurrency := AModel.Quantity;
-    Q.ParamByName('amount').AsCurrency := AModel.Amount;
-    Q.ParamByName('amount_foreign').AsCurrency := AModel.AmountForeign;
+    Q.ParamByName('quantity').AsBCD := AModel.Quantity;
+    Q.ParamByName('amount').AsBCD := AModel.Amount;
+    Q.ParamByName('amount_foreign').AsBCD := AModel.AmountForeign;
     Q.ParamByName('is_opening').AsBoolean := AModel.IsOpening;
-    Q.ParamByName('description').AsString := AModel.Description;
+    Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
     Q.ParamByName('transaction_type').AsSmallInts[AIndex] := AModel.TransactionType;
-    Q.ParamByName('quantity').AsCurrencys[AIndex] := AModel.Quantity;
-    Q.ParamByName('amount').AsCurrencys[AIndex] := AModel.Amount;
-    Q.ParamByName('amount_foreign').AsCurrencys[AIndex] := AModel.AmountForeign;
+    Q.ParamByName('quantity').AsBCDs[AIndex] := AModel.Quantity;
+    Q.ParamByName('amount').AsBCDs[AIndex] := AModel.Amount;
+    Q.ParamByName('amount_foreign').AsBCDs[AIndex] := AModel.AmountForeign;
     Q.ParamByName('is_opening').AsBooleans[AIndex] := AModel.IsOpening;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
   end;
 
   SetDate('transaction_date', AModel.TransactionDate);
@@ -331,6 +331,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -357,6 +358,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -373,6 +376,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -397,6 +401,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

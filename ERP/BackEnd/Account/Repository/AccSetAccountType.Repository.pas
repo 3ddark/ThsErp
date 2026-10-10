@@ -183,7 +183,7 @@ begin
       begin
         QSave.ParamByName('acc_set_account_type_id').AsLargeInt := AModel.Id;
         QSave.ParamByName('sys_language_id').AsLargeInt := LLangId;
-        QSave.ParamByName('name').AsString := Trim(Trans.Name);
+        QSave.ParamByName('name').AsWideString := Trim(Trans.Name);
         LogQuery(QSave, 'SaveTranslations');
         QSave.ExecSQL;
       end;
@@ -198,11 +198,11 @@ procedure TAccSetAccountTypeRepository.SetInsertParams(Q: TFDQuery; AModel: TAcc
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('account_type_key').AsString := AModel.AccountTypeKey;
+    Q.ParamByName('account_type_key').AsWideString := AModel.AccountTypeKey;
   end
   else
   begin
-    Q.ParamByName('account_type_key').AsStrings[AIndex] := AModel.AccountTypeKey;
+    Q.ParamByName('account_type_key').AsWideStrings[AIndex] := AModel.AccountTypeKey;
   end;
 end;
 
@@ -211,12 +211,12 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('account_type_key').AsString := AModel.AccountTypeKey;
+    Q.ParamByName('account_type_key').AsWideString := AModel.AccountTypeKey;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('account_type_key').AsStrings[AIndex] := AModel.AccountTypeKey;
+    Q.ParamByName('account_type_key').AsWideStrings[AIndex] := AModel.AccountTypeKey;
   end;
 end;
 
@@ -348,6 +348,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -376,6 +377,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -392,6 +395,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -418,6 +422,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

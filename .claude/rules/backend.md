@@ -77,6 +77,18 @@ Queries:
   `AApplyLocaleFilter = True`, and set `ParamByName('locale').Value := TAppContext.Instance.CurrentUser.ActiveLanguage`.
   Grid and find must use the **same** locale behaviour (otherwise duplicate rows / "record deleted" errors).
 - Writes go to the table (`public.{table}`), never to the view.
+- Param types (FireDAC PG): text → `.AsWideString` / `.AsWideStrings[i]` (and `DataType := ftWideString`), numeric →
+  `.AsBCD` / `.AsBCDs[i]` (`ftBCD`). Never `.AsString` (ftString = ANSI: `₺`, `₽`, Cyrillic … become `?`) or
+  `.AsCurrency` (ftCurrency = PG `money`: rounds to 2 decimals, `numeric = money` errors). Filter values: no
+  `TValue.From<Currency>` (variant → money) — use `Double`.
+- Empty-value standard (user decision 2026-10-10): every write calls `ApplyNullPolicy(Q)` right before
+  `LogQuery(Q, 'DoAdd'|'DoUpdate'|'DoAddBatch'|'DoUpdateBatch')` (detail tables: `ApplyNullPolicy(Q, 'table')`).
+  From live column metadata: nullable text '' → NULL, nullable number 0 → NULL, nullable date 0 → NULL;
+  NOT NULL text without default empty → "field required" error. Numbers where 0 is meaningful are
+  `NOT NULL DEFAULT 0` in the DB (prices, discounts, quantities, summaries, grid colors, decimal places …).
+  Nullable column where 0 is meaningful: override `NullPolicyKeepZero` (`stk_inventory.vat_rate`: NULL = from group).
+- Domain `Required` on every NOT NULL FK / option (combo) / date column without default (UI marks helper edits and
+  `cbb`/`mmo` controls red; save jumps to the field's tab). Not on NOT NULL numbers (empty = 0) or service-derived fields.
 - Nullable FK / integer params: `SetNullableParam(Q.ParamByName('x_id'), ftLargeint, AModel.XId, AIndex)` (0 → NULL).
   Nullable dates: `DataType := ftDate` and `Clear` when value is 0.
 - Every executed query is logged with `LogQuery(Q, 'Operation')`.

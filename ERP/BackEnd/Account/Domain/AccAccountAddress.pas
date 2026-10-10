@@ -23,10 +23,10 @@ type
     FAddressText: string;
     FAccountCode: string;
   public
-    [Column('acc_account_id')]
+    [Column('acc_account_id'), Required()]
     property AccAccountId: Int64 read FAccAccountId write FAccAccountId;
 
-    [Column('sys_address_id')]
+    [Column('sys_address_id'), Required()]
     property SysAddressId: Int64 read FSysAddressId write FSysAddressId;
 
     [Column('address_type')]

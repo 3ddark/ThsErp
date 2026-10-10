@@ -43,6 +43,7 @@ type
 implementation
 
 uses
+  Ths.Helper.BaseTypes,
   SysPermission.Service, Password.Helper, LocalizationManager,
   SysAccessRight, SysAccessRight.Repository;
 
@@ -72,17 +73,21 @@ end;
 procedure TSysUserService.ResetPassword(AUserId: Int64; const ANewPassword: string; APermissionControl: Boolean);
 var
   LHash: string;
+  LOwnTransaction: Boolean;
 begin
   Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
 
   LHash := HashNewPassword(ANewPassword);
 
-  if not Self.UoW.InTransaction then
+  // Yalnız kendi açtığı transaction'ı commit eder (çağıranın açık transaction'ı korunur)
+  LOwnTransaction := not Self.UoW.InTransaction;
+  if LOwnTransaction then
     Self.UoW.BeginTransaction;
   try
     if not TSysUserRepository(FRepo).UpdatePasswordHash(AUserId, LHash) then
       raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AUserId]));
-    Self.UoW.Commit;
+    if LOwnTransaction then
+      Self.UoW.Commit;
   except
     if Self.UoW.InTransaction then
       Self.UoW.Rollback;
@@ -94,6 +99,7 @@ procedure TSysUserService.ChangeOwnPassword(const AOldPassword, ANewPassword: st
 var
   LUserId: Int64;
   LHash: string;
+  LOwnTransaction: Boolean;
 begin
   LUserId := 0;
   if Assigned(TAppContext.Instance.CurrentUser) then
@@ -106,12 +112,14 @@ begin
 
   LHash := HashNewPassword(ANewPassword);
 
-  if not Self.UoW.InTransaction then
+  LOwnTransaction := not Self.UoW.InTransaction;
+  if LOwnTransaction then
     Self.UoW.BeginTransaction;
   try
     if not TSysUserRepository(FRepo).UpdatePasswordHash(LUserId, LHash) then
       raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [LUserId]));
-    Self.UoW.Commit;
+    if LOwnTransaction then
+      Self.UoW.Commit;
   except
     if Self.UoW.InTransaction then
       Self.UoW.Rollback;
@@ -291,7 +299,12 @@ begin
   if AOperation in [coInsert, coUpdate] then
   begin
     // Kullanıcı adı standardı: boşluksuz + büyük harf (login ekranı da büyük harfe çevirir)
-    AEntity.Username := AnsiUpperCase(Trim(AEntity.Username));
+    AEntity.Username := UpperCaseTr(Trim(AEntity.Username));
+
+    // sys_user.emp_employee_id NOT NULL: ham FK hatası yerine anlaşılır mesaj
+    if AEntity.EmpEmployeeId <= 0 then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TSysUser.ColEmployeeId, 'Employee') + ': ' +
+        TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
 
     LFilter := TFilterCriteria.Create;
     try

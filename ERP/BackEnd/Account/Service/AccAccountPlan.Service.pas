@@ -43,6 +43,7 @@ type
 implementation
 
 uses
+  Ths.Helper.BaseTypes,
   SysPermission.Service;
 
 constructor TAccAccountPlanService.Create;
@@ -88,7 +89,7 @@ begin
   if AOperation in [coInsert, coUpdate] then
   begin
     AEntity.Code := AnsiUpperCase(Trim(AEntity.Code));
-    AEntity.Name := AnsiUpperCase(Trim(AEntity.Name));
+    AEntity.Name := UpperCaseTr(Trim(AEntity.Name));
   end;
 
   ValidateUnique(AEntity, AOperation);

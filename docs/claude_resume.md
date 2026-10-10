@@ -1,7 +1,8 @@
 # Claude Resume State
 
 ## Goal
-Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, Production (prd_) tamamlandı; sıradaki modül sls_ (satış).
+Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, Production (prd_) tamamlandı.
+Şu anki öncelik (2026-10-10): uygulamanın UI'ını baştan sona test edip hataları düzeltmek; sls_ (satış) sonra.
 
 ## Tasarım Kararları
 - Her form/kaynak için ayrı `sys_permission` satırı ve `PERMISSION_*` sabiti (`SysPermission.Service.pas`).
@@ -152,7 +153,7 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
   şimdilik kalıyor (kayıtsız, derlenmez; ufrmStkCinsAileleri silinen StkKindFamilyService'e başvurur), sonra silinecek.
   Negatif stok engellenmiyor.
 
-## Stok kartı sekmeli tasarım + karta özel hesaplar (2026-10-09, commit edilmedi)
+## Stok kartı sekmeli tasarım + karta özel hesaplar (2026-10-09, commit 4371ce2)
 - Git geçmişi tarandı: sekmeli stok kartı `f8df7b3^:ERP/Forms/Stock/ufrmStkKart.dfm` (2026-07) ve
   `11bda36^:ERP/Forms/InputForms/Stock/ufrmStkStokKarti.dfm` (2023): Genel / Parasal / Cins Özelliği / Grup Özellikleri / Özetler (+ ambar).
   Hesap kodu override'ı hiçbir commit'te yoktu (Grup Özellikleri sekmesi grubun hesaplarını salt okunur gösteriyordu); kullanıcının
@@ -169,7 +170,7 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
   Özetler (stk_inventory_summary + ambar stokları). Üreteç: scratchpad gen_stk_inventory_dfm.py.
 - Not: acc_set_tax_rate test verisinde %10 ve %20 satırlarının satış/alış hesapları ters girilmiş görünüyor (dokunulmadı).
 
-## Production (prd_) modülü (2026-10-09, commit edilmedi)
+## Production (prd_) modülü (2026-10-09, commit 4371ce2)
 - DB: 11 tablo id tabanlı yeniden kuruldu (eski: kod tabanlı FK, header_id/recete_id/stok_kodu/paket_id, prd_bom_labour.labor_code
   tek başına UNIQUE hatası). Test verisi (2 reçete, 3 hammadde, 1 işçilik, 1 paket + 2 kalem) id'leri korunarak taşındı.
   prd_labour: code / name / cost_type (1 işçilik, 2 makine, 3 genel üretim gideri) / sys_uom_id / unit_price / currency /
@@ -188,14 +189,132 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Derleme (tam rebuild) 0 hata / 0 hint; dokunulan birimlerde uyarı yok. SQL dry-run (rollback) + repository kolon/view
   eşleşme kontrolü başarılı. UI akışları çalıştırılarak test edilmedi.
 
+## UI test oturumu (2026-10-10)
+- Kullanıcı Computer use'u açtı ama o oturuma araçlar gelmedi (ayar oturum başladıktan sonra açıldı) -> yeni oturumda devam.
+- Kullanıcı Delphi IDE'de Clean + Build yaptı (aşağıdaki düzeltmeler dahil). Test yalnız uygulamayı debug ile açıp UI'da gezinerek
+  yapılacak; Claude derleme yapmayacak (kullanıcı isteği). Her adımda ERP/Ths-YYYYMMDD.log da okunur.
+- SONRAKİ ADIM: Ths.exe'yi debug ile aç, giriş yap, Dashboard'daki tüm menüleri modül modül gez (System, Employee, Account,
+  Stock, Production): her liste -> filtre/sıralama/kolon, yeni kayıt, inceleme -> güncelle, kaydet, sil, popup'lar, helper (FK) seçimleri.
+  Özellikle: sekmeli stok kartı (KDV alanı boş bırakılınca gruptan gelmeli, 0 olmamalı), karta özel hesaplar, reçete ekranları.
+  Bulunan hataları listele, düzelt, kullanıcıya yeniden build ettirip tekrar test et.
+- Kullanıcının daha önce gördüğü hatalar henüz bildirilmedi; yeni oturumda sorulabilir.
+- 2026-10-10 ikinci oturum: Computer use yine gelmedi (araç listesinde yok). Yerine statik tarama yapıldı (scratchpad scan.py / dfmscan.py):
+  repository SQL/MapFromQuery/BuildSelectColumns <-> DB kolonları, Domain [Column] <-> tablo, tüm view'lar çalıştırıldı (hatasız),
+  locale view'larında çift/eksik satır yok, sys_grid_column / sys_user_grid_column'da eski kolon yok, 135 formda DFM<->PAS uyumlu.
+  Düzeltilen: Dashboard'da bağlantısız 'Test Grid' düğmesi (btn1) ve işleyicisiz actsys_application_setting_other kaldırıldı.
+  Uyarı (taşınmamış modüller, dokunulmadı): einv_* / sls_* / pur_* domain'lerinde view yok veya kolon adları DB'den farklı.
+- 2026-10-10 üçüncü oturum: Computer use ile IDE'den (Delphi 13 64-bit, Win64 Debug) F9 debug testi yapıldı.
+  Test edilen ve çalışan: giriş, Kullanıcılar / Erişim Hakları (inceleme->güncelle->onayla), Bölgeler (ekle+sil), Şehirler (ülke helper,
+  zorunlu alan uyarısı), Stok kartı (sekmeler, KDV boş -> NULL kalıyor), Stok hareketi (ekle/sil + özet/ambar yeniden hesap),
+  Reçete -> Hammaddeler popup + güncelle, Hesap kartı güncelle, Personel güncelle + Adresler (ekle/sil), dil değiştirme (en-US).
+  Düzeltilen (Build 0 hata):
+  - TfrmGrid.RefreshParentGrid: DisableControls içindeki AfterOpen ayarları EnableControls'ta eziliyordu -> güncellemeden sonra
+    kolon başlıkları ham ad, genişlikler varsayılan. Artık EnableControls sonrası AfterDatasetOpen + ApplyLocalization.
+  - TfrmGrid.ApplyDynamicFilterAndSort: tanımlı sıralama yoksa ORDER BY id (güncellenen kayıt listenin sonuna kayıyordu).
+  - Dashboard F6: listede F6 (KeyDown'da kapanır) bırakılınca ana ekran KeyUp'ta 'uygulama sonlandırılacak' soruyordu ->
+    FF6Pressed bayrağı (yalnız ana ekranda basılan F6).
+  - Dashboard sekmeleri: Personel / Hesaplar / Stoklar FormShow'da gizleniyordu (eski yetki kodu yorumda) -> açık; btnTest gizli.
+  Not edilen (işlevsel değil / kullanıcı kararı): float alanda baştaki 0 silinmiyor ('010,00' -> 10 okunur); stok hareketinde para
+  birimi boş kalıyor; etiket kesilmeleri (kullanıcı: konum önemsiz); acc_set_tax_rate iade hesapları ters görünüyor.
+  Dikkat: msbuild Win32 derlemesi .dcu'ları kaynak klasörüne yazıyor, IDE Win64'te F2048 verir -> IDE'de Build (Shift+F9).
+  Generic TfrmGrid<> değişikliği F9 (make) ile kullanan birimlere geçmiyor -> Shift+F9 Build gerekli.
+  Test edilmeyen: Muhasebe ayarları alt menüleri, yetki şablonları ekranları, kullanıcı şifre sıfırlama, cins bilgisi düzenleme,
+  işçilik/paket ekranlarında ekle/sil, Excel/CSV dışa aktarma.
+- Log'dan bulunan/düzeltilen:
+  - Ths.Helper.Edit itFloat: boş alan çıkışta ',00' oluyordu -> 0 okunuyordu (stok kartı KDV override'ı boşken 0 kaydedilirdi).
+    DoExit + Repaint artık boş float alanı boş bırakır. DB'de vat_rate = 0 kart yoktu.
+  - TRepository.ExpandSQLWithParams (yalnız log): ':cn1' değeri ':cn10' içine yazılıyordu; uzun parametre adları önce değiştiriliyor.
+- Derleme 0 hata (bu makinede RAD Studio 37.0: C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat).
+
+## Servis entegrasyon testi (2026-10-10, dördüncü oturum; /goal System/Employee/Stock/Account ayrıntılı test)
+- Computer use yine yok -> UI yerine servis katmanı gerçek DB'ye karşı test edildi. Paket: `ERP/Tests/Integration`
+  (`./build.sh` dcc64 ile derler, çıktı `%TEMP%\ths_it`; `IntegrationTest.exe [generic|perm|perm2|specific]`).
+  Her yazma transaction içinde + ROLLBACK; tam koşu öncesi/sonrası tüm tablo satır sayıları aynı (DB'ye iz bırakmıyor).
+  - generic: 56 servis x (grid + find 3 dilde, çift id, FindById = Find, Clone tamlığı, kilitli inceleme -> aynı
+    değerle güncelle -> yeniden oku, duplicate insert, insert -> oku -> güncelle -> sil).
+  - perm / perm2: TEST kullanıcısı için 56 servisin IsAuthorized sonucu = vw_sys_user_effective_permission
+    (şablon sales+production + is_/deny_ override senaryosu dahil); yetkisiz okuma her serviste reddediliyor.
+  - specific: stok hareketi akışı (açılış/giriş/çıkış/transfer, özet + ambar stoğu, ondalık, taşıma, silme, 8 kural ihlali),
+    stok kartı (KDV NULL/0/8.5, hesap override, resim cascade), cins bilgisi, hesap kartı (root/sub code, adres),
+    aktarım kodu, personel (+servis, adres), kullanıcı (büyük harf, bcrypt, erişim hakkı satırları, şifre sıfırlama),
+    erişim hakkı / şablon / deny / pasif şablon, grid filtre.
+  - Sonuç: 1036 pass / 0 fail / 10 warn (boş tablolar; voucher hariç hepsi specific ile kapsandı).
+- Bulunan ve düzeltilen hatalar (derleme Win64 Debug 0 hata, dokunulan birimlerde uyarı yok):
+  - Unicode kaybı: repository parametreleri `.AsString` (ftString/ANSI) -> CP1254 dışı karakterler `?` oluyordu
+    (sys_currency ₺/₽ sembolü kaydedilince bozuluyordu). 56 dosyada `.AsWideString(s)` / `ftWideString`.
+  - Ondalık kaybı: `.AsCurrency` PG `money` olarak gidiyordu -> 2 haneye yuvarlama (kur 27.0137 -> 27.01; stok/üretim
+    numeric(…,6) miktar/fiyatlar) ve AccSetTaxRate güncellemesinde `numeric = money` hatası. 17 dosyada `.AsBCD(s)`,
+    StkInventory vat_rate `ftBCD`, AccSetTaxRate unique filtresi Double.
+  - SysUser: personel boşken ham FK hatası -> servis "Personel: Alan zorunludur"; ResetPassword / ChangeOwnPassword
+    çağıranın açık transaction'ını commit ediyordu -> yalnız kendi açtığını commit eder.
+  - Türkçe büyük harf: servislerde AnsiUpperCase (sistem locale'i) 'hesabı' -> 'HESABı' yapıyordu. Ths.Helper.BaseTypes
+    `UpperCaseTr`; ad alanlarında (kullanıcı adı, hesap/plan/grup/bölge adı, banka/şube adı, ehliyet adı) kullanılıyor;
+    key/kod/IBAN/SWIFT AnsiUpperCase'te kaldı. UpCaseTr/LowCaseTr (Edit/ComboBox/Memo) ASCII dışı harfleri
+    (ö, ä, é …) çevirmiyordu -> Unicode ToUpper/ToLower.
+  - AccAccountAddress: adres tipi seçilmezse ham CHECK hatası -> servis doğrulaması.
+  - Kural: `.claude/rules/backend.md` param tipleri (AsWideString / AsBCD) eklendi.
+- Not (dokunulmadı): Required attribute mesajında alan adı property adı ('Name: Alan zorunludur'); kullanıcı formunda
+  etiket 'Personel Id'. Mevcut verideki adlar (ör. 'DIĞER TICARI') eski non-tr büyük harfle girilmiş.
+- UI akışları hâlâ çalıştırılarak test edilmedi (kullanıcı IDE'de Build + elle deneme yapmalı: para birimi ₺ kaydı,
+  kur 4 hane, KDV oranı güncelleme, kullanıcı ekleme).
+
+## UI event-akışı testi (2026-10-10, beşinci oturum)
+- Test DB `ths_erp_it` (canlıdan pg_dump/restore + `ERP/Tests/Ui/seed.sql`; boş tablolara örnek satır). Harness
+  `ERP/Tests/Ui` (`gen.py` Ths.dpr uses listesinden `UiTest.dpr` üretir; `UiDriver.pas`): 64 liste formu (System,
+  Employee, Account, Stock, Production) gerçek sınıflarıyla açılır; modal diyaloglar/helper listeleri timer ile
+  otomatik cevaplanır. Adımlar: liste açılışı + görünür kolon + başlık, 3 dil, boş yeni kayıt (red beklenir), yerleşim
+  (footer çakışması), inceleme kilidi, inceleme -> güncelle -> onayla (DB satırı değişmemeli), kopyala -> değiştir ->
+  kaydet (yeni satır = kaynak), helper seçimleri, sil / kapat + rollback, popup özel menüleri.
+  Sonuç: 812 pass / 0 fail / 8 warn (NULL normalizasyonu). Servis paketi 1036/0.
+- Bulunan ve düzeltilen:
+  - Ölçü Birimi Grupları listesi hiç kolon göstermiyordu; Ölçü Birimi listesi birim adını çekmiyordu (helper seçince
+    stok kartında birim boş kalıyordu); erişim hakları listesinde deny_* yoktu -> sys_grid_column satırları eklendi
+    (canlı DB, dump'lar yenilendi). vw_sys_uom locale + sys_view_tables id gizlendi, eski kullanıcı tercihleri düzeltildi.
+  - TfrmGrid.SetSelectedItem: [NotMapped] metin alanları snake_case grid kolonundan dolar (override unutulan helper'lar).
+  - TfrmGrid.ShowInputForm: giriş formu olmayan listede (Sistem Tabloları) çift tık / Enter access violation veriyordu.
+  - TfrmInputSimpleDB.SetControlsDisabledOrEnabled: ClassType eşitliği yerine `is` -> interposer kullanmayan formlarda
+    (Grid Kolon/Filtre/Sıralama combo, stok kartı memo) inceleme modunda kontroller düzenlenebilir kalıyordu.
+    Grid Kolonu formunda chkIsFetch inceleme modunda açılıyordu.
+  - Grid Filtre / Sıralama: boş form kaydediliyordu -> table_name Required.
+  - Başlıklar: adres listesi ülke/şehir, grid kolon listesi 10 kolon, ölçü birimi grup kolonu.
+- Karar bekleyen: güncellemede boş alanlar NULL yerine '' / 0 yazılıyor (adres, cins özelliği/bilgisi, açıklamalar,
+  stok iskonto). İşlevsel hata değil; "boş = NULL" standardı istenirse repository'lerde merkezi düzeltme yapılabilir.
+
+## Boş değer standardı + sekme testleri (2026-10-10, altıncı oturum)
+- Kullanıcı kararı: nullable kolonda '' / 0 -> NULL; NOT NULL metin zorunlu; NOT NULL sayıda 0 geçerli.
+  Sayısal sınıflandırma (onaylı): A) 0 anlamlı -> NOT NULL DEFAULT 0 (stk_inventory fiyat/iskonto/min stok/tedarik
+  süresi, acc_account.discount_rate, emp_employee maaş/prim, stk_inventory_summary tümü, sys_grid_column sayısalları,
+  sys_decimal_place, sys_uom.multiplier; 63 NULL -> 0). B) 0 = girilmemiş -> nullable, 0 -> NULL (plaka kodu, iso_year,
+  smtp port, askerlik, ayakkabı no, mükellef tipi, stok boyut/ağırlık, cins bilgisi i/d). C) stk_inventory.vat_rate özel.
+- Kod: TRepository.ApplyNullPolicy / TNullPolicy (information_schema önbellekli) 66 repository'de 261 yazma noktasında;
+  AccAccount taxpayer/contact; StkInventory NullPolicyKeepZero = vat_rate. Mevcut veride 34 kolon '' / 0 -> NULL.
+- Domain Required: 43 NOT NULL FK / seçenek / tarih alanı. BindEntityToControls artık cbb/mmo kontrollerini de
+  zorunlu işaretler. TSysUom: düz UomGroupKey (inceleme ekranında grup boş görünüyordu; Clone paylaşılan nesne hatası da gitti).
+- UI harness yeni adımlar: sekme geçişi (her sekme, hata/diyalog yok), alan = DB satırı (gizli sekmeler dahil),
+  zorunlu alan boşalt -> başka sekmedeyken kaydet -> hata + doğru sekme + odak, NOT NULL alan zorunlu işaretli mi.
+  Sonuç 989 pass / 0 fail / 0 warn (107 zorunlu alan testi); servis paketi 1036/0; derleme 0 hata.
+- Dump'lar yenilendi (yedekler scratchpad: ths_erp_before_not_null_zero.dump, ths_erp_before_empty_to_null.dump).
+
+## KALDIĞIM YER (2026-10-10 sonu)
+- Son oturumların (servis + UI test paketleri, NULL standardı, Required, grid metadata, AV / kilit düzeltmeleri) tamamı commit edildi.
+- Kullanıcı yapacak: IDE'de Build (Shift+F9) + elle kontrol — stok kartında grup/birim boş kaydet, personelde cinsiyet
+  boş kaydet, adres tipi boş kaydet (alan kırmızı + hata beklenir); para birimi ₺ kaydı, kur 4 hane, ölçü birimi
+  listesi/grup listesi kolonları, erişim hakları "Engelle" kolonları.
+- SONRAKİ ADIMLAR (sırayla, kullanıcı onayıyla):
+  1. UI harness'a Uygulama Ayarları (sekmeli, tek kayıtlık, listeden açılmayan) ekranını eklemek.
+  2. Klavye Tab sırası testi (TabOrder ekrandaki yerleşimle uyumlu mu: yukarıdan aşağı, soldan sağa).
+  3. Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` + `%TEMP%\ths_it\bin\IntegrationTest.exe`
+     (canlı DB'de rollback) ve `ERP/Tests/Ui/build.sh` + `%TEMP%\ths_ui\bin\UiTest.exe` (ths_erp_it'i yeniden kurar).
+  4. Ardından sls_ (satış) modülü.
+
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.
 - Legacy Forms/Production/ufrmUrtReceteler.* ve Forms/DetailedInputForms/Production (kayıtsız) silinecek.
 - Kullanıcı onayı bekleyenler: gider tipi seçenekleri (1 işçilik / 2 makine / 3 genel üretim gideri), 1060 bom-settings yetkisinin
   silinmesi, acc_set_tax_rate %10 / %20 satırlarında ters görünen satış/alış hesapları.
-- 2026-10-09 değişiklikleri commit edilmedi (kullanıcı isteği): 54 değişen + 4 yeni klasör (BackEnd/Production/Exception,
-  Forms/Production/Input|Output). Sıradaki modül: sls_ (satış).
+- 2026-10-09 değişiklikleri 4371ce2 ile commit edildi. sls_ (satış) modülü, uçtan uca UI testi ve bulunan hatalar düzeltilene
+  kadar bekletiliyor (kullanıcı kararı, 2026-10-10).
 - vw_sys_user.user_password kaldırma (login hash'i tablodan ayrı sorgu ile almalı)
 - Diğer translation view'larında locale stratejisi (vw_sys_city, vw_sys_country, vw_sys_uom*, vw_emp_* ...) ve de-DE çeviri eksikleri
   (vw_emp_person_type locale NULL → personel tipi adı boş)

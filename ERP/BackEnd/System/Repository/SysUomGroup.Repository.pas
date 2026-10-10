@@ -171,7 +171,7 @@ begin
       Trans.SysUomGroupId := AModel.Id;
       Q.ParamByName('sys_uom_group_id').AsLargeInt := Trans.SysUomGroupId;
       Q.ParamByName('sys_language_id').AsLargeInt := LLangId;
-      Q.ParamByName('uom_group_name').AsString := Trans.UomGroupName;
+      Q.ParamByName('uom_group_name').AsWideString := Trans.UomGroupName;
       LogQuery(Q, 'SaveTranslations');
       Q.ExecSQL;
     end;
@@ -184,11 +184,11 @@ procedure TSysUomGroupRepository.SetInsertParams(Q: TFDQuery; AModel: TSysUomGro
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('uom_group_key').AsString := AModel.UomGroupKey;
+    Q.ParamByName('uom_group_key').AsWideString := AModel.UomGroupKey;
   end
   else
   begin
-    Q.ParamByName('uom_group_key').AsStrings[AIndex] := AModel.UomGroupKey;
+    Q.ParamByName('uom_group_key').AsWideStrings[AIndex] := AModel.UomGroupKey;
   end;
 end;
 
@@ -197,12 +197,12 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('uom_group_key').AsString := AModel.UomGroupKey;
+    Q.ParamByName('uom_group_key').AsWideString := AModel.UomGroupKey;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('uom_group_key').AsStrings[AIndex] := AModel.UomGroupKey;
+    Q.ParamByName('uom_group_key').AsWideStrings[AIndex] := AModel.UomGroupKey;
   end;
 end;
 
@@ -338,6 +338,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -365,6 +366,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -384,6 +387,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -409,6 +413,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

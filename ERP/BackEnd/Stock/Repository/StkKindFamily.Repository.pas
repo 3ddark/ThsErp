@@ -70,14 +70,14 @@ procedure TStkKindFamilyRepository.SetInsertParams(Q: TFDQuery; AModel: TStkKind
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('family').AsString := AModel.Family;
-    Q.ParamByName('description').AsString := AModel.Description;
+    Q.ParamByName('family').AsWideString := AModel.Family;
+    Q.ParamByName('description').AsWideString := AModel.Description;
     Q.ParamByName('active').AsBoolean := AModel.Active;
   end
   else
   begin
-    Q.ParamByName('family').AsStrings[AIndex] := AModel.Family;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
+    Q.ParamByName('family').AsWideStrings[AIndex] := AModel.Family;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
     Q.ParamByName('active').AsBooleans[AIndex] := AModel.Active;
   end;
 end;
@@ -87,15 +87,15 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('family').AsString := AModel.Family;
-    Q.ParamByName('description').AsString := AModel.Description;
+    Q.ParamByName('family').AsWideString := AModel.Family;
+    Q.ParamByName('description').AsWideString := AModel.Description;
     Q.ParamByName('active').AsBoolean := AModel.Active;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('family').AsStrings[AIndex] := AModel.Family;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
+    Q.ParamByName('family').AsWideStrings[AIndex] := AModel.Family;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
     Q.ParamByName('active').AsBooleans[AIndex] := AModel.Active;
   end;
 end;
@@ -216,6 +216,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -242,6 +243,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -258,6 +261,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -282,6 +286,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

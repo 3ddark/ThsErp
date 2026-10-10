@@ -34,7 +34,7 @@ type
     [Column('cost_type')]
     property CostType: SmallInt read FCostType write FCostType;
 
-    [Column('sys_uom_id')]
+    [Column('sys_uom_id'), Required()]
     property SysUomId: Int64 read FSysUomId write FSysUomId;
 
     [Column('unit_price')]

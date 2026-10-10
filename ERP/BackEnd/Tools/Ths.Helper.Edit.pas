@@ -341,7 +341,10 @@ begin
     itDate    : ValidateDate;
     itFloat   :
     begin
-      if (RightStr(Text, 1) = FormatSettings.DecimalSeparator) then
+      // Boş alan boş kalır (NULL / "gruptan gelir" ayrımı); ",00" yapılırsa 0 olarak okunur
+      if Trim(Text) = '' then
+        Text := ''
+      else if (RightStr(Text, 1) = FormatSettings.DecimalSeparator) then
         Text := Text + StringOfChar('0', thsDecimalDigitCount)
       else if (Pos(FormatSettings.DecimalSeparator, Text) = 0) then
         Text := Text + FormatSettings.DecimalSeparator + StringOfChar('0', thsDecimalDigitCount)
@@ -606,7 +609,7 @@ begin
   if thsInputDataType = itMoney then
     DoubleToMoney;
 
-  if thsInputDataType = itFloat then
+  if (thsInputDataType = itFloat) and (Trim(Text) <> '') then
   begin
     if (RightStr(Text, 1) = FormatSettings.DecimalSeparator) then
       Text := Text + StringOfChar('0', thsDecimalDigitCount)

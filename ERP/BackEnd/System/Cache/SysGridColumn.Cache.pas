@@ -534,9 +534,9 @@ begin
       'FROM public.sys_grid_column ' +
       'WHERE table_name IN (:t1, :t2, :t3) ' +
       'ORDER BY table_name, column_order';
-    Q.ParamByName('t1').AsString := LCleanTbl;
-    Q.ParamByName('t2').AsString := LBaseTbl;
-    Q.ParamByName('t3').AsString := LViewTbl;
+    Q.ParamByName('t1').AsWideString := LCleanTbl;
+    Q.ParamByName('t2').AsWideString := LBaseTbl;
+    Q.ParamByName('t3').AsWideString := LViewTbl;
 
     try
       Q.Open;
@@ -630,9 +630,9 @@ begin
       Q.SQL.Text :=
         'SELECT 1 FROM public.sys_grid_column ' +
         'WHERE table_name IN (:t1, :t2, :t3) LIMIT 1';
-      Q.ParamByName('t1').AsString := LCleanTbl;
-      Q.ParamByName('t2').AsString := LBaseTbl;
-      Q.ParamByName('t3').AsString := LViewTbl;
+      Q.ParamByName('t1').AsWideString := LCleanTbl;
+      Q.ParamByName('t2').AsWideString := LBaseTbl;
+      Q.ParamByName('t3').AsWideString := LViewTbl;
       try
         Q.Open;
         if not Q.Eof then
@@ -881,7 +881,7 @@ begin
       Q.Connection := AConnection;
       Q.SQL.Text := 'SELECT column_name FROM information_schema.columns ' +
                     ' WHERE table_schema = ''public'' AND table_name = :t';
-      Q.ParamByName('t').AsString := LowerCase(AViewName);
+      Q.ParamByName('t').AsWideString := LowerCase(AViewName);
       Q.Open;
       while not Q.Eof do
       begin

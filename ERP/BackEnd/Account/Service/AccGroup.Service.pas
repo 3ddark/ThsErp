@@ -43,6 +43,7 @@ type
 implementation
 
 uses
+  Ths.Helper.BaseTypes,
   SysPermission.Service;
 
 constructor TAccGroupService.Create;
@@ -87,7 +88,7 @@ procedure TAccGroupService.ValidateBusinessRules(AEntity: TAccGroup; AOperation:
 begin
   if AOperation in [coInsert, coUpdate] then
   begin
-    AEntity.Name := AnsiUpperCase(Trim(AEntity.Name));
+    AEntity.Name := UpperCaseTr(Trim(AEntity.Name));
   end;
 
   ValidateUnique(AEntity, AOperation);

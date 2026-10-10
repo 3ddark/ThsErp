@@ -18,10 +18,10 @@ type
     FEmployeeFullName: string;
     FLicenseName: string;
   public
-    [Column('emp_employee_id')]
+    [Column('emp_employee_id'), Required()]
     property EmpEmployeeId: Int64 read FEmpEmployeeId write FEmpEmployeeId;
 
-    [Column('emp_driver_license_type_id')]
+    [Column('emp_driver_license_type_id'), Required()]
     property EmpDriverLicenseTypeId: Int64 read FEmpDriverLicenseTypeId write FEmpDriverLicenseTypeId;
 
     [NotMapped]

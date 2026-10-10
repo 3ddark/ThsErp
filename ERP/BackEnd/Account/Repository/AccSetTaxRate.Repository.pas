@@ -71,13 +71,13 @@ procedure TAccSetTaxRateRepository.SetInsertParams(Q: TFDQuery; AModel: TAccSetT
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -88,11 +88,11 @@ procedure TAccSetTaxRateRepository.SetInsertParams(Q: TFDQuery; AModel: TAccSetT
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('tax_rate').AsCurrency := AModel.TaxRate;
+    Q.ParamByName('tax_rate').AsBCD := AModel.TaxRate;
   end
   else
   begin
-    Q.ParamByName('tax_rate').AsCurrencys[AIndex] := AModel.TaxRate;
+    Q.ParamByName('tax_rate').AsBCDs[AIndex] := AModel.TaxRate;
   end;
 
   SetCode('sales_account', AModel.SalesAccount);
@@ -106,13 +106,13 @@ procedure TAccSetTaxRateRepository.SetUpdateParams(Q: TFDQuery; AModel: TAccSetT
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -124,12 +124,12 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('tax_rate').AsCurrency := AModel.TaxRate;
+    Q.ParamByName('tax_rate').AsBCD := AModel.TaxRate;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('tax_rate').AsCurrencys[AIndex] := AModel.TaxRate;
+    Q.ParamByName('tax_rate').AsBCDs[AIndex] := AModel.TaxRate;
   end;
 
   SetCode('sales_account', AModel.SalesAccount);
@@ -256,6 +256,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -282,6 +283,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -298,6 +301,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -322,6 +326,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

@@ -53,6 +53,8 @@ procedure TfrmSysAddresses.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSysAddress.TitlePlural, 'Addresses');
+  SetColumnTitle('country_name', TLocalizationManager.Translate(TLangKeys.TSysAddress.ColCountry, 'Country'));
+  SetColumnTitle('city_name',    TLocalizationManager.Translate(TLangKeys.TSysAddress.ColCity, 'City'));
   SetColumnTitle('district',     TLocalizationManager.Translate(TLangKeys.TSysAddress.ColDistrict, 'District'));
   SetColumnTitle('neighborhood', TLocalizationManager.Translate(TLangKeys.TSysAddress.ColNeighborhood, 'Neighborhood'));
   SetColumnTitle('quarter',      TLocalizationManager.Translate(TLangKeys.TSysAddress.ColQuarter, 'Quarter'));

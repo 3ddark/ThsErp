@@ -101,31 +101,31 @@ end;
 
 procedure TSysApplicationSettingRepository.SetCommonParams(Q: TFDQuery; AModel: TSysApplicationSetting);
 begin
-  Q.ParamByName('company_title').AsString := AModel.CompanyTitle;
-  Q.ParamByName('phone').AsString := AModel.Phone;
-  Q.ParamByName('fax').AsString := AModel.Fax;
-  Q.ParamByName('tax_authority').AsString := AModel.TaxAuthority;
-  Q.ParamByName('tax_no').AsString := AModel.TaxNo;
+  Q.ParamByName('company_title').AsWideString := AModel.CompanyTitle;
+  Q.ParamByName('phone').AsWideString := AModel.Phone;
+  Q.ParamByName('fax').AsWideString := AModel.Fax;
+  Q.ParamByName('tax_authority').AsWideString := AModel.TaxAuthority;
+  Q.ParamByName('tax_no').AsWideString := AModel.TaxNo;
   Q.ParamByName('active_period').AsSmallInt := AModel.ActivePeriod;
-  Q.ParamByName('mail_host').AsString := AModel.MailHost;
-  Q.ParamByName('mail_user').AsString := AModel.MailUser;
-  Q.ParamByName('mail_password').AsString := AModel.MailPassword;
+  Q.ParamByName('mail_host').AsWideString := AModel.MailHost;
+  Q.ParamByName('mail_user').AsWideString := AModel.MailUser;
+  Q.ParamByName('mail_password').AsWideString := AModel.MailPassword;
   SetNullableParam(Q.ParamByName('mail_smtp_port'), ftInteger, AModel.MailSmtpPort);
   Q.ParamByName('grid_color_1').AsInteger := AModel.GridColor1;
   Q.ParamByName('grid_color_2').AsInteger := AModel.GridColor2;
   Q.ParamByName('grid_color_active').AsInteger := AModel.GridColorActive;
-  Q.ParamByName('crypt_key').AsString := AModel.CryptKey;
-  Q.ParamByName('sms_host').AsString := AModel.SmsHost;
-  Q.ParamByName('sms_user').AsString := AModel.SmsUser;
-  Q.ParamByName('sms_password').AsString := AModel.SmsPassword;
-  Q.ParamByName('sms_title').AsString := AModel.SmsTitle;
-  Q.ParamByName('app_version').AsString := AModel.AppVersion;
-  Q.ParamByName('app_currency').AsString := AModel.AppCurrency;
+  Q.ParamByName('crypt_key').AsWideString := AModel.CryptKey;
+  Q.ParamByName('sms_host').AsWideString := AModel.SmsHost;
+  Q.ParamByName('sms_user').AsWideString := AModel.SmsUser;
+  Q.ParamByName('sms_password').AsWideString := AModel.SmsPassword;
+  Q.ParamByName('sms_title').AsWideString := AModel.SmsTitle;
+  Q.ParamByName('app_version').AsWideString := AModel.AppVersion;
+  Q.ParamByName('app_currency').AsWideString := AModel.AppCurrency;
   SetNullableParam(Q.ParamByName('sys_address_id'), ftLargeint, AModel.SysAddressId);
-  Q.ParamByName('other_settings').AsString := AModel.OtherSettings;
-  Q.ParamByName('taxpayer_name').AsString := AModel.TaxpayerName;
-  Q.ParamByName('taxpayer_surname').AsString := AModel.TaxpayerSurname;
-  Q.ParamByName('taxpayer_type').AsString := AModel.Taxpayertype;
+  Q.ParamByName('other_settings').AsWideString := AModel.OtherSettings;
+  Q.ParamByName('taxpayer_name').AsWideString := AModel.TaxpayerName;
+  Q.ParamByName('taxpayer_surname').AsWideString := AModel.TaxpayerSurname;
+  Q.ParamByName('taxpayer_type').AsWideString := AModel.Taxpayertype;
 end;
 
 function TSysApplicationSettingRepository.MapFromQuery(Q: TFDQuery): TSysApplicationSetting;
@@ -251,6 +251,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetCommonParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -277,6 +278,7 @@ begin
     Q.SQL.Text := PrepareUpdateSql;
     SetCommonParams(Q, AModel);
     Q.ParamByName('id').AsLargeInt := AModel.Id;
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally

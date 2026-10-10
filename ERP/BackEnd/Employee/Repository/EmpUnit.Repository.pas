@@ -183,7 +183,7 @@ begin
       begin
         QSave.ParamByName('emp_unit_id').AsLargeInt := AModel.Id;
         QSave.ParamByName('sys_language_id').AsLargeInt := LLangId;
-        QSave.ParamByName('name').AsString := Trim(Trans.Name);
+        QSave.ParamByName('name').AsWideString := Trim(Trans.Name);
         LogQuery(QSave, 'SaveTranslations');
         QSave.ExecSQL;
       end;
@@ -198,11 +198,11 @@ procedure TEmpUnitRepository.SetInsertParams(Q: TFDQuery; AModel: TEmpUnit; AInd
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('unit_key').AsString := AModel.UnitKey;
+    Q.ParamByName('unit_key').AsWideString := AModel.UnitKey;
   end
   else
   begin
-    Q.ParamByName('unit_key').AsStrings[AIndex] := AModel.UnitKey;
+    Q.ParamByName('unit_key').AsWideStrings[AIndex] := AModel.UnitKey;
   end;
 
   SetNullableParam(Q.ParamByName('emp_section_id'), ftLargeint, AModel.EmpSectionId, AIndex);
@@ -213,12 +213,12 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('unit_key').AsString := AModel.UnitKey;
+    Q.ParamByName('unit_key').AsWideString := AModel.UnitKey;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('unit_key').AsStrings[AIndex] := AModel.UnitKey;
+    Q.ParamByName('unit_key').AsWideStrings[AIndex] := AModel.UnitKey;
   end;
 
   SetNullableParam(Q.ParamByName('emp_section_id'), ftLargeint, AModel.EmpSectionId, AIndex);
@@ -354,6 +354,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -382,6 +383,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -398,6 +401,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -424,6 +428,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

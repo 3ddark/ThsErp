@@ -41,6 +41,7 @@ begin
   inherited;
   SetColumnProperty('id', 0);
   SetColumnProperty('sys_uom_group_id', 0);
+  SetColumnProperty('locale', 0);
 end;
 
 procedure TfrmSysUoms.FormShow(Sender: TObject);
@@ -58,6 +59,7 @@ begin
   SetColumnTitle('uom_name',    TLocalizationManager.Translate(TLangKeys.TSysUom.ColUomName, 'Uom Name'));
   SetColumnTitle('decimal',     TLocalizationManager.Translate(TLangKeys.TSysUom.ColDecimal, 'Decimal'));
   SetColumnTitle('multiplier',  TLocalizationManager.Translate(TLangKeys.TSysUom.ColMultiplier, 'Multiplier'));
+  SetColumnTitle('uom_group_key', TLocalizationManager.Translate(TLangKeys.TSysUom.ColMeasureTypeId, 'Measure Type'));
 end;
 
 end.

@@ -71,13 +71,13 @@ procedure TAccTransferCodeRepository.SetInsertParams(Q: TFDQuery; AModel: TAccTr
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -88,13 +88,13 @@ procedure TAccTransferCodeRepository.SetInsertParams(Q: TFDQuery; AModel: TAccTr
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('transfer_code').AsString := AModel.TransferCode;
-    Q.ParamByName('description').AsString := AModel.Description;
+    Q.ParamByName('transfer_code').AsWideString := AModel.TransferCode;
+    Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
-    Q.ParamByName('transfer_code').AsStrings[AIndex] := AModel.TransferCode;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
+    Q.ParamByName('transfer_code').AsWideStrings[AIndex] := AModel.TransferCode;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
   end;
 
   SetCode('account', AModel.Account);
@@ -105,13 +105,13 @@ procedure TAccTransferCodeRepository.SetUpdateParams(Q: TFDQuery; AModel: TAccTr
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -123,14 +123,14 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('transfer_code').AsString := AModel.TransferCode;
-    Q.ParamByName('description').AsString := AModel.Description;
+    Q.ParamByName('transfer_code').AsWideString := AModel.TransferCode;
+    Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('transfer_code').AsStrings[AIndex] := AModel.TransferCode;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
+    Q.ParamByName('transfer_code').AsWideStrings[AIndex] := AModel.TransferCode;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
   end;
 
   SetCode('account', AModel.Account);
@@ -253,6 +253,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -279,6 +280,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -295,6 +298,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -319,6 +323,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

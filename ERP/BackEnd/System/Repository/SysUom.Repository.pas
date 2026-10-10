@@ -172,7 +172,7 @@ begin
       Trans.SysUomId := AModel.Id;
       Q.ParamByName('sys_uom_id').AsLargeInt := Trans.SysUomId;
       Q.ParamByName('sys_language_id').AsLargeInt := LLangId;
-      Q.ParamByName('uom_name').AsString := Trans.UomName;
+      Q.ParamByName('uom_name').AsWideString := Trans.UomName;
       LogQuery(Q, 'SaveTranslations');
       Q.ExecSQL;
     end;
@@ -185,15 +185,15 @@ procedure TSysUomRepository.SetInsertParams(Q: TFDQuery; AModel: TSysUom; AIndex
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('unit_code').AsString := AModel.UnitCode;
-    Q.ParamByName('unit_einv').AsString := AModel.UnitEInv;
+    Q.ParamByName('unit_code').AsWideString := AModel.UnitCode;
+    Q.ParamByName('unit_einv').AsWideString := AModel.UnitEInv;
     Q.ParamByName('decimal').AsBoolean := AModel.Decimal;
     Q.ParamByName('multiplier').AsInteger := AModel.Multiplier;
   end
   else
   begin
-    Q.ParamByName('unit_code').AsStrings[AIndex] := AModel.UnitCode;
-    Q.ParamByName('unit_einv').AsStrings[AIndex] := AModel.UnitEInv;
+    Q.ParamByName('unit_code').AsWideStrings[AIndex] := AModel.UnitCode;
+    Q.ParamByName('unit_einv').AsWideStrings[AIndex] := AModel.UnitEInv;
     Q.ParamByName('decimal').AsBooleans[AIndex] := AModel.Decimal;
     Q.ParamByName('multiplier').AsIntegers[AIndex] := AModel.Multiplier;
   end;
@@ -205,16 +205,16 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('unit_code').AsString := AModel.UnitCode;
-    Q.ParamByName('unit_einv').AsString := AModel.UnitEInv;
+    Q.ParamByName('unit_code').AsWideString := AModel.UnitCode;
+    Q.ParamByName('unit_einv').AsWideString := AModel.UnitEInv;
     Q.ParamByName('decimal').AsBoolean := AModel.Decimal;
     Q.ParamByName('multiplier').AsInteger := AModel.Multiplier;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('unit_code').AsStrings[AIndex] := AModel.UnitCode;
-    Q.ParamByName('unit_einv').AsStrings[AIndex] := AModel.UnitEInv;
+    Q.ParamByName('unit_code').AsWideStrings[AIndex] := AModel.UnitCode;
+    Q.ParamByName('unit_einv').AsWideStrings[AIndex] := AModel.UnitEInv;
     Q.ParamByName('decimal').AsBooleans[AIndex] := AModel.Decimal;
     Q.ParamByName('multiplier').AsIntegers[AIndex] := AModel.Multiplier;
   end;
@@ -231,6 +231,7 @@ begin
   Result.SysUomGroupId := Q.FieldByName('sys_uom_group_id').AsLargeInt;
   Result.Multiplier := Q.FieldByName('multiplier').AsInteger;
   Result.UomName := Q.FieldByName('uom_name').AsString;
+  Result.UomGroupKey := Q.FieldByName('uom_group_key').AsString;
 end;
 
 function TSysUomRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;
@@ -357,6 +358,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -384,6 +386,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -403,6 +407,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -428,6 +433,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

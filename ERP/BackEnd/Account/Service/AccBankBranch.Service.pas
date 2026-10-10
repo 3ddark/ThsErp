@@ -45,6 +45,7 @@ type
 implementation
 
 uses
+  Ths.Helper.BaseTypes,
   SysPermission.Service;
 
 constructor TAccBankBranchService.Create;
@@ -104,7 +105,7 @@ procedure TAccBankBranchService.ValidateBusinessRules(AEntity: TAccBankBranch; A
 begin
   if AOperation in [coInsert, coUpdate] then
   begin
-    AEntity.BranchName := AnsiUpperCase(Trim(AEntity.BranchName));
+    AEntity.BranchName := UpperCaseTr(Trim(AEntity.BranchName));
     ValidateRequiredReferences(AEntity);
   end;
 

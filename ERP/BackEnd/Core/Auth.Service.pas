@@ -237,7 +237,7 @@ begin
 
       LQuery.Close;
       LQuery.SQL.Text := 'UPDATE public.sys_user SET user_password = :password WHERE id = :id';
-      LQuery.ParamByName('password').AsString    := LNewHash;
+      LQuery.ParamByName('password').AsWideString    := LNewHash;
       LQuery.ParamByName('id').AsLargeInt        := AUserId;
       LQuery.ExecSQL;
 
@@ -273,7 +273,7 @@ begin
     try
       LQuery.Connection := Self.UoW.Connection;
       LQuery.SQL.Text   := 'UPDATE public.sys_user SET user_password = :password WHERE id = :id';
-      LQuery.ParamByName('password').AsString := LNewHash;
+      LQuery.ParamByName('password').AsWideString := LNewHash;
       LQuery.ParamByName('id').AsLargeInt     := AUserId;
       LQuery.ExecSQL;
 

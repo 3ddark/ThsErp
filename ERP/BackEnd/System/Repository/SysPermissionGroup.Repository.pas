@@ -156,7 +156,7 @@ begin
       Trans.SysPermissionGroupId := AModel.Id;
       Q.ParamByName('sys_permission_group_id').AsLargeInt := Trans.SysPermissionGroupId;
       Q.ParamByName('sys_language_id').AsLargeInt := Trans.SysLanguageId;
-      Q.ParamByName('permission_group_name').AsString := Trans.PermissionGroupName;
+      Q.ParamByName('permission_group_name').AsWideString := Trans.PermissionGroupName;
       LogQuery(Q, 'SaveTranslations');
       Q.ExecSQL;
     end;
@@ -169,11 +169,11 @@ procedure TSysPermissionGroupRepository.SetInsertParams(Q: TFDQuery; AModel: TSy
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('permission_group_key').AsString := AModel.PermissionGroupKey;
+    Q.ParamByName('permission_group_key').AsWideString := AModel.PermissionGroupKey;
   end
   else
   begin
-    Q.ParamByName('permission_group_key').AsStrings[AIndex] := AModel.PermissionGroupKey;
+    Q.ParamByName('permission_group_key').AsWideStrings[AIndex] := AModel.PermissionGroupKey;
   end;
 end;
 
@@ -182,12 +182,12 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt     := AModel.Id;
-    Q.ParamByName('permission_group_key').AsString      := AModel.PermissionGroupKey;
+    Q.ParamByName('permission_group_key').AsWideString      := AModel.PermissionGroupKey;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex]     := AModel.Id;
-    Q.ParamByName('permission_group_key').AsStrings[AIndex]      := AModel.PermissionGroupKey;
+    Q.ParamByName('permission_group_key').AsWideStrings[AIndex]      := AModel.PermissionGroupKey;
   end;
 end;
 
@@ -321,6 +321,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -348,6 +349,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -367,6 +370,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -392,6 +396,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

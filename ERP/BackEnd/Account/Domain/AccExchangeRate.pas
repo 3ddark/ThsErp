@@ -15,7 +15,7 @@ type
     FCurrency: string;
     FRate: Currency;
   public
-    [Column('rate_date')]
+    [Column('rate_date'), Required()]
     property RateDate: TDate read FRateDate write FRateDate;
 
     [Column('currency')]

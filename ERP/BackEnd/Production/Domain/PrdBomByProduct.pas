@@ -20,10 +20,10 @@ type
     FInventoryCode: string;
     FInventoryName: string;
   public
-    [Column('prd_bom_id')]
+    [Column('prd_bom_id'), Required()]
     property PrdBomId: Int64 read FPrdBomId write FPrdBomId;
 
-    [Column('stk_inventory_id')]
+    [Column('stk_inventory_id'), Required()]
     property StkInventoryId: Int64 read FStkInventoryId write FStkInventoryId;
 
     [Column('quantity')]

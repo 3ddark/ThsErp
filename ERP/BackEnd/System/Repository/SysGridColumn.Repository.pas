@@ -152,11 +152,11 @@ procedure TSysGridColumnRepository.SetModelParams(Q: TFDQuery;
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('table_name').AsString      := AModel.TableName;
-    Q.ParamByName('column_name').AsString     := AModel.ColumnName;
+    Q.ParamByName('table_name').AsWideString      := AModel.TableName;
+    Q.ParamByName('column_name').AsWideString     := AModel.ColumnName;
     Q.ParamByName('column_order').AsInteger   := AModel.ColumnOrder;
     Q.ParamByName('column_width').AsInteger   := AModel.ColumnWidth;
-    Q.ParamByName('data_format').AsString     := AModel.DataFormat;
+    Q.ParamByName('data_format').AsWideString     := AModel.DataFormat;
     Q.ParamByName('is_show').AsBoolean        := AModel.IsShow;
     Q.ParamByName('is_show_helper').AsBoolean := AModel.IsShowHelper;
     if Q.FindParam('is_fetch') <> nil then
@@ -176,11 +176,11 @@ begin
   end
   else
   begin
-    Q.ParamByName('table_name').AsStrings[AIndex]       := AModel.TableName;
-    Q.ParamByName('column_name').AsStrings[AIndex]      := AModel.ColumnName;
+    Q.ParamByName('table_name').AsWideStrings[AIndex]       := AModel.TableName;
+    Q.ParamByName('column_name').AsWideStrings[AIndex]      := AModel.ColumnName;
     Q.ParamByName('column_order').AsIntegers[AIndex]    := AModel.ColumnOrder;
     Q.ParamByName('column_width').AsIntegers[AIndex]    := AModel.ColumnWidth;
-    Q.ParamByName('data_format').AsStrings[AIndex]      := AModel.DataFormat;
+    Q.ParamByName('data_format').AsWideStrings[AIndex]      := AModel.DataFormat;
     Q.ParamByName('is_show').AsBooleans[AIndex]         := AModel.IsShow;
     Q.ParamByName('is_show_helper').AsBooleans[AIndex]  := AModel.IsShowHelper;
     if Q.FindParam('is_fetch') <> nil then
@@ -326,6 +326,7 @@ begin
     Q.Connection  := Connection;
     Q.SQL.Text    := PrepareAddSql + ' RETURNING id';
     SetModelParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -350,6 +351,7 @@ begin
     Q.Params.ArraySize := N;
     for I := 0 to N - 1 do
       SetModelParams(Q, AModels[I], I);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(N, 0);
     TSysGridColumnCache.InvalidateAll;
@@ -367,6 +369,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text   := PrepareUpdateSql;
     SetModelParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
     TSysGridColumnCache.InvalidateTable(AModel.TableName);
@@ -390,6 +393,7 @@ begin
     Q.Params.ArraySize := N;
     for I := 0 to N - 1 do
       SetModelParams(Q, AModels[I], I);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(N, 0);
     TSysGridColumnCache.InvalidateAll;
@@ -532,7 +536,7 @@ begin
     Q.SQL.Text   :=
       'SELECT column_name, column_order, column_width, is_show ' +
       'FROM public.sys_grid_column WHERE table_name = :t';
-    Q.ParamByName('t').AsString := CleanTbl;
+    Q.ParamByName('t').AsWideString := CleanTbl;
     try
       LogQuery(Q, 'SaveColumns');
       Q.Open;
@@ -591,10 +595,10 @@ begin
       '  is_show      = EXCLUDED.is_show';
 
     Q.SQL.Text := SQLText;
-    Q.ParamByName('t').AsString := CleanTbl;
+    Q.ParamByName('t').AsWideString := CleanTbl;
     for I := 0 to AColumns.Count - 1 do
     begin
-      Q.ParamByName('cn' + I.ToString).AsString  := AColumns[I].ColumnName;
+      Q.ParamByName('cn' + I.ToString).AsWideString  := AColumns[I].ColumnName;
       Q.ParamByName('co' + I.ToString).AsInteger := AColumns[I].ColumnOrder;
       Q.ParamByName('cw' + I.ToString).AsInteger := AColumns[I].ColumnWidth;
       Q.ParamByName('cs' + I.ToString).AsBoolean := AColumns[I].IsShow;
@@ -660,10 +664,10 @@ begin
 
     Q.SQL.Text := SQLText;
     Q.ParamByName('u').AsLargeInt := AUserId;
-    Q.ParamByName('t').AsString := CleanTbl;
+    Q.ParamByName('t').AsWideString := CleanTbl;
     for i := 0 to AColumns.Count - 1 do
     begin
-      Q.ParamByName('cn' + i.ToString).AsString  := AColumns[i].ColumnName;
+      Q.ParamByName('cn' + i.ToString).AsWideString  := AColumns[i].ColumnName;
       Q.ParamByName('co' + i.ToString).AsInteger := AColumns[i].ColumnOrder;
       Q.ParamByName('cw' + i.ToString).AsInteger := AColumns[i].ColumnWidth;
       Q.ParamByName('cs' + i.ToString).AsBoolean := AColumns[i].IsShow;

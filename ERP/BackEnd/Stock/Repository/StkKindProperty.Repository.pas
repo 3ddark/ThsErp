@@ -70,53 +70,53 @@ procedure TStkKindPropertyRepository.SetInsertParams(Q: TFDQuery; AModel: TStkKi
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('kind').AsString := AModel.Kind;
-    Q.ParamByName('description').AsString := AModel.Description;
-    Q.ParamByName('s1').AsString := AModel.S1;
-    Q.ParamByName('s2').AsString := AModel.S2;
-    Q.ParamByName('s3').AsString := AModel.S3;
-    Q.ParamByName('s4').AsString := AModel.S4;
-    Q.ParamByName('s5').AsString := AModel.S5;
-    Q.ParamByName('s6').AsString := AModel.S6;
-    Q.ParamByName('s7').AsString := AModel.S7;
-    Q.ParamByName('s8').AsString := AModel.S8;
-    Q.ParamByName('s9').AsString := AModel.S9;
-    Q.ParamByName('s10').AsString := AModel.S10;
-    Q.ParamByName('i1').AsString := AModel.I1;
-    Q.ParamByName('i2').AsString := AModel.I2;
-    Q.ParamByName('i3').AsString := AModel.I3;
-    Q.ParamByName('i4').AsString := AModel.I4;
-    Q.ParamByName('i5').AsString := AModel.I5;
-    Q.ParamByName('d1').AsString := AModel.D1;
-    Q.ParamByName('d2').AsString := AModel.D2;
-    Q.ParamByName('d3').AsString := AModel.D3;
-    Q.ParamByName('d4').AsString := AModel.D4;
-    Q.ParamByName('d5').AsString := AModel.D5;
+    Q.ParamByName('kind').AsWideString := AModel.Kind;
+    Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('s1').AsWideString := AModel.S1;
+    Q.ParamByName('s2').AsWideString := AModel.S2;
+    Q.ParamByName('s3').AsWideString := AModel.S3;
+    Q.ParamByName('s4').AsWideString := AModel.S4;
+    Q.ParamByName('s5').AsWideString := AModel.S5;
+    Q.ParamByName('s6').AsWideString := AModel.S6;
+    Q.ParamByName('s7').AsWideString := AModel.S7;
+    Q.ParamByName('s8').AsWideString := AModel.S8;
+    Q.ParamByName('s9').AsWideString := AModel.S9;
+    Q.ParamByName('s10').AsWideString := AModel.S10;
+    Q.ParamByName('i1').AsWideString := AModel.I1;
+    Q.ParamByName('i2').AsWideString := AModel.I2;
+    Q.ParamByName('i3').AsWideString := AModel.I3;
+    Q.ParamByName('i4').AsWideString := AModel.I4;
+    Q.ParamByName('i5').AsWideString := AModel.I5;
+    Q.ParamByName('d1').AsWideString := AModel.D1;
+    Q.ParamByName('d2').AsWideString := AModel.D2;
+    Q.ParamByName('d3').AsWideString := AModel.D3;
+    Q.ParamByName('d4').AsWideString := AModel.D4;
+    Q.ParamByName('d5').AsWideString := AModel.D5;
   end
   else
   begin
-    Q.ParamByName('kind').AsStrings[AIndex] := AModel.Kind;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
-    Q.ParamByName('s1').AsStrings[AIndex] := AModel.S1;
-    Q.ParamByName('s2').AsStrings[AIndex] := AModel.S2;
-    Q.ParamByName('s3').AsStrings[AIndex] := AModel.S3;
-    Q.ParamByName('s4').AsStrings[AIndex] := AModel.S4;
-    Q.ParamByName('s5').AsStrings[AIndex] := AModel.S5;
-    Q.ParamByName('s6').AsStrings[AIndex] := AModel.S6;
-    Q.ParamByName('s7').AsStrings[AIndex] := AModel.S7;
-    Q.ParamByName('s8').AsStrings[AIndex] := AModel.S8;
-    Q.ParamByName('s9').AsStrings[AIndex] := AModel.S9;
-    Q.ParamByName('s10').AsStrings[AIndex] := AModel.S10;
-    Q.ParamByName('i1').AsStrings[AIndex] := AModel.I1;
-    Q.ParamByName('i2').AsStrings[AIndex] := AModel.I2;
-    Q.ParamByName('i3').AsStrings[AIndex] := AModel.I3;
-    Q.ParamByName('i4').AsStrings[AIndex] := AModel.I4;
-    Q.ParamByName('i5').AsStrings[AIndex] := AModel.I5;
-    Q.ParamByName('d1').AsStrings[AIndex] := AModel.D1;
-    Q.ParamByName('d2').AsStrings[AIndex] := AModel.D2;
-    Q.ParamByName('d3').AsStrings[AIndex] := AModel.D3;
-    Q.ParamByName('d4').AsStrings[AIndex] := AModel.D4;
-    Q.ParamByName('d5').AsStrings[AIndex] := AModel.D5;
+    Q.ParamByName('kind').AsWideStrings[AIndex] := AModel.Kind;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('s1').AsWideStrings[AIndex] := AModel.S1;
+    Q.ParamByName('s2').AsWideStrings[AIndex] := AModel.S2;
+    Q.ParamByName('s3').AsWideStrings[AIndex] := AModel.S3;
+    Q.ParamByName('s4').AsWideStrings[AIndex] := AModel.S4;
+    Q.ParamByName('s5').AsWideStrings[AIndex] := AModel.S5;
+    Q.ParamByName('s6').AsWideStrings[AIndex] := AModel.S6;
+    Q.ParamByName('s7').AsWideStrings[AIndex] := AModel.S7;
+    Q.ParamByName('s8').AsWideStrings[AIndex] := AModel.S8;
+    Q.ParamByName('s9').AsWideStrings[AIndex] := AModel.S9;
+    Q.ParamByName('s10').AsWideStrings[AIndex] := AModel.S10;
+    Q.ParamByName('i1').AsWideStrings[AIndex] := AModel.I1;
+    Q.ParamByName('i2').AsWideStrings[AIndex] := AModel.I2;
+    Q.ParamByName('i3').AsWideStrings[AIndex] := AModel.I3;
+    Q.ParamByName('i4').AsWideStrings[AIndex] := AModel.I4;
+    Q.ParamByName('i5').AsWideStrings[AIndex] := AModel.I5;
+    Q.ParamByName('d1').AsWideStrings[AIndex] := AModel.D1;
+    Q.ParamByName('d2').AsWideStrings[AIndex] := AModel.D2;
+    Q.ParamByName('d3').AsWideStrings[AIndex] := AModel.D3;
+    Q.ParamByName('d4').AsWideStrings[AIndex] := AModel.D4;
+    Q.ParamByName('d5').AsWideStrings[AIndex] := AModel.D5;
   end;
 
   SetNullableParam(Q.ParamByName('stk_kind_family_id'), ftLargeint, AModel.StkKindFamilyId, AIndex);
@@ -127,54 +127,54 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('kind').AsString := AModel.Kind;
-    Q.ParamByName('description').AsString := AModel.Description;
-    Q.ParamByName('s1').AsString := AModel.S1;
-    Q.ParamByName('s2').AsString := AModel.S2;
-    Q.ParamByName('s3').AsString := AModel.S3;
-    Q.ParamByName('s4').AsString := AModel.S4;
-    Q.ParamByName('s5').AsString := AModel.S5;
-    Q.ParamByName('s6').AsString := AModel.S6;
-    Q.ParamByName('s7').AsString := AModel.S7;
-    Q.ParamByName('s8').AsString := AModel.S8;
-    Q.ParamByName('s9').AsString := AModel.S9;
-    Q.ParamByName('s10').AsString := AModel.S10;
-    Q.ParamByName('i1').AsString := AModel.I1;
-    Q.ParamByName('i2').AsString := AModel.I2;
-    Q.ParamByName('i3').AsString := AModel.I3;
-    Q.ParamByName('i4').AsString := AModel.I4;
-    Q.ParamByName('i5').AsString := AModel.I5;
-    Q.ParamByName('d1').AsString := AModel.D1;
-    Q.ParamByName('d2').AsString := AModel.D2;
-    Q.ParamByName('d3').AsString := AModel.D3;
-    Q.ParamByName('d4').AsString := AModel.D4;
-    Q.ParamByName('d5').AsString := AModel.D5;
+    Q.ParamByName('kind').AsWideString := AModel.Kind;
+    Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('s1').AsWideString := AModel.S1;
+    Q.ParamByName('s2').AsWideString := AModel.S2;
+    Q.ParamByName('s3').AsWideString := AModel.S3;
+    Q.ParamByName('s4').AsWideString := AModel.S4;
+    Q.ParamByName('s5').AsWideString := AModel.S5;
+    Q.ParamByName('s6').AsWideString := AModel.S6;
+    Q.ParamByName('s7').AsWideString := AModel.S7;
+    Q.ParamByName('s8').AsWideString := AModel.S8;
+    Q.ParamByName('s9').AsWideString := AModel.S9;
+    Q.ParamByName('s10').AsWideString := AModel.S10;
+    Q.ParamByName('i1').AsWideString := AModel.I1;
+    Q.ParamByName('i2').AsWideString := AModel.I2;
+    Q.ParamByName('i3').AsWideString := AModel.I3;
+    Q.ParamByName('i4').AsWideString := AModel.I4;
+    Q.ParamByName('i5').AsWideString := AModel.I5;
+    Q.ParamByName('d1').AsWideString := AModel.D1;
+    Q.ParamByName('d2').AsWideString := AModel.D2;
+    Q.ParamByName('d3').AsWideString := AModel.D3;
+    Q.ParamByName('d4').AsWideString := AModel.D4;
+    Q.ParamByName('d5').AsWideString := AModel.D5;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('kind').AsStrings[AIndex] := AModel.Kind;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
-    Q.ParamByName('s1').AsStrings[AIndex] := AModel.S1;
-    Q.ParamByName('s2').AsStrings[AIndex] := AModel.S2;
-    Q.ParamByName('s3').AsStrings[AIndex] := AModel.S3;
-    Q.ParamByName('s4').AsStrings[AIndex] := AModel.S4;
-    Q.ParamByName('s5').AsStrings[AIndex] := AModel.S5;
-    Q.ParamByName('s6').AsStrings[AIndex] := AModel.S6;
-    Q.ParamByName('s7').AsStrings[AIndex] := AModel.S7;
-    Q.ParamByName('s8').AsStrings[AIndex] := AModel.S8;
-    Q.ParamByName('s9').AsStrings[AIndex] := AModel.S9;
-    Q.ParamByName('s10').AsStrings[AIndex] := AModel.S10;
-    Q.ParamByName('i1').AsStrings[AIndex] := AModel.I1;
-    Q.ParamByName('i2').AsStrings[AIndex] := AModel.I2;
-    Q.ParamByName('i3').AsStrings[AIndex] := AModel.I3;
-    Q.ParamByName('i4').AsStrings[AIndex] := AModel.I4;
-    Q.ParamByName('i5').AsStrings[AIndex] := AModel.I5;
-    Q.ParamByName('d1').AsStrings[AIndex] := AModel.D1;
-    Q.ParamByName('d2').AsStrings[AIndex] := AModel.D2;
-    Q.ParamByName('d3').AsStrings[AIndex] := AModel.D3;
-    Q.ParamByName('d4').AsStrings[AIndex] := AModel.D4;
-    Q.ParamByName('d5').AsStrings[AIndex] := AModel.D5;
+    Q.ParamByName('kind').AsWideStrings[AIndex] := AModel.Kind;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('s1').AsWideStrings[AIndex] := AModel.S1;
+    Q.ParamByName('s2').AsWideStrings[AIndex] := AModel.S2;
+    Q.ParamByName('s3').AsWideStrings[AIndex] := AModel.S3;
+    Q.ParamByName('s4').AsWideStrings[AIndex] := AModel.S4;
+    Q.ParamByName('s5').AsWideStrings[AIndex] := AModel.S5;
+    Q.ParamByName('s6').AsWideStrings[AIndex] := AModel.S6;
+    Q.ParamByName('s7').AsWideStrings[AIndex] := AModel.S7;
+    Q.ParamByName('s8').AsWideStrings[AIndex] := AModel.S8;
+    Q.ParamByName('s9').AsWideStrings[AIndex] := AModel.S9;
+    Q.ParamByName('s10').AsWideStrings[AIndex] := AModel.S10;
+    Q.ParamByName('i1').AsWideStrings[AIndex] := AModel.I1;
+    Q.ParamByName('i2').AsWideStrings[AIndex] := AModel.I2;
+    Q.ParamByName('i3').AsWideStrings[AIndex] := AModel.I3;
+    Q.ParamByName('i4').AsWideStrings[AIndex] := AModel.I4;
+    Q.ParamByName('i5').AsWideStrings[AIndex] := AModel.I5;
+    Q.ParamByName('d1').AsWideStrings[AIndex] := AModel.D1;
+    Q.ParamByName('d2').AsWideStrings[AIndex] := AModel.D2;
+    Q.ParamByName('d3').AsWideStrings[AIndex] := AModel.D3;
+    Q.ParamByName('d4').AsWideStrings[AIndex] := AModel.D4;
+    Q.ParamByName('d5').AsWideStrings[AIndex] := AModel.D5;
   end;
 
   SetNullableParam(Q.ParamByName('stk_kind_family_id'), ftLargeint, AModel.StkKindFamilyId, AIndex);
@@ -317,6 +317,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -343,6 +344,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -359,6 +362,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -383,6 +387,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

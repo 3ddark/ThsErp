@@ -44,7 +44,7 @@ type
 implementation
 
 uses
-  SysPermission.Service;
+  System.StrUtils, SysPermission.Service;
 
 constructor TAccAccountAddressService.Create;
 begin
@@ -76,8 +76,12 @@ procedure TAccAccountAddressService.ValidateBusinessRules(AEntity: TAccAccountAd
 begin
   if AOperation in [coInsert, coUpdate] then
   begin
-    AEntity.AddressType := Trim(AEntity.AddressType);
+    AEntity.AddressType := UpperCase(Trim(AEntity.AddressType));
     ValidateRequiredReferences(AEntity);
+    // acc_account_address_type_check ile aynı liste: ham CHECK hatası yerine anlaşılır mesaj
+    if not MatchStr(AEntity.AddressType, ['BILLING', 'SHIPPING', 'LEGAL', 'OTHER']) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TAccAccountAddress.ColAddressType, 'Address Type') + ': ' +
+        TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
     if (AEntity.ValidFrom > 0) and (AEntity.ValidTo > 0) and (AEntity.ValidTo < AEntity.ValidFrom) then
       raise EAccAccountAddressExceptionValidDateRange.Create;
   end;

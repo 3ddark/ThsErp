@@ -132,6 +132,7 @@ var
   propMeta: TPropertyMeta;
   ctrl: TControl;
   lblCtrl: TComponent;
+  reqCtrl: TComponent;
 begin
   if Meta = nil then Exit;
 
@@ -147,6 +148,17 @@ begin
 
     if Assigned(lblCtrl) and (lblCtrl is TLabel) then
       (lblCtrl as TLabel).Caption := propMeta.DisplayLabel;
+
+    // Combo / memo karşılıkları da zorunluysa işaretlenir (ValidateInput boş bırakılmasını engeller)
+    if propMeta.Required then
+    begin
+      reqCtrl := AForm.FindComponent('cbb' + propMeta.Name);
+      if reqCtrl is TComboBox then
+        TComboBox(reqCtrl).thsRequiredData := True;
+      reqCtrl := AForm.FindComponent('mmo' + propMeta.Name);
+      if reqCtrl is TMemo then
+        TMemo(reqCtrl).thsRequiredData := True;
+    end;
 
     if Assigned(ctrl) and (ctrl is TEdit) then
     begin
@@ -1082,19 +1094,16 @@ begin
   if not Assigned(LPanelContainer) then
     Exit;
 
+  // "is" ile kontrol: formlar interposer (Ths.Helper.*) birimini kullanmasa da düz VCL kontrolleri kilitlenir
   for n1 := 0 to LPanelContainer.ControlCount-1 do
   begin
-    if LPanelContainer.Controls[n1].ClassType = TPanel then
-      SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TPanel, ADisable)
-    else if LPanelContainer.Controls[n1].ClassType = TGroupBox then
-      SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TGroupBox, ADisable)
-    else if LPanelContainer.Controls[n1].ClassType = TPageControl then
-      SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TPageControl, ADisable)
-    else if LPanelContainer.Controls[n1].ClassType = TTabSheet then
-      SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TTabSheet, ADisable)
-    else if LPanelContainer.Controls[n1].ClassType = TScrollBox then
-      SetControlsDisabledOrEnabled(LPanelContainer.Controls[n1] as TScrollBox, ADisable)
-    else if LPanelContainer.Controls[n1].ClassType = TEdit then
+    if (LPanelContainer.Controls[n1] is TPanel)
+    or (LPanelContainer.Controls[n1] is TGroupBox)
+    or (LPanelContainer.Controls[n1] is TPageControl)
+    or (LPanelContainer.Controls[n1] is TTabSheet)
+    or (LPanelContainer.Controls[n1] is TScrollBox) then
+      SetControlsDisabledOrEnabled(TWinControl(LPanelContainer.Controls[n1]), ADisable)
+    else if LPanelContainer.Controls[n1] is TEdit then
     begin
       // Helper (FK) edit her zaman ReadOnly; salt okunur modda helper kilitlenir (odak alabilir kalır)
       if Assigned(TEdit(LPanelContainer.Controls[n1]).OnHelperProcess) then
@@ -1105,16 +1114,15 @@ begin
       else
         TEdit(LPanelContainer.Controls[n1]).ReadOnly := ADisable;
     end
-    else if LPanelContainer.Controls[n1].ClassType = TComboBox then
-      TComboBox(LPanelContainer.Controls[n1]).Enabled := (ADisable = False)
-    else if LPanelContainer.Controls[n1].ClassType = TMemo then
-      TMemo(LPanelContainer.Controls[n1]).ReadOnly := ADisable
-    else if LPanelContainer.Controls[n1].ClassType = TCheckBox then
-      TCheckBox(LPanelContainer.Controls[n1]).Enabled := (ADisable = False)
-    else if LPanelContainer.Controls[n1].ClassType = TRadioGroup then
-      TRadioGroup(LPanelContainer.Controls[n1]).Enabled := (ADisable = False)
-    else if LPanelContainer.Controls[n1].ClassType = TRadioButton then
-      TRadioButton(LPanelContainer.Controls[n1]).Enabled := (ADisable = False);
+    else if LPanelContainer.Controls[n1] is Vcl.StdCtrls.TEdit then
+      Vcl.StdCtrls.TEdit(LPanelContainer.Controls[n1]).ReadOnly := ADisable
+    else if LPanelContainer.Controls[n1] is Vcl.StdCtrls.TMemo then
+      Vcl.StdCtrls.TMemo(LPanelContainer.Controls[n1]).ReadOnly := ADisable
+    else if (LPanelContainer.Controls[n1] is Vcl.StdCtrls.TCustomComboBox)
+    or (LPanelContainer.Controls[n1] is TCheckBox)
+    or (LPanelContainer.Controls[n1] is TRadioGroup)
+    or (LPanelContainer.Controls[n1] is TRadioButton) then
+      LPanelContainer.Controls[n1].Enabled := (ADisable = False);
   end;
 end;
 

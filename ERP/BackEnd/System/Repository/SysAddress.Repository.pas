@@ -75,30 +75,30 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('sys_city_id').AsLargeInt           := AModel.SysCityId;
-    Q.ParamByName('district').AsString                := AModel.District;
-    Q.ParamByName('neighborhood').AsString            := AModel.Neighborhood;
-    Q.ParamByName('quarter').AsString                 := AModel.Quarter;
-    Q.ParamByName('road').AsString                    := AModel.Road;
-    Q.ParamByName('street').AsString                  := AModel.Street;
-    Q.ParamByName('building_name').AsString           := AModel.BuildingName;
-    Q.ParamByName('door_number').AsString             := AModel.DoorNumber;
-    Q.ParamByName('zip_code').AsString                := AModel.ZipCode;
-    Q.ParamByName('web').AsString                     := AModel.Web;
-    Q.ParamByName('email').AsString                   := AModel.Email;
+    Q.ParamByName('district').AsWideString                := AModel.District;
+    Q.ParamByName('neighborhood').AsWideString            := AModel.Neighborhood;
+    Q.ParamByName('quarter').AsWideString                 := AModel.Quarter;
+    Q.ParamByName('road').AsWideString                    := AModel.Road;
+    Q.ParamByName('street').AsWideString                  := AModel.Street;
+    Q.ParamByName('building_name').AsWideString           := AModel.BuildingName;
+    Q.ParamByName('door_number').AsWideString             := AModel.DoorNumber;
+    Q.ParamByName('zip_code').AsWideString                := AModel.ZipCode;
+    Q.ParamByName('web').AsWideString                     := AModel.Web;
+    Q.ParamByName('email').AsWideString                   := AModel.Email;
   end
   else
   begin
     Q.ParamByName('sys_city_id').AsLargeInts[AIndex]  := AModel.SysCityId;
-    Q.ParamByName('district').AsStrings[AIndex]       := AModel.District;
-    Q.ParamByName('neighborhood').AsStrings[AIndex]   := AModel.Neighborhood;
-    Q.ParamByName('quarter').AsStrings[AIndex]        := AModel.Quarter;
-    Q.ParamByName('road').AsStrings[AIndex]           := AModel.Road;
-    Q.ParamByName('street').AsStrings[AIndex]         := AModel.Street;
-    Q.ParamByName('building_name').AsStrings[AIndex]  := AModel.BuildingName;
-    Q.ParamByName('door_number').AsStrings[AIndex]    := AModel.DoorNumber;
-    Q.ParamByName('zip_code').AsStrings[AIndex]       := AModel.ZipCode;
-    Q.ParamByName('web').AsStrings[AIndex]            := AModel.Web;
-    Q.ParamByName('email').AsStrings[AIndex]          := AModel.Email;
+    Q.ParamByName('district').AsWideStrings[AIndex]       := AModel.District;
+    Q.ParamByName('neighborhood').AsWideStrings[AIndex]   := AModel.Neighborhood;
+    Q.ParamByName('quarter').AsWideStrings[AIndex]        := AModel.Quarter;
+    Q.ParamByName('road').AsWideStrings[AIndex]           := AModel.Road;
+    Q.ParamByName('street').AsWideStrings[AIndex]         := AModel.Street;
+    Q.ParamByName('building_name').AsWideStrings[AIndex]  := AModel.BuildingName;
+    Q.ParamByName('door_number').AsWideStrings[AIndex]    := AModel.DoorNumber;
+    Q.ParamByName('zip_code').AsWideStrings[AIndex]       := AModel.ZipCode;
+    Q.ParamByName('web').AsWideStrings[AIndex]            := AModel.Web;
+    Q.ParamByName('email').AsWideStrings[AIndex]          := AModel.Email;
   end;
 end;
 
@@ -108,31 +108,31 @@ begin
   begin
     Q.ParamByName('id').AsLargeInt                    := AModel.Id;
     Q.ParamByName('sys_city_id').AsLargeInt           := AModel.SysCityId;
-    Q.ParamByName('district').AsString                := AModel.District;
-    Q.ParamByName('neighborhood').AsString            := AModel.Neighborhood;
-    Q.ParamByName('quarter').AsString                 := AModel.Quarter;
-    Q.ParamByName('road').AsString                    := AModel.Road;
-    Q.ParamByName('street').AsString                  := AModel.Street;
-    Q.ParamByName('building_name').AsString           := AModel.BuildingName;
-    Q.ParamByName('door_number').AsString             := AModel.DoorNumber;
-    Q.ParamByName('zip_code').AsString                := AModel.ZipCode;
-    Q.ParamByName('web').AsString                     := AModel.Web;
-    Q.ParamByName('email').AsString                   := AModel.Email;
+    Q.ParamByName('district').AsWideString                := AModel.District;
+    Q.ParamByName('neighborhood').AsWideString            := AModel.Neighborhood;
+    Q.ParamByName('quarter').AsWideString                 := AModel.Quarter;
+    Q.ParamByName('road').AsWideString                    := AModel.Road;
+    Q.ParamByName('street').AsWideString                  := AModel.Street;
+    Q.ParamByName('building_name').AsWideString           := AModel.BuildingName;
+    Q.ParamByName('door_number').AsWideString             := AModel.DoorNumber;
+    Q.ParamByName('zip_code').AsWideString                := AModel.ZipCode;
+    Q.ParamByName('web').AsWideString                     := AModel.Web;
+    Q.ParamByName('email').AsWideString                   := AModel.Email;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex]           := AModel.Id;
     Q.ParamByName('sys_city_id').AsLargeInts[AIndex]  := AModel.SysCityId;
-    Q.ParamByName('district').AsStrings[AIndex]       := AModel.District;
-    Q.ParamByName('neighborhood').AsStrings[AIndex]   := AModel.Neighborhood;
-    Q.ParamByName('quarter').AsStrings[AIndex]        := AModel.Quarter;
-    Q.ParamByName('road').AsStrings[AIndex]           := AModel.Road;
-    Q.ParamByName('street').AsStrings[AIndex]         := AModel.Street;
-    Q.ParamByName('building_name').AsStrings[AIndex]  := AModel.BuildingName;
-    Q.ParamByName('door_number').AsStrings[AIndex]    := AModel.DoorNumber;
-    Q.ParamByName('zip_code').AsStrings[AIndex]       := AModel.ZipCode;
-    Q.ParamByName('web').AsStrings[AIndex]            := AModel.Web;
-    Q.ParamByName('email').AsStrings[AIndex]          := AModel.Email;
+    Q.ParamByName('district').AsWideStrings[AIndex]       := AModel.District;
+    Q.ParamByName('neighborhood').AsWideStrings[AIndex]   := AModel.Neighborhood;
+    Q.ParamByName('quarter').AsWideStrings[AIndex]        := AModel.Quarter;
+    Q.ParamByName('road').AsWideStrings[AIndex]           := AModel.Road;
+    Q.ParamByName('street').AsWideStrings[AIndex]         := AModel.Street;
+    Q.ParamByName('building_name').AsWideStrings[AIndex]  := AModel.BuildingName;
+    Q.ParamByName('door_number').AsWideStrings[AIndex]    := AModel.DoorNumber;
+    Q.ParamByName('zip_code').AsWideStrings[AIndex]       := AModel.ZipCode;
+    Q.ParamByName('web').AsWideStrings[AIndex]            := AModel.Web;
+    Q.ParamByName('email').AsWideStrings[AIndex]          := AModel.Email;
   end;
 end;
 
@@ -279,6 +279,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -304,6 +305,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -320,6 +323,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -343,6 +347,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

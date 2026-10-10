@@ -43,6 +43,7 @@ type
 implementation
 
 uses
+  Ths.Helper.BaseTypes,
   SysPermission.Service;
 
 constructor TAccBankService.Create;
@@ -87,7 +88,7 @@ procedure TAccBankService.ValidateBusinessRules(AEntity: TAccBank; AOperation: T
 begin
   if AOperation in [coInsert, coUpdate] then
   begin
-    AEntity.BankName := AnsiUpperCase(Trim(AEntity.BankName));
+    AEntity.BankName := UpperCaseTr(Trim(AEntity.BankName));
     AEntity.SwiftCode := AnsiUpperCase(Trim(AEntity.SwiftCode));
   end;
 

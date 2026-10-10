@@ -76,13 +76,13 @@ procedure TSysLanguageRepository.SetInsertParams(Q: TFDQuery; AModel: TSysLangua
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('locale').AsString := AModel.Locale;
-    Q.ParamByName('native_name').AsString := AModel.NativeName;
+    Q.ParamByName('locale').AsWideString := AModel.Locale;
+    Q.ParamByName('native_name').AsWideString := AModel.NativeName;
   end
   else
   begin
-    Q.ParamByName('locale').AsStrings[AIndex] := AModel.Locale;
-    Q.ParamByName('native_name').AsStrings[AIndex] := AModel.NativeName;
+    Q.ParamByName('locale').AsWideStrings[AIndex] := AModel.Locale;
+    Q.ParamByName('native_name').AsWideStrings[AIndex] := AModel.NativeName;
   end;
 end;
 
@@ -91,14 +91,14 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt            := AModel.Id;
-    Q.ParamByName('locale').AsString := AModel.Locale;
-    Q.ParamByName('native_name').AsString := AModel.NativeName;
+    Q.ParamByName('locale').AsWideString := AModel.Locale;
+    Q.ParamByName('native_name').AsWideString := AModel.NativeName;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex]            := AModel.Id;
-    Q.ParamByName('locale').AsStrings[AIndex] := AModel.Locale;
-    Q.ParamByName('native_name').AsStrings[AIndex] := AModel.NativeName;
+    Q.ParamByName('locale').AsWideStrings[AIndex] := AModel.Locale;
+    Q.ParamByName('native_name').AsWideStrings[AIndex] := AModel.NativeName;
   end;
 end;
 
@@ -231,6 +231,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -256,6 +257,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -272,6 +275,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -295,6 +299,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);
@@ -407,7 +413,7 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := 'SELECT id FROM ' + Self.GetTableName(TSysLanguage) + ' WHERE locale = :locale LIMIT 1';
-    Q.ParamByName('locale').AsString := ALocale;
+    Q.ParamByName('locale').AsWideString := ALocale;
     LogQuery(Q, 'GetLanguageIdByLocale');
     Q.Open;
     if not Q.IsEmpty then

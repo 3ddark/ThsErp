@@ -11,7 +11,7 @@ uses
   Vcl.Menus, Vcl.ComCtrls, Vcl.Grids, Vcl.ExtCtrls, Vcl.Clipbrd, Vcl.CheckLst,
   Vcl.DBGrids, Vcl.Samples.Spin, Data.DB, Vcl.DBCtrls, LocalizationManager,
   udm, Ths.Constants, Ths.Globals, Ths.Helper.BaseTypes, Ths.Helper.Edit,
-  SharedFormTypes, ufrmBase, Entity, Service, AppContext, UserContext, FilterCriterion;
+  SharedFormTypes, ufrmBase, Entity, EntityAttributes, Service, AppContext, UserContext, FilterCriterion;
 
 const
   DB_STATUS_RECORD_COUNT = 0;
@@ -151,6 +151,7 @@ type
     destructor Destroy; override;
 
     procedure SetSelectedItem; virtual;
+    procedure FillNotMappedFromDataSet;
     //for use HelperForm
     function getFilterEditData(): string; virtual;
     //for use HelperForm
@@ -2105,6 +2106,11 @@ begin
     FQry.EnableControls;
   end;
 
+  // DisableControls içindeki AfterOpen ayarları EnableControls'ta varsayılan kolonlarla eziliyor:
+  // kolon genişlik/başlıkları yeniden uygulanır
+  AfterDatasetOpen(FQry);
+  ApplyLocalization;
+
   UpdateFooterLayout;
   RefreshStatusRecordCount;
 end;
@@ -2173,6 +2179,51 @@ end;
 procedure TfrmGrid<TE, TS>.SetSelectedItem;
 begin
   Service.FillEntityFromDataSet(Qry, Table);
+  FillNotMappedFromDataSet;
+end;
+
+// [NotMapped] metin özelliklerini (görünen adlar: UomName, CountryName ...) aynı adlı snake_case
+// grid kolonundan doldurur; helper dönüşünde edit'e yazılan ad override unutulsa da boş kalmaz
+procedure TfrmGrid<TE, TS>.FillNotMappedFromDataSet;
+var
+  LCtx: TRttiContext;
+  LProp: TRttiProperty;
+  LAttr: TCustomAttribute;
+  LIsNotMapped: Boolean;
+  LField: TField;
+  LName: string;
+  i: Integer;
+begin
+  if not Assigned(Qry) or not Qry.Active or Qry.IsEmpty or not Assigned(Table) then
+    Exit;
+
+  for LProp in LCtx.GetType(TClass(TE)).GetProperties do
+  begin
+    if not LProp.IsWritable or (LProp.PropertyType.TypeKind <> tkUString) then
+      Continue;
+
+    LIsNotMapped := False;
+    for LAttr in LProp.GetAttributes do
+      if LAttr is NotMapped then
+        LIsNotMapped := True;
+    if not LIsNotMapped then
+      Continue;
+
+    LName := '';
+    for i := 1 to Length(LProp.Name) do
+      if CharInSet(LProp.Name[i], ['A'..'Z']) then
+      begin
+        if i > 1 then
+          LName := LName + '_';
+        LName := LName + LowerCase(LProp.Name[i]);
+      end
+      else
+        LName := LName + LProp.Name[i];
+
+    LField := Qry.FindField(LName);
+    if Assigned(LField) then
+      LProp.SetValue(TObject(Table), LField.AsString);
+  end;
 end;
 
 procedure TfrmGrid<TE, TS>.ShowInputForm(Sender: TObject; AFormType: TInputFormMode);
@@ -2195,6 +2246,9 @@ begin
       Table := Service.BusinessFindById(LId, False, False, True);
     end;
     LForm := CreateInputForm(Sender, AFormType);
+    // Salt okunur listelerde giriş formu yok (CreateInputForm = nil): çift tık / Enter AV vermesin
+    if LForm = nil then
+      Exit;
     LForm.Show;
   end
   else
@@ -2492,6 +2546,10 @@ begin
     on E: Exception do
       GLogger.WarningFmt('ApplyDynamicFilterAndSort (Sort) hatası [%s]: %s', [LViewName, E.Message]);
   end;
+
+  // Tanımlı sıralama yoksa satır sırası sabit kalsın (güncellenen kayıt yenilemede sona kaymasın)
+  if Pos('ORDER BY', UpperCase(FQry.SQL.Text)) = 0 then
+    FQry.SQL.Text := FQry.SQL.Text + ' ORDER BY id';
 end;
 
 procedure TfrmGrid<TE, TS>.LoadColumnWidthsFromDB;

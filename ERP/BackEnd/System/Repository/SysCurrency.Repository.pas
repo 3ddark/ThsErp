@@ -68,15 +68,15 @@ procedure TSysCurrencyRepository.SetInsertParams(Q: TFDQuery; AModel: TSysCurren
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('currency').AsString := AModel.Currency;
-    Q.ParamByName('symbol').AsString := AModel.Symbol;
-    Q.ParamByName('description').AsString := AModel.Description;
+    Q.ParamByName('currency').AsWideString := AModel.Currency;
+    Q.ParamByName('symbol').AsWideString := AModel.Symbol;
+    Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
-    Q.ParamByName('currency').AsStrings[AIndex] := AModel.Currency;
-    Q.ParamByName('symbol').AsStrings[AIndex] := AModel.Symbol;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
+    Q.ParamByName('currency').AsWideStrings[AIndex] := AModel.Currency;
+    Q.ParamByName('symbol').AsWideStrings[AIndex] := AModel.Symbol;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
   end;
 end;
 
@@ -85,16 +85,16 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsSmallInt := AModel.Id;
-    Q.ParamByName('currency').AsString := AModel.Currency;
-    Q.ParamByName('symbol').AsString := AModel.Symbol;
-    Q.ParamByName('description').AsString := AModel.Description;
+    Q.ParamByName('currency').AsWideString := AModel.Currency;
+    Q.ParamByName('symbol').AsWideString := AModel.Symbol;
+    Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('currency').AsStrings[AIndex] := AModel.Currency;
-    Q.ParamByName('symbol').AsStrings[AIndex] := AModel.Symbol;
-    Q.ParamByName('description').AsStrings[AIndex] := AModel.Description;
+    Q.ParamByName('currency').AsWideStrings[AIndex] := AModel.Currency;
+    Q.ParamByName('symbol').AsWideStrings[AIndex] := AModel.Symbol;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
   end;
 end;
 
@@ -217,6 +217,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -242,6 +243,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -258,6 +261,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -281,6 +285,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

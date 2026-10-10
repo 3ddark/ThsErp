@@ -20,17 +20,17 @@ type
     FBankName: string;
     FCityName: string;
   public
-    [Column('acc_bank_id')]
+    [Column('acc_bank_id'), Required()]
     property AccBankId: Int64 read FAccBankId write FAccBankId;
 
-    [Column('branch_code')]
+    [Column('branch_code'), Required()]
     property BranchCode: Integer read FBranchCode write FBranchCode;
 
     [Column('branch_name')]
     [MaxLength(128), Required(TLangKeys.TValidation.Required, True)]
     property BranchName: string read FBranchName write FBranchName;
 
-    [Column('sys_city_id')]
+    [Column('sys_city_id'), Required()]
     property SysCityId: Int64 read FSysCityId write FSysCityId;
 
     [NotMapped]

@@ -34,6 +34,30 @@ type
     procedure DeleteBatch(AFilter: TFilterCriteria); overload;
   end;
 
+  TNullColumnKind = (nckOther, nckText, nckNumeric, nckDate);
+
+  TNullColumn = record
+    Nullable: Boolean;
+    HasDefault: Boolean;
+    Kind: TNullColumnKind;
+  end;
+
+  /// <summary>
+  /// Yazma parametrelerine boş değer standardını uygular (tablonun kolon metadatasına göre, önbellekli):
+  /// nullable metin '' -> NULL; nullable sayı 0 -> NULL (AKeepZero hariç); nullable tarih 0 -> NULL;
+  /// NOT NULL + varsayılansız metin boşsa "alan zorunlu" hatası. NOT NULL sayılarda 0 geçerli değerdir.
+  /// </summary>
+  TNullPolicy = class
+  private
+    class var FCache: TObjectDictionary<string, TDictionary<string, TNullColumn>>;
+    class var FLock: TObject;
+    class function GetColumns(AConnection: TFDConnection; const ATableName: string): TDictionary<string, TNullColumn>;
+  public
+    class constructor Create;
+    class destructor Destroy;
+    class procedure Apply(AConnection: TFDConnection; Q: TFDQuery; const ATableName: string; const AKeepZero: TArray<string>);
+  end;
+
   TRepository<T: TEntity> = class(TInterfacedObject, IRepository<T>)
   private
     FConnection: TFDConnection;
@@ -52,6 +76,11 @@ type
     function GetViewName(AClass: TClass): string;
 
     function MapFromQuery(Q: TFDQuery): T; virtual; abstract;
+
+    // Insert/update öncesi (LogQuery'den hemen önce): boş değer standardı (TNullPolicy)
+    procedure ApplyNullPolicy(Q: TFDQuery; const ATableName: string = '');
+    // Nullable olduğu halde 0'ın anlamlı olduğu kolonlar (ör. stk_inventory.vat_rate: NULL = gruptan, 0 = %0)
+    function NullPolicyKeepZero: TArray<string>; virtual;
 
     // Nullable FK/int kolonlar: AValue <= 0 ise NULL gönderir (0 FK ihlalini önler)
     procedure SetNullableParam(AParam: TFDParam; ADataType: TFieldType; AValue: Int64; AIndex: Integer = -1);
@@ -103,7 +132,122 @@ type
 implementation
 
 uses
-  EntitySchemaCache, Logger, AppContext, SysGridColumnHelper;
+  System.Generics.Defaults,
+  EntitySchemaCache, Logger, AppContext, SysGridColumnHelper, LocalizationManager;
+
+{ TNullPolicy }
+
+class constructor TNullPolicy.Create;
+begin
+  FLock := TObject.Create;
+  FCache := TObjectDictionary<string, TDictionary<string, TNullColumn>>.Create([doOwnsValues]);
+end;
+
+class destructor TNullPolicy.Destroy;
+begin
+  FreeAndNil(FCache);
+  FreeAndNil(FLock);
+end;
+
+class function TNullPolicy.GetColumns(AConnection: TFDConnection; const ATableName: string): TDictionary<string, TNullColumn>;
+var
+  Q: TFDQuery;
+  LCols: TDictionary<string, TNullColumn>;
+  LCol: TNullColumn;
+  LType: string;
+begin
+  TMonitor.Enter(FLock);
+  try
+    if FCache.TryGetValue(LowerCase(ATableName), Result) then
+      Exit;
+
+    LCols := TDictionary<string, TNullColumn>.Create;
+    Q := TFDQuery.Create(nil);
+    try
+      Q.Connection := AConnection;
+      Q.SQL.Text :=
+        'SELECT column_name, is_nullable = ''YES'', ' +
+        '       (column_default IS NOT NULL OR is_identity = ''YES'' OR is_generated <> ''NEVER''), data_type ' +
+        '  FROM information_schema.columns WHERE table_schema = ''public'' AND table_name = :t';
+      Q.ParamByName('t').AsWideString := LowerCase(ATableName);
+      Q.Open;
+      while not Q.Eof do
+      begin
+        LCol.Nullable := Q.Fields[1].AsBoolean;
+        LCol.HasDefault := Q.Fields[2].AsBoolean;
+        LType := Q.Fields[3].AsString;
+        if MatchText(LType, ['character varying', 'text', 'character']) then
+          LCol.Kind := nckText
+        else if MatchText(LType, ['numeric', 'integer', 'smallint', 'bigint', 'double precision', 'real']) then
+          LCol.Kind := nckNumeric
+        else if MatchText(LType, ['date', 'timestamp without time zone', 'timestamp with time zone']) then
+          LCol.Kind := nckDate
+        else
+          LCol.Kind := nckOther;
+        LCols.AddOrSetValue(LowerCase(Q.Fields[0].AsString), LCol);
+        Q.Next;
+      end;
+    finally
+      Q.Free;
+    end;
+    FCache.AddOrSetValue(LowerCase(ATableName), LCols);
+    Result := LCols;
+  finally
+    TMonitor.Exit(FLock);
+  end;
+end;
+
+class procedure TNullPolicy.Apply(AConnection: TFDConnection; Q: TFDQuery; const ATableName: string; const AKeepZero: TArray<string>);
+var
+  LCols: TDictionary<string, TNullColumn>;
+  LCol: TNullColumn;
+  P: TFDParam;
+  i, j, LCount: Integer;
+  V: Variant;
+  LKeepZero: Boolean;
+begin
+  if (Q = nil) or (ATableName = '') then
+    Exit;
+  LCols := GetColumns(AConnection, ATableName);
+  LCount := Q.Params.ArraySize;
+  if LCount < 1 then
+    LCount := 1;
+
+  for i := 0 to Q.Params.Count - 1 do
+  begin
+    P := Q.Params[i];
+    if not (P.ParamType in [ptUnknown, ptInput, ptInputOutput]) then
+      Continue;
+    if not LCols.TryGetValue(LowerCase(P.Name), LCol) then
+      Continue;
+    LKeepZero := MatchText(P.Name, AKeepZero);
+
+    for j := 0 to LCount - 1 do
+    begin
+      if P.IsNulls[j] then
+        Continue;
+      V := P.Values[j];
+      case LCol.Kind of
+        nckText:
+          if Trim(VarToStr(V)) = '' then
+          begin
+            if LCol.Nullable then
+              P.Clear(j)
+            else if not LCol.HasDefault then
+              raise Exception.Create(
+                TLocalizationManager.Translate(LowerCase(ATableName) + '.col_' + LowerCase(P.Name), P.Name) + ': ' +
+                TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
+          end;
+        nckNumeric:
+          if LCol.Nullable and not LKeepZero and VarIsNumeric(V) and (V = 0) then
+            P.Clear(j);
+        nckDate:
+          if LCol.Nullable and (VarIsNumeric(V) or (VarType(V) = varDate)) and (Double(V) = 0) then
+            P.Clear(j);
+      end;
+    end;
+  end;
+end;
 
 function TRepository<T>.BuildSelectColumns(const AAlwaysFetch: TArray<string>): string;
 var
@@ -113,6 +257,19 @@ begin
   if Length(Always) = 0 then
     Always := ['id', 'locale'];
   Result := TGridColumnHelper.BuildSelectColumns(FConnection, GetViewName(T), Always);
+end;
+
+procedure TRepository<T>.ApplyNullPolicy(Q: TFDQuery; const ATableName: string);
+begin
+  if ATableName <> '' then
+    TNullPolicy.Apply(FConnection, Q, ATableName, NullPolicyKeepZero)
+  else
+    TNullPolicy.Apply(FConnection, Q, GetTableName(T), NullPolicyKeepZero);
+end;
+
+function TRepository<T>.NullPolicyKeepZero: TArray<string>;
+begin
+  Result := [];
 end;
 
 procedure TRepository<T>.SetNullableParam(AParam: TFDParam; ADataType: TFieldType; AValue: Int64; AIndex: Integer);
@@ -239,13 +396,25 @@ var
   Param: TFDParam;
   ParamValue: string;
   I: Integer;
+  LParams: TList<TFDParam>;
 begin
   if Q = nil then Exit('');
   SQLText := Q.SQL.Text;
 
-  for I := 0 to Q.Params.Count - 1 do
+  // Uzun adlar önce: ":cn1" değeri ":cn10" içine yazılmasın
+  LParams := TList<TFDParam>.Create;
+  try
+    for I := 0 to Q.Params.Count - 1 do
+      LParams.Add(Q.Params[I]);
+    LParams.Sort(TComparer<TFDParam>.Construct(
+      function(const A, B: TFDParam): Integer
+      begin
+        Result := Length(B.Name) - Length(A.Name);
+      end));
+
+  for I := 0 to LParams.Count - 1 do
   begin
-    Param := Q.Params[I];
+    Param := LParams[I];
 
     if Param.IsNull then
       ParamValue := 'NULL'
@@ -264,6 +433,9 @@ begin
       ParamValue := QuotedStr(Param.AsString);
 
     SQLText := StringReplace(SQLText, ':' + Param.Name, ParamValue, [rfReplaceAll, rfIgnoreCase]);
+  end;
+  finally
+    LParams.Free;
   end;
 
   if Q.Params.ArraySize > 1 then

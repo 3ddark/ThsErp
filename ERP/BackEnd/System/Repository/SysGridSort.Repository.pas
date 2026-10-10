@@ -82,13 +82,13 @@ procedure TSysGridSortRepository.SetInsertParams(Q: TFDQuery; AModel: TSysGridSo
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('table_name').AsString := AModel.TableName;
-    Q.ParamByName('sort_content').AsString := AModel.SortContent;
+    Q.ParamByName('table_name').AsWideString := AModel.TableName;
+    Q.ParamByName('sort_content').AsWideString := AModel.SortContent;
   end
   else
   begin
-    Q.ParamByName('table_name').AsStrings[AIndex] := AModel.TableName;
-    Q.ParamByName('sort_content').AsStrings[AIndex] := AModel.SortContent;
+    Q.ParamByName('table_name').AsWideStrings[AIndex] := AModel.TableName;
+    Q.ParamByName('sort_content').AsWideStrings[AIndex] := AModel.SortContent;
   end;
 end;
 
@@ -97,14 +97,14 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('table_name').AsString := AModel.TableName;
-    Q.ParamByName('sort_content').AsString := AModel.SortContent;
+    Q.ParamByName('table_name').AsWideString := AModel.TableName;
+    Q.ParamByName('sort_content').AsWideString := AModel.SortContent;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('table_name').AsStrings[AIndex] := AModel.TableName;
-    Q.ParamByName('sort_content').AsStrings[AIndex] := AModel.SortContent;
+    Q.ParamByName('table_name').AsWideStrings[AIndex] := AModel.TableName;
+    Q.ParamByName('sort_content').AsWideStrings[AIndex] := AModel.SortContent;
   end;
 end;
 
@@ -227,6 +227,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -252,6 +253,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -268,6 +271,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -291,6 +295,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

@@ -88,13 +88,13 @@ procedure TPrdLabourRepository.SetInsertParams(Q: TFDQuery; AModel: TPrdLabour; 
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -105,17 +105,17 @@ procedure TPrdLabourRepository.SetInsertParams(Q: TFDQuery; AModel: TPrdLabour; 
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('code').AsString := AModel.Code;
-    Q.ParamByName('name').AsString := AModel.Name;
+    Q.ParamByName('code').AsWideString := AModel.Code;
+    Q.ParamByName('name').AsWideString := AModel.Name;
     Q.ParamByName('cost_type').AsSmallInt := AModel.CostType;
-    Q.ParamByName('unit_price').AsCurrency := AModel.UnitPrice;
+    Q.ParamByName('unit_price').AsBCD := AModel.UnitPrice;
   end
   else
   begin
-    Q.ParamByName('code').AsStrings[AIndex] := AModel.Code;
-    Q.ParamByName('name').AsStrings[AIndex] := AModel.Name;
+    Q.ParamByName('code').AsWideStrings[AIndex] := AModel.Code;
+    Q.ParamByName('name').AsWideStrings[AIndex] := AModel.Name;
     Q.ParamByName('cost_type').AsSmallInts[AIndex] := AModel.CostType;
-    Q.ParamByName('unit_price').AsCurrencys[AIndex] := AModel.UnitPrice;
+    Q.ParamByName('unit_price').AsBCDs[AIndex] := AModel.UnitPrice;
   end;
 
   SetNullableParam(Q.ParamByName('sys_uom_id'), ftLargeint, AModel.SysUomId, AIndex);
@@ -128,13 +128,13 @@ procedure TPrdLabourRepository.SetUpdateParams(Q: TFDQuery; AModel: TPrdLabour; 
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -146,18 +146,18 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('code').AsString := AModel.Code;
-    Q.ParamByName('name').AsString := AModel.Name;
+    Q.ParamByName('code').AsWideString := AModel.Code;
+    Q.ParamByName('name').AsWideString := AModel.Name;
     Q.ParamByName('cost_type').AsSmallInt := AModel.CostType;
-    Q.ParamByName('unit_price').AsCurrency := AModel.UnitPrice;
+    Q.ParamByName('unit_price').AsBCD := AModel.UnitPrice;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('code').AsStrings[AIndex] := AModel.Code;
-    Q.ParamByName('name').AsStrings[AIndex] := AModel.Name;
+    Q.ParamByName('code').AsWideStrings[AIndex] := AModel.Code;
+    Q.ParamByName('name').AsWideStrings[AIndex] := AModel.Name;
     Q.ParamByName('cost_type').AsSmallInts[AIndex] := AModel.CostType;
-    Q.ParamByName('unit_price').AsCurrencys[AIndex] := AModel.UnitPrice;
+    Q.ParamByName('unit_price').AsBCDs[AIndex] := AModel.UnitPrice;
   end;
 
   SetNullableParam(Q.ParamByName('sys_uom_id'), ftLargeint, AModel.SysUomId, AIndex);
@@ -287,6 +287,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -313,6 +314,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -329,6 +332,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -353,6 +357,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

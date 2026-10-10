@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
+  System.SysUtils, System.Character, System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
   Vcl.Graphics, Winapi.Messages, Winapi.Windows, System.StrUtils,
   Vcl.Themes, Vcl.Mask, Vcl.ExtCtrls, System.UITypes,
   Ths.Constants, Ths.Helper.BaseTypes;
@@ -325,7 +325,7 @@ begin
     'ş': pKey := 'Ş';
     'ç': pKey := 'Ç';
   else
-    pKey := UpCase(pKey);
+    pKey := pKey.ToUpper;
   end;
   Result := pKey;
 end;
@@ -345,7 +345,7 @@ begin
     'Ş': pKey := 'ş';
     'Ç': pKey := 'ç';
   else
-    pKey := LowCase(pKey);
+    pKey := pKey.ToLower;
   end;
   Result := pKey;
 end;

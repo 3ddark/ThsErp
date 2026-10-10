@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict 8hm0tJyd3OTuN0a4MUOCtEdK92WzpYZe8TQiYnWVzF1xP3lXLW1wPzL6fp2MNA8
+\restrict 0mHEkscxDYBkDzcpNNWy5rcffTEVF1iM0uvvfLaUyg3z1CKnjw0NH8ue2Q7DUYg
 
--- Dumped from database version 18.1
--- Dumped by pg_dump version 18.1
+-- Dumped from database version 18.3
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -500,7 +500,7 @@ CREATE TABLE public.acc_account (
     notes character varying(512),
     root_code character varying(3),
     sub_code character varying(8),
-    discount_rate numeric(5,2) DEFAULT 0,
+    discount_rate numeric(5,2) DEFAULT 0 NOT NULL,
     e_invoice_active boolean DEFAULT false CONSTRAINT acc_acc_einv_nn NOT NULL,
     e_invoice_package_name character varying(128),
     is_passive boolean DEFAULT false CONSTRAINT acc_acc_passive_nn NOT NULL
@@ -521,7 +521,7 @@ CREATE TABLE public.acc_account_address (
     is_primary boolean DEFAULT false NOT NULL,
     valid_from date,
     valid_to date,
-    CONSTRAINT acc_account_address_type_check CHECK (((address_type)::text = ANY ((ARRAY['BILLING'::character varying, 'SHIPPING'::character varying, 'LEGAL'::character varying, 'OTHER'::character varying])::text[])))
+    CONSTRAINT acc_account_address_type_check CHECK (((address_type)::text = ANY (ARRAY[('BILLING'::character varying)::text, ('SHIPPING'::character varying)::text, ('LEGAL'::character varying)::text, ('OTHER'::character varying)::text])))
 );
 
 
@@ -1162,15 +1162,15 @@ CREATE TABLE public.emp_employee (
     notes character varying(256),
     emp_transportation_id bigint,
     special_notes character varying(256),
-    salary_amount numeric(18,2) DEFAULT 0,
+    salary_amount numeric(18,2) DEFAULT 0 NOT NULL,
     bonus_count integer DEFAULT 0 NOT NULL,
-    bonus_amount numeric(18,2) DEFAULT 0,
+    bonus_amount numeric(18,2) DEFAULT 0 NOT NULL,
     id_document_no text,
     active boolean DEFAULT false CONSTRAINT prs_persons_active_not_null NOT NULL,
-    CONSTRAINT emp_employee_blood_type_chk CHECK (((blood_type IS NULL) OR ((blood_type)::text = ANY ((ARRAY['A Rh+'::character varying, 'A Rh-'::character varying, 'B Rh+'::character varying, 'B Rh-'::character varying, 'AB Rh+'::character varying, 'AB Rh-'::character varying, '0 Rh+'::character varying, '0 Rh-'::character varying])::text[])))),
+    CONSTRAINT emp_employee_blood_type_chk CHECK (((blood_type IS NULL) OR ((blood_type)::text = ANY (ARRAY[('A Rh+'::character varying)::text, ('A Rh-'::character varying)::text, ('B Rh+'::character varying)::text, ('B Rh-'::character varying)::text, ('AB Rh+'::character varying)::text, ('AB Rh-'::character varying)::text, ('0 Rh+'::character varying)::text, ('0 Rh-'::character varying)::text])))),
     CONSTRAINT emp_employee_bonus_count_chk CHECK (((bonus_count >= 0) AND (bonus_count <= 30))),
     CONSTRAINT emp_employee_child_chk CHECK (((child >= 0) AND (child <= 30))),
-    CONSTRAINT emp_employee_clothing_size_chk CHECK (((clothing_size IS NULL) OR ((clothing_size)::text = ANY ((ARRAY['XXS'::character varying, 'XS'::character varying, 'S'::character varying, 'M'::character varying, 'L'::character varying, 'XL'::character varying, 'XXL'::character varying, '3XL'::character varying, '4XL'::character varying, '5XL'::character varying])::text[])))),
+    CONSTRAINT emp_employee_clothing_size_chk CHECK (((clothing_size IS NULL) OR ((clothing_size)::text = ANY (ARRAY[('XXS'::character varying)::text, ('XS'::character varying)::text, ('S'::character varying)::text, ('M'::character varying)::text, ('L'::character varying)::text, ('XL'::character varying)::text, ('XXL'::character varying)::text, ('3XL'::character varying)::text, ('4XL'::character varying)::text, ('5XL'::character varying)::text])))),
     CONSTRAINT emp_employee_gender_chk CHECK (((gender >= 1) AND (gender <= 2))),
     CONSTRAINT emp_employee_marital_status_chk CHECK (((marital_status >= 1) AND (marital_status <= 2))),
     CONSTRAINT emp_employee_military_status_chk CHECK (((military_status IS NULL) OR ((military_status >= 1) AND (military_status <= 3))))
@@ -2622,25 +2622,25 @@ CREATE TABLE public.stk_inventory (
     stk_group_id bigint CONSTRAINT stk_inventory_group_id_nn NOT NULL,
     sys_uom_id bigint CONSTRAINT stk_inventory_uom_code_nn NOT NULL,
     stk_product_type_id bigint CONSTRAINT stk_inventory_product_type_nn NOT NULL,
-    buying_discount numeric(5,2) DEFAULT 0,
-    sales_discount numeric(5,2) DEFAULT 0,
-    buying_price numeric(18,6) DEFAULT 0,
+    buying_discount numeric(5,2) DEFAULT 0 NOT NULL,
+    sales_discount numeric(5,2) DEFAULT 0 NOT NULL,
+    buying_price numeric(18,6) DEFAULT 0 NOT NULL,
     buying_currency character varying(3) DEFAULT public.fn_default_currency() CONSTRAINT stk_inventory_buy_currency_nn NOT NULL,
-    sales_price numeric(18,6) DEFAULT 0,
+    sales_price numeric(18,6) DEFAULT 0 NOT NULL,
     sales_currency character varying(3) DEFAULT public.fn_default_currency() CONSTRAINT stk_inventory_sell_currency_nn NOT NULL,
-    export_price numeric(18,6) DEFAULT 0,
+    export_price numeric(18,6) DEFAULT 0 NOT NULL,
     export_currency character varying(3) DEFAULT public.fn_default_currency() CONSTRAINT stk_inventory_export_currency_nn NOT NULL,
     width double precision DEFAULT 0,
     length double precision DEFAULT 0,
     height double precision DEFAULT 0,
     weight double precision DEFAULT 0,
-    supply_duration smallint,
+    supply_duration smallint DEFAULT 0 NOT NULL,
     special_code character varying(16),
     brand character varying(32),
     sys_country_id bigint,
     hs_no character varying(16),
     diib_product_description character varying(64),
-    min_stock_amount double precision DEFAULT 0,
+    min_stock_amount double precision DEFAULT 0 NOT NULL,
     product_overview text,
     vat_rate numeric(5,2),
     raw_material_stock_account character varying(16),
@@ -2721,20 +2721,20 @@ COMMENT ON COLUMN public.stk_inventory.purchase_return_account IS 'Karta özel h
 CREATE TABLE public.stk_inventory_summary (
     id bigint NOT NULL,
     stk_inventory_id bigint CONSTRAINT stk_inventory_summary_inventory_id_not_null NOT NULL,
-    current_quantity numeric(18,6) DEFAULT 0,
-    average_cost numeric(18,6) DEFAULT 0,
-    opening_price numeric(18,6) DEFAULT 0,
-    opening_quantity numeric(18,6) DEFAULT 0,
-    opening_amount numeric(18,6) DEFAULT 0,
-    incoming_quantity numeric(18,6) DEFAULT 0,
-    incoming_amount numeric(18,6) DEFAULT 0,
-    outgoing_quantity numeric(18,6) DEFAULT 0,
-    outgoing_amount numeric(18,6) DEFAULT 0,
-    last_buy_price numeric(18,6),
+    current_quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    average_cost numeric(18,6) DEFAULT 0 NOT NULL,
+    opening_price numeric(18,6) DEFAULT 0 NOT NULL,
+    opening_quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    opening_amount numeric(18,6) DEFAULT 0 NOT NULL,
+    incoming_quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    incoming_amount numeric(18,6) DEFAULT 0 NOT NULL,
+    outgoing_quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    outgoing_amount numeric(18,6) DEFAULT 0 NOT NULL,
+    last_buy_price numeric(18,6) DEFAULT 0 NOT NULL,
     last_buy_currency character varying(3),
     last_buy_date date,
-    last_buy_quantity numeric(18,6) DEFAULT 0,
-    last_buy_exchange_rate numeric(18,6) DEFAULT 0
+    last_buy_quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    last_buy_exchange_rate numeric(18,6) DEFAULT 0 NOT NULL
 );
 
 
@@ -3192,11 +3192,11 @@ ALTER VIEW public.sys_db_status OWNER TO ths_admin;
 
 CREATE TABLE public.sys_decimal_place (
     id bigint CONSTRAINT sys_dp_id_not_null NOT NULL,
-    quantity smallint DEFAULT 2,
-    price smallint DEFAULT 2,
-    total smallint DEFAULT 2,
-    stock_quantity smallint DEFAULT 4,
-    exchange_rate smallint DEFAULT 4
+    quantity smallint DEFAULT 0 NOT NULL,
+    price smallint DEFAULT 0 NOT NULL,
+    total smallint DEFAULT 0 NOT NULL,
+    stock_quantity smallint DEFAULT 0 NOT NULL,
+    exchange_rate smallint DEFAULT 0 NOT NULL
 );
 
 
@@ -3215,16 +3215,16 @@ CREATE TABLE public.sys_grid_column (
     data_format character varying(16),
     is_show boolean DEFAULT true,
     is_show_helper boolean DEFAULT false,
-    min_value double precision DEFAULT 0,
-    min_value_color integer DEFAULT 0,
-    max_value double precision DEFAULT 0,
-    max_value_color integer DEFAULT 0,
-    max_value_percent double precision DEFAULT 0,
-    bar_color integer DEFAULT 0,
-    bar_bg_color integer DEFAULT 0,
-    bar_text_color integer DEFAULT 0,
+    min_value double precision DEFAULT 0 NOT NULL,
+    min_value_color integer DEFAULT 0 NOT NULL,
+    max_value double precision DEFAULT 0 NOT NULL,
+    max_value_color integer DEFAULT 0 NOT NULL,
+    max_value_percent double precision DEFAULT 0 NOT NULL,
+    bar_color integer DEFAULT 0 NOT NULL,
+    bar_bg_color integer DEFAULT 0 NOT NULL,
+    bar_text_color integer DEFAULT 0 NOT NULL,
     is_fetch boolean DEFAULT true,
-    aggregate_type smallint DEFAULT 0
+    aggregate_type smallint DEFAULT 0 NOT NULL
 );
 
 
@@ -3549,7 +3549,7 @@ CREATE TABLE public.sys_uom (
     unit_einv character varying(3),
     "decimal" boolean DEFAULT false CONSTRAINT sys_uom_dec_not_null NOT NULL,
     sys_uom_group_id bigint,
-    multiplier integer
+    multiplier integer DEFAULT 0 NOT NULL
 );
 
 
@@ -8679,5 +8679,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 8hm0tJyd3OTuN0a4MUOCtEdK92WzpYZe8TQiYnWVzF1xP3lXLW1wPzL6fp2MNA8
+\unrestrict 0mHEkscxDYBkDzcpNNWy5rcffTEVF1iM0uvvfLaUyg3z1CKnjw0NH8ue2Q7DUYg
 

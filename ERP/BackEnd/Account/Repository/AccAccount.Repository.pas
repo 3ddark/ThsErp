@@ -74,13 +74,13 @@ procedure TAccAccountRepository.SetInsertParams(Q: TFDQuery; AModel: TAccAccount
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -91,29 +91,29 @@ procedure TAccAccountRepository.SetInsertParams(Q: TFDQuery; AModel: TAccAccount
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('code').AsString := AModel.Code;
-    Q.ParamByName('name').AsString := AModel.Name;
-    Q.ParamByName('root_code').AsString := AModel.RootCode;
-    Q.ParamByName('sub_code').AsString := AModel.SubCode;
-    Q.ParamByName('iban').AsString := AModel.Iban;
-    Q.ParamByName('discount_rate').AsCurrency := AModel.DiscountRate;
+    Q.ParamByName('code').AsWideString := AModel.Code;
+    Q.ParamByName('name').AsWideString := AModel.Name;
+    Q.ParamByName('root_code').AsWideString := AModel.RootCode;
+    Q.ParamByName('sub_code').AsWideString := AModel.SubCode;
+    Q.ParamByName('iban').AsWideString := AModel.Iban;
+    Q.ParamByName('discount_rate').AsBCD := AModel.DiscountRate;
     Q.ParamByName('e_invoice_active').AsBoolean := AModel.EInvoiceActive;
-    Q.ParamByName('e_invoice_package_name').AsString := AModel.EInvoicePackageName;
+    Q.ParamByName('e_invoice_package_name').AsWideString := AModel.EInvoicePackageName;
     Q.ParamByName('is_passive').AsBoolean := AModel.IsPassive;
-    Q.ParamByName('notes').AsString := AModel.Notes;
+    Q.ParamByName('notes').AsWideString := AModel.Notes;
   end
   else
   begin
-    Q.ParamByName('code').AsStrings[AIndex] := AModel.Code;
-    Q.ParamByName('name').AsStrings[AIndex] := AModel.Name;
-    Q.ParamByName('root_code').AsStrings[AIndex] := AModel.RootCode;
-    Q.ParamByName('sub_code').AsStrings[AIndex] := AModel.SubCode;
-    Q.ParamByName('iban').AsStrings[AIndex] := AModel.Iban;
-    Q.ParamByName('discount_rate').AsCurrencys[AIndex] := AModel.DiscountRate;
+    Q.ParamByName('code').AsWideStrings[AIndex] := AModel.Code;
+    Q.ParamByName('name').AsWideStrings[AIndex] := AModel.Name;
+    Q.ParamByName('root_code').AsWideStrings[AIndex] := AModel.RootCode;
+    Q.ParamByName('sub_code').AsWideStrings[AIndex] := AModel.SubCode;
+    Q.ParamByName('iban').AsWideStrings[AIndex] := AModel.Iban;
+    Q.ParamByName('discount_rate').AsBCDs[AIndex] := AModel.DiscountRate;
     Q.ParamByName('e_invoice_active').AsBooleans[AIndex] := AModel.EInvoiceActive;
-    Q.ParamByName('e_invoice_package_name').AsStrings[AIndex] := AModel.EInvoicePackageName;
+    Q.ParamByName('e_invoice_package_name').AsWideStrings[AIndex] := AModel.EInvoicePackageName;
     Q.ParamByName('is_passive').AsBooleans[AIndex] := AModel.IsPassive;
-    Q.ParamByName('notes').AsStrings[AIndex] := AModel.Notes;
+    Q.ParamByName('notes').AsWideStrings[AIndex] := AModel.Notes;
   end;
 
   SetNullableParam(Q.ParamByName('acc_set_account_type_id'), ftLargeint, AModel.AccSetAccountTypeId, AIndex);
@@ -127,13 +127,13 @@ procedure TAccAccountRepository.SetUpdateParams(Q: TFDQuery; AModel: TAccAccount
   // Kod ile bağlanan FK: boş değer NULL gönderilir
   procedure SetCode(const AName, AValue: string);
   begin
-    Q.ParamByName(AName).DataType := ftString;
+    Q.ParamByName(AName).DataType := ftWideString;
     if AValue <> '' then
     begin
       if AIndex < 0 then
-        Q.ParamByName(AName).AsString := AValue
+        Q.ParamByName(AName).AsWideString := AValue
       else
-        Q.ParamByName(AName).AsStrings[AIndex] := AValue;
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -145,30 +145,30 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('code').AsString := AModel.Code;
-    Q.ParamByName('name').AsString := AModel.Name;
-    Q.ParamByName('root_code').AsString := AModel.RootCode;
-    Q.ParamByName('sub_code').AsString := AModel.SubCode;
-    Q.ParamByName('iban').AsString := AModel.Iban;
-    Q.ParamByName('discount_rate').AsCurrency := AModel.DiscountRate;
+    Q.ParamByName('code').AsWideString := AModel.Code;
+    Q.ParamByName('name').AsWideString := AModel.Name;
+    Q.ParamByName('root_code').AsWideString := AModel.RootCode;
+    Q.ParamByName('sub_code').AsWideString := AModel.SubCode;
+    Q.ParamByName('iban').AsWideString := AModel.Iban;
+    Q.ParamByName('discount_rate').AsBCD := AModel.DiscountRate;
     Q.ParamByName('e_invoice_active').AsBoolean := AModel.EInvoiceActive;
-    Q.ParamByName('e_invoice_package_name').AsString := AModel.EInvoicePackageName;
+    Q.ParamByName('e_invoice_package_name').AsWideString := AModel.EInvoicePackageName;
     Q.ParamByName('is_passive').AsBoolean := AModel.IsPassive;
-    Q.ParamByName('notes').AsString := AModel.Notes;
+    Q.ParamByName('notes').AsWideString := AModel.Notes;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
-    Q.ParamByName('code').AsStrings[AIndex] := AModel.Code;
-    Q.ParamByName('name').AsStrings[AIndex] := AModel.Name;
-    Q.ParamByName('root_code').AsStrings[AIndex] := AModel.RootCode;
-    Q.ParamByName('sub_code').AsStrings[AIndex] := AModel.SubCode;
-    Q.ParamByName('iban').AsStrings[AIndex] := AModel.Iban;
-    Q.ParamByName('discount_rate').AsCurrencys[AIndex] := AModel.DiscountRate;
+    Q.ParamByName('code').AsWideStrings[AIndex] := AModel.Code;
+    Q.ParamByName('name').AsWideStrings[AIndex] := AModel.Name;
+    Q.ParamByName('root_code').AsWideStrings[AIndex] := AModel.RootCode;
+    Q.ParamByName('sub_code').AsWideStrings[AIndex] := AModel.SubCode;
+    Q.ParamByName('iban').AsWideStrings[AIndex] := AModel.Iban;
+    Q.ParamByName('discount_rate').AsBCDs[AIndex] := AModel.DiscountRate;
     Q.ParamByName('e_invoice_active').AsBooleans[AIndex] := AModel.EInvoiceActive;
-    Q.ParamByName('e_invoice_package_name').AsStrings[AIndex] := AModel.EInvoicePackageName;
+    Q.ParamByName('e_invoice_package_name').AsWideStrings[AIndex] := AModel.EInvoicePackageName;
     Q.ParamByName('is_passive').AsBooleans[AIndex] := AModel.IsPassive;
-    Q.ParamByName('notes').AsStrings[AIndex] := AModel.Notes;
+    Q.ParamByName('notes').AsWideStrings[AIndex] := AModel.Notes;
   end;
 
   SetNullableParam(Q.ParamByName('acc_set_account_type_id'), ftLargeint, AModel.AccSetAccountTypeId, AIndex);
@@ -233,12 +233,13 @@ begin
                   'taxpayer_type = EXCLUDED.taxpayer_type, taxpayer_name = EXCLUDED.taxpayer_name, taxpayer_name2 = EXCLUDED.taxpayer_name2, taxpayer_surname = EXCLUDED.taxpayer_surname, tax_office = EXCLUDED.tax_office, tax_no = EXCLUDED.tax_no, nace_code = EXCLUDED.nace_code';
     Q.ParamByName('acc_account_id').AsLargeInt := AModel.Id;
     SetNullableParam(Q.ParamByName('taxpayer_type'), ftInteger, AModel.TaxpayerType, AIndex);
-    Q.ParamByName('taxpayer_name').AsString := AModel.TaxpayerName;
-    Q.ParamByName('taxpayer_name2').AsString := AModel.TaxpayerName2;
-    Q.ParamByName('taxpayer_surname').AsString := AModel.TaxpayerSurname;
-    Q.ParamByName('tax_office').AsString := AModel.TaxOffice;
-    Q.ParamByName('tax_no').AsString := AModel.TaxNo;
-    Q.ParamByName('nace_code').AsString := AModel.NaceCode;
+    Q.ParamByName('taxpayer_name').AsWideString := AModel.TaxpayerName;
+    Q.ParamByName('taxpayer_name2').AsWideString := AModel.TaxpayerName2;
+    Q.ParamByName('taxpayer_surname').AsWideString := AModel.TaxpayerSurname;
+    Q.ParamByName('tax_office').AsWideString := AModel.TaxOffice;
+    Q.ParamByName('tax_no').AsWideString := AModel.TaxNo;
+    Q.ParamByName('nace_code').AsWideString := AModel.NaceCode;
+    ApplyNullPolicy(Q, 'acc_account_taxpayer');
     LogQuery(Q, 'SaveDetails');
     Q.ExecSQL;
 
@@ -247,16 +248,17 @@ begin
                   ' ON CONFLICT (acc_account_id) DO UPDATE SET ' +
                   'authorized_person_1 = EXCLUDED.authorized_person_1, authorized_phone_1 = EXCLUDED.authorized_phone_1, authorized_person_2 = EXCLUDED.authorized_person_2, authorized_phone_2 = EXCLUDED.authorized_phone_2, authorized_person_3 = EXCLUDED.authorized_person_3, authorized_phone_3 = EXCLUDED.authorized_phone_3, fax = EXCLUDED.fax, accountant_phone = EXCLUDED.accountant_phone, accountant_email = EXCLUDED.accountant_email, accountant_authorized = EXCLUDED.accountant_authorized';
     Q.ParamByName('acc_account_id').AsLargeInt := AModel.Id;
-    Q.ParamByName('authorized_person_1').AsString := AModel.AuthorizedPerson1;
-    Q.ParamByName('authorized_phone_1').AsString := AModel.AuthorizedPhone1;
-    Q.ParamByName('authorized_person_2').AsString := AModel.AuthorizedPerson2;
-    Q.ParamByName('authorized_phone_2').AsString := AModel.AuthorizedPhone2;
-    Q.ParamByName('authorized_person_3').AsString := AModel.AuthorizedPerson3;
-    Q.ParamByName('authorized_phone_3').AsString := AModel.AuthorizedPhone3;
-    Q.ParamByName('fax').AsString := AModel.Fax;
-    Q.ParamByName('accountant_phone').AsString := AModel.AccountantPhone;
-    Q.ParamByName('accountant_email').AsString := AModel.AccountantEmail;
-    Q.ParamByName('accountant_authorized').AsString := AModel.AccountantAuthorized;
+    Q.ParamByName('authorized_person_1').AsWideString := AModel.AuthorizedPerson1;
+    Q.ParamByName('authorized_phone_1').AsWideString := AModel.AuthorizedPhone1;
+    Q.ParamByName('authorized_person_2').AsWideString := AModel.AuthorizedPerson2;
+    Q.ParamByName('authorized_phone_2').AsWideString := AModel.AuthorizedPhone2;
+    Q.ParamByName('authorized_person_3').AsWideString := AModel.AuthorizedPerson3;
+    Q.ParamByName('authorized_phone_3').AsWideString := AModel.AuthorizedPhone3;
+    Q.ParamByName('fax').AsWideString := AModel.Fax;
+    Q.ParamByName('accountant_phone').AsWideString := AModel.AccountantPhone;
+    Q.ParamByName('accountant_email').AsWideString := AModel.AccountantEmail;
+    Q.ParamByName('accountant_authorized').AsWideString := AModel.AccountantAuthorized;
+    ApplyNullPolicy(Q, 'acc_account_contact');
     LogQuery(Q, 'SaveDetails');
     Q.ExecSQL;
   finally
@@ -375,6 +377,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -403,6 +406,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -429,6 +433,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

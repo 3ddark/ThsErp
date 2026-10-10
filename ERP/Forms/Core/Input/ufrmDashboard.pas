@@ -365,6 +365,7 @@ type
     procedure actsys_user_permission_templateExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
+    FF6Pressed: Boolean;
   published
     procedure btnCloseClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
@@ -1441,7 +1442,9 @@ end;
 
 procedure TfrmDashboard.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  //Key := 0;
+  // F6 başka bir formda basılıp (liste/giriş formu KeyDown'da kapanır) burada bırakılırsa uygulama kapatma sorulmasın
+  if Key = VK_F6 then
+    FF6Pressed := True;
 end;
 
 procedure TfrmDashboard.FormKeyPress(Sender: TObject; var Key: Char);
@@ -1452,8 +1455,11 @@ end;
 
 procedure TfrmDashboard.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  if Key = VK_F6 then
+  if (Key = VK_F6) and FF6Pressed then
+  begin
+    FF6Pressed := False;
     inherited;
+  end;
 end;
 
 procedure TfrmDashboard.FormShow(Sender: TObject);
@@ -1497,9 +1503,12 @@ begin
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
 
   mnimenu_system.Visible := True;
-  tsemployee.TabVisible  := False;
-  tsaccount.TabVisible   := False;
-  tsstock.TabVisible     := False;
+  // Taşınmış modüllerin sekmeleri açık (düğmeler action'a bağlı, yetki ApplyActionPermissions ile);
+  // satış / genel henüz taşınmadı
+  tsemployee.TabVisible  := True;
+  tsaccount.TabVisible   := True;
+  tsstock.TabVisible     := True;
+  btnTest.Visible        := False;
   tssales.TabVisible     := False;
   tsgeneral.TabVisible   := False;
 

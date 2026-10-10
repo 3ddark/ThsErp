@@ -82,7 +82,7 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := 'UPDATE public.' + Self.GetTableName(TSysUser) + ' SET user_password = :user_password WHERE id = :id';
-    Q.ParamByName('user_password').AsString := APasswordHash;
+    Q.ParamByName('user_password').AsWideString := APasswordHash;
     Q.ParamByName('id').AsLargeInt := AUserId;
     LogQuery(Q, 'UpdatePasswordHash');
     Q.ExecSQL;
@@ -118,24 +118,24 @@ procedure TSysUserRepository.SetInsertParams(Q: TFDQuery; AModel: TSysUser; AInd
 begin
   if AIndex < 0 then
   begin
-    Q.ParamByName('username').AsString := AModel.Username;
-    Q.ParamByName('user_password').AsString := AModel.UserPassword;
+    Q.ParamByName('username').AsWideString := AModel.Username;
+    Q.ParamByName('user_password').AsWideString := AModel.UserPassword;
     Q.ParamByName('active').AsBoolean := AModel.Active;
     Q.ParamByName('manager').AsBoolean := AModel.Manager;
     Q.ParamByName('super_user').AsBoolean := AModel.SuperUser;
-    Q.ParamByName('ip_address').AsString := AModel.IpAddress;
-    Q.ParamByName('mac_address').AsString := AModel.MacAddress;
+    Q.ParamByName('ip_address').AsWideString := AModel.IpAddress;
+    Q.ParamByName('mac_address').AsWideString := AModel.MacAddress;
     Q.ParamByName('emp_employee_id').AsLargeInt := AModel.EmpEmployeeId;
   end
   else
   begin
-    Q.ParamByName('username').AsStrings[AIndex] := AModel.Username;
-    Q.ParamByName('user_password').AsStrings[AIndex] := AModel.UserPassword;
+    Q.ParamByName('username').AsWideStrings[AIndex] := AModel.Username;
+    Q.ParamByName('user_password').AsWideStrings[AIndex] := AModel.UserPassword;
     Q.ParamByName('active').AsBooleans[AIndex] := AModel.Active;
     Q.ParamByName('manager').AsBooleans[AIndex] := AModel.Manager;
     Q.ParamByName('super_user').AsBooleans[AIndex] := AModel.SuperUser;
-    Q.ParamByName('ip_address').AsStrings[AIndex] := AModel.IpAddress;
-    Q.ParamByName('mac_address').AsStrings[AIndex] := AModel.MacAddress;
+    Q.ParamByName('ip_address').AsWideStrings[AIndex] := AModel.IpAddress;
+    Q.ParamByName('mac_address').AsWideStrings[AIndex] := AModel.MacAddress;
     Q.ParamByName('emp_employee_id').AsLargeInts[AIndex] := AModel.EmpEmployeeId;
   end;
 end;
@@ -145,25 +145,25 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
-    Q.ParamByName('username').AsString := AModel.Username;
-//    Q.ParamByName('user_password').AsString := AModel.UserPassword;
+    Q.ParamByName('username').AsWideString := AModel.Username;
+//    Q.ParamByName('user_password').AsWideString := AModel.UserPassword;
     Q.ParamByName('active').AsBoolean := AModel.Active;
     Q.ParamByName('manager').AsBoolean := AModel.Manager;
     Q.ParamByName('super_user').AsBoolean := AModel.SuperUser;
-    Q.ParamByName('ip_address').AsString := AModel.IpAddress;
-    Q.ParamByName('mac_address').AsString := AModel.MacAddress;
+    Q.ParamByName('ip_address').AsWideString := AModel.IpAddress;
+    Q.ParamByName('mac_address').AsWideString := AModel.MacAddress;
     Q.ParamByName('emp_employee_id').AsLargeInt := AModel.EmpEmployeeId;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex]            := AModel.Id;
-    Q.ParamByName('username').AsStrings[AIndex] := AModel.Username;
-//    Q.ParamByName('user_password').AsStrings[AIndex] := AModel.UserPassword;
+    Q.ParamByName('username').AsWideStrings[AIndex] := AModel.Username;
+//    Q.ParamByName('user_password').AsWideStrings[AIndex] := AModel.UserPassword;
     Q.ParamByName('active').AsBooleans[AIndex] := AModel.Active;
     Q.ParamByName('manager').AsBooleans[AIndex] := AModel.Manager;
     Q.ParamByName('super_user').AsBooleans[AIndex] := AModel.SuperUser;
-    Q.ParamByName('ip_address').AsStrings[AIndex] := AModel.IpAddress;
-    Q.ParamByName('mac_address').AsStrings[AIndex] := AModel.MacAddress;
+    Q.ParamByName('ip_address').AsWideStrings[AIndex] := AModel.IpAddress;
+    Q.ParamByName('mac_address').AsWideStrings[AIndex] := AModel.MacAddress;
     Q.ParamByName('emp_employee_id').AsLargeInts[AIndex] := AModel.EmpEmployeeId;
   end;
 end;
@@ -300,6 +300,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareAddSql + ' RETURNING id';
     SetInsertParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoAdd');
     Q.Open;
     AModel.Id := Q.FieldByName('id').AsLargeInt;
@@ -325,6 +326,8 @@ begin
     for I := 0 to Count - 1 do
       SetInsertParams(Q, AModels[I], I);
 
+    ApplyNullPolicy(Q);
+
     LogQuery(Q, 'DoAddBatch');
     Q.Execute(Count, 0);
   finally
@@ -341,6 +344,7 @@ begin
     Q.Connection := Connection;
     Q.SQL.Text := PrepareUpdateSql;
     SetUpdateParams(Q, AModel);
+    ApplyNullPolicy(Q);
     LogQuery(Q, 'DoUpdate');
     Q.ExecSQL;
   finally
@@ -364,6 +368,8 @@ begin
 
     for I := 0 to Count - 1 do
       SetUpdateParams(Q, AModels[I], I);
+
+    ApplyNullPolicy(Q);
 
     LogQuery(Q, 'DoUpdateBatch');
     Q.Execute(Count, 0);

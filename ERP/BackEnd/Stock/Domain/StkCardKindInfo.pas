@@ -39,10 +39,10 @@ type
     FKindName: string;
     FInventoryCode: string;
   public
-    [Column('stk_inventory_id')]
+    [Column('stk_inventory_id'), Required()]
     property StkInventoryId: Int64 read FStkInventoryId write FStkInventoryId;
 
-    [Column('stk_kind_property_id')]
+    [Column('stk_kind_property_id'), Required()]
     property StkKindPropertyId: Int64 read FStkKindPropertyId write FStkKindPropertyId;
 
     [Column('s1')]

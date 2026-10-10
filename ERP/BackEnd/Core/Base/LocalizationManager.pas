@@ -228,6 +228,8 @@ type
         const TitlePlural = 'sys_address.title_plural';
         const TitleSingular = 'sys_address.title_singular';
 
+        const ColCountry = 'sys_address.col_country';
+        const ColCity = 'sys_address.col_city';
         const ColDistrict = 'sys_address.col_district';
         const ColNeighborhood = 'sys_address.col_neighborhood';
         const ColQuarter = 'sys_address.col_quarter';

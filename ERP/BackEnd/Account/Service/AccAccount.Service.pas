@@ -45,6 +45,7 @@ type
 implementation
 
 uses
+  Ths.Helper.BaseTypes,
   SysPermission.Service;
 
 constructor TAccAccountService.Create;
@@ -103,7 +104,7 @@ begin
   if AOperation in [coInsert, coUpdate] then
   begin
     AEntity.Code := AnsiUpperCase(Trim(AEntity.Code));
-    AEntity.Name := AnsiUpperCase(Trim(AEntity.Name));
+    AEntity.Name := UpperCaseTr(Trim(AEntity.Name));
     AEntity.Iban := AnsiUpperCase(Trim(AEntity.Iban));
     AEntity.IbanCurrency := Trim(AEntity.IbanCurrency);
     AEntity.EInvoicePackageName := Trim(AEntity.EInvoicePackageName);

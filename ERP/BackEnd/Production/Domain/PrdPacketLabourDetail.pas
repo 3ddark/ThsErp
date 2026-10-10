@@ -23,10 +23,10 @@ type
     FCurrency: string;
     FTotalAmount: string;
   public
-    [Column('prd_packet_labour_id')]
+    [Column('prd_packet_labour_id'), Required()]
     property PrdPacketLabourId: Int64 read FPrdPacketLabourId write FPrdPacketLabourId;
 
-    [Column('prd_labour_id')]
+    [Column('prd_labour_id'), Required()]
     property PrdLabourId: Int64 read FPrdLabourId write FPrdLabourId;
 
     [Column('quantity')]

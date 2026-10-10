@@ -21,19 +21,19 @@ type
     FEmployeeFullName: string;
     FLanguageName: string;
   public
-    [Column('emp_employee_id')]
+    [Column('emp_employee_id'), Required()]
     property EmpEmployeeId: Int64 read FEmpEmployeeId write FEmpEmployeeId;
 
-    [Column('emp_language_id')]
+    [Column('emp_language_id'), Required()]
     property EmpLanguageId: Int64 read FEmpLanguageId write FEmpLanguageId;
 
-    [Column('read_level')]
+    [Column('read_level'), Required()]
     property ReadLevel: SmallInt read FReadLevel write FReadLevel;
 
-    [Column('write_level')]
+    [Column('write_level'), Required()]
     property WriteLevel: SmallInt read FWriteLevel write FWriteLevel;
 
-    [Column('speak_level')]
+    [Column('speak_level'), Required()]
     property SpeakLevel: SmallInt read FSpeakLevel write FSpeakLevel;
 
     [NotMapped]

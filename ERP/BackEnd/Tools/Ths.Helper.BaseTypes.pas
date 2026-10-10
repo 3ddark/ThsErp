@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils;
+  System.SysUtils, System.Character;
 
 type
   TInputType = (itString, itInteger, itFloat, itMoney, itDate, itTime);
@@ -13,6 +13,8 @@ type
   function LowCase(pKey: Char): Char;
   function LowCaseTr(pKey: Char): Char;
   function UpCaseTr(pKey: Char): Char;
+  // Türkçe kurallarla büyük harf (i -> İ, ı -> I; diğer harfler Unicode)
+  function UpperCaseTr(const AValue: string): string;
   function moneyToDouble(pVal: string; pInputType: TInputType): Double;
 
 implementation
@@ -35,7 +37,7 @@ begin
     'Ş': pKey := 'ş';
     'Ç': pKey := 'ç';
   else
-    pKey := LowCase(pKey);
+    pKey := pKey.ToLower;
   end;
   Result := pKey;
 end;
@@ -50,9 +52,18 @@ begin
     'ş': pKey := 'Ş';
     'ç': pKey := 'Ç';
   else
-    pKey := UpCase(pKey);
+    pKey := pKey.ToUpper;
   end;
   Result := pKey;
+end;
+
+function UpperCaseTr(const AValue: string): string;
+var
+  i: Integer;
+begin
+  Result := AValue;
+  for i := 1 to Length(Result) do
+    Result[i] := UpCaseTr(Result[i]);
 end;
 
 function moneyToDouble(pVal: string; pInputType: TInputType): Double;

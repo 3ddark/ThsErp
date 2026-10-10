@@ -81,9 +81,9 @@ begin
         'WHERE lower(orj_table_name) IN (:t1, :t2, :t3) ' +
         '   OR lower(replace(table_name, '' '', ''_'')) IN (:t1, :t2, :t3) ' +
         'ORDER BY orj_column_name';
-      Q.ParamByName('t1').AsString := LCleanTbl;
-      Q.ParamByName('t2').AsString := LBaseTbl;
-      Q.ParamByName('t3').AsString := LViewTbl;
+      Q.ParamByName('t1').AsWideString := LCleanTbl;
+      Q.ParamByName('t2').AsWideString := LBaseTbl;
+      Q.ParamByName('t3').AsWideString := LViewTbl;
       Q.Open;
       while not Q.Eof do
       begin
@@ -108,10 +108,10 @@ begin
           'WHERE table_schema = ''public'' ' +
           '  AND lower(table_name) IN (:t1, :t2, :t3, :t4) ' +
           'ORDER BY ordinal_position';
-        Q.ParamByName('t1').AsString := LCleanTbl;
-        Q.ParamByName('t2').AsString := LBaseTbl;
-        Q.ParamByName('t3').AsString := LViewTbl;
-        Q.ParamByName('t4').AsString := LSpacedTbl;
+        Q.ParamByName('t1').AsWideString := LCleanTbl;
+        Q.ParamByName('t2').AsWideString := LBaseTbl;
+        Q.ParamByName('t3').AsWideString := LViewTbl;
+        Q.ParamByName('t4').AsWideString := LSpacedTbl;
 
         Q.Open;
         while not Q.Eof do
@@ -136,10 +136,10 @@ begin
         'FROM public.sys_grid_column ' +
         'WHERE lower(replace(table_name, '' '', ''_'')) IN (:t1, :t2, :t3, :t4) ' +
         'ORDER BY column_name';
-      Q.ParamByName('t1').AsString := LCleanTbl;
-      Q.ParamByName('t2').AsString := LBaseTbl;
-      Q.ParamByName('t3').AsString := LViewTbl;
-      Q.ParamByName('t4').AsString := LSpacedTbl;
+      Q.ParamByName('t1').AsWideString := LCleanTbl;
+      Q.ParamByName('t2').AsWideString := LBaseTbl;
+      Q.ParamByName('t3').AsWideString := LViewTbl;
+      Q.ParamByName('t4').AsWideString := LSpacedTbl;
       try
         Q.Open;
         while not Q.Eof do
