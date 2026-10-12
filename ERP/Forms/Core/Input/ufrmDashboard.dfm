@@ -736,6 +736,18 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 76
       OnExecute = actprd_packet_labourExecute
     end
+    object actacc_account_transactions: TAction
+      Category = 'Muhasebe'
+      Caption = 'Cari Hesap Hareketleri'
+      ImageIndex = 14
+      OnExecute = actacc_account_transactionsExecute
+    end
+    object actfin_company_bank_accounts: TAction
+      Category = 'Finans'
+      Caption = 'Firma Banka Hesaplar'#305
+      ImageIndex = 69
+      OnExecute = actfin_company_bank_accountsExecute
+    end
     object actpur_requests: TAction
       Category = 'SatinAlma'
       Caption = 'Sat'#305'n Alma Talepleri'
@@ -1168,6 +1180,9 @@ inherited frmDashboard: TfrmDashboard
       object mniacc_account_intermediate: TMenuItem
         Action = actch_hesap_karti_ara
       end
+      object mniacc_account_transactions: TMenuItem
+        Action = actacc_account_transactions
+      end
       object mniacc_bank: TMenuItem
         Action = actch_bankalar
       end
@@ -1302,6 +1317,12 @@ inherited frmDashboard: TfrmDashboard
       end
       object mnifin_money_ledger: TMenuItem
         Action = actfin_money_ledger
+      end
+      object mnifin_sep5: TMenuItem
+        Caption = '-'
+      end
+      object mnifin_company_bank_accounts: TMenuItem
+        Action = actfin_company_bank_accounts
       end
     end
     object mnimenu_employee: TMenuItem

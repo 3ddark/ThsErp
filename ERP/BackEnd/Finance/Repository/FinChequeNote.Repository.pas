@@ -149,14 +149,14 @@ end;
 function TFinChequeNoteRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TFinChequeNote) +
-            ' (doc_kind, direction, portfolio_no, serial_no, issue_date, due_date, amount, currency, acc_account_id, drawer_name, drawer_tax_no, issue_place, acc_bank_id, acc_bank_branch_id, bank_account_no, guarantor_name, status, notes) ' +
-            ' VALUES (:doc_kind, :direction, :portfolio_no, :serial_no, :issue_date, :due_date, :amount, :currency, :acc_account_id, :drawer_name, :drawer_tax_no, :issue_place, :acc_bank_id, :acc_bank_branch_id, :bank_account_no, :guarantor_name, :status, :notes)';
+            ' (doc_kind, direction, portfolio_no, serial_no, issue_date, due_date, amount, currency, acc_account_id, drawer_name, drawer_tax_no, issue_place, acc_bank_id, acc_bank_branch_id, bank_account_no, guarantor_name, fin_company_bank_account_id, status, notes) ' +
+            ' VALUES (:doc_kind, :direction, :portfolio_no, :serial_no, :issue_date, :due_date, :amount, :currency, :acc_account_id, :drawer_name, :drawer_tax_no, :issue_place, :acc_bank_id, :acc_bank_branch_id, :bank_account_no, :guarantor_name, :fin_company_bank_account_id, :status, :notes)';
 end;
 
 function TFinChequeNoteRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TFinChequeNote) +
-            ' SET doc_kind = :doc_kind, direction = :direction, portfolio_no = :portfolio_no, serial_no = :serial_no, issue_date = :issue_date, due_date = :due_date, amount = :amount, currency = :currency, acc_account_id = :acc_account_id, drawer_name = :drawer_name, drawer_tax_no = :drawer_tax_no, issue_place = :issue_place, acc_bank_id = :acc_bank_id, acc_bank_branch_id = :acc_bank_branch_id, bank_account_no = :bank_account_no, guarantor_name = :guarantor_name, status = :status, notes = :notes ' +
+            ' SET doc_kind = :doc_kind, direction = :direction, portfolio_no = :portfolio_no, serial_no = :serial_no, issue_date = :issue_date, due_date = :due_date, amount = :amount, currency = :currency, acc_account_id = :acc_account_id, drawer_name = :drawer_name, drawer_tax_no = :drawer_tax_no, issue_place = :issue_place, acc_bank_id = :acc_bank_id, acc_bank_branch_id = :acc_bank_branch_id, bank_account_no = :bank_account_no, guarantor_name = :guarantor_name, fin_company_bank_account_id = :fin_company_bank_account_id, status = :status, notes = :notes ' +
             ' WHERE id = :id';
 end;
 
@@ -223,6 +223,7 @@ begin
   SetNullableParam(Q.ParamByName('acc_account_id'), ftLargeint, AModel.AccAccountId, AIndex);
   SetNullableParam(Q.ParamByName('acc_bank_id'), ftLargeint, AModel.AccBankId, AIndex);
   SetNullableParam(Q.ParamByName('acc_bank_branch_id'), ftLargeint, AModel.AccBankBranchId, AIndex);
+  SetNullableParam(Q.ParamByName('fin_company_bank_account_id'), ftLargeint, AModel.FinCompanyBankAccountId, AIndex);
 end;
 
 procedure TFinChequeNoteRepository.SetUpdateParams(Q: TFDQuery; AModel: TFinChequeNote; AIndex: Integer);
@@ -284,6 +285,7 @@ begin
   SetNullableParam(Q.ParamByName('acc_account_id'), ftLargeint, AModel.AccAccountId, AIndex);
   SetNullableParam(Q.ParamByName('acc_bank_id'), ftLargeint, AModel.AccBankId, AIndex);
   SetNullableParam(Q.ParamByName('acc_bank_branch_id'), ftLargeint, AModel.AccBankBranchId, AIndex);
+  SetNullableParam(Q.ParamByName('fin_company_bank_account_id'), ftLargeint, AModel.FinCompanyBankAccountId, AIndex);
 end;
 
 function TFinChequeNoteRepository.MapFromQuery(Q: TFDQuery): TFinChequeNote;
@@ -312,6 +314,7 @@ begin
   Result.AccBankBranchId := Q.FieldByName('acc_bank_branch_id').AsLargeInt;
   Result.BankAccountNo := Q.FieldByName('bank_account_no').AsString;
   Result.GuarantorName := Q.FieldByName('guarantor_name').AsString;
+  Result.FinCompanyBankAccountId := Q.FieldByName('fin_company_bank_account_id').AsLargeInt;
   Result.Status := Q.FieldByName('status').AsInteger;
   Result.Notes := Q.FieldByName('notes').AsString;
   Result.AccountCode := Q.FieldByName('account_code').AsString;
@@ -319,6 +322,7 @@ begin
   Result.BankName := Q.FieldByName('bank_name').AsString;
   Result.BranchName := Q.FieldByName('branch_name').AsString;
   Result.CurrentHolder := Q.FieldByName('current_holder').AsString;
+  Result.CompanyBankIban := Q.FieldByName('company_bank_iban').AsString;
 end;
 
 function TFinChequeNoteRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

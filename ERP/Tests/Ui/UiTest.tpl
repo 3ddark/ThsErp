@@ -6,6 +6,60 @@ program UiTest;
 uses
   {{USES}};
 
+// Cari hareketlerinde "Detay Göster": her kaynak tipi kendi giriş formunu açmalı
+procedure TestShowSources;
+const
+  Expected: array[1..5] of string = ('TfrmFinMoneyTransaction', 'TfrmFinChequeNote', 'TfrmFinPosTransaction',
+    'TfrmFinCreditCardTransaction', 'TfrmPurInvoice');
+var
+  Outer, Before: TList<TForm>;
+  LFrm: TfrmAccAccountTransactions;
+  F: TForm;
+  V: Variant;
+  T: Integer;
+begin
+  TUi.Module := 'Account';
+  TUi.FormName := 'TfrmAccAccountTransactions';
+  Outer := TUi.Snapshot;
+  try
+    LFrm := TfrmAccAccountTransactions.Create(Application, TAccAccountTransactionService.Create, TAccAccountTransaction.Create);
+    LFrm.Show;
+    TUi.Pump;
+    for T := 1 to 5 do
+    begin
+      V := TUi.Sql('SELECT min(document_id) FROM vw_acc_account_transaction WHERE source_type = :t', [T]);
+      if VarIsNull(V) or VarIsEmpty(V) then
+      begin
+        TUi.R('WARN', 'show source ' + IntToStr(T), 'no rows of this source type');
+        Continue;
+      end;
+      Before := TUi.Snapshot;
+      try
+        try
+          LFrm.OpenSourceDocument(T, V);
+          TUi.Pump;
+          F := TUi.NewForm(Before);
+          if (F <> nil) and SameText(F.ClassName, Expected[T]) then
+            TUi.R('PASS', 'show source ' + IntToStr(T), F.ClassName + ' "' + F.Caption + '" ' + TUi.Mode(F) + ' ' + TUi.TakeDialogs)
+          else if F = nil then
+            TUi.R('FAIL', 'show source ' + IntToStr(T), 'no form opened ' + TUi.TakeDialogs)
+          else
+            TUi.R('FAIL', 'show source ' + IntToStr(T), 'unexpected form ' + F.ClassName);
+        except
+          on E: Exception do TUi.R('FAIL', 'show source ' + IntToStr(T), E.ClassName + ': ' + E.Message);
+        end;
+        TUi.CloseNewForms(Before);
+        TUi.TakeDialogs;
+      finally
+        Before.Free;
+      end;
+    end;
+    TUi.CloseNewForms(Outer);
+  finally
+    Outer.Free;
+  end;
+end;
+
 var
   GConn: TFDConnection;
   Ctx: TUserContext;
@@ -47,6 +101,8 @@ begin
       TUi.Install;
 
 {{CALLS}}
+      if TUi.Want('Account', 'TfrmAccAccountTransactions') then
+        TestShowSources;
     except
       on E: Exception do
       begin

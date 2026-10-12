@@ -16,7 +16,9 @@ type
     FFixedAccountTypeId: Int64;
     FFixedAccountTypeName: string;
     FmniAddresses: TMenuItem;
+    FmniTransactions: TMenuItem;
     procedure mniAddressesClick(Sender: TObject);
+    procedure mniTransactionsClick(Sender: TObject);
     procedure TaxpayerTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
   public
     procedure SetFixedAccountType(AAccountTypeId: Int64; const AAccountTypeName: string);
@@ -35,6 +37,7 @@ implementation
 
 uses
   ufrmAccAccountAddresses, AccAccountAddress, AccAccountAddress.Service,        // TfrmAccAccountAddresses
+  ufrmAccAccountTransactions, AccAccountTransaction, AccAccountTransaction.Service, // TfrmAccAccountTransactions
   AccLookup;
 
 procedure TfrmAccAccounts.TaxpayerTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
@@ -81,6 +84,7 @@ begin
 
   AddPopupMenuSpliter();
   FmniAddresses := AddMenu(TLocalizationManager.Translate(TLangKeys.TAccAccount.MenuAddresses, 'Addresses'), 'mniAddresses', mniAddressesClick);
+  FmniTransactions := AddMenu(TLocalizationManager.Translate(TLangKeys.TAccAccount.MenuTransactions, 'Account Transactions'), 'mniTransactions', mniTransactionsClick);
 end;
 
 procedure TfrmAccAccounts.mniAddressesClick(Sender: TObject);
@@ -92,6 +96,19 @@ begin
 
   SetSelectedItem;
   LFrm := TfrmAccAccountAddresses.Create(Self, TAccAccountAddressService.Create, TAccAccountAddress.Create);
+  LFrm.SetFixedAccount(Table.Id, Table.Code + ' ' + Table.Name);
+  LFrm.Show;
+end;
+
+procedure TfrmAccAccounts.mniTransactionsClick(Sender: TObject);
+var
+  LFrm: TfrmAccAccountTransactions;
+begin
+  if Grd.DataSource.DataSet.IsEmpty then
+    Exit;
+
+  SetSelectedItem;
+  LFrm := TfrmAccAccountTransactions.Create(Self, TAccAccountTransactionService.Create, TAccAccountTransaction.Create);
   LFrm.SetFixedAccount(Table.Id, Table.Code + ' ' + Table.Name);
   LFrm.Show;
 end;
@@ -149,6 +166,8 @@ begin
     Self.Caption := Self.Caption + ' - ' + FFixedAccountTypeName;
   if Assigned(FmniAddresses) then
     FmniAddresses.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.MenuAddresses, 'Addresses');
+  if Assigned(FmniTransactions) then
+    FmniTransactions.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.MenuTransactions, 'Account Transactions');
   SetColumnTitle('code', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColCode, 'Account Code'));
   SetColumnTitle('name', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColName, 'Account Name'));
   SetColumnTitle('account_type_name', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAccountType, 'Account Type'));

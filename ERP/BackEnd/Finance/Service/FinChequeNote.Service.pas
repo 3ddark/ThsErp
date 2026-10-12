@@ -6,13 +6,14 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  FinChequeNote.Repository, FinChequeNote, FinChequeNote.Exception, FinChequeNoteTransaction, FinChequeNoteTransaction.Repository;
+  FinChequeNote.Repository, FinChequeNote, FinChequeNote.Exception, FinChequeNoteTransaction, FinChequeNoteTransaction.Repository, FinCompanyBankAccount, FinCompanyBankAccount.Repository;
 
 type
   TFinChequeNoteService = class(TCrudService<TFinChequeNote>)
   private
     FRepo: IRepository<TFinChequeNote>;
     FTxRepo: IRepository<TFinChequeNoteTransaction>;
+    FCompanyBankRepo: IRepository<TFinCompanyBankAccount>;
 
     procedure DoAdd(AEntity: TFinChequeNote);
     procedure DoUpdate(AEntity: TFinChequeNote);
@@ -55,6 +56,7 @@ begin
   inherited;
   FRepo := Self.UoW.GetRepository<TFinChequeNote, TFinChequeNoteRepository>;
   FTxRepo := Self.UoW.GetRepository<TFinChequeNoteTransaction, TFinChequeNoteTransactionRepository>;
+  FCompanyBankRepo := Self.UoW.GetRepository<TFinCompanyBankAccount, TFinCompanyBankAccountRepository>;
   Self.PermissionCode := PERMISSION_FIN_CHEQUE_NOTE;
 end;
 
@@ -152,6 +154,7 @@ procedure TFinChequeNoteService.ValidateBusinessRules(AEntity: TFinChequeNote; A
 var
   LOld: TFinChequeNote;
   LTxCount: Integer;
+  LCompanyBank: TFinCompanyBankAccount;
 begin
   if AOperation in [coInsert, coUpdate] then
   begin
@@ -180,6 +183,34 @@ begin
       Fail(TLangKeys.TFinChequeNote.ColAmount, 'Amount', TLangKeys.TValidation.MustBePositive, 'Value must be greater than zero');
     if AEntity.DueDate < AEntity.IssueDate then
       raise EFinChequeNoteExceptionDueBeforeIssue.Create;
+
+    // Firma banka hesabı yalnız kendi (verilen) çek / senedimizde; banka, hesap no ve para birimi hesaptan gelir
+    if AEntity.Direction <> FIN_DIR_GIVEN then
+      AEntity.FinCompanyBankAccountId := 0
+    else if AEntity.FinCompanyBankAccountId > 0 then
+    begin
+      LCompanyBank := FCompanyBankRepo.FindById(AEntity.FinCompanyBankAccountId, False);
+      try
+        if not Assigned(LCompanyBank) then
+          raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AEntity.FinCompanyBankAccountId]));
+        if (AOperation = coInsert) and not LCompanyBank.IsActive then
+          raise EFinChequeNoteExceptionCompanyBankPassive.Create;
+        if ((AEntity.DocKind = FIN_DOC_CHEQUE) and not LCompanyBank.ShowOnCheque) or
+          ((AEntity.DocKind = FIN_DOC_NOTE) and not LCompanyBank.ShowOnNote) then
+          raise EFinChequeNoteExceptionCompanyBankUsage.Create;
+        if (AEntity.Currency <> '') and (AEntity.Currency <> LCompanyBank.Currency) then
+          raise EFinChequeNoteExceptionCompanyBankCurrency.Create;
+        if AEntity.AccBankId <> LCompanyBank.AccBankId then
+          AEntity.AccBankBranchId := 0;
+        AEntity.AccBankId := LCompanyBank.AccBankId;
+        AEntity.Currency := LCompanyBank.Currency;
+        if AEntity.BankAccountNo = '' then
+          AEntity.BankAccountNo := LCompanyBank.AccountNo;
+      finally
+        LCompanyBank.Free;
+      end;
+    end;
+
     if (AEntity.DocKind = FIN_DOC_CHEQUE) and (AEntity.AccBankId <= 0) then
       raise EFinChequeNoteExceptionBankRequired.Create;
     if AEntity.AccBankId <= 0 then

@@ -2,7 +2,7 @@ object frmFinChequeNote: TfrmFinChequeNote
   Left = 0
   Top = 0
   Caption = #199'ek / Senet'
-  ClientHeight = 299
+  ClientHeight = 322
   ClientWidth = 811
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,7 +16,7 @@ object frmFinChequeNote: TfrmFinChequeNote
     Left = 0
     Top = 0
     Width = 811
-    Height = 299
+    Height = 322
     Align = alClient
     TabOrder = 0
     object lblDocKind: TLabel
@@ -409,9 +409,32 @@ object frmFinChequeNote: TfrmFinChequeNote
       MaxLength = 128
       TabOrder = 16
     end
-    object lblNotes: TLabel
+    object lblFinCompanyBankAccountId: TLabel
       Left = 408
       Top = 167
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Firma Banka Hesab'#305
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtFinCompanyBankAccountId: TEdit
+      Left = 536
+      Top = 163
+      Width = 260
+      Height = 22
+      ReadOnly = True
+      TabOrder = 17
+    end
+    object lblNotes: TLabel
+      Left = 408
+      Top = 190
       Width = 124
       Height = 13
       Alignment = taRightJustify
@@ -426,12 +449,12 @@ object frmFinChequeNote: TfrmFinChequeNote
     end
     object mmoNotes: TMemo
       Left = 536
-      Top = 163
+      Top = 186
       Width = 260
       Height = 68
       MaxLength = 512
       ScrollBars = ssVertical
-      TabOrder = 17
+      TabOrder = 18
     end
   end
 end

@@ -600,6 +600,11 @@ type
       TAccOption = record
         const TaxpayerLegal = 'acc_option.taxpayer_legal';
         const TaxpayerReal = 'acc_option.taxpayer_real';
+        const SrcMoney = 'acc_option.src_money';
+        const SrcChequeNote = 'acc_option.src_cheque_note';
+        const SrcPos = 'acc_option.src_pos';
+        const SrcCreditCard = 'acc_option.src_credit_card';
+        const SrcPurInvoice = 'acc_option.src_pur_invoice';
       end;
 
       TAccSetAccountType = record
@@ -749,6 +754,7 @@ type
         const ColAccountantAuthorized = 'acc_account.col_accountant_authorized';
         const MenuAddresses = 'acc_account.popup.addresses';
         const CodeUnique = 'acc_account.code_unique';
+        const MenuTransactions = 'acc_account.popup.transactions';
       end;
 
       TAccAccountAddress = record
@@ -1335,6 +1341,11 @@ type
         const BranchBank = 'fin_cheque_note.branch_bank';
         const HasTransactions = 'fin_cheque_note.has_transactions';
         const KeyFieldsLocked = 'fin_cheque_note.key_fields_locked';
+        const ColFinCompanyBankAccountId = 'fin_cheque_note.col_fin_company_bank_account_id';
+        const ColCompanyBankIban = 'fin_cheque_note.col_company_bank_iban';
+        const CompanyBankPassive = 'fin_cheque_note.company_bank_passive';
+        const CompanyBankUsage = 'fin_cheque_note.company_bank_usage';
+        const CompanyBankCurrency = 'fin_cheque_note.company_bank_currency';
       end;
 
       TFinChequeNoteTransaction = record
@@ -1804,6 +1815,57 @@ type
         const InventoryMismatch = 'pur_invoice_detail.inventory_mismatch';
         const SupplierMismatch = 'pur_invoice_detail.supplier_mismatch';
         const OverInvoice = 'pur_invoice_detail.over_invoice';
+      end;
+
+      //Finance Module (company bank accounts)
+      TFinCompanyBankAccount = record
+        const TitlePlural = 'fin_company_bank_account.title_plural';
+        const TitleSingular = 'fin_company_bank_account.title_singular';
+        const ColAccBankId = 'fin_company_bank_account.col_acc_bank_id';
+        const ColBranchCode = 'fin_company_bank_account.col_branch_code';
+        const ColBranchName = 'fin_company_bank_account.col_branch_name';
+        const ColSysCityId = 'fin_company_bank_account.col_sys_city_id';
+        const ColAccountNo = 'fin_company_bank_account.col_account_no';
+        const ColIban = 'fin_company_bank_account.col_iban';
+        const ColCurrency = 'fin_company_bank_account.col_currency';
+        const ColAccountHolder = 'fin_company_bank_account.col_account_holder';
+        const ColShowOnCheque = 'fin_company_bank_account.col_show_on_cheque';
+        const ColShowOnNote = 'fin_company_bank_account.col_show_on_note';
+        const ColShowOnPrint = 'fin_company_bank_account.col_show_on_print';
+        const ColSortOrder = 'fin_company_bank_account.col_sort_order';
+        const ColIsActive = 'fin_company_bank_account.col_is_active';
+        const ColDescription = 'fin_company_bank_account.col_description';
+        const ColBankName = 'fin_company_bank_account.col_bank_name';
+        const ColCityName = 'fin_company_bank_account.col_city_name';
+        const ColPrintText = 'fin_company_bank_account.col_print_text';
+        const ColSwiftCode = 'fin_company_bank_account.col_swift_code';
+        const IbanInvalid = 'fin_company_bank_account.iban_invalid';
+        const IbanUnique = 'fin_company_bank_account.iban_unique';
+        const SortRange = 'fin_company_bank_account.sort_range';
+        const InUse = 'fin_company_bank_account.in_use';
+        const CurrencyLocked = 'fin_company_bank_account.currency_locked';
+      end;
+
+      //Account Module (account transactions)
+      TAccAccountTransaction = record
+        const TitlePlural = 'acc_account_transaction.title_plural';
+        const TitleSingular = 'acc_account_transaction.title_singular';
+        const ColAccAccountId = 'acc_account_transaction.col_acc_account_id';
+        const ColTransactionDate = 'acc_account_transaction.col_transaction_date';
+        const ColSourceType = 'acc_account_transaction.col_source_type';
+        const ColSourceId = 'acc_account_transaction.col_source_id';
+        const ColDocumentId = 'acc_account_transaction.col_document_id';
+        const ColDocumentNo = 'acc_account_transaction.col_document_no';
+        const ColDescription = 'acc_account_transaction.col_description';
+        const ColCurrency = 'acc_account_transaction.col_currency';
+        const ColDebit = 'acc_account_transaction.col_debit';
+        const ColCredit = 'acc_account_transaction.col_credit';
+        const ColBalance = 'acc_account_transaction.col_balance';
+        const ColAccountCode = 'acc_account_transaction.col_account_code';
+        const ColAccountName = 'acc_account_transaction.col_account_name';
+        const MenuShowSource = 'acc_account_transaction.popup.show_source';
+        const ReadOnly = 'acc_account_transaction.read_only';
+        const UnknownSource = 'acc_account_transaction.unknown_source';
       end;
   end;
 

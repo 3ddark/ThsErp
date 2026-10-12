@@ -56,6 +56,11 @@ const
   FIN_METHOD_FAST  = 4;
   FIN_METHOD_SWIFT = 5;
 
+  // firma banka hesabı kullanım yeri (TFinCompanyBankAccountService.GetPrintLines)
+  FIN_BANK_USAGE_CHEQUE = 1;
+  FIN_BANK_USAGE_NOTE   = 2;
+  FIN_BANK_USAGE_PRINT  = 3;
+
   // vw_fin_money_ledger.direction
   FIN_DIR_IN  = 1;
   FIN_DIR_OUT = 2;

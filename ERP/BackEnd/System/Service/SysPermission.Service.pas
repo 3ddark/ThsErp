@@ -56,6 +56,7 @@ const
   PERMISSION_ACC_ACCOUNT_TYPE             = 1035;
   PERMISSION_ACC_OWNERSHIP_TYPE           = 1036;
   PERMISSION_ACC_COMPANY_LEGAL_FORM       = 1037;
+  PERMISSION_ACC_ACCOUNT_TRANSACTION      = 1038;   // cari hesap hareketleri (salt okunur, kaynak belgelerden)
 
   // Stock (1040 boş: eski "stock-card-settings" silindi)
   PERMISSION_STK_INVENTORY                = 1041;   // + detaylar: resim, cins bilgisi
@@ -77,6 +78,7 @@ const
   PERMISSION_FIN_POS_TERMINAL             = 1072;   // POS tanımları + kredi kartı tahsilatları
   PERMISSION_FIN_MONEY_ACCOUNT            = 1073;   // kasa / banka hesapları + ekstre
   PERMISSION_FIN_MONEY_TRANSACTION        = 1074;   // tahsilat / ödeme / havale-EFT / virman / masraf
+  PERMISSION_FIN_COMPANY_BANK_ACCOUNT     = 1075;   // firma banka hesapları (çek / senet / çıktılar)
 
   // Purchasing (satın alma)
   PERMISSION_PUR_REQUEST                  = 1080;   // talep + kalemleri

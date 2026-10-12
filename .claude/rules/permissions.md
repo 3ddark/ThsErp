@@ -33,10 +33,10 @@ paths:
 | 1, 2 | framework placeholders — **never assign to a service** |
 | 1000–1008 | System definitions (city, country, region, currency, uom group, uom, language, decimal place, address) |
 | 1020–1029 | Employee (1021 employee card + details: driver license, language, address; 1022 type, 1023 section, 1024 unit, 1025 task, 1026 shuttle, 1027 language, 1029 license type; 1028 free — language level is a fixed smallint option) |
-| 1030–1039 | Account (1031 account card + addresses, 1032 bank + branches, 1033 group, 1034 region, 1035 account type, 1036 ownership type, 1037 company legal form; 1030 legacy "account-card-settings", unused) |
+| 1030–1039 | Account (1031 account card + addresses, 1032 bank + branches, 1033 group, 1034 region, 1035 account type, 1036 ownership type, 1037 company legal form, 1038 account transactions (read-only, derived); 1030 legacy "account-card-settings", unused) |
 | 1040–1049 | Stock (1041 stock card + image + kind info, 1042 transaction, 1043 group, 1044 warehouse, 1045 product type, 1046 kind family, 1047 kind property, 1048 stock summary; 1040 free) |
 | 1060–1069 | Production / BoM (1061 BoM + all BoM details: raw materials, by-products, labours, packet links; 1062 labour / cost definition; 1063 raw material packet + items; 1064 labour packet + items; 1060 legacy "bom-settings", unused) |
-| 1070–1079 | Finance (1070 cheque / promissory note + transactions, 1071 company credit card + transactions, 1072 POS terminal + card collections, 1073 cash / bank account + statement, 1074 money transaction: collection / payment / wire-EFT / transfer / expense) |
+| 1070–1079 | Finance (1070 cheque / promissory note + transactions, 1071 company credit card + transactions, 1072 POS terminal + card collections, 1073 cash / bank account + statement, 1074 money transaction: collection / payment / wire-EFT / transfer / expense, 1075 company bank accounts for cheques / notes / printouts) |
 | 1080–1089 | Purchasing (1080 request + lines, 1081 order + lines, 1082 goods receipt + lines, 1083 purchase invoice + lines) |
 | 1100–1199 | System administration (1100 user … 1110 view table) |
 | 3000+ | Accounting (3001 exchange rate, 3002 account plan, 3003 tax rate, 3004 transfer code, 3005 voucher + details) |

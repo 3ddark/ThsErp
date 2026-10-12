@@ -703,6 +703,13 @@
         <DCCReference Include="Forms\Account\Output\ufrmAccAccounts.pas">
             <Form>frmAccAccounts</Form>
         </DCCReference>
+        <DCCReference Include="BackEnd\Account\Domain\AccAccountTransaction.pas"/>
+        <DCCReference Include="BackEnd\Account\Exception\AccAccountTransaction.Exception.pas"/>
+        <DCCReference Include="BackEnd\Account\Repository\AccAccountTransaction.Repository.pas"/>
+        <DCCReference Include="BackEnd\Account\Service\AccAccountTransaction.Service.pas"/>
+        <DCCReference Include="Forms\Account\Output\ufrmAccAccountTransactions.pas">
+            <Form>frmAccAccountTransactions</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\Account\Domain\AccAccountAddress.pas"/>
         <DCCReference Include="BackEnd\Account\Exception\AccAccountAddress.Exception.pas"/>
         <DCCReference Include="BackEnd\Account\Repository\AccAccountAddress.Repository.pas"/>
@@ -832,6 +839,16 @@
         <DCCReference Include="BackEnd\Finance\Service\FinMoneyLedger.Service.pas"/>
         <DCCReference Include="Forms\Finance\Output\ufrmFinMoneyLedgers.pas">
             <Form>frmFinMoneyLedgers</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Finance\Domain\FinCompanyBankAccount.pas"/>
+        <DCCReference Include="BackEnd\Finance\Exception\FinCompanyBankAccount.Exception.pas"/>
+        <DCCReference Include="BackEnd\Finance\Repository\FinCompanyBankAccount.Repository.pas"/>
+        <DCCReference Include="BackEnd\Finance\Service\FinCompanyBankAccount.Service.pas"/>
+        <DCCReference Include="Forms\Finance\Input\ufrmFinCompanyBankAccount.pas">
+            <Form>frmFinCompanyBankAccount</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Finance\Output\ufrmFinCompanyBankAccounts.pas">
+            <Form>frmFinCompanyBankAccounts</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Purchasing\Domain\PurLookup.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Domain\PurRequest.pas"/>

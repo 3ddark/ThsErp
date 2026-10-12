@@ -43,6 +43,21 @@ type
     class function GetMessage: string; override;
   end;
 
+  EFinChequeNoteExceptionCompanyBankPassive = class(EFinChequeNoteException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
+  EFinChequeNoteExceptionCompanyBankUsage = class(EFinChequeNoteException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
+  EFinChequeNoteExceptionCompanyBankCurrency = class(EFinChequeNoteException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
 implementation
 
 class function EFinChequeNoteExceptionSerialUnique.GetMessage: string;
@@ -78,6 +93,21 @@ end;
 class function EFinChequeNoteExceptionKeyFieldsLocked.GetMessage: string;
 begin
   Result := TLocalizationManager.Translate(TLangKeys.TFinChequeNote.KeyFieldsLocked, 'Kind, direction and account cannot be changed after the document has transactions.');
+end;
+
+class function EFinChequeNoteExceptionCompanyBankPassive.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TFinChequeNote.CompanyBankPassive, 'The company bank account is not active.');
+end;
+
+class function EFinChequeNoteExceptionCompanyBankUsage.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TFinChequeNote.CompanyBankUsage, 'The company bank account is not enabled for this document kind.');
+end;
+
+class function EFinChequeNoteExceptionCompanyBankCurrency.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TFinChequeNote.CompanyBankCurrency, 'The document currency differs from the company bank account currency.');
 end;
 
 end.

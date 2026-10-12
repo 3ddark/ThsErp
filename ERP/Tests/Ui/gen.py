@@ -26,6 +26,6 @@ for mod in ['System', 'Employee', 'Account', 'Stock', 'Production', 'Finance', '
         calls.append("  if TUi.Want('%s', '%s') then\n    TUiTester<%s, %s>.Run('%s', %s.Create(Application, %s.Create, %s.Create));"
                      % (mod, frm, ent, svc, mod, frm, svc, ent))
 tpl = open(os.path.join(here, 'UiTest.tpl'), encoding='utf-8').read()
-out = tpl.replace('{{USES}}', ',\n  '.join(uses + ['FireDAC.Comp.Client', 'System.Rtti', 'Vcl.Dialogs', "UiDriver in '%s'" % os.path.join(here, 'UiDriver.pas')])).replace('{{CALLS}}', '\n'.join(calls))
+out = tpl.replace('{{USES}}', ',\n  '.join(uses + ['FireDAC.Comp.Client', 'System.Rtti', 'Vcl.Dialogs', 'System.Generics.Collections', 'System.Variants', "UiDriver in '%s'" % os.path.join(here, 'UiDriver.pas')])).replace('{{CALLS}}', '\n'.join(calls))
 open(os.path.join(here, 'UiTest.dpr'), 'w', encoding='utf-8-sig', newline='\r\n').write(out)
 print(len(uses), 'units,', len(calls), 'list forms')

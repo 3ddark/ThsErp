@@ -378,6 +378,39 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
   e-fatura alımı, satın alma iadesi (iade irsaliyesi / iade faturası), kur farkı, sipariş/teklif karşılaştırma; eski
   pur_offer tablolarının silinmesi (onay). UI akışları elle denenmedi.
 
+## Firma banka hesapları (2026-10-12, /goal; öncesinde eaf5f06 commit)
+- DB: `fin_company_bank_account` (banka zorunlu, şube kodu / adı / şehri (sys_city), hesap no, IBAN zorunlu + UNIQUE + format
+  CHECK, para birimi, hesap sahibi / unvan, show_on_cheque / show_on_note / show_on_print, sıra 0-999, aktif, açıklama).
+  `vw_fin_company_bank_account.print_text` = "Banka - Şube (kod) - Şehir - PB - No: … - IBAN: TR33 0006 …" (4'lü gruplu).
+  `fin_cheque_note.fin_company_bank_account_id` (yalnız verilen belgede, CHECK direction = 2) + vw_fin_cheque_note'a
+  fin_company_bank_account_id / company_bank_iban (sys_grid_column + sys_user_grid_column satırları eklendi). Yetki 1075
+  (yönetici tam, satış + satın alma okuma).
+- Kurallar: IBAN normalize + mod-97; kullanılan hesap silinemez / para birimi değişmez; kendi çek / senedimizde seçilen hesap
+  aktif olmalı ve ilgili bayrak (çek / senet) açık olmalı, belge para birimi hesabınkiyle aynı; banka, hesap no (boşsa) ve
+  para birimi hesaptan gelir; alınan belgede bağlantı temizlenir. Formda hesap seçilince banka / hesap no / PB doldurulur.
+- Çıktılar için: `TFinCompanyBankAccountService.GetPrintLines(FIN_BANK_USAGE_CHEQUE | _NOTE | _PRINT)` (aktif + bayrak + sıra).
+  Henüz rapor/çıktı tasarımı (fatura, teklif, çek/senet baskısı) yok — çıktılar yazıldığında bu metod kullanılmalı.
+- Doğrulama: derleme 0 hata / dokunulan birimlerde uyarı yok; entegrasyon 1337 pass / 0 fail (TestCompanyBankAccounts);
+  UI Finance 178 pass / 0 fail / 0 warn. Dump'lar yenilendi (yedek: ths_erp_before_company_bank.dump). gen_lang.py artık
+  mevcut TLangKeys kaydına eksik sabitleri de ekliyor.
+
+## Cari hesap hareketleri + "Detay Göster" (2026-10-12, /goal)
+- `vw_acc_account_transaction` (salt okunur, tablo yok): para hareketleri (tahsilat/faiz/diğer giriş = alacak; ödeme/masraf/
+  diğer çıkış = borç; virman carisiz), çek/senet (açılış: alınan alacak / verilen borç; ciro: ciro edilen borç; karşılıksız: ilk
+  cari borç (alınan) / alacak (verilen) + cirodan döndüyse ciranta alacak; ciro geri alınınca ciranta alacak; iade ters kayıt),
+  POS (tahsilat alacak / iade borç), firma kartıyla cariye harcama borç / iade alacak, alış faturası alacak (toplam). Kolonlar:
+  source_type (1-5, `ACC_TX_SRC_*`), source_id, document_id, document_no, borç / alacak, cari + para birimi bazında yürüyen
+  bakiye. id = kaynak id * 100 + tip * 10 + parça (benzersiz). Yetki 1038 (yönetici / satış / satın alma okuma).
+- Kod: `AccAccountTransaction` (Account modülü, salt okunur entity). `TfrmAccAccountTransactions` popup "Detay Göster" →
+  `OpenSourceDocument`: kaynak servisin `BusinessFindById(..., APermissionControl = True)` ile okur (okuma yetkisi yoksa
+  EAuthorizationExceptionRead), kaynağın kendi giriş formunu inceleme modunda açar (form servisi sahiplenir; güncelle / sil
+  yetkileri formda ayrıca denetlenir; kayıt sonrası hareket listesi yenilenir). Çek/senet satırında çek/senet belgesi açılır.
+  Hesap kartları popup "Cari Hareketleri" (SetFixedAccount), Muhasebe menüsü action.
+- Doğrulama: derleme 0 hata / uyarı yok; entegrasyon 1347 pass / 0 fail (borç/alacak, benzersiz id, bakiye, her kaynak
+  servisle açılır, TEST kullanıcısı deny_read ile fatura açamaz / is_read ile para hareketini açar); UI tam 1326 pass / 0 fail
+  (+ 5 kaynak tipinin her biri doğru formu inceleme modunda açıyor: UiTest.tpl TestShowSources). Dump'lar yenilendi.
+- Not: satış faturası / irsaliye modülü yazıldığında view'a + AccLookup + OpenSourceDocument'a eklenmeli.
+
 ## KALDIĞIM YER (2026-10-10 sonu)
 - Son oturumların (servis + UI test paketleri, NULL standardı, Required, grid metadata, AV / kilit düzeltmeleri) tamamı commit edildi.
 - Kullanıcı yapacak: IDE'de Build (Shift+F9) + elle kontrol — stok kartında grup/birim boş kaydet, personelde cinsiyet

@@ -94,4 +94,11 @@ INSERT INTO pur_invoice (invoice_no, acc_account_id, gross_amount, net_amount, t
 INSERT INTO pur_invoice_detail (pur_invoice_id, line_no, stk_inventory_id, quantity, unit_price, gross_amount, net_amount, total_amount, pur_receipt_detail_id)
 SELECT (SELECT max(id) FROM pur_invoice), 1, stk_inventory_id, 5, 3, 15, 15, 15, id FROM pur_receipt_detail;
 
+-- firma banka hesabı (çek + çıktı) ve verilen çeke bağlantısı
+INSERT INTO fin_company_bank_account (acc_bank_id, branch_code, branch_name, sys_city_id, account_no, iban, account_holder, show_on_cheque, show_on_print)
+SELECT min(id), '1234', 'UI MERKEZ', (SELECT min(id) FROM sys_city), '6297711', 'TR330006100519786457841326', 'UI LTD', true, true FROM acc_bank;
+UPDATE fin_cheque_note SET fin_company_bank_account_id = (SELECT max(id) FROM fin_company_bank_account),
+       acc_bank_id = (SELECT acc_bank_id FROM fin_company_bank_account ORDER BY id DESC LIMIT 1)
+ WHERE serial_no = 'UI-K1';
+
 COMMIT;

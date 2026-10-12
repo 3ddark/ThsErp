@@ -140,6 +140,7 @@ begin
   Table.BankName := FieldText('bank_name');
   Table.BranchName := FieldText('branch_name');
   Table.CurrentHolder := FieldText('current_holder');
+  Table.CompanyBankIban := FieldText('company_bank_iban');
 end;
 
 procedure TfrmFinChequeNotes.DefineColumnWidths;
@@ -151,6 +152,7 @@ begin
   SetColumnProperty('acc_account_id', 0);
   SetColumnProperty('acc_bank_id', 0);
   SetColumnProperty('acc_bank_branch_id', 0);
+  SetColumnProperty('fin_company_bank_account_id', 0);
   LField := Grd.DataSource.DataSet.FindField('doc_kind');
   if Assigned(LField) then
     LField.OnGetText := DocKindGetText;
@@ -195,6 +197,7 @@ begin
   SetColumnTitle('bank_name', TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColBankName, 'Bank'));
   SetColumnTitle('branch_name', TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColBranchName, 'Bank Branch'));
   SetColumnTitle('current_holder', TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColCurrentHolder, 'Current Holder'));
+  SetColumnTitle('company_bank_iban', TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColCompanyBankIban, 'Company IBAN'));
   SetColumnTitle('days_to_due', TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColDaysToDue, 'Days to Due'));
   SetColumnTitle('status_date', TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColStatusDate, 'Status Date'));
   if Assigned(FmniTransactions) then

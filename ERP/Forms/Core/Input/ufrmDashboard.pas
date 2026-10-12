@@ -89,6 +89,8 @@ uses
   ufrmPurReceiptDetails, PurReceiptDetail.Service, PurReceiptDetail,
   ufrmPurInvoices, PurInvoice.Service, PurInvoice,
   ufrmPurInvoiceDetails, PurInvoiceDetail.Service, PurInvoiceDetail,
+  ufrmFinCompanyBankAccounts, FinCompanyBankAccount.Service, FinCompanyBankAccount,
+  ufrmAccAccountTransactions, AccAccountTransaction.Service, AccAccountTransaction,
   LocalizationManager;
 
 type
@@ -204,6 +206,11 @@ type
     mniprd_labour: TMenuItem;
     mniprd_packet_raw: TMenuItem;
     mniprd_packet_labour: TMenuItem;
+    actacc_account_transactions: TAction;
+    mniacc_account_transactions: TMenuItem;
+    actfin_company_bank_accounts: TAction;
+    mnifin_sep5: TMenuItem;
+    mnifin_company_bank_accounts: TMenuItem;
     actpur_requests: TAction;
     actpur_request_lines: TAction;
     actpur_orders: TAction;
@@ -406,6 +413,8 @@ type
     procedure actprd_labourExecute(Sender: TObject);
     procedure actprd_packet_rawExecute(Sender: TObject);
     procedure actprd_packet_labourExecute(Sender: TObject);
+    procedure actacc_account_transactionsExecute(Sender: TObject);
+    procedure actfin_company_bank_accountsExecute(Sender: TObject);
     procedure actpur_requestsExecute(Sender: TObject);
     procedure actpur_request_linesExecute(Sender: TObject);
     procedure actpur_ordersExecute(Sender: TObject);
@@ -800,6 +809,16 @@ end;
 procedure TfrmDashboard.actprd_packet_labourExecute(Sender: TObject);
 begin
   TfrmPrdPacketLabours.Create(Self, TPrdPacketLabourService.Create, TPrdPacketLabour.Create).Show;
+end;
+
+procedure TfrmDashboard.actacc_account_transactionsExecute(Sender: TObject);
+begin
+  TfrmAccAccountTransactions.Create(Self, TAccAccountTransactionService.Create, TAccAccountTransaction.Create).Show;
+end;
+
+procedure TfrmDashboard.actfin_company_bank_accountsExecute(Sender: TObject);
+begin
+  TfrmFinCompanyBankAccounts.Create(Self, TFinCompanyBankAccountService.Create, TFinCompanyBankAccount.Create).Show;
 end;
 
 procedure TfrmDashboard.actpur_requestsExecute(Sender: TObject);
@@ -1607,6 +1626,10 @@ begin
     actprd_packet_raw.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRaw.TitlePlural, 'Raw Material Packets');
   if Assigned(actprd_packet_labour) then
     actprd_packet_labour.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketLabour.TitlePlural, 'Labour Packets');
+  if Assigned(actacc_account_transactions) then
+    actacc_account_transactions.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccountTransaction.TitlePlural, 'Account Transactions');
+  if Assigned(actfin_company_bank_accounts) then
+    actfin_company_bank_accounts.Caption := TLocalizationManager.Translate(TLangKeys.TFinCompanyBankAccount.TitlePlural, 'Company Bank Accounts');
   if Assigned(actpur_requests) then
     actpur_requests.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequest.TitlePlural, 'Purchase Requests');
   if Assigned(actpur_request_lines) then
@@ -1925,6 +1948,8 @@ begin
   SetAction(actprd_labour, PERMISSION_PRD_LABOUR);
   SetAction(actprd_packet_raw, PERMISSION_PRD_PACKET_RAW);
   SetAction(actprd_packet_labour, PERMISSION_PRD_PACKET_LABOUR);
+  SetAction(actacc_account_transactions, PERMISSION_ACC_ACCOUNT_TRANSACTION);
+  SetAction(actfin_company_bank_accounts, PERMISSION_FIN_COMPANY_BANK_ACCOUNT);
   SetAction(actpur_requests, PERMISSION_PUR_REQUEST);
   SetAction(actpur_request_lines, PERMISSION_PUR_REQUEST);
   SetAction(actpur_orders, PERMISSION_PUR_ORDER);

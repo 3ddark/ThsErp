@@ -49,6 +49,8 @@ type
     edtBankAccountNo: TEdit;
     lblGuarantorName: TLabel;
     edtGuarantorName: TEdit;
+    lblFinCompanyBankAccountId: TLabel;
+    edtFinCompanyBankAccountId: TEdit;
     lblNotes: TLabel;
     mmoNotes: TMemo;
     procedure BtnAcceptClick(Sender: TObject); override;
@@ -69,7 +71,8 @@ uses
   SysCurrency, SysCurrency.Service, ufrmSysCurrencies,
   AccAccount, AccAccount.Service, ufrmAccAccounts,
   AccBank, AccBank.Service, ufrmAccBanks,
-  AccBankBranch, AccBankBranch.Service, ufrmAccBankBranches;
+  AccBankBranch, AccBankBranch.Service, ufrmAccBankBranches,
+  FinCompanyBankAccount, FinCompanyBankAccount.Service, ufrmFinCompanyBankAccounts;
 
 procedure TfrmFinChequeNote.BtnAcceptClick(Sender: TObject);
 begin
@@ -112,6 +115,7 @@ begin
   edtAccBankBranchId.OnHelperProcess := HelperProcess;
   edtBankAccountNo.thsInputDataType := itString;
   edtGuarantorName.thsInputDataType := itString;
+  edtFinCompanyBankAccountId.OnHelperProcess := HelperProcess;
 end;
 
 procedure TfrmFinChequeNote.FormShow(Sender: TObject);
@@ -150,6 +154,7 @@ begin
   lblAccBankBranchId.Caption := TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColAccBankBranchId, 'Bank Branch');
   lblBankAccountNo.Caption := TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColBankAccountNo, 'Bank Account No');
   lblGuarantorName.Caption := TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColGuarantorName, 'Guarantor');
+  lblFinCompanyBankAccountId.Caption := TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColFinCompanyBankAccountId, 'Company Bank Account');
   lblNotes.Caption := TLocalizationManager.Translate(TLangKeys.TFinChequeNote.ColNotes, 'Notes');
 end;
 
@@ -160,6 +165,7 @@ var
   LFrmAccAccountId: TfrmAccAccounts;
   LFrmAccBankId: TfrmAccBanks;
   LFrmAccBankBranchId: TfrmAccBankBranches;
+  LFrmFinCompanyBankAccountId: TfrmFinCompanyBankAccounts;
 begin
   if not (Sender is TEdit) then
     Exit;
@@ -267,6 +273,42 @@ begin
     finally
       LFrmAccBankBranchId.Free;
     end;
+  end
+  else if LEdit.Name = edtFinCompanyBankAccountId.Name then
+  begin
+    LFrmFinCompanyBankAccountId := TfrmFinCompanyBankAccounts.Create(LEdit, TFinCompanyBankAccountService.Create, TFinCompanyBankAccount.Create);
+    try
+      LFrmFinCompanyBankAccountId.IsHelper := True;
+      LFrmFinCompanyBankAccountId.ShowModal;
+      if LFrmFinCompanyBankAccountId.DataTransfer then
+        if LFrmFinCompanyBankAccountId.CleanAndClose then
+        begin
+          Table.FinCompanyBankAccountId := 0;
+          Table.CompanyBankIban := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.FinCompanyBankAccountId := LFrmFinCompanyBankAccountId.Table.Id;
+          Table.CompanyBankIban := LFrmFinCompanyBankAccountId.Table.Iban;
+          LEdit.Text := Table.CompanyBankIban;
+        end;
+      // Firma hesabı seçilince banka / hesap no / para birimi hesaptan gelir (kendi çek / senedimiz)
+      if LFrmFinCompanyBankAccountId.DataTransfer and not LFrmFinCompanyBankAccountId.CleanAndClose then
+      begin
+        Table.AccBankId := LFrmFinCompanyBankAccountId.Table.AccBankId;
+        Table.BankName := LFrmFinCompanyBankAccountId.Table.BankName;
+        edtAccBankId.Text := Table.BankName;
+        Table.AccBankBranchId := 0;
+        Table.BranchName := '';
+        edtAccBankBranchId.Clear;
+        edtBankAccountNo.Text := LFrmFinCompanyBankAccountId.Table.AccountNo;
+        Table.Currency := LFrmFinCompanyBankAccountId.Table.Currency;
+        edtCurrency.Text := Table.Currency;
+      end;
+    finally
+      LFrmFinCompanyBankAccountId.Free;
+    end;
   end;
 end;
 
@@ -296,6 +338,7 @@ begin
   edtAccBankBranchId.Text := Table.BranchName;
   edtBankAccountNo.Text := Table.BankAccountNo;
   edtGuarantorName.Text := Table.GuarantorName;
+  edtFinCompanyBankAccountId.Text := Table.CompanyBankIban;
   mmoNotes.Text := Table.Notes;
 end;
 

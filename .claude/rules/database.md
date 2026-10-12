@@ -70,6 +70,17 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   is written by `TPurReceiptDetailRepository.UpsertStockTransaction`; the stock transaction service refuses to update / delete
   such rows. Purchase quantities are service-maintained: `pur_request_detail.ordered_quantity` (non-cancelled order lines),
   `pur_order_detail.received_quantity` (receipt lines); header totals = sum of line amounts; order / request status 3-4 automatic.
+- Company bank accounts (`fin_company_bank_account`): flags `show_on_cheque` / `show_on_note` / `show_on_print`; printouts read
+  `vw_fin_company_bank_account.print_text` via `TFinCompanyBankAccountService.GetPrintLines(FIN_BANK_USAGE_*)`. Own (given)
+  cheques / notes may reference one (`fin_cheque_note.fin_company_bank_account_id`, CHECK direction = 2); bank, account no and
+  currency then come from the account.
+- When a list was already opened in the app, `sys_grid_column` / `sys_user_grid_column` hold its columns: new view columns
+  must get rows there too, otherwise they are not fetched (e.g. the FK is lost on review → update).
+- Account (cari) transactions are derived, never stored: `vw_acc_account_transaction` unions the money transactions,
+  cheque / note transactions (opening, endorsement, bounce, return), POS, company card spending and purchase invoices with
+  `source_type` (`ACC_TX_SRC_*` in `AccLookup`), `source_id` and `document_id` (the record "Show Details" opens).
+  A new financial source document must be added there, to `TAccLookup` (alkTxSource) and to
+  `TfrmAccAccountTransactions.OpenSourceDocument` (opens the source form via its service → read permission enforced).
 - Read-only list entities may have no table (`FinMoneyLedger` → `vw_fin_money_ledger` only, window function: no `FOR UPDATE`;
   its repository ignores `ALock`).
 

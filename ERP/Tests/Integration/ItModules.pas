@@ -23,11 +23,12 @@ uses
   FinCreditCard, FinCreditCard.Service, FinCreditCardTransaction, FinCreditCardTransaction.Service,
   FinPosTerminal, FinPosTerminal.Service, FinPosTransaction, FinPosTransaction.Service,
   FinMoneyAccount, FinMoneyAccount.Service, FinMoneyTransaction, FinMoneyTransaction.Service,
-  FinMoneyLedger, FinMoneyLedger.Service,
+  FinMoneyLedger, FinMoneyLedger.Service, FinCompanyBankAccount, FinCompanyBankAccount.Service,
   PurLookup, PurRequest, PurRequest.Service, PurRequestDetail, PurRequestDetail.Service,
   PurOrder, PurOrder.Service, PurOrderDetail, PurOrderDetail.Service,
   PurReceipt, PurReceipt.Service, PurReceiptDetail, PurReceiptDetail.Service,
-  PurInvoice, PurInvoice.Service, PurInvoiceDetail, PurInvoiceDetail.Service;
+  PurInvoice, PurInvoice.Service, PurInvoiceDetail, PurInvoiceDetail.Service,
+  AccLookup, AccAccountTransaction, AccAccountTransaction.Service;
 
 var
   GMod, GEnt: string;
@@ -1702,6 +1703,148 @@ begin
   end;
 end;
 
+function NewCompanyBank(ASvc: TFinCompanyBankAccountService; const AIban: string; ACheque, ANote: Boolean): TFinCompanyBankAccount;
+begin
+  Result := TFinCompanyBankAccount.Create;
+  Result.AccBankId := Scalar('SELECT min(id) FROM acc_bank');
+  Result.BranchCode := ' 1234 ';
+  Result.BranchName := 'IT Merkez';
+  Result.SysCityId := Scalar('SELECT min(id) FROM sys_city');
+  Result.AccountNo := '6297711';
+  Result.Iban := AIban;
+  Result.AccountHolder := 'IT LTD';
+  Result.ShowOnCheque := ACheque;
+  Result.ShowOnNote := ANote;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+procedure TestCompanyBankAccounts;
+var
+  CSvc: TFinCompanyBankAccountService;
+  NSvc: TFinChequeNoteService;
+  A: TFinCompanyBankAccount;
+  N: TFinChequeNote;
+  Lines: TArray<string>;
+  Acc: Int64;
+begin
+  Ctx('Finance', 'TFinCompanyBankAccount');
+  Acc := Scalar('SELECT min(id) FROM acc_account');
+  CSvc := TFinCompanyBankAccountService.Create;
+  NSvc := TFinChequeNoteService.Create;
+  A := nil;
+  try
+    try
+      Begin_;
+      A := NewCompanyBank(CSvc, 'tr33 0006 1005 1978 6457 8413 26', True, False);
+      Check('insert', A.Id > 0);
+      Check('iban normalized / branch upper', S(Scalar('SELECT iban || ''/'' || branch_code FROM fin_company_bank_account WHERE id = ' + A.Id.ToString)) =
+        'TR330006100519786457841326/1234');
+      Check('print text', Pos('IBAN: TR33 0006 1005 1978 6457 8413 26', S(Scalar('SELECT print_text FROM vw_fin_company_bank_account WHERE id = ' + A.Id.ToString))) > 0,
+        S(Scalar('SELECT print_text FROM vw_fin_company_bank_account WHERE id = ' + A.Id.ToString)));
+      Lines := CSvc.GetPrintLines(FIN_BANK_USAGE_CHEQUE);
+      Check('print lines (cheque)', Length(Lines) = Num(Scalar('SELECT count(*) FROM fin_company_bank_account WHERE is_active AND show_on_cheque')));
+      Lines := CSvc.GetPrintLines(FIN_BANK_USAGE_NOTE);
+      Check('print lines (note) excludes', Length(Lines) = Num(Scalar('SELECT count(*) FROM fin_company_bank_account WHERE is_active AND show_on_note')));
+
+      // kendi çekimiz: banka / hesap no / para birimi firma hesabından
+      N := TFinChequeNote.Create;
+      try
+        N.DocKind := FIN_DOC_CHEQUE; N.Direction := FIN_DIR_GIVEN; N.SerialNo := 'IT-CB1';
+        N.IssueDate := Date; N.DueDate := Date + 30; N.Amount := 100; N.AccAccountId := Acc;
+        N.FinCompanyBankAccountId := A.Id;
+        NSvc.BusinessInsert(N, False, False, True);
+        Check('own cheque from company account', S(Scalar('SELECT acc_bank_id || ''/'' || bank_account_no || ''/'' || currency FROM fin_cheque_note WHERE id = ' + N.Id.ToString)) =
+          S(Scalar('SELECT acc_bank_id || ''/'' || account_no || ''/'' || currency FROM fin_company_bank_account WHERE id = ' + A.Id.ToString)));
+        Check('view company iban', S(Scalar('SELECT company_bank_iban FROM vw_fin_cheque_note WHERE id = ' + N.Id.ToString)) = 'TR330006100519786457841326');
+      finally
+        N.Free;
+      end;
+
+      // alınan çekte firma hesabı tutulmaz
+      N := TFinChequeNote.Create;
+      try
+        N.DocKind := FIN_DOC_CHEQUE; N.Direction := FIN_DIR_RECEIVED; N.SerialNo := 'IT-CB2';
+        N.IssueDate := Date; N.DueDate := Date + 30; N.Amount := 100; N.AccAccountId := Acc;
+        N.AccBankId := Scalar('SELECT min(id) FROM acc_bank');
+        N.FinCompanyBankAccountId := A.Id;
+        NSvc.BusinessInsert(N, False, False, True);
+        Check('received cheque clears company account', S(Scalar('SELECT fin_company_bank_account_id FROM fin_cheque_note WHERE id = ' + N.Id.ToString)) = '<null>');
+      finally
+        N.Free;
+      end;
+      End_;
+
+      Begin_;
+      Expect('invalid iban', procedure
+        begin
+          NewCompanyBank(CSvc, 'TR330006100519786457841327', True, True).Free;
+        end);
+      Begin_;
+      Expect('duplicate iban', procedure
+        begin
+          NewCompanyBank(CSvc, 'TR330006100519786457841326', True, True).Free;
+          NewCompanyBank(CSvc, 'TR33 0006 1005 1978 6457 8413 26', True, True).Free;
+        end);
+      Begin_;
+      Expect('sort order 1000', procedure
+        var X: TFinCompanyBankAccount;
+        begin
+          X := TFinCompanyBankAccount.Create;
+          try
+            X.AccBankId := Scalar('SELECT min(id) FROM acc_bank'); X.Iban := 'TR330006100519786457841326'; X.SortOrder := 1000;
+            CSvc.BusinessInsert(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('account not enabled for notes', procedure
+        var X: TFinCompanyBankAccount; Y: TFinChequeNote;
+        begin
+          X := NewCompanyBank(CSvc, 'TR330006100519786457841326', True, False);
+          Y := TFinChequeNote.Create;
+          try
+            Y.DocKind := FIN_DOC_NOTE; Y.Direction := FIN_DIR_GIVEN; Y.SerialNo := 'IT-CB3';
+            Y.IssueDate := Date; Y.DueDate := Date; Y.Amount := 10; Y.AccAccountId := Acc; Y.FinCompanyBankAccountId := X.Id;
+            NSvc.BusinessInsert(Y, False, False, True);
+          finally X.Free; Y.Free; end;
+        end);
+      Begin_;
+      Expect('currency mismatch', procedure
+        var X: TFinCompanyBankAccount; Y: TFinChequeNote;
+        begin
+          X := NewCompanyBank(CSvc, 'TR330006100519786457841326', True, False);
+          Y := TFinChequeNote.Create;
+          try
+            Y.DocKind := FIN_DOC_CHEQUE; Y.Direction := FIN_DIR_GIVEN; Y.SerialNo := 'IT-CB4';
+            Y.IssueDate := Date; Y.DueDate := Date; Y.Amount := 10; Y.AccAccountId := Acc; Y.FinCompanyBankAccountId := X.Id;
+            Y.Currency := Scalar('SELECT currency FROM sys_currency WHERE currency <> fn_default_currency() ORDER BY id LIMIT 1');
+            NSvc.BusinessInsert(Y, False, False, True);
+          finally X.Free; Y.Free; end;
+        end);
+      Begin_;
+      Expect('delete used account', procedure
+        var X: TFinCompanyBankAccount; Y: TFinChequeNote;
+        begin
+          X := NewCompanyBank(CSvc, 'TR330006100519786457841326', True, False);
+          Y := TFinChequeNote.Create;
+          try
+            Y.DocKind := FIN_DOC_CHEQUE; Y.Direction := FIN_DIR_GIVEN; Y.SerialNo := 'IT-CB5';
+            Y.IssueDate := Date; Y.DueDate := Date; Y.Amount := 10; Y.AccAccountId := Acc; Y.FinCompanyBankAccountId := X.Id;
+            NSvc.BusinessInsert(Y, False, False, True);
+            CSvc.BusinessDelete(X, False, False, True);
+          finally X.Free; Y.Free; end;
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    A.Free;
+    NSvc.Free;
+    CSvc.Free;
+  end;
+end;
+
 { ---------------------------------------------------------------- Purchasing }
 
 function NewRequest(ASvc: TPurRequestService): TPurRequest;
@@ -2110,6 +2253,162 @@ begin
   end;
 end;
 
+procedure TestAccountTransactions;
+var
+  TxSvc: TAccAccountTransactionService;
+  FSvc: TPurInvoiceService;
+  FDSvc: TPurInvoiceDetailService;
+  MSvc: TFinMoneyTransactionService;
+  ASvc: TFinMoneyAccountService;
+  NSvc: TFinChequeNoteService;
+  F: TPurInvoice;
+  FD: TPurInvoiceDetail;
+  M: TFinMoneyTransaction;
+  B: TFinMoneyAccount;
+  N: TFinChequeNote;
+  Filter: TFilterCriteria;
+  Lst: TList<TAccAccountTransaction>;
+  Row: TAccAccountTransaction;
+  Acc: Int64;
+  Opened: Integer;
+  Obj: TObject;
+  URepo: TSysUserRepository;
+begin
+  Ctx('Account', 'TAccAccountTransaction');
+  Acc := Scalar('SELECT max(id) FROM acc_account');
+  TxSvc := TAccAccountTransactionService.Create;
+  FSvc := TPurInvoiceService.Create;
+  FDSvc := TPurInvoiceDetailService.Create;
+  MSvc := TFinMoneyTransactionService.Create;
+  ASvc := TFinMoneyAccountService.Create;
+  NSvc := TFinChequeNoteService.Create;
+  try
+    try
+      Begin_;
+      // alış faturası 1000 (alacak), banka ödemesi 400 (borç), verilen çek 250 (borç)
+      F := TPurInvoice.Create;
+      FD := TPurInvoiceDetail.Create;
+      try
+        F.InvoiceNo := 'IT-ATX-1'; F.AccAccountId := Acc;
+        FSvc.BusinessInsert(F, False, False, True);
+        FD.PurInvoiceId := F.Id; FD.StkInventoryId := Scalar('SELECT min(id) FROM stk_inventory'); FD.Quantity := 10; FD.UnitPrice := 100;
+        FDSvc.BusinessInsert(FD, False, False, True);
+      finally
+        FD.Free;
+      end;
+      B := TFinMoneyAccount.Create;
+      M := TFinMoneyTransaction.Create;
+      N := TFinChequeNote.Create;
+      try
+        B.AccountKind := FIN_MONEY_BANK; B.Code := 'IT-ATX'; B.Name := 'IT ATX'; B.AccBankId := Scalar('SELECT min(id) FROM acc_bank');
+        ASvc.BusinessInsert(B, False, False, True);
+        M.FinMoneyAccountId := B.Id; M.TransactionType := FIN_MONEY_TX_PAYMENT; M.AccAccountId := Acc; M.Amount := 400;
+        M.TransferMethod := FIN_METHOD_EFT; M.DocumentNo := 'IT-EFT-1';
+        MSvc.BusinessInsert(M, False, False, True);
+        N.DocKind := FIN_DOC_CHEQUE; N.Direction := FIN_DIR_GIVEN; N.SerialNo := 'IT-ATX-C'; N.IssueDate := Date; N.DueDate := Date + 10;
+        N.Amount := 250; N.AccAccountId := Acc; N.AccBankId := Scalar('SELECT min(id) FROM acc_bank');
+        NSvc.BusinessInsert(N, False, False, True);
+
+        Check('invoice -> credit', Near(Num(Scalar('SELECT credit FROM vw_acc_account_transaction WHERE source_type = 5 AND document_id = ' + F.Id.ToString)), 1000));
+        Check('payment -> debit', Near(Num(Scalar('SELECT debit FROM vw_acc_account_transaction WHERE source_type = 1 AND document_id = ' + M.Id.ToString)), 400));
+        Check('given cheque -> debit', Near(Num(Scalar('SELECT debit FROM vw_acc_account_transaction WHERE source_type = 2 AND document_id = ' + N.Id.ToString)), 250));
+        Check('unique ids', Num(Scalar('SELECT count(*) - count(DISTINCT id) FROM vw_acc_account_transaction')) = 0);
+
+        // servisten (yetki kontrollü) cari filtresiyle okuma + her satırın kaynağı kendi servisinden açılabilir
+        Filter := TFilterCriteria.Create;
+        try
+          Filter.Add(TFilterCriterion.New('acc_account_id', '=', TValue.From<Int64>(Acc)));
+          Lst := TxSvc.BusinessFind(Filter, False, False, True);
+          try
+            Check('list by account', Lst.Count >= 3, IntToStr(Lst.Count));
+            Opened := 0;
+            for Row in Lst do
+            begin
+              Obj := nil;
+              case Row.SourceType of
+                ACC_TX_SRC_MONEY: Obj := MSvc.BusinessFindById(Row.DocumentId, False, False, True);
+                ACC_TX_SRC_CHEQUE_NOTE: Obj := NSvc.BusinessFindById(Row.DocumentId, False, False, True);
+                ACC_TX_SRC_PUR_INVOICE: Obj := FSvc.BusinessFindById(Row.DocumentId, False, False, True);
+              else
+                Inc(Opened);  // POS / kredi kartı: bu testte üretilmedi
+                Continue;
+              end;
+              if Assigned(Obj) then
+                Inc(Opened);
+              Obj.Free;
+            end;
+            Check('every source document resolvable', Opened = Lst.Count, Format('%d / %d', [Opened, Lst.Count]));
+          finally
+            Lst.Free;
+          end;
+        finally
+          Filter.Free;
+        end;
+        Check('running balance', Near(Num(Scalar('SELECT balance FROM vw_acc_account_transaction WHERE acc_account_id = ' + Acc.ToString +
+          ' AND currency = fn_default_currency() ORDER BY transaction_date DESC, id DESC LIMIT 1')),
+          Num(Scalar('SELECT sum(debit - credit) FROM vw_acc_account_transaction WHERE acc_account_id = ' + Acc.ToString + ' AND currency = fn_default_currency()'))));
+      finally
+        B.Free; M.Free; N.Free; F.Free;
+      end;
+      End_;
+
+      // yetki: TEST kullanıcısı (id 4) alış faturasını okuyamaz (deny), para hareketini okuyabilir (is_read)
+      Begin_;
+      F := TPurInvoice.Create;
+      M := TFinMoneyTransaction.Create;
+      B := TFinMoneyAccount.Create;
+      URepo := TSysUserRepository.Create(UoW.Connection);
+      try
+        F.InvoiceNo := 'IT-ATX-2'; F.AccAccountId := Acc;
+        FSvc.BusinessInsert(F, False, False, True);
+        B.AccountKind := FIN_MONEY_CASH; B.Code := 'IT-ATX-K'; B.Name := 'IT ATX K';
+        ASvc.BusinessInsert(B, False, False, True);
+        M.FinMoneyAccountId := B.Id; M.TransactionType := FIN_MONEY_TX_COLLECTION; M.AccAccountId := Acc; M.Amount := 10;
+        MSvc.BusinessInsert(M, False, False, True);
+        UoW.Connection.ExecSQL('UPDATE sys_access_right a SET deny_read = true, is_read = false FROM sys_permission p ' +
+          'WHERE p.id = a.sys_permission_id AND a.sys_user_id = 4 AND p.permission_code = 1083');
+        UoW.Connection.ExecSQL('UPDATE sys_access_right a SET is_read = true, deny_read = false FROM sys_permission p ' +
+          'WHERE p.id = a.sys_permission_id AND a.sys_user_id = 4 AND p.permission_code IN (1038, 1074)');
+        TAppContext.Instance.CurrentUser.User := URepo.FindById(TValue.From<Int64>(4), False);
+        try
+          try
+            FSvc.BusinessFindById(F.Id, False, False, True).Free;
+            Check('source without read right is refused', False, 'opened');
+          except
+            on E: Exception do Check('source without read right is refused', True, E.ClassName + ': ' + E.Message);
+          end;
+          try
+            Obj := MSvc.BusinessFindById(M.Id, False, False, True);
+            Check('source with read right opens', Assigned(Obj));
+            Obj.Free;
+          except
+            on E: Exception do Check('source with read right opens', False, E.Message);
+          end;
+        finally
+          TAppContext.Instance.CurrentUser.User := URepo.FindById(TValue.From<Int64>(1), False);
+        end;
+      finally
+        URepo.Free; F.Free; M.Free; B.Free;
+      end;
+      End_;
+
+      Begin_;
+      Expect('read-only', procedure
+        var X: TAccAccountTransaction;
+        begin
+          X := TAccAccountTransaction.Create;
+          try TxSvc.BusinessInsert(X, False, False, True); finally X.Free; end;
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    NSvc.Free; ASvc.Free; MSvc.Free; FDSvc.Free; FSvc.Free; TxSvc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -2127,6 +2426,8 @@ begin
   TestFinancePos;
   TestFinanceMoney;
   TestPurchasing;
+  TestCompanyBankAccounts;
+  TestAccountTransactions;
 end;
 
 end.

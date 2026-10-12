@@ -27,6 +27,7 @@ type
     FAccBankBranchId: Int64;
     FBankAccountNo: string;
     FGuarantorName: string;
+    FFinCompanyBankAccountId: Int64;
     FStatus: SmallInt;
     FNotes: string;
 
@@ -36,6 +37,7 @@ type
     FBankName: string;
     FBranchName: string;
     FCurrentHolder: string;
+    FCompanyBankIban: string;
   public
     [Column('doc_kind')]
     [Required()]
@@ -98,6 +100,9 @@ type
     [MaxLength(128)]
     property GuarantorName: string read FGuarantorName write FGuarantorName;
 
+    [Column('fin_company_bank_account_id')]
+    property FinCompanyBankAccountId: Int64 read FFinCompanyBankAccountId write FFinCompanyBankAccountId;
+
     [Column('status')]
     property Status: SmallInt read FStatus write FStatus;
 
@@ -119,6 +124,9 @@ type
 
     [NotMapped]
     property CurrentHolder: string read FCurrentHolder write FCurrentHolder;
+
+    [NotMapped]
+    property CompanyBankIban: string read FCompanyBankIban write FCompanyBankIban;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -160,6 +168,7 @@ begin
   Result.AccBankBranchId := Self.AccBankBranchId;
   Result.BankAccountNo := Self.BankAccountNo;
   Result.GuarantorName := Self.GuarantorName;
+  Result.FinCompanyBankAccountId := Self.FinCompanyBankAccountId;
   Result.Status := Self.Status;
   Result.Notes := Self.Notes;
   Result.AccountCode := Self.AccountCode;
@@ -167,6 +176,7 @@ begin
   Result.BankName := Self.BankName;
   Result.BranchName := Self.BranchName;
   Result.CurrentHolder := Self.CurrentHolder;
+  Result.CompanyBankIban := Self.CompanyBankIban;
 end;
 
 end.
