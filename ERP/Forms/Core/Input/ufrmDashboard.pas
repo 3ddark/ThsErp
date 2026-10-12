@@ -16,6 +16,7 @@ uses
 
   ConnectionManager, Logger, MetaProvider, SharedFormTypes, FilterCriterion,
   AppContext, UserContext, UnitOfWork,
+  SysDashboard, SysDashboard.Service,
   ufrmSysCities, SysCity.Service, SysCity,
   ufrmSysCountries, SysCountry.Service, SysCountry,
   ufrmSysCurrencies, SysCurrency.Service, SysCurrency,
@@ -95,13 +96,6 @@ uses
 
 type
   TfrmDashboard = class(TfrmBase)
-    PageControl1: TPageControl;
-    tsgeneral: TTabSheet;
-    tssales: TTabSheet;
-    tsstock: TTabSheet;
-    tsaccount: TTabSheet;
-    tsemployee: TTabSheet;
-    btnch_hesap_karti: TButton;
     actlstMain: TActionList;
     actsys_permission_group: TAction;
     actsys_permission: TAction;
@@ -124,33 +118,8 @@ type
     actacc_exchange_rate: TAction;
     actsys_currency: TAction;
     actsys_unit: TAction;
-    btnch_hesap_karti_ara: TButton;
     actsys_region: TAction;
-    btnch_banka: TButton;
-    btnch_banka_subesi: TButton;
-    btnset_ch_grup: TButton;
-    btnset_ch_hesap_plani: TButton;
-    btnset_ch_vergi_orani: TButton;
-    btnch_bolge: TButton;
-    btnstk_stok_karti: TButton;
-    btnstk_cins_ozelligi: TButton;
-    btnstk_stok_ambar: TButton;
-    btnstk_stok_grubu: TButton;
-    btnsat_teklif: TButton;
-    btnsat_siparis: TButton;
-    btnsat_teklif_rapor: TButton;
-    btnsat_siparis_rapor: TButton;
-    btnprs_personel: TButton;
-    tsbom: TTabSheet;
-    btnrct_recete: TButton;
-    btnrct_iscilik_gideri: TButton;
-    btnrct_paket_hammadde: TButton;
-    btnrct_paket_iscilik: TButton;
-    tsaccounting: TTabSheet;
-    btnAccDovizKuru: TButton;
     actsys_unit_type: TAction;
-    btnsys_olcu_birimleri: TButton;
-    btnsys_para_birimleri: TButton;
     actsys_do_database_backup: TAction;
     mm1: TMainMenu;
     mnimenu_about: TMenuItem;
@@ -315,7 +284,6 @@ type
     actacc_transfer_code: TAction;
     actset_prs_tasima_servisleri: TAction;
     mniset_prs_shuttle_services: TMenuItem;
-    btnTest: TButton;
     mniN1: TMenuItem;
     mnisys_language: TMenuItem;
     actsys_language: TAction;
@@ -450,7 +418,6 @@ type
     procedure actch_banka_subeleriExecute(Sender: TObject);
     procedure actacc_transfer_codeExecute(Sender: TObject);
     procedure actset_prs_tasima_servisleriExecute(Sender: TObject);
-    procedure btnTestClick(Sender: TObject);
     procedure actsys_decimal_placeExecute(Sender: TObject);
     procedure actsys_permission_templateExecute(Sender: TObject);
     procedure actsys_permission_template_rightExecute(Sender: TObject);
@@ -458,6 +425,23 @@ type
   private
     FIsFormShow: Boolean;
     FF6Pressed: Boolean;
+    // ana ekran göstergeleri (çalışma anında oluşturulur)
+    FKpis: TArray<TDashboardKpi>;
+    FKpiLoadedAt: TDateTime;
+    FKpiScroll: TScrollBox;
+    FBtnKpiRefresh: TButton;
+    FLblKpiUpdated: TLabel;
+    FKpiTimer: TTimer;
+    procedure BuildKpiArea;
+    procedure LoadKpis;
+    procedure RenderKpis;
+    procedure CreateKpiCard(AParent: TWinControl; AIndex: Integer);
+    function KpiAction(const AKey: string): TAction;
+    procedure KpiCardClick(Sender: TObject);
+    procedure KpiRefreshClick(Sender: TObject);
+    procedure KpiTimerTimer(Sender: TObject);
+    procedure KpiScrollResize(Sender: TObject);
+    procedure LayoutKpiCards;
   published
     procedure btnCloseClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
@@ -482,15 +466,9 @@ uses
   ufrmAbout, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Constants, Ths.Globals;
 
 procedure TfrmDashboard.actsys_aboutExecute(Sender: TObject);
-var
-  LTs: TTabSheet;
 begin
-  LTs := PageControl1.ActivePage;
   TfrmAbout.Create(Application).ShowModal;
   RefreshUserPermissions(False);
-
-  if LTs.TabVisible then
-    PageControl1.ActivePage := LTs;
 end;
 
 procedure TfrmDashboard.actacc_exchange_rateExecute(Sender: TObject);
@@ -1165,11 +1143,6 @@ begin
     inherited;
 end;
 
-procedure TfrmDashboard.btnTestClick(Sender: TObject);
-begin
-//
-end;
-
 procedure TfrmDashboard.tmrcheck_is_update_requiredTimer(Sender: TObject);
 var
   LSurum: string;
@@ -1573,49 +1546,6 @@ begin
   {$ENDREGION}
 
 
-  // PageControl Tabs
-  if Assigned(tsgeneral) then
-    tsgeneral.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabGeneral, 'General');
-  if Assigned(tssales) then
-    tssales.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabSales, 'Sales');
-  if Assigned(tsstock) then
-    tsstock.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabStock, 'Stocks');
-  if Assigned(tsaccount) then
-    tsaccount.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabAccounts, 'Accounts');
-  if Assigned(tsemployee) then
-    tsemployee.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabEmployee, 'Employee');
-  if Assigned(tsbom) then
-    tsbom.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabRecipes, 'BoM');
-  if Assigned(tsaccounting) then
-    tsaccounting.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabAccounting, 'Accounting');
-
-
-  // Tab Buttons
-  if Assigned(btnsat_teklif) then
-    btnsat_teklif.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnOffers, 'Offers');
-  if Assigned(btnsat_siparis) then
-    btnsat_siparis.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnOrders, 'Orders');
-  if Assigned(btnsat_teklif_rapor) then
-    btnsat_teklif_rapor.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnOfferReports, 'Offer Reports');
-  if Assigned(btnsat_siparis_rapor) then
-    btnsat_siparis_rapor.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnOrderReports, 'Order Reports');
-  if Assigned(btnch_bolge) then
-    btnch_bolge.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnRegion, 'Region');
-  if Assigned(btnch_banka) then
-    btnch_banka.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnBanks, 'Banks');
-  if Assigned(btnch_banka_subesi) then
-    btnch_banka_subesi.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnBankBranches, 'Bank Branches');
-  if Assigned(btnset_ch_grup) then
-    btnset_ch_grup.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnAccountGroups, 'Account Groups');
-  if Assigned(btnset_ch_hesap_plani) then
-    btnset_ch_hesap_plani.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnAccountPlans, 'Account Plans');
-  if Assigned(btnch_hesap_karti_ara) then
-    btnch_hesap_karti_ara.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnSubAccount, 'Sub Account Cards');
-  if Assigned(btnch_hesap_karti) then
-    btnch_hesap_karti.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnAccountCard, 'Account Cards');
-  if Assigned(btnset_ch_vergi_orani) then
-    btnset_ch_vergi_orani.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnTaxRates, 'Vat Rates');
-  // Reçete sekmesi düğmeleri action'a bağlı: başlıklar action'lardan gelir
   if Assigned(mnimenu_production) then
     mnimenu_production.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuProduction, 'Production');
   if Assigned(actprd_bom) then
@@ -1686,6 +1616,9 @@ begin
     stbBase.Panels.Items[STATUS_KEY_F7].Text := 'F7 ' + TLocalizationManager.Translate(TLangKeys.TGeneral.AddRecord, 'Add Record');
   if stbBase.Panels.Count >= STATUS_KEY_F11+1 then
     stbBase.Panels.Items[STATUS_KEY_F11].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF11, 'F11 Opacity');
+
+  if Assigned(FKpiScroll) then
+    RenderKpis;
 end;
 
 procedure TfrmDashboard.FormCreate(Sender: TObject);
@@ -1761,16 +1694,6 @@ begin
   Self.Caption := getFormCaptionByLang(Self.Name, Self.Caption);
 
   mnimenu_system.Visible := True;
-  // Taşınmış modüllerin sekmeleri açık (düğmeler action'a bağlı, yetki ApplyActionPermissions ile);
-  // satış / genel henüz taşınmadı
-  tsemployee.TabVisible  := True;
-  tsaccount.TabVisible   := True;
-  tsstock.TabVisible     := True;
-  btnTest.Visible        := False;
-  tssales.TabVisible     := False;
-  tsgeneral.TabVisible   := False;
-
-  FocusedFirstControl(PageControl1.ActivePage);
 
   tmrcheck_is_update_required.Enabled := True;
   Caption := Caption + ' v' + APP_VERSION;
@@ -1980,6 +1903,8 @@ procedure TfrmDashboard.SetSession;
 begin
   ResetSession(pnlMain);
   ApplyActionPermissions;
+  // ana ekran göstergeleri: yalnız okuma yetkisi olan modüller (servis filtreler)
+  LoadKpis;
 (*  LRights := TSysErisimHakki.Create(GDataBase);
   try
     LRights.SelectToList(' AND ' + LRights.TableName + '.' + LRights.KullaniciID.FieldName + '=' + VarToStr(GSysKullanici.Id.Value), False, False);
@@ -2138,6 +2063,545 @@ begin
     FreeAndNil(LRights);
   end;
 *)
+end;
+
+{ ---------------------------------------------------------------- Ana ekran göstergeleri }
+
+const
+  KPI_CARD_WIDTH  = 240;
+  KPI_CARD_HEIGHT = 126;
+  KPI_SECTION_COUNT = 6;   // finans, satın alma, satış, stok, cari, genel
+  KPI_REFRESH_MS = 5 * 60 * 1000;
+
+function KpiSection(const AKey: string): Integer;
+begin
+  if MatchStr(AKey, [KPI_FX_RATES, KPI_CASH_BALANCE, KPI_BANK_BALANCE, KPI_MONEY_TODAY, KPI_CHEQUES_RECEIVABLE,
+    KPI_CHEQUES_PAYABLE, KPI_POS_MONTH, KPI_CARD_DEBT]) then
+    Result := 0
+  else if MatchStr(AKey, [KPI_PUR_REQUESTS, KPI_PUR_ORDERS_OPEN, KPI_PUR_ORDERS_MONTH, KPI_PUR_RECEIPTS_MONTH, KPI_PUR_INVOICES_MONTH]) then
+    Result := 1
+  else if MatchStr(AKey, [KPI_SLS_ORDERS_MONTH, KPI_SLS_OFFERS_MONTH]) then
+    Result := 2
+  else if MatchStr(AKey, [KPI_STOCK_CRITICAL, KPI_STOCK_TX_TODAY, KPI_STOCK_CARDS]) then
+    Result := 3
+  else if MatchStr(AKey, [KPI_ACC_RECEIVABLE, KPI_ACC_PAYABLE, KPI_ACCOUNTS]) then
+    Result := 4
+  else
+    Result := 5;
+end;
+
+function KpiSectionTitle(ASection: Integer): string;
+begin
+  case ASection of
+    0: Result := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiSecFinance, 'Finance');
+    1: Result := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiSecPurchasing, 'Purchasing');
+    2: Result := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiSecSales, 'Sales');
+    3: Result := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiSecStock, 'Stock');
+    4: Result := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiSecAccounts, 'Accounts');
+  else
+    Result := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiSecGeneral, 'General');
+  end;
+end;
+
+function KpiTitle(const AKey: string): string;
+type
+  TTitle = record Key, LangKey, Default: string; end;
+const
+  TITLES: array[0..22] of TTitle = (
+    (Key: KPI_FX_RATES; LangKey: TLangKeys.TDashboard.KpiFxRates; Default: 'Exchange Rates'),
+    (Key: KPI_CASH_BALANCE; LangKey: TLangKeys.TDashboard.KpiCashBalance; Default: 'Cash Balance'),
+    (Key: KPI_BANK_BALANCE; LangKey: TLangKeys.TDashboard.KpiBankBalance; Default: 'Bank Balance'),
+    (Key: KPI_MONEY_TODAY; LangKey: TLangKeys.TDashboard.KpiMoneyToday; Default: 'Today''s Receipts'),
+    (Key: KPI_CHEQUES_RECEIVABLE; LangKey: TLangKeys.TDashboard.KpiChequesReceivable; Default: 'Customer Cheques / Notes'),
+    (Key: KPI_CHEQUES_PAYABLE; LangKey: TLangKeys.TDashboard.KpiChequesPayable; Default: 'Own Cheques / Notes Due'),
+    (Key: KPI_POS_MONTH; LangKey: TLangKeys.TDashboard.KpiPosMonth; Default: 'POS Collections This Month'),
+    (Key: KPI_CARD_DEBT; LangKey: TLangKeys.TDashboard.KpiCardDebt; Default: 'Credit Card Debt'),
+    (Key: KPI_PUR_REQUESTS; LangKey: TLangKeys.TDashboard.KpiPurRequests; Default: 'Purchase Requests'),
+    (Key: KPI_PUR_ORDERS_OPEN; LangKey: TLangKeys.TDashboard.KpiPurOrdersOpen; Default: 'Open Purchase Orders'),
+    (Key: KPI_PUR_ORDERS_MONTH; LangKey: TLangKeys.TDashboard.KpiPurOrdersMonth; Default: 'Purchase Orders This Month'),
+    (Key: KPI_PUR_RECEIPTS_MONTH; LangKey: TLangKeys.TDashboard.KpiPurReceiptsMonth; Default: 'Goods Receipts This Month'),
+    (Key: KPI_PUR_INVOICES_MONTH; LangKey: TLangKeys.TDashboard.KpiPurInvoicesMonth; Default: 'Purchase Invoices This Month'),
+    (Key: KPI_SLS_ORDERS_MONTH; LangKey: TLangKeys.TDashboard.KpiSlsOrdersMonth; Default: 'Sales Orders This Month'),
+    (Key: KPI_SLS_OFFERS_MONTH; LangKey: TLangKeys.TDashboard.KpiSlsOffersMonth; Default: 'Sales Offers This Month'),
+    (Key: KPI_STOCK_CRITICAL; LangKey: TLangKeys.TDashboard.KpiStockCritical; Default: 'Below Minimum Stock'),
+    (Key: KPI_STOCK_TX_TODAY; LangKey: TLangKeys.TDashboard.KpiStockTx; Default: 'Stock Movements Today'),
+    (Key: KPI_STOCK_CARDS; LangKey: TLangKeys.TDashboard.KpiStockCards; Default: 'Stock Cards'),
+    (Key: KPI_ACC_RECEIVABLE; LangKey: TLangKeys.TDashboard.KpiAccReceivable; Default: 'Receivables'),
+    (Key: KPI_ACC_PAYABLE; LangKey: TLangKeys.TDashboard.KpiAccPayable; Default: 'Payables'),
+    (Key: KPI_ACCOUNTS; LangKey: TLangKeys.TDashboard.KpiAccounts; Default: 'Active Accounts'),
+    (Key: KPI_EMPLOYEES; LangKey: TLangKeys.TDashboard.KpiEmployees; Default: 'Active Employees'),
+    (Key: KPI_USERS; LangKey: TLangKeys.TDashboard.KpiUsers; Default: 'Active Users'));
+var
+  LItem: TTitle;
+begin
+  for LItem in TITLES do
+    if LItem.Key = AKey then
+      Exit(TLocalizationManager.Translate(LItem.LangKey, LItem.Default));
+  Result := AKey;
+end;
+
+function KpiFmt(const ALangKey, ADefault: string; const AArgs: array of const): string;
+begin
+  Result := Format(TLocalizationManager.Translate(ALangKey, ADefault), AArgs);
+end;
+
+// Para birimi bazında tutarlar: her biri ayrı satır (en çok AMax)
+function KpiAmounts(const AAmounts: TArray<TDashboardAmount>; const AFormat: string; AMax: Integer; const ASeparator: string): string;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := 0 to Min(Length(AAmounts), AMax) - 1 do
+  begin
+    if Result <> '' then
+      Result := Result + ASeparator;
+    Result := Result + FormatFloat(AFormat, AAmounts[I].Amount) + ' ' + AAmounts[I].Currency;
+  end;
+end;
+
+procedure KpiTexts(const K: TDashboardKpi; out AValue, ADetail: string);
+const
+  MONEY = '#,##0.00';
+  ZERO = '0,00';
+var
+  LAmounts: string;
+begin
+  LAmounts := KpiAmounts(K.Amounts, MONEY, 3, sLineBreak);
+  if LAmounts = '' then
+    LAmounts := ZERO;
+  AValue := '';
+  ADetail := '';
+  if K.Key = KPI_FX_RATES then
+  begin
+    if K.Count = 0 then
+      AValue := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiNoRecord, 'No records')
+    else
+    begin
+      // kurda para birimi başta: "USD 41,2904"
+      AValue := '';
+      for var I := 0 to Min(Length(K.Amounts), 3) - 1 do
+      begin
+        if AValue <> '' then
+          AValue := AValue + sLineBreak;
+        AValue := AValue + K.Amounts[I].Currency + '  ' + FormatFloat('#,##0.0000', K.Amounts[I].Amount);
+      end;
+      if K.Level = dlWarning then
+        ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtRateOld, 'Rates not updated today (%s)', [DateToStr(K.RefDate)])
+      else
+        ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtRateDate, 'Rate date: %s', [DateToStr(K.RefDate)]);
+    end;
+  end
+  else if MatchStr(K.Key, [KPI_CASH_BALANCE, KPI_BANK_BALANCE, KPI_ACC_RECEIVABLE, KPI_ACC_PAYABLE]) then
+  begin
+    AValue := LAmounts;
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtAccounts, '%d account(s)', [K.Count]);
+  end
+  else if K.Key = KPI_MONEY_TODAY then
+  begin
+    AValue := LAmounts;
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtMoneyToday, '%d transaction(s), %d collection(s)', [K.Count, K.Count2]);
+  end
+  else if MatchStr(K.Key, [KPI_CHEQUES_RECEIVABLE, KPI_CHEQUES_PAYABLE]) then
+  begin
+    AValue := LAmounts;
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtDocsDue, '%d document(s), %d due within 7 days', [K.Count, K.Count2]);
+  end
+  else if K.Key = KPI_POS_MONTH then
+  begin
+    AValue := LAmounts;
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtMonthTx, '%d transaction(s) this month', [K.Count]);
+  end
+  else if K.Key = KPI_CARD_DEBT then
+  begin
+    AValue := LAmounts;
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtCards, '%d card(s), %d near the limit', [K.Count, K.Count2]);
+  end
+  else if K.Key = KPI_PUR_REQUESTS then
+  begin
+    AValue := KpiFmt(TLangKeys.TDashboard.KpiFmtDrafts, '%d draft', [K.Count]);
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtRequests, '%d approved, waiting for an order', [K.Count2]);
+  end
+  else if K.Key = KPI_PUR_ORDERS_OPEN then
+  begin
+    AValue := LAmounts;
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtOrdersOpen, '%d order(s), %d late', [K.Count, K.Count2]);
+  end
+  else if K.Key = KPI_PUR_INVOICES_MONTH then
+  begin
+    AValue := LAmounts;
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtInvoicesDue, '%d invoice(s), %d due within 7 days', [K.Count, K.Count2]);
+  end
+  else if MatchStr(K.Key, [KPI_PUR_ORDERS_MONTH, KPI_SLS_ORDERS_MONTH, KPI_SLS_OFFERS_MONTH]) then
+  begin
+    AValue := KpiFmt(TLangKeys.TDashboard.KpiFmtCount, '%d', [K.Count]);
+    ADetail := KpiAmounts(K.Amounts, MONEY, 2, ' / ');
+  end
+  else if K.Key = KPI_PUR_RECEIPTS_MONTH then
+  begin
+    AValue := KpiFmt(TLangKeys.TDashboard.KpiFmtCount, '%d', [K.Count]);
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtToday, 'Today: %d', [K.Count2]);
+  end
+  else if K.Key = KPI_STOCK_CRITICAL then
+  begin
+    AValue := KpiFmt(TLangKeys.TDashboard.KpiFmtCount, '%d', [K.Count]);
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtNegative, '%d item(s) with negative stock', [K.Count2]);
+  end
+  else if K.Key = KPI_STOCK_TX_TODAY then
+  begin
+    AValue := KpiFmt(TLangKeys.TDashboard.KpiFmtCount, '%d', [K.Count]);
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtThisMonth, 'This month: %d', [K.Count2]);
+  end
+  else if K.Key = KPI_STOCK_CARDS then
+  begin
+    AValue := KpiFmt(TLangKeys.TDashboard.KpiFmtCount, '%d', [K.Count]);
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtSellable, '%d sellable', [K.Count2]);
+  end
+  else if K.Key = KPI_ACCOUNTS then
+  begin
+    AValue := KpiFmt(TLangKeys.TDashboard.KpiFmtCount, '%d', [K.Count]);
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtPassive, '%d passive', [K.Count2]);
+  end
+  else
+  begin
+    AValue := KpiFmt(TLangKeys.TDashboard.KpiFmtCount, '%d', [K.Count]);
+    ADetail := KpiFmt(TLangKeys.TDashboard.KpiFmtTotal, 'Total: %d', [K.Count2]);
+  end;
+end;
+
+function KpiLevelColor(ALevel: TDashboardLevel): TColor;
+begin
+  case ALevel of
+    dlInfo:    Result := $00D9A441;  // mavi
+    dlWarning: Result := $0000A5FF;  // turuncu
+    dlDanger:  Result := $003C3CE0;  // kırmızı
+  else
+    Result := $0088B04B;             // yeşil
+  end;
+end;
+
+// Kartın açacağı ekran (action); okuma yetkisi yoksa action zaten pasif
+function TfrmDashboard.KpiAction(const AKey: string): TAction;
+var
+  LName: string;
+begin
+  if AKey = KPI_FX_RATES then LName := 'actacc_exchange_rate'
+  else if MatchStr(AKey, [KPI_CASH_BALANCE, KPI_BANK_BALANCE]) then LName := 'actfin_money_accounts'
+  else if AKey = KPI_MONEY_TODAY then LName := 'actfin_money_transactions'
+  else if AKey = KPI_CHEQUES_RECEIVABLE then LName := 'actfin_cheque_notes'
+  else if AKey = KPI_CHEQUES_PAYABLE then LName := 'actfin_cheque_notes'
+  else if AKey = KPI_POS_MONTH then LName := 'actfin_pos_transactions'
+  else if AKey = KPI_CARD_DEBT then LName := 'actfin_credit_cards'
+  else if AKey = KPI_PUR_REQUESTS then LName := 'actpur_requests'
+  else if MatchStr(AKey, [KPI_PUR_ORDERS_OPEN, KPI_PUR_ORDERS_MONTH]) then LName := 'actpur_orders'
+  else if AKey = KPI_PUR_RECEIPTS_MONTH then LName := 'actpur_receipts'
+  else if AKey = KPI_PUR_INVOICES_MONTH then LName := 'actpur_invoices'
+  else if AKey = KPI_STOCK_CRITICAL then LName := 'actstk_stok_karti_ozetleri'
+  else if AKey = KPI_STOCK_TX_TODAY then LName := 'actstk_hareketler'
+  else if AKey = KPI_STOCK_CARDS then LName := 'actstk_stok_kartlari'
+  else if MatchStr(AKey, [KPI_ACC_RECEIVABLE, KPI_ACC_PAYABLE]) then LName := 'actacc_account_transactions'
+  else if AKey = KPI_ACCOUNTS then LName := 'actch_hesap_karti'
+  else if AKey = KPI_EMPLOYEES then LName := 'actprs_personeller'
+  else if AKey = KPI_USERS then LName := 'actsys_user'
+  else LName := '';  // satış: modül henüz taşınmadı
+  Result := nil;
+  if LName <> '' then
+    if FindComponent(LName) is TAction then
+      Result := TAction(FindComponent(LName));
+end;
+
+procedure TfrmDashboard.BuildKpiArea;
+begin
+  if Assigned(FKpiScroll) then
+    Exit;
+
+  FKpiScroll := TScrollBox.Create(Self);
+  FKpiScroll.Parent := pnlMain;
+  FKpiScroll.Align := alClient;
+  FKpiScroll.BorderStyle := bsNone;
+  FKpiScroll.ParentColor := False;
+  FKpiScroll.Color := $00F5F2EF;
+  FKpiScroll.VertScrollBar.Tracking := True;
+  FKpiScroll.HorzScrollBar.Visible := False;
+  FKpiScroll.OnResize := KpiScrollResize;
+
+  FBtnKpiRefresh := TButton.Create(Self);
+  FBtnKpiRefresh.Parent := pnlToolbar;
+  FBtnKpiRefresh.Align := alRight;
+  FBtnKpiRefresh.AlignWithMargins := True;
+  FBtnKpiRefresh.Margins.SetBounds(4, 6, 8, 6);
+  FBtnKpiRefresh.Width := 100;
+  FBtnKpiRefresh.OnClick := KpiRefreshClick;
+
+  FLblKpiUpdated := TLabel.Create(Self);
+  FLblKpiUpdated.Parent := pnlToolbar;
+  FLblKpiUpdated.Align := alRight;
+  FLblKpiUpdated.AlignWithMargins := True;
+  FLblKpiUpdated.Margins.SetBounds(4, 2, 8, 2);
+  FLblKpiUpdated.Layout := tlCenter;
+  FLblKpiUpdated.Left := FBtnKpiRefresh.Left - 10;
+
+  FKpiTimer := TTimer.Create(Self);
+  FKpiTimer.Enabled := False;
+  FKpiTimer.Interval := KPI_REFRESH_MS;
+  FKpiTimer.OnTimer := KpiTimerTimer;
+end;
+
+procedure TfrmDashboard.LoadKpis;
+var
+  LSvc: TSysDashboardService;
+begin
+  if not TAppContext.IsInitialized or not Assigned(TAppContext.Instance.CurrentUser) then
+    Exit;
+
+  Screen.Cursor := crHourGlass;
+  try
+    try
+      LSvc := TSysDashboardService.Create;
+      try
+        FKpis := LSvc.GetKpis;
+      finally
+        LSvc.Free;
+      end;
+      FKpiLoadedAt := Now;
+    except
+      on E: Exception do
+      begin
+        FKpis := [];
+        GLogger.ErrorFmt('Ana ekran göstergeleri yüklenemedi: %s', [E.Message]);
+      end;
+    end;
+  finally
+    Screen.Cursor := crDefault;
+  end;
+
+  RenderKpis;
+  if Assigned(FKpiTimer) then
+    FKpiTimer.Enabled := True;
+end;
+
+// Kart genişliği pencereye göre: satırdaki kart sayısı = sığan en az KPI_CARD_WIDTH genişlikli kart
+procedure TfrmDashboard.LayoutKpiCards;
+var
+  I, J, LPerRow, LWidth, LAvail: Integer;
+  LFlow: TFlowPanel;
+begin
+  if not Assigned(FKpiScroll) then
+    Exit;
+  LAvail := FKpiScroll.ClientWidth - 20 - GetSystemMetrics(SM_CXVSCROLL);
+  LPerRow := Max(1, LAvail div (KPI_CARD_WIDTH + 12));
+  LWidth := Max(KPI_CARD_WIDTH, LAvail div LPerRow - 12);
+  for I := 0 to FKpiScroll.ControlCount - 1 do
+    if FKpiScroll.Controls[I] is TFlowPanel then
+    begin
+      LFlow := TFlowPanel(FKpiScroll.Controls[I]);
+      LFlow.DisableAlign;
+      try
+        for J := 0 to LFlow.ControlCount - 1 do
+          LFlow.Controls[J].Width := LWidth;
+      finally
+        LFlow.EnableAlign;
+      end;
+    end;
+end;
+
+procedure TfrmDashboard.KpiScrollResize(Sender: TObject);
+begin
+  LayoutKpiCards;
+end;
+
+procedure TfrmDashboard.KpiRefreshClick(Sender: TObject);
+begin
+  LoadKpis;
+end;
+
+procedure TfrmDashboard.KpiTimerTimer(Sender: TObject);
+begin
+  // modal pencere / başka iş varken arka planda yenileme yapılmaz
+  if Application.Active and (Screen.ActiveForm = Self) then
+    LoadKpis;
+end;
+
+procedure TfrmDashboard.KpiCardClick(Sender: TObject);
+var
+  LIndex: Integer;
+  LAction: TAction;
+begin
+  LIndex := (Sender as TControl).Tag;
+  if (LIndex < 0) or (LIndex > High(FKpis)) then
+    Exit;
+  LAction := KpiAction(FKpis[LIndex].Key);
+  if Assigned(LAction) and LAction.Enabled then
+    LAction.Execute;
+end;
+
+procedure TfrmDashboard.CreateKpiCard(AParent: TWinControl; AIndex: Integer);
+var
+  K: TDashboardKpi;
+  LCard, LStripe: TPanel;
+  LTitle, LValue, LDetail: TLabel;
+  LValueText, LDetailText: string;
+  LClickable: Boolean;
+
+  procedure Clickable(AControl: TControl);
+  begin
+    AControl.Tag := AIndex;
+    if LClickable then
+    begin
+      AControl.Cursor := crHandPoint;
+      if AControl is TLabel then
+        TLabel(AControl).OnClick := KpiCardClick
+      else if AControl is TPanel then
+        TPanel(AControl).OnClick := KpiCardClick;
+    end;
+  end;
+
+begin
+  K := FKpis[AIndex];
+  KpiTexts(K, LValueText, LDetailText);
+  LClickable := Assigned(KpiAction(K.Key)) and KpiAction(K.Key).Enabled;
+
+  LCard := TPanel.Create(AParent);
+  LCard.Parent := AParent;
+  LCard.Width := KPI_CARD_WIDTH;
+  LCard.Height := KPI_CARD_HEIGHT;
+  LCard.AlignWithMargins := True;
+  LCard.Margins.SetBounds(6, 6, 6, 6);
+  LCard.BevelOuter := bvNone;
+  LCard.ParentBackground := False;
+  LCard.Color := clWhite;
+  LCard.Caption := '';
+  LCard.ShowHint := LClickable;
+  if LClickable then
+    LCard.Hint := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiOpenHint, 'Click to open the list');
+  Clickable(LCard);
+
+  LStripe := TPanel.Create(LCard);
+  LStripe.Parent := LCard;
+  LStripe.Align := alLeft;
+  LStripe.Width := 5;
+  LStripe.BevelOuter := bvNone;
+  LStripe.ParentBackground := False;
+  LStripe.Color := KpiLevelColor(K.Level);
+  Clickable(LStripe);
+
+  LTitle := TLabel.Create(LCard);
+  LTitle.Parent := LCard;
+  LTitle.Align := alTop;
+  LTitle.AlignWithMargins := True;
+  LTitle.Margins.SetBounds(12, 8, 8, 0);
+  LTitle.EllipsisPosition := epEndEllipsis;
+  LTitle.Font.Size := 9;
+  LTitle.Font.Color := clGrayText;
+  LTitle.Caption := KpiTitle(K.Key);
+  Clickable(LTitle);
+
+  LDetail := TLabel.Create(LCard);
+  LDetail.Parent := LCard;
+  LDetail.Align := alBottom;
+  LDetail.AlignWithMargins := True;
+  LDetail.Margins.SetBounds(12, 0, 8, 8);
+  LDetail.EllipsisPosition := epEndEllipsis;
+  LDetail.Font.Size := 8;
+  LDetail.Font.Color := clGrayText;
+  LDetail.Caption := LDetailText;
+  Clickable(LDetail);
+
+  LValue := TLabel.Create(LCard);
+  LValue.Parent := LCard;
+  LValue.Align := alClient;
+  LValue.AlignWithMargins := True;
+  LValue.Margins.SetBounds(12, 2, 8, 2);
+  LValue.Layout := tlCenter;
+  LValue.WordWrap := True;
+  LValue.Font.Style := [fsBold];
+  if Pos(sLineBreak, LValueText) > 0 then
+    LValue.Font.Size := 11
+  else
+    LValue.Font.Size := 15;
+  if K.Level = dlDanger then
+    LValue.Font.Color := KpiLevelColor(dlDanger)
+  else
+    LValue.Font.Color := $00402010;
+  LValue.Caption := LValueText;
+  Clickable(LValue);
+end;
+
+procedure TfrmDashboard.RenderKpis;
+var
+  LSection, I, LOrder: Integer;
+  LHasAny: Boolean;
+  LHeader: TLabel;
+  LFlow: TFlowPanel;
+begin
+  BuildKpiArea;
+  FBtnKpiRefresh.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiRefresh, 'Refresh');
+  if FKpiLoadedAt > 0 then
+    FLblKpiUpdated.Caption := Format(TLocalizationManager.Translate(TLangKeys.TDashboard.KpiLastUpdate, 'Updated: %s'),
+      [FormatDateTime('hh:nn', FKpiLoadedAt)])
+  else
+    FLblKpiUpdated.Caption := '';
+
+  FKpiScroll.DisableAlign;
+  try
+    while FKpiScroll.ControlCount > 0 do
+      FKpiScroll.Controls[0].Free;
+
+    // alTop sırası Top değerine göre: her eklenen bir öncekinin altına
+    LOrder := 0;
+    LHasAny := False;
+    for LSection := 0 to KPI_SECTION_COUNT - 1 do
+    begin
+      LFlow := nil;
+      for I := 0 to High(FKpis) do
+      begin
+        if KpiSection(FKpis[I].Key) <> LSection then
+          Continue;
+        if LFlow = nil then
+        begin
+          LHeader := TLabel.Create(FKpiScroll);
+          LHeader.Parent := FKpiScroll;
+          LHeader.Align := alTop;
+          LHeader.AlignWithMargins := True;
+          LHeader.Margins.SetBounds(16, 12, 16, 0);
+          LHeader.Top := LOrder;
+          Inc(LOrder, 1000);
+          LHeader.Font.Size := 11;
+          LHeader.Font.Style := [fsBold];
+          LHeader.Font.Color := $00804000;
+          LHeader.Caption := KpiSectionTitle(LSection);
+
+          LFlow := TFlowPanel.Create(FKpiScroll);
+          LFlow.Parent := FKpiScroll;
+          LFlow.Align := alTop;
+          LFlow.AlignWithMargins := True;
+          LFlow.Margins.SetBounds(10, 2, 10, 0);
+          LFlow.Top := LOrder;
+          Inc(LOrder, 1000);
+          LFlow.BevelOuter := bvNone;
+          LFlow.ParentColor := True;
+          LFlow.AutoWrap := True;
+          LFlow.AutoSize := True;
+          LHasAny := True;
+        end;
+        CreateKpiCard(LFlow, I);
+      end;
+    end;
+
+    if not LHasAny then
+    begin
+      LHeader := TLabel.Create(FKpiScroll);
+      LHeader.Parent := FKpiScroll;
+      LHeader.Align := alTop;
+      LHeader.AlignWithMargins := True;
+      LHeader.Margins.SetBounds(16, 24, 16, 0);
+      LHeader.Font.Size := 11;
+      LHeader.Font.Color := clGrayText;
+      LHeader.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiNoData, 'There is no summary you are allowed to view.');
+    end;
+  finally
+    FKpiScroll.EnableAlign;
+  end;
+  LayoutKpiCards;
 end;
 
 Initialization

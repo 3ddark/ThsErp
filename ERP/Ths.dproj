@@ -376,6 +376,9 @@
         <DCCReference Include="BackEnd\System\Exception\SysPermission.Exception.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysPermission.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysPermission.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysDashboard.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysDashboard.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysDashboard.Service.pas"/>
         <DCCReference Include="Forms\System\Input\ufrmSysPermission.pas">
             <Form>frmSysPermission</Form>
         </DCCReference>

@@ -28,7 +28,8 @@ uses
   PurOrder, PurOrder.Service, PurOrderDetail, PurOrderDetail.Service,
   PurReceipt, PurReceipt.Service, PurReceiptDetail, PurReceiptDetail.Service,
   PurInvoice, PurInvoice.Service, PurInvoiceDetail, PurInvoiceDetail.Service,
-  AccLookup, AccAccountTransaction, AccAccountTransaction.Service;
+  AccLookup, AccAccountTransaction, AccAccountTransaction.Service,
+  SysDashboard, SysDashboard.Service;
 
 var
   GMod, GEnt: string;
@@ -2409,6 +2410,76 @@ begin
   end;
 end;
 
+function KpiKeys(const AKpis: TArray<TDashboardKpi>): string;
+var
+  K: TDashboardKpi;
+begin
+  Result := '';
+  for K in AKpis do
+  begin
+    if Result <> '' then
+      Result := Result + ',';
+    Result := Result + K.Key;
+  end;
+end;
+
+procedure TestDashboard;
+var
+  Svc: TSysDashboardService;
+  Kpis: TArray<TDashboardKpi>;
+  K: TDashboardKpi;
+  URepo: TSysUserRepository;
+  Found: Boolean;
+begin
+  Ctx('System', 'TSysDashboard');
+  Svc := TSysDashboardService.Create;
+  URepo := TSysUserRepository.Create(UoW.Connection);
+  try
+    try
+      Begin_;
+      // süper kullanıcı: tüm göstergeler hatasız (bir sorgu hata verirse liste eksik kalır)
+      Kpis := Svc.GetKpis;
+      Check('super user: all 23 kpis', Length(Kpis) = 23, IntToStr(Length(Kpis)) + ': ' + KpiKeys(Kpis));
+      Found := False;
+      for K in Kpis do
+        if K.Key = KPI_FX_RATES then
+        begin
+          Found := True;
+          Check('fx: one rate per currency', K.Count = Num(Scalar('SELECT count(DISTINCT currency) FROM acc_exchange_rate')),
+            IntToStr(K.Count));
+        end
+        else if K.Key = KPI_STOCK_CARDS then
+          Check('stock cards count', K.Count = Num(Scalar('SELECT count(*) FROM stk_inventory')))
+        else if K.Key = KPI_USERS then
+          Check('active users', K.Count = Num(Scalar('SELECT count(*) FROM sys_user WHERE active')));
+      Check('fx kpi present', Found);
+
+      // TEST (id 4): yalnız kur + satın alma siparişi okuma; diğer her şey engelli
+      UoW.Connection.ExecSQL('UPDATE sys_access_right SET deny_read = true, is_read = false WHERE sys_user_id = 4');
+      UoW.Connection.ExecSQL('UPDATE sys_access_right a SET deny_read = false, is_read = true FROM sys_permission p ' +
+        'WHERE p.id = a.sys_permission_id AND a.sys_user_id = 4 AND p.permission_code IN (3001, 1081)');
+      TAppContext.Instance.CurrentUser.User := URepo.FindById(TValue.From<Int64>(4), False);
+      try
+        Kpis := Svc.GetKpis;
+        Check('limited user: only permitted kpis', KpiKeys(Kpis) = KPI_FX_RATES + ',' + KPI_PUR_ORDERS_OPEN + ',' + KPI_PUR_ORDERS_MONTH,
+          KpiKeys(Kpis));
+        UoW.Connection.ExecSQL('UPDATE sys_access_right SET deny_read = true, is_read = false WHERE sys_user_id = 4');
+        Kpis := Svc.GetKpis;
+        Check('no rights: no kpis', Length(Kpis) = 0, KpiKeys(Kpis));
+      finally
+        TAppContext.Instance.CurrentUser.User := URepo.FindById(TValue.From<Int64>(1), False);
+      end;
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    URepo.Free;
+    Svc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -2428,6 +2499,7 @@ begin
   TestPurchasing;
   TestCompanyBankAccounts;
   TestAccountTransactions;
+  TestDashboard;
 end;
 
 end.

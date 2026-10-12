@@ -93,6 +93,10 @@ const
   PERMISSION_ACC_TRANSFER_CODE            = 3004;
   PERMISSION_ACC_VOUCHER                  = 3005;   // + detay: fiş satırları
 
+  // Sales (eski satış tabloları; modül henüz taşınmadı)
+  PERMISSION_SLS_OFFER                    = 357101;
+  PERMISSION_SLS_ORDER                    = 357201;
+
 type
   TSysPermissionService = class(TCrudService<TSysPermission>)
   private
