@@ -1,4 +1,4 @@
-unit UiDriver;
+﻿unit UiDriver;
 
 { Ekranların event akışını uygulama açılmadan koddan süren test sürücüsü.
   Modal diyaloglar (mesaj, onay, helper liste) bir timer ile otomatik cevaplanır ve kaydedilir. }
@@ -402,8 +402,8 @@ begin
   for P in ASrc do
   begin
     if P.JsonString.Value = 'id' then Continue;
-    // serviste türetilen alanlar (ad+soyad, hesap kodundan kök/ara kod)
-    if AAllowMutated and MatchText(P.JsonString.Value, ['full_name', 'root_code', 'sub_code']) then Continue;
+    // serviste türetilen alanlar (ad+soyad, hesap kodundan kök/ara kod, çek/senet portföy no)
+    if AAllowMutated and MatchText(P.JsonString.Value, ['full_name', 'root_code', 'sub_code', 'portfolio_no']) then Continue;
     VS := P.JsonValue.Value;
     if P.JsonValue is TJSONNull then VS := '<null>';
     NV := ANew.GetValue(P.JsonString.Value);
@@ -971,6 +971,10 @@ begin
     'AND table_name = :t AND is_nullable = ''NO'' AND column_default IS NULL AND (data_type IN (''character varying'', ''text'') OR (data_type = ''bigint'' AND column_name LIKE ''%\_id''))', [ATable]);
   if VarIsNull(V) or VarIsEmpty(V) then Exit;
   for Col in string(V).Split([',']) do
+  begin
+    // boşsa serviste üretilen alanlar (çek/senet portföy no)
+    if MatchText(Col, ['portfolio_no']) then
+      Continue;
     for P in ['edt', 'cbb', 'mmo'] do
     begin
       C := F.FindComponent(P + Pascal(Col));
@@ -981,6 +985,7 @@ begin
         Break;
       end;
     end;
+  end;
 end;
 
 { ---------------------------------------------------------- TUiTester<> }

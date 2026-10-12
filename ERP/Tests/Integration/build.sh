@@ -1,5 +1,5 @@
 #!/bin/sh
-# Ths ERP servis katmanı entegrasyon testleri (System / Employee / Account / Stock).
+# Ths ERP servis katmanı entegrasyon testleri (System / Employee / Account / Stock / Finance).
 # Her yazma işlemi transaction içinde yapılır ve ROLLBACK edilir; DB'de kalıcı değişiklik bırakmaz.
 #   ./build.sh                 -> derle (dcc64, çıktı: $TEMP/ths_it)
 #   $TEMP/ths_it/bin/IntegrationTest.exe [generic|perm|perm2|specific] [Modül] [TEntity]
@@ -14,7 +14,7 @@ cp -r ../../lib "$O/bin/" 2>/dev/null
 mkdir -p "$O/bin/Resource" && cp -r ../../Resource/Localization "$O/bin/Resource/"
 E="$ERP/BackEnd"
 U="$E/Core;$E/Core/Base;$E/Tools;$ERP/Utils"
-for m in System Employee Account Stock; do for s in Domain Exception Repository Service Cache Helper; do [ -d "$E/$m/$s" ] && U="$U;$E/$m/$s"; done; done
+for m in System Employee Account Stock Finance; do for s in Domain Exception Repository Service Cache Helper; do [ -d "$E/$m/$s" ] && U="$U;$E/$m/$s"; done; done
 BDS="C:/Program Files (x86)/Embarcadero/Studio/37.0"
 L="$BDS/lib/win64/release"
 "$BDS/bin/dcc64.exe" -B -Q -W- -H- -DDEBUG \

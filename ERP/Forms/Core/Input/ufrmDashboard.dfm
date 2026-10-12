@@ -736,6 +736,66 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 76
       OnExecute = actprd_packet_labourExecute
     end
+    object actfin_customer_cheques: TAction
+      Category = 'Finans'
+      Caption = 'M'#252#351'teri '#199'ekleri'
+      ImageIndex = 68
+      OnExecute = actfin_customer_chequesExecute
+    end
+    object actfin_own_cheques: TAction
+      Category = 'Finans'
+      Caption = 'Kendi '#199'eklerimiz'
+      ImageIndex = 68
+      OnExecute = actfin_own_chequesExecute
+    end
+    object actfin_customer_notes: TAction
+      Category = 'Finans'
+      Caption = 'M'#252#351'teri Senetleri'
+      ImageIndex = 68
+      OnExecute = actfin_customer_notesExecute
+    end
+    object actfin_debit_notes: TAction
+      Category = 'Finans'
+      Caption = 'Bor'#231' Senetlerimiz'
+      ImageIndex = 68
+      OnExecute = actfin_debit_notesExecute
+    end
+    object actfin_cheque_notes: TAction
+      Category = 'Finans'
+      Caption = 'T'#252'm '#199'ek / Senetler'
+      ImageIndex = 68
+      OnExecute = actfin_cheque_notesExecute
+    end
+    object actfin_cheque_note_transactions: TAction
+      Category = 'Finans'
+      Caption = #199'ek / Senet Hareketleri'
+      ImageIndex = 68
+      OnExecute = actfin_cheque_note_transactionsExecute
+    end
+    object actfin_credit_cards: TAction
+      Category = 'Finans'
+      Caption = 'Firma Kredi Kartlar'#305
+      ImageIndex = 69
+      OnExecute = actfin_credit_cardsExecute
+    end
+    object actfin_credit_card_transactions: TAction
+      Category = 'Finans'
+      Caption = 'Kredi Kart'#305' Hareketleri'
+      ImageIndex = 69
+      OnExecute = actfin_credit_card_transactionsExecute
+    end
+    object actfin_pos_terminals: TAction
+      Category = 'Finans'
+      Caption = 'POS Tan'#305'mlar'#305
+      ImageIndex = 69
+      OnExecute = actfin_pos_terminalsExecute
+    end
+    object actfin_pos_transactions: TAction
+      Category = 'Finans'
+      Caption = 'POS Tahsilatlar'#305
+      ImageIndex = 69
+      OnExecute = actfin_pos_transactionsExecute
+    end
     object actstk_product_types: TAction
       Category = 'Stok'
       Caption = #220'r'#252'n Tipleri'
@@ -1109,6 +1169,46 @@ inherited frmDashboard: TfrmDashboard
       end
       object mniprd_packet_labour: TMenuItem
         Action = actprd_packet_labour
+      end
+    end
+    object mnimenu_finance: TMenuItem
+      Caption = 'Finans'
+      ImageIndex = 68
+      object mnifin_customer_cheques: TMenuItem
+        Action = actfin_customer_cheques
+      end
+      object mnifin_own_cheques: TMenuItem
+        Action = actfin_own_cheques
+      end
+      object mnifin_customer_notes: TMenuItem
+        Action = actfin_customer_notes
+      end
+      object mnifin_debit_notes: TMenuItem
+        Action = actfin_debit_notes
+      end
+      object mnifin_cheque_notes: TMenuItem
+        Action = actfin_cheque_notes
+      end
+      object mnifin_cheque_note_transactions: TMenuItem
+        Action = actfin_cheque_note_transactions
+      end
+      object mnifin_sep1: TMenuItem
+        Caption = '-'
+      end
+      object mnifin_credit_cards: TMenuItem
+        Action = actfin_credit_cards
+      end
+      object mnifin_credit_card_transactions: TMenuItem
+        Action = actfin_credit_card_transactions
+      end
+      object mnifin_sep2: TMenuItem
+        Caption = '-'
+      end
+      object mnifin_pos_terminals: TMenuItem
+        Action = actfin_pos_terminals
+      end
+      object mnifin_pos_transactions: TMenuItem
+        Action = actfin_pos_transactions
       end
     end
     object mnimenu_employee: TMenuItem

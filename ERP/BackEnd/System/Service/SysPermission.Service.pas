@@ -71,6 +71,11 @@ const
   PERMISSION_PRD_PACKET_RAW               = 1063;   // + paket kalemleri
   PERMISSION_PRD_PACKET_LABOUR            = 1064;   // + paket kalemleri
 
+  // Finance (çek / senet / kredi kartı / POS)
+  PERMISSION_FIN_CHEQUE_NOTE              = 1070;   // + hareketler (portföy giriş / ciro / tahsil ...)
+  PERMISSION_FIN_CREDIT_CARD              = 1071;   // firma kredi kartları + hareketler
+  PERMISSION_FIN_POS_TERMINAL             = 1072;   // POS tanımları + kredi kartı tahsilatları
+
   // Accounting (muhasebe)
   PERMISSION_ACC_EXCHANGE_RATE            = 3001;
   PERMISSION_ACC_ACCOUNT_PLAN             = 3002;

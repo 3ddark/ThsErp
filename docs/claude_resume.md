@@ -295,6 +295,37 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
   Sonuç 989 pass / 0 fail / 0 warn (107 zorunlu alan testi); servis paketi 1036/0; derleme 0 hata.
 - Dump'lar yenilendi (yedekler scratchpad: ths_erp_before_not_null_zero.dump, ths_erp_before_empty_to_null.dump).
 
+## Finans (fin_) modülü: çek / senet / kredi kartı / POS (2026-10-12, /goal "çek, senet kredi kartı modülünü oluştur")
+- Bu makine (DESKTOP-JF3LUBB): güncel DB 5432'de, RAD Studio 37.0. Öncesinde scratch yedek: ths_erp_before_finance.dump.
+- DB (psql, doğrudan): 6 tablo + 6 view, yetki grubu `finance` (tr/en/de), yetkiler 1070 çek/senet (+hareketler),
+  1071 firma kredi kartı (+hareketler), 1072 POS (+tahsilatlar); yönetici tam, satış 1070+1072 r/a/u, satın alma 1070+1071 r/a/u;
+  tüm kullanıcılara sys_access_right satırı. Para birimi kolonları DEFAULT fn_default_currency().
+  - `fin_cheque_note`: doc_kind (1 çek / 2 senet), direction (1 alınan / 2 verilen), portfolio_no (UNIQUE; boşsa servis
+    MC/KC/MS/BS + 6 hane üretir), serial_no (aynı tür+yön+banka içinde tekil, partial index), keşide/vade (vade >= keşide),
+    amount > 0, cari zorunlu, çekte banka zorunlu (CHECK), şube seçilen bankaya ait olmalı, status (servis yönetir).
+  - `fin_cheque_note_transaction`: transaction_type = belgenin yeni durumu (1 portföyde, 2 ciro, 3 tahsile, 4 teminata,
+    5 tahsil edildi, 6 karşılıksız/protestolu, 7 iade, 8 ödendi, 9 verildi). Açılış hareketi (alınan 1 / verilen 9) belgeyle
+    aynı transaction'da yazılır, yalnız açılış varken belgeyle senkron tutulur; durum = son hareket (RefreshNoteStatus).
+    Geçişler `TFinLookup.CanTransit`; tarih önceki hareketten önce olamaz; yalnız son hareket güncellenir/silinir; açılış
+    silinemez (belge silinir, cascade); hareket görmüş belgede tür/yön/cari değişmez; ciro/verildi cari, tahsile/teminata banka ister.
+  - `fin_credit_card` (ad UNIQUE, banka, son 4 hane, limit (0 = limitsiz), kesim/ödeme günü 1-31 ya da NULL, muhasebe hesabı, aktif)
+    + `fin_credit_card_transaction` (1 harcama / 2 ödeme / 3 iade, taksit 1-36 yalnız harcamada, limit kontrolü, pasif kartta harcama yok);
+    view'da bakiye / kullanılabilir limit / taksit tutarı.
+  - `fin_pos_terminal` (ad UNIQUE, banka, komisyon % 0-100, bloke gün 0-365) + `fin_pos_transaction` (1 tahsilat / 2 iade,
+    cari zorunlu; komisyon = round(tutar x oran / 100, 2), net = tutar - komisyon, valör boşsa tarih + bloke gün; form POS
+    seçilince oranı önerir). Hareketi olan kart/POS silinemez.
+- Kod (üreteç: scratchpad gen_fin.py + fin_config.py + gen_fin_lang.py + register_fin.py + dash_fin.py):
+  `BackEnd/Finance/{Domain,Exception,Repository,Service}` 6 entity + `FinLookup` (sabitler, durum geçişleri, portföy öneki);
+  `Forms/Finance/{Input,Output}` 12 form + DFM. Popup: çek/senet -> Hareketler, kart -> Hareketler, POS -> Tahsilatlar
+  (SetFixed*). Dashboard: yeni "Finans" ana menüsü (Müşteri Çekleri / Kendi Çeklerimiz / Müşteri Senetleri / Borç Senetlerimiz
+  = SetFixedKind, Tüm Çek/Senetler, Çek/Senet Hareketleri, Kredi Kartları + Hareketleri, POS Tanımları + Tahsilatları), SetAction.
+  168 dil anahtarı x 4 JSON, TLangKeys TFinOption + 6 kayıt, TDashboard.MenuFinance.
+- Doğrulama: msbuild Win64 Debug (DCU/EXE %TEMP%'e) 0 hata, dokunulan birimlerde uyarı/ipucu yok. Entegrasyon testi
+  (services.txt + ItModules TestFinance*): 1154 pass / 0 fail, DB satır sayıları öncesi = sonrası. UI harness (seed.sql'e finans
+  satırları + şube; Finance modülü): tam koşu 1104 pass / 0 fail / 0 warn. db_schema.sql + db.dump yenilendi.
+- UI elle denenmedi (kullanıcı IDE'de Shift+F9 Build + Finans menüsü). Muhasebe fişi / cari bakiye entegrasyonu YOK (voucher
+  modülüyle birlikte ileride: çek tahsili, kart ödemesi, POS valör hesap hareketleri).
+
 ## KALDIĞIM YER (2026-10-10 sonu)
 - Son oturumların (servis + UI test paketleri, NULL standardı, Required, grid metadata, AV / kilit düzeltmeleri) tamamı commit edildi.
 - Kullanıcı yapacak: IDE'de Build (Shift+F9) + elle kontrol — stok kartında grup/birim boş kaydet, personelde cinsiyet

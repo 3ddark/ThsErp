@@ -745,6 +745,67 @@
         <DCCReference Include="Forms\Production\Output\ufrmPrdLabours.pas">
             <Form>frmPrdLabours</Form>
         </DCCReference>
+        <DCCReference Include="BackEnd\Finance\Domain\FinLookup.pas"/>
+        <DCCReference Include="BackEnd\Finance\Domain\FinChequeNote.pas"/>
+        <DCCReference Include="BackEnd\Finance\Exception\FinChequeNote.Exception.pas"/>
+        <DCCReference Include="BackEnd\Finance\Repository\FinChequeNote.Repository.pas"/>
+        <DCCReference Include="BackEnd\Finance\Service\FinChequeNote.Service.pas"/>
+        <DCCReference Include="Forms\Finance\Input\ufrmFinChequeNote.pas">
+            <Form>frmFinChequeNote</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Finance\Output\ufrmFinChequeNotes.pas">
+            <Form>frmFinChequeNotes</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Finance\Domain\FinChequeNoteTransaction.pas"/>
+        <DCCReference Include="BackEnd\Finance\Exception\FinChequeNoteTransaction.Exception.pas"/>
+        <DCCReference Include="BackEnd\Finance\Repository\FinChequeNoteTransaction.Repository.pas"/>
+        <DCCReference Include="BackEnd\Finance\Service\FinChequeNoteTransaction.Service.pas"/>
+        <DCCReference Include="Forms\Finance\Input\ufrmFinChequeNoteTransaction.pas">
+            <Form>frmFinChequeNoteTransaction</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Finance\Output\ufrmFinChequeNoteTransactions.pas">
+            <Form>frmFinChequeNoteTransactions</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Finance\Domain\FinCreditCard.pas"/>
+        <DCCReference Include="BackEnd\Finance\Exception\FinCreditCard.Exception.pas"/>
+        <DCCReference Include="BackEnd\Finance\Repository\FinCreditCard.Repository.pas"/>
+        <DCCReference Include="BackEnd\Finance\Service\FinCreditCard.Service.pas"/>
+        <DCCReference Include="Forms\Finance\Input\ufrmFinCreditCard.pas">
+            <Form>frmFinCreditCard</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Finance\Output\ufrmFinCreditCards.pas">
+            <Form>frmFinCreditCards</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Finance\Domain\FinCreditCardTransaction.pas"/>
+        <DCCReference Include="BackEnd\Finance\Exception\FinCreditCardTransaction.Exception.pas"/>
+        <DCCReference Include="BackEnd\Finance\Repository\FinCreditCardTransaction.Repository.pas"/>
+        <DCCReference Include="BackEnd\Finance\Service\FinCreditCardTransaction.Service.pas"/>
+        <DCCReference Include="Forms\Finance\Input\ufrmFinCreditCardTransaction.pas">
+            <Form>frmFinCreditCardTransaction</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Finance\Output\ufrmFinCreditCardTransactions.pas">
+            <Form>frmFinCreditCardTransactions</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Finance\Domain\FinPosTerminal.pas"/>
+        <DCCReference Include="BackEnd\Finance\Exception\FinPosTerminal.Exception.pas"/>
+        <DCCReference Include="BackEnd\Finance\Repository\FinPosTerminal.Repository.pas"/>
+        <DCCReference Include="BackEnd\Finance\Service\FinPosTerminal.Service.pas"/>
+        <DCCReference Include="Forms\Finance\Input\ufrmFinPosTerminal.pas">
+            <Form>frmFinPosTerminal</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Finance\Output\ufrmFinPosTerminals.pas">
+            <Form>frmFinPosTerminals</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Finance\Domain\FinPosTransaction.pas"/>
+        <DCCReference Include="BackEnd\Finance\Exception\FinPosTransaction.Exception.pas"/>
+        <DCCReference Include="BackEnd\Finance\Repository\FinPosTransaction.Repository.pas"/>
+        <DCCReference Include="BackEnd\Finance\Service\FinPosTransaction.Service.pas"/>
+        <DCCReference Include="Forms\Finance\Input\ufrmFinPosTransaction.pas">
+            <Form>frmFinPosTransaction</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Finance\Output\ufrmFinPosTransactions.pas">
+            <Form>frmFinPosTransactions</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\Production\Domain\PrdBom.pas"/>
         <DCCReference Include="BackEnd\Production\Exception\PrdBom.Exception.pas"/>
         <DCCReference Include="BackEnd\Production\Repository\PrdBom.Repository.pas"/>

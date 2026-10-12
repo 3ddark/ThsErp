@@ -70,6 +70,13 @@ uses
   ufrmPrdLabours, PrdLabour.Service, PrdLabour,
   ufrmPrdPacketRaws, PrdPacketRaw.Service, PrdPacketRaw,
   ufrmPrdPacketLabours, PrdPacketLabour.Service, PrdPacketLabour,
+  FinLookup,
+  ufrmFinChequeNotes, FinChequeNote.Service, FinChequeNote,
+  ufrmFinChequeNoteTransactions, FinChequeNoteTransaction.Service, FinChequeNoteTransaction,
+  ufrmFinCreditCards, FinCreditCard.Service, FinCreditCard,
+  ufrmFinCreditCardTransactions, FinCreditCardTransaction.Service, FinCreditCardTransaction,
+  ufrmFinPosTerminals, FinPosTerminal.Service, FinPosTerminal,
+  ufrmFinPosTransactions, FinPosTransaction.Service, FinPosTransaction,
   LocalizationManager;
 
 type
@@ -189,6 +196,29 @@ type
     mniprd_labour: TMenuItem;
     mniprd_packet_raw: TMenuItem;
     mniprd_packet_labour: TMenuItem;
+    actfin_customer_cheques: TAction;
+    actfin_own_cheques: TAction;
+    actfin_customer_notes: TAction;
+    actfin_debit_notes: TAction;
+    actfin_cheque_notes: TAction;
+    actfin_cheque_note_transactions: TAction;
+    actfin_credit_cards: TAction;
+    actfin_credit_card_transactions: TAction;
+    actfin_pos_terminals: TAction;
+    actfin_pos_transactions: TAction;
+    mnimenu_finance: TMenuItem;
+    mnifin_customer_cheques: TMenuItem;
+    mnifin_own_cheques: TMenuItem;
+    mnifin_customer_notes: TMenuItem;
+    mnifin_debit_notes: TMenuItem;
+    mnifin_cheque_notes: TMenuItem;
+    mnifin_cheque_note_transactions: TMenuItem;
+    mnifin_sep1: TMenuItem;
+    mnifin_credit_cards: TMenuItem;
+    mnifin_credit_card_transactions: TMenuItem;
+    mnifin_sep2: TMenuItem;
+    mnifin_pos_terminals: TMenuItem;
+    mnifin_pos_transactions: TMenuItem;
     mnistk_warehouse: TMenuItem;
     mnistk_group: TMenuItem;
     mnistk_inventory: TMenuItem;
@@ -343,6 +373,16 @@ type
     procedure actprd_labourExecute(Sender: TObject);
     procedure actprd_packet_rawExecute(Sender: TObject);
     procedure actprd_packet_labourExecute(Sender: TObject);
+    procedure actfin_customer_chequesExecute(Sender: TObject);
+    procedure actfin_own_chequesExecute(Sender: TObject);
+    procedure actfin_customer_notesExecute(Sender: TObject);
+    procedure actfin_debit_notesExecute(Sender: TObject);
+    procedure actfin_cheque_notesExecute(Sender: TObject);
+    procedure actfin_cheque_note_transactionsExecute(Sender: TObject);
+    procedure actfin_credit_cardsExecute(Sender: TObject);
+    procedure actfin_credit_card_transactionsExecute(Sender: TObject);
+    procedure actfin_pos_terminalsExecute(Sender: TObject);
+    procedure actfin_pos_transactionsExecute(Sender: TObject);
     procedure actset_ch_vergi_oraniExecute(Sender: TObject);
     procedure actset_prs_bolumlerExecute(Sender: TObject);
     procedure actset_prs_birimlerExecute(Sender: TObject);
@@ -722,6 +762,72 @@ end;
 procedure TfrmDashboard.actprd_packet_labourExecute(Sender: TObject);
 begin
   TfrmPrdPacketLabours.Create(Self, TPrdPacketLabourService.Create, TPrdPacketLabour.Create).Show;
+end;
+
+procedure TfrmDashboard.actfin_customer_chequesExecute(Sender: TObject);
+var
+  LFrm: TfrmFinChequeNotes;
+begin
+  LFrm := TfrmFinChequeNotes.Create(Self, TFinChequeNoteService.Create, TFinChequeNote.Create);
+  LFrm.SetFixedKind(FIN_DOC_CHEQUE, FIN_DIR_RECEIVED);
+  LFrm.Show;
+end;
+
+procedure TfrmDashboard.actfin_own_chequesExecute(Sender: TObject);
+var
+  LFrm: TfrmFinChequeNotes;
+begin
+  LFrm := TfrmFinChequeNotes.Create(Self, TFinChequeNoteService.Create, TFinChequeNote.Create);
+  LFrm.SetFixedKind(FIN_DOC_CHEQUE, FIN_DIR_GIVEN);
+  LFrm.Show;
+end;
+
+procedure TfrmDashboard.actfin_customer_notesExecute(Sender: TObject);
+var
+  LFrm: TfrmFinChequeNotes;
+begin
+  LFrm := TfrmFinChequeNotes.Create(Self, TFinChequeNoteService.Create, TFinChequeNote.Create);
+  LFrm.SetFixedKind(FIN_DOC_NOTE, FIN_DIR_RECEIVED);
+  LFrm.Show;
+end;
+
+procedure TfrmDashboard.actfin_debit_notesExecute(Sender: TObject);
+var
+  LFrm: TfrmFinChequeNotes;
+begin
+  LFrm := TfrmFinChequeNotes.Create(Self, TFinChequeNoteService.Create, TFinChequeNote.Create);
+  LFrm.SetFixedKind(FIN_DOC_NOTE, FIN_DIR_GIVEN);
+  LFrm.Show;
+end;
+
+procedure TfrmDashboard.actfin_cheque_notesExecute(Sender: TObject);
+begin
+  TfrmFinChequeNotes.Create(Self, TFinChequeNoteService.Create, TFinChequeNote.Create).Show;
+end;
+
+procedure TfrmDashboard.actfin_cheque_note_transactionsExecute(Sender: TObject);
+begin
+  TfrmFinChequeNoteTransactions.Create(Self, TFinChequeNoteTransactionService.Create, TFinChequeNoteTransaction.Create).Show;
+end;
+
+procedure TfrmDashboard.actfin_credit_cardsExecute(Sender: TObject);
+begin
+  TfrmFinCreditCards.Create(Self, TFinCreditCardService.Create, TFinCreditCard.Create).Show;
+end;
+
+procedure TfrmDashboard.actfin_credit_card_transactionsExecute(Sender: TObject);
+begin
+  TfrmFinCreditCardTransactions.Create(Self, TFinCreditCardTransactionService.Create, TFinCreditCardTransaction.Create).Show;
+end;
+
+procedure TfrmDashboard.actfin_pos_terminalsExecute(Sender: TObject);
+begin
+  TfrmFinPosTerminals.Create(Self, TFinPosTerminalService.Create, TFinPosTerminal.Create).Show;
+end;
+
+procedure TfrmDashboard.actfin_pos_transactionsExecute(Sender: TObject);
+begin
+  TfrmFinPosTransactions.Create(Self, TFinPosTransactionService.Create, TFinPosTransaction.Create).Show;
 end;
 
 procedure TfrmDashboard.actstk_ambarlarExecute(Sender: TObject);
@@ -1416,6 +1522,28 @@ begin
     actprd_packet_raw.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRaw.TitlePlural, 'Raw Material Packets');
   if Assigned(actprd_packet_labour) then
     actprd_packet_labour.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketLabour.TitlePlural, 'Labour Packets');
+  if Assigned(mnimenu_finance) then
+    mnimenu_finance.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuFinance, 'Finance');
+  if Assigned(actfin_customer_cheques) then
+    actfin_customer_cheques.Caption := TFinLookup.ChequeNoteListTitle(FIN_DOC_CHEQUE, FIN_DIR_RECEIVED);
+  if Assigned(actfin_own_cheques) then
+    actfin_own_cheques.Caption := TFinLookup.ChequeNoteListTitle(FIN_DOC_CHEQUE, FIN_DIR_GIVEN);
+  if Assigned(actfin_customer_notes) then
+    actfin_customer_notes.Caption := TFinLookup.ChequeNoteListTitle(FIN_DOC_NOTE, FIN_DIR_RECEIVED);
+  if Assigned(actfin_debit_notes) then
+    actfin_debit_notes.Caption := TFinLookup.ChequeNoteListTitle(FIN_DOC_NOTE, FIN_DIR_GIVEN);
+  if Assigned(actfin_cheque_notes) then
+    actfin_cheque_notes.Caption := TLocalizationManager.Translate(TLangKeys.TFinChequeNote.TitlePlural, 'Cheques / Notes');
+  if Assigned(actfin_cheque_note_transactions) then
+    actfin_cheque_note_transactions.Caption := TLocalizationManager.Translate(TLangKeys.TFinChequeNoteTransaction.TitlePlural, 'Cheque / Note Transactions');
+  if Assigned(actfin_credit_cards) then
+    actfin_credit_cards.Caption := TLocalizationManager.Translate(TLangKeys.TFinCreditCard.TitlePlural, 'Company Credit Cards');
+  if Assigned(actfin_credit_card_transactions) then
+    actfin_credit_card_transactions.Caption := TLocalizationManager.Translate(TLangKeys.TFinCreditCardTransaction.TitlePlural, 'Credit Card Transactions');
+  if Assigned(actfin_pos_terminals) then
+    actfin_pos_terminals.Caption := TLocalizationManager.Translate(TLangKeys.TFinPosTerminal.TitlePlural, 'POS Terminals');
+  if Assigned(actfin_pos_transactions) then
+    actfin_pos_transactions.Caption := TLocalizationManager.Translate(TLangKeys.TFinPosTransaction.TitlePlural, 'POS Collections');
 
   // Status Bar Panels
   if stbBase.Panels.Count >= STATUS_KEY_F4+1 then
@@ -1690,6 +1818,16 @@ begin
   SetAction(actprd_labour, PERMISSION_PRD_LABOUR);
   SetAction(actprd_packet_raw, PERMISSION_PRD_PACKET_RAW);
   SetAction(actprd_packet_labour, PERMISSION_PRD_PACKET_LABOUR);
+  SetAction(actfin_customer_cheques, PERMISSION_FIN_CHEQUE_NOTE);
+  SetAction(actfin_own_cheques, PERMISSION_FIN_CHEQUE_NOTE);
+  SetAction(actfin_customer_notes, PERMISSION_FIN_CHEQUE_NOTE);
+  SetAction(actfin_debit_notes, PERMISSION_FIN_CHEQUE_NOTE);
+  SetAction(actfin_cheque_notes, PERMISSION_FIN_CHEQUE_NOTE);
+  SetAction(actfin_cheque_note_transactions, PERMISSION_FIN_CHEQUE_NOTE);
+  SetAction(actfin_credit_cards, PERMISSION_FIN_CREDIT_CARD);
+  SetAction(actfin_credit_card_transactions, PERMISSION_FIN_CREDIT_CARD);
+  SetAction(actfin_pos_terminals, PERMISSION_FIN_POS_TERMINAL);
+  SetAction(actfin_pos_transactions, PERMISSION_FIN_POS_TERMINAL);
 end;
 
 procedure TfrmDashboard.SetSession;

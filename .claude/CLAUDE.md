@@ -48,7 +48,7 @@ ERP/
 ├── BackEnd/
 │   ├── Core/                    # AppContext, UserContext, Auth.Service, Logger, Ths.Globals ...
 │   │   └── Base/                # Entity, EntityAttributes, Repository, Service, UnitOfWork, LocalizationManager ...
-│   ├── {Module}/                # System, Employee, Account, Stock, Production, Order, Invoice ...
+│   ├── {Module}/                # System, Employee, Account, Stock, Production, Finance, Order, Invoice ...
 │   │   ├── Domain/  Repository/  Service/  Exception/
 │   │   └── (System only) Cache/  Helper/
 │   └── Tools/                   # Ths.Helper.* (TEdit/TMemo/TComboBox interposers), export, SynPDF
@@ -92,7 +92,7 @@ Test environment (credentials are intentionally plain):
 
 Non-negotiable:
 
-- English, `snake_case` identifiers, module prefixes never removed (`sys_`, `emp_`, `acc_`, `stk_`, `prd_`, `sls_`, `pur_`, `einv_`, `ord_`, `inv_`)
+- English, `snake_case` identifiers, module prefixes never removed (`sys_`, `emp_`, `acc_`, `stk_`, `prd_`, `fin_`, `sls_`, `pur_`, `einv_`, `ord_`, `inv_`)
 - **No migration files.** Single developer; the DB moves between the two machines via git: `ERP/db.dump` (full,
   schema + data) and `ERP/db_schema.sql` (schema, reviewable diff). Apply DDL/data fixes directly with `psql`, then
   refresh both (cannot be skipped):

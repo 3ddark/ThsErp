@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 0mHEkscxDYBkDzcpNNWy5rcffTEVF1iM0uvvfLaUyg3z1CKnjw0NH8ue2Q7DUYg
+\restrict 0bKEcj27VLYxvgI5QwcQmw9behhHFrGXarrZSjcLjgmzCRjiPQCECvZ3387bHj8
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -1383,6 +1383,246 @@ CREATE TABLE public.emp_unit_translation (
 
 
 ALTER TABLE public.emp_unit_translation OWNER TO ths_admin;
+
+--
+-- Name: fin_cheque_note; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.fin_cheque_note (
+    id bigint NOT NULL,
+    doc_kind smallint NOT NULL,
+    direction smallint NOT NULL,
+    portfolio_no character varying(16) NOT NULL,
+    serial_no character varying(32) NOT NULL,
+    issue_date date DEFAULT CURRENT_DATE NOT NULL,
+    due_date date NOT NULL,
+    amount numeric(18,2) NOT NULL,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    acc_account_id bigint NOT NULL,
+    drawer_name character varying(128),
+    drawer_tax_no character varying(16),
+    issue_place character varying(64),
+    acc_bank_id bigint,
+    acc_bank_branch_id bigint,
+    bank_account_no character varying(32),
+    guarantor_name character varying(128),
+    status smallint DEFAULT 1 NOT NULL,
+    notes character varying(512),
+    CONSTRAINT fin_cheque_note_amount_check CHECK ((amount > (0)::numeric)),
+    CONSTRAINT fin_cheque_note_bank_check CHECK (((doc_kind = 2) OR (acc_bank_id IS NOT NULL))),
+    CONSTRAINT fin_cheque_note_direction_check CHECK ((direction = ANY (ARRAY[1, 2]))),
+    CONSTRAINT fin_cheque_note_doc_kind_check CHECK ((doc_kind = ANY (ARRAY[1, 2]))),
+    CONSTRAINT fin_cheque_note_due_date_check CHECK ((due_date >= issue_date)),
+    CONSTRAINT fin_cheque_note_status_check CHECK (((status >= 1) AND (status <= 9)))
+);
+
+
+ALTER TABLE public.fin_cheque_note OWNER TO ths_admin;
+
+--
+-- Name: fin_cheque_note_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.fin_cheque_note ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.fin_cheque_note_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: fin_cheque_note_transaction; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.fin_cheque_note_transaction (
+    id bigint NOT NULL,
+    fin_cheque_note_id bigint NOT NULL,
+    transaction_date date DEFAULT CURRENT_DATE NOT NULL,
+    transaction_type smallint NOT NULL,
+    acc_account_id bigint,
+    acc_bank_id bigint,
+    description character varying(256),
+    CONSTRAINT fin_cheque_note_transaction_account_check CHECK (((transaction_type <> ALL (ARRAY[2, 9])) OR (acc_account_id IS NOT NULL))),
+    CONSTRAINT fin_cheque_note_transaction_bank_check CHECK (((transaction_type <> ALL (ARRAY[3, 4])) OR (acc_bank_id IS NOT NULL))),
+    CONSTRAINT fin_cheque_note_transaction_type_check CHECK (((transaction_type >= 1) AND (transaction_type <= 9)))
+);
+
+
+ALTER TABLE public.fin_cheque_note_transaction OWNER TO ths_admin;
+
+--
+-- Name: fin_cheque_note_transaction_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.fin_cheque_note_transaction ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.fin_cheque_note_transaction_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: fin_credit_card; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.fin_credit_card (
+    id bigint NOT NULL,
+    card_name character varying(64) NOT NULL,
+    acc_bank_id bigint NOT NULL,
+    card_holder character varying(128),
+    card_last_digits character varying(4),
+    card_limit numeric(18,2) DEFAULT 0 NOT NULL,
+    statement_day smallint,
+    payment_day smallint,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    acc_account_code character varying(16),
+    is_active boolean DEFAULT true NOT NULL,
+    notes character varying(512),
+    CONSTRAINT fin_credit_card_last_digits_check CHECK (((card_last_digits IS NULL) OR ((card_last_digits)::text ~ '^[0-9]{4}$'::text))),
+    CONSTRAINT fin_credit_card_limit_check CHECK ((card_limit >= (0)::numeric)),
+    CONSTRAINT fin_credit_card_payment_day_check CHECK (((payment_day IS NULL) OR ((payment_day >= 1) AND (payment_day <= 31)))),
+    CONSTRAINT fin_credit_card_statement_day_check CHECK (((statement_day IS NULL) OR ((statement_day >= 1) AND (statement_day <= 31))))
+);
+
+
+ALTER TABLE public.fin_credit_card OWNER TO ths_admin;
+
+--
+-- Name: fin_credit_card_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.fin_credit_card ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.fin_credit_card_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: fin_credit_card_transaction; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.fin_credit_card_transaction (
+    id bigint NOT NULL,
+    fin_credit_card_id bigint NOT NULL,
+    transaction_date date DEFAULT CURRENT_DATE NOT NULL,
+    transaction_type smallint NOT NULL,
+    acc_account_id bigint,
+    amount numeric(18,2) NOT NULL,
+    installment_count smallint DEFAULT 1 NOT NULL,
+    description character varying(256),
+    CONSTRAINT fin_credit_card_transaction_amount_check CHECK ((amount > (0)::numeric)),
+    CONSTRAINT fin_credit_card_transaction_installment_check CHECK ((((installment_count >= 1) AND (installment_count <= 36)) AND ((transaction_type = 1) OR (installment_count = 1)))),
+    CONSTRAINT fin_credit_card_transaction_type_check CHECK (((transaction_type >= 1) AND (transaction_type <= 3)))
+);
+
+
+ALTER TABLE public.fin_credit_card_transaction OWNER TO ths_admin;
+
+--
+-- Name: fin_credit_card_transaction_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.fin_credit_card_transaction ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.fin_credit_card_transaction_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: fin_pos_terminal; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.fin_pos_terminal (
+    id bigint NOT NULL,
+    pos_name character varying(64) NOT NULL,
+    acc_bank_id bigint NOT NULL,
+    terminal_no character varying(32),
+    commission_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    blocked_days smallint DEFAULT 0 NOT NULL,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    acc_account_code character varying(16),
+    is_active boolean DEFAULT true NOT NULL,
+    notes character varying(512),
+    CONSTRAINT fin_pos_terminal_blocked_days_check CHECK (((blocked_days >= 0) AND (blocked_days <= 365))),
+    CONSTRAINT fin_pos_terminal_commission_rate_check CHECK (((commission_rate >= (0)::numeric) AND (commission_rate <= (100)::numeric)))
+);
+
+
+ALTER TABLE public.fin_pos_terminal OWNER TO ths_admin;
+
+--
+-- Name: fin_pos_terminal_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.fin_pos_terminal ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.fin_pos_terminal_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: fin_pos_transaction; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.fin_pos_transaction (
+    id bigint NOT NULL,
+    fin_pos_terminal_id bigint NOT NULL,
+    transaction_date date DEFAULT CURRENT_DATE NOT NULL,
+    transaction_type smallint NOT NULL,
+    acc_account_id bigint NOT NULL,
+    amount numeric(18,2) NOT NULL,
+    installment_count smallint DEFAULT 1 NOT NULL,
+    commission_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    commission_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    value_date date NOT NULL,
+    card_holder character varying(128),
+    card_last_digits character varying(4),
+    description character varying(256),
+    CONSTRAINT fin_pos_transaction_amount_check CHECK ((amount > (0)::numeric)),
+    CONSTRAINT fin_pos_transaction_commission_amount_check CHECK (((commission_amount >= (0)::numeric) AND (commission_amount <= amount))),
+    CONSTRAINT fin_pos_transaction_commission_rate_check CHECK (((commission_rate >= (0)::numeric) AND (commission_rate <= (100)::numeric))),
+    CONSTRAINT fin_pos_transaction_installment_check CHECK (((installment_count >= 1) AND (installment_count <= 36))),
+    CONSTRAINT fin_pos_transaction_last_digits_check CHECK (((card_last_digits IS NULL) OR ((card_last_digits)::text ~ '^[0-9]{4}$'::text))),
+    CONSTRAINT fin_pos_transaction_net_amount_check CHECK ((net_amount = (amount - commission_amount))),
+    CONSTRAINT fin_pos_transaction_type_check CHECK ((transaction_type = ANY (ARRAY[1, 2]))),
+    CONSTRAINT fin_pos_transaction_value_date_check CHECK ((value_date >= transaction_date))
+);
+
+
+ALTER TABLE public.fin_pos_transaction OWNER TO ths_admin;
+
+--
+-- Name: fin_pos_transaction_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.fin_pos_transaction ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.fin_pos_transaction_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
 
 --
 -- Name: mhs_exchange_rate_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
@@ -4239,6 +4479,224 @@ CREATE VIEW public.vw_emp_unit AS
 ALTER VIEW public.vw_emp_unit OWNER TO ths_admin;
 
 --
+-- Name: vw_fin_cheque_note; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_fin_cheque_note AS
+ SELECT n.id,
+    n.doc_kind,
+    n.direction,
+    n.portfolio_no,
+    n.serial_no,
+    n.issue_date,
+    n.due_date,
+    (n.due_date - CURRENT_DATE) AS days_to_due,
+    n.amount,
+    n.currency,
+    n.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    n.drawer_name,
+    n.drawer_tax_no,
+    n.issue_place,
+    n.acc_bank_id,
+    b.bank_name,
+    n.acc_bank_branch_id,
+    br.branch_name,
+    n.bank_account_no,
+    n.guarantor_name,
+    n.status,
+    lt.transaction_date AS status_date,
+    COALESCE(la.name, lb.bank_name) AS current_holder,
+    n.notes
+   FROM ((((((public.fin_cheque_note n
+     JOIN public.acc_account a ON ((a.id = n.acc_account_id)))
+     LEFT JOIN public.acc_bank b ON ((b.id = n.acc_bank_id)))
+     LEFT JOIN public.acc_bank_branch br ON ((br.id = n.acc_bank_branch_id)))
+     LEFT JOIN LATERAL ( SELECT t.transaction_date,
+            t.acc_account_id,
+            t.acc_bank_id
+           FROM public.fin_cheque_note_transaction t
+          WHERE (t.fin_cheque_note_id = n.id)
+          ORDER BY t.transaction_date DESC, t.id DESC
+         LIMIT 1) lt ON (true))
+     LEFT JOIN public.acc_account la ON ((la.id = lt.acc_account_id)))
+     LEFT JOIN public.acc_bank lb ON ((lb.id = lt.acc_bank_id)));
+
+
+ALTER VIEW public.vw_fin_cheque_note OWNER TO ths_admin;
+
+--
+-- Name: vw_fin_cheque_note_transaction; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_fin_cheque_note_transaction AS
+ SELECT t.id,
+    t.fin_cheque_note_id,
+    n.portfolio_no,
+    n.serial_no,
+    n.doc_kind,
+    n.direction,
+    n.due_date,
+    n.amount,
+    n.currency,
+    t.transaction_date,
+    t.transaction_type,
+    t.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    t.acc_bank_id,
+    b.bank_name,
+    t.description
+   FROM (((public.fin_cheque_note_transaction t
+     JOIN public.fin_cheque_note n ON ((n.id = t.fin_cheque_note_id)))
+     LEFT JOIN public.acc_account a ON ((a.id = t.acc_account_id)))
+     LEFT JOIN public.acc_bank b ON ((b.id = t.acc_bank_id)));
+
+
+ALTER VIEW public.vw_fin_cheque_note_transaction OWNER TO ths_admin;
+
+--
+-- Name: vw_fin_credit_card; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_fin_credit_card AS
+ SELECT c.id,
+    c.card_name,
+    c.acc_bank_id,
+    b.bank_name,
+    c.card_holder,
+    c.card_last_digits,
+    c.card_limit,
+    c.statement_day,
+    c.payment_day,
+    c.currency,
+    c.acc_account_code,
+    a.name AS account_name,
+    c.is_active,
+    (COALESCE(s.total_spending, (0)::numeric))::numeric(18,2) AS total_spending,
+    (COALESCE(s.total_payment, (0)::numeric))::numeric(18,2) AS total_payment,
+    (COALESCE(s.balance, (0)::numeric))::numeric(18,2) AS balance,
+    ((c.card_limit - COALESCE(s.balance, (0)::numeric)))::numeric(18,2) AS available_limit,
+    c.notes
+   FROM (((public.fin_credit_card c
+     JOIN public.acc_bank b ON ((b.id = c.acc_bank_id)))
+     LEFT JOIN public.acc_account a ON (((a.code)::text = (c.acc_account_code)::text)))
+     LEFT JOIN ( SELECT t.fin_credit_card_id,
+            sum(t.amount) FILTER (WHERE (t.transaction_type = 1)) AS total_spending,
+            sum(t.amount) FILTER (WHERE (t.transaction_type = 2)) AS total_payment,
+            sum(
+                CASE
+                    WHEN (t.transaction_type = 1) THEN t.amount
+                    ELSE (- t.amount)
+                END) AS balance
+           FROM public.fin_credit_card_transaction t
+          GROUP BY t.fin_credit_card_id) s ON ((s.fin_credit_card_id = c.id)));
+
+
+ALTER VIEW public.vw_fin_credit_card OWNER TO ths_admin;
+
+--
+-- Name: vw_fin_credit_card_transaction; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_fin_credit_card_transaction AS
+ SELECT t.id,
+    t.fin_credit_card_id,
+    c.card_name,
+    c.currency,
+    t.transaction_date,
+    t.transaction_type,
+    t.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    t.amount,
+    t.installment_count,
+    (round((t.amount / (t.installment_count)::numeric), 2))::numeric(18,2) AS installment_amount,
+    t.description
+   FROM ((public.fin_credit_card_transaction t
+     JOIN public.fin_credit_card c ON ((c.id = t.fin_credit_card_id)))
+     LEFT JOIN public.acc_account a ON ((a.id = t.acc_account_id)));
+
+
+ALTER VIEW public.vw_fin_credit_card_transaction OWNER TO ths_admin;
+
+--
+-- Name: vw_fin_pos_terminal; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_fin_pos_terminal AS
+ SELECT p.id,
+    p.pos_name,
+    p.acc_bank_id,
+    b.bank_name,
+    p.terminal_no,
+    p.commission_rate,
+    p.blocked_days,
+    p.currency,
+    p.acc_account_code,
+    a.name AS account_name,
+    p.is_active,
+    (COALESCE(s.total_amount, (0)::numeric))::numeric(18,2) AS total_amount,
+    (COALESCE(s.total_commission, (0)::numeric))::numeric(18,2) AS total_commission,
+    (COALESCE(s.total_net, (0)::numeric))::numeric(18,2) AS total_net,
+    p.notes
+   FROM (((public.fin_pos_terminal p
+     JOIN public.acc_bank b ON ((b.id = p.acc_bank_id)))
+     LEFT JOIN public.acc_account a ON (((a.code)::text = (p.acc_account_code)::text)))
+     LEFT JOIN ( SELECT t.fin_pos_terminal_id,
+            sum(
+                CASE
+                    WHEN (t.transaction_type = 1) THEN t.amount
+                    ELSE (- t.amount)
+                END) AS total_amount,
+            sum(
+                CASE
+                    WHEN (t.transaction_type = 1) THEN t.commission_amount
+                    ELSE (- t.commission_amount)
+                END) AS total_commission,
+            sum(
+                CASE
+                    WHEN (t.transaction_type = 1) THEN t.net_amount
+                    ELSE (- t.net_amount)
+                END) AS total_net
+           FROM public.fin_pos_transaction t
+          GROUP BY t.fin_pos_terminal_id) s ON ((s.fin_pos_terminal_id = p.id)));
+
+
+ALTER VIEW public.vw_fin_pos_terminal OWNER TO ths_admin;
+
+--
+-- Name: vw_fin_pos_transaction; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_fin_pos_transaction AS
+ SELECT t.id,
+    t.fin_pos_terminal_id,
+    p.pos_name,
+    p.currency,
+    t.transaction_date,
+    t.transaction_type,
+    t.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    t.amount,
+    t.installment_count,
+    t.commission_rate,
+    t.commission_amount,
+    t.net_amount,
+    t.value_date,
+    t.card_holder,
+    t.card_last_digits,
+    t.description
+   FROM ((public.fin_pos_transaction t
+     JOIN public.fin_pos_terminal p ON ((p.id = t.fin_pos_terminal_id)))
+     JOIN public.acc_account a ON ((a.id = t.acc_account_id)));
+
+
+ALTER VIEW public.vw_fin_pos_transaction OWNER TO ths_admin;
+
+--
 -- Name: vw_prd_bom; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -5568,6 +6026,78 @@ ALTER TABLE ONLY public.emp_unit_translation
 
 
 --
+-- Name: fin_cheque_note fin_cheque_note_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_cheque_note
+    ADD CONSTRAINT fin_cheque_note_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fin_cheque_note fin_cheque_note_portfolio_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_cheque_note
+    ADD CONSTRAINT fin_cheque_note_portfolio_no_key UNIQUE (portfolio_no);
+
+
+--
+-- Name: fin_cheque_note_transaction fin_cheque_note_transaction_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_cheque_note_transaction
+    ADD CONSTRAINT fin_cheque_note_transaction_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fin_credit_card fin_credit_card_card_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_credit_card
+    ADD CONSTRAINT fin_credit_card_card_name_key UNIQUE (card_name);
+
+
+--
+-- Name: fin_credit_card fin_credit_card_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_credit_card
+    ADD CONSTRAINT fin_credit_card_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fin_credit_card_transaction fin_credit_card_transaction_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_credit_card_transaction
+    ADD CONSTRAINT fin_credit_card_transaction_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fin_pos_terminal fin_pos_terminal_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_pos_terminal
+    ADD CONSTRAINT fin_pos_terminal_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fin_pos_terminal fin_pos_terminal_pos_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_pos_terminal
+    ADD CONSTRAINT fin_pos_terminal_pos_name_key UNIQUE (pos_name);
+
+
+--
+-- Name: fin_pos_transaction fin_pos_transaction_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_pos_transaction
+    ADD CONSTRAINT fin_pos_transaction_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: acc_voucher_detail mhs_fis_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -6731,6 +7261,139 @@ CREATE INDEX emp_unit_emp_section_id_idx ON public.emp_unit USING btree (emp_sec
 
 
 --
+-- Name: fin_cheque_note_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_cheque_note_acc_account_id_idx ON public.fin_cheque_note USING btree (acc_account_id);
+
+
+--
+-- Name: fin_cheque_note_acc_bank_branch_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_cheque_note_acc_bank_branch_id_idx ON public.fin_cheque_note USING btree (acc_bank_branch_id);
+
+
+--
+-- Name: fin_cheque_note_acc_bank_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_cheque_note_acc_bank_id_idx ON public.fin_cheque_note USING btree (acc_bank_id);
+
+
+--
+-- Name: fin_cheque_note_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_cheque_note_currency_idx ON public.fin_cheque_note USING btree (currency);
+
+
+--
+-- Name: fin_cheque_note_due_date_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_cheque_note_due_date_idx ON public.fin_cheque_note USING btree (due_date);
+
+
+--
+-- Name: fin_cheque_note_serial_key; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE UNIQUE INDEX fin_cheque_note_serial_key ON public.fin_cheque_note USING btree (doc_kind, direction, COALESCE(acc_bank_id, (0)::bigint), serial_no);
+
+
+--
+-- Name: fin_cheque_note_transaction_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_cheque_note_transaction_acc_account_id_idx ON public.fin_cheque_note_transaction USING btree (acc_account_id);
+
+
+--
+-- Name: fin_cheque_note_transaction_acc_bank_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_cheque_note_transaction_acc_bank_id_idx ON public.fin_cheque_note_transaction USING btree (acc_bank_id);
+
+
+--
+-- Name: fin_cheque_note_transaction_note_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_cheque_note_transaction_note_idx ON public.fin_cheque_note_transaction USING btree (fin_cheque_note_id, transaction_date, id);
+
+
+--
+-- Name: fin_credit_card_acc_account_code_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_credit_card_acc_account_code_idx ON public.fin_credit_card USING btree (acc_account_code);
+
+
+--
+-- Name: fin_credit_card_acc_bank_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_credit_card_acc_bank_id_idx ON public.fin_credit_card USING btree (acc_bank_id);
+
+
+--
+-- Name: fin_credit_card_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_credit_card_currency_idx ON public.fin_credit_card USING btree (currency);
+
+
+--
+-- Name: fin_credit_card_transaction_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_credit_card_transaction_acc_account_id_idx ON public.fin_credit_card_transaction USING btree (acc_account_id);
+
+
+--
+-- Name: fin_credit_card_transaction_card_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_credit_card_transaction_card_idx ON public.fin_credit_card_transaction USING btree (fin_credit_card_id, transaction_date);
+
+
+--
+-- Name: fin_pos_terminal_acc_account_code_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_pos_terminal_acc_account_code_idx ON public.fin_pos_terminal USING btree (acc_account_code);
+
+
+--
+-- Name: fin_pos_terminal_acc_bank_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_pos_terminal_acc_bank_id_idx ON public.fin_pos_terminal USING btree (acc_bank_id);
+
+
+--
+-- Name: fin_pos_terminal_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_pos_terminal_currency_idx ON public.fin_pos_terminal USING btree (currency);
+
+
+--
+-- Name: fin_pos_transaction_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_pos_transaction_acc_account_id_idx ON public.fin_pos_transaction USING btree (acc_account_id);
+
+
+--
+-- Name: fin_pos_transaction_pos_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_pos_transaction_pos_idx ON public.fin_pos_transaction USING btree (fin_pos_terminal_id, transaction_date);
+
+
+--
 -- Name: idx_als_teklif_detaylari_header_id; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -7134,6 +7797,48 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.emp_transportat
 --
 
 CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.emp_unit FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: fin_cheque_note notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.fin_cheque_note FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: fin_cheque_note_transaction notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.fin_cheque_note_transaction FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: fin_credit_card notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.fin_credit_card FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: fin_credit_card_transaction notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.fin_credit_card_transaction FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: fin_pos_terminal notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.fin_pos_terminal FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: fin_pos_transaction notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.fin_pos_transaction FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -7665,6 +8370,142 @@ ALTER TABLE ONLY public.emp_unit_translation
 
 ALTER TABLE ONLY public.emp_unit_translation
     ADD CONSTRAINT emp_unit_translation_sys_language_id_fkey FOREIGN KEY (sys_language_id) REFERENCES public.sys_language(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: fin_cheque_note fin_cheque_note_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_cheque_note
+    ADD CONSTRAINT fin_cheque_note_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_cheque_note fin_cheque_note_acc_bank_branch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_cheque_note
+    ADD CONSTRAINT fin_cheque_note_acc_bank_branch_id_fkey FOREIGN KEY (acc_bank_branch_id) REFERENCES public.acc_bank_branch(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_cheque_note fin_cheque_note_acc_bank_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_cheque_note
+    ADD CONSTRAINT fin_cheque_note_acc_bank_id_fkey FOREIGN KEY (acc_bank_id) REFERENCES public.acc_bank(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_cheque_note fin_cheque_note_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_cheque_note
+    ADD CONSTRAINT fin_cheque_note_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_cheque_note_transaction fin_cheque_note_transaction_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_cheque_note_transaction
+    ADD CONSTRAINT fin_cheque_note_transaction_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_cheque_note_transaction fin_cheque_note_transaction_acc_bank_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_cheque_note_transaction
+    ADD CONSTRAINT fin_cheque_note_transaction_acc_bank_id_fkey FOREIGN KEY (acc_bank_id) REFERENCES public.acc_bank(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_cheque_note_transaction fin_cheque_note_transaction_note_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_cheque_note_transaction
+    ADD CONSTRAINT fin_cheque_note_transaction_note_fkey FOREIGN KEY (fin_cheque_note_id) REFERENCES public.fin_cheque_note(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: fin_credit_card fin_credit_card_acc_account_code_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_credit_card
+    ADD CONSTRAINT fin_credit_card_acc_account_code_fkey FOREIGN KEY (acc_account_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_credit_card fin_credit_card_acc_bank_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_credit_card
+    ADD CONSTRAINT fin_credit_card_acc_bank_id_fkey FOREIGN KEY (acc_bank_id) REFERENCES public.acc_bank(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_credit_card fin_credit_card_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_credit_card
+    ADD CONSTRAINT fin_credit_card_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_credit_card_transaction fin_credit_card_transaction_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_credit_card_transaction
+    ADD CONSTRAINT fin_credit_card_transaction_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_credit_card_transaction fin_credit_card_transaction_card_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_credit_card_transaction
+    ADD CONSTRAINT fin_credit_card_transaction_card_fkey FOREIGN KEY (fin_credit_card_id) REFERENCES public.fin_credit_card(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_pos_terminal fin_pos_terminal_acc_account_code_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_pos_terminal
+    ADD CONSTRAINT fin_pos_terminal_acc_account_code_fkey FOREIGN KEY (acc_account_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_pos_terminal fin_pos_terminal_acc_bank_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_pos_terminal
+    ADD CONSTRAINT fin_pos_terminal_acc_bank_id_fkey FOREIGN KEY (acc_bank_id) REFERENCES public.acc_bank(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_pos_terminal fin_pos_terminal_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_pos_terminal
+    ADD CONSTRAINT fin_pos_terminal_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_pos_transaction fin_pos_transaction_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_pos_transaction
+    ADD CONSTRAINT fin_pos_transaction_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_pos_transaction fin_pos_transaction_pos_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_pos_transaction
+    ADD CONSTRAINT fin_pos_transaction_pos_fkey FOREIGN KEY (fin_pos_terminal_id) REFERENCES public.fin_pos_terminal(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -8679,5 +9520,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 0mHEkscxDYBkDzcpNNWy5rcffTEVF1iM0uvvfLaUyg3z1CKnjw0NH8ue2Q7DUYg
+\unrestrict 0bKEcj27VLYxvgI5QwcQmw9behhHFrGXarrZSjcLjgmzCRjiPQCECvZ3387bHj8
 

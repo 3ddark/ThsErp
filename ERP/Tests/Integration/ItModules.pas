@@ -18,7 +18,10 @@ uses
   SysAccessRight, SysAccessRight.Service, SysUserPermissionTemplate, SysUserPermissionTemplate.Service,
   SysGridFilter, SysGridFilter.Service,
   EmpEmployee, EmpEmployee.Service, EmpPersonAddress, EmpPersonAddress.Service,
-  EmpTransportation, EmpTransportation.Service, Password.Helper;
+  EmpTransportation, EmpTransportation.Service, Password.Helper,
+  FinLookup, FinChequeNote, FinChequeNote.Service, FinChequeNoteTransaction, FinChequeNoteTransaction.Service,
+  FinCreditCard, FinCreditCard.Service, FinCreditCardTransaction, FinCreditCardTransaction.Service,
+  FinPosTerminal, FinPosTerminal.Service, FinPosTransaction, FinPosTransaction.Service;
 
 var
   GMod, GEnt: string;
@@ -942,6 +945,522 @@ begin
   end;
 end;
 
+{ ---------------------------------------------------------------- Finance }
+
+function NewNote(ASvc: TFinChequeNoteService; AKind, ADir: SmallInt; const ASerial: string; ABank: Int64): TFinChequeNote;
+begin
+  Result := TFinChequeNote.Create;
+  Result.DocKind := AKind;
+  Result.Direction := ADir;
+  Result.SerialNo := ASerial;
+  Result.IssueDate := Date;
+  Result.DueDate := Date + 30;
+  Result.Amount := 1500.5;
+  Result.AccAccountId := Scalar('SELECT min(id) FROM acc_account');
+  Result.AccBankId := ABank;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NewNoteTx(ASvc: TFinChequeNoteTransactionService; ANote: Int64; AType: SmallInt; ADate: TDate;
+  AAccount: Int64 = 0; ABank: Int64 = 0): TFinChequeNoteTransaction;
+begin
+  Result := TFinChequeNoteTransaction.Create;
+  Result.FinChequeNoteId := ANote;
+  Result.TransactionType := AType;
+  Result.TransactionDate := ADate;
+  Result.AccAccountId := AAccount;
+  Result.AccBankId := ABank;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NoteStatus(ANote: Int64): Integer;
+begin
+  Result := Scalar('SELECT status FROM fin_cheque_note WHERE id = ' + ANote.ToString);
+end;
+
+procedure TestFinanceChequeNotes;
+var
+  NSvc: TFinChequeNoteService;
+  TSvc: TFinChequeNoteTransactionService;
+  N, N2, G: TFinChequeNote;
+  T3, T5, TG: TFinChequeNoteTransaction;
+  Bank, Acc: Int64;
+begin
+  Ctx('Finance', 'TFinChequeNote');
+  Bank := Scalar('SELECT min(id) FROM acc_bank');
+  Acc := Scalar('SELECT min(id) FROM acc_account');
+  NSvc := TFinChequeNoteService.Create;
+  TSvc := TFinChequeNoteTransactionService.Create;
+  N := nil; N2 := nil; G := nil; T3 := nil; T5 := nil; TG := nil;
+  try
+    try
+      Begin_;
+      N := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, ' it-a100 ', Bank);
+      Check('insert cheque', N.Id > 0, N.PortfolioNo);
+      Check('portfolio no MC######', StartsText('MC', N.PortfolioNo) and (Length(N.PortfolioNo) = 8), N.PortfolioNo);
+      Check('serial upper/trim', S(Scalar('SELECT serial_no FROM fin_cheque_note WHERE id = ' + N.Id.ToString)) = 'IT-A100');
+      Check('currency default', S(Scalar('SELECT currency FROM fin_cheque_note WHERE id = ' + N.Id.ToString)) =
+        S(Scalar('SELECT fn_default_currency()')));
+      Check('status in portfolio', NoteStatus(N.Id) = FIN_STATUS_IN_PORTFOLIO);
+      Check('opening tx', S(Scalar('SELECT string_agg(transaction_type::text || ''/'' || acc_account_id::text, '','') ' +
+        'FROM fin_cheque_note_transaction WHERE fin_cheque_note_id = ' + N.Id.ToString)) = '1/' + Acc.ToString,
+        S(Scalar('SELECT string_agg(transaction_type::text, '','') FROM fin_cheque_note_transaction WHERE fin_cheque_note_id = ' + N.Id.ToString)));
+
+      N2 := NewNote(NSvc, FIN_DOC_NOTE, FIN_DIR_RECEIVED, 'IT-S1', 0);
+      Check('note without bank', N2.Id > 0, N2.PortfolioNo);
+      Check('portfolio no MS', StartsText('MS', N2.PortfolioNo), N2.PortfolioNo);
+      Check('next number', N2.PortfolioNo <> N.PortfolioNo);
+
+      // tahsile ver -> tahsil -> son hareketi sil
+      T3 := NewNoteTx(TSvc, N.Id, FIN_STATUS_AT_BANK_COLLECTION, Date, 0, Bank);
+      Check('tx to bank', NoteStatus(N.Id) = FIN_STATUS_AT_BANK_COLLECTION);
+      Check('current holder = bank', S(Scalar('SELECT current_holder FROM vw_fin_cheque_note WHERE id = ' + N.Id.ToString)) =
+        S(Scalar('SELECT bank_name FROM acc_bank WHERE id = ' + Bank.ToString)));
+      T5 := NewNoteTx(TSvc, N.Id, FIN_STATUS_COLLECTED, Date + 1);
+      Check('tx collected', NoteStatus(N.Id) = FIN_STATUS_COLLECTED);
+      T5.Description := 'it açıklama';
+      TSvc.BusinessUpdate(T5, False, False, True);
+      Check('update last tx', S(Scalar('SELECT description FROM fin_cheque_note_transaction WHERE id = ' + T5.Id.ToString)) = 'it açıklama');
+      TSvc.BusinessDelete(T5, False, False, True);
+      Check('delete last tx -> status back', NoteStatus(N.Id) = FIN_STATUS_AT_BANK_COLLECTION);
+      TSvc.BusinessDelete(T3, False, False, True);
+      Check('delete tx -> in portfolio', NoteStatus(N.Id) = FIN_STATUS_IN_PORTFOLIO);
+
+      // yalnız açılış varken belge güncellemesi açılış hareketini senkronlar
+      N.IssueDate := Date - 2;
+      N.DueDate := Date + 10;
+      NSvc.BusinessUpdate(N, False, False, True);
+      Check('opening tx date synced', S(Scalar('SELECT transaction_date FROM fin_cheque_note_transaction WHERE fin_cheque_note_id = ' + N.Id.ToString)) =
+        S(Scalar('SELECT issue_date FROM fin_cheque_note WHERE id = ' + N.Id.ToString)));
+
+      // verilen çek
+      G := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_GIVEN, 'IT-K1', Bank);
+      Check('given cheque KC + issued', StartsText('KC', G.PortfolioNo) and (NoteStatus(G.Id) = FIN_STATUS_ISSUED), G.PortfolioNo);
+      TG := NewNoteTx(TSvc, G.Id, FIN_STATUS_PAID, Date);
+      Check('given -> paid', NoteStatus(G.Id) = FIN_STATUS_PAID);
+
+      NSvc.BusinessDelete(N2, False, False, True);
+      Check('delete note (opening only)', Num(Scalar('SELECT count(*) FROM fin_cheque_note_transaction WHERE fin_cheque_note_id = ' + N2.Id.ToString)) = 0);
+      End_;
+
+      // ---- kural ihlalleri (her biri kendi transaction'ında)
+      Begin_;
+      Expect('duplicate serial same bank', procedure
+        begin
+          NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-D1', Bank).Free;
+          NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'it-d1', Bank).Free;
+        end);
+      Begin_;
+      Expect('cheque without bank', procedure
+        begin
+          NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-B0', 0).Free;
+        end);
+      Begin_;
+      Expect('due before issue', procedure
+        var X: TFinChequeNote;
+        begin
+          X := TFinChequeNote.Create;
+          try
+            X.DocKind := FIN_DOC_NOTE; X.Direction := FIN_DIR_RECEIVED; X.SerialNo := 'IT-DD';
+            X.IssueDate := Date; X.DueDate := Date - 1; X.Amount := 10; X.AccAccountId := Acc;
+            NSvc.BusinessInsert(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('amount 0', procedure
+        var X: TFinChequeNote;
+        begin
+          X := TFinChequeNote.Create;
+          try
+            X.DocKind := FIN_DOC_NOTE; X.Direction := FIN_DIR_RECEIVED; X.SerialNo := 'IT-A0';
+            X.IssueDate := Date; X.DueDate := Date; X.Amount := 0; X.AccAccountId := Acc;
+            NSvc.BusinessInsert(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('invalid transition 3 -> 2', procedure
+        var X: TFinChequeNote;
+        begin
+          X := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-T1', Bank);
+          try
+            NewNoteTx(TSvc, X.Id, FIN_STATUS_AT_BANK_COLLECTION, Date, 0, Bank).Free;
+            NewNoteTx(TSvc, X.Id, FIN_STATUS_ENDORSED, Date, Acc).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('closed document (collected -> bounced)', procedure
+        var X: TFinChequeNote;
+        begin
+          X := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-T2', Bank);
+          try
+            NewNoteTx(TSvc, X.Id, FIN_STATUS_COLLECTED, Date).Free;
+            NewNoteTx(TSvc, X.Id, FIN_STATUS_BOUNCED, Date).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('date before previous', procedure
+        var X: TFinChequeNote;
+        begin
+          X := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-T3', Bank);
+          try
+            NewNoteTx(TSvc, X.Id, FIN_STATUS_COLLECTED, Date - 5).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('endorse without account', procedure
+        var X: TFinChequeNote;
+        begin
+          X := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-T4', Bank);
+          try
+            NewNoteTx(TSvc, X.Id, FIN_STATUS_ENDORSED, Date).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('collection without bank', procedure
+        var X: TFinChequeNote;
+        begin
+          X := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-T5', Bank);
+          try
+            NewNoteTx(TSvc, X.Id, FIN_STATUS_AT_BANK_COLLECTION, Date).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('given cheque -> in portfolio', procedure
+        var X: TFinChequeNote;
+        begin
+          X := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_GIVEN, 'IT-T6', Bank);
+          try
+            NewNoteTx(TSvc, X.Id, FIN_STATUS_IN_PORTFOLIO, Date).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('delete non-last tx', procedure
+        var X: TFinChequeNote; A, B: TFinChequeNoteTransaction;
+        begin
+          X := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-T7', Bank);
+          A := NewNoteTx(TSvc, X.Id, FIN_STATUS_AT_BANK_COLLECTION, Date, 0, Bank);
+          B := NewNoteTx(TSvc, X.Id, FIN_STATUS_COLLECTED, Date);
+          try
+            TSvc.BusinessDelete(A, False, False, True);
+          finally X.Free; A.Free; B.Free; end;
+        end);
+      Begin_;
+      Expect('delete opening tx', procedure
+        var X: TFinChequeNote; L: TList<TFinChequeNoteTransaction>; F: TFilterCriteria;
+        begin
+          X := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-T8', Bank);
+          F := TFilterCriteria.Create;
+          F.Add(TFilterCriterion.New('fin_cheque_note_id', '=', TValue.From<Int64>(X.Id)));
+          L := TSvc.BusinessFind(F, False, False, True);
+          try
+            TSvc.BusinessDelete(L[0], False, False, True);
+          finally X.Free; F.Free; L.Free; end;
+        end);
+      Begin_;
+      Expect('delete note with transactions', procedure
+        var X: TFinChequeNote;
+        begin
+          X := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-T9', Bank);
+          try
+            NewNoteTx(TSvc, X.Id, FIN_STATUS_COLLECTED, Date).Free;
+            NSvc.BusinessDelete(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('change direction after transactions', procedure
+        var X: TFinChequeNote;
+        begin
+          X := NewNote(NSvc, FIN_DOC_CHEQUE, FIN_DIR_RECEIVED, 'IT-TA', Bank);
+          try
+            NewNoteTx(TSvc, X.Id, FIN_STATUS_COLLECTED, Date).Free;
+            X.Direction := FIN_DIR_GIVEN;
+            NSvc.BusinessUpdate(X, False, False, True);
+          finally X.Free; end;
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    N.Free; N2.Free; G.Free; T3.Free; T5.Free; TG.Free;
+    TSvc.Free;
+    NSvc.Free;
+  end;
+end;
+
+function NewCard(ASvc: TFinCreditCardService; const AName: string; ALimit: Currency): TFinCreditCard;
+begin
+  Result := TFinCreditCard.Create;
+  Result.CardName := AName;
+  Result.AccBankId := Scalar('SELECT min(id) FROM acc_bank');
+  Result.CardLimit := ALimit;
+  Result.CardLastDigits := '1234';
+  Result.StatementDay := 5;
+  Result.PaymentDay := 15;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NewCardTx(ASvc: TFinCreditCardTransactionService; ACard: Int64; AType: SmallInt; AAmount: Currency;
+  AInst: SmallInt = 1): TFinCreditCardTransaction;
+begin
+  Result := TFinCreditCardTransaction.Create;
+  Result.FinCreditCardId := ACard;
+  Result.TransactionType := AType;
+  Result.Amount := AAmount;
+  Result.InstallmentCount := AInst;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+procedure TestFinanceCreditCards;
+var
+  CSvc: TFinCreditCardService;
+  TSvc: TFinCreditCardTransactionService;
+  C: TFinCreditCard;
+  T1, T2, T3: TFinCreditCardTransaction;
+begin
+  Ctx('Finance', 'TFinCreditCard');
+  CSvc := TFinCreditCardService.Create;
+  TSvc := TFinCreditCardTransactionService.Create;
+  C := nil; T1 := nil; T2 := nil; T3 := nil;
+  try
+    try
+      Begin_;
+      C := NewCard(CSvc, 'IT KART', 1000);
+      Check('insert card', C.Id > 0);
+      Check('currency default', S(Scalar('SELECT currency FROM fin_credit_card WHERE id = ' + C.Id.ToString)) <> '<null>');
+      T1 := NewCardTx(TSvc, C.Id, FIN_CARD_TX_SPENDING, 600, 3);
+      Check('spending', Near(Num(Scalar('SELECT balance FROM vw_fin_credit_card WHERE id = ' + C.Id.ToString)), 600) and
+        Near(Num(Scalar('SELECT available_limit FROM vw_fin_credit_card WHERE id = ' + C.Id.ToString)), 400));
+      Check('installment amount', Near(Num(Scalar('SELECT installment_amount FROM vw_fin_credit_card_transaction WHERE id = ' + T1.Id.ToString)), 200));
+      T2 := NewCardTx(TSvc, C.Id, FIN_CARD_TX_PAYMENT, 200);
+      Check('payment', Near(Num(Scalar('SELECT balance FROM vw_fin_credit_card WHERE id = ' + C.Id.ToString)), 400));
+      T3 := NewCardTx(TSvc, C.Id, FIN_CARD_TX_SPENDING, 500.25);
+      Check('spending within limit', Near(Num(Scalar('SELECT balance FROM vw_fin_credit_card WHERE id = ' + C.Id.ToString)), 900.25));
+      T3.Amount := 600;
+      TSvc.BusinessUpdate(T3, False, False, True);
+      Check('update up to limit', Near(Num(Scalar('SELECT available_limit FROM vw_fin_credit_card WHERE id = ' + C.Id.ToString)), 0));
+      TSvc.BusinessDelete(T3, False, False, True);
+      Check('delete tx', Near(Num(Scalar('SELECT balance FROM vw_fin_credit_card WHERE id = ' + C.Id.ToString)), 400));
+      C.CardLimit := 5000;
+      C.StatementDay := 0;
+      CSvc.BusinessUpdate(C, False, False, True);
+      Check('statement day 0 -> NULL', S(Scalar('SELECT statement_day FROM fin_credit_card WHERE id = ' + C.Id.ToString)) = '<null>');
+      End_;
+
+      Begin_;
+      Expect('limit exceeded', procedure
+        var X: TFinCreditCard;
+        begin
+          X := NewCard(CSvc, 'IT L', 1000);
+          try
+            NewCardTx(TSvc, X.Id, FIN_CARD_TX_SPENDING, 800).Free;
+            NewCardTx(TSvc, X.Id, FIN_CARD_TX_SPENDING, 300).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('installments on payment', procedure
+        var X: TFinCreditCard;
+        begin
+          X := NewCard(CSvc, 'IT P', 0);
+          try
+            NewCardTx(TSvc, X.Id, FIN_CARD_TX_PAYMENT, 100, 2).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('installments 40', procedure
+        var X: TFinCreditCard;
+        begin
+          X := NewCard(CSvc, 'IT I', 0);
+          try
+            NewCardTx(TSvc, X.Id, FIN_CARD_TX_SPENDING, 100, 40).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('passive card spending', procedure
+        var X: TFinCreditCard;
+        begin
+          X := NewCard(CSvc, 'IT PS', 0);
+          try
+            X.IsActive := False;
+            CSvc.BusinessUpdate(X, False, False, True);
+            NewCardTx(TSvc, X.Id, FIN_CARD_TX_SPENDING, 100).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('last digits 12a4', procedure
+        var X: TFinCreditCard;
+        begin
+          X := TFinCreditCard.Create;
+          try
+            X.CardName := 'IT D'; X.AccBankId := Scalar('SELECT min(id) FROM acc_bank'); X.CardLastDigits := '12a4';
+            CSvc.BusinessInsert(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('statement day 32', procedure
+        var X: TFinCreditCard;
+        begin
+          X := TFinCreditCard.Create;
+          try
+            X.CardName := 'IT D'; X.AccBankId := Scalar('SELECT min(id) FROM acc_bank'); X.StatementDay := 32;
+            CSvc.BusinessInsert(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('duplicate card name', procedure
+        begin
+          NewCard(CSvc, 'IT DUP', 0).Free;
+          NewCard(CSvc, 'IT DUP', 0).Free;
+        end);
+      Begin_;
+      Expect('delete card with transactions', procedure
+        var X: TFinCreditCard;
+        begin
+          X := NewCard(CSvc, 'IT DEL', 0);
+          try
+            NewCardTx(TSvc, X.Id, FIN_CARD_TX_SPENDING, 100).Free;
+            CSvc.BusinessDelete(X, False, False, True);
+          finally X.Free; end;
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    C.Free; T1.Free; T2.Free; T3.Free;
+    TSvc.Free;
+    CSvc.Free;
+  end;
+end;
+
+function NewPos(ASvc: TFinPosTerminalService; const AName: string; ARate: Currency; ADays: SmallInt): TFinPosTerminal;
+begin
+  Result := TFinPosTerminal.Create;
+  Result.PosName := AName;
+  Result.AccBankId := Scalar('SELECT min(id) FROM acc_bank');
+  Result.CommissionRate := ARate;
+  Result.BlockedDays := ADays;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NewPosTx(ASvc: TFinPosTransactionService; APos: Int64; AAmount, ARate: Currency): TFinPosTransaction;
+begin
+  Result := TFinPosTransaction.Create;
+  Result.FinPosTerminalId := APos;
+  Result.AccAccountId := Scalar('SELECT min(id) FROM acc_account');
+  Result.Amount := AAmount;
+  Result.CommissionRate := ARate;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+procedure TestFinancePos;
+var
+  PSvc: TFinPosTerminalService;
+  TSvc: TFinPosTransactionService;
+  P: TFinPosTerminal;
+  T1, T2: TFinPosTransaction;
+begin
+  Ctx('Finance', 'TFinPosTerminal');
+  PSvc := TFinPosTerminalService.Create;
+  TSvc := TFinPosTransactionService.Create;
+  P := nil; T1 := nil; T2 := nil;
+  try
+    try
+      Begin_;
+      P := NewPos(PSvc, 'IT POS', 1.75, 30);
+      Check('insert pos', P.Id > 0);
+      T1 := NewPosTx(TSvc, P.Id, 1000, 1.75);
+      Check('commission 17.50 / net 982.50', Near(Num(Scalar('SELECT commission_amount FROM fin_pos_transaction WHERE id = ' + T1.Id.ToString)), 17.5) and
+        Near(Num(Scalar('SELECT net_amount FROM fin_pos_transaction WHERE id = ' + T1.Id.ToString)), 982.5));
+      Check('value date = date + 30', S(Scalar('SELECT value_date - transaction_date FROM fin_pos_transaction WHERE id = ' + T1.Id.ToString)) = '30');
+      T2 := NewPosTx(TSvc, P.Id, 333.33, 1.75);
+      Check('commission rounding 5.83', Near(Num(Scalar('SELECT commission_amount FROM fin_pos_transaction WHERE id = ' + T2.Id.ToString)), 5.83),
+        S(Scalar('SELECT commission_amount FROM fin_pos_transaction WHERE id = ' + T2.Id.ToString)));
+      T2.TransactionType := FIN_POS_TX_REFUND;
+      T2.Amount := 100;
+      TSvc.BusinessUpdate(T2, False, False, True);
+      Check('refund update recalculated', Near(Num(Scalar('SELECT net_amount FROM fin_pos_transaction WHERE id = ' + T2.Id.ToString)), 98.25));
+      Check('pos totals', Near(Num(Scalar('SELECT total_amount FROM vw_fin_pos_terminal WHERE id = ' + P.Id.ToString)), 900) and
+        Near(Num(Scalar('SELECT total_net FROM vw_fin_pos_terminal WHERE id = ' + P.Id.ToString)), 884.25),
+        S(Scalar('SELECT total_net FROM vw_fin_pos_terminal WHERE id = ' + P.Id.ToString)));
+      TSvc.BusinessDelete(T2, False, False, True);
+      Check('delete tx', Num(Scalar('SELECT count(*) FROM fin_pos_transaction WHERE fin_pos_terminal_id = ' + P.Id.ToString)) = 1);
+      End_;
+
+      Begin_;
+      Expect('rate 120', procedure
+        begin
+          NewPos(PSvc, 'IT R', 120, 0).Free;
+        end);
+      Begin_;
+      Expect('blocked days 400', procedure
+        begin
+          NewPos(PSvc, 'IT B', 1, 400).Free;
+        end);
+      Begin_;
+      Expect('duplicate pos name', procedure
+        begin
+          NewPos(PSvc, 'IT DUP', 1, 0).Free;
+          NewPos(PSvc, 'IT DUP', 1, 0).Free;
+        end);
+      Begin_;
+      Expect('value date before transaction', procedure
+        var X: TFinPosTerminal; Y: TFinPosTransaction;
+        begin
+          X := NewPos(PSvc, 'IT V', 1, 0);
+          Y := TFinPosTransaction.Create;
+          try
+            Y.FinPosTerminalId := X.Id; Y.AccAccountId := Scalar('SELECT min(id) FROM acc_account'); Y.Amount := 10;
+            Y.ValueDate := Date - 1;
+            TSvc.BusinessInsert(Y, False, False, True);
+          finally X.Free; Y.Free; end;
+        end);
+      Begin_;
+      Expect('missing account', procedure
+        var X: TFinPosTerminal; Y: TFinPosTransaction;
+        begin
+          X := NewPos(PSvc, 'IT A', 1, 0);
+          Y := TFinPosTransaction.Create;
+          try
+            Y.FinPosTerminalId := X.Id; Y.Amount := 10;
+            TSvc.BusinessInsert(Y, False, False, True);
+          finally X.Free; Y.Free; end;
+        end);
+      Begin_;
+      Expect('passive pos', procedure
+        var X: TFinPosTerminal;
+        begin
+          X := NewPos(PSvc, 'IT PP', 1, 0);
+          try
+            X.IsActive := False;
+            PSvc.BusinessUpdate(X, False, False, True);
+            NewPosTx(TSvc, X.Id, 10, 1).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('delete pos with transactions', procedure
+        var X: TFinPosTerminal;
+        begin
+          X := NewPos(PSvc, 'IT PD', 1, 0);
+          try
+            NewPosTx(TSvc, X.Id, 10, 1).Free;
+            PSvc.BusinessDelete(X, False, False, True);
+          finally X.Free; end;
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    P.Free; T1.Free; T2.Free;
+    TSvc.Free;
+    PSvc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -954,6 +1473,9 @@ begin
   TestUsers;
   TestPermissions;
   TestGridFilter;
+  TestFinanceChequeNotes;
+  TestFinanceCreditCards;
+  TestFinancePos;
 end;
 
 end.
