@@ -806,6 +806,114 @@
         <DCCReference Include="Forms\Finance\Output\ufrmFinPosTransactions.pas">
             <Form>frmFinPosTransactions</Form>
         </DCCReference>
+        <DCCReference Include="BackEnd\Finance\Domain\FinMoneyAccount.pas"/>
+        <DCCReference Include="BackEnd\Finance\Exception\FinMoneyAccount.Exception.pas"/>
+        <DCCReference Include="BackEnd\Finance\Repository\FinMoneyAccount.Repository.pas"/>
+        <DCCReference Include="BackEnd\Finance\Service\FinMoneyAccount.Service.pas"/>
+        <DCCReference Include="Forms\Finance\Input\ufrmFinMoneyAccount.pas">
+            <Form>frmFinMoneyAccount</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Finance\Output\ufrmFinMoneyAccounts.pas">
+            <Form>frmFinMoneyAccounts</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Finance\Domain\FinMoneyTransaction.pas"/>
+        <DCCReference Include="BackEnd\Finance\Exception\FinMoneyTransaction.Exception.pas"/>
+        <DCCReference Include="BackEnd\Finance\Repository\FinMoneyTransaction.Repository.pas"/>
+        <DCCReference Include="BackEnd\Finance\Service\FinMoneyTransaction.Service.pas"/>
+        <DCCReference Include="Forms\Finance\Input\ufrmFinMoneyTransaction.pas">
+            <Form>frmFinMoneyTransaction</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Finance\Output\ufrmFinMoneyTransactions.pas">
+            <Form>frmFinMoneyTransactions</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Finance\Domain\FinMoneyLedger.pas"/>
+        <DCCReference Include="BackEnd\Finance\Exception\FinMoneyLedger.Exception.pas"/>
+        <DCCReference Include="BackEnd\Finance\Repository\FinMoneyLedger.Repository.pas"/>
+        <DCCReference Include="BackEnd\Finance\Service\FinMoneyLedger.Service.pas"/>
+        <DCCReference Include="Forms\Finance\Output\ufrmFinMoneyLedgers.pas">
+            <Form>frmFinMoneyLedgers</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurLookup.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurRequest.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurRequest.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurRequest.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurRequest.Service.pas"/>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurRequest.pas">
+            <Form>frmPurRequest</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Output\ufrmPurRequests.pas">
+            <Form>frmPurRequests</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurRequestDetail.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurRequestDetail.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurRequestDetail.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurRequestDetail.Service.pas"/>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurRequestDetail.pas">
+            <Form>frmPurRequestDetail</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Output\ufrmPurRequestDetails.pas">
+            <Form>frmPurRequestDetails</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurOrder.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurOrder.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurOrder.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurOrder.Service.pas"/>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurOrder.pas">
+            <Form>frmPurOrder</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Output\ufrmPurOrders.pas">
+            <Form>frmPurOrders</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurOrderDetail.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurOrderDetail.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurOrderDetail.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurOrderDetail.Service.pas"/>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurOrderDetail.pas">
+            <Form>frmPurOrderDetail</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Output\ufrmPurOrderDetails.pas">
+            <Form>frmPurOrderDetails</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurReceipt.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurReceipt.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurReceipt.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurReceipt.Service.pas"/>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurReceipt.pas">
+            <Form>frmPurReceipt</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Output\ufrmPurReceipts.pas">
+            <Form>frmPurReceipts</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurReceiptDetail.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurReceiptDetail.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurReceiptDetail.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurReceiptDetail.Service.pas"/>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurReceiptDetail.pas">
+            <Form>frmPurReceiptDetail</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Output\ufrmPurReceiptDetails.pas">
+            <Form>frmPurReceiptDetails</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurInvoice.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurInvoice.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurInvoice.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurInvoice.Service.pas"/>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurInvoice.pas">
+            <Form>frmPurInvoice</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Output\ufrmPurInvoices.pas">
+            <Form>frmPurInvoices</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurInvoiceDetail.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurInvoiceDetail.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurInvoiceDetail.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurInvoiceDetail.Service.pas"/>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurInvoiceDetail.pas">
+            <Form>frmPurInvoiceDetail</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Output\ufrmPurInvoiceDetails.pas">
+            <Form>frmPurInvoiceDetails</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\Production\Domain\PrdBom.pas"/>
         <DCCReference Include="BackEnd\Production\Exception\PrdBom.Exception.pas"/>
         <DCCReference Include="BackEnd\Production\Repository\PrdBom.Repository.pas"/>

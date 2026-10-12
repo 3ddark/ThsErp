@@ -37,6 +37,8 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    // Mal kabul kaleminden oluşan hareket (satın alma modülü yönetir)
+    function IsPurchaseReceiptLinked(AId: Int64): Boolean;
   end;
 
 implementation
@@ -44,6 +46,23 @@ implementation
 constructor TStkTransactionRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TStkTransactionRepository.IsPurchaseReceiptLinked(AId: Int64): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT 1 FROM public.stk_transaction WHERE id = :id AND pur_receipt_detail_id IS NOT NULL';
+    Q.ParamByName('id').AsLargeInt := AId;
+    LogQuery(Q, 'IsPurchaseReceiptLinked');
+    Q.Open;
+    Result := not Q.IsEmpty;
+  finally
+    Q.Free;
+  end;
 end;
 
 function TStkTransactionRepository.PrepareAddSql: string;

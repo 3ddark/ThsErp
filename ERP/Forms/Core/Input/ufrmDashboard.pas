@@ -77,6 +77,18 @@ uses
   ufrmFinCreditCardTransactions, FinCreditCardTransaction.Service, FinCreditCardTransaction,
   ufrmFinPosTerminals, FinPosTerminal.Service, FinPosTerminal,
   ufrmFinPosTransactions, FinPosTransaction.Service, FinPosTransaction,
+  ufrmFinMoneyAccounts, FinMoneyAccount.Service, FinMoneyAccount,
+  ufrmFinMoneyTransactions, FinMoneyTransaction.Service, FinMoneyTransaction,
+  ufrmFinMoneyLedgers, FinMoneyLedger.Service, FinMoneyLedger,
+  PurLookup,
+  ufrmPurRequests, PurRequest.Service, PurRequest,
+  ufrmPurRequestDetails, PurRequestDetail.Service, PurRequestDetail,
+  ufrmPurOrders, PurOrder.Service, PurOrder,
+  ufrmPurOrderDetails, PurOrderDetail.Service, PurOrderDetail,
+  ufrmPurReceipts, PurReceipt.Service, PurReceipt,
+  ufrmPurReceiptDetails, PurReceiptDetail.Service, PurReceiptDetail,
+  ufrmPurInvoices, PurInvoice.Service, PurInvoice,
+  ufrmPurInvoiceDetails, PurInvoiceDetail.Service, PurInvoiceDetail,
   LocalizationManager;
 
 type
@@ -173,10 +185,6 @@ type
     mnimenu_purchase: TMenuItem;
     mnimenu_accounting: TMenuItem;
     mnimenu_stock: TMenuItem;
-    mnipur_offer: TMenuItem;
-    mnipur_order: TMenuItem;
-    mnipur_waybill: TMenuItem;
-    mnipur_invoice: TMenuItem;
     mniacc_bank: TMenuItem;
     mniacc_bank_branch: TMenuItem;
     actstk_ambarlar: TAction;
@@ -196,6 +204,32 @@ type
     mniprd_labour: TMenuItem;
     mniprd_packet_raw: TMenuItem;
     mniprd_packet_labour: TMenuItem;
+    actpur_requests: TAction;
+    actpur_request_lines: TAction;
+    actpur_orders: TAction;
+    actpur_order_lines: TAction;
+    actpur_receipts: TAction;
+    actpur_receipt_lines: TAction;
+    actpur_invoices: TAction;
+    actpur_invoice_lines: TAction;
+    mnipur_requests: TMenuItem;
+    mnipur_request_lines: TMenuItem;
+    mnipur_sep1: TMenuItem;
+    mnipur_orders: TMenuItem;
+    mnipur_order_lines: TMenuItem;
+    mnipur_sep2: TMenuItem;
+    mnipur_receipts: TMenuItem;
+    mnipur_receipt_lines: TMenuItem;
+    mnipur_sep3: TMenuItem;
+    mnipur_invoices: TMenuItem;
+    mnipur_invoice_lines: TMenuItem;
+    actfin_money_accounts: TAction;
+    actfin_money_transactions: TAction;
+    actfin_money_ledger: TAction;
+    mnifin_sep3: TMenuItem;
+    mnifin_money_accounts: TMenuItem;
+    mnifin_money_transactions: TMenuItem;
+    mnifin_money_ledger: TMenuItem;
     actfin_customer_cheques: TAction;
     actfin_own_cheques: TAction;
     actfin_customer_notes: TAction;
@@ -261,7 +295,6 @@ type
     mniprs_driver_licences: TMenuItem;
     mniprs_languages: TMenuItem;
     mniprs_persons: TMenuItem;
-    actals_teklifler: TAction;
     actch_bankalar: TAction;
     actch_banka_subeleri: TAction;
     actch_hesap_karti: TAction;
@@ -373,6 +406,17 @@ type
     procedure actprd_labourExecute(Sender: TObject);
     procedure actprd_packet_rawExecute(Sender: TObject);
     procedure actprd_packet_labourExecute(Sender: TObject);
+    procedure actpur_requestsExecute(Sender: TObject);
+    procedure actpur_request_linesExecute(Sender: TObject);
+    procedure actpur_ordersExecute(Sender: TObject);
+    procedure actpur_order_linesExecute(Sender: TObject);
+    procedure actpur_receiptsExecute(Sender: TObject);
+    procedure actpur_receipt_linesExecute(Sender: TObject);
+    procedure actpur_invoicesExecute(Sender: TObject);
+    procedure actpur_invoice_linesExecute(Sender: TObject);
+    procedure actfin_money_accountsExecute(Sender: TObject);
+    procedure actfin_money_transactionsExecute(Sender: TObject);
+    procedure actfin_money_ledgerExecute(Sender: TObject);
     procedure actfin_customer_chequesExecute(Sender: TObject);
     procedure actfin_own_chequesExecute(Sender: TObject);
     procedure actfin_customer_notesExecute(Sender: TObject);
@@ -393,7 +437,6 @@ type
     procedure actset_prs_lisanlarExecute(Sender: TObject);
     procedure actset_prs_ehliyetlerExecute(Sender: TObject);
     procedure actset_prs_personel_tipleriExecute(Sender: TObject);
-    procedure actals_tekliflerExecute(Sender: TObject);
     procedure actch_bankalarExecute(Sender: TObject);
     procedure actch_banka_subeleriExecute(Sender: TObject);
     procedure actacc_transfer_codeExecute(Sender: TObject);
@@ -444,11 +487,6 @@ end;
 procedure TfrmDashboard.actacc_exchange_rateExecute(Sender: TObject);
 begin
   TfrmAccExchangeRates.Create(Self, TAccExchangeRateService.Create, TAccExchangeRate.Create).Show;
-end;
-
-procedure TfrmDashboard.actals_tekliflerExecute(Sender: TObject);
-begin
-//
 end;
 
 procedure TfrmDashboard.actacc_transfer_codeExecute(Sender: TObject);
@@ -762,6 +800,61 @@ end;
 procedure TfrmDashboard.actprd_packet_labourExecute(Sender: TObject);
 begin
   TfrmPrdPacketLabours.Create(Self, TPrdPacketLabourService.Create, TPrdPacketLabour.Create).Show;
+end;
+
+procedure TfrmDashboard.actpur_requestsExecute(Sender: TObject);
+begin
+  TfrmPurRequests.Create(Self, TPurRequestService.Create, TPurRequest.Create).Show;
+end;
+
+procedure TfrmDashboard.actpur_request_linesExecute(Sender: TObject);
+begin
+  TfrmPurRequestDetails.Create(Self, TPurRequestDetailService.Create, TPurRequestDetail.Create).Show;
+end;
+
+procedure TfrmDashboard.actpur_ordersExecute(Sender: TObject);
+begin
+  TfrmPurOrders.Create(Self, TPurOrderService.Create, TPurOrder.Create).Show;
+end;
+
+procedure TfrmDashboard.actpur_order_linesExecute(Sender: TObject);
+begin
+  TfrmPurOrderDetails.Create(Self, TPurOrderDetailService.Create, TPurOrderDetail.Create).Show;
+end;
+
+procedure TfrmDashboard.actpur_receiptsExecute(Sender: TObject);
+begin
+  TfrmPurReceipts.Create(Self, TPurReceiptService.Create, TPurReceipt.Create).Show;
+end;
+
+procedure TfrmDashboard.actpur_receipt_linesExecute(Sender: TObject);
+begin
+  TfrmPurReceiptDetails.Create(Self, TPurReceiptDetailService.Create, TPurReceiptDetail.Create).Show;
+end;
+
+procedure TfrmDashboard.actpur_invoicesExecute(Sender: TObject);
+begin
+  TfrmPurInvoices.Create(Self, TPurInvoiceService.Create, TPurInvoice.Create).Show;
+end;
+
+procedure TfrmDashboard.actpur_invoice_linesExecute(Sender: TObject);
+begin
+  TfrmPurInvoiceDetails.Create(Self, TPurInvoiceDetailService.Create, TPurInvoiceDetail.Create).Show;
+end;
+
+procedure TfrmDashboard.actfin_money_accountsExecute(Sender: TObject);
+begin
+  TfrmFinMoneyAccounts.Create(Self, TFinMoneyAccountService.Create, TFinMoneyAccount.Create).Show;
+end;
+
+procedure TfrmDashboard.actfin_money_transactionsExecute(Sender: TObject);
+begin
+  TfrmFinMoneyTransactions.Create(Self, TFinMoneyTransactionService.Create, TFinMoneyTransaction.Create).Show;
+end;
+
+procedure TfrmDashboard.actfin_money_ledgerExecute(Sender: TObject);
+begin
+  TfrmFinMoneyLedgers.Create(Self, TFinMoneyLedgerService.Create, TFinMoneyLedger.Create).Show;
 end;
 
 procedure TfrmDashboard.actfin_customer_chequesExecute(Sender: TObject);
@@ -1354,14 +1447,6 @@ begin
   {$REGION 'PurchasingMenu'}
   if Assigned(mnimenu_purchase) then
     mnimenu_purchase.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuPurchasing, 'Purchasing');
-      if Assigned(mnipur_offer) then
-        mnipur_offer.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuOffers, 'Offers');
-      if Assigned(mnipur_order) then
-        mnipur_order.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuOrders, 'Orders');
-      if Assigned(mnipur_waybill) then
-        mnipur_waybill.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuWaybills, 'Waybills');
-      if Assigned(mnipur_invoice) then
-        mnipur_invoice.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuInvoices, 'Invoices');
   {$ENDREGION}
 
   {$REGION 'SalesMenu'}
@@ -1522,6 +1607,28 @@ begin
     actprd_packet_raw.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRaw.TitlePlural, 'Raw Material Packets');
   if Assigned(actprd_packet_labour) then
     actprd_packet_labour.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketLabour.TitlePlural, 'Labour Packets');
+  if Assigned(actpur_requests) then
+    actpur_requests.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequest.TitlePlural, 'Purchase Requests');
+  if Assigned(actpur_request_lines) then
+    actpur_request_lines.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequestDetail.TitlePlural, 'Request Lines');
+  if Assigned(actpur_orders) then
+    actpur_orders.Caption := TLocalizationManager.Translate(TLangKeys.TPurOrder.TitlePlural, 'Purchase Orders');
+  if Assigned(actpur_order_lines) then
+    actpur_order_lines.Caption := TLocalizationManager.Translate(TLangKeys.TPurOrderDetail.TitlePlural, 'Order Lines');
+  if Assigned(actpur_receipts) then
+    actpur_receipts.Caption := TLocalizationManager.Translate(TLangKeys.TPurReceipt.TitlePlural, 'Goods Receipts');
+  if Assigned(actpur_receipt_lines) then
+    actpur_receipt_lines.Caption := TLocalizationManager.Translate(TLangKeys.TPurReceiptDetail.TitlePlural, 'Receipt Lines');
+  if Assigned(actpur_invoices) then
+    actpur_invoices.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.TitlePlural, 'Purchase Invoices');
+  if Assigned(actpur_invoice_lines) then
+    actpur_invoice_lines.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.TitlePlural, 'Invoice Lines');
+  if Assigned(actfin_money_accounts) then
+    actfin_money_accounts.Caption := TLocalizationManager.Translate(TLangKeys.TFinMoneyAccount.TitlePlural, 'Cash / Bank Accounts');
+  if Assigned(actfin_money_transactions) then
+    actfin_money_transactions.Caption := TLocalizationManager.Translate(TLangKeys.TFinMoneyTransaction.TitlePlural, 'Receipts / Payments / Transfers');
+  if Assigned(actfin_money_ledger) then
+    actfin_money_ledger.Caption := TLocalizationManager.Translate(TLangKeys.TFinMoneyLedger.TitlePlural, 'Cash / Bank Statement');
   if Assigned(mnimenu_finance) then
     mnimenu_finance.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuFinance, 'Finance');
   if Assigned(actfin_customer_cheques) then
@@ -1818,6 +1925,17 @@ begin
   SetAction(actprd_labour, PERMISSION_PRD_LABOUR);
   SetAction(actprd_packet_raw, PERMISSION_PRD_PACKET_RAW);
   SetAction(actprd_packet_labour, PERMISSION_PRD_PACKET_LABOUR);
+  SetAction(actpur_requests, PERMISSION_PUR_REQUEST);
+  SetAction(actpur_request_lines, PERMISSION_PUR_REQUEST);
+  SetAction(actpur_orders, PERMISSION_PUR_ORDER);
+  SetAction(actpur_order_lines, PERMISSION_PUR_ORDER);
+  SetAction(actpur_receipts, PERMISSION_PUR_RECEIPT);
+  SetAction(actpur_receipt_lines, PERMISSION_PUR_RECEIPT);
+  SetAction(actpur_invoices, PERMISSION_PUR_INVOICE);
+  SetAction(actpur_invoice_lines, PERMISSION_PUR_INVOICE);
+  SetAction(actfin_money_accounts, PERMISSION_FIN_MONEY_ACCOUNT);
+  SetAction(actfin_money_transactions, PERMISSION_FIN_MONEY_TRANSACTION);
+  SetAction(actfin_money_ledger, PERMISSION_FIN_MONEY_ACCOUNT);
   SetAction(actfin_customer_cheques, PERMISSION_FIN_CHEQUE_NOTE);
   SetAction(actfin_own_cheques, PERMISSION_FIN_CHEQUE_NOTE);
   SetAction(actfin_customer_notes, PERMISSION_FIN_CHEQUE_NOTE);

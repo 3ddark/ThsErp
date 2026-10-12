@@ -64,6 +64,15 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
 - Changing view columns: `DROP VIEW` + `CREATE VIEW` (not `CREATE OR REPLACE` when names/types/order change), then check
   `sys_grid_column` / `sys_user_grid_column` for rows with old column names and delete/rename them.
 
+## Module links
+
+- Goods receipt lines own their stock entry: `stk_transaction.pur_receipt_detail_id` (UNIQUE, ON DELETE CASCADE, type 1 only)
+  is written by `TPurReceiptDetailRepository.UpsertStockTransaction`; the stock transaction service refuses to update / delete
+  such rows. Purchase quantities are service-maintained: `pur_request_detail.ordered_quantity` (non-cancelled order lines),
+  `pur_order_detail.received_quantity` (receipt lines); header totals = sum of line amounts; order / request status 3-4 automatic.
+- Read-only list entities may have no table (`FinMoneyLedger` → `vw_fin_money_ledger` only, window function: no `FOR UPDATE`;
+  its repository ignores `ALock`).
+
 ## Grid metadata tables
 
 `sys_grid_column` (global) and `sys_user_grid_column` (per user) store column order/width/visibility per view.

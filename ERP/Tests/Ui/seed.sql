@@ -60,4 +60,38 @@ SELECT 'UI POS', min(id), 'T-001', 1.75, 30, fn_default_currency() FROM acc_bank
 INSERT INTO fin_pos_transaction (fin_pos_terminal_id, transaction_type, acc_account_id, amount, commission_rate, commission_amount, net_amount, value_date, card_last_digits)
 SELECT (SELECT max(id) FROM fin_pos_terminal), 1, (SELECT min(id) FROM acc_account), 1000, 1.75, 17.50, 982.50, current_date + 30, '4321';
 
+-- finans: kasa + banka hesabı, gelen EFT, bankadan kasaya virman, kasa masrafı
+INSERT INTO fin_money_account (account_kind, code, name) VALUES (1, 'K01', 'UI MERKEZ KASA');
+INSERT INTO fin_money_account (account_kind, code, name, acc_bank_id, acc_bank_branch_id, account_no, iban)
+SELECT 2, 'B01', 'UI BANKA TL', (SELECT min(id) FROM acc_bank), (SELECT max(id) FROM acc_bank_branch), '123456', 'TR330006100519786457841326';
+INSERT INTO fin_money_transaction (fin_money_account_id, transaction_type, transfer_method, acc_account_id, amount, document_no, counterparty_name)
+SELECT (SELECT id FROM fin_money_account WHERE code = 'B01'), 1, 3, (SELECT min(id) FROM acc_account), 5000, 'D-1', 'UI GÖNDEREN';
+INSERT INTO fin_money_transaction (fin_money_account_id, transaction_type, target_fin_money_account_id, amount)
+SELECT (SELECT id FROM fin_money_account WHERE code = 'B01'), 3, (SELECT id FROM fin_money_account WHERE code = 'K01'), 1200;
+INSERT INTO fin_money_transaction (fin_money_account_id, transaction_type, amount, description)
+SELECT (SELECT id FROM fin_money_account WHERE code = 'K01'), 4, 15.50, 'UI MASRAF';
+
+-- satın alma: taslak talep + taslak sipariş (düzenlenebilir), kısmi teslim alınmış sipariş + mal kabul + fatura
+INSERT INTO pur_request (request_no, emp_employee_id, description) SELECT 'PT000001', min(id), 'UI TALEP' FROM emp_employee;
+INSERT INTO pur_request_detail (pur_request_id, stk_inventory_id, quantity) SELECT (SELECT max(id) FROM pur_request), min(id), 10 FROM stk_inventory;
+INSERT INTO pur_order (order_no, acc_account_id, stk_warehouse_id, status) SELECT 'PS000001', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 1;
+INSERT INTO pur_order_detail (pur_order_id, line_no, stk_inventory_id, quantity, unit_price, discount_rate, vat_rate, gross_amount, discount_amount, net_amount, vat_amount, total_amount)
+SELECT (SELECT id FROM pur_order WHERE order_no = 'PS000001'), 1, min(id), 10, 2.5, 10, 20, 25, 2.5, 22.5, 4.5, 27 FROM stk_inventory;
+INSERT INTO pur_order (order_no, acc_account_id, stk_warehouse_id, status) SELECT 'PS000002', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 3;
+INSERT INTO pur_order_detail (pur_order_id, line_no, stk_inventory_id, quantity, unit_price, gross_amount, net_amount, total_amount, received_quantity)
+SELECT (SELECT id FROM pur_order WHERE order_no = 'PS000002'), 1, min(id), 20, 3, 60, 60, 60, 5 FROM stk_inventory;
+UPDATE pur_order o SET gross_amount = s.g, discount_amount = s.d, net_amount = s.n, vat_amount = s.v, total_amount = s.t
+  FROM (SELECT pur_order_id, sum(gross_amount) g, sum(discount_amount) d, sum(net_amount) n, sum(vat_amount) v, sum(total_amount) t FROM pur_order_detail GROUP BY 1) s
+ WHERE s.pur_order_id = o.id;
+INSERT INTO pur_receipt (receipt_no, acc_account_id, stk_warehouse_id, waybill_no, pur_order_id)
+SELECT 'MK000001', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 'IRS-1', (SELECT id FROM pur_order WHERE order_no = 'PS000002');
+INSERT INTO pur_receipt_detail (pur_receipt_id, stk_inventory_id, quantity, unit_price, pur_order_detail_id)
+SELECT (SELECT max(id) FROM pur_receipt), d.stk_inventory_id, 5, 3, d.id FROM pur_order_detail d JOIN pur_order o ON o.id = d.pur_order_id WHERE o.order_no = 'PS000002';
+INSERT INTO stk_transaction (transaction_type, stk_inventory_id, to_stk_warehouse_id, quantity, amount, transaction_date, description, pur_receipt_detail_id)
+SELECT 1, d.stk_inventory_id, p.stk_warehouse_id, d.quantity, d.quantity * d.unit_price, p.receipt_date, 'MK ' || p.receipt_no, d.id
+  FROM pur_receipt_detail d JOIN pur_receipt p ON p.id = d.pur_receipt_id;
+INSERT INTO pur_invoice (invoice_no, acc_account_id, gross_amount, net_amount, total_amount) SELECT 'IRS-1', min(id), 15, 15, 15 FROM acc_account;
+INSERT INTO pur_invoice_detail (pur_invoice_id, line_no, stk_inventory_id, quantity, unit_price, gross_amount, net_amount, total_amount, pur_receipt_detail_id)
+SELECT (SELECT max(id) FROM pur_invoice), 1, stk_inventory_id, 5, 3, 15, 15, 15, id FROM pur_receipt_detail;
+
 COMMIT;

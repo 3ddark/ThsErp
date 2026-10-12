@@ -736,6 +736,72 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 76
       OnExecute = actprd_packet_labourExecute
     end
+    object actpur_requests: TAction
+      Category = 'SatinAlma'
+      Caption = 'Sat'#305'n Alma Talepleri'
+      ImageIndex = 88
+      OnExecute = actpur_requestsExecute
+    end
+    object actpur_request_lines: TAction
+      Category = 'SatinAlma'
+      Caption = 'Talep Kalemleri'
+      ImageIndex = 88
+      OnExecute = actpur_request_linesExecute
+    end
+    object actpur_orders: TAction
+      Category = 'SatinAlma'
+      Caption = 'Sat'#305'n Alma Sipari'#351'leri'
+      ImageIndex = 88
+      OnExecute = actpur_ordersExecute
+    end
+    object actpur_order_lines: TAction
+      Category = 'SatinAlma'
+      Caption = 'Sipari'#351' Kalemleri'
+      ImageIndex = 88
+      OnExecute = actpur_order_linesExecute
+    end
+    object actpur_receipts: TAction
+      Category = 'SatinAlma'
+      Caption = 'Mal Kabuller'
+      ImageIndex = 88
+      OnExecute = actpur_receiptsExecute
+    end
+    object actpur_receipt_lines: TAction
+      Category = 'SatinAlma'
+      Caption = 'Mal Kabul Kalemleri'
+      ImageIndex = 88
+      OnExecute = actpur_receipt_linesExecute
+    end
+    object actpur_invoices: TAction
+      Category = 'SatinAlma'
+      Caption = 'Al'#305#351' Faturalar'#305
+      ImageIndex = 88
+      OnExecute = actpur_invoicesExecute
+    end
+    object actpur_invoice_lines: TAction
+      Category = 'SatinAlma'
+      Caption = 'Fatura Kalemleri'
+      ImageIndex = 88
+      OnExecute = actpur_invoice_linesExecute
+    end
+    object actfin_money_accounts: TAction
+      Category = 'Finans'
+      Caption = 'Kasa / Banka Hesaplar'#305
+      ImageIndex = 69
+      OnExecute = actfin_money_accountsExecute
+    end
+    object actfin_money_transactions: TAction
+      Category = 'Finans'
+      Caption = 'Tahsilat / '#214'deme / Virman'
+      ImageIndex = 68
+      OnExecute = actfin_money_transactionsExecute
+    end
+    object actfin_money_ledger: TAction
+      Category = 'Finans'
+      Caption = 'Kasa / Banka Ekstresi'
+      ImageIndex = 68
+      OnExecute = actfin_money_ledgerExecute
+    end
     object actfin_customer_cheques: TAction
       Category = 'Finans'
       Caption = 'M'#252#351'teri '#199'ekleri'
@@ -849,12 +915,6 @@ inherited frmDashboard: TfrmDashboard
       Caption = 'Personel Bilgileri'
       ImageIndex = 64
       OnExecute = actprs_personellerExecute
-    end
-    object actals_teklifler: TAction
-      Category = 'AlsTeklif'
-      Caption = 'Sat'#305'n Alma Teklifler'
-      ImageIndex = 93
-      OnExecute = actals_tekliflerExecute
     end
     object actch_bankalar: TAction
       Category = 'CariHesap'
@@ -1061,17 +1121,38 @@ inherited frmDashboard: TfrmDashboard
     object mnimenu_purchase: TMenuItem
       Caption = 'Al'#305'mlar'
       ImageIndex = 88
-      object mnipur_offer: TMenuItem
-        Action = actals_teklifler
+      object mnipur_requests: TMenuItem
+        Action = actpur_requests
       end
-      object mnipur_order: TMenuItem
-        Caption = 'Sipari'#351
+      object mnipur_request_lines: TMenuItem
+        Action = actpur_request_lines
       end
-      object mnipur_waybill: TMenuItem
-        Caption = #304'rsaliye'
+      object mnipur_sep1: TMenuItem
+        Caption = '-'
       end
-      object mnipur_invoice: TMenuItem
-        Caption = 'Fatura'
+      object mnipur_orders: TMenuItem
+        Action = actpur_orders
+      end
+      object mnipur_order_lines: TMenuItem
+        Action = actpur_order_lines
+      end
+      object mnipur_sep2: TMenuItem
+        Caption = '-'
+      end
+      object mnipur_receipts: TMenuItem
+        Action = actpur_receipts
+      end
+      object mnipur_receipt_lines: TMenuItem
+        Action = actpur_receipt_lines
+      end
+      object mnipur_sep3: TMenuItem
+        Caption = '-'
+      end
+      object mnipur_invoices: TMenuItem
+        Action = actpur_invoices
+      end
+      object mnipur_invoice_lines: TMenuItem
+        Action = actpur_invoice_lines
       end
     end
     object mnimenu_sales: TMenuItem
@@ -1209,6 +1290,18 @@ inherited frmDashboard: TfrmDashboard
       end
       object mnifin_pos_transactions: TMenuItem
         Action = actfin_pos_transactions
+      end
+      object mnifin_sep3: TMenuItem
+        Caption = '-'
+      end
+      object mnifin_money_accounts: TMenuItem
+        Action = actfin_money_accounts
+      end
+      object mnifin_money_transactions: TMenuItem
+        Action = actfin_money_transactions
+      end
+      object mnifin_money_ledger: TMenuItem
+        Action = actfin_money_ledger
       end
     end
     object mnimenu_employee: TMenuItem

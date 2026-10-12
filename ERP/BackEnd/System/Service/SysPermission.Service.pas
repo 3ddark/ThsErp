@@ -75,6 +75,14 @@ const
   PERMISSION_FIN_CHEQUE_NOTE              = 1070;   // + hareketler (portföy giriş / ciro / tahsil ...)
   PERMISSION_FIN_CREDIT_CARD              = 1071;   // firma kredi kartları + hareketler
   PERMISSION_FIN_POS_TERMINAL             = 1072;   // POS tanımları + kredi kartı tahsilatları
+  PERMISSION_FIN_MONEY_ACCOUNT            = 1073;   // kasa / banka hesapları + ekstre
+  PERMISSION_FIN_MONEY_TRANSACTION        = 1074;   // tahsilat / ödeme / havale-EFT / virman / masraf
+
+  // Purchasing (satın alma)
+  PERMISSION_PUR_REQUEST                  = 1080;   // talep + kalemleri
+  PERMISSION_PUR_ORDER                    = 1081;   // sipariş + kalemleri
+  PERMISSION_PUR_RECEIPT                  = 1082;   // mal kabul + kalemleri (stok girişi)
+  PERMISSION_PUR_INVOICE                  = 1083;   // alış faturası + kalemleri
 
   // Accounting (muhasebe)
   PERMISSION_ACC_EXCHANGE_RATE            = 3001;

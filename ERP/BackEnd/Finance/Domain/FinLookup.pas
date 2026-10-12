@@ -36,9 +36,34 @@ const
   FIN_POS_TX_COLLECTION = 1;
   FIN_POS_TX_REFUND     = 2;
 
+  // fin_money_account.account_kind (DB CHECK 1-2)
+  FIN_MONEY_CASH = 1;   // kasa
+  FIN_MONEY_BANK = 2;   // banka hesabı
+
+  // fin_money_transaction.transaction_type (DB CHECK 1-7)
+  FIN_MONEY_TX_COLLECTION = 1;  // tahsilat: cariden giriş (nakit / gelen havale-EFT)
+  FIN_MONEY_TX_PAYMENT    = 2;  // ödeme: cariye çıkış (nakit / giden havale-EFT)
+  FIN_MONEY_TX_TRANSFER   = 3;  // virman: kaynaktan çıkış, hedefe giriş
+  FIN_MONEY_TX_EXPENSE    = 4;  // masraf / komisyon (çıkış)
+  FIN_MONEY_TX_INTEREST   = 5;  // faiz geliri (giriş)
+  FIN_MONEY_TX_OTHER_IN   = 6;
+  FIN_MONEY_TX_OTHER_OUT  = 7;
+
+  // fin_money_transaction.transfer_method (DB CHECK 1-5, NULL = belirtilmemiş)
+  FIN_METHOD_CASH  = 1;
+  FIN_METHOD_WIRE  = 2;  // havale
+  FIN_METHOD_EFT   = 3;
+  FIN_METHOD_FAST  = 4;
+  FIN_METHOD_SWIFT = 5;
+
+  // vw_fin_money_ledger.direction
+  FIN_DIR_IN  = 1;
+  FIN_DIR_OUT = 2;
+
 type
   // DB'de smallint olarak saklanan sabit seçenekler (1 tabanlı; 0 = seçilmemiş)
-  TFinLookupKind = (flkDocKind, flkDirection, flkChequeStatus, flkCardTxType, flkPosTxType);
+  TFinLookupKind = (flkDocKind, flkDirection, flkChequeStatus, flkCardTxType, flkPosTxType,
+                    flkMoneyAccountKind, flkMoneyTxType, flkTransferMethod, flkMoneyDirection);
 
   TFinLookup = class
   public
@@ -55,6 +80,12 @@ type
     class function ChequeNoteListTitle(ADocKind, ADirection: Integer): string;
     // Boş ya da 4 rakam
     class function IsValidLastDigits(const AValue: string): Boolean;
+    // Para hareketi kaynak hesaba giriş mi (virman kaynakta çıkıştır)
+    class function IsIncomingMoneyTx(ATransactionType: Integer): Boolean;
+    // Boşlukları atar, büyük harfe çevirir
+    class function NormalizeIban(const AValue: string): string;
+    // Boş ya da ISO 13616 (ülke kodu + kontrol hanesi, mod 97 = 1); TR için 26 karakter
+    class function IsValidIban(const AValue: string): Boolean;
   end;
 
 implementation
@@ -85,6 +116,26 @@ begin
     flkPosTxType:
       Result := [TLocalizationManager.Translate(TLangKeys.TFinOption.PosTxCollection, 'Collection'),
                  TLocalizationManager.Translate(TLangKeys.TFinOption.PosTxRefund, 'Refund')];
+    flkMoneyAccountKind:
+      Result := [TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.KindCash, 'Cash'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.KindBank, 'Bank Account')];
+    flkMoneyTxType:
+      Result := [TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.TxCollection, 'Collection (from account)'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.TxPayment, 'Payment (to account)'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.TxTransfer, 'Transfer'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.TxExpense, 'Expense / Commission'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.TxInterest, 'Interest Income'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.TxOtherIn, 'Other Income'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.TxOtherOut, 'Other Expense')];
+    flkTransferMethod:
+      Result := [TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.MethodCash, 'Cash'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.MethodWire, 'Wire Transfer'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.MethodEft, 'EFT'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.MethodFast, 'FAST'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.MethodSwift, 'SWIFT')];
+    flkMoneyDirection:
+      Result := [TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.DirIn, 'In'),
+                 TLocalizationManager.Translate(TLangKeys.TFinMoneyOption.DirOut, 'Out')];
   else
     Result := [];
   end;
@@ -211,6 +262,55 @@ begin
     if not CharInSet(LChar, ['0'..'9']) then
       Exit(False);
   Result := True;
+end;
+
+class function TFinLookup.IsIncomingMoneyTx(ATransactionType: Integer): Boolean;
+begin
+  Result := ATransactionType in [FIN_MONEY_TX_COLLECTION, FIN_MONEY_TX_INTEREST, FIN_MONEY_TX_OTHER_IN];
+end;
+
+class function TFinLookup.NormalizeIban(const AValue: string): string;
+begin
+  Result := UpperCase(StringReplace(Trim(AValue), ' ', '', [rfReplaceAll]));
+end;
+
+class function TFinLookup.IsValidIban(const AValue: string): Boolean;
+var
+  LIban, LDigits: string;
+  LChar: Char;
+  I, LRemainder: Integer;
+begin
+  LIban := NormalizeIban(AValue);
+  if LIban = '' then
+    Exit(True);
+  if (Length(LIban) < 15) or (Length(LIban) > 34) then
+    Exit(False);
+  if (Copy(LIban, 1, 2) = 'TR') and (Length(LIban) <> 26) then
+    Exit(False);
+  for I := 1 to Length(LIban) do
+  begin
+    LChar := LIban[I];
+    if (I <= 2) and not CharInSet(LChar, ['A'..'Z']) then
+      Exit(False);
+    if (I in [3, 4]) and not CharInSet(LChar, ['0'..'9']) then
+      Exit(False);
+    if not CharInSet(LChar, ['A'..'Z', '0'..'9']) then
+      Exit(False);
+  end;
+
+  // ilk 4 karakter sona alınır, harfler 10..35 olur, mod 97 = 1
+  LIban := Copy(LIban, 5, MaxInt) + Copy(LIban, 1, 4);
+  LDigits := '';
+  for LChar in LIban do
+    if CharInSet(LChar, ['A'..'Z']) then
+      LDigits := LDigits + IntToStr(Ord(LChar) - Ord('A') + 10)
+    else
+      LDigits := LDigits + LChar;
+
+  LRemainder := 0;
+  for LChar in LDigits do
+    LRemainder := (LRemainder * 10 + Ord(LChar) - Ord('0')) mod 97;
+  Result := LRemainder = 1;
 end;
 
 end.

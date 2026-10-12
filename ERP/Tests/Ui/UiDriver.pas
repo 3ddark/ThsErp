@@ -6,6 +6,7 @@
 interface
 
 uses
+  Core.Exception,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, System.Rtti, System.TypInfo,
   System.StrUtils, System.Generics.Collections, System.JSON, System.RegularExpressions, System.Math, System.Variants,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Menus, Vcl.DBGrids, Vcl.Dialogs, Vcl.ComCtrls,
@@ -402,8 +403,11 @@ begin
   for P in ASrc do
   begin
     if P.JsonString.Value = 'id' then Continue;
-    // serviste türetilen alanlar (ad+soyad, hesap kodundan kök/ara kod, çek/senet portföy no)
-    if AAllowMutated and MatchText(P.JsonString.Value, ['full_name', 'root_code', 'sub_code', 'portfolio_no']) then Continue;
+    // serviste türetilen alanlar (ad+soyad, hesap kodundan kök/ara kod, belge / sıra numaraları, kalemlerden toplamlar)
+    // ve kopyada bilerek taşınmayan kaynak belge bağlantıları
+    if AAllowMutated and MatchText(P.JsonString.Value, ['full_name', 'root_code', 'sub_code', 'portfolio_no',
+      'request_no', 'order_no', 'receipt_no', 'line_no', 'gross_amount', 'discount_amount', 'net_amount', 'vat_amount', 'total_amount',
+      'pur_request_detail_id', 'pur_order_id', 'pur_order_detail_id', 'pur_receipt_detail_id']) then Continue;
     VS := P.JsonValue.Value;
     if P.JsonValue is TJSONNull then VS := '<null>';
     NV := ANew.GetValue(P.JsonString.Value);
@@ -972,8 +976,8 @@ begin
   if VarIsNull(V) or VarIsEmpty(V) then Exit;
   for Col in string(V).Split([',']) do
   begin
-    // boşsa serviste üretilen alanlar (çek/senet portföy no)
-    if MatchText(Col, ['portfolio_no']) then
+    // boşsa serviste üretilen alanlar (çek/senet portföy no, satın alma belge numaraları)
+    if MatchText(Col, ['portfolio_no', 'request_no', 'order_no', 'receipt_no']) then
       Continue;
     for P in ['edt', 'cbb', 'mmo'] do
     begin
@@ -1010,6 +1014,9 @@ begin
   TUi.Module := AModule;
   TUi.FormName := G.ClassName;
   Tbl := TEntitySchemaCache.GetSchema(TE).TableName;
+  // tablosu olmayan salt okunur listeler (ör. ekstre) doğrudan view'dan okunur
+  if VarIsNull(TUi.Sql('SELECT to_regclass(:t)::text', ['public.' + Tbl])) then
+    Tbl := 'vw_' + Tbl;
   NewId := 0;
   Before := TUi.Snapshot;
   try
@@ -1362,7 +1369,12 @@ begin
             else
               TUi.R('PASS', 'popup ' + Item.Name, 'no window: ' + D);
           except
-            on E: Exception do TUi.R('FAIL', 'popup ' + Item.Name, E.ClassName + ': ' + E.Message + ' ' + TUi.TakeDialogs);
+            // iş kuralı reddi (ör. durum uygun değil) beklenen davranıştır; AV / DB hataları FAIL
+            on E: Exception do
+              if (E.ClassType = Exception) or (E is EAppException) then
+                TUi.R('INFO', 'popup ' + Item.Name, 'rejected by business rule: ' + E.Message + ' ' + TUi.TakeDialogs)
+              else
+                TUi.R('FAIL', 'popup ' + Item.Name, E.ClassName + ': ' + E.Message + ' ' + TUi.TakeDialogs);
           end;
           TUi.CloseNewForms(Before);
           TUi.TakeDialogs;

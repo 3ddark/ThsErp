@@ -21,7 +21,13 @@ uses
   EmpTransportation, EmpTransportation.Service, Password.Helper,
   FinLookup, FinChequeNote, FinChequeNote.Service, FinChequeNoteTransaction, FinChequeNoteTransaction.Service,
   FinCreditCard, FinCreditCard.Service, FinCreditCardTransaction, FinCreditCardTransaction.Service,
-  FinPosTerminal, FinPosTerminal.Service, FinPosTransaction, FinPosTransaction.Service;
+  FinPosTerminal, FinPosTerminal.Service, FinPosTransaction, FinPosTransaction.Service,
+  FinMoneyAccount, FinMoneyAccount.Service, FinMoneyTransaction, FinMoneyTransaction.Service,
+  FinMoneyLedger, FinMoneyLedger.Service,
+  PurLookup, PurRequest, PurRequest.Service, PurRequestDetail, PurRequestDetail.Service,
+  PurOrder, PurOrder.Service, PurOrderDetail, PurOrderDetail.Service,
+  PurReceipt, PurReceipt.Service, PurReceiptDetail, PurReceiptDetail.Service,
+  PurInvoice, PurInvoice.Service, PurInvoiceDetail, PurInvoiceDetail.Service;
 
 var
   GMod, GEnt: string;
@@ -1461,6 +1467,649 @@ begin
   end;
 end;
 
+function NewMoneyAccount(ASvc: TFinMoneyAccountService; AKind: SmallInt; const ACode: string; const AIban: string = ''): TFinMoneyAccount;
+begin
+  Result := TFinMoneyAccount.Create;
+  Result.AccountKind := AKind;
+  Result.Code := ACode;
+  Result.Name := 'IT ' + ACode;
+  if AKind = FIN_MONEY_BANK then
+  begin
+    Result.AccBankId := Scalar('SELECT min(id) FROM acc_bank');
+    Result.Iban := AIban;
+  end;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NewMoneyTx(ASvc: TFinMoneyTransactionService; AAcc: Int64; AType: SmallInt; AAmount: Currency;
+  ATarget: Int64 = 0; ACurrent: Int64 = 0): TFinMoneyTransaction;
+begin
+  Result := TFinMoneyTransaction.Create;
+  Result.FinMoneyAccountId := AAcc;
+  Result.TransactionType := AType;
+  Result.Amount := AAmount;
+  Result.TargetFinMoneyAccountId := ATarget;
+  Result.AccAccountId := ACurrent;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function MoneyBalance(AAcc: Int64): Double;
+begin
+  Result := Num(Scalar('SELECT balance FROM vw_fin_money_account WHERE id = ' + AAcc.ToString));
+end;
+
+procedure TestFinanceMoney;
+var
+  ASvc: TFinMoneyAccountService;
+  TSvc: TFinMoneyTransactionService;
+  LSvc: TFinMoneyLedgerService;
+  K, B, C: TFinMoneyAccount;
+  T1, T2, T3: TFinMoneyTransaction;
+  Cari: Int64;
+  L: TFinMoneyLedger;
+begin
+  Ctx('Finance', 'TFinMoneyTransaction');
+  Cari := Scalar('SELECT min(id) FROM acc_account');
+  ASvc := TFinMoneyAccountService.Create;
+  TSvc := TFinMoneyTransactionService.Create;
+  LSvc := TFinMoneyLedgerService.Create;
+  K := nil; B := nil; C := nil; T1 := nil; T2 := nil; T3 := nil;
+  try
+    try
+      Begin_;
+      K := NewMoneyAccount(ASvc, FIN_MONEY_CASH, ' it-k01 ');
+      Check('insert cash', K.Id > 0);
+      Check('code upper/trim', S(Scalar('SELECT code FROM fin_money_account WHERE id = ' + K.Id.ToString)) = 'IT-K01');
+      B := NewMoneyAccount(ASvc, FIN_MONEY_BANK, 'IT-B01', 'tr33 0006 1005 1978 6457 8413 26');
+      Check('insert bank + iban normalized', S(Scalar('SELECT iban FROM fin_money_account WHERE id = ' + B.Id.ToString)) = 'TR330006100519786457841326',
+        S(Scalar('SELECT iban FROM fin_money_account WHERE id = ' + B.Id.ToString)));
+
+      // kasa: banka bilgisi temizlenir
+      C := TFinMoneyAccount.Create;
+      C.AccountKind := FIN_MONEY_CASH; C.Code := 'IT-K02'; C.Name := 'IT K02';
+      C.AccBankId := Scalar('SELECT min(id) FROM acc_bank'); C.AccountNo := '123';
+      ASvc.BusinessInsert(C, False, False, True);
+      Check('cash clears bank fields', S(Scalar('SELECT acc_bank_id FROM fin_money_account WHERE id = ' + C.Id.ToString)) = '<null>');
+
+      T1 := TFinMoneyTransaction.Create;
+      T1.FinMoneyAccountId := B.Id; T1.TransactionType := FIN_MONEY_TX_COLLECTION; T1.TransferMethod := FIN_METHOD_EFT;
+      T1.AccAccountId := Cari; T1.Amount := 5000; T1.DocumentNo := ' d-1 '; T1.CounterpartyIban := 'TR33 0006 1005 1978 6457 8413 26';
+      TSvc.BusinessInsert(T1, False, False, True);
+      Check('incoming EFT', Near(MoneyBalance(B.Id), 5000));
+      Check('document no upper', S(Scalar('SELECT document_no FROM fin_money_transaction WHERE id = ' + T1.Id.ToString)) = 'D-1');
+
+      T2 := NewMoneyTx(TSvc, B.Id, FIN_MONEY_TX_TRANSFER, 1200, K.Id);
+      Check('transfer bank -> cash', Near(MoneyBalance(B.Id), 3800) and Near(MoneyBalance(K.Id), 1200),
+        Format('bank %g cash %g', [MoneyBalance(B.Id), MoneyBalance(K.Id)]));
+      Check('ledger 2 lines for transfer', Num(Scalar('SELECT count(*) FROM vw_fin_money_ledger WHERE fin_money_transaction_id = ' + T2.Id.ToString)) = 2);
+      Check('ledger running balance', Near(Num(Scalar('SELECT balance FROM vw_fin_money_ledger WHERE fin_money_account_id = ' + B.Id.ToString +
+        ' ORDER BY transaction_date DESC, id DESC LIMIT 1')), 3800));
+
+      T3 := NewMoneyTx(TSvc, K.Id, FIN_MONEY_TX_EXPENSE, 15.5);
+      Check('cash expense', Near(MoneyBalance(K.Id), 1184.5));
+
+      // banka hesabı eksiye düşebilir (KMH)
+      NewMoneyTx(TSvc, B.Id, FIN_MONEY_TX_PAYMENT, 10000, 0, Cari).Free;
+      Check('bank overdraft allowed', Near(MoneyBalance(B.Id), -6200));
+
+      T2.Amount := 1000;
+      TSvc.BusinessUpdate(T2, False, False, True);
+      Check('update transfer', Near(MoneyBalance(K.Id), 984.5));
+
+      // ekstre salt okunur; kilitli okuma view'da FOR UPDATE kullanmaz
+      L := LSvc.BusinessFindById(T2.Id * 2, False, True, True);
+      try
+        Check('ledger find (lock ignored)', Assigned(L) and (L.FinMoneyTransactionId = T2.Id));
+      finally
+        L.Free;
+      end;
+      End_;
+
+      // ---- kural ihlalleri
+      Begin_;
+      Expect('cash insufficient', procedure
+        var X: TFinMoneyAccount;
+        begin
+          X := NewMoneyAccount(ASvc, FIN_MONEY_CASH, 'IT-KX');
+          try
+            NewMoneyTx(TSvc, X.Id, FIN_MONEY_TX_OTHER_IN, 100).Free;
+            NewMoneyTx(TSvc, X.Id, FIN_MONEY_TX_PAYMENT, 150, 0, Cari).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('delete transfer makes cash negative', procedure
+        var X, Y: TFinMoneyAccount; Tr: TFinMoneyTransaction;
+        begin
+          X := NewMoneyAccount(ASvc, FIN_MONEY_CASH, 'IT-KY');
+          Y := NewMoneyAccount(ASvc, FIN_MONEY_CASH, 'IT-KZ');
+          NewMoneyTx(TSvc, X.Id, FIN_MONEY_TX_OTHER_IN, 100).Free;
+          Tr := NewMoneyTx(TSvc, X.Id, FIN_MONEY_TX_TRANSFER, 100, Y.Id);
+          try
+            NewMoneyTx(TSvc, Y.Id, FIN_MONEY_TX_EXPENSE, 50).Free;
+            TSvc.BusinessDelete(Tr, False, False, True);
+          finally X.Free; Y.Free; Tr.Free; end;
+        end);
+      Begin_;
+      Expect('invalid iban', procedure
+        begin
+          NewMoneyAccount(ASvc, FIN_MONEY_BANK, 'IT-BI', 'TR330006100519786457841327').Free;
+        end);
+      Begin_;
+      Expect('bank account without bank', procedure
+        var X: TFinMoneyAccount;
+        begin
+          X := TFinMoneyAccount.Create;
+          try
+            X.AccountKind := FIN_MONEY_BANK; X.Code := 'IT-BN'; X.Name := 'IT BN';
+            ASvc.BusinessInsert(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('duplicate code', procedure
+        begin
+          NewMoneyAccount(ASvc, FIN_MONEY_CASH, 'IT-DUP').Free;
+          NewMoneyAccount(ASvc, FIN_MONEY_CASH, 'it-dup').Free;
+        end);
+      Begin_;
+      Expect('duplicate iban', procedure
+        begin
+          NewMoneyAccount(ASvc, FIN_MONEY_BANK, 'IT-I1', 'TR330006100519786457841326').Free;
+          NewMoneyAccount(ASvc, FIN_MONEY_BANK, 'IT-I2', 'TR330006100519786457841326').Free;
+        end);
+      Begin_;
+      Expect('transfer to same account', procedure
+        var X: TFinMoneyAccount;
+        begin
+          X := NewMoneyAccount(ASvc, FIN_MONEY_BANK, 'IT-BS');
+          try
+            NewMoneyTx(TSvc, X.Id, FIN_MONEY_TX_TRANSFER, 10, X.Id).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('transfer currency mismatch', procedure
+        var X, Y: TFinMoneyAccount;
+        begin
+          X := NewMoneyAccount(ASvc, FIN_MONEY_BANK, 'IT-BC1');
+          Y := TFinMoneyAccount.Create;
+          try
+            Y.AccountKind := FIN_MONEY_BANK; Y.Code := 'IT-BC2'; Y.Name := 'IT BC2';
+            Y.AccBankId := Scalar('SELECT min(id) FROM acc_bank');
+            Y.Currency := Scalar('SELECT currency FROM sys_currency WHERE currency <> fn_default_currency() ORDER BY id LIMIT 1');
+            ASvc.BusinessInsert(Y, False, False, True);
+            NewMoneyTx(TSvc, X.Id, FIN_MONEY_TX_TRANSFER, 10, Y.Id).Free;
+          finally X.Free; Y.Free; end;
+        end);
+      Begin_;
+      Expect('collection without account', procedure
+        var X: TFinMoneyAccount;
+        begin
+          X := NewMoneyAccount(ASvc, FIN_MONEY_BANK, 'IT-BA');
+          try
+            NewMoneyTx(TSvc, X.Id, FIN_MONEY_TX_COLLECTION, 10).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('passive account', procedure
+        var X: TFinMoneyAccount;
+        begin
+          X := NewMoneyAccount(ASvc, FIN_MONEY_BANK, 'IT-BP');
+          try
+            X.IsActive := False;
+            ASvc.BusinessUpdate(X, False, False, True);
+            NewMoneyTx(TSvc, X.Id, FIN_MONEY_TX_OTHER_IN, 10).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('delete account with transactions', procedure
+        var X: TFinMoneyAccount;
+        begin
+          X := NewMoneyAccount(ASvc, FIN_MONEY_BANK, 'IT-BD');
+          try
+            NewMoneyTx(TSvc, X.Id, FIN_MONEY_TX_OTHER_IN, 10).Free;
+            ASvc.BusinessDelete(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('currency change after transactions', procedure
+        var X: TFinMoneyAccount;
+        begin
+          X := NewMoneyAccount(ASvc, FIN_MONEY_BANK, 'IT-BK');
+          try
+            NewMoneyTx(TSvc, X.Id, FIN_MONEY_TX_OTHER_IN, 10).Free;
+            X.Currency := Scalar('SELECT currency FROM sys_currency WHERE currency <> fn_default_currency() ORDER BY id LIMIT 1');
+            ASvc.BusinessUpdate(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('ledger is read-only', procedure
+        var X: TFinMoneyLedger;
+        begin
+          X := TFinMoneyLedger.Create;
+          try
+            LSvc.BusinessInsert(X, False, False, True);
+          finally X.Free; end;
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    K.Free; B.Free; C.Free; T1.Free; T2.Free; T3.Free;
+    LSvc.Free;
+    TSvc.Free;
+    ASvc.Free;
+  end;
+end;
+
+{ ---------------------------------------------------------------- Purchasing }
+
+function NewRequest(ASvc: TPurRequestService): TPurRequest;
+begin
+  Result := TPurRequest.Create;
+  Result.EmpEmployeeId := Scalar('SELECT min(id) FROM emp_employee');
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NewRequestLine(ASvc: TPurRequestDetailService; AReq, AInv: Int64; AQty: Currency): TPurRequestDetail;
+begin
+  Result := TPurRequestDetail.Create;
+  Result.PurRequestId := AReq;
+  Result.StkInventoryId := AInv;
+  Result.Quantity := AQty;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NewOrder(ASvc: TPurOrderService; AAccount: Int64): TPurOrder;
+begin
+  Result := TPurOrder.Create;
+  Result.AccAccountId := AAccount;
+  Result.StkWarehouseId := Scalar('SELECT min(id) FROM stk_warehouse');
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NewOrderLine(ASvc: TPurOrderDetailService; AOrder, AInv: Int64; AQty, APrice: Currency): TPurOrderDetail;
+begin
+  Result := TPurOrderDetail.Create;
+  Result.PurOrderId := AOrder;
+  Result.StkInventoryId := AInv;
+  Result.Quantity := AQty;
+  Result.UnitPrice := APrice;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function StockQty(AInv: Int64): Double;
+var
+  V: Variant;
+begin
+  V := Scalar('SELECT current_quantity FROM stk_inventory_summary WHERE stk_inventory_id = ' + AInv.ToString);
+  if VarIsNull(V) or VarIsEmpty(V) then Result := 0 else Result := V;
+end;
+
+function FirstId(const ASql: string): Int64;
+var
+  V: Variant;
+begin
+  V := Scalar(ASql);
+  if VarIsNull(V) or VarIsEmpty(V) then Result := 0 else Result := V;
+end;
+
+procedure TestPurchasing;
+var
+  RSvc: TPurRequestService;
+  RDSvc: TPurRequestDetailService;
+  OSvc: TPurOrderService;
+  ODSvc: TPurOrderDetailService;
+  PSvc: TPurReceiptService;
+  PDSvc: TPurReceiptDetailService;
+  FSvc: TPurInvoiceService;
+  FDSvc: TPurInvoiceDetailService;
+  StSvc: TStkTransactionService;
+  Req: TPurRequest;
+  OD: TPurOrderDetail;
+  PD: TPurReceiptDetail;
+  Inv1, Inv3, Supplier, Supplier2, OrderId, ReceiptId, InvoiceId, LineId, StId: Int64;
+  Qty1Before, Qty3Before: Double;
+  Lst: TList<TPurOrderDetail>;
+  F: TFilterCriteria;
+  St: TStkTransaction;
+  Fi: TPurInvoice;
+  Rc: TPurReceipt;
+begin
+  Ctx('Purchasing', 'flow');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Inv3 := Scalar('SELECT id FROM stk_inventory WHERE buying_currency = fn_default_currency() AND buying_price > 0 ORDER BY id LIMIT 1');
+  Supplier := Scalar('SELECT min(id) FROM acc_account');
+  Supplier2 := Scalar('SELECT max(id) FROM acc_account');
+  RSvc := TPurRequestService.Create;
+  RDSvc := TPurRequestDetailService.Create;
+  OSvc := TPurOrderService.Create;
+  ODSvc := TPurOrderDetailService.Create;
+  PSvc := TPurReceiptService.Create;
+  PDSvc := TPurReceiptDetailService.Create;
+  FSvc := TPurInvoiceService.Create;
+  FDSvc := TPurInvoiceDetailService.Create;
+  StSvc := TStkTransactionService.Create;
+  Req := nil;
+  try
+    try
+      Begin_;
+      Qty1Before := StockQty(Inv1);
+      Qty3Before := StockQty(Inv3);
+
+      // ---- talep
+      Req := NewRequest(RSvc);
+      Check('request insert', StartsText('PT', Req.RequestNo) and (Length(Req.RequestNo) = 8), Req.RequestNo);
+      NewRequestLine(RDSvc, Req.Id, Inv1, 10).Free;
+      NewRequestLine(RDSvc, Req.Id, Inv3, 5).Free;
+      RSvc.ChangeStatus(Req.Id, PUR_REQ_APPROVED, True);
+      Check('request approved', Num(Scalar('SELECT status FROM pur_request WHERE id = ' + Req.Id.ToString)) = PUR_REQ_APPROVED);
+
+      // ---- talepten sipariş
+      OrderId := OSvc.CreateFromRequest(Req.Id, Supplier, True);
+      Check('order from request', StartsText('PS', S(Scalar('SELECT order_no FROM pur_order WHERE id = ' + OrderId.ToString))) and
+        (Num(Scalar('SELECT count(*) FROM pur_order_detail WHERE pur_order_id = ' + OrderId.ToString)) = 2));
+      Check('line numbers', S(Scalar('SELECT string_agg(line_no::text, '','' ORDER BY line_no) FROM pur_order_detail WHERE pur_order_id = ' + OrderId.ToString)) = '1,2');
+      Check('request ordered (status 4)', Num(Scalar('SELECT status FROM pur_request WHERE id = ' + Req.Id.ToString)) = PUR_REQ_ORDERED);
+      Check('ordered quantity', Near(Num(Scalar('SELECT sum(ordered_quantity) FROM pur_request_detail WHERE pur_request_id = ' + Req.Id.ToString)), 15));
+      Check('price suggested (same currency)', Num(Scalar('SELECT unit_price FROM pur_order_detail WHERE pur_order_id = ' + OrderId.ToString +
+        ' AND stk_inventory_id = ' + Inv3.ToString)) > 0);
+      Check('vat from group', Near(Num(Scalar('SELECT vat_rate FROM pur_order_detail WHERE pur_order_id = ' + OrderId.ToString + ' AND stk_inventory_id = ' + Inv3.ToString)),
+        Num(Scalar('SELECT COALESCE(i.vat_rate, g.vat_rate, 0) FROM stk_inventory i JOIN stk_group g ON g.id = i.stk_group_id WHERE i.id = ' + Inv3.ToString))));
+
+      // satır tutarları: 10 x 2,50 = 25,00; %10 iskonto 2,50; net 22,50; %20 KDV 4,50; toplam 27,00
+      OD := ODSvc.FindById(FirstId('SELECT id FROM pur_order_detail WHERE pur_order_id = ' + OrderId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString), False);
+      try
+        OD.UnitPrice := 2.5;
+        OD.DiscountRate := 10;
+        OD.VatRate := 20;
+        ODSvc.BusinessUpdate(OD, False, False, True);
+        LineId := OD.Id;
+      finally
+        OD.Free;
+      end;
+      Check('line amounts', S(Scalar('SELECT gross_amount || ''/'' || discount_amount || ''/'' || net_amount || ''/'' || vat_amount || ''/'' || total_amount ' +
+        'FROM pur_order_detail WHERE id = ' + LineId.ToString)) = '25.00/2.50/22.50/4.50/27.00',
+        S(Scalar('SELECT gross_amount || ''/'' || discount_amount || ''/'' || net_amount || ''/'' || vat_amount || ''/'' || total_amount FROM pur_order_detail WHERE id = ' + LineId.ToString)));
+      Check('order totals = sum of lines', Num(Scalar('SELECT count(*) FROM pur_order o WHERE o.id = ' + OrderId.ToString +
+        ' AND o.total_amount = (SELECT sum(total_amount) FROM pur_order_detail WHERE pur_order_id = o.id) ' +
+        ' AND o.net_amount = (SELECT sum(net_amount) FROM pur_order_detail WHERE pur_order_id = o.id)')) = 1);
+
+      OSvc.ChangeStatus(OrderId, PUR_ORD_APPROVED, True);
+      Check('order approved', Num(Scalar('SELECT status FROM pur_order WHERE id = ' + OrderId.ToString)) = PUR_ORD_APPROVED);
+
+      // ---- siparişten mal kabul (stok girişi)
+      ReceiptId := PSvc.CreateFromOrder(OrderId, Scalar('SELECT min(id) FROM stk_warehouse'), True);
+      Check('receipt from order', StartsText('MK', S(Scalar('SELECT receipt_no FROM pur_receipt WHERE id = ' + ReceiptId.ToString))) and
+        (Num(Scalar('SELECT count(*) FROM pur_receipt_detail WHERE pur_receipt_id = ' + ReceiptId.ToString)) = 2));
+      Check('stock transactions created', Num(Scalar('SELECT count(*) FROM stk_transaction t JOIN pur_receipt_detail d ON d.id = t.pur_receipt_detail_id ' +
+        'WHERE d.pur_receipt_id = ' + ReceiptId.ToString + ' AND t.transaction_type = 1')) = 2);
+      Check('stock summary +10 / +5', Near(StockQty(Inv1), Qty1Before + 10) and Near(StockQty(Inv3), Qty3Before + 5),
+        Format('%g -> %g', [Qty1Before, StockQty(Inv1)]));
+      Check('unit cost = net price', Near(Num(Scalar('SELECT unit_price FROM pur_receipt_detail WHERE pur_order_detail_id = ' + LineId.ToString)), 2.25));
+      Check('order received (status 4)', Num(Scalar('SELECT status FROM pur_order WHERE id = ' + OrderId.ToString)) = PUR_ORD_RECEIVED);
+
+      PD := PDSvc.FindById(FirstId('SELECT id FROM pur_receipt_detail WHERE pur_order_detail_id = ' + LineId.ToString), False);
+      try
+        PD.Quantity := 6;
+        PDSvc.BusinessUpdate(PD, False, False, True);
+      finally
+        PD.Free;
+      end;
+      Check('receipt line reduced -> stock +6', Near(StockQty(Inv1), Qty1Before + 6));
+      Check('order partial (status 3)', Num(Scalar('SELECT status FROM pur_order WHERE id = ' + OrderId.ToString)) = PUR_ORD_PARTIAL);
+      Check('order received quantity', Near(Num(Scalar('SELECT received_quantity FROM pur_order_detail WHERE id = ' + LineId.ToString)), 6));
+
+      // stok hareketleri ekranından değiştirilemez
+      StId := FirstId('SELECT t.id FROM stk_transaction t JOIN pur_receipt_detail d ON d.id = t.pur_receipt_detail_id WHERE d.pur_receipt_id = ' + ReceiptId.ToString + ' LIMIT 1');
+      St := StSvc.FindById(StId, False);
+      try
+        try
+          StSvc.Delete(St.Id);
+          Check('stock tx from receipt locked', False, 'delete allowed');
+        except
+          on E: Exception do Check('stock tx from receipt locked', Pos('mal kabul', AnsiLowerCase(E.Message)) > 0, E.Message);
+        end;
+      finally
+        St.Free;
+      end;
+
+      // ---- mal kabulden fatura
+      InvoiceId := FSvc.CreateFromReceipt(ReceiptId, '', True);
+      Fi := FSvc.FindById(InvoiceId, False);
+      try
+        Check('invoice from receipt', Assigned(Fi) and (Fi.InvoiceNo = S(Scalar('SELECT receipt_no FROM pur_receipt WHERE id = ' + ReceiptId.ToString))), Fi.InvoiceNo);
+        Check('invoice lines', Num(Scalar('SELECT count(*) FROM pur_invoice_detail WHERE pur_invoice_id = ' + InvoiceId.ToString)) = 2);
+        Check('invoice uses order price/discount/vat', S(Scalar('SELECT f.unit_price || ''/'' || f.discount_rate || ''/'' || f.vat_rate || ''/'' || f.quantity FROM pur_invoice_detail f ' +
+          'JOIN pur_receipt_detail d ON d.id = f.pur_receipt_detail_id WHERE d.pur_order_detail_id = ' + LineId.ToString)) = '2.500000/10.00/20.00/6.000000',
+          S(Scalar('SELECT f.unit_price || ''/'' || f.discount_rate || ''/'' || f.vat_rate || ''/'' || f.quantity FROM pur_invoice_detail f JOIN pur_receipt_detail d ON d.id = f.pur_receipt_detail_id WHERE d.pur_order_detail_id = ' + LineId.ToString)));
+        Check('invoice totals = sum of lines', Num(Scalar('SELECT count(*) FROM pur_invoice f WHERE f.id = ' + InvoiceId.ToString +
+          ' AND f.total_amount = (SELECT sum(total_amount) FROM pur_invoice_detail WHERE pur_invoice_id = f.id) AND f.total_amount > 0')) = 1);
+        Check('nothing left to invoice', Num(Scalar('SELECT sum(remaining_invoice_quantity) FROM vw_pur_receipt_detail WHERE pur_receipt_id = ' + ReceiptId.ToString)) = 0);
+
+        // geri alma: fatura -> mal kabul -> sipariş taslağa -> iptal
+        FSvc.BusinessDelete(Fi, False, False, True);
+      finally
+        Fi.Free;
+      end;
+      Rc := PSvc.FindById(ReceiptId, False);
+      try
+        PSvc.BusinessDelete(Rc, False, False, True);
+      finally
+        Rc.Free;
+      end;
+      Check('receipt delete -> stock back', Near(StockQty(Inv1), Qty1Before) and Near(StockQty(Inv3), Qty3Before));
+      Check('receipt delete -> order approved', Num(Scalar('SELECT status FROM pur_order WHERE id = ' + OrderId.ToString)) = PUR_ORD_APPROVED);
+      OSvc.ChangeStatus(OrderId, PUR_ORD_CANCELLED, True);
+      Check('cancel order -> request reopened', (Num(Scalar('SELECT status FROM pur_request WHERE id = ' + Req.Id.ToString)) = PUR_REQ_APPROVED) and
+        Near(Num(Scalar('SELECT sum(ordered_quantity) FROM pur_request_detail WHERE pur_request_id = ' + Req.Id.ToString)), 0));
+      End_;
+
+      // ---- kural ihlalleri
+      Begin_;
+      Expect('approve request without lines', procedure
+        var X: TPurRequest;
+        begin
+          X := NewRequest(RSvc);
+          try RSvc.ChangeStatus(X.Id, PUR_REQ_APPROVED, True); finally X.Free; end;
+        end);
+      Begin_;
+      Expect('line on approved request', procedure
+        var X: TPurRequest;
+        begin
+          X := NewRequest(RSvc);
+          try
+            NewRequestLine(RDSvc, X.Id, Inv1, 1).Free;
+            RSvc.ChangeStatus(X.Id, PUR_REQ_APPROVED, True);
+            NewRequestLine(RDSvc, X.Id, Inv3, 1).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('duplicate stock on request', procedure
+        var X: TPurRequest;
+        begin
+          X := NewRequest(RSvc);
+          try
+            NewRequestLine(RDSvc, X.Id, Inv1, 1).Free;
+            NewRequestLine(RDSvc, X.Id, Inv1, 2).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('order from draft request', procedure
+        var X: TPurRequest;
+        begin
+          X := NewRequest(RSvc);
+          try
+            NewRequestLine(RDSvc, X.Id, Inv1, 1).Free;
+            OSvc.CreateFromRequest(X.Id, Supplier, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('discount 150', procedure
+        var X: TPurOrder; L: TPurOrderDetail;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          L := TPurOrderDetail.Create;
+          try
+            L.PurOrderId := X.Id; L.StkInventoryId := Inv1; L.Quantity := 1; L.DiscountRate := 150;
+            ODSvc.BusinessInsert(L, False, False, True);
+          finally X.Free; L.Free; end;
+        end);
+      Begin_;
+      Expect('duplicate line no', procedure
+        var X: TPurOrder; L: TPurOrderDetail;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          NewOrderLine(ODSvc, X.Id, Inv1, 1, 1).Free;
+          L := TPurOrderDetail.Create;
+          try
+            L.PurOrderId := X.Id; L.LineNo := 1; L.StkInventoryId := Inv3; L.Quantity := 1;
+            ODSvc.BusinessInsert(L, False, False, True);
+          finally X.Free; L.Free; end;
+        end);
+      Begin_;
+      Expect('line on approved order', procedure
+        var X: TPurOrder;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          try
+            NewOrderLine(ODSvc, X.Id, Inv1, 1, 1).Free;
+            OSvc.ChangeStatus(X.Id, PUR_ORD_APPROVED, True);
+            NewOrderLine(ODSvc, X.Id, Inv3, 1, 1).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('manual status received', procedure
+        var X: TPurOrder;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          try
+            NewOrderLine(ODSvc, X.Id, Inv1, 1, 1).Free;
+            OSvc.ChangeStatus(X.Id, PUR_ORD_APPROVED, True);
+            OSvc.ChangeStatus(X.Id, PUR_ORD_RECEIVED, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('receipt for draft order', procedure
+        var X: TPurOrder;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          try
+            NewOrderLine(ODSvc, X.Id, Inv1, 1, 1).Free;
+            PSvc.CreateFromOrder(X.Id, Scalar('SELECT min(id) FROM stk_warehouse'), True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('receipt of another supplier''s order', procedure
+        var X: TPurOrder; R: TPurReceipt;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          R := TPurReceipt.Create;
+          try
+            NewOrderLine(ODSvc, X.Id, Inv1, 1, 1).Free;
+            OSvc.ChangeStatus(X.Id, PUR_ORD_APPROVED, True);
+            R.AccAccountId := Supplier2; R.StkWarehouseId := Scalar('SELECT min(id) FROM stk_warehouse'); R.PurOrderId := X.Id;
+            PSvc.BusinessInsert(R, False, False, True);
+          finally X.Free; R.Free; end;
+        end);
+      Begin_;
+      Expect('over receipt', procedure
+        var X: TPurOrder; Rid: Int64; D: TPurReceiptDetail;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          try
+            NewOrderLine(ODSvc, X.Id, Inv1, 10, 1).Free;
+            OSvc.ChangeStatus(X.Id, PUR_ORD_APPROVED, True);
+            Rid := PSvc.CreateFromOrder(X.Id, Scalar('SELECT min(id) FROM stk_warehouse'), True);
+            D := PDSvc.FindById(FirstId('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + Rid.ToString), False);
+            try
+              D.Quantity := 11;
+              PDSvc.BusinessUpdate(D, False, False, True);
+            finally D.Free; end;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('reduce invoiced receipt line', procedure
+        var X: TPurOrder; Rid: Int64; D: TPurReceiptDetail;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          try
+            NewOrderLine(ODSvc, X.Id, Inv1, 10, 1).Free;
+            OSvc.ChangeStatus(X.Id, PUR_ORD_APPROVED, True);
+            Rid := PSvc.CreateFromOrder(X.Id, Scalar('SELECT min(id) FROM stk_warehouse'), True);
+            FSvc.CreateFromReceipt(Rid, 'IT-F-1', True);
+            D := PDSvc.FindById(FirstId('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + Rid.ToString), False);
+            try
+              D.Quantity := 5;
+              PDSvc.BusinessUpdate(D, False, False, True);
+            finally D.Free; end;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('delete invoiced receipt', procedure
+        var X: TPurOrder; Rid: Int64; R: TPurReceipt;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          try
+            NewOrderLine(ODSvc, X.Id, Inv1, 10, 1).Free;
+            OSvc.ChangeStatus(X.Id, PUR_ORD_APPROVED, True);
+            Rid := PSvc.CreateFromOrder(X.Id, Scalar('SELECT min(id) FROM stk_warehouse'), True);
+            FSvc.CreateFromReceipt(Rid, 'IT-F-2', True);
+            R := PSvc.FindById(Rid, False);
+            try PSvc.BusinessDelete(R, False, False, True); finally R.Free; end;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('over invoice', procedure
+        var X: TPurOrder; Rid, Fid: Int64; D: TPurInvoiceDetail;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          try
+            NewOrderLine(ODSvc, X.Id, Inv1, 10, 1).Free;
+            OSvc.ChangeStatus(X.Id, PUR_ORD_APPROVED, True);
+            Rid := PSvc.CreateFromOrder(X.Id, Scalar('SELECT min(id) FROM stk_warehouse'), True);
+            Fid := FSvc.CreateFromReceipt(Rid, 'IT-F-3', True);
+            D := FDSvc.FindById(FirstId('SELECT id FROM pur_invoice_detail WHERE pur_invoice_id = ' + Fid.ToString), False);
+            try
+              D.Quantity := 11;
+              FDSvc.BusinessUpdate(D, False, False, True);
+            finally D.Free; end;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('duplicate invoice no', procedure
+        var A, B: TPurInvoice;
+        begin
+          A := TPurInvoice.Create; B := TPurInvoice.Create;
+          try
+            A.InvoiceNo := 'IT-DUP'; A.AccAccountId := Supplier; FSvc.BusinessInsert(A, False, False, True);
+            B.InvoiceNo := ' it-dup '; B.AccAccountId := Supplier; FSvc.BusinessInsert(B, False, False, True);
+          finally A.Free; B.Free; end;
+        end);
+      Begin_;
+      Expect('delete order with receipts', procedure
+        var X: TPurOrder;
+        begin
+          X := NewOrder(OSvc, Supplier);
+          try
+            NewOrderLine(ODSvc, X.Id, Inv1, 10, 1).Free;
+            OSvc.ChangeStatus(X.Id, PUR_ORD_APPROVED, True);
+            PSvc.CreateFromOrder(X.Id, Scalar('SELECT min(id) FROM stk_warehouse'), True);
+            OSvc.ChangeStatus(X.Id, PUR_ORD_CANCELLED, True);
+          finally X.Free; end;
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    Req.Free;
+    StSvc.Free;
+    FDSvc.Free; FSvc.Free; PDSvc.Free; PSvc.Free; ODSvc.Free; OSvc.Free; RDSvc.Free; RSvc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -1476,6 +2125,8 @@ begin
   TestFinanceChequeNotes;
   TestFinanceCreditCards;
   TestFinancePos;
+  TestFinanceMoney;
+  TestPurchasing;
 end;
 
 end.

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 0bKEcj27VLYxvgI5QwcQmw9behhHFrGXarrZSjcLjgmzCRjiPQCECvZ3387bHj8
+\restrict mBqG3Ewcwijyg0CsGlVBT7XHyF5bDYxJHET54z4qhxZarPdskbSckTTaLEx3BFf
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -1543,6 +1543,89 @@ ALTER TABLE public.fin_credit_card_transaction ALTER COLUMN id ADD GENERATED ALW
 
 
 --
+-- Name: fin_money_account; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.fin_money_account (
+    id bigint NOT NULL,
+    account_kind smallint NOT NULL,
+    code character varying(16) NOT NULL,
+    name character varying(64) NOT NULL,
+    acc_bank_id bigint,
+    acc_bank_branch_id bigint,
+    account_no character varying(32),
+    iban character varying(34),
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    acc_account_code character varying(16),
+    is_active boolean DEFAULT true NOT NULL,
+    notes character varying(512),
+    CONSTRAINT fin_money_account_bank_check CHECK (((account_kind = 1) OR (acc_bank_id IS NOT NULL))),
+    CONSTRAINT fin_money_account_cash_check CHECK (((account_kind = 2) OR ((acc_bank_id IS NULL) AND (acc_bank_branch_id IS NULL) AND (account_no IS NULL) AND (iban IS NULL)))),
+    CONSTRAINT fin_money_account_iban_check CHECK (((iban IS NULL) OR ((iban)::text ~ '^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$'::text))),
+    CONSTRAINT fin_money_account_kind_check CHECK ((account_kind = ANY (ARRAY[1, 2])))
+);
+
+
+ALTER TABLE public.fin_money_account OWNER TO ths_admin;
+
+--
+-- Name: fin_money_account_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.fin_money_account ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.fin_money_account_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: fin_money_transaction; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.fin_money_transaction (
+    id bigint NOT NULL,
+    fin_money_account_id bigint NOT NULL,
+    transaction_date date DEFAULT CURRENT_DATE NOT NULL,
+    transaction_type smallint NOT NULL,
+    transfer_method smallint,
+    acc_account_id bigint,
+    target_fin_money_account_id bigint,
+    amount numeric(18,2) NOT NULL,
+    document_no character varying(32),
+    counterparty_name character varying(128),
+    counterparty_iban character varying(34),
+    description character varying(256),
+    CONSTRAINT fin_money_transaction_account_check CHECK (((transaction_type <> ALL (ARRAY[1, 2])) OR (acc_account_id IS NOT NULL))),
+    CONSTRAINT fin_money_transaction_amount_check CHECK ((amount > (0)::numeric)),
+    CONSTRAINT fin_money_transaction_iban_check CHECK (((counterparty_iban IS NULL) OR ((counterparty_iban)::text ~ '^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$'::text))),
+    CONSTRAINT fin_money_transaction_method_check CHECK (((transfer_method IS NULL) OR ((transfer_method >= 1) AND (transfer_method <= 5)))),
+    CONSTRAINT fin_money_transaction_self_check CHECK (((target_fin_money_account_id IS NULL) OR (target_fin_money_account_id <> fin_money_account_id))),
+    CONSTRAINT fin_money_transaction_target_check CHECK (((transaction_type = 3) = (target_fin_money_account_id IS NOT NULL))),
+    CONSTRAINT fin_money_transaction_type_check CHECK (((transaction_type >= 1) AND (transaction_type <= 7)))
+);
+
+
+ALTER TABLE public.fin_money_transaction OWNER TO ths_admin;
+
+--
+-- Name: fin_money_transaction_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.fin_money_transaction ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.fin_money_transaction_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: fin_pos_terminal; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -2189,6 +2272,88 @@ ALTER TABLE public.emp_unit ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: pur_invoice; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_invoice (
+    id bigint NOT NULL,
+    invoice_no character varying(32) NOT NULL,
+    invoice_date date DEFAULT CURRENT_DATE NOT NULL,
+    acc_account_id bigint NOT NULL,
+    due_date date,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    exchange_rate numeric(18,6) DEFAULT 1 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    description character varying(256),
+    CONSTRAINT pur_invoice_due_date_check CHECK (((due_date IS NULL) OR (due_date >= invoice_date))),
+    CONSTRAINT pur_invoice_exchange_rate_check CHECK ((exchange_rate > (0)::numeric))
+);
+
+
+ALTER TABLE public.pur_invoice OWNER TO ths_admin;
+
+--
+-- Name: pur_invoice_detail; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_invoice_detail (
+    id bigint NOT NULL,
+    pur_invoice_id bigint NOT NULL,
+    line_no smallint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0 NOT NULL,
+    discount_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    vat_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    pur_receipt_detail_id bigint,
+    description character varying(128),
+    CONSTRAINT pur_invoice_detail_discount_check CHECK (((discount_rate >= (0)::numeric) AND (discount_rate <= (100)::numeric))),
+    CONSTRAINT pur_invoice_detail_price_check CHECK ((unit_price >= (0)::numeric)),
+    CONSTRAINT pur_invoice_detail_quantity_check CHECK ((quantity > (0)::numeric)),
+    CONSTRAINT pur_invoice_detail_vat_check CHECK (((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric)))
+);
+
+
+ALTER TABLE public.pur_invoice_detail OWNER TO ths_admin;
+
+--
+-- Name: pur_invoice_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_invoice_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_invoice_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: pur_invoice_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_invoice ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_invoice_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: pur_offer; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -2310,6 +2475,229 @@ ALTER SEQUENCE public.pur_offer_detail_id_seq OWNED BY public.pur_offer_detail.i
 
 ALTER TABLE public.pur_offer ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.pur_offer_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: pur_order; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_order (
+    id bigint NOT NULL,
+    order_no character varying(16) NOT NULL,
+    order_date date DEFAULT CURRENT_DATE NOT NULL,
+    acc_account_id bigint NOT NULL,
+    supplier_ref_no character varying(32),
+    delivery_date date,
+    stk_warehouse_id bigint,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    exchange_rate numeric(18,6) DEFAULT 1 NOT NULL,
+    payment_term_days smallint DEFAULT 0 NOT NULL,
+    status smallint DEFAULT 1 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    description character varying(256),
+    CONSTRAINT pur_order_delivery_date_check CHECK (((delivery_date IS NULL) OR (delivery_date >= order_date))),
+    CONSTRAINT pur_order_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
+    CONSTRAINT pur_order_payment_term_check CHECK (((payment_term_days >= 0) AND (payment_term_days <= 365))),
+    CONSTRAINT pur_order_status_check CHECK (((status >= 1) AND (status <= 5)))
+);
+
+
+ALTER TABLE public.pur_order OWNER TO ths_admin;
+
+--
+-- Name: pur_order_detail; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_order_detail (
+    id bigint NOT NULL,
+    pur_order_id bigint NOT NULL,
+    line_no smallint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0 NOT NULL,
+    discount_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    vat_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    received_quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    delivery_date date,
+    pur_request_detail_id bigint,
+    description character varying(128),
+    CONSTRAINT pur_order_detail_discount_check CHECK (((discount_rate >= (0)::numeric) AND (discount_rate <= (100)::numeric))),
+    CONSTRAINT pur_order_detail_price_check CHECK ((unit_price >= (0)::numeric)),
+    CONSTRAINT pur_order_detail_quantity_check CHECK ((quantity > (0)::numeric)),
+    CONSTRAINT pur_order_detail_received_check CHECK ((received_quantity >= (0)::numeric)),
+    CONSTRAINT pur_order_detail_vat_check CHECK (((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric)))
+);
+
+
+ALTER TABLE public.pur_order_detail OWNER TO ths_admin;
+
+--
+-- Name: pur_order_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_order_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_order_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: pur_order_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_order ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_order_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: pur_receipt; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_receipt (
+    id bigint NOT NULL,
+    receipt_no character varying(16) NOT NULL,
+    receipt_date date DEFAULT CURRENT_DATE NOT NULL,
+    acc_account_id bigint NOT NULL,
+    stk_warehouse_id bigint NOT NULL,
+    waybill_no character varying(32),
+    pur_order_id bigint,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    description character varying(256)
+);
+
+
+ALTER TABLE public.pur_receipt OWNER TO ths_admin;
+
+--
+-- Name: pur_receipt_detail; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_receipt_detail (
+    id bigint NOT NULL,
+    pur_receipt_id bigint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0 NOT NULL,
+    pur_order_detail_id bigint,
+    description character varying(128),
+    CONSTRAINT pur_receipt_detail_price_check CHECK ((unit_price >= (0)::numeric)),
+    CONSTRAINT pur_receipt_detail_quantity_check CHECK ((quantity > (0)::numeric))
+);
+
+
+ALTER TABLE public.pur_receipt_detail OWNER TO ths_admin;
+
+--
+-- Name: pur_receipt_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_receipt_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_receipt_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: pur_receipt_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_receipt ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_receipt_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: pur_request; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_request (
+    id bigint NOT NULL,
+    request_no character varying(16) NOT NULL,
+    request_date date DEFAULT CURRENT_DATE NOT NULL,
+    emp_employee_id bigint,
+    required_date date,
+    status smallint DEFAULT 1 NOT NULL,
+    description character varying(256),
+    CONSTRAINT pur_request_required_date_check CHECK (((required_date IS NULL) OR (required_date >= request_date))),
+    CONSTRAINT pur_request_status_check CHECK (((status >= 1) AND (status <= 5)))
+);
+
+
+ALTER TABLE public.pur_request OWNER TO ths_admin;
+
+--
+-- Name: pur_request_detail; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_request_detail (
+    id bigint NOT NULL,
+    pur_request_id bigint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    ordered_quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    required_date date,
+    description character varying(128),
+    CONSTRAINT pur_request_detail_ordered_check CHECK ((ordered_quantity >= (0)::numeric)),
+    CONSTRAINT pur_request_detail_quantity_check CHECK ((quantity > (0)::numeric))
+);
+
+
+ALTER TABLE public.pur_request_detail OWNER TO ths_admin;
+
+--
+-- Name: pur_request_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_request_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_request_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: pur_request_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_request ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_request_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2814,7 +3202,9 @@ CREATE TABLE public.stk_transaction (
     production_id bigint,
     stk_inventory_id bigint NOT NULL,
     transaction_type smallint NOT NULL,
+    pur_receipt_detail_id bigint,
     CONSTRAINT stk_transaction_is_opening_check CHECK (((NOT is_opening) OR (transaction_type = 1))),
+    CONSTRAINT stk_transaction_pur_receipt_check CHECK (((pur_receipt_detail_id IS NULL) OR (transaction_type = 1))),
     CONSTRAINT stk_transaction_quantity_check CHECK ((quantity > (0)::numeric)),
     CONSTRAINT stk_transaction_transaction_type_check CHECK ((((transaction_type = 1) AND (to_stk_warehouse_id IS NOT NULL) AND (from_stk_warehouse_id IS NULL)) OR ((transaction_type = 2) AND (from_stk_warehouse_id IS NOT NULL) AND (to_stk_warehouse_id IS NULL)) OR ((transaction_type = 3) AND (from_stk_warehouse_id IS NOT NULL) AND (to_stk_warehouse_id IS NOT NULL) AND (from_stk_warehouse_id <> to_stk_warehouse_id))))
 );
@@ -4622,6 +5012,153 @@ CREATE VIEW public.vw_fin_credit_card_transaction AS
 ALTER VIEW public.vw_fin_credit_card_transaction OWNER TO ths_admin;
 
 --
+-- Name: vw_fin_money_ledger; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_fin_money_ledger AS
+ WITH lines AS (
+         SELECT (t.id * 2) AS id,
+            t.id AS fin_money_transaction_id,
+            t.fin_money_account_id,
+            t.target_fin_money_account_id AS other_fin_money_account_id,
+                CASE
+                    WHEN (t.transaction_type = ANY (ARRAY[1, 5, 6])) THEN 1
+                    ELSE 2
+                END AS direction,
+            t.transaction_date,
+            t.transaction_type,
+            t.transfer_method,
+            t.acc_account_id,
+            t.amount,
+            t.document_no,
+            t.counterparty_name,
+            t.description
+           FROM public.fin_money_transaction t
+        UNION ALL
+         SELECT ((t.id * 2) + 1),
+            t.id,
+            t.target_fin_money_account_id,
+            t.fin_money_account_id,
+            1,
+            t.transaction_date,
+            t.transaction_type,
+            t.transfer_method,
+            t.acc_account_id,
+            t.amount,
+            t.document_no,
+            t.counterparty_name,
+            t.description
+           FROM public.fin_money_transaction t
+          WHERE (t.transaction_type = 3)
+        )
+ SELECT l.id,
+    l.fin_money_transaction_id,
+    l.fin_money_account_id,
+    m.name AS money_account_name,
+    m.currency,
+    l.transaction_date,
+    l.transaction_type,
+    l.transfer_method,
+    l.direction,
+    (
+        CASE
+            WHEN (l.direction = 1) THEN l.amount
+            ELSE (0)::numeric
+        END)::numeric(18,2) AS amount_in,
+    (
+        CASE
+            WHEN (l.direction = 2) THEN l.amount
+            ELSE (0)::numeric
+        END)::numeric(18,2) AS amount_out,
+    (sum(
+        CASE
+            WHEN (l.direction = 1) THEN l.amount
+            ELSE (- l.amount)
+        END) OVER (PARTITION BY l.fin_money_account_id ORDER BY l.transaction_date, l.id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW))::numeric(18,2) AS balance,
+    l.other_fin_money_account_id,
+    o.name AS other_money_account_name,
+    l.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    l.document_no,
+    l.counterparty_name,
+    l.description
+   FROM (((lines l
+     JOIN public.fin_money_account m ON ((m.id = l.fin_money_account_id)))
+     LEFT JOIN public.fin_money_account o ON ((o.id = l.other_fin_money_account_id)))
+     LEFT JOIN public.acc_account a ON ((a.id = l.acc_account_id)));
+
+
+ALTER VIEW public.vw_fin_money_ledger OWNER TO ths_admin;
+
+--
+-- Name: vw_fin_money_account; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_fin_money_account AS
+ SELECT m.id,
+    m.account_kind,
+    m.code,
+    m.name,
+    m.acc_bank_id,
+    b.bank_name,
+    m.acc_bank_branch_id,
+    br.branch_name,
+    m.account_no,
+    m.iban,
+    m.currency,
+    m.acc_account_code,
+    a.name AS account_name,
+    m.is_active,
+    (COALESCE(s.total_in, (0)::numeric))::numeric(18,2) AS total_in,
+    (COALESCE(s.total_out, (0)::numeric))::numeric(18,2) AS total_out,
+    ((COALESCE(s.total_in, (0)::numeric) - COALESCE(s.total_out, (0)::numeric)))::numeric(18,2) AS balance,
+    m.notes
+   FROM ((((public.fin_money_account m
+     LEFT JOIN public.acc_bank b ON ((b.id = m.acc_bank_id)))
+     LEFT JOIN public.acc_bank_branch br ON ((br.id = m.acc_bank_branch_id)))
+     LEFT JOIN public.acc_account a ON (((a.code)::text = (m.acc_account_code)::text)))
+     LEFT JOIN ( SELECT vw_fin_money_ledger.fin_money_account_id,
+            sum(vw_fin_money_ledger.amount_in) AS total_in,
+            sum(vw_fin_money_ledger.amount_out) AS total_out
+           FROM public.vw_fin_money_ledger
+          GROUP BY vw_fin_money_ledger.fin_money_account_id) s ON ((s.fin_money_account_id = m.id)));
+
+
+ALTER VIEW public.vw_fin_money_account OWNER TO ths_admin;
+
+--
+-- Name: vw_fin_money_transaction; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_fin_money_transaction AS
+ SELECT t.id,
+    t.fin_money_account_id,
+    m.name AS money_account_name,
+    m.account_kind,
+    m.currency,
+    t.transaction_date,
+    t.transaction_type,
+    t.transfer_method,
+    t.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    t.target_fin_money_account_id,
+    tm.name AS target_money_account_name,
+    t.amount,
+    t.document_no,
+    t.counterparty_name,
+    t.counterparty_iban,
+    t.description
+   FROM (((public.fin_money_transaction t
+     JOIN public.fin_money_account m ON ((m.id = t.fin_money_account_id)))
+     LEFT JOIN public.fin_money_account tm ON ((tm.id = t.target_fin_money_account_id)))
+     LEFT JOIN public.acc_account a ON ((a.id = t.acc_account_id)));
+
+
+ALTER VIEW public.vw_fin_money_transaction OWNER TO ths_admin;
+
+--
 -- Name: vw_fin_pos_terminal; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -4918,6 +5455,266 @@ CREATE VIEW public.vw_prd_packet_raw_detail AS
 
 
 ALTER VIEW public.vw_prd_packet_raw_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_pur_invoice; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_invoice AS
+ SELECT f.id,
+    f.invoice_no,
+    f.invoice_date,
+    f.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    f.due_date,
+    f.currency,
+    f.exchange_rate,
+    f.gross_amount,
+    f.discount_amount,
+    f.net_amount,
+    f.vat_amount,
+    f.total_amount,
+    (( SELECT count(*) AS count
+           FROM public.pur_invoice_detail d
+          WHERE (d.pur_invoice_id = f.id)))::integer AS line_count,
+    f.description
+   FROM (public.pur_invoice f
+     JOIN public.acc_account a ON ((a.id = f.acc_account_id)));
+
+
+ALTER VIEW public.vw_pur_invoice OWNER TO ths_admin;
+
+--
+-- Name: vw_pur_invoice_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_invoice_detail AS
+ SELECT d.id,
+    d.pur_invoice_id,
+    f.invoice_no,
+    f.acc_account_id,
+    f.currency,
+    d.line_no,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    d.quantity,
+    d.unit_price,
+    d.discount_rate,
+    d.vat_rate,
+    d.gross_amount,
+    d.discount_amount,
+    d.net_amount,
+    d.vat_amount,
+    d.total_amount,
+    d.pur_receipt_detail_id,
+    p.receipt_no,
+    d.description
+   FROM (((((public.pur_invoice_detail d
+     JOIN public.pur_invoice f ON ((f.id = d.pur_invoice_id)))
+     JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+     LEFT JOIN public.pur_receipt_detail rd ON ((rd.id = d.pur_receipt_detail_id)))
+     LEFT JOIN public.pur_receipt p ON ((p.id = rd.pur_receipt_id)));
+
+
+ALTER VIEW public.vw_pur_invoice_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_pur_order; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_order AS
+ SELECT o.id,
+    o.order_no,
+    o.order_date,
+    o.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    o.supplier_ref_no,
+    o.delivery_date,
+    o.stk_warehouse_id,
+    w.warehouse_name,
+    o.currency,
+    o.exchange_rate,
+    o.payment_term_days,
+    o.status,
+    o.gross_amount,
+    o.discount_amount,
+    o.net_amount,
+    o.vat_amount,
+    o.total_amount,
+    (( SELECT count(*) AS count
+           FROM public.pur_order_detail d
+          WHERE (d.pur_order_id = o.id)))::integer AS line_count,
+    o.description
+   FROM ((public.pur_order o
+     JOIN public.acc_account a ON ((a.id = o.acc_account_id)))
+     LEFT JOIN public.stk_warehouse w ON ((w.id = o.stk_warehouse_id)));
+
+
+ALTER VIEW public.vw_pur_order OWNER TO ths_admin;
+
+--
+-- Name: vw_pur_order_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_order_detail AS
+ SELECT d.id,
+    d.pur_order_id,
+    o.order_no,
+    o.status AS order_status,
+    o.acc_account_id,
+    o.currency,
+    d.line_no,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    d.quantity,
+    d.unit_price,
+    d.discount_rate,
+    d.vat_rate,
+    d.gross_amount,
+    d.discount_amount,
+    d.net_amount,
+    d.vat_amount,
+    d.total_amount,
+    d.received_quantity,
+    (GREATEST((d.quantity - d.received_quantity), (0)::numeric))::numeric(18,6) AS remaining_quantity,
+    d.delivery_date,
+    d.pur_request_detail_id,
+    r.request_no,
+    d.description
+   FROM (((((public.pur_order_detail d
+     JOIN public.pur_order o ON ((o.id = d.pur_order_id)))
+     JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+     LEFT JOIN public.pur_request_detail rd ON ((rd.id = d.pur_request_detail_id)))
+     LEFT JOIN public.pur_request r ON ((r.id = rd.pur_request_id)));
+
+
+ALTER VIEW public.vw_pur_order_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_pur_receipt; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_receipt AS
+ SELECT p.id,
+    p.receipt_no,
+    p.receipt_date,
+    p.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    p.stk_warehouse_id,
+    w.warehouse_name,
+    p.waybill_no,
+    p.pur_order_id,
+    o.order_no,
+    p.currency,
+    (( SELECT count(*) AS count
+           FROM public.pur_receipt_detail d
+          WHERE (d.pur_receipt_id = p.id)))::integer AS line_count,
+    (( SELECT COALESCE(sum(round((d.quantity * d.unit_price), 2)), (0)::numeric) AS "coalesce"
+           FROM public.pur_receipt_detail d
+          WHERE (d.pur_receipt_id = p.id)))::numeric(18,2) AS total_amount,
+    p.description
+   FROM (((public.pur_receipt p
+     JOIN public.acc_account a ON ((a.id = p.acc_account_id)))
+     JOIN public.stk_warehouse w ON ((w.id = p.stk_warehouse_id)))
+     LEFT JOIN public.pur_order o ON ((o.id = p.pur_order_id)));
+
+
+ALTER VIEW public.vw_pur_receipt OWNER TO ths_admin;
+
+--
+-- Name: vw_pur_receipt_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_receipt_detail AS
+ SELECT d.id,
+    d.pur_receipt_id,
+    p.receipt_no,
+    p.acc_account_id,
+    p.currency,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    d.quantity,
+    d.unit_price,
+    (round((d.quantity * d.unit_price), 2))::numeric(18,2) AS amount,
+    d.pur_order_detail_id,
+    o.order_no,
+    od.line_no AS order_line_no,
+    (COALESCE(inv.invoiced_quantity, (0)::numeric))::numeric(18,6) AS invoiced_quantity,
+    (GREATEST((d.quantity - COALESCE(inv.invoiced_quantity, (0)::numeric)), (0)::numeric))::numeric(18,6) AS remaining_invoice_quantity,
+    d.description
+   FROM ((((((public.pur_receipt_detail d
+     JOIN public.pur_receipt p ON ((p.id = d.pur_receipt_id)))
+     JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+     LEFT JOIN public.pur_order_detail od ON ((od.id = d.pur_order_detail_id)))
+     LEFT JOIN public.pur_order o ON ((o.id = od.pur_order_id)))
+     LEFT JOIN ( SELECT pur_invoice_detail.pur_receipt_detail_id,
+            sum(pur_invoice_detail.quantity) AS invoiced_quantity
+           FROM public.pur_invoice_detail
+          WHERE (pur_invoice_detail.pur_receipt_detail_id IS NOT NULL)
+          GROUP BY pur_invoice_detail.pur_receipt_detail_id) inv ON ((inv.pur_receipt_detail_id = d.id)));
+
+
+ALTER VIEW public.vw_pur_receipt_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_pur_request; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_request AS
+ SELECT r.id,
+    r.request_no,
+    r.request_date,
+    r.emp_employee_id,
+    e.full_name AS employee_name,
+    r.required_date,
+    r.status,
+    (( SELECT count(*) AS count
+           FROM public.pur_request_detail d
+          WHERE (d.pur_request_id = r.id)))::integer AS line_count,
+    r.description
+   FROM (public.pur_request r
+     LEFT JOIN public.emp_employee e ON ((e.id = r.emp_employee_id)));
+
+
+ALTER VIEW public.vw_pur_request OWNER TO ths_admin;
+
+--
+-- Name: vw_pur_request_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_request_detail AS
+ SELECT d.id,
+    d.pur_request_id,
+    r.request_no,
+    r.status AS request_status,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    d.quantity,
+    d.ordered_quantity,
+    (GREATEST((d.quantity - d.ordered_quantity), (0)::numeric))::numeric(18,6) AS remaining_quantity,
+    d.required_date,
+    d.description
+   FROM (((public.pur_request_detail d
+     JOIN public.pur_request r ON ((r.id = d.pur_request_id)))
+     JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)));
+
+
+ALTER VIEW public.vw_pur_request_detail OWNER TO ths_admin;
 
 --
 -- Name: vw_stk_card_kind_info; Type: VIEW; Schema: public; Owner: ths_admin
@@ -6074,6 +6871,38 @@ ALTER TABLE ONLY public.fin_credit_card_transaction
 
 
 --
+-- Name: fin_money_account fin_money_account_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_account
+    ADD CONSTRAINT fin_money_account_code_key UNIQUE (code);
+
+
+--
+-- Name: fin_money_account fin_money_account_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_account
+    ADD CONSTRAINT fin_money_account_name_key UNIQUE (name);
+
+
+--
+-- Name: fin_money_account fin_money_account_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_account
+    ADD CONSTRAINT fin_money_account_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fin_money_transaction fin_money_transaction_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_transaction
+    ADD CONSTRAINT fin_money_transaction_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: fin_pos_terminal fin_pos_terminal_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -6458,6 +7287,126 @@ ALTER TABLE ONLY public.emp_unit
 
 
 --
+-- Name: pur_invoice_detail pur_invoice_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice_detail
+    ADD CONSTRAINT pur_invoice_detail_line_key UNIQUE (pur_invoice_id, line_no);
+
+
+--
+-- Name: pur_invoice_detail pur_invoice_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice_detail
+    ADD CONSTRAINT pur_invoice_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_invoice pur_invoice_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice
+    ADD CONSTRAINT pur_invoice_no_key UNIQUE (acc_account_id, invoice_no);
+
+
+--
+-- Name: pur_invoice pur_invoice_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice
+    ADD CONSTRAINT pur_invoice_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_order_detail pur_order_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order_detail
+    ADD CONSTRAINT pur_order_detail_line_key UNIQUE (pur_order_id, line_no);
+
+
+--
+-- Name: pur_order_detail pur_order_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order_detail
+    ADD CONSTRAINT pur_order_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_order pur_order_order_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order
+    ADD CONSTRAINT pur_order_order_no_key UNIQUE (order_no);
+
+
+--
+-- Name: pur_order pur_order_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order
+    ADD CONSTRAINT pur_order_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_receipt_detail pur_receipt_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt_detail
+    ADD CONSTRAINT pur_receipt_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_receipt pur_receipt_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt
+    ADD CONSTRAINT pur_receipt_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_receipt pur_receipt_receipt_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt
+    ADD CONSTRAINT pur_receipt_receipt_no_key UNIQUE (receipt_no);
+
+
+--
+-- Name: pur_request_detail pur_request_detail_inventory_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_request_detail
+    ADD CONSTRAINT pur_request_detail_inventory_key UNIQUE (pur_request_id, stk_inventory_id);
+
+
+--
+-- Name: pur_request_detail pur_request_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_request_detail
+    ADD CONSTRAINT pur_request_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_request pur_request_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_request
+    ADD CONSTRAINT pur_request_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_request pur_request_request_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_request
+    ADD CONSTRAINT pur_request_request_no_key UNIQUE (request_no);
+
+
+--
 -- Name: sls_invoice_detail sat_fatura_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -6767,6 +7716,14 @@ ALTER TABLE ONLY public.stk_product_type
 
 ALTER TABLE ONLY public.stk_transaction
     ADD CONSTRAINT stk_transaction_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: stk_transaction stk_transaction_pur_receipt_detail_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_transaction
+    ADD CONSTRAINT stk_transaction_pur_receipt_detail_key UNIQUE (pur_receipt_detail_id);
 
 
 --
@@ -7359,6 +8316,62 @@ CREATE INDEX fin_credit_card_transaction_card_idx ON public.fin_credit_card_tran
 
 
 --
+-- Name: fin_money_account_acc_account_code_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_money_account_acc_account_code_idx ON public.fin_money_account USING btree (acc_account_code);
+
+
+--
+-- Name: fin_money_account_acc_bank_branch_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_money_account_acc_bank_branch_id_idx ON public.fin_money_account USING btree (acc_bank_branch_id);
+
+
+--
+-- Name: fin_money_account_acc_bank_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_money_account_acc_bank_id_idx ON public.fin_money_account USING btree (acc_bank_id);
+
+
+--
+-- Name: fin_money_account_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_money_account_currency_idx ON public.fin_money_account USING btree (currency);
+
+
+--
+-- Name: fin_money_account_iban_key; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE UNIQUE INDEX fin_money_account_iban_key ON public.fin_money_account USING btree (iban) WHERE (iban IS NOT NULL);
+
+
+--
+-- Name: fin_money_transaction_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_money_transaction_acc_account_id_idx ON public.fin_money_transaction USING btree (acc_account_id);
+
+
+--
+-- Name: fin_money_transaction_account_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_money_transaction_account_idx ON public.fin_money_transaction USING btree (fin_money_account_id, transaction_date, id);
+
+
+--
+-- Name: fin_money_transaction_target_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX fin_money_transaction_target_idx ON public.fin_money_transaction USING btree (target_fin_money_account_id);
+
+
+--
 -- Name: fin_pos_terminal_acc_account_code_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -7503,6 +8516,125 @@ CREATE INDEX prd_packet_raw_detail_stk_inventory_id_idx ON public.prd_packet_raw
 --
 
 CREATE INDEX prd_packet_raw_detail_sub_prd_bom_id_idx ON public.prd_packet_raw_detail USING btree (sub_prd_bom_id);
+
+
+--
+-- Name: pur_invoice_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_invoice_currency_idx ON public.pur_invoice USING btree (currency);
+
+
+--
+-- Name: pur_invoice_detail_receipt_detail_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_invoice_detail_receipt_detail_idx ON public.pur_invoice_detail USING btree (pur_receipt_detail_id);
+
+
+--
+-- Name: pur_invoice_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_invoice_detail_stk_inventory_id_idx ON public.pur_invoice_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: pur_order_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_order_acc_account_id_idx ON public.pur_order USING btree (acc_account_id);
+
+
+--
+-- Name: pur_order_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_order_currency_idx ON public.pur_order USING btree (currency);
+
+
+--
+-- Name: pur_order_detail_request_detail_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_order_detail_request_detail_idx ON public.pur_order_detail USING btree (pur_request_detail_id);
+
+
+--
+-- Name: pur_order_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_order_detail_stk_inventory_id_idx ON public.pur_order_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: pur_order_stk_warehouse_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_order_stk_warehouse_id_idx ON public.pur_order USING btree (stk_warehouse_id);
+
+
+--
+-- Name: pur_receipt_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_receipt_acc_account_id_idx ON public.pur_receipt USING btree (acc_account_id);
+
+
+--
+-- Name: pur_receipt_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_receipt_currency_idx ON public.pur_receipt USING btree (currency);
+
+
+--
+-- Name: pur_receipt_detail_order_detail_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_receipt_detail_order_detail_idx ON public.pur_receipt_detail USING btree (pur_order_detail_id);
+
+
+--
+-- Name: pur_receipt_detail_receipt_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_receipt_detail_receipt_idx ON public.pur_receipt_detail USING btree (pur_receipt_id);
+
+
+--
+-- Name: pur_receipt_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_receipt_detail_stk_inventory_id_idx ON public.pur_receipt_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: pur_receipt_order_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_receipt_order_idx ON public.pur_receipt USING btree (pur_order_id);
+
+
+--
+-- Name: pur_receipt_stk_warehouse_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_receipt_stk_warehouse_id_idx ON public.pur_receipt USING btree (stk_warehouse_id);
+
+
+--
+-- Name: pur_request_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_request_detail_stk_inventory_id_idx ON public.pur_request_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: pur_request_emp_employee_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_request_emp_employee_id_idx ON public.pur_request USING btree (emp_employee_id);
 
 
 --
@@ -7828,6 +8960,20 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.fin_credit_card
 
 
 --
+-- Name: fin_money_account notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.fin_money_account FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: fin_money_transaction notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.fin_money_transaction FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
 -- Name: fin_pos_terminal notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -7916,6 +9062,62 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_raw 
 --
 
 CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.prd_packet_raw_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_invoice notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_invoice FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_invoice_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_invoice_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_order notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_order FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_order_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_order_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_receipt notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_receipt FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_receipt_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_receipt_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_request notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_request FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_request_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_request_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -8469,6 +9671,62 @@ ALTER TABLE ONLY public.fin_credit_card_transaction
 
 
 --
+-- Name: fin_money_account fin_money_account_acc_account_code_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_account
+    ADD CONSTRAINT fin_money_account_acc_account_code_fkey FOREIGN KEY (acc_account_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_money_account fin_money_account_acc_bank_branch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_account
+    ADD CONSTRAINT fin_money_account_acc_bank_branch_id_fkey FOREIGN KEY (acc_bank_branch_id) REFERENCES public.acc_bank_branch(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_money_account fin_money_account_acc_bank_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_account
+    ADD CONSTRAINT fin_money_account_acc_bank_id_fkey FOREIGN KEY (acc_bank_id) REFERENCES public.acc_bank(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_money_account fin_money_account_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_account
+    ADD CONSTRAINT fin_money_account_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_money_transaction fin_money_transaction_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_transaction
+    ADD CONSTRAINT fin_money_transaction_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_money_transaction fin_money_transaction_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_transaction
+    ADD CONSTRAINT fin_money_transaction_account_fkey FOREIGN KEY (fin_money_account_id) REFERENCES public.fin_money_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: fin_money_transaction fin_money_transaction_target_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.fin_money_transaction
+    ADD CONSTRAINT fin_money_transaction_target_fkey FOREIGN KEY (target_fin_money_account_id) REFERENCES public.fin_money_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: fin_pos_terminal fin_pos_terminal_acc_account_code_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -8717,6 +9975,46 @@ ALTER TABLE ONLY public.emp_unit
 
 
 --
+-- Name: pur_invoice pur_invoice_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice
+    ADD CONSTRAINT pur_invoice_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_invoice pur_invoice_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice
+    ADD CONSTRAINT pur_invoice_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_invoice_detail pur_invoice_detail_invoice_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice_detail
+    ADD CONSTRAINT pur_invoice_detail_invoice_fkey FOREIGN KEY (pur_invoice_id) REFERENCES public.pur_invoice(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: pur_invoice_detail pur_invoice_detail_receipt_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice_detail
+    ADD CONSTRAINT pur_invoice_detail_receipt_detail_fkey FOREIGN KEY (pur_receipt_detail_id) REFERENCES public.pur_receipt_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_invoice_detail pur_invoice_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice_detail
+    ADD CONSTRAINT pur_invoice_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: pur_offer pur_offer_city_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -8746,6 +10044,134 @@ ALTER TABLE ONLY public.pur_offer
 
 ALTER TABLE ONLY public.pur_offer_detail
     ADD CONSTRAINT pur_offer_detail_uom_code_fk FOREIGN KEY (uom_code) REFERENCES public.sys_uom(unit_code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_order pur_order_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order
+    ADD CONSTRAINT pur_order_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_order pur_order_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order
+    ADD CONSTRAINT pur_order_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_order_detail pur_order_detail_order_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order_detail
+    ADD CONSTRAINT pur_order_detail_order_fkey FOREIGN KEY (pur_order_id) REFERENCES public.pur_order(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: pur_order_detail pur_order_detail_request_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order_detail
+    ADD CONSTRAINT pur_order_detail_request_detail_fkey FOREIGN KEY (pur_request_detail_id) REFERENCES public.pur_request_detail(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: pur_order_detail pur_order_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order_detail
+    ADD CONSTRAINT pur_order_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_order pur_order_stk_warehouse_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order
+    ADD CONSTRAINT pur_order_stk_warehouse_id_fkey FOREIGN KEY (stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_receipt pur_receipt_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt
+    ADD CONSTRAINT pur_receipt_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_receipt pur_receipt_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt
+    ADD CONSTRAINT pur_receipt_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_receipt_detail pur_receipt_detail_order_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt_detail
+    ADD CONSTRAINT pur_receipt_detail_order_detail_fkey FOREIGN KEY (pur_order_detail_id) REFERENCES public.pur_order_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_receipt_detail pur_receipt_detail_receipt_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt_detail
+    ADD CONSTRAINT pur_receipt_detail_receipt_fkey FOREIGN KEY (pur_receipt_id) REFERENCES public.pur_receipt(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: pur_receipt_detail pur_receipt_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt_detail
+    ADD CONSTRAINT pur_receipt_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_receipt pur_receipt_order_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt
+    ADD CONSTRAINT pur_receipt_order_fkey FOREIGN KEY (pur_order_id) REFERENCES public.pur_order(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_receipt pur_receipt_stk_warehouse_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt
+    ADD CONSTRAINT pur_receipt_stk_warehouse_id_fkey FOREIGN KEY (stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_request_detail pur_request_detail_request_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_request_detail
+    ADD CONSTRAINT pur_request_detail_request_fkey FOREIGN KEY (pur_request_id) REFERENCES public.pur_request(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: pur_request_detail pur_request_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_request_detail
+    ADD CONSTRAINT pur_request_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_request pur_request_emp_employee_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_request
+    ADD CONSTRAINT pur_request_emp_employee_id_fkey FOREIGN KEY (emp_employee_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -9181,6 +10607,14 @@ ALTER TABLE ONLY public.stk_transaction
 
 
 --
+-- Name: stk_transaction stk_transaction_pur_receipt_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_transaction
+    ADD CONSTRAINT stk_transaction_pur_receipt_detail_fkey FOREIGN KEY (pur_receipt_detail_id) REFERENCES public.pur_receipt_detail(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: stk_transaction stk_transaction_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -9520,5 +10954,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 0bKEcj27VLYxvgI5QwcQmw9behhHFrGXarrZSjcLjgmzCRjiPQCECvZ3387bHj8
+\unrestrict mBqG3Ewcwijyg0CsGlVBT7XHyF5bDYxJHET54z4qhxZarPdskbSckTTaLEx3BFf
 

@@ -123,6 +123,11 @@ end;
 
 procedure TStkTransactionService.ValidateBusinessRules(AEntity: TStkTransaction; AOperation: TCrudOperation);
 begin
+  // mal kabulden oluşan hareket yalnız mal kabul ekranından değişir (stok / sipariş miktarları tutarlı kalsın)
+  if (AOperation in [coUpdate, coDelete]) and TStkTransactionRepository(FRepo).IsPurchaseReceiptLinked(AEntity.Id) then
+    raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStkTransaction.ReceiptLinked,
+      'This stock transaction was created by a goods receipt. Change it from the goods receipt.'));
+
   if AOperation in [coInsert, coUpdate] then
   begin
     AEntity.Currency := Trim(AEntity.Currency);

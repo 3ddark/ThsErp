@@ -326,6 +326,58 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - UI elle denenmedi (kullanıcı IDE'de Shift+F9 Build + Finans menüsü). Muhasebe fişi / cari bakiye entegrasyonu YOK (voucher
   modülüyle birlikte ileride: çek tahsili, kart ödemesi, POS valör hesap hareketleri).
 
+## Kasa / banka + para hareketleri (2026-10-12, /goal "havale gibi para girişleri için eksik sistemi tasarla")
+- DB: `fin_money_account` (1 kasa / 2 banka hesabı; kod + ad UNIQUE, banka/şube/hesap no/IBAN yalnız bankada (CHECK),
+  IBAN formatı CHECK + partial UNIQUE, para birimi DEFAULT fn_default_currency(), muhasebe hesabı) ve `fin_money_transaction`
+  (1 tahsilat (cariden; nakit / gelen havale-EFT), 2 ödeme (cariye), 3 virman (tek satır: kaynaktan çıkış, hedefe giriş),
+  4 masraf/komisyon, 5 faiz, 6/7 diğer giriş/çıkış; transfer_method 1 nakit 2 havale 3 EFT 4 FAST 5 SWIFT (opsiyonel);
+  belge/dekont no, gönderen/alıcı ad + IBAN). View'lar: `vw_fin_money_ledger` (ekstre: virman iki satır, id = hareket*2(+1),
+  giriş/çıkış + yürüyen bakiye, window fonksiyonu → FOR UPDATE yok), `vw_fin_money_account` (toplam giriş/çıkış/bakiye),
+  `vw_fin_money_transaction`. Yetkiler 1073 hesaplar + ekstre, 1074 hareketler (yönetici tam; satış + satın alma: hesap
+  okuma, hareket r/a/u).
+- Kurallar (servis): tahsilat/ödemede cari zorunlu; virmanda hedef zorunlu, kaynaktan farklı, aynı para birimi, aktif;
+  pasif hesaba yeni hareket yok; IBAN mod-97 (`TFinLookup.IsValidIban`, TR 26 hane, boşluklar atılır); kasa eksiye düşemez
+  (yazma sonrası aynı transaction'da kontrol; ekle/güncelle/sil, eski ve yeni hesaplar), banka hesabı eksiye düşebilir (KMH);
+  hareket görmüş hesabın para birimi değişmez, hareketi olan hesap silinmez; kasa türünde banka alanları temizlenir.
+- Kod: FinMoneyAccount / FinMoneyTransaction / FinMoneyLedger (salt okunur: tablo yok, giriş formu yok, repository kilidi
+  yok sayar, servis her yazmayı reddeder). Popup: hesap → Hesap Ekstresi / Hareketler. Finans menüsü + 3 action.
+- Üreteç genelleşti: scratchpad `gen_erp.py <config> [Entity...]`, `gen_lang.py <config>`, `register.py <config> <anchor>`,
+  `dash.py <config>` (config: fin_config / money_config / pur_config).
+
+## Satın alma (pur_) modülü (2026-10-12, aynı /goal)
+- Eski `pur_offer` / `pur_offer_detail` (boş, kodu yok, Türkçe kolonlar) DOKUNULMADI — silinmesi için kullanıcı onayı gerekli.
+  Dashboard "Alımlar" menüsündeki 4 işlevsiz öğe + boş `actals_teklifler` action'ı kaldırıldı, yerine yeni ekranlar.
+- DB: talep `pur_request` (+`_detail`: stok, miktar, ordered_quantity), sipariş `pur_order` (+`_detail`: sıra no, stok, miktar,
+  fiyat, iskonto %, KDV %, brüt/iskonto/net/KDV/toplam, received_quantity, talep kalemi bağlantısı), mal kabul `pur_receipt`
+  (+`_detail`: miktar, birim maliyet, sipariş kalemi bağlantısı), alış faturası `pur_invoice` (+`_detail`, mal kabul kalemi
+  bağlantısı; fatura no tedarikçi içinde UNIQUE). `stk_transaction.pur_receipt_detail_id` (UNIQUE, CASCADE, yalnız giriş).
+  8 view. Yetki grubu `purchasing`, kodlar 1080 talep / 1081 sipariş / 1082 mal kabul / 1083 fatura (yönetici tam, satın alma
+  r/a/u/d, üretim: talep r/a/u + sipariş/mal kabul okuma).
+- Akış ve kurallar (servis; `PurLookup`): numaralar boşsa PT/PS/MK + 6 hane. Talep/sipariş kalemleri yalnız TASLAK belgede
+  değişir. Durum popup'ları (`ChangeStatus`, geçiş tablosu `CanChange*Status`): talep taslak→onay/red, onay→taslak/red/kapat
+  (siparişe aktarılmamışsa), red→taslak, siparişe dönüştü→kapat; sipariş taslak→onay(kalem şart)/iptal, onay→taslak/iptal
+  (mal kabul yoksa), iptal→taslak. Otomatik: talep 4 (tamamı sipariş), sipariş 3 kısmi / 4 tamamı teslim.
+  Dönüşümler: `TPurOrderService.CreateFromRequest` (tedarikçi seçilir; kalan miktar, fiyat yalnız aynı para biriminde stok
+  alış fiyatı, alış iskontosu, KDV = kart ya da grup), `TPurReceiptService.CreateFromOrder` (onaylı/kısmi; ambar = siparişin
+  teslim ambarı ya da seçilen; birim maliyet = iskontolu net fiyat), `TPurInvoiceService.CreateFromReceipt` (faturalanmamış
+  miktar; fiyat/iskonto/KDV sipariş kaleminden; fatura no = irsaliye no ya da mal kabul no; vade = sipariş vadesi).
+  Satır tutarları `TPurLookup.CalculateLine` (2 hane, yarım değer sıfırdan uzağa), başlık toplamları SQL ile kalemlerden.
+  Mal kabul kalemi stok giriş hareketini yazar/günceller (UpsertStockTransaction) + stok özeti + sipariş teslim miktarı;
+  mal kabul tarihi/ambarı değişince hareketler senkron; açık sipariş miktarı aşılamaz; faturalanmış kalem azaltılamaz/silinemez;
+  fatura kalemi teslim alınıp faturalanmamış miktarı aşamaz, aynı tedarikçi + aynı stok. Stok hareketi servisi mal kabulden
+  gelen hareketin güncellenmesini/silinmesini reddeder (`IsPurchaseReceiptLinked`, dil anahtarı stk_transaction.receipt_linked).
+  Kalem formlarında stok seçilince fiyat/iskonto/KDV servisten önerilir (`GetInventoryDefaults`).
+- Popup'lar: talep → Kalemler / Onayla / Taslağa Al / Reddet / Kapat / Siparişe Dönüştür...; sipariş → Kalemler / Mal Kabuller /
+  Onayla / Taslağa Al / İptal Et / Mal Kabul Oluştur; mal kabul → Kalemler / Faturaya Dönüştür; fatura → Kalemler.
+- Doğrulama (para + satın alma): Win64 Debug 0 hata, dokunulan birimlerde uyarı/ipucu yok. Entegrasyon 1314 pass / 0 fail
+  (TestFinanceMoney, TestPurchasing: tam akış + 30 kural ihlali; DB satır sayısı öncesi = sonrası). UI tam koşu 1297 pass /
+  0 fail / 1 warn (boş talep kaydedilebiliyor: talepte zorunlu kullanıcı girdisi yok — bilinçli). Harness: tablosu olmayan
+  salt okunur listede view'a düşer; popup'ta iş kuralı reddi INFO; kopyada türetilen alanlar/kaynak bağlantıları karşılaştırılmaz.
+  db_schema.sql + db.dump yenilendi (yedekler scratchpad: ths_erp_before_money.dump, ths_erp_before_purchasing.dump).
+- Kalan / sonraki: cari hesap ekstresi (fatura + tahsilat/ödeme + çek/POS birleşik bakiye), alış faturasının muhasebe fişi ve
+  e-fatura alımı, satın alma iadesi (iade irsaliyesi / iade faturası), kur farkı, sipariş/teklif karşılaştırma; eski
+  pur_offer tablolarının silinmesi (onay). UI akışları elle denenmedi.
+
 ## KALDIĞIM YER (2026-10-10 sonu)
 - Son oturumların (servis + UI test paketleri, NULL standardı, Required, grid metadata, AV / kilit düzeltmeleri) tamamı commit edildi.
 - Kullanıcı yapacak: IDE'de Build (Shift+F9) + elle kontrol — stok kartında grup/birim boş kaydet, personelde cinsiyet

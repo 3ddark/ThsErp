@@ -1,5 +1,5 @@
 #!/bin/sh
-# Ekran (UI) event-akışı testleri: System / Employee / Account / Stock / Production / Finance listeleri + giriş formları.
+# Ekran (UI) event-akışı testleri: System / Employee / Account / Stock / Production / Finance / Purchasing listeleri + giriş formları.
 #   ./build.sh            -> ths_erp_it'i canlı ths_erp'ten yeniden kurar (+seed.sql) ve UiTest'i derler
 #   $TEMP/ths_ui/bin/UiTest.exe [Modül] [TfrmXxx]   -> rapor: UiTest-report.txt
 # Testler ths_erp_it üzerinde commit eder; canlı ths_erp'e yazmaz.
