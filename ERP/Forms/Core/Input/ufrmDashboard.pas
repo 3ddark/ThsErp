@@ -16,7 +16,7 @@ uses
 
   ConnectionManager, Logger, MetaProvider, SharedFormTypes, FilterCriterion,
   AppContext, UserContext, UnitOfWork,
-  SysDashboard, SysDashboard.Service,
+  SysDashboard, SysDashboard.Service, DashboardControls,
   ufrmSysCities, SysCity.Service, SysCity,
   ufrmSysCountries, SysCountry.Service, SysCountry,
   ufrmSysCurrencies, SysCurrency.Service, SysCurrency,
@@ -427,6 +427,7 @@ type
     FF6Pressed: Boolean;
     // ana ekran göstergeleri (çalışma anında oluşturulur)
     FKpis: TArray<TDashboardKpi>;
+    FCharts: TArray<TDashboardChart>;
     FKpiLoadedAt: TDateTime;
     FKpiScroll: TScrollBox;
     FBtnKpiRefresh: TButton;
@@ -436,6 +437,9 @@ type
     procedure LoadKpis;
     procedure RenderKpis;
     procedure CreateKpiCard(AParent: TWinControl; AIndex: Integer);
+    procedure CreateChart(AParent: TWinControl; AIndex: Integer);
+    procedure KpiMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer;
+      MousePos: TPoint; var Handled: Boolean);
     function KpiAction(const AKey: string): TAction;
     procedure KpiCardClick(Sender: TObject);
     procedure KpiRefreshClick(Sender: TObject);
@@ -2068,8 +2072,9 @@ end;
 { ---------------------------------------------------------------- Ana ekran göstergeleri }
 
 const
-  KPI_CARD_WIDTH  = 240;
-  KPI_CARD_HEIGHT = 126;
+  KPI_CARD_WIDTH  = 260;
+  KPI_CARD_HEIGHT = 176;
+  KPI_CHART_HEIGHT = 270;
   KPI_SECTION_COUNT = 6;   // finans, satın alma, satış, stok, cari, genel
   KPI_REFRESH_MS = 5 * 60 * 1000;
 
@@ -2271,12 +2276,78 @@ end;
 function KpiLevelColor(ALevel: TDashboardLevel): TColor;
 begin
   case ALevel of
-    dlInfo:    Result := $00D9A441;  // mavi
-    dlWarning: Result := $0000A5FF;  // turuncu
-    dlDanger:  Result := $003C3CE0;  // kırmızı
+    dlInfo:    Result := RGB(37, 99, 235);   // mavi
+    dlWarning: Result := RGB(217, 119, 6);   // turuncu
+    dlDanger:  Result := RGB(220, 38, 38);   // kırmızı
   else
-    Result := $0088B04B;             // yeşil
+    Result := RGB(22, 163, 74);              // yeşil
   end;
+end;
+
+function KpiLevelBadge(ALevel: TDashboardLevel): string;
+begin
+  case ALevel of
+    dlInfo:    Result := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiBadgeInfo, 'Info');
+    dlWarning: Result := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiBadgeWarning, 'Attention');
+    dlDanger:  Result := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiBadgeDanger, 'Critical');
+  else
+    Result := '';
+  end;
+end;
+
+// Bölüm rengi (ikon, küçük grafik, oran çubuğu)
+function KpiSectionColor(ASection: Integer): TColor;
+begin
+  case ASection of
+    0: Result := RGB(16, 163, 127);   // finans
+    1: Result := RGB(234, 128, 40);   // satın alma
+    2: Result := RGB(124, 92, 230);   // satış
+    3: Result := RGB(37, 128, 230);   // stok
+    4: Result := RGB(219, 68, 110);   // cari
+  else
+    Result := RGB(96, 112, 135);      // genel
+  end;
+end;
+
+function KpiSectionIcon(ASection: Integer): string;
+begin
+  case ASection of
+    0: Result := ICON_BANK;
+    1: Result := ICON_CART;
+    2: Result := ICON_BAG;
+    3: Result := ICON_BOX;
+    4: Result := ICON_PEOPLE;
+  else
+    Result := ICON_HOME;
+  end;
+end;
+
+function KpiIcon(const AKey: string): string;
+begin
+  if AKey = KPI_FX_RATES then Result := ICON_EXCHANGE
+  else if AKey = KPI_CASH_BALANCE then Result := ICON_CASH
+  else if AKey = KPI_BANK_BALANCE then Result := ICON_BANK
+  else if AKey = KPI_MONEY_TODAY then Result := ICON_INOUT
+  else if AKey = KPI_CHEQUES_RECEIVABLE then Result := ICON_DOCUMENT
+  else if AKey = KPI_CHEQUES_PAYABLE then Result := ICON_PAGE
+  else if AKey = KPI_POS_MONTH then Result := ICON_TERMINAL
+  else if AKey = KPI_CARD_DEBT then Result := ICON_CARD
+  else if AKey = KPI_PUR_REQUESTS then Result := ICON_LIST
+  else if AKey = KPI_PUR_ORDERS_OPEN then Result := ICON_CART
+  else if AKey = KPI_PUR_ORDERS_MONTH then Result := ICON_CALENDAR
+  else if AKey = KPI_PUR_RECEIPTS_MONTH then Result := ICON_BOX
+  else if AKey = KPI_PUR_INVOICES_MONTH then Result := ICON_REPORT
+  else if AKey = KPI_SLS_ORDERS_MONTH then Result := ICON_BAG
+  else if AKey = KPI_SLS_OFFERS_MONTH then Result := ICON_TAG
+  else if AKey = KPI_STOCK_CRITICAL then Result := ICON_WARNING
+  else if AKey = KPI_STOCK_TX_TODAY then Result := ICON_CYCLE
+  else if AKey = KPI_STOCK_CARDS then Result := ICON_LIBRARY
+  else if AKey = KPI_ACC_RECEIVABLE then Result := ICON_TREND_UP
+  else if AKey = KPI_ACC_PAYABLE then Result := ICON_PIE
+  else if AKey = KPI_ACCOUNTS then Result := ICON_PEOPLE
+  else if AKey = KPI_EMPLOYEES then Result := ICON_PERSON
+  else if AKey = KPI_USERS then Result := ICON_KEY
+  else Result := ICON_CHART;
 end;
 
 // Kartın açacağı ekran (action); okuma yetkisi yoksa action zaten pasif
@@ -2284,11 +2355,10 @@ function TfrmDashboard.KpiAction(const AKey: string): TAction;
 var
   LName: string;
 begin
-  if AKey = KPI_FX_RATES then LName := 'actacc_exchange_rate'
+  if MatchStr(AKey, [KPI_FX_RATES, CHART_FX_TREND]) then LName := 'actacc_exchange_rate'
   else if MatchStr(AKey, [KPI_CASH_BALANCE, KPI_BANK_BALANCE]) then LName := 'actfin_money_accounts'
-  else if AKey = KPI_MONEY_TODAY then LName := 'actfin_money_transactions'
-  else if AKey = KPI_CHEQUES_RECEIVABLE then LName := 'actfin_cheque_notes'
-  else if AKey = KPI_CHEQUES_PAYABLE then LName := 'actfin_cheque_notes'
+  else if MatchStr(AKey, [KPI_MONEY_TODAY, CHART_MONEY_FLOW]) then LName := 'actfin_money_transactions'
+  else if MatchStr(AKey, [KPI_CHEQUES_RECEIVABLE, KPI_CHEQUES_PAYABLE, CHART_CHEQUE_DUE]) then LName := 'actfin_cheque_notes'
   else if AKey = KPI_POS_MONTH then LName := 'actfin_pos_transactions'
   else if AKey = KPI_CARD_DEBT then LName := 'actfin_credit_cards'
   else if AKey = KPI_PUR_REQUESTS then LName := 'actpur_requests'
@@ -2296,7 +2366,7 @@ begin
   else if AKey = KPI_PUR_RECEIPTS_MONTH then LName := 'actpur_receipts'
   else if AKey = KPI_PUR_INVOICES_MONTH then LName := 'actpur_invoices'
   else if AKey = KPI_STOCK_CRITICAL then LName := 'actstk_stok_karti_ozetleri'
-  else if AKey = KPI_STOCK_TX_TODAY then LName := 'actstk_hareketler'
+  else if MatchStr(AKey, [KPI_STOCK_TX_TODAY, CHART_STOCK_FLOW]) then LName := 'actstk_hareketler'
   else if AKey = KPI_STOCK_CARDS then LName := 'actstk_stok_kartlari'
   else if MatchStr(AKey, [KPI_ACC_RECEIVABLE, KPI_ACC_PAYABLE]) then LName := 'actacc_account_transactions'
   else if AKey = KPI_ACCOUNTS then LName := 'actch_hesap_karti'
@@ -2319,10 +2389,14 @@ begin
   FKpiScroll.Align := alClient;
   FKpiScroll.BorderStyle := bsNone;
   FKpiScroll.ParentColor := False;
-  FKpiScroll.Color := $00F5F2EF;
+  FKpiScroll.Color := DASH_BACKGROUND;
+  FKpiScroll.DoubleBuffered := True;
   FKpiScroll.VertScrollBar.Tracking := True;
   FKpiScroll.HorzScrollBar.Visible := False;
   FKpiScroll.OnResize := KpiScrollResize;
+  // kartlar odak almaz: tekerlek mesajı forma gelir
+  if not Assigned(OnMouseWheel) then
+    OnMouseWheel := KpiMouseWheel;
 
   FBtnKpiRefresh := TButton.Create(Self);
   FBtnKpiRefresh.Parent := pnlToolbar;
@@ -2359,6 +2433,7 @@ begin
       LSvc := TSysDashboardService.Create;
       try
         FKpis := LSvc.GetKpis;
+        FCharts := LSvc.GetCharts;
       finally
         LSvc.Free;
       end;
@@ -2367,6 +2442,7 @@ begin
       on E: Exception do
       begin
         FKpis := [];
+        FCharts := [];
         GLogger.ErrorFmt('Ana ekran göstergeleri yüklenemedi: %s', [E.Message]);
       end;
     end;
@@ -2379,7 +2455,8 @@ begin
     FKpiTimer.Enabled := True;
 end;
 
-// Kart genişliği pencereye göre: satırdaki kart sayısı = sığan en az KPI_CARD_WIDTH genişlikli kart
+// Kart genişliği pencereye göre: satırdaki kart sayısı = sığan en az KPI_CARD_WIDTH genişlikli kart;
+// grafikler iki kart genişliğinde (tek kart sığıyorsa tam satır)
 procedure TfrmDashboard.LayoutKpiCards;
 var
   I, J, LPerRow, LWidth, LAvail: Integer;
@@ -2397,7 +2474,10 @@ begin
       LFlow.DisableAlign;
       try
         for J := 0 to LFlow.ControlCount - 1 do
-          LFlow.Controls[J].Width := LWidth;
+          if (LFlow.Controls[J] is TDashChart) and (LPerRow >= 2) then
+            LFlow.Controls[J].Width := LWidth * 2 + 12
+          else
+            LFlow.Controls[J].Width := LWidth;
       finally
         LFlow.EnableAlign;
       end;
@@ -2407,6 +2487,17 @@ end;
 procedure TfrmDashboard.KpiScrollResize(Sender: TObject);
 begin
   LayoutKpiCards;
+end;
+
+procedure TfrmDashboard.KpiMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer;
+  MousePos: TPoint; var Handled: Boolean);
+begin
+  if not Assigned(FKpiScroll) or not FKpiScroll.Visible then
+    Exit;
+  if not PtInRect(FKpiScroll.ClientRect, FKpiScroll.ScreenToClient(Mouse.CursorPos)) then
+    Exit;
+  FKpiScroll.VertScrollBar.Position := FKpiScroll.VertScrollBar.Position - WheelDelta div 2;
+  Handled := True;
 end;
 
 procedure TfrmDashboard.KpiRefreshClick(Sender: TObject);
@@ -2424,12 +2515,23 @@ end;
 procedure TfrmDashboard.KpiCardClick(Sender: TObject);
 var
   LIndex: Integer;
+  LKey: string;
   LAction: TAction;
 begin
   LIndex := (Sender as TControl).Tag;
-  if (LIndex < 0) or (LIndex > High(FKpis)) then
-    Exit;
-  LAction := KpiAction(FKpis[LIndex].Key);
+  if Sender is TDashChart then
+  begin
+    if (LIndex < 0) or (LIndex > High(FCharts)) then
+      Exit;
+    LKey := FCharts[LIndex].Key;
+  end
+  else
+  begin
+    if (LIndex < 0) or (LIndex > High(FKpis)) then
+      Exit;
+    LKey := FKpis[LIndex].Key;
+  end;
+  LAction := KpiAction(LKey);
   if Assigned(LAction) and LAction.Enabled then
     LAction.Execute;
 end;
@@ -2437,101 +2539,156 @@ end;
 procedure TfrmDashboard.CreateKpiCard(AParent: TWinControl; AIndex: Integer);
 var
   K: TDashboardKpi;
-  LCard, LStripe: TPanel;
-  LTitle, LValue, LDetail: TLabel;
-  LValueText, LDetailText: string;
-  LClickable: Boolean;
-
-  procedure Clickable(AControl: TControl);
-  begin
-    AControl.Tag := AIndex;
-    if LClickable then
-    begin
-      AControl.Cursor := crHandPoint;
-      if AControl is TLabel then
-        TLabel(AControl).OnClick := KpiCardClick
-      else if AControl is TPanel then
-        TPanel(AControl).OnClick := KpiCardClick;
-    end;
-  end;
-
+  LTile: TDashTile;
+  LData: TDashTileData;
+  LAction: TAction;
 begin
   K := FKpis[AIndex];
-  KpiTexts(K, LValueText, LDetailText);
-  LClickable := Assigned(KpiAction(K.Key)) and KpiAction(K.Key).Enabled;
-
-  LCard := TPanel.Create(AParent);
-  LCard.Parent := AParent;
-  LCard.Width := KPI_CARD_WIDTH;
-  LCard.Height := KPI_CARD_HEIGHT;
-  LCard.AlignWithMargins := True;
-  LCard.Margins.SetBounds(6, 6, 6, 6);
-  LCard.BevelOuter := bvNone;
-  LCard.ParentBackground := False;
-  LCard.Color := clWhite;
-  LCard.Caption := '';
-  LCard.ShowHint := LClickable;
-  if LClickable then
-    LCard.Hint := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiOpenHint, 'Click to open the list');
-  Clickable(LCard);
-
-  LStripe := TPanel.Create(LCard);
-  LStripe.Parent := LCard;
-  LStripe.Align := alLeft;
-  LStripe.Width := 5;
-  LStripe.BevelOuter := bvNone;
-  LStripe.ParentBackground := False;
-  LStripe.Color := KpiLevelColor(K.Level);
-  Clickable(LStripe);
-
-  LTitle := TLabel.Create(LCard);
-  LTitle.Parent := LCard;
-  LTitle.Align := alTop;
-  LTitle.AlignWithMargins := True;
-  LTitle.Margins.SetBounds(12, 8, 8, 0);
-  LTitle.EllipsisPosition := epEndEllipsis;
-  LTitle.Font.Size := 9;
-  LTitle.Font.Color := clGrayText;
-  LTitle.Caption := KpiTitle(K.Key);
-  Clickable(LTitle);
-
-  LDetail := TLabel.Create(LCard);
-  LDetail.Parent := LCard;
-  LDetail.Align := alBottom;
-  LDetail.AlignWithMargins := True;
-  LDetail.Margins.SetBounds(12, 0, 8, 8);
-  LDetail.EllipsisPosition := epEndEllipsis;
-  LDetail.Font.Size := 8;
-  LDetail.Font.Color := clGrayText;
-  LDetail.Caption := LDetailText;
-  Clickable(LDetail);
-
-  LValue := TLabel.Create(LCard);
-  LValue.Parent := LCard;
-  LValue.Align := alClient;
-  LValue.AlignWithMargins := True;
-  LValue.Margins.SetBounds(12, 2, 8, 2);
-  LValue.Layout := tlCenter;
-  LValue.WordWrap := True;
-  LValue.Font.Style := [fsBold];
-  if Pos(sLineBreak, LValueText) > 0 then
-    LValue.Font.Size := 11
-  else
-    LValue.Font.Size := 15;
+  KpiTexts(K, LData.ValueText, LData.Detail);
+  LData.Title := KpiTitle(K.Key);
+  LData.Icon := KpiIcon(K.Key);
+  LData.Accent := KpiSectionColor(KpiSection(K.Key));
+  LData.Badge := KpiLevelBadge(K.Level);
+  LData.BadgeColor := KpiLevelColor(K.Level);
   if K.Level = dlDanger then
-    LValue.Font.Color := KpiLevelColor(dlDanger)
+    LData.ValueColor := KpiLevelColor(dlDanger)
   else
-    LValue.Font.Color := $00402010;
-  LValue.Caption := LValueText;
-  Clickable(LValue);
+    LData.ValueColor := RGB(31, 42, 55);
+  LData.Ratio := K.Ratio;
+  if K.Ratio >= 0 then
+    LData.RatioText := Format(TLocalizationManager.Translate(TLangKeys.TDashboard.KpiFmtPercent, '%d%%'), [Round(K.Ratio * 100)])
+  else
+    LData.RatioText := '';
+  LData.Trend := K.Trend;
+
+  LAction := KpiAction(K.Key);
+  LTile := TDashTile.Create(AParent);
+  LTile.Parent := AParent;
+  LTile.Width := KPI_CARD_WIDTH;
+  LTile.Height := KPI_CARD_HEIGHT;
+  LTile.AlignWithMargins := True;
+  LTile.Margins.SetBounds(6, 6, 6, 6);
+  LTile.Tag := AIndex;
+  LTile.Clickable := Assigned(LAction) and LAction.Enabled;
+  if LTile.Clickable then
+  begin
+    LTile.OnClick := KpiCardClick;
+    LTile.ShowHint := True;
+    LTile.Hint := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiOpenHint, 'Click to open the list');
+  end;
+  LTile.SetData(LData);
+end;
+
+procedure TfrmDashboard.CreateChart(AParent: TWinControl; AIndex: Integer);
+var
+  C: TDashboardChart;
+  LChart: TDashChart;
+  LData: TDashChartData;
+  LAction: TAction;
+begin
+  C := FCharts[AIndex];
+  LData.Kind := dckColumns;
+  LData.DateFormat := 'dd.mm';
+  LData.ValueFormat := '#,##0.00';
+  LData.Points := C.Points;
+  LData.EmptyText := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiChartEmpty, 'No records in this period');
+  if C.Key = CHART_MONEY_FLOW then
+  begin
+    LData.Title := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiChartMoneyFlow, 'Money In / Out');
+    LData.Subtitle := Format(TLocalizationManager.Translate(TLangKeys.TDashboard.KpiChartSubMoney, 'Last 14 days, in %s'), [C.Currency]);
+    LData.Series1 := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiLegendIn, 'In');
+    LData.Series2 := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiLegendOut, 'Out');
+    LData.Color1 := RGB(16, 163, 127);
+    LData.Color2 := RGB(232, 93, 93);
+  end
+  else if C.Key = CHART_CHEQUE_DUE then
+  begin
+    LData.Title := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiChartChequeDue, 'Cheque / Note Due Dates');
+    LData.Subtitle := Format(TLocalizationManager.Translate(TLangKeys.TDashboard.KpiChartSubCheque, 'Next 8 weeks (weekly), in %s'), [C.Currency]);
+    LData.Series1 := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiLegendReceived, 'Received');
+    LData.Series2 := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiLegendGiven, 'Given');
+    LData.Color1 := RGB(16, 163, 127);
+    LData.Color2 := RGB(232, 93, 93);
+  end
+  else if C.Key = CHART_STOCK_FLOW then
+  begin
+    LData.Title := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiChartStockFlow, 'Stock Movements');
+    LData.Subtitle := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiChartSubStock, 'Last 14 days, number of movements');
+    LData.Series1 := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiLegendIn, 'In');
+    LData.Series2 := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiLegendOut, 'Out');
+    LData.Color1 := RGB(37, 128, 230);
+    LData.Color2 := RGB(234, 128, 40);
+    LData.ValueFormat := '#,##0';
+  end
+  else
+  begin
+    LData.Kind := dckLines;
+    LData.Title := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiChartFxTrend, 'Exchange Rates');
+    LData.Subtitle := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiChartSubFx, 'Last 30 rate days');
+    LData.Series1 := 'USD';
+    LData.Series2 := 'EUR';
+    LData.Color1 := RGB(37, 99, 235);
+    LData.Color2 := RGB(124, 92, 230);
+    LData.ValueFormat := '#,##0.0000';
+  end;
+
+  LAction := KpiAction(C.Key);
+  LChart := TDashChart.Create(AParent);
+  LChart.Parent := AParent;
+  LChart.Width := KPI_CARD_WIDTH * 2 + 12;
+  LChart.Height := KPI_CHART_HEIGHT;
+  LChart.AlignWithMargins := True;
+  LChart.Margins.SetBounds(6, 6, 6, 6);
+  LChart.Tag := AIndex;
+  LChart.Clickable := Assigned(LAction) and LAction.Enabled;
+  if LChart.Clickable then
+    LChart.OnClick := KpiCardClick;
+  LChart.SetData(LData);
 end;
 
 procedure TfrmDashboard.RenderKpis;
 var
-  LSection, I, LOrder: Integer;
+  LSection, I, LOrder, LCritical, LWarning: Integer;
   LHasAny: Boolean;
-  LHeader: TLabel;
+  LWelcome: TDashWelcome;
+  LHeader: TDashSection;
+  LEmpty: TLabel;
   LFlow: TFlowPanel;
+  LChips: TArray<TDashChip>;
+  LChip: TDashChip;
+  LName: string;
+  LFmt: TFormatSettings;
+
+  procedure AddTop(AControl: TControl; ALeft, ATop, ARight: Integer);
+  begin
+    AControl.Parent := FKpiScroll;
+    AControl.Align := alTop;
+    AControl.AlignWithMargins := True;
+    AControl.Margins.SetBounds(ALeft, ATop, ARight, 0);
+    // alTop sırası Top değerine göre: her eklenen bir öncekinin altına
+    AControl.Top := LOrder;
+    Inc(LOrder, 1000);
+  end;
+
+  function NewFlow: TFlowPanel;
+  begin
+    Result := TFlowPanel.Create(FKpiScroll);
+    AddTop(Result, 10, 2, 10);
+    Result.BevelOuter := bvNone;
+    Result.ParentColor := True;
+    Result.ParentBackground := False;
+    Result.DoubleBuffered := True;
+    Result.AutoWrap := True;
+    Result.AutoSize := True;
+  end;
+
+  procedure AddSection(const ATitle, AIcon: string; AColor: TColor);
+  begin
+    LHeader := TDashSection.Create(FKpiScroll);
+    AddTop(LHeader, 14, 14, 16);
+    LHeader.SetData(ATitle, AIcon, AColor);
+  end;
+
 begin
   BuildKpiArea;
   FBtnKpiRefresh.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiRefresh, 'Refresh');
@@ -2545,9 +2702,64 @@ begin
   try
     while FKpiScroll.ControlCount > 0 do
       FKpiScroll.Controls[0].Free;
-
-    // alTop sırası Top değerine göre: her eklenen bir öncekinin altına
     LOrder := 0;
+
+    // karşılama bandı: ad + tarih (etkin dilde) + kritik / uyarı sayısı
+    LName := '';
+    if TAppContext.IsInitialized and Assigned(TAppContext.Instance.CurrentUser) then
+    begin
+      if Assigned(TAppContext.Instance.CurrentUser.User) then
+        LName := Trim(TAppContext.Instance.CurrentUser.User.PersonName);
+      if LName = '' then
+        LName := TAppContext.Instance.CurrentUser.GetUsername;
+      try
+        LFmt := TFormatSettings.Create(TAppContext.Instance.CurrentUser.ActiveLanguage);
+      except
+        LFmt := FormatSettings;
+      end;
+    end
+    else
+      LFmt := FormatSettings;
+    LCritical := 0;
+    LWarning := 0;
+    for I := 0 to High(FKpis) do
+      case FKpis[I].Level of
+        dlDanger:  Inc(LCritical);
+        dlWarning: Inc(LWarning);
+      end;
+    LChips := [];
+    if LCritical > 0 then
+    begin
+      LChip.Text := Format(TLocalizationManager.Translate(TLangKeys.TDashboard.KpiFmtCritical, '%d critical'), [LCritical]);
+      LChip.Color := KpiLevelColor(dlDanger);
+      LChips := LChips + [LChip];
+    end;
+    if LWarning > 0 then
+    begin
+      LChip.Text := Format(TLocalizationManager.Translate(TLangKeys.TDashboard.KpiFmtWarnings, '%d warning(s)'), [LWarning]);
+      LChip.Color := KpiLevelColor(dlWarning);
+      LChips := LChips + [LChip];
+    end;
+    if (Length(LChips) = 0) and (Length(FKpis) > 0) then
+    begin
+      LChip.Text := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiAllGood, 'All good');
+      LChip.Color := KpiLevelColor(dlNormal);
+      LChips := LChips + [LChip];
+    end;
+    LWelcome := TDashWelcome.Create(FKpiScroll);
+    AddTop(LWelcome, 16, 14, 16);
+    LWelcome.SetData(Format(TLocalizationManager.Translate(TLangKeys.TDashboard.KpiWelcome, 'Welcome, %s'), [LName]),
+      FormatDateTime('dddd, d mmmm yyyy', Date, LFmt), LChips);
+
+    // genel bakış grafikleri
+    if Length(FCharts) > 0 then
+    begin
+      AddSection(TLocalizationManager.Translate(TLangKeys.TDashboard.KpiSecOverview, 'Overview'), ICON_CHART, RGB(37, 99, 235));
+      LFlow := NewFlow;
+      for I := 0 to High(FCharts) do
+        CreateChart(LFlow, I);
+    end;
+
     LHasAny := False;
     for LSection := 0 to KPI_SECTION_COUNT - 1 do
     begin
@@ -2558,29 +2770,8 @@ begin
           Continue;
         if LFlow = nil then
         begin
-          LHeader := TLabel.Create(FKpiScroll);
-          LHeader.Parent := FKpiScroll;
-          LHeader.Align := alTop;
-          LHeader.AlignWithMargins := True;
-          LHeader.Margins.SetBounds(16, 12, 16, 0);
-          LHeader.Top := LOrder;
-          Inc(LOrder, 1000);
-          LHeader.Font.Size := 11;
-          LHeader.Font.Style := [fsBold];
-          LHeader.Font.Color := $00804000;
-          LHeader.Caption := KpiSectionTitle(LSection);
-
-          LFlow := TFlowPanel.Create(FKpiScroll);
-          LFlow.Parent := FKpiScroll;
-          LFlow.Align := alTop;
-          LFlow.AlignWithMargins := True;
-          LFlow.Margins.SetBounds(10, 2, 10, 0);
-          LFlow.Top := LOrder;
-          Inc(LOrder, 1000);
-          LFlow.BevelOuter := bvNone;
-          LFlow.ParentColor := True;
-          LFlow.AutoWrap := True;
-          LFlow.AutoSize := True;
+          AddSection(KpiSectionTitle(LSection), KpiSectionIcon(LSection), KpiSectionColor(LSection));
+          LFlow := NewFlow;
           LHasAny := True;
         end;
         CreateKpiCard(LFlow, I);
@@ -2589,15 +2780,19 @@ begin
 
     if not LHasAny then
     begin
-      LHeader := TLabel.Create(FKpiScroll);
-      LHeader.Parent := FKpiScroll;
-      LHeader.Align := alTop;
-      LHeader.AlignWithMargins := True;
-      LHeader.Margins.SetBounds(16, 24, 16, 0);
-      LHeader.Font.Size := 11;
-      LHeader.Font.Color := clGrayText;
-      LHeader.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiNoData, 'There is no summary you are allowed to view.');
+      LEmpty := TLabel.Create(FKpiScroll);
+      AddTop(LEmpty, 16, 24, 16);
+      LEmpty.Font.Size := 11;
+      LEmpty.Font.Color := clGrayText;
+      LEmpty.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.KpiNoData, 'There is no summary you are allowed to view.');
     end;
+
+    // alt boşluk
+    LEmpty := TLabel.Create(FKpiScroll);
+    AddTop(LEmpty, 0, 0, 0);
+    LEmpty.AutoSize := False;
+    LEmpty.Height := 16;
+    LEmpty.Caption := '';
   finally
     FKpiScroll.EnableAlign;
   end;

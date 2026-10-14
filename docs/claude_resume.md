@@ -411,6 +411,28 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
   (+ 5 kaynak tipinin her biri doğru formu inceleme modunda açıyor: UiTest.tpl TestShowSources). Dump'lar yenilendi.
 - Not: satış faturası / irsaliye modülü yazıldığında view'a + AccLookup + OpenSourceDocument'a eklenmeli.
 
+## Ana ekran (dashboard) göstergeleri (2026-10-12, commit 268ec7e; görsel tasarım 2026-10-14)
+- Katmanlar: `SysDashboard` (Domain: KPI_* / CHART_* anahtarları, TDashboardKpi: Count / Count2 / Amounts / Level / Ratio / Trend,
+  TDashboardChart), `SysDashboard.Repository` (salt okuma toplama sorguları, CURRENT_DATE), `SysDashboard.Service`
+  (GetKpis / GetCharts: yalnız kullanıcının OKUMA yetkisi olan modüller hesaplanır, super user hepsini görür; bir göstergenin
+  hatası loglanır, diğerlerini engellemez). Form `ufrmDashboard`: çalışma anında kaydırılabilir alan, 5 dk'da bir yenileme
+  (yalnız form aktifken), araç çubuğunda Yenile + "Güncellendi: hh:nn".
+- Göstergeler (bölüm): Finans (kur, kasa / banka bakiyesi, bugünkü para hareketleri, alınan / verilen çek-senet, POS bu ay,
+  kredi kartı borcu), Satın alma (talep, açık sipariş, bu ay sipariş / mal kabul / fatura), Satış (eski sls_order / sls_offer
+  sayımı), Stok (minimum altı, bugünkü hareket, kart sayısı), Cari (alacak / borç: vw_acc_account_transaction, aktif cari),
+  Genel (personel, kullanıcı). Kart tıklanınca ilgili liste action'ı açılır (yetki yoksa action pasif, kart tıklanmaz).
+- Görsel tasarım (2026-10-14, kullanıcı: "tamamen metin tabanlı, anlaşılmıyor"): `Forms/Core/Base/DashboardControls.pas`
+  (GDI+ çift tampon, Segoe Fluent Icons / MDL2 ikon fontu): TDashWelcome (selam + tarih etkin dilde + kritik / uyarı
+  sayısı etiketleri), TDashSection (ikonlu bölüm başlığı), TDashTile (ikon dairesi, Bilgi / Dikkat / Kritik etiketi, büyük
+  değer, kart içi küçük trend grafiği, oran çubuğu + yüzde), TDashChart (sütun / çizgi, lejant, ızgara, fareyle değer balonu,
+  veri yoksa boş durum). "Genel Bakış" grafikleri: para giriş / çıkış (son 14 gün, varsayılan para birimi
+  fn_default_currency), çek / senet vadeleri (8 hafta, gecikmişler ilk haftada), stok giriş / çıkış (14 gün), USD / EUR kur
+  (son 30 kur günü). Trend: kur (son 14 kayıt), para hareketi ve stok hareketi günlük sayıları. Oran: vadesi yakın belge,
+  limit kullanımı, onaylı talep, geciken sipariş, minimum altı stok, aktif cari / personel / kullanıcı.
+- Görsel doğrulama: scratchpad'de DashPreview.dpr (bileşenleri örnek veriyle PNG'ye çizer); uygulama içinde çalıştırılmadı.
+- Not: satış (sls_) modülü taşındığında KpiAction'a satış action'ları eklenmeli; yeni gösterge = repository metodu +
+  servis Add(yetki) + KpiTitle / KpiTexts / KpiIcon / KpiSection + 4 dilde anahtar.
+
 ## KALDIĞIM YER (2026-10-10 sonu)
 - Son oturumların (servis + UI test paketleri, NULL standardı, Required, grid metadata, AV / kilit düzeltmeleri) tamamı commit edildi.
 - Kullanıcı yapacak: IDE'de Build (Shift+F9) + elle kontrol — stok kartında grup/birim boş kaydet, personelde cinsiyet

@@ -156,6 +156,7 @@ uses
   SysDashboard in 'BackEnd\System\Domain\SysDashboard.pas',
   SysDashboard.Repository in 'BackEnd\System\Repository\SysDashboard.Repository.pas',
   SysDashboard.Service in 'BackEnd\System\Service\SysDashboard.Service.pas',
+  DashboardControls in 'Forms\Core\Base\DashboardControls.pas',
   ufrmSysPermission in 'Forms\System\Input\ufrmSysPermission.pas' {frmSysPermission},
   ufrmSysPermissions in 'Forms\System\Output\ufrmSysPermissions.pas' {frmSysPermissions},
   SysPermissionGroup in 'BackEnd\System\Domain\SysPermissionGroup.pas',

@@ -33,6 +33,14 @@ const
   KPI_EMPLOYEES          = 'employees';
   KPI_USERS              = 'users';
 
+  // Grafik anahtarları (ana ekran "Genel Bakış" satırı)
+  CHART_MONEY_FLOW = 'money_flow';   // son 14 gün para girişi / çıkışı (varsayılan para birimi)
+  CHART_CHEQUE_DUE = 'cheque_due';   // önümüzdeki 8 hafta çek / senet vadeleri (alınan / verilen)
+  CHART_STOCK_FLOW = 'stock_flow';   // son 14 gün stok giriş / çıkış hareket sayısı
+  CHART_FX_TREND   = 'fx_trend';     // son 30 kur kaydı (USD / EUR)
+
+  DASHBOARD_TREND_DAYS = 14;
+
 type
   // Kartın vurgu seviyesi (sol şerit rengi)
   TDashboardLevel = (dlNormal, dlInfo, dlWarning, dlDanger);
@@ -40,6 +48,13 @@ type
   TDashboardAmount = record
     Currency: string;
     Amount: Currency;
+  end;
+
+  // Grafik noktası: Value = 1. seri, Value2 = 2. seri (yoksa 0)
+  TDashboardPoint = record
+    Day: TDate;
+    Value: Double;
+    Value2: Double;
   end;
 
   // Tek gösterge: sayılar + para birimi bazında tutarlar; metne çevirme formda (dil)
@@ -50,8 +65,22 @@ type
     Amounts: TArray<TDashboardAmount>;
     RefDate: TDate;
     Level: TDashboardLevel;
+    Ratio: Double;                      // 0..1 doluluk çubuğu; < 0 = çubuk yok
+    Trend: TArray<TDashboardPoint>;     // kart içi küçük grafik (eskiden yeniye); boş = yok
     class function New(const AKey: string): TDashboardKpi; static;
   end;
+
+  // Genel bakış grafiği: noktalar eskiden yeniye; Currency boş = adet
+  TDashboardChart = record
+    Key: string;
+    Currency: string;
+    Points: TArray<TDashboardPoint>;
+    class function New(const AKey: string): TDashboardChart; static;
+    function HasData: Boolean;
+  end;
+
+// Count / Total oranı (Total <= 0 ise çubuk yok)
+function DashboardRatio(ACount, ATotal: Double): Double;
 
 implementation
 
@@ -63,6 +92,37 @@ begin
   Result.Amounts := [];
   Result.RefDate := 0;
   Result.Level := dlNormal;
+  Result.Ratio := -1;
+  Result.Trend := [];
+end;
+
+class function TDashboardChart.New(const AKey: string): TDashboardChart;
+begin
+  Result.Key := AKey;
+  Result.Currency := '';
+  Result.Points := [];
+end;
+
+function TDashboardChart.HasData: Boolean;
+var
+  P: TDashboardPoint;
+begin
+  for P in Points do
+    if (P.Value <> 0) or (P.Value2 <> 0) then
+      Exit(True);
+  Result := False;
+end;
+
+function DashboardRatio(ACount, ATotal: Double): Double;
+begin
+  if ATotal <= 0 then
+    Result := -1
+  else if ACount <= 0 then
+    Result := 0
+  else if ACount >= ATotal then
+    Result := 1
+  else
+    Result := ACount / ATotal;
 end;
 
 end.

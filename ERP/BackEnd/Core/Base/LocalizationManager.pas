@@ -235,6 +235,28 @@ type
         const KpiRefresh = 'dashboard.kpi.refresh';
         const KpiLastUpdate = 'dashboard.kpi.last_update';
         const KpiOpenHint = 'dashboard.kpi.open_hint';
+        const KpiSecOverview = 'dashboard.kpi.sec_overview';
+        const KpiWelcome = 'dashboard.kpi.welcome';
+        const KpiAllGood = 'dashboard.kpi.all_good';
+        const KpiFmtCritical = 'dashboard.kpi.fmt_critical';
+        const KpiFmtWarnings = 'dashboard.kpi.fmt_warnings';
+        const KpiBadgeInfo = 'dashboard.kpi.badge_info';
+        const KpiBadgeWarning = 'dashboard.kpi.badge_warning';
+        const KpiBadgeDanger = 'dashboard.kpi.badge_danger';
+        const KpiFmtPercent = 'dashboard.kpi.fmt_percent';
+        const KpiChartMoneyFlow = 'dashboard.kpi.chart_money_flow';
+        const KpiChartChequeDue = 'dashboard.kpi.chart_cheque_due';
+        const KpiChartStockFlow = 'dashboard.kpi.chart_stock_flow';
+        const KpiChartFxTrend = 'dashboard.kpi.chart_fx_trend';
+        const KpiChartSubMoney = 'dashboard.kpi.chart_sub_money';
+        const KpiChartSubCheque = 'dashboard.kpi.chart_sub_cheque';
+        const KpiChartSubStock = 'dashboard.kpi.chart_sub_stock';
+        const KpiChartSubFx = 'dashboard.kpi.chart_sub_fx';
+        const KpiChartEmpty = 'dashboard.kpi.chart_empty';
+        const KpiLegendIn = 'dashboard.kpi.legend_in';
+        const KpiLegendOut = 'dashboard.kpi.legend_out';
+        const KpiLegendReceived = 'dashboard.kpi.legend_received';
+        const KpiLegendGiven = 'dashboard.kpi.legend_given';
       end;
 
       TGridColumn = record

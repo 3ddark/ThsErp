@@ -22,6 +22,8 @@ type
     constructor Create;
     destructor Destroy; override;
     function GetKpis: TArray<TDashboardKpi>;
+    // Genel bakış grafikleri: aynı okuma yetkisi kuralı
+    function GetCharts: TArray<TDashboardChart>;
   end;
 
 implementation
@@ -134,6 +136,36 @@ begin
     Add(PERMISSION_EMP_EMPLOYEE, function: TDashboardKpi begin Result := FRepo.Employees; end);
     Add(PERMISSION_SYS_USER, function: TDashboardKpi begin Result := FRepo.Users; end);
 
+    Result := LList.ToArray;
+  finally
+    LList.Free;
+  end;
+end;
+
+function TSysDashboardService.GetCharts: TArray<TDashboardChart>;
+var
+  LList: TList<TDashboardChart>;
+
+  procedure Add(APermissionCode: Integer; AGetter: TFunc<TDashboardChart>);
+  begin
+    if not CanRead(APermissionCode) then
+      Exit;
+    try
+      LList.Add(AGetter());
+    except
+      on E: Exception do
+        GLogger.ErrorFmt('Dashboard grafiği okunamadı (%d): %s', [APermissionCode, E.Message]);
+    end;
+  end;
+
+begin
+  LoadPermissions;
+  LList := TList<TDashboardChart>.Create;
+  try
+    Add(PERMISSION_FIN_MONEY_TRANSACTION, function: TDashboardChart begin Result := FRepo.ChartMoneyFlow; end);
+    Add(PERMISSION_FIN_CHEQUE_NOTE, function: TDashboardChart begin Result := FRepo.ChartChequeDue; end);
+    Add(PERMISSION_STK_TRANSACTION, function: TDashboardChart begin Result := FRepo.ChartStockFlow; end);
+    Add(PERMISSION_ACC_EXCHANGE_RATE, function: TDashboardChart begin Result := FRepo.ChartFxTrend; end);
     Result := LList.ToArray;
   finally
     LList.Free;

@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Generics.Collections, Data.DB, FireDAC.Comp.Client, FireDAC.Stan.Param,
+  System.SysUtils, System.Math, System.Generics.Collections, Data.DB, FireDAC.Comp.Client, FireDAC.Stan.Param,
   Logger, SysDashboard;
 
 type
@@ -16,6 +16,9 @@ type
     function Open(const ASql, AOperation: string): TFDQuery;
     procedure AddAmount(var AKpi: TDashboardKpi; const ACurrency: string; AAmount: Currency);
     function MonthFilter(const AColumn: string): string;
+    function ReadPoints(const ASql, AOperation: string): TArray<TDashboardPoint>;
+    function DailyCounts(const ATable, ADateColumn: string): TArray<TDashboardPoint>;
+    function DefaultCurrency: string;
   public
     constructor Create(AConnection: TFDConnection);
 
@@ -38,6 +41,12 @@ type
     function Accounts: TDashboardKpi;
     function Employees: TDashboardKpi;
     function Users: TDashboardKpi;
+
+    // Genel bakış grafikleri
+    function ChartMoneyFlow: TDashboardChart;
+    function ChartChequeDue: TDashboardChart;
+    function ChartStockFlow: TDashboardChart;
+    function ChartFxTrend: TDashboardChart;
   end;
 
 implementation
@@ -80,6 +89,50 @@ begin
   Result := Format('date_trunc(''month'', %s) = date_trunc(''month'', CURRENT_DATE)', [AColumn]);
 end;
 
+// Sorgu kolonları: day (date), v1, v2 (sayısal; NULL = 0)
+function TSysDashboardRepository.ReadPoints(const ASql, AOperation: string): TArray<TDashboardPoint>;
+var
+  Q: TFDQuery;
+  P: TDashboardPoint;
+begin
+  Result := [];
+  Q := Open(ASql, AOperation);
+  try
+    while not Q.Eof do
+    begin
+      P.Day := Q.FieldByName('day').AsDateTime;
+      P.Value := Q.FieldByName('v1').AsFloat;
+      P.Value2 := Q.FieldByName('v2').AsFloat;
+      Result := Result + [P];
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+// Son DASHBOARD_TREND_DAYS günün günlük kayıt sayısı (kart içi küçük grafik)
+function TSysDashboardRepository.DailyCounts(const ATable, ADateColumn: string): TArray<TDashboardPoint>;
+begin
+  Result := ReadPoints(Format(
+    'SELECT d::date AS day, count(t.%1:s) AS v1, 0 AS v2 ' +
+    '  FROM generate_series(CURRENT_DATE - %2:d, CURRENT_DATE, interval ''1 day'') d ' +
+    '  LEFT JOIN public.%0:s t ON t.%1:s = d::date GROUP BY 1 ORDER BY 1',
+    [ATable, ADateColumn, DASHBOARD_TREND_DAYS - 1]), 'DailyCounts');
+end;
+
+function TSysDashboardRepository.DefaultCurrency: string;
+var
+  Q: TFDQuery;
+begin
+  Q := Open('SELECT public.fn_default_currency() AS currency', 'DefaultCurrency');
+  try
+    Result := Q.FieldByName('currency').AsString;
+  finally
+    Q.Free;
+  end;
+end;
+
 // Her para birimi için son kur (USD, EUR, GBP önce); kur bugünün değilse uyarı
 function TSysDashboardRepository.FxRates: TDashboardKpi;
 var
@@ -104,6 +157,12 @@ begin
   end;
   if (Result.Count > 0) and (Result.RefDate < Date) then
     Result.Level := dlWarning;
+  // kart içi grafik: ilk para biriminin (USD) son kurları
+  if Result.Count > 0 then
+    Result.Trend := ReadPoints(Format(
+      'SELECT day, v1, 0 AS v2 FROM (SELECT rate_date AS day, rate AS v1 FROM public.acc_exchange_rate ' +
+      ' WHERE currency = %s ORDER BY rate_date DESC, id DESC LIMIT %d) r ORDER BY day',
+      [QuotedStr(Result.Amounts[0].Currency), DASHBOARD_TREND_DAYS]), 'FxTrend');
 end;
 
 // Aktif kasa (1) / banka (2) hesaplarının para birimi bazında bakiyesi; eksi bakiye kırmızı
@@ -149,6 +208,7 @@ begin
   finally
     Q.Free;
   end;
+  Result.Trend := DailyCounts('fin_money_transaction', 'transaction_date');
 end;
 
 // Açık çek / senetler: Count = belge, Count2 = 7 gün içinde vadesi gelen (gecikmiş dahil); gecikmiş varsa kırmızı
@@ -177,6 +237,7 @@ begin
   finally
     Q.Free;
   end;
+  Result.Ratio := DashboardRatio(Result.Count2, Result.Count);
 end;
 
 // Bu ayki POS tahsilatları (net; iadeler düşülür)
@@ -207,7 +268,8 @@ var
 begin
   Result := TDashboardKpi.New(KPI_CARD_DEBT);
   Q := Open('SELECT currency, sum(balance) AS amount, count(*) AS cnt, ' +
-            '       count(*) FILTER (WHERE card_limit > 0 AND available_limit < card_limit * 0.1) AS near_limit ' +
+            '       count(*) FILTER (WHERE card_limit > 0 AND available_limit < card_limit * 0.1) AS near_limit, ' +
+            '       avg(LEAST(GREATEST(balance, 0) / card_limit, 1)) FILTER (WHERE card_limit > 0) AS usage ' +
             '  FROM public.vw_fin_credit_card WHERE is_active GROUP BY currency ORDER BY currency', 'CardDebt');
   try
     while not Q.Eof do
@@ -215,6 +277,9 @@ begin
       AddAmount(Result, Q.FieldByName('currency').AsString, Q.FieldByName('amount').AsCurrency);
       Inc(Result.Count, Q.FieldByName('cnt').AsInteger);
       Inc(Result.Count2, Q.FieldByName('near_limit').AsInteger);
+      // limit kullanım oranı: kartların ortalaması (para birimi gruplarının en yükseği)
+      if not Q.FieldByName('usage').IsNull then
+        Result.Ratio := Max(Result.Ratio, Q.FieldByName('usage').AsFloat);
       Q.Next;
     end;
   finally
@@ -240,6 +305,7 @@ begin
   end;
   if Result.Count2 > 0 then
     Result.Level := dlInfo;
+  Result.Ratio := DashboardRatio(Result.Count2, Result.Count + Result.Count2);
 end;
 
 // Açık siparişler (onaylı / kısmi teslim); Count2 = teslim tarihi geçmiş
@@ -264,6 +330,7 @@ begin
   end;
   if Result.Count2 > 0 then
     Result.Level := dlWarning;
+  Result.Ratio := DashboardRatio(Result.Count2, Result.Count);
 end;
 
 // Bu ay açılan siparişler (iptaller hariç)
@@ -357,11 +424,12 @@ var
 begin
   Result := TDashboardKpi.New(KPI_STOCK_CRITICAL);
   Q := Open('SELECT count(*) FILTER (WHERE i.min_stock_amount > 0 AND COALESCE(s.current_quantity, 0) < i.min_stock_amount) AS below_min, ' +
-            '       count(*) FILTER (WHERE COALESCE(s.current_quantity, 0) < 0) AS negative ' +
+            '       count(*) FILTER (WHERE COALESCE(s.current_quantity, 0) < 0) AS negative, count(*) AS total ' +
             '  FROM public.stk_inventory i LEFT JOIN public.stk_inventory_summary s ON s.stk_inventory_id = i.id', 'StockCritical');
   try
     Result.Count := Q.FieldByName('below_min').AsInteger;
     Result.Count2 := Q.FieldByName('negative').AsInteger;
+    Result.Ratio := DashboardRatio(Result.Count, Q.FieldByName('total').AsInteger);
   finally
     Q.Free;
   end;
@@ -385,6 +453,7 @@ begin
   finally
     Q.Free;
   end;
+  Result.Trend := DailyCounts('stk_transaction', 'transaction_date');
 end;
 
 // Stok kartı sayısı; Count2 = satılabilir
@@ -442,6 +511,7 @@ begin
   try
     Result.Count := Q.FieldByName('active_cnt').AsInteger;
     Result.Count2 := Q.FieldByName('passive_cnt').AsInteger;
+    Result.Ratio := DashboardRatio(Result.Count, Result.Count + Result.Count2);
   finally
     Q.Free;
   end;
@@ -457,6 +527,7 @@ begin
   try
     Result.Count := Q.FieldByName('active_cnt').AsInteger;
     Result.Count2 := Q.FieldByName('cnt').AsInteger;
+    Result.Ratio := DashboardRatio(Result.Count, Result.Count2);
   finally
     Q.Free;
   end;
@@ -472,9 +543,69 @@ begin
   try
     Result.Count := Q.FieldByName('active_cnt').AsInteger;
     Result.Count2 := Q.FieldByName('cnt').AsInteger;
+    Result.Ratio := DashboardRatio(Result.Count, Result.Count2);
   finally
     Q.Free;
   end;
+end;
+
+// Son 14 gün: v1 = giriş (tahsilat / faiz / diğer giriş), v2 = çıkış (ödeme / masraf / diğer çıkış); virman hariç.
+// Yalnız varsayılan para birimindeki kasa / banka hesapları (farklı para birimleri toplanmaz)
+function TSysDashboardRepository.ChartMoneyFlow: TDashboardChart;
+begin
+  Result := TDashboardChart.New(CHART_MONEY_FLOW);
+  Result.Currency := DefaultCurrency;
+  Result.Points := ReadPoints(Format(
+    'SELECT d::date AS day, ' +
+    '       COALESCE(sum(x.amount) FILTER (WHERE x.transaction_type IN (1, 5, 6)), 0) AS v1, ' +
+    '       COALESCE(sum(x.amount) FILTER (WHERE x.transaction_type IN (2, 4, 7)), 0) AS v2 ' +
+    '  FROM generate_series(CURRENT_DATE - %d, CURRENT_DATE, interval ''1 day'') d ' +
+    '  LEFT JOIN (SELECT t.transaction_date, t.transaction_type, t.amount FROM public.fin_money_transaction t ' +
+    '               JOIN public.fin_money_account m ON m.id = t.fin_money_account_id ' +
+    '              WHERE m.currency = public.fn_default_currency()) x ON x.transaction_date = d::date ' +
+    ' GROUP BY 1 ORDER BY 1', [DASHBOARD_TREND_DAYS - 1]), 'ChartMoneyFlow');
+end;
+
+// Önümüzdeki 8 hafta (pazartesi başlangıçlı): v1 = alınan (portföy / tahsil / teminat), v2 = verilen (tedavülde);
+// vadesi geçmişler ilk haftaya eklenir. Yalnız varsayılan para birimi.
+function TSysDashboardRepository.ChartChequeDue: TDashboardChart;
+begin
+  Result := TDashboardChart.New(CHART_CHEQUE_DUE);
+  Result.Currency := DefaultCurrency;
+  Result.Points := ReadPoints(
+    'SELECT w::date AS day, ' +
+    '       COALESCE(sum(c.amount) FILTER (WHERE c.direction = 1 AND c.status IN (1, 3, 4)), 0) AS v1, ' +
+    '       COALESCE(sum(c.amount) FILTER (WHERE c.direction = 2 AND c.status = 9), 0) AS v2 ' +
+    '  FROM generate_series(date_trunc(''week'', CURRENT_DATE), date_trunc(''week'', CURRENT_DATE) + interval ''7 weeks'', interval ''1 week'') w ' +
+    '  LEFT JOIN public.fin_cheque_note c ON c.currency = public.fn_default_currency() ' +
+    '       AND c.due_date < w::date + 7 ' +
+    '       AND (c.due_date >= w::date OR w::date = date_trunc(''week'', CURRENT_DATE)::date) ' +
+    ' GROUP BY 1 ORDER BY 1', 'ChartChequeDue');
+end;
+
+// Son 14 gün stok hareket sayısı: v1 = giriş, v2 = çıkış (transfer hariç)
+function TSysDashboardRepository.ChartStockFlow: TDashboardChart;
+begin
+  Result := TDashboardChart.New(CHART_STOCK_FLOW);
+  Result.Points := ReadPoints(Format(
+    'SELECT d::date AS day, count(t.id) FILTER (WHERE t.transaction_type = 1) AS v1, ' +
+    '       count(t.id) FILTER (WHERE t.transaction_type = 2) AS v2 ' +
+    '  FROM generate_series(CURRENT_DATE - %d, CURRENT_DATE, interval ''1 day'') d ' +
+    '  LEFT JOIN public.stk_transaction t ON t.transaction_date = d::date GROUP BY 1 ORDER BY 1',
+    [DASHBOARD_TREND_DAYS - 1]), 'ChartStockFlow');
+end;
+
+// Son 30 kur günü: v1 = USD, v2 = EUR (o gün kaydı yoksa 0 -> çizgide atlanır)
+function TSysDashboardRepository.ChartFxTrend: TDashboardChart;
+begin
+  Result := TDashboardChart.New(CHART_FX_TREND);
+  Result.Points := ReadPoints(
+    'WITH d AS (SELECT DISTINCT rate_date FROM public.acc_exchange_rate WHERE currency IN (''USD'', ''EUR'') ' +
+    '            ORDER BY rate_date DESC LIMIT 30) ' +
+    'SELECT d.rate_date AS day, ' +
+    '       (SELECT r.rate FROM public.acc_exchange_rate r WHERE r.currency = ''USD'' AND r.rate_date = d.rate_date ORDER BY r.id DESC LIMIT 1) AS v1, ' +
+    '       (SELECT r.rate FROM public.acc_exchange_rate r WHERE r.currency = ''EUR'' AND r.rate_date = d.rate_date ORDER BY r.id DESC LIMIT 1) AS v2 ' +
+    '  FROM d ORDER BY 1', 'ChartFxTrend');
 end;
 
 end.
