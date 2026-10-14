@@ -427,8 +427,9 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.
 - Legacy Forms/Production/ufrmUrtReceteler.* ve Forms/DetailedInputForms/Production (kayıtsız) silinecek.
-- Kullanıcı onayı bekleyenler: gider tipi seçenekleri (1 işçilik / 2 makine / 3 genel üretim gideri), 1060 bom-settings yetkisinin
-  silinmesi, acc_set_tax_rate %10 / %20 satırlarında ters görünen satış/alış hesapları.
+- 2026-10-14 kullanıcı kararları uygulandı: gider tipi 1 işçilik / 2 makine / 3 genel üretim gideri (zaten bu şekildeydi, değişiklik yok);
+  1060 bom-settings yetkisi DB'den silindi (+ MODULE_RCT_RECETE_AYAR sabiti); acc_set_tax_rate %10 alış/alış iade ve %20 satış/satış iade
+  hesapları düzeltildi (satış 391 / satış iade 191 / alış 191 / alış iade 391). Dump'lar yenilendi.
 - 2026-10-09 değişiklikleri 4371ce2 ile commit edildi. sls_ (satış) modülü, uçtan uca UI testi ve bulunan hatalar düzeltilene
   kadar bekletiliyor (kullanıcı kararı, 2026-10-10).
 - vw_sys_user.user_password kaldırma (login hash'i tablodan ayrı sorgu ile almalı)

@@ -251,10 +251,8 @@ const
                                  MODULE_SAT_SIP_RAPOR];
 
 
-  MODULE_RCT_RECETE_AYAR = '1060';         //Reçete Ayar
   MODULE_RCT_RECETE_KAYIT = '1061';        //Reçete Kayıt
-  MODULE_RCT: TArray<string> = [MODULE_RCT_RECETE_AYAR,
-                                MODULE_RCT_RECETE_KAYIT];
+  MODULE_RCT: TArray<string> = [MODULE_RCT_RECETE_KAYIT];
 
 
   MODULE_PRS_AYAR = '1020';         //Personel Kartı Ayar

@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict ZpPUuugecgpTkApB7lMZtpCKyQekz1UMzsKXlawg1mxGberxJ5iVqafHgWz1iR7
+\restrict tlw8bD17hcu4u3VHLBcLubrOpfn5k7Y068WgGNCzsID9pGPFnpYCN5jxe7GCrOP
 
--- Dumped from database version 18.3
--- Dumped by pg_dump version 18.3
+-- Dumped from database version 18.1
+-- Dumped by pg_dump version 18.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1564,7 +1564,7 @@ CREATE TABLE public.fin_credit_card_transaction (
     installment_count smallint DEFAULT 1 NOT NULL,
     description character varying(256),
     CONSTRAINT fin_credit_card_transaction_amount_check CHECK ((amount > (0)::numeric)),
-    CONSTRAINT fin_credit_card_transaction_installment_check CHECK ((((installment_count >= 1) AND (installment_count <= 36)) AND ((transaction_type = 1) OR (installment_count = 1)))),
+    CONSTRAINT fin_credit_card_transaction_installment_check CHECK (((installment_count >= 1) AND (installment_count <= 36) AND ((transaction_type = 1) OR (installment_count = 1)))),
     CONSTRAINT fin_credit_card_transaction_type_check CHECK (((transaction_type >= 1) AND (transaction_type <= 3)))
 );
 
@@ -11331,5 +11331,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ZpPUuugecgpTkApB7lMZtpCKyQekz1UMzsKXlawg1mxGberxJ5iVqafHgWz1iR7
+\unrestrict tlw8bD17hcu4u3VHLBcLubrOpfn5k7Y068WgGNCzsID9pGPFnpYCN5jxe7GCrOP
 
