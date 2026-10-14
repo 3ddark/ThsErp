@@ -433,17 +433,26 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Not: satış (sls_) modülü taşındığında KpiAction'a satış action'ları eklenmeli; yeni gösterge = repository metodu +
   servis Add(yetki) + KpiTitle / KpiTexts / KpiIcon / KpiSection + 4 dilde anahtar.
 
-## KALDIĞIM YER (2026-10-10 sonu)
-- Son oturumların (servis + UI test paketleri, NULL standardı, Required, grid metadata, AV / kilit düzeltmeleri) tamamı commit edildi.
-- Kullanıcı yapacak: IDE'de Build (Shift+F9) + elle kontrol — stok kartında grup/birim boş kaydet, personelde cinsiyet
-  boş kaydet, adres tipi boş kaydet (alan kırmızı + hata beklenir); para birimi ₺ kaydı, kur 4 hane, ölçü birimi
-  listesi/grup listesi kolonları, erişim hakları "Engelle" kolonları.
-- SONRAKİ ADIMLAR (sırayla, kullanıcı onayıyla):
-  1. UI harness'a Uygulama Ayarları (sekmeli, tek kayıtlık, listeden açılmayan) ekranını eklemek.
-  2. Klavye Tab sırası testi (TabOrder ekrandaki yerleşimle uyumlu mu: yukarıdan aşağı, soldan sağa).
-  3. Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` + `%TEMP%\ths_it\bin\IntegrationTest.exe`
-     (canlı DB'de rollback) ve `ERP/Tests/Ui/build.sh` + `%TEMP%\ths_ui\bin\UiTest.exe` (ths_erp_it'i yeniden kurar).
-  4. Ardından sls_ (satış) modülü.
+## UI test adımları (2026-10-14)
+- Test betikleri iki makinede çalışır: `ERP/Tests/env.sh` Delphi'yi (Studio 37.0 yoksa 23.0) ve PostgreSQL 18 + güncel şemalı
+  ths_erp portunu (5432 / 5433) bulur; gen.py portu şablona yazar (`{{PORT}}`). Bu PC'de 5432 eski bir PG14 kopyası.
+- Uygulama Ayarları (tek kayıt, sekmeli) UI testine eklendi (`TestAppSettingForm`): açılış (inceleme), yerleşim, Tab sırası,
+  3 dil, salt okunur inceleme, sekme geçişi, alanlar = DB satırı, güncelle + aynı değerle onay (satır değişmez), zorunlu
+  alanlar (doğru sekme), helper (şehir), onaysız kapat -> rollback. 19 / 19 geçti.
+- Tab sırası testi (`TUi.TabOrderProblems`, her giriş formunda + uygulama ayarlarında): kap bazında; aynı satırda sağa, aşağı
+  ya da sağdaki sütunun başına geçiş kabul (iki sütunlu formlar sütun sütun); geri sıçrama ve TabStop = False düzenlenebilir
+  alan hata. Bulunan tek hata: ufrmSysGridColumn (min değer satırı sırası + toplam tipi açılır kutusu FormCreate'te
+  chkIsFetch'in üstüne taşınıyordu) -> DFM'de düzeltildi, çalışma anı konumlandırma silindi.
+- Dashboard UI testi yeni kart bileşenlerine uyarlandı (23 kart, 4 grafik, kısıtlı kullanıcı 3 kart + 1 grafik).
+- Sonuç: entegrasyon 1367 pass / 0 fail; UI tam 1430 pass / 1 fail (SysGridColumn, düzeltildi; tekil test 14 / 14) / 1 warn
+  (TfrmPurRequests boş kayıt kabul: talep no otomatik, diğer alanlar isteğe bağlı -> tasarım gereği).
+
+## KALDIĞIM YER (2026-10-14 sonu)
+- Yapılanlar commit edildi (1060 silme + vergi hesapları, görsel dashboard, UI test adımları).
+- Kullanıcı yapacak: uygulamada dashboard'u elle kontrol (Iceberg Classico temasıyla zemin rengi, fare tekerleği ile kaydırma,
+  grafik balonları), Sistem > Grid Kolon giriş formu yerleşimi.
+- SONRAKİ ADIM: sls_ (satış) modülü. Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
+  `%TEMP%\ths_it\bin\IntegrationTest.exe` ve `ERP/Tests/Ui/build.sh` + `%TEMP%\ths_ui\bin\UiTest.exe`.
 
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.

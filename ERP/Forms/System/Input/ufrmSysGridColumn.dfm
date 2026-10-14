@@ -203,9 +203,9 @@ object frmSysGridColumn: TfrmSysGridColumn
       ParentFont = False
     end
     object lblAggregateType: TLabel
-      Left = 375
-      Top = 244
-      Width = 91
+      Left = 3
+      Top = 236
+      Width = 85
       Height = 13
       Alignment = taRightJustify
       Caption = 'Aggregate Type'
@@ -257,7 +257,7 @@ object frmSysGridColumn: TfrmSysGridColumn
       Width = 120
       Height = 17
       Caption = 'Is Show'
-      TabOrder = 7
+      TabOrder = 5
     end
     object chkIsShowHelper: TCheckBox
       Left = 150
@@ -265,21 +265,21 @@ object frmSysGridColumn: TfrmSysGridColumn
       Width = 150
       Height = 17
       Caption = 'Is Show Helper'
-      TabOrder = 8
+      TabOrder = 6
     end
     object edtMinValue: TEdit
       Left = 385
       Top = 108
       Width = 120
       Height = 22
-      TabOrder = 5
+      TabOrder = 7
     end
     object edtMinValueColor: TEdit
       Left = 609
       Top = 108
       Width = 80
       Height = 22
-      TabOrder = 6
+      TabOrder = 8
     end
     object edtMaxValue: TEdit
       Left = 94
@@ -332,12 +332,12 @@ object frmSysGridColumn: TfrmSysGridColumn
       TabOrder = 15
     end
     object cbbAggregateType: TComboBox
-      Left = 472
-      Top = 240
-      Width = 145
+      Left = 94
+      Top = 232
+      Width = 200
       Height = 22
+      Style = csDropDownList
       TabOrder = 16
-      Text = 'cbbAggregateType'
     end
   end
 end

@@ -533,7 +533,7 @@ begin
   try
     try
       TLocalizationManager.SetLanguage('tr-TR');
-      GConn := TConnectionManager.Instance.GetConnection(ContextMain, '127.0.0.1', 'ths_erp', 'postgres', 'qwe', 5432);
+      GConn := TConnectionManager.Instance.GetConnection(ContextMain, '127.0.0.1', 'ths_erp', 'postgres', 'qwe', {{PORT}});
       TUnitOfWork.Initialize(GConn);
       TLanguageCache.Load;
       TSysGridColumnCache.LoadGlobal(GConn);

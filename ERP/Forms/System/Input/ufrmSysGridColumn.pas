@@ -95,24 +95,6 @@ begin
   inherited;
   pnlContent.Parent := PanelMain;
   edtTableName.OnHelperProcess := HelperProcess;
-
-  lblAggregateType.Parent := pnlContent;
-  lblAggregateType.Left := 11;
-  lblAggregateType.Top := 208;
-  lblAggregateType.Width := 77;
-  lblAggregateType.Height := 13;
-  lblAggregateType.Alignment := taRightJustify;
-  lblAggregateType.Font.Name := 'Tahoma';
-  lblAggregateType.Font.Size := 8;
-  lblAggregateType.Font.Style := [fsBold];
-
-  cbbAggregateType.Parent := pnlContent;
-  cbbAggregateType.Left := 94;
-  cbbAggregateType.Top := 204;
-  cbbAggregateType.Width := 200;
-  cbbAggregateType.Height := 23;
-  cbbAggregateType.Style := csDropDownList;
-  cbbAggregateType.TabOrder := 15;
 end;
 
 procedure TfrmSysGridColumn.HelperProcess(Sender: TObject);

@@ -7,7 +7,7 @@ procedure RunModuleTests;
 implementation
 
 uses
-  System.SysUtils, System.StrUtils, System.Classes, System.Rtti, System.Variants, System.Generics.Collections,
+  System.SysUtils, System.StrUtils, System.Math, System.DateUtils, System.Classes, System.Rtti, System.Variants, System.Generics.Collections,
   Data.DB, FireDAC.Comp.Client, SharedFormTypes, FilterCriterion,
   UnitOfWork, AppContext, ItSpecific,
   StkLookup, StkTransaction, StkTransaction.Service, StkInventory, StkInventory.Service,
@@ -2423,13 +2423,40 @@ begin
   end;
 end;
 
+function ChartKeys(const ACharts: TArray<TDashboardChart>): string;
+var
+  C: TDashboardChart;
+begin
+  Result := '';
+  for C in ACharts do
+  begin
+    if Result <> '' then
+      Result := Result + ',';
+    Result := Result + C.Key;
+  end;
+end;
+
+// Noktalar ardışık ve artan tarihli mi (AStepDays = 0: yalnız artan)
+function PointsOrdered(const APoints: TArray<TDashboardPoint>; AStepDays: Integer): Boolean;
+var
+  I: Integer;
+begin
+  for I := 1 to High(APoints) do
+    if (AStepDays > 0) and (Round(APoints[I].Day - APoints[I - 1].Day) <> AStepDays) or
+       (AStepDays = 0) and (APoints[I].Day <= APoints[I - 1].Day) then
+      Exit(False);
+  Result := True;
+end;
+
 procedure TestDashboard;
 var
   Svc: TSysDashboardService;
   Kpis: TArray<TDashboardKpi>;
   K: TDashboardKpi;
+  Charts: TArray<TDashboardChart>;
+  C: TDashboardChart;
   URepo: TSysUserRepository;
-  Found: Boolean;
+  Found, RatiosOk: Boolean;
 begin
   Ctx('System', 'TSysDashboard');
   Svc := TSysDashboardService.Create;
@@ -2454,6 +2481,44 @@ begin
           Check('active users', K.Count = Num(Scalar('SELECT count(*) FROM sys_user WHERE active')));
       Check('fx kpi present', Found);
 
+      // kart oranları 0..1 (veya -1 = yok), trend serileri
+      RatiosOk := True;
+      for K in Kpis do
+      begin
+        if (K.Ratio > 1) or ((K.Ratio < 0) and (K.Ratio <> -1)) then
+          RatiosOk := False;
+        if MatchStr(K.Key, [KPI_MONEY_TODAY, KPI_STOCK_TX_TODAY]) then
+          Check('trend 14 days: ' + K.Key, (Length(K.Trend) = DASHBOARD_TREND_DAYS) and PointsOrdered(K.Trend, 1)
+            and (Round(K.Trend[High(K.Trend)].Day) = Round(Date)), IntToStr(Length(K.Trend)));
+        if K.Key = KPI_FX_RATES then
+          Check('fx trend ordered', (Length(K.Trend) > 1) and (Length(K.Trend) <= DASHBOARD_TREND_DAYS)
+            and PointsOrdered(K.Trend, 0), IntToStr(Length(K.Trend)));
+        if K.Key = KPI_STOCK_TX_TODAY then
+          Check('stock trend today = kpi count', Round(K.Trend[High(K.Trend)].Value) = K.Count);
+      end;
+      Check('kpi ratios in range', RatiosOk);
+
+      // genel bakış grafikleri
+      Charts := Svc.GetCharts;
+      Check('super user: all 4 charts', ChartKeys(Charts) = CHART_MONEY_FLOW + ',' + CHART_CHEQUE_DUE + ',' +
+        CHART_STOCK_FLOW + ',' + CHART_FX_TREND, ChartKeys(Charts));
+      for C in Charts do
+        if MatchStr(C.Key, [CHART_MONEY_FLOW, CHART_STOCK_FLOW]) then
+          Check('chart 14 days: ' + C.Key, (Length(C.Points) = DASHBOARD_TREND_DAYS) and PointsOrdered(C.Points, 1)
+            and (Round(C.Points[High(C.Points)].Day) = Round(Date)), IntToStr(Length(C.Points)))
+        else if C.Key = CHART_CHEQUE_DUE then
+          Check('cheque chart: 8 weeks from monday', (Length(C.Points) = 8) and PointsOrdered(C.Points, 7)
+            and (DayOfTheWeek(C.Points[0].Day) = 1) and (C.Points[0].Day <= Date) and (C.Points[0].Day > Date - 7),
+            IntToStr(Length(C.Points)))
+        else if C.Key = CHART_FX_TREND then
+          Check('fx chart: last point = latest USD rate', (Length(C.Points) > 0) and (Length(C.Points) <= 30)
+            and PointsOrdered(C.Points, 0) and SameValue(C.Points[High(C.Points)].Value,
+            Num(Scalar('SELECT rate FROM acc_exchange_rate WHERE currency = ''USD'' ORDER BY rate_date DESC, id DESC LIMIT 1')), 0.00001),
+            IntToStr(Length(C.Points)));
+      for C in Charts do
+        if C.Key = CHART_MONEY_FLOW then
+          Check('money chart currency = default', C.Currency = Scalar('SELECT public.fn_default_currency()'), C.Currency);
+
       // TEST (id 4): yalnız kur + satın alma siparişi okuma; diğer her şey engelli
       UoW.Connection.ExecSQL('UPDATE sys_access_right SET deny_read = true, is_read = false WHERE sys_user_id = 4');
       UoW.Connection.ExecSQL('UPDATE sys_access_right a SET deny_read = false, is_read = true FROM sys_permission p ' +
@@ -2463,9 +2528,12 @@ begin
         Kpis := Svc.GetKpis;
         Check('limited user: only permitted kpis', KpiKeys(Kpis) = KPI_FX_RATES + ',' + KPI_PUR_ORDERS_OPEN + ',' + KPI_PUR_ORDERS_MONTH,
           KpiKeys(Kpis));
+        Charts := Svc.GetCharts;
+        Check('limited user: only permitted charts', ChartKeys(Charts) = CHART_FX_TREND, ChartKeys(Charts));
         UoW.Connection.ExecSQL('UPDATE sys_access_right SET deny_read = true, is_read = false WHERE sys_user_id = 4');
         Kpis := Svc.GetKpis;
         Check('no rights: no kpis', Length(Kpis) = 0, KpiKeys(Kpis));
+        Check('no rights: no charts', Length(Svc.GetCharts) = 0);
       finally
         TAppContext.Instance.CurrentUser.User := URepo.FindById(TValue.From<Int64>(1), False);
       end;

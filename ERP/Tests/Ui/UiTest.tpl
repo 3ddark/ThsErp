@@ -60,36 +60,35 @@ begin
   end;
 end;
 
-// Ana ekran: PageControl yok, göstergeler kart olarak çizilir, karta tıklayınca liste açılır,
-// yetkisi kısıtlı kullanıcıda yalnız izinli kartlar görünür
+// Ana ekran: PageControl yok, göstergeler çizilen kartlar (TDashTile) + genel bakış grafikleri (TDashChart),
+// karta / grafiğe tıklayınca liste açılır, yetkisi kısıtlı kullanıcıda yalnız izinli kartlar görünür
 procedure TestDashboardForm(AURepo: TSysUserRepository);
 var
   Outer, Before: TList<TForm>;
   F: TfrmDashboard;
   Opened: TForm;
-  Titles: TStringList;
+  Titles, ChartTitles: TStringList;
 
-  procedure CollectCards(AParent: TWinControl; AList: TStringList; out AFirstClickable: TLabel);
+  procedure CollectCards(AParent: TWinControl; AList: TStringList; out AFirstClickable: TDashTile);
   var
     I, J: Integer;
     C: TControl;
-    L: TLabel;
   begin
     AFirstClickable := nil;
+    ChartTitles.Clear;
     for I := 0 to AParent.ControlCount - 1 do
       if AParent.Controls[I] is TFlowPanel then
         for J := 0 to TFlowPanel(AParent.Controls[I]).ControlCount - 1 do
         begin
           C := TFlowPanel(AParent.Controls[I]).Controls[J];
-          if C is TPanel then
-            for var K := 0 to TPanel(C).ControlCount - 1 do
-              if (TPanel(C).Controls[K] is TLabel) and (TLabel(TPanel(C).Controls[K]).Align = alTop) then
-              begin
-                L := TLabel(TPanel(C).Controls[K]);
-                AList.Add(L.Caption);
-                if (AFirstClickable = nil) and Assigned(L.OnClick) then
-                  AFirstClickable := L;
-              end;
+          if C is TDashTile then
+          begin
+            AList.Add(TDashTile(C).Data.Title);
+            if (AFirstClickable = nil) and TDashTile(C).Clickable and Assigned(TDashTile(C).OnClick) then
+              AFirstClickable := TDashTile(C);
+          end
+          else if C is TDashChart then
+            ChartTitles.Add(TDashChart(C).Data.Title);
         end;
   end;
 
@@ -103,12 +102,13 @@ var
   end;
 
 var
-  Clickable: TLabel;
+  Clickable: TDashTile;
 begin
   TUi.Module := 'Core';
   TUi.FormName := 'TfrmDashboard';
   Outer := TUi.Snapshot;
   Titles := TStringList.Create;
+  ChartTitles := TStringList.Create;
   try
     try
       F := TfrmDashboard.Create(Application);
@@ -143,6 +143,12 @@ begin
           TUi.R('FAIL', 'card titles translated', Titles.CommaText)
         else
           TUi.R('PASS', 'card titles translated', Titles[0]);
+      if ChartTitles.Count = 4 then
+        TUi.R('PASS', 'super user charts', ChartTitles.CommaText)
+      else
+        TUi.R('FAIL', 'super user charts', IntToStr(ChartTitles.Count) + ': ' + ChartTitles.CommaText);
+      if (ChartTitles.Count > 0) and TUi.LooksLikeKey(ChartTitles.Text) then
+        TUi.R('FAIL', 'chart titles translated', ChartTitles.CommaText);
 
       // karta tıklama: ilgili liste açılır
       if Assigned(Clickable) then
@@ -153,9 +159,9 @@ begin
           TUi.Pump;
           Opened := TUi.NewForm(Before);
           if Opened <> nil then
-            TUi.R('PASS', 'card click opens list', Clickable.Caption + ' -> ' + Opened.ClassName)
+            TUi.R('PASS', 'card click opens list', Clickable.Data.Title + ' -> ' + Opened.ClassName)
           else
-            TUi.R('FAIL', 'card click opens list', Clickable.Caption + ': no window ' + TUi.TakeDialogs);
+            TUi.R('FAIL', 'card click opens list', Clickable.Data.Title + ': no window ' + TUi.TakeDialogs);
           TUi.CloseNewForms(Before);
           TUi.TakeDialogs;
         finally
@@ -179,6 +185,10 @@ begin
           TUi.R('PASS', 'limited user cards', Titles.CommaText)
         else
           TUi.R('FAIL', 'limited user cards', IntToStr(Titles.Count) + ': ' + Titles.CommaText);
+        if ChartTitles.Count = 1 then
+          TUi.R('PASS', 'limited user charts', ChartTitles.CommaText)
+        else
+          TUi.R('FAIL', 'limited user charts', IntToStr(ChartTitles.Count) + ': ' + ChartTitles.CommaText);
       finally
         TAppContext.Instance.CurrentUser.User := AURepo.FindById(TValue.From<Int64>(1), False);
         TUnitOfWork.Instance.Connection.ExecSQL('UPDATE sys_access_right SET deny_read = false WHERE sys_user_id = 4');
@@ -188,7 +198,184 @@ begin
     end;
     TUi.CloseNewForms(Outer);
   finally
+    ChartTitles.Free;
     Titles.Free;
+    Outer.Free;
+  end;
+end;
+
+// Uygulama ayarları: tek kayıtlık, sekmeli, listeden açılmaz; ana ekrandaki gibi açılır (kayıt varsa inceleme)
+procedure TestAppSettingForm;
+const
+  Langs: array[0..2] of string = ('en-US', 'de-DE', 'tr-TR');
+var
+  Outer: TList<TForm>;
+  JS, JN: TJSONObject;
+  Id: Int64;
+  S, D, Lang: string;
+  F: TForm;
+  Helpers: TList<Ths.Helper.Edit.TEdit>;
+  H: Ths.Helper.Edit.TEdit;
+
+  function OpenForm: TForm;
+  var
+    LSvc: TSysApplicationSettingService;
+    LSetting: TSysApplicationSetting;
+  begin
+    Result := nil;
+    LSvc := TSysApplicationSettingService.Create;
+    try
+      LSetting := LSvc.BusinessFindSetting(False, False, True);
+    except
+      LSvc.Free;
+      raise;
+    end;
+    if not Assigned(LSetting) then
+    begin
+      LSvc.Free;
+      Exit;
+    end;
+    Id := LSetting.Id;
+    Result := TfrmSysApplicationSetting.Create(Application, LSvc, LSetting, ifmRewiev, nil, ivmNormal, True);
+    Result.Show;
+    TUi.Pump;
+  end;
+
+begin
+  TUi.Module := 'System';
+  TUi.FormName := 'TfrmSysApplicationSetting';
+  Outer := TUi.Snapshot;
+  JS := nil;
+  try
+    try
+      TUi.Dialogs.Clear;
+      F := OpenForm;
+      D := TUi.TakeDialogs;
+      if F = nil then
+      begin
+        TUi.R('WARN', 'data', 'no sys_application_setting row');
+        Exit;
+      end;
+      TUi.R(IfThen(TUi.HasError(D), 'FAIL', 'PASS'), 'open (review)', F.Caption + ' ' + D);
+      JS := TUi.RowJson('sys_application_setting', Id);
+
+      // görünüm: yerleşim, Tab sırası, başlıklar (3 dil), sekmeler, alanlar DB satırıyla aynı, inceleme salt okunur
+      S := TUi.LayoutProblems(F);
+      if S <> '' then TUi.R('FAIL', 'layout', S) else TUi.R('PASS', 'layout', '');
+      S := TUi.TabOrderProblems(F);
+      if S <> '' then TUi.R('FAIL', 'tab order', S) else TUi.R('PASS', 'tab order', '');
+      S := TUi.CaptionProblems(F);
+      if S <> '' then TUi.R('WARN', 'captions tr-TR', S);
+      for Lang in Langs do
+      begin
+        TUi.SetLanguage(Lang, [F]);
+        S := TUi.CaptionProblems(F);
+        D := TUi.TakeDialogs;
+        if TUi.LooksLikeKey(F.Caption) or (D <> '') then
+          TUi.R('FAIL', 'language ' + Lang, 'caption [' + F.Caption + '] ' + D)
+        else if (S <> '') and (Lang <> 'tr-TR') then
+          TUi.R('WARN', 'input captions ' + Lang, S)
+        else
+          TUi.R('PASS', 'language ' + Lang, F.Caption);
+      end;
+      S := TUi.ReviewProblems(F);
+      if S <> '' then TUi.R('FAIL', 'review read-only', S) else TUi.R('PASS', 'review read-only', '');
+      S := TUi.SwitchTabs(F);
+      if S <> '' then TUi.R('FAIL', 'tab switch', S) else TUi.R('PASS', 'tab switch', '');
+      S := TUi.FieldValueProblems(F, JS);
+      if S <> '' then TUi.R('FAIL', 'fields filled', S) else TUi.R('PASS', 'fields filled', 'all controls match DB row');
+
+      // inceleme -> güncelle -> aynı değerlerle onayla: satır değişmemeli
+      S := TUi.Accept(F);
+      D := TUi.TakeDialogs;
+      if (S <> '') or (TUi.Mode(F) <> 'ifmUpdate') then
+        TUi.R('FAIL', 'review -> update', Format('mode %s %s %s', [TUi.Mode(F), S, D]))
+      else
+      begin
+        TUi.R('PASS', 'review -> update', '');
+        S := TUi.Accept(F);
+        D := TUi.TakeDialogs;
+        JN := TUi.RowJson('sys_application_setting', Id);
+        try
+          if S <> '' then
+            TUi.R('FAIL', 'update same values', S + ' ' + D)
+          else if TUi.Alive(F) then
+            TUi.R('FAIL', 'update same values', 'form still open: ' + D)
+          else
+          begin
+            S := TUi.DiffRows(JS, JN, False);
+            if S <> '' then TUi.R('FAIL', 'update same values', 'row changed: ' + S)
+            else TUi.R('PASS', 'update same values', 'row unchanged');
+          end;
+        finally
+          JN.Free;
+        end;
+      end;
+      TUi.CloseNewForms(Outer);
+      TUi.TakeDialogs;
+
+      // yeniden aç -> güncelle: zorunlu alanlar (sekme + odak), helper seçimleri, onaylamadan kapat -> rollback
+      F := OpenForm;
+      TUi.TakeDialogs;
+      if F <> nil then
+      begin
+        TUi.Accept(F);
+        TUi.TakeDialogs;
+        if TUi.Mode(F) = 'ifmUpdate' then
+        begin
+          TUi.RequiredTabCheck(F);
+          Helpers := TUi.HelperEdits(F);
+          try
+            for H in Helpers do
+            begin
+              TUi.Dialogs.Clear;
+              try
+                H.OnHelperProcess(H);
+                TUi.Pump;
+                D := TUi.TakeDialogs;
+                if TUi.HasError(D) then
+                  TUi.R('FAIL', 'helper ' + H.Name, D)
+                else if ContainsText(D, 'HELPER-EMPTY') then
+                  TUi.R('WARN', 'helper ' + H.Name, 'helper list empty: ' + D)
+                else if not ContainsText(D, 'HELPER:') then
+                  TUi.R('FAIL', 'helper ' + H.Name, 'no helper list shown: ' + D)
+                else
+                  TUi.R('PASS', 'helper ' + H.Name, H.Text);
+              except
+                on E: Exception do TUi.R('FAIL', 'helper ' + H.Name, E.ClassName + ': ' + E.Message + ' ' + TUi.TakeDialogs);
+              end;
+            end;
+          finally
+            Helpers.Free;
+          end;
+          if TUi.Alive(F) then
+          begin
+            TUi.CloseForm(F);
+            D := TUi.TakeDialogs;
+            JN := TUi.RowJson('sys_application_setting', Id);
+            try
+              S := TUi.DiffRows(JS, JN, False);
+              if TUnitOfWork.Instance.InTransaction then
+                TUi.R('FAIL', 'close without confirm', 'transaction still open ' + D)
+              else if S <> '' then
+                TUi.R('FAIL', 'close without confirm', 'row changed: ' + S)
+              else
+                TUi.R('PASS', 'close without confirm', 'rolled back');
+            finally
+              JN.Free;
+            end;
+          end;
+        end
+        else
+          TUi.R('FAIL', 'review -> update (2)', 'mode ' + TUi.Mode(F));
+      end;
+    except
+      on E: Exception do TUi.R('FAIL', 'application setting', E.ClassName + ': ' + E.Message + ' ' + TUi.TakeDialogs);
+    end;
+    TUi.CloseNewForms(Outer);
+    TUi.TakeDialogs;
+  finally
+    JS.Free;
     Outer.Free;
   end;
 end;
@@ -219,7 +406,7 @@ begin
     try
       Application.CreateForm(Tdm, dm);
       TLocalizationManager.SetLanguage('tr-TR');
-      GConn := TConnectionManager.Instance.GetConnection(ContextMain, '127.0.0.1', 'ths_erp_it', 'postgres', 'qwe', 5432);
+      GConn := TConnectionManager.Instance.GetConnection(ContextMain, '127.0.0.1', 'ths_erp_it', 'postgres', 'qwe', {{PORT}});
       TUnitOfWork.Initialize(GConn);
       TLanguageCache.Load;
       TSysGridColumnCache.LoadGlobal(GConn);
@@ -236,6 +423,8 @@ begin
 {{CALLS}}
       if TUi.Want('Account', 'TfrmAccAccountTransactions') then
         TestShowSources;
+      if TUi.Want('System', 'TfrmSysApplicationSetting') then
+        TestAppSettingForm;
       if TUi.Want('Core', 'TfrmDashboard') then
         TestDashboardForm(URepo);
     except

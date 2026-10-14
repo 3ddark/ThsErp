@@ -2389,7 +2389,10 @@ begin
   FKpiScroll.Align := alClient;
   FKpiScroll.BorderStyle := bsNone;
   FKpiScroll.ParentColor := False;
+  FKpiScroll.ParentBackground := False;
   FKpiScroll.Color := DASH_BACKGROUND;
+  // VCL teması zemin rengini ezmesin (kartlar bu renk üzerine çizilir)
+  FKpiScroll.StyleElements := FKpiScroll.StyleElements - [seClient];
   FKpiScroll.DoubleBuffered := True;
   FKpiScroll.VertScrollBar.Tracking := True;
   FKpiScroll.HorzScrollBar.Visible := False;
@@ -2677,6 +2680,7 @@ var
     Result.BevelOuter := bvNone;
     Result.ParentColor := True;
     Result.ParentBackground := False;
+    Result.StyleElements := Result.StyleElements - [seClient];
     Result.DoubleBuffered := True;
     Result.AutoWrap := True;
     Result.AutoSize := True;

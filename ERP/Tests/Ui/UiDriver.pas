@@ -8,7 +8,7 @@ interface
 uses
   Core.Exception,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, System.Rtti, System.TypInfo,
-  System.StrUtils, System.Generics.Collections, System.JSON, System.RegularExpressions, System.Math, System.Variants,
+  System.StrUtils, System.Generics.Collections, System.Generics.Defaults, System.JSON, System.RegularExpressions, System.Math, System.Variants,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Menus, Vcl.DBGrids, Vcl.Dialogs, Vcl.ComCtrls,
   Data.DB, FireDAC.Comp.Client,
   Ths.Helper.BaseTypes, Ths.Helper.Edit,
@@ -70,6 +70,7 @@ type
     class function ParseNum(const AText: string; out AValue: Double): Boolean;
     class function FieldValueProblems(F: TForm; ARow: TJSONObject): string;
     class function SwitchTabs(F: TForm): string;
+    class function TabOrderProblems(F: TForm): string;
     class procedure RequiredTabCheck(F: TForm);
     class function NotMarkedRequired(F: TForm; const ATable: string): string;
   end;
@@ -837,6 +838,97 @@ begin
   end;
 end;
 
+// Klavye Tab sırası ekrandaki yerleşime uymalı: aynı satırda sağa, aşağı ya da sağdaki yeni sütunun başına
+// (iki sütunlu formlarda önce sol sütun yukarıdan aşağı). Geri sıçrama (aynı sütunda yukarı / aynı satırda sola)
+// ve Tab ile ulaşılamayan düzenlenebilir alan sorun sayılır. Her kap (panel, sekme) kendi içinde denetlenir.
+class function TUi.TabOrderProblems(F: TForm): string;
+const
+  TOL = 6;
+var
+  Res: TStringList;
+
+  function HasFocusable(P: TWinControl): Boolean; forward;
+
+  function Participates(C: TWinControl): Boolean;
+  begin
+    Result := C.Visible and not (C is TTabSheet) and not InFooter(F, C) and (C.TabStop or HasFocusable(C));
+  end;
+
+  function HasFocusable(P: TWinControl): Boolean;
+  var
+    I: Integer;
+  begin
+    for I := 0 to P.ControlCount - 1 do
+      if (P.Controls[I] is TWinControl) and Participates(TWinControl(P.Controls[I])) then
+        Exit(True);
+    Result := False;
+  end;
+
+  function Editable(C: TWinControl): Boolean;
+  begin
+    Result := ((C is TEdit) and not TEdit(C).ReadOnly) or ((C is TMemo) and not TMemo(C).ReadOnly) or
+      (C is TComboBox) or (C is TCheckBox);
+  end;
+
+  procedure CheckParent(P: TWinControl);
+  var
+    I: Integer;
+    L: TList<TWinControl>;
+    A, B: TWinControl;
+    C: TWinControl;
+  begin
+    L := TList<TWinControl>.Create;
+    try
+      for I := 0 to P.ControlCount - 1 do
+        if P.Controls[I] is TWinControl then
+        begin
+          C := TWinControl(P.Controls[I]);
+          if C.Visible and C.Enabled and not C.TabStop and Editable(C) and not InFooter(F, C) then
+            Res.Add(C.Name + ' not reachable (TabStop = False)');
+          if Participates(C) then
+            L.Add(C);
+        end;
+      L.Sort(TComparer<TWinControl>.Construct(
+        function(const X, Y: TWinControl): Integer
+        begin
+          Result := X.TabOrder - Y.TabOrder;
+        end));
+      for I := 1 to L.Count - 1 do
+      begin
+        A := L[I - 1];
+        B := L[I];
+        if (Abs(B.Top - A.Top) <= TOL) and (B.Left > A.Left) then Continue;   // aynı satırda sağa
+        if B.Top > A.Top + TOL then Continue;                                  // aşağı
+        if (B.Top < A.Top - TOL) and (B.Left >= A.Left + A.Width - TOL) then Continue;  // sağdaki sütunun başı
+        Res.Add(Format('%s -> %s', [A.Name, B.Name]));
+      end;
+      for I := 0 to P.ControlCount - 1 do
+        if (P.Controls[I] is TWinControl) and TWinControl(P.Controls[I]).Visible then
+          if P.Controls[I] is TPageControl then
+          begin
+            for var J := 0 to TPageControl(P.Controls[I]).PageCount - 1 do
+              if TPageControl(P.Controls[I]).Pages[J].TabVisible then
+                CheckParent(TPageControl(P.Controls[I]).Pages[J]);
+          end
+          else if not InFooter(F, P.Controls[I]) then
+            CheckParent(TWinControl(P.Controls[I]));
+    finally
+      L.Free;
+    end;
+  end;
+
+begin
+  Res := TStringList.Create;
+  try
+    CheckParent(F);
+    Res.Delimiter := ';';
+    Res.StrictDelimiter := True;
+    Result := StringReplace(Res.DelimitedText, ';', '; ', [rfReplaceAll]);
+  finally
+    Res.Free;
+  end;
+end;
+
 class function TUi.SwitchTabs(F: TForm): string;
 var
   L: TList<TControl>;
@@ -1078,6 +1170,8 @@ begin
           TUi.R(IfThen(TUi.HasError(D), 'FAIL', 'PASS'), 'new form', F.ClassName + ' ' + D);
           S := TUi.LayoutProblems(F);
           if S <> '' then TUi.R('FAIL', 'layout', S) else TUi.R('PASS', 'layout', '');
+          S := TUi.TabOrderProblems(F);
+          if S <> '' then TUi.R('FAIL', 'tab order', S) else TUi.R('PASS', 'tab order', '');
           S := TUi.CaptionProblems(F);
           if S <> '' then TUi.R('WARN', 'captions tr-TR', S);
           for Lang in Langs do

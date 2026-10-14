@@ -15,5 +15,6 @@ for m, u, s, e, d in rows:
 perm = [f"  if Want('{m}', '{e}') then TTester<{e}>.Perm('{m}', '{e}', {s}.Create, GPermMap);" for m,u,s,e,d in rows]
 tpl = open(os.path.join(here, 'IntegrationTest.tpl'), encoding='utf-8').read()
 out = tpl.replace('{{UNITS}}', ',\n  '.join(units)).replace('{{CALLS}}', '\n'.join(calls)).replace('{{PERMCALLS}}', '\n'.join(perm))
+out = out.replace('{{PORT}}', os.environ.get('THS_PG_PORT', '5432'))  # build.sh -> ../env.sh
 open(os.path.join(here, 'IntegrationTest.dpr'), 'w', encoding='utf-8-sig', newline='\r\n').write(out)
 print(len(rows), 'services')

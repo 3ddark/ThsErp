@@ -26,6 +26,7 @@ for mod in ['System', 'Employee', 'Account', 'Stock', 'Production', 'Finance', '
         calls.append("  if TUi.Want('%s', '%s') then\n    TUiTester<%s, %s>.Run('%s', %s.Create(Application, %s.Create, %s.Create));"
                      % (mod, frm, ent, svc, mod, frm, svc, ent))
 tpl = open(os.path.join(here, 'UiTest.tpl'), encoding='utf-8').read()
-out = tpl.replace('{{USES}}', ',\n  '.join(uses + ['FireDAC.Comp.Client', 'System.Rtti', 'Vcl.Dialogs', 'System.Generics.Collections', 'System.Variants', 'Vcl.Controls', 'Vcl.StdCtrls', 'Vcl.ExtCtrls', 'Vcl.Graphics', 'Vcl.Imaging.pngimage', "UiDriver in '%s'" % os.path.join(here, 'UiDriver.pas')])).replace('{{CALLS}}', '\n'.join(calls))
+out = tpl.replace('{{USES}}', ',\n  '.join(uses + ['FireDAC.Comp.Client', 'System.Rtti', 'Vcl.Dialogs', 'System.Generics.Collections', 'System.Variants', 'Vcl.Controls', 'Vcl.StdCtrls', 'Vcl.ExtCtrls', 'Vcl.Graphics', 'Vcl.Imaging.pngimage', 'System.JSON', 'System.StrUtils', "UiDriver in '%s'" % os.path.join(here, 'UiDriver.pas')])).replace('{{CALLS}}', '\n'.join(calls))
+out = out.replace('{{PORT}}', os.environ.get('THS_PG_PORT', '5432'))  # build.sh -> ../env.sh
 open(os.path.join(here, 'UiTest.dpr'), 'w', encoding='utf-8-sig', newline='\r\n').write(out)
 print(len(uses), 'units,', len(calls), 'list forms')

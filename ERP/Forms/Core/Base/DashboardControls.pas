@@ -114,6 +114,7 @@ type
     procedure DoPaint(G: TGPGraphics; W, H: Single); override;
   public
     procedure SetData(const AData: TDashTileData);
+    property Data: TDashTileData read FData;
   end;
 
   TDashChartKind = (dckColumns, dckLines);
@@ -147,6 +148,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure SetData(const AData: TDashChartData);
+    property Data: TDashChartData read FData;
   end;
 
 function IconFontName: string;
@@ -778,14 +780,20 @@ begin
     end;
   if (FData.Kind = dckLines) and (LMin < MaxDouble) and (LMax > LMin) then
   begin
-    V := (LMax - LMin) * 0.15;
-    LMin := Max(0, LMin - V);
-    LMax := LMax + V;
+    // veri aralığı + yuvarlak adım: alt sınır adımın katı, üst sınır = alt + 4 adım (maksimumu kapsar)
+    V := NiceCeil((LMax - LMin) * 1.3 / TICKS);
+    LMin := Max(0, Floor((LMin - (LMax - LMin) * 0.15) / V) * V);
+    while LMin + V * TICKS < LMax do
+      V := NiceCeil(V * 1.01);
+    LMax := LMin + V * TICKS;
   end
   else
   begin
     LMin := 0;
     LMax := NiceCeil(LMax);
+    // adet grafikleri: eksen etiketleri tam sayı
+    if (Pos('.', FData.ValueFormat) = 0) and (Frac(LMax / TICKS) <> 0) then
+      LMax := Ceil(LMax / TICKS) * TICKS;
   end;
   if LMax - LMin < 1E-9 then
     LMax := LMin + 1;
