@@ -89,8 +89,13 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
 - `sys_menu` (`menu_code` UNIQUE 100000-999999, generated `parent_code` FK → `sys_menu.menu_code`, `menu_key` UNIQUE,
   `action_name` UNIQUE = dashboard TAction name, `sys_permission_id` RESTRICT, `is_active`; CHECK: folders (`code % 100 = 0`)
   have no action / permission, screens have an action) + `sys_menu_translation` (`menu_name`, `keywords`) →
-  `vw_sys_menu` (locale CROSS JOIN pattern, `permission_code`). Read by `TSysMenuRepository` / `TSysMenuService`
-  (no CRUD screen yet). See `rules/forms.md` for the code scheme.
+  `vw_sys_menu` (locale CROSS JOIN pattern, `permission_code`, `permission_name`, `parent_path` "Module > Group").
+  `TSysMenuRepository` / `TSysMenuService` = CRUD of the maintenance screen (`TfrmSysMenus`, permission 1111) + tree read
+  (`GetMenu`: effective `IsActive` — a passive folder hides its children — and `Allowed`). Service rules: code range,
+  parent row exists, folder has no action / permission, screen has an action, code / key / action unique and immutable,
+  **no delete** (make the row passive). Empty translated name deletes that language's translation row (view → key).
+- `sys_user_setting` (per user `setting_key` / `setting_value`, UNIQUE) — UI settings; keys in `SysUserSetting.pas`
+  (`nav.visible`, `nav.width`, `nav.expanded`); `TSysUserSettingService` (current user, no permission).
 - `sys_user_menu` (per user + screen, UNIQUE; `is_favorite`, `open_count`, `last_opened_at`; both FKs CASCADE, no audit:
   high churn) — favorites / recently used of the left tree. Written with upserts by `TSysMenuRepository.SetFavorite` /
   `RegisterOpen` on the main connection (joins another screen's open transaction, like every other write).

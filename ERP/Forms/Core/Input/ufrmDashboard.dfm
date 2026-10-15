@@ -580,6 +580,12 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 64
       OnExecute = actsys_user_permission_templateExecute
     end
+    object actsys_menu: TAction
+      Category = 'System'
+      Caption = 'Menu Screens'
+      ImageIndex = 64
+      OnExecute = actsys_menuExecute
+    end
   end
   object tmrcheck_is_update_required: TTimer
     Enabled = False
@@ -677,6 +683,9 @@ inherited frmDashboard: TfrmDashboard
         end
         object mnisys_language: TMenuItem
           Action = actsys_language
+        end
+        object mnisys_menu: TMenuItem
+          Action = actsys_menu
         end
       end
     end

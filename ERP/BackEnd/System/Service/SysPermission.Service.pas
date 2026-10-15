@@ -37,6 +37,7 @@ const
   PERMISSION_SYS_GRID_FILTER              = 1108;
   PERMISSION_SYS_GRID_SORT                = 1109;
   PERMISSION_SYS_VIEW_TABLE               = 1110;
+  PERMISSION_SYS_MENU                     = 1111;
 
   // Employee
   PERMISSION_EMP_EMPLOYEE                 = 1021;   // + detaylar: ehliyet, dil bilgisi, adres

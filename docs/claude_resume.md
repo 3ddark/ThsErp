@@ -486,11 +486,29 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Test: entegrasyon CheckMenuPrefs (ekle / sayaç / çıkar / klasör reddi / başka kullanıcının tercihi görünmez, rollback);
   UI: son kullanılanlar, Ctrl+D ekle / çıkar (DB), seçim korunuyor, dil değişiminde klasör adı; UiTest-dashboard-fav.png.
 
+## Kalan menü işleri (2026-10-15, favoriler commit 5791656 sonrası)
+- DB (yedek scratchpad ths_erp_before_menu_admin.dump): yetki 1111 'menu' (system grubu, tr/en/de, yönetici şablonu tam,
+  tüm kullanıcılara sys_access_right), menü satırı 100910 "Menü Ekranları" (actsys_menu), vw_sys_menu + permission_name /
+  parent_path, sys_grid_column satırları (vw_sys_menu), `sys_user_setting` tablosu.
+- Bakım ekranı: SysMenu Domain'e TSysMenu + TSysMenuTranslation entity; SysMenu.Repository TRepository<TSysMenu> oldu
+  (CRUD + ağaç okuması + favoriler aynı sınıfta); SysMenu.Service TCrudService<TSysMenu> (yetki 1111; GetMenu / SetFavorite /
+  RegisterOpen aynen); SysMenu.Exception (7 kural). ufrmSysMenus (kopya yok) + ufrmSysMenu (iki çeviri kutusu: ad, arama
+  kelimeleri; kod / anahtar / action yalnız yeni kayıtta açık). Pasif satır: ağaçtan kalkar, action kapanır, pasif klasörün
+  altı da pasif (GetMenu etkin IsActive).
+- Komut paleti: NavigationTree.pas TNavCommandPalette (modal, kenarsız; kod / ad / yol / yıldız; boş sorguda favori + son
+  kullanılanlar) + TNavMenuPanel.Search / PathOf. Dashboard TApplicationEvents.OnShortCut: Ctrl+K ana ekranda ağaç araması,
+  başka ekranda palet, modal açıkken yok.
+- Panel durumu: SysUserSetting (Domain anahtar sabitleri / Repository / Service); dashboard LoadNavState (SetSession'da bir
+  kez) / SaveNavState (DoClose; form yok edilirken bağlantı kapalı olduğu için). TNavMenuPanel.ExpandedKeys.
+- Test: entegrasyon CheckMenuAdmin (13 kural adımı; beklenen hata sonrası servis transaction'ı geri aldığı için test yeni
+  transaction açar — ilk denemede bu yüzden test verisi canlı DB'ye sızdı, elle onarıldı) + generic/perm TSysMenu;
+  UI: palet (kod, kelime, boş sorgu), ExpandedKeys, kullanıcı ayarı, pasif klasör.
+
 ## KALDIĞIM YER (2026-10-15)
-- Sol menü ağacı + ekran kodları (commit 4fdeee5) ve favoriler / son kullanılanlar tamamlandı. Kullanıcı elle denemeli:
-  tıklama ile aç/kapa, arama, Ctrl+K, Esc, başlıkta kod, sağ tık / Ctrl+D favori, splitter, menü düğmesi, tema renkleri.
-- SONRAKİ ADIM (kalan menü işleri): her ekrandan Ctrl+K komut paleti, sys_menu bakım ekranı, panel genişliği / açık
-  klasörlerin kullanıcı bazında saklanması; ya da sls_ (satış) modülü (yeni ekranlar için sys_menu satırı zorunlu: 60xxxx). Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
+- Menü işleri tamamlandı: ağaç + kodlar (4fdeee5), favoriler / son kullanılanlar (5791656), bakım ekranı + Ctrl+K paleti +
+  panel durumu (bu oturum). Kullanıcı elle denemeli: Ctrl+K başka ekrandayken, Sistem > Ayarlar > Menü Ekranları
+  (ad / kelime / pasif), panel genişliği uygulama yeniden açılınca korunuyor mu.
+- SONRAKİ ADIM: sls_ (satış) modülü (yeni ekranlar için sys_menu satırı zorunlu: 60xxxx, modül satırı 600000 + gruplar). Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
   `%TEMP%\ths_it\bin\IntegrationTest.exe` ve `ERP/Tests/Ui/build.sh` + `%TEMP%\ths_ui\bin\UiTest.exe`.
 
 ## Kalan

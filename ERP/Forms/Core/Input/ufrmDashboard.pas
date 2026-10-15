@@ -5,7 +5,7 @@ interface
 {$I Ths.inc}
 
 uses
-  Winapi.Windows, System.Variants, System.Math, System.StrUtils, System.Actions,
+  Winapi.Windows, Winapi.Messages, System.Variants, System.Math, System.StrUtils, System.Actions,
   System.Classes, System.SysUtils, System.DateUtils, System.Rtti, System.Generics.Collections,
   System.ImageList, System.Threading, Winapi.ShellAPI, Vcl.Graphics, Vcl.Forms,
   Vcl.Controls, Vcl.Themes, Vcl.ComCtrls, Vcl.Menus, Vcl.ActnList, Vcl.AppEvnts,
@@ -18,6 +18,7 @@ uses
   AppContext, UserContext, UnitOfWork,
   SysDashboard, SysDashboard.Service, DashboardControls,
   SysMenu, SysMenu.Service, NavigationTree, ScreenCode,
+  ufrmSysMenus, SysUserSetting, SysUserSetting.Service,
   ufrmSysCities, SysCity.Service, SysCity,
   ufrmSysCountries, SysCountry.Service, SysCountry,
   ufrmSysCurrencies, SysCurrency.Service, SysCurrency,
@@ -298,6 +299,8 @@ type
     mnisys_permission_template: TMenuItem;
     mnisys_permission_template_right: TMenuItem;
     mnisys_user_permission_template: TMenuItem;
+    actsys_menu: TAction;
+    mnisys_menu: TMenuItem;
 
     procedure DynamicLangMenuItemClick(Sender: TObject);
     procedure BuildLanguageMenu;
@@ -423,6 +426,7 @@ type
     procedure actsys_permission_templateExecute(Sender: TObject);
     procedure actsys_permission_template_rightExecute(Sender: TObject);
     procedure actsys_user_permission_templateExecute(Sender: TObject);
+    procedure actsys_menuExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
     FF6Pressed: Boolean;
@@ -439,6 +443,12 @@ type
     FNavSplitter: TSplitter;
     FBtnNavToggle: TNavToggleButton;
     FActionCodes: TDictionary<string, Integer>;
+    FAppEvents: TApplicationEvents;
+    FNavStateLoaded: Boolean;
+    procedure AppShortCut(var Msg: TWMKey; var Handled: Boolean);
+    procedure ShowCommandPalette;
+    procedure LoadNavState;
+    procedure SaveNavState;
     procedure BuildNavPanel;
     procedure LoadMenu;
     procedure NavOpenItem(const AItem: TSysMenuItem);
@@ -458,6 +468,8 @@ type
     procedure KpiTimerTimer(Sender: TObject);
     procedure KpiScrollResize(Sender: TObject);
     procedure LayoutKpiCards;
+  protected
+    procedure DoClose(var Action: TCloseAction); override;
   published
     procedure btnCloseClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
@@ -1101,6 +1113,11 @@ begin
   TfrmSysUserPermissionTemplates.Create(Self, TSysUserPermissionTemplateService.Create, TSysUserPermissionTemplate.Create).Show;
 end;
 
+procedure TfrmDashboard.actsys_menuExecute(Sender: TObject);
+begin
+  TfrmSysMenus.Create(Self, TSysMenuService.Create, TSysMenu.Create).Show;
+end;
+
 procedure TfrmDashboard.actsys_userExecute(Sender: TObject);
 begin
   TfrmSysUsers.Create(Self, TSysUserService.Create, TSysUser.Create).Show;
@@ -1452,6 +1469,8 @@ begin
 
           if Assigned(actsys_language) then
             actsys_language.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionLanguages, 'Languages');
+          if Assigned(actsys_menu) then
+            actsys_menu.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionMenus, 'Menu Screens');
   {$ENDREGION}
 
   {$REGION 'PurchasingMenu'}
@@ -1664,6 +1683,9 @@ begin
   FActionCodes := TDictionary<string, Integer>.Create;
   actlstMain.OnExecute := ActionListExecute;
   BuildNavPanel;
+  // Ctrl+K her ekrandan (komut paleti)
+  FAppEvents := TApplicationEvents.Create(Self);
+  FAppEvents.OnShortCut := AppShortCut;
 end;
 
 procedure TfrmDashboard.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -1867,9 +1889,10 @@ begin
       Continue;
     end;
     FActionCodes.AddOrSetValue(LItem.ActionName, LItem.MenuCode);
-    // ResetSession butonları doğrudan pasif yapabiliyor; değer değişmezse action istemcilere yaymaz
-    TAction(LComp).Enabled := not LItem.Allowed;
-    TAction(LComp).Enabled := LItem.Allowed;
+    // ResetSession butonları doğrudan pasif yapabiliyor; değer değişmezse action istemcilere yaymaz.
+    // Pasif menü satırının (ya da pasif klasörün altındaki) ekranı da kapalı.
+    TAction(LComp).Enabled := not (LItem.Allowed and LItem.IsActive);
+    TAction(LComp).Enabled := LItem.Allowed and LItem.IsActive;
   end;
 
   if Assigned(FNav) then
@@ -1881,6 +1904,9 @@ procedure TfrmDashboard.SetSession;
 //  LRights: TSysErisimHakki;
 //  n1: Integer;
 begin
+  // sol menü genişliği / görünürlüğü / açık klasörler: oturum başında bir kez (menü yüklenmeden önce)
+  if not FNavStateLoaded then
+    LoadNavState;
   ResetSession(pnlMain);
   ApplyActionPermissions;
   // ana ekran göstergeleri: yalnız okuma yetkisi olan modüller (servis filtreler)
@@ -2077,6 +2103,113 @@ begin
   FBtnNavToggle.AlignWithMargins := True;
   FBtnNavToggle.Margins.SetBounds(6, 5, 0, 5);
   FBtnNavToggle.OnClick := NavToggleClick;
+end;
+
+// Ctrl+K: ana ekrandayken sol menünün araması (menü gizliyse palet), başka bir ekrandayken komut paleti.
+// Modal pencere (seçim listesi, mesaj, paletin kendisi) açıkken kullanılmaz.
+procedure TfrmDashboard.AppShortCut(var Msg: TWMKey; var Handled: Boolean);
+begin
+  if (Msg.CharCode <> Ord('K')) or (GetKeyState(VK_CONTROL) >= 0) or (GetKeyState(VK_SHIFT) < 0)
+    or (GetKeyState(VK_MENU) < 0) then
+    Exit;
+  if not FNavStateLoaded or not Assigned(FNav) then
+    Exit;
+  if Assigned(Screen.ActiveForm) and (fsModal in Screen.ActiveForm.FormState) then
+    Exit;
+  Handled := True;
+  if (Screen.ActiveForm = Self) and FNav.Visible then
+    FNav.FocusSearch
+  else
+    ShowCommandPalette;
+end;
+
+procedure TfrmDashboard.ShowCommandPalette;
+var
+  LItem: TSysMenuItem;
+  LOwner: TComponent;
+begin
+  LOwner := Screen.ActiveForm;
+  if LOwner = nil then
+    LOwner := Self;
+  if TNavCommandPalette.Execute(LOwner, FNav,
+    TLocalizationManager.Translate(TLangKeys.TDashboard.NavPaletteHint, 'Type the name or code of the screen to open — Enter opens, Esc closes'),
+    TLocalizationManager.Translate(TLangKeys.TDashboard.NavNoResult, 'No matching screen'), LItem) then
+    NavOpenItem(LItem);
+end;
+
+procedure TfrmDashboard.LoadNavState;
+var
+  LSvc: TSysUserSettingService;
+  LValues: TDictionary<string, string>;
+  LValue, LPart: string;
+  LKeys: TArray<Integer>;
+begin
+  if not TAppContext.IsInitialized or not TAppContext.Instance.IsAuthenticated or not Assigned(FNav) then
+    Exit;
+  FNavStateLoaded := True;
+  try
+    LSvc := TSysUserSettingService.Create;
+    try
+      LValues := LSvc.GetValues('nav.');
+      try
+        if LValues.TryGetValue(USER_SETTING_NAV_WIDTH, LValue) then
+          FNav.Width := EnsureRange(StrToIntDef(LValue, FNav.Width), 180, 600);
+        if LValues.TryGetValue(USER_SETTING_NAV_EXPANDED, LValue) then
+        begin
+          LKeys := [];
+          for LPart in LValue.Split([','], TStringSplitOptions.ExcludeEmpty) do
+            if StrToIntDef(LPart, 0) > 0 then
+              LKeys := LKeys + [StrToInt(LPart)];
+          FNav.ExpandedKeys := LKeys;
+        end;
+        if LValues.TryGetValue(USER_SETTING_NAV_VISIBLE, LValue) and (LValue = '0') and FNav.Visible then
+          NavToggleClick(nil);
+      finally
+        LValues.Free;
+      end;
+    finally
+      LSvc.Free;
+    end;
+  except
+    on E: Exception do
+      GLogger.ErrorFmt('Menü ayarları okunamadı: %s', [E.Message]);
+  end;
+end;
+
+procedure TfrmDashboard.SaveNavState;
+var
+  LSvc: TSysUserSettingService;
+  LKeys: TArray<Integer>;
+  LText: string;
+  LKey: Integer;
+begin
+  if not FNavStateLoaded or not Assigned(FNav) then
+    Exit;
+  try
+    LSvc := TSysUserSettingService.Create;
+    try
+      LSvc.SetValue(USER_SETTING_NAV_VISIBLE, IfThen(FNav.Visible, '1', '0'));
+      LSvc.SetValue(USER_SETTING_NAV_WIDTH, IntToStr(FNav.Width));
+      LKeys := FNav.ExpandedKeys;
+      LText := '';
+      for LKey in LKeys do
+        LText := LText + IfThen(LText = '', '', ',') + IntToStr(LKey);
+      LSvc.SetValue(USER_SETTING_NAV_EXPANDED, LText);
+    finally
+      LSvc.Free;
+    end;
+  except
+    on E: Exception do
+      GLogger.ErrorFmt('Menü ayarları kaydedilemedi: %s', [E.Message]);
+  end;
+end;
+
+// Uygulama kapanırken (ana form) sol menü durumu kaydedilir: bağlantı form yok edilmeden önce kapanır
+procedure TfrmDashboard.DoClose(var Action: TCloseAction);
+begin
+  inherited;
+  if Action <> caNone then
+    SaveNavState;
 end;
 
 procedure TfrmDashboard.NavToggleClick(Sender: TObject);

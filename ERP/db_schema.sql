@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict bEX4YyhUZr0sVBcHSb0tkRwQhgtm3Ur4LHZbdhcDD99VGXL4372rMcPvfHwfaCX
+\restrict MGBs1M2JeE4N05jM9ppxFKas7j63kVbfv9bpuBNvmHorssIdqCn2m9ithXc0UqY
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -4458,6 +4458,41 @@ ALTER TABLE public.sys_user_permission_template ALTER COLUMN id ADD GENERATED AL
 
 
 --
+-- Name: sys_user_setting; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_user_setting (
+    id bigint NOT NULL,
+    sys_user_id bigint NOT NULL,
+    setting_key character varying(64) NOT NULL,
+    setting_value text
+);
+
+
+ALTER TABLE public.sys_user_setting OWNER TO ths_admin;
+
+--
+-- Name: TABLE sys_user_setting; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.sys_user_setting IS 'Kullanıcı bazında arayüz ayarları (anahtar / değer), ör. nav.width, nav.visible, nav.expanded';
+
+
+--
+-- Name: sys_user_setting_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_user_setting ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_user_setting_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sys_uygulama_ayari_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
@@ -6697,11 +6732,26 @@ CREATE VIEW public.vw_sys_menu AS
     m.is_active,
     COALESCE(t.menu_name, m.menu_key) AS menu_name,
     t.keywords,
-    l.locale
-   FROM (((public.sys_menu m
+    l.locale,
+    COALESCE(pt.permission_name, p.permission_key) AS permission_name,
+    NULLIF(concat_ws(' > '::text,
+        CASE
+            WHEN ((m.menu_code % 10000) <> 0) THEN COALESCE(mt.menu_name, mm.menu_key)
+            ELSE NULL::character varying
+        END,
+        CASE
+            WHEN ((m.menu_code % 100) <> 0) THEN COALESCE(gt.menu_name, gm.menu_key)
+            ELSE NULL::character varying
+        END), ''::text) AS parent_path
+   FROM ((((((((public.sys_menu m
      CROSS JOIN public.sys_language l)
      LEFT JOIN public.sys_menu_translation t ON (((t.sys_menu_id = m.id) AND (t.sys_language_id = l.id))))
-     LEFT JOIN public.sys_permission p ON ((p.id = m.sys_permission_id)));
+     LEFT JOIN public.sys_permission p ON ((p.id = m.sys_permission_id)))
+     LEFT JOIN public.sys_permission_translation pt ON (((pt.sys_permission_id = p.id) AND (pt.sys_language_id = l.id))))
+     LEFT JOIN public.sys_menu mm ON ((mm.menu_code = ((m.menu_code / 10000) * 10000))))
+     LEFT JOIN public.sys_menu_translation mt ON (((mt.sys_menu_id = mm.id) AND (mt.sys_language_id = l.id))))
+     LEFT JOIN public.sys_menu gm ON ((gm.menu_code = ((m.menu_code / 100) * 100))))
+     LEFT JOIN public.sys_menu_translation gt ON (((gt.sys_menu_id = gm.id) AND (gt.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_sys_menu OWNER TO ths_admin;
@@ -8611,6 +8661,22 @@ ALTER TABLE ONLY public.sys_user_permission_template
 
 ALTER TABLE ONLY public.sys_user
     ADD CONSTRAINT sys_user_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_user_setting sys_user_setting_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_setting
+    ADD CONSTRAINT sys_user_setting_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_user_setting sys_user_setting_user_key_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_setting
+    ADD CONSTRAINT sys_user_setting_user_key_key UNIQUE (sys_user_id, setting_key);
 
 
 --
@@ -11468,6 +11534,14 @@ ALTER TABLE ONLY public.sys_user_permission_template
 
 
 --
+-- Name: sys_user_setting sys_user_setting_sys_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_setting
+    ADD CONSTRAINT sys_user_setting_sys_user_id_fkey FOREIGN KEY (sys_user_id) REFERENCES public.sys_user(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pg_database_owner
 --
 
@@ -11599,5 +11673,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict bEX4YyhUZr0sVBcHSb0tkRwQhgtm3Ur4LHZbdhcDD99VGXL4372rMcPvfHwfaCX
+\unrestrict MGBs1M2JeE4N05jM9ppxFKas7j63kVbfv9bpuBNvmHorssIdqCn2m9ithXc0UqY
 

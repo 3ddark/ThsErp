@@ -382,6 +382,16 @@
         <DCCReference Include="BackEnd\System\Domain\SysMenu.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysMenu.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysMenu.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysMenu.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysUserSetting.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysUserSetting.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysUserSetting.Service.pas"/>
+        <DCCReference Include="Forms\System\Input\ufrmSysMenu.pas">
+            <Form>frmSysMenu</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\Output\ufrmSysMenus.pas">
+            <Form>frmSysMenus</Form>
+        </DCCReference>
         <DCCReference Include="Forms\Core\Base\NavigationTree.pas"/>
         <DCCReference Include="Forms\Core\Base\ScreenCode.pas"/>
         <DCCReference Include="Forms\Core\Base\DashboardControls.pas"/>

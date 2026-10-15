@@ -374,6 +374,82 @@ var
     end;
     Nav.SearchBox.Text := '';
     TUi.Pump;
+
+    // komut paleti: kod öneki, seçim, boş sorguda son kullanılanlar
+    var Pal := TNavCommandPalette.CreatePalette(F, Nav, 'hint', 'empty');
+    try
+      var PItem: TSysMenuItem;
+      Pal.SearchBox.Text := '3003';
+      TUi.Pump;
+      if (Pal.List.Count = 5) and Pal.Selected(PItem) and (PItem.MenuCode = 300301) then
+        TUi.R('PASS', 'palette code search', IntToStr(Pal.List.Count) + ' -> ' + PItem.MenuName)
+      else
+        TUi.R('FAIL', 'palette code search', IntToStr(Pal.List.Count));
+      Pal.SearchBox.Text := 'havale';
+      TUi.Pump;
+      if (Pal.List.Count = 1) and Pal.Selected(PItem) and (PItem.MenuCode = 300201) then
+        TUi.R('PASS', 'palette keyword search', PItem.MenuName)
+      else
+        TUi.R('FAIL', 'palette keyword search', IntToStr(Pal.List.Count));
+      Pal.SearchBox.Text := '';
+      TUi.Pump;
+      if (Pal.List.Count > 0) and Pal.Selected(PItem) and (PItem.LastOpenedAt > 0) then
+        TUi.R('PASS', 'palette recent when empty', IntToStr(Pal.List.Count) + ', first ' + PItem.MenuName)
+      else
+        TUi.R('FAIL', 'palette recent when empty', IntToStr(Pal.List.Count));
+    finally
+      Pal.Free;
+    end;
+
+    // açık klasörler dışarıdan verilebilir / okunabilir (kullanıcı ayarı olarak saklanır)
+    Nav.ExpandedKeys := [400000, 400900];
+    N := FirstModuleNode;
+    while Assigned(N) and (N.Text <> MenuName(400000)) do
+      N := N.getNextSibling;
+    if Assigned(N) and N.Expanded and (N.getFirstChild <> nil) and not N.getFirstChild.Expanded
+      and (Length(Nav.ExpandedKeys) >= 2) then
+      TUi.R('PASS', 'nav expanded keys', NodeText(N))
+    else
+      TUi.R('FAIL', 'nav expanded keys', NodeText(N));
+    Nav.ExpandedKeys := [];
+
+    // kullanıcı ayarı kaydı (sys_user_setting)
+    var USvc := TSysUserSettingService.Create;
+    try
+      USvc.SetValue(USER_SETTING_NAV_EXPANDED, '400000,1');
+      var UVals := USvc.GetValues('nav.');
+      try
+        if UVals.ContainsKey(USER_SETTING_NAV_EXPANDED) and (UVals[USER_SETTING_NAV_EXPANDED] = '400000,1') then
+          TUi.R('PASS', 'user setting roundtrip', UVals[USER_SETTING_NAV_EXPANDED])
+        else
+          TUi.R('FAIL', 'user setting roundtrip', '');
+      finally
+        UVals.Free;
+      end;
+    finally
+      USvc.Free;
+    end;
+
+    // pasif klasör: altındaki ekranlar ağaçtan kalkar, action kapanır
+    TUnitOfWork.Instance.Connection.ExecSQL('UPDATE sys_menu SET is_active = false WHERE menu_code = 300300');
+    try
+      TUi.Call(F, 'RefreshUserPermissions', [False]);
+      TUi.Pump;
+      L := NavScreens;
+      try
+        if (L.IndexOf(MenuName(300301)) < 0) and (L.IndexOf(MenuName(300201)) >= 0)
+          and not TAction(F.FindComponent('actfin_customer_cheques')).Enabled then
+          TUi.R('PASS', 'passive folder hides screens', IntToStr(L.Count))
+        else
+          TUi.R('FAIL', 'passive folder hides screens', IntToStr(L.Count));
+      finally
+        L.Free;
+      end;
+    finally
+      TUnitOfWork.Instance.Connection.ExecSQL('UPDATE sys_menu SET is_active = true WHERE menu_code = 300300');
+      TUi.Call(F, 'RefreshUserPermissions', [False]);
+      TUi.Pump;
+    end;
   end;
 
   function Scroll: TScrollBox;

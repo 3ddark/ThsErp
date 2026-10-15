@@ -10,7 +10,7 @@ uses
   Ths.Language.Cache, SysGridColumn.Cache, SysUser, SysUser.Repository, Logger,
   ItSpecific in 'ItSpecific.pas',
   ItModules in 'ItModules.pas',
-  SysMenu, SysMenu.Repository, SysMenu.Service,
+  SysMenu.Repository, SysMenu.Exception,
   {{UNITS}};
 
 type
@@ -633,6 +633,167 @@ begin
   end;
 end;
 
+// Menü bakım ekranı kuralları (servis, transaction + rollback)
+procedure CheckMenuAdmin;
+var
+  LSvc: TSysMenuService;
+  LMenu: TSysMenu;
+  LNew: TSysMenu;
+  LItems: TArray<TSysMenuItem>;
+  LItem: TSysMenuItem;
+
+  function Find(ACode: Integer): TSysMenuItem;
+  begin
+    Result := Default(TSysMenuItem);
+    for var I in LItems do
+      if I.MenuCode = ACode then
+        Exit(I);
+  end;
+
+  function Load(ACode: Integer): TSysMenu;
+  var
+    LFilter: TFilterCriteria;
+  begin
+    LFilter := TFilterCriteria.Create;
+    try
+      LFilter.Add(TFilterCriterion.New('menu_code', '=', TValue.From<Integer>(ACode)));
+      Result := LSvc.FindOne(LFilter, False);
+    finally
+      LFilter.Free;
+    end;
+  end;
+
+  function Trans(AMenu: TSysMenu; const ALocale: string): TSysMenuTranslation;
+  begin
+    Result := nil;
+    for var T in AMenu.Translations do
+      if Assigned(T.SysLanguage) and SameText(T.SysLanguage.Locale, ALocale) then
+        Exit(T);
+  end;
+
+  procedure Check(ACondition: Boolean; const AStep, AMsg: string);
+  begin
+    if ACondition then
+      Report('PASS', 'menu', 'TSysMenu', AStep, AMsg)
+    else
+      Report('FAIL', 'menu', 'TSysMenu', AStep, AMsg);
+  end;
+
+  // AProc bir ESysMenuException alt sınıfı fırlatmalı
+  procedure Expect(AClass: ExceptClass; const AStep: string; AProc: TProc);
+  begin
+    try
+      AProc();
+      Check(False, AStep, 'accepted');
+    except
+      on E: Exception do
+        Check(E is AClass, AStep, E.ClassName + ': ' + E.Message);
+    end;
+    // servis hata alınca açık transaction'ı geri alır: sonraki adımlar yine rollback edilecek transaction'da
+    if not TUnitOfWork.Instance.InTransaction then
+      TUnitOfWork.Instance.BeginTransaction;
+  end;
+
+begin
+  LSvc := TSysMenuService.Create;
+  TUnitOfWork.Instance.BeginTransaction;
+  try
+    try
+      // ad + anahtar kelime (tr-TR) -> ağaçta yeni ad ve kelime
+      LMenu := Load(300301);
+      try
+        Trans(LMenu, 'tr-TR').MenuName := 'IT Müşteri Çekleri';
+        Trans(LMenu, 'tr-TR').Keywords := 'itkelime çek';
+        LSvc.BusinessUpdate(LMenu, False, False, False);
+      finally
+        LMenu.Free;
+      end;
+      LItems := LSvc.GetMenu;
+      LItem := Find(300301);
+      Check((LItem.MenuName = 'IT Müşteri Çekleri') and (Pos('itkelime', LItem.Keywords) > 0), 'update name + keywords',
+        LItem.MenuName + ' / ' + LItem.Keywords);
+
+      // değiştirilemez alanlar
+      LMenu := Load(300301);
+      try
+        LMenu.MenuCode := 300309;
+        Expect(ESysMenuExceptionImmutable, 'code immutable', procedure begin LSvc.BusinessUpdate(LMenu, False, False, False); end);
+        LMenu.MenuCode := 300301;
+        LMenu.ActionName := 'actfin_own_cheques_x';
+        Expect(ESysMenuExceptionImmutable, 'action immutable', procedure begin LSvc.BusinessUpdate(LMenu, False, False, False); end);
+        LMenu.ActionName := 'actfin_customer_cheques';
+        Expect(ESysMenuExceptionNoDelete, 'delete refused', procedure begin LSvc.BusinessDelete(LMenu, False, False, False); end);
+      finally
+        LMenu.Free;
+      end;
+
+      // klasörü pasif yapmak: satır pasif (alt ekranlar ağaçta gizlenir, action kapanır)
+      LMenu := Load(300300);
+      try
+        LMenu.IsActive := False;
+        LSvc.BusinessUpdate(LMenu, False, False, False);
+      finally
+        LMenu.Free;
+      end;
+      LItems := LSvc.GetMenu;
+      Check(not Find(300300).IsActive and not Find(300301).IsActive and Find(300201).IsActive, 'folder passive hides children',
+        'effective flags');
+
+      // boş ad -> çeviri silinir, görünüm anahtara düşer
+      LMenu := Load(300302);
+      try
+        Trans(LMenu, 'tr-TR').MenuName := '';
+        LSvc.BusinessUpdate(LMenu, False, False, False);
+      finally
+        LMenu.Free;
+      end;
+      LItems := LSvc.GetMenu;
+      Check(Find(300302).MenuName = 'finance.own-cheques', 'empty name falls back to key', Find(300302).MenuName);
+
+      // yeni satır kuralları
+      LNew := TSysMenu.Create;
+      try
+        LNew.MenuCode := 300306;
+        LNew.MenuKey := 'it.folder-with-action';
+        LNew.ActionName := '';
+        Expect(ESysMenuExceptionFolderRule, 'screen needs action', procedure begin LSvc.BusinessInsert(LNew, False, False, False); end);
+        LNew.MenuCode := 300700;
+        LNew.ActionName := 'act_it_x';
+        Expect(ESysMenuExceptionFolderRule, 'folder has no action', procedure begin LSvc.BusinessInsert(LNew, False, False, False); end);
+        LNew.MenuCode := 390101;
+        Expect(ESysMenuExceptionParentMissing, 'parent missing', procedure begin LSvc.BusinessInsert(LNew, False, False, False); end);
+        LNew.MenuCode := 12345;
+        Expect(ESysMenuExceptionCodeRange, 'code range', procedure begin LSvc.BusinessInsert(LNew, False, False, False); end);
+        LNew.MenuCode := 300306;
+        LNew.ActionName := 'actfin_cheque_notes';
+        Expect(ESysMenuExceptionActionUnique, 'action unique', procedure begin LSvc.BusinessInsert(LNew, False, False, False); end);
+        LNew.ActionName := 'act_it_new_screen';
+        LNew.MenuKey := 'finance.customer-cheques';
+        Expect(ESysMenuExceptionKeyUnique, 'key unique', procedure begin LSvc.BusinessInsert(LNew, False, False, False); end);
+        LNew.MenuKey := 'it.new-screen';
+        LNew.Translations := TObjectList<TSysMenuTranslation>.Create(True);
+        var T := TSysMenuTranslation.Create;
+        T.SysLanguage := TSysLanguage.Create;
+        T.SysLanguage.Locale := 'tr-TR';
+        T.MenuName := 'IT Yeni Ekran';
+        LNew.Translations.Add(T);
+        LSvc.BusinessInsert(LNew, False, False, False);
+        LItems := LSvc.GetMenu;
+        Check((Find(300306).MenuName = 'IT Yeni Ekran') and (Find(300306).ParentCode = 300300), 'insert screen',
+          Format('%s parent %d', [Find(300306).MenuName, Find(300306).ParentCode]));
+      finally
+        LNew.Free;
+      end;
+    except
+      on E: Exception do Report('FAIL', 'menu', 'TSysMenu', 'admin', E.ClassName + ': ' + E.Message);
+    end;
+  finally
+    if TUnitOfWork.Instance.InTransaction then
+      TUnitOfWork.Instance.Rollback;
+    LSvc.Free;
+  end;
+end;
+
 procedure RunGeneric;
 begin
 {{CALLS}}
@@ -677,6 +838,7 @@ begin
       begin
         CheckMenu('super user', True);
         CheckMenuPrefs;
+        CheckMenuAdmin;
         // non super user (TEST, id 4)
         Ctx.User := URepo.FindById(TValue.From<Int64>(4), False);
         LoadPermMap(4);

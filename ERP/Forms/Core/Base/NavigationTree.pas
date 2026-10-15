@@ -6,7 +6,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, Winapi.CommCtrl, System.SysUtils, System.Classes, System.Math,
-  System.Generics.Collections, System.Generics.Defaults, System.Character, Vcl.Graphics, Vcl.Controls, Vcl.StdCtrls,
+  System.Types, System.Generics.Collections, System.Generics.Defaults, System.Character, Vcl.Graphics, Vcl.Controls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.Themes, Vcl.Forms, Vcl.Menus,
   SysMenu;
 
@@ -54,6 +54,7 @@ type
     FEmpty: TLabel;
     FItems: TArray<TSysMenuItem>;
     FHaystack: TArray<string>;
+    FPaths: TArray<string>;
     FExpanded: TList<Integer>;
     FFilter: string;
     FOnOpenItem: TNavOpenEvent;
@@ -71,6 +72,9 @@ type
     procedure ToggleFavorite(ANode: TTreeNode);
     procedure PopupShow(Sender: TObject);
     procedure MniFavoriteClick(Sender: TObject);
+    function IsVisibleScreen(AIndex: Integer): Boolean;
+    function GetExpandedKeys: TArray<Integer>;
+    procedure SetExpandedKeys(const AValue: TArray<Integer>);
     function FindItem(ACode: Integer): Integer;
     function Matches(AIndex: Integer; const ATokens: TArray<string>; ADigits: Boolean): Boolean;
     function FirstScreenNode: TTreeNode;
@@ -97,6 +101,13 @@ type
     procedure MarkOpened(AMenuCode: Integer);
     // düğüm Favoriler / Son Kullanılanlar altında mı (kısayol kopyası)
     function IsShortcutNode(ANode: TTreeNode): Boolean;
+    // komut paleti: görünür ekranlar; sorgu boşsa favoriler + son kullanılanlar, doluysa eşleşenler
+    // (favori, açılma sayısı, kod sırasıyla), en çok AMax
+    function Search(const AQuery: string; AMax: Integer): TArray<TSysMenuItem>;
+    // "Finans > Çek / Senet"
+    function PathOf(AMenuCode: Integer): string;
+    // açık klasörler (menü kodları + kısayol klasörleri): kullanıcı ayarı olarak saklanır
+    property ExpandedKeys: TArray<Integer> read GetExpandedKeys write SetExpandedKeys;
     procedure FocusSearch;
     // Esc: arama doluysa temizler (True = tuş kullanıldı)
     function HandleEscape: Boolean;
@@ -105,6 +116,32 @@ type
     property OnToggleFavorite: TNavFavoriteEvent read FOnToggleFavorite write FOnToggleFavorite;
     property SearchBox: TSearchBox read FSearch;
     property Tree: TNavTreeView read FTree;
+  end;
+
+  // Komut paleti (Ctrl+K, her ekrandan): arama kutusu + sonuç listesi; Enter açar, Esc / odak kaybı kapatır.
+  // Modal açılır; seçilen ekran dönüş değeridir (ekranı çağıran açar). Sorgu sol menüyle aynı kurallarla aranır.
+  TNavCommandPalette = class(TForm)
+  private
+    FNav: TNavMenuPanel;
+    FSearch: TSearchBox;
+    FList: TListBox;
+    FEmpty: TLabel;
+    FResults: TArray<TSysMenuItem>;
+    procedure Refresh;
+    procedure SearchChange(Sender: TObject);
+    procedure SearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure SearchKeyPress(Sender: TObject; var Key: Char);
+    procedure ListDblClick(Sender: TObject);
+    procedure ListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+    procedure FormDeactivate(Sender: TObject);
+    procedure Accept;
+  public
+    constructor CreatePalette(AOwner: TComponent; ANav: TNavMenuPanel; const AHint, AEmptyText: string);
+    function Selected(out AItem: TSysMenuItem): Boolean;
+    property SearchBox: TSearchBox read FSearch;
+    property List: TListBox read FList;
+    class function Execute(AOwner: TComponent; ANav: TNavMenuPanel; const AHint, AEmptyText: string;
+      out AItem: TSysMenuItem): Boolean;
   end;
 
   // Arama için sadeleştirme: küçük harf, Türkçe / Almanca / Fransızca harfler ASCII karşılığına
@@ -406,20 +443,93 @@ var
 begin
   RememberExpanded;
   FItems := AItems;
-  // aranan metin: kod + ad + anahtar kelimeler + üst klasör adları (klasör adıyla aranınca içi gelir)
+  // aranan metin: kod + ad + anahtar kelimeler + üst klasör adları (klasör adıyla aranınca içi gelir);
+  // IsActive servisten etkin değer olarak gelir (pasif klasörün altındakiler de pasif)
   SetLength(FHaystack, Length(FItems));
+  SetLength(FPaths, Length(FItems));
   for I := 0 to High(FItems) do
   begin
     FHaystack[I] := FItems[I].CodeText + ' ' + FItems[I].MenuName + ' ' + FItems[I].Keywords;
+    FPaths[I] := '';
     LParent := FindItem(FItems[I].ParentCode);
     while LParent >= 0 do
     begin
       FHaystack[I] := FHaystack[I] + ' ' + FItems[LParent].MenuName;
+      if FPaths[I] = '' then
+        FPaths[I] := FItems[LParent].MenuName
+      else
+        FPaths[I] := FItems[LParent].MenuName + ' > ' + FPaths[I];
       LParent := FindItem(FItems[LParent].ParentCode);
     end;
     FHaystack[I] := ' ' + NavNormalize(FHaystack[I]);
   end;
   Rebuild;
+end;
+
+function TNavMenuPanel.IsVisibleScreen(AIndex: Integer): Boolean;
+begin
+  Result := not FItems[AIndex].IsFolder and FItems[AIndex].Allowed and FItems[AIndex].IsActive;
+end;
+
+function TNavMenuPanel.PathOf(AMenuCode: Integer): string;
+var
+  I: Integer;
+begin
+  I := FindItem(AMenuCode);
+  if I >= 0 then
+    Result := FPaths[I]
+  else
+    Result := '';
+end;
+
+function TNavMenuPanel.Search(const AQuery: string; AMax: Integer): TArray<TSysMenuItem>;
+var
+  LTokens: TArray<string>;
+  LDigits: Boolean;
+  LList: TList<Integer>;
+  I: Integer;
+begin
+  Result := [];
+  LTokens := NavNormalize(Trim(AQuery)).Split([' '], TStringSplitOptions.ExcludeEmpty);
+  LDigits := IsAllDigits(Trim(AQuery));
+  LList := TList<Integer>.Create;
+  try
+    for I := 0 to High(FItems) do
+      if IsVisibleScreen(I) then
+        if (Length(LTokens) > 0) and Matches(I, LTokens, LDigits) then
+          LList.Add(I)
+        else if (Length(LTokens) = 0) and (FItems[I].IsFavorite or (FItems[I].LastOpenedAt > 0)) then
+          LList.Add(I);
+    LList.Sort(TComparer<Integer>.Construct(
+      function(const A, B: Integer): Integer
+      begin
+        Result := Ord(FItems[B].IsFavorite) - Ord(FItems[A].IsFavorite);
+        if (Result = 0) and (Length(LTokens) = 0) then
+          Result := CompareValue(FItems[B].LastOpenedAt, FItems[A].LastOpenedAt);
+        if Result = 0 then
+          Result := FItems[B].OpenCount - FItems[A].OpenCount;
+        if Result = 0 then
+          Result := FItems[A].MenuCode - FItems[B].MenuCode;
+      end));
+    for I := 0 to Min(LList.Count, AMax) - 1 do
+      Result := Result + [FItems[LList[I]]];
+  finally
+    LList.Free;
+  end;
+end;
+
+function TNavMenuPanel.GetExpandedKeys: TArray<Integer>;
+begin
+  RememberExpanded;
+  Result := FExpanded.ToArray;
+end;
+
+procedure TNavMenuPanel.SetExpandedKeys(const AValue: TArray<Integer>);
+begin
+  FExpanded.Clear;
+  FExpanded.AddRange(AValue);
+  if Length(FItems) > 0 then
+    Rebuild;
 end;
 
 function TNavMenuPanel.FindItem(ACode: Integer): Integer;
@@ -564,7 +674,7 @@ begin
     begin
       LFolder := nil;
       for I := 0 to High(FItems) do
-        if FItems[I].IsFavorite and FItems[I].Allowed and not FItems[I].IsFolder then
+        if FItems[I].IsFavorite and IsVisibleScreen(I) then
         begin
           if LFolder = nil then
             LFolder := FTree.Items.AddChildObject(nil, FTextFavorites, Pointer(NativeInt(DATA_FAVORITES)));
@@ -574,7 +684,7 @@ begin
       LRecent := TList<Integer>.Create;
       try
         for I := 0 to High(FItems) do
-          if (FItems[I].LastOpenedAt > 0) and FItems[I].Allowed and not FItems[I].IsFolder then
+          if (FItems[I].LastOpenedAt > 0) and IsVisibleScreen(I) then
             LRecent.Add(I);
         LRecent.Sort(TComparer<Integer>.Construct(
           function(const A, B: Integer): Integer
@@ -595,7 +705,7 @@ begin
     end;
 
     for I := 0 to High(FItems) do
-      if not FItems[I].IsFolder and FItems[I].Allowed and Matches(I, LTokens, LDigits) then
+      if IsVisibleScreen(I) and Matches(I, LTokens, LDigits) then
         EnsureNode(I);
 
     LNode := FTree.Items.GetFirstNode;
@@ -1004,6 +1114,250 @@ end;
 function TNavMenuPanel.ContainsFocus: Boolean;
 begin
   Result := FSearch.Focused or FTree.Focused;
+end;
+
+{ TNavCommandPalette }
+
+const
+  PALETTE_MAX = 60;
+
+constructor TNavCommandPalette.CreatePalette(AOwner: TComponent; ANav: TNavMenuPanel; const AHint, AEmptyText: string);
+var
+  LFrame: TPanel;
+begin
+  inherited CreateNew(AOwner);
+  FNav := ANav;
+  BorderStyle := bsNone;
+  Position := poDesigned;
+  Width := 660;
+  Height := 430;
+  KeyPreview := True;
+  OnDeactivate := FormDeactivate;
+
+  // 1 px çerçeve
+  LFrame := TPanel.Create(Self);
+  LFrame.Parent := Self;
+  LFrame.Align := alClient;
+  LFrame.BevelOuter := bvNone;
+  LFrame.BorderWidth := 1;
+  LFrame.ParentBackground := False;
+  LFrame.Color := StyleServices.GetSystemColor(clHighlight);
+
+  FSearch := TSearchBox.Create(Self);
+  FSearch.Parent := LFrame;
+  FSearch.Align := alTop;
+  FSearch.AlignWithMargins := True;
+  FSearch.Margins.SetBounds(10, 10, 10, 8);
+  FSearch.Font.Name := 'Segoe UI';
+  FSearch.Font.Size := 12;
+  FSearch.TextHint := AHint;
+  FSearch.OnChange := SearchChange;
+  FSearch.OnKeyDown := SearchKeyDown;
+  FSearch.OnKeyPress := SearchKeyPress;
+
+  FEmpty := TLabel.Create(Self);
+  FEmpty.Parent := LFrame;
+  FEmpty.Align := alTop;
+  FEmpty.AlignWithMargins := True;
+  FEmpty.Margins.SetBounds(14, 6, 10, 0);
+  FEmpty.Font.Color := clGrayText;
+  FEmpty.Caption := AEmptyText;
+  FEmpty.Visible := False;
+  FEmpty.Top := 200;
+
+  FList := TListBox.Create(Self);
+  FList.Parent := LFrame;
+  FList.Align := alClient;
+  FList.BorderStyle := bsNone;
+  FList.Style := lbOwnerDrawFixed;
+  FList.ItemHeight := 34;
+  FList.OnDrawItem := ListDrawItem;
+  FList.OnDblClick := ListDblClick;
+  FList.TabStop := False;
+
+  // sahip formun üst ortası
+  if (AOwner is TCustomForm) and TCustomForm(AOwner).Visible then
+  begin
+    Left := TCustomForm(AOwner).Left + (TCustomForm(AOwner).Width - Width) div 2;
+    Top := TCustomForm(AOwner).Top + 60;
+  end
+  else
+  begin
+    Left := (Screen.WorkAreaWidth - Width) div 2;
+    Top := Screen.WorkAreaHeight div 6;
+  end;
+  ActiveControl := FSearch;
+  Refresh;
+end;
+
+class function TNavCommandPalette.Execute(AOwner: TComponent; ANav: TNavMenuPanel; const AHint, AEmptyText: string;
+  out AItem: TSysMenuItem): Boolean;
+var
+  LForm: TNavCommandPalette;
+begin
+  LForm := TNavCommandPalette.CreatePalette(AOwner, ANav, AHint, AEmptyText);
+  try
+    Result := (LForm.ShowModal = mrOk) and LForm.Selected(AItem);
+  finally
+    LForm.Free;
+  end;
+end;
+
+function TNavCommandPalette.Selected(out AItem: TSysMenuItem): Boolean;
+begin
+  Result := (FList.ItemIndex >= 0) and (FList.ItemIndex <= High(FResults));
+  if Result then
+    AItem := FResults[FList.ItemIndex];
+end;
+
+procedure TNavCommandPalette.Refresh;
+var
+  I: Integer;
+begin
+  FResults := FNav.Search(FSearch.Text, PALETTE_MAX);
+  FList.Items.BeginUpdate;
+  try
+    FList.Items.Clear;
+    for I := 0 to High(FResults) do
+      FList.Items.Add(FResults[I].MenuName);
+  finally
+    FList.Items.EndUpdate;
+  end;
+  if FList.Count > 0 then
+    FList.ItemIndex := 0;
+  FEmpty.Visible := (FList.Count = 0) and (Trim(FSearch.Text) <> '');
+end;
+
+procedure TNavCommandPalette.SearchChange(Sender: TObject);
+begin
+  Refresh;
+end;
+
+procedure TNavCommandPalette.SearchKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_DOWN:
+      begin
+        if FList.ItemIndex < FList.Count - 1 then
+          FList.ItemIndex := FList.ItemIndex + 1;
+        Key := 0;
+      end;
+    VK_UP:
+      begin
+        if FList.ItemIndex > 0 then
+          FList.ItemIndex := FList.ItemIndex - 1;
+        Key := 0;
+      end;
+    VK_NEXT:
+      begin
+        FList.ItemIndex := Min(FList.Count - 1, FList.ItemIndex + 8);
+        Key := 0;
+      end;
+    VK_PRIOR:
+      begin
+        FList.ItemIndex := Max(0, FList.ItemIndex - 8);
+        Key := 0;
+      end;
+  end;
+end;
+
+procedure TNavCommandPalette.SearchKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+  begin
+    Key := #0;
+    Accept;
+  end
+  else if Key = #27 then
+  begin
+    Key := #0;
+    ModalResult := mrCancel;
+  end;
+end;
+
+procedure TNavCommandPalette.Accept;
+begin
+  if (FList.ItemIndex >= 0) and (FList.ItemIndex <= High(FResults)) then
+    ModalResult := mrOk;
+end;
+
+procedure TNavCommandPalette.ListDblClick(Sender: TObject);
+begin
+  Accept;
+end;
+
+procedure TNavCommandPalette.FormDeactivate(Sender: TObject);
+begin
+  if ModalResult = mrNone then
+    ModalResult := mrCancel;
+end;
+
+procedure TNavCommandPalette.ListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect; State: TOwnerDrawState);
+var
+  C: TCanvas;
+  LItem: TSysMenuItem;
+  LBack, LText, LGray, LSel: TColor;
+  R: TRect;
+  S: string;
+  X: Integer;
+begin
+  if (Index < 0) or (Index > High(FResults)) then
+    Exit;
+  LItem := FResults[Index];
+  C := FList.Canvas;
+  LBack := StyleServices.GetSystemColor(clWindow);
+  LText := StyleServices.GetSystemColor(clWindowText);
+  LSel := StyleServices.GetSystemColor(clHighlight);
+  LGray := BlendColor(LText, LBack, 0.55);
+
+  C.Brush.Style := bsSolid;
+  C.Brush.Color := LBack;
+  C.FillRect(Rect);
+  if odSelected in State then
+  begin
+    C.Brush.Color := BlendColor(LSel, LBack, 0.22);
+    R := Rect;
+    InflateRect(R, -6, -2);
+    C.FillRect(R);
+    C.Brush.Color := LSel;
+    C.FillRect(System.Types.Rect(R.Left, R.Top + 6, R.Left + 3, R.Bottom - 6));
+  end;
+  C.Brush.Style := bsClear;
+
+  X := Rect.Left + 18;
+  C.Font.Name := 'Consolas';
+  C.Font.Size := 10;
+  C.Font.Style := [];
+  C.Font.Color := LGray;
+  S := LItem.CodeText;
+  R := System.Types.Rect(X, Rect.Top, X + 70, Rect.Bottom);
+  DrawText(C.Handle, PChar(S), Length(S), R, DT_SINGLELINE or DT_VCENTER or DT_LEFT or DT_NOPREFIX);
+  Inc(X, 70);
+
+  // sağda yol (Finans > Çek / Senet) + favori yıldızı
+  S := FNav.PathOf(LItem.MenuCode);
+  C.Font.Name := 'Segoe UI';
+  C.Font.Size := 9;
+  C.Font.Color := LGray;
+  R := System.Types.Rect(Rect.Right - 250, Rect.Top, Rect.Right - 34, Rect.Bottom);
+  DrawText(C.Handle, PChar(S), Length(S), R, DT_SINGLELINE or DT_VCENTER or DT_RIGHT or DT_NOPREFIX or DT_END_ELLIPSIS);
+  if LItem.IsFavorite then
+  begin
+    C.Font.Name := IconFontName;
+    C.Font.Size := 9;
+    C.Font.Color := STAR_COLOR;
+    S := ICON_STAR;
+    R := System.Types.Rect(Rect.Right - 30, Rect.Top, Rect.Right - 10, Rect.Bottom);
+    DrawText(C.Handle, PChar(S), 1, R, DT_SINGLELINE or DT_VCENTER or DT_CENTER or DT_NOPREFIX);
+  end;
+
+  C.Font.Name := 'Segoe UI';
+  C.Font.Size := 11;
+  C.Font.Style := [fsBold];
+  C.Font.Color := LText;
+  S := LItem.MenuName;
+  R := System.Types.Rect(X, Rect.Top, Rect.Right - 256, Rect.Bottom);
+  DrawText(C.Handle, PChar(S), Length(S), R, DT_SINGLELINE or DT_VCENTER or DT_LEFT or DT_NOPREFIX or DT_END_ELLIPSIS);
 end;
 
 end.

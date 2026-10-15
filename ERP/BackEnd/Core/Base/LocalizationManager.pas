@@ -137,6 +137,8 @@ type
         const NavRecent = 'dashboard.nav.recent';
         const NavAddFavorite = 'dashboard.nav.add_favorite';
         const NavRemoveFavorite = 'dashboard.nav.remove_favorite';
+        const ActionMenus = 'dashboard.action.menus';
+        const NavPaletteHint = 'dashboard.nav.palette_hint';
         const MenuOffers = 'dashboard.menu.offers';
         const MenuOrders = 'dashboard.menu.orders';
         const MenuWaybills = 'dashboard.menu.waybills';
@@ -548,6 +550,28 @@ type
         const LblNativeName = 'sys_language.lbl_native_name';
         const LocaleRequired = 'sys_language.locale.required';
         const LocaleUnique = 'sys_language.locale.unique';
+      end;
+
+      TSysMenu = record
+        const TitlePlural = 'sys_menu.title_plural';
+        const TitleSingular = 'sys_menu.title_singular';
+        const ColMenuCode = 'sys_menu.col_menu_code';
+        const ColMenuName = 'sys_menu.col_menu_name';
+        const ColParentPath = 'sys_menu.col_parent_path';
+        const ColKeywords = 'sys_menu.col_keywords';
+        const ColPermission = 'sys_menu.col_permission';
+        const ColPermissionCode = 'sys_menu.col_permission_code';
+        const ColIsActive = 'sys_menu.col_is_active';
+        const ColActionName = 'sys_menu.col_action_name';
+        const ColMenuKey = 'sys_menu.col_menu_key';
+        const MsgCodeRange = 'sys_menu.msg.code_range';
+        const MsgFolderRule = 'sys_menu.msg.folder_rule';
+        const MsgParentMissing = 'sys_menu.msg.parent_missing';
+        const MsgImmutable = 'sys_menu.msg.immutable';
+        const MsgNoDelete = 'sys_menu.msg.no_delete';
+        const CodeUnique = 'sys_menu.code_unique';
+        const KeyUnique = 'sys_menu.key_unique';
+        const ActionUnique = 'sys_menu.action_unique';
       end;
 
       TSysPermission = record
