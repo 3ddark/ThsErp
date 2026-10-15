@@ -486,7 +486,7 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Test: entegrasyon CheckMenuPrefs (ekle / sayaç / çıkar / klasör reddi / başka kullanıcının tercihi görünmez, rollback);
   UI: son kullanılanlar, Ctrl+D ekle / çıkar (DB), seçim korunuyor, dil değişiminde klasör adı; UiTest-dashboard-fav.png.
 
-## Kalan menü işleri (2026-10-15, favoriler commit 5791656 sonrası)
+## Kalan menü işleri (2026-10-15, commit 5424571)
 - DB (yedek scratchpad ths_erp_before_menu_admin.dump): yetki 1111 'menu' (system grubu, tr/en/de, yönetici şablonu tam,
   tüm kullanıcılara sys_access_right), menü satırı 100910 "Menü Ekranları" (actsys_menu), vw_sys_menu + permission_name /
   parent_path, sys_grid_column satırları (vw_sys_menu), `sys_user_setting` tablosu.
@@ -506,7 +506,7 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 
 ## KALDIĞIM YER (2026-10-15)
 - Menü işleri tamamlandı: ağaç + kodlar (4fdeee5), favoriler / son kullanılanlar (5791656), bakım ekranı + Ctrl+K paleti +
-  panel durumu (bu oturum). Kullanıcı elle denemeli: Ctrl+K başka ekrandayken, Sistem > Ayarlar > Menü Ekranları
+  panel durumu (5424571). Kullanıcı elle denemeli: Ctrl+K başka ekrandayken, Sistem > Ayarlar > Menü Ekranları
   (ad / kelime / pasif), panel genişliği uygulama yeniden açılınca korunuyor mu.
 - SONRAKİ ADIM: sls_ (satış) modülü (yeni ekranlar için sys_menu satırı zorunlu: 60xxxx, modül satırı 600000 + gruplar). Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
   `%TEMP%\ths_it\bin\IntegrationTest.exe` ve `ERP/Tests/Ui/build.sh` + `%TEMP%\ths_ui\bin\UiTest.exe`.
