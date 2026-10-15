@@ -33,8 +33,17 @@ type
     AggregateType: TAggregateType;
     DisplayFormat: string;
     AggregateField: TFDAggregate;
+    ServerValue: Variant;       // sayfalı modda tüm (filtreli) kayıtlar üzerinden SQL ile hesaplanan değer
     DisplayControl: TLabel;
     constructor Create(const AColumnFieldName: string; AAggregateType: TAggregateType; const ADisplayFormat: string = '');
+  end;
+
+  // Hızlı filtre seçeneği (başlık çubuğunda radyo düğmesi); Sql boş = koşulsuz
+  TQuickFilter = class
+  public
+    Sql: string;
+    Params: TArray<Variant>;     // Sql içinde :qc0, :qc1 …
+    Button: TRadioButton;
   end;
 
   THackDBGrid = class(TDBGrid)
@@ -49,6 +58,14 @@ type
   // Kayıt geçmişi (işlem geçmişi) kancası: ufrmSysAuditLogs initialization'da bağlanır (ufrmGrid ona bağımlı olmasın)
   TRecordHistoryAvailable = function(const ATableName: string): Boolean;
   TRecordHistoryShow = procedure(AOwner: TComponent; const ATableName: string; ARowId: Int64; const ARecordCaption: string);
+
+  // Sayfa değişiminde kullanıcının o anki kolon düzeni (genişlik / görünürlük / sıra / başlık) korunur
+  TGridColumnState = record
+    FieldName: string;
+    Width: Integer;
+    Visible: Boolean;
+    Caption: string;
+  end;
 
   TfrmGrid<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TForm, ILocalizable)
   private
@@ -97,6 +114,39 @@ type
     FBtnClose: TButton;
     FBtnAdd: TButton;
 
+    // Sayfalama (sunucu tarafı): hızlı filtre, popup filtre, başlık sıralaması ve alt toplamlar
+    // tüm kayıtlar üzerinden SQL ile; ekrana yalnız seçili sayfa (LIMIT / OFFSET) gelir
+    FPagingEnabled: Boolean;
+    FPagingReady: Boolean;
+    FPageReload: Boolean;
+    FPageSize: Integer;          // 0 = tümü
+    FPageIndex: Integer;         // 0 tabanlı
+    FTotalCount: Int64;
+    FBaseSql: string;            // ORDER BY olmadan (sabit + dinamik filtreler dahil)
+    FBaseOrderBy: string;
+    FBaseParams: TFDParams;
+    FSortFields: string;         // başlık sıralaması: 'alan:A;alan:D'
+    FSearchSql: string;          // hızlı filtre koşulu (FSearchText parametreleriyle)
+    FSearchText: string;
+    FSearchTimer: TTimer;
+    FPanelPaging: TPanel;
+    FBtnFirstPage: TButton;
+    FBtnPrevPage: TButton;
+    FBtnNextPage: TButton;
+    FBtnLastPage: TButton;
+    FEdtPage: TEdit;
+    FLblPageCount: TLabel;
+    FLblPageInfo: TLabel;
+    FCbbPageSize: TComboBox;
+
+    // Hızlı filtre: taban sorguya AND ile eklenen çalışma anı koşulu (sayfa, sayım, toplamlar, dışa aktarım dahil)
+    FQuickSql: string;
+    FQuickParams: TArray<Variant>;
+    FQuickFilters: TObjectList<TQuickFilter>;
+    FQuickFilterIndex: Integer;
+    FQuickFilterUpdating: Boolean;
+    FPanelQuickFilter: TPanel;
+
     procedure PrepareForm;
     procedure CreatePanelMain;
     procedure CreatePanelHeader;
@@ -116,6 +166,36 @@ type
     procedure EdtFilterKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure PrepareStatusBar;
     procedure BuildFilterExpression(AOperator: string);
+
+    procedure CreatePanelPaging;
+    function NewPagingButton(const ACaption: string; AOnClick: TNotifyEvent; ALeft: Integer): TButton;
+    procedure OpenPageData(AQuiet: Boolean);
+    procedure CapturePagingBaseSql;
+    procedure ApplyPagingParams(AQuery: TFDQuery);
+    function PagingFilteredSql: string;
+    function PagingOrderBy: string;
+    function PageCount: Integer;
+    procedure LoadPagingTotals;
+    function FindPageOfId(AId: Int64): Integer;
+    procedure UpdatePagingControls;
+    procedure ApplyPagingLocalization;
+    function SaveColumnStates: TArray<TGridColumnState>;
+    procedure RestoreColumnStates(const AStates: TArray<TGridColumnState>);
+    function BuildSearchSql(const AText: string): string;
+    function SqlLiteral(AField: TField): string;
+    function CreatePagingQuery(const ASql: string): TFDQuery;
+    procedure SearchTimerTimer(Sender: TObject);
+    procedure BtnFirstPageClick(Sender: TObject);
+    procedure BtnPrevPageClick(Sender: TObject);
+    procedure BtnNextPageClick(Sender: TObject);
+    procedure BtnLastPageClick(Sender: TObject);
+    procedure EdtPageKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure CbbPageSizeChange(Sender: TObject);
+    function AddWhereCondition(const ASql, ACond: string): string;
+    procedure ApplyQuickSqlToQuery;
+    procedure LayoutQuickFilters;
+    procedure QuickFilterClick(Sender: TObject);
+    function GetQuickFilterCount: Integer;
   public
     property Service: TS read FService write FService;
     property Table: TE read FTable write FTable;
@@ -152,6 +232,30 @@ type
     property mniPrint: TMenuItem read FmniPrint write FmniPrint;
     property mniRemoveGridSort: TMenuItem read FmniRemoveGridSort write FmniRemoveGridSort;
     property mniRecordHistory: TMenuItem read FmniRecordHistory write FmniRecordHistory;
+
+    // False (FormShow öncesi): eski davranış, tüm kayıtlar belleğe alınır, filtre / sıralama istemcide
+    property PagingEnabled: Boolean read FPagingEnabled write FPagingEnabled;
+    property PageSize: Integer read FPageSize;
+    property PageIndex: Integer read FPageIndex;
+    property TotalCount: Int64 read FTotalCount;
+    function IsPaged: Boolean;
+    // Geçerli sayfayı (filtre / sıralama ile) yeniden okur; AFocusId > 0 ise o kaydın sayfasına gidip kayda konumlanır
+    procedure LoadPage(AKeepLayout: Boolean; AFocusId: Int64 = 0);
+    procedure GoToPage(AIndex: Integer);
+    // Ekrandaki ilk kayıt korunarak sayfa boyutu değişir; ASaveSetting: kullanıcı ayarına yazılır
+    procedure ChangePageSize(AValue: Integer; ASaveSetting: Boolean = True);
+    // Yazılıp henüz uygulanmamış hızlı filtre hemen çalışır
+    procedure FlushPendingSearch;
+
+    // Taban sorguya AND ile eklenen koşul (parametreler :qc0, :qc1 …; ASql boş = koşul yok). Sayfa, kayıt sayısı,
+    // alt toplamlar, Excel / CSV ve CollectVisibleIds bu koşulla çalışır; FormShow öncesi çağrılırsa ilk açılışta uygulanır
+    procedure SetQuickCondition(const ASql: string; const AParams: array of Variant);
+    // Başlık çubuğuna radyo düğmesi ekler (FormShow öncesi); ilk eklenen seçili gelir. Sonuç: seçenek no (0 tabanlı)
+    function AddQuickFilter(const ACaption, ASql: string; const AParams: array of Variant): Integer;
+    procedure SetQuickFilterCaption(AIndex: Integer; const ACaption: string);
+    procedure SelectQuickFilter(AIndex: Integer);
+    property QuickFilterIndex: Integer read FQuickFilterIndex;
+    property QuickFilterCount: Integer read GetQuickFilterCount;
 
     constructor Create(AOwner: TComponent; AService: TS; ATable: TE; ACreateNewBase: Boolean = True; AUseHelper: Boolean = False); reintroduce; overload;
     destructor Destroy; override;
@@ -275,10 +379,20 @@ type
   function UpperCaseTr(S: string): string;
   function LowerCaseTr(S: string): string;
   function CsvSafe(const S: string): string;
+  // Liste sayfa boyutu kullanıcı başına tek ayar (sys_user_setting 'grid.page_size'; 0 = tümü)
+  function GridPageSize: Integer;
+  procedure SetGridPageSize(AValue: Integer);
+  function LikeEscape(const S: string): string;
+
+const
+  GRID_PAGE_SIZES: array[0..5] of Integer = (50, 100, 250, 500, 1000, 0);
+  GRID_DEFAULT_PAGE_SIZE = 100;
+  GRID_PAGE_SIZE_KEY = 'grid.page_size';
 
 var
   GRecordHistoryAvailable: TRecordHistoryAvailable = nil;
   GRecordHistoryShow: TRecordHistoryShow = nil;
+  GGridPageSize: Integer = -1;   // -1: henüz okunmadı
 
 implementation
  
@@ -286,7 +400,7 @@ uses Winapi.ShellAPI, System.Threading, ufrmInputSimpleDB, Logger,
   SysGridColumn, SysGridColumn.Repository,
   SysGridFilter, SysGridFilter.Repository,
   SysGridSort, SysGridSort.Repository,
-  EntitySchemaCache, ExcelExportTask, ufrmExportProgress;
+  EntitySchemaCache, ExcelExportTask, ufrmExportProgress, SysUserSetting.Service;
 
 { TFooterColumn }
 
@@ -327,6 +441,67 @@ begin
   end;
 
   FFooterColumns.Add(TFooterColumn.Create(AColumnFieldName, AAggregateType, ADisplayFormat));
+end;
+
+function GridPageSize: Integer;
+var
+  LService: TSysUserSettingService;
+  LValues: TDictionary<string, string>;
+  LText: string;
+  LValue, i: Integer;
+begin
+  if GGridPageSize < 0 then
+  begin
+    GGridPageSize := GRID_DEFAULT_PAGE_SIZE;
+    try
+      LService := TSysUserSettingService.Create;
+      try
+        LValues := LService.GetValues(GRID_PAGE_SIZE_KEY);
+        try
+          if LValues.TryGetValue(GRID_PAGE_SIZE_KEY, LText) and TryStrToInt(LText, LValue) then
+            for i := Low(GRID_PAGE_SIZES) to High(GRID_PAGE_SIZES) do
+              if GRID_PAGE_SIZES[i] = LValue then
+                GGridPageSize := LValue;
+        finally
+          LValues.Free;
+        end;
+      finally
+        LService.Free;
+      end;
+    except
+      on E: Exception do
+        GLogger.WarningFmt('Sayfa boyutu okunamadı: %s', [E.Message]);
+    end;
+  end;
+  Result := GGridPageSize;
+end;
+
+procedure SetGridPageSize(AValue: Integer);
+var
+  LService: TSysUserSettingService;
+begin
+  if AValue = GGridPageSize then
+    Exit;
+  GGridPageSize := AValue;
+  try
+    LService := TSysUserSettingService.Create;
+    try
+      LService.SetValue(GRID_PAGE_SIZE_KEY, IntToStr(AValue));
+    finally
+      LService.Free;
+    end;
+  except
+    on E: Exception do
+      GLogger.WarningFmt('Sayfa boyutu kaydedilemedi: %s', [E.Message]);
+  end;
+end;
+
+// LIKE desenindeki joker karakterler (\ % _) kullanıcı metninde düz karakter sayılır
+function LikeEscape(const S: string): string;
+begin
+  Result := StringReplace(S, '\', '\\', [rfReplaceAll]);
+  Result := StringReplace(Result, '%', '\%', [rfReplaceAll]);
+  Result := StringReplace(Result, '_', '\_', [rfReplaceAll]);
 end;
 
 function UpperCaseTr(S: string): string;
@@ -394,6 +569,10 @@ var
   I: Integer;
   LCol: TColumn;
 begin
+  // Sayfa değişimi: kolon düzeni LoadPage içinde kullanıcının o anki hâline geri yüklenir
+  if FPageReload then
+    Exit;
+
   Grd.Columns.RestoreDefaults;
 
   for I := 0 to Grd.Columns.Count-1 do
@@ -465,7 +644,19 @@ begin
   LFilterBefore := '';
   if FFilterGrid.Count > 0 then
     LFilterBefore := ' AND ';
-  if (Grd.SelectedField <> nil) and (not Grd.SelectedField.IsNull) then
+  if (Grd.SelectedField <> nil) and (not Grd.SelectedField.IsNull) and IsPaged then
+  begin
+    // Sayfalı mod: koşul SQL'e gider (tarih ISO, ondalık nokta, tırnaklı kolon adı)
+    LFilterVal := SqlLiteral(Grd.SelectedField);
+    if LFilterVal = '' then
+      Exit;
+    // zaman damgası DB'de mikro saniyeli, ekrandaki değer saniyeli: saniyeye yuvarlanarak karşılaştırılır
+    if Grd.SelectedField.DataType in [ftDateTime, ftTimeStamp, ftOraTimeStamp] then
+      FFilterGrid.Add(LFilterBefore + 'date_trunc(''second'', ' + AnsiQuotedStr(Grd.SelectedField.FieldName, '"') + ')' + AOperator + LFilterVal)
+    else
+      FFilterGrid.Add(LFilterBefore + AnsiQuotedStr(Grd.SelectedField.FieldName, '"') + AOperator + LFilterVal);
+  end
+  else if (Grd.SelectedField <> nil) and (not Grd.SelectedField.IsNull) then
   begin
     case Grd.SelectedField.DataType of
       ftUnknown: ;
@@ -552,12 +743,17 @@ begin
 
   for FooterCol in FFooterColumns do
   begin
-    AggregateFuncName := AggregateTypeToSqlFunc(FooterCol.AggregateType);
+    // Sayfalı modda toplamlar sayfanın değil tüm kayıtların: LoadPagingTotals SQL ile hesaplar
+    if not FPagingEnabled then
+    begin
+      AggregateFuncName := AggregateTypeToSqlFunc(FooterCol.AggregateType);
 
-    FooterCol.AggregateField := FQry.Aggregates.Add;
-    FooterCol.AggregateField.Name := Format('AGG_%s_%s', [AggregateFuncName, FooterCol.ColumnFieldName]);
-    FooterCol.AggregateField.Expression := Format('%s(%s)', [AggregateFuncName, FooterCol.ColumnFieldName]);
-    FooterCol.AggregateField.Active := True;
+      FooterCol.AggregateField := FQry.Aggregates.Add;
+      FooterCol.AggregateField.Name := Format('AGG_%s_%s', [AggregateFuncName, FooterCol.ColumnFieldName]);
+      FooterCol.AggregateField.Expression := Format('%s(%s)', [AggregateFuncName, FooterCol.ColumnFieldName]);
+      FooterCol.AggregateField.Active := True;
+    end;
+    FooterCol.ServerValue := Null;
 
     FooterCol.DisplayControl := TLabel.Create(FFooterPanel);
     FooterCol.DisplayControl.Parent := FFooterPanel;
@@ -569,7 +765,7 @@ begin
   end;
 
   FFooterPanel.Visible := True;
-  FQry.AggregatesActive := True;
+  FQry.AggregatesActive := not FPagingEnabled;
 end;
 
 procedure TfrmGrid<TE, TS>.LoadFooterColumnsFromDB;
@@ -581,10 +777,9 @@ var
   LAggType : TAggregateType;
   LFormat  : string;
 begin
+  // Kodda (DefineFooterColumns) tanımlananlar korunur; aynı kolon DB'de de varsa AddFooterColumn DB'dekini alır
   if FFooterColumns = nil then
-    FFooterColumns := TObjectList<TFooterColumn>.Create(True)
-  else
-    FFooterColumns.Clear;
+    FFooterColumns := TObjectList<TFooterColumn>.Create(True);
 
   LViewName := GetGridViewName;
   if LViewName = '' then Exit;
@@ -645,6 +840,16 @@ begin
   FFilterDateFields := TStringList.Create;
   FFilterBoolFields := TStringList.Create;
   FFilterGrid := TStringList.Create;
+
+  FPagingEnabled := True;
+  FPageSize := GridPageSize;
+  FPageIndex := 0;
+  FSearchTimer := TTimer.Create(Self);
+  FSearchTimer.Enabled := False;
+  FSearchTimer.Interval := 350;   // yazarken her tuşta sorgu atılmasın
+  FSearchTimer.OnTimer := SearchTimerTimer;
+  FQuickFilters := TObjectList<TQuickFilter>.Create(True);
+  FQuickFilterIndex := -1;
 
   PrepareForm();
 
@@ -830,6 +1035,8 @@ begin
   FreeAndNil(FFilterDateFields);
   FreeAndNil(FFilterBoolFields);
   FreeAndNil(FFilterGrid);
+  FreeAndNil(FBaseParams);
+  FreeAndNil(FQuickFilters);
 
   // FIX: DataSource'u önce ayır
   if Assigned(FDataSource) then
@@ -847,6 +1054,15 @@ end;
 
 procedure TfrmGrid<TE, TS>.FilterApply;
 begin
+  if IsPaged then
+  begin
+    mniFilterRemove.Enabled := FFilterGrid.Count > 0;
+    mniFilterBack.Enabled := mniFilterRemove.Enabled;
+    FPageIndex := 0;
+    LoadPage(True);
+    Exit;
+  end;
+
   if FFilterGrid.Count > 0 then
   begin
     Grd.DataSource.DataSet.Filtered := False;
@@ -871,6 +1087,14 @@ var
   LDateTimeValue: TDateTime;
   LFilter       : string;
 begin
+  // Sayfalı mod: arama SQL ile, yazma durunca (zamanlayıcı) çalışır
+  if IsPaged then
+  begin
+    FSearchTimer.Enabled := False;
+    FSearchTimer.Enabled := True;
+    Exit;
+  end;
+
   LFilter := '';
   FQry.Filter   := '';
   FQry.Filtered := False;
@@ -933,6 +1157,8 @@ begin
   case Key of
     VK_RETURN:
       begin
+        // yazılan ama henüz uygulanmamış arama önce çalışsın (helper doğru satırı seçsin)
+        FlushPendingSearch;
         if FIsHelper then
         begin
           SetSelectedItem();
@@ -1002,6 +1228,7 @@ begin
   if Assigned(mniRecordHistory) then
     mniRecordHistory.Caption := TLocalizationManager.Translate(TLangKeys.TSysAuditLog.MenuRecordHistory, 'Audit Log');
 
+  ApplyPagingLocalization;
   PrepareStatusBar;
 end;
 
@@ -1054,6 +1281,16 @@ begin
       Self.AlphaBlend := False;
       Self.AlphaBlendValue := 255;
     end;
+  end
+  else if IsPaged and (Shift = [ssCtrl]) and (Key = VK_NEXT) then
+  begin
+    Key := 0;
+    BtnNextPageClick(nil);
+  end
+  else if IsPaged and (Shift = [ssCtrl]) and (Key = VK_PRIOR) then
+  begin
+    Key := 0;
+    BtnPrevPageClick(nil);
   end
   else if (ssCtrl in Shift) and (Key = Ord('F')) then
   begin
@@ -1108,7 +1345,19 @@ begin
   begin
     ApplyDynamicFilterAndSort;
     try
-      FQry.Open;
+      if FPagingEnabled then
+      begin
+        CapturePagingBaseSql;
+        LoadPage(False);
+      end
+      else
+      begin
+        // istemci tarafı: gövde yine saklanır, hızlı filtre koşulu bu gövdeye eklenerek sorgu yeniden açılır
+        CapturePagingBaseSql;
+        if FQuickSql <> '' then
+          ApplyQuickSqlToQuery;
+        FQry.Open;
+      end;
     except
       on E: Exception do
       begin
@@ -1121,6 +1370,8 @@ begin
 
   AdjustFormWidth;
   PrepareFilteredColumns;
+  FPanelPaging.Visible := IsPaged;
+  UpdatePagingControls;
   PanelSidebar.Visible := False;
   PrepareStatusBar;
   ApplyPermissionState;
@@ -1418,7 +1669,10 @@ begin
         FooterCol.DisplayControl.Height := 20;
         FooterCol.DisplayControl.Top := 5;
 
-        Value := FooterCol.AggregateField.Value;
+        if FPagingEnabled or not Assigned(FooterCol.AggregateField) then
+          Value := FooterCol.ServerValue
+        else
+          Value := FooterCol.AggregateField.Value;
         if not VarIsNull(Value) then
         begin
           if FooterCol.DisplayFormat <> '' then
@@ -1483,10 +1737,26 @@ function TfrmGrid<TE, TS>.CollectVisibleIds: TArray<Int64>;
 var
   Bkm: TBookmark;
   IdList: TList<Int64>;
+  LQ: TFDQuery;
 begin
   IdList := TList<Int64>.Create;
   try
-    if Assigned(FQry) and FQry.Active then
+    // Sayfalı mod: yalnız ekrandaki sayfa değil, filtreye uyan tüm kayıtlar
+    if IsPaged then
+    begin
+      LQ := CreatePagingQuery('SELECT pg_x.id FROM (' + PagingFilteredSql + ') pg_x');
+      try
+        LQ.Open;
+        while not LQ.Eof do
+        begin
+          IdList.Add(LQ.Fields[0].AsLargeInt);
+          LQ.Next;
+        end;
+      finally
+        LQ.Free;
+      end;
+    end
+    else if Assigned(FQry) and FQry.Active then
     begin
       FQry.DisableControls;
       try
@@ -1578,7 +1848,14 @@ begin
         TableName := 'vw_' + TEntitySchemaCache.GetSchema(TE).TableName;
 
       WhereClause := '';
-      if Pos('WHERE', UpperCase(FQry.SQL.Text)) > 0 then
+      if IsPaged then
+      begin
+        // LIMIT / OFFSET olmadan filtreli sorgunun koşulu
+        var LFullSql := PagingFilteredSql;
+        if Pos('WHERE', UpperCase(LFullSql)) > 0 then
+          WhereClause := LFullSql.Substring(Pos('WHERE', UpperCase(LFullSql)) - 1);
+      end
+      else if Pos('WHERE', UpperCase(FQry.SQL.Text)) > 0 then
         WhereClause := FQry.SQL.Text.Substring(Pos('WHERE', UpperCase(FQry.SQL.Text)) - 1);
 
       ExportTask := TExcelExportTask.Create(
@@ -1671,7 +1948,21 @@ var
   SL: TStringList;
   i, j: Integer;
   Line: string;
+  LData: TDataSet;
+  LFull: TFDQuery;
+  LField: TField;
 begin
+  // Sayfalı mod: filtreye uyan tüm kayıtlar ayrı sorguyla okunur
+  LFull := nil;
+  if IsPaged then
+  begin
+    LFull := CreatePagingQuery(PagingFilteredSql + ' ORDER BY ' + PagingOrderBy);
+    LFull.Open;
+    LData := LFull;
+  end
+  else
+    LData := Grd.DataSource.DataSet;
+
   SL := TStringList.Create;
   try
     Line := '';
@@ -1683,30 +1974,33 @@ begin
     end;
     SL.Add(Line);
 
-    Grd.DataSource.DataSet.DisableControls;
+    LData.DisableControls;
     try
-      Grd.DataSource.DataSet.First;
-      while not Grd.DataSource.DataSet.Eof do
+      LData.First;
+      while not LData.Eof do
       begin
         Line := '';
         for j := 0 to Grd.Columns.Count - 1 do
         begin
-          Line := Line + CsvSafe(Grd.Columns[j].Field.AsString);
+          LField := LData.FindField(Grd.Columns[j].FieldName);
+          if Assigned(LField) then
+            Line := Line + CsvSafe(LField.AsString);
           if j < Grd.Columns.Count - 1 then
             Line := Line + ',';
         end;
         SL.Add(Line);
 
-        Grd.DataSource.DataSet.Next;
+        LData.Next;
       end;
     finally
-      Grd.DataSource.DataSet.EnableControls;
+      LData.EnableControls;
     end;
 
     SL.SaveToFile('export.csv', TEncoding.UTF8);
     ShowMessage(TLocalizationManager.Translate('msg.csv_export_completed', 'CSV export completed!'));
   finally
     SL.Free;
+    LFull.Free;
   end;
 end;
 
@@ -1748,8 +2042,22 @@ end;
 
 procedure TfrmGrid<TE, TS>.mniRemoveSortClick(Sender: TObject);
 begin
+  if IsPaged then
+  begin
+    if FSortFields <> '' then
+    begin
+      FSortFields := '';
+      FPageIndex := 0;
+      LoadPage(True);
+    end;
+    mniRemoveGridSort.Enabled := False;
+    THackDBGrid(Grd).InvalidateTitles;
+    Exit;
+  end;
+
   if Qry.IndexFieldNames <> '' then
     Qry.IndexFieldNames := '';
+  mniRemoveGridSort.Enabled := False;
 end;
 
 procedure TfrmGrid<TE, TS>.MoveDown;
@@ -1838,6 +2146,7 @@ begin
   CreatePanelFooter;
     CreateBtnSpin;
     CreateBtnClose;
+    CreatePanelPaging;
   CreateFooterPanel;
 
   FStatusBase := TStatusBar.Create(Self);
@@ -2109,6 +2418,18 @@ begin
   if not Assigned(FQry) or not FQry.Active then
     Exit;
 
+  // Sayfalı mod: veri yeniden okunur (toplu işlem sonrası da güncel), seçili kayda konumlanır
+  if IsPaged then
+  begin
+    mniFilterRemove.Enabled := FFilterGrid.Count > 0;
+    mniFilterBack.Enabled := mniFilterRemove.Enabled;
+    if Assigned(FTable) then
+      LoadPage(True, FTable.Id)
+    else
+      LoadPage(True);
+    Exit;
+  end;
+
   if Assigned(FTable) and (FTable.Id > 0) then
     FQry.Locate('id', FTable.Id, []);
 
@@ -2140,6 +2461,18 @@ procedure TfrmGrid<TE, TS>.RefreshParentGrid(AFocusSelectedItem: Boolean);
 begin
   if not Assigned(FQry) then
     Exit;
+
+  // Sayfalı mod: kayıt (yeni eklenen dahil) hangi sayfadaysa oraya gidilir; kolon düzeni korunur
+  if IsPaged then
+  begin
+    if AFocusSelectedItem and Assigned(FTable) then
+      LoadPage(True, FTable.Id)
+    else
+      LoadPage(True);
+    ApplyLocalization;
+    UpdateFooterLayout;
+    Exit;
+  end;
 
   FQry.DisableControls;
   try
@@ -2183,8 +2516,15 @@ end;
 procedure TfrmGrid<TE, TS>.RefreshStatusRecordCount();
 begin
   if (FStatusBase.Panels.Count > DB_STATUS_RECORD_COUNT) then
-    FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text :=
-      Format(TLocalizationManager.Translate(TLangKeys.TGeneral.RecordsCount, 'Records: %d'), [FQry.RecordCount]);
+  begin
+    // Sayfalı modda filtreye uyan toplam kayıt (yalnız ekrandaki sayfa değil)
+    if IsPaged then
+      FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text :=
+        Format(TLocalizationManager.Translate(TLangKeys.TGeneral.RecordsCount, 'Records: %d'), [FTotalCount])
+    else
+      FStatusBase.Panels.Items[DB_STATUS_RECORD_COUNT].Text :=
+        Format(TLocalizationManager.Translate(TLangKeys.TGeneral.RecordsCount, 'Records: %d'), [FQry.RecordCount]);
+  end;
 
   UpdateFooterLayout;
 end;
@@ -2325,7 +2665,13 @@ begin
         LIsCTRLKeyPress := True;
       //sort düzenle
       sl.Delimiter := ';';
-      if AQuery.IndexFieldNames <> '' then
+      sl.StrictDelimiter := True;
+      if IsPaged then
+      begin
+        if FSortFields <> '' then
+          sl.DelimitedText := FSortFields;
+      end
+      else if AQuery.IndexFieldNames <> '' then
         sl.DelimitedText := AQuery.IndexFieldNames;
 
       if LIsCTRLKeyPress then
@@ -2389,9 +2735,20 @@ begin
       end;
 
       if LOrderList <> '' then
+      begin
         mniRemoveGridSort.Visible := True;
+        mniRemoveGridSort.Enabled := True;
+      end;
 
-      AQuery.IndexFieldNames := LOrderList;
+      // Sayfalı mod: sıralama sunucuda (tüm kayıtlar), ilk sayfadan başlanır
+      if IsPaged then
+      begin
+        FSortFields := LOrderList;
+        FPageIndex := 0;
+        LoadPage(True);
+      end
+      else
+        AQuery.IndexFieldNames := LOrderList;
     end;
 
     THackDBGrid(grd).InvalidateTitles;
@@ -2754,6 +3111,835 @@ begin
   finally
     LColumns.Free;
   end;
+end;
+
+{ Sayfalama }
+
+function TfrmGrid<TE, TS>.IsPaged: Boolean;
+begin
+  Result := FPagingEnabled and FPagingReady;
+end;
+
+function TfrmGrid<TE, TS>.NewPagingButton(const ACaption: string; AOnClick: TNotifyEvent; ALeft: Integer): TButton;
+begin
+  Result := TButton.Create(FPanelPaging);
+  Result.Parent := FPanelPaging;
+  Result.Left := ALeft;
+  Result.Width := 26;
+  Result.Align := alLeft;
+  Result.AlignWithMargins := True;
+  Result.Margins.SetBounds(1, 2, 1, 2);
+  Result.Caption := ACaption;
+  Result.TabStop := False;
+  Result.OnClick := AOnClick;
+end;
+
+procedure TfrmGrid<TE, TS>.CreatePanelPaging;
+var
+  i: Integer;
+begin
+  FPanelPaging := TPanel.Create(PanelFooter);
+  FPanelPaging.Parent := PanelFooter;
+  FPanelPaging.Align := alClient;
+  FPanelPaging.BevelOuter := bvNone;
+  FPanelPaging.ParentColor := True;
+  FPanelPaging.ShowHint := True;
+  FPanelPaging.Visible := False;
+
+  // Hizalama sırası Left değerine göre: kontroller tek seferde hizalansın
+  FPanelPaging.DisableAlign;
+  try
+    FBtnFirstPage := NewPagingButton(#$00AB, BtnFirstPageClick, 10000);
+    FBtnPrevPage := NewPagingButton(#$2039, BtnPrevPageClick, 10010);
+
+    FEdtPage := TEdit.Create(FPanelPaging);
+    FEdtPage.Parent := FPanelPaging;
+    FEdtPage.Left := 10020;
+    FEdtPage.Width := 44;
+    FEdtPage.Align := alLeft;
+    FEdtPage.AlignWithMargins := True;
+    FEdtPage.Margins.SetBounds(4, 3, 2, 3);
+    FEdtPage.NumbersOnly := True;
+    FEdtPage.Alignment := taCenter;
+    FEdtPage.TabStop := False;
+    FEdtPage.OnKeyDown := EdtPageKeyDown;
+
+    FLblPageCount := TLabel.Create(FPanelPaging);
+    FLblPageCount.Parent := FPanelPaging;
+    FLblPageCount.Left := 10030;
+    FLblPageCount.Align := alLeft;
+    FLblPageCount.AlignWithMargins := True;
+    FLblPageCount.Margins.SetBounds(2, 3, 4, 3);
+    FLblPageCount.Layout := tlCenter;
+
+    FBtnNextPage := NewPagingButton(#$203A, BtnNextPageClick, 10040);
+    FBtnLastPage := NewPagingButton(#$00BB, BtnLastPageClick, 10050);
+
+    FLblPageInfo := TLabel.Create(FPanelPaging);
+    FLblPageInfo.Parent := FPanelPaging;
+    FLblPageInfo.Left := 10060;
+    FLblPageInfo.Align := alLeft;
+    FLblPageInfo.AlignWithMargins := True;
+    FLblPageInfo.Margins.SetBounds(10, 3, 4, 3);
+    FLblPageInfo.Layout := tlCenter;
+
+    FCbbPageSize := TComboBox.Create(FPanelPaging);
+    FCbbPageSize.Parent := FPanelPaging;
+    FCbbPageSize.Align := alRight;
+    FCbbPageSize.AlignWithMargins := True;
+    FCbbPageSize.Margins.SetBounds(4, 3, 8, 3);
+    FCbbPageSize.Style := csDropDownList;
+    FCbbPageSize.Width := 70;
+    FCbbPageSize.TabStop := False;
+    for i := Low(GRID_PAGE_SIZES) to High(GRID_PAGE_SIZES) do
+      if GRID_PAGE_SIZES[i] > 0 then
+        FCbbPageSize.Items.Add(IntToStr(GRID_PAGE_SIZES[i]))
+      else
+        FCbbPageSize.Items.Add('All');
+    FCbbPageSize.OnChange := CbbPageSizeChange;
+  finally
+    FPanelPaging.EnableAlign;
+  end;
+
+  ApplyPagingLocalization;
+end;
+
+procedure TfrmGrid<TE, TS>.ApplyPagingLocalization;
+var
+  LIndex: Integer;
+begin
+  if not Assigned(FPanelPaging) then
+    Exit;
+
+  FBtnFirstPage.Hint := TLocalizationManager.Translate(TLangKeys.TGeneral.PageFirst, 'First page');
+  FBtnPrevPage.Hint := TLocalizationManager.Translate(TLangKeys.TGeneral.PagePrevious, 'Previous page (Ctrl+PgUp)');
+  FBtnNextPage.Hint := TLocalizationManager.Translate(TLangKeys.TGeneral.PageNext, 'Next page (Ctrl+PgDn)');
+  FBtnLastPage.Hint := TLocalizationManager.Translate(TLangKeys.TGeneral.PageLast, 'Last page');
+  FEdtPage.Hint := TLocalizationManager.Translate(TLangKeys.TGeneral.PageNumber, 'Page number (Enter)');
+  FCbbPageSize.Hint := TLocalizationManager.Translate(TLangKeys.TGeneral.PageSize, 'Rows per page');
+
+  LIndex := FCbbPageSize.ItemIndex;
+  FCbbPageSize.Items[FCbbPageSize.Items.Count - 1] := TLocalizationManager.Translate(TLangKeys.TGeneral.PageAll, 'All');
+  FCbbPageSize.ItemIndex := LIndex;
+
+  UpdatePagingControls;
+end;
+
+function TfrmGrid<TE, TS>.PageCount: Integer;
+begin
+  if (FPageSize <= 0) or (FTotalCount <= 0) then
+    Result := 1
+  else
+    Result := Integer((FTotalCount + FPageSize - 1) div FPageSize);
+end;
+
+procedure TfrmGrid<TE, TS>.UpdatePagingControls;
+var
+  LPages, i: Integer;
+  LFrom, LTo: Int64;
+begin
+  if not Assigned(FPanelPaging) then
+    Exit;
+
+  LPages := PageCount;
+  FEdtPage.Text := IntToStr(FPageIndex + 1);
+  FEdtPage.Enabled := LPages > 1;
+  FLblPageCount.Caption := '/ ' + IntToStr(LPages);
+  FBtnFirstPage.Enabled := FPageIndex > 0;
+  FBtnPrevPage.Enabled := FPageIndex > 0;
+  FBtnNextPage.Enabled := FPageIndex < LPages - 1;
+  FBtnLastPage.Enabled := FPageIndex < LPages - 1;
+
+  if FTotalCount = 0 then
+    LFrom := 0
+  else if FPageSize > 0 then
+    LFrom := Int64(FPageIndex) * FPageSize + 1
+  else
+    LFrom := 1;
+  LTo := FTotalCount;
+  if (FPageSize > 0) and (Int64(FPageIndex + 1) * FPageSize < LTo) then
+    LTo := Int64(FPageIndex + 1) * FPageSize;
+  FLblPageInfo.Caption := Format(TLocalizationManager.Translate(TLangKeys.TGeneral.PageInfo, '%s - %s of %s'),
+    [FormatFloat('#,##0', LFrom), FormatFloat('#,##0', LTo), FormatFloat('#,##0', FTotalCount)]);
+
+  for i := Low(GRID_PAGE_SIZES) to High(GRID_PAGE_SIZES) do
+    if GRID_PAGE_SIZES[i] = FPageSize then
+      FCbbPageSize.ItemIndex := i;
+end;
+
+// FormShow'da (sabit + dinamik filtreler eklendikten sonra) sorgunun ORDER BY'sız gövdesi ve parametreleri saklanır;
+// her sayfa / arama / sıralama bu gövdeden yeniden kurulur
+procedure TfrmGrid<TE, TS>.CapturePagingBaseSql;
+var
+  LSql, LTail: string;
+  LPos, LDepth, i: Integer;
+begin
+  LSql := TrimRight(FQry.SQL.Text);
+  FBaseOrderBy := '';
+  LPos := UpperCase(LSql).LastIndexOf('ORDER BY');
+  if LPos >= 0 then
+  begin
+    LTail := LSql.Substring(LPos + Length('ORDER BY'));
+    // parantez dengesi bozuksa ORDER BY bir alt sorguya / pencere fonksiyonuna aittir
+    LDepth := 0;
+    for i := 1 to Length(LTail) do
+      if LTail[i] = '(' then
+        Inc(LDepth)
+      else if LTail[i] = ')' then
+        Dec(LDepth);
+    if LDepth = 0 then
+    begin
+      FBaseOrderBy := Trim(LTail);
+      LSql := TrimRight(LSql.Substring(0, LPos));
+    end;
+  end;
+  FBaseSql := LSql;
+
+  FreeAndNil(FBaseParams);
+  FBaseParams := TFDParams.Create;
+  FBaseParams.Assign(FQry.Params);
+  FPagingReady := True;
+end;
+
+procedure TfrmGrid<TE, TS>.ApplyPagingParams(AQuery: TFDQuery);
+var
+  i: Integer;
+  LParam: TFDParam;
+begin
+  if Assigned(FBaseParams) then
+    for i := 0 to FBaseParams.Count - 1 do
+    begin
+      LParam := AQuery.Params.FindParam(FBaseParams[i].Name);
+      if Assigned(LParam) then
+      begin
+        LParam.DataType := FBaseParams[i].DataType;
+        LParam.Value := FBaseParams[i].Value;
+      end;
+    end;
+
+  LParam := AQuery.Params.FindParam('pg_s');
+  if Assigned(LParam) then
+    LParam.AsWideString := '%' + LikeEscape(FSearchText) + '%';
+  LParam := AQuery.Params.FindParam('pg_su');
+  if Assigned(LParam) then
+    LParam.AsWideString := '%' + LikeEscape(UpperCaseTr(FSearchText)) + '%';
+  LParam := AQuery.Params.FindParam('pg_sl');
+  if Assigned(LParam) then
+    LParam.AsWideString := '%' + LikeEscape(LowerCaseTr(FSearchText)) + '%';
+
+  for i := 0 to High(FQuickParams) do
+  begin
+    LParam := AQuery.Params.FindParam('qc' + IntToStr(i));
+    if Assigned(LParam) then
+      LParam.Value := FQuickParams[i];
+  end;
+end;
+
+function TfrmGrid<TE, TS>.CreatePagingQuery(const ASql: string): TFDQuery;
+begin
+  Result := TFDQuery.Create(nil);
+  try
+    Result.Connection := FQry.Connection;
+    Result.SQL.Text := ASql;
+    ApplyPagingParams(Result);
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TfrmGrid<TE, TS>.PagingFilteredSql: string;
+var
+  LCond: string;
+begin
+  LCond := '';
+  if FQuickSql <> '' then
+    LCond := '(' + FQuickSql + ')';
+  if FSearchSql <> '' then
+  begin
+    if LCond <> '' then
+      LCond := LCond + ' AND ';
+    LCond := LCond + '(' + FSearchSql + ')';
+  end;
+  if FFilterGrid.Count > 0 then
+  begin
+    if LCond <> '' then
+      LCond := LCond + ' AND ';
+    // satırlar ' AND ' önekiyle tutulur (BuildFilterExpression)
+    LCond := LCond + '(' + Trim(FFilterGrid.Text) + ')';
+  end;
+
+  Result := AddWhereCondition(FBaseSql, LCond);
+end;
+
+function TfrmGrid<TE, TS>.AddWhereCondition(const ASql, ACond: string): string;
+begin
+  Result := ASql;
+  if ACond = '' then
+    Exit;
+  if Pos('WHERE', UpperCase(Result)) > 0 then
+    Result := Result + ' AND ' + ACond
+  else
+    Result := Result + ' WHERE ' + ACond;
+end;
+
+function TfrmGrid<TE, TS>.PagingOrderBy: string;
+var
+  LList: TStringList;
+  LName, LDir, LLower: string;
+  i: Integer;
+begin
+  Result := '';
+  if FSortFields <> '' then
+  begin
+    LList := TStringList.Create;
+    try
+      LList.Delimiter := ';';
+      LList.StrictDelimiter := True;
+      LList.DelimitedText := FSortFields;
+      for i := 0 to LList.Count - 1 do
+      begin
+        LName := LList[i];
+        LDir := 'ASC';
+        if EndsText(':D', LName) then
+          LDir := 'DESC';
+        if (Length(LName) > 2) and (LName[Length(LName) - 1] = ':') then
+          SetLength(LName, Length(LName) - 2);
+        if LName = '' then
+          Continue;
+        if Result <> '' then
+          Result := Result + ', ';
+        Result := Result + AnsiQuotedStr(LName, '"') + ' ' + LDir;
+      end;
+    finally
+      LList.Free;
+    end;
+  end;
+
+  if FBaseOrderBy <> '' then
+  begin
+    if Result <> '' then
+      Result := Result + ', ';
+    Result := Result + FBaseOrderBy;
+  end;
+
+  // Aynı değerli satırlar sayfalar arasında kaymasın / tekrar etmesin
+  LLower := LowerCase(Trim(Result));
+  if Result = '' then
+    Result := 'id'
+  else if not (EndsText(' id', ' ' + LLower) or EndsText(' id asc', ' ' + LLower) or EndsText(' id desc', ' ' + LLower)) then
+    Result := Result + ', id';
+end;
+
+procedure TfrmGrid<TE, TS>.OpenPageData(AQuiet: Boolean);
+var
+  LSql: string;
+begin
+  if FPageIndex < 0 then
+    FPageIndex := 0;
+
+  LSql := PagingFilteredSql + ' ORDER BY ' + PagingOrderBy;
+  if FPageSize > 0 then
+    LSql := LSql + Format(' LIMIT %d OFFSET %d', [FPageSize, Int64(FPageIndex) * FPageSize]);
+
+  // AQuiet: kolonlar varsayılana dönmesin, AfterDatasetOpen (DB'den genişlik, form genişliği) çalışmasın
+  FPageReload := AQuiet;
+  if AQuiet then
+    FQry.DisableControls;
+  try
+    FQry.Close;
+    FQry.SQL.Text := LSql;
+    ApplyPagingParams(FQry);
+    FQry.Open;
+  finally
+    if AQuiet then
+      FQry.EnableControls;
+    FPageReload := False;
+  end;
+end;
+
+// Kayıt sayısı + alt toplamlar tek sorguda, filtreye uyan tüm kayıtlar üzerinden
+procedure TfrmGrid<TE, TS>.LoadPagingTotals;
+var
+  LSelect: string;
+  LQ: TFDQuery;
+  LFooterCol: TFooterColumn;
+  LField: TField;
+  i: Integer;
+begin
+  LSelect := 'count(*) AS pg_total';
+  i := 0;
+  if Assigned(FFooterColumns) then
+    for LFooterCol in FFooterColumns do
+    begin
+      // sorguda olmayan kolon toplamı SQL hatası (açık işlemi de bozar) vermesin
+      if FQry.FindField(LFooterCol.ColumnFieldName) <> nil then
+        LSelect := LSelect + Format(', %s(%s) AS pg_a%d',
+          [AggregateTypeToSqlFunc(LFooterCol.AggregateType), AnsiQuotedStr(LFooterCol.ColumnFieldName, '"'), i]);
+      Inc(i);
+    end;
+
+  LQ := CreatePagingQuery('SELECT ' + LSelect + ' FROM (' + PagingFilteredSql + ') pg_t');
+  try
+    LQ.Open;
+    FTotalCount := LQ.FieldByName('pg_total').AsLargeInt;
+    i := 0;
+    if Assigned(FFooterColumns) then
+      for LFooterCol in FFooterColumns do
+      begin
+        LField := LQ.FindField('pg_a' + IntToStr(i));
+        if Assigned(LField) then
+          LFooterCol.ServerValue := LField.Value
+        else
+          LFooterCol.ServerValue := Null;
+        Inc(i);
+      end;
+  finally
+    LQ.Free;
+  end;
+end;
+
+// Kaydın sıralı / filtreli listedeki sırası -> sayfa no (0 tabanlı); bulunamazsa -1
+function TfrmGrid<TE, TS>.FindPageOfId(AId: Int64): Integer;
+var
+  LSql: string;
+  LQ: TFDQuery;
+begin
+  Result := -1;
+  if (FPageSize <= 0) or (AId <= 0) or (FQry.FindField('id') = nil) then
+    Exit;
+
+  LSql := TrimLeft(PagingFilteredSql);
+  if not StartsText('SELECT ', LSql) or StartsText('SELECT DISTINCT', LSql) then
+    Exit;
+  LSql := 'SELECT row_number() OVER (ORDER BY ' + PagingOrderBy + ') AS pg_rn, ' + LSql.Substring(Length('SELECT '));
+
+  LQ := CreatePagingQuery('SELECT pg_r.pg_rn FROM (' + LSql + ') pg_r WHERE pg_r.id = ' + IntToStr(AId));
+  try
+    LQ.Open;
+    if not LQ.IsEmpty then
+      Result := (LQ.Fields[0].AsLargeInt - 1) div FPageSize;
+  finally
+    LQ.Free;
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.LoadPage(AKeepLayout: Boolean; AFocusId: Int64);
+var
+  LStates: TArray<TGridColumnState>;
+  LQuiet: Boolean;
+  LPage, LFocusPage: Integer;
+  LCursor: TCursor;
+begin
+  if not IsPaged then
+    Exit;
+
+  LCursor := Screen.Cursor;
+  Screen.Cursor := crHourGlass;
+  try
+    LQuiet := AKeepLayout and FQry.Active and (Grd.Columns.Count > 0);
+    if LQuiet then
+      LStates := SaveColumnStates
+    else
+      LStates := nil;
+
+    OpenPageData(LQuiet);
+    LoadPagingTotals;
+
+    // Kayıt silinip sayfa sayısı azaldıysa son sayfa; odaklanacak kayıt başka sayfadaysa o sayfa
+    LPage := FPageIndex;
+    if LPage > PageCount - 1 then
+      LPage := PageCount - 1;
+    if (AFocusId > 0) and (FPageSize > 0) and (FQry.FindField('id') <> nil) and not FQry.Locate('id', AFocusId, []) then
+    begin
+      LFocusPage := FindPageOfId(AFocusId);
+      if LFocusPage >= 0 then
+        LPage := LFocusPage;
+    end;
+    if LPage <> FPageIndex then
+    begin
+      FPageIndex := LPage;
+      OpenPageData(LQuiet);
+    end;
+    if (AFocusId > 0) and (FQry.FindField('id') <> nil) then
+      FQry.Locate('id', AFocusId, []);
+
+    if LQuiet then
+      RestoreColumnStates(LStates);
+  finally
+    Screen.Cursor := LCursor;
+  end;
+
+  UpdatePagingControls;
+  RefreshStatusRecordCount;
+end;
+
+procedure TfrmGrid<TE, TS>.GoToPage(AIndex: Integer);
+begin
+  if not IsPaged then
+    Exit;
+  if AIndex > PageCount - 1 then
+    AIndex := PageCount - 1;
+  if AIndex < 0 then
+    AIndex := 0;
+  if AIndex = FPageIndex then
+  begin
+    UpdatePagingControls;
+    Exit;
+  end;
+  FPageIndex := AIndex;
+  LoadPage(True);
+end;
+
+function TfrmGrid<TE, TS>.SaveColumnStates: TArray<TGridColumnState>;
+var
+  i: Integer;
+begin
+  SetLength(Result, Grd.Columns.Count);
+  for i := 0 to Grd.Columns.Count - 1 do
+  begin
+    Result[i].FieldName := Grd.Columns[i].FieldName;
+    Result[i].Width := Grd.Columns[i].Width;
+    Result[i].Visible := Grd.Columns[i].Visible;
+    Result[i].Caption := Grd.Columns[i].Title.Caption;
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.RestoreColumnStates(const AStates: TArray<TGridColumnState>);
+var
+  i, j, LIndex: Integer;
+  LCol: TColumn;
+begin
+  for i := 0 to Grd.Columns.Count - 1 do
+  begin
+    Grd.Columns[i].Title.Font.Style := [fsBold];
+    Grd.Columns[i].Title.Alignment := TAlignment.taCenter;
+  end;
+  // yeniden oluşan alanlara alan olayları (OnGetText vb.) yeniden bağlansın
+  DefineColumnWidths;
+
+  Grd.Columns.BeginUpdate;
+  try
+    LIndex := 0;
+    for i := 0 to High(AStates) do
+      for j := 0 to Grd.Columns.Count - 1 do
+        if SameText(Grd.Columns[j].FieldName, AStates[i].FieldName) then
+        begin
+          LCol := Grd.Columns[j];
+          LCol.Visible := AStates[i].Visible;
+          LCol.Width := AStates[i].Width;
+          LCol.Title.Caption := AStates[i].Caption;
+          if LCol.Index <> LIndex then
+            LCol.Index := LIndex;
+          Inc(LIndex);
+          Break;
+        end;
+  finally
+    Grd.Columns.EndUpdate;
+  end;
+  UpdateFooterLayout;
+end;
+
+// SQL değişmezi (popup "Filtrele"): tarih ISO, ondalık nokta, metin tırnaklı; desteklenmeyen tip boş
+function TfrmGrid<TE, TS>.SqlLiteral(AField: TField): string;
+begin
+  Result := '';
+  case AField.DataType of
+    ftString, ftWideString, ftMemo, ftWideMemo, ftFmtMemo, ftFixedChar, ftFixedWideChar, ftGuid:
+      Result := QuotedStr(AField.AsString);
+    ftSmallint, ftInteger, ftWord, ftLargeint, ftAutoInc, ftLongWord, ftShortint, ftByte:
+      Result := AField.AsString;
+    ftFloat, ftCurrency, ftBCD, ftFMTBcd, ftExtended, ftSingle:
+      Result := FloatToStr(AField.AsFloat, TFormatSettings.Invariant);
+    ftBoolean:
+      Result := IfThen(AField.AsBoolean, 'true', 'false');
+    ftDate:
+      Result := 'DATE ' + QuotedStr(FormatDateTime('yyyy-mm-dd', AField.AsDateTime));
+    ftTime:
+      Result := 'TIME ' + QuotedStr(FormatDateTime('hh:nn:ss', AField.AsDateTime));
+    ftDateTime, ftTimeStamp, ftOraTimeStamp:
+      Result := 'TIMESTAMP ' + QuotedStr(FormatDateTime('yyyy-mm-dd hh:nn:ss', AField.AsDateTime));
+  end;
+end;
+
+// Hızlı filtre: görünen kolonlarda; metin her yerde (büyük / küçük harf, Türkçe İ/ı dahil), sayı / tarih / mantıksal eşitlik
+function TfrmGrid<TE, TS>.BuildSearchSql(const AText: string): string;
+var
+  i: Integer;
+  LCol: TColumn;
+  LField: TField;
+  LName: string;
+  LFloat: Double;
+  LDate: TDateTime;
+  LIsNumber, LIsDate, LIsBool: Boolean;
+  LParts: TStringList;
+begin
+  Result := '';
+  if AText = '' then
+    Exit;
+
+  LIsNumber := TryStrToFloat(AText, LFloat);
+  LIsDate := TryStrToDate(AText, LDate);
+  LIsBool := SameText(AText, 'TRUE') or SameText(AText, 'FALSE');
+
+  LParts := TStringList.Create;
+  try
+    for i := 0 to Grd.Columns.Count - 1 do
+    begin
+      LCol := Grd.Columns[i];
+      LField := LCol.Field;
+      if not LCol.Visible or not Assigned(LField) or SameText(LCol.FieldName, 'id') then
+        Continue;
+      LName := AnsiQuotedStr(LCol.FieldName, '"');
+      case LField.DataType of
+        ftString, ftWideString, ftMemo, ftWideMemo, ftFixedChar, ftFixedWideChar:
+          LParts.Add(Format('(%0:s ILIKE :pg_s OR %0:s LIKE :pg_su OR %0:s LIKE :pg_sl)', [LName]));
+        ftSmallint, ftInteger, ftWord, ftLargeint, ftLongWord, ftShortint, ftByte,
+        ftFloat, ftCurrency, ftBCD, ftFMTBcd, ftExtended, ftSingle:
+          if LIsNumber then
+            LParts.Add(LName + ' = ' + FloatToStr(LFloat, TFormatSettings.Invariant));
+        ftBoolean:
+          if LIsBool then
+            LParts.Add(LName + ' = ' + LowerCase(AText));
+        ftDate, ftDateTime, ftTimeStamp:
+          if LIsDate then
+            LParts.Add(Format('CAST(%s AS date) = DATE %s', [LName, QuotedStr(FormatDateTime('yyyy-mm-dd', LDate))]));
+      end;
+    end;
+
+    // aranabilir kolon yoksa hiçbir kayıt eşleşmez
+    if LParts.Count = 0 then
+      Result := '1 = 0'
+    else
+      Result := string.Join(' OR ', LParts.ToStringArray);
+  finally
+    LParts.Free;
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.SearchTimerTimer(Sender: TObject);
+begin
+  FSearchTimer.Enabled := False;
+  if not IsPaged then
+    Exit;
+  FSearchText := Trim(EdtFilter.Text);
+  FSearchSql := BuildSearchSql(FSearchText);
+  FPageIndex := 0;
+  LoadPage(True);
+end;
+
+procedure TfrmGrid<TE, TS>.FlushPendingSearch;
+begin
+  if IsPaged and FSearchTimer.Enabled then
+    SearchTimerTimer(FSearchTimer);
+end;
+
+procedure TfrmGrid<TE, TS>.BtnFirstPageClick(Sender: TObject);
+begin
+  GoToPage(0);
+  if (Sender <> nil) and Grd.CanFocus then
+    Grd.SetFocus;
+end;
+
+procedure TfrmGrid<TE, TS>.BtnPrevPageClick(Sender: TObject);
+begin
+  GoToPage(FPageIndex - 1);
+  if (Sender <> nil) and Grd.CanFocus then
+    Grd.SetFocus;
+end;
+
+procedure TfrmGrid<TE, TS>.BtnNextPageClick(Sender: TObject);
+begin
+  GoToPage(FPageIndex + 1);
+  if (Sender <> nil) and Grd.CanFocus then
+    Grd.SetFocus;
+end;
+
+procedure TfrmGrid<TE, TS>.BtnLastPageClick(Sender: TObject);
+begin
+  GoToPage(PageCount - 1);
+  if (Sender <> nil) and Grd.CanFocus then
+    Grd.SetFocus;
+end;
+
+procedure TfrmGrid<TE, TS>.EdtPageKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_RETURN then
+  begin
+    Key := 0;
+    GoToPage(StrToIntDef(FEdtPage.Text, FPageIndex + 1) - 1);
+    if Grd.CanFocus then
+      Grd.SetFocus;
+  end;
+end;
+
+procedure TfrmGrid<TE, TS>.CbbPageSizeChange(Sender: TObject);
+begin
+  if FCbbPageSize.ItemIndex < 0 then
+    Exit;
+  ChangePageSize(GRID_PAGE_SIZES[FCbbPageSize.ItemIndex]);
+  if Grd.CanFocus then
+    Grd.SetFocus;
+end;
+
+procedure TfrmGrid<TE, TS>.ChangePageSize(AValue: Integer; ASaveSetting: Boolean);
+var
+  LFirstRow: Int64;
+begin
+  if AValue < 0 then
+    AValue := 0;
+  if ASaveSetting then
+    SetGridPageSize(AValue);
+  if AValue = FPageSize then
+    Exit;
+
+  // ekrandaki ilk kayıt yeni sayfa boyutunda da görünsün
+  LFirstRow := Int64(FPageIndex) * FPageSize;
+  FPageSize := AValue;
+  if FPageSize > 0 then
+    FPageIndex := Integer(LFirstRow div FPageSize)
+  else
+    FPageIndex := 0;
+  if IsPaged then
+    LoadPage(True)
+  else
+    UpdatePagingControls;
+end;
+
+// İstemci tarafı mod: gövde + hızlı filtre koşulu + taban sıralama (sorgu kapalı bırakılır)
+procedure TfrmGrid<TE, TS>.ApplyQuickSqlToQuery;
+var
+  LSql: string;
+begin
+  LSql := FBaseSql;
+  if FQuickSql <> '' then
+    LSql := AddWhereCondition(LSql, '(' + FQuickSql + ')');
+  if FBaseOrderBy <> '' then
+    LSql := LSql + ' ORDER BY ' + FBaseOrderBy;
+  FQry.Close;
+  FQry.SQL.Text := LSql;
+  ApplyPagingParams(FQry);
+end;
+
+procedure TfrmGrid<TE, TS>.SetQuickCondition(const ASql: string; const AParams: array of Variant);
+var
+  i: Integer;
+begin
+  FQuickSql := Trim(ASql);
+  SetLength(FQuickParams, Length(AParams));
+  for i := 0 to High(AParams) do
+    FQuickParams[i] := AParams[i];
+
+  // FormShow henüz çalışmadıysa ilk açılışta uygulanır
+  if not FPagingReady or not Assigned(FQry) or not FQry.Active then
+    Exit;
+
+  FPageIndex := 0;
+  if IsPaged then
+  begin
+    LoadPage(True);
+    UpdateFooterLayout;
+  end
+  else
+  begin
+    ApplyQuickSqlToQuery;
+    RefreshParentGrid(False);
+  end;
+end;
+
+function TfrmGrid<TE, TS>.AddQuickFilter(const ACaption, ASql: string; const AParams: array of Variant): Integer;
+var
+  LItem: TQuickFilter;
+  i: Integer;
+begin
+  if FPanelQuickFilter = nil then
+  begin
+    FPanelQuickFilter := TPanel.Create(PanelHeader);
+    FPanelQuickFilter.Parent := PanelHeader;
+    FPanelQuickFilter.Align := alRight;
+    FPanelQuickFilter.BevelOuter := bvNone;
+    FPanelQuickFilter.ParentColor := True;
+  end;
+
+  LItem := TQuickFilter.Create;
+  LItem.Sql := Trim(ASql);
+  SetLength(LItem.Params, Length(AParams));
+  for i := 0 to High(AParams) do
+    LItem.Params[i] := AParams[i];
+  Result := FQuickFilters.Add(LItem);
+
+  LItem.Button := TRadioButton.Create(FPanelQuickFilter);
+  LItem.Button.Parent := FPanelQuickFilter;
+  LItem.Button.Left := 10000 + Result * 10;   // alLeft sırası eklenme sırası
+  LItem.Button.Align := alLeft;
+  LItem.Button.AlignWithMargins := True;
+  LItem.Button.Margins.SetBounds(6, 3, 2, 3);
+  LItem.Button.Caption := ACaption;
+  LItem.Button.Tag := Result;
+  LItem.Button.TabStop := False;
+  if Result = 0 then
+  begin
+    // OnClick henüz bağlı değil: Checked ataması sorgu açtırmaz
+    LItem.Button.Checked := True;
+    FQuickFilterIndex := 0;
+    SetQuickCondition(LItem.Sql, LItem.Params);
+  end;
+  LItem.Button.OnClick := QuickFilterClick;
+  LayoutQuickFilters;
+end;
+
+procedure TfrmGrid<TE, TS>.SetQuickFilterCaption(AIndex: Integer; const ACaption: string);
+begin
+  if (AIndex < 0) or (AIndex >= FQuickFilters.Count) then
+    Exit;
+  FQuickFilters[AIndex].Button.Caption := ACaption;
+  LayoutQuickFilters;
+end;
+
+procedure TfrmGrid<TE, TS>.SelectQuickFilter(AIndex: Integer);
+begin
+  if (AIndex < 0) or (AIndex >= FQuickFilters.Count) or (AIndex = FQuickFilterIndex) then
+    Exit;
+  FQuickFilterIndex := AIndex;
+  FQuickFilterUpdating := True;
+  try
+    FQuickFilters[AIndex].Button.Checked := True;
+  finally
+    FQuickFilterUpdating := False;
+  end;
+  SetQuickCondition(FQuickFilters[AIndex].Sql, FQuickFilters[AIndex].Params);
+end;
+
+procedure TfrmGrid<TE, TS>.QuickFilterClick(Sender: TObject);
+begin
+  if FQuickFilterUpdating or not (Sender is TRadioButton) or not TRadioButton(Sender).Checked then
+    Exit;
+  SelectQuickFilter(TRadioButton(Sender).Tag);
+  if Grd.CanFocus then
+    Grd.SetFocus;
+end;
+
+// Düğme genişliği metne göre (dil değişince de); panel düğmelerin toplamı kadar
+procedure TfrmGrid<TE, TS>.LayoutQuickFilters;
+var
+  LItem: TQuickFilter;
+  LWidth: Integer;
+begin
+  if FPanelQuickFilter = nil then
+    Exit;
+  Canvas.Font.Assign(FPanelQuickFilter.Font);
+  LWidth := 6;
+  for LItem in FQuickFilters do
+  begin
+    LItem.Button.Width := Canvas.TextWidth(LItem.Button.Caption) + 24;
+    Inc(LWidth, LItem.Button.Width + LItem.Button.Margins.Left + LItem.Button.Margins.Right);
+  end;
+  FPanelQuickFilter.Width := LWidth;
+end;
+
+function TfrmGrid<TE, TS>.GetQuickFilterCount: Integer;
+begin
+  Result := FQuickFilters.Count;
 end;
 
 end.

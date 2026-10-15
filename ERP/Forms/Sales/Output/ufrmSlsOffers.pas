@@ -27,6 +27,7 @@ type
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
+    procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
   end;
@@ -189,8 +190,26 @@ begin
     LField.OnGetText := StatusGetText;
 end;
 
+// Alt toplamlar sayfanın değil filtreye uyan tüm kayıtların (sayfalı modda SQL ile)
+procedure TfrmSlsOffers.DefineFooterColumns;
+begin
+  inherited;
+  AddFooterColumn('net_amount', atSum, '#,##0.00');
+  AddFooterColumn('vat_amount', atSum, '#,##0.00');
+  AddFooterColumn('total_amount', atSum, '#,##0.00');
+end;
+
 procedure TfrmSlsOffers.FormShow(Sender: TObject);
 begin
+  // Hızlı filtre: durum grupları; kayıt sayısı ve alt toplamlar seçili gruba (+ arama / popup filtre) göre
+  if QuickFilterCount = 0 then
+  begin
+    AddQuickFilter('', '', []);
+    AddQuickFilter('', 'status = :qc0', [SLS_OFF_DRAFT]);
+    AddQuickFilter('', 'status = :qc0', [SLS_OFF_SENT]);
+    AddQuickFilter('', 'status = :qc0', [SLS_OFF_ORDERED]);
+    AddQuickFilter('', 'status IN (:qc0, :qc1)', [SLS_OFF_REJECTED, SLS_OFF_CLOSED]);
+  end;
   inherited;
   mniDuplicate.Visible := True;
   ApplyLocalization;
@@ -199,6 +218,11 @@ end;
 procedure TfrmSlsOffers.ApplyLocalization;
 begin
   inherited;
+  SetQuickFilterCaption(0, TLocalizationManager.Translate(TLangKeys.TGeneral.QuickAll, 'All'));
+  SetQuickFilterCaption(1, TLocalizationManager.Translate(TLangKeys.TSlsOffer.QuickDraft, 'Draft'));
+  SetQuickFilterCaption(2, TLocalizationManager.Translate(TLangKeys.TSlsOffer.QuickSent, 'Sent'));
+  SetQuickFilterCaption(3, TLocalizationManager.Translate(TLangKeys.TSlsOffer.QuickOrdered, 'Ordered'));
+  SetQuickFilterCaption(4, TLocalizationManager.Translate(TLangKeys.TSlsOffer.QuickClosed, 'Rejected / Closed'));
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.TitlePlural, 'Sales Offers');
   SetColumnTitle('offer_no', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColOfferNo, 'Offer No'));
   SetColumnTitle('offer_date', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColOfferDate, 'Offer Date'));

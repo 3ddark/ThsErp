@@ -580,6 +580,29 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Elle denenmedi (UI): popup akışları (Siparişe Dönüştür, Sevk İrsaliyesi / İrsaliyeli Fatura Oluştur, Faturaya Dönüştür).
 - Kalan / sonraki: satış faturası muhasebe fişi ve e-fatura, satış iadesi, fiyat listeleri / müşteri iskontosu, sevk adresi,
   negatif stok kontrolü (şimdilik engellenmiyor), çıktılar (teklif / irsaliye / fatura baskısı).
+
+## Liste sayfalama (2026-10-15, /goal "ufrmGrid ve türetilmiş sayfalar için pagination")
+- TfrmGrid<> sunucu tarafı sayfalama (varsayılan açık, 93 liste ekranının hepsi): FormShow sorgunun ORDER BY'sız gövdesini
+  + parametrelerini saklar; her sayfa gövde + hızlı filtre / popup filtre + başlık sıralaması + taban sıralama + id
+  LIMIT/OFFSET. Kayıt sayısı + alt toplamlar tek SQL'de tüm filtreli kayıtlar üzerinden; Excel/CSV ve CollectVisibleIds de.
+  Alt çubuk: « ‹ [sayfa] / n › » "x - y / toplam" + sayfa boyutu (50/100/250/500/1000/Tümü; kullanıcı başına
+  sys_user_setting grid.page_size, varsayılan 100). Ctrl+PgUp/PgDn. Kayıt sonrası RefreshParentGrid kaydın sayfasına gider,
+  kolon düzeni korunur. Kapatmak için FormShow öncesi PagingEnabled := False (eski istemci tarafı davranış). Kural: rules/forms.md.
+  Yeni anahtarlar grid.page_* (4 dil).
+- Doğrulama: msbuild Win64 Debug 0 hata / ufrmGrid'de uyarı yok; UI tam koşu 1749 pass / 0 fail / 1 warn (bilinen PurRequests);
+  yeni UI adımı "paging" (93 liste): sayfa boyutu 1 ile sayfa geçişi, son sayfa, kayda odaklanma, başlık sıralaması,
+  hızlı filtre, her görünen kolonda popup Filtrele + kaldır.
+- Elle denenmedi: çubuğun görünümü / yerleşimi, arama gecikmesi hissi, sayfa boyutu ayarının yeniden girişte korunması.
+
+## Hızlı filtre (2026-10-15)
+- TfrmGrid<>: AddQuickFilter / SetQuickFilterCaption / SelectQuickFilter / SetQuickCondition (:qc0… parametreli koşul taban
+  sorguya AND; sayfa, kayıt sayısı, alt toplamlar, Excel/CSV, CollectVisibleIds; istemci tarafı modda da). Radyo düğmeleri
+  başlık çubuğunda filtre kutusunun sağında. LoadFooterColumnsFromDB artık koddaki DefineFooterColumns'u silmiyor.
+- Satış Teklif (Tümü/Taslak/Gönderilen/Siparişe Dönen/Reddedilen-Kapanan) ve Sipariş (Tümü/Onaysızlar/Bekleyenler/Gidenler)
+  listeleri + net / KDV / genel toplam alt toplamları. Yeni anahtarlar grid.quick_all, sls_offer.quick.*, sls_order.quick.* (4 dil).
+- Doğrulama: msbuild Win64 Debug 0 hata; UI tam koşu 1749 pass / 0 fail / 1 warn; paging adımı hızlı filtreleri de geziyor.
+- Elle denenmedi: radyo düğmelerinin görünümü / genişliği; farklı para birimli belgelerin toplamı tek sayı (kur çevrimi yok).
+
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.

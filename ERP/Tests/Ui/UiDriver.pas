@@ -78,6 +78,7 @@ type
   TUiTester<TE: TEntity, constructor; TS: TCrudService<TE>> = class
   public
     class procedure Run(const AModule: string; G: TfrmGrid<TE, TS>);
+    class procedure PagingCheck(G: TfrmGrid<TE, TS>);
   end;
 
 implementation
@@ -1088,6 +1089,123 @@ end;
 
 { ---------------------------------------------------------- TUiTester<> }
 
+// Sayfa boyutu 1 iken sayfalar farklı kayıt gösterir, odaklanan kayıt kendi sayfasına gider; sıralama,
+// hızlı filtre ve her görünen kolonda popup "Filtrele" SQL hatası vermez ve toplamı tutarlı daraltır
+class procedure TUiTester<TE, TS>.PagingCheck(G: TfrmGrid<TE, TS>);
+var
+  LTotal, LId0, LId1: Int64;
+  LSize, i: Integer;
+  LCol: TColumn;
+  LText, LProblems, LDialogs: string;
+  LFiltered, LQuick: Integer;
+begin
+  LProblems := '';
+  LFiltered := 0;
+  LSize := G.PageSize;
+  LTotal := G.TotalCount;
+  try
+    if (G.PageSize > 0) and (G.Qry.RecordCount > G.PageSize) then
+      LProblems := LProblems + Format('page rows %d > page size %d; ', [G.Qry.RecordCount, G.PageSize]);
+
+    if LTotal >= 2 then
+    begin
+      G.ChangePageSize(1, False);
+      G.GoToPage(0);
+      LId0 := G.Qry.FieldByName('id').AsLargeInt;
+      G.GoToPage(1);
+      LId1 := G.Qry.FieldByName('id').AsLargeInt;
+      if (G.Qry.RecordCount <> 1) or (LId0 = LId1) then
+        LProblems := LProblems + Format('page 2 rows %d id %d (page 1 id %d); ', [G.Qry.RecordCount, LId1, LId0]);
+      G.GoToPage(MaxInt);
+      if G.PageIndex <> LTotal - 1 then
+        LProblems := LProblems + Format('last page %d <> %d; ', [G.PageIndex, LTotal - 1]);
+      G.LoadPage(True, LId0);
+      if (G.PageIndex <> 0) or (G.Qry.FieldByName('id').AsLargeInt <> LId0) then
+        LProblems := LProblems + Format('focus id %d -> page %d; ', [LId0, G.PageIndex]);
+      G.ChangePageSize(LSize, False);
+      G.GoToPage(0);
+    end;
+
+    // başlık sıralaması (sunucu): toplam değişmez
+    for i := 0 to G.Grd.Columns.Count - 1 do
+      if G.Grd.Columns[i].Visible and Assigned(G.Grd.Columns[i].Field) then
+      begin
+        G.grdTitleClick(G.Grd.Columns[i]);
+        G.grdTitleClick(G.Grd.Columns[i]);
+        if G.TotalCount <> LTotal then
+          LProblems := LProblems + Format('sort %s total %d; ', [G.Grd.Columns[i].FieldName, G.TotalCount]);
+        G.mniRemoveSortClick(nil);
+        Break;
+      end;
+
+    // hızlı filtre seçenekleri: her biri SQL hatası vermez; ilk seçeneğe dönünce toplam geri gelir
+    LQuick := G.QuickFilterIndex;
+    for i := 0 to G.QuickFilterCount - 1 do
+    begin
+      G.SelectQuickFilter(i);
+      if (G.QuickFilterIndex <> i) or (G.TotalCount < 0) then
+        LProblems := LProblems + Format('quick filter %d index %d; ', [i, G.QuickFilterIndex]);
+    end;
+    if LQuick >= 0 then
+    begin
+      G.SelectQuickFilter(LQuick);
+      if G.TotalCount <> LTotal then
+        LProblems := LProblems + Format('quick filter back total %d; ', [G.TotalCount]);
+    end;
+
+    if LTotal > 0 then
+    begin
+      G.GoToPage(0);
+      G.Qry.First;
+      // hızlı filtre: ilk satırın ilk dolu metin kolonu kendini bulmalı
+      for i := 0 to G.Grd.Columns.Count - 1 do
+      begin
+        LCol := G.Grd.Columns[i];
+        if LCol.Visible and Assigned(LCol.Field) and (LCol.Field.DataType in [ftString, ftWideString]) and (Trim(LCol.Field.AsString) <> '') then
+        begin
+          LText := Trim(LCol.Field.AsString);
+          G.EdtFilter.Text := LText;
+          G.FlushPendingSearch;
+          if (G.TotalCount < 1) or (G.TotalCount > LTotal) then
+            LProblems := LProblems + Format('search [%s] total %d; ', [LText, G.TotalCount]);
+          G.EdtFilter.Text := '';
+          G.FlushPendingSearch;
+          if G.TotalCount <> LTotal then
+            LProblems := LProblems + Format('search cleared total %d; ', [G.TotalCount]);
+          Break;
+        end;
+      end;
+
+      // popup filtre: her görünen dolu kolon, seçili satırın değeriyle en az o satırı bulmalı
+      for i := 0 to G.Grd.Columns.Count - 1 do
+      begin
+        G.GoToPage(0);
+        G.Qry.First;
+        LCol := G.Grd.Columns[i];
+        if not LCol.Visible or not Assigned(LCol.Field) or LCol.Field.IsNull then
+          Continue;
+        G.Grd.SelectedIndex := i;
+        G.mniFilterClick(nil);
+        Inc(LFiltered);
+        if (G.TotalCount < 1) or (G.TotalCount > LTotal) then
+          LProblems := LProblems + Format('filter %s total %d; ', [LCol.FieldName, G.TotalCount]);
+        G.mniFilterRemoveClick(nil);
+        if G.TotalCount <> LTotal then
+          LProblems := LProblems + Format('filter %s removed total %d; ', [LCol.FieldName, G.TotalCount]);
+      end;
+    end;
+  except
+    on E: Exception do
+      LProblems := LProblems + E.ClassName + ': ' + E.Message;
+  end;
+  LDialogs := TUi.TakeDialogs;
+  if (LProblems <> '') or (LDialogs <> '') then
+    TUi.R('FAIL', 'paging', LProblems + LDialogs)
+  else
+    TUi.R('PASS', 'paging', Format('%d rows, page size %d, %d column filters, %d quick filters',
+      [LTotal, LSize, LFiltered, G.QuickFilterCount]));
+end;
+
 class procedure TUiTester<TE, TS>.Run(const AModule: string; G: TfrmGrid<TE, TS>);
 const
   Langs: array[0..2] of string = ('en-US', 'de-DE', 'tr-TR');
@@ -1156,6 +1274,12 @@ begin
         else
           TUi.R('PASS', 'language ' + Lang, G.Caption);
       end;
+
+      // 2b) sayfalama: sayfa / odak / sıralama / hızlı filtre / popup filtre tüm kayıtlar üzerinden SQL ile
+      if G.IsPaged then
+        PagingCheck(G)
+      else
+        TUi.R('INFO', 'paging', 'paging disabled');
 
       // 3) boş yeni kayıt
       if G.BtnAdd.Visible and G.BtnAdd.Enabled then

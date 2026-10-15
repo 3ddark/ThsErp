@@ -43,6 +43,15 @@ type
         const KeyF6 = 'grid.key_f6';
         const KeyF7 = 'grid.key_f7';
         const KeyF11 = 'grid.key_f11';
+        const PageFirst = 'grid.page_first';
+        const PagePrevious = 'grid.page_previous';
+        const PageNext = 'grid.page_next';
+        const PageLast = 'grid.page_last';
+        const PageNumber = 'grid.page_number';
+        const PageSize = 'grid.page_size';
+        const PageAll = 'grid.page_all';
+        const QuickAll = 'grid.quick_all';
+        const PageInfo = 'grid.page_info';
       end;
 
       TPopupMenu = record
@@ -2050,6 +2059,10 @@ type
         const MenuReject = 'sls_offer.popup.reject';
         const MenuClose = 'sls_offer.popup.close';
         const MenuToOrder = 'sls_offer.popup.to_order';
+        const QuickDraft = 'sls_offer.quick.draft';
+        const QuickSent = 'sls_offer.quick.sent';
+        const QuickOrdered = 'sls_offer.quick.ordered';
+        const QuickClosed = 'sls_offer.quick.closed';
         const NoUnique = 'sls_offer.no_unique';
         const DraftOnly = 'sls_offer.draft_only';
         const NoLines = 'sls_offer.no_lines';
@@ -2120,6 +2133,9 @@ type
         const MenuCancel = 'sls_order.popup.cancel';
         const MenuToDispatch = 'sls_order.popup.to_dispatch';
         const MenuToInvoice = 'sls_order.popup.to_invoice';
+        const QuickUnapproved = 'sls_order.quick.unapproved';
+        const QuickPending = 'sls_order.quick.pending';
+        const QuickDelivered = 'sls_order.quick.delivered';
         const NoUnique = 'sls_order.no_unique';
         const NoLines = 'sls_order.no_lines';
         const HasDeliveries = 'sls_order.has_deliveries';

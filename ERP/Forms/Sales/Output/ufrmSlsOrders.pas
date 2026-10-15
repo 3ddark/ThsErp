@@ -29,6 +29,7 @@ type
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
+    procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
   end;
@@ -261,8 +262,25 @@ begin
     LField.OnGetText := StatusGetText;
 end;
 
+// Alt toplamlar sayfanın değil filtreye uyan tüm kayıtların (sayfalı modda SQL ile)
+procedure TfrmSlsOrders.DefineFooterColumns;
+begin
+  inherited;
+  AddFooterColumn('net_amount', atSum, '#,##0.00');
+  AddFooterColumn('vat_amount', atSum, '#,##0.00');
+  AddFooterColumn('total_amount', atSum, '#,##0.00');
+end;
+
 procedure TfrmSlsOrders.FormShow(Sender: TObject);
 begin
+  // Hızlı filtre: durum grupları; kayıt sayısı ve alt toplamlar seçili gruba (+ arama / popup filtre) göre
+  if QuickFilterCount = 0 then
+  begin
+    AddQuickFilter('', '', []);
+    AddQuickFilter('', 'status = :qc0', [SLS_ORD_DRAFT]);
+    AddQuickFilter('', 'status IN (:qc0, :qc1)', [SLS_ORD_APPROVED, SLS_ORD_PARTIAL]);
+    AddQuickFilter('', 'status = :qc0', [SLS_ORD_DELIVERED]);
+  end;
   inherited;
   mniDuplicate.Visible := True;
   ApplyLocalization;
@@ -271,6 +289,10 @@ end;
 procedure TfrmSlsOrders.ApplyLocalization;
 begin
   inherited;
+  SetQuickFilterCaption(0, TLocalizationManager.Translate(TLangKeys.TGeneral.QuickAll, 'All'));
+  SetQuickFilterCaption(1, TLocalizationManager.Translate(TLangKeys.TSlsOrder.QuickUnapproved, 'Unapproved'));
+  SetQuickFilterCaption(2, TLocalizationManager.Translate(TLangKeys.TSlsOrder.QuickPending, 'Pending'));
+  SetQuickFilterCaption(3, TLocalizationManager.Translate(TLangKeys.TSlsOrder.QuickDelivered, 'Delivered'));
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOrder.TitlePlural, 'Sales Orders');
   SetColumnTitle('order_no', TLocalizationManager.Translate(TLangKeys.TSlsOrder.ColOrderNo, 'Order No'));
   SetColumnTitle('order_date', TLocalizationManager.Translate(TLangKeys.TSlsOrder.ColOrderDate, 'Order Date'));

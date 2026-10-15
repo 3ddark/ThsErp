@@ -37,6 +37,24 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
   it when the entity's table has the `audit` trigger and the user may read 1112 (hooks `GRecordHistoryAvailable` /
   `GRecordHistoryShow` in `ufrmGrid`, assigned in `ufrmSysAuditLogs` initialization — ufrmGrid does not use that unit).
   Nothing to do per form; the row must have an `id` field.
+- **Paging (server side, default on):** `FormShow` keeps the query body without `ORDER BY` (after `AddFixedFilter` +
+  `sys_grid_filter` / `sys_grid_sort`) and every page is `body [+ AND search / popup filters] ORDER BY title sort, base
+  sort, id LIMIT n OFFSET m`. Quick filter (350 ms debounce, `ILIKE` + Turkish upper/lower params `pg_s*`), popup
+  Filter / Exclude (SQL literals; timestamps compared per second), title sort, footer totals (`count` + aggregates in
+  one query), record count, Excel / CSV export and `CollectVisibleIds` all cover **every** filtered row, not the page.
+  Footer bar: « ‹ [page] / n › » `from - to / total` + page size combo (50/100/250/500/1000/All); the size is one
+  per-user setting (`sys_user_setting` `grid.page_size`, default 100). Ctrl+PgUp / Ctrl+PgDn change page.
+  `RefreshParentGrid(True)` / `RefreshData` jump to the page of `Table.Id` (new record → last page) and keep the
+  current column layout (`DefineColumnWidths` re-runs so field `OnGetText` hooks survive the reopen).
+  Never rely on `Qry` holding all rows (iterate via a service / repository instead); a list that must stay client-side
+  sets `PagingEnabled := False` before `inherited FormShow`. `Qry.IndexFieldNames` / `Qry.Filter` are not used in paged mode.
+- **Quick filter (status groups etc.):** in `FormShow` *before* `inherited` (guard `if QuickFilterCount = 0`) call
+  `AddQuickFilter('', 'status IN (:qc0, :qc1)', [A, B])` per option (first = selected, `''` SQL = all); radio buttons sit
+  right of the filter edit; captions via `SetQuickFilterCaption(i, Translate(...))` in `ApplyLocalization`. The condition
+  is ANDed to the base query (params `:qc0…`), so page, count, footer totals and exports follow it, in both paged and
+  client modes. Low level: `SetQuickCondition(Sql, Params)`; code selection: `SelectQuickFilter(i)`. Example: `ufrmSlsOrders`.
+- Footer totals in code: `DefineFooterColumns` → `AddFooterColumn('net_amount', atSum, '#,##0.00')`; `sys_grid_column.
+  aggregate_type` rows are merged on top (same column → DB wins).
 - Every visible column of `vw_*` needs a `sys_grid_column` row (only those are fetched); after adding view columns
   insert their rows, otherwise the list/helper silently lacks them.
 - UI regression: `ERP/Tests/Ui/build.sh` (rebuilds `ths_erp_it` from live + seed, compiles) then
