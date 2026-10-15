@@ -447,11 +447,36 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Sonuç: entegrasyon 1367 pass / 0 fail; UI tam 1430 pass / 1 fail (SysGridColumn, düzeltildi; tekil test 14 / 14) / 1 warn
   (TfrmPurRequests boş kayıt kabul: talep no otomatik, diğer alanlar isteğe bağlı -> tasarım gereği).
 
-## KALDIĞIM YER (2026-10-14 sonu)
-- Yapılanlar commit edildi (1060 silme + vergi hesapları, görsel dashboard, UI test adımları).
-- Kullanıcı yapacak: uygulamada dashboard'u elle kontrol (Iceberg Classico temasıyla zemin rengi, fare tekerleği ile kaydırma,
-  grafik balonları), Sistem > Grid Kolon giriş formu yerleşimi.
-- SONRAKİ ADIM: sls_ (satış) modülü. Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
+## Sol menü ağacı + ekran kodları (2026-10-15, NB61 makinesi: DB 5433, RAD Studio 23.0)
+- Kullanıcı kararları: Ribbon yok; solda aranabilir ağaç. Menü kodu ile yetki kodu AYRI (yetki kodları değişmedi).
+  Açılan ekranların başlığının sonunda kod: "Müşteri Çekleri [300301]". Ana menü (TMainMenu) şimdilik duruyor.
+- DB: `sys_menu` (menu_code MMGGSS UNIQUE, generated parent_code FK, menu_key, action_name, sys_permission_id, is_active;
+  klasör/ekran CHECK'leri, audit trigger) + `sys_menu_translation` (menu_name, keywords; tr/en/de) + `vw_sys_menu`.
+  103 satır: 7 modül (60 Satış henüz yok), 18 grup, 78 ekran (dashboard'daki 77 SetAction + 100108 Şifre Değiştir).
+  Kod şeması: modül 10 Sistem / 20 Muhasebe / 30 Finans / 40 Stok / 50 Satın Alma / 60 Satış / 70 Üretim / 80 Personel;
+  grup 01 kartlar, 02 hareketler, 03 belgeler (finansta çek/senet), 04 belge kalemleri, 05 liste ayarları, 08 raporlar,
+  09 ayarlar. Üreteç: scratchpad gen_menu.py (adlar dashboard action başlıklarının JSON çevirilerinden). Yedek:
+  ths_erp_before_sys_menu.dump.
+- Kod: `SysMenu` (TSysMenuItem kaydı) / `SysMenu.Repository` / `SysMenu.Service` (GetMenu: Allowed = okuma yetkisi);
+  `Forms/Core/Base/NavigationTree.pas` (TNavMenuPanel: TSearchBox + sahibi çizilen TTreeView, modül ikonları, kod sütunu,
+  arama: ad / anahtar kelime / üst klasör / kod öneki, Türkçe harf katlama; TNavToggleButton); `Forms/Core/Base/ScreenCode.pas`
+  (TScreenCodes.RunWithCode + Screen.OnActiveFormChange + WM_SETTEXT kancası; modal olmayan alt formlar kodu devralır).
+  Dashboard: 77 satırlık SetAction listesi kaldırıldı -> LoadMenu (sys_menu'dan action Enabled), actlstMain.OnExecute ->
+  RunWithCode, dil değişiminde menü yeniden okunur, Ctrl+K / Ctrl+F arama, Esc aramayı temizler, araç çubuğunda menü düğmesi.
+  actprs_personeller başlığı artık çevriliyor (önceden DFM'deki sabit Türkçe). Grafikler satıra tek sayıda kart sığınca
+  satırı dolduruyor.
+- Test: UI 1451 pass / 0 fail / 1 warn (bilinen PurRequests); dashboard testine 18 menü adımı (arama, kod + Enter, başlıkta kod,
+  devralma, dil değişimi, kısıtlı kullanıcı, ekran görüntüleri UiTest-dashboard(-nav).png). Entegrasyon 1370 pass / 0 fail
+  (+ CheckMenu: super user / TEST / şablon + override senaryosunda Allowed = etkin okuma yetkisi). Derleme 0 hata.
+- Yapılmadı / sonraki: favoriler + son kullanılanlar (sys_user_menu_favorite), Ctrl+K komut paleti (her ekrandan),
+  sys_menu bakım ekranı, ana menüde kod gösterimi, panel genişliği / açık klasörlerin kullanıcı bazında saklanması.
+  Uygulama içinde elle denenmedi (kullanıcı IDE'de Shift+F9 Build + dene).
+
+## KALDIĞIM YER (2026-10-15)
+- Sol menü ağacı + ekran kodları tamamlandı (yukarıda). Kullanıcı elle denemeli: tıklama ile aç/kapa, arama, Ctrl+K,
+  Esc, başlıkta kod, panel genişliği (splitter), menü düğmesi, tema (Iceberg Classico) renkleri.
+- SONRAKİ ADIM: kullanıcı geri bildirimi -> favoriler / son kullanılanlar; ardından sls_ (satış) modülü (yeni ekranlar
+  için sys_menu satırı zorunlu: 60xxxx). Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
   `%TEMP%\ths_it\bin\IntegrationTest.exe` ve `ERP/Tests/Ui/build.sh` + `%TEMP%\ths_ui\bin\UiTest.exe`.
 
 ## Kalan

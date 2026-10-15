@@ -379,6 +379,11 @@
         <DCCReference Include="BackEnd\System\Domain\SysDashboard.pas"/>
         <DCCReference Include="BackEnd\System\Repository\SysDashboard.Repository.pas"/>
         <DCCReference Include="BackEnd\System\Service\SysDashboard.Service.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysMenu.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysMenu.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysMenu.Service.pas"/>
+        <DCCReference Include="Forms\Core\Base\NavigationTree.pas"/>
+        <DCCReference Include="Forms\Core\Base\ScreenCode.pas"/>
         <DCCReference Include="Forms\Core\Base\DashboardControls.pas"/>
         <DCCReference Include="Forms\System\Input\ufrmSysPermission.pas">
             <Form>frmSysPermission</Form>

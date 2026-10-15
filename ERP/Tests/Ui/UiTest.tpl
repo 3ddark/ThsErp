@@ -92,6 +92,195 @@ var
         end;
   end;
 
+  function NodeText(N: TTreeNode): string;
+  begin
+    if Assigned(N) then Result := N.Text else Result := '(empty)';
+  end;
+
+  function FormClassText(AForm: TForm): string;
+  begin
+    if Assigned(AForm) then Result := AForm.ClassName else Result := 'no form';
+  end;
+
+  function Nav: TNavMenuPanel;
+  begin
+    Result := nil;
+    for var I := 0 to F.ComponentCount - 1 do
+      if F.Components[I] is TNavMenuPanel then
+        Exit(TNavMenuPanel(F.Components[I]));
+  end;
+
+  // ağaçtaki ekran (klasör olmayan) düğümleri
+  function NavScreens: TStringList;
+  var
+    N: TTreeNode;
+  begin
+    Result := TStringList.Create;
+    N := Nav.Tree.Items.GetFirstNode;
+    while Assigned(N) do
+    begin
+      if not N.HasChildren then
+        Result.Add(N.Text);
+      N := N.GetNext;
+    end;
+  end;
+
+  function MenuName(ACode: Integer): string;
+  begin
+    Result := VarToStr(TUi.Sql('SELECT menu_name FROM vw_sys_menu WHERE menu_code = :c AND locale = :l',
+      [ACode, TAppContext.Instance.CurrentUser.ActiveLanguage]));
+  end;
+
+  procedure CheckNavSearch(const AText: string; AExpectCount: Integer; AMustCode, AMustNotCode: Integer);
+  var
+    L: TStringList;
+    LOk: Boolean;
+  begin
+    Nav.SearchBox.Text := AText;
+    TUi.Pump;
+    L := NavScreens;
+    try
+      LOk := ((AExpectCount < 0) or (L.Count = AExpectCount))
+        and ((AMustCode = 0) or (L.IndexOf(MenuName(AMustCode)) >= 0))
+        and ((AMustNotCode = 0) or (L.IndexOf(MenuName(AMustNotCode)) < 0));
+      if LOk then
+        TUi.R('PASS', 'nav search "' + AText + '"', IntToStr(L.Count) + ': ' + L.CommaText)
+      else
+        TUi.R('FAIL', 'nav search "' + AText + '"', IntToStr(L.Count) + ': ' + L.CommaText);
+    finally
+      L.Free;
+    end;
+  end;
+
+  procedure CheckCaptionCode(AForm: TForm; ACode: Integer; const AStep: string);
+  begin
+    if (AForm <> nil) and EndsStr(' [' + IntToStr(ACode) + ']', AForm.Caption)
+      and (Pos('[' + IntToStr(ACode) + ']', AForm.Caption) = Length(AForm.Caption) - Length(IntToStr(ACode)) - 1) then
+      TUi.R('PASS', AStep, AForm.Caption)
+    else if AForm = nil then
+      TUi.R('FAIL', AStep, 'no form')
+    else
+      TUi.R('FAIL', AStep, AForm.Caption);
+  end;
+
+  procedure TestNav;
+  var
+    L: TStringList;
+    Before: TList<TForm>;
+    Opened, Child: TForm;
+    K: Char;
+    N: TTreeNode;
+  begin
+    if Nav = nil then
+    begin
+      TUi.R('FAIL', 'nav panel', 'TNavMenuPanel not found');
+      Exit;
+    end;
+    Nav.SearchBox.Text := '';
+    TUi.Pump;
+    L := NavScreens;
+    try
+      // klasörler kapalıyken alt düğümler de ağaçta (Items) bulunur
+      if L.Count = TUi.Sql('SELECT count(*) FROM sys_menu WHERE action_name IS NOT NULL AND is_active', []) then
+        TUi.R('PASS', 'nav super user screens', IntToStr(L.Count))
+      else
+        TUi.R('FAIL', 'nav super user screens', IntToStr(L.Count));
+    finally
+      L.Free;
+    end;
+    N := Nav.Tree.Items.GetFirstNode;
+    if Assigned(N) and (N.Text = MenuName(100000)) and (N.Level = 0) then
+      TUi.R('PASS', 'nav first module', N.Text)
+    else
+      TUi.R('FAIL', 'nav first module', NodeText(N));
+
+    if (Nav.SearchBox.TextHint <> '') and not TUi.LooksLikeKey(Nav.SearchBox.TextHint) then
+      TUi.R('PASS', 'nav search hint', Nav.SearchBox.TextHint)
+    else
+      TUi.R('FAIL', 'nav search hint', '"' + Nav.SearchBox.TextHint + '"');
+
+    // arama: ad, Türkçe harf duyarsız, anahtar kelime, üst klasör adı, kod öneki
+    CheckNavSearch('cek', -1, 300301, 400101);
+    // görsel kontrol: arama sonucu (kodlu ekran satırları) -> UiTest-dashboard-nav.png
+    var NavBmp := TBitmap.Create;
+    var NavPng := TPngImage.Create;
+    try
+      NavBmp.SetSize(F.ClientWidth, F.ClientHeight);
+      F.PaintTo(NavBmp.Canvas, 0, 0);
+      NavPng.Assign(NavBmp);
+      NavPng.SaveToFile(ExtractFilePath(ParamStr(0)) + 'UiTest-dashboard-nav.png');
+    finally
+      NavPng.Free;
+      NavBmp.Free;
+    end;
+    CheckNavSearch('MUSTERI CEK', -1, 300301, 300302);
+    CheckNavSearch('havale', 1, 300201, 0);
+    CheckNavSearch(MenuName(300000), 14, 300305, 400101);
+    CheckNavSearch('3003', 5, 300301, 300201);
+    CheckNavSearch('zzzz', 0, 0, 0);
+    Nav.SearchBox.Text := 'abc';
+    Nav.FocusSearch;
+    TUi.Pump;
+    if Nav.HandleEscape and (Nav.SearchBox.Text = '') then
+      TUi.R('PASS', 'nav escape clears search', '')
+    else
+      TUi.R('FAIL', 'nav escape clears search', '"' + Nav.SearchBox.Text + '"');
+
+    // tam kod + Enter: ekran açılır, başlığın sonunda kod
+    Before := TUi.Snapshot;
+    try
+      Nav.SearchBox.Text := '300301';
+      TUi.Pump;
+      K := #13;
+      Nav.SearchBox.OnKeyPress(Nav.SearchBox, K);
+      TUi.Pump;
+      Opened := TUi.NewForm(Before);
+      if (Opened <> nil) and (Opened.ClassName = 'TfrmFinChequeNotes') then
+        TUi.R('PASS', 'nav code + enter opens screen', Opened.ClassName + ' ' + TUi.TakeDialogs)
+      else
+        TUi.R('FAIL', 'nav code + enter opens screen', FormClassText(Opened) + ' ' + TUi.TakeDialogs);
+      CheckCaptionCode(Opened, 300301, 'screen code in caption');
+      if Opened <> nil then
+      begin
+        Opened.Caption := 'X';
+        CheckCaptionCode(Opened, 300301, 'screen code kept on caption change');
+        if Opened.Caption = 'X [300301]' then
+          TUi.R('PASS', 'screen code not duplicated', Opened.Caption)
+        else
+          TUi.R('FAIL', 'screen code not duplicated', Opened.Caption);
+
+        // ekrandan açılan (modal olmayan) form kodu devralır
+        Child := TForm.CreateNew(Opened);
+        Child.Caption := 'Child';
+        Child.Show;
+        TUi.Pump;
+        CheckCaptionCode(Child, 300301, 'child form inherits screen code');
+
+        // dil değişimi: başlık yeniden yazılır, kod sonda kalır; ağaç adları yeni dilde
+        TUi.Call(F, 'ChangeLanguage', ['en-US']);
+        TUi.Pump;
+        TUi.TakeDialogs;
+        CheckCaptionCode(Opened, 300301, 'screen code after language change');
+        Nav.SearchBox.Text := '';
+        TUi.Pump;
+        N := Nav.Tree.Items.GetFirstNode;
+        if Assigned(N) and (N.Text = MenuName(100000)) and (N.Text <> 'Sistem') then
+          TUi.R('PASS', 'nav language change', N.Text)
+        else
+          TUi.R('FAIL', 'nav language change', NodeText(N));
+        TUi.Call(F, 'ChangeLanguage', ['tr-TR']);
+        TUi.Pump;
+        TUi.TakeDialogs;
+      end;
+      TUi.CloseNewForms(Before);
+      TUi.TakeDialogs;
+    finally
+      Before.Free;
+    end;
+    Nav.SearchBox.Text := '';
+    TUi.Pump;
+  end;
+
   function Scroll: TScrollBox;
   begin
     // kart alanı çalışma anında oluşturulur (adı yok): formun tek TScrollBox bileşeni
@@ -114,7 +303,9 @@ begin
       F := TfrmDashboard.Create(Application);
       F.Show;
       TUi.Pump;
-      TUi.TakeDialogs;
+      var OpenDlg := TUi.TakeDialogs;
+      if OpenDlg <> '' then
+        TUi.R('FAIL', 'dashboard open dialogs', OpenDlg);
       if F.FindComponent('PageControl1') = nil then
         TUi.R('PASS', 'page control removed', '')
       else
@@ -162,12 +353,18 @@ begin
             TUi.R('PASS', 'card click opens list', Clickable.Data.Title + ' -> ' + Opened.ClassName)
           else
             TUi.R('FAIL', 'card click opens list', Clickable.Data.Title + ': no window ' + TUi.TakeDialogs);
+          if (Opened <> nil) and EndsStr(']', Opened.Caption) and (Pos(' [', Opened.Caption) > 0) then
+            TUi.R('PASS', 'card click screen code', Opened.Caption)
+          else if Opened <> nil then
+            TUi.R('FAIL', 'card click screen code', Opened.Caption);
           TUi.CloseNewForms(Before);
           TUi.TakeDialogs;
         finally
           Before.Free;
         end;
       end;
+
+      TestNav;
 
       // TEST (id 4): yalnız kur + satın alma siparişi okuma
       TUi.Sql('SELECT count(*) FROM (SELECT 1) x', []);
@@ -189,6 +386,22 @@ begin
           TUi.R('PASS', 'limited user charts', ChartTitles.CommaText)
         else
           TUi.R('FAIL', 'limited user charts', IntToStr(ChartTitles.Count) + ': ' + ChartTitles.CommaText);
+        // ağaçta yalnız izinli ekranlar: kur, satın alma siparişi + kalemleri (aynı yetki) + yetkisiz şifre değiştir
+        var NavL := NavScreens;
+        try
+          if (NavL.Count = 4) and (NavL.IndexOf(MenuName(200202)) >= 0) and (NavL.IndexOf(MenuName(500302)) >= 0)
+            and (NavL.IndexOf(MenuName(500402)) >= 0)
+            and (NavL.IndexOf(MenuName(100108)) >= 0) then
+            TUi.R('PASS', 'limited user nav', NavL.CommaText)
+          else
+            TUi.R('FAIL', 'limited user nav', IntToStr(NavL.Count) + ': ' + NavL.CommaText);
+        finally
+          NavL.Free;
+        end;
+        if not TAction(F.FindComponent('actstk_stok_kartlari')).Enabled and TAction(F.FindComponent('actpur_orders')).Enabled then
+          TUi.R('PASS', 'limited user actions', '')
+        else
+          TUi.R('FAIL', 'limited user actions', 'action enabled state does not follow sys_menu permission');
       finally
         TAppContext.Instance.CurrentUser.User := AURepo.FindById(TValue.From<Int64>(1), False);
         TUnitOfWork.Instance.Connection.ExecSQL('UPDATE sys_access_right SET deny_read = false WHERE sys_user_id = 4');

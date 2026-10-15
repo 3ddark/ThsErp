@@ -1736,5 +1736,8 @@
   "dashboard.kpi.legend_in": "Giriş",
   "dashboard.kpi.legend_out": "Çıkış",
   "dashboard.kpi.legend_received": "Alınan",
-  "dashboard.kpi.legend_given": "Verilen"
+  "dashboard.kpi.legend_given": "Verilen",
+  "dashboard.nav.search_hint": "Ekran adı veya kodu ara (Ctrl+K)",
+  "dashboard.nav.no_result": "Eşleşen ekran yok",
+  "dashboard.nav.toggle_hint": "Menüyü göster / gizle"
 }

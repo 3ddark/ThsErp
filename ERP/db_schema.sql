@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict tlw8bD17hcu4u3VHLBcLubrOpfn5k7Y068WgGNCzsID9pGPFnpYCN5jxe7GCrOP
+\restrict PiBxFo1QTPvqMVreLCfCp2uxQlx1T8COibCfcSJ4LfydixOLfGscpzG9KXmKLgV
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -4086,6 +4086,73 @@ ALTER TABLE public.sys_language ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
+-- Name: sys_menu; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_menu (
+    id bigint NOT NULL,
+    menu_code integer NOT NULL,
+    parent_code integer GENERATED ALWAYS AS (
+CASE
+    WHEN ((menu_code % 10000) = 0) THEN NULL::integer
+    WHEN ((menu_code % 100) = 0) THEN ((menu_code / 10000) * 10000)
+    ELSE ((menu_code / 100) * 100)
+END) STORED,
+    menu_key character varying(64) NOT NULL,
+    action_name character varying(64),
+    sys_permission_id bigint,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT sys_menu_folder_check CHECK ((((menu_code % 100) = 0) = (action_name IS NULL))),
+    CONSTRAINT sys_menu_folder_permission_check CHECK ((((menu_code % 100) <> 0) OR (sys_permission_id IS NULL))),
+    CONSTRAINT sys_menu_menu_code_check CHECK (((menu_code >= 100000) AND (menu_code <= 999999)))
+);
+
+
+ALTER TABLE public.sys_menu OWNER TO ths_admin;
+
+--
+-- Name: TABLE sys_menu; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.sys_menu IS 'Menü ağacı ve kalıcı ekran kodları (MMGGSS). Yetki = ekranın okuma yetkisi; NULL = herkese açık.';
+
+
+--
+-- Name: sys_menu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_menu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_menu_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sys_menu_translation; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_menu_translation (
+    sys_menu_id bigint NOT NULL,
+    sys_language_id bigint NOT NULL,
+    menu_name character varying(128) NOT NULL,
+    keywords character varying(512)
+);
+
+
+ALTER TABLE public.sys_menu_translation OWNER TO ths_admin;
+
+--
+-- Name: COLUMN sys_menu_translation.keywords; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sys_menu_translation.keywords IS 'Arama için ek kelimeler (boşlukla ayrılmış)';
+
+
+--
 -- Name: sys_ondalik_hane_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
@@ -6578,6 +6645,30 @@ CREATE VIEW public.vw_sys_language AS
 ALTER VIEW public.vw_sys_language OWNER TO ths_admin;
 
 --
+-- Name: vw_sys_menu; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_menu AS
+ SELECT m.id,
+    m.menu_code,
+    m.parent_code,
+    m.menu_key,
+    m.action_name,
+    m.sys_permission_id,
+    p.permission_code,
+    m.is_active,
+    COALESCE(t.menu_name, m.menu_key) AS menu_name,
+    t.keywords,
+    l.locale
+   FROM (((public.sys_menu m
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.sys_menu_translation t ON (((t.sys_menu_id = m.id) AND (t.sys_language_id = l.id))))
+     LEFT JOIN public.sys_permission p ON ((p.id = m.sys_permission_id)));
+
+
+ALTER VIEW public.vw_sys_menu OWNER TO ths_admin;
+
+--
 -- Name: vw_sys_permission_group; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -8221,6 +8312,46 @@ ALTER TABLE ONLY public.sys_language
 
 
 --
+-- Name: sys_menu sys_menu_action_name_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_menu
+    ADD CONSTRAINT sys_menu_action_name_key UNIQUE (action_name);
+
+
+--
+-- Name: sys_menu sys_menu_menu_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_menu
+    ADD CONSTRAINT sys_menu_menu_code_key UNIQUE (menu_code);
+
+
+--
+-- Name: sys_menu sys_menu_menu_key_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_menu
+    ADD CONSTRAINT sys_menu_menu_key_key UNIQUE (menu_key);
+
+
+--
+-- Name: sys_menu sys_menu_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_menu
+    ADD CONSTRAINT sys_menu_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_menu_translation sys_menu_translation_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_menu_translation
+    ADD CONSTRAINT sys_menu_translation_pkey PRIMARY KEY (sys_menu_id, sys_language_id);
+
+
+--
 -- Name: sys_permission_group sys_permission_group_permission_group_key_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -9116,6 +9247,27 @@ CREATE UNIQUE INDEX stk_warehouse_default_sales_uidx ON public.stk_warehouse USI
 
 
 --
+-- Name: sys_menu_parent_code_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sys_menu_parent_code_idx ON public.sys_menu USING btree (parent_code);
+
+
+--
+-- Name: sys_menu_sys_permission_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sys_menu_sys_permission_id_idx ON public.sys_menu USING btree (sys_permission_id);
+
+
+--
+-- Name: sys_menu_translation_sys_language_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sys_menu_translation_sys_language_id_idx ON public.sys_menu_translation USING btree (sys_language_id);
+
+
+--
 -- Name: sys_permission_template_right_permission_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -9176,6 +9328,13 @@ CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_decimal_plac
 --
 
 CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_language FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: sys_menu audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_menu FOR EACH ROW EXECUTE FUNCTION public.audit();
 
 
 --
@@ -11080,6 +11239,38 @@ ALTER TABLE ONLY public.sys_country_translation
 
 
 --
+-- Name: sys_menu sys_menu_parent_code_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_menu
+    ADD CONSTRAINT sys_menu_parent_code_fkey FOREIGN KEY (parent_code) REFERENCES public.sys_menu(menu_code);
+
+
+--
+-- Name: sys_menu sys_menu_sys_permission_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_menu
+    ADD CONSTRAINT sys_menu_sys_permission_id_fkey FOREIGN KEY (sys_permission_id) REFERENCES public.sys_permission(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sys_menu_translation sys_menu_translation_sys_language_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_menu_translation
+    ADD CONSTRAINT sys_menu_translation_sys_language_id_fkey FOREIGN KEY (sys_language_id) REFERENCES public.sys_language(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sys_menu_translation sys_menu_translation_sys_menu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_menu_translation
+    ADD CONSTRAINT sys_menu_translation_sys_menu_id_fkey FOREIGN KEY (sys_menu_id) REFERENCES public.sys_menu(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: sys_permission_group_translation sys_permission_group_translation_sys_language_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -11331,5 +11522,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict tlw8bD17hcu4u3VHLBcLubrOpfn5k7Y068WgGNCzsID9pGPFnpYCN5jxe7GCrOP
+\unrestrict PiBxFo1QTPvqMVreLCfCp2uxQlx1T8COibCfcSJ4LfydixOLfGscpzG9KXmKLgV
 

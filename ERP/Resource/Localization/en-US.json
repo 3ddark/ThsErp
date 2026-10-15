@@ -1787,5 +1787,8 @@
   "dashboard.kpi.legend_in": "In",
   "dashboard.kpi.legend_out": "Out",
   "dashboard.kpi.legend_received": "Received",
-  "dashboard.kpi.legend_given": "Given"
+  "dashboard.kpi.legend_given": "Given",
+  "dashboard.nav.search_hint": "Search screen name or code (Ctrl+K)",
+  "dashboard.nav.no_result": "No matching screen",
+  "dashboard.nav.toggle_hint": "Show / hide menu"
 }

@@ -130,6 +130,9 @@ type
         const MenuPersonnel = 'dashboard.menu.personnel';
         const MenuAbout = 'dashboard.menu.about';
         const MenuSettings = 'dashboard.menu.settings';
+        const NavSearchHint = 'dashboard.nav.search_hint';
+        const NavNoResult = 'dashboard.nav.no_result';
+        const NavToggleHint = 'dashboard.nav.toggle_hint';
         const MenuOffers = 'dashboard.menu.offers';
         const MenuOrders = 'dashboard.menu.orders';
         const MenuWaybills = 'dashboard.menu.waybills';

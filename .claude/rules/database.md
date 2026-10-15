@@ -84,6 +84,14 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
 - Read-only list entities may have no table (`FinMoneyLedger` → `vw_fin_money_ledger` only, window function: no `FOR UPDATE`;
   its repository ignores `ALock`).
 
+## Menu tree (`sys_menu`)
+
+- `sys_menu` (`menu_code` UNIQUE 100000-999999, generated `parent_code` FK → `sys_menu.menu_code`, `menu_key` UNIQUE,
+  `action_name` UNIQUE = dashboard TAction name, `sys_permission_id` RESTRICT, `is_active`; CHECK: folders (`code % 100 = 0`)
+  have no action / permission, screens have an action) + `sys_menu_translation` (`menu_name`, `keywords`) →
+  `vw_sys_menu` (locale CROSS JOIN pattern, `permission_code`). Read by `TSysMenuRepository` / `TSysMenuService`
+  (no CRUD screen yet). See `rules/forms.md` for the code scheme.
+
 ## Grid metadata tables
 
 `sys_grid_column` (global) and `sys_user_grid_column` (per user) store column order/width/visibility per view.

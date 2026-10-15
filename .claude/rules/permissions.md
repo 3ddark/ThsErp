@@ -44,9 +44,11 @@ paths:
 
 Detail entities share their master's code (e.g. template rights use `PERMISSION_SYS_PERMISSION_TEMPLATE`).
 
-Read access: `TfrmDashboard.ApplyActionPermissions` maps every dashboard action to its code and disables it without
-read right (one query: `TSysAccessRightService.GetReadablePermissionCodes`); `TfrmGrid.FormShow` refuses to open the
-list without read right (menus, popups and FK helper lists alike). New screens: add a `SetAction(...)` line.
+Read access: the action -> permission map lives in `sys_menu.sys_permission_id` (see `rules/forms.md`, menu tree).
+`TfrmDashboard.LoadMenu` reads `TSysMenuService.GetMenu` (one query + `GetReadablePermissionCodes`; `Allowed` per screen,
+super user all, NULL permission = everyone) and enables / disables the action; the left tree shows only allowed screens.
+`TfrmGrid.FormShow` still refuses to open the list without read right (menus, popups and FK helper lists alike).
+New screens: add a `sys_menu` row (there is no `SetAction` list any more).
 Consequence: picking an FK value needs read right on the referenced list (e.g. employee → type/unit/task).
 
 ## Adding a new protected resource

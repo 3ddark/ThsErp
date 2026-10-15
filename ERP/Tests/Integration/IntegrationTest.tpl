@@ -10,6 +10,7 @@ uses
   Ths.Language.Cache, SysGridColumn.Cache, SysUser, SysUser.Repository, Logger,
   ItSpecific in 'ItSpecific.pas',
   ItModules in 'ItModules.pas',
+  SysMenu, SysMenu.Repository, SysMenu.Service,
   {{UNITS}};
 
 type
@@ -509,6 +510,66 @@ begin
   end;
 end;
 
+// Menü ağacı (sys_menu): her ekranın Allowed bayrağı = kullanıcının etkin OKUMA yetkisi
+// (super user hepsi; yetkisiz ekran herkese açık). Klasörler ekran açmaz.
+procedure CheckMenu(const AStep: string; ASuperUser: Boolean);
+var
+  LSvc: TSysMenuService;
+  LItems: TArray<TSysMenuItem>;
+  LItem: TSysMenuItem;
+  LFlags: string;
+  LExpected: Boolean;
+  LBad, LAllowed, LScreens: Integer;
+begin
+  LBad := 0;
+  LAllowed := 0;
+  LScreens := 0;
+  try
+    LSvc := TSysMenuService.Create;
+    try
+      LItems := LSvc.GetMenu;
+    finally
+      LSvc.Free;
+    end;
+    for LItem in LItems do
+    begin
+      if LItem.IsFolder then
+      begin
+        if (LItem.ActionName <> '') or (LItem.PermissionCode <> 0) then
+        begin
+          Inc(LBad);
+          Report('FAIL', 'menu', '', AStep, Format('folder %d has action / permission', [LItem.MenuCode]));
+        end;
+        Continue;
+      end;
+      Inc(LScreens);
+      if ASuperUser or (LItem.PermissionCode = 0) then
+        LExpected := True
+      else
+        LExpected := GPermMap.TryGetValue(LItem.PermissionCode, LFlags) and (Copy(LFlags, 1, 1) = '1');
+      if LItem.Allowed then
+        Inc(LAllowed);
+      if LItem.Allowed <> LExpected then
+      begin
+        Inc(LBad);
+        Report('FAIL', 'menu', '', AStep, Format('%d %s permission %d: allowed=%s expected=%s',
+          [LItem.MenuCode, LItem.ActionName, LItem.PermissionCode, BoolToStr(LItem.Allowed, True), BoolToStr(LExpected, True)]));
+      end;
+      if (LItem.MenuName = '') or (LItem.MenuName = LItem.MenuKey) then
+      begin
+        Inc(LBad);
+        Report('FAIL', 'menu', '', AStep, Format('%d not translated (%s)', [LItem.MenuCode, LItem.MenuKey]));
+      end;
+    end;
+    if LScreens = 0 then
+      Report('FAIL', 'menu', '', AStep, 'no screens')
+    else if LBad = 0 then
+      Report('PASS', 'menu', '', AStep, Format('%d screens, %d allowed', [LScreens, LAllowed]));
+  except
+    on E: Exception do Report('FAIL', 'menu', '', AStep, E.ClassName + ': ' + E.Message);
+  end;
+end;
+
 procedure RunGeneric;
 begin
 {{CALLS}}
@@ -551,9 +612,11 @@ begin
 
       if (Mode = '') or (Mode = 'perm') then
       begin
+        CheckMenu('super user', True);
         // non super user (TEST, id 4)
         Ctx.User := URepo.FindById(TValue.From<Int64>(4), False);
         LoadPermMap(4);
+        CheckMenu('TEST user', False);
         RunPerm;
         Ctx.User := URepo.FindById(TValue.From<Int64>(1), False);
       end;
@@ -573,6 +636,7 @@ begin
             'JOIN sys_user_permission_template u ON u.sys_permission_template_id = t.id WHERE u.sys_user_id = 4')));
           Ctx.User := URepo.FindById(TValue.From<Int64>(4), False);
           LoadPermMap(4);
+          CheckMenu('TEST user, templates + overrides', False);
           GSkipDenied := True;
           RunPerm;
           GSkipDenied := False;

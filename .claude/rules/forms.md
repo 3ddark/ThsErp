@@ -133,3 +133,18 @@ uses
 - DFM: `TAction` in `actlstMain` (`Category = 'System'`, `OnExecute = act{name}Execute`) + `TMenuItem` with `Action = …`
   in the proper menu. PAS: published fields, handler, uses entry, caption in `ApplyLocalization` via `TLangKeys.TDashboard`.
 - DFM components must have matching PAS fields (and vice versa).
+- **Menu tree + screen code (mandatory for every new screen):** insert a `sys_menu` row (`menu_code`, `menu_key`,
+  `action_name` = the TAction name, `sys_permission_id` = read permission or NULL) + `sys_menu_translation` for every
+  `sys_language` (`menu_name`, search `keywords`). Without it the screen is missing from the left tree, its action stays in
+  its DFM state (no permission check) and its caption gets no code.
+  - Code `MMGGSS`: module `MM0000` (10 System, 20 Accounting, 30 Finance, 40 Stock, 50 Purchasing, 60 Sales, 70 Production,
+    80 Employee), group `MMGG00` (01 cards, 02 transactions, 03 documents, 04 document lines, 05 list settings, 08 reports,
+    09 settings), screen `SS` 01-99. `parent_code` is generated; the parent row must exist. **Codes are permanent** — never
+    renumber or reuse a deleted screen's code (manuals / support refer to them).
+  - Every dashboard action runs through `actlstMain.OnExecute` → `TScreenCodes.RunWithCode` (`Forms/Core/Base/ScreenCode.pas`):
+    the opened form's caption ends with ` [300301]`; non-modal forms opened from it (input form, popup detail list)
+    inherit the code, modal helpers / dialogs do not. Captions may be reassigned freely (language change, fixed filter):
+    a `WM_SETTEXT` hook keeps the code at the end.
+  - Left tree: `Forms/Core/Base/NavigationTree.pas` (`TNavMenuPanel`; search by name / keywords / parent names / code
+    prefix, Turkish letters folded; Ctrl+K / Ctrl+F focuses search, Esc clears, code + Enter opens). Module icons /
+    colours: `ModuleIcon` / `ModuleColor` there (add one when a new module `MM` appears).

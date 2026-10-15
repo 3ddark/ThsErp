@@ -1787,5 +1787,8 @@
   "dashboard.kpi.legend_in": "Entrée",
   "dashboard.kpi.legend_out": "Sortie",
   "dashboard.kpi.legend_received": "Reçus",
-  "dashboard.kpi.legend_given": "Émis"
+  "dashboard.kpi.legend_given": "Émis",
+  "dashboard.nav.search_hint": "Rechercher un écran ou un code (Ctrl+K)",
+  "dashboard.nav.no_result": "Aucun écran correspondant",
+  "dashboard.nav.toggle_hint": "Afficher / masquer le menu"
 }

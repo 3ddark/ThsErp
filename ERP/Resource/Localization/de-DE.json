@@ -1787,5 +1787,8 @@
   "dashboard.kpi.legend_in": "Eingang",
   "dashboard.kpi.legend_out": "Ausgang",
   "dashboard.kpi.legend_received": "Erhalten",
-  "dashboard.kpi.legend_given": "Ausgegeben"
+  "dashboard.kpi.legend_given": "Ausgegeben",
+  "dashboard.nav.search_hint": "Bildschirmname oder Code suchen (Strg+K)",
+  "dashboard.nav.no_result": "Kein passender Bildschirm",
+  "dashboard.nav.toggle_hint": "Menü ein- / ausblenden"
 }

@@ -17,6 +17,7 @@ uses
   ConnectionManager, Logger, MetaProvider, SharedFormTypes, FilterCriterion,
   AppContext, UserContext, UnitOfWork,
   SysDashboard, SysDashboard.Service, DashboardControls,
+  SysMenu, SysMenu.Service, NavigationTree, ScreenCode,
   ufrmSysCities, SysCity.Service, SysCity,
   ufrmSysCountries, SysCountry.Service, SysCountry,
   ufrmSysCurrencies, SysCurrency.Service, SysCurrency,
@@ -433,6 +434,16 @@ type
     FBtnKpiRefresh: TButton;
     FLblKpiUpdated: TLabel;
     FKpiTimer: TTimer;
+    // sol menü ağacı (sys_menu) + ekran kodları
+    FNav: TNavMenuPanel;
+    FNavSplitter: TSplitter;
+    FBtnNavToggle: TNavToggleButton;
+    FActionCodes: TDictionary<string, Integer>;
+    procedure BuildNavPanel;
+    procedure LoadMenu;
+    procedure NavOpenItem(const AItem: TSysMenuItem);
+    procedure NavToggleClick(Sender: TObject);
+    procedure ActionListExecute(Action: TBasicAction; var Handled: Boolean);
     procedure BuildKpiArea;
     procedure LoadKpis;
     procedure RenderKpis;
@@ -1255,7 +1266,7 @@ end;
 
 destructor TfrmDashboard.Destroy;
 begin
-  //
+  FActionCodes.Free;
   inherited;
 end;
 
@@ -1367,6 +1378,8 @@ begin
     TAppContext.Instance.CurrentUser.ActiveLanguage := ALocale;
 
   ApplyLocalization;
+  // menü adları DB'den etkin dilde
+  LoadMenu;
 
   for i := 0 to Screen.FormCount - 1 do
   begin
@@ -1621,6 +1634,15 @@ begin
   if stbBase.Panels.Count >= STATUS_KEY_F11+1 then
     stbBase.Panels.Items[STATUS_KEY_F11].Text := TLocalizationManager.Translate(TLangKeys.TGeneral.KeyF11, 'F11 Opacity');
 
+  if Assigned(actprs_personeller) then
+    actprs_personeller.Caption := TLocalizationManager.Translate(TLangKeys.TEmpEmployee.TitlePlural, 'Employees');
+  if Assigned(FNav) then
+    FNav.ApplyTexts(
+      TLocalizationManager.Translate(TLangKeys.TDashboard.NavSearchHint, 'Search screen name or code (Ctrl+K)'),
+      TLocalizationManager.Translate(TLangKeys.TDashboard.NavNoResult, 'No matching screen'));
+  if Assigned(FBtnNavToggle) then
+    FBtnNavToggle.Hint := TLocalizationManager.Translate(TLangKeys.TDashboard.NavToggleHint, 'Show / hide menu');
+
   if Assigned(FKpiScroll) then
     RenderKpis;
 end;
@@ -1633,10 +1655,23 @@ begin
   pnlBottom.Visible := False;
   stbBase.Visible := True;
   pnlBottom.Visible := True;
+
+  FActionCodes := TDictionary<string, Integer>.Create;
+  actlstMain.OnExecute := ActionListExecute;
+  BuildNavPanel;
 end;
 
 procedure TfrmDashboard.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
+  // Ctrl+K / Ctrl+F: menüde ara
+  if (Shift = [ssCtrl]) and ((Key = Ord('K')) or (Key = Ord('F'))) and Assigned(FNav) then
+  begin
+    Key := 0;
+    if not FNav.Visible then
+      NavToggleClick(nil);
+    FNav.FocusSearch;
+    Exit;
+  end;
   // F6 başka bir formda basılıp (liste/giriş formu KeyDown'da kapanır) burada bırakılırsa uygulama kapatma sorulmasın
   if Key = VK_F6 then
     FF6Pressed := True;
@@ -1645,7 +1680,15 @@ end;
 procedure TfrmDashboard.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = Char(VK_ESCAPE) then
+  begin
+    // menüdeyken Esc aramayı temizler, uygulama kapatma sorulmaz
+    if Assigned(FNav) and FNav.HandleEscape then
+    begin
+      Key := #0;
+      Exit;
+    end;
     inherited;
+  end;
 end;
 
 procedure TfrmDashboard.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -1772,132 +1815,60 @@ begin
   end;
 end;
 
-// Menü / buton erişimi: okuma hakkı olmayan ekranın action'ı pasif (menü öğesi ve buton birlikte).
-// Ekranın kendisi (TfrmGrid) ve servisler ayrıca kontrol eder.
+// Menü / buton erişimi: okuma hakkı olmayan ekranın action'ı pasif (menü öğesi, ağaç, kart birlikte).
+// Action -> yetki eşlemesi sys_menu'dan gelir (LoadMenu); ekranın kendisi (TfrmGrid) ve servisler ayrıca kontrol eder.
 procedure TfrmDashboard.ApplyActionPermissions;
-var
-  LIsSuperUser: Boolean;
-  LCodes: TArray<Integer>;
-  LSvc: TSysAccessRightService;
-
-  procedure SetAction(AAction: TAction; APermissionCode: Integer);
-  var
-    LCode: Integer;
-    LAllowed: Boolean;
-  begin
-    if not Assigned(AAction) then
-      Exit;
-    LAllowed := LIsSuperUser;
-    if not LAllowed then
-      for LCode in LCodes do
-        if LCode = APermissionCode then
-        begin
-          LAllowed := True;
-          Break;
-        end;
-    // ResetSession butonları doğrudan pasif yapabiliyor; değer değişmezse action istemcilere yaymaz
-    AAction.Enabled := not LAllowed;
-    AAction.Enabled := LAllowed;
-  end;
-
 begin
   if not TAppContext.IsInitialized then
     Exit;
+  LoadMenu;
+end;
 
-  LIsSuperUser := Assigned(TAppContext.Instance.CurrentUser) and TAppContext.Instance.CurrentUser.IsSuperUser;
-  LCodes := [];
-  if not LIsSuperUser then
-  begin
-    LSvc := TSysAccessRightService.Create;
+// sys_menu: ağaç + action yetkileri + ekran kodları. sys_menu'da olmayan action'lara (Hakkında, Güncelle ...) dokunulmaz.
+procedure TfrmDashboard.LoadMenu;
+var
+  LSvc: TSysMenuService;
+  LItems: TArray<TSysMenuItem>;
+  LItem: TSysMenuItem;
+  LComp: TComponent;
+begin
+  if not TAppContext.IsInitialized or not Assigned(TAppContext.Instance.CurrentUser) then
+    Exit;
+
+  try
+    LSvc := TSysMenuService.Create;
     try
-      try
-        LCodes := LSvc.GetReadablePermissionCodes;
-      except
-        on E: Exception do
-          GLogger.ErrorFmt('Menü yetkileri okunamadı: %s', [E.Message]);
-      end;
+      LItems := LSvc.GetMenu;
     finally
       LSvc.Free;
     end;
+  except
+    on E: Exception do
+    begin
+      GLogger.ErrorFmt('Menü okunamadı: %s', [E.Message]);
+      Exit;
+    end;
   end;
 
-  SetAction(actsys_city, PERMISSION_SYS_CITY);
-  SetAction(actsys_country, PERMISSION_SYS_COUNTRY);
-  SetAction(actsys_region, PERMISSION_SYS_REGION);
-  SetAction(actsys_currency, PERMISSION_SYS_CURRENCY);
-  SetAction(actsys_unit_type, PERMISSION_SYS_UOM_GROUP);
-  SetAction(actsys_unit, PERMISSION_SYS_UOM);
-  SetAction(actsys_language, PERMISSION_SYS_LANGUAGE);
-  SetAction(actsys_decimal_place, PERMISSION_SYS_DECIMAL_PLACE);
-  SetAction(actsys_user, PERMISSION_SYS_USER);
-  SetAction(actsys_access_right, PERMISSION_SYS_ACCESS_RIGHT);
-  SetAction(actsys_permission, PERMISSION_SYS_PERMISSION);
-  SetAction(actsys_permission_group, PERMISSION_SYS_PERMISSION_GROUP);
-  SetAction(actsys_permission_template, PERMISSION_SYS_PERMISSION_TEMPLATE);
-  SetAction(actsys_permission_template_right, PERMISSION_SYS_PERMISSION_TEMPLATE);
-  SetAction(actsys_user_permission_template, PERMISSION_SYS_USER_PERMISSION_TEMPLATE);
-  SetAction(actsys_application_setting, PERMISSION_SYS_APPLICATION_SETTING);
-  SetAction(actsys_grid_column, PERMISSION_SYS_GRID_COLUMN);
-  SetAction(actsys_grid_filter, PERMISSION_SYS_GRID_FILTER);
-  SetAction(actsys_grid_sort, PERMISSION_SYS_GRID_SORT);
-  SetAction(actprs_personeller, PERMISSION_EMP_EMPLOYEE);
-  SetAction(actprs_ehliyetler, PERMISSION_EMP_EMPLOYEE);
-  SetAction(actprs_lisan_bilgileri, PERMISSION_EMP_EMPLOYEE);
-  SetAction(actset_prs_personel_tipleri, PERMISSION_EMP_PERSON_TYPE);
-  SetAction(actset_prs_bolumler, PERMISSION_EMP_SECTION);
-  SetAction(actset_prs_birimler, PERMISSION_EMP_UNIT);
-  SetAction(actset_prs_gorevler, PERMISSION_EMP_TASK);
-  SetAction(actset_prs_tasima_servisleri, PERMISSION_EMP_TRANSPORTATION);
-  SetAction(actset_prs_lisanlar, PERMISSION_EMP_LANGUAGE);
-  SetAction(actset_prs_ehliyetler, PERMISSION_EMP_DRIVER_LICENSE_TYPE);
-  SetAction(actch_bankalar, PERMISSION_ACC_BANK);
-  SetAction(actch_banka_subeleri, PERMISSION_ACC_BANK);
-  SetAction(actch_hesap_karti, PERMISSION_ACC_ACCOUNT);
-  SetAction(actch_hesap_karti_ara, PERMISSION_ACC_ACCOUNT);
-  SetAction(actch_bolge, PERMISSION_ACC_REGION);
-  SetAction(actset_ch_grup, PERMISSION_ACC_GROUP);
-  SetAction(actset_ch_hesap_plani, PERMISSION_ACC_ACCOUNT_PLAN);
-  SetAction(actset_ch_hesap_tipi, PERMISSION_ACC_ACCOUNT_TYPE);
-  SetAction(actset_ch_firma_turu, PERMISSION_ACC_OWNERSHIP_TYPE);
-  SetAction(actset_ch_firma_tipi, PERMISSION_ACC_COMPANY_LEGAL_FORM);
-  SetAction(actacc_transfer_code, PERMISSION_ACC_TRANSFER_CODE);
-  SetAction(actacc_exchange_rate, PERMISSION_ACC_EXCHANGE_RATE);
-  SetAction(actset_ch_vergi_orani, PERMISSION_ACC_TAX_RATE);
-  SetAction(actstk_stok_kartlari, PERMISSION_STK_INVENTORY);
-  SetAction(actstk_hareketler, PERMISSION_STK_TRANSACTION);
-  SetAction(actstk_stok_karti_ozetleri, PERMISSION_STK_INVENTORY_SUMMARY);
-  SetAction(actstk_ambarlar, PERMISSION_STK_WAREHOUSE);
-  SetAction(actstk_gruplar, PERMISSION_STK_GROUP);
-  SetAction(actstk_product_types, PERMISSION_STK_PRODUCT_TYPE);
-  SetAction(actstk_kind_families, PERMISSION_STK_KIND_FAMILY);
-  SetAction(actstk_cins_ozellikleri, PERMISSION_STK_KIND_PROPERTY);
-  SetAction(actprd_bom, PERMISSION_PRD_BOM);
-  SetAction(actprd_labour, PERMISSION_PRD_LABOUR);
-  SetAction(actprd_packet_raw, PERMISSION_PRD_PACKET_RAW);
-  SetAction(actprd_packet_labour, PERMISSION_PRD_PACKET_LABOUR);
-  SetAction(actacc_account_transactions, PERMISSION_ACC_ACCOUNT_TRANSACTION);
-  SetAction(actfin_company_bank_accounts, PERMISSION_FIN_COMPANY_BANK_ACCOUNT);
-  SetAction(actpur_requests, PERMISSION_PUR_REQUEST);
-  SetAction(actpur_request_lines, PERMISSION_PUR_REQUEST);
-  SetAction(actpur_orders, PERMISSION_PUR_ORDER);
-  SetAction(actpur_order_lines, PERMISSION_PUR_ORDER);
-  SetAction(actpur_receipts, PERMISSION_PUR_RECEIPT);
-  SetAction(actpur_receipt_lines, PERMISSION_PUR_RECEIPT);
-  SetAction(actpur_invoices, PERMISSION_PUR_INVOICE);
-  SetAction(actpur_invoice_lines, PERMISSION_PUR_INVOICE);
-  SetAction(actfin_money_accounts, PERMISSION_FIN_MONEY_ACCOUNT);
-  SetAction(actfin_money_transactions, PERMISSION_FIN_MONEY_TRANSACTION);
-  SetAction(actfin_money_ledger, PERMISSION_FIN_MONEY_ACCOUNT);
-  SetAction(actfin_customer_cheques, PERMISSION_FIN_CHEQUE_NOTE);
-  SetAction(actfin_own_cheques, PERMISSION_FIN_CHEQUE_NOTE);
-  SetAction(actfin_customer_notes, PERMISSION_FIN_CHEQUE_NOTE);
-  SetAction(actfin_debit_notes, PERMISSION_FIN_CHEQUE_NOTE);
-  SetAction(actfin_cheque_notes, PERMISSION_FIN_CHEQUE_NOTE);
-  SetAction(actfin_cheque_note_transactions, PERMISSION_FIN_CHEQUE_NOTE);
-  SetAction(actfin_credit_cards, PERMISSION_FIN_CREDIT_CARD);
-  SetAction(actfin_credit_card_transactions, PERMISSION_FIN_CREDIT_CARD);
-  SetAction(actfin_pos_terminals, PERMISSION_FIN_POS_TERMINAL);
-  SetAction(actfin_pos_transactions, PERMISSION_FIN_POS_TERMINAL);
+  FActionCodes.Clear;
+  for LItem in LItems do
+  begin
+    if LItem.IsFolder then
+      Continue;
+    LComp := FindComponent(LItem.ActionName);
+    if not (LComp is TAction) then
+    begin
+      GLogger.ErrorFmt('Menü ekranının action''ı yok: %d %s', [LItem.MenuCode, LItem.ActionName]);
+      Continue;
+    end;
+    FActionCodes.AddOrSetValue(LItem.ActionName, LItem.MenuCode);
+    // ResetSession butonları doğrudan pasif yapabiliyor; değer değişmezse action istemcilere yaymaz
+    TAction(LComp).Enabled := not LItem.Allowed;
+    TAction(LComp).Enabled := LItem.Allowed;
+  end;
+
+  if Assigned(FNav) then
+    FNav.SetItems(LItems);
 end;
 
 procedure TfrmDashboard.SetSession;
@@ -2067,6 +2038,72 @@ begin
     FreeAndNil(LRights);
   end;
 *)
+end;
+
+{ ---------------------------------------------------------------- Sol menü / ekran kodları }
+
+procedure TfrmDashboard.BuildNavPanel;
+begin
+  if Assigned(FNav) then
+    Exit;
+
+  FNav := TNavMenuPanel.Create(Self);
+  FNav.Parent := Self;
+  FNav.Align := alLeft;
+  FNav.Left := 0;
+  FNav.ParentBackground := False;
+  FNav.Color := clWindow;
+  FNav.CreateControls;
+  FNav.OnOpenItem := NavOpenItem;
+
+  FNavSplitter := TSplitter.Create(Self);
+  FNavSplitter.Parent := Self;
+  FNavSplitter.Align := alLeft;
+  FNavSplitter.Left := FNav.Left + FNav.Width + 1;
+  FNavSplitter.Width := 4;
+  FNavSplitter.MinSize := 180;
+  FNavSplitter.ResizeStyle := rsUpdate;
+
+  FBtnNavToggle := TNavToggleButton.Create(Self);
+  FBtnNavToggle.Parent := pnlToolbar;
+  FBtnNavToggle.Align := alLeft;
+  FBtnNavToggle.Left := 0;
+  FBtnNavToggle.AlignWithMargins := True;
+  FBtnNavToggle.Margins.SetBounds(6, 5, 0, 5);
+  FBtnNavToggle.OnClick := NavToggleClick;
+end;
+
+procedure TfrmDashboard.NavToggleClick(Sender: TObject);
+begin
+  FNav.Visible := not FNav.Visible;
+  FNavSplitter.Visible := FNav.Visible;
+  if FNav.Visible then
+    FNavSplitter.Left := FNav.Left + FNav.Width + 1;
+end;
+
+procedure TfrmDashboard.NavOpenItem(const AItem: TSysMenuItem);
+var
+  LComp: TComponent;
+begin
+  LComp := FindComponent(AItem.ActionName);
+  if (LComp is TAction) and TAction(LComp).Enabled then
+    TAction(LComp).Execute;
+end;
+
+// Her dashboard action'ı (ana menü, sol ağaç, gösterge kartı) buradan geçer: sys_menu'daki ekranlar
+// kodlarıyla açılır, böylece açılan formun başlığına ekran kodu eklenir.
+procedure TfrmDashboard.ActionListExecute(Action: TBasicAction; var Handled: Boolean);
+var
+  LCode: Integer;
+begin
+  if not Assigned(FActionCodes) or not FActionCodes.TryGetValue(Action.Name, LCode) or not Assigned(Action.OnExecute) then
+    Exit;
+  Handled := True;
+  TScreenCodes.RunWithCode(LCode,
+    procedure
+    begin
+      Action.OnExecute(Action);
+    end);
 end;
 
 { ---------------------------------------------------------------- Ana ekran göstergeleri }
@@ -2462,7 +2499,7 @@ end;
 // grafikler iki kart genişliğinde (tek kart sığıyorsa tam satır)
 procedure TfrmDashboard.LayoutKpiCards;
 var
-  I, J, LPerRow, LWidth, LAvail: Integer;
+  I, J, LPerRow, LWidth, LChartWidth, LAvail: Integer;
   LFlow: TFlowPanel;
 begin
   if not Assigned(FKpiScroll) then
@@ -2470,6 +2507,8 @@ begin
   LAvail := FKpiScroll.ClientWidth - 20 - GetSystemMetrics(SM_CXVSCROLL);
   LPerRow := Max(1, LAvail div (KPI_CARD_WIDTH + 12));
   LWidth := Max(KPI_CARD_WIDTH, LAvail div LPerRow - 12);
+  // grafik iki kart genişliğinde; satırdaki grafik sayısı = kart sayısı / 2 (tek kalan boşluk grafiklere dağılır)
+  LChartWidth := Max(KPI_CARD_WIDTH * 2 + 12, LAvail div Max(1, LPerRow div 2) - 12);
   for I := 0 to FKpiScroll.ControlCount - 1 do
     if FKpiScroll.Controls[I] is TFlowPanel then
     begin
@@ -2478,7 +2517,7 @@ begin
       try
         for J := 0 to LFlow.ControlCount - 1 do
           if (LFlow.Controls[J] is TDashChart) and (LPerRow >= 2) then
-            LFlow.Controls[J].Width := LWidth * 2 + 12
+            LFlow.Controls[J].Width := LChartWidth
           else
             LFlow.Controls[J].Width := LWidth;
       finally
