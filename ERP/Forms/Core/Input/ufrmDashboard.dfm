@@ -586,6 +586,12 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 64
       OnExecute = actsys_menuExecute
     end
+    object actsys_audit_log: TAction
+      Category = 'System'
+      Caption = 'Audit Log'
+      ImageIndex = 64
+      OnExecute = actsys_audit_logExecute
+    end
   end
   object tmrcheck_is_update_required: TTimer
     Enabled = False
@@ -648,6 +654,9 @@ inherited frmDashboard: TfrmDashboard
       end
       object mnisys_user_permission_template: TMenuItem
         Action = actsys_user_permission_template
+      end
+      object mnisys_audit_log: TMenuItem
+        Action = actsys_audit_log
       end
       object mniSystemSubSettings: TMenuItem
         Caption = 'Ayarlar'

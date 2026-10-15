@@ -13,6 +13,12 @@ if [ "$1" != "--no-db" ]; then
   "$PG/createdb.exe" -h localhost -p $THS_PG_PORT -U postgres -T template0 ths_erp_it || exit 1
   "$PG/pg_restore.exe" -h localhost -p $THS_PG_PORT -U postgres -d ths_erp_it --no-owner "$O.dump" 2>/dev/null
   "$PG/psql.exe" -h localhost -p $THS_PG_PORT -U postgres -d ths_erp_it -q -v ON_ERROR_STOP=1 -f seed.sql || exit 1
+  # işlem geçmişi: test DB'si gerçek ths_audit yerine boş ths_audit_it'e aktarır (ERP/audit_schema.sql)
+  "$PG/dropdb.exe" -h localhost -p $THS_PG_PORT -U postgres --if-exists --force ths_audit_it
+  "$PG/createdb.exe" -h localhost -p $THS_PG_PORT -U postgres -T template0 ths_audit_it || exit 1
+  "$PG/psql.exe" -h localhost -p $THS_PG_PORT -U postgres -d ths_audit_it -q -v ON_ERROR_STOP=1 -f ../../audit_schema.sql >/dev/null || exit 1
+  "$PG/psql.exe" -h localhost -p $THS_PG_PORT -U postgres -d ths_audit_it -q -c "GRANT CONNECT ON DATABASE ths_audit_it TO ths_audit_writer; TRUNCATE audit_database" || exit 1
+  "$PG/psql.exe" -h localhost -p $THS_PG_PORT -U postgres -d ths_erp_it -q -c "ALTER SERVER audit_server OPTIONS (SET dbname 'ths_audit_it'); SELECT set_config('ths_erp.user_name', 'UI_SEED', false); INSERT INTO sys_region (region_name) VALUES ('UI AUDIT SEED'); UPDATE sys_region SET region_name = 'UI AUDIT SEED 2' WHERE region_name = 'UI AUDIT SEED'; SELECT moved FROM audit_flush()" >/dev/null || exit 1
   echo "ths_erp_it ready"
 fi
 python gen.py || exit 1

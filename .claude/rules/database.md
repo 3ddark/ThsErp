@@ -17,7 +17,7 @@ Connection and non-negotiables are in `.claude/CLAUDE.md` §5. This file covers 
   Dry-run first with `ROLLBACK` instead of `COMMIT`.
 - First statement in any change touching audited tables:
   `SELECT set_config('ths_erp.user_name', '<who_or_change_name>', true);`
-  (`audit()` calls `current_setting('ths_erp.user_name')` without `missing_ok` and fails otherwise).
+  (becomes `app_user` of the audit rows; without it they are written with `app_user` NULL).
 - Afterwards refresh both transport files (committed; the other machine restores `db.dump`):
   `pg_dump -s ths_erp > ERP/db_schema.sql` and `pg_dump -Fc -f ERP/db.dump ths_erp`.
 - Scratch backup before structural/destructive changes: `pg_dump -Fc -f <scratchpad>/ths_erp_before_<change>.dump ths_erp`.
@@ -29,8 +29,9 @@ Connection and non-negotiables are in `.claude/CLAUDE.md` §5. This file covers 
 - FK column name = `{referenced_table}_id` (e.g. `sys_country_id`, `emp_employee_id`); explicit constraint names;
   `ON UPDATE CASCADE` + deliberate `ON DELETE` (`CASCADE` for owned detail rows, `SET NULL` / `RESTRICT` otherwise).
 - Index every FK column that is not the leading column of a unique constraint.
-- Security/master tables get the audit trigger:
+- Security/master tables get the audit trigger (table needs an `id` column):
   `CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.x FOR EACH ROW EXECUTE FUNCTION public.audit();`
+  Every list of such a table automatically gets the "İşlem Geçmişi" popup (Ctrl+H). See "Audit log" below.
 - Data inserted with explicit ids leaves the identity sequence behind → resync after such loads:
   `SELECT setval(pg_get_serial_sequence('public.x', 'id'), COALESCE(max(id), 1)) FROM public.x;`
 - Translatable names live in `{table}_translation (…_id, sys_language_id, name)` with PK (`…_id`, `sys_language_id`).
@@ -99,6 +100,60 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
 - `sys_user_menu` (per user + screen, UNIQUE; `is_favorite`, `open_count`, `last_opened_at`; both FKs CASCADE, no audit:
   high churn) — favorites / recently used of the left tree. Written with upserts by `TSysMenuRepository.SetFavorite` /
   `RegisterOpen` on the main connection (joins another screen's open transaction, like every other write).
+
+## Audit log (işlem geçmişi) — separate DB `ths_audit` (2026-10-15)
+
+Goal: the history must not bloat the ERP / period DBs, and all period / company DBs share one history.
+
+```text
+ERP DB (ths_erp, later ths_erp2026, ths_erp2027 …)                 ths_audit (one per server)
+  trigger public.audit()  ──►  public.audit_outbox (local queue)      public.audit_database (registry)
+  public.audit_flush()  ── postgres_fdw (audit_server) ──►            public.audit_log PARTITION BY LIST (period_year)
+  public.vw_sys_audit_log  ◄── audit_remote.audit_log (foreign)         audit_log_2026, audit_log_2027 … (auto)
+```
+
+- Never write to the remote DB from the trigger (dblink / FDW per row = slow, couples every save to ths_audit
+  availability, and rolled-back work would still be logged). The trigger only inserts into `audit_outbox`
+  (SECURITY DEFINER, owner postgres): I = full new row, D = full old row, U = **only changed columns** (old / new),
+  no-op updates are skipped; `app_user` = `ths_erp.user_name`, `db_user` = session_user, `client_addr`, `txid`.
+- `audit_flush(batch, max_batches) -> (moved, error_message)` (SECURITY DEFINER): moves the queue in batches
+  (`FOR UPDATE SKIP LOCKED`, `DELETE … RETURNING` → foreign insert) in one local transaction; postgres_fdw commits the
+  remote side with it. Re-sent rows are ignored (`UNIQUE (period_year, db_name, source_id, changed_at)` +
+  `ON CONFLICT DO NOTHING`). Remote errors never raise: `moved = -1`, rows stay queued. Registry inserts / counter
+  updates run in savepoints (FDW remote transactions are REPEATABLE READ → concurrent flushes would get
+  serialization failures). Empty queue = no remote connection. Port of a `localhost` server self-corrects
+  (dump moved to a machine with another port); other host: `SELECT audit_configure(host, port, 'ths_audit')`.
+- Who flushes: the app (`TSysAuditLogService.Flush`) — dashboard timer every 60 s, at login (`SetSession`), before
+  opening the audit list, on close; skipped while the connection has an open transaction (would hold remote locks).
+- Row identity in ths_audit: `period_year` (= `fn_active_period()` = `sys_application_setting.active_period`, else
+  the current year), `db_name` (current_database()), `db_family` (`fn_db_family()`: DB name without a trailing
+  `[_]YYYY` → `ths_erp2026` / `ths_erp2027` = family `ths_erp`, i.e. the company), `source_id` (outbox id).
+- `ths_audit.audit_database` registers each source DB on its first flush; its BEFORE trigger creates the year
+  partition (`audit_create_partition`, race-safe). Old years can be detached / archived per partition.
+- Role `ths_audit_writer` (user mapping FOR PUBLIC): SELECT + INSERT on `audit_log`, no UPDATE / DELETE (history is
+  append-only for the app); registry counters only.
+- Reading: `vw_sys_audit_log` (foreign table; `row_id` is exposed as `record_no` — not an FK; old/new as text,
+  `changed_columns` for U). Filters on `db_family`, `period_year`, `table_name`, `record_no` push down (parameters too);
+  never filter with `current_database()` / local functions in the view (not shippable → full remote scan).
+  App: `SysAuditLog` (read-only entity / repo / service, permission 1112), `TfrmSysAuditLogs` (Sistem > Raporlar >
+  İşlem Geçmişi 100801: current period of this company; popup "Bu Kaydın Tüm Geçmişi", "Tüm Dönemler"),
+  `TfrmSysAuditLogDetail` (field / old / new grid).
+- Tests: integration `IntegrationTest.exe audit` (trigger → queue → flush → remote, rollback undoes the remote side,
+  idempotent re-flush, read-only, permission); `ERP/Tests/Audit/test_periods.sh` (two temporary period DBs + a
+  temporary audit DB: partitions, registry, cross-period record history, audit DB down, 3 concurrent flushes,
+  period change, writer role cannot delete / update). UI harness restores `ths_erp_it` against its own `ths_audit_it`.
+
+### Period (year) databases — plan
+
+- One DB per company and year: `ths_erp2026`, `ths_erp2027` … (`[_]YYYY` suffix; the family = company). The
+  current single `ths_erp` already works as a period DB (`active_period` = 2026).
+- Year-end ("dönem açılışı"), when implemented: `audit_flush()` in the old DB until the queue is empty → create the
+  new DB from the old one (`CREATE DATABASE ths_erp2027 TEMPLATE ths_erp2026`, no other connections) →
+  `TRUNCATE audit_outbox`, set `active_period` = 2027, delete / carry over transactional data (opening balances,
+  open documents) → the first flush registers `ths_erp2027` and opens partition 2027. Record ids persist, so a
+  record's history spans years (`db_family` + `table_name` + `record_no`).
+- Login must then choose the period DB (company + year list from the server, e.g. `pg_database` names of the family
+  or a `ths_audit`-like shared catalog DB); `GlobalSettings.ini DatabaseName` stays the default.
 
 ## Grid metadata tables
 

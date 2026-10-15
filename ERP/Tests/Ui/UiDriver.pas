@@ -1230,7 +1230,8 @@ begin
           if S <> '' then TUi.R('FAIL', 'fields filled', S) else TUi.R('PASS', 'fields filled', 'all controls match DB row');
           S := TUi.LayoutProblems(F);
           if S <> '' then TUi.R('FAIL', 'layout (review)', S);
-          if TUi.Btn(F, 'BtnAccept').Visible and TUi.Btn(F, 'BtnAccept').Enabled then
+          // salt okunur ayrıntı pencereleri (TfrmBase) BtnAccept özelliği taşımaz
+          if (TUi.Btn(F, 'BtnAccept') <> nil) and TUi.Btn(F, 'BtnAccept').Visible and TUi.Btn(F, 'BtnAccept').Enabled then
           begin
             S := TUi.Accept(F);
             D := TUi.TakeDialogs;

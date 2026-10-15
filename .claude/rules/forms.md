@@ -33,6 +33,10 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
   Base `SetSelectedItem` also fills `[NotMapped]` string props from the same-named snake_case grid column
   (`UomName` ← `uom_name`) — the column must be fetched (`sys_grid_column` row for the view).
 - Read-only list (no input form): `CreateInputForm` returns nil and `BtnAdd` hidden; base `ShowInputForm` skips nil.
+- Record history: every `TfrmGrid` has a hidden popup item `mniRecordHistory` ("İşlem Geçmişi", Ctrl+H). `FormShow` shows
+  it when the entity's table has the `audit` trigger and the user may read 1112 (hooks `GRecordHistoryAvailable` /
+  `GRecordHistoryShow` in `ufrmGrid`, assigned in `ufrmSysAuditLogs` initialization — ufrmGrid does not use that unit).
+  Nothing to do per form; the row must have an `id` field.
 - Every visible column of `vw_*` needs a `sys_grid_column` row (only those are fetched); after adding view columns
   insert their rows, otherwise the list/helper silently lacks them.
 - UI regression: `ERP/Tests/Ui/build.sh` (rebuilds `ths_erp_it` from live + seed, compiles) then

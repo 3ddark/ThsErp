@@ -11,6 +11,7 @@ uses
   ItSpecific in 'ItSpecific.pas',
   ItModules in 'ItModules.pas',
   SysMenu.Repository, SysMenu.Exception,
+  SysAuditLog, SysAuditLog.Repository, SysAuditLog.Service, SysAuditLog.Exception,
   {{UNITS}};
 
 type
@@ -794,6 +795,170 @@ begin
   end;
 end;
 
+// İşlem geçmişi: tetikleyici -> audit_outbox -> audit_flush() -> ths_audit (postgres_fdw). Transaction + rollback:
+// yerel kuyruk ve uzak (ths_audit) satırlar birlikte geri alınır.
+procedure CheckAuditLog;
+var
+  LAudit: TSysAuditLogService;
+  LRegionSvc: TSysRegionService;
+  LRegion: TSysRegion;
+  LRepo: TSysAuditLogRepository;
+  LRes: TAuditFlushResult;
+  LList: TList<TSysAuditLog>;
+  LFilter: TFilterCriteria;
+  LRowId: Int64;
+  LEntry: TSysAuditLog;
+  LExpected: Boolean;
+  LUserRepo: TSysUserRepository;
+
+  procedure Check(ACondition: Boolean; const AStep, AMsg: string);
+  begin
+    if ACondition then
+      Report('PASS', 'audit', 'TSysAuditLog', AStep, AMsg)
+    else
+      Report('FAIL', 'audit', 'TSysAuditLog', AStep, AMsg);
+  end;
+
+  function Scalar(const ASql: string): string;
+  begin
+    Result := VarToStr(TUnitOfWork.Instance.Connection.ExecSQLScalar(ASql));
+  end;
+
+  function OutboxRows: string;
+  begin
+    Result := Scalar(Format('SELECT string_agg(action || '':'' || COALESCE(app_user, ''-'') || '':'' || ' +
+      'COALESCE((SELECT string_agg(k, '','' ORDER BY k) FROM jsonb_object_keys(COALESCE(new_data, old_data)) k), ''''), '' '' ORDER BY id) ' +
+      'FROM audit_outbox WHERE table_name = ''sys_region'' AND row_id = %d', [LRowId]));
+  end;
+
+begin
+  LAudit := TSysAuditLogService.Create;
+  LRegionSvc := TSysRegionService.Create;
+  LRepo := TSysAuditLogRepository(LAudit.UoW.GetRepository<TSysAuditLog, TSysAuditLogRepository>);
+  LUserRepo := TSysUserRepository.Create(TUnitOfWork.Instance.Connection);
+  LRowId := 0;
+  try
+    try
+      Check(LAudit.IsAudited('sys_region') and not LAudit.IsAudited('stk_inventory') and not LAudit.IsAudited('audit_outbox'),
+        'audited tables', 'sys_region yes, stk_inventory / audit_outbox no');
+      Check(LAudit.DbFamily = Scalar('SELECT regexp_replace(current_database(), ''_?[0-9]{4}$'', '''')'), 'db family', LAudit.DbFamily);
+      Check(LAudit.ActivePeriod = StrToIntDef(Scalar('SELECT active_period FROM sys_application_setting ORDER BY id LIMIT 1'), -1),
+        'active period', IntToStr(LAudit.ActivePeriod));
+
+      TUnitOfWork.Instance.BeginTransaction;
+      LRes := LAudit.Flush;
+      Check(LRes.Moved = 0, 'flush skipped in open transaction', IntToStr(LRes.Moved));
+
+      LRegion := TSysRegion.Create;
+      try
+        LRegion.RegionName := 'IT AUDIT ' + FormatDateTime('hhnnsszzz', Now);
+        LRegionSvc.BusinessInsert(LRegion, False, False, True);
+        LRowId := LRegion.Id;
+        LRegion.RegionName := LRegion.RegionName + ' 2';
+        LRegionSvc.BusinessUpdate(LRegion, False, False, True);
+        LRegionSvc.BusinessUpdate(LRegion, False, False, True);   // değişiklik yok -> satır yok
+        LRegionSvc.BusinessDelete(LRegion, False, False, True);
+      finally
+        LRegion.Free;
+      end;
+      Check(OutboxRows = 'I:IT_TEST:id,region_name U:IT_TEST:region_name D:IT_TEST:id,region_name', 'outbox rows (I / U diff / D, no-op skipped)',
+        OutboxRows);
+
+      LRes := LRepo.Flush(2, 50);   // küçük paketler: döngü
+      Check((LRes.Moved >= 3) and (LRes.ErrorMessage = ''), 'flush', Format('%d %s', [LRes.Moved, LRes.ErrorMessage]));
+      Check(Scalar('SELECT count(*) FROM audit_outbox') = '0', 'outbox empty after flush', Scalar('SELECT count(*) FROM audit_outbox'));
+
+      LFilter := TFilterCriteria.Create;
+      try
+        LFilter.Add(TFilterCriterion.New('db_family', '=', TValue.From<string>(LAudit.DbFamily)));
+        LFilter.Add(TFilterCriterion.New('table_name', '=', TValue.From<string>('sys_region')));
+        LFilter.Add(TFilterCriterion.New('record_no', '=', TValue.From<Int64>(LRowId)));
+        LList := LAudit.BusinessFind(LFilter, False, False, True);
+        try
+          Check(LList.Count = 3, 'remote rows', IntToStr(LList.Count));
+          if LList.Count = 3 then
+          begin
+            Check((LList[0].Action = 'I') and (LList[1].Action = 'U') and (LList[2].Action = 'D'), 'remote order',
+              LList[0].Action + LList[1].Action + LList[2].Action);
+            LEntry := LList[1];
+            Check((LEntry.DbName = Scalar('SELECT current_database()')) and (LEntry.PeriodYear = LAudit.ActivePeriod)
+              and (LEntry.AppUser = 'IT_TEST') and (LEntry.ChangedColumns = 'region_name')
+              and (Pos(' 2"', LEntry.NewData) > 0) and (LEntry.OldData <> ''),
+              'remote update row', Format('%s %d %s [%s] %s -> %s', [LEntry.DbName, LEntry.PeriodYear, LEntry.AppUser,
+              LEntry.ChangedColumns, LEntry.OldData, LEntry.NewData]));
+            Check((LList[0].OldData = '') and (LList[2].NewData = ''), 'insert / delete payload', 'I old empty, D new empty');
+            Check(TSysAuditLog.ActionText('U') <> 'U', 'action text', TSysAuditLog.ActionText('U'));
+            LEntry := LAudit.BusinessFindById(LList[2].Id, False, False, True);
+            try
+              Check(Assigned(LEntry) and (LEntry.Action = 'D') and (LEntry.RecordNo = LRowId), 'find by id', '');
+            finally
+              LEntry.Free;
+            end;
+          end;
+        finally
+          if not (LList is TObjectList<TSysAuditLog>) or not TObjectList<TSysAuditLog>(LList).OwnsObjects then
+            for LEntry in LList do
+              LEntry.Free;
+          LList.Free;
+        end;
+      finally
+        LFilter.Free;
+      end;
+
+      // yeniden aktarım (aynı kaynak satırı) uzakta çift kayıt üretmez
+      TUnitOfWork.Instance.Connection.ExecSQL(Format('INSERT INTO audit_outbox (id, table_schema, table_name, row_id, action, changed_at, app_user, new_data) ' +
+        'OVERRIDING SYSTEM VALUE ' +
+        'SELECT source_id, table_schema, table_name, record_no, action, changed_at, app_user, new_data::jsonb ' +
+        'FROM vw_sys_audit_log WHERE db_family = %s AND table_name = ''sys_region'' AND record_no = %d AND action = ''I''',
+        [QuotedStr(LAudit.DbFamily), LRowId]));
+      LRes := LRepo.Flush(100, 1);
+      Check((LRes.Moved = 0) and (Scalar(Format('SELECT count(*) FROM vw_sys_audit_log WHERE db_family = %s AND table_name = ''sys_region'' AND record_no = %d',
+        [QuotedStr(LAudit.DbFamily), LRowId])) = '3'), 'idempotent re-flush', IntToStr(LRes.Moved));
+
+      try
+        LEntry := TSysAuditLog.Create;
+        try
+          LAudit.BusinessInsert(LEntry, False, False, True);
+        finally
+          LEntry.Free;
+        end;
+        Check(False, 'read-only insert', 'accepted');
+      except
+        on E: ESysAuditLogExceptionReadOnly do Check(True, 'read-only insert', E.Message);
+      end;
+    except
+      on E: Exception do Report('FAIL', 'audit', 'TSysAuditLog', 'flow', E.ClassName + ': ' + E.Message);
+    end;
+  finally
+    if TUnitOfWork.Instance.InTransaction then
+      TUnitOfWork.Instance.Rollback;
+  end;
+
+  try
+    // rollback uzak satırları da geri aldı (postgres_fdw uzak transaction'ı yerel ile biter)
+    if LRowId > 0 then
+      Check(Scalar(Format('SELECT count(*) FROM vw_sys_audit_log WHERE table_name = ''sys_region'' AND record_no = %d', [LRowId])) = '0',
+        'remote rolled back with local transaction', '');
+
+    // yetki: TEST kullanıcısının okuma hakkı = etkin yetki görünümü
+    TAppContext.Instance.CurrentUser.User := LUserRepo.FindById(TValue.From<Int64>(4), False);
+    LExpected := Scalar('SELECT COALESCE(bool_or(is_read), false)::int FROM vw_sys_user_effective_permission WHERE sys_user_id = 4 AND permission_code = 1112') = '1';
+    Check(LAudit.IsAuthorized(ptRead, True) = LExpected, 'TEST user read = effective permission', BoolToStr(LExpected, True));
+    try
+      LList := LAudit.BusinessFind(nil, False, False, True);
+      LList.Free;
+      Check(LExpected, 'TEST user list', 'allowed');
+    except
+      on E: Exception do Check(not LExpected, 'TEST user list', E.ClassName);
+    end;
+  finally
+    TAppContext.Instance.CurrentUser.User := LUserRepo.FindById(TValue.From<Int64>(1), False);
+    LUserRepo.Free;
+    LRegionSvc.Free;
+    LAudit.Free;
+  end;
+end;
+
 procedure RunGeneric;
 begin
 {{CALLS}}
@@ -872,6 +1037,9 @@ begin
             TUnitOfWork.Instance.Rollback;
         end;
       end;
+
+      if (Mode = '') or (Mode = 'specific') or (Mode = 'audit') then
+        CheckAuditLog;
 
       if (Mode = '') or (Mode = 'specific') then
         RunSpecific(URepo);

@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict MGBs1M2JeE4N05jM9ppxFKas7j63kVbfv9bpuBNvmHorssIdqCn2m9ithXc0UqY
+\restrict OduRR1ZevJepEloM5MOig8GvUecTxzkK9No7hTc7UK8sQyk9VPU9inK7GwiTW9d
 
--- Dumped from database version 18.1
--- Dumped by pg_dump version 18.1
+-- Dumped from database version 18.3
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -18,6 +18,22 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: audit_remote; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA audit_remote;
+
+
+ALTER SCHEMA audit_remote OWNER TO postgres;
+
+--
+-- Name: SCHEMA audit_remote; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA audit_remote IS 'ths_audit (ortak işlem geçmişi) yabancı tabloları; yalnız audit_flush() yazar';
+
 
 --
 -- Name: dblink; Type: EXTENSION; Schema: -; Owner: -
@@ -34,66 +50,182 @@ COMMENT ON EXTENSION dblink IS 'connect to other PostgreSQL databases from withi
 
 
 --
--- Name: audit(); Type: FUNCTION; Schema: public; Owner: ths_admin
+-- Name: postgres_fdw; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgres_fdw WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION postgres_fdw; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION postgres_fdw IS 'foreign-data wrapper for remote PostgreSQL servers';
+
+
+--
+-- Name: audit(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.audit() RETURNS trigger
-    LANGUAGE plpgsql
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public', 'pg_temp'
     AS $$
-declare
-_username text;
-_client_user text;
-_ip text;
-_database text;
-_log_database text;
-_sql text;
-_old_val text;
-_new_val text;
-_id text;
-_operatin text;
-_tarih timestamp without time zone;
+DECLARE
+    _old jsonb;
+    _new jsonb;
+    _row_id bigint;
 BEGIN
-	IF (TG_OP = 'INSERT') OR (TG_OP = 'DELETE') OR ((TG_OP = 'UPDATE') AND (ARRAY[OLD] <> ARRAY[NEW])) THEN
-		_username 	:= session_user; 
+    IF TG_OP = 'INSERT' THEN
+        _new := to_jsonb(NEW);
+        _row_id := NEW.id;
+    ELSIF TG_OP = 'DELETE' THEN
+        _old := to_jsonb(OLD);
+        _row_id := OLD.id;
+    ELSE
+        SELECT jsonb_object_agg(n.key, o.value), jsonb_object_agg(n.key, n.value)
+        INTO _old, _new
+        FROM jsonb_each(to_jsonb(NEW)) n
+        JOIN jsonb_each(to_jsonb(OLD)) o ON o.key = n.key
+        WHERE n.value IS DISTINCT FROM o.value;
 
-		_ip 		:= (inet_client_addr());
-		_database	:= (SELECT current_database());
-		_tarih		:= (SELECT NOW());
+        IF _new IS NULL THEN
+            RETURN NULL;   -- hiçbir kolon değişmedi
+        END IF;
+        _row_id := OLD.id;
+    END IF;
 
-		_log_database := _database || '_log';
-		
-		IF (TG_OP = 'INSERT') THEN
-			_old_val	:= null;
-			_new_val	:= row_to_json(NEW);
-			_id := NEW.id;
-			_operatin := 'I';
-		ELSE
-			_old_val	:= row_to_json(OLD);
-			_new_val	:= row_to_json(NEW);
-			_id := OLD.id;
-			IF (TG_OP = 'UPDATE') THEN
-				_operatin := 'U';
-			ELSE
-				_operatin := 'D';
-			END IF;
-		END IF;
-
-		SELECT current_setting('ths_erp.user_name') INTO _client_user;
-
-		_sql := 
-		(SELECT format('INSERT INTO public.audit(
-			user_name, ip_address, table_name, access_type, time_of_change, row_id, client_username, old_val, new_val)
-		VALUES (%L, %L, %L, %L, %L, %L, %L, %L, %L);', 
-			_username, _ip, TG_TABLE_NAME, _operatin, _tarih, _id, _client_user, _old_val, _new_val));
-		
-		EXECUTE _sql;
-	END IF;
-	RETURN NULL;
+    INSERT INTO public.audit_outbox (table_schema, table_name, row_id, action, app_user, client_addr,
+                                     application_name, old_data, new_data)
+    VALUES (TG_TABLE_SCHEMA, TG_TABLE_NAME, _row_id, left(TG_OP, 1),
+            NULLIF(current_setting('ths_erp.user_name', true), ''), inet_client_addr(),
+            NULLIF(left(current_setting('application_name', true), 64), ''), _old, _new);
+    RETURN NULL;
 END
 $$;
 
 
-ALTER FUNCTION public.audit() OWNER TO ths_admin;
+ALTER FUNCTION public.audit() OWNER TO postgres;
+
+--
+-- Name: audit_configure(text, integer, text); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.audit_configure(p_host text, p_port integer, p_dbname text DEFAULT 'ths_audit'::text) RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public', 'pg_temp'
+    AS $$
+BEGIN
+    EXECUTE format('ALTER SERVER audit_server OPTIONS (SET host %L, SET port %L, SET dbname %L)',
+                   p_host, p_port::text, p_dbname);
+END
+$$;
+
+
+ALTER FUNCTION public.audit_configure(p_host text, p_port integer, p_dbname text) OWNER TO postgres;
+
+--
+-- Name: audit_flush(integer, integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.audit_flush(p_batch_size integer DEFAULT 5000, p_max_batches integer DEFAULT 20, OUT moved integer, OUT error_message text) RETURNS record
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public', 'pg_temp'
+    AS $$
+DECLARE
+    _db     varchar := current_database();
+    _family varchar := public.fn_db_family();
+    _year   smallint := public.fn_active_period();
+    _n      integer;
+    _opts   text[];
+BEGIN
+    moved := 0;
+    IF NOT EXISTS (SELECT 1 FROM public.audit_outbox) THEN
+        RETURN;
+    END IF;
+
+    -- Yerel sunucudaki ths_audit: dump başka port'lu makineye taşındıysa port kendini düzeltir
+    SELECT srvoptions INTO _opts FROM pg_foreign_server WHERE srvname = 'audit_server';
+    IF ('host=localhost' = ANY(_opts) OR 'host=127.0.0.1' = ANY(_opts))
+       AND NOT (('port=' || current_setting('port')) = ANY(_opts)) THEN
+        EXECUTE format('ALTER SERVER audit_server OPTIONS (SET port %L)', current_setting('port'));
+    END IF;
+
+    BEGIN
+        -- Kaynak kaydı + dönem bölümü (uzak tetikleyici oluşturur). Eşzamanlı ilk kayıt / dönem değişimi
+        -- serileştirme hatası verirse atlanır: bölüm zaten varsa aktarım sürer, yoksa sonraki denemede açılır.
+        BEGIN
+            INSERT INTO audit_remote.audit_database (db_name, db_family, period_year, company_title)
+            VALUES (_db, _family, _year, (SELECT company_title FROM public.sys_application_setting ORDER BY id LIMIT 1))
+            ON CONFLICT DO NOTHING;
+            UPDATE audit_remote.audit_database SET period_year = _year WHERE db_name = _db AND period_year <> _year;
+        EXCEPTION WHEN serialization_failure OR deadlock_detected OR lock_not_available THEN
+            NULL;
+        END;
+
+        FOR i IN 1 .. GREATEST(p_max_batches, 1) LOOP
+            WITH batch AS (
+                SELECT id FROM public.audit_outbox ORDER BY id LIMIT GREATEST(p_batch_size, 1) FOR UPDATE SKIP LOCKED
+            ), taken AS (
+                DELETE FROM public.audit_outbox o USING batch b WHERE o.id = b.id RETURNING o.*
+            )
+            INSERT INTO audit_remote.audit_log_in (period_year, db_name, db_family, source_id, table_schema, table_name,
+                                                   row_id, action, changed_at, transaction_id, db_user, app_user,
+                                                   client_addr, application_name, old_data, new_data)
+            SELECT _year, _db, _family, t.id, t.table_schema, t.table_name, t.row_id, t.action, t.changed_at,
+                   t.transaction_id, t.db_user, t.app_user, t.client_addr, t.application_name, t.old_data, t.new_data
+            FROM taken t
+            ORDER BY t.id
+            ON CONFLICT DO NOTHING;
+            GET DIAGNOSTICS _n = ROW_COUNT;
+            moved := moved + _n;
+            EXIT WHEN _n < GREATEST(p_batch_size, 1);
+        END LOOP;
+
+        -- İzleme sayaçları en iyi çaba (aynı satır: eşzamanlı aktarımda biri atlanabilir)
+        IF moved > 0 THEN
+            BEGIN
+                UPDATE audit_remote.audit_database
+                SET last_flush_at = now(), flushed_rows = flushed_rows + moved
+                WHERE db_name = _db;
+            EXCEPTION WHEN serialization_failure OR deadlock_detected OR lock_not_available THEN
+                NULL;
+            END;
+        END IF;
+    EXCEPTION WHEN OTHERS THEN
+        moved := -1;
+        error_message := SQLERRM;
+    END;
+END
+$$;
+
+
+ALTER FUNCTION public.audit_flush(p_batch_size integer, p_max_batches integer, OUT moved integer, OUT error_message text) OWNER TO postgres;
+
+--
+-- Name: fn_active_period(); Type: FUNCTION; Schema: public; Owner: ths_admin
+--
+
+CREATE FUNCTION public.fn_active_period() RETURNS smallint
+    LANGUAGE sql STABLE
+    AS $$
+    SELECT COALESCE((SELECT s.active_period FROM public.sys_application_setting s ORDER BY s.id LIMIT 1),
+                    extract(year FROM current_date)::smallint)
+$$;
+
+
+ALTER FUNCTION public.fn_active_period() OWNER TO ths_admin;
+
+--
+-- Name: fn_db_family(); Type: FUNCTION; Schema: public; Owner: ths_admin
+--
+
+CREATE FUNCTION public.fn_db_family() RETURNS character varying
+    LANGUAGE sql STABLE
+    AS $_$ SELECT regexp_replace(current_database(), '_?[0-9]{4}$', '')::varchar $_$;
+
+
+ALTER FUNCTION public.fn_db_family() OWNER TO ths_admin;
 
 --
 -- Name: fn_default_currency(); Type: FUNCTION; Schema: public; Owner: postgres
@@ -479,6 +611,118 @@ $$;
 
 
 ALTER FUNCTION public.table_unlisten(table_name text) OWNER TO postgres;
+
+--
+-- Name: audit_server; Type: SERVER; Schema: -; Owner: postgres
+--
+
+CREATE SERVER audit_server FOREIGN DATA WRAPPER postgres_fdw OPTIONS (
+    batch_size '500',
+    dbname 'ths_audit',
+    fetch_size '1000',
+    host 'localhost',
+    port '5432'
+);
+
+
+ALTER SERVER audit_server OWNER TO postgres;
+
+--
+-- Name: USER MAPPING public SERVER audit_server; Type: USER MAPPING; Schema: -; Owner: postgres
+--
+
+CREATE USER MAPPING FOR public SERVER audit_server OPTIONS (
+    password 'qwe',
+    "user" 'ths_audit_writer'
+);
+
+
+--
+-- Name: audit_database; Type: FOREIGN TABLE; Schema: audit_remote; Owner: postgres
+--
+
+CREATE FOREIGN TABLE audit_remote.audit_database (
+    db_name character varying(63) NOT NULL,
+    db_family character varying(63) NOT NULL,
+    period_year smallint NOT NULL,
+    company_title character varying(128),
+    first_seen_at timestamp with time zone DEFAULT now() NOT NULL,
+    last_flush_at timestamp with time zone,
+    flushed_rows bigint DEFAULT 0 NOT NULL
+)
+SERVER audit_server
+OPTIONS (
+    schema_name 'public',
+    table_name 'audit_database'
+);
+
+
+ALTER FOREIGN TABLE audit_remote.audit_database OWNER TO postgres;
+
+--
+-- Name: audit_log; Type: FOREIGN TABLE; Schema: audit_remote; Owner: postgres
+--
+
+CREATE FOREIGN TABLE audit_remote.audit_log (
+    id bigint NOT NULL,
+    period_year smallint NOT NULL,
+    db_name character varying(63) NOT NULL,
+    db_family character varying(63) NOT NULL,
+    source_id bigint NOT NULL,
+    table_schema character varying(63) NOT NULL,
+    table_name character varying(63) NOT NULL,
+    row_id bigint,
+    action character(1) NOT NULL,
+    changed_at timestamp with time zone NOT NULL,
+    transaction_id bigint,
+    db_user character varying(63) NOT NULL,
+    app_user character varying(64),
+    client_addr inet,
+    application_name character varying(64),
+    old_data jsonb,
+    new_data jsonb,
+    received_at timestamp with time zone NOT NULL
+)
+SERVER audit_server
+OPTIONS (
+    schema_name 'public',
+    table_name 'audit_log',
+    updatable 'false'
+);
+
+
+ALTER FOREIGN TABLE audit_remote.audit_log OWNER TO postgres;
+
+--
+-- Name: audit_log_in; Type: FOREIGN TABLE; Schema: audit_remote; Owner: postgres
+--
+
+CREATE FOREIGN TABLE audit_remote.audit_log_in (
+    period_year smallint NOT NULL,
+    db_name character varying(63) NOT NULL,
+    db_family character varying(63) NOT NULL,
+    source_id bigint NOT NULL,
+    table_schema character varying(63) NOT NULL,
+    table_name character varying(63) NOT NULL,
+    row_id bigint,
+    action character(1) NOT NULL,
+    changed_at timestamp with time zone NOT NULL,
+    transaction_id bigint,
+    db_user character varying(63) NOT NULL,
+    app_user character varying(64),
+    client_addr inet,
+    application_name character varying(64),
+    old_data jsonb,
+    new_data jsonb
+)
+SERVER audit_server
+OPTIONS (
+    schema_name 'public',
+    table_name 'audit_log'
+);
+
+
+ALTER FOREIGN TABLE audit_remote.audit_log_in OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -940,31 +1184,42 @@ CREATE TABLE public.acc_voucher_detail (
 ALTER TABLE public.acc_voucher_detail OWNER TO ths_admin;
 
 --
--- Name: audit; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: audit_outbox; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.audit (
-    id bigint CONSTRAINT audits_id_not_null NOT NULL,
-    user_name character varying CONSTRAINT audits_user_name_not_null NOT NULL,
-    ip_address character varying(32) CONSTRAINT audits_ip_address_not_null NOT NULL,
-    table_name character varying CONSTRAINT audits_table_name_not_null NOT NULL,
-    access_type character varying(1) CONSTRAINT audits_access_type_not_null NOT NULL,
-    time_of_change timestamp without time zone CONSTRAINT audits_time_of_change_not_null NOT NULL,
-    row_id bigint CONSTRAINT audits_row_id_not_null NOT NULL,
-    client_username character varying,
-    old_val text,
-    new_val text
+CREATE TABLE public.audit_outbox (
+    id bigint NOT NULL,
+    table_schema character varying(63) NOT NULL,
+    table_name character varying(63) NOT NULL,
+    row_id bigint,
+    action character(1) NOT NULL,
+    changed_at timestamp with time zone DEFAULT now() NOT NULL,
+    transaction_id bigint DEFAULT txid_current() NOT NULL,
+    db_user character varying(63) DEFAULT SESSION_USER NOT NULL,
+    app_user character varying(64),
+    client_addr inet,
+    application_name character varying(64),
+    old_data jsonb,
+    new_data jsonb,
+    CONSTRAINT audit_outbox_action_check CHECK ((action = ANY (ARRAY['I'::bpchar, 'U'::bpchar, 'D'::bpchar])))
 );
 
 
-ALTER TABLE public.audit OWNER TO ths_admin;
+ALTER TABLE public.audit_outbox OWNER TO postgres;
 
 --
--- Name: audit_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: TABLE audit_outbox; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE public.audit ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.audit_id_seq
+COMMENT ON TABLE public.audit_outbox IS 'İşlem geçmişi kuyruğu; audit_flush() ths_audit.audit_log''a taşır ve siler';
+
+
+--
+-- Name: audit_outbox_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.audit_outbox ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.audit_outbox_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -6578,6 +6833,46 @@ CREATE VIEW public.vw_sys_address AS
 ALTER VIEW public.vw_sys_address OWNER TO ths_admin;
 
 --
+-- Name: vw_sys_audit_log; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_audit_log AS
+ SELECT id,
+    period_year,
+    db_name,
+    db_family,
+    source_id,
+    table_schema,
+    table_name,
+    row_id AS record_no,
+    action,
+    changed_at,
+    transaction_id,
+    db_user,
+    app_user,
+    (client_addr)::character varying AS client_addr,
+    application_name,
+    (old_data)::text AS old_data,
+    (new_data)::text AS new_data,
+    received_at,
+        CASE
+            WHEN (action = 'U'::bpchar) THEN (( SELECT string_agg(k.k, ', '::text ORDER BY k.k) AS string_agg
+               FROM jsonb_object_keys(a.new_data) k(k)))::character varying
+            ELSE NULL::character varying
+        END AS changed_columns
+   FROM audit_remote.audit_log a;
+
+
+ALTER VIEW public.vw_sys_audit_log OWNER TO ths_admin;
+
+--
+-- Name: VIEW vw_sys_audit_log; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON VIEW public.vw_sys_audit_log IS 'İşlem geçmişi (ths_audit.audit_log, postgres_fdw); record_no = kaydın id''si (uzakta row_id). Filtreler uzağa iner.';
+
+
+--
 -- Name: vw_sys_city; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -7232,11 +7527,11 @@ ALTER TABLE ONLY public.pur_offer
 
 
 --
--- Name: audit audit_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: audit_outbox audit_outbox_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.audit
-    ADD CONSTRAINT audit_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.audit_outbox
+    ADD CONSTRAINT audit_outbox_pkey PRIMARY KEY (id);
 
 
 --
@@ -11542,6 +11837,13 @@ ALTER TABLE ONLY public.sys_user_setting
 
 
 --
+-- Name: SCHEMA audit_remote; Type: ACL; Schema: -; Owner: postgres
+--
+
+GRANT USAGE ON SCHEMA audit_remote TO ths_admin;
+
+
+--
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pg_database_owner
 --
 
@@ -11551,11 +11853,18 @@ GRANT ALL ON SCHEMA public TO ths_admin;
 
 
 --
--- Name: FUNCTION audit(); Type: ACL; Schema: public; Owner: ths_admin
+-- Name: FUNCTION audit(); Type: ACL; Schema: public; Owner: postgres
 --
 
 REVOKE ALL ON FUNCTION public.audit() FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.audit() FROM ths_admin;
+REVOKE ALL ON FUNCTION public.audit() FROM postgres;
+
+
+--
+-- Name: FUNCTION audit_configure(p_host text, p_port integer, p_dbname text); Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON FUNCTION public.audit_configure(p_host text, p_port integer, p_dbname text) FROM PUBLIC;
 
 
 --
@@ -11670,8 +11979,22 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 
 
 --
+-- Name: TABLE audit_database; Type: ACL; Schema: audit_remote; Owner: postgres
+--
+
+GRANT SELECT ON TABLE audit_remote.audit_database TO ths_admin;
+
+
+--
+-- Name: TABLE audit_log; Type: ACL; Schema: audit_remote; Owner: postgres
+--
+
+GRANT SELECT ON TABLE audit_remote.audit_log TO ths_admin;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
-\unrestrict MGBs1M2JeE4N05jM9ppxFKas7j63kVbfv9bpuBNvmHorssIdqCn2m9ithXc0UqY
+\unrestrict OduRR1ZevJepEloM5MOig8GvUecTxzkK9No7hTc7UK8sQyk9VPU9inK7GwiTW9d
 

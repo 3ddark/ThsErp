@@ -59,7 +59,9 @@ ERP/
 ├── Resource/Localization/       # tr-TR, en-US, de-DE, fr-FR .json
 ├── Settings/GlobalSettings.ini  # connection reference (host/port/db)
 ├── db_schema.sql                # schema-only dump, refreshed after every DDL
-└── db.dump                      # full dump (pg_dump -Fc), refreshed after every DB change
+├── db.dump                      # full dump (pg_dump -Fc), refreshed after every DB change
+├── audit_schema.sql             # ths_audit (shared audit log DB) schema dump
+└── audit.dump                   # ths_audit full dump
 docs/claude_resume.md            # resume state
 ```
 
@@ -99,9 +101,14 @@ Non-negotiable:
   `pg_dump -h localhost -p {port} -U postgres -s ths_erp > ERP/db_schema.sql`
   `pg_dump -h localhost -p {port} -U postgres -Fc -f ERP/db.dump ths_erp`
   Other machine: `pg_restore -h localhost -p {port} -U postgres -d ths_erp --clean --if-exists ERP/db.dump`
+- **Audit log lives in a separate DB `ths_audit`** (shared by every period / company DB, see `rules/database.md`).
+  After changing it refresh `ERP/audit_schema.sql` (`pg_dump -s`, then LF -> CRLF like `db_schema.sql`) and
+  `ERP/audit.dump` (`-Fc`). Other machine, once: `CREATE ROLE ths_audit_writer LOGIN PASSWORD 'qwe';`
+  `CREATE DATABASE ths_audit;` then `pg_restore -d ths_audit --clean --if-exists ERP/audit.dump`
+  (restore `ths_audit` before / independently of `ths_erp`; the FDW port self-corrects on the first flush).
 - Take a scratch backup (`pg_dump -Fc -f <scratchpad>/ths_erp_before_<change>.dump ths_erp`) before destructive/structural changes
 
-Details (views, locale, identity, audit trigger): `.claude/rules/database.md`.
+Details (views, locale, identity, audit trigger + ths_audit, period DBs): `.claude/rules/database.md`.
 
 ---
 

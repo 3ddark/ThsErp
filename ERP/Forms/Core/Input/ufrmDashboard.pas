@@ -19,6 +19,7 @@ uses
   SysDashboard, SysDashboard.Service, DashboardControls,
   SysMenu, SysMenu.Service, NavigationTree, ScreenCode,
   ufrmSysMenus, SysUserSetting, SysUserSetting.Service,
+  ufrmSysAuditLogs, SysAuditLog, SysAuditLog.Service,
   ufrmSysCities, SysCity.Service, SysCity,
   ufrmSysCountries, SysCountry.Service, SysCountry,
   ufrmSysCurrencies, SysCurrency.Service, SysCurrency,
@@ -301,6 +302,8 @@ type
     mnisys_user_permission_template: TMenuItem;
     actsys_menu: TAction;
     mnisys_menu: TMenuItem;
+    actsys_audit_log: TAction;
+    mnisys_audit_log: TMenuItem;
 
     procedure DynamicLangMenuItemClick(Sender: TObject);
     procedure BuildLanguageMenu;
@@ -427,6 +430,7 @@ type
     procedure actsys_permission_template_rightExecute(Sender: TObject);
     procedure actsys_user_permission_templateExecute(Sender: TObject);
     procedure actsys_menuExecute(Sender: TObject);
+    procedure actsys_audit_logExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
     FF6Pressed: Boolean;
@@ -445,6 +449,10 @@ type
     FActionCodes: TDictionary<string, Integer>;
     FAppEvents: TApplicationEvents;
     FNavStateLoaded: Boolean;
+    // işlem geçmişi kuyruğu (audit_outbox) -> ths_audit aktarımı
+    FAuditTimer: TTimer;
+    procedure AuditTimerTimer(Sender: TObject);
+    procedure FlushAudit;
     procedure AppShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure ShowCommandPalette;
     procedure LoadNavState;
@@ -1118,6 +1126,48 @@ begin
   TfrmSysMenus.Create(Self, TSysMenuService.Create, TSysMenu.Create).Show;
 end;
 
+procedure TfrmDashboard.actsys_audit_logExecute(Sender: TObject);
+var
+  LFrm: TfrmSysAuditLogs;
+begin
+  // açmadan önce bekleyen kayıtlar aktarılır: liste son işlemleri de göstersin
+  FlushAudit;
+  LFrm := TfrmSysAuditLogs.Create(Self, TSysAuditLogService.Create, TSysAuditLog.Create);
+  LFrm.SetCurrentPeriod;
+  LFrm.Show;
+end;
+
+// Yerel kuyruk (audit_outbox) ortak ths_audit veritabanına taşınır. Açık transaction varken servis atlar;
+// audit DB'ye ulaşılamazsa satırlar kuyrukta kalır (yalnız log), sonraki denemede taşınır.
+procedure TfrmDashboard.FlushAudit;
+var
+  LSvc: TSysAuditLogService;
+  LRes: TAuditFlushResult;
+begin
+  if not TAppContext.IsInitialized or not Assigned(TAppContext.Instance.CurrentUser) then
+    Exit;
+  try
+    LSvc := TSysAuditLogService.Create;
+    try
+      LRes := LSvc.Flush;
+    finally
+      LSvc.Free;
+    end;
+    if LRes.Moved < 0 then
+      GLogger.WarningFmt('İşlem geçmişi aktarılamadı (kuyrukta bekliyor): %s', [LRes.ErrorMessage])
+    else if LRes.Moved > 0 then
+      GLogger.InfoFmt('İşlem geçmişi aktarıldı: %d satır', [LRes.Moved]);
+  except
+    on E: Exception do
+      GLogger.ErrorFmt('İşlem geçmişi aktarımı hatası: %s', [E.Message]);
+  end;
+end;
+
+procedure TfrmDashboard.AuditTimerTimer(Sender: TObject);
+begin
+  FlushAudit;
+end;
+
 procedure TfrmDashboard.actsys_userExecute(Sender: TObject);
 begin
   TfrmSysUsers.Create(Self, TSysUserService.Create, TSysUser.Create).Show;
@@ -1471,6 +1521,8 @@ begin
             actsys_language.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionLanguages, 'Languages');
           if Assigned(actsys_menu) then
             actsys_menu.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionMenus, 'Menu Screens');
+          if Assigned(actsys_audit_log) then
+            actsys_audit_log.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionAuditLog, 'Audit Log');
   {$ENDREGION}
 
   {$REGION 'PurchasingMenu'}
@@ -1686,6 +1738,11 @@ begin
   // Ctrl+K her ekrandan (komut paleti)
   FAppEvents := TApplicationEvents.Create(Self);
   FAppEvents.OnShortCut := AppShortCut;
+
+  FAuditTimer := TTimer.Create(Self);
+  FAuditTimer.Interval := 60 * 1000;
+  FAuditTimer.OnTimer := AuditTimerTimer;
+  FAuditTimer.Enabled := True;
 end;
 
 procedure TfrmDashboard.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -1911,6 +1968,8 @@ begin
   ApplyActionPermissions;
   // ana ekran göstergeleri: yalnız okuma yetkisi olan modüller (servis filtreler)
   LoadKpis;
+  // önceki oturumlardan / girişten kalan işlem geçmişi
+  FlushAudit;
 (*  LRights := TSysErisimHakki.Create(GDataBase);
   try
     LRights.SelectToList(' AND ' + LRights.TableName + '.' + LRights.KullaniciID.FieldName + '=' + VarToStr(GSysKullanici.Id.Value), False, False);
@@ -2209,7 +2268,10 @@ procedure TfrmDashboard.DoClose(var Action: TCloseAction);
 begin
   inherited;
   if Action <> caNone then
+  begin
     SaveNavState;
+    FlushAudit;
+  end;
 end;
 
 procedure TfrmDashboard.NavToggleClick(Sender: TObject);

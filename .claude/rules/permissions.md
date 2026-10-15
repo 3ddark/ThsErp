@@ -38,7 +38,7 @@ paths:
 | 1060–1069 | Production / BoM (1061 BoM + all BoM details: raw materials, by-products, labours, packet links; 1062 labour / cost definition; 1063 raw material packet + items; 1064 labour packet + items; 1060 free — legacy "bom-settings" deleted 2026-10-14) |
 | 1070–1079 | Finance (1070 cheque / promissory note + transactions, 1071 company credit card + transactions, 1072 POS terminal + card collections, 1073 cash / bank account + statement, 1074 money transaction: collection / payment / wire-EFT / transfer / expense, 1075 company bank accounts for cheques / notes / printouts) |
 | 1080–1089 | Purchasing (1080 request + lines, 1081 order + lines, 1082 goods receipt + lines, 1083 purchase invoice + lines) |
-| 1100–1199 | System administration (1100 user … 1110 view table, 1111 menu screens / `sys_menu` maintenance) |
+| 1100–1199 | System administration (1100 user … 1110 view table, 1111 menu screens / `sys_menu` maintenance, 1112 audit log — read only, `vw_sys_audit_log`; manager template read) |
 | 3000+ | Accounting (3001 exchange rate, 3002 account plan, 3003 tax rate, 3004 transfer code, 3005 voucher + details) |
 | 357000+ | Sales (offer / order) |
 

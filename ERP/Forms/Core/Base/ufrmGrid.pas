@@ -46,6 +46,10 @@ type
     property OnColWidthsChanged: TNotifyEvent read FOnColWidthsChanged write FOnColWidthsChanged;
   end;
 
+  // Kayıt geçmişi (işlem geçmişi) kancası: ufrmSysAuditLogs initialization'da bağlanır (ufrmGrid ona bağımlı olmasın)
+  TRecordHistoryAvailable = function(const ATableName: string): Boolean;
+  TRecordHistoryShow = procedure(AOwner: TComponent; const ATableName: string; ARowId: Int64; const ARecordCaption: string);
+
   TfrmGrid<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TForm, ILocalizable)
   private
     FFooterPanel: TPanel;
@@ -79,6 +83,7 @@ type
     FmniExportCsv: TMenuItem;
     FmniPrint: TMenuItem;
     FmniRemoveGridSort: TMenuItem;
+    FmniRecordHistory: TMenuItem;
 
     FPanelMain: TPanel;
     FPanelContent: TPanel;
@@ -146,6 +151,7 @@ type
     property mniExportCsv: TMenuItem read FmniExportCsv write FmniExportCsv;
     property mniPrint: TMenuItem read FmniPrint write FmniPrint;
     property mniRemoveGridSort: TMenuItem read FmniRemoveGridSort write FmniRemoveGridSort;
+    property mniRecordHistory: TMenuItem read FmniRecordHistory write FmniRecordHistory;
 
     constructor Create(AOwner: TComponent; AService: TS; ATable: TE; ACreateNewBase: Boolean = True; AUseHelper: Boolean = False); reintroduce; overload;
     destructor Destroy; override;
@@ -226,6 +232,8 @@ type
     procedure mniExportCsvClick(Sender: TObject); virtual;
     procedure mniPrintClick(Sender: TObject); virtual;
     procedure mniRemoveSortClick(Sender: TObject); virtual;
+    procedure mniRecordHistoryClick(Sender: TObject); virtual;
+    function GridTableName: string;
 
     procedure mniColumnsClick(Sender: TObject); virtual;
 
@@ -267,6 +275,10 @@ type
   function UpperCaseTr(S: string): string;
   function LowerCaseTr(S: string): string;
   function CsvSafe(const S: string): string;
+
+var
+  GRecordHistoryAvailable: TRecordHistoryAvailable = nil;
+  GRecordHistoryShow: TRecordHistoryShow = nil;
 
 implementation
  
@@ -987,6 +999,8 @@ begin
     mniPrint.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.Print, 'Print');
   if Assigned(mniRemoveGridSort) then
     mniRemoveGridSort.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.RemoveSort, 'Remove Sort');
+  if Assigned(mniRecordHistory) then
+    mniRecordHistory.Caption := TLocalizationManager.Translate(TLangKeys.TSysAuditLog.MenuRecordHistory, 'Audit Log');
 
   PrepareStatusBar;
 end;
@@ -1110,6 +1124,17 @@ begin
   PanelSidebar.Visible := False;
   PrepareStatusBar;
   ApplyPermissionState;
+
+  if Assigned(mniRecordHistory) then
+  try
+    mniRecordHistory.Visible := not FIsHelper and Assigned(GRecordHistoryAvailable) and GRecordHistoryAvailable(GridTableName);
+  except
+    on E: Exception do
+    begin
+      mniRecordHistory.Visible := False;
+      GLogger.WarningFmt('İşlem geçmişi menüsü [%s]: %s', [Self.ClassName, E.Message]);
+    end;
+  end;
 
   if FIsHelper then
     EdtFilter.SetFocus
@@ -1842,6 +1867,27 @@ begin
   mniRemoveGridSort.Enabled := False;
   AddPopupMenuSpliter();
   AddMenu(TLocalizationManager.Translate('popup.columns', 'Columns'), 'mniColumns', mniColumnsClick);
+  // Görünürlüğü FormShow'da: tablo işlem geçmişi tutuyorsa ve okuma yetkisi varsa
+  mniRecordHistory := AddMenu(TLocalizationManager.Translate(TLangKeys.TSysAuditLog.MenuRecordHistory, 'Audit Log'),
+    'mniRecordHistory', mniRecordHistoryClick, False, TextToShortCut('Ctrl+H'));
+end;
+
+function TfrmGrid<TE, TS>.GridTableName: string;
+begin
+  Result := '';
+  if Assigned(Table) then
+    Result := TEntitySchemaCache.GetSchema(Table.ClassType).TableName;
+end;
+
+procedure TfrmGrid<TE, TS>.mniRecordHistoryClick(Sender: TObject);
+var
+  LRowId: Int64;
+begin
+  if not Assigned(GRecordHistoryShow) or not Assigned(FQry) or not FQry.Active or FQry.IsEmpty
+  or (FQry.FindField('id') = nil) then
+    Exit;
+  LRowId := FQry.FieldByName('id').AsLargeInt;
+  GRecordHistoryShow(Self, GridTableName, LRowId, Self.Caption + ' #' + LRowId.ToString);
 end;
 
 procedure TfrmGrid<TE, TS>.mniColumnsClick(Sender: TObject);

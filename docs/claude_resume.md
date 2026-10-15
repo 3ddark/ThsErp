@@ -504,10 +504,49 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
   transaction açar — ilk denemede bu yüzden test verisi canlı DB'ye sızdı, elle onarıldı) + generic/perm TSysMenu;
   UI: palet (kod, kelime, boş sorgu), ExpandedKeys, kullanıcı ayarı, pasif klasör.
 
+## İşlem geçmişi ayrı DB'de: ths_audit (2026-10-15, /goal "audit ayrı DB + dönem DB planı"; DESKTOP-JF3LUBB, 5432)
+- Sorun: audit() her satırı aynı DB'deki public.audit'e text olarak yazıyordu (DB şişiyor). Karar: ortak `ths_audit` DB'si
+  (sunucu başına bir tane; tüm dönem / firma DB'leri yazar), aktarım postgres_fdw ile; tetikleyici uzağa YAZMAZ.
+- ths_audit: `audit_log` PARTITION BY LIST (period_year) (audit_log_2026 …; yıl bölümü `audit_database` kaydının BEFORE
+  tetikleyicisiyle otomatik, yarış korumalı), kolonlar period_year / db_name / db_family / source_id / table_schema /
+  table_name / row_id / action / changed_at / transaction_id / db_user / app_user / client_addr / application_name /
+  old_data / new_data jsonb / received_at; UNIQUE (period_year, db_name, source_id, changed_at); indeksler (db_family,
+  table_name, row_id), changed_at, (app_user, changed_at), id. Rol `ths_audit_writer` (yalnız SELECT + INSERT; UPDATE /
+  DELETE yok). Dosyalar: ERP/audit_schema.sql + ERP/audit.dump (diğer makinede rol + DB + pg_restore, CLAUDE.md §5).
+- ths_erp: `audit_outbox` (yerel kuyruk), yeni `audit()` (SECURITY DEFINER; I tam yeni, D tam eski, U yalnız değişen
+  kolonlar, değişmeyen UPDATE atlanır; ths_erp.user_name artık zorunlu değil), `audit_flush(batch, max) -> moved, error_message`
+  (SKIP LOCKED, paketler, hata = -1 ve kuyruk korunur, kaynak kaydı / sayaç savepoint'te: FDW uzak transaction'ı
+  REPEATABLE READ olduğundan eşzamanlı aktarım serileştirme hatası veriyordu), `audit_configure(host, port, db)`,
+  `fn_active_period()` (sys_application_setting.active_period; 2023'tü -> 2026 yapıldı), `fn_db_family()`
+  (sondaki [_]YYYY atılır), şema `audit_remote` (yabancı tablolar), `vw_sys_audit_log` (row_id -> record_no,
+  changed_columns). Eski 554 audit satırı ths_audit'e taşındı, public.audit silindi. Yedek: scratchpad
+  ths_erp_before_audit_db.dump.
+- Yetki 1112 audit-log (system; yönetici şablonu yalnız okuma; tüm kullanıcılara access_right), menü 100800 Raporlar +
+  100801 İşlem Geçmişi (actsys_audit_log), sys_grid_column + sys_grid_sort (id DESC).
+- Kod: SysAuditLog Domain / Exception / Repository / Service (salt okunur; Flush açık transaction varken atlar;
+  IsAudited önbellekli pg_trigger; DbFamily; ActivePeriod), ufrmSysAuditLogs (aktif dönem + bu firma; popup "Bu Kaydın Tüm
+  Geçmişi", "Tüm Dönemler"; çift tık -> ufrmSysAuditLogDetail: alan / eski / yeni tablosu), TfrmGrid'e genel
+  "İşlem Geçmişi" popup'ı (Ctrl+H; tetikleyicili tablo + 1112 okuma; kanca GRecordHistoryAvailable / GRecordHistoryShow).
+  Dashboard: 60 sn zamanlayıcı + SetSession + liste açılışı + kapanışta FlushAudit (hata yalnız loglanır). 29 dil anahtarı x 4.
+- Test: derleme Win64 Debug 0 hata (dokunulan birimlerde uyarı yok); entegrasyon 1428 pass / 0 fail (`IntegrationTest.exe audit`:
+  18 adım; rollback uzak satırları da geri alıyor); `ERP/Tests/Audit/test_periods.sh` 24 / 24 (iki geçici dönem DB'si +
+  geçici audit DB: bölümler, kayıt, iki dönemlik kayıt geçmişi, audit DB kapalı, 3 eşzamanlı aktarım, tekrar aktarım,
+  dönem değişimi 2028, yazıcı rol silemez); UI tam 1495 pass / 0 fail / 1 warn (bilinen PurRequests). UI harness artık
+  ths_erp_it'i ayrı `ths_audit_it`'e bağlar (gerçek ths_audit'e test satırı gitmez); UiDriver: BtnAccept özelliği olmayan
+  (TfrmBase) ayrıntı pencerelerinde nil koruması.
+- Dönem DB planı (uygulanmadı, rules/database.md "Period (year) databases"): firma + yıl başına DB (ths_erp2026 …), yıl sonu:
+  kuyruğu boşalt -> TEMPLATE ile kopya -> outbox TRUNCATE + active_period + hareket verisi devri; girişte dönem seçimi.
+  Mevcut ths_erp şimdiden dönem DB'si gibi çalışıyor (aile ths_erp, dönem 2026).
+- Elle denenmedi (UI): Sistem > Raporlar > İşlem Geçmişi, herhangi bir sistem listesinde Ctrl+H, ayrıntı penceresi.
+
 ## KALDIĞIM YER (2026-10-15)
 - Menü işleri tamamlandı: ağaç + kodlar (4fdeee5), favoriler / son kullanılanlar (5791656), bakım ekranı + Ctrl+K paleti +
   panel durumu (5424571). Kullanıcı elle denemeli: Ctrl+K başka ekrandayken, Sistem > Ayarlar > Menü Ekranları
   (ad / kelime / pasif), panel genişliği uygulama yeniden açılınca korunuyor mu.
+- İşlem geçmişi ths_audit'e taşındı (yukarıdaki bölüm); kullanıcı IDE'de Shift+F9 Build + İşlem Geçmişi / Ctrl+H denemeli.
+  Diğer makinede: ths_audit_writer rolü + ths_audit DB'si + pg_restore ERP/audit.dump (CLAUDE.md §5), sonra db.dump.
+  Audit işleri (kod + dump + kurallar + testler) 2026-10-15'te commit + push edildi.
+  Test DB'leri: ths_erp_it + ths_audit_it (UI harness yeniden kurar); geçici dönem test DB'leri test sonunda silinir.
 - SONRAKİ ADIM: sls_ (satış) modülü (yeni ekranlar için sys_menu satırı zorunlu: 60xxxx, modül satırı 600000 + gruplar). Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
   `%TEMP%\ths_it\bin\IntegrationTest.exe` ve `ERP/Tests/Ui/build.sh` + `%TEMP%\ths_ui\bin\UiTest.exe`.
 

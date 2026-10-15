@@ -138,6 +138,7 @@ type
         const NavAddFavorite = 'dashboard.nav.add_favorite';
         const NavRemoveFavorite = 'dashboard.nav.remove_favorite';
         const ActionMenus = 'dashboard.action.menus';
+        const ActionAuditLog = 'dashboard.action.audit_log';
         const NavPaletteHint = 'dashboard.nav.palette_hint';
         const MenuOffers = 'dashboard.menu.offers';
         const MenuOrders = 'dashboard.menu.orders';
@@ -572,6 +573,37 @@ type
         const CodeUnique = 'sys_menu.code_unique';
         const KeyUnique = 'sys_menu.key_unique';
         const ActionUnique = 'sys_menu.action_unique';
+      end;
+
+      TSysAuditLog = record
+        const TitlePlural = 'sys_audit_log.title_plural';
+        const TitleSingular = 'sys_audit_log.title_singular';
+        const TitleRecordHistory = 'sys_audit_log.title_record_history';
+        const ColChangedAt = 'sys_audit_log.col_changed_at';
+        const ColAppUser = 'sys_audit_log.col_app_user';
+        const ColAction = 'sys_audit_log.col_action';
+        const ColTableName = 'sys_audit_log.col_table_name';
+        const ColRecordNo = 'sys_audit_log.col_record_no';
+        const ColChangedColumns = 'sys_audit_log.col_changed_columns';
+        const ColPeriodYear = 'sys_audit_log.col_period_year';
+        const ColDbName = 'sys_audit_log.col_db_name';
+        const ColDbUser = 'sys_audit_log.col_db_user';
+        const ColClientAddr = 'sys_audit_log.col_client_addr';
+        const ColApplicationName = 'sys_audit_log.col_application_name';
+        const ColTransactionId = 'sys_audit_log.col_transaction_id';
+        const ColReceivedAt = 'sys_audit_log.col_received_at';
+        const ColField = 'sys_audit_log.col_field';
+        const ColOldValue = 'sys_audit_log.col_old_value';
+        const ColNewValue = 'sys_audit_log.col_new_value';
+        const ActionInsert = 'sys_audit_log.action_insert';
+        const ActionUpdate = 'sys_audit_log.action_update';
+        const ActionDelete = 'sys_audit_log.action_delete';
+        const ReadOnly = 'sys_audit_log.read_only';
+        const MenuRecordHistory = 'sys_audit_log.popup.record_history';
+        const MenuSameRecord = 'sys_audit_log.popup.same_record';
+        const MenuAllPeriods = 'sys_audit_log.popup.all_periods';
+        const LblPending = 'sys_audit_log.lbl_pending';
+        const MsgNoChanges = 'sys_audit_log.msg.no_changes';
       end;
 
       TSysPermission = record
