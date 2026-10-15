@@ -1739,5 +1739,9 @@
   "dashboard.kpi.legend_given": "Verilen",
   "dashboard.nav.search_hint": "Ekran adı veya kodu ara (Ctrl+K)",
   "dashboard.nav.no_result": "Eşleşen ekran yok",
-  "dashboard.nav.toggle_hint": "Menüyü göster / gizle"
+  "dashboard.nav.toggle_hint": "Menüyü göster / gizle",
+  "dashboard.nav.favorites": "Favoriler",
+  "dashboard.nav.recent": "Son Kullanılanlar",
+  "dashboard.nav.add_favorite": "Favorilere Ekle",
+  "dashboard.nav.remove_favorite": "Favorilerden Çıkar"
 }

@@ -442,6 +442,7 @@ type
     procedure BuildNavPanel;
     procedure LoadMenu;
     procedure NavOpenItem(const AItem: TSysMenuItem);
+    procedure NavToggleFavorite(const AItem: TSysMenuItem; AFavorite: Boolean);
     procedure NavToggleClick(Sender: TObject);
     procedure ActionListExecute(Action: TBasicAction; var Handled: Boolean);
     procedure BuildKpiArea;
@@ -1639,7 +1640,11 @@ begin
   if Assigned(FNav) then
     FNav.ApplyTexts(
       TLocalizationManager.Translate(TLangKeys.TDashboard.NavSearchHint, 'Search screen name or code (Ctrl+K)'),
-      TLocalizationManager.Translate(TLangKeys.TDashboard.NavNoResult, 'No matching screen'));
+      TLocalizationManager.Translate(TLangKeys.TDashboard.NavNoResult, 'No matching screen'),
+      TLocalizationManager.Translate(TLangKeys.TDashboard.NavFavorites, 'Favorites'),
+      TLocalizationManager.Translate(TLangKeys.TDashboard.NavRecent, 'Recently Used'),
+      TLocalizationManager.Translate(TLangKeys.TDashboard.NavAddFavorite, 'Add to Favorites'),
+      TLocalizationManager.Translate(TLangKeys.TDashboard.NavRemoveFavorite, 'Remove from Favorites'));
   if Assigned(FBtnNavToggle) then
     FBtnNavToggle.Hint := TLocalizationManager.Translate(TLangKeys.TDashboard.NavToggleHint, 'Show / hide menu');
 
@@ -2055,6 +2060,7 @@ begin
   FNav.Color := clWindow;
   FNav.CreateControls;
   FNav.OnOpenItem := NavOpenItem;
+  FNav.OnToggleFavorite := NavToggleFavorite;
 
   FNavSplitter := TSplitter.Create(Self);
   FNavSplitter.Parent := Self;
@@ -2090,11 +2096,26 @@ begin
     TAction(LComp).Execute;
 end;
 
+// Favori kullanıcının kendi tercihi (sys_user_menu); önce kaydedilir, sonra ağaç güncellenir
+procedure TfrmDashboard.NavToggleFavorite(const AItem: TSysMenuItem; AFavorite: Boolean);
+var
+  LSvc: TSysMenuService;
+begin
+  LSvc := TSysMenuService.Create;
+  try
+    LSvc.SetFavorite(AItem.MenuCode, AFavorite);
+  finally
+    LSvc.Free;
+  end;
+  FNav.SetFavorite(AItem.MenuCode, AFavorite);
+end;
+
 // Her dashboard action'ı (ana menü, sol ağaç, gösterge kartı) buradan geçer: sys_menu'daki ekranlar
 // kodlarıyla açılır, böylece açılan formun başlığına ekran kodu eklenir.
 procedure TfrmDashboard.ActionListExecute(Action: TBasicAction; var Handled: Boolean);
 var
   LCode: Integer;
+  LSvc: TSysMenuService;
 begin
   if not Assigned(FActionCodes) or not FActionCodes.TryGetValue(Action.Name, LCode) or not Assigned(Action.OnExecute) then
     Exit;
@@ -2104,6 +2125,21 @@ begin
     begin
       Action.OnExecute(Action);
     end);
+
+  // son kullanılanlar: kaydedilemezse ekran yine açık kalır, yalnız loglanır
+  try
+    LSvc := TSysMenuService.Create;
+    try
+      LSvc.RegisterOpen(LCode);
+    finally
+      LSvc.Free;
+    end;
+  except
+    on E: Exception do
+      GLogger.ErrorFmt('Son kullanılan ekran kaydedilemedi (%d): %s', [LCode, E.Message]);
+  end;
+  if Assigned(FNav) then
+    FNav.MarkOpened(LCode);
 end;
 
 { ---------------------------------------------------------------- Ana ekran göstergeleri }

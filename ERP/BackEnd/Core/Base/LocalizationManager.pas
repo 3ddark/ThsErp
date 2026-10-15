@@ -133,6 +133,10 @@ type
         const NavSearchHint = 'dashboard.nav.search_hint';
         const NavNoResult = 'dashboard.nav.no_result';
         const NavToggleHint = 'dashboard.nav.toggle_hint';
+        const NavFavorites = 'dashboard.nav.favorites';
+        const NavRecent = 'dashboard.nav.recent';
+        const NavAddFavorite = 'dashboard.nav.add_favorite';
+        const NavRemoveFavorite = 'dashboard.nav.remove_favorite';
         const MenuOffers = 'dashboard.menu.offers';
         const MenuOrders = 'dashboard.menu.orders';
         const MenuWaybills = 'dashboard.menu.waybills';

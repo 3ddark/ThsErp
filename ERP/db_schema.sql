@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict PiBxFo1QTPvqMVreLCfCp2uxQlx1T8COibCfcSJ4LfydixOLfGscpzG9KXmKLgV
+\restrict bEX4YyhUZr0sVBcHSb0tkRwQhgtm3Ur4LHZbdhcDD99VGXL4372rMcPvfHwfaCX
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -4393,6 +4393,44 @@ ALTER TABLE public.sys_user_grid_column ALTER COLUMN id ADD GENERATED ALWAYS AS 
 
 
 --
+-- Name: sys_user_menu; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_user_menu (
+    id bigint NOT NULL,
+    sys_user_id bigint NOT NULL,
+    sys_menu_id bigint NOT NULL,
+    is_favorite boolean DEFAULT false NOT NULL,
+    open_count integer DEFAULT 0 NOT NULL,
+    last_opened_at timestamp without time zone,
+    CONSTRAINT sys_user_menu_open_count_check CHECK ((open_count >= 0))
+);
+
+
+ALTER TABLE public.sys_user_menu OWNER TO ths_admin;
+
+--
+-- Name: TABLE sys_user_menu; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.sys_user_menu IS 'Kullanıcının menü tercihleri: favori ekranlar ve son kullanılanlar (yalnız ekran satırları)';
+
+
+--
+-- Name: sys_user_menu_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_user_menu ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_user_menu_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sys_user_permission_template; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -8536,6 +8574,22 @@ ALTER TABLE ONLY public.sys_user_grid_column
 
 
 --
+-- Name: sys_user_menu sys_user_menu_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_menu
+    ADD CONSTRAINT sys_user_menu_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sys_user_menu sys_user_menu_user_menu_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_menu
+    ADD CONSTRAINT sys_user_menu_user_menu_key UNIQUE (sys_user_id, sys_menu_id);
+
+
+--
 -- Name: sys_user_permission_template sys_user_permission_template_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -9272,6 +9326,13 @@ CREATE INDEX sys_menu_translation_sys_language_id_idx ON public.sys_menu_transla
 --
 
 CREATE INDEX sys_permission_template_right_permission_idx ON public.sys_permission_template_right USING btree (sys_permission_id);
+
+
+--
+-- Name: sys_user_menu_sys_menu_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sys_user_menu_sys_menu_id_idx ON public.sys_user_menu USING btree (sys_menu_id);
 
 
 --
@@ -11375,6 +11436,22 @@ ALTER TABLE ONLY public.sys_user
 
 
 --
+-- Name: sys_user_menu sys_user_menu_sys_menu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_menu
+    ADD CONSTRAINT sys_user_menu_sys_menu_id_fkey FOREIGN KEY (sys_menu_id) REFERENCES public.sys_menu(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sys_user_menu sys_user_menu_sys_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_user_menu
+    ADD CONSTRAINT sys_user_menu_sys_user_id_fkey FOREIGN KEY (sys_user_id) REFERENCES public.sys_user(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: sys_user_permission_template sys_user_permission_template_template_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -11522,5 +11599,5 @@ GRANT ALL ON FUNCTION public.table_unlisten(table_name text) TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict PiBxFo1QTPvqMVreLCfCp2uxQlx1T8COibCfcSJ4LfydixOLfGscpzG9KXmKLgV
+\unrestrict bEX4YyhUZr0sVBcHSb0tkRwQhgtm3Ur4LHZbdhcDD99VGXL4372rMcPvfHwfaCX
 

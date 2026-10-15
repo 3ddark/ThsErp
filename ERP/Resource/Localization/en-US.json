@@ -1790,5 +1790,9 @@
   "dashboard.kpi.legend_given": "Given",
   "dashboard.nav.search_hint": "Search screen name or code (Ctrl+K)",
   "dashboard.nav.no_result": "No matching screen",
-  "dashboard.nav.toggle_hint": "Show / hide menu"
+  "dashboard.nav.toggle_hint": "Show / hide menu",
+  "dashboard.nav.favorites": "Favorites",
+  "dashboard.nav.recent": "Recently Used",
+  "dashboard.nav.add_favorite": "Add to Favorites",
+  "dashboard.nav.remove_favorite": "Remove from Favorites"
 }

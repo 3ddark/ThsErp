@@ -22,6 +22,10 @@ type
     MenuName: string;
     Keywords: string;
     Allowed: Boolean;          // servis doldurur: okuma yetkisi (super user hepsi)
+    // oturumdaki kullanıcının tercihleri (sys_user_menu)
+    IsFavorite: Boolean;
+    OpenCount: Integer;
+    LastOpenedAt: TDateTime;   // 0 = hiç açılmadı
     function Level: TSysMenuLevel;
     function IsFolder: Boolean;
     function CodeText: string;

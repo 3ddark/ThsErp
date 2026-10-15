@@ -110,7 +110,13 @@ var
         Exit(TNavMenuPanel(F.Components[I]));
   end;
 
-  // ağaçtaki ekran (klasör olmayan) düğümleri
+  function MenuName(ACode: Integer): string;
+  begin
+    Result := VarToStr(TUi.Sql('SELECT menu_name FROM vw_sys_menu WHERE menu_code = :c AND locale = :l',
+      [ACode, TAppContext.Instance.CurrentUser.ActiveLanguage]));
+  end;
+
+  // ağaçtaki ekran (klasör olmayan) düğümleri; Favoriler / Son Kullanılanlar kopyaları hariç
   function NavScreens: TStringList;
   var
     N: TTreeNode;
@@ -119,16 +125,53 @@ var
     N := Nav.Tree.Items.GetFirstNode;
     while Assigned(N) do
     begin
-      if not N.HasChildren then
+      if not N.HasChildren and not Nav.IsShortcutNode(N) and (NativeInt(N.Data) > 0) then
         Result.Add(N.Text);
       N := N.GetNext;
     end;
   end;
 
-  function MenuName(ACode: Integer): string;
+  // kök düzeyindeki ilk modül (kısayol klasörleri atlanır)
+  function FirstModuleNode: TTreeNode;
   begin
-    Result := VarToStr(TUi.Sql('SELECT menu_name FROM vw_sys_menu WHERE menu_code = :c AND locale = :l',
-      [ACode, TAppContext.Instance.CurrentUser.ActiveLanguage]));
+    Result := Nav.Tree.Items.GetFirstNode;
+    while Assigned(Result) and (NativeInt(Result.Data) < 0) do
+      Result := Result.getNextSibling;
+  end;
+
+  // kök düzeyinde kısayol klasörü (-1 favoriler, -2 son kullanılanlar)
+  function ShortcutFolder(AData: Integer): TTreeNode;
+  begin
+    Result := Nav.Tree.Items.GetFirstNode;
+    while Assigned(Result) and (NativeInt(Result.Data) <> AData) do
+      Result := Result.getNextSibling;
+  end;
+
+  // ana ağaçta ekran düğümü (kısayol kopyası değil)
+  function ScreenNode(ACode: Integer): TTreeNode;
+  begin
+    Result := Nav.Tree.Items.GetFirstNode;
+    while Assigned(Result) do
+    begin
+      if not Nav.IsShortcutNode(Result) and (Result.Text = MenuName(ACode)) and not Result.HasChildren then
+        Exit;
+      Result := Result.GetNext;
+    end;
+  end;
+
+  procedure PressCtrlD;
+  var
+    LKey: Word;
+  begin
+    LKey := Ord('D');
+    Nav.Tree.OnKeyDown(Nav.Tree, LKey, [ssCtrl]);
+    TUi.Pump;
+  end;
+
+  function UserMenuValue(ACode: Integer; const AColumn: string): Variant;
+  begin
+    Result := TUi.Sql('SELECT um.' + AColumn + ' FROM sys_user_menu um JOIN sys_menu m ON m.id = um.sys_menu_id ' +
+      'WHERE um.sys_user_id = :u AND m.menu_code = :c', [TAppContext.Instance.CurrentUser.GetUserId, ACode]);
   end;
 
   procedure CheckNavSearch(const AText: string; AExpectCount: Integer; AMustCode, AMustNotCode: Integer);
@@ -188,7 +231,7 @@ var
     finally
       L.Free;
     end;
-    N := Nav.Tree.Items.GetFirstNode;
+    N := FirstModuleNode;
     if Assigned(N) and (N.Text = MenuName(100000)) and (N.Level = 0) then
       TUi.R('PASS', 'nav first module', N.Text)
     else
@@ -240,6 +283,57 @@ var
       else
         TUi.R('FAIL', 'nav code + enter opens screen', FormClassText(Opened) + ' ' + TUi.TakeDialogs);
       CheckCaptionCode(Opened, 300301, 'screen code in caption');
+
+      // son kullanılanlar: ilk sırada az önce açılan ekran, DB'de açılma kaydı
+      Nav.SearchBox.Text := '';
+      TUi.Pump;
+      N := ShortcutFolder(-2);
+      if Assigned(N) and (N.getFirstChild <> nil) and (N.getFirstChild.Text = MenuName(300301))
+        and (UserMenuValue(300301, 'open_count') >= 1) and not VarIsNull(UserMenuValue(300301, 'last_opened_at')) then
+        TUi.R('PASS', 'nav recent', N.getFirstChild.Text + ', open_count=' + VarToStr(UserMenuValue(300301, 'open_count')))
+      else
+        TUi.R('FAIL', 'nav recent', NodeText(N) + ' / ' + NodeText(N.getFirstChild));
+
+      // favori: Ctrl+D ekler (Favoriler klasörü + DB), tekrar Ctrl+D çıkarır
+      N := ScreenNode(400101);
+      if Assigned(N) then
+      begin
+        Nav.Tree.Selected := N;
+        PressCtrlD;
+        N := ShortcutFolder(-1);
+        if Assigned(N) and (N.getFirstChild <> nil) and (N.getFirstChild.Text = MenuName(400101))
+          and (UserMenuValue(400101, 'is_favorite') = True) then
+        begin
+          TUi.R('PASS', 'nav add favorite', N.getFirstChild.Text);
+          var FavBmp := TBitmap.Create;
+          var FavPng := TPngImage.Create;
+          try
+            FavBmp.SetSize(F.ClientWidth, F.ClientHeight);
+            F.PaintTo(FavBmp.Canvas, 0, 0);
+            FavPng.Assign(FavBmp);
+            FavPng.SaveToFile(ExtractFilePath(ParamStr(0)) + 'UiTest-dashboard-fav.png');
+          finally
+            FavPng.Free;
+            FavBmp.Free;
+          end;
+        end
+        else
+          TUi.R('FAIL', 'nav add favorite', NodeText(N));
+        // kısayol kopyası seçiliyken de çıkarılabilir
+        if Assigned(N) and (N.getFirstChild <> nil) then
+          Nav.Tree.Selected := N.getFirstChild;
+        PressCtrlD;
+        if (ShortcutFolder(-1) = nil) and (UserMenuValue(400101, 'is_favorite') = False) then
+          TUi.R('PASS', 'nav remove favorite', '')
+        else
+          TUi.R('FAIL', 'nav remove favorite', NodeText(ShortcutFolder(-1)));
+        if (Nav.Tree.Selected <> nil) and (Nav.Tree.Selected.Text = MenuName(400101)) then
+          TUi.R('PASS', 'nav selection kept', Nav.Tree.Selected.Text)
+        else
+          TUi.R('FAIL', 'nav selection kept', NodeText(Nav.Tree.Selected));
+      end
+      else
+        TUi.R('FAIL', 'nav add favorite', 'stock card node not found');
       if Opened <> nil then
       begin
         Opened.Caption := 'X';
@@ -263,8 +357,9 @@ var
         CheckCaptionCode(Opened, 300301, 'screen code after language change');
         Nav.SearchBox.Text := '';
         TUi.Pump;
-        N := Nav.Tree.Items.GetFirstNode;
-        if Assigned(N) and (N.Text = MenuName(100000)) and (N.Text <> 'Sistem') then
+        N := FirstModuleNode;
+        if Assigned(N) and (N.Text = MenuName(100000)) and (N.Text <> 'Sistem')
+          and Assigned(ShortcutFolder(-2)) and (ShortcutFolder(-2).Text = 'Recently Used') then
           TUi.R('PASS', 'nav language change', N.Text)
         else
           TUi.R('FAIL', 'nav language change', NodeText(N));

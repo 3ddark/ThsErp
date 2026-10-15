@@ -570,6 +570,69 @@ begin
   end;
 end;
 
+// Favori / son kullanılan: oturum kullanıcısına yazılır, GetMenu'da görünür (transaction + rollback)
+procedure CheckMenuPrefs;
+var
+  LSvc: TSysMenuService;
+  LBefore, LAfter: TSysMenuItem;
+  LOwnFav: Boolean;
+
+  function Find(const AItems: TArray<TSysMenuItem>; ACode: Integer): TSysMenuItem;
+  begin
+    Result := Default(TSysMenuItem);
+    for var LItem in AItems do
+      if LItem.MenuCode = ACode then
+        Exit(LItem);
+  end;
+
+  procedure Check(ACondition: Boolean; const AStep, AMsg: string);
+  begin
+    if ACondition then
+      Report('PASS', 'menu', '', AStep, AMsg)
+    else
+      Report('FAIL', 'menu', '', AStep, AMsg);
+  end;
+
+begin
+  LSvc := TSysMenuService.Create;
+  TUnitOfWork.Instance.BeginTransaction;
+  try
+    try
+      LBefore := Find(LSvc.GetMenu, 300301);
+      LSvc.SetFavorite(300301, True);
+      LSvc.RegisterOpen(300301);
+      LSvc.RegisterOpen(300301);
+      LAfter := Find(LSvc.GetMenu, 300301);
+      Check(LAfter.IsFavorite, 'favorite add', BoolToStr(LAfter.IsFavorite, True));
+      Check(LAfter.OpenCount = LBefore.OpenCount + 2, 'open count', Format('%d -> %d', [LBefore.OpenCount, LAfter.OpenCount]));
+      Check(LAfter.LastOpenedAt > 0, 'last opened', DateTimeToStr(LAfter.LastOpenedAt));
+      LSvc.SetFavorite(300301, False);
+      LAfter := Find(LSvc.GetMenu, 300301);
+      Check(not LAfter.IsFavorite and (LAfter.OpenCount = LBefore.OpenCount + 2), 'favorite remove keeps count',
+        Format('%s %d', [BoolToStr(LAfter.IsFavorite, True), LAfter.OpenCount]));
+      try
+        LSvc.SetFavorite(300300, True);
+        Check(False, 'folder cannot be favorite', 'accepted');
+      except
+        on E: Exception do Check(True, 'folder cannot be favorite', E.Message);
+      end;
+      // başka kullanıcının tercihi görünmez
+      LOwnFav := Find(LSvc.GetMenu, 400101).IsFavorite;
+      TUnitOfWork.Instance.Connection.ExecSQL('INSERT INTO sys_user_menu (sys_user_id, sys_menu_id, is_favorite) SELECT 4, id, true FROM sys_menu ' +
+        'WHERE menu_code = 400101 ON CONFLICT (sys_user_id, sys_menu_id) DO UPDATE SET is_favorite = true');
+      LAfter := Find(LSvc.GetMenu, 400101);
+      Check(LAfter.IsFavorite = LOwnFav, 'other user preference hidden',
+        BoolToStr(LAfter.IsFavorite, True));
+    except
+      on E: Exception do Report('FAIL', 'menu', '', 'preferences', E.ClassName + ': ' + E.Message);
+    end;
+  finally
+    if TUnitOfWork.Instance.InTransaction then
+      TUnitOfWork.Instance.Rollback;
+    LSvc.Free;
+  end;
+end;
+
 procedure RunGeneric;
 begin
 {{CALLS}}
@@ -613,6 +676,7 @@ begin
       if (Mode = '') or (Mode = 'perm') then
       begin
         CheckMenu('super user', True);
+        CheckMenuPrefs;
         // non super user (TEST, id 4)
         Ctx.User := URepo.FindById(TValue.From<Int64>(4), False);
         LoadPermMap(4);

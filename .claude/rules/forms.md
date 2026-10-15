@@ -148,3 +148,6 @@ uses
   - Left tree: `Forms/Core/Base/NavigationTree.pas` (`TNavMenuPanel`; search by name / keywords / parent names / code
     prefix, Turkish letters folded; Ctrl+K / Ctrl+F focuses search, Esc clears, code + Enter opens). Module icons /
     colours: `ModuleIcon` / `ModuleColor` there (add one when a new module `MM` appears).
+  - With an empty search the tree starts with shortcut folders **Favorites** and **Recently Used** (last 7 opened screens);
+    their nodes have negative `Data` (`IsShortcutNode`). Right click / Ctrl+D toggles a favorite (`OnToggleFavorite` →
+    `TSysMenuService.SetFavorite`); every dashboard action registers the open (`RegisterOpen` + `MarkOpened`).

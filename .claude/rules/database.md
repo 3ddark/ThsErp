@@ -91,6 +91,9 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   have no action / permission, screens have an action) + `sys_menu_translation` (`menu_name`, `keywords`) →
   `vw_sys_menu` (locale CROSS JOIN pattern, `permission_code`). Read by `TSysMenuRepository` / `TSysMenuService`
   (no CRUD screen yet). See `rules/forms.md` for the code scheme.
+- `sys_user_menu` (per user + screen, UNIQUE; `is_favorite`, `open_count`, `last_opened_at`; both FKs CASCADE, no audit:
+  high churn) — favorites / recently used of the left tree. Written with upserts by `TSysMenuRepository.SetFavorite` /
+  `RegisterOpen` on the main connection (joins another screen's open transaction, like every other write).
 
 ## Grid metadata tables
 

@@ -468,15 +468,29 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Test: UI 1451 pass / 0 fail / 1 warn (bilinen PurRequests); dashboard testine 18 menü adımı (arama, kod + Enter, başlıkta kod,
   devralma, dil değişimi, kısıtlı kullanıcı, ekran görüntüleri UiTest-dashboard(-nav).png). Entegrasyon 1370 pass / 0 fail
   (+ CheckMenu: super user / TEST / şablon + override senaryosunda Allowed = etkin okuma yetkisi). Derleme 0 hata.
-- Yapılmadı / sonraki: favoriler + son kullanılanlar (sys_user_menu_favorite), Ctrl+K komut paleti (her ekrandan),
+- Yapılmadı / sonraki: favoriler + son kullanılanlar (yapıldı, aşağıda), Ctrl+K komut paleti (her ekrandan),
   sys_menu bakım ekranı, ana menüde kod gösterimi, panel genişliği / açık klasörlerin kullanıcı bazında saklanması.
   Uygulama içinde elle denenmedi (kullanıcı IDE'de Shift+F9 Build + dene).
 
+## Favoriler + son kullanılanlar (2026-10-15, commit 4fdeee5 sonrası)
+- DB: `sys_user_menu` (sys_user_id + sys_menu_id UNIQUE, is_favorite, open_count >= 0, last_opened_at; FK'ler CASCADE,
+  audit yok). Yedek: scratchpad ths_erp_before_user_menu.dump.
+- Kod: TSysMenuItem + IsFavorite / OpenCount / LastOpenedAt; repository GetItems(locale, user) LEFT JOIN, SetFavorite /
+  RegisterOpen (upsert), GetScreenId (klasör favori olamaz); servis CurrentUserId (oturum yoksa hata).
+  TNavMenuPanel: arama boşken üstte Favoriler (yıldız) + Son Kullanılanlar (son 7) kısayol klasörleri (Data < 0,
+  IsShortcutNode), favori ekranda sağda yıldız, sağ tık "Favorilere Ekle / Çıkar" + Ctrl+D, SetFavorite / MarkOpened ağacı
+  seçim ve kaydırma konumu korunarak yeniler. Dashboard: NavToggleFavorite, ActionListExecute sonunda RegisterOpen (hata
+  yalnız loglanır). 4 yeni dil anahtarı.
+- Bilinen sınırlama: yazma ana bağlantıda; başka bir ekranın açık transaction'ı (güncelleme modu) iptal edilirse o sırada
+  yapılan favori / açılma kaydı da geri alınır (oturum içinde ağaçta görünür, sonraki girişte kaybolur).
+- Test: entegrasyon CheckMenuPrefs (ekle / sayaç / çıkar / klasör reddi / başka kullanıcının tercihi görünmez, rollback);
+  UI: son kullanılanlar, Ctrl+D ekle / çıkar (DB), seçim korunuyor, dil değişiminde klasör adı; UiTest-dashboard-fav.png.
+
 ## KALDIĞIM YER (2026-10-15)
-- Sol menü ağacı + ekran kodları tamamlandı (yukarıda). Kullanıcı elle denemeli: tıklama ile aç/kapa, arama, Ctrl+K,
-  Esc, başlıkta kod, panel genişliği (splitter), menü düğmesi, tema (Iceberg Classico) renkleri.
-- SONRAKİ ADIM: kullanıcı geri bildirimi -> favoriler / son kullanılanlar; ardından sls_ (satış) modülü (yeni ekranlar
-  için sys_menu satırı zorunlu: 60xxxx). Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
+- Sol menü ağacı + ekran kodları (commit 4fdeee5) ve favoriler / son kullanılanlar tamamlandı. Kullanıcı elle denemeli:
+  tıklama ile aç/kapa, arama, Ctrl+K, Esc, başlıkta kod, sağ tık / Ctrl+D favori, splitter, menü düğmesi, tema renkleri.
+- SONRAKİ ADIM (kalan menü işleri): her ekrandan Ctrl+K komut paleti, sys_menu bakım ekranı, panel genişliği / açık
+  klasörlerin kullanıcı bazında saklanması; ya da sls_ (satış) modülü (yeni ekranlar için sys_menu satırı zorunlu: 60xxxx). Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
   `%TEMP%\ths_it\bin\IntegrationTest.exe` ve `ERP/Tests/Ui/build.sh` + `%TEMP%\ths_ui\bin\UiTest.exe`.
 
 ## Kalan

@@ -1790,5 +1790,9 @@
   "dashboard.kpi.legend_given": "Ausgegeben",
   "dashboard.nav.search_hint": "Bildschirmname oder Code suchen (Strg+K)",
   "dashboard.nav.no_result": "Kein passender Bildschirm",
-  "dashboard.nav.toggle_hint": "Menü ein- / ausblenden"
+  "dashboard.nav.toggle_hint": "Menü ein- / ausblenden",
+  "dashboard.nav.favorites": "Favoriten",
+  "dashboard.nav.recent": "Zuletzt verwendet",
+  "dashboard.nav.add_favorite": "Zu Favoriten hinzufügen",
+  "dashboard.nav.remove_favorite": "Aus Favoriten entfernen"
 }

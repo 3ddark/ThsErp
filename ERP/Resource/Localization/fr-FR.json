@@ -1790,5 +1790,9 @@
   "dashboard.kpi.legend_given": "Émis",
   "dashboard.nav.search_hint": "Rechercher un écran ou un code (Ctrl+K)",
   "dashboard.nav.no_result": "Aucun écran correspondant",
-  "dashboard.nav.toggle_hint": "Afficher / masquer le menu"
+  "dashboard.nav.toggle_hint": "Afficher / masquer le menu",
+  "dashboard.nav.favorites": "Favoris",
+  "dashboard.nav.recent": "Récemment utilisés",
+  "dashboard.nav.add_favorite": "Ajouter aux favoris",
+  "dashboard.nav.remove_favorite": "Retirer des favoris"
 }

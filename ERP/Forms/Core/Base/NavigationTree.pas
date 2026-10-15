@@ -6,12 +6,13 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, Winapi.CommCtrl, System.SysUtils, System.Classes, System.Math,
-  System.Generics.Collections, System.Character, Vcl.Graphics, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
-  Vcl.WinXCtrls, Vcl.Themes, Vcl.Forms,
+  System.Generics.Collections, System.Generics.Defaults, System.Character, Vcl.Graphics, Vcl.Controls, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.Themes, Vcl.Forms, Vcl.Menus,
   SysMenu;
 
 type
   TNavOpenEvent = procedure(const AItem: TSysMenuItem) of object;
+  TNavFavoriteEvent = procedure(const AItem: TSysMenuItem; AFavorite: Boolean) of object;
 
   TNavTreeView = class(TTreeView)
   private
@@ -44,6 +45,8 @@ type
   // Arama: ad, anahtar kelime, üst klasör adları ve kod; Türkçe / Almanca harfler ayırt edilmez
   // ("cek" -> "Çek"); yalnız rakam yazılırsa kod başlangıcı ("3003" -> Finans > Çek / Senet).
   // Enter ilk sonucu (ya da seçili ekranı) açar, tam kod + Enter doğrudan o ekranı açar.
+  // Arama boşken en üstte kısayol klasörleri: Favoriler ve Son Kullanılanlar (en son açılan NAV_RECENT_COUNT ekran);
+  // favori: sağ tık menüsü ya da Ctrl+D. Kısayol düğümlerinin Data değeri negatiftir (DATA_FAVORITES / DATA_RECENT).
   TNavMenuPanel = class(TPanel)
   private
     FSearch: TSearchBox;
@@ -54,8 +57,20 @@ type
     FExpanded: TList<Integer>;
     FFilter: string;
     FOnOpenItem: TNavOpenEvent;
+    FOnToggleFavorite: TNavFavoriteEvent;
     FUpdating: Boolean;
+    FPopup: TPopupMenu;
+    FMniFavorite: TMenuItem;
+    FTextFavorites, FTextRecent, FTextAddFavorite, FTextRemoveFavorite: string;
     function ItemIndexOf(ANode: TTreeNode): Integer;
+    function NodeKey(ANode: TTreeNode): Integer;
+    function IsShortcutFolder(ANode: TTreeNode): Boolean;
+    function FindNodeByKey(AKey, ARootKey: Integer): TTreeNode;
+    function RootKey(ANode: TTreeNode): Integer;
+    procedure RebuildKeepingPosition;
+    procedure ToggleFavorite(ANode: TTreeNode);
+    procedure PopupShow(Sender: TObject);
+    procedure MniFavoriteClick(Sender: TObject);
     function FindItem(ACode: Integer): Integer;
     function Matches(AIndex: Integer; const ATokens: TArray<string>; ADigits: Boolean): Boolean;
     function FirstScreenNode: TTreeNode;
@@ -76,12 +91,18 @@ type
     destructor Destroy; override;
     procedure CreateControls;
     procedure SetItems(const AItems: TArray<TSysMenuItem>);
-    procedure ApplyTexts(const ASearchHint, AEmptyText: string);
+    procedure ApplyTexts(const ASearchHint, AEmptyText, AFavorites, ARecent, AAddFavorite, ARemoveFavorite: string);
+    // tercih değişti (servis kaydettikten sonra): ağaç konumu korunarak yenilenir
+    procedure SetFavorite(AMenuCode: Integer; AValue: Boolean);
+    procedure MarkOpened(AMenuCode: Integer);
+    // düğüm Favoriler / Son Kullanılanlar altında mı (kısayol kopyası)
+    function IsShortcutNode(ANode: TTreeNode): Boolean;
     procedure FocusSearch;
     // Esc: arama doluysa temizler (True = tuş kullanıldı)
     function HandleEscape: Boolean;
     function ContainsFocus: Boolean;
     property OnOpenItem: TNavOpenEvent read FOnOpenItem write FOnOpenItem;
+    property OnToggleFavorite: TNavFavoriteEvent read FOnToggleFavorite write FOnToggleFavorite;
     property SearchBox: TSearchBox read FSearch;
     property Tree: TNavTreeView read FTree;
   end;
@@ -102,6 +123,15 @@ const
   ICON_SETTINGS      = #$E713;
   ICON_FACTORY       = #$E90F;
   ICON_MENU          = #$E700;
+  ICON_STAR          = #$E735;   // dolu yıldız
+  ICON_HISTORY       = #$E81C;
+  STAR_COLOR         = $0008B3EA;   // RGB(234, 179, 8)
+  NAV_RECENT_COUNT   = 7;
+  // kısayol klasörleri: düğüm Data değeri / hatırlanan açık klasör anahtarı
+  DATA_FAVORITES = -1;
+  DATA_RECENT    = -2;
+  KEY_FAVORITES  = 1;
+  KEY_RECENT     = 2;
 
 function NavNormalize(const AText: string): string;
 var
@@ -275,6 +305,12 @@ begin
   ShowCaption := False;
   Width := 290;
   FExpanded := TList<Integer>.Create;
+  FExpanded.Add(KEY_FAVORITES);
+  FExpanded.Add(KEY_RECENT);
+  FTextFavorites := 'Favorites';
+  FTextRecent := 'Recently Used';
+  FTextAddFavorite := 'Add to Favorites';
+  FTextRemoveFavorite := 'Remove from Favorites';
 end;
 
 // alt kontroller pencere tutamacı ister: panel bir forma yerleştirildikten sonra çağrılır
@@ -325,6 +361,15 @@ begin
   FTree.OnKeyPress := TreeKeyPress;
   FTree.OnExpanded := TreeExpandedChange;
   FTree.OnCollapsed := TreeExpandedChange;
+  FTree.RightClickSelect := True;
+
+  FPopup := TPopupMenu.Create(Self);
+  FPopup.OnPopup := PopupShow;
+  FMniFavorite := TMenuItem.Create(FPopup);
+  FMniFavorite.ShortCut := TextToShortCut('Ctrl+D');
+  FMniFavorite.OnClick := MniFavoriteClick;
+  FPopup.Items.Add(FMniFavorite);
+  FTree.PopupMenu := FPopup;
 end;
 
 destructor TNavMenuPanel.Destroy;
@@ -333,10 +378,26 @@ begin
   inherited;
 end;
 
-procedure TNavMenuPanel.ApplyTexts(const ASearchHint, AEmptyText: string);
+procedure TNavMenuPanel.ApplyTexts(const ASearchHint, AEmptyText, AFavorites, ARecent, AAddFavorite,
+  ARemoveFavorite: string);
+var
+  LNode: TTreeNode;
 begin
   FSearch.TextHint := ASearchHint;
   FEmpty.Caption := AEmptyText;
+  FTextFavorites := AFavorites;
+  FTextRecent := ARecent;
+  FTextAddFavorite := AAddFavorite;
+  FTextRemoveFavorite := ARemoveFavorite;
+  LNode := FTree.Items.GetFirstNode;
+  while Assigned(LNode) do
+  begin
+    if NativeInt(LNode.Data) = DATA_FAVORITES then
+      LNode.Text := FTextFavorites
+    else if NativeInt(LNode.Data) = DATA_RECENT then
+      LNode.Text := FTextRecent;
+    LNode := LNode.getNextSibling;
+  end;
 end;
 
 procedure TNavMenuPanel.SetItems(const AItems: TArray<TSysMenuItem>);
@@ -374,10 +435,57 @@ end;
 
 function TNavMenuPanel.ItemIndexOf(ANode: TTreeNode): Integer;
 begin
-  if Assigned(ANode) then
+  if Assigned(ANode) and (NativeInt(ANode.Data) > 0) then
     Result := NativeInt(ANode.Data) - 1
   else
     Result := -1;
+end;
+
+function TNavMenuPanel.IsShortcutFolder(ANode: TTreeNode): Boolean;
+begin
+  Result := Assigned(ANode) and (NativeInt(ANode.Data) < 0);
+end;
+
+function TNavMenuPanel.IsShortcutNode(ANode: TTreeNode): Boolean;
+begin
+  Result := Assigned(ANode) and Assigned(ANode.Parent) and IsShortcutFolder(ANode.Parent);
+end;
+
+// ekran / klasör: menü kodu; kısayol klasörü: KEY_FAVORITES / KEY_RECENT
+function TNavMenuPanel.NodeKey(ANode: TTreeNode): Integer;
+begin
+  Result := 0;
+  if not Assigned(ANode) then
+    Exit;
+  case NativeInt(ANode.Data) of
+    DATA_FAVORITES: Result := KEY_FAVORITES;
+    DATA_RECENT:    Result := KEY_RECENT;
+  else
+    if ItemIndexOf(ANode) >= 0 then
+      Result := FItems[ItemIndexOf(ANode)].MenuCode;
+  end;
+end;
+
+function TNavMenuPanel.RootKey(ANode: TTreeNode): Integer;
+begin
+  Result := 0;
+  if not Assigned(ANode) then
+    Exit;
+  while Assigned(ANode.Parent) do
+    ANode := ANode.Parent;
+  Result := NodeKey(ANode);
+end;
+
+// aynı ekran hem modül altında hem kısayol klasöründe olabilir: kök anahtarı ile ayırt edilir (-1 = herhangi)
+function TNavMenuPanel.FindNodeByKey(AKey, ARootKey: Integer): TTreeNode;
+begin
+  Result := FTree.Items.GetFirstNode;
+  while Assigned(Result) do
+  begin
+    if (NodeKey(Result) = AKey) and ((ARootKey < 0) or (RootKey(Result) = ARootKey)) then
+      Exit;
+    Result := Result.GetNext;
+  end;
 end;
 
 function TNavMenuPanel.Matches(AIndex: Integer; const ATokens: TArray<string>; ADigits: Boolean): Boolean;
@@ -405,10 +513,15 @@ begin
   LNode := FTree.Items.GetFirstNode;
   while Assigned(LNode) do
   begin
-    if LNode.Expanded and (ItemIndexOf(LNode) >= 0) then
-      FExpanded.Add(FItems[ItemIndexOf(LNode)].MenuCode);
+    if LNode.Expanded and (NodeKey(LNode) <> 0) then
+      FExpanded.Add(NodeKey(LNode));
     LNode := LNode.GetNext;
   end;
+  // kısayol klasörü o an yoksa (favori yok) açık / kapalı tercihi korunur
+  if not Assigned(FindNodeByKey(KEY_FAVORITES, KEY_FAVORITES)) and not FExpanded.Contains(KEY_FAVORITES) then
+    FExpanded.Add(KEY_FAVORITES);
+  if not Assigned(FindNodeByKey(KEY_RECENT, KEY_RECENT)) and not FExpanded.Contains(KEY_RECENT) then
+    FExpanded.Add(KEY_RECENT);
 end;
 
 procedure TNavMenuPanel.Rebuild;
@@ -417,7 +530,8 @@ var
   LDigits: Boolean;
   LNodes: TDictionary<Integer, TTreeNode>;
   I: Integer;
-  LNode, LSelected: TTreeNode;
+  LNode, LSelected, LFolder: TTreeNode;
+  LRecent: TList<Integer>;
 
   function EnsureNode(AIndex: Integer): TTreeNode;
   var
@@ -444,6 +558,42 @@ begin
   try
     FTree.HotNode := nil;
     FTree.Items.Clear;
+
+    // kısayol klasörleri yalnız arama boşken
+    if FFilter = '' then
+    begin
+      LFolder := nil;
+      for I := 0 to High(FItems) do
+        if FItems[I].IsFavorite and FItems[I].Allowed and not FItems[I].IsFolder then
+        begin
+          if LFolder = nil then
+            LFolder := FTree.Items.AddChildObject(nil, FTextFavorites, Pointer(NativeInt(DATA_FAVORITES)));
+          FTree.Items.AddChildObject(LFolder, FItems[I].MenuName, Pointer(NativeInt(I + 1)));
+        end;
+
+      LRecent := TList<Integer>.Create;
+      try
+        for I := 0 to High(FItems) do
+          if (FItems[I].LastOpenedAt > 0) and FItems[I].Allowed and not FItems[I].IsFolder then
+            LRecent.Add(I);
+        LRecent.Sort(TComparer<Integer>.Construct(
+          function(const A, B: Integer): Integer
+          begin
+            Result := CompareValue(FItems[B].LastOpenedAt, FItems[A].LastOpenedAt);
+            if Result = 0 then
+              Result := FItems[B].OpenCount - FItems[A].OpenCount;
+          end));
+        if LRecent.Count > 0 then
+        begin
+          LFolder := FTree.Items.AddChildObject(nil, FTextRecent, Pointer(NativeInt(DATA_RECENT)));
+          for I := 0 to Min(LRecent.Count, NAV_RECENT_COUNT) - 1 do
+            FTree.Items.AddChildObject(LFolder, FItems[LRecent[I]].MenuName, Pointer(NativeInt(LRecent[I] + 1)));
+        end;
+      finally
+        LRecent.Free;
+      end;
+    end;
+
     for I := 0 to High(FItems) do
       if not FItems[I].IsFolder and FItems[I].Allowed and Matches(I, LTokens, LDigits) then
         EnsureNode(I);
@@ -452,7 +602,7 @@ begin
     while Assigned(LNode) do
     begin
       if LNode.HasChildren then
-        LNode.Expanded := (FFilter <> '') or FExpanded.Contains(FItems[ItemIndexOf(LNode)].MenuCode);
+        LNode.Expanded := (FFilter <> '') or FExpanded.Contains(NodeKey(LNode));
       LNode := LNode.GetNext;
     end;
 
@@ -473,6 +623,83 @@ begin
     FTree.TopItem := FTree.Items.GetFirstNode;
 end;
 
+procedure TNavMenuPanel.RebuildKeepingPosition;
+var
+  LSelKey, LSelRoot, LTopKey, LTopRoot: Integer;
+  LNode: TTreeNode;
+begin
+  RememberExpanded;
+  LSelKey := NodeKey(FTree.Selected);
+  LSelRoot := RootKey(FTree.Selected);
+  LTopKey := NodeKey(FTree.TopItem);
+  LTopRoot := RootKey(FTree.TopItem);
+  Rebuild;
+  if LTopKey <> 0 then
+  begin
+    LNode := FindNodeByKey(LTopKey, LTopRoot);
+    if Assigned(LNode) then
+      FTree.TopItem := LNode;
+  end;
+  if LSelKey <> 0 then
+  begin
+    LNode := FindNodeByKey(LSelKey, LSelRoot);
+    if not Assigned(LNode) then
+      LNode := FindNodeByKey(LSelKey, -1);
+    if Assigned(LNode) then
+      FTree.Selected := LNode;
+  end;
+end;
+
+procedure TNavMenuPanel.SetFavorite(AMenuCode: Integer; AValue: Boolean);
+var
+  I: Integer;
+begin
+  I := FindItem(AMenuCode);
+  if I < 0 then
+    Exit;
+  FItems[I].IsFavorite := AValue;
+  RebuildKeepingPosition;
+end;
+
+procedure TNavMenuPanel.MarkOpened(AMenuCode: Integer);
+var
+  I: Integer;
+begin
+  I := FindItem(AMenuCode);
+  if I < 0 then
+    Exit;
+  FItems[I].LastOpenedAt := Now;
+  FItems[I].OpenCount := FItems[I].OpenCount + 1;
+  RebuildKeepingPosition;
+end;
+
+procedure TNavMenuPanel.ToggleFavorite(ANode: TTreeNode);
+var
+  LIndex: Integer;
+begin
+  LIndex := ItemIndexOf(ANode);
+  if (LIndex < 0) or FItems[LIndex].IsFolder or not Assigned(FOnToggleFavorite) then
+    Exit;
+  FOnToggleFavorite(FItems[LIndex], not FItems[LIndex].IsFavorite);
+end;
+
+procedure TNavMenuPanel.PopupShow(Sender: TObject);
+var
+  LIndex: Integer;
+begin
+  LIndex := ItemIndexOf(FTree.Selected);
+  FMniFavorite.Enabled := (LIndex >= 0) and not FItems[LIndex].IsFolder;
+  if FMniFavorite.Enabled and FItems[LIndex].IsFavorite then
+    FMniFavorite.Caption := FTextRemoveFavorite
+  else
+    FMniFavorite.Caption := FTextAddFavorite;
+end;
+
+procedure TNavMenuPanel.MniFavoriteClick(Sender: TObject);
+begin
+  ToggleFavorite(FTree.Selected);
+end;
+
 function TNavMenuPanel.FirstScreenNode: TTreeNode;
 begin
   Result := FTree.Items.GetFirstNode;
@@ -484,6 +711,11 @@ procedure TNavMenuPanel.OpenNode(ANode: TTreeNode);
 var
   LIndex: Integer;
 begin
+  if IsShortcutFolder(ANode) then
+  begin
+    ANode.Expanded := not ANode.Expanded;
+    Exit;
+  end;
   LIndex := ItemIndexOf(ANode);
   if LIndex < 0 then
     Exit;
@@ -552,6 +784,11 @@ begin
     Key := 0;
     OpenNode(FTree.Selected);
   end
+  else if (Key = Ord('D')) and (Shift = [ssCtrl]) then
+  begin
+    Key := 0;
+    ToggleFavorite(FTree.Selected);
+  end
   else if (Key = VK_UP) and (FTree.Selected = FTree.Items.GetFirstNode) then
   begin
     Key := 0;
@@ -595,17 +832,29 @@ var
   LIndex, X: Integer;
   LItem: TSysMenuItem;
   LBack, LText, LGray, LSel: TColor;
-  LSelected: Boolean;
-  LCode: string;
+  LSelected, LShortcut, LFolder: Boolean;
+  LCode, LIcon: string;
 begin
   if Stage <> cdPrePaint then
     Exit;
+  LShortcut := IsShortcutFolder(Node);
   LIndex := ItemIndexOf(Node);
-  if LIndex < 0 then
+  if (LIndex < 0) and not LShortcut then
     Exit;
   DefaultDraw := False;
   PaintImages := False;
-  LItem := FItems[LIndex];
+  if LShortcut then
+  begin
+    // kısayol klasörü modül gibi çizilir
+    LItem := Default(TSysMenuItem);
+    LItem.MenuCode := 0;
+    if NativeInt(Node.Data) = DATA_FAVORITES then
+      LItem.MenuName := FTextFavorites
+    else
+      LItem.MenuName := FTextRecent;
+  end
+  else
+    LItem := FItems[LIndex];
 
   C := Sender.Canvas;
   R := Node.DisplayRect(False);
@@ -614,6 +863,7 @@ begin
   LSel := StyleServices.GetSystemColor(clHighlight);
   LGray := BlendColor(LText, LBack, 0.55);
   LSelected := Node.Selected;
+  LFolder := LShortcut or LItem.IsFolder;
 
   C.Brush.Style := bsSolid;
   C.Brush.Color := LBack;
@@ -627,7 +877,7 @@ begin
     TR := R;
     InflateRect(TR, -4, -1);
     C.FillRect(TR);
-    if LSelected and not LItem.IsFolder then
+    if LSelected and not LFolder then
     begin
       C.Brush.Color := LSel;
       C.FillRect(Rect(TR.Left, TR.Top + 4, TR.Left + 3, TR.Bottom - 4));
@@ -636,6 +886,30 @@ begin
   C.Brush.Style := bsClear;
 
   X := R.Left + 10 + Node.Level * NAV_INDENT;
+  if LShortcut then
+  begin
+    C.Font.Name := IconFontName;
+    C.Font.Size := 11;
+    C.Font.Style := [];
+    if NativeInt(Node.Data) = DATA_FAVORITES then
+    begin
+      C.Font.Color := STAR_COLOR;
+      LIcon := ICON_STAR;
+    end
+    else
+    begin
+      C.Font.Color := RGB(100, 116, 139);
+      LIcon := ICON_HISTORY;
+    end;
+    TR := Rect(X, R.Top, X + 22, R.Bottom);
+    DrawText(C.Handle, PChar(LIcon), 1, TR, DT_SINGLELINE or DT_VCENTER or DT_CENTER or DT_NOPREFIX);
+    Inc(X, 28);
+    C.Font.Name := 'Segoe UI';
+    C.Font.Size := 10;
+    C.Font.Style := [fsBold];
+    C.Font.Color := LText;
+  end
+  else
   case LItem.Level of
     smlModule:
       begin
@@ -678,15 +952,26 @@ begin
     end;
   end;
 
-  // klasörde sağda açık / kapalı oku
-  if LItem.IsFolder then
+  // klasörde sağda açık / kapalı oku, favori ekranda yıldız
+  if LFolder or LItem.IsFavorite then
     TR := Rect(X, R.Top, R.Right - 26, R.Bottom)
   else
     TR := Rect(X, R.Top, R.Right - 6, R.Bottom);
   DrawText(C.Handle, PChar(LItem.MenuName), Length(LItem.MenuName), TR,
     DT_SINGLELINE or DT_VCENTER or DT_LEFT or DT_NOPREFIX or DT_END_ELLIPSIS);
 
-  if LItem.IsFolder then
+  if not LFolder and LItem.IsFavorite then
+  begin
+    C.Font.Name := IconFontName;
+    C.Font.Size := 8;
+    C.Font.Style := [];
+    C.Font.Color := STAR_COLOR;
+    TR := Rect(R.Right - 26, R.Top, R.Right - 8, R.Bottom);
+    LIcon := ICON_STAR;
+    DrawText(C.Handle, PChar(LIcon), 1, TR, DT_SINGLELINE or DT_VCENTER or DT_CENTER or DT_NOPREFIX);
+  end;
+
+  if LFolder then
   begin
     C.Font.Name := IconFontName;
     C.Font.Size := 8;
