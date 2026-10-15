@@ -602,6 +602,14 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
   listeleri + net / KDV / genel toplam alt toplamları. Yeni anahtarlar grid.quick_all, sls_offer.quick.*, sls_order.quick.* (4 dil).
 - Doğrulama: msbuild Win64 Debug 0 hata; UI tam koşu 1749 pass / 0 fail / 1 warn; paging adımı hızlı filtreleri de geziyor.
 - Elle denenmedi: radyo düğmelerinin görünümü / genişliği; farklı para birimli belgelerin toplamı tek sayı (kur çevrimi yok).
+- Commit 2511c87 (sayfalama + hızlı filtre + satış toplamları) main'e push edildi.
+- Dump'lar yenilendi (2026-10-15 23:45, port 5432): db_schema.sql / audit_schema.sql (şema değişmedi, yalnız \restrict
+  satırı), db.dump, audit.dump. Commit + push auto mode denetimince engellendi (tam veri dump'ının GitHub'a gitmesi);
+  kullanıcı kendisi yapacak ya da izin kuralı ekleyecek. Bekleyen: `git add ERP/db_schema.sql ERP/db.dump
+  ERP/audit_schema.sql ERP/audit.dump && git commit -m "chore: refresh ths_erp and ths_audit dumps" && git push`.
+  ERP/Ths.res IDE derlemesinden değişik, commit'e alınmıyor.
+- Sonraki olası işler: listeler varsayılan "Bekleyenler" ile açılsın mı (SelectQuickFilter), diğer belge listelerine
+  (satınalma teklif/sipariş, irsaliye, fatura) hızlı filtre + toplam, toplamlarda kur çevrimi.
 
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
