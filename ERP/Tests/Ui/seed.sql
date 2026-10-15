@@ -94,6 +94,40 @@ INSERT INTO pur_invoice (invoice_no, acc_account_id, gross_amount, net_amount, t
 INSERT INTO pur_invoice_detail (pur_invoice_id, line_no, stk_inventory_id, quantity, unit_price, gross_amount, net_amount, total_amount, pur_receipt_detail_id)
 SELECT (SELECT max(id) FROM pur_invoice), 1, stk_inventory_id, 5, 3, 15, 15, 15, id FROM pur_receipt_detail;
 
+-- satış: taslak teklif, taslak sipariş, kısmi sevkli sipariş + irsaliye (stok çıkışı) + irsaliyeden fatura, irsaliyeli fatura
+INSERT INTO sls_offer (offer_no, acc_account_id, status) SELECT 'ST900001', min(id), 1 FROM acc_account;
+INSERT INTO sls_offer_detail (sls_offer_id, line_no, stk_inventory_id, quantity, unit_price, discount_rate, vat_rate, gross_amount, discount_amount, net_amount, vat_amount, total_amount)
+SELECT (SELECT id FROM sls_offer WHERE offer_no = 'ST900001'), 1, min(id), 10, 2.5, 10, 20, 25, 2.5, 22.5, 4.5, 27 FROM stk_inventory;
+INSERT INTO sls_order (order_no, acc_account_id, stk_warehouse_id, status) SELECT 'SS900001', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 1;
+INSERT INTO sls_order_detail (sls_order_id, line_no, stk_inventory_id, quantity, unit_price, discount_rate, vat_rate, gross_amount, discount_amount, net_amount, vat_amount, total_amount)
+SELECT (SELECT id FROM sls_order WHERE order_no = 'SS900001'), 1, min(id), 10, 2.5, 10, 20, 25, 2.5, 22.5, 4.5, 27 FROM stk_inventory;
+INSERT INTO sls_order (order_no, acc_account_id, stk_warehouse_id, status) SELECT 'SS900002', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 3;
+INSERT INTO sls_order_detail (sls_order_id, line_no, stk_inventory_id, quantity, unit_price, gross_amount, net_amount, total_amount, delivered_quantity)
+SELECT (SELECT id FROM sls_order WHERE order_no = 'SS900002'), 1, min(id), 20, 3, 60, 60, 60, 7 FROM stk_inventory;
+UPDATE sls_offer o SET gross_amount = s.g, discount_amount = s.d, net_amount = s.n, vat_amount = s.v, total_amount = s.t
+  FROM (SELECT sls_offer_id, sum(gross_amount) g, sum(discount_amount) d, sum(net_amount) n, sum(vat_amount) v, sum(total_amount) t FROM sls_offer_detail GROUP BY 1) s
+ WHERE s.sls_offer_id = o.id;
+UPDATE sls_order o SET gross_amount = s.g, discount_amount = s.d, net_amount = s.n, vat_amount = s.v, total_amount = s.t
+  FROM (SELECT sls_order_id, sum(gross_amount) g, sum(discount_amount) d, sum(net_amount) n, sum(vat_amount) v, sum(total_amount) t FROM sls_order_detail GROUP BY 1) s
+ WHERE s.sls_order_id = o.id;
+INSERT INTO sls_dispatch (dispatch_no, acc_account_id, stk_warehouse_id, sls_order_id)
+SELECT 'SI900001', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), (SELECT id FROM sls_order WHERE order_no = 'SS900002');
+INSERT INTO sls_dispatch_detail (sls_dispatch_id, stk_inventory_id, quantity, unit_price, sls_order_detail_id)
+SELECT (SELECT max(id) FROM sls_dispatch), d.stk_inventory_id, 5, 3, d.id FROM sls_order_detail d JOIN sls_order o ON o.id = d.sls_order_id WHERE o.order_no = 'SS900002';
+INSERT INTO stk_transaction (transaction_type, stk_inventory_id, from_stk_warehouse_id, quantity, amount, transaction_date, description, sls_dispatch_detail_id)
+SELECT 2, d.stk_inventory_id, p.stk_warehouse_id, d.quantity, d.quantity * d.unit_price, p.dispatch_date, p.dispatch_no, d.id
+  FROM sls_dispatch_detail d JOIN sls_dispatch p ON p.id = d.sls_dispatch_id;
+INSERT INTO sls_invoice (invoice_no, acc_account_id, gross_amount, net_amount, total_amount) SELECT 'SF900001', min(id), 15, 15, 15 FROM acc_account;
+INSERT INTO sls_invoice_detail (sls_invoice_id, line_no, stk_inventory_id, quantity, unit_price, gross_amount, net_amount, total_amount, sls_dispatch_detail_id)
+SELECT (SELECT max(id) FROM sls_invoice), 1, stk_inventory_id, 5, 3, 15, 15, 15, id FROM sls_dispatch_detail;
+INSERT INTO sls_invoice (invoice_no, acc_account_id, stk_warehouse_id, gross_amount, net_amount, total_amount)
+SELECT 'SF900002', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 6, 6, 6;
+INSERT INTO sls_invoice_detail (sls_invoice_id, line_no, stk_inventory_id, quantity, unit_price, gross_amount, net_amount, total_amount, sls_order_detail_id)
+SELECT (SELECT max(id) FROM sls_invoice), 1, d.stk_inventory_id, 2, 3, 6, 6, 6, d.id FROM sls_order_detail d JOIN sls_order o ON o.id = d.sls_order_id WHERE o.order_no = 'SS900002';
+INSERT INTO stk_transaction (transaction_type, stk_inventory_id, from_stk_warehouse_id, quantity, amount, transaction_date, description, sls_invoice_detail_id)
+SELECT 2, d.stk_inventory_id, f.stk_warehouse_id, d.quantity, d.net_amount, f.invoice_date, f.invoice_no, d.id
+  FROM sls_invoice_detail d JOIN sls_invoice f ON f.id = d.sls_invoice_id WHERE f.invoice_no = 'SF900002';
+
 -- firma banka hesabı (çek + çıktı) ve verilen çeke bağlantısı
 INSERT INTO fin_company_bank_account (acc_bank_id, branch_code, branch_name, sys_city_id, account_no, iban, account_holder, show_on_cheque, show_on_print)
 SELECT min(id), '1234', 'UI MERKEZ', (SELECT min(id) FROM sys_city), '6297711', 'TR330006100519786457841326', 'UI LTD', true, true FROM acc_bank;

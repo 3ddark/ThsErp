@@ -397,14 +397,19 @@ begin
     Result.Level := dlInfo;
 end;
 
-// Satış teklif / siparişleri (eski tablolar; yalnız sayım + genel toplam): bu ay
+// Satış teklif / siparişleri: bu ay (sls_order iptal = 5, sls_offer reddedildi = 3 hariç)
 function TSysDashboardRepository.SalesDocsMonth(const ATable, ADateColumn, AKey: string): TDashboardKpi;
 var
   Q: TFDQuery;
+  LExcluded: Integer;
 begin
   Result := TDashboardKpi.New(AKey);
-  Q := Open(Format('SELECT COALESCE(currency_code, '''') AS currency, COALESCE(sum(grand_total), 0) AS amount, count(*) AS cnt ' +
-                   '  FROM public.%s WHERE %s GROUP BY 1 ORDER BY 1', [ATable, MonthFilter(ADateColumn)]), 'SalesDocsMonth');
+  if ATable = 'sls_offer' then
+    LExcluded := 3
+  else
+    LExcluded := 5;
+  Q := Open(Format('SELECT currency, COALESCE(sum(total_amount), 0) AS amount, count(*) AS cnt ' +
+                   '  FROM public.%s WHERE status <> %d AND %s GROUP BY 1 ORDER BY 1', [ATable, LExcluded, MonthFilter(ADateColumn)]), 'SalesDocsMonth');
   try
     while not Q.Eof do
     begin

@@ -346,6 +346,54 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 88
       OnExecute = actpur_invoice_linesExecute
     end
+    object actsls_offers: TAction
+      Category = 'Satis'
+      Caption = 'Sat'#305#351' Teklifleri'
+      ImageIndex = 93
+      OnExecute = actsls_offersExecute
+    end
+    object actsls_offer_lines: TAction
+      Category = 'Satis'
+      Caption = 'Teklif Kalemleri'
+      ImageIndex = 93
+      OnExecute = actsls_offer_linesExecute
+    end
+    object actsls_orders: TAction
+      Category = 'Satis'
+      Caption = 'Sat'#305#351' Sipari'#351'leri'
+      ImageIndex = 93
+      OnExecute = actsls_ordersExecute
+    end
+    object actsls_order_lines: TAction
+      Category = 'Satis'
+      Caption = 'Sipari'#351' Kalemleri'
+      ImageIndex = 93
+      OnExecute = actsls_order_linesExecute
+    end
+    object actsls_dispatches: TAction
+      Category = 'Satis'
+      Caption = 'Sevk '#304'rsaliyeleri'
+      ImageIndex = 93
+      OnExecute = actsls_dispatchesExecute
+    end
+    object actsls_dispatch_lines: TAction
+      Category = 'Satis'
+      Caption = #304'rsaliye Kalemleri'
+      ImageIndex = 93
+      OnExecute = actsls_dispatch_linesExecute
+    end
+    object actsls_invoices: TAction
+      Category = 'Satis'
+      Caption = 'Sat'#305#351' Faturalar'#305
+      ImageIndex = 93
+      OnExecute = actsls_invoicesExecute
+    end
+    object actsls_invoice_lines: TAction
+      Category = 'Satis'
+      Caption = 'Fatura Kalemleri'
+      ImageIndex = 93
+      OnExecute = actsls_invoice_linesExecute
+    end
     object actfin_money_accounts: TAction
       Category = 'Finans'
       Caption = 'Kasa / Banka Hesaplar'#305
@@ -738,6 +786,39 @@ inherited frmDashboard: TfrmDashboard
     object mnimenu_sales: TMenuItem
       Caption = 'Sat'#305#351'lar'
       ImageIndex = 93
+      object mnisls_offers: TMenuItem
+        Action = actsls_offers
+      end
+      object mnisls_offer_lines: TMenuItem
+        Action = actsls_offer_lines
+      end
+      object mnisls_sep1: TMenuItem
+        Caption = '-'
+      end
+      object mnisls_orders: TMenuItem
+        Action = actsls_orders
+      end
+      object mnisls_order_lines: TMenuItem
+        Action = actsls_order_lines
+      end
+      object mnisls_sep2: TMenuItem
+        Caption = '-'
+      end
+      object mnisls_dispatches: TMenuItem
+        Action = actsls_dispatches
+      end
+      object mnisls_dispatch_lines: TMenuItem
+        Action = actsls_dispatch_lines
+      end
+      object mnisls_sep3: TMenuItem
+        Caption = '-'
+      end
+      object mnisls_invoices: TMenuItem
+        Action = actsls_invoices
+      end
+      object mnisls_invoice_lines: TMenuItem
+        Action = actsls_invoice_lines
+      end
     end
     object mnimenu_accounting: TMenuItem
       Caption = 'Muhasebe'

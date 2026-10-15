@@ -28,6 +28,10 @@ uses
   PurOrder, PurOrder.Service, PurOrderDetail, PurOrderDetail.Service,
   PurReceipt, PurReceipt.Service, PurReceiptDetail, PurReceiptDetail.Service,
   PurInvoice, PurInvoice.Service, PurInvoiceDetail, PurInvoiceDetail.Service,
+  SlsLookup, SlsOffer, SlsOffer.Service, SlsOfferDetail, SlsOfferDetail.Service,
+  SlsOrder, SlsOrder.Service, SlsOrderDetail, SlsOrderDetail.Service,
+  SlsDispatch, SlsDispatch.Service, SlsDispatchDetail, SlsDispatchDetail.Service,
+  SlsInvoice, SlsInvoice.Service, SlsInvoiceDetail, SlsInvoiceDetail.Service,
   AccLookup, AccAccountTransaction, AccAccountTransaction.Service,
   SysDashboard, SysDashboard.Service;
 
@@ -2548,6 +2552,386 @@ begin
   end;
 end;
 
+{ ---------------------------------------------------------------- Sales }
+
+function NewOffer(ASvc: TSlsOfferService; AAccount: Int64): TSlsOffer;
+begin
+  Result := TSlsOffer.Create;
+  Result.AccAccountId := AAccount;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NewOfferLine(ASvc: TSlsOfferDetailService; AOffer, AInv: Int64; AQty, APrice, ADisc, AVat: Currency): TSlsOfferDetail;
+begin
+  Result := TSlsOfferDetail.Create;
+  Result.SlsOfferId := AOffer;
+  Result.StkInventoryId := AInv;
+  Result.Quantity := AQty;
+  Result.UnitPrice := APrice;
+  Result.DiscountRate := ADisc;
+  Result.VatRate := AVat;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NewSlsOrder(ASvc: TSlsOrderService; AAccount: Int64): TSlsOrder;
+begin
+  Result := TSlsOrder.Create;
+  Result.AccAccountId := AAccount;
+  Result.StkWarehouseId := Scalar('SELECT min(id) FROM stk_warehouse');
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+function NewSlsOrderLine(ASvc: TSlsOrderDetailService; AOrder, AInv: Int64; AQty, APrice: Currency): TSlsOrderDetail;
+begin
+  Result := TSlsOrderDetail.Create;
+  Result.SlsOrderId := AOrder;
+  Result.StkInventoryId := AInv;
+  Result.Quantity := AQty;
+  Result.UnitPrice := APrice;
+  ASvc.BusinessInsert(Result, False, False, True);
+end;
+
+// Onaylı, tek kalemli sipariş (kural testleri için)
+function ApprovedSlsOrder(OSvc: TSlsOrderService; ODSvc: TSlsOrderDetailService; AAccount, AInv: Int64; AQty: Currency): Int64;
+var
+  X: TSlsOrder;
+begin
+  X := NewSlsOrder(OSvc, AAccount);
+  try
+    NewSlsOrderLine(ODSvc, X.Id, AInv, AQty, 1).Free;
+    OSvc.ChangeStatus(X.Id, SLS_ORD_APPROVED, True);
+    Result := X.Id;
+  finally
+    X.Free;
+  end;
+end;
+
+procedure TestSales;
+var
+  FfSvc: TSlsOfferService;
+  FfDSvc: TSlsOfferDetailService;
+  OSvc: TSlsOrderService;
+  ODSvc: TSlsOrderDetailService;
+  PSvc: TSlsDispatchService;
+  PDSvc: TSlsDispatchDetailService;
+  FSvc: TSlsInvoiceService;
+  FDSvc: TSlsInvoiceDetailService;
+  StSvc: TStkTransactionService;
+  Off: TSlsOffer;
+  PD: TSlsDispatchDetail;
+  Inv1, Inv3, Customer, Customer2, Wh, OrderId, DispatchId, InvoiceId, Invoice2Id, LineId, StId: Int64;
+  Qty1Before, Qty3Before: Double;
+  St: TStkTransaction;
+  Fi: TSlsInvoice;
+  Dp: TSlsDispatch;
+begin
+  Ctx('Sales', 'flow');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Inv3 := Scalar('SELECT min(id) FROM stk_inventory WHERE id > ' + Inv1.ToString);
+  Customer := Scalar('SELECT min(id) FROM acc_account');
+  Customer2 := Scalar('SELECT max(id) FROM acc_account');
+  Wh := Scalar('SELECT min(id) FROM stk_warehouse');
+  FfSvc := TSlsOfferService.Create;
+  FfDSvc := TSlsOfferDetailService.Create;
+  OSvc := TSlsOrderService.Create;
+  ODSvc := TSlsOrderDetailService.Create;
+  PSvc := TSlsDispatchService.Create;
+  PDSvc := TSlsDispatchDetailService.Create;
+  FSvc := TSlsInvoiceService.Create;
+  FDSvc := TSlsInvoiceDetailService.Create;
+  StSvc := TStkTransactionService.Create;
+  Off := nil;
+  try
+    try
+      Begin_;
+      Qty1Before := StockQty(Inv1);
+      Qty3Before := StockQty(Inv3);
+
+      // ---- teklif: 10 x 2,50 = 25,00; %10 iskonto 2,50; net 22,50; %20 KDV 4,50; toplam 27,00
+      Off := NewOffer(FfSvc, Customer);
+      Check('offer insert', StartsText('ST', Off.OfferNo) and (Length(Off.OfferNo) = 8), Off.OfferNo);
+      NewOfferLine(FfDSvc, Off.Id, Inv1, 10, 2.5, 10, 20).Free;
+      NewOfferLine(FfDSvc, Off.Id, Inv3, 5, 4, 0, 10).Free;
+      Check('offer line amounts', S(Scalar('SELECT gross_amount || ''/'' || discount_amount || ''/'' || net_amount || ''/'' || vat_amount || ''/'' || total_amount ' +
+        'FROM sls_offer_detail WHERE sls_offer_id = ' + Off.Id.ToString + ' AND stk_inventory_id = ' + Inv1.ToString)) = '25.00/2.50/22.50/4.50/27.00');
+      Check('offer totals = sum of lines', Num(Scalar('SELECT total_amount FROM sls_offer WHERE id = ' + Off.Id.ToString)) = 27 + 22);
+      FfSvc.ChangeStatus(Off.Id, SLS_OFF_SENT, True);
+      Check('offer sent', Num(Scalar('SELECT status FROM sls_offer WHERE id = ' + Off.Id.ToString)) = SLS_OFF_SENT);
+
+      // ---- tekliften sipariş
+      OrderId := OSvc.CreateFromOffer(Off.Id, True);
+      Check('order from offer', StartsText('SS', S(Scalar('SELECT order_no FROM sls_order WHERE id = ' + OrderId.ToString))) and
+        (Num(Scalar('SELECT count(*) FROM sls_order_detail WHERE sls_order_id = ' + OrderId.ToString)) = 2));
+      Check('order customer = offer customer', FirstId('SELECT acc_account_id FROM sls_order WHERE id = ' + OrderId.ToString) = Customer);
+      Check('offer prices copied', S(Scalar('SELECT unit_price || ''/'' || discount_rate || ''/'' || vat_rate FROM sls_order_detail WHERE sls_order_id = ' +
+        OrderId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString)) = '2.500000/10.00/20.00');
+      Check('order totals = offer totals', Num(Scalar('SELECT total_amount FROM sls_order WHERE id = ' + OrderId.ToString)) = 49);
+      Check('offer ordered (status 4)', Num(Scalar('SELECT status FROM sls_offer WHERE id = ' + Off.Id.ToString)) = SLS_OFF_ORDERED);
+      Check('offer ordered quantity', Near(Num(Scalar('SELECT sum(ordered_quantity) FROM sls_offer_detail WHERE sls_offer_id = ' + Off.Id.ToString)), 15));
+      LineId := FirstId('SELECT id FROM sls_order_detail WHERE sls_order_id = ' + OrderId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString);
+      OSvc.ChangeStatus(OrderId, SLS_ORD_APPROVED, True);
+
+      // ---- siparişten sevk irsaliyesi (stok çıkışı)
+      DispatchId := PSvc.CreateFromOrder(OrderId, Wh, True);
+      Check('dispatch from order', StartsText('SI', S(Scalar('SELECT dispatch_no FROM sls_dispatch WHERE id = ' + DispatchId.ToString))) and
+        (Num(Scalar('SELECT count(*) FROM sls_dispatch_detail WHERE sls_dispatch_id = ' + DispatchId.ToString)) = 2));
+      Check('stock out transactions', Num(Scalar('SELECT count(*) FROM stk_transaction t JOIN sls_dispatch_detail d ON d.id = t.sls_dispatch_detail_id ' +
+        'WHERE d.sls_dispatch_id = ' + DispatchId.ToString + ' AND t.transaction_type = 2 AND t.from_stk_warehouse_id = ' + Wh.ToString)) = 2);
+      Check('stock summary -10 / -5', Near(StockQty(Inv1), Qty1Before - 10) and Near(StockQty(Inv3), Qty3Before - 5),
+        Format('%g -> %g', [Qty1Before, StockQty(Inv1)]));
+      Check('dispatch price = net price', Near(Num(Scalar('SELECT unit_price FROM sls_dispatch_detail WHERE sls_order_detail_id = ' + LineId.ToString)), 2.25));
+      Check('order delivered (status 4)', Num(Scalar('SELECT status FROM sls_order WHERE id = ' + OrderId.ToString)) = SLS_ORD_DELIVERED);
+
+      PD := PDSvc.FindById(FirstId('SELECT id FROM sls_dispatch_detail WHERE sls_order_detail_id = ' + LineId.ToString), False);
+      try
+        PD.Quantity := 6;
+        PDSvc.BusinessUpdate(PD, False, False, True);
+      finally
+        PD.Free;
+      end;
+      Check('dispatch line reduced -> stock -6', Near(StockQty(Inv1), Qty1Before - 6));
+      Check('order partial (status 3)', Num(Scalar('SELECT status FROM sls_order WHERE id = ' + OrderId.ToString)) = SLS_ORD_PARTIAL);
+      Check('order delivered quantity', Near(Num(Scalar('SELECT delivered_quantity FROM sls_order_detail WHERE id = ' + LineId.ToString)), 6));
+
+      // stok hareketleri ekranından değiştirilemez
+      StId := FirstId('SELECT t.id FROM stk_transaction t JOIN sls_dispatch_detail d ON d.id = t.sls_dispatch_detail_id WHERE d.sls_dispatch_id = ' + DispatchId.ToString + ' LIMIT 1');
+      St := StSvc.FindById(StId, False);
+      try
+        try
+          StSvc.Delete(St.Id);
+          Check('stock tx from dispatch locked', False, 'delete allowed');
+        except
+          on E: Exception do Check('stock tx from dispatch locked', Pos('irsaliye', AnsiLowerCase(E.Message)) > 0, E.Message);
+        end;
+      finally
+        St.Free;
+      end;
+
+      // ---- siparişin kalanından irsaliyeli fatura (stok faturadan düşer)
+      Invoice2Id := FSvc.CreateFromOrder(OrderId, Wh, True);
+      Check('invoice from order', StartsText('SF', S(Scalar('SELECT invoice_no FROM sls_invoice WHERE id = ' + Invoice2Id.ToString))) and
+        (S(Scalar('SELECT count(*) || ''/'' || sum(quantity)::numeric(18,2) FROM sls_invoice_detail WHERE sls_invoice_id = ' + Invoice2Id.ToString)) = '1/4.00'),
+        S(Scalar('SELECT count(*) || ''/'' || sum(quantity)::numeric(18,2) FROM sls_invoice_detail WHERE sls_invoice_id = ' + Invoice2Id.ToString)));
+      Check('invoice with delivery -> stock -10', Near(StockQty(Inv1), Qty1Before - 10));
+      Check('invoice stock tx', Num(Scalar('SELECT count(*) FROM stk_transaction t JOIN sls_invoice_detail d ON d.id = t.sls_invoice_detail_id ' +
+        'WHERE d.sls_invoice_id = ' + Invoice2Id.ToString + ' AND t.transaction_type = 2')) = 1);
+      Check('order delivered again (status 4)', Num(Scalar('SELECT status FROM sls_order WHERE id = ' + OrderId.ToString)) = SLS_ORD_DELIVERED);
+
+      // ---- irsaliyeden fatura
+      InvoiceId := FSvc.CreateFromDispatch(DispatchId, True);
+      Fi := FSvc.FindById(InvoiceId, False);
+      try
+        Check('invoice from dispatch', Assigned(Fi) and StartsText('SF', Fi.InvoiceNo) and (Fi.InvoiceNo <> S(Scalar('SELECT invoice_no FROM sls_invoice WHERE id = ' + Invoice2Id.ToString))), Fi.InvoiceNo);
+        Check('invoice lines', Num(Scalar('SELECT count(*) FROM sls_invoice_detail WHERE sls_invoice_id = ' + InvoiceId.ToString)) = 2);
+        Check('no stock tx for dispatch invoice', Num(Scalar('SELECT count(*) FROM stk_transaction t JOIN sls_invoice_detail d ON d.id = t.sls_invoice_detail_id ' +
+          'WHERE d.sls_invoice_id = ' + InvoiceId.ToString)) = 0);
+        Check('stock unchanged by dispatch invoice', Near(StockQty(Inv1), Qty1Before - 10));
+        Check('invoice uses order price/discount/vat', S(Scalar('SELECT f.unit_price || ''/'' || f.discount_rate || ''/'' || f.vat_rate || ''/'' || f.quantity FROM sls_invoice_detail f ' +
+          'JOIN sls_dispatch_detail d ON d.id = f.sls_dispatch_detail_id WHERE d.sls_order_detail_id = ' + LineId.ToString)) = '2.500000/10.00/20.00/6.000000');
+        Check('invoice totals = sum of lines', Num(Scalar('SELECT count(*) FROM sls_invoice f WHERE f.id = ' + InvoiceId.ToString +
+          ' AND f.total_amount = (SELECT sum(total_amount) FROM sls_invoice_detail WHERE sls_invoice_id = f.id) AND f.total_amount > 0')) = 1);
+        Check('nothing left to invoice', Num(Scalar('SELECT sum(remaining_invoice_quantity) FROM vw_sls_dispatch_detail WHERE sls_dispatch_id = ' + DispatchId.ToString)) = 0);
+        Check('account transaction (debit)', Num(Scalar('SELECT count(*) FROM vw_acc_account_transaction t JOIN sls_invoice f ON f.id = t.document_id ' +
+          'WHERE t.source_type = ' + IntToStr(ACC_TX_SRC_SLS_INVOICE) + ' AND f.id IN (' + InvoiceId.ToString + ', ' + Invoice2Id.ToString + ') ' +
+          '  AND t.debit = f.total_amount AND t.credit = 0 AND t.acc_account_id = ' + Customer.ToString)) = 2);
+        Check('source text', TAccLookup.Text(alkTxSource, ACC_TX_SRC_SLS_INVOICE) <> '');
+
+        // geri alma: faturalar -> irsaliye -> sipariş iptal -> teklif yeniden açık
+        FSvc.BusinessDelete(Fi, False, False, True);
+      finally
+        Fi.Free;
+      end;
+      Fi := FSvc.FindById(Invoice2Id, False);
+      try
+        FSvc.BusinessDelete(Fi, False, False, True);
+      finally
+        Fi.Free;
+      end;
+      Check('invoice delete -> stock back to -6', Near(StockQty(Inv1), Qty1Before - 6));
+      Check('invoice delete -> order partial', Num(Scalar('SELECT status FROM sls_order WHERE id = ' + OrderId.ToString)) = SLS_ORD_PARTIAL);
+      Dp := PSvc.FindById(DispatchId, False);
+      try
+        PSvc.BusinessDelete(Dp, False, False, True);
+      finally
+        Dp.Free;
+      end;
+      Check('dispatch delete -> stock back', Near(StockQty(Inv1), Qty1Before) and Near(StockQty(Inv3), Qty3Before));
+      Check('dispatch delete -> order approved', Num(Scalar('SELECT status FROM sls_order WHERE id = ' + OrderId.ToString)) = SLS_ORD_APPROVED);
+      OSvc.ChangeStatus(OrderId, SLS_ORD_CANCELLED, True);
+      Check('cancel order -> offer reopened', (Num(Scalar('SELECT status FROM sls_offer WHERE id = ' + Off.Id.ToString)) = SLS_OFF_SENT) and
+        Near(Num(Scalar('SELECT sum(ordered_quantity) FROM sls_offer_detail WHERE sls_offer_id = ' + Off.Id.ToString)), 0));
+      End_;
+
+      // ---- kural ihlalleri
+      Begin_;
+      Expect('send offer without lines', procedure
+        var X: TSlsOffer;
+        begin
+          X := NewOffer(FfSvc, Customer);
+          try FfSvc.ChangeStatus(X.Id, SLS_OFF_SENT, True); finally X.Free; end;
+        end);
+      Begin_;
+      Expect('line on sent offer', procedure
+        var X: TSlsOffer;
+        begin
+          X := NewOffer(FfSvc, Customer);
+          try
+            NewOfferLine(FfDSvc, X.Id, Inv1, 1, 1, 0, 0).Free;
+            FfSvc.ChangeStatus(X.Id, SLS_OFF_SENT, True);
+            NewOfferLine(FfDSvc, X.Id, Inv3, 1, 1, 0, 0).Free;
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('order from draft offer', procedure
+        var X: TSlsOffer;
+        begin
+          X := NewOffer(FfSvc, Customer);
+          try
+            NewOfferLine(FfDSvc, X.Id, Inv1, 1, 1, 0, 0).Free;
+            OSvc.CreateFromOffer(X.Id, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('offer valid until before date', procedure
+        var X: TSlsOffer;
+        begin
+          X := TSlsOffer.Create;
+          try
+            X.AccAccountId := Customer; X.OfferDate := Date; X.ValidUntil := Date - 1;
+            FfSvc.BusinessInsert(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('manual status delivered', procedure
+        var Oid: Int64;
+        begin
+          Oid := ApprovedSlsOrder(OSvc, ODSvc, Customer, Inv1, 1);
+          OSvc.ChangeStatus(Oid, SLS_ORD_DELIVERED, True);
+        end);
+      Begin_;
+      Expect('dispatch for draft order', procedure
+        var X: TSlsOrder;
+        begin
+          X := NewSlsOrder(OSvc, Customer);
+          try
+            NewSlsOrderLine(ODSvc, X.Id, Inv1, 1, 1).Free;
+            PSvc.CreateFromOrder(X.Id, Wh, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('dispatch of another customer''s order', procedure
+        var Oid: Int64; R: TSlsDispatch;
+        begin
+          Oid := ApprovedSlsOrder(OSvc, ODSvc, Customer, Inv1, 1);
+          R := TSlsDispatch.Create;
+          try
+            R.AccAccountId := Customer2; R.StkWarehouseId := Wh; R.SlsOrderId := Oid;
+            PSvc.BusinessInsert(R, False, False, True);
+          finally R.Free; end;
+        end);
+      Begin_;
+      Expect('over delivery (dispatch)', procedure
+        var Did: Int64; D: TSlsDispatchDetail;
+        begin
+          Did := PSvc.CreateFromOrder(ApprovedSlsOrder(OSvc, ODSvc, Customer, Inv1, 10), Wh, True);
+          D := PDSvc.FindById(FirstId('SELECT id FROM sls_dispatch_detail WHERE sls_dispatch_id = ' + Did.ToString), False);
+          try
+            D.Quantity := 11;
+            PDSvc.BusinessUpdate(D, False, False, True);
+          finally D.Free; end;
+        end);
+      Begin_;
+      Expect('over delivery (dispatch + invoice)', procedure
+        var Oid, Fid: Int64; D: TSlsInvoiceDetail;
+        begin
+          Oid := ApprovedSlsOrder(OSvc, ODSvc, Customer, Inv1, 10);
+          Fid := FSvc.CreateFromOrder(Oid, Wh, True);
+          D := FDSvc.FindById(FirstId('SELECT id FROM sls_invoice_detail WHERE sls_invoice_id = ' + Fid.ToString), False);
+          try
+            D.Quantity := 5;
+            FDSvc.BusinessUpdate(D, False, False, True);
+          finally D.Free; end;
+          // 5 faturada, kalan 5'ten fazlası irsaliyeye eklenemez
+          PSvc.CreateFromOrder(Oid, Wh, True);
+          D := FDSvc.FindById(FirstId('SELECT id FROM sls_invoice_detail WHERE sls_invoice_id = ' + Fid.ToString), False);
+          try
+            D.Quantity := 6;
+            FDSvc.BusinessUpdate(D, False, False, True);
+          finally D.Free; end;
+        end);
+      Begin_;
+      Expect('invoice line without warehouse', procedure
+        var A: TSlsInvoice; L: TSlsInvoiceDetail;
+        begin
+          A := TSlsInvoice.Create; L := TSlsInvoiceDetail.Create;
+          try
+            A.AccAccountId := Customer; FSvc.BusinessInsert(A, False, False, True);
+            L.SlsInvoiceId := A.Id; L.StkInventoryId := Inv1; L.Quantity := 1; L.UnitPrice := 1;
+            FDSvc.BusinessInsert(L, False, False, True);
+          finally A.Free; L.Free; end;
+        end);
+      Begin_;
+      Expect('clear warehouse of invoice with stock lines', procedure
+        var Fid: Int64; A: TSlsInvoice;
+        begin
+          Fid := FSvc.CreateFromOrder(ApprovedSlsOrder(OSvc, ODSvc, Customer, Inv1, 2), Wh, True);
+          A := FSvc.FindById(Fid, False);
+          try
+            A.StkWarehouseId := 0;
+            FSvc.BusinessUpdate(A, False, False, True);
+          finally A.Free; end;
+        end);
+      Begin_;
+      Expect('over invoice (dispatch)', procedure
+        var Did, Fid: Int64; D: TSlsInvoiceDetail;
+        begin
+          Did := PSvc.CreateFromOrder(ApprovedSlsOrder(OSvc, ODSvc, Customer, Inv1, 10), Wh, True);
+          Fid := FSvc.CreateFromDispatch(Did, True);
+          D := FDSvc.FindById(FirstId('SELECT id FROM sls_invoice_detail WHERE sls_invoice_id = ' + Fid.ToString), False);
+          try
+            D.Quantity := 11;
+            FDSvc.BusinessUpdate(D, False, False, True);
+          finally D.Free; end;
+        end);
+      Begin_;
+      Expect('delete invoiced dispatch', procedure
+        var Did: Int64; R: TSlsDispatch;
+        begin
+          Did := PSvc.CreateFromOrder(ApprovedSlsOrder(OSvc, ODSvc, Customer, Inv1, 10), Wh, True);
+          FSvc.CreateFromDispatch(Did, True);
+          R := PSvc.FindById(Did, False);
+          try PSvc.BusinessDelete(R, False, False, True); finally R.Free; end;
+        end);
+      Begin_;
+      Expect('duplicate invoice no', procedure
+        var A, B: TSlsInvoice;
+        begin
+          A := TSlsInvoice.Create; B := TSlsInvoice.Create;
+          try
+            A.InvoiceNo := 'IT-SDUP'; A.AccAccountId := Customer; FSvc.BusinessInsert(A, False, False, True);
+            B.InvoiceNo := ' it-sdup '; B.AccAccountId := Customer2; FSvc.BusinessInsert(B, False, False, True);
+          finally A.Free; B.Free; end;
+        end);
+      Begin_;
+      Expect('cancel order with deliveries', procedure
+        var Oid: Int64;
+        begin
+          Oid := ApprovedSlsOrder(OSvc, ODSvc, Customer, Inv1, 10);
+          FSvc.CreateFromOrder(Oid, Wh, True);
+          OSvc.ChangeStatus(Oid, SLS_ORD_CANCELLED, True);
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    Off.Free;
+    StSvc.Free;
+    FDSvc.Free; FSvc.Free; PDSvc.Free; PSvc.Free; ODSvc.Free; OSvc.Free; FfDSvc.Free; FfSvc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -2565,6 +2949,7 @@ begin
   TestFinancePos;
   TestFinanceMoney;
   TestPurchasing;
+  TestSales;
   TestCompanyBankAccounts;
   TestAccountTransactions;
   TestDashboard;

@@ -19,6 +19,7 @@ const
   ACC_TX_SRC_POS         = 3;  // fin_pos_transaction
   ACC_TX_SRC_CREDIT_CARD = 4;  // fin_credit_card_transaction
   ACC_TX_SRC_PUR_INVOICE = 5;  // pur_invoice
+  ACC_TX_SRC_SLS_INVOICE = 6;  // sls_invoice
 
 type
   // DB'de smallint olarak saklanan sabit seçenekler (1 tabanlı; 0/NULL = seçilmemiş)
@@ -46,7 +47,8 @@ begin
                  TLocalizationManager.Translate(TLangKeys.TAccOption.SrcChequeNote, 'Cheque / Note'),
                  TLocalizationManager.Translate(TLangKeys.TAccOption.SrcPos, 'POS Collection'),
                  TLocalizationManager.Translate(TLangKeys.TAccOption.SrcCreditCard, 'Credit Card'),
-                 TLocalizationManager.Translate(TLangKeys.TAccOption.SrcPurInvoice, 'Purchase Invoice')];
+                 TLocalizationManager.Translate(TLangKeys.TAccOption.SrcPurInvoice, 'Purchase Invoice'),
+                 TLocalizationManager.Translate(TLangKeys.TAccOption.SrcSlsInvoice, 'Sales Invoice')];
   else
     Result := [];
   end;

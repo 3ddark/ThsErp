@@ -16,7 +16,7 @@ for line in m.group(1).split('\n'):
     else:
         uses.append(line)
 calls = []
-for mod in ['System', 'Employee', 'Account', 'Stock', 'Production', 'Finance', 'Purchasing']:
+for mod in ['System', 'Employee', 'Account', 'Stock', 'Production', 'Finance', 'Purchasing', 'Sales']:
     for f in sorted(glob.glob(os.path.join(erp, 'Forms', mod, 'Output', '*.pas'))):
         s = open(f, encoding='utf-8-sig', errors='replace').read()
         c = re.search(r'(Tfrm\w+)\s*=\s*class\(TfrmGrid<\s*(T\w+)\s*,\s*(T\w+)\s*>', s)

@@ -71,6 +71,13 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   is written by `TPurReceiptDetailRepository.UpsertStockTransaction`; the stock transaction service refuses to update / delete
   such rows. Purchase quantities are service-maintained: `pur_request_detail.ordered_quantity` (non-cancelled order lines),
   `pur_order_detail.received_quantity` (receipt lines); header totals = sum of line amounts; order / request status 3-4 automatic.
+- Sales mirror purchasing (offer → order → delivery note → invoice, `SlsLookup`): stock goes out on the delivery note line
+  (`stk_transaction.sls_dispatch_detail_id`, type 2, amount = net sales amount) or, for an invoice line without a delivery
+  note ("irsaliyeli fatura"), on the invoice line (`stk_transaction.sls_invoice_detail_id`, from `sls_invoice.stk_warehouse_id`,
+  required then). Both links are UNIQUE / CASCADE, written by `UpsertStockTransaction` of the line repositories; the stock
+  transaction service refuses to change them (`IsSalesDocumentLinked`). An invoice line links either a delivery note line or an
+  order line (CHECK). Service-maintained: `sls_offer_detail.ordered_quantity`, `sls_order_detail.delivered_quantity` (delivery
+  note lines + invoice lines with an order link). Sales invoices are debits in `vw_acc_account_transaction` (source 6).
 - Company bank accounts (`fin_company_bank_account`): flags `show_on_cheque` / `show_on_note` / `show_on_print`; printouts read
   `vw_fin_company_bank_account.print_text` via `TFinCompanyBankAccountService.GetPrintLines(FIN_BANK_USAGE_*)`. Own (given)
   cheques / notes may reference one (`fin_cheque_note.fin_company_bank_account_id`, CHECK direction = 2); bank, account no and

@@ -93,6 +93,14 @@ uses
   ufrmPurReceiptDetails, PurReceiptDetail.Service, PurReceiptDetail,
   ufrmPurInvoices, PurInvoice.Service, PurInvoice,
   ufrmPurInvoiceDetails, PurInvoiceDetail.Service, PurInvoiceDetail,
+  ufrmSlsOffers, SlsOffer.Service, SlsOffer,
+  ufrmSlsOfferDetails, SlsOfferDetail.Service, SlsOfferDetail,
+  ufrmSlsOrders, SlsOrder.Service, SlsOrder,
+  ufrmSlsOrderDetails, SlsOrderDetail.Service, SlsOrderDetail,
+  ufrmSlsDispatches, SlsDispatch.Service, SlsDispatch,
+  ufrmSlsDispatchDetails, SlsDispatchDetail.Service, SlsDispatchDetail,
+  ufrmSlsInvoices, SlsInvoice.Service, SlsInvoice,
+  ufrmSlsInvoiceDetails, SlsInvoiceDetail.Service, SlsInvoiceDetail,
   ufrmFinCompanyBankAccounts, FinCompanyBankAccount.Service, FinCompanyBankAccount,
   ufrmAccAccountTransactions, AccAccountTransaction.Service, AccAccountTransaction,
   LocalizationManager;
@@ -156,6 +164,17 @@ type
     mniN10: TMenuItem;
     mnisys_currency: TMenuItem;
     mnimenu_sales: TMenuItem;
+    mnisls_offers: TMenuItem;
+    mnisls_offer_lines: TMenuItem;
+    mnisls_orders: TMenuItem;
+    mnisls_order_lines: TMenuItem;
+    mnisls_dispatches: TMenuItem;
+    mnisls_dispatch_lines: TMenuItem;
+    mnisls_invoices: TMenuItem;
+    mnisls_invoice_lines: TMenuItem;
+    mnisls_sep1: TMenuItem;
+    mnisls_sep2: TMenuItem;
+    mnisls_sep3: TMenuItem;
     mnimenu_purchase: TMenuItem;
     mnimenu_accounting: TMenuItem;
     mnimenu_stock: TMenuItem;
@@ -191,6 +210,14 @@ type
     actpur_receipt_lines: TAction;
     actpur_invoices: TAction;
     actpur_invoice_lines: TAction;
+    actsls_offers: TAction;
+    actsls_offer_lines: TAction;
+    actsls_orders: TAction;
+    actsls_order_lines: TAction;
+    actsls_dispatches: TAction;
+    actsls_dispatch_lines: TAction;
+    actsls_invoices: TAction;
+    actsls_invoice_lines: TAction;
     mnipur_requests: TMenuItem;
     mnipur_request_lines: TMenuItem;
     mnipur_sep1: TMenuItem;
@@ -338,8 +365,6 @@ type
     procedure actsys_application_settingExecute(Sender: TObject);
     procedure actquality_form_mail_recieversExecute(Sender: TObject);
     procedure actodeme_baslangic_donemleriExecute(Sender: TObject);
-    procedure actset_teklif_tipleriExecute(Sender: TObject);
-    procedure actteklif_durumlariExecute(Sender: TObject);
     procedure actset_efatura_fatura_tipiExecute(Sender: TObject);
     procedure actset_efatura_istisna_koduExecute(Sender: TObject);
     procedure actsys_aboutExecute(Sender: TObject);
@@ -358,7 +383,6 @@ type
     procedure actset_bbk_calisma_durumuExecute(Sender: TObject);
     procedure actset_bbk_finans_durumuExecute(Sender: TObject);
     procedure actset_bbk_firma_tipiExecute(Sender: TObject);
-    procedure actsat_teklifExecute(Sender: TObject);
     procedure actch_hesap_karti_araExecute(Sender: TObject);
     procedure actch_hesap_kartiExecute(Sender: TObject);
     procedure actch_bolgeExecute(Sender: TObject);
@@ -368,8 +392,6 @@ type
     procedure actset_ch_hesap_planiExecute(Sender: TObject);
     procedure actset_ch_hesap_tipiExecute(Sender: TObject);
     procedure actstk_stok_hareketiExecute(Sender: TObject);
-    procedure actsat_siparis_raporExecute(Sender: TObject);
-    procedure actsat_siparisExecute(Sender: TObject);
     procedure actsys_unit_typeExecute(Sender: TObject);
     procedure actsys_regionExecute(Sender: TObject);
     procedure actset_einv_odeme_sekliExecute(Sender: TObject);
@@ -398,6 +420,14 @@ type
     procedure actpur_receipt_linesExecute(Sender: TObject);
     procedure actpur_invoicesExecute(Sender: TObject);
     procedure actpur_invoice_linesExecute(Sender: TObject);
+    procedure actsls_offersExecute(Sender: TObject);
+    procedure actsls_offer_linesExecute(Sender: TObject);
+    procedure actsls_ordersExecute(Sender: TObject);
+    procedure actsls_order_linesExecute(Sender: TObject);
+    procedure actsls_dispatchesExecute(Sender: TObject);
+    procedure actsls_dispatch_linesExecute(Sender: TObject);
+    procedure actsls_invoicesExecute(Sender: TObject);
+    procedure actsls_invoice_linesExecute(Sender: TObject);
     procedure actfin_money_accountsExecute(Sender: TObject);
     procedure actfin_money_transactionsExecute(Sender: TObject);
     procedure actfin_money_ledgerExecute(Sender: TObject);
@@ -670,21 +700,6 @@ begin
   TfrmEmpEmployees.Create(Self, TEmpEmployeeService.Create, TEmpEmployee.Create).Show;
 end;
 
-procedure TfrmDashboard.actsat_siparisExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actsat_siparis_raporExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actsat_teklifExecute(Sender: TObject);
-begin
-//
-end;
-
 procedure TfrmDashboard.actset_bbk_calisma_durumuExecute(Sender: TObject);
 begin
 //
@@ -873,6 +888,46 @@ end;
 procedure TfrmDashboard.actpur_invoice_linesExecute(Sender: TObject);
 begin
   TfrmPurInvoiceDetails.Create(Self, TPurInvoiceDetailService.Create, TPurInvoiceDetail.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_offersExecute(Sender: TObject);
+begin
+  TfrmSlsOffers.Create(Self, TSlsOfferService.Create, TSlsOffer.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_offer_linesExecute(Sender: TObject);
+begin
+  TfrmSlsOfferDetails.Create(Self, TSlsOfferDetailService.Create, TSlsOfferDetail.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_ordersExecute(Sender: TObject);
+begin
+  TfrmSlsOrders.Create(Self, TSlsOrderService.Create, TSlsOrder.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_order_linesExecute(Sender: TObject);
+begin
+  TfrmSlsOrderDetails.Create(Self, TSlsOrderDetailService.Create, TSlsOrderDetail.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_dispatchesExecute(Sender: TObject);
+begin
+  TfrmSlsDispatches.Create(Self, TSlsDispatchService.Create, TSlsDispatch.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_dispatch_linesExecute(Sender: TObject);
+begin
+  TfrmSlsDispatchDetails.Create(Self, TSlsDispatchDetailService.Create, TSlsDispatchDetail.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_invoicesExecute(Sender: TObject);
+begin
+  TfrmSlsInvoices.Create(Self, TSlsInvoiceService.Create, TSlsInvoice.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_invoice_linesExecute(Sender: TObject);
+begin
+  TfrmSlsInvoiceDetails.Create(Self, TSlsInvoiceDetailService.Create, TSlsInvoiceDetail.Create).Show;
 end;
 
 procedure TfrmDashboard.actfin_money_accountsExecute(Sender: TObject);
@@ -1176,16 +1231,6 @@ end;
 procedure TfrmDashboard.actsys_access_rightExecute(Sender: TObject);
 begin
   TfrmSysAccessRights.Create(Self, TSysAccessRightService.Create, TSysAccessRight.Create).Show;
-end;
-
-procedure TfrmDashboard.actteklif_durumlariExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_teklif_tipleriExecute(Sender: TObject);
-begin
-//
 end;
 
 procedure TfrmDashboard.actquality_form_mail_recieversExecute(Sender: TObject);
@@ -1665,6 +1710,22 @@ begin
     actpur_invoices.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.TitlePlural, 'Purchase Invoices');
   if Assigned(actpur_invoice_lines) then
     actpur_invoice_lines.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.TitlePlural, 'Invoice Lines');
+  if Assigned(actsls_offers) then
+    actsls_offers.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.TitlePlural, 'Sales Offers');
+  if Assigned(actsls_offer_lines) then
+    actsls_offer_lines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOfferDetail.TitlePlural, 'Offer Lines');
+  if Assigned(actsls_orders) then
+    actsls_orders.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOrder.TitlePlural, 'Sales Orders');
+  if Assigned(actsls_order_lines) then
+    actsls_order_lines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOrderDetail.TitlePlural, 'Order Lines');
+  if Assigned(actsls_dispatches) then
+    actsls_dispatches.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.TitlePlural, 'Delivery Notes');
+  if Assigned(actsls_dispatch_lines) then
+    actsls_dispatch_lines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatchDetail.TitlePlural, 'Delivery Note Lines');
+  if Assigned(actsls_invoices) then
+    actsls_invoices.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.TitlePlural, 'Sales Invoices');
+  if Assigned(actsls_invoice_lines) then
+    actsls_invoice_lines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoiceDetail.TitlePlural, 'Invoice Lines');
   if Assigned(actfin_money_accounts) then
     actfin_money_accounts.Caption := TLocalizationManager.Translate(TLangKeys.TFinMoneyAccount.TitlePlural, 'Cash / Bank Accounts');
   if Assigned(actfin_money_transactions) then
@@ -2633,6 +2694,8 @@ begin
   else if MatchStr(AKey, [KPI_PUR_ORDERS_OPEN, KPI_PUR_ORDERS_MONTH]) then LName := 'actpur_orders'
   else if AKey = KPI_PUR_RECEIPTS_MONTH then LName := 'actpur_receipts'
   else if AKey = KPI_PUR_INVOICES_MONTH then LName := 'actpur_invoices'
+  else if AKey = KPI_SLS_ORDERS_MONTH then LName := 'actsls_orders'
+  else if AKey = KPI_SLS_OFFERS_MONTH then LName := 'actsls_offers'
   else if AKey = KPI_STOCK_CRITICAL then LName := 'actstk_stok_karti_ozetleri'
   else if MatchStr(AKey, [KPI_STOCK_TX_TODAY, CHART_STOCK_FLOW]) then LName := 'actstk_hareketler'
   else if AKey = KPI_STOCK_CARDS then LName := 'actstk_stok_kartlari'

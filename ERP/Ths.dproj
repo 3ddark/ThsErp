@@ -960,6 +960,87 @@
         <DCCReference Include="Forms\Purchasing\Output\ufrmPurInvoiceDetails.pas">
             <Form>frmPurInvoiceDetails</Form>
         </DCCReference>
+        <DCCReference Include="BackEnd\Sales\Domain\SlsLookup.pas"/>
+        <DCCReference Include="BackEnd\Sales\Domain\SlsOffer.pas"/>
+        <DCCReference Include="BackEnd\Sales\Exception\SlsOffer.Exception.pas"/>
+        <DCCReference Include="BackEnd\Sales\Repository\SlsOffer.Repository.pas"/>
+        <DCCReference Include="BackEnd\Sales\Service\SlsOffer.Service.pas"/>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsOffer.pas">
+            <Form>frmSlsOffer</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Sales\Output\ufrmSlsOffers.pas">
+            <Form>frmSlsOffers</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Sales\Domain\SlsOfferDetail.pas"/>
+        <DCCReference Include="BackEnd\Sales\Exception\SlsOfferDetail.Exception.pas"/>
+        <DCCReference Include="BackEnd\Sales\Repository\SlsOfferDetail.Repository.pas"/>
+        <DCCReference Include="BackEnd\Sales\Service\SlsOfferDetail.Service.pas"/>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsOfferDetail.pas">
+            <Form>frmSlsOfferDetail</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Sales\Output\ufrmSlsOfferDetails.pas">
+            <Form>frmSlsOfferDetails</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Sales\Domain\SlsOrder.pas"/>
+        <DCCReference Include="BackEnd\Sales\Exception\SlsOrder.Exception.pas"/>
+        <DCCReference Include="BackEnd\Sales\Repository\SlsOrder.Repository.pas"/>
+        <DCCReference Include="BackEnd\Sales\Service\SlsOrder.Service.pas"/>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsOrder.pas">
+            <Form>frmSlsOrder</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Sales\Output\ufrmSlsOrders.pas">
+            <Form>frmSlsOrders</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Sales\Domain\SlsOrderDetail.pas"/>
+        <DCCReference Include="BackEnd\Sales\Exception\SlsOrderDetail.Exception.pas"/>
+        <DCCReference Include="BackEnd\Sales\Repository\SlsOrderDetail.Repository.pas"/>
+        <DCCReference Include="BackEnd\Sales\Service\SlsOrderDetail.Service.pas"/>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsOrderDetail.pas">
+            <Form>frmSlsOrderDetail</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Sales\Output\ufrmSlsOrderDetails.pas">
+            <Form>frmSlsOrderDetails</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Sales\Domain\SlsDispatch.pas"/>
+        <DCCReference Include="BackEnd\Sales\Exception\SlsDispatch.Exception.pas"/>
+        <DCCReference Include="BackEnd\Sales\Repository\SlsDispatch.Repository.pas"/>
+        <DCCReference Include="BackEnd\Sales\Service\SlsDispatch.Service.pas"/>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsDispatch.pas">
+            <Form>frmSlsDispatch</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Sales\Output\ufrmSlsDispatches.pas">
+            <Form>frmSlsDispatches</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Sales\Domain\SlsDispatchDetail.pas"/>
+        <DCCReference Include="BackEnd\Sales\Exception\SlsDispatchDetail.Exception.pas"/>
+        <DCCReference Include="BackEnd\Sales\Repository\SlsDispatchDetail.Repository.pas"/>
+        <DCCReference Include="BackEnd\Sales\Service\SlsDispatchDetail.Service.pas"/>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsDispatchDetail.pas">
+            <Form>frmSlsDispatchDetail</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Sales\Output\ufrmSlsDispatchDetails.pas">
+            <Form>frmSlsDispatchDetails</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Sales\Domain\SlsInvoice.pas"/>
+        <DCCReference Include="BackEnd\Sales\Exception\SlsInvoice.Exception.pas"/>
+        <DCCReference Include="BackEnd\Sales\Repository\SlsInvoice.Repository.pas"/>
+        <DCCReference Include="BackEnd\Sales\Service\SlsInvoice.Service.pas"/>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsInvoice.pas">
+            <Form>frmSlsInvoice</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Sales\Output\ufrmSlsInvoices.pas">
+            <Form>frmSlsInvoices</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Sales\Domain\SlsInvoiceDetail.pas"/>
+        <DCCReference Include="BackEnd\Sales\Exception\SlsInvoiceDetail.Exception.pas"/>
+        <DCCReference Include="BackEnd\Sales\Repository\SlsInvoiceDetail.Repository.pas"/>
+        <DCCReference Include="BackEnd\Sales\Service\SlsInvoiceDetail.Service.pas"/>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsInvoiceDetail.pas">
+            <Form>frmSlsInvoiceDetail</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Sales\Output\ufrmSlsInvoiceDetails.pas">
+            <Form>frmSlsInvoiceDetails</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\Production\Domain\PrdBom.pas"/>
         <DCCReference Include="BackEnd\Production\Exception\PrdBom.Exception.pas"/>
         <DCCReference Include="BackEnd\Production\Repository\PrdBom.Repository.pas"/>

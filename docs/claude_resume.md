@@ -547,9 +547,39 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
   Diğer makinede: ths_audit_writer rolü + ths_audit DB'si + pg_restore ERP/audit.dump (CLAUDE.md §5), sonra db.dump.
   Audit işleri (kod + dump + kurallar + testler) 2026-10-15'te commit + push edildi.
   Test DB'leri: ths_erp_it + ths_audit_it (UI harness yeniden kurar); geçici dönem test DB'leri test sonunda silinir.
-- SONRAKİ ADIM: sls_ (satış) modülü (yeni ekranlar için sys_menu satırı zorunlu: 60xxxx, modül satırı 600000 + gruplar). Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
+- Satış (sls_) modülü tamamlandı (yukarıdaki bölüm). SONRAKİ ADIM: kullanıcıyla belirlenecek (öneriler 'Kalan / sonraki') (yeni ekranlar için sys_menu satırı zorunlu: 60xxxx, modül satırı 600000 + gruplar). Testleri her değişiklikten sonra çalıştır: `ERP/Tests/Integration/build.sh` +
   `%TEMP%\ths_it\bin\IntegrationTest.exe` ve `ERP/Tests/Ui/build.sh` + `%TEMP%\ths_ui\bin\UiTest.exe`.
 
+## Satış (sls_) modülü (2026-10-15)
+- Kullanıcı kararları: pur_ aynası yapı (acc_account_id / stk_inventory_id FK, kalemde tek KDV, başlık toplamları kalemlerden,
+  durum smallint + SlsLookup; eski 5'li KDV / USD-EUR kuru / adres kopyası kolonları ve sls_*_status tabloları kalkar).
+  Akış: teklif -> sipariş -> sevk irsaliyesi -> satış faturası. Stok çıkışı irsaliye kaleminde; irsaliyesiz faturada fatura
+  kalemi stok düşer (irsaliyeli fatura).
+- Tablolar boştu (veri kaybı yok). Eski kod: BackEnd/Order SatSiparis*, BackEnd/Offer, Forms/Offer, Forms/Order, DetailedInputForms/Offer|Order.
+- DB (2026-10-15; yedek scratchpad a937082d…/ths_erp_before_sales.dump; script sales.sql + acc_view.sql): 8 tablo
+  sls_offer/_detail (ordered_quantity), sls_order/_detail (delivered_quantity), sls_dispatch/_detail, sls_invoice/_detail
+  (stk_warehouse_id irsaliyesiz kalemler için; kalemde sls_dispatch_detail_id XOR sls_order_detail_id); 8 vw_sls_*;
+  stk_transaction.sls_dispatch_detail_id / sls_invoice_detail_id (UNIQUE, CASCADE, tip 2); vw_acc_account_transaction'a
+  satış faturası (source_type 6, borç, id*100+60); yetkiler 1090 teklif / 1091 sipariş / 1092 irsaliye / 1093 fatura
+  (357xxx silindi; yönetici tam, sales r/a/u/d, production 1091+1092 okuma); menü 600000 / 600300 (01-04) / 600400 (01-04).
+- Kod (üreteç: scratchpad a937082d…/sls_config.py = sls/p0..p9 birleşimi + gen_erp.py, gen_lang.py, register.py):
+  8 entity Domain/Exception/Repository/Service + Output/Input form; SlsLookup (ST/SS/SI/SF önekleri, durumlar,
+  CanChangeOfferStatus/OrderStatus). Akış: teklif taslak -> gönderildi (kalem şart) -> CreateFromOffer (fiyat/iskonto/KDV,
+  müşteri, temsilci, kur, vade tekliften) -> sipariş onay -> TSlsDispatchService.CreateFromOrder (ambar: sevk ambarı ya da
+  seçilen; net fiyat) ya da TSlsInvoiceService.CreateFromOrder (irsaliyeli fatura) -> CreateFromDispatch (sipariş fiyatı).
+  Sipariş durumu 3/4 otomatik; teklif 4 otomatik; iptal/sipariş silme teklifi yeniden açar. Fatura no SF+6, global UNIQUE.
+  Popup'lar: teklif Kalemler/Gönderildi/Taslağa Al/Müşteri Reddetti/Kapat/Siparişe Dönüştür; sipariş Kalemler/Sevk
+  İrsaliyeleri/Onayla/Taslağa Al/İptal/Sevk İrsaliyesi Oluştur/İrsaliyeli Fatura Oluştur; irsaliye Kalemler/Faturaya
+  Dönüştür; fatura Kalemler. Dashboard Satışlar menüsü + actsls_* (eski boş actsat_* yöntemleri silindi), KPI'lar yeni
+  kolonlarla (sipariş iptal / teklif red hariç), cari hareketlerde "Detay Göster" satış faturasını açar, stok hareketi
+  servisi satış bağlantılı hareketi kilitler. Legacy BackEnd/Order, BackEnd/Offer, Forms/Offer, Forms/Order silindi
+  (DetailedInputForms'a dokunulmadı).
+- Doğrulama: msbuild Win64 Debug 0 hata (yeni birimlerde uyarı yok); entegrasyon 1552 pass / 0 fail (TestSales: 37 akış
+  adımı + 15 kural ihlali; canlı DB satır sayıları değişmedi); UI tam koşu 1656 pass / 0 fail / 1 warn (bilinen PurRequests);
+  UI harness: satış seed'i, kopyada belge no / kaynak bağlantıları karşılaştırılmaz. db_schema.sql + db.dump yenilendi.
+- Elle denenmedi (UI): popup akışları (Siparişe Dönüştür, Sevk İrsaliyesi / İrsaliyeli Fatura Oluştur, Faturaya Dönüştür).
+- Kalan / sonraki: satış faturası muhasebe fişi ve e-fatura, satış iadesi, fiyat listeleri / müşteri iskontosu, sevk adresi,
+  negatif stok kontrolü (şimdilik engellenmiyor), çıktılar (teklif / irsaliye / fatura baskısı).
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.

@@ -40,7 +40,8 @@ uses
   FinChequeNote, FinChequeNote.Service, ufrmFinChequeNote,
   FinPosTransaction, FinPosTransaction.Service, ufrmFinPosTransaction,
   FinCreditCardTransaction, FinCreditCardTransaction.Service, ufrmFinCreditCardTransaction,
-  PurInvoice, PurInvoice.Service, ufrmPurInvoice;
+  PurInvoice, PurInvoice.Service, ufrmPurInvoice,
+  SlsInvoice, SlsInvoice.Service, ufrmSlsInvoice;
 
 procedure TfrmAccAccountTransactions.SourceTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
 begin
@@ -67,6 +68,8 @@ var
   LFinCreditCardTransaction: TFinCreditCardTransaction;
   LPurInvoiceSvc: TPurInvoiceService;
   LPurInvoice: TPurInvoice;
+  LSlsInvoiceSvc: TSlsInvoiceService;
+  LSlsInvoice: TSlsInvoice;
 begin
   case ASourceType of
     ACC_TX_SRC_MONEY:
@@ -138,6 +141,19 @@ begin
         end;
         // form servisi ve kaydı sahiplenir; güncelleme / silme yetkileri formda ayrıca denetlenir
         TfrmPurInvoice.Create(Self, LPurInvoiceSvc, LPurInvoice, ifmRewiev, Self.RefreshParentGrid, ivmNormal, True).Show;
+      end;
+    ACC_TX_SRC_SLS_INVOICE:
+      begin
+        LSlsInvoiceSvc := TSlsInvoiceService.Create;
+        try
+          LSlsInvoice := LSlsInvoiceSvc.BusinessFindById(ADocumentId, False, False, True);
+          if not Assigned(LSlsInvoice) then
+            raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [ADocumentId]));
+        except
+          LSlsInvoiceSvc.Free;
+          raise;
+        end;
+        TfrmSlsInvoice.Create(Self, LSlsInvoiceSvc, LSlsInvoice, ifmRewiev, Self.RefreshParentGrid, ivmNormal, True).Show;
       end;
   else
     raise EAccAccountTransactionExceptionUnknownSource.Create;

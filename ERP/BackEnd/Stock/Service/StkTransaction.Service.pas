@@ -127,6 +127,10 @@ begin
   if (AOperation in [coUpdate, coDelete]) and TStkTransactionRepository(FRepo).IsPurchaseReceiptLinked(AEntity.Id) then
     raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStkTransaction.ReceiptLinked,
       'This stock transaction was created by a goods receipt. Change it from the goods receipt.'));
+  // irsaliye / satış faturasından oluşan hareket yalnız o belgeden değişir
+  if (AOperation in [coUpdate, coDelete]) and TStkTransactionRepository(FRepo).IsSalesDocumentLinked(AEntity.Id) then
+    raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStkTransaction.SalesLinked,
+      'This stock transaction was created by a delivery note or sales invoice. Change it from that document.'));
 
   if AOperation in [coInsert, coUpdate] then
   begin

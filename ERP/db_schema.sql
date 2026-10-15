@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict OduRR1ZevJepEloM5MOig8GvUecTxzkK9No7hTc7UK8sQyk9VPU9inK7GwiTW9d
+\restrict SeZLeNS0uy4WP3v743yB7nakgauUSeGMFjAee8ouI0gYrzra5EKu3FYiiJT2VwS
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -3005,110 +3005,62 @@ ALTER TABLE public.pur_request ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
--- Name: sls_order_status; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sls_order_status (
-    id bigint CONSTRAINT set_sls_order_status_id_not_null NOT NULL,
-    order_status character varying(32) CONSTRAINT set_sls_order_status_siparis_durum_not_null NOT NULL,
-    description character varying(64)
-);
-
-
-ALTER TABLE public.sls_order_status OWNER TO ths_admin;
-
---
--- Name: set_sat_siparis_durum_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.sls_order_status ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_sat_siparis_durum_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: sls_offer_status; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sls_offer_status (
-    id bigint CONSTRAINT set_sls_offer_status_id_not_null NOT NULL,
-    status_code character varying(32) CONSTRAINT set_sls_offer_status_teklif_durum_not_null NOT NULL,
-    aciklama character varying(64)
-);
-
-
-ALTER TABLE public.sls_offer_status OWNER TO ths_admin;
-
---
--- Name: set_sat_teklif_durum_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.sls_offer_status ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.set_sat_teklif_durum_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
--- Name: sls_dispatch_detail; Type: TABLE; Schema: public; Owner: ths_admin
---
-
-CREATE TABLE public.sls_dispatch_detail (
-    id bigint CONSTRAINT sat_irsaliye_detaylari_id_not_null NOT NULL,
-    header_id bigint,
-    teklif_detay_id bigint,
-    order_detail_id bigint,
-    fatura_detay_id bigint
-);
-
-
-ALTER TABLE public.sls_dispatch_detail OWNER TO ths_admin;
-
---
--- Name: sls_delivery_note_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.sls_dispatch_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sls_delivery_note_detail_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
-
---
 -- Name: sls_dispatch; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
 CREATE TABLE public.sls_dispatch (
-    id bigint CONSTRAINT sat_irsaliyeler_id_not_null NOT NULL,
-    delivery_note_number character varying(16),
-    delivery_note_date timestamp without time zone,
-    teklif_id bigint,
-    order_id bigint,
-    fatura_id bigint
+    id bigint NOT NULL,
+    dispatch_no character varying(16) NOT NULL,
+    dispatch_date date DEFAULT CURRENT_DATE NOT NULL,
+    acc_account_id bigint NOT NULL,
+    stk_warehouse_id bigint NOT NULL,
+    sls_order_id bigint,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    description character varying(256)
 );
 
 
 ALTER TABLE public.sls_dispatch OWNER TO ths_admin;
 
 --
--- Name: sls_delivery_note_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: sls_dispatch_detail; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sls_dispatch_detail (
+    id bigint NOT NULL,
+    sls_dispatch_id bigint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0 NOT NULL,
+    sls_order_detail_id bigint,
+    description character varying(128),
+    CONSTRAINT sls_dispatch_detail_price_check CHECK ((unit_price >= (0)::numeric)),
+    CONSTRAINT sls_dispatch_detail_quantity_check CHECK ((quantity > (0)::numeric))
+);
+
+
+ALTER TABLE public.sls_dispatch_detail OWNER TO ths_admin;
+
+--
+-- Name: sls_dispatch_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sls_dispatch_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sls_dispatch_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sls_dispatch_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE public.sls_dispatch ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.sls_delivery_note_id_seq
+    SEQUENCE NAME public.sls_dispatch_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3122,12 +3074,22 @@ ALTER TABLE public.sls_dispatch ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 --
 
 CREATE TABLE public.sls_invoice (
-    id bigint CONSTRAINT sat_faturalar_id_not_null NOT NULL,
-    invoice_number character varying(16),
-    invoice_date timestamp without time zone,
-    teklif_id bigint,
-    order_id bigint,
-    irsaliye_id bigint
+    id bigint NOT NULL,
+    invoice_no character varying(16) NOT NULL,
+    invoice_date date DEFAULT CURRENT_DATE NOT NULL,
+    acc_account_id bigint NOT NULL,
+    due_date date,
+    stk_warehouse_id bigint,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    exchange_rate numeric(18,6) DEFAULT 1 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    description character varying(256),
+    CONSTRAINT sls_invoice_due_date_check CHECK (((due_date IS NULL) OR (due_date >= invoice_date))),
+    CONSTRAINT sls_invoice_exchange_rate_check CHECK ((exchange_rate > (0)::numeric))
 );
 
 
@@ -3138,11 +3100,27 @@ ALTER TABLE public.sls_invoice OWNER TO ths_admin;
 --
 
 CREATE TABLE public.sls_invoice_detail (
-    id bigint CONSTRAINT sat_fatura_detaylari_id_not_null NOT NULL,
-    header_id bigint,
-    teklif_detay_id bigint,
-    order_detail_id bigint,
-    irsaliye_detay_id bigint
+    id bigint NOT NULL,
+    sls_invoice_id bigint NOT NULL,
+    line_no smallint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0 NOT NULL,
+    discount_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    vat_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    sls_dispatch_detail_id bigint,
+    sls_order_detail_id bigint,
+    description character varying(128),
+    CONSTRAINT sls_invoice_detail_discount_check CHECK (((discount_rate >= (0)::numeric) AND (discount_rate <= (100)::numeric))),
+    CONSTRAINT sls_invoice_detail_price_check CHECK ((unit_price >= (0)::numeric)),
+    CONSTRAINT sls_invoice_detail_quantity_check CHECK ((quantity > (0)::numeric)),
+    CONSTRAINT sls_invoice_detail_source_check CHECK (((sls_dispatch_detail_id IS NULL) OR (sls_order_detail_id IS NULL))),
+    CONSTRAINT sls_invoice_detail_vat_check CHECK (((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric)))
 );
 
 
@@ -3182,52 +3160,26 @@ ALTER TABLE public.sls_invoice ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 CREATE TABLE public.sls_offer (
     id bigint NOT NULL,
-    confirmed boolean DEFAULT false NOT NULL,
-    total_amount numeric(18,6) DEFAULT 0 NOT NULL,
-    discount_amount numeric(18,6) DEFAULT 0 NOT NULL,
-    sub_total numeric(18,6) DEFAULT 0 NOT NULL,
-    tax_rate1 integer DEFAULT 0 NOT NULL,
-    tax_amount1 numeric(18,6) DEFAULT 0 NOT NULL,
-    tax_rate2 integer DEFAULT 0 NOT NULL,
-    tax_amount2 numeric(18,6) DEFAULT 0 NOT NULL,
-    tax_rate3 integer DEFAULT 0 NOT NULL,
-    tax_amount3 numeric(18,6) DEFAULT 0 NOT NULL,
-    tax_rate4 integer DEFAULT 0 NOT NULL,
-    tax_amount4 numeric(18,6) DEFAULT 0 NOT NULL,
-    tax_rate5 integer DEFAULT 0 NOT NULL,
-    tax_amount5 numeric(18,6) DEFAULT 0 NOT NULL,
-    tax_total numeric(18,6) GENERATED ALWAYS AS (((((tax_amount1 + tax_amount2) + tax_amount3) + tax_amount4) + tax_amount5)) STORED,
-    grand_total numeric(18,6) DEFAULT 0 NOT NULL,
-    operation_type_id bigint,
-    offer_number character varying(16) NOT NULL,
-    offer_date date NOT NULL,
-    validity_date date NOT NULL,
-    customer_code character varying(16),
-    customer_name character varying(128),
-    tax_office character varying(32) NOT NULL,
-    tax_number character varying(32) NOT NULL,
-    country_id bigint,
-    city_id bigint,
-    district character varying(32),
-    mahalle character varying(40),
-    road character varying(40),
-    street character varying(40),
-    postal_code character varying(7),
-    building_name character varying(40),
-    door_number character varying(6),
-    representative_id bigint,
-    contact_name character varying(32),
-    contact_phone character varying(24),
-    reference character varying(128),
-    currency_code character varying(3) NOT NULL,
-    exchange_rate_usd numeric(7,4) DEFAULT 1,
-    exchange_rate_eur numeric(7,4) DEFAULT 1,
-    description character varying(128),
-    proforma_no integer,
-    delivery_method_id bigint NOT NULL,
-    payment_method_id bigint NOT NULL,
-    packet_type_id bigint NOT NULL,
-    transport_charge_id bigint NOT NULL
+    offer_no character varying(16) NOT NULL,
+    offer_date date DEFAULT CURRENT_DATE NOT NULL,
+    valid_until date,
+    acc_account_id bigint NOT NULL,
+    customer_ref_no character varying(32),
+    emp_employee_id bigint,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    exchange_rate numeric(18,6) DEFAULT 1 NOT NULL,
+    payment_term_days smallint DEFAULT 0 NOT NULL,
+    status smallint DEFAULT 1 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    description character varying(256),
+    CONSTRAINT sls_offer_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
+    CONSTRAINT sls_offer_payment_term_check CHECK (((payment_term_days >= 0) AND (payment_term_days <= 365))),
+    CONSTRAINT sls_offer_status_check CHECK (((status >= 1) AND (status <= 5))),
+    CONSTRAINT sls_offer_valid_until_check CHECK (((valid_until IS NULL) OR (valid_until >= offer_date)))
 );
 
 
@@ -3239,24 +3191,25 @@ ALTER TABLE public.sls_offer OWNER TO ths_admin;
 
 CREATE TABLE public.sls_offer_detail (
     id bigint NOT NULL,
-    header_id bigint,
-    stock_code character varying(32),
+    sls_offer_id bigint NOT NULL,
+    line_no smallint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0 NOT NULL,
+    discount_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    vat_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    ordered_quantity numeric(18,6) DEFAULT 0 NOT NULL,
     description character varying(128),
-    user_description character varying(128),
-    reference character varying(128),
-    quantity double precision DEFAULT 1 NOT NULL,
-    uom character varying(8),
-    discount_rate numeric(6,3) DEFAULT 0,
-    tax_rate integer DEFAULT 0,
-    price numeric(18,6) DEFAULT 0,
-    net_price numeric(18,6) DEFAULT 0 NOT NULL,
-    amount numeric(18,6) DEFAULT 0 NOT NULL,
-    discount_amount numeric(18,6) DEFAULT 0 NOT NULL,
-    net_amount numeric(18,6) DEFAULT 0 NOT NULL,
-    tax_amount numeric(18,6) DEFAULT 0 NOT NULL,
-    total_amount numeric(18,6) DEFAULT 0 NOT NULL,
-    packet_id bigint,
-    gtip_no character varying(16)
+    CONSTRAINT sls_offer_detail_discount_check CHECK (((discount_rate >= (0)::numeric) AND (discount_rate <= (100)::numeric))),
+    CONSTRAINT sls_offer_detail_ordered_check CHECK ((ordered_quantity >= (0)::numeric)),
+    CONSTRAINT sls_offer_detail_price_check CHECK ((unit_price >= (0)::numeric)),
+    CONSTRAINT sls_offer_detail_quantity_check CHECK ((quantity > (0)::numeric)),
+    CONSTRAINT sls_offer_detail_vat_check CHECK (((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric)))
 );
 
 
@@ -3295,54 +3248,28 @@ ALTER TABLE public.sls_offer ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 --
 
 CREATE TABLE public.sls_order (
-    id bigint CONSTRAINT sls_order_id_nn NOT NULL,
-    teklif_id bigint,
-    irsaliye_id bigint,
-    fatura_id bigint,
-    total_amount numeric(18,6) DEFAULT 0 CONSTRAINT sat_siparisler_tutar_not_null NOT NULL,
-    discount_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_discount_amount_nn NOT NULL,
-    subtotal numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_subtotal_nn NOT NULL,
-    tax_rate_1 integer DEFAULT 0 CONSTRAINT sls_order_tax_rate_1_nn NOT NULL,
-    tax_amount_1 numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_tax_amount_1_nn NOT NULL,
-    tax_rate_2 integer DEFAULT 0 CONSTRAINT sls_order_tax_rate_2_nn NOT NULL,
-    tax_amount_2 numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_tax_amount_2_nn NOT NULL,
-    tax_rate_3 integer DEFAULT 0 CONSTRAINT sls_order_tax_rate_3_nn NOT NULL,
-    tax_amount_3 numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_tax_amount_3_nn NOT NULL,
-    tax_rate_4 integer DEFAULT 0 CONSTRAINT sls_order_tax_rate_4_nn NOT NULL,
-    tax_amount_4 numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_tax_amount_4_nn NOT NULL,
-    tax_rate_5 integer DEFAULT 0 CONSTRAINT sls_order_tax_rate_5_nn NOT NULL,
-    tax_amount_5 numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_tax_amount_5_nn NOT NULL,
-    grand_total numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_total_amount_nn NOT NULL,
-    operation_type_id bigint,
-    order_number character varying(16),
-    order_date date,
+    id bigint NOT NULL,
+    order_no character varying(16) NOT NULL,
+    order_date date DEFAULT CURRENT_DATE NOT NULL,
+    acc_account_id bigint NOT NULL,
+    customer_ref_no character varying(32),
     delivery_date date,
-    customer_code character varying(16),
-    customer_name character varying(128),
-    tax_office character varying(32),
-    tax_number character varying(32),
-    country_id bigint,
-    city_id bigint,
-    district character varying(32),
-    neighborhood character varying(40),
-    avenue character varying(40),
-    street character varying(40),
-    postal_code character varying(7),
-    building_name character varying(40),
-    door_number character varying(6),
-    customer_representative_id bigint,
-    contact_name character varying(32),
-    reference character varying(128),
-    currency_code character varying(3) CONSTRAINT sls_order_currency_code_nn NOT NULL,
-    exchange_rate_usd numeric(7,4) DEFAULT 1,
-    exchange_rate_eur numeric(7,4) DEFAULT 1,
-    description character varying(128),
-    proforma_no integer,
-    status_id bigint,
-    delivery_method_id bigint,
-    payment_method_id bigint,
-    packet_type_id bigint,
-    transport_charge_id bigint
+    stk_warehouse_id bigint,
+    emp_employee_id bigint,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    exchange_rate numeric(18,6) DEFAULT 1 NOT NULL,
+    payment_term_days smallint DEFAULT 0 NOT NULL,
+    status smallint DEFAULT 1 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    description character varying(256),
+    CONSTRAINT sls_order_delivery_date_check CHECK (((delivery_date IS NULL) OR (delivery_date >= order_date))),
+    CONSTRAINT sls_order_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
+    CONSTRAINT sls_order_payment_term_check CHECK (((payment_term_days >= 0) AND (payment_term_days <= 365))),
+    CONSTRAINT sls_order_status_check CHECK (((status >= 1) AND (status <= 5)))
 );
 
 
@@ -3353,37 +3280,28 @@ ALTER TABLE public.sls_order OWNER TO ths_admin;
 --
 
 CREATE TABLE public.sls_order_detail (
-    id bigint CONSTRAINT sls_order_detail_id_nn NOT NULL,
-    header_id bigint,
-    teklif_detay_id bigint,
-    irsaliye_detay_id bigint,
-    fatura_detay_id bigint,
-    stok_kodu character varying(32),
-    stock_description character varying(128),
-    user_description character varying(128),
-    referans character varying(128),
-    miktar numeric(18,6) DEFAULT 1 CONSTRAINT sls_order_detail_qty_nn NOT NULL,
-    outgoing_quantity numeric(18,6) DEFAULT 1 CONSTRAINT sls_order_detail_sent_qty_nn NOT NULL,
-    uom_code character varying(8),
-    discount_rate numeric(18,6) DEFAULT 0,
-    tax_rate integer DEFAULT 0,
-    fiyat numeric(18,6) DEFAULT 0,
-    net_fiyat numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_net_price_nn NOT NULL,
-    amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_amount_nn NOT NULL,
-    discount_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_discount_amount_nn NOT NULL,
-    net_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_net_amount_nn NOT NULL,
-    tax_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_tax_amount_nn NOT NULL,
-    total_amount numeric(18,6) DEFAULT 0 CONSTRAINT sls_order_detail_total_amount_nn NOT NULL,
-    is_ana_urun boolean DEFAULT false CONSTRAINT sls_order_detail_is_main_product_nn NOT NULL,
-    referans_ana_urun_id bigint,
-    gtip_no character varying(16),
-    en numeric(12,6) DEFAULT 0,
-    boy numeric(12,6) DEFAULT 0,
-    height_en numeric(12,6) DEFAULT 0,
-    net_weight numeric(12,6) DEFAULT 0,
-    gross_weight numeric(12,6) DEFAULT 0,
-    volume numeric(12,6) DEFAULT 0,
-    thickness integer
+    id bigint NOT NULL,
+    sls_order_id bigint NOT NULL,
+    line_no smallint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0 NOT NULL,
+    discount_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    vat_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    delivered_quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    delivery_date date,
+    sls_offer_detail_id bigint,
+    description character varying(128),
+    CONSTRAINT sls_order_detail_delivered_check CHECK ((delivered_quantity >= (0)::numeric)),
+    CONSTRAINT sls_order_detail_discount_check CHECK (((discount_rate >= (0)::numeric) AND (discount_rate <= (100)::numeric))),
+    CONSTRAINT sls_order_detail_price_check CHECK ((unit_price >= (0)::numeric)),
+    CONSTRAINT sls_order_detail_quantity_check CHECK ((quantity > (0)::numeric)),
+    CONSTRAINT sls_order_detail_vat_check CHECK (((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric)))
 );
 
 
@@ -3501,9 +3419,12 @@ CREATE TABLE public.stk_transaction (
     stk_inventory_id bigint NOT NULL,
     transaction_type smallint NOT NULL,
     pur_receipt_detail_id bigint,
+    sls_dispatch_detail_id bigint,
+    sls_invoice_detail_id bigint,
     CONSTRAINT stk_transaction_is_opening_check CHECK (((NOT is_opening) OR (transaction_type = 1))),
     CONSTRAINT stk_transaction_pur_receipt_check CHECK (((pur_receipt_detail_id IS NULL) OR (transaction_type = 1))),
     CONSTRAINT stk_transaction_quantity_check CHECK ((quantity > (0)::numeric)),
+    CONSTRAINT stk_transaction_sls_check CHECK ((((sls_dispatch_detail_id IS NULL) AND (sls_invoice_detail_id IS NULL)) OR ((transaction_type = 2) AND ((sls_dispatch_detail_id IS NULL) OR (sls_invoice_detail_id IS NULL))))),
     CONSTRAINT stk_transaction_transaction_type_check CHECK ((((transaction_type = 1) AND (to_stk_warehouse_id IS NOT NULL) AND (from_stk_warehouse_id IS NULL)) OR ((transaction_type = 2) AND (from_stk_warehouse_id IS NOT NULL) AND (to_stk_warehouse_id IS NULL)) OR ((transaction_type = 3) AND (from_stk_warehouse_id IS NOT NULL) AND (to_stk_warehouse_id IS NOT NULL) AND (from_stk_warehouse_id <> to_stk_warehouse_id))))
 );
 
@@ -5095,6 +5016,19 @@ CREATE VIEW public.vw_acc_account_transaction AS
             0,
             f.total_amount
            FROM public.pur_invoice f
+        UNION ALL
+         SELECT ((f.id * 100) + 60),
+            6,
+            f.id,
+            f.id,
+            f.acc_account_id,
+            f.invoice_date,
+            f.invoice_no,
+            f.description,
+            f.currency,
+            f.total_amount,
+            0
+           FROM public.sls_invoice f
         )
  SELECT l.id,
     l.acc_account_id,
@@ -6404,6 +6338,299 @@ CREATE VIEW public.vw_pur_request_detail AS
 
 
 ALTER VIEW public.vw_pur_request_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_sls_dispatch; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sls_dispatch AS
+ SELECT p.id,
+    p.dispatch_no,
+    p.dispatch_date,
+    p.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    p.stk_warehouse_id,
+    w.warehouse_name,
+    p.sls_order_id,
+    o.order_no,
+    p.currency,
+    (( SELECT count(*) AS count
+           FROM public.sls_dispatch_detail d
+          WHERE (d.sls_dispatch_id = p.id)))::integer AS line_count,
+    (( SELECT COALESCE(sum(round((d.quantity * d.unit_price), 2)), (0)::numeric) AS "coalesce"
+           FROM public.sls_dispatch_detail d
+          WHERE (d.sls_dispatch_id = p.id)))::numeric(18,2) AS total_amount,
+    p.description
+   FROM (((public.sls_dispatch p
+     JOIN public.acc_account a ON ((a.id = p.acc_account_id)))
+     JOIN public.stk_warehouse w ON ((w.id = p.stk_warehouse_id)))
+     LEFT JOIN public.sls_order o ON ((o.id = p.sls_order_id)));
+
+
+ALTER VIEW public.vw_sls_dispatch OWNER TO ths_admin;
+
+--
+-- Name: vw_sls_dispatch_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sls_dispatch_detail AS
+ SELECT d.id,
+    d.sls_dispatch_id,
+    p.dispatch_no,
+    p.acc_account_id,
+    p.currency,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    d.quantity,
+    d.unit_price,
+    (round((d.quantity * d.unit_price), 2))::numeric(18,2) AS amount,
+    d.sls_order_detail_id,
+    o.order_no,
+    od.line_no AS order_line_no,
+    (COALESCE(inv.invoiced_quantity, (0)::numeric))::numeric(18,6) AS invoiced_quantity,
+    (GREATEST((d.quantity - COALESCE(inv.invoiced_quantity, (0)::numeric)), (0)::numeric))::numeric(18,6) AS remaining_invoice_quantity,
+    d.description
+   FROM ((((((public.sls_dispatch_detail d
+     JOIN public.sls_dispatch p ON ((p.id = d.sls_dispatch_id)))
+     JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+     LEFT JOIN public.sls_order_detail od ON ((od.id = d.sls_order_detail_id)))
+     LEFT JOIN public.sls_order o ON ((o.id = od.sls_order_id)))
+     LEFT JOIN ( SELECT sls_invoice_detail.sls_dispatch_detail_id,
+            sum(sls_invoice_detail.quantity) AS invoiced_quantity
+           FROM public.sls_invoice_detail
+          WHERE (sls_invoice_detail.sls_dispatch_detail_id IS NOT NULL)
+          GROUP BY sls_invoice_detail.sls_dispatch_detail_id) inv ON ((inv.sls_dispatch_detail_id = d.id)));
+
+
+ALTER VIEW public.vw_sls_dispatch_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_sls_invoice; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sls_invoice AS
+ SELECT f.id,
+    f.invoice_no,
+    f.invoice_date,
+    f.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    f.due_date,
+    f.stk_warehouse_id,
+    w.warehouse_name,
+    f.currency,
+    f.exchange_rate,
+    f.gross_amount,
+    f.discount_amount,
+    f.net_amount,
+    f.vat_amount,
+    f.total_amount,
+    (( SELECT count(*) AS count
+           FROM public.sls_invoice_detail d
+          WHERE (d.sls_invoice_id = f.id)))::integer AS line_count,
+    f.description
+   FROM ((public.sls_invoice f
+     JOIN public.acc_account a ON ((a.id = f.acc_account_id)))
+     LEFT JOIN public.stk_warehouse w ON ((w.id = f.stk_warehouse_id)));
+
+
+ALTER VIEW public.vw_sls_invoice OWNER TO ths_admin;
+
+--
+-- Name: vw_sls_invoice_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sls_invoice_detail AS
+ SELECT d.id,
+    d.sls_invoice_id,
+    f.invoice_no,
+    f.acc_account_id,
+    f.currency,
+    d.line_no,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    d.quantity,
+    d.unit_price,
+    d.discount_rate,
+    d.vat_rate,
+    d.gross_amount,
+    d.discount_amount,
+    d.net_amount,
+    d.vat_amount,
+    d.total_amount,
+    d.sls_dispatch_detail_id,
+    p.dispatch_no,
+    d.sls_order_detail_id,
+    COALESCE(o.order_no, po.order_no) AS order_no,
+    d.description
+   FROM ((((((((public.sls_invoice_detail d
+     JOIN public.sls_invoice f ON ((f.id = d.sls_invoice_id)))
+     JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+     LEFT JOIN public.sls_dispatch_detail pd ON ((pd.id = d.sls_dispatch_detail_id)))
+     LEFT JOIN public.sls_dispatch p ON ((p.id = pd.sls_dispatch_id)))
+     LEFT JOIN public.sls_order po ON ((po.id = p.sls_order_id)))
+     LEFT JOIN public.sls_order_detail od ON ((od.id = d.sls_order_detail_id)))
+     LEFT JOIN public.sls_order o ON ((o.id = od.sls_order_id)));
+
+
+ALTER VIEW public.vw_sls_invoice_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_sls_offer; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sls_offer AS
+ SELECT o.id,
+    o.offer_no,
+    o.offer_date,
+    o.valid_until,
+    o.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    o.customer_ref_no,
+    o.emp_employee_id,
+    e.full_name AS employee_name,
+    o.currency,
+    o.exchange_rate,
+    o.payment_term_days,
+    o.status,
+    o.gross_amount,
+    o.discount_amount,
+    o.net_amount,
+    o.vat_amount,
+    o.total_amount,
+    (( SELECT count(*) AS count
+           FROM public.sls_offer_detail d
+          WHERE (d.sls_offer_id = o.id)))::integer AS line_count,
+    o.description
+   FROM ((public.sls_offer o
+     JOIN public.acc_account a ON ((a.id = o.acc_account_id)))
+     LEFT JOIN public.emp_employee e ON ((e.id = o.emp_employee_id)));
+
+
+ALTER VIEW public.vw_sls_offer OWNER TO ths_admin;
+
+--
+-- Name: vw_sls_offer_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sls_offer_detail AS
+ SELECT d.id,
+    d.sls_offer_id,
+    o.offer_no,
+    o.status AS offer_status,
+    o.acc_account_id,
+    o.currency,
+    d.line_no,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    d.quantity,
+    d.unit_price,
+    d.discount_rate,
+    d.vat_rate,
+    d.gross_amount,
+    d.discount_amount,
+    d.net_amount,
+    d.vat_amount,
+    d.total_amount,
+    d.ordered_quantity,
+    (GREATEST((d.quantity - d.ordered_quantity), (0)::numeric))::numeric(18,6) AS remaining_quantity,
+    d.description
+   FROM (((public.sls_offer_detail d
+     JOIN public.sls_offer o ON ((o.id = d.sls_offer_id)))
+     JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)));
+
+
+ALTER VIEW public.vw_sls_offer_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_sls_order; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sls_order AS
+ SELECT o.id,
+    o.order_no,
+    o.order_date,
+    o.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    o.customer_ref_no,
+    o.delivery_date,
+    o.stk_warehouse_id,
+    w.warehouse_name,
+    o.emp_employee_id,
+    e.full_name AS employee_name,
+    o.currency,
+    o.exchange_rate,
+    o.payment_term_days,
+    o.status,
+    o.gross_amount,
+    o.discount_amount,
+    o.net_amount,
+    o.vat_amount,
+    o.total_amount,
+    (( SELECT count(*) AS count
+           FROM public.sls_order_detail d
+          WHERE (d.sls_order_id = o.id)))::integer AS line_count,
+    o.description
+   FROM (((public.sls_order o
+     JOIN public.acc_account a ON ((a.id = o.acc_account_id)))
+     LEFT JOIN public.stk_warehouse w ON ((w.id = o.stk_warehouse_id)))
+     LEFT JOIN public.emp_employee e ON ((e.id = o.emp_employee_id)));
+
+
+ALTER VIEW public.vw_sls_order OWNER TO ths_admin;
+
+--
+-- Name: vw_sls_order_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sls_order_detail AS
+ SELECT d.id,
+    d.sls_order_id,
+    o.order_no,
+    o.status AS order_status,
+    o.acc_account_id,
+    o.currency,
+    d.line_no,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    d.quantity,
+    d.unit_price,
+    d.discount_rate,
+    d.vat_rate,
+    d.gross_amount,
+    d.discount_amount,
+    d.net_amount,
+    d.vat_amount,
+    d.total_amount,
+    d.delivered_quantity,
+    (GREATEST((d.quantity - d.delivered_quantity), (0)::numeric))::numeric(18,6) AS remaining_quantity,
+    d.delivery_date,
+    d.sls_offer_detail_id,
+    f.offer_no,
+    d.description
+   FROM (((((public.sls_order_detail d
+     JOIN public.sls_order o ON ((o.id = d.sls_order_id)))
+     JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+     LEFT JOIN public.sls_offer_detail fd ON ((fd.id = d.sls_offer_detail_id)))
+     LEFT JOIN public.sls_offer f ON ((f.id = fd.sls_offer_id)));
+
+
+ALTER VIEW public.vw_sls_order_detail OWNER TO ths_admin;
 
 --
 -- Name: vw_stk_card_kind_info; Type: VIEW; Schema: public; Owner: ths_admin
@@ -8191,54 +8418,6 @@ ALTER TABLE ONLY public.pur_request
 
 
 --
--- Name: sls_invoice_detail sat_fatura_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_invoice_detail
-    ADD CONSTRAINT sat_fatura_detaylari_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_invoice sat_faturalar_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_invoice
-    ADD CONSTRAINT sat_faturalar_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_dispatch_detail sat_irsaliye_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_dispatch_detail
-    ADD CONSTRAINT sat_irsaliye_detaylari_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_dispatch sat_irsaliyeler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_dispatch
-    ADD CONSTRAINT sat_irsaliyeler_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_offer sat_teklif_teklif_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklif_teklif_no_key UNIQUE (offer_number);
-
-
---
--- Name: sls_offer sat_teklifler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_pkey PRIMARY KEY (id);
-
-
---
 -- Name: einv_invoice_type set_einv_fatura_tipleri_fatura_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -8311,35 +8490,67 @@ ALTER TABLE ONLY public.einv_delivery_type
 
 
 --
--- Name: sls_order_status set_sat_siparis_durum_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_dispatch_detail sls_dispatch_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_order_status
-    ADD CONSTRAINT set_sat_siparis_durum_pkey PRIMARY KEY (id);
-
-
---
--- Name: sls_order_status set_sat_siparis_durum_siparis_durum_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_order_status
-    ADD CONSTRAINT set_sat_siparis_durum_siparis_durum_key UNIQUE (order_status);
+ALTER TABLE ONLY public.sls_dispatch_detail
+    ADD CONSTRAINT sls_dispatch_detail_pkey PRIMARY KEY (id);
 
 
 --
--- Name: sls_offer_status set_sat_teklif_durum_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_dispatch sls_dispatch_dispatch_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offer_status
-    ADD CONSTRAINT set_sat_teklif_durum_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_dispatch_no_key UNIQUE (dispatch_no);
 
 
 --
--- Name: sls_offer_status set_sat_teklif_durum_teklif_durum_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_dispatch sls_dispatch_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_offer_status
-    ADD CONSTRAINT set_sat_teklif_durum_teklif_durum_key UNIQUE (status_code);
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_invoice_detail sls_invoice_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_line_key UNIQUE (sls_invoice_id, line_no);
+
+
+--
+-- Name: sls_invoice_detail sls_invoice_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_invoice sls_invoice_invoice_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_invoice_no_key UNIQUE (invoice_no);
+
+
+--
+-- Name: sls_invoice sls_invoice_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_offer_detail sls_offer_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer_detail
+    ADD CONSTRAINT sls_offer_detail_line_key UNIQUE (sls_offer_id, line_no);
 
 
 --
@@ -8351,11 +8562,43 @@ ALTER TABLE ONLY public.sls_offer_detail
 
 
 --
+-- Name: sls_offer sls_offer_offer_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_offer_no_key UNIQUE (offer_no);
+
+
+--
+-- Name: sls_offer sls_offer_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_order_detail sls_order_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_order_detail
+    ADD CONSTRAINT sls_order_detail_line_key UNIQUE (sls_order_id, line_no);
+
+
+--
 -- Name: sls_order_detail sls_order_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_order_detail
     ADD CONSTRAINT sls_order_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_order sls_order_order_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_order
+    ADD CONSTRAINT sls_order_order_no_key UNIQUE (order_no);
 
 
 --
@@ -8508,6 +8751,22 @@ ALTER TABLE ONLY public.stk_transaction
 
 ALTER TABLE ONLY public.stk_transaction
     ADD CONSTRAINT stk_transaction_pur_receipt_detail_key UNIQUE (pur_receipt_detail_id);
+
+
+--
+-- Name: stk_transaction stk_transaction_sls_dispatch_detail_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_transaction
+    ADD CONSTRAINT stk_transaction_sls_dispatch_detail_key UNIQUE (sls_dispatch_detail_id);
+
+
+--
+-- Name: stk_transaction stk_transaction_sls_invoice_detail_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_transaction
+    ADD CONSTRAINT stk_transaction_sls_invoice_detail_key UNIQUE (sls_invoice_detail_id);
 
 
 --
@@ -9298,27 +9557,6 @@ CREATE INDEX idx_als_teklif_detaylari_header_id ON public.pur_offer_detail USING
 
 
 --
--- Name: idx_sat_siparis_detaylari_header_id; Type: INDEX; Schema: public; Owner: ths_admin
---
-
-CREATE INDEX idx_sat_siparis_detaylari_header_id ON public.sls_order_detail USING btree (header_id);
-
-
---
--- Name: idx_sat_siparis_musteri_kodu; Type: INDEX; Schema: public; Owner: ths_admin
---
-
-CREATE INDEX idx_sat_siparis_musteri_kodu ON public.sls_order USING btree (customer_code);
-
-
---
--- Name: idx_sat_teklif_detaylari_header_id; Type: INDEX; Schema: public; Owner: ths_admin
---
-
-CREATE INDEX idx_sat_teklif_detaylari_header_id ON public.sls_offer_detail USING btree (header_id);
-
-
---
 -- Name: prd_bom_by_product_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -9519,6 +9757,167 @@ CREATE INDEX pur_request_detail_stk_inventory_id_idx ON public.pur_request_detai
 --
 
 CREATE INDEX pur_request_emp_employee_id_idx ON public.pur_request USING btree (emp_employee_id);
+
+
+--
+-- Name: sls_dispatch_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_acc_account_id_idx ON public.sls_dispatch USING btree (acc_account_id);
+
+
+--
+-- Name: sls_dispatch_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_currency_idx ON public.sls_dispatch USING btree (currency);
+
+
+--
+-- Name: sls_dispatch_detail_dispatch_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_detail_dispatch_idx ON public.sls_dispatch_detail USING btree (sls_dispatch_id);
+
+
+--
+-- Name: sls_dispatch_detail_order_detail_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_detail_order_detail_idx ON public.sls_dispatch_detail USING btree (sls_order_detail_id);
+
+
+--
+-- Name: sls_dispatch_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_detail_stk_inventory_id_idx ON public.sls_dispatch_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: sls_dispatch_order_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_order_idx ON public.sls_dispatch USING btree (sls_order_id);
+
+
+--
+-- Name: sls_dispatch_stk_warehouse_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_stk_warehouse_id_idx ON public.sls_dispatch USING btree (stk_warehouse_id);
+
+
+--
+-- Name: sls_invoice_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_acc_account_id_idx ON public.sls_invoice USING btree (acc_account_id);
+
+
+--
+-- Name: sls_invoice_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_currency_idx ON public.sls_invoice USING btree (currency);
+
+
+--
+-- Name: sls_invoice_detail_dispatch_detail_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_detail_dispatch_detail_idx ON public.sls_invoice_detail USING btree (sls_dispatch_detail_id);
+
+
+--
+-- Name: sls_invoice_detail_order_detail_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_detail_order_detail_idx ON public.sls_invoice_detail USING btree (sls_order_detail_id);
+
+
+--
+-- Name: sls_invoice_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_detail_stk_inventory_id_idx ON public.sls_invoice_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: sls_invoice_stk_warehouse_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_stk_warehouse_id_idx ON public.sls_invoice USING btree (stk_warehouse_id);
+
+
+--
+-- Name: sls_offer_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_offer_acc_account_id_idx ON public.sls_offer USING btree (acc_account_id);
+
+
+--
+-- Name: sls_offer_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_offer_currency_idx ON public.sls_offer USING btree (currency);
+
+
+--
+-- Name: sls_offer_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_offer_detail_stk_inventory_id_idx ON public.sls_offer_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: sls_offer_emp_employee_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_offer_emp_employee_id_idx ON public.sls_offer USING btree (emp_employee_id);
+
+
+--
+-- Name: sls_order_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_order_acc_account_id_idx ON public.sls_order USING btree (acc_account_id);
+
+
+--
+-- Name: sls_order_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_order_currency_idx ON public.sls_order USING btree (currency);
+
+
+--
+-- Name: sls_order_detail_offer_detail_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_order_detail_offer_detail_idx ON public.sls_order_detail USING btree (sls_offer_detail_id);
+
+
+--
+-- Name: sls_order_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_order_detail_stk_inventory_id_idx ON public.sls_order_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: sls_order_emp_employee_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_order_emp_employee_id_idx ON public.sls_order USING btree (emp_employee_id);
+
+
+--
+-- Name: sls_order_stk_warehouse_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_order_stk_warehouse_id_idx ON public.sls_order USING btree (stk_warehouse_id);
 
 
 --
@@ -10044,6 +10443,62 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_request FOR
 --
 
 CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_request_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: sls_dispatch notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.sls_dispatch FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: sls_dispatch_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.sls_dispatch_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: sls_invoice notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.sls_invoice FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: sls_invoice_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.sls_invoice_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: sls_offer notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.sls_offer FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: sls_offer_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.sls_offer_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: sls_order notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.sls_order FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: sls_order_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.sls_order_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -11133,243 +11588,211 @@ ALTER TABLE ONLY public.pur_request
 
 
 --
--- Name: sls_invoice_detail sat_fatura_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_dispatch sls_dispatch_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_invoice_detail
-    ADD CONSTRAINT sat_fatura_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sls_invoice(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_dispatch_detail sat_irsaliye_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_dispatch sls_dispatch_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_dispatch_detail sls_dispatch_detail_dispatch_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_dispatch_detail
-    ADD CONSTRAINT sat_irsaliye_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sls_dispatch(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT sls_dispatch_detail_dispatch_fkey FOREIGN KEY (sls_dispatch_id) REFERENCES public.sls_dispatch(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: sls_order sat_siparisler_sehir_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_dispatch_detail sls_dispatch_detail_order_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sat_siparisler_sehir_id_fkey FOREIGN KEY (city_id) REFERENCES public.sys_city(id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: sls_order sat_siparisler_siparis_durum_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sat_siparisler_siparis_durum_id_fkey FOREIGN KEY (status_id) REFERENCES public.sls_order_status(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.sls_dispatch_detail
+    ADD CONSTRAINT sls_dispatch_detail_order_detail_fkey FOREIGN KEY (sls_order_detail_id) REFERENCES public.sls_order_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_order sat_siparisler_teslim_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_dispatch_detail sls_dispatch_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sat_siparisler_teslim_sekli_id_fkey FOREIGN KEY (delivery_method_id) REFERENCES public.einv_delivery_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_order sat_siparisler_ulke_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sat_siparisler_ulke_id_fkey FOREIGN KEY (country_id) REFERENCES public.sys_country(id) ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY public.sls_dispatch_detail
+    ADD CONSTRAINT sls_dispatch_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_offer_detail sat_teklif_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_dispatch sls_dispatch_order_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_order_fkey FOREIGN KEY (sls_order_id) REFERENCES public.sls_order(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_dispatch sls_dispatch_stk_warehouse_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_stk_warehouse_id_fkey FOREIGN KEY (stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice sls_invoice_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice sls_invoice_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice_detail sls_invoice_detail_dispatch_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_dispatch_detail_fkey FOREIGN KEY (sls_dispatch_detail_id) REFERENCES public.sls_dispatch_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice_detail sls_invoice_detail_invoice_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_invoice_fkey FOREIGN KEY (sls_invoice_id) REFERENCES public.sls_invoice(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sls_invoice_detail sls_invoice_detail_order_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_order_detail_fkey FOREIGN KEY (sls_order_detail_id) REFERENCES public.sls_order_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice_detail sls_invoice_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice sls_invoice_stk_warehouse_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_stk_warehouse_id_fkey FOREIGN KEY (stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer sls_offer_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer sls_offer_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer_detail sls_offer_detail_offer_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_offer_detail
-    ADD CONSTRAINT sat_teklif_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.sls_offer(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT sls_offer_detail_offer_fkey FOREIGN KEY (sls_offer_id) REFERENCES public.sls_offer(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: sls_offer_detail sat_teklif_detaylari_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer_detail
-    ADD CONSTRAINT sat_teklif_detaylari_stok_kodu_fkey FOREIGN KEY (stock_code) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_islem_tipi_id_fkey FOREIGN KEY (operation_type_id) REFERENCES public.einv_invoice_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_musteri_kodu_fkey FOREIGN KEY (customer_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_musteri_temsilcisi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_musteri_temsilcisi_id_fkey FOREIGN KEY (representative_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_nakliye_ucreti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_nakliye_ucreti_id_fkey FOREIGN KEY (transport_charge_id) REFERENCES public.einv_transport_price(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_odeme_sekli_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_odeme_sekli_id_fkey FOREIGN KEY (payment_method_id) REFERENCES public.einv_payment_method(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sat_teklifler_paket_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sat_teklifler_paket_tipi_id_fkey FOREIGN KEY (packet_type_id) REFERENCES public.einv_packet_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sls_offer_city_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sls_offer_city_id_fk FOREIGN KEY (city_id) REFERENCES public.sys_city(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sls_offer_country_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sls_offer_country_id_fk FOREIGN KEY (country_id) REFERENCES public.sys_country(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sls_offer_currency_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sls_offer_currency_code_fk FOREIGN KEY (currency_code) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer sls_offer_delivery_type_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_offer
-    ADD CONSTRAINT sls_offer_delivery_type_id_fk FOREIGN KEY (delivery_method_id) REFERENCES public.einv_delivery_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_offer_detail sls_offer_detail_uom_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_offer_detail sls_offer_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_offer_detail
-    ADD CONSTRAINT sls_offer_detail_uom_code_fk FOREIGN KEY (uom) REFERENCES public.sys_uom(unit_code) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sls_offer_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_order sls_order_currency_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_offer sls_offer_emp_employee_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_emp_employee_id_fkey FOREIGN KEY (emp_employee_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_order sls_order_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sls_order_currency_code_fk FOREIGN KEY (currency_code) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sls_order_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_order sls_order_customer_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_order sls_order_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sls_order_customer_code_fk FOREIGN KEY (customer_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sls_order_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_order_detail sls_order_detail_header_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_order_detail sls_order_detail_offer_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_order_detail
-    ADD CONSTRAINT sls_order_detail_header_id_fk FOREIGN KEY (header_id) REFERENCES public.sls_order(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT sls_order_detail_offer_detail_fkey FOREIGN KEY (sls_offer_detail_id) REFERENCES public.sls_offer_detail(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
--- Name: sls_order_detail sls_order_detail_ref_main_product_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_order_detail
-    ADD CONSTRAINT sls_order_detail_ref_main_product_id_fk FOREIGN KEY (referans_ana_urun_id) REFERENCES public.sls_order_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_order_detail sls_order_detail_sku_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_order_detail sls_order_detail_order_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_order_detail
-    ADD CONSTRAINT sls_order_detail_sku_fk FOREIGN KEY (stok_kodu) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT NOT VALID;
+    ADD CONSTRAINT sls_order_detail_order_fkey FOREIGN KEY (sls_order_id) REFERENCES public.sls_order(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: sls_order_detail sls_order_detail_uom_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_order_detail sls_order_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_order_detail
-    ADD CONSTRAINT sls_order_detail_uom_code_fk FOREIGN KEY (uom_code) REFERENCES public.sys_uom(unit_code) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sls_order_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_order sls_order_package_type_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sls_order_package_type_id_fk FOREIGN KEY (packet_type_id) REFERENCES public.einv_packet_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_order sls_order_payment_method_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_order sls_order_emp_employee_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sls_order_payment_method_id_fk FOREIGN KEY (payment_method_id) REFERENCES public.einv_payment_method(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sls_order_emp_employee_id_fkey FOREIGN KEY (emp_employee_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
--- Name: sls_order sls_order_representative_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sls_order_representative_id_fk FOREIGN KEY (customer_representative_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_order sls_order_shipping_cost_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: sls_order sls_order_stk_warehouse_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sls_order_shipping_cost_id_fk FOREIGN KEY (transport_charge_id) REFERENCES public.einv_transport_price(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: sls_order sls_order_trans_type_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.sls_order
-    ADD CONSTRAINT sls_order_trans_type_id_fk FOREIGN KEY (operation_type_id) REFERENCES public.einv_invoice_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT sls_order_stk_warehouse_id_fkey FOREIGN KEY (stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -11570,6 +11993,22 @@ ALTER TABLE ONLY public.stk_transaction
 
 ALTER TABLE ONLY public.stk_transaction
     ADD CONSTRAINT stk_transaction_pur_receipt_detail_fkey FOREIGN KEY (pur_receipt_detail_id) REFERENCES public.pur_receipt_detail(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: stk_transaction stk_transaction_sls_dispatch_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_transaction
+    ADD CONSTRAINT stk_transaction_sls_dispatch_detail_fkey FOREIGN KEY (sls_dispatch_detail_id) REFERENCES public.sls_dispatch_detail(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: stk_transaction stk_transaction_sls_invoice_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_transaction
+    ADD CONSTRAINT stk_transaction_sls_invoice_detail_fkey FOREIGN KEY (sls_invoice_detail_id) REFERENCES public.sls_invoice_detail(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -11996,5 +12435,5 @@ GRANT SELECT ON TABLE audit_remote.audit_log TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict OduRR1ZevJepEloM5MOig8GvUecTxzkK9No7hTc7UK8sQyk9VPU9inK7GwiTW9d
+\unrestrict SeZLeNS0uy4WP3v743yB7nakgauUSeGMFjAee8ouI0gYrzra5EKu3FYiiJT2VwS
 
