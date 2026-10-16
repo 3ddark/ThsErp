@@ -8,10 +8,13 @@ uses
   System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
+  // İrsaliye kalemi. İrsaliyenin Lines listesinde durum (yeni / kayıtlı / silinecek) TDetailEntity'den; başlığa tipli
+  // erişim SlsDispatch birimindeki class helper ile (Line.Header.DispatchNo)
   [Table('sls_dispatch_detail')]
-  TSlsDispatchDetail = class(TEntity)
+  TSlsDispatchDetail = class(TDetailEntity)
   private
     FSlsDispatchId: Int64;
+    FLineNo: SmallInt;
     FStkInventoryId: Int64;
     FQuantity: Currency;
     FUnitPrice: Currency;
@@ -25,7 +28,12 @@ type
     FInventoryName: string;
     FUomCode: string;
     FOrderNo: string;
+    FAmount: Currency;
+    FInvoicedQuantity: Currency;
   public
+    [Column('line_no')]
+    property LineNo: SmallInt read FLineNo write FLineNo;
+
     [Column('sls_dispatch_id')]
     [Required()]
     property SlsDispatchId: Int64 read FSlsDispatchId write FSlsDispatchId;
@@ -65,6 +73,14 @@ type
     [NotMapped]
     property OrderNo: string read FOrderNo write FOrderNo;
 
+    // miktar x net fiyat (view: amount); bellekte servis hesaplar
+    [NotMapped]
+    property Amount: Currency read FAmount write FAmount;
+
+    // faturalanan miktar (view: invoiced_quantity, fatura kalemlerinden)
+    [NotMapped]
+    property InvoicedQuantity: Currency read FInvoicedQuantity write FInvoicedQuantity;
+
     constructor Create(); override;
     destructor Destroy; override;
 
@@ -86,7 +102,12 @@ end;
 function TSlsDispatchDetail.Clone: TSlsDispatchDetail;
 begin
   Result := TSlsDispatchDetail.Create;
+  // başlık referansı kopyalanmaz (kopyayı sahiplenen başlık verir)
   Result.Id := Self.Id;
+  Result.Deleted := Self.Deleted;
+  Result.LineNo := Self.LineNo;
+  Result.Amount := Self.Amount;
+  Result.InvoicedQuantity := Self.InvoicedQuantity;
   Result.SlsDispatchId := Self.SlsDispatchId;
   Result.StkInventoryId := Self.StkInventoryId;
   Result.Quantity := Self.Quantity;

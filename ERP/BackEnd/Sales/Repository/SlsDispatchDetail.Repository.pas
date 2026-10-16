@@ -40,6 +40,11 @@ type
     function InvoicedQuantity(ADispatchDetailId: Int64; AExcludeInvoiceDetailId: Int64): Currency;
     function DeliveredQuantityOfOrderDetail(AOrderDetailId: Int64; AExcludeDispatchDetailId: Int64; AExcludeInvoiceDetailId: Int64): Currency;
     procedure UpsertStockTransaction(ADispatchDetailId: Int64);
+    function NextLineNo(AParentId: Int64): SmallInt;
+    // İrsaliye kalemlerinin irsaliyeleri (tekil)
+    function DispatchIdsOfDetails(const AIds: TArray<Int64>): TArray<Int64>;
+    // İrsaliye(ler)in kalemleri tek sorguda, irsaliye + satır no sırasıyla (belge yükleme)
+    function FindByDispatchIds(const ADispatchIds: TArray<Int64>): TObjectList<TSlsDispatchDetail>;
   end;
 
 implementation
@@ -47,6 +52,97 @@ implementation
 constructor TSlsDispatchDetailRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TSlsDispatchDetailRepository.DispatchIdsOfDetails(const AIds: TArray<Int64>): TArray<Int64>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+  n: Integer;
+begin
+  Result := nil;
+  LIds := '';
+  for LId in AIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT DISTINCT sls_dispatch_id FROM public.sls_dispatch_detail WHERE id IN (' + LIds + ')';
+    LogQuery(Q, 'DispatchIdsOfDetails');
+    Q.Open;
+    SetLength(Result, Q.RecordCount);
+    n := 0;
+    while not Q.Eof do
+    begin
+      Result[n] := Q.Fields[0].AsLargeInt;
+      Inc(n);
+      Q.Next;
+    end;
+    SetLength(Result, n);
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSlsDispatchDetailRepository.NextLineNo(AParentId: Int64): SmallInt;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT COALESCE(MAX(line_no), 0) + 1 AS v FROM public.sls_dispatch_detail WHERE sls_dispatch_id = :id';
+    Q.ParamByName('id').AsLargeInt := AParentId;
+    LogQuery(Q, 'NextLineNo');
+    Q.Open;
+    Result := Q.FieldByName('v').AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSlsDispatchDetailRepository.FindByDispatchIds(const ADispatchIds: TArray<Int64>): TObjectList<TSlsDispatchDetail>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TSlsDispatchDetail>.Create(True);
+  LIds := '';
+  for LId in ADispatchIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TSlsDispatchDetail) + ' v ' +
+                  ' WHERE v.sls_dispatch_id IN (' + LIds + ') ORDER BY v.sls_dispatch_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByDispatchIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
 end;
 
 function TSlsDispatchDetailRepository.InvoicedQuantity(ADispatchDetailId: Int64; AExcludeInvoiceDetailId: Int64): Currency;
@@ -118,14 +214,14 @@ end;
 function TSlsDispatchDetailRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSlsDispatchDetail) +
-            ' (sls_dispatch_id, stk_inventory_id, quantity, unit_price, sls_order_detail_id, description) ' +
-            ' VALUES (:sls_dispatch_id, :stk_inventory_id, :quantity, :unit_price, :sls_order_detail_id, :description)';
+            ' (sls_dispatch_id, line_no, stk_inventory_id, quantity, unit_price, sls_order_detail_id, description) ' +
+            ' VALUES (:sls_dispatch_id, :line_no, :stk_inventory_id, :quantity, :unit_price, :sls_order_detail_id, :description)';
 end;
 
 function TSlsDispatchDetailRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSlsDispatchDetail) +
-            ' SET sls_dispatch_id = :sls_dispatch_id, stk_inventory_id = :stk_inventory_id, quantity = :quantity, unit_price = :unit_price, sls_order_detail_id = :sls_order_detail_id, description = :description ' +
+            ' SET sls_dispatch_id = :sls_dispatch_id, line_no = :line_no, stk_inventory_id = :stk_inventory_id, quantity = :quantity, unit_price = :unit_price, sls_order_detail_id = :sls_order_detail_id, description = :description ' +
             ' WHERE id = :id';
 end;
 
@@ -140,12 +236,14 @@ procedure TSlsDispatchDetailRepository.SetInsertParams(Q: TFDQuery; AModel: TSls
 begin
   if AIndex < 0 then
   begin
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo;
     Q.ParamByName('quantity').AsBCD := AModel.Quantity;
     Q.ParamByName('unit_price').AsBCD := AModel.UnitPrice;
     Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
     Q.ParamByName('quantity').AsBCDs[AIndex] := AModel.Quantity;
     Q.ParamByName('unit_price').AsBCDs[AIndex] := AModel.UnitPrice;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
@@ -162,6 +260,7 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo;
     Q.ParamByName('quantity').AsBCD := AModel.Quantity;
     Q.ParamByName('unit_price').AsBCD := AModel.UnitPrice;
     Q.ParamByName('description').AsWideString := AModel.Description;
@@ -169,6 +268,7 @@ begin
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
     Q.ParamByName('quantity').AsBCDs[AIndex] := AModel.Quantity;
     Q.ParamByName('unit_price').AsBCDs[AIndex] := AModel.UnitPrice;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
@@ -184,6 +284,7 @@ begin
   Result := TSlsDispatchDetail.Create;
   Result.Id := Q.FieldByName('id').AsLargeInt;
   Result.SlsDispatchId := Q.FieldByName('sls_dispatch_id').AsLargeInt;
+  Result.LineNo := Q.FieldByName('line_no').AsInteger;
   Result.StkInventoryId := Q.FieldByName('stk_inventory_id').AsLargeInt;
   Result.Quantity := Q.FieldByName('quantity').AsCurrency;
   Result.UnitPrice := Q.FieldByName('unit_price').AsCurrency;
@@ -195,6 +296,8 @@ begin
   Result.InventoryName := Q.FieldByName('inventory_name').AsString;
   Result.UomCode := Q.FieldByName('uom_code').AsString;
   Result.OrderNo := Q.FieldByName('order_no').AsString;
+  Result.Amount := Q.FieldByName('amount').AsCurrency;
+  Result.InvoicedQuantity := Q.FieldByName('invoiced_quantity').AsCurrency;
 end;
 
 function TSlsDispatchDetailRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

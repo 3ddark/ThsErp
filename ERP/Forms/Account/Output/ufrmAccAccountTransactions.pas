@@ -41,7 +41,7 @@ uses
   FinPosTransaction, FinPosTransaction.Service, ufrmFinPosTransaction,
   FinCreditCardTransaction, FinCreditCardTransaction.Service, ufrmFinCreditCardTransaction,
   PurInvoice, PurInvoice.Service, ufrmPurInvoice,
-  SlsInvoice, SlsInvoice.Service, ufrmSlsInvoice;
+  SlsInvoice, SlsInvoice.Service, ufrmSlsInvoiceDetail;
 
 procedure TfrmAccAccountTransactions.SourceTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
 begin
@@ -153,7 +153,7 @@ begin
           LSlsInvoiceSvc.Free;
           raise;
         end;
-        TfrmSlsInvoice.Create(Self, LSlsInvoiceSvc, LSlsInvoice, ifmRewiev, Self.RefreshParentGrid, ivmNormal, True).Show;
+        TfrmSlsInvoiceDetail.Create(Self, LSlsInvoiceSvc, LSlsInvoice, ifmRewiev, Self.RefreshParentGrid, ivmNormal, True).Show;
       end;
   else
     raise EAccAccountTransactionExceptionUnknownSource.Create;

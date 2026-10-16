@@ -40,6 +40,8 @@ type
     function NextLineNo(AParentId: Int64): SmallInt;
     procedure UpsertStockTransaction(AInvoiceDetailId: Int64);
     procedure DeleteStockTransaction(AInvoiceDetailId: Int64);
+    // Fatura(lar)ın kalemleri tek sorguda, fatura + satır no sırasıyla (belge yükleme)
+    function FindByInvoiceIds(const AInvoiceIds: TArray<Int64>): TObjectList<TSlsInvoiceDetail>;
   end;
 
 implementation
@@ -47,6 +49,41 @@ implementation
 constructor TSlsInvoiceDetailRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TSlsInvoiceDetailRepository.FindByInvoiceIds(const AInvoiceIds: TArray<Int64>): TObjectList<TSlsInvoiceDetail>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TSlsInvoiceDetail>.Create(True);
+  LIds := '';
+  for LId in AInvoiceIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TSlsInvoiceDetail) + ' v ' +
+                  ' WHERE v.sls_invoice_id IN (' + LIds + ') ORDER BY v.sls_invoice_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByInvoiceIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
 end;
 
 function TSlsInvoiceDetailRepository.NextLineNo(AParentId: Int64): SmallInt;

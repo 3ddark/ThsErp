@@ -39,8 +39,8 @@ implementation
 
 uses
   SlsLookup,
-  ufrmSlsDispatches, ufrmSlsDispatchDetails, SlsDispatch, SlsDispatch.Service, SlsDispatchDetail, SlsDispatchDetail.Service,
-  ufrmSlsInvoiceDetails, SlsInvoice, SlsInvoice.Service, SlsInvoiceDetail, SlsInvoiceDetail.Service,
+  ufrmSlsDispatches, ufrmSlsDispatchDetail, SlsDispatch, SlsDispatch.Service,
+  ufrmSlsInvoiceDetail, SlsInvoice, SlsInvoice.Service,
   StkWarehouse, StkWarehouse.Service, ufrmStkWarehouses;
 
 procedure TfrmSlsOrders.StatusGetText(Sender: TField; var Text: string; DisplayText: Boolean);
@@ -108,13 +108,12 @@ begin
   end;
 end;
 
-// Kalan miktarlarla sevk irsaliyesi açılır (stok çıkışı) ve kalemleri gösterilir
+// Kalan miktarlarla sevk irsaliyesi oluşur (stok çıkışı) ve belge ekranında açılır
 procedure TfrmSlsOrders.mniToDispatchClick(Sender: TObject);
 var
   LDispatchSvc: TSlsDispatchService;
   LDispatch: TSlsDispatch;
   LWarehouseId, LDispatchId: Int64;
-  LFrm: TfrmSlsDispatchDetails;
 begin
   if Grd.DataSource.DataSet.IsEmpty then
     Exit;
@@ -127,27 +126,22 @@ begin
   LDispatchSvc := TSlsDispatchService.Create;
   try
     LDispatchId := LDispatchSvc.CreateFromOrder(Table.Id, LWarehouseId, True);
-    LDispatch := LDispatchSvc.FindById(LDispatchId, False);
-    try
-      LFrm := TfrmSlsDispatchDetails.Create(Self, TSlsDispatchDetailService.Create, TSlsDispatchDetail.Create);
-      LFrm.SetFixedDispatch(LDispatch.Id, LDispatch.DispatchNo);
-      LFrm.Show;
-    finally
-      LDispatch.Free;
-    end;
   finally
     LDispatchSvc.Free;
   end;
+  // oluşan irsaliye belge ekranında (inceleme; Güncelle ile kalemler düzenlenir)
+  LDispatchSvc := TSlsDispatchService.Create;
+  LDispatch := LDispatchSvc.FindById(LDispatchId, False, True);
+  TfrmSlsDispatchDetail.Create(Self, LDispatchSvc, LDispatch, ifmRewiev, nil, ivmNormal, True).Show;
   RefreshParentGrid(True);
 end;
 
-// Kalan miktarlarla irsaliyeli satış faturası açılır (stok faturadan düşer) ve kalemleri gösterilir
+// Kalan miktarlarla irsaliyeli satış faturası oluşur (stok faturadan düşer) ve belge ekranında açılır
 procedure TfrmSlsOrders.mniToInvoiceClick(Sender: TObject);
 var
   LInvoiceSvc: TSlsInvoiceService;
   LInvoice: TSlsInvoice;
   LWarehouseId, LInvoiceId: Int64;
-  LFrm: TfrmSlsInvoiceDetails;
 begin
   if Grd.DataSource.DataSet.IsEmpty then
     Exit;
@@ -160,17 +154,13 @@ begin
   LInvoiceSvc := TSlsInvoiceService.Create;
   try
     LInvoiceId := LInvoiceSvc.CreateFromOrder(Table.Id, LWarehouseId, True);
-    LInvoice := LInvoiceSvc.FindById(LInvoiceId, False);
-    try
-      LFrm := TfrmSlsInvoiceDetails.Create(Self, TSlsInvoiceDetailService.Create, TSlsInvoiceDetail.Create);
-      LFrm.SetFixedInvoice(LInvoice.Id, LInvoice.InvoiceNo, LInvoice.Currency);
-      LFrm.Show;
-    finally
-      LInvoice.Free;
-    end;
   finally
     LInvoiceSvc.Free;
   end;
+  // oluşan fatura belge ekranında (inceleme; Güncelle ile kalemler düzenlenir)
+  LInvoiceSvc := TSlsInvoiceService.Create;
+  LInvoice := LInvoiceSvc.FindById(LInvoiceId, False, True);
+  TfrmSlsInvoiceDetail.Create(Self, LInvoiceSvc, LInvoice, ifmRewiev, nil, ivmNormal, True).Show;
   RefreshParentGrid(True);
 end;
 

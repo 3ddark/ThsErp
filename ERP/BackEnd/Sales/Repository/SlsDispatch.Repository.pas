@@ -43,6 +43,8 @@ type
     procedure SyncStockTransactions(ADispatchId: Int64);
     function InventoryIdsOfDispatch(ADispatchId: Int64): TArray<Int64>;
     function GetDefaultCurrency: string;
+    // Durum faturalardan: kalemi olan ve tüm kalemleri tamamen faturalanmış irsaliye 2 (kapandı), değilse 1 (bekliyor)
+    procedure RefreshInvoiceStatus(ADispatchId: Int64);
   end;
 
 implementation
@@ -148,6 +150,29 @@ begin
   end;
 end;
 
+procedure TSlsDispatchRepository.RefreshInvoiceStatus(ADispatchId: Int64);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'UPDATE public.sls_dispatch p ' +
+                  '   SET status = CASE WHEN EXISTS (SELECT 1 FROM public.sls_dispatch_detail d WHERE d.sls_dispatch_id = p.id) ' +
+                  '                      AND NOT EXISTS (SELECT 1 FROM public.sls_dispatch_detail d ' +
+                  '                                       WHERE d.sls_dispatch_id = p.id ' +
+                  '                                         AND d.quantity > COALESCE((SELECT sum(i.quantity) FROM public.sls_invoice_detail i ' +
+                  '                                                                     WHERE i.sls_dispatch_detail_id = d.id), 0)) ' +
+                  '                     THEN 2 ELSE 1 END ' +
+                  ' WHERE p.id = :id';
+    Q.ParamByName('id').AsLargeInt := ADispatchId;
+    LogQuery(Q, 'RefreshInvoiceStatus');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TSlsDispatchRepository.GetDefaultCurrency: string;
 var
   Q: TFDQuery;
@@ -167,14 +192,14 @@ end;
 function TSlsDispatchRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSlsDispatch) +
-            ' (dispatch_no, dispatch_date, acc_account_id, stk_warehouse_id, sls_order_id, currency, description) ' +
-            ' VALUES (:dispatch_no, :dispatch_date, :acc_account_id, :stk_warehouse_id, :sls_order_id, :currency, :description)';
+            ' (dispatch_no, dispatch_date, acc_account_id, stk_warehouse_id, sls_order_id, currency, description, status) ' +
+            ' VALUES (:dispatch_no, :dispatch_date, :acc_account_id, :stk_warehouse_id, :sls_order_id, :currency, :description, :status)';
 end;
 
 function TSlsDispatchRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSlsDispatch) +
-            ' SET dispatch_no = :dispatch_no, dispatch_date = :dispatch_date, acc_account_id = :acc_account_id, stk_warehouse_id = :stk_warehouse_id, sls_order_id = :sls_order_id, currency = :currency, description = :description ' +
+            ' SET dispatch_no = :dispatch_no, dispatch_date = :dispatch_date, acc_account_id = :acc_account_id, stk_warehouse_id = :stk_warehouse_id, sls_order_id = :sls_order_id, currency = :currency, description = :description, status = :status ' +
             ' WHERE id = :id';
 end;
 
@@ -208,12 +233,14 @@ begin
     Q.ParamByName('dispatch_no').AsWideString := AModel.DispatchNo;
     Q.ParamByName('currency').AsWideString := AModel.Currency;
     Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('status').AsSmallInt := AModel.Status;
   end
   else
   begin
     Q.ParamByName('dispatch_no').AsWideStrings[AIndex] := AModel.DispatchNo;
     Q.ParamByName('currency').AsWideStrings[AIndex] := AModel.Currency;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('status').AsSmallInts[AIndex] := AModel.Status;
   end;
 
   SetDate('dispatch_date', AModel.DispatchDate);
@@ -247,6 +274,7 @@ begin
     Q.ParamByName('dispatch_no').AsWideString := AModel.DispatchNo;
     Q.ParamByName('currency').AsWideString := AModel.Currency;
     Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('status').AsSmallInt := AModel.Status;
   end
   else
   begin
@@ -254,6 +282,7 @@ begin
     Q.ParamByName('dispatch_no').AsWideStrings[AIndex] := AModel.DispatchNo;
     Q.ParamByName('currency').AsWideStrings[AIndex] := AModel.Currency;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('status').AsSmallInts[AIndex] := AModel.Status;
   end;
 
   SetDate('dispatch_date', AModel.DispatchDate);
@@ -280,6 +309,8 @@ begin
   Result.AccountName := Q.FieldByName('account_name').AsString;
   Result.WarehouseName := Q.FieldByName('warehouse_name').AsString;
   Result.OrderNo := Q.FieldByName('order_no').AsString;
+  Result.Status := Q.FieldByName('status').AsInteger;
+  Result.TotalAmount := Q.FieldByName('total_amount').AsCurrency;
 end;
 
 function TSlsDispatchRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

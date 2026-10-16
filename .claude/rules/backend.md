@@ -145,10 +145,13 @@ end;
 
 ## Documents (header + lines aggregate)
 
-Reference: `SlsOffer`, `SlsOrder` (`T{Header}.Lines`, `T{Header}Service = class(TDocumentService<T{Header}, T{Line}>)`,
-`{Line}.Repository.FindBy{Header}Ids`, integration tests `TestSalesOfferDocument` / `TestSalesOrderDocument`). User
-decisions 2026-10-16 (`docs/claude_resume.md`). Migrate other documents (sales dispatch / invoice, purchasing, voucher,
-production packets) to the same pattern.
+Reference: `SlsOffer`, `SlsOrder`, `SlsDispatch`, `SlsInvoice` (`T{Header}.Lines`, `T{Header}Service = class(TDocumentService<T{Header}, T{Line}>)`,
+`{Line}.Repository.FindBy{Header}Ids`). User
+decisions 2026-10-16 (`docs/claude_resume.md`); tests `TestSalesOfferDocument`, `TestSalesOrderDocument`,
+`TestSalesDispatchInvoiceDocument`. Migrate other documents (purchasing, voucher, production packets) to the same pattern.
+Limits that span lines (open order quantity, not yet invoiced dispatch quantity) are checked per document in `CheckLines`:
+sum of the document's active lines per linked line vs. linked quantity minus other documents (DB total minus this
+document's old lines).
 
 - **Base class `DocumentService.TDocumentService<TH, TL>`** (Core/Base) owns the document flow (CreateLine / AddLine /
   NewLine / RemoveLine / ActiveLines / Recalculate / PrepareCopy / LoadLines / Reload / BusinessSaveWithDetails). The

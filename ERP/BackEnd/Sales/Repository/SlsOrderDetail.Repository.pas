@@ -42,9 +42,50 @@ type
       out ADiscountRate, AVatRate: Currency): Boolean;
     // Sipariş(ler)in kalemleri tek sorguda, sipariş + satır no sırasıyla (belge yükleme)
     function FindByOrderIds(const AOrderIds: TArray<Int64>): TObjectList<TSlsOrderDetail>;
+    // Sipariş kalemlerinin siparişleri (tekil)
+    function OrderIdsOfDetails(const AIds: TArray<Int64>): TArray<Int64>;
   end;
 
 implementation
+
+function TSlsOrderDetailRepository.OrderIdsOfDetails(const AIds: TArray<Int64>): TArray<Int64>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+  n: Integer;
+begin
+  Result := nil;
+  LIds := '';
+  for LId in AIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT DISTINCT sls_order_id FROM public.sls_order_detail WHERE id IN (' + LIds + ')';
+    LogQuery(Q, 'OrderIdsOfDetails');
+    Q.Open;
+    SetLength(Result, Q.RecordCount);
+    n := 0;
+    while not Q.Eof do
+    begin
+      Result[n] := Q.Fields[0].AsLargeInt;
+      Inc(n);
+      Q.Next;
+    end;
+    SetLength(Result, n);
+  finally
+    Q.Free;
+  end;
+end;
 
 function TSlsOrderDetailRepository.FindByOrderIds(const AOrderIds: TArray<Int64>): TObjectList<TSlsOrderDetail>;
 var

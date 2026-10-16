@@ -1,8 +1,8 @@
 object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
   Left = 0
   Top = 0
-  Caption = 'Fatura Kalemi'
-  ClientHeight = 253
+  Caption = 'Sat'#305#351' Faturas'#305
+  ClientHeight = 620
   ClientWidth = 811
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,17 +16,17 @@ object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
     Left = 0
     Top = 0
     Width = 811
-    Height = 253
-    Align = alClient
+    Height = 170
+    Align = alTop
     TabOrder = 0
-    object lblSlsInvoiceId: TLabel
+    object lblInvoiceNo: TLabel
       Left = 4
       Top = 6
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Fatura'
+      Caption = 'Fatura No'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -34,22 +34,21 @@ object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtSlsInvoiceId: TEdit
+    object edtInvoiceNo: TEdit
       Left = 132
       Top = 2
       Width = 260
       Height = 22
-      ReadOnly = True
       TabOrder = 0
     end
-    object lblLineNo: TLabel
+    object lblInvoiceDate: TLabel
       Left = 4
       Top = 29
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'S'#305'ra No'
+      Caption = 'Fatura Tarihi'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -57,21 +56,21 @@ object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtLineNo: TEdit
+    object edtInvoiceDate: TEdit
       Left = 132
       Top = 25
       Width = 260
       Height = 22
       TabOrder = 1
     end
-    object lblStkInventoryId: TLabel
+    object lblAccAccountId: TLabel
       Left = 4
       Top = 52
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Stok Kart'#305
+      Caption = 'M'#252#351'teri'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -79,22 +78,21 @@ object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtStkInventoryId: TEdit
+    object edtAccAccountId: TEdit
       Left = 132
       Top = 48
       Width = 260
       Height = 22
-      ReadOnly = True
       TabOrder = 2
     end
-    object lblQuantity: TLabel
+    object lblDueDate: TLabel
       Left = 4
       Top = 75
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Miktar'
+      Caption = 'Vade Tarihi'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -102,21 +100,21 @@ object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtQuantity: TEdit
+    object edtDueDate: TEdit
       Left = 132
       Top = 71
       Width = 260
       Height = 22
       TabOrder = 3
     end
-    object lblUnitPrice: TLabel
+    object lblStkWarehouseId: TLabel
       Left = 4
       Top = 98
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Birim Fiyat'
+      Caption = 'Ambar'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -124,21 +122,21 @@ object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtUnitPrice: TEdit
+    object edtStkWarehouseId: TEdit
       Left = 132
       Top = 94
       Width = 260
       Height = 22
       TabOrder = 4
     end
-    object lblDiscountRate: TLabel
+    object lblCurrency: TLabel
       Left = 4
       Top = 121
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = #304'skonto (%)'
+      Caption = 'Para Birimi'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -146,21 +144,21 @@ object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtDiscountRate: TEdit
+    object edtCurrency: TEdit
       Left = 132
       Top = 117
       Width = 260
       Height = 22
       TabOrder = 5
     end
-    object lblVatRate: TLabel
+    object lblExchangeRate: TLabel
       Left = 4
       Top = 144
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'KDV (%)'
+      Caption = 'Kur'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -168,7 +166,7 @@ object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtVatRate: TEdit
+    object edtExchangeRate: TEdit
       Left = 132
       Top = 140
       Width = 260
@@ -176,8 +174,8 @@ object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
       TabOrder = 6
     end
     object lblDescription: TLabel
-      Left = 4
-      Top = 167
+      Left = 408
+      Top = 6
       Width = 124
       Height = 13
       Alignment = taRightJustify
@@ -191,132 +189,19 @@ object frmSlsInvoiceDetail: TfrmSlsInvoiceDetail
       ParentFont = False
     end
     object edtDescription: TEdit
-      Left = 132
-      Top = 163
-      Width = 260
-      Height = 22
-      MaxLength = 128
-      TabOrder = 7
-    end
-    object lblGrossAmount: TLabel
-      Left = 408
-      Top = 6
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'Br'#252't Tutar'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtGrossAmount: TEdit
       Left = 536
       Top = 2
       Width = 260
       Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 8
+      TabOrder = 7
     end
-    object lblDiscountAmount: TLabel
+    object pnlTotals: TPanel
       Left = 408
-      Top = 29
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = #304'skonto Tutar'#305
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtDiscountAmount: TEdit
-      Left = 536
       Top = 25
-      Width = 260
-      Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 9
-    end
-    object lblNetAmount: TLabel
-      Left = 408
-      Top = 52
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'Net Tutar'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtNetAmount: TEdit
-      Left = 536
-      Top = 48
-      Width = 260
-      Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 10
-    end
-    object lblVatAmount: TLabel
-      Left = 408
-      Top = 75
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'KDV Tutar'#305
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtVatAmount: TEdit
-      Left = 536
-      Top = 71
-      Width = 260
-      Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 11
-    end
-    object lblTotalAmount: TLabel
-      Left = 408
-      Top = 98
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'Genel Toplam'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtTotalAmount: TEdit
-      Left = 536
-      Top = 94
-      Width = 260
-      Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 12
+      Width = 395
+      Height = 112
+      BevelOuter = bvLowered
+      TabOrder = 8
     end
   end
 end

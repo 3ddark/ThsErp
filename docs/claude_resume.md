@@ -731,8 +731,41 @@ Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
 - e-İrsaliye ve e-Fatura gelecek; kullanıcı resmi dokümanları verecek. Fatura durum modeli ve e-belge alanları
   dokümanlarla birlikte tasarlanacak (şimdiden uydurulmayacak).
 
-- SONRAKİ: irsaliye + fatura (TDocumentService; kalem hook'u UpsertStockTransaction, belge hook'u stok özeti + sipariş
-  teslim miktarları; irsaliye durumu) — e-belge dokümanları gelince. Ardından üretim / reçete değerlendirmesi.
+- Commit e8c39e7 (ortak taban + sipariş) push edildi.
+
+İrsaliye + fatura belge (2026-10-16, kullanıcı: "sonraki adıma geç"; e-belge alanları hariç):
+- DB: `sls_dispatch.status` (1 bekliyor / 2 kapandı, CHECK, servis tutar), `sls_dispatch_detail.line_no` (mevcutlar id
+  sırasıyla, NOT NULL, UNIQUE deferrable), `sls_invoice_detail_line_key` deferrable; vw_sls_dispatch(+status),
+  vw_sls_dispatch_detail(+line_no) CREATE OR REPLACE (sona eklendi); sys_menu 600403 / 600404 pasif; dump'lar yenilendi.
+- Domain: TSlsDispatch.Lines / Status / TotalAmount, TSlsDispatchDetail(TDetailEntity) LineNo / Amount / InvoicedQuantity;
+  TSlsInvoice.Lines; helper'lar Header. SlsLookup SLS_DSP_WAITING / SLS_DSP_CLOSED + slkDispatchStatus.
+- Repo: FindByDispatchIds / FindByInvoiceIds, DispatchIdsOfDetails, OrderIdsOfDetails, DispatchIdsOfInvoice,
+  TSlsDispatchRepository.RefreshInvoiceStatus, dispatch NextLineNo.
+- Servis: TSlsDispatchService / TSlsInvoiceService = TDocumentService. İrsaliye: faturalanan kalem silinemez / azaltılamaz
+  / stoğu değişemez, sipariş kalemi irsaliyenin siparişine ait + aynı stok, açık sipariş miktarı belge içinde toplanarak;
+  kalem hook'u stok hareketi; belge hook'u stok özeti + sipariş sevk + irsaliye durumu. Fatura: KDV, kaynak (irsaliye xor
+  sipariş), irsaliyeli kalemde müşteri / stok / faturalanmamış miktar (belge içi toplam), irsaliyesizde ambar zorunlu +
+  sipariş müşteri / onay / açık miktar; kalem hook'u stok hareketi (irsaliyesiz) ya da silme; belge hook'u stok özeti +
+  sipariş sevk + irsaliye durumu; silmede irsaliye durumu. CreateFromOrder / CreateFromDispatch bellekte + aynı kayıt.
+  Tek kalem yolları (kalem servisleri) irsaliye durumunu da yeniler.
+- UI: ufrmSlsDispatch / ufrmSlsInvoice -> ufrmSls{Dispatch|Invoice}Detail (belge), eski kalem formları -> ...Line;
+  ufrmSls{Dispatch|Invoice}Details listeleri + dashboard actsls_{dispatch|invoice}_lines silindi; irsaliye listesinde durum
+  kolonu + hızlı filtre (Tümü / Bekleyenler / Kapananlar); sipariş / irsaliye listesindeki dönüşümler ve cari hareketler
+  "Detay Göster" belge ekranını açar. Yeni anahtarlar x4: sls_option.dsp_*, sls_dispatch.col_status / quick.*,
+  sls_dispatch_detail.col_line_no / line_unique.
+- Test: TestSalesDispatchInvoiceDocument (20 adım). Bulunan sorun: KDV kontrolü (814ce46) sonrası TestSales'teki 13 kural
+  testi yanlış nedenle (KDV) reddediliyordu — test verisi %20'ye çekildi, hepsi asıl kurala ulaşıyor. Paket 1615 / 0.
+  UI seed (Tests/Ui/seed.sql) irsaliye kalemine line_no + irsaliye durumu; fatura tohum kalemleri KDV %20 (tutarlar
+  tutarlı); UiDriver kopya karşılaştırmasında irsaliye `status` atlanır (servis tutar). UI tam koşu (temiz ths_erp_it)
+  1669 pass / 0 fail / 1 warn (bilinen PurRequests). Not: UiTest aynı ths_erp_it üzerinde ikinci kez koşulursa önceki
+  koşunun commit ettiği durum değişiklikleri yüzünden teklif / sipariş "update same values" düşer — her koşudan önce
+  build.sh (DB yeniden kurulur). Canlı ths_erp'te tanımsız KDV oranlı kalem yok (kontrol edildi).
+- Elle denenmedi (UI): irsaliye / fatura belge ekranlarında kalem ekle / aç / sil, durum gösterimi, dönüşümlerin açtığı
+  ekranlar, irsaliye listesi hızlı filtreleri. Bağlı irsaliyeli faturanın kopyası ambar seçilmeden kaydedilmez (tasarım:
+  kopya kalem stoktan düşer).
+
+- SONRAKİ: e-İrsaliye / e-Fatura (kullanıcının resmi dokümanları) — fatura durum modeli, e-belge alanları. Satınalma
+  belgeleri aynı kalıba. Üretim / reçete değerlendirmesi.
 - (eski not) Faz 3 — satış siparişi, sonra fatura (kalem hook'u: UpsertStockTransaction; belge hook'u: stok özeti +
   sipariş teslim miktarları).
 

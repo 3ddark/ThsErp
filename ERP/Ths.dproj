@@ -1016,9 +1016,6 @@
         <DCCReference Include="BackEnd\Sales\Exception\SlsDispatch.Exception.pas"/>
         <DCCReference Include="BackEnd\Sales\Repository\SlsDispatch.Repository.pas"/>
         <DCCReference Include="BackEnd\Sales\Service\SlsDispatch.Service.pas"/>
-        <DCCReference Include="Forms\Sales\Input\ufrmSlsDispatch.pas">
-            <Form>frmSlsDispatch</Form>
-        </DCCReference>
         <DCCReference Include="Forms\Sales\Output\ufrmSlsDispatches.pas">
             <Form>frmSlsDispatches</Form>
         </DCCReference>
@@ -1029,16 +1026,13 @@
         <DCCReference Include="Forms\Sales\Input\ufrmSlsDispatchDetail.pas">
             <Form>frmSlsDispatchDetail</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Sales\Output\ufrmSlsDispatchDetails.pas">
-            <Form>frmSlsDispatchDetails</Form>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsDispatchLine.pas">
+            <Form>frmSlsDispatchLine</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Sales\Domain\SlsInvoice.pas"/>
         <DCCReference Include="BackEnd\Sales\Exception\SlsInvoice.Exception.pas"/>
         <DCCReference Include="BackEnd\Sales\Repository\SlsInvoice.Repository.pas"/>
         <DCCReference Include="BackEnd\Sales\Service\SlsInvoice.Service.pas"/>
-        <DCCReference Include="Forms\Sales\Input\ufrmSlsInvoice.pas">
-            <Form>frmSlsInvoice</Form>
-        </DCCReference>
         <DCCReference Include="Forms\Sales\Output\ufrmSlsInvoices.pas">
             <Form>frmSlsInvoices</Form>
         </DCCReference>
@@ -1049,8 +1043,8 @@
         <DCCReference Include="Forms\Sales\Input\ufrmSlsInvoiceDetail.pas">
             <Form>frmSlsInvoiceDetail</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Sales\Output\ufrmSlsInvoiceDetails.pas">
-            <Form>frmSlsInvoiceDetails</Form>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsInvoiceLine.pas">
+            <Form>frmSlsInvoiceLine</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Production\Domain\PrdBom.pas"/>
         <DCCReference Include="BackEnd\Production\Exception\PrdBom.Exception.pas"/>

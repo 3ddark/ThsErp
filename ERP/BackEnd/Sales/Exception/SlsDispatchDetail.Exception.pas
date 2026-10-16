@@ -23,7 +23,17 @@ type
     class function GetMessage: string; override;
   end;
 
+  ESlsDispatchDetailExceptionLineUnique = class(ESlsDispatchDetailException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
 implementation
+
+class function ESlsDispatchDetailExceptionLineUnique.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsDispatchDetail.LineUnique, 'This line number already exists.');
+end;
 
 class function ESlsDispatchDetailExceptionInventoryMismatch.GetMessage: string;
 begin

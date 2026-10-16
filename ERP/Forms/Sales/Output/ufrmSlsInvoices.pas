@@ -8,16 +8,11 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
-  SlsInvoice.Service, SlsInvoice, ufrmSlsInvoice;
+  SlsInvoice.Service, SlsInvoice, ufrmSlsInvoiceDetail;
 
 type
   TfrmSlsInvoices = class(TfrmGrid<TSlsInvoice, TSlsInvoiceService>)
-  private
-    FmniLines: TMenuItem;
-    procedure mniLinesClick(Sender: TObject);
-
   public
-    procedure PreparePopupMenu; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
@@ -30,48 +25,17 @@ implementation
 {$R *.dfm}
 
 uses
-  SlsLookup,
-  ufrmSlsInvoiceDetails, SlsInvoiceDetail, SlsInvoiceDetail.Service;
+  SlsLookup;
 
-procedure TfrmSlsInvoices.mniLinesClick(Sender: TObject);
-var
-  LFrm: TfrmSlsInvoiceDetails;
-begin
-  if Grd.DataSource.DataSet.IsEmpty then
-    Exit;
-
-  SetSelectedItem;
-  LFrm := TfrmSlsInvoiceDetails.Create(Self, TSlsInvoiceDetailService.Create, TSlsInvoiceDetail.Create);
-  LFrm.SetFixedInvoice(Table.Id, Table.InvoiceNo, Table.Currency);
-  LFrm.Show;
-end;
-
-procedure TfrmSlsInvoices.PreparePopupMenu;
-begin
-  inherited;
-  if IsHelper then
-    Exit;
-
-  AddPopupMenuSpliter();
-  FmniLines := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.MenuLines, 'Lines'), 'mniLines', mniLinesClick);
-end;
-
+// Başlık + kalemler tek ekranda (TfrmSlsInvoiceDetail); Table = BusinessFindById ile kalemli belge, Clone derin kopya.
+// Kopya modunda form Service.PrepareCopy ile yeni numara / irsaliye-sipariş bağlantısız yeni kalemler hazırlar
 function TfrmSlsInvoices.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
-var
-  LNew: TSlsInvoice;
 begin
   Result := nil;
-  if (AFormMode = ifmRewiev) then
-    Result := TfrmSlsInvoice.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
+  if (AFormMode = ifmRewiev) or (AFormMode = ifmCopyNewRecord) then
+    Result := TfrmSlsInvoiceDetail.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmSlsInvoice.Create(Self, Service, TSlsInvoice.Create, AFormMode, Self.RefreshParentGrid)
-  else if (AFormMode = ifmCopyNewRecord) then
-  begin
-    LNew := Table.Clone;
-    // Kopya: yeni numara, tutarlar kalemlerden yeniden hesaplanır
-    LNew.InvoiceNo := '';
-    Result := TfrmSlsInvoice.Create(Self, Service, LNew, AFormMode, Self.RefreshParentGrid);
-  end;
+    Result := TfrmSlsInvoiceDetail.Create(Self, Service, TSlsInvoice.Create, AFormMode, Self.RefreshParentGrid);
 end;
 
 // Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)
@@ -130,8 +94,6 @@ begin
   SetColumnTitle('account_name', TLocalizationManager.Translate(TLangKeys.TSlsInvoice.ColAccountName, 'Customer'));
   SetColumnTitle('warehouse_name', TLocalizationManager.Translate(TLangKeys.TSlsInvoice.ColWarehouseName, 'Shipping Warehouse'));
   SetColumnTitle('line_count', TLocalizationManager.Translate(TLangKeys.TSlsInvoice.ColLineCount, 'Lines'));
-  if Assigned(FmniLines) then
-    FmniLines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.MenuLines, 'Lines');
 end;
 
 end.

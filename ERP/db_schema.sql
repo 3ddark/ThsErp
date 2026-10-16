@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict RuSgkxoYlGxPqHJHrHexvKPO3xZ639kcVIDglaOdEHfG4gKdgqjFer9Wdy6Nt4I
+\restrict W8B9ug0dn2uVv21fELVHCpmLhMv9nLrQM3SWSHeUXSlRnRQI2SJkara2LJ3YXQe
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -3016,7 +3016,9 @@ CREATE TABLE public.sls_dispatch (
     stk_warehouse_id bigint NOT NULL,
     sls_order_id bigint,
     currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
-    description character varying(256)
+    description character varying(256),
+    status smallint DEFAULT 1 NOT NULL,
+    CONSTRAINT sls_dispatch_status_check CHECK ((status = ANY (ARRAY[1, 2])))
 );
 
 
@@ -3034,6 +3036,7 @@ CREATE TABLE public.sls_dispatch_detail (
     unit_price numeric(18,6) DEFAULT 0 NOT NULL,
     sls_order_detail_id bigint,
     description character varying(128),
+    line_no smallint NOT NULL,
     CONSTRAINT sls_dispatch_detail_price_check CHECK ((unit_price >= (0)::numeric)),
     CONSTRAINT sls_dispatch_detail_quantity_check CHECK ((quantity > (0)::numeric))
 );
@@ -6361,7 +6364,8 @@ CREATE VIEW public.vw_sls_dispatch AS
     (( SELECT COALESCE(sum(round((d.quantity * d.unit_price), 2)), (0)::numeric) AS "coalesce"
            FROM public.sls_dispatch_detail d
           WHERE (d.sls_dispatch_id = p.id)))::numeric(18,2) AS total_amount,
-    p.description
+    p.description,
+    p.status
    FROM (((public.sls_dispatch p
      JOIN public.acc_account a ON ((a.id = p.acc_account_id)))
      JOIN public.stk_warehouse w ON ((w.id = p.stk_warehouse_id)))
@@ -6392,7 +6396,8 @@ CREATE VIEW public.vw_sls_dispatch_detail AS
     od.line_no AS order_line_no,
     (COALESCE(inv.invoiced_quantity, (0)::numeric))::numeric(18,6) AS invoiced_quantity,
     (GREATEST((d.quantity - COALESCE(inv.invoiced_quantity, (0)::numeric)), (0)::numeric))::numeric(18,6) AS remaining_invoice_quantity,
-    d.description
+    d.description,
+    d.line_no
    FROM ((((((public.sls_dispatch_detail d
      JOIN public.sls_dispatch p ON ((p.id = d.sls_dispatch_id)))
      JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
@@ -8490,6 +8495,14 @@ ALTER TABLE ONLY public.einv_delivery_type
 
 
 --
+-- Name: sls_dispatch_detail sls_dispatch_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch_detail
+    ADD CONSTRAINT sls_dispatch_detail_line_key UNIQUE (sls_dispatch_id, line_no) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
 -- Name: sls_dispatch_detail sls_dispatch_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -8518,7 +8531,7 @@ ALTER TABLE ONLY public.sls_dispatch
 --
 
 ALTER TABLE ONLY public.sls_invoice_detail
-    ADD CONSTRAINT sls_invoice_detail_line_key UNIQUE (sls_invoice_id, line_no);
+    ADD CONSTRAINT sls_invoice_detail_line_key UNIQUE (sls_invoice_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -12435,5 +12448,5 @@ GRANT SELECT ON TABLE audit_remote.audit_log TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict RuSgkxoYlGxPqHJHrHexvKPO3xZ639kcVIDglaOdEHfG4gKdgqjFer9Wdy6Nt4I
+\unrestrict W8B9ug0dn2uVv21fELVHCpmLhMv9nLrQM3SWSHeUXSlRnRQI2SJkara2LJ3YXQe
 

@@ -96,9 +96,7 @@ uses
   ufrmSlsOffers, SlsOffer.Service, SlsOffer,
   ufrmSlsOrders, SlsOrder.Service, SlsOrder,
   ufrmSlsDispatches, SlsDispatch.Service, SlsDispatch,
-  ufrmSlsDispatchDetails, SlsDispatchDetail.Service, SlsDispatchDetail,
   ufrmSlsInvoices, SlsInvoice.Service, SlsInvoice,
-  ufrmSlsInvoiceDetails, SlsInvoiceDetail.Service, SlsInvoiceDetail,
   ufrmFinCompanyBankAccounts, FinCompanyBankAccount.Service, FinCompanyBankAccount,
   ufrmAccAccountTransactions, AccAccountTransaction.Service, AccAccountTransaction,
   LocalizationManager;
@@ -165,9 +163,7 @@ type
     mnisls_offers: TMenuItem;
     mnisls_orders: TMenuItem;
     mnisls_dispatches: TMenuItem;
-    mnisls_dispatch_lines: TMenuItem;
     mnisls_invoices: TMenuItem;
-    mnisls_invoice_lines: TMenuItem;
     mnisls_sep1: TMenuItem;
     mnisls_sep2: TMenuItem;
     mnisls_sep3: TMenuItem;
@@ -209,9 +205,7 @@ type
     actsls_offers: TAction;
     actsls_orders: TAction;
     actsls_dispatches: TAction;
-    actsls_dispatch_lines: TAction;
     actsls_invoices: TAction;
-    actsls_invoice_lines: TAction;
     mnipur_requests: TMenuItem;
     mnipur_request_lines: TMenuItem;
     mnipur_sep1: TMenuItem;
@@ -417,9 +411,7 @@ type
     procedure actsls_offersExecute(Sender: TObject);
     procedure actsls_ordersExecute(Sender: TObject);
     procedure actsls_dispatchesExecute(Sender: TObject);
-    procedure actsls_dispatch_linesExecute(Sender: TObject);
     procedure actsls_invoicesExecute(Sender: TObject);
-    procedure actsls_invoice_linesExecute(Sender: TObject);
     procedure actfin_money_accountsExecute(Sender: TObject);
     procedure actfin_money_transactionsExecute(Sender: TObject);
     procedure actfin_money_ledgerExecute(Sender: TObject);
@@ -897,19 +889,9 @@ begin
   TfrmSlsDispatches.Create(Self, TSlsDispatchService.Create, TSlsDispatch.Create).Show;
 end;
 
-procedure TfrmDashboard.actsls_dispatch_linesExecute(Sender: TObject);
-begin
-  TfrmSlsDispatchDetails.Create(Self, TSlsDispatchDetailService.Create, TSlsDispatchDetail.Create).Show;
-end;
-
 procedure TfrmDashboard.actsls_invoicesExecute(Sender: TObject);
 begin
   TfrmSlsInvoices.Create(Self, TSlsInvoiceService.Create, TSlsInvoice.Create).Show;
-end;
-
-procedure TfrmDashboard.actsls_invoice_linesExecute(Sender: TObject);
-begin
-  TfrmSlsInvoiceDetails.Create(Self, TSlsInvoiceDetailService.Create, TSlsInvoiceDetail.Create).Show;
 end;
 
 procedure TfrmDashboard.actfin_money_accountsExecute(Sender: TObject);
@@ -1698,12 +1680,8 @@ begin
     actsls_orders.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOrder.TitlePlural, 'Sales Orders');
   if Assigned(actsls_dispatches) then
     actsls_dispatches.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.TitlePlural, 'Delivery Notes');
-  if Assigned(actsls_dispatch_lines) then
-    actsls_dispatch_lines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatchDetail.TitlePlural, 'Delivery Note Lines');
   if Assigned(actsls_invoices) then
     actsls_invoices.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.TitlePlural, 'Sales Invoices');
-  if Assigned(actsls_invoice_lines) then
-    actsls_invoice_lines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoiceDetail.TitlePlural, 'Invoice Lines');
   if Assigned(actfin_money_accounts) then
     actfin_money_accounts.Caption := TLocalizationManager.Translate(TLangKeys.TFinMoneyAccount.TitlePlural, 'Cash / Bank Accounts');
   if Assigned(actfin_money_transactions) then

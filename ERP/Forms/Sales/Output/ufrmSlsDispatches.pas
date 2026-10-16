@@ -8,15 +8,15 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
-  SlsDispatch.Service, SlsDispatch, ufrmSlsDispatch;
+  SlsDispatch.Service, SlsDispatch, ufrmSlsDispatchDetail;
 
 type
   TfrmSlsDispatches = class(TfrmGrid<TSlsDispatch, TSlsDispatchService>)
   private
     FFixedOrderName: string;
-    FmniLines, FmniToInvoice: TMenuItem;
-    procedure mniLinesClick(Sender: TObject);
+    FmniToInvoice: TMenuItem;
     procedure mniToInvoiceClick(Sender: TObject);
+    procedure StatusGetText(Sender: TField; var Text: string; DisplayText: Boolean);
 
   public
     procedure SetFixedOrder(AOrderId: Int64; const AOrderName: string);
@@ -34,8 +34,7 @@ implementation
 
 uses
   SlsLookup,
-  ufrmSlsDispatchDetails, SlsDispatchDetail, SlsDispatchDetail.Service,
-  ufrmSlsInvoiceDetails, SlsInvoice, SlsInvoice.Service, SlsInvoiceDetail, SlsInvoiceDetail.Service;
+  ufrmSlsInvoiceDetail, SlsInvoice, SlsInvoice.Service;
 
 procedure TfrmSlsDispatches.SetFixedOrder(AOrderId: Int64; const AOrderName: string);
 begin
@@ -43,26 +42,20 @@ begin
   AddFixedFilter('sls_order_id', AOrderId);
 end;
 
-procedure TfrmSlsDispatches.mniLinesClick(Sender: TObject);
-var
-  LFrm: TfrmSlsDispatchDetails;
+procedure TfrmSlsDispatches.StatusGetText(Sender: TField; var Text: string; DisplayText: Boolean);
 begin
-  if Grd.DataSource.DataSet.IsEmpty then
-    Exit;
-
-  SetSelectedItem;
-  LFrm := TfrmSlsDispatchDetails.Create(Self, TSlsDispatchDetailService.Create, TSlsDispatchDetail.Create);
-  LFrm.SetFixedDispatch(Table.Id, Table.DispatchNo);
-  LFrm.Show;
+  if Sender.IsNull then
+    Text := ''
+  else
+    Text := TSlsLookup.Text(slkDispatchStatus, Sender.AsInteger);
 end;
 
-// Faturalanmamış miktarlarla satış faturası açılır ve kalemleri gösterilir
+// Faturalanmamış miktarlarla satış faturası oluşur ve belge ekranında açılır
 procedure TfrmSlsDispatches.mniToInvoiceClick(Sender: TObject);
 var
   LInvoiceSvc: TSlsInvoiceService;
   LInvoice: TSlsInvoice;
   LInvoiceId: Int64;
-  LFrm: TfrmSlsInvoiceDetails;
 begin
   if Grd.DataSource.DataSet.IsEmpty then
     Exit;
@@ -71,17 +64,14 @@ begin
   LInvoiceSvc := TSlsInvoiceService.Create;
   try
     LInvoiceId := LInvoiceSvc.CreateFromDispatch(Table.Id, True);
-    LInvoice := LInvoiceSvc.FindById(LInvoiceId, False);
-    try
-      LFrm := TfrmSlsInvoiceDetails.Create(Self, TSlsInvoiceDetailService.Create, TSlsInvoiceDetail.Create);
-      LFrm.SetFixedInvoice(LInvoice.Id, LInvoice.InvoiceNo, LInvoice.Currency);
-      LFrm.Show;
-    finally
-      LInvoice.Free;
-    end;
   finally
     LInvoiceSvc.Free;
   end;
+  // oluşan fatura belge ekranında (inceleme; Güncelle ile kalemler düzenlenir)
+  LInvoiceSvc := TSlsInvoiceService.Create;
+  LInvoice := LInvoiceSvc.FindById(LInvoiceId, False, True);
+  TfrmSlsInvoiceDetail.Create(Self, LInvoiceSvc, LInvoice, ifmRewiev, nil, ivmNormal, True).Show;
+  RefreshParentGrid(True);
 end;
 
 procedure TfrmSlsDispatches.PreparePopupMenu;
@@ -91,28 +81,18 @@ begin
     Exit;
 
   AddPopupMenuSpliter();
-  FmniLines := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsDispatch.MenuLines, 'Lines'), 'mniLines', mniLinesClick);
   FmniToInvoice := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsDispatch.MenuToInvoice, 'Create Sales Invoice'), 'mniToInvoice', mniToInvoiceClick);
 end;
 
+// Başlık + kalemler tek ekranda (TfrmSlsDispatchDetail); Table = BusinessFindById ile kalemli belge, Clone derin kopya.
+// Kopya modunda form Service.PrepareCopy ile yeni numara / bekliyor / sipariş bağlantısız yeni kalemler hazırlar
 function TfrmSlsDispatches.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
-var
-  LNew: TSlsDispatch;
 begin
   Result := nil;
-  if (AFormMode = ifmRewiev) then
-    Result := TfrmSlsDispatch.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
+  if (AFormMode = ifmRewiev) or (AFormMode = ifmCopyNewRecord) then
+    Result := TfrmSlsDispatchDetail.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmSlsDispatch.Create(Self, Service, TSlsDispatch.Create, AFormMode, Self.RefreshParentGrid)
-  else if (AFormMode = ifmCopyNewRecord) then
-  begin
-    LNew := Table.Clone;
-    // Kopya: yeni numara, sipariş bağlantısı taşınmaz
-    LNew.DispatchNo := '';
-    LNew.SlsOrderId := 0;
-    LNew.OrderNo := '';
-    Result := TfrmSlsDispatch.Create(Self, Service, LNew, AFormMode, Self.RefreshParentGrid);
-  end;
+    Result := TfrmSlsDispatchDetail.Create(Self, Service, TSlsDispatch.Create, AFormMode, Self.RefreshParentGrid);
 end;
 
 // Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)
@@ -138,17 +118,29 @@ begin
 end;
 
 procedure TfrmSlsDispatches.DefineColumnWidths;
+var
+  LField: TField;
 begin
   inherited;
   SetColumnProperty('id', 0);
   SetColumnProperty('acc_account_id', 0);
   SetColumnProperty('stk_warehouse_id', 0);
   SetColumnProperty('sls_order_id', 0);
+  LField := Grd.DataSource.DataSet.FindField('status');
+  if Assigned(LField) then
+    LField.OnGetText := StatusGetText;
 
 end;
 
 procedure TfrmSlsDispatches.FormShow(Sender: TObject);
 begin
+  // Hızlı filtre: bekleyen (faturalanmamış) / kapanan (faturalanmış) irsaliyeler
+  if QuickFilterCount = 0 then
+  begin
+    AddQuickFilter('', '', []);
+    AddQuickFilter('', 'status = :qc0', [SLS_DSP_WAITING]);
+    AddQuickFilter('', 'status = :qc0', [SLS_DSP_CLOSED]);
+  end;
   inherited;
   mniDuplicate.Visible := True;
   ApplyLocalization;
@@ -157,6 +149,9 @@ end;
 procedure TfrmSlsDispatches.ApplyLocalization;
 begin
   inherited;
+  SetQuickFilterCaption(0, TLocalizationManager.Translate(TLangKeys.TGeneral.QuickAll, 'All'));
+  SetQuickFilterCaption(1, TLocalizationManager.Translate(TLangKeys.TSlsDispatch.QuickWaiting, 'Waiting'));
+  SetQuickFilterCaption(2, TLocalizationManager.Translate(TLangKeys.TSlsDispatch.QuickClosed, 'Closed'));
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.TitlePlural, 'Delivery Notes');
   if FFixedOrderName <> '' then
     Self.Caption := Self.Caption + ' - ' + FFixedOrderName;
@@ -170,8 +165,7 @@ begin
   SetColumnTitle('order_no', TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColOrderNo, 'Order No'));
   SetColumnTitle('line_count', TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColLineCount, 'Lines'));
   SetColumnTitle('total_amount', TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColTotalAmount, 'Total'));
-  if Assigned(FmniLines) then
-    FmniLines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.MenuLines, 'Lines');
+  SetColumnTitle('status', TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColStatus, 'Status'));
   if Assigned(FmniToInvoice) then
     FmniToInvoice.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.MenuToInvoice, 'Create Sales Invoice');
 end;

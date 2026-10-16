@@ -364,23 +364,11 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 93
       OnExecute = actsls_dispatchesExecute
     end
-    object actsls_dispatch_lines: TAction
-      Category = 'Satis'
-      Caption = #304'rsaliye Kalemleri'
-      ImageIndex = 93
-      OnExecute = actsls_dispatch_linesExecute
-    end
     object actsls_invoices: TAction
       Category = 'Satis'
       Caption = 'Sat'#305#351' Faturalar'#305
       ImageIndex = 93
       OnExecute = actsls_invoicesExecute
-    end
-    object actsls_invoice_lines: TAction
-      Category = 'Satis'
-      Caption = 'Fatura Kalemleri'
-      ImageIndex = 93
-      OnExecute = actsls_invoice_linesExecute
     end
     object actfin_money_accounts: TAction
       Category = 'Finans'
@@ -789,17 +777,11 @@ inherited frmDashboard: TfrmDashboard
       object mnisls_dispatches: TMenuItem
         Action = actsls_dispatches
       end
-      object mnisls_dispatch_lines: TMenuItem
-        Action = actsls_dispatch_lines
-      end
       object mnisls_sep3: TMenuItem
         Caption = '-'
       end
       object mnisls_invoices: TMenuItem
         Action = actsls_invoices
-      end
-      object mnisls_invoice_lines: TMenuItem
-        Action = actsls_invoice_lines
       end
     end
     object mnimenu_accounting: TMenuItem

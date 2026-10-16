@@ -112,18 +112,21 @@ UPDATE sls_order o SET gross_amount = s.g, discount_amount = s.d, net_amount = s
  WHERE s.sls_order_id = o.id;
 INSERT INTO sls_dispatch (dispatch_no, acc_account_id, stk_warehouse_id, sls_order_id)
 SELECT 'SI900001', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), (SELECT id FROM sls_order WHERE order_no = 'SS900002');
-INSERT INTO sls_dispatch_detail (sls_dispatch_id, stk_inventory_id, quantity, unit_price, sls_order_detail_id)
-SELECT (SELECT max(id) FROM sls_dispatch), d.stk_inventory_id, 5, 3, d.id FROM sls_order_detail d JOIN sls_order o ON o.id = d.sls_order_id WHERE o.order_no = 'SS900002';
+INSERT INTO sls_dispatch_detail (sls_dispatch_id, line_no, stk_inventory_id, quantity, unit_price, sls_order_detail_id)
+SELECT (SELECT max(id) FROM sls_dispatch), row_number() OVER (ORDER BY d.id), d.stk_inventory_id, 5, 3, d.id FROM sls_order_detail d JOIN sls_order o ON o.id = d.sls_order_id WHERE o.order_no = 'SS900002';
 INSERT INTO stk_transaction (transaction_type, stk_inventory_id, from_stk_warehouse_id, quantity, amount, transaction_date, description, sls_dispatch_detail_id)
 SELECT 2, d.stk_inventory_id, p.stk_warehouse_id, d.quantity, d.quantity * d.unit_price, p.dispatch_date, p.dispatch_no, d.id
   FROM sls_dispatch_detail d JOIN sls_dispatch p ON p.id = d.sls_dispatch_id;
-INSERT INTO sls_invoice (invoice_no, acc_account_id, gross_amount, net_amount, total_amount) SELECT 'SF900001', min(id), 15, 15, 15 FROM acc_account;
-INSERT INTO sls_invoice_detail (sls_invoice_id, line_no, stk_inventory_id, quantity, unit_price, gross_amount, net_amount, total_amount, sls_dispatch_detail_id)
-SELECT (SELECT max(id) FROM sls_invoice), 1, stk_inventory_id, 5, 3, 15, 15, 15, id FROM sls_dispatch_detail;
-INSERT INTO sls_invoice (invoice_no, acc_account_id, stk_warehouse_id, gross_amount, net_amount, total_amount)
-SELECT 'SF900002', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 6, 6, 6;
-INSERT INTO sls_invoice_detail (sls_invoice_id, line_no, stk_inventory_id, quantity, unit_price, gross_amount, net_amount, total_amount, sls_order_detail_id)
-SELECT (SELECT max(id) FROM sls_invoice), 1, d.stk_inventory_id, 2, 3, 6, 6, 6, d.id FROM sls_order_detail d JOIN sls_order o ON o.id = d.sls_order_id WHERE o.order_no = 'SS900002';
+-- KDV tanımlı oranlardan (acc_set_tax_rate; belge kaydı tanımsız oranı reddeder), tutarlar tutarlı
+INSERT INTO sls_invoice (invoice_no, acc_account_id, gross_amount, net_amount, vat_amount, total_amount) SELECT 'SF900001', min(id), 15, 15, 3, 18 FROM acc_account;
+INSERT INTO sls_invoice_detail (sls_invoice_id, line_no, stk_inventory_id, quantity, unit_price, vat_rate, gross_amount, net_amount, vat_amount, total_amount, sls_dispatch_detail_id)
+SELECT (SELECT max(id) FROM sls_invoice), 1, stk_inventory_id, 5, 3, 20, 15, 15, 3, 18, id FROM sls_dispatch_detail;
+-- irsaliye tamamen faturalandı: durum kapandı (servis tutar; tohumda elle)
+UPDATE sls_dispatch SET status = 2 WHERE dispatch_no = 'SI900001';
+INSERT INTO sls_invoice (invoice_no, acc_account_id, stk_warehouse_id, gross_amount, net_amount, vat_amount, total_amount)
+SELECT 'SF900002', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 6, 6, 1.2, 7.2;
+INSERT INTO sls_invoice_detail (sls_invoice_id, line_no, stk_inventory_id, quantity, unit_price, vat_rate, gross_amount, net_amount, vat_amount, total_amount, sls_order_detail_id)
+SELECT (SELECT max(id) FROM sls_invoice), 1, d.stk_inventory_id, 2, 3, 20, 6, 6, 1.2, 7.2, d.id FROM sls_order_detail d JOIN sls_order o ON o.id = d.sls_order_id WHERE o.order_no = 'SS900002';
 INSERT INTO stk_transaction (transaction_type, stk_inventory_id, from_stk_warehouse_id, quantity, amount, transaction_date, description, sls_invoice_detail_id)
 SELECT 2, d.stk_inventory_id, f.stk_warehouse_id, d.quantity, d.net_amount, f.invoice_date, f.invoice_no, d.id
   FROM sls_invoice_detail d JOIN sls_invoice f ON f.id = d.sls_invoice_id WHERE f.invoice_no = 'SF900002';

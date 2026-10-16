@@ -411,6 +411,8 @@ begin
       'request_no', 'order_no', 'receipt_no', 'line_no', 'gross_amount', 'discount_amount', 'net_amount', 'vat_amount', 'total_amount',
       'pur_request_detail_id', 'pur_order_id', 'pur_order_detail_id', 'pur_receipt_detail_id',
       'offer_no', 'dispatch_no', 'invoice_no', 'sls_offer_detail_id', 'sls_order_id', 'sls_order_detail_id', 'sls_dispatch_detail_id']) then Continue;
+    // irsaliye durumu servis tarafından faturalardan tutulur (kopya yeni, faturalanmamış irsaliyedir)
+    if AAllowMutated and (P.JsonString.Value = 'status') and (ASrc.GetValue('dispatch_no') <> nil) then Continue;
     VS := P.JsonValue.Value;
     if P.JsonValue is TJSONNull then VS := '<null>';
     NV := ANew.GetValue(P.JsonString.Value);

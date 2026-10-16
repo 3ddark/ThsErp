@@ -2588,6 +2588,7 @@ begin
   Result.StkInventoryId := AInv;
   Result.Quantity := AQty;
   Result.UnitPrice := APrice;
+  Result.VatRate := 20;   // tanımlı KDV oranı (acc_set_tax_rate)
   ASvc.BusinessInsert(Result, False, False, True);
 end;
 
@@ -2776,9 +2777,9 @@ begin
         begin
           X := NewOffer(FfSvc, Customer);
           try
-            NewOfferLine(FfDSvc, X.Id, Inv1, 1, 1, 0, 0).Free;
+            NewOfferLine(FfDSvc, X.Id, Inv1, 1, 1, 0, 20).Free;
             FfSvc.ChangeStatus(X.Id, SLS_OFF_SENT, True);
-            NewOfferLine(FfDSvc, X.Id, Inv3, 1, 1, 0, 0).Free;
+            NewOfferLine(FfDSvc, X.Id, Inv3, 1, 1, 0, 20).Free;
           finally X.Free; end;
         end);
       Begin_;
@@ -2787,7 +2788,7 @@ begin
         begin
           X := NewOffer(FfSvc, Customer);
           try
-            NewOfferLine(FfDSvc, X.Id, Inv1, 1, 1, 0, 0).Free;
+            NewOfferLine(FfDSvc, X.Id, Inv1, 1, 1, 0, 20).Free;
             OSvc.CreateFromOffer(X.Id, True);
           finally X.Free; end;
         end);
@@ -2866,7 +2867,7 @@ begin
           A := TSlsInvoice.Create; L := TSlsInvoiceDetail.Create;
           try
             A.AccAccountId := Customer; FSvc.BusinessInsert(A, False, False, True);
-            L.SlsInvoiceId := A.Id; L.StkInventoryId := Inv1; L.Quantity := 1; L.UnitPrice := 1;
+            L.SlsInvoiceId := A.Id; L.StkInventoryId := Inv1; L.Quantity := 1; L.UnitPrice := 1; L.VatRate := 20;
             FDSvc.BusinessInsert(L, False, False, True);
           finally A.Free; L.Free; end;
         end);
@@ -3232,6 +3233,168 @@ begin
   end;
 end;
 
+// İrsaliye + fatura belgeleri (TDocumentService): siparişten irsaliye (stok hareketi = kalem hook'u, siparişin sevk
+// miktarı + irsaliye durumu = belge hook'u), form dışı düzenleme, belge içi fazla sevk, irsaliyeden fatura (irsaliye
+// kapanır), faturalanan kalem kilidi, faturadan kalem çıkınca irsaliye yeniden bekler, irsaliyeli fatura (stok faturadan),
+// belge içi fazla faturalama, ambarsız stoklu fatura reddi. Commit yok: test transaction'ı geri alınır.
+procedure TestSalesDispatchInvoiceDocument;
+var
+  OffSvc: TSlsOfferService;
+  OrdSvc: TSlsOrderService;
+  DspSvc: TSlsDispatchService;
+  InvSvc: TSlsInvoiceService;
+  Off: TSlsOffer;
+  Dsp: TSlsDispatch;
+  Inv: TSlsInvoice;
+  L: TSlsOfferDetail;
+  DL: TSlsDispatchDetail;
+  IL: TSlsInvoiceDetail;
+  Inv1, Inv3, Customer, Wh, OrdId, DspId, InvId, OrdLine1, DspLine1: Int64;
+
+  function NewOrder(AQty1, AQty2: Currency): Int64;
+  var
+    LOff: TSlsOffer;
+    LLine: TSlsOfferDetail;
+  begin
+    LOff := TSlsOffer.Create;
+    try
+      LOff.AccAccountId := Customer;
+      LLine := OffSvc.NewLine(LOff); LLine.StkInventoryId := Inv1; LLine.Quantity := AQty1; LLine.UnitPrice := 10; LLine.VatRate := 20;
+      LLine := OffSvc.NewLine(LOff); LLine.StkInventoryId := Inv3; LLine.Quantity := AQty2; LLine.UnitPrice := 5; LLine.VatRate := 20;
+      OffSvc.BusinessSaveWithDetails(LOff, False, True);
+      OffSvc.ChangeStatus(LOff.Id, SLS_OFF_SENT, True);
+      Result := OrdSvc.CreateFromOffer(LOff.Id, True);
+      OrdSvc.ChangeStatus(Result, SLS_ORD_APPROVED, True);
+    finally
+      LOff.Free;
+    end;
+  end;
+
+  function Q(const ASql: string): Double;
+  begin
+    Result := Num(Scalar(ASql));
+  end;
+
+begin
+  Ctx('Sales', 'dispatch + invoice document');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Inv3 := Scalar('SELECT min(id) FROM stk_inventory WHERE id > ' + Inv1.ToString);
+  Customer := Scalar('SELECT min(id) FROM acc_account');
+  Wh := Scalar('SELECT min(id) FROM stk_warehouse');
+  OffSvc := TSlsOfferService.Create;
+  OrdSvc := TSlsOrderService.Create;
+  DspSvc := TSlsDispatchService.Create;
+  InvSvc := TSlsInvoiceService.Create;
+  Off := nil;
+  Dsp := nil;
+  Inv := nil;
+  try
+    try
+      Begin_;
+      // ---- sipariş 10 + 4 -> irsaliye (tamamı)
+      OrdId := NewOrder(10, 4);
+      OrdLine1 := Trunc(Q('SELECT id FROM sls_order_detail WHERE sls_order_id = ' + OrdId.ToString + ' AND line_no = 1'));
+      DspId := DspSvc.CreateFromOrder(OrdId, Wh, True);
+      Dsp := DspSvc.BusinessFindById(DspId, False, False, True);
+      Check('dispatch from order: lines, line no, header ref', Assigned(Dsp) and (Dsp.Lines.Count = 2) and
+        (Dsp.Lines[0].LineNo = 1) and (Dsp.Lines[1].LineNo = 2) and (Dsp.Lines[0].Header = Dsp));
+      Check('dispatch status waiting', Dsp.Status = SLS_DSP_WAITING);
+      Check('line hook: stock transactions', Q('SELECT count(*) FROM stk_transaction t JOIN sls_dispatch_detail d ON d.id = t.sls_dispatch_detail_id ' +
+        ' WHERE d.sls_dispatch_id = ' + DspId.ToString) = 2);
+      Check('document hook: order delivered', (Q('SELECT delivered_quantity FROM sls_order_detail WHERE id = ' + OrdLine1.ToString) = 10) and
+        (Q('SELECT status FROM sls_order WHERE id = ' + OrdId.ToString) = SLS_ORD_DELIVERED));
+      Check('dispatch total from lines', Near(Dsp.TotalAmount, 10 * 10 + 4 * 5));
+
+      // ---- form dışı: 1. kalem 10 -> 7 (stok hareketi + sevk miktarı izler, sipariş kısmi)
+      DspLine1 := Dsp.Lines[0].Id;
+      Dsp.Lines[0].Quantity := 7;
+      DspSvc.BusinessSaveWithDetails(Dsp, False, True);
+      Check('edit: stock tx follows', Q('SELECT quantity FROM stk_transaction WHERE sls_dispatch_detail_id = ' + DspLine1.ToString) = 7);
+      Check('edit: order partial', (Q('SELECT delivered_quantity FROM sls_order_detail WHERE id = ' + OrdLine1.ToString) = 7) and
+        (Q('SELECT status FROM sls_order WHERE id = ' + OrdId.ToString) = SLS_ORD_PARTIAL));
+
+      // ---- belge içi fazla sevk: aynı sipariş kalemine ikinci satır 3 + 1 > açık 3
+      DL := DspSvc.NewLine(Dsp); DL.StkInventoryId := Inv1; DL.Quantity := 4; DL.UnitPrice := 10; DL.SlsOrderDetailId := OrdLine1;
+      Expect('over-delivery across lines rejected', procedure begin DspSvc.BusinessSaveWithDetails(Dsp, False, True); end);
+      FreeAndNil(Dsp);
+
+      Begin_;
+      OrdId := NewOrder(10, 4);
+      DspId := DspSvc.CreateFromOrder(OrdId, Wh, True);
+      // ---- irsaliyeden fatura: irsaliye kapanır, fatura kalemi stok hareketi yazmaz
+      InvId := InvSvc.CreateFromDispatch(DspId, True);
+      Check('dispatch closed after invoice', Q('SELECT status FROM sls_dispatch WHERE id = ' + DspId.ToString) = SLS_DSP_CLOSED);
+      Check('dispatch-linked invoice lines: no stock tx', Q('SELECT count(*) FROM stk_transaction t JOIN sls_invoice_detail d ON d.id = t.sls_invoice_detail_id ' +
+        ' WHERE d.sls_invoice_id = ' + InvId.ToString) = 0);
+
+      // ---- faturalanan irsaliye kalemi azaltılamaz / silinemez
+      Dsp := DspSvc.BusinessFindById(DspId, False, False, True);
+      Check('dispatch line invoiced qty loaded', Dsp.Lines[0].InvoicedQuantity = 10);
+      Dsp.Lines[0].Quantity := 5;
+      Expect('invoiced line cannot be reduced', procedure begin DspSvc.BusinessSaveWithDetails(Dsp, False, True); end);
+      FreeAndNil(Dsp);
+
+      Begin_;
+      OrdId := NewOrder(10, 4);
+      DspId := DspSvc.CreateFromOrder(OrdId, Wh, True);
+      InvId := InvSvc.CreateFromDispatch(DspId, True);
+      Dsp := DspSvc.BusinessFindById(DspId, False, False, True);
+      DspSvc.RemoveLine(Dsp, Dsp.Lines[0]);
+      Expect('invoiced line cannot be deleted', procedure begin DspSvc.BusinessSaveWithDetails(Dsp, False, True); end);
+      FreeAndNil(Dsp);
+
+      Begin_;
+      OrdId := NewOrder(10, 4);
+      DspId := DspSvc.CreateFromOrder(OrdId, Wh, True);
+      InvId := InvSvc.CreateFromDispatch(DspId, True);
+      // ---- faturadan kalem çıkar: irsaliye yeniden bekler
+      Inv := InvSvc.BusinessFindById(InvId, False, False, True);
+      Check('invoice loads lines + header ref', (Inv.Lines.Count = 2) and (Inv.Lines[0].Header = Inv));
+      InvSvc.RemoveLine(Inv, Inv.Lines[1]);
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      Check('dispatch waiting again', Q('SELECT status FROM sls_dispatch WHERE id = ' + DspId.ToString) = SLS_DSP_WAITING);
+      Check('invoice totals: 10 x 10 +%20', Near(Q('SELECT total_amount FROM sls_invoice WHERE id = ' + InvId.ToString), 120));
+
+      // ---- belge içi fazla faturalama: aynı irsaliye kalemine ikinci satır
+      IL := InvSvc.NewLine(Inv); IL.StkInventoryId := Inv1; IL.Quantity := 1; IL.UnitPrice := 10; IL.VatRate := 20;
+      IL.SlsDispatchDetailId := Inv.Lines[0].SlsDispatchDetailId;
+      Expect('over-invoice across lines rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+
+      Begin_;
+      // ---- irsaliyeli fatura (siparişten): stok faturadan düşer, kalem silinince hareket ve sevk miktarı geri
+      OrdId := NewOrder(10, 4);
+      OrdLine1 := Trunc(Q('SELECT id FROM sls_order_detail WHERE sls_order_id = ' + OrdId.ToString + ' AND line_no = 1'));
+      InvId := InvSvc.CreateFromOrder(OrdId, Wh, True);
+      Inv := InvSvc.BusinessFindById(InvId, False, False, True);
+      Check('invoice from order: stock tx per line', Q('SELECT count(*) FROM stk_transaction t JOIN sls_invoice_detail d ON d.id = t.sls_invoice_detail_id ' +
+        ' WHERE d.sls_invoice_id = ' + InvId.ToString) = 2);
+      Inv.Lines[0].Quantity := 6;
+      InvSvc.RemoveLine(Inv, Inv.Lines[1]);
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      Check('invoice edit: stock tx + delivered follow', (Q('SELECT quantity FROM stk_transaction WHERE sls_invoice_detail_id = ' + Inv.Lines[0].Id.ToString) = 6) and
+        (Q('SELECT delivered_quantity FROM sls_order_detail WHERE id = ' + OrdLine1.ToString) = 6) and
+        (Q('SELECT count(*) FROM stk_transaction t JOIN sls_invoice_detail d ON d.id = t.sls_invoice_detail_id WHERE d.sls_invoice_id = ' + InvId.ToString) = 1));
+
+      // ---- stoklu (irsaliyesiz) kalem varken ambar boş olamaz
+      Inv.StkWarehouseId := 0;
+      Expect('stock line without warehouse rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+    except
+      on E: Exception do
+        Check('dispatch + invoice document flow', False, E.Message);
+    end;
+  finally
+    End_;
+    Inv.Free;
+    Dsp.Free;
+    Off.Free;
+    InvSvc.Free;
+    DspSvc.Free;
+    OrdSvc.Free;
+    OffSvc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -3252,6 +3415,7 @@ begin
   TestSales;
   TestSalesOfferDocument;
   TestSalesOrderDocument;
+  TestSalesDispatchInvoiceDocument;
   TestCompanyBankAccounts;
   TestAccountTransactions;
   TestDashboard;

@@ -23,15 +23,22 @@ type
     procedure DoUpdate(AEntity: TSlsInvoiceDetail);
     procedure DoDelete(AId: Int64);
 
-    procedure FailRequired(const AKey, ADefault: string);
-    procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+    class procedure FailRequired(const AKey, ADefault: string); static;
+    class procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string); static;
     procedure AfterWrite(AInvoiceId, AInventoryId, AOrderDetailId: Int64);
+    // irsaliyeli kalemin irsaliyesinin durumu (bekliyor / kapandı)
+    procedure RefreshDispatchStatus(ADispatchDetailId: Int64);
     procedure ValidateDispatchLink(AEntity: TSlsInvoiceDetail; AInvoice: TSlsInvoice);
     procedure ValidateOrderLink(AEntity: TSlsInvoiceDetail; AInvoice: TSlsInvoice; AOperation: TCrudOperation);
   public
     constructor Create;
     destructor Destroy; override;
 
+    // Kalemin kendi alanları (DB'siz): stok, miktar, fiyat, oranlar, kaynak (irsaliye xor sipariş) + tutarların hesabı.
+    // Tek kalem kaydı (ValidateBusinessRules) ve belge kaydı (TSlsInvoiceService.BusinessSaveWithDetails) ortak kullanır
+    class procedure CheckLine(AEntity: TSlsInvoiceDetail); static;
+    function GetVatRates: TArray<Currency>;
+    function GetUomCode(AInventoryId: Int64): string;
     procedure ValidateBusinessRules(AEntity: TSlsInvoiceDetail; AOperation: TCrudOperation); override;
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
       out ADiscountRate, AVatRate: Currency): Boolean;
@@ -56,7 +63,7 @@ type
 implementation
 
 uses
-  SysPermission.Service, SlsLookup;
+  SysPermission.Service, SlsLookup, SlsOfferDetail, SlsOfferDetail.Repository, SlsOfferDetail.Service;
 
 constructor TSlsInvoiceDetailService.Create;
 begin
@@ -77,14 +84,14 @@ begin
 end;
 
 // Alan adı + "zorunludur" mesajı
-procedure TSlsInvoiceDetailService.FailRequired(const AKey, ADefault: string);
+class procedure TSlsInvoiceDetailService.FailRequired(const AKey, ADefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
 end;
 
 // Alan adı + mesaj
-procedure TSlsInvoiceDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+class procedure TSlsInvoiceDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(AMsgKey, AMsgDefault));
@@ -174,19 +181,11 @@ begin
   end;
 end;
 
-procedure TSlsInvoiceDetailService.ValidateBusinessRules(AEntity: TSlsInvoiceDetail; AOperation: TCrudOperation);
+class procedure TSlsInvoiceDetailService.CheckLine(AEntity: TSlsInvoiceDetail);
 var
-  LInvoice: TSlsInvoice;
-  LFilter: TFilterCriteria;
-  LModel: TSlsInvoiceDetail;
   LGross, LDiscount, LNet, LVat, LTotal: Currency;
 begin
-  if AOperation = coDelete then
-    Exit;
-
   AEntity.Description := Trim(AEntity.Description);
-  if AEntity.SlsInvoiceId <= 0 then
-    FailRequired(TLangKeys.TSlsInvoiceDetail.ColSlsInvoiceId, 'Invoice');
   if AEntity.StkInventoryId <= 0 then
     FailRequired(TLangKeys.TSlsInvoiceDetail.ColStkInventoryId, 'Stock Card');
   if AEntity.Quantity <= 0 then
@@ -204,6 +203,41 @@ begin
   AEntity.TotalAmount := LTotal;
   if (AEntity.SlsDispatchDetailId > 0) and (AEntity.SlsOrderDetailId > 0) then
     raise ESlsInvoiceDetailExceptionSourceConflict.Create;
+end;
+
+function TSlsInvoiceDetailService.GetVatRates: TArray<Currency>;
+begin
+  Result := TSlsOfferDetailRepository(Self.UoW.GetRepository<TSlsOfferDetail, TSlsOfferDetailRepository>).GetVatRates;
+end;
+
+function TSlsInvoiceDetailService.GetUomCode(AInventoryId: Int64): string;
+begin
+  Result := TSlsOfferDetailRepository(Self.UoW.GetRepository<TSlsOfferDetail, TSlsOfferDetailRepository>).GetUomCode(AInventoryId);
+end;
+
+procedure TSlsInvoiceDetailService.RefreshDispatchStatus(ADispatchDetailId: Int64);
+var
+  LId: Int64;
+begin
+  if ADispatchDetailId <= 0 then
+    Exit;
+  for LId in TSlsDispatchDetailRepository(FDispatchDetailRepo).DispatchIdsOfDetails([ADispatchDetailId]) do
+    TSlsDispatchRepository(FDispatchRepo).RefreshInvoiceStatus(LId);
+end;
+
+procedure TSlsInvoiceDetailService.ValidateBusinessRules(AEntity: TSlsInvoiceDetail; AOperation: TCrudOperation);
+var
+  LInvoice: TSlsInvoice;
+  LFilter: TFilterCriteria;
+  LModel: TSlsInvoiceDetail;
+begin
+  if AOperation = coDelete then
+    Exit;
+
+  if AEntity.SlsInvoiceId <= 0 then
+    FailRequired(TLangKeys.TSlsInvoiceDetail.ColSlsInvoiceId, 'Invoice');
+  CheckLine(AEntity);
+  TSlsOfferDetailService.CheckVatRate(AEntity.VatRate, GetVatRates);
 
   LInvoice := FInvoiceRepo.FindById(AEntity.SlsInvoiceId, False);
   try
@@ -256,12 +290,13 @@ begin
     LInventoryId := AEntity.StkInventoryId;
   end;
   AfterWrite(AEntity.SlsInvoiceId, LInventoryId, AEntity.SlsOrderDetailId);
+  RefreshDispatchStatus(AEntity.SlsDispatchDetailId);
 end;
 
 procedure TSlsInvoiceDetailService.DoUpdate(AEntity: TSlsInvoiceDetail);
 var
   LOld: TSlsInvoiceDetail;
-  LOldInvoiceId, LOldInventoryId, LOldOrderDetailId: Int64;
+  LOldInvoiceId, LOldInventoryId, LOldOrderDetailId, LOldDispatchDetailId: Int64;
   LOldStockLine: Boolean;
 begin
   LOld := FRepo.FindById(AEntity.Id, False);
@@ -271,6 +306,7 @@ begin
     LOldInvoiceId := LOld.SlsInvoiceId;
     LOldInventoryId := LOld.StkInventoryId;
     LOldOrderDetailId := LOld.SlsOrderDetailId;
+    LOldDispatchDetailId := LOld.SlsDispatchDetailId;
     LOldStockLine := LOld.SlsDispatchDetailId <= 0;
   finally
     LOld.Free;
@@ -294,6 +330,9 @@ begin
     AfterWrite(0, LOldInventoryId, 0);
   if LOldOrderDetailId <> AEntity.SlsOrderDetailId then
     AfterWrite(0, 0, LOldOrderDetailId);
+  RefreshDispatchStatus(AEntity.SlsDispatchDetailId);
+  if LOldDispatchDetailId <> AEntity.SlsDispatchDetailId then
+    RefreshDispatchStatus(LOldDispatchDetailId);
 end;
 
 procedure TSlsInvoiceDetailService.DoDelete(AId: Int64);
@@ -313,6 +352,7 @@ begin
     if LEntity.SlsDispatchDetailId <= 0 then
       LInventoryId := LEntity.StkInventoryId;
     AfterWrite(LEntity.SlsInvoiceId, LInventoryId, LEntity.SlsOrderDetailId);
+    RefreshDispatchStatus(LEntity.SlsDispatchDetailId);
   finally
     LEntity.Free;
   end;

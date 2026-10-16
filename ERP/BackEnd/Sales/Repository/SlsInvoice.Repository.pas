@@ -44,6 +44,8 @@ type
     procedure SyncStockTransactions(AInvoiceId: Int64);
     function StockInventoryIdsOfInvoice(AInvoiceId: Int64): TArray<Int64>;
     function OrderIdsOfInvoice(AInvoiceId: Int64): TArray<Int64>;
+    // Faturanın irsaliyeli kalemlerinin irsaliyeleri (tekil; irsaliye durumu)
+    function DispatchIdsOfInvoice(AInvoiceId: Int64): TArray<Int64>;
     function GetDefaultCurrency: string;
   end;
 
@@ -188,6 +190,33 @@ begin
       Result := Result + [Q.Fields[0].AsLargeInt];
       Q.Next;
     end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSlsInvoiceRepository.DispatchIdsOfInvoice(AInvoiceId: Int64): TArray<Int64>;
+var
+  Q: TFDQuery;
+  n: Integer;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT DISTINCT dd.sls_dispatch_id FROM public.sls_invoice_detail i ' +
+                  '  JOIN public.sls_dispatch_detail dd ON dd.id = i.sls_dispatch_detail_id WHERE i.sls_invoice_id = :id';
+    Q.ParamByName('id').AsLargeInt := AInvoiceId;
+    LogQuery(Q, 'DispatchIdsOfInvoice');
+    Q.Open;
+    SetLength(Result, Q.RecordCount);
+    n := 0;
+    while not Q.Eof do
+    begin
+      Result[n] := Q.Fields[0].AsLargeInt;
+      Inc(n);
+      Q.Next;
+    end;
+    SetLength(Result, n);
   finally
     Q.Free;
   end;

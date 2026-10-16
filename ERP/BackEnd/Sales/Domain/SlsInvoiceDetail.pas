@@ -9,7 +9,9 @@ uses
 
 type
   [Table('sls_invoice_detail')]
-  TSlsInvoiceDetail = class(TEntity)
+  // Fatura kalemi. Faturanın Lines listesinde durum (yeni / kayıtlı / silinecek) TDetailEntity'den; başlığa tipli
+  // erişim SlsInvoice birimindeki class helper ile (Line.Header.InvoiceNo)
+  TSlsInvoiceDetail = class(TDetailEntity)
   private
     FSlsInvoiceId: Int64;
     FLineNo: SmallInt;
@@ -125,8 +127,10 @@ end;
 
 function TSlsInvoiceDetail.Clone: TSlsInvoiceDetail;
 begin
+  // başlık referansı kopyalanmaz (kopyayı sahiplenen başlık verir)
   Result := TSlsInvoiceDetail.Create;
   Result.Id := Self.Id;
+  Result.Deleted := Self.Deleted;
   Result.SlsInvoiceId := Self.SlsInvoiceId;
   Result.LineNo := Self.LineNo;
   Result.StkInventoryId := Self.StkInventoryId;

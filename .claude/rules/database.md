@@ -78,6 +78,10 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   transaction service refuses to change them (`IsSalesDocumentLinked`). An invoice line links either a delivery note line or an
   order line (CHECK). Service-maintained: `sls_offer_detail.ordered_quantity`, `sls_order_detail.delivered_quantity` (delivery
   note lines + invoice lines with an order link). Sales invoices are debits in `vw_acc_account_transaction` (source 6).
+  `sls_dispatch.status` is service-maintained (1 waiting = not fully invoiced, partial included; 2 closed = every line
+  fully invoiced; `TSlsDispatchRepository.RefreshInvoiceStatus`, called by dispatch and invoice saves / deletes);
+  `sls_dispatch_detail.line_no` (UNIQUE per dispatch, deferrable). Invoice status / e-Fatura and e-İrsaliye fields: pending
+  the official documents (user, 2026-10-16).
 - Company bank accounts (`fin_company_bank_account`): flags `show_on_cheque` / `show_on_note` / `show_on_print`; printouts read
   `vw_fin_company_bank_account.print_text` via `TFinCompanyBankAccountService.GetPrintLines(FIN_BANK_USAGE_*)`. Own (given)
   cheques / notes may reference one (`fin_cheque_note.fin_company_bank_account_id`, CHECK direction = 2); bank, account no and

@@ -2037,6 +2037,8 @@ type
         const OrdPartial = 'sls_option.ord_partial';
         const OrdDelivered = 'sls_option.ord_delivered';
         const OrdCancelled = 'sls_option.ord_cancelled';
+        const DspWaiting = 'sls_option.dsp_waiting';
+        const DspClosed = 'sls_option.dsp_closed';
       end;
 
       TSlsOffer = record
@@ -2216,6 +2218,9 @@ type
         const KeyFieldsLocked = 'sls_dispatch.key_fields_locked';
         const HasInvoices = 'sls_dispatch.has_invoices';
         const NothingToDispatch = 'sls_dispatch.nothing_to_dispatch';
+        const ColStatus = 'sls_dispatch.col_status';
+        const QuickWaiting = 'sls_dispatch.quick.waiting';
+        const QuickClosed = 'sls_dispatch.quick.closed';
       end;
 
       TSlsDispatchDetail = record
@@ -2241,6 +2246,8 @@ type
         const OrderMismatch = 'sls_dispatch_detail.order_mismatch';
         const Invoiced = 'sls_dispatch_detail.invoiced';
         const OverDelivery = 'sls_dispatch_detail.over_delivery';
+        const ColLineNo = 'sls_dispatch_detail.col_line_no';
+        const LineUnique = 'sls_dispatch_detail.line_unique';
       end;
 
       TSlsInvoice = record

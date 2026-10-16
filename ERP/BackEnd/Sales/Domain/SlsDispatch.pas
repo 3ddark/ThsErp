@@ -5,12 +5,14 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager, SlsDispatchDetail;
 
 type
   [Table('sls_dispatch')]
   TSlsDispatch = class(TEntity)
   private
+    // Kalemler (sahiplenir): servis yükler / yazar; durum TDetailEntity (Id işareti + Deleted)
+    FLines: TObjectList<TSlsDispatchDetail>;
     FDispatchNo: string;
     FDispatchDate: TDate;
     FAccAccountId: Int64;
@@ -18,8 +20,10 @@ type
     FSlsOrderId: Int64;
     FCurrency: string;
     FDescription: string;
+    FStatus: SmallInt;
 
     // View (vw_sls_dispatch) okunabilir alanları
+    FTotalAmount: Currency;
     FAccountCode: string;
     FAccountName: string;
     FWarehouseName: string;
@@ -52,6 +56,14 @@ type
     [MaxLength(256)]
     property Description: string read FDescription write FDescription;
 
+    // 1 bekliyor (tamamı faturalanmamış), 2 kapandı (tüm kalemler faturalandı); servis tutar
+    [Column('status')]
+    property Status: SmallInt read FStatus write FStatus;
+
+    // kalem tutarları toplamı (miktar x net fiyat); view'dan, bellekte servis hesaplar
+    [NotMapped]
+    property TotalAmount: Currency read FTotalAmount write FTotalAmount;
+
     [NotMapped]
     property AccountCode: string read FAccountCode write FAccountCode;
 
@@ -64,26 +76,58 @@ type
     [NotMapped]
     property OrderNo: string read FOrderNo write FOrderNo;
 
+    // Kolon değil (nesne özelliği): BusinessFindById ile dolar, BusinessSaveWithDetails ile yazılır
+    property Lines: TObjectList<TSlsDispatchDetail> read FLines;
+
     constructor Create(); override;
     destructor Destroy; override;
 
     function Clone: TSlsDispatch;
   end;
 
+  // Kalemden başlığa tipli erişim: Line.Header.DispatchNo (HeaderEntity zayıf referans, sahiplenmez)
+  TSlsDispatchDetailHelper = class helper for TSlsDispatchDetail
+  private
+    function GetHeader: TSlsDispatch;
+    procedure SetHeader(const Value: TSlsDispatch);
+  public
+    property Header: TSlsDispatch read GetHeader write SetHeader;
+  end;
+
 implementation
+
+{ TSlsDispatchDetailHelper }
+
+function TSlsDispatchDetailHelper.GetHeader: TSlsDispatch;
+begin
+  Result := TSlsDispatch(HeaderEntity);
+end;
+
+procedure TSlsDispatchDetailHelper.SetHeader(const Value: TSlsDispatch);
+begin
+  HeaderEntity := Value;
+end;
+
+{ TSlsDispatch }
 
 constructor TSlsDispatch.Create;
 begin
   inherited;
+  FLines := TObjectList<TSlsDispatchDetail>.Create(True);
   FDispatchDate := Date;
+  FStatus := 1;
 end;
 
 destructor TSlsDispatch.Destroy;
 begin
+  FLines.Free;
   inherited;
 end;
 
+// Kalemler dahil derin kopya; kopyanın kalemleri kopya başlığa bağlanır
 function TSlsDispatch.Clone: TSlsDispatch;
+var
+  LLine, LCopy: TSlsDispatchDetail;
 begin
   Result := TSlsDispatch.Create;
   Result.Id := Self.Id;
@@ -98,6 +142,14 @@ begin
   Result.AccountName := Self.AccountName;
   Result.WarehouseName := Self.WarehouseName;
   Result.OrderNo := Self.OrderNo;
+  Result.Status := Self.Status;
+  Result.TotalAmount := Self.TotalAmount;
+  for LLine in Self.FLines do
+  begin
+    LCopy := LLine.Clone;
+    LCopy.HeaderEntity := Result;
+    Result.FLines.Add(LCopy);
+  end;
 end;
 
 end.

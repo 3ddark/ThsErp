@@ -5,12 +5,14 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager, SlsInvoiceDetail;
 
 type
   [Table('sls_invoice')]
   TSlsInvoice = class(TEntity)
   private
+    // Kalemler (sahiplenir): servis yükler / yazar; durum TDetailEntity (Id işareti + Deleted)
+    FLines: TObjectList<TSlsInvoiceDetail>;
     FInvoiceNo: string;
     FInvoiceDate: TDate;
     FAccAccountId: Int64;
@@ -83,27 +85,58 @@ type
     [NotMapped]
     property WarehouseName: string read FWarehouseName write FWarehouseName;
 
+    // Kolon değil (nesne özelliği): BusinessFindById ile dolar, BusinessSaveWithDetails ile yazılır
+    property Lines: TObjectList<TSlsInvoiceDetail> read FLines;
+
     constructor Create(); override;
     destructor Destroy; override;
 
     function Clone: TSlsInvoice;
   end;
 
+  // Kalemden başlığa tipli erişim: Line.Header.InvoiceNo (HeaderEntity zayıf referans, sahiplenmez)
+  TSlsInvoiceDetailHelper = class helper for TSlsInvoiceDetail
+  private
+    function GetHeader: TSlsInvoice;
+    procedure SetHeader(const Value: TSlsInvoice);
+  public
+    property Header: TSlsInvoice read GetHeader write SetHeader;
+  end;
+
 implementation
+
+{ TSlsInvoiceDetailHelper }
+
+function TSlsInvoiceDetailHelper.GetHeader: TSlsInvoice;
+begin
+  Result := TSlsInvoice(HeaderEntity);
+end;
+
+procedure TSlsInvoiceDetailHelper.SetHeader(const Value: TSlsInvoice);
+begin
+  HeaderEntity := Value;
+end;
+
+{ TSlsInvoice }
 
 constructor TSlsInvoice.Create;
 begin
   inherited;
+  FLines := TObjectList<TSlsInvoiceDetail>.Create(True);
   FInvoiceDate := Date;
   FExchangeRate := 1;
 end;
 
 destructor TSlsInvoice.Destroy;
 begin
+  FLines.Free;
   inherited;
 end;
 
+// Kalemler dahil derin kopya; kopyanın kalemleri kopya başlığa bağlanır
 function TSlsInvoice.Clone: TSlsInvoice;
+var
+  LLine, LCopy: TSlsInvoiceDetail;
 begin
   Result := TSlsInvoice.Create;
   Result.Id := Self.Id;
@@ -123,6 +156,12 @@ begin
   Result.AccountCode := Self.AccountCode;
   Result.AccountName := Self.AccountName;
   Result.WarehouseName := Self.WarehouseName;
+  for LLine in Self.FLines do
+  begin
+    LCopy := LLine.Clone;
+    LCopy.HeaderEntity := Result;
+    Result.FLines.Add(LCopy);
+  end;
 end;
 
 end.

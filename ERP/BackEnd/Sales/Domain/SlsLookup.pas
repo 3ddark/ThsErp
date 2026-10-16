@@ -22,6 +22,10 @@ const
   SLS_ORD_DELIVERED = 4;  // tamamı sevk edildi (otomatik)
   SLS_ORD_CANCELLED = 5;  // iptal
 
+  // sls_dispatch.status (DB CHECK 1-2, servis tutar)
+  SLS_DSP_WAITING   = 1;  // bekliyor: tamamı faturalanmamış (kısmen faturalanan dahil)
+  SLS_DSP_CLOSED    = 2;  // kapandı: tüm kalemler faturalandı
+
   // belge numarası önekleri (+ 6 hane)
   SLS_PREFIX_OFFER    = 'ST';
   SLS_PREFIX_ORDER    = 'SS';
@@ -30,7 +34,7 @@ const
 
 type
   // DB'de smallint olarak saklanan sabit seçenekler (1 tabanlı; 0 = seçilmemiş)
-  TSlsLookupKind = (slkOfferStatus, slkOrderStatus);
+  TSlsLookupKind = (slkOfferStatus, slkOrderStatus, slkDispatchStatus);
 
   TSlsLookup = class
   public
@@ -65,6 +69,9 @@ begin
                  TLocalizationManager.Translate(TLangKeys.TSlsOption.OrdPartial, 'Partially Delivered'),
                  TLocalizationManager.Translate(TLangKeys.TSlsOption.OrdDelivered, 'Delivered'),
                  TLocalizationManager.Translate(TLangKeys.TSlsOption.OrdCancelled, 'Cancelled')];
+    slkDispatchStatus:
+      Result := [TLocalizationManager.Translate(TLangKeys.TSlsOption.DspWaiting, 'Waiting'),
+                 TLocalizationManager.Translate(TLangKeys.TSlsOption.DspClosed, 'Closed')];
   else
     Result := [];
   end;
