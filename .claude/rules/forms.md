@@ -26,6 +26,17 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
 
 - `TfrmGrid` builds itself with `CreateNew` — grid, datasource, panels, filter edit and buttons are created in code.
   The `.dfm` is a stub (form properties + `OnShow = FormShow`) and is **not** loaded at runtime; put nothing else in it.
+- **Layering:** `ufrmGrid.TfrmGrid<TE, TS>` is only the Service / Table bridge (constructor, `SetSelectedItem`,
+  `FillNotMappedFromDataSet`, `ShowInputForm`, hooks `CreateGridQuery` / `GetUoW` / `EntityClass` / `CurrentRecordId` /
+  `IsAuthorizedFor`). Everything type-independent lives once in the non-generic `ufrmGridBase.TfrmGridBase` (layout,
+  events, popup, filters, paging glue, status bar), which delegates to `Forms/Core/Base/Grid/`:
+  `Grid.Types` (TFooterColumn, TQuickFilter, THackDBGrid, `DB_STATUS_*`, `GRID_PAGE_*`, record-history hooks
+  `GRecordHistoryAvailable/Show`), `Grid.Sql` (pure SQL / filter builders: search, popup filter, ORDER BY split,
+  sort toggle, view name), `Grid.Paging` (TGridPager: base SQL + params, quick / search / filter conditions, page SQL,
+  totals, page of id; `GridPageSize`), `Grid.PagingBar`, `Grid.QuickFilter`, `Grid.Footer` (totals panel),
+  `Grid.Columns` (sys_grid_column / sys_user_grid_column layout, sys_grid_filter + sort, column states),
+  `Grid.Export` (Excel / CSV), `Grid.ColumnSelector`. New list behaviour goes into the matching `Grid.*` unit (or
+  `TfrmGridBase` when it is UI glue), never back into the generic class — generic code is compiled once per list form.
 - Constructor: `Create(AOwner, AService, ATable, ACreateNewBase = True, AUseHelper = False)`; the grid owns and frees
   service and table.
 - Overrides used by every list form: `CreateInputForm`, `DefineColumnWidths`, `FormShow`, `ApplyLocalization`.
@@ -35,7 +46,7 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
 - Read-only list (no input form): `CreateInputForm` returns nil and `BtnAdd` hidden; base `ShowInputForm` skips nil.
 - Record history: every `TfrmGrid` has a hidden popup item `mniRecordHistory` ("İşlem Geçmişi", Ctrl+H). `FormShow` shows
   it when the entity's table has the `audit` trigger and the user may read 1112 (hooks `GRecordHistoryAvailable` /
-  `GRecordHistoryShow` in `ufrmGrid`, assigned in `ufrmSysAuditLogs` initialization — ufrmGrid does not use that unit).
+  `GRecordHistoryShow` in `Grid.Types`, assigned in `ufrmSysAuditLogs` initialization — the grid does not use that unit).
   Nothing to do per form; the row must have an `id` field.
 - **Paging (server side, default on):** `FormShow` keeps the query body without `ORDER BY` (after `AddFixedFilter` +
   `sys_grid_filter` / `sys_grid_sort`) and every page is `body [+ AND search / popup filters] ORDER BY title sort, base

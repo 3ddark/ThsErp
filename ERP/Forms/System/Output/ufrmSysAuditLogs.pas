@@ -7,7 +7,7 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
-  ufrmGrid, SharedFormTypes, LocalizationManager,
+  ufrmGrid, Grid.Types, SharedFormTypes, LocalizationManager,
   SysAuditLog, SysAuditLog.Service;
 
 type

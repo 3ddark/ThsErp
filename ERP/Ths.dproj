@@ -256,6 +256,16 @@
         <DCCReference Include="BackEnd\Core\UserContext.pas"/>
         <DCCReference Include="BackEnd\Core\Ths.Language.Cache.pas"/>
         <DCCReference Include="BackEnd\Core\Core.Exception.pas"/>
+        <DCCReference Include="Forms\Core\Base\ufrmGridBase.pas"/>
+        <DCCReference Include="Forms\Core\Base\Grid\Grid.Types.pas"/>
+        <DCCReference Include="Forms\Core\Base\Grid\Grid.Sql.pas"/>
+        <DCCReference Include="Forms\Core\Base\Grid\Grid.Footer.pas"/>
+        <DCCReference Include="Forms\Core\Base\Grid\Grid.Columns.pas"/>
+        <DCCReference Include="Forms\Core\Base\Grid\Grid.Paging.pas"/>
+        <DCCReference Include="Forms\Core\Base\Grid\Grid.PagingBar.pas"/>
+        <DCCReference Include="Forms\Core\Base\Grid\Grid.QuickFilter.pas"/>
+        <DCCReference Include="Forms\Core\Base\Grid\Grid.Export.pas"/>
+        <DCCReference Include="Forms\Core\Base\Grid\Grid.ColumnSelector.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmGrid.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmInputSimpleDB.pas"/>
         <DCCReference Include="BackEnd\Core\Auth.Service.pas"/>

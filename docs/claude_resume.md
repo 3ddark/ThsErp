@@ -611,6 +611,24 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Sonraki olası işler: listeler varsayılan "Bekleyenler" ile açılsın mı (SelectQuickFilter), diğer belge listelerine
   (satınalma teklif/sipariş, irsaliye, fatura) hızlı filtre + toplam, toplamlarda kur çevrimi.
 
+## Ortam kurulumu NB61 (2026-10-16, PG18 5433)
+- ths_audit_writer rolü + ths_audit (tr-TR libc) oluşturuldu, ERP/audit.dump yüklendi (852 satır).
+- ths_erp DROP (FORCE) + CREATE (tr-TR libc) + ERP/db.dump (2026-10-15 23:45) restore; 119 tablo / 101 view.
+- audit_server portu 5432 geliyordu (bu PC'de 5432 = eski PG14) → `audit_configure('localhost', 5433, 'ths_audit')`.
+  Trigger → outbox → flush → vw_sys_audit_log rollback içinde doğrulandı. GlobalSettings.ini DBPortNo=5433 yapıldı (diğer makinede 5432 gerekir).
+- ths_erp_it (UI test DB'si) dokunulmadı; UI harness yeniden kurar.
+
+## ufrmGrid bölündü (2026-10-16, NB61)
+- TfrmGrid<TE, TS> (ufrmGrid, ~170 satır) artık yalnız Service / Table köprüsü; tipten bağımsız her şey generic olmayan
+  `ufrmGridBase.TfrmGridBase`'te, o da `Forms/Core/Base/Grid/Grid.{Types,Sql,Paging,PagingBar,QuickFilter,Footer,Columns,
+  Export,ColumnSelector}` birimlerine devreder (rules/forms.md "Layering"). Public API aynı; 93 liste formu değişmedi.
+- Yan düzeltmeler: LoadLayout kolon sıralamada kayan indeks yerine kolon nesnesi; Ctrl+başlık tıklaması boş sıralamada
+  da ekliyor; istemci modunda desteklenmeyen tipte boş filtre satırı eklenmiyor; footer'da alanı olmayan kolon AV'si yok;
+  ölü kod (getFilterEditData, RefreshDataFirst, OnFilterDataset, AutoPopulateSysGridFilter/Sort, yorum blokları) silindi;
+  ufrmGrid'deki UpperCaseTr/LowerCaseTr kopyaları kaldırıldı (Ths.Globals).
+- Win32 Debug kod boyutu 23,36 MB -> 16,88 MB. UI tam koşu 1749 pass / 0 fail / 1 warn (öncesiyle aynı).
+- SONRAKİ: generic Detaylar (master-detail) formu — kullanıcı tarif edecek.
+
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.
