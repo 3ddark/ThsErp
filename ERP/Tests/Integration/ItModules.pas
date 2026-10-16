@@ -9,7 +9,7 @@ implementation
 uses
   System.SysUtils, System.StrUtils, System.Math, System.DateUtils, System.Classes, System.Rtti, System.Variants, System.Generics.Collections,
   Data.DB, FireDAC.Comp.Client, SharedFormTypes, FilterCriterion,
-  UnitOfWork, AppContext, ItSpecific, DetailChanges,
+  UnitOfWork, AppContext, ItSpecific,
   StkLookup, StkTransaction, StkTransaction.Service, StkInventory, StkInventory.Service,
   StkCardKindInfo, StkCardKindInfo.Service,
   AccAccount, AccAccount.Service, AccAccountAddress, AccAccountAddress.Service,
@@ -2932,29 +2932,41 @@ begin
   end;
 end;
 
-// Başlık + kalemler tek kayıtta (TCrudService.BusinessSaveWithDetails + TDetailChanges): ekleme, yeniden okuma,
-// değiştir / sil / ekle, hatada geri alma. Commit yok (AWithCommit = False): test transaction'ı sonda geri alınır.
+// Teklif belgesi (başlık + Lines) form olmadan: TSlsOfferService NewLine / RemoveLine / Recalculate / PrepareCopy +
+// BusinessSaveWithDetails (tek transaction, DetailList durum modeli: Id > 0 güncelle, Deleted sil, Id < 0 ekle),
+// BusinessFindById kalemleri getirir, kayıt sonrası Reload. Commit yok (AWithCommit = False): test transaction'ı geri alınır.
 procedure TestSalesOfferDocument;
 var
   Svc: TSlsOfferService;
-  Lines: TDetailChanges<TSlsOfferDetail, TSlsOfferDetailService>;
-  Off: TSlsOffer;
-  L: TSlsOfferDetail;
+  Off, Copy: TSlsOffer;
+  L, LTemp: TSlsOfferDetail;
   Inv1, Inv3, Customer, OffId, Line1Id, Line2Id: Int64;
-  BadIdx: Integer;
+  LNo1, LNo2: SmallInt;
 
-  function NewLine(AInv: Int64; AQty, APrice: Currency): TSlsOfferDetail;
+  function AddL(AOffer: TSlsOffer; AInv: Int64; AQty, APrice: Currency): TSlsOfferDetail;
   begin
-    Result := TSlsOfferDetail.Create;
+    Result := Svc.NewLine(AOffer);
     Result.StkInventoryId := AInv;
     Result.Quantity := AQty;
     Result.UnitPrice := APrice;
     Result.VatRate := 20;
+    Svc.Recalculate(AOffer);
   end;
 
   function LineCount: Integer;
   begin
     Result := Trunc(Num(Scalar('SELECT count(*) FROM sls_offer_detail WHERE sls_offer_id = ' + OffId.ToString)));
+  end;
+
+  function DbTotal: Double;
+  begin
+    Result := Num(Scalar('SELECT total_amount FROM sls_offer WHERE id = ' + OffId.ToString));
+  end;
+
+  function NewOffer: TSlsOffer;
+  begin
+    Result := TSlsOffer.Create;
+    Result.AccAccountId := Customer;
   end;
 
 begin
@@ -2964,65 +2976,126 @@ begin
   Customer := Scalar('SELECT min(id) FROM acc_account');
   OffId := 0;
   Svc := TSlsOfferService.Create;
-  Lines := TDetailChanges<TSlsOfferDetail, TSlsOfferDetailService>.Create(TSlsOfferDetailService.Create,
-    procedure(ALine: TSlsOfferDetail; AMasterId: Int64)
-    begin
-      ALine.SlsOfferId := AMasterId;
-    end,
-    function(const A, B: TSlsOfferDetail): Integer
-    begin
-      Result := CompareValue(A.LineNo, B.LineNo);
-    end);
-  Off := TSlsOffer.Create;
+  Off := nil;
+  Copy := nil;
   try
     try
       Begin_;
-      // ---- yeni teklif + 2 kalem tek kayıtta: 10 x 2 +%20 = 24; 5 x 4 +%20 = 24
-      Off.AccAccountId := Customer;
-      Lines.Add(NewLine(Inv1, 10, 2));
-      Lines.Add(NewLine(Inv3, 5, 4));
-      Svc.BusinessSaveWithDetails(Off, [Lines], False, True);
+      // ---- yeni teklif + 2 kalem bellekte: 10 x 2 +%20 = 24; 5 x 4 +%20 = 24
+      Off := NewOffer;
+      AddL(Off, Inv1, 10, 2);
+      L := AddL(Off, Inv3, 5, 4);
+      Check('new lines: temp ids, line no, header ref', (Off.Lines[0].Id = -1) and (Off.Lines[1].Id = -2) and
+        (Off.Lines[0].LineNo = 1) and (Off.Lines[1].LineNo = 2) and (L.Header = Off));
+      Check('in-memory totals', Near(Off.TotalAmount, 48) and Near(Off.NetAmount, 40) and Near(Off.VatAmount, 8));
+      LTemp := AddL(Off, Inv1, 1, 1);
+      Svc.RemoveLine(Off, LTemp);   // yeni kalem: listeden çıkar, DB'ye gitmez
+      Check('remove new line: dropped from list', (Off.Lines.Count = 2) and Near(Off.TotalAmount, 48));
+
+      Svc.BusinessSaveWithDetails(Off, False, True);
       OffId := Off.Id;
       Check('insert header + lines', (OffId > 0) and (LineCount = 2), OffId.ToString);
-      Check('new line ids + master id', (Lines[0].Id > 0) and (Lines[1].Id > 0) and (Lines[0].SlsOfferId = OffId));
-      Check('header totals from lines', Near(Num(Scalar('SELECT total_amount FROM sls_offer WHERE id = ' + OffId.ToString)), 48));
-      Check('changes accepted', not Lines.HasChanges);
+      Check('reload: real ids, master id, view fields', (Off.Lines.Count = 2) and (Off.Lines[0].Id > 0) and
+        (Off.Lines[1].Id > 0) and (Off.Lines[0].SlsOfferId = OffId) and (Off.Lines[0].InventoryCode <> '') and
+        (Off.Lines[0].Header = Off));
+      Check('header totals from lines (DB)', Near(DbTotal, 48));
       Check('no commit (AWithCommit = False)', UoW.InTransaction);
+      FreeAndNil(Off);
 
-      // ---- yeniden oku; 1. kalem değişir, 2. silinir, yeni kalem eklenir (1 x 10 +%20 = 12)
-      Lines.Load('sls_offer_id', OffId);
-      Check('load lines (ordered by line no)', (Lines.Count = 2) and (Lines[0].LineNo < Lines[1].LineNo) and not Lines.HasChanges);
-      Line1Id := Lines[0].Id;
-      Line2Id := Lines[1].Id;
-      L := Lines.Service.FindById(Line1Id, False);
-      L.Quantity := 20;
-      Lines.Replace(0, L);
-      Lines.Delete(1);
-      Lines.Add(NewLine(Inv3, 1, 10));
-      Check('changes tracked', Lines.HasChanges and (Lines.DeletedIds.Count = 1) and
-        (Lines.States[0] = drsModified) and (Lines.States[1] = drsNew));
+      // ---- form dışı: oku (kalemler gelir) -> 1. kalem değişir, 2. silinir, yeni kalem eklenir (1 x 10 +%20 = 12)
+      Off := Svc.BusinessFindById(OffId, False, False, True);
+      Check('BusinessFindById loads lines (line no order)', Assigned(Off) and (Off.Lines.Count = 2) and
+        (Off.Lines[0].LineNo < Off.Lines[1].LineNo) and (Off.Lines[1].Header.OfferNo = Off.OfferNo));
+      Line1Id := Off.Lines[0].Id;
+      Line2Id := Off.Lines[1].Id;
+      Off.Lines[0].Quantity := 20;
+      Svc.RemoveLine(Off, Off.Lines[1]);
+      Check('remove saved line: marked deleted', Off.Lines[1].Deleted and (Off.Lines.Count = 2));
+      AddL(Off, Inv3, 1, 10);
+      Check('recalculated (deleted line excluded)', Near(Off.TotalAmount, 48 + 12));
       Off.Description := 'IT DOCUMENT';
-      Svc.BusinessSaveWithDetails(Off, [Lines], False, True);
+      Svc.BusinessSaveWithDetails(Off, False, True);
       Check('update: line count', LineCount = 2);
-      Check('modified line keeps id', (Lines[0].Id = Line1Id) and
-        Near(Num(Scalar('SELECT quantity FROM sls_offer_detail WHERE id = ' + Line1Id.ToString)), 20));
+      Check('modified line keeps id', Near(Num(Scalar('SELECT quantity FROM sls_offer_detail WHERE id = ' + Line1Id.ToString)), 20));
       Check('deleted line removed', Num(Scalar('SELECT count(*) FROM sls_offer_detail WHERE id = ' + Line2Id.ToString)) = 0);
-      Check('header updated + totals recalculated', (S(Scalar('SELECT description FROM sls_offer WHERE id = ' + OffId.ToString)) = 'IT DOCUMENT') and
-        Near(Num(Scalar('SELECT total_amount FROM sls_offer WHERE id = ' + OffId.ToString)), 48 + 12));
+      Check('header updated + totals', (S(Scalar('SELECT description FROM sls_offer WHERE id = ' + OffId.ToString)) = 'IT DOCUMENT') and
+        Near(DbTotal, 48 + 12));
+      Check('reload: deleted gone, new line has id', (Off.Lines.Count = 2) and not Off.Lines[0].Deleted and
+        not Off.Lines[1].Deleted and (Off.Lines[1].Id > 0));
 
-      // ---- geçersiz kalem (miktar 0): tümü geri alınır, yeni kalemin id'si 0'a döner
-      BadIdx := Lines.Add(NewLine(Inv1, 0, 1));
-      Expect('invalid line rejected', procedure begin Svc.BusinessSaveWithDetails(Off, [Lines], False, True); end);
-      Check('failed save: new line id reverted', Lines[BadIdx].Id = 0);
+      // ---- satır no takası (UNIQUE (sls_offer_id, line_no) commit'te kontrol edilir)
+      LNo1 := Off.Lines[0].LineNo;
+      LNo2 := Off.Lines[1].LineNo;
+      Off.Lines[0].LineNo := LNo2;
+      Off.Lines[1].LineNo := LNo1;
+      Svc.BusinessSaveWithDetails(Off, False, True);
+      UoW.Connection.ExecSQL('SET CONSTRAINTS sls_offer_detail_line_key IMMEDIATE');
+      Check('line no swap saved', Near(Num(Scalar('SELECT line_no FROM sls_offer_detail WHERE id = ' + Line1Id.ToString)), LNo2));
+      UoW.Connection.ExecSQL('SET CONSTRAINTS sls_offer_detail_line_key DEFERRED');
+
+      // ---- aynı satır no iki kalemde: servis reddeder (DB'ye gitmeden)
+      Off.Lines[1].LineNo := Off.Lines[0].LineNo;
+      Expect('duplicate line no rejected', procedure begin Svc.BusinessSaveWithDetails(Off, False, True); end);
+      Check('rejected save: rolled back', not UoW.InTransaction);
+      FreeAndNil(Off);
+
+      // ---- geçersiz kalem (miktar 0): tümü geri alınır, yeni kalem geçici id'sine, silinen işareti korunur
+      Begin_;
+      Off := NewOffer;
+      AddL(Off, Inv1, 2, 5);
+      Svc.BusinessSaveWithDetails(Off, False, True);
+      OffId := Off.Id;
+      Svc.RemoveLine(Off, Off.Lines[0]);
+      LTemp := AddL(Off, Inv3, 0, 1);
+      Expect('invalid line rejected', procedure begin Svc.BusinessSaveWithDetails(Off, False, True); end);
+      Check('failed save: temp id restored, deleted kept', (LTemp.Id < 0) and Off.Lines[0].Deleted and (Off.Id = OffId));
       Check('failed save: transaction rolled back', not UoW.InTransaction);
+      FreeAndNil(Off);
+
+      // ---- tanımsız KDV oranı (acc_set_tax_rate'te 17 yok) reddedilir
+      Begin_;
+      Off := NewOffer;
+      AddL(Off, Inv1, 1, 1).VatRate := 17;
+      Expect('undefined VAT rate rejected', procedure begin Svc.BusinessSaveWithDetails(Off, False, True); end);
+      FreeAndNil(Off);
+
+      // ---- taslak dışı teklif: kalem değişikliği reddedilir
+      Begin_;
+      Off := NewOffer;
+      AddL(Off, Inv1, 3, 2);
+      Svc.BusinessSaveWithDetails(Off, False, True);
+      OffId := Off.Id;
+      Svc.ChangeStatus(OffId, SLS_OFF_SENT, True);
+      Off.Lines[0].Quantity := 4;
+      Expect('non-draft offer rejected', procedure begin Svc.BusinessSaveWithDetails(Off, False, True); end);
+      FreeAndNil(Off);
+
+      // ---- kopya: yeni başlık + yeni kalemler (kaynak değişmez)
+      Begin_;
+      Off := NewOffer;
+      AddL(Off, Inv1, 3, 2);
+      Svc.BusinessSaveWithDetails(Off, False, True);
+      OffId := Off.Id;
+      FreeAndNil(Off);
+      Off := Svc.BusinessFindById(OffId, False, False, True);
+      Copy := Off.Clone;
+      Check('clone: deep, header ref to clone', (Copy.Lines.Count = Off.Lines.Count) and (Copy.Lines[0] <> Off.Lines[0]) and
+        (Copy.Lines[0].Header = Copy));
+      FreeAndNil(Off);
+      Svc.PrepareCopy(Copy);
+      Check('prepare copy', (Copy.Id = 0) and (Copy.OfferNo = '') and (Copy.Status = SLS_OFF_DRAFT) and (Copy.Lines[0].Id < 0));
+      Svc.BusinessSaveWithDetails(Copy, False, True);
+      Check('copy saved as new document', (Copy.Id > 0) and (Copy.Id <> OffId) and (Copy.Lines.Count = 1) and
+        (Copy.Lines[0].Id > 0) and (Copy.OfferNo <> ''));
+      Check('copy source unchanged', Num(Scalar('SELECT count(*) FROM sls_offer_detail WHERE sls_offer_id = ' + OffId.ToString)) = 1);
     except
       on E: Exception do
         Check('offer document flow', False, E.Message);
     end;
   finally
     End_;
+    Copy.Free;
     Off.Free;
-    Lines.Free;
     Svc.Free;
   end;
 end;

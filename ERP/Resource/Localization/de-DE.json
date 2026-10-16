@@ -1920,6 +1920,7 @@
   "sls_offer_detail.rate_range": "Sätze müssen zwischen 0 und 100 liegen.",
   "sls_offer_detail.line_unique": "Diese Positionsnummer existiert bereits.",
   "sls_offer_detail.draft_only": "Nur Angebote im Entwurf können geändert werden.",
+  "sls_offer_detail.vat_rate_undefined": "Der MwSt.-Satz muss einer der definierten MwSt.-Sätze sein.",
   "sls_order.title_plural": "Kundenaufträge",
   "sls_order.title_singular": "Kundenauftrag",
   "sls_order.col_order_no": "Auftrags-Nr.",

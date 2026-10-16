@@ -143,6 +143,45 @@ end;
 
 ---
 
+## Documents (header + lines aggregate)
+
+Reference: `SlsOffer` (`TSlsOffer.Lines`, `TSlsOfferService`, `SlsOfferDetail.Repository.FindByOfferIds`,
+integration test `TestSalesOfferDocument`). User decisions 2026-10-16 (`docs/claude_resume.md`). Migrate other documents
+(sales order / invoice / dispatch, purchasing, voucher, production packets) to the same pattern.
+
+- **Domain = data only.** Header: `property Lines: TObjectList<T{Line}>` (owned, created in constructor, freed in
+  destructor, **no attribute**). Line: `class(TDetailEntity)` (`Entity.pas`: `Deleted`, `HeaderEntity` weak reference).
+  Typed back reference via a class helper in the **header** unit (`T{Line}Helper = class helper for T{Line}` →
+  `property Header: T{Header}`), because header and line units cannot reference each other in the interface.
+  `Clone` of the header is deep (lines cloned, their `HeaderEntity` = the clone); line `Clone` copies `Deleted`, not the
+  header reference. No logic in domain units.
+- **State in one list** (`DetailList.pas`): `Id > 0` update, `Id > 0 + Deleted` delete, `Id < 0` (temporary id
+  -1, -2 … from `TDetailList.NextTempId`) insert, `Id < 0 + Deleted` never reaches the DB (`TDetailList.Remove` drops
+  it). Deletion only through `Deleted` — never diff against the DB (a partially loaded document must not lose lines).
+  Every loop over lines skips `Deleted` (`TDetailList.Active`).
+- **Service (all logic):** `BusinessFindById` loads the lines (one query `FindBy{Header}Ids`, ordered by line no);
+  `FindById / Find(…, AIncludeNestedEntities = True)` too; plain `BusinessFind` (lists) does not. In-memory methods:
+  `CreateLine` (not in list: next line no, header ref, view fields used by the line form), `AddLine` (`TDetailList.Attach`),
+  `NewLine` (= both), `RemoveLine`, `RecalculateLine`, `RecalculateTotals`, `Recalculate`, `PrepareCopy` (override:
+  header id / number / status, `TDetailList.MarkAllNew`).
+- **`BusinessSaveWithDetails(AEntity, AWithCommit, APermissionControl)`** (override of `TCrudService`): authorize
+  (add / update) → begin if no transaction → lock header (`FindById(…, True)`) → line checks + amounts (shared class
+  method of the line service, e.g. `TSlsOfferDetailService.CheckLine`), empty line numbers, line no uniqueness in
+  memory → `ValidateAll(header)` → totals from lines → header insert / update → `TDetailList.Save` (deletes batch,
+  updates batch, inserts one by one with `RETURNING id`, optional line hook with the real id) → document hook (once per
+  affected record: ordered / delivered quantities, stock summary …) → commit if `AWithCommit` → `Reload` (same object:
+  real ids, view fields, DB-derived values). On error: rollback, `TDetailSaveLog.Revert` (temp ids back), new header
+  id 0, `Deleted` flags kept, re-raise.
+- **Line service stays public** (exceptional single-line code paths). Side effects live in one place and both paths call
+  them (line hook per line, document hook per affected record). Account (cari) transactions are derived by
+  `vw_acc_account_transaction` — never a hook. Totals are not a hook: recalculated in memory before writing.
+- Unchanged existing lines are updated too (one batch; the audit trigger skips no-op updates) — no `Modified` flag.
+- Unique keys that lines may swap (`(header_id, line_no)`) are `DEFERRABLE INITIALLY DEFERRED`
+  (`sls_offer_detail_line_key`); the service still rejects duplicates in memory before writing.
+- Documents with several line lists (BoM raw / labour) call `TDetailList.Save` once per list.
+
+---
+
 ## Exception
 
 ```pascal

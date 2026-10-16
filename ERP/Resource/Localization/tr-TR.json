@@ -1869,6 +1869,7 @@
   "sls_offer_detail.rate_range": "Oranlar 0 ile 100 arasında olmalıdır.",
   "sls_offer_detail.line_unique": "Bu sıra numarası zaten var.",
   "sls_offer_detail.draft_only": "Yalnızca taslak teklifler değiştirilebilir.",
+  "sls_offer_detail.vat_rate_undefined": "KDV oranı tanımlı KDV oranlarından biri olmalıdır.",
   "sls_order.title_plural": "Satış Siparişleri",
   "sls_order.title_singular": "Satış Siparişi",
   "sls_order.col_order_no": "Sipariş No",

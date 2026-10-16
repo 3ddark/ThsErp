@@ -90,21 +90,23 @@ lines) → `ufrmSlsOfferLine` (`TfrmSlsOfferLine`, one `sls_offer_detail` line, 
 | Detailed form (header + lines) | `ufrm{Master}Detail` / `Tfrm{Master}Detail` | `TfrmInputDetailedDB<TMaster, TMasterService>` (`ufrmInputDetailedDB`) |
 | Line form | `ufrm{Master}Line` / `Tfrm{Master}Line` | `TfrmInputLineDB<TLine, TLineService>` (`ufrmInputLineDB`) |
 
-- **Save model:** lines are added / changed / deleted **in memory**; F5 Onayla calls
-  `Service.BusinessSaveWithDetails(Table, [changes…], True, True)` (`TCrudService`): header insert (Id 0) or update, then
-  every detail set (`IDetailChanges.ApplyTo`: deletes, inserts, updates of modified rows via the line service's
-  `Business*` with `AWithBegin/AWithCommit = False`), `AfterSaveDetails` hook, commit — one transaction. On error:
-  rollback, new header / line ids reset (`RevertApply`), the form stays open. Review → Güncelle locks the header (base) and
-  reloads the lines editable; Kapat rolls back. The line service keeps its own rules (draft only, totals recalculation).
-- **Backend:** `DetailChanges.TDetailChanges<TD, TDS>` (items + states `drsNew/drsModified`, deleted ids, `Load(fk, id)`,
-  `Add/Replace/Delete/MarkAllNew`). Usable without UI (integration test `TestSalesOfferDocument`).
+- **Model:** `Table` is a **document** (header + `Lines`, see `rules/backend.md` "Documents"); the service loads the lines
+  with the header (`BusinessFindById` / `FindById(…, True)` — list open, review → Güncelle, PgUp / PgDn). Lines are
+  added / changed / removed **in memory** through the document service; F5 Onayla calls
+  `Service.BusinessSaveWithDetails(Table, True, True)` — one transaction, then the service reloads `Table`. On error:
+  rollback, temp ids restored, the form stays open. Review → Güncelle locks the header and reloads the document editable;
+  Kapat rolls back. Copy mode: the base calls `Service.PrepareCopy(Table)` (list passes `Table.Clone`, a deep copy).
+- **Screen part:** `Detail.Lines.TDetailSet<TLine>` (no data of its own): grid rows = non-deleted items of the list,
+  colouring new (`Id < 0`) / changed on this screen; opening a line edits a copy and writes the values back into the
+  same object (`DetailList.CopyEntityValues`).
 - **Detailed form (`TfrmInputDetailedDB`):** DFM holds the header (`pnlContent`, **`Align = alTop`**, fixed height); the
   base adds `PanelDetails` (alClient) + `PgcDetails`. In `FormCreate` (after `inherited` + `pnlContent.Parent := PanelMain`):
-  `Page := AddDetailPage(caption)`; `Lines := AddDetail<TLine, TLineService>(Page, TLineService.Create, 'vw_{line}',
-  '{master_fk}', SetMasterIdProc, LineFormFactory, CompareFunc)`; optional `Lines.OnNewLine` (pre-fill from header);
+  `Page := AddDetailPage(caption)`; `Lines := AddDetail<TLine>(Page, 'vw_{line}', function: Table.Lines,
+  function: Service.CreateLine(Table), procedure(L): Service.AddLine(Table, L), procedure(L): Service.RemoveLine(Table, L),
+  LineFormFactory)` (read `Table` inside the closures — the base replaces it);
   `Lines.Grid.AddFooterColumn(...)` **then** `Lines.Grid.BuildData`, then `Lines.Grid.SetColumnProperty(...)` (hide ids).
   Several `AddDetail` on one page = grids side by side (debit / credit); several pages = tabs (BoM raw / labour /
-  by-product). Override `DetailsChanged` for header totals. Copy mode loads the source's lines as new rows.
+  by-product). Override `DetailsChanged` for header totals (`Service.Recalculate(Table)`, then show `Table` totals).
   Keys: F5 accept, F6 close, F7 add line (active page / focused grid), Enter / double click open line, Ctrl+Del delete
   line, PgUp / PgDn (review) navigate the list records (not when a detail grid has focus).
 - **Line form (`TfrmInputLineDB`):** written like a `TfrmInputSimpleDB` form (`BtnAcceptClick`: controls → `Table`, then

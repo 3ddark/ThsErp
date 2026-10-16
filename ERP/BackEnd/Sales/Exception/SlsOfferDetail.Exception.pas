@@ -23,7 +23,17 @@ type
     class function GetMessage: string; override;
   end;
 
+  ESlsOfferDetailExceptionVatRate = class(ESlsOfferDetailException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
 implementation
+
+class function ESlsOfferDetailExceptionVatRate.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsOfferDetail.VatRateUndefined, 'VAT rate must be one of the defined VAT rates.');
+end;
 
 class function ESlsOfferDetailExceptionRateRange.GetMessage: string;
 begin

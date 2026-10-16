@@ -120,24 +120,15 @@ begin
   FmniToOrder := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuToOrder, 'Convert to Order'), 'mniToOrder', mniToOrderClick);
 end;
 
-// Başlık + kalemler tek ekranda (TfrmSlsOfferDetail)
+// Başlık + kalemler tek ekranda (TfrmSlsOfferDetail); Table = BusinessFindById ile kalemli belge, Clone derin kopya.
+// Kopya modunda form Service.PrepareCopy ile yeni numara / taslak / yeni kalemler hazırlar
 function TfrmSlsOffers.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
-var
-  LNew: TSlsOffer;
 begin
   Result := nil;
-  if (AFormMode = ifmRewiev) then
+  if (AFormMode = ifmRewiev) or (AFormMode = ifmCopyNewRecord) then
     Result := TfrmSlsOfferDetail.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmSlsOfferDetail.Create(Self, Service, TSlsOffer.Create, AFormMode, Self.RefreshParentGrid)
-  else if (AFormMode = ifmCopyNewRecord) then
-  begin
-    LNew := Table.Clone;
-    // Kopya: yeni numara, taslak; kalemler kaynak tekliften yeni satır olarak gelir (id formda sıfırlanır)
-    LNew.OfferNo := '';
-    LNew.Status := SLS_OFF_DRAFT;
-    Result := TfrmSlsOfferDetail.Create(Self, Service, LNew, AFormMode, Self.RefreshParentGrid);
-  end;
+    Result := TfrmSlsOfferDetail.Create(Self, Service, TSlsOffer.Create, AFormMode, Self.RefreshParentGrid);
 end;
 
 // Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)

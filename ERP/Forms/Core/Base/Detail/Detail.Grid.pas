@@ -11,7 +11,7 @@ uses
   Winapi.Windows, System.SysUtils, System.Classes, System.Rtti, System.TypInfo,
   Vcl.Graphics, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Menus, Vcl.Grids, Vcl.DBGrids, Data.DB,
   FireDAC.Comp.Client, FireDAC.Comp.DataSet,
-  UnitOfWork, DetailChanges, Grid.Types, Grid.Footer;
+  UnitOfWork, Grid.Types, Grid.Footer;
 
 const
   DETAIL_FIELD_ROW = 'dtl_row';        // satırın küme içindeki sırası (gizli)
@@ -24,6 +24,9 @@ const
   DETAIL_COLOR_ODD = 13158655;
 
 type
+  // Satırın ekrandaki durumu (boyama): kayıtlı / yeni (Id < 0) / bu ekranda değiştirilmiş
+  TDetailRowState = (drsUnchanged, drsNew, drsModified);
+
   // Bir hücrenin çizimi; OnCellStyle içinde değiştirilir. Varsayılanlar: satır rengi, alanın metni / hizası
   TDetailCellStyle = record
     BackColor: TColor;

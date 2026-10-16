@@ -1920,6 +1920,7 @@
   "sls_offer_detail.rate_range": "Les taux doivent être compris entre 0 et 100.",
   "sls_offer_detail.line_unique": "Ce numéro de ligne existe déjà.",
   "sls_offer_detail.draft_only": "Seules les offres en brouillon peuvent être modifiées.",
+  "sls_offer_detail.vat_rate_undefined": "Le taux de TVA doit être l'un des taux de TVA définis.",
   "sls_order.title_plural": "Commandes clients",
   "sls_order.title_singular": "Commande client",
   "sls_order.col_order_no": "N° de commande",

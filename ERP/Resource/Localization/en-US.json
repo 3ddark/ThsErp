@@ -1920,6 +1920,7 @@
   "sls_offer_detail.rate_range": "Rates must be between 0 and 100.",
   "sls_offer_detail.line_unique": "This line number already exists.",
   "sls_offer_detail.draft_only": "Only draft offers can be changed.",
+  "sls_offer_detail.vat_rate_undefined": "VAT rate must be one of the defined VAT rates.",
   "sls_order.title_plural": "Sales Orders",
   "sls_order.title_singular": "Sales Order",
   "sls_order.col_order_no": "Order No",

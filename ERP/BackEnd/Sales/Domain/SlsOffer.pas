@@ -5,12 +5,15 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager, SlsOfferDetail;
 
 type
   [Table('sls_offer')]
   TSlsOffer = class(TEntity)
   private
+    // Kalemler (sahiplenir): servis yükler / yazar; durum TDetailEntity (Id işareti + Deleted)
+    FLines: TObjectList<TSlsOfferDetail>;
+
     FOfferNo: string;
     FOfferDate: TDate;
     FValidUntil: TDate;
@@ -96,17 +99,44 @@ type
     [NotMapped]
     property EmployeeName: string read FEmployeeName write FEmployeeName;
 
+    // Kolon değil (nesne özelliği): BusinessFindById ile dolar, BusinessSaveWithDetails ile yazılır
+    property Lines: TObjectList<TSlsOfferDetail> read FLines;
+
     constructor Create(); override;
     destructor Destroy; override;
 
     function Clone: TSlsOffer;
   end;
 
+  // Kalemden başlığa tipli erişim: Line.Header.OfferNo (HeaderEntity zayıf referans, sahiplenmez)
+  TSlsOfferDetailHelper = class helper for TSlsOfferDetail
+  private
+    function GetHeader: TSlsOffer;
+    procedure SetHeader(const Value: TSlsOffer);
+  public
+    property Header: TSlsOffer read GetHeader write SetHeader;
+  end;
+
 implementation
+
+{ TSlsOfferDetailHelper }
+
+function TSlsOfferDetailHelper.GetHeader: TSlsOffer;
+begin
+  Result := TSlsOffer(HeaderEntity);
+end;
+
+procedure TSlsOfferDetailHelper.SetHeader(const Value: TSlsOffer);
+begin
+  HeaderEntity := Value;
+end;
+
+{ TSlsOffer }
 
 constructor TSlsOffer.Create;
 begin
   inherited;
+  FLines := TObjectList<TSlsOfferDetail>.Create(True);
   FOfferDate := Date;
   FStatus := 1;
   FExchangeRate := 1;
@@ -114,10 +144,14 @@ end;
 
 destructor TSlsOffer.Destroy;
 begin
+  FLines.Free;
   inherited;
 end;
 
+// Kalemler dahil derin kopya; kopyanın kalemleri kopya başlığa bağlanır
 function TSlsOffer.Clone: TSlsOffer;
+var
+  LLine, LCopy: TSlsOfferDetail;
 begin
   Result := TSlsOffer.Create;
   Result.Id := Self.Id;
@@ -140,6 +174,12 @@ begin
   Result.AccountCode := Self.AccountCode;
   Result.AccountName := Self.AccountName;
   Result.EmployeeName := Self.EmployeeName;
+  for LLine in Self.FLines do
+  begin
+    LCopy := LLine.Clone;
+    LCopy.HeaderEntity := Result;
+    Result.FLines.Add(LCopy);
+  end;
 end;
 
 end.

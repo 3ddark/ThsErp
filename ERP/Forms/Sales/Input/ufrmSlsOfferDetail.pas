@@ -1,7 +1,8 @@
 ﻿unit ufrmSlsOfferDetail;
 
-// Satış teklifi: başlık (sls_offer) + kalemler (sls_offer_detail) tek ekranda. Kalemler bellekte eklenir / değişir /
-// silinir (satır formu TfrmSlsOfferLine); Onayla başlık ve kalemleri tek transaction'da yazar.
+// Satış teklifi: başlık (sls_offer) + kalemler (Table.Lines, sls_offer_detail) tek ekranda. Kalemler bellekte teklif
+// servisiyle eklenir / değişir / çıkar (satır formu TfrmSlsOfferLine); Onayla Service.BusinessSaveWithDetails ile
+// başlık ve kalemleri tek transaction'da yazar.
 
 interface
 
@@ -11,7 +12,7 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes, System.Math,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
   System.Generics.Collections,
-  ufrmInputDetailedDB, Detail.Lines, SharedFormTypes, LocalizationManager,
+  ufrmInputDetailedDB, Detail.Lines, Detail.Totals, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   SlsOffer.Service, SlsOffer, SlsOfferDetail.Service, SlsOfferDetail;
 
@@ -38,29 +39,23 @@ type
     edtPaymentTermDays: TEdit;
     lblStatusText: TLabel;
     edtStatusText: TEdit;
-    lblGrossAmount: TLabel;
-    edtGrossAmount: TEdit;
-    lblDiscountAmount: TLabel;
-    edtDiscountAmount: TEdit;
-    lblNetAmount: TLabel;
-    edtNetAmount: TEdit;
-    lblVatAmount: TLabel;
-    edtVatAmount: TEdit;
-    lblTotalAmount: TLabel;
-    edtTotalAmount: TEdit;
+    pnlTotals: TPanel;
     lblDescription: TLabel;
     edtDescription: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   private
+    FTotals: TTotalsPanel;
     FPageLines: TTabSheet;
-    FLines: TDetailSet<TSlsOfferDetail, TSlsOfferDetailService>;
-    procedure NewLine(ALine: TSlsOfferDetail);
+    FLines: TDetailSet<TSlsOfferDetail>;
     procedure ShowTotals;
+    // Table toplamları panelde (para birimiyle)
+    procedure ShowTotalValues;
   protected
     procedure DetailsChanged; override;
   public
+    destructor Destroy; override;
     procedure HelperProcess(Sender: TObject);
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
@@ -93,6 +88,13 @@ procedure TfrmSlsOfferDetail.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+  FTotals := TTotalsPanel.Create(pnlTotals);
+  FTotals.AddRow('gross');
+  FTotals.AddRow('discount');
+  FTotals.AddRow('net');
+  FTotals.AddRow('vat');
+  FTotals.AddRow('total', True);
+  pnlTotals.Height := FTotals.RequiredHeight;
   edtOfferNo.thsInputDataType := itString;
   edtOfferNo.CharCase := TEditCharCase.ecUpperCase;
   edtOfferDate.thsInputDataType := itDate;
@@ -105,25 +107,30 @@ begin
   edtPaymentTermDays.thsInputDataType := itInteger;
   edtDescription.thsInputDataType := itString;
 
-  // Kalemler: sıra satır no'ya göre; satır formu modal, kayıt teklifle birlikte
+  // Kalemler = Table.Lines (servis satır no sırasıyla okur); ekle / çıkar / hesap teklif servisinde,
+  // satır formu modal, kayıt teklifle birlikte
   FPageLines := AddDetailPage(TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuLines, 'Lines'));
-  FLines := AddDetail<TSlsOfferDetail, TSlsOfferDetailService>(FPageLines, TSlsOfferDetailService.Create,
-    'vw_sls_offer_detail', 'sls_offer_id',
-    procedure(ALine: TSlsOfferDetail; AMasterId: Int64)
+  FLines := AddDetail<TSlsOfferDetail>(FPageLines, 'vw_sls_offer_detail',
+    function: TObjectList<TSlsOfferDetail>
     begin
-      ALine.SlsOfferId := AMasterId;
+      Result := Table.Lines;
+    end,
+    function: TSlsOfferDetail
+    begin
+      Result := Service.CreateLine(Table);
+    end,
+    procedure(ALine: TSlsOfferDetail)
+    begin
+      Service.AddLine(Table, ALine);
+    end,
+    procedure(ALine: TSlsOfferDetail)
+    begin
+      Service.RemoveLine(Table, ALine);
     end,
     function(ALine: TSlsOfferDetail; AMode: TInputFormMode): TForm
     begin
       Result := TfrmSlsOfferLine.Create(Self, TSlsOfferDetailService.Create, ALine, AMode, nil);
-    end,
-    function(const A, B: TSlsOfferDetail): Integer
-    begin
-      Result := CompareValue(A.LineNo, B.LineNo);
-      if Result = 0 then
-        Result := CompareValue(A.Id, B.Id);
     end);
-  FLines.OnNewLine := NewLine;
 
   FLines.Grid.AddFooterColumn('net_amount', atSum, '#,##0.00');
   FLines.Grid.AddFooterColumn('vat_amount', atSum, '#,##0.00');
@@ -150,42 +157,30 @@ begin
     edtOfferDate.SetFocus;
 end;
 
-// Yeni kalem: teklif, para birimi (fiyat önerisi için) ve sıradaki satır no ana kayıttan
-procedure TfrmSlsOfferDetail.NewLine(ALine: TSlsOfferDetail);
-var
-  i, LMax: Integer;
+// Başlık toplamları: servis kalemlerden hesaplar (kayıtta yine aynı hesap)
+destructor TfrmSlsOfferDetail.Destroy;
 begin
-  ALine.SlsOfferId := Table.Id;
-  ALine.OfferNo := edtOfferNo.Text;
-  ALine.Currency := Table.Currency;
-  LMax := 0;
-  for i := 0 to FLines.Changes.Count - 1 do
-    LMax := Max(LMax, FLines.Changes[i].LineNo);
-  ALine.LineNo := LMax + 1;
+  FreeAndNil(FTotals);
+  inherited;
 end;
 
-// Başlık toplamları bellekteki kalemlerden (kayıtta servis kalemlerden yeniden hesaplar)
-procedure TfrmSlsOfferDetail.ShowTotals;
-var
-  i: Integer;
-  LGross, LDiscount, LNet, LVat, LTotal: Currency;
+procedure TfrmSlsOfferDetail.ShowTotalValues;
 begin
-  if not Assigned(FLines) then
+  if not Assigned(FTotals) or not Assigned(Table) then
     Exit;
-  LGross := 0; LDiscount := 0; LNet := 0; LVat := 0; LTotal := 0;
-  for i := 0 to FLines.Changes.Count - 1 do
-  begin
-    LGross := LGross + FLines.Changes[i].GrossAmount;
-    LDiscount := LDiscount + FLines.Changes[i].DiscountAmount;
-    LNet := LNet + FLines.Changes[i].NetAmount;
-    LVat := LVat + FLines.Changes[i].VatAmount;
-    LTotal := LTotal + FLines.Changes[i].TotalAmount;
-  end;
-  edtGrossAmount.Text := CurrToStr(LGross);
-  edtDiscountAmount.Text := CurrToStr(LDiscount);
-  edtNetAmount.Text := CurrToStr(LNet);
-  edtVatAmount.Text := CurrToStr(LVat);
-  edtTotalAmount.Text := CurrToStr(LTotal);
+  FTotals.SetValue('gross', Table.GrossAmount, Table.Currency);
+  FTotals.SetValue('discount', Table.DiscountAmount, Table.Currency);
+  FTotals.SetValue('net', Table.NetAmount, Table.Currency);
+  FTotals.SetValue('vat', Table.VatAmount, Table.Currency);
+  FTotals.SetValue('total', Table.TotalAmount, Table.Currency);
+end;
+
+procedure TfrmSlsOfferDetail.ShowTotals;
+begin
+  if not Assigned(Table) then
+    Exit;
+  Service.Recalculate(Table);
+  ShowTotalValues;
 end;
 
 procedure TfrmSlsOfferDetail.DetailsChanged;
@@ -208,11 +203,14 @@ begin
   lblExchangeRate.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColExchangeRate, 'Exchange Rate');
   lblPaymentTermDays.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColPaymentTermDays, 'Payment Term (Days)');
   lblStatusText.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColStatus, 'Status');
-  lblGrossAmount.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColGrossAmount, 'Gross Amount');
-  lblDiscountAmount.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColDiscountAmount, 'Discount Amount');
-  lblNetAmount.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColNetAmount, 'Net Amount');
-  lblVatAmount.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColVatAmount, 'VAT Amount');
-  lblTotalAmount.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColTotalAmount, 'Total');
+  if Assigned(FTotals) then
+  begin
+    FTotals.SetCaption('gross', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColGrossAmount, 'Gross Amount'));
+    FTotals.SetCaption('discount', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColDiscountAmount, 'Discount Amount'));
+    FTotals.SetCaption('net', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColNetAmount, 'Net Amount'));
+    FTotals.SetCaption('vat', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColVatAmount, 'VAT Amount'));
+    FTotals.SetCaption('total', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColTotalAmount, 'Total'));
+  end;
   lblDescription.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColDescription, 'Description');
 
   if Assigned(FPageLines) then
@@ -243,6 +241,7 @@ var
   LFrmAccAccountId: TfrmAccAccounts;
   LFrmEmpEmployeeId: TfrmEmpEmployees;
   LFrmCurrency: TfrmSysCurrencies;
+  LLine: TSlsOfferDetail;
 begin
   if not (Sender is TEdit) then
     Exit;
@@ -313,6 +312,10 @@ begin
           Table.Currency := LFrmCurrency.Table.Currency;
           LEdit.Text := Table.Currency;
         end;
+      // kalemlerin para birimi (fiyat önerisi) ve toplamların gösterimi belgeyle aynı
+      for LLine in Table.Lines do
+        LLine.Currency := Table.Currency;
+      ShowTotalValues;
     finally
       LFrmCurrency.Free;
     end;
@@ -338,14 +341,10 @@ begin
   edtExchangeRate.Text := CurrToStr(Table.ExchangeRate);
   edtPaymentTermDays.Text := IntToStr(Table.PaymentTermDays);
   edtStatusText.Text := TSlsLookup.Text(slkOfferStatus, Table.Status);
-  edtGrossAmount.Text := CurrToStr(Table.GrossAmount);
-  edtDiscountAmount.Text := CurrToStr(Table.DiscountAmount);
-  edtNetAmount.Text := CurrToStr(Table.NetAmount);
-  edtVatAmount.Text := CurrToStr(Table.VatAmount);
-  edtTotalAmount.Text := CurrToStr(Table.TotalAmount);
+  ShowTotalValues;
   edtDescription.Text := Table.Description;
-  // açık satırlar varsa toplamlar onlardan
-  if Assigned(FLines) and (FLines.Changes.Count > 0) then
+  // bellekte kalem varsa toplamlar onlardan
+  if Table.Lines.Count > 0 then
     ShowTotals;
 end;
 

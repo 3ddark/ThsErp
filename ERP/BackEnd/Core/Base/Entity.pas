@@ -44,6 +44,19 @@ type
     property Id: Int64 read GetId write SetId;
   end;
 
+  // Belge kalemi (başlığın Lines listesindeki satır), yalnız veri. Kayıt durumu tek listede:
+  // Id > 0 kayıtlı (güncellenir), Id < 0 yeni (servisin verdiği geçici id, eklenir), Deleted = kayıtta silinir
+  // (Id < 0 + Deleted DB'ye hiç gitmez). Kolon değildir; repository'ler ve grid görmez.
+  // HeaderEntity: başlığa zayıf referans (sahiplenmez); tipli erişim başlık biriminin class helper'ı ile (Header).
+  TDetailEntity = class(TEntity)
+  private
+    FDeleted: Boolean;
+    FHeaderEntity: TEntity;
+  public
+    property Deleted: Boolean read FDeleted write FDeleted;
+    property HeaderEntity: TEntity read FHeaderEntity write FHeaderEntity;
+  end;
+
   // Composite primary key tabloları için temel sınıf.
   // TEntity'deki auto-increment 'id' kolonu YOKTUR.
   // Alt sınıflar kendi [Column('...', [cpPrimaryKey])] property'lerini tanımlar.

@@ -38,6 +38,12 @@ type
   public
     constructor Create(AConnection: TFDConnection);
     function NextLineNo(AParentId: Int64): SmallInt;
+    // Teklif(ler)in kalemleri tek sorguda, teklif + satır no sırasıyla (belge yükleme)
+    function FindByOfferIds(const AOfferIds: TArray<Int64>): TObjectList<TSlsOfferDetail>;
+    // Tanımlı KDV oranları (acc_set_tax_rate, artan)
+    function GetVatRates: TArray<Currency>;
+    // Stok kartının ölçü birimi kodu
+    function GetUomCode(AInventoryId: Int64): string;
   end;
 
 implementation
@@ -45,6 +51,85 @@ implementation
 constructor TSlsOfferDetailRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TSlsOfferDetailRepository.GetVatRates: TArray<Currency>;
+var
+  Q: TFDQuery;
+  n: Integer;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT DISTINCT tax_rate FROM public.acc_set_tax_rate ORDER BY tax_rate';
+    LogQuery(Q, 'GetVatRates');
+    Q.Open;
+    SetLength(Result, Q.RecordCount);
+    n := 0;
+    while not Q.Eof do
+    begin
+      Result[n] := Q.Fields[0].AsCurrency;
+      Inc(n);
+      Q.Next;
+    end;
+    SetLength(Result, n);
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSlsOfferDetailRepository.GetUomCode(AInventoryId: Int64): string;
+var
+  Q: TFDQuery;
+begin
+  Result := '';
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT u.unit_code FROM public.stk_inventory i JOIN public.sys_uom u ON u.id = i.sys_uom_id WHERE i.id = :id';
+    Q.ParamByName('id').AsLargeInt := AInventoryId;
+    LogQuery(Q, 'GetUomCode');
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := Q.Fields[0].AsString;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSlsOfferDetailRepository.FindByOfferIds(const AOfferIds: TArray<Int64>): TObjectList<TSlsOfferDetail>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TSlsOfferDetail>.Create(True);
+  LIds := '';
+  for LId in AOfferIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TSlsOfferDetail) + ' v ' +
+                  ' WHERE v.sls_offer_id IN (' + LIds + ') ORDER BY v.sls_offer_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByOfferIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
 end;
 
 function TSlsOfferDetailRepository.NextLineNo(AParentId: Int64): SmallInt;

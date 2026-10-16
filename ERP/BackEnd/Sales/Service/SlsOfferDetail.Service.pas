@@ -19,13 +19,20 @@ type
     procedure DoUpdate(AEntity: TSlsOfferDetail);
     procedure DoDelete(AId: Int64);
 
-    procedure FailRequired(const AKey, ADefault: string);
-    procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+    class procedure FailRequired(const AKey, ADefault: string); static;
+    class procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string); static;
     procedure EnsureDraft(AOfferId: Int64);
   public
     constructor Create;
     destructor Destroy; override;
 
+    // Kalemin kendi alanları (DB'siz): stok, miktar, fiyat, oranlar + tutarların hesabı. Tek kalem kaydı
+    // (ValidateBusinessRules) ve belge kaydı (TSlsOfferService.BusinessSaveWithDetails) ortak kullanır
+    class procedure CheckLine(AEntity: TSlsOfferDetail); static;
+    // KDV oranı tanımlı oranlardan biri olmalı (acc_set_tax_rate; tanım yoksa kontrol edilmez)
+    class procedure CheckVatRate(ARate: Currency; const ARates: TArray<Currency>); static;
+    function GetVatRates: TArray<Currency>;
+    function GetUomCode(AInventoryId: Int64): string;
     procedure ValidateBusinessRules(AEntity: TSlsOfferDetail; AOperation: TCrudOperation); override;
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
       out ADiscountRate, AVatRate: Currency): Boolean;
@@ -67,14 +74,14 @@ begin
 end;
 
 // Alan adı + "zorunludur" mesajı
-procedure TSlsOfferDetailService.FailRequired(const AKey, ADefault: string);
+class procedure TSlsOfferDetailService.FailRequired(const AKey, ADefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
 end;
 
 // Alan adı + mesaj
-procedure TSlsOfferDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+class procedure TSlsOfferDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(AMsgKey, AMsgDefault));
@@ -101,22 +108,11 @@ begin
   end;
 end;
 
-procedure TSlsOfferDetailService.ValidateBusinessRules(AEntity: TSlsOfferDetail; AOperation: TCrudOperation);
+class procedure TSlsOfferDetailService.CheckLine(AEntity: TSlsOfferDetail);
 var
-  LOld: TSlsOfferDetail;
-  LFilter: TFilterCriteria;
-  LModel: TSlsOfferDetail;
   LGross, LDiscount, LNet, LVat, LTotal: Currency;
 begin
-  if AOperation = coDelete then
-  begin
-    EnsureDraft(AEntity.SlsOfferId);
-    Exit;
-  end;
-
   AEntity.Description := Trim(AEntity.Description);
-  if AEntity.SlsOfferId <= 0 then
-    FailRequired(TLangKeys.TSlsOfferDetail.ColSlsOfferId, 'Offer');
   if AEntity.StkInventoryId <= 0 then
     FailRequired(TLangKeys.TSlsOfferDetail.ColStkInventoryId, 'Stock Card');
   if AEntity.Quantity <= 0 then
@@ -132,6 +128,46 @@ begin
   AEntity.NetAmount := LNet;
   AEntity.VatAmount := LVat;
   AEntity.TotalAmount := LTotal;
+end;
+
+class procedure TSlsOfferDetailService.CheckVatRate(ARate: Currency; const ARates: TArray<Currency>);
+var
+  LRate: Currency;
+begin
+  if Length(ARates) = 0 then
+    Exit;
+  for LRate in ARates do
+    if LRate = ARate then
+      Exit;
+  raise ESlsOfferDetailExceptionVatRate.Create;
+end;
+
+function TSlsOfferDetailService.GetVatRates: TArray<Currency>;
+begin
+  Result := TSlsOfferDetailRepository(FRepo).GetVatRates;
+end;
+
+function TSlsOfferDetailService.GetUomCode(AInventoryId: Int64): string;
+begin
+  Result := TSlsOfferDetailRepository(FRepo).GetUomCode(AInventoryId);
+end;
+
+procedure TSlsOfferDetailService.ValidateBusinessRules(AEntity: TSlsOfferDetail; AOperation: TCrudOperation);
+var
+  LOld: TSlsOfferDetail;
+  LFilter: TFilterCriteria;
+  LModel: TSlsOfferDetail;
+begin
+  if AOperation = coDelete then
+  begin
+    EnsureDraft(AEntity.SlsOfferId);
+    Exit;
+  end;
+
+  if AEntity.SlsOfferId <= 0 then
+    FailRequired(TLangKeys.TSlsOfferDetail.ColSlsOfferId, 'Offer');
+  CheckLine(AEntity);
+  CheckVatRate(AEntity.VatRate, GetVatRates);
   EnsureDraft(AEntity.SlsOfferId);
 
   // siparişe aktarılan miktar sipariş kalemlerinden tutulur

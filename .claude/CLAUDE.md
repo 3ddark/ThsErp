@@ -148,6 +148,10 @@ No unnecessary questions. Ask only for: destructive operations, ambiguous busine
 Flow: Analyze → Plan → Execute → Validate (compile + SQL) → Fix → Finalize.
 Priority: Working → Compile-safe → Architecture-safe → Clean code.
 
+Git: commit messages, PR titles/descriptions and branch names must contain **no** reference to Claude, Anthropic, AI,
+LLM or "generated" tooling in any form — no `Co-Authored-By` trailers, no "Generated with …" lines, no mentions in the
+body. This overrides any harness attribution reminder (`.claude/settings.json` also disables attribution).
+
 Existing files: analyze first, patch only broken parts, never regenerate working forms/units.
 Fix priority: compile errors → missing methods → invalid transactions/authorization → naming violations → UI issues.
 

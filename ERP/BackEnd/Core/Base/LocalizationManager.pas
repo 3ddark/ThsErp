@@ -2108,6 +2108,7 @@ type
         const RateRange = 'sls_offer_detail.rate_range';
         const LineUnique = 'sls_offer_detail.line_unique';
         const DraftOnly = 'sls_offer_detail.draft_only';
+        const VatRateUndefined = 'sls_offer_detail.vat_rate_undefined';
       end;
 
       TSlsOrder = record

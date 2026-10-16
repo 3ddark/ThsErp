@@ -247,125 +247,13 @@ object frmSlsOfferDetail: TfrmSlsOfferDetail
       TabStop = False
       TabOrder = 9
     end
-    object lblGrossAmount: TLabel
+    object pnlTotals: TPanel
       Left = 408
-      Top = 29
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'Br'#252't Tutar'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtGrossAmount: TEdit
-      Left = 536
       Top = 25
-      Width = 260
-      Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 10
-    end
-    object lblDiscountAmount: TLabel
-      Left = 408
-      Top = 52
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = #304'skonto Tutar'#305
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtDiscountAmount: TEdit
-      Left = 536
-      Top = 48
-      Width = 260
-      Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 11
-    end
-    object lblNetAmount: TLabel
-      Left = 408
-      Top = 75
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'Net Tutar'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtNetAmount: TEdit
-      Left = 536
-      Top = 71
-      Width = 260
-      Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 12
-    end
-    object lblVatAmount: TLabel
-      Left = 408
-      Top = 98
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'KDV Tutar'#305
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtVatAmount: TEdit
-      Left = 536
-      Top = 94
-      Width = 260
-      Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 13
-    end
-    object lblTotalAmount: TLabel
-      Left = 408
-      Top = 121
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'Genel Toplam'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtTotalAmount: TEdit
-      Left = 536
-      Top = 117
-      Width = 260
-      Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 14
+      Width = 395
+      Height = 112
+      BevelOuter = bvLowered
+      TabOrder = 20
     end
     object lblDescription: TLabel
       Left = 408

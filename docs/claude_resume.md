@@ -642,6 +642,71 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Test: entegrasyon TestSalesOfferDocument 14 adım, paket 1566 pass / 0 fail.
 - Sonraki adaylar: diğer belgeler (sipariş, irsaliye, fatura, satınalma, reçete sekmeli, fiş borç/alacak yan yana).
 
+## Belge = başlık + kalemler (aggregate) — kararlar ve yol planı (2026-10-16)
+Hedef kullanım: `Offer := OfferSvc.BusinessFindById(id, …)` başlık + kalemleri getirir (`Offer.Lines[0].InventoryCode`,
+`Line.Header.OfferNo`); servis metotları kalemleri / toplamları bellekte günceller; `OfferSvc.BusinessSaveWithDetails(Offer,
+…)` başlık + tüm kalemleri tek transaction'da yazar. Detaylı form yalnız `TSlsOffer` alır, grid `Table.Lines`'ı gösterir.
+
+Kararlar (kullanıcı, 2026-10-16):
+- Domain yalnız veri: `TSlsOffer.Lines: TObjectList<TSlsOfferDetail>` (sahip), kalemde başlığa zayıf referans (`Header`),
+  `TDetailEntity.Deleted`. Domain'de iş mantığı yok; hesap / kalem ekleme-çıkarma / kayıt **serviste**.
+- Repository'ler elle yazılmış SQL (ORM yok; `RepositoryORM.pas` kullanılmıyor, eski emek olarak bekletiliyor).
+- Tek liste durum modeli: `Id > 0` güncelle, `Id > 0 + Deleted` sil, `Id < 0` (geçici, servis -1, -2 … verir) ekle,
+  `Id < 0 + Deleted` DB'ye gitmez (listeden çıkar). Silme yalnız `Deleted` ile (DB ile karşılaştırma yok → eksik
+  yüklenmiş belge kalem kaybettirmez).
+- `Deleted` ayrı taban sınıfta: `Entity.TDetailEntity` (TEntity'ye eklenmez).
+- Kayıt sonrası belge aynı nesneye yeniden okunur (`Reload`: gerçek id'ler, view alanları, DB'de türeyen değerler).
+- Hata: rollback + yeni kalemlerin geçici id'leri geri, `Deleted` korunur, yeni başlığın id'si 0.
+- Değişmeyen kalemler de güncellenir (audit trigger no-op update'i yazmıyor; toplu update tek gidiş); `Modified` yok.
+- Yeni kalemler tek tek `INSERT … RETURNING id` (array DML id döndürmez; stok bağlantısı da id ister); silme / güncelleme
+  batch.
+- Kalem servisi açık kalır (istisnai ekranlarda koddan tek kalem işlemi). Yan işler (stok hareketi, stok özeti, sipariş
+  miktarları) tek yerde yazılır, iki yol da onu çağırır: kalem hook'u (kalem başına, gerçek id ile: `UpsertStockTransaction`)
+  + belge hook'u (etkilenen stok / sipariş başına bir kez). Cari hareket hook değil (`vw_acc_account_transaction`
+  türetiyor). Toplamlar hook değil: kayıttan önce servis bellekte `Recalculate`.
+- Birden çok kalem listeli belgeler (PrdPacket ham madde + işçilik) için kayıt yardımcısı liste başına çağrılır.
+- İskonto uygulama yalnız örnekti (kapsam dışı). Sınıf adları aynı (`…Detail`), özellik adı `Lines`.
+
+Yol planı:
+- Faz 1 altyapı (Core/Base): `TDetailEntity`, `DetailList` (aktif kalemler, geçici id, kaydetme yardımcısı + geri alma
+  günlüğü, değer kopyalama), `TCrudService.BusinessSaveWithDetails(AEntity, AWithCommit, APermission)` + `PrepareCopy`.
+- Faz 2 SlsOffer (pilot): domain, kalem repo `FindByOfferIds`, servis (NewLine / AddLine / RemoveLine / Recalculate /
+  Reload / PrepareCopy / kayıt), form `Table.Lines`; entegrasyon testi (form dışı akış, sil + ekle, satır no takası,
+  rollback, taslak dışı ret, kopya).
+- Faz 3: satış sipariş → fatura (kalem hook'unun ilk gerçek sınavı, erken) → irsaliye; satınalma talep / sipariş / mal
+  kabul / fatura.
+- Faz 4: AccVoucher (borç / alacak dengesi), PrdPacket (iki liste).
+- Faz 5: temizlik (`CalculateLine` servis katmanına, SQL `RecalculateTotals` kontrol amaçlı ya da kaldır, kurallar).
+
+Durum (2026-10-16, NB61): Faz 1 + Faz 2 TAMAM.
+- Core/Base: `Entity.TDetailEntity` (Deleted, HeaderEntity), yeni `DetailList.pas` (TDetailList: Active / NextTempId /
+  Attach / Remove / MarkAllNew / Save / AcceptSaved, TDetailSaveLog, CopyEntityValues), `TCrudService.BusinessSaveWithDetails
+  (AEntity, AWithCommit, APermission)` + `PrepareCopy` (sanal; eski IDetailChanges / AfterSaveDetails ve
+  `DetailChanges.pas` silindi).
+- SlsOffer: `TSlsOffer.Lines` + `TSlsOfferDetailHelper.Header` (class helper, SlsOffer biriminde), derin Clone;
+  `TSlsOfferDetailRepository.FindByOfferIds`; `TSlsOfferDetailService.CheckLine` (tek kalem + belge yolu ortak);
+  `TSlsOfferService` CreateLine / AddLine / NewLine / RemoveLine / ActiveLines / RecalculateLine / RecalculateTotals /
+  Recalculate / PrepareCopy / LoadLines / Reload / BusinessSaveWithDetails; BusinessFindById ve FindById(…, True) kalemli.
+  Belge hook'u: RefreshOrderedQuantities.
+- DB: `sls_offer_detail_line_key` DEFERRABLE INITIALLY DEFERRED (satır no takası); db_schema.sql + db.dump yenilendi
+  (ths_audit değişmedi).
+- UI: `TDetailSet<TD>` (veri tutmaz; Table.Lines + servis geri çağrıları), `TfrmInputDetailedDB.AddDetail<TD>` yeni imza,
+  RefreshDetails, kopya = Service.PrepareCopy; `ufrmSlsOfferDetail` / `ufrmSlsOffers` buna göre. Kurallar:
+  rules/backend.md "Documents", rules/forms.md "Master / detail".
+- Doğrulama: msbuild Win32 Debug 0 hata (dokunulan birimlerde uyarı yok); entegrasyon 1578 pass / 0 fail
+  (TestSalesOfferDocument 26 adım: form dışı oku-değiştir-sil-ekle-kaydet, Reload, satır no takası, mükerrer satır no,
+  rollback + geçici id geri, taslak dışı ret, derin kopya + PrepareCopy); UI tam koşu 1729 pass / 0 fail / 1 warn
+  (bilinen PurRequests; önceki koşu 1749 pass — 20 adım farkının nedeni incelenmedi, FAIL yok).
+- Elle denenmedi (UI): teklif ekranında kalem ekle / aç / sil, renkler, toplamların canlı güncellenmesi, kopya.
+- Kullanıcı geri bildirimi (2026-10-16) uygulandı: teklif kalem formunda hesaplanan tutarlar edit değil, panelde etiket
+  (`Forms/Core/Base/Detail/Detail.Totals.TTotalsPanel`, başlık formunda da); miktar yanında ölçü birimi, fiyat yanında
+  para birimi; KDV tanımlı oranlardan combo (`acc_set_tax_rate`, servis `CheckVatRate`, yeni anahtar
+  `sls_offer_detail.vat_rate_undefined` x4); iskonto 100'ü aşamaz (anında 100'e çekilir); miktar / fiyat / iskonto / KDV
+  değiştikçe tutarlar anında hesaplanır; başlıkta para birimi değişince kalemlere ve toplamlara yansır.
+  Yeni belge formlarında aynı kalıp kullanılacak.
+- SONRAKİ: Faz 3 — satış siparişi, sonra fatura (kalem hook'u: UpsertStockTransaction; belge hook'u: stok özeti +
+  sipariş teslim miktarları).
+
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.

@@ -2,9 +2,11 @@
 
 // Ana kayıt + detay (master-detail) giriş formu tabanı: üstte başlık (alt sınıfın DFM'indeki pnlContent, alTop),
 // altta sekmeli detay alanı (PgcDetails); bir sekmede bir ya da yan yana birden çok detay grid'i (ör. borç / alacak).
-// Satırlar bellekte eklenir / değişir / silinir (TDetailSet + satır formu TfrmInputLineDB); F5 Onayla başlığı ve tüm
-// satır değişikliklerini servisin BusinessSaveWithDetails'iyle tek transaction'da yazar. İnceleme -> Güncelle kaydı
-// kilitler ve satırları düzenlenebilir yapar; Kapat değişiklikleri bırakır (transaction geri alınır).
+// Table bir belgedir (başlık + kalem listeleri, ör. TSlsOffer.Lines): servis okurken kalemleri de getirir. Kalemler
+// bellekte belge servisinin metotlarıyla eklenir / değişir / çıkar (TDetailSet + satır formu TfrmInputLineDB); F5
+// Onayla Service.BusinessSaveWithDetails(Table) ile başlık + kalemleri tek transaction'da yazar. İnceleme -> Güncelle
+// kaydı kilitleyip belgeyi yeniden okur ve kalemleri düzenlenebilir yapar; Kapat değişiklikleri bırakır (rollback).
+// Kopya: Service.PrepareCopy(Table) (başlık ve kalemler yeni).
 // Kısayollar: F5 Onayla, F6 Kapat, F7 satır ekle, Enter satırı aç, Ctrl+Del satır sil, PgUp / PgDn (incelemede)
 // liste kayıtlarında gezinti.
 
@@ -13,7 +15,7 @@ interface
 uses
   Winapi.Windows, System.SysUtils, System.Classes, System.Math, System.Generics.Collections, System.Generics.Defaults,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
-  Entity, Service, SharedFormTypes, ufrmInputSimpleDB, DetailChanges, Detail.Grid, Detail.Lines;
+  Entity, Service, SharedFormTypes, ufrmInputSimpleDB, Detail.Grid, Detail.Lines;
 
 type
   TfrmInputDetailedDB<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TfrmInputSimpleDB<TE, TS>)
@@ -22,7 +24,6 @@ type
     FPgcDetails: TPageControl;
     FDetailSets: TList<IDetailSet>;
     FDetailObjects: TObjectList<TObject>;
-    FCopySourceId: Int64;
     procedure CreateDetailArea;
     procedure DetailSetChanged(Sender: TObject);
     procedure PageResize(Sender: TObject);
@@ -34,17 +35,19 @@ type
   protected
     // Yeni sekme (alt sınıf FormCreate'te)
     function AddDetailPage(const ACaption: string): TTabSheet;
-    // Sekmeye detay grid'i ekler (aynı sekmede ikincisi yan yana). AService ve küme forma aittir.
-    // AViewName: kolon düzeni (sys_grid_column) için görünüm; AMasterField: satırları okuma filtresi (FK kolonu);
-    // ASetMasterId: kayıtta satırın FK'sı; ALineForm: satır formunu oluşturur (modal, satırı sahiplenir)
-    function AddDetail<TD: TEntity, constructor; TDS: TCrudService<TD>>(APage: TTabSheet; AService: TDS;
-      const AViewName, AMasterField: string; const ASetMasterId: TProc<TD, Int64>;
-      const ALineForm: TDetailLineFormFactory<TD>; const ACompare: TComparison<TD> = nil): TDetailSet<TD, TDS>;
-    // Satırlar değişti / yüklendi: başlıktaki toplamlar vb. (alt sınıf)
+    // Sekmeye kalem grid'i ekler (aynı sekmede ikincisi yan yana); küme forma aittir.
+    // AViewName: kolon düzeni (sys_grid_column) için görünüm; AGetList: Table'ın kalem listesi (Table değişebilir,
+    // her çağrıda okunur); ACreateLine / AAddLine / ARemoveLine: belge servisinin kalem işlemleri;
+    // ALineForm: satır formunu oluşturur (modal, satırı sahiplenir)
+    function AddDetail<TD: TDetailEntity, constructor>(APage: TTabSheet; const AViewName: string;
+      const AGetList: TFunc<TObjectList<TD>>; const ACreateLine: TFunc<TD>; const AAddLine, ARemoveLine: TProc<TD>;
+      const ALineForm: TDetailLineFormFactory<TD>): TDetailSet<TD>;
+    // Kalemler değişti / yüklendi: başlıktaki toplamlar vb. (alt sınıf)
     procedure DetailsChanged; virtual;
-    // Detay satırları düzenlenebilir mi (yeni / kopya / güncelleme modları)
+    // Kalemler düzenlenebilir mi (yeni / kopya / güncelleme modları)
     function DetailsEditable: Boolean; virtual;
-    procedure LoadDetails;
+    // Table (belge) yüklendi / değişti: grid'ler yeniden dolar
+    procedure RefreshDetails;
   public
     property PanelDetails: TPanel read FPanelDetails;
     property PgcDetails: TPageControl read FPgcDetails;
@@ -113,14 +116,14 @@ begin
   Result.OnResize := PageResize;
 end;
 
-function TfrmInputDetailedDB<TE, TS>.AddDetail<TD, TDS>(APage: TTabSheet; AService: TDS;
-  const AViewName, AMasterField: string; const ASetMasterId: TProc<TD, Int64>;
-  const ALineForm: TDetailLineFormFactory<TD>; const ACompare: TComparison<TD>): TDetailSet<TD, TDS>;
+function TfrmInputDetailedDB<TE, TS>.AddDetail<TD>(APage: TTabSheet; const AViewName: string;
+  const AGetList: TFunc<TObjectList<TD>>; const ACreateLine: TFunc<TD>; const AAddLine, ARemoveLine: TProc<TD>;
+  const ALineForm: TDetailLineFormFactory<TD>): TDetailSet<TD>;
 var
   LGrid: TDetailGrid;
 begin
   LGrid := TDetailGrid.Create(Self, APage, AViewName);
-  Result := TDetailSet<TD, TDS>.Create(AService, LGrid, AMasterField, ASetMasterId, ALineForm, ACompare);
+  Result := TDetailSet<TD>.Create(LGrid, AGetList, ACreateLine, AAddLine, ARemoveLine, ALineForm);
   Result.OnChanged := DetailSetChanged;
   FDetailObjects.Add(Result);
   FDetailSets.Add(Result);
@@ -185,35 +188,23 @@ begin
 //
 end;
 
-procedure TfrmInputDetailedDB<TE, TS>.LoadDetails;
+procedure TfrmInputDetailedDB<TE, TS>.RefreshDetails;
 var
   LSet: IDetailSet;
-  LId: Int64;
 begin
-  if FCopySourceId > 0 then
-    LId := FCopySourceId
-  else
-    LId := Table.Id;
   for LSet in FDetailSets do
-  begin
-    LSet.Load(LId);
-    if FCopySourceId > 0 then
-      LSet.MarkAllNew;
-  end;
-  FCopySourceId := 0;
+    LSet.Reset;
   UpdateDetailEditable;
+  DetailsChanged;
 end;
 
 procedure TfrmInputDetailedDB<TE, TS>.FormShow(Sender: TObject);
 var
   LSet: IDetailSet;
 begin
-  // kopya: kaynak belgenin satırları yeni satır olarak gelir, başlık yeni kayıt
+  // kopya: başlık ve kalemler yeni kayıt olur (servis: id'ler, belge no, durum …)
   if FormMode = ifmCopyNewRecord then
-  begin
-    FCopySourceId := Table.Id;
-    Table.Id := 0;
-  end;
+    Service.PrepareCopy(Table);
 
   inherited;
 
@@ -221,7 +212,7 @@ begin
   FPanelDetails.TabOrder := PanelMain.ControlCount - 1;
   for LSet in FDetailSets do
     LSet.Grid.LoadLayout(Service.UoW);
-  LoadDetails;
+  RefreshDetails;
   if FPgcDetails.PageCount > 0 then
     FPgcDetails.ActivePageIndex := 0;
 end;
@@ -300,16 +291,13 @@ begin
     Exit;
   end;
 
-  // inceleme -> güncelleme: kayıt kilitlenir; satırlar transaction içinde yeniden okunup düzenlenebilir olur
+  // inceleme -> güncelleme: kayıt kilitlenir; belge (kalemler dahil) transaction içinde yeniden okunur
   inherited;
   if FormMode = ifmUpdate then
-    LoadDetails;
+    RefreshDetails;
 end;
 
 procedure TfrmInputDetailedDB<TE, TS>.SaveDocument;
-var
-  LChanges: TArray<IDetailChanges>;
-  i: Integer;
 begin
   if not ValidateInput(PanelMain) then
     Exit;
@@ -322,12 +310,8 @@ begin
     TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Confirmation')) <> mrYes) then
     Exit;
 
-  SetLength(LChanges, FDetailSets.Count);
-  for i := 0 to FDetailSets.Count - 1 do
-    LChanges[i] := FDetailSets[i].GetChanges;
-
   try
-    Service.BusinessSaveWithDetails(Table, LChanges, True, True);
+    Service.BusinessSaveWithDetails(Table, True, True);
     RefreshParentGrid(True);
     ModalResult := mrOk;
     Close;
@@ -344,7 +328,7 @@ begin
   LId := Table.Id;
   inherited;
   if Table.Id <> LId then
-    LoadDetails;
+    RefreshDetails;
 end;
 
 procedure TfrmInputDetailedDB<TE, TS>.BtnSpinUpClick(Sender: TObject);
@@ -354,7 +338,7 @@ begin
   LId := Table.Id;
   inherited;
   if Table.Id <> LId then
-    LoadDetails;
+    RefreshDetails;
 end;
 
 end.

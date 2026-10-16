@@ -268,9 +268,10 @@
         <DCCReference Include="Forms\Core\Base\Grid\Grid.ColumnSelector.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmGrid.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmInputSimpleDB.pas"/>
-        <DCCReference Include="BackEnd\Core\Base\DetailChanges.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\DetailList.pas"/>
         <DCCReference Include="Forms\Core\Base\Detail\Detail.Grid.pas"/>
         <DCCReference Include="Forms\Core\Base\Detail\Detail.Lines.pas"/>
+        <DCCReference Include="Forms\Core\Base\Detail\Detail.Totals.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmInputLineDB.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmInputDetailedDB.pas"/>
         <DCCReference Include="BackEnd\Core\Auth.Service.pas"/>

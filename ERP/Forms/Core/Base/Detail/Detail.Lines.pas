@@ -1,15 +1,17 @@
 ﻿unit Detail.Lines;
 
-// Bir detay tablosunun ekrandaki kümesi: bellekteki satırlar (TDetailChanges) + grid (TDetailGrid) + satır formu.
-// Ekle / aç / sil işlemleri satır formunu modal açar; sonuç bellekteki kümeye yazılır, grid yenilenir.
-// Veritabanına yazma ana servisin BusinessSaveWithDetails'inde (Changes) olur.
+// Belgenin bir kalem listesinin ekranı: belge nesnesindeki liste (ör. TSlsOffer.Lines, TDetailEntity) + grid
+// (TDetailGrid) + satır formu. Kalem ekleme / çıkarma ve hesaplar belge servisinde (ACreateLine / AAddLine /
+// ARemoveLine geri çağrıları); bu birim yalnız ekran: satır formunu modal açar, grid'i listeden doldurur
+// (silinmişler gösterilmez), boyama için ekranda değiştirilen kalemleri tutar. DB'ye yazma belge servisinin
+// BusinessSaveWithDetails'inde olur.
 
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Rtti, System.TypInfo, System.Generics.Defaults,
+  System.SysUtils, System.Classes, System.Generics.Collections,
   Vcl.Forms, Vcl.Controls, Vcl.Dialogs,
-  Entity, Service, SharedFormTypes, DetailChanges, Detail.Grid;
+  Entity, SharedFormTypes, Detail.Grid;
 
 type
   TLineFormResult = (lfrNone, lfrAccept, lfrDelete);
@@ -22,15 +24,13 @@ type
     function ExtractLine: TObject;
   end;
 
-  // Tipten bağımsız detay kümesi (ana form bu arayüzle çalışır)
+  // Tipten bağımsız kalem ekranı (ana form bu arayüzle çalışır)
   IDetailSet = interface
     ['{A13F7D2C-6B95-4E08-B4C1-0E7A9D3F5C26}']
     function GetGrid: TDetailGrid;
-    function GetChanges: IDetailChanges;
-    procedure Load(AMasterId: Int64);
-    procedure MarkAllNew;
+    // Belge yüklendi / değişti (Table yeni nesne olabilir): ekrandaki değişiklik işaretleri temizlenir, grid dolar
+    procedure Reset;
     procedure SetEditable(AValue: Boolean);
-    function HasChanges: Boolean;
     procedure AddLine;
     procedure OpenLine(ARow: Integer);
     procedure DeleteLine(ARow: Integer);
@@ -39,15 +39,19 @@ type
 
   TDetailLineFormFactory<TD> = reference to function(ALine: TD; AMode: TInputFormMode): TForm;
 
-  TDetailSet<TD: TEntity, constructor; TDS: TCrudService<TD>> = class(TNoRefCountObject, IDetailSet)
+  TDetailSet<TD: TDetailEntity, constructor> = class(TNoRefCountObject, IDetailSet)
   private
-    FChanges: TDetailChanges<TD, TDS>;
     FGrid: TDetailGrid;
-    FMasterField: string;
-    FEditable: Boolean;
+    FGetList: TFunc<TObjectList<TD>>;
+    FCreateLine: TFunc<TD>;
+    FAddLine: TProc<TD>;
+    FRemoveLine: TProc<TD>;
     FLineForm: TDetailLineFormFactory<TD>;
-    FOnNewLine: TProc<TD>;
+    FEditable: Boolean;
+    FVisible: TList<TD>;      // grid satırı -> kalem (silinmemişler, liste sırasıyla)
+    FModified: TList<TD>;     // bu ekranda değiştirilen kayıtlı kalemler (yalnız boyama)
     FOnChanged: TNotifyEvent;
+    function List: TObjectList<TD>;
     procedure Refill(AFocusRow: Integer);
     procedure Changed;
     function ShowLine(ALine: TD; AMode: TInputFormMode; out AResult: TLineFormResult): TD;
@@ -55,66 +59,49 @@ type
     procedure GridEdit(AGrid: TDetailGrid; ARow: Integer);
     procedure GridDelete(AGrid: TDetailGrid; ARow: Integer);
   public
-    // AService sahiplenilir; AGrid ana formun bileşenidir (form serbest bırakır)
-    constructor Create(AService: TDS; AGrid: TDetailGrid; const AMasterField: string;
-      const ASetMasterId: TProc<TD, Int64>; const ALineForm: TDetailLineFormFactory<TD>; const ACompare: TComparison<TD>);
+    // AGrid ana formun bileşenidir (form serbest bırakır). AGetList: belgenin güncel listesi (Table değişebilir);
+    // ACreateLine: yeni kalem (listeye eklenmemiş, ön değerli); AAddLine / ARemoveLine: belge servisinin kalem işlemleri;
+    // ALineForm: satır formu (modal, satırı sahiplenir)
+    constructor Create(AGrid: TDetailGrid; const AGetList: TFunc<TObjectList<TD>>; const ACreateLine: TFunc<TD>;
+      const AAddLine, ARemoveLine: TProc<TD>; const ALineForm: TDetailLineFormFactory<TD>);
     destructor Destroy; override;
 
     // IDetailSet
     function GetGrid: TDetailGrid;
-    function GetChanges: IDetailChanges;
-    procedure Load(AMasterId: Int64);
-    procedure MarkAllNew;
+    procedure Reset;
     procedure SetEditable(AValue: Boolean);
-    function HasChanges: Boolean;
     procedure AddLine;
     procedure OpenLine(ARow: Integer);
     procedure DeleteLine(ARow: Integer);
 
-    property Changes: TDetailChanges<TD, TDS> read FChanges;
+    // Grid satırındaki kalem (yoksa nil)
+    function Item(ARow: Integer): TD;
     property Grid: TDetailGrid read FGrid;
     property Editable: Boolean read FEditable;
-    // Yeni satır nesnesi formdan önce: ana kayıttan gelen değerler (ana id, para birimi, belge no …)
-    property OnNewLine: TProc<TD> read FOnNewLine write FOnNewLine;
-    // Satır eklendi / değişti / silindi (ana formda toplamlar)
+    // Kalem eklendi / değişti / silindi (ana formda toplamlar)
     property OnChanged: TNotifyEvent read FOnChanged write FOnChanged;
   end;
-
-// Okunabilir + yazılabilir basit tipli tüm özellikler kopyalanır ([Column] ve [NotMapped]; nesne özellikleri hariç)
-procedure CopyEntityValues(ASource, ATarget: TObject);
 
 implementation
 
 uses
-  LocalizationManager, Ths.DialogHelper;
+  LocalizationManager, Ths.DialogHelper, DetailList;
 
-procedure CopyEntityValues(ASource, ATarget: TObject);
-var
-  LCtx: TRttiContext;
-  LProp: TRttiProperty;
-begin
-  LCtx := TRttiContext.Create;
-  try
-    for LProp in LCtx.GetType(ASource.ClassType).GetProperties do
-      if LProp.IsReadable and LProp.IsWritable and
-        (LProp.PropertyType.TypeKind in [tkInteger, tkInt64, tkFloat, tkEnumeration, tkUString, tkString, tkLString, tkWString, tkChar, tkWChar]) then
-        LProp.SetValue(ATarget, LProp.GetValue(ASource));
-  finally
-    LCtx.Free;
-  end;
-end;
+{ TDetailSet<TD> }
 
-{ TDetailSet<TD, TDS> }
-
-constructor TDetailSet<TD, TDS>.Create(AService: TDS; AGrid: TDetailGrid; const AMasterField: string;
-  const ASetMasterId: TProc<TD, Int64>; const ALineForm: TDetailLineFormFactory<TD>; const ACompare: TComparison<TD>);
+constructor TDetailSet<TD>.Create(AGrid: TDetailGrid; const AGetList: TFunc<TObjectList<TD>>; const ACreateLine: TFunc<TD>;
+  const AAddLine, ARemoveLine: TProc<TD>; const ALineForm: TDetailLineFormFactory<TD>);
 begin
   inherited Create;
-  FChanges := TDetailChanges<TD, TDS>.Create(AService, ASetMasterId, ACompare);
   FGrid := AGrid;
-  FMasterField := AMasterField;
+  FGetList := AGetList;
+  FCreateLine := ACreateLine;
+  FAddLine := AAddLine;
+  FRemoveLine := ARemoveLine;
   FLineForm := ALineForm;
   FEditable := True;
+  FVisible := TList<TD>.Create;
+  FModified := TList<TD>.Create;
 
   FGrid.DefineFields(TD);
   FGrid.OnAdd := GridAdd;
@@ -122,7 +109,7 @@ begin
   FGrid.OnDelete := GridDelete;
 end;
 
-destructor TDetailSet<TD, TDS>.Destroy;
+destructor TDetailSet<TD>.Destroy;
 begin
   if Assigned(FGrid) then
   begin
@@ -130,67 +117,78 @@ begin
     FGrid.OnEdit := nil;
     FGrid.OnDelete := nil;
   end;
-  FChanges.Free;
+  FModified.Free;
+  FVisible.Free;
   inherited;
 end;
 
-function TDetailSet<TD, TDS>.GetGrid: TDetailGrid;
+function TDetailSet<TD>.GetGrid: TDetailGrid;
 begin
   Result := FGrid;
 end;
 
-function TDetailSet<TD, TDS>.GetChanges: IDetailChanges;
+function TDetailSet<TD>.List: TObjectList<TD>;
 begin
-  Result := FChanges;
+  Result := FGetList();
 end;
 
-procedure TDetailSet<TD, TDS>.Refill(AFocusRow: Integer);
+function TDetailSet<TD>.Item(ARow: Integer): TD;
 begin
-  FGrid.Fill(FChanges.Count,
+  if (ARow >= 0) and (ARow < FVisible.Count) then
+    Result := FVisible[ARow]
+  else
+    Result := nil;
+end;
+
+procedure TDetailSet<TD>.Refill(AFocusRow: Integer);
+var
+  LList: TObjectList<TD>;
+  LItem: TD;
+begin
+  FVisible.Clear;
+  LList := List;
+  if Assigned(LList) then
+    for LItem in LList do
+      if not LItem.Deleted then
+        FVisible.Add(LItem);
+
+  FGrid.Fill(FVisible.Count,
     function(i: Integer): TObject
     begin
-      Result := FChanges[i];
+      Result := FVisible[i];
     end,
     function(i: Integer): TDetailRowState
     begin
-      Result := FChanges.States[i];
+      if FVisible[i].Id < 0 then
+        Result := drsNew
+      else if FModified.Contains(FVisible[i]) then
+        Result := drsModified
+      else
+        Result := drsUnchanged;
     end,
     AFocusRow);
 end;
 
-procedure TDetailSet<TD, TDS>.Changed;
+procedure TDetailSet<TD>.Changed;
 begin
   if Assigned(FOnChanged) then
     FOnChanged(Self);
 end;
 
-procedure TDetailSet<TD, TDS>.Load(AMasterId: Int64);
+procedure TDetailSet<TD>.Reset;
 begin
-  FChanges.Load(FMasterField, AMasterId);
+  FModified.Clear;
   Refill(-1);
-  Changed;
 end;
 
-procedure TDetailSet<TD, TDS>.MarkAllNew;
-begin
-  FChanges.MarkAllNew;
-  Refill(FGrid.CurrentRow);
-  Changed;
-end;
-
-procedure TDetailSet<TD, TDS>.SetEditable(AValue: Boolean);
+procedure TDetailSet<TD>.SetEditable(AValue: Boolean);
 begin
   FEditable := AValue;
   FGrid.Editable := AValue;
 end;
 
-function TDetailSet<TD, TDS>.HasChanges: Boolean;
-begin
-  Result := FChanges.HasChanges;
-end;
-
-// Satır formu modal; kabul edilirse düzenlenen nesne döner (çağıran sahiplenir), değilse nil
-function TDetailSet<TD, TDS>.ShowLine(ALine: TD; AMode: TInputFormMode; out AResult: TLineFormResult): TD;
+// Satır formu modal; kabul edilirse düzenlenen nesne döner (çağıran sahiplenir), değilse nil (nesne formla gider)
+function TDetailSet<TD>.ShowLine(ALine: TD; AMode: TInputFormMode; out AResult: TLineFormResult): TD;
 var
   LForm: TForm;
   LLineForm: ILineForm;
@@ -219,34 +217,34 @@ begin
   end;
 end;
 
-procedure TDetailSet<TD, TDS>.AddLine;
+procedure TDetailSet<TD>.AddLine;
 var
-  LLine, LResult: TD;
+  LResult: TD;
   LFormResult: TLineFormResult;
 begin
   if not FEditable then
     Exit;
-  LLine := TD.Create;
-  if Assigned(FOnNewLine) then
-    FOnNewLine(LLine);
-  LResult := ShowLine(LLine, ifmNewRecord, LFormResult);
+  LResult := ShowLine(FCreateLine(), ifmNewRecord, LFormResult);
   if LResult = nil then
     Exit;
-  Refill(FChanges.Add(LResult));
+  FAddLine(LResult);
+  Refill(FVisible.Count);   // yeni kalem sonda
   Changed;
 end;
 
-procedure TDetailSet<TD, TDS>.OpenLine(ARow: Integer);
+procedure TDetailSet<TD>.OpenLine(ARow: Integer);
 var
-  LCopy, LResult: TD;
+  LItem, LCopy, LResult: TD;
   LFormResult: TLineFormResult;
 begin
-  if (ARow < 0) or (ARow >= FChanges.Count) then
+  LItem := Item(ARow);
+  if LItem = nil then
     Exit;
 
-  // kopya üzerinde çalışılır: vazgeçilirse kümedeki satır değişmez
+  // kopya üzerinde çalışılır: vazgeçilirse belgedeki kalem değişmez
   LCopy := TD.Create;
-  CopyEntityValues(FChanges[ARow], LCopy);
+  CopyEntityValues(LItem, LCopy);
+  LCopy.HeaderEntity := LItem.HeaderEntity;
 
   if not FEditable then
   begin
@@ -257,21 +255,32 @@ begin
   LResult := ShowLine(LCopy, ifmUpdate, LFormResult);
   if LFormResult = lfrDelete then
   begin
-    FChanges.Delete(ARow);
+    FModified.Remove(LItem);
+    FRemoveLine(LItem);
     Refill(ARow - 1);
     Changed;
   end
   else if LResult <> nil then
   begin
-    FChanges.Replace(ARow, LResult);
+    // değerler belgedeki kaleme geri yazılır (nesne kimliği, başlık referansı ve liste sırası korunur)
+    try
+      CopyEntityValues(LResult, LItem);
+    finally
+      LResult.Free;
+    end;
+    if (LItem.Id > 0) and not FModified.Contains(LItem) then
+      FModified.Add(LItem);
     Refill(ARow);
     Changed;
   end;
 end;
 
-procedure TDetailSet<TD, TDS>.DeleteLine(ARow: Integer);
+procedure TDetailSet<TD>.DeleteLine(ARow: Integer);
+var
+  LItem: TD;
 begin
-  if not FEditable or (ARow < 0) or (ARow >= FChanges.Count) then
+  LItem := Item(ARow);
+  if not FEditable or (LItem = nil) then
     Exit;
   if TThsDialogHelper.CustomMsgDlg(
     TLocalizationManager.Translate(TLangKeys.TDetailForm.MsgDeleteLine, 'Delete the selected line?'),
@@ -280,22 +289,23 @@ begin
     mbNo,
     TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Confirmation')) <> mrYes then
     Exit;
-  FChanges.Delete(ARow);
+  FModified.Remove(LItem);
+  FRemoveLine(LItem);   // yeni kalem serbest kalır, kayıtlı kalem Deleted
   Refill(ARow - 1);
   Changed;
 end;
 
-procedure TDetailSet<TD, TDS>.GridAdd(AGrid: TDetailGrid; ARow: Integer);
+procedure TDetailSet<TD>.GridAdd(AGrid: TDetailGrid; ARow: Integer);
 begin
   AddLine;
 end;
 
-procedure TDetailSet<TD, TDS>.GridEdit(AGrid: TDetailGrid; ARow: Integer);
+procedure TDetailSet<TD>.GridEdit(AGrid: TDetailGrid; ARow: Integer);
 begin
   OpenLine(ARow);
 end;
 
-procedure TDetailSet<TD, TDS>.GridDelete(AGrid: TDetailGrid; ARow: Integer);
+procedure TDetailSet<TD>.GridDelete(AGrid: TDetailGrid; ARow: Integer);
 begin
   DeleteLine(ARow);
 end;
