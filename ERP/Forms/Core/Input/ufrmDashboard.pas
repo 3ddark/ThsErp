@@ -94,7 +94,6 @@ uses
   ufrmPurInvoices, PurInvoice.Service, PurInvoice,
   ufrmPurInvoiceDetails, PurInvoiceDetail.Service, PurInvoiceDetail,
   ufrmSlsOffers, SlsOffer.Service, SlsOffer,
-  ufrmSlsOfferDetails, SlsOfferDetail.Service, SlsOfferDetail,
   ufrmSlsOrders, SlsOrder.Service, SlsOrder,
   ufrmSlsOrderDetails, SlsOrderDetail.Service, SlsOrderDetail,
   ufrmSlsDispatches, SlsDispatch.Service, SlsDispatch,
@@ -165,7 +164,6 @@ type
     mnisys_currency: TMenuItem;
     mnimenu_sales: TMenuItem;
     mnisls_offers: TMenuItem;
-    mnisls_offer_lines: TMenuItem;
     mnisls_orders: TMenuItem;
     mnisls_order_lines: TMenuItem;
     mnisls_dispatches: TMenuItem;
@@ -211,7 +209,6 @@ type
     actpur_invoices: TAction;
     actpur_invoice_lines: TAction;
     actsls_offers: TAction;
-    actsls_offer_lines: TAction;
     actsls_orders: TAction;
     actsls_order_lines: TAction;
     actsls_dispatches: TAction;
@@ -421,7 +418,6 @@ type
     procedure actpur_invoicesExecute(Sender: TObject);
     procedure actpur_invoice_linesExecute(Sender: TObject);
     procedure actsls_offersExecute(Sender: TObject);
-    procedure actsls_offer_linesExecute(Sender: TObject);
     procedure actsls_ordersExecute(Sender: TObject);
     procedure actsls_order_linesExecute(Sender: TObject);
     procedure actsls_dispatchesExecute(Sender: TObject);
@@ -893,11 +889,6 @@ end;
 procedure TfrmDashboard.actsls_offersExecute(Sender: TObject);
 begin
   TfrmSlsOffers.Create(Self, TSlsOfferService.Create, TSlsOffer.Create).Show;
-end;
-
-procedure TfrmDashboard.actsls_offer_linesExecute(Sender: TObject);
-begin
-  TfrmSlsOfferDetails.Create(Self, TSlsOfferDetailService.Create, TSlsOfferDetail.Create).Show;
 end;
 
 procedure TfrmDashboard.actsls_ordersExecute(Sender: TObject);
@@ -1712,8 +1703,6 @@ begin
     actpur_invoice_lines.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.TitlePlural, 'Invoice Lines');
   if Assigned(actsls_offers) then
     actsls_offers.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.TitlePlural, 'Sales Offers');
-  if Assigned(actsls_offer_lines) then
-    actsls_offer_lines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOfferDetail.TitlePlural, 'Offer Lines');
   if Assigned(actsls_orders) then
     actsls_orders.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOrder.TitlePlural, 'Sales Orders');
   if Assigned(actsls_order_lines) then
@@ -2003,7 +1992,9 @@ begin
     LComp := FindComponent(LItem.ActionName);
     if not (LComp is TAction) then
     begin
-      GLogger.ErrorFmt('Menü ekranının action''ı yok: %d %s', [LItem.MenuCode, LItem.ActionName]);
+      // kaldırılan ekranın satırı pasif kalır (kodlar kalıcı): yalnız aktif satırda action eksikliği hata
+      if LItem.IsActive then
+        GLogger.ErrorFmt('Menü ekranının action''ı yok: %d %s', [LItem.MenuCode, LItem.ActionName]);
       Continue;
     end;
     FActionCodes.AddOrSetValue(LItem.ActionName, LItem.MenuCode);

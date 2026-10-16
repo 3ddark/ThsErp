@@ -67,6 +67,15 @@ type
         const RemoveSort = 'popup.remove_sort';
       end;
 
+      TDetailForm = record
+        const LineAdd = 'detail_form.line_add';
+        const LineEdit = 'detail_form.line_edit';
+        const LineDelete = 'detail_form.line_delete';
+        const MsgDeleteLine = 'detail_form.msg_delete_line';
+        const CsvFilter = 'detail_form.csv_filter';
+        const TabLines = 'detail_form.tab_lines';
+      end;
+
       TUnitOfWork = record
         const NotInitialized = 'unitofwork.not_initialized';
         const ConstructorNotFound = 'unitofwork.constructor_not_found';

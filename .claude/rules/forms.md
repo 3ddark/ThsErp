@@ -80,10 +80,44 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
   `SetFixed{Master}(AId, AName)`, append the name to the caption and pre-fill the FK in `CreateInputForm(ifmNewRecord)`.
 - Opening from the dashboard: `Tfrm{Entity}s.Create(Self, T{Entity}Service.Create, T{Entity}.Create).Show;`
 
-## Master / detail
+## Master / detail (header + lines in one screen)
 
-There is **no** `TfrmInputDetail` / `TfrmInput<T>` base in the code base (planned). Current pattern:
-master list → popup item → detail list opened with `SetFixed{Master}` (see `ufrmSysPermissionTemplates` → rights / users).
+Reference: Sales offer — `ufrmSlsOffers` (list, `sls_offer`) → `ufrmSlsOfferDetail` (`TfrmSlsOfferDetail`, header +
+lines) → `ufrmSlsOfferLine` (`TfrmSlsOfferLine`, one `sls_offer_detail` line, modal).
+
+| Kind | Unit / class | Base |
+| --- | --- | --- |
+| Detailed form (header + lines) | `ufrm{Master}Detail` / `Tfrm{Master}Detail` | `TfrmInputDetailedDB<TMaster, TMasterService>` (`ufrmInputDetailedDB`) |
+| Line form | `ufrm{Master}Line` / `Tfrm{Master}Line` | `TfrmInputLineDB<TLine, TLineService>` (`ufrmInputLineDB`) |
+
+- **Save model:** lines are added / changed / deleted **in memory**; F5 Onayla calls
+  `Service.BusinessSaveWithDetails(Table, [changes…], True, True)` (`TCrudService`): header insert (Id 0) or update, then
+  every detail set (`IDetailChanges.ApplyTo`: deletes, inserts, updates of modified rows via the line service's
+  `Business*` with `AWithBegin/AWithCommit = False`), `AfterSaveDetails` hook, commit — one transaction. On error:
+  rollback, new header / line ids reset (`RevertApply`), the form stays open. Review → Güncelle locks the header (base) and
+  reloads the lines editable; Kapat rolls back. The line service keeps its own rules (draft only, totals recalculation).
+- **Backend:** `DetailChanges.TDetailChanges<TD, TDS>` (items + states `drsNew/drsModified`, deleted ids, `Load(fk, id)`,
+  `Add/Replace/Delete/MarkAllNew`). Usable without UI (integration test `TestSalesOfferDocument`).
+- **Detailed form (`TfrmInputDetailedDB`):** DFM holds the header (`pnlContent`, **`Align = alTop`**, fixed height); the
+  base adds `PanelDetails` (alClient) + `PgcDetails`. In `FormCreate` (after `inherited` + `pnlContent.Parent := PanelMain`):
+  `Page := AddDetailPage(caption)`; `Lines := AddDetail<TLine, TLineService>(Page, TLineService.Create, 'vw_{line}',
+  '{master_fk}', SetMasterIdProc, LineFormFactory, CompareFunc)`; optional `Lines.OnNewLine` (pre-fill from header);
+  `Lines.Grid.AddFooterColumn(...)` **then** `Lines.Grid.BuildData`, then `Lines.Grid.SetColumnProperty(...)` (hide ids).
+  Several `AddDetail` on one page = grids side by side (debit / credit); several pages = tabs (BoM raw / labour /
+  by-product). Override `DetailsChanged` for header totals. Copy mode loads the source's lines as new rows.
+  Keys: F5 accept, F6 close, F7 add line (active page / focused grid), Enter / double click open line, Ctrl+Del delete
+  line, PgUp / PgDn (review) navigate the list records (not when a detail grid has focus).
+- **Line form (`TfrmInputLineDB`):** written like a `TfrmInputSimpleDB` form (`BtnAcceptClick`: controls → `Table`, then
+  `inherited`); never writes to the DB, never touches the master's transaction. Override `PrepareLine` to fill derived
+  values (amounts) for the grid / header totals. Factory: `TfrmXLine.Create(Self, TXLineService.Create, ALine, AMode, nil)`
+  (owns its service; modes: `ifmNewRecord`, `ifmUpdate` (Delete button → line marked deleted), `ifmReadOnly` in review).
+- **Detail grid (`Detail.Grid.TDetailGrid`):** `TFDMemTable` built by RTTI from the line entity (`[Column]` name /
+  `[NotMapped]` snake_case = view column names, so `sys_grid_column` layout of `vw_{line}` applies and is saved per user).
+  Row state colouring (new = light blue, modified = light orange). Cell API: `OnCellStyle(Grid, Row, State, Field, var
+  Style)` — back / font colour, font style, alignment, text, `ProgressPercent` bar, `ImageIndex` (dm.il16);
+  `OnCustomDraw(..., var Handled)` for full custom drawing. Popup: add / open / delete / CSV.
+- Older screens still use master list → popup → detail list with `SetFixed{Master}` (`ufrmSysPermissionTemplates`);
+  migrate document screens to the detailed form when touched.
 
 ---
 

@@ -268,6 +268,11 @@
         <DCCReference Include="Forms\Core\Base\Grid\Grid.ColumnSelector.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmGrid.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmInputSimpleDB.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\DetailChanges.pas"/>
+        <DCCReference Include="Forms\Core\Base\Detail\Detail.Grid.pas"/>
+        <DCCReference Include="Forms\Core\Base\Detail\Detail.Lines.pas"/>
+        <DCCReference Include="Forms\Core\Base\ufrmInputLineDB.pas"/>
+        <DCCReference Include="Forms\Core\Base\ufrmInputDetailedDB.pas"/>
         <DCCReference Include="BackEnd\Core\Auth.Service.pas"/>
         <DCCReference Include="BackEnd\System\Domain\SysAccessRight.pas"/>
         <DCCReference Include="BackEnd\System\Exception\SysAccessRight.Exception.pas"/>
@@ -975,9 +980,6 @@
         <DCCReference Include="BackEnd\Sales\Exception\SlsOffer.Exception.pas"/>
         <DCCReference Include="BackEnd\Sales\Repository\SlsOffer.Repository.pas"/>
         <DCCReference Include="BackEnd\Sales\Service\SlsOffer.Service.pas"/>
-        <DCCReference Include="Forms\Sales\Input\ufrmSlsOffer.pas">
-            <Form>frmSlsOffer</Form>
-        </DCCReference>
         <DCCReference Include="Forms\Sales\Output\ufrmSlsOffers.pas">
             <Form>frmSlsOffers</Form>
         </DCCReference>
@@ -988,8 +990,8 @@
         <DCCReference Include="Forms\Sales\Input\ufrmSlsOfferDetail.pas">
             <Form>frmSlsOfferDetail</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Sales\Output\ufrmSlsOfferDetails.pas">
-            <Form>frmSlsOfferDetails</Form>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsOfferLine.pas">
+            <Form>frmSlsOfferLine</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Sales\Domain\SlsOrder.pas"/>
         <DCCReference Include="BackEnd\Sales\Exception\SlsOrder.Exception.pas"/>

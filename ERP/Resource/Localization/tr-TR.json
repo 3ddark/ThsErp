@@ -2058,5 +2058,11 @@
   "grid.page_size": "Sayfa başına kayıt",
   "grid.page_all": "Tümü",
   "grid.quick_all": "Tümü",
-  "grid.page_info": "%s - %s / %s kayıt"
+  "grid.page_info": "%s - %s / %s kayıt",
+  "detail_form.line_add": "Satır Ekle",
+  "detail_form.line_edit": "Satırı Aç",
+  "detail_form.line_delete": "Satırı Sil",
+  "detail_form.msg_delete_line": "Seçili satır silinsin mi?",
+  "detail_form.csv_filter": "CSV Dosyaları (*.csv)|*.csv",
+  "detail_form.tab_lines": "Satırlar"
 }

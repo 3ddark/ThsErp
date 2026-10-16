@@ -2109,5 +2109,11 @@
   "grid.page_size": "Lignes par page",
   "grid.page_all": "Tout",
   "grid.quick_all": "Tout",
-  "grid.page_info": "%s - %s sur %s"
+  "grid.page_info": "%s - %s sur %s",
+  "detail_form.line_add": "Ajouter une ligne",
+  "detail_form.line_edit": "Ouvrir la ligne",
+  "detail_form.line_delete": "Supprimer la ligne",
+  "detail_form.msg_delete_line": "Supprimer la ligne sélectionnée ?",
+  "detail_form.csv_filter": "Fichiers CSV (*.csv)|*.csv",
+  "detail_form.tab_lines": "Lignes"
 }

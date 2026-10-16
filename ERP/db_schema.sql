@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict Bx4qHHw9LdGcrQdpLZdYH6ys5QcKVANmHF6Db7shxDj5rTNcoVZM84AdFbk6pdf
+\restrict h4g3rbgcaK2UiCM4Ru800VWNQZOr1DrR5bjDt0IDbbFo8wNISxaEn7uh5BxJDQL
 
--- Dumped from database version 18.3
--- Dumped by pg_dump version 18.3
+-- Dumped from database version 18.1
+-- Dumped by pg_dump version 18.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -621,7 +621,7 @@ CREATE SERVER audit_server FOREIGN DATA WRAPPER postgres_fdw OPTIONS (
     dbname 'ths_audit',
     fetch_size '1000',
     host 'localhost',
-    port '5432'
+    port '5433'
 );
 
 
@@ -12435,5 +12435,5 @@ GRANT SELECT ON TABLE audit_remote.audit_log TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Bx4qHHw9LdGcrQdpLZdYH6ys5QcKVANmHF6Db7shxDj5rTNcoVZM84AdFbk6pdf
+\unrestrict h4g3rbgcaK2UiCM4Ru800VWNQZOr1DrR5bjDt0IDbbFo8wNISxaEn7uh5BxJDQL
 

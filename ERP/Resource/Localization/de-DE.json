@@ -2109,5 +2109,11 @@
   "grid.page_size": "Zeilen pro Seite",
   "grid.page_all": "Alle",
   "grid.quick_all": "Alle",
-  "grid.page_info": "%s - %s von %s"
+  "grid.page_info": "%s - %s von %s",
+  "detail_form.line_add": "Zeile hinzufügen",
+  "detail_form.line_edit": "Zeile öffnen",
+  "detail_form.line_delete": "Zeile löschen",
+  "detail_form.msg_delete_line": "Ausgewählte Zeile löschen?",
+  "detail_form.csv_filter": "CSV-Dateien (*.csv)|*.csv",
+  "detail_form.tab_lines": "Zeilen"
 }

@@ -629,6 +629,19 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
 - Win32 Debug kod boyutu 23,36 MB -> 16,88 MB. UI tam koşu 1749 pass / 0 fail / 1 warn (öncesiyle aynı).
 - SONRAKİ: generic Detaylar (master-detail) formu — kullanıcı tarif edecek.
 
+## Detaylı form (master-detail) altyapısı (2026-10-16, NB61)
+- Kullanıcı kararları: satırlar bellekte, Onayla'da başlık + satırlar tek transaction; TDBGrid + FDMemTable + hücre
+  çizim API'si; SlsOffer örneği; eski ufrmSlsOffer + ufrmSlsOfferDetails (Kalemler listesi / popup) silindi;
+  boyama yalnız kayıt durumuna göre (yeni / değişmiş).
+- Backend: Service.IDetailChanges + TCrudService.BusinessSaveWithDetails(AEntity, ADetails, AWithCommit, APermission)
+  + AfterSaveDetails; DetailChanges.TDetailChanges<TD, TDS>.
+- UI: ufrmInputDetailedDB (TfrmInputDetailedDB<>), ufrmInputLineDB (TfrmInputLineDB<>), Forms/Core/Base/Detail/
+  Detail.Grid (TDetailGrid) + Detail.Lines (TDetailSet<>, ILineForm). Kural: rules/forms.md "Master / detail".
+- SlsOffer: ufrmSlsOfferDetail (başlık + kalemler), ufrmSlsOfferLine (kalem satırı). Dashboard actsls_offer_lines silindi;
+  sys_menu 600401 pasif (kod kalıcı); LoadMenu pasif satırda eksik action'ı hata loglamıyor. 6 dil anahtarı x 4 (detail_form.*).
+- Test: entegrasyon TestSalesOfferDocument 14 adım, paket 1566 pass / 0 fail.
+- Sonraki adaylar: diğer belgeler (sipariş, irsaliye, fatura, satınalma, reçete sekmeli, fiş borç/alacak yan yana).
+
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.

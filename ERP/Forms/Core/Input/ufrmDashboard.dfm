@@ -352,12 +352,6 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 93
       OnExecute = actsls_offersExecute
     end
-    object actsls_offer_lines: TAction
-      Category = 'Satis'
-      Caption = 'Teklif Kalemleri'
-      ImageIndex = 93
-      OnExecute = actsls_offer_linesExecute
-    end
     object actsls_orders: TAction
       Category = 'Satis'
       Caption = 'Sat'#305#351' Sipari'#351'leri'
@@ -788,9 +782,6 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 93
       object mnisls_offers: TMenuItem
         Action = actsls_offers
-      end
-      object mnisls_offer_lines: TMenuItem
-        Action = actsls_offer_lines
       end
       object mnisls_sep1: TMenuItem
         Caption = '-'

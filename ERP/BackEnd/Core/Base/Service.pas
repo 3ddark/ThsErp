@@ -12,6 +12,17 @@ uses
 type
   TCrudOperation = (coInsert, coUpdate, coDelete);
 
+  // Ana kayıtla aynı transaction'da yazılan detay satırı değişiklikleri (uygulaması: DetailChanges.TDetailChanges<>)
+  IDetailChanges = interface
+    ['{7C3E2B0A-5D41-4F7B-9E1C-3A6F0D8B2C94}']
+    // Açık transaction içinde: önce silinenler, sonra yeni (insert) ve değişen (update) satırlar
+    procedure ApplyTo(AMasterId: Int64; APermissionControl: Boolean);
+    // Transaction geri alındıysa: bu kayıtta eklenen satırların id'leri yeniden 0 (tekrar denemede yine insert)
+    procedure RevertApply;
+    // Kayıt başarılı: silinenler / değişiklik işaretleri temizlenir (küme DB ile aynı)
+    procedure AcceptApply;
+  end;
+
   IService<T: TEntity> = interface
     ['{61C41E30-4D6E-4474-9529-6BE1133F16B2}']
     function GetUnitOfWork: TUnitOfWork;
@@ -115,6 +126,13 @@ type
     procedure BusinessInsert(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;
     procedure BusinessUpdate(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;
     procedure BusinessDelete(AEntity: T; AWithBegin, AWithCommit, APermissionControl: Boolean); virtual; abstract;
+
+    // Başlık + detaylar tek transaction'da: başlık insert (Id <= 0) ya da update, sonra her detay kümesi,
+    // AfterSaveDetails, AWithCommit ise commit (incelemeden gelen kilit transaction'ı dahil). Hata: rollback,
+    // yeni başlığın / satırların id'leri geri alınır, hata yükselir
+    procedure BusinessSaveWithDetails(AEntity: T; const ADetails: TArray<IDetailChanges>; AWithCommit, APermissionControl: Boolean); virtual;
+    // Detaylar yazıldıktan sonra, commit öncesi (ör. başlık toplamlarını kalemlerden yeniden hesaplama)
+    procedure AfterSaveDetails(AEntity: T); virtual;
   end;
 
 implementation
@@ -166,6 +184,48 @@ end;
 destructor TCrudService<T>.Destroy;
 begin
   inherited;
+end;
+
+procedure TCrudService<T>.BusinessSaveWithDetails(AEntity: T; const ADetails: TArray<IDetailChanges>; AWithCommit, APermissionControl: Boolean);
+var
+  LIsNew: Boolean;
+  LDetail: IDetailChanges;
+begin
+  LIsNew := AEntity.Id <= 0;
+  try
+    // güncellemede incelemeden (kayıt kilidi) açık kalan transaction kullanılır ve commit edilir
+    if not Self.UoW.InTransaction then
+      Self.UoW.BeginTransaction;
+
+    if LIsNew then
+      BusinessInsert(AEntity, False, False, APermissionControl)
+    else
+      BusinessUpdate(AEntity, False, False, APermissionControl);
+
+    for LDetail in ADetails do
+      LDetail.ApplyTo(AEntity.Id, APermissionControl);
+
+    AfterSaveDetails(AEntity);
+
+    if AWithCommit and Self.UoW.InTransaction then
+      Self.UoW.Commit;
+
+    for LDetail in ADetails do
+      LDetail.AcceptApply;
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    if LIsNew then
+      AEntity.Id := 0;
+    for LDetail in ADetails do
+      LDetail.RevertApply;
+    raise;
+  end;
+end;
+
+procedure TCrudService<T>.AfterSaveDetails(AEntity: T);
+begin
+//
 end;
 {
 function TService<T>.CreateEntityInstanceByClass(AClass: TClass): TObject;

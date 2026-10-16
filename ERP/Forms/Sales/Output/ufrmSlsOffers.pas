@@ -8,13 +8,12 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
-  SlsOffer.Service, SlsOffer, ufrmSlsOffer;
+  SlsOffer.Service, SlsOffer, ufrmSlsOfferDetail;
 
 type
   TfrmSlsOffers = class(TfrmGrid<TSlsOffer, TSlsOfferService>)
   private
-    FmniLines, FmniSend, FmniToDraft, FmniReject, FmniClose, FmniToOrder: TMenuItem;
-    procedure mniLinesClick(Sender: TObject);
+    FmniSend, FmniToDraft, FmniReject, FmniClose, FmniToOrder: TMenuItem;
     procedure mniSendClick(Sender: TObject);
     procedure mniToDraftClick(Sender: TObject);
     procedure mniRejectClick(Sender: TObject);
@@ -38,7 +37,6 @@ implementation
 
 uses
   SlsLookup,
-  ufrmSlsOfferDetails, SlsOfferDetail, SlsOfferDetail.Service,
   ufrmSlsOrderDetails, SlsOrderDetail, SlsOrderDetail.Service, SlsOrder, SlsOrder.Service;
 
 procedure TfrmSlsOffers.StatusGetText(Sender: TField; var Text: string; DisplayText: Boolean);
@@ -48,19 +46,6 @@ begin
   else
     Text := TSlsLookup.Text(slkOfferStatus, Sender.AsInteger);
 end;
-procedure TfrmSlsOffers.mniLinesClick(Sender: TObject);
-var
-  LFrm: TfrmSlsOfferDetails;
-begin
-  if Grd.DataSource.DataSet.IsEmpty then
-    Exit;
-
-  SetSelectedItem;
-  LFrm := TfrmSlsOfferDetails.Create(Self, TSlsOfferDetailService.Create, TSlsOfferDetail.Create);
-  LFrm.SetFixedOffer(Table.Id, Table.OfferNo, Table.Currency);
-  LFrm.Show;
-end;
-
 procedure TfrmSlsOffers.SetStatus(AStatus: SmallInt);
 begin
   if Grd.DataSource.DataSet.IsEmpty then
@@ -127,8 +112,6 @@ begin
     Exit;
 
   AddPopupMenuSpliter();
-  FmniLines := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuLines, 'Lines'), 'mniLines', mniLinesClick);
-  AddPopupMenuSpliter();
   FmniSend := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuSend, 'Mark as Sent'), 'mniSend', mniSendClick);
   FmniToDraft := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuToDraft, 'Back to Draft'), 'mniToDraft', mniToDraftClick);
   FmniReject := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuReject, 'Rejected by Customer'), 'mniReject', mniRejectClick);
@@ -137,22 +120,23 @@ begin
   FmniToOrder := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuToOrder, 'Convert to Order'), 'mniToOrder', mniToOrderClick);
 end;
 
+// Başlık + kalemler tek ekranda (TfrmSlsOfferDetail)
 function TfrmSlsOffers.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
 var
   LNew: TSlsOffer;
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmSlsOffer.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSlsOfferDetail.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmSlsOffer.Create(Self, Service, TSlsOffer.Create, AFormMode, Self.RefreshParentGrid)
+    Result := TfrmSlsOfferDetail.Create(Self, Service, TSlsOffer.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
   begin
     LNew := Table.Clone;
-    // Kopya: yeni numara, taslak, tutarlar kalemlerden yeniden hesaplanır
+    // Kopya: yeni numara, taslak; kalemler kaynak tekliften yeni satır olarak gelir (id formda sıfırlanır)
     LNew.OfferNo := '';
     LNew.Status := SLS_OFF_DRAFT;
-    Result := TfrmSlsOffer.Create(Self, Service, LNew, AFormMode, Self.RefreshParentGrid);
+    Result := TfrmSlsOfferDetail.Create(Self, Service, LNew, AFormMode, Self.RefreshParentGrid);
   end;
 end;
 
@@ -242,8 +226,6 @@ begin
   SetColumnTitle('account_name', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColAccountName, 'Customer'));
   SetColumnTitle('employee_name', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColEmployeeName, 'Sales Representative'));
   SetColumnTitle('line_count', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColLineCount, 'Lines'));
-  if Assigned(FmniLines) then
-    FmniLines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuLines, 'Lines');
   if Assigned(FmniSend) then
     FmniSend.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuSend, 'Mark as Sent');
   if Assigned(FmniToDraft) then

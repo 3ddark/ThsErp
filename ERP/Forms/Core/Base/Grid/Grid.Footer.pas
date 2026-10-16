@@ -8,7 +8,7 @@ interface
 uses
   System.SysUtils, System.Classes, System.Variants, System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.DBGrids, Data.DB,
-  FireDAC.Comp.Client, UnitOfWork, Grid.Types;
+  FireDAC.Comp.Client, FireDAC.Comp.DataSet, UnitOfWork, Grid.Types;
 
 type
   TGridFooter = class
@@ -24,7 +24,7 @@ type
     procedure Add(const AColumnFieldName: string; AAggregateType: TAggregateType; const ADisplayFormat: string = '');
     procedure LoadFromDB(AUoW: TUnitOfWork; const AViewName: string);
     // AServerTotals: sayfalı mod, toplamlar LoadServerTotals ile SQL'den; değilse sorgu kapalıyken TFDAggregate kurulur
-    procedure Build(AQry: TFDQuery; AServerTotals: Boolean);
+    procedure Build(AQry: TFDDataSet; AServerTotals: Boolean);
     procedure UpdateLayout(AGrid: TDBGrid; AServerTotals: Boolean);
     // 'count(*) AS pg_total' sonrası eklenecek toplamlar (', sum("x") AS pg_a0' …); sorguda olmayan kolon atlanır
     function AggregateSelectList(AQry: TDataSet): string;
@@ -113,7 +113,7 @@ begin
   end;
 end;
 
-procedure TGridFooter.Build(AQry: TFDQuery; AServerTotals: Boolean);
+procedure TGridFooter.Build(AQry: TFDDataSet; AServerTotals: Boolean);
 var
   LCol: TFooterColumn;
   LFunc: string;
