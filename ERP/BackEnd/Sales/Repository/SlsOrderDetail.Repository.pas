@@ -40,9 +40,46 @@ type
     function NextLineNo(AParentId: Int64): SmallInt;
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
       out ADiscountRate, AVatRate: Currency): Boolean;
+    // Sipariş(ler)in kalemleri tek sorguda, sipariş + satır no sırasıyla (belge yükleme)
+    function FindByOrderIds(const AOrderIds: TArray<Int64>): TObjectList<TSlsOrderDetail>;
   end;
 
 implementation
+
+function TSlsOrderDetailRepository.FindByOrderIds(const AOrderIds: TArray<Int64>): TObjectList<TSlsOrderDetail>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TSlsOrderDetail>.Create(True);
+  LIds := '';
+  for LId in AOrderIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TSlsOrderDetail) + ' v ' +
+                  ' WHERE v.sls_order_id IN (' + LIds + ') ORDER BY v.sls_order_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByOrderIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
 
 constructor TSlsOrderDetailRepository.Create(AConnection: TFDConnection);
 begin

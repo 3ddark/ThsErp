@@ -6,24 +6,34 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  SlsOffer.Repository, SlsOffer, SlsOffer.Exception, SlsOfferDetail, SlsOfferDetail.Repository;
+  DocumentService, SlsOffer.Repository, SlsOffer, SlsOffer.Exception, SlsOfferDetail, SlsOfferDetail.Repository;
 
 type
-  // Teklif belgesi = başlık + Lines. Okuma (BusinessFindById, FindById(…, True)) kalemleri de getirir; kalem
-  // işlemleri ve hesaplar bellekte (CreateLine / AddLine / NewLine / RemoveLine / Recalculate); BusinessSaveWithDetails
-  // başlık + kalemleri tek transaction'da yazar ve belgeyi yeniden okur. Domain yalnız veri taşır.
-  TSlsOfferService = class(TCrudService<TSlsOffer>)
+  // Teklif belgesi = başlık + Lines (TDocumentService: kalem işlemleri, hesap tetikleme, yükleme, tek transaction'lı
+  // kayıt + Reload). Okuma (BusinessFindById, FindById(…, True)) kalemleri de getirir. Domain yalnız veri taşır.
+  TSlsOfferService = class(TDocumentService<TSlsOffer, TSlsOfferDetail>)
   private
     FRepo: IRepository<TSlsOffer>;
-    FLineRepo: IRepository<TSlsOfferDetail>;
 
     procedure DoAdd(AEntity: TSlsOffer);
     procedure DoUpdate(AEntity: TSlsOffer);
     procedure DoDelete(AId: Int64);
 
     procedure FailRequired(const AKey, ADefault: string);
-    // Kayıt öncesi aktif kalemler: alan kontrolleri + tutarlar, boş satır no'lar, satır no tekilliği
-    procedure PrepareLinesForSave(AOffer: TSlsOffer);
+  protected
+    // ---- belge yapısı / kayıt adımları (TDocumentService)
+    function GetLines(AHeader: TSlsOffer): TObjectList<TSlsOfferDetail>; override;
+    function FindLinesByHeaderIds(const AIds: TArray<Int64>): TObjectList<TSlsOfferDetail>; override;
+    function GetLineHeaderId(ALine: TSlsOfferDetail): Int64; override;
+    procedure SetLineHeaderId(ALine: TSlsOfferDetail; AHeaderId: Int64); override;
+    function GetLineNo(ALine: TSlsOfferDetail): Integer; override;
+    procedure SetLineNo(ALine: TSlsOfferDetail; ANo: Integer); override;
+    procedure RaiseDuplicateLineNo; override;
+    procedure InitLine(AHeader: TSlsOffer; ALine: TSlsOfferDetail); override;
+    procedure CheckLines(AHeader: TSlsOffer; const ALines: TArray<TSlsOfferDetail>; AOldLines: TObjectList<TSlsOfferDetail>); override;
+    procedure AfterDocumentSaved(AHeader: TSlsOffer; AOldLines: TObjectList<TSlsOfferDetail>); override;
+    procedure PrepareCopyHeader(AHeader: TSlsOffer); override;
+    procedure PrepareCopyLine(AHeader: TSlsOffer; ALine: TSlsOfferDetail); override;
   public
     constructor Create;
     destructor Destroy; override;
@@ -31,36 +41,9 @@ type
     procedure ValidateBusinessRules(AEntity: TSlsOffer; AOperation: TCrudOperation); override;
     procedure ChangeStatus(AId: Int64; ANewStatus: SmallInt; APermissionControl: Boolean);
 
-    // ---- Belge: bellekte (DB'ye yazmaz)
-    // Yeni kalem nesnesi (listeye eklenmez): sıradaki satır no, başlık referansı, belge no / para birimi (fiyat önerisi)
-    function CreateLine(AOffer: TSlsOffer): TSlsOfferDetail;
-    // Kalem teklife girer (sahiplenilir, geçici id); kalem ve başlık tutarları hesaplanır
-    procedure AddLine(AOffer: TSlsOffer; ALine: TSlsOfferDetail);
-    // CreateLine + AddLine (koddan kalem ekleme)
-    function NewLine(AOffer: TSlsOffer): TSlsOfferDetail;
-    // Yeni kalem listeden çıkar (serbest kalır), kayıtlı kalem kayıtta silinir (Deleted); toplamlar yeniden
-    procedure RemoveLine(AOffer: TSlsOffer; ALine: TSlsOfferDetail);
-    // Silinmemiş kalemler
-    function ActiveLines(AOffer: TSlsOffer): TArray<TSlsOfferDetail>;
-    // Kalem tutarları (brüt / iskonto / net / KDV / toplam) miktar, fiyat ve oranlardan
-    procedure RecalculateLine(ALine: TSlsOfferDetail);
-    // Başlık toplamları aktif kalemlerden
-    procedure RecalculateTotals(AOffer: TSlsOffer);
-    // Tüm kalemler + başlık toplamları
-    procedure Recalculate(AOffer: TSlsOffer);
-    // Kopya ile yeni teklif: başlık id / no boş, taslak; silinmişler atılır, kalemler yeni (geçici id)
-    procedure PrepareCopy(AEntity: TSlsOffer); override;
-
-    // ---- Belge: DB
-    // Tekliflerin kalemleri tek sorguda (her teklifin mevcut Lines'ı boşaltılır)
-    procedure LoadLines(const AOffers: TArray<TSlsOffer>);
-    // Başlık + kalemler DB'den aynı nesneye (kayıt sonrası gerçek id'ler, stok adları, türeyen değerler)
-    procedure Reload(AOffer: TSlsOffer);
-    // Başlık + kalemler tek transaction: yetki, başlık kilidi, kalem kontrolleri + tutarlar, başlık kuralları (taslak,
-    // belge no …), toplamlar kalemlerden, başlık insert / update, kalemler (DetailList.Save: sil / güncelle / ekle),
-    // belge hook'u (siparişe aktarılan miktarlar + durum), AWithCommit ise commit, Reload. Hata: rollback, yeni
-    // kalemler geçici id'lerine, yeni başlık id 0'a döner; Deleted işaretleri korunur
-    procedure BusinessSaveWithDetails(AEntity: TSlsOffer; AWithCommit, APermissionControl: Boolean); override;
+    // Kalem tutarları (brüt / iskonto / net / KDV / toplam) miktar, fiyat ve oranlardan; başlık toplamları aktif kalemlerden
+    procedure RecalculateLine(ALine: TSlsOfferDetail); override;
+    procedure RecalculateTotals(AHeader: TSlsOffer); override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
@@ -82,12 +65,13 @@ type
 implementation
 
 uses
-  SysPermission.Service, SlsLookup, DetailList, SlsOfferDetail.Service, SlsOfferDetail.Exception;
+  SysPermission.Service, SlsLookup, SlsOfferDetail.Service, SlsOfferDetail.Exception;
 
 constructor TSlsOfferService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSlsOffer, TSlsOfferRepository>;
+  FHeaderRepo := FRepo;
   FLineRepo := Self.UoW.GetRepository<TSlsOfferDetail, TSlsOfferDetailRepository>;
   Self.PermissionCode := PERMISSION_SLS_OFFER;
 end;
@@ -145,47 +129,83 @@ begin
   end;
 end;
 
-{ Belge: bellekte }
+{ Belge (TDocumentService) }
 
-function TSlsOfferService.CreateLine(AOffer: TSlsOffer): TSlsOfferDetail;
+function TSlsOfferService.GetLines(AHeader: TSlsOffer): TObjectList<TSlsOfferDetail>;
+begin
+  Result := AHeader.Lines;
+end;
+
+function TSlsOfferService.FindLinesByHeaderIds(const AIds: TArray<Int64>): TObjectList<TSlsOfferDetail>;
+begin
+  Result := TSlsOfferDetailRepository(FLineRepo).FindByOfferIds(AIds);
+end;
+
+function TSlsOfferService.GetLineHeaderId(ALine: TSlsOfferDetail): Int64;
+begin
+  Result := ALine.SlsOfferId;
+end;
+
+procedure TSlsOfferService.SetLineHeaderId(ALine: TSlsOfferDetail; AHeaderId: Int64);
+begin
+  ALine.SlsOfferId := AHeaderId;
+end;
+
+function TSlsOfferService.GetLineNo(ALine: TSlsOfferDetail): Integer;
+begin
+  Result := ALine.LineNo;
+end;
+
+procedure TSlsOfferService.SetLineNo(ALine: TSlsOfferDetail; ANo: Integer);
+begin
+  ALine.LineNo := ANo;
+end;
+
+procedure TSlsOfferService.RaiseDuplicateLineNo;
+begin
+  raise ESlsOfferDetailExceptionLineUnique.Create;
+end;
+
+// Kalem formunun fiyat önerisi / gösterimi için belge no ve para birimi
+procedure TSlsOfferService.InitLine(AHeader: TSlsOffer; ALine: TSlsOfferDetail);
+begin
+  ALine.OfferNo := AHeader.OfferNo;
+  ALine.Currency := AHeader.Currency;
+end;
+
+// Alanlar + tutarlar (tek kalem yoluyla ortak CheckLine), KDV tanımlı oranlardan
+procedure TSlsOfferService.CheckLines(AHeader: TSlsOffer; const ALines: TArray<TSlsOfferDetail>; AOldLines: TObjectList<TSlsOfferDetail>);
 var
   LLine: TSlsOfferDetail;
-  LMax: Integer;
+  LRates: TArray<Currency>;
 begin
-  LMax := 0;
-  for LLine in AOffer.Lines do
-    if not LLine.Deleted and (LLine.LineNo > LMax) then
-      LMax := LLine.LineNo;
-  Result := TSlsOfferDetail.Create;
-  Result.LineNo := LMax + 1;
-  Result.SlsOfferId := AOffer.Id;
-  Result.OfferNo := AOffer.OfferNo;
-  Result.Currency := AOffer.Currency;
-  Result.Header := AOffer;
+  LRates := TSlsOfferDetailRepository(FLineRepo).GetVatRates;
+  for LLine in ALines do
+  begin
+    TSlsOfferDetailService.CheckLine(LLine);
+    TSlsOfferDetailService.CheckVatRate(LLine.VatRate, LRates);
+    if LLine.Id < 0 then
+      LLine.OrderedQuantity := 0;   // siparişe aktarılan miktar sipariş kalemlerinden tutulur
+  end;
 end;
 
-procedure TSlsOfferService.AddLine(AOffer: TSlsOffer; ALine: TSlsOfferDetail);
+// Belge hook'u: siparişe aktarılan miktarlar ve otomatik durum (taslakta etkisiz, tutarlılık için)
+procedure TSlsOfferService.AfterDocumentSaved(AHeader: TSlsOffer; AOldLines: TObjectList<TSlsOfferDetail>);
 begin
-  TDetailList.Attach<TSlsOfferDetail>(AOffer.Lines, ALine, AOffer);
-  RecalculateLine(ALine);
-  RecalculateTotals(AOffer);
+  TSlsOfferRepository(FRepo).RefreshOrderedQuantities(AHeader.Id);
 end;
 
-function TSlsOfferService.NewLine(AOffer: TSlsOffer): TSlsOfferDetail;
+procedure TSlsOfferService.PrepareCopyHeader(AHeader: TSlsOffer);
 begin
-  Result := CreateLine(AOffer);
-  AddLine(AOffer, Result);
+  AHeader.OfferNo := '';
+  AHeader.Status := SLS_OFF_DRAFT;
 end;
 
-procedure TSlsOfferService.RemoveLine(AOffer: TSlsOffer; ALine: TSlsOfferDetail);
+procedure TSlsOfferService.PrepareCopyLine(AHeader: TSlsOffer; ALine: TSlsOfferDetail);
 begin
-  TDetailList.Remove<TSlsOfferDetail>(AOffer.Lines, ALine);
-  RecalculateTotals(AOffer);
-end;
-
-function TSlsOfferService.ActiveLines(AOffer: TSlsOffer): TArray<TSlsOfferDetail>;
-begin
-  Result := TDetailList.Active<TSlsOfferDetail>(AOffer.Lines);
+  inherited;
+  ALine.OfferNo := '';
+  ALine.OrderedQuantity := 0;
 end;
 
 procedure TSlsOfferService.RecalculateLine(ALine: TSlsOfferDetail);
@@ -202,227 +222,24 @@ begin
   ALine.TotalAmount := LTotal;
 end;
 
-procedure TSlsOfferService.RecalculateTotals(AOffer: TSlsOffer);
+procedure TSlsOfferService.RecalculateTotals(AHeader: TSlsOffer);
 var
   LLine: TSlsOfferDetail;
 begin
-  AOffer.GrossAmount := 0;
-  AOffer.DiscountAmount := 0;
-  AOffer.NetAmount := 0;
-  AOffer.VatAmount := 0;
-  AOffer.TotalAmount := 0;
-  for LLine in AOffer.Lines do
+  AHeader.GrossAmount := 0;
+  AHeader.DiscountAmount := 0;
+  AHeader.NetAmount := 0;
+  AHeader.VatAmount := 0;
+  AHeader.TotalAmount := 0;
+  for LLine in AHeader.Lines do
     if not LLine.Deleted then
     begin
-      AOffer.GrossAmount := AOffer.GrossAmount + LLine.GrossAmount;
-      AOffer.DiscountAmount := AOffer.DiscountAmount + LLine.DiscountAmount;
-      AOffer.NetAmount := AOffer.NetAmount + LLine.NetAmount;
-      AOffer.VatAmount := AOffer.VatAmount + LLine.VatAmount;
-      AOffer.TotalAmount := AOffer.TotalAmount + LLine.TotalAmount;
+      AHeader.GrossAmount := AHeader.GrossAmount + LLine.GrossAmount;
+      AHeader.DiscountAmount := AHeader.DiscountAmount + LLine.DiscountAmount;
+      AHeader.NetAmount := AHeader.NetAmount + LLine.NetAmount;
+      AHeader.VatAmount := AHeader.VatAmount + LLine.VatAmount;
+      AHeader.TotalAmount := AHeader.TotalAmount + LLine.TotalAmount;
     end;
-end;
-
-procedure TSlsOfferService.Recalculate(AOffer: TSlsOffer);
-var
-  LLine: TSlsOfferDetail;
-begin
-  for LLine in AOffer.Lines do
-    if not LLine.Deleted then
-      RecalculateLine(LLine);
-  RecalculateTotals(AOffer);
-end;
-
-procedure TSlsOfferService.PrepareCopy(AEntity: TSlsOffer);
-var
-  LLine: TSlsOfferDetail;
-begin
-  inherited;
-  AEntity.OfferNo := '';
-  AEntity.Status := SLS_OFF_DRAFT;
-  TDetailList.MarkAllNew<TSlsOfferDetail>(AEntity.Lines);
-  for LLine in AEntity.Lines do
-  begin
-    LLine.SlsOfferId := 0;
-    LLine.OfferNo := '';
-    LLine.OrderedQuantity := 0;
-    LLine.Header := AEntity;
-  end;
-  Recalculate(AEntity);
-end;
-
-procedure TSlsOfferService.PrepareLinesForSave(AOffer: TSlsOffer);
-var
-  LLines: TArray<TSlsOfferDetail>;
-  LLine: TSlsOfferDetail;
-  LMax: Integer;
-  LNos: TDictionary<Integer, Boolean>;
-  LRates: TArray<Currency>;
-begin
-  LLines := ActiveLines(AOffer);
-  LRates := TSlsOfferDetailRepository(FLineRepo).GetVatRates;
-  LMax := 0;
-  for LLine in LLines do
-  begin
-    TSlsOfferDetailService.CheckLine(LLine);   // alanlar + tutarlar
-    TSlsOfferDetailService.CheckVatRate(LLine.VatRate, LRates);
-    if LLine.Id < 0 then
-      LLine.OrderedQuantity := 0;              // siparişe aktarılan miktar sipariş kalemlerinden tutulur
-    if LLine.LineNo > LMax then
-      LMax := LLine.LineNo;
-  end;
-
-  LNos := TDictionary<Integer, Boolean>.Create;
-  try
-    for LLine in LLines do
-    begin
-      if LLine.LineNo <= 0 then
-      begin
-        Inc(LMax);
-        LLine.LineNo := LMax;
-      end;
-      if LNos.ContainsKey(LLine.LineNo) then
-        raise ESlsOfferDetailExceptionLineUnique.Create;
-      LNos.Add(LLine.LineNo, True);
-    end;
-  finally
-    LNos.Free;
-  end;
-end;
-
-{ Belge: DB }
-
-procedure TSlsOfferService.LoadLines(const AOffers: TArray<TSlsOffer>);
-var
-  LOffer: TSlsOffer;
-  LById: TDictionary<Int64, TSlsOffer>;
-  LIds: TArray<Int64>;
-  LList: TObjectList<TSlsOfferDetail>;
-  LLine: TSlsOfferDetail;
-  n: Integer;
-begin
-  LById := TDictionary<Int64, TSlsOffer>.Create;
-  try
-    SetLength(LIds, Length(AOffers));
-    n := 0;
-    for LOffer in AOffers do
-    begin
-      LOffer.Lines.Clear;
-      if (LOffer.Id > 0) and not LById.ContainsKey(LOffer.Id) then
-      begin
-        LById.Add(LOffer.Id, LOffer);
-        LIds[n] := LOffer.Id;
-        Inc(n);
-      end;
-    end;
-    SetLength(LIds, n);
-    if n = 0 then
-      Exit;
-
-    LList := TSlsOfferDetailRepository(FLineRepo).FindByOfferIds(LIds);
-    try
-      // nesneler tekliflerin Lines listelerine geçer
-      LList.OwnsObjects := False;
-      for LLine in LList do
-        if LById.TryGetValue(LLine.SlsOfferId, LOffer) then
-        begin
-          LLine.Header := LOffer;
-          LOffer.Lines.Add(LLine);
-        end
-        else
-          LLine.Free;
-    finally
-      LList.Free;
-    end;
-  finally
-    LById.Free;
-  end;
-end;
-
-procedure TSlsOfferService.Reload(AOffer: TSlsOffer);
-var
-  LFresh: TSlsOffer;
-begin
-  LFresh := FRepo.FindById(AOffer.Id, False);
-  try
-    if not Assigned(LFresh) then
-      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AOffer.Id]));
-    CopyEntityValues(LFresh, AOffer);   // başlığın basit alanları (Lines nesne özelliği, kopyalanmaz)
-  finally
-    LFresh.Free;
-  end;
-  LoadLines([AOffer]);
-end;
-
-procedure TSlsOfferService.BusinessSaveWithDetails(AEntity: TSlsOffer; AWithCommit, APermissionControl: Boolean);
-var
-  LIsNew: Boolean;
-  LLog: TDetailSaveLog;
-  LLocked: TSlsOffer;
-  LOffer: TSlsOffer;
-begin
-  LIsNew := AEntity.Id <= 0;
-  LOffer := AEntity;
-  LLog := TDetailSaveLog.Create;
-  try
-    try
-      if LIsNew then
-        Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl)
-      else
-        Self.UoW.EnsureAuthorized(Self.PermissionCode, ptUpdate, APermissionControl);
-
-      // güncellemede incelemeden (kayıt kilidi) açık kalan transaction kullanılır
-      if not Self.UoW.InTransaction then
-        Self.UoW.BeginTransaction;
-
-      if not LIsNew then
-      begin
-        LLocked := FRepo.FindById(AEntity.Id, True);
-        try
-          if not Assigned(LLocked) then
-            raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AEntity.Id]));
-        finally
-          LLocked.Free;
-        end;
-      end;
-
-      PrepareLinesForSave(AEntity);
-      if LIsNew then
-        ValidateAll(AEntity, coInsert)
-      else
-        ValidateAll(AEntity, coUpdate);   // taslak dışı teklif reddedilir (kalemler dahil)
-      // ValidateBusinessRules tutarları sıfırlar / DB'den alır: belge kaydında toplamlar kalemlerden
-      RecalculateTotals(AEntity);
-
-      if LIsNew then
-        FRepo.Add(AEntity)
-      else
-        FRepo.Update(AEntity);
-
-      TDetailList.Save<TSlsOfferDetail>(AEntity.Lines, FLineRepo,
-        procedure(ALine: TSlsOfferDetail)
-        begin
-          ALine.SlsOfferId := LOffer.Id;
-        end,
-        LLog);
-
-      // belge hook'u: siparişe aktarılan miktarlar ve otomatik durum (taslakta etkisiz, tutarlılık için)
-      TSlsOfferRepository(FRepo).RefreshOrderedQuantities(AEntity.Id);
-
-      if AWithCommit and Self.UoW.InTransaction then
-        Self.UoW.Commit;
-    except
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      LLog.Revert;
-      if LIsNew then
-        AEntity.Id := 0;
-      raise;
-    end;
-  finally
-    LLog.Free;
-  end;
-
-  Reload(AEntity);
 end;
 
 procedure TSlsOfferService.ValidateBusinessRules(AEntity: TSlsOffer; AOperation: TCrudOperation);

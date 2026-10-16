@@ -358,12 +358,6 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 93
       OnExecute = actsls_ordersExecute
     end
-    object actsls_order_lines: TAction
-      Category = 'Satis'
-      Caption = 'Sipari'#351' Kalemleri'
-      ImageIndex = 93
-      OnExecute = actsls_order_linesExecute
-    end
     object actsls_dispatches: TAction
       Category = 'Satis'
       Caption = 'Sevk '#304'rsaliyeleri'
@@ -788,9 +782,6 @@ inherited frmDashboard: TfrmDashboard
       end
       object mnisls_orders: TMenuItem
         Action = actsls_orders
-      end
-      object mnisls_order_lines: TMenuItem
-        Action = actsls_order_lines
       end
       object mnisls_sep2: TMenuItem
         Caption = '-'

@@ -145,9 +145,24 @@ end;
 
 ## Documents (header + lines aggregate)
 
-Reference: `SlsOffer` (`TSlsOffer.Lines`, `TSlsOfferService`, `SlsOfferDetail.Repository.FindByOfferIds`,
-integration test `TestSalesOfferDocument`). User decisions 2026-10-16 (`docs/claude_resume.md`). Migrate other documents
-(sales order / invoice / dispatch, purchasing, voucher, production packets) to the same pattern.
+Reference: `SlsOffer`, `SlsOrder` (`T{Header}.Lines`, `T{Header}Service = class(TDocumentService<T{Header}, T{Line}>)`,
+`{Line}.Repository.FindBy{Header}Ids`, integration tests `TestSalesOfferDocument` / `TestSalesOrderDocument`). User
+decisions 2026-10-16 (`docs/claude_resume.md`). Migrate other documents (sales dispatch / invoice, purchasing, voucher,
+production packets) to the same pattern.
+
+- **Base class `DocumentService.TDocumentService<TH, TL>`** (Core/Base) owns the document flow (CreateLine / AddLine /
+  NewLine / RemoveLine / ActiveLines / Recalculate / PrepareCopy / LoadLines / Reload / BusinessSaveWithDetails). The
+  document service sets `FHeaderRepo` / `FLineRepo` in its constructor and overrides only the document-specific parts:
+  `GetLines`, `FindLinesByHeaderIds`, `Get/SetLineHeaderId`, `Get/SetLineNo`, `RaiseDuplicateLineNo`,
+  `RecalculateLine`, `RecalculateTotals`, and optionally `InitLine` (view fields of a new line), `CheckLines(AHeader,
+  ALines, AOldLines)` (line rules + amounts; `AOldLines` = DB state before the save: status locks, DB-maintained values
+  such as delivered quantity), `AfterLineSaved` (line hook), `AfterDocumentSaved(AHeader, AOldLines)` (document hook,
+  old + new links), `PrepareCopyHeader` / `PrepareCopyLine`. Its own `BusinessFindById` / `FindById(…, True)` /
+  `Find(…, True)` call `LoadLines`. Conversions (`CreateFromOffer` …) build the target document in memory with
+  `NewLine` and save it with `BusinessSaveWithDetails` (one code path).
+- Status locks: header editable in more states than lines (sales order: header in draft / approved / partial, lines
+  only in draft) → `CheckLines` rejects new / deleted / changed lines outside the editable state; the detailed form
+  overrides `DetailsEditable` the same way.
 
 - **Domain = data only.** Header: `property Lines: TObjectList<T{Line}>` (owned, created in constructor, freed in
   destructor, **no attribute**). Line: `class(TDetailEntity)` (`Entity.pas`: `Deleted`, `HeaderEntity` weak reference).
@@ -177,7 +192,10 @@ integration test `TestSalesOfferDocument`). User decisions 2026-10-16 (`docs/cla
   `vw_acc_account_transaction` — never a hook. Totals are not a hook: recalculated in memory before writing.
 - Unchanged existing lines are updated too (one batch; the audit trigger skips no-op updates) — no `Modified` flag.
 - Unique keys that lines may swap (`(header_id, line_no)`) are `DEFERRABLE INITIALLY DEFERRED`
-  (`sls_offer_detail_line_key`); the service still rejects duplicates in memory before writing.
+  (`sls_offer_detail_line_key`, `sls_order_detail_line_key`); the service still rejects duplicates in memory before
+  writing.
+- Sales line VAT rate must be one of `acc_set_tax_rate` (`TSlsOfferDetailService.CheckVatRate`; line forms offer a
+  combo of the defined rates); discount 0-100.
 - Documents with several line lists (BoM raw / labour) call `TDetailList.Save` once per list.
 
 ---

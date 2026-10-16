@@ -20,14 +20,19 @@ type
     procedure DoUpdate(AEntity: TSlsOrderDetail);
     procedure DoDelete(AId: Int64);
 
-    procedure FailRequired(const AKey, ADefault: string);
-    procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+    class procedure FailRequired(const AKey, ADefault: string); static;
+    class procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string); static;
     procedure EnsureDraft(AOrderId: Int64);
     procedure AfterWrite(AOrderId, AOfferDetailId: Int64);
   public
     constructor Create;
     destructor Destroy; override;
 
+    // Kalemin kendi alanları (DB'siz): stok, miktar, fiyat, oranlar + tutarların hesabı. Tek kalem kaydı
+    // (ValidateBusinessRules) ve belge kaydı (TSlsOrderService.BusinessSaveWithDetails) ortak kullanır
+    class procedure CheckLine(AEntity: TSlsOrderDetail); static;
+    function GetVatRates: TArray<Currency>;
+    function GetUomCode(AInventoryId: Int64): string;
     procedure ValidateBusinessRules(AEntity: TSlsOrderDetail; AOperation: TCrudOperation); override;
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
       out ADiscountRate, AVatRate: Currency): Boolean;
@@ -52,7 +57,7 @@ type
 implementation
 
 uses
-  SysPermission.Service, SlsLookup;
+  SysPermission.Service, SlsLookup, SlsOfferDetail.Service;
 
 constructor TSlsOrderDetailService.Create;
 begin
@@ -70,14 +75,14 @@ begin
 end;
 
 // Alan adı + "zorunludur" mesajı
-procedure TSlsOrderDetailService.FailRequired(const AKey, ADefault: string);
+class procedure TSlsOrderDetailService.FailRequired(const AKey, ADefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
 end;
 
 // Alan adı + mesaj
-procedure TSlsOrderDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+class procedure TSlsOrderDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(AMsgKey, AMsgDefault));
@@ -122,23 +127,11 @@ begin
   end;
 end;
 
-procedure TSlsOrderDetailService.ValidateBusinessRules(AEntity: TSlsOrderDetail; AOperation: TCrudOperation);
+class procedure TSlsOrderDetailService.CheckLine(AEntity: TSlsOrderDetail);
 var
-  LOld: TSlsOrderDetail;
-  LOfferDetail: TSlsOfferDetail;
-  LFilter: TFilterCriteria;
-  LModel: TSlsOrderDetail;
   LGross, LDiscount, LNet, LVat, LTotal: Currency;
 begin
-  if AOperation = coDelete then
-  begin
-    EnsureDraft(AEntity.SlsOrderId);
-    Exit;
-  end;
-
   AEntity.Description := Trim(AEntity.Description);
-  if AEntity.SlsOrderId <= 0 then
-    FailRequired(TLangKeys.TSlsOrderDetail.ColSlsOrderId, 'Order');
   if AEntity.StkInventoryId <= 0 then
     FailRequired(TLangKeys.TSlsOrderDetail.ColStkInventoryId, 'Stock Card');
   if AEntity.Quantity <= 0 then
@@ -154,6 +147,35 @@ begin
   AEntity.NetAmount := LNet;
   AEntity.VatAmount := LVat;
   AEntity.TotalAmount := LTotal;
+end;
+
+function TSlsOrderDetailService.GetVatRates: TArray<Currency>;
+begin
+  Result := TSlsOfferDetailRepository(FOfferDetailRepo).GetVatRates;
+end;
+
+function TSlsOrderDetailService.GetUomCode(AInventoryId: Int64): string;
+begin
+  Result := TSlsOfferDetailRepository(FOfferDetailRepo).GetUomCode(AInventoryId);
+end;
+
+procedure TSlsOrderDetailService.ValidateBusinessRules(AEntity: TSlsOrderDetail; AOperation: TCrudOperation);
+var
+  LOld: TSlsOrderDetail;
+  LOfferDetail: TSlsOfferDetail;
+  LFilter: TFilterCriteria;
+  LModel: TSlsOrderDetail;
+begin
+  if AOperation = coDelete then
+  begin
+    EnsureDraft(AEntity.SlsOrderId);
+    Exit;
+  end;
+
+  if AEntity.SlsOrderId <= 0 then
+    FailRequired(TLangKeys.TSlsOrderDetail.ColSlsOrderId, 'Order');
+  CheckLine(AEntity);
+  TSlsOfferDetailService.CheckVatRate(AEntity.VatRate, GetVatRates);
   EnsureDraft(AEntity.SlsOrderId);
 
   if AEntity.SlsOfferDetailId > 0 then

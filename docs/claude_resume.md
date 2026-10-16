@@ -704,7 +704,36 @@ Durum (2026-10-16, NB61): Faz 1 + Faz 2 TAMAM.
   `sls_offer_detail.vat_rate_undefined` x4); iskonto 100'ü aşamaz (anında 100'e çekilir); miktar / fiyat / iskonto / KDV
   değiştikçe tutarlar anında hesaplanır; başlıkta para birimi değişince kalemlere ve toplamlara yansır.
   Yeni belge formlarında aynı kalıp kullanılacak.
-- SONRAKİ: Faz 3 — satış siparişi, sonra fatura (kalem hook'u: UpsertStockTransaction; belge hook'u: stok özeti +
+- Commit 814ce46 (teklif belgesi + kalem formu düzeltmeleri) main'e push edildi.
+
+Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
+- `BackEnd/Core/Base/DocumentService.pas` `TDocumentService<TH, TL>` (TCrudService<TH> türevi): kalem işlemleri,
+  Recalculate, PrepareCopy, LoadLines, Reload, BusinessSaveWithDetails (kilit, eski kalemler, CheckLines(…, AOldLines),
+  satır no, ValidateAll, toplamlar, Save + AfterLineSaved, AfterDocumentSaved(…, AOldLines), commit, Reload).
+  TSlsOfferService bu tabana taşındı (davranış aynı, testler aynı).
+- Sipariş: `TSlsOrder.Lines` + `TSlsOrderDetailHelper.Header`, `TSlsOrderDetail = class(TDetailEntity)`;
+  `TSlsOrderDetailRepository.FindByOrderIds`, `TSlsOfferDetailRepository.OfferIdsOfDetails`;
+  `TSlsOrderDetailService.CheckLine` (+ GetVatRates / GetUomCode); `TSlsOrderService` = TDocumentService: kalemler yalnız
+  taslakta (onaylıda başlık değişir; yeni / silinen / değişen kalem → DraftOnly), teslim edilen miktar DB'den,
+  teklif kalemi stok uyumu, KDV tanımlı oranlardan, belge hook'u eski + yeni teklif bağlantılarının siparişe aktarılan
+  miktarı / durumu; kopya teklif bağlantısını düşürür; `CreateFromOffer` belgeyi bellekte kurup aynı kayıtla yazar.
+- DB: `sls_order_detail_line_key` DEFERRABLE INITIALLY DEFERRED; `sys_menu` 600402 (sipariş kalemleri) pasif.
+- UI: `ufrmSlsOrder` -> `ufrmSlsOrderDetail` (TfrmInputDetailedDB, toplam paneli, DetailsEditable = taslak),
+  eski kalem formu `ufrmSlsOrderDetail` -> `ufrmSlsOrderLine` (TfrmInputLineDB, teklif kalemi formuyla aynı kalıp +
+  teslim tarihi, panelde teslim edilen / teklif no); `ufrmSlsOrderDetails` (kalem listesi) ve dashboard
+  actsls_order_lines silindi; sipariş listesinde "Kalemler" popup'ı kalktı; teklif "Siparişe Dönüştür" yeni siparişi
+  belge ekranında açar.
+- Test: entegrasyon TestSalesOrderDocument 16 adım; paket 1595 pass / 0 fail.
+
+İrsaliye / fatura kararları (kullanıcı, 2026-10-16):
+- İrsaliyede durum var: faturaya dönüşmeyen irsaliye "Bekliyor", faturaya dönünce "Kapandı" (sls_dispatch'te kolon yok,
+  eklenecek; kısmi faturalama için ara durum değerlendirilecek).
+- e-İrsaliye ve e-Fatura gelecek; kullanıcı resmi dokümanları verecek. Fatura durum modeli ve e-belge alanları
+  dokümanlarla birlikte tasarlanacak (şimdiden uydurulmayacak).
+
+- SONRAKİ: irsaliye + fatura (TDocumentService; kalem hook'u UpsertStockTransaction, belge hook'u stok özeti + sipariş
+  teslim miktarları; irsaliye durumu) — e-belge dokümanları gelince. Ardından üretim / reçete değerlendirmesi.
+- (eski not) Faz 3 — satış siparişi, sonra fatura (kalem hook'u: UpsertStockTransaction; belge hook'u: stok özeti +
   sipariş teslim miktarları).
 
 ## Kalan

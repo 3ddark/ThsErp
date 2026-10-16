@@ -6,26 +6,50 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  SlsOrder.Repository, SlsOrder, SlsOrder.Exception, SlsOrderDetail, SlsOrderDetail.Repository, SlsOffer, SlsOffer.Repository;
+  DocumentService, SlsOrder.Repository, SlsOrder, SlsOrder.Exception, SlsOrderDetail, SlsOrderDetail.Repository,
+  SlsOffer, SlsOffer.Repository, SlsOfferDetail, SlsOfferDetail.Repository;
 
 type
-  TSlsOrderService = class(TCrudService<TSlsOrder>)
+  // Sipariş belgesi = başlık + Lines (TDocumentService: kalem işlemleri, hesap tetikleme, yükleme, tek transaction'lı
+  // kayıt + Reload). Başlık taslak dışında da (onaylı / kısmi) değişebilir; kalemler yalnız taslakta.
+  TSlsOrderService = class(TDocumentService<TSlsOrder, TSlsOrderDetail>)
   private
     FRepo: IRepository<TSlsOrder>;
-    FDetailRepo: IRepository<TSlsOrderDetail>;
     FOfferRepo: IRepository<TSlsOffer>;
+    FOfferDetailRepo: IRepository<TSlsOfferDetail>;
 
     procedure DoAdd(AEntity: TSlsOrder);
     procedure DoUpdate(AEntity: TSlsOrder);
     procedure DoDelete(AId: Int64);
 
     procedure FailRequired(const AKey, ADefault: string);
+    // Kalem kayıtlı hâlinden farklı mı (taslak dışı siparişte kalem değişikliği yasak)
+    function LineChanged(ALine, AOld: TSlsOrderDetail): Boolean;
+    procedure RefreshOfferIds(const AOfferDetailIds: TArray<Int64>);
+  protected
+    // ---- belge yapısı / kayıt adımları (TDocumentService)
+    function GetLines(AHeader: TSlsOrder): TObjectList<TSlsOrderDetail>; override;
+    function FindLinesByHeaderIds(const AIds: TArray<Int64>): TObjectList<TSlsOrderDetail>; override;
+    function GetLineHeaderId(ALine: TSlsOrderDetail): Int64; override;
+    procedure SetLineHeaderId(ALine: TSlsOrderDetail; AHeaderId: Int64); override;
+    function GetLineNo(ALine: TSlsOrderDetail): Integer; override;
+    procedure SetLineNo(ALine: TSlsOrderDetail; ANo: Integer); override;
+    procedure RaiseDuplicateLineNo; override;
+    procedure InitLine(AHeader: TSlsOrder; ALine: TSlsOrderDetail); override;
+    procedure CheckLines(AHeader: TSlsOrder; const ALines: TArray<TSlsOrderDetail>; AOldLines: TObjectList<TSlsOrderDetail>); override;
+    procedure AfterDocumentSaved(AHeader: TSlsOrder; AOldLines: TObjectList<TSlsOrderDetail>); override;
+    procedure PrepareCopyHeader(AHeader: TSlsOrder); override;
+    procedure PrepareCopyLine(AHeader: TSlsOrder; ALine: TSlsOrderDetail); override;
   public
     constructor Create;
     destructor Destroy; override;
 
     procedure ValidateBusinessRules(AEntity: TSlsOrder; AOperation: TCrudOperation); override;
     procedure ChangeStatus(AId: Int64; ANewStatus: SmallInt; APermissionControl: Boolean);
+
+    // Kalem tutarları miktar, fiyat ve oranlardan; başlık toplamları aktif kalemlerden
+    procedure RecalculateLine(ALine: TSlsOrderDetail); override;
+    procedure RecalculateTotals(AHeader: TSlsOrder); override;
     // Gönderilmiş teklifin kalan miktarlarından taslak sipariş (fiyat / iskonto / KDV tekliften); yeni sipariş id
     function CreateFromOffer(AOfferId: Int64; APermissionControl: Boolean): Int64;
     procedure RefreshOffers(AOrderId: Int64);
@@ -50,14 +74,16 @@ type
 implementation
 
 uses
-  SysPermission.Service, SlsLookup, SlsOrderDetail.Service, SlsOfferDetail, SlsOfferDetail.Repository;
+  SysPermission.Service, SlsLookup, SlsOrderDetail.Service, SlsOrderDetail.Exception, SlsOfferDetail.Service;
 
 constructor TSlsOrderService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TSlsOrder, TSlsOrderRepository>;
-  FDetailRepo := Self.UoW.GetRepository<TSlsOrderDetail, TSlsOrderDetailRepository>;
+  FHeaderRepo := FRepo;
+  FLineRepo := Self.UoW.GetRepository<TSlsOrderDetail, TSlsOrderDetailRepository>;
   FOfferRepo := Self.UoW.GetRepository<TSlsOffer, TSlsOfferRepository>;
+  FOfferDetailRepo := Self.UoW.GetRepository<TSlsOfferDetail, TSlsOfferDetailRepository>;
   Self.PermissionCode := PERMISSION_SLS_ORDER;
 end;
 
@@ -124,101 +150,278 @@ begin
     TSlsOfferRepository(FOfferRepo).RefreshOrderedQuantities(LId);
 end;
 
+// Gönderilmiş teklifin kalan miktarları belge olarak bellekte kurulur ve belge kaydıyla yazılır (tek yol)
 function TSlsOrderService.CreateFromOffer(AOfferId: Int64; APermissionControl: Boolean): Int64;
 var
   LOffer: TSlsOffer;
   LOrder: TSlsOrder;
-  LLines: TList<TSlsOfferDetail>;
+  LLines: TObjectList<TSlsOfferDetail>;
   LLine: TSlsOfferDetail;
   LDetail: TSlsOrderDetail;
-  LDetailSvc: TSlsOrderDetailService;
-  LFilter: TFilterCriteria;
   LStarted: Boolean;
-  LCount: Integer;
 begin
   LStarted := False;
-  LDetailSvc := TSlsOrderDetailService.Create;
   try
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
+    if not Self.UoW.InTransaction then
+    begin
+      Self.UoW.BeginTransaction;
+      LStarted := True;
+    end;
+
+    LOffer := FOfferRepo.FindById(AOfferId, True);
     try
-      Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
-      if not Self.UoW.InTransaction then
-      begin
-        Self.UoW.BeginTransaction;
-        LStarted := True;
-      end;
+      if not Assigned(LOffer) then
+        raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AOfferId]));
+      if LOffer.Status <> SLS_OFF_SENT then
+        raise ESlsOrderExceptionOfferNotSent.Create;
 
-      LOffer := FOfferRepo.FindById(AOfferId, True);
+      LOrder := TSlsOrder.Create;
       try
-        if not Assigned(LOffer) then
-          raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AOfferId]));
-        if LOffer.Status <> SLS_OFF_SENT then
-          raise ESlsOrderExceptionOfferNotSent.Create;
+        LOrder.OrderDate := Date;
+        LOrder.AccAccountId := LOffer.AccAccountId;
+        LOrder.CustomerRefNo := LOffer.CustomerRefNo;
+        LOrder.EmpEmployeeId := LOffer.EmpEmployeeId;
+        LOrder.Currency := LOffer.Currency;
+        LOrder.ExchangeRate := LOffer.ExchangeRate;
+        LOrder.PaymentTermDays := LOffer.PaymentTermDays;
+        LOrder.Description := LOffer.OfferNo;
 
-        LOrder := TSlsOrder.Create;
+        LLines := TSlsOfferDetailRepository(FOfferDetailRepo).FindByOfferIds([AOfferId]);
         try
-          LOrder.OrderDate := Date;
-          LOrder.AccAccountId := LOffer.AccAccountId;
-          LOrder.CustomerRefNo := LOffer.CustomerRefNo;
-          LOrder.EmpEmployeeId := LOffer.EmpEmployeeId;
-          LOrder.Currency := LOffer.Currency;
-          LOrder.ExchangeRate := LOffer.ExchangeRate;
-          LOrder.PaymentTermDays := LOffer.PaymentTermDays;
-          LOrder.Description := LOffer.OfferNo;
-          DoAdd(LOrder);
-          Result := LOrder.Id;
-
-          LCount := 0;
-          LFilter := TFilterCriteria.Create;
-          try
-            LFilter.Add(TFilterCriterion.New('sls_offer_id', '=', TValue.From<Int64>(AOfferId)));
-            LLines := Self.UoW.GetRepository<TSlsOfferDetail, TSlsOfferDetailRepository>.Find(LFilter, False);
-            try
-              for LLine in LLines do
-              begin
-                if LLine.Quantity - LLine.OrderedQuantity <= 0 then
-                  Continue;
-                LDetail := TSlsOrderDetail.Create;
-                try
-                  LDetail.SlsOrderId := LOrder.Id;
-                  LDetail.StkInventoryId := LLine.StkInventoryId;
-                  LDetail.Quantity := LLine.Quantity - LLine.OrderedQuantity;
-                  // teklif fiyatı, iskontosu ve KDV'si
-                  LDetail.UnitPrice := LLine.UnitPrice;
-                  LDetail.DiscountRate := LLine.DiscountRate;
-                  LDetail.VatRate := LLine.VatRate;
-                  LDetail.Description := LLine.Description;
-                  LDetail.SlsOfferDetailId := LLine.Id;
-                  LDetailSvc.Add(LDetail);
-                  Inc(LCount);
-                finally
-                  LDetail.Free;
-                end;
-              end;
-            finally
-              LLines.Free;
-            end;
-          finally
-            LFilter.Free;
+          for LLine in LLines do
+          begin
+            if LLine.Quantity - LLine.OrderedQuantity <= 0 then
+              Continue;
+            LDetail := NewLine(LOrder);
+            LDetail.StkInventoryId := LLine.StkInventoryId;
+            LDetail.Quantity := LLine.Quantity - LLine.OrderedQuantity;
+            // teklif fiyatı, iskontosu ve KDV'si
+            LDetail.UnitPrice := LLine.UnitPrice;
+            LDetail.DiscountRate := LLine.DiscountRate;
+            LDetail.VatRate := LLine.VatRate;
+            LDetail.Description := LLine.Description;
+            LDetail.SlsOfferDetailId := LLine.Id;
           end;
-          if LCount = 0 then
-            raise ESlsOrderExceptionNothingToOrder.Create;
         finally
-          LOrder.Free;
+          LLines.Free;
         end;
+        if Length(ActiveLines(LOrder)) = 0 then
+          raise ESlsOrderExceptionNothingToOrder.Create;
+
+        Recalculate(LOrder);
+        BusinessSaveWithDetails(LOrder, False, APermissionControl);
+        Result := LOrder.Id;
       finally
-        LOffer.Free;
+        LOrder.Free;
+      end;
+    finally
+      LOffer.Free;
+    end;
+
+    if LStarted and Self.UoW.InTransaction then
+      Self.UoW.Commit;
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
+end;
+
+{ Belge (TDocumentService) }
+
+function TSlsOrderService.GetLines(AHeader: TSlsOrder): TObjectList<TSlsOrderDetail>;
+begin
+  Result := AHeader.Lines;
+end;
+
+function TSlsOrderService.FindLinesByHeaderIds(const AIds: TArray<Int64>): TObjectList<TSlsOrderDetail>;
+begin
+  Result := TSlsOrderDetailRepository(FLineRepo).FindByOrderIds(AIds);
+end;
+
+function TSlsOrderService.GetLineHeaderId(ALine: TSlsOrderDetail): Int64;
+begin
+  Result := ALine.SlsOrderId;
+end;
+
+procedure TSlsOrderService.SetLineHeaderId(ALine: TSlsOrderDetail; AHeaderId: Int64);
+begin
+  ALine.SlsOrderId := AHeaderId;
+end;
+
+function TSlsOrderService.GetLineNo(ALine: TSlsOrderDetail): Integer;
+begin
+  Result := ALine.LineNo;
+end;
+
+procedure TSlsOrderService.SetLineNo(ALine: TSlsOrderDetail; ANo: Integer);
+begin
+  ALine.LineNo := ANo;
+end;
+
+procedure TSlsOrderService.RaiseDuplicateLineNo;
+begin
+  raise ESlsOrderDetailExceptionLineUnique.Create;
+end;
+
+// Belge no / para birimi (kalem formu: fiyat önerisi, gösterim), teslim tarihi başlıktan
+procedure TSlsOrderService.InitLine(AHeader: TSlsOrder; ALine: TSlsOrderDetail);
+begin
+  ALine.OrderNo := AHeader.OrderNo;
+  ALine.Currency := AHeader.Currency;
+  ALine.DeliveryDate := AHeader.DeliveryDate;
+end;
+
+function TSlsOrderService.LineChanged(ALine, AOld: TSlsOrderDetail): Boolean;
+begin
+  Result := (ALine.LineNo <> AOld.LineNo) or (ALine.StkInventoryId <> AOld.StkInventoryId) or
+    (ALine.Quantity <> AOld.Quantity) or (ALine.UnitPrice <> AOld.UnitPrice) or
+    (ALine.DiscountRate <> AOld.DiscountRate) or (ALine.VatRate <> AOld.VatRate) or
+    (ALine.DeliveryDate <> AOld.DeliveryDate) or (ALine.SlsOfferDetailId <> AOld.SlsOfferDetailId) or
+    (Trim(ALine.Description) <> AOld.Description);
+end;
+
+// Alanlar + tutarlar (tek kalem yoluyla ortak CheckLine), KDV tanımlı oranlardan, teklif kalemiyle stok uyumu,
+// teslim edilen miktar DB'den (irsaliye / fatura tutar); taslak dışı siparişte kalem eklenemez / silinemez / değişemez
+procedure TSlsOrderService.CheckLines(AHeader: TSlsOrder; const ALines: TArray<TSlsOrderDetail>;
+  AOldLines: TObjectList<TSlsOrderDetail>);
+var
+  LRates: TArray<Currency>;
+  LLine, LOld: TSlsOrderDetail;
+  LOldById: TDictionary<Int64, TSlsOrderDetail>;
+  LOfferDetail: TSlsOfferDetail;
+  LDbOrder: TSlsOrder;
+  LDraft: Boolean;
+begin
+  LDraft := True;
+  if AHeader.Id > 0 then
+  begin
+    LDbOrder := FRepo.FindById(AHeader.Id, False);
+    try
+      LDraft := not Assigned(LDbOrder) or (LDbOrder.Status = SLS_ORD_DRAFT);
+    finally
+      LDbOrder.Free;
+    end;
+  end;
+
+  LRates := TSlsOfferDetailRepository(FOfferDetailRepo).GetVatRates;
+  LOldById := TDictionary<Int64, TSlsOrderDetail>.Create;
+  try
+    for LOld in AOldLines do
+      LOldById.AddOrSetValue(LOld.Id, LOld);
+
+    if not LDraft then
+      for LLine in AHeader.Lines do
+        if (LLine.Id < 0) or LLine.Deleted then
+          raise ESlsOrderDetailExceptionDraftOnly.Create;
+
+    for LLine in ALines do
+    begin
+      TSlsOrderDetailService.CheckLine(LLine);
+      TSlsOfferDetailService.CheckVatRate(LLine.VatRate, LRates);
+      if LLine.SlsOfferDetailId > 0 then
+      begin
+        LOfferDetail := FOfferDetailRepo.FindById(LLine.SlsOfferDetailId, False);
+        try
+          if Assigned(LOfferDetail) and (LOfferDetail.StkInventoryId <> LLine.StkInventoryId) then
+            raise ESlsOrderDetailExceptionInventoryMismatch.Create;
+        finally
+          LOfferDetail.Free;
+        end;
       end;
 
-      if LStarted and Self.UoW.InTransaction then
-        Self.UoW.Commit;
-    except
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
+      if LOldById.TryGetValue(LLine.Id, LOld) then
+      begin
+        if not LDraft and LineChanged(LLine, LOld) then
+          raise ESlsOrderDetailExceptionDraftOnly.Create;
+        LLine.DeliveredQuantity := LOld.DeliveredQuantity;   // irsaliye / irsaliyeli fatura kalemlerinden tutulur
+      end
+      else
+        LLine.DeliveredQuantity := 0;
     end;
   finally
-    LDetailSvc.Free;
+    LOldById.Free;
   end;
+end;
+
+procedure TSlsOrderService.RefreshOfferIds(const AOfferDetailIds: TArray<Int64>);
+var
+  LId: Int64;
+begin
+  for LId in TSlsOfferDetailRepository(FOfferDetailRepo).OfferIdsOfDetails(AOfferDetailIds) do
+    TSlsOfferRepository(FOfferRepo).RefreshOrderedQuantities(LId);
+end;
+
+// Belge hook'u: bağlı (eski + yeni) teklif kalemlerinin siparişe aktarılan miktarı ve teklif durumu
+procedure TSlsOrderService.AfterDocumentSaved(AHeader: TSlsOrder; AOldLines: TObjectList<TSlsOrderDetail>);
+var
+  LIds: TList<Int64>;
+  LLine: TSlsOrderDetail;
+begin
+  LIds := TList<Int64>.Create;
+  try
+    for LLine in AOldLines do
+      if (LLine.SlsOfferDetailId > 0) and not LIds.Contains(LLine.SlsOfferDetailId) then
+        LIds.Add(LLine.SlsOfferDetailId);
+    for LLine in AHeader.Lines do
+      if (LLine.SlsOfferDetailId > 0) and not LIds.Contains(LLine.SlsOfferDetailId) then
+        LIds.Add(LLine.SlsOfferDetailId);
+    if LIds.Count > 0 then
+      RefreshOfferIds(LIds.ToArray);
+  finally
+    LIds.Free;
+  end;
+end;
+
+procedure TSlsOrderService.PrepareCopyHeader(AHeader: TSlsOrder);
+begin
+  AHeader.OrderNo := '';
+  AHeader.Status := SLS_ORD_DRAFT;
+end;
+
+// Kopya kalem tekliften bağımsızdır (teklifin siparişe aktarılan miktarı iki kez sayılmasın)
+procedure TSlsOrderService.PrepareCopyLine(AHeader: TSlsOrder; ALine: TSlsOrderDetail);
+begin
+  inherited;
+  ALine.OrderNo := '';
+  ALine.DeliveredQuantity := 0;
+  ALine.SlsOfferDetailId := 0;
+  ALine.OfferNo := '';
+end;
+
+procedure TSlsOrderService.RecalculateLine(ALine: TSlsOrderDetail);
+var
+  LGross, LDiscount, LNet, LVat, LTotal: Currency;
+begin
+  LGross := 0; LDiscount := 0; LNet := 0; LVat := 0; LTotal := 0;
+  TSlsLookup.CalculateLine(ALine.Quantity, ALine.UnitPrice, ALine.DiscountRate, ALine.VatRate,
+    LGross, LDiscount, LNet, LVat, LTotal);
+  ALine.GrossAmount := LGross;
+  ALine.DiscountAmount := LDiscount;
+  ALine.NetAmount := LNet;
+  ALine.VatAmount := LVat;
+  ALine.TotalAmount := LTotal;
+end;
+
+procedure TSlsOrderService.RecalculateTotals(AHeader: TSlsOrder);
+var
+  LLine: TSlsOrderDetail;
+begin
+  AHeader.GrossAmount := 0;
+  AHeader.DiscountAmount := 0;
+  AHeader.NetAmount := 0;
+  AHeader.VatAmount := 0;
+  AHeader.TotalAmount := 0;
+  for LLine in AHeader.Lines do
+    if not LLine.Deleted then
+    begin
+      AHeader.GrossAmount := AHeader.GrossAmount + LLine.GrossAmount;
+      AHeader.DiscountAmount := AHeader.DiscountAmount + LLine.DiscountAmount;
+      AHeader.NetAmount := AHeader.NetAmount + LLine.NetAmount;
+      AHeader.VatAmount := AHeader.VatAmount + LLine.VatAmount;
+      AHeader.TotalAmount := AHeader.TotalAmount + LLine.TotalAmount;
+    end;
 end;
 
 procedure TSlsOrderService.ValidateBusinessRules(AEntity: TSlsOrder; AOperation: TCrudOperation);
@@ -365,7 +568,10 @@ begin
     Self.UoW.BeginTransaction;
 
   try
+    // belge: başlık + kalemler
     Result := FRepo.FindById(AId, ALock);
+    if Assigned(Result) then
+      LoadLines([Result]);
   except
     if Self.UoW.InTransaction then
       Self.UoW.Rollback;
@@ -435,14 +641,19 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
+// AIncludeNestedEntities: kalemler de (tek sorguda)
 function TSlsOrderService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TSlsOrder>;
 begin
   Result := FRepo.Find(AFilter, ALock);
+  if AIncludeNestedEntities and (Result.Count > 0) then
+    LoadLines(Result.ToArray);
 end;
 
 function TSlsOrderService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TSlsOrder;
 begin
   Result := FRepo.FindById(AId, ALock);
+  if AIncludeNestedEntities and Assigned(Result) then
+    LoadLines([Result]);
 end;
 
 function TSlsOrderService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TSlsOrder;

@@ -269,6 +269,7 @@
         <DCCReference Include="Forms\Core\Base\ufrmGrid.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmInputSimpleDB.pas"/>
         <DCCReference Include="BackEnd\Core\Base\DetailList.pas"/>
+        <DCCReference Include="BackEnd\Core\Base\DocumentService.pas"/>
         <DCCReference Include="Forms\Core\Base\Detail\Detail.Grid.pas"/>
         <DCCReference Include="Forms\Core\Base\Detail\Detail.Lines.pas"/>
         <DCCReference Include="Forms\Core\Base\Detail\Detail.Totals.pas"/>
@@ -998,9 +999,6 @@
         <DCCReference Include="BackEnd\Sales\Exception\SlsOrder.Exception.pas"/>
         <DCCReference Include="BackEnd\Sales\Repository\SlsOrder.Repository.pas"/>
         <DCCReference Include="BackEnd\Sales\Service\SlsOrder.Service.pas"/>
-        <DCCReference Include="Forms\Sales\Input\ufrmSlsOrder.pas">
-            <Form>frmSlsOrder</Form>
-        </DCCReference>
         <DCCReference Include="Forms\Sales\Output\ufrmSlsOrders.pas">
             <Form>frmSlsOrders</Form>
         </DCCReference>
@@ -1011,8 +1009,8 @@
         <DCCReference Include="Forms\Sales\Input\ufrmSlsOrderDetail.pas">
             <Form>frmSlsOrderDetail</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Sales\Output\ufrmSlsOrderDetails.pas">
-            <Form>frmSlsOrderDetails</Form>
+        <DCCReference Include="Forms\Sales\Input\ufrmSlsOrderLine.pas">
+            <Form>frmSlsOrderLine</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Sales\Domain\SlsDispatch.pas"/>
         <DCCReference Include="BackEnd\Sales\Exception\SlsDispatch.Exception.pas"/>

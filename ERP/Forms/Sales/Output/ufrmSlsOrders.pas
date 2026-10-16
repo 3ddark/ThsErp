@@ -8,13 +8,12 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
-  SlsOrder.Service, SlsOrder, ufrmSlsOrder;
+  SlsOrder.Service, SlsOrder, ufrmSlsOrderDetail;
 
 type
   TfrmSlsOrders = class(TfrmGrid<TSlsOrder, TSlsOrderService>)
   private
-    FmniLines, FmniDispatches, FmniApprove, FmniToDraft, FmniCancel, FmniToDispatch, FmniToInvoice: TMenuItem;
-    procedure mniLinesClick(Sender: TObject);
+    FmniDispatches, FmniApprove, FmniToDraft, FmniCancel, FmniToDispatch, FmniToInvoice: TMenuItem;
     procedure mniDispatchesClick(Sender: TObject);
     procedure mniApproveClick(Sender: TObject);
     procedure mniToDraftClick(Sender: TObject);
@@ -40,7 +39,6 @@ implementation
 
 uses
   SlsLookup,
-  ufrmSlsOrderDetails, SlsOrderDetail, SlsOrderDetail.Service,
   ufrmSlsDispatches, ufrmSlsDispatchDetails, SlsDispatch, SlsDispatch.Service, SlsDispatchDetail, SlsDispatchDetail.Service,
   ufrmSlsInvoiceDetails, SlsInvoice, SlsInvoice.Service, SlsInvoiceDetail, SlsInvoiceDetail.Service,
   StkWarehouse, StkWarehouse.Service, ufrmStkWarehouses;
@@ -52,19 +50,6 @@ begin
   else
     Text := TSlsLookup.Text(slkOrderStatus, Sender.AsInteger);
 end;
-procedure TfrmSlsOrders.mniLinesClick(Sender: TObject);
-var
-  LFrm: TfrmSlsOrderDetails;
-begin
-  if Grd.DataSource.DataSet.IsEmpty then
-    Exit;
-
-  SetSelectedItem;
-  LFrm := TfrmSlsOrderDetails.Create(Self, TSlsOrderDetailService.Create, TSlsOrderDetail.Create);
-  LFrm.SetFixedOrder(Table.Id, Table.OrderNo, Table.Currency);
-  LFrm.Show;
-end;
-
 procedure TfrmSlsOrders.mniDispatchesClick(Sender: TObject);
 var
   LFrm: TfrmSlsDispatches;
@@ -196,7 +181,6 @@ begin
     Exit;
 
   AddPopupMenuSpliter();
-  FmniLines := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsOrder.MenuLines, 'Lines'), 'mniLines', mniLinesClick);
   FmniDispatches := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsOrder.MenuDispatches, 'Delivery Notes'), 'mniDispatches', mniDispatchesClick);
   AddPopupMenuSpliter();
   FmniApprove := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsOrder.MenuApprove, 'Approve'), 'mniApprove', mniApproveClick);
@@ -207,23 +191,15 @@ begin
   FmniToInvoice := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsOrder.MenuToInvoice, 'Create Invoice with Delivery'), 'mniToInvoice', mniToInvoiceClick);
 end;
 
+// Başlık + kalemler tek ekranda (TfrmSlsOrderDetail); Table = BusinessFindById ile kalemli belge, Clone derin kopya.
+// Kopya modunda form Service.PrepareCopy ile yeni numara / taslak / yeni kalemler hazırlar
 function TfrmSlsOrders.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
-var
-  LNew: TSlsOrder;
 begin
   Result := nil;
-  if (AFormMode = ifmRewiev) then
-    Result := TfrmSlsOrder.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
+  if (AFormMode = ifmRewiev) or (AFormMode = ifmCopyNewRecord) then
+    Result := TfrmSlsOrderDetail.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmSlsOrder.Create(Self, Service, TSlsOrder.Create, AFormMode, Self.RefreshParentGrid)
-  else if (AFormMode = ifmCopyNewRecord) then
-  begin
-    LNew := Table.Clone;
-    // Kopya: yeni numara, taslak, tutarlar kalemlerden yeniden hesaplanır
-    LNew.OrderNo := '';
-    LNew.Status := SLS_ORD_DRAFT;
-    Result := TfrmSlsOrder.Create(Self, Service, LNew, AFormMode, Self.RefreshParentGrid);
-  end;
+    Result := TfrmSlsOrderDetail.Create(Self, Service, TSlsOrder.Create, AFormMode, Self.RefreshParentGrid);
 end;
 
 // Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)
@@ -313,8 +289,6 @@ begin
   SetColumnTitle('warehouse_name', TLocalizationManager.Translate(TLangKeys.TSlsOrder.ColWarehouseName, 'Shipping Warehouse'));
   SetColumnTitle('employee_name', TLocalizationManager.Translate(TLangKeys.TSlsOrder.ColEmployeeName, 'Sales Representative'));
   SetColumnTitle('line_count', TLocalizationManager.Translate(TLangKeys.TSlsOrder.ColLineCount, 'Lines'));
-  if Assigned(FmniLines) then
-    FmniLines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOrder.MenuLines, 'Lines');
   if Assigned(FmniDispatches) then
     FmniDispatches.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOrder.MenuDispatches, 'Delivery Notes');
   if Assigned(FmniApprove) then

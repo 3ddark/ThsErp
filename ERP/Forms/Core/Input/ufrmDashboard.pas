@@ -95,7 +95,6 @@ uses
   ufrmPurInvoiceDetails, PurInvoiceDetail.Service, PurInvoiceDetail,
   ufrmSlsOffers, SlsOffer.Service, SlsOffer,
   ufrmSlsOrders, SlsOrder.Service, SlsOrder,
-  ufrmSlsOrderDetails, SlsOrderDetail.Service, SlsOrderDetail,
   ufrmSlsDispatches, SlsDispatch.Service, SlsDispatch,
   ufrmSlsDispatchDetails, SlsDispatchDetail.Service, SlsDispatchDetail,
   ufrmSlsInvoices, SlsInvoice.Service, SlsInvoice,
@@ -165,7 +164,6 @@ type
     mnimenu_sales: TMenuItem;
     mnisls_offers: TMenuItem;
     mnisls_orders: TMenuItem;
-    mnisls_order_lines: TMenuItem;
     mnisls_dispatches: TMenuItem;
     mnisls_dispatch_lines: TMenuItem;
     mnisls_invoices: TMenuItem;
@@ -210,7 +208,6 @@ type
     actpur_invoice_lines: TAction;
     actsls_offers: TAction;
     actsls_orders: TAction;
-    actsls_order_lines: TAction;
     actsls_dispatches: TAction;
     actsls_dispatch_lines: TAction;
     actsls_invoices: TAction;
@@ -419,7 +416,6 @@ type
     procedure actpur_invoice_linesExecute(Sender: TObject);
     procedure actsls_offersExecute(Sender: TObject);
     procedure actsls_ordersExecute(Sender: TObject);
-    procedure actsls_order_linesExecute(Sender: TObject);
     procedure actsls_dispatchesExecute(Sender: TObject);
     procedure actsls_dispatch_linesExecute(Sender: TObject);
     procedure actsls_invoicesExecute(Sender: TObject);
@@ -894,11 +890,6 @@ end;
 procedure TfrmDashboard.actsls_ordersExecute(Sender: TObject);
 begin
   TfrmSlsOrders.Create(Self, TSlsOrderService.Create, TSlsOrder.Create).Show;
-end;
-
-procedure TfrmDashboard.actsls_order_linesExecute(Sender: TObject);
-begin
-  TfrmSlsOrderDetails.Create(Self, TSlsOrderDetailService.Create, TSlsOrderDetail.Create).Show;
 end;
 
 procedure TfrmDashboard.actsls_dispatchesExecute(Sender: TObject);
@@ -1705,8 +1696,6 @@ begin
     actsls_offers.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.TitlePlural, 'Sales Offers');
   if Assigned(actsls_orders) then
     actsls_orders.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOrder.TitlePlural, 'Sales Orders');
-  if Assigned(actsls_order_lines) then
-    actsls_order_lines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOrderDetail.TitlePlural, 'Order Lines');
   if Assigned(actsls_dispatches) then
     actsls_dispatches.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.TitlePlural, 'Delivery Notes');
   if Assigned(actsls_dispatch_lines) then

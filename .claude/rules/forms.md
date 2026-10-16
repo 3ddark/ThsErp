@@ -83,7 +83,9 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
 ## Master / detail (header + lines in one screen)
 
 Reference: Sales offer — `ufrmSlsOffers` (list, `sls_offer`) → `ufrmSlsOfferDetail` (`TfrmSlsOfferDetail`, header +
-lines) → `ufrmSlsOfferLine` (`TfrmSlsOfferLine`, one `sls_offer_detail` line, modal).
+lines) → `ufrmSlsOfferLine` (`TfrmSlsOfferLine`, one `sls_offer_detail` line, modal). Same for sales order
+(`ufrmSlsOrders` → `ufrmSlsOrderDetail` → `ufrmSlsOrderLine`). The separate "lines" list + popup + menu row of a migrated
+document is removed (`sys_menu` row made passive).
 
 | Kind | Unit / class | Base |
 | --- | --- | --- |
@@ -113,6 +115,13 @@ lines) → `ufrmSlsOfferLine` (`TfrmSlsOfferLine`, one `sls_offer_detail` line, 
   `inherited`); never writes to the DB, never touches the master's transaction. Override `PrepareLine` to fill derived
   values (amounts) for the grid / header totals. Factory: `TfrmXLine.Create(Self, TXLineService.Create, ALine, AMode, nil)`
   (owns its service; modes: `ifmNewRecord`, `ifmUpdate` (Delete button → line marked deleted), `ifmReadOnly` in review).
+- **Computed values are never edits** (user decision 2026-10-16): amounts / quantities the user does not type (gross,
+  discount, net, VAT, total, delivered / ordered quantity, linked document no) go into a `pnlTotals: TPanel` filled by
+  `Detail.Totals.TTotalsPanel` (`AddRow` in `FormCreate`, `SetCaption` in `ApplyLocalization`, `SetValue(key, value,
+  currency / unit)`); header forms use the same panel for document totals. Line forms: unit of measure next to quantity,
+  currency next to unit price, VAT as `csDropDownList` combo of the defined rates, discount capped at 100 while typing,
+  amounts recalculated live on quantity / price / discount / VAT change (`OnChange`), `PrepareLine` calls the line
+  service's shared `CheckLine` (same rules as the document save).
 - **Detail grid (`Detail.Grid.TDetailGrid`):** `TFDMemTable` built by RTTI from the line entity (`[Column]` name /
   `[NotMapped]` snake_case = view column names, so `sys_grid_column` layout of `vw_{line}` applies and is saved per user).
   Row state colouring (new = light blue, modified = light orange). Cell API: `OnCellStyle(Grid, Row, State, Field, var

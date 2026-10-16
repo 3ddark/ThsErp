@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict dNSCNd5g0s8jIyjNMjru7UQPNybtRmjTJqly9wC7MEUb3WzAwu5bnqfNQ9MUMkg
+\restrict RuSgkxoYlGxPqHJHrHexvKPO3xZ639kcVIDglaOdEHfG4gKdgqjFer9Wdy6Nt4I
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -8582,7 +8582,7 @@ ALTER TABLE ONLY public.sls_offer
 --
 
 ALTER TABLE ONLY public.sls_order_detail
-    ADD CONSTRAINT sls_order_detail_line_key UNIQUE (sls_order_id, line_no);
+    ADD CONSTRAINT sls_order_detail_line_key UNIQUE (sls_order_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -12435,5 +12435,5 @@ GRANT SELECT ON TABLE audit_remote.audit_log TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict dNSCNd5g0s8jIyjNMjru7UQPNybtRmjTJqly9wC7MEUb3WzAwu5bnqfNQ9MUMkg
+\unrestrict RuSgkxoYlGxPqHJHrHexvKPO3xZ639kcVIDglaOdEHfG4gKdgqjFer9Wdy6Nt4I
 

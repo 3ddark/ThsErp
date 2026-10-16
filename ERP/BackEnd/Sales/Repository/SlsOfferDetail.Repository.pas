@@ -44,6 +44,8 @@ type
     function GetVatRates: TArray<Currency>;
     // Stok kartının ölçü birimi kodu
     function GetUomCode(AInventoryId: Int64): string;
+    // Teklif kalemlerinin bağlı olduğu teklifler (tekil)
+    function OfferIdsOfDetails(const ADetailIds: TArray<Int64>): TArray<Int64>;
   end;
 
 implementation
@@ -51,6 +53,45 @@ implementation
 constructor TSlsOfferDetailRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TSlsOfferDetailRepository.OfferIdsOfDetails(const ADetailIds: TArray<Int64>): TArray<Int64>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+  n: Integer;
+begin
+  Result := nil;
+  LIds := '';
+  for LId in ADetailIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT DISTINCT sls_offer_id FROM public.sls_offer_detail WHERE id IN (' + LIds + ')';
+    LogQuery(Q, 'OfferIdsOfDetails');
+    Q.Open;
+    SetLength(Result, Q.RecordCount);
+    n := 0;
+    while not Q.Eof do
+    begin
+      Result[n] := Q.Fields[0].AsLargeInt;
+      Inc(n);
+      Q.Next;
+    end;
+    SetLength(Result, n);
+  finally
+    Q.Free;
+  end;
 end;
 
 function TSlsOfferDetailRepository.GetVatRates: TArray<Currency>;

@@ -345,7 +345,9 @@ begin
   edtDescription.Text := Table.Description;
   // bellekte kalem varsa toplamlar onlardan
   if Table.Lines.Count > 0 then
-    ShowTotals;
+    ShowTotals
+  else
+    ShowTotalValues;
 end;
 
 end.

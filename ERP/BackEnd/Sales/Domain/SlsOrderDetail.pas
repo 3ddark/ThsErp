@@ -8,8 +8,10 @@ uses
   System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
+  // Sipariş kalemi. Siparişin Lines listesinde durum (yeni / kayıtlı / silinecek) TDetailEntity'den; başlığa tipli
+  // erişim SlsOrder birimindeki class helper ile (Line.Header.OrderNo)
   [Table('sls_order_detail')]
-  TSlsOrderDetail = class(TEntity)
+  TSlsOrderDetail = class(TDetailEntity)
   private
     FSlsOrderId: Int64;
     FLineNo: SmallInt;
@@ -125,8 +127,10 @@ end;
 
 function TSlsOrderDetail.Clone: TSlsOrderDetail;
 begin
+  // başlık referansı kopyalanmaz (kopyayı sahiplenen başlık verir)
   Result := TSlsOrderDetail.Create;
   Result.Id := Self.Id;
+  Result.Deleted := Self.Deleted;
   Result.SlsOrderId := Self.SlsOrderId;
   Result.LineNo := Self.LineNo;
   Result.StkInventoryId := Self.StkInventoryId;

@@ -37,7 +37,7 @@ implementation
 
 uses
   SlsLookup,
-  ufrmSlsOrderDetails, SlsOrderDetail, SlsOrderDetail.Service, SlsOrder, SlsOrder.Service;
+  ufrmSlsOrderDetail, SlsOrder, SlsOrder.Service;
 
 procedure TfrmSlsOffers.StatusGetText(Sender: TField; var Text: string; DisplayText: Boolean);
 begin
@@ -82,7 +82,7 @@ var
   LOrderSvc: TSlsOrderService;
   LOrder: TSlsOrder;
   LOrderId: Int64;
-  LFrm: TfrmSlsOrderDetails;
+  LFrm: TfrmSlsOrderDetail;
 begin
   if Grd.DataSource.DataSet.IsEmpty then
     Exit;
@@ -91,17 +91,14 @@ begin
   LOrderSvc := TSlsOrderService.Create;
   try
     LOrderId := LOrderSvc.CreateFromOffer(Table.Id, True);
-    LOrder := LOrderSvc.FindById(LOrderId, False);
-    try
-      LFrm := TfrmSlsOrderDetails.Create(Self, TSlsOrderDetailService.Create, TSlsOrderDetail.Create);
-      LFrm.SetFixedOrder(LOrder.Id, LOrder.OrderNo, LOrder.Currency);
-      LFrm.Show;
-    finally
-      LOrder.Free;
-    end;
   finally
     LOrderSvc.Free;
   end;
+  // oluşan taslak sipariş belge ekranında (inceleme; Güncelle ile kalemler düzenlenir)
+  LOrderSvc := TSlsOrderService.Create;
+  LOrder := LOrderSvc.FindById(LOrderId, False, True);
+  LFrm := TfrmSlsOrderDetail.Create(Self, LOrderSvc, LOrder, ifmRewiev, nil, ivmNormal, True);
+  LFrm.Show;
   RefreshParentGrid(True);
 end;
 

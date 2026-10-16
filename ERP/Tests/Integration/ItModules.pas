@@ -3100,6 +3100,138 @@ begin
   end;
 end;
 
+// Sipariş belgesi (başlık + Lines, TDocumentService): tekliften oluşturma (bellekte kurulup belge kaydıyla), form dışı
+// değiştir / sil / ekle + bağlı teklifin siparişe aktarılan miktarı ve durumu, onaylıda başlık değişir / kalem değişmez,
+// satır no takası, kopya (teklif bağlantısı düşer). Commit yok: test transaction'ı geri alınır.
+procedure TestSalesOrderDocument;
+var
+  OffSvc: TSlsOfferService;
+  Svc: TSlsOrderService;
+  Off: TSlsOffer;
+  Ord, Copy: TSlsOrder;
+  L: TSlsOfferDetail;
+  OL: TSlsOrderDetail;
+  Inv1, Inv3, Customer, OffId, OrdId, OffLine1, OffLine2: Int64;
+  LNo1, LNo2: SmallInt;
+
+  function OfferOrdered(AOfferLineId: Int64): Double;
+  begin
+    Result := Num(Scalar('SELECT ordered_quantity FROM sls_offer_detail WHERE id = ' + AOfferLineId.ToString));
+  end;
+
+  function OfferStatus: Integer;
+  begin
+    Result := Trunc(Num(Scalar('SELECT status FROM sls_offer WHERE id = ' + OffId.ToString)));
+  end;
+
+begin
+  Ctx('Sales', 'order document');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Inv3 := Scalar('SELECT min(id) FROM stk_inventory WHERE id > ' + Inv1.ToString);
+  Customer := Scalar('SELECT min(id) FROM acc_account');
+  OffSvc := TSlsOfferService.Create;
+  Svc := TSlsOrderService.Create;
+  Off := nil;
+  Ord := nil;
+  Copy := nil;
+  try
+    try
+      Begin_;
+      // ---- gönderilmiş teklif: 10 x 2, 5 x 4 (KDV %20)
+      Off := TSlsOffer.Create;
+      Off.AccAccountId := Customer;
+      L := OffSvc.NewLine(Off); L.StkInventoryId := Inv1; L.Quantity := 10; L.UnitPrice := 2; L.VatRate := 20;
+      L := OffSvc.NewLine(Off); L.StkInventoryId := Inv3; L.Quantity := 5; L.UnitPrice := 4; L.VatRate := 20;
+      OffSvc.BusinessSaveWithDetails(Off, False, True);
+      OffId := Off.Id;
+      OffLine1 := Off.Lines[0].Id;
+      OffLine2 := Off.Lines[1].Id;
+      OffSvc.ChangeStatus(OffId, SLS_OFF_SENT, True);
+      FreeAndNil(Off);
+
+      // ---- tekliften sipariş: kalemler teklife bağlı, teklif tamamen siparişe döndü
+      OrdId := Svc.CreateFromOffer(OffId, True);
+      Ord := Svc.BusinessFindById(OrdId, False, False, True);
+      Check('create from offer: lines + links', Assigned(Ord) and (Ord.Lines.Count = 2) and
+        (Ord.Lines[0].SlsOfferDetailId = OffLine1) and (Ord.Lines[1].SlsOfferDetailId = OffLine2) and
+        (Ord.Lines[0].Header = Ord));
+      Check('create from offer: totals', Near(Ord.TotalAmount, 48) and
+        Near(Num(Scalar('SELECT total_amount FROM sls_order WHERE id = ' + OrdId.ToString)), 48));
+      Check('offer fully ordered', Near(OfferOrdered(OffLine1), 10) and Near(OfferOrdered(OffLine2), 5) and
+        (OfferStatus = SLS_OFF_ORDERED));
+      Check('still in transaction (no commit)', UoW.InTransaction);
+
+      // ---- form dışı: 1. kalem 10 -> 6, 2. kalem silinir, serbest kalem eklenir (1 x 10 +%20 = 12)
+      Ord.Lines[0].Quantity := 6;
+      Svc.RemoveLine(Ord, Ord.Lines[1]);
+      OL := Svc.NewLine(Ord); OL.StkInventoryId := Inv1; OL.Quantity := 1; OL.UnitPrice := 10; OL.VatRate := 20;
+      Svc.Recalculate(Ord);
+      Svc.BusinessSaveWithDetails(Ord, False, True);
+      Check('update: line count', Num(Scalar('SELECT count(*) FROM sls_order_detail WHERE sls_order_id = ' + OrdId.ToString)) = 2);
+      Check('offer ordered qty follows order (old + new links)', Near(OfferOrdered(OffLine1), 6) and Near(OfferOrdered(OffLine2), 0));
+      Check('offer back to sent (partly ordered)', OfferStatus = SLS_OFF_SENT);
+      Check('order totals: 6 x 2 +%20 + 12', Near(Num(Scalar('SELECT total_amount FROM sls_order WHERE id = ' + OrdId.ToString)), 14.4 + 12));
+      Check('reload: ids, header refs', (Ord.Lines.Count = 2) and (Ord.Lines[1].Id > 0) and (Ord.Lines[1].Header = Ord));
+
+      // ---- taslakta satır no takası (UNIQUE commit'te)
+      LNo1 := Ord.Lines[0].LineNo;
+      LNo2 := Ord.Lines[1].LineNo;
+      Ord.Lines[0].LineNo := LNo2;
+      Ord.Lines[1].LineNo := LNo1;
+      Svc.BusinessSaveWithDetails(Ord, False, True);
+      UoW.Connection.ExecSQL('SET CONSTRAINTS sls_order_detail_line_key IMMEDIATE');
+      Check('line no swap saved', Ord.Lines.Count = 2);
+      UoW.Connection.ExecSQL('SET CONSTRAINTS sls_order_detail_line_key DEFERRED');
+
+      // ---- onaylı sipariş: başlık değişir, kalem değişikliği / yeni kalem reddedilir
+      Svc.ChangeStatus(OrdId, SLS_ORD_APPROVED, True);
+      FreeAndNil(Ord);
+      Ord := Svc.BusinessFindById(OrdId, False, False, True);
+      Ord.Description := 'IT APPROVED';
+      Svc.BusinessSaveWithDetails(Ord, False, True);
+      Check('approved: header saved', S(Scalar('SELECT description FROM sls_order WHERE id = ' + OrdId.ToString)) = 'IT APPROVED');
+      Ord.Lines[0].Quantity := Ord.Lines[0].Quantity + 1;
+      Expect('approved: line change rejected', procedure begin Svc.BusinessSaveWithDetails(Ord, False, True); end);
+      FreeAndNil(Ord);
+
+      Begin_;
+      // ---- kopya: yeni taslak, teklif bağlantısı düşer (teklifin siparişe aktarılanı değişmez)
+      Off := TSlsOffer.Create;
+      Off.AccAccountId := Customer;
+      L := OffSvc.NewLine(Off); L.StkInventoryId := Inv1; L.Quantity := 4; L.UnitPrice := 1; L.VatRate := 20;
+      OffSvc.BusinessSaveWithDetails(Off, False, True);
+      OffId := Off.Id;
+      OffLine1 := Off.Lines[0].Id;
+      OffSvc.ChangeStatus(OffId, SLS_OFF_SENT, True);
+      FreeAndNil(Off);
+      OrdId := Svc.CreateFromOffer(OffId, True);
+      Ord := Svc.BusinessFindById(OrdId, False, False, True);
+      Copy := Ord.Clone;
+      FreeAndNil(Ord);
+      Svc.PrepareCopy(Copy);
+      Check('prepare copy: new, no offer link', (Copy.Id = 0) and (Copy.OrderNo = '') and (Copy.Status = SLS_ORD_DRAFT) and
+        (Copy.Lines[0].Id < 0) and (Copy.Lines[0].SlsOfferDetailId = 0));
+      Svc.BusinessSaveWithDetails(Copy, False, True);
+      Check('copy saved', (Copy.Id > 0) and (Copy.Id <> OrdId) and (Copy.Lines.Count = 1) and (Copy.OrderNo <> ''));
+      Check('copy does not count for offer', Near(OfferOrdered(OffLine1), 4));
+
+      // ---- tanımsız KDV oranı reddedilir
+      Copy.Lines[0].VatRate := 17;
+      Expect('undefined VAT rate rejected', procedure begin Svc.BusinessSaveWithDetails(Copy, False, True); end);
+    except
+      on E: Exception do
+        Check('order document flow', False, E.Message);
+    end;
+  finally
+    End_;
+    Copy.Free;
+    Ord.Free;
+    Off.Free;
+    Svc.Free;
+    OffSvc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -3119,6 +3251,7 @@ begin
   TestPurchasing;
   TestSales;
   TestSalesOfferDocument;
+  TestSalesOrderDocument;
   TestCompanyBankAccounts;
   TestAccountTransactions;
   TestDashboard;
