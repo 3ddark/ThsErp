@@ -99,6 +99,19 @@ uses
   ufrmSlsInvoices, SlsInvoice.Service, SlsInvoice,
   ufrmFinCompanyBankAccounts, FinCompanyBankAccount.Service, FinCompanyBankAccount,
   ufrmAccAccountTransactions, AccAccountTransaction.Service, AccAccountTransaction,
+  ufrmEInvDiibs, EInvDiib.Service, EInvDiib,
+  ufrmEInvDiibLines, EInvDiibLine.Service, EInvDiibLine,
+  ufrmEInvProfiles, EInvProfile.Service, EInvProfile,
+  ufrmEInvInvoiceTypes, EInvInvoiceType.Service, EInvInvoiceType,
+  ufrmEInvTaxExemptions, EInvTaxExemption.Service, EInvTaxExemption,
+  ufrmEInvTaxTypes, EInvTaxType.Service, EInvTaxType,
+  ufrmEInvWithholdings, EInvWithholding.Service, EInvWithholding,
+  ufrmEInvDeliveryTerms, EInvDeliveryTerm.Service, EInvDeliveryTerm,
+  ufrmEInvTransportModes, EInvTransportMode.Service, EInvTransportMode,
+  ufrmEInvPackagingTypes, EInvPackagingType.Service, EInvPackagingType,
+  ufrmEInvPaymentMeansList, EInvPaymentMeans.Service, EInvPaymentMeans,
+  ufrmEInvSeriesList, EInvSeries.Service, EInvSeries,
+  ufrmEInvGtips, EInvGtip.Service, EInvGtip,
   LocalizationManager;
 
 type
@@ -206,6 +219,34 @@ type
     actsls_orders: TAction;
     actsls_dispatches: TAction;
     actsls_invoices: TAction;
+    actsls_diibs: TAction;
+    actsls_diib_lines: TAction;
+    actsls_einv_profiles: TAction;
+    actsls_einv_invoice_types: TAction;
+    actsls_einv_tax_exemptions: TAction;
+    actsls_einv_tax_types: TAction;
+    actsls_einv_withholdings: TAction;
+    actsls_einv_delivery_terms: TAction;
+    actsls_einv_transport_modes: TAction;
+    actsls_einv_packaging_types: TAction;
+    actsls_einv_payment_means: TAction;
+    actsls_einv_series: TAction;
+    actstk_gtips: TAction;
+    mnisls_diibs: TMenuItem;
+    mnisls_diib_lines: TMenuItem;
+    mnisls_einv_profiles: TMenuItem;
+    mnisls_einv_invoice_types: TMenuItem;
+    mnisls_einv_tax_exemptions: TMenuItem;
+    mnisls_einv_tax_types: TMenuItem;
+    mnisls_einv_withholdings: TMenuItem;
+    mnisls_einv_delivery_terms: TMenuItem;
+    mnisls_einv_transport_modes: TMenuItem;
+    mnisls_einv_packaging_types: TMenuItem;
+    mnisls_einv_payment_means: TMenuItem;
+    mnisls_einv_series: TMenuItem;
+    mnistk_gtips: TMenuItem;
+    mnisls_sep4: TMenuItem;
+    mnisls_einv_settings: TMenuItem;
     mnipur_requests: TMenuItem;
     mnipur_request_lines: TMenuItem;
     mnipur_sep1: TMenuItem;
@@ -412,6 +453,19 @@ type
     procedure actsls_ordersExecute(Sender: TObject);
     procedure actsls_dispatchesExecute(Sender: TObject);
     procedure actsls_invoicesExecute(Sender: TObject);
+    procedure actsls_diibsExecute(Sender: TObject);
+    procedure actsls_diib_linesExecute(Sender: TObject);
+    procedure actsls_einv_profilesExecute(Sender: TObject);
+    procedure actsls_einv_invoice_typesExecute(Sender: TObject);
+    procedure actsls_einv_tax_exemptionsExecute(Sender: TObject);
+    procedure actsls_einv_tax_typesExecute(Sender: TObject);
+    procedure actsls_einv_withholdingsExecute(Sender: TObject);
+    procedure actsls_einv_delivery_termsExecute(Sender: TObject);
+    procedure actsls_einv_transport_modesExecute(Sender: TObject);
+    procedure actsls_einv_packaging_typesExecute(Sender: TObject);
+    procedure actsls_einv_payment_meansExecute(Sender: TObject);
+    procedure actsls_einv_seriesExecute(Sender: TObject);
+    procedure actstk_gtipsExecute(Sender: TObject);
     procedure actfin_money_accountsExecute(Sender: TObject);
     procedure actfin_money_transactionsExecute(Sender: TObject);
     procedure actfin_money_ledgerExecute(Sender: TObject);
@@ -892,6 +946,71 @@ end;
 procedure TfrmDashboard.actsls_invoicesExecute(Sender: TObject);
 begin
   TfrmSlsInvoices.Create(Self, TSlsInvoiceService.Create, TSlsInvoice.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_diibsExecute(Sender: TObject);
+begin
+  TfrmEInvDiibs.Create(Self, TEInvDiibService.Create, TEInvDiib.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_diib_linesExecute(Sender: TObject);
+begin
+  TfrmEInvDiibLines.Create(Self, TEInvDiibLineService.Create, TEInvDiibLine.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_profilesExecute(Sender: TObject);
+begin
+  TfrmEInvProfiles.Create(Self, TEInvProfileService.Create, TEInvProfile.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_invoice_typesExecute(Sender: TObject);
+begin
+  TfrmEInvInvoiceTypes.Create(Self, TEInvInvoiceTypeService.Create, TEInvInvoiceType.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_tax_exemptionsExecute(Sender: TObject);
+begin
+  TfrmEInvTaxExemptions.Create(Self, TEInvTaxExemptionService.Create, TEInvTaxExemption.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_tax_typesExecute(Sender: TObject);
+begin
+  TfrmEInvTaxTypes.Create(Self, TEInvTaxTypeService.Create, TEInvTaxType.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_withholdingsExecute(Sender: TObject);
+begin
+  TfrmEInvWithholdings.Create(Self, TEInvWithholdingService.Create, TEInvWithholding.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_delivery_termsExecute(Sender: TObject);
+begin
+  TfrmEInvDeliveryTerms.Create(Self, TEInvDeliveryTermService.Create, TEInvDeliveryTerm.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_transport_modesExecute(Sender: TObject);
+begin
+  TfrmEInvTransportModes.Create(Self, TEInvTransportModeService.Create, TEInvTransportMode.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_packaging_typesExecute(Sender: TObject);
+begin
+  TfrmEInvPackagingTypes.Create(Self, TEInvPackagingTypeService.Create, TEInvPackagingType.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_payment_meansExecute(Sender: TObject);
+begin
+  TfrmEInvPaymentMeansList.Create(Self, TEInvPaymentMeansService.Create, TEInvPaymentMeans.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_seriesExecute(Sender: TObject);
+begin
+  TfrmEInvSeriesList.Create(Self, TEInvSeriesService.Create, TEInvSeries.Create).Show;
+end;
+
+procedure TfrmDashboard.actstk_gtipsExecute(Sender: TObject);
+begin
+  TfrmEInvGtips.Create(Self, TEInvGtipService.Create, TEInvGtip.Create).Show;
 end;
 
 procedure TfrmDashboard.actfin_money_accountsExecute(Sender: TObject);
@@ -1682,6 +1801,34 @@ begin
     actsls_dispatches.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.TitlePlural, 'Delivery Notes');
   if Assigned(actsls_invoices) then
     actsls_invoices.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.TitlePlural, 'Sales Invoices');
+  if Assigned(actsls_diibs) then
+    actsls_diibs.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiib.TitlePlural, 'DIIB Certificates');
+  if Assigned(actsls_diib_lines) then
+    actsls_diib_lines.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.TitlePlural, 'DIIB Lines');
+  if Assigned(actsls_einv_profiles) then
+    actsls_einv_profiles.Caption := TLocalizationManager.Translate(TLangKeys.TEInvProfile.TitlePlural, 'e-Document Profiles');
+  if Assigned(actsls_einv_invoice_types) then
+    actsls_einv_invoice_types.Caption := TLocalizationManager.Translate(TLangKeys.TEInvInvoiceType.TitlePlural, 'e-Invoice Types');
+  if Assigned(actsls_einv_tax_exemptions) then
+    actsls_einv_tax_exemptions.Caption := TLocalizationManager.Translate(TLangKeys.TEInvTaxExemption.TitlePlural, 'Tax Exemption Codes');
+  if Assigned(actsls_einv_tax_types) then
+    actsls_einv_tax_types.Caption := TLocalizationManager.Translate(TLangKeys.TEInvTaxType.TitlePlural, 'Tax Type Codes');
+  if Assigned(actsls_einv_withholdings) then
+    actsls_einv_withholdings.Caption := TLocalizationManager.Translate(TLangKeys.TEInvWithholding.TitlePlural, 'Withholding Codes');
+  if Assigned(actsls_einv_delivery_terms) then
+    actsls_einv_delivery_terms.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDeliveryTerm.TitlePlural, 'Delivery Terms');
+  if Assigned(actsls_einv_transport_modes) then
+    actsls_einv_transport_modes.Caption := TLocalizationManager.Translate(TLangKeys.TEInvTransportMode.TitlePlural, 'Transport Modes');
+  if Assigned(actsls_einv_packaging_types) then
+    actsls_einv_packaging_types.Caption := TLocalizationManager.Translate(TLangKeys.TEInvPackagingType.TitlePlural, 'Packaging Types');
+  if Assigned(actsls_einv_payment_means) then
+    actsls_einv_payment_means.Caption := TLocalizationManager.Translate(TLangKeys.TEInvPaymentMeans.TitlePlural, 'Payment Means');
+  if Assigned(actsls_einv_series) then
+    actsls_einv_series.Caption := TLocalizationManager.Translate(TLangKeys.TEInvSeries.TitlePlural, 'e-Document Series');
+  if Assigned(actstk_gtips) then
+    actstk_gtips.Caption := TLocalizationManager.Translate(TLangKeys.TEInvGtip.TitlePlural, 'GTIP Codes');
+  if Assigned(mnisls_einv_settings) then
+    mnisls_einv_settings.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuEInvSettings, 'e-Document Settings');
   if Assigned(actfin_money_accounts) then
     actfin_money_accounts.Caption := TLocalizationManager.Translate(TLangKeys.TFinMoneyAccount.TitlePlural, 'Cash / Bank Accounts');
   if Assigned(actfin_money_transactions) then

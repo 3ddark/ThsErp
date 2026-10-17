@@ -20,6 +20,7 @@ type
         const RequiredFieldsEmpty = 'validation.required_fields_empty';
         const NegativeValueNotAllowed = 'validation.negative_value_not_allowed';
         const MustBePositive = 'validation.must_be_positive';
+        const VatRateUndefined = 'validation.vat_rate_undefined';
       end;
 
       TGeneral = record
@@ -285,6 +286,7 @@ type
         const KpiLegendOut = 'dashboard.kpi.legend_out';
         const KpiLegendReceived = 'dashboard.kpi.legend_received';
         const KpiLegendGiven = 'dashboard.kpi.legend_given';
+        const MenuEInvSettings = 'dashboard.menu.einv_settings';
       end;
 
       TGridColumn = record
@@ -1205,6 +1207,8 @@ type
         const WarehouseStocks = 'stk_inventory.warehouse_stocks';
         const ColProperty = 'stk_inventory.col_property';
         const ColValue = 'stk_inventory.col_value';
+        const ColGtipCode = 'stk_inventory.col_gtip_code';
+        const ColGtipName = 'stk_inventory.col_gtip_name';
       end;
 
       TStkCardKindInfo = record
@@ -2277,6 +2281,53 @@ type
         const NothingToInvoice = 'sls_invoice.nothing_to_invoice';
         const WarehouseRequired = 'sls_invoice.warehouse_required';
         const OrderStatus = 'sls_invoice.order_status';
+        const ColEinvProfileId = 'sls_invoice.col_einv_profile_id';
+        const ColEinvInvoiceTypeId = 'sls_invoice.col_einv_invoice_type_id';
+        const ColEinvUuid = 'sls_invoice.col_einv_uuid';
+        const ColEinvStatus = 'sls_invoice.col_einv_status';
+        const ColEinvTaxExemptionId = 'sls_invoice.col_einv_tax_exemption_id';
+        const ColEinvDeliveryTermId = 'sls_invoice.col_einv_delivery_term_id';
+        const ColEinvTransportModeId = 'sls_invoice.col_einv_transport_mode_id';
+        const ColEinvPaymentMeansId = 'sls_invoice.col_einv_payment_means_id';
+        const ColCustomsDeclarationNo = 'sls_invoice.col_customs_declaration_no';
+        const ColGtbRefNo = 'sls_invoice.col_gtb_ref_no';
+        const ColActualExportDate = 'sls_invoice.col_actual_export_date';
+        const ColWithholdingAmount = 'sls_invoice.col_withholding_amount';
+        const ColProfileCode = 'sls_invoice.col_profile_code';
+        const ColInvoiceTypeCode = 'sls_invoice.col_invoice_type_code';
+        const ColTaxExemptionCode = 'sls_invoice.col_tax_exemption_code';
+        const ColTaxExemptionName = 'sls_invoice.col_tax_exemption_name';
+        const ColDeliveryTermCode = 'sls_invoice.col_delivery_term_code';
+        const ColTransportModeName = 'sls_invoice.col_transport_mode_name';
+        const ColPaymentMeansName = 'sls_invoice.col_payment_means_name';
+        const ColPayableAmount = 'sls_invoice.col_payable_amount';
+        const ColAccountEInvoiceActive = 'sls_invoice.col_account_e_invoice_active';
+        const TabGeneral = 'sls_invoice.tab_general';
+        const TabEInvoice = 'sls_invoice.tab_einvoice';
+        const EInvLocked = 'sls_invoice.einv_locked';
+        const EInvProfileKind = 'sls_invoice.einv_profile_kind';
+        const EInvInactive = 'sls_invoice.einv_inactive';
+        const ExemptionTypeMismatch = 'sls_invoice.exemption_type_mismatch';
+        const WithholdingRequired = 'sls_invoice.withholding_required';
+        const WithholdingNotAllowed = 'sls_invoice.withholding_not_allowed';
+        const WithholdingNoVat = 'sls_invoice.withholding_no_vat';
+        const DeliveryNotIncoterms = 'sls_invoice.delivery_not_incoterms';
+        const LineGtipRequired = 'sls_invoice.line_gtip_required';
+        const LineDiibRequired = 'sls_invoice.line_diib_required';
+        const ExemptionNeedsZeroVat = 'sls_invoice.exemption_needs_zero_vat';
+        const LinePackageRequired = 'sls_invoice.line_package_required';
+        const DiibHolderMismatch = 'sls_invoice.diib_holder_mismatch';
+        const DiibGtipMismatch = 'sls_invoice.diib_gtip_mismatch';
+        const DiibExpired = 'sls_invoice.diib_expired';
+        const ColEinvNo = 'sls_invoice.col_einv_no';
+        const ColEinvXmlValid = 'sls_invoice.col_einv_xml_valid';
+        const MenuEInvPreview = 'sls_invoice.menu_einv_preview';
+        const MenuEInvSaveXml = 'sls_invoice.menu_einv_save_xml';
+        const MenuEInvRegenerate = 'sls_invoice.menu_einv_regenerate';
+        const MenuEInvValidation = 'sls_invoice.menu_einv_validation';
+        const MsgEInvNoDocument = 'sls_invoice.msg_einv_no_document';
+        const MsgEInvValid = 'sls_invoice.msg_einv_valid';
+        const MsgEInvInvalid = 'sls_invoice.msg_einv_invalid';
       end;
 
       TSlsInvoiceDetail = record
@@ -2313,6 +2364,263 @@ type
         const OrderStatus = 'sls_invoice_detail.order_status';
         const OverInvoice = 'sls_invoice_detail.over_invoice';
         const OverDelivery = 'sls_invoice_detail.over_delivery';
+        const ColEinvGtipId = 'sls_invoice_detail.col_einv_gtip_id';
+        const ColEinvWithholdingId = 'sls_invoice_detail.col_einv_withholding_id';
+        const ColWithholdingAmount = 'sls_invoice_detail.col_withholding_amount';
+        const ColSellerEinvDiibLineId = 'sls_invoice_detail.col_seller_einv_diib_line_id';
+        const ColBuyerEinvDiibLineId = 'sls_invoice_detail.col_buyer_einv_diib_line_id';
+        const ColEinvPackagingTypeId = 'sls_invoice_detail.col_einv_packaging_type_id';
+        const ColPackageNo = 'sls_invoice_detail.col_package_no';
+        const ColPackageQuantity = 'sls_invoice_detail.col_package_quantity';
+        const ColPackageBrand = 'sls_invoice_detail.col_package_brand';
+        const ColGtipCode = 'sls_invoice_detail.col_gtip_code';
+        const ColWithholdingCode = 'sls_invoice_detail.col_withholding_code';
+        const ColWithholdingRate = 'sls_invoice_detail.col_withholding_rate';
+        const ColSellerDiibLineCode = 'sls_invoice_detail.col_seller_diib_line_code';
+        const ColBuyerDiibLineCode = 'sls_invoice_detail.col_buyer_diib_line_code';
+        const ColDiibProductDescription = 'sls_invoice_detail.col_diib_product_description';
+        const ColPackagingTypeCode = 'sls_invoice_detail.col_packaging_type_code';
+        const ColUomEinvCode = 'sls_invoice_detail.col_uom_einv_code';
+        const TabEInvoice = 'sls_invoice_detail.tab_einvoice';
+      end;
+
+      //e-Document Module (UBL-TR code lists, GTIP, DIIB)
+      TEInvOption = record
+        const DocInvoice = 'einv_option.doc_invoice';
+        const DocDespatch = 'einv_option.doc_despatch';
+        const ExgrpVatPartial = 'einv_option.exgrp_vat_partial';
+        const ExgrpVatFull = 'einv_option.exgrp_vat_full';
+        const ExgrpOther = 'einv_option.exgrp_other';
+        const ExgrpSct = 'einv_option.exgrp_sct';
+        const ExgrpLodging = 'einv_option.exgrp_lodging';
+        const ExgrpSpecialBase = 'einv_option.exgrp_special_base';
+        const ExgrpExportReg = 'einv_option.exgrp_export_reg';
+        const DiibOwn = 'einv_option.diib_own';
+        const DiibCustomer = 'einv_option.diib_customer';
+        const DiibLineExport = 'einv_option.diib_line_export';
+        const DiibLineImport = 'einv_option.diib_line_import';
+        const StatusDraft = 'einv_option.status_draft';
+        const StatusQueued = 'einv_option.status_queued';
+        const StatusSent = 'einv_option.status_sent';
+        const StatusAccepted = 'einv_option.status_accepted';
+        const StatusRejected = 'einv_option.status_rejected';
+        const StatusError = 'einv_option.status_error';
+        const StatusCancelled = 'einv_option.status_cancelled';
+        const SeriesInvoice = 'einv_option.series_invoice';
+        const SeriesArchive = 'einv_option.series_archive';
+      end;
+
+      TEInvProfile = record
+        const TitlePlural = 'einv_profile.title_plural';
+        const TitleSingular = 'einv_profile.title_singular';
+        const ColCode = 'einv_profile.col_code';
+        const ColName = 'einv_profile.col_name';
+        const ColDocumentKind = 'einv_profile.col_document_kind';
+        const ColRequiresExportInfo = 'einv_profile.col_requires_export_info';
+        const ColIsActive = 'einv_profile.col_is_active';
+        const CodeUnique = 'einv_profile.code_unique';
+        const InUse = 'einv_profile.in_use';
+      end;
+
+      TEInvInvoiceType = record
+        const TitlePlural = 'einv_invoice_type.title_plural';
+        const TitleSingular = 'einv_invoice_type.title_singular';
+        const ColCode = 'einv_invoice_type.col_code';
+        const ColName = 'einv_invoice_type.col_name';
+        const ColRequiresExemption = 'einv_invoice_type.col_requires_exemption';
+        const ColRequiresWithholding = 'einv_invoice_type.col_requires_withholding';
+        const ColIsReturn = 'einv_invoice_type.col_is_return';
+        const ColIsActive = 'einv_invoice_type.col_is_active';
+        const CodeUnique = 'einv_invoice_type.code_unique';
+        const InUse = 'einv_invoice_type.in_use';
+      end;
+
+      TEInvTaxExemption = record
+        const TitlePlural = 'einv_tax_exemption.title_plural';
+        const TitleSingular = 'einv_tax_exemption.title_singular';
+        const ColCode = 'einv_tax_exemption.col_code';
+        const ColName = 'einv_tax_exemption.col_name';
+        const ColExemptionGroup = 'einv_tax_exemption.col_exemption_group';
+        const ColEinvInvoiceTypeId = 'einv_tax_exemption.col_einv_invoice_type_id';
+        const ColRequiresGtip = 'einv_tax_exemption.col_requires_gtip';
+        const ColRequiresDiib = 'einv_tax_exemption.col_requires_diib';
+        const ColRequiresZeroVat = 'einv_tax_exemption.col_requires_zero_vat';
+        const ColIsActive = 'einv_tax_exemption.col_is_active';
+        const ColInvoiceTypeCode = 'einv_tax_exemption.col_invoice_type_code';
+        const CodeUnique = 'einv_tax_exemption.code_unique';
+        const InUse = 'einv_tax_exemption.in_use';
+      end;
+
+      TEInvTaxType = record
+        const TitlePlural = 'einv_tax_type.title_plural';
+        const TitleSingular = 'einv_tax_type.title_singular';
+        const ColCode = 'einv_tax_type.col_code';
+        const ColName = 'einv_tax_type.col_name';
+        const ColShortName = 'einv_tax_type.col_short_name';
+        const ColIsActive = 'einv_tax_type.col_is_active';
+        const CodeUnique = 'einv_tax_type.code_unique';
+      end;
+
+      TEInvWithholding = record
+        const TitlePlural = 'einv_withholding.title_plural';
+        const TitleSingular = 'einv_withholding.title_singular';
+        const ColCode = 'einv_withholding.col_code';
+        const ColName = 'einv_withholding.col_name';
+        const ColRate = 'einv_withholding.col_rate';
+        const ColIsActive = 'einv_withholding.col_is_active';
+        const CodeUnique = 'einv_withholding.code_unique';
+        const InUse = 'einv_withholding.in_use';
+        const RateRange = 'einv_withholding.rate_range';
+      end;
+
+      TEInvDeliveryTerm = record
+        const TitlePlural = 'einv_delivery_term.title_plural';
+        const TitleSingular = 'einv_delivery_term.title_singular';
+        const ColCode = 'einv_delivery_term.col_code';
+        const ColName = 'einv_delivery_term.col_name';
+        const ColIsIncoterms = 'einv_delivery_term.col_is_incoterms';
+        const ColIsActive = 'einv_delivery_term.col_is_active';
+        const CodeUnique = 'einv_delivery_term.code_unique';
+        const InUse = 'einv_delivery_term.in_use';
+      end;
+
+      TEInvTransportMode = record
+        const TitlePlural = 'einv_transport_mode.title_plural';
+        const TitleSingular = 'einv_transport_mode.title_singular';
+        const ColCode = 'einv_transport_mode.col_code';
+        const ColName = 'einv_transport_mode.col_name';
+        const ColIsActive = 'einv_transport_mode.col_is_active';
+        const CodeUnique = 'einv_transport_mode.code_unique';
+        const InUse = 'einv_transport_mode.in_use';
+      end;
+
+      TEInvPackagingType = record
+        const TitlePlural = 'einv_packaging_type.title_plural';
+        const TitleSingular = 'einv_packaging_type.title_singular';
+        const ColCode = 'einv_packaging_type.col_code';
+        const ColName = 'einv_packaging_type.col_name';
+        const ColIsActive = 'einv_packaging_type.col_is_active';
+        const CodeUnique = 'einv_packaging_type.code_unique';
+        const InUse = 'einv_packaging_type.in_use';
+      end;
+
+      TEInvPaymentMeans = record
+        const TitlePlural = 'einv_payment_means.title_plural';
+        const TitleSingular = 'einv_payment_means.title_singular';
+        const ColCode = 'einv_payment_means.col_code';
+        const ColName = 'einv_payment_means.col_name';
+        const ColIsActive = 'einv_payment_means.col_is_active';
+        const CodeUnique = 'einv_payment_means.code_unique';
+        const InUse = 'einv_payment_means.in_use';
+      end;
+
+      TEInvGtip = record
+        const TitlePlural = 'einv_gtip.title_plural';
+        const TitleSingular = 'einv_gtip.title_singular';
+        const ColCode = 'einv_gtip.col_code';
+        const ColName = 'einv_gtip.col_name';
+        const ColIsActive = 'einv_gtip.col_is_active';
+        const CodeUnique = 'einv_gtip.code_unique';
+        const InUse = 'einv_gtip.in_use';
+        const CodeInvalid = 'einv_gtip.code_invalid';
+      end;
+
+      TEInvDiib = record
+        const TitlePlural = 'einv_diib.title_plural';
+        const TitleSingular = 'einv_diib.title_singular';
+        const ColDocumentNo = 'einv_diib.col_document_no';
+        const ColHolderType = 'einv_diib.col_holder_type';
+        const ColAccAccountId = 'einv_diib.col_acc_account_id';
+        const ColIssueDate = 'einv_diib.col_issue_date';
+        const ColValidUntil = 'einv_diib.col_valid_until';
+        const ColDescription = 'einv_diib.col_description';
+        const ColIsActive = 'einv_diib.col_is_active';
+        const ColAccountCode = 'einv_diib.col_account_code';
+        const ColAccountName = 'einv_diib.col_account_name';
+        const ColLineCount = 'einv_diib.col_line_count';
+        const MenuLines = 'einv_diib.popup.lines';
+        const DocumentNoUnique = 'einv_diib.document_no_unique';
+        const AccountRequired = 'einv_diib.account_required';
+        const DateRange = 'einv_diib.date_range';
+        const InUse = 'einv_diib.in_use';
+      end;
+
+      TEInvDiibLine = record
+        const TitlePlural = 'einv_diib_line.title_plural';
+        const TitleSingular = 'einv_diib_line.title_singular';
+        const ColEinvDiibId = 'einv_diib_line.col_einv_diib_id';
+        const ColLineCode = 'einv_diib_line.col_line_code';
+        const ColLineKind = 'einv_diib_line.col_line_kind';
+        const ColEinvGtipId = 'einv_diib_line.col_einv_gtip_id';
+        const ColProductDescription = 'einv_diib_line.col_product_description';
+        const ColStkInventoryId = 'einv_diib_line.col_stk_inventory_id';
+        const ColQuantity = 'einv_diib_line.col_quantity';
+        const ColSysUomId = 'einv_diib_line.col_sys_uom_id';
+        const ColIsActive = 'einv_diib_line.col_is_active';
+        const ColDocumentNo = 'einv_diib_line.col_document_no';
+        const ColHolderType = 'einv_diib_line.col_holder_type';
+        const ColAccAccountId = 'einv_diib_line.col_acc_account_id';
+        const ColAccountName = 'einv_diib_line.col_account_name';
+        const ColGtipCode = 'einv_diib_line.col_gtip_code';
+        const ColGtipName = 'einv_diib_line.col_gtip_name';
+        const ColInventoryCode = 'einv_diib_line.col_inventory_code';
+        const ColInventoryName = 'einv_diib_line.col_inventory_name';
+        const ColUnitCode = 'einv_diib_line.col_unit_code';
+        const ColUomEinvCode = 'einv_diib_line.col_uom_einv_code';
+        const ColDiibIsActive = 'einv_diib_line.col_diib_is_active';
+        const ColValidUntil = 'einv_diib_line.col_valid_until';
+        const LineCodeUnique = 'einv_diib_line.line_code_unique';
+        const QuantityNegative = 'einv_diib_line.quantity_negative';
+        const InUse = 'einv_diib_line.in_use';
+      end;
+
+      //e-Document Series
+      TEInvSeries = record
+        const TitlePlural = 'einv_series.title_plural';
+        const TitleSingular = 'einv_series.title_singular';
+        const ColCode = 'einv_series.col_code';
+        const ColName = 'einv_series.col_name';
+        const ColSeriesScope = 'einv_series.col_series_scope';
+        const ColIsDefault = 'einv_series.col_is_default';
+        const ColIsActive = 'einv_series.col_is_active';
+        const ColLastNumber = 'einv_series.col_last_number';
+        const CodeUnique = 'einv_series.code_unique';
+        const InUse = 'einv_series.in_use';
+        const CodeFormat = 'einv_series.code_format';
+      end;
+
+      //e-Document XML
+      TEInvDocument = record
+        const TitlePlural = 'einv_document.title_plural';
+        const TitleSingular = 'einv_document.title_singular';
+        const ColSlsInvoiceId = 'einv_document.col_sls_invoice_id';
+        const ColEinvUuid = 'einv_document.col_einv_uuid';
+        const ColEinvNo = 'einv_document.col_einv_no';
+        const ColXmlContent = 'einv_document.col_xml_content';
+        const ColIsValid = 'einv_document.col_is_valid';
+        const ColValidationMessage = 'einv_document.col_validation_message';
+        const ColGeneratedAt = 'einv_document.col_generated_at';
+        const ColInvoiceNo = 'einv_document.col_invoice_no';
+        const RoleSupplier = 'einv_document.einv_document.role_supplier';
+        const RoleCustomer = 'einv_document.einv_document.role_customer';
+        const RoleExportBuyer = 'einv_document.einv_document.role_export_buyer';
+        const MsgPartyNotFound = 'einv_document.einv_document.msg_party_not_found';
+        const MsgTaxNo = 'einv_document.einv_document.msg_tax_no';
+        const MsgPersonName = 'einv_document.einv_document.msg_person_name';
+        const MsgPartyName = 'einv_document.einv_document.msg_party_name';
+        const MsgTaxOffice = 'einv_document.einv_document.msg_tax_office';
+        const MsgAddressCity = 'einv_document.einv_document.msg_address_city';
+        const MsgCityOnly = 'einv_document.einv_document.msg_city_only';
+        const MsgEInvNo = 'einv_document.einv_document.msg_einv_no';
+        const MsgUuid = 'einv_document.einv_document.msg_uuid';
+        const MsgProfile = 'einv_document.einv_document.msg_profile';
+        const MsgInvoiceType = 'einv_document.einv_document.msg_invoice_type';
+        const MsgNoLines = 'einv_document.einv_document.msg_no_lines';
+        const MsgUnitCode = 'einv_document.einv_document.msg_unit_code';
+        const MsgExchangeRate = 'einv_document.einv_document.msg_exchange_rate';
+        const MsgSchemaMissing = 'einv_document.einv_document.msg_schema_missing';
+        const MsgSchemaInvalid = 'einv_document.einv_document.msg_schema_invalid';
+        const MsgValidatorError = 'einv_document.einv_document.msg_validator_error';
       end;
   end;
 

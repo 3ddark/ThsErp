@@ -197,8 +197,20 @@ document's old lines).
 - Unique keys that lines may swap (`(header_id, line_no)`) are `DEFERRABLE INITIALLY DEFERRED`
   (`sls_offer_detail_line_key`, `sls_order_detail_line_key`); the service still rejects duplicates in memory before
   writing.
+- Defined VAT rates: `TAccSetTaxRateRepository.GetTaxRates` + `TAccSetTaxRateService.CheckDefinedRate` (stock group /
+  card, purchase order / invoice lines; purchase invoice also allows 0). Line forms show the stock card's unit
+  (`GetUomCode`) and fill VAT from the card (else group) when a stock card is picked.
 - Sales line VAT rate must be one of `acc_set_tax_rate` (`TSlsOfferDetailService.CheckVatRate`; line forms offer a
-  combo of the defined rates); discount 0-100.
+  combo of the defined rates); discount 0-100. Invoice exception: 0 % VAT only when the invoice has a tax exemption code.
+- Sales invoice e-document rules: `TSlsInvoiceService.CheckEInvoice` (class method; document save calls it from
+  `CheckLines` with the in-memory lines, the line service and header-only saves with the DB lines). Rules read the flags of
+  the selected code-list rows (`TSlsInvoiceRepository.ReadEInvRules`); a passive code is rejected only when newly chosen.
+  Field applicability: `TSlsInvoiceService.GetEInvScope` → `TSlsEInvScope` (`SlsInvoice.Repository`); invoice header / line
+  forms show / hide (visible rows restacked, empty line section hidden) + mark required by it, `CheckEInvoice` clears not applicable fields with the same scope
+  (`ClearNotApplicableHeader` / `ClearNotApplicableLine`) — table in `docs/einvoice_design.md` §3.
+- UBL XML: `AfterDocumentSaved` calls `TEInvDocumentService.GenerateForInvoice` (builder `EInvUbl.Builder` is pure, validator
+  `EInvUbl.Validator` = MSXML6 XSD + general.xslt from `Resource/EInvoice`); never blocks the save; one `einv_document` row per
+  invoice. GİB number (`sls_invoice.einv_no`) is assigned at send time (`TEInvSeriesRepository.NextNumber`) — §4 of the design doc.
 - Documents with several line lists (BoM raw / labour) call `TDetailList.Save` once per list.
 
 ---

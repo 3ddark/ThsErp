@@ -30,6 +30,10 @@ type
     procedure RefreshDispatchStatus(ADispatchDetailId: Int64);
     procedure ValidateDispatchLink(AEntity: TSlsInvoiceDetail; AInvoice: TSlsInvoice);
     procedure ValidateOrderLink(AEntity: TSlsInvoiceDetail; AInvoice: TSlsInvoice; AOperation: TCrudOperation);
+    // e-Belge kuralları faturanın tüm kalemleriyle (bu kalem yeni değeriyle)
+    procedure ValidateEInvoice(AEntity: TSlsInvoiceDetail; AInvoice: TSlsInvoice);
+    // e-belgesi gönderilmiş faturanın kalemi değişmez / silinmez
+    procedure EnsureInvoiceNotLocked(AInvoiceId: Int64);
   public
     constructor Create;
     destructor Destroy; override;
@@ -38,6 +42,8 @@ type
     // Tek kalem kaydı (ValidateBusinessRules) ve belge kaydı (TSlsInvoiceService.BusinessSaveWithDetails) ortak kullanır
     class procedure CheckLine(AEntity: TSlsInvoiceDetail); static;
     function GetVatRates: TArray<Currency>;
+    // Satır formu: faturanın (bellekteki başlık + aktif kalemler) e-belge kapsamı; alanları açar / kapatır
+    function EInvScope(AInvoice: TSlsInvoice): TSlsEInvScope;
     function GetUomCode(AInventoryId: Int64): string;
     procedure ValidateBusinessRules(AEntity: TSlsInvoiceDetail; AOperation: TCrudOperation); override;
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
@@ -63,7 +69,8 @@ type
 implementation
 
 uses
-  SysPermission.Service, SlsLookup, SlsOfferDetail, SlsOfferDetail.Repository, SlsOfferDetail.Service;
+  SysPermission.Service, SlsLookup, SlsOfferDetail, SlsOfferDetail.Repository, SlsOfferDetail.Service,
+  SlsInvoice.Service, SlsInvoice.Exception, EInvLookup;
 
 constructor TSlsInvoiceDetailService.Create;
 begin
@@ -201,8 +208,31 @@ begin
   AEntity.NetAmount := LNet;
   AEntity.VatAmount := LVat;
   AEntity.TotalAmount := LTotal;
+  // tevkifat = KDV x tevkifat oranı (oran tanımdan; belge kaydı CheckEInvoice ile yeniden okur)
+  if AEntity.EinvWithholdingId > 0 then
+    AEntity.WithholdingAmount := TSlsLookup.RoundAmount(LVat * AEntity.WithholdingRate / 100)
+  else
+    AEntity.WithholdingAmount := 0;
   if (AEntity.SlsDispatchDetailId > 0) and (AEntity.SlsOrderDetailId > 0) then
     raise ESlsInvoiceDetailExceptionSourceConflict.Create;
+end;
+
+function TSlsInvoiceDetailService.EInvScope(AInvoice: TSlsInvoice): TSlsEInvScope;
+var
+  LLines: TList<TSlsInvoiceDetail>;
+  LLine: TSlsInvoiceDetail;
+begin
+  if not Assigned(AInvoice) then
+    Exit(Default(TSlsEInvScope));
+  LLines := TList<TSlsInvoiceDetail>.Create;
+  try
+    for LLine in AInvoice.Lines do
+      if not LLine.Deleted then
+        LLines.Add(LLine);
+    Result := TSlsInvoiceService.GetEInvScope(TSlsInvoiceRepository(FInvoiceRepo), AInvoice, LLines.ToArray);
+  finally
+    LLines.Free;
+  end;
 end;
 
 function TSlsInvoiceDetailService.GetVatRates: TArray<Currency>;
@@ -225,6 +255,39 @@ begin
     TSlsDispatchRepository(FDispatchRepo).RefreshInvoiceStatus(LId);
 end;
 
+procedure TSlsInvoiceDetailService.EnsureInvoiceNotLocked(AInvoiceId: Int64);
+var
+  LInvoice: TSlsInvoice;
+begin
+  LInvoice := FInvoiceRepo.FindById(AInvoiceId, False);
+  try
+    if Assigned(LInvoice) and TEInvLookup.IsEInvLocked(LInvoice.EinvStatus) then
+      raise ESlsInvoiceExceptionEInvLocked.Create;
+  finally
+    LInvoice.Free;
+  end;
+end;
+
+procedure TSlsInvoiceDetailService.ValidateEInvoice(AEntity: TSlsInvoiceDetail; AInvoice: TSlsInvoice);
+var
+  LOldLines: TObjectList<TSlsInvoiceDetail>;
+  LLines: TList<TSlsInvoiceDetail>;
+  LLine: TSlsInvoiceDetail;
+begin
+  LOldLines := TSlsInvoiceDetailRepository(FRepo).FindByInvoiceIds([AInvoice.Id]);
+  LLines := TList<TSlsInvoiceDetail>.Create;
+  try
+    for LLine in LOldLines do
+      if LLine.Id <> AEntity.Id then
+        LLines.Add(LLine);
+    LLines.Add(AEntity);
+    TSlsInvoiceService.CheckEInvoice(TSlsInvoiceRepository(FInvoiceRepo), AInvoice, LLines.ToArray, AInvoice, LOldLines, False);
+  finally
+    LLines.Free;
+    LOldLines.Free;
+  end;
+end;
+
 procedure TSlsInvoiceDetailService.ValidateBusinessRules(AEntity: TSlsInvoiceDetail; AOperation: TCrudOperation);
 var
   LInvoice: TSlsInvoice;
@@ -232,17 +295,25 @@ var
   LModel: TSlsInvoiceDetail;
 begin
   if AOperation = coDelete then
+  begin
+    EnsureInvoiceNotLocked(AEntity.SlsInvoiceId);
     Exit;
+  end;
 
   if AEntity.SlsInvoiceId <= 0 then
     FailRequired(TLangKeys.TSlsInvoiceDetail.ColSlsInvoiceId, 'Invoice');
   CheckLine(AEntity);
-  TSlsOfferDetailService.CheckVatRate(AEntity.VatRate, GetVatRates);
 
   LInvoice := FInvoiceRepo.FindById(AEntity.SlsInvoiceId, False);
   try
     if not Assigned(LInvoice) then
       raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AEntity.SlsInvoiceId]));
+    // %0 KDV yalnız istisna kodlu faturada
+    if not ((AEntity.VatRate = 0) and (LInvoice.EinvTaxExemptionId > 0)) then
+      TSlsOfferDetailService.CheckVatRate(AEntity.VatRate, GetVatRates);
+    if TEInvLookup.IsEInvLocked(LInvoice.EinvStatus) then
+      raise ESlsInvoiceExceptionEInvLocked.Create;
+    ValidateEInvoice(AEntity, LInvoice);
     if AEntity.SlsDispatchDetailId > 0 then
       ValidateDispatchLink(AEntity, LInvoice)
     else

@@ -105,9 +105,22 @@ object frmPurInvoiceDetail: TfrmPurInvoiceDetail
     object edtQuantity: TEdit
       Left = 132
       Top = 71
-      Width = 260
+      Width = 150
       Height = 22
       TabOrder = 3
+    end
+    object lblUomCode: TLabel
+      Left = 288
+      Top = 75
+      Width = 104
+      Height = 13
+      AutoSize = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
     end
     object lblUnitPrice: TLabel
       Left = 4
@@ -168,11 +181,12 @@ object frmPurInvoiceDetail: TfrmPurInvoiceDetail
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtVatRate: TEdit
+    object cbbVatRate: TComboBox
       Left = 132
       Top = 140
-      Width = 260
+      Width = 150
       Height = 22
+      Style = csDropDownList
       TabOrder = 6
     end
     object lblDescription: TLabel

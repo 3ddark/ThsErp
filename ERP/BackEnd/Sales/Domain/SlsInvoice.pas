@@ -26,11 +26,33 @@ type
     FVatAmount: Currency;
     FTotalAmount: Currency;
     FDescription: string;
+    // e-Belge (UBL-TR)
+    FEinvProfileId: Int64;
+    FEinvInvoiceTypeId: Int64;
+    FEinvUuid: string;
+    FEinvStatus: SmallInt;
+    FEinvTaxExemptionId: Int64;
+    FEinvDeliveryTermId: Int64;
+    FEinvTransportModeId: Int64;
+    FEinvPaymentMeansId: Int64;
+    FCustomsDeclarationNo: string;
+    FGtbRefNo: string;
+    FActualExportDate: TDate;
+    FWithholdingAmount: Currency;
 
     // View (vw_sls_invoice) okunabilir alanları
     FAccountCode: string;
     FAccountName: string;
     FWarehouseName: string;
+    FProfileCode: string;
+    FInvoiceTypeCode: string;
+    FTaxExemptionCode: string;
+    FTaxExemptionName: string;
+    FDeliveryTermCode: string;
+    FTransportModeName: string;
+    FPaymentMeansName: string;
+    FPayableAmount: Currency;
+    FAccountEInvoiceActive: Boolean;
   public
     [Column('invoice_no')]
     [MaxLength(16)]
@@ -84,6 +106,72 @@ type
 
     [NotMapped]
     property WarehouseName: string read FWarehouseName write FWarehouseName;
+
+    // e-Belge (UBL-TR) — einv_status: 1 taslak … 7 iptal (EInvLookup), einv_uuid = ETTN
+    [Column('einv_profile_id')]
+    property EinvProfileId: Int64 read FEinvProfileId write FEinvProfileId;
+
+    [Column('einv_invoice_type_id')]
+    property EinvInvoiceTypeId: Int64 read FEinvInvoiceTypeId write FEinvInvoiceTypeId;
+
+    [Column('einv_uuid')]
+    property EinvUuid: string read FEinvUuid write FEinvUuid;
+
+    [Column('einv_status')]
+    property EinvStatus: SmallInt read FEinvStatus write FEinvStatus;
+
+    [Column('einv_tax_exemption_id')]
+    property EinvTaxExemptionId: Int64 read FEinvTaxExemptionId write FEinvTaxExemptionId;
+
+    [Column('einv_delivery_term_id')]
+    property EinvDeliveryTermId: Int64 read FEinvDeliveryTermId write FEinvDeliveryTermId;
+
+    [Column('einv_transport_mode_id')]
+    property EinvTransportModeId: Int64 read FEinvTransportModeId write FEinvTransportModeId;
+
+    [Column('einv_payment_means_id')]
+    property EinvPaymentMeansId: Int64 read FEinvPaymentMeansId write FEinvPaymentMeansId;
+
+    [Column('customs_declaration_no')]
+    [MaxLength(32)]
+    property CustomsDeclarationNo: string read FCustomsDeclarationNo write FCustomsDeclarationNo;
+
+    [Column('gtb_ref_no')]
+    [MaxLength(32)]
+    property GtbRefNo: string read FGtbRefNo write FGtbRefNo;
+
+    [Column('actual_export_date')]
+    property ActualExportDate: TDate read FActualExportDate write FActualExportDate;
+
+    [Column('withholding_amount')]
+    property WithholdingAmount: Currency read FWithholdingAmount write FWithholdingAmount;
+
+    [NotMapped]
+    property ProfileCode: string read FProfileCode write FProfileCode;
+
+    [NotMapped]
+    property InvoiceTypeCode: string read FInvoiceTypeCode write FInvoiceTypeCode;
+
+    [NotMapped]
+    property TaxExemptionCode: string read FTaxExemptionCode write FTaxExemptionCode;
+
+    [NotMapped]
+    property TaxExemptionName: string read FTaxExemptionName write FTaxExemptionName;
+
+    [NotMapped]
+    property DeliveryTermCode: string read FDeliveryTermCode write FDeliveryTermCode;
+
+    [NotMapped]
+    property TransportModeName: string read FTransportModeName write FTransportModeName;
+
+    [NotMapped]
+    property PaymentMeansName: string read FPaymentMeansName write FPaymentMeansName;
+
+    [NotMapped]
+    property PayableAmount: Currency read FPayableAmount write FPayableAmount;
+
+    [NotMapped]
+    property AccountEInvoiceActive: Boolean read FAccountEInvoiceActive write FAccountEInvoiceActive;
 
     // Kolon değil (nesne özelliği): BusinessFindById ile dolar, BusinessSaveWithDetails ile yazılır
     property Lines: TObjectList<TSlsInvoiceDetail> read FLines;
@@ -156,6 +244,27 @@ begin
   Result.AccountCode := Self.AccountCode;
   Result.AccountName := Self.AccountName;
   Result.WarehouseName := Self.WarehouseName;
+  Result.EinvProfileId := Self.EinvProfileId;
+  Result.EinvInvoiceTypeId := Self.EinvInvoiceTypeId;
+  Result.EinvUuid := Self.EinvUuid;
+  Result.EinvStatus := Self.EinvStatus;
+  Result.EinvTaxExemptionId := Self.EinvTaxExemptionId;
+  Result.EinvDeliveryTermId := Self.EinvDeliveryTermId;
+  Result.EinvTransportModeId := Self.EinvTransportModeId;
+  Result.EinvPaymentMeansId := Self.EinvPaymentMeansId;
+  Result.CustomsDeclarationNo := Self.CustomsDeclarationNo;
+  Result.GtbRefNo := Self.GtbRefNo;
+  Result.ActualExportDate := Self.ActualExportDate;
+  Result.WithholdingAmount := Self.WithholdingAmount;
+  Result.ProfileCode := Self.ProfileCode;
+  Result.InvoiceTypeCode := Self.InvoiceTypeCode;
+  Result.TaxExemptionCode := Self.TaxExemptionCode;
+  Result.TaxExemptionName := Self.TaxExemptionName;
+  Result.DeliveryTermCode := Self.DeliveryTermCode;
+  Result.TransportModeName := Self.TransportModeName;
+  Result.PaymentMeansName := Self.PaymentMeansName;
+  Result.PayableAmount := Self.PayableAmount;
+  Result.AccountEInvoiceActive := Self.AccountEInvoiceActive;
   for LLine in Self.FLines do
   begin
     LCopy := LLine.Clone;

@@ -46,7 +46,7 @@ type
     FSupplyDuration: SmallInt;
     FMinStockAmount: Double;
     FSysCountryId: Int64;
-    FHsNo: string;
+    FEinvGtipId: Int64;
     FDiibProductDescription: string;
     FProductOverview: string;
 
@@ -66,6 +66,8 @@ type
     FProductTypeName: string;
     FUomName: string;
     FCountryName: string;
+    FGtipCode: string;
+    FGtipName: string;
     FCurrentQuantity: string;
     FAverageCost: string;
     FDefaultVatRate: string;
@@ -158,12 +160,11 @@ type
     [Column('sys_country_id')]
     property SysCountryId: Int64 read FSysCountryId write FSysCountryId;
 
-    [Column('hs_no')]
-    [MaxLength(16)]
-    property HsNo: string read FHsNo write FHsNo;
+    [Column('einv_gtip_id')]
+    property EinvGtipId: Int64 read FEinvGtipId write FEinvGtipId;
 
     [Column('diib_product_description')]
-    [MaxLength(64)]
+    [MaxLength(512)]
     property DiibProductDescription: string read FDiibProductDescription write FDiibProductDescription;
 
     [Column('product_overview')]
@@ -215,6 +216,12 @@ type
 
     [NotMapped]
     property CountryName: string read FCountryName write FCountryName;
+
+    [NotMapped]
+    property GtipCode: string read FGtipCode write FGtipCode;
+
+    [NotMapped]
+    property GtipName: string read FGtipName write FGtipName;
 
     [NotMapped]
     property CurrentQuantity: string read FCurrentQuantity write FCurrentQuantity;
@@ -308,7 +315,7 @@ begin
   Result.SupplyDuration := Self.SupplyDuration;
   Result.MinStockAmount := Self.MinStockAmount;
   Result.SysCountryId := Self.SysCountryId;
-  Result.HsNo := Self.HsNo;
+  Result.EinvGtipId := Self.EinvGtipId;
   Result.DiibProductDescription := Self.DiibProductDescription;
   Result.ProductOverview := Self.ProductOverview;
   Result.VatRate := Self.VatRate;
@@ -324,6 +331,8 @@ begin
   Result.ProductTypeName := Self.ProductTypeName;
   Result.UomName := Self.UomName;
   Result.CountryName := Self.CountryName;
+  Result.GtipCode := Self.GtipCode;
+  Result.GtipName := Self.GtipName;
   Result.CurrentQuantity := Self.CurrentQuantity;
   Result.AverageCost := Self.AverageCost;
   Result.DefaultVatRate := Self.DefaultVatRate;

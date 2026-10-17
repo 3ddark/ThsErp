@@ -139,3 +139,17 @@ UPDATE fin_cheque_note SET fin_company_bank_account_id = (SELECT max(id) FROM fi
  WHERE serial_no = 'UI-K1';
 
 COMMIT;
+
+-- e-Belge: GTİP (stok kartına bağlı), müşteri + firmamız DİİB belgeleri / satırları, e-arşiv senaryolu fatura
+INSERT INTO einv_gtip (code, name) VALUES ('020622000000', 'UI SEED GTIP');
+UPDATE stk_inventory SET einv_gtip_id = (SELECT id FROM einv_gtip WHERE code = '020622000000') WHERE id = (SELECT min(id) FROM stk_inventory);
+INSERT INTO einv_diib (document_no, holder_type, acc_account_id, issue_date, valid_until, description)
+SELECT 'UI-DIIB-1', 2, min(id), current_date, current_date + 365, 'UI SEED' FROM acc_account;
+INSERT INTO einv_diib (document_no, holder_type, description) VALUES ('UI-DIIB-OWN', 1, 'UI SEED');
+INSERT INTO einv_diib_line (einv_diib_id, line_code, line_kind, einv_gtip_id, product_description, stk_inventory_id, quantity)
+SELECT d.id, 'UI-1', 1, g.id, 'UI SEED DIIB URUN', (SELECT min(id) FROM stk_inventory), 100
+  FROM einv_diib d CROSS JOIN einv_gtip g WHERE g.code = '020622000000';
+UPDATE sls_invoice SET einv_profile_id = (SELECT id FROM einv_profile WHERE code = 'EARSIVFATURA'),
+       einv_invoice_type_id = (SELECT id FROM einv_invoice_type WHERE code = 'SATIS'), einv_status = 1, einv_uuid = gen_random_uuid(),
+       einv_payment_means_id = (SELECT id FROM einv_payment_means WHERE code = '42')
+ WHERE invoice_no = 'SF900002';

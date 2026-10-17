@@ -28,6 +28,12 @@ type
     class function GetMessage: string; override;
   end;
 
+  // e-Belge gönderildi (kuyrukta / gönderildi / kabul / red / iptal): fatura değiştirilemez, silinemez
+  ESlsInvoiceExceptionEInvLocked = class(ESlsInvoiceException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
   ESlsInvoiceExceptionWarehouseRequired = class(ESlsInvoiceException)
   protected
     class function GetMessage: string; override;
@@ -63,6 +69,11 @@ end;
 class function ESlsInvoiceExceptionWarehouseRequired.GetMessage: string;
 begin
   Result := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.WarehouseRequired, 'Lines without a delivery note reduce stock: select a shipping warehouse.');
+end;
+
+class function ESlsInvoiceExceptionEInvLocked.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.EInvLocked, 'The e-document has been sent; the invoice cannot be changed or deleted.');
 end;
 
 class function ESlsInvoiceExceptionOrderStatus.GetMessage: string;

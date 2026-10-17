@@ -25,6 +25,9 @@ type
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
+    // KDV oranı tanımlı oranlardan (acc_set_tax_rate) biri olmalı: stok grubu / kartı, alış belge satırları
+    class procedure CheckDefinedRate(ARate: Currency; const ARates: TArray<Currency>);
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TAccSetTaxRate>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TAccSetTaxRate; override;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TAccSetTaxRate; override;
@@ -98,6 +101,17 @@ begin
   end;
 
   ValidateUnique(AEntity, AOperation);
+end;
+
+class procedure TAccSetTaxRateService.CheckDefinedRate(ARate: Currency; const ARates: TArray<Currency>);
+var
+  LRate: Currency;
+begin
+  for LRate in ARates do
+    if LRate = ARate then
+      Exit;
+  raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TValidation.VatRateUndefined,
+    'VAT rate must be one of the VAT rates defined in the accounting settings'));
 end;
 
 procedure TAccSetTaxRateService.DoAdd(AEntity: TAccSetTaxRate);

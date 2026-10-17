@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict W8B9ug0dn2uVv21fELVHCpmLhMv9nLrQM3SWSHeUXSlRnRQI2SJkara2LJ3YXQe
+\restrict kfqzZKAaHc3MVi2fmY9vwYpN7m022QAtQclUgy1nk9ffZAXcXaUOie4tG5Uybrz
 
--- Dumped from database version 18.1
--- Dumped by pg_dump version 18.1
+-- Dumped from database version 18.3
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -621,7 +621,7 @@ CREATE SERVER audit_server FOREIGN DATA WRAPPER postgres_fdw OPTIONS (
     dbname 'ths_audit',
     fetch_size '1000',
     host 'localhost',
-    port '5433'
+    port '5432'
 );
 
 
@@ -1229,25 +1229,197 @@ ALTER TABLE public.audit_outbox ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
--- Name: einv_delivery_type; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: einv_delivery_term; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.einv_delivery_type (
+CREATE TABLE public.einv_delivery_term (
     id bigint CONSTRAINT einv_delivery_type_id_nn NOT NULL,
-    delivery_method character varying(16) CONSTRAINT einv_delivery_type_delivery_code_nn NOT NULL,
-    description character varying(96) CONSTRAINT einv_delivery_type_description_nn NOT NULL,
-    is_efatura boolean DEFAULT false
+    code character varying(8) CONSTRAINT einv_delivery_type_delivery_code_nn NOT NULL,
+    name character varying(128) CONSTRAINT einv_delivery_type_description_nn NOT NULL,
+    is_incoterms boolean DEFAULT false NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_delivery_term_code_check CHECK ((btrim((code)::text) <> ''::text))
 );
 
 
-ALTER TABLE public.einv_delivery_type OWNER TO ths_admin;
+ALTER TABLE public.einv_delivery_term OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_delivery_term; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_delivery_term IS 'Teslim şartları; is_incoterms = UBL-TR DeliveryTerms/ID[schemeID=INCOTERMS] (e-belgeye yazılır), diğerleri firma içi teslim şekli';
+
 
 --
 -- Name: einv_delivery_type_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.einv_delivery_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+ALTER TABLE public.einv_delivery_term ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.einv_delivery_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_diib; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_diib (
+    id bigint NOT NULL,
+    document_no character varying(32) NOT NULL,
+    holder_type smallint DEFAULT 2 NOT NULL,
+    acc_account_id bigint,
+    issue_date date,
+    valid_until date,
+    description character varying(256),
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_diib_dates_check CHECK (((valid_until IS NULL) OR (issue_date IS NULL) OR (valid_until >= issue_date))),
+    CONSTRAINT einv_diib_document_no_check CHECK ((btrim((document_no)::text) <> ''::text)),
+    CONSTRAINT einv_diib_holder_account_check CHECK ((((holder_type = 1) AND (acc_account_id IS NULL)) OR ((holder_type = 2) AND (acc_account_id IS NOT NULL)))),
+    CONSTRAINT einv_diib_holder_type_check CHECK ((holder_type = ANY (ARRAY[1, 2])))
+);
+
+
+ALTER TABLE public.einv_diib OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_diib; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_diib IS 'Dahilde İşleme İzin Belgesi; holder_type 1 firmamız (satıcı DİİB), 2 müşteri / ihracatçı (alıcı DİİB)';
+
+
+--
+-- Name: einv_diib_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_diib ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_diib_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_diib_line; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_diib_line (
+    id bigint NOT NULL,
+    einv_diib_id bigint NOT NULL,
+    line_code character varying(32) NOT NULL,
+    line_kind smallint DEFAULT 1 NOT NULL,
+    einv_gtip_id bigint NOT NULL,
+    product_description character varying(512) NOT NULL,
+    stk_inventory_id bigint,
+    quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    sys_uom_id bigint,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_diib_line_line_code_check CHECK ((btrim((line_code)::text) <> ''::text)),
+    CONSTRAINT einv_diib_line_line_kind_check CHECK ((line_kind = ANY (ARRAY[1, 2]))),
+    CONSTRAINT einv_diib_line_product_description_check CHECK ((btrim((product_description)::text) <> ''::text)),
+    CONSTRAINT einv_diib_line_quantity_check CHECK ((quantity >= (0)::numeric))
+);
+
+
+ALTER TABLE public.einv_diib_line OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_diib_line; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_diib_line IS 'DİİB satırları: line_code = DİİB satır kodu (e-belgede SATICIDIBSATIRKOD / ALICIDIBSATIRKOD), line_kind 1 ihraç / 2 ithal, product_description = DİİB ürün tanımı';
+
+
+--
+-- Name: einv_diib_line_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_diib_line ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_diib_line_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_document; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_document (
+    id bigint NOT NULL,
+    sls_invoice_id bigint NOT NULL,
+    einv_uuid character varying(36) NOT NULL,
+    einv_no character varying(16) NOT NULL,
+    xml_content text NOT NULL,
+    generated_at timestamp without time zone DEFAULT now() NOT NULL,
+    is_valid boolean DEFAULT false NOT NULL,
+    validation_message text
+);
+
+
+ALTER TABLE public.einv_document OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_document; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_document IS 'Satış faturasının son üretilen UBL XML''i (önizleme / doğrulama / gönderim); audit yok (büyük metin)';
+
+
+--
+-- Name: einv_document_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_document ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_document_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_gtip; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_gtip (
+    id bigint NOT NULL,
+    code character varying(12) NOT NULL,
+    name character varying(512) NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_gtip_code_check CHECK (((code)::text ~ '^[0-9]{12}$'::text))
+);
+
+
+ALTER TABLE public.einv_gtip OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_gtip; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_gtip IS 'GTİP (Gümrük Tarife İstatistik Pozisyonu, 12 hane) — e-belgede RequiredCustomsID';
+
+
+--
+-- Name: einv_gtip_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_gtip ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_gtip_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1262,11 +1434,24 @@ ALTER TABLE public.einv_delivery_type ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 CREATE TABLE public.einv_invoice_type (
     id bigint CONSTRAINT set_einv_fatura_tipleri_id_not_null NOT NULL,
-    invoice_type_code character varying(32) CONSTRAINT set_einv_fatura_tipleri_fatura_tipi_not_null NOT NULL
+    code character varying(32) CONSTRAINT set_einv_fatura_tipleri_fatura_tipi_not_null NOT NULL,
+    name character varying(128) NOT NULL,
+    requires_exemption boolean DEFAULT false NOT NULL,
+    requires_withholding boolean DEFAULT false NOT NULL,
+    is_return boolean DEFAULT false NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_invoice_type_code_check CHECK ((btrim((code)::text) <> ''::text))
 );
 
 
 ALTER TABLE public.einv_invoice_type OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_invoice_type; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_invoice_type IS 'UBL-TR InvoiceTypeCode (fatura tipi)';
+
 
 --
 -- Name: einv_invoice_type_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
@@ -1283,25 +1468,69 @@ ALTER TABLE public.einv_invoice_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 
 --
--- Name: einv_packet_type; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: einv_packaging_type; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.einv_packet_type (
-    id bigint CONSTRAINT set_einv_paket_tipleri_id_not_null NOT NULL,
-    code character varying(2),
-    packet_type_code character varying(128),
-    description character varying(512)
+CREATE TABLE public.einv_packaging_type (
+    id bigint NOT NULL,
+    code character varying(8) NOT NULL,
+    name character varying(128) NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_packaging_type_code_check CHECK ((btrim((code)::text) <> ''::text))
 );
 
 
-ALTER TABLE public.einv_packet_type OWNER TO ths_admin;
+ALTER TABLE public.einv_packaging_type OWNER TO ths_admin;
 
 --
--- Name: einv_packet_type_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+-- Name: TABLE einv_packaging_type; Type: COMMENT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE public.einv_packet_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.einv_packet_type_id_seq
+COMMENT ON TABLE public.einv_packaging_type IS 'UBL-TR PackagingTypeCode (paket / kap cinsi, UNECE Rec 21)';
+
+
+--
+-- Name: einv_packaging_type_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_packaging_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_packaging_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_payment_means; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_payment_means (
+    id bigint NOT NULL,
+    code character varying(8) NOT NULL,
+    name character varying(128) NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_payment_means_code_check CHECK ((btrim((code)::text) <> ''::text))
+);
+
+
+ALTER TABLE public.einv_payment_means OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_payment_means; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_payment_means IS 'UBL-TR PaymentMeansCode (UN/EDIFACT 4461 ödeme şekli)';
+
+
+--
+-- Name: einv_payment_means_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_payment_means ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_payment_means_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1340,6 +1569,214 @@ ALTER TABLE public.einv_payment_method ALTER COLUMN id ADD GENERATED ALWAYS AS I
 
 
 --
+-- Name: einv_profile; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_profile (
+    id bigint NOT NULL,
+    code character varying(32) NOT NULL,
+    name character varying(128) NOT NULL,
+    document_kind smallint DEFAULT 1 NOT NULL,
+    requires_export_info boolean DEFAULT false NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_profile_code_check CHECK ((btrim((code)::text) <> ''::text)),
+    CONSTRAINT einv_profile_document_kind_check CHECK ((document_kind = ANY (ARRAY[1, 2])))
+);
+
+
+ALTER TABLE public.einv_profile OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_profile; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_profile IS 'UBL-TR ProfileID (senaryo); document_kind 1 fatura / 2 irsaliye';
+
+
+--
+-- Name: einv_profile_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_profile ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_profile_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_series; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_series (
+    id bigint NOT NULL,
+    code character varying(3) NOT NULL,
+    name character varying(64) NOT NULL,
+    series_scope smallint NOT NULL,
+    is_default boolean DEFAULT false NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_series_code_check CHECK (((code)::text ~ '^[A-Z0-9]{3}$'::text)),
+    CONSTRAINT einv_series_scope_check CHECK ((series_scope = ANY (ARRAY[1, 2])))
+);
+
+
+ALTER TABLE public.einv_series OWNER TO ths_admin;
+
+--
+-- Name: COLUMN einv_series.series_scope; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.einv_series.series_scope IS '1 e-Fatura senaryoları, 2 e-Arşiv (EARSIVFATURA)';
+
+
+--
+-- Name: einv_series_counter; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_series_counter (
+    einv_series_id bigint NOT NULL,
+    period_year smallint NOT NULL,
+    last_number bigint DEFAULT 0 NOT NULL,
+    CONSTRAINT einv_series_counter_number_check CHECK (((last_number >= 0) AND (last_number <= 999999999))),
+    CONSTRAINT einv_series_counter_year_check CHECK (((period_year >= 2000) AND (period_year <= 2999)))
+);
+
+
+ALTER TABLE public.einv_series_counter OWNER TO ths_admin;
+
+--
+-- Name: einv_series_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_series ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_series_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_tax_exemption; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_tax_exemption (
+    id bigint NOT NULL,
+    code character varying(8) NOT NULL,
+    name character varying(512) NOT NULL,
+    exemption_group smallint NOT NULL,
+    einv_invoice_type_id bigint,
+    requires_gtip boolean DEFAULT false NOT NULL,
+    requires_diib boolean DEFAULT false NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    requires_zero_vat boolean DEFAULT false NOT NULL,
+    CONSTRAINT einv_tax_exemption_code_check CHECK ((btrim((code)::text) <> ''::text)),
+    CONSTRAINT einv_tax_exemption_exemption_group_check CHECK (((exemption_group >= 1) AND (exemption_group <= 7)))
+);
+
+
+ALTER TABLE public.einv_tax_exemption OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_tax_exemption; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_tax_exemption IS 'UBL-TR TaxExemptionReasonCode; grup 1 KDV kısmi, 2 KDV tam, 3 diğer işlem türü, 4 ÖTV, 5 konaklama vergisi, 6 özel matrah, 7 ihraç kayıtlı / DİİB; einv_invoice_type_id = kodun kullanılabildiği fatura tipi (boş = tümü)';
+
+
+--
+-- Name: einv_tax_exemption_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_tax_exemption ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_tax_exemption_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_tax_type; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_tax_type (
+    id bigint NOT NULL,
+    code character varying(8) NOT NULL,
+    name character varying(128) NOT NULL,
+    short_name character varying(32),
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_tax_type_code_check CHECK ((btrim((code)::text) <> ''::text))
+);
+
+
+ALTER TABLE public.einv_tax_type OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_tax_type; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_tax_type IS 'UBL-TR TaxTypeCode (vergi kodları)';
+
+
+--
+-- Name: einv_tax_type_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_tax_type ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_tax_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_transport_mode; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_transport_mode (
+    id bigint NOT NULL,
+    code character varying(8) NOT NULL,
+    name character varying(128) NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_transport_mode_code_check CHECK ((btrim((code)::text) <> ''::text))
+);
+
+
+ALTER TABLE public.einv_transport_mode OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_transport_mode; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_transport_mode IS 'UBL-TR TransportModeCode (taşıma gönderim şekli, UNECE Rec 19)';
+
+
+--
+-- Name: einv_transport_mode_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_transport_mode ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_transport_mode_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: einv_transport_price; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -1357,6 +1794,44 @@ ALTER TABLE public.einv_transport_price OWNER TO ths_admin;
 
 ALTER TABLE public.einv_transport_price ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.einv_transport_price_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_withholding; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_withholding (
+    id bigint NOT NULL,
+    code character varying(8) NOT NULL,
+    name character varying(512) NOT NULL,
+    rate numeric(5,2) NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_withholding_code_check CHECK ((btrim((code)::text) <> ''::text)),
+    CONSTRAINT einv_withholding_rate_check CHECK (((rate > (0)::numeric) AND (rate <= (100)::numeric)))
+);
+
+
+ALTER TABLE public.einv_withholding OWNER TO ths_admin;
+
+--
+-- Name: TABLE einv_withholding; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON TABLE public.einv_withholding IS 'UBL-TR tevkifat kodları (WithholdingTaxTotal TaxTypeCode); rate = KDV tutarının tevkif edilen yüzdesi';
+
+
+--
+-- Name: einv_withholding_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_withholding ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_withholding_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3091,12 +3566,43 @@ CREATE TABLE public.sls_invoice (
     vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
     total_amount numeric(18,2) DEFAULT 0 NOT NULL,
     description character varying(256),
+    einv_profile_id bigint,
+    einv_invoice_type_id bigint,
+    einv_uuid uuid,
+    einv_status smallint,
+    einv_tax_exemption_id bigint,
+    einv_delivery_term_id bigint,
+    einv_transport_mode_id bigint,
+    einv_payment_means_id bigint,
+    customs_declaration_no character varying(32),
+    gtb_ref_no character varying(32),
+    actual_export_date date,
+    withholding_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    einv_no character varying(16),
     CONSTRAINT sls_invoice_due_date_check CHECK (((due_date IS NULL) OR (due_date >= invoice_date))),
-    CONSTRAINT sls_invoice_exchange_rate_check CHECK ((exchange_rate > (0)::numeric))
+    CONSTRAINT sls_invoice_einv_check CHECK ((((einv_profile_id IS NULL) = (einv_invoice_type_id IS NULL)) AND ((einv_profile_id IS NULL) = (einv_status IS NULL)) AND ((einv_profile_id IS NULL) = (einv_uuid IS NULL)))),
+    CONSTRAINT sls_invoice_einv_no_check CHECK (((einv_no IS NULL) OR ((einv_no)::text ~ '^[A-Z0-9]{3}[0-9]{4}[0-9]{9}$'::text))),
+    CONSTRAINT sls_invoice_einv_status_check CHECK (((einv_status >= 1) AND (einv_status <= 7))),
+    CONSTRAINT sls_invoice_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
+    CONSTRAINT sls_invoice_withholding_amount_check CHECK ((withholding_amount >= (0)::numeric))
 );
 
 
 ALTER TABLE public.sls_invoice OWNER TO ths_admin;
+
+--
+-- Name: COLUMN sls_invoice.einv_uuid; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sls_invoice.einv_uuid IS 'ETTN (UBL UUID); senaryo seçilince servis üretir, sonra değişmez';
+
+
+--
+-- Name: COLUMN sls_invoice.einv_status; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sls_invoice.einv_status IS '1 taslak, 2 kuyrukta, 3 gönderildi, 4 kabul, 5 red, 6 hata, 7 iptal (servis / entegratör tutar)';
+
 
 --
 -- Name: sls_invoice_detail; Type: TABLE; Schema: public; Owner: ths_admin
@@ -3119,11 +3625,22 @@ CREATE TABLE public.sls_invoice_detail (
     sls_dispatch_detail_id bigint,
     sls_order_detail_id bigint,
     description character varying(128),
+    einv_gtip_id bigint,
+    einv_withholding_id bigint,
+    withholding_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    seller_einv_diib_line_id bigint,
+    buyer_einv_diib_line_id bigint,
+    einv_packaging_type_id bigint,
+    package_no character varying(32),
+    package_quantity numeric(18,6),
+    package_brand character varying(64),
     CONSTRAINT sls_invoice_detail_discount_check CHECK (((discount_rate >= (0)::numeric) AND (discount_rate <= (100)::numeric))),
+    CONSTRAINT sls_invoice_detail_package_quantity_check CHECK (((package_quantity IS NULL) OR (package_quantity > (0)::numeric))),
     CONSTRAINT sls_invoice_detail_price_check CHECK ((unit_price >= (0)::numeric)),
     CONSTRAINT sls_invoice_detail_quantity_check CHECK ((quantity > (0)::numeric)),
     CONSTRAINT sls_invoice_detail_source_check CHECK (((sls_dispatch_detail_id IS NULL) OR (sls_order_detail_id IS NULL))),
-    CONSTRAINT sls_invoice_detail_vat_check CHECK (((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric)))
+    CONSTRAINT sls_invoice_detail_vat_check CHECK (((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric))),
+    CONSTRAINT sls_invoice_detail_withholding_amount_check CHECK ((withholding_amount >= (0)::numeric))
 );
 
 
@@ -3392,11 +3909,10 @@ ALTER TABLE public.stk_card_kind_info OWNER TO ths_admin;
 CREATE TABLE public.stk_group (
     id bigint NOT NULL,
     name character varying(32) NOT NULL,
-    vat_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    vat_rate numeric(5,2) NOT NULL,
     raw_material_stock_account character varying(16),
     raw_material_usage_account character varying(16),
-    semi_product_account character varying(16),
-    CONSTRAINT stk_group_vat_rate_check CHECK (((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric)))
+    semi_product_account character varying(16)
 );
 
 
@@ -3490,8 +4006,7 @@ CREATE TABLE public.stk_inventory (
     special_code character varying(16),
     brand character varying(32),
     sys_country_id bigint,
-    hs_no character varying(16),
-    diib_product_description character varying(64),
+    diib_product_description character varying(512),
     min_stock_amount double precision DEFAULT 0 NOT NULL,
     product_overview text,
     vat_rate numeric(5,2),
@@ -3502,9 +4017,9 @@ CREATE TABLE public.stk_inventory (
     sales_return_account character varying(16),
     purchase_account character varying(16),
     purchase_return_account character varying(16),
+    einv_gtip_id bigint,
     CONSTRAINT stk_inventory_buying_discount_check CHECK (((buying_discount >= (0)::numeric) AND (buying_discount <= (100)::numeric))),
-    CONSTRAINT stk_inventory_sales_discount_check CHECK (((sales_discount >= (0)::numeric) AND (sales_discount <= (100)::numeric))),
-    CONSTRAINT stk_inventory_vat_rate_check CHECK (((vat_rate IS NULL) OR ((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric))))
+    CONSTRAINT stk_inventory_sales_discount_check CHECK (((sales_discount >= (0)::numeric) AND (sales_discount <= (100)::numeric)))
 );
 
 
@@ -5029,7 +5544,7 @@ CREATE VIEW public.vw_acc_account_transaction AS
             f.invoice_no,
             f.description,
             f.currency,
-            f.total_amount,
+            (f.total_amount - f.withholding_amount),
             0
            FROM public.sls_invoice f
         )
@@ -5233,6 +5748,260 @@ CREATE VIEW public.vw_acc_voucher_detail AS
 
 
 ALTER VIEW public.vw_acc_voucher_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_delivery_term; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_delivery_term AS
+ SELECT id,
+    code,
+    name,
+    is_incoterms,
+    is_active
+   FROM public.einv_delivery_term x;
+
+
+ALTER VIEW public.vw_einv_delivery_term OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_diib; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_diib AS
+ SELECT d.id,
+    d.document_no,
+    d.holder_type,
+    d.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    d.issue_date,
+    d.valid_until,
+    d.description,
+    d.is_active,
+    (( SELECT count(*) AS count
+           FROM public.einv_diib_line l
+          WHERE (l.einv_diib_id = d.id)))::integer AS line_count
+   FROM (public.einv_diib d
+     LEFT JOIN public.acc_account a ON ((a.id = d.acc_account_id)));
+
+
+ALTER VIEW public.vw_einv_diib OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_diib_line; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.vw_einv_diib_line AS
+ SELECT l.id,
+    l.einv_diib_id,
+    d.document_no,
+    d.holder_type,
+    d.acc_account_id,
+    a.name AS account_name,
+    l.line_code,
+    l.line_kind,
+    l.einv_gtip_id,
+    g.code AS gtip_code,
+    g.name AS gtip_name,
+    l.product_description,
+    l.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    l.quantity,
+    l.sys_uom_id,
+    u.unit_code,
+    u.unit_einv AS uom_einv_code,
+    l.is_active,
+    d.is_active AS diib_is_active,
+    d.valid_until
+   FROM (((((public.einv_diib_line l
+     JOIN public.einv_diib d ON ((d.id = l.einv_diib_id)))
+     JOIN public.einv_gtip g ON ((g.id = l.einv_gtip_id)))
+     LEFT JOIN public.acc_account a ON ((a.id = d.acc_account_id)))
+     LEFT JOIN public.stk_inventory i ON ((i.id = l.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = l.sys_uom_id)));
+
+
+ALTER VIEW public.vw_einv_diib_line OWNER TO postgres;
+
+--
+-- Name: vw_einv_document; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_document AS
+ SELECT d.id,
+    d.sls_invoice_id,
+    d.einv_uuid,
+    d.einv_no,
+    d.xml_content,
+    d.generated_at,
+    d.is_valid,
+    d.validation_message,
+    f.invoice_no
+   FROM (public.einv_document d
+     JOIN public.sls_invoice f ON ((f.id = d.sls_invoice_id)));
+
+
+ALTER VIEW public.vw_einv_document OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_gtip; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_gtip AS
+ SELECT id,
+    code,
+    name,
+    is_active
+   FROM public.einv_gtip x;
+
+
+ALTER VIEW public.vw_einv_gtip OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_invoice_type; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_invoice_type AS
+ SELECT id,
+    code,
+    name,
+    requires_exemption,
+    requires_withholding,
+    is_return,
+    is_active
+   FROM public.einv_invoice_type x;
+
+
+ALTER VIEW public.vw_einv_invoice_type OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_packaging_type; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_packaging_type AS
+ SELECT id,
+    code,
+    name,
+    is_active
+   FROM public.einv_packaging_type x;
+
+
+ALTER VIEW public.vw_einv_packaging_type OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_payment_means; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_payment_means AS
+ SELECT id,
+    code,
+    name,
+    is_active
+   FROM public.einv_payment_means x;
+
+
+ALTER VIEW public.vw_einv_payment_means OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_profile; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_profile AS
+ SELECT id,
+    code,
+    name,
+    document_kind,
+    requires_export_info,
+    is_active
+   FROM public.einv_profile x;
+
+
+ALTER VIEW public.vw_einv_profile OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_series; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_series AS
+ SELECT s.id,
+    s.code,
+    s.name,
+    s.series_scope,
+    s.is_default,
+    s.is_active,
+    COALESCE(c.last_number, (0)::bigint) AS last_number
+   FROM (public.einv_series s
+     LEFT JOIN public.einv_series_counter c ON (((c.einv_series_id = s.id) AND (c.period_year = public.fn_active_period()))));
+
+
+ALTER VIEW public.vw_einv_series OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_tax_exemption; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_tax_exemption AS
+ SELECT x.id,
+    x.code,
+    x.name,
+    x.exemption_group,
+    x.einv_invoice_type_id,
+    t.code AS invoice_type_code,
+    x.requires_gtip,
+    x.requires_diib,
+    x.requires_zero_vat,
+    x.is_active
+   FROM (public.einv_tax_exemption x
+     LEFT JOIN public.einv_invoice_type t ON ((t.id = x.einv_invoice_type_id)));
+
+
+ALTER VIEW public.vw_einv_tax_exemption OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_tax_type; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_tax_type AS
+ SELECT id,
+    code,
+    name,
+    short_name,
+    is_active
+   FROM public.einv_tax_type x;
+
+
+ALTER VIEW public.vw_einv_tax_type OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_transport_mode; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_transport_mode AS
+ SELECT id,
+    code,
+    name,
+    is_active
+   FROM public.einv_transport_mode x;
+
+
+ALTER VIEW public.vw_einv_transport_mode OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_withholding; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_withholding AS
+ SELECT id,
+    code,
+    name,
+    rate,
+    is_active
+   FROM public.einv_withholding x;
+
+
+ALTER VIEW public.vw_einv_withholding OWNER TO ths_admin;
 
 --
 -- Name: vw_emp_driver_ability; Type: VIEW; Schema: public; Owner: ths_admin
@@ -6437,10 +7206,40 @@ CREATE VIEW public.vw_sls_invoice AS
     (( SELECT count(*) AS count
            FROM public.sls_invoice_detail d
           WHERE (d.sls_invoice_id = f.id)))::integer AS line_count,
-    f.description
-   FROM ((public.sls_invoice f
+    f.description,
+    f.einv_profile_id,
+    pr.code AS profile_code,
+    f.einv_invoice_type_id,
+    it.code AS invoice_type_code,
+    (f.einv_uuid)::text AS einv_uuid,
+    f.einv_status,
+    f.einv_tax_exemption_id,
+    te.code AS tax_exemption_code,
+    te.name AS tax_exemption_name,
+    f.einv_delivery_term_id,
+    dt.code AS delivery_term_code,
+    f.einv_transport_mode_id,
+    tm.name AS transport_mode_name,
+    f.einv_payment_means_id,
+    pm.name AS payment_means_name,
+    f.customs_declaration_no,
+    f.gtb_ref_no,
+    f.actual_export_date,
+    f.withholding_amount,
+    ((f.total_amount - f.withholding_amount))::numeric(18,2) AS payable_amount,
+    a.e_invoice_active AS account_e_invoice_active,
+    f.einv_no,
+    ed.is_valid AS einv_xml_valid
+   FROM (((((((((public.sls_invoice f
      JOIN public.acc_account a ON ((a.id = f.acc_account_id)))
-     LEFT JOIN public.stk_warehouse w ON ((w.id = f.stk_warehouse_id)));
+     LEFT JOIN public.stk_warehouse w ON ((w.id = f.stk_warehouse_id)))
+     LEFT JOIN public.einv_profile pr ON ((pr.id = f.einv_profile_id)))
+     LEFT JOIN public.einv_invoice_type it ON ((it.id = f.einv_invoice_type_id)))
+     LEFT JOIN public.einv_tax_exemption te ON ((te.id = f.einv_tax_exemption_id)))
+     LEFT JOIN public.einv_delivery_term dt ON ((dt.id = f.einv_delivery_term_id)))
+     LEFT JOIN public.einv_transport_mode tm ON ((tm.id = f.einv_transport_mode_id)))
+     LEFT JOIN public.einv_payment_means pm ON ((pm.id = f.einv_payment_means_id)))
+     LEFT JOIN public.einv_document ed ON ((ed.sls_invoice_id = f.id)));
 
 
 ALTER VIEW public.vw_sls_invoice OWNER TO ths_admin;
@@ -6473,8 +7272,25 @@ CREATE VIEW public.vw_sls_invoice_detail AS
     p.dispatch_no,
     d.sls_order_detail_id,
     COALESCE(o.order_no, po.order_no) AS order_no,
-    d.description
-   FROM ((((((((public.sls_invoice_detail d
+    d.description,
+    d.einv_gtip_id,
+    g.code AS gtip_code,
+    d.einv_withholding_id,
+    wh.code AS withholding_code,
+    wh.rate AS withholding_rate,
+    d.withholding_amount,
+    d.seller_einv_diib_line_id,
+    sdl.line_code AS seller_diib_line_code,
+    d.buyer_einv_diib_line_id,
+    bdl.line_code AS buyer_diib_line_code,
+    COALESCE(bdl.product_description, sdl.product_description, i.diib_product_description) AS diib_product_description,
+    d.einv_packaging_type_id,
+    pk.code AS packaging_type_code,
+    d.package_no,
+    d.package_quantity,
+    d.package_brand,
+    u.unit_einv AS uom_einv_code
+   FROM (((((((((((((public.sls_invoice_detail d
      JOIN public.sls_invoice f ON ((f.id = d.sls_invoice_id)))
      JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
      LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
@@ -6482,7 +7298,12 @@ CREATE VIEW public.vw_sls_invoice_detail AS
      LEFT JOIN public.sls_dispatch p ON ((p.id = pd.sls_dispatch_id)))
      LEFT JOIN public.sls_order po ON ((po.id = p.sls_order_id)))
      LEFT JOIN public.sls_order_detail od ON ((od.id = d.sls_order_detail_id)))
-     LEFT JOIN public.sls_order o ON ((o.id = od.sls_order_id)));
+     LEFT JOIN public.sls_order o ON ((o.id = od.sls_order_id)))
+     LEFT JOIN public.einv_gtip g ON ((g.id = d.einv_gtip_id)))
+     LEFT JOIN public.einv_withholding wh ON ((wh.id = d.einv_withholding_id)))
+     LEFT JOIN public.einv_diib_line sdl ON ((sdl.id = d.seller_einv_diib_line_id)))
+     LEFT JOIN public.einv_diib_line bdl ON ((bdl.id = d.buyer_einv_diib_line_id)))
+     LEFT JOIN public.einv_packaging_type pk ON ((pk.id = d.einv_packaging_type_id)));
 
 
 ALTER VIEW public.vw_sls_invoice_detail OWNER TO ths_admin;
@@ -6724,7 +7545,9 @@ CREATE VIEW public.vw_stk_inventory AS
     i.brand,
     i.sys_country_id,
     (COALESCE(ct.country_name, c.country_code))::character varying(128) AS country_name,
-    i.hs_no,
+    i.einv_gtip_id,
+    gt.code AS gtip_code,
+    gt.name AS gtip_name,
     i.diib_product_description,
     i.product_overview,
     COALESCE(s.current_quantity, (0)::numeric) AS current_quantity,
@@ -6746,7 +7569,7 @@ CREATE VIEW public.vw_stk_inventory AS
     tr.purchase_account AS default_purchase_account,
     tr.purchase_return_account AS default_purchase_return_account,
     l.locale
-   FROM (((((((((public.stk_inventory i
+   FROM ((((((((((public.stk_inventory i
      CROSS JOIN public.sys_language l)
      LEFT JOIN public.stk_group g ON ((g.id = i.stk_group_id)))
      LEFT JOIN public.acc_set_tax_rate tr ON ((tr.tax_rate = COALESCE(i.vat_rate, g.vat_rate))))
@@ -6755,6 +7578,7 @@ CREATE VIEW public.vw_stk_inventory AS
      LEFT JOIN public.stk_product_type pt ON ((pt.id = i.stk_product_type_id)))
      LEFT JOIN public.sys_country c ON ((c.id = i.sys_country_id)))
      LEFT JOIN public.sys_country_translation ct ON (((ct.sys_country_id = c.id) AND (ct.sys_language_id = l.id))))
+     LEFT JOIN public.einv_gtip gt ON ((gt.id = i.einv_gtip_id)))
      LEFT JOIN public.stk_inventory_summary s ON ((s.stk_inventory_id = i.id)));
 
 
@@ -7767,11 +8591,235 @@ ALTER TABLE ONLY public.audit_outbox
 
 
 --
--- Name: einv_delivery_type einv_delivery_type_delivery_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: einv_delivery_term einv_delivery_term_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.einv_delivery_type
-    ADD CONSTRAINT einv_delivery_type_delivery_code_key UNIQUE (delivery_method);
+ALTER TABLE ONLY public.einv_delivery_term
+    ADD CONSTRAINT einv_delivery_term_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_delivery_term einv_delivery_term_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_delivery_term
+    ADD CONSTRAINT einv_delivery_term_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_diib einv_diib_document_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_diib
+    ADD CONSTRAINT einv_diib_document_no_key UNIQUE (document_no);
+
+
+--
+-- Name: einv_diib_line einv_diib_line_einv_diib_id_line_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_diib_line
+    ADD CONSTRAINT einv_diib_line_einv_diib_id_line_code_key UNIQUE (einv_diib_id, line_code);
+
+
+--
+-- Name: einv_diib_line einv_diib_line_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_diib_line
+    ADD CONSTRAINT einv_diib_line_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_diib einv_diib_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_diib
+    ADD CONSTRAINT einv_diib_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_document einv_document_invoice_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_document
+    ADD CONSTRAINT einv_document_invoice_key UNIQUE (sls_invoice_id);
+
+
+--
+-- Name: einv_document einv_document_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_document
+    ADD CONSTRAINT einv_document_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_gtip einv_gtip_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_gtip
+    ADD CONSTRAINT einv_gtip_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_gtip einv_gtip_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_gtip
+    ADD CONSTRAINT einv_gtip_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_invoice_type einv_invoice_type_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_invoice_type
+    ADD CONSTRAINT einv_invoice_type_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_invoice_type einv_invoice_type_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_invoice_type
+    ADD CONSTRAINT einv_invoice_type_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_packaging_type einv_packaging_type_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_packaging_type
+    ADD CONSTRAINT einv_packaging_type_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_packaging_type einv_packaging_type_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_packaging_type
+    ADD CONSTRAINT einv_packaging_type_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_payment_means einv_payment_means_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_payment_means
+    ADD CONSTRAINT einv_payment_means_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_payment_means einv_payment_means_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_payment_means
+    ADD CONSTRAINT einv_payment_means_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_profile einv_profile_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_profile
+    ADD CONSTRAINT einv_profile_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_profile einv_profile_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_profile
+    ADD CONSTRAINT einv_profile_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_series einv_series_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_series
+    ADD CONSTRAINT einv_series_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_series_counter einv_series_counter_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_series_counter
+    ADD CONSTRAINT einv_series_counter_pkey PRIMARY KEY (einv_series_id, period_year);
+
+
+--
+-- Name: einv_series einv_series_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_series
+    ADD CONSTRAINT einv_series_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_tax_exemption einv_tax_exemption_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_tax_exemption
+    ADD CONSTRAINT einv_tax_exemption_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_tax_exemption einv_tax_exemption_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_tax_exemption
+    ADD CONSTRAINT einv_tax_exemption_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_tax_type einv_tax_type_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_tax_type
+    ADD CONSTRAINT einv_tax_type_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_tax_type einv_tax_type_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_tax_type
+    ADD CONSTRAINT einv_tax_type_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_transport_mode einv_transport_mode_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_transport_mode
+    ADD CONSTRAINT einv_transport_mode_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_transport_mode einv_transport_mode_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_transport_mode
+    ADD CONSTRAINT einv_transport_mode_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_withholding einv_withholding_code_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_withholding
+    ADD CONSTRAINT einv_withholding_code_key UNIQUE (code);
+
+
+--
+-- Name: einv_withholding einv_withholding_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_withholding
+    ADD CONSTRAINT einv_withholding_pkey PRIMARY KEY (id);
 
 
 --
@@ -8423,22 +9471,6 @@ ALTER TABLE ONLY public.pur_request
 
 
 --
--- Name: einv_invoice_type set_einv_fatura_tipleri_fatura_tipi_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.einv_invoice_type
-    ADD CONSTRAINT set_einv_fatura_tipleri_fatura_tipi_key UNIQUE (invoice_type_code);
-
-
---
--- Name: einv_invoice_type set_einv_fatura_tipleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.einv_invoice_type
-    ADD CONSTRAINT set_einv_fatura_tipleri_pkey PRIMARY KEY (id);
-
-
---
 -- Name: einv_payment_method set_einv_odeme_sekilleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -8455,22 +9487,6 @@ ALTER TABLE ONLY public.einv_payment_method
 
 
 --
--- Name: einv_packet_type set_einv_paket_tipleri_kod_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.einv_packet_type
-    ADD CONSTRAINT set_einv_paket_tipleri_kod_key UNIQUE (code);
-
-
---
--- Name: einv_packet_type set_einv_paket_tipleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.einv_packet_type
-    ADD CONSTRAINT set_einv_paket_tipleri_pkey PRIMARY KEY (id);
-
-
---
 -- Name: einv_transport_price set_einv_tasima_ucretleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -8484,14 +9500,6 @@ ALTER TABLE ONLY public.einv_transport_price
 
 ALTER TABLE ONLY public.einv_transport_price
     ADD CONSTRAINT set_einv_tasima_ucretleri_tasima_ucreti_key UNIQUE (transport_charge);
-
-
---
--- Name: einv_delivery_type set_einv_teslim_sekilleri_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.einv_delivery_type
-    ADD CONSTRAINT set_einv_teslim_sekilleri_pkey PRIMARY KEY (id);
 
 
 --
@@ -8540,6 +9548,22 @@ ALTER TABLE ONLY public.sls_invoice_detail
 
 ALTER TABLE ONLY public.sls_invoice_detail
     ADD CONSTRAINT sls_invoice_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_invoice sls_invoice_einv_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_einv_no_key UNIQUE (einv_no);
+
+
+--
+-- Name: sls_invoice sls_invoice_einv_uuid_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_einv_uuid_key UNIQUE (einv_uuid);
 
 
 --
@@ -9311,6 +10335,48 @@ CREATE INDEX acc_voucher_detail_acc_voucher_id_idx ON public.acc_voucher_detail 
 
 
 --
+-- Name: einv_diib_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX einv_diib_acc_account_id_idx ON public.einv_diib USING btree (acc_account_id);
+
+
+--
+-- Name: einv_diib_line_einv_gtip_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX einv_diib_line_einv_gtip_id_idx ON public.einv_diib_line USING btree (einv_gtip_id);
+
+
+--
+-- Name: einv_diib_line_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX einv_diib_line_stk_inventory_id_idx ON public.einv_diib_line USING btree (stk_inventory_id);
+
+
+--
+-- Name: einv_diib_line_sys_uom_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX einv_diib_line_sys_uom_id_idx ON public.einv_diib_line USING btree (sys_uom_id);
+
+
+--
+-- Name: einv_series_default_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE UNIQUE INDEX einv_series_default_idx ON public.einv_series USING btree (series_scope) WHERE is_default;
+
+
+--
+-- Name: einv_tax_exemption_einv_invoice_type_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX einv_tax_exemption_einv_invoice_type_id_idx ON public.einv_tax_exemption USING btree (einv_invoice_type_id);
+
+
+--
 -- Name: emp_driver_ability_emp_employee_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -9836,10 +10902,38 @@ CREATE INDEX sls_invoice_currency_idx ON public.sls_invoice USING btree (currenc
 
 
 --
+-- Name: sls_invoice_detail_buyer_einv_diib_line_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_detail_buyer_einv_diib_line_id_idx ON public.sls_invoice_detail USING btree (buyer_einv_diib_line_id);
+
+
+--
 -- Name: sls_invoice_detail_dispatch_detail_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
 CREATE INDEX sls_invoice_detail_dispatch_detail_idx ON public.sls_invoice_detail USING btree (sls_dispatch_detail_id);
+
+
+--
+-- Name: sls_invoice_detail_einv_gtip_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_detail_einv_gtip_id_idx ON public.sls_invoice_detail USING btree (einv_gtip_id);
+
+
+--
+-- Name: sls_invoice_detail_einv_packaging_type_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_detail_einv_packaging_type_id_idx ON public.sls_invoice_detail USING btree (einv_packaging_type_id);
+
+
+--
+-- Name: sls_invoice_detail_einv_withholding_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_detail_einv_withholding_id_idx ON public.sls_invoice_detail USING btree (einv_withholding_id);
 
 
 --
@@ -9850,10 +10944,59 @@ CREATE INDEX sls_invoice_detail_order_detail_idx ON public.sls_invoice_detail US
 
 
 --
+-- Name: sls_invoice_detail_seller_einv_diib_line_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_detail_seller_einv_diib_line_id_idx ON public.sls_invoice_detail USING btree (seller_einv_diib_line_id);
+
+
+--
 -- Name: sls_invoice_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
 CREATE INDEX sls_invoice_detail_stk_inventory_id_idx ON public.sls_invoice_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: sls_invoice_einv_delivery_term_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_einv_delivery_term_id_idx ON public.sls_invoice USING btree (einv_delivery_term_id);
+
+
+--
+-- Name: sls_invoice_einv_invoice_type_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_einv_invoice_type_id_idx ON public.sls_invoice USING btree (einv_invoice_type_id);
+
+
+--
+-- Name: sls_invoice_einv_payment_means_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_einv_payment_means_id_idx ON public.sls_invoice USING btree (einv_payment_means_id);
+
+
+--
+-- Name: sls_invoice_einv_profile_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_einv_profile_id_idx ON public.sls_invoice USING btree (einv_profile_id);
+
+
+--
+-- Name: sls_invoice_einv_tax_exemption_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_einv_tax_exemption_id_idx ON public.sls_invoice USING btree (einv_tax_exemption_id);
+
+
+--
+-- Name: sls_invoice_einv_transport_mode_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_einv_transport_mode_id_idx ON public.sls_invoice USING btree (einv_transport_mode_id);
 
 
 --
@@ -9941,6 +11084,20 @@ CREATE INDEX stk_card_kind_info_stk_kind_property_id_idx ON public.stk_card_kind
 
 
 --
+-- Name: stk_group_vat_rate_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_group_vat_rate_idx ON public.stk_group USING btree (vat_rate);
+
+
+--
+-- Name: stk_inventory_einv_gtip_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_einv_gtip_id_idx ON public.stk_inventory USING btree (einv_gtip_id);
+
+
+--
 -- Name: stk_inventory_purchase_account_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -10015,6 +11172,13 @@ CREATE INDEX stk_inventory_sys_country_id_idx ON public.stk_inventory USING btre
 --
 
 CREATE INDEX stk_inventory_sys_uom_id_idx ON public.stk_inventory USING btree (sys_uom_id);
+
+
+--
+-- Name: stk_inventory_vat_rate_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX stk_inventory_vat_rate_idx ON public.stk_inventory USING btree (vat_rate);
 
 
 --
@@ -10113,6 +11277,97 @@ CREATE INDEX sys_user_menu_sys_menu_id_idx ON public.sys_user_menu USING btree (
 --
 
 CREATE INDEX sys_user_permission_template_template_idx ON public.sys_user_permission_template USING btree (sys_permission_template_id);
+
+
+--
+-- Name: einv_delivery_term audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_delivery_term FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_diib audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_diib FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_diib_line audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_diib_line FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_gtip audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_gtip FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_invoice_type audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_invoice_type FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_packaging_type audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_packaging_type FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_payment_means audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_payment_means FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_profile audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_profile FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_series audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_series FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_tax_exemption audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_tax_exemption FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_tax_type audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_tax_type FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_transport_mode audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_transport_mode FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_withholding audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_withholding FOR EACH ROW EXECUTE FUNCTION public.audit();
 
 
 --
@@ -10854,6 +12109,70 @@ ALTER TABLE ONLY public.pur_offer
 
 ALTER TABLE ONLY public.pur_offer
     ADD CONSTRAINT als_teklifler_musteri_kodu_fkey FOREIGN KEY (customer_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: einv_diib einv_diib_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_diib
+    ADD CONSTRAINT einv_diib_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: einv_diib_line einv_diib_line_einv_diib_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_diib_line
+    ADD CONSTRAINT einv_diib_line_einv_diib_id_fkey FOREIGN KEY (einv_diib_id) REFERENCES public.einv_diib(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: einv_diib_line einv_diib_line_einv_gtip_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_diib_line
+    ADD CONSTRAINT einv_diib_line_einv_gtip_id_fkey FOREIGN KEY (einv_gtip_id) REFERENCES public.einv_gtip(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: einv_diib_line einv_diib_line_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_diib_line
+    ADD CONSTRAINT einv_diib_line_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: einv_diib_line einv_diib_line_sys_uom_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_diib_line
+    ADD CONSTRAINT einv_diib_line_sys_uom_id_fkey FOREIGN KEY (sys_uom_id) REFERENCES public.sys_uom(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: einv_document einv_document_invoice_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_document
+    ADD CONSTRAINT einv_document_invoice_fkey FOREIGN KEY (sls_invoice_id) REFERENCES public.sls_invoice(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: einv_series_counter einv_series_counter_series_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_series_counter
+    ADD CONSTRAINT einv_series_counter_series_fkey FOREIGN KEY (einv_series_id) REFERENCES public.einv_series(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: einv_tax_exemption einv_tax_exemption_einv_invoice_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_tax_exemption
+    ADD CONSTRAINT einv_tax_exemption_einv_invoice_type_id_fkey FOREIGN KEY (einv_invoice_type_id) REFERENCES public.einv_invoice_type(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -11673,11 +12992,43 @@ ALTER TABLE ONLY public.sls_invoice
 
 
 --
+-- Name: sls_invoice_detail sls_invoice_detail_buyer_einv_diib_line_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_buyer_einv_diib_line_id_fkey FOREIGN KEY (buyer_einv_diib_line_id) REFERENCES public.einv_diib_line(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sls_invoice_detail sls_invoice_detail_dispatch_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_invoice_detail
     ADD CONSTRAINT sls_invoice_detail_dispatch_detail_fkey FOREIGN KEY (sls_dispatch_detail_id) REFERENCES public.sls_dispatch_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice_detail sls_invoice_detail_einv_gtip_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_einv_gtip_id_fkey FOREIGN KEY (einv_gtip_id) REFERENCES public.einv_gtip(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice_detail sls_invoice_detail_einv_packaging_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_einv_packaging_type_id_fkey FOREIGN KEY (einv_packaging_type_id) REFERENCES public.einv_packaging_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice_detail sls_invoice_detail_einv_withholding_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_einv_withholding_id_fkey FOREIGN KEY (einv_withholding_id) REFERENCES public.einv_withholding(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -11697,11 +13048,67 @@ ALTER TABLE ONLY public.sls_invoice_detail
 
 
 --
+-- Name: sls_invoice_detail sls_invoice_detail_seller_einv_diib_line_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_detail
+    ADD CONSTRAINT sls_invoice_detail_seller_einv_diib_line_id_fkey FOREIGN KEY (seller_einv_diib_line_id) REFERENCES public.einv_diib_line(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sls_invoice_detail sls_invoice_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.sls_invoice_detail
     ADD CONSTRAINT sls_invoice_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice sls_invoice_einv_delivery_term_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_einv_delivery_term_id_fkey FOREIGN KEY (einv_delivery_term_id) REFERENCES public.einv_delivery_term(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice sls_invoice_einv_invoice_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_einv_invoice_type_id_fkey FOREIGN KEY (einv_invoice_type_id) REFERENCES public.einv_invoice_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice sls_invoice_einv_payment_means_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_einv_payment_means_id_fkey FOREIGN KEY (einv_payment_means_id) REFERENCES public.einv_payment_means(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice sls_invoice_einv_profile_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_einv_profile_id_fkey FOREIGN KEY (einv_profile_id) REFERENCES public.einv_profile(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice sls_invoice_einv_tax_exemption_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_einv_tax_exemption_id_fkey FOREIGN KEY (einv_tax_exemption_id) REFERENCES public.einv_tax_exemption(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_invoice sls_invoice_einv_transport_mode_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice
+    ADD CONSTRAINT sls_invoice_einv_transport_mode_id_fkey FOREIGN KEY (einv_transport_mode_id) REFERENCES public.einv_transport_mode(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -11849,6 +13256,14 @@ ALTER TABLE ONLY public.stk_group
 
 
 --
+-- Name: stk_group stk_group_vat_rate_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_group
+    ADD CONSTRAINT stk_group_vat_rate_fkey FOREIGN KEY (vat_rate) REFERENCES public.acc_set_tax_rate(tax_rate) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: stk_image stk_image_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -11862,6 +13277,14 @@ ALTER TABLE ONLY public.stk_image
 
 ALTER TABLE ONLY public.stk_inventory
     ADD CONSTRAINT stk_inventory_buying_currency_fkey FOREIGN KEY (buying_currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory stk_inventory_einv_gtip_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_einv_gtip_id_fkey FOREIGN KEY (einv_gtip_id) REFERENCES public.einv_gtip(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -11974,6 +13397,14 @@ ALTER TABLE ONLY public.stk_inventory
 
 ALTER TABLE ONLY public.stk_inventory
     ADD CONSTRAINT stk_inventory_sys_uom_id_fkey FOREIGN KEY (sys_uom_id) REFERENCES public.sys_uom(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: stk_inventory stk_inventory_vat_rate_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_inventory
+    ADD CONSTRAINT stk_inventory_vat_rate_fkey FOREIGN KEY (vat_rate) REFERENCES public.acc_set_tax_rate(tax_rate) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -12445,8 +13876,15 @@ GRANT SELECT ON TABLE audit_remote.audit_log TO ths_admin;
 
 
 --
+-- Name: TABLE vw_einv_diib_line; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
-\unrestrict W8B9ug0dn2uVv21fELVHCpmLhMv9nLrQM3SWSHeUXSlRnRQI2SJkara2LJ3YXQe
+\unrestrict kfqzZKAaHc3MVi2fmY9vwYpN7m022QAtQclUgy1nk9ffZAXcXaUOie4tG5Uybrz
 

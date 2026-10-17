@@ -370,6 +370,84 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 93
       OnExecute = actsls_invoicesExecute
     end
+    object actsls_diibs: TAction
+      Category = 'Satis'
+      Caption = 'D'#304#304'B Belgeleri'
+      ImageIndex = 93
+      OnExecute = actsls_diibsExecute
+    end
+    object actsls_diib_lines: TAction
+      Category = 'Satis'
+      Caption = 'D'#304#304'B Sat'#305'rlar'#305
+      ImageIndex = 93
+      OnExecute = actsls_diib_linesExecute
+    end
+    object actsls_einv_profiles: TAction
+      Category = 'Satis'
+      Caption = 'e-Belge Senaryolar'#305
+      ImageIndex = 93
+      OnExecute = actsls_einv_profilesExecute
+    end
+    object actsls_einv_invoice_types: TAction
+      Category = 'Satis'
+      Caption = 'e-Fatura Tipleri'
+      ImageIndex = 93
+      OnExecute = actsls_einv_invoice_typesExecute
+    end
+    object actsls_einv_tax_exemptions: TAction
+      Category = 'Satis'
+      Caption = 'Vergi '#304'stisna Kodlar'#305
+      ImageIndex = 93
+      OnExecute = actsls_einv_tax_exemptionsExecute
+    end
+    object actsls_einv_tax_types: TAction
+      Category = 'Satis'
+      Caption = 'Vergi T'#252'r'#252' Kodlar'#305
+      ImageIndex = 93
+      OnExecute = actsls_einv_tax_typesExecute
+    end
+    object actsls_einv_withholdings: TAction
+      Category = 'Satis'
+      Caption = 'Tevkifat Kodlar'#305
+      ImageIndex = 93
+      OnExecute = actsls_einv_withholdingsExecute
+    end
+    object actsls_einv_delivery_terms: TAction
+      Category = 'Satis'
+      Caption = 'Teslim '#350'artlar'#305
+      ImageIndex = 93
+      OnExecute = actsls_einv_delivery_termsExecute
+    end
+    object actsls_einv_transport_modes: TAction
+      Category = 'Satis'
+      Caption = 'Ta'#351#305'ma '#350'ekilleri'
+      ImageIndex = 93
+      OnExecute = actsls_einv_transport_modesExecute
+    end
+    object actsls_einv_packaging_types: TAction
+      Category = 'Satis'
+      Caption = 'Paket / Kap Cinsleri'
+      ImageIndex = 93
+      OnExecute = actsls_einv_packaging_typesExecute
+    end
+    object actsls_einv_payment_means: TAction
+      Category = 'Satis'
+      Caption = #214'deme '#350'ekilleri'
+      ImageIndex = 93
+      OnExecute = actsls_einv_payment_meansExecute
+    end
+    object actsls_einv_series: TAction
+      Category = 'Satis'
+      Caption = 'e-Belge Serileri'
+      ImageIndex = 93
+      OnExecute = actsls_einv_seriesExecute
+    end
+    object actstk_gtips: TAction
+      Category = 'Stok'
+      Caption = 'GT'#304'P Kodlar'#305
+      ImageIndex = 83
+      OnExecute = actstk_gtipsExecute
+    end
     object actfin_money_accounts: TAction
       Category = 'Finans'
       Caption = 'Kasa / Banka Hesaplar'#305
@@ -783,6 +861,48 @@ inherited frmDashboard: TfrmDashboard
       object mnisls_invoices: TMenuItem
         Action = actsls_invoices
       end
+      object mnisls_sep4: TMenuItem
+        Caption = '-'
+      end
+      object mnisls_diibs: TMenuItem
+        Action = actsls_diibs
+      end
+      object mnisls_diib_lines: TMenuItem
+        Action = actsls_diib_lines
+      end
+      object mnisls_einv_settings: TMenuItem
+        Caption = 'e-Belge Ayarlar'#305
+        object mnisls_einv_profiles: TMenuItem
+          Action = actsls_einv_profiles
+        end
+        object mnisls_einv_invoice_types: TMenuItem
+          Action = actsls_einv_invoice_types
+        end
+        object mnisls_einv_tax_exemptions: TMenuItem
+          Action = actsls_einv_tax_exemptions
+        end
+        object mnisls_einv_tax_types: TMenuItem
+          Action = actsls_einv_tax_types
+        end
+        object mnisls_einv_withholdings: TMenuItem
+          Action = actsls_einv_withholdings
+        end
+        object mnisls_einv_delivery_terms: TMenuItem
+          Action = actsls_einv_delivery_terms
+        end
+        object mnisls_einv_transport_modes: TMenuItem
+          Action = actsls_einv_transport_modes
+        end
+        object mnisls_einv_packaging_types: TMenuItem
+          Action = actsls_einv_packaging_types
+        end
+        object mnisls_einv_payment_means: TMenuItem
+          Action = actsls_einv_payment_means
+        end
+        object mnisls_einv_series: TMenuItem
+          Action = actsls_einv_series
+        end
+      end
     end
     object mnimenu_accounting: TMenuItem
       Caption = 'Muhasebe'
@@ -861,6 +981,9 @@ inherited frmDashboard: TfrmDashboard
         end
         object mnistk_kind_property: TMenuItem
           Action = actstk_cins_ozellikleri
+        end
+        object mnistk_gtips: TMenuItem
+          Action = actstk_gtips
         end
       end
     end

@@ -18,7 +18,7 @@ type
     lblName: TLabel;
     edtName: TEdit;
     lblVatRate: TLabel;
-    edtVatRate: TEdit;
+    cbbVatRate: TComboBox;
     lblRawMaterialStockAccount: TLabel;
     edtRawMaterialStockAccount: TEdit;
     lblRawMaterialUsageAccount: TLabel;
@@ -28,6 +28,11 @@ type
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
+  private
+    // KDV oranı yalnız muhasebe ayarlarındaki tanımlı oranlardan (acc_set_tax_rate) seçilir
+    procedure FillVatRates;
+    procedure SelectVatRate(ARate: Currency);
+    function SelectedVatRate: Currency;
   public
     procedure HelperProcess(Sender: TObject);
     procedure RefreshData; override;
@@ -45,7 +50,7 @@ procedure TfrmStkGroup.BtnAcceptClick(Sender: TObject);
 begin
   // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
   Table.Name := edtName.Text;
-  Table.VatRate := StrToCurrDef(edtVatRate.Text, 0);
+  Table.VatRate := SelectedVatRate;
   inherited;
 end;
 
@@ -58,7 +63,8 @@ begin
   edtSemiProductAccount.OnHelperProcess := HelperProcess;
   edtName.thsInputDataType := itString;
   edtName.CharCase := TEditCharCase.ecUpperCase;
-  edtVatRate.thsInputDataType := itFloat;
+  cbbVatRate.thsRequiredData := True;
+  FillVatRates;
 end;
 
 procedure TfrmStkGroup.FormShow(Sender: TObject);
@@ -77,6 +83,34 @@ begin
   lblRawMaterialStockAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.ColRawMaterialStockAccount, 'Raw Material Stock Account');
   lblRawMaterialUsageAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.ColRawMaterialUsageAccount, 'Raw Material Usage Account');
   lblSemiProductAccount.Caption := TLocalizationManager.Translate(TLangKeys.TStkGroup.ColSemiProductAccount, 'Semi-Product Account');
+end;
+
+procedure TfrmStkGroup.FillVatRates;
+var
+  LRate: Currency;
+begin
+  cbbVatRate.Items.BeginUpdate;
+  try
+    cbbVatRate.Items.Clear;
+    for LRate in Service.GetVatRates do
+      cbbVatRate.Items.Add(FormatFloat('0.##', LRate));
+  finally
+    cbbVatRate.Items.EndUpdate;
+  end;
+end;
+
+// Yeni kayıtta / listede olmayan oranda seçim boş kalır (zorunlu alan, kaydetmede uyarılır)
+procedure TfrmStkGroup.SelectVatRate(ARate: Currency);
+begin
+  cbbVatRate.ItemIndex := cbbVatRate.Items.IndexOf(FormatFloat('0.##', ARate));
+end;
+
+function TfrmStkGroup.SelectedVatRate: Currency;
+begin
+  if cbbVatRate.ItemIndex < 0 then
+    Result := 0
+  else
+    Result := StrToCurrDef(cbbVatRate.Items[cbbVatRate.ItemIndex], 0);
 end;
 
 procedure TfrmStkGroup.HelperProcess(Sender: TObject);
@@ -159,7 +193,7 @@ procedure TfrmStkGroup.RefreshData;
 begin
   inherited;
   edtName.Text := Table.Name;
-  edtVatRate.Text := CurrToStr(Table.VatRate);
+  SelectVatRate(Table.VatRate);
   edtRawMaterialStockAccount.Text := Table.RawMaterialStockAccount;
   edtRawMaterialUsageAccount.Text := Table.RawMaterialUsageAccount;
   edtSemiProductAccount.Text := Table.SemiProductAccount;

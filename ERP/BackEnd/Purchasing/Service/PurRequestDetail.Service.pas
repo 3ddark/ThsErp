@@ -27,6 +27,9 @@ type
 
     procedure ValidateBusinessRules(AEntity: TPurRequestDetail; AOperation: TCrudOperation); override;
 
+    // Satır formu: stok seçilince ölçü birimi
+    function GetUomCode(AInventoryId: Int64): string;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TPurRequestDetail>; override;
@@ -47,7 +50,7 @@ type
 implementation
 
 uses
-  SysPermission.Service, PurLookup;
+  SysPermission.Service, PurLookup, PurOrderDetail, PurOrderDetail.Repository;
 
 constructor TPurRequestDetailService.Create;
 begin
@@ -60,6 +63,11 @@ end;
 destructor TPurRequestDetailService.Destroy;
 begin
   inherited;
+end;
+
+function TPurRequestDetailService.GetUomCode(AInventoryId: Int64): string;
+begin
+  Result := TPurOrderDetailRepository(Self.UoW.GetRepository<TPurOrderDetail, TPurOrderDetailRepository>).GetUomCode(AInventoryId);
 end;
 
 // Alan adı + "zorunludur" mesajı

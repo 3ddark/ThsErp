@@ -147,14 +147,14 @@ end;
 function TSlsInvoiceDetailRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSlsInvoiceDetail) +
-            ' (sls_invoice_id, line_no, stk_inventory_id, quantity, unit_price, discount_rate, vat_rate, gross_amount, discount_amount, net_amount, vat_amount, total_amount, sls_dispatch_detail_id, sls_order_detail_id, description) ' +
-            ' VALUES (:sls_invoice_id, :line_no, :stk_inventory_id, :quantity, :unit_price, :discount_rate, :vat_rate, :gross_amount, :discount_amount, :net_amount, :vat_amount, :total_amount, :sls_dispatch_detail_id, :sls_order_detail_id, :description)';
+            ' (sls_invoice_id, line_no, stk_inventory_id, quantity, unit_price, discount_rate, vat_rate, gross_amount, discount_amount, net_amount, vat_amount, total_amount, sls_dispatch_detail_id, sls_order_detail_id, description, einv_gtip_id, einv_withholding_id, withholding_amount, seller_einv_diib_line_id, buyer_einv_diib_line_id, einv_packaging_type_id, package_no, package_quantity, package_brand) ' +
+            ' VALUES (:sls_invoice_id, :line_no, :stk_inventory_id, :quantity, :unit_price, :discount_rate, :vat_rate, :gross_amount, :discount_amount, :net_amount, :vat_amount, :total_amount, :sls_dispatch_detail_id, :sls_order_detail_id, :description, :einv_gtip_id, :einv_withholding_id, :withholding_amount, :seller_einv_diib_line_id, :buyer_einv_diib_line_id, :einv_packaging_type_id, :package_no, :package_quantity, :package_brand)';
 end;
 
 function TSlsInvoiceDetailRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSlsInvoiceDetail) +
-            ' SET sls_invoice_id = :sls_invoice_id, line_no = :line_no, stk_inventory_id = :stk_inventory_id, quantity = :quantity, unit_price = :unit_price, discount_rate = :discount_rate, vat_rate = :vat_rate, gross_amount = :gross_amount, discount_amount = :discount_amount, net_amount = :net_amount, vat_amount = :vat_amount, total_amount = :total_amount, sls_dispatch_detail_id = :sls_dispatch_detail_id, sls_order_detail_id = :sls_order_detail_id, description = :description ' +
+            ' SET sls_invoice_id = :sls_invoice_id, line_no = :line_no, stk_inventory_id = :stk_inventory_id, quantity = :quantity, unit_price = :unit_price, discount_rate = :discount_rate, vat_rate = :vat_rate, gross_amount = :gross_amount, discount_amount = :discount_amount, net_amount = :net_amount, vat_amount = :vat_amount, total_amount = :total_amount, sls_dispatch_detail_id = :sls_dispatch_detail_id, sls_order_detail_id = :sls_order_detail_id, description = :description, einv_gtip_id = :einv_gtip_id, einv_withholding_id = :einv_withholding_id, withholding_amount = :withholding_amount, seller_einv_diib_line_id = :seller_einv_diib_line_id, buyer_einv_diib_line_id = :buyer_einv_diib_line_id, einv_packaging_type_id = :einv_packaging_type_id, package_no = :package_no, package_quantity = :package_quantity, package_brand = :package_brand ' +
             ' WHERE id = :id';
 end;
 
@@ -180,6 +180,10 @@ begin
     Q.ParamByName('vat_amount').AsBCD := AModel.VatAmount;
     Q.ParamByName('total_amount').AsBCD := AModel.TotalAmount;
     Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('withholding_amount').AsBCD := AModel.WithholdingAmount;
+    Q.ParamByName('package_no').AsWideString := AModel.PackageNo;
+    Q.ParamByName('package_quantity').AsBCD := AModel.PackageQuantity;
+    Q.ParamByName('package_brand').AsWideString := AModel.PackageBrand;
   end
   else
   begin
@@ -194,12 +198,21 @@ begin
     Q.ParamByName('vat_amount').AsBCDs[AIndex] := AModel.VatAmount;
     Q.ParamByName('total_amount').AsBCDs[AIndex] := AModel.TotalAmount;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('withholding_amount').AsBCDs[AIndex] := AModel.WithholdingAmount;
+    Q.ParamByName('package_no').AsWideStrings[AIndex] := AModel.PackageNo;
+    Q.ParamByName('package_quantity').AsBCDs[AIndex] := AModel.PackageQuantity;
+    Q.ParamByName('package_brand').AsWideStrings[AIndex] := AModel.PackageBrand;
   end;
 
   SetNullableParam(Q.ParamByName('sls_invoice_id'), ftLargeint, AModel.SlsInvoiceId, AIndex);
   SetNullableParam(Q.ParamByName('stk_inventory_id'), ftLargeint, AModel.StkInventoryId, AIndex);
   SetNullableParam(Q.ParamByName('sls_dispatch_detail_id'), ftLargeint, AModel.SlsDispatchDetailId, AIndex);
   SetNullableParam(Q.ParamByName('sls_order_detail_id'), ftLargeint, AModel.SlsOrderDetailId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_gtip_id'), ftLargeint, AModel.EinvGtipId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_withholding_id'), ftLargeint, AModel.EinvWithholdingId, AIndex);
+  SetNullableParam(Q.ParamByName('seller_einv_diib_line_id'), ftLargeint, AModel.SellerEinvDiibLineId, AIndex);
+  SetNullableParam(Q.ParamByName('buyer_einv_diib_line_id'), ftLargeint, AModel.BuyerEinvDiibLineId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_packaging_type_id'), ftLargeint, AModel.EinvPackagingTypeId, AIndex);
 end;
 
 procedure TSlsInvoiceDetailRepository.SetUpdateParams(Q: TFDQuery; AModel: TSlsInvoiceDetail; AIndex: Integer);
@@ -219,6 +232,10 @@ begin
     Q.ParamByName('vat_amount').AsBCD := AModel.VatAmount;
     Q.ParamByName('total_amount').AsBCD := AModel.TotalAmount;
     Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('withholding_amount').AsBCD := AModel.WithholdingAmount;
+    Q.ParamByName('package_no').AsWideString := AModel.PackageNo;
+    Q.ParamByName('package_quantity').AsBCD := AModel.PackageQuantity;
+    Q.ParamByName('package_brand').AsWideString := AModel.PackageBrand;
   end
   else
   begin
@@ -234,12 +251,21 @@ begin
     Q.ParamByName('vat_amount').AsBCDs[AIndex] := AModel.VatAmount;
     Q.ParamByName('total_amount').AsBCDs[AIndex] := AModel.TotalAmount;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('withholding_amount').AsBCDs[AIndex] := AModel.WithholdingAmount;
+    Q.ParamByName('package_no').AsWideStrings[AIndex] := AModel.PackageNo;
+    Q.ParamByName('package_quantity').AsBCDs[AIndex] := AModel.PackageQuantity;
+    Q.ParamByName('package_brand').AsWideStrings[AIndex] := AModel.PackageBrand;
   end;
 
   SetNullableParam(Q.ParamByName('sls_invoice_id'), ftLargeint, AModel.SlsInvoiceId, AIndex);
   SetNullableParam(Q.ParamByName('stk_inventory_id'), ftLargeint, AModel.StkInventoryId, AIndex);
   SetNullableParam(Q.ParamByName('sls_dispatch_detail_id'), ftLargeint, AModel.SlsDispatchDetailId, AIndex);
   SetNullableParam(Q.ParamByName('sls_order_detail_id'), ftLargeint, AModel.SlsOrderDetailId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_gtip_id'), ftLargeint, AModel.EinvGtipId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_withholding_id'), ftLargeint, AModel.EinvWithholdingId, AIndex);
+  SetNullableParam(Q.ParamByName('seller_einv_diib_line_id'), ftLargeint, AModel.SellerEinvDiibLineId, AIndex);
+  SetNullableParam(Q.ParamByName('buyer_einv_diib_line_id'), ftLargeint, AModel.BuyerEinvDiibLineId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_packaging_type_id'), ftLargeint, AModel.EinvPackagingTypeId, AIndex);
 end;
 
 function TSlsInvoiceDetailRepository.MapFromQuery(Q: TFDQuery): TSlsInvoiceDetail;
@@ -268,6 +294,24 @@ begin
   Result.UomCode := Q.FieldByName('uom_code').AsString;
   Result.DispatchNo := Q.FieldByName('dispatch_no').AsString;
   Result.OrderNo := Q.FieldByName('order_no').AsString;
+  Result.AccAccountId := Q.FieldByName('acc_account_id').AsLargeInt;
+  Result.EinvGtipId := Q.FieldByName('einv_gtip_id').AsLargeInt;
+  Result.EinvWithholdingId := Q.FieldByName('einv_withholding_id').AsLargeInt;
+  Result.WithholdingAmount := Q.FieldByName('withholding_amount').AsCurrency;
+  Result.SellerEinvDiibLineId := Q.FieldByName('seller_einv_diib_line_id').AsLargeInt;
+  Result.BuyerEinvDiibLineId := Q.FieldByName('buyer_einv_diib_line_id').AsLargeInt;
+  Result.EinvPackagingTypeId := Q.FieldByName('einv_packaging_type_id').AsLargeInt;
+  Result.PackageNo := Q.FieldByName('package_no').AsString;
+  Result.PackageQuantity := Q.FieldByName('package_quantity').AsCurrency;
+  Result.PackageBrand := Q.FieldByName('package_brand').AsString;
+  Result.GtipCode := Q.FieldByName('gtip_code').AsString;
+  Result.WithholdingCode := Q.FieldByName('withholding_code').AsString;
+  Result.WithholdingRate := Q.FieldByName('withholding_rate').AsCurrency;
+  Result.SellerDiibLineCode := Q.FieldByName('seller_diib_line_code').AsString;
+  Result.BuyerDiibLineCode := Q.FieldByName('buyer_diib_line_code').AsString;
+  Result.DiibProductDescription := Q.FieldByName('diib_product_description').AsString;
+  Result.PackagingTypeCode := Q.FieldByName('packaging_type_code').AsString;
+  Result.UomEinvCode := Q.FieldByName('uom_einv_code').AsString;
 end;
 
 function TSlsInvoiceDetailRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

@@ -896,6 +896,144 @@
         <DCCReference Include="Forms\Finance\Output\ufrmFinCompanyBankAccounts.pas">
             <Form>frmFinCompanyBankAccounts</Form>
         </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvLookup.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvProfile.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvProfile.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvProfile.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvProfile.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvProfile.pas">
+            <Form>frmEInvProfile</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvProfiles.pas">
+            <Form>frmEInvProfiles</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvInvoiceType.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvInvoiceType.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvInvoiceType.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvInvoiceType.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvInvoiceType.pas">
+            <Form>frmEInvInvoiceType</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvInvoiceTypes.pas">
+            <Form>frmEInvInvoiceTypes</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvTaxExemption.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvTaxExemption.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvTaxExemption.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvTaxExemption.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvTaxExemption.pas">
+            <Form>frmEInvTaxExemption</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvTaxExemptions.pas">
+            <Form>frmEInvTaxExemptions</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvTaxType.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvTaxType.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvTaxType.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvTaxType.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvTaxType.pas">
+            <Form>frmEInvTaxType</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvTaxTypes.pas">
+            <Form>frmEInvTaxTypes</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvWithholding.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvWithholding.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvWithholding.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvWithholding.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvWithholding.pas">
+            <Form>frmEInvWithholding</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvWithholdings.pas">
+            <Form>frmEInvWithholdings</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvDeliveryTerm.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvDeliveryTerm.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvDeliveryTerm.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvDeliveryTerm.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvDeliveryTerm.pas">
+            <Form>frmEInvDeliveryTerm</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvDeliveryTerms.pas">
+            <Form>frmEInvDeliveryTerms</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvTransportMode.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvTransportMode.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvTransportMode.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvTransportMode.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvTransportMode.pas">
+            <Form>frmEInvTransportMode</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvTransportModes.pas">
+            <Form>frmEInvTransportModes</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvPackagingType.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvPackagingType.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvPackagingType.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvPackagingType.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvPackagingType.pas">
+            <Form>frmEInvPackagingType</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvPackagingTypes.pas">
+            <Form>frmEInvPackagingTypes</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvPaymentMeans.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvPaymentMeans.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvPaymentMeans.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvPaymentMeans.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvPaymentMeans.pas">
+            <Form>frmEInvPaymentMeans</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvPaymentMeansList.pas">
+            <Form>frmEInvPaymentMeansList</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvSeries.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvSeries.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvSeries.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvSeries.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvSeries.pas">
+            <Form>frmEInvSeries</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvSeriesList.pas">
+            <Form>frmEInvSeriesList</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvUbl.Model.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvDocument.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvDocument.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvDocument.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvDocument.Service.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvUbl.Builder.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvUbl.Validator.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvGtip.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvGtip.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvGtip.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvGtip.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvGtip.pas">
+            <Form>frmEInvGtip</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvGtips.pas">
+            <Form>frmEInvGtips</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvDiib.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvDiib.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvDiib.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvDiib.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvDiib.pas">
+            <Form>frmEInvDiib</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvDiibs.pas">
+            <Form>frmEInvDiibs</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvDiibLine.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvDiibLine.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvDiibLine.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvDiibLine.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvDiibLine.pas">
+            <Form>frmEInvDiibLine</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvDiibLines.pas">
+            <Form>frmEInvDiibLines</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\Purchasing\Domain\PurLookup.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Domain\PurRequest.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Exception\PurRequest.Exception.pas"/>

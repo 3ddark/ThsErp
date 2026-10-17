@@ -59,6 +59,8 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
 - Stock card accounting overrides: `stk_inventory.vat_rate` + 7 account columns are NULL = inherit (group accounts from
   `stk_group`, VAT accounts from the `acc_set_tax_rate` row of the effective VAT rate). Voucher posting must read the
   resolved values from `vw_stk_inventory_account`, never `stk_group` directly.
+  `stk_group.vat_rate` (NOT NULL, no default) and `stk_inventory.vat_rate` (NULL = group) are FKs to
+  `acc_set_tax_rate(tax_rate)` (ON UPDATE CASCADE, ON DELETE RESTRICT): only defined rates; forms offer a combo.
   Others (`vw_sys_city`, `vw_sys_country`, `vw_sys_uom*` …)
   still derive locale from translations — migrate when touched.
 - Views without translations have no `locale` column; their repositories must not add a locale filter.
@@ -80,8 +82,22 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   note lines + invoice lines with an order link). Sales invoices are debits in `vw_acc_account_transaction` (source 6).
   `sls_dispatch.status` is service-maintained (1 waiting = not fully invoiced, partial included; 2 closed = every line
   fully invoiced; `TSlsDispatchRepository.RefreshInvoiceStatus`, called by dispatch and invoice saves / deletes);
-  `sls_dispatch_detail.line_no` (UNIQUE per dispatch, deferrable). Invoice status / e-Fatura and e-İrsaliye fields: pending
-  the official documents (user, 2026-10-16).
+  `sls_dispatch_detail.line_no` (UNIQUE per dispatch, deferrable).
+- e-Document (UBL-TR 1.2.1, design `docs/einvoice_design.md`): code lists `einv_profile`, `einv_invoice_type`,
+  `einv_tax_exemption` (group 1-7, `einv_invoice_type_id`, `requires_gtip` / `requires_diib`), `einv_tax_type`,
+  `einv_withholding` (`rate`), `einv_delivery_term` (`is_incoterms`), `einv_transport_mode`,
+  `einv_packaging_type`, `einv_payment_means`, `einv_gtip` (12 digits) and DIIB `einv_diib` (`holder_type` 1 own / 2
+  customer + `acc_account_id`) + `einv_diib_line` (`line_code`, GTIP, product description, `sys_uom_id`). Rule flags live in these
+  tables (editable on screens), never hard-coded. `stk_inventory.einv_gtip_id` (was `hs_no`). `sls_invoice`:
+  `einv_profile_id` (NULL = paper invoice; CHECK: profile / type / status / uuid all NULL or all set), `einv_uuid`
+  (ETTN, generated once), `einv_status` 1-7 (service-maintained; 2/3/4/5/7 lock the invoice), exemption / delivery
+  term / transport mode / payment means, customs exit data, `withholding_amount`; lines: GTIP, withholding, seller /
+  buyer DIIB line, package type / no / quantity / brand. Account debit of a sales invoice = total − withholding.
+  `einv_series` (code 3 chars, scope 1 e-Fatura / 2 e-Arşiv, one default per scope) + `einv_series_counter` (per year,
+  service-maintained); `sls_invoice.einv_no` (UNIQUE, GİB format, set when sent); `einv_document` (UBL XML per invoice,
+  UNIQUE `sls_invoice_id`, CASCADE, no audit).
+  `vw_sls_invoice.einv_uuid` is `::text` — FireDAC reads PG `uuid` as a GUID and swaps the byte order of the first
+  three groups; read uuids as text, write them with `CAST(:x AS uuid)`.
 - Company bank accounts (`fin_company_bank_account`): flags `show_on_cheque` / `show_on_note` / `show_on_print`; printouts read
   `vw_fin_company_bank_account.print_text` via `TFinCompanyBankAccountService.GetPrintLines(FIN_BANK_USAGE_*)`. Own (given)
   cheques / notes may reference one (`fin_cheque_note.fin_company_bank_account_id`, CHECK direction = 2); bank, account no and

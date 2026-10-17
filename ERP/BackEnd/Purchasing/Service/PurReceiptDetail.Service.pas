@@ -32,6 +32,9 @@ type
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
       out ADiscountRate, AVatRate: Currency): Boolean;
 
+    // Satır formu: stok seçilince ölçü birimi
+    function GetUomCode(AInventoryId: Int64): string;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TPurReceiptDetail>; override;
@@ -68,6 +71,11 @@ end;
 destructor TPurReceiptDetailService.Destroy;
 begin
   inherited;
+end;
+
+function TPurReceiptDetailService.GetUomCode(AInventoryId: Int64): string;
+begin
+  Result := TPurOrderDetailRepository(FOrderDetailRepo).GetUomCode(AInventoryId);
 end;
 
 // Alan adı + "zorunludur" mesajı

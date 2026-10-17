@@ -368,14 +368,14 @@ object frmStkInventory: TfrmStkInventory
           ReadOnly = True
           TabOrder = 14
         end
-        object lblHsNo: TLabel
+        object lblEinvGtipId: TLabel
           Left = 366
           Top = 125
           Width = 120
           Height = 13
           Alignment = taRightJustify
           AutoSize = False
-          Caption = 'HS Code'
+          Caption = 'GT'#304'P'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -383,12 +383,12 @@ object frmStkInventory: TfrmStkInventory
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object edtHsNo: TEdit
+        object edtEinvGtipId: TEdit
           Left = 490
           Top = 121
           Width = 230
           Height = 22
-          MaxLength = 16
+          ReadOnly = True
           TabOrder = 15
         end
         object lblDiibProductDescription: TLabel
@@ -411,7 +411,7 @@ object frmStkInventory: TfrmStkInventory
           Top = 144
           Width = 230
           Height = 22
-          MaxLength = 64
+          MaxLength = 512
           TabOrder = 16
         end
         object lblProductOverview: TLabel
@@ -812,11 +812,12 @@ object frmStkInventory: TfrmStkInventory
           Font.Style = [fsBold]
           ParentFont = False
         end
-        object edtVatRate: TEdit
+        object cbbVatRate: TComboBox
           Left = 188
           Top = 62
           Width = 150
           Height = 22
+          Style = csDropDownList
           TabOrder = 0
         end
         object lblDefaultVatRate: TLabel

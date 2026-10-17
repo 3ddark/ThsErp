@@ -1,5 +1,5 @@
 #!/bin/sh
-# Ekran (UI) event-akışı testleri: System / Employee / Account / Stock / Production / Finance / Purchasing / Sales listeleri + giriş formları.
+# Ekran (UI) event-akışı testleri: System / Employee / Account / Stock / Production / Finance / Purchasing / Sales / EInvoice listeleri + giriş formları.
 #   ./build.sh            -> ths_erp_it'i canlı ths_erp'ten yeniden kurar (+seed.sql) ve UiTest'i derler
 #   $TEMP/ths_ui/bin/UiTest.exe [Modül] [TfrmXxx]   -> rapor: UiTest-report.txt
 # Testler ths_erp_it üzerinde commit eder; canlı ths_erp'e yazmaz.
@@ -24,7 +24,7 @@ fi
 python gen.py || exit 1
 mkdir -p "$O/dcu" "$O/bin"
 cp -r ../../lib "$O/bin/" 2>/dev/null
-mkdir -p "$O/bin/Resource" && cp -r ../../Resource/Localization "$O/bin/Resource/"
+mkdir -p "$O/bin/Resource" && cp -r ../../Resource/Localization ../../Resource/EInvoice "$O/bin/Resource/"
 L="$BDS/lib/win64/release"
 U="$ERP;$ERP/Utils;$L"
 "$BDS/bin/dcc64.exe" -B -Q -W- -H- -DDEBUG \

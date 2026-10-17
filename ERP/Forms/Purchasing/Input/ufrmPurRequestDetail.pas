@@ -21,6 +21,7 @@ type
     edtStkInventoryId: TEdit;
     lblQuantity: TLabel;
     edtQuantity: TEdit;
+    lblUomCode: TLabel;
     lblOrderedQuantity: TLabel;
     edtOrderedQuantity: TEdit;
     lblRequiredDate: TLabel;
@@ -129,6 +130,7 @@ begin
           Table.StkInventoryId := 0;
           Table.InventoryCode := '';
           Table.InventoryName := '';
+          Table.UomCode := '';
           LEdit.Clear;
         end
         else
@@ -136,8 +138,10 @@ begin
           Table.StkInventoryId := LFrmStkInventoryId.Table.Id;
           Table.InventoryCode := LFrmStkInventoryId.Table.Code;
           Table.InventoryName := LFrmStkInventoryId.Table.Name;
+          Table.UomCode := Service.GetUomCode(Table.StkInventoryId);
           LEdit.Text := Table.InventoryName;
         end;
+      lblUomCode.Caption := Table.UomCode;
     finally
       LFrmStkInventoryId.Free;
     end;
@@ -150,6 +154,7 @@ begin
   edtPurRequestId.Text := Table.RequestNo;
   edtStkInventoryId.Text := Table.InventoryName;
   edtQuantity.Text := CurrToStr(Table.Quantity);
+  lblUomCode.Caption := Table.UomCode;
   edtOrderedQuantity.Text := CurrToStr(Table.OrderedQuantity);
   if Table.RequiredDate > 0 then
     edtRequiredDate.Text := DateToStr(Table.RequiredDate)

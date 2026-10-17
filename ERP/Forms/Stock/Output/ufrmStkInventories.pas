@@ -102,6 +102,8 @@ begin
   Table.ProductTypeName := FieldText('product_type_name');
   Table.UomName := FieldText('uom_name');
   Table.CountryName := FieldText('country_name');
+  Table.GtipCode := FieldText('gtip_code');
+  Table.GtipName := FieldText('gtip_name');
   Table.CurrentQuantity := FieldText('current_quantity');
   Table.AverageCost := FieldText('average_cost');
 end;
@@ -114,6 +116,7 @@ begin
   SetColumnProperty('stk_product_type_id', 0);
   SetColumnProperty('sys_uom_id', 0);
   SetColumnProperty('sys_country_id', 0);
+  SetColumnProperty('einv_gtip_id', 0);
   SetColumnProperty('locale', 0);
   // Gruptan gelen (default_*) değerler yalnız stok kartı formunda gösterilir
   SetColumnProperty('default_vat_rate', 0);
@@ -164,7 +167,8 @@ begin
   SetColumnTitle('supply_duration', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColSupplyDuration, 'Supply Duration (Days)'));
   SetColumnTitle('min_stock_amount', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColMinStockAmount, 'Minimum Stock'));
   SetColumnTitle('country_name', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColCountry, 'Origin Country'));
-  SetColumnTitle('hs_no', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColHsNo, 'HS Code'));
+  SetColumnTitle('gtip_code', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColGtipCode, 'GTIP Code'));
+  SetColumnTitle('gtip_name', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColGtipName, 'GTIP Description'));
   SetColumnTitle('diib_product_description', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColDiibProductDescription, 'DIIB Description'));
   SetColumnTitle('product_overview', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColProductOverview, 'Product Overview'));
   SetColumnTitle('vat_rate', TLocalizationManager.Translate(TLangKeys.TStkInventory.ColVatRate, 'VAT Rate (%)'));

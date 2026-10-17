@@ -769,6 +769,100 @@ Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
 - (eski not) Faz 3 — satış siparişi, sonra fatura (kalem hook'u: UpsertStockTransaction; belge hook'u: stok özeti +
   sipariş teslim miktarları).
 
+## e-Fatura tasarımı (UBL-TR 1.2.1) + GTİP / DİİB (2026-10-16, DESKTOP-JF3LUBB, /goal)
+- Kaynak: docs/UBL-TR1.2.1_Paketi + docs/UBLTR_1.2.1_Kilavuzlar (Kod Listeleri v1.43). Tasarım: `docs/einvoice_design.md`
+  (UBL elemanı ↔ kolon eşlemesi, kurallar, sonraki adımlar).
+- DB (psql, yedek scratchpad ths_erp_before_einv.dump): 11 kod listesi tablosu + `einv_gtip` + `einv_diib` / `einv_diib_line`
+  (tohum: 16 senaryo, 18 fatura tipi, 112 istisna kodu, 29 vergi türü, 52 tevkifat, 39 birim, 15 INCOTERMS + 4 firma teslim
+  şekli, 8 taşıma, 27 kap cinsi, 10 ödeme şekli). Eski einv_invoice_type / einv_delivery_type (-> einv_delivery_term)
+  yeniden yapılandırıldı (id'ler korundu; pur_offer FK'si duruyor), einv_packet_type silindi (kodsuz, kullanılmıyordu).
+  einv_payment_method / einv_transport_price (eski serbest metin) dokunulmadı. stk_inventory.hs_no -> einv_gtip_id,
+  diib_product_description 512. sls_invoice + 12 kolon, sls_invoice_detail + 9 kolon; vw_sls_invoice(+_detail),
+  vw_stk_inventory, vw_acc_account_transaction (cari borç = toplam - tevkifat). Yetkiler 1049, 1050-1059 (e-invoice
+  grubu), 1094; menü 400906, 600100/600101/600102, 600900/600901-600910. Dump'lar yenilendi (db + audit).
+- Kod: yeni modül `BackEnd/EInvoice` + `Forms/EInvoice` (13 varlık; üreteç scratchpad einv_config.py + gen_erp.py, gen_lang.py,
+  register.py; yardımcılar addkeys.py, patch_*.py), `EInvLookup` (sabitler, GTİP normalize/biçim, kilit durumları).
+  Stok kartı GTİP helper'ı; satış faturası başlığı Genel / e-Belge-İhracat sekmeleri (+ tevkifat / ödenecek toplamı, cari
+  seçilince senaryo önerisi), kalem formunda e-Belge / İhracat bölümü (GTİP, tevkifat, satıcı / alıcı DİİB satırı, kap
+  bilgisi; %0 KDV seçeneği), liste kolonları; Dashboard Satış > DİİB + e-Belge Ayarları alt menüsü, Stoklar > Ayarlar > GTİP.
+  Kurallar `TSlsInvoiceService.CheckEInvoice` (rules/backend.md). FireDAC uuid bayt sırası sorunu -> view'da ETTN ::text.
+- Doğrulama: msbuild Win64 Debug 0 hata / dokunulan birimlerde uyarı yok. Entegrasyon tam koşu 1895 pass / 0 fail / 37 warn
+  (boş tablolar), TestEInvoice 41 adım. UI harness (seed.sql'e GTİP / DİİB / e-arşiv fatura): EInvoice 245, Sales 88,
+  Stock 154 pass / 0 fail.
+- Engellenen (izin): eski `BackEnd/Invoice` + `Forms/Invoice` (projeye kayıtlı değil, eski tablolara bağlı) silinemedi;
+  kullanıcı silebilir.
+- Elle denenmedi (UI): fatura e-Belge sekmesi / kalem bölümü helper'ları, DİİB ekranları, GTİP helper'ı.
+- SONRAKİ: UBL XML üretimi (TEInvUblBuilder, XSD doğrulama), e-belge seri / numara biçimi, entegratör + durum güncelleme,
+  e-İrsaliye, iade faturası, gelen e-fatura.
+- Üreteç / yama betikleri (bu makine): `%TEMP%\claude\D--Projects-ThsErp\00de2875-9223-4793-aa52-3258d4374847\scratchpad`
+  (einv_config.py, gen_erp.py, gen_lang.py, register.py, addkeys.py, einv_sql*.py, build.bat, ubl\ PDF metinleri).
+  Yeni oturumda oradan kopyalanmalı. DB tarafı dump'ta; kod tarafı çalışma ağacında (commit edilmedi).
+- Kullanıcı (2026-10-17): "Kaldığın yeri kaydet, sonra devam edelim" — iş burada duraklatıldı; devam: elle UI testi
+  geri bildirimi veya UBL XML üretimi.
+
+## e-Belge birim kodu -> sys_uom (2026-10-17, DESKTOP-JF3LUBB)
+- Kullanıcı: ayrı e-fatura birim tablosu olmasın, `sys_uom` kullanılsın. `einv_unit_code` + `vw_einv_unit_code` silindi;
+  `einv_diib_line.einv_unit_code_id` -> `sys_uom_id` (FK sys_uom, ON DELETE RESTRICT); `vw_einv_diib_line` + `uom_einv_code`
+  (`sys_uom.unit_einv`). Yetki 1055 + menü 600906 + grid kolonları silindi. EInvUnitCode modülü (6 birim + DFM'ler),
+  Dashboard action/menü, dil anahtarları kaldırıldı; DİİB satır formu birimi TfrmSysUoms helper'ından seçer.
+- Yedek: scratchpad ths_erp_before_drop_einv_unit_code.dump. Dump'lar yenilendi. Derleme 0 hata; entegrasyon EInvoice
+  specific 450 / generic 182 pass, 0 fail. Bu makinede RAD Studio 37.0 (rsvars yolu ...\Studio\37.0\bin).
+- 2026-10-17 düzeltildi (kullanıcı onayı): 13 birimin `unit_einv` kodu GİB / UN/ECE Rec 20 koduna çevrildi (ADET C62, KG KGM,
+  DK MIN, ST HUR, LT LTR, MT MTR, TON TNE, GR GRM, CM CMT, MM MMT, SN SEC, M2 MTK, PARSEL XPC). GİB listesinin (Kod Listeleri
+  v1.43 §1.5, 39 kod) eksik 33 kodu sys_uom'a eklendi (tr / en / de adlarıyla); yeni gruplar area / volume / energy, LT -> volume,
+  M2 -> area (çarpan 100, taban DM2). 46 birim, 46 farklı e-belge kodu. Yedek: scratchpad ths_erp_before_uom_einv.dump.
+  Eski 13 birimin adları düzeltildi (ADET, KİLOGRAM, TON, PARSEL …) + en-US / de-DE çevirileri; vw_sys_uom her dilde 46 satır.
+  PARSEL (test birimi, kullanılmıyordu) silindi -> 45 birim. Yedek: scratchpad ths_erp_before_drop_parsel.dump.
+
+## Ortam DESKTOP-JF3LUBB (2026-10-16, PG18 5432, postgres/qwe)
+- ths_audit + ths_erp DROP (FORCE) + CREATE (tr-TR libc) + git dump'ları (f26c7d0) restore: 119 tablo / 101 view, audit 852 satır.
+  audit_server portu dump'tan 5433 geldi → `audit_configure('localhost', 5432, 'ths_audit')`; flush rollback içinde doğrulandı.
+  Restore öncesi yedekler oturum scratchpad'inde (ths_erp/ths_audit_before_restore_20261016.dump).
+
+## KDV oranı tanımlı oranlardan (2026-10-17)
+- DB: `stk_group.vat_rate` / `stk_inventory.vat_rate` FK -> `acc_set_tax_rate(tax_rate)` (ON UPDATE CASCADE, ON DELETE RESTRICT),
+  eski 0-100 CHECK'leri ve stk_group DEFAULT 0 kaldırıldı, FK indeksleri eklendi. Yedek: oturum scratchpad ths_erp_before_vat_fk.dump.
+- Kod: `TAccSetTaxRateRepository.GetTaxRates`, `TAccSetTaxRateService.CheckDefinedRate`, yeni dil anahtarı `validation.vat_rate_undefined`.
+  Stok grubu / kartı formunda KDV `cbbVatRate` (csDropDownList; kartta ilk boş seçenek = gruptan). Alış sipariş / fatura satırında
+  KDV combo (fatura ayrıca 0 = KDV'siz), alış talep / sipariş / irsaliye / fatura satırında stok seçilince ölçü birimi (`lblUomCode`).
+  Satış teklif / sipariş / irsaliye / fatura satırları zaten stok seçiminde KDV + birim getiriyordu (değişmedi).
+- Derleme 0 hata; entegrasyon 1874 PASS / 0 FAIL (stok kartı KDV testleri tanımlı oranlara göre güncellendi). UI elle denenmedi.
+- Kullanıcı kararı: %18 oranı acc_set_tax_rate'ten silindi, MEYVELER grubu (id 11) %20'ye alındı. Tanımlı oranlar: 1 / 8 / 10 / 20.
+  Yedek: scratchpad ths_erp_before_drop_vat18.dump. Dump'lar yenilendi.
+
+## e-Fatura UI mantığı (2026-10-17, kullanıcı: "e-fatura UI logic'lerini düzenle, sana bırakıyorum")
+- GİB Kod Listeleri v1.43 §2.4: SATICIDIBSATIRKOD / ALICIDIBSATIRKOD yalnız IHRACKAYITLI tipte 702 kodu için kalemde.
+- DB: `einv_tax_exemption.requires_zero_vat` (2xx, 3xx, 701/702/704 = true; 1xx, 703, 001, 8xx, 555 = false), vw_einv_tax_exemption
+  yeniden, sys_grid_column + kullanıcı kolon satırı. Yedek: scratchpad ths_erp_before_einv_zero_vat.dump. Dump'lar yenilendi.
+- Kod: `TSlsEInvScope` + `GetEInvScope` / `ClearNotApplicable*` / `SuggestInvoiceType` (SlsInvoice.Service), kalem servisi
+  `EInvScope`; fatura başlığı / kalem formu alanları kapsama göre açar / kapatır / zorunlu işaretler; istisna kodu formu +
+  liste kolonu; istisna seçim listesi APlainOnly. Kural tablosu docs/einvoice_design.md §3.
+- Test: entegrasyon 1885 pass / 0 fail (TestEInvoice +11 adım); UI harness Sales 88 / EInvoice 227 pass / 0 fail.
+  Kullanıcı (aynı gün): gereksiz alanlar pasif değil gizli olsun -> Visible + boşluksuz dizme (StackRows), kalem formunda boş
+  e-Belge bölümü gizli + form yüksekliği; tevkifat KDV %0 iken görünür / pasif. UI harness yine Sales 88 / EInvoice 227.
+  Elle UI denenmedi (gizleme / dizilim, zorunlu işaretleri).
+
+## e-Fatura UBL XML (2026-10-17, tamamlandı — gönderim / entegratör yok)
+- Kullanıcı kararı: kayıtta XML üret + doğrula, gönderim ayrı "e-Fatura Gönder" komutu; önce yalnız XML (entegratör sınıfı
+  test bilgileri gelince: QNB / Logo ...). Plan:
+  1. DB: einv_series (+counter; GİB no 3 karakter + yıl + 9 hane, gönderimde verilir), sls_invoice.einv_series_id / einv_no,
+     einv_document (sls_invoice_id UNIQUE, xml, is_valid, validation_message), yetki 1055, menü 600911.
+  2. EInvSeries modülü (eski üreteç: %TEMP%\claude\D--Projects-ThsErp\00de2875-...\scratchpad gen_erp.py / gen_lang.py / register.py).
+  3. TEInvUblBuilder (saf, DTO -> XML), TEInvUblValidator (MSXML6 XSD + general.xslt önizleme), veri okuma repository'si,
+     TSlsInvoiceService.AfterDocumentSaved -> belge üret / sakla (kaydı engellemez).
+  4. Resource/EInvoice: xsdrt kopyası (xmldsig DOCTYPE kaldırıldı — MSXML DTD yasak), general.xslt (exists() -> boolean()).
+  5. UI: fatura listesi popup Önizle / XML Kaydet / Doğrulama sonucu; seri ekranı. 6. Testler (XSD doğrulama).
+- Bulgular: MSXML6 ile XSD seti yüklenir ve örnekler doğrulanır; UBLExtensions/ExtensionContent zorunlu ve boş olamaz
+  (imzasız taslakta doğrulama kopyasına yer tutucu); sys_currency 'TL' -> UBL 'TRY'; carilerin çoğunda adres / VKN yok.
+- Yapıldı: DB (yedek scratchpad ths_erp_before_einv_xml.dump; dump'lar yenilendi), EInvSeries modülü (üreteç; menü 600911,
+  Dashboard actsls_einv_series), EInvDocument (backend), EInvUbl.Model / Builder / Validator, Resource/EInvoice, fatura listesi
+  popup (Önizle / Doğrulama / XML Kaydet / Yeniden Oluştur) + kolonlar, 30+ dil anahtarı. Tasarım: docs/einvoice_design.md §4.
+- Test: entegrasyon 1893 pass / 0 fail (TestEInvoice: e-Arşiv, TEVKIFAT, IHRACAT, 702 XSD'ye uygun, önizleme HTML, eksik VKN,
+  kağıt fatura, seri sayacı); UI harness Sales 90 / EInvoice 246 pass (Önizle / XML Kaydet sürücüde atlanır: tarayıcı / dosya).
+  Elle UI denenmedi. Test DB'sinde para birimi USD (varsayılan) — XML'de currencyID USD + PricingExchangeRate.
+- Sonraki: entegratör katmanı (IEInvIntegrator: gönder / durum / PDF / gelen fatura / mükellef sorgu) + "e-Fatura Gönder"
+  komutu (gönderimde einv_no = NextNumber, XML yeniden üretilir, durum 2 kuyrukta → 3 gönderildi). Test hesabı bilgisi gerekli.
+
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.

@@ -30,6 +30,8 @@ type
 
     // Stok kartı formu: grup / KDV oranı değişince karta özel olmayan (gruptan gelen) değerler
     procedure FillDefaults(AEntity: TStkInventory);
+    // Tanımlı KDV oranları (acc_set_tax_rate); karta özel KDV combo'su bu listeden doldurulur
+    function GetVatRates: TArray<Currency>;
     // Stok kartı "Cins Özelliği" / "Özetler" sekmeleri (okuma yetkisi: stok kartı)
     function GetKindValues(AInventoryId: Int64; out AKindName: string): TArray<TStkInventoryKindValue>;
     function GetWarehouseStocks(AInventoryId: Int64): TArray<TStkInventoryWarehouseStock>;
@@ -53,13 +55,19 @@ type
 implementation
 
 uses
-  SysPermission.Service, StkInventorySummary.Repository;
+  SysPermission.Service, StkInventorySummary.Repository,
+  AccSetTaxRate, AccSetTaxRate.Repository, AccSetTaxRate.Service;
 
 constructor TStkInventoryService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TStkInventory, TStkInventoryRepository>;
   Self.PermissionCode := PERMISSION_STK_INVENTORY;
+end;
+
+function TStkInventoryService.GetVatRates: TArray<Currency>;
+begin
+  Result := TAccSetTaxRateRepository(Self.UoW.GetRepository<TAccSetTaxRate, TAccSetTaxRateRepository>).GetTaxRates;
 end;
 
 destructor TStkInventoryService.Destroy;
@@ -120,9 +128,8 @@ procedure TStkInventoryService.ValidateAccountOverrides(AEntity: TStkInventory);
   end;
 
 begin
-  if AEntity.HasVatRate and ((AEntity.VatRate < 0) or (AEntity.VatRate > 100)) then
-    raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStkInventory.ColVatRate, 'VAT Rate (%)') + ': ' +
-      Format(TLocalizationManager.Translate(TLangKeys.TValidation.Range, 'Field must be between %s and %s'), ['0', '100']));
+  if AEntity.HasVatRate then
+    TAccSetTaxRateService.CheckDefinedRate(AEntity.VatRate, GetVatRates);
 
   AEntity.RawMaterialStockAccount := Normalize(AEntity.RawMaterialStockAccount);
   AEntity.RawMaterialUsageAccount := Normalize(AEntity.RawMaterialUsageAccount);
@@ -146,7 +153,6 @@ begin
     AEntity.ExportCurrency := Trim(AEntity.ExportCurrency);
     AEntity.SpecialCode := Trim(AEntity.SpecialCode);
     AEntity.Brand := Trim(AEntity.Brand);
-    AEntity.HsNo := AnsiUpperCase(Trim(AEntity.HsNo));
     AEntity.DiibProductDescription := Trim(AEntity.DiibProductDescription);
     AEntity.ProductOverview := Trim(AEntity.ProductOverview);
     ValidateRequiredReferences(AEntity);

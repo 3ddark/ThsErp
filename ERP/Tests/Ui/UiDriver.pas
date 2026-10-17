@@ -410,7 +410,10 @@ begin
     if AAllowMutated and MatchText(P.JsonString.Value, ['full_name', 'root_code', 'sub_code', 'portfolio_no',
       'request_no', 'order_no', 'receipt_no', 'line_no', 'gross_amount', 'discount_amount', 'net_amount', 'vat_amount', 'total_amount',
       'pur_request_detail_id', 'pur_order_id', 'pur_order_detail_id', 'pur_receipt_detail_id',
-      'offer_no', 'dispatch_no', 'invoice_no', 'sls_offer_detail_id', 'sls_order_id', 'sls_order_detail_id', 'sls_dispatch_detail_id']) then Continue;
+      'offer_no', 'dispatch_no', 'invoice_no', 'sls_offer_detail_id', 'sls_order_id', 'sls_order_detail_id', 'sls_dispatch_detail_id',
+      // e-belge kimliği / durumu / gümrük çıkış bilgisi kopyalanmaz (yeni ETTN kayıtta üretilir), tevkifat kalemlerden
+      'einv_uuid', 'einv_status', 'customs_declaration_no', 'gtb_ref_no', 'actual_export_date', 'withholding_amount',
+      'payable_amount']) then Continue;
     // irsaliye durumu servis tarafından faturalardan tutulur (kopya yeni, faturalanmamış irsaliyedir)
     if AAllowMutated and (P.JsonString.Value = 'status') and (ASrc.GetValue('dispatch_no') <> nil) then Continue;
     VS := P.JsonValue.Value;
@@ -1571,6 +1574,8 @@ begin
         for Item in Items do
         begin
           if Std.Contains(Item) or StartsText('mniColumn', Item.Name) then Continue;
+          // uygulama dışı yan etki: tarayıcı açar / dosya kaydeder (kaydetme penceresi otomatik Tamam'lanır)
+          if SameText(Item.Name, 'mniEInvPreview') or SameText(Item.Name, 'mniEInvSaveXml') then Continue;
           if G.Qry.RecordCount = 0 then Continue;
           G.Qry.First;
           G.SetSelectedItem;

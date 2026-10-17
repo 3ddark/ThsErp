@@ -284,16 +284,16 @@ end;
 function TStkInventoryRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TStkInventory) +
-            ' (code, name, stk_group_id, stk_product_type_id, sys_uom_id, sellable, buying_price, buying_currency, buying_discount, sales_price, sales_currency, sales_discount, export_price, export_currency, special_code, brand, width, length, height, weight, supply_duration, min_stock_amount, sys_country_id, hs_no, diib_product_description, product_overview, ' +
+            ' (code, name, stk_group_id, stk_product_type_id, sys_uom_id, sellable, buying_price, buying_currency, buying_discount, sales_price, sales_currency, sales_discount, export_price, export_currency, special_code, brand, width, length, height, weight, supply_duration, min_stock_amount, sys_country_id, einv_gtip_id, diib_product_description, product_overview, ' +
             ' vat_rate, raw_material_stock_account, raw_material_usage_account, semi_product_account, sales_account, sales_return_account, purchase_account, purchase_return_account) ' +
-            ' VALUES (:code, :name, :stk_group_id, :stk_product_type_id, :sys_uom_id, :sellable, :buying_price, :buying_currency, :buying_discount, :sales_price, :sales_currency, :sales_discount, :export_price, :export_currency, :special_code, :brand, :width, :length, :height, :weight, :supply_duration, :min_stock_amount, :sys_country_id, :hs_no, :diib_product_description, :product_overview, ' +
+            ' VALUES (:code, :name, :stk_group_id, :stk_product_type_id, :sys_uom_id, :sellable, :buying_price, :buying_currency, :buying_discount, :sales_price, :sales_currency, :sales_discount, :export_price, :export_currency, :special_code, :brand, :width, :length, :height, :weight, :supply_duration, :min_stock_amount, :sys_country_id, :einv_gtip_id, :diib_product_description, :product_overview, ' +
             ' :vat_rate, :raw_material_stock_account, :raw_material_usage_account, :semi_product_account, :sales_account, :sales_return_account, :purchase_account, :purchase_return_account)';
 end;
 
 function TStkInventoryRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TStkInventory) +
-            ' SET code = :code, name = :name, stk_group_id = :stk_group_id, stk_product_type_id = :stk_product_type_id, sys_uom_id = :sys_uom_id, sellable = :sellable, buying_price = :buying_price, buying_currency = :buying_currency, buying_discount = :buying_discount, sales_price = :sales_price, sales_currency = :sales_currency, sales_discount = :sales_discount, export_price = :export_price, export_currency = :export_currency, special_code = :special_code, brand = :brand, width = :width, length = :length, height = :height, weight = :weight, supply_duration = :supply_duration, min_stock_amount = :min_stock_amount, sys_country_id = :sys_country_id, hs_no = :hs_no, diib_product_description = :diib_product_description, product_overview = :product_overview, ' +
+            ' SET code = :code, name = :name, stk_group_id = :stk_group_id, stk_product_type_id = :stk_product_type_id, sys_uom_id = :sys_uom_id, sellable = :sellable, buying_price = :buying_price, buying_currency = :buying_currency, buying_discount = :buying_discount, sales_price = :sales_price, sales_currency = :sales_currency, sales_discount = :sales_discount, export_price = :export_price, export_currency = :export_currency, special_code = :special_code, brand = :brand, width = :width, length = :length, height = :height, weight = :weight, supply_duration = :supply_duration, min_stock_amount = :min_stock_amount, sys_country_id = :sys_country_id, einv_gtip_id = :einv_gtip_id, diib_product_description = :diib_product_description, product_overview = :product_overview, ' +
             ' vat_rate = :vat_rate, raw_material_stock_account = :raw_material_stock_account, raw_material_usage_account = :raw_material_usage_account, semi_product_account = :semi_product_account, sales_account = :sales_account, sales_return_account = :sales_return_account, purchase_account = :purchase_account, purchase_return_account = :purchase_return_account ' +
             ' WHERE id = :id';
 end;
@@ -342,7 +342,6 @@ begin
     Q.ParamByName('weight').AsFloat := AModel.Weight;
     Q.ParamByName('supply_duration').AsSmallInt := AModel.SupplyDuration;
     Q.ParamByName('min_stock_amount').AsFloat := AModel.MinStockAmount;
-    Q.ParamByName('hs_no').AsWideString := AModel.HsNo;
     Q.ParamByName('diib_product_description').AsWideString := AModel.DiibProductDescription;
     Q.ParamByName('product_overview').AsWideString := AModel.ProductOverview;
   end
@@ -364,7 +363,6 @@ begin
     Q.ParamByName('weight').AsFloats[AIndex] := AModel.Weight;
     Q.ParamByName('supply_duration').AsSmallInts[AIndex] := AModel.SupplyDuration;
     Q.ParamByName('min_stock_amount').AsFloats[AIndex] := AModel.MinStockAmount;
-    Q.ParamByName('hs_no').AsWideStrings[AIndex] := AModel.HsNo;
     Q.ParamByName('diib_product_description').AsWideStrings[AIndex] := AModel.DiibProductDescription;
     Q.ParamByName('product_overview').AsWideStrings[AIndex] := AModel.ProductOverview;
   end;
@@ -376,6 +374,7 @@ begin
   SetCode('sales_currency', AModel.SalesCurrency);
   SetCode('export_currency', AModel.ExportCurrency);
   SetNullableParam(Q.ParamByName('sys_country_id'), ftLargeint, AModel.SysCountryId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_gtip_id'), ftLargeint, AModel.EinvGtipId, AIndex);
   SetOverrideParams(Q, AModel, AIndex);
 end;
 
@@ -418,7 +417,6 @@ begin
     Q.ParamByName('weight').AsFloat := AModel.Weight;
     Q.ParamByName('supply_duration').AsSmallInt := AModel.SupplyDuration;
     Q.ParamByName('min_stock_amount').AsFloat := AModel.MinStockAmount;
-    Q.ParamByName('hs_no').AsWideString := AModel.HsNo;
     Q.ParamByName('diib_product_description').AsWideString := AModel.DiibProductDescription;
     Q.ParamByName('product_overview').AsWideString := AModel.ProductOverview;
   end
@@ -441,7 +439,6 @@ begin
     Q.ParamByName('weight').AsFloats[AIndex] := AModel.Weight;
     Q.ParamByName('supply_duration').AsSmallInts[AIndex] := AModel.SupplyDuration;
     Q.ParamByName('min_stock_amount').AsFloats[AIndex] := AModel.MinStockAmount;
-    Q.ParamByName('hs_no').AsWideStrings[AIndex] := AModel.HsNo;
     Q.ParamByName('diib_product_description').AsWideStrings[AIndex] := AModel.DiibProductDescription;
     Q.ParamByName('product_overview').AsWideStrings[AIndex] := AModel.ProductOverview;
   end;
@@ -453,6 +450,7 @@ begin
   SetCode('sales_currency', AModel.SalesCurrency);
   SetCode('export_currency', AModel.ExportCurrency);
   SetNullableParam(Q.ParamByName('sys_country_id'), ftLargeint, AModel.SysCountryId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_gtip_id'), ftLargeint, AModel.EinvGtipId, AIndex);
   SetOverrideParams(Q, AModel, AIndex);
 end;
 
@@ -525,13 +523,15 @@ begin
   Result.SupplyDuration := Q.FieldByName('supply_duration').AsInteger;
   Result.MinStockAmount := Q.FieldByName('min_stock_amount').AsFloat;
   Result.SysCountryId := Q.FieldByName('sys_country_id').AsLargeInt;
-  Result.HsNo := Q.FieldByName('hs_no').AsString;
+  Result.EinvGtipId := Q.FieldByName('einv_gtip_id').AsLargeInt;
   Result.DiibProductDescription := Q.FieldByName('diib_product_description').AsString;
   Result.ProductOverview := Q.FieldByName('product_overview').AsString;
   Result.GroupName := Q.FieldByName('group_name').AsString;
   Result.ProductTypeName := Q.FieldByName('product_type_name').AsString;
   Result.UomName := Q.FieldByName('uom_name').AsString;
   Result.CountryName := Q.FieldByName('country_name').AsString;
+  Result.GtipCode := Q.FieldByName('gtip_code').AsString;
+  Result.GtipName := Q.FieldByName('gtip_name').AsString;
   Result.CurrentQuantity := Q.FieldByName('current_quantity').AsString;
   Result.AverageCost := Q.FieldByName('average_cost').AsString;
   Result.HasVatRate := not Q.FieldByName('vat_rate').IsNull;

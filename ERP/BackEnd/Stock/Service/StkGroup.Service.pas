@@ -25,6 +25,9 @@ type
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
+    // Tanımlı KDV oranları (acc_set_tax_rate); formdaki KDV combo'su bu listeden doldurulur
+    function GetVatRates: TArray<Currency>;
+
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TStkGroup>; override;
     function FindById(AId: Int64; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TStkGroup; override;
     function FindOne(AFilter: TFilterCriteria; ALock: Boolean = False; AIncludeNestedEntities: Boolean = False): TStkGroup; override;
@@ -43,13 +46,18 @@ type
 implementation
 
 uses
-  SysPermission.Service;
+  SysPermission.Service, AccSetTaxRate, AccSetTaxRate.Repository, AccSetTaxRate.Service;
 
 constructor TStkGroupService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TStkGroup, TStkGroupRepository>;
   Self.PermissionCode := PERMISSION_STK_GROUP;
+end;
+
+function TStkGroupService.GetVatRates: TArray<Currency>;
+begin
+  Result := TAccSetTaxRateRepository(Self.UoW.GetRepository<TAccSetTaxRate, TAccSetTaxRateRepository>).GetTaxRates;
 end;
 
 destructor TStkGroupService.Destroy;
@@ -91,9 +99,7 @@ begin
     AEntity.RawMaterialStockAccount := Trim(AEntity.RawMaterialStockAccount);
     AEntity.RawMaterialUsageAccount := Trim(AEntity.RawMaterialUsageAccount);
     AEntity.SemiProductAccount := Trim(AEntity.SemiProductAccount);
-    if (AEntity.VatRate < 0) or (AEntity.VatRate > 100) then
-      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStkGroup.ColVatRate, 'VAT Rate (%)') + ': ' +
-        Format(TLocalizationManager.Translate(TLangKeys.TValidation.Range, 'Field must be between %s and %s'), ['0', '100']));
+    TAccSetTaxRateService.CheckDefinedRate(AEntity.VatRate, GetVatRates);
   end;
 
   ValidateUnique(AEntity, AOperation);

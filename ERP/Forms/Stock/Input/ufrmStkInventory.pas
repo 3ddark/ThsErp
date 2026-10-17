@@ -47,8 +47,8 @@ type
     edtWeight: TEdit;
     lblSysCountryId: TLabel;
     edtSysCountryId: TEdit;
-    lblHsNo: TLabel;
-    edtHsNo: TEdit;
+    lblEinvGtipId: TLabel;
+    edtEinvGtipId: TEdit;
     lblDiibProductDescription: TLabel;
     edtDiibProductDescription: TEdit;
     lblProductOverview: TLabel;
@@ -88,7 +88,7 @@ type
     lblOverrideHeader: TLabel;
     lblDefaultHeader: TLabel;
     lblVatRate: TLabel;
-    edtVatRate: TEdit;
+    cbbVatRate: TComboBox;
     lblDefaultVatRate: TLabel;
     lblRawMaterialStockAccount: TLabel;
     edtRawMaterialStockAccount: TEdit;
@@ -141,7 +141,7 @@ type
     procedure btnImageLoadClick(Sender: TObject);
     procedure btnImageClearClick(Sender: TObject);
     procedure btnKindEditClick(Sender: TObject);
-    procedure edtVatRateExit(Sender: TObject);
+    procedure cbbVatRateChange(Sender: TObject);
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -150,6 +150,9 @@ type
     FImageBytes: TBytes;
     FImageChanged: Boolean;
     procedure ShowImage(const ABytes: TBytes);
+    // KDV oranı yalnız tanımlı oranlardan (acc_set_tax_rate) seçilir; ilk (boş) seçenek = grubun oranı
+    procedure FillVatRates;
+    procedure SelectVatRate;
     // Grup / KDV oranı değişince gruptan gelen değerler yeniden okunur
     procedure ApplyVatRateText;
     procedure ReloadDefaults;
@@ -174,6 +177,7 @@ uses
   SysUom, SysUom.Service, ufrmSysUoms,                                          // TfrmSysUoms helper output form
   SysCurrency, SysCurrency.Service, ufrmSysCurrencies,                          // TfrmSysCurrencies helper output form
   SysCountry, SysCountry.Service, ufrmSysCountries,                             // TfrmSysCountries helper output form
+  EInvGtip, EInvGtip.Service, ufrmEInvGtips,                                    // TfrmEInvGtips helper output form
   AccAccount, AccAccount.Service, ufrmAccAccounts,                              // TfrmAccAccounts helper output form
   StkCardKindInfo, StkCardKindInfo.Service, ufrmStkCardKindInfos,               // TfrmStkCardKindInfos
   StkInventorySummary,
@@ -201,7 +205,6 @@ begin
   Table.Weight := StrToFloatDef(edtWeight.Text, 0);
   Table.SupplyDuration := StrToIntDef(edtSupplyDuration.Text, 0);
   Table.MinStockAmount := StrToFloatDef(edtMinStockAmount.Text, 0);
-  Table.HsNo := edtHsNo.Text;
   Table.DiibProductDescription := edtDiibProductDescription.Text;
   Table.ProductOverview := mmoProductOverview.Lines.Text;
   ApplyVatRateText;
@@ -225,6 +228,7 @@ begin
   edtSalesCurrency.OnHelperProcess := HelperProcess;
   edtExportCurrency.OnHelperProcess := HelperProcess;
   edtSysCountryId.OnHelperProcess := HelperProcess;
+  edtEinvGtipId.OnHelperProcess := HelperProcess;
   edtRawMaterialStockAccount.OnHelperProcess := HelperProcess;
   edtRawMaterialUsageAccount.OnHelperProcess := HelperProcess;
   edtSemiProductAccount.OnHelperProcess := HelperProcess;
@@ -248,12 +252,9 @@ begin
   edtWeight.thsInputDataType := itFloat;
   edtSupplyDuration.thsInputDataType := itInteger;
   edtMinStockAmount.thsInputDataType := itFloat;
-  edtHsNo.thsInputDataType := itString;
-  edtHsNo.CharCase := TEditCharCase.ecUpperCase;
   edtDiibProductDescription.thsInputDataType := itString;
-  // Boş = grubun KDV oranı; 0 geçerli bir karta özel orandır (itFloat: DoExit '0' değerini silmez)
-  edtVatRate.thsInputDataType := itFloat;
-  edtVatRate.OnExit := edtVatRateExit;
+  cbbVatRate.OnChange := cbbVatRateChange;
+  FillVatRates;
 end;
 
 procedure TfrmStkInventory.FormShow(Sender: TObject);
@@ -299,7 +300,7 @@ begin
   lblSupplyDuration.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColSupplyDuration, 'Supply Duration (Days)');
   lblMinStockAmount.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColMinStockAmount, 'Minimum Stock');
   lblSysCountryId.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColCountry, 'Origin Country');
-  lblHsNo.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColHsNo, 'HS Code');
+  lblEinvGtipId.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColGtipCode, 'GTIP Code');
   lblDiibProductDescription.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColDiibProductDescription, 'DIIB Description');
   lblProductOverview.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.ColProductOverview, 'Product Overview');
   lblImage.Caption := TLocalizationManager.Translate(TLangKeys.TStkInventory.Image, 'Image');
@@ -354,6 +355,7 @@ var
   LFrmSalesCurrency: TfrmSysCurrencies;
   LFrmExportCurrency: TfrmSysCurrencies;
   LFrmSysCountryId: TfrmSysCountries;
+  LFrmEinvGtipId: TfrmEInvGtips;
   LAccount: string;
 
   // Hesap planından seçim; temizle = karta özel değer kaldırılır (gruptan gelir)
@@ -541,6 +543,31 @@ begin
       LFrmSysCountryId.Free;
     end;
   end
+  else if LEdit.Name = edtEinvGtipId.Name then
+  begin
+    LFrmEinvGtipId := TfrmEInvGtips.Create(LEdit, TEInvGtipService.Create, TEInvGtip.Create);
+    try
+      LFrmEinvGtipId.IsHelper := True;
+      LFrmEinvGtipId.ShowModal;
+      if LFrmEinvGtipId.DataTransfer then
+        if LFrmEinvGtipId.CleanAndClose then
+        begin
+          Table.EinvGtipId := 0;
+          Table.GtipCode := '';
+          Table.GtipName := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.EinvGtipId := LFrmEinvGtipId.Table.Id;
+          Table.GtipCode := LFrmEinvGtipId.Table.Code;
+          Table.GtipName := LFrmEinvGtipId.Table.Name;
+          LEdit.Text := Table.GtipCode;
+        end;
+    finally
+      LFrmEinvGtipId.Free;
+    end;
+  end
   else if (LEdit = edtRawMaterialStockAccount) or (LEdit = edtRawMaterialUsageAccount) or
           (LEdit = edtSemiProductAccount) or (LEdit = edtSalesAccount) or (LEdit = edtSalesReturnAccount) or
           (LEdit = edtPurchaseAccount) or (LEdit = edtPurchaseReturnAccount) then
@@ -593,15 +620,12 @@ begin
   edtSupplyDuration.Text := IntToStr(Table.SupplyDuration);
   edtMinStockAmount.Text := FloatToStr(Table.MinStockAmount);
   edtSysCountryId.Text := Table.CountryName;
-  edtHsNo.Text := Table.HsNo;
+  edtEinvGtipId.Text := Table.GtipCode;
   edtDiibProductDescription.Text := Table.DiibProductDescription;
   mmoProductOverview.Lines.Text := Table.ProductOverview;
 
   // Karta özel muhasebe ayarları
-  if Table.HasVatRate then
-    edtVatRate.Text := CurrToStr(Table.VatRate)
-  else
-    edtVatRate.Text := '';
+  SelectVatRate;
   edtRawMaterialStockAccount.Text := Table.RawMaterialStockAccount;
   edtRawMaterialUsageAccount.Text := Table.RawMaterialUsageAccount;
   edtSemiProductAccount.Text := Table.SemiProductAccount;
@@ -639,23 +663,52 @@ begin
   Result := (FormMode in [ifmRewiev, ifmUpdate, ifmReadOnly]) and (Table.Id > 0);
 end;
 
-procedure TfrmStkInventory.ApplyVatRateText;
+procedure TfrmStkInventory.FillVatRates;
 var
-  LValue: Currency;
+  LRate: Currency;
 begin
-  if Trim(edtVatRate.Text) = '' then
+  cbbVatRate.Items.BeginUpdate;
+  try
+    cbbVatRate.Items.Clear;
+    cbbVatRate.Items.Add('');
+    for LRate in Service.GetVatRates do
+      cbbVatRate.Items.Add(FormatFloat('0.##', LRate));
+  finally
+    cbbVatRate.Items.EndUpdate;
+  end;
+end;
+
+// Karta özel oran yoksa boş seçenek; kayıtlı oran listede yoksa yine gösterilir (kayıtta reddedilir)
+procedure TfrmStkInventory.SelectVatRate;
+var
+  LText: string;
+begin
+  if not Table.HasVatRate then
+  begin
+    cbbVatRate.ItemIndex := 0;
+    Exit;
+  end;
+  LText := FormatFloat('0.##', Table.VatRate);
+  if cbbVatRate.Items.IndexOf(LText) < 0 then
+    cbbVatRate.Items.Add(LText);
+  cbbVatRate.ItemIndex := cbbVatRate.Items.IndexOf(LText);
+end;
+
+procedure TfrmStkInventory.ApplyVatRateText;
+begin
+  if cbbVatRate.ItemIndex <= 0 then
   begin
     Table.HasVatRate := False;
     Table.VatRate := 0;
   end
-  else if TryStrToCurr(Trim(edtVatRate.Text), LValue) then
+  else
   begin
     Table.HasVatRate := True;
-    Table.VatRate := LValue;
+    Table.VatRate := StrToCurrDef(cbbVatRate.Items[cbbVatRate.ItemIndex], 0);
   end;
 end;
 
-procedure TfrmStkInventory.edtVatRateExit(Sender: TObject);
+procedure TfrmStkInventory.cbbVatRateChange(Sender: TObject);
 var
   LHadValue: Boolean;
   LOldValue: Currency;

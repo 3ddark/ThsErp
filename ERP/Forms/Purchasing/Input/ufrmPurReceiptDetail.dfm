@@ -83,9 +83,22 @@ object frmPurReceiptDetail: TfrmPurReceiptDetail
     object edtQuantity: TEdit
       Left = 132
       Top = 48
-      Width = 333
+      Width = 223
       Height = 22
       TabOrder = 2
+    end
+    object lblUomCode: TLabel
+      Left = 361
+      Top = 52
+      Width = 104
+      Height = 13
+      AutoSize = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
     end
     object lblUnitPrice: TLabel
       Left = 4

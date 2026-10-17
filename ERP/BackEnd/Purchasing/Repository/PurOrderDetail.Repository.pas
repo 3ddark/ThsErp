@@ -40,6 +40,8 @@ type
     function NextLineNo(AParentId: Int64): SmallInt;
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
       out ADiscountRate, AVatRate: Currency): Boolean;
+    // Stok kartının ölçü birimi kodu (satır formunda miktarın yanında gösterilir)
+    function GetUomCode(AInventoryId: Int64): string;
   end;
 
 implementation
@@ -95,6 +97,25 @@ begin
       ADiscountRate := Q.FieldByName('buying_discount').AsCurrency;
       AVatRate := Q.FieldByName('vat_rate').AsCurrency;
     end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TPurOrderDetailRepository.GetUomCode(AInventoryId: Int64): string;
+var
+  Q: TFDQuery;
+begin
+  Result := '';
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT u.unit_code FROM public.stk_inventory i JOIN public.sys_uom u ON u.id = i.sys_uom_id WHERE i.id = :id';
+    Q.ParamByName('id').AsLargeInt := AInventoryId;
+    LogQuery(Q, 'GetUomCode');
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := Q.Fields[0].AsString;
   finally
     Q.Free;
   end;

@@ -37,6 +37,9 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+
+    // Tanımlı KDV oranları (küçükten büyüğe); stok grubu / kartı ve belge satırı combo'ları bu listeden seçer
+    function GetTaxRates: TArray<Currency>;
   end;
 
 implementation
@@ -44,6 +47,31 @@ implementation
 constructor TAccSetTaxRateRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TAccSetTaxRateRepository.GetTaxRates: TArray<Currency>;
+var
+  Q: TFDQuery;
+  n: Integer;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT tax_rate FROM public.acc_set_tax_rate ORDER BY tax_rate';
+    LogQuery(Q, 'GetTaxRates');
+    Q.Open;
+    SetLength(Result, Q.RecordCount);
+    n := 0;
+    while not Q.Eof do
+    begin
+      Result[n] := Q.Fields[0].AsCurrency;
+      Inc(n);
+      Q.Next;
+    end;
+    SetLength(Result, n);
+  finally
+    Q.Free;
+  end;
 end;
 
 function TAccSetTaxRateRepository.PrepareAddSql: string;

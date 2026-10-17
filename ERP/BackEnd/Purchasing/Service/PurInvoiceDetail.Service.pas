@@ -31,6 +31,10 @@ type
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
       out ADiscountRate, AVatRate: Currency): Boolean;
 
+    // Satır formu: stok seçilince ölçü birimi ; KDV combo'su tanımlı oranlardan (acc_set_tax_rate)
+    function GetUomCode(AInventoryId: Int64): string;
+    function GetVatRates: TArray<Currency>;
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TPurInvoiceDetail>; override;
@@ -51,7 +55,7 @@ type
 implementation
 
 uses
-  SysPermission.Service, PurLookup;
+  SysPermission.Service, PurLookup, AccSetTaxRate, AccSetTaxRate.Repository, AccSetTaxRate.Service;
 
 constructor TPurInvoiceDetailService.Create;
 begin
@@ -67,6 +71,16 @@ end;
 destructor TPurInvoiceDetailService.Destroy;
 begin
   inherited;
+end;
+
+function TPurInvoiceDetailService.GetUomCode(AInventoryId: Int64): string;
+begin
+  Result := TPurOrderDetailRepository(FOrderDetailRepo).GetUomCode(AInventoryId);
+end;
+
+function TPurInvoiceDetailService.GetVatRates: TArray<Currency>;
+begin
+  Result := TAccSetTaxRateRepository(Self.UoW.GetRepository<TAccSetTaxRate, TAccSetTaxRateRepository>).GetTaxRates;
 end;
 
 // Alan adı + "zorunludur" mesajı
@@ -112,6 +126,9 @@ begin
     Fail(TLangKeys.TPurInvoiceDetail.ColUnitPrice, 'Unit Price', TLangKeys.TValidation.NegativeValueNotAllowed, 'Negative values are not allowed');
   if (AEntity.DiscountRate < 0) or (AEntity.DiscountRate > 100) or (AEntity.VatRate < 0) or (AEntity.VatRate > 100) then
     raise EPurInvoiceDetailExceptionRateRange.Create;
+  // 0 = KDV'siz alış (istisna); diğer oranlar tanımlı oranlardan biri olmalı
+  if AEntity.VatRate <> 0 then
+    TAccSetTaxRateService.CheckDefinedRate(AEntity.VatRate, GetVatRates);
   LGross := 0; LDiscount := 0; LNet := 0; LVat := 0; LTotal := 0;
   TPurLookup.CalculateLine(AEntity.Quantity, AEntity.UnitPrice, AEntity.DiscountRate, AEntity.VatRate, LGross, LDiscount, LNet, LVat, LTotal);
   AEntity.GrossAmount := LGross;

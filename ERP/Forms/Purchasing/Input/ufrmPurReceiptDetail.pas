@@ -21,6 +21,7 @@ type
     edtStkInventoryId: TEdit;
     lblQuantity: TLabel;
     edtQuantity: TEdit;
+    lblUomCode: TLabel;
     lblUnitPrice: TLabel;
     edtUnitPrice: TEdit;
     lblDescription: TLabel;
@@ -129,6 +130,7 @@ begin
           Table.StkInventoryId := 0;
           Table.InventoryCode := '';
           Table.InventoryName := '';
+          Table.UomCode := '';
           LEdit.Clear;
         end
         else
@@ -136,8 +138,10 @@ begin
           Table.StkInventoryId := LFrmStkInventoryId.Table.Id;
           Table.InventoryCode := LFrmStkInventoryId.Table.Code;
           Table.InventoryName := LFrmStkInventoryId.Table.Name;
+          Table.UomCode := Service.GetUomCode(Table.StkInventoryId);
           LEdit.Text := Table.InventoryName;
         end;
+      lblUomCode.Caption := Table.UomCode;
       // Stok seçilince alış fiyatı (iskontolu) birim maliyet olarak önerilir
       if LFrmStkInventoryId.DataTransfer and not LFrmStkInventoryId.CleanAndClose then
         FillInventoryDefaults;
@@ -165,6 +169,7 @@ begin
   edtPurReceiptId.Text := Table.ReceiptNo;
   edtStkInventoryId.Text := Table.InventoryName;
   edtQuantity.Text := CurrToStr(Table.Quantity);
+  lblUomCode.Caption := Table.UomCode;
   edtUnitPrice.Text := CurrToStr(Table.UnitPrice);
   edtDescription.Text := Table.Description;
 end;

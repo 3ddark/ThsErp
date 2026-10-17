@@ -1,0 +1,202 @@
+
+body {
+	background-color: #FFFFFF;
+	font-family: 'Tahoma', "Times New Roman", Times, serif;
+	font-size: 11px;
+	color: #666666;
+}
+
+h1, h2 {
+	padding-bottom: 3px;
+	padding-top: 3px;
+	margin-bottom: 5px;
+	text-transform: uppercase;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+h1 {
+	font-size: 1.4em;
+	text-transform:none;
+}
+
+h2 {
+	font-size: 1em;
+	color: brown;
+}
+
+h3 {
+	font-size: 1em;
+	color: #333333;
+	text-align: justify;
+	margin: 0;
+	padding: 0;
+}
+
+h4 {
+	font-size: 1.1em;
+	font-style: bold;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #000000;
+	margin: 0;
+	padding: 0;
+}
+
+hr{
+    height:2px;
+	color: #000000;
+	background-color: #000000;
+	border-bottom: 1px solid #000000;
+}
+
+p, ul, ol {
+	margin-top: 1.5em;
+}
+
+ul, ol {
+	margin-left: 3em;
+}
+
+blockquote {
+	margin-left: 3em;
+	margin-right: 3em;
+	font-style: italic;
+}
+
+a {
+	text-decoration: none;
+	color: #70A300;
+}
+
+a:hover {
+	border: none;
+	color: #70A300;
+}
+
+#despatchTable{
+	border-collapse:collapse;
+	font-size:11px;
+	float:right;
+	border-color:gray;
+
+} 
+
+#ettnTable{
+	border-collapse:collapse;
+	font-size:11px;
+	border-color:gray;
+}
+
+#customerPartyTable{
+	border-width: 0px;
+	border-spacing: ;
+	border-style: inset;
+	border-color: gray;
+	border-collapse: collapse;
+	background-color: 
+}
+
+#customerIDTable{
+	border-width: 2px;
+	border-spacing: ;
+	border-style: inset;
+	border-color: gray;
+	border-collapse: collapse;
+	background-color: 
+}
+
+#customerIDTableTd{
+	border-width: 2px;
+	border-spacing: ;
+	border-style: inset;
+	border-color: gray;
+	border-collapse: collapse;
+	background-color: 
+}
+
+#lineTable{
+	border-width:2px;
+	border-spacing: ;
+	border-style: inset;
+	border-color: black;
+	border-collapse: collapse;
+	background-color: ;
+}
+
+#lineTableTd{
+	border-width: 1px;
+	padding: 1px;
+	border-style: inset;
+	border-color: black;
+	background-color: white;
+}
+
+#lineTableTr{
+	border-width: 1px;
+	padding: 0px;
+	border-style: inset;
+	border-color: black;
+	background-color: white;
+	-moz-border-radius: ;
+}
+
+#lineTableDummyTd {
+	border-width: 1px;
+	border-color:white;
+	padding: 1px;
+	border-style: inset;
+	border-color: black;
+	background-color: white;
+}
+
+#lineTableBudgetTd{
+border-width: 2px;
+	border-spacing:0px;
+	padding: 1px;
+	border-style: inset;
+	border-color: black;
+	background-color: white;
+	-moz-border-radius: ;
+}
+
+#notesTable{
+	
+	border-width: 2px;
+	border-spacing: ;
+	border-style: inset;
+	border-color: black;
+	border-collapse: collapse;
+	background-color:
+}
+
+#notesTableTd{
+	
+	
+	border-width: 0px;
+	border-spacing: ;
+	border-style: inset;
+	border-color: black;
+	border-collapse: collapse;
+	background-color:
+}
+
+table{
+	
+	border-spacing:0px;
+	
+}
+
+#budgetContainerTable{
+	
+	border-width: 0px;
+	border-spacing: 0px;
+	border-style: inset;
+	border-color: black;
+	border-collapse: collapse;
+	background-color: ;
+	
+}
+
+td{
+border-color:gray;
+}
+

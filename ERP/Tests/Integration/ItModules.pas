@@ -31,9 +31,12 @@ uses
   SlsLookup, SlsOffer, SlsOffer.Service, SlsOfferDetail, SlsOfferDetail.Service,
   SlsOrder, SlsOrder.Service, SlsOrderDetail, SlsOrderDetail.Service,
   SlsDispatch, SlsDispatch.Service, SlsDispatchDetail, SlsDispatchDetail.Service,
-  SlsInvoice, SlsInvoice.Service, SlsInvoiceDetail, SlsInvoiceDetail.Service,
+  SlsInvoice, SlsInvoice.Repository, SlsInvoice.Service, SlsInvoiceDetail, SlsInvoiceDetail.Service,
+  EInvDocument, EInvDocument.Service, EInvSeries, EInvSeries.Repository,
   AccLookup, AccAccountTransaction, AccAccountTransaction.Service,
-  SysDashboard, SysDashboard.Service;
+  SysDashboard, SysDashboard.Service,
+  EInvLookup, EInvGtip, EInvGtip.Service, EInvWithholding, EInvWithholding.Service,
+  EInvDiib, EInvDiib.Service, EInvDiibLine, EInvDiibLine.Service;
 
 var
   GMod, GEnt: string;
@@ -313,16 +316,12 @@ begin
           S(Scalar('SELECT g.vat_rate::text FROM stk_inventory i JOIN stk_group g ON g.id = i.stk_group_id WHERE i.id = ' + Id.ToString)),
           S(Scalar('SELECT vat_rate::text FROM vw_stk_inventory_account WHERE id = ' + Id.ToString)));
 
+        // Karta özel KDV yalnız tanımlı oranlardan (acc_set_tax_rate): en büyük tanımlı oran
         E.HasVatRate := True;
-        E.VatRate := 8.5;
+        E.VatRate := Num(Scalar('SELECT max(tax_rate) FROM acc_set_tax_rate'));
         Svc.BusinessUpdate(E, False, False, True);
-        Check('VAT 8.5 saved', Near(Num(Scalar('SELECT vat_rate FROM stk_inventory WHERE id = ' + Id.ToString)), 8.5),
-          S(Scalar('SELECT vat_rate FROM stk_inventory WHERE id = ' + Id.ToString)));
-
-        E.HasVatRate := True;
-        E.VatRate := 0;
-        Svc.BusinessUpdate(E, False, False, True);
-        Check('VAT 0 saved as 0 (not NULL)', S(Scalar('SELECT vat_rate::text FROM stk_inventory WHERE id = ' + Id.ToString)) = '0.00',
+        Check('defined VAT saved', S(Scalar('SELECT vat_rate::text FROM stk_inventory WHERE id = ' + Id.ToString)) =
+          S(Scalar('SELECT max(tax_rate)::text FROM acc_set_tax_rate')),
           S(Scalar('SELECT vat_rate::text FROM stk_inventory WHERE id = ' + Id.ToString)));
 
         E.SalesAccount := ' ' + LAcc + ' ';
@@ -347,6 +346,17 @@ begin
           X := Svc.FindById(Id, False);
           try
             X.SalesAccount := 'NO-SUCH-ACC';
+            Svc.BusinessUpdate(X, False, False, True);
+          finally X.Free; end;
+        end);
+      Begin_;
+      Expect('undefined VAT 7.5', procedure
+        var X: TStkInventory;
+        begin
+          X := Svc.FindById(Id, False);
+          try
+            X.HasVatRate := True;
+            X.VatRate := 7.5;
             Svc.BusinessUpdate(X, False, False, True);
           finally X.Free; end;
         end);
@@ -3395,6 +3405,649 @@ begin
   end;
 end;
 
+{ ---------------------------------------------------------------- e-Belge (UBL-TR) }
+
+procedure TestEInvoice;
+var
+  GtipSvc: TEInvGtipService;
+  WhSvc: TEInvWithholdingService;
+  DiibSvc: TEInvDiibService;
+  DiibLineSvc: TEInvDiibLineService;
+  InvSvc: TSlsInvoiceService;
+  LineSvc: TSlsInvoiceDetailService;
+  G: TEInvGtip;
+  W: TEInvWithholding;
+  D: TEInvDiib;
+  DL: TEInvDiibLine;
+  Inv: TSlsInvoice;
+  IL: TSlsInvoiceDetail;
+  Inv1, Customer, Customer2, Wh, GtipA, OwnDiib, OwnLine, CustLine, OtherLine, InvId, LineId: Int64;
+  PIdArchive, PIdExport, TSales, TExempt, TExportReg, TWithholding, Ex301, Ex702, Ex351, DtCif, DtFab, TmSea, PkBox, Wh602: Int64;
+  Ex555, PmCash: Int64;
+  Sc: TSlsEInvScope;
+  DocSvc: TEInvDocumentService;
+  Doc: TEInvDocument;
+  LHtml: string;
+  SerRepo: TEInvSeriesRepository;
+  LUuid: string;
+
+  function Q(const ASql: string): Double;
+  begin
+    Result := Num(Scalar(ASql));
+  end;
+
+  function IdOf(const ATable, ACode: string): Int64;
+  begin
+    Result := Scalar('SELECT id FROM ' + ATable + ' WHERE code = ' + QuotedStr(ACode));
+  end;
+
+  function NewGtip(const ACode, AName: string): Int64;
+  var
+    LG: TEInvGtip;
+  begin
+    LG := TEInvGtip.Create;
+    try
+      LG.Code := ACode;
+      LG.Name := AName;
+      GtipSvc.BusinessInsert(LG, False, False, True);
+      Result := LG.Id;
+    finally
+      LG.Free;
+    end;
+  end;
+
+  function NewDiibLine(ADiibId: Int64; const ALineCode: string; AGtipId, AInventoryId: Int64): Int64;
+  var
+    LL: TEInvDiibLine;
+  begin
+    LL := TEInvDiibLine.Create;
+    try
+      LL.EinvDiibId := ADiibId;
+      LL.LineCode := ALineCode;
+      LL.EinvGtipId := AGtipId;
+      LL.StkInventoryId := AInventoryId;
+      LL.Quantity := 100;
+      if AInventoryId <= 0 then
+        LL.ProductDescription := 'Test urun';
+      DiibLineSvc.BusinessInsert(LL, False, False, True);
+      Result := LL.Id;
+    finally
+      LL.Free;
+    end;
+  end;
+
+  // Yeni transaction + GTİP (stok kartına bağlı) + firmamızın / müşterinin / başka müşterinin DİİB satırları
+  // (beklenen ret transaction'ı geri aldığı için her senaryo kendi verisini kurar)
+  procedure Fresh;
+  var
+    LD: TEInvDiib;
+  begin
+    Begin_;
+    GtipA := NewGtip('020622000000', 'Dana karaciğeri');
+    UoW.Connection.ExecSQL('UPDATE stk_inventory SET einv_gtip_id = ' + GtipA.ToString + ' WHERE id = ' + Inv1.ToString);
+    LD := TEInvDiib.Create;
+    try
+      LD.DocumentNo := 'DIIB-CUST-1'; LD.HolderType := EINV_DIIB_CUSTOMER; LD.AccAccountId := Customer;
+      DiibSvc.BusinessInsert(LD, False, False, True);
+      CustLine := NewDiibLine(LD.Id, 'A-1', GtipA, Inv1);
+    finally
+      LD.Free;
+    end;
+    LD := TEInvDiib.Create;
+    try
+      LD.DocumentNo := 'DIIB-OWN-1'; LD.HolderType := EINV_DIIB_OWN;
+      DiibSvc.BusinessInsert(LD, False, False, True);
+      OwnLine := NewDiibLine(LD.Id, 'S-1', GtipA, Inv1);
+    finally
+      LD.Free;
+    end;
+    LD := TEInvDiib.Create;
+    try
+      LD.DocumentNo := 'DIIB-CUST-2'; LD.HolderType := EINV_DIIB_CUSTOMER; LD.AccAccountId := Customer2;
+      DiibSvc.BusinessInsert(LD, False, False, True);
+      OtherLine := NewDiibLine(LD.Id, 'X-1', GtipA, 0);
+    finally
+      LD.Free;
+    end;
+  end;
+
+  // XML testleri: satıcı (uygulama ayarları) + alıcının mükellef bilgisi ve fatura adresi
+  procedure PrepareParties;
+  begin
+    UoW.Connection.ExecSQL('UPDATE sys_application_setting SET tax_no = ''1234567801'', tax_authority = ''Test VD'', ' +
+      'taxpayer_type = ''VKN'', company_title = ''Ths Test A.Ş.'', sys_address_id = 3');
+    UoW.Connection.ExecSQL('INSERT INTO acc_account_taxpayer (acc_account_id, taxpayer_type, taxpayer_name, tax_office, tax_no) ' +
+      'VALUES (' + Customer.ToString + ', 1, ''Müşteri & Ortakları A.Ş.'', ''Kadıköy'', ''1111111111'') ' +
+      'ON CONFLICT (acc_account_id) DO UPDATE SET taxpayer_type = 1, taxpayer_name = EXCLUDED.taxpayer_name, ' +
+      'taxpayer_name2 = NULL, tax_office = EXCLUDED.tax_office, tax_no = EXCLUDED.tax_no');
+    UoW.Connection.ExecSQL('WITH a AS (INSERT INTO sys_address (sys_city_id, district, street, door_number) ' +
+      'SELECT sys_city_id, ''KADIKÖY'', ''Test Sokak'', ''5'' FROM sys_address WHERE id = 3 RETURNING id) ' +
+      'INSERT INTO acc_account_address (acc_account_id, sys_address_id, address_type, is_primary) ' +
+      'SELECT ' + Customer.ToString + ', id, ''BILLING'', true FROM a');
+  end;
+
+  // kayıtlı XML: şemaya uygun + beklenen parçalar
+  procedure CheckDoc(const AName: string; AInvoiceId: Int64; const AParts: array of string);
+  var
+    LDoc: TEInvDocument;
+    LPart, LMissing: string;
+  begin
+    LDoc := DocSvc.BusinessFindByInvoice(AInvoiceId, True);
+    try
+      LMissing := '';
+      if Assigned(LDoc) then
+        for LPart in AParts do
+          if not LDoc.XmlContent.Contains(LPart) then
+            LMissing := LMissing + ' [' + LPart + ']';
+      if not Assigned(LDoc) then
+        Check(AName, False, 'no einv_document')
+      else
+      begin
+        // eksik parça: tutar bölümü teşhis için rapora
+        if LMissing <> '' then
+          LMissing := LMissing + ' ' + Copy(LDoc.XmlContent, Pos('<cac:LegalMonetaryTotal>', LDoc.XmlContent), 500);
+        Check(AName, LDoc.IsValid and (LMissing = ''), LDoc.ValidationMessage + LMissing);
+      end;
+    finally
+      LDoc.Free;
+    end;
+  end;
+
+  // irsaliyesiz (stoklu) fatura: senaryo / tip / istisna verilir, kalem KDV oranıyla
+  function NewInvoice(AAccountId, AProfileId, ATypeId, AExemptionId: Int64; AVat: Currency): TSlsInvoice;
+  begin
+    Result := TSlsInvoice.Create;
+    Result.AccAccountId := AAccountId;
+    Result.StkWarehouseId := Wh;
+    Result.EinvProfileId := AProfileId;
+    Result.EinvInvoiceTypeId := ATypeId;
+    Result.EinvTaxExemptionId := AExemptionId;
+    IL := InvSvc.NewLine(Result);
+    IL.StkInventoryId := Inv1;
+    IL.Quantity := 2;
+    IL.UnitPrice := 50;
+    IL.VatRate := AVat;
+  end;
+
+begin
+  Ctx('EInvoice', 'code lists + DIIB + sales invoice');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Customer := Scalar('SELECT min(id) FROM acc_account');
+  Customer2 := Scalar('SELECT min(id) FROM acc_account WHERE id > ' + Customer.ToString);
+  Wh := Scalar('SELECT min(id) FROM stk_warehouse');
+  PIdArchive := IdOf('einv_profile', 'EARSIVFATURA');
+  PIdExport := IdOf('einv_profile', 'IHRACAT');
+  TSales := IdOf('einv_invoice_type', 'SATIS');
+  TExempt := IdOf('einv_invoice_type', 'ISTISNA');
+  TExportReg := IdOf('einv_invoice_type', 'IHRACKAYITLI');
+  TWithholding := IdOf('einv_invoice_type', 'TEVKIFAT');
+  Ex301 := IdOf('einv_tax_exemption', '301');
+  Ex702 := IdOf('einv_tax_exemption', '702');
+  Ex351 := IdOf('einv_tax_exemption', '351');
+  DtCif := IdOf('einv_delivery_term', 'CIF');
+  DtFab := IdOf('einv_delivery_term', 'FAB');
+  TmSea := IdOf('einv_transport_mode', '1');
+  PkBox := IdOf('einv_packaging_type', 'BX');
+  Wh602 := IdOf('einv_withholding', '602');
+  Ex555 := IdOf('einv_tax_exemption', '555');
+  PmCash := Scalar('SELECT min(id) FROM einv_payment_means');
+  Check('seed: code lists (UBL-TR Kod Listeleri v1.43)',
+    (Q('SELECT count(*) FROM einv_profile') = 16) and (Q('SELECT count(*) FROM einv_invoice_type') = 18) and
+    (Q('SELECT count(*) FROM einv_tax_exemption') = 112) and (Q('SELECT count(*) FROM einv_withholding') = 52) and
+    (Q('SELECT count(*) FROM einv_packaging_type') = 27) and
+    (Q('SELECT count(*) FROM einv_delivery_term WHERE is_incoterms AND is_active') = 15) and
+    (Q('SELECT count(*) FROM einv_tax_type') = 29) and (Q('SELECT rate FROM einv_withholding WHERE code = ''602''') = 90));
+
+  GtipSvc := TEInvGtipService.Create;
+  WhSvc := TEInvWithholdingService.Create;
+  DiibSvc := TEInvDiibService.Create;
+  DiibLineSvc := TEInvDiibLineService.Create;
+  InvSvc := TSlsInvoiceService.Create;
+  LineSvc := TSlsInvoiceDetailService.Create;
+  G := nil; W := nil; D := nil; DL := nil; Inv := nil;
+  try
+    try
+      // ---- GTİP: noktalı giriş 12 haneye, geçersiz / mükerrer ret, kullanımdaki silinmez
+      Begin_;
+      GtipA := NewGtip('0206.22.00.00.00', 'Dana karaciğeri');
+      Check('gtip normalized to 12 digits', S(Scalar('SELECT code FROM einv_gtip WHERE id = ' + GtipA.ToString)) = '020622000000');
+      G := TEInvGtip.Create;
+      G.Code := '1234'; G.Name := 'x';
+      Expect('gtip invalid (not 12 digits) rejected', procedure begin GtipSvc.BusinessInsert(G, False, False, True); end);
+      FreeAndNil(G);
+      Begin_;
+      GtipA := NewGtip('020622000000', 'Dana karaciğeri');
+      G := TEInvGtip.Create;
+      G.Code := '0206 22 00 00 00'; G.Name := 'tekrar';
+      Expect('gtip duplicate rejected', procedure begin GtipSvc.BusinessInsert(G, False, False, True); end);
+      FreeAndNil(G);
+      Begin_;
+      GtipA := NewGtip('020622000000', 'Dana karaciğeri');
+      UoW.Connection.ExecSQL('UPDATE stk_inventory SET einv_gtip_id = ' + GtipA.ToString + ' WHERE id = ' + Inv1.ToString);
+      G := GtipSvc.BusinessFindById(GtipA, False, False, True);
+      Expect('gtip in use cannot be deleted', procedure begin GtipSvc.BusinessDelete(G, False, False, True); end);
+      FreeAndNil(G);
+
+      // ---- tevkifat oranı 0 < oran <= 100
+      Begin_;
+      W := TEInvWithholding.Create;
+      W.Code := '999'; W.Name := 'Test'; W.Rate := 120;
+      Expect('withholding rate > 100 rejected', procedure begin WhSvc.BusinessInsert(W, False, False, True); end);
+      FreeAndNil(W);
+
+      // ---- DİİB: firmamızın belgesinde cari yok, müşteri belgesinde zorunlu, tarih aralığı, satır kodu tekil
+      Begin_;
+      D := TEInvDiib.Create;
+      D.DocumentNo := 'diib-own-1'; D.HolderType := EINV_DIIB_OWN; D.AccAccountId := Customer;
+      DiibSvc.BusinessInsert(D, False, False, True);
+      OwnDiib := D.Id;
+      Check('own DIIB: number upper, account cleared', (S(Scalar('SELECT document_no FROM einv_diib WHERE id = ' + OwnDiib.ToString)) = 'DIIB-OWN-1') and
+        (S(Scalar('SELECT acc_account_id FROM einv_diib WHERE id = ' + OwnDiib.ToString)) = '<null>'));
+      FreeAndNil(D);
+      D := TEInvDiib.Create;
+      D.DocumentNo := 'DIIB-CUST-X'; D.HolderType := EINV_DIIB_CUSTOMER;
+      Expect('customer DIIB without account rejected', procedure begin DiibSvc.BusinessInsert(D, False, False, True); end);
+      FreeAndNil(D);
+      Begin_;
+      D := TEInvDiib.Create;
+      D.DocumentNo := 'DIIB-CUST-1'; D.HolderType := EINV_DIIB_CUSTOMER; D.AccAccountId := Customer;
+      D.IssueDate := Date; D.ValidUntil := Date - 1;
+      Expect('DIIB validity before issue date rejected', procedure begin DiibSvc.BusinessInsert(D, False, False, True); end);
+      FreeAndNil(D);
+
+      Fresh;
+      UoW.Connection.ExecSQL('UPDATE stk_inventory SET diib_product_description = ''Kartta DIIB tanimi'' WHERE id = ' + Inv1.ToString);
+      OwnDiib := Scalar('SELECT id FROM einv_diib WHERE document_no = ''DIIB-OWN-1''');
+      OwnLine := NewDiibLine(OwnDiib, 's-2', 0, Inv1);
+      Check('DIIB line: gtip + description from stock card', (Q('SELECT einv_gtip_id FROM einv_diib_line WHERE id = ' + OwnLine.ToString) = GtipA) and
+        (S(Scalar('SELECT product_description FROM einv_diib_line WHERE id = ' + OwnLine.ToString)) = 'Kartta DIIB tanimi') and
+        (S(Scalar('SELECT line_code FROM einv_diib_line WHERE id = ' + OwnLine.ToString)) = 'S-2'));
+      DL := TEInvDiibLine.Create;
+      DL.EinvDiibId := OwnDiib; DL.LineCode := 's-1'; DL.EinvGtipId := GtipA; DL.StkInventoryId := Inv1;
+      Expect('DIIB line code duplicate rejected', procedure begin DiibLineSvc.BusinessInsert(DL, False, False, True); end);
+      FreeAndNil(DL);
+
+      // ---- fatura: kağıt (senaryosuz) fatura e-belge kimliği taşımaz
+      Begin_;
+      UoW.Connection.ExecSQL('UPDATE stk_inventory SET einv_gtip_id = NULL WHERE id = ' + Inv1.ToString);
+      Inv := NewInvoice(Customer, 0, 0, 0, 20);
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      InvId := Inv.Id;
+      Check('paper invoice: no uuid / status', (S(Scalar('SELECT einv_uuid FROM sls_invoice WHERE id = ' + InvId.ToString)) = '<null>') and
+        (S(Scalar('SELECT einv_status FROM sls_invoice WHERE id = ' + InvId.ToString)) = '<null>'));
+      FreeAndNil(Inv);
+
+      // ---- e-arşiv: taslak durum + ETTN üretilir, güncellemede ETTN değişmez, kopyada boşalır
+      Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 20);
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      InvId := Inv.Id;
+      LUuid := Inv.EinvUuid;
+      Check('e-archive: draft + uuid', (Inv.EinvStatus = EINV_STATUS_DRAFT) and (Length(LUuid) = 36) and
+        (S(Scalar('SELECT einv_uuid::text FROM sls_invoice WHERE id = ' + InvId.ToString)) = LUuid),
+        Format('status %d, uuid "%s", db "%s"', [Inv.EinvStatus, LUuid, S(Scalar('SELECT einv_uuid::text FROM sls_invoice WHERE id = ' + InvId.ToString))]));
+      Inv.Description := 'degisti';
+      Inv.EinvUuid := '';
+      Inv.EinvStatus := EINV_STATUS_ACCEPTED;
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      Check('update keeps uuid + status (service-maintained)', (Inv.EinvUuid = LUuid) and (Inv.EinvStatus = EINV_STATUS_DRAFT),
+        Format('status %d, uuid "%s"', [Inv.EinvStatus, Inv.EinvUuid]));
+      InvSvc.PrepareCopy(Inv);
+      Check('copy clears uuid / status', (Inv.EinvUuid = '') and (Inv.EinvStatus = 0));
+      FreeAndNil(Inv);
+
+      // ---- senaryo var, tip yok -> ret; e-Fatura mükellefi önerisi
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, 0, 0, 20);
+      Expect('profile without invoice type rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Inv := TSlsInvoice.Create;
+      InvSvc.SuggestEInv(Inv, True);
+      Check('suggest: e-invoice user -> TEMELFATURA / SATIS', (Inv.ProfileCode = 'TEMELFATURA') and (Inv.EinvInvoiceTypeId = TSales));
+      FreeAndNil(Inv);
+      Inv := TSlsInvoice.Create;
+      InvSvc.SuggestEInv(Inv, False);
+      Check('suggest: other -> EARSIVFATURA', Inv.EinvProfileId = PIdArchive);
+      FreeAndNil(Inv);
+
+      // ---- istisna: kod zorunlu, kod tipi uyumu, %0 KDV yalnız istisna koduyla
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TExempt, 0, 20);
+      Expect('ISTISNA without exemption code rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 0);
+      Expect('0% VAT without exemption code rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TSales, Ex351, 0);
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      Check('SATIS + 351 + 0% VAT accepted', (Inv.Id > 0) and (Inv.VatAmount = 0));
+      FreeAndNil(Inv);
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TSales, Ex702, 0);
+      Expect('exemption 702 on SATIS rejected (type mismatch)', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+
+      // ---- ihraç kayıtlı (702): kalemde GTİP + alıcı DİİB satırı zorunlu
+      Fresh;
+      Inv := NewInvoice(Customer, PIdArchive, TExportReg, Ex702, 0);
+      Expect('702 line without buyer DIIB rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Fresh;
+      Inv := NewInvoice(Customer, PIdArchive, TExportReg, Ex702, 0);
+      Inv.Lines[0].BuyerEinvDiibLineId := OtherLine;
+      Expect('buyer DIIB line of another customer rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Fresh;
+      Inv := NewInvoice(Customer, PIdArchive, TExportReg, Ex702, 0);
+      Inv.Lines[0].BuyerEinvDiibLineId := CustLine;
+      Inv.Lines[0].SellerEinvDiibLineId := CustLine;
+      Expect('seller DIIB line must be own certificate', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Fresh;
+      UoW.Connection.ExecSQL('UPDATE stk_inventory SET einv_gtip_id = NULL WHERE id = ' + Inv1.ToString);
+      Inv := NewInvoice(Customer, PIdArchive, TExportReg, Ex702, 0);
+      Inv.Lines[0].BuyerEinvDiibLineId := CustLine;
+      Inv.Lines[0].SellerEinvDiibLineId := OwnLine;
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      InvId := Inv.Id;
+      Check('702 saved: gtip from DIIB line, codes in view',
+        (Q('SELECT einv_gtip_id FROM sls_invoice_detail WHERE sls_invoice_id = ' + InvId.ToString) = GtipA) and
+        (S(Scalar('SELECT buyer_diib_line_code || ''/'' || seller_diib_line_code || ''/'' || gtip_code FROM vw_sls_invoice_detail WHERE sls_invoice_id = ' + InvId.ToString)) = 'A-1/S-1/020622000000') and
+        (S(Scalar('SELECT diib_product_description FROM vw_sls_invoice_detail WHERE sls_invoice_id = ' + InvId.ToString)) <> '<null>'));
+      FreeAndNil(Inv);
+      // kullanılan DİİB satırı silinmez
+      DL := DiibLineSvc.BusinessFindById(CustLine, False, False, True);
+      Expect('DIIB line used on invoice cannot be deleted', procedure begin DiibLineSvc.BusinessDelete(DL, False, False, True); end);
+      FreeAndNil(DL);
+      Fresh;
+      Inv := NewInvoice(Customer, PIdArchive, TExportReg, Ex702, 0);
+      Inv.Lines[0].BuyerEinvDiibLineId := CustLine;
+      LineId := NewGtip('840510000000', 'Gaz jeneratörü');
+      Inv.Lines[0].EinvGtipId := LineId;
+      Expect('line GTIP different from DIIB line GTIP rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+
+      // ---- ihracat senaryosu: INCOTERMS teslim şartı + taşıma şekli + kalemde GTİP / kap cinsi / kap adedi
+      Fresh;
+      Inv := NewInvoice(Customer, PIdExport, TExempt, Ex301, 0);
+      Expect('export without delivery term rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Fresh;
+      Inv := NewInvoice(Customer, PIdExport, TExempt, Ex301, 0);
+      Inv.EinvDeliveryTermId := DtFab;
+      Inv.EinvTransportModeId := TmSea;
+      Expect('export with non-INCOTERMS delivery term rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Fresh;
+      Inv := NewInvoice(Customer, PIdExport, TExempt, Ex301, 0);
+      Inv.EinvDeliveryTermId := DtCif;
+      Inv.EinvTransportModeId := TmSea;
+      Expect('export line without package rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Fresh;
+      Inv := NewInvoice(Customer, PIdExport, TExempt, Ex301, 0);
+      Inv.EinvDeliveryTermId := DtCif;
+      Inv.EinvTransportModeId := TmSea;
+      Inv.Lines[0].EinvPackagingTypeId := PkBox;
+      Inv.Lines[0].PackageQuantity := 3;
+      Inv.Lines[0].PackageNo := 'cnt-1';
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      Check('export saved: gtip from stock card, package no upper',
+        (Q('SELECT einv_gtip_id FROM sls_invoice_detail WHERE sls_invoice_id = ' + Inv.Id.ToString) = GtipA) and
+        (S(Scalar('SELECT package_no FROM sls_invoice_detail WHERE sls_invoice_id = ' + Inv.Id.ToString)) = 'CNT-1'));
+      FreeAndNil(Inv);
+
+      // ---- KDV istisnası (requires_zero_vat) KDV'li kalemlere uygulanmaz; 555 KDV'li kalemle kullanılır
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TExempt, Ex301, 20);
+      Expect('KDV exemption 301 without a 0% VAT line rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TSales, Ex555, 20);
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      Check('SATIS + 555 with VAT line accepted', (Inv.Id > 0) and (Inv.VatAmount > 0));
+      FreeAndNil(Inv);
+
+      // ---- uygulanamayan alanlar kayda gitmez: ihracat dışında teslim / taşıma / gümrük, 702 dışında DİİB, GTİP / kap
+      Fresh;
+      Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 20);
+      Inv.EinvDeliveryTermId := DtCif;
+      Inv.EinvTransportModeId := TmSea;
+      Inv.CustomsDeclarationNo := 'GCB-1';
+      Inv.GtbRefNo := 'REF-1';
+      Inv.ActualExportDate := Date;
+      Inv.Lines[0].EinvGtipId := GtipA;
+      Inv.Lines[0].EinvPackagingTypeId := PkBox;
+      Inv.Lines[0].PackageQuantity := 3;
+      Inv.Lines[0].PackageNo := 'CNT-9';
+      Inv.Lines[0].BuyerEinvDiibLineId := CustLine;
+      Inv.Lines[0].SellerEinvDiibLineId := OwnLine;
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      InvId := Inv.Id;
+      Check('non-export: export header fields cleared',
+        S(Scalar('SELECT concat_ws(''/'', einv_delivery_term_id, einv_transport_mode_id, customs_declaration_no, gtb_ref_no, actual_export_date) ' +
+          'FROM sls_invoice WHERE id = ' + InvId.ToString)) = '',
+        S(Scalar('SELECT concat_ws(''/'', einv_delivery_term_id, einv_transport_mode_id, customs_declaration_no, gtb_ref_no, actual_export_date) ' +
+          'FROM sls_invoice WHERE id = ' + InvId.ToString)));
+      Check('non-702 / non-export: DIIB codes, GTIP, package cleared',
+        S(Scalar('SELECT concat_ws(''/'', seller_einv_diib_line_id, buyer_einv_diib_line_id, einv_gtip_id, einv_packaging_type_id, ' +
+          'package_no, package_quantity) FROM sls_invoice_detail WHERE sls_invoice_id = ' + InvId.ToString)) = '',
+        S(Scalar('SELECT concat_ws(''/'', seller_einv_diib_line_id, buyer_einv_diib_line_id, einv_gtip_id, einv_packaging_type_id, ' +
+          'package_no, package_quantity) FROM sls_invoice_detail WHERE sls_invoice_id = ' + InvId.ToString)));
+      FreeAndNil(Inv);
+      Begin_;
+      Inv := NewInvoice(Customer, 0, 0, 0, 20);
+      Inv.EinvPaymentMeansId := PmCash;
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      Check('paper invoice: payment means cleared', S(Scalar('SELECT einv_payment_means_id FROM sls_invoice WHERE id = ' + Inv.Id.ToString)) = '<null>');
+      FreeAndNil(Inv);
+
+      // ---- form kapsamı (GetEInvScope) + tip önerisi
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TExportReg, Ex702, 0);
+      Sc := InvSvc.EInvScope(Inv);
+      Check('scope 702: DIIB + customs line, needs 0% VAT, no export header',
+        Sc.DiibAllowed and Sc.CustomsLine and Sc.GtipRequired and Sc.ExemptionNeedsZeroVat and Sc.HasZeroVatLine and
+        not Sc.IsExport and not Sc.PackageRequired and not Sc.WithholdingAllowed);
+      Inv.EinvInvoiceTypeId := TSales;
+      Sc := InvSvc.EInvScope(Inv);
+      Check('scope: 702 on SATIS = type mismatch', Sc.ExemptionTypeMismatch);
+      Inv.EinvTaxExemptionId := 0;
+      Inv.Lines[0].VatRate := 20;
+      Sc := InvSvc.EInvScope(Inv);
+      Check('scope SATIS: no DIIB / customs line, exemption still available (555)',
+        not Sc.DiibAllowed and not Sc.CustomsLine and not Sc.ExemptionRequired and Sc.ExemptionAvailable and not Sc.HasZeroVatLine);
+      Inv.EinvProfileId := PIdExport;
+      Inv.EinvInvoiceTypeId := TExempt;
+      Sc := InvSvc.EInvScope(Inv);
+      Check('scope IHRACAT: export header + package required', Sc.IsExport and Sc.PackageRequired and Sc.CustomsLine and Sc.ExemptionRequired);
+      Inv.EinvProfileId := 0;
+      Inv.EinvInvoiceTypeId := 0;
+      Sc := InvSvc.EInvScope(Inv);
+      Check('scope paper: withholding allowed, no e-doc fields', Sc.WithholdingAllowed and not Sc.IsEDoc and not Sc.IsExport);
+      FreeAndNil(Inv);
+      Inv := TSlsInvoice.Create;
+      Inv.EinvProfileId := PIdExport;
+      Inv.ProfileCode := 'IHRACAT';
+      InvSvc.SuggestInvoiceType(Inv);
+      Check('suggest type: IHRACAT -> ISTISNA', Inv.EinvInvoiceTypeId = TExempt);
+      FreeAndNil(Inv);
+
+      // ---- UBL-TR XML: kayıtta üretilir + GİB şemasıyla doğrulanır (einv_document), önizleme, numara sayacı
+      DocSvc := TEInvDocumentService.Create;
+      try
+        Begin_;
+        PrepareParties;
+        Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 20);
+        InvSvc.BusinessSaveWithDetails(Inv, False, True);
+        InvId := Inv.Id;
+        CheckDoc('xml e-archive SATIS: schema valid', InvId,
+          ['<cbc:ProfileID>EARSIVFATURA</cbc:ProfileID>', '<cbc:ID>EAR' + IntToStr(YearOf(Inv.InvoiceDate)) + '000000000</cbc:ID>',
+           'Müşteri &amp; Ortakları', '<cbc:UUID>' + UpperCase(Inv.EinvUuid) + '</cbc:UUID>', 'schemeID="VKN">1111111111']);
+        Doc := DocSvc.BusinessFindByInvoice(InvId, True);
+        try
+          LHtml := '';
+          if Assigned(Doc) then
+            LHtml := TEInvDocumentService.ToHtml(Doc);
+          Check('xml preview (general.xslt) html', LHtml.Length > 1000, IntToStr(LHtml.Length));
+        finally
+          FreeAndNil(Doc);
+        end;
+        Inv.EinvProfileId := 0;
+        Inv.EinvInvoiceTypeId := 0;
+        InvSvc.BusinessSaveWithDetails(Inv, False, True);
+        Check('paper invoice: e-document xml removed', Q('SELECT count(*) FROM einv_document WHERE sls_invoice_id = ' + InvId.ToString) = 0);
+        FreeAndNil(Inv);
+
+        Begin_;
+        PrepareParties;
+        Inv := NewInvoice(Customer, PIdArchive, TWithholding, 0, 20);
+        Inv.Lines[0].EinvWithholdingId := Wh602;
+        InvSvc.BusinessSaveWithDetails(Inv, False, True);
+        CheckDoc('xml TEVKIFAT: schema valid + withholding', Inv.Id,
+          ['<cac:WithholdingTaxTotal>', '<cbc:TaxTypeCode>602</cbc:TaxTypeCode>', '>102.00</cbc:PayableAmount>', '>120.00</cbc:TaxInclusiveAmount>']);
+        FreeAndNil(Inv);
+
+        Fresh;
+        PrepareParties;
+        Inv := NewInvoice(Customer, PIdExport, TExempt, Ex301, 0);
+        Inv.EinvDeliveryTermId := DtCif;
+        Inv.EinvTransportModeId := TmSea;
+        Inv.Lines[0].EinvPackagingTypeId := PkBox;
+        Inv.Lines[0].PackageQuantity := 3;
+        Inv.Lines[0].PackageNo := 'CNT-1';
+        InvSvc.BusinessSaveWithDetails(Inv, False, True);
+        CheckDoc('xml IHRACAT: schema valid + GTB customer / export buyer / customs', Inv.Id,
+          ['schemeID="VKN">' + EINV_EXPORT_CUSTOMER_VKN, 'schemeID="PARTYTYPE">EXPORT', 'schemeID="INCOTERMS">CIF',
+           '<cbc:RequiredCustomsID>020622000000</cbc:RequiredCustomsID>', '<cbc:PackagingTypeCode>BX</cbc:PackagingTypeCode>',
+           '<cbc:TaxExemptionReasonCode>301</cbc:TaxExemptionReasonCode>']);
+        FreeAndNil(Inv);
+
+        Fresh;
+        PrepareParties;
+        Inv := NewInvoice(Customer, PIdArchive, TExportReg, Ex702, 0);
+        Inv.Lines[0].BuyerEinvDiibLineId := CustLine;
+        Inv.Lines[0].SellerEinvDiibLineId := OwnLine;
+        InvSvc.BusinessSaveWithDetails(Inv, False, True);
+        CheckDoc('xml IHRACKAYITLI 702: schema valid + DIIB line codes', Inv.Id,
+          ['schemeID="ALICIDIBSATIRKOD">A-1', 'schemeID="SATICIDIBSATIRKOD">S-1', '<cbc:TaxExemptionReasonCode>702</cbc:TaxExemptionReasonCode>']);
+        FreeAndNil(Inv);
+
+        // eksik satıcı vergi no: kayıt olur, XML geçersiz + mesaj
+        Begin_;
+        PrepareParties;
+        UoW.Connection.ExecSQL('UPDATE sys_application_setting SET tax_no = NULL');
+        Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 20);
+        InvSvc.BusinessSaveWithDetails(Inv, False, True);
+        Check('xml: missing seller tax no -> saved, invalid with message',
+          (Inv.Id > 0) and (S(Scalar('SELECT is_valid::text FROM einv_document WHERE sls_invoice_id = ' + Inv.Id.ToString)) = 'false') and
+          (S(Scalar('SELECT validation_message FROM einv_document WHERE sls_invoice_id = ' + Inv.Id.ToString)) <> '<null>'),
+          S(Scalar('SELECT validation_message FROM einv_document WHERE sls_invoice_id = ' + Inv.Id.ToString)));
+        FreeAndNil(Inv);
+
+        // GİB numara sayacı: yıl içinde artar, belge no biçimi
+        Begin_;
+        SerRepo := TEInvSeriesRepository(UoW.GetRepository<TEInvSeries, TEInvSeriesRepository>);
+        LineId := Scalar('SELECT id FROM einv_series WHERE code = ''EFT''');
+        Check('series counter: 1, 2 + number format',
+          (SerRepo.NextNumber(LineId, 2099) = 1) and (SerRepo.NextNumber(LineId, 2099) = 2) and
+          TEInvLookup.IsValidEInvNo(TEInvLookup.MakeEInvNo('EFT', 2099, 2)) and
+          (TEInvLookup.MakeEInvNo('EFT', 2099, 2) = 'EFT2099000000002'));
+        End_;
+      finally
+        DocSvc.Free;
+      end;
+
+      // ---- tevkifat: tip tevkifat ise en az bir kalemde kod, tutar = KDV x oran, cari borç = toplam - tevkifat
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TWithholding, 0, 20);
+      Expect('TEVKIFAT without withholding line rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      Inv.Lines[0].EinvWithholdingId := Wh602;
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      InvId := Inv.Id;
+      // 2 x 50 = 100, KDV 20, tevkifat %90 = 18
+      Check('withholding amounts (line / header / payable)',
+        Near(Q('SELECT withholding_amount FROM sls_invoice_detail WHERE sls_invoice_id = ' + InvId.ToString), 18) and
+        Near(Q('SELECT withholding_amount FROM sls_invoice WHERE id = ' + InvId.ToString), 18) and
+        Near(Q('SELECT payable_amount FROM vw_sls_invoice WHERE id = ' + InvId.ToString), 102));
+      Check('account transaction debit = total - withholding',
+        Near(Q('SELECT debit FROM vw_acc_account_transaction WHERE source_type = 6 AND source_id = ' + InvId.ToString), 102));
+      FreeAndNil(Inv);
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 20);
+      Inv.Lines[0].EinvWithholdingId := Wh602;
+      Expect('withholding on SATIS rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+
+      // ---- pasif kod: yeni seçimde ret, kayıtlı (değişmeyen) belgede güncelleme serbest
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 20);
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      UoW.Connection.ExecSQL('UPDATE einv_profile SET is_active = false WHERE id = ' + PIdArchive.ToString);
+      Inv.Description := 'pasif senaryo, degismedi';
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      Check('passive profile kept on unchanged invoice', Inv.Description = 'pasif senaryo, degismedi');
+      FreeAndNil(Inv);
+      Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 20);
+      Expect('passive profile on new invoice rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+
+      // ---- gönderilmiş e-belge kilidi: başlık / kalem / silme reddedilir
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 20);
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      InvId := Inv.Id;
+      LineId := Inv.Lines[0].Id;
+      UoW.Connection.ExecSQL('UPDATE sls_invoice SET einv_status = ' + IntToStr(EINV_STATUS_SENT) + ' WHERE id = ' + InvId.ToString);
+      FreeAndNil(Inv);
+      Inv := InvSvc.BusinessFindById(InvId, False, False, True);
+      Inv.Description := 'gonderildikten sonra';
+      Expect('sent invoice cannot be updated', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 20);
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      InvId := Inv.Id;
+      LineId := Inv.Lines[0].Id;
+      UoW.Connection.ExecSQL('UPDATE sls_invoice SET einv_status = ' + IntToStr(EINV_STATUS_SENT) + ' WHERE id = ' + InvId.ToString);
+      Inv.EinvStatus := EINV_STATUS_SENT;
+      Expect('sent invoice cannot be deleted', procedure begin InvSvc.BusinessDelete(Inv, False, False, True); end);
+      FreeAndNil(Inv);
+      Begin_;
+      Inv := NewInvoice(Customer, PIdArchive, TSales, 0, 20);
+      InvSvc.BusinessSaveWithDetails(Inv, False, True);
+      InvId := Inv.Id;
+      LineId := Inv.Lines[0].Id;
+      UoW.Connection.ExecSQL('UPDATE sls_invoice SET einv_status = ' + IntToStr(EINV_STATUS_SENT) + ' WHERE id = ' + InvId.ToString);
+      FreeAndNil(Inv);
+      IL := LineSvc.BusinessFindById(LineId, False, False, True);
+      try
+        IL.Quantity := 5;
+        Expect('sent invoice line cannot be changed (line service)', procedure begin LineSvc.BusinessUpdate(IL, False, False, True); end);
+      finally
+        IL.Free;
+      end;
+    except
+      on E: Exception do
+        Check('e-invoice flow', False, E.Message);
+    end;
+  finally
+    End_;
+    Inv.Free;
+    DL.Free;
+    D.Free;
+    W.Free;
+    G.Free;
+    LineSvc.Free;
+    InvSvc.Free;
+    DiibLineSvc.Free;
+    DiibSvc.Free;
+    WhSvc.Free;
+    GtipSvc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -3416,6 +4069,7 @@ begin
   TestSalesOfferDocument;
   TestSalesOrderDocument;
   TestSalesDispatchInvoiceDocument;
+  TestEInvoice;
   TestCompanyBankAccounts;
   TestAccountTransactions;
   TestDashboard;

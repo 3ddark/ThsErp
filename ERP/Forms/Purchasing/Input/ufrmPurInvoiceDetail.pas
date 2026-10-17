@@ -23,12 +23,13 @@ type
     edtStkInventoryId: TEdit;
     lblQuantity: TLabel;
     edtQuantity: TEdit;
+    lblUomCode: TLabel;
     lblUnitPrice: TLabel;
     edtUnitPrice: TEdit;
     lblDiscountRate: TLabel;
     edtDiscountRate: TEdit;
     lblVatRate: TLabel;
-    edtVatRate: TEdit;
+    cbbVatRate: TComboBox;
     lblDescription: TLabel;
     edtDescription: TEdit;
     lblGrossAmount: TLabel;
@@ -45,6 +46,11 @@ type
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
     procedure FillInventoryDefaults;
+  private
+    // KDV yalnız muhasebe ayarlarındaki tanımlı oranlardan (acc_set_tax_rate) seçilir
+    procedure FillVatRates;
+    procedure SelectVatRate(ARate: Currency);
+    function SelectedVatRate: Currency;
   public
     procedure HelperProcess(Sender: TObject);
     procedure RefreshData; override;
@@ -67,7 +73,7 @@ begin
   Table.Quantity := StrToCurrDef(edtQuantity.Text, 0);
   Table.UnitPrice := StrToCurrDef(edtUnitPrice.Text, 0);
   Table.DiscountRate := StrToCurrDef(edtDiscountRate.Text, 0);
-  Table.VatRate := StrToCurrDef(edtVatRate.Text, 0);
+  Table.VatRate := SelectedVatRate;
   Table.Description := edtDescription.Text;
   inherited;
 end;
@@ -82,7 +88,7 @@ begin
   edtQuantity.thsInputDataType := itFloat;
   edtUnitPrice.thsInputDataType := itFloat;
   edtDiscountRate.thsInputDataType := itFloat;
-  edtVatRate.thsInputDataType := itFloat;
+  FillVatRates;
   edtDescription.thsInputDataType := itString;
 end;
 
@@ -110,6 +116,40 @@ begin
   lblNetAmount.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColNetAmount, 'Net Amount');
   lblVatAmount.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColVatAmount, 'VAT Amount');
   lblTotalAmount.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColTotalAmount, 'Total');
+end;
+
+procedure TfrmPurInvoiceDetail.FillVatRates;
+var
+  LRate: Currency;
+begin
+  cbbVatRate.Items.BeginUpdate;
+  try
+    cbbVatRate.Items.Clear;
+    cbbVatRate.Items.Add('0');   // KDV'siz alış (istisna)
+    for LRate in Service.GetVatRates do
+      cbbVatRate.Items.Add(FormatFloat('0.##', LRate));
+  finally
+    cbbVatRate.Items.EndUpdate;
+  end;
+end;
+
+// Listede olmayan oran: kayıtlı satırda gösterilir (kayıtta reddedilir), yeni satırda (0) boş bırakılır
+procedure TfrmPurInvoiceDetail.SelectVatRate(ARate: Currency);
+var
+  LText: string;
+begin
+  LText := FormatFloat('0.##', ARate);
+  if (cbbVatRate.Items.IndexOf(LText) < 0) and (ARate <> 0) then
+    cbbVatRate.Items.Add(LText);
+  cbbVatRate.ItemIndex := cbbVatRate.Items.IndexOf(LText);
+end;
+
+function TfrmPurInvoiceDetail.SelectedVatRate: Currency;
+begin
+  if cbbVatRate.ItemIndex < 0 then
+    Result := 0
+  else
+    Result := StrToCurrDef(cbbVatRate.Items[cbbVatRate.ItemIndex], 0);
 end;
 
 procedure TfrmPurInvoiceDetail.HelperProcess(Sender: TObject);
@@ -159,6 +199,7 @@ begin
           Table.StkInventoryId := 0;
           Table.InventoryCode := '';
           Table.InventoryName := '';
+          Table.UomCode := '';
           LEdit.Clear;
         end
         else
@@ -166,8 +207,10 @@ begin
           Table.StkInventoryId := LFrmStkInventoryId.Table.Id;
           Table.InventoryCode := LFrmStkInventoryId.Table.Code;
           Table.InventoryName := LFrmStkInventoryId.Table.Name;
+          Table.UomCode := Service.GetUomCode(Table.StkInventoryId);
           LEdit.Text := Table.InventoryName;
         end;
+      lblUomCode.Caption := Table.UomCode;
       if LFrmStkInventoryId.DataTransfer and not LFrmStkInventoryId.CleanAndClose then
         FillInventoryDefaults;
     finally
@@ -187,7 +230,7 @@ begin
   if (Table.Currency = '') or (LCurrency = Table.Currency) then
     edtUnitPrice.Text := CurrToStr(LPrice);
   edtDiscountRate.Text := CurrToStr(LDiscount);
-  edtVatRate.Text := CurrToStr(LVat);
+  SelectVatRate(LVat);
 end;
 
 procedure TfrmPurInvoiceDetail.RefreshData;
@@ -197,9 +240,10 @@ begin
   edtLineNo.Text := IntToStr(Table.LineNo);
   edtStkInventoryId.Text := Table.InventoryName;
   edtQuantity.Text := CurrToStr(Table.Quantity);
+  lblUomCode.Caption := Table.UomCode;
   edtUnitPrice.Text := CurrToStr(Table.UnitPrice);
   edtDiscountRate.Text := CurrToStr(Table.DiscountRate);
-  edtVatRate.Text := CurrToStr(Table.VatRate);
+  SelectVatRate(Table.VatRate);
   edtDescription.Text := Table.Description;
   edtGrossAmount.Text := CurrToStr(Table.GrossAmount);
   edtDiscountAmount.Text := CurrToStr(Table.DiscountAmount);

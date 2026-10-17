@@ -57,11 +57,12 @@ object frmStkGroup: TfrmStkGroup
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtVatRate: TEdit
+    object cbbVatRate: TComboBox
       Left = 132
       Top = 25
-      Width = 333
+      Width = 150
       Height = 22
+      Style = csDropDownList
       TabOrder = 1
     end
     object lblRawMaterialStockAccount: TLabel

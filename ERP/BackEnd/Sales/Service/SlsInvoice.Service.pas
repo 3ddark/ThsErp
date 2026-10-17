@@ -12,11 +12,13 @@ uses
 
 type
   // Satış faturası belgesi = başlık + Lines (TDocumentService). Kalem hook'u: irsaliyesiz kalemin stok çıkışı; belge
-  // hook'u: stok özeti, siparişlerin sevk miktarları, irsaliyelerin durumu. Durum modeli ve e-Fatura alanları
-  // resmi dokümanlarla eklenecek.
+  // hook'u: stok özeti, siparişlerin sevk miktarları, irsaliyelerin durumu. e-Belge (UBL-TR 1.2.1) alanları ve
+  // kuralları CheckEInvoice'ta (senaryo / fatura tipi / istisna / tevkifat / GTİP / DİİB / ihracat kap bilgisi).
   TSlsInvoiceService = class(TDocumentService<TSlsInvoice, TSlsInvoiceDetail>)
   private
     FRepo: IRepository<TSlsInvoice>;
+    // Belge kaydında e-belge kuralları CheckLines'ta (bellekteki kalemlerle) çalıştı; başlık kuralları tekrar etmez
+    FEInvCheckedHeader: TSlsInvoice;
     FDispatchRepo: IRepository<TSlsDispatch>;
     FOrderRepo: IRepository<TSlsOrder>;
     FDispatchDetailRepo: IRepository<TSlsDispatchDetail>;
@@ -28,6 +30,8 @@ type
     procedure DoDelete(AId: Int64);
 
     procedure FailRequired(const AKey, ADefault: string);
+    // Yalnız başlık kaydı (BusinessInsert / Update): e-belge kuralları DB'deki kalemlerle
+    procedure CheckEInvoiceFromDb(AEntity: TSlsInvoice);
     // Sipariş kurundan / vadesinden fatura başlığı
     procedure ApplyOrderTerms(AInvoice: TSlsInvoice; AOrderId: Int64);
   protected
@@ -50,6 +54,35 @@ type
     destructor Destroy; override;
 
     procedure ValidateBusinessRules(AEntity: TSlsInvoice; AOperation: TCrudOperation); override;
+
+    // e-Belge başlığı: senaryo yoksa tip / ETTN / durum boşalır; senaryo varsa durum en az taslak, ETTN üretilir
+    class procedure NormalizeEInvHeader(AHeader: TSlsInvoice); static;
+    // e-Belge kuralları (belge kaydı + tek kalem yolu ortak). AOldHeader / AOldLines = DB durumu (yeni belgede nil /
+    // boş): pasif kod yalnız yeni seçildiğinde reddedilir. AWholeDocument = kalemlerin tamamı verildi ("en az bir
+    // kalemde tevkifat" gibi belge geneli kurallar yalnız o zaman)
+    class procedure CheckEInvoice(ARepo: TSlsInvoiceRepository; AHeader: TSlsInvoice; const ALines: TArray<TSlsInvoiceDetail>;
+      AOldHeader: TSlsInvoice; AOldLines: TObjectList<TSlsInvoiceDetail>; AWholeDocument: Boolean); static;
+
+    // e-Belge alanlarının uygulanabilirliği (kurallar kod listelerinin bayraklarından). Formlar alanları buna göre açar /
+    // kapatır; CheckEInvoice aynı kapsamla uygulanamayan alanları temizler ve kuralları denetler.
+    class function ScopeFromRules(const R: TSlsEInvRules; AHeader: TSlsInvoice;
+      const ALines: TArray<TSlsInvoiceDetail>): TSlsEInvScope; static;
+    class function GetEInvScope(ARepo: TSlsInvoiceRepository; AHeader: TSlsInvoice;
+      const ALines: TArray<TSlsInvoiceDetail>): TSlsEInvScope; static;
+    // Uygulanamayan alanlar boşalır: kağıt faturada ödeme şekli, ihracat dışında teslim / taşıma / gümrük çıkış bilgileri,
+    // DİİB istemeyen istisnada DİİB satır kodları, ihracat / GTİP isteyen istisna dışında kalem GTİP + kap bilgisi
+    class procedure ClearNotApplicable(const AScope: TSlsEInvScope; AHeader: TSlsInvoice;
+      const ALines: TArray<TSlsInvoiceDetail>); static;
+    class procedure ClearNotApplicableHeader(const AScope: TSlsEInvScope; AHeader: TSlsInvoice); static;
+    // satır formu da kullanır (yalnız kalem alanları; tevkifat burada değil: KDV'siz / izinsiz tevkifat reddedilir)
+    class procedure ClearNotApplicableLine(const AScope: TSlsEInvScope; ALine: TSlsInvoiceDetail); static;
+    // Detaylı form: bellekteki aktif kalemlerle
+    function EInvScope(AHeader: TSlsInvoice): TSlsEInvScope;
+
+    // Senaryo boşsa cariye göre önerir (e-Fatura mükellefi: TEMELFATURA, değilse EARSIVFATURA; tip SATIS)
+    procedure SuggestEInv(AInvoice: TSlsInvoice; AEInvoiceUser: Boolean);
+    // Senaryo seçilip tip boşsa: IHRACAT -> ISTISNA, diğerleri -> SATIS
+    procedure SuggestInvoiceType(AInvoice: TSlsInvoice);
 
     // Kalem tutarları miktar, fiyat ve oranlardan; başlık toplamları aktif kalemlerden
     procedure RecalculateLine(ALine: TSlsInvoiceDetail); override;
@@ -80,7 +113,341 @@ implementation
 
 uses
   SysPermission.Service, SlsLookup, SlsInvoiceDetail.Service, SlsInvoiceDetail.Exception,
-  SlsOfferDetail, SlsOfferDetail.Repository, SlsOfferDetail.Service;
+  SlsOfferDetail, SlsOfferDetail.Repository, SlsOfferDetail.Service, EInvLookup,
+  EInvDocument, EInvDocument.Repository, EInvDocument.Service, EInvSeries, EInvSeries.Repository;
+
+// Alan adı + "zorunludur" (sınıf metotları için)
+procedure RaiseRequired(const AKey, ADefault: string);
+begin
+  raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
+    TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
+end;
+
+// Yeni seçilen (eskisinden farklı) kod pasifse ret
+procedure CheckActive(AActive: Boolean; ANewId, AOldId: Int64; const AKey, ADefault: string);
+begin
+  if (ANewId > 0) and (ANewId <> AOldId) and not AActive then
+    raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.EInvInactive,
+      '%s: the selected record is passive.'), [TLocalizationManager.Translate(AKey, ADefault)]));
+end;
+
+class procedure TSlsInvoiceService.NormalizeEInvHeader(AHeader: TSlsInvoice);
+begin
+  AHeader.CustomsDeclarationNo := AnsiUpperCase(Trim(AHeader.CustomsDeclarationNo));
+  AHeader.GtbRefNo := AnsiUpperCase(Trim(AHeader.GtbRefNo));
+  if AHeader.EinvProfileId <= 0 then
+  begin
+    // kağıt fatura: e-belge kimliği yok
+    AHeader.EinvProfileId := 0;
+    AHeader.EinvInvoiceTypeId := 0;
+    AHeader.EinvUuid := '';
+    AHeader.EinvStatus := 0;
+    AHeader.ProfileCode := '';
+    AHeader.InvoiceTypeCode := '';
+  end
+  else
+  begin
+    if AHeader.EinvStatus <= 0 then
+      AHeader.EinvStatus := EINV_STATUS_DRAFT;
+    if AHeader.EinvUuid = '' then
+      AHeader.EinvUuid := LowerCase(TGUID.NewGuid.ToString.Replace('{', '').Replace('}', ''));
+  end;
+end;
+
+class function TSlsInvoiceService.ScopeFromRules(const R: TSlsEInvRules; AHeader: TSlsInvoice;
+  const ALines: TArray<TSlsInvoiceDetail>): TSlsEInvScope;
+var
+  LLine: TSlsInvoiceDetail;
+  LHasExemption: Boolean;
+begin
+  Result := Default(TSlsEInvScope);
+  for LLine in ALines do
+    if not LLine.Deleted and (LLine.VatRate = 0) then
+      Result.HasZeroVatLine := True;
+  LHasExemption := AHeader.EinvTaxExemptionId > 0;
+  Result.IsEDoc := AHeader.EinvProfileId > 0;
+  Result.IsExport := Result.IsEDoc and R.RequiresExportInfo;
+  Result.ExemptionRequired := Result.IsEDoc and R.RequiresExemption;
+  Result.ExemptionNeedsZeroVat := LHasExemption and R.ExemptionRequiresZeroVat;
+  Result.ExemptionTypeMismatch := Result.IsEDoc and LHasExemption and (R.ExemptionTypeId > 0) and
+    (R.ExemptionTypeId <> AHeader.EinvInvoiceTypeId);
+  // %0 KDV'li kalem istisna kodu ister; KDV'li faturada yalnız tipin %0 gerektirmeyen kodları (555, ÖTV, özel matrah)
+  Result.ExemptionAvailable := LHasExemption or Result.ExemptionRequired or Result.HasZeroVatLine or
+    (Result.IsEDoc and R.TypeHasPlainExemption);
+  Result.WithholdingAllowed := (not Result.IsEDoc) or R.RequiresWithholding;
+  Result.WithholdingRequired := Result.IsEDoc and R.RequiresWithholding;
+  // GİB: SATICIDIBSATIRKOD / ALICIDIBSATIRKOD yalnız İhraç Kayıtlı tipte 702 kodunda kalemde kullanılır
+  Result.DiibAllowed := LHasExemption and R.ExemptionRequiresDiib;
+  Result.GtipRequired := Result.IsExport or (LHasExemption and R.ExemptionRequiresGtip);
+  Result.CustomsLine := Result.GtipRequired;
+  Result.PackageRequired := Result.IsExport;
+end;
+
+class function TSlsInvoiceService.GetEInvScope(ARepo: TSlsInvoiceRepository; AHeader: TSlsInvoice;
+  const ALines: TArray<TSlsInvoiceDetail>): TSlsEInvScope;
+var
+  R: TSlsEInvRules;
+begin
+  R := ARepo.ReadEInvRules(AHeader.EinvProfileId, AHeader.EinvInvoiceTypeId, AHeader.EinvTaxExemptionId,
+    AHeader.EinvDeliveryTermId, AHeader.EinvTransportModeId, AHeader.EinvPaymentMeansId);
+  Result := ScopeFromRules(R, AHeader, ALines);
+end;
+
+function TSlsInvoiceService.EInvScope(AHeader: TSlsInvoice): TSlsEInvScope;
+begin
+  Result := GetEInvScope(TSlsInvoiceRepository(FRepo), AHeader, ActiveLines(AHeader));
+end;
+
+class procedure TSlsInvoiceService.ClearNotApplicable(const AScope: TSlsEInvScope; AHeader: TSlsInvoice;
+  const ALines: TArray<TSlsInvoiceDetail>);
+var
+  LLine: TSlsInvoiceDetail;
+begin
+  ClearNotApplicableHeader(AScope, AHeader);
+  for LLine in ALines do
+    ClearNotApplicableLine(AScope, LLine);
+end;
+
+class procedure TSlsInvoiceService.ClearNotApplicableHeader(const AScope: TSlsEInvScope; AHeader: TSlsInvoice);
+begin
+  if not AScope.IsEDoc then
+  begin
+    AHeader.EinvPaymentMeansId := 0;
+    AHeader.PaymentMeansName := '';
+  end;
+  if not AScope.IsExport then
+  begin
+    AHeader.EinvDeliveryTermId := 0;
+    AHeader.DeliveryTermCode := '';
+    AHeader.EinvTransportModeId := 0;
+    AHeader.TransportModeName := '';
+    AHeader.CustomsDeclarationNo := '';
+    AHeader.GtbRefNo := '';
+    AHeader.ActualExportDate := 0;
+  end;
+end;
+
+class procedure TSlsInvoiceService.ClearNotApplicableLine(const AScope: TSlsEInvScope; ALine: TSlsInvoiceDetail);
+begin
+  if not AScope.DiibAllowed then
+  begin
+    ALine.SellerEinvDiibLineId := 0;
+    ALine.SellerDiibLineCode := '';
+    ALine.BuyerEinvDiibLineId := 0;
+    ALine.BuyerDiibLineCode := '';
+  end;
+  if not AScope.CustomsLine then
+  begin
+    ALine.EinvGtipId := 0;
+    ALine.GtipCode := '';
+    ALine.EinvPackagingTypeId := 0;
+    ALine.PackagingTypeCode := '';
+    ALine.PackageNo := '';
+    ALine.PackageQuantity := 0;
+    ALine.PackageBrand := '';
+  end;
+end;
+
+class procedure TSlsInvoiceService.CheckEInvoice(ARepo: TSlsInvoiceRepository; AHeader: TSlsInvoice;
+  const ALines: TArray<TSlsInvoiceDetail>; AOldHeader: TSlsInvoice; AOldLines: TObjectList<TSlsInvoiceDetail>;
+  AWholeDocument: Boolean);
+var
+  R: TSlsEInvRules;
+  S: TSlsEInvScope;
+  LOld: TSlsInvoice;
+  LOldLines: TDictionary<Int64, TSlsInvoiceDetail>;
+  LLine, LOldLine: TSlsInvoiceDetail;
+  LNo, i: Integer;
+  LIsEDoc, LNeedGtip, LNeedDiib, LNeedPackage, LHasWithholding, LActive: Boolean;
+  LRate: Currency;
+  LCode: string;
+  LGtipId: Int64;
+  LOldProfileId, LOldTypeId, LOldExemptionId, LOldDeliveryId, LOldTransportId, LOldPaymentId: Int64;
+
+  // Kalemin DİİB satırı: belge sahibi / müşteri, süre, GTİP uyumu (kalem GTİP'i boşsa DİİB satırından)
+  procedure CheckDiib(ADiibLineId, AOldDiibLineId: Int64; AHolder: Integer; const AKey, ADefault: string);
+  var
+    D: TSlsDiibLineInfo;
+    LChanged: Boolean;
+  begin
+    if ADiibLineId <= 0 then
+      Exit;
+    D := ARepo.ReadDiibLine(ADiibLineId);
+    if not D.Found then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [ADiibLineId]));
+    LChanged := ADiibLineId <> AOldDiibLineId;
+    CheckActive(D.Active and D.DiibActive, ADiibLineId, AOldDiibLineId, AKey, ADefault);
+    if (D.HolderType <> AHolder) or ((AHolder = EINV_DIIB_CUSTOMER) and (D.AccountId <> AHeader.AccAccountId)) then
+      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.DiibHolderMismatch,
+        'Line %d: DIIB line %s does not belong to this invoice (holder / customer).'), [LNo, D.LineCode]));
+    if LChanged and (D.ValidUntil > 0) and (AHeader.InvoiceDate > D.ValidUntil) then
+      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.DiibExpired,
+        'Line %d: the DIIB certificate has expired (%s).'), [LNo, DateToStr(D.ValidUntil)]));
+    if LLine.EinvGtipId <= 0 then
+    begin
+      LLine.EinvGtipId := D.GtipId;
+      LLine.GtipCode := D.GtipCode;
+    end
+    else if LLine.EinvGtipId <> D.GtipId then
+      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.DiibGtipMismatch,
+        'Line %d: the GTIP code must match the DIIB line GTIP (%s).'), [LNo, TEInvLookup.FormatGtip(D.GtipCode)]));
+  end;
+
+begin
+  NormalizeEInvHeader(AHeader);
+  LOld := AOldHeader;
+  if Assigned(LOld) and (LOld.Id <> AHeader.Id) then
+    LOld := nil;
+  LOldProfileId := 0; LOldTypeId := 0; LOldExemptionId := 0; LOldDeliveryId := 0; LOldTransportId := 0; LOldPaymentId := 0;
+  if Assigned(LOld) then
+  begin
+    LOldProfileId := LOld.EinvProfileId;
+    LOldTypeId := LOld.EinvInvoiceTypeId;
+    LOldExemptionId := LOld.EinvTaxExemptionId;
+    LOldDeliveryId := LOld.EinvDeliveryTermId;
+    LOldTransportId := LOld.EinvTransportModeId;
+    LOldPaymentId := LOld.EinvPaymentMeansId;
+  end;
+  LIsEDoc := AHeader.EinvProfileId > 0;
+  R := ARepo.ReadEInvRules(AHeader.EinvProfileId, AHeader.EinvInvoiceTypeId, AHeader.EinvTaxExemptionId,
+    AHeader.EinvDeliveryTermId, AHeader.EinvTransportModeId, AHeader.EinvPaymentMeansId);
+  // formun kapattığı (bu faturada uygulanamayan) alanlar kayda gitmez
+  S := ScopeFromRules(R, AHeader, ALines);
+  ClearNotApplicable(S, AHeader, ALines);
+
+  // ---- başlık
+  if LIsEDoc then
+  begin
+    if not R.ProfileFound then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AHeader.EinvProfileId]));
+    if R.ProfileKind <> EINV_DOC_INVOICE then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.EInvProfileKind,
+        'The selected profile is not an invoice profile.'));
+    if AHeader.EinvInvoiceTypeId <= 0 then
+      RaiseRequired(TLangKeys.TSlsInvoice.ColEinvInvoiceTypeId, 'Invoice Type');
+    CheckActive(R.ProfileActive, AHeader.EinvProfileId, LOldProfileId, TLangKeys.TSlsInvoice.ColEinvProfileId, 'e-Document Profile');
+    CheckActive(R.TypeActive, AHeader.EinvInvoiceTypeId, LOldTypeId, TLangKeys.TSlsInvoice.ColEinvInvoiceTypeId, 'Invoice Type');
+    if R.RequiresExemption and (AHeader.EinvTaxExemptionId <= 0) then
+      RaiseRequired(TLangKeys.TSlsInvoice.ColEinvTaxExemptionId, 'Tax Exemption Code');
+    if (AHeader.EinvTaxExemptionId > 0) and (R.ExemptionTypeId > 0) and (R.ExemptionTypeId <> AHeader.EinvInvoiceTypeId) then
+      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.ExemptionTypeMismatch,
+        'Exemption code %s cannot be used with invoice type %s.'), [R.ExemptionCode, R.TypeCode]));
+    if R.RequiresExportInfo then
+    begin
+      if AHeader.EinvDeliveryTermId <= 0 then
+        RaiseRequired(TLangKeys.TSlsInvoice.ColEinvDeliveryTermId, 'Delivery Term');
+      if not R.DeliveryIsIncoterms then
+        raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.DeliveryNotIncoterms,
+          'Export invoices need an INCOTERMS delivery term.'));
+      if AHeader.EinvTransportModeId <= 0 then
+        RaiseRequired(TLangKeys.TSlsInvoice.ColEinvTransportModeId, 'Transport Mode');
+    end;
+  end;
+  CheckActive(R.ExemptionActive, AHeader.EinvTaxExemptionId, LOldExemptionId, TLangKeys.TSlsInvoice.ColEinvTaxExemptionId, 'Tax Exemption Code');
+  CheckActive(R.DeliveryActive, AHeader.EinvDeliveryTermId, LOldDeliveryId, TLangKeys.TSlsInvoice.ColEinvDeliveryTermId, 'Delivery Term');
+  CheckActive(R.TransportActive, AHeader.EinvTransportModeId, LOldTransportId, TLangKeys.TSlsInvoice.ColEinvTransportModeId, 'Transport Mode');
+  CheckActive(R.PaymentActive, AHeader.EinvPaymentMeansId, LOldPaymentId, TLangKeys.TSlsInvoice.ColEinvPaymentMeansId, 'Payment Means');
+
+  // KDV istisnası olan kod (2xx, 3xx, 701 / 702 / 704) KDV'li kalemlere uygulanmaz: faturada en az bir %0 KDV'li kalem
+  if S.ExemptionNeedsZeroVat and not S.HasZeroVatLine and (Length(ALines) > 0) then
+    raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.ExemptionNeedsZeroVat,
+      'Exemption code %s needs at least one line with 0%% VAT.'), [R.ExemptionCode]));
+
+  // ---- kalemler
+  LNeedGtip := S.GtipRequired;
+  LNeedDiib := S.DiibAllowed;
+  LNeedPackage := S.PackageRequired;
+  LHasWithholding := False;
+  LOldLines := TDictionary<Int64, TSlsInvoiceDetail>.Create;
+  try
+    if Assigned(AOldLines) then
+      for LOldLine in AOldLines do
+        LOldLines.AddOrSetValue(LOldLine.Id, LOldLine);
+
+    for i := 0 to High(ALines) do
+    begin
+      LLine := ALines[i];
+      LNo := LLine.LineNo;
+      if LNo <= 0 then
+        LNo := i + 1;
+      if (LLine.Id <= 0) or not LOldLines.TryGetValue(LLine.Id, LOldLine) then
+        LOldLine := nil;
+      LLine.PackageNo := AnsiUpperCase(Trim(LLine.PackageNo));
+      LLine.PackageBrand := Trim(LLine.PackageBrand);
+
+      // tevkifat: oran tanımdan, tutar = KDV x oran
+      if LLine.EinvWithholdingId > 0 then
+      begin
+        if not ARepo.ReadWithholding(LLine.EinvWithholdingId, LRate, LActive, LCode) then
+          raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [LLine.EinvWithholdingId]));
+        if Assigned(LOldLine) then
+          CheckActive(LActive, LLine.EinvWithholdingId, LOldLine.EinvWithholdingId, TLangKeys.TSlsInvoiceDetail.ColEinvWithholdingId, 'Withholding Code')
+        else
+          CheckActive(LActive, LLine.EinvWithholdingId, 0, TLangKeys.TSlsInvoiceDetail.ColEinvWithholdingId, 'Withholding Code');
+        if LIsEDoc and not R.RequiresWithholding then
+          raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.WithholdingNotAllowed,
+            'Line %d: withholding codes are only allowed on withholding invoice types.'), [LNo]));
+        if LLine.VatRate <= 0 then
+          raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.WithholdingNoVat,
+            'Line %d: a line without VAT cannot have withholding.'), [LNo]));
+        LLine.WithholdingRate := LRate;
+        LLine.WithholdingCode := LCode;
+        LLine.WithholdingAmount := TSlsLookup.RoundAmount(LLine.VatAmount * LRate / 100);
+        LHasWithholding := True;
+      end
+      else
+      begin
+        LLine.WithholdingRate := 0;
+        LLine.WithholdingCode := '';
+        LLine.WithholdingAmount := 0;
+      end;
+
+      // DİİB satırları: satıcı = firmamızın belgesi, alıcı = faturadaki müşterinin belgesi
+      if Assigned(LOldLine) then
+      begin
+        CheckDiib(LLine.SellerEinvDiibLineId, LOldLine.SellerEinvDiibLineId, EINV_DIIB_OWN,
+          TLangKeys.TSlsInvoiceDetail.ColSellerEinvDiibLineId, 'Seller DIIB Line Code');
+        CheckDiib(LLine.BuyerEinvDiibLineId, LOldLine.BuyerEinvDiibLineId, EINV_DIIB_CUSTOMER,
+          TLangKeys.TSlsInvoiceDetail.ColBuyerEinvDiibLineId, 'Buyer DIIB Line Code');
+      end
+      else
+      begin
+        CheckDiib(LLine.SellerEinvDiibLineId, 0, EINV_DIIB_OWN, TLangKeys.TSlsInvoiceDetail.ColSellerEinvDiibLineId, 'Seller DIIB Line Code');
+        CheckDiib(LLine.BuyerEinvDiibLineId, 0, EINV_DIIB_CUSTOMER, TLangKeys.TSlsInvoiceDetail.ColBuyerEinvDiibLineId, 'Buyer DIIB Line Code');
+      end;
+
+      // GTİP: gerektiğinde boşsa stok kartından
+      if LNeedGtip and (LLine.EinvGtipId <= 0) and ARepo.ReadInventoryGtip(LLine.StkInventoryId, LGtipId, LCode) then
+      begin
+        LLine.EinvGtipId := LGtipId;
+        LLine.GtipCode := LCode;
+      end;
+      if (LLine.EinvGtipId > 0) and ((LOldLine = nil) or (LOldLine.EinvGtipId <> LLine.EinvGtipId)) and
+         not ARepo.IsEInvCodeActive('einv_gtip', LLine.EinvGtipId) then
+        CheckActive(False, LLine.EinvGtipId, 0, TLangKeys.TSlsInvoiceDetail.ColEinvGtipId, 'GTIP Code');
+      if LNeedGtip and (LLine.EinvGtipId <= 0) then
+        raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.LineGtipRequired,
+          'Line %d: GTIP code is required.'), [LNo]));
+      if LNeedDiib and (LLine.BuyerEinvDiibLineId <= 0) then
+        raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.LineDiibRequired,
+          'Line %d: the buyer DIIB line code is required.'), [LNo]));
+
+      // ihracat kap bilgisi
+      if (LLine.EinvPackagingTypeId > 0) and ((LOldLine = nil) or (LOldLine.EinvPackagingTypeId <> LLine.EinvPackagingTypeId)) and
+         not ARepo.IsEInvCodeActive('einv_packaging_type', LLine.EinvPackagingTypeId) then
+        CheckActive(False, LLine.EinvPackagingTypeId, 0, TLangKeys.TSlsInvoiceDetail.ColEinvPackagingTypeId, 'Packaging Type');
+      if LNeedPackage and ((LLine.EinvPackagingTypeId <= 0) or (LLine.PackageQuantity <= 0)) then
+        raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.LinePackageRequired,
+          'Line %d: packaging type and package quantity are required for export.'), [LNo]));
+    end;
+  finally
+    LOldLines.Free;
+  end;
+
+  if AWholeDocument and LIsEDoc and R.RequiresWithholding and not LHasWithholding and (Length(ALines) > 0) then
+    raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.WithholdingRequired,
+      'A withholding invoice needs a withholding code on at least one line.'));
+end;
 
 constructor TSlsInvoiceService.Create;
 begin
@@ -335,6 +702,50 @@ procedure TSlsInvoiceService.InitLine(AHeader: TSlsInvoice; ALine: TSlsInvoiceDe
 begin
   ALine.InvoiceNo := AHeader.InvoiceNo;
   ALine.Currency := AHeader.Currency;
+  ALine.AccAccountId := AHeader.AccAccountId;
+end;
+
+// Senaryo seçilmemişse cariye göre öneri: e-Fatura mükellefi -> TEMELFATURA, değilse EARSIVFATURA; tip SATIS
+procedure TSlsInvoiceService.SuggestEInv(AInvoice: TSlsInvoice; AEInvoiceUser: Boolean);
+var
+  LRepo: TSlsInvoiceRepository;
+  LCode: string;
+begin
+  if AInvoice.EinvProfileId > 0 then
+    Exit;
+  LRepo := TSlsInvoiceRepository(FRepo);
+  if AEInvoiceUser then
+    LCode := EINV_PROFILE_BASIC
+  else
+    LCode := EINV_PROFILE_ARCHIVE;
+  AInvoice.EinvProfileId := LRepo.EInvIdByCode('einv_profile', LCode);
+  if AInvoice.EinvProfileId <= 0 then
+    Exit;
+  AInvoice.ProfileCode := LCode;
+  if AInvoice.EinvInvoiceTypeId <= 0 then
+  begin
+    AInvoice.EinvInvoiceTypeId := LRepo.EInvIdByCode('einv_invoice_type', EINV_TYPE_SALES);
+    if AInvoice.EinvInvoiceTypeId > 0 then
+      AInvoice.InvoiceTypeCode := EINV_TYPE_SALES;
+  end;
+end;
+
+// Senaryo seçilip tip boşsa öneri: ihracat senaryosu istisna faturasıdır (GİB: IHRACAT -> ISTISNA, 3xx kodu)
+procedure TSlsInvoiceService.SuggestInvoiceType(AInvoice: TSlsInvoice);
+var
+  LRepo: TSlsInvoiceRepository;
+  LCode: string;
+begin
+  if (AInvoice.EinvProfileId <= 0) or (AInvoice.EinvInvoiceTypeId > 0) then
+    Exit;
+  LRepo := TSlsInvoiceRepository(FRepo);
+  if AInvoice.ProfileCode = EINV_PROFILE_EXPORT then
+    LCode := EINV_TYPE_EXEMPTION
+  else
+    LCode := EINV_TYPE_SALES;
+  AInvoice.EinvInvoiceTypeId := LRepo.EInvIdByCode('einv_invoice_type', LCode);
+  if AInvoice.EinvInvoiceTypeId > 0 then
+    AInvoice.InvoiceTypeCode := LCode;
 end;
 
 // Alanlar + tutarlar (tek kalem yoluyla ortak CheckLine), KDV tanımlı oranlardan; irsaliyeli kalem: aynı stok, aynı
@@ -369,6 +780,7 @@ var
   LOrder: TSlsOrder;
   LPair: TPair<Int64, Currency>;
   LOpen: Currency;
+  LOldHeader: TSlsInvoice;
 begin
   LRates := TSlsOfferDetailRepository(Self.UoW.GetRepository<TSlsOfferDetail, TSlsOfferDetailRepository>).GetVatRates;
   LOldDsp := TDictionary<Int64, Currency>.Create;
@@ -389,7 +801,9 @@ begin
     for LLine in ALines do
     begin
       TSlsInvoiceDetailService.CheckLine(LLine);
-      TSlsOfferDetailService.CheckVatRate(LLine.VatRate, LRates);
+      // %0 KDV yalnız istisna kodlu faturada (e-belgede KDV'siz kalem istisna / muafiyet kodu ister)
+      if not ((LLine.VatRate = 0) and (AHeader.EinvTaxExemptionId > 0)) then
+        TSlsOfferDetailService.CheckVatRate(LLine.VatRate, LRates);
 
       if LLine.SlsDispatchDetailId > 0 then
       begin
@@ -465,6 +879,18 @@ begin
         raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsInvoiceDetail.OverDelivery,
           'Quantity exceeds the open order quantity (%s).'), [CurrToStr(LOpen)]));
     end;
+
+    // e-Belge: senaryo / tip / istisna / tevkifat / GTİP / DİİB / kap bilgisi (eski başlık: pasif kod yalnız yeni seçimde)
+    FEInvCheckedHeader := nil;
+    LOldHeader := nil;
+    if AHeader.Id > 0 then
+      LOldHeader := FRepo.FindById(AHeader.Id, False);
+    try
+      CheckEInvoice(TSlsInvoiceRepository(FRepo), AHeader, ALines, LOldHeader, AOldLines, True);
+    finally
+      LOldHeader.Free;
+    end;
+    FEInvCheckedHeader := AHeader;
   finally
     LOrdInv.Free;
     LDspInv.Free;
@@ -533,11 +959,21 @@ begin
     LOrderDetailIds.Free;
     LInventoryIds.Free;
   end;
+  // e-belge: UBL XML üretilir + şema doğrulaması (kaydı engellemez); kağıt faturada XML kaydı silinir
+  TEInvDocumentService.GenerateForInvoice(
+    TEInvDocumentRepository(Self.UoW.GetRepository<TEInvDocument, TEInvDocumentRepository>),
+    TEInvSeriesRepository(Self.UoW.GetRepository<TEInvSeries, TEInvSeriesRepository>), AHeader.Id);
 end;
 
 procedure TSlsInvoiceService.PrepareCopyHeader(AHeader: TSlsInvoice);
 begin
   AHeader.InvoiceNo := '';
+  // e-belge kimliği, durumu ve gümrük çıkış bilgileri kopyalanmaz (yeni ETTN kayıtta üretilir)
+  AHeader.EinvUuid := '';
+  AHeader.EinvStatus := 0;
+  AHeader.CustomsDeclarationNo := '';
+  AHeader.GtbRefNo := '';
+  AHeader.ActualExportDate := 0;
 end;
 
 // Kopya kalem irsaliye / siparişten bağımsızdır (sevk / fatura miktarları iki kez sayılmasın); stok faturadan düşer
@@ -563,6 +999,10 @@ begin
   ALine.NetAmount := LNet;
   ALine.VatAmount := LVat;
   ALine.TotalAmount := LTotal;
+  if ALine.EinvWithholdingId > 0 then
+    ALine.WithholdingAmount := TSlsLookup.RoundAmount(LVat * ALine.WithholdingRate / 100)
+  else
+    ALine.WithholdingAmount := 0;
 end;
 
 procedure TSlsInvoiceService.RecalculateTotals(AHeader: TSlsInvoice);
@@ -574,6 +1014,7 @@ begin
   AHeader.NetAmount := 0;
   AHeader.VatAmount := 0;
   AHeader.TotalAmount := 0;
+  AHeader.WithholdingAmount := 0;
   for LLine in AHeader.Lines do
     if not LLine.Deleted then
     begin
@@ -582,7 +1023,10 @@ begin
       AHeader.NetAmount := AHeader.NetAmount + LLine.NetAmount;
       AHeader.VatAmount := AHeader.VatAmount + LLine.VatAmount;
       AHeader.TotalAmount := AHeader.TotalAmount + LLine.TotalAmount;
+      AHeader.WithholdingAmount := AHeader.WithholdingAmount + LLine.WithholdingAmount;
     end;
+  // tevkifatlı faturada alıcı KDV'nin tevkif edilen kısmını öder; cari borç = toplam - tevkifat
+  AHeader.PayableAmount := AHeader.TotalAmount - AHeader.WithholdingAmount;
 end;
 
 procedure TSlsInvoiceService.ValidateBusinessRules(AEntity: TSlsInvoice; AOperation: TCrudOperation);
@@ -594,7 +1038,11 @@ var
 begin
   LRepo := TSlsInvoiceRepository(FRepo);
   if AOperation = coDelete then
+  begin
+    if TEInvLookup.IsEInvLocked(AEntity.EinvStatus) then
+      raise ESlsInvoiceExceptionEInvLocked.Create;
     Exit;
+  end;
 
   AEntity.InvoiceNo := AnsiUpperCase(Trim(AEntity.InvoiceNo));
   AEntity.Description := Trim(AEntity.Description);
@@ -617,6 +1065,9 @@ begin
     AEntity.NetAmount := 0;
     AEntity.VatAmount := 0;
     AEntity.TotalAmount := 0;
+    AEntity.WithholdingAmount := 0;
+    // durum servis tarafından tutulur: yeni e-belge taslak başlar
+    AEntity.EinvStatus := 0;
     if AEntity.InvoiceNo = '' then
       AEntity.InvoiceNo := LRepo.NextDocumentNo(SLS_PREFIX_INVOICE);
   end
@@ -626,6 +1077,12 @@ begin
     try
       if not Assigned(LOld) then
         raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AEntity.Id]));
+      if TEInvLookup.IsEInvLocked(LOld.EinvStatus) then
+        raise ESlsInvoiceExceptionEInvLocked.Create;
+      // e-belge durumu ve ETTN formdan değişmez (durum entegrasyonla, ETTN bir kez üretilir)
+      AEntity.EinvStatus := LOld.EinvStatus;
+      if LOld.EinvUuid <> '' then
+        AEntity.EinvUuid := LOld.EinvUuid;
       if (LRepo.LineCount(AEntity.Id) > 0) and ((LOld.AccAccountId <> AEntity.AccAccountId) or (LOld.Currency <> AEntity.Currency)) then
         raise ESlsInvoiceExceptionKeyFieldsLocked.Create;
       // irsaliyesiz kalem stoktan düşer: ambar boşaltılamaz
@@ -636,12 +1093,20 @@ begin
       AEntity.NetAmount := LOld.NetAmount;
       AEntity.VatAmount := LOld.VatAmount;
       AEntity.TotalAmount := LOld.TotalAmount;
+      AEntity.WithholdingAmount := LOld.WithholdingAmount;
       if AEntity.InvoiceNo = '' then
         AEntity.InvoiceNo := LOld.InvoiceNo;
     finally
       LOld.Free;
     end;
   end;
+
+  // e-Belge: belge kaydında CheckLines'ta bellekteki kalemlerle çalıştı; yalnız başlık kaydında DB kalemleriyle
+  if FEInvCheckedHeader = AEntity then
+    NormalizeEInvHeader(AEntity)
+  else
+    CheckEInvoiceFromDb(AEntity);
+  FEInvCheckedHeader := nil;
 
   LFilter := TFilterCriteria.Create;
   try
@@ -657,6 +1122,27 @@ begin
     end;
   finally
     LFilter.Free;
+  end;
+end;
+
+procedure TSlsInvoiceService.CheckEInvoiceFromDb(AEntity: TSlsInvoice);
+var
+  LOld: TSlsInvoice;
+  LLines: TObjectList<TSlsInvoiceDetail>;
+begin
+  LOld := nil;
+  if AEntity.Id > 0 then
+  begin
+    LOld := FRepo.FindById(AEntity.Id, False);
+    LLines := FindLinesByHeaderIds([AEntity.Id]);
+  end
+  else
+    LLines := TObjectList<TSlsInvoiceDetail>.Create(True);
+  try
+    CheckEInvoice(TSlsInvoiceRepository(FRepo), AEntity, LLines.ToArray, LOld, LLines, False);
+  finally
+    LLines.Free;
+    LOld.Free;
   end;
 end;
 

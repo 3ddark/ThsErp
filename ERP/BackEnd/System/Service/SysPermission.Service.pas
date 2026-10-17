@@ -69,6 +69,20 @@ const
   PERMISSION_STK_KIND_FAMILY              = 1046;
   PERMISSION_STK_KIND_PROPERTY            = 1047;
   PERMISSION_STK_INVENTORY_SUMMARY        = 1048;
+  PERMISSION_STK_GTIP                     = 1049;   // GTİP kodları (stok kartı, DİİB satırı, fatura kalemi)
+
+  // e-Belge (UBL-TR kod listeleri; einv_*)
+  PERMISSION_EINV_PROFILE                 = 1050;   // senaryo (ProfileID)
+  PERMISSION_EINV_INVOICE_TYPE            = 1051;   // fatura tipi (InvoiceTypeCode)
+  PERMISSION_EINV_TAX_EXEMPTION           = 1052;   // istisna / muafiyet kodları
+  PERMISSION_EINV_TAX_TYPE                = 1053;   // vergi türü kodları
+  PERMISSION_EINV_WITHHOLDING             = 1054;   // tevkifat kodları
+  PERMISSION_EINV_SERIES                  = 1055;   // e-belge serileri (GİB belge no: seri + yıl + sıra)
+  PERMISSION_EINV_DELIVERY_TERM           = 1056;   // teslim şartları (INCOTERMS)
+  PERMISSION_EINV_TRANSPORT_MODE          = 1057;   // taşıma şekilleri
+  PERMISSION_EINV_PACKAGING_TYPE          = 1058;   // paket / kap cinsleri
+  PERMISSION_EINV_PAYMENT_MEANS           = 1059;   // ödeme şekli kodları
+
   PERMISSION_PRD_BOM                      = 1061;   // reçete + hammadde / yan ürün / işçilik / paket bağlantıları
   PERMISSION_PRD_LABOUR                   = 1062;   // işçilik / gider tanımı
   PERMISSION_PRD_PACKET_RAW               = 1063;   // + paket kalemleri
@@ -100,6 +114,7 @@ const
   PERMISSION_SLS_ORDER                    = 1091;   // sipariş + kalemleri
   PERMISSION_SLS_DISPATCH                 = 1092;   // sevk irsaliyesi + kalemleri (stok çıkışı)
   PERMISSION_SLS_INVOICE                  = 1093;   // satış faturası + kalemleri (irsaliyesiz kalem stok çıkışı)
+  PERMISSION_SLS_DIIB                     = 1094;   // DİİB belgeleri + satırları (ihraç kayıtlı satış)
 
 type
   TSysPermissionService = class(TCrudService<TSysPermission>)
