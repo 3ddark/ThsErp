@@ -1,4 +1,4 @@
-unit ApiService.Config;
+﻿unit ApiService.Config;
 
 // Dış servis (API) bağlantı ayarlarının okunduğu gevşek bağlı uç: modüller (e-Fatura, e-İrsaliye, ileride SMS / döviz kuru
 // ...) yalnız servis türü koduyla TApiServiceConfigs.Get çağırır; ayarın nereden geldiğini bilmez. Kaynak (IApiServiceConfigSource)

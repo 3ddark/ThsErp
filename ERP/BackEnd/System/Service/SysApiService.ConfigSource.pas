@@ -1,4 +1,4 @@
-unit SysApiService.ConfigSource;
+﻿unit SysApiService.ConfigSource;
 
 // TApiServiceConfigs kaynağı: sys_api_service (firma ayarına bağlı servis kaydı) + gizli bilgilerin çözülmesi. Birim
 // yüklenince kendini kaydeder; modüller yalnız ApiService.Config'i kullanır.
