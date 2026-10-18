@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 4phaefDmVsvWCVKDwv3C5OoQFqezgmq2ahDISYfsql3NcIMXZdVxD5Yswk9REPb
+\restrict u3o1iwcLZQ8cZWsRzYsrcdLnkOd0v9f0ePmQuP2ZnQsuUPaCI040zhhkwg6jfuU
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -4435,7 +4435,7 @@ CREATE TABLE public.sys_city (
     id bigint NOT NULL,
     city_name character varying(128) CONSTRAINT sys_city_name_not_null NOT NULL,
     car_plate_code integer,
-    sys_country_id bigint,
+    sys_country_id bigint NOT NULL,
     sys_region_id bigint
 );
 
@@ -11235,6 +11235,13 @@ CREATE UNIQUE INDEX stk_warehouse_default_sales_uidx ON public.stk_warehouse USI
 
 
 --
+-- Name: sys_city_sys_region_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sys_city_sys_region_id_idx ON public.sys_city USING btree (sys_region_id);
+
+
+--
 -- Name: sys_menu_parent_code_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -13513,7 +13520,7 @@ ALTER TABLE ONLY public.sys_application_setting
 --
 
 ALTER TABLE ONLY public.sys_city
-    ADD CONSTRAINT sys_city_sys_country_id_fkey FOREIGN KEY (sys_country_id) REFERENCES public.sys_country(id) ON UPDATE SET NULL;
+    ADD CONSTRAINT sys_city_sys_country_id_fkey FOREIGN KEY (sys_country_id) REFERENCES public.sys_country(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -13521,7 +13528,7 @@ ALTER TABLE ONLY public.sys_city
 --
 
 ALTER TABLE ONLY public.sys_city
-    ADD CONSTRAINT sys_city_sys_region_id_fkey FOREIGN KEY (sys_region_id) REFERENCES public.sys_region(id) ON UPDATE SET NULL;
+    ADD CONSTRAINT sys_city_sys_region_id_fkey FOREIGN KEY (sys_region_id) REFERENCES public.sys_region(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -13883,5 +13890,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 4phaefDmVsvWCVKDwv3C5OoQFqezgmq2ahDISYfsql3NcIMXZdVxD5Yswk9REPb
+\unrestrict u3o1iwcLZQ8cZWsRzYsrcdLnkOd0v9f0ePmQuP2ZnQsuUPaCI040zhhkwg6jfuU
 

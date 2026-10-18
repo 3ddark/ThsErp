@@ -10,8 +10,6 @@ inherited frmDashboard: TfrmDashboard
   Menu = mm1
   Position = poScreenCenter
   Scaled = False
-  WindowMenu = mnisys_do_database_backup
-  OnActivate = FormActivate
   OnClose = nil
   ExplicitWidth = 931
   ExplicitHeight = 531
@@ -215,16 +213,6 @@ inherited frmDashboard: TfrmDashboard
       Caption = 'About'
       ImageIndex = 34
       OnExecute = actsys_aboutExecute
-    end
-    object actsys_database_status: TAction
-      Category = 'System'
-      Caption = 'Database Monitor'
-      ImageIndex = 55
-    end
-    object actsys_do_database_backup: TAction
-      Category = 'System'
-      Caption = 'Database Backup'
-      ImageIndex = 18
     end
     object actstk_ambarlar: TAction
       Category = 'Stok'
@@ -1116,14 +1104,6 @@ inherited frmDashboard: TfrmDashboard
       object mnisys_update_password: TMenuItem
         Action = actsys_update_password
         Caption = #350'ifre De'#287'i'#351'tir'
-      end
-      object mnisys_database_status: TMenuItem
-        Action = actsys_database_status
-        Caption = 'Veri Taban'#305' Monitor'
-      end
-      object mnisys_do_database_backup: TMenuItem
-        Action = actsys_do_database_backup
-        Caption = 'Veri Taban'#305' Yedek'
       end
       object N2: TMenuItem
         Caption = '-'

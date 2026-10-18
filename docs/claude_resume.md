@@ -890,7 +890,13 @@ Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
   sys_country id 332 'ÇA' "Çanzania" (test çöpü, referanssız) kullanıcı onayıyla silindi (250 ülke).
   Test: entegrasyon 1894 / 0; UI System 372, Account 248, Stock 155 pass / 0 fail.
 - emp_transportation.route UI dışında
-- sys_city FK kuralları (ON UPDATE SET NULL), ufrmSysUomGroup DFM adı (frmSysUomType), Dashboard boş action'lar / SetSession
+- 2026-10-18: sys_city.sys_country_id NOT NULL; ülke / bölge FK'leri ON UPDATE CASCADE ON DELETE RESTRICT (ON UPDATE SET NULL
+  idi) + sys_city_sys_region_id_idx (yedek scratchpad ths_erp_before_sys_city_fk.dump). ufrmSysUomGroup DFM adı zaten
+  doğruydu (tüm DFM nesne adları sınıf adlarıyla eşleşiyor). Dashboard: hiçbir action'a bağlı olmayan 16 boş handler +
+  FormActivate, işlevsiz actsys_database_status / actsys_do_database_backup (action + menü), WindowMenu ve SetSession'daki eski
+  TSysErisimHakki yorum bloğu silindi.
+- Uygulama FK ihlalini (silmede 23503 "kayıt kullanımda") çevirmiyor: kullanıcı ham PostgreSQL hatası görür — genel bir
+  hata çevirici (EFDDBEngineException.Kind = ekFKViolated / ekUKViolated) eklenebilir.
 
 ## Hatalar / Engeller
 - Bu PC'de güncel DB 5433'te; GlobalSettings.ini DBPortNo=5432 (diğer makine değeri) ve 5432'de 2023'ten kalma eski ths_erp var

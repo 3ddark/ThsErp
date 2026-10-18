@@ -125,7 +125,6 @@ type
     actsys_grid_filter: TAction;
     actsys_grid_sort: TAction;
     actsys_application_setting: TAction;
-    actsys_database_status: TAction;
     actsys_about: TAction;
     actsys_update_password: TAction;
     actsys_refresh_permissions: TAction;
@@ -140,14 +139,11 @@ type
     actsys_unit: TAction;
     actsys_region: TAction;
     actsys_unit_type: TAction;
-    actsys_do_database_backup: TAction;
     mm1: TMainMenu;
     mnimenu_about: TMenuItem;
     mnisys_update_password: TMenuItem;
     mnisys_refresh_permissions: TMenuItem;
     mnisys_refresh_permissions_sep: TMenuItem;
-    mnisys_database_status: TMenuItem;
-    mnisys_do_database_backup: TMenuItem;
     mnisys_about: TMenuItem;
     N3: TMenuItem;
     mnimenu_system: TMenuItem;
@@ -380,7 +376,6 @@ type
     procedure ApplyActionPermissions;
     function ReloadCurrentUser: Boolean;
     procedure RefreshUserPermissions(AShowInfo: Boolean);
-    procedure FormActivate(Sender: TObject);
     procedure ResetSession(pPanelGroupboxPagecontrolTabsheet: TWinControl);
     procedure tmrcheck_is_update_requiredTimer(Sender: TObject);
     procedure actsys_permission_groupExecute(Sender: TObject);
@@ -392,10 +387,6 @@ type
     procedure actsys_grid_sortExecute(Sender: TObject);
     procedure actsys_languageExecute(Sender: TObject);
     procedure actsys_application_settingExecute(Sender: TObject);
-    procedure actquality_form_mail_recieversExecute(Sender: TObject);
-    procedure actodeme_baslangic_donemleriExecute(Sender: TObject);
-    procedure actset_efatura_fatura_tipiExecute(Sender: TObject);
-    procedure actset_efatura_istisna_koduExecute(Sender: TObject);
     procedure actsys_aboutExecute(Sender: TObject);
     procedure actsys_update_passwordExecute(Sender: TObject);
     procedure actsys_refresh_permissionsExecute(Sender: TObject);
@@ -403,15 +394,8 @@ type
     procedure actsys_countryExecute(Sender: TObject);
     procedure actsys_cityExecute(Sender: TObject);
     procedure actacc_exchange_rateExecute(Sender: TObject);
-    procedure actset_prs_bolumExecute(Sender: TObject);
-    procedure actset_prs_lisanExecute(Sender: TObject);
-    procedure actset_prs_gorevExecute(Sender: TObject);
-    procedure actset_prs_birimExecute(Sender: TObject);
     procedure actsys_currencyExecute(Sender: TObject);
     procedure actsys_unitExecute(Sender: TObject);
-    procedure actset_bbk_calisma_durumuExecute(Sender: TObject);
-    procedure actset_bbk_finans_durumuExecute(Sender: TObject);
-    procedure actset_bbk_firma_tipiExecute(Sender: TObject);
     procedure actch_hesap_karti_araExecute(Sender: TObject);
     procedure actch_hesap_kartiExecute(Sender: TObject);
     procedure actch_bolgeExecute(Sender: TObject);
@@ -420,13 +404,8 @@ type
     procedure actset_ch_grupExecute(Sender: TObject);
     procedure actset_ch_hesap_planiExecute(Sender: TObject);
     procedure actset_ch_hesap_tipiExecute(Sender: TObject);
-    procedure actstk_stok_hareketiExecute(Sender: TObject);
     procedure actsys_unit_typeExecute(Sender: TObject);
     procedure actsys_regionExecute(Sender: TObject);
-    procedure actset_einv_odeme_sekliExecute(Sender: TObject);
-    procedure actset_einv_paket_tipiExecute(Sender: TObject);
-    procedure actset_einv_tasima_ucretiExecute(Sender: TObject);
-    procedure actset_einv_teslim_sekliExecute(Sender: TObject);
     procedure actstk_ambarlarExecute(Sender: TObject);
     procedure actstk_gruplarExecute(Sender: TObject);
     procedure actstk_hareketlerExecute(Sender: TObject);
@@ -698,11 +677,6 @@ begin
   TfrmSysUserPassword.ShowChange(Self);
 end;
 
-procedure TfrmDashboard.actodeme_baslangic_donemleriExecute(Sender: TObject);
-begin
-//
-end;
-
 procedure TfrmDashboard.actset_prs_birimlerExecute(Sender: TObject);
 begin
   TfrmEmpUnits.Create(Self, TEmpUnitService.Create, TEmpUnit.Create).Show;
@@ -738,21 +712,6 @@ begin
   TfrmEmpEmployees.Create(Self, TEmpEmployeeService.Create, TEmpEmployee.Create).Show;
 end;
 
-procedure TfrmDashboard.actset_bbk_calisma_durumuExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_bbk_finans_durumuExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_bbk_firma_tipiExecute(Sender: TObject);
-begin
-//
-end;
-
 procedure TfrmDashboard.actset_ch_firma_tipiExecute(Sender: TObject);
 begin
   TfrmAccSetCompanyLegalForms.Create(Self, TAccSetCompanyLegalFormService.Create, TAccSetCompanyLegalForm.Create).Show;
@@ -781,56 +740,6 @@ end;
 procedure TfrmDashboard.actset_ch_vergi_oraniExecute(Sender: TObject);
 begin
   TfrmAccSetTaxRates.Create(Self, TAccSetTaxRateService.Create, TAccSetTaxRate.Create).Show;
-end;
-
-procedure TfrmDashboard.actset_efatura_fatura_tipiExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_efatura_istisna_koduExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_einv_odeme_sekliExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_einv_paket_tipiExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_einv_tasima_ucretiExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_einv_teslim_sekliExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_prs_birimExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_prs_bolumExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_prs_gorevExecute(Sender: TObject);
-begin
-//
-end;
-
-procedure TfrmDashboard.actset_prs_lisanExecute(Sender: TObject);
-begin
-//
 end;
 
 procedure TfrmDashboard.actset_prs_lisanlarExecute(Sender: TObject);
@@ -1114,11 +1023,6 @@ begin
   TfrmStkTransactions.Create(Self, TStkTransactionService.Create, TStkTransaction.Create).Show;
 end;
 
-procedure TfrmDashboard.actstk_stok_hareketiExecute(Sender: TObject);
-begin
-//
-end;
-
 procedure TfrmDashboard.actstk_stok_karti_ozetleriExecute(Sender: TObject);
 begin
   TfrmStkInventorySummaries.Create(Self, TStkInventorySummaryService.Create, TStkInventorySummary.Create).Show;
@@ -1316,11 +1220,6 @@ begin
   TfrmSysAccessRights.Create(Self, TSysAccessRightService.Create, TSysAccessRight.Create).Show;
 end;
 
-procedure TfrmDashboard.actquality_form_mail_recieversExecute(Sender: TObject);
-begin
-//
-end;
-
 procedure TfrmDashboard.actsys_updateExecute(Sender: TObject);
 begin
   if CustomMsgDlg(
@@ -1464,11 +1363,6 @@ destructor TfrmDashboard.Destroy;
 begin
   FActionCodes.Free;
   inherited;
-end;
-
-procedure TfrmDashboard.FormActivate(Sender: TObject);
-begin
-//
 end;
 
 procedure TfrmDashboard.DynamicLangMenuItemClick(Sender: TObject);
@@ -1752,10 +1646,6 @@ begin
         actsys_refresh_permissions.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuRefreshPermissions, 'Refresh My Permissions');
       if Assigned(mnisys_update_password) then
         mnisys_update_password.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuChangePassword, 'Change Password');
-      if Assigned(mnisys_database_status) then
-        mnisys_database_status.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuDbMonitor, 'Database Status');
-      if Assigned(mnisys_do_database_backup) then
-        mnisys_do_database_backup.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuDbBackup, 'Backup Database');
       if Assigned(mnisys_update) then
         mnisys_update.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.MenuUpdate, 'Update');
       if Assigned(mnisys_about) then
@@ -2123,9 +2013,6 @@ begin
 end;
 
 procedure TfrmDashboard.SetSession;
-//var
-//  LRights: TSysErisimHakki;
-//  n1: Integer;
 begin
   // sol menü genişliği / görünürlüğü / açık klasörler: oturum başında bir kez (menü yüklenmeden önce)
   if not FNavStateLoaded then
@@ -2136,164 +2023,6 @@ begin
   LoadKpis;
   // önceki oturumlardan / girişten kalan işlem geçmişi
   FlushAudit;
-(*  LRights := TSysErisimHakki.Create(GDataBase);
-  try
-    LRights.SelectToList(' AND ' + LRights.TableName + '.' + LRights.KullaniciID.FieldName + '=' + VarToStr(GSysKullanici.Id.Value), False, False);
-    for n1 := 0 to LRights.List.Count-1 do
-    begin
-      if (TSysErisimHakki(LRights.List[n1]).IsOkuma.Value)
-      or (TSysErisimHakki(LRights.List[n1]).IsEkleme.Value)
-      or (TSysErisimHakki(LRights.List[n1]).IsGuncelleme.Value)
-      or (TSysErisimHakki(LRights.List[n1]).IsSilme.Value)
-      or (TSysErisimHakki(LRights.List[n1]).IsOzel.Value)
-      then
-      begin
-        //Genel
-        if CheckStringInArray(MODULE_SISTEM, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
-          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_SISTEM_AYAR then
-          begin
-            //
-          end
-          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_SISTEM_DIGER then
-          begin
-            btnsys_olcu_birimleri.Enabled := True;
-            btnsys_para_birimleri.Enabled := True;
-          end;
-
-        //Genel
-        if CheckStringInArray(MODULE_GENEL, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
-        begin
-          if not tsStock.TabVisible then
-            tsStock.TabVisible := True;
-
-          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_BBK_AYAR then
-          begin
-            //
-          end
-          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_BBK_KAYIT then
-          begin
-            btnbbk_kayit.Enabled := True;
-          end;
-        end
-
-        //Cari Hesap
-        else if CheckStringInArray(MODULE_CH, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
-        begin
-          if not tsaccount.TabVisible then
-            tsaccount.TabVisible := True;
-
-          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_CH_AYAR then
-          begin
-            btnset_ch_grup.Enabled := True;
-            btnset_ch_hesap_plani.Enabled := True;
-            btnset_ch_vergi_orani.Enabled := True;
-          end
-          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_CH_KAYIT then
-          begin
-            btnch_banka.Enabled := True;
-            btnch_banka_subesi.Enabled := True;
-            btnch_bolge.Enabled := True;
-            btnch_hesap_karti.Enabled := True;
-            btnch_hesap_karti_ara.Enabled := True;
-          end;
-        end
-
-        //Muhasebe
-        else if CheckStringInArray(MODULE_MHS, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
-        begin
-          if not tsaccounting.TabVisible then
-            tsaccounting.TabVisible := True;
-
-          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_MHS_AYAR then
-          begin
-
-          end
-          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_MHS_DOVIZ_KURU then
-          begin
-            btnAccDovizKuru.Enabled := True;
-          end;
-        end
-
-        //Stok Kartı
-        else if CheckStringInArray(MODULE_STK, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
-        begin
-          if not tsStock.TabVisible then
-            tsStock.TabVisible := True;
-
-          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_STK_KAYIT then
-          begin
-            btnstk_stok_karti.Enabled := True;
-            btnstk_cins_ozelligi.Enabled := True;
-            btnstk_stok_ambar.Enabled := True;
-            btnstk_stok_grubu.Enabled := True;
-          end;
-        end
-        //Reçete
-        else if CheckStringInArray(MODULE_RCT, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
-        begin
-          if not tsbom.TabVisible then
-            tsbom.TabVisible := True;
-
-          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_RCT_RECETE_AYAR then
-          begin
-            btnrct_paket_hammadde.Enabled := True;
-            btnrct_iscilik_gideri.Enabled := True;
-          end
-          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_RCT_RECETE_KAYIT then
-          begin
-            btnrct_recete.Enabled := True;
-          end;
-        end
-        //Personel
-        else if CheckStringInArray(MODULE_PERSONEL, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
-        begin
-          if not tsemployee.TabVisible then
-            tsemployee.TabVisible := True;
-          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_PRS_AYAR then
-          begin
-
-          end
-          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_PRS_KAYIT then
-          begin
-            btnprs_personel.Enabled := True;
-          end
-        end
-        //Satış
-        else if CheckStringInArray(MODULE_TSIF, VarToStr(TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value)) then
-        begin
-          if not tssales.TabVisible then
-            tssales.TabVisible := True;
-
-          if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_TSIF_AYAR then
-          begin
-//            actset_efatura_fatura_tipi.Enabled := True;
-//            actset_efatura_iletisim_kanali.Enabled := True;
-//            actset_efatura_istisna_kodu.Enabled := True;
-//            actset_teklif_tipleri.Enabled := True;
-          end
-          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_SAT_TEK_KAYIT then
-          begin
-            btnsat_teklif.Enabled := True;
-          end
-          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_SAT_SIP_KAYIT then
-          begin
-            btnsat_siparis.Enabled := True;
-          end
-          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_SAT_TEK_RAPOR then
-          begin
-            btnsat_teklif_rapor.Enabled := True;
-          end
-          else if TSysErisimHakki(LRights.List[n1]).KaynakKodu.Value = MODULE_SAT_SIP_RAPOR then
-          begin
-            btnsat_siparis_rapor.Enabled := True;
-          end
-        end
-      end;
-    end;
-  finally
-    FreeAndNil(LRights);
-  end;
-*)
 end;
 
 { ---------------------------------------------------------------- Sol menü / ekran kodları }
