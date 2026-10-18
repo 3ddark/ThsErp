@@ -21,4 +21,4 @@ paths:
 - DB-side names (permissions, groups, units, countries …) are translated through `*_translation` tables, not JSON
   (see `rules/database.md` — locale strategy).
 - `GlobalSettings.ini [SupportedLanguages]` is written from `sys_language` at login; a language listed there needs both a
-  JSON file and DB translations (currently de-DE / fr-FR DB translations are incomplete).
+  JSON file and DB translations (de-DE DB translations complete since 2026-10-18; fr-FR has a JSON file but no `sys_language` row).

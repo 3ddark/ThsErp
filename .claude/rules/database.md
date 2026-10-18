@@ -54,6 +54,8 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   Views already migrated to this pattern: `vw_emp_employee`, `vw_sys_user`, `vw_sys_permission`, `vw_sys_access_right`,
   `vw_sys_permission_template_right`, `vw_sys_address`, `vw_emp_person_type`, `vw_emp_section`, `vw_emp_unit`, `vw_emp_task`,
   `vw_acc_account`, `vw_acc_set_account_type`, `vw_acc_set_ownership_type`, `vw_acc_set_company_legal_form`,
+  `vw_sys_country`, `vw_sys_city`, `vw_sys_permission_group`, `vw_sys_uom`, `vw_sys_uom_group` (2026-10-18; every
+  locale view now follows it — keep the fallback cast to the column's original type so `CREATE OR REPLACE` works),
   `vw_stk_inventory` (uom / country names via their translation tables; also exposes the card-specific accounting
   overrides and their `default_*` fallbacks).
 - Stock card accounting overrides: `stk_inventory.vat_rate` + 7 account columns are NULL = inherit (group accounts from
@@ -61,8 +63,8 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   resolved values from `vw_stk_inventory_account`, never `stk_group` directly.
   `stk_group.vat_rate` (NOT NULL, no default) and `stk_inventory.vat_rate` (NULL = group) are FKs to
   `acc_set_tax_rate(tax_rate)` (ON UPDATE CASCADE, ON DELETE RESTRICT): only defined rates; forms offer a combo.
-  Others (`vw_sys_city`, `vw_sys_country`, `vw_sys_uom*` …)
-  still derive locale from translations — migrate when touched.
+- Country names (`sys_country_translation`) come from Unicode CLDR by ISO alpha-2 code (tr-TR / en-US / de-DE,
+  normal case). A new language: generate its names the same way (Python Babel `Locale(...).territories[code]`).
 - Views without translations have no `locale` column; their repositories must not add a locale filter.
 - Changing view columns: `DROP VIEW` + `CREATE VIEW` (not `CREATE OR REPLACE` when names/types/order change), then check
   `sys_grid_column` / `sys_user_grid_column` for rows with old column names and delete/rename them.

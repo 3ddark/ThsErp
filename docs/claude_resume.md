@@ -882,8 +882,13 @@ Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
   okur; TSysUser.UserPassword artık Required değil (view'da yok → güncellemede boş) — yeni kayıtta zorunluluğu servis
   (ValidatePasswordStrength) + formda edtUserPassword.thsRequiredData sağlar. Test: entegrasyon 1894 pass / 0 fail (+3: view
   şifre içermez, login, yanlış şifre); UI harness System 372 pass / 0 fail.
-- Diğer translation view'larında locale stratejisi (vw_sys_city, vw_sys_country, vw_sys_uom*, vw_emp_* ...) ve de-DE çeviri eksikleri
-  (vw_emp_person_type locale NULL → personel tipi adı boş)
+- 2026-10-18: locale stratejisi tamamlandı — vw_sys_country / vw_sys_city / vw_sys_permission_group / vw_sys_uom /
+  vw_sys_uom_group CROSS JOIN sys_language + COALESCE(çeviri, key/kod) (CREATE OR REPLACE, kolonlar aynı; yedek scratchpad
+  ths_erp_before_locale_views.dump). Önceden de-DE'de şehir / ülke listesi boştu. Ülke adları CLDR'den (Babel 2.16)
+  üç dilde yeniden yazıldı (en-US'in 246/251'i tr-TR ile aynıydı). de-DE eksikleri: 8 yetki grubu, 4 birim grubu, 4 yetki
+  eklendi; car-traking en/tr yazım hatası düzeltildi. Tüm *_translation tablolarında eksik dil satırı kalmadı.
+  Kalan: sys_country id 332 'ÇA' "Çanzania" (iso_year 2026) test çöpü gibi — kullanıcıya soruldu, dokunulmadı.
+  Test: entegrasyon 1894 / 0; UI System 372, Account 248, Stock 155 pass / 0 fail.
 - emp_transportation.route UI dışında
 - sys_city FK kuralları (ON UPDATE SET NULL), ufrmSysUomGroup DFM adı (frmSysUomType), Dashboard boş action'lar / SetSession
 

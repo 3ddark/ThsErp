@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict AfkNt6MsNrauWg0xou3neSQ7QVCdvkKuHXuW2gh8KrnKroafAl799blXMHe07zx
+\restrict fUNTl4L1HMA7BtYPzS1s0Z8aHN3Ve8CnnlPnUoZ9NXchQVR7sKjrswThLgMMmIW
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -7939,15 +7939,14 @@ CREATE VIEW public.vw_sys_city AS
     ct.sys_country_id,
     ct.sys_region_id,
     cn.country_code,
-    cnt.country_name,
+    (COALESCE(cnt.country_name, cn.country_code))::character varying(128) AS country_name,
     r.region_name,
     l.locale
    FROM ((((public.sys_city ct
+     CROSS JOIN public.sys_language l)
      LEFT JOIN public.sys_country cn ON ((cn.id = ct.sys_country_id)))
-     LEFT JOIN public.sys_country_translation cnt ON ((cnt.sys_country_id = ct.sys_country_id)))
-     LEFT JOIN public.sys_region r ON ((r.id = ct.sys_region_id)))
-     LEFT JOIN public.sys_language l ON ((cnt.sys_language_id = l.id)))
-  WHERE (1 = 1);
+     LEFT JOIN public.sys_country_translation cnt ON (((cnt.sys_country_id = ct.sys_country_id) AND (cnt.sys_language_id = l.id))))
+     LEFT JOIN public.sys_region r ON ((r.id = ct.sys_region_id)));
 
 
 ALTER VIEW public.vw_sys_city OWNER TO ths_admin;
@@ -7962,11 +7961,11 @@ CREATE VIEW public.vw_sys_country AS
     cn.iso_year,
     cn.iso_cctld,
     cn.is_eu_member,
-    cnt.country_name,
+    (COALESCE(cnt.country_name, cn.country_code))::character varying(128) AS country_name,
     l.locale
    FROM ((public.sys_country cn
-     LEFT JOIN public.sys_country_translation cnt ON ((cnt.sys_country_id = cn.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = cnt.sys_language_id)));
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.sys_country_translation cnt ON (((cnt.sys_country_id = cn.id) AND (cnt.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_sys_country OWNER TO ths_admin;
@@ -8114,11 +8113,11 @@ ALTER VIEW public.vw_sys_menu OWNER TO ths_admin;
 CREATE VIEW public.vw_sys_permission_group AS
  SELECT pg.id,
     pg.permission_group_key,
-    pgt.permission_group_name,
+    COALESCE(pgt.permission_group_name, pg.permission_group_key) AS permission_group_name,
     l.locale
    FROM ((public.sys_permission_group pg
-     LEFT JOIN public.sys_permission_group_translation pgt ON ((pgt.sys_permission_group_id = pg.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = pgt.sys_language_id)));
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.sys_permission_group_translation pgt ON (((pgt.sys_permission_group_id = pg.id) AND (pgt.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_sys_permission_group OWNER TO ths_admin;
@@ -8194,14 +8193,13 @@ CREATE VIEW public.vw_sys_uom AS
     u."decimal",
     u.multiplier,
     u.sys_uom_group_id,
-    ut.uom_name,
+    (COALESCE(ut.uom_name, u.unit_code))::character varying(64) AS uom_name,
     ug.uom_group_key,
     l.locale
-   FROM ((((public.sys_uom u
+   FROM (((public.sys_uom u
+     CROSS JOIN public.sys_language l)
      LEFT JOIN public.sys_uom_group ug ON ((ug.id = u.sys_uom_group_id)))
-     LEFT JOIN public.sys_uom_translation ut ON ((ut.sys_uom_id = u.id)))
-     LEFT JOIN public.sys_uom_group_translation ugt ON (((ugt.sys_uom_group_id = u.sys_uom_group_id) AND (ugt.sys_language_id = ut.sys_language_id))))
-     LEFT JOIN public.sys_language l ON ((l.id = ut.sys_language_id)));
+     LEFT JOIN public.sys_uom_translation ut ON (((ut.sys_uom_id = u.id) AND (ut.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_sys_uom OWNER TO ths_admin;
@@ -8213,11 +8211,11 @@ ALTER VIEW public.vw_sys_uom OWNER TO ths_admin;
 CREATE VIEW public.vw_sys_uom_group AS
  SELECT ut.id,
     ut.uom_group_key,
-    utt.uom_group_name,
+    COALESCE(utt.uom_group_name, ut.uom_group_key) AS uom_group_name,
     l.locale
    FROM ((public.sys_uom_group ut
-     LEFT JOIN public.sys_uom_group_translation utt ON ((utt.sys_uom_group_id = ut.id)))
-     LEFT JOIN public.sys_language l ON ((l.id = utt.sys_language_id)));
+     CROSS JOIN public.sys_language l)
+     LEFT JOIN public.sys_uom_group_translation utt ON (((utt.sys_uom_group_id = ut.id) AND (utt.sys_language_id = l.id))));
 
 
 ALTER VIEW public.vw_sys_uom_group OWNER TO ths_admin;
@@ -13885,5 +13883,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict AfkNt6MsNrauWg0xou3neSQ7QVCdvkKuHXuW2gh8KrnKroafAl799blXMHe07zx
+\unrestrict fUNTl4L1HMA7BtYPzS1s0Z8aHN3Ve8CnnlPnUoZ9NXchQVR7sKjrswThLgMMmIW
 
