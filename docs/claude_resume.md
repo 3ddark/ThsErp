@@ -887,7 +887,7 @@ Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
   ths_erp_before_locale_views.dump). Önceden de-DE'de şehir / ülke listesi boştu. Ülke adları CLDR'den (Babel 2.16)
   üç dilde yeniden yazıldı (en-US'in 246/251'i tr-TR ile aynıydı). de-DE eksikleri: 8 yetki grubu, 4 birim grubu, 4 yetki
   eklendi; car-traking en/tr yazım hatası düzeltildi. Tüm *_translation tablolarında eksik dil satırı kalmadı.
-  Kalan: sys_country id 332 'ÇA' "Çanzania" (iso_year 2026) test çöpü gibi — kullanıcıya soruldu, dokunulmadı.
+  sys_country id 332 'ÇA' "Çanzania" (test çöpü, referanssız) kullanıcı onayıyla silindi (250 ülke).
   Test: entegrasyon 1894 / 0; UI System 372, Account 248, Stock 155 pass / 0 fail.
 - emp_transportation.route UI dışında
 - sys_city FK kuralları (ON UPDATE SET NULL), ufrmSysUomGroup DFM adı (frmSysUomType), Dashboard boş action'lar / SetSession
