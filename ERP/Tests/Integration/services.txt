@@ -90,5 +90,7 @@ EInvoice|EInvTransportMode.Service|TEInvTransportModeService|TEInvTransportMode|
 EInvoice|EInvPackagingType.Service|TEInvPackagingTypeService|TEInvPackagingType|EInvPackagingType
 EInvoice|EInvPaymentMeans.Service|TEInvPaymentMeansService|TEInvPaymentMeans|EInvPaymentMeans
 EInvoice|EInvGtip.Service|TEInvGtipService|TEInvGtip|EInvGtip
+EInvoice|EInvVehicle.Service|TEInvVehicleService|TEInvVehicle|EInvVehicle
+EInvoice|EInvDriver.Service|TEInvDriverService|TEInvDriver|EInvDriver
 EInvoice|EInvDiib.Service|TEInvDiibService|TEInvDiib|EInvDiib
 EInvoice|EInvDiibLine.Service|TEInvDiibLineService|TEInvDiibLine|EInvDiibLine

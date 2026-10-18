@@ -913,6 +913,7 @@ type
         const MenuAddresses = 'acc_account.popup.addresses';
         const CodeUnique = 'acc_account.code_unique';
         const MenuTransactions = 'acc_account.popup.transactions';
+        const ColEDespatchActive = 'acc_account.col_e_despatch_active';
       end;
 
       TAccAccountAddress = record
@@ -2226,6 +2227,38 @@ type
         const ColStatus = 'sls_dispatch.col_status';
         const QuickWaiting = 'sls_dispatch.quick.waiting';
         const QuickClosed = 'sls_dispatch.quick.closed';
+        const ColEinvProfileId = 'sls_dispatch.col_einv_profile_id';
+        const ColProfileCode = 'sls_dispatch.col_profile_code';
+        const ColEinvUuid = 'sls_dispatch.col_einv_uuid';
+        const ColEinvStatus = 'sls_dispatch.col_einv_status';
+        const ColEinvNo = 'sls_dispatch.col_einv_no';
+        const ColDespatchTime = 'sls_dispatch.col_despatch_time';
+        const ColCarrierAccAccountId = 'sls_dispatch.col_carrier_acc_account_id';
+        const ColCarrierCode = 'sls_dispatch.col_carrier_code';
+        const ColCarrierName = 'sls_dispatch.col_carrier_name';
+        const ColEinvVehicleId = 'sls_dispatch.col_einv_vehicle_id';
+        const ColVehiclePlate = 'sls_dispatch.col_vehicle_plate';
+        const ColTrailer1EinvVehicleId = 'sls_dispatch.col_trailer1_einv_vehicle_id';
+        const ColTrailer1Plate = 'sls_dispatch.col_trailer1_plate';
+        const ColTrailer2EinvVehicleId = 'sls_dispatch.col_trailer2_einv_vehicle_id';
+        const ColTrailer2Plate = 'sls_dispatch.col_trailer2_plate';
+        const ColDriver1EinvDriverId = 'sls_dispatch.col_driver1_einv_driver_id';
+        const ColDriver1Name = 'sls_dispatch.col_driver1_name';
+        const ColDriver2EinvDriverId = 'sls_dispatch.col_driver2_einv_driver_id';
+        const ColDriver2Name = 'sls_dispatch.col_driver2_name';
+        const ColAccountEDespatchActive = 'sls_dispatch.col_account_e_despatch_active';
+        const ColEinvXmlValid = 'sls_dispatch.col_einv_xml_valid';
+        const TabGeneral = 'sls_dispatch.tab_general';
+        const TabEDespatch = 'sls_dispatch.tab_edespatch';
+        const EInvLocked = 'sls_dispatch.einv_locked';
+        const EInvProfileKind = 'sls_dispatch.einv_profile_kind';
+        const EInvInactive = 'sls_dispatch.einv_inactive';
+        const TransportRequired = 'sls_dispatch.transport_required';
+        const VehicleIsTrailer = 'sls_dispatch.vehicle_is_trailer';
+        const TrailerNotTrailer = 'sls_dispatch.trailer_not_trailer';
+        const TrailerDuplicate = 'sls_dispatch.trailer_duplicate';
+        const DriverDuplicate = 'sls_dispatch.driver_duplicate';
+        const MsgEInvNoDocument = 'sls_dispatch.msg_einv_no_document';
       end;
 
       TSlsDispatchDetail = record
@@ -2409,6 +2442,7 @@ type
         const StatusCancelled = 'einv_option.status_cancelled';
         const SeriesInvoice = 'einv_option.series_invoice';
         const SeriesArchive = 'einv_option.series_archive';
+        const SeriesDespatch = 'einv_option.series_despatch';
       end;
 
       TEInvProfile = record
@@ -2622,6 +2656,11 @@ type
         const MsgSchemaMissing = 'einv_document.einv_document.msg_schema_missing';
         const MsgSchemaInvalid = 'einv_document.einv_document.msg_schema_invalid';
         const MsgValidatorError = 'einv_document.einv_document.msg_validator_error';
+        const RoleDespatchSupplier = 'einv_document.einv_document.role_despatch_supplier';
+        const RoleDeliveryCustomer = 'einv_document.einv_document.role_delivery_customer';
+        const RoleCarrier = 'einv_document.einv_document.role_carrier';
+        const MsgTransport = 'einv_document.einv_document.msg_transport';
+        const MsgDespatchNoLines = 'einv_document.einv_document.msg_despatch_no_lines';
       end;
 
       //PostgreSQL constraint errors (Db.ErrorTranslator)
@@ -2633,6 +2672,33 @@ type
         const NotNull = 'db_error.not_null';
         const Check = 'db_error.check';
         const TechnicalDetail = 'db_error.technical_detail';
+      end;
+
+      //e-Despatch transport definitions (vehicles, drivers)
+      TEInvVehicle = record
+        const TitlePlural = 'einv_vehicle.title_plural';
+        const TitleSingular = 'einv_vehicle.title_singular';
+        const ColPlateNo = 'einv_vehicle.col_plate_no';
+        const ColIsTrailer = 'einv_vehicle.col_is_trailer';
+        const ColDescription = 'einv_vehicle.col_description';
+        const ColIsActive = 'einv_vehicle.col_is_active';
+        const PlateUnique = 'einv_vehicle.plate_unique';
+        const PlateInvalid = 'einv_vehicle.plate_invalid';
+        const InUse = 'einv_vehicle.in_use';
+      end;
+
+      TEInvDriver = record
+        const TitlePlural = 'einv_driver.title_plural';
+        const TitleSingular = 'einv_driver.title_singular';
+        const ColFirstName = 'einv_driver.col_first_name';
+        const ColFamilyName = 'einv_driver.col_family_name';
+        const ColNationalId = 'einv_driver.col_national_id';
+        const ColPhone = 'einv_driver.col_phone';
+        const ColIsActive = 'einv_driver.col_is_active';
+        const ColFullName = 'einv_driver.col_full_name';
+        const NationalIdUnique = 'einv_driver.national_id_unique';
+        const NationalIdInvalid = 'einv_driver.national_id_invalid';
+        const InUse = 'einv_driver.in_use';
       end;
   end;
 

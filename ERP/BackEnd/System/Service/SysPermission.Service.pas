@@ -115,6 +115,8 @@ const
   PERMISSION_SLS_DISPATCH                 = 1092;   // sevk irsaliyesi + kalemleri (stok çıkışı)
   PERMISSION_SLS_INVOICE                  = 1093;   // satış faturası + kalemleri (irsaliyesiz kalem stok çıkışı)
   PERMISSION_SLS_DIIB                     = 1094;   // DİİB belgeleri + satırları (ihraç kayıtlı satış)
+  PERMISSION_EINV_VEHICLE                 = 1095;   // araç / dorse tanımları (e-İrsaliye taşıma)
+  PERMISSION_EINV_DRIVER                  = 1096;   // şoför tanımları (e-İrsaliye taşıma)
 
 type
   TSysPermissionService = class(TCrudService<TSysPermission>)

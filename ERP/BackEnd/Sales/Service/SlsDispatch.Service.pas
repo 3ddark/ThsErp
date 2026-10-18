@@ -25,6 +25,8 @@ type
     procedure DoDelete(AId: Int64);
 
     procedure FailRequired(const AKey, ADefault: string);
+    // e-İrsaliye: senaryo / ETTN / durum + taşıma kuralları (AOld: güncellemede DB'deki kayıt, eklemede nil)
+    procedure CheckEDespatch(AEntity, AOld: TSlsDispatch);
   protected
     // ---- belge yapısı / kayıt adımları (TDocumentService)
     function GetLines(AHeader: TSlsDispatch): TObjectList<TSlsDispatchDetail>; override;
@@ -51,6 +53,8 @@ type
     procedure RecalculateTotals(AHeader: TSlsDispatch); override;
     // Onaylı siparişin kalan miktarlarından sevk irsaliyesi (stok çıkışı dahil); yeni irsaliye id
     function CreateFromOrder(AOrderId, AWarehouseId: Int64; APermissionControl: Boolean): Int64;
+    // Senaryo seçilmemişse cariye göre öneri: e-İrsaliye mükellefi -> TEMELIRSALIYE (değilse kağıt irsaliye)
+    procedure SuggestEDespatch(ADispatch: TSlsDispatch; AEDespatchUser: Boolean);
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
@@ -72,7 +76,8 @@ type
 implementation
 
 uses
-  SysPermission.Service, SlsLookup, SlsDispatchDetail.Service, SlsDispatchDetail.Exception;
+  SysPermission.Service, SlsLookup, SlsDispatchDetail.Service, SlsDispatchDetail.Exception, EInvLookup,
+  EInvDocument, EInvDocument.Repository, EInvDocument.Service, EInvSeries, EInvSeries.Repository;
 
 constructor TSlsDispatchService.Create;
 begin
@@ -331,6 +336,10 @@ begin
   if AHeader.SlsOrderId > 0 then
     TSlsOrderRepository(FOrderRepo).RefreshDeliveredQuantities(AHeader.SlsOrderId);
   TSlsDispatchRepository(FRepo).RefreshInvoiceStatus(AHeader.Id);
+  // e-İrsaliye: UBL XML üretilir + şema doğrulaması (kaydı engellemez); kağıt irsaliyede XML kaydı silinir
+  TEInvDocumentService.GenerateForDispatch(
+    TEInvDocumentRepository(Self.UoW.GetRepository<TEInvDocument, TEInvDocumentRepository>),
+    TEInvSeriesRepository(Self.UoW.GetRepository<TEInvSeries, TEInvSeriesRepository>), AHeader.Id);
 end;
 
 // Kopya siparişten bağımsızdır (siparişin sevk miktarı iki kez sayılmasın)
@@ -340,6 +349,11 @@ begin
   AHeader.Status := SLS_DSP_WAITING;
   AHeader.SlsOrderId := 0;
   AHeader.OrderNo := '';
+  // e-belge kimliği / durumu / numarası kopyalanmaz (yeni ETTN kayıtta üretilir); taşıma bilgisi kalır
+  AHeader.EinvUuid := '';
+  AHeader.EinvStatus := 0;
+  AHeader.EinvNo := '';
+  AHeader.DespatchTime := 0;
 end;
 
 procedure TSlsDispatchService.PrepareCopyLine(AHeader: TSlsDispatch; ALine: TSlsDispatchDetail);
@@ -377,6 +391,8 @@ begin
   LRepo := TSlsDispatchRepository(FRepo);
   if AOperation = coDelete then
   begin
+    if TEInvLookup.IsEInvLocked(LRepo.EInvStatus(AEntity.Id)) then
+      raise ESlsDispatchExceptionEInvLocked.Create;
     if LRepo.InvoicedQuantity(AEntity.Id) > 0 then
       raise ESlsDispatchExceptionHasInvoices.Create;
     Exit;
@@ -413,6 +429,9 @@ begin
 
   if AOperation = coInsert then
   begin
+    // e-belge durumu servis tarafından tutulur: yeni e-İrsaliye taslak başlar
+    AEntity.EinvStatus := 0;
+    CheckEDespatch(AEntity, nil);
     AEntity.Status := SLS_DSP_WAITING;   // durum faturalardan (belge hook'u)
     if AEntity.DispatchNo = '' then
       AEntity.DispatchNo := LRepo.NextDocumentNo(SLS_PREFIX_DISPATCH);
@@ -423,6 +442,13 @@ begin
     try
       if not Assigned(LOld) then
         raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [AEntity.Id]));
+      if TEInvLookup.IsEInvLocked(LOld.EinvStatus) then
+        raise ESlsDispatchExceptionEInvLocked.Create;
+      // e-belge durumu ve ETTN formdan değişmez (durum entegrasyonla, ETTN bir kez üretilir)
+      AEntity.EinvStatus := LOld.EinvStatus;
+      if LOld.EinvUuid <> '' then
+        AEntity.EinvUuid := LOld.EinvUuid;
+      CheckEDespatch(AEntity, LOld);
       if (LRepo.LineCount(AEntity.Id) > 0) and ((LOld.AccAccountId <> AEntity.AccAccountId) or
         (LOld.SlsOrderId <> AEntity.SlsOrderId) or (LOld.Currency <> AEntity.Currency)) then
         raise ESlsDispatchExceptionKeyFieldsLocked.Create;
@@ -449,6 +475,95 @@ begin
   finally
     LFilter.Free;
   end;
+end;
+
+// Kağıt irsaliyede e-belge kimliği yok; e-İrsaliyede senaryo irsaliye türü, ETTN bir kez, fiili sevk saati (boşsa şimdi),
+// taşıma: taşıyıcı firma ya da araç + en az bir şoför (GİB). Araç dorse değil, dorseler dorse, aynı dorse / şoför iki kez
+// olmaz, yeni seçilen (eskisinden farklı) pasif kayıt reddedilir; bunlar kağıt irsaliyede de geçerlidir, taşıma
+// zorunluluğu yalnız e-İrsaliyede.
+procedure TSlsDispatchService.CheckEDespatch(AEntity, AOld: TSlsDispatch);
+var
+  R: TSlsEDespatchRules;
+
+  procedure CheckActive(AActive: Boolean; ANewId, AOldId: Int64; const AKey, ADefault: string);
+  begin
+    if (ANewId > 0) and (ANewId <> AOldId) and not AActive then
+      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsDispatch.EInvInactive,
+        '%s: the selected record is passive.'), [TLocalizationManager.Translate(AKey, ADefault)]));
+  end;
+
+var
+  LBase: TSlsDispatch;
+begin
+  // ikinci dorse / şoför, birinci boşsa birinciye kayar (DB CHECK)
+  if (AEntity.Trailer1EinvVehicleId <= 0) and (AEntity.Trailer2EinvVehicleId > 0) then
+  begin
+    AEntity.Trailer1EinvVehicleId := AEntity.Trailer2EinvVehicleId;
+    AEntity.Trailer2EinvVehicleId := 0;
+  end;
+  if (AEntity.Driver1EinvDriverId <= 0) and (AEntity.Driver2EinvDriverId > 0) then
+  begin
+    AEntity.Driver1EinvDriverId := AEntity.Driver2EinvDriverId;
+    AEntity.Driver2EinvDriverId := 0;
+  end;
+  if (AEntity.Trailer2EinvVehicleId > 0) and (AEntity.Trailer2EinvVehicleId = AEntity.Trailer1EinvVehicleId) then
+    raise ESlsDispatchExceptionTrailerDuplicate.Create;
+  if (AEntity.Driver2EinvDriverId > 0) and (AEntity.Driver2EinvDriverId = AEntity.Driver1EinvDriverId) then
+    raise ESlsDispatchExceptionDriverDuplicate.Create;
+
+  R := TSlsDispatchRepository(FRepo).ReadEDespatchRules(AEntity);
+  // eklemede karşılaştırma tabanı boş kayıt (tüm seçimler yeni sayılır)
+  if Assigned(AOld) then
+    LBase := AOld
+  else
+    LBase := TSlsDispatch.Create;
+  try
+  if (AEntity.EinvVehicleId > 0) and R.VehicleIsTrailer then
+    raise ESlsDispatchExceptionVehicleIsTrailer.Create;
+  if ((AEntity.Trailer1EinvVehicleId > 0) and not R.Trailer1IsTrailer) or
+     ((AEntity.Trailer2EinvVehicleId > 0) and not R.Trailer2IsTrailer) then
+    raise ESlsDispatchExceptionTrailerNotTrailer.Create;
+    CheckActive(R.ProfileActive, AEntity.EinvProfileId, LBase.EinvProfileId, TLangKeys.TSlsDispatch.ColEinvProfileId, 'Profile');
+    CheckActive(R.VehicleActive, AEntity.EinvVehicleId, LBase.EinvVehicleId, TLangKeys.TSlsDispatch.ColEinvVehicleId, 'Vehicle Plate');
+    CheckActive(R.Trailer1Active, AEntity.Trailer1EinvVehicleId, LBase.Trailer1EinvVehicleId, TLangKeys.TSlsDispatch.ColTrailer1EinvVehicleId, 'Trailer 1');
+    CheckActive(R.Trailer2Active, AEntity.Trailer2EinvVehicleId, LBase.Trailer2EinvVehicleId, TLangKeys.TSlsDispatch.ColTrailer2EinvVehicleId, 'Trailer 2');
+    CheckActive(R.Driver1Active, AEntity.Driver1EinvDriverId, LBase.Driver1EinvDriverId, TLangKeys.TSlsDispatch.ColDriver1EinvDriverId, 'Driver 1');
+    CheckActive(R.Driver2Active, AEntity.Driver2EinvDriverId, LBase.Driver2EinvDriverId, TLangKeys.TSlsDispatch.ColDriver2EinvDriverId, 'Driver 2');
+  finally
+    if LBase <> AOld then
+      LBase.Free;
+  end;
+
+  if AEntity.EinvProfileId <= 0 then
+  begin
+    // kağıt irsaliye: e-belge kimliği yok
+    AEntity.EinvProfileId := 0;
+    AEntity.EinvUuid := '';
+    AEntity.EinvStatus := 0;
+    AEntity.ProfileCode := '';
+    Exit;
+  end;
+
+  if R.ProfileKind <> EINV_DOC_DESPATCH then
+    raise ESlsDispatchExceptionEInvProfileKind.Create;
+  AEntity.ProfileCode := R.ProfileCode;
+  if AEntity.EinvStatus <= 0 then
+    AEntity.EinvStatus := EINV_STATUS_DRAFT;
+  if AEntity.EinvUuid = '' then
+    AEntity.EinvUuid := LowerCase(TGUID.NewGuid.ToString.Replace('{', '').Replace('}', ''));
+  if AEntity.DespatchTime <= 0 then
+    AEntity.DespatchTime := Frac(Now);
+  if (AEntity.CarrierAccAccountId <= 0) and ((AEntity.EinvVehicleId <= 0) or (AEntity.Driver1EinvDriverId <= 0)) then
+    raise ESlsDispatchExceptionTransportRequired.Create;
+end;
+
+procedure TSlsDispatchService.SuggestEDespatch(ADispatch: TSlsDispatch; AEDespatchUser: Boolean);
+begin
+  if (ADispatch.EinvProfileId > 0) or not AEDespatchUser then
+    Exit;
+  ADispatch.EinvProfileId := TSlsDispatchRepository(FRepo).EInvProfileIdByCode(EINV_PROFILE_DESPATCH);
+  if ADispatch.EinvProfileId > 0 then
+    ADispatch.ProfileCode := EINV_PROFILE_DESPATCH;
 end;
 
 procedure TSlsDispatchService.DoAdd(AEntity: TSlsDispatch);

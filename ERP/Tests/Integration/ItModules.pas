@@ -36,7 +36,8 @@ uses
   AccLookup, AccAccountTransaction, AccAccountTransaction.Service,
   SysDashboard, SysDashboard.Service,
   EInvLookup, EInvGtip, EInvGtip.Service, EInvWithholding, EInvWithholding.Service,
-  EInvDiib, EInvDiib.Service, EInvDiibLine, EInvDiibLine.Service;
+  EInvDiib, EInvDiib.Service, EInvDiibLine, EInvDiibLine.Service,
+  EInvVehicle, EInvVehicle.Service, EInvDriver, EInvDriver.Service;
 
 var
   GMod, GEnt: string;
@@ -4127,6 +4128,405 @@ begin
   end;
 end;
 
+{ ---------------------------------------------------------------- e-İrsaliye }
+
+procedure TestEDespatch;
+var
+  VehSvc: TEInvVehicleService;
+  DrvSvc: TEInvDriverService;
+  DspSvc: TSlsDispatchService;
+  DspLineSvc: TSlsDispatchDetailService;
+  DocSvc: TEInvDocumentService;
+  Dsp: TSlsDispatch;
+  DL: TSlsDispatchDetail;
+  Doc: TEInvDocument;
+  Inv1, Customer, Carrier, Wh, PDesp, PInvoice, Truck, Trailer1, Trailer2, Driver1, Driver2, DspId: Int64;
+  LHtml: string;
+
+  function NewVehicle(const APlate: string; ATrailer: Boolean): Int64;
+  var
+    V: TEInvVehicle;
+  begin
+    V := TEInvVehicle.Create;
+    try
+      V.PlateNo := APlate;
+      V.IsTrailer := ATrailer;
+      VehSvc.BusinessInsert(V, False, False, True);
+      Result := V.Id;
+    finally
+      V.Free;
+    end;
+  end;
+
+  function NewDriver(const AFirst, AFamily, ANationalId: string): Int64;
+  var
+    D: TEInvDriver;
+  begin
+    D := TEInvDriver.Create;
+    try
+      D.FirstName := AFirst;
+      D.FamilyName := AFamily;
+      D.NationalId := ANationalId;
+      DrvSvc.BusinessInsert(D, False, False, True);
+      Result := D.Id;
+    finally
+      D.Free;
+    end;
+  end;
+
+  // Yeni transaction + taraflar (firma VKN / adres, müşterinin sevk adresi, taşıyıcı) + e-İrsaliye serisi + araçlar / şoförler
+  // (beklenen ret transaction'ı geri aldığı için her senaryo kendi verisini kurar)
+  procedure Fresh;
+  begin
+    Begin_;
+    UoW.Connection.ExecSQL('UPDATE sys_application_setting SET tax_no = ''1234567801'', tax_authority = ''Test VD'', ' +
+      'taxpayer_type = ''VKN'', company_title = ''Ths Test A.Ş.'', sys_address_id = 3');
+    UoW.Connection.ExecSQL('INSERT INTO acc_account_taxpayer (acc_account_id, taxpayer_type, taxpayer_name, tax_office, tax_no) ' +
+      'VALUES (' + Customer.ToString + ', 1, ''Alıcı Ltd. Şti.'', ''Kadıköy'', ''1111111111''), ' +
+      '(' + Carrier.ToString + ', 1, ''Taşıyıcı Lojistik A.Ş.'', ''Ulus'', ''2222222222'') ' +
+      'ON CONFLICT (acc_account_id) DO UPDATE SET taxpayer_type = 1, taxpayer_name = EXCLUDED.taxpayer_name, ' +
+      'taxpayer_name2 = NULL, tax_office = EXCLUDED.tax_office, tax_no = EXCLUDED.tax_no');
+    UoW.Connection.ExecSQL('WITH a AS (INSERT INTO sys_address (sys_city_id, district, street, door_number) ' +
+      'SELECT sys_city_id, ''ÇANKAYA'', ''Depo Caddesi'', ''7'' FROM sys_address WHERE id = 3 RETURNING id) ' +
+      'INSERT INTO acc_account_address (acc_account_id, sys_address_id, address_type, is_primary) ' +
+      'SELECT ' + Customer.ToString + ', id, ''SHIPPING'', false FROM a');
+    UoW.Connection.ExecSQL('INSERT INTO acc_account_address (acc_account_id, sys_address_id, address_type, is_primary) ' +
+      'VALUES (' + Carrier.ToString + ', 3, ''LEGAL'', true)');
+    UoW.Connection.ExecSQL('UPDATE einv_series SET is_default = false WHERE series_scope = 3');
+    UoW.Connection.ExecSQL('INSERT INTO einv_series (code, name, series_scope, is_default, is_active) ' +
+      'VALUES (''ITI'', ''IT e-Irsaliye'', 3, true, true)');
+    Truck := NewVehicle('34 abc-123', False);
+    Trailer1 := NewVehicle('34 DR 001', True);
+    Trailer2 := NewVehicle('34DR002', True);
+    Driver1 := NewDriver('Mehmet', 'Öztürk', '10000000146');
+    Driver2 := NewDriver('Ayşe', 'Kaya', '12345678950');
+  end;
+
+  function NewDispatch(AProfileId: Int64): TSlsDispatch;
+  begin
+    Result := TSlsDispatch.Create;
+    Result.AccAccountId := Customer;
+    Result.StkWarehouseId := Wh;
+    Result.EinvProfileId := AProfileId;
+    DL := DspSvc.NewLine(Result);
+    DL.StkInventoryId := Inv1;
+    DL.Quantity := 3;
+    DL.UnitPrice := 40;
+    DL.Description := 'Test sevk';
+  end;
+
+  // kaydet; beklenmeyen hata rapora
+  function Save(ADsp: TSlsDispatch): Boolean;
+  begin
+    try
+      DspSvc.BusinessSaveWithDetails(ADsp, False, True);
+      Result := True;
+    except
+      on E: Exception do
+      begin
+        Report('FAIL', GMod, GEnt, 'save', E.ClassName + ': ' + E.Message);
+        Result := False;
+      end;
+    end;
+  end;
+
+  procedure ExpectSave(const AStep: string; ADsp: TSlsDispatch);
+  begin
+    Expect(AStep, procedure
+      begin
+        DspSvc.BusinessSaveWithDetails(ADsp, False, True);
+      end);
+  end;
+
+  procedure CheckDoc(const AName: string; ADispatchId: Int64; const AParts, AAbsent: array of string);
+  var
+    LDoc: TEInvDocument;
+    LPart, LMissing: string;
+  begin
+    LDoc := DocSvc.BusinessFindByDispatch(ADispatchId, True);
+    try
+      if not Assigned(LDoc) then
+      begin
+        Check(AName, False, 'no einv_document');
+        Exit;
+      end;
+      LMissing := '';
+      for LPart in AParts do
+        if not LDoc.XmlContent.Contains(LPart) then
+          LMissing := LMissing + ' [missing ' + LPart + ']';
+      for LPart in AAbsent do
+        if LDoc.XmlContent.Contains(LPart) then
+          LMissing := LMissing + ' [unexpected ' + LPart + ']';
+      Check(AName, LDoc.IsValid and (LMissing = ''), LDoc.ValidationMessage + LMissing);
+    finally
+      LDoc.Free;
+    end;
+  end;
+
+begin
+  Ctx('EInvoice', 'e-despatch advice');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Customer := Scalar('SELECT min(id) FROM acc_account');
+  Carrier := Scalar('SELECT min(id) FROM acc_account WHERE id > ' + Customer.ToString);
+  Wh := Scalar('SELECT min(id) FROM stk_warehouse');
+  PDesp := Scalar('SELECT id FROM einv_profile WHERE code = ''TEMELIRSALIYE''');
+  PInvoice := Scalar('SELECT id FROM einv_profile WHERE code = ''TEMELFATURA''');
+  VehSvc := TEInvVehicleService.Create;
+  DrvSvc := TEInvDriverService.Create;
+  DspSvc := TSlsDispatchService.Create;
+  DspLineSvc := TSlsDispatchDetailService.Create;
+  DocSvc := TEInvDocumentService.Create;
+  try
+    try
+      // ---- araç / şoför tanımları
+      Fresh;
+      Check('plate normalized', S(Scalar('SELECT plate_no FROM einv_vehicle WHERE id = ' + Truck.ToString)) = '34ABC123');
+      Check('valid national id', TEInvLookup.IsValidNationalId('10000000146') and not TEInvLookup.IsValidNationalId('12345678901'));
+      Expect('duplicate plate', procedure
+        var V: TEInvVehicle;
+        begin
+          V := TEInvVehicle.Create;
+          try
+            V.PlateNo := '34ABC 123'; V.IsTrailer := False;
+            VehSvc.BusinessInsert(V, False, False, True);
+          finally
+            V.Free;
+          end;
+        end);
+      Fresh;
+      Expect('invalid plate', procedure
+        var V: TEInvVehicle;
+        begin
+          V := TEInvVehicle.Create;
+          try
+            V.PlateNo := 'A-1'; V.IsTrailer := False;
+            VehSvc.BusinessInsert(V, False, False, True);
+          finally
+            V.Free;
+          end;
+        end);
+      Fresh;
+      Expect('invalid national id', procedure
+        var D: TEInvDriver;
+        begin
+          D := TEInvDriver.Create;
+          try
+            D.FirstName := 'Ali'; D.FamilyName := 'Veli'; D.NationalId := '12345678901';
+            DrvSvc.BusinessInsert(D, False, False, True);
+          finally
+            D.Free;
+          end;
+        end);
+      Fresh;
+      Expect('duplicate national id', procedure
+        var D: TEInvDriver;
+        begin
+          D := TEInvDriver.Create;
+          try
+            D.FirstName := 'Ali'; D.FamilyName := 'Veli'; D.NationalId := '10000000146';
+            DrvSvc.BusinessInsert(D, False, False, True);
+          finally
+            D.Free;
+          end;
+        end);
+
+      // ---- e-İrsaliye: araç + dorseler + iki şoför; XML şemaya uygun, fiyatsız
+      Fresh;
+      Dsp := NewDispatch(PDesp);
+      try
+        Dsp.EinvVehicleId := Truck;
+        Dsp.Trailer1EinvVehicleId := Trailer1;
+        Dsp.Trailer2EinvVehicleId := Trailer2;
+        Dsp.Driver1EinvDriverId := Driver1;
+        Dsp.Driver2EinvDriverId := Driver2;
+        if Save(Dsp) then
+        begin
+          DspId := Dsp.Id;
+          Check('uuid generated', Length(Dsp.EinvUuid) = 36, Dsp.EinvUuid);
+          Check('status draft', Dsp.EinvStatus = EINV_STATUS_DRAFT);
+          Check('despatch time set', Dsp.DespatchTime > 0);
+          Check('reload view fields', (Dsp.ProfileCode = 'TEMELIRSALIYE') and (Dsp.VehiclePlate = '34ABC123') and
+            (Dsp.Driver1Name = 'Mehmet Öztürk'), Dsp.ProfileCode + ' / ' + Dsp.VehiclePlate + ' / ' + Dsp.Driver1Name);
+          CheckDoc('despatch xml valid (truck)', DspId,
+            ['<DespatchAdvice', 'TEMELIRSALIYE', '<cbc:DespatchAdviceTypeCode>SEVK', 'schemeID="PLAKA">34ABC123',
+             'schemeID="DORSEPLAKA">34DR001', 'schemeID="DORSEPLAKA">34DR002', '<cbc:NationalityID>10000000146',
+             '<cbc:NationalityID>12345678950', '<cbc:ID>ITI' + IntToStr(YearOf(Date)) + '000000000', 'ÇANKAYA',
+             '<cbc:ActualDespatchDate>', '<cbc:DeliveredQuantity unitCode=', 'Test sevk'],
+            ['PriceAmount', 'LineExtensionAmount', 'ValueAmount', '<cac:CarrierParty>']);
+          Doc := DocSvc.BusinessFindByDispatch(DspId, True);
+          try
+            LHtml := TEInvDocumentService.ToHtml(Doc);
+            Check('preview html (irsaliye.xslt)', LHtml.Contains('34ABC123'), Copy(LHtml, 1, 200));
+          finally
+            Doc.Free;
+          end;
+          // kopya: e-belge kimliği / durumu kopyalanmaz, taşıma kalır
+          DspSvc.PrepareCopy(Dsp);
+          Check('copy clears e-document identity', (Dsp.EinvUuid = '') and (Dsp.EinvStatus = 0) and (Dsp.EinvVehicleId = Truck));
+        end;
+      finally
+        Dsp.Free;
+      end;
+      Expect('vehicle in use cannot be deleted', procedure
+        var V: TEInvVehicle;
+        begin
+          V := VehSvc.BusinessFindById(Truck, False, False, True);
+          try
+            VehSvc.BusinessDelete(V, False, False, True);
+          finally
+            V.Free;
+          end;
+        end);
+
+      // ---- yalnız taşıyıcı firma
+      Fresh;
+      Dsp := NewDispatch(PDesp);
+      try
+        Dsp.CarrierAccAccountId := Carrier;
+        if Save(Dsp) then
+          CheckDoc('despatch xml valid (carrier)', Dsp.Id, ['<cac:CarrierParty>', '2222222222', '<cac:Despatch>'],
+            ['<cac:ShipmentStage>', 'DORSEPLAKA']);
+      finally
+        Dsp.Free;
+      end;
+
+      // ---- kurallar
+      Fresh;
+      Dsp := NewDispatch(PDesp);
+      try
+        ExpectSave('transport required', Dsp);
+      finally
+        Dsp.Free;
+      end;
+      Fresh;
+      Dsp := NewDispatch(PDesp);
+      try
+        Dsp.EinvVehicleId := Trailer1;
+        Dsp.Driver1EinvDriverId := Driver1;
+        ExpectSave('trailer as vehicle', Dsp);
+      finally
+        Dsp.Free;
+      end;
+      Fresh;
+      Dsp := NewDispatch(PDesp);
+      try
+        Dsp.EinvVehicleId := Truck;
+        Dsp.Trailer1EinvVehicleId := Truck;
+        Dsp.Driver1EinvDriverId := Driver1;
+        ExpectSave('vehicle as trailer', Dsp);
+      finally
+        Dsp.Free;
+      end;
+      Fresh;
+      Dsp := NewDispatch(PDesp);
+      try
+        Dsp.EinvVehicleId := Truck;
+        Dsp.Driver1EinvDriverId := Driver1;
+        Dsp.Driver2EinvDriverId := Driver1;
+        ExpectSave('same driver twice', Dsp);
+      finally
+        Dsp.Free;
+      end;
+      Fresh;
+      Dsp := NewDispatch(PInvoice);
+      try
+        Dsp.CarrierAccAccountId := Carrier;
+        ExpectSave('invoice profile on despatch', Dsp);
+      finally
+        Dsp.Free;
+      end;
+
+      // ---- kağıt irsaliye: taşıma zorunlu değil, e-belge yok
+      Fresh;
+      Dsp := NewDispatch(0);
+      try
+        if Save(Dsp) then
+        begin
+          Check('paper despatch has no e-document', (Dsp.EinvUuid = '') and (Dsp.EinvStatus = 0) and
+            (Num(Scalar('SELECT count(*) FROM einv_document WHERE sls_dispatch_id = ' + Dsp.Id.ToString)) = 0));
+          DspSvc.SuggestEDespatch(Dsp, True);
+          Check('suggest TEMELIRSALIYE for e-despatch customer', Dsp.EinvProfileId = PDesp);
+        end;
+      finally
+        Dsp.Free;
+      end;
+
+      // ---- gönderilmiş e-İrsaliye kilitli: başlık / kalem / silme
+      Fresh;
+      Dsp := NewDispatch(PDesp);
+      try
+        Dsp.CarrierAccAccountId := Carrier;
+        if Save(Dsp) then
+        begin
+          DspId := Dsp.Id;
+          UoW.Connection.ExecSQL('UPDATE sls_dispatch SET einv_status = 3 WHERE id = ' + DspId.ToString);
+          Dsp.Description := 'changed';
+          ExpectSave('sent despatch locked (save)', Dsp);
+        end;
+      finally
+        Dsp.Free;
+      end;
+      Fresh;
+      Dsp := NewDispatch(PDesp);
+      try
+        Dsp.CarrierAccAccountId := Carrier;
+        if Save(Dsp) then
+        begin
+          DspId := Dsp.Id;
+          UoW.Connection.ExecSQL('UPDATE sls_dispatch SET einv_status = 3 WHERE id = ' + DspId.ToString);
+          Expect('sent despatch locked (line)', procedure
+            var LLine: TSlsDispatchDetail;
+            begin
+              LLine := TSlsDispatchDetail.Create;
+              try
+                LLine.SlsDispatchId := DspId;
+                LLine.StkInventoryId := Inv1;
+                LLine.Quantity := 1;
+                DspLineSvc.BusinessInsert(LLine, False, False, True);
+              finally
+                LLine.Free;
+              end;
+            end);
+        end;
+      finally
+        Dsp.Free;
+      end;
+      Fresh;
+      Dsp := NewDispatch(PDesp);
+      try
+        Dsp.CarrierAccAccountId := Carrier;
+        if Save(Dsp) then
+        begin
+          DspId := Dsp.Id;
+          UoW.Connection.ExecSQL('UPDATE sls_dispatch SET einv_status = 3 WHERE id = ' + DspId.ToString);
+          Expect('sent despatch locked (delete)', procedure
+            var LDsp: TSlsDispatch;
+            begin
+              LDsp := DspSvc.BusinessFindById(DspId, False, False, True);
+              try
+                DspSvc.BusinessDelete(LDsp, False, False, True);
+              finally
+                LDsp.Free;
+              end;
+            end);
+        end;
+      finally
+        Dsp.Free;
+      end;
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    DocSvc.Free;
+    DspLineSvc.Free;
+    DspSvc.Free;
+    DrvSvc.Free;
+    VehSvc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -4150,6 +4550,7 @@ begin
   TestSalesOrderDocument;
   TestSalesDispatchInvoiceDocument;
   TestEInvoice;
+  TestEDespatch;
   TestCompanyBankAccounts;
   TestAccountTransactions;
   TestDashboard;

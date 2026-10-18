@@ -1,7 +1,7 @@
 ﻿unit EInvUbl.Builder;
 
-// UBL-TR 1.2.1 satış faturası XML'i (GİB paketi: xsdrt/maindoc/UBL-Invoice-2.1.xsd; eleman sırası XSD sequence'ına göre).
-// Saf birim: veri (TEInvUblInvoice) -> XML metni; DB / COM yok. İmza (ext:UBLExtensions içeriği) entegratörce eklenir,
+// UBL-TR 1.2.1 satış faturası (xsdrt/maindoc/UBL-Invoice-2.1.xsd) ve e-İrsaliye (UBL-DespatchAdvice-2.1.xsd) XML'i; eleman
+// sırası XSD sequence'ına göre. Saf birim: veri (TEInvUblInvoice / TEInvUblDespatch) -> XML metni; DB / COM yok. İmza (ext:UBLExtensions içeriği) entegratörce eklenir,
 // ExtensionContent boş bırakılır. Eksik / hatalı veri AProblems'e yazılır (XML yine üretilir: önizleme / düzeltme için).
 //
 // Tutarlar (TR uygulaması): kalem LineExtensionAmount = net (iskonto sonrası), AllowanceCharge = kalem iskontosu;
@@ -20,6 +20,7 @@ type
   private
     FSb: TStringBuilder;
     FInv: TEInvUblInvoice;
+    FDsp: TEInvUblDespatch;
     FProblems: TStrings;
     FIndent: Integer;
     procedure Line(const AText: string);
@@ -30,8 +31,9 @@ type
     procedure Amount(const ATag: string; AValue: Currency);
     procedure Problem(const AText: string);
     procedure WriteAddress(const ATag: string; const A: TEInvUblAddress);
+    procedure WritePartyBody(const P: TEInvUblParty);
     procedure WriteParty(const P: TEInvUblParty);
-    procedure WriteSignature;
+    procedure WriteSignature(const ASupplier: TEInvUblParty);
     procedure WriteExportCustomer;
     procedure WriteExportBuyer;
     procedure WriteTaxTotal;
@@ -41,18 +43,25 @@ type
     procedure CheckParty(const P: TEInvUblParty; const ARole: string; ARequireTaxOffice: Boolean);
     procedure CheckData;
     function Build: string;
+    procedure CheckDespatchData;
+    procedure WriteDespatchShipment;
+    procedure WriteDespatchLine(L: TEInvUblDespatchLine);
+    function BuildDespatchXml: string;
   public
     // XML (UTF-8 bildirimli metin) + veri sorunları (boş = sorun yok)
     class function BuildInvoice(AInvoice: TEInvUblInvoice; AProblems: TStrings): string;
+    class function BuildDespatch(ADespatch: TEInvUblDespatch; AProblems: TStrings): string;
     class function Esc(const AValue: string): string; static;
     class function Num(AValue: Currency; ADecimals: Integer): string; static;
     class function Qty(AValue: Currency): string; static;
     class function DateStr(AValue: TDate): string; static;
+    class function TimeStr(AValue: TTime): string; static;
     class function TaxIdScheme(const ATaxNo: string): string; static;
   end;
 
 const
   UBL_NS_INVOICE = 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2';
+  UBL_NS_DESPATCH = 'urn:oasis:names:specification:ubl:schema:xsd:DespatchAdvice-2';
   UBL_NS_CAC = 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2';
   UBL_NS_CBC = 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2';
   UBL_NS_EXT = 'urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2';
@@ -258,6 +267,13 @@ end;
 procedure TEInvUblBuilder.WriteParty(const P: TEInvUblParty);
 begin
   Open('cac:Party');
+  WritePartyBody(P);
+  Close('cac:Party');
+end;
+
+// PartyType içeriği (cac:Party ve cac:CarrierParty ortak)
+procedure TEInvUblBuilder.WritePartyBody(const P: TEInvUblParty);
+begin
   ElemOpt('cbc:WebsiteURI', P.Website);
   Open('cac:PartyIdentification');
   Elem('cbc:ID', P.TaxNo, 'schemeID="' + TaxIdScheme(P.TaxNo) + '"');
@@ -292,18 +308,17 @@ begin
     Elem('cbc:FamilyName', P.FamilyName);
     Close('cac:Person');
   end;
-  Close('cac:Party');
 end;
 
-procedure TEInvUblBuilder.WriteSignature;
+procedure TEInvUblBuilder.WriteSignature(const ASupplier: TEInvUblParty);
 begin
   Open('cac:Signature');
-  Elem('cbc:ID', FInv.Supplier.TaxNo, 'schemeID="VKN_TCKN"');
+  Elem('cbc:ID', ASupplier.TaxNo, 'schemeID="VKN_TCKN"');
   Open('cac:SignatoryParty');
   Open('cac:PartyIdentification');
-  Elem('cbc:ID', FInv.Supplier.TaxNo, 'schemeID="' + TaxIdScheme(FInv.Supplier.TaxNo) + '"');
+  Elem('cbc:ID', ASupplier.TaxNo, 'schemeID="' + TaxIdScheme(ASupplier.TaxNo) + '"');
   Close('cac:PartyIdentification');
-  WriteAddress('cac:PostalAddress', FInv.Supplier.Address);
+  WriteAddress('cac:PostalAddress', ASupplier.Address);
   Close('cac:SignatoryParty');
   Open('cac:DigitalSignatureAttachment');
   Open('cac:ExternalReference');
@@ -645,7 +660,7 @@ begin
   if FInv.Currency <> 'TRY' then
     Elem('cbc:PricingCurrencyCode', FInv.Currency);
   Elem('cbc:LineCountNumeric', IntToStr(FInv.Lines.Count));
-  WriteSignature;
+  WriteSignature(FInv.Supplier);
   Open('cac:AccountingSupplierParty');
   WriteParty(FInv.Supplier);
   Close('cac:AccountingSupplierParty');
@@ -704,6 +719,186 @@ begin
     B.FSb := TStringBuilder.Create(16384);
     try
       Result := B.Build;
+    finally
+      B.FSb.Free;
+    end;
+  finally
+    B.Free;
+  end;
+end;
+
+{ e-İrsaliye (DespatchAdvice; GİB UBL-TR İrsaliye kılavuzu V1.2) }
+
+class function TEInvUblBuilder.TimeStr(AValue: TTime): string;
+begin
+  Result := FormatDateTime('hh":"nn":"ss', AValue);
+end;
+
+procedure TEInvUblBuilder.CheckDespatchData;
+var
+  L: TEInvUblDespatchLine;
+begin
+  if not TEInvLookup.IsValidEInvNo(FDsp.EInvNo) then
+    Problem(Format(TLocalizationManager.Translate(K.MsgEInvNo,
+      'Document number is not in GIB format (3-character series + year + 9 digits): %s'), [FDsp.EInvNo]));
+  if Length(FDsp.Uuid) <> 36 then
+    Problem(TLocalizationManager.Translate(K.MsgUuid, 'UUID (ETTN) is missing'));
+  if FDsp.ProfileCode = '' then
+    Problem(TLocalizationManager.Translate(K.MsgProfile, 'e-Document profile is not selected'));
+  if FDsp.Lines.Count = 0 then
+    Problem(TLocalizationManager.Translate(K.MsgDespatchNoLines, 'The delivery note has no lines'));
+  CheckParty(FDsp.Supplier, TLocalizationManager.Translate(K.RoleDespatchSupplier, 'Despatching party (application settings)'), True);
+  CheckParty(FDsp.Customer, TLocalizationManager.Translate(K.RoleDeliveryCustomer, 'Receiving party (account)'), False);
+  if FDsp.HasCarrier then
+    CheckParty(FDsp.Carrier, TLocalizationManager.Translate(K.RoleCarrier, 'Carrier (account)'), False)
+  else if (FDsp.VehiclePlate = '') or (Length(FDsp.Drivers) = 0) then
+    Problem(TLocalizationManager.Translate(K.MsgTransport, 'Carrier company, or vehicle plate and driver are missing'));
+  for L in FDsp.Lines do
+    if L.UnitCode = '' then
+      Problem(Format(TLocalizationManager.Translate(K.MsgUnitCode,
+        'Line %d: the e-document code of unit "%s" is not defined'), [L.LineNo, L.UomCode]));
+end;
+
+// Gönderi: araç plakası + şoförler (ShipmentStage), taşıyıcı + fiili sevk tarihi / saati (Delivery), dorseler
+// (TransportHandlingUnit). Tutar (GoodsItem/ValueAmount) yazılmaz.
+procedure TEInvUblBuilder.WriteDespatchShipment;
+var
+  D: TEInvUblDriver;
+  LPlate: string;
+begin
+  Open('cac:Shipment');
+  Elem('cbc:ID', '');
+  if (FDsp.VehiclePlate <> '') or (Length(FDsp.Drivers) > 0) then
+  begin
+    Open('cac:ShipmentStage');
+    if FDsp.VehiclePlate <> '' then
+    begin
+      Open('cac:TransportMeans');
+      Open('cac:RoadTransport');
+      Elem('cbc:LicensePlateID', FDsp.VehiclePlate, 'schemeID="PLAKA"');
+      Close('cac:RoadTransport');
+      Close('cac:TransportMeans');
+    end;
+    for D in FDsp.Drivers do
+    begin
+      Open('cac:DriverPerson');
+      Elem('cbc:FirstName', D.FirstName);
+      Elem('cbc:FamilyName', D.FamilyName);
+      Elem('cbc:Title', 'Şoför');
+      Elem('cbc:NationalityID', D.NationalId);
+      Close('cac:DriverPerson');
+    end;
+    Close('cac:ShipmentStage');
+  end;
+  Open('cac:Delivery');
+  if FDsp.HasCarrier then
+  begin
+    Open('cac:CarrierParty');
+    // CarrierParty bir Party'dir (cac:Party sarmalayıcısı yok)
+    WritePartyBody(FDsp.Carrier);
+    Close('cac:CarrierParty');
+  end;
+  Open('cac:Despatch');
+  Elem('cbc:ActualDespatchDate', DateStr(FDsp.IssueDate));
+  Elem('cbc:ActualDespatchTime', TimeStr(FDsp.DespatchTime));
+  Close('cac:Despatch');
+  Close('cac:Delivery');
+  if Length(FDsp.TrailerPlates) > 0 then
+  begin
+    Open('cac:TransportHandlingUnit');
+    for LPlate in FDsp.TrailerPlates do
+    begin
+      Open('cac:TransportEquipment');
+      Elem('cbc:ID', LPlate, 'schemeID="DORSEPLAKA"');
+      Close('cac:TransportEquipment');
+    end;
+    Close('cac:TransportHandlingUnit');
+  end;
+  Close('cac:Shipment');
+end;
+
+procedure TEInvUblBuilder.WriteDespatchLine(L: TEInvUblDespatchLine);
+begin
+  Open('cac:DespatchLine');
+  Elem('cbc:ID', IntToStr(L.LineNo));
+  Elem('cbc:DeliveredQuantity', Qty(L.Quantity), 'unitCode="' + Esc(L.UnitCode) + '"');
+  Open('cac:OrderLineReference');
+  if L.OrderLineNo > 0 then
+    Elem('cbc:LineID', IntToStr(L.OrderLineNo))
+  else
+    Elem('cbc:LineID', '');
+  Close('cac:OrderLineReference');
+  Open('cac:Item');
+  ElemOpt('cbc:Description', L.Description);
+  Elem('cbc:Name', L.InventoryName);
+  if L.InventoryCode <> '' then
+  begin
+    Open('cac:SellersItemIdentification');
+    Elem('cbc:ID', L.InventoryCode);
+    Close('cac:SellersItemIdentification');
+  end;
+  Close('cac:Item');
+  Close('cac:DespatchLine');
+end;
+
+function TEInvUblBuilder.BuildDespatchXml: string;
+var
+  L: TEInvUblDespatchLine;
+begin
+  CheckDespatchData;
+  Line('<?xml version="1.0" encoding="UTF-8"?>');
+  Open('DespatchAdvice', 'xmlns="' + UBL_NS_DESPATCH + '" xmlns:cac="' + UBL_NS_CAC + '" xmlns:cbc="' + UBL_NS_CBC +
+    '" xmlns:ext="' + UBL_NS_EXT + '"');
+  Open('ext:UBLExtensions');
+  Open('ext:UBLExtension');
+  Line('<ext:ExtensionContent/>');
+  Close('ext:UBLExtension');
+  Close('ext:UBLExtensions');
+  Elem('cbc:UBLVersionID', '2.1');
+  Elem('cbc:CustomizationID', 'TR1.2.1');
+  Elem('cbc:ProfileID', FDsp.ProfileCode);
+  Elem('cbc:ID', FDsp.EInvNo);
+  Elem('cbc:CopyIndicator', 'false');
+  Elem('cbc:UUID', UpperCase(FDsp.Uuid));
+  Elem('cbc:IssueDate', DateStr(FDsp.IssueDate));
+  Elem('cbc:IssueTime', TimeStr(FDsp.DespatchTime));
+  Elem('cbc:DespatchAdviceTypeCode', EINV_DESPATCH_TYPE);
+  ElemOpt('cbc:Note', FDsp.Description);
+  if FDsp.DispatchNo <> '' then
+    Elem('cbc:Note', 'İrsaliye No: ' + FDsp.DispatchNo);
+  Elem('cbc:LineCountNumeric', IntToStr(FDsp.Lines.Count));
+  if FDsp.OrderNo <> '' then
+  begin
+    Open('cac:OrderReference');
+    Elem('cbc:ID', FDsp.OrderNo);
+    Elem('cbc:IssueDate', DateStr(FDsp.OrderDate));
+    Close('cac:OrderReference');
+  end;
+  WriteSignature(FDsp.Supplier);
+  Open('cac:DespatchSupplierParty');
+  WriteParty(FDsp.Supplier);
+  Close('cac:DespatchSupplierParty');
+  Open('cac:DeliveryCustomerParty');
+  WriteParty(FDsp.Customer);
+  Close('cac:DeliveryCustomerParty');
+  WriteDespatchShipment;
+  for L in FDsp.Lines do
+    WriteDespatchLine(L);
+  Close('DespatchAdvice');
+  Result := FSb.ToString;
+end;
+
+class function TEInvUblBuilder.BuildDespatch(ADespatch: TEInvUblDespatch; AProblems: TStrings): string;
+var
+  B: TEInvUblBuilder;
+begin
+  B := TEInvUblBuilder.Create;
+  try
+    B.FDsp := ADespatch;
+    B.FProblems := AProblems;
+    B.FSb := TStringBuilder.Create(8192);
+    try
+      Result := B.BuildDespatchXml;
     finally
       B.FSb.Free;
     end;

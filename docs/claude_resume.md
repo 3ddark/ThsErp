@@ -863,6 +863,34 @@ Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
 - Sonraki: entegratör katmanı (IEInvIntegrator: gönder / durum / PDF / gelen fatura / mükellef sorgu) + "e-Fatura Gönder"
   komutu (gönderimde einv_no = NextNumber, XML yeniden üretilir, durum 2 kuyrukta → 3 gönderildi). Test hesabı bilgisi gerekli.
 
+## e-İrsaliye (2026-10-18, /goal "e-irsaliye için çalışma"; DESKTOP-JF3LUBB, 5432, RAD Studio 37.0)
+- Kullanıcı kararları: ilk aşama yalnız GİDEN e-İrsaliye + XML (üret / doğrula / önizle; gönderim yok — e-Fatura ile aynı
+  düzey; gelen irsaliye + İrsaliye Yanıtı sonraki aşama); araç / şoför TANIM KARTLARI (irsaliyede seçilir), taşıyıcı firma =
+  cari kart; e-İrsaliyede FİYAT / TUTAR YAZILMAZ (yalnız miktar / birim).
+- Kaynak: GİB UBL-TR İrsaliye kılavuzu V1.2 + Temel İrsaliye Senaryosu V0.3 (metin: scratchpad guides/*.txt), şema
+  Resource/EInvoice/xsdrt/maindoc/UBL-DespatchAdvice-2.1.xsd (mevcut), görsel docs/.../xml/irsaliye.xslt (kopyalanacak).
+- Plan:
+  1. DB: acc_account.e_despatch_active; einv_vehicle (plate_no UNIQUE, is_trailer, description, is_active); einv_driver
+     (first_name, family_name, national_id 11 hane UNIQUE, is_active); sls_dispatch: einv_profile_id, einv_uuid, einv_status,
+     einv_no UNIQUE, despatch_time, carrier_acc_account_id, einv_vehicle_id, trailer1/2_einv_vehicle_id,
+     driver1/2_einv_driver_id (+ CHECK profil/uuid/durum birlikte); einv_series scope 3 e-İrsaliye; einv_document
+     sls_dispatch_id (UNIQUE, CASCADE; tam olarak bir belge CHECK); yetki 1095 araç / 1096 şoför; menü 600912 / 600913.
+  2. EInvVehicle / EInvDriver modülleri (üreteç scratchpad gen/), dashboard + menü.
+  3. Cari kartta e-İrsaliye mükellefi işareti; irsaliyede öneri TEMELIRSALIYE.
+  4. SlsDispatch: alanlar + CheckEDespatch (senaryo irsaliye türü, ETTN, gönderilmiş belge kilidi, taşıma: taşıyıcı ya da
+     plaka + en az bir şoför, dorse araç değil / araç dorse değil) + detay formunda e-Belge / Taşıma bölümü.
+  5. UBL: TEInvUblDespatch modeli, LoadSalesDispatch, builder DespatchAdvice (taraf / adres ortak), validator belge türü
+     parametreli, GenerateForDispatch (AfterDocumentSaved), irsaliye listesi popup Önizle / Doğrulama / XML Kaydet /
+     Yeniden Oluştur + kolonlar.
+  6. Testler (TestEDespatch) + docs/einvoice_design.md §6 + kurallar.
+- Durum (2026-10-18): TAMAMLANDI (giden e-İrsaliye + XML). DB yedeği scratchpad ths_erp_before_edespatch.dump, DDL
+  scratchpad edespatch_ddl.sql; dump'lar yenilendi. Tasarım docs/einvoice_design.md §6. Test: entegrasyon 1945 / 0
+  (TestEDespatch 25 adım + EInvVehicle / EInvDriver genel testleri); UI Sales 92, EInvoice 262, Account 248 pass / 0 fail
+  (WARN: TfrmEInvDrivers national_id başlığı — sürücü '_id' sonekini FK sanıyor, yanlış alarm). Elle UI denenmedi
+  (e-İrsaliye / Taşıma sekmesi, seçim listeleri, Önizle tarayıcıda).
+  Sonraki (e-İrsaliye): gönderim (entegratör, e-Fatura ile birlikte), gelen e-İrsaliye -> mal kabulü, İrsaliye Yanıtı,
+  MATBUDAN tipi; muhasebe fişi kesimi + reçete maliyeti (iş kuralı kararları bekliyor).
+
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.

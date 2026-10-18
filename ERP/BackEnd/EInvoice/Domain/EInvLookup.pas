@@ -45,12 +45,16 @@ const
   EINV_PROFILE_EXPORT     = 'IHRACAT';
   EINV_TYPE_SALES         = 'SATIS';
   EINV_TYPE_EXEMPTION     = 'ISTISNA';
+  // e-İrsaliye: temel senaryo, irsaliye tipi (MATBUDAN = kağıt irsaliyenin sonradan e-İrsaliyesi; şimdilik yalnız SEVK)
+  EINV_PROFILE_DESPATCH   = 'TEMELIRSALIYE';
+  EINV_DESPATCH_TYPE      = 'SEVK';
 
   GTIP_LENGTH = 12;
 
-  // einv_series.series_scope (DB CHECK 1-2): e-Fatura senaryoları / e-Arşiv
+  // einv_series.series_scope (DB CHECK 1-3): e-Fatura senaryoları / e-Arşiv / e-İrsaliye
   EINV_SERIES_INVOICE = 1;
   EINV_SERIES_ARCHIVE = 2;
+  EINV_SERIES_DESPATCH = 3;
 
   // GİB belge numarası: 3 karakter seri + 4 hane yıl + 9 hane sıra (GIB2026000000001)
   EINV_NO_LENGTH = 16;
@@ -89,13 +93,19 @@ type
     class function IsValidSeriesCode(const ACode: string): Boolean;
     class function IsValidEInvNo(const ANo: string): Boolean;
     class function MakeEInvNo(const ASeriesCode: string; AYear: Integer; ASequence: Int64): string;
-    // senaryonun seri kapsamı: EARSIVFATURA -> e-Arşiv, diğerleri e-Fatura
+    // senaryonun seri kapsamı: EARSIVFATURA -> e-Arşiv, ...IRSALIYE -> e-İrsaliye, diğerleri e-Fatura
     class function SeriesScopeOf(const AProfileCode: string): Integer;
     // UBL / ISO 4217 para birimi kodu (sys_currency eski 'TL' kodu -> 'TRY')
     class function UblCurrency(const ACurrency: string): string;
 
     // Tekillik kontrolünde hariç tutulacak id: yalnız güncellemede kaydın kendisi (kopya / yeni kayıtta 0)
     class function ExcludeId(AId: Int64; AIsUpdate: Boolean): Int64;
+
+    // Araç plakası: boşluk / tire atılır, büyük harf (34 ABC 123 -> 34ABC123); 4-16 harf / rakam
+    class function NormalizePlate(const AValue: string): string;
+    class function IsValidPlate(const AValue: string): Boolean;
+    // TC kimlik no: 11 hane, ilk hane 0 değil, 10. ve 11. hane kontrol haneleri
+    class function IsValidNationalId(const AValue: string): Boolean;
   end;
 
 implementation
@@ -130,7 +140,8 @@ begin
                  TLocalizationManager.Translate(TLangKeys.TEInvOption.StatusCancelled, 'Cancelled')];
     elkSeriesScope:
       Result := [TLocalizationManager.Translate(TLangKeys.TEInvOption.SeriesInvoice, 'e-Invoice'),
-                 TLocalizationManager.Translate(TLangKeys.TEInvOption.SeriesArchive, 'e-Archive Invoice')];
+                 TLocalizationManager.Translate(TLangKeys.TEInvOption.SeriesArchive, 'e-Archive Invoice'),
+                 TLocalizationManager.Translate(TLangKeys.TEInvOption.SeriesDespatch, 'e-Despatch Advice')];
   else
     Result := [];
   end;
@@ -243,8 +254,54 @@ class function TEInvLookup.SeriesScopeOf(const AProfileCode: string): Integer;
 begin
   if AProfileCode = EINV_PROFILE_ARCHIVE then
     Result := EINV_SERIES_ARCHIVE
+  else if AProfileCode.EndsWith('IRSALIYE') then
+    Result := EINV_SERIES_DESPATCH
   else
     Result := EINV_SERIES_INVOICE;
+end;
+
+class function TEInvLookup.NormalizePlate(const AValue: string): string;
+var
+  LChar: Char;
+begin
+  Result := '';
+  for LChar in AnsiUpperCase(AValue) do
+    if not CharInSet(LChar, [' ', '-', '.', #9]) then
+      Result := Result + LChar;
+end;
+
+class function TEInvLookup.IsValidPlate(const AValue: string): Boolean;
+var
+  LChar: Char;
+begin
+  if (Length(AValue) < 4) or (Length(AValue) > 16) then
+    Exit(False);
+  for LChar in AValue do
+    if not CharInSet(LChar, ['A'..'Z', '0'..'9']) then
+      Exit(False);
+  Result := True;
+end;
+
+class function TEInvLookup.IsValidNationalId(const AValue: string): Boolean;
+var
+  LDigits: array[1..11] of Integer;
+  LOdd, LEven, i: Integer;
+begin
+  if Length(AValue) <> 11 then
+    Exit(False);
+  for i := 1 to 11 do
+  begin
+    if not CharInSet(AValue[i], ['0'..'9']) then
+      Exit(False);
+    LDigits[i] := Ord(AValue[i]) - Ord('0');
+  end;
+  if LDigits[1] = 0 then
+    Exit(False);
+  LOdd := LDigits[1] + LDigits[3] + LDigits[5] + LDigits[7] + LDigits[9];
+  LEven := LDigits[2] + LDigits[4] + LDigits[6] + LDigits[8];
+  if ((LOdd * 7 - LEven) mod 10 + 10) mod 10 <> LDigits[10] then
+    Exit(False);
+  Result := (LOdd + LEven + LDigits[10]) mod 10 = LDigits[11];
 end;
 
 class function TEInvLookup.UblCurrency(const ACurrency: string): string;

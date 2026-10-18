@@ -8,6 +8,17 @@ uses
   AppContext, SlsDispatch;
 
 type
+  // e-İrsaliye kuralları için seçilen kayıtların bayrakları (bulunmayan kayıt: aktif değil / tür 0)
+  TSlsEDespatchRules = record
+    ProfileKind: Integer;
+    ProfileActive: Boolean;
+    ProfileCode: string;
+    VehicleIsTrailer, VehicleActive: Boolean;
+    Trailer1IsTrailer, Trailer1Active: Boolean;
+    Trailer2IsTrailer, Trailer2Active: Boolean;
+    Driver1Active, Driver2Active: Boolean;
+  end;
+
   TSlsDispatchRepository = class(TRepository<TSlsDispatch>)
   protected
     function PrepareAddSql: string;
@@ -45,6 +56,11 @@ type
     function GetDefaultCurrency: string;
     // Durum faturalardan: kalemi olan ve tüm kalemleri tamamen faturalanmış irsaliye 2 (kapandı), değilse 1 (bekliyor)
     procedure RefreshInvoiceStatus(ADispatchId: Int64);
+    function ReadEDespatchRules(AHeader: TSlsDispatch): TSlsEDespatchRules;
+    // e-belge durumu (silme / tek kalem yolu kilidi)
+    function EInvStatus(ADispatchId: Int64): Integer;
+    // aktif senaryonun id'si (yoksa 0)
+    function EInvProfileIdByCode(const ACode: string): Int64;
   end;
 
 implementation
@@ -173,6 +189,88 @@ begin
   end;
 end;
 
+function TSlsDispatchRepository.ReadEDespatchRules(AHeader: TSlsDispatch): TSlsEDespatchRules;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text :=
+      'SELECT COALESCE(p.document_kind, 0) AS profile_kind, COALESCE(p.is_active, false) AS profile_active, ' +
+      '       COALESCE(p.code, '''') AS profile_code, ' +
+      '       COALESCE(v.is_trailer, false) AS v_trailer, COALESCE(v.is_active, false) AS v_active, ' +
+      '       COALESCE(t1.is_trailer, false) AS t1_trailer, COALESCE(t1.is_active, false) AS t1_active, ' +
+      '       COALESCE(t2.is_trailer, false) AS t2_trailer, COALESCE(t2.is_active, false) AS t2_active, ' +
+      '       COALESCE(d1.is_active, false) AS d1_active, COALESCE(d2.is_active, false) AS d2_active ' +
+      '  FROM (SELECT 1) x ' +
+      '  LEFT JOIN public.einv_profile p ON p.id = :profile ' +
+      '  LEFT JOIN public.einv_vehicle v ON v.id = :vehicle ' +
+      '  LEFT JOIN public.einv_vehicle t1 ON t1.id = :trailer1 ' +
+      '  LEFT JOIN public.einv_vehicle t2 ON t2.id = :trailer2 ' +
+      '  LEFT JOIN public.einv_driver d1 ON d1.id = :driver1 ' +
+      '  LEFT JOIN public.einv_driver d2 ON d2.id = :driver2';
+    Q.ParamByName('profile').AsLargeInt := AHeader.EinvProfileId;
+    Q.ParamByName('vehicle').AsLargeInt := AHeader.EinvVehicleId;
+    Q.ParamByName('trailer1').AsLargeInt := AHeader.Trailer1EinvVehicleId;
+    Q.ParamByName('trailer2').AsLargeInt := AHeader.Trailer2EinvVehicleId;
+    Q.ParamByName('driver1').AsLargeInt := AHeader.Driver1EinvDriverId;
+    Q.ParamByName('driver2').AsLargeInt := AHeader.Driver2EinvDriverId;
+    LogQuery(Q, 'ReadEDespatchRules');
+    Q.Open;
+    Result.ProfileKind := Q.FieldByName('profile_kind').AsInteger;
+    Result.ProfileActive := Q.FieldByName('profile_active').AsBoolean;
+    Result.ProfileCode := Q.FieldByName('profile_code').AsString;
+    Result.VehicleIsTrailer := Q.FieldByName('v_trailer').AsBoolean;
+    Result.VehicleActive := Q.FieldByName('v_active').AsBoolean;
+    Result.Trailer1IsTrailer := Q.FieldByName('t1_trailer').AsBoolean;
+    Result.Trailer1Active := Q.FieldByName('t1_active').AsBoolean;
+    Result.Trailer2IsTrailer := Q.FieldByName('t2_trailer').AsBoolean;
+    Result.Trailer2Active := Q.FieldByName('t2_active').AsBoolean;
+    Result.Driver1Active := Q.FieldByName('d1_active').AsBoolean;
+    Result.Driver2Active := Q.FieldByName('d2_active').AsBoolean;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSlsDispatchRepository.EInvStatus(ADispatchId: Int64): Integer;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT COALESCE(einv_status, 0) AS v FROM public.sls_dispatch WHERE id = :id';
+    Q.ParamByName('id').AsLargeInt := ADispatchId;
+    LogQuery(Q, 'EInvStatus');
+    Q.Open;
+    Result := Q.FieldByName('v').AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TSlsDispatchRepository.EInvProfileIdByCode(const ACode: string): Int64;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT id FROM public.einv_profile WHERE code = :code AND is_active';
+    Q.ParamByName('code').AsWideString := ACode;
+    LogQuery(Q, 'EInvProfileIdByCode');
+    Q.Open;
+    if Q.IsEmpty then
+      Result := 0
+    else
+      Result := Q.FieldByName('id').AsLargeInt;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TSlsDispatchRepository.GetDefaultCurrency: string;
 var
   Q: TFDQuery;
@@ -192,14 +290,17 @@ end;
 function TSlsDispatchRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSlsDispatch) +
-            ' (dispatch_no, dispatch_date, acc_account_id, stk_warehouse_id, sls_order_id, currency, description, status) ' +
-            ' VALUES (:dispatch_no, :dispatch_date, :acc_account_id, :stk_warehouse_id, :sls_order_id, :currency, :description, :status)';
+            ' (dispatch_no, dispatch_date, acc_account_id, stk_warehouse_id, sls_order_id, currency, description, status, ' +
+            '  einv_profile_id, carrier_acc_account_id, einv_vehicle_id, trailer1_einv_vehicle_id, trailer2_einv_vehicle_id, driver1_einv_driver_id, driver2_einv_driver_id, einv_uuid, einv_status, despatch_time) ' +
+            ' VALUES (:dispatch_no, :dispatch_date, :acc_account_id, :stk_warehouse_id, :sls_order_id, :currency, :description, :status, ' +
+            '  :einv_profile_id, :carrier_acc_account_id, :einv_vehicle_id, :trailer1_einv_vehicle_id, :trailer2_einv_vehicle_id, :driver1_einv_driver_id, :driver2_einv_driver_id, CAST(:einv_uuid AS uuid), :einv_status, :despatch_time)';
 end;
 
 function TSlsDispatchRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSlsDispatch) +
-            ' SET dispatch_no = :dispatch_no, dispatch_date = :dispatch_date, acc_account_id = :acc_account_id, stk_warehouse_id = :stk_warehouse_id, sls_order_id = :sls_order_id, currency = :currency, description = :description, status = :status ' +
+            ' SET dispatch_no = :dispatch_no, dispatch_date = :dispatch_date, acc_account_id = :acc_account_id, stk_warehouse_id = :stk_warehouse_id, sls_order_id = :sls_order_id, currency = :currency, description = :description, status = :status, ' +
+            '     einv_profile_id = :einv_profile_id, carrier_acc_account_id = :carrier_acc_account_id, einv_vehicle_id = :einv_vehicle_id, trailer1_einv_vehicle_id = :trailer1_einv_vehicle_id, trailer2_einv_vehicle_id = :trailer2_einv_vehicle_id, driver1_einv_driver_id = :driver1_einv_driver_id, driver2_einv_driver_id = :driver2_einv_driver_id, einv_uuid = CAST(:einv_uuid AS uuid), einv_status = :einv_status, despatch_time = :despatch_time ' +
             ' WHERE id = :id';
 end;
 
@@ -227,6 +328,40 @@ procedure TSlsDispatchRepository.SetInsertParams(Q: TFDQuery; AModel: TSlsDispat
       Q.ParamByName(AName).Clear(AIndex);
   end;
 
+  // uuid kolonu: boş = NULL (SQL tarafında CAST(:x AS uuid))
+  procedure SetUuid(const AName: string; const AValue: string);
+  begin
+    Q.ParamByName(AName).DataType := ftWideString;
+    if AValue <> '' then
+    begin
+      if AIndex < 0 then
+        Q.ParamByName(AName).AsWideString := AValue
+      else
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
+    end
+    else if AIndex < 0 then
+      Q.ParamByName(AName).Clear
+    else
+      Q.ParamByName(AName).Clear(AIndex);
+  end;
+
+  // saat kolonu: 0 = NULL
+  procedure SetTime(const AName: string; AValue: TTime);
+  begin
+    Q.ParamByName(AName).DataType := ftTime;
+    if AValue > 0 then
+    begin
+      if AIndex < 0 then
+        Q.ParamByName(AName).AsTime := AValue
+      else
+        Q.ParamByName(AName).AsTimes[AIndex] := AValue;
+    end
+    else if AIndex < 0 then
+      Q.ParamByName(AName).Clear
+    else
+      Q.ParamByName(AName).Clear(AIndex);
+  end;
+
 begin
   if AIndex < 0 then
   begin
@@ -247,6 +382,16 @@ begin
   SetNullableParam(Q.ParamByName('acc_account_id'), ftLargeint, AModel.AccAccountId, AIndex);
   SetNullableParam(Q.ParamByName('stk_warehouse_id'), ftLargeint, AModel.StkWarehouseId, AIndex);
   SetNullableParam(Q.ParamByName('sls_order_id'), ftLargeint, AModel.SlsOrderId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_profile_id'), ftLargeint, AModel.EinvProfileId, AIndex);
+  SetNullableParam(Q.ParamByName('carrier_acc_account_id'), ftLargeint, AModel.CarrierAccAccountId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_vehicle_id'), ftLargeint, AModel.EinvVehicleId, AIndex);
+  SetNullableParam(Q.ParamByName('trailer1_einv_vehicle_id'), ftLargeint, AModel.Trailer1EinvVehicleId, AIndex);
+  SetNullableParam(Q.ParamByName('trailer2_einv_vehicle_id'), ftLargeint, AModel.Trailer2EinvVehicleId, AIndex);
+  SetNullableParam(Q.ParamByName('driver1_einv_driver_id'), ftLargeint, AModel.Driver1EinvDriverId, AIndex);
+  SetNullableParam(Q.ParamByName('driver2_einv_driver_id'), ftLargeint, AModel.Driver2EinvDriverId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_status'), ftInteger, AModel.EinvStatus, AIndex);
+  SetUuid('einv_uuid', AModel.EinvUuid);
+  SetTime('despatch_time', AModel.DespatchTime);
 end;
 
 procedure TSlsDispatchRepository.SetUpdateParams(Q: TFDQuery; AModel: TSlsDispatch; AIndex: Integer);
@@ -260,6 +405,40 @@ procedure TSlsDispatchRepository.SetUpdateParams(Q: TFDQuery; AModel: TSlsDispat
         Q.ParamByName(AName).AsDate := AValue
       else
         Q.ParamByName(AName).AsDates[AIndex] := AValue;
+    end
+    else if AIndex < 0 then
+      Q.ParamByName(AName).Clear
+    else
+      Q.ParamByName(AName).Clear(AIndex);
+  end;
+
+  // uuid kolonu: boş = NULL (SQL tarafında CAST(:x AS uuid))
+  procedure SetUuid(const AName: string; const AValue: string);
+  begin
+    Q.ParamByName(AName).DataType := ftWideString;
+    if AValue <> '' then
+    begin
+      if AIndex < 0 then
+        Q.ParamByName(AName).AsWideString := AValue
+      else
+        Q.ParamByName(AName).AsWideStrings[AIndex] := AValue;
+    end
+    else if AIndex < 0 then
+      Q.ParamByName(AName).Clear
+    else
+      Q.ParamByName(AName).Clear(AIndex);
+  end;
+
+  // saat kolonu: 0 = NULL
+  procedure SetTime(const AName: string; AValue: TTime);
+  begin
+    Q.ParamByName(AName).DataType := ftTime;
+    if AValue > 0 then
+    begin
+      if AIndex < 0 then
+        Q.ParamByName(AName).AsTime := AValue
+      else
+        Q.ParamByName(AName).AsTimes[AIndex] := AValue;
     end
     else if AIndex < 0 then
       Q.ParamByName(AName).Clear
@@ -289,6 +468,16 @@ begin
   SetNullableParam(Q.ParamByName('acc_account_id'), ftLargeint, AModel.AccAccountId, AIndex);
   SetNullableParam(Q.ParamByName('stk_warehouse_id'), ftLargeint, AModel.StkWarehouseId, AIndex);
   SetNullableParam(Q.ParamByName('sls_order_id'), ftLargeint, AModel.SlsOrderId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_profile_id'), ftLargeint, AModel.EinvProfileId, AIndex);
+  SetNullableParam(Q.ParamByName('carrier_acc_account_id'), ftLargeint, AModel.CarrierAccAccountId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_vehicle_id'), ftLargeint, AModel.EinvVehicleId, AIndex);
+  SetNullableParam(Q.ParamByName('trailer1_einv_vehicle_id'), ftLargeint, AModel.Trailer1EinvVehicleId, AIndex);
+  SetNullableParam(Q.ParamByName('trailer2_einv_vehicle_id'), ftLargeint, AModel.Trailer2EinvVehicleId, AIndex);
+  SetNullableParam(Q.ParamByName('driver1_einv_driver_id'), ftLargeint, AModel.Driver1EinvDriverId, AIndex);
+  SetNullableParam(Q.ParamByName('driver2_einv_driver_id'), ftLargeint, AModel.Driver2EinvDriverId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_status'), ftInteger, AModel.EinvStatus, AIndex);
+  SetUuid('einv_uuid', AModel.EinvUuid);
+  SetTime('despatch_time', AModel.DespatchTime);
 end;
 
 function TSlsDispatchRepository.MapFromQuery(Q: TFDQuery): TSlsDispatch;
@@ -311,6 +500,29 @@ begin
   Result.OrderNo := Q.FieldByName('order_no').AsString;
   Result.Status := Q.FieldByName('status').AsInteger;
   Result.TotalAmount := Q.FieldByName('total_amount').AsCurrency;
+  Result.EinvProfileId := Q.FieldByName('einv_profile_id').AsLargeInt;
+  Result.CarrierAccAccountId := Q.FieldByName('carrier_acc_account_id').AsLargeInt;
+  Result.EinvVehicleId := Q.FieldByName('einv_vehicle_id').AsLargeInt;
+  Result.Trailer1EinvVehicleId := Q.FieldByName('trailer1_einv_vehicle_id').AsLargeInt;
+  Result.Trailer2EinvVehicleId := Q.FieldByName('trailer2_einv_vehicle_id').AsLargeInt;
+  Result.Driver1EinvDriverId := Q.FieldByName('driver1_einv_driver_id').AsLargeInt;
+  Result.Driver2EinvDriverId := Q.FieldByName('driver2_einv_driver_id').AsLargeInt;
+  Result.EinvUuid := LowerCase(Q.FieldByName('einv_uuid').AsString.Replace('{', '').Replace('}', ''));
+  Result.EinvStatus := Q.FieldByName('einv_status').AsInteger;
+  if Q.FieldByName('despatch_time').IsNull then
+    Result.DespatchTime := 0
+  else
+    Result.DespatchTime := Frac(Q.FieldByName('despatch_time').AsDateTime);
+  Result.ProfileCode := Q.FieldByName('profile_code').AsString;
+  Result.EinvNo := Q.FieldByName('einv_no').AsString;
+  Result.CarrierCode := Q.FieldByName('carrier_code').AsString;
+  Result.CarrierName := Q.FieldByName('carrier_name').AsString;
+  Result.VehiclePlate := Q.FieldByName('vehicle_plate').AsString;
+  Result.Trailer1Plate := Q.FieldByName('trailer1_plate').AsString;
+  Result.Trailer2Plate := Q.FieldByName('trailer2_plate').AsString;
+  Result.Driver1Name := Q.FieldByName('driver1_name').AsString;
+  Result.Driver2Name := Q.FieldByName('driver2_name').AsString;
+  Result.AccountEDespatchActive := Q.FieldByName('account_e_despatch_active').AsBoolean;
 end;
 
 function TSlsDispatchRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

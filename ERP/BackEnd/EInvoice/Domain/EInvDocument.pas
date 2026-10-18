@@ -21,10 +21,15 @@ type
     // View (vw_einv_document) okunabilir alanları
     FGeneratedAt: string;
     FInvoiceNo: string;
+    FSlsDispatchId: Int64;
+    FDispatchNo: string;
   public
+    // kaynak belge: satış faturası ya da satış irsaliyesi (tam olarak biri; DB CHECK)
     [Column('sls_invoice_id')]
-    [Required()]
     property SlsInvoiceId: Int64 read FSlsInvoiceId write FSlsInvoiceId;
+
+    [Column('sls_dispatch_id')]
+    property SlsDispatchId: Int64 read FSlsDispatchId write FSlsDispatchId;
 
     [Column('einv_uuid')]
     [MaxLength(36), Required(TLangKeys.TValidation.Required, True)]
@@ -49,6 +54,9 @@ type
 
     [NotMapped]
     property InvoiceNo: string read FInvoiceNo write FInvoiceNo;
+
+    [NotMapped]
+    property DispatchNo: string read FDispatchNo write FDispatchNo;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -80,6 +88,8 @@ begin
   Result.ValidationMessage := Self.ValidationMessage;
   Result.GeneratedAt := Self.GeneratedAt;
   Result.InvoiceNo := Self.InvoiceNo;
+  Result.SlsDispatchId := Self.SlsDispatchId;
+  Result.DispatchNo := Self.DispatchNo;
 end;
 
 end.

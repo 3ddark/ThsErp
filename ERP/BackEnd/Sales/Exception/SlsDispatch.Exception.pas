@@ -38,6 +38,41 @@ type
     class function GetMessage: string; override;
   end;
 
+  ESlsDispatchExceptionEInvLocked = class(ESlsDispatchException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
+  ESlsDispatchExceptionEInvProfileKind = class(ESlsDispatchException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
+  ESlsDispatchExceptionTransportRequired = class(ESlsDispatchException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
+  ESlsDispatchExceptionVehicleIsTrailer = class(ESlsDispatchException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
+  ESlsDispatchExceptionTrailerNotTrailer = class(ESlsDispatchException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
+  ESlsDispatchExceptionTrailerDuplicate = class(ESlsDispatchException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
+  ESlsDispatchExceptionDriverDuplicate = class(ESlsDispatchException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
 implementation
 
 class function ESlsDispatchExceptionNoUnique.GetMessage: string;
@@ -68,6 +103,41 @@ end;
 class function ESlsDispatchExceptionNothingToDispatch.GetMessage: string;
 begin
   Result := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.NothingToDispatch, 'There is no remaining quantity to deliver.');
+end;
+
+class function ESlsDispatchExceptionEInvLocked.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.EInvLocked, 'The e-despatch advice was sent; the delivery note cannot be changed or deleted.');
+end;
+
+class function ESlsDispatchExceptionEInvProfileKind.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.EInvProfileKind, 'The selected profile is not a despatch advice profile.');
+end;
+
+class function ESlsDispatchExceptionTransportRequired.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.TransportRequired, 'e-Despatch advice needs the carrier company, or the vehicle plate and at least one driver.');
+end;
+
+class function ESlsDispatchExceptionVehicleIsTrailer.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.VehicleIsTrailer, 'The selected vehicle is a trailer; select it as a trailer.');
+end;
+
+class function ESlsDispatchExceptionTrailerNotTrailer.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.TrailerNotTrailer, 'The selected trailer is not defined as a trailer.');
+end;
+
+class function ESlsDispatchExceptionTrailerDuplicate.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.TrailerDuplicate, 'The same trailer is selected twice.');
+end;
+
+class function ESlsDispatchExceptionDriverDuplicate.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.DriverDuplicate, 'The same driver is selected twice.');
 end;
 
 end.

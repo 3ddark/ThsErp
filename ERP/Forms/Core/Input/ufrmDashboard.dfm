@@ -430,6 +430,18 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 93
       OnExecute = actsls_einv_seriesExecute
     end
+    object actsls_einv_vehicles: TAction
+      Category = 'Satis'
+      Caption = 'Ara'#231' / Dorse Tan'#305'mlar'#305
+      ImageIndex = 93
+      OnExecute = actsls_einv_vehiclesExecute
+    end
+    object actsls_einv_drivers: TAction
+      Category = 'Satis'
+      Caption = #350'of'#246'r Tan'#305'mlar'#305
+      ImageIndex = 93
+      OnExecute = actsls_einv_driversExecute
+    end
     object actstk_gtips: TAction
       Category = 'Stok'
       Caption = 'GT'#304'P Kodlar'#305
@@ -889,6 +901,12 @@ inherited frmDashboard: TfrmDashboard
         end
         object mnisls_einv_series: TMenuItem
           Action = actsls_einv_series
+        end
+        object mnisls_einv_vehicles: TMenuItem
+          Action = actsls_einv_vehicles
+        end
+        object mnisls_einv_drivers: TMenuItem
+          Action = actsls_einv_drivers
         end
       end
     end

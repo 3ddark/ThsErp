@@ -18,6 +18,11 @@ type
     procedure SetUpdateParams(Q: TFDQuery; AModel: TEInvDocument; AIndex: Integer = -1);
     function MapFromQuery(Q: TFDQuery): TEInvDocument; override;
 
+    // UBL tarafları (fatura / irsaliye ortak)
+    procedure ReadAddress(Q: TFDQuery; AAddressId: Int64; var AParty: TEInvUblParty);
+    procedure ReadSupplier(Q: TFDQuery; var AParty: TEInvUblParty);
+    procedure ReadAccountParty(Q: TFDQuery; AAccountId: Int64; const AAddressType: string; var AParty: TEInvUblParty);
+
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
     function DoFind(AFilter: TFilterCriteria; ALock: Boolean = False): TObjectList<TEInvDocument>; override;
@@ -48,6 +53,14 @@ type
     // UBL verisi: fatura başlığı + kalemler (vw_sls_invoice / vw_sls_invoice_detail), satıcı (sys_application_setting),
     // alıcı (cari + mükellef bilgisi + fatura adresi). Fatura yoksa nil.
     function LoadSalesInvoice(AInvoiceId: Int64): TEInvUblInvoice;
+
+    // irsaliyenin e-İrsaliye XML kaydı (yoksa nil); irsaliye başına tek kayıt
+    function FindByDispatchId(ADispatchId: Int64): TEInvDocument;
+    procedure SaveForDispatch(ADispatchId: Int64; const AUuid, AEInvNo, AXml: string; AValid: Boolean; const AMessage: string);
+    procedure DeleteByDispatchId(ADispatchId: Int64);
+    function DispatchEInvStatus(ADispatchId: Int64): Integer;
+    // UBL verisi: irsaliye + taşıma + kalemler (fiyatsız), sevk eden, teslim alan (sevk adresi), taşıyıcı. Yoksa nil.
+    function LoadSalesDispatch(ADispatchId: Int64): TEInvUblDespatch;
   end;
 
 implementation
@@ -148,81 +161,251 @@ begin
   end;
 end;
 
+function FieldText(Q: TFDQuery; const AField: string): string;
+begin
+  Result := Trim(Q.FieldByName(AField).AsString);
+end;
+
+function JoinText(const AParts: array of string): string;
+var
+  LPart: string;
+begin
+  Result := '';
+  for LPart in AParts do
+    if Trim(LPart) <> '' then
+      if Result = '' then
+        Result := Trim(LPart)
+      else
+        Result := Result + ' ' + Trim(LPart);
+end;
+
+// ad soyad: son kelime soyad (e-Arşiv'de kimliksiz nihai tüketici)
+procedure SplitName(const AFull: string; var AParty: TEInvUblParty);
+var
+  p: Integer;
+begin
+  p := LastDelimiter(' ', Trim(AFull));
+  if p > 0 then
+  begin
+    AParty.FirstName := Trim(Copy(Trim(AFull), 1, p - 1));
+    AParty.FamilyName := Trim(Copy(Trim(AFull), p + 1, MaxInt));
+  end
+  else
+  begin
+    AParty.FirstName := Trim(AFull);
+    AParty.FamilyName := Trim(AFull);
+  end;
+end;
+
+procedure TEInvDocumentRepository.ReadAddress(Q: TFDQuery; AAddressId: Int64; var AParty: TEInvUblParty);
+begin
+  AParty.Address := Default(TEInvUblAddress);
+  if AAddressId <= 0 then
+    Exit;
+  Q.Close;
+  Q.SQL.Text := 'SELECT a.neighborhood, a.quarter, a.road, a.street, a.building_name, a.door_number, a.district, ' +
+                '       a.city_name, a.zip_code, a.country_name, c.country_code, a.email, a.web ' +
+                '  FROM public.vw_sys_address a LEFT JOIN public.sys_country c ON c.id = a.sys_country_id ' +
+                ' WHERE a.id = :id AND a.locale = :locale';
+  Q.ParamByName('id').AsLargeInt := AAddressId;
+  Q.ParamByName('locale').AsWideString := ADDRESS_LOCALE;
+  LogQuery(Q, 'ReadAddress');
+  Q.Open;
+  if Q.IsEmpty then
+    Exit;
+  AParty.Address.StreetName := JoinText([FieldText(Q, 'neighborhood'), FieldText(Q, 'quarter'), FieldText(Q, 'road'),
+    FieldText(Q, 'street')]);
+  AParty.Address.BuildingName := FieldText(Q, 'building_name');
+  AParty.Address.BuildingNumber := FieldText(Q, 'door_number');
+  AParty.Address.CitySubdivisionName := FieldText(Q, 'district');
+  AParty.Address.CityName := FieldText(Q, 'city_name');
+  AParty.Address.PostalZone := FieldText(Q, 'zip_code');
+  AParty.Address.CountryName := FieldText(Q, 'country_name');
+  AParty.Address.CountryCode := FieldText(Q, 'country_code');
+  if AParty.Email = '' then
+    AParty.Email := FieldText(Q, 'email');
+  if AParty.Website = '' then
+    AParty.Website := FieldText(Q, 'web');
+end;
+
+// Firmamız: uygulama ayarları (taxpayer_type 'TCKN' = gerçek kişi)
+procedure TEInvDocumentRepository.ReadSupplier(Q: TFDQuery; var AParty: TEInvUblParty);
+var
+  LAddressId: Int64;
+begin
+  AParty := Default(TEInvUblParty);
+  Q.Close;
+  Q.SQL.Text := 'SELECT company_title, phone, fax, tax_authority, tax_no, sys_address_id, taxpayer_name, ' +
+                '       taxpayer_surname, taxpayer_type FROM public.sys_application_setting ORDER BY id LIMIT 1';
+  LogQuery(Q, 'ReadSupplier');
+  Q.Open;
+  LAddressId := 0;
+  if not Q.IsEmpty then
+  begin
+    AParty.Found := True;
+    AParty.TaxNo := FieldText(Q, 'tax_no');
+    AParty.IsPerson := SameText(FieldText(Q, 'taxpayer_type'), 'TCKN') or (Length(AParty.TaxNo) = 11);
+    AParty.Name := FieldText(Q, 'company_title');
+    AParty.FirstName := FieldText(Q, 'taxpayer_name');
+    AParty.FamilyName := FieldText(Q, 'taxpayer_surname');
+    AParty.TaxOffice := FieldText(Q, 'tax_authority');
+    AParty.Phone := FieldText(Q, 'phone');
+    AParty.Fax := FieldText(Q, 'fax');
+    LAddressId := Q.FieldByName('sys_address_id').AsLargeInt;
+  end;
+  ReadAddress(Q, LAddressId, AParty);
+end;
+
+// Cari: mükellef bilgisi (1 tüzel, 2 gerçek kişi) + adres (önce AAddressType, sonra birincil / yasal)
+procedure TEInvDocumentRepository.ReadAccountParty(Q: TFDQuery; AAccountId: Int64; const AAddressType: string;
+  var AParty: TEInvUblParty);
+var
+  LAddressId: Int64;
+begin
+  AParty := Default(TEInvUblParty);
+  if AAccountId <= 0 then
+    Exit;
+  Q.Close;
+  Q.SQL.Text :=
+    'SELECT a.name, t.taxpayer_type, t.taxpayer_name, t.taxpayer_name2, t.taxpayer_surname, t.tax_office, t.tax_no, ' +
+    '       (SELECT aa.sys_address_id FROM public.acc_account_address aa WHERE aa.acc_account_id = a.id ' +
+    '         ORDER BY (aa.address_type = :address_type) DESC, aa.is_primary DESC, (aa.address_type = ''LEGAL'') DESC, aa.id ' +
+    '         LIMIT 1) AS sys_address_id ' +
+    '  FROM public.acc_account a LEFT JOIN public.acc_account_taxpayer t ON t.acc_account_id = a.id ' +
+    ' WHERE a.id = :id';
+  Q.ParamByName('id').AsLargeInt := AAccountId;
+  Q.ParamByName('address_type').AsWideString := AAddressType;
+  LogQuery(Q, 'ReadAccountParty');
+  Q.Open;
+  LAddressId := 0;
+  if not Q.IsEmpty then
+  begin
+    AParty.Found := True;
+    AParty.TaxNo := FieldText(Q, 'tax_no');
+    AParty.TaxOffice := FieldText(Q, 'tax_office');
+    AParty.IsPerson := (Q.FieldByName('taxpayer_type').AsInteger = 2) or
+      (Q.FieldByName('taxpayer_type').IsNull and (Length(AParty.TaxNo) = 11));
+    if AParty.IsPerson then
+    begin
+      AParty.FirstName := FieldText(Q, 'taxpayer_name');
+      AParty.FamilyName := FieldText(Q, 'taxpayer_surname');
+      AParty.Name := JoinText([AParty.FirstName, AParty.FamilyName]);
+      if (AParty.FirstName = '') and (AParty.FamilyName = '') then
+      begin
+        AParty.Name := FieldText(Q, 'name');
+        SplitName(FieldText(Q, 'name'), AParty);
+      end;
+    end
+    else
+    begin
+      AParty.Name := JoinText([FieldText(Q, 'taxpayer_name'), FieldText(Q, 'taxpayer_name2')]);
+      if AParty.Name = '' then
+        AParty.Name := FieldText(Q, 'name');
+    end;
+    LAddressId := Q.FieldByName('sys_address_id').AsLargeInt;
+  end;
+  ReadAddress(Q, LAddressId, AParty);
+end;
+
+function TEInvDocumentRepository.FindByDispatchId(ADispatchId: Int64): TEInvDocument;
+var
+  Q: TFDQuery;
+begin
+  Result := nil;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TEInvDocument) + ' WHERE sls_dispatch_id = :id';
+    Q.ParamByName('id').AsLargeInt := ADispatchId;
+    LogQuery(Q, 'FindByDispatchId');
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := MapFromQuery(Q);
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TEInvDocumentRepository.SaveForDispatch(ADispatchId: Int64; const AUuid, AEInvNo, AXml: string; AValid: Boolean;
+  const AMessage: string);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text :=
+      'INSERT INTO public.einv_document (sls_dispatch_id, einv_uuid, einv_no, xml_content, is_valid, validation_message) ' +
+      'VALUES (:sls_dispatch_id, :einv_uuid, :einv_no, :xml_content, :is_valid, :validation_message) ' +
+      'ON CONFLICT (sls_dispatch_id) DO UPDATE SET einv_uuid = EXCLUDED.einv_uuid, einv_no = EXCLUDED.einv_no, ' +
+      '  xml_content = EXCLUDED.xml_content, is_valid = EXCLUDED.is_valid, validation_message = EXCLUDED.validation_message, ' +
+      '  generated_at = now()';
+    Q.ParamByName('sls_dispatch_id').AsLargeInt := ADispatchId;
+    Q.ParamByName('einv_uuid').AsWideString := AUuid;
+    Q.ParamByName('einv_no').AsWideString := AEInvNo;
+    Q.ParamByName('xml_content').AsWideMemo := AXml;
+    Q.ParamByName('is_valid').AsBoolean := AValid;
+    Q.ParamByName('validation_message').DataType := ftWideMemo;
+    if AMessage = '' then
+      Q.ParamByName('validation_message').Clear
+    else
+      Q.ParamByName('validation_message').AsWideMemo := AMessage;
+    LogQuery(Q, 'SaveForDispatch');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TEInvDocumentRepository.DeleteByDispatchId(ADispatchId: Int64);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'DELETE FROM public.einv_document WHERE sls_dispatch_id = :id';
+    Q.ParamByName('id').AsLargeInt := ADispatchId;
+    LogQuery(Q, 'DeleteByDispatchId');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TEInvDocumentRepository.DispatchEInvStatus(ADispatchId: Int64): Integer;
+var
+  Q: TFDQuery;
+begin
+  Result := 0;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT COALESCE(einv_status, 0) FROM public.sls_dispatch WHERE id = :id';
+    Q.ParamByName('id').AsLargeInt := ADispatchId;
+    LogQuery(Q, 'DispatchEInvStatus');
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := Q.Fields[0].AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TEInvDocumentRepository.LoadSalesInvoice(AInvoiceId: Int64): TEInvUblInvoice;
 var
   Q: TFDQuery;
-  LAccountId, LSellerAddressId, LCustomerAddressId: Int64;
+  LAccountId: Int64;
   L: TEInvUblLine;
 
   function S(const AField: string): string;
   begin
-    Result := Trim(Q.FieldByName(AField).AsString);
+    Result := FieldText(Q, AField);
   end;
 
   function C(const AField: string): Currency;
   begin
     Result := Q.FieldByName(AField).AsCurrency;
-  end;
-
-  function JoinText(const AParts: array of string): string;
-  var
-    LPart: string;
-  begin
-    Result := '';
-    for LPart in AParts do
-      if Trim(LPart) <> '' then
-        if Result = '' then
-          Result := Trim(LPart)
-        else
-          Result := Result + ' ' + Trim(LPart);
-  end;
-
-  procedure ReadAddress(AAddressId: Int64; var AParty: TEInvUblParty);
-  begin
-    AParty.Address := Default(TEInvUblAddress);
-    if AAddressId <= 0 then
-      Exit;
-    Q.Close;
-    Q.SQL.Text := 'SELECT a.neighborhood, a.quarter, a.road, a.street, a.building_name, a.door_number, a.district, ' +
-                  '       a.city_name, a.zip_code, a.country_name, c.country_code, a.email, a.web ' +
-                  '  FROM public.vw_sys_address a LEFT JOIN public.sys_country c ON c.id = a.sys_country_id ' +
-                  ' WHERE a.id = :id AND a.locale = :locale';
-    Q.ParamByName('id').AsLargeInt := AAddressId;
-    Q.ParamByName('locale').AsWideString := ADDRESS_LOCALE;
-    LogQuery(Q, 'LoadSalesInvoice.Address');
-    Q.Open;
-    if Q.IsEmpty then
-      Exit;
-    AParty.Address.StreetName := JoinText([S('neighborhood'), S('quarter'), S('road'), S('street')]);
-    AParty.Address.BuildingName := S('building_name');
-    AParty.Address.BuildingNumber := S('door_number');
-    AParty.Address.CitySubdivisionName := S('district');
-    AParty.Address.CityName := S('city_name');
-    AParty.Address.PostalZone := S('zip_code');
-    AParty.Address.CountryName := S('country_name');
-    AParty.Address.CountryCode := S('country_code');
-    if AParty.Email = '' then
-      AParty.Email := S('email');
-    if AParty.Website = '' then
-      AParty.Website := S('web');
-  end;
-
-  // ad soyad: son kelime soyad (e-Arşiv'de kimliksiz nihai tüketici)
-  procedure SplitName(const AFull: string; var AParty: TEInvUblParty);
-  var
-    p: Integer;
-  begin
-    p := LastDelimiter(' ', Trim(AFull));
-    if p > 0 then
-    begin
-      AParty.FirstName := Trim(Copy(Trim(AFull), 1, p - 1));
-      AParty.FamilyName := Trim(Copy(Trim(AFull), p + 1, MaxInt));
-    end
-    else
-    begin
-      AParty.FirstName := Trim(AFull);
-      AParty.FamilyName := Trim(AFull);
-    end;
   end;
 
 begin
@@ -276,76 +459,18 @@ begin
       Result.WithholdingAmount := C('withholding_amount');
       LAccountId := Q.FieldByName('acc_account_id').AsLargeInt;
 
-      // ---- satıcı: uygulama ayarları (taxpayer_type 'TCKN' = gerçek kişi)
-      Q.Close;
-      Q.SQL.Text := 'SELECT company_title, phone, fax, tax_authority, tax_no, sys_address_id, taxpayer_name, ' +
-                    '       taxpayer_surname, taxpayer_type FROM public.sys_application_setting ORDER BY id LIMIT 1';
-      LogQuery(Q, 'LoadSalesInvoice.Supplier');
-      Q.Open;
-      LSellerAddressId := 0;
-      if not Q.IsEmpty then
+      // ---- satıcı: uygulama ayarları; alıcı: cari + fatura adresi (yoksa birincil / yasal adres)
+      ReadSupplier(Q, Result.Supplier);
+      ReadAccountParty(Q, LAccountId, 'BILLING', Result.Customer);
+      // e-Arşiv: kimlik numarası bilinmeyen nihai tüketici
+      if Result.Customer.Found and not Result.IsExport and (Result.Customer.TaxNo = '') and
+        (Result.ProfileCode = EINV_PROFILE_ARCHIVE) then
       begin
-        Result.Supplier.Found := True;
-        Result.Supplier.TaxNo := S('tax_no');
-        Result.Supplier.IsPerson := SameText(S('taxpayer_type'), 'TCKN') or (Length(Result.Supplier.TaxNo) = 11);
-        Result.Supplier.Name := S('company_title');
-        Result.Supplier.FirstName := S('taxpayer_name');
-        Result.Supplier.FamilyName := S('taxpayer_surname');
-        Result.Supplier.TaxOffice := S('tax_authority');
-        Result.Supplier.Phone := S('phone');
-        Result.Supplier.Fax := S('fax');
-        LSellerAddressId := Q.FieldByName('sys_address_id').AsLargeInt;
+        Result.Customer.TaxNo := EINV_UNKNOWN_TCKN;
+        Result.Customer.IsPerson := True;
+        if Result.Customer.FirstName = '' then
+          SplitName(Result.Customer.Name, Result.Customer);
       end;
-      ReadAddress(LSellerAddressId, Result.Supplier);
-
-      // ---- alıcı: cari + mükellef bilgisi (1 tüzel, 2 gerçek kişi) + fatura adresi (yoksa birincil / yasal adres)
-      Q.Close;
-      Q.SQL.Text :=
-        'SELECT a.name, t.taxpayer_type, t.taxpayer_name, t.taxpayer_name2, t.taxpayer_surname, t.tax_office, t.tax_no, ' +
-        '       (SELECT aa.sys_address_id FROM public.acc_account_address aa WHERE aa.acc_account_id = a.id ' +
-        '         ORDER BY (aa.address_type = ''BILLING'') DESC, aa.is_primary DESC, (aa.address_type = ''LEGAL'') DESC, aa.id ' +
-        '         LIMIT 1) AS sys_address_id ' +
-        '  FROM public.acc_account a LEFT JOIN public.acc_account_taxpayer t ON t.acc_account_id = a.id ' +
-        ' WHERE a.id = :id';
-      Q.ParamByName('id').AsLargeInt := LAccountId;
-      LogQuery(Q, 'LoadSalesInvoice.Customer');
-      Q.Open;
-      LCustomerAddressId := 0;
-      if not Q.IsEmpty then
-      begin
-        Result.Customer.Found := True;
-        Result.Customer.TaxNo := S('tax_no');
-        Result.Customer.TaxOffice := S('tax_office');
-        Result.Customer.IsPerson := (Q.FieldByName('taxpayer_type').AsInteger = 2) or
-          (Q.FieldByName('taxpayer_type').IsNull and (Length(Result.Customer.TaxNo) = 11));
-        if Result.Customer.IsPerson then
-        begin
-          Result.Customer.FirstName := S('taxpayer_name');
-          Result.Customer.FamilyName := S('taxpayer_surname');
-          Result.Customer.Name := JoinText([Result.Customer.FirstName, Result.Customer.FamilyName]);
-          if (Result.Customer.FirstName = '') and (Result.Customer.FamilyName = '') then
-          begin
-            Result.Customer.Name := S('name');
-            SplitName(S('name'), Result.Customer);
-          end;
-        end
-        else
-        begin
-          Result.Customer.Name := JoinText([S('taxpayer_name'), S('taxpayer_name2')]);
-          if Result.Customer.Name = '' then
-            Result.Customer.Name := S('name');
-        end;
-        LCustomerAddressId := Q.FieldByName('sys_address_id').AsLargeInt;
-        // e-Arşiv: kimlik numarası bilinmeyen nihai tüketici
-        if not Result.IsExport and (Result.Customer.TaxNo = '') and (Result.ProfileCode = EINV_PROFILE_ARCHIVE) then
-        begin
-          Result.Customer.TaxNo := EINV_UNKNOWN_TCKN;
-          Result.Customer.IsPerson := True;
-          if Result.Customer.FirstName = '' then
-            SplitName(Result.Customer.Name, Result.Customer);
-        end;
-      end;
-      ReadAddress(LCustomerAddressId, Result.Customer);
 
       // ---- kalemler (DİİB belge numaraları CustomsDeclaration/ID için)
       Q.Close;
@@ -396,6 +521,128 @@ begin
       end;
     except
       FreeAndNil(Result);
+      raise;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TEInvDocumentRepository.LoadSalesDispatch(ADispatchId: Int64): TEInvUblDespatch;
+var
+  Q: TFDQuery;
+  LAccountId, LCarrierId: Int64;
+  LDriver: TEInvUblDriver;
+  L: TEInvUblDespatchLine;
+  LDoc: TEInvUblDespatch;
+
+  function S(const AField: string): string;
+  begin
+    Result := FieldText(Q, AField);
+  end;
+
+  procedure AddTrailer(const APlate: string);
+  begin
+    if APlate <> '' then
+      LDoc.TrailerPlates := LDoc.TrailerPlates + [APlate];
+  end;
+
+  procedure AddDriver(const AFirst, AFamily, ANationalId: string);
+  begin
+    if (AFirst = '') and (AFamily = '') then
+      Exit;
+    LDriver.FirstName := AFirst;
+    LDriver.FamilyName := AFamily;
+    LDriver.NationalId := ANationalId;
+    LDoc.Drivers := LDoc.Drivers + [LDriver];
+  end;
+
+begin
+  Result := nil;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+
+    // ---- başlık + taşıma
+    Q.SQL.Text :=
+      'SELECT p.dispatch_no, p.dispatch_date, p.despatch_time, p.description, p.einv_uuid::text AS einv_uuid, p.einv_no, ' +
+      '       pr.code AS profile_code, p.acc_account_id, p.carrier_acc_account_id, o.order_no, o.order_date, ' +
+      '       v.plate_no AS vehicle_plate, t1.plate_no AS trailer1_plate, t2.plate_no AS trailer2_plate, ' +
+      '       d1.first_name AS d1_first, d1.family_name AS d1_family, d1.national_id AS d1_id, ' +
+      '       d2.first_name AS d2_first, d2.family_name AS d2_family, d2.national_id AS d2_id ' +
+      '  FROM public.sls_dispatch p ' +
+      '  LEFT JOIN public.einv_profile pr ON pr.id = p.einv_profile_id ' +
+      '  LEFT JOIN public.sls_order o ON o.id = p.sls_order_id ' +
+      '  LEFT JOIN public.einv_vehicle v ON v.id = p.einv_vehicle_id ' +
+      '  LEFT JOIN public.einv_vehicle t1 ON t1.id = p.trailer1_einv_vehicle_id ' +
+      '  LEFT JOIN public.einv_vehicle t2 ON t2.id = p.trailer2_einv_vehicle_id ' +
+      '  LEFT JOIN public.einv_driver d1 ON d1.id = p.driver1_einv_driver_id ' +
+      '  LEFT JOIN public.einv_driver d2 ON d2.id = p.driver2_einv_driver_id ' +
+      ' WHERE p.id = :id';
+    Q.ParamByName('id').AsLargeInt := ADispatchId;
+    LogQuery(Q, 'LoadSalesDispatch');
+    Q.Open;
+    if Q.IsEmpty then
+      Exit;
+    LDoc := TEInvUblDespatch.Create;
+    try
+      LDoc.DispatchId := ADispatchId;
+      LDoc.DispatchNo := S('dispatch_no');
+      LDoc.IssueDate := Q.FieldByName('dispatch_date').AsDateTime;
+      if not Q.FieldByName('despatch_time').IsNull then
+        LDoc.DespatchTime := Frac(Q.FieldByName('despatch_time').AsDateTime);
+      LDoc.Description := S('description');
+      LDoc.Uuid := S('einv_uuid');
+      LDoc.EInvNo := S('einv_no');
+      LDoc.ProfileCode := S('profile_code');
+      LDoc.OrderNo := S('order_no');
+      if not Q.FieldByName('order_date').IsNull then
+        LDoc.OrderDate := Q.FieldByName('order_date').AsDateTime;
+      LDoc.VehiclePlate := S('vehicle_plate');
+      AddTrailer(S('trailer1_plate'));
+      AddTrailer(S('trailer2_plate'));
+      AddDriver(S('d1_first'), S('d1_family'), S('d1_id'));
+      AddDriver(S('d2_first'), S('d2_family'), S('d2_id'));
+      LAccountId := Q.FieldByName('acc_account_id').AsLargeInt;
+      LCarrierId := Q.FieldByName('carrier_acc_account_id').AsLargeInt;
+
+      // ---- sevk eden: uygulama ayarları; teslim alan: cari + sevk adresi; taşıyıcı: cari
+      ReadSupplier(Q, LDoc.Supplier);
+      ReadAccountParty(Q, LAccountId, 'SHIPPING', LDoc.Customer);
+      LDoc.HasCarrier := LCarrierId > 0;
+      if LDoc.HasCarrier then
+        ReadAccountParty(Q, LCarrierId, 'LEGAL', LDoc.Carrier);
+
+      // ---- kalemler (fiyat yazılmaz)
+      Q.Close;
+      Q.SQL.Text :=
+        'SELECT d.line_no, d.inventory_code, d.inventory_name, d.description, d.quantity, d.uom_code, ' +
+        '       u.unit_einv AS uom_einv_code, od.line_no AS order_line_no ' +
+        '  FROM public.vw_sls_dispatch_detail d ' +
+        '  JOIN public.stk_inventory i ON i.id = d.stk_inventory_id ' +
+        '  LEFT JOIN public.sys_uom u ON u.id = i.sys_uom_id ' +
+        '  LEFT JOIN public.sls_order_detail od ON od.id = d.sls_order_detail_id ' +
+        ' WHERE d.sls_dispatch_id = :id ORDER BY d.line_no, d.id';
+      Q.ParamByName('id').AsLargeInt := ADispatchId;
+      LogQuery(Q, 'LoadSalesDispatch.Lines');
+      Q.Open;
+      while not Q.Eof do
+      begin
+        L := TEInvUblDespatchLine.Create;
+        LDoc.Lines.Add(L);
+        L.LineNo := Q.FieldByName('line_no').AsInteger;
+        L.InventoryCode := S('inventory_code');
+        L.InventoryName := S('inventory_name');
+        L.Description := S('description');
+        L.Quantity := Q.FieldByName('quantity').AsCurrency;
+        L.UomCode := S('uom_code');
+        L.UnitCode := S('uom_einv_code');
+        L.OrderLineNo := Q.FieldByName('order_line_no').AsInteger;
+        Q.Next;
+      end;
+      Result := LDoc;
+    except
+      LDoc.Free;
       raise;
     end;
   finally
@@ -483,6 +730,8 @@ begin
   Result.ValidationMessage := Q.FieldByName('validation_message').AsString;
   Result.GeneratedAt := Q.FieldByName('generated_at').AsString;
   Result.InvoiceNo := Q.FieldByName('invoice_no').AsString;
+  Result.SlsDispatchId := Q.FieldByName('sls_dispatch_id').AsLargeInt;
+  Result.DispatchNo := Q.FieldByName('dispatch_no').AsString;
 end;
 
 function TEInvDocumentRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

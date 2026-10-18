@@ -49,14 +49,23 @@ type
     function BusinessFindByInvoice(AInvoiceId: Int64; APermissionControl: Boolean): TEInvDocument;
     // Yeniden üret (firma / cari bilgisi değiştiyse): satış faturası güncelleme yetkisi; gönderilmiş belgede ret
     procedure BusinessRegenerate(AInvoiceId: Int64; APermissionControl: Boolean);
-    // GİB görselliğiyle (general.xslt) HTML
+    // İrsaliye kaydında (TSlsDispatchService.AfterDocumentSaved): GenerateForInvoice'un e-İrsaliye karşılığı (fiyatsız
+    // DespatchAdvice; seri kapsamı e-İrsaliye)
+    class procedure GenerateForDispatch(ARepo: TEInvDocumentRepository; ASeriesRepo: TEInvSeriesRepository;
+      ADispatchId: Int64); static;
+    // İrsaliye listesi: kayıtlı XML (satış irsaliyesi okuma yetkisi); yoksa nil
+    function BusinessFindByDispatch(ADispatchId: Int64; APermissionControl: Boolean): TEInvDocument;
+    // Yeniden üret: satış irsaliyesi güncelleme yetkisi; gönderilmiş belgede ret
+    procedure BusinessRegenerateDispatch(ADispatchId: Int64; APermissionControl: Boolean);
+    // GİB görselliğiyle HTML (fatura general.xslt, e-İrsaliye irsaliye.xslt)
     class function ToHtml(ADocument: TEInvDocument): string; static;
   end;
 
 implementation
 
 uses
-  SysPermission.Service, EInvLookup, EInvUbl.Model, EInvUbl.Builder, EInvUbl.Validator, SlsInvoice.Exception, System.DateUtils;
+  SysPermission.Service, EInvLookup, EInvUbl.Model, EInvUbl.Builder, EInvUbl.Validator, SlsInvoice.Exception,
+  SlsDispatch.Exception, System.DateUtils;
 
 constructor TEInvDocumentService.Create;
 begin
@@ -118,6 +127,81 @@ begin
   end;
 end;
 
+class procedure TEInvDocumentService.GenerateForDispatch(ARepo: TEInvDocumentRepository; ASeriesRepo: TEInvSeriesRepository;
+  ADispatchId: Int64);
+var
+  LData: TEInvUblDespatch;
+  LProblems: TStringList;
+  LXml, LSchemaMessage, LSeries: string;
+  LSeriesId: Int64;
+  LValid: Boolean;
+begin
+  if TEInvLookup.IsEInvLocked(ARepo.DispatchEInvStatus(ADispatchId)) then
+    Exit;
+  LData := ARepo.LoadSalesDispatch(ADispatchId);
+  try
+    if not Assigned(LData) or (LData.ProfileCode = '') then
+    begin
+      ARepo.DeleteByDispatchId(ADispatchId);
+      Exit;
+    end;
+    if LData.EInvNo = '' then
+    begin
+      LSeries := ASeriesRepo.DefaultSeries(EINV_SERIES_DESPATCH, LSeriesId);
+      LData.EInvNo := TEInvLookup.MakeEInvNo(LSeries, YearOf(LData.IssueDate), 0);
+    end;
+    LProblems := TStringList.Create;
+    try
+      try
+        LXml := TEInvUblBuilder.BuildDespatch(LData, LProblems);
+        LValid := TEInvUblValidator.Validate(LXml, LSchemaMessage);
+        if not LValid then
+          LProblems.Add(LSchemaMessage);
+      except
+        on E: Exception do
+        begin
+          LProblems.Add(E.Message);
+          if LXml = '' then
+            LXml := '<?xml version="1.0" encoding="UTF-8"?>';
+        end;
+      end;
+      ARepo.SaveForDispatch(ADispatchId, LData.Uuid, LData.EInvNo, LXml, LProblems.Count = 0, Trim(LProblems.Text));
+    finally
+      LProblems.Free;
+    end;
+  finally
+    LData.Free;
+  end;
+end;
+
+function TEInvDocumentService.BusinessFindByDispatch(ADispatchId: Int64; APermissionControl: Boolean): TEInvDocument;
+begin
+  Self.UoW.EnsureAuthorized(PERMISSION_SLS_DISPATCH, ptRead, APermissionControl);
+  Result := TEInvDocumentRepository(FRepo).FindByDispatchId(ADispatchId);
+end;
+
+procedure TEInvDocumentService.BusinessRegenerateDispatch(ADispatchId: Int64; APermissionControl: Boolean);
+var
+  LWithBegin: Boolean;
+begin
+  LWithBegin := not Self.UoW.InTransaction;
+  try
+    Self.UoW.EnsureAuthorized(PERMISSION_SLS_DISPATCH, ptUpdate, APermissionControl);
+    if TEInvLookup.IsEInvLocked(TEInvDocumentRepository(FRepo).DispatchEInvStatus(ADispatchId)) then
+      raise ESlsDispatchExceptionEInvLocked.Create;
+    if LWithBegin then
+      Self.UoW.BeginTransaction;
+    GenerateForDispatch(TEInvDocumentRepository(FRepo),
+      TEInvSeriesRepository(Self.UoW.GetRepository<TEInvSeries, TEInvSeriesRepository>), ADispatchId);
+    if LWithBegin and Self.UoW.InTransaction then
+      Self.UoW.Commit;
+  except
+    if LWithBegin and Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
+end;
+
 function TEInvDocumentService.BusinessFindByInvoice(AInvoiceId: Int64; APermissionControl: Boolean): TEInvDocument;
 begin
   Self.UoW.EnsureAuthorized(Self.PermissionCode, ptRead, APermissionControl);
@@ -155,7 +239,7 @@ end;
 
 procedure TEInvDocumentService.ValidateBusinessRules(AEntity: TEInvDocument; AOperation: TCrudOperation);
 begin
-  // kayıt fatura servisinden (GenerateForInvoice) yazılır; elle ekleme / değiştirme yok
+  // kayıt fatura / irsaliye servisinden (GenerateForInvoice / GenerateForDispatch) yazılır; elle ekleme / değiştirme yok
 end;
 
 procedure TEInvDocumentService.DoAdd(AEntity: TEInvDocument);

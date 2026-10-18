@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict Wuxo1ecAehUHvFqUaxzN6soc0TeWiN7XlZ6xgKNwF46f1UIutIFEacuKQOOohGA
+\restrict YhrMJvw6jstvIjwWbyysGZGBLBpPbOnp8dTrmzj8H7Tmtu2MTl27thTnj1E9PgI
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -747,7 +747,8 @@ CREATE TABLE public.acc_account (
     discount_rate numeric(5,2) DEFAULT 0 NOT NULL,
     e_invoice_active boolean DEFAULT false CONSTRAINT acc_acc_einv_nn NOT NULL,
     e_invoice_package_name character varying(128),
-    is_passive boolean DEFAULT false CONSTRAINT acc_acc_passive_nn NOT NULL
+    is_passive boolean DEFAULT false CONSTRAINT acc_acc_passive_nn NOT NULL,
+    e_despatch_active boolean DEFAULT false NOT NULL
 );
 
 
@@ -1359,13 +1360,15 @@ ALTER TABLE public.einv_diib_line ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTI
 
 CREATE TABLE public.einv_document (
     id bigint NOT NULL,
-    sls_invoice_id bigint NOT NULL,
+    sls_invoice_id bigint,
     einv_uuid character varying(36) NOT NULL,
     einv_no character varying(16) NOT NULL,
     xml_content text NOT NULL,
     generated_at timestamp without time zone DEFAULT now() NOT NULL,
     is_valid boolean DEFAULT false NOT NULL,
-    validation_message text
+    validation_message text,
+    sls_dispatch_id bigint,
+    CONSTRAINT einv_document_source_check CHECK ((num_nonnulls(sls_invoice_id, sls_dispatch_id) = 1))
 );
 
 
@@ -1384,6 +1387,37 @@ COMMENT ON TABLE public.einv_document IS 'Satış faturasının son üretilen UB
 
 ALTER TABLE public.einv_document ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.einv_document_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_driver; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_driver (
+    id bigint NOT NULL,
+    first_name character varying(64) NOT NULL,
+    family_name character varying(64) NOT NULL,
+    national_id character varying(11) NOT NULL,
+    phone character varying(32),
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_driver_national_id_check CHECK (((national_id)::text ~ '^[1-9][0-9]{10}$'::text))
+);
+
+
+ALTER TABLE public.einv_driver OWNER TO ths_admin;
+
+--
+-- Name: einv_driver_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_driver ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_driver_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1619,7 +1653,7 @@ CREATE TABLE public.einv_series (
     is_default boolean DEFAULT false NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     CONSTRAINT einv_series_code_check CHECK (((code)::text ~ '^[A-Z0-9]{3}$'::text)),
-    CONSTRAINT einv_series_scope_check CHECK ((series_scope = ANY (ARRAY[1, 2])))
+    CONSTRAINT einv_series_scope_check CHECK ((series_scope = ANY (ARRAY[1, 2, 3])))
 );
 
 
@@ -1794,6 +1828,36 @@ ALTER TABLE public.einv_transport_price OWNER TO ths_admin;
 
 ALTER TABLE public.einv_transport_price ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.einv_transport_price_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: einv_vehicle; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_vehicle (
+    id bigint NOT NULL,
+    plate_no character varying(16) NOT NULL,
+    is_trailer boolean DEFAULT false NOT NULL,
+    description character varying(128),
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT einv_vehicle_plate_no_check CHECK (((plate_no)::text ~ '^[0-9A-Z]{4,16}$'::text))
+);
+
+
+ALTER TABLE public.einv_vehicle OWNER TO ths_admin;
+
+--
+-- Name: einv_vehicle_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_vehicle ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_vehicle_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3493,7 +3557,23 @@ CREATE TABLE public.sls_dispatch (
     currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
     description character varying(256),
     status smallint DEFAULT 1 NOT NULL,
-    CONSTRAINT sls_dispatch_status_check CHECK ((status = ANY (ARRAY[1, 2])))
+    einv_profile_id bigint,
+    einv_uuid uuid,
+    einv_status smallint,
+    einv_no character varying(16),
+    despatch_time time without time zone,
+    carrier_acc_account_id bigint,
+    einv_vehicle_id bigint,
+    trailer1_einv_vehicle_id bigint,
+    trailer2_einv_vehicle_id bigint,
+    driver1_einv_driver_id bigint,
+    driver2_einv_driver_id bigint,
+    CONSTRAINT sls_dispatch_driver_check CHECK (((driver2_einv_driver_id IS NULL) OR (driver1_einv_driver_id IS NOT NULL))),
+    CONSTRAINT sls_dispatch_einv_check CHECK ((((einv_profile_id IS NULL) = (einv_status IS NULL)) AND ((einv_profile_id IS NULL) = (einv_uuid IS NULL)))),
+    CONSTRAINT sls_dispatch_einv_no_check CHECK (((einv_no IS NULL) OR ((einv_no)::text ~ '^[A-Z0-9]{3}[0-9]{4}[0-9]{9}$'::text))),
+    CONSTRAINT sls_dispatch_einv_status_check CHECK (((einv_status >= 1) AND (einv_status <= 7))),
+    CONSTRAINT sls_dispatch_status_check CHECK ((status = ANY (ARRAY[1, 2]))),
+    CONSTRAINT sls_dispatch_trailer_check CHECK (((trailer2_einv_vehicle_id IS NULL) OR (trailer1_einv_vehicle_id IS NOT NULL)))
 );
 
 
@@ -5296,7 +5376,8 @@ CREATE VIEW public.vw_acc_account AS
     c.accountant_phone,
     c.accountant_email,
     c.accountant_authorized,
-    l.locale
+    l.locale,
+    a.e_despatch_active
    FROM (((((((public.acc_account a
      CROSS JOIN public.sys_language l)
      LEFT JOIN public.acc_set_account_type at ON ((at.id = a.acc_set_account_type_id)))
@@ -5838,12 +5919,32 @@ CREATE VIEW public.vw_einv_document AS
     d.generated_at,
     d.is_valid,
     d.validation_message,
-    f.invoice_no
-   FROM (public.einv_document d
-     JOIN public.sls_invoice f ON ((f.id = d.sls_invoice_id)));
+    f.invoice_no,
+    d.sls_dispatch_id,
+    s.dispatch_no
+   FROM ((public.einv_document d
+     LEFT JOIN public.sls_invoice f ON ((f.id = d.sls_invoice_id)))
+     LEFT JOIN public.sls_dispatch s ON ((s.id = d.sls_dispatch_id)));
 
 
 ALTER VIEW public.vw_einv_document OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_driver; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_driver AS
+ SELECT id,
+    first_name,
+    family_name,
+    ((((first_name)::text || ' '::text) || (family_name)::text))::character varying(129) AS full_name,
+    national_id,
+    phone,
+    is_active
+   FROM public.einv_driver;
+
+
+ALTER VIEW public.vw_einv_driver OWNER TO ths_admin;
 
 --
 -- Name: vw_einv_gtip; Type: VIEW; Schema: public; Owner: ths_admin
@@ -5987,6 +6088,21 @@ CREATE VIEW public.vw_einv_transport_mode AS
 
 
 ALTER VIEW public.vw_einv_transport_mode OWNER TO ths_admin;
+
+--
+-- Name: vw_einv_vehicle; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_vehicle AS
+ SELECT id,
+    plate_no,
+    is_trailer,
+    description,
+    is_active
+   FROM public.einv_vehicle;
+
+
+ALTER VIEW public.vw_einv_vehicle OWNER TO ths_admin;
 
 --
 -- Name: vw_einv_withholding; Type: VIEW; Schema: public; Owner: ths_admin
@@ -7135,11 +7251,40 @@ CREATE VIEW public.vw_sls_dispatch AS
            FROM public.sls_dispatch_detail d
           WHERE (d.sls_dispatch_id = p.id)))::numeric(18,2) AS total_amount,
     p.description,
-    p.status
-   FROM (((public.sls_dispatch p
+    p.status,
+    p.einv_profile_id,
+    pr.code AS profile_code,
+    (p.einv_uuid)::text AS einv_uuid,
+    p.einv_status,
+    p.einv_no,
+    p.despatch_time,
+    p.carrier_acc_account_id,
+    ca.code AS carrier_code,
+    ca.name AS carrier_name,
+    p.einv_vehicle_id,
+    v.plate_no AS vehicle_plate,
+    p.trailer1_einv_vehicle_id,
+    t1.plate_no AS trailer1_plate,
+    p.trailer2_einv_vehicle_id,
+    t2.plate_no AS trailer2_plate,
+    p.driver1_einv_driver_id,
+    ((((d1.first_name)::text || ' '::text) || (d1.family_name)::text))::character varying(129) AS driver1_name,
+    p.driver2_einv_driver_id,
+    ((((d2.first_name)::text || ' '::text) || (d2.family_name)::text))::character varying(129) AS driver2_name,
+    a.e_despatch_active AS account_e_despatch_active,
+    ed.is_valid AS einv_xml_valid
+   FROM (((((((((((public.sls_dispatch p
      JOIN public.acc_account a ON ((a.id = p.acc_account_id)))
      JOIN public.stk_warehouse w ON ((w.id = p.stk_warehouse_id)))
-     LEFT JOIN public.sls_order o ON ((o.id = p.sls_order_id)));
+     LEFT JOIN public.sls_order o ON ((o.id = p.sls_order_id)))
+     LEFT JOIN public.einv_profile pr ON ((pr.id = p.einv_profile_id)))
+     LEFT JOIN public.acc_account ca ON ((ca.id = p.carrier_acc_account_id)))
+     LEFT JOIN public.einv_vehicle v ON ((v.id = p.einv_vehicle_id)))
+     LEFT JOIN public.einv_vehicle t1 ON ((t1.id = p.trailer1_einv_vehicle_id)))
+     LEFT JOIN public.einv_vehicle t2 ON ((t2.id = p.trailer2_einv_vehicle_id)))
+     LEFT JOIN public.einv_driver d1 ON ((d1.id = p.driver1_einv_driver_id)))
+     LEFT JOIN public.einv_driver d2 ON ((d2.id = p.driver2_einv_driver_id)))
+     LEFT JOIN public.einv_document ed ON ((ed.sls_dispatch_id = p.id)));
 
 
 ALTER VIEW public.vw_sls_dispatch OWNER TO ths_admin;
@@ -8637,6 +8782,14 @@ ALTER TABLE ONLY public.einv_diib
 
 
 --
+-- Name: einv_document einv_document_dispatch_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_document
+    ADD CONSTRAINT einv_document_dispatch_key UNIQUE (sls_dispatch_id);
+
+
+--
 -- Name: einv_document einv_document_invoice_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -8650,6 +8803,22 @@ ALTER TABLE ONLY public.einv_document
 
 ALTER TABLE ONLY public.einv_document
     ADD CONSTRAINT einv_document_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_driver einv_driver_national_id_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_driver
+    ADD CONSTRAINT einv_driver_national_id_key UNIQUE (national_id);
+
+
+--
+-- Name: einv_driver einv_driver_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_driver
+    ADD CONSTRAINT einv_driver_pkey PRIMARY KEY (id);
 
 
 --
@@ -8802,6 +8971,22 @@ ALTER TABLE ONLY public.einv_transport_mode
 
 ALTER TABLE ONLY public.einv_transport_mode
     ADD CONSTRAINT einv_transport_mode_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_vehicle einv_vehicle_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_vehicle
+    ADD CONSTRAINT einv_vehicle_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_vehicle einv_vehicle_plate_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_vehicle
+    ADD CONSTRAINT einv_vehicle_plate_no_key UNIQUE (plate_no);
 
 
 --
@@ -9522,6 +9707,22 @@ ALTER TABLE ONLY public.sls_dispatch_detail
 
 ALTER TABLE ONLY public.sls_dispatch
     ADD CONSTRAINT sls_dispatch_dispatch_no_key UNIQUE (dispatch_no);
+
+
+--
+-- Name: sls_dispatch sls_dispatch_einv_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_einv_no_key UNIQUE (einv_no);
+
+
+--
+-- Name: sls_dispatch sls_dispatch_einv_uuid_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_einv_uuid_key UNIQUE (einv_uuid);
 
 
 --
@@ -10844,6 +11045,13 @@ CREATE INDEX sls_dispatch_acc_account_id_idx ON public.sls_dispatch USING btree 
 
 
 --
+-- Name: sls_dispatch_carrier_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_carrier_acc_account_id_idx ON public.sls_dispatch USING btree (carrier_acc_account_id);
+
+
+--
 -- Name: sls_dispatch_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -10872,6 +11080,34 @@ CREATE INDEX sls_dispatch_detail_stk_inventory_id_idx ON public.sls_dispatch_det
 
 
 --
+-- Name: sls_dispatch_driver1_einv_driver_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_driver1_einv_driver_id_idx ON public.sls_dispatch USING btree (driver1_einv_driver_id);
+
+
+--
+-- Name: sls_dispatch_driver2_einv_driver_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_driver2_einv_driver_id_idx ON public.sls_dispatch USING btree (driver2_einv_driver_id);
+
+
+--
+-- Name: sls_dispatch_einv_profile_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_einv_profile_id_idx ON public.sls_dispatch USING btree (einv_profile_id);
+
+
+--
+-- Name: sls_dispatch_einv_vehicle_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_einv_vehicle_id_idx ON public.sls_dispatch USING btree (einv_vehicle_id);
+
+
+--
 -- Name: sls_dispatch_order_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -10883,6 +11119,20 @@ CREATE INDEX sls_dispatch_order_idx ON public.sls_dispatch USING btree (sls_orde
 --
 
 CREATE INDEX sls_dispatch_stk_warehouse_id_idx ON public.sls_dispatch USING btree (stk_warehouse_id);
+
+
+--
+-- Name: sls_dispatch_trailer1_einv_vehicle_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_trailer1_einv_vehicle_id_idx ON public.sls_dispatch USING btree (trailer1_einv_vehicle_id);
+
+
+--
+-- Name: sls_dispatch_trailer2_einv_vehicle_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_dispatch_trailer2_einv_vehicle_id_idx ON public.sls_dispatch USING btree (trailer2_einv_vehicle_id);
 
 
 --
@@ -11306,6 +11556,13 @@ CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_diib_line F
 
 
 --
+-- Name: einv_driver audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_driver FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
 -- Name: einv_gtip audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -11366,6 +11623,13 @@ CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_tax_type FO
 --
 
 CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_transport_mode FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: einv_vehicle audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_vehicle FOR EACH ROW EXECUTE FUNCTION public.audit();
 
 
 --
@@ -12165,6 +12429,14 @@ ALTER TABLE ONLY public.einv_document
 
 
 --
+-- Name: einv_document einv_document_sls_dispatch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_document
+    ADD CONSTRAINT einv_document_sls_dispatch_id_fkey FOREIGN KEY (sls_dispatch_id) REFERENCES public.sls_dispatch(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: einv_series_counter einv_series_counter_series_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -12933,6 +13205,14 @@ ALTER TABLE ONLY public.sls_dispatch
 
 
 --
+-- Name: sls_dispatch sls_dispatch_carrier_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_carrier_acc_account_id_fkey FOREIGN KEY (carrier_acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sls_dispatch sls_dispatch_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -12965,6 +13245,38 @@ ALTER TABLE ONLY public.sls_dispatch_detail
 
 
 --
+-- Name: sls_dispatch sls_dispatch_driver1_einv_driver_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_driver1_einv_driver_id_fkey FOREIGN KEY (driver1_einv_driver_id) REFERENCES public.einv_driver(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_dispatch sls_dispatch_driver2_einv_driver_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_driver2_einv_driver_id_fkey FOREIGN KEY (driver2_einv_driver_id) REFERENCES public.einv_driver(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_dispatch sls_dispatch_einv_profile_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_einv_profile_id_fkey FOREIGN KEY (einv_profile_id) REFERENCES public.einv_profile(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_dispatch sls_dispatch_einv_vehicle_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_einv_vehicle_id_fkey FOREIGN KEY (einv_vehicle_id) REFERENCES public.einv_vehicle(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sls_dispatch sls_dispatch_order_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -12978,6 +13290,22 @@ ALTER TABLE ONLY public.sls_dispatch
 
 ALTER TABLE ONLY public.sls_dispatch
     ADD CONSTRAINT sls_dispatch_stk_warehouse_id_fkey FOREIGN KEY (stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_dispatch sls_dispatch_trailer1_einv_vehicle_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_trailer1_einv_vehicle_id_fkey FOREIGN KEY (trailer1_einv_vehicle_id) REFERENCES public.einv_vehicle(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_dispatch sls_dispatch_trailer2_einv_vehicle_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_dispatch
+    ADD CONSTRAINT sls_dispatch_trailer2_einv_vehicle_id_fkey FOREIGN KEY (trailer2_einv_vehicle_id) REFERENCES public.einv_vehicle(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -13891,5 +14219,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Wuxo1ecAehUHvFqUaxzN6soc0TeWiN7XlZ6xgKNwF46f1UIutIFEacuKQOOohGA
+\unrestrict YhrMJvw6jstvIjwWbyysGZGBLBpPbOnp8dTrmzj8H7Tmtu2MTl27thTnj1E9PgI
 

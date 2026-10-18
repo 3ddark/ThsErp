@@ -1,9 +1,11 @@
 ﻿unit EInvUbl.Validator;
 
-// UBL-TR XML'in GİB şemasıyla (xsdrt/maindoc/UBL-Invoice-2.1.xsd) doğrulanması ve GİB görselliğiyle (general.xslt) HTML
-// önizlemesi; MSXML 6.0 (XSD 1.0 / XSLT 1.0). Dosyalar exe yanındaki Resource\EInvoice altında:
+// UBL-TR XML'in GİB şemasıyla (fatura: xsdrt/maindoc/UBL-Invoice-2.1.xsd, e-İrsaliye: UBL-DespatchAdvice-2.1.xsd; belge
+// türü kök elemandan) doğrulanması ve GİB görselliğiyle (general.xslt / irsaliye.xslt) HTML önizlemesi; MSXML 6.0
+// (XSD 1.0 / XSLT 1.0). Dosyalar exe yanındaki Resource\EInvoice altında:
 //   xsdrt\...           GİB paketinin şemaları; UBL-xmldsig-core-schema-2.1.xsd'den DOCTYPE kaldırıldı (MSXML DTD'yi reddeder)
 //   general.xslt        GİB paketi; XPath 2.0 exists() -> boolean() (MSXML XSLT 1.0)
+//   irsaliye.xslt       GİB paketi (değişiklik yok)
 // İmzasız taslakta ext:ExtensionContent boştur (imzayı entegratör ekler); şema orada bir eleman istediği için yalnız
 // doğrulama kopyasına yer tutucu konur, saklanan XML değişmez.
 
@@ -15,14 +17,15 @@ uses
 type
   TEInvUblValidator = class
   private
-    class function SchemaFile: string; static;
-    class function XsltFile: string; static;
+    class function IsDespatch(const AXml: string): Boolean; static;
+    class function SchemaFile(ADespatch: Boolean): string; static;
+    class function XsltFile(ADespatch: Boolean): string; static;
     class procedure EnsureCom; static;
   public
     class function ResourceDir: string; static;
     // True = şemaya uygun; AMessage = ilk şema hatası (satır no ile)
     class function Validate(const AXml: string; out AMessage: string): Boolean; static;
-    // GİB general.xslt ile HTML
+    // GİB general.xslt (fatura) / irsaliye.xslt (e-İrsaliye) ile HTML
     class function ToHtml(const AXml: string): string; static;
   end;
 
@@ -33,6 +36,7 @@ uses
 
 const
   UBL_NS_INVOICE = 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2';
+  UBL_NS_DESPATCH = 'urn:oasis:names:specification:ubl:schema:xsd:DespatchAdvice-2';
   UNSIGNED_EMPTY = '<ext:ExtensionContent/>';
   UNSIGNED_PLACEHOLDER = '<ext:ExtensionContent><ths:Unsigned xmlns:ths="urn:ths:erp:einvoice:unsigned"/></ext:ExtensionContent>';
 
@@ -40,23 +44,35 @@ threadvar
   GComReady: Boolean;
 
 var
-  // şema seti bir kez yüklenir (ilk yükleme ~ yüz ms); COM nesnesi oluşturan iş parçacığına aittir
-  GSchemaCache: IXMLDOMSchemaCollection2;
-  GSchemaThread: Cardinal;
+  // şema seti belge türü başına bir kez yüklenir (ilk yükleme ~ yüz ms); COM nesnesi oluşturan iş parçacığına aittir
+  GSchemaCache: array[Boolean] of IXMLDOMSchemaCollection2;
+  GSchemaThread: array[Boolean] of Cardinal;
 
 class function TEInvUblValidator.ResourceDir: string;
 begin
   Result := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'Resource' + PathDelim + 'EInvoice' + PathDelim;
 end;
 
-class function TEInvUblValidator.SchemaFile: string;
+// kök eleman DespatchAdvice ise e-İrsaliye (önce <?xml ...?> bildirimi gelir)
+class function TEInvUblValidator.IsDespatch(const AXml: string): Boolean;
 begin
-  Result := ResourceDir + 'xsdrt' + PathDelim + 'maindoc' + PathDelim + 'UBL-Invoice-2.1.xsd';
+  Result := Pos('<DespatchAdvice', Copy(AXml, 1, 512)) > 0;
 end;
 
-class function TEInvUblValidator.XsltFile: string;
+class function TEInvUblValidator.SchemaFile(ADespatch: Boolean): string;
 begin
-  Result := ResourceDir + 'general.xslt';
+  if ADespatch then
+    Result := ResourceDir + 'xsdrt' + PathDelim + 'maindoc' + PathDelim + 'UBL-DespatchAdvice-2.1.xsd'
+  else
+    Result := ResourceDir + 'xsdrt' + PathDelim + 'maindoc' + PathDelim + 'UBL-Invoice-2.1.xsd';
+end;
+
+class function TEInvUblValidator.XsltFile(ADespatch: Boolean): string;
+begin
+  if ADespatch then
+    Result := ResourceDir + 'irsaliye.xslt'
+  else
+    Result := ResourceDir + 'general.xslt';
 end;
 
 // MSXML COM nesneleri iş parçacığına bağlıdır; VCL ana iş parçacığında COM zaten açıktır (S_FALSE), konsolda açılır
@@ -74,27 +90,32 @@ var
   LDoc: IXMLDOMDocument3;
   LCache: IXMLDOMSchemaCollection2;
   LXml: string;
+  LDespatch: Boolean;
 begin
   Result := False;
   AMessage := '';
-  if not FileExists(SchemaFile) then
+  LDespatch := IsDespatch(AXml);
+  if not FileExists(SchemaFile(LDespatch)) then
   begin
     AMessage := Format(TLocalizationManager.Translate(TLangKeys.TEInvDocument.MsgSchemaMissing,
-      'e-Document schema files not found: %s'), [SchemaFile]);
+      'e-Document schema files not found: %s'), [SchemaFile(LDespatch)]);
     Exit;
   end;
   try
     EnsureCom;
-    if (GSchemaCache <> nil) and (GSchemaThread = GetCurrentThreadId) then
-      LCache := GSchemaCache
+    if (GSchemaCache[LDespatch] <> nil) and (GSchemaThread[LDespatch] = GetCurrentThreadId) then
+      LCache := GSchemaCache[LDespatch]
     else
     begin
       LCache := CoXMLSchemaCache60.Create;
-      LCache.add(UBL_NS_INVOICE, SchemaFile);
-      if GSchemaCache = nil then
+      if LDespatch then
+        LCache.add(UBL_NS_DESPATCH, SchemaFile(True))
+      else
+        LCache.add(UBL_NS_INVOICE, SchemaFile(False));
+      if GSchemaCache[LDespatch] = nil then
       begin
-        GSchemaCache := LCache;
-        GSchemaThread := GetCurrentThreadId;
+        GSchemaCache[LDespatch] := LCache;
+        GSchemaThread[LDespatch] := GetCurrentThreadId;
       end;
     end;
     LXml := StringReplace(AXml, UNSIGNED_EMPTY, UNSIGNED_PLACEHOLDER, []);
@@ -120,10 +141,12 @@ end;
 class function TEInvUblValidator.ToHtml(const AXml: string): string;
 var
   LDoc, LXsl: IXMLDOMDocument3;
+  LXslt: string;
 begin
-  if not FileExists(XsltFile) then
+  LXslt := XsltFile(IsDespatch(AXml));
+  if not FileExists(LXslt) then
     raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TEInvDocument.MsgSchemaMissing,
-      'e-Document schema files not found: %s'), [XsltFile]));
+      'e-Document schema files not found: %s'), [LXslt]));
   EnsureCom;
   LDoc := CoDOMDocument60.Create;
   LDoc.async := False;
@@ -131,7 +154,7 @@ begin
     raise Exception.Create(Trim(LDoc.parseError.reason));
   LXsl := CoDOMDocument60.Create;
   LXsl.async := False;
-  if not LXsl.load(XsltFile) then
+  if not LXsl.load(LXslt) then
     raise Exception.Create(Trim(LXsl.parseError.reason));
   Result := LDoc.transformNode(LXsl);
 end;

@@ -1,7 +1,7 @@
 ﻿unit EInvUbl.Model;
 
-// UBL-TR 1.2.1 fatura üretimi için düz veri: TEInvDocumentRepository.LoadSalesInvoice doldurur, TEInvUblBuilder XML'e
-// çevirir. Mantık yok; tutarlar faturadaki (servisin hesapladığı) değerlerdir.
+// UBL-TR 1.2.1 fatura / irsaliye üretimi için düz veri: TEInvDocumentRepository.LoadSalesInvoice / LoadSalesDispatch
+// doldurur, TEInvUblBuilder XML'e çevirir. Mantık yok; tutarlar faturadaki (servisin hesapladığı) değerlerdir.
 
 interface
 
@@ -99,7 +99,64 @@ type
     property Lines: TObjectList<TEInvUblLine> read FLines;
   end;
 
+  TEInvUblDriver = record
+    FirstName: string;
+    FamilyName: string;
+    NationalId: string;          // TCKN
+  end;
+
+  TEInvUblDespatchLine = class
+  public
+    LineNo: Integer;
+    InventoryCode: string;
+    InventoryName: string;
+    Description: string;
+    Quantity: Currency;
+    UnitCode: string;            // sys_uom.unit_einv
+    UomCode: string;
+    OrderLineNo: Integer;        // sipariş kalem no (siparişsiz 0)
+  end;
+
+  // e-İrsaliye (DespatchAdvice): fiyat / tutar yazılmaz (kullanıcı kararı 2026-10-18)
+  TEInvUblDespatch = class
+  private
+    FLines: TObjectList<TEInvUblDespatchLine>;
+  public
+    DispatchId: Int64;
+    DispatchNo: string;          // iç irsaliye no (not olarak)
+    EInvNo: string;              // GİB belge no (gönderimde verilir; önizlemede seri + yıl + 000000000)
+    Uuid: string;
+    ProfileCode: string;
+    IssueDate: TDate;            // düzenleme = fiili sevk tarihi (irsaliye tarihi)
+    DespatchTime: TTime;         // fiili sevk saati
+    Description: string;
+    OrderNo: string;
+    OrderDate: TDate;
+    Supplier: TEInvUblParty;     // sevk eden (uygulama ayarları)
+    Customer: TEInvUblParty;     // teslim alan (cari; sevk adresi, yoksa fatura / birincil adres)
+    HasCarrier: Boolean;
+    Carrier: TEInvUblParty;      // taşıyıcı firma (cari)
+    VehiclePlate: string;
+    TrailerPlates: TArray<string>;
+    Drivers: TArray<TEInvUblDriver>;
+    constructor Create;
+    destructor Destroy; override;
+    property Lines: TObjectList<TEInvUblDespatchLine> read FLines;
+  end;
+
 implementation
+
+constructor TEInvUblDespatch.Create;
+begin
+  inherited;
+  FLines := TObjectList<TEInvUblDespatchLine>.Create(True);
+end;
+
+destructor TEInvUblDespatch.Destroy;
+begin
+  FLines.Free;
+  inherited;
+end;
 
 constructor TEInvUblInvoice.Create;
 begin

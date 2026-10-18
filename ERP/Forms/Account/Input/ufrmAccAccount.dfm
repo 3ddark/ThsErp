@@ -269,9 +269,17 @@ object frmAccAccount: TfrmAccAccount
     object chkEInvoiceActive: TCheckBox
       Left = 132
       Top = 234
-      Width = 333
+      Width = 150
       Height = 17
       TabOrder = 10
+    end
+    object chkEDespatchActive: TCheckBox
+      Left = 288
+      Top = 234
+      Width = 177
+      Height = 17
+      Caption = 'e-Despatch Active'
+      TabOrder = 11
     end
     object lblEInvoicePackageName: TLabel
       Left = 4

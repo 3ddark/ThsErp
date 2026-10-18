@@ -22,6 +22,7 @@ type
     FIbanCurrency: string;
     FDiscountRate: Currency;
     FEInvoiceActive: Boolean;
+    FEDespatchActive: Boolean;
     FEInvoicePackageName: string;
     FIsPassive: Boolean;
     FNotes: string;
@@ -86,6 +87,10 @@ type
 
     [Column('e_invoice_active')]
     property EInvoiceActive: Boolean read FEInvoiceActive write FEInvoiceActive;
+
+    // e-İrsaliye mükellefi (e-Fatura mükellefiyetinden ayrı)
+    [Column('e_despatch_active')]
+    property EDespatchActive: Boolean read FEDespatchActive write FEDespatchActive;
 
     [Column('e_invoice_package_name')]
     [MaxLength(128)]
@@ -207,6 +212,7 @@ begin
   Result.IbanCurrency := Self.IbanCurrency;
   Result.DiscountRate := Self.DiscountRate;
   Result.EInvoiceActive := Self.EInvoiceActive;
+  Result.EDespatchActive := Self.EDespatchActive;
   Result.EInvoicePackageName := Self.EInvoicePackageName;
   Result.IsPassive := Self.IsPassive;
   Result.Notes := Self.Notes;

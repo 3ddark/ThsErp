@@ -998,6 +998,26 @@
         <DCCReference Include="Forms\EInvoice\Output\ufrmEInvSeriesList.pas">
             <Form>frmEInvSeriesList</Form>
         </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvVehicle.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvVehicle.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvVehicle.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvVehicle.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvVehicle.pas">
+            <Form>frmEInvVehicle</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvVehicles.pas">
+            <Form>frmEInvVehicles</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvDriver.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvDriver.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvDriver.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvDriver.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvDriver.pas">
+            <Form>frmEInvDriver</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvDrivers.pas">
+            <Form>frmEInvDrivers</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\EInvoice\Domain\EInvUbl.Model.pas"/>
         <DCCReference Include="BackEnd\EInvoice\Domain\EInvDocument.pas"/>
         <DCCReference Include="BackEnd\EInvoice\Exception\EInvDocument.Exception.pas"/>

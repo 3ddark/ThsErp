@@ -52,14 +52,14 @@ end;
 function TAccAccountRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TAccAccount) +
-            ' (code, name, acc_set_account_type_id, acc_group_id, acc_region_id, root_code, sub_code, iban, iban_currency, discount_rate, e_invoice_active, e_invoice_package_name, is_passive, notes) ' +
-            ' VALUES (:code, :name, :acc_set_account_type_id, :acc_group_id, :acc_region_id, :root_code, :sub_code, :iban, :iban_currency, :discount_rate, :e_invoice_active, :e_invoice_package_name, :is_passive, :notes)';
+            ' (code, name, acc_set_account_type_id, acc_group_id, acc_region_id, root_code, sub_code, iban, iban_currency, discount_rate, e_invoice_active, e_despatch_active, e_invoice_package_name, is_passive, notes) ' +
+            ' VALUES (:code, :name, :acc_set_account_type_id, :acc_group_id, :acc_region_id, :root_code, :sub_code, :iban, :iban_currency, :discount_rate, :e_invoice_active, :e_despatch_active, :e_invoice_package_name, :is_passive, :notes)';
 end;
 
 function TAccAccountRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TAccAccount) +
-            ' SET code = :code, name = :name, acc_set_account_type_id = :acc_set_account_type_id, acc_group_id = :acc_group_id, acc_region_id = :acc_region_id, root_code = :root_code, sub_code = :sub_code, iban = :iban, iban_currency = :iban_currency, discount_rate = :discount_rate, e_invoice_active = :e_invoice_active, e_invoice_package_name = :e_invoice_package_name, is_passive = :is_passive, notes = :notes ' +
+            ' SET code = :code, name = :name, acc_set_account_type_id = :acc_set_account_type_id, acc_group_id = :acc_group_id, acc_region_id = :acc_region_id, root_code = :root_code, sub_code = :sub_code, iban = :iban, iban_currency = :iban_currency, discount_rate = :discount_rate, e_invoice_active = :e_invoice_active, e_despatch_active = :e_despatch_active, e_invoice_package_name = :e_invoice_package_name, is_passive = :is_passive, notes = :notes ' +
             ' WHERE id = :id';
 end;
 
@@ -98,6 +98,7 @@ begin
     Q.ParamByName('iban').AsWideString := AModel.Iban;
     Q.ParamByName('discount_rate').AsBCD := AModel.DiscountRate;
     Q.ParamByName('e_invoice_active').AsBoolean := AModel.EInvoiceActive;
+    Q.ParamByName('e_despatch_active').AsBoolean := AModel.EDespatchActive;
     Q.ParamByName('e_invoice_package_name').AsWideString := AModel.EInvoicePackageName;
     Q.ParamByName('is_passive').AsBoolean := AModel.IsPassive;
     Q.ParamByName('notes').AsWideString := AModel.Notes;
@@ -111,6 +112,7 @@ begin
     Q.ParamByName('iban').AsWideStrings[AIndex] := AModel.Iban;
     Q.ParamByName('discount_rate').AsBCDs[AIndex] := AModel.DiscountRate;
     Q.ParamByName('e_invoice_active').AsBooleans[AIndex] := AModel.EInvoiceActive;
+    Q.ParamByName('e_despatch_active').AsBooleans[AIndex] := AModel.EDespatchActive;
     Q.ParamByName('e_invoice_package_name').AsWideStrings[AIndex] := AModel.EInvoicePackageName;
     Q.ParamByName('is_passive').AsBooleans[AIndex] := AModel.IsPassive;
     Q.ParamByName('notes').AsWideStrings[AIndex] := AModel.Notes;
@@ -152,6 +154,7 @@ begin
     Q.ParamByName('iban').AsWideString := AModel.Iban;
     Q.ParamByName('discount_rate').AsBCD := AModel.DiscountRate;
     Q.ParamByName('e_invoice_active').AsBoolean := AModel.EInvoiceActive;
+    Q.ParamByName('e_despatch_active').AsBoolean := AModel.EDespatchActive;
     Q.ParamByName('e_invoice_package_name').AsWideString := AModel.EInvoicePackageName;
     Q.ParamByName('is_passive').AsBoolean := AModel.IsPassive;
     Q.ParamByName('notes').AsWideString := AModel.Notes;
@@ -166,6 +169,7 @@ begin
     Q.ParamByName('iban').AsWideStrings[AIndex] := AModel.Iban;
     Q.ParamByName('discount_rate').AsBCDs[AIndex] := AModel.DiscountRate;
     Q.ParamByName('e_invoice_active').AsBooleans[AIndex] := AModel.EInvoiceActive;
+    Q.ParamByName('e_despatch_active').AsBooleans[AIndex] := AModel.EDespatchActive;
     Q.ParamByName('e_invoice_package_name').AsWideStrings[AIndex] := AModel.EInvoicePackageName;
     Q.ParamByName('is_passive').AsBooleans[AIndex] := AModel.IsPassive;
     Q.ParamByName('notes').AsWideStrings[AIndex] := AModel.Notes;
@@ -192,6 +196,7 @@ begin
   Result.IbanCurrency := Q.FieldByName('iban_currency').AsString;
   Result.DiscountRate := Q.FieldByName('discount_rate').AsCurrency;
   Result.EInvoiceActive := Q.FieldByName('e_invoice_active').AsBoolean;
+  Result.EDespatchActive := Q.FieldByName('e_despatch_active').AsBoolean;
   Result.EInvoicePackageName := Q.FieldByName('e_invoice_package_name').AsString;
   Result.IsPassive := Q.FieldByName('is_passive').AsBoolean;
   Result.Notes := Q.FieldByName('notes').AsString;

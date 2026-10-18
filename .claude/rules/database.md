@@ -96,8 +96,12 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   term / transport mode / payment means, customs exit data, `withholding_amount`; lines: GTIP, withholding, seller /
   buyer DIIB line, package type / no / quantity / brand. Account debit of a sales invoice = total − withholding.
   `einv_series` (code 3 chars, scope 1 e-Fatura / 2 e-Arşiv, one default per scope) + `einv_series_counter` (per year,
-  service-maintained); `sls_invoice.einv_no` (UNIQUE, GİB format, set when sent); `einv_document` (UBL XML per invoice,
-  UNIQUE `sls_invoice_id`, CASCADE, no audit).
+  service-maintained); `sls_invoice.einv_no` (UNIQUE, GİB format, set when sent); `einv_document` (UBL XML per invoice
+  or delivery note: UNIQUE `sls_invoice_id` / `sls_dispatch_id`, CASCADE, exactly one set (CHECK), no audit).
+  e-Despatch (2026-10-18, design §6): `sls_dispatch.einv_profile_id` (NULL = paper; profile / uuid / status all NULL or all
+  set), `einv_uuid`, `einv_status`, `einv_no`, `despatch_time`, transport `carrier_acc_account_id` (account) or
+  `einv_vehicle_id` + `trailer1/2_einv_vehicle_id` + `driver1/2_einv_driver_id` (definition cards `einv_vehicle` plate +
+  `is_trailer`, `einv_driver` TCKN; second slot needs the first, CHECK); `acc_account.e_despatch_active`; series scope 3.
   `vw_sls_invoice.einv_uuid` is `::text` — FireDAC reads PG `uuid` as a GUID and swaps the byte order of the first
   three groups; read uuids as text, write them with `CAST(:x AS uuid)`.
 - Company bank accounts (`fin_company_bank_account`): flags `show_on_cheque` / `show_on_note` / `show_on_print`; printouts read

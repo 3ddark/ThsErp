@@ -111,6 +111,8 @@ uses
   ufrmEInvPackagingTypes, EInvPackagingType.Service, EInvPackagingType,
   ufrmEInvPaymentMeansList, EInvPaymentMeans.Service, EInvPaymentMeans,
   ufrmEInvSeriesList, EInvSeries.Service, EInvSeries,
+  ufrmEInvVehicles, EInvVehicle.Service, EInvVehicle,
+  ufrmEInvDrivers, EInvDriver.Service, EInvDriver,
   ufrmEInvGtips, EInvGtip.Service, EInvGtip,
   LocalizationManager;
 
@@ -227,6 +229,8 @@ type
     actsls_einv_packaging_types: TAction;
     actsls_einv_payment_means: TAction;
     actsls_einv_series: TAction;
+    actsls_einv_vehicles: TAction;
+    actsls_einv_drivers: TAction;
     actstk_gtips: TAction;
     mnisls_diibs: TMenuItem;
     mnisls_diib_lines: TMenuItem;
@@ -240,6 +244,8 @@ type
     mnisls_einv_packaging_types: TMenuItem;
     mnisls_einv_payment_means: TMenuItem;
     mnisls_einv_series: TMenuItem;
+    mnisls_einv_vehicles: TMenuItem;
+    mnisls_einv_drivers: TMenuItem;
     mnistk_gtips: TMenuItem;
     mnisls_sep4: TMenuItem;
     mnisls_einv_settings: TMenuItem;
@@ -444,6 +450,8 @@ type
     procedure actsls_einv_packaging_typesExecute(Sender: TObject);
     procedure actsls_einv_payment_meansExecute(Sender: TObject);
     procedure actsls_einv_seriesExecute(Sender: TObject);
+    procedure actsls_einv_vehiclesExecute(Sender: TObject);
+    procedure actsls_einv_driversExecute(Sender: TObject);
     procedure actstk_gtipsExecute(Sender: TObject);
     procedure actfin_money_accountsExecute(Sender: TObject);
     procedure actfin_money_transactionsExecute(Sender: TObject);
@@ -917,6 +925,16 @@ end;
 procedure TfrmDashboard.actsls_einv_seriesExecute(Sender: TObject);
 begin
   TfrmEInvSeriesList.Create(Self, TEInvSeriesService.Create, TEInvSeries.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_vehiclesExecute(Sender: TObject);
+begin
+  TfrmEInvVehicles.Create(Self, TEInvVehicleService.Create, TEInvVehicle.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_driversExecute(Sender: TObject);
+begin
+  TfrmEInvDrivers.Create(Self, TEInvDriverService.Create, TEInvDriver.Create).Show;
 end;
 
 procedure TfrmDashboard.actstk_gtipsExecute(Sender: TObject);
@@ -1717,6 +1735,10 @@ begin
     actsls_einv_payment_means.Caption := TLocalizationManager.Translate(TLangKeys.TEInvPaymentMeans.TitlePlural, 'Payment Means');
   if Assigned(actsls_einv_series) then
     actsls_einv_series.Caption := TLocalizationManager.Translate(TLangKeys.TEInvSeries.TitlePlural, 'e-Document Series');
+  if Assigned(actsls_einv_vehicles) then
+    actsls_einv_vehicles.Caption := TLocalizationManager.Translate(TLangKeys.TEInvVehicle.TitlePlural, 'Vehicles / Trailers');
+  if Assigned(actsls_einv_drivers) then
+    actsls_einv_drivers.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDriver.TitlePlural, 'Drivers');
   if Assigned(actstk_gtips) then
     actstk_gtips.Caption := TLocalizationManager.Translate(TLangKeys.TEInvGtip.TitlePlural, 'GTIP Codes');
   if Assigned(mnisls_einv_settings) then

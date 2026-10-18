@@ -37,6 +37,7 @@ type
     edtDiscountRate: TEdit;
     lblEInvoiceActive: TLabel;
     chkEInvoiceActive: TCheckBox;
+    chkEDespatchActive: TCheckBox;
     lblEInvoicePackageName: TLabel;
     edtEInvoicePackageName: TEdit;
     lblIsPassive: TLabel;
@@ -105,6 +106,7 @@ begin
   Table.Iban := edtIban.Text;
   Table.DiscountRate := StrToCurrDef(edtDiscountRate.Text, 0);
   Table.EInvoiceActive := chkEInvoiceActive.Checked;
+  Table.EDespatchActive := chkEDespatchActive.Checked;
   Table.EInvoicePackageName := edtEInvoicePackageName.Text;
   Table.IsPassive := chkIsPassive.Checked;
   Table.Notes := edtNotes.Text;
@@ -132,6 +134,8 @@ procedure TfrmAccAccount.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
+  // e-İrsaliye işareti e-Fatura işaretiyle aynı satırda: sekme sırası hemen ardından
+  chkEDespatchActive.TabOrder := chkEInvoiceActive.TabOrder + 1;
   edtAccSetAccountTypeId.OnHelperProcess := HelperProcess;
   edtAccGroupId.OnHelperProcess := HelperProcess;
   edtAccRegionId.OnHelperProcess := HelperProcess;
@@ -190,6 +194,7 @@ begin
   lblIbanCurrency.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIbanCurrency, 'IBAN Currency');
   lblDiscountRate.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColDiscountRate, 'Discount Rate');
   lblEInvoiceActive.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoiceActive, 'E-Invoice Active');
+  chkEDespatchActive.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEDespatchActive, 'e-Despatch Active');
   lblEInvoicePackageName.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoicePackageName, 'E-Invoice Package');
   lblIsPassive.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIsPassive, 'Passive');
   lblNotes.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColNotes, 'Notes');
@@ -333,6 +338,7 @@ begin
   edtIbanCurrency.Text := Table.IbanCurrency;
   edtDiscountRate.Text := CurrToStr(Table.DiscountRate);
   chkEInvoiceActive.Checked := Table.EInvoiceActive;
+  chkEDespatchActive.Checked := Table.EDespatchActive;
   edtEInvoicePackageName.Text := Table.EInvoicePackageName;
   chkIsPassive.Checked := Table.IsPassive;
   edtNotes.Text := Table.Notes;

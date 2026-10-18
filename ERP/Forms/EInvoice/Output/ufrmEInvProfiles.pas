@@ -16,7 +16,7 @@ type
     procedure DocumentKindGetText(Sender: TField; var Text: string; DisplayText: Boolean);
   public
     // Yardımcı seçimde yalnız aktif kayıtlar (Show öncesi)
-    procedure SetActiveOnly(AInvoiceOnly: Boolean = False);
+    procedure SetActiveOnly(AInvoiceOnly: Boolean = False; ADespatchOnly: Boolean = False);
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
@@ -38,11 +38,13 @@ begin
   else
     Text := TEInvLookup.Text(elkDocumentKind, Sender.AsInteger);
 end;
-procedure TfrmEInvProfiles.SetActiveOnly(AInvoiceOnly: Boolean = False);
+procedure TfrmEInvProfiles.SetActiveOnly(AInvoiceOnly: Boolean = False; ADespatchOnly: Boolean = False);
 begin
   AddFixedFilter('is_active', True);
   if AInvoiceOnly then
-    AddFixedFilter('document_kind', EINV_DOC_INVOICE);
+    AddFixedFilter('document_kind', EINV_DOC_INVOICE)
+  else if ADespatchOnly then
+    AddFixedFilter('document_kind', EINV_DOC_DESPATCH);
 end;
 
 function TfrmEInvProfiles.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;

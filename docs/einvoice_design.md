@@ -128,6 +128,50 @@ Kağıt faturada kayıt silinir; gönderilmiş (kilitli) belgenin XML'i değişm
   yıl + `NextNumber`, XML yeniden üretilir, şemaya uygun değilse gönderilmez, entegratöre iletilir, `einv_status`
   2 kuyrukta → 3 gönderildi / 6 hata (durum yazma iş kuralı kilidinden bağımsız ayrı repository metodu).
 - AdditionalDocumentReference (XSLT eki, e-Arşiv gönderim şekli ELEKTRONIK / KAGIT) entegratör gereksinimine göre.
-- Uygulama yanıtı (TICARIFATURA KABUL / RED), iade faturası (`BillingReference`), e-İrsaliye (`DespatchAdvice`,
-  `einv_profile.document_kind` = 2 senaryoları hazır).
+- Uygulama yanıtı (TICARIFATURA KABUL / RED), iade faturası (`BillingReference`). e-İrsaliye: §6.
 - Alış tarafı: gelen e-faturaların alınması (satın alma faturası).
+
+## 6. e-İrsaliye (DespatchAdvice, 2026-10-18 — giden irsaliye + XML; gönderim / gelen irsaliye / yanıt yok)
+
+Kaynak: GİB UBL-TR İrsaliye kılavuzu V1.2 ve Temel İrsaliye Senaryosu V0.3 (`docs/UBLTR_1.2.1_Kilavuzlar`), şema
+`xsdrt/maindoc/UBL-DespatchAdvice-2.1.xsd`, görsel `irsaliye.xslt`. Kullanıcı kararları: ilk aşama yalnız giden e-İrsaliye
+(e-Fatura ile aynı düzey: üret / doğrula / önizle); araç ve şoför **tanım kartları**, taşıyıcı firma = cari kart;
+XML'e **fiyat / tutar yazılmaz**.
+
+| Yer | Alan | Not |
+| --- | --- | --- |
+| `acc_account.e_despatch_active` | e-İrsaliye mükellefi | e-Fatura mükellefiyetinden ayrı; cari kartında e-Fatura işaretinin yanında |
+| `einv_vehicle` (yetki 1095, menü 600912) | `plate_no` (UNIQUE, boşluk / tire atılır, 4-16 harf / rakam), `is_trailer`, `is_active` | kullanılan kayıt silinmez (pasif yapılır) |
+| `einv_driver` (yetki 1096, menü 600913) | `first_name`, `family_name`, `national_id` (TCKN, kontrol haneleri; UNIQUE), `phone` | aynı |
+| `sls_dispatch` | `einv_profile_id` (boş = kağıt irsaliye), `einv_uuid`, `einv_status` 1-7, `einv_no` (gönderimde), `despatch_time` | CHECK: senaryo / ETTN / durum birlikte |
+| `sls_dispatch` | `carrier_acc_account_id`, `einv_vehicle_id`, `trailer1/2_einv_vehicle_id`, `driver1/2_einv_driver_id` | ikinci dorse / şoför birinci olmadan olmaz (CHECK) |
+| `einv_series.series_scope` | 3 = e-İrsaliye | kapsam başına bir varsayılan seri |
+| `einv_document.sls_dispatch_id` | irsaliye XML'i (UNIQUE, CASCADE) | belge fatura ya da irsaliye (tam olarak biri; CHECK) |
+
+Kurallar (`TSlsDispatchService.CheckEDespatch`; başlık, belge kaydı ve tek kalem yolu ortak):
+
+1. Senaryo irsaliye türünde olmalı (`document_kind` = 2); yeni seçilen senaryo / araç / dorse / şoför aktif olmalı.
+2. Senaryo seçilince durum 1 (taslak), ETTN bir kez üretilir, fiili sevk saati boşsa şimdiki saat.
+3. Taşıma (GİB): taşıyıcı firma **ya da** araç plakası + en az bir şoför (yalnız e-İrsaliyede zorunlu). Araç dorse olamaz,
+   dorse alanındaki kart dorse olmalı, aynı dorse / şoför iki kez seçilemez (kağıt irsaliyede de).
+4. Gönderilmiş e-İrsaliye (durum 2/3/4/5/7) değiştirilemez / silinemez; kalemi eklenemez / değişemez / silinemez.
+5. Kopyada ETTN / durum / GİB no / saat kopyalanmaz (taşıma kalır). e-İrsaliye mükellefi cari seçilince senaryo
+   TEMELIRSALIYE önerilir (`SuggestEDespatch`).
+
+XML (`TEInvDocumentService.GenerateForDispatch` ← `TSlsDispatchService.AfterDocumentSaved`; kaydı engellemez): sıra XSD'ye göre
+`ProfileID`, `ID` (seri + yıl + sıra; taslakta e-İrsaliye varsayılan serisi + yıl + 000000000), `UUID`, `IssueDate` /
+`IssueTime` (irsaliye tarihi / fiili sevk saati), `DespatchAdviceTypeCode` SEVK, `OrderReference` (siparişli irsaliye),
+`Signature`, `DespatchSupplierParty` (uygulama ayarları), `DeliveryCustomerParty` (cari; **SHIPPING** adresi, yoksa birincil /
+yasal), `Shipment` (ShipmentStage: `LicensePlateID schemeID=PLAKA` + `DriverPerson` ad / soyad / Şoför / TCKN; Delivery:
+`CarrierParty` + `Despatch/ActualDespatchDate|Time`; TransportHandlingUnit: `TransportEquipment ID schemeID=DORSEPLAKA`),
+`DespatchLine` (`DeliveredQuantity unitCode` = `sys_uom.unit_einv`, `OrderLineReference/LineID` = sipariş kalem no,
+`Item` açıklama / ad / stok kodu). Taraf / adres okuma fatura ile ortak (`ReadSupplier`, `ReadAccountParty`, `ReadAddress`).
+Validator belge türünü kök elemandan seçer (şema + XSLT ayrı önbellek).
+
+UI: irsaliye detayında **e-İrsaliye / Taşıma** sekmesi (senaryo, ETTN, durum, fiili sevk saati, taşıyıcı, araç, dorse 1-2,
+şoför 1-2; seçim listeleri yalnız aktif kayıtlar, araç / dorse ayrı); irsaliye listesinde popup e-Belge Önizle / Doğrulama
+Sonucu / XML Kaydet / Yeniden Oluştur + kolonlar (senaryo, ETTN, durum, e-Belge No, plaka, şoför, taşıyıcı, XML Geçerli).
+Test: `TestEDespatch` (25 adım).
+
+Sonraki: e-İrsaliye gönderimi entegratörle (e-Fatura ile aynı katman), gelen e-İrsaliye → satın alma mal kabulü, İrsaliye
+Yanıtı (ReceiptAdvice: kabul / kısmi / eksik-fazla), MATBUDAN tipi (kağıt irsaliyenin sonradan e-İrsaliyesi).

@@ -3,7 +3,9 @@
 // Sevk irsaliyesi: başlık (sls_dispatch) + kalemler (Table.Lines, sls_dispatch_detail) tek ekranda. Kalemler bellekte
 // irsaliye servisiyle eklenir / değişir / çıkar (satır formu TfrmSlsDispatchLine); Onayla Service.BusinessSaveWithDetails
 // ile başlık ve kalemleri (stok çıkış hareketleri dahil) tek transaction'da yazar. Durum (bekliyor / kapandı)
-// faturalardan, servis tutar; faturalanan kalem silinemez / azaltılamaz.
+// faturalardan, servis tutar; faturalanan kalem silinemez / azaltılamaz. e-İrsaliye / Taşıma sekmesi: senaryo (boş = kağıt
+// irsaliye; e-İrsaliye mükellefi cari seçilince TEMELIRSALIYE önerilir), ETTN / durum (servis), fiili sevk saati, taşıyıcı
+// firma ya da araç + dorse + şoför tanım kartları (kurallar TSlsDispatchService.CheckEDespatch).
 
 interface
 
@@ -20,6 +22,9 @@ uses
 type
   TfrmSlsDispatchDetail = class(TfrmInputDetailedDB<TSlsDispatch, TSlsDispatchService>)
     pnlContent: TPanel;
+    pgcHeader: TPageControl;
+    tsGeneral: TTabSheet;
+    tsEDespatch: TTabSheet;
     lblDispatchNo: TLabel;
     edtDispatchNo: TEdit;
     lblDispatchDate: TLabel;
@@ -37,6 +42,26 @@ type
     lblDescription: TLabel;
     edtDescription: TEdit;
     pnlTotals: TPanel;
+    lblEinvProfileId: TLabel;
+    edtEinvProfileId: TEdit;
+    lblEinvUuid: TLabel;
+    edtEinvUuid: TEdit;
+    lblEinvStatusText: TLabel;
+    edtEinvStatusText: TEdit;
+    lblDespatchTime: TLabel;
+    edtDespatchTime: TEdit;
+    lblCarrierAccAccountId: TLabel;
+    edtCarrierAccAccountId: TEdit;
+    lblEinvVehicleId: TLabel;
+    edtEinvVehicleId: TEdit;
+    lblTrailer1EinvVehicleId: TLabel;
+    edtTrailer1EinvVehicleId: TEdit;
+    lblTrailer2EinvVehicleId: TLabel;
+    edtTrailer2EinvVehicleId: TEdit;
+    lblDriver1EinvDriverId: TLabel;
+    edtDriver1EinvDriverId: TEdit;
+    lblDriver2EinvDriverId: TLabel;
+    edtDriver2EinvDriverId: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -46,11 +71,14 @@ type
     FLines: TDetailSet<TSlsDispatchDetail>;
     procedure ShowTotals;
     procedure ShowTotalValues;
+    procedure ShowEDespatchFields;
   protected
     procedure DetailsChanged; override;
   public
     destructor Destroy; override;
     procedure HelperProcess(Sender: TObject);
+    // e-İrsaliye / Taşıma sekmesinin seçim listeleri
+    procedure EDespatchHelper(AEdit: TEdit);
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
   end;
@@ -64,7 +92,11 @@ uses
   AccAccount, AccAccount.Service, ufrmAccAccounts,
   StkWarehouse, StkWarehouse.Service, ufrmStkWarehouses,
   SlsOrder, SlsOrder.Service, ufrmSlsOrders,
-  SysCurrency, SysCurrency.Service, ufrmSysCurrencies;
+  SysCurrency, SysCurrency.Service, ufrmSysCurrencies,
+  EInvLookup,
+  EInvProfile, EInvProfile.Service, ufrmEInvProfiles,     // TfrmEInvProfiles helper output form
+  EInvVehicle, EInvVehicle.Service, ufrmEInvVehicles,     // TfrmEInvVehicles helper output form
+  EInvDriver, EInvDriver.Service, ufrmEInvDrivers;        // TfrmEInvDrivers helper output form
 
 procedure TfrmSlsDispatchDetail.BtnAcceptClick(Sender: TObject);
 begin
@@ -72,6 +104,10 @@ begin
   Table.DispatchNo := edtDispatchNo.Text;
   Table.DispatchDate := StrToDateDef(edtDispatchDate.Text, 0);
   Table.Description := edtDescription.Text;
+  if Trim(edtDespatchTime.Text) = '' then
+    Table.DespatchTime := 0
+  else
+    Table.DespatchTime := Frac(StrToTimeDef(edtDespatchTime.Text, 0));
   inherited;
 end;
 
@@ -91,6 +127,15 @@ begin
   edtSlsOrderId.OnHelperProcess := HelperProcess;
   edtCurrency.OnHelperProcess := HelperProcess;
   edtDescription.thsInputDataType := itString;
+  edtDespatchTime.thsInputDataType := itTime;
+  edtEinvProfileId.OnHelperProcess := HelperProcess;
+  edtCarrierAccAccountId.OnHelperProcess := HelperProcess;
+  edtEinvVehicleId.OnHelperProcess := HelperProcess;
+  edtTrailer1EinvVehicleId.OnHelperProcess := HelperProcess;
+  edtTrailer2EinvVehicleId.OnHelperProcess := HelperProcess;
+  edtDriver1EinvDriverId.OnHelperProcess := HelperProcess;
+  edtDriver2EinvDriverId.OnHelperProcess := HelperProcess;
+  pgcHeader.ActivePage := tsGeneral;
 
   // Kalemler = Table.Lines (servis satır no sırasıyla okur); ekle / çıkar / hesap irsaliye servisinde
   FPageLines := AddDetailPage(TLocalizationManager.Translate(TLangKeys.TSlsDispatch.MenuLines, 'Lines'));
@@ -176,6 +221,20 @@ begin
   lblCurrency.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColCurrency, 'Currency');
   lblStatusText.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColStatus, 'Status');
   lblDescription.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColDescription, 'Description');
+  tsGeneral.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.TabGeneral, 'General');
+  tsEDespatch.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.TabEDespatch, 'e-Despatch / Transport');
+  lblEinvProfileId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColEinvProfileId, 'Profile');
+  lblEinvUuid.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColEinvUuid, 'UUID (ETTN)');
+  lblEinvStatusText.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColEinvStatus, 'e-Document Status');
+  lblDespatchTime.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColDespatchTime, 'Despatch Time');
+  lblCarrierAccAccountId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColCarrierAccAccountId, 'Carrier');
+  lblEinvVehicleId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColEinvVehicleId, 'Vehicle Plate');
+  lblTrailer1EinvVehicleId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColTrailer1EinvVehicleId, 'Trailer 1');
+  lblTrailer2EinvVehicleId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColTrailer2EinvVehicleId, 'Trailer 2');
+  lblDriver1EinvDriverId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColDriver1EinvDriverId, 'Driver 1');
+  lblDriver2EinvDriverId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColDriver2EinvDriverId, 'Driver 2');
+  if Assigned(Table) then
+    edtEinvStatusText.Text := TEInvLookup.Text(elkEInvStatus, Table.EinvStatus);
   if Assigned(FTotals) then
     FTotals.SetCaption('total', TLocalizationManager.Translate(TLangKeys.TSlsDispatch.ColTotalAmount, 'Total'));
 
@@ -194,6 +253,174 @@ begin
     FLines.Grid.SetColumnTitle('order_no', TLocalizationManager.Translate(TLangKeys.TSlsDispatchDetail.ColOrderNo, 'Order No'));
     FLines.Grid.SetColumnTitle('description', TLocalizationManager.Translate(TLangKeys.TSlsDispatchDetail.ColDescription, 'Description'));
   end;
+end;
+
+procedure TfrmSlsDispatchDetail.ShowEDespatchFields;
+begin
+  if not Assigned(Table) then
+    Exit;
+  edtEinvProfileId.Text := Table.ProfileCode;
+  edtEinvUuid.Text := UpperCase(Table.EinvUuid);
+  edtEinvStatusText.Text := TEInvLookup.Text(elkEInvStatus, Table.EinvStatus);
+  if Table.DespatchTime > 0 then
+    edtDespatchTime.Text := FormatDateTime('hh:nn', Table.DespatchTime)
+  else
+    edtDespatchTime.Text := '';
+  edtCarrierAccAccountId.Text := Table.CarrierName;
+  edtEinvVehicleId.Text := Table.VehiclePlate;
+  edtTrailer1EinvVehicleId.Text := Table.Trailer1Plate;
+  edtTrailer2EinvVehicleId.Text := Table.Trailer2Plate;
+  edtDriver1EinvDriverId.Text := Table.Driver1Name;
+  edtDriver2EinvDriverId.Text := Table.Driver2Name;
+end;
+
+procedure TfrmSlsDispatchDetail.EDespatchHelper(AEdit: TEdit);
+
+  // araç / dorse seçimi: ATrailer = dorse listesi
+  procedure PickVehicle(ATrailer: Boolean; var AId: Int64; var APlate: string);
+  var
+    LFrm: TfrmEInvVehicles;
+  begin
+    LFrm := TfrmEInvVehicles.Create(AEdit, TEInvVehicleService.Create, TEInvVehicle.Create);
+    try
+      LFrm.IsHelper := True;
+      LFrm.SetActiveOnly(ATrailer);
+      LFrm.ShowModal;
+      if LFrm.DataTransfer then
+        if LFrm.CleanAndClose then
+        begin
+          AId := 0;
+          APlate := '';
+        end
+        else
+        begin
+          AId := LFrm.Table.Id;
+          APlate := LFrm.Table.PlateNo;
+        end;
+    finally
+      LFrm.Free;
+    end;
+  end;
+
+  procedure PickDriver(var AId: Int64; var AName: string);
+  var
+    LFrm: TfrmEInvDrivers;
+  begin
+    LFrm := TfrmEInvDrivers.Create(AEdit, TEInvDriverService.Create, TEInvDriver.Create);
+    try
+      LFrm.IsHelper := True;
+      LFrm.SetActiveOnly;
+      LFrm.ShowModal;
+      if LFrm.DataTransfer then
+        if LFrm.CleanAndClose then
+        begin
+          AId := 0;
+          AName := '';
+        end
+        else
+        begin
+          AId := LFrm.Table.Id;
+          AName := Trim(LFrm.Table.FirstName + ' ' + LFrm.Table.FamilyName);
+        end;
+    finally
+      LFrm.Free;
+    end;
+  end;
+
+var
+  LFrmProfile: TfrmEInvProfiles;
+  LFrmCarrier: TfrmAccAccounts;
+  LId: Int64;
+  LText: string;
+begin
+  if AEdit.Name = edtEinvProfileId.Name then
+  begin
+    LFrmProfile := TfrmEInvProfiles.Create(AEdit, TEInvProfileService.Create, TEInvProfile.Create);
+    try
+      LFrmProfile.IsHelper := True;
+      LFrmProfile.SetActiveOnly(False, True);
+      LFrmProfile.ShowModal;
+      if LFrmProfile.DataTransfer then
+        if LFrmProfile.CleanAndClose then
+        begin
+          Table.EinvProfileId := 0;
+          Table.ProfileCode := '';
+        end
+        else
+        begin
+          Table.EinvProfileId := LFrmProfile.Table.Id;
+          Table.ProfileCode := LFrmProfile.Table.Code;
+        end;
+    finally
+      LFrmProfile.Free;
+    end;
+  end
+  else if AEdit.Name = edtCarrierAccAccountId.Name then
+  begin
+    LFrmCarrier := TfrmAccAccounts.Create(AEdit, TAccAccountService.Create, TAccAccount.Create);
+    try
+      LFrmCarrier.IsHelper := True;
+      LFrmCarrier.ShowModal;
+      if LFrmCarrier.DataTransfer then
+        if LFrmCarrier.CleanAndClose then
+        begin
+          Table.CarrierAccAccountId := 0;
+          Table.CarrierCode := '';
+          Table.CarrierName := '';
+        end
+        else
+        begin
+          Table.CarrierAccAccountId := LFrmCarrier.Table.Id;
+          Table.CarrierCode := LFrmCarrier.Table.Code;
+          Table.CarrierName := LFrmCarrier.Table.Name;
+        end;
+    finally
+      LFrmCarrier.Free;
+    end;
+  end
+  else if AEdit.Name = edtEinvVehicleId.Name then
+  begin
+    LId := Table.EinvVehicleId;
+    LText := Table.VehiclePlate;
+    PickVehicle(False, LId, LText);
+    Table.EinvVehicleId := LId;
+    Table.VehiclePlate := LText;
+  end
+  else if AEdit.Name = edtTrailer1EinvVehicleId.Name then
+  begin
+    LId := Table.Trailer1EinvVehicleId;
+    LText := Table.Trailer1Plate;
+    PickVehicle(True, LId, LText);
+    Table.Trailer1EinvVehicleId := LId;
+    Table.Trailer1Plate := LText;
+  end
+  else if AEdit.Name = edtTrailer2EinvVehicleId.Name then
+  begin
+    LId := Table.Trailer2EinvVehicleId;
+    LText := Table.Trailer2Plate;
+    PickVehicle(True, LId, LText);
+    Table.Trailer2EinvVehicleId := LId;
+    Table.Trailer2Plate := LText;
+  end
+  else if AEdit.Name = edtDriver1EinvDriverId.Name then
+  begin
+    LId := Table.Driver1EinvDriverId;
+    LText := Table.Driver1Name;
+    PickDriver(LId, LText);
+    Table.Driver1EinvDriverId := LId;
+    Table.Driver1Name := LText;
+  end
+  else if AEdit.Name = edtDriver2EinvDriverId.Name then
+  begin
+    LId := Table.Driver2EinvDriverId;
+    LText := Table.Driver2Name;
+    PickDriver(LId, LText);
+    Table.Driver2EinvDriverId := LId;
+    Table.Driver2Name := LText;
+  end
+  else
+    Exit;
+  ShowEDespatchFields;
 end;
 
 procedure TfrmSlsDispatchDetail.HelperProcess(Sender: TObject);
@@ -228,6 +455,8 @@ begin
           Table.AccountCode := LFrmAccAccountId.Table.Code;
           Table.AccountName := LFrmAccAccountId.Table.Name;
           LEdit.Text := Table.AccountName;
+          Service.SuggestEDespatch(Table, LFrmAccAccountId.Table.EDespatchActive);
+          ShowEDespatchFields;
         end;
     finally
       LFrmAccAccountId.Free;
@@ -321,7 +550,9 @@ begin
     finally
       LFrmCurrency.Free;
     end;
-  end;
+  end
+  else
+    EDespatchHelper(LEdit);
 end;
 
 procedure TfrmSlsDispatchDetail.RefreshData;
@@ -338,6 +569,7 @@ begin
   edtCurrency.Text := Table.Currency;
   edtStatusText.Text := TSlsLookup.Text(slkDispatchStatus, Table.Status);
   edtDescription.Text := Table.Description;
+  ShowEDespatchFields;
   if Table.Lines.Count > 0 then
     ShowTotals
   else

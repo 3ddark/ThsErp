@@ -211,6 +211,10 @@ document's old lines).
 - UBL XML: `AfterDocumentSaved` calls `TEInvDocumentService.GenerateForInvoice` (builder `EInvUbl.Builder` is pure, validator
   `EInvUbl.Validator` = MSXML6 XSD + general.xslt from `Resource/EInvoice`); never blocks the save; one `einv_document` row per
   invoice. GİB number (`sls_invoice.einv_no`) is assigned at send time (`TEInvSeriesRepository.NextNumber`) — §4 of the design doc.
+- e-Despatch (delivery note): `TSlsDispatchService.CheckEDespatch` (called from `ValidateBusinessRules`, so header and document
+  saves share it; the line service checks the lock via `TSlsDispatchRepository.EInvStatus`) and `AfterDocumentSaved` →
+  `TEInvDocumentService.GenerateForDispatch` (`LoadSalesDispatch` → `TEInvUblBuilder.BuildDespatch`, no prices; validator picks the
+  schema / XSLT from the root element). Party reading is shared with invoices (`ReadSupplier` / `ReadAccountParty`) — design §6.
 - Documents with several line lists (BoM raw / labour) call `TDetailList.Save` once per list.
 
 ---

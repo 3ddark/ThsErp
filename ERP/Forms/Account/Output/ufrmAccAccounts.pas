@@ -179,6 +179,7 @@ begin
   SetColumnTitle('iban_currency', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIbanCurrency, 'IBAN Currency'));
   SetColumnTitle('discount_rate', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColDiscountRate, 'Discount Rate'));
   SetColumnTitle('e_invoice_active', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoiceActive, 'E-Invoice Active'));
+  SetColumnTitle('e_despatch_active', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEDespatchActive, 'e-Despatch Active'));
   SetColumnTitle('e_invoice_package_name', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoicePackageName, 'E-Invoice Package'));
   SetColumnTitle('is_passive', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIsPassive, 'Passive'));
   SetColumnTitle('notes', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColNotes, 'Notes'));

@@ -56,7 +56,7 @@ type
 implementation
 
 uses
-  SysPermission.Service, SlsLookup, SlsOfferDetail, SlsOfferDetail.Repository;
+  SysPermission.Service, SlsLookup, SlsOfferDetail, SlsOfferDetail.Repository, SlsDispatch.Exception, EInvLookup;
 
 constructor TSlsDispatchDetailService.Create;
 begin
@@ -141,6 +141,10 @@ var
   LModel: TSlsDispatchDetail;
 begin
   LRepo := TSlsDispatchDetailRepository(FRepo);
+  // gönderilmiş e-İrsaliyenin kalemi eklenemez / değiştirilemez / silinemez
+  if (AEntity.SlsDispatchId > 0) and
+     TEInvLookup.IsEInvLocked(TSlsDispatchRepository(FDispatchRepo).EInvStatus(AEntity.SlsDispatchId)) then
+    raise ESlsDispatchExceptionEInvLocked.Create;
   if AOperation = coDelete then
   begin
     if LRepo.InvoicedQuantity(AEntity.Id, 0) > 0 then
