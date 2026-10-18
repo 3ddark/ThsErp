@@ -1,5 +1,6 @@
 System|SysAccessRight.Service|TSysAccessRightService|TSysAccessRight|SysAccessRight
 System|SysAddress.Service|TSysAddressService|TSysAddress|SysAddress
+System|SysApiService.Service|TSysApiServiceService|TSysApiService|SysApiService
 System|SysApplicationSetting.Service|TSysApplicationSettingService|TSysApplicationSetting|SysApplicationSetting
 System|SysCity.Service|TSysCityService|TSysCity|SysCity
 System|SysCountry.Service|TSysCountryService|TSysCountry|SysCountry
@@ -92,5 +93,6 @@ EInvoice|EInvPaymentMeans.Service|TEInvPaymentMeansService|TEInvPaymentMeans|EIn
 EInvoice|EInvGtip.Service|TEInvGtipService|TEInvGtip|EInvGtip
 EInvoice|EInvVehicle.Service|TEInvVehicleService|TEInvVehicle|EInvVehicle
 EInvoice|EInvDriver.Service|TEInvDriverService|TEInvDriver|EInvDriver
+EInvoice|EInvDocumentSetting.Service|TEInvDocumentSettingService|TEInvDocumentSetting|EInvDocumentSetting
 EInvoice|EInvDiib.Service|TEInvDiibService|TEInvDiib|EInvDiib
 EInvoice|EInvDiibLine.Service|TEInvDiibLineService|TEInvDiibLine|EInvDiibLine

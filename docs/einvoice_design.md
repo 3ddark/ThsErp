@@ -105,7 +105,7 @@ Kağıt faturada kayıt silinir; gönderilmiş (kilitli) belgenin XML'i değişm
 - Belge no (`cbc:ID`): `sls_invoice.einv_no` (GİB biçimi seri + yıl + 9 hane, **gönderimde** verilir — taslakta numara
   harcanmaz, boşluk olmaz). Taslak XML'de önizleme numarası: kapsamın varsayılan serisi + yıl + `000000000`.
   Seriler `einv_series` (ekran Satış > e-Belge Ayarları > e-Belge Serileri 600911, yetki 1055; kapsam 1 e-Fatura / 2
-  e-Arşiv, kapsam başına tek varsayılan), sayaç `einv_series_counter` (`TEInvSeriesRepository.NextNumber`, kilitli artış).
+  e-Arşiv / 3 e-İrsaliye; kullanılacak seri firma ayarından, §7), sayaç `einv_series_counter` (`TEInvSeriesRepository.NextNumber`, kilitli artış).
 - Taraflar: satıcı `sys_application_setting` (unvan, VKN/TCKN — `taxpayer_type` 'TCKN' = gerçek kişi —, vergi dairesi,
   adres `sys_address_id`); alıcı cari + `acc_account_taxpayer` (1 tüzel / 2 gerçek kişi) + fatura adresi (BILLING, yoksa
   birincil / yasal). e-Arşiv'de kimliksiz alıcı 11111111111. IHRACAT: AccountingCustomerParty = GTB (1460415308),
@@ -145,7 +145,7 @@ XML'e **fiyat / tutar yazılmaz**.
 | `einv_driver` (yetki 1096, menü 600913) | `first_name`, `family_name`, `national_id` (TCKN, kontrol haneleri; UNIQUE), `phone` | aynı |
 | `sls_dispatch` | `einv_profile_id` (boş = kağıt irsaliye), `einv_uuid`, `einv_status` 1-7, `einv_no` (gönderimde), `despatch_time` | CHECK: senaryo / ETTN / durum birlikte |
 | `sls_dispatch` | `carrier_acc_account_id`, `einv_vehicle_id`, `trailer1/2_einv_vehicle_id`, `driver1/2_einv_driver_id` | ikinci dorse / şoför birinci olmadan olmaz (CHECK) |
-| `einv_series.series_scope` | 3 = e-İrsaliye | kapsam başına bir varsayılan seri |
+| `einv_series.series_scope` | 3 = e-İrsaliye | kullanılan seri firma ayarından (§7) |
 | `einv_document.sls_dispatch_id` | irsaliye XML'i (UNIQUE, CASCADE) | belge fatura ya da irsaliye (tam olarak biri; CHECK) |
 
 Kurallar (`TSlsDispatchService.CheckEDespatch`; başlık, belge kaydı ve tek kalem yolu ortak):
@@ -159,7 +159,7 @@ Kurallar (`TSlsDispatchService.CheckEDespatch`; başlık, belge kaydı ve tek ka
    TEMELIRSALIYE önerilir (`SuggestEDespatch`).
 
 XML (`TEInvDocumentService.GenerateForDispatch` ← `TSlsDispatchService.AfterDocumentSaved`; kaydı engellemez): sıra XSD'ye göre
-`ProfileID`, `ID` (seri + yıl + sıra; taslakta e-İrsaliye varsayılan serisi + yıl + 000000000), `UUID`, `IssueDate` /
+`ProfileID`, `ID` (seri + yıl + sıra; taslakta firma ayarındaki e-İrsaliye serisi + yıl + 000000000), `UUID`, `IssueDate` /
 `IssueTime` (irsaliye tarihi / fiili sevk saati), `DespatchAdviceTypeCode` SEVK, `OrderReference` (siparişli irsaliye),
 `Signature`, `DespatchSupplierParty` (uygulama ayarları), `DeliveryCustomerParty` (cari; **SHIPPING** adresi, yoksa birincil /
 yasal), `Shipment` (ShipmentStage: `LicensePlateID schemeID=PLAKA` + `DriverPerson` ad / soyad / Şoför / TCKN; Delivery:
@@ -175,3 +175,24 @@ Test: `TestEDespatch` (25 adım).
 
 Sonraki: e-İrsaliye gönderimi entegratörle (e-Fatura ile aynı katman), gelen e-İrsaliye → satın alma mal kabulü, İrsaliye
 Yanıtı (ReceiptAdvice: kabul / kısmi / eksik-fazla), MATBUDAN tipi (kağıt irsaliyenin sonradan e-İrsaliyesi).
+
+## 7. Entegrasyon servisleri (framework) ve e-Belge ayarları (2026-10-18)
+
+Kullanıcı kararları: genel tablo + modül eki (gevşek bağ; yapı ileride tek başına framework olarak paylaşılacak),
+varsayılan seri **yalnız firma ayarlarından** (`einv_series.is_default` kaldırıldı), ayrı ekranlar.
+
+| Katman | Birim / tablo | Not |
+| --- | --- | --- |
+| Çekirdek (bağımlılıksız) | `BackEnd/Core/ApiService.Config.pas` | `TApiServiceConfig` (sağlayıcı, ortam test / canlı, URL, kullanıcı, çözülmüş parola / API anahtarı, zaman aşımı, `Option(ad)`), `IApiServiceConfigSource`, `TApiServiceConfigs.Get(kind)` |
+| Uygulama kaynağı | `SysApiService.ConfigSource` | `sys_api_service` + şifre çözme (AES-SHA256, `Ths.Globals.DecryptStr`); `initialization`'da kendini kaydeder |
+| Genel tablo | `sys_api_service` (yetki 1113, Sistem > Ayarlar > Entegrasyon Servisleri 100911) | firma ayarına bağlı (CASCADE), servis türü başına tek kayıt (`service_kind` serbest kod: `einvoice` / `earchive` / `edespatch` / ileride `sms` …), `options` jsonb (sağlayıcıya özel), `password_enc` / `api_key_enc` şifreli; view yalnız `has_password` / `has_api_key` |
+| e-Belge eki | `einv_document_setting` (yetki 1097, Satış > e-Belge Ayarları 600914) | firma ayarı + belge türü (`series_scope` 1 e-Fatura / 2 e-Arşiv / 3 e-İrsaliye, UNIQUE) → seri (aynı türden olmalı), gönderici etiketi (GB), kullanılacak API servisi (SET NULL) |
+
+- Modüller servis ayarını yalnız `TApiServiceConfigs.Get('<kind>')` ile okur; `sys_api_service`'i bilmez. Genel tablo modülleri
+  bilmez; modüle özel alanlar (seri, etiket) modülün kendi ek tablosundadır.
+- Gizli bilgiler formda gösterilmez: boş bırakılırsa değişmez, "kayıtlı parola / anahtarı sil" ile silinir.
+- Taslak / önizleme numarası: `TEInvSeriesRepository.DefaultSeries(scope)` = firma ayarındaki belge türü satırının aktif serisi.
+- Uygulama ayarları formunda Entegrasyon Servisleri / e-Belge Ayarları butonları ana ekran action'larını adıyla çalıştırır
+  (derleme bağımlılığı yok).
+- Test: `TestApiServices` (şifreli saklama, `TApiServiceConfigs` ile çözülmüş okuma, boş = değişmez, silme, tür / JSON
+  doğrulaması, seri türü uyumu, varsayılan seri ayardan).

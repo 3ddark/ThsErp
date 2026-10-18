@@ -688,6 +688,18 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 64
       OnExecute = actsys_menuExecute
     end
+    object actsys_api_services: TAction
+      Category = 'System'
+      Caption = 'Integration Services'
+      ImageIndex = 64
+      OnExecute = actsys_api_servicesExecute
+    end
+    object actsls_einv_document_settings: TAction
+      Category = 'Satis'
+      Caption = 'e-Document Settings'
+      ImageIndex = 93
+      OnExecute = actsls_einv_document_settingsExecute
+    end
     object actsys_audit_log: TAction
       Category = 'System'
       Caption = 'Audit Log'
@@ -798,6 +810,9 @@ inherited frmDashboard: TfrmDashboard
         object mnisys_menu: TMenuItem
           Action = actsys_menu
         end
+        object mnisys_api_services: TMenuItem
+          Action = actsys_api_services
+        end
       end
     end
     object mnimenu_purchase: TMenuItem
@@ -907,6 +922,9 @@ inherited frmDashboard: TfrmDashboard
         end
         object mnisls_einv_drivers: TMenuItem
           Action = actsls_einv_drivers
+        end
+        object mnisls_einv_document_settings: TMenuItem
+          Action = actsls_einv_document_settings
         end
       end
     end

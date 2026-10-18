@@ -420,6 +420,19 @@
         <DCCReference Include="Forms\System\Output\ufrmSysAuditLogs.pas">
             <Form>frmSysAuditLogs</Form>
         </DCCReference>
+        <DCCReference Include="BackEnd\Core\ApiService.Config.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysLookup.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysApiService.ConfigSource.pas"/>
+        <DCCReference Include="BackEnd\System\Domain\SysApiService.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysApiService.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysApiService.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysApiService.Service.pas"/>
+        <DCCReference Include="Forms\System\Input\ufrmSysApiService.pas">
+            <Form>frmSysApiService</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\System\Output\ufrmSysApiServices.pas">
+            <Form>frmSysApiServices</Form>
+        </DCCReference>
         <DCCReference Include="Forms\Core\Base\NavigationTree.pas"/>
         <DCCReference Include="Forms\Core\Base\ScreenCode.pas"/>
         <DCCReference Include="Forms\Core\Base\DashboardControls.pas"/>
@@ -1017,6 +1030,16 @@
         </DCCReference>
         <DCCReference Include="Forms\EInvoice\Output\ufrmEInvDrivers.pas">
             <Form>frmEInvDrivers</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\EInvoice\Domain\EInvDocumentSetting.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Exception\EInvDocumentSetting.Exception.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Repository\EInvDocumentSetting.Repository.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvDocumentSetting.Service.pas"/>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvDocumentSetting.pas">
+            <Form>frmEInvDocumentSetting</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\EInvoice\Output\ufrmEInvDocumentSettings.pas">
+            <Form>frmEInvDocumentSettings</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\EInvoice\Domain\EInvUbl.Model.pas"/>
         <DCCReference Include="BackEnd\EInvoice\Domain\EInvDocument.pas"/>

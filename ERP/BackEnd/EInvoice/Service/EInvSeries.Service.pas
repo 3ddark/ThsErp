@@ -88,9 +88,6 @@ begin
     raise EEInvSeriesExceptionCodeFormat.Create;
   if not TEInvLookup.IsValid(elkSeriesScope, AEntity.SeriesScope) then
     FailRequired(TLangKeys.TEInvSeries.ColSeriesScope, 'Used For');
-  // kapsamda tek varsayılan: yeni varsayılan seçilince diğeri kalkar
-  if AEntity.IsDefault then
-    LRepo.ClearOtherDefaults(AEntity.SeriesScope, TEInvLookup.ExcludeId(AEntity.Id, AOperation = coUpdate));
   if LRepo.CodeExists(AEntity.Code, TEInvLookup.ExcludeId(AEntity.Id, AOperation = coUpdate)) then
     raise EEInvSeriesExceptionCodeUnique.Create;
 end;

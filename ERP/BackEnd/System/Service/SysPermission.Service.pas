@@ -39,6 +39,7 @@ const
   PERMISSION_SYS_VIEW_TABLE               = 1110;
   PERMISSION_SYS_MENU                     = 1111;
   PERMISSION_SYS_AUDIT_LOG                = 1112;
+  PERMISSION_SYS_API_SERVICE              = 1113;   // entegrasyon (API) servisleri: firma ayarına bağlı bağlantı bilgileri
 
   // Employee
   PERMISSION_EMP_EMPLOYEE                 = 1021;   // + detaylar: ehliyet, dil bilgisi, adres
@@ -117,6 +118,7 @@ const
   PERMISSION_SLS_DIIB                     = 1094;   // DİİB belgeleri + satırları (ihraç kayıtlı satış)
   PERMISSION_EINV_VEHICLE                 = 1095;   // araç / dorse tanımları (e-İrsaliye taşıma)
   PERMISSION_EINV_DRIVER                  = 1096;   // şoför tanımları (e-İrsaliye taşıma)
+  PERMISSION_EINV_DOCUMENT_SETTING        = 1097;   // e-belge ayarları (firma: belge türü başına seri / gönderici etiketi / API servisi)
 
 type
   TSysPermissionService = class(TCrudService<TSysPermission>)

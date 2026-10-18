@@ -37,7 +37,9 @@ uses
   SysDashboard, SysDashboard.Service,
   EInvLookup, EInvGtip, EInvGtip.Service, EInvWithholding, EInvWithholding.Service,
   EInvDiib, EInvDiib.Service, EInvDiibLine, EInvDiibLine.Service,
-  EInvVehicle, EInvVehicle.Service, EInvDriver, EInvDriver.Service;
+  EInvVehicle, EInvVehicle.Service, EInvDriver, EInvDriver.Service,
+  ApiService.Config, SysApiService, SysApiService.Service, SysApiService.ConfigSource,
+  EInvDocumentSetting, EInvDocumentSetting.Service;
 
 var
   GMod, GEnt: string;
@@ -4192,9 +4194,10 @@ var
       'SELECT ' + Customer.ToString + ', id, ''SHIPPING'', false FROM a');
     UoW.Connection.ExecSQL('INSERT INTO acc_account_address (acc_account_id, sys_address_id, address_type, is_primary) ' +
       'VALUES (' + Carrier.ToString + ', 3, ''LEGAL'', true)');
-    UoW.Connection.ExecSQL('UPDATE einv_series SET is_default = false WHERE series_scope = 3');
-    UoW.Connection.ExecSQL('INSERT INTO einv_series (code, name, series_scope, is_default, is_active) ' +
-      'VALUES (''ITI'', ''IT e-Irsaliye'', 3, true, true)');
+    // e-İrsaliye serisi firma ayarındaki belge türü satırından
+    UoW.Connection.ExecSQL('WITH s AS (INSERT INTO einv_series (code, name, series_scope, is_active) ' +
+      'VALUES (''ITI'', ''IT e-Irsaliye'', 3, true) RETURNING id) ' +
+      'UPDATE einv_document_setting SET einv_series_id = (SELECT id FROM s) WHERE series_scope = 3');
     Truck := NewVehicle('34 abc-123', False);
     Trailer1 := NewVehicle('34 DR 001', True);
     Trailer2 := NewVehicle('34DR002', True);
@@ -4527,6 +4530,142 @@ begin
   end;
 end;
 
+{ ---------------------------------------------------------------- entegrasyon servisleri + e-belge ayarları }
+
+procedure TestApiServices;
+var
+  ApiSvc: TSysApiServiceService;
+  SetSvc: TEInvDocumentSettingService;
+  A: TSysApiService;
+  C: TApiServiceConfig;
+  SerRepo: TEInvSeriesRepository;
+  LSeriesId, LId: Int64;
+  LEnc: string;
+
+  function NewService(const AKind, APassword, AOptions: string): TSysApiService;
+  begin
+    Result := TSysApiService.Create;
+    Result.ServiceKind := AKind;
+    Result.ProviderCode := 'test';
+    Result.Environment := API_ENV_TEST;
+    Result.BaseUrl := 'https://test.example/api';
+    Result.Username := 'it-user';
+    Result.Password := APassword;
+    Result.ApiKey := 'KEY-123';
+    Result.Options := AOptions;
+  end;
+
+begin
+  Ctx('System', 'TSysApiService');
+  ApiSvc := TSysApiServiceService.Create;
+  SetSvc := TEInvDocumentSettingService.Create;
+  try
+    try
+      Begin_;
+      A := NewService('it_service', 'p@ss Şifre', '{"branch": "merkez"}');
+      try
+        ApiSvc.BusinessInsert(A, False, False, True);
+        LId := A.Id;
+      finally
+        A.Free;
+      end;
+      LEnc := S(Scalar('SELECT password_enc FROM sys_api_service WHERE id = ' + LId.ToString));
+      Check('password stored encrypted', (LEnc <> '') and (LEnc <> '<null>') and not LEnc.Contains('p@ss'), LEnc);
+      Check('company link', Num(Scalar('SELECT sys_application_setting_id FROM sys_api_service WHERE id = ' + LId.ToString)) =
+        Num(Scalar('SELECT min(id) FROM sys_application_setting')));
+      C := TApiServiceConfigs.Get('it_service');
+      Check('config via TApiServiceConfigs', C.Found and C.Active and C.IsTest and (C.ProviderCode = 'TEST') and
+        (C.Password = 'p@ss Şifre') and (C.ApiKey = 'KEY-123') and (C.Option('branch') = 'merkez') and (C.TimeoutSeconds = 60),
+        C.ProviderCode + ' / ' + C.Password + ' / ' + C.Option('branch'));
+      Check('unknown kind not found', not TApiServiceConfigs.Get('it_missing').Found);
+
+      // güncelleme: boş parola eskisini korur; sil işareti siler
+      A := ApiSvc.BusinessFindById(LId, False, False, True);
+      try
+        Check('view shows only presence', A.HasPassword and A.HasApiKey and (A.Password = ''));
+        A.Description := 'changed';
+        ApiSvc.BusinessUpdate(A, False, False, True);
+      finally
+        A.Free;
+      end;
+      Check('empty password keeps saved', TApiServiceConfigs.Get('it_service').Password = 'p@ss Şifre');
+      A := ApiSvc.BusinessFindById(LId, False, False, True);
+      try
+        A.ClearSecrets := True;
+        ApiSvc.BusinessUpdate(A, False, False, True);
+      finally
+        A.Free;
+      end;
+      C := TApiServiceConfigs.Get('it_service');
+      Check('clear secrets', (C.Password = '') and (C.ApiKey = '') and
+        VarIsNull(Scalar('SELECT password_enc FROM sys_api_service WHERE id = ' + LId.ToString)));
+
+      Expect('duplicate service kind', procedure
+        var X: TSysApiService;
+        begin
+          X := TSysApiService.Create;
+          try
+            X.ServiceKind := 'IT_Service'; X.Environment := API_ENV_TEST;
+            ApiSvc.BusinessInsert(X, False, False, True);
+          finally
+            X.Free;
+          end;
+        end);
+      Begin_;
+      Expect('invalid service kind', procedure
+        var X: TSysApiService;
+        begin
+          X := TSysApiService.Create;
+          try
+            X.ServiceKind := '1-bad'; X.Environment := API_ENV_TEST;
+            ApiSvc.BusinessInsert(X, False, False, True);
+          finally
+            X.Free;
+          end;
+        end);
+      Begin_;
+      Expect('options must be a JSON object', procedure
+        var X: TSysApiService;
+        begin
+          X := TSysApiService.Create;
+          try
+            X.ServiceKind := 'it_json'; X.Environment := API_ENV_TEST; X.Options := '[1, 2]';
+            ApiSvc.BusinessInsert(X, False, False, True);
+          finally
+            X.Free;
+          end;
+        end);
+
+      // ---- e-belge ayarları: varsayılan seri firma ayarından, seri belge türüyle uyumlu
+      Ctx('EInvoice', 'TEInvDocumentSetting');
+      Begin_;
+      SerRepo := TEInvSeriesRepository(UoW.GetRepository<TEInvSeries, TEInvSeriesRepository>);
+      Check('three document types per company', Num(Scalar('SELECT count(*) FROM einv_document_setting')) >= 3);
+      Check('default series from company settings', SerRepo.DefaultSeries(EINV_SERIES_INVOICE, LSeriesId) =
+        S(Scalar('SELECT s.code FROM einv_document_setting d JOIN einv_series s ON s.id = d.einv_series_id WHERE d.series_scope = 1')));
+      LId := Scalar('SELECT id FROM einv_document_setting WHERE series_scope = 3');
+      Expect('series of another document type', procedure
+        var X: TEInvDocumentSetting;
+        begin
+          X := SetSvc.BusinessFindById(LId, False, False, True);
+          try
+            X.EinvSeriesId := Scalar('SELECT min(id) FROM einv_series WHERE series_scope = 1');
+            SetSvc.BusinessUpdate(X, False, False, True);
+          finally
+            X.Free;
+          end;
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    SetSvc.Free;
+    ApiSvc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -4551,6 +4690,7 @@ begin
   TestSalesDispatchInvoiceDocument;
   TestEInvoice;
   TestEDespatch;
+  TestApiServices;
   TestCompanyBankAccounts;
   TestAccountTransactions;
   TestDashboard;

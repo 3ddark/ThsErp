@@ -95,7 +95,8 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   (ETTN, generated once), `einv_status` 1-7 (service-maintained; 2/3/4/5/7 lock the invoice), exemption / delivery
   term / transport mode / payment means, customs exit data, `withholding_amount`; lines: GTIP, withholding, seller /
   buyer DIIB line, package type / no / quantity / brand. Account debit of a sales invoice = total − withholding.
-  `einv_series` (code 3 chars, scope 1 e-Fatura / 2 e-Arşiv, one default per scope) + `einv_series_counter` (per year,
+  `einv_series` (code 3 chars, scope 1 e-Fatura / 2 e-Arşiv / 3 e-İrsaliye; the series used is chosen per company in
+  `einv_document_setting`, no default flag) + `einv_series_counter` (per year,
   service-maintained); `sls_invoice.einv_no` (UNIQUE, GİB format, set when sent); `einv_document` (UBL XML per invoice
   or delivery note: UNIQUE `sls_invoice_id` / `sls_dispatch_id`, CASCADE, exactly one set (CHECK), no audit).
   e-Despatch (2026-10-18, design §6): `sls_dispatch.einv_profile_id` (NULL = paper; profile / uuid / status all NULL or all
@@ -104,6 +105,10 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   `is_trailer`, `einv_driver` TCKN; second slot needs the first, CHECK); `acc_account.e_despatch_active`; series scope 3.
   `vw_sls_invoice.einv_uuid` is `::text` — FireDAC reads PG `uuid` as a GUID and swaps the byte order of the first
   three groups; read uuids as text, write them with `CAST(:x AS uuid)`.
+- Integration (API) services — framework, design §7: `sys_api_service` (per company + `service_kind` free code, provider,
+  environment 1 test / 2 live, URL, user, `password_enc` / `api_key_enc` AES-encrypted by the app, `options` jsonb object;
+  view shows only `has_password` / `has_api_key`). Modules keep their own fields in an extension table referencing it
+  (`einv_document_setting`: company + document type → series, sender alias, API service).
 - Company bank accounts (`fin_company_bank_account`): flags `show_on_cheque` / `show_on_note` / `show_on_print`; printouts read
   `vw_fin_company_bank_account.print_text` via `TFinCompanyBankAccountService.GetPrintLines(FIN_BANK_USAGE_*)`. Own (given)
   cheques / notes may reference one (`fin_cheque_note.fin_company_bank_account_id`, CHECK direction = 2); bank, account no and

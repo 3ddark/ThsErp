@@ -92,7 +92,6 @@ begin
   SetColumnTitle('code', TLocalizationManager.Translate(TLangKeys.TEInvSeries.ColCode, 'Series Code'));
   SetColumnTitle('name', TLocalizationManager.Translate(TLangKeys.TEInvSeries.ColName, 'Name'));
   SetColumnTitle('series_scope', TLocalizationManager.Translate(TLangKeys.TEInvSeries.ColSeriesScope, 'Used For'));
-  SetColumnTitle('is_default', TLocalizationManager.Translate(TLangKeys.TEInvSeries.ColIsDefault, 'Default Series'));
   SetColumnTitle('is_active', TLocalizationManager.Translate(TLangKeys.TEInvSeries.ColIsActive, 'Active'));
   SetColumnTitle('last_number', TLocalizationManager.Translate(TLangKeys.TEInvSeries.ColLastNumber, 'Last Number (Active Period)'));
 end;

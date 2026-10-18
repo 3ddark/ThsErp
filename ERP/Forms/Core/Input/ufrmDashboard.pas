@@ -19,6 +19,8 @@ uses
   SysDashboard, SysDashboard.Service, DashboardControls,
   SysMenu, SysMenu.Service, NavigationTree, ScreenCode,
   ufrmSysMenus, SysUserSetting, SysUserSetting.Service,
+  ufrmSysApiServices, SysApiService, SysApiService.Service,
+  ufrmEInvDocumentSettings, EInvDocumentSetting, EInvDocumentSetting.Service,
   ufrmSysAuditLogs, SysAuditLog, SysAuditLog.Service,
   ufrmSysCities, SysCity.Service, SysCity,
   ufrmSysCountries, SysCountry.Service, SysCountry,
@@ -360,6 +362,10 @@ type
     mnisys_user_permission_template: TMenuItem;
     actsys_menu: TAction;
     mnisys_menu: TMenuItem;
+    actsys_api_services: TAction;
+    mnisys_api_services: TMenuItem;
+    actsls_einv_document_settings: TAction;
+    mnisls_einv_document_settings: TMenuItem;
     actsys_audit_log: TAction;
     mnisys_audit_log: TMenuItem;
 
@@ -485,6 +491,8 @@ type
     procedure actsys_permission_template_rightExecute(Sender: TObject);
     procedure actsys_user_permission_templateExecute(Sender: TObject);
     procedure actsys_menuExecute(Sender: TObject);
+    procedure actsys_api_servicesExecute(Sender: TObject);
+    procedure actsls_einv_document_settingsExecute(Sender: TObject);
     procedure actsys_audit_logExecute(Sender: TObject);
   private
     FIsFormShow: Boolean;
@@ -1188,6 +1196,16 @@ begin
   TfrmSysMenus.Create(Self, TSysMenuService.Create, TSysMenu.Create).Show;
 end;
 
+procedure TfrmDashboard.actsys_api_servicesExecute(Sender: TObject);
+begin
+  TfrmSysApiServices.Create(Self, TSysApiServiceService.Create, TSysApiService.Create).Show;
+end;
+
+procedure TfrmDashboard.actsls_einv_document_settingsExecute(Sender: TObject);
+begin
+  TfrmEInvDocumentSettings.Create(Self, TEInvDocumentSettingService.Create, TEInvDocumentSetting.Create).Show;
+end;
+
 procedure TfrmDashboard.actsys_audit_logExecute(Sender: TObject);
 var
   LFrm: TfrmSysAuditLogs;
@@ -1563,6 +1581,10 @@ begin
             actsys_language.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionLanguages, 'Languages');
           if Assigned(actsys_menu) then
             actsys_menu.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionMenus, 'Menu Screens');
+          if Assigned(actsys_api_services) then
+            actsys_api_services.Caption := TLocalizationManager.Translate(TLangKeys.TSysApiService.TitlePlural, 'Integration Services');
+          if Assigned(actsls_einv_document_settings) then
+            actsls_einv_document_settings.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.TitlePlural, 'e-Document Settings');
           if Assigned(actsys_audit_log) then
             actsys_audit_log.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionAuditLog, 'Audit Log');
   {$ENDREGION}

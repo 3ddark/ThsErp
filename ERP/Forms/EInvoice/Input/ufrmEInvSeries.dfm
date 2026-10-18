@@ -88,28 +88,6 @@ object frmEInvSeries: TfrmEInvSeries
       Style = csDropDownList
       TabOrder = 2
     end
-    object lblIsDefault: TLabel
-      Left = 4
-      Top = 75
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'Varsay'#305'lan Seri'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object chkIsDefault: TCheckBox
-      Left = 132
-      Top = 74
-      Width = 333
-      Height = 17
-      TabOrder = 3
-    end
     object lblIsActive: TLabel
       Left = 4
       Top = 98

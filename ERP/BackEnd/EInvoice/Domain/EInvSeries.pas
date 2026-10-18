@@ -14,7 +14,6 @@ type
     FCode: string;
     FName: string;
     FSeriesScope: SmallInt;
-    FIsDefault: Boolean;
     FIsActive: Boolean;
 
     // View (vw_einv_series) okunabilir alanları
@@ -32,8 +31,6 @@ type
     [Required()]
     property SeriesScope: SmallInt read FSeriesScope write FSeriesScope;
 
-    [Column('is_default')]
-    property IsDefault: Boolean read FIsDefault write FIsDefault;
 
     [Column('is_active')]
     property IsActive: Boolean read FIsActive write FIsActive;
@@ -68,7 +65,6 @@ begin
   Result.Code := Self.Code;
   Result.Name := Self.Name;
   Result.SeriesScope := Self.SeriesScope;
-  Result.IsDefault := Self.IsDefault;
   Result.IsActive := Self.IsActive;
   Result.LastNumber := Self.LastNumber;
 end;

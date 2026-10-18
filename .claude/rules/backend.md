@@ -216,6 +216,9 @@ document's old lines).
   `TEInvDocumentService.GenerateForDispatch` (`LoadSalesDispatch` → `TEInvUblBuilder.BuildDespatch`, no prices; validator picks the
   schema / XSLT from the root element). Party reading is shared with invoices (`ReadSupplier` / `ReadAccountParty`) — design §6.
 - Documents with several line lists (BoM raw / labour) call `TDetailList.Save` once per list.
+- External service settings: read them only through `ApiService.Config.TApiServiceConfigs.Get('<kind>')` (decrypted record;
+  source registered by `SysApiService.ConfigSource`). Never query `sys_api_service` from a module; module-specific settings
+  go to the module's own extension table (e-document: `einv_document_setting`) — design §7.
 
 ---
 

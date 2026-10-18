@@ -2700,6 +2700,56 @@ type
         const NationalIdInvalid = 'einv_driver.national_id_invalid';
         const InUse = 'einv_driver.in_use';
       end;
+
+      //Integration (API) services - framework
+      TSysOption = record
+        const EnvTest = 'sys_option.env_test';
+        const EnvLive = 'sys_option.env_live';
+      end;
+
+      TSysApiService = record
+        const TitlePlural = 'sys_api_service.title_plural';
+        const TitleSingular = 'sys_api_service.title_singular';
+        const ColSysApplicationSettingId = 'sys_api_service.col_sys_application_setting_id';
+        const ColServiceKind = 'sys_api_service.col_service_kind';
+        const ColProviderCode = 'sys_api_service.col_provider_code';
+        const ColEnvironment = 'sys_api_service.col_environment';
+        const ColBaseUrl = 'sys_api_service.col_base_url';
+        const ColUsername = 'sys_api_service.col_username';
+        const ColTimeoutSeconds = 'sys_api_service.col_timeout_seconds';
+        const ColOptions = 'sys_api_service.col_options';
+        const ColDescription = 'sys_api_service.col_description';
+        const ColIsActive = 'sys_api_service.col_is_active';
+        const ColHasPassword = 'sys_api_service.col_has_password';
+        const ColHasApiKey = 'sys_api_service.col_has_api_key';
+        const ColPassword = 'sys_api_service.col_password';
+        const ColApiKey = 'sys_api_service.col_api_key';
+        const ColClearSecrets = 'sys_api_service.col_clear_secrets';
+        const KindUnique = 'sys_api_service.kind_unique';
+        const KindInvalid = 'sys_api_service.kind_invalid';
+        const OptionsInvalid = 'sys_api_service.options_invalid';
+        const TimeoutRange = 'sys_api_service.timeout_range';
+        const NoCompany = 'sys_api_service.no_company';
+      end;
+
+      //e-Document settings per company (series, sender alias, API service)
+      TEInvDocumentSetting = record
+        const TitlePlural = 'einv_document_setting.title_plural';
+        const TitleSingular = 'einv_document_setting.title_singular';
+        const ColSysApplicationSettingId = 'einv_document_setting.col_sys_application_setting_id';
+        const ColSeriesScope = 'einv_document_setting.col_series_scope';
+        const ColEinvSeriesId = 'einv_document_setting.col_einv_series_id';
+        const ColSysApiServiceId = 'einv_document_setting.col_sys_api_service_id';
+        const ColSenderAlias = 'einv_document_setting.col_sender_alias';
+        const ColSeriesCode = 'einv_document_setting.col_series_code';
+        const ColSeriesName = 'einv_document_setting.col_series_name';
+        const ColServiceKind = 'einv_document_setting.col_service_kind';
+        const ColProviderCode = 'einv_document_setting.col_provider_code';
+        const ColEnvironment = 'einv_document_setting.col_environment';
+        const ScopeUnique = 'einv_document_setting.scope_unique';
+        const SeriesScope = 'einv_document_setting.series_scope';
+        const NoCompany = 'einv_document_setting.no_company';
+      end;
   end;
 
   TLocalizationManager = class

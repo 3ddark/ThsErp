@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict YhrMJvw6jstvIjwWbyysGZGBLBpPbOnp8dTrmzj8H7Tmtu2MTl27thTnj1E9PgI
+\restrict uSf9CzzxnpetPoIHOejgTanD2S1D8dnywx3MFXcO9WpECrCNyGScl4PBpwZVdq8
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -1396,6 +1396,37 @@ ALTER TABLE public.einv_document ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
 
 
 --
+-- Name: einv_document_setting; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.einv_document_setting (
+    id bigint NOT NULL,
+    sys_application_setting_id bigint NOT NULL,
+    series_scope smallint NOT NULL,
+    einv_series_id bigint,
+    sys_api_service_id bigint,
+    sender_alias character varying(256),
+    CONSTRAINT einv_document_setting_scope_check CHECK ((series_scope = ANY (ARRAY[1, 2, 3])))
+);
+
+
+ALTER TABLE public.einv_document_setting OWNER TO ths_admin;
+
+--
+-- Name: einv_document_setting_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.einv_document_setting ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.einv_document_setting_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: einv_driver; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -1650,7 +1681,6 @@ CREATE TABLE public.einv_series (
     code character varying(3) NOT NULL,
     name character varying(64) NOT NULL,
     series_scope smallint NOT NULL,
-    is_default boolean DEFAULT false NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     CONSTRAINT einv_series_code_check CHECK (((code)::text ~ '^[A-Z0-9]{3}$'::text)),
     CONSTRAINT einv_series_scope_check CHECK ((series_scope = ANY (ARRAY[1, 2, 3])))
@@ -4471,6 +4501,47 @@ ALTER TABLE public.sys_address ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
+-- Name: sys_api_service; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sys_api_service (
+    id bigint NOT NULL,
+    sys_application_setting_id bigint NOT NULL,
+    service_kind character varying(32) NOT NULL,
+    provider_code character varying(32),
+    environment smallint DEFAULT 1 NOT NULL,
+    base_url character varying(512),
+    username character varying(128),
+    password_enc character varying(1024),
+    api_key_enc character varying(2048),
+    timeout_seconds smallint DEFAULT 60 NOT NULL,
+    options jsonb DEFAULT '{}'::jsonb NOT NULL,
+    description character varying(256),
+    is_active boolean DEFAULT true NOT NULL,
+    CONSTRAINT sys_api_service_environment_check CHECK ((environment = ANY (ARRAY[1, 2]))),
+    CONSTRAINT sys_api_service_kind_check CHECK (((service_kind)::text ~ '^[a-z][a-z0-9_]{1,31}$'::text)),
+    CONSTRAINT sys_api_service_options_check CHECK ((jsonb_typeof(options) = 'object'::text)),
+    CONSTRAINT sys_api_service_timeout_check CHECK (((timeout_seconds >= 1) AND (timeout_seconds <= 3600)))
+);
+
+
+ALTER TABLE public.sys_api_service OWNER TO ths_admin;
+
+--
+-- Name: sys_api_service_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sys_api_service ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sys_api_service_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sys_application_setting; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -5930,6 +6001,29 @@ CREATE VIEW public.vw_einv_document AS
 ALTER VIEW public.vw_einv_document OWNER TO ths_admin;
 
 --
+-- Name: vw_einv_document_setting; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_einv_document_setting AS
+ SELECT d.id,
+    d.sys_application_setting_id,
+    d.series_scope,
+    d.einv_series_id,
+    s.code AS series_code,
+    s.name AS series_name,
+    d.sys_api_service_id,
+    a.service_kind,
+    a.provider_code,
+    a.environment,
+    d.sender_alias
+   FROM ((public.einv_document_setting d
+     LEFT JOIN public.einv_series s ON ((s.id = d.einv_series_id)))
+     LEFT JOIN public.sys_api_service a ON ((a.id = d.sys_api_service_id)));
+
+
+ALTER VIEW public.vw_einv_document_setting OWNER TO ths_admin;
+
+--
 -- Name: vw_einv_driver; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -6030,7 +6124,6 @@ CREATE VIEW public.vw_einv_series AS
     s.code,
     s.name,
     s.series_scope,
-    s.is_default,
     s.is_active,
     COALESCE(c.last_number, (0)::bigint) AS last_number
    FROM (public.einv_series s
@@ -8035,6 +8128,29 @@ CREATE VIEW public.vw_sys_address AS
 ALTER VIEW public.vw_sys_address OWNER TO ths_admin;
 
 --
+-- Name: vw_sys_api_service; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_api_service AS
+ SELECT id,
+    sys_application_setting_id,
+    service_kind,
+    provider_code,
+    environment,
+    base_url,
+    username,
+    ((password_enc IS NOT NULL) AND ((password_enc)::text <> ''::text)) AS has_password,
+    ((api_key_enc IS NOT NULL) AND ((api_key_enc)::text <> ''::text)) AS has_api_key,
+    timeout_seconds,
+    (options)::text AS options,
+    description,
+    is_active
+   FROM public.sys_api_service;
+
+
+ALTER VIEW public.vw_sys_api_service OWNER TO ths_admin;
+
+--
 -- Name: vw_sys_audit_log; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -8803,6 +8919,22 @@ ALTER TABLE ONLY public.einv_document
 
 ALTER TABLE ONLY public.einv_document
     ADD CONSTRAINT einv_document_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_document_setting einv_document_setting_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_document_setting
+    ADD CONSTRAINT einv_document_setting_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: einv_document_setting einv_document_setting_scope_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_document_setting
+    ADD CONSTRAINT einv_document_setting_scope_key UNIQUE (sys_application_setting_id, series_scope);
 
 
 --
@@ -10046,6 +10178,22 @@ ALTER TABLE ONLY public.sys_address
 
 
 --
+-- Name: sys_api_service sys_api_service_kind_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_api_service
+    ADD CONSTRAINT sys_api_service_kind_key UNIQUE (sys_application_setting_id, service_kind);
+
+
+--
+-- Name: sys_api_service sys_api_service_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_api_service
+    ADD CONSTRAINT sys_api_service_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sys_application_setting sys_application_setting_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -10562,10 +10710,17 @@ CREATE INDEX einv_diib_line_sys_uom_id_idx ON public.einv_diib_line USING btree 
 
 
 --
--- Name: einv_series_default_idx; Type: INDEX; Schema: public; Owner: ths_admin
+-- Name: einv_document_setting_einv_series_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
-CREATE UNIQUE INDEX einv_series_default_idx ON public.einv_series USING btree (series_scope) WHERE is_default;
+CREATE INDEX einv_document_setting_einv_series_id_idx ON public.einv_document_setting USING btree (einv_series_id);
+
+
+--
+-- Name: einv_document_setting_sys_api_service_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX einv_document_setting_sys_api_service_id_idx ON public.einv_document_setting USING btree (sys_api_service_id);
 
 
 --
@@ -11556,6 +11711,13 @@ CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_diib_line F
 
 
 --
+-- Name: einv_document_setting audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.einv_document_setting FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
 -- Name: einv_driver audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -11651,6 +11813,13 @@ CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.emp_section FOR 
 --
 
 CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_access_right FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: sys_api_service audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.sys_api_service FOR EACH ROW EXECUTE FUNCTION public.audit();
 
 
 --
@@ -12426,6 +12595,30 @@ ALTER TABLE ONLY public.einv_diib_line
 
 ALTER TABLE ONLY public.einv_document
     ADD CONSTRAINT einv_document_invoice_fkey FOREIGN KEY (sls_invoice_id) REFERENCES public.sls_invoice(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: einv_document_setting einv_document_setting_einv_series_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_document_setting
+    ADD CONSTRAINT einv_document_setting_einv_series_id_fkey FOREIGN KEY (einv_series_id) REFERENCES public.einv_series(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: einv_document_setting einv_document_setting_sys_api_service_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_document_setting
+    ADD CONSTRAINT einv_document_setting_sys_api_service_id_fkey FOREIGN KEY (sys_api_service_id) REFERENCES public.sys_api_service(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: einv_document_setting einv_document_setting_sys_application_setting_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_document_setting
+    ADD CONSTRAINT einv_document_setting_sys_application_setting_id_fkey FOREIGN KEY (sys_application_setting_id) REFERENCES public.sys_application_setting(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -13829,6 +14022,14 @@ ALTER TABLE ONLY public.sys_address
 
 
 --
+-- Name: sys_api_service sys_api_service_sys_application_setting_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sys_api_service
+    ADD CONSTRAINT sys_api_service_sys_application_setting_id_fkey FOREIGN KEY (sys_application_setting_id) REFERENCES public.sys_application_setting(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: sys_application_setting sys_application_setting_app_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -14219,5 +14420,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict YhrMJvw6jstvIjwWbyysGZGBLBpPbOnp8dTrmzj8H7Tmtu2MTl27thTnj1E9PgI
+\unrestrict uSf9CzzxnpetPoIHOejgTanD2S1D8dnywx3MFXcO9WpECrCNyGScl4PBpwZVdq8
 

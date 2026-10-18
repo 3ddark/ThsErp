@@ -891,6 +891,17 @@ Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
   Sonraki (e-İrsaliye): gönderim (entegratör, e-Fatura ile birlikte), gelen e-İrsaliye -> mal kabulü, İrsaliye Yanıtı,
   MATBUDAN tipi; muhasebe fişi kesimi + reçete maliyeti (iş kuralı kararları bekliyor).
 
+## Entegrasyon servisleri + e-Belge ayarları (2026-10-18, kullanıcı: "seriler firma ayarlarında, API bilgileri ek tabloda,
+gevşek bağlı, ileride framework olarak paylaşılacak")
+- Kararlar: genel tablo sys_api_service + modül eki einv_document_setting; varsayılan seri yalnız ayarlardan
+  (einv_series.is_default kaldırıldı, EFT / EAR ayarlara aktarıldı, e-İrsaliye serisi boş); ayrı ekranlar (100911 / 1113,
+  600914 / 1097) + uygulama ayarları formunda action adıyla açan butonlar. Tasarım docs/einvoice_design.md §7.
+- Çekirdek: BackEnd/Core/ApiService.Config (bağımlılıksız), kaynak SysApiService.ConfigSource (AES, Ths.Globals);
+  SysLookup (System seçenekleri). Yedek scratchpad ths_erp_before_api_service.dump, DDL api_service_ddl.sql; dump'lar
+  yenilendi. Integration build.sh arama yoluna Tools/SynPDF eklendi (Ths.Globals -> SynCommons).
+- Test: entegrasyon 1985 / 0 (TestApiServices). Elle UI denenmedi (parola / anahtar alanları, butonlar).
+- Not: sistemde tanımlı e-İrsaliye serisi yok; e-Belge Ayarları'nda e-İrsaliye satırına seri seçilmeli.
+
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.

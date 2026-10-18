@@ -40,7 +40,6 @@ type
     function CodeExists(const ACode: string; AExcludeId: Int64): Boolean;
     function UsageCount(AId: Int64): Integer;
     // kapsamdaki diğer varsayılan seriyi kaldırır (tek varsayılan; einv_series_default_idx)
-    procedure ClearOtherDefaults(AScope: Integer; AExcludeId: Int64);
     // kapsamın aktif varsayılan serisi (yoksa '' / 0)
     function DefaultSeries(AScope: Integer; out AId: Int64): string;
     // yıl içindeki sıradaki numara (sayaç satırı kilitlenerek artar; transaction içinde çağrılmalı)
@@ -99,7 +98,11 @@ begin
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := 'SELECT id, code FROM public.einv_series WHERE series_scope = :scope AND is_default AND is_active';
+    // firma ayarındaki belge türü satırının (einv_document_setting) aktif serisi
+    Q.SQL.Text := 'SELECT s.id, s.code FROM public.einv_document_setting d ' +
+                  '  JOIN public.einv_series s ON s.id = d.einv_series_id AND s.is_active ' +
+                  ' WHERE d.series_scope = :scope ' +
+                  '   AND d.sys_application_setting_id = (SELECT min(id) FROM public.sys_application_setting)';
     Q.ParamByName('scope').AsSmallInt := AScope;
     LogQuery(Q, 'DefaultSeries');
     Q.Open;
@@ -134,34 +137,17 @@ begin
   end;
 end;
 
-procedure TEInvSeriesRepository.ClearOtherDefaults(AScope: Integer; AExcludeId: Int64);
-var
-  Q: TFDQuery;
-begin
-  Q := TFDQuery.Create(nil);
-  try
-    Q.Connection := Connection;
-    Q.SQL.Text := 'UPDATE public.einv_series SET is_default = false WHERE series_scope = :scope AND is_default AND id <> :id';
-    Q.ParamByName('scope').AsSmallInt := AScope;
-    Q.ParamByName('id').AsLargeInt := AExcludeId;
-    LogQuery(Q, 'ClearOtherDefaults');
-    Q.ExecSQL;
-  finally
-    Q.Free;
-  end;
-end;
-
 function TEInvSeriesRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TEInvSeries) +
-            ' (code, name, series_scope, is_default, is_active) ' +
-            ' VALUES (:code, :name, :series_scope, :is_default, :is_active)';
+            ' (code, name, series_scope, is_active) ' +
+            ' VALUES (:code, :name, :series_scope, :is_active)';
 end;
 
 function TEInvSeriesRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TEInvSeries) +
-            ' SET code = :code, name = :name, series_scope = :series_scope, is_default = :is_default, is_active = :is_active ' +
+            ' SET code = :code, name = :name, series_scope = :series_scope, is_active = :is_active ' +
             ' WHERE id = :id';
 end;
 
@@ -179,7 +165,6 @@ begin
     Q.ParamByName('code').AsWideString := AModel.Code;
     Q.ParamByName('name').AsWideString := AModel.Name;
     Q.ParamByName('series_scope').AsSmallInt := AModel.SeriesScope;
-    Q.ParamByName('is_default').AsBoolean := AModel.IsDefault;
     Q.ParamByName('is_active').AsBoolean := AModel.IsActive;
   end
   else
@@ -187,7 +172,6 @@ begin
     Q.ParamByName('code').AsWideStrings[AIndex] := AModel.Code;
     Q.ParamByName('name').AsWideStrings[AIndex] := AModel.Name;
     Q.ParamByName('series_scope').AsSmallInts[AIndex] := AModel.SeriesScope;
-    Q.ParamByName('is_default').AsBooleans[AIndex] := AModel.IsDefault;
     Q.ParamByName('is_active').AsBooleans[AIndex] := AModel.IsActive;
   end;
 
@@ -203,7 +187,6 @@ begin
     Q.ParamByName('code').AsWideString := AModel.Code;
     Q.ParamByName('name').AsWideString := AModel.Name;
     Q.ParamByName('series_scope').AsSmallInt := AModel.SeriesScope;
-    Q.ParamByName('is_default').AsBoolean := AModel.IsDefault;
     Q.ParamByName('is_active').AsBoolean := AModel.IsActive;
   end
   else
@@ -212,7 +195,6 @@ begin
     Q.ParamByName('code').AsWideStrings[AIndex] := AModel.Code;
     Q.ParamByName('name').AsWideStrings[AIndex] := AModel.Name;
     Q.ParamByName('series_scope').AsSmallInts[AIndex] := AModel.SeriesScope;
-    Q.ParamByName('is_default').AsBooleans[AIndex] := AModel.IsDefault;
     Q.ParamByName('is_active').AsBooleans[AIndex] := AModel.IsActive;
   end;
 
@@ -226,7 +208,6 @@ begin
   Result.Code := Q.FieldByName('code').AsString;
   Result.Name := Q.FieldByName('name').AsString;
   Result.SeriesScope := Q.FieldByName('series_scope').AsInteger;
-  Result.IsDefault := Q.FieldByName('is_default').AsBoolean;
   Result.IsActive := Q.FieldByName('is_active').AsBoolean;
   Result.LastNumber := Q.FieldByName('last_number').AsString;
 end;

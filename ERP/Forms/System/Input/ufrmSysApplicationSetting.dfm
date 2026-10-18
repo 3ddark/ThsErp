@@ -105,6 +105,24 @@ object frmSysApplicationSetting: TfrmSysApplicationSetting
           Caption = 'Logo'
           TabOrder = 3
         end
+        object btnApiServices: TButton
+          Left = 8
+          Top = 126
+          Width = 220
+          Height = 25
+          Caption = 'Integration Services'
+          TabOrder = 20
+          OnClick = btnApiServicesClick
+        end
+        object btnEDocumentSettings: TButton
+          Left = 236
+          Top = 126
+          Width = 220
+          Height = 25
+          Caption = 'e-Document Settings'
+          TabOrder = 21
+          OnClick = btnEDocumentSettingsClick
+        end
       end
       object tsAddress: TTabSheet
         Caption = 'Adres Bilgileri'

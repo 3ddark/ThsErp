@@ -1,4 +1,4 @@
-unit ufrmSysApplicationSetting;
+﻿unit ufrmSysApplicationSetting;
 
 interface
 
@@ -26,6 +26,8 @@ type
     lblFax: TLabel;
     edtFax: TEdit;
     pnlLogo: TPanel;
+    btnApiServices: TButton;
+    btnEDocumentSettings: TButton;
     tsAddress: TTabSheet;
     lblTaxpayerType: TLabel;
     cbbTaxpayerType: TComboBox;
@@ -111,7 +113,12 @@ type
     procedure btnPathPersonnelCardImageClick(Sender: TObject);
     procedure btnPathUpdateClick(Sender: TObject);
     procedure cbbTaxpayerTypeChange(Sender: TObject);
+    procedure btnApiServicesClick(Sender: TObject);
+    procedure btnEDocumentSettingsClick(Sender: TObject);
   private
+    // Bağlı ayar ekranları ana ekrandaki action adıyla açılır (yetki / ekran kodu aynı yoldan; modül birimine
+    // derleme bağımlılığı yok)
+    procedure RunMainAction(const AActionName: string);
     procedure SetColor(color: TColor; editColor: TEdit);
     procedure UpdatePathButtons;
   protected
@@ -130,7 +137,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Ths.Globals, Ths.Constants, Ths.Utils.Images, SysAddress,
+  Ths.Globals, Ths.Constants, Ths.Utils.Images, SysAddress, System.Actions,
   ufrmSysCities; // TfrmSysCities helper output form
 
 procedure TfrmSysApplicationSetting.btnPathStockCardImageClick(Sender: TObject);
@@ -217,6 +224,27 @@ begin
   edtGridColorActive.Repaint;
 end;
 
+procedure TfrmSysApplicationSetting.RunMainAction(const AActionName: string);
+var
+  LComp: TComponent;
+begin
+  if not Assigned(Application.MainForm) then
+    Exit;
+  LComp := Application.MainForm.FindComponent(AActionName);
+  if (LComp is TBasicAction) and (not (LComp is TContainedAction) or TContainedAction(LComp).Enabled) then
+    TBasicAction(LComp).Execute;
+end;
+
+procedure TfrmSysApplicationSetting.btnApiServicesClick(Sender: TObject);
+begin
+  RunMainAction('actsys_api_services');
+end;
+
+procedure TfrmSysApplicationSetting.btnEDocumentSettingsClick(Sender: TObject);
+begin
+  RunMainAction('actsls_einv_document_settings');
+end;
+
 procedure TfrmSysApplicationSetting.FormCreate(Sender: TObject);
 begin
   inherited;
@@ -287,6 +315,8 @@ begin
 
   // Tabs
   tsGeneral.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabGeneral, 'General Settings');
+  btnApiServices.Caption := TLocalizationManager.Translate(TLangKeys.TSysApiService.TitlePlural, 'Integration Services');
+  btnEDocumentSettings.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.TitlePlural, 'e-Document Settings');
   tsAddress.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabAddress, 'Address Information');
   tsService.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabService, 'Service Settings');
   tsOther.Caption := TLocalizationManager.Translate(TLangKeys.TSysApplicationSetting.TabOther, 'Other Settings');

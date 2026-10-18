@@ -21,8 +21,6 @@ type
     edtName: TEdit;
     lblSeriesScope: TLabel;
     cbbSeriesScope: TComboBox;
-    lblIsDefault: TLabel;
-    chkIsDefault: TCheckBox;
     lblIsActive: TLabel;
     chkIsActive: TCheckBox;
     procedure BtnAcceptClick(Sender: TObject); override;
@@ -46,7 +44,6 @@ begin
   Table.Code := edtCode.Text;
   Table.Name := edtName.Text;
   Table.SeriesScope := cbbSeriesScope.ItemIndex + 1;
-  Table.IsDefault := chkIsDefault.Checked;
   Table.IsActive := chkIsActive.Checked;
   inherited;
 end;
@@ -80,7 +77,6 @@ begin
   LIndex := cbbSeriesScope.ItemIndex;
   TEInvLookup.FillItems(cbbSeriesScope.Items, elkSeriesScope);
   cbbSeriesScope.ItemIndex := LIndex;
-  lblIsDefault.Caption := TLocalizationManager.Translate(TLangKeys.TEInvSeries.ColIsDefault, 'Default Series');
   lblIsActive.Caption := TLocalizationManager.Translate(TLangKeys.TEInvSeries.ColIsActive, 'Active');
 end;
 
@@ -90,7 +86,6 @@ begin
   edtCode.Text := Table.Code;
   edtName.Text := Table.Name;
   cbbSeriesScope.ItemIndex := Table.SeriesScope - 1;
-  chkIsDefault.Checked := Table.IsDefault;
   chkIsActive.Checked := Table.IsActive;
 end;
 
