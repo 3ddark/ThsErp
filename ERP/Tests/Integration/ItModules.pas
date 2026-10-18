@@ -18,7 +18,7 @@ uses
   SysAccessRight, SysAccessRight.Service, SysUserPermissionTemplate, SysUserPermissionTemplate.Service,
   SysGridFilter, SysGridFilter.Service,
   EmpEmployee, EmpEmployee.Service, EmpPersonAddress, EmpPersonAddress.Service,
-  EmpTransportation, EmpTransportation.Service, Password.Helper,
+  EmpTransportation, EmpTransportation.Service, Password.Helper, Auth.Service,
   FinLookup, FinChequeNote, FinChequeNote.Service, FinChequeNoteTransaction, FinChequeNoteTransaction.Service,
   FinCreditCard, FinCreditCard.Service, FinCreditCardTransaction, FinCreditCardTransaction.Service,
   FinPosTerminal, FinPosTerminal.Service, FinPosTransaction, FinPosTransaction.Service,
@@ -745,6 +745,8 @@ var
   Svc: TSysUserService;
   U: TSysUser;
   NPerm, NRight: Integer;
+  Auth: TAuthService;
+  LR: TLoginResult;
 begin
   Ctx('System', 'TSysUser');
   Svc := TSysUserService.Create;
@@ -772,6 +774,19 @@ begin
         Svc.ResetPassword(U.Id, 'xyz9', True);
         Check('reset password keeps caller transaction', UoW.InTransaction);
         Check('reset password hash', TPasswordHelper.VerifyPassword('xyz9', S(Scalar('SELECT user_password FROM sys_user WHERE id = ' + U.Id.ToString))));
+
+        // hash view'da yok; login tablodan okur
+        Check('vw_sys_user hides password', Num(Scalar('SELECT count(*) FROM information_schema.columns ' +
+          'WHERE table_name = ''vw_sys_user'' AND column_name = ''user_password''')) = 0);
+        Auth := TAuthService.Create;
+        try
+          LR := Auth.Login('İT_KULLANICI', 'xyz9');
+          Check('login', LR.Success and (LR.UserId = U.Id), LR.ErrorMessage);
+          LR := Auth.Login('İT_KULLANICI', 'xyz8');
+          Check('login wrong password', (not LR.Success) and (LR.Status = lsInvalidPassword), LR.ErrorMessage);
+        finally
+          Auth.Free;
+        end;
 
         Expect('duplicate username (case/trim)', procedure
           var X: TSysUser;

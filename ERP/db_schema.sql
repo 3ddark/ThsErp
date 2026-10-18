@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict kfqzZKAaHc3MVi2fmY9vwYpN7m022QAtQclUgy1nk9ffZAXcXaUOie4tG5Uybrz
+\restrict AfkNt6MsNrauWg0xou3neSQ7QVCdvkKuHXuW2gh8KrnKroafAl799blXMHe07zx
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -8230,7 +8230,6 @@ CREATE VIEW public.vw_sys_user AS
  SELECT u.id,
     e.name,
     e.surname,
-    u.user_password,
     e.full_name,
     e.section_name,
     e.unit_name,
@@ -13886,5 +13885,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict kfqzZKAaHc3MVi2fmY9vwYpN7m022QAtQclUgy1nk9ffZAXcXaUOie4tG5Uybrz
+\unrestrict AfkNt6MsNrauWg0xou3neSQ7QVCdvkKuHXuW2gh8KrnKroafAl799blXMHe07zx
 

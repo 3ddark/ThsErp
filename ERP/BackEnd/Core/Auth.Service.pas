@@ -100,8 +100,9 @@ begin
         Exit;
       end;
 
+      // Hash view'da yok; yalnız burada tablodan okunur
       LPasswordValid := TPasswordHelper.VerifyPassword(
-        AUserPassword, LUser.UserPassword);
+        AUserPassword, TSysUserRepository(LRepo).GetPasswordHash(LUser.Id));
 
       if not LPasswordValid then
       begin

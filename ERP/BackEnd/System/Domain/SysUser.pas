@@ -26,7 +26,8 @@ type
     [Column('username'), MaxLength(64), Required()]
     property Username: string read FUsername write FUsername;
 
-    [Column('user_password'), Required()]
+    // view'da yok (yalnız insert'te yazılır); zorunluluğu TSysUserService.BusinessInsert denetler
+    [Column('user_password')]
     property UserPassword: string read FUserPassword write FUserPassword;
 
     [Column('active'), Required()]

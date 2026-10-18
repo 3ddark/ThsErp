@@ -173,8 +173,7 @@ begin
   Result := TSysUser.Create;
   Result.Id           := Q.FieldByName('id').AsLargeInt;
   Result.Username     := Q.FieldByName('username').AsString;
-  Result.UserPassword := Q.FieldByName('user_password').AsString;
-  Result.Active       := Q.FieldByName('active').AsBoolean;
+  Result.Active      := Q.FieldByName('active').AsBoolean;
   Result.Manager      := Q.FieldByName('manager').AsBoolean;
   Result.SuperUser    := Q.FieldByName('super_user').AsBoolean;
   Result.IpAddress    := Q.FieldByName('ip_address').AsString;

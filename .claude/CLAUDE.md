@@ -65,9 +65,10 @@ ERP/
 docs/claude_resume.md            # resume state
 ```
 
-**Legacy (do not copy as a pattern; migrate when touched):** `Forms/DetailedInputForms/`, `Forms/InputForms/` (empty),
-`Forms/Other/`, `Forms/Erp/`, flat `Forms/Production/*.pas`,
-`BackEnd/**/Ths.Database.Table.*.pas`, unused `BackEnd/Core/Base/{BaseEntity,BaseRepository,RepositoryORM,QueryBuilder}.pas`.
+**Legacy:** the old `Ths.Database.Table.*` framework, `Forms/DetailedInputForms/`, `Forms/Other/`, `Forms/Erp/`,
+`Forms/Invoice/` and the flat `Forms/{Stock,Production}/*.pas` forms were deleted (2026-10-18; recover from git history
+if needed). `ERPDevWizard/` still generates code for that old framework — do not use it.
+Kept although not compiled anywhere: `BackEnd/Tools/Ths.Utils.*` helpers and `ThsStringGrid`.
 
 ---
 
@@ -121,6 +122,7 @@ call "C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\rsvars.bat"
 msbuild Ths.dproj /t:Build /p:Config=Debug /p:Platform=Win32 /p:DCC_ExeOutput=%TEMP%\ths_build_out /v:minimal
 ```
 
+- RAD Studio version differs per machine: `Studio\23.0` (NB61) / `Studio\37.0` (DESKTOP-JF3LUBB) — use the one that exists.
 - Never call bare `dcc32` (Delphi 7 is first on PATH).
 - A change is "done" only when the project compiles with **0 errors** and no new warnings in touched units.
 - Validate new SQL against the live DB inside `BEGIN … ROLLBACK`.

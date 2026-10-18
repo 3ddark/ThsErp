@@ -866,18 +866,26 @@ Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
 ## Kalan
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.
-- Legacy Forms/Production/ufrmUrtReceteler.* ve Forms/DetailedInputForms/Production (kayıtsız) silinecek.
+- 2026-10-18 (DESKTOP-JF3LUBB, RAD Studio 37.0): legacy temizliği — Ths.exe + IntegrationTest + UiTest'te derlenmeyen 116 unit
+  (+74 dfm) git rm: eski Ths.Database.* çatısı, Core/Base eski ORM (BaseEntity/BaseRepository/BaseService/CascadeHelper/QueryBuilder/
+  RepositoryORM, ufrmBaseInput/Output/StrGrid, ufrmFilterDBGrid, StringGridDetaylar), BackEnd/Erp, BackEnd/Invoice (SetEvin*),
+  Forms/DetailedInputForms, Forms/Erp, Forms/Other, Forms/Invoice, Forms/Stock ve Forms/Production kökündeki eski formlar,
+  ufrmSysDatabaseMonitor. Tutuldu: BackEnd/Tools/Ths.Utils.* (TCMB kur, SevenZip, FluentXML ...), ThsStringGrid,
+  (ufrmSysPasswordChange da silindi: şifre değiştirme = ufrmSysUserPassword). Üç proje de 0 hata, kod boyutu değişmedi.
 - 2026-10-14 kullanıcı kararları uygulandı: gider tipi 1 işçilik / 2 makine / 3 genel üretim gideri (zaten bu şekildeydi, değişiklik yok);
   1060 bom-settings yetkisi DB'den silindi (+ MODULE_RCT_RECETE_AYAR sabiti); acc_set_tax_rate %10 alış/alış iade ve %20 satış/satış iade
   hesapları düzeltildi (satış 391 / satış iade 191 / alış 191 / alış iade 391). Dump'lar yenilendi.
 - 2026-10-09 değişiklikleri 4371ce2 ile commit edildi. sls_ (satış) modülü, uçtan uca UI testi ve bulunan hatalar düzeltilene
   kadar bekletiliyor (kullanıcı kararı, 2026-10-10).
-- vw_sys_user.user_password kaldırma (login hash'i tablodan ayrı sorgu ile almalı)
+- 2026-10-18: vw_sys_user.user_password kaldırıldı (yedek scratchpad ths_erp_before_vw_sys_user_pw.dump; sys_grid_column /
+  sys_user_grid_column satırları silindi; dump'lar yenilendi). Login hash'i TSysUserRepository.GetPasswordHash ile tablodan
+  okur; TSysUser.UserPassword artık Required değil (view'da yok → güncellemede boş) — yeni kayıtta zorunluluğu servis
+  (ValidatePasswordStrength) + formda edtUserPassword.thsRequiredData sağlar. Test: entegrasyon 1894 pass / 0 fail (+3: view
+  şifre içermez, login, yanlış şifre); UI harness System 372 pass / 0 fail.
 - Diğer translation view'larında locale stratejisi (vw_sys_city, vw_sys_country, vw_sys_uom*, vw_emp_* ...) ve de-DE çeviri eksikleri
   (vw_emp_person_type locale NULL → personel tipi adı boş)
 - emp_transportation.route UI dışında
-- sys_city FK kuralları (ON UPDATE SET NULL), ufrmSysUomGroup DFM adı (frmSysUomType), Dashboard boş action'lar / SetSession,
-  ölü Core/Base dosyaları
+- sys_city FK kuralları (ON UPDATE SET NULL), ufrmSysUomGroup DFM adı (frmSysUomType), Dashboard boş action'lar / SetSession
 
 ## Hatalar / Engeller
 - Bu PC'de güncel DB 5433'te; GlobalSettings.ini DBPortNo=5432 (diğer makine değeri) ve 5432'de 2023'ten kalma eski ths_erp var

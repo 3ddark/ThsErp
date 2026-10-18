@@ -143,6 +143,7 @@ begin
 
   lblUserPassword.Visible := FormMode in [ifmNewRecord, ifmCopyNewRecord];
   edtUserPassword.Visible := lblUserPassword.Visible;
+  edtUserPassword.thsRequiredData := edtUserPassword.Visible;
   edtUserPassword.Clear;
   chkActive.Checked := Table.Active;
   chkManager.Checked := Table.Manager;
