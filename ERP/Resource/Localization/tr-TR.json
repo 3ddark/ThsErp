@@ -2332,5 +2332,12 @@
   "sls_invoice.menu_einv_validation": "e-Belge Doğrulama Sonucu",
   "sls_invoice.msg_einv_no_document": "Bu faturanın e-belge XML'i yok (kağıt fatura ya da senaryo seçilerek kaydedilmemiş).",
   "sls_invoice.msg_einv_valid": "e-Belge XML'i UBL-TR şemasına uygun.",
-  "sls_invoice.msg_einv_invalid": "e-Belge XML'inde sorunlar var, gönderilirse reddedilir:"
+  "sls_invoice.msg_einv_invalid": "e-Belge XML'inde sorunlar var, gönderilirse reddedilir:",
+  "db_error.title": "Veri Kuralı",
+  "db_error.fk_in_use": "Bu kayıt başka kayıtlarda kullanıldığı için silinemez veya değiştirilemez.",
+  "db_error.fk_missing": "Bağlantılı kayıt bulunamadı. Başka bir kullanıcı silmiş olabilir.",
+  "db_error.unique": "Bu değer zaten kayıtlı, tekrar eklenemez.",
+  "db_error.not_null": "Zorunlu bir alan boş.",
+  "db_error.check": "Girilen değerler bir veri kuralına uymuyor.",
+  "db_error.technical_detail": "Ayrıntı"
 }

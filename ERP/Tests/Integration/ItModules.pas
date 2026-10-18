@@ -18,7 +18,7 @@ uses
   SysAccessRight, SysAccessRight.Service, SysUserPermissionTemplate, SysUserPermissionTemplate.Service,
   SysGridFilter, SysGridFilter.Service,
   EmpEmployee, EmpEmployee.Service, EmpPersonAddress, EmpPersonAddress.Service,
-  EmpTransportation, EmpTransportation.Service, Password.Helper, Auth.Service,
+  EmpTransportation, EmpTransportation.Service, Password.Helper, Auth.Service, Db.ErrorTranslator, LocalizationManager,
   FinLookup, FinChequeNote, FinChequeNote.Service, FinChequeNoteTransaction, FinChequeNoteTransaction.Service,
   FinCreditCard, FinCreditCard.Service, FinCreditCardTransaction, FinCreditCardTransaction.Service,
   FinPosTerminal, FinPosTerminal.Service, FinPosTransaction, FinPosTransaction.Service,
@@ -4063,6 +4063,70 @@ begin
   end;
 end;
 
+{ ---------------------------------------------------------------- DB error messages }
+
+procedure TestDbErrors;
+
+  function RaiseOf(const ASql: string; ARollback: Boolean = True): string;
+  begin
+    Result := '<no error>';
+    Begin_;
+    try
+      UoW.Connection.ExecSQL(ASql);
+    except
+      on E: Exception do
+      begin
+        // uygulamada servis / form hatadan önce rollback yapar
+        if ARollback and UoW.InTransaction then
+          UoW.Rollback;
+        Result := TDbErrorTranslator.Translate(E);
+      end;
+    end;
+    End_;
+  end;
+
+var
+  LMsg, LCityTitle: string;
+  LCountryId: Int64;
+  LPlain: Exception;
+begin
+  Ctx('Core', 'TDbErrorTranslator');
+  // yalnız şehirde kullanılan ülke (stok kartında değil): detay şehirler olmalı
+  LCountryId := Scalar('SELECT sys_country_id FROM sys_city WHERE sys_country_id NOT IN ' +
+    '(SELECT sys_country_id FROM stk_inventory WHERE sys_country_id IS NOT NULL) ORDER BY id LIMIT 1');
+  LCityTitle := TLocalizationManager.Translate(TLangKeys.TSysCity.TitlePlural, 'sys_city');
+
+  LMsg := RaiseOf('DELETE FROM sys_country WHERE id = ' + LCountryId.ToString);
+  Check('fk in use', LMsg.StartsWith(TLocalizationManager.Translate(TLangKeys.TDbError.FkInUse)) and LMsg.Contains(LCityTitle), LMsg);
+
+  // NO ACTION (tek örnek: sys_menu üst klasör) -> 23503, ana tablo mesajda
+  LMsg := RaiseOf('DELETE FROM sys_menu WHERE menu_code = (SELECT parent_code FROM sys_menu WHERE parent_code IS NOT NULL LIMIT 1)');
+  Check('fk in use (no action)', LMsg.StartsWith(TLocalizationManager.Translate(TLangKeys.TDbError.FkInUse)), LMsg);
+
+  LMsg := RaiseOf('INSERT INTO sys_city (city_name, sys_country_id) VALUES (''IT CITY'', -1)');
+  Check('fk missing', LMsg.StartsWith(TLocalizationManager.Translate(TLangKeys.TDbError.FkMissing)) and
+    LMsg.Contains(TLocalizationManager.Translate(TLangKeys.TSysCountry.TitlePlural, 'sys_country')), LMsg);
+
+  LMsg := RaiseOf('DELETE FROM sys_country WHERE id = ' + LCountryId.ToString, False);
+  Check('fk in aborted transaction', LMsg.StartsWith(TLocalizationManager.Translate(TLangKeys.TDbError.FkInUse)), LMsg);
+
+  LMsg := RaiseOf('INSERT INTO sys_city (city_name, sys_country_id) SELECT city_name, sys_country_id FROM sys_city ORDER BY id LIMIT 1');
+  Check('unique', LMsg.StartsWith(TLocalizationManager.Translate(TLangKeys.TDbError.Unique)), LMsg);
+
+  LMsg := RaiseOf('INSERT INTO sys_city (city_name, sys_country_id) VALUES (NULL, ' + LCountryId.ToString + ')');
+  Check('not null', LMsg.StartsWith(TLocalizationManager.Translate(TLangKeys.TDbError.NotNull)) and LMsg.Contains('city_name'), LMsg);
+
+  LMsg := RaiseOf('SELECT 1/0');
+  Check('other db error not translated', LMsg = '', LMsg);
+
+  LPlain := Exception.Create('plain');
+  try
+    Check('plain exception message kept', TDbErrorTranslator.FriendlyMessage(LPlain) = 'plain');
+  finally
+    LPlain.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -4073,6 +4137,7 @@ begin
   TestTransferCode;
   TestEmployee;
   TestUsers;
+  TestDbErrors;
   TestPermissions;
   TestGridFilter;
   TestFinanceChequeNotes;

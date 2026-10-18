@@ -895,8 +895,12 @@ Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
   doğruydu (tüm DFM nesne adları sınıf adlarıyla eşleşiyor). Dashboard: hiçbir action'a bağlı olmayan 16 boş handler +
   FormActivate, işlevsiz actsys_database_status / actsys_do_database_backup (action + menü), WindowMenu ve SetSession'daki eski
   TSysErisimHakki yorum bloğu silindi.
-- Uygulama FK ihlalini (silmede 23503 "kayıt kullanımda") çevirmiyor: kullanıcı ham PostgreSQL hatası görür — genel bir
-  hata çevirici (EFDDBEngineException.Kind = ekFKViolated / ekUKViolated) eklenebilir.
+- 2026-10-18: DB hata çevirici `BackEnd/Core/Db.ErrorTranslator` (TDbErrorTranslator.Translate / FriendlyMessage):
+  23001 RESTRICT + 23503 NO ACTION silme -> "kayıt kullanımda" (detay: kullanıldığı tablonun title_plural'ı), 23503 ekleme ->
+  "bağlantılı kayıt yok" (detay: ana tablo), 23505 / 23502 / 23514. PG her iki FK hatasında FK sahibi tabloyu bildirir;
+  ayrım: RESTRICT = 23001, NO ACTION'da mesajda ana tablo adı geçer. Bağlantı: dashboard TApplicationEvents.OnException
+  (+ E.Message gösteren 4 form). Anahtarlar db_error.* (4 dil). Test: TestDbErrors 8 adım; entegrasyon 1902 / 0.
+  Not: en/de/fr JSON'da kodda kullanılmayan 51 eski anahtar var (tr-TR'de yok) — dokunulmadı.
 
 ## Hatalar / Engeller
 - Bu PC'de güncel DB 5433'te; GlobalSettings.ini DBPortNo=5432 (diğer makine değeri) ve 5432'de 2023'ten kalma eski ths_erp var

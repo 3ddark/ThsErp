@@ -261,7 +261,7 @@ implementation
 
 uses
   Vcl.Clipbrd, FireDAC.Stan.Param, udm, Ths.Constants, Ths.Globals, Logger, AppContext, EntitySchemaCache,
-  Grid.Sql, Grid.Columns, Grid.Export, Grid.ColumnSelector;
+  Grid.Sql, Grid.Columns, Grid.Export, Grid.ColumnSelector, Db.ErrorTranslator;
 
 { TfrmGridBase - kurulum }
 
@@ -622,7 +622,7 @@ begin
       on E: Exception do
       begin
         GLogger.ErrorFmt('Grid sorgusu açılamadı [%s]: %s', [Self.ClassName, E.Message]);
-        ShowMessage(TLocalizationManager.Translate(TLangKeys.TMessage.DataIsNotLoaded, 'Data could not be loaded: ') + E.Message);
+        ShowMessage(TLocalizationManager.Translate(TLangKeys.TMessage.DataIsNotLoaded, 'Data could not be loaded: ') + TDbErrorTranslator.FriendlyMessage(E));
         Exit;
       end;
     end;

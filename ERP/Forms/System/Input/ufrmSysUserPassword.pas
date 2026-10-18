@@ -41,7 +41,7 @@ implementation
 {$R *.dfm}
 
 uses
-  AppContext, SysUser.Service;
+  AppContext, SysUser.Service, Db.ErrorTranslator;
 
 class procedure TfrmSysUserPassword.ShowReset(AOwner: TComponent; AUserId: Int64; const AUsername: string);
 var
@@ -139,7 +139,7 @@ begin
     except
       on E: Exception do
       begin
-        MessageDlg(E.Message, mtError, [mbOK], 0);
+        MessageDlg(TDbErrorTranslator.FriendlyMessage(E), mtError, [mbOK], 0);
         Exit;
       end;
     end;

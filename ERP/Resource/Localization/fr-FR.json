@@ -2383,5 +2383,12 @@
   "sls_invoice.menu_einv_validation": "Résultat de validation",
   "sls_invoice.msg_einv_no_document": "Cette facture n’a pas de XML (facture papier ou enregistrée sans profil).",
   "sls_invoice.msg_einv_valid": "Le XML est conforme au schéma UBL-TR.",
-  "sls_invoice.msg_einv_invalid": "Le XML présente des problèmes et serait rejeté :"
+  "sls_invoice.msg_einv_invalid": "Le XML présente des problèmes et serait rejeté :",
+  "db_error.title": "Règle de données",
+  "db_error.fk_in_use": "Cet enregistrement est utilisé par d'autres enregistrements et ne peut donc pas être supprimé ni modifié.",
+  "db_error.fk_missing": "L'enregistrement lié est introuvable. Un autre utilisateur l'a peut-être supprimé.",
+  "db_error.unique": "Cette valeur existe déjà et ne peut pas être ajoutée à nouveau.",
+  "db_error.not_null": "Un champ obligatoire est vide.",
+  "db_error.check": "Les valeurs saisies ne respectent pas une règle de données.",
+  "db_error.technical_detail": "Détail"
 }

@@ -1,4 +1,4 @@
-unit ufrmSysGridFilter;
+﻿unit ufrmSysGridFilter;
 
 interface
 
@@ -61,7 +61,7 @@ implementation
 {$R *.dfm}
 
 uses
-  ufrmSysViewTables;
+  ufrmSysViewTables, Db.ErrorTranslator;
 
 procedure TfrmSysGridFilter.FormCreate(Sender: TObject);
 begin
@@ -260,7 +260,7 @@ begin
   except
     on E: Exception do
     begin
-      ShowMessage('Error: ' + E.Message);
+      ShowMessage(TDbErrorTranslator.FriendlyMessage(E));
       Exit;
     end;
   end;

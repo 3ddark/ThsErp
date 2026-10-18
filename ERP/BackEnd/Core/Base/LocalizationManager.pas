@@ -2622,6 +2622,17 @@ type
         const MsgSchemaInvalid = 'einv_document.einv_document.msg_schema_invalid';
         const MsgValidatorError = 'einv_document.einv_document.msg_validator_error';
       end;
+
+      //PostgreSQL constraint errors (Db.ErrorTranslator)
+      TDbError = record
+        const Title = 'db_error.title';
+        const FkInUse = 'db_error.fk_in_use';
+        const FkMissing = 'db_error.fk_missing';
+        const Unique = 'db_error.unique';
+        const NotNull = 'db_error.not_null';
+        const Check = 'db_error.check';
+        const TechnicalDetail = 'db_error.technical_detail';
+      end;
   end;
 
   TLocalizationManager = class

@@ -256,6 +256,7 @@
         <DCCReference Include="BackEnd\Core\UserContext.pas"/>
         <DCCReference Include="BackEnd\Core\Ths.Language.Cache.pas"/>
         <DCCReference Include="BackEnd\Core\Core.Exception.pas"/>
+        <DCCReference Include="BackEnd\Core\Db.ErrorTranslator.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmGridBase.pas"/>
         <DCCReference Include="Forms\Core\Base\Grid\Grid.Types.pas"/>
         <DCCReference Include="Forms\Core\Base\Grid\Grid.Sql.pas"/>

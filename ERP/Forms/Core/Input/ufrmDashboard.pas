@@ -501,6 +501,7 @@ type
     procedure AuditTimerTimer(Sender: TObject);
     procedure FlushAudit;
     procedure AppShortCut(var Msg: TWMKey; var Handled: Boolean);
+    procedure AppException(Sender: TObject; E: Exception);
     procedure ShowCommandPalette;
     procedure LoadNavState;
     procedure SaveNavState;
@@ -546,7 +547,8 @@ implementation
 {$R *.dfm}
 
 uses
-  ufrmAbout, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Constants, Ths.Globals;
+  ufrmAbout, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Constants, Ths.Globals, Ths.DialogHelper,
+  Db.ErrorTranslator;
 
 procedure TfrmDashboard.actsys_aboutExecute(Sender: TObject);
 begin
@@ -1792,6 +1794,8 @@ begin
   // Ctrl+K her ekrandan (komut paleti)
   FAppEvents := TApplicationEvents.Create(Self);
   FAppEvents.OnShortCut := AppShortCut;
+  // yakalanmayan hatalar: PostgreSQL constraint hataları anlaşılır mesaja çevrilir
+  FAppEvents.OnException := AppException;
 
   FAuditTimer := TTimer.Create(Self);
   FAuditTimer.Interval := 60 * 1000;
@@ -2061,6 +2065,24 @@ end;
 
 // Ctrl+K: ana ekrandayken sol menünün araması (menü gizliyse palet), başka bir ekrandayken komut paleti.
 // Modal pencere (seçim listesi, mesaj, paletin kendisi) açıkken kullanılmaz.
+procedure TfrmDashboard.AppException(Sender: TObject; E: Exception);
+var
+  LMsg: string;
+begin
+  if E is EAbort then
+    Exit;
+  LMsg := TDbErrorTranslator.Translate(E);
+  if LMsg = '' then
+  begin
+    Application.ShowException(E);
+    Exit;
+  end;
+  GLogger.ErrorFmt('%s: %s', [E.ClassName, E.Message]);
+  TThsDialogHelper.CustomMsgDlg(LMsg, mtError, [mbOK],
+    [TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'Ok')], mbOK,
+    TLocalizationManager.Translate(TLangKeys.TDbError.Title, 'Database Rule'));
+end;
+
 procedure TfrmDashboard.AppShortCut(var Msg: TWMKey; var Handled: Boolean);
 begin
   if (Msg.CharCode <> Ord('K')) or (GetKeyState(VK_CONTROL) >= 0) or (GetKeyState(VK_SHIFT) < 0)

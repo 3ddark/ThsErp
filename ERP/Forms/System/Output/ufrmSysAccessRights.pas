@@ -31,7 +31,7 @@ type
 implementation
 
 uses
-  ufrmSysUsers, SysUser, SysUser.Service, Vcl.DBGrids;
+  ufrmSysUsers, SysUser, SysUser.Service, Vcl.DBGrids, Db.ErrorTranslator;
 
 {$R *.dfm}
 
@@ -134,7 +134,7 @@ begin
       RefreshData();
     except
       on E: Exception do
-        ShowMessage(TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgCopyError, 'An error occurred: ') + E.Message);
+        ShowMessage(TLocalizationManager.Translate(TLangKeys.TSysAccessRight.MsgCopyError, 'An error occurred: ') + TDbErrorTranslator.FriendlyMessage(E));
     end;
   end;
 end;

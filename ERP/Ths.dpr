@@ -77,6 +77,7 @@ uses
   UserContext in 'BackEnd\Core\UserContext.pas',
   Ths.Language.Cache in 'BackEnd\Core\Ths.Language.Cache.pas',
   Core.Exception in 'BackEnd\Core\Core.Exception.pas',
+  Db.ErrorTranslator in 'BackEnd\Core\Db.ErrorTranslator.pas',
   ufrmGridBase in 'Forms\Core\Base\ufrmGridBase.pas',
   Grid.Types in 'Forms\Core\Base\Grid\Grid.Types.pas',
   Grid.Sql in 'Forms\Core\Base\Grid\Grid.Sql.pas',

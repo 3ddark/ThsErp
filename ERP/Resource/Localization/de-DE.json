@@ -2383,5 +2383,12 @@
   "sls_invoice.menu_einv_validation": "E-Beleg-Prüfergebnis",
   "sls_invoice.msg_einv_no_document": "Diese Rechnung hat kein E-Beleg-XML (Papierrechnung oder ohne Szenario gespeichert).",
   "sls_invoice.msg_einv_valid": "Das E-Beleg-XML ist konform zum UBL-TR-Schema.",
-  "sls_invoice.msg_einv_invalid": "Das E-Beleg-XML hat Fehler und würde abgelehnt:"
+  "sls_invoice.msg_einv_invalid": "Das E-Beleg-XML hat Fehler und würde abgelehnt:",
+  "db_error.title": "Datenregel",
+  "db_error.fk_in_use": "Dieser Datensatz wird von anderen Datensätzen verwendet und kann daher nicht gelöscht oder geändert werden.",
+  "db_error.fk_missing": "Der verknüpfte Datensatz wurde nicht gefunden. Möglicherweise hat ihn ein anderer Benutzer gelöscht.",
+  "db_error.unique": "Dieser Wert ist bereits vorhanden und kann nicht erneut hinzugefügt werden.",
+  "db_error.not_null": "Ein Pflichtfeld ist leer.",
+  "db_error.check": "Die eingegebenen Werte verletzen eine Datenregel.",
+  "db_error.technical_detail": "Detail"
 }
