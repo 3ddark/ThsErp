@@ -2339,5 +2339,6 @@
   "db_error.unique": "Bu değer zaten kayıtlı, tekrar eklenemez.",
   "db_error.not_null": "Zorunlu bir alan boş.",
   "db_error.check": "Girilen değerler bir veri kuralına uymuyor.",
-  "db_error.technical_detail": "Ayrıntı"
+  "db_error.technical_detail": "Ayrıntı",
+  "emp_transportation.col_route_description": "Güzergah / Duraklar"
 }

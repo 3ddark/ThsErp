@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict u3o1iwcLZQ8cZWsRzYsrcdLnkOd0v9f0ePmQuP2ZnQsuUPaCI040zhhkwg6jfuU
+\restrict Wuxo1ecAehUHvFqUaxzN6soc0TeWiN7XlZ6xgKNwF46f1UIutIFEacuKQOOohGA
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -2082,7 +2082,7 @@ CREATE TABLE public.emp_transportation (
     id bigint CONSTRAINT prs_set_trans_id_nn NOT NULL,
     car_no smallint CONSTRAINT prs_set_trans_cno_nn NOT NULL,
     car_name character varying(32) CONSTRAINT prs_set_trans_cname_nn NOT NULL,
-    route double precision[]
+    route_description character varying(512)
 );
 
 
@@ -6195,7 +6195,8 @@ ALTER VIEW public.vw_emp_task OWNER TO ths_admin;
 CREATE VIEW public.vw_emp_transportation AS
  SELECT id,
     car_no,
-    car_name
+    car_name,
+    route_description
    FROM public.emp_transportation;
 
 
@@ -8860,6 +8861,22 @@ ALTER TABLE ONLY public.emp_task_translation
 
 
 --
+-- Name: emp_transportation emp_transportation_car_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.emp_transportation
+    ADD CONSTRAINT emp_transportation_car_no_key UNIQUE (car_no);
+
+
+--
+-- Name: emp_transportation emp_transportation_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.emp_transportation
+    ADD CONSTRAINT emp_transportation_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: emp_unit_translation emp_unit_translation_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -9305,22 +9322,6 @@ ALTER TABLE ONLY public.emp_section
 
 ALTER TABLE ONLY public.emp_task
     ADD CONSTRAINT prs_set_task_pkey PRIMARY KEY (id);
-
-
---
--- Name: emp_transportation prs_set_trans_car_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.emp_transportation
-    ADD CONSTRAINT prs_set_trans_car_key UNIQUE (car_no);
-
-
---
--- Name: emp_transportation prs_set_trans_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.emp_transportation
-    ADD CONSTRAINT prs_set_trans_pkey PRIMARY KEY (id);
 
 
 --
@@ -13890,5 +13891,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict u3o1iwcLZQ8cZWsRzYsrcdLnkOd0v9f0ePmQuP2ZnQsuUPaCI040zhhkwg6jfuU
+\unrestrict Wuxo1ecAehUHvFqUaxzN6soc0TeWiN7XlZ6xgKNwF46f1UIutIFEacuKQOOohGA
 

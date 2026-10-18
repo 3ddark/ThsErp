@@ -889,7 +889,11 @@ Ortak belge tabanı + sipariş (2026-10-16, kullanıcı: "ortak belge olsun"):
   eklendi; car-traking en/tr yazım hatası düzeltildi. Tüm *_translation tablolarında eksik dil satırı kalmadı.
   sys_country id 332 'ÇA' "Çanzania" (test çöpü, referanssız) kullanıcı onayıyla silindi (250 ülke).
   Test: entegrasyon 1894 / 0; UI System 372, Account 248, Stock 155 pass / 0 fail.
-- emp_transportation.route UI dışında
+- 2026-10-18 (kullanıcı kararı): emp_transportation.route (double precision[], kullanılmıyordu) kaldırıldı, yerine
+  route_description varchar(512) (güzergah / duraklar, serbest metin): view + sys_grid_column + kullanıcı kolon satırı,
+  domain / repository / form (mmoRouteDescription) / liste başlığı, anahtar emp_transportation.col_route_description (4 dil).
+  Constraint adları prs_set_trans_* -> emp_transportation_pkey / _car_no_key. Yedek scratchpad ths_erp_before_emp_route.dump.
+  Test: entegrasyon 1902 / 0, UI Employee 200 / 0.
 - 2026-10-18: sys_city.sys_country_id NOT NULL; ülke / bölge FK'leri ON UPDATE CASCADE ON DELETE RESTRICT (ON UPDATE SET NULL
   idi) + sys_city_sys_region_id_idx (yedek scratchpad ths_erp_before_sys_city_fk.dump). ufrmSysUomGroup DFM adı zaten
   doğruydu (tüm DFM nesne adları sınıf adlarıyla eşleşiyor). Dashboard: hiçbir action'a bağlı olmayan 16 boş handler +

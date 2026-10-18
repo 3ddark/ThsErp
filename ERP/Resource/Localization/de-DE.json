@@ -2390,5 +2390,6 @@
   "db_error.unique": "Dieser Wert ist bereits vorhanden und kann nicht erneut hinzugefügt werden.",
   "db_error.not_null": "Ein Pflichtfeld ist leer.",
   "db_error.check": "Die eingegebenen Werte verletzen eine Datenregel.",
-  "db_error.technical_detail": "Detail"
+  "db_error.technical_detail": "Detail",
+  "emp_transportation.col_route_description": "Route / Haltestellen"
 }

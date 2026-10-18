@@ -1033,6 +1033,7 @@ type
         const TitleSingular = 'emp_transportation.title_singular';
         const ColCarNo = 'emp_transportation.col_car_no';
         const ColCarName = 'emp_transportation.col_car_name';
+        const ColRouteDescription = 'emp_transportation.col_route_description';
         const CarNoUnique = 'emp_transportation.car_no_unique';
       end;
 

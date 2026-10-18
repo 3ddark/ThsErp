@@ -2390,5 +2390,6 @@
   "db_error.unique": "Cette valeur existe déjà et ne peut pas être ajoutée à nouveau.",
   "db_error.not_null": "Un champ obligatoire est vide.",
   "db_error.check": "Les valeurs saisies ne respectent pas une règle de données.",
-  "db_error.technical_detail": "Détail"
+  "db_error.technical_detail": "Détail",
+  "emp_transportation.col_route_description": "Itinéraire / Arrêts"
 }

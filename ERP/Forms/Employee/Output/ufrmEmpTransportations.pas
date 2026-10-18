@@ -72,6 +72,7 @@ begin
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TEmpTransportation.TitlePlural, 'Shuttle Services');
   SetColumnTitle('car_no', TLocalizationManager.Translate(TLangKeys.TEmpTransportation.ColCarNo, 'Car No'));
   SetColumnTitle('car_name', TLocalizationManager.Translate(TLangKeys.TEmpTransportation.ColCarName, 'Car Name'));
+  SetColumnTitle('route_description', TLocalizationManager.Translate(TLangKeys.TEmpTransportation.ColRouteDescription, 'Route / Stops'));
 end;
 
 end.

@@ -2390,5 +2390,6 @@
   "db_error.unique": "This value already exists and cannot be added again.",
   "db_error.not_null": "A required field is empty.",
   "db_error.check": "The entered values do not satisfy a data rule.",
-  "db_error.technical_detail": "Detail"
+  "db_error.technical_detail": "Detail",
+  "emp_transportation.col_route_description": "Route / Stops"
 }

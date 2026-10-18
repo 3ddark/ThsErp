@@ -2,7 +2,7 @@ object frmEmpTransportation: TfrmEmpTransportation
   Left = 0
   Top = 0
   Caption = 'Shuttle Service'
-  ClientHeight = 116
+  ClientHeight = 204
   ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,7 +16,7 @@ object frmEmpTransportation: TfrmEmpTransportation
     Left = 0
     Top = 0
     Width = 480
-    Height = 116
+    Height = 204
     Align = alClient
     TabOrder = 0
     object lblCarNo: TLabel
@@ -63,6 +63,24 @@ object frmEmpTransportation: TfrmEmpTransportation
       Height = 22
       MaxLength = 32
       TabOrder = 1
+    end
+    object lblRouteDescription: TLabel
+      Left = 4
+      Top = 52
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Route / Stops'
+    end
+    object mmoRouteDescription: TMemo
+      Left = 132
+      Top = 48
+      Width = 333
+      Height = 88
+      MaxLength = 512
+      ScrollBars = ssVertical
+      TabOrder = 2
     end
   end
 end

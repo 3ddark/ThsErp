@@ -49,14 +49,14 @@ end;
 function TEmpTransportationRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TEmpTransportation) +
-            ' (car_no, car_name) ' +
-            ' VALUES (:car_no, :car_name)';
+            ' (car_no, car_name, route_description) ' +
+            ' VALUES (:car_no, :car_name, :route_description)';
 end;
 
 function TEmpTransportationRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TEmpTransportation) +
-            ' SET car_no = :car_no, car_name = :car_name ' +
+            ' SET car_no = :car_no, car_name = :car_name, route_description = :route_description ' +
             ' WHERE id = :id';
 end;
 
@@ -72,11 +72,13 @@ begin
   begin
     Q.ParamByName('car_no').AsSmallInt := AModel.CarNo;
     Q.ParamByName('car_name').AsWideString := AModel.CarName;
+    Q.ParamByName('route_description').AsWideString := AModel.RouteDescription;
   end
   else
   begin
     Q.ParamByName('car_no').AsSmallInts[AIndex] := AModel.CarNo;
     Q.ParamByName('car_name').AsWideStrings[AIndex] := AModel.CarName;
+    Q.ParamByName('route_description').AsWideStrings[AIndex] := AModel.RouteDescription;
   end;
 end;
 
@@ -87,12 +89,14 @@ begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('car_no').AsSmallInt := AModel.CarNo;
     Q.ParamByName('car_name').AsWideString := AModel.CarName;
+    Q.ParamByName('route_description').AsWideString := AModel.RouteDescription;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
     Q.ParamByName('car_no').AsSmallInts[AIndex] := AModel.CarNo;
     Q.ParamByName('car_name').AsWideStrings[AIndex] := AModel.CarName;
+    Q.ParamByName('route_description').AsWideStrings[AIndex] := AModel.RouteDescription;
   end;
 end;
 
@@ -102,6 +106,7 @@ begin
   Result.Id := Q.FieldByName('id').AsLargeInt;
   Result.CarNo := Q.FieldByName('car_no').AsInteger;
   Result.CarName := Q.FieldByName('car_name').AsString;
+  Result.RouteDescription := Q.FieldByName('route_description').AsString;
 end;
 
 function TEmpTransportationRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

@@ -13,6 +13,7 @@ type
   private
     FCarNo: SmallInt;
     FCarName: string;
+    FRouteDescription: string;
   public
     [Column('car_no')]
     property CarNo: SmallInt read FCarNo write FCarNo;
@@ -20,6 +21,10 @@ type
     [Column('car_name')]
     [MaxLength(32), Required(TLangKeys.TValidation.Required, True)]
     property CarName: string read FCarName write FCarName;
+
+    // güzergah / duraklar (serbest metin)
+    [Column('route_description'), MaxLength(512)]
+    property RouteDescription: string read FRouteDescription write FRouteDescription;
 
     constructor Create(); override;
     destructor Destroy; override;
@@ -45,6 +50,7 @@ begin
   Result.Id := Self.Id;
   Result.CarNo := Self.CarNo;
   Result.CarName := Self.CarName;
+  Result.RouteDescription := Self.RouteDescription;
 end;
 
 end.

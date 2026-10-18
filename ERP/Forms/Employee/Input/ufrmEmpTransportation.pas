@@ -19,6 +19,8 @@ type
     edtCarNo: TEdit;
     lblCarName: TLabel;
     edtCarName: TEdit;
+    lblRouteDescription: TLabel;
+    mmoRouteDescription: TMemo;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -35,6 +37,7 @@ procedure TfrmEmpTransportation.BtnAcceptClick(Sender: TObject);
 begin
   Table.CarNo := StrToIntDef(edtCarNo.Text, 0);
   Table.CarName := edtCarName.Text;
+  Table.RouteDescription := mmoRouteDescription.Text;
   inherited;
 end;
 
@@ -59,6 +62,7 @@ begin
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TEmpTransportation.TitleSingular, 'Shuttle Service');
   lblCarNo.Caption := TLocalizationManager.Translate(TLangKeys.TEmpTransportation.ColCarNo, 'Car No');
   lblCarName.Caption := TLocalizationManager.Translate(TLangKeys.TEmpTransportation.ColCarName, 'Car Name');
+  lblRouteDescription.Caption := TLocalizationManager.Translate(TLangKeys.TEmpTransportation.ColRouteDescription, 'Route / Stops');
 end;
 
 procedure TfrmEmpTransportation.RefreshData;
@@ -66,6 +70,7 @@ begin
   inherited;
   edtCarNo.Text := IntToStr(Table.CarNo);
   edtCarName.Text := Table.CarName;
+  mmoRouteDescription.Text := Table.RouteDescription;
 end;
 
 end.
