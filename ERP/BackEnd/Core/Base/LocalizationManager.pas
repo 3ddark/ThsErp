@@ -77,6 +77,12 @@ type
         const TabLines = 'detail_form.tab_lines';
       end;
 
+      // Belge adresi düzenleyici (Detail.Address)
+      TDocumentAddress = record
+        const BtnFromAccount = 'document_address.btn_from_account';
+        const BtnClear = 'document_address.btn_clear';
+      end;
+
       TUnitOfWork = record
         const NotInitialized = 'unitofwork.not_initialized';
         const ConstructorNotFound = 'unitofwork.constructor_not_found';
@@ -838,6 +844,14 @@ type
         const ColRateDate = 'acc_exchange_rate.col_rate_date';
         const ColCurrency = 'acc_exchange_rate.col_currency';
         const ColRate = 'acc_exchange_rate.col_rate';
+        const ColForexBuying = 'acc_exchange_rate.col_forex_buying';
+        const ColForexSelling = 'acc_exchange_rate.col_forex_selling';
+        const ColBanknoteBuying = 'acc_exchange_rate.col_banknote_buying';
+        const ColBanknoteSelling = 'acc_exchange_rate.col_banknote_selling';
+        const ColSource = 'acc_exchange_rate.col_source';
+        const MenuTcmb = 'acc_exchange_rate.popup.tcmb';
+        const TcmbImported = 'acc_exchange_rate.msg.tcmb_imported';
+        const TcmbFailed = 'acc_exchange_rate.msg.tcmb_failed';
         const RateDateCurrencyUnique = 'acc_exchange_rate.rate_date_currency_unique';
       end;
 
@@ -2070,6 +2084,13 @@ type
         const ColAccountName = 'sls_offer.col_account_name';
         const ColEmployeeName = 'sls_offer.col_employee_name';
         const ColLineCount = 'sls_offer.col_line_count';
+        const ColBillingAddress = 'sls_offer.col_billing_address';
+        const ColShippingAddress = 'sls_offer.col_shipping_address';
+        const ColBaseCurrency = 'sls_offer.col_base_currency';
+        const ColUsdRate = 'sls_offer.col_usd_rate';
+        const ColEurRate = 'sls_offer.col_eur_rate';
+        const ColTotalAmountBase = 'sls_offer.col_total_amount_base';
+        const PageAddresses = 'sls_offer.page_addresses';
         const MenuLines = 'sls_offer.popup.lines';
         const MenuSend = 'sls_offer.popup.send';
         const MenuToDraft = 'sls_offer.popup.to_draft';
@@ -2087,6 +2108,9 @@ type
         const ValidUntil = 'sls_offer.valid_until';
         const PaymentTerm = 'sls_offer.payment_term';
         const InvalidStatus = 'sls_offer.invalid_status';
+        const AddressAccount = 'sls_offer.address_account';
+        const AddressCity = 'sls_offer.address_city';
+        const NoExchangeRate = 'sls_offer.no_exchange_rate';
       end;
 
       TSlsOfferDetail = record

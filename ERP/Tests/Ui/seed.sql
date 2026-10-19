@@ -95,7 +95,8 @@ INSERT INTO pur_invoice_detail (pur_invoice_id, line_no, stk_inventory_id, quant
 SELECT (SELECT max(id) FROM pur_invoice), 1, stk_inventory_id, 5, 3, 15, 15, 15, id FROM pur_receipt_detail;
 
 -- satış: taslak teklif, taslak sipariş, kısmi sevkli sipariş + irsaliye (stok çıkışı) + irsaliyeden fatura, irsaliyeli fatura
-INSERT INTO sls_offer (offer_no, acc_account_id, status) SELECT 'ST900001', min(id), 1 FROM acc_account;
+INSERT INTO sls_offer (offer_no, acc_account_id, status, usd_rate, eur_rate)
+SELECT 'ST900001', min(id), 1, fn_exchange_rate('USD', CURRENT_DATE), fn_exchange_rate('EUR', CURRENT_DATE) FROM acc_account;
 INSERT INTO sls_offer_detail (sls_offer_id, line_no, stk_inventory_id, quantity, unit_price, discount_rate, vat_rate, gross_amount, discount_amount, net_amount, vat_amount, total_amount)
 SELECT (SELECT id FROM sls_offer WHERE offer_no = 'ST900001'), 1, min(id), 10, 2.5, 10, 20, 25, 2.5, 22.5, 4.5, 27 FROM stk_inventory;
 INSERT INTO sls_order (order_no, acc_account_id, stk_warehouse_id, status) SELECT 'SS900001', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 1;

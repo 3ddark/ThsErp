@@ -7,6 +7,10 @@ interface
 uses
   System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
+const
+  ACC_ADDRESS_BILLING = 'BILLING';
+  ACC_ADDRESS_SHIPPING = 'SHIPPING';
+
 type
   [Table('acc_account_address')]
   TAccAccountAddress = class(TEntity)

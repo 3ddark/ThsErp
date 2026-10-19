@@ -5,7 +5,8 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager, SlsOfferDetail;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager, SlsOfferDetail,
+  SysAddress;
 
 type
   [Table('sls_offer')]
@@ -30,11 +31,24 @@ type
     FVatAmount: Currency;
     FTotalAmount: Currency;
     FDescription: string;
+    FBillingAddressId: Int64;
+    FBillingSysAddressId: Int64;
+    FShippingAddressId: Int64;
+    FShippingSysAddressId: Int64;
+    FBaseCurrency: string;
+    FUsdRate: Currency;
+    FEurRate: Currency;
+    // belgeye ait ayrıntılı adresler (sahiplenir; boş = adres yok)
+    FBillingAddress: TSysAddress;
+    FShippingAddress: TSysAddress;
 
     // View (vw_sls_offer) okunabilir alanları
     FAccountCode: string;
     FAccountName: string;
     FEmployeeName: string;
+    FBillingAddressText: string;
+    FShippingAddressText: string;
+    FTotalAmountBase: Currency;
   public
     [Column('offer_no')]
     [MaxLength(16)]
@@ -90,6 +104,32 @@ type
     [MaxLength(256)]
     property Description: string read FDescription write FDescription;
 
+    // Belge adresi: kaynak cari adresi (acc_account_address) + belgeye ait ayrıntılı kopya (sys_address; cari adresi
+    // sonradan değişse de belge değişmez, belgede düzenlenebilir). Teslimat boşsa fatura adresi geçerlidir.
+    [Column('billing_address_id')]
+    property BillingAddressId: Int64 read FBillingAddressId write FBillingAddressId;
+
+    [Column('billing_sys_address_id')]
+    property BillingSysAddressId: Int64 read FBillingSysAddressId write FBillingSysAddressId;
+
+    [Column('shipping_address_id')]
+    property ShippingAddressId: Int64 read FShippingAddressId write FShippingAddressId;
+
+    [Column('shipping_sys_address_id')]
+    property ShippingSysAddressId: Int64 read FShippingSysAddressId write FShippingSysAddressId;
+
+    // Ana para (muhasebe para birimi, kayıtta servis yazar); ExchangeRate: 1 belge parası = ? ana para
+    [Column('base_currency')]
+    [MaxLength(3)]
+    property BaseCurrency: string read FBaseCurrency write FBaseCurrency;
+
+    // Rapor kurları (teklif tarihi): 1 USD / 1 EUR = ? ana para
+    [Column('usd_rate')]
+    property UsdRate: Currency read FUsdRate write FUsdRate;
+
+    [Column('eur_rate')]
+    property EurRate: Currency read FEurRate write FEurRate;
+
     [NotMapped]
     property AccountCode: string read FAccountCode write FAccountCode;
 
@@ -98,6 +138,19 @@ type
 
     [NotMapped]
     property EmployeeName: string read FEmployeeName write FEmployeeName;
+
+    [NotMapped]
+    property BillingAddressText: string read FBillingAddressText write FBillingAddressText;
+
+    [NotMapped]
+    property ShippingAddressText: string read FShippingAddressText write FShippingAddressText;
+
+    [NotMapped]
+    property TotalAmountBase: Currency read FTotalAmountBase write FTotalAmountBase;
+
+    // Kolon değil (nesne özelliği): servis yükler (BusinessFindById) ve teklifle birlikte yazar
+    property BillingAddress: TSysAddress read FBillingAddress;
+    property ShippingAddress: TSysAddress read FShippingAddress;
 
     // Kolon değil (nesne özelliği): BusinessFindById ile dolar, BusinessSaveWithDetails ile yazılır
     property Lines: TObjectList<TSlsOfferDetail> read FLines;
@@ -137,13 +190,18 @@ constructor TSlsOffer.Create;
 begin
   inherited;
   FLines := TObjectList<TSlsOfferDetail>.Create(True);
+  FBillingAddress := TSysAddress.Create;
+  FShippingAddress := TSysAddress.Create;
   FOfferDate := Date;
   FStatus := 1;
-  FExchangeRate := 1;
+  // 0 = kur girilmedi: servis teklif tarihinin kurunu yazar
+  FExchangeRate := 0;
 end;
 
 destructor TSlsOffer.Destroy;
 begin
+  FShippingAddress.Free;
+  FBillingAddress.Free;
   FLines.Free;
   inherited;
 end;
@@ -171,6 +229,20 @@ begin
   Result.VatAmount := Self.VatAmount;
   Result.TotalAmount := Self.TotalAmount;
   Result.Description := Self.Description;
+  Result.BillingAddressId := Self.BillingAddressId;
+  Result.BillingSysAddressId := Self.BillingSysAddressId;
+  Result.ShippingAddressId := Self.ShippingAddressId;
+  Result.ShippingSysAddressId := Self.ShippingSysAddressId;
+  Result.BaseCurrency := Self.BaseCurrency;
+  Result.UsdRate := Self.UsdRate;
+  Result.EurRate := Self.EurRate;
+  Result.BillingAddressText := Self.BillingAddressText;
+  Result.ShippingAddressText := Self.ShippingAddressText;
+  Result.TotalAmountBase := Self.TotalAmountBase;
+  Result.FBillingAddress.Free;
+  Result.FBillingAddress := Self.FBillingAddress.Clone;
+  Result.FShippingAddress.Free;
+  Result.FShippingAddress := Self.FShippingAddress.Clone;
   Result.AccountCode := Self.AccountCode;
   Result.AccountName := Self.AccountName;
   Result.EmployeeName := Self.EmployeeName;

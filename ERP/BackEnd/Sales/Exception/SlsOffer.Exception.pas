@@ -38,6 +38,11 @@ type
     class function GetMessage: string; override;
   end;
 
+  ESlsOfferExceptionAddressAccount = class(ESlsOfferException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
 implementation
 
 class function ESlsOfferExceptionNoUnique.GetMessage: string;
@@ -68,6 +73,11 @@ end;
 class function ESlsOfferExceptionPaymentTerm.GetMessage: string;
 begin
   Result := TLocalizationManager.Translate(TLangKeys.TSlsOffer.PaymentTerm, 'Payment term must be between 0 and 365 days.');
+end;
+
+class function ESlsOfferExceptionAddressAccount.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsOffer.AddressAccount, 'The selected address does not belong to the offer''s customer.');
 end;
 
 end.

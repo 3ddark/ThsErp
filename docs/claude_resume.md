@@ -902,7 +902,44 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
 - Test: entegrasyon 1985 / 0 (TestApiServices). Elle UI denenmedi (parola / anahtar alanları, butonlar).
 - Not: sistemde tanımlı e-İrsaliye serisi yok; e-Belge Ayarları'nda e-İrsaliye satırına seri seçilmeli.
 
+## Belge adresi + döviz kurları (2026-10-19, kullanıcı kararları; önce teklifte örnek)
+- Kararlar: belgeye ait ayrıntılı adres = belgenin kendi sys_address kopyası (cari adresinden kopyalanır, belgede
+  düzenlenir, cari adresi etkilenmez); fatura + teslimat (teslimat boş = fatura); TCMB döviz alış kuru belge varsayılanı;
+  sys_currency 'TL' -> 'TRY', ana para (app_currency) TRY; teklifte sabit usd_rate / eur_rate kolonları.
+- DB (yedek scratchpad ths_erp_before_rates_address.dump, DDL rates_address_ddl.sql; dump'lar yenilendi):
+  acc_exchange_rate rate (= döviz alış) numeric(18,6) + forex_selling / banknote_buying / banknote_selling + source
+  (MANUAL / TCMB); fn_exchange_rate(currency, date) = o güne kadarki son kur, ana para bazlı (çapraz kur);
+  sls_offer: billing/shipping_sys_address_id (UNIQUE, FK sys_address RESTRICT), billing/shipping_address_id (kaynak cari
+  adresi), base_currency, usd_rate, eur_rate; text kolonları kaldırıldı. vw_sls_offer: tek satır adres metni
+  (fn_sys_address_text), total_amount_base.
+- TCMB: BackEnd/Tools/Tcmb.ExchangeRates (THTTPClient + OmniXML, COM yok). Açılışta (dashboard FormShow) günün kuru
+  yoksa arka planda indirilir, ana thread'de yazılır (açık transaction varsa atlanır, yalnız log). Bülten cumaysa
+  cumartesi + pazar satırları da yazılır; MANUAL satırlar ezilmez. Döviz kurları listesinde "TCMB'den Güncelle".
+- Teklif servisi: belge adresleri DocumentService.BeforeHeaderSaved'de yazılır (yeni / güncelle / boşsa silinir),
+  AfterSaveFailed id'leri geri alır; yalnız başlık güncellemesi adrese dokunmaz; kopya kendi adresini alır; silmede adres
+  silinir. Kur: belge parası = ana para -> 1, boşsa teklif tarihinin kuru (yoksa hata); USD / EUR yalnız yeni kayıtta.
+  Form: "Adresler" sekmesi (Forms/Core/Base/Detail/Detail.Address.TDocumentAddressEditor: Cari Adresinden Al / Temizle,
+  şehir seçimi, ülke şehirden), sağ kolonda USD / EUR kuru, etiketlerde ana para.
+- Test: entegrasyon specific 550 / 0 (+31 adım, canlı TCMB dahil), generic 1150 / 0; UI Sales 93 / 0, Account 250 / 0,
+  System 382 / 0. Purchasing testi Inv3 seçimi ana para TRY olunca Inv1 ile çakışıyordu (test düzeltildi); UI seed
+  teklifine usd/eur kuru eklendi.
+- Sıradaki: aynı desen sls_order / sls_dispatch / sls_invoice (+ pur_*); tekliften sipariş adres + kurları taşımalı;
+  e-belge (EInvDocument.Repository.ReadAccountParty) belgenin sys_address'ini kullanmalı. Yeni ekranlar elle denenmedi.
+
 ## Kalan
+- **Belge adresi + kur deseni (2026-10-19, sıradaki iş — tekliften sonra):**
+  1. sls_order: billing/shipping_sys_address_id (UNIQUE, FK sys_address RESTRICT) + billing/shipping_address_id (kaynak
+     cari adresi) + base_currency + usd_rate + eur_rate; vw_sls_order + sys_grid_column; servis teklifteki gibi
+     (BeforeHeaderSaved / AfterSaveFailed / LoadAddresses / CheckRates); form "Adresler" sekmesi (TDocumentAddressEditor).
+  2. CreateFromOffer: teklifin adreslerini (yeni sys_address kopyası) ve kurlarını siparişe taşı; siparişten irsaliye /
+     faturaya da aynı şekilde.
+  3. sls_dispatch, sls_invoice; sonra pur_offer / pur_order / pur_receipt / pur_invoice.
+  4. e-Belge: EInvDocument.Repository.ReadAccountParty belgenin billing/shipping_sys_address_id'sini kullanmalı
+     (yoksa cari adresi); irsaliyede teslimat adresi.
+  5. Ortak kod: adres kaydetme / yükleme teklif servisinde; ikinci belgede ortak yardımcıya (ör. DocumentAddress
+     birimi) taşınmalı.
+  6. Elle denenmedi: teklif "Adresler" sekmesi, USD / EUR kur alanları, Döviz Kurları "TCMB'den Güncelle",
+     açılışta otomatik TCMB çekişi (log: "TCMB kurları alındı").
 - Uygulamayı açıp elle test (UI akışları derlendi, çalıştırılarak denenmedi): özellikle sekmeli stok kartı, karta özel hesaplar, reçete ekranları.
 - Muhasebe fişi kesimi (voucher) vw_stk_inventory_account üzerinden hesap almalı; reçete maliyet hesabı (hammadde ort. maliyet + işçilik) ve üretim emri / stk_transaction.production_id bağlantısı henüz yok.
 - 2026-10-18 (DESKTOP-JF3LUBB, RAD Studio 37.0): legacy temizliği — Ths.exe + IntegrationTest + UiTest'te derlenmeyen 116 unit

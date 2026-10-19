@@ -46,6 +46,11 @@ type
     // Tüm kalemler yazıldıktan sonra bir kez; AOldLines kaydın öncesindeki DB hâli (yeni belgede boş): etkilenen
     // eski + yeni kayıtlar (stok, bağlı belge) yeniden hesaplanır
     procedure AfterDocumentSaved(AHeader: TH; AOldLines: TObjectList<TL>); virtual;
+    // Başlık yazılmadan hemen önce (kurallar + toplamlar sonrası, aynı transaction): başlığın sahip olduğu bağlı
+    // kayıtlar (ör. belgeye ait adres) yazılır ve FK'leri başlığa konur
+    procedure BeforeHeaderSaved(AHeader: TH); virtual;
+    // Kayıt geri alındı: BeforeHeaderSaved'in bellekte verdiği id'ler geri alınır (yeniden denemede yeni kayıt olurlar)
+    procedure AfterSaveFailed(AHeader: TH); virtual;
     // Kopya ile yeni belge: başlığa özgü alanlar (no, durum …) ve kalemlerin bağlı alanları (taban: id'ler)
     procedure PrepareCopyHeader(AHeader: TH); virtual;
     procedure PrepareCopyLine(AHeader: TH; ALine: TL); virtual;
@@ -96,6 +101,16 @@ begin
 end;
 
 procedure TDocumentService<TH, TL>.AfterDocumentSaved(AHeader: TH; AOldLines: TObjectList<TL>);
+begin
+//
+end;
+
+procedure TDocumentService<TH, TL>.BeforeHeaderSaved(AHeader: TH);
+begin
+//
+end;
+
+procedure TDocumentService<TH, TL>.AfterSaveFailed(AHeader: TH);
 begin
 //
 end;
@@ -308,6 +323,7 @@ begin
       else
         ValidateAll(AEntity, coUpdate);
       RecalculateTotals(AEntity);
+      BeforeHeaderSaved(AEntity);
 
       if LIsNew then
         FHeaderRepo.Add(AEntity)
@@ -333,6 +349,7 @@ begin
       if Self.UoW.InTransaction then
         Self.UoW.Rollback;
       LLog.Revert;
+      AfterSaveFailed(AEntity);
       if LIsNew then
         AEntity.Id := 0;
       raise;

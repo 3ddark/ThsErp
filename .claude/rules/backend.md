@@ -160,7 +160,8 @@ document's old lines).
   `RecalculateLine`, `RecalculateTotals`, and optionally `InitLine` (view fields of a new line), `CheckLines(AHeader,
   ALines, AOldLines)` (line rules + amounts; `AOldLines` = DB state before the save: status locks, DB-maintained values
   such as delivered quantity), `AfterLineSaved` (line hook), `AfterDocumentSaved(AHeader, AOldLines)` (document hook,
-  old + new links), `PrepareCopyHeader` / `PrepareCopyLine`. Its own `BusinessFindById` / `FindById(…, True)` /
+  old + new links), `PrepareCopyHeader` / `PrepareCopyLine`. `BeforeHeaderSaved` (after rules + totals, before the header write: records the header owns, e.g.
+  document addresses) and `AfterSaveFailed` (undo in-memory ids of those records). Its own `BusinessFindById` / `FindById(…, True)` /
   `Find(…, True)` call `LoadLines`. Conversions (`CreateFromOffer` …) build the target document in memory with
   `NewLine` and save it with `BusinessSaveWithDetails` (one code path).
 - Status locks: header editable in more states than lines (sales order: header in draft / approved / partial, lines

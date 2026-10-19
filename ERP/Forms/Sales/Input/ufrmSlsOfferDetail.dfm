@@ -2,7 +2,7 @@ object frmSlsOfferDetail: TfrmSlsOfferDetail
   Left = 0
   Top = 0
   Caption = 'Sat'#305#351' Teklifi'
-  ClientHeight = 600
+  ClientHeight = 680
   ClientWidth = 811
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -277,6 +277,50 @@ object frmSlsOfferDetail: TfrmSlsOfferDetail
       Height = 22
       MaxLength = 256
       TabOrder = 15
+    end
+    object lblUsdRate: TLabel
+      Left = 408
+      Top = 167
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'UsdRate'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtUsdRate: TEdit
+      Left = 536
+      Top = 163
+      Width = 260
+      Height = 22
+      TabOrder = 16
+    end
+    object lblEurRate: TLabel
+      Left = 408
+      Top = 190
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'EurRate'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtEurRate: TEdit
+      Left = 536
+      Top = 186
+      Width = 260
+      Height = 22
+      TabOrder = 17
     end
   end
 end

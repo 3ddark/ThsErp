@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  AccExchangeRate.Repository, AccExchangeRate, AccExchangeRate.Exception;
+  AccExchangeRate.Repository, AccExchangeRate, AccExchangeRate.Exception, Tcmb.ExchangeRates;
 
 type
   TAccExchangeRateService = class(TCrudService<TAccExchangeRate>)
@@ -24,6 +24,16 @@ type
     destructor Destroy; override;
 
     procedure ValidateBusinessRules(AEntity: TAccExchangeRate; AOperation: TCrudOperation); override;
+
+    // Günün kuru yoksa (açılışta TCMB'den çekilmeli mi): hafta sonu cuma kuru zaten yazılmış olur
+    function NeedsTcmbUpdate(ADate: TDate): Boolean;
+    // TCMB bülteni kur tablosuna (kendi transaction'ı; açık transaction varsa ona katılır). Bülten günü cumaysa
+    // aynı kurlar cumartesi ve pazar için de yazılır. Yazılan satır sayısı.
+    function ImportTcmbBulletin(const ABulletin: TTcmbBulletin; APermissionControl: Boolean): Integer;
+    // TCMB'den indirip yazar (ADate = 0: son bülten); bülten tarihi döner
+    function UpdateFromTcmb(ADate: TDate; APermissionControl: Boolean; out ACount: Integer): TDate;
+    // 1 ACurrency = ? ana para, ADate gününe kadarki son döviz alış kuru (hafta sonu / tatil: önceki iş günü); yoksa 0
+    function GetRate(const ACurrency: string; ADate: TDate): Currency;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
@@ -57,6 +67,69 @@ end;
 destructor TAccExchangeRateService.Destroy;
 begin
   inherited;
+end;
+
+function TAccExchangeRateService.NeedsTcmbUpdate(ADate: TDate): Boolean;
+begin
+  Result := not TAccExchangeRateRepository(FRepo).HasRateOn(ADate);
+end;
+
+function TAccExchangeRateService.ImportTcmbBulletin(const ABulletin: TTcmbBulletin; APermissionControl: Boolean): Integer;
+var
+  LRepo: TAccExchangeRateRepository;
+  LRate: TTcmbRate;
+  LDates: TArray<TDate>;
+  LDate: TDate;
+  LStarted: Boolean;
+begin
+  Result := 0;
+  LStarted := False;
+  LRepo := TAccExchangeRateRepository(FRepo);
+  // cuma kuru cumartesi ve pazar için de geçerli
+  if DayOfWeek(ABulletin.BulletinDate) = 6 then
+    LDates := [ABulletin.BulletinDate, ABulletin.BulletinDate + 1, ABulletin.BulletinDate + 2]
+  else
+    LDates := [ABulletin.BulletinDate];
+  try
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
+    if not Self.UoW.InTransaction then
+    begin
+      Self.UoW.BeginTransaction;
+      LStarted := True;
+    end;
+    for LDate in LDates do
+      for LRate in ABulletin.Rates do
+        if LRepo.UpsertTcmb(LDate, LRate.Currency, LRate.ForexBuying, LRate.ForexSelling, LRate.BanknoteBuying,
+          LRate.BanknoteSelling) then
+          Inc(Result);
+    if LStarted and Self.UoW.InTransaction then
+      Self.UoW.Commit;
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
+  end;
+end;
+
+function TAccExchangeRateService.UpdateFromTcmb(ADate: TDate; APermissionControl: Boolean; out ACount: Integer): TDate;
+var
+  LBulletin: TTcmbBulletin;
+begin
+  Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
+  try
+    LBulletin := TTcmbClient.Fetch(ADate);
+  except
+    on E: Exception do
+      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.TcmbFailed,
+        'Central Bank rates could not be retrieved: %s'), [E.Message]));
+  end;
+  ACount := ImportTcmbBulletin(LBulletin, APermissionControl);
+  Result := LBulletin.BulletinDate;
+end;
+
+function TAccExchangeRateService.GetRate(const ACurrency: string; ADate: TDate): Currency;
+begin
+  Result := TAccExchangeRateRepository(FRepo).GetRate(ACurrency, ADate);
 end;
 
 procedure TAccExchangeRateService.ValidateRequiredReferences(AEntity: TAccExchangeRate);
@@ -108,6 +181,11 @@ begin
     if AEntity.Rate <= 0 then
       raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.ColRate, 'Rate') + ': ' +
         TLocalizationManager.Translate(TLangKeys.TValidation.NegativeValueNotAllowed, 'Negative values are not allowed'));
+    if (AEntity.ForexSelling < 0) or (AEntity.BanknoteBuying < 0) or (AEntity.BanknoteSelling < 0) then
+      raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TValidation.NegativeValueNotAllowed,
+        'Negative values are not allowed'));
+    // elle girilen / değiştirilen kur TCMB çekişinde ezilmez
+    AEntity.Source := ACC_RATE_SOURCE_MANUAL;
   end;
 
   ValidateUnique(AEntity, AOperation);

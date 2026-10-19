@@ -71,6 +71,14 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
 
 ## Module links
 
+- Document addresses (pattern, first on `sls_offer`): the document owns its detailed addresses —
+  `billing_sys_address_id` / `shipping_sys_address_id` (UNIQUE, FK `sys_address` RESTRICT; written / deleted with the
+  document by its service) + source `billing_address_id` / `shipping_address_id` (FK `acc_account_address`, must belong to
+  the document's account). Copied from the account address, editable on the document, empty shipping = billing.
+- Exchange rates: `acc_exchange_rate.rate` = TCMB forex buying (document default), plus `forex_selling`,
+  `banknote_buying`, `banknote_selling`, `source` (MANUAL / TCMB; TCMB import never overwrites MANUAL). A Friday bulletin is
+  also written for Saturday + Sunday. Lookups use `fn_exchange_rate(currency, date)` (latest rate on or before the date,
+  relative to `fn_default_currency()`), never `rate_date = date`. Base currency code is ISO `TRY`.
 - Goods receipt lines own their stock entry: `stk_transaction.pur_receipt_detail_id` (UNIQUE, ON DELETE CASCADE, type 1 only)
   is written by `TPurReceiptDetailRepository.UpsertStockTransaction`; the stock transaction service refuses to update / delete
   such rows. Purchase quantities are service-maintained: `pur_request_detail.ordered_quantity` (non-cancelled order lines),

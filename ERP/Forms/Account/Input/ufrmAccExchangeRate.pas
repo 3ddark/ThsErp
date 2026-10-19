@@ -21,6 +21,14 @@ type
     edtCurrency: TEdit;
     lblRate: TLabel;
     edtRate: TEdit;
+    lblForexSelling: TLabel;
+    edtForexSelling: TEdit;
+    lblBanknoteBuying: TLabel;
+    edtBanknoteBuying: TEdit;
+    lblBanknoteSelling: TLabel;
+    edtBanknoteSelling: TEdit;
+    lblSource: TLabel;
+    edtSource: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
@@ -42,6 +50,9 @@ begin
   // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
   Table.RateDate := StrToDateDef(edtRateDate.Text, 0);
   Table.Rate := StrToCurrDef(edtRate.Text, 0);
+  Table.ForexSelling := StrToCurrDef(edtForexSelling.Text, 0);
+  Table.BanknoteBuying := StrToCurrDef(edtBanknoteBuying.Text, 0);
+  Table.BanknoteSelling := StrToCurrDef(edtBanknoteSelling.Text, 0);
   inherited;
 end;
 
@@ -52,6 +63,13 @@ begin
   edtCurrency.OnHelperProcess := HelperProcess;
   edtRateDate.thsInputDataType := itDate;
   edtRate.thsInputDataType := itFloat;
+  edtRate.thsDecimalDigitCount := 4;
+  edtForexSelling.thsInputDataType := itFloat;
+  edtForexSelling.thsDecimalDigitCount := 4;
+  edtBanknoteBuying.thsInputDataType := itFloat;
+  edtBanknoteBuying.thsDecimalDigitCount := 4;
+  edtBanknoteSelling.thsInputDataType := itFloat;
+  edtBanknoteSelling.thsDecimalDigitCount := 4;
 end;
 
 procedure TfrmAccExchangeRate.FormShow(Sender: TObject);
@@ -67,7 +85,11 @@ begin
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.TitleSingular, 'Exchange Rate');
   lblRateDate.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.ColRateDate, 'Date');
   lblCurrency.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.ColCurrency, 'Currency');
-  lblRate.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.ColRate, 'Rate');
+  lblRate.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.ColForexBuying, 'Forex Buying');
+  lblForexSelling.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.ColForexSelling, 'Forex Selling');
+  lblBanknoteBuying.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.ColBanknoteBuying, 'Banknote Buying');
+  lblBanknoteSelling.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.ColBanknoteSelling, 'Banknote Selling');
+  lblSource.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.ColSource, 'Source');
 end;
 
 procedure TfrmAccExchangeRate.HelperProcess(Sender: TObject);
@@ -111,6 +133,10 @@ begin
     edtRateDate.Text := '';
   edtCurrency.Text := Table.Currency;
   edtRate.Text := CurrToStr(Table.Rate);
+  edtForexSelling.Text := CurrToStr(Table.ForexSelling);
+  edtBanknoteBuying.Text := CurrToStr(Table.BanknoteBuying);
+  edtBanknoteSelling.Text := CurrToStr(Table.BanknoteSelling);
+  edtSource.Text := Table.Source;
 end;
 
 end.

@@ -6,7 +6,9 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  DocumentService, SlsOffer.Repository, SlsOffer, SlsOffer.Exception, SlsOfferDetail, SlsOfferDetail.Repository;
+  DocumentService, SlsOffer.Repository, SlsOffer, SlsOffer.Exception, SlsOfferDetail, SlsOfferDetail.Repository,
+  AccAccountAddress, AccAccountAddress.Repository, SysAddress, SysAddress.Repository,
+  AccExchangeRate, AccExchangeRate.Repository;
 
 type
   // Teklif belgesi = başlık + Lines (TDocumentService: kalem işlemleri, hesap tetikleme, yükleme, tek transaction'lı
@@ -14,12 +16,28 @@ type
   TSlsOfferService = class(TDocumentService<TSlsOffer, TSlsOfferDetail>)
   private
     FRepo: IRepository<TSlsOffer>;
+    FAddressRepo: IRepository<TAccAccountAddress>;
+    FSysAddressRepo: IRepository<TSysAddress>;
+    FRateRepo: IRepository<TAccExchangeRate>;
+    // bu kayıtta yeni id alan adres nesneleri (hata olursa id geri alınır) ve kayıttan sonra silinecek eski adresler
+    FNewAddresses: TList<TSysAddress>;
+    FPendingAddressDeletes: TList<Int64>;
 
     procedure DoAdd(AEntity: TSlsOffer);
     procedure DoUpdate(AEntity: TSlsOffer);
     procedure DoDelete(AId: Int64);
 
     procedure FailRequired(const AKey, ADefault: string);
+    // Kaynak cari adresi teklifin müşterisine ait olmalı; dolu adreste şehir zorunlu
+    procedure CheckAddresses(AEntity: TSlsOffer);
+    // Belgeye ait adresler (başlıktan önce, aynı transaction): boş -> silinir, kayıtlı -> güncellenir, yeni -> eklenir
+    procedure SaveAddresses(AHeader: TSlsOffer);
+    function SaveAddress(AAddress: TSysAddress; AHeaderId, AOldId: Int64): Int64;
+    procedure DeletePendingAddresses;
+    procedure LoadAddresses(AHeader: TSlsOffer);
+    procedure LoadAddress(AId: Int64; ATarget: TSysAddress);
+    // Belge kuru (boşsa teklif tarihinin kuru); rapor kurları yalnız yeni kayıtta otomatik
+    procedure CheckRates(AEntity: TSlsOffer; AOperation: TCrudOperation);
   protected
     // ---- belge yapısı / kayıt adımları (TDocumentService)
     function GetLines(AHeader: TSlsOffer): TObjectList<TSlsOfferDetail>; override;
@@ -32,6 +50,8 @@ type
     procedure InitLine(AHeader: TSlsOffer; ALine: TSlsOfferDetail); override;
     procedure CheckLines(AHeader: TSlsOffer; const ALines: TArray<TSlsOfferDetail>; AOldLines: TObjectList<TSlsOfferDetail>); override;
     procedure AfterDocumentSaved(AHeader: TSlsOffer; AOldLines: TObjectList<TSlsOfferDetail>); override;
+    procedure BeforeHeaderSaved(AHeader: TSlsOffer); override;
+    procedure AfterSaveFailed(AHeader: TSlsOffer); override;
     procedure PrepareCopyHeader(AHeader: TSlsOffer); override;
     procedure PrepareCopyLine(AHeader: TSlsOffer; ALine: TSlsOfferDetail); override;
   public
@@ -40,6 +60,15 @@ type
 
     procedure ValidateBusinessRules(AEntity: TSlsOffer; AOperation: TCrudOperation); override;
     procedure ChangeStatus(AId: Int64; ANewStatus: SmallInt; APermissionControl: Boolean);
+
+    // Cari adresi belgenin adresine kopyalanır (belgedeki adres id'si korunur; AAccountAddressId = 0: adres temizlenir)
+    procedure ApplyAccountAddress(AHeader: TSlsOffer; AShipping: Boolean; AAccountAddressId: Int64);
+    // Müşteri seçilince önerilen adresler: fatura = BILLING (yoksa birincil / LEGAL / ilk geçerli), teslimat = yalnız
+    // SHIPPING (yoksa boş = fatura adresi)
+    procedure ApplyDefaultAddresses(AHeader: TSlsOffer);
+    // Ana para (muhasebe para birimi) ve 1 ACurrency = ? ana para (ADate gününe kadarki son döviz alış kuru; yoksa 0)
+    function GetBaseCurrency: string;
+    function GetExchangeRate(const ACurrency: string; ADate: TDate): Currency;
 
     // Kalem tutarları (brüt / iskonto / net / KDV / toplam) miktar, fiyat ve oranlardan; başlık toplamları aktif kalemlerden
     procedure RecalculateLine(ALine: TSlsOfferDetail); override;
@@ -65,7 +94,7 @@ type
 implementation
 
 uses
-  SysPermission.Service, SlsLookup, SlsOfferDetail.Service, SlsOfferDetail.Exception;
+  SysPermission.Service, SlsLookup, SlsOfferDetail.Service, SlsOfferDetail.Exception, SysAddress.Service;
 
 constructor TSlsOfferService.Create;
 begin
@@ -73,11 +102,18 @@ begin
   FRepo := Self.UoW.GetRepository<TSlsOffer, TSlsOfferRepository>;
   FHeaderRepo := FRepo;
   FLineRepo := Self.UoW.GetRepository<TSlsOfferDetail, TSlsOfferDetailRepository>;
+  FAddressRepo := Self.UoW.GetRepository<TAccAccountAddress, TAccAccountAddressRepository>;
+  FSysAddressRepo := Self.UoW.GetRepository<TSysAddress, TSysAddressRepository>;
+  FRateRepo := Self.UoW.GetRepository<TAccExchangeRate, TAccExchangeRateRepository>;
+  FNewAddresses := TList<TSysAddress>.Create;
+  FPendingAddressDeletes := TList<Int64>.Create;
   Self.PermissionCode := PERMISSION_SLS_OFFER;
 end;
 
 destructor TSlsOfferService.Destroy;
 begin
+  FPendingAddressDeletes.Free;
+  FNewAddresses.Free;
   inherited;
 end;
 
@@ -86,6 +122,202 @@ procedure TSlsOfferService.FailRequired(const AKey, ADefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
+end;
+
+procedure TSlsOfferService.CheckAddresses(AEntity: TSlsOffer);
+
+  procedure CheckSource(var AAddressId: Int64);
+  var
+    LSource: TAccAccountAddress;
+  begin
+    if AAddressId <= 0 then
+    begin
+      AAddressId := 0;
+      Exit;
+    end;
+    LSource := FAddressRepo.FindById(AAddressId, False);
+    try
+      if not Assigned(LSource) then
+        AAddressId := 0   // cari adresi silinmiş: belgedeki kopya kalır
+      else if LSource.AccAccountId <> AEntity.AccAccountId then
+        raise ESlsOfferExceptionAddressAccount.Create;
+    finally
+      LSource.Free;
+    end;
+  end;
+
+  procedure CheckDetail(AAddress: TSysAddress; const AKey, ADefault: string);
+  begin
+    TSysAddressService.Normalize(AAddress);
+    if not TSysAddressService.IsEmpty(AAddress) and (AAddress.SysCityId <= 0) then
+      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsOffer.AddressCity,
+        '%s: a city must be selected.'), [TLocalizationManager.Translate(AKey, ADefault)]));
+  end;
+
+var
+  LId: Int64;
+begin
+  LId := AEntity.BillingAddressId;
+  CheckSource(LId);
+  AEntity.BillingAddressId := LId;
+  LId := AEntity.ShippingAddressId;
+  CheckSource(LId);
+  AEntity.ShippingAddressId := LId;
+  CheckDetail(AEntity.BillingAddress, TLangKeys.TSlsOffer.ColBillingAddress, 'Billing Address');
+  CheckDetail(AEntity.ShippingAddress, TLangKeys.TSlsOffer.ColShippingAddress, 'Shipping Address');
+end;
+
+// AHeaderId: başlıktaki id (okunan değer), AOldId: tablodaki id
+function TSlsOfferService.SaveAddress(AAddress: TSysAddress; AHeaderId, AOldId: Int64): Int64;
+begin
+  // adresler yüklenmeden (yalnız başlık) güncellenen belge: kayıtlı adrese dokunulmaz
+  if (AAddress.Id <= 0) and (AOldId > 0) and (AHeaderId = AOldId) and TSysAddressService.IsEmpty(AAddress) then
+    Exit(AOldId);
+  if TSysAddressService.IsEmpty(AAddress) then
+  begin
+    if AOldId > 0 then
+      FPendingAddressDeletes.Add(AOldId);
+    AAddress.Id := 0;
+    Exit(0);
+  end;
+  // yalnız bu belgenin kayıtlı adresi güncellenir; başka id (kopya, yeni nesne) yeni kayıt olur
+  if (AAddress.Id > 0) and (AAddress.Id = AOldId) then
+    FSysAddressRepo.Update(AAddress)
+  else
+  begin
+    AAddress.Id := 0;
+    FSysAddressRepo.Add(AAddress);
+    FNewAddresses.Add(AAddress);
+    if AOldId > 0 then
+      FPendingAddressDeletes.Add(AOldId);
+  end;
+  Result := AAddress.Id;
+end;
+
+procedure TSlsOfferService.SaveAddresses(AHeader: TSlsOffer);
+var
+  LOldBilling, LOldShipping: Int64;
+begin
+  FNewAddresses.Clear;
+  FPendingAddressDeletes.Clear;
+  TSlsOfferRepository(FRepo).GetSysAddressIds(AHeader.Id, LOldBilling, LOldShipping);
+  AHeader.BillingSysAddressId := SaveAddress(AHeader.BillingAddress, AHeader.BillingSysAddressId, LOldBilling);
+  AHeader.ShippingSysAddressId := SaveAddress(AHeader.ShippingAddress, AHeader.ShippingSysAddressId, LOldShipping);
+end;
+
+// başlık artık eski adreslere bağlı değil
+procedure TSlsOfferService.DeletePendingAddresses;
+var
+  LId: Int64;
+begin
+  for LId in FPendingAddressDeletes do
+    FSysAddressRepo.Delete(LId);
+  FPendingAddressDeletes.Clear;
+  FNewAddresses.Clear;
+end;
+
+procedure TSlsOfferService.LoadAddress(AId: Int64; ATarget: TSysAddress);
+var
+  LSource: TSysAddress;
+begin
+  LSource := nil;
+  if AId > 0 then
+    LSource := FSysAddressRepo.FindById(AId, False);
+  if not Assigned(LSource) then
+    LSource := TSysAddress.Create;
+  try
+    TSysAddressService.CopyValues(LSource, ATarget, False);
+  finally
+    LSource.Free;
+  end;
+end;
+
+procedure TSlsOfferService.LoadAddresses(AHeader: TSlsOffer);
+begin
+  LoadAddress(AHeader.BillingSysAddressId, AHeader.BillingAddress);
+  LoadAddress(AHeader.ShippingSysAddressId, AHeader.ShippingAddress);
+end;
+
+procedure TSlsOfferService.ApplyAccountAddress(AHeader: TSlsOffer; AShipping: Boolean; AAccountAddressId: Int64);
+var
+  LTarget, LSource: TSysAddress;
+  LAccountAddress: TAccAccountAddress;
+  LKeepId: Int64;
+begin
+  if AShipping then
+    LTarget := AHeader.ShippingAddress
+  else
+    LTarget := AHeader.BillingAddress;
+  LKeepId := LTarget.Id;
+  LSource := nil;
+  LAccountAddress := nil;
+  try
+    if AAccountAddressId > 0 then
+    begin
+      LAccountAddress := FAddressRepo.FindById(AAccountAddressId, False);
+      if Assigned(LAccountAddress) then
+      begin
+        if LAccountAddress.AccAccountId <> AHeader.AccAccountId then
+          raise ESlsOfferExceptionAddressAccount.Create;
+        LSource := FSysAddressRepo.FindById(LAccountAddress.SysAddressId, False);
+      end;
+    end;
+    if not Assigned(LSource) then
+    begin
+      LSource := TSysAddress.Create;
+      AAccountAddressId := 0;
+    end;
+    TSysAddressService.CopyValues(LSource, LTarget, False);
+    LTarget.Id := LKeepId;
+  finally
+    LSource.Free;
+    LAccountAddress.Free;
+  end;
+  if AShipping then
+    AHeader.ShippingAddressId := AAccountAddressId
+  else
+    AHeader.BillingAddressId := AAccountAddressId;
+end;
+
+procedure TSlsOfferService.ApplyDefaultAddresses(AHeader: TSlsOffer);
+var
+  LRepo: TAccAccountAddressRepository;
+begin
+  LRepo := TAccAccountAddressRepository(FAddressRepo);
+  ApplyAccountAddress(AHeader, False, LRepo.FindDocumentDefault(AHeader.AccAccountId, ACC_ADDRESS_BILLING, False));
+  ApplyAccountAddress(AHeader, True, LRepo.FindDocumentDefault(AHeader.AccAccountId, ACC_ADDRESS_SHIPPING, True));
+end;
+
+function TSlsOfferService.GetBaseCurrency: string;
+begin
+  Result := TSlsOfferRepository(FRepo).GetDefaultCurrency;
+end;
+
+function TSlsOfferService.GetExchangeRate(const ACurrency: string; ADate: TDate): Currency;
+begin
+  Result := TAccExchangeRateRepository(FRateRepo).GetRate(ACurrency, ADate);
+end;
+
+procedure TSlsOfferService.CheckRates(AEntity: TSlsOffer; AOperation: TCrudOperation);
+begin
+  if AEntity.Currency = '' then
+    AEntity.Currency := AEntity.BaseCurrency;
+  if SameText(AEntity.Currency, AEntity.BaseCurrency) then
+    AEntity.ExchangeRate := 1
+  else if AEntity.ExchangeRate <= 0 then
+  begin
+    AEntity.ExchangeRate := GetExchangeRate(AEntity.Currency, AEntity.OfferDate);
+    if AEntity.ExchangeRate <= 0 then
+      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsOffer.NoExchangeRate,
+        'No exchange rate for %s on %s; enter the rate manually.'), [AEntity.Currency, DateToStr(AEntity.OfferDate)]));
+  end;
+  // rapor kurları (kur tablosunda yoksa boş); güncellemede kullanıcının değeri (değişiklik yoksa kayıt değişmez)
+  if AOperation <> coInsert then
+    Exit;
+  if AEntity.UsdRate <= 0 then
+    AEntity.UsdRate := GetExchangeRate('USD', AEntity.OfferDate);
+  if AEntity.EurRate <= 0 then
+    AEntity.EurRate := GetExchangeRate('EUR', AEntity.OfferDate);
 end;
 
 
@@ -192,13 +424,35 @@ end;
 // Belge hook'u: siparişe aktarılan miktarlar ve otomatik durum (taslakta etkisiz, tutarlılık için)
 procedure TSlsOfferService.AfterDocumentSaved(AHeader: TSlsOffer; AOldLines: TObjectList<TSlsOfferDetail>);
 begin
+  DeletePendingAddresses;
   TSlsOfferRepository(FRepo).RefreshOrderedQuantities(AHeader.Id);
 end;
 
+procedure TSlsOfferService.BeforeHeaderSaved(AHeader: TSlsOffer);
+begin
+  SaveAddresses(AHeader);
+end;
+
+// yalnız bu kayıtta id verilen adres nesneleri (başlığın nesneleri) yeni kayıt olarak geri döner
+procedure TSlsOfferService.AfterSaveFailed(AHeader: TSlsOffer);
+begin
+  if FNewAddresses.Contains(AHeader.BillingAddress) then
+    AHeader.BillingAddress.Id := 0;
+  if FNewAddresses.Contains(AHeader.ShippingAddress) then
+    AHeader.ShippingAddress.Id := 0;
+  FNewAddresses.Clear;
+  FPendingAddressDeletes.Clear;
+end;
+
+// kopya belge kendi adres kayıtlarını alır; kurlar yeni belgenin tarihinden (servis kayıtta doldurur)
 procedure TSlsOfferService.PrepareCopyHeader(AHeader: TSlsOffer);
 begin
   AHeader.OfferNo := '';
   AHeader.Status := SLS_OFF_DRAFT;
+  AHeader.BillingSysAddressId := 0;
+  AHeader.ShippingSysAddressId := 0;
+  AHeader.BillingAddress.Id := 0;
+  AHeader.ShippingAddress.Id := 0;
 end;
 
 procedure TSlsOfferService.PrepareCopyLine(AHeader: TSlsOffer; ALine: TSlsOfferDetail);
@@ -271,13 +525,11 @@ begin
     raise ESlsOfferExceptionValidUntil.Create;
   if (AEntity.PaymentTermDays < 0) or (AEntity.PaymentTermDays > 365) then
     raise ESlsOfferExceptionPaymentTerm.Create;
-  if AEntity.ExchangeRate <= 0 then
-    AEntity.ExchangeRate := 1;
-  if AEntity.Currency = '' then
-    AEntity.Currency := LRepo.GetDefaultCurrency;
+  CheckAddresses(AEntity);
 
   if AOperation = coInsert then
   begin
+    AEntity.BaseCurrency := LRepo.GetDefaultCurrency;
     // durum ve tutarlar servis tarafından tutulur (tutarlar kalemlerden)
     AEntity.Status := SLS_OFF_DRAFT;
     AEntity.GrossAmount := 0;
@@ -304,10 +556,13 @@ begin
       AEntity.TotalAmount := LOld.TotalAmount;
       if AEntity.OfferNo = '' then
         AEntity.OfferNo := LOld.OfferNo;
+      // ana para teklif açılırkenki muhasebe para birimi
+      AEntity.BaseCurrency := LOld.BaseCurrency;
     finally
       LOld.Free;
     end;
   end;
+  CheckRates(AEntity, AOperation);
 
   LFilter := TFilterCriteria.Create;
   try
@@ -328,14 +583,28 @@ end;
 
 procedure TSlsOfferService.DoAdd(AEntity: TSlsOffer);
 begin
-  ValidateAll(AEntity, coInsert);
-  FRepo.Add(AEntity);
+  try
+    ValidateAll(AEntity, coInsert);
+    SaveAddresses(AEntity);
+    FRepo.Add(AEntity);
+    DeletePendingAddresses;
+  except
+    AfterSaveFailed(AEntity);
+    raise;
+  end;
 end;
 
 procedure TSlsOfferService.DoUpdate(AEntity: TSlsOffer);
 begin
-  ValidateAll(AEntity, coUpdate);
-  FRepo.Update(AEntity);
+  try
+    ValidateAll(AEntity, coUpdate);
+    SaveAddresses(AEntity);
+    FRepo.Update(AEntity);
+    DeletePendingAddresses;
+  except
+    AfterSaveFailed(AEntity);
+    raise;
+  end;
 end;
 
 procedure TSlsOfferService.DoDelete(AId: Int64);
@@ -349,6 +618,11 @@ begin
 
     ValidateAll(LEntity, coDelete);
     FRepo.Delete(LEntity);
+    // belgeye ait adresler teklifle birlikte silinir
+    if LEntity.BillingSysAddressId > 0 then
+      FSysAddressRepo.Delete(LEntity.BillingSysAddressId);
+    if LEntity.ShippingSysAddressId > 0 then
+      FSysAddressRepo.Delete(LEntity.ShippingSysAddressId);
   finally
     LEntity.Free;
   end;
@@ -378,10 +652,13 @@ begin
     Self.UoW.BeginTransaction;
 
   try
-    // belge: başlık + kalemler
+    // belge: başlık + kalemler + adresler
     Result := FRepo.FindById(AId, ALock);
     if Assigned(Result) then
+    begin
       LoadLines([Result]);
+      LoadAddresses(Result);
+    end;
   except
     if Self.UoW.InTransaction then
       Self.UoW.Rollback;
@@ -453,17 +730,26 @@ end;
 
 // AIncludeNestedEntities: kalemler de (tek sorguda)
 function TSlsOfferService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TSlsOffer>;
+var
+  LOffer: TSlsOffer;
 begin
   Result := FRepo.Find(AFilter, ALock);
   if AIncludeNestedEntities and (Result.Count > 0) then
+  begin
     LoadLines(Result.ToArray);
+    for LOffer in Result do
+      LoadAddresses(LOffer);
+  end;
 end;
 
 function TSlsOfferService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TSlsOffer;
 begin
   Result := FRepo.FindById(AId, ALock);
   if AIncludeNestedEntities and Assigned(Result) then
+  begin
     LoadLines([Result]);
+    LoadAddresses(Result);
+  end;
 end;
 
 function TSlsOfferService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TSlsOffer;

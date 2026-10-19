@@ -29,6 +29,7 @@ uses
   PurReceipt, PurReceipt.Service, PurReceiptDetail, PurReceiptDetail.Service,
   PurInvoice, PurInvoice.Service, PurInvoiceDetail, PurInvoiceDetail.Service,
   SlsLookup, SlsOffer, SlsOffer.Service, SlsOfferDetail, SlsOfferDetail.Service,
+  AccExchangeRate, AccExchangeRate.Service, Tcmb.ExchangeRates,
   SlsOrder, SlsOrder.Service, SlsOrderDetail, SlsOrderDetail.Service,
   SlsDispatch, SlsDispatch.Service, SlsDispatchDetail, SlsDispatchDetail.Service,
   SlsInvoice, SlsInvoice.Repository, SlsInvoice.Service, SlsInvoiceDetail, SlsInvoiceDetail.Service,
@@ -1954,7 +1955,8 @@ var
 begin
   Ctx('Purchasing', 'flow');
   Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
-  Inv3 := Scalar('SELECT id FROM stk_inventory WHERE buying_currency = fn_default_currency() AND buying_price > 0 ORDER BY id LIMIT 1');
+  Inv3 := Scalar('SELECT id FROM stk_inventory WHERE buying_currency = fn_default_currency() AND buying_price > 0 AND id <> ' +
+    Inv1.ToString + ' ORDER BY id LIMIT 1');
   Supplier := Scalar('SELECT min(id) FROM acc_account');
   Supplier2 := Scalar('SELECT max(id) FROM acc_account');
   RSvc := TPurRequestService.Create;
@@ -2964,6 +2966,234 @@ end;
 // Teklif belgesi (başlık + Lines) form olmadan: TSlsOfferService NewLine / RemoveLine / Recalculate / PrepareCopy +
 // BusinessSaveWithDetails (tek transaction, DetailList durum modeli: Id > 0 güncelle, Deleted sil, Id < 0 ekle),
 // BusinessFindById kalemleri getirir, kayıt sonrası Reload. Commit yok (AWithCommit = False): test transaction'ı geri alınır.
+// TCMB bülteni (ayrıştırma, cuma -> cumartesi / pazar, elle girilen kur korunur), kur fonksiyonu, teklif kurları ve
+// belgeye ait ayrıntılı adres (kopya, düzenleme, temizleme, yalnız başlık güncellemesi, kopya belge, silme)
+procedure TestSalesOfferRatesAndAddresses;
+const
+  FRIDAY = 47487;   // 2030-01-04 (cuma)
+var
+  RSvc: TAccExchangeRateService;
+  Svc: TSlsOfferService;
+  Bulletin: TTcmbBulletin;
+  Rate: TAccExchangeRate;
+  Off, Head, Copy: TSlsOffer;
+  Customer, Customer2, SysAddrId, BillId, ShipId, OffId, OldShipId, OldBillId: Int64;
+  Count: Integer;
+
+  function SampleXml(const AUsd: string): TBytes;
+  begin
+    Result := TEncoding.UTF8.GetBytes(
+      '<?xml version="1.0" encoding="UTF-8"?>' +
+      '<Tarih_Date Tarih="04.01.2030" Date="01/04/2030" Bulten_No="2030/3">' +
+      '<Currency CrossOrder="0" Kod="USD" CurrencyCode="USD"><Unit>1</Unit><Isim>ABD DOLARI</Isim>' +
+      '<ForexBuying>' + AUsd + '</ForexBuying><ForexSelling>40.2000</ForexSelling>' +
+      '<BanknoteBuying>40.0500</BanknoteBuying><BanknoteSelling>40.2500</BanknoteSelling></Currency>' +
+      '<Currency CrossOrder="9" Kod="EUR" CurrencyCode="EUR"><Unit>1</Unit><Isim>EURO</Isim>' +
+      '<ForexBuying>45.5000</ForexBuying><ForexSelling>45.6000</ForexSelling>' +
+      '<BanknoteBuying>45.4000</BanknoteBuying><BanknoteSelling>45.7000</BanknoteSelling></Currency>' +
+      '<Currency CrossOrder="13" Kod="JPY" CurrencyCode="JPY"><Unit>100</Unit><Isim>JAPON YENI</Isim>' +
+      '<ForexBuying>26.0000</ForexBuying><ForexSelling>26.2000</ForexSelling>' +
+      '<BanknoteBuying></BanknoteBuying><BanknoteSelling></BanknoteSelling></Currency>' +
+      '<Currency CrossOrder="20" Kod="XDR" CurrencyCode="XDR"><Unit>1</Unit><Isim>OZEL CEKME HAKKI</Isim>' +
+      '<ForexBuying>54.0000</ForexBuying><ForexSelling></ForexSelling>' +
+      '<BanknoteBuying></BanknoteBuying><BanknoteSelling></BanknoteSelling></Currency>' +
+      '</Tarih_Date>');
+  end;
+
+  function RateOf(const ACur: string; ADate: TDate): string;
+  begin
+    Result := S(Scalar('SELECT rate || ''/'' || source FROM acc_exchange_rate WHERE currency = ''' + ACur +
+      ''' AND rate_date = ''' + FormatDateTime('yyyy-mm-dd', ADate) + ''''));
+  end;
+
+  function OfferCol(const ACol: string): Int64;
+  begin
+    Result := FirstId('SELECT ' + ACol + ' FROM sls_offer WHERE id = ' + OffId.ToString);
+  end;
+
+begin
+  Ctx('Sales', 'offer rates / addresses');
+  RSvc := TAccExchangeRateService.Create;
+  Svc := TSlsOfferService.Create;
+  Off := nil;
+  Head := nil;
+  Copy := nil;
+  try
+    try
+      // ---- TCMB bülteni
+      Bulletin := TTcmbClient.Parse(SampleXml('40.1234'));
+      Check('tcmb parse date', SameDate(Bulletin.BulletinDate, FRIDAY), DateToStr(Bulletin.BulletinDate));
+      Check('tcmb parse rates', (Length(Bulletin.Rates) = 4) and (Bulletin.Rates[0].Currency = 'USD') and
+        SameValue(Bulletin.Rates[0].ForexBuying, 40.1234, 1E-9) and SameValue(Bulletin.Rates[2].ForexBuying, 0.26, 1E-9) and
+        (Bulletin.Rates[3].ForexSelling = 0), Length(Bulletin.Rates).ToString);
+      Check('tcmb archive url', TTcmbClient.BulletinUrl(FRIDAY) = 'https://www.tcmb.gov.tr/kurlar/203001/04012030.xml',
+        TTcmbClient.BulletinUrl(FRIDAY));
+
+      Begin_;
+      Check('base currency TRY', S(Scalar('SELECT fn_default_currency()')) = 'TRY');
+      // cumartesi için elle girilmiş EUR kuru: TCMB çekişi ezmemeli
+      Rate := TAccExchangeRate.Create;
+      try
+        Rate.RateDate := FRIDAY + 1;
+        Rate.Currency := 'EUR';
+        Rate.Rate := 50;
+        RSvc.BusinessInsert(Rate, False, False, True);
+      finally
+        Rate.Free;
+      end;
+      Count := RSvc.ImportTcmbBulletin(Bulletin, True);
+      Check('tcmb import friday -> sat / sun (known currencies, manual kept)', Count = 5, Count.ToString);
+      Check('tcmb friday USD', RateOf('USD', FRIDAY) = '40.123400/TCMB', RateOf('USD', FRIDAY));
+      Check('tcmb saturday / sunday = friday', (RateOf('USD', FRIDAY + 1) = '40.123400/TCMB') and
+        (RateOf('USD', FRIDAY + 2) = '40.123400/TCMB'), RateOf('USD', FRIDAY + 2));
+      Check('tcmb manual rate kept', RateOf('EUR', FRIDAY + 1) = '50.000000/MANUAL', RateOf('EUR', FRIDAY + 1));
+      Check('tcmb four rates stored', S(Scalar('SELECT forex_selling || ''/'' || banknote_buying || ''/'' || banknote_selling ' +
+        'FROM acc_exchange_rate WHERE currency = ''USD'' AND rate_date = ''2030-01-04''')) = '40.200000/40.050000/40.250000');
+      Count := RSvc.ImportTcmbBulletin(TTcmbClient.Parse(SampleXml('40.5000')), True);
+      Check('tcmb re-import updates TCMB rows', (Count = 5) and (RateOf('USD', FRIDAY + 2) = '40.500000/TCMB'), RateOf('USD', FRIDAY + 2));
+      Check('rate on monday = last bulletin', SameValue(RSvc.GetRate('USD', FRIDAY + 3), 40.5, 1E-6), CurrToStr(RSvc.GetRate('USD', FRIDAY + 3)));
+      Check('rate of base currency = 1', RSvc.GetRate('TRY', FRIDAY) = 1);
+      Check('needs update only without rate', not RSvc.NeedsTcmbUpdate(FRIDAY + 1) and RSvc.NeedsTcmbUpdate(FRIDAY + 4));
+
+      // ---- teklif kurları: boş kur teklif tarihinden (cumartesi -> cuma bülteni), rapor kurları USD / EUR
+      Off := TSlsOffer.Create;
+      Off.AccAccountId := Scalar('SELECT min(id) FROM acc_account');
+      Off.OfferDate := FRIDAY + 1;
+      Off.Currency := 'USD';
+      Svc.BusinessInsert(Off, False, False, True);
+      Check('offer base currency / rate from date', S(Scalar('SELECT base_currency || ''/'' || exchange_rate || ''/'' || usd_rate || ''/'' || eur_rate ' +
+        'FROM sls_offer WHERE id = ' + Off.Id.ToString)) = 'TRY/40.500000/40.500000/50.000000',
+        S(Scalar('SELECT base_currency || ''/'' || exchange_rate || ''/'' || usd_rate || ''/'' || eur_rate FROM sls_offer WHERE id = ' + Off.Id.ToString)));
+      FreeAndNil(Off);
+      Off := TSlsOffer.Create;
+      Off.AccAccountId := Scalar('SELECT min(id) FROM acc_account');
+      Off.OfferDate := FRIDAY;
+      Off.Currency := 'USD';
+      Off.ExchangeRate := 41;
+      Svc.BusinessInsert(Off, False, False, True);
+      Check('offer manual exchange rate kept', Num(Scalar('SELECT exchange_rate FROM sls_offer WHERE id = ' + Off.Id.ToString)) = 41);
+      FreeAndNil(Off);
+      Expect('offer foreign currency without rate', procedure
+        var X: TSlsOffer;
+        begin
+          X := TSlsOffer.Create;
+          try
+            X.AccAccountId := Scalar('SELECT min(id) FROM acc_account');
+            X.OfferDate := EncodeDate(1990, 1, 1);
+            X.Currency := 'USD';
+            Svc.BusinessInsert(X, False, False, True);
+          finally X.Free; end;
+        end);
+      End_;
+
+      // ---- belgeye ait ayrıntılı adres
+      Begin_;
+      Customer := Scalar('SELECT min(id) FROM acc_account');
+      Customer2 := Scalar('SELECT max(id) FROM acc_account');
+      SysAddrId := FirstId('INSERT INTO sys_address (sys_city_id, district, neighborhood, street, building_name, door_number, zip_code) ' +
+        'SELECT min(id), ''Merkez'', ''Cumhuriyet Mah.'', ''Test Sk.'', ''A Blok'', ''7'', ''06000'' FROM sys_city RETURNING id');
+      BillId := FirstId('INSERT INTO acc_account_address (acc_account_id, sys_address_id, address_type) VALUES (' +
+        Customer.ToString + ', ' + SysAddrId.ToString + ', ''BILLING'') RETURNING id');
+      ShipId := FirstId('INSERT INTO acc_account_address (acc_account_id, sys_address_id, address_type) VALUES (' +
+        Customer.ToString + ', ' + SysAddrId.ToString + ', ''SHIPPING'') RETURNING id');
+
+      Off := TSlsOffer.Create;
+      Off.AccAccountId := Customer;
+      Svc.ApplyDefaultAddresses(Off);
+      Check('offer default addresses copied', (Off.BillingAddressId = BillId) and (Off.ShippingAddressId = ShipId) and
+        (Off.BillingAddress.Street = 'Test Sk.') and (Off.BillingAddress.Id = 0) and (Off.BillingAddress.SysCityId > 0));
+      Off.ShippingAddress.DoorNumber := '9';
+      Off.ShippingAddress.BuildingName := 'Depo';
+      Svc.BusinessSaveWithDetails(Off, False, True);
+      OffId := Off.Id;
+      Check('offer owns address copies', (OfferCol('billing_sys_address_id') > 0) and (OfferCol('billing_sys_address_id') <> SysAddrId) and
+        (OfferCol('shipping_sys_address_id') > 0) and (OfferCol('shipping_sys_address_id') <> OfferCol('billing_sys_address_id')));
+      Check('offer edited shipping address', S(Scalar('SELECT building_name || ''/'' || door_number FROM sys_address WHERE id = ' +
+        OfferCol('shipping_sys_address_id').ToString)) = 'Depo/9');
+      Check('account address unchanged', S(Scalar('SELECT door_number FROM sys_address WHERE id = ' + SysAddrId.ToString)) = '7');
+      Scalar('UPDATE sys_address SET street = ''Yeni Sk.'' WHERE id = ' + SysAddrId.ToString + ' RETURNING id');
+      Check('offer keeps its address', S(Scalar('SELECT street FROM sys_address WHERE id = ' + OfferCol('billing_sys_address_id').ToString)) = 'Test Sk.');
+      Check('offer list address text', ContainsText(S(Scalar('SELECT billing_address FROM vw_sls_offer WHERE id = ' + OffId.ToString)), 'Test Sk., A Blok, 7'),
+        S(Scalar('SELECT billing_address FROM vw_sls_offer WHERE id = ' + OffId.ToString)));
+      FreeAndNil(Off);
+
+      Off := Svc.BusinessFindById(OffId, False, False, True);
+      Check('offer addresses loaded', (Off.BillingAddress.Id = OfferCol('billing_sys_address_id')) and (Off.BillingAddress.Street = 'Test Sk.') and
+        Assigned(Off.BillingAddress.SysCity) and (Off.BillingAddress.SysCity.CityName <> '') and (Off.ShippingAddress.DoorNumber = '9'));
+      // teslimat adresi temizlenir: belgenin adres kaydı silinir
+      OldShipId := OfferCol('shipping_sys_address_id');
+      Svc.ApplyAccountAddress(Off, True, 0);
+      Off.BillingAddress.ZipCode := '06100';
+      Svc.BusinessSaveWithDetails(Off, False, True);
+      Check('offer cleared shipping address deleted', (OfferCol('shipping_sys_address_id') = 0) and (OfferCol('shipping_address_id') = 0) and
+        (Num(Scalar('SELECT count(*) FROM sys_address WHERE id = ' + OldShipId.ToString)) = 0));
+      Check('offer billing address updated in place', S(Scalar('SELECT zip_code FROM sys_address WHERE id = ' +
+        OfferCol('billing_sys_address_id').ToString)) = '06100');
+
+      // adresleri yüklenmemiş başlık güncellemesi adrese dokunmaz
+      OldBillId := OfferCol('billing_sys_address_id');
+      Head := Svc.FindById(OffId, False);
+      Head.Description := 'yalnız başlık';
+      Svc.BusinessUpdate(Head, False, False, True);
+      Check('header-only update keeps address', (OfferCol('billing_sys_address_id') = OldBillId) and
+        (Num(Scalar('SELECT count(*) FROM sys_address WHERE id = ' + OldBillId.ToString)) = 1));
+
+      // kopya belge kendi adres kaydını alır
+      Copy := Off.Clone;
+      Svc.PrepareCopy(Copy);
+      Svc.BusinessSaveWithDetails(Copy, False, True);
+      Check('copied offer has own address', (FirstId('SELECT billing_sys_address_id FROM sls_offer WHERE id = ' + Copy.Id.ToString) > 0) and
+        (FirstId('SELECT billing_sys_address_id FROM sls_offer WHERE id = ' + Copy.Id.ToString) <> OldBillId) and
+        (S(Scalar('SELECT s.zip_code FROM sls_offer o JOIN sys_address s ON s.id = o.billing_sys_address_id WHERE o.id = ' + Copy.Id.ToString)) = '06100'));
+
+      // silinen teklifin adresi de silinir
+      Svc.BusinessDelete(Off, False, False, True);
+      Check('deleted offer address removed', Num(Scalar('SELECT count(*) FROM sys_address WHERE id = ' + OldBillId.ToString)) = 0);
+
+      Expect('offer address of another customer', procedure
+        var X: TSlsOffer;
+        begin
+          X := TSlsOffer.Create;
+          try
+            X.AccAccountId := Customer2;
+            Svc.ApplyAccountAddress(X, False, BillId);
+          finally X.Free; end;
+        end);
+      Expect('offer address without city', procedure
+        var X: TSlsOffer;
+        begin
+          X := TSlsOffer.Create;
+          try
+            X.AccAccountId := Customer;
+            X.BillingAddress.Street := 'Şehirsiz Sk.';
+            Svc.BusinessSaveWithDetails(X, False, True);
+          finally X.Free; end;
+        end);
+      End_;
+
+      // canlı TCMB (ağ yoksa yalnız uyarı)
+      try
+        Bulletin := TTcmbClient.Fetch;
+        Check('tcmb live today.xml', (Bulletin.BulletinDate > EncodeDate(2020, 1, 1)) and (Length(Bulletin.Rates) > 5),
+          DateToStr(Bulletin.BulletinDate) + ' / ' + Length(Bulletin.Rates).ToString);
+      except
+        on E: Exception do
+          Report('WARN', 'Sales', 'offer rates / addresses', 'tcmb live today.xml', E.Message);
+      end;
+    except
+      on E: Exception do
+        Report('FAIL', 'Sales', 'offer rates / addresses', 'unexpected', E.Message);
+    end;
+  finally
+    End_;
+    Copy.Free;
+    Head.Free;
+    Off.Free;
+    Svc.Free;
+    RSvc.Free;
+  end;
+end;
+
 procedure TestSalesOfferDocument;
 var
   Svc: TSlsOfferService;
@@ -4686,6 +4916,7 @@ begin
   TestPurchasing;
   TestSales;
   TestSalesOfferDocument;
+  TestSalesOfferRatesAndAddresses;
   TestSalesOrderDocument;
   TestSalesDispatchInvoiceDocument;
   TestEInvoice;

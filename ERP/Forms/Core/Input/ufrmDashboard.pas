@@ -497,6 +497,7 @@ type
   private
     FIsFormShow: Boolean;
     FF6Pressed: Boolean;
+    FRateUpdateStarted: Boolean;
     // ana ekran göstergeleri (çalışma anında oluşturulur)
     FKpis: TArray<TDashboardKpi>;
     FCharts: TArray<TDashboardChart>;
@@ -516,6 +517,8 @@ type
     FAuditTimer: TTimer;
     procedure AuditTimerTimer(Sender: TObject);
     procedure FlushAudit;
+    // Günün kuru yoksa TCMB'den (arka planda indirilir, ana thread'de yazılır); hata yalnız loglanır
+    procedure StartExchangeRateUpdate;
     procedure AppShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure AppException(Sender: TObject; E: Exception);
     procedure ShowCommandPalette;
@@ -564,7 +567,32 @@ implementation
 
 uses
   ufrmAbout, Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Constants, Ths.Globals, Ths.DialogHelper,
-  Db.ErrorTranslator;
+  Db.ErrorTranslator, Tcmb.ExchangeRates;
+
+// Ana thread'de: bülten kur tablosuna. Başka ekranın açık transaction'ı varsa yazılmaz (sonraki açılışta yeniden denenir).
+procedure SaveTcmbBulletin(const ABulletin: TTcmbBulletin);
+var
+  LSvc: TAccExchangeRateService;
+  LCount: Integer;
+begin
+  try
+    if not TAppContext.IsInitialized or TUnitOfWork.Instance.InTransaction then
+    begin
+      GLogger.Warning('TCMB kurları yazılmadı: açık transaction var');
+      Exit;
+    end;
+    LSvc := TAccExchangeRateService.Create;
+    try
+      LCount := LSvc.ImportTcmbBulletin(ABulletin, False);
+    finally
+      LSvc.Free;
+    end;
+    GLogger.InfoFmt('TCMB kurları alındı: %s, %d kayıt', [DateToStr(ABulletin.BulletinDate), LCount]);
+  except
+    on E: Exception do
+      GLogger.ErrorFmt('TCMB kurları yazılamadı: %s', [E.Message]);
+  end;
+end;
 
 procedure TfrmDashboard.actsys_aboutExecute(Sender: TObject);
 begin
@@ -1215,6 +1243,59 @@ begin
   LFrm := TfrmSysAuditLogs.Create(Self, TSysAuditLogService.Create, TSysAuditLog.Create);
   LFrm.SetCurrentPeriod;
   LFrm.Show;
+end;
+
+procedure TfrmDashboard.StartExchangeRateUpdate;
+var
+  LSvc: TAccExchangeRateService;
+  LNeeded: Boolean;
+begin
+  if FRateUpdateStarted or not TAppContext.IsInitialized or not Assigned(TAppContext.Instance.CurrentUser) then
+    Exit;
+  FRateUpdateStarted := True;
+  try
+    LSvc := TAccExchangeRateService.Create;
+    try
+      LNeeded := LSvc.NeedsTcmbUpdate(Date);
+    finally
+      LSvc.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      GLogger.ErrorFmt('Kur kontrolü yapılamadı: %s', [E.Message]);
+      Exit;
+    end;
+  end;
+  if not LNeeded then
+    Exit;
+
+  // indirme + ayrıştırma arka planda (bağlantı yoksa açılış beklemez); DB yazımı ana thread'de
+  TTask.Run(
+    procedure
+    var
+      LBulletin: TTcmbBulletin;
+      LError: string;
+    begin
+      try
+        LBulletin := TTcmbClient.Fetch;
+        TThread.Queue(nil,
+          procedure
+          begin
+            SaveTcmbBulletin(LBulletin);
+          end);
+      except
+        on E: Exception do
+        begin
+          LError := E.Message;
+          TThread.Queue(nil,
+            procedure
+            begin
+              GLogger.WarningFmt('TCMB kurları indirilemedi: %s', [LError]);
+            end);
+        end;
+      end;
+    end);
 end;
 
 // Yerel kuyruk (audit_outbox) ortak ths_audit veritabanına taşınır. Açık transaction varken servis atlar;
@@ -1933,6 +2014,7 @@ begin
 
   SetSession;
   FIsFormShow := False;
+  StartExchangeRateUpdate;
 
   // FIX: TUnitOfWork.Initialize login'de zaten çağrıldı
   // Burada tekrar çağırmak gerekmiyor — sadece bağlantı kontrolü

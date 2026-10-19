@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict uSf9CzzxnpetPoIHOejgTanD2S1D8dnywx3MFXcO9WpECrCNyGScl4PBpwZVdq8
+\restrict gJtQ7e6qy9c6q8PMFziw3IjZqNC4xEooqWzKQ5PgnUdXUihdBbzLLaFWlV9LHCj
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -248,6 +248,30 @@ CREATE FUNCTION public.fn_default_product_type_id() RETURNS integer
 
 
 ALTER FUNCTION public.fn_default_product_type_id() OWNER TO postgres;
+
+--
+-- Name: fn_exchange_rate(character varying, date); Type: FUNCTION; Schema: public; Owner: ths_admin
+--
+
+CREATE FUNCTION public.fn_exchange_rate(p_currency character varying, p_date date) RETURNS numeric
+    LANGUAGE sql STABLE
+    AS $$
+  WITH b AS (SELECT public.fn_default_currency() AS base),
+  r AS (
+    SELECT c.cur,
+           CASE WHEN c.cur = 'TRY' THEN 1::numeric
+                ELSE (SELECT x.rate FROM public.acc_exchange_rate x
+                       WHERE x.currency = c.cur AND x.rate_date <= p_date
+                       ORDER BY x.rate_date DESC LIMIT 1) END AS try_rate
+      FROM (SELECT p_currency AS cur UNION ALL SELECT base FROM b) c
+  )
+  SELECT CASE WHEN p_currency = (SELECT base FROM b) THEN 1::numeric
+              ELSE round((SELECT try_rate FROM r WHERE cur = p_currency LIMIT 1) /
+                         NULLIF((SELECT try_rate FROM r, b WHERE cur = b.base LIMIT 1), 0), 6) END
+$$;
+
+
+ALTER FUNCTION public.fn_exchange_rate(p_currency character varying, p_date date) OWNER TO ths_admin;
 
 --
 -- Name: fn_get_lang_text(text, text, text, bigint, text); Type: FUNCTION; Schema: public; Owner: postgres
@@ -518,6 +542,30 @@ $$;
 
 
 ALTER FUNCTION public.fn_get_table_data_dynamic(p_table_name character varying) OWNER TO postgres;
+
+--
+-- Name: fn_sys_address_text(bigint, character varying); Type: FUNCTION; Schema: public; Owner: ths_admin
+--
+
+CREATE FUNCTION public.fn_sys_address_text(p_sys_address_id bigint, p_locale character varying) RETURNS character varying
+    LANGUAGE sql STABLE
+    AS $$
+  SELECT NULLIF(concat_ws(E'\n',
+           NULLIF(concat_ws(', ', NULLIF(btrim(a.neighborhood), ''), NULLIF(btrim(a.quarter), ''), NULLIF(btrim(a.road), ''),
+                            NULLIF(btrim(a.street), ''), NULLIF(btrim(a.building_name), ''), NULLIF(btrim(a.door_number), '')), ''),
+           NULLIF(concat_ws(' ', NULLIF(btrim(a.zip_code), ''),
+                            NULLIF(concat_ws(' / ', NULLIF(btrim(a.district), ''), NULLIF(btrim(c.city_name), '')), '')), ''),
+           NULLIF(btrim(COALESCE(ct.country_name, cn.country_code)), '')), '')::character varying(512)
+    FROM public.sys_address a
+    LEFT JOIN public.sys_city c ON c.id = a.sys_city_id
+    LEFT JOIN public.sys_country cn ON cn.id = c.sys_country_id
+    LEFT JOIN public.sys_language l ON l.locale = p_locale
+    LEFT JOIN public.sys_country_translation ct ON ct.sys_country_id = c.sys_country_id AND ct.sys_language_id = l.id
+   WHERE a.id = p_sys_address_id
+$$;
+
+
+ALTER FUNCTION public.fn_sys_address_text(p_sys_address_id bigint, p_locale character varying) OWNER TO ths_admin;
 
 --
 -- Name: personel_adsoyad(); Type: FUNCTION; Schema: public; Owner: ths_admin
@@ -938,12 +986,39 @@ ALTER TABLE public.acc_bank ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE public.acc_exchange_rate (
     id bigint CONSTRAINT acc_er_id_nn NOT NULL,
     rate_date date CONSTRAINT acc_er_date_nn NOT NULL,
-    rate numeric(10,4) CONSTRAINT acc_er_rate_nn NOT NULL,
-    currency character varying(3)
+    rate numeric(18,6) CONSTRAINT acc_er_rate_nn NOT NULL,
+    currency character varying(3) NOT NULL,
+    forex_selling numeric(18,6),
+    banknote_buying numeric(18,6),
+    banknote_selling numeric(18,6),
+    source character varying(8) DEFAULT 'MANUAL'::character varying NOT NULL,
+    CONSTRAINT acc_exchange_rate_rate_check CHECK ((rate > (0)::numeric)),
+    CONSTRAINT acc_exchange_rate_source_check CHECK (((source)::text = ANY ((ARRAY['MANUAL'::character varying, 'TCMB'::character varying])::text[])))
 );
 
 
 ALTER TABLE public.acc_exchange_rate OWNER TO ths_admin;
+
+--
+-- Name: COLUMN acc_exchange_rate.rate_date; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.acc_exchange_rate.rate_date IS 'Kurun geçerli olduğu gün; TCMB cuma kuru cumartesi / pazar için de yazılır';
+
+
+--
+-- Name: COLUMN acc_exchange_rate.rate; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.acc_exchange_rate.rate IS 'Döviz alış (TCMB ForexBuying, 1 birim = rate TRY); belgelerin varsayılan kuru';
+
+
+--
+-- Name: COLUMN acc_exchange_rate.source; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.acc_exchange_rate.source IS 'MANUAL, TCMB (TCMB satırları her çekişte güncellenir, MANUAL satırlara dokunulmaz)';
+
 
 --
 -- Name: acc_group; Type: TABLE; Schema: public; Owner: ths_admin
@@ -3806,14 +3881,66 @@ CREATE TABLE public.sls_offer (
     vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
     total_amount numeric(18,2) DEFAULT 0 NOT NULL,
     description character varying(256),
+    billing_address_id bigint,
+    shipping_address_id bigint,
+    billing_sys_address_id bigint,
+    shipping_sys_address_id bigint,
+    base_currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    usd_rate numeric(18,6),
+    eur_rate numeric(18,6),
+    CONSTRAINT sls_offer_billing_shipping_address_check CHECK (((billing_sys_address_id IS NULL) OR (shipping_sys_address_id IS NULL) OR (billing_sys_address_id <> shipping_sys_address_id))),
+    CONSTRAINT sls_offer_eur_rate_check CHECK (((eur_rate IS NULL) OR (eur_rate > (0)::numeric))),
     CONSTRAINT sls_offer_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
     CONSTRAINT sls_offer_payment_term_check CHECK (((payment_term_days >= 0) AND (payment_term_days <= 365))),
     CONSTRAINT sls_offer_status_check CHECK (((status >= 1) AND (status <= 5))),
+    CONSTRAINT sls_offer_usd_rate_check CHECK (((usd_rate IS NULL) OR (usd_rate > (0)::numeric))),
     CONSTRAINT sls_offer_valid_until_check CHECK (((valid_until IS NULL) OR (valid_until >= offer_date)))
 );
 
 
 ALTER TABLE public.sls_offer OWNER TO ths_admin;
+
+--
+-- Name: COLUMN sls_offer.exchange_rate; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sls_offer.exchange_rate IS '1 belge para birimi = exchange_rate ana para (base_currency)';
+
+
+--
+-- Name: COLUMN sls_offer.billing_address_id; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sls_offer.billing_address_id IS 'Kaynak cari adresi (kopyalandığı acc_account_address)';
+
+
+--
+-- Name: COLUMN sls_offer.billing_sys_address_id; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sls_offer.billing_sys_address_id IS 'Belgeye ait adres (sys_address kopyası; teklifle birlikte yazılır / silinir)';
+
+
+--
+-- Name: COLUMN sls_offer.shipping_sys_address_id; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sls_offer.shipping_sys_address_id IS 'Belgeye ait teslimat adresi; boşsa fatura adresi';
+
+
+--
+-- Name: COLUMN sls_offer.usd_rate; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sls_offer.usd_rate IS '1 USD = usd_rate ana para (teklif tarihi, rapor için)';
+
+
+--
+-- Name: COLUMN sls_offer.eur_rate; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sls_offer.eur_rate IS '1 EUR = eur_rate ana para (teklif tarihi, rapor için)';
+
 
 --
 -- Name: sls_offer_detail; Type: TABLE; Schema: public; Owner: ths_admin
@@ -5759,8 +5886,12 @@ ALTER VIEW public.vw_acc_bank_branch OWNER TO ths_admin;
 CREATE VIEW public.vw_acc_exchange_rate AS
  SELECT id,
     rate_date,
+    currency,
     rate,
-    currency
+    forex_selling,
+    banknote_buying,
+    banknote_selling,
+    source
    FROM public.acc_exchange_rate r;
 
 
@@ -7574,7 +7705,19 @@ CREATE VIEW public.vw_sls_offer AS
     (( SELECT count(*) AS count
            FROM public.sls_offer_detail d
           WHERE (d.sls_offer_id = o.id)))::integer AS line_count,
-    o.description
+    o.description,
+    o.billing_address_id,
+    o.billing_sys_address_id,
+    (replace((public.fn_sys_address_text(o.billing_sys_address_id, NULL::character varying))::text, '
+'::text, ', '::text))::character varying(512) AS billing_address,
+    o.shipping_address_id,
+    o.shipping_sys_address_id,
+    (replace((public.fn_sys_address_text(o.shipping_sys_address_id, NULL::character varying))::text, '
+'::text, ', '::text))::character varying(512) AS shipping_address,
+    o.base_currency,
+    o.usd_rate,
+    o.eur_rate,
+    ((o.total_amount * o.exchange_rate))::numeric(18,2) AS total_amount_base
    FROM ((public.sls_offer o
      JOIN public.acc_account a ON ((a.id = o.acc_account_id)))
      LEFT JOIN public.emp_employee e ON ((e.id = o.emp_employee_id)));
@@ -11417,6 +11560,27 @@ CREATE INDEX sls_offer_acc_account_id_idx ON public.sls_offer USING btree (acc_a
 
 
 --
+-- Name: sls_offer_base_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_offer_base_currency_idx ON public.sls_offer USING btree (base_currency);
+
+
+--
+-- Name: sls_offer_billing_address_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_offer_billing_address_id_idx ON public.sls_offer USING btree (billing_address_id);
+
+
+--
+-- Name: sls_offer_billing_sys_address_id_key; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE UNIQUE INDEX sls_offer_billing_sys_address_id_key ON public.sls_offer USING btree (billing_sys_address_id);
+
+
+--
 -- Name: sls_offer_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -11435,6 +11599,20 @@ CREATE INDEX sls_offer_detail_stk_inventory_id_idx ON public.sls_offer_detail US
 --
 
 CREATE INDEX sls_offer_emp_employee_id_idx ON public.sls_offer USING btree (emp_employee_id);
+
+
+--
+-- Name: sls_offer_shipping_address_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_offer_shipping_address_id_idx ON public.sls_offer USING btree (shipping_address_id);
+
+
+--
+-- Name: sls_offer_shipping_sys_address_id_key; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE UNIQUE INDEX sls_offer_shipping_sys_address_id_key ON public.sls_offer USING btree (shipping_sys_address_id);
 
 
 --
@@ -13654,6 +13832,30 @@ ALTER TABLE ONLY public.sls_offer
 
 
 --
+-- Name: sls_offer sls_offer_base_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_base_currency_fkey FOREIGN KEY (base_currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer sls_offer_billing_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_billing_address_id_fkey FOREIGN KEY (billing_address_id) REFERENCES public.acc_account_address(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: sls_offer sls_offer_billing_sys_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_billing_sys_address_id_fkey FOREIGN KEY (billing_sys_address_id) REFERENCES public.sys_address(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sls_offer sls_offer_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -13683,6 +13885,22 @@ ALTER TABLE ONLY public.sls_offer_detail
 
 ALTER TABLE ONLY public.sls_offer
     ADD CONSTRAINT sls_offer_emp_employee_id_fkey FOREIGN KEY (emp_employee_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer sls_offer_shipping_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_shipping_address_id_fkey FOREIGN KEY (shipping_address_id) REFERENCES public.acc_account_address(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: sls_offer sls_offer_shipping_sys_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_shipping_sys_address_id_fkey FOREIGN KEY (shipping_sys_address_id) REFERENCES public.sys_address(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -14420,5 +14638,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict uSf9CzzxnpetPoIHOejgTanD2S1D8dnywx3MFXcO9WpECrCNyGScl4PBpwZVdq8
+\unrestrict gJtQ7e6qy9c6q8PMFziw3IjZqNC4xEooqWzKQ5PgnUdXUihdBbzLLaFWlV9LHCj
 

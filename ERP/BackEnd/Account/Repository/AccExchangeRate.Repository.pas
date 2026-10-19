@@ -37,6 +37,14 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    // O gün için (herhangi kaynaktan) kur var mı
+    function HasRateOn(ADate: TDate): Boolean;
+    // TCMB kuru: yoksa eklenir, TCMB kaynaklıysa güncellenir, elle girilmiş (MANUAL) satıra dokunulmaz;
+    // sys_currency'de tanımlı olmayan döviz atlanır. Yazıldıysa True.
+    function UpsertTcmb(ADate: TDate; const ACurrency: string; AForexBuying, AForexSelling, ABanknoteBuying,
+      ABanknoteSelling: Double): Boolean;
+    // 1 ACurrency = ? ana para (fn_exchange_rate: o güne kadarki son döviz alış kuru); yoksa 0
+    function GetRate(const ACurrency: string; ADate: TDate): Double;
   end;
 
 implementation
@@ -46,17 +54,102 @@ begin
   inherited Create(AConnection);
 end;
 
+function TAccExchangeRateRepository.HasRateOn(ADate: TDate): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT EXISTS (SELECT 1 FROM public.acc_exchange_rate WHERE rate_date = :rate_date) AS v';
+    Q.ParamByName('rate_date').DataType := ftDate;
+    Q.ParamByName('rate_date').AsDate := ADate;
+    LogQuery(Q, 'HasRateOn');
+    Q.Open;
+    Result := Q.FieldByName('v').AsBoolean;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccExchangeRateRepository.UpsertTcmb(ADate: TDate; const ACurrency: string; AForexBuying, AForexSelling,
+  ABanknoteBuying, ABanknoteSelling: Double): Boolean;
+var
+  Q: TFDQuery;
+
+  procedure SetRate(const AName: string; AValue: Double);
+  begin
+    Q.ParamByName(AName).DataType := ftFloat;
+    if AValue > 0 then
+      Q.ParamByName(AName).AsFloat := AValue
+    else
+      Q.ParamByName(AName).Clear;
+  end;
+
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text :=
+      'INSERT INTO public.acc_exchange_rate (rate_date, currency, rate, forex_selling, banknote_buying, banknote_selling, source) ' +
+      'SELECT :rate_date, c.currency, round(:rate::numeric, 6), round(:forex_selling::numeric, 6), ' +
+      '       round(:banknote_buying::numeric, 6), round(:banknote_selling::numeric, 6), ''TCMB'' ' +
+      '  FROM public.sys_currency c WHERE c.currency = :currency ' +
+      'ON CONFLICT (rate_date, currency) DO UPDATE SET rate = EXCLUDED.rate, forex_selling = EXCLUDED.forex_selling, ' +
+      '       banknote_buying = EXCLUDED.banknote_buying, banknote_selling = EXCLUDED.banknote_selling ' +
+      ' WHERE acc_exchange_rate.source = ''TCMB''';
+    Q.ParamByName('rate_date').DataType := ftDate;
+    Q.ParamByName('rate_date').AsDate := ADate;
+    Q.ParamByName('currency').DataType := ftWideString;
+    Q.ParamByName('currency').AsWideString := ACurrency;
+    SetRate('rate', AForexBuying);
+    SetRate('forex_selling', AForexSelling);
+    SetRate('banknote_buying', ABanknoteBuying);
+    SetRate('banknote_selling', ABanknoteSelling);
+    LogQuery(Q, 'UpsertTcmb');
+    Q.ExecSQL;
+    Result := Q.RowsAffected > 0;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccExchangeRateRepository.GetRate(const ACurrency: string; ADate: TDate): Double;
+var
+  Q: TFDQuery;
+begin
+  Result := 0;
+  if (Trim(ACurrency) = '') or (ADate <= 0) then
+    Exit;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT public.fn_exchange_rate(:currency, :rate_date)::float8 AS v';
+    Q.ParamByName('currency').DataType := ftWideString;
+    Q.ParamByName('currency').AsWideString := ACurrency;
+    Q.ParamByName('rate_date').DataType := ftDate;
+    Q.ParamByName('rate_date').AsDate := ADate;
+    LogQuery(Q, 'GetRate');
+    Q.Open;
+    if not Q.FieldByName('v').IsNull then
+      Result := Q.FieldByName('v').AsFloat;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TAccExchangeRateRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TAccExchangeRate) +
-            ' (rate_date, currency, rate) ' +
-            ' VALUES (:rate_date, :currency, :rate)';
+            ' (rate_date, currency, rate, forex_selling, banknote_buying, banknote_selling, source) ' +
+            ' VALUES (:rate_date, :currency, :rate, :forex_selling, :banknote_buying, :banknote_selling, :source)';
 end;
 
 function TAccExchangeRateRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TAccExchangeRate) +
-            ' SET rate_date = :rate_date, currency = :currency, rate = :rate ' +
+            ' SET rate_date = :rate_date, currency = :currency, rate = :rate, forex_selling = :forex_selling, ' +
+            '     banknote_buying = :banknote_buying, banknote_selling = :banknote_selling, source = :source ' +
             ' WHERE id = :id';
 end;
 
@@ -106,10 +199,18 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('rate').AsBCD := AModel.Rate;
+    Q.ParamByName('forex_selling').AsBCD := AModel.ForexSelling;
+    Q.ParamByName('banknote_buying').AsBCD := AModel.BanknoteBuying;
+    Q.ParamByName('banknote_selling').AsBCD := AModel.BanknoteSelling;
+    Q.ParamByName('source').AsWideString := AModel.Source;
   end
   else
   begin
     Q.ParamByName('rate').AsBCDs[AIndex] := AModel.Rate;
+    Q.ParamByName('forex_selling').AsBCDs[AIndex] := AModel.ForexSelling;
+    Q.ParamByName('banknote_buying').AsBCDs[AIndex] := AModel.BanknoteBuying;
+    Q.ParamByName('banknote_selling').AsBCDs[AIndex] := AModel.BanknoteSelling;
+    Q.ParamByName('source').AsWideStrings[AIndex] := AModel.Source;
   end;
 
   SetDate('rate_date', AModel.RateDate);
@@ -157,11 +258,19 @@ begin
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('rate').AsBCD := AModel.Rate;
+    Q.ParamByName('forex_selling').AsBCD := AModel.ForexSelling;
+    Q.ParamByName('banknote_buying').AsBCD := AModel.BanknoteBuying;
+    Q.ParamByName('banknote_selling').AsBCD := AModel.BanknoteSelling;
+    Q.ParamByName('source').AsWideString := AModel.Source;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
     Q.ParamByName('rate').AsBCDs[AIndex] := AModel.Rate;
+    Q.ParamByName('forex_selling').AsBCDs[AIndex] := AModel.ForexSelling;
+    Q.ParamByName('banknote_buying').AsBCDs[AIndex] := AModel.BanknoteBuying;
+    Q.ParamByName('banknote_selling').AsBCDs[AIndex] := AModel.BanknoteSelling;
+    Q.ParamByName('source').AsWideStrings[AIndex] := AModel.Source;
   end;
 
   SetDate('rate_date', AModel.RateDate);
@@ -178,6 +287,10 @@ begin
     Result.RateDate := Q.FieldByName('rate_date').AsDateTime;
   Result.Currency := Q.FieldByName('currency').AsString;
   Result.Rate := Q.FieldByName('rate').AsCurrency;
+  Result.ForexSelling := Q.FieldByName('forex_selling').AsCurrency;
+  Result.BanknoteBuying := Q.FieldByName('banknote_buying').AsCurrency;
+  Result.BanknoteSelling := Q.FieldByName('banknote_selling').AsCurrency;
+  Result.Source := Q.FieldByName('source').AsString;
 end;
 
 function TAccExchangeRateRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

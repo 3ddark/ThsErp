@@ -157,6 +157,10 @@ begin
   SetColumnProperty('id', 0);
   SetColumnProperty('acc_account_id', 0);
   SetColumnProperty('emp_employee_id', 0);
+  SetColumnProperty('billing_address_id', 0);
+  SetColumnProperty('billing_sys_address_id', 0);
+  SetColumnProperty('shipping_address_id', 0);
+  SetColumnProperty('shipping_sys_address_id', 0);
   LField := Grd.DataSource.DataSet.FindField('status');
   if Assigned(LField) then
     LField.OnGetText := StatusGetText;
@@ -214,6 +218,12 @@ begin
   SetColumnTitle('account_name', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColAccountName, 'Customer'));
   SetColumnTitle('employee_name', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColEmployeeName, 'Sales Representative'));
   SetColumnTitle('line_count', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColLineCount, 'Lines'));
+  SetColumnTitle('billing_address', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColBillingAddress, 'Billing Address'));
+  SetColumnTitle('shipping_address', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColShippingAddress, 'Shipping Address'));
+  SetColumnTitle('base_currency', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColBaseCurrency, 'Base Currency'));
+  SetColumnTitle('usd_rate', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColUsdRate, 'USD Rate'));
+  SetColumnTitle('eur_rate', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColEurRate, 'EUR Rate'));
+  SetColumnTitle('total_amount_base', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColTotalAmountBase, 'Total (Base Currency)'));
   if Assigned(FmniSend) then
     FmniSend.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuSend, 'Mark as Sent');
   if Assigned(FmniToDraft) then

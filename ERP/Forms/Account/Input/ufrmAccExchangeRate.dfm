@@ -2,7 +2,7 @@ object frmAccExchangeRate: TfrmAccExchangeRate
   Left = 0
   Top = 0
   Caption = 'Exchange Rate'
-  ClientHeight = 139
+  ClientHeight = 231
   ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,7 +16,7 @@ object frmAccExchangeRate: TfrmAccExchangeRate
     Left = 0
     Top = 0
     Width = 480
-    Height = 139
+    Height = 231
     Align = alClient
     TabOrder = 0
     object lblRateDate: TLabel
@@ -86,6 +86,96 @@ object frmAccExchangeRate: TfrmAccExchangeRate
       Width = 333
       Height = 22
       TabOrder = 2
+    end
+    object lblForexSelling: TLabel
+      Left = 4
+      Top = 75
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'ForexSelling'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtForexSelling: TEdit
+      Left = 132
+      Top = 71
+      Width = 333
+      Height = 22
+      TabOrder = 3
+    end
+    object lblBanknoteBuying: TLabel
+      Left = 4
+      Top = 98
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'BanknoteBuying'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtBanknoteBuying: TEdit
+      Left = 132
+      Top = 94
+      Width = 333
+      Height = 22
+      TabOrder = 4
+    end
+    object lblBanknoteSelling: TLabel
+      Left = 4
+      Top = 121
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'BanknoteSelling'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtBanknoteSelling: TEdit
+      Left = 132
+      Top = 117
+      Width = 333
+      Height = 22
+      TabOrder = 5
+    end
+    object lblSource: TLabel
+      Left = 4
+      Top = 144
+      Width = 124
+      Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Source'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object edtSource: TEdit
+      Left = 132
+      Top = 140
+      Width = 333
+      Height = 22
+      ReadOnly = True
+      TabStop = False
+      TabOrder = 6
     end
   end
 end

@@ -44,6 +44,8 @@ type
     procedure RecalculateTotals(AOfferId: Int64);
     procedure RefreshOrderedQuantities(AOfferId: Int64);
     function GetDefaultCurrency: string;
+    // Tablodaki (kayıtlı) belge adresi id'leri; yeni kayıtta 0
+    procedure GetSysAddressIds(AOfferId: Int64; out ABillingId, AShippingId: Int64);
   end;
 
 implementation
@@ -189,17 +191,42 @@ begin
   end;
 end;
 
+procedure TSlsOfferRepository.GetSysAddressIds(AOfferId: Int64; out ABillingId, AShippingId: Int64);
+var
+  Q: TFDQuery;
+begin
+  ABillingId := 0;
+  AShippingId := 0;
+  if AOfferId <= 0 then
+    Exit;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT billing_sys_address_id, shipping_sys_address_id FROM public.sls_offer WHERE id = :id';
+    Q.ParamByName('id').AsLargeInt := AOfferId;
+    LogQuery(Q, 'GetSysAddressIds');
+    Q.Open;
+    if not Q.IsEmpty then
+    begin
+      ABillingId := Q.FieldByName('billing_sys_address_id').AsLargeInt;
+      AShippingId := Q.FieldByName('shipping_sys_address_id').AsLargeInt;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TSlsOfferRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSlsOffer) +
-            ' (offer_no, offer_date, valid_until, acc_account_id, customer_ref_no, emp_employee_id, currency, exchange_rate, payment_term_days, status, gross_amount, discount_amount, net_amount, vat_amount, total_amount, description) ' +
-            ' VALUES (:offer_no, :offer_date, :valid_until, :acc_account_id, :customer_ref_no, :emp_employee_id, :currency, :exchange_rate, :payment_term_days, :status, :gross_amount, :discount_amount, :net_amount, :vat_amount, :total_amount, :description)';
+            ' (offer_no, offer_date, valid_until, acc_account_id, customer_ref_no, emp_employee_id, currency, exchange_rate, payment_term_days, status, gross_amount, discount_amount, net_amount, vat_amount, total_amount, description, billing_address_id, billing_sys_address_id, shipping_address_id, shipping_sys_address_id, base_currency, usd_rate, eur_rate) ' +
+            ' VALUES (:offer_no, :offer_date, :valid_until, :acc_account_id, :customer_ref_no, :emp_employee_id, :currency, :exchange_rate, :payment_term_days, :status, :gross_amount, :discount_amount, :net_amount, :vat_amount, :total_amount, :description, :billing_address_id, :billing_sys_address_id, :shipping_address_id, :shipping_sys_address_id, :base_currency, :usd_rate, :eur_rate)';
 end;
 
 function TSlsOfferRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSlsOffer) +
-            ' SET offer_no = :offer_no, offer_date = :offer_date, valid_until = :valid_until, acc_account_id = :acc_account_id, customer_ref_no = :customer_ref_no, emp_employee_id = :emp_employee_id, currency = :currency, exchange_rate = :exchange_rate, payment_term_days = :payment_term_days, status = :status, gross_amount = :gross_amount, discount_amount = :discount_amount, net_amount = :net_amount, vat_amount = :vat_amount, total_amount = :total_amount, description = :description ' +
+            ' SET offer_no = :offer_no, offer_date = :offer_date, valid_until = :valid_until, acc_account_id = :acc_account_id, customer_ref_no = :customer_ref_no, emp_employee_id = :emp_employee_id, currency = :currency, exchange_rate = :exchange_rate, payment_term_days = :payment_term_days, status = :status, gross_amount = :gross_amount, discount_amount = :discount_amount, net_amount = :net_amount, vat_amount = :vat_amount, total_amount = :total_amount, description = :description, billing_address_id = :billing_address_id, billing_sys_address_id = :billing_sys_address_id, shipping_address_id = :shipping_address_id, shipping_sys_address_id = :shipping_sys_address_id, base_currency = :base_currency, usd_rate = :usd_rate, eur_rate = :eur_rate ' +
             ' WHERE id = :id';
 end;
 
@@ -242,6 +269,9 @@ begin
     Q.ParamByName('vat_amount').AsBCD := AModel.VatAmount;
     Q.ParamByName('total_amount').AsBCD := AModel.TotalAmount;
     Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('base_currency').AsWideString := AModel.BaseCurrency;
+    Q.ParamByName('usd_rate').AsBCD := AModel.UsdRate;
+    Q.ParamByName('eur_rate').AsBCD := AModel.EurRate;
   end
   else
   begin
@@ -257,12 +287,19 @@ begin
     Q.ParamByName('vat_amount').AsBCDs[AIndex] := AModel.VatAmount;
     Q.ParamByName('total_amount').AsBCDs[AIndex] := AModel.TotalAmount;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('base_currency').AsWideStrings[AIndex] := AModel.BaseCurrency;
+    Q.ParamByName('usd_rate').AsBCDs[AIndex] := AModel.UsdRate;
+    Q.ParamByName('eur_rate').AsBCDs[AIndex] := AModel.EurRate;
   end;
 
   SetDate('offer_date', AModel.OfferDate);
   SetDate('valid_until', AModel.ValidUntil);
   SetNullableParam(Q.ParamByName('acc_account_id'), ftLargeint, AModel.AccAccountId, AIndex);
   SetNullableParam(Q.ParamByName('emp_employee_id'), ftLargeint, AModel.EmpEmployeeId, AIndex);
+  SetNullableParam(Q.ParamByName('billing_address_id'), ftLargeint, AModel.BillingAddressId, AIndex);
+  SetNullableParam(Q.ParamByName('shipping_address_id'), ftLargeint, AModel.ShippingAddressId, AIndex);
+  SetNullableParam(Q.ParamByName('billing_sys_address_id'), ftLargeint, AModel.BillingSysAddressId, AIndex);
+  SetNullableParam(Q.ParamByName('shipping_sys_address_id'), ftLargeint, AModel.ShippingSysAddressId, AIndex);
 end;
 
 procedure TSlsOfferRepository.SetUpdateParams(Q: TFDQuery; AModel: TSlsOffer; AIndex: Integer);
@@ -299,6 +336,9 @@ begin
     Q.ParamByName('vat_amount').AsBCD := AModel.VatAmount;
     Q.ParamByName('total_amount').AsBCD := AModel.TotalAmount;
     Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('base_currency').AsWideString := AModel.BaseCurrency;
+    Q.ParamByName('usd_rate').AsBCD := AModel.UsdRate;
+    Q.ParamByName('eur_rate').AsBCD := AModel.EurRate;
   end
   else
   begin
@@ -315,12 +355,19 @@ begin
     Q.ParamByName('vat_amount').AsBCDs[AIndex] := AModel.VatAmount;
     Q.ParamByName('total_amount').AsBCDs[AIndex] := AModel.TotalAmount;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('base_currency').AsWideStrings[AIndex] := AModel.BaseCurrency;
+    Q.ParamByName('usd_rate').AsBCDs[AIndex] := AModel.UsdRate;
+    Q.ParamByName('eur_rate').AsBCDs[AIndex] := AModel.EurRate;
   end;
 
   SetDate('offer_date', AModel.OfferDate);
   SetDate('valid_until', AModel.ValidUntil);
   SetNullableParam(Q.ParamByName('acc_account_id'), ftLargeint, AModel.AccAccountId, AIndex);
   SetNullableParam(Q.ParamByName('emp_employee_id'), ftLargeint, AModel.EmpEmployeeId, AIndex);
+  SetNullableParam(Q.ParamByName('billing_address_id'), ftLargeint, AModel.BillingAddressId, AIndex);
+  SetNullableParam(Q.ParamByName('shipping_address_id'), ftLargeint, AModel.ShippingAddressId, AIndex);
+  SetNullableParam(Q.ParamByName('billing_sys_address_id'), ftLargeint, AModel.BillingSysAddressId, AIndex);
+  SetNullableParam(Q.ParamByName('shipping_sys_address_id'), ftLargeint, AModel.ShippingSysAddressId, AIndex);
 end;
 
 function TSlsOfferRepository.MapFromQuery(Q: TFDQuery): TSlsOffer;
@@ -349,6 +396,16 @@ begin
   Result.VatAmount := Q.FieldByName('vat_amount').AsCurrency;
   Result.TotalAmount := Q.FieldByName('total_amount').AsCurrency;
   Result.Description := Q.FieldByName('description').AsString;
+  Result.BillingAddressId := Q.FieldByName('billing_address_id').AsLargeInt;
+  Result.BillingSysAddressId := Q.FieldByName('billing_sys_address_id').AsLargeInt;
+  Result.BillingAddressText := Q.FieldByName('billing_address').AsString;
+  Result.ShippingAddressId := Q.FieldByName('shipping_address_id').AsLargeInt;
+  Result.ShippingSysAddressId := Q.FieldByName('shipping_sys_address_id').AsLargeInt;
+  Result.ShippingAddressText := Q.FieldByName('shipping_address').AsString;
+  Result.BaseCurrency := Q.FieldByName('base_currency').AsString;
+  Result.UsdRate := Q.FieldByName('usd_rate').AsCurrency;
+  Result.EurRate := Q.FieldByName('eur_rate').AsCurrency;
+  Result.TotalAmountBase := Q.FieldByName('total_amount_base').AsCurrency;
   Result.AccountCode := Q.FieldByName('account_code').AsString;
   Result.AccountName := Q.FieldByName('account_name').AsString;
   Result.EmployeeName := Q.FieldByName('employee_name').AsString;

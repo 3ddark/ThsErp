@@ -26,6 +26,13 @@ type
 
     procedure ValidateBusinessRules(AEntity: TSysAddress; AOperation: TCrudOperation); override;
 
+    // Belgeye ait adres kopyaları için: şehir ve metin alanları (AKeepId: hedefin id'si korunur)
+    class procedure CopyValues(ASource, ATarget: TSysAddress; AKeepId: Boolean = True);
+    // Şehir seçilmemiş ve tüm metin alanları boş
+    class function IsEmpty(AAddress: TSysAddress): Boolean;
+    // Metin alanları kırpılır
+    class procedure Normalize(AAddress: TSysAddress);
+
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
     function Find(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean = False): TList<TSysAddress>; override;
@@ -58,6 +65,49 @@ end;
 destructor TSysAddressService.Destroy;
 begin
   inherited;
+end;
+
+class procedure TSysAddressService.CopyValues(ASource, ATarget: TSysAddress; AKeepId: Boolean);
+begin
+  if not AKeepId then
+    ATarget.Id := ASource.Id;
+  ATarget.SysCityId := ASource.SysCityId;
+  ATarget.District := ASource.District;
+  ATarget.Neighborhood := ASource.Neighborhood;
+  ATarget.Quarter := ASource.Quarter;
+  ATarget.Road := ASource.Road;
+  ATarget.Street := ASource.Street;
+  ATarget.BuildingName := ASource.BuildingName;
+  ATarget.DoorNumber := ASource.DoorNumber;
+  ATarget.ZipCode := ASource.ZipCode;
+  ATarget.Web := ASource.Web;
+  ATarget.Email := ASource.Email;
+  ATarget.SysCity.Free;
+  ATarget.SysCity := nil;
+  if Assigned(ASource.SysCity) then
+    ATarget.SysCity := ASource.SysCity.Clone;
+end;
+
+class function TSysAddressService.IsEmpty(AAddress: TSysAddress): Boolean;
+begin
+  Result := (AAddress.SysCityId <= 0) and (Trim(AAddress.District) = '') and (Trim(AAddress.Neighborhood) = '') and
+    (Trim(AAddress.Quarter) = '') and (Trim(AAddress.Road) = '') and (Trim(AAddress.Street) = '') and
+    (Trim(AAddress.BuildingName) = '') and (Trim(AAddress.DoorNumber) = '') and (Trim(AAddress.ZipCode) = '') and
+    (Trim(AAddress.Web) = '') and (Trim(AAddress.Email) = '');
+end;
+
+class procedure TSysAddressService.Normalize(AAddress: TSysAddress);
+begin
+  AAddress.District := Trim(AAddress.District);
+  AAddress.Neighborhood := Trim(AAddress.Neighborhood);
+  AAddress.Quarter := Trim(AAddress.Quarter);
+  AAddress.Road := Trim(AAddress.Road);
+  AAddress.Street := Trim(AAddress.Street);
+  AAddress.BuildingName := Trim(AAddress.BuildingName);
+  AAddress.DoorNumber := Trim(AAddress.DoorNumber);
+  AAddress.ZipCode := Trim(AAddress.ZipCode);
+  AAddress.Web := Trim(AAddress.Web);
+  AAddress.Email := Trim(AAddress.Email);
 end;
 
 procedure TSysAddressService.ValidateInsert(AEntity: TSysAddress);

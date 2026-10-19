@@ -37,6 +37,9 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    // Belge için varsayılan (bugün geçerli) cari adresi: önce AAddressType; AExactType değilse sonra birincil / LEGAL / ilk.
+    // Yoksa 0.
+    function FindDocumentDefault(AAccountId: Int64; const AAddressType: string; AExactType: Boolean): Int64;
   end;
 
 implementation
@@ -45,6 +48,36 @@ constructor TAccAccountAddressRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
 end;
+
+function TAccAccountAddressRepository.FindDocumentDefault(AAccountId: Int64; const AAddressType: string;
+  AExactType: Boolean): Int64;
+var
+  Q: TFDQuery;
+begin
+  Result := 0;
+  if AAccountId <= 0 then
+    Exit;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT id FROM public.acc_account_address ' +
+                  ' WHERE acc_account_id = :acc_account_id ' +
+                  '   AND (valid_from IS NULL OR valid_from <= CURRENT_DATE) AND (valid_to IS NULL OR valid_to >= CURRENT_DATE) ' +
+                  '   AND (NOT :exact_type OR address_type = :address_type) ' +
+                  ' ORDER BY (address_type = :address_type) DESC, is_primary DESC, (address_type = ''LEGAL'') DESC, id ' +
+                  ' LIMIT 1';
+    Q.ParamByName('acc_account_id').AsLargeInt := AAccountId;
+    Q.ParamByName('address_type').AsWideString := AAddressType;
+    Q.ParamByName('exact_type').AsBoolean := AExactType;
+    LogQuery(Q, 'FindDocumentDefault');
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := Q.FieldByName('id').AsLargeInt;
+  finally
+    Q.Free;
+  end;
+end;
+
 
 function TAccAccountAddressRepository.PrepareAddSql: string;
 begin
