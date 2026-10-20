@@ -826,7 +826,8 @@ begin
   end;
 end;
 
-// Hesap kodu: 3 haneli seviyeler, üst hesap var ve son hesap değil, alt hesabı olanın kodu değişmez; kart listeleri
+// Hesap kodu: 3 haneli seviyeler, ana kod hesap planında ve kod plan seviyesini aşmaz, üst hesap var, alt hesabı olanın
+// kodu değişmez; hesap tipi koddan + plan seviyesinden türetilir; kart listeleri plana göre
 procedure InsertAccountCode(Svc: TAccAccountService; ABase: Int64; const ACode: string);
 var
   X: TAccAccount;
@@ -847,7 +848,13 @@ var
   Svc: TAccAccountService;
   Base: Int64;
   Items: TStringList;
-  FreeCode, Detail: string;
+  FreeCode, Detail, Code: string;
+
+  function TypeOf(const ACode: string): string;
+  begin
+    Result := S(Scalar('SELECT acc_set_account_type_id::text FROM acc_account WHERE code = ''' + ACode + ''''));
+  end;
+
 begin
   Ctx('Account', 'TAccAccount.Code');
   Base := Scalar('SELECT id FROM acc_account WHERE code = ''120-001''');
@@ -867,28 +874,55 @@ begin
         'WHERE NOT EXISTS (SELECT 1 FROM acc_account a WHERE a.code = s.c)'))), Items[0] + ' / ' + IntToStr(Items.Count));
       FreeCode := Items[0];
       Items.Text := Svc.FreeCodesText('');
-      Check('free main codes 100-999', (Items.Count > 0) and (Items.IndexOf('120') < 0) and (Length(Items[0]) = 3));
+      Check('free main codes from plan', (Items.Count > 0) and (Items.IndexOf('120') < 0) and
+        (Num(Scalar('SELECT count(*) FROM acc_account_plan WHERE code = ''' + Items[0] + '''')) = 1));
+      Check('type for levels', (TAccAccountService.AccountTypeFor(1, 1) = ACC_ACCOUNT_TYPE_DETAIL) and
+        (TAccAccountService.AccountTypeFor(1, 3) = ACC_ACCOUNT_TYPE_MAIN) and
+        (TAccAccountService.AccountTypeFor(2, 3) = ACC_ACCOUNT_TYPE_INTERMEDIATE) and
+        (TAccAccountService.AccountTypeFor(2, 2) = ACC_ACCOUNT_TYPE_DETAIL) and
+        (TAccAccountService.AccountTypeFor(3, 3) = ACC_ACCOUNT_TYPE_DETAIL));
+      Check('no free codes under detail level', (Svc.FreeCodesText('600') = '') and (Svc.FreeCodesText('153-001') = ''));
       Items.Text := Svc.ParentAccountsText('120');
       Check('intermediate list', Items.IndexOf('120-001 - ' + S(Scalar('SELECT name FROM acc_account WHERE id = ' + Base.ToString))) >= 0,
         Items.Text);
       Items.Text := Svc.ParentAccountsText('');
-      Check('detail accounts are not parents', (Items.Count > 0) and (Items.Text.IndexOf('600 - ') < 0));
+      Check('single level plan codes are not parents', (Items.Count > 0) and (Items.Text.IndexOf('600 - ') < 0));
       Check('invalid parent returns nothing', Svc.FreeCodesText('12-1') = '');
 
       Begin_;
       InsertAccountCode(Svc, Base, FreeCode);
       Check('insert first free code', Num(Scalar('SELECT count(*) FROM acc_account WHERE code = ''' + FreeCode + '''')) = 1);
+      Check('level 3 of 3 -> detail', TypeOf(FreeCode) = '3', TypeOf(FreeCode));
+      Items.Text := Svc.FreeCodesText('120');
+      Code := Items[0];
+      InsertAccountCode(Svc, Base, Code);
+      Check('level 2 of 3 -> intermediate', TypeOf(Code) = '2', Code + ' ' + TypeOf(Code));
+      Items.Text := Svc.FreeCodesText('153');
+      Code := Items[0];
+      InsertAccountCode(Svc, Base, Code);
+      Check('level 2 of 2 -> detail', TypeOf(Code) = '3', Code + ' ' + TypeOf(Code));
+      Code := S(Scalar('SELECT min(p.code) FROM acc_account_plan p WHERE p.level = 1 AND NOT EXISTS (SELECT 1 FROM acc_account a WHERE a.code = p.code)'));
+      if Code <> '<null>' then
+      begin
+        InsertAccountCode(Svc, Base, Code);
+        Check('level 1 of 1 -> detail', TypeOf(Code) = '3', Code + ' ' + TypeOf(Code));
+      end;
+      Code := S(Scalar('SELECT min(p.code) FROM acc_account_plan p WHERE p.level > 1 AND NOT EXISTS (SELECT 1 FROM acc_account a WHERE a.code = p.code)'));
+      if Code <> '<null>' then
+      begin
+        InsertAccountCode(Svc, Base, Code);
+        Check('level 1 of 2+ -> main', TypeOf(Code) = '1', Code + ' ' + TypeOf(Code));
+      end;
       End_;
 
       Begin_;
       Expect('bad format 120-1-90', procedure begin InsertAccountCode(Svc, Base, '120-1-90'); end);
       Begin_;
       Expect('parent missing', procedure begin InsertAccountCode(Svc, Base, '120-999-001'); end);
-      if Detail <> '<null>' then
-      begin
-        Begin_;
-        Expect('parent is detail account', procedure begin InsertAccountCode(Svc, Base, Detail + '-001'); end);
-      end;
+      Begin_;
+      Expect('deeper than plan level', procedure begin InsertAccountCode(Svc, Base, '153-001-001'); end);
+      Begin_;
+      Expect('main code not in plan', procedure begin InsertAccountCode(Svc, Base, '997'); end);
       Begin_;
       Expect('code change with children', procedure
         var X: TAccAccount;

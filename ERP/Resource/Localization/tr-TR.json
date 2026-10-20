@@ -2489,6 +2489,7 @@
   "document_address.btn_from_billing": "Fatura Adresini Kullan",
   "acc_account.code_format": "Hesap kodu 999, 999-999 veya 999-999-999 biçiminde olmalıdır.",
   "acc_account.code_parent_missing": "Üst hesap %s bulunamadı.",
-  "acc_account.code_parent_detail": "%s son hesaptır; altına hesap açılamaz.",
-  "acc_account.code_has_children": "Alt hesapları olan hesabın kodu değiştirilemez."
+  "acc_account.code_has_children": "Alt hesapları olan hesabın kodu değiştirilemez.",
+  "acc_account.code_not_in_plan": "Ana kod %s hesap planında tanımlı değil.",
+  "acc_account.code_plan_level": "%s: hesap planında %s ana kodu %d seviyelidir."
 }

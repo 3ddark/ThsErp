@@ -2540,6 +2540,7 @@
   "document_address.btn_from_billing": "Utiliser l'adresse de facturation",
   "acc_account.code_format": "Le code du compte doit être au format 999, 999-999 ou 999-999-999.",
   "acc_account.code_parent_missing": "Le compte parent %s n'existe pas.",
-  "acc_account.code_parent_detail": "%s est un compte de détail ; aucun sous-compte ne peut être ouvert.",
-  "acc_account.code_has_children": "Le code d'un compte ayant des sous-comptes ne peut pas être modifié."
+  "acc_account.code_has_children": "Le code d'un compte ayant des sous-comptes ne peut pas être modifié.",
+  "acc_account.code_not_in_plan": "Le code principal %s n'est pas défini dans le plan comptable.",
+  "acc_account.code_plan_level": "%s : le code principal %s a %d niveau(x) dans le plan comptable."
 }

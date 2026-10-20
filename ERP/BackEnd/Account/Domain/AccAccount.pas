@@ -79,7 +79,8 @@ type
     [MaxLength(128), Required(TLangKeys.TValidation.Required, True)]
     property Name: string read FName write FName;
 
-    [Column('acc_set_account_type_id'), Required()]
+    // servis koddan ve hesap planı seviyesinden türetir (formda yok)
+    [Column('acc_set_account_type_id')]
     property AccSetAccountTypeId: Int64 read FAccSetAccountTypeId write FAccSetAccountTypeId;
 
     [Column('acc_group_id')]

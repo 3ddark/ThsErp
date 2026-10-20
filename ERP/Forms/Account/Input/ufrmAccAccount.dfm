@@ -2,7 +2,7 @@ object frmAccAccount: TfrmAccAccount
   Left = 0
   Top = 0
   Caption = 'Account Card'
-  ClientHeight = 420
+  ClientHeight = 397
   ClientWidth = 960
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,7 +16,7 @@ object frmAccAccount: TfrmAccAccount
     Left = 0
     Top = 0
     Width = 960
-    Height = 420
+    Height = 397
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -24,7 +24,7 @@ object frmAccAccount: TfrmAccAccount
       Left = 0
       Top = 0
       Width = 960
-      Height = 420
+      Height = 397
       ActivePage = tsGeneral
       Align = alClient
       TabOrder = 0
@@ -76,32 +76,9 @@ object frmAccAccount: TfrmAccAccount
           MaxLength = 128
           TabOrder = 3
         end
-        object lblAccSetAccountTypeId: TLabel
-          Left = 4
-          Top = 98
-          Width = 124
-          Height = 13
-          Alignment = taRightJustify
-          AutoSize = False
-          Caption = 'Account Type'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object edtAccSetAccountTypeId: TEdit
-          Left = 132
-          Top = 94
-          Width = 333
-          Height = 22
-          ReadOnly = True
-          TabOrder = 4
-        end
         object lblAccGroupId: TLabel
           Left = 4
-          Top = 121
+          Top = 98
           Width = 124
           Height = 13
           Alignment = taRightJustify
@@ -116,15 +93,15 @@ object frmAccAccount: TfrmAccAccount
         end
         object edtAccGroupId: TEdit
           Left = 132
-          Top = 117
+          Top = 94
           Width = 333
           Height = 22
           ReadOnly = True
-          TabOrder = 5
+          TabOrder = 4
         end
         object lblAccRegionId: TLabel
           Left = 4
-          Top = 144
+          Top = 121
           Width = 124
           Height = 13
           Alignment = taRightJustify
@@ -139,11 +116,11 @@ object frmAccAccount: TfrmAccAccount
         end
         object edtAccRegionId: TEdit
           Left = 132
-          Top = 140
+          Top = 117
           Width = 333
           Height = 22
           ReadOnly = True
-          TabOrder = 6
+          TabOrder = 5
         end
         object lblRootCode: TLabel
           Left = 4
@@ -193,7 +170,7 @@ object frmAccAccount: TfrmAccAccount
         end
         object lblIban: TLabel
           Left = 4
-          Top = 167
+          Top = 144
           Width = 124
           Height = 13
           Alignment = taRightJustify
@@ -208,15 +185,15 @@ object frmAccAccount: TfrmAccAccount
         end
         object edtIban: TEdit
           Left = 132
-          Top = 163
+          Top = 140
           Width = 333
           Height = 22
           MaxLength = 64
-          TabOrder = 7
+          TabOrder = 6
         end
         object lblIbanCurrency: TLabel
           Left = 4
-          Top = 190
+          Top = 167
           Width = 124
           Height = 13
           Alignment = taRightJustify
@@ -231,16 +208,16 @@ object frmAccAccount: TfrmAccAccount
         end
         object edtIbanCurrency: TEdit
           Left = 132
-          Top = 186
+          Top = 163
           Width = 333
           Height = 22
           MaxLength = 3
           ReadOnly = True
-          TabOrder = 8
+          TabOrder = 7
         end
         object lblDiscountRate: TLabel
           Left = 4
-          Top = 213
+          Top = 190
           Width = 124
           Height = 13
           Alignment = taRightJustify
@@ -255,14 +232,14 @@ object frmAccAccount: TfrmAccAccount
         end
         object edtDiscountRate: TEdit
           Left = 132
-          Top = 209
+          Top = 186
           Width = 333
           Height = 22
-          TabOrder = 9
+          TabOrder = 8
         end
         object lblEInvoiceActive: TLabel
           Left = 4
-          Top = 236
+          Top = 213
           Width = 124
           Height = 13
           Alignment = taRightJustify
@@ -277,22 +254,22 @@ object frmAccAccount: TfrmAccAccount
         end
         object chkEInvoiceActive: TCheckBox
           Left = 132
-          Top = 234
+          Top = 211
           Width = 150
           Height = 17
-          TabOrder = 10
+          TabOrder = 9
         end
         object chkEDespatchActive: TCheckBox
           Left = 288
-          Top = 234
+          Top = 211
           Width = 177
           Height = 17
           Caption = 'e-Despatch Active'
-          TabOrder = 11
+          TabOrder = 10
         end
         object lblEInvoicePackageName: TLabel
           Left = 4
-          Top = 259
+          Top = 236
           Width = 124
           Height = 13
           Alignment = taRightJustify
@@ -307,15 +284,15 @@ object frmAccAccount: TfrmAccAccount
         end
         object edtEInvoicePackageName: TEdit
           Left = 132
-          Top = 255
+          Top = 232
           Width = 333
           Height = 22
           MaxLength = 128
-          TabOrder = 12
+          TabOrder = 11
         end
         object lblIsPassive: TLabel
           Left = 4
-          Top = 282
+          Top = 259
           Width = 124
           Height = 13
           Alignment = taRightJustify
@@ -330,14 +307,14 @@ object frmAccAccount: TfrmAccAccount
         end
         object chkIsPassive: TCheckBox
           Left = 132
-          Top = 280
+          Top = 257
           Width = 333
           Height = 17
-          TabOrder = 13
+          TabOrder = 12
         end
         object lblNotes: TLabel
           Left = 4
-          Top = 305
+          Top = 282
           Width = 124
           Height = 13
           Alignment = taRightJustify
@@ -352,11 +329,11 @@ object frmAccAccount: TfrmAccAccount
         end
         object edtNotes: TEdit
           Left = 132
-          Top = 301
+          Top = 278
           Width = 333
           Height = 22
           MaxLength = 512
-          TabOrder = 14
+          TabOrder = 13
         end
         object lblAuthorizedPerson1: TLabel
           Left = 484
@@ -379,7 +356,7 @@ object frmAccAccount: TfrmAccAccount
           Width = 333
           Height = 22
           MaxLength = 64
-          TabOrder = 15
+          TabOrder = 14
         end
         object lblAuthorizedPhone1: TLabel
           Left = 484
@@ -402,7 +379,7 @@ object frmAccAccount: TfrmAccAccount
           Width = 333
           Height = 22
           MaxLength = 32
-          TabOrder = 16
+          TabOrder = 15
         end
         object lblAuthorizedPerson2: TLabel
           Left = 484
@@ -425,7 +402,7 @@ object frmAccAccount: TfrmAccAccount
           Width = 333
           Height = 22
           MaxLength = 64
-          TabOrder = 17
+          TabOrder = 16
         end
         object lblAuthorizedPhone2: TLabel
           Left = 484
@@ -448,7 +425,7 @@ object frmAccAccount: TfrmAccAccount
           Width = 333
           Height = 22
           MaxLength = 32
-          TabOrder = 18
+          TabOrder = 17
         end
         object lblAuthorizedPerson3: TLabel
           Left = 484
@@ -471,7 +448,7 @@ object frmAccAccount: TfrmAccAccount
           Width = 333
           Height = 22
           MaxLength = 64
-          TabOrder = 19
+          TabOrder = 18
         end
         object lblAuthorizedPhone3: TLabel
           Left = 484
@@ -494,7 +471,7 @@ object frmAccAccount: TfrmAccAccount
           Width = 333
           Height = 22
           MaxLength = 32
-          TabOrder = 20
+          TabOrder = 19
         end
         object lblFax: TLabel
           Left = 484
@@ -517,7 +494,7 @@ object frmAccAccount: TfrmAccAccount
           Width = 333
           Height = 22
           MaxLength = 32
-          TabOrder = 21
+          TabOrder = 20
         end
         object lblAccountantPhone: TLabel
           Left = 484
@@ -540,7 +517,7 @@ object frmAccAccount: TfrmAccAccount
           Width = 333
           Height = 22
           MaxLength = 32
-          TabOrder = 22
+          TabOrder = 21
         end
         object lblAccountantEmail: TLabel
           Left = 484
@@ -563,7 +540,7 @@ object frmAccAccount: TfrmAccAccount
           Width = 333
           Height = 22
           MaxLength = 128
-          TabOrder = 23
+          TabOrder = 22
         end
         object lblAccountantAuthorized: TLabel
           Left = 484
@@ -586,7 +563,7 @@ object frmAccAccount: TfrmAccAccount
           Width = 333
           Height = 22
           MaxLength = 32
-          TabOrder = 24
+          TabOrder = 23
         end
       end
       object tsTaxpayer: TTabSheet

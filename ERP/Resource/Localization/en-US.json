@@ -2540,6 +2540,7 @@
   "document_address.btn_from_billing": "Use Billing Address",
   "acc_account.code_format": "Account code must be in the form 999, 999-999 or 999-999-999.",
   "acc_account.code_parent_missing": "Parent account %s does not exist.",
-  "acc_account.code_parent_detail": "%s is a detail account; no sub-account can be opened under it.",
-  "acc_account.code_has_children": "The code of an account with sub-accounts cannot be changed."
+  "acc_account.code_has_children": "The code of an account with sub-accounts cannot be changed.",
+  "acc_account.code_not_in_plan": "Main code %s is not defined in the chart of accounts.",
+  "acc_account.code_plan_level": "%s: main code %s has %d level(s) in the chart of accounts."
 }

@@ -2540,6 +2540,7 @@
   "document_address.btn_from_billing": "Rechnungsadresse übernehmen",
   "acc_account.code_format": "Der Kontocode muss die Form 999, 999-999 oder 999-999-999 haben.",
   "acc_account.code_parent_missing": "Übergeordnetes Konto %s existiert nicht.",
-  "acc_account.code_parent_detail": "%s ist ein Buchungskonto; darunter kann kein Unterkonto eröffnet werden.",
-  "acc_account.code_has_children": "Der Code eines Kontos mit Unterkonten kann nicht geändert werden."
+  "acc_account.code_has_children": "Der Code eines Kontos mit Unterkonten kann nicht geändert werden.",
+  "acc_account.code_not_in_plan": "Hauptcode %s ist im Kontenplan nicht definiert.",
+  "acc_account.code_plan_level": "%s: Hauptcode %s hat im Kontenplan %d Ebene(n)."
 }

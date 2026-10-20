@@ -41,13 +41,16 @@ type
   public
     constructor Create(AConnection: TFDConnection);
 
-    // Hesap kodu seçimi (kart). AParentCode '' = birinci seviye. Sonuçlar satır satır tek metin (ComboBox.Items.Text):
-    // AParentCode'un bir alt seviyesindeki, altına hesap açılabilen (ADetailTypeId olmayan) hesaplar: "kod - ad"
-    function ListParentAccounts(const AParentCode: string; ADetailTypeId: Int64): string;
-    // AParentCode altında kullanılmayan kodlar (sıralı): birinci seviye 100-999, alt seviyeler 001-999
+    // Hesap kodu seçimi (kart), hesap planına (acc_account_plan.level = ana kodun seviye sayısı) göre. AParentCode '' =
+    // birinci seviye. Sonuçlar satır satır tek metin (ComboBox.Items.Text):
+    // AParentCode'un bir alt seviyesindeki, planda altına hesap açılabilen hesaplar: "kod - ad"
+    function ListParentAccounts(const AParentCode: string): string;
+    // Açılabilecek boş kodlar (sıralı): birinci seviyede planda olup açılmamış ana kodlar, alt seviyede (plan izin
+    // veriyorsa) 001-999
     function ListFreeCodes(const AParentCode: string): string;
-    // Hesabın tipi (acc_set_account_type_id); hesap yoksa 0
-    function AccountTypeOf(const ACode: string): Int64;
+    // Ana kodun plandaki seviye sayısı; planda yoksa 0
+    function PlanLevelOf(const ARootCode: string): Integer;
+    function AccountExists(const ACode: string): Boolean;
     // ACode'un altında hesap var mı (ACode-...)
     function HasChildAccounts(const ACode: string): Boolean;
     function CodeOf(AId: Int64): string;
@@ -60,7 +63,7 @@ begin
   inherited Create(AConnection);
 end;
 
-function TAccAccountRepository.ListParentAccounts(const AParentCode: string; ADetailTypeId: Int64): string;
+function TAccAccountRepository.ListParentAccounts(const AParentCode: string): string;
 var
   Q: TFDQuery;
 begin
@@ -68,10 +71,11 @@ begin
   try
     Q.Connection := Connection;
     // AParentCode yalnız rakam ve '-' içerir (servis kodu doğrular); regex içinde güvenli
-    Q.SQL.Text := 'SELECT string_agg(code || '' - '' || name, E''\n'' ORDER BY code) AS items FROM public.acc_account ' +
-                  ' WHERE acc_set_account_type_id <> :detail_type ' +
-                  '   AND code ~ (CASE WHEN :parent = '''' THEN ''^[0-9]{3}$'' ELSE ''^'' || :parent || ''-[0-9]{3}$'' END)';
-    Q.ParamByName('detail_type').AsLargeInt := ADetailTypeId;
+    // seviye = (length(code) + 1) / 4: 120 -> 1, 120-001 -> 2, 120-001-001 -> 3
+    Q.SQL.Text := 'SELECT string_agg(a.code || '' - '' || a.name, E''\n'' ORDER BY a.code) AS items ' +
+                  '  FROM public.acc_account a JOIN public.acc_account_plan p ON p.code = left(a.code, 3) ' +
+                  ' WHERE a.code ~ (CASE WHEN :parent = '''' THEN ''^[0-9]{3}$'' ELSE ''^'' || :parent || ''-[0-9]{3}$'' END) ' +
+                  '   AND p.level > (length(a.code) + 1) / 4';
     Q.ParamByName('parent').AsWideString := AParentCode;
     LogQuery(Q, 'ListParentAccounts');
     Q.Open;
@@ -89,8 +93,11 @@ begin
   try
     Q.Connection := Connection;
     Q.SQL.Text := 'SELECT string_agg(s.code, E''\n'' ORDER BY s.code) AS items ' +
-                  '  FROM (SELECT CASE WHEN :parent = '''' THEN n::text ELSE :parent || ''-'' || lpad(n::text, 3, ''0'') END AS code ' +
-                  '          FROM generate_series(CASE WHEN :parent = '''' THEN 100 ELSE 1 END, 999) n) s ' +
+                  '  FROM (SELECT p.code FROM public.acc_account_plan p WHERE :parent = '''' ' +
+                  '        UNION ALL ' +
+                  '        SELECT :parent || ''-'' || lpad(n::text, 3, ''0'') FROM generate_series(1, 999) n ' +
+                  '         WHERE :parent <> '''' AND EXISTS (SELECT 1 FROM public.acc_account_plan p ' +
+                  '                 WHERE p.code = left(:parent, 3) AND p.level > (length(:parent) + 1) / 4)) s ' +
                   ' WHERE NOT EXISTS (SELECT 1 FROM public.acc_account a WHERE a.code = s.code)';
     Q.ParamByName('parent').AsWideString := AParentCode;
     LogQuery(Q, 'ListFreeCodes');
@@ -101,7 +108,7 @@ begin
   end;
 end;
 
-function TAccAccountRepository.AccountTypeOf(const ACode: string): Int64;
+function TAccAccountRepository.PlanLevelOf(const ARootCode: string): Integer;
 var
   Q: TFDQuery;
 begin
@@ -109,12 +116,29 @@ begin
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := 'SELECT acc_set_account_type_id FROM public.acc_account WHERE code = :code';
-    Q.ParamByName('code').AsWideString := ACode;
-    LogQuery(Q, 'AccountTypeOf');
+    Q.SQL.Text := 'SELECT level FROM public.acc_account_plan WHERE code = :code';
+    Q.ParamByName('code').AsWideString := ARootCode;
+    LogQuery(Q, 'PlanLevelOf');
     Q.Open;
     if not Q.IsEmpty then
-      Result := Q.FieldByName('acc_set_account_type_id').AsLargeInt;
+      Result := Q.FieldByName('level').AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccAccountRepository.AccountExists(const ACode: string): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT EXISTS (SELECT 1 FROM public.acc_account WHERE code = :code) AS found';
+    Q.ParamByName('code').AsWideString := ACode;
+    LogQuery(Q, 'AccountExists');
+    Q.Open;
+    Result := Q.FieldByName('found').AsBoolean;
   finally
     Q.Free;
   end;

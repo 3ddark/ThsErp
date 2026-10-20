@@ -40,6 +40,9 @@ type
 
     // Hesap kodu yapısı: 3 haneli seviyeler, en çok üç seviye (120 / 120-001 / 120-001-001)
     class function IsValidCode(const ACode: string): Boolean;
+    class function CodeLevel(const ACode: string): Integer;
+    // Hesap tipi: kod seviyesi = plan seviyesi -> son hesap; daha üst seviyeler birinci seviyede ana, ikincide ara hesap
+    class function AccountTypeFor(ACodeLevel, APlanLevel: Integer): Int64;
     // Üst hesap kodu ('120-001-005' -> '120-001', '120' -> '')
     class function ParentCodeOf(const ACode: string): string;
     // Kartta kod seçimi (satır satır metin, ComboBox.Items.Text için): AParentCode '' = birinci seviye.
@@ -150,8 +153,8 @@ begin
     AEntity.AccountantPhone := Trim(AEntity.AccountantPhone);
     AEntity.AccountantEmail := Trim(AEntity.AccountantEmail);
     AEntity.AccountantAuthorized := Trim(AEntity.AccountantAuthorized);
-    ValidateRequiredReferences(AEntity);
     CheckCode(AEntity, AOperation);
+    ValidateRequiredReferences(AEntity);
     CheckTaxpayer(AEntity);
     // Hesap kodu yapısı: 120 / 120-001 / 120-001-001
     //   root_code = ilk 3 karakter, sub_code = üç seviyeli kodlarda üst (ara) hesap kodu
@@ -200,7 +203,7 @@ function TAccAccountService.ParentAccountsText(const AParentCode: string): strin
 begin
   if (AParentCode <> '') and not IsValidCode(AParentCode) then
     Exit('');
-  Result := TAccAccountRepository(FRepo).ListParentAccounts(AParentCode, ACC_ACCOUNT_TYPE_DETAIL);
+  Result := TAccAccountRepository(FRepo).ListParentAccounts(AParentCode);
 end;
 
 function TAccAccountService.FreeCodesText(const AParentCode: string): string;
@@ -210,27 +213,48 @@ begin
   Result := TAccAccountRepository(FRepo).ListFreeCodes(AParentCode);
 end;
 
-// Kod biçimi; üst hesap var ve son hesap değil; alt hesabı olan hesabın kodu değişmez (alt kodlar üst koda bağlı)
+class function TAccAccountService.CodeLevel(const ACode: string): Integer;
+begin
+  Result := ACode.CountChar('-') + 1;
+end;
+
+class function TAccAccountService.AccountTypeFor(ACodeLevel, APlanLevel: Integer): Int64;
+begin
+  if ACodeLevel >= APlanLevel then
+    Result := ACC_ACCOUNT_TYPE_DETAIL
+  else if ACodeLevel = 1 then
+    Result := ACC_ACCOUNT_TYPE_MAIN
+  else
+    Result := ACC_ACCOUNT_TYPE_INTERMEDIATE;
+end;
+
+// Kod biçimi; ana kod hesap planında var ve kod plan seviyesini aşmıyor; üst hesap açılmış; alt hesabı olan hesabın kodu
+// değişmez (alt kodlar üst koda bağlı). Hesap tipi buradan türetilir (plan: 600 tek seviye -> son, 350 iki seviye ->
+// 350-001 son, 120 üç seviye -> 120-001 ara, 120-001-001 son)
 procedure TAccAccountService.CheckCode(AEntity: TAccAccount; AOperation: TCrudOperation);
 var
-  LParent, LOldCode: string;
-  LParentType: Int64;
+  LParent, LOldCode, LRoot: string;
+  LPlanLevel: Integer;
 begin
   if not IsValidCode(AEntity.Code) then
     raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TAccAccount.CodeFormat,
       'Account code must be in the form 999, 999-999 or 999-999-999.'));
 
+  LRoot := Copy(AEntity.Code, 1, 3);
+  LPlanLevel := TAccAccountRepository(FRepo).PlanLevelOf(LRoot);
+  if LPlanLevel <= 0 then
+    raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TAccAccount.CodeNotInPlan,
+      'Main code %s is not defined in the chart of accounts.'), [LRoot]));
+  if CodeLevel(AEntity.Code) > LPlanLevel then
+    raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TAccAccount.CodePlanLevel,
+      '%s: main code %s has %d level(s) in the chart of accounts.'), [AEntity.Code, LRoot, LPlanLevel]));
+
   LParent := ParentCodeOf(AEntity.Code);
-  if LParent <> '' then
-  begin
-    LParentType := TAccAccountRepository(FRepo).AccountTypeOf(LParent);
-    if LParentType = 0 then
-      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TAccAccount.CodeParentMissing,
-        'Parent account %s does not exist.'), [LParent]));
-    if LParentType = ACC_ACCOUNT_TYPE_DETAIL then
-      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TAccAccount.CodeParentDetail,
-        '%s is a detail account; no sub-account can be opened under it.'), [LParent]));
-  end;
+  if (LParent <> '') and not TAccAccountRepository(FRepo).AccountExists(LParent) then
+    raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TAccAccount.CodeParentMissing,
+      'Parent account %s does not exist.'), [LParent]));
+
+  AEntity.AccSetAccountTypeId := AccountTypeFor(CodeLevel(AEntity.Code), LPlanLevel);
 
   if AOperation = coUpdate then
   begin

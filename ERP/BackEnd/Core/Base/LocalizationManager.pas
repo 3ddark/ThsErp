@@ -943,7 +943,8 @@ type
         const TaxNoDigits = 'acc_account.tax_no_digits';
         const CodeFormat = 'acc_account.code_format';
         const CodeParentMissing = 'acc_account.code_parent_missing';
-        const CodeParentDetail = 'acc_account.code_parent_detail';
+        const CodeNotInPlan = 'acc_account.code_not_in_plan';
+        const CodePlanLevel = 'acc_account.code_plan_level';
         const CodeHasChildren = 'acc_account.code_has_children';
       end;
 

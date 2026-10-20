@@ -927,15 +927,14 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
   e-belge (EInvDocument.Repository.ReadAccountParty) belgenin sys_address'ini kullanmalı. Yeni ekranlar elle denenmedi.
 
 ## Kalan
-- **İLK İŞ — Hesap tipi (Ana / Ara / Son) otomatik (kullanıcı isteği 2026-10-20):** cari kartında hesap tipi elle seçilmesin,
-  koddan ve plan seviyesinden türetilsin. Kaynak: `acc_account_plan (code, name, level)` — ana kodun plan seviyesi.
-  - 1. seviye kod (120) = Ana hesap (plan seviyesi 1 olan kodlar son hesap olabilir mi? 600 / 601 şu an tip 3 — kullanıcıya sor).
-  - Plan seviyesi 2 (ör. 350): 350-001 = Son hesap.
-  - Plan seviyesi 3 (ör. 120): 120-001 = Ara hesap, 120-001-001 = Son hesap.
-  Yapılacak: servis ValidateBusinessRules'ta tip türetme (CheckCode ile birlikte; plan seviyesini aşan kod reddedilir),
-  formda edtAccSetAccountTypeId salt okunur gösterim (kod combo'su değişince güncellenir), Ara Kod combo'su yalnız plan
-  seviyesi 3 olan ana kodlarda dolu; mevcut veride tip / seviye tutarsızlıklarını raporla (153-001, 191-xxx, 721-xxx son;
-  159 ara; plan tablosunda 102 / 120 / 320 var mı kontrol et). IT + UI harness testleri.
+- **Hesap tipi otomatik — TAMAMLANDI (2026-10-20, commit edilmedi):** kullanıcı kararı: plan (`acc_account_plan.level` =
+  ana kodun seviye sayısı) haritadır, cari kart buna göre açılır. Tip = kod seviyesi plan seviyesine eşitse son (600 tek
+  seviye -> son, 350-001 iki seviyede son, 120-001-001 son), değilse 1. seviye ana, 2. seviye ara. Servis CheckCode türetir;
+  ana kod planda olmalı, kod plan seviyesini aşamaz, üst hesap açılmış olmalı. Formda hesap tipi alanı yok (liste / Excel'de
+  var). Combo'lar plana göre: yeni ana kodlar = planda olup açılmamış kodlar. IT 619/0, UI Account 248/0.
+  Açık noktalar (kullanıcı ayrıca kontrol edecek): plana uymayan kayıtlar 120-1-89 (biçim dışı), 998 / 999 (planda yok),
+  159 (tip 2 -> 1 olmalı). 320 SATICILAR ana hesabı commit f8d90a3 dump'ında var (id 455) ama canlı DB'den sonradan silinmiş;
+  320-001 / 320-002 üst hesapsız kaldı -> kullanıcıya soruldu.
 - **Belge adresi + kur deseni (2026-10-19, sıradaki iş — tekliften sonra):**
   1. sls_order: billing/shipping_sys_address_id (UNIQUE, FK sys_address RESTRICT) + billing/shipping_address_id (kaynak
      cari adresi) + base_currency + usd_rate + eur_rate; vw_sls_order + sys_grid_column; servis teklifteki gibi

@@ -21,8 +21,6 @@ type
     cbbCode: TComboBox;
     lblName: TLabel;
     edtName: TEdit;
-    lblAccSetAccountTypeId: TLabel;
-    edtAccSetAccountTypeId: TEdit;
     lblAccGroupId: TLabel;
     edtAccGroupId: TEdit;
     lblAccRegionId: TLabel;
@@ -118,7 +116,6 @@ implementation
 
 uses
   AccLookup, AccAccountAddress,
-  AccSetAccountType, AccSetAccountType.Service, ufrmAccSetAccountTypes,         // TfrmAccSetAccountTypes helper output form
   AccGroup, AccGroup.Service, ufrmAccGroups,                                    // TfrmAccGroups helper output form
   AccRegion, AccRegion.Service, ufrmAccRegions,                                 // TfrmAccRegions helper output form
   SysCurrency, SysCurrency.Service, ufrmSysCurrencies;                          // TfrmSysCurrencies helper output form
@@ -203,7 +200,6 @@ begin
   end;
   // e-İrsaliye işareti e-Fatura işaretiyle aynı satırda: sekme sırası hemen ardından
   chkEDespatchActive.TabOrder := chkEInvoiceActive.TabOrder + 1;
-  edtAccSetAccountTypeId.OnHelperProcess := HelperProcess;
   edtAccGroupId.OnHelperProcess := HelperProcess;
   edtAccRegionId.OnHelperProcess := HelperProcess;
   edtIbanCurrency.OnHelperProcess := HelperProcess;
@@ -260,7 +256,6 @@ begin
     end;
   lblCode.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColCode, 'Account Code');
   lblName.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColName, 'Account Name');
-  lblAccSetAccountTypeId.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColAccountType, 'Account Type');
   lblAccGroupId.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColGroup, 'Group');
   lblAccRegionId.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColRegion, 'Region');
   lblRootCode.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColRootCode, 'Root Code');
@@ -499,7 +494,6 @@ end;
 procedure TfrmAccAccount.HelperProcess(Sender: TObject);
 var
   LEdit: TEdit;
-  LFrmAccSetAccountTypeId: TfrmAccSetAccountTypes;
   LFrmAccGroupId: TfrmAccGroups;
   LFrmAccRegionId: TfrmAccRegions;
   LFrmIbanCurrency: TfrmSysCurrencies;
@@ -508,30 +502,7 @@ begin
     Exit;
 
   LEdit := (Sender as TEdit);
-  if LEdit.Name = edtAccSetAccountTypeId.Name then
-  begin
-    LFrmAccSetAccountTypeId := TfrmAccSetAccountTypes.Create(LEdit, TAccSetAccountTypeService.Create, TAccSetAccountType.Create);
-    try
-      LFrmAccSetAccountTypeId.IsHelper := True;
-      LFrmAccSetAccountTypeId.ShowModal;
-      if LFrmAccSetAccountTypeId.DataTransfer then
-        if LFrmAccSetAccountTypeId.CleanAndClose then
-        begin
-          Table.AccSetAccountTypeId := 0;
-          Table.AccountTypeName := '';
-          LEdit.Clear;
-        end
-        else
-        begin
-          Table.AccSetAccountTypeId := LFrmAccSetAccountTypeId.Table.Id;
-          Table.AccountTypeName := LFrmAccSetAccountTypeId.Table.AccountTypeName;
-          LEdit.Text := Table.AccountTypeName;
-        end;
-    finally
-      LFrmAccSetAccountTypeId.Free;
-    end;
-  end
-  else if LEdit.Name = edtAccGroupId.Name then
+  if LEdit.Name = edtAccGroupId.Name then
   begin
     LFrmAccGroupId := TfrmAccGroups.Create(LEdit, TAccGroupService.Create, TAccGroup.Create);
     try
@@ -607,7 +578,6 @@ begin
   inherited;
   LoadCodeSelection;
   edtName.Text := Table.Name;
-  edtAccSetAccountTypeId.Text := Table.AccountTypeName;
   edtAccGroupId.Text := Table.GroupName;
   edtAccRegionId.Text := Table.RegionName;
   edtIban.Text := Table.Iban;
