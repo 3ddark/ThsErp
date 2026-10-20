@@ -32,6 +32,8 @@ type
     class function IsEmpty(AAddress: TSysAddress): Boolean;
     // Metin alanları kırpılır
     class procedure Normalize(AAddress: TSysAddress);
+    // Şehir ve metin alanları aynı mı (id karşılaştırılmaz): değişmeyen adres için yazma yapılmaz
+    class function SameValues(A, B: TSysAddress): Boolean;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
@@ -108,6 +110,13 @@ begin
   AAddress.ZipCode := Trim(AAddress.ZipCode);
   AAddress.Web := Trim(AAddress.Web);
   AAddress.Email := Trim(AAddress.Email);
+end;
+
+class function TSysAddressService.SameValues(A, B: TSysAddress): Boolean;
+begin
+  Result := (A.SysCityId = B.SysCityId) and (A.District = B.District) and (A.Neighborhood = B.Neighborhood) and
+    (A.Quarter = B.Quarter) and (A.Road = B.Road) and (A.Street = B.Street) and (A.BuildingName = B.BuildingName) and
+    (A.DoorNumber = B.DoorNumber) and (A.ZipCode = B.ZipCode) and (A.Web = B.Web) and (A.Email = B.Email);
 end;
 
 procedure TSysAddressService.ValidateInsert(AEntity: TSysAddress);

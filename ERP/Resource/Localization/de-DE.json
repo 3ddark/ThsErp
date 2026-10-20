@@ -2527,5 +2527,19 @@
   "einv_document_setting.col_environment": "Umgebung",
   "einv_document_setting.scope_unique": "Diese Belegart ist für die Firma bereits definiert.",
   "einv_document_setting.series_scope": "Der gewählte Nummernkreis gehört zu einer anderen Belegart.",
-  "einv_document_setting.no_company": "Firmeneinstellungen nicht gefunden."
+  "einv_document_setting.no_company": "Firmeneinstellungen nicht gefunden.",
+  "acc_account.tab_general": "Allgemein",
+  "acc_account.address_billing": "Rechnungsadresse",
+  "acc_account.address_shipping": "Lieferadresse",
+  "acc_account.address_legal": "Rechtliche Adresse",
+  "acc_account.address_other": "Sonstige Adresse",
+  "acc_account.address_city": "%s: Es muss eine Stadt ausgewählt werden.",
+  "acc_account.tab_taxpayer": "Steuerpflichtiger",
+  "acc_account.col_citizen_no": "Bürgernummer",
+  "acc_account.tax_no_digits": "%s muss aus %d Ziffern bestehen.",
+  "document_address.btn_from_billing": "Rechnungsadresse übernehmen",
+  "acc_account.code_format": "Der Kontocode muss die Form 999, 999-999 oder 999-999-999 haben.",
+  "acc_account.code_parent_missing": "Übergeordnetes Konto %s existiert nicht.",
+  "acc_account.code_parent_detail": "%s ist ein Buchungskonto; darunter kann kein Unterkonto eröffnet werden.",
+  "acc_account.code_has_children": "Der Code eines Kontos mit Unterkonten kann nicht geändert werden."
 }

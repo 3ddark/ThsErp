@@ -10,6 +10,10 @@ uses
 const
   ACC_ADDRESS_BILLING = 'BILLING';
   ACC_ADDRESS_SHIPPING = 'SHIPPING';
+  ACC_ADDRESS_LEGAL = 'LEGAL';
+  ACC_ADDRESS_OTHER = 'OTHER';
+  // acc_account_address_type_check ile aynı liste (cari kartındaki adres sekmelerinin sırası)
+  ACC_ADDRESS_TYPES: array[0..3] of string = (ACC_ADDRESS_BILLING, ACC_ADDRESS_SHIPPING, ACC_ADDRESS_LEGAL, ACC_ADDRESS_OTHER);
 
 type
   [Table('acc_account_address')]

@@ -75,6 +75,13 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   `billing_sys_address_id` / `shipping_sys_address_id` (UNIQUE, FK `sys_address` RESTRICT; written / deleted with the
   document by its service) + source `billing_address_id` / `shipping_address_id` (FK `acc_account_address`, must belong to
   the document's account). Copied from the account address, editable on the document, empty shipping = billing.
+- Account card addresses: the card edits one address per type (BILLING / SHIPPING / LEGAL / OTHER = primary or first
+  `acc_account_address` row) and `TAccAccountService` saves them with the account in one transaction (unchanged = no SQL,
+  emptied = link + own `sys_address` deleted, shared `sys_address` = copy-on-write). A new table with an FK to
+  `sys_address` must be added to `TAccAccountAddressRepository.IsSysAddressShared`.
+- Account codes (`acc_account.code`): 3-digit levels, at most three (`120` / `120-001` / `120-001-001`); the parent
+  (code without the last level) must exist and must not be a detail account (type 3); an account with sub-accounts keeps
+  its code (`TAccAccountService.CheckCode`). The card picks codes from lists (main -> intermediate -> free codes).
 - Exchange rates: `acc_exchange_rate.rate` = TCMB forex buying (document default), plus `forex_selling`,
   `banknote_buying`, `banknote_selling`, `source` (MANUAL / TCMB; TCMB import never overwrites MANUAL). A Friday bulletin is
   also written for Saturday + Sunday. Lookups use `fn_exchange_rate(currency, date)` (latest rate on or before the date,

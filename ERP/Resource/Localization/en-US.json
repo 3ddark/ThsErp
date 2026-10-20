@@ -2527,5 +2527,19 @@
   "einv_document_setting.col_environment": "Environment",
   "einv_document_setting.scope_unique": "This document type is already defined for the company.",
   "einv_document_setting.series_scope": "The selected series belongs to another document type.",
-  "einv_document_setting.no_company": "Company settings record not found."
+  "einv_document_setting.no_company": "Company settings record not found.",
+  "acc_account.tab_general": "General",
+  "acc_account.address_billing": "Billing Address",
+  "acc_account.address_shipping": "Shipping Address",
+  "acc_account.address_legal": "Legal Address",
+  "acc_account.address_other": "Other Address",
+  "acc_account.address_city": "%s: a city must be selected.",
+  "acc_account.tab_taxpayer": "Taxpayer Information",
+  "acc_account.col_citizen_no": "Citizenship No",
+  "acc_account.tax_no_digits": "%s must consist of %d digits.",
+  "document_address.btn_from_billing": "Use Billing Address",
+  "acc_account.code_format": "Account code must be in the form 999, 999-999 or 999-999-999.",
+  "acc_account.code_parent_missing": "Parent account %s does not exist.",
+  "acc_account.code_parent_detail": "%s is a detail account; no sub-account can be opened under it.",
+  "acc_account.code_has_children": "The code of an account with sub-accounts cannot be changed."
 }

@@ -83,6 +83,7 @@ type
       TDocumentAddress = record
         const BtnFromAccount = 'document_address.btn_from_account';
         const BtnClear = 'document_address.btn_clear';
+        const BtnFromBilling = 'document_address.btn_from_billing';
       end;
 
       TUnitOfWork = record
@@ -931,6 +932,19 @@ type
         const CodeUnique = 'acc_account.code_unique';
         const MenuTransactions = 'acc_account.popup.transactions';
         const ColEDespatchActive = 'acc_account.col_e_despatch_active';
+        const TabGeneral = 'acc_account.tab_general';
+        const AddressBilling = 'acc_account.address_billing';
+        const AddressShipping = 'acc_account.address_shipping';
+        const AddressLegal = 'acc_account.address_legal';
+        const AddressOther = 'acc_account.address_other';
+        const AddressCity = 'acc_account.address_city';
+        const TabTaxpayer = 'acc_account.tab_taxpayer';
+        const ColCitizenNo = 'acc_account.col_citizen_no';
+        const TaxNoDigits = 'acc_account.tax_no_digits';
+        const CodeFormat = 'acc_account.code_format';
+        const CodeParentMissing = 'acc_account.code_parent_missing';
+        const CodeParentDetail = 'acc_account.code_parent_detail';
+        const CodeHasChildren = 'acc_account.code_has_children';
       end;
 
       TAccAccountAddress = record

@@ -2476,5 +2476,19 @@
   "einv_document_setting.col_environment": "Ortam",
   "einv_document_setting.scope_unique": "Bu belge türü firma için zaten tanımlı.",
   "einv_document_setting.series_scope": "Seçilen seri başka bir belge türüne ait.",
-  "einv_document_setting.no_company": "Firma ayarları kaydı bulunamadı."
+  "einv_document_setting.no_company": "Firma ayarları kaydı bulunamadı.",
+  "acc_account.tab_general": "Genel",
+  "acc_account.address_billing": "Fatura Adresi",
+  "acc_account.address_shipping": "Sevk Adresi",
+  "acc_account.address_legal": "Yasal Adres",
+  "acc_account.address_other": "Diğer Adres",
+  "acc_account.address_city": "%s: şehir seçilmelidir.",
+  "acc_account.tab_taxpayer": "Mükellef Bilgileri",
+  "acc_account.col_citizen_no": "T.C. Kimlik No",
+  "acc_account.tax_no_digits": "%s %d haneli rakamlardan oluşmalıdır.",
+  "document_address.btn_from_billing": "Fatura Adresini Kullan",
+  "acc_account.code_format": "Hesap kodu 999, 999-999 veya 999-999-999 biçiminde olmalıdır.",
+  "acc_account.code_parent_missing": "Üst hesap %s bulunamadı.",
+  "acc_account.code_parent_detail": "%s son hesaptır; altına hesap açılamaz.",
+  "acc_account.code_has_children": "Alt hesapları olan hesabın kodu değiştirilemez."
 }

@@ -5,9 +5,28 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager,
+  SysAddress, AccAccountAddress;
 
 type
+  // Cari kartında düzenlenen adres: tip başına bir tane (o tipin birincil / ilk acc_account_address kaydı).
+  // LinkId = acc_account_address.id (0 = kayıt yok), Address = bağlı sys_address değerleri. Servis yükler / kaydeder
+  TAccAccountCardAddress = class
+  private
+    FLinkId: Int64;
+    FAddressType: string;
+    FAddress: TSysAddress;
+  public
+    constructor Create(const AAddressType: string);
+    destructor Destroy; override;
+
+    function Clone: TAccAccountCardAddress;
+
+    property LinkId: Int64 read FLinkId write FLinkId;
+    property AddressType: string read FAddressType;
+    property Address: TSysAddress read FAddress;
+  end;
+
   [Table('acc_account')]
   TAccAccount = class(TEntity)
   private
@@ -48,6 +67,9 @@ type
     FAccountTypeName: string;
     FGroupName: string;
     FRegionName: string;
+
+    FAddresses: TObjectList<TAccAccountCardAddress>;
+    FAddressesAssigned: Boolean;
   public
     [Column('code')]
     [MaxLength(16), Required(TLangKeys.TValidation.Required, True)]
@@ -179,6 +201,11 @@ type
     [NotMapped]
     property RegionName: string read FRegionName write FRegionName;
 
+    // ACC_ADDRESS_TYPES sırasıyla dört adres (oluşturucuda hazırlanır)
+    property Addresses: TObjectList<TAccAccountCardAddress> read FAddresses;
+    // Addresses hesabın adres durumunu taşıyor (servis yükledi / form doldurdu); değilse kayıtta adreslere dokunulmaz
+    property AddressesAssigned: Boolean read FAddressesAssigned write FAddressesAssigned;
+
     constructor Create(); override;
     destructor Destroy; override;
 
@@ -187,17 +214,46 @@ type
 
 implementation
 
+constructor TAccAccountCardAddress.Create(const AAddressType: string);
+begin
+  inherited Create;
+  FAddressType := AAddressType;
+  FAddress := TSysAddress.Create;
+end;
+
+destructor TAccAccountCardAddress.Destroy;
+begin
+  FAddress.Free;
+  inherited;
+end;
+
+function TAccAccountCardAddress.Clone: TAccAccountCardAddress;
+begin
+  Result := TAccAccountCardAddress.Create(Self.AddressType);
+  Result.LinkId := Self.LinkId;
+  Result.FAddress.Free;
+  Result.FAddress := Self.FAddress.Clone;
+end;
+
 constructor TAccAccount.Create;
+var
+  LType: string;
 begin
   inherited;
+  FAddresses := TObjectList<TAccAccountCardAddress>.Create(True);
+  for LType in ACC_ADDRESS_TYPES do
+    FAddresses.Add(TAccAccountCardAddress.Create(LType));
 end;
 
 destructor TAccAccount.Destroy;
 begin
+  FAddresses.Free;
   inherited;
 end;
 
 function TAccAccount.Clone: TAccAccount;
+var
+  LAddress: TAccAccountCardAddress;
 begin
   Result := TAccAccount.Create;
   Result.Id := Self.Id;
@@ -236,6 +292,10 @@ begin
   Result.AccountTypeName := Self.AccountTypeName;
   Result.GroupName := Self.GroupName;
   Result.RegionName := Self.RegionName;
+  Result.FAddresses.Clear;
+  for LAddress in Self.FAddresses do
+    Result.FAddresses.Add(LAddress.Clone);
+  Result.AddressesAssigned := Self.AddressesAssigned;
 end;
 
 end.

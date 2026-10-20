@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict 7AGlYZ15QJI8LuhhaXZneUaEEJKNLLZ5A1cOl4W4vgUbdDieZH4AzXx5gJxwRdr
+\restrict yDf6323icFSGtpy9listHRSLPvke3ajhMYjAnoTAysuHReHnFgwd0Okm8fX0Buz
 
--- Dumped from database version 18.1
--- Dumped by pg_dump version 18.1
+-- Dumped from database version 18.3
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -669,7 +669,7 @@ CREATE SERVER audit_server FOREIGN DATA WRAPPER postgres_fdw OPTIONS (
     dbname 'ths_audit',
     fetch_size '1000',
     host 'localhost',
-    port '5433'
+    port '5432'
 );
 
 
@@ -14699,5 +14699,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 7AGlYZ15QJI8LuhhaXZneUaEEJKNLLZ5A1cOl4W4vgUbdDieZH4AzXx5gJxwRdr
+\unrestrict yDf6323icFSGtpy9listHRSLPvke3ajhMYjAnoTAysuHReHnFgwd0Okm8fX0Buz
 

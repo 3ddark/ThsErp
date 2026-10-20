@@ -40,6 +40,10 @@ type
     // Belge için varsayılan (bugün geçerli) cari adresi: önce AAddressType; AExactType değilse sonra birincil / LEGAL / ilk.
     // Yoksa 0.
     function FindDocumentDefault(AAccountId: Int64; const AAddressType: string; AExactType: Boolean): Int64;
+    // Hesabın adres kayıtları; tip içinde kart adresi önce gelir (birincil, bugün geçerli, ilk eklenen)
+    function FindByAccount(AAccountId: Int64): TObjectList<TAccAccountAddress>;
+    // sys_address kaydı AExceptLinkId dışında bir yerden kullanılıyor mu (sys_address'e FK veren tüm tablolar)
+    function IsSysAddressShared(ASysAddressId, AExceptLinkId: Int64): Boolean;
   end;
 
 implementation
@@ -78,6 +82,56 @@ begin
   end;
 end;
 
+function TAccAccountAddressRepository.FindByAccount(AAccountId: Int64): TObjectList<TAccAccountAddress>;
+var
+  Q: TFDQuery;
+begin
+  Result := TObjectList<TAccAccountAddress>.Create(True);
+  if AAccountId <= 0 then
+    Exit;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT * FROM ' + Self.GetFullViewName(TAccAccountAddress) +
+                  ' WHERE acc_account_id = :acc_account_id ' +
+                  ' ORDER BY address_type, is_primary DESC, ' +
+                  '   ((valid_from IS NULL OR valid_from <= CURRENT_DATE) AND (valid_to IS NULL OR valid_to >= CURRENT_DATE)) DESC, id';
+    Q.ParamByName('acc_account_id').AsLargeInt := AAccountId;
+    LogQuery(Q, 'FindByAccount');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccAccountAddressRepository.IsSysAddressShared(ASysAddressId, AExceptLinkId: Int64): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Result := False;
+  if ASysAddressId <= 0 then
+    Exit;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT EXISTS (SELECT 1 FROM public.acc_account_address WHERE sys_address_id = :sid AND id <> :link_id) ' +
+                  '    OR EXISTS (SELECT 1 FROM public.emp_person_address WHERE sys_address_id = :sid) ' +
+                  '    OR EXISTS (SELECT 1 FROM public.sls_offer WHERE billing_sys_address_id = :sid OR shipping_sys_address_id = :sid) ' +
+                  '    OR EXISTS (SELECT 1 FROM public.sys_application_setting WHERE sys_address_id = :sid) AS shared';
+    Q.ParamByName('sid').AsLargeInt := ASysAddressId;
+    Q.ParamByName('link_id').AsLargeInt := AExceptLinkId;
+    LogQuery(Q, 'IsSysAddressShared');
+    Q.Open;
+    Result := Q.FieldByName('shared').AsBoolean;
+  finally
+    Q.Free;
+  end;
+end;
 
 function TAccAccountAddressRepository.PrepareAddSql: string;
 begin

@@ -927,6 +927,15 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
   e-belge (EInvDocument.Repository.ReadAccountParty) belgenin sys_address'ini kullanmalı. Yeni ekranlar elle denenmedi.
 
 ## Kalan
+- **İLK İŞ — Hesap tipi (Ana / Ara / Son) otomatik (kullanıcı isteği 2026-10-20):** cari kartında hesap tipi elle seçilmesin,
+  koddan ve plan seviyesinden türetilsin. Kaynak: `acc_account_plan (code, name, level)` — ana kodun plan seviyesi.
+  - 1. seviye kod (120) = Ana hesap (plan seviyesi 1 olan kodlar son hesap olabilir mi? 600 / 601 şu an tip 3 — kullanıcıya sor).
+  - Plan seviyesi 2 (ör. 350): 350-001 = Son hesap.
+  - Plan seviyesi 3 (ör. 120): 120-001 = Ara hesap, 120-001-001 = Son hesap.
+  Yapılacak: servis ValidateBusinessRules'ta tip türetme (CheckCode ile birlikte; plan seviyesini aşan kod reddedilir),
+  formda edtAccSetAccountTypeId salt okunur gösterim (kod combo'su değişince güncellenir), Ara Kod combo'su yalnız plan
+  seviyesi 3 olan ana kodlarda dolu; mevcut veride tip / seviye tutarsızlıklarını raporla (153-001, 191-xxx, 721-xxx son;
+  159 ara; plan tablosunda 102 / 120 / 320 var mı kontrol et). IT + UI harness testleri.
 - **Belge adresi + kur deseni (2026-10-19, sıradaki iş — tekliften sonra):**
   1. sls_order: billing/shipping_sys_address_id (UNIQUE, FK sys_address RESTRICT) + billing/shipping_address_id (kaynak
      cari adresi) + base_currency + usd_rate + eur_rate; vw_sls_order + sys_grid_column; servis teklifteki gibi
@@ -1029,6 +1038,32 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
   FormatAmount; sys_currency.symbol, simgesi yoksa kod; para birimi servisi Add / Update / Delete Invalidate eder).
   TTotalsPanel tutar satırları (tüm belge / satır formları), teklif başlık özeti ve teklif listesi özeti simge kullanır.
   Not: UI harness `--no-db` ile tekrarlanırsa önceki koşunun değiştirdiği ths_erp_it yüzünden sahte FAIL verir; tam build.sh.
+
+- 2026-10-20 (DESKTOP-JF3LUBB, 5432): cari kartında adres sekmeleri (kullanıcı önerisi). TfrmAccAccount sekmeli: Genel +
+  Fatura / Sevk / Yasal / Diğer adres (Detail.Address.TDocumentAddressEditor, yeni seçenekler aeoContact = web / e-posta
+  satırı, aeoFromAccount yoksa Temizle alanları boşaltır). TAccAccount.Addresses (TAccAccountCardAddress: LinkId + TSysAddress,
+  tip başına birincil / ilk kayıt) + AddressesAssigned (yüklenmemiş = kayıtta adreslere dokunulmaz). TAccAccountService:
+  LoadAddresses (BusinessFindById / FindById(…, True) / form RefreshData), CheckAddresses (dolu adreste şehir zorunlu),
+  SaveAddresses hesapla aynı transaction'da: değişmeyen adres SQL'siz (SameValues), boşaltılan silinir, paylaşılan sys_address
+  (IsSysAddressShared) güncellenmez → kopya açılır; hesap silinince kendi adresleri de silinir. Liste popup "Adresler" kaldı
+  (aynı tipte ek / tarihli adresler orada). IT TestAccountCardAddresses + UI harness Account geçti. Bu makinede audit FDW portu
+  audit_configure ile 5432 yapıldı (dump yenilenmedi: makineye özgü ayar).
+
+- 2026-10-20 (devam, kullanıcı kararları): cari kartı "Mükellef Bilgileri" sekmesi. Mükellef tipi boş = mükellef değil
+  (muhasebe hesabı; 16 kayıt 1 -> NULL yapıldı, dump yenilendi). Tüzel kişi: vergi dairesi + VKN 10 hane zorunlu, ad / ad 2 /
+  soyad boşaltılır. Gerçek kişi: ad + soyad + TCKN (vergi no alanı, 11 hane) zorunlu, ad 2 / vergi dairesi isteğe bağlı.
+  TAccAccountService.CheckTaxpayer (tipe ait olmayan alanları boşaltır) + form ApplyTaxpayerType (göster / gizle, zorunlu
+  işareti, satırlar boşluksuz). ACC_TAXPAYER_LEGAL / _REAL (AccLookup). Adres sekmeleri: Sevk / Yasal / Diğer'de "Fatura
+  Adresini Kullan" (aeoFromBilling, ekrandaki fatura adresinden kopya); Temizle yalnız kutuları boşaltır, DB'ye Onayla ile
+  yazılır (boş bırakılan adres kayıtta kaldırılır). IT TestAccountTaxpayer, UI harness Account 250/0.
+
+- 2026-10-20 (devam): cari hesap kodu kademeli seçim. Kartta Ana Kod -> Ara Kod -> Hesap Kodu combo'ları (csDropDownList;
+  listeler tek sorguda string_agg(E'
+') -> Items.Text; TAccAccountRepository.ListParentAccounts / ListFreeCodes). Hesap
+  Kodu = seçilen üst hesabın altındaki boş kodlar, ilki seçili; üst hesap yoksa (yeni kayıt) kod seçilmez. Servis CheckCode:
+  biçim ^[0-9]{3}(-[0-9]{3}){0,2}$, üst hesap var + son hesap değil, alt hesabı olanın kodu değişmez. Eksik ana hesaplar
+  102 BANKALAR / 120 ALICILAR / 320 SATICILAR eklendi (dump yenilendi). Kullanıcının test kaydı 120-1-89 biçim dışı kaldı
+  (güncellemede yeni kod seçilmeli ya da silinmeli). IT TestAccountCode; UI harness copy kontrolü cari kodunu türetilmiş sayar.
 
 ## Hatalar / Engeller
 - Bu PC'de güncel DB 5433'te; GlobalSettings.ini DBPortNo=5432 (diğer makine değeri) ve 5432'de 2023'ten kalma eski ths_erp var

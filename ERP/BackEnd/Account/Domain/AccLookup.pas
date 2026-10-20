@@ -13,6 +13,10 @@ const
   ACC_ACCOUNT_TYPE_INTERMEDIATE = 2;  // ARA: ara hesap (ör. 120-001)
   ACC_ACCOUNT_TYPE_DETAIL       = 3;  // SON: hareket gören hesap (ör. 120-001-001)
 
+  // acc_account_taxpayer.taxpayer_type (alkTaxpayerType); NULL = mükellef değil (muhasebe hesabı)
+  ACC_TAXPAYER_LEGAL = 1;  // tüzel kişi: vergi dairesi + VKN (10 hane)
+  ACC_TAXPAYER_REAL  = 2;  // gerçek kişi: ad, soyad + TCKN (11 hane, vergi no alanında)
+
   // vw_acc_account_transaction.source_type: cari hareketini oluşturan kaynak
   ACC_TX_SRC_MONEY       = 1;  // fin_money_transaction (tahsilat / ödeme / havale-EFT)
   ACC_TX_SRC_CHEQUE_NOTE = 2;  // fin_cheque_note (+ hareketleri)

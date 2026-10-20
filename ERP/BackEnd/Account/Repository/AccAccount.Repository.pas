@@ -40,6 +40,17 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+
+    // Hesap kodu seçimi (kart). AParentCode '' = birinci seviye. Sonuçlar satır satır tek metin (ComboBox.Items.Text):
+    // AParentCode'un bir alt seviyesindeki, altına hesap açılabilen (ADetailTypeId olmayan) hesaplar: "kod - ad"
+    function ListParentAccounts(const AParentCode: string; ADetailTypeId: Int64): string;
+    // AParentCode altında kullanılmayan kodlar (sıralı): birinci seviye 100-999, alt seviyeler 001-999
+    function ListFreeCodes(const AParentCode: string): string;
+    // Hesabın tipi (acc_set_account_type_id); hesap yoksa 0
+    function AccountTypeOf(const ACode: string): Int64;
+    // ACode'un altında hesap var mı (ACode-...)
+    function HasChildAccounts(const ACode: string): Boolean;
+    function CodeOf(AId: Int64): string;
   end;
 
 implementation
@@ -47,6 +58,102 @@ implementation
 constructor TAccAccountRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TAccAccountRepository.ListParentAccounts(const AParentCode: string; ADetailTypeId: Int64): string;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    // AParentCode yalnız rakam ve '-' içerir (servis kodu doğrular); regex içinde güvenli
+    Q.SQL.Text := 'SELECT string_agg(code || '' - '' || name, E''\n'' ORDER BY code) AS items FROM public.acc_account ' +
+                  ' WHERE acc_set_account_type_id <> :detail_type ' +
+                  '   AND code ~ (CASE WHEN :parent = '''' THEN ''^[0-9]{3}$'' ELSE ''^'' || :parent || ''-[0-9]{3}$'' END)';
+    Q.ParamByName('detail_type').AsLargeInt := ADetailTypeId;
+    Q.ParamByName('parent').AsWideString := AParentCode;
+    LogQuery(Q, 'ListParentAccounts');
+    Q.Open;
+    Result := Q.FieldByName('items').AsString;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccAccountRepository.ListFreeCodes(const AParentCode: string): string;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT string_agg(s.code, E''\n'' ORDER BY s.code) AS items ' +
+                  '  FROM (SELECT CASE WHEN :parent = '''' THEN n::text ELSE :parent || ''-'' || lpad(n::text, 3, ''0'') END AS code ' +
+                  '          FROM generate_series(CASE WHEN :parent = '''' THEN 100 ELSE 1 END, 999) n) s ' +
+                  ' WHERE NOT EXISTS (SELECT 1 FROM public.acc_account a WHERE a.code = s.code)';
+    Q.ParamByName('parent').AsWideString := AParentCode;
+    LogQuery(Q, 'ListFreeCodes');
+    Q.Open;
+    Result := Q.FieldByName('items').AsString;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccAccountRepository.AccountTypeOf(const ACode: string): Int64;
+var
+  Q: TFDQuery;
+begin
+  Result := 0;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT acc_set_account_type_id FROM public.acc_account WHERE code = :code';
+    Q.ParamByName('code').AsWideString := ACode;
+    LogQuery(Q, 'AccountTypeOf');
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := Q.FieldByName('acc_set_account_type_id').AsLargeInt;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccAccountRepository.HasChildAccounts(const ACode: string): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT EXISTS (SELECT 1 FROM public.acc_account WHERE left(code, length(:code) + 1) = :code || ''-'') AS has_child';
+    Q.ParamByName('code').AsWideString := ACode;
+    LogQuery(Q, 'HasChildAccounts');
+    Q.Open;
+    Result := Q.FieldByName('has_child').AsBoolean;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccAccountRepository.CodeOf(AId: Int64): string;
+var
+  Q: TFDQuery;
+begin
+  Result := '';
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT code FROM public.acc_account WHERE id = :id';
+    Q.ParamByName('id').AsLargeInt := AId;
+    LogQuery(Q, 'CodeOf');
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := Q.FieldByName('code').AsString;
+  finally
+    Q.Free;
+  end;
 end;
 
 function TAccAccountRepository.PrepareAddSql: string;

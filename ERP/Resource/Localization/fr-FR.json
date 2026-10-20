@@ -2527,5 +2527,19 @@
   "einv_document_setting.col_environment": "Environnement",
   "einv_document_setting.scope_unique": "Ce type de document est déjà défini pour la société.",
   "einv_document_setting.series_scope": "La série choisie appartient à un autre type de document.",
-  "einv_document_setting.no_company": "Paramètres de la société introuvables."
+  "einv_document_setting.no_company": "Paramètres de la société introuvables.",
+  "acc_account.tab_general": "Général",
+  "acc_account.address_billing": "Adresse de facturation",
+  "acc_account.address_shipping": "Adresse de livraison",
+  "acc_account.address_legal": "Adresse légale",
+  "acc_account.address_other": "Autre adresse",
+  "acc_account.address_city": "%s : une ville doit être sélectionnée.",
+  "acc_account.tab_taxpayer": "Informations fiscales",
+  "acc_account.col_citizen_no": "N° d'identité",
+  "acc_account.tax_no_digits": "%s doit comporter %d chiffres.",
+  "document_address.btn_from_billing": "Utiliser l'adresse de facturation",
+  "acc_account.code_format": "Le code du compte doit être au format 999, 999-999 ou 999-999-999.",
+  "acc_account.code_parent_missing": "Le compte parent %s n'existe pas.",
+  "acc_account.code_parent_detail": "%s est un compte de détail ; aucun sous-compte ne peut être ouvert.",
+  "acc_account.code_has_children": "Le code d'un compte ayant des sous-comptes ne peut pas être modifié."
 }

@@ -79,7 +79,7 @@ begin
     AEntity.AddressType := UpperCase(Trim(AEntity.AddressType));
     ValidateRequiredReferences(AEntity);
     // acc_account_address_type_check ile aynı liste: ham CHECK hatası yerine anlaşılır mesaj
-    if not MatchStr(AEntity.AddressType, ['BILLING', 'SHIPPING', 'LEGAL', 'OTHER']) then
+    if not MatchStr(AEntity.AddressType, ACC_ADDRESS_TYPES) then
       raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TAccAccountAddress.ColAddressType, 'Address Type') + ': ' +
         TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
     if (AEntity.ValidFrom > 0) and (AEntity.ValidTo > 0) and (AEntity.ValidTo < AEntity.ValidFrom) then

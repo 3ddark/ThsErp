@@ -569,6 +569,347 @@ begin
   end;
 end;
 
+function Card(AEntity: TAccAccount; const AType: string): TAccAccountCardAddress;
+var
+  LItem: TAccAccountCardAddress;
+begin
+  Result := nil;
+  for LItem in AEntity.Addresses do
+    if LItem.AddressType = AType then
+      Exit(LItem);
+end;
+
+// Cari kartındaki adres sekmeleri: hesapla aynı transaction, yalnız değişen adres yazılır
+procedure TestAccountCardAddresses;
+var
+  Svc: TAccAccountService;
+  ASvc: TAccAccountAddressService;
+  E, L: TAccAccount;
+  AA: TAccAccountAddress;
+  Base, City, BillSys, ShipSys, ShipLink, BillLink: Int64;
+  BillCtid, ShipCtid: string;
+
+  function Ctid(ASysAddressId: Int64): string;
+  begin
+    Result := S(Scalar('SELECT ctid::text FROM sys_address WHERE id = ' + ASysAddressId.ToString));
+  end;
+
+  function LinkCount(AAccountId: Int64): Integer;
+  begin
+    Result := Round(Num(Scalar('SELECT count(*) FROM acc_account_address WHERE acc_account_id = ' + AAccountId.ToString)));
+  end;
+
+begin
+  Ctx('Account', 'TAccAccount.Addresses');
+  Base := Scalar('SELECT min(id) FROM acc_account WHERE code LIKE ''___-%''');
+  City := Scalar('SELECT min(id) FROM sys_city');
+  Svc := TAccAccountService.Create;
+  ASvc := TAccAccountAddressService.Create;
+  try
+    try
+      Begin_;
+      E := Svc.FindById(Base, False);
+      try
+        Check('list entity has no addresses', not E.AddressesAssigned);
+        E.Id := 0;
+        E.Code := Copy(E.Code, 1, 7) + '-078';
+        E.Name := 'IT ADRES HESABI';
+        E.AddressesAssigned := True;
+        with Card(E, ACC_ADDRESS_BILLING).Address do
+        begin
+          SysCityId := City;
+          District := ' IT İlçe ';
+          Street := 'IT Fatura Sokak';
+          Email := 'fatura@it.test';
+          Web := 'www.it.test';
+        end;
+        with Card(E, ACC_ADDRESS_SHIPPING).Address do
+        begin
+          SysCityId := City;
+          Street := 'IT Sevk Sokak';
+        end;
+        Svc.BusinessInsert(E, False, False, True);
+        Check('insert account + addresses', E.Id > 0);
+        Check('two links', LinkCount(E.Id) = 2, IntToStr(LinkCount(E.Id)));
+        BillLink := Card(E, ACC_ADDRESS_BILLING).LinkId;
+        BillSys := Card(E, ACC_ADDRESS_BILLING).Address.Id;
+        ShipLink := Card(E, ACC_ADDRESS_SHIPPING).LinkId;
+        ShipSys := Card(E, ACC_ADDRESS_SHIPPING).Address.Id;
+        Check('ids set', (BillLink > 0) and (BillSys > 0) and (ShipLink > 0) and (ShipSys > 0));
+        Check('billing primary', S(Scalar('SELECT is_primary::text FROM acc_account_address WHERE id = ' + BillLink.ToString)) = 'true');
+        Check('billing type', S(Scalar('SELECT address_type FROM acc_account_address WHERE id = ' + BillLink.ToString)) = 'BILLING');
+        Check('email stored', S(Scalar('SELECT email FROM sys_address WHERE id = ' + BillSys.ToString)) = 'fatura@it.test');
+        Check('district trimmed', S(Scalar('SELECT district FROM sys_address WHERE id = ' + BillSys.ToString)) = 'IT İlçe');
+        Check('empty legal not stored', Num(Scalar('SELECT count(*) FROM acc_account_address WHERE acc_account_id = ' + E.Id.ToString +
+          ' AND address_type = ''LEGAL''')) = 0);
+
+        // okuma: kart adresleri dolu gelir
+        L := Svc.BusinessFindById(E.Id, False, False, True);
+        try
+          Check('load assigned', L.AddressesAssigned);
+          Check('load billing', (Card(L, ACC_ADDRESS_BILLING).LinkId = BillLink) and
+            (Card(L, ACC_ADDRESS_BILLING).Address.Street = 'IT Fatura Sokak') and
+            (Card(L, ACC_ADDRESS_BILLING).Address.Web = 'www.it.test'));
+          Check('load city name', Assigned(Card(L, ACC_ADDRESS_BILLING).Address.SysCity) and
+            (Card(L, ACC_ADDRESS_BILLING).Address.SysCity.CityName <> ''));
+          Check('load legal empty', Card(L, ACC_ADDRESS_LEGAL).LinkId = 0);
+
+          // değişiklik yok -> adres satırlarına yazma yok (ctid aynı kalır)
+          BillCtid := Ctid(BillSys);
+          ShipCtid := Ctid(ShipSys);
+          Svc.BusinessUpdate(L, False, False, True);
+          Check('unchanged billing not written', Ctid(BillSys) = BillCtid, BillCtid + ' -> ' + Ctid(BillSys));
+          Check('unchanged shipping not written', Ctid(ShipSys) = ShipCtid);
+
+          // yalnız fatura adresi değişir
+          Card(L, ACC_ADDRESS_BILLING).Address.Street := 'IT Yeni Sokak';
+          Svc.BusinessUpdate(L, False, False, True);
+          Check('changed billing written', S(Scalar('SELECT street FROM sys_address WHERE id = ' + BillSys.ToString)) = 'IT Yeni Sokak');
+          Check('same sys_address updated', Card(L, ACC_ADDRESS_BILLING).Address.Id = BillSys);
+          Check('shipping still not written', Ctid(ShipSys) = ShipCtid);
+
+          // sevk adresi boşaltılır -> bağlantı + sys_address silinir
+          Card(L, ACC_ADDRESS_SHIPPING).Address.SysCityId := 0;
+          Card(L, ACC_ADDRESS_SHIPPING).Address.Street := '';
+          Svc.BusinessUpdate(L, False, False, True);
+          Check('cleared link deleted', Num(Scalar('SELECT count(*) FROM acc_account_address WHERE id = ' + ShipLink.ToString)) = 0);
+          Check('cleared sys_address deleted', Num(Scalar('SELECT count(*) FROM sys_address WHERE id = ' + ShipSys.ToString)) = 0);
+          Check('cleared ids reset', Card(L, ACC_ADDRESS_SHIPPING).LinkId = 0);
+
+          // yeni yasal adres güncellemede eklenir
+          Card(L, ACC_ADDRESS_LEGAL).Address.SysCityId := City;
+          Card(L, ACC_ADDRESS_LEGAL).Address.Street := 'IT Yasal Sokak';
+          Svc.BusinessUpdate(L, False, False, True);
+          Check('legal added on update', Num(Scalar('SELECT count(*) FROM acc_account_address WHERE acc_account_id = ' + E.Id.ToString +
+            ' AND address_type = ''LEGAL''')) = 1);
+
+          // paylaşılan adres (başka hesap aynı sys_address'e bağlı) değiştirilmez: bu hesaba kopya açılır
+          AA := TAccAccountAddress.Create;
+          try
+            AA.AccAccountId := Base;
+            AA.SysAddressId := BillSys;
+            AA.AddressType := 'OTHER';
+            ASvc.BusinessInsert(AA, False, False, True);
+          finally
+            AA.Free;
+          end;
+          Card(L, ACC_ADDRESS_BILLING).Address.DoorNumber := '12';
+          Svc.BusinessUpdate(L, False, False, True);
+          Check('shared address untouched', S(Scalar('SELECT door_number FROM sys_address WHERE id = ' + BillSys.ToString)) = '<null>');
+          Check('copy created for card', (Card(L, ACC_ADDRESS_BILLING).Address.Id <> BillSys) and
+            (S(Scalar('SELECT door_number FROM sys_address WHERE id = ' + Card(L, ACC_ADDRESS_BILLING).Address.Id.ToString)) = '12'));
+          Check('link repointed', Num(Scalar('SELECT sys_address_id FROM acc_account_address WHERE id = ' + BillLink.ToString)) =
+            Card(L, ACC_ADDRESS_BILLING).Address.Id);
+        finally
+          L.Free;
+        end;
+
+        // adresleri yüklenmemiş hesap (liste nesnesi) güncellenince adreslere dokunulmaz
+        L := Svc.FindById(E.Id, False);
+        try
+          L.Notes := 'IT';
+          Svc.BusinessUpdate(L, False, False, True);
+          Check('header-only update keeps addresses', LinkCount(E.Id) = 2, IntToStr(LinkCount(E.Id)));
+        finally
+          L.Free;
+        end;
+
+        // hesap silinince kendi adresleri de silinir
+        L := Svc.FindById(E.Id, False, True);
+        try
+          BillSys := Card(L, ACC_ADDRESS_BILLING).Address.Id;
+          ShipSys := Card(L, ACC_ADDRESS_LEGAL).Address.Id;
+          Svc.BusinessDelete(L, False, False, True);
+          Check('delete account', Num(Scalar('SELECT count(*) FROM acc_account WHERE id = ' + E.Id.ToString)) = 0);
+          Check('delete own addresses', Num(Scalar('SELECT count(*) FROM sys_address WHERE id IN (' + BillSys.ToString + ',' +
+            ShipSys.ToString + ')')) = 0);
+        finally
+          L.Free;
+        end;
+      finally
+        E.Free;
+      end;
+      End_;
+
+      Begin_;
+      Expect('address without city', procedure
+        var X: TAccAccount;
+        begin
+          X := Svc.FindById(Base, False, True);
+          try
+            Card(X, ACC_ADDRESS_OTHER).Address.SysCityId := 0;
+            Card(X, ACC_ADDRESS_OTHER).Address.District := 'IT';
+            Svc.BusinessUpdate(X, False, False, True);
+          finally X.Free; end;
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    ASvc.Free;
+    Svc.Free;
+  end;
+end;
+
+// Mükellef tipi: tüzel -> vergi dairesi + 10 haneli VKN, gerçek -> ad, soyad + 11 haneli TCKN, tip yok -> bilgi tutulmaz
+procedure SaveTaxpayer(Svc: TAccAccountService; Base: Int64; AType: SmallInt; const AName, ASurname, AOffice, ATaxNo: string);
+var
+  X: TAccAccount;
+begin
+  X := Svc.FindById(Base, False);
+  try
+    X.TaxpayerType := AType;
+    X.TaxpayerName := AName;
+    X.TaxpayerName2 := 'IKINCI';
+    X.TaxpayerSurname := ASurname;
+    X.TaxOffice := AOffice;
+    X.TaxNo := ATaxNo;
+    Svc.BusinessUpdate(X, False, False, True);
+  finally
+    X.Free;
+  end;
+end;
+
+procedure TestAccountTaxpayer;
+var
+  Svc: TAccAccountService;
+  Base: Int64;
+
+  function Col(const AColumn: string): string;
+  begin
+    Result := S(Scalar('SELECT ' + AColumn + '::text FROM acc_account_taxpayer WHERE acc_account_id = ' + Base.ToString));
+  end;
+
+begin
+  Ctx('Account', 'TAccAccount.Taxpayer');
+  Base := Scalar('SELECT min(id) FROM acc_account WHERE code LIKE ''___-%''');
+  Svc := TAccAccountService.Create;
+  try
+    try
+      Begin_;
+      Expect('legal without tax office', procedure begin SaveTaxpayer(Svc, Base, ACC_TAXPAYER_LEGAL, '', '', '', '1234567890'); end);
+      Begin_;
+      Expect('legal tax no 9 digits', procedure begin SaveTaxpayer(Svc, Base, ACC_TAXPAYER_LEGAL, '', '', 'PENDİK', '123456789'); end);
+      Begin_;
+      Expect('legal tax no not numeric', procedure begin SaveTaxpayer(Svc, Base, ACC_TAXPAYER_LEGAL, '', '', 'PENDİK', '12345A7890'); end);
+      Begin_;
+      SaveTaxpayer(Svc, Base, ACC_TAXPAYER_LEGAL, 'AD', 'SOYAD', ' PENDİK ', ' 1234567890 ');
+      Check('legal saved', (Col('taxpayer_type') = '1') and (Col('tax_no') = '1234567890') and (Col('tax_office') = 'PENDİK'));
+      Check('legal clears person names', (Col('taxpayer_name') = '<null>') and (Col('taxpayer_name2') = '<null>') and
+        (Col('taxpayer_surname') = '<null>'));
+      End_;
+
+      Begin_;
+      Expect('real without surname', procedure begin SaveTaxpayer(Svc, Base, ACC_TAXPAYER_REAL, 'AHMET', '', '', '12345678901'); end);
+      Begin_;
+      Expect('real citizen no 10 digits', procedure begin SaveTaxpayer(Svc, Base, ACC_TAXPAYER_REAL, 'AHMET', 'YILMAZ', '', '1234567890'); end);
+      Begin_;
+      SaveTaxpayer(Svc, Base, ACC_TAXPAYER_REAL, 'AHMET', 'YILMAZ', '', '12345678901');
+      Check('real saved', (Col('taxpayer_type') = '2') and (Col('tax_no') = '12345678901') and (Col('taxpayer_surname') = 'YILMAZ') and
+        (Col('taxpayer_name2') = 'IKINCI'));
+      Check('real tax office optional', Col('tax_office') = '<null>');
+      End_;
+
+      Begin_;
+      SaveTaxpayer(Svc, Base, 0, 'AHMET', 'YILMAZ', 'PENDİK', '12345678901');
+      Check('no type clears taxpayer info', (Col('taxpayer_type') = '<null>') and (Col('tax_no') = '<null>') and
+        (Col('tax_office') = '<null>') and (Col('taxpayer_name') = '<null>'));
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    Svc.Free;
+  end;
+end;
+
+// Hesap kodu: 3 haneli seviyeler, üst hesap var ve son hesap değil, alt hesabı olanın kodu değişmez; kart listeleri
+procedure InsertAccountCode(Svc: TAccAccountService; ABase: Int64; const ACode: string);
+var
+  X: TAccAccount;
+begin
+  X := Svc.FindById(ABase, False);
+  try
+    X.Id := 0;
+    X.Code := ACode;
+    X.Name := 'IT KOD';
+    Svc.BusinessInsert(X, False, False, True);
+  finally
+    X.Free;
+  end;
+end;
+
+procedure TestAccountCode;
+var
+  Svc: TAccAccountService;
+  Base: Int64;
+  Items: TStringList;
+  FreeCode, Detail: string;
+begin
+  Ctx('Account', 'TAccAccount.Code');
+  Base := Scalar('SELECT id FROM acc_account WHERE code = ''120-001''');
+  Detail := S(Scalar('SELECT min(code) FROM acc_account WHERE acc_set_account_type_id = 3 AND code ~ ''^[0-9]{3}-[0-9]{3}$'''));
+  Svc := TAccAccountService.Create;
+  Items := TStringList.Create;
+  try
+    try
+      Check('code format', TAccAccountService.IsValidCode('120-001-089') and TAccAccountService.IsValidCode('120') and
+        not TAccAccountService.IsValidCode('120-1-89') and not TAccAccountService.IsValidCode('120-001-001-001') and
+        not TAccAccountService.IsValidCode('12A'));
+      Check('parent code', (TAccAccountService.ParentCodeOf('120-001-005') = '120-001') and (TAccAccountService.ParentCodeOf('120') = ''));
+
+      Items.Text := Svc.FreeCodesText('120-001');
+      Check('free codes skip used', (Items.Count > 0) and (Items.IndexOf('120-001-001') < 0) and
+        (Items[0] = S(Scalar('SELECT min(c) FROM (SELECT ''120-001-'' || lpad(n::text, 3, ''0'') c FROM generate_series(1, 999) n) s ' +
+        'WHERE NOT EXISTS (SELECT 1 FROM acc_account a WHERE a.code = s.c)'))), Items[0] + ' / ' + IntToStr(Items.Count));
+      FreeCode := Items[0];
+      Items.Text := Svc.FreeCodesText('');
+      Check('free main codes 100-999', (Items.Count > 0) and (Items.IndexOf('120') < 0) and (Length(Items[0]) = 3));
+      Items.Text := Svc.ParentAccountsText('120');
+      Check('intermediate list', Items.IndexOf('120-001 - ' + S(Scalar('SELECT name FROM acc_account WHERE id = ' + Base.ToString))) >= 0,
+        Items.Text);
+      Items.Text := Svc.ParentAccountsText('');
+      Check('detail accounts are not parents', (Items.Count > 0) and (Items.Text.IndexOf('600 - ') < 0));
+      Check('invalid parent returns nothing', Svc.FreeCodesText('12-1') = '');
+
+      Begin_;
+      InsertAccountCode(Svc, Base, FreeCode);
+      Check('insert first free code', Num(Scalar('SELECT count(*) FROM acc_account WHERE code = ''' + FreeCode + '''')) = 1);
+      End_;
+
+      Begin_;
+      Expect('bad format 120-1-90', procedure begin InsertAccountCode(Svc, Base, '120-1-90'); end);
+      Begin_;
+      Expect('parent missing', procedure begin InsertAccountCode(Svc, Base, '120-999-001'); end);
+      if Detail <> '<null>' then
+      begin
+        Begin_;
+        Expect('parent is detail account', procedure begin InsertAccountCode(Svc, Base, Detail + '-001'); end);
+      end;
+      Begin_;
+      Expect('code change with children', procedure
+        var X: TAccAccount;
+        begin
+          X := Svc.FindById(Base, False);
+          try
+            X.Code := '120-099';
+            Svc.BusinessUpdate(X, False, False, True);
+          finally X.Free; end;
+        end);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    Items.Free;
+    Svc.Free;
+  end;
+end;
+
 procedure TestTransferCode;
 var
   Svc: TAccTransferCodeService;
@@ -4975,6 +5316,9 @@ begin
   TestStockInventory;
   TestStockKindInfo;
   TestAccount;
+  TestAccountCardAddresses;
+  TestAccountTaxpayer;
+  TestAccountCode;
   TestTransferCode;
   TestEmployee;
   TestUsers;
