@@ -46,6 +46,7 @@ type
     function GetDefaultCurrency: string;
     // Tablodaki (kayıtlı) belge adresi id'leri; yeni kayıtta 0
     procedure GetSysAddressIds(AOfferId: Int64; out ABillingId, AShippingId: Int64);
+    function DeliveryTermIsIncoterms(ADeliveryTermId: Int64): Boolean;
   end;
 
 implementation
@@ -216,17 +217,34 @@ begin
   end;
 end;
 
+function TSlsOfferRepository.DeliveryTermIsIncoterms(ADeliveryTermId: Int64): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT is_incoterms FROM public.einv_delivery_term WHERE id = :id';
+    Q.ParamByName('id').AsLargeInt := ADeliveryTermId;
+    LogQuery(Q, 'DeliveryTermIsIncoterms');
+    Q.Open;
+    Result := not Q.IsEmpty and Q.FieldByName('is_incoterms').AsBoolean;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TSlsOfferRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TSlsOffer) +
-            ' (offer_no, offer_date, valid_until, acc_account_id, customer_ref_no, emp_employee_id, currency, exchange_rate, payment_term_days, status, gross_amount, discount_amount, net_amount, vat_amount, total_amount, description, billing_address_id, billing_sys_address_id, shipping_address_id, shipping_sys_address_id, base_currency, usd_rate, eur_rate) ' +
-            ' VALUES (:offer_no, :offer_date, :valid_until, :acc_account_id, :customer_ref_no, :emp_employee_id, :currency, :exchange_rate, :payment_term_days, :status, :gross_amount, :discount_amount, :net_amount, :vat_amount, :total_amount, :description, :billing_address_id, :billing_sys_address_id, :shipping_address_id, :shipping_sys_address_id, :base_currency, :usd_rate, :eur_rate)';
+            ' (offer_no, offer_date, valid_until, acc_account_id, customer_ref_no, emp_employee_id, currency, exchange_rate, payment_term_days, status, gross_amount, discount_amount, net_amount, vat_amount, total_amount, description, billing_address_id, billing_sys_address_id, shipping_address_id, shipping_sys_address_id, base_currency, usd_rate, eur_rate, delivery_date, einv_payment_means_id, einv_delivery_term_id, sale_type) ' +
+            ' VALUES (:offer_no, :offer_date, :valid_until, :acc_account_id, :customer_ref_no, :emp_employee_id, :currency, :exchange_rate, :payment_term_days, :status, :gross_amount, :discount_amount, :net_amount, :vat_amount, :total_amount, :description, :billing_address_id, :billing_sys_address_id, :shipping_address_id, :shipping_sys_address_id, :base_currency, :usd_rate, :eur_rate, :delivery_date, :einv_payment_means_id, :einv_delivery_term_id, :sale_type)';
 end;
 
 function TSlsOfferRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TSlsOffer) +
-            ' SET offer_no = :offer_no, offer_date = :offer_date, valid_until = :valid_until, acc_account_id = :acc_account_id, customer_ref_no = :customer_ref_no, emp_employee_id = :emp_employee_id, currency = :currency, exchange_rate = :exchange_rate, payment_term_days = :payment_term_days, status = :status, gross_amount = :gross_amount, discount_amount = :discount_amount, net_amount = :net_amount, vat_amount = :vat_amount, total_amount = :total_amount, description = :description, billing_address_id = :billing_address_id, billing_sys_address_id = :billing_sys_address_id, shipping_address_id = :shipping_address_id, shipping_sys_address_id = :shipping_sys_address_id, base_currency = :base_currency, usd_rate = :usd_rate, eur_rate = :eur_rate ' +
+            ' SET offer_no = :offer_no, offer_date = :offer_date, valid_until = :valid_until, acc_account_id = :acc_account_id, customer_ref_no = :customer_ref_no, emp_employee_id = :emp_employee_id, currency = :currency, exchange_rate = :exchange_rate, payment_term_days = :payment_term_days, status = :status, gross_amount = :gross_amount, discount_amount = :discount_amount, net_amount = :net_amount, vat_amount = :vat_amount, total_amount = :total_amount, description = :description, billing_address_id = :billing_address_id, billing_sys_address_id = :billing_sys_address_id, shipping_address_id = :shipping_address_id, shipping_sys_address_id = :shipping_sys_address_id, base_currency = :base_currency, usd_rate = :usd_rate, eur_rate = :eur_rate, delivery_date = :delivery_date, einv_payment_means_id = :einv_payment_means_id, einv_delivery_term_id = :einv_delivery_term_id, sale_type = :sale_type ' +
             ' WHERE id = :id';
 end;
 
@@ -263,6 +281,7 @@ begin
     Q.ParamByName('exchange_rate').AsBCD := AModel.ExchangeRate;
     Q.ParamByName('payment_term_days').AsSmallInt := AModel.PaymentTermDays;
     Q.ParamByName('status').AsSmallInt := AModel.Status;
+    Q.ParamByName('sale_type').AsSmallInt := AModel.SaleType;
     Q.ParamByName('gross_amount').AsBCD := AModel.GrossAmount;
     Q.ParamByName('discount_amount').AsBCD := AModel.DiscountAmount;
     Q.ParamByName('net_amount').AsBCD := AModel.NetAmount;
@@ -281,6 +300,7 @@ begin
     Q.ParamByName('exchange_rate').AsBCDs[AIndex] := AModel.ExchangeRate;
     Q.ParamByName('payment_term_days').AsSmallInts[AIndex] := AModel.PaymentTermDays;
     Q.ParamByName('status').AsSmallInts[AIndex] := AModel.Status;
+    Q.ParamByName('sale_type').AsSmallInts[AIndex] := AModel.SaleType;
     Q.ParamByName('gross_amount').AsBCDs[AIndex] := AModel.GrossAmount;
     Q.ParamByName('discount_amount').AsBCDs[AIndex] := AModel.DiscountAmount;
     Q.ParamByName('net_amount').AsBCDs[AIndex] := AModel.NetAmount;
@@ -300,6 +320,9 @@ begin
   SetNullableParam(Q.ParamByName('shipping_address_id'), ftLargeint, AModel.ShippingAddressId, AIndex);
   SetNullableParam(Q.ParamByName('billing_sys_address_id'), ftLargeint, AModel.BillingSysAddressId, AIndex);
   SetNullableParam(Q.ParamByName('shipping_sys_address_id'), ftLargeint, AModel.ShippingSysAddressId, AIndex);
+  SetDate('delivery_date', AModel.DeliveryDate);
+  SetNullableParam(Q.ParamByName('einv_payment_means_id'), ftLargeint, AModel.EinvPaymentMeansId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_delivery_term_id'), ftLargeint, AModel.EinvDeliveryTermId, AIndex);
 end;
 
 procedure TSlsOfferRepository.SetUpdateParams(Q: TFDQuery; AModel: TSlsOffer; AIndex: Integer);
@@ -330,6 +353,7 @@ begin
     Q.ParamByName('exchange_rate').AsBCD := AModel.ExchangeRate;
     Q.ParamByName('payment_term_days').AsSmallInt := AModel.PaymentTermDays;
     Q.ParamByName('status').AsSmallInt := AModel.Status;
+    Q.ParamByName('sale_type').AsSmallInt := AModel.SaleType;
     Q.ParamByName('gross_amount').AsBCD := AModel.GrossAmount;
     Q.ParamByName('discount_amount').AsBCD := AModel.DiscountAmount;
     Q.ParamByName('net_amount').AsBCD := AModel.NetAmount;
@@ -349,6 +373,7 @@ begin
     Q.ParamByName('exchange_rate').AsBCDs[AIndex] := AModel.ExchangeRate;
     Q.ParamByName('payment_term_days').AsSmallInts[AIndex] := AModel.PaymentTermDays;
     Q.ParamByName('status').AsSmallInts[AIndex] := AModel.Status;
+    Q.ParamByName('sale_type').AsSmallInts[AIndex] := AModel.SaleType;
     Q.ParamByName('gross_amount').AsBCDs[AIndex] := AModel.GrossAmount;
     Q.ParamByName('discount_amount').AsBCDs[AIndex] := AModel.DiscountAmount;
     Q.ParamByName('net_amount').AsBCDs[AIndex] := AModel.NetAmount;
@@ -368,6 +393,9 @@ begin
   SetNullableParam(Q.ParamByName('shipping_address_id'), ftLargeint, AModel.ShippingAddressId, AIndex);
   SetNullableParam(Q.ParamByName('billing_sys_address_id'), ftLargeint, AModel.BillingSysAddressId, AIndex);
   SetNullableParam(Q.ParamByName('shipping_sys_address_id'), ftLargeint, AModel.ShippingSysAddressId, AIndex);
+  SetDate('delivery_date', AModel.DeliveryDate);
+  SetNullableParam(Q.ParamByName('einv_payment_means_id'), ftLargeint, AModel.EinvPaymentMeansId, AIndex);
+  SetNullableParam(Q.ParamByName('einv_delivery_term_id'), ftLargeint, AModel.EinvDeliveryTermId, AIndex);
 end;
 
 function TSlsOfferRepository.MapFromQuery(Q: TFDQuery): TSlsOffer;
@@ -409,6 +437,18 @@ begin
   Result.AccountCode := Q.FieldByName('account_code').AsString;
   Result.AccountName := Q.FieldByName('account_name').AsString;
   Result.EmployeeName := Q.FieldByName('employee_name').AsString;
+  if Q.FieldByName('delivery_date').IsNull then
+    Result.DeliveryDate := 0
+  else
+    Result.DeliveryDate := Q.FieldByName('delivery_date').AsDateTime;
+  Result.EinvPaymentMeansId := Q.FieldByName('einv_payment_means_id').AsLargeInt;
+  Result.PaymentMeansName := Q.FieldByName('payment_means_name').AsString;
+  Result.EinvDeliveryTermId := Q.FieldByName('einv_delivery_term_id').AsLargeInt;
+  Result.DeliveryTermName := Q.FieldByName('delivery_term_name').AsString;
+  Result.TaxOffice := Q.FieldByName('tax_office').AsString;
+  Result.TaxNo := Q.FieldByName('tax_no').AsString;
+  Result.SaleType := Q.FieldByName('sale_type').AsInteger;
+  Result.DeliveryTermIsIncoterms := Q.FieldByName('delivery_term_is_incoterms').AsBoolean;
 end;
 
 function TSlsOfferRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

@@ -1,12 +1,15 @@
 ﻿unit Grid.QuickFilter;
 
-// Liste başlık çubuğundaki hızlı filtre radyo düğmeleri (Tümü / Taslak / Bekleyenler …)
+// Liste altındaki (Kayıt Ekle düğmesi hizasında, sağda) hızlı filtre radyo düğmeleri (Tümü / Taslak / Bekleyenler …)
 
 interface
 
 uses
   System.SysUtils, System.Classes, System.Generics.Collections, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls,
   Grid.Types;
+
+const
+  QUICK_FILTER_HEIGHT = 29;
 
 type
   TGridQuickFilterEvent = procedure(AIndex: Integer) of object;
@@ -72,9 +75,12 @@ var
 begin
   if FPanel = nil then
   begin
+    // üst satırda sağa yaslı (alt satır özet vb. için boş kalır)
     FPanel := TPanel.Create(FParent);
     FPanel.Parent := FParent;
-    FPanel.Align := alRight;
+    FPanel.Align := alNone;
+    FPanel.Anchors := [akTop, akRight];
+    FPanel.SetBounds(FParent.ClientWidth - 10, 0, 10, QUICK_FILTER_HEIGHT);
     FPanel.BevelOuter := bvNone;
     FPanel.ParentColor := True;
   end;
@@ -154,7 +160,7 @@ begin
     LItem.Button.Width := LForm.Canvas.TextWidth(LItem.Button.Caption) + 24;
     Inc(LWidth, LItem.Button.Width + LItem.Button.Margins.Left + LItem.Button.Margins.Right);
   end;
-  FPanel.Width := LWidth;
+  FPanel.SetBounds(FParent.ClientWidth - LWidth - 4, 0, LWidth, QUICK_FILTER_HEIGHT);
 end;
 
 end.

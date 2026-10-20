@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict gJtQ7e6qy9c6q8PMFziw3IjZqNC4xEooqWzKQ5PgnUdXUihdBbzLLaFWlV9LHCj
+\restrict 7AGlYZ15QJI8LuhhaXZneUaEEJKNLLZ5A1cOl4W4vgUbdDieZH4AzXx5gJxwRdr
 
--- Dumped from database version 18.3
--- Dumped by pg_dump version 18.3
+-- Dumped from database version 18.1
+-- Dumped by pg_dump version 18.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -669,7 +669,7 @@ CREATE SERVER audit_server FOREIGN DATA WRAPPER postgres_fdw OPTIONS (
     dbname 'ths_audit',
     fetch_size '1000',
     host 'localhost',
-    port '5432'
+    port '5433'
 );
 
 
@@ -993,7 +993,7 @@ CREATE TABLE public.acc_exchange_rate (
     banknote_selling numeric(18,6),
     source character varying(8) DEFAULT 'MANUAL'::character varying NOT NULL,
     CONSTRAINT acc_exchange_rate_rate_check CHECK ((rate > (0)::numeric)),
-    CONSTRAINT acc_exchange_rate_source_check CHECK (((source)::text = ANY ((ARRAY['MANUAL'::character varying, 'TCMB'::character varying])::text[])))
+    CONSTRAINT acc_exchange_rate_source_check CHECK (((source)::text = ANY (ARRAY[('MANUAL'::character varying)::text, ('TCMB'::character varying)::text])))
 );
 
 
@@ -3888,10 +3888,16 @@ CREATE TABLE public.sls_offer (
     base_currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
     usd_rate numeric(18,6),
     eur_rate numeric(18,6),
+    delivery_date date,
+    einv_payment_means_id bigint,
+    einv_delivery_term_id bigint,
+    sale_type smallint DEFAULT 1 NOT NULL,
     CONSTRAINT sls_offer_billing_shipping_address_check CHECK (((billing_sys_address_id IS NULL) OR (shipping_sys_address_id IS NULL) OR (billing_sys_address_id <> shipping_sys_address_id))),
+    CONSTRAINT sls_offer_delivery_date_check CHECK (((delivery_date IS NULL) OR (delivery_date >= offer_date))),
     CONSTRAINT sls_offer_eur_rate_check CHECK (((eur_rate IS NULL) OR (eur_rate > (0)::numeric))),
     CONSTRAINT sls_offer_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
     CONSTRAINT sls_offer_payment_term_check CHECK (((payment_term_days >= 0) AND (payment_term_days <= 365))),
+    CONSTRAINT sls_offer_sale_type_check CHECK (((sale_type >= 1) AND (sale_type <= 5))),
     CONSTRAINT sls_offer_status_check CHECK (((status >= 1) AND (status <= 5))),
     CONSTRAINT sls_offer_usd_rate_check CHECK (((usd_rate IS NULL) OR (usd_rate > (0)::numeric))),
     CONSTRAINT sls_offer_valid_until_check CHECK (((valid_until IS NULL) OR (valid_until >= offer_date)))
@@ -3940,6 +3946,13 @@ COMMENT ON COLUMN public.sls_offer.usd_rate IS '1 USD = usd_rate ana para (tekli
 --
 
 COMMENT ON COLUMN public.sls_offer.eur_rate IS '1 EUR = eur_rate ana para (teklif tarihi, rapor için)';
+
+
+--
+-- Name: COLUMN sls_offer.sale_type; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.sls_offer.sale_type IS '1 satis, 2 ihracat, 3 ihrac kayitli, 4 istisna, 5 tevkifatli';
 
 
 --
@@ -4841,7 +4854,12 @@ CREATE TABLE public.sys_decimal_place (
     price smallint DEFAULT 0 NOT NULL,
     total smallint DEFAULT 0 NOT NULL,
     stock_quantity smallint DEFAULT 0 NOT NULL,
-    exchange_rate smallint DEFAULT 0 NOT NULL
+    exchange_rate smallint DEFAULT 0 NOT NULL,
+    CONSTRAINT sys_decimal_place_exchange_rate_check CHECK (((exchange_rate >= 0) AND (exchange_rate <= 4))),
+    CONSTRAINT sys_decimal_place_price_check CHECK (((price >= 0) AND (price <= 4))),
+    CONSTRAINT sys_decimal_place_quantity_check CHECK (((quantity >= 0) AND (quantity <= 4))),
+    CONSTRAINT sys_decimal_place_stock_quantity_check CHECK (((stock_quantity >= 0) AND (stock_quantity <= 4))),
+    CONSTRAINT sys_decimal_place_total_check CHECK (((total >= 0) AND (total <= 2)))
 );
 
 
@@ -7708,19 +7726,32 @@ CREATE VIEW public.vw_sls_offer AS
     o.description,
     o.billing_address_id,
     o.billing_sys_address_id,
-    (replace((public.fn_sys_address_text(o.billing_sys_address_id, NULL::character varying))::text, '
+    (replace((public.fn_sys_address_text(o.billing_sys_address_id, NULL::character varying))::text, '
 '::text, ', '::text))::character varying(512) AS billing_address,
     o.shipping_address_id,
     o.shipping_sys_address_id,
-    (replace((public.fn_sys_address_text(o.shipping_sys_address_id, NULL::character varying))::text, '
+    (replace((public.fn_sys_address_text(o.shipping_sys_address_id, NULL::character varying))::text, '
 '::text, ', '::text))::character varying(512) AS shipping_address,
     o.base_currency,
     o.usd_rate,
     o.eur_rate,
-    ((o.total_amount * o.exchange_rate))::numeric(18,2) AS total_amount_base
-   FROM ((public.sls_offer o
+    ((o.total_amount * o.exchange_rate))::numeric(18,2) AS total_amount_base,
+    o.delivery_date,
+    o.einv_payment_means_id,
+    pm.name AS payment_means_name,
+    o.einv_delivery_term_id,
+    dt.code AS delivery_term_code,
+    dt.name AS delivery_term_name,
+    tp.tax_office,
+    tp.tax_no,
+    o.sale_type,
+    dt.is_incoterms AS delivery_term_is_incoterms
+   FROM (((((public.sls_offer o
      JOIN public.acc_account a ON ((a.id = o.acc_account_id)))
-     LEFT JOIN public.emp_employee e ON ((e.id = o.emp_employee_id)));
+     LEFT JOIN public.emp_employee e ON ((e.id = o.emp_employee_id)))
+     LEFT JOIN public.einv_payment_means pm ON ((pm.id = o.einv_payment_means_id)))
+     LEFT JOIN public.einv_delivery_term dt ON ((dt.id = o.einv_delivery_term_id)))
+     LEFT JOIN public.acc_account_taxpayer tp ON ((tp.acc_account_id = o.acc_account_id)));
 
 
 ALTER VIEW public.vw_sls_offer OWNER TO ths_admin;
@@ -11595,6 +11626,20 @@ CREATE INDEX sls_offer_detail_stk_inventory_id_idx ON public.sls_offer_detail US
 
 
 --
+-- Name: sls_offer_einv_delivery_term_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_offer_einv_delivery_term_id_idx ON public.sls_offer USING btree (einv_delivery_term_id);
+
+
+--
+-- Name: sls_offer_einv_payment_means_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_offer_einv_payment_means_id_idx ON public.sls_offer USING btree (einv_payment_means_id);
+
+
+--
 -- Name: sls_offer_emp_employee_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -13880,6 +13925,22 @@ ALTER TABLE ONLY public.sls_offer_detail
 
 
 --
+-- Name: sls_offer sls_offer_einv_delivery_term_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_einv_delivery_term_id_fkey FOREIGN KEY (einv_delivery_term_id) REFERENCES public.einv_delivery_term(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_offer sls_offer_einv_payment_means_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer
+    ADD CONSTRAINT sls_offer_einv_payment_means_id_fkey FOREIGN KEY (einv_payment_means_id) REFERENCES public.einv_payment_means(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sls_offer sls_offer_emp_employee_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -14638,5 +14699,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict gJtQ7e6qy9c6q8PMFziw3IjZqNC4xEooqWzKQ5PgnUdXUihdBbzLLaFWlV9LHCj
+\unrestrict 7AGlYZ15QJI8LuhhaXZneUaEEJKNLLZ5A1cOl4W4vgUbdDieZH4AzXx5gJxwRdr
 

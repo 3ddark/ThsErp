@@ -108,6 +108,12 @@ type
     function IsAuthorizedFor(APermissionType: TPermissionType): Boolean; virtual; abstract;
     // Sorgu ve veri kaynağı serbest bırakılır (servisten önce; tekrar çağrılabilir)
     procedure ReleaseGridData;
+    // Filtreye uyan tüm kayıtlar (sayfa değil) üzerinde açılmış sorgu:
+    // SELECT ASelectList FROM (filtreli liste SQL'i) pg_t [GROUP BY] [ORDER BY]; çağıran serbest bırakır.
+    // Sayfasız modda nil.
+    function OpenFilteredQuery(const ASelectList: string; const AGroupBy: string = ''; const AOrderBy: string = ''): TFDQuery;
+    // Sayfa verisi ve alt toplamlar yüklendi (filtre / arama / hızlı filtre / yenileme sonrası); alt sınıf özet gösterir
+    procedure FilteredDataLoaded; virtual;
   public
     property Grd: THackDBGrid read FGrd write FGrd;
     property Qry: TFDQuery read FQry write FQry;
@@ -179,6 +185,8 @@ type
     procedure DefineFooterColumns; virtual;
     procedure LoadFooterColumnsFromDB; virtual;
     procedure DefineColumnWidths; virtual;
+    // Miktar / fiyat / tutar / kur kolonlarına sys_decimal_place haneleri (DefineColumnWidths'ten önce)
+    procedure ApplyDecimalFormats;
     procedure SetColumnProperty(const AFieldName: string; AWidth: Integer; AColumnTitle: string = '');
     procedure SetColumnTitle(const AFieldName: string; AColumnTitle: string);
     procedure BuildFooter;
@@ -261,7 +269,7 @@ implementation
 
 uses
   Vcl.Clipbrd, FireDAC.Stan.Param, udm, Ths.Constants, Ths.Globals, Logger, AppContext, EntitySchemaCache,
-  Grid.Sql, Grid.Columns, Grid.Export, Grid.ColumnSelector, Db.ErrorTranslator;
+  Grid.Sql, Grid.Columns, Grid.Export, Grid.ColumnSelector, Db.ErrorTranslator, SysDecimalPlace.Cache;
 
 { TfrmGridBase - kurulum }
 
@@ -357,7 +365,7 @@ begin
   FPagingBar.OnGoToPage := PagingBarGoToPage;
   FPagingBar.OnPageSize := PagingBarPageSize;
 
-  FQuickBar := TGridQuickFilterBar.Create(PanelHeader);
+  FQuickBar := TGridQuickFilterBar.Create(FPanelButtons);
   FQuickBar.OnSelect := QuickFilterSelected;
 
   FStatusBase := TStatusBar.Create(Self);
@@ -914,6 +922,7 @@ begin
   Grd.Columns.RestoreDefaults;
   TGridColumns.SetTitleStyle(Grd);
 
+  ApplyDecimalFormats;
   DefineColumnWidths;         // subclass'ın kod tanımlı genişlikleri
   LoadColumnWidthsFromDB;     // DB'deki kayıtlı genişlikler (önceliklidir)
   AdjustFormWidth;
@@ -1225,6 +1234,7 @@ begin
 
     OpenPageData(LQuiet);
     FPager.LoadTotals(FQry.Connection, FQry, FFooter);
+    FilteredDataLoaded;
 
     // Kayıt silinip sayfa sayısı azaldıysa son sayfa; odaklanacak kayıt başka sayfadaysa o sayfa
     LPage := FPager.PageIndex;
@@ -1258,6 +1268,7 @@ procedure TfrmGridBase.RestoreColumnStates(const AStates: TArray<TGridColumnStat
 begin
   TGridColumns.SetTitleStyle(Grd);
   // yeniden oluşan alanlara alan olayları (OnGetText vb.) yeniden bağlansın
+  ApplyDecimalFormats;
   DefineColumnWidths;
   TGridColumns.RestoreStates(Grd, AStates);
   UpdateFooterLayout;
@@ -1406,6 +1417,49 @@ end;
 procedure TfrmGridBase.DefineColumnWidths;
 begin
 //
+end;
+
+function TfrmGridBase.OpenFilteredQuery(const ASelectList, AGroupBy, AOrderBy: string): TFDQuery;
+var
+  LSql: string;
+begin
+  Result := nil;
+  if not IsPaged or not Assigned(FQry) then
+    Exit;
+  LSql := 'SELECT ' + ASelectList + ' FROM (' + FPager.FilteredSql + ') pg_t';
+  if AGroupBy <> '' then
+    LSql := LSql + ' GROUP BY ' + AGroupBy;
+  if AOrderBy <> '' then
+    LSql := LSql + ' ORDER BY ' + AOrderBy;
+  Result := FPager.CreateQuery(FQry.Connection, LSql);
+  try
+    Result.Open;
+  except
+    FreeAndNil(Result);
+    raise;
+  end;
+end;
+
+procedure TfrmGridBase.FilteredDataLoaded;
+begin
+//
+end;
+
+procedure TfrmGridBase.ApplyDecimalFormats;
+var
+  LDataSet: TDataSet;
+  i, LDigits: Integer;
+begin
+  if not Assigned(Grd.DataSource) or not Assigned(Grd.DataSource.DataSet) then
+    Exit;
+  LDataSet := Grd.DataSource.DataSet;
+  for i := 0 to LDataSet.Fields.Count - 1 do
+    if LDataSet.Fields[i] is TNumericField then
+    begin
+      LDigits := TDecimalPlaces.DigitsForField(GetGridViewName, LDataSet.Fields[i].FieldName);
+      if LDigits >= 0 then
+        TNumericField(LDataSet.Fields[i]).DisplayFormat := TDecimalPlaces.DisplayFormat(LDigits);
+    end;
 end;
 
 procedure TfrmGridBase.SetColumnProperty(const AFieldName: string; AWidth: Integer; AColumnTitle: string);

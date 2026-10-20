@@ -6,7 +6,7 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.StdCtrls, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
   SlsOffer.Service, SlsOffer, ufrmSlsOfferDetail;
 
@@ -21,12 +21,17 @@ type
     procedure mniToOrderClick(Sender: TObject);
     procedure SetStatus(AStatus: SmallInt);
     procedure StatusGetText(Sender: TField; var Text: string; DisplayText: Boolean);
+    procedure SaleTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
+  private
+    FLblSummary: TLabel;
+  protected
+    // Filtreye uyan tüm tekliflerin para birimi bazında net / KDV / genel toplamı (+ birden çok parada ana para toplamı)
+    procedure FilteredDataLoaded; override;
   public
     procedure PreparePopupMenu; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
-    procedure DefineFooterColumns; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
   end;
@@ -36,6 +41,7 @@ implementation
 {$R *.dfm}
 
 uses
+  System.Math, FireDAC.Comp.Client, Logger, SysDecimalPlace.Cache, SysCurrency.Cache,
   SlsLookup,
   ufrmSlsOrderDetail, SlsOrder, SlsOrder.Service;
 
@@ -46,6 +52,14 @@ begin
   else
     Text := TSlsLookup.Text(slkOfferStatus, Sender.AsInteger);
 end;
+procedure TfrmSlsOffers.SaleTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
+begin
+  if Sender.IsNull then
+    Text := ''
+  else
+    Text := TSlsLookup.Text(slkSaleType, Sender.AsInteger);
+end;
+
 procedure TfrmSlsOffers.SetStatus(AStatus: SmallInt);
 begin
   if Grd.DataSource.DataSet.IsEmpty then
@@ -161,18 +175,80 @@ begin
   SetColumnProperty('billing_sys_address_id', 0);
   SetColumnProperty('shipping_address_id', 0);
   SetColumnProperty('shipping_sys_address_id', 0);
+  SetColumnProperty('einv_payment_means_id', 0);
+  SetColumnProperty('einv_delivery_term_id', 0);
+  SetColumnProperty('delivery_term_is_incoterms', 0);
   LField := Grd.DataSource.DataSet.FindField('status');
   if Assigned(LField) then
     LField.OnGetText := StatusGetText;
+  LField := Grd.DataSource.DataSet.FindField('sale_type');
+  if Assigned(LField) then
+    LField.OnGetText := SaleTypeGetText;
 end;
 
-// Alt toplamlar sayfanın değil filtreye uyan tüm kayıtların (sayfalı modda SQL ile)
-procedure TfrmSlsOffers.DefineFooterColumns;
+// Grid alt toplamı yerine (farklı para birimleri toplanmasın): filtreye uyan tüm kayıtlar, para birimi bazında
+procedure TfrmSlsOffers.FilteredDataLoaded;
+var
+  Q: TFDQuery;
+  LLines: TStringList;
+  LFormat, LBase, LCurrency: string;
+  LBaseTotal: Double;
 begin
   inherited;
-  AddFooterColumn('net_amount', atSum, '#,##0.00');
-  AddFooterColumn('vat_amount', atSum, '#,##0.00');
-  AddFooterColumn('total_amount', atSum, '#,##0.00');
+  if not Assigned(FLblSummary) then
+  begin
+    FLblSummary := TLabel.Create(Self);
+    FLblSummary.Parent := PanelButtons;
+    FLblSummary.Left := 4;
+    FLblSummary.Top := BtnAdd.Top + BtnAdd.Height + 6;
+    FLblSummary.Font.Style := [fsBold];
+  end;
+  FLblSummary.Caption := '';
+  LFormat := TDecimalPlaces.TotalFormat;
+  LLines := TStringList.Create;
+  try
+    try
+      Q := OpenFilteredQuery('currency, sum(net_amount) AS net, sum(vat_amount) AS vat, sum(total_amount) AS total, ' +
+        'sum(total_amount_base) AS total_base, max(base_currency) AS base_currency', 'currency', 'currency');
+    except
+      on E: Exception do
+      begin
+        // özet kolonları liste sorgusunda yoksa (kolon seçimi) özet gösterilmez
+        GLogger.ErrorFmt('TfrmSlsOffers summary: %s', [E.Message]);
+        Q := nil;
+      end;
+    end;
+    if not Assigned(Q) then
+      Exit;
+    try
+      LBaseTotal := 0;
+      LBase := '';
+      while not Q.Eof do
+      begin
+        LCurrency := Q.FieldByName('currency').AsString;
+        LLines.Add(Format('%s: %s     %s: %s     %s: %s', [
+          TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColNetAmount, 'Net Amount'),
+          TCurrencySymbols.FormatAmount(Q.FieldByName('net').AsFloat, LCurrency, LFormat),
+          TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColVatAmount, 'VAT Amount'),
+          TCurrencySymbols.FormatAmount(Q.FieldByName('vat').AsFloat, LCurrency, LFormat),
+          TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColTotalAmount, 'Total'),
+          TCurrencySymbols.FormatAmount(Q.FieldByName('total').AsFloat, LCurrency, LFormat)]));
+        LBaseTotal := LBaseTotal + Q.FieldByName('total_base').AsFloat;
+        LBase := Q.FieldByName('base_currency').AsString;
+        Q.Next;
+      end;
+      if LLines.Count > 1 then
+        LLines.Add(Format('%s: %s', [TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColTotalAmountBase, 'Total (Base Currency)'),
+          TCurrencySymbols.FormatAmount(LBaseTotal, LBase, LFormat)]));
+    finally
+      Q.Free;
+    end;
+    FLblSummary.Caption := TrimRight(LLines.Text);
+    // satır sayısı kadar yer (Kayıt Ekle + özet)
+    PanelButtons.Height := Max(70, FLblSummary.Top + FLblSummary.Height + 6);
+  finally
+    LLines.Free;
+  end;
 end;
 
 procedure TfrmSlsOffers.FormShow(Sender: TObject);
@@ -224,6 +300,13 @@ begin
   SetColumnTitle('usd_rate', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColUsdRate, 'USD Rate'));
   SetColumnTitle('eur_rate', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColEurRate, 'EUR Rate'));
   SetColumnTitle('total_amount_base', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColTotalAmountBase, 'Total (Base Currency)'));
+  SetColumnTitle('delivery_date', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColDeliveryDate, 'Delivery Date'));
+  SetColumnTitle('payment_means_name', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColEinvPaymentMeansId, 'Payment Method'));
+  SetColumnTitle('delivery_term_code', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColEinvDeliveryTermId, 'Shipping Method'));
+  SetColumnTitle('delivery_term_name', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColEinvDeliveryTermId, 'Shipping Method'));
+  SetColumnTitle('tax_office', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColTaxOffice, 'Tax Office'));
+  SetColumnTitle('tax_no', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColTaxNo, 'Tax No'));
+  SetColumnTitle('sale_type', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColSaleType, 'Sale Type'));
   if Assigned(FmniSend) then
     FmniSend.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.MenuSend, 'Mark as Sent');
   if Assigned(FmniToDraft) then

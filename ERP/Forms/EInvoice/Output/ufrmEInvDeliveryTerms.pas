@@ -17,6 +17,8 @@ type
   public
     // Yardımcı seçimde yalnız aktif kayıtlar (Show öncesi)
     procedure SetActiveOnly;
+    // Yalnız Incoterms (True: ihracat) ya da yalnız yurt içi teslim şekilleri (False)
+    procedure SetIncotermsOnly(AValue: Boolean);
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
@@ -34,6 +36,11 @@ uses
 procedure TfrmEInvDeliveryTerms.SetActiveOnly;
 begin
   AddFixedFilter('is_active', True);
+end;
+
+procedure TfrmEInvDeliveryTerms.SetIncotermsOnly(AValue: Boolean);
+begin
+  AddFixedFilter('is_incoterms', AValue);
 end;
 
 function TfrmEInvDeliveryTerms.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;

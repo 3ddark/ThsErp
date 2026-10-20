@@ -38,6 +38,10 @@ type
     FBaseCurrency: string;
     FUsdRate: Currency;
     FEurRate: Currency;
+    FDeliveryDate: TDate;
+    FEinvPaymentMeansId: Int64;
+    FEinvDeliveryTermId: Int64;
+    FSaleType: SmallInt;
     // belgeye ait ayrıntılı adresler (sahiplenir; boş = adres yok)
     FBillingAddress: TSysAddress;
     FShippingAddress: TSysAddress;
@@ -49,6 +53,11 @@ type
     FBillingAddressText: string;
     FShippingAddressText: string;
     FTotalAmountBase: Currency;
+    FPaymentMeansName: string;
+    FDeliveryTermName: string;
+    FTaxOffice: string;
+    FTaxNo: string;
+    FDeliveryTermIsIncoterms: Boolean;
   public
     [Column('offer_no')]
     [MaxLength(16)]
@@ -130,6 +139,21 @@ type
     [Column('eur_rate')]
     property EurRate: Currency read FEurRate write FEurRate;
 
+    // Teslim (termin) tarihi: siparişe aktarılır
+    [Column('delivery_date')]
+    property DeliveryDate: TDate read FDeliveryDate write FDeliveryDate;
+
+    // Ödeme şekli (einv_payment_means) / gönderim şekli (einv_delivery_term: adrese / kargoya teslim, Incoterms)
+    [Column('einv_payment_means_id')]
+    property EinvPaymentMeansId: Int64 read FEinvPaymentMeansId write FEinvPaymentMeansId;
+
+    [Column('einv_delivery_term_id')]
+    property EinvDeliveryTermId: Int64 read FEinvDeliveryTermId write FEinvDeliveryTermId;
+
+    // Satış tipi (SlsLookup SLS_SALE_*): satış / ihracat / ihraç kayıtlı / istisna / tevkifatlı
+    [Column('sale_type')]
+    property SaleType: SmallInt read FSaleType write FSaleType;
+
     [NotMapped]
     property AccountCode: string read FAccountCode write FAccountCode;
 
@@ -147,6 +171,22 @@ type
 
     [NotMapped]
     property TotalAmountBase: Currency read FTotalAmountBase write FTotalAmountBase;
+
+    [NotMapped]
+    property PaymentMeansName: string read FPaymentMeansName write FPaymentMeansName;
+
+    [NotMapped]
+    property DeliveryTermName: string read FDeliveryTermName write FDeliveryTermName;
+
+    [NotMapped]
+    property DeliveryTermIsIncoterms: Boolean read FDeliveryTermIsIncoterms write FDeliveryTermIsIncoterms;
+
+    // Müşterinin vergi bilgileri (acc_account_taxpayer; belgede saklanmaz, cari kartından gösterilir)
+    [NotMapped]
+    property TaxOffice: string read FTaxOffice write FTaxOffice;
+
+    [NotMapped]
+    property TaxNo: string read FTaxNo write FTaxNo;
 
     // Kolon değil (nesne özelliği): servis yükler (BusinessFindById) ve teklifle birlikte yazar
     property BillingAddress: TSysAddress read FBillingAddress;
@@ -194,6 +234,7 @@ begin
   FShippingAddress := TSysAddress.Create;
   FOfferDate := Date;
   FStatus := 1;
+  FSaleType := 1;
   // 0 = kur girilmedi: servis teklif tarihinin kurunu yazar
   FExchangeRate := 0;
 end;
@@ -236,6 +277,15 @@ begin
   Result.BaseCurrency := Self.BaseCurrency;
   Result.UsdRate := Self.UsdRate;
   Result.EurRate := Self.EurRate;
+  Result.DeliveryDate := Self.DeliveryDate;
+  Result.EinvPaymentMeansId := Self.EinvPaymentMeansId;
+  Result.EinvDeliveryTermId := Self.EinvDeliveryTermId;
+  Result.SaleType := Self.SaleType;
+  Result.DeliveryTermIsIncoterms := Self.DeliveryTermIsIncoterms;
+  Result.PaymentMeansName := Self.PaymentMeansName;
+  Result.DeliveryTermName := Self.DeliveryTermName;
+  Result.TaxOffice := Self.TaxOffice;
+  Result.TaxNo := Self.TaxNo;
   Result.BillingAddressText := Self.BillingAddressText;
   Result.ShippingAddressText := Self.ShippingAddressText;
   Result.TotalAmountBase := Self.TotalAmountBase;

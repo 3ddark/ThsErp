@@ -185,6 +185,8 @@ begin
         LOrder.Currency := LOffer.Currency;
         LOrder.ExchangeRate := LOffer.ExchangeRate;
         LOrder.PaymentTermDays := LOffer.PaymentTermDays;
+        if LOffer.DeliveryDate >= LOrder.OrderDate then
+          LOrder.DeliveryDate := LOffer.DeliveryDate;
         LOrder.Description := LOffer.OfferNo;
 
         LLines := TSlsOfferDetailRepository(FOfferDetailRepo).FindByOfferIds([AOfferId]);

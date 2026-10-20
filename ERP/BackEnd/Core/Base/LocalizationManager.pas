@@ -75,6 +75,8 @@ type
         const MsgDeleteLine = 'detail_form.msg_delete_line';
         const CsvFilter = 'detail_form.csv_filter';
         const TabLines = 'detail_form.tab_lines';
+        const HeaderHide = 'detail_form.header_hide';
+        const HeaderShow = 'detail_form.header_show';
       end;
 
       // Belge adresi düzenleyici (Detail.Address)
@@ -434,6 +436,7 @@ type
         const ColStockQuantity = 'sys_decimal_place.col_stock_quantity';
         const ColExchangeRate = 'sys_decimal_place.col_exchange_rate';
         const NameMinLength = 'sys_decimal_place.name.minlength';
+        const Range = 'sys_decimal_place.range';
       end;
 
       TSysGridColumn = record
@@ -2059,6 +2062,11 @@ type
         const OrdCancelled = 'sls_option.ord_cancelled';
         const DspWaiting = 'sls_option.dsp_waiting';
         const DspClosed = 'sls_option.dsp_closed';
+        const SaleDomestic = 'sls_option.sale_domestic';
+        const SaleExport = 'sls_option.sale_export';
+        const SaleExportRegistered = 'sls_option.sale_export_registered';
+        const SaleExempt = 'sls_option.sale_exempt';
+        const SaleWithholding = 'sls_option.sale_withholding';
       end;
 
       TSlsOffer = record
@@ -2090,7 +2098,15 @@ type
         const ColUsdRate = 'sls_offer.col_usd_rate';
         const ColEurRate = 'sls_offer.col_eur_rate';
         const ColTotalAmountBase = 'sls_offer.col_total_amount_base';
-        const PageAddresses = 'sls_offer.page_addresses';
+        const TabGeneral = 'sls_offer.tab_general';
+        const ColDeliveryDate = 'sls_offer.col_delivery_date';
+        const ColEinvPaymentMeansId = 'sls_offer.col_einv_payment_means_id';
+        const ColEinvDeliveryTermId = 'sls_offer.col_einv_delivery_term_id';
+        const ColTaxOffice = 'sls_offer.col_tax_office';
+        const ColTaxNo = 'sls_offer.col_tax_no';
+        const ColTaxOfficeNo = 'sls_offer.col_tax_office_no';
+        const ColSaleType = 'sls_offer.col_sale_type';
+        const ColDeliveryTermIncoterms = 'sls_offer.col_delivery_term_incoterms';
         const MenuLines = 'sls_offer.popup.lines';
         const MenuSend = 'sls_offer.popup.send';
         const MenuToDraft = 'sls_offer.popup.to_draft';
@@ -2106,6 +2122,8 @@ type
         const NoLines = 'sls_offer.no_lines';
         const HasOrders = 'sls_offer.has_orders';
         const ValidUntil = 'sls_offer.valid_until';
+        const DeliveryDate = 'sls_offer.delivery_date';
+        const DeliveryTerm = 'sls_offer.delivery_term';
         const PaymentTerm = 'sls_offer.payment_term';
         const InvalidStatus = 'sls_offer.invalid_status';
         const AddressAccount = 'sls_offer.address_account';

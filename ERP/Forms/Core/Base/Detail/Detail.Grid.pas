@@ -132,7 +132,7 @@ implementation
 
 uses
   Vcl.Forms, Vcl.Dialogs, System.Math, System.Variants, udm, EntityAttributes, LocalizationManager, Ths.Globals,
-  Grid.Sql, Grid.Columns, Grid.Export;
+  Grid.Sql, Grid.Columns, Grid.Export, SysDecimalPlace.Cache;
 
 function SnakeCase(const AName: string): string;
 var
@@ -339,7 +339,7 @@ end;
 
 procedure TDetailGrid.BuildData;
 var
-  i: Integer;
+  i, LDigits: Integer;
 begin
   FData.Close;
   FFooter.Build(FData, False);
@@ -350,8 +350,17 @@ begin
   FRowField.Visible := False;
   FStateField.Visible := False;
   for i := 0 to FData.Fields.Count - 1 do
+  begin
     if FData.Fields[i] is TCurrencyField then
       TCurrencyField(FData.Fields[i]).Currency := False;
+    // miktar / fiyat / tutar / kur kolonları sys_decimal_place hanesiyle
+    if FData.Fields[i] is TNumericField then
+    begin
+      LDigits := TDecimalPlaces.DigitsForField(FViewName, FData.Fields[i].FieldName);
+      if LDigits >= 0 then
+        TNumericField(FData.Fields[i]).DisplayFormat := TDecimalPlaces.DisplayFormat(LDigits);
+    end;
+  end;
 end;
 
 procedure TDetailGrid.Fill(ACount: Integer; const AGetItem: TFunc<Integer, TObject>;

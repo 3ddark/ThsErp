@@ -69,6 +69,11 @@ type
     // Ana para (muhasebe para birimi) ve 1 ACurrency = ? ana para (ADate gününe kadarki son döviz alış kuru; yoksa 0)
     function GetBaseCurrency: string;
     function GetExchangeRate(const ACurrency: string; ADate: TDate): Currency;
+    // Belge para birimi değişimi (bellekte): kalem birim fiyatları ana para üzerinden çevrilir
+    // (fiyat x eski kur / yeni kur, fiyat hanesine yuvarlanır; kurlar 1 birim = ? ana para, yeni kur teklif tarihinin kuru), satırlar ve
+    // toplamlar yeniden hesaplanır. AOldRate: ekrandaki (kullanıcının girdiği) mevcut kur. Fiyatlı kalem varken
+    // kurlardan biri yoksa değişiklik yapılmaz (hata).
+    procedure ChangeCurrency(AHeader: TSlsOffer; const ANewCurrency: string; AOldRate: Currency);
 
     // Kalem tutarları (brüt / iskonto / net / KDV / toplam) miktar, fiyat ve oranlardan; başlık toplamları aktif kalemlerden
     procedure RecalculateLine(ALine: TSlsOfferDetail); override;
@@ -94,6 +99,7 @@ type
 implementation
 
 uses
+  SysDecimalPlace.Cache,
   SysPermission.Service, SlsLookup, SlsOfferDetail.Service, SlsOfferDetail.Exception, SysAddress.Service;
 
 constructor TSlsOfferService.Create;
@@ -296,6 +302,57 @@ end;
 function TSlsOfferService.GetExchangeRate(const ACurrency: string; ADate: TDate): Currency;
 begin
   Result := TAccExchangeRateRepository(FRateRepo).GetRate(ACurrency, ADate);
+end;
+
+procedure TSlsOfferService.ChangeCurrency(AHeader: TSlsOffer; const ANewCurrency: string; AOldRate: Currency);
+
+  procedure FailNoRate(const ACurrency: string);
+  begin
+    raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSlsOffer.NoExchangeRate,
+      'No exchange rate for %s on %s; enter the rate manually.'), [ACurrency, DateToStr(AHeader.OfferDate)]));
+  end;
+
+var
+  LBase: string;
+  LNewRate: Currency;
+  LLine: TSlsOfferDetail;
+  LHasPrice: Boolean;
+begin
+  LBase := AHeader.BaseCurrency;
+  if LBase = '' then
+    LBase := GetBaseCurrency;
+  if (AHeader.Currency = '') or SameText(AHeader.Currency, LBase) then
+    AOldRate := 1;
+  if SameText(ANewCurrency, LBase) then
+    LNewRate := 1
+  else
+    LNewRate := GetExchangeRate(ANewCurrency, AHeader.OfferDate);
+
+  LHasPrice := False;
+  for LLine in AHeader.Lines do
+    if not LLine.Deleted and (LLine.UnitPrice <> 0) then
+      LHasPrice := True;
+  if LHasPrice and not SameText(AHeader.Currency, ANewCurrency) then
+  begin
+    if AOldRate <= 0 then
+      FailNoRate(AHeader.Currency);
+    if LNewRate <= 0 then
+      FailNoRate(ANewCurrency);
+    for LLine in AHeader.Lines do
+      if not LLine.Deleted then
+        LLine.UnitPrice := TDecimalPlaces.RoundPrice(LLine.UnitPrice * AOldRate / LNewRate);
+  end;
+
+  // kalem yokken kur bulunamazsa 0 (kullanıcı elle girer; kayıtta CheckRates yeniden dener)
+  AHeader.Currency := ANewCurrency;
+  AHeader.ExchangeRate := LNewRate;
+  for LLine in AHeader.Lines do
+  begin
+    LLine.Currency := ANewCurrency;
+    if not LLine.Deleted then
+      RecalculateLine(LLine);
+  end;
+  RecalculateTotals(AHeader);
 end;
 
 procedure TSlsOfferService.CheckRates(AEntity: TSlsOffer; AOperation: TCrudOperation);
@@ -523,6 +580,14 @@ begin
     FailRequired(TLangKeys.TSlsOffer.ColAccAccountId, 'Customer');
   if (AEntity.ValidUntil > 0) and (AEntity.ValidUntil < AEntity.OfferDate) then
     raise ESlsOfferExceptionValidUntil.Create;
+  if (AEntity.DeliveryDate > 0) and (AEntity.DeliveryDate < AEntity.OfferDate) then
+    raise ESlsOfferExceptionDeliveryDate.Create;
+  if not TSlsLookup.IsValid(slkSaleType, AEntity.SaleType) then
+    FailRequired(TLangKeys.TSlsOffer.ColSaleType, 'Sale Type');
+  // ihracatta Incoterms, diğer satış tiplerinde yurt içi teslim şekilleri
+  if (AEntity.EinvDeliveryTermId > 0) and
+     (LRepo.DeliveryTermIsIncoterms(AEntity.EinvDeliveryTermId) <> (AEntity.SaleType = SLS_SALE_EXPORT)) then
+    raise ESlsOfferExceptionDeliveryTerm.Create;
   if (AEntity.PaymentTermDays < 0) or (AEntity.PaymentTermDays > 365) then
     raise ESlsOfferExceptionPaymentTerm.Create;
   CheckAddresses(AEntity);

@@ -88,6 +88,7 @@ implementation
 {$R *.dfm}
 
 uses
+  SysDecimalPlace.Cache,
   SlsLookup, Grid.Types, ufrmSlsDispatchLine,
   AccAccount, AccAccount.Service, ufrmAccAccounts,
   StkWarehouse, StkWarehouse.Service, ufrmStkWarehouses,
@@ -161,7 +162,7 @@ begin
       Result := TfrmSlsDispatchLine.Create(Self, TSlsDispatchDetailService.Create, ALine, AMode, nil);
     end);
 
-  FLines.Grid.AddFooterColumn('amount', atSum, '#,##0.00');
+  FLines.Grid.AddFooterColumn('amount', atSum, TDecimalPlaces.TotalFormat);
   FLines.Grid.BuildData;
   FLines.Grid.SetColumnProperty('id', 0);
   FLines.Grid.SetColumnProperty('sls_dispatch_id', 0);

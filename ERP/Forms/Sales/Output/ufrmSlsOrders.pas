@@ -38,6 +38,7 @@ implementation
 {$R *.dfm}
 
 uses
+  SysDecimalPlace.Cache,
   SlsLookup,
   ufrmSlsDispatches, ufrmSlsDispatchDetail, SlsDispatch, SlsDispatch.Service,
   ufrmSlsInvoiceDetail, SlsInvoice, SlsInvoice.Service,
@@ -232,9 +233,9 @@ end;
 procedure TfrmSlsOrders.DefineFooterColumns;
 begin
   inherited;
-  AddFooterColumn('net_amount', atSum, '#,##0.00');
-  AddFooterColumn('vat_amount', atSum, '#,##0.00');
-  AddFooterColumn('total_amount', atSum, '#,##0.00');
+  AddFooterColumn('net_amount', atSum, TDecimalPlaces.TotalFormat);
+  AddFooterColumn('vat_amount', atSum, TDecimalPlaces.TotalFormat);
+  AddFooterColumn('total_amount', atSum, TDecimalPlaces.TotalFormat);
 end;
 
 procedure TfrmSlsOrders.FormShow(Sender: TObject);

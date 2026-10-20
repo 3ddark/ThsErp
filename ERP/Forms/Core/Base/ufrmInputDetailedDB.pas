@@ -7,6 +7,8 @@
 // Onayla Service.BusinessSaveWithDetails(Table) ile başlık + kalemleri tek transaction'da yazar. İnceleme -> Güncelle
 // kaydı kilitleyip belgeyi yeniden okur ve kalemleri düzenlenebilir yapar; Kapat değişiklikleri bırakır (rollback).
 // Kopya: Service.PrepareCopy(Table) (başlık ve kalemler yeni).
+// Başlık (pnlContent) altındaki çubuktaki düğmeyle daraltılır (kalemlere daha çok satır); daraltılmışken çubukta
+// HeaderSummary gösterilir, durum oturum boyunca form sınıfı başına hatırlanır.
 // Kısayollar: F5 Onayla, F6 Kapat, F7 satır ekle, Enter satırı aç, Ctrl+Del satır sil, PgUp / PgDn (incelemede)
 // liste kayıtlarında gezinti.
 
@@ -14,17 +16,41 @@ interface
 
 uses
   Winapi.Windows, System.SysUtils, System.Classes, System.Math, System.Generics.Collections, System.Generics.Defaults,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Buttons,
   Entity, Service, SharedFormTypes, ufrmInputSimpleDB, Detail.Grid, Detail.Lines;
 
+const
+  HEADER_BAR_HEIGHT = 24;
+  // ▲ / ▼
+  GLYPH_COLLAPSE = #$25B2;
+  GLYPH_EXPAND = #$25BC;
+
 type
+  // Başlık daraltma durumu (oturum boyunca, form sınıf adına göre)
+  TDetailHeaderState = class
+  private
+    class var FCollapsed: TStringList;
+  public
+    class destructor Destroy;
+    class function Collapsed(const AKey: string): Boolean;
+    class procedure SetCollapsed(const AKey: string; AValue: Boolean);
+  end;
+
   TfrmInputDetailedDB<TE: TEntity, constructor; TS: TCrudService<TE>> = class(TfrmInputSimpleDB<TE, TS>)
   private
     FPanelDetails: TPanel;
     FPgcDetails: TPageControl;
     FDetailSets: TList<IDetailSet>;
     FDetailObjects: TObjectList<TObject>;
+    FHeader: TControl;
+    FHeaderBar: TPanel;
+    FBtnHeaderToggle: TSpeedButton;
+    FLblHeaderSummary: TLabel;
+    FHeaderCollapsed: Boolean;
     procedure CreateDetailArea;
+    procedure CreateHeaderBar;
+    procedure HeaderToggleClick(Sender: TObject);
+    procedure SetHeaderCollapsed(AValue: Boolean);
     procedure DetailSetChanged(Sender: TObject);
     procedure PageResize(Sender: TObject);
     procedure LayoutPage(APage: TTabSheet);
@@ -48,10 +74,15 @@ type
     function DetailsEditable: Boolean; virtual;
     // Table (belge) yüklendi / değişti: grid'ler yeniden dolar
     procedure RefreshDetails;
+    // Başlık daraltıldığında çubukta gösterilen özet (ör. belge no, tarih, cari, toplam); alt sınıf
+    function HeaderSummary: string; virtual;
+    // Özet metni yenilenir (başlık alanları değişince alt sınıf çağırabilir)
+    procedure UpdateHeaderBar;
   public
     property PanelDetails: TPanel read FPanelDetails;
     property PgcDetails: TPageControl read FPgcDetails;
     property DetailSets: TList<IDetailSet> read FDetailSets;
+    property HeaderCollapsed: Boolean read FHeaderCollapsed write SetHeaderCollapsed;
 
     constructor Create(AOwner: TComponent; AService: TS; ATable: TE; AFormMode: TInputFormMode;
       ARefreshGridEvent: TAfterCrudRefreshGrid; AFormViewMode: TInputFormViewMode = ivmNormal;
@@ -65,12 +96,44 @@ type
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure BtnSpinDownClick(Sender: TObject); override;
     procedure BtnSpinUpClick(Sender: TObject); override;
+    // Daraltılmış başlıktaki alanlar da doğrulanır (gizli kontroller atlanmasın diye geçici açılır)
+    function ValidateInput(AContainerControl: TWinControl = nil): Boolean; override;
   end;
 
 implementation
 
 uses
   LocalizationManager, Ths.DialogHelper;
+
+{ TDetailHeaderState }
+
+class destructor TDetailHeaderState.Destroy;
+begin
+  FCollapsed.Free;
+end;
+
+class function TDetailHeaderState.Collapsed(const AKey: string): Boolean;
+begin
+  Result := Assigned(FCollapsed) and (FCollapsed.IndexOf(AKey) >= 0);
+end;
+
+class procedure TDetailHeaderState.SetCollapsed(const AKey: string; AValue: Boolean);
+var
+  LIndex: Integer;
+begin
+  if not Assigned(FCollapsed) then
+  begin
+    FCollapsed := TStringList.Create;
+    FCollapsed.CaseSensitive := False;
+  end;
+  LIndex := FCollapsed.IndexOf(AKey);
+  if AValue and (LIndex < 0) then
+    FCollapsed.Add(AKey)
+  else if not AValue and (LIndex >= 0) then
+    FCollapsed.Delete(LIndex);
+end;
+
+{ TfrmInputDetailedDB<TE, TS> }
 
 constructor TfrmInputDetailedDB<TE, TS>.Create(AOwner: TComponent; AService: TS; ATable: TE; AFormMode: TInputFormMode;
   ARefreshGridEvent: TAfterCrudRefreshGrid; AFormViewMode: TInputFormViewMode; AOwnsService: Boolean);
@@ -106,6 +169,122 @@ begin
   FPgcDetails.Name := 'pgcDetails';
   FPgcDetails.Parent := FPanelDetails;
   FPgcDetails.Align := alClient;
+end;
+
+// Başlık = alt sınıfın pnlContent'i (FormCreate'te PanelMain'e taşınmış olmalı); yoksa çubuk oluşmaz
+procedure TfrmInputDetailedDB<TE, TS>.CreateHeaderBar;
+var
+  LComp: TComponent;
+begin
+  if Assigned(FHeaderBar) then
+    Exit;
+  LComp := FindComponent('pnlContent');
+  if not (LComp is TControl) or (TControl(LComp).Parent <> PanelMain) then
+    Exit;
+  FHeader := TControl(LComp);
+
+  FHeaderBar := TPanel.Create(Self);
+  FHeaderBar.Name := 'pnlHeaderBar';
+  FHeaderBar.Caption := '';
+  FHeaderBar.Parent := PanelMain;
+  FHeaderBar.Align := alTop;
+  FHeaderBar.Top := FHeader.Top + FHeader.Height;
+  FHeaderBar.Height := HEADER_BAR_HEIGHT;
+  FHeaderBar.BevelOuter := bvNone;
+  FHeaderBar.ParentColor := True;
+
+  FBtnHeaderToggle := TSpeedButton.Create(Self);
+  FBtnHeaderToggle.Parent := FHeaderBar;
+  FBtnHeaderToggle.Align := alLeft;
+  FBtnHeaderToggle.Width := 150;
+  FBtnHeaderToggle.Flat := True;
+  FBtnHeaderToggle.Font.Name := 'Segoe UI';
+  FBtnHeaderToggle.OnClick := HeaderToggleClick;
+
+  FLblHeaderSummary := TLabel.Create(Self);
+  FLblHeaderSummary.Parent := FHeaderBar;
+  FLblHeaderSummary.Align := alClient;
+  FLblHeaderSummary.AlignWithMargins := True;
+  FLblHeaderSummary.Margins.Left := 8;
+  FLblHeaderSummary.Layout := tlCenter;
+  FLblHeaderSummary.EllipsisPosition := epEndEllipsis;
+  FLblHeaderSummary.Font.Style := [fsBold];
+
+  FHeaderCollapsed := not TDetailHeaderState.Collapsed(ClassName);
+  SetHeaderCollapsed(not FHeaderCollapsed);
+end;
+
+procedure TfrmInputDetailedDB<TE, TS>.HeaderToggleClick(Sender: TObject);
+begin
+  SetHeaderCollapsed(not FHeaderCollapsed);
+  TDetailHeaderState.SetCollapsed(ClassName, FHeaderCollapsed);
+end;
+
+procedure TfrmInputDetailedDB<TE, TS>.SetHeaderCollapsed(AValue: Boolean);
+var
+  LSet: IDetailSet;
+begin
+  if not Assigned(FHeaderBar) or (FHeaderCollapsed = AValue) then
+    Exit;
+  FHeaderCollapsed := AValue;
+  PanelMain.DisableAlign;
+  try
+    if AValue then
+    begin
+      // odak gizlenecek başlıktaysa kalem grid'ine
+      if Assigned(ActiveControl) and (FHeader is TWinControl) and TWinControl(FHeader).ContainsControl(ActiveControl) then
+        for LSet in FDetailSets do
+          if LSet.Grid.Grid.CanFocus then
+          begin
+            LSet.Grid.Grid.SetFocus;
+            Break;
+          end;
+      FHeader.Visible := False;
+    end
+    else
+    begin
+      FHeader.Top := 0;
+      FHeader.Visible := True;
+      FHeaderBar.Top := FHeader.Top + FHeader.Height;
+    end;
+  finally
+    PanelMain.EnableAlign;
+  end;
+  UpdateHeaderBar;
+end;
+
+function TfrmInputDetailedDB<TE, TS>.HeaderSummary: string;
+begin
+  Result := '';
+end;
+
+procedure TfrmInputDetailedDB<TE, TS>.UpdateHeaderBar;
+begin
+  if not Assigned(FHeaderBar) then
+    Exit;
+  if FHeaderCollapsed then
+  begin
+    FBtnHeaderToggle.Caption := GLYPH_EXPAND + '  ' +
+      TLocalizationManager.Translate(TLangKeys.TDetailForm.HeaderShow, 'Show Header');
+    FLblHeaderSummary.Caption := HeaderSummary;
+  end
+  else
+  begin
+    FBtnHeaderToggle.Caption := GLYPH_COLLAPSE + '  ' +
+      TLocalizationManager.Translate(TLangKeys.TDetailForm.HeaderHide, 'Hide Header');
+    FLblHeaderSummary.Caption := '';
+  end;
+end;
+
+function TfrmInputDetailedDB<TE, TS>.ValidateInput(AContainerControl: TWinControl): Boolean;
+begin
+  if not FHeaderCollapsed then
+    Exit(inherited ValidateInput(AContainerControl));
+  SetHeaderCollapsed(False);
+  // hatalı alan gösterilir (başlık açık kalır); geçerse eski hâline döner
+  Result := inherited ValidateInput(AContainerControl);
+  if Result then
+    SetHeaderCollapsed(True);
 end;
 
 function TfrmInputDetailedDB<TE, TS>.AddDetailPage(const ACaption: string): TTabSheet;
@@ -215,6 +394,8 @@ begin
   RefreshDetails;
   if FPgcDetails.PageCount > 0 then
     FPgcDetails.ActivePageIndex := 0;
+  CreateHeaderBar;
+  UpdateHeaderBar;
 end;
 
 procedure TfrmInputDetailedDB<TE, TS>.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -239,6 +420,7 @@ begin
   if Assigned(FDetailSets) then
     for LSet in FDetailSets do
       LSet.Grid.ApplyLocalization;
+  UpdateHeaderBar;
 end;
 
 function TfrmInputDetailedDB<TE, TS>.ActiveDetailSet: IDetailSet;

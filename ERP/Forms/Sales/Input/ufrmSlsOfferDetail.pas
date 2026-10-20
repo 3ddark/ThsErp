@@ -19,14 +19,24 @@ uses
 type
   TfrmSlsOfferDetail = class(TfrmInputDetailedDB<TSlsOffer, TSlsOfferService>)
     pnlContent: TPanel;
+    pgcHeader: TPageControl;
+    tsGeneral: TTabSheet;
+    tsBillingAddress: TTabSheet;
+    tsShippingAddress: TTabSheet;
     lblOfferNo: TLabel;
     edtOfferNo: TEdit;
     lblOfferDate: TLabel;
     edtOfferDate: TEdit;
     lblValidUntil: TLabel;
     edtValidUntil: TEdit;
+    lblDeliveryDate: TLabel;
+    edtDeliveryDate: TEdit;
     lblAccAccountId: TLabel;
+    edtAccountCode: TEdit;
     edtAccAccountId: TEdit;
+    lblTaxOffice: TLabel;
+    edtTaxOffice: TEdit;
+    edtTaxNo: TEdit;
     lblCustomerRefNo: TLabel;
     edtCustomerRefNo: TEdit;
     lblEmpEmployeeId: TLabel;
@@ -35,25 +45,30 @@ type
     edtCurrency: TEdit;
     lblExchangeRate: TLabel;
     edtExchangeRate: TEdit;
+    lblEinvPaymentMeansId: TLabel;
+    edtEinvPaymentMeansId: TEdit;
     lblPaymentTermDays: TLabel;
     edtPaymentTermDays: TEdit;
-    lblStatusText: TLabel;
-    edtStatusText: TEdit;
-    pnlTotals: TPanel;
+    lblEinvDeliveryTermId: TLabel;
+    edtEinvDeliveryTermId: TEdit;
     lblDescription: TLabel;
     edtDescription: TEdit;
     lblUsdRate: TLabel;
     edtUsdRate: TEdit;
     lblEurRate: TLabel;
     edtEurRate: TEdit;
+    lblSaleType: TLabel;
+    cbbSaleType: TComboBox;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
   private
+    // kalem grid'inin altında, sağda
+    FPnlLinesFooter: TPanel;
+    FPnlTotals: TPanel;
     FTotals: TTotalsPanel;
     FPageLines: TTabSheet;
     FLines: TDetailSet<TSlsOfferDetail>;
-    FPageAddresses: TTabSheet;
     FBillingEditor: TDocumentAddressEditor;
     FShippingEditor: TDocumentAddressEditor;
     // ana para (muhasebe para birimi): kayıtlı teklifte teklifinki
@@ -63,14 +78,19 @@ type
     // Table toplamları panelde (para birimiyle)
     procedure ShowTotalValues;
     procedure ShowAddresses;
+    procedure ShowAccount;
     procedure AddressFromAccount(Sender: TObject);
     procedure AddressClear(Sender: TObject);
     // Teklif tarihinin kurları (belge parası; AAll: USD / EUR da); kullanıcı sonra değiştirebilir
     procedure UpdateRates(AAll: Boolean);
     procedure OfferDateExit(Sender: TObject);
     procedure ApplyRateCaptions;
+    procedure SaleTypeChange(Sender: TObject);
+    // ihracatta "Teslim Şartı (Incoterms)", diğerlerinde "Gönderim Şekli"
+    procedure ApplyDeliveryTermCaption;
   protected
     procedure DetailsChanged; override;
+    function HeaderSummary: string; override;
   public
     destructor Destroy; override;
     procedure HelperProcess(Sender: TObject);
@@ -83,11 +103,14 @@ implementation
 {$R *.dfm}
 
 uses
+  SysDecimalPlace.Cache, SysCurrency.Cache,
   SlsLookup, Grid.Types, ufrmSlsOfferLine,
   AccAccount, AccAccount.Service, ufrmAccAccounts,        // TfrmAccAccounts helper output form
   EmpEmployee, EmpEmployee.Service, ufrmEmpEmployees,     // TfrmEmpEmployees helper output form
   SysCurrency, SysCurrency.Service, ufrmSysCurrencies,    // TfrmSysCurrencies helper output form
-  AccAccountAddress, AccAccountAddress.Service, ufrmAccAccountAddresses;  // TfrmAccAccountAddresses helper output form
+  AccAccountAddress, AccAccountAddress.Service, ufrmAccAccountAddresses,  // TfrmAccAccountAddresses helper output form
+  EInvPaymentMeans, EInvPaymentMeans.Service, ufrmEInvPaymentMeansList,   // TfrmEInvPaymentMeansList helper output form
+  EInvDeliveryTerm, EInvDeliveryTerm.Service, ufrmEInvDeliveryTerms;      // TfrmEInvDeliveryTerms helper output form
 
 function RateText(AValue: Currency): string;
 begin
@@ -103,9 +126,11 @@ begin
   Table.OfferNo := edtOfferNo.Text;
   Table.OfferDate := StrToDateDef(edtOfferDate.Text, 0);
   Table.ValidUntil := StrToDateDef(edtValidUntil.Text, 0);
+  Table.DeliveryDate := StrToDateDef(edtDeliveryDate.Text, 0);
   Table.CustomerRefNo := edtCustomerRefNo.Text;
   Table.ExchangeRate := StrToCurrDef(edtExchangeRate.Text, 0);
   Table.PaymentTermDays := StrToIntDef(edtPaymentTermDays.Text, 0);
+  Table.SaleType := cbbSaleType.ItemIndex + 1;
   Table.Description := edtDescription.Text;
   Table.UsdRate := StrToCurrDef(edtUsdRate.Text, 0);
   Table.EurRate := StrToCurrDef(edtEurRate.Text, 0);
@@ -118,17 +143,15 @@ procedure TfrmSlsOfferDetail.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  FTotals := TTotalsPanel.Create(pnlTotals);
-  FTotals.AddRow('gross');
-  FTotals.AddRow('discount');
-  FTotals.AddRow('net');
-  FTotals.AddRow('vat');
-  FTotals.AddRow('total', True);
-  pnlTotals.Height := FTotals.RequiredHeight;
+  TSlsLookup.FillItems(cbbSaleType.Items, slkSaleType);
+  cbbSaleType.OnChange := SaleTypeChange;
   edtOfferNo.thsInputDataType := itString;
   edtOfferNo.CharCase := TEditCharCase.ecUpperCase;
   edtOfferDate.thsInputDataType := itDate;
   edtValidUntil.thsInputDataType := itDate;
+  edtDeliveryDate.thsInputDataType := itDate;
+  edtEinvPaymentMeansId.OnHelperProcess := HelperProcess;
+  edtEinvDeliveryTermId.OnHelperProcess := HelperProcess;
   edtAccAccountId.OnHelperProcess := HelperProcess;
   edtCustomerRefNo.thsInputDataType := itString;
   edtEmpEmployeeId.OnHelperProcess := HelperProcess;
@@ -138,11 +161,12 @@ begin
   edtDescription.thsInputDataType := itString;
   edtUsdRate.thsInputDataType := itFloat;
   edtEurRate.thsInputDataType := itFloat;
-  // kurlar 4 ondalık (TCMB)
-  edtExchangeRate.thsDecimalDigitCount := 4;
-  edtUsdRate.thsDecimalDigitCount := 4;
-  edtEurRate.thsDecimalDigitCount := 4;
+  // haneler sys_decimal_place'ten
+  edtExchangeRate.thsDecimalDigitCount := TDecimalPlaces.ExchangeRate;
+  edtUsdRate.thsDecimalDigitCount := TDecimalPlaces.ExchangeRate;
+  edtEurRate.thsDecimalDigitCount := TDecimalPlaces.ExchangeRate;
   edtOfferDate.OnExit := OfferDateExit;
+  pgcHeader.ActivePage := tsGeneral;
   FBaseCurrency := Service.GetBaseCurrency;
 
   // Kalemler = Table.Lines (servis satır no sırasıyla okur); ekle / çıkar / hesap teklif servisinde,
@@ -170,9 +194,6 @@ begin
       Result := TfrmSlsOfferLine.Create(Self, TSlsOfferDetailService.Create, ALine, AMode, nil);
     end);
 
-  FLines.Grid.AddFooterColumn('net_amount', atSum, '#,##0.00');
-  FLines.Grid.AddFooterColumn('vat_amount', atSum, '#,##0.00');
-  FLines.Grid.AddFooterColumn('total_amount', atSum, '#,##0.00');
   FLines.Grid.BuildData;
   FLines.Grid.SetColumnProperty('id', 0);
   FLines.Grid.SetColumnProperty('sls_offer_id', 0);
@@ -187,11 +208,29 @@ begin
   FLines.Grid.SetColumnProperty('uom_code', 50);
   FLines.Grid.SetColumnProperty('description', 160);
 
-  // Adresler: belgeye ait ayrıntılı kopya (cari adresinden alınır, burada düzenlenir; teklifle birlikte yazılır)
-  FPageAddresses := AddDetailPage(TLocalizationManager.Translate(TLangKeys.TSlsOffer.PageAddresses, 'Addresses'));
-  FBillingEditor := TDocumentAddressEditor.Create(Self, FPageAddresses);
-  FShippingEditor := TDocumentAddressEditor.Create(Self, FPageAddresses);
-  FShippingEditor.Group.Top := FBillingEditor.Group.Top + FBillingEditor.Group.Height;
+  // Toplamlar kalem grid'inin altında, sağda (tema renkleri)
+  FPnlLinesFooter := TPanel.Create(Self);
+  FPnlLinesFooter.Parent := FPageLines;
+  FPnlLinesFooter.Align := alBottom;
+  FPnlLinesFooter.BevelOuter := bvNone;
+  FPnlLinesFooter.Caption := '';
+  FPnlTotals := TPanel.Create(Self);
+  FPnlTotals.Parent := FPnlLinesFooter;
+  FPnlTotals.Align := alRight;
+  FPnlTotals.AlignWithMargins := True;
+  FPnlTotals.Width := 340;
+  FTotals := TTotalsPanel.Create(FPnlTotals);
+  FTotals.AddRow('gross');
+  FTotals.AddRow('discount');
+  FTotals.AddRow('net');
+  FTotals.AddRow('vat');
+  FTotals.AddRow('total', True);
+  FPnlLinesFooter.Height := FTotals.RequiredHeight + FPnlTotals.Margins.Top + FPnlTotals.Margins.Bottom;
+
+  // Adresler (başlık sekmeleri): belgeye ait ayrıntılı kopya (cari adresinden alınır, burada düzenlenir; teklifle
+  // birlikte yazılır)
+  FBillingEditor := TDocumentAddressEditor.Create(Self, tsBillingAddress);
+  FShippingEditor := TDocumentAddressEditor.Create(Self, tsShippingAddress);
   FBillingEditor.OnFromAccount := AddressFromAccount;
   FBillingEditor.OnClear := AddressClear;
   FShippingEditor.OnFromAccount := AddressFromAccount;
@@ -309,6 +348,7 @@ begin
   FTotals.SetValue('net', Table.NetAmount, Table.Currency);
   FTotals.SetValue('vat', Table.VatAmount, Table.Currency);
   FTotals.SetValue('total', Table.TotalAmount, Table.Currency);
+  UpdateHeaderBar;
 end;
 
 procedure TfrmSlsOfferDetail.ShowTotals;
@@ -332,18 +372,27 @@ begin
 end;
 
 procedure TfrmSlsOfferDetail.ApplyLocalization;
+var
+  LIndex: Integer;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.TitleSingular, 'Sales Offer');
   lblOfferNo.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColOfferNo, 'Offer No');
   lblOfferDate.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColOfferDate, 'Offer Date');
   lblValidUntil.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColValidUntil, 'Valid Until');
+  lblDeliveryDate.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColDeliveryDate, 'Delivery Date');
+  lblTaxOffice.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColTaxOfficeNo, 'Tax Office / No');
+  lblEinvPaymentMeansId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColEinvPaymentMeansId, 'Payment Method');
+  ApplyDeliveryTermCaption;
   lblAccAccountId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColAccAccountId, 'Customer');
   lblCustomerRefNo.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColCustomerRefNo, 'Customer Ref. No');
   lblEmpEmployeeId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColEmpEmployeeId, 'Sales Representative');
   lblCurrency.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColCurrency, 'Currency');
   lblPaymentTermDays.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColPaymentTermDays, 'Payment Term (Days)');
-  lblStatusText.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColStatus, 'Status');
+  lblSaleType.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColSaleType, 'Sale Type');
+  LIndex := cbbSaleType.ItemIndex;
+  TSlsLookup.FillItems(cbbSaleType.Items, slkSaleType);
+  cbbSaleType.ItemIndex := LIndex;
   if Assigned(FTotals) then
   begin
     FTotals.SetCaption('gross', TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColGrossAmount, 'Gross Amount'));
@@ -354,9 +403,11 @@ begin
   end;
   lblDescription.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColDescription, 'Description');
   ApplyRateCaptions;
-  if Assigned(FPageAddresses) then
+  tsGeneral.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.TabGeneral, 'General');
+  tsBillingAddress.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColBillingAddress, 'Billing Address');
+  tsShippingAddress.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColShippingAddress, 'Shipping Address');
+  if Assigned(FBillingEditor) then
   begin
-    FPageAddresses.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.PageAddresses, 'Addresses');
     FBillingEditor.ApplyLocalization(TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColBillingAddress, 'Billing Address'));
     FShippingEditor.ApplyLocalization(TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColShippingAddress, 'Shipping Address'));
   end;
@@ -389,7 +440,9 @@ var
   LFrmAccAccountId: TfrmAccAccounts;
   LFrmEmpEmployeeId: TfrmEmpEmployees;
   LFrmCurrency: TfrmSysCurrencies;
-  LLine: TSlsOfferDetail;
+  LNewCurrency: string;
+  LFrmPayment: TfrmEInvPaymentMeansList;
+  LFrmDelivery: TfrmEInvDeliveryTerms;
   LOldAccountId: Int64;
 begin
   if not (Sender is TEdit) then
@@ -409,15 +462,18 @@ begin
           Table.AccAccountId := 0;
           Table.AccountCode := '';
           Table.AccountName := '';
-          LEdit.Clear;
+          Table.TaxOffice := '';
+          Table.TaxNo := '';
         end
         else
         begin
           Table.AccAccountId := LFrmAccAccountId.Table.Id;
           Table.AccountCode := LFrmAccAccountId.Table.Code;
           Table.AccountName := LFrmAccAccountId.Table.Name;
-          LEdit.Text := Table.AccountName;
+          Table.TaxOffice := LFrmAccAccountId.Table.TaxOffice;
+          Table.TaxNo := LFrmAccAccountId.Table.TaxNo;
         end;
+      ShowAccount;
       // adresler müşteriye ait: müşteri değişince önerilen adresler
       if Table.AccAccountId <> LOldAccountId then
       begin
@@ -458,25 +514,121 @@ begin
       LFrmCurrency.IsHelper := True;
       LFrmCurrency.ShowModal;
       if LFrmCurrency.DataTransfer then
+      begin
+        // temizle = ana para
         if LFrmCurrency.CleanAndClose then
-        begin
-          Table.Currency := '';
-          LEdit.Clear;
-        end
+          LNewCurrency := FBaseCurrency
         else
+          LNewCurrency := LFrmCurrency.Table.Currency;
+        if not SameText(LNewCurrency, Table.Currency) then
         begin
-          Table.Currency := LFrmCurrency.Table.Currency;
+          // kalem fiyatları ekrandaki kurdan teklif tarihinin yeni kuruna çevrilir (servis); kur yoksa değişmez
+          Table.OfferDate := StrToDateDef(edtOfferDate.Text, Date);
+          Service.ChangeCurrency(Table, LNewCurrency, StrToCurrDef(edtExchangeRate.Text, Table.ExchangeRate));
           LEdit.Text := Table.Currency;
+          edtExchangeRate.Text := RateText(Table.ExchangeRate);
+          RefreshDetails;
         end;
-      // kalemlerin para birimi (fiyat önerisi) ve toplamların gösterimi belgeyle aynı
-      for LLine in Table.Lines do
-        LLine.Currency := Table.Currency;
-      ShowTotalValues;
-      UpdateRates(False);
+      end;
     finally
       LFrmCurrency.Free;
     end;
+  end
+  else if LEdit.Name = edtEinvPaymentMeansId.Name then
+  begin
+    LFrmPayment := TfrmEInvPaymentMeansList.Create(LEdit, TEInvPaymentMeansService.Create, TEInvPaymentMeans.Create);
+    try
+      LFrmPayment.IsHelper := True;
+      LFrmPayment.SetActiveOnly;
+      LFrmPayment.ShowModal;
+      if LFrmPayment.DataTransfer then
+        if LFrmPayment.CleanAndClose then
+        begin
+          Table.EinvPaymentMeansId := 0;
+          Table.PaymentMeansName := '';
+        end
+        else
+        begin
+          Table.EinvPaymentMeansId := LFrmPayment.Table.Id;
+          Table.PaymentMeansName := LFrmPayment.Table.Name;
+        end;
+      LEdit.Text := Table.PaymentMeansName;
+    finally
+      LFrmPayment.Free;
+    end;
+  end
+  else if LEdit.Name = edtEinvDeliveryTermId.Name then
+  begin
+    LFrmDelivery := TfrmEInvDeliveryTerms.Create(LEdit, TEInvDeliveryTermService.Create, TEInvDeliveryTerm.Create);
+    try
+      LFrmDelivery.IsHelper := True;
+      LFrmDelivery.SetActiveOnly;
+      LFrmDelivery.SetIncotermsOnly(Table.SaleType = SLS_SALE_EXPORT);
+      LFrmDelivery.ShowModal;
+      if LFrmDelivery.DataTransfer then
+        if LFrmDelivery.CleanAndClose then
+        begin
+          Table.EinvDeliveryTermId := 0;
+          Table.DeliveryTermName := '';
+          Table.DeliveryTermIsIncoterms := False;
+        end
+        else
+        begin
+          Table.EinvDeliveryTermId := LFrmDelivery.Table.Id;
+          Table.DeliveryTermName := LFrmDelivery.Table.Name;
+          Table.DeliveryTermIsIncoterms := LFrmDelivery.Table.IsIncoterms;
+        end;
+      LEdit.Text := Table.DeliveryTermName;
+    finally
+      LFrmDelivery.Free;
+    end;
   end;
+end;
+
+// Satış tipi değişince uymayan teslim şartı temizlenir (ihracat: Incoterms, diğerleri: yurt içi teslim şekli)
+procedure TfrmSlsOfferDetail.SaleTypeChange(Sender: TObject);
+begin
+  Table.SaleType := cbbSaleType.ItemIndex + 1;
+  if (Table.EinvDeliveryTermId > 0) and (Table.DeliveryTermIsIncoterms <> (Table.SaleType = SLS_SALE_EXPORT)) then
+  begin
+    Table.EinvDeliveryTermId := 0;
+    Table.DeliveryTermName := '';
+    Table.DeliveryTermIsIncoterms := False;
+    edtEinvDeliveryTermId.Text := '';
+  end;
+  ApplyDeliveryTermCaption;
+end;
+
+procedure TfrmSlsOfferDetail.ApplyDeliveryTermCaption;
+begin
+  if cbbSaleType.ItemIndex + 1 = SLS_SALE_EXPORT then
+    lblEinvDeliveryTermId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColDeliveryTermIncoterms, 'Delivery Term (Incoterms)')
+  else
+    lblEinvDeliveryTermId.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColEinvDeliveryTermId, 'Shipping Method');
+end;
+
+// Başlık daraltılmışken: teklif no, tarih, müşteri, genel toplam
+function TfrmSlsOfferDetail.HeaderSummary: string;
+begin
+  Result := '';
+  if not Assigned(Table) then
+    Exit;
+  Result := Trim(edtOfferNo.Text);
+  if edtOfferDate.Text <> '' then
+    Result := Result + '   ' + edtOfferDate.Text;
+  if Table.AccountName <> '' then
+    Result := Result + '   ' + Table.AccountName;
+  Result := Result + '   ' + TLocalizationManager.Translate(TLangKeys.TSlsOffer.ColTotalAmount, 'Total') + ': ' +
+    TCurrencySymbols.FormatAmount(Table.TotalAmount, Table.Currency, TDecimalPlaces.TotalFormat);
+end;
+
+// Müşteri: kod, ad ve cari kartındaki vergi dairesi / no (salt okunur)
+procedure TfrmSlsOfferDetail.ShowAccount;
+begin
+  edtAccountCode.Text := Table.AccountCode;
+  edtAccAccountId.Text := Table.AccountName;
+  edtTaxOffice.Text := Table.TaxOffice;
+  edtTaxNo.Text := Table.TaxNo;
 end;
 
 procedure TfrmSlsOfferDetail.RefreshData;
@@ -491,13 +643,23 @@ begin
     edtValidUntil.Text := DateToStr(Table.ValidUntil)
   else
     edtValidUntil.Text := '';
-  edtAccAccountId.Text := Table.AccountName;
+  if Table.DeliveryDate > 0 then
+    edtDeliveryDate.Text := DateToStr(Table.DeliveryDate)
+  else
+    edtDeliveryDate.Text := '';
+  ShowAccount;
   edtCustomerRefNo.Text := Table.CustomerRefNo;
+  edtEinvPaymentMeansId.Text := Table.PaymentMeansName;
+  edtEinvDeliveryTermId.Text := Table.DeliveryTermName;
   edtEmpEmployeeId.Text := Table.EmployeeName;
   edtCurrency.Text := Table.Currency;
   edtExchangeRate.Text := CurrToStr(Table.ExchangeRate);
   edtPaymentTermDays.Text := IntToStr(Table.PaymentTermDays);
-  edtStatusText.Text := TSlsLookup.Text(slkOfferStatus, Table.Status);
+  if TSlsLookup.IsValid(slkSaleType, Table.SaleType) then
+    cbbSaleType.ItemIndex := Table.SaleType - 1
+  else
+    cbbSaleType.ItemIndex := SLS_SALE_DOMESTIC - 1;
+  ApplyDeliveryTermCaption;
   ShowTotalValues;
   edtDescription.Text := Table.Description;
   if Table.BaseCurrency <> '' then

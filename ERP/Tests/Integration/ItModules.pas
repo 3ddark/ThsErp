@@ -9,7 +9,7 @@ implementation
 uses
   System.SysUtils, System.StrUtils, System.Math, System.DateUtils, System.Classes, System.Rtti, System.Variants, System.Generics.Collections,
   Data.DB, FireDAC.Comp.Client, SharedFormTypes, FilterCriterion,
-  UnitOfWork, AppContext, ItSpecific,
+  UnitOfWork, AppContext, ItSpecific, SysDecimalPlace.Cache,
   StkLookup, StkTransaction, StkTransaction.Service, StkInventory, StkInventory.Service,
   StkCardKindInfo, StkCardKindInfo.Service,
   AccAccount, AccAccount.Service, AccAccountAddress, AccAccountAddress.Service,
@@ -2968,6 +2968,78 @@ end;
 // BusinessFindById kalemleri getirir, kayıt sonrası Reload. Commit yok (AWithCommit = False): test transaction'ı geri alınır.
 // TCMB bülteni (ayrıştırma, cuma -> cumartesi / pazar, elle girilen kur korunur), kur fonksiyonu, teklif kurları ve
 // belgeye ait ayrıntılı adres (kopya, düzenleme, temizleme, yalnız başlık güncellemesi, kopya belge, silme)
+// Para birimi değişimi: kalem fiyatları kurla çevrilir, fiyat hanesine (sys_decimal_place.price) yuvarlanır
+// (bellekte; kurlar ve hane ayarı transaction içinde değişip geri alınır)
+procedure TestSalesOfferCurrencyChange;
+var
+  Svc: TSlsOfferService;
+  Off: TSlsOffer;
+  Line: TSlsOfferDetail;
+  Base: string;
+begin
+  Ctx('Sales', 'offer currency');
+  Svc := TSlsOfferService.Create;
+  Off := TSlsOffer.Create;
+  try
+    try
+      Begin_;
+      Base := S(Scalar('SELECT public.fn_default_currency()'));
+      UoW.Connection.ExecSQL('INSERT INTO acc_exchange_rate (rate_date, rate, currency) VALUES ' +
+        '(''2032-03-03'', 49.4889, ''USD''), (''2032-03-03'', 57.1234, ''EUR'')');
+      UoW.Connection.ExecSQL('UPDATE sys_decimal_place SET price = 4, total = 2');
+      TDecimalPlaces.Invalidate;
+      Off.OfferDate := EncodeDate(2032, 3, 3);
+      Off.BaseCurrency := Base;
+      Off.Currency := Base;
+      Off.ExchangeRate := 1;
+      Line := TSlsOfferDetail.Create;
+      Line.Quantity := 2;
+      Line.UnitPrice := 1000;
+      Line.VatRate := 20;
+      Line.HeaderEntity := Off;
+      Off.Lines.Add(Line);
+
+      Svc.ChangeCurrency(Off, 'USD', 1);
+      Check(Base + ' -> USD: 1000 / 49.4889', Near(Line.UnitPrice, 20.2066), CurrToStr(Line.UnitPrice));
+      Check('document rate = USD rate', (Off.Currency = 'USD') and Near(Off.ExchangeRate, 49.4889), CurrToStr(Off.ExchangeRate));
+      Check('line + totals recalculated', Near(Line.GrossAmount, 40.41) and Near(Line.VatAmount, 8.08) and
+        Near(Off.TotalAmount, 48.49) and (Line.Currency = 'USD'), CurrToStr(Off.TotalAmount));
+
+      Svc.ChangeCurrency(Off, 'EUR', Off.ExchangeRate);
+      Check('USD -> EUR (cross via base)', Near(Line.UnitPrice, 17.506) and Near(Off.ExchangeRate, 57.1234), CurrToStr(Line.UnitPrice));
+
+      Svc.ChangeCurrency(Off, Base, Off.ExchangeRate);
+      Check('EUR -> ' + Base + ' (round trip within 0.01)', Near(Line.UnitPrice, 1000.0022) and Near(Off.ExchangeRate, 1),
+        CurrToStr(Line.UnitPrice));
+
+      // ekranda elle değiştirilen kur kullanılır
+      Svc.ChangeCurrency(Off, 'USD', 1);
+      Svc.ChangeCurrency(Off, Base, 50);
+      Check('user-entered old rate (50)', Near(Line.UnitPrice, 1010.33), CurrToStr(Line.UnitPrice));
+
+      Expect('currency without rate rejected', procedure begin Svc.ChangeCurrency(Off, 'XXX', 1); end);
+      Check('rejected change keeps currency + prices', (Off.Currency = Base) and Near(Line.UnitPrice, 1010.33));
+
+      // fiyat hanesi 2: 1000 / 49.4889 = 20.21
+      UoW.Connection.ExecSQL('UPDATE sys_decimal_place SET price = 2');
+      TDecimalPlaces.Invalidate;
+      Line.UnitPrice := 1000;
+      Svc.ChangeCurrency(Off, 'USD', 1);
+      Check('price decimals 2 -> 20.21', Near(Line.UnitPrice, 20.21) and (TDecimalPlaces.Price = 2), CurrToStr(Line.UnitPrice));
+      Check('round half away from zero', Near(TDecimalPlaces.RoundTo(2.675, 2), 2.68) and Near(TDecimalPlaces.RoundTo(-2.675, 2), -2.68) and
+        Near(TDecimalPlaces.RoundTo(1.2345, 0), 1));
+    except
+      on E: Exception do
+        Check('offer currency change', False, E.ClassName + ': ' + E.Message);
+    end;
+  finally
+    End_;
+    TDecimalPlaces.Invalidate;
+    Off.Free;
+    Svc.Free;
+  end;
+end;
+
 procedure TestSalesOfferRatesAndAddresses;
 const
   FRIDAY = 47487;   // 2030-01-04 (cuma)
@@ -4917,6 +4989,7 @@ begin
   TestSales;
   TestSalesOfferDocument;
   TestSalesOfferRatesAndAddresses;
+  TestSalesOfferCurrencyChange;
   TestSalesOrderDocument;
   TestSalesDispatchInvoiceDocument;
   TestEInvoice;

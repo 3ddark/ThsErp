@@ -94,6 +94,7 @@ implementation
 {$R *.dfm}
 
 uses
+  SysDecimalPlace.Cache,
   SlsLookup, Grid.Types, ufrmSlsInvoiceLine,
   AccAccount, AccAccount.Service, ufrmAccAccounts,
   StkWarehouse, StkWarehouse.Service, ufrmStkWarehouses,
@@ -143,6 +144,7 @@ begin
   edtStkWarehouseId.OnHelperProcess := HelperProcess;
   edtCurrency.OnHelperProcess := HelperProcess;
   edtExchangeRate.thsInputDataType := itFloat;
+  edtExchangeRate.thsDecimalDigitCount := TDecimalPlaces.ExchangeRate;
   edtDescription.thsInputDataType := itString;
   edtEinvProfileId.OnHelperProcess := HelperProcess;
   edtEinvInvoiceTypeId.OnHelperProcess := HelperProcess;
@@ -180,9 +182,9 @@ begin
       Result := TfrmSlsInvoiceLine.Create(Self, TSlsInvoiceDetailService.Create, ALine, AMode, nil);
     end);
 
-  FLines.Grid.AddFooterColumn('net_amount', atSum, '#,##0.00');
-  FLines.Grid.AddFooterColumn('vat_amount', atSum, '#,##0.00');
-  FLines.Grid.AddFooterColumn('total_amount', atSum, '#,##0.00');
+  FLines.Grid.AddFooterColumn('net_amount', atSum, TDecimalPlaces.TotalFormat);
+  FLines.Grid.AddFooterColumn('vat_amount', atSum, TDecimalPlaces.TotalFormat);
+  FLines.Grid.AddFooterColumn('total_amount', atSum, TDecimalPlaces.TotalFormat);
   FLines.Grid.BuildData;
   FLines.Grid.SetColumnProperty('id', 0);
   FLines.Grid.SetColumnProperty('sls_invoice_id', 0);

@@ -11,8 +11,10 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls;
 
 const
-  TOTALS_PANEL_COLOR = $00D5E8D4;   // açık yeşil zemin
   TOTALS_ROW_HEIGHT = 20;
+  // SetValue ADecimals: tutar / miktar hanesi sys_decimal_place'ten
+  TOTALS_DIGITS_AMOUNT = -2;
+  TOTALS_DIGITS_QUANTITY = -1;
 
 type
   TTotalsPanel = class
@@ -30,9 +32,9 @@ type
     // Yeni satır (alt alta); AKey satırın adı (SetCaption / SetValue)
     procedure AddRow(const AKey: string; ABold: Boolean = False);
     procedure SetCaption(const AKey, ACaption: string);
-    // Değer biçimli yazılır: '#,##0.00' (ADecimals; < 0 = miktar, en çok 6 ondalık) + ' ' + ASuffix
-    // (para birimi / ölçü birimi)
-    procedure SetValue(const AKey: string; AValue: Double; const ASuffix: string = ''; ADecimals: Integer = 2);
+    // Değer biçimli yazılır: '#,##0.00' + ' ' + ASuffix (para birimi / ölçü birimi); ADecimals: hane ya da
+    // TOTALS_DIGITS_AMOUNT (tutar hanesi; para birimi kodu simgeyle: USD -> $) / TOTALS_DIGITS_QUANTITY (miktar hanesi)
+    procedure SetValue(const AKey: string; AValue: Double; const ASuffix: string = ''; ADecimals: Integer = TOTALS_DIGITS_AMOUNT);
     procedure SetText(const AKey, AText: string);
     // Panel yüksekliği satır sayısına göre
     function RequiredHeight: Integer;
@@ -40,6 +42,9 @@ type
   end;
 
 implementation
+
+uses
+  SysDecimalPlace.Cache, SysCurrency.Cache;
 
 constructor TTotalsPanel.Create(APanel: TPanel);
 begin
@@ -49,11 +54,9 @@ begin
   FValues := TDictionary<string, TLabel>.Create;
   FPanel.Caption := '';
   FPanel.BevelOuter := bvLowered;
-  FPanel.ParentBackground := False;
-  FPanel.ParentColor := False;
-  FPanel.Color := TOTALS_PANEL_COLOR;
-  // tema (VCL style) zemini ezmesin
-  FPanel.StyleElements := [seFont, seBorder];
+  // renkler temadan (VCL style)
+  FPanel.ParentBackground := True;
+  FPanel.ParentColor := True;
 end;
 
 destructor TTotalsPanel.Destroy;
@@ -74,8 +77,6 @@ begin
   Result.Height := TOTALS_ROW_HEIGHT - 4;
   Result.Top := 6 + FRowCount * TOTALS_ROW_HEIGHT;
   Result.Transparent := True;
-  Result.StyleElements := [];
-  Result.Font.Color := clWindowText;
   if ABold then
     Result.Font.Style := [fsBold];
 end;
@@ -113,16 +114,19 @@ end;
 
 procedure TTotalsPanel.SetValue(const AKey: string; AValue: Double; const ASuffix: string; ADecimals: Integer);
 var
-  LText: string;
+  LText, LSuffix: string;
 begin
-  if ADecimals < 0 then
-    LText := FormatFloat('#,##0.######', AValue)   // miktar: gereken kadar ondalık
-  else if ADecimals > 0 then
-    LText := FormatFloat('#,##0.' + StringOfChar('0', ADecimals), AValue)
-  else
-    LText := FormatFloat('#,##0', AValue);
-  if ASuffix <> '' then
-    LText := LText + ' ' + ASuffix;
+  LSuffix := ASuffix;
+  if ADecimals = TOTALS_DIGITS_AMOUNT then
+  begin
+    ADecimals := TDecimalPlaces.Total;
+    LSuffix := TCurrencySymbols.Symbol(ASuffix);
+  end
+  else if ADecimals = TOTALS_DIGITS_QUANTITY then
+    ADecimals := TDecimalPlaces.Quantity;
+  LText := FormatFloat(TDecimalPlaces.DisplayFormat(ADecimals), AValue);
+  if LSuffix <> '' then
+    LText := LText + ' ' + LSuffix;
   SetText(AKey, LText);
 end;
 

@@ -930,7 +930,7 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
 - **Belge adresi + kur deseni (2026-10-19, sıradaki iş — tekliften sonra):**
   1. sls_order: billing/shipping_sys_address_id (UNIQUE, FK sys_address RESTRICT) + billing/shipping_address_id (kaynak
      cari adresi) + base_currency + usd_rate + eur_rate; vw_sls_order + sys_grid_column; servis teklifteki gibi
-     (BeforeHeaderSaved / AfterSaveFailed / LoadAddresses / CheckRates); form "Adresler" sekmesi (TDocumentAddressEditor).
+     (BeforeHeaderSaved / AfterSaveFailed / LoadAddresses / CheckRates); form başlığında sekmeler (pgcHeader: Genel / Fatura Adresi / Teslimat Adresi, TDocumentAddressEditor; teklif formu gibi — kullanıcı kararı 2026-10-20: adresler kalem sekmelerinde değil, başlıkta).
   2. CreateFromOffer: teklifin adreslerini (yeni sys_address kopyası) ve kurlarını siparişe taşı; siparişten irsaliye /
      faturaya da aynı şekilde.
   3. sls_dispatch, sls_invoice; sonra pur_offer / pur_order / pur_receipt / pur_invoice.
@@ -981,6 +981,54 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
   ayrım: RESTRICT = 23001, NO ACTION'da mesajda ana tablo adı geçer. Bağlantı: dashboard TApplicationEvents.OnException
   (+ E.Message gösteren 4 form). Anahtarlar db_error.* (4 dil). Test: TestDbErrors 8 adım; entegrasyon 1902 / 0.
   Not: en/de/fr JSON'da kodda kullanılmayan 51 eski anahtar var (tr-TR'de yok) — dokunulmadı.
+
+- 2026-10-20 (NB61): teklif formu başlığı sekmeli (pgcHeader: Genel / Fatura Adresi / Teslimat Adresi; kalem alanında yalnız
+  Kalemler). sls_offer: delivery_date (CHECK >= offer_date, siparişe sipariş tarihinden önce değilse taşınır),
+  einv_payment_means_id (Ödeme Şekli) + einv_delivery_term_id (Gönderim Şekli: adrese / kargoya teslim + Incoterms) FK;
+  vw_sls_offer'a payment_means_name, delivery_term_code/name, tax_office / tax_no (acc_account_taxpayer'dan, belgede
+  saklanmaz) + sys_grid_column / sys_user_grid_column. Formda cari kodu + V.D. / V.No salt okunur. sys_address.col_road
+  tr Cadde / en, fr Avenue. Yedek scratchpad ths_erp_before_offer_fields.dump. Entegrasyon 2015 pass / 0 fail.
+  Sırada: sipariş / irsaliye / faturaya aynı alanlar (sls_order'da ödeme / gönderim şekli yok; fatura zaten einv_* kullanıyor)
+  ve CreateFromOffer'da ödeme / gönderim şeklinin taşınması. Eski einv_payment_method (32 serbest metin vade satırı, kodu yok)
+  kullanılmıyor — silinmesi kullanıcı onayına bağlı.
+
+- 2026-10-20 (NB61, devam): TTotalsPanel tema renkleri (sabit yeşil zemin kaldırıldı; tüm belge / satır formları).
+  TfrmInputDetailedDB: pnlContent altında daraltma çubuğu (▲ Başlığı Gizle / ▼ Başlığı Göster, daraltılmışken HeaderSummary;
+  durum oturum boyunca sınıf adına göre TDetailHeaderState; ValidateInput daraltılmış başlığı geçici açar) — teklif / sipariş /
+  irsaliye / fatura formlarının hepsinde otomatik. Teklif: durum formdan kaldırıldı; toplamlar Kalemler sekmesinin altında sağda
+  (grid alt toplamları kaldırıldı); sls_offer.sale_type smallint 1-5 (SATIS / IHRACAT / IHRACKAYITLI / ISTISNA / TEVKIFAT,
+  TSlsLookup slkSaleType, SLS_SALE_*); teslim şartı ihracatta yalnız Incoterms, diğerlerinde is_incoterms = false
+  (TfrmEInvDeliveryTerms.SetIncotermsOnly + servis kontrolü ESlsOfferExceptionDeliveryTerm; tip değişince uymayan şart
+  temizlenir). Yedek ths_erp_before_offer_sale_type.dump. Entegrasyon 2015 / 0, UI Sales 95 / 0.
+  Sırada: sipariş / irsaliye / faturada toplamların kalem altına alınması ve sale_type'ın siparişe → faturaya (profil IHRACAT /
+  fatura tipi) aktarımı.
+
+- 2026-10-20 (NB61, devam): teklifte para birimi değişimi kalem fiyatlarını çevirir — TSlsOfferService.ChangeCurrency
+  (bellekte; fiyat x eski kur / yeni kur, kurlar 1 birim = ? ana para; eski kur = ekrandaki kur, yeni = teklif tarihinin kuru;
+  4 ondalık (entity Currency); fiyatlı kalem varken kur yoksa hata, hiçbir şey değişmez; temizle = ana para). Test
+  TestSalesOfferCurrencyChange (8 adım; entegrasyon 2024 / 0). DB değişikliği yok. Karar önerisi: belgede yalnız belge kuru +
+  USD / EUR rapor kurları; tüm paraların belge bazında saklanmasına gerek yok (acc_exchange_rate tarihsel, fn_exchange_rate).
+  Aynı ChangeCurrency sipariş / irsaliye / faturaya da eklenecek.
+
+- 2026-10-20 (NB61, devam): ondalık haneler sys_decimal_place'ten — `SysDecimalPlace.Cache` (TDecimalPlaces: ilk
+  kullanımda AppContext bağlantısıyla okunur, ayar servisinin Add / Update'i Invalidate eder; RoundTo yarım sıfırdan uzağa,
+  Currency tam sayı aritmetiği; DigitsForField kolon adına göre: *quantity (vw_stk_ -> stock_quantity), *price / *_cost,
+  *amount*, exchange_rate / usd_rate / eur_rate / rate). Uygulanan: tüm liste + detay grid'lerinde görüntü biçimi
+  (TfrmGridBase.ApplyDecimalFormats, TDetailGrid.BuildData), TTotalsPanel (varsayılan tutar hanesi, -1 miktar hanesi),
+  satış: TSlsLookup.RoundAmount = tutar hanesi, ChangeCurrency fiyat hanesi, kur / miktar / fiyat edit haneleri, alt toplam
+  biçimleri. Sınırlar: miktar / fiyat / stok / kur 0-4 (Currency), tutar 0-2 (numeric(18,2)) — servis + DB CHECK.
+  Yapılmadı: satın alma (TPurLookup.CalculateLine 2 hane sabit), stok / üretim / finans giriş formlarının edit haneleri.
+
+- 2026-10-20 (NB61, devam): liste formları — hızlı filtreler (TGridQuickFilterBar) başlıktan grid altına, Kayıt Ekle hizasında
+  sağa taşındı (tüm listeler). TfrmGridBase.OpenFilteredQuery (filtreye uyan tüm kayıtlar üzerinde SELECT ... FROM (FilteredSql)
+  GROUP BY; sayfasız modda nil) + FilteredDataLoaded (LoadTotals sonrası). Teklif listesi: grid alt toplamları kaldırıldı (farklı
+  paralar toplanıyordu); Kayıt Ekle altında para birimi bazında Net / KDV / Genel Toplam, birden çok parada ana para toplamı.
+  Sipariş vb. listelerde aynı özet henüz yok.
+
+- 2026-10-20 (NB61, devam): tutar metinlerinde para birimi simgesi — `SysCurrency.Cache` (TCurrencySymbols.Symbol /
+  FormatAmount; sys_currency.symbol, simgesi yoksa kod; para birimi servisi Add / Update / Delete Invalidate eder).
+  TTotalsPanel tutar satırları (tüm belge / satır formları), teklif başlık özeti ve teklif listesi özeti simge kullanır.
+  Not: UI harness `--no-db` ile tekrarlanırsa önceki koşunun değiştirdiği ths_erp_it yüzünden sahte FAIL verir; tam build.sh.
 
 ## Hatalar / Engeller
 - Bu PC'de güncel DB 5433'te; GlobalSettings.ini DBPortNo=5432 (diğer makine değeri) ve 5432'de 2023'ten kalma eski ths_erp var

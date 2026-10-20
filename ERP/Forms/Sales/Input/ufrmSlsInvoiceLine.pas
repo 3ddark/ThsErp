@@ -93,6 +93,7 @@ implementation
 {$R *.dfm}
 
 uses
+  SysDecimalPlace.Cache,
   SlsLookup, SlsOfferDetail.Service, SlsInvoice, SlsInvoice.Service,
   StkInventory, StkInventory.Service, ufrmStkInventories,   // TfrmStkInventories helper output form
   EInvLookup,
@@ -144,7 +145,9 @@ begin
   edtLineNo.thsInputDataType := itInteger;
   edtStkInventoryId.OnHelperProcess := HelperProcess;
   edtQuantity.thsInputDataType := itFloat;
+  edtQuantity.thsDecimalDigitCount := TDecimalPlaces.Quantity;
   edtUnitPrice.thsInputDataType := itFloat;
+  edtUnitPrice.thsDecimalDigitCount := TDecimalPlaces.Price;
   edtDiscountRate.thsInputDataType := itFloat;
   edtDescription.thsInputDataType := itString;
   edtEinvGtipId.OnHelperProcess := HelperProcess;

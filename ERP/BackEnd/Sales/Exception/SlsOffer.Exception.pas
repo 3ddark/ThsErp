@@ -38,6 +38,16 @@ type
     class function GetMessage: string; override;
   end;
 
+  ESlsOfferExceptionDeliveryDate = class(ESlsOfferException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
+  ESlsOfferExceptionDeliveryTerm = class(ESlsOfferException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
   ESlsOfferExceptionAddressAccount = class(ESlsOfferException)
   protected
     class function GetMessage: string; override;
@@ -73,6 +83,17 @@ end;
 class function ESlsOfferExceptionPaymentTerm.GetMessage: string;
 begin
   Result := TLocalizationManager.Translate(TLangKeys.TSlsOffer.PaymentTerm, 'Payment term must be between 0 and 365 days.');
+end;
+
+class function ESlsOfferExceptionDeliveryDate.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsOffer.DeliveryDate, 'Delivery date cannot be earlier than the offer date.');
+end;
+
+class function ESlsOfferExceptionDeliveryTerm.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsOffer.DeliveryTerm,
+    'The shipping method does not match the sale type: Incoterms for export, domestic delivery methods for other sales.');
 end;
 
 class function ESlsOfferExceptionAddressAccount.GetMessage: string;

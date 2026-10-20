@@ -47,7 +47,7 @@ type
 implementation
 
 uses
-  SysPermission.Service;
+  SysPermission.Service, SysDecimalPlace.Cache;
 
 constructor TSysDecimalPlaceService.Create;
 begin
@@ -61,14 +61,33 @@ begin
   inherited;
 end;
 
+// Saklanabilen hane: miktar / fiyat / stok miktarı / kur en çok 4 (Currency), tutar en çok 2 (numeric(18,2))
+procedure CheckDigits(AValue, AMax: Integer; const AKey, ADefault: string);
+begin
+  if (AValue < 0) or (AValue > AMax) then
+    raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TSysDecimalPlace.Range,
+      '%s must be between 0 and %d.'), [TLocalizationManager.Translate(AKey, ADefault), AMax]));
+end;
+
+procedure ValidateDigits(AEntity: TSysDecimalPlace);
+begin
+  CheckDigits(AEntity.Quantity, TDecimalPlaces.MAX_DIGITS, TLangKeys.TSysDecimalPlace.ColQuantity, 'Quantity Decimals');
+  CheckDigits(AEntity.Price, TDecimalPlaces.MAX_DIGITS, TLangKeys.TSysDecimalPlace.ColPrice, 'Price Decimals');
+  CheckDigits(AEntity.Total, TDecimalPlaces.MAX_TOTAL_DIGITS, TLangKeys.TSysDecimalPlace.ColTotal, 'Total Decimals');
+  CheckDigits(AEntity.StockQuantity, TDecimalPlaces.MAX_DIGITS, TLangKeys.TSysDecimalPlace.ColStockQuantity, 'Stock Decimals');
+  CheckDigits(AEntity.ExchangeRate, TDecimalPlaces.MAX_DIGITS, TLangKeys.TSysDecimalPlace.ColExchangeRate, 'Exchange Rate Decimals');
+end;
+
 procedure TSysDecimalPlaceService.ValidateInsert(AEntity: TSysDecimalPlace);
 begin
   ValidateMustContainOneRecord(AEntity, coInsert);
+  ValidateDigits(AEntity);
 end;
 
 procedure TSysDecimalPlaceService.ValidateUpdate(AEntity: TSysDecimalPlace);
 begin
   ValidateMustContainOneRecord(AEntity, coUpdate);
+  ValidateDigits(AEntity);
 end;
 
 procedure TSysDecimalPlaceService.ValidateDelete(AEntity: TSysDecimalPlace);
@@ -256,14 +275,17 @@ begin
   Result := FRepo.FindOne(AFilter, ALock);
 end;
 
+// Hane ayarları önbellekte: bir sonraki kullanımda yeniden okunur
 procedure TSysDecimalPlaceService.Add(AEntity: TSysDecimalPlace);
 begin
-  DoAdd(AEntity)
+  DoAdd(AEntity);
+  TDecimalPlaces.Invalidate;
 end;
 
 procedure TSysDecimalPlaceService.Update(AEntity: TSysDecimalPlace);
 begin
-  DoUpdate(AEntity)
+  DoUpdate(AEntity);
+  TDecimalPlaces.Invalidate;
 end;
 
 procedure TSysDecimalPlaceService.Delete(AId: Int64);

@@ -26,6 +26,14 @@ const
   SLS_DSP_WAITING   = 1;  // bekliyor: tamamı faturalanmamış (kısmen faturalanan dahil)
   SLS_DSP_CLOSED    = 2;  // kapandı: tüm kalemler faturalandı
 
+  // sls_offer.sale_type (DB CHECK 1-5): fatura tipi / senaryosuna karşılık gelir; ihracatta teslim şartı Incoterms,
+  // diğerlerinde yurt içi teslim şekilleri (einv_delivery_term.is_incoterms)
+  SLS_SALE_DOMESTIC          = 1;  // satış (SATIS)
+  SLS_SALE_EXPORT            = 2;  // ihracat (IHRACAT)
+  SLS_SALE_EXPORT_REGISTERED = 3;  // ihraç kayıtlı (IHRACKAYITLI)
+  SLS_SALE_EXEMPT            = 4;  // istisna (ISTISNA)
+  SLS_SALE_WITHHOLDING       = 5;  // tevkifatlı (TEVKIFAT)
+
   // belge numarası önekleri (+ 6 hane)
   SLS_PREFIX_OFFER    = 'ST';
   SLS_PREFIX_ORDER    = 'SS';
@@ -34,7 +42,7 @@ const
 
 type
   // DB'de smallint olarak saklanan sabit seçenekler (1 tabanlı; 0 = seçilmemiş)
-  TSlsLookupKind = (slkOfferStatus, slkOrderStatus, slkDispatchStatus);
+  TSlsLookupKind = (slkOfferStatus, slkOrderStatus, slkDispatchStatus, slkSaleType);
 
   TSlsLookup = class
   public
@@ -43,7 +51,7 @@ type
     class function IsValid(AKind: TSlsLookupKind; AValue: Integer): Boolean;
     class procedure FillItems(AItems: TStrings; AKind: TSlsLookupKind);
 
-    // 2 haneye, yarım değerler sıfırdan uzağa yuvarlanır (Round bankacı yuvarlaması yapar)
+    // Tutar hanesine (sys_decimal_place.total), yarım değerler sıfırdan uzağa yuvarlanır
     class function RoundAmount(AValue: Currency): Currency;
     // brüt = miktar x fiyat, iskonto = brüt x oran, net = brüt - iskonto, KDV = net x oran, toplam = net + KDV
     class procedure CalculateLine(AQuantity, AUnitPrice, ADiscountRate, AVatRate: Currency;
@@ -53,6 +61,9 @@ type
   end;
 
 implementation
+
+uses
+  SysDecimalPlace.Cache;
 
 class function TSlsLookup.Items(AKind: TSlsLookupKind): TArray<string>;
 begin
@@ -72,6 +83,12 @@ begin
     slkDispatchStatus:
       Result := [TLocalizationManager.Translate(TLangKeys.TSlsOption.DspWaiting, 'Waiting'),
                  TLocalizationManager.Translate(TLangKeys.TSlsOption.DspClosed, 'Closed')];
+    slkSaleType:
+      Result := [TLocalizationManager.Translate(TLangKeys.TSlsOption.SaleDomestic, 'Sale'),
+                 TLocalizationManager.Translate(TLangKeys.TSlsOption.SaleExport, 'Export'),
+                 TLocalizationManager.Translate(TLangKeys.TSlsOption.SaleExportRegistered, 'Export-Registered Sale'),
+                 TLocalizationManager.Translate(TLangKeys.TSlsOption.SaleExempt, 'Tax-Exempt'),
+                 TLocalizationManager.Translate(TLangKeys.TSlsOption.SaleWithholding, 'With Withholding')];
   else
     Result := [];
   end;
@@ -108,14 +125,8 @@ begin
 end;
 
 class function TSlsLookup.RoundAmount(AValue: Currency): Currency;
-var
-  LCents: Int64;
 begin
-  if AValue >= 0 then
-    LCents := Trunc(AValue * 100 + 0.5)
-  else
-    LCents := -Trunc(-AValue * 100 + 0.5);
-  Result := LCents / 100;
+  Result := TDecimalPlaces.RoundTotal(AValue);
 end;
 
 class procedure TSlsLookup.CalculateLine(AQuantity, AUnitPrice, ADiscountRate, AVatRate: Currency;

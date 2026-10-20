@@ -38,7 +38,7 @@ type
 implementation
 
 uses
-  SysPermission.Service;
+  SysPermission.Service, SysCurrency.Cache;
 
 constructor TSysCurrencyService.Create;
 begin
@@ -186,19 +186,23 @@ begin
   Result := FRepo.FindOne(AFilter, ALock);
 end;
 
+// Simgeler önbellekte: bir sonraki kullanımda yeniden okunur
 procedure TSysCurrencyService.Add(AEntity: TSysCurrency);
 begin
   FRepo.Add(AEntity);
+  TCurrencySymbols.Invalidate;
 end;
 
 procedure TSysCurrencyService.Update(AEntity: TSysCurrency);
 begin
   FRepo.Update(AEntity);
+  TCurrencySymbols.Invalidate;
 end;
 
 procedure TSysCurrencyService.Delete(AId: Int64);
 begin
   FRepo.Delete(AId);
+  TCurrencySymbols.Invalidate;
 end;
 
 procedure TSysCurrencyService.ValidateBusinessRules(AEntity: TSysCurrency; AOperation: TCrudOperation);

@@ -143,6 +143,8 @@ uses
   SysGridColumn in 'BackEnd\System\Domain\SysGridColumn.pas',
   SysGridColumn.Exception in 'BackEnd\System\Exception\SysGridColumn.Exception.pas',
   SysGridColumn.Cache in 'BackEnd\System\Cache\SysGridColumn.Cache.pas',
+  SysDecimalPlace.Cache in 'BackEnd\System\Cache\SysDecimalPlace.Cache.pas',
+  SysCurrency.Cache in 'BackEnd\System\Cache\SysCurrency.Cache.pas',
   SysGridColumn.Repository in 'BackEnd\System\Repository\SysGridColumn.Repository.pas',
   SysGridColumn.Service in 'BackEnd\System\Service\SysGridColumn.Service.pas',
   ufrmSysGridColumn in 'Forms\System\Input\ufrmSysGridColumn.pas' {frmSysGridColumn},
