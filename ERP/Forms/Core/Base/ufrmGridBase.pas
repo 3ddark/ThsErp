@@ -175,6 +175,9 @@ type
     constructor CreateGrid(AOwner: TComponent; ACreateNewBase, AUseHelper: Boolean);
     destructor Destroy; override;
 
+    // Sekmeli modda ana ekran formu sekmeye alır (FormHost.GFormHost); aksi halde ayrı pencere
+    procedure Show; reintroduce;
+
     procedure SetSelectedItem; virtual; abstract;
     procedure ShowInputForm(Sender: TObject; AFormType: TInputFormMode); virtual; abstract;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; virtual;
@@ -269,7 +272,7 @@ implementation
 
 uses
   Vcl.Clipbrd, FireDAC.Stan.Param, udm, Ths.Constants, Ths.Globals, Logger, AppContext, EntitySchemaCache,
-  Grid.Sql, Grid.Columns, Grid.Export, Grid.ColumnSelector, Db.ErrorTranslator, SysDecimalPlace.Cache;
+  Grid.Sql, Grid.Columns, Grid.Export, Grid.ColumnSelector, Db.ErrorTranslator, SysDecimalPlace.Cache, FormHost;
 
 { TfrmGridBase - kurulum }
 
@@ -318,6 +321,14 @@ begin
   inherited;
 end;
 
+procedure TfrmGridBase.Show;
+begin
+  // seçim listeleri (helper) ShowModal ile açılır; yine de sekmeye alınmaz
+  if not FIsHelper and Assigned(GFormHost) and GFormHost(Self) then
+    Exit;
+  inherited Show;
+end;
+
 procedure TfrmGridBase.ReleaseGridData;
 begin
   // DataSource önce ayrılır (grid kapanan sorguyu çizmeye çalışmasın)
@@ -331,7 +342,7 @@ end;
 
 procedure TfrmGridBase.PrepareForm;
 begin
-  Self.Position := poOwnerFormCenter;
+  Self.Position := OwnerCenterPosition(Owner);
   Self.KeyPreview := True;
   Self.Constraints.MinWidth := 720;
   Self.Constraints.MaxWidth := Monitor.Width;

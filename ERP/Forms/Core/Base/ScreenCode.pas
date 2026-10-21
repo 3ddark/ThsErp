@@ -28,6 +28,8 @@ type
     // AProc içinde oluşturulan / etkinleşen ilk form ACode'u alır
     class procedure RunWithCode(ACode: Integer; const AProc: TProc);
     class function CodeOf(AForm: TCustomForm): Integer;
+    // Etkinleşmeden açılan (ana ekran sekmesine gömülen) form için: bekleyen ya da sahibinden devralınan kod
+    class procedure AttachTo(AForm: TCustomForm);
     class function Decorate(const ACaption: string; ACode: Integer): string;
   end;
 
@@ -166,22 +168,24 @@ begin
   end;
 end;
 
+class procedure TScreenCodes.AttachTo(AForm: TCustomForm);
+begin
+  if Assigned(AForm) and (CodeOf(AForm) = 0) then
+  begin
+    if FPending > 0 then
+    begin
+      Attach(AForm, FPending);
+      FPending := 0;
+    end
+    else
+      Attach(AForm, InheritedCode(AForm));
+  end;
+end;
+
 procedure TScreenCodes.ActiveFormChange(Sender: TObject);
-var
-  LForm: TCustomForm;
 begin
   try
-    LForm := Screen.ActiveCustomForm;
-    if Assigned(LForm) and (CodeOf(LForm) = 0) then
-    begin
-      if FPending > 0 then
-      begin
-        Attach(LForm, FPending);
-        FPending := 0;
-      end
-      else
-        Attach(LForm, InheritedCode(LForm));
-    end;
+    AttachTo(Screen.ActiveCustomForm);
   finally
     if Assigned(FPrevActiveFormChange) then
       FPrevActiveFormChange(Sender);

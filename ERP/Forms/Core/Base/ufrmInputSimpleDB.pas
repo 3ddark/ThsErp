@@ -125,7 +125,7 @@ type
 
 implementation
 
-uses Logger, EntityAttributes;
+uses Logger, EntityAttributes, FormHost;
 
 procedure TfrmInputSimpleDB<TE, TS>.BindEntityToControls(AEntity: TObject; AForm: TForm; Meta: TEntityMeta);
 var
@@ -1022,7 +1022,7 @@ end;
 
 procedure TfrmInputSimpleDB<TE, TS>.PrepareForm;
 begin
-  Self.Position := poOwnerFormCenter;
+  Self.Position := OwnerCenterPosition(Owner);
   Self.KeyPreview := True;
   Self.Constraints.MinWidth := 350;
   Self.Constraints.MaxWidth := Monitor.Width;

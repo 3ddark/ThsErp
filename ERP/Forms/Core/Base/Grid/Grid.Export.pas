@@ -23,7 +23,7 @@ implementation
 
 uses
   Winapi.Windows, Winapi.ShellAPI, System.Threading, System.Generics.Collections, Vcl.Dialogs,
-  LocalizationManager, ExcelExportTask, ufrmExportProgress;
+  LocalizationManager, ExcelExportTask, ufrmExportProgress, FormHost;
 
 function CsvSafe(const S: string): string;
 begin
@@ -79,6 +79,7 @@ begin
 
   LSavePath := ASavePath;
   LProgress := TfrmExportProgress.Create(AOwner);
+  LProgress.Position := OwnerCenterPosition(AOwner);
   LProgress.Show;
 
   LTask.OnProgress := procedure(ACurrent, ATotal: Integer; const AStatus: string)

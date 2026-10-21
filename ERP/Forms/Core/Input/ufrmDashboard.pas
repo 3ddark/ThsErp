@@ -12,7 +12,7 @@ uses
   Vcl.StdCtrls, Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.Dialogs,
   Vcl.ToolWin, Vcl.ImgList, Vcl.StdActns, Vcl.CategoryButtons, Vcl.WinXCtrls,
   Vcl.Imaging.pngimage, Data.DB, FireDAC.Comp.Client,
-  udm, ufrmBase, Entity, ufrmGrid, ufrmInputSimpleDB, Service,
+  udm, ufrmBase, Entity, ufrmGrid, ufrmGridBase, ufrmInputSimpleDB, Service, FormHost,
 
   ConnectionManager, Logger, MetaProvider, SharedFormTypes, FilterCriterion,
   AppContext, UserContext, UnitOfWork,
@@ -495,6 +495,15 @@ type
     procedure actsls_einv_document_settingsExecute(Sender: TObject);
     procedure actsys_audit_logExecute(Sender: TObject);
   private
+    type
+      // sekmeye alınan formun ayrı pencere ayarları (sekmeden ayrılınca geri yüklenir)
+      TDockedForm = record
+        Sheet: TTabSheet;
+        BorderStyle: TFormBorderStyle;
+        Height: Integer;
+        MinWidth, MinHeight, MaxWidth, MaxHeight: Integer;
+      end;
+  private
     FIsFormShow: Boolean;
     FF6Pressed: Boolean;
     FRateUpdateStarted: Boolean;
@@ -515,6 +524,27 @@ type
     FNavStateLoaded: Boolean;
     // işlem geçmişi kuyruğu (audit_outbox) -> ths_audit aktarımı
     FAuditTimer: TTimer;
+    // açılan liste ekranları: sekmeli mod (ana ekranda sekme) / ayrı pencere; kullanıcı ayarı nav.tabbed
+    FPages: TPageControl;
+    FHomeSheet: TTabSheet;
+    FTabPopup: TPopupMenu;
+    FMniTabDetach: TMenuItem;
+    FMniTabClose: TMenuItem;
+    FChkTabbed: TCheckBox;
+    FTabbed: Boolean;
+    FDocked: TDictionary<TForm, TDockedForm>;
+    procedure BuildTabs;
+    function HostForm(AForm: TForm): Boolean;
+    procedure DockForm(AForm: TForm);
+    procedure UndockForm(AForm: TForm);
+    procedure SetTabbed(AValue: Boolean);
+    function DockedFormOf(ASheet: TTabSheet): TForm;
+    procedure TabsChange(Sender: TObject);
+    procedure TabsMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure TabCloseClick(Sender: TObject);
+    procedure TabDetachClick(Sender: TObject);
+    procedure ChkTabbedClick(Sender: TObject);
+    procedure AppIdle(Sender: TObject; var Done: Boolean);
     procedure AuditTimerTimer(Sender: TObject);
     procedure FlushAudit;
     // Günün kuru yoksa TCMB'den (arka planda indirilir, ana thread'de yazılır); hata yalnız loglanır
@@ -545,6 +575,7 @@ type
     procedure LayoutKpiCards;
   protected
     procedure DoClose(var Action: TCloseAction); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   published
     procedure btnCloseClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
@@ -1480,6 +1511,9 @@ end;
 
 destructor TfrmDashboard.Destroy;
 begin
+  GFormHost := nil;
+  // sekmedeki formlar bileşenlerle birlikte yok edilir: Notification artık sekme silmesin
+  FreeAndNil(FDocked);
   FActionCodes.Free;
   inherited;
 end;
@@ -1899,6 +1933,17 @@ begin
       TLocalizationManager.Translate(TLangKeys.TDashboard.NavRemoveFavorite, 'Remove from Favorites'));
   if Assigned(FBtnNavToggle) then
     FBtnNavToggle.Hint := TLocalizationManager.Translate(TLangKeys.TDashboard.NavToggleHint, 'Show / hide menu');
+  if Assigned(FPages) then
+  begin
+    FHomeSheet.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabHome, 'Home');
+    FMniTabDetach.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabDetach, 'Show in Separate Window');
+    FMniTabClose.Caption := TLocalizationManager.Translate(TLangKeys.TGeneral.Close, 'Close');
+    FChkTabbed.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.TabbedView, 'Tabbed View');
+    FChkTabbed.Hint := TLocalizationManager.Translate(TLangKeys.TDashboard.TabbedViewHint,
+      'On: screens open as tabs in the main window. Off: every screen opens in its own window.');
+    Canvas.Font.Assign(FChkTabbed.Font);
+    FChkTabbed.Width := Canvas.TextWidth(FChkTabbed.Caption) + 24;
+  end;
 
   if Assigned(FKpiScroll) then
     RenderKpis;
@@ -1916,11 +1961,13 @@ begin
   FActionCodes := TDictionary<string, Integer>.Create;
   actlstMain.OnExecute := ActionListExecute;
   BuildNavPanel;
+  BuildTabs;
   // Ctrl+K her ekrandan (komut paleti)
   FAppEvents := TApplicationEvents.Create(Self);
   FAppEvents.OnShortCut := AppShortCut;
   // yakalanmayan hatalar: PostgreSQL constraint hataları anlaşılır mesaja çevrilir
   FAppEvents.OnException := AppException;
+  FAppEvents.OnIdle := AppIdle;
 
   FAuditTimer := TTimer.Create(Self);
   FAuditTimer.Interval := 60 * 1000;
@@ -1946,6 +1993,9 @@ end;
 
 procedure TfrmDashboard.FormKeyPress(Sender: TObject; var Key: Char);
 begin
+  // sekmedeki ekranın işlemediği Esc uygulama kapatmayı sormasın
+  if Assigned(Screen.ActiveControl) and (GetParentForm(Screen.ActiveControl, False) <> Self) then
+    Exit;
   if Key = Char(VK_ESCAPE) then
   begin
     // menüdeyken Esc aramayı temizler, uygulama kapatma sorulmaz
@@ -2266,6 +2316,8 @@ begin
         end;
         if LValues.TryGetValue(USER_SETTING_NAV_VISIBLE, LValue) and (LValue = '0') and FNav.Visible then
           NavToggleClick(nil);
+        if LValues.TryGetValue(USER_SETTING_NAV_TABBED, LValue) then
+          SetTabbed(LValue <> '0');
       finally
         LValues.Free;
       end;
@@ -2292,6 +2344,7 @@ begin
     try
       LSvc.SetValue(USER_SETTING_NAV_VISIBLE, IfThen(FNav.Visible, '1', '0'));
       LSvc.SetValue(USER_SETTING_NAV_WIDTH, IntToStr(FNav.Width));
+      LSvc.SetValue(USER_SETTING_NAV_TABBED, IfThen(FTabbed, '1', '0'));
       LKeys := FNav.ExpandedKeys;
       LText := '';
       for LKey in LKeys do
@@ -2314,6 +2367,248 @@ begin
   begin
     SaveNavState;
     FlushAudit;
+  end;
+end;
+
+{ ---------------------------------------------------------------- Sekmeli ekranlar }
+
+// Ana ekran (göstergeler) ilk, kapatılamayan sekme; liste ekranları TfrmGridBase.Show -> GFormHost ile eklenir
+procedure TfrmDashboard.BuildTabs;
+begin
+  if Assigned(FPages) then
+    Exit;
+
+  FDocked := TDictionary<TForm, TDockedForm>.Create;
+
+  FPages := TPageControl.Create(Self);
+  FPages.Parent := pnlMain;
+  FPages.Align := alClient;
+  FPages.OnChange := TabsChange;
+  FPages.OnMouseUp := TabsMouseUp;
+
+  FHomeSheet := TTabSheet.Create(Self);
+  FHomeSheet.PageControl := FPages;
+
+  FTabPopup := TPopupMenu.Create(Self);
+  FMniTabDetach := TMenuItem.Create(FTabPopup);
+  FMniTabDetach.OnClick := TabDetachClick;
+  FTabPopup.Items.Add(FMniTabDetach);
+  FMniTabClose := TMenuItem.Create(FTabPopup);
+  FMniTabClose.OnClick := TabCloseClick;
+  FTabPopup.Items.Add(FMniTabClose);
+
+  FChkTabbed := TCheckBox.Create(Self);
+  FChkTabbed.Parent := pnlToolbar;
+  FChkTabbed.Align := alRight;
+  FChkTabbed.AlignWithMargins := True;
+  FChkTabbed.Margins.SetBounds(4, 6, 12, 6);
+  FChkTabbed.ShowHint := True;
+  FChkTabbed.Checked := True;
+  FChkTabbed.OnClick := ChkTabbedClick;
+
+  FTabbed := True;
+  GFormHost := HostForm;
+end;
+
+function TfrmDashboard.HostForm(AForm: TForm): Boolean;
+begin
+  Result := FTabbed and Assigned(FDocked) and Visible and not (csDestroying in ComponentState);
+  if Result then
+    DockForm(AForm);
+end;
+
+procedure TfrmDashboard.DockForm(AForm: TForm);
+var
+  LInfo: TDockedForm;
+  LWasVisible: Boolean;
+  LOnShow: TNotifyEvent;
+begin
+  LInfo.BorderStyle := AForm.BorderStyle;
+  LInfo.Height := AForm.Height;
+  LInfo.MinWidth := AForm.Constraints.MinWidth;
+  LInfo.MinHeight := AForm.Constraints.MinHeight;
+  LInfo.MaxWidth := AForm.Constraints.MaxWidth;
+  LInfo.MaxHeight := AForm.Constraints.MaxHeight;
+  LInfo.Sheet := TTabSheet.Create(Self);
+  LInfo.Sheet.PageControl := FPages;
+  LInfo.Sheet.Caption := AForm.Caption;
+  FDocked.Add(AForm, LInfo);
+  AForm.FreeNotification(Self);
+
+  // açık pencere sekmeye alınırken pencere yeniden oluşur: OnShow (sorgu / alt bilgi kurulumu) tekrar çalışmasın
+  LWasVisible := AForm.Visible;
+  LOnShow := AForm.OnShow;
+  if LWasVisible then
+    AForm.OnShow := nil;
+  try
+    // pencere boyut sınırları sekmede geçerli değil (sekme formdan küçük olabilir)
+    AForm.Constraints.MinWidth := 0;
+    AForm.Constraints.MinHeight := 0;
+    AForm.Constraints.MaxWidth := 0;
+    AForm.Constraints.MaxHeight := 0;
+    AForm.Position := poDesigned;
+    AForm.BorderStyle := bsNone;
+    AForm.Parent := LInfo.Sheet;
+    AForm.Align := alClient;
+  finally
+    AForm.OnShow := LOnShow;
+  end;
+  // sekme Show'dan önce etkin olmalı: FormShow'daki odak (ActiveControl / SetFocus) görünmeyen sekmede hata verir
+  FPages.ActivePage := LInfo.Sheet;
+
+  if not LWasVisible then
+  begin
+    // sekmedeki form etkinleşmez (aktif form ana ekran kalır): ekran kodu burada verilir
+    TScreenCodes.AttachTo(AForm);
+    AForm.Show;
+  end;
+  TabsChange(FPages);
+end;
+
+procedure TfrmDashboard.UndockForm(AForm: TForm);
+var
+  LInfo: TDockedForm;
+  LOnShow: TNotifyEvent;
+begin
+  if not FDocked.TryGetValue(AForm, LInfo) then
+    Exit;
+  FDocked.Remove(AForm);
+
+  LOnShow := AForm.OnShow;
+  AForm.OnShow := nil;
+  try
+    AForm.Align := alNone;
+    AForm.Parent := nil;
+    AForm.BorderStyle := LInfo.BorderStyle;
+    AForm.Constraints.MinWidth := LInfo.MinWidth;
+    AForm.Constraints.MinHeight := LInfo.MinHeight;
+    AForm.Constraints.MaxWidth := LInfo.MaxWidth;
+    AForm.Constraints.MaxHeight := LInfo.MaxHeight;
+    AForm.Height := Max(LInfo.Height, LInfo.MinHeight);
+    if AForm is TfrmGridBase then
+      TfrmGridBase(AForm).AdjustFormWidth;
+    AForm.SetBounds(Left + (Width - AForm.Width) div 2, Top + (Height - AForm.Height) div 2, AForm.Width, AForm.Height);
+  finally
+    AForm.OnShow := LOnShow;
+  end;
+  LInfo.Sheet.Free;
+  AForm.BringToFront;
+end;
+
+procedure TfrmDashboard.SetTabbed(AValue: Boolean);
+var
+  LForms: TArray<TForm>;
+  LForm: TForm;
+  I: Integer;
+begin
+  FTabbed := AValue;
+  FChkTabbed.Checked := AValue;
+  if AValue then
+  begin
+    // açık liste ekranları sekmeye alınır (seçim listeleri / modal pencereler hariç)
+    LForms := [];
+    for I := 0 to Screen.FormCount - 1 do
+      if (Screen.Forms[I] is TfrmGridBase) and Screen.Forms[I].Visible
+        and not (fsModal in Screen.Forms[I].FormState) and not TfrmGridBase(Screen.Forms[I]).IsHelper
+        and not FDocked.ContainsKey(Screen.Forms[I]) then
+        LForms := LForms + [Screen.Forms[I]];
+    for LForm in LForms do
+      DockForm(LForm);
+  end
+  else
+    for LForm in FDocked.Keys.ToArray do
+      UndockForm(LForm);
+  // ayrı pencere modunda tek sayfa (ana ekran) sekme başlığı olmadan gösterilir
+  FHomeSheet.TabVisible := AValue;
+  if not AValue then
+    FPages.ActivePage := FHomeSheet;
+end;
+
+function TfrmDashboard.DockedFormOf(ASheet: TTabSheet): TForm;
+var
+  LPair: TPair<TForm, TDockedForm>;
+begin
+  Result := nil;
+  if Assigned(FDocked) then
+    for LPair in FDocked do
+      if LPair.Value.Sheet = ASheet then
+        Exit(LPair.Key);
+end;
+
+procedure TfrmDashboard.TabsChange(Sender: TObject);
+var
+  LForm: TForm;
+begin
+  LForm := DockedFormOf(FPages.ActivePage);
+  if Assigned(LForm) and LForm.CanFocus then
+    LForm.SetFocus;
+end;
+
+procedure TfrmDashboard.TabsMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  LIndex: Integer;
+  LPt: TPoint;
+begin
+  if Button <> mbRight then
+    Exit;
+  LIndex := FPages.IndexOfTabAt(X, Y);
+  if (LIndex < 0) or (FPages.Pages[LIndex] = FHomeSheet) then
+    Exit;
+  FPages.ActivePageIndex := LIndex;
+  TabsChange(FPages);
+  LPt.X := X;
+  LPt.Y := Y;
+  LPt := FPages.ClientToScreen(LPt);
+  FTabPopup.Popup(LPt.X, LPt.Y);
+end;
+
+procedure TfrmDashboard.TabCloseClick(Sender: TObject);
+var
+  LForm: TForm;
+begin
+  LForm := DockedFormOf(FPages.ActivePage);
+  if Assigned(LForm) then
+    LForm.Close;
+end;
+
+procedure TfrmDashboard.TabDetachClick(Sender: TObject);
+var
+  LForm: TForm;
+begin
+  LForm := DockedFormOf(FPages.ActivePage);
+  if Assigned(LForm) then
+    UndockForm(LForm);
+end;
+
+procedure TfrmDashboard.ChkTabbedClick(Sender: TObject);
+begin
+  if FChkTabbed.Checked <> FTabbed then
+    SetTabbed(FChkTabbed.Checked);
+end;
+
+// Başlık sonradan değişebilir (ekran kodu, dil, sabit filtre adı): sekme başlığı formu izler
+procedure TfrmDashboard.AppIdle(Sender: TObject; var Done: Boolean);
+var
+  LPair: TPair<TForm, TDockedForm>;
+begin
+  if Assigned(FDocked) then
+    for LPair in FDocked do
+      if LPair.Value.Sheet.Caption <> LPair.Key.Caption then
+        LPair.Value.Sheet.Caption := LPair.Key.Caption;
+end;
+
+// Sekmedeki form kapanınca (caFree) sekmesi de kaldırılır
+procedure TfrmDashboard.Notification(AComponent: TComponent; Operation: TOperation);
+var
+  LInfo: TDockedForm;
+begin
+  inherited;
+  if (Operation = opRemove) and Assigned(FDocked) and (AComponent is TForm)
+    and FDocked.TryGetValue(TForm(AComponent), LInfo) then
+  begin
+    FDocked.Remove(TForm(AComponent));
+    if not (csDestroying in ComponentState) then
+      LInfo.Sheet.Free;
   end;
 end;
 
@@ -2698,7 +2993,7 @@ begin
     Exit;
 
   FKpiScroll := TScrollBox.Create(Self);
-  FKpiScroll.Parent := pnlMain;
+  FKpiScroll.Parent := FHomeSheet;
   FKpiScroll.Align := alClient;
   FKpiScroll.BorderStyle := bsNone;
   FKpiScroll.ParentColor := False;
@@ -2810,7 +3105,7 @@ end;
 procedure TfrmDashboard.KpiMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer;
   MousePos: TPoint; var Handled: Boolean);
 begin
-  if not Assigned(FKpiScroll) or not FKpiScroll.Visible then
+  if not Assigned(FKpiScroll) or not FKpiScroll.Showing then
     Exit;
   if not PtInRect(FKpiScroll.ClientRect, FKpiScroll.ScreenToClient(Mouse.CursorPos)) then
     Exit;
@@ -2826,7 +3121,7 @@ end;
 procedure TfrmDashboard.KpiTimerTimer(Sender: TObject);
 begin
   // modal pencere / başka iş varken arka planda yenileme yapılmaz
-  if Application.Active and (Screen.ActiveForm = Self) then
+  if Application.Active and (Screen.ActiveForm = Self) and (FPages.ActivePage = FHomeSheet) then
     LoadKpis;
 end;
 

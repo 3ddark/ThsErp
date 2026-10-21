@@ -120,7 +120,8 @@ implementation
 uses
   Ths.Constants,
   Ths.Globals,
-  LocalizationManager;
+  LocalizationManager,
+  FormHost;
 
 {$R *.dfm}
 
@@ -142,6 +143,8 @@ begin
   FAcceptBtnDoAction := AAcceptBtnDoAction;
 
   inherited Create(AOwner);
+  if Position = poOwnerFormCenter then
+    Position := OwnerCenterPosition(AOwner);
 end;
 
 procedure TfrmBase.CreateLangGuiContentFormforFormCaption;

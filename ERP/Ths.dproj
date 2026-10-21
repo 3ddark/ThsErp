@@ -440,6 +440,7 @@
         </DCCReference>
         <DCCReference Include="Forms\Core\Base\NavigationTree.pas"/>
         <DCCReference Include="Forms\Core\Base\ScreenCode.pas"/>
+        <DCCReference Include="Forms\Core\Base\FormHost.pas"/>
         <DCCReference Include="Forms\Core\Base\DashboardControls.pas"/>
         <DCCReference Include="Forms\System\Input\ufrmSysPermission.pas">
             <Form>frmSysPermission</Form>

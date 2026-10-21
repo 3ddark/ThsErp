@@ -79,6 +79,10 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
 - Pre-filtered list (detail of a master): call `AddFixedFilter('fk_column', Id)` **before** `Show`; expose it as
   `SetFixed{Master}(AId, AName)`, append the name to the caption and pre-fill the FK in `CreateInputForm(ifmNewRecord)`.
 - Opening from the dashboard: `Tfrm{Entity}s.Create(Self, T{Entity}Service.Create, T{Entity}.Create).Show;`
+  `TfrmGridBase.Show` (reintroduced) asks `FormHost.GFormHost`: in tabbed mode (user setting `nav.tabbed`, dashboard
+  toolbar checkbox) the dashboard docks the list as a tab instead of a window. Call `Show` through the grid type (not a
+  `TForm` variable) or the form always opens as a window. Dialogs opened from a docked form use
+  `OwnerCenterPosition(Owner)` instead of `poOwnerFormCenter` (a docked form's Left/Top are tab-relative).
 
 ## Master / detail (header + lines in one screen)
 

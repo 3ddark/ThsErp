@@ -168,6 +168,10 @@ type
         const ActionMenus = 'dashboard.action.menus';
         const ActionAuditLog = 'dashboard.action.audit_log';
         const NavPaletteHint = 'dashboard.nav.palette_hint';
+        const TabHome = 'dashboard.tab.home';
+        const TabbedView = 'dashboard.tab.tabbed_view';
+        const TabbedViewHint = 'dashboard.tab.tabbed_view_hint';
+        const TabDetach = 'dashboard.tab.detach';
         const MenuOffers = 'dashboard.menu.offers';
         const MenuOrders = 'dashboard.menu.orders';
         const MenuWaybills = 'dashboard.menu.waybills';

@@ -1089,3 +1089,13 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
   (yalnız geçmiş referansı; değişiklik yapılmaz). Uygulama bu ini ile eski DB'ye bağlanır.
 - db_schema.sql git'te "-text": pg_dump -s -f sonrası her LF -> CRLF yapılmalı (fonksiyon gövdelerindeki CRLF dahil, körlemesine), yoksa tüm dosya değişmiş görünür.
 - `Ths.exe` açıkken link F2039 → derleme `/p:DCC_ExeOutput=%TEMP%\ths_build_out` ile yapılıyor.
+
+## Sekmeli ekranlar (2026-10-21)
+- Liste ekranları (TfrmGridBase) varsayılan olarak ana ekranda sekme açılır; araç çubuğundaki "Sekmeli Göster" onay kutusu
+  ile ayrı pencere moduna geçilir (açık ekranlar anında sekmeye alınır / ayrılır). Ayar kullanıcı bazında `nav.tabbed`.
+- Mekanizma: `Forms/Core/Base/FormHost.pas` (`GFormHost`, `OwnerCenterPosition`); `TfrmGridBase.Show` reintroduce edilip
+  host'a sorar; dashboard `DockForm` / `UndockForm` (sınırlar + kenarlık saklanır, yeniden parent'lanırken OnShow susturulur).
+- Sekme sağ tık: Ayrı Pencerede Göster / Kapat. Ana Sayfa sekmesi kapatılamaz; KPI zamanlayıcısı yalnız o sekme açıkken yeniler.
+- Giriş (kayıt) formları ve seçim listeleri pencere olarak kalır; sahibi sekmedeyse ana forma ortalanır.
+- Ekran kodu: sekmedeki form etkinleşmediği için `TScreenCodes.AttachTo` ile verilir.
+- Çalışma anı testi yapılmadı (Claude UI çalıştıramaz).

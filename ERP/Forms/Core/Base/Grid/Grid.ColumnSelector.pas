@@ -30,7 +30,7 @@ type
 implementation
 
 uses
-  LocalizationManager, Ths.Globals;
+  LocalizationManager, Ths.Globals, FormHost;
 
 constructor TfrmColumnSelector.Create(AOwner: TComponent; AColumns: TList<TColumn>);
 var
@@ -49,7 +49,7 @@ begin
 
   KeyPreview := True;
   Caption := TLocalizationManager.Translate('column_selector.title', 'Column Selection');
-  Position := poOwnerFormCenter;
+  Position := OwnerCenterPosition(AOwner);
   Width := 450;
   Height := 500;
   BorderStyle := bsSizeable;

@@ -9,6 +9,7 @@ const
   USER_SETTING_NAV_VISIBLE  = 'nav.visible';    // '1' / '0'
   USER_SETTING_NAV_WIDTH    = 'nav.width';      // piksel
   USER_SETTING_NAV_EXPANDED = 'nav.expanded';   // açık klasörlerin menü kodları, virgülle
+  USER_SETTING_NAV_TABBED   = 'nav.tabbed';     // '1' ekranlar ana ekranda sekme / '0' ayrı pencere
 
 implementation
 

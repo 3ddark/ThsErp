@@ -205,6 +205,7 @@ uses
   ufrmSysApiServices in 'Forms\System\Output\ufrmSysApiServices.pas' {frmSysApiServices},
   NavigationTree in 'Forms\Core\Base\NavigationTree.pas',
   ScreenCode in 'Forms\Core\Base\ScreenCode.pas',
+  FormHost in 'Forms\Core\Base\FormHost.pas',
   DashboardControls in 'Forms\Core\Base\DashboardControls.pas',
   ufrmSysPermission in 'Forms\System\Input\ufrmSysPermission.pas' {frmSysPermission},
   ufrmSysPermissions in 'Forms\System\Output\ufrmSysPermissions.pas' {frmSysPermissions},
