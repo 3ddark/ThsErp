@@ -23,7 +23,17 @@ type
     class function GetMessage: string; override;
   end;
 
+  EPurReceiptDetailExceptionLineUnique = class(EPurReceiptDetailException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
 implementation
+
+class function EPurReceiptDetailExceptionLineUnique.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TPurReceiptDetail.LineUnique, 'This line number is already used on the goods receipt.');
+end;
 
 class function EPurReceiptDetailExceptionInventoryMismatch.GetMessage: string;
 begin

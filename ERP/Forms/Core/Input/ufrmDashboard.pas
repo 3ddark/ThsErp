@@ -88,13 +88,9 @@ uses
   ufrmFinMoneyLedgers, FinMoneyLedger.Service, FinMoneyLedger,
   PurLookup,
   ufrmPurRequests, PurRequest.Service, PurRequest,
-  ufrmPurRequestDetails, PurRequestDetail.Service, PurRequestDetail,
   ufrmPurOrders, PurOrder.Service, PurOrder,
-  ufrmPurOrderDetails, PurOrderDetail.Service, PurOrderDetail,
   ufrmPurReceipts, PurReceipt.Service, PurReceipt,
-  ufrmPurReceiptDetails, PurReceiptDetail.Service, PurReceiptDetail,
   ufrmPurInvoices, PurInvoice.Service, PurInvoice,
-  ufrmPurInvoiceDetails, PurInvoiceDetail.Service, PurInvoiceDetail,
   ufrmSlsOffers, SlsOffer.Service, SlsOffer,
   ufrmSlsOrders, SlsOrder.Service, SlsOrder,
   ufrmSlsDispatches, SlsDispatch.Service, SlsDispatch,
@@ -208,13 +204,9 @@ type
     mnifin_sep5: TMenuItem;
     mnifin_company_bank_accounts: TMenuItem;
     actpur_requests: TAction;
-    actpur_request_lines: TAction;
     actpur_orders: TAction;
-    actpur_order_lines: TAction;
     actpur_receipts: TAction;
-    actpur_receipt_lines: TAction;
     actpur_invoices: TAction;
-    actpur_invoice_lines: TAction;
     actsls_offers: TAction;
     actsls_orders: TAction;
     actsls_dispatches: TAction;
@@ -252,16 +244,12 @@ type
     mnisls_sep4: TMenuItem;
     mnisls_einv_settings: TMenuItem;
     mnipur_requests: TMenuItem;
-    mnipur_request_lines: TMenuItem;
     mnipur_sep1: TMenuItem;
     mnipur_orders: TMenuItem;
-    mnipur_order_lines: TMenuItem;
     mnipur_sep2: TMenuItem;
     mnipur_receipts: TMenuItem;
-    mnipur_receipt_lines: TMenuItem;
     mnipur_sep3: TMenuItem;
     mnipur_invoices: TMenuItem;
-    mnipur_invoice_lines: TMenuItem;
     actfin_money_accounts: TAction;
     actfin_money_transactions: TAction;
     actfin_money_ledger: TAction;
@@ -433,13 +421,9 @@ type
     procedure actacc_account_transactionsExecute(Sender: TObject);
     procedure actfin_company_bank_accountsExecute(Sender: TObject);
     procedure actpur_requestsExecute(Sender: TObject);
-    procedure actpur_request_linesExecute(Sender: TObject);
     procedure actpur_ordersExecute(Sender: TObject);
-    procedure actpur_order_linesExecute(Sender: TObject);
     procedure actpur_receiptsExecute(Sender: TObject);
-    procedure actpur_receipt_linesExecute(Sender: TObject);
     procedure actpur_invoicesExecute(Sender: TObject);
-    procedure actpur_invoice_linesExecute(Sender: TObject);
     procedure actsls_offersExecute(Sender: TObject);
     procedure actsls_ordersExecute(Sender: TObject);
     procedure actsls_dispatchesExecute(Sender: TObject);
@@ -879,19 +863,9 @@ begin
   TfrmPurRequests.Create(Self, TPurRequestService.Create, TPurRequest.Create).Show;
 end;
 
-procedure TfrmDashboard.actpur_request_linesExecute(Sender: TObject);
-begin
-  TfrmPurRequestDetails.Create(Self, TPurRequestDetailService.Create, TPurRequestDetail.Create).Show;
-end;
-
 procedure TfrmDashboard.actpur_ordersExecute(Sender: TObject);
 begin
   TfrmPurOrders.Create(Self, TPurOrderService.Create, TPurOrder.Create).Show;
-end;
-
-procedure TfrmDashboard.actpur_order_linesExecute(Sender: TObject);
-begin
-  TfrmPurOrderDetails.Create(Self, TPurOrderDetailService.Create, TPurOrderDetail.Create).Show;
 end;
 
 procedure TfrmDashboard.actpur_receiptsExecute(Sender: TObject);
@@ -899,19 +873,9 @@ begin
   TfrmPurReceipts.Create(Self, TPurReceiptService.Create, TPurReceipt.Create).Show;
 end;
 
-procedure TfrmDashboard.actpur_receipt_linesExecute(Sender: TObject);
-begin
-  TfrmPurReceiptDetails.Create(Self, TPurReceiptDetailService.Create, TPurReceiptDetail.Create).Show;
-end;
-
 procedure TfrmDashboard.actpur_invoicesExecute(Sender: TObject);
 begin
   TfrmPurInvoices.Create(Self, TPurInvoiceService.Create, TPurInvoice.Create).Show;
-end;
-
-procedure TfrmDashboard.actpur_invoice_linesExecute(Sender: TObject);
-begin
-  TfrmPurInvoiceDetails.Create(Self, TPurInvoiceDetailService.Create, TPurInvoiceDetail.Create).Show;
 end;
 
 procedure TfrmDashboard.actsls_offersExecute(Sender: TObject);
@@ -1826,20 +1790,12 @@ begin
     actfin_company_bank_accounts.Caption := TLocalizationManager.Translate(TLangKeys.TFinCompanyBankAccount.TitlePlural, 'Company Bank Accounts');
   if Assigned(actpur_requests) then
     actpur_requests.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequest.TitlePlural, 'Purchase Requests');
-  if Assigned(actpur_request_lines) then
-    actpur_request_lines.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequestDetail.TitlePlural, 'Request Lines');
   if Assigned(actpur_orders) then
     actpur_orders.Caption := TLocalizationManager.Translate(TLangKeys.TPurOrder.TitlePlural, 'Purchase Orders');
-  if Assigned(actpur_order_lines) then
-    actpur_order_lines.Caption := TLocalizationManager.Translate(TLangKeys.TPurOrderDetail.TitlePlural, 'Order Lines');
   if Assigned(actpur_receipts) then
     actpur_receipts.Caption := TLocalizationManager.Translate(TLangKeys.TPurReceipt.TitlePlural, 'Goods Receipts');
-  if Assigned(actpur_receipt_lines) then
-    actpur_receipt_lines.Caption := TLocalizationManager.Translate(TLangKeys.TPurReceiptDetail.TitlePlural, 'Receipt Lines');
   if Assigned(actpur_invoices) then
     actpur_invoices.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.TitlePlural, 'Purchase Invoices');
-  if Assigned(actpur_invoice_lines) then
-    actpur_invoice_lines.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.TitlePlural, 'Invoice Lines');
   if Assigned(actsls_offers) then
     actsls_offers.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.TitlePlural, 'Sales Offers');
   if Assigned(actsls_orders) then

@@ -8,14 +8,13 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
-  PurReceipt.Service, PurReceipt, ufrmPurReceipt;
+  PurReceipt.Service, PurReceipt, ufrmPurReceiptDetail;
 
 type
   TfrmPurReceipts = class(TfrmGrid<TPurReceipt, TPurReceiptService>)
   private
     FFixedOrderName: string;
-    FmniLines, FmniToInvoice: TMenuItem;
-    procedure mniLinesClick(Sender: TObject);
+    FmniToInvoice: TMenuItem;
     procedure mniToInvoiceClick(Sender: TObject);
 
   public
@@ -34,8 +33,7 @@ implementation
 
 uses
   PurLookup,
-  ufrmPurReceiptDetails, PurReceiptDetail, PurReceiptDetail.Service,
-  ufrmPurInvoiceDetails, PurInvoice, PurInvoice.Service, PurInvoiceDetail, PurInvoiceDetail.Service;
+  ufrmPurInvoiceDetail, PurInvoice, PurInvoice.Service;
 
 procedure TfrmPurReceipts.SetFixedOrder(AOrderId: Int64; const AOrderName: string);
 begin
@@ -43,26 +41,14 @@ begin
   AddFixedFilter('pur_order_id', AOrderId);
 end;
 
-procedure TfrmPurReceipts.mniLinesClick(Sender: TObject);
-var
-  LFrm: TfrmPurReceiptDetails;
-begin
-  if Grd.DataSource.DataSet.IsEmpty then
-    Exit;
-
-  SetSelectedItem;
-  LFrm := TfrmPurReceiptDetails.Create(Self, TPurReceiptDetailService.Create, TPurReceiptDetail.Create);
-  LFrm.SetFixedReceipt(Table.Id, Table.ReceiptNo);
-  LFrm.Show;
-end;
-
-// Faturalanmamış miktarlarla alış faturası açılır (fatura no: irsaliye no, yoksa mal kabul no) ve kalemleri gösterilir
+// Faturalanmamış miktarlarla alış faturası açılır (fatura no: irsaliye no, yoksa mal kabul no) ve belge ekranında
+// gösterilir
 procedure TfrmPurReceipts.mniToInvoiceClick(Sender: TObject);
 var
   LInvoiceSvc: TPurInvoiceService;
   LInvoice: TPurInvoice;
   LInvoiceId: Int64;
-  LFrm: TfrmPurInvoiceDetails;
+  LFrm: TfrmPurInvoiceDetail;
 begin
   if Grd.DataSource.DataSet.IsEmpty then
     Exit;
@@ -71,17 +57,15 @@ begin
   LInvoiceSvc := TPurInvoiceService.Create;
   try
     LInvoiceId := LInvoiceSvc.CreateFromReceipt(Table.Id, '', True);
-    LInvoice := LInvoiceSvc.FindById(LInvoiceId, False);
-    try
-      LFrm := TfrmPurInvoiceDetails.Create(Self, TPurInvoiceDetailService.Create, TPurInvoiceDetail.Create);
-      LFrm.SetFixedInvoice(LInvoice.Id, LInvoice.InvoiceNo, LInvoice.Currency);
-      LFrm.Show;
-    finally
-      LInvoice.Free;
-    end;
   finally
     LInvoiceSvc.Free;
   end;
+  // oluşan fatura belge ekranında (inceleme; Güncelle ile no / kalemler düzenlenir)
+  LInvoiceSvc := TPurInvoiceService.Create;
+  LInvoice := LInvoiceSvc.FindById(LInvoiceId, False, True);
+  LFrm := TfrmPurInvoiceDetail.Create(Self, LInvoiceSvc, LInvoice, ifmRewiev, nil, ivmNormal, True);
+  LFrm.Show;
+  RefreshParentGrid(True);
 end;
 
 procedure TfrmPurReceipts.PreparePopupMenu;
@@ -91,28 +75,17 @@ begin
     Exit;
 
   AddPopupMenuSpliter();
-  FmniLines := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurReceipt.MenuLines, 'Lines'), 'mniLines', mniLinesClick);
   FmniToInvoice := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurReceipt.MenuToInvoice, 'Create Purchase Invoice'), 'mniToInvoice', mniToInvoiceClick);
 end;
 
+// Belge ekranı (başlık + kalemler); kopyada belge formu Service.PrepareCopy ile yeni no / siparişsiz / yeni kalemler verir
 function TfrmPurReceipts.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
-var
-  LNew: TPurReceipt;
 begin
   Result := nil;
-  if (AFormMode = ifmRewiev) then
-    Result := TfrmPurReceipt.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
+  if (AFormMode = ifmRewiev) or (AFormMode = ifmCopyNewRecord) then
+    Result := TfrmPurReceiptDetail.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmPurReceipt.Create(Self, Service, TPurReceipt.Create, AFormMode, Self.RefreshParentGrid)
-  else if (AFormMode = ifmCopyNewRecord) then
-  begin
-    LNew := Table.Clone;
-    // Kopya: yeni numara, sipariş bağlantısı taşınmaz
-    LNew.ReceiptNo := '';
-    LNew.PurOrderId := 0;
-    LNew.OrderNo := '';
-    Result := TfrmPurReceipt.Create(Self, Service, LNew, AFormMode, Self.RefreshParentGrid);
-  end;
+    Result := TfrmPurReceiptDetail.Create(Self, Service, TPurReceipt.Create, AFormMode, Self.RefreshParentGrid);
 end;
 
 // Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)
@@ -171,8 +144,6 @@ begin
   SetColumnTitle('order_no', TLocalizationManager.Translate(TLangKeys.TPurReceipt.ColOrderNo, 'Order No'));
   SetColumnTitle('line_count', TLocalizationManager.Translate(TLangKeys.TPurReceipt.ColLineCount, 'Lines'));
   SetColumnTitle('total_amount', TLocalizationManager.Translate(TLangKeys.TPurReceipt.ColTotalAmount, 'Total'));
-  if Assigned(FmniLines) then
-    FmniLines.Caption := TLocalizationManager.Translate(TLangKeys.TPurReceipt.MenuLines, 'Lines');
   if Assigned(FmniToInvoice) then
     FmniToInvoice.Caption := TLocalizationManager.Translate(TLangKeys.TPurReceipt.MenuToInvoice, 'Create Purchase Invoice');
 end;

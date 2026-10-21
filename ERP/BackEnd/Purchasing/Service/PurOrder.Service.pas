@@ -6,26 +6,51 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  PurOrder.Repository, PurOrder, PurOrder.Exception, PurOrderDetail, PurOrderDetail.Repository, PurRequest, PurRequest.Repository;
+  DocumentService, PurOrder.Repository, PurOrder, PurOrder.Exception, PurOrderDetail, PurOrderDetail.Repository,
+  PurRequest, PurRequest.Repository, PurRequestDetail, PurRequestDetail.Repository;
 
 type
-  TPurOrderService = class(TCrudService<TPurOrder>)
+  // Sipariş belgesi = başlık + Lines (TDocumentService: kalem işlemleri, hesap tetikleme, yükleme, tek transaction'lı
+  // kayıt + Reload). Başlık taslak dışında da (onaylı / kısmi) değişebilir; kalemler yalnız taslakta.
+  TPurOrderService = class(TDocumentService<TPurOrder, TPurOrderDetail>)
   private
     FRepo: IRepository<TPurOrder>;
     FDetailRepo: IRepository<TPurOrderDetail>;
     FRequestRepo: IRepository<TPurRequest>;
+    FRequestDetailRepo: IRepository<TPurRequestDetail>;
 
     procedure DoAdd(AEntity: TPurOrder);
     procedure DoUpdate(AEntity: TPurOrder);
     procedure DoDelete(AId: Int64);
 
     procedure FailRequired(const AKey, ADefault: string);
+    // Kalem kayıtlı hâlinden farklı mı (taslak dışı siparişte kalem değişikliği yasak)
+    function LineChanged(ALine, AOld: TPurOrderDetail): Boolean;
+    procedure RefreshRequestIds(const ARequestDetailIds: TArray<Int64>);
+  protected
+    // ---- belge yapısı / kayıt adımları (TDocumentService)
+    function GetLines(AHeader: TPurOrder): TObjectList<TPurOrderDetail>; override;
+    function FindLinesByHeaderIds(const AIds: TArray<Int64>): TObjectList<TPurOrderDetail>; override;
+    function GetLineHeaderId(ALine: TPurOrderDetail): Int64; override;
+    procedure SetLineHeaderId(ALine: TPurOrderDetail; AHeaderId: Int64); override;
+    function GetLineNo(ALine: TPurOrderDetail): Integer; override;
+    procedure SetLineNo(ALine: TPurOrderDetail; ANo: Integer); override;
+    procedure RaiseDuplicateLineNo; override;
+    procedure InitLine(AHeader: TPurOrder; ALine: TPurOrderDetail); override;
+    procedure CheckLines(AHeader: TPurOrder; const ALines: TArray<TPurOrderDetail>; AOldLines: TObjectList<TPurOrderDetail>); override;
+    procedure AfterDocumentSaved(AHeader: TPurOrder; AOldLines: TObjectList<TPurOrderDetail>); override;
+    procedure PrepareCopyHeader(AHeader: TPurOrder); override;
+    procedure PrepareCopyLine(AHeader: TPurOrder; ALine: TPurOrderDetail); override;
   public
     constructor Create;
     destructor Destroy; override;
 
     procedure ValidateBusinessRules(AEntity: TPurOrder; AOperation: TCrudOperation); override;
     procedure ChangeStatus(AId: Int64; ANewStatus: SmallInt; APermissionControl: Boolean);
+
+    // Kalem tutarları miktar, fiyat ve oranlardan; başlık toplamları aktif kalemlerden
+    procedure RecalculateLine(ALine: TPurOrderDetail); override;
+    procedure RecalculateTotals(AHeader: TPurOrder); override;
     // Onaylı talebin kalan miktarlarından taslak sipariş; yeni sipariş id
     function CreateFromRequest(ARequestId, AAccountId: Int64; APermissionControl: Boolean): Int64;
     procedure RefreshRequests(AOrderId: Int64);
@@ -50,15 +75,215 @@ type
 implementation
 
 uses
-  SysPermission.Service, PurLookup, PurOrderDetail.Service, PurRequestDetail, PurRequestDetail.Repository;
+  SysPermission.Service, PurLookup, PurOrderDetail.Service, PurOrderDetail.Exception,
+  AccSetTaxRate, AccSetTaxRate.Repository, AccSetTaxRate.Service;
 
 constructor TPurOrderService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TPurOrder, TPurOrderRepository>;
   FDetailRepo := Self.UoW.GetRepository<TPurOrderDetail, TPurOrderDetailRepository>;
+  FHeaderRepo := FRepo;
+  FLineRepo := FDetailRepo;
   FRequestRepo := Self.UoW.GetRepository<TPurRequest, TPurRequestRepository>;
+  FRequestDetailRepo := Self.UoW.GetRepository<TPurRequestDetail, TPurRequestDetailRepository>;
   Self.PermissionCode := PERMISSION_PUR_ORDER;
+end;
+
+{ Belge (TDocumentService) }
+
+function TPurOrderService.GetLines(AHeader: TPurOrder): TObjectList<TPurOrderDetail>;
+begin
+  Result := AHeader.Lines;
+end;
+
+function TPurOrderService.FindLinesByHeaderIds(const AIds: TArray<Int64>): TObjectList<TPurOrderDetail>;
+begin
+  Result := TPurOrderDetailRepository(FLineRepo).FindByOrderIds(AIds);
+end;
+
+function TPurOrderService.GetLineHeaderId(ALine: TPurOrderDetail): Int64;
+begin
+  Result := ALine.PurOrderId;
+end;
+
+procedure TPurOrderService.SetLineHeaderId(ALine: TPurOrderDetail; AHeaderId: Int64);
+begin
+  ALine.PurOrderId := AHeaderId;
+end;
+
+function TPurOrderService.GetLineNo(ALine: TPurOrderDetail): Integer;
+begin
+  Result := ALine.LineNo;
+end;
+
+procedure TPurOrderService.SetLineNo(ALine: TPurOrderDetail; ANo: Integer);
+begin
+  ALine.LineNo := ANo;
+end;
+
+procedure TPurOrderService.RaiseDuplicateLineNo;
+begin
+  raise EPurOrderDetailExceptionLineUnique.Create;
+end;
+
+// Belge no / para birimi (kalem formu: fiyat önerisi, gösterim), teslim tarihi başlıktan
+procedure TPurOrderService.InitLine(AHeader: TPurOrder; ALine: TPurOrderDetail);
+begin
+  ALine.OrderNo := AHeader.OrderNo;
+  ALine.Currency := AHeader.Currency;
+  ALine.DeliveryDate := AHeader.DeliveryDate;
+end;
+
+function TPurOrderService.LineChanged(ALine, AOld: TPurOrderDetail): Boolean;
+begin
+  Result := (ALine.LineNo <> AOld.LineNo) or (ALine.StkInventoryId <> AOld.StkInventoryId) or
+    (ALine.Quantity <> AOld.Quantity) or (ALine.UnitPrice <> AOld.UnitPrice) or
+    (ALine.DiscountRate <> AOld.DiscountRate) or (ALine.VatRate <> AOld.VatRate) or
+    (ALine.DeliveryDate <> AOld.DeliveryDate) or (ALine.PurRequestDetailId <> AOld.PurRequestDetailId) or
+    (Trim(ALine.Description) <> AOld.Description);
+end;
+
+// Alanlar + tutarlar (tek kalem yoluyla ortak CheckLine), KDV tanımlı oranlardan, talep kalemiyle stok uyumu,
+// teslim alınan miktar DB'den (mal kabuller tutar); taslak dışı siparişte kalem eklenemez / silinemez / değişemez
+procedure TPurOrderService.CheckLines(AHeader: TPurOrder; const ALines: TArray<TPurOrderDetail>;
+  AOldLines: TObjectList<TPurOrderDetail>);
+var
+  LRates: TArray<Currency>;
+  LLine, LOld: TPurOrderDetail;
+  LOldById: TDictionary<Int64, TPurOrderDetail>;
+  LRequestDetail: TPurRequestDetail;
+  LDbOrder: TPurOrder;
+  LDraft: Boolean;
+begin
+  LDraft := True;
+  if AHeader.Id > 0 then
+  begin
+    LDbOrder := FRepo.FindById(AHeader.Id, False);
+    try
+      LDraft := not Assigned(LDbOrder) or (LDbOrder.Status = PUR_ORD_DRAFT);
+    finally
+      LDbOrder.Free;
+    end;
+  end;
+
+  LRates := TAccSetTaxRateRepository(Self.UoW.GetRepository<TAccSetTaxRate, TAccSetTaxRateRepository>).GetTaxRates;
+  LOldById := TDictionary<Int64, TPurOrderDetail>.Create;
+  try
+    for LOld in AOldLines do
+      LOldById.AddOrSetValue(LOld.Id, LOld);
+
+    if not LDraft then
+      for LLine in AHeader.Lines do
+        if (LLine.Id < 0) or LLine.Deleted then
+          raise EPurOrderDetailExceptionDraftOnly.Create;
+
+    for LLine in ALines do
+    begin
+      TPurOrderDetailService.CheckLine(LLine);
+      TAccSetTaxRateService.CheckDefinedRate(LLine.VatRate, LRates);
+      if LLine.PurRequestDetailId > 0 then
+      begin
+        LRequestDetail := FRequestDetailRepo.FindById(LLine.PurRequestDetailId, False);
+        try
+          if Assigned(LRequestDetail) and (LRequestDetail.StkInventoryId <> LLine.StkInventoryId) then
+            raise EPurOrderDetailExceptionInventoryMismatch.Create;
+        finally
+          LRequestDetail.Free;
+        end;
+      end;
+
+      if LOldById.TryGetValue(LLine.Id, LOld) then
+      begin
+        if not LDraft and LineChanged(LLine, LOld) then
+          raise EPurOrderDetailExceptionDraftOnly.Create;
+        LLine.ReceivedQuantity := LOld.ReceivedQuantity;   // mal kabul kalemlerinden tutulur
+      end
+      else
+        LLine.ReceivedQuantity := 0;
+    end;
+  finally
+    LOldById.Free;
+  end;
+end;
+
+procedure TPurOrderService.RefreshRequestIds(const ARequestDetailIds: TArray<Int64>);
+var
+  LId: Int64;
+begin
+  for LId in TPurRequestDetailRepository(FRequestDetailRepo).RequestIdsOfDetails(ARequestDetailIds) do
+    TPurRequestRepository(FRequestRepo).RefreshOrderedQuantities(LId);
+end;
+
+// Belge hook'u: bağlı (eski + yeni) talep kalemlerinin sipariş edilen miktarı ve talep durumu
+procedure TPurOrderService.AfterDocumentSaved(AHeader: TPurOrder; AOldLines: TObjectList<TPurOrderDetail>);
+var
+  LIds: TList<Int64>;
+  LLine: TPurOrderDetail;
+begin
+  LIds := TList<Int64>.Create;
+  try
+    for LLine in AOldLines do
+      if (LLine.PurRequestDetailId > 0) and not LIds.Contains(LLine.PurRequestDetailId) then
+        LIds.Add(LLine.PurRequestDetailId);
+    for LLine in AHeader.Lines do
+      if (LLine.PurRequestDetailId > 0) and not LIds.Contains(LLine.PurRequestDetailId) then
+        LIds.Add(LLine.PurRequestDetailId);
+    if LIds.Count > 0 then
+      RefreshRequestIds(LIds.ToArray);
+  finally
+    LIds.Free;
+  end;
+end;
+
+procedure TPurOrderService.PrepareCopyHeader(AHeader: TPurOrder);
+begin
+  AHeader.OrderNo := '';
+  AHeader.Status := PUR_ORD_DRAFT;
+end;
+
+// Kopya kalem talepten bağımsızdır (talebin sipariş edilen miktarı iki kez sayılmasın)
+procedure TPurOrderService.PrepareCopyLine(AHeader: TPurOrder; ALine: TPurOrderDetail);
+begin
+  inherited;
+  ALine.OrderNo := '';
+  ALine.ReceivedQuantity := 0;
+  ALine.PurRequestDetailId := 0;
+  ALine.RequestNo := '';
+end;
+
+procedure TPurOrderService.RecalculateLine(ALine: TPurOrderDetail);
+var
+  LGross, LDiscount, LNet, LVat, LTotal: Currency;
+begin
+  LGross := 0; LDiscount := 0; LNet := 0; LVat := 0; LTotal := 0;
+  TPurLookup.CalculateLine(ALine.Quantity, ALine.UnitPrice, ALine.DiscountRate, ALine.VatRate,
+    LGross, LDiscount, LNet, LVat, LTotal);
+  ALine.GrossAmount := LGross;
+  ALine.DiscountAmount := LDiscount;
+  ALine.NetAmount := LNet;
+  ALine.VatAmount := LVat;
+  ALine.TotalAmount := LTotal;
+end;
+
+procedure TPurOrderService.RecalculateTotals(AHeader: TPurOrder);
+var
+  LLine: TPurOrderDetail;
+begin
+  AHeader.GrossAmount := 0;
+  AHeader.DiscountAmount := 0;
+  AHeader.NetAmount := 0;
+  AHeader.VatAmount := 0;
+  AHeader.TotalAmount := 0;
+  for LLine in AHeader.Lines do
+    if not LLine.Deleted then
+    begin
+      AHeader.GrossAmount := AHeader.GrossAmount + LLine.GrossAmount;
+      AHeader.DiscountAmount := AHeader.DiscountAmount + LLine.DiscountAmount;
+      AHeader.NetAmount := AHeader.NetAmount + LLine.NetAmount;
+      AHeader.VatAmount := AHeader.VatAmount + LLine.VatAmount;
+      AHeader.TotalAmount := AHeader.TotalAmount + LLine.TotalAmount;
+    end;
 end;
 
 destructor TPurOrderService.Destroy;
@@ -124,101 +349,84 @@ begin
     TPurRequestRepository(FRequestRepo).RefreshOrderedQuantities(LId);
 end;
 
+// Onaylı talebin kalan miktarları belge olarak bellekte kurulur ve belge kaydıyla yazılır (tek yol)
 function TPurOrderService.CreateFromRequest(ARequestId, AAccountId: Int64; APermissionControl: Boolean): Int64;
 var
   LRequest: TPurRequest;
   LOrder: TPurOrder;
-  LLines: TList<TPurRequestDetail>;
+  LLines: TObjectList<TPurRequestDetail>;
   LLine: TPurRequestDetail;
   LDetail: TPurOrderDetail;
-  LDetailSvc: TPurOrderDetailService;
-  LFilter: TFilterCriteria;
   LStarted: Boolean;
   LPrice, LDiscount, LVat: Currency;
   LCurrency: string;
-  LCount: Integer;
 begin
   LStarted := False;
-  LDetailSvc := TPurOrderDetailService.Create;
   try
-    try
-      Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
-      if not Self.UoW.InTransaction then
-      begin
-        Self.UoW.BeginTransaction;
-        LStarted := True;
-      end;
-
-      LRequest := FRequestRepo.FindById(ARequestId, True);
-      try
-        if not Assigned(LRequest) then
-          raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [ARequestId]));
-        if LRequest.Status <> PUR_REQ_APPROVED then
-          raise EPurOrderExceptionRequestNotApproved.Create;
-
-        LOrder := TPurOrder.Create;
-        try
-          LOrder.OrderDate := Date;
-          LOrder.AccAccountId := AAccountId;
-          LOrder.Description := LRequest.RequestNo;
-          DoAdd(LOrder);
-          Result := LOrder.Id;
-
-          LCount := 0;
-          LFilter := TFilterCriteria.Create;
-          try
-            LFilter.Add(TFilterCriterion.New('pur_request_id', '=', TValue.From<Int64>(ARequestId)));
-            LLines := Self.UoW.GetRepository<TPurRequestDetail, TPurRequestDetailRepository>.Find(LFilter, False);
-            try
-              for LLine in LLines do
-              begin
-                if LLine.Quantity - LLine.OrderedQuantity <= 0 then
-                  Continue;
-                LDetail := TPurOrderDetail.Create;
-                try
-                  LDetail.PurOrderId := LOrder.Id;
-                  LDetail.StkInventoryId := LLine.StkInventoryId;
-                  LDetail.Quantity := LLine.Quantity - LLine.OrderedQuantity;
-                  LDetail.DeliveryDate := LLine.RequiredDate;
-                  LDetail.PurRequestDetailId := LLine.Id;
-                  if TPurOrderDetailRepository(FDetailRepo).GetInventoryDefaults(LLine.StkInventoryId, LPrice, LCurrency, LDiscount, LVat) then
-                  begin
-                    // fiyat yalnız sipariş para biriminde ise önerilir
-                    if LCurrency = LOrder.Currency then
-                      LDetail.UnitPrice := LPrice;
-                    LDetail.DiscountRate := LDiscount;
-                    LDetail.VatRate := LVat;
-                  end;
-                  LDetailSvc.Add(LDetail);
-                  Inc(LCount);
-                finally
-                  LDetail.Free;
-                end;
-              end;
-            finally
-              LLines.Free;
-            end;
-          finally
-            LFilter.Free;
-          end;
-          if LCount = 0 then
-            raise EPurOrderExceptionNothingToOrder.Create;
-        finally
-          LOrder.Free;
-        end;
-      finally
-        LRequest.Free;
-      end;
-
-      if LStarted and Self.UoW.InTransaction then
-        Self.UoW.Commit;
-    except
-      if Self.UoW.InTransaction then
-        Self.UoW.Rollback;
-      raise;
+    Self.UoW.EnsureAuthorized(Self.PermissionCode, ptAddRecord, APermissionControl);
+    if not Self.UoW.InTransaction then
+    begin
+      Self.UoW.BeginTransaction;
+      LStarted := True;
     end;
-  finally
-    LDetailSvc.Free;
+
+    LRequest := FRequestRepo.FindById(ARequestId, True);
+    try
+      if not Assigned(LRequest) then
+        raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TMessage.RecordNotFoundD, [ARequestId]));
+      if LRequest.Status <> PUR_REQ_APPROVED then
+        raise EPurOrderExceptionRequestNotApproved.Create;
+
+      LOrder := TPurOrder.Create;
+      try
+        LOrder.OrderDate := Date;
+        LOrder.AccAccountId := AAccountId;
+        LOrder.Currency := TPurOrderRepository(FRepo).GetDefaultCurrency;
+        LOrder.Description := LRequest.RequestNo;
+
+        LLines := TPurRequestDetailRepository(FRequestDetailRepo).FindByRequestIds([ARequestId]);
+        try
+          for LLine in LLines do
+          begin
+            if LLine.Quantity - LLine.OrderedQuantity <= 0 then
+              Continue;
+            LDetail := NewLine(LOrder);
+            LDetail.StkInventoryId := LLine.StkInventoryId;
+            LDetail.Quantity := LLine.Quantity - LLine.OrderedQuantity;
+            LDetail.DeliveryDate := LLine.RequiredDate;
+            LDetail.Description := LLine.Description;
+            LDetail.PurRequestDetailId := LLine.Id;
+            if TPurOrderDetailRepository(FDetailRepo).GetInventoryDefaults(LLine.StkInventoryId, LPrice, LCurrency, LDiscount, LVat) then
+            begin
+              // fiyat yalnız sipariş para biriminde ise önerilir
+              if LCurrency = LOrder.Currency then
+                LDetail.UnitPrice := LPrice;
+              LDetail.DiscountRate := LDiscount;
+              LDetail.VatRate := LVat;
+            end;
+          end;
+        finally
+          LLines.Free;
+        end;
+        if Length(ActiveLines(LOrder)) = 0 then
+          raise EPurOrderExceptionNothingToOrder.Create;
+
+        Recalculate(LOrder);
+        BusinessSaveWithDetails(LOrder, False, APermissionControl);
+        Result := LOrder.Id;
+      finally
+        LOrder.Free;
+      end;
+    finally
+      LRequest.Free;
+    end;
+
+    if LStarted and Self.UoW.InTransaction then
+      Self.UoW.Commit;
+  except
+    if Self.UoW.InTransaction then
+      Self.UoW.Rollback;
+    raise;
   end;
 end;
 
@@ -366,7 +574,10 @@ begin
     Self.UoW.BeginTransaction;
 
   try
+    // belge: başlık + kalemler
     Result := FRepo.FindById(AId, ALock);
+    if Assigned(Result) then
+      LoadLines([Result]);
   except
     if Self.UoW.InTransaction then
       Self.UoW.Rollback;
@@ -436,14 +647,19 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
+// AIncludeNestedEntities: kalemler de (tek sorguda)
 function TPurOrderService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TPurOrder>;
 begin
   Result := FRepo.Find(AFilter, ALock);
+  if AIncludeNestedEntities and (Result.Count > 0) then
+    LoadLines(Result.ToArray);
 end;
 
 function TPurOrderService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TPurOrder;
 begin
   Result := FRepo.FindById(AId, ALock);
+  if AIncludeNestedEntities and Assigned(Result) then
+    LoadLines([Result]);
 end;
 
 function TPurOrderService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TPurOrder;

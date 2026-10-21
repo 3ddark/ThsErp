@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 74Q0MXKhOQkqg4j9PwfyF7yx2CVncJrTsL32dAhdFXYvGIqsDtk25iC2QGFqQvN
+\restrict 2WJC9blo2nvNdubs8PO6tBpta1uEZKSwUDksb49EugF97gw5lkpO34I5fiYRkjb
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -3559,6 +3559,7 @@ CREATE TABLE public.pur_receipt_detail (
     unit_price numeric(18,6) DEFAULT 0 NOT NULL,
     pur_order_detail_id bigint,
     description character varying(128),
+    line_no smallint NOT NULL,
     CONSTRAINT pur_receipt_detail_price_check CHECK ((unit_price >= (0)::numeric)),
     CONSTRAINT pur_receipt_detail_quantity_check CHECK ((quantity > (0)::numeric))
 );
@@ -3625,6 +3626,7 @@ CREATE TABLE public.pur_request_detail (
     ordered_quantity numeric(18,6) DEFAULT 0 NOT NULL,
     required_date date,
     description character varying(128),
+    line_no smallint NOT NULL,
     CONSTRAINT pur_request_detail_ordered_check CHECK ((ordered_quantity >= (0)::numeric)),
     CONSTRAINT pur_request_detail_quantity_check CHECK ((quantity > (0)::numeric))
 );
@@ -7428,7 +7430,8 @@ CREATE VIEW public.vw_pur_receipt_detail AS
     od.line_no AS order_line_no,
     (COALESCE(inv.invoiced_quantity, (0)::numeric))::numeric(18,6) AS invoiced_quantity,
     (GREATEST((d.quantity - COALESCE(inv.invoiced_quantity, (0)::numeric)), (0)::numeric))::numeric(18,6) AS remaining_invoice_quantity,
-    d.description
+    d.description,
+    d.line_no
    FROM ((((((public.pur_receipt_detail d
      JOIN public.pur_receipt p ON ((p.id = d.pur_receipt_id)))
      JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
@@ -7483,7 +7486,8 @@ CREATE VIEW public.vw_pur_request_detail AS
     d.ordered_quantity,
     (GREATEST((d.quantity - d.ordered_quantity), (0)::numeric))::numeric(18,6) AS remaining_quantity,
     d.required_date,
-    d.description
+    d.description,
+    d.line_no
    FROM (((public.pur_request_detail d
      JOIN public.pur_request r ON ((r.id = d.pur_request_id)))
      JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
@@ -9866,7 +9870,7 @@ ALTER TABLE ONLY public.emp_unit
 --
 
 ALTER TABLE ONLY public.pur_invoice_detail
-    ADD CONSTRAINT pur_invoice_detail_line_key UNIQUE (pur_invoice_id, line_no);
+    ADD CONSTRAINT pur_invoice_detail_line_key UNIQUE (pur_invoice_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -9898,7 +9902,7 @@ ALTER TABLE ONLY public.pur_invoice
 --
 
 ALTER TABLE ONLY public.pur_order_detail
-    ADD CONSTRAINT pur_order_detail_line_key UNIQUE (pur_order_id, line_no);
+    ADD CONSTRAINT pur_order_detail_line_key UNIQUE (pur_order_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -9923,6 +9927,14 @@ ALTER TABLE ONLY public.pur_order
 
 ALTER TABLE ONLY public.pur_order
     ADD CONSTRAINT pur_order_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_receipt_detail pur_receipt_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_receipt_detail
+    ADD CONSTRAINT pur_receipt_detail_line_key UNIQUE (pur_receipt_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -9954,7 +9966,15 @@ ALTER TABLE ONLY public.pur_receipt
 --
 
 ALTER TABLE ONLY public.pur_request_detail
-    ADD CONSTRAINT pur_request_detail_inventory_key UNIQUE (pur_request_id, stk_inventory_id);
+    ADD CONSTRAINT pur_request_detail_inventory_key UNIQUE (pur_request_id, stk_inventory_id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: pur_request_detail pur_request_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_request_detail
+    ADD CONSTRAINT pur_request_detail_line_key UNIQUE (pur_request_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -14721,5 +14741,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 74Q0MXKhOQkqg4j9PwfyF7yx2CVncJrTsL32dAhdFXYvGIqsDtk25iC2QGFqQvN
+\unrestrict 2WJC9blo2nvNdubs8PO6tBpta1uEZKSwUDksb49EugF97gw5lkpO34I5fiYRkjb
 

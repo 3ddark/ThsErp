@@ -8,16 +8,11 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
-  PurInvoice.Service, PurInvoice, ufrmPurInvoice;
+  PurInvoice.Service, PurInvoice, ufrmPurInvoiceDetail;
 
 type
   TfrmPurInvoices = class(TfrmGrid<TPurInvoice, TPurInvoiceService>)
-  private
-    FmniLines: TMenuItem;
-    procedure mniLinesClick(Sender: TObject);
-
   public
-    procedure PreparePopupMenu; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
@@ -30,41 +25,16 @@ implementation
 {$R *.dfm}
 
 uses
-  PurLookup,
-  ufrmPurInvoiceDetails, PurInvoiceDetail, PurInvoiceDetail.Service;
+  PurLookup;
 
-procedure TfrmPurInvoices.mniLinesClick(Sender: TObject);
-var
-  LFrm: TfrmPurInvoiceDetails;
-begin
-  if Grd.DataSource.DataSet.IsEmpty then
-    Exit;
-
-  SetSelectedItem;
-  LFrm := TfrmPurInvoiceDetails.Create(Self, TPurInvoiceDetailService.Create, TPurInvoiceDetail.Create);
-  LFrm.SetFixedInvoice(Table.Id, Table.InvoiceNo, Table.Currency);
-  LFrm.Show;
-end;
-
-procedure TfrmPurInvoices.PreparePopupMenu;
-begin
-  inherited;
-  if IsHelper then
-    Exit;
-
-  AddPopupMenuSpliter();
-  FmniLines := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurInvoice.MenuLines, 'Lines'), 'mniLines', mniLinesClick);
-end;
-
+// Belge ekranı (başlık + kalemler); kopyada belge formu Service.PrepareCopy ile yeni kalemler verir (fatura no yeniden)
 function TfrmPurInvoices.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
 begin
   Result := nil;
-  if (AFormMode = ifmRewiev) then
-    Result := TfrmPurInvoice.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
+  if (AFormMode = ifmRewiev) or (AFormMode = ifmCopyNewRecord) then
+    Result := TfrmPurInvoiceDetail.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmPurInvoice.Create(Self, Service, TPurInvoice.Create, AFormMode, Self.RefreshParentGrid)
-  else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmPurInvoice.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
+    Result := TfrmPurInvoiceDetail.Create(Self, Service, TPurInvoice.Create, AFormMode, Self.RefreshParentGrid);
 end;
 
 // Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)
@@ -120,8 +90,6 @@ begin
   SetColumnTitle('account_code', TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColAccountCode, 'Supplier Code'));
   SetColumnTitle('account_name', TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColAccountName, 'Supplier'));
   SetColumnTitle('line_count', TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColLineCount, 'Lines'));
-  if Assigned(FmniLines) then
-    FmniLines.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.MenuLines, 'Lines');
 end;
 
 end.

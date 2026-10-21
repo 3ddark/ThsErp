@@ -40,7 +40,7 @@ uses
   FinChequeNote, FinChequeNote.Service, ufrmFinChequeNote,
   FinPosTransaction, FinPosTransaction.Service, ufrmFinPosTransaction,
   FinCreditCardTransaction, FinCreditCardTransaction.Service, ufrmFinCreditCardTransaction,
-  PurInvoice, PurInvoice.Service, ufrmPurInvoice,
+  PurInvoice, PurInvoice.Service, ufrmPurInvoiceDetail,
   SlsInvoice, SlsInvoice.Service, ufrmSlsInvoiceDetail;
 
 procedure TfrmAccAccountTransactions.SourceTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
@@ -140,7 +140,7 @@ begin
           raise;
         end;
         // form servisi ve kaydı sahiplenir; güncelleme / silme yetkileri formda ayrıca denetlenir
-        TfrmPurInvoice.Create(Self, LPurInvoiceSvc, LPurInvoice, ifmRewiev, Self.RefreshParentGrid, ivmNormal, True).Show;
+        TfrmPurInvoiceDetail.Create(Self, LPurInvoiceSvc, LPurInvoice, ifmRewiev, Self.RefreshParentGrid, ivmNormal, True).Show;
       end;
     ACC_TX_SRC_SLS_INVOICE:
       begin

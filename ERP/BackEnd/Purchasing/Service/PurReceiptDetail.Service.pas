@@ -21,13 +21,16 @@ type
     procedure DoUpdate(AEntity: TPurReceiptDetail);
     procedure DoDelete(AId: Int64);
 
-    procedure FailRequired(const AKey, ADefault: string);
-    procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+    class procedure FailRequired(const AKey, ADefault: string); static;
+    class procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string); static;
     procedure AfterWrite(AInventoryId, AOrderDetailId: Int64);
   public
     constructor Create;
     destructor Destroy; override;
 
+    // Kalemin kendi alanları (DB'siz): stok, miktar, birim maliyet + tutar. Tek kalem kaydı (ValidateBusinessRules)
+    // ve belge kaydı (TPurReceiptService.BusinessSaveWithDetails) ortak kullanır
+    class procedure CheckLine(AEntity: TPurReceiptDetail); static;
     procedure ValidateBusinessRules(AEntity: TPurReceiptDetail; AOperation: TCrudOperation); override;
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
       out ADiscountRate, AVatRate: Currency): Boolean;
@@ -55,7 +58,7 @@ type
 implementation
 
 uses
-  SysPermission.Service, PurLookup;
+  SysPermission.Service, PurLookup, SysDecimalPlace.Cache;
 
 constructor TPurReceiptDetailService.Create;
 begin
@@ -79,17 +82,29 @@ begin
 end;
 
 // Alan adı + "zorunludur" mesajı
-procedure TPurReceiptDetailService.FailRequired(const AKey, ADefault: string);
+class procedure TPurReceiptDetailService.FailRequired(const AKey, ADefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
 end;
 
 // Alan adı + mesaj
-procedure TPurReceiptDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+class procedure TPurReceiptDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(AMsgKey, AMsgDefault));
+end;
+
+class procedure TPurReceiptDetailService.CheckLine(AEntity: TPurReceiptDetail);
+begin
+  AEntity.Description := Trim(AEntity.Description);
+  if AEntity.StkInventoryId <= 0 then
+    FailRequired(TLangKeys.TPurReceiptDetail.ColStkInventoryId, 'Stock Card');
+  if AEntity.Quantity <= 0 then
+    Fail(TLangKeys.TPurReceiptDetail.ColQuantity, 'Quantity', TLangKeys.TValidation.MustBePositive, 'Value must be greater than zero');
+  if AEntity.UnitPrice < 0 then
+    Fail(TLangKeys.TPurReceiptDetail.ColUnitPrice, 'Unit Cost', TLangKeys.TValidation.NegativeValueNotAllowed, 'Negative values are not allowed');
+  AEntity.Amount := TDecimalPlaces.RoundTo(AEntity.Quantity * AEntity.UnitPrice, 2);
 end;
 
 function TPurReceiptDetailService.GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
@@ -124,6 +139,8 @@ var
   LOrderDetail: TPurOrderDetail;
   LOld: TPurReceiptDetail;
   LInvoiced, LOpen: Currency;
+  LFilter: TFilterCriteria;
+  LModel: TPurReceiptDetail;
 begin
   LRepo := TPurReceiptDetailRepository(FRepo);
   if AOperation = coDelete then
@@ -133,15 +150,27 @@ begin
     Exit;
   end;
 
-  AEntity.Description := Trim(AEntity.Description);
   if AEntity.PurReceiptId <= 0 then
     FailRequired(TLangKeys.TPurReceiptDetail.ColPurReceiptId, 'Goods Receipt');
-  if AEntity.StkInventoryId <= 0 then
-    FailRequired(TLangKeys.TPurReceiptDetail.ColStkInventoryId, 'Stock Card');
-  if AEntity.Quantity <= 0 then
-    Fail(TLangKeys.TPurReceiptDetail.ColQuantity, 'Quantity', TLangKeys.TValidation.MustBePositive, 'Value must be greater than zero');
-  if AEntity.UnitPrice < 0 then
-    Fail(TLangKeys.TPurReceiptDetail.ColUnitPrice, 'Unit Cost', TLangKeys.TValidation.NegativeValueNotAllowed, 'Negative values are not allowed');
+  CheckLine(AEntity);
+  if AEntity.LineNo <= 0 then
+    AEntity.LineNo := LRepo.NextLineNo(AEntity.PurReceiptId);
+  LFilter := TFilterCriteria.Create;
+  try
+    LFilter.Add(TFilterCriterion.New('pur_receipt_id', '=', TValue.From<Int64>(AEntity.PurReceiptId)));
+    LFilter.Add(TFilterCriterion.New('line_no', '=', TValue.From<Integer>(AEntity.LineNo)));
+    if AOperation = coUpdate then
+      LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+    LModel := FRepo.FindOne(LFilter, False);
+    try
+      if Assigned(LModel) then
+        raise EPurReceiptDetailExceptionLineUnique.Create;
+    finally
+      LModel.Free;
+    end;
+  finally
+    LFilter.Free;
+  end;
 
   if AOperation = coUpdate then
   begin

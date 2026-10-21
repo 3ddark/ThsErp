@@ -37,6 +37,8 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    // Siparişlerin kalemleri tek sorguda (başlık + satır no sırasıyla): belge yükleme
+    function FindByOrderIds(const AIds: TArray<Int64>): TObjectList<TPurOrderDetail>;
     function NextLineNo(AParentId: Int64): SmallInt;
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
       out ADiscountRate, AVatRate: Currency): Boolean;
@@ -49,6 +51,41 @@ implementation
 constructor TPurOrderDetailRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TPurOrderDetailRepository.FindByOrderIds(const AIds: TArray<Int64>): TObjectList<TPurOrderDetail>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TPurOrderDetail>.Create(True);
+  LIds := '';
+  for LId in AIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TPurOrderDetail) + ' v ' +
+                  ' WHERE v.pur_order_id IN (' + LIds + ') ORDER BY v.pur_order_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByOrderIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
 end;
 
 function TPurOrderDetailRepository.NextLineNo(AParentId: Int64): SmallInt;

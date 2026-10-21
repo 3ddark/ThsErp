@@ -1836,6 +1836,8 @@ type
         const ColRequestStatus = 'pur_request_detail.col_request_status';
         const DraftOnly = 'pur_request_detail.draft_only';
         const InventoryUnique = 'pur_request_detail.inventory_unique';
+        const ColLineNo = 'pur_request_detail.col_line_no';
+        const LineUnique = 'pur_request_detail.line_unique';
       end;
 
       TPurOrder = record
@@ -1963,6 +1965,8 @@ type
         const OrderMismatch = 'pur_receipt_detail.order_mismatch';
         const Invoiced = 'pur_receipt_detail.invoiced';
         const OverReceipt = 'pur_receipt_detail.over_receipt';
+        const ColLineNo = 'pur_receipt_detail.col_line_no';
+        const LineUnique = 'pur_receipt_detail.line_unique';
       end;
 
       TPurInvoice = record

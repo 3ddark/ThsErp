@@ -8,10 +8,13 @@ uses
   System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
+  // Talep kalemi. Talebin Lines listesinde durum (yeni / kayıtlı / silinecek) TDetailEntity'den; başlığa tipli
+  // erişim PurRequest birimindeki class helper ile (Line.Header.RequestNo)
   [Table('pur_request_detail')]
-  TPurRequestDetail = class(TEntity)
+  TPurRequestDetail = class(TDetailEntity)
   private
     FPurRequestId: Int64;
+    FLineNo: SmallInt;
     FStkInventoryId: Int64;
     FQuantity: Currency;
     FOrderedQuantity: Currency;
@@ -27,6 +30,9 @@ type
     [Column('pur_request_id')]
     [Required()]
     property PurRequestId: Int64 read FPurRequestId write FPurRequestId;
+
+    [Column('line_no')]
+    property LineNo: SmallInt read FLineNo write FLineNo;
 
     [Column('stk_inventory_id')]
     [Required()]
@@ -77,9 +83,12 @@ end;
 
 function TPurRequestDetail.Clone: TPurRequestDetail;
 begin
+  // başlık referansı kopyalanmaz (kopyayı sahiplenen başlık verir)
   Result := TPurRequestDetail.Create;
   Result.Id := Self.Id;
+  Result.Deleted := Self.Deleted;
   Result.PurRequestId := Self.PurRequestId;
+  Result.LineNo := Self.LineNo;
   Result.StkInventoryId := Self.StkInventoryId;
   Result.Quantity := Self.Quantity;
   Result.OrderedQuantity := Self.OrderedQuantity;

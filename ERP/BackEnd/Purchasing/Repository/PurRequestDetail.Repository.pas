@@ -37,6 +37,12 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+
+    function NextLineNo(AParentId: Int64): SmallInt;
+    // Taleplerin kalemleri tek sorguda (talep + satır no sırasıyla): belge yükleme
+    function FindByRequestIds(const ARequestIds: TArray<Int64>): TObjectList<TPurRequestDetail>;
+    // Talep kalemlerinin talepleri (tekil)
+    function RequestIdsOfDetails(const AIds: TArray<Int64>): TArray<Int64>;
   end;
 
 implementation
@@ -46,17 +52,108 @@ begin
   inherited Create(AConnection);
 end;
 
+function TPurRequestDetailRepository.NextLineNo(AParentId: Int64): SmallInt;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT COALESCE(MAX(line_no), 0) + 1 AS v FROM public.pur_request_detail WHERE pur_request_id = :id';
+    Q.ParamByName('id').AsLargeInt := AParentId;
+    LogQuery(Q, 'NextLineNo');
+    Q.Open;
+    Result := Q.FieldByName('v').AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TPurRequestDetailRepository.RequestIdsOfDetails(const AIds: TArray<Int64>): TArray<Int64>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+  n: Integer;
+begin
+  Result := nil;
+  LIds := '';
+  for LId in AIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT DISTINCT pur_request_id FROM public.pur_request_detail WHERE id IN (' + LIds + ')';
+    LogQuery(Q, 'RequestIdsOfDetails');
+    Q.Open;
+    SetLength(Result, Q.RecordCount);
+    n := 0;
+    while not Q.Eof do
+    begin
+      Result[n] := Q.Fields[0].AsLargeInt;
+      Inc(n);
+      Q.Next;
+    end;
+    SetLength(Result, n);
+  finally
+    Q.Free;
+  end;
+end;
+
+function TPurRequestDetailRepository.FindByRequestIds(const ARequestIds: TArray<Int64>): TObjectList<TPurRequestDetail>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TPurRequestDetail>.Create(True);
+  LIds := '';
+  for LId in ARequestIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TPurRequestDetail) + ' v ' +
+                  ' WHERE v.pur_request_id IN (' + LIds + ') ORDER BY v.pur_request_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByRequestIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TPurRequestDetailRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TPurRequestDetail) +
-            ' (pur_request_id, stk_inventory_id, quantity, ordered_quantity, required_date, description) ' +
-            ' VALUES (:pur_request_id, :stk_inventory_id, :quantity, :ordered_quantity, :required_date, :description)';
+            ' (pur_request_id, line_no, stk_inventory_id, quantity, ordered_quantity, required_date, description) ' +
+            ' VALUES (:pur_request_id, :line_no, :stk_inventory_id, :quantity, :ordered_quantity, :required_date, :description)';
 end;
 
 function TPurRequestDetailRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TPurRequestDetail) +
-            ' SET pur_request_id = :pur_request_id, stk_inventory_id = :stk_inventory_id, quantity = :quantity, ordered_quantity = :ordered_quantity, required_date = :required_date, description = :description ' +
+            ' SET pur_request_id = :pur_request_id, line_no = :line_no, stk_inventory_id = :stk_inventory_id, quantity = :quantity, ordered_quantity = :ordered_quantity, required_date = :required_date, description = :description ' +
             ' WHERE id = :id';
 end;
 
@@ -87,12 +184,14 @@ procedure TPurRequestDetailRepository.SetInsertParams(Q: TFDQuery; AModel: TPurR
 begin
   if AIndex < 0 then
   begin
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo;
     Q.ParamByName('quantity').AsBCD := AModel.Quantity;
     Q.ParamByName('ordered_quantity').AsBCD := AModel.OrderedQuantity;
     Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
     Q.ParamByName('quantity').AsBCDs[AIndex] := AModel.Quantity;
     Q.ParamByName('ordered_quantity').AsBCDs[AIndex] := AModel.OrderedQuantity;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
@@ -125,6 +224,7 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo;
     Q.ParamByName('quantity').AsBCD := AModel.Quantity;
     Q.ParamByName('ordered_quantity').AsBCD := AModel.OrderedQuantity;
     Q.ParamByName('description').AsWideString := AModel.Description;
@@ -132,6 +232,7 @@ begin
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
     Q.ParamByName('quantity').AsBCDs[AIndex] := AModel.Quantity;
     Q.ParamByName('ordered_quantity').AsBCDs[AIndex] := AModel.OrderedQuantity;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
@@ -147,6 +248,7 @@ begin
   Result := TPurRequestDetail.Create;
   Result.Id := Q.FieldByName('id').AsLargeInt;
   Result.PurRequestId := Q.FieldByName('pur_request_id').AsLargeInt;
+  Result.LineNo := Q.FieldByName('line_no').AsInteger;
   Result.StkInventoryId := Q.FieldByName('stk_inventory_id').AsLargeInt;
   Result.Quantity := Q.FieldByName('quantity').AsCurrency;
   Result.OrderedQuantity := Q.FieldByName('ordered_quantity').AsCurrency;

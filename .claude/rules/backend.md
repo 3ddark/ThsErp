@@ -145,10 +145,10 @@ end;
 
 ## Documents (header + lines aggregate)
 
-Reference: `SlsOffer`, `SlsOrder`, `SlsDispatch`, `SlsInvoice` (`T{Header}.Lines`, `T{Header}Service = class(TDocumentService<T{Header}, T{Line}>)`,
-`{Line}.Repository.FindBy{Header}Ids`). User
+Reference: `SlsOffer`, `SlsOrder`, `SlsDispatch`, `SlsInvoice`, `PurRequest`, `PurOrder`, `PurReceipt`, `PurInvoice`
+(`T{Header}.Lines`, `T{Header}Service = class(TDocumentService<T{Header}, T{Line}>)`, `{Line}.Repository.FindBy{Header}Ids`). User
 decisions 2026-10-16 (`docs/claude_resume.md`); tests `TestSalesOfferDocument`, `TestSalesOrderDocument`,
-`TestSalesDispatchInvoiceDocument`. Migrate other documents (purchasing, voucher, production packets) to the same pattern.
+`TestSalesDispatchInvoiceDocument`, `TestPurchaseDocuments`. Migrate other documents (voucher, production packets) to the same pattern.
 Limits that span lines (open order quantity, not yet invoiced dispatch quantity) are checked per document in `CheckLines`:
 sum of the document's active lines per linked line vs. linked quantity minus other documents (DB total minus this
 document's old lines).

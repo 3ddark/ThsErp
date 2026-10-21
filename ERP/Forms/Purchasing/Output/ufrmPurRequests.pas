@@ -8,13 +8,12 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
-  PurRequest.Service, PurRequest, ufrmPurRequest;
+  PurRequest.Service, PurRequest, ufrmPurRequestDetail;
 
 type
   TfrmPurRequests = class(TfrmGrid<TPurRequest, TPurRequestService>)
   private
-    FmniLines, FmniApprove, FmniToDraft, FmniReject, FmniClose, FmniToOrder: TMenuItem;
-    procedure mniLinesClick(Sender: TObject);
+    FmniApprove, FmniToDraft, FmniReject, FmniClose, FmniToOrder: TMenuItem;
     procedure mniApproveClick(Sender: TObject);
     procedure mniToDraftClick(Sender: TObject);
     procedure mniRejectClick(Sender: TObject);
@@ -37,8 +36,7 @@ implementation
 
 uses
   PurLookup,
-  ufrmPurRequestDetails, PurRequestDetail, PurRequestDetail.Service,
-  ufrmPurOrderDetails, PurOrderDetail, PurOrderDetail.Service, PurOrder, PurOrder.Service,
+  ufrmPurOrderDetail, PurOrder, PurOrder.Service,
   AccAccount, AccAccount.Service, ufrmAccAccounts;
 
 procedure TfrmPurRequests.StatusGetText(Sender: TField; var Text: string; DisplayText: Boolean);
@@ -48,19 +46,6 @@ begin
   else
     Text := TPurLookup.Text(plkRequestStatus, Sender.AsInteger);
 end;
-procedure TfrmPurRequests.mniLinesClick(Sender: TObject);
-var
-  LFrm: TfrmPurRequestDetails;
-begin
-  if Grd.DataSource.DataSet.IsEmpty then
-    Exit;
-
-  SetSelectedItem;
-  LFrm := TfrmPurRequestDetails.Create(Self, TPurRequestDetailService.Create, TPurRequestDetail.Create);
-  LFrm.SetFixedRequest(Table.Id, Table.RequestNo);
-  LFrm.Show;
-end;
-
 procedure TfrmPurRequests.SetStatus(AStatus: SmallInt);
 begin
   if Grd.DataSource.DataSet.IsEmpty then
@@ -91,14 +76,14 @@ begin
   SetStatus(PUR_REQ_CLOSED);
 end;
 
-// Tedarikçi seçilir, talebin kalan miktarlarıyla taslak sipariş açılır ve kalemleri gösterilir
+// Tedarikçi seçilir, talebin kalan miktarlarıyla taslak sipariş açılır ve belge ekranında gösterilir
 procedure TfrmPurRequests.mniToOrderClick(Sender: TObject);
 var
   LHelper: TfrmAccAccounts;
   LOrderSvc: TPurOrderService;
   LOrder: TPurOrder;
   LOrderId: Int64;
-  LFrm: TfrmPurOrderDetails;
+  LFrm: TfrmPurOrderDetail;
 begin
   if Grd.DataSource.DataSet.IsEmpty then
     Exit;
@@ -114,14 +99,6 @@ begin
       LOrderSvc := TPurOrderService.Create;
       try
         LOrderId := LOrderSvc.CreateFromRequest(Table.Id, LHelper.Table.Id, True);
-        LOrder := LOrderSvc.FindById(LOrderId, False);
-        try
-          LFrm := TfrmPurOrderDetails.Create(Self, TPurOrderDetailService.Create, TPurOrderDetail.Create);
-          LFrm.SetFixedOrder(LOrder.Id, LOrder.OrderNo, LOrder.Currency);
-          LFrm.Show;
-        finally
-          LOrder.Free;
-        end;
       finally
         LOrderSvc.Free;
       end;
@@ -130,7 +107,14 @@ begin
     LHelper.Free;
   end;
   if LOrderId > 0 then
+  begin
+    // oluşan taslak sipariş belge ekranında (inceleme; Güncelle ile kalemler düzenlenir)
+    LOrderSvc := TPurOrderService.Create;
+    LOrder := LOrderSvc.FindById(LOrderId, False, True);
+    LFrm := TfrmPurOrderDetail.Create(Self, LOrderSvc, LOrder, ifmRewiev, nil, ivmNormal, True);
+    LFrm.Show;
     RefreshParentGrid(True);
+  end;
 end;
 
 procedure TfrmPurRequests.PreparePopupMenu;
@@ -140,8 +124,6 @@ begin
     Exit;
 
   AddPopupMenuSpliter();
-  FmniLines := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuLines, 'Lines'), 'mniLines', mniLinesClick);
-  AddPopupMenuSpliter();
   FmniApprove := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuApprove, 'Approve'), 'mniApprove', mniApproveClick);
   FmniToDraft := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuToDraft, 'Back to Draft'), 'mniToDraft', mniToDraftClick);
   FmniReject := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuReject, 'Reject'), 'mniReject', mniRejectClick);
@@ -150,23 +132,14 @@ begin
   FmniToOrder := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuToOrder, 'Convert to Order...'), 'mniToOrder', mniToOrderClick);
 end;
 
+// Belge ekranı (başlık + kalemler); kopyada belge formu Service.PrepareCopy ile yeni no / taslak / yeni kalemler verir
 function TfrmPurRequests.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
-var
-  LNew: TPurRequest;
 begin
   Result := nil;
-  if (AFormMode = ifmRewiev) then
-    Result := TfrmPurRequest.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
+  if (AFormMode = ifmRewiev) or (AFormMode = ifmCopyNewRecord) then
+    Result := TfrmPurRequestDetail.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmPurRequest.Create(Self, Service, TPurRequest.Create, AFormMode, Self.RefreshParentGrid)
-  else if (AFormMode = ifmCopyNewRecord) then
-  begin
-    LNew := Table.Clone;
-    // Kopya: yeni numara, taslak
-    LNew.RequestNo := '';
-    LNew.Status := PUR_REQ_DRAFT;
-    Result := TfrmPurRequest.Create(Self, Service, LNew, AFormMode, Self.RefreshParentGrid);
-  end;
+    Result := TfrmPurRequestDetail.Create(Self, Service, TPurRequest.Create, AFormMode, Self.RefreshParentGrid);
 end;
 
 // Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)
@@ -218,8 +191,6 @@ begin
   SetColumnTitle('description', TLocalizationManager.Translate(TLangKeys.TPurRequest.ColDescription, 'Description'));
   SetColumnTitle('employee_name', TLocalizationManager.Translate(TLangKeys.TPurRequest.ColEmployeeName, 'Requested By'));
   SetColumnTitle('line_count', TLocalizationManager.Translate(TLangKeys.TPurRequest.ColLineCount, 'Lines'));
-  if Assigned(FmniLines) then
-    FmniLines.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuLines, 'Lines');
   if Assigned(FmniApprove) then
     FmniApprove.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuApprove, 'Approve');
   if Assigned(FmniToDraft) then

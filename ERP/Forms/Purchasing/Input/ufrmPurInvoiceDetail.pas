@@ -1,57 +1,53 @@
 ﻿unit ufrmPurInvoiceDetail;
 
+// Alış faturası: başlık (pur_invoice) + kalemler (Table.Lines, pur_invoice_detail) tek ekranda. Kalemler bellekte fatura
+// servisiyle eklenir / değişir / çıkar (satır formu TfrmPurInvoiceLine); Onayla Service.BusinessSaveWithDetails ile
+// başlık ve kalemleri tek transaction'da yazar. Stok hareketi mal kabulde, cari borç türetilir.
+
 interface
 
 {$I Ths.inc}
 
 uses
-  Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls, System.Generics.Collections,
-  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  Winapi.Windows, System.SysUtils, System.Variants, System.Classes, System.Math,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
+  System.Generics.Collections,
+  ufrmInputDetailedDB, Detail.Lines, Detail.Totals, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
-  PurInvoiceDetail.Service, PurInvoiceDetail;
+  PurInvoice.Service, PurInvoice, PurInvoiceDetail.Service, PurInvoiceDetail;
 
 type
-  TfrmPurInvoiceDetail = class(TfrmInputSimpleDB<TPurInvoiceDetail, TPurInvoiceDetailService>)
+  TfrmPurInvoiceDetail = class(TfrmInputDetailedDB<TPurInvoice, TPurInvoiceService>)
     pnlContent: TPanel;
-    lblPurInvoiceId: TLabel;
-    edtPurInvoiceId: TEdit;
-    lblLineNo: TLabel;
-    edtLineNo: TEdit;
-    lblStkInventoryId: TLabel;
-    edtStkInventoryId: TEdit;
-    lblQuantity: TLabel;
-    edtQuantity: TEdit;
-    lblUomCode: TLabel;
-    lblUnitPrice: TLabel;
-    edtUnitPrice: TEdit;
-    lblDiscountRate: TLabel;
-    edtDiscountRate: TEdit;
-    lblVatRate: TLabel;
-    cbbVatRate: TComboBox;
+    lblInvoiceNo: TLabel;
+    edtInvoiceNo: TEdit;
+    lblInvoiceDate: TLabel;
+    edtInvoiceDate: TEdit;
+    lblAccAccountId: TLabel;
+    edtAccAccountId: TEdit;
+    lblDueDate: TLabel;
+    edtDueDate: TEdit;
+    lblCurrency: TLabel;
+    edtCurrency: TEdit;
+    lblExchangeRate: TLabel;
+    edtExchangeRate: TEdit;
     lblDescription: TLabel;
     edtDescription: TEdit;
-    lblGrossAmount: TLabel;
-    edtGrossAmount: TEdit;
-    lblDiscountAmount: TLabel;
-    edtDiscountAmount: TEdit;
-    lblNetAmount: TLabel;
-    edtNetAmount: TEdit;
-    lblVatAmount: TLabel;
-    edtVatAmount: TEdit;
-    lblTotalAmount: TLabel;
-    edtTotalAmount: TEdit;
+    pnlTotals: TPanel;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
-    procedure FillInventoryDefaults;
   private
-    // KDV yalnız muhasebe ayarlarındaki tanımlı oranlardan (acc_set_tax_rate) seçilir
-    procedure FillVatRates;
-    procedure SelectVatRate(ARate: Currency);
-    function SelectedVatRate: Currency;
+    FTotals: TTotalsPanel;
+    FPageLines: TTabSheet;
+    FLines: TDetailSet<TPurInvoiceDetail>;
+    procedure ShowTotals;
+    // Table toplamları panelde (para birimiyle)
+    procedure ShowTotalValues;
+  protected
+    procedure DetailsChanged; override;
   public
+    destructor Destroy; override;
     procedure HelperProcess(Sender: TObject);
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
@@ -62,18 +58,18 @@ implementation
 {$R *.dfm}
 
 uses
-  PurLookup,
-  PurInvoice, PurInvoice.Service, ufrmPurInvoices,
-  StkInventory, StkInventory.Service, ufrmStkInventories;
+  SysDecimalPlace.Cache,
+  Grid.Types, ufrmPurInvoiceLine,
+  AccAccount, AccAccount.Service, ufrmAccAccounts,        // TfrmAccAccounts helper output form
+  SysCurrency, SysCurrency.Service, ufrmSysCurrencies;    // TfrmSysCurrencies helper output form
 
 procedure TfrmPurInvoiceDetail.BtnAcceptClick(Sender: TObject);
 begin
   // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
-  Table.LineNo := StrToIntDef(edtLineNo.Text, 0);
-  Table.Quantity := StrToCurrDef(edtQuantity.Text, 0);
-  Table.UnitPrice := StrToCurrDef(edtUnitPrice.Text, 0);
-  Table.DiscountRate := StrToCurrDef(edtDiscountRate.Text, 0);
-  Table.VatRate := SelectedVatRate;
+  Table.InvoiceNo := edtInvoiceNo.Text;
+  Table.InvoiceDate := StrToDateDef(edtInvoiceDate.Text, 0);
+  Table.DueDate := StrToDateDef(edtDueDate.Text, 0);
+  Table.ExchangeRate := StrToCurrDef(edtExchangeRate.Text, 0);
   Table.Description := edtDescription.Text;
   inherited;
 end;
@@ -82,174 +78,233 @@ procedure TfrmPurInvoiceDetail.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtPurInvoiceId.OnHelperProcess := HelperProcess;
-  edtLineNo.thsInputDataType := itInteger;
-  edtStkInventoryId.OnHelperProcess := HelperProcess;
-  edtQuantity.thsInputDataType := itFloat;
-  edtUnitPrice.thsInputDataType := itFloat;
-  edtDiscountRate.thsInputDataType := itFloat;
-  FillVatRates;
+  FTotals := TTotalsPanel.Create(pnlTotals);
+  FTotals.AddRow('gross');
+  FTotals.AddRow('discount');
+  FTotals.AddRow('net');
+  FTotals.AddRow('vat');
+  FTotals.AddRow('total', True);
+  pnlTotals.Height := FTotals.RequiredHeight;
+
+  edtInvoiceNo.thsInputDataType := itString;
+  edtInvoiceNo.CharCase := TEditCharCase.ecUpperCase;
+  edtInvoiceDate.thsInputDataType := itDate;
+  edtAccAccountId.OnHelperProcess := HelperProcess;
+  edtDueDate.thsInputDataType := itDate;
+  edtCurrency.OnHelperProcess := HelperProcess;
+  edtExchangeRate.thsInputDataType := itFloat;
+  edtExchangeRate.thsDecimalDigitCount := TDecimalPlaces.ExchangeRate;
   edtDescription.thsInputDataType := itString;
+
+  // Kalemler = Table.Lines (servis satır no sırasıyla okur); ekle / çıkar / hesap fatura servisinde,
+  // satır formu modal, kayıt faturayla birlikte
+  FPageLines := AddDetailPage(TLocalizationManager.Translate(TLangKeys.TPurInvoice.MenuLines, 'Lines'));
+  FLines := AddDetail<TPurInvoiceDetail>(FPageLines, 'vw_pur_order_detail',
+    function: TObjectList<TPurInvoiceDetail>
+    begin
+      Result := Table.Lines;
+    end,
+    function: TPurInvoiceDetail
+    begin
+      Result := Service.CreateLine(Table);
+    end,
+    procedure(ALine: TPurInvoiceDetail)
+    begin
+      Service.AddLine(Table, ALine);
+    end,
+    procedure(ALine: TPurInvoiceDetail)
+    begin
+      Service.RemoveLine(Table, ALine);
+    end,
+    function(ALine: TPurInvoiceDetail; AMode: TInputFormMode): TForm
+    begin
+      Result := TfrmPurInvoiceLine.Create(Self, TPurInvoiceDetailService.Create, ALine, AMode, nil);
+    end);
+
+  FLines.Grid.AddFooterColumn('net_amount', atSum, TDecimalPlaces.TotalFormat);
+  FLines.Grid.AddFooterColumn('vat_amount', atSum, TDecimalPlaces.TotalFormat);
+  FLines.Grid.AddFooterColumn('total_amount', atSum, TDecimalPlaces.TotalFormat);
+  FLines.Grid.BuildData;
+  FLines.Grid.SetColumnProperty('id', 0);
+  FLines.Grid.SetColumnProperty('pur_order_id', 0);
+  FLines.Grid.SetColumnProperty('stk_inventory_id', 0);
+  FLines.Grid.SetColumnProperty('pur_receipt_detail_id', 0);
+  FLines.Grid.SetColumnProperty('acc_account_id', 0);
+  FLines.Grid.SetColumnProperty('invoice_no', 0);
+  FLines.Grid.SetColumnProperty('currency', 0);
+  FLines.Grid.SetColumnProperty('gross_amount', 0);
+  FLines.Grid.SetColumnProperty('discount_amount', 0);
+  FLines.Grid.SetColumnProperty('line_no', 50);
+  FLines.Grid.SetColumnProperty('inventory_code', 90);
+  FLines.Grid.SetColumnProperty('inventory_name', 200);
+  FLines.Grid.SetColumnProperty('uom_code', 50);
+  FLines.Grid.SetColumnProperty('description', 160);
+end;
+
+destructor TfrmPurInvoiceDetail.Destroy;
+begin
+  FreeAndNil(FTotals);
+  inherited;
 end;
 
 procedure TfrmPurInvoiceDetail.FormShow(Sender: TObject);
 begin
   inherited;
-  if edtStkInventoryId.CanFocus then
-    edtStkInventoryId.SetFocus;
+  if edtInvoiceNo.CanFocus then
+    edtInvoiceNo.SetFocus;
+end;
+
+procedure TfrmPurInvoiceDetail.ShowTotalValues;
+begin
+  if not Assigned(FTotals) or not Assigned(Table) then
+    Exit;
+  FTotals.SetValue('gross', Table.GrossAmount, Table.Currency);
+  FTotals.SetValue('discount', Table.DiscountAmount, Table.Currency);
+  FTotals.SetValue('net', Table.NetAmount, Table.Currency);
+  FTotals.SetValue('vat', Table.VatAmount, Table.Currency);
+  FTotals.SetValue('total', Table.TotalAmount, Table.Currency);
+end;
+
+// Başlık toplamları: servis kalemlerden hesaplar (kayıtta yine aynı hesap)
+procedure TfrmPurInvoiceDetail.ShowTotals;
+begin
+  if not Assigned(Table) then
+    Exit;
+  Service.Recalculate(Table);
+  ShowTotalValues;
+end;
+
+procedure TfrmPurInvoiceDetail.DetailsChanged;
+begin
+  inherited;
+  ShowTotals;
 end;
 
 procedure TfrmPurInvoiceDetail.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.TitleSingular, 'Invoice Line');
-  lblPurInvoiceId.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColPurInvoiceId, 'Invoice');
-  lblLineNo.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColLineNo, 'Line No');
-  lblStkInventoryId.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColStkInventoryId, 'Stock Card');
-  lblQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColQuantity, 'Quantity');
-  lblUnitPrice.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColUnitPrice, 'Unit Price');
-  lblDiscountRate.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColDiscountRate, 'Discount (%)');
-  lblVatRate.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColVatRate, 'VAT (%)');
-  lblDescription.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColDescription, 'Description');
-  lblGrossAmount.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColGrossAmount, 'Gross Amount');
-  lblDiscountAmount.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColDiscountAmount, 'Discount Amount');
-  lblNetAmount.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColNetAmount, 'Net Amount');
-  lblVatAmount.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColVatAmount, 'VAT Amount');
-  lblTotalAmount.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColTotalAmount, 'Total');
-end;
-
-procedure TfrmPurInvoiceDetail.FillVatRates;
-var
-  LRate: Currency;
-begin
-  cbbVatRate.Items.BeginUpdate;
-  try
-    cbbVatRate.Items.Clear;
-    cbbVatRate.Items.Add('0');   // KDV'siz alış (istisna)
-    for LRate in Service.GetVatRates do
-      cbbVatRate.Items.Add(FormatFloat('0.##', LRate));
-  finally
-    cbbVatRate.Items.EndUpdate;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.TitleSingular, 'Purchase Invoice');
+  lblInvoiceNo.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColInvoiceNo, 'Invoice No');
+  lblInvoiceDate.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColInvoiceDate, 'Invoice Date');
+  lblAccAccountId.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColAccAccountId, 'Supplier');
+  lblDueDate.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColDueDate, 'Due Date');
+  lblCurrency.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColCurrency, 'Currency');
+  lblExchangeRate.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColExchangeRate, 'Exchange Rate');
+  lblDescription.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColDescription, 'Description');
+  if Assigned(FTotals) then
+  begin
+    FTotals.SetCaption('gross', TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColGrossAmount, 'Gross Amount'));
+    FTotals.SetCaption('discount', TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColDiscountAmount, 'Discount Amount'));
+    FTotals.SetCaption('net', TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColNetAmount, 'Net Amount'));
+    FTotals.SetCaption('vat', TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColVatAmount, 'VAT Amount'));
+    FTotals.SetCaption('total', TLocalizationManager.Translate(TLangKeys.TPurInvoice.ColTotalAmount, 'Total'));
   end;
-end;
 
-// Listede olmayan oran: kayıtlı satırda gösterilir (kayıtta reddedilir), yeni satırda (0) boş bırakılır
-procedure TfrmPurInvoiceDetail.SelectVatRate(ARate: Currency);
-var
-  LText: string;
-begin
-  LText := FormatFloat('0.##', ARate);
-  if (cbbVatRate.Items.IndexOf(LText) < 0) and (ARate <> 0) then
-    cbbVatRate.Items.Add(LText);
-  cbbVatRate.ItemIndex := cbbVatRate.Items.IndexOf(LText);
-end;
-
-function TfrmPurInvoiceDetail.SelectedVatRate: Currency;
-begin
-  if cbbVatRate.ItemIndex < 0 then
-    Result := 0
-  else
-    Result := StrToCurrDef(cbbVatRate.Items[cbbVatRate.ItemIndex], 0);
+  if Assigned(FPageLines) then
+    FPageLines.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.MenuLines, 'Lines');
+  if Assigned(FLines) then
+  begin
+    FLines.Grid.SetColumnTitle('line_no', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColLineNo, 'Line No'));
+    FLines.Grid.SetColumnTitle('inventory_code', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColInventoryCode, 'Stock Code'));
+    FLines.Grid.SetColumnTitle('inventory_name', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColInventoryName, 'Stock Name'));
+    FLines.Grid.SetColumnTitle('uom_code', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColUomCode, 'Unit'));
+    FLines.Grid.SetColumnTitle('quantity', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColQuantity, 'Quantity'));
+    FLines.Grid.SetColumnTitle('unit_price', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColUnitPrice, 'Unit Price'));
+    FLines.Grid.SetColumnTitle('discount_rate', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColDiscountRate, 'Discount (%)'));
+    FLines.Grid.SetColumnTitle('vat_rate', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColVatRate, 'VAT (%)'));
+    FLines.Grid.SetColumnTitle('gross_amount', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColGrossAmount, 'Gross Amount'));
+    FLines.Grid.SetColumnTitle('discount_amount', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColDiscountAmount, 'Discount Amount'));
+    FLines.Grid.SetColumnTitle('net_amount', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColNetAmount, 'Net Amount'));
+    FLines.Grid.SetColumnTitle('vat_amount', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColVatAmount, 'VAT Amount'));
+    FLines.Grid.SetColumnTitle('total_amount', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColTotalAmount, 'Total'));
+    FLines.Grid.SetColumnTitle('receipt_no', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColReceiptNo, 'Receipt No'));
+    FLines.Grid.SetColumnTitle('description', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColDescription, 'Description'));
+  end;
 end;
 
 procedure TfrmPurInvoiceDetail.HelperProcess(Sender: TObject);
 var
   LEdit: TEdit;
-  LFrmPurInvoiceId: TfrmPurInvoices;
-  LFrmStkInventoryId: TfrmStkInventories;
+  LFrmAccAccountId: TfrmAccAccounts;
+  LFrmCurrency: TfrmSysCurrencies;
+  LLine: TPurInvoiceDetail;
 begin
   if not (Sender is TEdit) then
     Exit;
-
   LEdit := (Sender as TEdit);
-  if LEdit.Name = edtPurInvoiceId.Name then
+  if LEdit.Name = edtAccAccountId.Name then
   begin
-    LFrmPurInvoiceId := TfrmPurInvoices.Create(LEdit, TPurInvoiceService.Create, TPurInvoice.Create);
+    LFrmAccAccountId := TfrmAccAccounts.Create(LEdit, TAccAccountService.Create, TAccAccount.Create);
     try
-      LFrmPurInvoiceId.IsHelper := True;
-      LFrmPurInvoiceId.ShowModal;
-      if LFrmPurInvoiceId.DataTransfer then
-        if LFrmPurInvoiceId.CleanAndClose then
+      LFrmAccAccountId.IsHelper := True;
+      LFrmAccAccountId.ShowModal;
+      if LFrmAccAccountId.DataTransfer then
+        if LFrmAccAccountId.CleanAndClose then
         begin
-          Table.PurInvoiceId := 0;
-          Table.InvoiceNo := '';
+          Table.AccAccountId := 0;
+          Table.AccountCode := '';
+          Table.AccountName := '';
+          LEdit.Clear;
+        end
+        else
+        begin
+          Table.AccAccountId := LFrmAccAccountId.Table.Id;
+          Table.AccountCode := LFrmAccAccountId.Table.Code;
+          Table.AccountName := LFrmAccAccountId.Table.Name;
+          LEdit.Text := Table.AccountName;
+        end;
+    finally
+      LFrmAccAccountId.Free;
+    end;
+  end
+  else if LEdit.Name = edtCurrency.Name then
+  begin
+    LFrmCurrency := TfrmSysCurrencies.Create(LEdit, TSysCurrencyService.Create, TSysCurrency.Create);
+    try
+      LFrmCurrency.IsHelper := True;
+      LFrmCurrency.ShowModal;
+      if LFrmCurrency.DataTransfer then
+        if LFrmCurrency.CleanAndClose then
+        begin
           Table.Currency := '';
           LEdit.Clear;
         end
         else
         begin
-          Table.PurInvoiceId := LFrmPurInvoiceId.Table.Id;
-          Table.InvoiceNo := LFrmPurInvoiceId.Table.InvoiceNo;
-          Table.Currency := LFrmPurInvoiceId.Table.Currency;
-          LEdit.Text := Table.InvoiceNo;
+          Table.Currency := LFrmCurrency.Table.Currency;
+          LEdit.Text := Table.Currency;
         end;
+      // kalemlerin para birimi (fiyat önerisi) ve toplamların gösterimi belgeyle aynı
+      for LLine in Table.Lines do
+        LLine.Currency := Table.Currency;
+      ShowTotalValues;
     finally
-      LFrmPurInvoiceId.Free;
-    end;
-  end
-  else if LEdit.Name = edtStkInventoryId.Name then
-  begin
-    LFrmStkInventoryId := TfrmStkInventories.Create(LEdit, TStkInventoryService.Create, TStkInventory.Create);
-    try
-      LFrmStkInventoryId.IsHelper := True;
-      LFrmStkInventoryId.ShowModal;
-      if LFrmStkInventoryId.DataTransfer then
-        if LFrmStkInventoryId.CleanAndClose then
-        begin
-          Table.StkInventoryId := 0;
-          Table.InventoryCode := '';
-          Table.InventoryName := '';
-          Table.UomCode := '';
-          LEdit.Clear;
-        end
-        else
-        begin
-          Table.StkInventoryId := LFrmStkInventoryId.Table.Id;
-          Table.InventoryCode := LFrmStkInventoryId.Table.Code;
-          Table.InventoryName := LFrmStkInventoryId.Table.Name;
-          Table.UomCode := Service.GetUomCode(Table.StkInventoryId);
-          LEdit.Text := Table.InventoryName;
-        end;
-      lblUomCode.Caption := Table.UomCode;
-      if LFrmStkInventoryId.DataTransfer and not LFrmStkInventoryId.CleanAndClose then
-        FillInventoryDefaults;
-    finally
-      LFrmStkInventoryId.Free;
+      LFrmCurrency.Free;
     end;
   end;
-end;
-
-// Stok kartının alış fiyatı (belge para biriminde ise), alış iskontosu ve geçerli KDV oranı önerilir
-procedure TfrmPurInvoiceDetail.FillInventoryDefaults;
-var
-  LPrice, LDiscount, LVat: Currency;
-  LCurrency: string;
-begin
-  if not Service.GetInventoryDefaults(Table.StkInventoryId, LPrice, LCurrency, LDiscount, LVat) then
-    Exit;
-  if (Table.Currency = '') or (LCurrency = Table.Currency) then
-    edtUnitPrice.Text := CurrToStr(LPrice);
-  edtDiscountRate.Text := CurrToStr(LDiscount);
-  SelectVatRate(LVat);
 end;
 
 procedure TfrmPurInvoiceDetail.RefreshData;
 begin
   inherited;
-  edtPurInvoiceId.Text := Table.InvoiceNo;
-  edtLineNo.Text := IntToStr(Table.LineNo);
-  edtStkInventoryId.Text := Table.InventoryName;
-  edtQuantity.Text := CurrToStr(Table.Quantity);
-  lblUomCode.Caption := Table.UomCode;
-  edtUnitPrice.Text := CurrToStr(Table.UnitPrice);
-  edtDiscountRate.Text := CurrToStr(Table.DiscountRate);
-  SelectVatRate(Table.VatRate);
+  edtInvoiceNo.Text := Table.InvoiceNo;
+  if Table.InvoiceDate > 0 then
+    edtInvoiceDate.Text := DateToStr(Table.InvoiceDate)
+  else
+    edtInvoiceDate.Text := '';
+  edtAccAccountId.Text := Table.AccountName;
+  if Table.DueDate > 0 then
+    edtDueDate.Text := DateToStr(Table.DueDate)
+  else
+    edtDueDate.Text := '';
+  edtCurrency.Text := Table.Currency;
+  edtExchangeRate.Text := CurrToStr(Table.ExchangeRate);
   edtDescription.Text := Table.Description;
-  edtGrossAmount.Text := CurrToStr(Table.GrossAmount);
-  edtDiscountAmount.Text := CurrToStr(Table.DiscountAmount);
-  edtNetAmount.Text := CurrToStr(Table.NetAmount);
-  edtVatAmount.Text := CurrToStr(Table.VatAmount);
-  edtTotalAmount.Text := CurrToStr(Table.TotalAmount);
+  // bellekte kalem varsa toplamlar onlardan
+  if Table.Lines.Count > 0 then
+    ShowTotals
+  else
+    ShowTotalValues;
 end;
 
 end.

@@ -18,7 +18,17 @@ type
     class function GetMessage: string; override;
   end;
 
+  EPurRequestDetailExceptionLineUnique = class(EPurRequestDetailException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
 implementation
+
+class function EPurRequestDetailExceptionLineUnique.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TPurRequestDetail.LineUnique, 'This line number is already used on the request.');
+end;
 
 class function EPurRequestDetailExceptionDraftOnly.GetMessage: string;
 begin

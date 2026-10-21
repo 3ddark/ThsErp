@@ -6,10 +6,12 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  PurRequest.Repository, PurRequest, PurRequest.Exception;
+  DocumentService, PurRequest.Repository, PurRequest, PurRequest.Exception, PurRequestDetail, PurRequestDetail.Repository;
 
 type
-  TPurRequestService = class(TCrudService<TPurRequest>)
+  // Talep belgesi = başlık + Lines (TDocumentService: kalem işlemleri, yükleme, tek transaction'lı kayıt + Reload).
+  // Başlık ve kalemler yalnız taslakta değişir; sipariş edilen miktar sipariş kalemlerinden (DB) tutulur.
+  TPurRequestService = class(TDocumentService<TPurRequest, TPurRequestDetail>)
   private
     FRepo: IRepository<TPurRequest>;
 
@@ -18,12 +20,29 @@ type
     procedure DoDelete(AId: Int64);
 
     procedure FailRequired(const AKey, ADefault: string);
+  protected
+    // ---- belge yapısı / kayıt adımları (TDocumentService)
+    function GetLines(AHeader: TPurRequest): TObjectList<TPurRequestDetail>; override;
+    function FindLinesByHeaderIds(const AIds: TArray<Int64>): TObjectList<TPurRequestDetail>; override;
+    function GetLineHeaderId(ALine: TPurRequestDetail): Int64; override;
+    procedure SetLineHeaderId(ALine: TPurRequestDetail; AHeaderId: Int64); override;
+    function GetLineNo(ALine: TPurRequestDetail): Integer; override;
+    procedure SetLineNo(ALine: TPurRequestDetail; ANo: Integer); override;
+    procedure RaiseDuplicateLineNo; override;
+    procedure InitLine(AHeader: TPurRequest; ALine: TPurRequestDetail); override;
+    procedure CheckLines(AHeader: TPurRequest; const ALines: TArray<TPurRequestDetail>; AOldLines: TObjectList<TPurRequestDetail>); override;
+    procedure PrepareCopyHeader(AHeader: TPurRequest); override;
+    procedure PrepareCopyLine(AHeader: TPurRequest; ALine: TPurRequestDetail); override;
   public
     constructor Create;
     destructor Destroy; override;
 
     procedure ValidateBusinessRules(AEntity: TPurRequest; AOperation: TCrudOperation); override;
     procedure ChangeStatus(AId: Int64; ANewStatus: SmallInt; APermissionControl: Boolean);
+
+    // Talepte tutar yok: hesap gerekmez
+    procedure RecalculateLine(ALine: TPurRequestDetail); override;
+    procedure RecalculateTotals(AHeader: TPurRequest); override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
@@ -45,13 +64,119 @@ type
 implementation
 
 uses
-  SysPermission.Service, PurLookup;
+  SysPermission.Service, PurLookup, PurRequestDetail.Service, PurRequestDetail.Exception;
 
 constructor TPurRequestService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TPurRequest, TPurRequestRepository>;
+  FHeaderRepo := FRepo;
+  FLineRepo := Self.UoW.GetRepository<TPurRequestDetail, TPurRequestDetailRepository>;
   Self.PermissionCode := PERMISSION_PUR_REQUEST;
+end;
+
+{ Belge (TDocumentService) }
+
+function TPurRequestService.GetLines(AHeader: TPurRequest): TObjectList<TPurRequestDetail>;
+begin
+  Result := AHeader.Lines;
+end;
+
+function TPurRequestService.FindLinesByHeaderIds(const AIds: TArray<Int64>): TObjectList<TPurRequestDetail>;
+begin
+  Result := TPurRequestDetailRepository(FLineRepo).FindByRequestIds(AIds);
+end;
+
+function TPurRequestService.GetLineHeaderId(ALine: TPurRequestDetail): Int64;
+begin
+  Result := ALine.PurRequestId;
+end;
+
+procedure TPurRequestService.SetLineHeaderId(ALine: TPurRequestDetail; AHeaderId: Int64);
+begin
+  ALine.PurRequestId := AHeaderId;
+end;
+
+function TPurRequestService.GetLineNo(ALine: TPurRequestDetail): Integer;
+begin
+  Result := ALine.LineNo;
+end;
+
+procedure TPurRequestService.SetLineNo(ALine: TPurRequestDetail; ANo: Integer);
+begin
+  ALine.LineNo := ANo;
+end;
+
+procedure TPurRequestService.RaiseDuplicateLineNo;
+begin
+  raise EPurRequestDetailExceptionLineUnique.Create;
+end;
+
+// Belge no (görüntü), gerekli tarih başlıktan
+procedure TPurRequestService.InitLine(AHeader: TPurRequest; ALine: TPurRequestDetail);
+begin
+  ALine.RequestNo := AHeader.RequestNo;
+  ALine.RequiredDate := AHeader.RequiredDate;
+end;
+
+// Alanlar (tek kalem yoluyla ortak CheckLine), stok talepte bir kez; kalemler yalnız taslakta (başlık kuralı da
+// taslak dışını reddeder); sipariş edilen miktar DB'den (sipariş kalemleri tutar)
+procedure TPurRequestService.CheckLines(AHeader: TPurRequest; const ALines: TArray<TPurRequestDetail>;
+  AOldLines: TObjectList<TPurRequestDetail>);
+var
+  LLine, LOld: TPurRequestDetail;
+  LOldById: TDictionary<Int64, TPurRequestDetail>;
+  LInventories: TDictionary<Int64, Boolean>;
+begin
+  LOldById := TDictionary<Int64, TPurRequestDetail>.Create;
+  LInventories := TDictionary<Int64, Boolean>.Create;
+  try
+    for LOld in AOldLines do
+      LOldById.AddOrSetValue(LOld.Id, LOld);
+
+    // siparişe aktarılmış kalem silinemez
+    for LLine in AHeader.Lines do
+      if LLine.Deleted and LOldById.TryGetValue(LLine.Id, LOld) and (LOld.OrderedQuantity > 0) then
+        raise EPurRequestExceptionHasOrders.Create;
+
+    for LLine in ALines do
+    begin
+      TPurRequestDetailService.CheckLine(LLine);
+      if LInventories.ContainsKey(LLine.StkInventoryId) then
+        raise EPurRequestDetailExceptionInventoryUnique.Create;
+      LInventories.Add(LLine.StkInventoryId, True);
+      if LOldById.TryGetValue(LLine.Id, LOld) then
+        LLine.OrderedQuantity := LOld.OrderedQuantity
+      else
+        LLine.OrderedQuantity := 0;
+    end;
+  finally
+    LInventories.Free;
+    LOldById.Free;
+  end;
+end;
+
+procedure TPurRequestService.PrepareCopyHeader(AHeader: TPurRequest);
+begin
+  AHeader.RequestNo := '';
+  AHeader.Status := PUR_REQ_DRAFT;
+end;
+
+procedure TPurRequestService.PrepareCopyLine(AHeader: TPurRequest; ALine: TPurRequestDetail);
+begin
+  inherited;
+  ALine.RequestNo := '';
+  ALine.OrderedQuantity := 0;
+end;
+
+procedure TPurRequestService.RecalculateLine(ALine: TPurRequestDetail);
+begin
+//
+end;
+
+procedure TPurRequestService.RecalculateTotals(AHeader: TPurRequest);
+begin
+//
 end;
 
 destructor TPurRequestService.Destroy;
@@ -222,7 +347,10 @@ begin
     Self.UoW.BeginTransaction;
 
   try
+    // belge: başlık + kalemler
     Result := FRepo.FindById(AId, ALock);
+    if Assigned(Result) then
+      LoadLines([Result]);
   except
     if Self.UoW.InTransaction then
       Self.UoW.Rollback;
@@ -292,14 +420,19 @@ begin
   Result := FRepo.FindAllGridQuery(AFilter);
 end;
 
+// AIncludeNestedEntities: kalemler de (tek sorguda)
 function TPurRequestService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TPurRequest>;
 begin
   Result := FRepo.Find(AFilter, ALock);
+  if AIncludeNestedEntities and (Result.Count > 0) then
+    LoadLines(Result.ToArray);
 end;
 
 function TPurRequestService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TPurRequest;
 begin
   Result := FRepo.FindById(AId, ALock);
+  if AIncludeNestedEntities and Assigned(Result) then
+    LoadLines([Result]);
 end;
 
 function TPurRequestService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TPurRequest;

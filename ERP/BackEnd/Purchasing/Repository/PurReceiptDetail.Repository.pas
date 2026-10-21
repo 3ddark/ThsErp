@@ -37,6 +37,9 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    // Mal kabullerin kalemleri tek sorguda (başlık + satır no sırasıyla): belge yükleme
+    function FindByReceiptIds(const AIds: TArray<Int64>): TObjectList<TPurReceiptDetail>;
+    function NextLineNo(AParentId: Int64): SmallInt;
     function InvoicedQuantity(AReceiptDetailId: Int64; AExcludeInvoiceDetailId: Int64): Currency;
     function ReceivedQuantityOfOrderDetail(AOrderDetailId: Int64; AExcludeId: Int64): Currency;
     procedure UpsertStockTransaction(AReceiptDetailId: Int64);
@@ -47,6 +50,58 @@ implementation
 constructor TPurReceiptDetailRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TPurReceiptDetailRepository.NextLineNo(AParentId: Int64): SmallInt;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT COALESCE(MAX(line_no), 0) + 1 AS v FROM public.pur_receipt_detail WHERE pur_receipt_id = :id';
+    Q.ParamByName('id').AsLargeInt := AParentId;
+    LogQuery(Q, 'NextLineNo');
+    Q.Open;
+    Result := Q.FieldByName('v').AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TPurReceiptDetailRepository.FindByReceiptIds(const AIds: TArray<Int64>): TObjectList<TPurReceiptDetail>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TPurReceiptDetail>.Create(True);
+  LIds := '';
+  for LId in AIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TPurReceiptDetail) + ' v ' +
+                  ' WHERE v.pur_receipt_id IN (' + LIds + ') ORDER BY v.pur_receipt_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByReceiptIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
 end;
 
 function TPurReceiptDetailRepository.InvoicedQuantity(AReceiptDetailId: Int64; AExcludeInvoiceDetailId: Int64): Currency;
@@ -115,14 +170,14 @@ end;
 function TPurReceiptDetailRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TPurReceiptDetail) +
-            ' (pur_receipt_id, stk_inventory_id, quantity, unit_price, pur_order_detail_id, description) ' +
-            ' VALUES (:pur_receipt_id, :stk_inventory_id, :quantity, :unit_price, :pur_order_detail_id, :description)';
+            ' (pur_receipt_id, line_no, stk_inventory_id, quantity, unit_price, pur_order_detail_id, description) ' +
+            ' VALUES (:pur_receipt_id, :line_no, :stk_inventory_id, :quantity, :unit_price, :pur_order_detail_id, :description)';
 end;
 
 function TPurReceiptDetailRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TPurReceiptDetail) +
-            ' SET pur_receipt_id = :pur_receipt_id, stk_inventory_id = :stk_inventory_id, quantity = :quantity, unit_price = :unit_price, pur_order_detail_id = :pur_order_detail_id, description = :description ' +
+            ' SET pur_receipt_id = :pur_receipt_id, line_no = :line_no, stk_inventory_id = :stk_inventory_id, quantity = :quantity, unit_price = :unit_price, pur_order_detail_id = :pur_order_detail_id, description = :description ' +
             ' WHERE id = :id';
 end;
 
@@ -137,12 +192,14 @@ procedure TPurReceiptDetailRepository.SetInsertParams(Q: TFDQuery; AModel: TPurR
 begin
   if AIndex < 0 then
   begin
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo;
     Q.ParamByName('quantity').AsBCD := AModel.Quantity;
     Q.ParamByName('unit_price').AsBCD := AModel.UnitPrice;
     Q.ParamByName('description').AsWideString := AModel.Description;
   end
   else
   begin
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
     Q.ParamByName('quantity').AsBCDs[AIndex] := AModel.Quantity;
     Q.ParamByName('unit_price').AsBCDs[AIndex] := AModel.UnitPrice;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
@@ -159,6 +216,7 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo;
     Q.ParamByName('quantity').AsBCD := AModel.Quantity;
     Q.ParamByName('unit_price').AsBCD := AModel.UnitPrice;
     Q.ParamByName('description').AsWideString := AModel.Description;
@@ -166,6 +224,7 @@ begin
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
     Q.ParamByName('quantity').AsBCDs[AIndex] := AModel.Quantity;
     Q.ParamByName('unit_price').AsBCDs[AIndex] := AModel.UnitPrice;
     Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
@@ -181,6 +240,7 @@ begin
   Result := TPurReceiptDetail.Create;
   Result.Id := Q.FieldByName('id').AsLargeInt;
   Result.PurReceiptId := Q.FieldByName('pur_receipt_id').AsLargeInt;
+  Result.LineNo := Q.FieldByName('line_no').AsInteger;
   Result.StkInventoryId := Q.FieldByName('stk_inventory_id').AsLargeInt;
   Result.Quantity := Q.FieldByName('quantity').AsCurrency;
   Result.UnitPrice := Q.FieldByName('unit_price').AsCurrency;
@@ -192,6 +252,8 @@ begin
   Result.InventoryName := Q.FieldByName('inventory_name').AsString;
   Result.UomCode := Q.FieldByName('uom_code').AsString;
   Result.OrderNo := Q.FieldByName('order_no').AsString;
+  Result.Amount := Q.FieldByName('amount').AsCurrency;
+  Result.InvoicedQuantity := Q.FieldByName('invoiced_quantity').AsCurrency;
 end;
 
 function TPurReceiptDetailRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

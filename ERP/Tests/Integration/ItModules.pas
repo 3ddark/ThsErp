@@ -3938,6 +3938,223 @@ begin
   end;
 end;
 
+// Alış belgeleri (TDocumentService): talep belgesi (satır no takası, aynı stok iki kez reddi), talepten sipariş (talebin
+// sipariş edilen miktarı = belge hook'u), onaylı siparişte kalem kilidi, siparişten mal kabul (stok hareketi = kalem
+// hook'u, siparişin teslim alınan miktarı = belge hook'u), belge içi fazla teslim reddi, mal kabulden fatura, belge içi
+// fazla faturalama reddi, faturalanan mal kabul kalemi kilidi, sipariş kopyası. Commit yok: transaction geri alınır.
+procedure TestPurchaseDocuments;
+var
+  RSvc: TPurRequestService;
+  OSvc: TPurOrderService;
+  PSvc: TPurReceiptService;
+  FSvc: TPurInvoiceService;
+  Req: TPurRequest;
+  Ord, Copy: TPurOrder;
+  Rc: TPurReceipt;
+  Fi: TPurInvoice;
+  RL: TPurRequestDetail;
+  PL: TPurReceiptDetail;
+  FL: TPurInvoiceDetail;
+  Inv1, Inv2, Supplier, Wh, ReqId, OrdId, RcId, FiId: Int64;
+  LNo1, LNo2: SmallInt;
+
+  function Q(const ASql: string): Double;
+  begin
+    Result := Num(Scalar(ASql));
+  end;
+
+  // Onaylı talep: 10 x Inv1, 4 x Inv2
+  function MakeRequest: Int64;
+  var
+    LReq: TPurRequest;
+    LL: TPurRequestDetail;
+  begin
+    LReq := TPurRequest.Create;
+    try
+      LL := RSvc.NewLine(LReq); LL.StkInventoryId := Inv1; LL.Quantity := 10;
+      LL := RSvc.NewLine(LReq); LL.StkInventoryId := Inv2; LL.Quantity := 4;
+      RSvc.BusinessSaveWithDetails(LReq, False, True);
+      Result := LReq.Id;
+    finally
+      LReq.Free;
+    end;
+    RSvc.ChangeStatus(Result, PUR_REQ_APPROVED, True);
+  end;
+
+  // Talepten onaylı sipariş, fiyat 2 / KDV %20; AOnlyInv1: Inv2 kalemi çıkarılır
+  function MakeOrder(ARequestId: Int64; AOnlyInv1: Boolean): Int64;
+  var
+    LOrd: TPurOrder;
+    i: Integer;
+  begin
+    Result := OSvc.CreateFromRequest(ARequestId, Supplier, True);
+    LOrd := OSvc.BusinessFindById(Result, False, False, True);
+    try
+      for i := LOrd.Lines.Count - 1 downto 0 do
+        if AOnlyInv1 and (LOrd.Lines[i].StkInventoryId <> Inv1) then
+          OSvc.RemoveLine(LOrd, LOrd.Lines[i])
+        else
+        begin
+          LOrd.Lines[i].UnitPrice := 2;
+          LOrd.Lines[i].DiscountRate := 0;
+          LOrd.Lines[i].VatRate := 20;
+        end;
+      OSvc.Recalculate(LOrd);
+      OSvc.BusinessSaveWithDetails(LOrd, False, True);
+    finally
+      LOrd.Free;
+    end;
+    OSvc.ChangeStatus(Result, PUR_ORD_APPROVED, True);
+  end;
+
+begin
+  Ctx('Purchasing', 'documents');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Inv2 := Scalar('SELECT min(id) FROM stk_inventory WHERE id > ' + Inv1.ToString);
+  Supplier := Scalar('SELECT min(id) FROM acc_account');
+  Wh := Scalar('SELECT min(id) FROM stk_warehouse');
+  RSvc := TPurRequestService.Create;
+  OSvc := TPurOrderService.Create;
+  PSvc := TPurReceiptService.Create;
+  FSvc := TPurInvoiceService.Create;
+  Req := nil;
+  Ord := nil;
+  Copy := nil;
+  Rc := nil;
+  Fi := nil;
+  try
+    try
+      // ---- talep belgesi: kalemlerle kayıt, satır no takası; aynı stok iki kez reddedilir
+      Begin_;
+      Req := TPurRequest.Create;
+      RL := RSvc.NewLine(Req); RL.StkInventoryId := Inv1; RL.Quantity := 10;
+      RL := RSvc.NewLine(Req); RL.StkInventoryId := Inv2; RL.Quantity := 4;
+      RSvc.BusinessSaveWithDetails(Req, False, True);
+      ReqId := Req.Id;
+      Check('request: saved with lines', (ReqId > 0) and (Req.Lines.Count = 2) and (Req.Lines[0].Id > 0) and
+        (Req.Lines[0].LineNo = 1) and (Req.Lines[1].LineNo = 2) and (Req.Lines[0].Header = Req));
+      Check('request: lines in DB', Q('SELECT count(*) FROM pur_request_detail WHERE pur_request_id = ' + ReqId.ToString) = 2);
+      LNo1 := Req.Lines[0].LineNo;
+      LNo2 := Req.Lines[1].LineNo;
+      Req.Lines[0].LineNo := LNo2;
+      Req.Lines[1].LineNo := LNo1;
+      RSvc.BusinessSaveWithDetails(Req, False, True);
+      UoW.Connection.ExecSQL('SET CONSTRAINTS pur_request_detail_line_key IMMEDIATE');
+      Check('request: line no swap saved', Req.Lines.Count = 2);
+      UoW.Connection.ExecSQL('SET CONSTRAINTS pur_request_detail_line_key DEFERRED');
+      RL := RSvc.NewLine(Req); RL.StkInventoryId := Inv1; RL.Quantity := 1;
+      Expect('request: same stock twice rejected', procedure begin RSvc.BusinessSaveWithDetails(Req, False, True); end);
+      FreeAndNil(Req);
+
+      // ---- talepten sipariş: kalemler talebe bağlı, talebin sipariş edilen miktarı belgeyi izler; onaylıda kalem kilidi
+      Begin_;
+      ReqId := MakeRequest;
+      OrdId := OSvc.CreateFromRequest(ReqId, Supplier, True);
+      Ord := OSvc.BusinessFindById(OrdId, False, False, True);
+      Check('order from request: lines + links', Assigned(Ord) and (Ord.Lines.Count = 2) and
+        (Ord.Lines[0].PurRequestDetailId > 0) and (Ord.Lines[1].PurRequestDetailId > 0) and (Ord.Lines[0].Header = Ord));
+      Check('request fully ordered', Near(Q('SELECT sum(ordered_quantity) FROM pur_request_detail WHERE pur_request_id = ' + ReqId.ToString), 14));
+      Ord.Lines[0].UnitPrice := 2; Ord.Lines[0].DiscountRate := 0; Ord.Lines[0].VatRate := 20;
+      Ord.Lines[1].UnitPrice := 2; Ord.Lines[1].DiscountRate := 0; Ord.Lines[1].VatRate := 20;
+      OSvc.Recalculate(Ord);
+      OSvc.BusinessSaveWithDetails(Ord, False, True);
+      Check('order totals: 14 x 2 x 1.2', Near(Q('SELECT total_amount FROM pur_order WHERE id = ' + OrdId.ToString), 33.6) and
+        Near(Ord.TotalAmount, 33.6));
+      OSvc.RemoveLine(Ord, Ord.Lines[1]);
+      OSvc.BusinessSaveWithDetails(Ord, False, True);
+      Check('order: line removed, request ordered qty follows',
+        (Q('SELECT count(*) FROM pur_order_detail WHERE pur_order_id = ' + OrdId.ToString) = 1) and
+        Near(Q('SELECT sum(ordered_quantity) FROM pur_request_detail WHERE pur_request_id = ' + ReqId.ToString), Ord.Lines[0].Quantity));
+      OSvc.ChangeStatus(OrdId, PUR_ORD_APPROVED, True);
+      FreeAndNil(Ord);
+      Ord := OSvc.BusinessFindById(OrdId, False, False, True);
+      Ord.Lines[0].Quantity := Ord.Lines[0].Quantity + 1;
+      Expect('approved order: line change rejected', procedure begin OSvc.BusinessSaveWithDetails(Ord, False, True); end);
+      FreeAndNil(Ord);
+
+      // ---- siparişten mal kabul: kalem başına stok hareketi, siparişin teslim alınan miktarı; belge içi fazla teslim
+      Begin_;
+      OrdId := MakeOrder(MakeRequest, True);
+      RcId := PSvc.CreateFromOrder(OrdId, Wh, True);
+      Rc := PSvc.BusinessFindById(RcId, False, False, True);
+      Check('receipt from order: lines', Assigned(Rc) and (Rc.Lines.Count = 1) and (Rc.Lines[0].PurOrderDetailId > 0) and
+        (Rc.Lines[0].LineNo = 1) and Near(Rc.Lines[0].Quantity, 10) and Near(Rc.Lines[0].UnitPrice, 2));
+      Check('receipt: stock transaction per line',
+        Q('SELECT count(*) FROM stk_transaction WHERE pur_receipt_detail_id = ' + Rc.Lines[0].Id.ToString) = 1);
+      Check('order fully received', Near(Q('SELECT sum(received_quantity) FROM pur_order_detail WHERE pur_order_id = ' + OrdId.ToString), 10));
+      Rc.Lines[0].Quantity := 7;
+      PSvc.BusinessSaveWithDetails(Rc, False, True);
+      Check('receipt: stock transaction follows quantity',
+        Near(Q('SELECT quantity FROM stk_transaction WHERE pur_receipt_detail_id = ' + Rc.Lines[0].Id.ToString), 7));
+      Check('order received follows receipt', Near(Q('SELECT sum(received_quantity) FROM pur_order_detail WHERE pur_order_id = ' + OrdId.ToString), 7));
+      Check('receipt: amount in memory', Near(PSvc.TotalAmount(Rc), 14));
+      PL := PSvc.NewLine(Rc); PL.StkInventoryId := Inv1; PL.Quantity := 4; PL.UnitPrice := 2;
+      PL.PurOrderDetailId := Rc.Lines[0].PurOrderDetailId;
+      Expect('receipt: over-receipt within document rejected', procedure begin PSvc.BusinessSaveWithDetails(Rc, False, True); end);
+      FreeAndNil(Rc);
+
+      // ---- mal kabulden fatura; belge içi fazla faturalama
+      Begin_;
+      RcId := PSvc.CreateFromOrder(MakeOrder(MakeRequest, True), Wh, True);
+      FiId := FSvc.CreateFromReceipt(RcId, 'IT-PUR-DOC-1', True);
+      Fi := FSvc.BusinessFindById(FiId, False, False, True);
+      Check('invoice from receipt: lines + totals', Assigned(Fi) and (Fi.Lines.Count = 1) and Near(Fi.Lines[0].Quantity, 10) and
+        Near(Fi.TotalAmount, 24) and Near(Q('SELECT total_amount FROM pur_invoice WHERE id = ' + FiId.ToString), 24));
+      Check('receipt line invoiced', Near(Q('SELECT invoiced_quantity FROM vw_pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString), 10));
+      FL := FSvc.NewLine(Fi); FL.StkInventoryId := Inv1; FL.Quantity := 1; FL.UnitPrice := 2; FL.VatRate := 20;
+      FL.PurReceiptDetailId := Fi.Lines[0].PurReceiptDetailId;
+      Expect('invoice: over-invoice within document rejected', procedure begin FSvc.BusinessSaveWithDetails(Fi, False, True); end);
+      FreeAndNil(Fi);
+
+      // ---- faturalanan mal kabul kalemi azaltılamaz / silinemez
+      Begin_;
+      RcId := PSvc.CreateFromOrder(MakeOrder(MakeRequest, True), Wh, True);
+      FSvc.CreateFromReceipt(RcId, 'IT-PUR-DOC-2', True);
+      Rc := PSvc.BusinessFindById(RcId, False, False, True);
+      Rc.Lines[0].Quantity := 5;
+      Expect('receipt: invoiced line cannot go below invoiced', procedure begin PSvc.BusinessSaveWithDetails(Rc, False, True); end);
+      FreeAndNil(Rc);
+      Begin_;
+      RcId := PSvc.CreateFromOrder(MakeOrder(MakeRequest, True), Wh, True);
+      FSvc.CreateFromReceipt(RcId, 'IT-PUR-DOC-3', True);
+      Rc := PSvc.BusinessFindById(RcId, False, False, True);
+      PSvc.RemoveLine(Rc, Rc.Lines[0]);
+      Expect('receipt: invoiced line cannot be deleted', procedure begin PSvc.BusinessSaveWithDetails(Rc, False, True); end);
+      FreeAndNil(Rc);
+
+      // ---- sipariş kopyası: yeni taslak, talep bağlantısı düşer; tanımsız KDV reddedilir
+      Begin_;
+      OrdId := MakeOrder(MakeRequest, False);
+      Ord := OSvc.BusinessFindById(OrdId, False, False, True);
+      Copy := Ord.Clone;
+      FreeAndNil(Ord);
+      OSvc.PrepareCopy(Copy);
+      Check('order copy: new, no request link', (Copy.Id = 0) and (Copy.OrderNo = '') and (Copy.Status = PUR_ORD_DRAFT) and
+        (Copy.Lines[0].Id < 0) and (Copy.Lines[0].PurRequestDetailId = 0) and Near(Copy.Lines[0].ReceivedQuantity, 0));
+      OSvc.BusinessSaveWithDetails(Copy, False, True);
+      Check('order copy saved', (Copy.Id > 0) and (Copy.Id <> OrdId) and (Copy.Lines.Count = 2) and (Copy.OrderNo <> ''));
+      Check('copy does not count for request', Near(Q('SELECT sum(ordered_quantity) FROM pur_request_detail d JOIN pur_order_detail o ' +
+        'ON o.pur_request_detail_id = d.id WHERE o.pur_order_id = ' + OrdId.ToString), 14));
+      Copy.Lines[0].VatRate := 17;
+      Expect('order: undefined VAT rate rejected', procedure begin OSvc.BusinessSaveWithDetails(Copy, False, True); end);
+    except
+      on E: Exception do
+        Check('purchase document flow', False, E.Message);
+    end;
+  finally
+    End_;
+    Fi.Free;
+    Rc.Free;
+    Copy.Free;
+    Ord.Free;
+    Req.Free;
+    FSvc.Free;
+    PSvc.Free;
+    OSvc.Free;
+    RSvc.Free;
+  end;
+end;
+
 // İrsaliye + fatura belgeleri (TDocumentService): siparişten irsaliye (stok hareketi = kalem hook'u, siparişin sevk
 // miktarı + irsaliye durumu = belge hook'u), form dışı düzenleme, belge içi fazla sevk, irsaliyeden fatura (irsaliye
 // kapanır), faturalanan kalem kilidi, faturadan kalem çıkınca irsaliye yeniden bekler, irsaliyeli fatura (stok faturadan),
@@ -5770,6 +5987,7 @@ begin
   TestFinancePos;
   TestFinanceMoney;
   TestPurchasing;
+  TestPurchaseDocuments;
   TestSales;
   TestSalesOfferDocument;
   TestSalesOfferRatesAndAddresses;

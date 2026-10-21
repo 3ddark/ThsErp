@@ -8,10 +8,13 @@ uses
   System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
 
 type
+  // Mal kabul kalemi. Mal kabulün Lines listesinde durum (yeni / kayıtlı / silinecek) TDetailEntity'den; başlığa tipli
+  // erişim PurReceipt birimindeki class helper ile (Line.Header.ReceiptNo)
   [Table('pur_receipt_detail')]
-  TPurReceiptDetail = class(TEntity)
+  TPurReceiptDetail = class(TDetailEntity)
   private
     FPurReceiptId: Int64;
+    FLineNo: SmallInt;
     FStkInventoryId: Int64;
     FQuantity: Currency;
     FUnitPrice: Currency;
@@ -25,10 +28,15 @@ type
     FInventoryName: string;
     FUomCode: string;
     FOrderNo: string;
+    FAmount: Currency;
+    FInvoicedQuantity: Currency;
   public
     [Column('pur_receipt_id')]
     [Required()]
     property PurReceiptId: Int64 read FPurReceiptId write FPurReceiptId;
+
+    [Column('line_no')]
+    property LineNo: SmallInt read FLineNo write FLineNo;
 
     [Column('stk_inventory_id')]
     [Required()]
@@ -65,6 +73,14 @@ type
     [NotMapped]
     property OrderNo: string read FOrderNo write FOrderNo;
 
+    // miktar x birim maliyet (görüntü; belge toplamı)
+    [NotMapped]
+    property Amount: Currency read FAmount write FAmount;
+
+    // alış faturalarına aktarılan miktar (view; fatura kalemlerinden)
+    [NotMapped]
+    property InvoicedQuantity: Currency read FInvoicedQuantity write FInvoicedQuantity;
+
     constructor Create(); override;
     destructor Destroy; override;
 
@@ -85,9 +101,12 @@ end;
 
 function TPurReceiptDetail.Clone: TPurReceiptDetail;
 begin
+  // başlık referansı kopyalanmaz (kopyayı sahiplenen başlık verir)
   Result := TPurReceiptDetail.Create;
   Result.Id := Self.Id;
+  Result.Deleted := Self.Deleted;
   Result.PurReceiptId := Self.PurReceiptId;
+  Result.LineNo := Self.LineNo;
   Result.StkInventoryId := Self.StkInventoryId;
   Result.Quantity := Self.Quantity;
   Result.UnitPrice := Self.UnitPrice;
@@ -99,6 +118,8 @@ begin
   Result.InventoryName := Self.InventoryName;
   Result.UomCode := Self.UomCode;
   Result.OrderNo := Self.OrderNo;
+  Result.Amount := Self.Amount;
+  Result.InvoicedQuantity := Self.InvoicedQuantity;
 end;
 
 end.

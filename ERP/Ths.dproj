@@ -1091,8 +1091,8 @@
         <DCCReference Include="BackEnd\Purchasing\Exception\PurRequest.Exception.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Repository\PurRequest.Repository.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Service\PurRequest.Service.pas"/>
-        <DCCReference Include="Forms\Purchasing\Input\ufrmPurRequest.pas">
-            <Form>frmPurRequest</Form>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurRequestDetail.pas">
+            <Form>frmPurRequestDetail</Form>
         </DCCReference>
         <DCCReference Include="Forms\Purchasing\Output\ufrmPurRequests.pas">
             <Form>frmPurRequests</Form>
@@ -1101,18 +1101,15 @@
         <DCCReference Include="BackEnd\Purchasing\Exception\PurRequestDetail.Exception.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Repository\PurRequestDetail.Repository.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Service\PurRequestDetail.Service.pas"/>
-        <DCCReference Include="Forms\Purchasing\Input\ufrmPurRequestDetail.pas">
-            <Form>frmPurRequestDetail</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\Purchasing\Output\ufrmPurRequestDetails.pas">
-            <Form>frmPurRequestDetails</Form>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurRequestLine.pas">
+            <Form>frmPurRequestLine</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Purchasing\Domain\PurOrder.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Exception\PurOrder.Exception.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Repository\PurOrder.Repository.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Service\PurOrder.Service.pas"/>
-        <DCCReference Include="Forms\Purchasing\Input\ufrmPurOrder.pas">
-            <Form>frmPurOrder</Form>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurOrderDetail.pas">
+            <Form>frmPurOrderDetail</Form>
         </DCCReference>
         <DCCReference Include="Forms\Purchasing\Output\ufrmPurOrders.pas">
             <Form>frmPurOrders</Form>
@@ -1121,18 +1118,15 @@
         <DCCReference Include="BackEnd\Purchasing\Exception\PurOrderDetail.Exception.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Repository\PurOrderDetail.Repository.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Service\PurOrderDetail.Service.pas"/>
-        <DCCReference Include="Forms\Purchasing\Input\ufrmPurOrderDetail.pas">
-            <Form>frmPurOrderDetail</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\Purchasing\Output\ufrmPurOrderDetails.pas">
-            <Form>frmPurOrderDetails</Form>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurOrderLine.pas">
+            <Form>frmPurOrderLine</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Purchasing\Domain\PurReceipt.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Exception\PurReceipt.Exception.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Repository\PurReceipt.Repository.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Service\PurReceipt.Service.pas"/>
-        <DCCReference Include="Forms\Purchasing\Input\ufrmPurReceipt.pas">
-            <Form>frmPurReceipt</Form>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurReceiptDetail.pas">
+            <Form>frmPurReceiptDetail</Form>
         </DCCReference>
         <DCCReference Include="Forms\Purchasing\Output\ufrmPurReceipts.pas">
             <Form>frmPurReceipts</Form>
@@ -1141,18 +1135,15 @@
         <DCCReference Include="BackEnd\Purchasing\Exception\PurReceiptDetail.Exception.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Repository\PurReceiptDetail.Repository.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Service\PurReceiptDetail.Service.pas"/>
-        <DCCReference Include="Forms\Purchasing\Input\ufrmPurReceiptDetail.pas">
-            <Form>frmPurReceiptDetail</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\Purchasing\Output\ufrmPurReceiptDetails.pas">
-            <Form>frmPurReceiptDetails</Form>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurReceiptLine.pas">
+            <Form>frmPurReceiptLine</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Purchasing\Domain\PurInvoice.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Exception\PurInvoice.Exception.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Repository\PurInvoice.Repository.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Service\PurInvoice.Service.pas"/>
-        <DCCReference Include="Forms\Purchasing\Input\ufrmPurInvoice.pas">
-            <Form>frmPurInvoice</Form>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurInvoiceDetail.pas">
+            <Form>frmPurInvoiceDetail</Form>
         </DCCReference>
         <DCCReference Include="Forms\Purchasing\Output\ufrmPurInvoices.pas">
             <Form>frmPurInvoices</Form>
@@ -1161,11 +1152,8 @@
         <DCCReference Include="BackEnd\Purchasing\Exception\PurInvoiceDetail.Exception.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Repository\PurInvoiceDetail.Repository.pas"/>
         <DCCReference Include="BackEnd\Purchasing\Service\PurInvoiceDetail.Service.pas"/>
-        <DCCReference Include="Forms\Purchasing\Input\ufrmPurInvoiceDetail.pas">
-            <Form>frmPurInvoiceDetail</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\Purchasing\Output\ufrmPurInvoiceDetails.pas">
-            <Form>frmPurInvoiceDetails</Form>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurInvoiceLine.pas">
+            <Form>frmPurInvoiceLine</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Sales\Domain\SlsLookup.pas"/>
         <DCCReference Include="BackEnd\Sales\Domain\SlsOffer.pas"/>

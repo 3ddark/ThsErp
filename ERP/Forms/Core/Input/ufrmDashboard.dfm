@@ -292,23 +292,11 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 88
       OnExecute = actpur_requestsExecute
     end
-    object actpur_request_lines: TAction
-      Category = 'SatinAlma'
-      Caption = 'Talep Kalemleri'
-      ImageIndex = 88
-      OnExecute = actpur_request_linesExecute
-    end
     object actpur_orders: TAction
       Category = 'SatinAlma'
       Caption = 'Sat'#305'n Alma Sipari'#351'leri'
       ImageIndex = 88
       OnExecute = actpur_ordersExecute
-    end
-    object actpur_order_lines: TAction
-      Category = 'SatinAlma'
-      Caption = 'Sipari'#351' Kalemleri'
-      ImageIndex = 88
-      OnExecute = actpur_order_linesExecute
     end
     object actpur_receipts: TAction
       Category = 'SatinAlma'
@@ -316,23 +304,11 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 88
       OnExecute = actpur_receiptsExecute
     end
-    object actpur_receipt_lines: TAction
-      Category = 'SatinAlma'
-      Caption = 'Mal Kabul Kalemleri'
-      ImageIndex = 88
-      OnExecute = actpur_receipt_linesExecute
-    end
     object actpur_invoices: TAction
       Category = 'SatinAlma'
       Caption = 'Al'#305#351' Faturalar'#305
       ImageIndex = 88
       OnExecute = actpur_invoicesExecute
-    end
-    object actpur_invoice_lines: TAction
-      Category = 'SatinAlma'
-      Caption = 'Fatura Kalemleri'
-      ImageIndex = 88
-      OnExecute = actpur_invoice_linesExecute
     end
     object actsls_offers: TAction
       Category = 'Satis'
@@ -821,17 +797,11 @@ inherited frmDashboard: TfrmDashboard
       object mnipur_requests: TMenuItem
         Action = actpur_requests
       end
-      object mnipur_request_lines: TMenuItem
-        Action = actpur_request_lines
-      end
       object mnipur_sep1: TMenuItem
         Caption = '-'
       end
       object mnipur_orders: TMenuItem
         Action = actpur_orders
-      end
-      object mnipur_order_lines: TMenuItem
-        Action = actpur_order_lines
       end
       object mnipur_sep2: TMenuItem
         Caption = '-'
@@ -839,17 +809,11 @@ inherited frmDashboard: TfrmDashboard
       object mnipur_receipts: TMenuItem
         Action = actpur_receipts
       end
-      object mnipur_receipt_lines: TMenuItem
-        Action = actpur_receipt_lines
-      end
       object mnipur_sep3: TMenuItem
         Caption = '-'
       end
       object mnipur_invoices: TMenuItem
         Action = actpur_invoices
-      end
-      object mnipur_invoice_lines: TMenuItem
-        Action = actpur_invoice_lines
       end
     end
     object mnimenu_sales: TMenuItem

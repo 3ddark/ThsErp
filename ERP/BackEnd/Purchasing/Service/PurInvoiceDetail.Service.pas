@@ -21,12 +21,15 @@ type
     procedure DoUpdate(AEntity: TPurInvoiceDetail);
     procedure DoDelete(AId: Int64);
 
-    procedure FailRequired(const AKey, ADefault: string);
-    procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+    class procedure FailRequired(const AKey, ADefault: string); static;
+    class procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string); static;
   public
     constructor Create;
     destructor Destroy; override;
 
+    // Kalemin kendi alanları (DB'siz): stok, miktar, fiyat, oranlar + tutarların hesabı. Tek kalem kaydı
+    // (ValidateBusinessRules) ve belge kaydı (TPurInvoiceService.BusinessSaveWithDetails) ortak kullanır
+    class procedure CheckLine(AEntity: TPurInvoiceDetail); static;
     procedure ValidateBusinessRules(AEntity: TPurInvoiceDetail; AOperation: TCrudOperation); override;
     function GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
       out ADiscountRate, AVatRate: Currency): Boolean;
@@ -84,17 +87,39 @@ begin
 end;
 
 // Alan adı + "zorunludur" mesajı
-procedure TPurInvoiceDetailService.FailRequired(const AKey, ADefault: string);
+class procedure TPurInvoiceDetailService.FailRequired(const AKey, ADefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
 end;
 
 // Alan adı + mesaj
-procedure TPurInvoiceDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+class procedure TPurInvoiceDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(AMsgKey, AMsgDefault));
+end;
+
+class procedure TPurInvoiceDetailService.CheckLine(AEntity: TPurInvoiceDetail);
+var
+  LGross, LDiscount, LNet, LVat, LTotal: Currency;
+begin
+  AEntity.Description := Trim(AEntity.Description);
+  if AEntity.StkInventoryId <= 0 then
+    FailRequired(TLangKeys.TPurInvoiceDetail.ColStkInventoryId, 'Stock Card');
+  if AEntity.Quantity <= 0 then
+    Fail(TLangKeys.TPurInvoiceDetail.ColQuantity, 'Quantity', TLangKeys.TValidation.MustBePositive, 'Value must be greater than zero');
+  if AEntity.UnitPrice < 0 then
+    Fail(TLangKeys.TPurInvoiceDetail.ColUnitPrice, 'Unit Price', TLangKeys.TValidation.NegativeValueNotAllowed, 'Negative values are not allowed');
+  if (AEntity.DiscountRate < 0) or (AEntity.DiscountRate > 100) or (AEntity.VatRate < 0) or (AEntity.VatRate > 100) then
+    raise EPurInvoiceDetailExceptionRateRange.Create;
+  LGross := 0; LDiscount := 0; LNet := 0; LVat := 0; LTotal := 0;
+  TPurLookup.CalculateLine(AEntity.Quantity, AEntity.UnitPrice, AEntity.DiscountRate, AEntity.VatRate, LGross, LDiscount, LNet, LVat, LTotal);
+  AEntity.GrossAmount := LGross;
+  AEntity.DiscountAmount := LDiscount;
+  AEntity.NetAmount := LNet;
+  AEntity.VatAmount := LVat;
+  AEntity.TotalAmount := LTotal;
 end;
 
 function TPurInvoiceDetailService.GetInventoryDefaults(AInventoryId: Int64; out APrice: Currency; out ACurrency: string;
@@ -110,32 +135,17 @@ var
   LReceipt: TPurReceipt;
   LFilter: TFilterCriteria;
   LModel: TPurInvoiceDetail;
-  LGross, LDiscount, LNet, LVat, LTotal, LOpen: Currency;
+  LOpen: Currency;
 begin
   if AOperation = coDelete then
     Exit;
 
-  AEntity.Description := Trim(AEntity.Description);
   if AEntity.PurInvoiceId <= 0 then
     FailRequired(TLangKeys.TPurInvoiceDetail.ColPurInvoiceId, 'Invoice');
-  if AEntity.StkInventoryId <= 0 then
-    FailRequired(TLangKeys.TPurInvoiceDetail.ColStkInventoryId, 'Stock Card');
-  if AEntity.Quantity <= 0 then
-    Fail(TLangKeys.TPurInvoiceDetail.ColQuantity, 'Quantity', TLangKeys.TValidation.MustBePositive, 'Value must be greater than zero');
-  if AEntity.UnitPrice < 0 then
-    Fail(TLangKeys.TPurInvoiceDetail.ColUnitPrice, 'Unit Price', TLangKeys.TValidation.NegativeValueNotAllowed, 'Negative values are not allowed');
-  if (AEntity.DiscountRate < 0) or (AEntity.DiscountRate > 100) or (AEntity.VatRate < 0) or (AEntity.VatRate > 100) then
-    raise EPurInvoiceDetailExceptionRateRange.Create;
+  CheckLine(AEntity);
   // 0 = KDV'siz alış (istisna); diğer oranlar tanımlı oranlardan biri olmalı
   if AEntity.VatRate <> 0 then
     TAccSetTaxRateService.CheckDefinedRate(AEntity.VatRate, GetVatRates);
-  LGross := 0; LDiscount := 0; LNet := 0; LVat := 0; LTotal := 0;
-  TPurLookup.CalculateLine(AEntity.Quantity, AEntity.UnitPrice, AEntity.DiscountRate, AEntity.VatRate, LGross, LDiscount, LNet, LVat, LTotal);
-  AEntity.GrossAmount := LGross;
-  AEntity.DiscountAmount := LDiscount;
-  AEntity.NetAmount := LNet;
-  AEntity.VatAmount := LVat;
-  AEntity.TotalAmount := LTotal;
 
   if AEntity.PurReceiptDetailId > 0 then
   begin

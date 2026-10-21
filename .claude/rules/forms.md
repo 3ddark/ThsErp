@@ -88,7 +88,8 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
 
 Reference: Sales offer — `ufrmSlsOffers` (list, `sls_offer`) → `ufrmSlsOfferDetail` (`TfrmSlsOfferDetail`, header +
 lines) → `ufrmSlsOfferLine` (`TfrmSlsOfferLine`, one `sls_offer_detail` line, modal). Same for sales order,
-dispatch and invoice (`ufrmSls{Orders|Dispatches|Invoices}` → `ufrmSls{X}Detail` → `ufrmSls{X}Line`); conversions
+dispatch and invoice (`ufrmSls{Orders|Dispatches|Invoices}` → `ufrmSls{X}Detail` → `ufrmSls{X}Line`) and purchasing
+(`ufrmPur{Requests|Orders|Receipts|Invoices}` → `ufrmPur{X}Detail` → `ufrmPur{X}Line`); conversions
 (Siparişe / İrsaliyeye / Faturaya Dönüştür) open the created document in review. The separate "lines" list + popup + menu row of a migrated
 document is removed (`sys_menu` row made passive).
 

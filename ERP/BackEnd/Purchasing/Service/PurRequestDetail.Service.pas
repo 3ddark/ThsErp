@@ -18,13 +18,16 @@ type
     procedure DoUpdate(AEntity: TPurRequestDetail);
     procedure DoDelete(AId: Int64);
 
-    procedure FailRequired(const AKey, ADefault: string);
-    procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+    class procedure FailRequired(const AKey, ADefault: string); static;
+    class procedure Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string); static;
     procedure EnsureDraft(ARequestId: Int64);
   public
     constructor Create;
     destructor Destroy; override;
 
+    // Kalemin kendi alanları (DB'siz): stok, miktar. Tek kalem kaydı (ValidateBusinessRules) ve belge kaydı
+    // (TPurRequestService.BusinessSaveWithDetails) ortak kullanır
+    class procedure CheckLine(AEntity: TPurRequestDetail); static;
     procedure ValidateBusinessRules(AEntity: TPurRequestDetail; AOperation: TCrudOperation); override;
 
     // Satır formu: stok seçilince ölçü birimi
@@ -71,17 +74,26 @@ begin
 end;
 
 // Alan adı + "zorunludur" mesajı
-procedure TPurRequestDetailService.FailRequired(const AKey, ADefault: string);
+class procedure TPurRequestDetailService.FailRequired(const AKey, ADefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
 end;
 
 // Alan adı + mesaj
-procedure TPurRequestDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
+class procedure TPurRequestDetailService.Fail(const AKey, ADefault, AMsgKey, AMsgDefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(AMsgKey, AMsgDefault));
+end;
+
+class procedure TPurRequestDetailService.CheckLine(AEntity: TPurRequestDetail);
+begin
+  AEntity.Description := Trim(AEntity.Description);
+  if AEntity.StkInventoryId <= 0 then
+    FailRequired(TLangKeys.TPurRequestDetail.ColStkInventoryId, 'Stock Card');
+  if AEntity.Quantity <= 0 then
+    Fail(TLangKeys.TPurRequestDetail.ColQuantity, 'Quantity', TLangKeys.TValidation.MustBePositive, 'Value must be greater than zero');
 end;
 
 procedure TPurRequestDetailService.EnsureDraft(ARequestId: Int64);
@@ -111,13 +123,9 @@ begin
     Exit;
   end;
 
-  AEntity.Description := Trim(AEntity.Description);
   if AEntity.PurRequestId <= 0 then
     FailRequired(TLangKeys.TPurRequestDetail.ColPurRequestId, 'Request');
-  if AEntity.StkInventoryId <= 0 then
-    FailRequired(TLangKeys.TPurRequestDetail.ColStkInventoryId, 'Stock Card');
-  if AEntity.Quantity <= 0 then
-    Fail(TLangKeys.TPurRequestDetail.ColQuantity, 'Quantity', TLangKeys.TValidation.MustBePositive, 'Value must be greater than zero');
+  CheckLine(AEntity);
   EnsureDraft(AEntity.PurRequestId);
 
   // sipariş edilen miktar servis tarafından tutulur
@@ -136,6 +144,25 @@ begin
     finally
       LOld.Free;
     end;
+  end;
+
+  if AEntity.LineNo <= 0 then
+    AEntity.LineNo := TPurRequestDetailRepository(FRepo).NextLineNo(AEntity.PurRequestId);
+  LFilter := TFilterCriteria.Create;
+  try
+    LFilter.Add(TFilterCriterion.New('pur_request_id', '=', TValue.From<Int64>(AEntity.PurRequestId)));
+    LFilter.Add(TFilterCriterion.New('line_no', '=', TValue.From<Integer>(AEntity.LineNo)));
+    if AOperation = coUpdate then
+      LFilter.Add(TFilterCriterion.New('id', '<>', TValue.From<Int64>(AEntity.Id)));
+    LModel := FRepo.FindOne(LFilter, False);
+    try
+      if Assigned(LModel) then
+        raise EPurRequestDetailExceptionLineUnique.Create;
+    finally
+      LModel.Free;
+    end;
+  finally
+    LFilter.Free;
   end;
 
   LFilter := TFilterCriteria.Create;

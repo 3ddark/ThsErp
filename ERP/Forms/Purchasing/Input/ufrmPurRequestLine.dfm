@@ -1,9 +1,9 @@
-object frmPurRequest: TfrmPurRequest
+object frmPurRequestLine: TfrmPurRequestLine
   Left = 0
   Top = 0
-  Caption = 'Sat'#305'n Alma Talebi'
-  ClientHeight = 207
-  ClientWidth = 480
+  Caption = 'Talep Kalemi'
+  ClientHeight = 184
+  ClientWidth = 811
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,18 +15,18 @@ object frmPurRequest: TfrmPurRequest
   object pnlContent: TPanel
     Left = 0
     Top = 0
-    Width = 480
-    Height = 207
+    Width = 811
+    Height = 184
     Align = alClient
     TabOrder = 0
-    object lblRequestNo: TLabel
+    object lblLineNo: TLabel
       Left = 4
       Top = 6
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Talep No'
+      Caption = 'S'#305'ra No'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -34,22 +34,21 @@ object frmPurRequest: TfrmPurRequest
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtRequestNo: TEdit
+    object edtLineNo: TEdit
       Left = 132
       Top = 2
-      Width = 333
+      Width = 80
       Height = 22
-      MaxLength = 16
       TabOrder = 0
     end
-    object lblRequestDate: TLabel
+    object lblStkInventoryId: TLabel
       Left = 4
       Top = 29
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Talep Tarihi'
+      Caption = 'Stok Kart'#305
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -57,21 +56,22 @@ object frmPurRequest: TfrmPurRequest
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtRequestDate: TEdit
+    object edtStkInventoryId: TEdit
       Left = 132
       Top = 25
-      Width = 333
+      Width = 260
       Height = 22
+      ReadOnly = True
       TabOrder = 1
     end
-    object lblEmpEmployeeId: TLabel
+    object lblQuantity: TLabel
       Left = 4
       Top = 52
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Talep Eden'
+      Caption = 'Miktar'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -79,13 +79,27 @@ object frmPurRequest: TfrmPurRequest
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtEmpEmployeeId: TEdit
+    object edtQuantity: TEdit
       Left = 132
       Top = 48
-      Width = 333
+      Width = 150
       Height = 22
-      ReadOnly = True
       TabOrder = 2
+    end
+    object lblUomCode: TLabel
+      Left = 288
+      Top = 52
+      Width = 104
+      Height = 13
+      Alignment = taLeftJustify
+      AutoSize = False
+      Caption = ''
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
     end
     object lblRequiredDate: TLabel
       Left = 4
@@ -94,7 +108,7 @@ object frmPurRequest: TfrmPurRequest
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = #304'stenen Tarih'
+      Caption = #304'htiya'#231' Tarihi'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -105,37 +119,13 @@ object frmPurRequest: TfrmPurRequest
     object edtRequiredDate: TEdit
       Left = 132
       Top = 71
-      Width = 333
+      Width = 150
       Height = 22
       TabOrder = 3
     end
-    object lblStatusText: TLabel
-      Left = 4
-      Top = 98
-      Width = 124
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'Durum'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object edtStatusText: TEdit
-      Left = 132
-      Top = 94
-      Width = 333
-      Height = 22
-      ReadOnly = True
-      TabStop = False
-      TabOrder = 4
-    end
     object lblDescription: TLabel
       Left = 4
-      Top = 121
+      Top = 98
       Width = 124
       Height = 13
       Alignment = taRightJustify
@@ -150,10 +140,18 @@ object frmPurRequest: TfrmPurRequest
     end
     object edtDescription: TEdit
       Left = 132
-      Top = 117
-      Width = 333
+      Top = 94
+      Width = 260
       Height = 22
-      MaxLength = 256
+      MaxLength = 128
+      TabOrder = 4
+    end
+    object pnlTotals: TPanel
+      Left = 408
+      Top = 2
+      Width = 395
+      Height = 60
+      BevelOuter = bvLowered
       TabOrder = 5
     end
   end

@@ -9,7 +9,7 @@ uses
 
 type
   [Table('pur_invoice_detail')]
-  TPurInvoiceDetail = class(TEntity)
+  TPurInvoiceDetail = class(TDetailEntity)
   private
     FPurInvoiceId: Int64;
     FLineNo: SmallInt;
@@ -117,8 +117,10 @@ end;
 
 function TPurInvoiceDetail.Clone: TPurInvoiceDetail;
 begin
+  // başlık referansı kopyalanmaz (kopyayı sahiplenen başlık verir)
   Result := TPurInvoiceDetail.Create;
   Result.Id := Self.Id;
+  Result.Deleted := Self.Deleted;
   Result.PurInvoiceId := Self.PurInvoiceId;
   Result.LineNo := Self.LineNo;
   Result.StkInventoryId := Self.StkInventoryId;

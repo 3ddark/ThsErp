@@ -5,12 +5,14 @@ interface
 {$I Ths.inc}
 
 uses
-  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager;
+  System.SysUtils, System.Generics.Collections, Entity, EntityAttributes, LocalizationManager, PurOrderDetail;
 
 type
   [Table('pur_order')]
   TPurOrder = class(TEntity)
   private
+    // Kalemler (sahiplenir): servis yükler / yazar; durum TDetailEntity (Id işareti + Deleted)
+    FLines: TObjectList<TPurOrderDetail>;
     FOrderNo: string;
     FOrderDate: TDate;
     FAccAccountId: Int64;
@@ -96,17 +98,44 @@ type
     [NotMapped]
     property WarehouseName: string read FWarehouseName write FWarehouseName;
 
+    // Kolon değil (nesne özelliği): BusinessFindById ile dolar, BusinessSaveWithDetails ile yazılır
+    property Lines: TObjectList<TPurOrderDetail> read FLines;
+
     constructor Create(); override;
     destructor Destroy; override;
 
     function Clone: TPurOrder;
   end;
 
+  // Kalemden başlığa tipli erişim: Line.Header.OrderNo (HeaderEntity zayıf referans, sahiplenmez)
+  TPurOrderDetailHelper = class helper for TPurOrderDetail
+  private
+    function GetHeader: TPurOrder;
+    procedure SetHeader(const Value: TPurOrder);
+  public
+    property Header: TPurOrder read GetHeader write SetHeader;
+  end;
+
 implementation
+
+{ TPurOrderDetailHelper }
+
+function TPurOrderDetailHelper.GetHeader: TPurOrder;
+begin
+  Result := TPurOrder(HeaderEntity);
+end;
+
+procedure TPurOrderDetailHelper.SetHeader(const Value: TPurOrder);
+begin
+  HeaderEntity := Value;
+end;
+
+{ TPurOrder }
 
 constructor TPurOrder.Create;
 begin
   inherited;
+  FLines := TObjectList<TPurOrderDetail>.Create(True);
   FOrderDate := Date;
   FStatus := 1;
   FExchangeRate := 1;
@@ -114,10 +143,14 @@ end;
 
 destructor TPurOrder.Destroy;
 begin
+  FLines.Free;
   inherited;
 end;
 
+// Kalemler dahil derin kopya; kopyanın kalemleri kopya başlığa bağlanır
 function TPurOrder.Clone: TPurOrder;
+var
+  LLine, LCopy: TPurOrderDetail;
 begin
   Result := TPurOrder.Create;
   Result.Id := Self.Id;
@@ -140,6 +173,12 @@ begin
   Result.AccountCode := Self.AccountCode;
   Result.AccountName := Self.AccountName;
   Result.WarehouseName := Self.WarehouseName;
+  for LLine in Self.FLines do
+  begin
+    LCopy := LLine.Clone;
+    LCopy.HeaderEntity := Result;
+    Result.FLines.Add(LCopy);
+  end;
 end;
 
 end.

@@ -1099,3 +1099,21 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
 - Giriş (kayıt) formları ve seçim listeleri pencere olarak kalır; sahibi sekmedeyse ana forma ortalanır.
 - Ekran kodu: sekmedeki form etkinleşmediği için `TScreenCodes.AttachTo` ile verilir.
 - Çalışma anı testi yapılmadı (Claude UI çalıştıramaz).
+
+## Master-detail belge ekranları (2026-10-21, /goal; NB61, 5433)
+- Hedef (kullanıcı): tüm başlık + kalem yapıları Satış Teklifi gibi tek ekran (TfrmInputDetailedDB + TfrmInputLineDB +
+  TDocumentService). Sıra: alış talep / sipariş / mal kabul / fatura -> satış (zaten tamam) -> reçete, üretim paketleri,
+  fiş (muhasebe fişi acc_voucher) -> unutulanlar (DİİB belgesi). Sormadan ilerle, sorular en sona; test kullanıcıda.
+- Sekmeli gösterim odak hatası düzeltildi (sekme Show'dan önce etkin; FormShow ActiveControl görünmeyen sekmede hata
+  veriyordu) — commit 561296c ile birlikte.
+- ALIŞ TAMAM: DB pur_request_detail / pur_receipt_detail.line_no (NOT NULL, UNIQUE deferrable), pur_order_detail /
+  pur_invoice_detail line key deferrable, talepte (talep, stok) unique deferrable; vw_pur_request_detail / vw_pur_receipt_detail
+  sona line_no; sys_menu 500401-500404 (kalem listeleri) pasif. Domain Lines + helper; repo FindBy{X}Ids,
+  RequestIdsOfDetails, receipt NextLineNo / Amount / InvoicedQuantity; kalem servisleri static CheckLine;
+  TPur{Request|Order|Receipt|Invoice}Service = TDocumentService (CheckLines: taslak kilidi, belge içi açık miktar,
+  faturalanan kalem kilidi; mal kabul kalem hook'u stok hareketi, belge hook'u stok özeti + sipariş teslim; sipariş belge
+  hook'u talep miktarları); CreateFromRequest / CreateFromOrder / CreateFromReceipt bellekte + aynı kayıt.
+  UI: ufrmPur{X}Detail (belge) + ufrmPur{X}Line; Output/ufrmPur{X}Details + dashboard actpur_*_lines silindi;
+  dönüşümler belge ekranını açar; cari hareketlerden alış faturası belge ekranı.
+  Test: TestPurchaseDocuments 25 adım PASS (specific Purchasing 682 PASS / 0 FAIL). Tam paket 2126 PASS / 3 FAIL —
+  FAIL'ler TAccAccount generic findbyid=find AddressesAssigned (bu işten bağımsız, önceden var).
