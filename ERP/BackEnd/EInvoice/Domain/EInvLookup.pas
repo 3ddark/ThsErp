@@ -106,9 +106,14 @@ type
     class function IsValidPlate(const AValue: string): Boolean;
     // TC kimlik no: 11 hane, ilk hane 0 değil, 10. ve 11. hane kontrol haneleri
     class function IsValidNationalId(const AValue: string): Boolean;
+    // GİB etiketi (alias): urn:mail:{etiket}@{alan}, boşluksuz (urn:mail:defaultpk@firma.com.tr); DB CHECK ile aynı kural
+    class function IsValidAlias(const AValue: string): Boolean;
   end;
 
 implementation
+
+uses
+  System.RegularExpressions;
 
 class function TEInvLookup.Items(AKind: TEInvLookupKind): TArray<string>;
 begin
@@ -258,6 +263,11 @@ begin
     Result := EINV_SERIES_DESPATCH
   else
     Result := EINV_SERIES_INVOICE;
+end;
+
+class function TEInvLookup.IsValidAlias(const AValue: string): Boolean;
+begin
+  Result := TRegEx.IsMatch(AValue, '^urn:mail:[^@\s]+@[^@\s]+$', [roIgnoreCase]);
 end;
 
 class function TEInvLookup.NormalizePlate(const AValue: string): string;

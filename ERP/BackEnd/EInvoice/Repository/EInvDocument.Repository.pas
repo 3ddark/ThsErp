@@ -22,6 +22,7 @@ type
     procedure ReadAddress(Q: TFDQuery; AAddressId: Int64; var AParty: TEInvUblParty);
     procedure ReadSupplier(Q: TFDQuery; var AParty: TEInvUblParty);
     procedure ReadAccountParty(Q: TFDQuery; AAccountId: Int64; const AAddressType: string; var AParty: TEInvUblParty);
+    procedure ReadAliases(Q: TFDQuery; AScope: Integer; AAccountId: Int64; var ASenderAlias, AReceiverAlias: string);
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
 
@@ -307,6 +308,26 @@ begin
   ReadAddress(Q, LAddressId, AParty);
 end;
 
+// Gönderim etiketleri: gönderici = firmanın belge türü ayarındaki GB etiketi, alıcı = carinin PK etiketi
+// (e-İrsaliye kapsamında e-İrsaliye etiketi, diğerlerinde e-Fatura etiketi)
+procedure TEInvDocumentRepository.ReadAliases(Q: TFDQuery; AScope: Integer; AAccountId: Int64;
+  var ASenderAlias, AReceiverAlias: string);
+begin
+  Q.Close;
+  Q.SQL.Text :=
+    'SELECT (SELECT d.sender_alias FROM public.einv_document_setting d ' +
+    '         WHERE d.sys_application_setting_id = (SELECT id FROM public.sys_application_setting ORDER BY id LIMIT 1) ' +
+    '           AND d.series_scope = :scope) AS sender_alias, ' +
+    '       (SELECT CASE WHEN :scope = :despatch_scope THEN a.e_despatch_pk_alias ELSE a.e_invoice_pk_alias END ' +
+    '          FROM public.acc_account a WHERE a.id = :account_id) AS receiver_alias';
+  Q.ParamByName('scope').AsInteger := AScope;
+  Q.ParamByName('account_id').AsLargeInt := AAccountId;
+  LogQuery(Q, 'ReadAliases');
+  Q.Open;
+  ASenderAlias := FieldText(Q, 'sender_alias');
+  AReceiverAlias := FieldText(Q, 'receiver_alias');
+end;
+
 function TEInvDocumentRepository.FindByDispatchId(ADispatchId: Int64): TEInvDocument;
 var
   Q: TFDQuery;
@@ -472,6 +493,14 @@ begin
           SplitName(Result.Customer.Name, Result.Customer);
       end;
 
+      // ---- gönderim etiketleri (e-Arşiv GİB'e raporlanır, etiket yok). IHRACAT: alıcı GTB, carinin etiketi kullanılmaz
+      if TEInvLookup.SeriesScopeOf(Result.ProfileCode) <> EINV_SERIES_ARCHIVE then
+      begin
+        ReadAliases(Q, TEInvLookup.SeriesScopeOf(Result.ProfileCode), LAccountId, Result.SenderAlias, Result.ReceiverAlias);
+        if Result.IsExport then
+          Result.ReceiverAlias := '';
+      end;
+
       // ---- kalemler (DİİB belge numaraları CustomsDeclaration/ID için)
       Q.Close;
       Q.SQL.Text :=
@@ -612,6 +641,7 @@ begin
       LDoc.HasCarrier := LCarrierId > 0;
       if LDoc.HasCarrier then
         ReadAccountParty(Q, LCarrierId, 'LEGAL', LDoc.Carrier);
+      ReadAliases(Q, EINV_SERIES_DESPATCH, LAccountId, LDoc.SenderAlias, LDoc.ReceiverAlias);
 
       // ---- kalemler (fiyat yazılmaz)
       Q.Close;

@@ -23,9 +23,14 @@ type
     edtSysApiServiceId: TEdit;
     lblSenderAlias: TLabel;
     edtSenderAlias: TEdit;
+    lblReceiverAlias: TLabel;
+    edtReceiverAlias: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
+  private
+    procedure cbbSeriesScopeChange(Sender: TObject);
+    procedure ApplyAliasState;
   public
     procedure HelperProcess(Sender: TObject);
     procedure RefreshData; override;
@@ -46,6 +51,7 @@ begin
   // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
   Table.SeriesScope := cbbSeriesScope.ItemIndex + 1;
   Table.SenderAlias := edtSenderAlias.Text;
+  Table.ReceiverAlias := edtReceiverAlias.Text;
   inherited;
 end;
 
@@ -57,6 +63,8 @@ begin
   edtEinvSeriesId.OnHelperProcess := HelperProcess;
   edtSysApiServiceId.OnHelperProcess := HelperProcess;
   edtSenderAlias.thsInputDataType := itString;
+  edtReceiverAlias.thsInputDataType := itString;
+  cbbSeriesScope.OnChange := cbbSeriesScopeChange;
 end;
 
 procedure TfrmEInvDocumentSetting.FormShow(Sender: TObject);
@@ -79,6 +87,7 @@ begin
   lblEinvSeriesId.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColEinvSeriesId, 'Series');
   lblSysApiServiceId.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColSysApiServiceId, 'API Service');
   lblSenderAlias.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColSenderAlias, 'Sender Alias (GB)');
+  lblReceiverAlias.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColReceiverAlias, 'Receiver Alias (PK)');
 end;
 
 procedure TfrmEInvDocumentSetting.HelperProcess(Sender: TObject);
@@ -155,6 +164,25 @@ begin
   edtEinvSeriesId.Text := Table.SeriesCode;
   edtSysApiServiceId.Text := Table.ServiceKind;
   edtSenderAlias.Text := Table.SenderAlias;
+  edtReceiverAlias.Text := Table.ReceiverAlias;
+  ApplyAliasState;
+end;
+
+procedure TfrmEInvDocumentSetting.cbbSeriesScopeChange(Sender: TObject);
+begin
+  ApplyAliasState;
+end;
+
+// e-Arşivde etiket yok (servis kayıtta boşaltır)
+procedure TfrmEInvDocumentSetting.ApplyAliasState;
+var
+  LEnabled: Boolean;
+begin
+  LEnabled := cbbSeriesScope.ItemIndex + 1 <> EINV_SERIES_ARCHIVE;
+  lblSenderAlias.Enabled := LEnabled;
+  edtSenderAlias.Enabled := LEnabled;
+  lblReceiverAlias.Enabled := LEnabled;
+  edtReceiverAlias.Enabled := LEnabled;
 end;
 
 end.

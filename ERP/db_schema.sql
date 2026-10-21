@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict ODYlzM0azakuit7enwvboGv3ATyCpKcOf4C3JJ6tCfzdSgwgqlCLke2wFVUBtNi
+\restrict 9ZIELCf20LSvy54dqZt8Vkj5FHCoBglWWLO2Mq4IAyaSYJzrXZGifbuECal1o6O
 
--- Dumped from database version 18.3
--- Dumped by pg_dump version 18.3
+-- Dumped from database version 18.1
+-- Dumped by pg_dump version 18.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -794,9 +794,13 @@ CREATE TABLE public.acc_account (
     sub_code character varying(8),
     discount_rate numeric(5,2) DEFAULT 0 NOT NULL,
     e_invoice_active boolean DEFAULT false CONSTRAINT acc_acc_einv_nn NOT NULL,
-    e_invoice_package_name character varying(128),
+    e_invoice_pk_alias character varying(256),
     is_passive boolean DEFAULT false CONSTRAINT acc_acc_passive_nn NOT NULL,
-    e_despatch_active boolean DEFAULT false NOT NULL
+    e_despatch_active boolean DEFAULT false NOT NULL,
+    e_invoice_gb_alias character varying(256),
+    e_despatch_pk_alias character varying(256),
+    e_despatch_gb_alias character varying(256),
+    CONSTRAINT acc_account_einv_alias_check CHECK ((((e_invoice_pk_alias IS NULL) OR ((e_invoice_pk_alias)::text ~* '^urn:mail:[^@[:space:]]+@[^@[:space:]]+$'::text)) AND ((e_invoice_gb_alias IS NULL) OR ((e_invoice_gb_alias)::text ~* '^urn:mail:[^@[:space:]]+@[^@[:space:]]+$'::text)) AND ((e_despatch_pk_alias IS NULL) OR ((e_despatch_pk_alias)::text ~* '^urn:mail:[^@[:space:]]+@[^@[:space:]]+$'::text)) AND ((e_despatch_gb_alias IS NULL) OR ((e_despatch_gb_alias)::text ~* '^urn:mail:[^@[:space:]]+@[^@[:space:]]+$'::text))))
 );
 
 
@@ -1481,6 +1485,8 @@ CREATE TABLE public.einv_document_setting (
     einv_series_id bigint,
     sys_api_service_id bigint,
     sender_alias character varying(256),
+    receiver_alias character varying(256),
+    CONSTRAINT einv_document_setting_alias_check CHECK ((((sender_alias IS NULL) OR ((sender_alias)::text ~* '^urn:mail:[^@[:space:]]+@[^@[:space:]]+$'::text)) AND ((receiver_alias IS NULL) OR ((receiver_alias)::text ~* '^urn:mail:[^@[:space:]]+@[^@[:space:]]+$'::text)))),
     CONSTRAINT einv_document_setting_scope_check CHECK ((series_scope = ANY (ARRAY[1, 2, 3])))
 );
 
@@ -5573,7 +5579,7 @@ CREATE VIEW public.vw_acc_account AS
     a.sub_code,
     a.discount_rate,
     a.e_invoice_active,
-    a.e_invoice_package_name,
+    a.e_invoice_pk_alias,
     a.is_passive,
     t.taxpayer_type,
     t.taxpayer_name,
@@ -5593,7 +5599,10 @@ CREATE VIEW public.vw_acc_account AS
     c.accountant_email,
     c.accountant_authorized,
     l.locale,
-    a.e_despatch_active
+    a.e_despatch_active,
+    a.e_invoice_gb_alias,
+    a.e_despatch_pk_alias,
+    a.e_despatch_gb_alias
    FROM (((((((public.acc_account a
      CROSS JOIN public.sys_language l)
      LEFT JOIN public.acc_set_account_type at ON ((at.id = a.acc_set_account_type_id)))
@@ -6164,7 +6173,8 @@ CREATE VIEW public.vw_einv_document_setting AS
     a.service_kind,
     a.provider_code,
     a.environment,
-    d.sender_alias
+    d.sender_alias,
+    d.receiver_alias
    FROM ((public.einv_document_setting d
      LEFT JOIN public.einv_series s ON ((s.id = d.einv_series_id)))
      LEFT JOIN public.sys_api_service a ON ((a.id = d.sys_api_service_id)));
@@ -14699,5 +14709,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ODYlzM0azakuit7enwvboGv3ATyCpKcOf4C3JJ6tCfzdSgwgqlCLke2wFVUBtNi
+\unrestrict 9ZIELCf20LSvy54dqZt8Vkj5FHCoBglWWLO2Mq4IAyaSYJzrXZGifbuECal1o6O
 

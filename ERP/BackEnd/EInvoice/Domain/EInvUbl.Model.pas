@@ -82,6 +82,9 @@ type
     Description: string;
     Supplier: TEInvUblParty;
     Customer: TEInvUblParty;
+    // gönderim zarfı (XML'e yazılmaz): firmanın GB etiketi (e-Belge Ayarları) -> carinin PK etiketi; e-Arşivde boş
+    SenderAlias: string;
+    ReceiverAlias: string;
     IsExport: Boolean;           // IHRACAT: fatura alıcısı GTB, malı alan BuyerCustomerParty
     ExemptionCode: string;
     ExemptionName: string;
@@ -134,6 +137,9 @@ type
     OrderDate: TDate;
     Supplier: TEInvUblParty;     // sevk eden (uygulama ayarları)
     Customer: TEInvUblParty;     // teslim alan (cari; sevk adresi, yoksa fatura / birincil adres)
+    // gönderim zarfı (XML'e yazılmaz): firmanın e-İrsaliye GB etiketi -> carinin e-İrsaliye PK etiketi
+    SenderAlias: string;
+    ReceiverAlias: string;
     HasCarrier: Boolean;
     Carrier: TEInvUblParty;      // taşıyıcı firma (cari)
     VehiclePlate: string;

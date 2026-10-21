@@ -104,14 +104,14 @@ end;
 function TEInvDocumentSettingRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TEInvDocumentSetting) +
-            ' (sys_application_setting_id, series_scope, einv_series_id, sys_api_service_id, sender_alias) ' +
-            ' VALUES (:sys_application_setting_id, :series_scope, :einv_series_id, :sys_api_service_id, :sender_alias)';
+            ' (sys_application_setting_id, series_scope, einv_series_id, sys_api_service_id, sender_alias, receiver_alias) ' +
+            ' VALUES (:sys_application_setting_id, :series_scope, :einv_series_id, :sys_api_service_id, :sender_alias, :receiver_alias)';
 end;
 
 function TEInvDocumentSettingRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TEInvDocumentSetting) +
-            ' SET sys_application_setting_id = :sys_application_setting_id, series_scope = :series_scope, einv_series_id = :einv_series_id, sys_api_service_id = :sys_api_service_id, sender_alias = :sender_alias ' +
+            ' SET sys_application_setting_id = :sys_application_setting_id, series_scope = :series_scope, einv_series_id = :einv_series_id, sys_api_service_id = :sys_api_service_id, sender_alias = :sender_alias, receiver_alias = :receiver_alias ' +
             ' WHERE id = :id';
 end;
 
@@ -128,11 +128,13 @@ begin
   begin
     Q.ParamByName('series_scope').AsSmallInt := AModel.SeriesScope;
     Q.ParamByName('sender_alias').AsWideString := AModel.SenderAlias;
+    Q.ParamByName('receiver_alias').AsWideString := AModel.ReceiverAlias;
   end
   else
   begin
     Q.ParamByName('series_scope').AsSmallInts[AIndex] := AModel.SeriesScope;
     Q.ParamByName('sender_alias').AsWideStrings[AIndex] := AModel.SenderAlias;
+    Q.ParamByName('receiver_alias').AsWideStrings[AIndex] := AModel.ReceiverAlias;
   end;
 
   SetNullableParam(Q.ParamByName('sys_application_setting_id'), ftLargeint, AModel.SysApplicationSettingId, AIndex);
@@ -148,12 +150,14 @@ begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
     Q.ParamByName('series_scope').AsSmallInt := AModel.SeriesScope;
     Q.ParamByName('sender_alias').AsWideString := AModel.SenderAlias;
+    Q.ParamByName('receiver_alias').AsWideString := AModel.ReceiverAlias;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
     Q.ParamByName('series_scope').AsSmallInts[AIndex] := AModel.SeriesScope;
     Q.ParamByName('sender_alias').AsWideStrings[AIndex] := AModel.SenderAlias;
+    Q.ParamByName('receiver_alias').AsWideStrings[AIndex] := AModel.ReceiverAlias;
   end;
 
   SetNullableParam(Q.ParamByName('sys_application_setting_id'), ftLargeint, AModel.SysApplicationSettingId, AIndex);
@@ -170,6 +174,7 @@ begin
   Result.EinvSeriesId := Q.FieldByName('einv_series_id').AsLargeInt;
   Result.SysApiServiceId := Q.FieldByName('sys_api_service_id').AsLargeInt;
   Result.SenderAlias := Q.FieldByName('sender_alias').AsString;
+  Result.ReceiverAlias := Q.FieldByName('receiver_alias').AsString;
   Result.SeriesCode := Q.FieldByName('series_code').AsString;
   Result.SeriesName := Q.FieldByName('series_name').AsString;
   Result.ServiceKind := Q.FieldByName('service_kind').AsString;

@@ -31,15 +31,20 @@ type
     cbbSubCode: TComboBox;
     lblIban: TLabel;
     edtIban: TEdit;
-    lblIbanCurrency: TLabel;
     edtIbanCurrency: TEdit;
     lblDiscountRate: TLabel;
     edtDiscountRate: TEdit;
     lblEInvoiceActive: TLabel;
     chkEInvoiceActive: TCheckBox;
     chkEDespatchActive: TCheckBox;
-    lblEInvoicePackageName: TLabel;
-    edtEInvoicePackageName: TEdit;
+    lblEInvoicePkAlias: TLabel;
+    edtEInvoicePkAlias: TEdit;
+    lblEInvoiceGbAlias: TLabel;
+    edtEInvoiceGbAlias: TEdit;
+    lblEDespatchPkAlias: TLabel;
+    edtEDespatchPkAlias: TEdit;
+    lblEDespatchGbAlias: TLabel;
+    edtEDespatchGbAlias: TEdit;
     lblIsPassive: TLabel;
     chkIsPassive: TCheckBox;
     lblNotes: TLabel;
@@ -79,6 +84,7 @@ type
     lblAccountantAuthorized: TLabel;
     edtAccountantAuthorized: TEdit;
     tsTaxpayer: TTabSheet;
+    tsContact: TTabSheet;
     tsBillingAddress: TTabSheet;
     tsShippingAddress: TTabSheet;
     tsLegalAddress: TTabSheet;
@@ -95,6 +101,8 @@ type
     procedure FillTaxpayerTypes;
     procedure cbbTaxpayerTypeChange(Sender: TObject);
     procedure ApplyTaxpayerType;
+    procedure chkEDocumentActiveClick(Sender: TObject);
+    procedure ApplyAliasState;
   private
     FCodeLoading: Boolean;
     procedure LoadCodeSelection;
@@ -131,7 +139,10 @@ begin
   Table.DiscountRate := StrToCurrDef(edtDiscountRate.Text, 0);
   Table.EInvoiceActive := chkEInvoiceActive.Checked;
   Table.EDespatchActive := chkEDespatchActive.Checked;
-  Table.EInvoicePackageName := edtEInvoicePackageName.Text;
+  Table.EInvoicePkAlias := edtEInvoicePkAlias.Text;
+  Table.EInvoiceGbAlias := edtEInvoiceGbAlias.Text;
+  Table.EDespatchPkAlias := edtEDespatchPkAlias.Text;
+  Table.EDespatchGbAlias := edtEDespatchGbAlias.Text;
   Table.IsPassive := chkIsPassive.Checked;
   Table.Notes := edtNotes.Text;
   // ilk satır boş = mükellef değil (0 -> NULL); 1 tüzel, 2 gerçek kişi
@@ -210,7 +221,12 @@ begin
   edtIban.thsInputDataType := itString;
   edtIban.CharCase := TEditCharCase.ecUpperCase;
   edtDiscountRate.thsInputDataType := itFloat;
-  edtEInvoicePackageName.thsInputDataType := itString;
+  edtEInvoicePkAlias.thsInputDataType := itString;
+  edtEInvoiceGbAlias.thsInputDataType := itString;
+  edtEDespatchPkAlias.thsInputDataType := itString;
+  edtEDespatchGbAlias.thsInputDataType := itString;
+  chkEInvoiceActive.OnClick := chkEDocumentActiveClick;
+  chkEDespatchActive.OnClick := chkEDocumentActiveClick;
   edtNotes.thsInputDataType := itString;
   FillTaxpayerTypes;
   cbbTaxpayerType.OnChange := cbbTaxpayerTypeChange;
@@ -248,6 +264,7 @@ begin
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.TitleSingular, 'Account Card');
   tsGeneral.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.TabGeneral, 'General');
   tsTaxpayer.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.TabTaxpayer, 'Taxpayer Information');
+  tsContact.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.TabContact, 'Contact Information');
   for LIndex := Low(FAddressEditors) to High(FAddressEditors) do
     if Assigned(FAddressEditors[LIndex]) then
     begin
@@ -261,11 +278,13 @@ begin
   lblRootCode.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColRootCode, 'Root Code');
   lblSubCode.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColSubCode, 'Parent Code');
   lblIban.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIban, 'IBAN');
-  lblIbanCurrency.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIbanCurrency, 'IBAN Currency');
   lblDiscountRate.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColDiscountRate, 'Discount Rate');
   lblEInvoiceActive.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoiceActive, 'E-Invoice Active');
   chkEDespatchActive.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEDespatchActive, 'e-Despatch Active');
-  lblEInvoicePackageName.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoicePackageName, 'E-Invoice Package');
+  lblEInvoicePkAlias.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoicePkAlias, 'e-Invoice Mailbox (PK)');
+  lblEInvoiceGbAlias.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoiceGbAlias, 'e-Invoice Sender Unit (GB)');
+  lblEDespatchPkAlias.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEDespatchPkAlias, 'e-Despatch Mailbox (PK)');
+  lblEDespatchGbAlias.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEDespatchGbAlias, 'e-Despatch Sender Unit (GB)');
   lblIsPassive.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIsPassive, 'Passive');
   lblNotes.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColNotes, 'Notes');
   lblTaxpayerType.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColTaxpayerType, 'Taxpayer Type');
@@ -350,6 +369,24 @@ begin
       LEdits[I].TabOrder := I + 1;
       Inc(LTop, 23);
     end;
+end;
+
+procedure TfrmAccAccount.chkEDocumentActiveClick(Sender: TObject);
+begin
+  ApplyAliasState;
+end;
+
+// Etiketler yalnız ilgili mükellefiyet işaretliyken girilir (işaretsizse servis kayıtta boşaltır)
+procedure TfrmAccAccount.ApplyAliasState;
+begin
+  lblEInvoicePkAlias.Enabled := chkEInvoiceActive.Checked;
+  edtEInvoicePkAlias.Enabled := chkEInvoiceActive.Checked;
+  lblEInvoiceGbAlias.Enabled := chkEInvoiceActive.Checked;
+  edtEInvoiceGbAlias.Enabled := chkEInvoiceActive.Checked;
+  lblEDespatchPkAlias.Enabled := chkEDespatchActive.Checked;
+  edtEDespatchPkAlias.Enabled := chkEDespatchActive.Checked;
+  lblEDespatchGbAlias.Enabled := chkEDespatchActive.Checked;
+  edtEDespatchGbAlias.Enabled := chkEDespatchActive.Checked;
 end;
 
 // "120-001 - YURTİÇİ ALICILAR" -> "120-001"
@@ -585,7 +622,11 @@ begin
   edtDiscountRate.Text := CurrToStr(Table.DiscountRate);
   chkEInvoiceActive.Checked := Table.EInvoiceActive;
   chkEDespatchActive.Checked := Table.EDespatchActive;
-  edtEInvoicePackageName.Text := Table.EInvoicePackageName;
+  edtEInvoicePkAlias.Text := Table.EInvoicePkAlias;
+  edtEInvoiceGbAlias.Text := Table.EInvoiceGbAlias;
+  edtEDespatchPkAlias.Text := Table.EDespatchPkAlias;
+  edtEDespatchGbAlias.Text := Table.EDespatchGbAlias;
+  ApplyAliasState;
   chkIsPassive.Checked := Table.IsPassive;
   edtNotes.Text := Table.Notes;
   if (Table.TaxpayerType > 0) and (Table.TaxpayerType < cbbTaxpayerType.Items.Count) then

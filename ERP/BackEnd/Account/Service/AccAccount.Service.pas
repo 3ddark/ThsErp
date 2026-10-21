@@ -24,6 +24,7 @@ type
     procedure ValidateUnique(AEntity: TAccAccount; AOperation: TCrudOperation);
     procedure CheckAddresses(AEntity: TAccAccount);
     procedure CheckTaxpayer(AEntity: TAccAccount);
+    procedure CheckAliases(AEntity: TAccAccount);
     procedure CheckCode(AEntity: TAccAccount; AOperation: TCrudOperation);
     procedure SaveAddresses(AEntity: TAccAccount; AIsNew: Boolean);
     procedure DeleteSysAddressIfUnused(ASysAddressId: Int64);
@@ -72,7 +73,7 @@ implementation
 uses
   Ths.Helper.BaseTypes,
   System.RegularExpressions,
-  SysPermission.Service, SysAddress.Service, AccLookup;
+  SysPermission.Service, SysAddress.Service, AccLookup, EInvLookup;
 
 constructor TAccAccountService.Create;
 begin
@@ -135,7 +136,6 @@ begin
     AEntity.Name := UpperCaseTr(Trim(AEntity.Name));
     AEntity.Iban := AnsiUpperCase(Trim(AEntity.Iban));
     AEntity.IbanCurrency := Trim(AEntity.IbanCurrency);
-    AEntity.EInvoicePackageName := Trim(AEntity.EInvoicePackageName);
     AEntity.Notes := Trim(AEntity.Notes);
     AEntity.TaxpayerName := Trim(AEntity.TaxpayerName);
     AEntity.TaxpayerName2 := Trim(AEntity.TaxpayerName2);
@@ -156,6 +156,7 @@ begin
     CheckCode(AEntity, AOperation);
     ValidateRequiredReferences(AEntity);
     CheckTaxpayer(AEntity);
+    CheckAliases(AEntity);
     // Hesap kodu yapısı: 120 / 120-001 / 120-001-001
     //   root_code = ilk 3 karakter, sub_code = üç seviyeli kodlarda üst (ara) hesap kodu
     AEntity.RootCode := Copy(AEntity.Code, 1, 3);
@@ -314,6 +315,41 @@ begin
     AEntity.TaxpayerSurname := '';
     AEntity.TaxOffice := '';
     AEntity.TaxNo := '';
+  end;
+end;
+
+// e-Fatura / e-İrsaliye etiketleri: mükellef olmayan türün etiketleri boşaltılır, dolu etiket GİB biçiminde olmalı.
+// Etiket zorunlu değil (mükellefiyet işaretlenip etiket sonra girilebilir); gönderim alıcı PK etiketini ister
+procedure TAccAccountService.CheckAliases(AEntity: TAccAccount);
+
+  function Check(const AValue, AKey, ADefault: string): string;
+  begin
+    Result := Trim(AValue);
+    if (Result <> '') and not TEInvLookup.IsValidAlias(Result) then
+      raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.AliasFormat,
+        '%s: invalid alias. Format: urn:mail:alias@domain'), [TLocalizationManager.Translate(AKey, ADefault)]));
+  end;
+
+begin
+  if AEntity.EInvoiceActive then
+  begin
+    AEntity.EInvoicePkAlias := Check(AEntity.EInvoicePkAlias, TLangKeys.TAccAccount.ColEInvoicePkAlias, 'e-Invoice Mailbox (PK)');
+    AEntity.EInvoiceGbAlias := Check(AEntity.EInvoiceGbAlias, TLangKeys.TAccAccount.ColEInvoiceGbAlias, 'e-Invoice Sender Unit (GB)');
+  end
+  else
+  begin
+    AEntity.EInvoicePkAlias := '';
+    AEntity.EInvoiceGbAlias := '';
+  end;
+  if AEntity.EDespatchActive then
+  begin
+    AEntity.EDespatchPkAlias := Check(AEntity.EDespatchPkAlias, TLangKeys.TAccAccount.ColEDespatchPkAlias, 'e-Despatch Mailbox (PK)');
+    AEntity.EDespatchGbAlias := Check(AEntity.EDespatchGbAlias, TLangKeys.TAccAccount.ColEDespatchGbAlias, 'e-Despatch Sender Unit (GB)');
+  end
+  else
+  begin
+    AEntity.EDespatchPkAlias := '';
+    AEntity.EDespatchGbAlias := '';
   end;
 end;
 

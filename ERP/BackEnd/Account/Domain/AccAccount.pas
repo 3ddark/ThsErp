@@ -42,7 +42,10 @@ type
     FDiscountRate: Currency;
     FEInvoiceActive: Boolean;
     FEDespatchActive: Boolean;
-    FEInvoicePackageName: string;
+    FEInvoicePkAlias: string;
+    FEInvoiceGbAlias: string;
+    FEDespatchPkAlias: string;
+    FEDespatchGbAlias: string;
     FIsPassive: Boolean;
     FNotes: string;
     FTaxpayerType: SmallInt;
@@ -115,9 +118,23 @@ type
     [Column('e_despatch_active')]
     property EDespatchActive: Boolean read FEDespatchActive write FEDespatchActive;
 
-    [Column('e_invoice_package_name')]
-    [MaxLength(128)]
-    property EInvoicePackageName: string read FEInvoicePackageName write FEInvoicePackageName;
+    // GİB etiketleri (urn:mail:...@...): PK = posta kutusu (cariye gönderilen belgelerin alıcı etiketi),
+    // GB = gönderici birim (cariden gelen belgelerin gönderici etiketi). Mükellefiyet işareti yoksa servis boşaltır
+    [Column('e_invoice_pk_alias')]
+    [MaxLength(256)]
+    property EInvoicePkAlias: string read FEInvoicePkAlias write FEInvoicePkAlias;
+
+    [Column('e_invoice_gb_alias')]
+    [MaxLength(256)]
+    property EInvoiceGbAlias: string read FEInvoiceGbAlias write FEInvoiceGbAlias;
+
+    [Column('e_despatch_pk_alias')]
+    [MaxLength(256)]
+    property EDespatchPkAlias: string read FEDespatchPkAlias write FEDespatchPkAlias;
+
+    [Column('e_despatch_gb_alias')]
+    [MaxLength(256)]
+    property EDespatchGbAlias: string read FEDespatchGbAlias write FEDespatchGbAlias;
 
     [Column('is_passive')]
     property IsPassive: Boolean read FIsPassive write FIsPassive;
@@ -270,7 +287,10 @@ begin
   Result.DiscountRate := Self.DiscountRate;
   Result.EInvoiceActive := Self.EInvoiceActive;
   Result.EDespatchActive := Self.EDespatchActive;
-  Result.EInvoicePackageName := Self.EInvoicePackageName;
+  Result.EInvoicePkAlias := Self.EInvoicePkAlias;
+  Result.EInvoiceGbAlias := Self.EInvoiceGbAlias;
+  Result.EDespatchPkAlias := Self.EDespatchPkAlias;
+  Result.EDespatchGbAlias := Self.EDespatchGbAlias;
   Result.IsPassive := Self.IsPassive;
   Result.Notes := Self.Notes;
   Result.TaxpayerType := Self.TaxpayerType;

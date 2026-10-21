@@ -97,6 +97,7 @@ begin
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.TitlePlural, 'e-Document Settings');
   SetColumnTitle('series_scope', TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColSeriesScope, 'Document Type'));
   SetColumnTitle('sender_alias', TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColSenderAlias, 'Sender Alias (GB)'));
+  SetColumnTitle('receiver_alias', TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColReceiverAlias, 'Receiver Alias (PK)'));
   SetColumnTitle('series_code', TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColSeriesCode, 'Series'));
   SetColumnTitle('series_name', TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColSeriesName, 'Series Name'));
   SetColumnTitle('service_kind', TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColServiceKind, 'API Service'));

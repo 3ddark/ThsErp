@@ -180,7 +180,10 @@ begin
   SetColumnTitle('discount_rate', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColDiscountRate, 'Discount Rate'));
   SetColumnTitle('e_invoice_active', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoiceActive, 'E-Invoice Active'));
   SetColumnTitle('e_despatch_active', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEDespatchActive, 'e-Despatch Active'));
-  SetColumnTitle('e_invoice_package_name', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoicePackageName, 'E-Invoice Package'));
+  SetColumnTitle('e_invoice_pk_alias', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoicePkAlias, 'e-Invoice Mailbox (PK)'));
+  SetColumnTitle('e_invoice_gb_alias', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoiceGbAlias, 'e-Invoice Sender Unit (GB)'));
+  SetColumnTitle('e_despatch_pk_alias', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEDespatchPkAlias, 'e-Despatch Mailbox (PK)'));
+  SetColumnTitle('e_despatch_gb_alias', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEDespatchGbAlias, 'e-Despatch Sender Unit (GB)'));
   SetColumnTitle('is_passive', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIsPassive, 'Passive'));
   SetColumnTitle('notes', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColNotes, 'Notes'));
   SetColumnTitle('taxpayer_type', TLocalizationManager.Translate(TLangKeys.TAccAccount.ColTaxpayerType, 'Taxpayer Type'));

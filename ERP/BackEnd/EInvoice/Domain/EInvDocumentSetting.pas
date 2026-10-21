@@ -16,6 +16,7 @@ type
     FEinvSeriesId: Int64;
     FSysApiServiceId: Int64;
     FSenderAlias: string;
+    FReceiverAlias: string;
 
     // View (vw_einv_document_setting) okunabilir alanları
     FSeriesCode: string;
@@ -36,9 +37,14 @@ type
     [Column('sys_api_service_id')]
     property SysApiServiceId: Int64 read FSysApiServiceId write FSysApiServiceId;
 
+    // GİB etiketleri (e-Arşivde yok): gönderici birim (GB) giden belgelerde, posta kutusu (PK) gelen belgelerde
     [Column('sender_alias')]
     [MaxLength(256)]
     property SenderAlias: string read FSenderAlias write FSenderAlias;
+
+    [Column('receiver_alias')]
+    [MaxLength(256)]
+    property ReceiverAlias: string read FReceiverAlias write FReceiverAlias;
 
     [NotMapped]
     property SeriesCode: string read FSeriesCode write FSeriesCode;
@@ -79,6 +85,7 @@ begin
   Result.EinvSeriesId := Self.EinvSeriesId;
   Result.SysApiServiceId := Self.SysApiServiceId;
   Result.SenderAlias := Self.SenderAlias;
+  Result.ReceiverAlias := Self.ReceiverAlias;
   Result.SeriesCode := Self.SeriesCode;
   Result.SeriesName := Self.SeriesName;
   Result.ServiceKind := Self.ServiceKind;

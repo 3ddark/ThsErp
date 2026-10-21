@@ -18,6 +18,7 @@ type
     procedure DoDelete(AId: Int64);
 
     procedure FailRequired(const AKey, ADefault: string);
+    procedure CheckAlias(const AValue, AKey, ADefault: string);
   public
     constructor Create;
     destructor Destroy; override;
@@ -58,6 +59,14 @@ begin
   inherited;
 end;
 
+// Dolu etiket GİB biçiminde olmalı (urn:mail:etiket@alan)
+procedure TEInvDocumentSettingService.CheckAlias(const AValue, AKey, ADefault: string);
+begin
+  if (AValue <> '') and not TEInvLookup.IsValidAlias(AValue) then
+    raise Exception.Create(Format(TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.AliasFormat,
+      '%s: invalid alias. Format: urn:mail:alias@domain'), [TLocalizationManager.Translate(AKey, ADefault)]));
+end;
+
 // Alan adı + "zorunludur" mesajı
 procedure TEInvDocumentSettingService.FailRequired(const AKey, ADefault: string);
 begin
@@ -75,8 +84,17 @@ begin
     Exit;
 
   AEntity.SenderAlias := Trim(AEntity.SenderAlias);
+  AEntity.ReceiverAlias := Trim(AEntity.ReceiverAlias);
   if not TEInvLookup.IsValid(elkSeriesScope, AEntity.SeriesScope) then
     FailRequired(TLangKeys.TEInvDocumentSetting.ColSeriesScope, 'Document Type');
+  // e-Arşiv GİB'e raporlanır, etiket kullanılmaz
+  if AEntity.SeriesScope = EINV_SERIES_ARCHIVE then
+  begin
+    AEntity.SenderAlias := '';
+    AEntity.ReceiverAlias := '';
+  end;
+  CheckAlias(AEntity.SenderAlias, TLangKeys.TEInvDocumentSetting.ColSenderAlias, 'Sender Alias (GB)');
+  CheckAlias(AEntity.ReceiverAlias, TLangKeys.TEInvDocumentSetting.ColReceiverAlias, 'Receiver Alias (PK)');
   if AEntity.SysApplicationSettingId <= 0 then
     AEntity.SysApplicationSettingId := LRepo.ApplicationSettingId;
   if AEntity.SysApplicationSettingId <= 0 then

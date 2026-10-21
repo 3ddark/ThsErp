@@ -1064,6 +1064,15 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
   102 BANKALAR / 120 ALICILAR / 320 SATICILAR eklendi (dump yenilendi). Kullanıcının test kaydı 120-1-89 biçim dışı kaldı
   (güncellemede yeni kod seçilmeli ya da silinmeli). IT TestAccountCode; UI harness copy kontrolü cari kodunu türetilmiş sayar.
 
+- 2026-10-21: e-belge GİB etiketleri + cari kartında İletişim sekmesi. acc_account.e_invoice_package_name (hiç kullanılmıyordu,
+  veri yoktu) -> e_invoice_pk_alias; yeni e_invoice_gb_alias, e_despatch_pk_alias, e_despatch_gb_alias (varchar 256, CHECK
+  urn:mail:x@y); einv_document_setting.receiver_alias (PK; sender_alias = GB). vw_acc_account yeniden, vw_einv_document_setting
+  kolon eklendi, sys_grid_column / sys_user_grid_column güncellendi. Servis: işaret yoksa etiketler boşaltılır, biçim
+  TEInvLookup.IsValidAlias; e-Arşiv ayarında etiketler boşaltılır. LoadSalesInvoice / LoadSalesDispatch SenderAlias /
+  ReceiverAlias doldurur (gönderim zarfı için; XML'e yazılmaz). Kart: genel sekme sağ kolon etiketler (işarete göre
+  enabled), iletişim alanları tsContact sekmesine taşındı. Ayrıca çalışma kopyasındaki lblIbanCurrency kaldırmasının
+  ApplyLocalization'da kalan referansı silindi. Derleme 0 hata; UI çalıştırılarak test edilmedi.
+
 ## Hatalar / Engeller
 - Bu PC'de güncel DB 5433'te; GlobalSettings.ini DBPortNo=5432 (diğer makine değeri) ve 5432'de 2023'ten kalma eski ths_erp var
   (yalnız geçmiş referansı; değişiklik yapılmaz). Uygulama bu ini ile eski DB'ye bağlanır.

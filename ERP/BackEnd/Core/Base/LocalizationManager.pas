@@ -908,7 +908,10 @@ type
         const ColIbanCurrency = 'acc_account.col_iban_currency';
         const ColDiscountRate = 'acc_account.col_discount_rate';
         const ColEInvoiceActive = 'acc_account.col_e_invoice_active';
-        const ColEInvoicePackageName = 'acc_account.col_e_invoice_package_name';
+        const ColEInvoicePkAlias = 'acc_account.col_e_invoice_pk_alias';
+        const ColEInvoiceGbAlias = 'acc_account.col_e_invoice_gb_alias';
+        const ColEDespatchPkAlias = 'acc_account.col_e_despatch_pk_alias';
+        const ColEDespatchGbAlias = 'acc_account.col_e_despatch_gb_alias';
         const ColIsPassive = 'acc_account.col_is_passive';
         const ColNotes = 'acc_account.col_notes';
         const ColTaxpayerType = 'acc_account.col_taxpayer_type';
@@ -939,6 +942,7 @@ type
         const AddressOther = 'acc_account.address_other';
         const AddressCity = 'acc_account.address_city';
         const TabTaxpayer = 'acc_account.tab_taxpayer';
+        const TabContact = 'acc_account.tab_contact';
         const ColCitizenNo = 'acc_account.col_citizen_no';
         const TaxNoDigits = 'acc_account.tax_no_digits';
         const CodeFormat = 'acc_account.code_format';
@@ -2798,6 +2802,8 @@ type
         const ColEinvSeriesId = 'einv_document_setting.col_einv_series_id';
         const ColSysApiServiceId = 'einv_document_setting.col_sys_api_service_id';
         const ColSenderAlias = 'einv_document_setting.col_sender_alias';
+        const ColReceiverAlias = 'einv_document_setting.col_receiver_alias';
+        const AliasFormat = 'einv_document_setting.alias_format';
         const ColSeriesCode = 'einv_document_setting.col_series_code';
         const ColSeriesName = 'einv_document_setting.col_series_name';
         const ColServiceKind = 'einv_document_setting.col_service_kind';
