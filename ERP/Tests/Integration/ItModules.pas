@@ -40,7 +40,7 @@ uses
   EInvDiib, EInvDiib.Service, EInvDiibLine, EInvDiibLine.Service,
   EInvVehicle, EInvVehicle.Service, EInvDriver, EInvDriver.Service,
   ApiService.Config, SysApiService, SysApiService.Service, SysApiService.ConfigSource,
-  EInvDocumentSetting, EInvDocumentSetting.Service;
+  EInvDocumentSetting, EInvDocumentSetting.Service, EInvIntegrator, EInvIntegrator.ELogo;
 
 var
   GMod, GEnt: string;
@@ -5343,6 +5343,412 @@ begin
   end;
 end;
 
+{ ---------------------------------------------------------------- e-Document integrator }
+
+// Sahte sağlayıcı (ağ yok): son gönderim isteği saklanır, hata / uzak durum testten ayarlanır
+type
+  TItFakeIntegrator = class(TInterfacedObject, IEInvIntegrator)
+  private
+    FUser: string;
+  public
+    constructor Create(const AConfig: TApiServiceConfig);
+    function TestConnection: string;
+    function Send(const ARequest: TEInvSendRequest): TEInvSendResult;
+    function QueryStatus(AKind: TEInvDocKind; const AUuid: string): TEInvStatusResult;
+    function QueryTaxpayer(const ATaxNo: string): TEInvTaxpayerInfo;
+  end;
+
+var
+  GFakeLast: TEInvSendRequest;
+  GFakeSendCount: Integer;
+  GFakeFail: string;
+  GFakeStatus: TEInvRemoteStatus;
+
+constructor TItFakeIntegrator.Create(const AConfig: TApiServiceConfig);
+begin
+  inherited Create;
+  FUser := AConfig.Username;
+end;
+
+function TItFakeIntegrator.TestConnection: string;
+begin
+  Result := 'fake user=' + FUser;
+end;
+
+function TItFakeIntegrator.Send(const ARequest: TEInvSendRequest): TEInvSendResult;
+begin
+  Inc(GFakeSendCount);
+  GFakeLast := ARequest;
+  if GFakeFail <> '' then
+    raise EEInvIntegratorException.Create(GFakeFail);
+  Result.ProviderRef := 'REF-' + GFakeSendCount.ToString;
+  Result.Message := 'queued';
+end;
+
+function TItFakeIntegrator.QueryStatus(AKind: TEInvDocKind; const AUuid: string): TEInvStatusResult;
+begin
+  Result.Status := GFakeStatus;
+  Result.Code := 1300;
+  Result.Description := 'fake status';
+end;
+
+function TItFakeIntegrator.QueryTaxpayer(const ATaxNo: string): TEInvTaxpayerInfo;
+begin
+  Result := Default(TEInvTaxpayerInfo);
+  Result.Found := True;
+  Result.TaxNo := ATaxNo;
+  Result.Title := 'FAKE A.S.';
+  Result.InvoicePkAliases := ['urn:mail:defaultpk@fake.test'];
+  Result.InvoiceGbAliases := ['urn:mail:defaultgb@fake.test'];
+end;
+
+procedure TestEInvIntegrator;
+var
+  InvSvc: TSlsInvoiceService;
+  DocSvc: TEInvDocumentService;
+  ApiSvc: TSysApiServiceService;
+  A: TSysApiService;
+  Inv: TSlsInvoice;
+  IL: TSlsInvoiceDetail;
+  Inv1, Customer, Wh, PArchive, PBasic, TSales, ApiId, InvId: Int64;
+  LNo, LPing: string;
+  LInfo: TEInvTaxpayerInfo;
+  LYear: string;
+
+  function Q(const ASql: string): Double;
+  begin
+    Result := Num(Scalar(ASql));
+  end;
+
+  function InvStatus(AId: Int64): Integer;
+  begin
+    Result := Round(Q('SELECT COALESCE(einv_status, 0) FROM sls_invoice WHERE id = ' + AId.ToString));
+  end;
+
+  function InvNo(AId: Int64): string;
+  begin
+    Result := S(Scalar('SELECT einv_no FROM sls_invoice WHERE id = ' + AId.ToString));
+  end;
+
+  function NewInvoice(AProfileId: Int64): Int64;
+  var
+    LInv: TSlsInvoice;
+  begin
+    LInv := TSlsInvoice.Create;
+    try
+      LInv.AccAccountId := Customer;
+      LInv.StkWarehouseId := Wh;
+      LInv.EinvProfileId := AProfileId;
+      LInv.EinvInvoiceTypeId := TSales;
+      IL := InvSvc.NewLine(LInv);
+      IL.StkInventoryId := Inv1;
+      IL.Quantity := 2;
+      IL.UnitPrice := 50;
+      IL.VatRate := 20;
+      InvSvc.BusinessSaveWithDetails(LInv, False, True);
+      Result := LInv.Id;
+    finally
+      LInv.Free;
+    end;
+  end;
+
+  // satıcı / alıcı (XML şemaya uygun olsun) + test entegrasyon servisi (sahte sağlayıcı) tüm belge türlerine bağlı
+  procedure Setup;
+  begin
+    Begin_;
+    UoW.Connection.ExecSQL('UPDATE sys_application_setting SET tax_no = ''1234567801'', tax_authority = ''Test VD'', ' +
+      'taxpayer_type = ''VKN'', company_title = ''Ths Test A.Ş.'', sys_address_id = 3');
+    UoW.Connection.ExecSQL('INSERT INTO acc_account_taxpayer (acc_account_id, taxpayer_type, taxpayer_name, tax_office, tax_no) ' +
+      'VALUES (' + Customer.ToString + ', 1, ''Müşteri A.Ş.'', ''Kadıköy'', ''1111111111'') ' +
+      'ON CONFLICT (acc_account_id) DO UPDATE SET taxpayer_type = 1, taxpayer_name = EXCLUDED.taxpayer_name, ' +
+      'taxpayer_name2 = NULL, tax_office = EXCLUDED.tax_office, tax_no = EXCLUDED.tax_no');
+    UoW.Connection.ExecSQL('WITH a AS (INSERT INTO sys_address (sys_city_id, district, street, door_number) ' +
+      'SELECT sys_city_id, ''KADIKÖY'', ''Test Sokak'', ''5'' FROM sys_address WHERE id = 3 RETURNING id) ' +
+      'INSERT INTO acc_account_address (acc_account_id, sys_address_id, address_type, is_primary) ' +
+      'SELECT ' + Customer.ToString + ', id, ''BILLING'', true FROM a');
+    UoW.Connection.ExecSQL('UPDATE acc_account SET e_invoice_active = false, e_invoice_pk_alias = NULL, e_invoice_gb_alias = NULL ' +
+      'WHERE id = ' + Customer.ToString);
+    A := TSysApiService.Create;
+    try
+      A.ServiceKind := 'it_einv';
+      A.ProviderCode := 'itfake';
+      A.Environment := API_ENV_TEST;
+      A.BaseUrl := 'https://fake.test/api';
+      A.Username := 'it-user';
+      A.Password := 'secret';
+      A.Options := '{}';
+      ApiSvc.BusinessInsert(A, False, False, True);
+      ApiId := A.Id;
+    finally
+      A.Free;
+    end;
+    UoW.Connection.ExecSQL('UPDATE einv_document_setting SET sys_api_service_id = ' + ApiId.ToString +
+      ', sender_alias = NULL, receiver_alias = NULL');
+    GFakeSendCount := 0;
+    GFakeFail := '';
+    GFakeStatus := ersDelivered;
+    GFakeLast := Default(TEInvSendRequest);
+  end;
+
+begin
+  Ctx('EInvoice', 'integrator (send / status / taxpayer)');
+  TEInvIntegrators.RegisterProvider('ITFAKE',
+    function(const AConfig: TApiServiceConfig): IEInvIntegrator
+    begin
+      Result := TItFakeIntegrator.Create(AConfig);
+    end);
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Customer := Scalar('SELECT min(id) FROM acc_account');
+  Wh := Scalar('SELECT min(id) FROM stk_warehouse');
+  PArchive := Scalar('SELECT id FROM einv_profile WHERE code = ''EARSIVFATURA''');
+  PBasic := Scalar('SELECT id FROM einv_profile WHERE code = ''TEMELFATURA''');
+  TSales := Scalar('SELECT id FROM einv_invoice_type WHERE code = ''SATIS''');
+  LYear := IntToStr(YearOf(Date));
+  Check('eLogo provider registered', TEInvIntegrators.IsRegistered(ELOGO_PROVIDER_CODE));
+  Check('eLogo status map (GIB envelope codes)',
+    (TELogoIntegrator.MapStatus(1300, False) = ersDelivered) and (TELogoIntegrator.MapStatus(1100, False) = ersProcessing) and
+    (TELogoIntegrator.MapStatus(1220, False) = ersProcessing) and (TELogoIntegrator.MapStatus(1163, False) = ersFailed) and
+    (TELogoIntegrator.MapStatus(0, False) = ersUnknown) and (TELogoIntegrator.MapStatus(1300, True) = ersCancelled));
+  Check('eLogo services seeded (3 kinds, linked to settings)',
+    Q('SELECT count(*) FROM einv_document_setting d JOIN sys_api_service a ON a.id = d.sys_api_service_id WHERE a.provider_code = ''ELOGO''') = 3);
+
+  InvSvc := TSlsInvoiceService.Create;
+  DocSvc := TEInvDocumentService.Create;
+  ApiSvc := TSysApiServiceService.Create;
+  try
+    try
+      // ---- e-Arşiv: numara gönderimde verilir, XML gerçek numarayla yeniden üretilir, durum 3 + gönderim bilgisi
+      Setup;
+      InvId := NewInvoice(PArchive);
+      Check('archive draft before send', (InvStatus(InvId) = EINV_STATUS_DRAFT) and (InvNo(InvId) = '<null>'));
+      DocSvc.BusinessSendInvoice(InvId, True);
+      LNo := InvNo(InvId);
+      Check('archive sent: status 3 + GIB number', (InvStatus(InvId) = EINV_STATUS_SENT) and LNo.StartsWith('EAR' + LYear) and
+        (Length(LNo) = 16) and not LNo.EndsWith('000000000'), LNo);
+      Check('archive request: kind / no aliases / xml with number', (GFakeSendCount = 1) and (GFakeLast.Kind = edkArchive) and
+        (GFakeLast.SenderAlias = '') and (GFakeLast.ReceiverAlias = '') and (GFakeLast.EInvNo = LNo) and
+        GFakeLast.Xml.Contains('<cbc:ID>' + LNo + '</cbc:ID>'));
+      Check('archive transmission saved', (S(Scalar('SELECT provider_code FROM einv_document WHERE sls_invoice_id = ' + InvId.ToString)) = 'ITFAKE') and
+        (S(Scalar('SELECT provider_ref FROM einv_document WHERE sls_invoice_id = ' + InvId.ToString)) = 'REF-1') and
+        (S(Scalar('SELECT sent_at IS NOT NULL FROM einv_document WHERE sls_invoice_id = ' + InvId.ToString)) = 'True'));
+      Expect('sent document cannot be sent again', procedure begin DocSvc.BusinessSendInvoice(InvId, True); end);
+
+      // ---- durum sorgusu: eşleme + kesinleşmiş durum geri düşmez
+      GFakeStatus := ersFailed;
+      DocSvc.BusinessQueryInvoiceStatus(InvId, True);
+      Check('status query: failed -> 6 + code saved', (InvStatus(InvId) = EINV_STATUS_ERROR) and
+        (Q('SELECT status_code FROM einv_document WHERE sls_invoice_id = ' + InvId.ToString) = 1300));
+      GFakeStatus := ersAccepted;
+      DocSvc.BusinessQueryInvoiceStatus(InvId, True);
+      GFakeStatus := ersDelivered;
+      DocSvc.BusinessQueryInvoiceStatus(InvId, True);
+      Check('status query: accepted stays accepted', InvStatus(InvId) = EINV_STATUS_ACCEPTED);
+      GFakeStatus := ersUnknown;
+
+      // ---- gönderim hatası: durum 6 + mesaj, numara korunur; yeniden gönderimde aynı numara
+      InvId := NewInvoice(PArchive);
+      Expect('integrator error is reported', procedure begin GFakeFail := 'network down'; DocSvc.BusinessSendInvoice(InvId, True); end);
+      LNo := InvNo(InvId);
+      Check('failed send: status 6 + message, number kept', (InvStatus(InvId) = EINV_STATUS_ERROR) and (LNo <> '<null>') and
+        S(Scalar('SELECT status_message FROM einv_document WHERE sls_invoice_id = ' + InvId.ToString)).Contains('network down'));
+      GFakeFail := '';
+      DocSvc.BusinessSendInvoice(InvId, True);
+      Check('resend after error: sent with same number', (InvStatus(InvId) = EINV_STATUS_SENT) and (InvNo(InvId) = LNo));
+      InvId := NewInvoice(PArchive);
+      Expect('status query of unsent document rejected', procedure begin DocSvc.BusinessQueryInvoiceStatus(InvId, True); end);
+
+      // ---- e-Fatura: gönderici GB + alıcı PK zorunlu; eksikken numara harcanmaz
+      InvId := NewInvoice(PBasic);
+      Expect('e-invoice without sender alias rejected', procedure begin DocSvc.BusinessSendInvoice(InvId, True); end);
+      Check('rejected send: still draft, no number', (InvStatus(InvId) = EINV_STATUS_DRAFT) and (InvNo(InvId) = '<null>'));
+      UoW.Connection.ExecSQL('UPDATE einv_document_setting SET sender_alias = ''urn:mail:defaultgb@ths.test'' WHERE series_scope = 1');
+      Expect('e-invoice without receiver PK rejected', procedure begin DocSvc.BusinessSendInvoice(InvId, True); end);
+      UoW.Connection.ExecSQL('UPDATE acc_account SET e_invoice_active = true, e_invoice_pk_alias = ''urn:mail:defaultpk@musteri.test'' ' +
+        'WHERE id = ' + Customer.ToString);
+      DocSvc.BusinessSendInvoice(InvId, True);
+      Check('e-invoice sent with aliases', (InvStatus(InvId) = EINV_STATUS_SENT) and InvNo(InvId).StartsWith('EFT' + LYear) and
+        (GFakeLast.Kind = edkInvoice) and (GFakeLast.SenderAlias = 'urn:mail:defaultgb@ths.test') and
+        (GFakeLast.ReceiverAlias = 'urn:mail:defaultpk@musteri.test') and (GFakeLast.ReceiverTaxNo = '1111111111'),
+        InvNo(InvId) + ' / ' + GFakeLast.ReceiverAlias);
+
+      // ---- mükellef sorgusu + bağlantı testi + servis / sağlayıcı denetimleri
+      Expect('taxpayer query: invalid tax no rejected', procedure begin DocSvc.BusinessQueryTaxpayer('123', True); end);
+      LInfo := DocSvc.BusinessQueryTaxpayer('1111111111', True);
+      Check('taxpayer query via integrator', LInfo.Found and (Length(LInfo.InvoicePkAliases) = 1) and
+        (LInfo.InvoicePkAliases[0] = 'urn:mail:defaultpk@fake.test'));
+      Check('test connection uses service credentials', DocSvc.BusinessTestConnection(EINV_SERIES_INVOICE, True).Contains('it-user'));
+      UoW.Connection.ExecSQL('UPDATE sys_api_service SET provider_code = ''NOPE'' WHERE id = ' + ApiId.ToString);
+      Expect('unknown provider rejected', procedure begin DocSvc.BusinessTestConnection(EINV_SERIES_INVOICE, True); end);
+      UoW.Connection.ExecSQL('UPDATE sys_api_service SET provider_code = ''ITFAKE'', is_active = false WHERE id = ' + ApiId.ToString);
+      Expect('inactive service rejected', procedure begin DocSvc.BusinessTestConnection(EINV_SERIES_INVOICE, True); end);
+      End_;
+    except
+      on E: Exception do
+        Check('integrator tests', False, E.ClassName + ': ' + E.Message);
+    end;
+  finally
+    End_;
+    ApiSvc.Free;
+    DocSvc.Free;
+    InvSvc.Free;
+  end;
+
+  // ---- eLogo canlı uç (kimlik bilgisi gerektirmeyen Ping): ağ yoksa uyarı
+  try
+    LPing := TELogoIntegrator.Ping('https://pb.elogo.com.tr/PostBoxService.svc', 20);
+    Check('eLogo PostBox Ping (SOAP client)', LPing = 'OK', LPing);
+  except
+    on E: Exception do
+      Report('WARN', GMod, GEnt, 'eLogo PostBox Ping (network)', E.Message);
+  end;
+end;
+
+// e-İrsaliye gönderimi (sahte sağlayıcı): e-İrsaliye serisi / GB / carinin e-İrsaliye PK etiketi, durum, hata + yeniden gönderim
+procedure TestEDespatchIntegrator;
+var
+  DspSvc: TSlsDispatchService;
+  DocSvc: TEInvDocumentService;
+  ApiSvc: TSysApiServiceService;
+  A: TSysApiService;
+  Inv1, Customer, Wh, PDesp, Truck, Driver, ApiId, DspId: Int64;
+  LNo, LYear: string;
+
+  function DspStatus(AId: Int64): Integer;
+  begin
+    Result := Round(Num(Scalar('SELECT COALESCE(einv_status, 0) FROM sls_dispatch WHERE id = ' + AId.ToString)));
+  end;
+
+  function DspNo(AId: Int64): string;
+  begin
+    Result := S(Scalar('SELECT einv_no FROM sls_dispatch WHERE id = ' + AId.ToString));
+  end;
+
+  function NewDispatch: Int64;
+  var
+    LDsp: TSlsDispatch;
+    LLine: TSlsDispatchDetail;
+  begin
+    LDsp := TSlsDispatch.Create;
+    try
+      LDsp.AccAccountId := Customer;
+      LDsp.StkWarehouseId := Wh;
+      LDsp.EinvProfileId := PDesp;
+      LDsp.EinvVehicleId := Truck;
+      LDsp.Driver1EinvDriverId := Driver;
+      LLine := DspSvc.NewLine(LDsp);
+      LLine.StkInventoryId := Inv1;
+      LLine.Quantity := 3;
+      LLine.UnitPrice := 40;
+      DspSvc.BusinessSaveWithDetails(LDsp, False, True);
+      Result := LDsp.Id;
+    finally
+      LDsp.Free;
+    end;
+  end;
+
+begin
+  Ctx('EInvoice', 'integrator (e-despatch)');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Customer := Scalar('SELECT min(id) FROM acc_account');
+  Wh := Scalar('SELECT min(id) FROM stk_warehouse');
+  PDesp := Scalar('SELECT id FROM einv_profile WHERE code = ''TEMELIRSALIYE''');
+  LYear := IntToStr(YearOf(Date));
+  Check('e-despatch series seeded and linked', S(Scalar('SELECT s.code FROM einv_document_setting d JOIN einv_series s ' +
+    'ON s.id = d.einv_series_id WHERE d.series_scope = 3 AND s.series_scope = 3 AND s.is_active')) <> '<null>');
+
+  DspSvc := TSlsDispatchService.Create;
+  DocSvc := TEInvDocumentService.Create;
+  ApiSvc := TSysApiServiceService.Create;
+  try
+    try
+      Begin_;
+      UoW.Connection.ExecSQL('UPDATE sys_application_setting SET tax_no = ''1234567801'', tax_authority = ''Test VD'', ' +
+        'taxpayer_type = ''VKN'', company_title = ''Ths Test A.Ş.'', sys_address_id = 3');
+      UoW.Connection.ExecSQL('INSERT INTO acc_account_taxpayer (acc_account_id, taxpayer_type, taxpayer_name, tax_office, tax_no) ' +
+        'VALUES (' + Customer.ToString + ', 1, ''Alıcı Ltd. Şti.'', ''Kadıköy'', ''1111111111'') ' +
+        'ON CONFLICT (acc_account_id) DO UPDATE SET taxpayer_type = 1, taxpayer_name = EXCLUDED.taxpayer_name, ' +
+        'taxpayer_name2 = NULL, tax_office = EXCLUDED.tax_office, tax_no = EXCLUDED.tax_no');
+      UoW.Connection.ExecSQL('WITH a AS (INSERT INTO sys_address (sys_city_id, district, street, door_number) ' +
+        'SELECT sys_city_id, ''ÇANKAYA'', ''Depo Caddesi'', ''7'' FROM sys_address WHERE id = 3 RETURNING id) ' +
+        'INSERT INTO acc_account_address (acc_account_id, sys_address_id, address_type, is_primary) ' +
+        'SELECT ' + Customer.ToString + ', id, ''SHIPPING'', false FROM a');
+      // fatura etiketleri bilerek farklı: irsaliyede e-İrsaliye PK'sı kullanılmalı
+      UoW.Connection.ExecSQL('UPDATE acc_account SET e_invoice_active = true, e_invoice_pk_alias = ''urn:mail:faturapk@musteri.test'', ' +
+        'e_despatch_active = false, e_despatch_pk_alias = NULL, e_despatch_gb_alias = NULL WHERE id = ' + Customer.ToString);
+      Truck := Scalar('INSERT INTO einv_vehicle (plate_no, is_trailer) VALUES (''34ITD001'', false) RETURNING id');
+      Driver := Scalar('INSERT INTO einv_driver (first_name, family_name, national_id) VALUES (''Mehmet'', ''Öztürk'', ''10000000146'') RETURNING id');
+      A := TSysApiService.Create;
+      try
+        A.ServiceKind := 'it_edsp';
+        A.ProviderCode := 'itfake';
+        A.Environment := API_ENV_TEST;
+        A.BaseUrl := 'https://fake.test/api';
+        A.Username := 'it-user';
+        A.Password := 'secret';
+        A.Options := '{}';
+        ApiSvc.BusinessInsert(A, False, False, True);
+        ApiId := A.Id;
+      finally
+        A.Free;
+      end;
+      UoW.Connection.ExecSQL('UPDATE einv_document_setting SET sys_api_service_id = ' + ApiId.ToString +
+        ', sender_alias = NULL WHERE series_scope = 3');
+      GFakeSendCount := 0;
+      GFakeFail := '';
+      GFakeStatus := ersUnknown;
+
+      DspId := NewDispatch;
+      Check('despatch draft before send', (DspStatus(DspId) = EINV_STATUS_DRAFT) and (DspNo(DspId) = '<null>'));
+      Expect('despatch without sender alias rejected', procedure begin DocSvc.BusinessSendDispatch(DspId, True); end);
+      UoW.Connection.ExecSQL('UPDATE einv_document_setting SET sender_alias = ''urn:mail:irsaliyegb@ths.test'' WHERE series_scope = 3');
+      Expect('despatch without receiver e-despatch PK rejected (invoice PK not used)',
+        procedure begin DocSvc.BusinessSendDispatch(DspId, True); end);
+      Check('rejected despatch: still draft, no number', (DspStatus(DspId) = EINV_STATUS_DRAFT) and (DspNo(DspId) = '<null>'));
+
+      UoW.Connection.ExecSQL('UPDATE acc_account SET e_despatch_active = true, ' +
+        'e_despatch_pk_alias = ''urn:mail:irsaliyepk@musteri.test'' WHERE id = ' + Customer.ToString);
+      DocSvc.BusinessSendDispatch(DspId, True);
+      LNo := DspNo(DspId);
+      Check('despatch sent: status 3 + e-despatch series number', (DspStatus(DspId) = EINV_STATUS_SENT) and (Length(LNo) = 16) and
+        Copy(LNo, 4, 4).Equals(LYear) and not LNo.EndsWith('000000000') and
+        (Copy(LNo, 1, 3) = S(Scalar('SELECT s.code FROM einv_document_setting d JOIN einv_series s ON s.id = d.einv_series_id ' +
+        'WHERE d.series_scope = 3'))), LNo);
+      Check('despatch request: kind / aliases / xml', (GFakeLast.Kind = edkDespatch) and
+        (GFakeLast.SenderAlias = 'urn:mail:irsaliyegb@ths.test') and (GFakeLast.ReceiverAlias = 'urn:mail:irsaliyepk@musteri.test') and
+        GFakeLast.Xml.Contains('<DespatchAdvice') and GFakeLast.Xml.Contains('<cbc:ID>' + LNo + '</cbc:ID>'),
+        GFakeLast.ReceiverAlias);
+      Check('despatch transmission saved', (S(Scalar('SELECT provider_code FROM einv_document WHERE sls_dispatch_id = ' + DspId.ToString)) = 'ITFAKE') and
+        (S(Scalar('SELECT sent_at IS NOT NULL FROM einv_document WHERE sls_dispatch_id = ' + DspId.ToString)) = 'True'));
+      Expect('sent despatch cannot be sent again', procedure begin DocSvc.BusinessSendDispatch(DspId, True); end);
+      Expect('sent despatch cannot be regenerated', procedure begin DocSvc.BusinessRegenerateDispatch(DspId, True); end);
+
+      GFakeStatus := ersDelivered;
+      DocSvc.BusinessQueryDispatchStatus(DspId, True);
+      Check('despatch status query: delivered -> sent', DspStatus(DspId) = EINV_STATUS_SENT);
+      GFakeStatus := ersFailed;
+      DocSvc.BusinessQueryDispatchStatus(DspId, True);
+      Check('despatch status query: failed -> error', DspStatus(DspId) = EINV_STATUS_ERROR);
+
+      DspId := NewDispatch;
+      Expect('despatch integrator error reported', procedure begin GFakeFail := 'timeout'; DocSvc.BusinessSendDispatch(DspId, True); end);
+      LNo := DspNo(DspId);
+      Check('failed despatch: status 6 + number kept', (DspStatus(DspId) = EINV_STATUS_ERROR) and (LNo <> '<null>'));
+      GFakeFail := '';
+      DocSvc.BusinessSendDispatch(DspId, True);
+      Check('despatch resend: same number', (DspStatus(DspId) = EINV_STATUS_SENT) and (DspNo(DspId) = LNo));
+      End_;
+    except
+      on E: Exception do
+        Check('e-despatch integrator tests', False, E.ClassName + ': ' + E.Message);
+    end;
+  finally
+    End_;
+    ApiSvc.Free;
+    DocSvc.Free;
+    DspSvc.Free;
+  end;
+end;
+
 procedure RunModuleTests;
 begin
   UoW.Connection.ExecSQL('SET lc_messages TO ''C''');
@@ -5373,6 +5779,8 @@ begin
   TestEInvoice;
   TestEDespatch;
   TestApiServices;
+  TestEInvIntegrator;
+  TestEDespatchIntegrator;
   TestCompanyBankAccounts;
   TestAccountTransactions;
   TestDashboard;

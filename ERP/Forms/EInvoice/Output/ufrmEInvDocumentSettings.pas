@@ -13,8 +13,11 @@ uses
 type
   TfrmEInvDocumentSettings = class(TfrmGrid<TEInvDocumentSetting, TEInvDocumentSettingService>)
   private
+    FmniTestConnection: TMenuItem;
     procedure SeriesScopeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
+    procedure mniTestConnectionClick(Sender: TObject);
   public
+    procedure PreparePopupMenu; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
@@ -27,7 +30,51 @@ implementation
 {$R *.dfm}
 
 uses
-  EInvLookup;
+  EInvLookup, EInvDocument.Service, Ths.DialogHelper;
+
+procedure TfrmEInvDocumentSettings.PreparePopupMenu;
+begin
+  inherited;
+  if IsHelper then
+    Exit;
+  AddPopupMenuSpliter();
+  FmniTestConnection := AddMenu(TLocalizationManager.Translate(TLangKeys.TEInvIntegration.MenuTestConnection,
+    'Test Connection'), 'mniTestConnection', mniTestConnectionClick);
+end;
+
+// Seçili belge türünün API servisi: bağlantı + kullanıcı adı / parola denemesi (hata mesajı olduğu gibi gösterilir)
+procedure TfrmEInvDocumentSettings.mniTestConnectionClick(Sender: TObject);
+var
+  LSvc: TEInvDocumentService;
+  LMessage: string;
+  LType: TMsgDlgType;
+begin
+  if Grd.DataSource.DataSet.IsEmpty then
+    Exit;
+  SetSelectedItem;
+  LSvc := TEInvDocumentService.Create;
+  try
+    LType := mtInformation;
+    Screen.Cursor := crHourGlass;
+    try
+      try
+        LMessage := LSvc.BusinessTestConnection(Table.SeriesScope, True);
+      finally
+        Screen.Cursor := crDefault;
+      end;
+    except
+      on E: Exception do
+      begin
+        LMessage := E.Message;
+        LType := mtWarning;
+      end;
+    end;
+    TThsDialogHelper.CustomMsgDlg(LMessage, LType, [mbOK], [TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'Ok')],
+      mbOK, TLocalizationManager.Translate(TLangKeys.TMessage.InformationTitle, 'Information'));
+  finally
+    LSvc.Free;
+  end;
+end;
 
 procedure TfrmEInvDocumentSettings.SeriesScopeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
 begin
@@ -103,6 +150,9 @@ begin
   SetColumnTitle('service_kind', TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColServiceKind, 'API Service'));
   SetColumnTitle('provider_code', TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColProviderCode, 'Provider'));
   SetColumnTitle('environment', TLocalizationManager.Translate(TLangKeys.TEInvDocumentSetting.ColEnvironment, 'Environment'));
+  if Assigned(FmniTestConnection) then
+    FmniTestConnection.Caption := TLocalizationManager.Translate(TLangKeys.TEInvIntegration.MenuTestConnection,
+      'Test Connection');
 end;
 
 end.

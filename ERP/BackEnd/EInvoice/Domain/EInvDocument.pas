@@ -23,6 +23,14 @@ type
     FInvoiceNo: string;
     FSlsDispatchId: Int64;
     FDispatchNo: string;
+
+    // Gönderim durumu (servis yazar: TEInvDocumentRepository.SaveTransmission)
+    FProviderCode: string;
+    FProviderRef: string;
+    FSentAt: string;
+    FStatusCode: Integer;
+    FStatusMessage: string;
+    FStatusAt: string;
   public
     // kaynak belge: satış faturası ya da satış irsaliyesi (tam olarak biri; DB CHECK)
     [Column('sls_invoice_id')]
@@ -58,6 +66,24 @@ type
     [NotMapped]
     property DispatchNo: string read FDispatchNo write FDispatchNo;
 
+    [NotMapped]
+    property ProviderCode: string read FProviderCode write FProviderCode;
+
+    [NotMapped]
+    property ProviderRef: string read FProviderRef write FProviderRef;
+
+    [NotMapped]
+    property SentAt: string read FSentAt write FSentAt;
+
+    [NotMapped]
+    property StatusCode: Integer read FStatusCode write FStatusCode;
+
+    [NotMapped]
+    property StatusMessage: string read FStatusMessage write FStatusMessage;
+
+    [NotMapped]
+    property StatusAt: string read FStatusAt write FStatusAt;
+
     constructor Create(); override;
     destructor Destroy; override;
 
@@ -90,6 +116,12 @@ begin
   Result.InvoiceNo := Self.InvoiceNo;
   Result.SlsDispatchId := Self.SlsDispatchId;
   Result.DispatchNo := Self.DispatchNo;
+  Result.ProviderCode := Self.ProviderCode;
+  Result.ProviderRef := Self.ProviderRef;
+  Result.SentAt := Self.SentAt;
+  Result.StatusCode := Self.StatusCode;
+  Result.StatusMessage := Self.StatusMessage;
+  Result.StatusAt := Self.StatusAt;
 end;
 
 end.

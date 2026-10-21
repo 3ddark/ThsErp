@@ -117,7 +117,9 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   e-Despatch (2026-10-18, design §6): `sls_dispatch.einv_profile_id` (NULL = paper; profile / uuid / status all NULL or all
   set), `einv_uuid`, `einv_status`, `einv_no`, `despatch_time`, transport `carrier_acc_account_id` (account) or
   `einv_vehicle_id` + `trailer1/2_einv_vehicle_id` + `driver1/2_einv_driver_id` (definition cards `einv_vehicle` plate +
-  `is_trailer`, `einv_driver` TCKN; second slot needs the first, CHECK); `acc_account.e_despatch_active`; series scope 3. GİB aliases (`urn:mail:x@y`, CHECK): `acc_account.e_invoice_pk_alias` / `e_invoice_gb_alias` / `e_despatch_pk_alias` / `e_despatch_gb_alias`, `einv_document_setting.sender_alias` (GB) / `receiver_alias` (PK).
+  `is_trailer`, `einv_driver` TCKN; second slot needs the first, CHECK); `acc_account.e_despatch_active`; series scope 3. GİB aliases (`urn:mail:x@y`, CHECK): `acc_account.e_invoice_pk_alias` / `e_invoice_gb_alias` / `e_despatch_pk_alias` / `e_despatch_gb_alias`, `einv_document_setting.sender_alias` (GB) / `receiver_alias` (PK). Transmission state on `einv_document` (`provider_code`,
+  `provider_ref`, `sent_at`, `status_code`, `status_message`, `status_at`; service-written). eLogo `sys_api_service` rows per kind
+  (einvoice / earchive / edespatch, provider ELOGO) are linked from `einv_document_setting`.
   `vw_sls_invoice.einv_uuid` is `::text` — FireDAC reads PG `uuid` as a GUID and swaps the byte order of the first
   three groups; read uuids as text, write them with `CAST(:x AS uuid)`.
 - Integration (API) services — framework, design §7: `sys_api_service` (per company + `service_kind` free code, provider,

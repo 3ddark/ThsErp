@@ -17,6 +17,8 @@ type
     FmniEInvSaveXml: TMenuItem;
     FmniEInvRegenerate: TMenuItem;
     FmniEInvValidation: TMenuItem;
+    FmniEInvSend: TMenuItem;
+    FmniEInvQueryStatus: TMenuItem;
     procedure EinvStatusGetText(Sender: TField; var Text: string; DisplayText: Boolean);
     // e-belge XML (einv_document): seçili faturanınki; yoksa mesaj + nil
     function SelectedEInvDocument(AService: TEInvDocumentService): TEInvDocument;
@@ -25,6 +27,9 @@ type
     procedure mniEInvSaveXmlClick(Sender: TObject);
     procedure mniEInvRegenerateClick(Sender: TObject);
     procedure mniEInvValidationClick(Sender: TObject);
+    procedure mniEInvSendClick(Sender: TObject);
+    procedure mniEInvQueryStatusClick(Sender: TObject);
+    procedure ShowEInvInformation(const AMessage: string);
   public
     procedure PreparePopupMenu; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
@@ -55,6 +60,74 @@ begin
     'mniEInvSaveXml', mniEInvSaveXmlClick);
   FmniEInvRegenerate := AddMenu(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.MenuEInvRegenerate, 'Regenerate e-Document XML'),
     'mniEInvRegenerate', mniEInvRegenerateClick);
+  AddPopupMenuSpliter();
+  FmniEInvSend := AddMenu(TLocalizationManager.Translate(TLangKeys.TEInvIntegration.MenuSend, 'Send e-Document'),
+    'mniEInvSend', mniEInvSendClick);
+  FmniEInvQueryStatus := AddMenu(TLocalizationManager.Translate(TLangKeys.TEInvIntegration.MenuQueryStatus,
+    'Query e-Document Status'), 'mniEInvQueryStatus', mniEInvQueryStatusClick);
+end;
+
+procedure TfrmSlsInvoices.ShowEInvInformation(const AMessage: string);
+begin
+  TThsDialogHelper.CustomMsgDlg(AMessage, mtInformation, [mbOK], [TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'Ok')],
+    mbOK, TLocalizationManager.Translate(TLangKeys.TMessage.InformationTitle, 'Information'));
+end;
+
+// Entegratöre gönderim (onaylı; geri alınamaz). Hata durumunda belge "hata" durumunda kalır, mesaj gösterilir
+procedure TfrmSlsInvoices.mniEInvSendClick(Sender: TObject);
+var
+  LSvc: TEInvDocumentService;
+  LMessage: string;
+begin
+  if Grd.DataSource.DataSet.IsEmpty then
+    Exit;
+  SetSelectedItem;
+  if TThsDialogHelper.CustomMsgDlg(TLocalizationManager.Translate(TLangKeys.TEInvIntegration.ConfirmSend,
+    'Send the selected e-document to the integrator? This cannot be undone.'), mtConfirmation, [mbYes, mbNo],
+    [TLocalizationManager.Translate(TLangKeys.TGeneral.Yes, 'Yes'), TLocalizationManager.Translate(TLangKeys.TGeneral.No, 'No')],
+    mbNo, TLocalizationManager.Translate(TLangKeys.TMessage.UserConfirmationTitle, 'Confirmation')) <> mrYes then
+    Exit;
+  LSvc := TEInvDocumentService.Create;
+  try
+    Screen.Cursor := crHourGlass;
+    try
+      try
+        LMessage := LSvc.BusinessSendInvoice(Table.Id, True);
+      finally
+        Screen.Cursor := crDefault;
+        RefreshParentGrid(True);
+      end;
+    except
+      on E: Exception do
+        LMessage := E.Message;
+    end;
+    ShowEInvInformation(LMessage);
+  finally
+    LSvc.Free;
+  end;
+end;
+
+procedure TfrmSlsInvoices.mniEInvQueryStatusClick(Sender: TObject);
+var
+  LSvc: TEInvDocumentService;
+  LMessage: string;
+begin
+  if Grd.DataSource.DataSet.IsEmpty then
+    Exit;
+  SetSelectedItem;
+  LSvc := TEInvDocumentService.Create;
+  try
+    Screen.Cursor := crHourGlass;
+    try
+      LMessage := LSvc.BusinessQueryInvoiceStatus(Table.Id, True);
+    finally
+      Screen.Cursor := crDefault;
+    end;
+    RefreshParentGrid(True);
+    ShowEInvInformation(LMessage);
+  finally
+    LSvc.Free;
+  end;
 end;
 
 function TfrmSlsInvoices.SelectedEInvDocument(AService: TEInvDocumentService): TEInvDocument;
@@ -302,6 +375,12 @@ begin
     FmniEInvValidation.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.MenuEInvValidation, 'e-Document Validation Result');
     FmniEInvSaveXml.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.MenuEInvSaveXml, 'Save e-Document XML...');
     FmniEInvRegenerate.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.MenuEInvRegenerate, 'Regenerate e-Document XML');
+  if Assigned(FmniEInvSend) then
+  begin
+    FmniEInvSend.Caption := TLocalizationManager.Translate(TLangKeys.TEInvIntegration.MenuSend, 'Send e-Document');
+    FmniEInvQueryStatus.Caption := TLocalizationManager.Translate(TLangKeys.TEInvIntegration.MenuQueryStatus,
+      'Query e-Document Status');
+  end;
   end;
 end;
 

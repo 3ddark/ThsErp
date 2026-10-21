@@ -213,6 +213,7 @@
         <DCCReference Include="BackEnd\Tools\Ths.Helper.ThsList.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.Utils.Images.pas"/>
         <DCCReference Include="BackEnd\Tools\Tcmb.ExchangeRates.pas"/>
+        <DCCReference Include="BackEnd\Tools\Soap.Client.pas"/>
         <DCCReference Include="BackEnd\Tools\Ths.DialogHelper.pas"/>
         <DCCReference Include="BackEnd\Core\Ths.Database.Connection.Settings.pas"/>
         <DCCReference Include="BackEnd\Core\Ths.Globals.pas"/>
@@ -1051,6 +1052,8 @@
         <DCCReference Include="BackEnd\EInvoice\Repository\EInvDocument.Repository.pas"/>
         <DCCReference Include="BackEnd\EInvoice\Service\EInvDocument.Service.pas"/>
         <DCCReference Include="BackEnd\EInvoice\Service\EInvUbl.Builder.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvIntegrator.pas"/>
+        <DCCReference Include="BackEnd\EInvoice\Service\EInvIntegrator.ELogo.pas"/>
         <DCCReference Include="BackEnd\EInvoice\Service\EInvUbl.Validator.pas"/>
         <DCCReference Include="BackEnd\EInvoice\Domain\EInvGtip.pas"/>
         <DCCReference Include="BackEnd\EInvoice\Exception\EInvGtip.Exception.pas"/>

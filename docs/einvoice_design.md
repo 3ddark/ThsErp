@@ -121,12 +121,8 @@ Kağıt faturada kayıt silinir; gönderilmiş (kilitli) belgenin XML'i değişm
 
 ## 5. Sonraki adımlar
 
-- **Entegratör katmanı**: `IEInvIntegrator` (gönder, durum sorgula, PDF / XML indir, gelen faturalar, mükellef sorgula) +
-  entegratör başına sınıf (QNB eFinans, Logo eLogo …), ayarda aktif entegratör / kullanıcı / test-canlı ortam.
-  Test hesabı (WSDL / API adresi, kullanıcı / şifre) gelince eklenecek.
-- **"e-Fatura Gönder" komutu** (kullanıcı kararı: kayıtta otomatik değil): transaction içinde `einv_no` = varsayılan seri +
-  yıl + `NextNumber`, XML yeniden üretilir, şemaya uygun değilse gönderilmez, entegratöre iletilir, `einv_status`
-  2 kuyrukta → 3 gönderildi / 6 hata (durum yazma iş kuralı kilidinden bağımsız ayrı repository metodu).
+- ~~Entegratör katmanı~~ ve ~~"e-Fatura Gönder" komutu~~: yapıldı (2026-10-21, §8). Kalan: PDF / XML indirme, gelen
+  faturalar, ticari fatura yanıtı.
 - AdditionalDocumentReference (XSLT eki, e-Arşiv gönderim şekli ELEKTRONIK / KAGIT) entegratör gereksinimine göre.
 - Uygulama yanıtı (TICARIFATURA KABUL / RED), iade faturası (`BillingReference`). e-İrsaliye: §6.
 - Alış tarafı: gelen e-faturaların alınması (satın alma faturası).
@@ -197,3 +193,46 @@ varsayılan seri **yalnız firma ayarlarından** (`einv_series.is_default` kald�
   (derleme bağımlılığı yok).
 - Test: `TestApiServices` (şifreli saklama, `TApiServiceConfigs` ile çözülmüş okuma, boş = değişmez, silme, tür / JSON
   doğrulaması, seri türü uyumu, varsayılan seri ayardan).
+
+## 8. Özel entegratör (2026-10-21; ilk sağlayıcı eLogo)
+
+Kullanıcı: "e-Fatura için Logo firmasının web servisi https://pb.elogo.com.tr/PostboxService.svc; ileride başka entegratörler
+de olabilir". Tasarım: sağlayıcıdan bağımsız sözleşme + sağlayıcı başına birim; seçim `sys_api_service.provider_code` ile.
+
+| Katman | Birim | Not |
+| --- | --- | --- |
+| SOAP istemcisi (genel) | `BackEnd/Tools/Soap.Client.pas` | SOAP 1.1 zarf + `THTTPClient` + OmniXML (COM yok); düğümler yerel adla aranır; HTTP hatası / SOAP Fault -> `ESoapException` |
+| Sözleşme + kayıt | `EInvoice/Service/EInvIntegrator.pas` | `IEInvIntegrator` (TestConnection, Send, QueryStatus, QueryTaxpayer), istek / sonuç kayıtları, `TEInvRemoteStatus`, `TEInvIntegrators.RegisterProvider(kod, fabrika)` / `CreateFor(config)` |
+| eLogo | `EInvoice/Service/EInvIntegrator.ELogo.pas` | kod `ELOGO`; PostBoxService: Login -> işlem -> Logout; `SendDocument` (ZIP `<ETTN>.xml`, base64, MD5), `GetDocumentStatus`, `CheckGibUser`; GİB zarf kodu eşlemesi (1300 tamamlandı, 1000/1100/1200/1220 işleniyor, diğer 11xx-12xx hata) |
+| Servis | `TEInvDocumentService` | `BusinessSendInvoice` / `BusinessSendDispatch`, `BusinessQueryInvoiceStatus` / `BusinessQueryDispatchStatus`, `BusinessQueryTaxpayer`, `BusinessTestConnection(scope)` |
+| Durum | `einv_document.provider_code`, `provider_ref`, `sent_at`, `status_code`, `status_message`, `status_at` | servis yazar (`TEInvDocumentRepository.SaveTransmission`), domain'de `[NotMapped]` |
+
+Yeni sağlayıcı: `EInvIntegrator.<Ad>.pas` (IEInvIntegrator + initialization'da `RegisterProvider`), `Ths.dpr` / `Ths.dproj`'a
+ekle; Entegrasyon Servisleri'nde `provider_code` = kod. Servis / form değişmez.
+
+Gönderim (`DoSend`): belge `FOR UPDATE` kilitlenir; durum 1 taslak / 6 hata olmalı; belge türünün servisi (e-Belge Ayarları ->
+`vw_einv_document_setting.service_kind` -> `TApiServiceConfigs.Get`) aktif + sağlayıcı kayıtlı olmalı; e-Arşiv dışında gönderici GB
+(firma ayarı) ve alıcı PK (cari; IHRACAT hariç) zorunlu — **numara verilmeden önce** denetlenir; numara yoksa varsayılan seri + yıl +
+sayaç; XML yeniden üretilir, geçersizse geri alınır; durum 2 + commit -> ağ çağrısı transaction dışında -> durum 3 (+ ref, gönderim
+zamanı) ya da 6 (+ mesaj; numara korunur, yeniden gönderimde aynı numara). Durum sorgusu: uzak durum eşlenir, kabul / red / iptal
+"gönderildi"ye düşürülmez. Yetki: belgenin güncelleme yetkisi; mükellef sorgusu cari okuma, bağlantı testi e-Belge Ayarları okuma.
+
+eLogo ayarları (`sys_api_service`, belge türü başına bir satır: einvoice / earchive / edespatch, provider ELOGO, base_url canlı adres,
+ortam canlı, zaman aşımı 120 sn; kullanıcı adı / parola Entegrasyon Servisleri ekranından girilir). `options`: `doc_type`
+(EINVOICE / EARCHIVE / DESPATCHADVICE), `app_str` / `source` / `version` (Login), `send_params` (varsayılan
+`DOCUMENTTYPE={doctype};ALIAS={alias}`), `status_params` (varsayılan `DOCUMENTTYPE={doctype}`); yer tutucular {doctype} {alias}
+{sender_alias} {uuid} {taxno}, değeri boş olan öğe gönderilmez. **paramList anahtarları WSDL'de tanımlı değil; eLogo kılavuzu /
+test hesabıyla doğrulanmalı** (ayrıca MD5 küçük harf hex, başarılı yanıttaki resultCode). Doğrulanan: Ping, GetVersions, Login zarfı
+(pb-demo.elogo.com.tr geçersiz kullanıcıya SOAP Fault `InvalidLoginInfo`, resultCode 10003 döndürüyor; test ortamı adresi bu).
+
+UI: satış faturası ve irsaliye listesi popup **e-Belge Gönder** (onaylı) / **e-Belge Durumunu Sorgula**; cari kartı **GİB'den
+Sorgula** (mükellef sekmesindeki vergi no; işaretler + ilk PK / GB etiketleri ekrana, kayıt Onayla ile); e-Belge Ayarları listesi
+popup **Bağlantıyı Test Et**. Test: IT `TestEInvIntegrator` (sahte sağlayıcı ITFAKE: e-Arşiv / e-Fatura gönderim, hata + yeniden
+gönderim, durum eşlemesi, etiket / servis / sağlayıcı denetimleri, mükellef sorgusu; eLogo canlı Ping).
+
+e-İrsaliye (2026-10-21, aynı katman): irsaliye listesi popup e-Belge Gönder / Durumunu Sorgula (`BusinessSendDispatch` /
+`BusinessQueryDispatchStatus`); seri kapsam 3 (`EIR` "e-İrsaliye" serisi eklendi, e-Belge Ayarları e-İrsaliye satırına bağlı),
+gönderici = e-İrsaliye ayarındaki GB, alıcı = carinin **e-İrsaliye** PK etiketi (`e_despatch_pk_alias`; fatura PK'sı kullanılmaz),
+eLogo `edespatch` servisi (`doc_type` DESPATCHADVICE). Gönderilen irsaliye kilitlenir (değişmez / silinmez / XML yeniden üretilmez).
+Test: IT `TestEDespatchIntegrator` (etiket denetimleri, numara, istek, durum, hata + yeniden gönderim). Kalan: İrsaliye Yanıtı
+(ReceiptAdvice), gelen e-İrsaliye.

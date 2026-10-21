@@ -389,6 +389,14 @@ object frmAccAccount: TfrmAccAccount
           MaxLength = 256
           TabOrder = 16
         end
+        object btnQueryTaxpayer: TButton
+          Left = 690
+          Top = 96
+          Width = 255
+          Height = 25
+          Caption = 'G'#304'B'#39'den Sorgula'
+          TabOrder = 17
+        end
       end
       object tsTaxpayer: TTabSheet
         Caption = 'Taxpayer'

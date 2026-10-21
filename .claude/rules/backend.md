@@ -217,6 +217,10 @@ document's old lines).
   `TEInvDocumentService.GenerateForDispatch` (`LoadSalesDispatch` → `TEInvUblBuilder.BuildDespatch`, no prices; validator picks the
   schema / XSLT from the root element). Party reading is shared with invoices (`ReadSupplier` / `ReadAccountParty`) — design §6.
 - Documents with several line lists (BoM raw / labour) call `TDetailList.Save` once per list.
+- e-Document integrators (design §8): providers implement `EInvIntegrator.IEInvIntegrator` in their own unit
+  (`EInvIntegrator.ELogo` …) and register in `initialization` (`TEInvIntegrators.RegisterProvider('<CODE>', factory)`); services
+  pick one via `einv_document_setting` -> API service -> `provider_code`. SOAP providers use `Soap.Client.TSoapClient`. Network
+  calls never run inside the document's transaction (send = lock + number + XML + status 2 / commit / call / status 3 or 6).
 - External service settings: read them only through `ApiService.Config.TApiServiceConfigs.Get('<kind>')` (decrypted record;
   source registered by `SysApiService.ConfigSource`). Never query `sys_api_service` from a module; module-specific settings
   go to the module's own extension table (e-document: `einv_document_setting`) — design §7.

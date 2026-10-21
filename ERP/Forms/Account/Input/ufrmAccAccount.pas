@@ -45,6 +45,7 @@ type
     edtEDespatchPkAlias: TEdit;
     lblEDespatchGbAlias: TLabel;
     edtEDespatchGbAlias: TEdit;
+    btnQueryTaxpayer: TButton;
     lblIsPassive: TLabel;
     chkIsPassive: TCheckBox;
     lblNotes: TLabel;
@@ -102,6 +103,7 @@ type
     procedure cbbTaxpayerTypeChange(Sender: TObject);
     procedure ApplyTaxpayerType;
     procedure chkEDocumentActiveClick(Sender: TObject);
+    procedure btnQueryTaxpayerClick(Sender: TObject);
     procedure ApplyAliasState;
   private
     FCodeLoading: Boolean;
@@ -123,7 +125,7 @@ implementation
 {$R *.dfm}
 
 uses
-  AccLookup, AccAccountAddress,
+  AccLookup, AccAccountAddress, EInvIntegrator, EInvDocument.Service, Ths.DialogHelper,
   AccGroup, AccGroup.Service, ufrmAccGroups,                                    // TfrmAccGroups helper output form
   AccRegion, AccRegion.Service, ufrmAccRegions,                                 // TfrmAccRegions helper output form
   SysCurrency, SysCurrency.Service, ufrmSysCurrencies;                          // TfrmSysCurrencies helper output form
@@ -227,6 +229,7 @@ begin
   edtEDespatchGbAlias.thsInputDataType := itString;
   chkEInvoiceActive.OnClick := chkEDocumentActiveClick;
   chkEDespatchActive.OnClick := chkEDocumentActiveClick;
+  btnQueryTaxpayer.OnClick := btnQueryTaxpayerClick;
   edtNotes.thsInputDataType := itString;
   FillTaxpayerTypes;
   cbbTaxpayerType.OnChange := cbbTaxpayerTypeChange;
@@ -285,6 +288,7 @@ begin
   lblEInvoiceGbAlias.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEInvoiceGbAlias, 'e-Invoice Sender Unit (GB)');
   lblEDespatchPkAlias.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEDespatchPkAlias, 'e-Despatch Mailbox (PK)');
   lblEDespatchGbAlias.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColEDespatchGbAlias, 'e-Despatch Sender Unit (GB)');
+  btnQueryTaxpayer.Caption := TLocalizationManager.Translate(TLangKeys.TEInvIntegration.BtnQueryTaxpayer, 'Query GIB');
   lblIsPassive.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColIsPassive, 'Passive');
   lblNotes.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColNotes, 'Notes');
   lblTaxpayerType.Caption := TLocalizationManager.Translate(TLangKeys.TAccAccount.ColTaxpayerType, 'Taxpayer Type');
@@ -387,6 +391,77 @@ begin
   edtEDespatchPkAlias.Enabled := chkEDespatchActive.Checked;
   lblEDespatchGbAlias.Enabled := chkEDespatchActive.Checked;
   edtEDespatchGbAlias.Enabled := chkEDespatchActive.Checked;
+end;
+
+// GİB mükellef sorgusu (vergi no mükellef sekmesinden; e-Fatura entegrasyon servisi): mükellefiyet işaretleri ve ilk PK / GB
+// etiketleri ekrana yazılır, kayıt Onayla ile. Birden çok etiket varsa hepsi mesajda listelenir
+procedure TfrmAccAccount.btnQueryTaxpayerClick(Sender: TObject);
+var
+  LSvc: TEInvDocumentService;
+  LInfo: TEInvTaxpayerInfo;
+  LLines: TStringList;
+
+  function FirstOf(const AItems: TArray<string>): string;
+  begin
+    if Length(AItems) > 0 then
+      Result := AItems[0]
+    else
+      Result := '';
+  end;
+
+  procedure AddLine(ALabel: TLabel; const AItems: TArray<string>);
+  begin
+    if Length(AItems) > 0 then
+      LLines.Add(ALabel.Caption + ': ' + string.Join(', ', AItems));
+  end;
+
+begin
+  LSvc := TEInvDocumentService.Create;
+  try
+    Screen.Cursor := crHourGlass;
+    try
+      LInfo := LSvc.BusinessQueryTaxpayer(edtTaxNo.Text, True);
+    finally
+      Screen.Cursor := crDefault;
+    end;
+  finally
+    LSvc.Free;
+  end;
+
+  if not LInfo.Found or ((Length(LInfo.InvoicePkAliases) = 0) and (Length(LInfo.DespatchPkAliases) = 0)) then
+  begin
+    TThsDialogHelper.CustomMsgDlg(Format(TLocalizationManager.Translate(TLangKeys.TEInvIntegration.TaxpayerNotFound,
+      '%s is not registered at GIB as an e-Invoice / e-Despatch user.'), [LInfo.TaxNo]), mtInformation, [mbOK],
+      [TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'Ok')], mbOK,
+      TLocalizationManager.Translate(TLangKeys.TMessage.InformationTitle, 'Information'));
+    Exit;
+  end;
+
+  chkEInvoiceActive.Checked := Length(LInfo.InvoicePkAliases) > 0;
+  chkEDespatchActive.Checked := Length(LInfo.DespatchPkAliases) > 0;
+  edtEInvoicePkAlias.Text := FirstOf(LInfo.InvoicePkAliases);
+  edtEInvoiceGbAlias.Text := FirstOf(LInfo.InvoiceGbAliases);
+  edtEDespatchPkAlias.Text := FirstOf(LInfo.DespatchPkAliases);
+  edtEDespatchGbAlias.Text := FirstOf(LInfo.DespatchGbAliases);
+  ApplyAliasState;
+
+  LLines := TStringList.Create;
+  try
+    LLines.Add(Format(TLocalizationManager.Translate(TLangKeys.TEInvIntegration.TaxpayerFound,
+      'GIB taxpayer information (%s %s):'), [LInfo.TaxNo, LInfo.Title]));
+    AddLine(lblEInvoicePkAlias, LInfo.InvoicePkAliases);
+    AddLine(lblEInvoiceGbAlias, LInfo.InvoiceGbAliases);
+    AddLine(lblEDespatchPkAlias, LInfo.DespatchPkAliases);
+    AddLine(lblEDespatchGbAlias, LInfo.DespatchGbAliases);
+    LLines.Add('');
+    LLines.Add(TLocalizationManager.Translate(TLangKeys.TEInvIntegration.TaxpayerApplied,
+      'The flags and the first aliases were filled in; press Confirm to save.'));
+    TThsDialogHelper.CustomMsgDlg(Trim(LLines.Text), mtInformation, [mbOK],
+      [TLocalizationManager.Translate(TLangKeys.TGeneral.OK, 'Ok')], mbOK,
+      TLocalizationManager.Translate(TLangKeys.TMessage.InformationTitle, 'Information'));
+  finally
+    LLines.Free;
+  end;
 end;
 
 // "120-001 - YURTİÇİ ALICILAR" -> "120-001"

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 9ZIELCf20LSvy54dqZt8Vkj5FHCoBglWWLO2Mq4IAyaSYJzrXZGifbuECal1o6O
+\restrict 74Q0MXKhOQkqg4j9PwfyF7yx2CVncJrTsL32dAhdFXYvGIqsDtk25iC2QGFqQvN
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -669,7 +669,7 @@ CREATE SERVER audit_server FOREIGN DATA WRAPPER postgres_fdw OPTIONS (
     dbname 'ths_audit',
     fetch_size '1000',
     host 'localhost',
-    port '5432'
+    port '5433'
 );
 
 
@@ -1447,6 +1447,12 @@ CREATE TABLE public.einv_document (
     is_valid boolean DEFAULT false NOT NULL,
     validation_message text,
     sls_dispatch_id bigint,
+    provider_code character varying(32),
+    provider_ref character varying(64),
+    sent_at timestamp without time zone,
+    status_code integer,
+    status_message text,
+    status_at timestamp without time zone,
     CONSTRAINT einv_document_source_check CHECK ((num_nonnulls(sls_invoice_id, sls_dispatch_id) = 1))
 );
 
@@ -6150,7 +6156,13 @@ CREATE VIEW public.vw_einv_document AS
     d.validation_message,
     f.invoice_no,
     d.sls_dispatch_id,
-    s.dispatch_no
+    s.dispatch_no,
+    d.provider_code,
+    d.provider_ref,
+    d.sent_at,
+    d.status_code,
+    d.status_message,
+    d.status_at
    FROM ((public.einv_document d
      LEFT JOIN public.sls_invoice f ON ((f.id = d.sls_invoice_id)))
      LEFT JOIN public.sls_dispatch s ON ((s.id = d.sls_dispatch_id)));
@@ -14709,5 +14721,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 9ZIELCf20LSvy54dqZt8Vkj5FHCoBglWWLO2Mq4IAyaSYJzrXZGifbuECal1o6O
+\unrestrict 74Q0MXKhOQkqg4j9PwfyF7yx2CVncJrTsL32dAhdFXYvGIqsDtk25iC2QGFqQvN
 

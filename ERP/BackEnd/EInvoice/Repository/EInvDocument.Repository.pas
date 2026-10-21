@@ -7,8 +7,24 @@ uses
   FireDAC.Stan.Param, Data.DB, System.Rtti, Entity, Repository, FilterCriterion,
   AppContext, EInvDocument, EInvUbl.Model;
 
+const
+  // gönderim işlemlerinde kaynak belge tablosu (ReadSendState / SetEInvNo / SetEInvStatus / SaveTransmission)
+  EINV_SOURCE_INVOICE  = 'sls_invoice';
+  EINV_SOURCE_DISPATCH = 'sls_dispatch';
+
 type
+  // Kaynak belgenin e-belge gönderim durumu
+  TEInvSendState = record
+    Status: Integer;           // einv_status (yok = 0)
+    EInvNo: string;            // GİB numarası (gönderimde verilir)
+    Uuid: string;
+    IssueDate: TDate;          // fatura / irsaliye tarihi (numara yılı)
+    ProfileCode: string;       // senaryo (boş = kağıt belge)
+  end;
+
   TEInvDocumentRepository = class(TRepository<TEInvDocument>)
+  private
+    class function SourceColumn(const ASource: string): string; static;
   protected
     function PrepareAddSql: string;
     function PrepareUpdateSql: string;
@@ -62,6 +78,17 @@ type
     function DispatchEInvStatus(ADispatchId: Int64): Integer;
     // UBL verisi: irsaliye + taşıma + kalemler (fiyatsız), sevk eden, teslim alan (sevk adresi), taşıyıcı. Yoksa nil.
     function LoadSalesDispatch(ADispatchId: Int64): TEInvUblDespatch;
+
+    // ---- gönderim (fatura / irsaliye ortak; ASource = EINV_SOURCE_*). Durum yazımı belge iş kuralı kilidinden bağımsızdır
+    // ALock: kaynak satır FOR UPDATE ile kilitlenir. Belge yoksa False
+    function ReadSendState(const ASource: string; AId: Int64; ALock: Boolean; out AState: TEInvSendState): Boolean;
+    procedure SetEInvNo(const ASource: string; AId: Int64; const AEInvNo: string);
+    procedure SetEInvStatus(const ASource: string; AId: Int64; AStatus: Integer);
+    // einv_document son gönderim / sorgu sonucu (ASent: gönderim zamanı yazılır; boş ref eskisini korur; kod 0 = NULL)
+    procedure SaveTransmission(const ASource: string; AId: Int64; const AProviderCode, AProviderRef: string; ASent: Boolean;
+      AStatusCode: Integer; const AMessage: string);
+    // Firma e-Belge Ayarları: belge türünün API servis türü (vw_einv_document_setting.service_kind; yoksa '')
+    function ServiceKindOf(AScope: Integer): string;
   end;
 
 implementation
@@ -308,6 +335,145 @@ begin
   ReadAddress(Q, LAddressId, AParty);
 end;
 
+class function TEInvDocumentRepository.SourceColumn(const ASource: string): string;
+begin
+  if ASource = EINV_SOURCE_INVOICE then
+    Result := 'sls_invoice_id'
+  else if ASource = EINV_SOURCE_DISPATCH then
+    Result := 'sls_dispatch_id'
+  else
+    raise Exception.CreateFmt('Invalid e-document source: %s', [ASource]);
+end;
+
+function TEInvDocumentRepository.ReadSendState(const ASource: string; AId: Int64; ALock: Boolean;
+  out AState: TEInvSendState): Boolean;
+var
+  Q: TFDQuery;
+  LDateField: string;
+begin
+  AState := Default(TEInvSendState);
+  SourceColumn(ASource);
+  if ASource = EINV_SOURCE_INVOICE then
+    LDateField := 'invoice_date'
+  else
+    LDateField := 'dispatch_date';
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text :=
+      'SELECT COALESCE(x.einv_status, 0) AS einv_status, x.einv_no, x.einv_uuid::text AS einv_uuid, x.' + LDateField +
+      ' AS doc_date, p.code AS profile_code FROM public.' + ASource + ' x ' +
+      ' LEFT JOIN public.einv_profile p ON p.id = x.einv_profile_id WHERE x.id = :id';
+    if ALock then
+      Q.SQL.Add(' FOR UPDATE OF x');
+    Q.ParamByName('id').AsLargeInt := AId;
+    LogQuery(Q, 'ReadSendState');
+    Q.Open;
+    Result := not Q.IsEmpty;
+    if Result then
+    begin
+      AState.Status := Q.FieldByName('einv_status').AsInteger;
+      AState.EInvNo := Q.FieldByName('einv_no').AsString;
+      AState.Uuid := Q.FieldByName('einv_uuid').AsString;
+      AState.IssueDate := Q.FieldByName('doc_date').AsDateTime;
+      AState.ProfileCode := Q.FieldByName('profile_code').AsString;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TEInvDocumentRepository.SetEInvNo(const ASource: string; AId: Int64; const AEInvNo: string);
+var
+  Q: TFDQuery;
+begin
+  SourceColumn(ASource);
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'UPDATE public.' + ASource + ' SET einv_no = :einv_no WHERE id = :id';
+    Q.ParamByName('einv_no').AsWideString := AEInvNo;
+    Q.ParamByName('id').AsLargeInt := AId;
+    LogQuery(Q, 'SetEInvNo');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TEInvDocumentRepository.SetEInvStatus(const ASource: string; AId: Int64; AStatus: Integer);
+var
+  Q: TFDQuery;
+begin
+  SourceColumn(ASource);
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'UPDATE public.' + ASource + ' SET einv_status = :einv_status WHERE id = :id';
+    Q.ParamByName('einv_status').AsSmallInt := AStatus;
+    Q.ParamByName('id').AsLargeInt := AId;
+    LogQuery(Q, 'SetEInvStatus');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TEInvDocumentRepository.SaveTransmission(const ASource: string; AId: Int64; const AProviderCode,
+  AProviderRef: string; ASent: Boolean; AStatusCode: Integer; const AMessage: string);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text :=
+      'UPDATE public.einv_document SET provider_code = :provider_code, ' +
+      '       provider_ref = COALESCE(:provider_ref, provider_ref), ' +
+      '       sent_at = CASE WHEN :sent THEN now() ELSE sent_at END, ' +
+      '       status_code = :status_code, status_message = :status_message, status_at = now() ' +
+      ' WHERE ' + SourceColumn(ASource) + ' = :id';
+    Q.ParamByName('provider_code').AsWideString := AProviderCode;
+    Q.ParamByName('provider_ref').DataType := ftWideString;
+    if AProviderRef = '' then
+      Q.ParamByName('provider_ref').Clear
+    else
+      Q.ParamByName('provider_ref').AsWideString := AProviderRef;
+    Q.ParamByName('sent').AsBoolean := ASent;
+    SetNullableParam(Q.ParamByName('status_code'), ftInteger, AStatusCode);
+    Q.ParamByName('status_message').DataType := ftWideMemo;
+    if AMessage = '' then
+      Q.ParamByName('status_message').Clear
+    else
+      Q.ParamByName('status_message').AsWideMemo := AMessage;
+    Q.ParamByName('id').AsLargeInt := AId;
+    LogQuery(Q, 'SaveTransmission');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TEInvDocumentRepository.ServiceKindOf(AScope: Integer): string;
+var
+  Q: TFDQuery;
+begin
+  Result := '';
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT service_kind FROM public.vw_einv_document_setting WHERE series_scope = :scope ' +
+                  '   AND sys_application_setting_id = (SELECT min(id) FROM public.sys_application_setting)';
+    Q.ParamByName('scope').AsSmallInt := AScope;
+    LogQuery(Q, 'ServiceKindOf');
+    Q.Open;
+    if not Q.IsEmpty then
+      Result := Q.FieldByName('service_kind').AsString;
+  finally
+    Q.Free;
+  end;
+end;
+
 // Gönderim etiketleri: gönderici = firmanın belge türü ayarındaki GB etiketi, alıcı = carinin PK etiketi
 // (e-İrsaliye kapsamında e-İrsaliye etiketi, diğerlerinde e-Fatura etiketi)
 procedure TEInvDocumentRepository.ReadAliases(Q: TFDQuery; AScope: Integer; AAccountId: Int64;
@@ -321,6 +487,7 @@ begin
     '       (SELECT CASE WHEN :scope = :despatch_scope THEN a.e_despatch_pk_alias ELSE a.e_invoice_pk_alias END ' +
     '          FROM public.acc_account a WHERE a.id = :account_id) AS receiver_alias';
   Q.ParamByName('scope').AsInteger := AScope;
+  Q.ParamByName('despatch_scope').AsInteger := EINV_SERIES_DESPATCH;
   Q.ParamByName('account_id').AsLargeInt := AAccountId;
   LogQuery(Q, 'ReadAliases');
   Q.Open;
@@ -762,6 +929,12 @@ begin
   Result.InvoiceNo := Q.FieldByName('invoice_no').AsString;
   Result.SlsDispatchId := Q.FieldByName('sls_dispatch_id').AsLargeInt;
   Result.DispatchNo := Q.FieldByName('dispatch_no').AsString;
+  Result.ProviderCode := Q.FieldByName('provider_code').AsString;
+  Result.ProviderRef := Q.FieldByName('provider_ref').AsString;
+  Result.SentAt := Q.FieldByName('sent_at').AsString;
+  Result.StatusCode := Q.FieldByName('status_code').AsInteger;
+  Result.StatusMessage := Q.FieldByName('status_message').AsString;
+  Result.StatusAt := Q.FieldByName('status_at').AsString;
 end;
 
 function TEInvDocumentRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

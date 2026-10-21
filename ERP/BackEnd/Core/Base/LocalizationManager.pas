@@ -2813,6 +2813,33 @@ type
         const SeriesScope = 'einv_document_setting.series_scope';
         const NoCompany = 'einv_document_setting.no_company';
       end;
+
+      //e-Document integrator (send / status / GIB taxpayer query)
+      TEInvIntegration = record
+        const NoService = 'einv_integration.no_service';
+        const ServiceInactive = 'einv_integration.service_inactive';
+        const UnknownProvider = 'einv_integration.unknown_provider';
+        const NotEDocument = 'einv_integration.not_edocument';
+        const NotSendable = 'einv_integration.not_sendable';
+        const NotSent = 'einv_integration.not_sent';
+        const NoSeries = 'einv_integration.no_series';
+        const XmlInvalid = 'einv_integration.xml_invalid';
+        const NoSenderAlias = 'einv_integration.no_sender_alias';
+        const NoReceiverAlias = 'einv_integration.no_receiver_alias';
+        const SendFailed = 'einv_integration.send_failed';
+        const Sent = 'einv_integration.sent';
+        const StatusResult = 'einv_integration.status_result';
+        const TaxNoInvalid = 'einv_integration.tax_no_invalid';
+        const TaxpayerNotFound = 'einv_integration.taxpayer_not_found';
+        const TaxpayerFound = 'einv_integration.taxpayer_found';
+        const TaxpayerApplied = 'einv_integration.taxpayer_applied';
+        const ConnectionOk = 'einv_integration.connection_ok';
+        const ConfirmSend = 'einv_integration.confirm_send';
+        const MenuSend = 'einv_integration.popup.send';
+        const MenuQueryStatus = 'einv_integration.popup.query_status';
+        const MenuTestConnection = 'einv_integration.popup.test_connection';
+        const BtnQueryTaxpayer = 'einv_integration.btn_query_taxpayer';
+      end;
   end;
 
   TLocalizationManager = class

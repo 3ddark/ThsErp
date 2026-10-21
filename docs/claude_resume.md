@@ -1073,6 +1073,17 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
   enabled), iletişim alanları tsContact sekmesine taşındı. Ayrıca çalışma kopyasındaki lblIbanCurrency kaldırmasının
   ApplyLocalization'da kalan referansı silindi. Derleme 0 hata; UI çalıştırılarak test edilmedi.
 
+- 2026-10-21 (devam): e-belge özel entegratör katmanı + eLogo PostBoxService (design §8). Soap.Client (genel SOAP 1.1),
+  EInvIntegrator (sözleşme + kayıt), EInvIntegrator.ELogo; TEInvDocumentService gönder / durum / mükellef / bağlantı testi;
+  einv_document gönderim kolonları + vw_einv_document; ELOGO sys_api_service satırları (3 tür) e-Belge Ayarları'na bağlı
+  (kullanıcı adı / parola boş). UI: fatura + irsaliye listesi popup, cari kartı GİB'den Sorgula, e-Belge Ayarları Bağlantı Testi.
+  Önceki commit hatası düzeltildi: ReadAliases despatch_scope parametresi atanmıyordu (e-Fatura / e-İrsaliye XML üretimi hata
+  veriyordu). IT 643/0 (TestEInvIntegrator 24 adım, eLogo canlı Ping OK), UI Account / EInvoice / Sales 0 fail. Bu makinede
+  audit_server FDW portu 5432 -> 5433 (audit_configure). Doğrulanmamış: eLogo paramList anahtarları, MD5 biçimi, başarı
+  resultCode'u (test hesabı gerekli).
+- 2026-10-21 (devam): e-İrsaliye gönderimi aynı katmanla tamamlandı: EIR e-İrsaliye serisi eklendi + e-Belge Ayarları scope 3'e
+  bağlandı (önceden seri yoktu, gönderim "seri seçilmemiş" hatası verirdi). IT TestEDespatchIntegrator 15 adım; toplam 658/0.
+
 ## Hatalar / Engeller
 - Bu PC'de güncel DB 5433'te; GlobalSettings.ini DBPortNo=5432 (diğer makine değeri) ve 5432'de 2023'ten kalma eski ths_erp var
   (yalnız geçmiş referansı; değişiklik yapılmaz). Uygulama bu ini ile eski DB'ye bağlanır.
