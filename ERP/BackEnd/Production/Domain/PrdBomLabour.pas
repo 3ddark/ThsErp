@@ -9,9 +9,10 @@ uses
 
 type
   [Table('prd_bom_labour')]
-  TPrdBomLabour = class(TEntity)
+  TPrdBomLabour = class(TDetailEntity)
   private
     FPrdBomId: Int64;
+    FLineNo: SmallInt;
     FPrdLabourId: Int64;
     FQuantity: Currency;
 
@@ -25,6 +26,9 @@ type
   public
     [Column('prd_bom_id'), Required()]
     property PrdBomId: Int64 read FPrdBomId write FPrdBomId;
+
+    [Column('line_no')]
+    property LineNo: SmallInt read FLineNo write FLineNo;
 
     [Column('prd_labour_id'), Required()]
     property PrdLabourId: Int64 read FPrdLabourId write FPrdLabourId;
@@ -70,9 +74,12 @@ end;
 
 function TPrdBomLabour.Clone: TPrdBomLabour;
 begin
+  // başlık referansı kopyalanmaz (kopyayı sahiplenen başlık verir)
   Result := TPrdBomLabour.Create;
   Result.Id := Self.Id;
+  Result.Deleted := Self.Deleted;
   Result.PrdBomId := Self.PrdBomId;
+  Result.LineNo := Self.LineNo;
   Result.PrdLabourId := Self.PrdLabourId;
   Result.Quantity := Self.Quantity;
   Result.BomName := Self.BomName;

@@ -416,6 +416,8 @@ begin
       'payable_amount']) then Continue;
     // irsaliye durumu servis tarafından faturalardan tutulur (kopya yeni, faturalanmamış irsaliyedir)
     if AAllowMutated and (P.JsonString.Value = 'status') and (ASrc.GetValue('dispatch_no') <> nil) then Continue;
+    // belge kopyası taslak başlar (servis PrepareCopy; ör. onaylı talebin kopyası)
+    if AAllowMutated and (P.JsonString.Value = 'status') and (ASrc.GetValue('request_no') <> nil) then Continue;
     // cari kartı kopyası aynı üst hesabın ilk boş kodunu alır (kod listeden seçilir, metin değiştirilemez)
     if AAllowMutated and (P.JsonString.Value = 'code') and (ASrc.GetValue('root_code') <> nil) then Continue;
     VS := P.JsonValue.Value;

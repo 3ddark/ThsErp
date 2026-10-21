@@ -105,6 +105,8 @@ begin
   if AOperation in [coInsert, coUpdate] then
   begin
     ValidateRequiredReferences(AEntity);
+    if AEntity.LineNo <= 0 then
+      AEntity.LineNo := TPrdBomPacketLabourRepository(FRepo).NextLineNo(AEntity.PrdBomId);
     if AEntity.Quantity <= 0 then
       raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TPrdBomPacketLabour.ColQuantity, 'Quantity') + ': ' +
         TLocalizationManager.Translate(TLangKeys.TValidation.MustBePositive, 'Value must be greater than zero'));

@@ -37,6 +37,9 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    // Paketlerin kalemleri tek sorguda (başlık + satır no sırasıyla): belge yükleme
+    function FindByPacketIds(const AIds: TArray<Int64>): TObjectList<TPrdPacketLabourDetail>;
+    function NextLineNo(AParentId: Int64): SmallInt;
   end;
 
 implementation
@@ -46,17 +49,69 @@ begin
   inherited Create(AConnection);
 end;
 
+function TPrdPacketLabourDetailRepository.FindByPacketIds(const AIds: TArray<Int64>): TObjectList<TPrdPacketLabourDetail>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TPrdPacketLabourDetail>.Create(True);
+  LIds := '';
+  for LId in AIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TPrdPacketLabourDetail) + ' v ' +
+                  ' WHERE v.prd_packet_labour_id IN (' + LIds + ') ORDER BY v.prd_packet_labour_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByPacketIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TPrdPacketLabourDetailRepository.NextLineNo(AParentId: Int64): SmallInt;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT COALESCE(MAX(line_no), 0) + 1 AS v FROM public.prd_packet_labour_detail WHERE prd_packet_labour_id = :id';
+    Q.ParamByName('id').AsLargeInt := AParentId;
+    LogQuery(Q, 'NextLineNo');
+    Q.Open;
+    Result := Q.FieldByName('v').AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TPrdPacketLabourDetailRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TPrdPacketLabourDetail) +
-            ' (prd_packet_labour_id, prd_labour_id, quantity) ' +
-            ' VALUES (:prd_packet_labour_id, :prd_labour_id, :quantity)';
+            ' (prd_packet_labour_id, line_no, prd_labour_id, quantity) ' +
+            ' VALUES (:prd_packet_labour_id, :line_no, :prd_labour_id, :quantity)';
 end;
 
 function TPrdPacketLabourDetailRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TPrdPacketLabourDetail) +
-            ' SET prd_packet_labour_id = :prd_packet_labour_id, prd_labour_id = :prd_labour_id, quantity = :quantity ' +
+            ' SET prd_packet_labour_id = :prd_packet_labour_id, line_no = :line_no, prd_labour_id = :prd_labour_id, quantity = :quantity ' +
             ' WHERE id = :id';
 end;
 
@@ -77,6 +132,10 @@ begin
     Q.ParamByName('quantity').AsBCDs[AIndex] := AModel.Quantity;
   end;
 
+  if AIndex < 0 then
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo
+  else
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
   SetNullableParam(Q.ParamByName('prd_packet_labour_id'), ftLargeint, AModel.PrdPacketLabourId, AIndex);
   SetNullableParam(Q.ParamByName('prd_labour_id'), ftLargeint, AModel.PrdLabourId, AIndex);
 end;
@@ -94,6 +153,10 @@ begin
     Q.ParamByName('quantity').AsBCDs[AIndex] := AModel.Quantity;
   end;
 
+  if AIndex < 0 then
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo
+  else
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
   SetNullableParam(Q.ParamByName('prd_packet_labour_id'), ftLargeint, AModel.PrdPacketLabourId, AIndex);
   SetNullableParam(Q.ParamByName('prd_labour_id'), ftLargeint, AModel.PrdLabourId, AIndex);
 end;
@@ -103,6 +166,7 @@ begin
   Result := TPrdPacketLabourDetail.Create;
   Result.Id := Q.FieldByName('id').AsLargeInt;
   Result.PrdPacketLabourId := Q.FieldByName('prd_packet_labour_id').AsLargeInt;
+  Result.LineNo := Q.FieldByName('line_no').AsInteger;
   Result.PrdLabourId := Q.FieldByName('prd_labour_id').AsLargeInt;
   Result.Quantity := Q.FieldByName('quantity').AsCurrency;
   Result.PacketName := Q.FieldByName('packet_name').AsString;

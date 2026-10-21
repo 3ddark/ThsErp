@@ -145,10 +145,18 @@ end;
 
 ## Documents (header + lines aggregate)
 
-Reference: `SlsOffer`, `SlsOrder`, `SlsDispatch`, `SlsInvoice`, `PurRequest`, `PurOrder`, `PurReceipt`, `PurInvoice`
+Reference: `SlsOffer`, `SlsOrder`, `SlsDispatch`, `SlsInvoice`, `PurRequest`, `PurOrder`, `PurReceipt`, `PurInvoice`,
+`PrdPacketRaw`, `PrdPacketLabour`, `EInvDiib`, multi-list `PrdBom`
 (`T{Header}.Lines`, `T{Header}Service = class(TDocumentService<T{Header}, T{Line}>)`, `{Line}.Repository.FindBy{Header}Ids`). User
 decisions 2026-10-16 (`docs/claude_resume.md`); tests `TestSalesOfferDocument`, `TestSalesOrderDocument`,
-`TestSalesDispatchInvoiceDocument`, `TestPurchaseDocuments`. Migrate other documents (voucher, production packets) to the same pattern.
+`TestSalesDispatchInvoiceDocument`, `TestPurchaseDocuments`, `TestProductionDocuments`. Every line table has `line_no`
+(UNIQUE per header, deferrable). The accounting voucher (`acc_voucher`) is still a stub table (no line columns).
+- **Several line lists** (`PrdBom`: Raws = primary list of `TDocumentService`; Labours / ByProducts / PacketRaws /
+  PacketLabours = extra lists): the header holds one `TObjectList` per list; the service overrides `LoadExtraLines`
+  (called by `LoadLines`, also on `Reload`), checks the extra lists in `CheckLines`, writes them in `AfterDocumentSaved`
+  (`TDetailList.Save`, own `TDetailSaveLog` reverted in `AfterSaveFailed`) and marks them new in `PrepareCopyHeader`.
+  Extra-list operations for forms: generic `CreateItem<TL>` / `AddItem<TL>` / `RemoveItem<TL>` (every line class has
+  `PrdBomId` + `LineNo`, read via extended RTTI).
 Limits that span lines (open order quantity, not yet invoiced dispatch quantity) are checked per document in `CheckLines`:
 sum of the document's active lines per linked line vs. linked quantity minus other documents (DB total minus this
 document's old lines).

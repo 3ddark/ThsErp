@@ -9,9 +9,10 @@ uses
 
 type
   [Table('einv_diib_line')]
-  TEInvDiibLine = class(TEntity)
+  TEInvDiibLine = class(TDetailEntity)
   private
     FEinvDiibId: Int64;
+    FLineNo: SmallInt;
     FLineCode: string;
     FLineKind: SmallInt;
     FEinvGtipId: Int64;
@@ -37,6 +38,9 @@ type
     [Column('einv_diib_id')]
     [Required()]
     property EinvDiibId: Int64 read FEinvDiibId write FEinvDiibId;
+
+    [Column('line_no')]
+    property LineNo: SmallInt read FLineNo write FLineNo;
 
     [Column('line_code')]
     [MaxLength(32), Required(TLangKeys.TValidation.Required, True)]
@@ -121,9 +125,12 @@ end;
 
 function TEInvDiibLine.Clone: TEInvDiibLine;
 begin
+  // başlık referansı kopyalanmaz (kopyayı sahiplenen başlık verir)
   Result := TEInvDiibLine.Create;
   Result.Id := Self.Id;
+  Result.Deleted := Self.Deleted;
   Result.EinvDiibId := Self.EinvDiibId;
+  Result.LineNo := Self.LineNo;
   Result.LineCode := Self.LineCode;
   Result.LineKind := Self.LineKind;
   Result.EinvGtipId := Self.EinvGtipId;

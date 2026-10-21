@@ -1,5 +1,8 @@
 ﻿unit ufrmPrdPacketRawDetail;
 
+// Hammadde paketi: başlık (prd_packet_raw) + kalemler (Table.Lines, prd_packet_raw_detail) tek ekranda; kalemler bellekte,
+// Onayla Service.BusinessSaveWithDetails ile tek transaction'da yazılır.
+
 interface
 
 {$I Ths.inc}
@@ -8,26 +11,23 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, System.Generics.Collections,
-  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  ufrmInputDetailedDB, Detail.Lines, Vcl.ComCtrls, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.ComboBox,
-  PrdPacketRawDetail.Service, PrdPacketRawDetail;
+  PrdPacketRaw.Service, PrdPacketRaw,
+  PrdPacketRawDetail, PrdPacketRawDetail.Service;
 
 type
-  TfrmPrdPacketRawDetail = class(TfrmInputSimpleDB<TPrdPacketRawDetail, TPrdPacketRawDetailService>)
+  TfrmPrdPacketRawDetail = class(TfrmInputDetailedDB<TPrdPacketRaw, TPrdPacketRawService>)
     pnlContent: TPanel;
-    lblPrdPacketRawId: TLabel;
-    edtPrdPacketRawId: TEdit;
-    lblStkInventoryId: TLabel;
-    edtStkInventoryId: TEdit;
-    lblSubPrdBomId: TLabel;
-    edtSubPrdBomId: TEdit;
-    lblQuantity: TLabel;
-    edtQuantity: TEdit;
+    lblPacketName: TLabel;
+    edtPacketName: TEdit;
     procedure BtnAcceptClick(Sender: TObject); override;
     procedure FormCreate(Sender: TObject); override;
     procedure FormShow(Sender: TObject); override;
+  private
+    FPageLines: TTabSheet;
+    FLines: TDetailSet<TPrdPacketRawDetail>;
   public
-    procedure HelperProcess(Sender: TObject);
     procedure RefreshData; override;
     procedure ApplyLocalization; override;
   end;
@@ -37,14 +37,12 @@ implementation
 {$R *.dfm}
 
 uses
-  PrdPacketRaw, PrdPacketRaw.Service, ufrmPrdPacketRaws,                        // TfrmPrdPacketRaws helper output form
-  StkInventory, StkInventory.Service, ufrmStkInventories,                       // TfrmStkInventories helper output form
-  PrdBom, PrdBom.Service, ufrmPrdBoms;                                          // TfrmPrdBoms helper output form
+  SysDecimalPlace.Cache, Grid.Types, ufrmPrdPacketRawLine;
 
 procedure TfrmPrdPacketRawDetail.BtnAcceptClick(Sender: TObject);
 begin
   // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
-  Table.Quantity := StrToCurrDef(edtQuantity.Text, 0);
+  Table.PacketName := edtPacketName.Text;
   inherited;
 end;
 
@@ -52,120 +50,72 @@ procedure TfrmPrdPacketRawDetail.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtSubPrdBomId.OnHelperProcess := HelperProcess;
-  edtStkInventoryId.OnHelperProcess := HelperProcess;
-  edtPrdPacketRawId.OnHelperProcess := HelperProcess;
-  edtQuantity.thsInputDataType := itFloat;
+  edtPacketName.thsInputDataType := itString;
+
+  // Kalemler = Table.Lines (satır no sırasıyla)
+  FPageLines := AddDetailPage(TLocalizationManager.Translate(TLangKeys.TPrdPacketRaw.MenuDetails, 'Items'));
+  FLines := AddDetail<TPrdPacketRawDetail>(FPageLines, 'vw_prd_packet_raw_detail',
+    function: TObjectList<TPrdPacketRawDetail>
+    begin
+      Result := Table.Lines;
+    end,
+    function: TPrdPacketRawDetail
+    begin
+      Result := Service.CreateLine(Table);
+    end,
+    procedure(ALine: TPrdPacketRawDetail)
+    begin
+      Service.AddLine(Table, ALine);
+    end,
+    procedure(ALine: TPrdPacketRawDetail)
+    begin
+      Service.RemoveLine(Table, ALine);
+    end,
+    function(ALine: TPrdPacketRawDetail; AMode: TInputFormMode): TForm
+    begin
+      Result := TfrmPrdPacketRawLine.Create(Self, TPrdPacketRawDetailService.Create, ALine, AMode, nil);
+    end);
+  FLines.Grid.BuildData;
+  FLines.Grid.SetColumnProperty('id', 0);
+  FLines.Grid.SetColumnProperty('prd_packet_raw_id', 0);
+  FLines.Grid.SetColumnProperty('packet_name', 0);
+  FLines.Grid.SetColumnProperty('stk_inventory_id', 0);
+  FLines.Grid.SetColumnProperty('sub_prd_bom_id', 0);
+  FLines.Grid.SetColumnProperty('inventory_code', 90);
+  FLines.Grid.SetColumnProperty('inventory_name', 220);
+  FLines.Grid.SetColumnProperty('line_no', 50);
+  FLines.Grid.SetColumnProperty('sub_bom_name', 160);
 end;
 
 procedure TfrmPrdPacketRawDetail.FormShow(Sender: TObject);
 begin
   inherited;
-  if edtQuantity.CanFocus then
-    edtQuantity.SetFocus;
+  if edtPacketName.CanFocus then
+    edtPacketName.SetFocus;
 end;
 
 procedure TfrmPrdPacketRawDetail.ApplyLocalization;
 begin
   inherited;
-  Self.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.TitleSingular, 'Raw Material Packet Item');
-  lblPrdPacketRawId.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColPrdPacketRawId, 'Packet');
-  lblStkInventoryId.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColStkInventoryId, 'Raw Material');
-  lblSubPrdBomId.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColSubPrdBomId, 'Sub BoM (Semi-Product)');
-  lblQuantity.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColQuantity, 'Quantity');
-end;
+  Self.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRaw.TitleSingular, 'Raw Material Packet');
+  lblPacketName.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRaw.ColPacketName, 'Packet Name');
 
-procedure TfrmPrdPacketRawDetail.HelperProcess(Sender: TObject);
-var
-  LEdit: TEdit;
-  LFrmPrdPacketRawId: TfrmPrdPacketRaws;
-  LFrmStkInventoryId: TfrmStkInventories;
-  LFrmSubPrdBomId: TfrmPrdBoms;
-begin
-  if not (Sender is TEdit) then
-    Exit;
-
-  LEdit := (Sender as TEdit);
-  if LEdit.Name = edtPrdPacketRawId.Name then
+  if Assigned(FPageLines) then
+    FPageLines.Caption := TLocalizationManager.Translate(TLangKeys.TPrdPacketRaw.MenuDetails, 'Items');
+  if Assigned(FLines) then
   begin
-    LFrmPrdPacketRawId := TfrmPrdPacketRaws.Create(LEdit, TPrdPacketRawService.Create, TPrdPacketRaw.Create);
-    try
-      LFrmPrdPacketRawId.IsHelper := True;
-      LFrmPrdPacketRawId.ShowModal;
-      if LFrmPrdPacketRawId.DataTransfer then
-        if LFrmPrdPacketRawId.CleanAndClose then
-        begin
-          Table.PrdPacketRawId := 0;
-          Table.PacketName := '';
-          LEdit.Clear;
-        end
-        else
-        begin
-          Table.PrdPacketRawId := LFrmPrdPacketRawId.Table.Id;
-          Table.PacketName := LFrmPrdPacketRawId.Table.PacketName;
-          LEdit.Text := Table.PacketName;
-        end;
-    finally
-      LFrmPrdPacketRawId.Free;
-    end;
-  end
-  else if LEdit.Name = edtStkInventoryId.Name then
-  begin
-    LFrmStkInventoryId := TfrmStkInventories.Create(LEdit, TStkInventoryService.Create, TStkInventory.Create);
-    try
-      LFrmStkInventoryId.IsHelper := True;
-      LFrmStkInventoryId.ShowModal;
-      if LFrmStkInventoryId.DataTransfer then
-        if LFrmStkInventoryId.CleanAndClose then
-        begin
-          Table.StkInventoryId := 0;
-          Table.InventoryName := '';
-          Table.InventoryCode := '';
-          LEdit.Clear;
-        end
-        else
-        begin
-          Table.StkInventoryId := LFrmStkInventoryId.Table.Id;
-          Table.InventoryName := LFrmStkInventoryId.Table.Name;
-          Table.InventoryCode := LFrmStkInventoryId.Table.Code;
-          LEdit.Text := Table.InventoryName;
-        end;
-    finally
-      LFrmStkInventoryId.Free;
-    end;
-  end
-  else if LEdit.Name = edtSubPrdBomId.Name then
-  begin
-    LFrmSubPrdBomId := TfrmPrdBoms.Create(LEdit, TPrdBomService.Create, TPrdBom.Create);
-    try
-      LFrmSubPrdBomId.IsHelper := True;
-      LFrmSubPrdBomId.ShowModal;
-      if LFrmSubPrdBomId.DataTransfer then
-        if LFrmSubPrdBomId.CleanAndClose then
-        begin
-          Table.SubPrdBomId := 0;
-          Table.SubBomName := '';
-          LEdit.Clear;
-        end
-        else
-        begin
-          Table.SubPrdBomId := LFrmSubPrdBomId.Table.Id;
-          Table.SubBomName := LFrmSubPrdBomId.Table.BomName;
-          LEdit.Text := Table.SubBomName;
-        end;
-    finally
-      LFrmSubPrdBomId.Free;
-    end;
+    FLines.Grid.SetColumnTitle('line_no', TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColLineNo, 'Line No'));
+    FLines.Grid.SetColumnTitle('inventory_code', TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColInventoryCode, 'Inventory Code'));
+    FLines.Grid.SetColumnTitle('inventory_name', TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColInventoryName, 'Inventory Name'));
+    FLines.Grid.SetColumnTitle('sub_bom_name', TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColSubBomName, 'Sub Bom Name'));
+    FLines.Grid.SetColumnTitle('quantity', TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColQuantity, 'Quantity'));
   end;
 end;
 
 procedure TfrmPrdPacketRawDetail.RefreshData;
 begin
   inherited;
-  edtPrdPacketRawId.Text := Table.PacketName;
-  edtStkInventoryId.Text := Table.InventoryName;
-  edtSubPrdBomId.Text := Table.SubBomName;
-  edtQuantity.Text := CurrToStr(Table.Quantity);
+  edtPacketName.Text := Table.PacketName;
 end;
 
 end.

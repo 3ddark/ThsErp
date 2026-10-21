@@ -6,10 +6,12 @@ uses
   SysUtils, Classes, Types, System.Generics.Collections, FireDAC.Comp.Client,
   FireDAC.Stan.Param, System.Rtti, Entity, Repository, Service, FilterCriterion,
   UnitOfWork, SharedFormTypes, AppContext, LocalizationManager,
-  PrdPacketRaw.Repository, PrdPacketRaw, PrdPacketRaw.Exception;
+  PrdPacketRaw.Repository, PrdPacketRaw, PrdPacketRaw.Exception,
+  DocumentService, PrdPacketRawDetail, PrdPacketRawDetail.Repository;
 
 type
-  TPrdPacketRawService = class(TCrudService<TPrdPacketRaw>)
+  // Hammadde paketi belgesi = başlık + Lines (TDocumentService: kalemler bellekte, başlıkla tek transaction).
+  TPrdPacketRawService = class(TDocumentService<TPrdPacketRaw, TPrdPacketRawDetail>)
   private
     FRepo: IRepository<TPrdPacketRaw>;
 
@@ -19,11 +21,26 @@ type
 
     procedure ValidateRequiredReferences(AEntity: TPrdPacketRaw);
     procedure ValidateUnique(AEntity: TPrdPacketRaw; AOperation: TCrudOperation);
+  protected
+    // ---- belge yapısı / kayıt adımları (TDocumentService)
+    function GetLines(AHeader: TPrdPacketRaw): TObjectList<TPrdPacketRawDetail>; override;
+    function FindLinesByHeaderIds(const AIds: TArray<Int64>): TObjectList<TPrdPacketRawDetail>; override;
+    function GetLineHeaderId(ALine: TPrdPacketRawDetail): Int64; override;
+    procedure SetLineHeaderId(ALine: TPrdPacketRawDetail; AHeaderId: Int64); override;
+    function GetLineNo(ALine: TPrdPacketRawDetail): Integer; override;
+    procedure SetLineNo(ALine: TPrdPacketRawDetail; ANo: Integer); override;
+    procedure RaiseDuplicateLineNo; override;
+    procedure InitLine(AHeader: TPrdPacketRaw; ALine: TPrdPacketRawDetail); override;
+    procedure CheckLines(AHeader: TPrdPacketRaw; const ALines: TArray<TPrdPacketRawDetail>; AOldLines: TObjectList<TPrdPacketRawDetail>); override;
+    procedure PrepareCopyHeader(AHeader: TPrdPacketRaw); override;
   public
     constructor Create;
     destructor Destroy; override;
 
     procedure ValidateBusinessRules(AEntity: TPrdPacketRaw; AOperation: TCrudOperation); override;
+    // Tutar yok: hesap gerekmez
+    procedure RecalculateLine(ALine: TPrdPacketRawDetail); override;
+    procedure RecalculateTotals(AHeader: TPrdPacketRaw); override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
 
@@ -45,13 +62,98 @@ type
 implementation
 
 uses
-  SysPermission.Service;
+  SysPermission.Service, PrdPacketRawDetail.Exception;
 
 constructor TPrdPacketRawService.Create;
 begin
   inherited;
   FRepo := Self.UoW.GetRepository<TPrdPacketRaw, TPrdPacketRawRepository>;
+  FHeaderRepo := FRepo;
+  FLineRepo := Self.UoW.GetRepository<TPrdPacketRawDetail, TPrdPacketRawDetailRepository>;
   Self.PermissionCode := PERMISSION_PRD_PACKET_RAW;
+end;
+
+{ Belge (TDocumentService) }
+
+function TPrdPacketRawService.GetLines(AHeader: TPrdPacketRaw): TObjectList<TPrdPacketRawDetail>;
+begin
+  Result := AHeader.Lines;
+end;
+
+function TPrdPacketRawService.FindLinesByHeaderIds(const AIds: TArray<Int64>): TObjectList<TPrdPacketRawDetail>;
+begin
+  Result := TPrdPacketRawDetailRepository(FLineRepo).FindByPacketIds(AIds);
+end;
+
+function TPrdPacketRawService.GetLineHeaderId(ALine: TPrdPacketRawDetail): Int64;
+begin
+  Result := ALine.PrdPacketRawId;
+end;
+
+procedure TPrdPacketRawService.SetLineHeaderId(ALine: TPrdPacketRawDetail; AHeaderId: Int64);
+begin
+  ALine.PrdPacketRawId := AHeaderId;
+end;
+
+function TPrdPacketRawService.GetLineNo(ALine: TPrdPacketRawDetail): Integer;
+begin
+  Result := ALine.LineNo;
+end;
+
+procedure TPrdPacketRawService.SetLineNo(ALine: TPrdPacketRawDetail; ANo: Integer);
+begin
+  ALine.LineNo := ANo;
+end;
+
+procedure TPrdPacketRawService.RaiseDuplicateLineNo;
+begin
+  raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TDetailForm.LineNoUnique, 'This line number is already used on the document.'));
+end;
+
+procedure TPrdPacketRawService.InitLine(AHeader: TPrdPacketRaw; ALine: TPrdPacketRawDetail);
+begin
+  ALine.PacketName := AHeader.PacketName;
+end;
+
+// Stok zorunlu, miktar > 0, alt reçete seçilebilir; paket içinde aynı stok bir kez
+procedure TPrdPacketRawService.CheckLines(AHeader: TPrdPacketRaw; const ALines: TArray<TPrdPacketRawDetail>; AOldLines: TObjectList<TPrdPacketRawDetail>);
+var
+  LLine: TPrdPacketRawDetail;
+  LKeys: TDictionary<Int64, Boolean>;
+begin
+  LKeys := TDictionary<Int64, Boolean>.Create;
+  try
+    for LLine in ALines do
+    begin
+      if LLine.StkInventoryId <= 0 then
+        raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColStkInventoryId, 'Raw Material') + ': ' +
+          TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
+      if LLine.Quantity <= 0 then
+        raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TPrdPacketRawDetail.ColQuantity, 'Quantity') + ': ' +
+          TLocalizationManager.Translate(TLangKeys.TValidation.MustBePositive, 'Value must be greater than zero'));
+      if LKeys.ContainsKey(LLine.StkInventoryId) then
+        raise EPrdPacketRawDetailExceptionInventoryUnique.Create;
+      LKeys.Add(LLine.StkInventoryId, True);
+    end;
+  finally
+    LKeys.Free;
+  end;
+end;
+
+procedure TPrdPacketRawService.PrepareCopyHeader(AHeader: TPrdPacketRaw);
+begin
+  // paket adı tekil: kopyada yeniden girilir
+  AHeader.PacketName := '';
+end;
+
+procedure TPrdPacketRawService.RecalculateLine(ALine: TPrdPacketRawDetail);
+begin
+//
+end;
+
+procedure TPrdPacketRawService.RecalculateTotals(AHeader: TPrdPacketRaw);
+begin
+//
 end;
 
 destructor TPrdPacketRawService.Destroy;
@@ -153,7 +255,10 @@ begin
     Self.UoW.BeginTransaction;
 
   try
+    // belge: başlık + kalemler
     Result := FRepo.FindById(AId, ALock);
+    if Assigned(Result) then
+      LoadLines([Result]);
   except
     if Self.UoW.InTransaction then
       Self.UoW.Rollback;
@@ -226,11 +331,15 @@ end;
 function TPrdPacketRawService.Find(AFilter: TFilterCriteria; ALock, AIncludeNestedEntities: Boolean): TList<TPrdPacketRaw>;
 begin
   Result := FRepo.Find(AFilter, ALock);
+  if AIncludeNestedEntities and (Result.Count > 0) then
+    LoadLines(Result.ToArray);
 end;
 
 function TPrdPacketRawService.FindById(AId: Int64; ALock, AIncludeNestedEntities: Boolean): TPrdPacketRaw;
 begin
   Result := FRepo.FindById(AId, ALock);
+  if AIncludeNestedEntities and Assigned(Result) then
+    LoadLines([Result]);
 end;
 
 function TPrdPacketRawService.FindOne(AFilter: TFilterCriteria; ALock: Boolean; AIncludeNestedEntities: Boolean): TPrdPacketRaw;

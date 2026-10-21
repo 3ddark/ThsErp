@@ -1,5 +1,7 @@
 ﻿unit ufrmEInvDiibLine;
 
+// DİİB satırı satır formu (TfrmEInvDiibDetail'den modal): bellekteki satırı düzenler, DB'ye belgeyle birlikte yazılır.
+
 interface
 
 {$I Ths.inc}
@@ -8,15 +10,15 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, System.Generics.Collections,
-  ufrmInputSimpleDB, SharedFormTypes, LocalizationManager,
+  ufrmInputLineDB, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   EInvDiibLine.Service, EInvDiibLine;
 
 type
-  TfrmEInvDiibLine = class(TfrmInputSimpleDB<TEInvDiibLine, TEInvDiibLineService>)
+  TfrmEInvDiibLine = class(TfrmInputLineDB<TEInvDiibLine, TEInvDiibLineService>)
     pnlContent: TPanel;
-    lblEinvDiibId: TLabel;
-    edtEinvDiibId: TEdit;
+    lblLineNo: TLabel;
+    edtLineNo: TEdit;
     lblLineCode: TLabel;
     edtLineCode: TEdit;
     lblLineKind: TLabel;
@@ -48,14 +50,14 @@ implementation
 
 uses
   EInvLookup,
-  EInvDiib, EInvDiib.Service, ufrmEInvDiibs,
   StkInventory, StkInventory.Service, ufrmStkInventories,
   EInvGtip, EInvGtip.Service, ufrmEInvGtips,
   SysUom, SysUom.Service, ufrmSysUoms;
 
 procedure TfrmEInvDiibLine.BtnAcceptClick(Sender: TObject);
 begin
-  // FK id'leri HelperProcess içinde doğrudan Table'a yazılır
+  // FK id'leri HelperProcess içinde doğrudan Table'a yazılır; başlık (belge) ana formdan gelir, formda gösterilmez
+  Table.LineNo := StrToIntDef(edtLineNo.Text, 0);
   Table.LineCode := edtLineCode.Text;
   Table.LineKind := cbbLineKind.ItemIndex + 1;
   Table.ProductDescription := edtProductDescription.Text;
@@ -68,7 +70,7 @@ procedure TfrmEInvDiibLine.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlContent.Parent := PanelMain;
-  edtEinvDiibId.OnHelperProcess := HelperProcess;
+  edtLineNo.thsInputDataType := itInteger;
   edtLineCode.thsInputDataType := itString;
   edtLineCode.CharCase := TEditCharCase.ecUpperCase;
   TEInvLookup.FillItems(cbbLineKind.Items, elkDiibLineKind);
@@ -92,7 +94,7 @@ var
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.TitleSingular, 'DIIB Line');
-  lblEinvDiibId.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.ColEinvDiibId, 'DIIB No');
+  lblLineNo.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.ColLineNo, 'Line No');
   lblLineCode.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.ColLineCode, 'DIIB Line Code');
   lblLineKind.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.ColLineKind, 'Line Kind');
   LIndex := cbbLineKind.ItemIndex;
@@ -109,7 +111,6 @@ end;
 procedure TfrmEInvDiibLine.HelperProcess(Sender: TObject);
 var
   LEdit: TEdit;
-  LFrmEinvDiibId: TfrmEInvDiibs;
   LFrmStkInventoryId: TfrmStkInventories;
   LFrmEinvGtipId: TfrmEInvGtips;
   LFrmSysUomId: TfrmSysUoms;
@@ -118,30 +119,7 @@ begin
     Exit;
 
   LEdit := (Sender as TEdit);
-  if LEdit.Name = edtEinvDiibId.Name then
-  begin
-    LFrmEinvDiibId := TfrmEInvDiibs.Create(LEdit, TEInvDiibService.Create, TEInvDiib.Create);
-    try
-      LFrmEinvDiibId.IsHelper := True;
-      LFrmEinvDiibId.ShowModal;
-      if LFrmEinvDiibId.DataTransfer then
-        if LFrmEinvDiibId.CleanAndClose then
-        begin
-          Table.EinvDiibId := 0;
-          Table.DocumentNo := '';
-          LEdit.Clear;
-        end
-        else
-        begin
-          Table.EinvDiibId := LFrmEinvDiibId.Table.Id;
-          Table.DocumentNo := LFrmEinvDiibId.Table.DocumentNo;
-          LEdit.Text := Table.DocumentNo;
-        end;
-    finally
-      LFrmEinvDiibId.Free;
-    end;
-  end
-  else if LEdit.Name = edtStkInventoryId.Name then
+  if LEdit.Name = edtStkInventoryId.Name then
   begin
     LFrmStkInventoryId := TfrmStkInventories.Create(LEdit, TStkInventoryService.Create, TStkInventory.Create);
     try
@@ -236,7 +214,7 @@ end;
 procedure TfrmEInvDiibLine.RefreshData;
 begin
   inherited;
-  edtEinvDiibId.Text := Table.DocumentNo;
+  edtLineNo.Text := IntToStr(Table.LineNo);
   edtLineCode.Text := Table.LineCode;
   cbbLineKind.ItemIndex := Table.LineKind - 1;
   edtStkInventoryId.Text := Table.InventoryName;

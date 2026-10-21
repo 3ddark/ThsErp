@@ -1117,3 +1117,18 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
   dönüşümler belge ekranını açar; cari hareketlerden alış faturası belge ekranı.
   Test: TestPurchaseDocuments 25 adım PASS (specific Purchasing 682 PASS / 0 FAIL). Tam paket 2126 PASS / 3 FAIL —
   FAIL'ler TAccAccount generic findbyid=find AddressesAssigned (bu işten bağımsız, önceden var).
+- ÜRETİM + DİİB TAMAM: DB line_no (NOT NULL, UNIQUE deferrable) prd_bom_raw / labour / by_product / packet_raw /
+  packet_labour, prd_packet_raw_detail, prd_packet_labour_detail, einv_diib_line (mevcut satırlar id sırasıyla); mevcut
+  tekil anahtarlar deferrable; view'lar sona line_no; sys_menu 600102 (DİİB satırları) pasif. Çekirdek:
+  TDocumentService.LoadExtraLines kancası (çok listeli belge). TPrdBomService = TDocumentService<TPrdBom, TPrdBomRaw> +
+  4 ek liste (CreateItem / AddItem / RemoveItem genel metotları); paketler + TEInvDiibService tek listeli belge.
+  UI: ufrmPrdBomDetail (5 sekme), ufrmPrdPacket{Raw|Labour}Detail + ...Line, ufrmEInvDiibDetail + ufrmEInvDiibLine;
+  üretim kalem listeleri (Output) silindi; ufrmEInvDiibLines salt okunur seçim listesi (satış faturası kalemi).
+  Test: TestProductionDocuments 12 adım PASS; tam paket 2184 PASS / 6 FAIL (3 AccAccount AddressesAssigned önceden var;
+  3 PurRequest generic update roundtrip = canlı DB'de kullanıcının onaylı talebi PT000001, veri kaynaklı).
+  UI testi (ths_erp_it): Production 67/0, Sales 96/0, EInvoice 259/0, Purchasing 79/1 (aynı onaylı talep).
+- OLAY: Tests/Ui/seed.sql kendi COMMIT'ini içeriyor; BEGIN..ROLLBACK ile canlıda "kuru çalıştırma" seed'i ths_erp'e yazdı.
+  Yedekle id karşılaştırması yapılıp yalnız seed satırları silindi (kullanıcının PT000001 / PS000001 ve kolon ayarları
+  korundu). Seed değişikliği yalnız Tests/Ui/build.sh ile doğrulanır.
+- KALAN / SORU: muhasebe fişi (acc_voucher / acc_voucher_detail yalnız iskelet: kalemde hesap / borç / alacak yok) —
+  tasarım kararı kullanıcıda. Satış tarafı zaten belge yapısındaydı. Elle UI denemesi yapılmadı.

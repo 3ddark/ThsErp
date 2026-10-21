@@ -8,17 +8,17 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
-  EInvDiibLine.Service, EInvDiibLine, ufrmEInvDiibLine;
+  EInvDiibLine.Service, EInvDiibLine;
 
 type
+  // DİİB satırları: salt okunur seçim listesi (satış faturası kalemi). Satırlar DİİB belge ekranında düzenlenir.
   TfrmEInvDiibLines = class(TfrmGrid<TEInvDiibLine, TEInvDiibLineService>)
   private
-    FFixedDiibId: Int64;
-    FFixedDiibNo: string;
     procedure LineKindGetText(Sender: TField; var Text: string; DisplayText: Boolean);
     procedure HolderTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
+  protected
+    procedure ApplyPermissionState; override;
   public
-    procedure SetFixedDiib(ADiibId: Int64; const ADocumentNo: string);
     // Fatura kalemi seçimi: belge sahibi (1 firmamız / 2 müşteri) + müşteri, yalnız aktif satırlar
     procedure SetFixedHolder(AHolderType: SmallInt; AAccountId: Int64);
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
@@ -50,13 +50,6 @@ begin
   else
     Text := TEInvLookup.Text(elkDiibHolder, Sender.AsInteger);
 end;
-procedure TfrmEInvDiibLines.SetFixedDiib(ADiibId: Int64; const ADocumentNo: string);
-begin
-  FFixedDiibId := ADiibId;
-  FFixedDiibNo := ADocumentNo;
-  AddFixedFilter('einv_diib_id', ADiibId);
-end;
-
 procedure TfrmEInvDiibLines.SetFixedHolder(AHolderType: SmallInt; AAccountId: Int64);
 begin
   AddFixedFilter('holder_type', AHolderType);
@@ -66,25 +59,19 @@ begin
   AddFixedFilter('diib_is_active', True);
 end;
 
+// Salt okunur: giriş formu yok (satırlar DİİB belge ekranında)
 function TfrmEInvDiibLines.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
-var
-  LNew: TEInvDiibLine;
 begin
   Result := nil;
-  if (AFormMode = ifmRewiev) then
-    Result := TfrmEInvDiibLine.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
-  else if (AFormMode = ifmNewRecord) then
-  begin
-    LNew := TEInvDiibLine.Create;
-    if FFixedDiibId > 0 then
-    begin
-      LNew.EinvDiibId := FFixedDiibId;
-      LNew.DocumentNo := FFixedDiibNo;
-    end;
-    Result := TfrmEInvDiibLine.Create(Self, Service, LNew, AFormMode, Self.RefreshParentGrid);
-  end
-  else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEInvDiibLine.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
+end;
+
+procedure TfrmEInvDiibLines.ApplyPermissionState;
+begin
+  inherited;
+  if Assigned(BtnAdd) then
+    BtnAdd.Visible := False;
+  if Assigned(mniDuplicate) then
+    mniDuplicate.Visible := False;
 end;
 
 // Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)
@@ -135,7 +122,6 @@ end;
 procedure TfrmEInvDiibLines.FormShow(Sender: TObject);
 begin
   inherited;
-  mniDuplicate.Visible := True;
   ApplyLocalization;
 end;
 
@@ -143,8 +129,6 @@ procedure TfrmEInvDiibLines.ApplyLocalization;
 begin
   inherited;
   Self.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.TitlePlural, 'DIIB Lines');
-  if FFixedDiibNo <> '' then
-    Self.Caption := Self.Caption + ' - ' + FFixedDiibNo;
   SetColumnTitle('line_code', TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.ColLineCode, 'DIIB Line Code'));
   SetColumnTitle('line_kind', TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.ColLineKind, 'Line Kind'));
   SetColumnTitle('product_description', TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.ColProductDescription, 'DIIB Product Description'));

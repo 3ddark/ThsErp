@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 2WJC9blo2nvNdubs8PO6tBpta1uEZKSwUDksb49EugF97gw5lkpO34I5fiYRkjb
+\restrict 88FrZBdptaQn9bmZFfsj1HcOto4XU9c6ReAtIgOYln9OnxG6fdr8HPltbIxh3Wa
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -1403,6 +1403,7 @@ CREATE TABLE public.einv_diib_line (
     quantity numeric(18,6) DEFAULT 0 NOT NULL,
     sys_uom_id bigint,
     is_active boolean DEFAULT true NOT NULL,
+    line_no smallint NOT NULL,
     CONSTRAINT einv_diib_line_line_code_check CHECK ((btrim((line_code)::text) <> ''::text)),
     CONSTRAINT einv_diib_line_line_kind_check CHECK ((line_kind = ANY (ARRAY[1, 2]))),
     CONSTRAINT einv_diib_line_product_description_check CHECK ((btrim((product_description)::text) <> ''::text)),
@@ -2758,6 +2759,7 @@ CREATE TABLE public.prd_bom_by_product (
     prd_bom_id bigint NOT NULL,
     stk_inventory_id bigint NOT NULL,
     quantity numeric(18,6) NOT NULL,
+    line_no smallint NOT NULL,
     CONSTRAINT prd_bom_by_product_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
@@ -2801,6 +2803,7 @@ CREATE TABLE public.prd_bom_labour (
     prd_bom_id bigint NOT NULL,
     prd_labour_id bigint NOT NULL,
     quantity numeric(18,6) NOT NULL,
+    line_no smallint NOT NULL,
     CONSTRAINT prd_bom_labour_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
@@ -2830,6 +2833,7 @@ CREATE TABLE public.prd_bom_packet_labour (
     prd_bom_id bigint NOT NULL,
     prd_packet_labour_id bigint NOT NULL,
     quantity numeric(18,6) DEFAULT 1 NOT NULL,
+    line_no smallint NOT NULL,
     CONSTRAINT prd_bom_packet_labour_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
@@ -2859,6 +2863,7 @@ CREATE TABLE public.prd_bom_packet_raw (
     prd_bom_id bigint NOT NULL,
     prd_packet_raw_id bigint NOT NULL,
     quantity numeric(18,6) DEFAULT 1 NOT NULL,
+    line_no smallint NOT NULL,
     CONSTRAINT prd_bom_packet_raw_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
@@ -2890,6 +2895,7 @@ CREATE TABLE public.prd_bom_raw (
     sub_prd_bom_id bigint,
     quantity numeric(18,6) NOT NULL,
     scrap_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    line_no smallint NOT NULL,
     CONSTRAINT prd_bom_raw_not_self_check CHECK (((sub_prd_bom_id IS NULL) OR (sub_prd_bom_id <> prd_bom_id))),
     CONSTRAINT prd_bom_raw_quantity_check CHECK ((quantity > (0)::numeric)),
     CONSTRAINT prd_bom_raw_scrap_rate_check CHECK (((scrap_rate >= (0)::numeric) AND (scrap_rate < (100)::numeric)))
@@ -2995,6 +3001,7 @@ CREATE TABLE public.prd_packet_labour_detail (
     prd_packet_labour_id bigint NOT NULL,
     prd_labour_id bigint NOT NULL,
     quantity numeric(18,6) NOT NULL,
+    line_no smallint NOT NULL,
     CONSTRAINT prd_packet_labour_detail_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
@@ -3051,6 +3058,7 @@ CREATE TABLE public.prd_packet_raw_detail (
     stk_inventory_id bigint NOT NULL,
     sub_prd_bom_id bigint,
     quantity numeric(18,6) NOT NULL,
+    line_no smallint NOT NULL,
     CONSTRAINT prd_packet_raw_detail_quantity_check CHECK ((quantity > (0)::numeric))
 );
 
@@ -6132,7 +6140,8 @@ CREATE VIEW public.vw_einv_diib_line AS
     u.unit_einv AS uom_einv_code,
     l.is_active,
     d.is_active AS diib_is_active,
-    d.valid_until
+    d.valid_until,
+    l.line_no
    FROM (((((public.einv_diib_line l
      JOIN public.einv_diib d ON ((d.id = l.einv_diib_id)))
      JOIN public.einv_gtip g ON ((g.id = l.einv_gtip_id)))
@@ -7048,7 +7057,8 @@ CREATE VIEW public.vw_prd_bom_by_product AS
     p.stk_inventory_id,
     i.code AS inventory_code,
     i.name AS inventory_name,
-    p.quantity
+    p.quantity,
+    p.line_no
    FROM ((public.prd_bom_by_product p
      LEFT JOIN public.prd_bom b ON ((b.id = p.prd_bom_id)))
      LEFT JOIN public.stk_inventory i ON ((i.id = p.stk_inventory_id)));
@@ -7070,7 +7080,8 @@ CREATE VIEW public.vw_prd_bom_labour AS
     bl.quantity,
     l.unit_price,
     l.currency,
-    round((bl.quantity * l.unit_price), 6) AS total_amount
+    round((bl.quantity * l.unit_price), 6) AS total_amount,
+    bl.line_no
    FROM ((public.prd_bom_labour bl
      LEFT JOIN public.prd_bom b ON ((b.id = bl.prd_bom_id)))
      LEFT JOIN public.prd_labour l ON ((l.id = bl.prd_labour_id)));
@@ -7088,7 +7099,8 @@ CREATE VIEW public.vw_prd_bom_packet_labour AS
     b.bom_name,
     bp.prd_packet_labour_id,
     p.packet_name,
-    bp.quantity
+    bp.quantity,
+    bp.line_no
    FROM ((public.prd_bom_packet_labour bp
      LEFT JOIN public.prd_bom b ON ((b.id = bp.prd_bom_id)))
      LEFT JOIN public.prd_packet_labour p ON ((p.id = bp.prd_packet_labour_id)));
@@ -7106,7 +7118,8 @@ CREATE VIEW public.vw_prd_bom_packet_raw AS
     b.bom_name,
     bp.prd_packet_raw_id,
     p.packet_name,
-    bp.quantity
+    bp.quantity,
+    bp.line_no
    FROM ((public.prd_bom_packet_raw bp
      LEFT JOIN public.prd_bom b ON ((b.id = bp.prd_bom_id)))
      LEFT JOIN public.prd_packet_raw p ON ((p.id = bp.prd_packet_raw_id)));
@@ -7129,7 +7142,8 @@ CREATE VIEW public.vw_prd_bom_raw AS
     sb.bom_name AS sub_bom_name,
     r.quantity,
     r.scrap_rate,
-    round(((r.quantity * (100)::numeric) / ((100)::numeric - r.scrap_rate)), 6) AS gross_quantity
+    round(((r.quantity * (100)::numeric) / ((100)::numeric - r.scrap_rate)), 6) AS gross_quantity,
+    r.line_no
    FROM (((public.prd_bom_raw r
      LEFT JOIN public.prd_bom b ON ((b.id = r.prd_bom_id)))
      LEFT JOIN public.stk_inventory i ON ((i.id = r.stk_inventory_id)))
@@ -7189,7 +7203,8 @@ CREATE VIEW public.vw_prd_packet_labour_detail AS
     d.quantity,
     l.unit_price,
     l.currency,
-    round((d.quantity * l.unit_price), 6) AS total_amount
+    round((d.quantity * l.unit_price), 6) AS total_amount,
+    d.line_no
    FROM ((public.prd_packet_labour_detail d
      LEFT JOIN public.prd_packet_labour p ON ((p.id = d.prd_packet_labour_id)))
      LEFT JOIN public.prd_labour l ON ((l.id = d.prd_labour_id)));
@@ -7225,7 +7240,8 @@ CREATE VIEW public.vw_prd_packet_raw_detail AS
     i.name AS inventory_name,
     d.sub_prd_bom_id,
     sb.bom_name AS sub_bom_name,
-    d.quantity
+    d.quantity,
+    d.line_no
    FROM (((public.prd_packet_raw_detail d
      LEFT JOIN public.prd_packet_raw p ON ((p.id = d.prd_packet_raw_id)))
      LEFT JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
@@ -9078,7 +9094,15 @@ ALTER TABLE ONLY public.einv_diib
 --
 
 ALTER TABLE ONLY public.einv_diib_line
-    ADD CONSTRAINT einv_diib_line_einv_diib_id_line_code_key UNIQUE (einv_diib_id, line_code);
+    ADD CONSTRAINT einv_diib_line_einv_diib_id_line_code_key UNIQUE (einv_diib_id, line_code) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: einv_diib_line einv_diib_line_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.einv_diib_line
+    ADD CONSTRAINT einv_diib_line_line_key UNIQUE (einv_diib_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -9566,7 +9590,15 @@ ALTER TABLE ONLY public.acc_transfer_code
 --
 
 ALTER TABLE ONLY public.prd_bom_by_product
-    ADD CONSTRAINT prd_bom_by_product_inventory_key UNIQUE (prd_bom_id, stk_inventory_id);
+    ADD CONSTRAINT prd_bom_by_product_inventory_key UNIQUE (prd_bom_id, stk_inventory_id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: prd_bom_by_product prd_bom_by_product_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_by_product
+    ADD CONSTRAINT prd_bom_by_product_line_key UNIQUE (prd_bom_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -9582,7 +9614,15 @@ ALTER TABLE ONLY public.prd_bom_by_product
 --
 
 ALTER TABLE ONLY public.prd_bom_labour
-    ADD CONSTRAINT prd_bom_labour_labour_key UNIQUE (prd_bom_id, prd_labour_id);
+    ADD CONSTRAINT prd_bom_labour_labour_key UNIQUE (prd_bom_id, prd_labour_id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: prd_bom_labour prd_bom_labour_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_labour
+    ADD CONSTRAINT prd_bom_labour_line_key UNIQUE (prd_bom_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -9602,11 +9642,19 @@ ALTER TABLE ONLY public.prd_bom
 
 
 --
+-- Name: prd_bom_packet_labour prd_bom_packet_labour_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_packet_labour
+    ADD CONSTRAINT prd_bom_packet_labour_line_key UNIQUE (prd_bom_id, line_no) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
 -- Name: prd_bom_packet_labour prd_bom_packet_labour_packet_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_bom_packet_labour
-    ADD CONSTRAINT prd_bom_packet_labour_packet_key UNIQUE (prd_bom_id, prd_packet_labour_id);
+    ADD CONSTRAINT prd_bom_packet_labour_packet_key UNIQUE (prd_bom_id, prd_packet_labour_id) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -9618,11 +9666,19 @@ ALTER TABLE ONLY public.prd_bom_packet_labour
 
 
 --
+-- Name: prd_bom_packet_raw prd_bom_packet_raw_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_packet_raw
+    ADD CONSTRAINT prd_bom_packet_raw_line_key UNIQUE (prd_bom_id, line_no) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
 -- Name: prd_bom_packet_raw prd_bom_packet_raw_packet_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
 ALTER TABLE ONLY public.prd_bom_packet_raw
-    ADD CONSTRAINT prd_bom_packet_raw_packet_key UNIQUE (prd_bom_id, prd_packet_raw_id);
+    ADD CONSTRAINT prd_bom_packet_raw_packet_key UNIQUE (prd_bom_id, prd_packet_raw_id) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -9646,7 +9702,15 @@ ALTER TABLE ONLY public.prd_bom
 --
 
 ALTER TABLE ONLY public.prd_bom_raw
-    ADD CONSTRAINT prd_bom_raw_inventory_key UNIQUE (prd_bom_id, stk_inventory_id);
+    ADD CONSTRAINT prd_bom_raw_inventory_key UNIQUE (prd_bom_id, stk_inventory_id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: prd_bom_raw prd_bom_raw_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_bom_raw
+    ADD CONSTRAINT prd_bom_raw_line_key UNIQUE (prd_bom_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -9678,7 +9742,15 @@ ALTER TABLE ONLY public.prd_labour
 --
 
 ALTER TABLE ONLY public.prd_packet_labour_detail
-    ADD CONSTRAINT prd_packet_labour_detail_labour_key UNIQUE (prd_packet_labour_id, prd_labour_id);
+    ADD CONSTRAINT prd_packet_labour_detail_labour_key UNIQUE (prd_packet_labour_id, prd_labour_id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: prd_packet_labour_detail prd_packet_labour_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_packet_labour_detail
+    ADD CONSTRAINT prd_packet_labour_detail_line_key UNIQUE (prd_packet_labour_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -9710,7 +9782,15 @@ ALTER TABLE ONLY public.prd_packet_labour
 --
 
 ALTER TABLE ONLY public.prd_packet_raw_detail
-    ADD CONSTRAINT prd_packet_raw_detail_inventory_key UNIQUE (prd_packet_raw_id, stk_inventory_id);
+    ADD CONSTRAINT prd_packet_raw_detail_inventory_key UNIQUE (prd_packet_raw_id, stk_inventory_id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: prd_packet_raw_detail prd_packet_raw_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.prd_packet_raw_detail
+    ADD CONSTRAINT prd_packet_raw_detail_line_key UNIQUE (prd_packet_raw_id, line_no) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -14741,5 +14821,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 2WJC9blo2nvNdubs8PO6tBpta1uEZKSwUDksb49EugF97gw5lkpO34I5fiYRkjb
+\unrestrict 88FrZBdptaQn9bmZFfsj1HcOto4XU9c6ReAtIgOYln9OnxG6fdr8HPltbIxh3Wa
 

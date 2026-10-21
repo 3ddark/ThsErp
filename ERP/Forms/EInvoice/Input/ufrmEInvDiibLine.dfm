@@ -19,14 +19,14 @@ object frmEInvDiibLine: TfrmEInvDiibLine
     Height = 276
     Align = alClient
     TabOrder = 0
-    object lblEinvDiibId: TLabel
+    object lblLineNo: TLabel
       Left = 4
       Top = 6
       Width = 124
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'D'#304#304'B No'
+      Caption = 'S'#305'ra No'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -34,12 +34,11 @@ object frmEInvDiibLine: TfrmEInvDiibLine
       Font.Style = [fsBold]
       ParentFont = False
     end
-    object edtEinvDiibId: TEdit
+    object edtLineNo: TEdit
       Left = 132
       Top = 2
-      Width = 420
+      Width = 80
       Height = 22
-      ReadOnly = True
       TabOrder = 0
     end
     object lblLineCode: TLabel

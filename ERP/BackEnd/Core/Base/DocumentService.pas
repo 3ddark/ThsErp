@@ -54,6 +54,9 @@ type
     // Kopya ile yeni belge: başlığa özgü alanlar (no, durum …) ve kalemlerin bağlı alanları (taban: id'ler)
     procedure PrepareCopyHeader(AHeader: TH); virtual;
     procedure PrepareCopyLine(AHeader: TH; ALine: TL); virtual;
+    // Birden çok kalem listeli belge (ör. reçete): ana liste dışındaki listeler LoadLines sonunda okunur; kayıtları
+    // alt sınıfın CheckLines (kurallar) / AfterDocumentSaved (TDetailList.Save) / AfterSaveFailed (geri alma) adımlarında
+    procedure LoadExtraLines(const AHeaders: TArray<TH>); virtual;
   public
     // ---- bellekte (DB'ye yazmaz)
     // Yeni kalem (listeye eklenmez): sıradaki satır no, başlık referansı, InitLine
@@ -123,6 +126,11 @@ end;
 procedure TDocumentService<TH, TL>.PrepareCopyLine(AHeader: TH; ALine: TL);
 begin
   SetLineHeaderId(ALine, 0);
+end;
+
+procedure TDocumentService<TH, TL>.LoadExtraLines(const AHeaders: TArray<TH>);
+begin
+//
 end;
 
 function TDocumentService<TH, TL>.CreateLine(AHeader: TH): TL;
@@ -217,6 +225,7 @@ begin
     if n = 0 then
       Exit;
 
+    LoadExtraLines(AHeaders);
     LList := FindLinesByHeaderIds(LIds);
     try
       // nesneler başlıkların listelerine geçer

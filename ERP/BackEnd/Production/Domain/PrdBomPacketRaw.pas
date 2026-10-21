@@ -9,9 +9,10 @@ uses
 
 type
   [Table('prd_bom_packet_raw')]
-  TPrdBomPacketRaw = class(TEntity)
+  TPrdBomPacketRaw = class(TDetailEntity)
   private
     FPrdBomId: Int64;
+    FLineNo: SmallInt;
     FPrdPacketRawId: Int64;
     FQuantity: Currency;
 
@@ -21,6 +22,9 @@ type
   public
     [Column('prd_bom_id'), Required()]
     property PrdBomId: Int64 read FPrdBomId write FPrdBomId;
+
+    [Column('line_no')]
+    property LineNo: SmallInt read FLineNo write FLineNo;
 
     [Column('prd_packet_raw_id'), Required()]
     property PrdPacketRawId: Int64 read FPrdPacketRawId write FPrdPacketRawId;
@@ -55,9 +59,12 @@ end;
 
 function TPrdBomPacketRaw.Clone: TPrdBomPacketRaw;
 begin
+  // başlık referansı kopyalanmaz (kopyayı sahiplenen başlık verir)
   Result := TPrdBomPacketRaw.Create;
   Result.Id := Self.Id;
+  Result.Deleted := Self.Deleted;
   Result.PrdBomId := Self.PrdBomId;
+  Result.LineNo := Self.LineNo;
   Result.PrdPacketRawId := Self.PrdPacketRawId;
   Result.Quantity := Self.Quantity;
   Result.BomName := Self.BomName;

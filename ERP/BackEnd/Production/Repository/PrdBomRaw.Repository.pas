@@ -37,6 +37,9 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    // Reçetelerin kalemleri tek sorguda (başlık + satır no sırasıyla): belge yükleme
+    function FindByBomIds(const AIds: TArray<Int64>): TObjectList<TPrdBomRaw>;
+    function NextLineNo(AParentId: Int64): SmallInt;
   end;
 
 implementation
@@ -46,17 +49,69 @@ begin
   inherited Create(AConnection);
 end;
 
+function TPrdBomRawRepository.FindByBomIds(const AIds: TArray<Int64>): TObjectList<TPrdBomRaw>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TPrdBomRaw>.Create(True);
+  LIds := '';
+  for LId in AIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TPrdBomRaw) + ' v ' +
+                  ' WHERE v.prd_bom_id IN (' + LIds + ') ORDER BY v.prd_bom_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByBomIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TPrdBomRawRepository.NextLineNo(AParentId: Int64): SmallInt;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT COALESCE(MAX(line_no), 0) + 1 AS v FROM public.prd_bom_raw WHERE prd_bom_id = :id';
+    Q.ParamByName('id').AsLargeInt := AParentId;
+    LogQuery(Q, 'NextLineNo');
+    Q.Open;
+    Result := Q.FieldByName('v').AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TPrdBomRawRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TPrdBomRaw) +
-            ' (prd_bom_id, stk_inventory_id, sub_prd_bom_id, quantity, scrap_rate) ' +
-            ' VALUES (:prd_bom_id, :stk_inventory_id, :sub_prd_bom_id, :quantity, :scrap_rate)';
+            ' (prd_bom_id, line_no, stk_inventory_id, sub_prd_bom_id, quantity, scrap_rate) ' +
+            ' VALUES (:prd_bom_id, :line_no, :stk_inventory_id, :sub_prd_bom_id, :quantity, :scrap_rate)';
 end;
 
 function TPrdBomRawRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TPrdBomRaw) +
-            ' SET prd_bom_id = :prd_bom_id, stk_inventory_id = :stk_inventory_id, sub_prd_bom_id = :sub_prd_bom_id, quantity = :quantity, scrap_rate = :scrap_rate ' +
+            ' SET prd_bom_id = :prd_bom_id, line_no = :line_no, stk_inventory_id = :stk_inventory_id, sub_prd_bom_id = :sub_prd_bom_id, quantity = :quantity, scrap_rate = :scrap_rate ' +
             ' WHERE id = :id';
 end;
 
@@ -79,6 +134,10 @@ begin
     Q.ParamByName('scrap_rate').AsBCDs[AIndex] := AModel.ScrapRate;
   end;
 
+  if AIndex < 0 then
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo
+  else
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
   SetNullableParam(Q.ParamByName('prd_bom_id'), ftLargeint, AModel.PrdBomId, AIndex);
   SetNullableParam(Q.ParamByName('stk_inventory_id'), ftLargeint, AModel.StkInventoryId, AIndex);
   SetNullableParam(Q.ParamByName('sub_prd_bom_id'), ftLargeint, AModel.SubPrdBomId, AIndex);
@@ -99,6 +158,10 @@ begin
     Q.ParamByName('scrap_rate').AsBCDs[AIndex] := AModel.ScrapRate;
   end;
 
+  if AIndex < 0 then
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo
+  else
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
   SetNullableParam(Q.ParamByName('prd_bom_id'), ftLargeint, AModel.PrdBomId, AIndex);
   SetNullableParam(Q.ParamByName('stk_inventory_id'), ftLargeint, AModel.StkInventoryId, AIndex);
   SetNullableParam(Q.ParamByName('sub_prd_bom_id'), ftLargeint, AModel.SubPrdBomId, AIndex);
@@ -109,6 +172,7 @@ begin
   Result := TPrdBomRaw.Create;
   Result.Id := Q.FieldByName('id').AsLargeInt;
   Result.PrdBomId := Q.FieldByName('prd_bom_id').AsLargeInt;
+  Result.LineNo := Q.FieldByName('line_no').AsInteger;
   Result.StkInventoryId := Q.FieldByName('stk_inventory_id').AsLargeInt;
   Result.SubPrdBomId := Q.FieldByName('sub_prd_bom_id').AsLargeInt;
   Result.Quantity := Q.FieldByName('quantity').AsCurrency;

@@ -1,8 +1,8 @@
-object frmPrdBom: TfrmPrdBom
+object frmPrdBomDetail: TfrmPrdBomDetail
   Left = 0
   Top = 0
   Caption = 'BoM'
-  ClientHeight = 207
+  ClientHeight = 600
   ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,8 +16,8 @@ object frmPrdBom: TfrmPrdBom
     Left = 0
     Top = 0
     Width = 480
-    Height = 207
-    Align = alClient
+    Height = 151
+    Align = alTop
     TabOrder = 0
     object lblStkInventoryId: TLabel
       Left = 4

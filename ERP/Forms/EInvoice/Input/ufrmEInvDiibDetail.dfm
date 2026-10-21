@@ -1,8 +1,8 @@
-object frmEInvDiib: TfrmEInvDiib
+object frmEInvDiibDetail: TfrmEInvDiibDetail
   Left = 0
   Top = 0
   Caption = 'D'#304#304'B Belgesi'
-  ClientHeight = 230
+  ClientHeight = 600
   ClientWidth = 480
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,8 +16,8 @@ object frmEInvDiib: TfrmEInvDiib
     Left = 0
     Top = 0
     Width = 480
-    Height = 230
-    Align = alClient
+    Height = 174
+    Align = alTop
     TabOrder = 0
     object lblDocumentNo: TLabel
       Left = 4

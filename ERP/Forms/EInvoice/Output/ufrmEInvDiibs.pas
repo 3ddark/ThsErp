@@ -8,16 +8,13 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Data.DB,
   ufrmGrid, SharedFormTypes, LocalizationManager,
-  EInvDiib.Service, EInvDiib, ufrmEInvDiib;
+  EInvDiib.Service, EInvDiib, ufrmEInvDiibDetail;
 
 type
   TfrmEInvDiibs = class(TfrmGrid<TEInvDiib, TEInvDiibService>)
   private
-    FmniLines: TMenuItem;
-    procedure mniLinesClick(Sender: TObject);
     procedure HolderTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
   public
-    procedure PreparePopupMenu; override;
     function CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm; override;
     procedure SetSelectedItem; override;
     procedure DefineColumnWidths; override;
@@ -30,8 +27,7 @@ implementation
 {$R *.dfm}
 
 uses
-  EInvLookup,
-  ufrmEInvDiibLines, EInvDiibLine, EInvDiibLine.Service;
+  EInvLookup;
 
 procedure TfrmEInvDiibs.HolderTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
 begin
@@ -40,38 +36,15 @@ begin
   else
     Text := TEInvLookup.Text(elkDiibHolder, Sender.AsInteger);
 end;
-procedure TfrmEInvDiibs.mniLinesClick(Sender: TObject);
-var
-  LFrm: TfrmEInvDiibLines;
-begin
-  if Grd.DataSource.DataSet.IsEmpty then
-    Exit;
-
-  SetSelectedItem;
-  LFrm := TfrmEInvDiibLines.Create(Self, TEInvDiibLineService.Create, TEInvDiibLine.Create);
-  LFrm.SetFixedDiib(Table.Id, Table.DocumentNo);
-  LFrm.Show;
-end;
-
-procedure TfrmEInvDiibs.PreparePopupMenu;
-begin
-  inherited;
-  if IsHelper then
-    Exit;
-
-  AddPopupMenuSpliter();
-  FmniLines := AddMenu(TLocalizationManager.Translate(TLangKeys.TEInvDiib.MenuLines, 'DIIB Lines'), 'mniLines', mniLinesClick);
-end;
-
 function TfrmEInvDiibs.CreateInputForm(Sender: TObject; AFormMode: TInputFormMode): TForm;
 begin
   Result := nil;
   if (AFormMode = ifmRewiev) then
-    Result := TfrmEInvDiib.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEInvDiibDetail.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmNewRecord) then
-    Result := TfrmEInvDiib.Create(Self, Service, TEInvDiib.Create, AFormMode, Self.RefreshParentGrid)
+    Result := TfrmEInvDiibDetail.Create(Self, Service, TEInvDiib.Create, AFormMode, Self.RefreshParentGrid)
   else if (AFormMode = ifmCopyNewRecord) then
-    Result := TfrmEInvDiib.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
+    Result := TfrmEInvDiibDetail.Create(Self, Service, Table.Clone, AFormMode, Self.RefreshParentGrid);
 end;
 
 // Görüntü alanları [NotMapped] olduğu için grid satırından ayrıca okunur (helper dönüşü için)
@@ -126,8 +99,6 @@ begin
   SetColumnTitle('account_code', TLocalizationManager.Translate(TLangKeys.TEInvDiib.ColAccountCode, 'Account Code'));
   SetColumnTitle('account_name', TLocalizationManager.Translate(TLangKeys.TEInvDiib.ColAccountName, 'Customer / Exporter'));
   SetColumnTitle('line_count', TLocalizationManager.Translate(TLangKeys.TEInvDiib.ColLineCount, 'Line Count'));
-  if Assigned(FmniLines) then
-    FmniLines.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiib.MenuLines, 'DIIB Lines');
 end;
 
 end.

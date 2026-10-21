@@ -9,9 +9,10 @@ uses
 
 type
   [Table('prd_packet_labour_detail')]
-  TPrdPacketLabourDetail = class(TEntity)
+  TPrdPacketLabourDetail = class(TDetailEntity)
   private
     FPrdPacketLabourId: Int64;
+    FLineNo: SmallInt;
     FPrdLabourId: Int64;
     FQuantity: Currency;
 
@@ -25,6 +26,9 @@ type
   public
     [Column('prd_packet_labour_id'), Required()]
     property PrdPacketLabourId: Int64 read FPrdPacketLabourId write FPrdPacketLabourId;
+
+    [Column('line_no')]
+    property LineNo: SmallInt read FLineNo write FLineNo;
 
     [Column('prd_labour_id'), Required()]
     property PrdLabourId: Int64 read FPrdLabourId write FPrdLabourId;
@@ -70,9 +74,12 @@ end;
 
 function TPrdPacketLabourDetail.Clone: TPrdPacketLabourDetail;
 begin
+  // başlık referansı kopyalanmaz (kopyayı sahiplenen başlık verir)
   Result := TPrdPacketLabourDetail.Create;
   Result.Id := Self.Id;
+  Result.Deleted := Self.Deleted;
   Result.PrdPacketLabourId := Self.PrdPacketLabourId;
+  Result.LineNo := Self.LineNo;
   Result.PrdLabourId := Self.PrdLabourId;
   Result.Quantity := Self.Quantity;
   Result.PacketName := Self.PacketName;

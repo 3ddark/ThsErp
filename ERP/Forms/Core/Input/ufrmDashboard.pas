@@ -98,7 +98,6 @@ uses
   ufrmFinCompanyBankAccounts, FinCompanyBankAccount.Service, FinCompanyBankAccount,
   ufrmAccAccountTransactions, AccAccountTransaction.Service, AccAccountTransaction,
   ufrmEInvDiibs, EInvDiib.Service, EInvDiib,
-  ufrmEInvDiibLines, EInvDiibLine.Service, EInvDiibLine,
   ufrmEInvProfiles, EInvProfile.Service, EInvProfile,
   ufrmEInvInvoiceTypes, EInvInvoiceType.Service, EInvInvoiceType,
   ufrmEInvTaxExemptions, EInvTaxExemption.Service, EInvTaxExemption,
@@ -212,7 +211,6 @@ type
     actsls_dispatches: TAction;
     actsls_invoices: TAction;
     actsls_diibs: TAction;
-    actsls_diib_lines: TAction;
     actsls_einv_profiles: TAction;
     actsls_einv_invoice_types: TAction;
     actsls_einv_tax_exemptions: TAction;
@@ -227,7 +225,6 @@ type
     actsls_einv_drivers: TAction;
     actstk_gtips: TAction;
     mnisls_diibs: TMenuItem;
-    mnisls_diib_lines: TMenuItem;
     mnisls_einv_profiles: TMenuItem;
     mnisls_einv_invoice_types: TMenuItem;
     mnisls_einv_tax_exemptions: TMenuItem;
@@ -429,7 +426,6 @@ type
     procedure actsls_dispatchesExecute(Sender: TObject);
     procedure actsls_invoicesExecute(Sender: TObject);
     procedure actsls_diibsExecute(Sender: TObject);
-    procedure actsls_diib_linesExecute(Sender: TObject);
     procedure actsls_einv_profilesExecute(Sender: TObject);
     procedure actsls_einv_invoice_typesExecute(Sender: TObject);
     procedure actsls_einv_tax_exemptionsExecute(Sender: TObject);
@@ -901,11 +897,6 @@ end;
 procedure TfrmDashboard.actsls_diibsExecute(Sender: TObject);
 begin
   TfrmEInvDiibs.Create(Self, TEInvDiibService.Create, TEInvDiib.Create).Show;
-end;
-
-procedure TfrmDashboard.actsls_diib_linesExecute(Sender: TObject);
-begin
-  TfrmEInvDiibLines.Create(Self, TEInvDiibLineService.Create, TEInvDiibLine.Create).Show;
 end;
 
 procedure TfrmDashboard.actsls_einv_profilesExecute(Sender: TObject);
@@ -1806,8 +1797,6 @@ begin
     actsls_invoices.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.TitlePlural, 'Sales Invoices');
   if Assigned(actsls_diibs) then
     actsls_diibs.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiib.TitlePlural, 'DIIB Certificates');
-  if Assigned(actsls_diib_lines) then
-    actsls_diib_lines.Caption := TLocalizationManager.Translate(TLangKeys.TEInvDiibLine.TitlePlural, 'DIIB Lines');
   if Assigned(actsls_einv_profiles) then
     actsls_einv_profiles.Caption := TLocalizationManager.Translate(TLangKeys.TEInvProfile.TitlePlural, 'e-Document Profiles');
   if Assigned(actsls_einv_invoice_types) then

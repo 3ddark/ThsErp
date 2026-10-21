@@ -17,11 +17,14 @@ type
     procedure DoUpdate(AEntity: TEInvDiibLine);
     procedure DoDelete(AId: Int64);
 
-    procedure FailRequired(const AKey, ADefault: string);
+    class procedure FailRequired(const AKey, ADefault: string); static;
   public
     constructor Create;
     destructor Destroy; override;
 
+    // Satırın kendi alanları (DB'siz; GTİP / ürün tanımı önceden stok kartından doldurulur). Tek satır kaydı
+    // (ValidateBusinessRules) ve belge kaydı (TEInvDiibService.BusinessSaveWithDetails) ortak kullanır
+    class procedure CheckLine(AEntity: TEInvDiibLine); static;
     procedure ValidateBusinessRules(AEntity: TEInvDiibLine; AOperation: TCrudOperation); override;
 
     function CreateQueryForUI(AFilter: TFilterCriteria): TFDQuery; override;
@@ -59,10 +62,26 @@ begin
 end;
 
 // Alan adı + "zorunludur" mesajı
-procedure TEInvDiibLineService.FailRequired(const AKey, ADefault: string);
+class procedure TEInvDiibLineService.FailRequired(const AKey, ADefault: string);
 begin
   raise Exception.Create(TLocalizationManager.Translate(AKey, ADefault) + ': ' +
     TLocalizationManager.Translate(TLangKeys.TValidation.Required, 'This field is required.'));
+end;
+
+class procedure TEInvDiibLineService.CheckLine(AEntity: TEInvDiibLine);
+begin
+  AEntity.LineCode := AnsiUpperCase(Trim(AEntity.LineCode));
+  AEntity.ProductDescription := Trim(AEntity.ProductDescription);
+  if AEntity.LineCode = '' then
+    FailRequired(TLangKeys.TEInvDiibLine.ColLineCode, 'DIIB Line Code');
+  if not TEInvLookup.IsValid(elkDiibLineKind, AEntity.LineKind) then
+    FailRequired(TLangKeys.TEInvDiibLine.ColLineKind, 'Line Kind');
+  if AEntity.EinvGtipId <= 0 then
+    FailRequired(TLangKeys.TEInvDiibLine.ColEinvGtipId, 'GTIP Code');
+  if AEntity.ProductDescription = '' then
+    FailRequired(TLangKeys.TEInvDiibLine.ColProductDescription, 'DIIB Product Description');
+  if AEntity.Quantity < 0 then
+    raise EEInvDiibLineExceptionQuantityNegative.Create;
 end;
 
 
@@ -78,25 +97,14 @@ begin
     Exit;
   end;
 
-  AEntity.LineCode := AnsiUpperCase(Trim(AEntity.LineCode));
-  AEntity.ProductDescription := Trim(AEntity.ProductDescription);
   if AEntity.EinvDiibId <= 0 then
     FailRequired(TLangKeys.TEInvDiibLine.ColEinvDiibId, 'DIIB No');
-  if AEntity.LineCode = '' then
-    FailRequired(TLangKeys.TEInvDiibLine.ColLineCode, 'DIIB Line Code');
-  if not TEInvLookup.IsValid(elkDiibLineKind, AEntity.LineKind) then
-    FailRequired(TLangKeys.TEInvDiibLine.ColLineKind, 'Line Kind');
-
   // Stok kartından boş GTİP / ürün tanımı
   if AEntity.StkInventoryId > 0 then
     LRepo.FillFromInventory(AEntity);
-
-  if AEntity.EinvGtipId <= 0 then
-    FailRequired(TLangKeys.TEInvDiibLine.ColEinvGtipId, 'GTIP Code');
-  if AEntity.ProductDescription = '' then
-    FailRequired(TLangKeys.TEInvDiibLine.ColProductDescription, 'DIIB Product Description');
-  if AEntity.Quantity < 0 then
-    raise EEInvDiibLineExceptionQuantityNegative.Create;
+  CheckLine(AEntity);
+  if AEntity.LineNo <= 0 then
+    AEntity.LineNo := LRepo.NextLineNo(AEntity.EinvDiibId);
 
   if LRepo.LineCodeExists(AEntity.EinvDiibId, AEntity.LineCode, TEInvLookup.ExcludeId(AEntity.Id, AOperation = coUpdate)) then
     raise EEInvDiibLineExceptionLineCodeUnique.Create;

@@ -28,15 +28,15 @@ INSERT INTO stk_transaction (transaction_type, stk_inventory_id, to_stk_warehous
 SELECT 1, (SELECT min(id) FROM stk_inventory), (SELECT min(id) FROM stk_warehouse), 10, 100, true;
 
 INSERT INTO prd_packet_labour (packet_name) VALUES ('UI İŞÇİLİK PAKETİ');
-INSERT INTO prd_packet_labour_detail (prd_packet_labour_id, prd_labour_id, quantity)
-SELECT (SELECT max(id) FROM prd_packet_labour), (SELECT min(id) FROM prd_labour), 1;
+INSERT INTO prd_packet_labour_detail (prd_packet_labour_id, line_no, prd_labour_id, quantity)
+SELECT (SELECT max(id) FROM prd_packet_labour), 1, (SELECT min(id) FROM prd_labour), 1;
 
-INSERT INTO prd_bom_by_product (prd_bom_id, stk_inventory_id, quantity)
-SELECT (SELECT min(id) FROM prd_bom), (SELECT max(id) FROM stk_inventory), 1;
-INSERT INTO prd_bom_packet_labour (prd_bom_id, prd_packet_labour_id, quantity)
-SELECT (SELECT min(id) FROM prd_bom), (SELECT max(id) FROM prd_packet_labour), 1;
-INSERT INTO prd_bom_packet_raw (prd_bom_id, prd_packet_raw_id, quantity)
-SELECT (SELECT min(id) FROM prd_bom), (SELECT min(id) FROM prd_packet_raw), 1;
+INSERT INTO prd_bom_by_product (prd_bom_id, line_no, stk_inventory_id, quantity)
+SELECT (SELECT min(id) FROM prd_bom), 1, (SELECT max(id) FROM stk_inventory), 1;
+INSERT INTO prd_bom_packet_labour (prd_bom_id, line_no, prd_packet_labour_id, quantity)
+SELECT (SELECT min(id) FROM prd_bom), 1, (SELECT max(id) FROM prd_packet_labour), 1;
+INSERT INTO prd_bom_packet_raw (prd_bom_id, line_no, prd_packet_raw_id, quantity)
+SELECT (SELECT min(id) FROM prd_bom), 1, (SELECT min(id) FROM prd_packet_raw), 1;
 
 INSERT INTO acc_bank_branch (acc_bank_id, branch_code, branch_name, sys_city_id)
 SELECT min(id), 9001, 'UI ŞUBE', (SELECT min(id) FROM sys_city) FROM acc_bank;
@@ -73,7 +73,7 @@ SELECT (SELECT id FROM fin_money_account WHERE code = 'K01'), 4, 15.50, 'UI MASR
 
 -- satın alma: taslak talep + taslak sipariş (düzenlenebilir), kısmi teslim alınmış sipariş + mal kabul + fatura
 INSERT INTO pur_request (request_no, emp_employee_id, description) SELECT 'PT900001', min(id), 'UI TALEP' FROM emp_employee;
-INSERT INTO pur_request_detail (pur_request_id, stk_inventory_id, quantity) SELECT (SELECT max(id) FROM pur_request), min(id), 10 FROM stk_inventory;
+INSERT INTO pur_request_detail (pur_request_id, line_no, stk_inventory_id, quantity) SELECT (SELECT max(id) FROM pur_request), 1, min(id), 10 FROM stk_inventory;
 INSERT INTO pur_order (order_no, acc_account_id, stk_warehouse_id, status) SELECT 'PS900001', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 1;
 INSERT INTO pur_order_detail (pur_order_id, line_no, stk_inventory_id, quantity, unit_price, discount_rate, vat_rate, gross_amount, discount_amount, net_amount, vat_amount, total_amount)
 SELECT (SELECT id FROM pur_order WHERE order_no = 'PS900001'), 1, min(id), 10, 2.5, 10, 20, 25, 2.5, 22.5, 4.5, 27 FROM stk_inventory;
@@ -85,8 +85,8 @@ UPDATE pur_order o SET gross_amount = s.g, discount_amount = s.d, net_amount = s
  WHERE s.pur_order_id = o.id;
 INSERT INTO pur_receipt (receipt_no, acc_account_id, stk_warehouse_id, waybill_no, pur_order_id)
 SELECT 'MK900001', (SELECT min(id) FROM acc_account), (SELECT min(id) FROM stk_warehouse), 'IRS-1', (SELECT id FROM pur_order WHERE order_no = 'PS900002');
-INSERT INTO pur_receipt_detail (pur_receipt_id, stk_inventory_id, quantity, unit_price, pur_order_detail_id)
-SELECT (SELECT max(id) FROM pur_receipt), d.stk_inventory_id, 5, 3, d.id FROM pur_order_detail d JOIN pur_order o ON o.id = d.pur_order_id WHERE o.order_no = 'PS900002';
+INSERT INTO pur_receipt_detail (pur_receipt_id, line_no, stk_inventory_id, quantity, unit_price, pur_order_detail_id)
+SELECT (SELECT max(id) FROM pur_receipt), d.line_no, d.stk_inventory_id, 5, 3, d.id FROM pur_order_detail d JOIN pur_order o ON o.id = d.pur_order_id WHERE o.order_no = 'PS900002';
 INSERT INTO stk_transaction (transaction_type, stk_inventory_id, to_stk_warehouse_id, quantity, amount, transaction_date, description, pur_receipt_detail_id)
 SELECT 1, d.stk_inventory_id, p.stk_warehouse_id, d.quantity, d.quantity * d.unit_price, p.receipt_date, 'MK ' || p.receipt_no, d.id
   FROM pur_receipt_detail d JOIN pur_receipt p ON p.id = d.pur_receipt_id;
@@ -147,8 +147,8 @@ UPDATE stk_inventory SET einv_gtip_id = (SELECT id FROM einv_gtip WHERE code = '
 INSERT INTO einv_diib (document_no, holder_type, acc_account_id, issue_date, valid_until, description)
 SELECT 'UI-DIIB-1', 2, min(id), current_date, current_date + 365, 'UI SEED' FROM acc_account;
 INSERT INTO einv_diib (document_no, holder_type, description) VALUES ('UI-DIIB-OWN', 1, 'UI SEED');
-INSERT INTO einv_diib_line (einv_diib_id, line_code, line_kind, einv_gtip_id, product_description, stk_inventory_id, quantity)
-SELECT d.id, 'UI-1', 1, g.id, 'UI SEED DIIB URUN', (SELECT min(id) FROM stk_inventory), 100
+INSERT INTO einv_diib_line (einv_diib_id, line_no, line_code, line_kind, einv_gtip_id, product_description, stk_inventory_id, quantity)
+SELECT d.id, 1, 'UI-1', 1, g.id, 'UI SEED DIIB URUN', (SELECT min(id) FROM stk_inventory), 100
   FROM einv_diib d CROSS JOIN einv_gtip g WHERE g.code = '020622000000';
 UPDATE sls_invoice SET einv_profile_id = (SELECT id FROM einv_profile WHERE code = 'EARSIVFATURA'),
        einv_invoice_type_id = (SELECT id FROM einv_invoice_type WHERE code = 'SATIS'), einv_status = 1, einv_uuid = gen_random_uuid(),

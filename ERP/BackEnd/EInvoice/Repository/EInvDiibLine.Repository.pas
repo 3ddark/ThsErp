@@ -37,6 +37,9 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    // DİİB belgelerinin satırları tek sorguda (başlık + satır no sırasıyla): belge yükleme
+    function FindByDiibIds(const AIds: TArray<Int64>): TObjectList<TEInvDiibLine>;
+    function NextLineNo(AParentId: Int64): SmallInt;
     function LineCodeExists(ADiibId: Int64; const ALineCode: string; AExcludeId: Int64): Boolean;
     function UsageCount(AId: Int64): Integer;
     procedure FillFromInventory(AModel: TEInvDiibLine);
@@ -47,6 +50,58 @@ implementation
 constructor TEInvDiibLineRepository.Create(AConnection: TFDConnection);
 begin
   inherited Create(AConnection);
+end;
+
+function TEInvDiibLineRepository.FindByDiibIds(const AIds: TArray<Int64>): TObjectList<TEInvDiibLine>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TEInvDiibLine>.Create(True);
+  LIds := '';
+  for LId in AIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TEInvDiibLine) + ' v ' +
+                  ' WHERE v.einv_diib_id IN (' + LIds + ') ORDER BY v.einv_diib_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByDiibIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TEInvDiibLineRepository.NextLineNo(AParentId: Int64): SmallInt;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT COALESCE(MAX(line_no), 0) + 1 AS v FROM public.einv_diib_line WHERE einv_diib_id = :id';
+    Q.ParamByName('id').AsLargeInt := AParentId;
+    LogQuery(Q, 'NextLineNo');
+    Q.Open;
+    Result := Q.FieldByName('v').AsInteger;
+  finally
+    Q.Free;
+  end;
 end;
 
 function TEInvDiibLineRepository.LineCodeExists(ADiibId: Int64; const ALineCode: string; AExcludeId: Int64): Boolean;
@@ -119,14 +174,14 @@ end;
 function TEInvDiibLineRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TEInvDiibLine) +
-            ' (einv_diib_id, line_code, line_kind, einv_gtip_id, product_description, stk_inventory_id, quantity, sys_uom_id, is_active) ' +
-            ' VALUES (:einv_diib_id, :line_code, :line_kind, :einv_gtip_id, :product_description, :stk_inventory_id, :quantity, :sys_uom_id, :is_active)';
+            ' (einv_diib_id, line_no, line_code, line_kind, einv_gtip_id, product_description, stk_inventory_id, quantity, sys_uom_id, is_active) ' +
+            ' VALUES (:einv_diib_id, :line_no, :line_code, :line_kind, :einv_gtip_id, :product_description, :stk_inventory_id, :quantity, :sys_uom_id, :is_active)';
 end;
 
 function TEInvDiibLineRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TEInvDiibLine) +
-            ' SET einv_diib_id = :einv_diib_id, line_code = :line_code, line_kind = :line_kind, einv_gtip_id = :einv_gtip_id, product_description = :product_description, stk_inventory_id = :stk_inventory_id, quantity = :quantity, sys_uom_id = :sys_uom_id, is_active = :is_active ' +
+            ' SET einv_diib_id = :einv_diib_id, line_no = :line_no, line_code = :line_code, line_kind = :line_kind, einv_gtip_id = :einv_gtip_id, product_description = :product_description, stk_inventory_id = :stk_inventory_id, quantity = :quantity, sys_uom_id = :sys_uom_id, is_active = :is_active ' +
             ' WHERE id = :id';
 end;
 
@@ -156,6 +211,10 @@ begin
     Q.ParamByName('is_active').AsBooleans[AIndex] := AModel.IsActive;
   end;
 
+  if AIndex < 0 then
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo
+  else
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
   SetNullableParam(Q.ParamByName('einv_diib_id'), ftLargeint, AModel.EinvDiibId, AIndex);
   SetNullableParam(Q.ParamByName('einv_gtip_id'), ftLargeint, AModel.EinvGtipId, AIndex);
   SetNullableParam(Q.ParamByName('stk_inventory_id'), ftLargeint, AModel.StkInventoryId, AIndex);
@@ -184,6 +243,10 @@ begin
     Q.ParamByName('is_active').AsBooleans[AIndex] := AModel.IsActive;
   end;
 
+  if AIndex < 0 then
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo
+  else
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
   SetNullableParam(Q.ParamByName('einv_diib_id'), ftLargeint, AModel.EinvDiibId, AIndex);
   SetNullableParam(Q.ParamByName('einv_gtip_id'), ftLargeint, AModel.EinvGtipId, AIndex);
   SetNullableParam(Q.ParamByName('stk_inventory_id'), ftLargeint, AModel.StkInventoryId, AIndex);
@@ -195,6 +258,7 @@ begin
   Result := TEInvDiibLine.Create;
   Result.Id := Q.FieldByName('id').AsLargeInt;
   Result.EinvDiibId := Q.FieldByName('einv_diib_id').AsLargeInt;
+  Result.LineNo := Q.FieldByName('line_no').AsInteger;
   Result.LineCode := Q.FieldByName('line_code').AsString;
   Result.LineKind := Q.FieldByName('line_kind').AsInteger;
   Result.EinvGtipId := Q.FieldByName('einv_gtip_id').AsLargeInt;

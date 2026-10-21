@@ -38,6 +38,7 @@ uses
   SysDashboard, SysDashboard.Service,
   EInvLookup, EInvGtip, EInvGtip.Service, EInvWithholding, EInvWithholding.Service,
   EInvDiib, EInvDiib.Service, EInvDiibLine, EInvDiibLine.Service,
+  PrdBom, PrdBom.Service, PrdBomRaw, PrdBomLabour, PrdBomByProduct, PrdPacketRaw, PrdPacketRaw.Service, PrdPacketRawDetail,
   EInvVehicle, EInvVehicle.Service, EInvDriver, EInvDriver.Service,
   ApiService.Config, SysApiService, SysApiService.Service, SysApiService.ConfigSource,
   EInvDocumentSetting, EInvDocumentSetting.Service, EInvIntegrator, EInvIntegrator.ELogo;
@@ -4319,6 +4320,150 @@ end;
 
 { ---------------------------------------------------------------- e-Belge (UBL-TR) }
 
+// Üretim + DİİB belgeleri: reçete (beş liste tek kayıt: hammadde ana liste, işçilik / yan ürün ek listeler; satır no
+// takası, ek listeden çıkarma, ürün kendi hammaddesi olamaz, aynı işçilik iki kez reddi, kopya), hammadde paketi,
+// DİİB belgesi (satır kodu tekil). Commit yok: transaction geri alınır; reddedilen kayıt transaction'ı geri aldığı için
+// her red yeni transaction'da kurulur.
+procedure TestProductionDocuments;
+var
+  BSvc: TPrdBomService;
+  PSvc: TPrdPacketRawService;
+  DSvc: TEInvDiibService;
+  Bom, Copy: TPrdBom;
+  Pk: TPrdPacketRaw;
+  Dib: TEInvDiib;
+  R: TPrdBomRaw;
+  Lb: TPrdBomLabour;
+  Bp: TPrdBomByProduct;
+  PL: TPrdPacketRawDetail;
+  DL: TEInvDiibLine;
+  Product, Inv1, Inv2, Labour, Gtip, BomId: Int64;
+  LNo1, LNo2: SmallInt;
+
+  function Q(const ASql: string): Double;
+  begin
+    Result := Num(Scalar(ASql));
+  end;
+
+  function NewBom: TPrdBom;
+  begin
+    Result := TPrdBom.Create;
+    Result.StkInventoryId := Product;
+    Result.BomName := 'IT BOM DOC';
+    Result.BaseQuantity := 1;
+    Result.IsActive := True;
+    R := BSvc.NewLine(Result); R.StkInventoryId := Inv1; R.Quantity := 2;
+    R := BSvc.NewLine(Result); R.StkInventoryId := Inv2; R.Quantity := 3; R.ScrapRate := 10;
+    Lb := BSvc.CreateItem<TPrdBomLabour>(Result, Result.Labours); Lb.PrdLabourId := Labour; Lb.Quantity := 1.5;
+    BSvc.AddItem<TPrdBomLabour>(Result, Result.Labours, Lb);
+    Bp := BSvc.CreateItem<TPrdBomByProduct>(Result, Result.ByProducts); Bp.StkInventoryId := Inv1; Bp.Quantity := 0.5;
+    BSvc.AddItem<TPrdBomByProduct>(Result, Result.ByProducts, Bp);
+  end;
+
+begin
+  Ctx('Production', 'documents');
+  Product := Scalar('SELECT max(id) FROM stk_inventory');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Inv2 := Scalar('SELECT min(id) FROM stk_inventory WHERE id > ' + Inv1.ToString);
+  Labour := Scalar('SELECT min(id) FROM prd_labour');
+  Gtip := Scalar('SELECT min(id) FROM einv_gtip');
+  BSvc := TPrdBomService.Create;
+  PSvc := TPrdPacketRawService.Create;
+  DSvc := TEInvDiibService.Create;
+  Bom := nil;
+  Copy := nil;
+  Pk := nil;
+  Dib := nil;
+  try
+    try
+      // ---- reçete: beş liste tek kayıtta
+      Begin_;
+      Bom := NewBom;
+      BSvc.BusinessSaveWithDetails(Bom, False, True);
+      BomId := Bom.Id;
+      Check('bom: saved with lists', (BomId > 0) and (Bom.Raws.Count = 2) and (Bom.Labours.Count = 1) and (Bom.ByProducts.Count = 1) and
+        (Bom.Raws[0].Id > 0) and (Bom.Labours[0].Id > 0) and (Bom.Labours[0].LineNo = 1) and (Bom.Raws[1].Header = Bom));
+      Check('bom: rows in DB', (Q('SELECT count(*) FROM prd_bom_raw WHERE prd_bom_id = ' + BomId.ToString) = 2) and
+        (Q('SELECT count(*) FROM prd_bom_labour WHERE prd_bom_id = ' + BomId.ToString) = 1) and
+        (Q('SELECT count(*) FROM prd_bom_by_product WHERE prd_bom_id = ' + BomId.ToString) = 1));
+      FreeAndNil(Bom);
+      Bom := BSvc.BusinessFindById(BomId, False, False, True);
+      Check('bom: reload all lists', (Bom.Raws.Count = 2) and (Bom.Labours.Count = 1) and (Bom.ByProducts.Count = 1) and
+        (Bom.PacketRaws.Count = 0) and (Bom.Labours[0].Header = Bom));
+      LNo1 := Bom.Raws[0].LineNo;
+      LNo2 := Bom.Raws[1].LineNo;
+      Bom.Raws[0].LineNo := LNo2;
+      Bom.Raws[1].LineNo := LNo1;
+      BSvc.RemoveItem<TPrdBomByProduct>(Bom.ByProducts, Bom.ByProducts[0]);
+      BSvc.BusinessSaveWithDetails(Bom, False, True);
+      UoW.Connection.ExecSQL('SET CONSTRAINTS prd_bom_raw_line_key IMMEDIATE');
+      Check('bom: raw line swap + by-product removed', (Bom.Raws.Count = 2) and (Bom.ByProducts.Count = 0) and
+        (Q('SELECT count(*) FROM prd_bom_by_product WHERE prd_bom_id = ' + BomId.ToString) = 0));
+      UoW.Connection.ExecSQL('SET CONSTRAINTS prd_bom_raw_line_key DEFERRED');
+      Lb := BSvc.CreateItem<TPrdBomLabour>(Bom, Bom.Labours); Lb.PrdLabourId := Labour; Lb.Quantity := 1;
+      BSvc.AddItem<TPrdBomLabour>(Bom, Bom.Labours, Lb);
+      Expect('bom: same labour twice rejected', procedure begin BSvc.BusinessSaveWithDetails(Bom, False, True); end);
+      FreeAndNil(Bom);
+
+      // ---- ürün kendi hammaddesi olamaz; kopya yeni reçete (ad yeniden)
+      Begin_;
+      Bom := NewBom;
+      BSvc.BusinessSaveWithDetails(Bom, False, True);
+      Copy := Bom.Clone;
+      BSvc.PrepareCopy(Copy);
+      Copy.BomName := 'IT BOM DOC COPY';
+      Check('bom copy: new lines in all lists', (Copy.Id = 0) and (Copy.Raws[0].Id < 0) and (Copy.Labours[0].Id < 0) and
+        (Copy.ByProducts[0].Id < 0) and (Copy.Labours[0].PrdBomId = 0));
+      BSvc.BusinessSaveWithDetails(Copy, False, True);
+      Check('bom copy saved', (Copy.Id > 0) and (Copy.Id <> Bom.Id) and (Q('SELECT count(*) FROM prd_bom_labour WHERE prd_bom_id = ' + Copy.Id.ToString) = 1));
+      R := BSvc.NewLine(Bom); R.StkInventoryId := Product; R.Quantity := 1;
+      Expect('bom: product as own raw material rejected', procedure begin BSvc.BusinessSaveWithDetails(Bom, False, True); end);
+      FreeAndNil(Bom);
+      FreeAndNil(Copy);
+
+      // ---- hammadde paketi
+      Begin_;
+      Pk := TPrdPacketRaw.Create;
+      Pk.PacketName := 'IT PACKET DOC';
+      PL := PSvc.NewLine(Pk); PL.StkInventoryId := Inv1; PL.Quantity := 4;
+      PL := PSvc.NewLine(Pk); PL.StkInventoryId := Inv2; PL.Quantity := 1;
+      PSvc.BusinessSaveWithDetails(Pk, False, True);
+      Check('packet: saved with lines', (Pk.Id > 0) and (Pk.Lines.Count = 2) and (Pk.Lines[1].LineNo = 2) and
+        (Q('SELECT count(*) FROM prd_packet_raw_detail WHERE prd_packet_raw_id = ' + Pk.Id.ToString) = 2));
+      PSvc.RemoveLine(Pk, Pk.Lines[0]);
+      PSvc.BusinessSaveWithDetails(Pk, False, True);
+      Check('packet: line removed', (Pk.Lines.Count = 1) and (Q('SELECT count(*) FROM prd_packet_raw_detail WHERE prd_packet_raw_id = ' + Pk.Id.ToString) = 1));
+      FreeAndNil(Pk);
+
+      // ---- DİİB belgesi: satırlar, satır kodu tekil
+      Begin_;
+      Dib := TEInvDiib.Create;
+      Dib.DocumentNo := 'IT-DIIB-DOC';
+      Dib.HolderType := EINV_DIIB_OWN;
+      Dib.IsActive := True;
+      DL := DSvc.NewLine(Dib); DL.LineCode := '1'; DL.LineKind := 1; DL.EinvGtipId := Gtip; DL.ProductDescription := 'IT PRODUCT'; DL.Quantity := 10;
+      DL := DSvc.NewLine(Dib); DL.LineCode := '2'; DL.LineKind := 1; DL.EinvGtipId := Gtip; DL.ProductDescription := 'IT PRODUCT 2'; DL.Quantity := 5;
+      DSvc.BusinessSaveWithDetails(Dib, False, True);
+      Check('diib: saved with lines', (Dib.Id > 0) and (Dib.Lines.Count = 2) and (Dib.Lines[0].Id > 0) and
+        (Q('SELECT count(*) FROM einv_diib_line WHERE einv_diib_id = ' + Dib.Id.ToString) = 2));
+      Dib.Lines[1].LineCode := '1';
+      Expect('diib: duplicate line code rejected', procedure begin DSvc.BusinessSaveWithDetails(Dib, False, True); end);
+    except
+      on E: Exception do
+        Check('production document flow', False, E.Message);
+    end;
+  finally
+    End_;
+    Dib.Free;
+    Pk.Free;
+    Copy.Free;
+    Bom.Free;
+    DSvc.Free;
+    PSvc.Free;
+    BSvc.Free;
+  end;
+end;
+
 procedure TestEInvoice;
 var
   GtipSvc: TEInvGtipService;
@@ -5994,6 +6139,7 @@ begin
   TestSalesOfferCurrencyChange;
   TestSalesOrderDocument;
   TestSalesDispatchInvoiceDocument;
+  TestProductionDocuments;
   TestEInvoice;
   TestEDespatch;
   TestApiServices;

@@ -340,12 +340,6 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 93
       OnExecute = actsls_diibsExecute
     end
-    object actsls_diib_lines: TAction
-      Category = 'Satis'
-      Caption = 'D'#304#304'B Sat'#305'rlar'#305
-      ImageIndex = 93
-      OnExecute = actsls_diib_linesExecute
-    end
     object actsls_einv_profiles: TAction
       Category = 'Satis'
       Caption = 'e-Belge Senaryolar'#305
@@ -845,9 +839,6 @@ inherited frmDashboard: TfrmDashboard
       end
       object mnisls_diibs: TMenuItem
         Action = actsls_diibs
-      end
-      object mnisls_diib_lines: TMenuItem
-        Action = actsls_diib_lines
       end
       object mnisls_einv_settings: TMenuItem
         Caption = 'e-Belge Ayarlar'#305

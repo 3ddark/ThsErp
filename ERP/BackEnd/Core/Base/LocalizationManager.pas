@@ -77,6 +77,7 @@ type
         const TabLines = 'detail_form.tab_lines';
         const HeaderHide = 'detail_form.header_hide';
         const HeaderShow = 'detail_form.header_show';
+        const LineNoUnique = 'detail_form.line_no_unique';
       end;
 
       // Belge adresi düzenleyici (Detail.Address)
@@ -1384,6 +1385,7 @@ type
         const InventoryUnique = 'prd_bom_raw.inventory_unique';
         const SubBomSelf = 'prd_bom_raw.sub_bom_self';
         const RawIsProduct = 'prd_bom_raw.raw_is_product';
+        const ColLineNo = 'prd_bom_raw.col_line_no';
       end;
 
       TPrdBomByProduct = record
@@ -1396,6 +1398,7 @@ type
         const ColInventoryCode = 'prd_bom_by_product.col_inventory_code';
         const ColInventoryName = 'prd_bom_by_product.col_inventory_name';
         const InventoryUnique = 'prd_bom_by_product.inventory_unique';
+        const ColLineNo = 'prd_bom_by_product.col_line_no';
       end;
 
       TPrdBomLabour = record
@@ -1411,6 +1414,7 @@ type
         const ColCurrency = 'prd_bom_labour.col_currency';
         const ColTotalAmount = 'prd_bom_labour.col_total_amount';
         const LabourUnique = 'prd_bom_labour.labour_unique';
+        const ColLineNo = 'prd_bom_labour.col_line_no';
       end;
 
       TPrdPacketRaw = record
@@ -1434,6 +1438,7 @@ type
         const ColInventoryName = 'prd_packet_raw_detail.col_inventory_name';
         const ColSubBomName = 'prd_packet_raw_detail.col_sub_bom_name';
         const InventoryUnique = 'prd_packet_raw_detail.inventory_unique';
+        const ColLineNo = 'prd_packet_raw_detail.col_line_no';
       end;
 
       TPrdPacketLabour = record
@@ -1458,6 +1463,7 @@ type
         const ColCurrency = 'prd_packet_labour_detail.col_currency';
         const ColTotalAmount = 'prd_packet_labour_detail.col_total_amount';
         const LabourUnique = 'prd_packet_labour_detail.labour_unique';
+        const ColLineNo = 'prd_packet_labour_detail.col_line_no';
       end;
 
       TPrdBomPacketRaw = record
@@ -1469,6 +1475,7 @@ type
         const ColBomName = 'prd_bom_packet_raw.col_bom_name';
         const ColPacketName = 'prd_bom_packet_raw.col_packet_name';
         const PacketUnique = 'prd_bom_packet_raw.packet_unique';
+        const ColLineNo = 'prd_bom_packet_raw.col_line_no';
       end;
 
       TPrdBomPacketLabour = record
@@ -1480,6 +1487,7 @@ type
         const ColBomName = 'prd_bom_packet_labour.col_bom_name';
         const ColPacketName = 'prd_bom_packet_labour.col_packet_name';
         const PacketUnique = 'prd_bom_packet_labour.packet_unique';
+        const ColLineNo = 'prd_bom_packet_labour.col_line_no';
       end;
 
       //Finance Module
@@ -2676,6 +2684,7 @@ type
         const LineCodeUnique = 'einv_diib_line.line_code_unique';
         const QuantityNegative = 'einv_diib_line.quantity_negative';
         const InUse = 'einv_diib_line.in_use';
+        const ColLineNo = 'einv_diib_line.col_line_no';
       end;
 
       //e-Document Series

@@ -1070,8 +1070,8 @@
         <DCCReference Include="BackEnd\EInvoice\Exception\EInvDiib.Exception.pas"/>
         <DCCReference Include="BackEnd\EInvoice\Repository\EInvDiib.Repository.pas"/>
         <DCCReference Include="BackEnd\EInvoice\Service\EInvDiib.Service.pas"/>
-        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvDiib.pas">
-            <Form>frmEInvDiib</Form>
+        <DCCReference Include="Forms\EInvoice\Input\ufrmEInvDiibDetail.pas">
+            <Form>frmEInvDiibDetail</Form>
         </DCCReference>
         <DCCReference Include="Forms\EInvoice\Output\ufrmEInvDiibs.pas">
             <Form>frmEInvDiibs</Form>
@@ -1228,8 +1228,8 @@
         <DCCReference Include="BackEnd\Production\Exception\PrdBom.Exception.pas"/>
         <DCCReference Include="BackEnd\Production\Repository\PrdBom.Repository.pas"/>
         <DCCReference Include="BackEnd\Production\Service\PrdBom.Service.pas"/>
-        <DCCReference Include="Forms\Production\Input\ufrmPrdBom.pas">
-            <Form>frmPrdBom</Form>
+        <DCCReference Include="Forms\Production\Input\ufrmPrdBomDetail.pas">
+            <Form>frmPrdBomDetail</Form>
         </DCCReference>
         <DCCReference Include="Forms\Production\Output\ufrmPrdBoms.pas">
             <Form>frmPrdBoms</Form>
@@ -1241,18 +1241,12 @@
         <DCCReference Include="Forms\Production\Input\ufrmPrdBomRaw.pas">
             <Form>frmPrdBomRaw</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Production\Output\ufrmPrdBomRaws.pas">
-            <Form>frmPrdBomRaws</Form>
-        </DCCReference>
         <DCCReference Include="BackEnd\Production\Domain\PrdBomByProduct.pas"/>
         <DCCReference Include="BackEnd\Production\Exception\PrdBomByProduct.Exception.pas"/>
         <DCCReference Include="BackEnd\Production\Repository\PrdBomByProduct.Repository.pas"/>
         <DCCReference Include="BackEnd\Production\Service\PrdBomByProduct.Service.pas"/>
         <DCCReference Include="Forms\Production\Input\ufrmPrdBomByProduct.pas">
             <Form>frmPrdBomByProduct</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\Production\Output\ufrmPrdBomByProducts.pas">
-            <Form>frmPrdBomByProducts</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Production\Domain\PrdBomLabour.pas"/>
         <DCCReference Include="BackEnd\Production\Exception\PrdBomLabour.Exception.pas"/>
@@ -1261,15 +1255,12 @@
         <DCCReference Include="Forms\Production\Input\ufrmPrdBomLabour.pas">
             <Form>frmPrdBomLabour</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Production\Output\ufrmPrdBomLabours.pas">
-            <Form>frmPrdBomLabours</Form>
-        </DCCReference>
         <DCCReference Include="BackEnd\Production\Domain\PrdPacketRaw.pas"/>
         <DCCReference Include="BackEnd\Production\Exception\PrdPacketRaw.Exception.pas"/>
         <DCCReference Include="BackEnd\Production\Repository\PrdPacketRaw.Repository.pas"/>
         <DCCReference Include="BackEnd\Production\Service\PrdPacketRaw.Service.pas"/>
-        <DCCReference Include="Forms\Production\Input\ufrmPrdPacketRaw.pas">
-            <Form>frmPrdPacketRaw</Form>
+        <DCCReference Include="Forms\Production\Input\ufrmPrdPacketRawDetail.pas">
+            <Form>frmPrdPacketRawDetail</Form>
         </DCCReference>
         <DCCReference Include="Forms\Production\Output\ufrmPrdPacketRaws.pas">
             <Form>frmPrdPacketRaws</Form>
@@ -1278,18 +1269,15 @@
         <DCCReference Include="BackEnd\Production\Exception\PrdPacketRawDetail.Exception.pas"/>
         <DCCReference Include="BackEnd\Production\Repository\PrdPacketRawDetail.Repository.pas"/>
         <DCCReference Include="BackEnd\Production\Service\PrdPacketRawDetail.Service.pas"/>
-        <DCCReference Include="Forms\Production\Input\ufrmPrdPacketRawDetail.pas">
-            <Form>frmPrdPacketRawDetail</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\Production\Output\ufrmPrdPacketRawDetails.pas">
-            <Form>frmPrdPacketRawDetails</Form>
+        <DCCReference Include="Forms\Production\Input\ufrmPrdPacketRawLine.pas">
+            <Form>frmPrdPacketRawLine</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Production\Domain\PrdPacketLabour.pas"/>
         <DCCReference Include="BackEnd\Production\Exception\PrdPacketLabour.Exception.pas"/>
         <DCCReference Include="BackEnd\Production\Repository\PrdPacketLabour.Repository.pas"/>
         <DCCReference Include="BackEnd\Production\Service\PrdPacketLabour.Service.pas"/>
-        <DCCReference Include="Forms\Production\Input\ufrmPrdPacketLabour.pas">
-            <Form>frmPrdPacketLabour</Form>
+        <DCCReference Include="Forms\Production\Input\ufrmPrdPacketLabourDetail.pas">
+            <Form>frmPrdPacketLabourDetail</Form>
         </DCCReference>
         <DCCReference Include="Forms\Production\Output\ufrmPrdPacketLabours.pas">
             <Form>frmPrdPacketLabours</Form>
@@ -1298,11 +1286,8 @@
         <DCCReference Include="BackEnd\Production\Exception\PrdPacketLabourDetail.Exception.pas"/>
         <DCCReference Include="BackEnd\Production\Repository\PrdPacketLabourDetail.Repository.pas"/>
         <DCCReference Include="BackEnd\Production\Service\PrdPacketLabourDetail.Service.pas"/>
-        <DCCReference Include="Forms\Production\Input\ufrmPrdPacketLabourDetail.pas">
-            <Form>frmPrdPacketLabourDetail</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\Production\Output\ufrmPrdPacketLabourDetails.pas">
-            <Form>frmPrdPacketLabourDetails</Form>
+        <DCCReference Include="Forms\Production\Input\ufrmPrdPacketLabourLine.pas">
+            <Form>frmPrdPacketLabourLine</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Production\Domain\PrdBomPacketRaw.pas"/>
         <DCCReference Include="BackEnd\Production\Exception\PrdBomPacketRaw.Exception.pas"/>
@@ -1311,18 +1296,12 @@
         <DCCReference Include="Forms\Production\Input\ufrmPrdBomPacketRaw.pas">
             <Form>frmPrdBomPacketRaw</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Production\Output\ufrmPrdBomPacketRaws.pas">
-            <Form>frmPrdBomPacketRaws</Form>
-        </DCCReference>
         <DCCReference Include="BackEnd\Production\Domain\PrdBomPacketLabour.pas"/>
         <DCCReference Include="BackEnd\Production\Exception\PrdBomPacketLabour.Exception.pas"/>
         <DCCReference Include="BackEnd\Production\Repository\PrdBomPacketLabour.Repository.pas"/>
         <DCCReference Include="BackEnd\Production\Service\PrdBomPacketLabour.Service.pas"/>
         <DCCReference Include="Forms\Production\Input\ufrmPrdBomPacketLabour.pas">
             <Form>frmPrdBomPacketLabour</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\Production\Output\ufrmPrdBomPacketLabours.pas">
-            <Form>frmPrdBomPacketLabours</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Stock\Domain\StkProductType.pas"/>
         <DCCReference Include="BackEnd\Stock\Exception\StkProductType.Exception.pas"/>
